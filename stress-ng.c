@@ -557,7 +557,7 @@ int main(int argc, char **argv)
 			break;
 		case OPT_VM_OPS:
 			opt_vm_ops = get_int64(optarg);
-			check_range("vm-ops", opt_vm_ops, 1000, 100000000);
+			check_range("vm-ops", opt_vm_ops, 100, 100000000);
 			break;
 		case OPT_HDD_OPS:
 			opt_hdd_ops = get_int64(optarg);
