@@ -1,0 +1,116 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH STRESS-NG 1 "June 13, 2012"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+stress\-ng \- a tool to load and stress a computer system
+.br
+
+.SH SYNOPSIS
+.B stress\-ng
+[\fIOPTION \fR[\fIARG\fR]] ...
+.br
+
+.SH DESCRIPTION
+stress\-ng will stress test a computer system in various ways
+
+.SH OPTIONS
+.TP
+.B \-?, \-\-help
+show help
+.TP
+.B \-V, \-\-version
+show version
+.TP
+.B \-v, \-\-verbose
+show all debug, warnings and normal information output
+.TP
+.B \-q, \-\-quiet
+don't show any output
+.TP
+.B \-n, \-\-dry-run
+parse options, but don't run stress tests
+.TP
+.B \-t, \-\-timeout N
+stop stress test after N seconds. One can also specify the units of time in
+seconds, minutes, hours, days or years with the suffix s, m, h, d or y
+.TP
+.B \-b, \-\-backoff N
+wait N microseconds between the start of each stress process
+.TP
+.B \-c, \-\-cpu N
+start N processes computing sqrt((double)rand())
+.TP
+.B \-i, \-\-io N
+start N processes continuously calling sync()
+.TP
+.B \-m, \-\-vm N
+start N processes continuously calling mmap()/munmap() and writing to the allocated memory
+.TP
+.B \-\-vm\-bytes N
+mmap N bytes per vm process, the default is 256MB. One can specify the size in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g
+.TP
+.B \-\-vm\-stride N
+write to every Nth byte, the default is every page (4096 bytes). One can specify the size in
+units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g
+.TP
+.B \-\-vm\-hang N
+sleep N seconds before unmapping memory, the default is zero seconds. Specifying 0 will
+do an infinite wait
+.TP
+.B \-\-vm\-keep
+don't continually unmap and map memory, just keep on re-writing to it
+.TP
+.B \-d, \-\-hdd
+start N processes continually writing and removing temporary files
+.TP
+.B \-\-hdd\-bytes N
+write N bytes for each hdd process, the default is 1 GB
+.TP
+.B \-\-hdd\-noclean
+do not remove files created by hdd processes
+.TP
+.B \-\-metrics
+output number of bogo operations in total performed by cpu, io, vm and hdd processes
+.TP
+.B \-\-cpu\-ops N
+stop cpu stress processes after N bogo operations
+.TP
+.B \-\-io\-ops N
+stop io stress processes after N bogo operations
+.TP
+.B \-\-vm\-ops N
+stop vm stress processes after N bogo operations
+.TP
+.B \-\-hdd\-ops N
+stop hdd stress processes after N bogo operations
+.LP
+Examples:
+.LP
+stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 256M \-\-timeout 60s
+.LP
+stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
+.LP
+stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
+.SH SEE ALSO
+.BR stress (1) 
+.SH AUTHOR
+stress\-ng was written by Colin King <colin.king@canonical.com> based on a clean
+room implementation from the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>
+.PP
+This manual page was written by Colin King <colin.king@canonical.com>,
+for the Ubuntu project (but may be used by others).
