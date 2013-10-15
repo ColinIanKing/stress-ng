@@ -345,7 +345,7 @@ static void stress_io(uint64_t *counter)
 			pr_err(stderr, "stress_io: mkstemp failed\n");
 			exit(EXIT_FAILURE);
 		}
-		if (opt_flags & OPT_FLAGS_NO_CLEAN)
+		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 			(void)unlink(filename);
 
 		for (i = 0; i < opt_hdd_bytes; i += STRESS_HDD_BUF_SIZE) {
@@ -358,6 +358,8 @@ static void stress_io(uint64_t *counter)
 				break;
 		}
 		close(fd);
+		if ((!opt_flags & OPT_FLAGS_NO_CLEAN))
+			(void)unlink(filename);
 	} while (!opt_hdd_ops || *counter < opt_hdd_ops);
 
 	free(buf);
@@ -424,7 +426,7 @@ static struct option long_options[] = {
 	{ "vm-keep",	1,	0,	OPT_VM_KEEP },
 	{ "hdd",	1,	0,	'd' },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
-	{ "hdd-noclean",1,	0,	OPT_HDD_NOCLEAN },
+	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
