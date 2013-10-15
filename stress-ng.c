@@ -43,7 +43,7 @@
 
 #define APP_NAME		"stress-ng"
 
-#define STRESS_HDD_BUF_SIZE	(32 * 1024)
+#define STRESS_HDD_BUF_SIZE	(64 * 1024)
 
 #define OPT_FLAGS_NO_CLEAN	0x00000001
 #define OPT_FLAGS_DRY_RUN	0x00000002
@@ -250,7 +250,7 @@ static void stress_iosync(uint64_t *counter)
 	do {
 		sync();
 		(*counter)++;
-	} while (!opt_iosync_ops || (*counter) < opt_iosync_ops);
+	} while (!opt_iosync_ops || *counter < opt_iosync_ops);
 }
 
 static void stress_cpu(uint64_t *counter)
@@ -265,7 +265,7 @@ static void stress_cpu(uint64_t *counter)
 		for (i = 0; i < 16384; i++)
 			sqrt((double)rand());
 		(*counter)++;
-	} while (!opt_cpu_ops || (*counter) < opt_cpu_ops);
+	} while (!opt_cpu_ops || *counter < opt_cpu_ops);
 }
 
 static void stress_vm(uint64_t *counter)
@@ -313,7 +313,7 @@ static void stress_vm(uint64_t *counter)
 			munmap(buf, opt_vm_bytes);
 
 		(*counter)++;
-	} while (!opt_vm_ops || (*counter) < opt_vm_ops);
+	} while (!opt_vm_ops || *counter < opt_vm_ops);
 
 	exit(0);
 }
@@ -354,9 +354,11 @@ static void stress_io(uint64_t *counter)
 				exit(EXIT_FAILURE);
 			}
 			(*counter)++;
+			if (opt_hdd_ops && *counter >= opt_hdd_ops)
+				break;
 		}
 		close(fd);
-	} while (!opt_iosync_ops || (*counter) < opt_iosync_ops);
+	} while (!opt_hdd_ops || *counter < opt_hdd_ops);
 
 	free(buf);
 	exit(0);
