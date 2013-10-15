@@ -65,12 +65,22 @@
 
 #define MIN_VM_BYTES		(4 * KB)
 #define MAX_VM_BYTES		(1 * GB)
+#define DEFAULT_VM_BYTES	(256 * MB)
+
 #define MIN_VM_STRIDE		(1)
 #define MAX_VM_STRIDE		(1 * MB)
+#define DEFAULT_VM_STRIDE	(4 * KB)
+
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(256 * GB)
+#define DEFAULT_HDD_BYTES	(1 * GB)
+
 #define MIN_VM_HANG		(0)
 #define MAX_VM_HANG		(3600)
+#define DEFAULT_VM_HANG		(-1)
+
+#define DEFAULT_TIMEOUT		(60 * 60 * 24)
+#define DEFAULT_BACKOFF		(0)
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
@@ -110,12 +120,12 @@ typedef struct {
 } scale_t;
 
 static int32_t	opt_flags = PR_ERR | PR_INF;
-static size_t	opt_vm_bytes = 256 * MB;
-static size_t	opt_vm_stride = 4 * KB;
-static int64_t	opt_vm_hang = -1;
-static int64_t	opt_hdd_bytes = GB;
-static int64_t	opt_timeout = 60 * 60 * 24;
-static int64_t	opt_backoff = 0;
+static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;
+static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;
+static int64_t	opt_vm_hang = DEFAULT_VM_HANG;
+static int64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;
+static int64_t	opt_timeout = DEFAULT_TIMEOUT;
+static int64_t	opt_backoff = DEFAULT_BACKOFF;
 static int64_t	opt_cpu_ops = 0;
 static int64_t	opt_iosync_ops = 0;
 static int64_t	opt_vm_ops = 0;
