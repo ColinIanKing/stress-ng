@@ -122,10 +122,10 @@ static int64_t	opt_vm_ops = 0;
 static int64_t	opt_hdd_ops = 0;
 
 static const char *stressors[] = {
-	"Sync",
-	"CPU",
-	"VM",
-	"I/O",
+	"I/O-Sync",
+	"CPU-compute",
+	"VM-mmap",
+	"HDD-Write",
 };
 
 static inline void set_proc_name(char *name)
