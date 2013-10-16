@@ -341,6 +341,7 @@ static void stress_io(uint64_t *counter)
 
 		snprintf(filename, sizeof(filename), "./stress-ng-%i.XXXXXXX", pid);
 
+		(void)umask(0077);
 		if ((fd = mkstemp(filename)) < 0) {
 			pr_err(stderr, "stress_io: mkstemp failed\n");
 			exit(EXIT_FAILURE);
