@@ -1,3 +1,10 @@
+stress-ng (0.01.02) saucy; urgency=low
+
+  * Makefile: bump version
+  * Set umask before using mkstemp
+
+ -- Colin King <colin.king@canonical.com>  Wed, 15 Oct 2013 15:28:33 +0100
+
 stress-ng (0.01.01) saucy; urgency=low
 
   * Makefile: bump version
