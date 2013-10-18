@@ -285,10 +285,9 @@ static void stress_vm(uint64_t *counter)
 		if (!keep || (keep && buf == NULL)) {
 			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-			if (buf == MAP_FAILED) {
-				pr_err(stderr, "stress_vm: mmmap failed\n");
-				exit(EXIT_FAILURE);
-			}
+
+			if (buf == MAP_FAILED)
+				continue;	/* Try again */
 		}
 
 		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride)
