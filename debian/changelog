@@ -1,3 +1,10 @@
+stress-ng (0.01.03) saucy; urgency=low
+
+  * Makefile: bump version
+  * Make mmap failure non fatal
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Oct 2013 19:38:31 +0100
+
 stress-ng (0.01.02) saucy; urgency=low
 
   * Makefile: bump version
