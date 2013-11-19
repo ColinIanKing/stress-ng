@@ -122,14 +122,14 @@ typedef struct {
 static int32_t	opt_flags = PR_ERR | PR_INF;
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;
-static int64_t	opt_vm_hang = DEFAULT_VM_HANG;
-static int64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;
-static int64_t	opt_timeout = DEFAULT_TIMEOUT;
+static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;
+static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;
+static uint64_t	opt_timeout = DEFAULT_TIMEOUT;
 static int64_t	opt_backoff = DEFAULT_BACKOFF;
-static int64_t	opt_cpu_ops = 0;
-static int64_t	opt_iosync_ops = 0;
-static int64_t	opt_vm_ops = 0;
-static int64_t	opt_hdd_ops = 0;
+static uint64_t	opt_cpu_ops = 0;
+static uint64_t	opt_iosync_ops = 0;
+static uint64_t	opt_vm_ops = 0;
+static uint64_t	opt_hdd_ops = 0;
 
 static const char *const stressors[] = {
 	"I/O-Sync",
@@ -190,11 +190,11 @@ static void check_range(
 	}
 }
 
-static int64_t get_int64(const char *const str)
+static uint64_t get_uint64(const char *const str)
 {
-	int64_t val;
+	uint64_t val;
 
-	if (sscanf(str, "%" SCNd64, &val) != 1) {
+	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
@@ -202,17 +202,17 @@ static int64_t get_int64(const char *const str)
 	return val;
 }
 
-static int64_t get_int64_scale(
+static uint64_t get_uint64_scale(
 	const char *const str,
 	const scale_t const scales[],
 	const char *const msg)
 {
-	int64_t val;
+	uint64_t val;
 	size_t len = strlen(str);
 	char ch;
 	int i;
 
-	val = get_int64(str);
+	val = get_uint64(str);
 	if (len == 0) {
 		fprintf(stderr, "Value %s is an invalid size\n", str);
 		exit(EXIT_FAILURE);
@@ -233,7 +233,7 @@ static int64_t get_int64_scale(
 	exit(EXIT_FAILURE);
 }
 
-static int64_t get_int64_byte(const char *const str)
+static uint64_t get_uint64_byte(const char *const str)
 {
 	static const scale_t scales[] = {
 		{ 'b', 	1 },
@@ -243,10 +243,10 @@ static int64_t get_int64_byte(const char *const str)
 		{ 0,    0 },
 	};
 
-	return get_int64_scale(str, scales, "length");
+	return get_uint64_scale(str, scales, "length");
 }
 
-static int64_t get_int64_time(const char *const str)
+static uint64_t get_uint64_time(const char *const str)
 {
 	static const scale_t scales[] = {
 		{ 's', 	1 },
@@ -256,7 +256,7 @@ static int64_t get_int64_time(const char *const str)
 		{ 'y',  365 * 24 * 3600 },
 	};
 
-	return get_int64_scale(str, scales, "time");
+	return get_uint64_scale(str, scales, "time");
 }
 
 static void stress_iosync(uint64_t *const counter)
@@ -337,7 +337,7 @@ static void stress_vm(uint64_t *const counter)
 static void stress_io(uint64_t *const counter)
 {
 	uint8_t *buf;
-	int64_t i;
+	uint64_t i;
 	const pid_t pid = getpid();
 
 	set_proc_name(APP_NAME "-io");
@@ -538,7 +538,7 @@ int main(int argc, char **argv)
 			opt_flags |= OPT_FLAGS_DRY_RUN;
 			break;
 		case 't':
-			opt_timeout = get_int64_time(optarg);
+			opt_timeout = get_uint64_time(optarg);
 			break;
 		case 'b':
 			opt_backoff = atoi(optarg);
@@ -560,22 +560,22 @@ int main(int argc, char **argv)
 			check_value("VM", num_procs[STRESS_HDD]);
 			break;
 		case OPT_VM_BYTES:
-			opt_vm_bytes = get_int64_byte(optarg);
+			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
 			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
 			break;
 		case OPT_VM_STRIDE:
-			opt_vm_stride = get_int64_byte(optarg);
+			opt_vm_stride = (size_t)get_uint64_byte(optarg);
 			check_range("vm-stride", opt_vm_stride, MIN_VM_STRIDE, MAX_VM_STRIDE);
 			break;
 		case OPT_VM_HANG:
-			opt_vm_hang = get_int64_byte(optarg);
+			opt_vm_hang = get_uint64_byte(optarg);
 			check_range("vm-hang", opt_vm_hang, MIN_VM_HANG, MAX_VM_HANG);
 			break;
 		case OPT_VM_KEEP:
 			opt_flags |= OPT_FLAGS_VM_KEEP;
 		 	break;
 		case OPT_HDD_BYTES:
-			opt_hdd_bytes =  get_int64_byte(optarg);
+			opt_hdd_bytes =  get_uint64_byte(optarg);
 			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
 			break;
 		case OPT_HDD_NOCLEAN:
@@ -585,19 +585,19 @@ int main(int argc, char **argv)
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
 		case OPT_CPU_OPS:
-			opt_cpu_ops = get_int64(optarg);
+			opt_cpu_ops = get_uint64(optarg);
 			check_range("cpu-ops", opt_cpu_ops, 1000, 100000000);
 			break;
 		case OPT_IOSYNC_OPS:
-			opt_iosync_ops = get_int64(optarg);
+			opt_iosync_ops = get_uint64(optarg);
 			check_range("io-ops", opt_iosync_ops, 1000, 100000000);
 			break;
 		case OPT_VM_OPS:
-			opt_vm_ops = get_int64(optarg);
+			opt_vm_ops = get_uint64(optarg);
 			check_range("vm-ops", opt_vm_ops, 100, 100000000);
 			break;
 		case OPT_HDD_OPS:
-			opt_hdd_ops = get_int64(optarg);
+			opt_hdd_ops = get_uint64(optarg);
 			check_range("hdd-ops", opt_hdd_ops, 1000, 100000000);
 			break;
 		default:
