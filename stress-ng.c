@@ -371,7 +371,7 @@ static void stress_io(uint64_t *const counter)
 			if (opt_hdd_ops && *counter >= opt_hdd_ops)
 				break;
 		}
-		close(fd);
+		(void)close(fd);
 		if ((!opt_flags & OPT_FLAGS_NO_CLEAN))
 			(void)unlink(filename);
 	} while (!opt_hdd_ops || *counter < opt_hdd_ops);
@@ -502,11 +502,12 @@ int main(int argc, char **argv)
 	int32_t max = 0;
 	int32_t i, j;
 	int	fd;
-	double 	duration;
-	size_t	len;
+	double duration;
+	size_t len;
 	uint64_t *counters;
 	struct sigaction new_action, old_action;
 	double time_start, time_finish;
+	char shm_name[64];
 
 	memset(started_procs, 0, sizeof(num_procs));
 	memset(num_procs, 0, sizeof(num_procs));
@@ -635,7 +636,10 @@ int main(int argc, char **argv)
 		num_procs[STRESS_VM],
 		num_procs[STRESS_HDD]);
 
-	if ((fd = shm_open("stress_ng", O_RDWR | O_CREAT, 0)) < 0) {
+	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
+	(void)shm_unlink(shm_name);
+
+	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
 		pr_err(stderr, "Cannot open shared memory region\n");
 		exit(EXIT_FAILURE);
 	}
@@ -643,18 +647,18 @@ int main(int argc, char **argv)
 	len = sizeof(uint64_t) * STRESS_MAX * max;
 	if (ftruncate(fd, len) < 0) {
 		pr_err(stderr, "Cannot resize shared memory region\n");
-		close(fd);
-		shm_unlink("stress_ng");
+		(void)close(fd);
+		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
 	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region\n");
-		close(fd);
-		shm_unlink("stress_ng");
+		(void)close(fd);
+		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
-	close(fd);
+	(void)close(fd);
 	memset(counters, 0, len);
 
 	time_start = time_now();
@@ -719,6 +723,6 @@ int main(int argc, char **argv)
 		}
 	}
 out:
-	shm_unlink("stress_ng");
+	(void)shm_unlink(shm_name);
 	exit(EXIT_SUCCESS);
 }
