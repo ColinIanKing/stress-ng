@@ -1,3 +1,16 @@
+stress-ng (0.01.04) trusty; urgency=low
+
+  * Makefile: bump version
+  * ensure ret is initialized in print()
+  * Fix some signed / unsinged comparison warnings
+  * Make print return number of chars emitted and ignore some func returns
+  * Makefile: add -Wextra
+  * Set shm mem name to be unique on parent pid
+  * handle out of memory error on procs
+  * tidy up and constify where applicable
+
+ -- Colin King <colin.king@canonical.com>  Tue, 19 Nov 2013 12:57:22 +0000
+
 stress-ng (0.01.03) saucy; urgency=low
 
   * Makefile: bump version
