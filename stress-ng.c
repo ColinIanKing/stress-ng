@@ -616,6 +616,10 @@ int main(int argc, char **argv)
 		if (max < num_procs[i])
 			max = num_procs[i];
 		procs[i] = calloc(num_procs[i], sizeof(proc_info_t));
+		if (procs[i] == NULL) {
+			pr_err(stderr, "cannot allocate procs\n");
+			exit(EXIT_FAILURE);
+		}
 		total_procs += num_procs[i];
 	}
 
