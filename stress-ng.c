@@ -143,7 +143,7 @@ static inline void set_proc_name(const char *const name)
 	(void)prctl(PR_SET_NAME, name);
 }
 
-static void print(
+static int print(
 	FILE *fp,
 	const char *const type,
 	const int flag,
@@ -151,15 +151,18 @@ static void print(
 {
 	va_list ap;
 	char buf[4096];
+	int ret;
 
 	va_start(ap, fmt);
 	if (opt_flags & flag) {
 		int n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
 			type, getpid());
-		vsnprintf(buf + n, sizeof(buf) -n, fmt, ap);
+		ret = vsnprintf(buf + n, sizeof(buf) -n, fmt, ap);
 		fprintf(fp, "%s", buf);
 	}
 	va_end(ap);
+
+	return ret;
 }
 
 static void check_value(
@@ -309,9 +312,9 @@ static void stress_vm(uint64_t *const counter)
 
 		if (opt_vm_hang == 0) {
 			for (;;)
-				sleep(3600);
+				(void)sleep(3600);
 		} else if (opt_vm_hang > 0) {
-			sleep((int)opt_vm_hang);
+			(void)sleep((int)opt_vm_hang);
 		}
 
 		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
@@ -675,8 +678,8 @@ int main(int argc, char **argv)
 					goto out;
 				case 0:
 					/* Child */
-					alarm(opt_timeout);
-					usleep(opt_backoff * n_procs);
+					(void)alarm(opt_timeout);
+					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
 						child_funcs[i](counters + (j * max) + i);
 					exit(0);
