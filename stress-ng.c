@@ -131,19 +131,23 @@ static int64_t	opt_iosync_ops = 0;
 static int64_t	opt_vm_ops = 0;
 static int64_t	opt_hdd_ops = 0;
 
-static const char *stressors[] = {
+static const char *const stressors[] = {
 	"I/O-Sync",
 	"CPU-compute",
 	"VM-mmap",
 	"HDD-Write",
 };
 
-static inline void set_proc_name(char *name)
+static inline void set_proc_name(const char *const name)
 {
 	(void)prctl(PR_SET_NAME, name);
 }
 
-static void print(FILE *fp, const char *type, const int flag, const char *fmt, ...)
+static void print(
+	FILE *fp,
+	const char *const type,
+	const int flag,
+	const char *const fmt, ...)
 {
 	va_list ap;
 	char buf[4096];
@@ -158,15 +162,22 @@ static void print(FILE *fp, const char *type, const int flag, const char *fmt, .
 	va_end(ap);
 }
 
-static void check_value(const char *msg, const int val)
+static void check_value(
+	const char *const msg,
+	const int val)
 {
 	if (val < 0 || val > 1024) {
-		fprintf(stderr, "Number of %s workers must be between 0 and 1024\n", msg);
+		fprintf(stderr, "Number of %s workers must be between "
+			"0 and 1024\n", msg);
 		exit(EXIT_FAILURE);
 	}
 }
 
-static void check_range(const char *opt, const uint64_t val, const uint64_t lo, const uint64_t hi)
+static void check_range(
+	const char *const opt,
+	const uint64_t val,
+	const uint64_t lo,
+	const uint64_t hi)
 {
 	if (val < lo || val > hi) {
 		fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
@@ -176,7 +187,7 @@ static void check_range(const char *opt, const uint64_t val, const uint64_t lo, 
 	}
 }
 
-static int64_t get_int64(const char *str)
+static int64_t get_int64(const char *const str)
 {
 	int64_t val;
 
@@ -188,7 +199,10 @@ static int64_t get_int64(const char *str)
 	return val;
 }
 
-static int64_t get_int64_scale(const char *str, const scale_t scales[], const char *msg)
+static int64_t get_int64_scale(
+	const char *const str,
+	const scale_t const scales[],
+	const char *const msg)
 {
 	int64_t val;
 	size_t len = strlen(str);
@@ -216,9 +230,9 @@ static int64_t get_int64_scale(const char *str, const scale_t scales[], const ch
 	exit(EXIT_FAILURE);
 }
 
-static int64_t get_int64_byte(const char *str)
+static int64_t get_int64_byte(const char *const str)
 {
-	static scale_t scales[] = {
+	static const scale_t scales[] = {
 		{ 'b', 	1 },
 		{ 'k',  1 << 10 },
 		{ 'm',  1 << 20 },
@@ -229,9 +243,9 @@ static int64_t get_int64_byte(const char *str)
 	return get_int64_scale(str, scales, "length");
 }
 
-static int64_t get_int64_time(const char *str)
+static int64_t get_int64_time(const char *const str)
 {
-	static scale_t scales[] = {
+	static const scale_t scales[] = {
 		{ 's', 	1 },
 		{ 'm',  60 },
 		{ 'h',  3600 },
@@ -242,7 +256,7 @@ static int64_t get_int64_time(const char *str)
 	return get_int64_scale(str, scales, "time");
 }
 
-static void stress_iosync(uint64_t *counter)
+static void stress_iosync(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-iosync");
 	pr_dbg(stderr, "stress_iosync: started on pid [%d]\n", getpid());
@@ -253,7 +267,7 @@ static void stress_iosync(uint64_t *counter)
 	} while (!opt_iosync_ops || *counter < opt_iosync_ops);
 }
 
-static void stress_cpu(uint64_t *counter)
+static void stress_cpu(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-cpu");
 	pr_dbg(stderr, "stress_cpu: started on pid [%d]\n", getpid());
@@ -268,18 +282,18 @@ static void stress_cpu(uint64_t *counter)
 	} while (!opt_cpu_ops || *counter < opt_cpu_ops);
 }
 
-static void stress_vm(uint64_t *counter)
+static void stress_vm(uint64_t *const counter)
 {
 	uint8_t *buf = NULL;
 	uint8_t	val = 0;
 	size_t	i;
-	bool	keep = (opt_flags & OPT_FLAGS_VM_KEEP);
+	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 
 	set_proc_name(APP_NAME "-vm");
 	pr_dbg(stderr, "stress_vm: started on pid [%d]\n", getpid());
 
 	do {
-		uint8_t gray_code = (val >> 1) ^ val;
+		const uint8_t gray_code = (val >> 1) ^ val;
 		val++;
 
 		if (!keep || (keep && buf == NULL)) {
@@ -317,11 +331,11 @@ static void stress_vm(uint64_t *counter)
 	exit(0);
 }
 
-static void stress_io(uint64_t *counter)
+static void stress_io(uint64_t *const counter)
 {
 	uint8_t *buf;
 	int64_t i;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	set_proc_name(APP_NAME "-io");
 	pr_dbg(stderr, "stress_io: started on pid [%d]\n", getpid());
@@ -373,7 +387,7 @@ static const func child_funcs[] = {
 	stress_io,
 };
 
-static void version(void)
+static inline void version(void)
 {
 	printf(APP_NAME ", version " VERSION "\n");
 }
@@ -409,7 +423,7 @@ static void usage(void)
 	exit(EXIT_SUCCESS);
 }
 
-static struct option long_options[] = {
+static const struct option long_options[] = {
 	{ "help",	0,	0,	'?' },
 	{ "version",	0,	0,	'V' },
 	{ "verbose",	0,	0,	'v' },
@@ -448,7 +462,9 @@ static void handle_sigint(int dummy)
 	(void)dummy;
 }
 
-static void send_alarm(proc_info_t *procs[STRESS_MAX], const int started_procs[STRESS_MAX])
+static void send_alarm(
+	proc_info_t *const procs[STRESS_MAX],
+	const int const started_procs[STRESS_MAX])
 {
 	int i, j;
 
@@ -459,9 +475,12 @@ static void send_alarm(proc_info_t *procs[STRESS_MAX], const int started_procs[S
 	}
 }
 
-static void proc_finished(const pid_t pid, proc_info_t *procs[STRESS_MAX], const int started_procs[STRESS_MAX])
+static void proc_finished(
+	const pid_t pid,
+	proc_info_t *const procs[STRESS_MAX],
+	const int started_procs[STRESS_MAX])
 {
-	double now = time_now();
+	const double now = time_now();
 	int i, j;
 
 	for (i = 0; i < STRESS_MAX; i++) {
@@ -612,7 +631,6 @@ int main(int argc, char **argv)
 		num_procs[STRESS_VM],
 		num_procs[STRESS_HDD]);
 
-
 	if ((fd = shm_open("stress_ng", O_RDWR | O_CREAT, 0)) < 0) {
 		pr_err(stderr, "Cannot open shared memory region\n");
 		exit(EXIT_FAILURE);
@@ -700,4 +718,3 @@ out:
 	shm_unlink("stress_ng");
 	exit(EXIT_SUCCESS);
 }
-
