@@ -151,7 +151,7 @@ static int print(
 {
 	va_list ap;
 	char buf[4096];
-	int ret;
+	int ret = 0;
 
 	va_start(ap, fmt);
 	if (opt_flags & flag) {
