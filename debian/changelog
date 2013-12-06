@@ -1,3 +1,10 @@
+stress-ng (0.01.06) trusty; urgency=low
+
+  * Makefile: bump version again
+  * vm-keep does not have an optarg
+
+ -- Colin King <colin.king@canonical.com>  Fri, 6 Dec 2013 18:46:20 +0000
+
 stress-ng (0.01.05) trusty; urgency=low
 
   * Makefile: bump version
