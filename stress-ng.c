@@ -77,7 +77,7 @@
 
 #define MIN_VM_HANG		(0)
 #define MAX_VM_HANG		(3600)
-#define DEFAULT_VM_HANG		(-1)
+#define DEFAULT_VM_HANG		(~0ULL)
 
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
@@ -313,7 +313,7 @@ static void stress_vm(uint64_t *const counter)
 		if (opt_vm_hang == 0) {
 			for (;;)
 				(void)sleep(3600);
-		} else if (opt_vm_hang > 0) {
+		} else if (opt_vm_hang != DEFAULT_VM_HANG) {
 			(void)sleep((int)opt_vm_hang);
 		}
 
