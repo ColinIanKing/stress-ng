@@ -1,3 +1,10 @@
+stress-ng (0.01.05) trusty; urgency=low
+
+  * Makefile: bump version
+  * Fix opt_vm_hang bug
+
+ -- Colin King <colin.king@canonical.com>  Fri, 6 Dec 2013 15:50:01 +0000
+
 stress-ng (0.01.04) trusty; urgency=low
 
   * Makefile: bump version
