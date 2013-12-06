@@ -440,7 +440,7 @@ static const struct option long_options[] = {
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
-	{ "vm-keep",	1,	0,	OPT_VM_KEEP },
+	{ "vm-keep",	0,	0,	OPT_VM_KEEP },
 	{ "hdd",	1,	0,	'd' },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
