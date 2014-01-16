@@ -84,6 +84,9 @@ write N bytes for each hdd process, the default is 1 GB
 .B \-\-hdd\-noclean
 do not remove files created by hdd processes
 .TP
+.B \-f, \-\-fork
+start N processes continually forking children that immediately exit
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
 .TP
@@ -98,6 +101,9 @@ stop vm stress processes after N bogo operations
 .TP
 .B \-\-hdd\-ops N
 stop hdd stress processes after N bogo operations
+.TP
+.B \-\-fork\-ops N
+stop fork stress processes after N bogo operations
 .LP
 Examples:
 .LP
@@ -106,6 +112,8 @@ stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 256M \-\-timeout 60s
 stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .LP
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
+.LP
+stress\-ng \-\-fork 4 \-\-fork-ops 100000
 .SH SEE ALSO
 .BR stress (1) 
 .SH AUTHOR

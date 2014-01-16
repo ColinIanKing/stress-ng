@@ -89,6 +89,7 @@ enum {
 	STRESS_CPU,
 	STRESS_VM,
 	STRESS_HDD,
+	STRESS_FORK,
 	STRESS_MAX
 };
 
@@ -103,7 +104,8 @@ enum {
 	OPT_CPU_OPS,
 	OPT_IOSYNC_OPS,
 	OPT_VM_OPS,
-	OPT_HDD_OPS
+	OPT_HDD_OPS,
+	OPT_FORK_OPS
 };
 
 typedef void (*func)(uint64_t *counter);
@@ -130,12 +132,14 @@ static uint64_t	opt_cpu_ops = 0;
 static uint64_t	opt_iosync_ops = 0;
 static uint64_t	opt_vm_ops = 0;
 static uint64_t	opt_hdd_ops = 0;
+static uint64_t opt_fork_ops = 0;
 
 static const char *const stressors[] = {
 	"I/O-Sync",
 	"CPU-compute",
 	"VM-mmap",
 	"HDD-Write",
+	"Fork",
 };
 
 static inline void set_proc_name(const char *const name)
@@ -383,11 +387,34 @@ static void stress_io(uint64_t *const counter)
 	exit(0);
 }
 
+static void stress_fork(uint64_t *const counter)
+{
+	set_proc_name(APP_NAME "-fork");
+	pr_dbg(stderr, "stress_fork: started on pid [%d]\n", getpid());
+
+	do { 
+		pid_t pid;
+
+		pid = fork();
+		if (pid == 0) {
+			/* Child, immediately exit */
+			_exit(0);
+		}
+		if (pid > 0) {
+			int status;
+			/* Parent, wait for child */
+			waitpid(pid, &status, 0);
+		}
+		(*counter)++;
+	} while (!opt_fork_ops || *counter < opt_fork_ops);
+}
+
 static const func child_funcs[] = {
 	stress_iosync,
 	stress_cpu,
 	stress_vm,
 	stress_io,
+	stress_fork,
 };
 
 static inline void version(void)
@@ -416,12 +443,14 @@ static void usage(void)
 	printf(" -d, --hdd N         start N workers spinning on write()/unlink()\n");
 	printf("     --hdd-bytes N   write N bytes per hdd worker (default is 1GB\n");
 	printf("     --hdd-noclean   do not unlink files created by hdd workers\n");
+	printf(" -f, --fork N        start N workers spinning on fork() and exit()\n");
 	printf("     --metrics       print pseudo metrics of activity\n");
 	printf("     --cpu-ops N     stop when N cpu bogo operations completed\n");
 	printf("     --io-ops N      stop when N io bogo operations completed\n");
 	printf("     --vm-ops N      stop when N vm bogo operations completed\n");
-	printf("     --hdd-ops N     stop when N hdd bogo operations completed\n\n");
-	printf("Example " APP_NAME " -cpu 8 --io 4 --vm 2 --vm-bytes 128M --timeout 10s\n\n");
+	printf("     --hdd-ops N     stop when N hdd bogo operations completed\n");
+	printf("     --fork-ops N    stop when N fork bogo operations completed\n\n");
+	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
 }
@@ -437,6 +466,7 @@ static const struct option long_options[] = {
 	{ "cpu",	1,	0,	'c' },
 	{ "io",		1,	0,	'i' },
 	{ "vm",		1,	0,	'm' },
+	{ "fork",	1,	0,	'f' },
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
@@ -449,6 +479,7 @@ static const struct option long_options[] = {
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
+	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -519,7 +550,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:",
+		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -558,6 +589,10 @@ int main(int argc, char **argv)
 		case 'd':
 			num_procs[STRESS_HDD] = atoi(optarg);
 			check_value("VM", num_procs[STRESS_HDD]);
+			break;
+		case 'f':
+			num_procs[STRESS_FORK] = atoi(optarg);
+			check_value("Forks", num_procs[STRESS_FORK]);
 			break;
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
@@ -600,6 +635,10 @@ int main(int argc, char **argv)
 			opt_hdd_ops = get_uint64(optarg);
 			check_range("hdd-ops", opt_hdd_ops, 1000, 100000000);
 			break;
+		case OPT_FORK_OPS:
+			opt_fork_ops = get_uint64(optarg);
+			check_range("fork-ops", opt_fork_ops, 1000, 100000000);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -610,6 +649,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_iosync_ops, num_procs[STRESS_IOSYNC]);
 	DIV_OPS_BY_PROCS(opt_vm_ops, num_procs[STRESS_VM]);
 	DIV_OPS_BY_PROCS(opt_hdd_ops, num_procs[STRESS_HDD]);
+	DIV_OPS_BY_PROCS(opt_fork_ops, num_procs[STRESS_FORK]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -633,11 +673,12 @@ int main(int argc, char **argv)
 	}
 
 	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd\n",
+		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
-		num_procs[STRESS_HDD]);
+		num_procs[STRESS_HDD],
+		num_procs[STRESS_FORK]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
