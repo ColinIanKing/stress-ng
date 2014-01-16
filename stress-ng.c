@@ -46,11 +46,13 @@
 
 #define STRESS_HDD_BUF_SIZE	(64 * 1024)
 
+/* Option bit masks */
 #define OPT_FLAGS_NO_CLEAN	0x00000001
 #define OPT_FLAGS_DRY_RUN	0x00000002
 #define OPT_FLAGS_METRICS	0x00000004
 #define OPT_FLAGS_VM_KEEP	0x00000008
 
+/* debug output bitmasks */
 #define PR_ERR			0x00010000
 #define PR_INF			0x00020000
 #define PR_DBG			0x00040000
@@ -87,6 +89,7 @@
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
+/* Stress tests */
 enum {
 	STRESS_IOSYNC	= 0,
 	STRESS_CPU,
@@ -94,9 +97,11 @@ enum {
 	STRESS_HDD,
 	STRESS_FORK,
 	STRESS_CTXT,
+	/* Add new stress tests here */
 	STRESS_MAX
 };
 
+/* Command line long options */
 enum {
 	OPT_VM_BYTES = 1,
 	OPT_VM_STRIDE,
@@ -140,6 +145,7 @@ static uint64_t	opt_hdd_ops = 0;
 static uint64_t opt_fork_ops = 0;
 static uint64_t opt_ctxt_ops = 0;
 
+/* Human readable stress test names */
 static const char *const stressors[] = {
 	"I/O-Sync",
 	"CPU-compute",
@@ -147,13 +153,16 @@ static const char *const stressors[] = {
 	"HDD-Write",
 	"Fork",
 	"Context-switch",
+	/* Add new stress tests here */
 };
 
+/* Set process name, we don't care if it fails */
 static inline void set_proc_name(const char *const name)
 {
 	(void)prctl(PR_SET_NAME, name);
 }
 
+/* Print some debug or info messages */
 static int print(
 	FILE *fp,
 	const char *const type,
@@ -176,6 +185,7 @@ static int print(
 	return ret;
 }
 
+/* Sanity check number of workers */
 static void check_value(
 	const char *const msg,
 	const int val)
@@ -187,6 +197,7 @@ static void check_value(
 	}
 }
 
+/* Sanity check val against a lo - hi range */
 static void check_range(
 	const char *const opt,
 	const uint64_t val,
@@ -201,6 +212,7 @@ static void check_range(
 	}
 }
 
+/* string to uint64_t */
 static uint64_t get_uint64(const char *const str)
 {
 	uint64_t val;
@@ -244,6 +256,7 @@ static uint64_t get_uint64_scale(
 	exit(EXIT_FAILURE);
 }
 
+/* size in bytes, K bytes, M bytes or G bytes */
 static uint64_t get_uint64_byte(const char *const str)
 {
 	static const scale_t scales[] = {
@@ -257,6 +270,7 @@ static uint64_t get_uint64_byte(const char *const str)
 	return get_uint64_scale(str, scales, "length");
 }
 
+/* time in seconds, minutes, hours, days or years */
 static uint64_t get_uint64_time(const char *const str)
 {
 	static const scale_t scales[] = {
@@ -270,6 +284,7 @@ static uint64_t get_uint64_time(const char *const str)
 	return get_uint64_scale(str, scales, "time");
 }
 
+/* stress on sync() */
 static void stress_iosync(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-iosync");
@@ -281,6 +296,7 @@ static void stress_iosync(uint64_t *const counter)
 	} while (!opt_iosync_ops || *counter < opt_iosync_ops);
 }
 
+/* stress CPU math */
 static void stress_cpu(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-cpu");
@@ -296,6 +312,7 @@ static void stress_cpu(uint64_t *const counter)
 	} while (!opt_cpu_ops || *counter < opt_cpu_ops);
 }
 
+/* stress virtual memory */
 static void stress_vm(uint64_t *const counter)
 {
 	uint8_t *buf = NULL;
@@ -345,6 +362,7 @@ static void stress_vm(uint64_t *const counter)
 	exit(0);
 }
 
+/* stress I/O via writes */
 static void stress_io(uint64_t *const counter)
 {
 	uint8_t *buf;
@@ -394,6 +412,7 @@ static void stress_io(uint64_t *const counter)
 	exit(0);
 }
 
+/* stress by forking and exiting */
 static void stress_fork(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-fork");
@@ -416,6 +435,7 @@ static void stress_fork(uint64_t *const counter)
 	} while (!opt_fork_ops || *counter < opt_fork_ops);
 }
 
+/* stress by heavy context switching */
 static void stress_ctxt(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-ctxt");
@@ -473,6 +493,7 @@ static void stress_ctxt(uint64_t *const counter)
 	}
 }
 
+/* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
 	stress_cpu,
@@ -480,6 +501,7 @@ static const func child_funcs[] = {
 	stress_io,
 	stress_fork,
 	stress_ctxt,
+	/* Add new stress tests here */
 };
 
 static inline void version(void)
@@ -487,6 +509,7 @@ static inline void version(void)
 	printf(APP_NAME ", version " VERSION "\n");
 }
 
+/* some help */
 static void usage(void)
 {
 	version();
@@ -552,6 +575,7 @@ static const struct option long_options[] = {
 	{ NULL,		0, 	0, 	0 }
 };
 
+/* time in seconds as a double */
 static inline double time_now(void)
 {
 	struct timeval now;
@@ -565,6 +589,7 @@ static void handle_sigint(int dummy)
 	(void)dummy;
 }
 
+/* kill tasks */
 static void send_alarm(
 	proc_info_t *const procs[STRESS_MAX],
 	const int const started_procs[STRESS_MAX])
@@ -578,6 +603,7 @@ static void send_alarm(
 	}
 }
 
+/* mark a process as complete */
 static void proc_finished(
 	const pid_t pid,
 	proc_info_t *const procs[STRESS_MAX],
