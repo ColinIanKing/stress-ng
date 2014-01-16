@@ -87,6 +87,9 @@ do not remove files created by hdd processes
 .B \-f, \-\-fork
 start N processes continually forking children that immediately exit
 .TP
+.B \-s, \-\-switch
+start N processes that send messages via pipe to a child to force context switching
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
 .TP
@@ -104,6 +107,9 @@ stop hdd stress processes after N bogo operations
 .TP
 .B \-\-fork\-ops N
 stop fork stress processes after N bogo operations
+.TP
+.B \-\-switch\-ops N
+stop context switcing processes after N bogo operations
 .LP
 Examples:
 .LP
