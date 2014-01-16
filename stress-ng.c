@@ -505,7 +505,7 @@ static void usage(void)
 	printf("     --vm-hang N     sleep N seconds before freeing memory\n");
 	printf("     --vm-keep       redirty memory instead of reallocating\n");
 	printf(" -d, --hdd N         start N workers spinning on write()/unlink()\n");
-	printf("     --hdd-bytes N   write N bytes per hdd worker (default is 1GB\n");
+	printf("     --hdd-bytes N   write N bytes per hdd worker (default is 1GB)\n");
 	printf("     --hdd-noclean   do not unlink files created by hdd workers\n");
 	printf(" -f, --fork N        start N workers spinning on fork() and exit()\n");
 	printf(" -s, --switch N      start N workers doing rapid context switches\n");
