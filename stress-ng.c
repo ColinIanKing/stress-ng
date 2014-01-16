@@ -442,7 +442,7 @@ static void stress_ctxt(uint64_t *const counter)
 			char ch;
 		
 			for (;;) {
-				if (read(pipefds[0], &ch, sizeof(ch)) < 0) {
+				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
 					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d [%d]\n", errno, getpid());
 					break;
 				}
@@ -514,7 +514,8 @@ static void usage(void)
 	printf("     --io-ops N      stop when N io bogo operations completed\n");
 	printf("     --vm-ops N      stop when N vm bogo operations completed\n");
 	printf("     --hdd-ops N     stop when N hdd bogo operations completed\n");
-	printf("     --fork-ops N    stop when N fork bogo operations completed\n\n");
+	printf("     --fork-ops N    stop when N fork bogo operations completed\n");
+	printf("     --switch-ops N  stop when N context switch bogo operations completed\n\n");
 	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
