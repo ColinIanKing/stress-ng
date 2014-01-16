@@ -9,11 +9,11 @@ Homepage: http://kernel.ubuntu.com/~cking/stress-ng
 Package: stress-ng
 Architecture: linux-any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A tool to load and stress a computer.
- stress-ng is a tool that can stress various subsystems
- of a computer. One can load CPU, memory, I/O sync or
- disk.  It is a cleanroom re-write of the original stress
- tool by Amos Waterland but has addition features such as
- specifying the number of bogo operations to run as well
- as fork and context switch stress tests.
+Description: stress-ng is a tool to load and stress a computer.
+ stress-ng that can stress various subsystems of a
+ computer. One can load CPU, memory, I/O sync, disk writes,
+ forks and context switches.  It is a cleanroom re-write of
+ the original stress tool by Amos Waterland but has addition
+ features such as specifying the number of bogo operations to
+ run, execution metrics and additional stress tasks.
 
