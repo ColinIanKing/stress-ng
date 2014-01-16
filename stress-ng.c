@@ -467,7 +467,8 @@ static void stress_ctxt(uint64_t *const counter)
 		} while (!opt_ctxt_ops || *counter < opt_ctxt_ops);
 
 		ch = CTXT_STOP;
-		write(pipefds[1],  &ch, sizeof(ch));
+		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
+			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d [%d]\n", errno, getpid());
 		kill(pid, SIGKILL);
 	}
 }
