@@ -1,11 +1,21 @@
+stress-ng (0.01.09-1) unstable; urgency=low
+
+  * Initial release into Debian (Closes: #735674)
+  * Makefile: bump version
+  * Fix up description once more
+  * Add some minimal comments
+  * Re-work debian control again.
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Jan 2014 11:52:13 +0000
+
 stress-ng (0.01.08-1) unstable; urgency=low
 
-    Makefile: bump version
-    debian/control: Update debian control
-    debian/rules, remove override_dh_auto_build
-    debian/control: update, minor changes
-    debian/compat: update to 9
-    Check for write fail
+  * Makefile: bump version
+  * debian/control: Update debian control
+  * debian/rules, remove override_dh_auto_build
+  * debian/control: update, minor changes
+  * debian/compat: update to 9
+  * Check for write fail
 
  -- Colin King <colin.king@canonical.com>  Thu, 16 Jan 2014 13:47:11 +0000
 
