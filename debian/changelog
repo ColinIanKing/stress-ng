@@ -1,3 +1,15 @@
+stress-ng (0.01.10-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * debian/control: set arch to any
+  * Fix up copyright company
+  * Fix formatting of the copywrite in the source
+  * Re-write the description and make it a little clearer in the source
+  * Detect and report if a worker stress process failed
+  * Make process name changing linux only feature
+
+ -- Colin King <colin.king@canonical.com>  Mon, 20 Jan 2014 17:00:01 +0000
+
 stress-ng (0.01.09-1) unstable; urgency=low
 
   * Initial release into Debian (Closes: #735674)
