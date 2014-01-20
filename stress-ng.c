@@ -295,6 +295,8 @@ static void stress_iosync(uint64_t *const counter)
 		sync();
 		(*counter)++;
 	} while (!opt_iosync_ops || *counter < opt_iosync_ops);
+
+	exit(EXIT_SUCCESS);
 }
 
 /* stress CPU math */
@@ -311,6 +313,8 @@ static void stress_cpu(uint64_t *const counter)
 			sqrt((double)rand());
 		(*counter)++;
 	} while (!opt_cpu_ops || *counter < opt_cpu_ops);
+
+	exit(EXIT_SUCCESS);
 }
 
 /* stress virtual memory */
@@ -360,7 +364,7 @@ static void stress_vm(uint64_t *const counter)
 		(*counter)++;
 	} while (!opt_vm_ops || *counter < opt_vm_ops);
 
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 /* stress I/O via writes */
@@ -410,7 +414,7 @@ static void stress_io(uint64_t *const counter)
 	} while (!opt_hdd_ops || *counter < opt_hdd_ops);
 
 	free(buf);
-	exit(0);
+	exit(EXIT_SUCCESS);
 }
 
 /* stress by forking and exiting */
@@ -434,6 +438,8 @@ static void stress_fork(uint64_t *const counter)
 		}
 		(*counter)++;
 	} while (!opt_fork_ops || *counter < opt_fork_ops);
+
+	exit(EXIT_SUCCESS);
 }
 
 /* stress by heavy context switching */
@@ -492,6 +498,7 @@ static void stress_ctxt(uint64_t *const counter)
 			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d [%d]\n", errno, getpid());
 		kill(pid, SIGKILL);
 	}
+	exit(EXIT_SUCCESS);
 }
 
 /* stress tests */
@@ -638,6 +645,7 @@ int main(int argc, char **argv)
 	struct sigaction new_action, old_action;
 	double time_start, time_finish;
 	char shm_name[64];
+	bool success = true;
 
 	memset(started_procs, 0, sizeof(num_procs));
 	memset(num_procs, 0, sizeof(num_procs));
@@ -846,6 +854,10 @@ int main(int argc, char **argv)
 		int pid, status;
 
 		if ((pid = wait(&status)) > 0) {
+			if (WEXITSTATUS(status)) {
+				pr_err(stderr, "Process %d terminated with an error\n");
+				success = false;
+			}
 			proc_finished(pid, procs, started_procs);
 			pr_dbg(stderr, "process [%d] terminated\n", pid);
 			n_procs--;
@@ -857,7 +869,9 @@ int main(int argc, char **argv)
 	time_finish = time_now();
 
 	duration = time_finish - time_start;
-	pr_inf(stdout, "successful run completed in %.2fs\n", duration);
+	pr_inf(stdout, "%s run completed in %.2fs\n",
+		success ? "successful" : "unsuccessful",
+		duration);
 
 	if (opt_flags & OPT_FLAGS_METRICS) {
 		for (i = 0; i < STRESS_MAX; i++) {
