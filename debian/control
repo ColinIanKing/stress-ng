@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9)
 Homepage: http://kernel.ubuntu.com/~cking/stress-ng
 
 Package: stress-ng
-Architecture: linux-any
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: tool to load and stress a computer
  stress-ng can stress various subsystems of a computer. One
