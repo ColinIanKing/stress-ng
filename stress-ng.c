@@ -156,11 +156,12 @@ static const char *const stressors[] = {
 	/* Add new stress tests here */
 };
 
+#if defined (__linux__)
 /* Set process name, we don't care if it fails */
-static inline void set_proc_name(const char *const name)
-{
-	(void)prctl(PR_SET_NAME, name);
-}
+#define set_proc_name(name) (void)prctl(PR_SET_NAME, name)
+#else
+#define set_proc_name(name)
+#endif
 
 /* Print some debug or info messages */
 static int print(
