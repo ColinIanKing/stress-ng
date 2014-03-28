@@ -12,8 +12,11 @@ stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@
 
 dist:
-	git archive --format=tar --prefix="stress-ng-$(VERSION)/" V$(VERSION) | \
-		gzip > stress-ng-$(VERSION).tar.gz
+	rm -rf stress-ng-$(VERSION)
+	mkdir stress-ng-$(VERSION)
+	cp -rp Makefile stress-ng.c stress-ng.1 COPYING stress-ng-$(VERSION)
+	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
+	rm -rf stress-ng-$(VERSION)
 
 clean:
 	rm -f stress-ng stress-ng.o stress-ng.1.gz
