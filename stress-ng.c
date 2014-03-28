@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be 
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
  * backwardly compatible with the stress tool by Amos Waterland
  * <apw@rossby.metr.ou.edu> but has more stress tests and more
  * functionality.
@@ -146,6 +146,7 @@ static uint64_t	opt_vm_ops = 0;
 static uint64_t	opt_hdd_ops = 0;
 static uint64_t opt_fork_ops = 0;
 static uint64_t opt_ctxt_ops = 0;
+static int32_t  opt_cpu_load = 100;
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -164,6 +165,15 @@ static const char *const stressors[] = {
 #else
 #define set_proc_name(name)
 #endif
+
+/*
+ *  timeval_to_double()
+ *      convert timeval to seconds as a double
+ */
+static inline double timeval_to_double(const struct timeval *tv)
+{
+	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
+}
 
 /* Print some debug or info messages */
 static int print(
@@ -308,14 +318,54 @@ static void stress_cpu(uint64_t *const counter)
 	pr_dbg(stderr, "stress_cpu: started on pid [%d]\n", getpid());
 
 	srand(0x1234);
-	do { 
-		int i;
 
-		for (i = 0; i < 16384; i++)
-			sqrt((double)rand());
-		(*counter)++;
+	/*
+	 * Normal use case, 100% load, simple spinning on CPU
+	 */
+	if (opt_cpu_load == 100) {
+		do {
+			int i;
+			for (i = 0; i < 16384; i++)
+				sqrt((double)rand());
+			(*counter)++;
+		} while (!opt_cpu_ops || *counter < opt_cpu_ops);
+		exit(EXIT_SUCCESS);
+	}
+
+	/*
+	 * It is unlikely, but somebody may request to do a zero
+	 * load stress test(!)
+	 */
+	if (opt_cpu_load == 0) {
+		sleep((int)opt_timeout);
+		exit(EXIT_SUCCESS);
+	}
+
+	/*
+	 * More complex percentage CPU utilisation.  This is
+	 * not intended to be 100% accurate timing, it is good
+	 * enough for most purposes.
+	 */
+	do {
+		int i, j;
+		double t, delay;
+		struct timeval tv1, tv2;
+
+		gettimeofday(&tv1, NULL);
+		for (j = 0; j < 64; j++) {
+			for (i = 0; i < 16384; i++)
+				sqrt((double)rand());
+			(*counter)++;
+		}
+		gettimeofday(&tv2, NULL);
+		t = timeval_to_double(&tv2) - timeval_to_double(&tv1);
+		/* Must not calculate this with zero % load */
+		delay = t * (((100.0 / (double) opt_cpu_load)) - 1.0);
+
+		tv1.tv_sec = delay;
+		tv1.tv_usec = (delay - tv1.tv_sec) * 1000000.0;
+		select(0, NULL, NULL, NULL, &tv1);
 	} while (!opt_cpu_ops || *counter < opt_cpu_ops);
-
 	exit(EXIT_SUCCESS);
 }
 
@@ -425,7 +475,7 @@ static void stress_fork(uint64_t *const counter)
 	set_proc_name(APP_NAME "-fork");
 	pr_dbg(stderr, "stress_fork: started on pid [%d]\n", getpid());
 
-	do { 
+	do {
 		pid_t pid;
 
 		pid = fork();
@@ -469,7 +519,7 @@ static void stress_ctxt(uint64_t *const counter)
 
 		for (;;) {
 			char ch;
-		
+
 			for (;;) {
 				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
 					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d [%d]\n", errno, getpid());
@@ -532,6 +582,7 @@ static void usage(void)
 	printf(" -t, --timeout N     timeout after N seconds\n");
 	printf(" -b, --backoff N     wait of N microseconds before work starts\n");
 	printf(" -c, --cpu N         start N workers spinning on sqrt(rand())\n");
+	printf(" -l, --cpu-load P    load CPU by P %%, 0 to sleep, 100 is fully loaded\n");
 	printf(" -i, --io N          start N workers spinning on sync()\n");
 	printf(" -m, --vm N          start N workers spinning on anonymous mmap\n");
 	printf("     --vm-bytes N    allocate N bytes per vm worker (default 256MB)\n");
@@ -582,6 +633,7 @@ static const struct option long_options[] = {
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ "switch-ops",	1,	0,	OPT_CTXT_OPS },
+	{ "cpu-load",	1,	0,	'l' },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -656,7 +708,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:",
+		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -703,6 +755,13 @@ int main(int argc, char **argv)
 		case 's':
 			num_procs[STRESS_CTXT] = atoi(optarg);
 			check_value("Context-Switches", num_procs[STRESS_CTXT]);
+			break;
+		case 'l':
+			opt_cpu_load = atoi(optarg);
+			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
+				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
+				exit(EXIT_FAILURE);
+			}
 			break;
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);

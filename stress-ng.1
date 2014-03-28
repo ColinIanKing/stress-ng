@@ -54,6 +54,10 @@ wait N microseconds between the start of each stress process
 .B \-c, \-\-cpu N
 start N processes computing sqrt((double)rand())
 .TP
+.B \-l, \-\-cpu\-load P
+load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full
+loading.
+.TP
 .B \-i, \-\-io N
 start N processes continuously calling sync()
 .TP
