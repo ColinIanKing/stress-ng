@@ -1,3 +1,13 @@
+stress-ng (0.01.11-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * Fix copyright
+  * Makefile: Fix make dist, use plain old tar to omit debian contents
+  * Add COPYING file
+  * Add a -l --cpu-load option to load CPUs to a specified amount
+
+ -- Colin King <colin.king@canonical.com>  Fri, 28 Mar 2014 21:08:11 +0000
+
 stress-ng (0.01.10-1) unstable; urgency=low
 
   * Makefile: bump version
