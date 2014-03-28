@@ -1,4 +1,7 @@
-VERSION=0.01.10
+VERSION=0.01.11
+#
+# Codename "Stress My Head"
+#
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
 
