@@ -916,7 +916,7 @@ int main(int argc, char **argv)
 
 		if ((pid = wait(&status)) > 0) {
 			if (WEXITSTATUS(status)) {
-				pr_err(stderr, "Process %d terminated with an error\n");
+				pr_err(stderr, "Process %d terminated with an error\n", status);
 				success = false;
 			}
 			proc_finished(pid, procs, started_procs);
