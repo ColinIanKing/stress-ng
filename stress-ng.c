@@ -133,6 +133,9 @@ typedef struct {
 	const uint64_t	scale;	/* Amount to scale by */
 } scale_t;
 
+static int print(FILE *fp, const char *const type, const int flag,
+	const char *const fmt, ...) __attribute__((format(printf, 4, 5)));
+
 static int32_t	opt_flags = PR_ERR | PR_INF;
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;
@@ -175,12 +178,13 @@ static inline double timeval_to_double(const struct timeval *tv)
 	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
+
 /* Print some debug or info messages */
 static int print(
 	FILE *fp,
 	const char *const type,
 	const int flag,
-	const char *const fmt, ...)
+	const char *const fmt, ...) 
 {
 	va_list ap;
 	char buf[4096];
