@@ -688,6 +688,20 @@ static void proc_finished(
 	}
 }
 
+static long int opt_long(const char *opt, const char *str)
+{
+	long int val;
+
+	errno = 0;
+	val = strtol(str, NULL, 10);
+	if (errno) {
+		fprintf(stderr, "Invalid value for the %s option\n", opt);
+		exit(EXIT_FAILURE);
+	}
+
+	return val;
+}
+
 int main(int argc, char **argv)
 {
 	proc_info_t *procs[STRESS_MAX];
@@ -734,34 +748,34 @@ int main(int argc, char **argv)
 			opt_timeout = get_uint64_time(optarg);
 			break;
 		case 'b':
-			opt_backoff = atoi(optarg);
+			opt_backoff = opt_long("backoff", optarg);
 			break;
 		case 'c':
-			num_procs[STRESS_CPU] = atoi(optarg);
+			num_procs[STRESS_CPU] = opt_long("cpu", optarg);
 			check_value("CPU", num_procs[STRESS_CPU]);
 			break;
 		case 'i':
-			num_procs[STRESS_IOSYNC] = atoi(optarg);
+			num_procs[STRESS_IOSYNC] = opt_long("io", optarg);
 			check_value("IO sync", num_procs[STRESS_IOSYNC]);
 			break;
 		case 'm':
-			num_procs[STRESS_VM] = atoi(optarg);
+			num_procs[STRESS_VM] = opt_long("vm", optarg);
 			check_value("VM", num_procs[STRESS_VM]);
 			break;
 		case 'd':
-			num_procs[STRESS_HDD] = atoi(optarg);
-			check_value("VM", num_procs[STRESS_HDD]);
+			num_procs[STRESS_HDD] = opt_long("hdd", optarg);
+			check_value("HDD", num_procs[STRESS_HDD]);
 			break;
 		case 'f':
-			num_procs[STRESS_FORK] = atoi(optarg);
+			num_procs[STRESS_FORK] = opt_long("fork", optarg);
 			check_value("Forks", num_procs[STRESS_FORK]);
 			break;
 		case 's':
-			num_procs[STRESS_CTXT] = atoi(optarg);
+			num_procs[STRESS_CTXT] = opt_long("switch", optarg);
 			check_value("Context-Switches", num_procs[STRESS_CTXT]);
 			break;
 		case 'l':
-			opt_cpu_load = atoi(optarg);
+			opt_cpu_load = opt_long("cpu load", optarg);
 			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
 				exit(EXIT_FAILURE);
