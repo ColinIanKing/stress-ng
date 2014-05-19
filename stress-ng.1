@@ -94,6 +94,9 @@ start N processes continually forking children that immediately exit
 .B \-s, \-\-switch
 start N processes that send messages via pipe to a child to force context switching
 .TP
+.B \-p, \-\-pipe
+start N processes that perform large pipe writes and reads to exercise pipe I/O
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
 .TP
@@ -114,6 +117,9 @@ stop fork stress processes after N bogo operations
 .TP
 .B \-\-switch\-ops N
 stop context switcing processes after N bogo operations
+.TP
+.B \-\-pipe\-ops N
+stop pipe stress processes after N bogo pipe write operations
 .LP
 Examples:
 .LP
