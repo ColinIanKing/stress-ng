@@ -136,20 +136,21 @@ typedef struct {
 static int print(FILE *fp, const char *const type, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 4, 5)));
 
-static int32_t	opt_flags = PR_ERR | PR_INF;
-static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;
-static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;
-static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;
-static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;
-static uint64_t	opt_timeout = DEFAULT_TIMEOUT;
-static int64_t	opt_backoff = DEFAULT_BACKOFF;
-static uint64_t	opt_cpu_ops = 0;
-static uint64_t	opt_iosync_ops = 0;
-static uint64_t	opt_vm_ops = 0;
-static uint64_t	opt_hdd_ops = 0;
-static uint64_t opt_fork_ops = 0;
-static uint64_t opt_ctxt_ops = 0;
-static int32_t  opt_cpu_load = 100;
+/* Various option settings and flags */
+static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
+static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
+static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
+static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
+static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
+static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
+static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
+static uint64_t	opt_cpu_ops = 0;			/* CPU bogo ops max */
+static uint64_t	opt_iosync_ops = 0;			/* IO sync bogo ops */
+static uint64_t	opt_vm_ops = 0;				/* VM bogo ops max */
+static uint64_t	opt_hdd_ops = 0;			/* HDD bogo ops max */
+static uint64_t opt_fork_ops = 0;			/* fork bogo ops max */
+static uint64_t opt_ctxt_ops = 0;			/* context ops max */
+static int32_t  opt_cpu_load = 100;			/* CPU max load */
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -179,7 +180,10 @@ static inline double timeval_to_double(const struct timeval *tv)
 }
 
 
-/* Print some debug or info messages */
+/*
+ *  print()
+ *	print some debug or info messages
+ */
 static int print(
 	FILE *fp,
 	const char *const type,
@@ -202,7 +206,10 @@ static int print(
 	return ret;
 }
 
-/* Sanity check number of workers */
+/*
+ *  check_value()
+ *	sanity check number of workers
+ */
 static void check_value(
 	const char *const msg,
 	const int val)
@@ -214,7 +221,10 @@ static void check_value(
 	}
 }
 
-/* Sanity check val against a lo - hi range */
+/*
+ *  check_range()
+ *	Sanity check val against a lo - hi range
+ */
 static void check_range(
 	const char *const opt,
 	const uint64_t val,
@@ -229,7 +239,10 @@ static void check_range(
 	}
 }
 
-/* string to uint64_t */
+/*
+ *  get_uint64()
+ *	string to uint64_t
+ */
 static uint64_t get_uint64(const char *const str)
 {
 	uint64_t val;
@@ -242,6 +255,10 @@ static uint64_t get_uint64(const char *const str)
 	return val;
 }
 
+/*
+ *  get_uint64_scale()
+ *	get a value and scale it by the given scale factor
+ */
 static uint64_t get_uint64_scale(
 	const char *const str,
 	const scale_t const scales[],
@@ -301,7 +318,10 @@ static uint64_t get_uint64_time(const char *const str)
 	return get_uint64_scale(str, scales, "time");
 }
 
-/* stress on sync() */
+/*
+ *  stress on sync() 
+ *	stress system by IO sync calls
+ */
 static void stress_iosync(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-iosync");
@@ -315,7 +335,10 @@ static void stress_iosync(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
-/* stress CPU math */
+/*
+ *  stress_cpu()
+ *	stress CPU by doing floating point math ops
+ */
 static void stress_cpu(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-cpu");
@@ -373,7 +396,10 @@ static void stress_cpu(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
-/* stress virtual memory */
+/*
+ *  stress_vm()
+ *	stress virtual memory
+ */
 static void stress_vm(uint64_t *const counter)
 {
 	uint8_t *buf = NULL;
@@ -423,7 +449,10 @@ static void stress_vm(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
-/* stress I/O via writes */
+/*
+ *  stress_io
+ *	stress I/O via writes
+ */
 static void stress_io(uint64_t *const counter)
 {
 	uint8_t *buf;
@@ -473,7 +502,10 @@ static void stress_io(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
-/* stress by forking and exiting */
+/*
+ *  stress_fork()
+ *	stress by forking and exiting
+ */
 static void stress_fork(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-fork");
@@ -498,7 +530,10 @@ static void stress_fork(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
-/* stress by heavy context switching */
+/*
+ *  stress_ctxt
+ *	stress by heavy context switching
+ */
 static void stress_ctxt(uint64_t *const counter)
 {
 	set_proc_name(APP_NAME "-ctxt");
@@ -568,12 +603,19 @@ static const func child_funcs[] = {
 	/* Add new stress tests here */
 };
 
+/*
+ *  version()
+ *	print program version info
+ */
 static inline void version(void)
 {
 	printf(APP_NAME ", version " VERSION "\n");
 }
 
-/* some help */
+/*
+ *  usage()
+ *	print some help
+ */
 static void usage(void)
 {
 	version();
@@ -641,7 +683,10 @@ static const struct option long_options[] = {
 	{ NULL,		0, 	0, 	0 }
 };
 
-/* time in seconds as a double */
+/*
+ *  time_now()
+ *	time in seconds as a double
+ */
 static inline double time_now(void)
 {
 	struct timeval now;
@@ -650,12 +695,19 @@ static inline double time_now(void)
 	return (double)now.tv_sec + ((double)now.tv_usec / 1000000.0);
 }
 
+/*
+ *  handle_sigint()
+ *	catch SIGINT
+ */
 static void handle_sigint(int dummy)
 {
 	(void)dummy;
 }
 
-/* kill tasks */
+/*
+ *  send_alarm()
+ * 	kill tasks using SIGALRM
+ */
 static void send_alarm(
 	proc_info_t *const procs[STRESS_MAX],
 	const int const started_procs[STRESS_MAX])
@@ -669,7 +721,10 @@ static void send_alarm(
 	}
 }
 
-/* mark a process as complete */
+/*
+ *  proc_finished()
+ *	mark a process as complete
+ */
 static void proc_finished(
 	const pid_t pid,
 	proc_info_t *const procs[STRESS_MAX],
@@ -688,6 +743,10 @@ static void proc_finished(
 	}
 }
 
+/*
+ *  opt_long()
+ *	parse long int option, check for invalid values
+ */
 static long int opt_long(const char *opt, const char *str)
 {
 	long int val;
