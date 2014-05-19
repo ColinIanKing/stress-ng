@@ -36,6 +36,7 @@
 #include <getopt.h>
 #include <ctype.h>
 #include <errno.h>
+#include <limits.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -88,6 +89,7 @@
 #define DEFAULT_BACKOFF		(0)
 
 #define CTXT_STOP		'X'
+#define PIPE_STOP		'S'
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
@@ -99,6 +101,7 @@ enum {
 	STRESS_HDD,
 	STRESS_FORK,
 	STRESS_CTXT,
+	STRESS_PIPE,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -118,6 +121,7 @@ enum {
 	OPT_HDD_OPS,
 	OPT_FORK_OPS,
 	OPT_CTXT_OPS,
+	OPT_PIPE_OPS,
 };
 
 typedef void (*func)(uint64_t *counter);
@@ -150,6 +154,7 @@ static uint64_t	opt_vm_ops = 0;				/* VM bogo ops max */
 static uint64_t	opt_hdd_ops = 0;			/* HDD bogo ops max */
 static uint64_t opt_fork_ops = 0;			/* fork bogo ops max */
 static uint64_t opt_ctxt_ops = 0;			/* context ops max */
+static uint64_t opt_pipe_ops = 0;			/* pipe ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 
 /* Human readable stress test names */
@@ -160,6 +165,7 @@ static const char *const stressors[] = {
 	"HDD-Write",
 	"Fork",
 	"Context-switch",
+	"Pipe",
 	/* Add new stress tests here */
 };
 
@@ -592,6 +598,74 @@ static void stress_ctxt(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
+#ifndef PIPE_BUF
+#define PIPE_BUF 512
+#endif
+
+/*
+ *  stress_pipe
+ *	stress by heavy pipe I/O
+ */
+static void stress_pipe(uint64_t *const counter)
+{
+	set_proc_name(APP_NAME "-pipe");
+	pr_dbg(stderr, "stress_pipe: started on pid [%d]\n", getpid());
+
+	pid_t pid;
+	int pipefds[2];
+
+	if (pipe(pipefds) < 0) {
+		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d [%d]\n", errno, getpid());
+		exit(0);
+	}
+
+	pid = fork();
+	if (pid < 0) {
+		close(pipefds[0]);
+		close(pipefds[1]);
+		exit(EXIT_FAILURE);
+	} else if (pid == 0) {
+		/* Child, immediately exit */
+		close(pipefds[1]);
+
+		for (;;) {
+			char buf[PIPE_BUF];
+
+			for (;;) {
+				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
+					pr_dbg(stderr, "stress_pipe: read failed, errno=%d [%d]\n", errno, getpid());
+					break;
+				}
+				if (buf[0] == PIPE_STOP)
+					break;
+			}
+			close(pipefds[0]);
+			exit(EXIT_SUCCESS);
+		}
+	} else {
+		char buf[PIPE_BUF];
+
+		memset(buf, '0', sizeof(buf));
+
+		/* Parent */
+		close(pipefds[0]);
+
+		do {
+			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
+				pr_dbg(stderr, "stress_pipe: write failed, errno=%d [%d]\n", errno, getpid());
+				break;
+			}
+			(*counter)++;
+		} while (!opt_pipe_ops || *counter < opt_pipe_ops);
+
+		memset(buf, PIPE_STOP, sizeof(buf));
+		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
+			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d [%d]\n", errno, getpid());
+		kill(pid, SIGKILL);
+	}
+	exit(EXIT_SUCCESS);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -600,6 +674,7 @@ static const func child_funcs[] = {
 	stress_io,
 	stress_fork,
 	stress_ctxt,
+	stress_pipe,
 	/* Add new stress tests here */
 };
 
@@ -640,13 +715,15 @@ static void usage(void)
 	printf("     --hdd-noclean   do not unlink files created by hdd workers\n");
 	printf(" -f, --fork N        start N workers spinning on fork() and exit()\n");
 	printf(" -s, --switch N      start N workers doing rapid context switches\n");
+	printf(" -p, --pipe N        start N workers exercising pipe I/O\n");
 	printf("     --metrics       print pseudo metrics of activity\n");
 	printf("     --cpu-ops N     stop when N cpu bogo operations completed\n");
 	printf("     --io-ops N      stop when N io bogo operations completed\n");
 	printf("     --vm-ops N      stop when N vm bogo operations completed\n");
 	printf("     --hdd-ops N     stop when N hdd bogo operations completed\n");
 	printf("     --fork-ops N    stop when N fork bogo operations completed\n");
-	printf("     --switch-ops N  stop when N context switch bogo operations completed\n\n");
+	printf("     --switch-ops N  stop when N context switch bogo operations completed\n");
+	printf("     --pipe-ops N    stop when N pipe I/O bogo operations completed\n\n");
 	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
@@ -680,6 +757,8 @@ static const struct option long_options[] = {
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ "switch-ops",	1,	0,	OPT_CTXT_OPS },
 	{ "cpu-load",	1,	0,	'l' },
+	{ "pipe",	1,	0,	'p' },
+	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -785,7 +864,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:",
+		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:p:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -832,6 +911,10 @@ int main(int argc, char **argv)
 		case 's':
 			num_procs[STRESS_CTXT] = opt_long("switch", optarg);
 			check_value("Context-Switches", num_procs[STRESS_CTXT]);
+			break;
+		case 'p':
+			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
+			check_value("Pipe", num_procs[STRESS_PIPE]);
 			break;
 		case 'l':
 			opt_cpu_load = opt_long("cpu load", optarg);
@@ -889,6 +972,10 @@ int main(int argc, char **argv)
 			opt_ctxt_ops = get_uint64(optarg);
 			check_range("switch-ops", opt_ctxt_ops, 1000, 100000000);
 			break;
+		case OPT_PIPE_OPS:
+			opt_pipe_ops = get_uint64(optarg);
+			check_range("pipe-ops", opt_pipe_ops, 1000, 100000000);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -901,6 +988,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_hdd_ops, num_procs[STRESS_HDD]);
 	DIV_OPS_BY_PROCS(opt_fork_ops, num_procs[STRESS_FORK]);
 	DIV_OPS_BY_PROCS(opt_ctxt_ops, num_procs[STRESS_CTXT]);
+	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -924,13 +1012,14 @@ int main(int argc, char **argv)
 	}
 
 	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw\n",
+		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" PRId32 " pipe\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
 		num_procs[STRESS_HDD],
 		num_procs[STRESS_FORK],
-		num_procs[STRESS_CTXT]);
+		num_procs[STRESS_CTXT],
+		num_procs[STRESS_PIPE]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
@@ -974,7 +1063,7 @@ int main(int argc, char **argv)
 					(void)alarm(opt_timeout);
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						child_funcs[i](counters + (j * max) + i);
+						child_funcs[i](counters + (i * max) + j);
 					exit(0);
 				default:
 					procs[i][j].pid = pid;
@@ -1016,7 +1105,7 @@ int main(int argc, char **argv)
 			uint64_t total = 0;
 			double   total_time = 0.0;
 			for (j = 0; j < started_procs[i]; j++) {
-				total += *(counters + (j * max) + i);
+				total += *(counters + (i * max) + j);
 				total_time += procs[i][j].finish - procs[i][j].start;
 			}
 			pr_inf(stdout, "%s: %" PRIu64 " in %.2f secs, rate: %.2f\n",
