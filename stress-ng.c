@@ -91,6 +91,8 @@
 #define CTXT_STOP		'X'
 #define PIPE_STOP		'S'
 
+#define MEM_CHUNK_SIZE		(65536 * 8)
+
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
 /* Stress tests */
@@ -102,6 +104,7 @@ enum {
 	STRESS_FORK,
 	STRESS_CTXT,
 	STRESS_PIPE,
+	STRESS_CACHE,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -122,6 +125,7 @@ enum {
 	OPT_FORK_OPS,
 	OPT_CTXT_OPS,
 	OPT_PIPE_OPS,
+	OPT_CACHE_OPS,
 };
 
 typedef void (*func)(uint64_t *counter);
@@ -154,8 +158,10 @@ static uint64_t	opt_vm_ops = 0;				/* VM bogo ops max */
 static uint64_t	opt_hdd_ops = 0;			/* HDD bogo ops max */
 static uint64_t opt_fork_ops = 0;			/* fork bogo ops max */
 static uint64_t opt_ctxt_ops = 0;			/* context ops max */
-static uint64_t opt_pipe_ops = 0;			/* pipe ops max */
+static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
+static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
+static uint8_t *mem_chunk;				/* Cache load shared memory */
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -166,6 +172,7 @@ static const char *const stressors[] = {
 	"Fork",
 	"Context-switch",
 	"Pipe",
+	"Cache",
 	/* Add new stress tests here */
 };
 
@@ -194,7 +201,7 @@ static int print(
 	FILE *fp,
 	const char *const type,
 	const int flag,
-	const char *const fmt, ...) 
+	const char *const fmt, ...)
 {
 	va_list ap;
 	char buf[4096];
@@ -325,7 +332,7 @@ static uint64_t get_uint64_time(const char *const str)
 }
 
 /*
- *  stress on sync() 
+ *  stress on sync()
  *	stress system by IO sync calls
  */
 static void stress_iosync(uint64_t *const counter)
@@ -666,6 +673,55 @@ static void stress_pipe(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
+/*
+ *  mcw()
+ *	fast psuedo random number generator, see
+ *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
+ */
+static unsigned long mwc(void)
+{
+	static unsigned long z = 362436069, w = 521288629;
+
+	z = 36969 * (z & 65535) + (z >> 16);
+	w = 18000 * (w & 65535) + (w >> 16);
+	return (z << 16) + w;
+}
+
+/*
+ *  stress_cache()
+ *	stress cache by psuedo-random memory read/writes
+ */
+static void stress_cache(uint64_t *const counter)
+{
+	set_proc_name(APP_NAME "-cache");
+	pr_dbg(stderr, "stress_cache: started on pid [%d]\n", getpid());
+	unsigned long total = 0;
+
+	do {
+		unsigned long i = mwc() & (MEM_CHUNK_SIZE - 1);
+		unsigned long r = mwc();
+		int j;
+
+		if ((r >> 13) & 1) {
+			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
+				mem_chunk[i] += mem_chunk[(MEM_CHUNK_SIZE - 1) - i] + r;
+				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+			}
+		} else {
+			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
+				total += mem_chunk[i] + mem_chunk[(MEM_CHUNK_SIZE - 1) - i];
+				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+			}
+		}
+		(*counter)++;
+	} while (!opt_cache_ops || *counter < opt_cache_ops);
+
+	pr_dbg(stderr, "stress_cache: total [%lu]\n", total);
+
+	exit(EXIT_SUCCESS);
+}
+
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -675,6 +731,7 @@ static const func child_funcs[] = {
 	stress_fork,
 	stress_ctxt,
 	stress_pipe,
+	stress_cache,
 	/* Add new stress tests here */
 };
 
@@ -759,6 +816,8 @@ static const struct option long_options[] = {
 	{ "cpu-load",	1,	0,	'l' },
 	{ "pipe",	1,	0,	'p' },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
+	{ "cache",	1,	0, 	'C' },
+	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -864,7 +923,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:p:",
+		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:p:C:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -923,6 +982,10 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 			}
 			break;
+		case 'C':
+			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
+			check_value("Cache", num_procs[STRESS_CACHE]);
+			break;
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
 			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
@@ -976,6 +1039,10 @@ int main(int argc, char **argv)
 			opt_pipe_ops = get_uint64(optarg);
 			check_range("pipe-ops", opt_pipe_ops, 1000, 100000000);
 			break;
+		case OPT_CACHE_OPS:
+			opt_cache_ops = get_uint64(optarg);
+			check_range("cache-ops", opt_cache_ops, 1000, 100000000);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -989,6 +1056,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_fork_ops, num_procs[STRESS_FORK]);
 	DIV_OPS_BY_PROCS(opt_ctxt_ops, num_procs[STRESS_CTXT]);
 	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
+	DIV_OPS_BY_PROCS(opt_cache_ops, num_procs[STRESS_CACHE]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -1030,19 +1098,30 @@ int main(int argc, char **argv)
 	}
 
 	len = sizeof(uint64_t) * STRESS_MAX * max;
-	if (ftruncate(fd, len) < 0) {
+	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
 		pr_err(stderr, "Cannot resize shared memory region\n");
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
-	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region\n");
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
+	if (num_procs[STRESS_CACHE]) {
+		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+		if (mem_chunk == MAP_FAILED) {
+			pr_err(stderr, "Cannot mmap to shared memory region\n");
+			(void)close(fd);
+			(void)shm_unlink(shm_name);
+			exit(EXIT_FAILURE);
+		}
+		memset(mem_chunk, 0, len);
+	}
+
 	(void)close(fd);
 	memset(counters, 0, len);
 
