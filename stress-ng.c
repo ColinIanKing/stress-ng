@@ -652,7 +652,7 @@ static void stress_pipe(uint64_t *const counter)
 	} else {
 		char buf[PIPE_BUF];
 
-		memset(buf, '0', sizeof(buf));
+		memset(buf, 0x41, sizeof(buf));
 
 		/* Parent */
 		close(pipefds[0]);
