@@ -88,14 +88,17 @@ write N bytes for each hdd process, the default is 1 GB
 .B \-\-hdd\-noclean
 do not remove files created by hdd processes
 .TP
-.B \-f, \-\-fork
+.B \-f, \-\-fork N
 start N processes continually forking children that immediately exit
 .TP
-.B \-s, \-\-switch
+.B \-s, \-\-switch N
 start N processes that send messages via pipe to a child to force context switching
 .TP
-.B \-p, \-\-pipe
+.B \-p, \-\-pipeN N
 start N processes that perform large pipe writes and reads to exercise pipe I/O
+.TP
+.B \-C, \-\-cache N
+start N processes that perform memory read and writes to thrash the CPU cache
 .TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
@@ -120,6 +123,9 @@ stop context switcing processes after N bogo operations
 .TP
 .B \-\-pipe\-ops N
 stop pipe stress processes after N bogo pipe write operations
+.TP
+.B \-\-cache\-ops N
+stop cache thrash processes after N bogo cache thrash operations
 .LP
 Examples:
 .LP
