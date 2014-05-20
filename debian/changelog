@@ -1,3 +1,14 @@
+stress-ng (0.01.13-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * Fill memory with something other that '0'
+  * Add cache thrash stress options to man page
+  * Add cache stress
+  * Update man page with new pipe I/O options
+  * Add pipe I/O loading test
+
+ -- Colin King <colin.king@canonical.com>  Tue, 20 May 2014 12:14:00 +0100
+
 stress-ng (0.01.12-1) unstable; urgency=low
 
   * Makefile: bump version
