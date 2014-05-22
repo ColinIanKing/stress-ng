@@ -38,6 +38,10 @@
 #include <errno.h>
 #include <limits.h>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -105,6 +109,7 @@ enum {
 	STRESS_CTXT,
 	STRESS_PIPE,
 	STRESS_CACHE,
+	STRESS_SOCKET,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -126,9 +131,11 @@ enum {
 	OPT_CTXT_OPS,
 	OPT_PIPE_OPS,
 	OPT_CACHE_OPS,
+	OPT_SOCKET_OPS,
+	OPT_SOCKET_PORT,
 };
 
-typedef void (*func)(uint64_t *counter);
+typedef void (*func)(uint64_t *const counter, const uint32_t instance);
 
 typedef struct {
 	pid_t	pid;		/* process id */
@@ -160,8 +167,10 @@ static uint64_t opt_fork_ops = 0;			/* fork bogo ops max */
 static uint64_t opt_ctxt_ops = 0;			/* context ops max */
 static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
+static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
+static int	opt_socket_port = 5000;			/* Default socket port */
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -173,6 +182,7 @@ static const char *const stressors[] = {
 	"Context-switch",
 	"Pipe",
 	"Cache",
+	"Socket",
 	/* Add new stress tests here */
 };
 
@@ -335,10 +345,10 @@ static uint64_t get_uint64_time(const char *const str)
  *  stress on sync()
  *	stress system by IO sync calls
  */
-static void stress_iosync(uint64_t *const counter)
+static void stress_iosync(uint64_t *const counter, const uint32_t instance)
 {
 	set_proc_name(APP_NAME "-iosync");
-	pr_dbg(stderr, "stress_iosync: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_iosync: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	do {
 		sync();
@@ -352,10 +362,10 @@ static void stress_iosync(uint64_t *const counter)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-static void stress_cpu(uint64_t *const counter)
+static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 {
 	set_proc_name(APP_NAME "-cpu");
-	pr_dbg(stderr, "stress_cpu: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_cpu: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	srand(0x1234);
 
@@ -413,7 +423,7 @@ static void stress_cpu(uint64_t *const counter)
  *  stress_vm()
  *	stress virtual memory
  */
-static void stress_vm(uint64_t *const counter)
+static void stress_vm(uint64_t *const counter, const uint32_t instance)
 {
 	uint8_t *buf = NULL;
 	uint8_t	val = 0;
@@ -421,7 +431,7 @@ static void stress_vm(uint64_t *const counter)
 	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 
 	set_proc_name(APP_NAME "-vm");
-	pr_dbg(stderr, "stress_vm: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_vm: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	do {
 		const uint8_t gray_code = (val >> 1) ^ val;
@@ -466,14 +476,14 @@ static void stress_vm(uint64_t *const counter)
  *  stress_io
  *	stress I/O via writes
  */
-static void stress_io(uint64_t *const counter)
+static void stress_io(uint64_t *const counter, const uint32_t instance)
 {
 	uint8_t *buf;
 	uint64_t i;
 	const pid_t pid = getpid();
 
 	set_proc_name(APP_NAME "-io");
-	pr_dbg(stderr, "stress_io: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_io: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	if ((buf = malloc(STRESS_HDD_BUF_SIZE)) == NULL) {
 		pr_err(stderr, "stress_io: cannot allocate buffer\n");
@@ -519,10 +529,10 @@ static void stress_io(uint64_t *const counter)
  *  stress_fork()
  *	stress by forking and exiting
  */
-static void stress_fork(uint64_t *const counter)
+static void stress_fork(uint64_t *const counter, const uint32_t instance)
 {
 	set_proc_name(APP_NAME "-fork");
-	pr_dbg(stderr, "stress_fork: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_fork: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	do {
 		pid_t pid;
@@ -547,16 +557,16 @@ static void stress_fork(uint64_t *const counter)
  *  stress_ctxt
  *	stress by heavy context switching
  */
-static void stress_ctxt(uint64_t *const counter)
+static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 {
 	set_proc_name(APP_NAME "-ctxt");
-	pr_dbg(stderr, "stress_ctxt: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_ctxt: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	pid_t pid;
 	int pipefds[2];
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d [%d]\n", errno, getpid());
+		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s) [%d]\n", errno, strerror(errno), getpid());
 		exit(0);
 	}
 
@@ -574,7 +584,8 @@ static void stress_ctxt(uint64_t *const counter)
 
 			for (;;) {
 				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
-					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d [%d]\n", errno, getpid());
+					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d (%s) [%d]\n",
+						errno, strerror(errno), getpid());
 					break;
 				}
 				if (ch == CTXT_STOP)
@@ -591,7 +602,8 @@ static void stress_ctxt(uint64_t *const counter)
 
 		do {
 			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
-				pr_dbg(stderr, "stress_ctxt: write failed, errno=%d [%d]\n", errno, getpid());
+				pr_dbg(stderr, "stress_ctxt: write failed, errno=%d (%s) [%d]\n",
+					errno, strerror(errno), getpid());
 				break;
 			}
 			(*counter)++;
@@ -599,7 +611,8 @@ static void stress_ctxt(uint64_t *const counter)
 
 		ch = CTXT_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
-			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d [%d]\n", errno, getpid());
+			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
 		kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
@@ -613,16 +626,17 @@ static void stress_ctxt(uint64_t *const counter)
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-static void stress_pipe(uint64_t *const counter)
+static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 {
-	set_proc_name(APP_NAME "-pipe");
-	pr_dbg(stderr, "stress_pipe: started on pid [%d]\n", getpid());
-
 	pid_t pid;
 	int pipefds[2];
 
+	set_proc_name(APP_NAME "-pipe");
+	pr_dbg(stderr, "stress_pipe: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d [%d]\n", errno, getpid());
+		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d (%s) [%d]\n",
+			errno, strerror(errno), getpid());
 		exit(0);
 	}
 
@@ -640,7 +654,8 @@ static void stress_pipe(uint64_t *const counter)
 
 			for (;;) {
 				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
-					pr_dbg(stderr, "stress_pipe: read failed, errno=%d [%d]\n", errno, getpid());
+					pr_dbg(stderr, "stress_pipe: read failed, errno=%d (%s) [%d]\n",
+						errno, strerror(errno), getpid());
 					break;
 				}
 				if (buf[0] == PIPE_STOP)
@@ -659,7 +674,8 @@ static void stress_pipe(uint64_t *const counter)
 
 		do {
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
-				pr_dbg(stderr, "stress_pipe: write failed, errno=%d [%d]\n", errno, getpid());
+				pr_dbg(stderr, "stress_pipe: write failed, errno=%d (%s) [%d]\n",
+					errno, strerror(errno), getpid());
 				break;
 			}
 			(*counter)++;
@@ -667,7 +683,8 @@ static void stress_pipe(uint64_t *const counter)
 
 		memset(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d [%d]\n", errno, getpid());
+			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
 		kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
@@ -691,10 +708,10 @@ static unsigned long mwc(void)
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes
  */
-static void stress_cache(uint64_t *const counter)
+static void stress_cache(uint64_t *const counter, const uint32_t instance)
 {
 	set_proc_name(APP_NAME "-cache");
-	pr_dbg(stderr, "stress_cache: started on pid [%d]\n", getpid());
+	pr_dbg(stderr, "stress_cache: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 	unsigned long total = 0;
 
 	do {
@@ -721,6 +738,159 @@ static void stress_cache(uint64_t *const counter)
 	exit(EXIT_SUCCESS);
 }
 
+#define SOCKET_BUF	8192
+
+static pid_t socket_server, socket_client;
+
+/*
+ *  handle_socket_sigalrm()
+ *	catch SIGALRM
+ */
+static void handle_socket_sigalrm(int dummy)
+{
+	(void)dummy;
+
+	if (socket_client)
+		kill(socket_client, SIGKILL);
+	if (socket_server)
+		kill(socket_server, SIGKILL);
+}
+
+/*
+ *  stress_socket
+ *	stress by heavy socket I/O
+ */
+static void stress_socket(uint64_t *const counter, const uint32_t instance)
+{
+	pid_t pid;
+
+	set_proc_name(APP_NAME "-socket");
+	pr_dbg(stderr, "stress_socket: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "stress_socket: process [%d] using socket port %d\n", getpid(), opt_socket_port + instance);
+
+	pid = fork();
+	if (pid < 0) {
+		exit(EXIT_FAILURE);
+	} else if (pid == 0) {
+		/* Child, client */
+
+		for (;;) {
+			char buf[SOCKET_BUF];
+			ssize_t n;
+			struct sockaddr_in addr;
+			int fd;
+			int retries = 0;
+retry:
+			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+				pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s) [%d]\n",
+					errno, strerror(errno), getpid());
+				exit(EXIT_FAILURE);
+			}
+
+			memset(&addr, 0, sizeof(addr));
+			addr.sin_family = AF_INET;
+			addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+			addr.sin_port = htons(opt_socket_port + instance);
+
+			if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+				close(fd);
+				usleep(10000);
+				retries++;
+				if (retries > 100) {
+					pr_dbg(stderr, "stress_socket: connect failed after 100 retries, errno=%d (%s) [%d]\n",
+						errno, strerror(errno), getpid());
+					break;
+				}
+				goto retry;
+			}
+
+			retries = 0;
+			for (;;) {
+				n = read(fd, buf, sizeof(buf));
+				if (n == 0)
+					break;
+				if (n < 0) {
+					pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s) [%d]\n",
+						errno, strerror(errno), getpid());
+					break;
+				}
+			}
+			close(fd);
+		}
+		kill(getppid(), SIGALRM);
+		exit(EXIT_FAILURE);
+	} else {
+		/* Parent, server */
+
+		char buf[SOCKET_BUF];
+		int fd, status;
+		struct sockaddr_in addr;
+		int so_reuseaddr = 1;
+		struct sigaction new_action, old_action;
+
+		socket_server = getpid();
+		socket_client = pid;
+
+		new_action.sa_handler = handle_socket_sigalrm;
+		sigemptyset(&new_action.sa_mask);
+		new_action.sa_flags = 0;
+		sigaction(SIGALRM, &new_action, &old_action);
+
+		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
+			goto die;
+		}
+		memset(&addr, 0, sizeof(addr));
+		addr.sin_family = AF_INET;
+		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		addr.sin_port = htons(opt_socket_port + instance);
+
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+			pr_dbg(stderr, "stress_socket: setsockopt failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
+			goto die_close;
+		}
+		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+			pr_dbg(stderr, "stress_socket: bind failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
+			goto die_close;
+		}
+		if (listen(fd, 10) < 0) {
+			pr_dbg(stderr, "stress_socket: listen failed, errno=%d (%s) [%d]\n",
+				errno, strerror(errno), getpid());
+			goto die_close;
+		}
+
+		do {
+			int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+			if (sfd >= 0) {
+				int ret;
+				size_t i;
+
+				memset(buf, 'A' + (*counter % 26), sizeof(buf));
+				for (i = 16; i < sizeof(buf); i += 16) {
+					ret = write(sfd, buf, i);
+
+					if (ret < 0) {
+						pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s) [%d]\n",
+							errno, strerror(errno), getpid());
+						break;
+					}
+				}
+				(void)close(sfd);
+			}
+			(*counter)++;
+		} while (!opt_socket_ops || *counter < opt_socket_ops);
+
+die_close:
+		close(fd);
+die:
+		kill(pid, SIGKILL);
+		waitpid(pid, &status, 0);
+	}
+	exit(EXIT_SUCCESS);
+}
 
 /* stress tests */
 static const func child_funcs[] = {
@@ -732,6 +902,7 @@ static const func child_funcs[] = {
 	stress_ctxt,
 	stress_pipe,
 	stress_cache,
+	stress_socket,
 	/* Add new stress tests here */
 };
 
@@ -780,6 +951,9 @@ static void usage(void)
 	printf(" -q,   --quiet        quiet output\n");
 	printf(" -s,   --switch N     start N workers doing rapid context switches\n");
 	printf("       --switch-ops N stop when N context switch bogo operations completed\n");
+	printf(" -S,   --sock N       start N workers doing socket activity\n");
+	printf("       --sock-ops N   stop when N socket bogo operations completed\n");
+	printf("       --sock-port P  use socket ports P to P + number of workers - 1\n");
 	printf(" -t N, --timeout N    timeout after N seconds\n");
 	printf(" -v,   --verbose      verbose output\n");
 	printf(" -V,   --version      show version\n\n");
@@ -820,6 +994,9 @@ static const struct option long_options[] = {
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "cache",	1,	0, 	'C' },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
+	{ "sock",	1,	0,	'S' },
+	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
+	{ "sock-port",1,	0,	OPT_SOCKET_PORT },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -925,7 +1102,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -935,7 +1112,7 @@ int main(int argc, char **argv)
 			version();
 			exit(EXIT_SUCCESS);
 		case 'v':
-			opt_flags = PR_ALL;
+			opt_flags |= PR_ALL;
 			break;
 		case 'q':
 			opt_flags &= ~(PR_ALL);
@@ -987,6 +1164,10 @@ int main(int argc, char **argv)
 		case 'C':
 			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
 			check_value("Cache", num_procs[STRESS_CACHE]);
+			break;
+		case 'S':
+			num_procs[STRESS_SOCKET] = opt_long("socket", optarg);
+			check_value("Socket", num_procs[STRESS_SOCKET]);
 			break;
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
@@ -1045,6 +1226,14 @@ int main(int argc, char **argv)
 			opt_cache_ops = get_uint64(optarg);
 			check_range("cache-ops", opt_cache_ops, 1000, 100000000);
 			break;
+		case OPT_SOCKET_OPS:
+			opt_socket_ops = get_uint64(optarg);
+			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
+			break;
+		case OPT_SOCKET_PORT:
+			opt_socket_port = get_uint64(optarg);
+			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -1059,6 +1248,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_ctxt_ops, num_procs[STRESS_CTXT]);
 	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
 	DIV_OPS_BY_PROCS(opt_cache_ops, num_procs[STRESS_CACHE]);
+	DIV_OPS_BY_PROCS(opt_socket_ops, num_procs[STRESS_SOCKET]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -1145,7 +1335,7 @@ int main(int argc, char **argv)
 					(void)alarm(opt_timeout);
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						child_funcs[i](counters + (i * max) + j);
+						child_funcs[i](counters + (i * max) + j, j);
 					exit(0);
 				default:
 					procs[i][j].pid = pid;
@@ -1164,7 +1354,7 @@ int main(int argc, char **argv)
 
 		if ((pid = wait(&status)) > 0) {
 			if (WEXITSTATUS(status)) {
-				pr_err(stderr, "Process %d terminated with an error\n", status);
+				pr_err(stderr, "Process %d terminated with an error: \n", status);
 				success = false;
 			}
 			proc_finished(pid, procs, started_procs);

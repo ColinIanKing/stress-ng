@@ -100,6 +100,15 @@ start N processes that perform large pipe writes and reads to exercise pipe I/O
 .B \-C, \-\-cache N
 start N processes that perform memory read and writes to thrash the CPU cache
 .TP
+.B \-S, \-\-sock N
+start N processes that perform various socket stress activity
+.TP
+.B \-\-sock-port P
+start at socket port P. For N socket worker processes, ports P to P - 1 are used.
+.TP
+.B \-\-sock-ops N
+stop socket stress processes after N bogo operations
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
 .TP
