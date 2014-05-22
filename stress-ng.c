@@ -930,6 +930,7 @@ static void usage(void)
 	version();
 	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
 	printf(" -?,   --help         show help\n");
+	printf(" -a N, --all N        start N workers of each stress test\n");
 	printf(" -b N, --backoff N    wait of N microseconds before work starts\n");
 	printf(" -c N, --cpu N        start N workers spinning on sqrt(rand())\n");
 	printf(" -l P, --cpu-load P   load CPU by P %%, 0=sleep, 100=full load (see -c)\n");
@@ -1002,7 +1003,8 @@ static const struct option long_options[] = {
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
 	{ "sock",	1,	0,	'S' },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
-	{ "sock-port",1,	0,	OPT_SOCKET_PORT },
+	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
+	{ "all",	1,	0,	'a' },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -1087,6 +1089,7 @@ static long int opt_long(const char *opt, const char *str)
 int main(int argc, char **argv)
 {
 	proc_info_t *procs[STRESS_MAX];
+	int32_t val;
 	int32_t	num_procs[STRESS_MAX];
 	int32_t	started_procs[STRESS_MAX];
 	int32_t n_procs, total_procs = 0;
@@ -1108,10 +1111,16 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
+		case 'a':
+			val = opt_long("-a", optarg);
+			check_value("all", val);
+			for (i = 0; i < STRESS_MAX; i++)
+				num_procs[i] = val;
+			break;
 		case '?':
 			usage();
 		case 'V':
@@ -1279,7 +1288,9 @@ int main(int argc, char **argv)
 	}
 
 	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" PRId32 " pipe, %" PRId32 " cache\n",
+		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" 
+		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" 
+		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1287,7 +1298,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_FORK],
 		num_procs[STRESS_CTXT],
 		num_procs[STRESS_PIPE],
-		num_procs[STRESS_CACHE]);
+		num_procs[STRESS_CACHE],
+		num_procs[STRESS_SOCKET]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
