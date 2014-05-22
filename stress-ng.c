@@ -752,35 +752,37 @@ static void usage(void)
 {
 	version();
 	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
-	printf(" -?, --help          show help\n");
-	printf("     --version       show version\n");
-	printf(" -v, --verbose       verbose output\n");
-	printf(" -q, --quiet         quiet output\n");
-	printf(" -n, --dry-run       don't run\n");
-	printf(" -t, --timeout N     timeout after N seconds\n");
-	printf(" -b, --backoff N     wait of N microseconds before work starts\n");
-	printf(" -c, --cpu N         start N workers spinning on sqrt(rand())\n");
-	printf(" -l, --cpu-load P    load CPU by P %%, 0 to sleep, 100 is fully loaded\n");
-	printf(" -i, --io N          start N workers spinning on sync()\n");
-	printf(" -m, --vm N          start N workers spinning on anonymous mmap\n");
-	printf("     --vm-bytes N    allocate N bytes per vm worker (default 256MB)\n");
-	printf("     --vm-stride N   touch a byte every N bytes (default 4K)\n");
-	printf("     --vm-hang N     sleep N seconds before freeing memory\n");
-	printf("     --vm-keep       redirty memory instead of reallocating\n");
-	printf(" -d, --hdd N         start N workers spinning on write()/unlink()\n");
-	printf("     --hdd-bytes N   write N bytes per hdd worker (default is 1GB)\n");
-	printf("     --hdd-noclean   do not unlink files created by hdd workers\n");
-	printf(" -f, --fork N        start N workers spinning on fork() and exit()\n");
-	printf(" -s, --switch N      start N workers doing rapid context switches\n");
-	printf(" -p, --pipe N        start N workers exercising pipe I/O\n");
-	printf("     --metrics       print pseudo metrics of activity\n");
-	printf("     --cpu-ops N     stop when N cpu bogo operations completed\n");
-	printf("     --io-ops N      stop when N io bogo operations completed\n");
-	printf("     --vm-ops N      stop when N vm bogo operations completed\n");
-	printf("     --hdd-ops N     stop when N hdd bogo operations completed\n");
-	printf("     --fork-ops N    stop when N fork bogo operations completed\n");
-	printf("     --switch-ops N  stop when N context switch bogo operations completed\n");
-	printf("     --pipe-ops N    stop when N pipe I/O bogo operations completed\n\n");
+	printf(" -?,   --help         show help\n");
+	printf(" -b N, --backoff N    wait of N microseconds before work starts\n");
+	printf(" -c N, --cpu N        start N workers spinning on sqrt(rand())\n");
+	printf(" -l P, --cpu-load P   load CPU by P %%, 0=sleep, 100=full load (see -c)\n");
+	printf("       --cpu-ops N    stop when N cpu bogo operations completed\n");
+	printf(" -C N, --cache N      start N CPU cache thrashing workers\n");
+	printf("       --cache-ops N  stop when N cache bogo operations completed\n");
+	printf(" -d N, --hdd N        start N workers spinning on write()/unlink()\n");
+	printf("       --hdd-bytes N  write N bytes per hdd worker (default is 1GB)\n");
+	printf("       --hdd-noclean  do not unlink files created by hdd workers\n");
+	printf("       --hdd-ops N    stop when N hdd bogo operations completed\n");
+	printf(" -f N, --fork N       start N workers spinning on fork() and exit()\n");
+	printf("       --fork-ops N   stop when N fork bogo operations completed\n");
+	printf(" -i N, --io N         start N workers spinning on sync()\n");
+	printf("       --io-ops N     stop when N io bogo operations completed\n");
+	printf(" -M,   --metrics      print pseudo metrics of activity\n");
+	printf(" -m N, --vm N         start N workers spinning on anonymous mmap\n");
+	printf("       --vm-bytes N   allocate N bytes per vm worker (default 256MB)\n");
+	printf("       --vm-stride N  touch a byte every N bytes (default 4K)\n");
+	printf("       --vm-hang N    sleep N seconds before freeing memory\n");
+	printf("       --vm-keep      redirty memory instead of reallocating\n");
+	printf("       --vm-ops N     stop when N vm bogo operations completed\n");
+	printf(" -n,   --dry-run      don't run\n");
+	printf(" -p N, --pipe N       start N workers exercising pipe I/O\n");
+	printf("       --pipe-ops N   stop when N pipe I/O bogo operations completed\n");
+	printf(" -q,   --quiet        quiet output\n");
+	printf(" -s,   --switch N     start N workers doing rapid context switches\n");
+	printf("       --switch-ops N stop when N context switch bogo operations completed\n");
+	printf(" -t N, --timeout N    timeout after N seconds\n");
+	printf(" -v,   --verbose      verbose output\n");
+	printf(" -V,   --version      show version\n\n");
 	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
@@ -806,7 +808,7 @@ static const struct option long_options[] = {
 	{ "hdd",	1,	0,	'd' },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
-	{ "metrics",	0,	0,	OPT_METRICS },
+	{ "metrics",	0,	0,	'M' },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
@@ -923,7 +925,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?Vvqnt:b:c:i:m:d:f:s:l:p:C:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -986,6 +988,9 @@ int main(int argc, char **argv)
 			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
 			check_value("Cache", num_procs[STRESS_CACHE]);
 			break;
+		case 'M':
+			opt_flags |= OPT_FLAGS_METRICS;
+			break;
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
 			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
@@ -1007,9 +1012,6 @@ int main(int argc, char **argv)
 			break;
 		case OPT_HDD_NOCLEAN:
 			opt_flags |= OPT_FLAGS_NO_CLEAN;
-			break;
-		case OPT_METRICS:
-			opt_flags |= OPT_FLAGS_METRICS;
 			break;
 		case OPT_CPU_OPS:
 			opt_cpu_ops = get_uint64(optarg);
