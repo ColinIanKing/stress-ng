@@ -1082,14 +1082,15 @@ int main(int argc, char **argv)
 	}
 
 	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" PRId32 " pipe\n",
+		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" PRId32 " pipe, %" PRId32 " cache\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
 		num_procs[STRESS_HDD],
 		num_procs[STRESS_FORK],
 		num_procs[STRESS_CTXT],
-		num_procs[STRESS_PIPE]);
+		num_procs[STRESS_PIPE],
+		num_procs[STRESS_CACHE]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
