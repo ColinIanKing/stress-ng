@@ -1,3 +1,16 @@
+stress-ng (0.01.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add -a, -all run all stress test option
+  * Cast close returns to (void) when we don't care
+  * Minor comment and code clean up
+  * Re-order options in man page
+  * Add socket stressors
+  * Add CPU cache to hogs line
+  * Fix up and re-order options in help info
+
+ -- Colin King <colin.king@canonical.com>  Thu, 22 May 2014 16:01:01 +0100
+
 stress-ng (0.01.13-1) unstable; urgency=low
 
   * Makefile: bump version
