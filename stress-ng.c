@@ -38,31 +38,30 @@
 #include <errno.h>
 #include <limits.h>
 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <sys/prctl.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define APP_NAME		"stress-ng"
 
 #define STRESS_HDD_BUF_SIZE	(64 * 1024)
 
 /* Option bit masks */
-#define OPT_FLAGS_NO_CLEAN	0x00000001
-#define OPT_FLAGS_DRY_RUN	0x00000002
-#define OPT_FLAGS_METRICS	0x00000004
-#define OPT_FLAGS_VM_KEEP	0x00000008
+#define OPT_FLAGS_NO_CLEAN	0x00000001	/* Don't remove hdd files */
+#define OPT_FLAGS_DRY_RUN	0x00000002	/* Don't actually run */
+#define OPT_FLAGS_METRICS	0x00000004	/* Dump metrics at end */
+#define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
 
 /* debug output bitmasks */
-#define PR_ERR			0x00010000
-#define PR_INF			0x00020000
-#define PR_DBG			0x00040000
+#define PR_ERR			0x00010000	/* Print errors */
+#define PR_INF			0x00020000	/* Print info */
+#define PR_DBG			0x00040000	/* Print debug */
 #define PR_ALL			(PR_ERR | PR_INF | PR_DBG)
 
 #define pr_dbg(fp, fmt, args...) print(fp, "debug", PR_DBG, fmt, ## args)
@@ -135,6 +134,7 @@ enum {
 	OPT_SOCKET_PORT,
 };
 
+/* stress process prototype */
 typedef void (*func)(uint64_t *const counter, const uint32_t instance);
 
 typedef struct {
@@ -313,7 +313,10 @@ static uint64_t get_uint64_scale(
 	exit(EXIT_FAILURE);
 }
 
-/* size in bytes, K bytes, M bytes or G bytes */
+/*
+ *  get_uint64_byte()
+ *	size in bytes, K bytes, M bytes or G bytes
+ */
 static uint64_t get_uint64_byte(const char *const str)
 {
 	static const scale_t scales[] = {
@@ -327,7 +330,10 @@ static uint64_t get_uint64_byte(const char *const str)
 	return get_uint64_scale(str, scales, "length");
 }
 
-/* time in seconds, minutes, hours, days or years */
+/*
+ *  get_uint64_time()
+ *	time in seconds, minutes, hours, days or years
+ */
 static uint64_t get_uint64_time(const char *const str)
 {
 	static const scale_t scales[] = {
@@ -1240,6 +1246,7 @@ int main(int argc, char **argv)
 		}
 	}
 
+	/* Share bogo ops between processes equally */
 	DIV_OPS_BY_PROCS(opt_cpu_ops, num_procs[STRESS_CPU]);
 	DIV_OPS_BY_PROCS(opt_iosync_ops, num_procs[STRESS_IOSYNC]);
 	DIV_OPS_BY_PROCS(opt_vm_ops, num_procs[STRESS_VM]);
