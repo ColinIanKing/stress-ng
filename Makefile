@@ -1,6 +1,6 @@
-VERSION=0.01.13
+VERSION=0.01.14
 #
-# Codename "More Toasty CPUs"
+# Codename "stress overload"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
