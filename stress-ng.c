@@ -578,12 +578,12 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 	pid = fork();
 	if (pid < 0) {
-		close(pipefds[0]);
-		close(pipefds[1]);
+		(void)close(pipefds[0]);
+		(void)close(pipefds[1]);
 		exit(EXIT_FAILURE);
 	} else if (pid == 0) {
 		/* Child, immediately exit */
-		close(pipefds[1]);
+		(void)close(pipefds[1]);
 
 		for (;;) {
 			char ch;
@@ -597,14 +597,14 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 				if (ch == CTXT_STOP)
 					break;
 			}
-			close(pipefds[0]);
+			(void)close(pipefds[0]);
 			exit(EXIT_SUCCESS);
 		}
 	} else {
 		char ch = '_';
 
 		/* Parent */
-		close(pipefds[0]);
+		(void)close(pipefds[0]);
 
 		do {
 			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
@@ -648,12 +648,12 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 	pid = fork();
 	if (pid < 0) {
-		close(pipefds[0]);
-		close(pipefds[1]);
+		(void)close(pipefds[0]);
+		(void)close(pipefds[1]);
 		exit(EXIT_FAILURE);
 	} else if (pid == 0) {
 		/* Child, immediately exit */
-		close(pipefds[1]);
+		(void)close(pipefds[1]);
 
 		for (;;) {
 			char buf[PIPE_BUF];
@@ -667,7 +667,7 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 				if (buf[0] == PIPE_STOP)
 					break;
 			}
-			close(pipefds[0]);
+			(void)close(pipefds[0]);
 			exit(EXIT_SUCCESS);
 		}
 	} else {
@@ -676,7 +676,7 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 		memset(buf, 0x41, sizeof(buf));
 
 		/* Parent */
-		close(pipefds[0]);
+		(void)close(pipefds[0]);
 
 		do {
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
@@ -799,7 +799,7 @@ retry:
 			addr.sin_port = htons(opt_socket_port + instance);
 
 			if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-				close(fd);
+				(void)close(fd);
 				usleep(10000);
 				retries++;
 				if (retries > 100) {
@@ -821,7 +821,7 @@ retry:
 					break;
 				}
 			}
-			close(fd);
+			(void)close(fd);
 		}
 		kill(getppid(), SIGALRM);
 		exit(EXIT_FAILURE);
@@ -890,7 +890,7 @@ retry:
 		} while (!opt_socket_ops || *counter < opt_socket_ops);
 
 die_close:
-		close(fd);
+		(void)close(fd);
 die:
 		kill(pid, SIGKILL);
 		waitpid(pid, &status, 0);
