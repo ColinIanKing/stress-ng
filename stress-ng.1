@@ -25,7 +25,7 @@ stress\-ng \- a tool to load and stress a computer system
 .br
 
 .SH DESCRIPTION
-stress\-ng will stress test a computer system in various ways
+stress\-ng will stress test a computer system in various optional ways.
 
 .SH OPTIONS
 .TP
@@ -148,11 +148,15 @@ stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
 .LP
 stress\-ng \-\-fork 4 \-\-fork-ops 100000
+.LP
+stress-\ng --all 4 \-\-timeout 5m
 .SH SEE ALSO
 .BR stress (1) 
 .SH AUTHOR
-stress\-ng was written by Colin King <colin.king@canonical.com> based on a clean
-room implementation from the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>
+stress\-ng was written by Colin King <colin.king@canonical.com> and is a clean
+room implementation of the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>.
+Note that the stress-ng cpu, io, vm and hdd tests are different implementations of the original stress
+tests and hence may produce different stress characteristics.
 .PP
 This manual page was written by Colin King <colin.king@canonical.com>,
 for the Ubuntu project (but may be used by others).
