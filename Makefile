@@ -1,6 +1,6 @@
-VERSION=0.01.14
+VERSION=0.01.15
 #
-# Codename "stress overload"
+# Codename "burdensome pressure cooker"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
