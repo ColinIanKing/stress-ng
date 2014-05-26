@@ -470,7 +470,7 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 		}
 
 		if (!keep)
-			munmap(buf, opt_vm_bytes);
+			(void)munmap(buf, opt_vm_bytes);
 
 		(*counter)++;
 	} while (!opt_vm_ops || *counter < opt_vm_ops);
@@ -619,7 +619,7 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
 			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d (%s) [%d]\n",
 				errno, strerror(errno), getpid());
-		kill(pid, SIGKILL);
+		(void)kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
 }
@@ -691,7 +691,7 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d (%s) [%d]\n",
 				errno, strerror(errno), getpid());
-		kill(pid, SIGKILL);
+		(void)kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
 }
@@ -757,9 +757,9 @@ static void handle_socket_sigalrm(int dummy)
 	(void)dummy;
 
 	if (socket_client)
-		kill(socket_client, SIGKILL);
+		(void)kill(socket_client, SIGKILL);
 	if (socket_server)
-		kill(socket_server, SIGKILL);
+		(void)kill(socket_server, SIGKILL);
 }
 
 /*
@@ -823,7 +823,7 @@ retry:
 			}
 			(void)close(fd);
 		}
-		kill(getppid(), SIGALRM);
+		(void)kill(getppid(), SIGALRM);
 		exit(EXIT_FAILURE);
 	} else {
 		/* Parent, server */
@@ -892,7 +892,7 @@ retry:
 die_close:
 		(void)close(fd);
 die:
-		kill(pid, SIGKILL);
+		(void)kill(pid, SIGKILL);
 		waitpid(pid, &status, 0);
 	}
 	exit(EXIT_SUCCESS);
@@ -1041,7 +1041,7 @@ static void send_alarm(
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		for (j = 0; j < started_procs[i]; j++) {
-			kill(procs[i][j].pid, SIGALRM);
+			(void)kill(procs[i][j].pid, SIGALRM);
 		}
 	}
 }
