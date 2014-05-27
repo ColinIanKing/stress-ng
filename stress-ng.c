@@ -284,7 +284,7 @@ static uint64_t get_uint64(const char *const str)
  */
 static uint64_t get_uint64_scale(
 	const char *const str,
-	const scale_t const scales[],
+	const scale_t scales[],
 	const char *const msg)
 {
 	uint64_t val;
@@ -1035,7 +1035,7 @@ static void handle_sigint(int dummy)
  */
 static void send_alarm(
 	proc_info_t *const procs[STRESS_MAX],
-	const int const started_procs[STRESS_MAX])
+	const int started_procs[STRESS_MAX])
 {
 	int i, j;
 
