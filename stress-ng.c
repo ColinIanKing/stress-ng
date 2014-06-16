@@ -214,11 +214,11 @@ static int print(
 	const char *const fmt, ...)
 {
 	va_list ap;
-	char buf[4096];
 	int ret = 0;
 
 	va_start(ap, fmt);
 	if (opt_flags & flag) {
+		char buf[4096];
 		int n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
 			type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) -n, fmt, ap);
@@ -871,13 +871,11 @@ retry:
 		do {
 			int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 			if (sfd >= 0) {
-				int ret;
 				size_t i;
 
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
 				for (i = 16; i < sizeof(buf); i += 16) {
-					ret = write(sfd, buf, i);
-
+					int ret = write(sfd, buf, i);
 					if (ret < 0) {
 						pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s) [%d]\n",
 							errno, strerror(errno), getpid());
