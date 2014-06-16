@@ -523,7 +523,7 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 				break;
 		}
 		(void)close(fd);
-		if ((!opt_flags & OPT_FLAGS_NO_CLEAN))
+		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 			(void)unlink(filename);
 	} while (!opt_hdd_ops || *counter < opt_hdd_ops);
 
