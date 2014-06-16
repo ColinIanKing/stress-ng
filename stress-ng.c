@@ -1035,9 +1035,10 @@ static void send_alarm(
 	proc_info_t *const procs[STRESS_MAX],
 	const int started_procs[STRESS_MAX])
 {
-	int i, j;
+	int i;
 
 	for (i = 0; i < STRESS_MAX; i++) {
+		int j;
 		for (j = 0; j < started_procs[i]; j++) {
 			(void)kill(procs[i][j].pid, SIGALRM);
 		}
