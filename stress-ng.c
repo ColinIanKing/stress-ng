@@ -43,7 +43,9 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#if defined (__linux__)
 #include <sys/prctl.h>
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
