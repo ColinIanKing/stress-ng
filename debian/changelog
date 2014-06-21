@@ -1,3 +1,13 @@
+stress-ng (0.01.16-1) unstable; urgency=medium
+
+  * Don't include prctl.h unless compiled for a linux target
+  * Reduce scope of j loop index
+  * Reduce scope of ret
+  * Clarify bitwise operation
+  * Remove duplicate consts
+
+ -- Colin King <colin.king@canonical.com>  Sat, 21 Jun 2014 14:24:15 +0100
+
 stress-ng (0.01.15-1) unstable; urgency=medium
 
   * Initial Debian upload (Closes: #735674)
