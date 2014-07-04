@@ -342,7 +342,8 @@ static int get_opt_sched(const char *const str)
 	if (!strcmp("rr", str))
 		return SCHED_RR;
 #endif
-	fprintf(stderr, "Invalid sched option: %s\n", str);
+	if (strcmp("which", str))
+		fprintf(stderr, "Invalid sched option: %s\n", str);
 	fprintf(stderr, "Availble scheduler options are:"
 #ifdef SCHED_OTHER
 		" other"
