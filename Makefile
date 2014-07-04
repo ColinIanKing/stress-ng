@@ -9,7 +9,7 @@ BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
 stress-ng: stress-ng.o
-	$(CC) $(CFLAGS) $< -lm -lrt -o $@ $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< -lm -lrt -o $@ $(LDFLAGS)
 
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@
