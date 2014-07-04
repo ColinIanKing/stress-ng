@@ -45,6 +45,7 @@
 #include <sys/wait.h>
 #if defined (__linux__)
 #include <sys/prctl.h>
+#include <sched.h>
 #endif
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -97,6 +98,7 @@
 #define PIPE_STOP		'S'
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
+#define UNDEFINED		(-1)
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
@@ -134,6 +136,10 @@ enum {
 	OPT_CACHE_OPS,
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
+#if defined (__linux__)
+	OPT_SCHED,
+	OPT_SCHED_PRIO,
+#endif
 };
 
 /* stress process prototype */
@@ -173,6 +179,10 @@ static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
+#if defined (__linux__)
+static int	opt_sched = UNDEFINED;			/* sched policy */
+static int	opt_sched_priority = UNDEFINED;		/* sched priority */
+#endif
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -264,6 +274,115 @@ static void check_range(
 	}
 }
 
+#if defined (__linux__)
+/*
+ *  set_sched()
+ * 	are sched settings valid, if so, set them
+ */
+static void set_sched(const int sched, const int sched_priority)
+{
+	int min, max, rc;
+	struct sched_param param;
+
+	switch (sched) {
+	case UNDEFINED:	/* No preference, don't set */
+		return;
+	case SCHED_FIFO:
+	case SCHED_RR:
+		min = sched_get_priority_min(sched);
+		max = sched_get_priority_max(sched);
+		if ((sched_priority == UNDEFINED) ||
+		    (sched_priority > max) ||
+		    (sched_priority < min)) {
+			fprintf(stderr, "Scheduler priority level must be set between %d and %d\n",
+				min, max);
+			exit(EXIT_FAILURE);
+		}
+		param.sched_priority = sched_priority;
+		break;
+	default:
+		if (sched_priority != UNDEFINED) {
+			fprintf(stderr, "Cannot set sched priority for chosen scheduler, defaulting to 0\n");
+		}
+		param.sched_priority = 0;
+	}
+	rc = sched_setscheduler(getpid(), sched, &param);
+	if (rc < 0) {
+		fprintf(stderr, "Cannot set scheduler priority: %s\n",
+			strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+}
+#endif
+
+#if defined (__linux__)
+/*
+ *  get_opt_sched()
+ *	get scheduler policy
+ */
+static int get_opt_sched(const char *const str)
+{
+#ifdef SCHED_OTHER
+	if (!strcmp("other", str))
+		return SCHED_OTHER;
+#endif
+#ifdef SCHED_BATCH
+	if (!strcmp("batch", str))
+		return SCHED_BATCH;
+#endif
+#ifdef SCHED_IDLE
+	if (!strcmp("idle", str))
+		return SCHED_IDLE;
+#endif
+#ifdef SCHED_FIFO
+	if (!strcmp("fifo", str))
+		return SCHED_FIFO;
+#endif
+#ifdef SCHED_RR
+	if (!strcmp("rr", str))
+		return SCHED_RR;
+#endif
+	fprintf(stderr, "Invalid sched option: %s\n", str);
+	fprintf(stderr, "Availble scheduler options are:"
+#ifdef SCHED_OTHER
+		" other"
+#endif
+#ifdef SCHED_BATCH
+		" batch"
+#endif
+#ifdef SCHED_IDLE
+		" idle"
+#endif
+#ifdef SCHED_FIFO
+		" fifo"
+#endif
+#ifdef SCHED_FIFO
+		" rr"
+#endif
+		"\n");
+	exit(EXIT_FAILURE);
+
+	return -1;
+}
+#endif
+
+#if defined (__linux__)
+/*
+ *  get_int()
+ *	string to int
+ */
+static int get_int(const char *const str)
+{
+	int val;
+
+	if (sscanf(str, "%d", &val) != 1) {
+		fprintf(stderr, "Invalid number %s\n", str);
+		exit(EXIT_FAILURE);
+	}
+	return val;
+}
+#endif
+
 /*
  *  get_uint64()
  *	string to uint64_t
@@ -276,7 +395,6 @@ static uint64_t get_uint64(const char *const str)
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
-
 	return val;
 }
 
@@ -956,6 +1074,10 @@ static void usage(void)
 	printf(" -p N, --pipe N       start N workers exercising pipe I/O\n");
 	printf("       --pipe-ops N   stop when N pipe I/O bogo operations completed\n");
 	printf(" -q,   --quiet        quiet output\n");
+#if defined (__linux__)
+	printf("       --sched type   set scheduler type\n");
+	printf("       --sched-prio N set scheduler priority level N\n");
+#endif
 	printf(" -s,   --switch N     start N workers doing rapid context switches\n");
 	printf("       --switch-ops N stop when N context switch bogo operations completed\n");
 	printf(" -S,   --sock N       start N workers doing socket activity\n");
@@ -1005,6 +1127,10 @@ static const struct option long_options[] = {
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 	{ "all",	1,	0,	'a' },
+#if defined (__linux__)
+	{ "sched",	1,	0,	OPT_SCHED },
+	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -1250,11 +1376,24 @@ int main(int argc, char **argv)
 			opt_socket_port = get_uint64(optarg);
 			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
 			break;
+#if defined (__linux__)
+		case OPT_SCHED:
+			opt_sched = get_opt_sched(optarg);
+			break;
+		case OPT_SCHED_PRIO:
+			opt_sched_priority = get_int(optarg);
+			break;
+#endif
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
 		}
 	}
+
+#if defined (__linux__)
+	/* check and set sched */
+	set_sched(opt_sched, opt_sched_priority);
+#endif
 
 	/* Share bogo ops between processes equally */
 	DIV_OPS_BY_PROCS(opt_cpu_ops, num_procs[STRESS_CPU]);
@@ -1289,8 +1428,8 @@ int main(int argc, char **argv)
 	}
 
 	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %" 
-		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %" 
+		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
+		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
