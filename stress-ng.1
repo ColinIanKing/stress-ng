@@ -117,6 +117,14 @@ don't show any output
 .B \-S, \-\-sock N
 start N processes that perform various socket stress activity
 .TP
+.B \-\-sched-scheduler sched
+select the named scheduler (only on Linux). To see the list of available schedulers
+use: stress\-ng \-\-sched which
+.TP
+.B \-\-sched\-prio prio
+select the scheduler priority level (only on Linux). If the scheduler does not support this then
+the default priority level of 0 is chosen.
+.TP
 .B \-\-sock-port P
 start at socket port P. For N socket worker processes, ports P to P - 1 are used.
 .TP
