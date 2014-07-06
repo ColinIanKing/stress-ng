@@ -81,6 +81,13 @@ start N processes continuously calling sync()
 .B \-\-io\-ops N
 stop io stress processes after N bogo operations
 .TP
+.B \-\-ionice-class class
+specify ionice class (only on Linux). Can be idle (default), besteffort, be, realtime, rt.
+.TP
+.B \-\-ionice-level level
+specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or
+realtime values 0 (hightest priority) to 7 (lowest priority). See ionice(1) for more details.
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by cpu, io, vm and hdd processes
 .TP
@@ -160,6 +167,7 @@ stress\-ng \-\-fork 4 \-\-fork-ops 100000
 stress-\ng --all 4 \-\-timeout 5m
 .SH SEE ALSO
 .BR stress (1) 
+.BR ionice (1)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and is a clean
 room implementation of the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>.

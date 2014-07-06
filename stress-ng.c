@@ -45,6 +45,7 @@
 #include <sys/wait.h>
 #if defined (__linux__)
 #include <sys/prctl.h>
+#include <sys/syscall.h>
 #include <sched.h>
 #endif
 #include <sys/socket.h>
@@ -100,6 +101,8 @@
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
+#undef __linux__
+
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
 /* Stress tests */
@@ -139,8 +142,23 @@ enum {
 #if defined (__linux__)
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
+	OPT_IONICE_CLASS,
+	OPT_IONICE_LEVEL
 #endif
 };
+
+#if defined (__linux__)
+#define IOPRIO_CLASS_RT 	(1)
+#define IOPRIO_CLASS_BE		(2)
+#define IOPRIO_CLASS_IDLE	(3)
+
+#define IOPRIO_WHO_PROCESS	(1)
+#define IOPRIO_WHO_PGRP		(2)
+#define IOPRIO_WHO_USER		(3)
+
+#define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
+
+#endif
 
 /* stress process prototype */
 typedef void (*func)(uint64_t *const counter, const uint32_t instance);
@@ -182,6 +200,8 @@ static int	opt_socket_port = 5000;			/* Default socket port */
 #if defined (__linux__)
 static int	opt_sched = UNDEFINED;			/* sched policy */
 static int	opt_sched_priority = UNDEFINED;		/* sched priority */
+static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
+static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
 
 /* Human readable stress test names */
@@ -287,6 +307,7 @@ static void set_sched(const int sched, const int sched_priority)
 	switch (sched) {
 	case UNDEFINED:	/* No preference, don't set */
 		return;
+#if defined (SCHED_FIFO) || defined (SCHED_RR)
 	case SCHED_FIFO:
 	case SCHED_RR:
 		min = sched_get_priority_min(sched);
@@ -300,10 +321,10 @@ static void set_sched(const int sched, const int sched_priority)
 		}
 		param.sched_priority = sched_priority;
 		break;
+#endif
 	default:
-		if (sched_priority != UNDEFINED) {
+		if (sched_priority != UNDEFINED)
 			fprintf(stderr, "Cannot set sched priority for chosen scheduler, defaulting to 0\n");
-		}
 		param.sched_priority = 0;
 	}
 	rc = sched_setscheduler(getpid(), sched, &param);
@@ -362,8 +383,69 @@ static int get_opt_sched(const char *const str)
 #endif
 		"\n");
 	exit(EXIT_FAILURE);
+}
+#endif
 
-	return -1;
+#if defined (__linux__)
+static inline int ioprio_set(int which, int who, int ioprio)
+{
+        return syscall(SYS_ioprio_set, which, who, ioprio);
+}
+#endif
+
+#if defined (__linux__)
+static int get_opt_ionice_class(const char *const str)
+{
+	if (!strcmp("idle", str))
+		return IOPRIO_CLASS_IDLE;
+	if (!strcmp("besteffort", str) ||
+	    !strcmp("be", str))
+		return IOPRIO_CLASS_BE;
+	if (!strcmp("realtime", str) ||
+	    !strcmp("rt", str))
+		return IOPRIO_CLASS_RT;
+	if (strcmp("which", str))
+		fprintf(stderr, "Invalid ionice-class option: %s\n", str);
+	fprintf(stderr, "Availble options are: idle besteffort be realtime rt\n");
+	exit(EXIT_FAILURE);
+}
+#endif
+
+#if defined (__linux__)
+/*
+ *  set_iopriority()
+ *	check ioprio settings and set
+ */
+static void set_iopriority(const int class, const int level)
+{
+	int data = level, rc;
+
+	switch (class) {
+	case UNDEFINED:	/* No preference, don't set */
+		return;
+	case IOPRIO_CLASS_RT:
+	case IOPRIO_CLASS_BE:
+		if (level < 0 || level > 7) {
+			fprintf(stderr, "Priority levels range from 0 (max) to 7 (min)\n");
+			exit(EXIT_FAILURE);
+		}
+		break;
+	case IOPRIO_CLASS_IDLE:
+		if ((level != UNDEFINED) &&
+		    (level != 0))
+			fprintf(stderr, "Cannot set priority level with idle, defaulting to 0\n");
+		data = 0;
+		break;
+	default:
+		fprintf(stderr, "Unknown priority class: %d\n", class);
+		exit(EXIT_FAILURE);
+	}
+	rc = ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
+	if (rc < 0) {
+		fprintf(stderr, "Cannot set I/O priority: %s\n",
+			strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 }
 #endif
 
@@ -1048,45 +1130,49 @@ static void usage(void)
 {
 	version();
 	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
-	printf(" -?,   --help         show help\n");
-	printf(" -a N, --all N        start N workers of each stress test\n");
-	printf(" -b N, --backoff N    wait of N microseconds before work starts\n");
-	printf(" -c N, --cpu N        start N workers spinning on sqrt(rand())\n");
-	printf(" -l P, --cpu-load P   load CPU by P %%, 0=sleep, 100=full load (see -c)\n");
-	printf("       --cpu-ops N    stop when N cpu bogo operations completed\n");
-	printf(" -C N, --cache N      start N CPU cache thrashing workers\n");
-	printf("       --cache-ops N  stop when N cache bogo operations completed\n");
-	printf(" -d N, --hdd N        start N workers spinning on write()/unlink()\n");
-	printf("       --hdd-bytes N  write N bytes per hdd worker (default is 1GB)\n");
-	printf("       --hdd-noclean  do not unlink files created by hdd workers\n");
-	printf("       --hdd-ops N    stop when N hdd bogo operations completed\n");
-	printf(" -f N, --fork N       start N workers spinning on fork() and exit()\n");
-	printf("       --fork-ops N   stop when N fork bogo operations completed\n");
-	printf(" -i N, --io N         start N workers spinning on sync()\n");
-	printf("       --io-ops N     stop when N io bogo operations completed\n");
-	printf(" -M,   --metrics      print pseudo metrics of activity\n");
-	printf(" -m N, --vm N         start N workers spinning on anonymous mmap\n");
-	printf("       --vm-bytes N   allocate N bytes per vm worker (default 256MB)\n");
-	printf("       --vm-stride N  touch a byte every N bytes (default 4K)\n");
-	printf("       --vm-hang N    sleep N seconds before freeing memory\n");
-	printf("       --vm-keep      redirty memory instead of reallocating\n");
-	printf("       --vm-ops N     stop when N vm bogo operations completed\n");
-	printf(" -n,   --dry-run      don't run\n");
-	printf(" -p N, --pipe N       start N workers exercising pipe I/O\n");
-	printf("       --pipe-ops N   stop when N pipe I/O bogo operations completed\n");
-	printf(" -q,   --quiet        quiet output\n");
+	printf(" -?,   --help           show help\n");
+	printf(" -a N, --all N          start N workers of each stress test\n");
+	printf(" -b N, --backoff N      wait of N microseconds before work starts\n");
+	printf(" -c N, --cpu N          start N workers spinning on sqrt(rand())\n");
+	printf(" -l P, --cpu-load P     load CPU by P %%, 0=sleep, 100=full load (see -c)\n");
+	printf("       --cpu-ops N      stop when N cpu bogo operations completed\n");
+	printf(" -C N, --cache N        start N CPU cache thrashing workers\n");
+	printf("       --cache-ops N    stop when N cache bogo operations completed\n");
+	printf(" -d N, --hdd N          start N workers spinning on write()/unlink()\n");
+	printf("       --hdd-bytes N    write N bytes per hdd worker (default is 1GB)\n");
+	printf("       --hdd-noclean    do not unlink files created by hdd workers\n");
+	printf("       --hdd-ops N      stop when N hdd bogo operations completed\n");
+	printf(" -f N, --fork N         start N workers spinning on fork() and exit()\n");
+	printf("       --fork-ops N     stop when N fork bogo operations completed\n");
+	printf(" -i N, --io N           start N workers spinning on sync()\n");
+	printf("       --io-ops N       stop when N io bogo operations completed\n");
 #if defined (__linux__)
-	printf("       --sched type   set scheduler type\n");
-	printf("       --sched-prio N set scheduler priority level N\n");
+	printf("       --ionice-class C specify ionice class (idle, besteffort, realtime)\n");
+	printf("       --ionice-level L specify ionice level (0 max, 7 min)\n");
 #endif
-	printf(" -s,   --switch N     start N workers doing rapid context switches\n");
-	printf("       --switch-ops N stop when N context switch bogo operations completed\n");
-	printf(" -S,   --sock N       start N workers doing socket activity\n");
-	printf("       --sock-ops N   stop when N socket bogo operations completed\n");
-	printf("       --sock-port P  use socket ports P to P + number of workers - 1\n");
-	printf(" -t N, --timeout N    timeout after N seconds\n");
-	printf(" -v,   --verbose      verbose output\n");
-	printf(" -V,   --version      show version\n\n");
+	printf(" -M,   --metrics        print pseudo metrics of activity\n");
+	printf(" -m N, --vm N           start N workers spinning on anonymous mmap\n");
+	printf("       --vm-bytes N     allocate N bytes per vm worker (default 256MB)\n");
+	printf("       --vm-stride N    touch a byte every N bytes (default 4K)\n");
+	printf("       --vm-hang N      sleep N seconds before freeing memory\n");
+	printf("       --vm-keep        redirty memory instead of reallocating\n");
+	printf("       --vm-ops N       stop when N vm bogo operations completed\n");
+	printf(" -n,   --dry-run        don't run\n");
+	printf(" -p N, --pipe N         start N workers exercising pipe I/O\n");
+	printf("       --pipe-ops N     stop when N pipe I/O bogo operations completed\n");
+	printf(" -q,   --quiet          quiet output\n");
+#if defined (__linux__)
+	printf("       --sched type     set scheduler type\n");
+	printf("       --sched-prio N   set scheduler priority level N\n");
+#endif
+	printf(" -s,   --switch N       start N workers doing rapid context switches\n");
+	printf("       --switch-ops N   stop when N context switch bogo operations completed\n");
+	printf(" -S,   --sock N         start N workers doing socket activity\n");
+	printf("       --sock-ops N     stop when N socket bogo operations completed\n");
+	printf("       --sock-port P    use socket ports P to P + number of workers - 1\n");
+	printf(" -t N, --timeout N      timeout after N seconds\n");
+	printf(" -v,   --verbose        verbose output\n");
+	printf(" -V,   --version        show version\n\n");
 	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
@@ -1131,6 +1217,8 @@ static const struct option long_options[] = {
 #if defined (__linux__)
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
+	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 #endif
 	{ NULL,		0, 	0, 	0 }
 };
@@ -1384,6 +1472,12 @@ int main(int argc, char **argv)
 		case OPT_SCHED_PRIO:
 			opt_sched_priority = get_int(optarg);
 			break;
+		case OPT_IONICE_CLASS:
+			opt_ionice_class = get_opt_ionice_class(optarg);
+			break;
+		case OPT_IONICE_LEVEL:
+			opt_ionice_level = get_int(optarg);
+			break;
 #endif
 		default:
 			printf("Unknown option\n");
@@ -1394,6 +1488,7 @@ int main(int argc, char **argv)
 #if defined (__linux__)
 	/* check and set sched */
 	set_sched(opt_sched, opt_sched_priority);
+	set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
 
 	/* Share bogo ops between processes equally */
@@ -1492,6 +1587,9 @@ int main(int argc, char **argv)
 					goto out;
 				case 0:
 					/* Child */
+#if defined (__linux__)
+					set_iopriority(opt_ionice_class, opt_ionice_level);
+#endif
 					(void)alarm(opt_timeout);
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
