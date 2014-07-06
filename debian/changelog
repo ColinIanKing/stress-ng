@@ -1,3 +1,11 @@
+stress-ng (0.01.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add yield stress test and -y, --yield, --yield-ops options
+  * Add ionice-class and ionice-level options (Linux only)
+
+ -- Colin King <colin.king@canonical.com>  Sun, 6 Jul 2014 11:14:00 +0100
+
 stress-ng (0.01.17-1) unstable; urgency=medium
 
   * Makefile: update version
