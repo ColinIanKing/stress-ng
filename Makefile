@@ -1,4 +1,4 @@
-VERSION=0.01.17
+VERSION=0.01.18
 #
 # Codename "aggravating system loader"
 #
