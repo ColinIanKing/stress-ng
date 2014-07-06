@@ -43,10 +43,13 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+
+#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
+#include <sched.h>
+#endif
 #if defined (__linux__)
 #include <sys/prctl.h>
 #include <sys/syscall.h>
-#include <sched.h>
 #endif
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -101,8 +104,6 @@
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
-#undef __linux__
-
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
 /* Stress tests */
@@ -116,6 +117,7 @@ enum {
 	STRESS_PIPE,
 	STRESS_CACHE,
 	STRESS_SOCKET,
+	STRESS_YIELD,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -143,8 +145,9 @@ enum {
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
 	OPT_IONICE_CLASS,
-	OPT_IONICE_LEVEL
+	OPT_IONICE_LEVEL,
 #endif
+	OPT_YIELD_OPS,
 };
 
 #if defined (__linux__)
@@ -194,6 +197,9 @@ static uint64_t opt_ctxt_ops = 0;			/* context ops max */
 static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
+#endif
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
@@ -215,6 +221,7 @@ static const char *const stressors[] = {
 	"Pipe",
 	"Cache",
 	"Socket",
+	"Yield",
 	/* Add new stress tests here */
 };
 
@@ -1099,6 +1106,26 @@ die:
 	exit(EXIT_SUCCESS);
 }
 
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+/*
+ *  stress on sched_yield()
+ *	stress system by sched_yield
+ */
+static void stress_yield(uint64_t *const counter, const uint32_t instance)
+{
+	set_proc_name(APP_NAME "-yield");
+	pr_dbg(stderr, "stress_yield: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	do {
+		sched_yield();
+		(*counter)++;
+	} while (!opt_yield_ops || *counter < opt_yield_ops);
+
+	exit(EXIT_SUCCESS);
+}
+#endif
+
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1110,6 +1137,9 @@ static const func child_funcs[] = {
 	stress_pipe,
 	stress_cache,
 	stress_socket,
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+	stress_yield,
+#endif
 	/* Add new stress tests here */
 };
 
@@ -1172,8 +1202,12 @@ static void usage(void)
 	printf("       --sock-port P    use socket ports P to P + number of workers - 1\n");
 	printf(" -t N, --timeout N      timeout after N seconds\n");
 	printf(" -v,   --verbose        verbose output\n");
-	printf(" -V,   --version        show version\n\n");
-	printf("Example " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
+	printf(" -V,   --version        show version\n");
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+	printf(" -y,   --yield N        start N workers doing sched_yield() calls\n");
+	printf("       --yield-ops N    stop when N bogo yield operations completed\n");
+#endif
+	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
 	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
 }
@@ -1219,6 +1253,10 @@ static const struct option long_options[] = {
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
+#endif
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+	{ "yield",	1,	0,	'y' },
+	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
 #endif
 	{ NULL,		0, 	0, 	0 }
 };
@@ -1327,7 +1365,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -1385,6 +1423,16 @@ int main(int argc, char **argv)
 			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
 			check_value("Pipe", num_procs[STRESS_PIPE]);
 			break;
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+		case 'y':
+			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
+			check_value("Yield", num_procs[STRESS_PIPE]);
+			break;
+		case OPT_YIELD_OPS:
+			opt_yield_ops = get_uint64(optarg);
+			check_range("yield-ops", opt_yield_ops, 1000, 100000000);
+			break;
+#endif
 		case 'l':
 			opt_cpu_load = opt_long("cpu load", optarg);
 			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
@@ -1526,7 +1574,8 @@ int main(int argc, char **argv)
 	pr_inf(stdout, "dispatching hogs: "
 		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
-		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket.\n",
+		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
+		PRId32 " yield.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1535,7 +1584,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_CTXT],
 		num_procs[STRESS_PIPE],
 		num_procs[STRESS_CACHE],
-		num_procs[STRESS_SOCKET]);
+		num_procs[STRESS_SOCKET],
+		num_procs[STRESS_YIELD]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
