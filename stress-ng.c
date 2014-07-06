@@ -1549,6 +1549,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
 	DIV_OPS_BY_PROCS(opt_cache_ops, num_procs[STRESS_CACHE]);
 	DIV_OPS_BY_PROCS(opt_socket_ops, num_procs[STRESS_SOCKET]);
+	DIV_OPS_BY_PROCS(opt_yield_ops, num_procs[STRESS_YIELD]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
