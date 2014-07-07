@@ -1172,7 +1172,7 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 		(void)unlink(filename);
 
 	for (;;) {
-		posix_fallocate(fd, (off_t)0, 4096 * 4096);
+		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
 		fsync(fd);
 		ftruncate(fd, 0);
 		fsync(fd);
