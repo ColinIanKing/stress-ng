@@ -118,6 +118,7 @@ enum {
 	STRESS_CACHE,
 	STRESS_SOCKET,
 	STRESS_YIELD,
+	STRESS_FALLOCATE,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -147,7 +148,10 @@ enum {
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
 #endif
+#if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
+#endif
+	OPT_FALLOCATE_OPS,
 };
 
 #if defined (__linux__)
@@ -200,6 +204,9 @@ static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
 #endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+static uint64_t opt_fallocate_ops = 0;			/* fallocate bogo ops max */
+#endif
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
@@ -209,6 +216,7 @@ static int	opt_sched_priority = UNDEFINED;		/* sched priority */
 static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
+
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -222,6 +230,7 @@ static const char *const stressors[] = {
 	"Cache",
 	"Socket",
 	"Yield",
+	"Fallocate",
 	/* Add new stress tests here */
 };
 
@@ -240,7 +249,6 @@ static inline double timeval_to_double(const struct timeval *tv)
 {
 	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
-
 
 /*
  *  print()
@@ -1125,6 +1133,46 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 }
 #endif
 
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+/*
+ *  stress_fallocate
+ *	stress I/O via fallocate and ftruncate
+ */
+static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
+{
+	const pid_t pid = getpid();
+
+	set_proc_name(APP_NAME "-fallocate");
+	pr_dbg(stderr, "stress_fallocate: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	int fd;
+	char filename[64];
+
+	snprintf(filename, sizeof(filename), "./stress-ng-fallocate-%i.XXXXXXX", pid);
+	(void)umask(0077);
+	if ((fd = mkstemp(filename)) < 0) {
+		pr_err(stderr, "stress_fallocate: mkstemp failed\n");
+		exit(EXIT_FAILURE);
+	}
+	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
+		(void)unlink(filename);
+
+	for (;;) {
+		posix_fallocate(fd, (off_t)0, 4096 * 4096);
+		fsync(fd);
+		ftruncate(fd, 0);
+		fsync(fd);
+		(*counter)++;
+		if (opt_fallocate_ops && *counter >= opt_fallocate_ops)
+			break;
+	}
+	(void)close(fd);
+	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
+		(void)unlink(filename);
+
+	exit(EXIT_SUCCESS);
+}
+#endif
 
 /* stress tests */
 static const func child_funcs[] = {
@@ -1139,6 +1187,9 @@ static const func child_funcs[] = {
 	stress_socket,
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	stress_yield,
+#endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+	stress_fallocate,
 #endif
 	/* Add new stress tests here */
 };
@@ -1258,6 +1309,10 @@ static const struct option long_options[] = {
 	{ "yield",	1,	0,	'y' },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
 #endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+	{ "fallocate",	1,	0,	'F' },
+	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -1365,7 +1420,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -1423,6 +1478,12 @@ int main(int argc, char **argv)
 			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
 			check_value("Pipe", num_procs[STRESS_PIPE]);
 			break;
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+		case 'F':
+			num_procs[STRESS_FALLOCATE] = opt_long("fallocate", optarg);
+			check_value("Fallocate", num_procs[STRESS_PIPE]);
+			break;
+#endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 		case 'y':
 			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
@@ -1505,6 +1566,12 @@ int main(int argc, char **argv)
 			opt_cache_ops = get_uint64(optarg);
 			check_range("cache-ops", opt_cache_ops, 1000, 100000000);
 			break;
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+		case OPT_FALLOCATE_OPS:
+			opt_fallocate_ops = get_uint64(optarg);
+			check_range("fallocate-ops", opt_fallocate_ops, 1000, 100000000);
+			break;
+#endif
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
 			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
@@ -1534,7 +1601,6 @@ int main(int argc, char **argv)
 	}
 
 #if defined (__linux__)
-	/* check and set sched */
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
@@ -1549,7 +1615,12 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
 	DIV_OPS_BY_PROCS(opt_cache_ops, num_procs[STRESS_CACHE]);
 	DIV_OPS_BY_PROCS(opt_socket_ops, num_procs[STRESS_SOCKET]);
+#if defined (_POSIX_PRIORITY_SCHEDULING)
 	DIV_OPS_BY_PROCS(opt_yield_ops, num_procs[STRESS_YIELD]);
+#endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+	DIV_OPS_BY_PROCS(opt_fallocate_ops, num_procs[STRESS_FALLOCATE]);
+#endif
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -1576,7 +1647,7 @@ int main(int argc, char **argv)
 		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
-		PRId32 " yield.\n",
+		PRId32 " yield, %" PRId32 " fallocate.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1586,7 +1657,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_PIPE],
 		num_procs[STRESS_CACHE],
 		num_procs[STRESS_SOCKET],
-		num_procs[STRESS_YIELD]);
+		num_procs[STRESS_YIELD],
+		num_procs[STRESS_FALLOCATE]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);

@@ -69,6 +69,12 @@ do not remove files created by hdd processes
 .B \-\-hdd\-ops N
 stop hdd stress processes after N bogo operations
 .TP
+.B -\F, \-\-fallocate N
+start N processes continally fallocating and ftuncating temporary files
+.TP
+.B \-\-fallocate\-ops N
+stop fallocate stress processes after N bogo fallocate operations
+.TP
 .B \-f, \-\-fork N
 start N processes continually forking children that immediately exit
 .TP
