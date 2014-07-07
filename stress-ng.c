@@ -225,6 +225,7 @@ static int	opt_sched_priority = UNDEFINED;		/* sched priority */
 static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
+static bool	opt_flock_break = false;		/* true to break flock loop */
 
 
 /* Human readable stress test names */
@@ -1154,12 +1155,12 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	const pid_t pid = getpid();
+	int fd;
+	char filename[64];
 
 	set_proc_name(APP_NAME "-fallocate");
 	pr_dbg(stderr, "stress_fallocate: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
-	int fd;
-	char filename[64];
 
 	snprintf(filename, sizeof(filename), "./stress-ng-fallocate-%i.XXXXXXX", pid);
 	(void)umask(0077);
@@ -1190,34 +1191,54 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 }
 
 /*
+ *  stress_flock_sighandler()
+ *	handle signal
+ */
+static void stress_flock_sighandler(int dummy)
+{
+	(void)dummy;
+	opt_flock_break = true;
+}
+
+/*
  *  stress_flock
  *	stress file locking
  */
 static void stress_flock(uint64_t *const counter, const uint32_t instance)
 {
 	int fd;
+	char filename[64];
+	struct sigaction new_action, old_action;
+
+	new_action.sa_handler = stress_flock_sighandler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	sigaction(SIGINT, &new_action, &old_action);
+	sigaction(SIGALRM, &new_action, &old_action);
 
 	set_proc_name(APP_NAME "-flock");
 	pr_dbg(stderr, "stress_flock: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
-	char filename[64];
 	snprintf(filename, sizeof(filename), "./stress-ng-flock-%i", getppid());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_err(stderr, "stress_flock: mkstemp failed\n");
+		pr_err(stderr, "stress_flock: open failed\n");
 		exit(EXIT_FAILURE);
 	}
 
 	for (;;) {
 		if (flock(fd, LOCK_EX) < 0)
 			continue;
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+		sched_yield();
+#endif
 		(void)flock(fd, LOCK_UN);
 		(*counter)++;
-		if (opt_flock_ops && *counter >= opt_flock_ops)
+		if (opt_flock_break || (opt_flock_ops && *counter >= opt_flock_ops))
 			break;
 	}
-	(void)close(fd);
 	(void)unlink(filename);
+	(void)close(fd);
 
 	exit(EXIT_SUCCESS);
 }
