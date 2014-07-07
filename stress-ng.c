@@ -1124,13 +1124,13 @@ die:
 	exit(EXIT_SUCCESS);
 }
 
-#if defined(_POSIX_PRIORITY_SCHEDULING)
 /*
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
 static void stress_yield(uint64_t *const counter, const uint32_t instance)
 {
+#if defined(_POSIX_PRIORITY_SCHEDULING)
 	set_proc_name(APP_NAME "-yield");
 	pr_dbg(stderr, "stress_yield: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
@@ -1139,9 +1139,12 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 		(*counter)++;
 	} while (!opt_yield_ops || *counter < opt_yield_ops);
 
+#else
+	(void)counter;
+	(void)instance;
+#endif
 	exit(EXIT_SUCCESS);
 }
-#endif
 
 /*
  *  stress_fallocate
@@ -1183,7 +1186,6 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	(void)counter;
 	(void)instance;
 #endif
-
 	exit(EXIT_SUCCESS);
 }
 
@@ -1232,12 +1234,8 @@ static const func child_funcs[] = {
 	stress_pipe,
 	stress_cache,
 	stress_socket,
-#if defined (_POSIX_PRIORITY_SCHEDULING)
 	stress_yield,
-#endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	stress_fallocate,
-#endif
 	stress_flock,
 	/* Add new stress tests here */
 };
