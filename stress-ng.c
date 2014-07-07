@@ -151,7 +151,10 @@ enum {
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
 #endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	OPT_FALLOCATE_OPS,
+#endif
+	OPT_VM_MMAP_POPULATE,
 };
 
 #if defined (__linux__)
@@ -188,6 +191,7 @@ static int print(FILE *fp, const char *const type, const int flag,
 static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
+static int	opt_vm_flags = 0;			/* VM mmap flags */
 static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
@@ -663,7 +667,7 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 
 		if (!keep || (keep && buf == NULL)) {
 			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 
 			if (buf == MAP_FAILED)
 				continue;	/* Try again */
@@ -1238,6 +1242,9 @@ static void usage(void)
 	printf("       --vm-hang N      sleep N seconds before freeing memory\n");
 	printf("       --vm-keep        redirty memory instead of reallocating\n");
 	printf("       --vm-ops N       stop when N vm bogo operations completed\n");
+#ifdef MAP_POPULATE
+	printf("       --vm-populate    populate (prefault) page tables for a mapping\n");
+#endif
 	printf(" -n,   --dry-run        don't run\n");
 	printf(" -p N, --pipe N         start N workers exercising pipe I/O\n");
 	printf("       --pipe-ops N     stop when N pipe I/O bogo operations completed\n");
@@ -1280,6 +1287,9 @@ static const struct option long_options[] = {
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
 	{ "vm-keep",	0,	0,	OPT_VM_KEEP },
+#ifdef MAP_POPULATE
+	{ "vm-populate",0,	0,	OPT_VM_MMAP_POPULATE },
+#endif
 	{ "hdd",	1,	0,	'd' },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
@@ -1592,6 +1602,11 @@ int main(int argc, char **argv)
 			break;
 		case OPT_IONICE_LEVEL:
 			opt_ionice_level = get_int(optarg);
+			break;
+#endif
+#ifdef MAP_POPULATE
+		case OPT_VM_MMAP_POPULATE:
+			opt_vm_flags |= MAP_POPULATE;
 			break;
 #endif
 		default:
