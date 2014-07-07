@@ -1,3 +1,17 @@
+stress-ng (0.01.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Willfully ignore posix_fallocate() failures, we don't care
+  * Terminate and tidy up flock stress temp file
+  * Update help information
+  * Make conditional stress tests no-ops rather than not including them
+  * Add file locking stress, --flock and --flock-ops options
+  * Add --vm-populate option
+  * Add fallocate test and -F, --fallocate, --fallocate-ops options
+  * Divide yield bogo ops by number of yield processes
+
+ -- Colin King <colin.king@canonical.com>  Mon, 7 Jul 2014 19:26:00 +0100
+
 stress-ng (0.01.18-1) unstable; urgency=medium
 
   * Makefile: bump version
