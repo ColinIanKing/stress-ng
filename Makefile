@@ -1,6 +1,6 @@
-VERSION=0.01.18
+VERSION=0.01.19
 #
-# Codename "aggravating system loader"
+# Codename "enhanced stress maker"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
