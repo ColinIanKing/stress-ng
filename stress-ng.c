@@ -801,7 +801,7 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 	int pipefds[2];
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s) [%d]\n", errno, strerror(errno), getpid());
+		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s)\n", errno, strerror(errno));
 		exit(0);
 	}
 
@@ -819,8 +819,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 			for (;;) {
 				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
-					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d (%s) [%d]\n",
-						errno, strerror(errno), getpid());
+					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d (%s)\n",
+						errno, strerror(errno));
 					break;
 				}
 				if (ch == CTXT_STOP)
@@ -837,8 +837,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 		do {
 			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
-				pr_dbg(stderr, "stress_ctxt: write failed, errno=%d (%s) [%d]\n",
-					errno, strerror(errno), getpid());
+				pr_dbg(stderr, "stress_ctxt: write failed, errno=%d (%s)\n",
+					errno, strerror(errno));
 				break;
 			}
 			(*counter)++;
@@ -846,8 +846,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 		ch = CTXT_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
-			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d (%s)\n",
+				errno, strerror(errno));
 		(void)kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
@@ -870,8 +870,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 	pr_dbg(stderr, "stress_pipe: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d (%s) [%d]\n",
-			errno, strerror(errno), getpid());
+		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d (%s)\n",
+			errno, strerror(errno));
 		exit(0);
 	}
 
@@ -889,8 +889,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 			for (;;) {
 				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
-					pr_dbg(stderr, "stress_pipe: read failed, errno=%d (%s) [%d]\n",
-						errno, strerror(errno), getpid());
+					pr_dbg(stderr, "stress_pipe: read failed, errno=%d (%s)\n",
+						errno, strerror(errno));
 					break;
 				}
 				if (buf[0] == PIPE_STOP)
@@ -909,8 +909,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 		do {
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
-				pr_dbg(stderr, "stress_pipe: write failed, errno=%d (%s) [%d]\n",
-					errno, strerror(errno), getpid());
+				pr_dbg(stderr, "stress_pipe: write failed, errno=%d (%s)\n",
+					errno, strerror(errno));
 				break;
 			}
 			(*counter)++;
@@ -918,8 +918,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 		memset(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d (%s)\n",
+				errno, strerror(errno));
 		(void)kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
@@ -1017,8 +1017,8 @@ static void stress_socket(uint64_t *const counter, const uint32_t instance)
 			int retries = 0;
 retry:
 			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-				pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s) [%d]\n",
-					errno, strerror(errno), getpid());
+				pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s)\n",
+					errno, strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 
@@ -1032,8 +1032,8 @@ retry:
 				usleep(10000);
 				retries++;
 				if (retries > 100) {
-					pr_dbg(stderr, "stress_socket: connect failed after 100 retries, errno=%d (%s) [%d]\n",
-						errno, strerror(errno), getpid());
+					pr_dbg(stderr, "stress_socket: connect failed after 100 retries, errno=%d (%s)\n",
+						errno, strerror(errno));
 					break;
 				}
 				goto retry;
@@ -1045,8 +1045,8 @@ retry:
 				if (n == 0)
 					break;
 				if (n < 0) {
-					pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s) [%d]\n",
-						errno, strerror(errno), getpid());
+					pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s)\n",
+						errno, strerror(errno));
 					break;
 				}
 			}
@@ -1082,18 +1082,18 @@ retry:
 		addr.sin_port = htons(opt_socket_port + instance);
 
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_dbg(stderr, "stress_socket: setsockopt failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "stress_socket: setsockopt failed, errno=%d (%s)\n",
+				errno, strerror(errno));
 			goto die_close;
 		}
 		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-			pr_dbg(stderr, "stress_socket: bind failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "stress_socket: bind failed, errno=%d (%s)\n",
+				errno, strerror(errno));
 			goto die_close;
 		}
 		if (listen(fd, 10) < 0) {
-			pr_dbg(stderr, "stress_socket: listen failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "stress_socket: listen failed, errno=%d (%s)\n",
+				errno, strerror(errno));
 			goto die_close;
 		}
 
@@ -1106,8 +1106,8 @@ retry:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					int ret = write(sfd, buf, i);
 					if (ret < 0) {
-						pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s) [%d]\n",
-							errno, strerror(errno), getpid());
+						pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s)\n",
+							errno, strerror(errno));
 						break;
 					}
 				}
