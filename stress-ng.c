@@ -353,10 +353,12 @@ static void set_sched(const int sched, const int sched_priority)
 			fprintf(stderr, "Cannot set sched priority for chosen scheduler, defaulting to 0\n");
 		param.sched_priority = 0;
 	}
+	pr_dbg(stderr, "setting scheduler class %d, priority %d\n",
+		sched, param.sched_priority);
 	rc = sched_setscheduler(getpid(), sched, &param);
 	if (rc < 0) {
-		fprintf(stderr, "Cannot set scheduler priority: %s\n",
-			strerror(errno));
+		fprintf(stderr, "Cannot set scheduler priority: errno=%d (%s)\n",
+			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -468,8 +470,8 @@ static void set_iopriority(const int class, const int level)
 	}
 	rc = ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
-		fprintf(stderr, "Cannot set I/O priority: %s\n",
-			strerror(errno));
+		fprintf(stderr, "Cannot set I/O priority: %d (%s)\n",
+			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -676,8 +678,10 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 
-			if (buf == MAP_FAILED)
+			if (buf == MAP_FAILED) {
+				pr_dbg(stderr, "mmap failed, re-trying\n");
 				continue;	/* Try again */
+			}
 		}
 
 		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride)
@@ -744,7 +748,8 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 
 		for (i = 0; i < opt_hdd_bytes; i += STRESS_HDD_BUF_SIZE) {
 			if (write(fd, buf, STRESS_HDD_BUF_SIZE) < 0) {
-				pr_err(stderr, "stress_io: write error: %s\n", strerror(errno));
+				pr_err(stderr, "stress_io: write error: %d (%s)\n",
+					errno, strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 			(*counter)++;
@@ -801,7 +806,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 	int pipefds[2];
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s)\n", errno, strerror(errno));
+		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s)\n",
+			errno, strerror(errno));
 		exit(0);
 	}
 
@@ -1222,7 +1228,8 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 	snprintf(filename, sizeof(filename), "./stress-ng-flock-%i", getppid());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_err(stderr, "stress_flock: open failed: %s\n", strerror(errno));
+		pr_err(stderr, "stress_flock: open failed: %d (%s)\n",
+			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -1760,20 +1767,23 @@ int main(int argc, char **argv)
 	(void)shm_unlink(shm_name);
 
 	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
-		pr_err(stderr, "Cannot open shared memory region: %s\n", strerror(errno));
+		pr_err(stderr, "Cannot open shared memory region: %d (%s)\n",
+			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	len = sizeof(uint64_t) * STRESS_MAX * max;
 	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
-		pr_err(stderr, "Cannot resize shared memory region: %s\n", strerror(errno));
+		pr_err(stderr, "Cannot resize shared memory region: %d (%s)\n",
+			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
 	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
 	if (counters == MAP_FAILED) {
-		pr_err(stderr, "Cannot mmap to shared memory region: %s\n", strerror(errno));
+		pr_err(stderr, "Cannot mmap to shared memory region: %d (%s)\n",
+			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
@@ -1781,7 +1791,8 @@ int main(int argc, char **argv)
 	if (num_procs[STRESS_CACHE]) {
 		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mem_chunk == MAP_FAILED) {
-			pr_err(stderr, "Cannot mmap to shared memory region: %s\n", strerror(errno));
+			pr_err(stderr, "Cannot mmap to shared memory region: %d (%s)\n",
+				errno, strerror(errno));
 			(void)close(fd);
 			(void)shm_unlink(shm_name);
 			exit(EXIT_FAILURE);
@@ -1801,7 +1812,8 @@ int main(int argc, char **argv)
 				int pid = fork();
 				switch (pid) {
 				case -1:
-					pr_err(stderr, "Cannot fork: %s\n", strerror(errno));
+					pr_err(stderr, "Cannot fork: %d (%s)\n",
+						errno, strerror(errno));
 					send_alarm(procs, started_procs);
 					goto out;
 				case 0:
