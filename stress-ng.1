@@ -81,6 +81,12 @@ start N processes continually forking children that immediately exit
 .B \-\-fork\-ops N
 stop fork stress processes after N bogo operations
 .TP
+.B \-\-flock N
+start N processes locking on a single file
+.TP
+.B \-\-flock-ops N
+stop flock stress processes after N goto flock operations
+.TP
 .B \-i, \-\-io N
 start N processes continuously calling sync()
 .TP

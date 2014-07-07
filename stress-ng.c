@@ -43,6 +43,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/file.h>
 
 #if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
 #include <sched.h>
@@ -119,6 +120,7 @@ enum {
 	STRESS_SOCKET,
 	STRESS_YIELD,
 	STRESS_FALLOCATE,
+	STRESS_FLOCK,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -155,6 +157,8 @@ enum {
 	OPT_FALLOCATE_OPS,
 #endif
 	OPT_VM_MMAP_POPULATE,
+	OPT_FLOCK,
+	OPT_FLOCK_OPS,
 };
 
 #if defined (__linux__)
@@ -205,6 +209,7 @@ static uint64_t opt_ctxt_ops = 0;			/* context ops max */
 static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
+static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
 #endif
@@ -235,6 +240,7 @@ static const char *const stressors[] = {
 	"Socket",
 	"Yield",
 	"Fallocate",
+	"Flock",
 	/* Add new stress tests here */
 };
 
@@ -1137,13 +1143,13 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 }
 #endif
 
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 /*
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
 static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 {
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	const pid_t pid = getpid();
 
 	set_proc_name(APP_NAME "-fallocate");
@@ -1173,10 +1179,47 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	(void)close(fd);
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 		(void)unlink(filename);
+#else
+	(void)counter;
+	(void)instance;
+#endif
 
 	exit(EXIT_SUCCESS);
 }
-#endif
+
+/*
+ *  stress_flock
+ *	stress file locking
+ */
+static void stress_flock(uint64_t *const counter, const uint32_t instance)
+{
+	int fd;
+
+	set_proc_name(APP_NAME "-flock");
+	pr_dbg(stderr, "stress_flock: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	char filename[64];
+	snprintf(filename, sizeof(filename), "./stress-ng-flock-%i", getppid());
+
+	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
+		pr_err(stderr, "stress_flock: mkstemp failed\n");
+		exit(EXIT_FAILURE);
+	}
+
+	for (;;) {
+		if (flock(fd, LOCK_EX) < 0)
+			continue;
+		(void)flock(fd, LOCK_UN);
+		(*counter)++;
+		if (opt_flock_ops && *counter >= opt_flock_ops)
+			break;
+	}
+	(void)close(fd);
+	(void)unlink(filename);
+
+	exit(EXIT_SUCCESS);
+}
+
 
 /* stress tests */
 static const func child_funcs[] = {
@@ -1195,6 +1238,7 @@ static const func child_funcs[] = {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	stress_fallocate,
 #endif
+	stress_flock,
 	/* Add new stress tests here */
 };
 
@@ -1323,6 +1367,8 @@ static const struct option long_options[] = {
 	{ "fallocate",	1,	0,	'F' },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
 #endif
+	{ "flock",	1,	0,	OPT_FLOCK },
+	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -1491,17 +1537,13 @@ int main(int argc, char **argv)
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		case 'F':
 			num_procs[STRESS_FALLOCATE] = opt_long("fallocate", optarg);
-			check_value("Fallocate", num_procs[STRESS_PIPE]);
+			check_value("Fallocate", num_procs[STRESS_FALLOCATE]);
 			break;
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 		case 'y':
 			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
-			check_value("Yield", num_procs[STRESS_PIPE]);
-			break;
-		case OPT_YIELD_OPS:
-			opt_yield_ops = get_uint64(optarg);
-			check_range("yield-ops", opt_yield_ops, 1000, 100000000);
+			check_value("Yield", num_procs[STRESS_YIELD]);
 			break;
 #endif
 		case 'l':
@@ -1518,6 +1560,10 @@ int main(int argc, char **argv)
 		case 'S':
 			num_procs[STRESS_SOCKET] = opt_long("socket", optarg);
 			check_value("Socket", num_procs[STRESS_SOCKET]);
+			break;
+		case OPT_FLOCK:
+			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
+			check_value("Flock", num_procs[STRESS_FLOCK]);
 			break;
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
@@ -1537,6 +1583,11 @@ int main(int argc, char **argv)
 		case OPT_VM_KEEP:
 			opt_flags |= OPT_FLAGS_VM_KEEP;
 		 	break;
+#ifdef MAP_POPULATE
+		case OPT_VM_MMAP_POPULATE:
+			opt_vm_flags |= MAP_POPULATE;
+			break;
+#endif
 		case OPT_HDD_BYTES:
 			opt_hdd_bytes =  get_uint64_byte(optarg);
 			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
@@ -1582,6 +1633,16 @@ int main(int argc, char **argv)
 			check_range("fallocate-ops", opt_fallocate_ops, 1000, 100000000);
 			break;
 #endif
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+		case OPT_YIELD_OPS:
+			opt_yield_ops = get_uint64(optarg);
+			check_range("yield-ops", opt_yield_ops, 1000, 100000000);
+			break;
+#endif
+		case OPT_FLOCK_OPS:
+			opt_flock_ops = get_uint64(optarg);
+			check_range("flock-ops", opt_flock_ops, 1000, 100000000);
+			break;
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
 			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
@@ -1604,12 +1665,7 @@ int main(int argc, char **argv)
 			opt_ionice_level = get_int(optarg);
 			break;
 #endif
-#ifdef MAP_POPULATE
-		case OPT_VM_MMAP_POPULATE:
-			opt_vm_flags |= MAP_POPULATE;
-			break;
-#endif
-		default:
+		default: 
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
 		}
@@ -1636,6 +1692,7 @@ int main(int argc, char **argv)
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	DIV_OPS_BY_PROCS(opt_fallocate_ops, num_procs[STRESS_FALLOCATE]);
 #endif
+	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -1662,7 +1719,7 @@ int main(int argc, char **argv)
 		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
-		PRId32 " yield, %" PRId32 " fallocate.\n",
+		PRId32 " yield, %" PRId32 " fallocate %" PRId32 " flock.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1673,7 +1730,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_CACHE],
 		num_procs[STRESS_SOCKET],
 		num_procs[STRESS_YIELD],
-		num_procs[STRESS_FALLOCATE]);
+		num_procs[STRESS_FALLOCATE],
+		num_procs[STRESS_FLOCK]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
