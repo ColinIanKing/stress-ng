@@ -1180,7 +1180,7 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	for (;;) {
 		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
 		fsync(fd);
-		ftruncate(fd, 0);
+		(void)ftruncate(fd, 0);
 		fsync(fd);
 		(*counter)++;
 		if (opt_fallocate_ops && *counter >= opt_fallocate_ops)
