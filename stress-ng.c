@@ -393,7 +393,7 @@ static int get_opt_sched(const char *const str)
 #endif
 	if (strcmp("which", str))
 		fprintf(stderr, "Invalid sched option: %s\n", str);
-	fprintf(stderr, "Availble scheduler options are:"
+	fprintf(stderr, "Available scheduler options are:"
 #ifdef SCHED_OTHER
 		" other"
 #endif
@@ -434,7 +434,7 @@ static int get_opt_ionice_class(const char *const str)
 		return IOPRIO_CLASS_RT;
 	if (strcmp("which", str))
 		fprintf(stderr, "Invalid ionice-class option: %s\n", str);
-	fprintf(stderr, "Availble options are: idle besteffort be realtime rt\n");
+	fprintf(stderr, "Available options are: idle besteffort be realtime rt\n");
 	exit(EXIT_FAILURE);
 }
 #endif
@@ -933,7 +933,7 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 /*
  *  mcw()
- *	fast psuedo random number generator, see
+ *	fast pseudo random number generator, see
  *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
 static unsigned long mwc(void)
