@@ -744,7 +744,7 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 
 		for (i = 0; i < opt_hdd_bytes; i += STRESS_HDD_BUF_SIZE) {
 			if (write(fd, buf, STRESS_HDD_BUF_SIZE) < 0) {
-				pr_err(stderr, "stress_io: write error\n");
+				pr_err(stderr, "stress_io: write error: %s\n", strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 			(*counter)++;
@@ -1222,7 +1222,7 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 	snprintf(filename, sizeof(filename), "./stress-ng-flock-%i", getppid());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_err(stderr, "stress_flock: open failed\n");
+		pr_err(stderr, "stress_flock: open failed: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -1760,20 +1760,20 @@ int main(int argc, char **argv)
 	(void)shm_unlink(shm_name);
 
 	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
-		pr_err(stderr, "Cannot open shared memory region\n");
+		pr_err(stderr, "Cannot open shared memory region: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	len = sizeof(uint64_t) * STRESS_MAX * max;
 	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
-		pr_err(stderr, "Cannot resize shared memory region\n");
+		pr_err(stderr, "Cannot resize shared memory region: %s\n", strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
 	}
 	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
 	if (counters == MAP_FAILED) {
-		pr_err(stderr, "Cannot mmap to shared memory region\n");
+		pr_err(stderr, "Cannot mmap to shared memory region: %s\n", strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
 		exit(EXIT_FAILURE);
@@ -1781,7 +1781,7 @@ int main(int argc, char **argv)
 	if (num_procs[STRESS_CACHE]) {
 		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mem_chunk == MAP_FAILED) {
-			pr_err(stderr, "Cannot mmap to shared memory region\n");
+			pr_err(stderr, "Cannot mmap to shared memory region: %s\n", strerror(errno));
 			(void)close(fd);
 			(void)shm_unlink(shm_name);
 			exit(EXIT_FAILURE);
@@ -1801,7 +1801,7 @@ int main(int argc, char **argv)
 				int pid = fork();
 				switch (pid) {
 				case -1:
-					pr_err(stderr, "Cannot fork\n");
+					pr_err(stderr, "Cannot fork: %s\n", strerror(errno));
 					send_alarm(procs, started_procs);
 					goto out;
 				case 0:
