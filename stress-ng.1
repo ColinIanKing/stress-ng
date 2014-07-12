@@ -170,6 +170,16 @@ stop context switcing processes after N bogo operations
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y
 .TP
+.B \-T, \-\-timer N
+start N processes creating timer events at a default rate of 1Mhz (Linux only); this
+can create a lot of timer clock interrupts
+.TP
+.B \-\-timer-ops N
+stop timer stress processes after N bogo timer events (Linux only)
+.TP
+.B \-\-timer-freq F
+run timers at F Hz; range from 1000 to 1000,000,000 Hz (Linux only)
+.TP
 .B \-v, \-\-verbose
 show all debug, warnings and normal information output
 .TP

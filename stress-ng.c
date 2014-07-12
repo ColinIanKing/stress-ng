@@ -125,6 +125,7 @@ enum {
 	STRESS_FALLOCATE,
 	STRESS_FLOCK,
 	STRESS_AFFINITY,
+	STRESS_TIMER,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -155,6 +156,9 @@ enum {
 	OPT_IONICE_LEVEL,
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
+	OPT_TIMER,
+	OPT_TIMER_OPS,
+	OPT_TIMER_FREQ,
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
@@ -216,7 +220,9 @@ static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
+static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 #if defined (__linux__)
+static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
@@ -252,6 +258,7 @@ static const char *const stressors[] = {
 	"Fallocate",
 	"Flock",
 	"Affinity",
+	"Timer",
 	/* Add new stress tests here */
 };
 
@@ -1288,6 +1295,78 @@ static void stress_affinity(uint64_t *const counter, const uint32_t instance)
 	exit(EXIT_SUCCESS);
 }
 
+#if defined (__linux__)
+static volatile uint64_t timer_counter = 0;
+
+static void stress_timer_handler(int sig)
+{
+	(void)sig;
+	timer_counter++;
+}
+#endif
+
+/*
+ *  stress_timer
+ *	stress timers
+ */
+static void stress_timer(uint64_t *const counter, const uint32_t instance)
+{
+#if defined (__linux__)
+	struct sigaction new_action;
+	struct sigevent sev;
+	struct itimerspec timer;
+	timer_t timerid;
+	double rate_ns = 1000000000 / opt_timer_freq;
+
+	set_proc_name(APP_NAME "-timer");
+	pr_dbg(stderr, "stress_timer: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	new_action.sa_flags = 0;
+	new_action.sa_handler = stress_timer_handler;
+	sigemptyset(&new_action.sa_mask);
+	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_timer: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(1);
+	}
+
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
+		pr_err(stderr, "stress_timer: timer_create failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(1);
+	}
+
+	timer.it_value.tv_sec = (long long int)rate_ns / 1000000000;
+	timer.it_value.tv_nsec = (long long int)rate_ns % 1000000000;
+	timer.it_interval.tv_sec = timer.it_value.tv_sec;
+	timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
+
+	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
+		pr_err(stderr, "stress_timer: timer_settime failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(1);
+	}
+
+	do {
+		sleep(1);
+		*counter = timer_counter;
+	} while (!opt_timer_ops || timer_counter < opt_timer_ops);
+
+	if (timer_delete(timerid) < 0) {
+		pr_err(stderr, "stress_timer: timer_delete failed: %d (%s)\n",
+			errno, strerror(errno));
+	}
+#else
+	(void)counter;
+	(void)instance;
+#endif
+	exit(EXIT_SUCCESS);
+}
+
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1303,6 +1382,7 @@ static const func child_funcs[] = {
 	stress_fallocate,
 	stress_flock,
 	stress_affinity,
+	stress_timer,
 	/* Add new stress tests here */
 };
 
@@ -1375,6 +1455,9 @@ static void usage(void)
 	printf("       --sock-ops N      stop when N socket bogo operations completed\n");
 	printf("       --sock-port P     use socket ports P to P + number of workers - 1\n");
 	printf(" -t N, --timeout N       timeout after N seconds\n");
+	printf(" -T N, --timer N         start N workers producing timer events\n");
+	printf("       --timer-ops N     stop when N timer bogo events completed\n");
+	printf("       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n");
 	printf(" -v,   --verbose         verbose output\n");
 	printf(" -V,   --version         show version\n");
 #if defined(_POSIX_PRIORITY_SCHEDULING)
@@ -1432,6 +1515,9 @@ static const struct option long_options[] = {
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
+	{ "timer",	1,	0,	'T' },
+	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
+	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ "yield",	1,	0,	'y' },
@@ -1644,6 +1730,10 @@ int main(int argc, char **argv)
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
 			check_value("Affinity", num_procs[STRESS_AFFINITY]);
 			break;
+		case 'T':
+			num_procs[STRESS_TIMER] = opt_long("timer", optarg);
+			check_value("Timer", num_procs[STRESS_TIMER]);
+			break;
 #endif
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
@@ -1728,6 +1818,14 @@ int main(int argc, char **argv)
 			opt_affinity_ops = get_uint64(optarg);
 			check_range("affinity-ops", opt_affinity_ops, 1000, 100000000);
 			break;
+		case OPT_TIMER_OPS:
+			opt_timer_ops = get_uint64(optarg);
+			check_range("timer-ops", opt_timer_ops, 1000, 100000000);
+			break;
+		case OPT_TIMER_FREQ:
+			opt_timer_freq = get_uint64(optarg);
+			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
+			break;
 #endif
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
@@ -1781,6 +1879,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
+	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
 #endif
 
 	new_action.sa_handler = handle_sigint;
@@ -1809,7 +1908,7 @@ int main(int argc, char **argv)
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
-		PRId32 " affinity.\n",
+		PRId32 " affinity, %" PRId32 " timer.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1822,7 +1921,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_YIELD],
 		num_procs[STRESS_FALLOCATE],
 		num_procs[STRESS_FLOCK],
-		num_procs[STRESS_AFFINITY]);
+		num_procs[STRESS_AFFINITY],
+		num_procs[STRESS_TIMER]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
