@@ -220,8 +220,8 @@ static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
-static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 #if defined (__linux__)
+static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
 #endif
@@ -1455,9 +1455,11 @@ static void usage(void)
 	printf("       --sock-ops N      stop when N socket bogo operations completed\n");
 	printf("       --sock-port P     use socket ports P to P + number of workers - 1\n");
 	printf(" -t N, --timeout N       timeout after N seconds\n");
+#if defined (__linux__)
 	printf(" -T N, --timer N         start N workers producing timer events\n");
 	printf("       --timer-ops N     stop when N timer bogo events completed\n");
 	printf("       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n");
+#endif
 	printf(" -v,   --verbose         verbose output\n");
 	printf(" -V,   --version         show version\n");
 #if defined(_POSIX_PRIORITY_SCHEDULING)
