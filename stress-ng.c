@@ -270,6 +270,21 @@ static const char *const stressors[] = {
 #endif
 
 /*
+ *  mcw()
+ *	fast pseudo random number generator, see
+ *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
+ */
+static unsigned long mwc(void)
+{
+	static unsigned long z = 362436069, w = 521288629;
+
+	z = 36969 * (z & 65535) + (z >> 16);
+	w = 18000 * (w & 65535) + (w >> 16);
+	return (z << 16) + w;
+}
+
+
+/*
  *  timeval_to_double()
  *      convert timeval to seconds as a double
  */
@@ -621,8 +636,6 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 	set_proc_name(APP_NAME "-cpu");
 	pr_dbg(stderr, "stress_cpu: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 
-	srand(0x1234);
-
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
@@ -630,7 +643,7 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 		do {
 			int i;
 			for (i = 0; i < 16384; i++)
-				sqrt((double)rand());
+				sqrt((double)mwc());
 			(*counter)++;
 		} while (!opt_cpu_ops || *counter < opt_cpu_ops);
 		exit(EXIT_SUCCESS);
@@ -658,7 +671,7 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 		gettimeofday(&tv1, NULL);
 		for (j = 0; j < 64; j++) {
 			for (i = 0; i < 16384; i++)
-				sqrt((double)rand());
+				sqrt((double)mwc());
 			(*counter)++;
 		}
 		gettimeofday(&tv2, NULL);
@@ -747,7 +760,7 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 	}
 
 	for (i = 0; i < STRESS_HDD_BUF_SIZE; i++)
-		buf[i] = rand();
+		buf[i] = mwc();
 
 	do {
 		int fd;
@@ -946,20 +959,6 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 		(void)kill(pid, SIGKILL);
 	}
 	exit(EXIT_SUCCESS);
-}
-
-/*
- *  mcw()
- *	fast pseudo random number generator, see
- *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
- */
-static unsigned long mwc(void)
-{
-	static unsigned long z = 362436069, w = 521288629;
-
-	z = 36969 * (z & 65535) + (z >> 16);
-	w = 18000 * (w & 65535) + (w >> 16);
-	return (z << 16) + w;
 }
 
 /*
