@@ -1,3 +1,17 @@
+stress-ng (0.01.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove need for rand, it makes Coverity Scan complain
+  * Check for freq divide by zero
+  * Add in __linux__ build dependency on timers
+  * Add timer stress test --timer, --timer-ops and --timer-freq options
+  * Note that affinity options linux only in man page
+  * opt_affinity_ops is linux only
+  * Fix man page -F option
+  * Add CPU affinity stress processes, add --affinity and --affinity-ops options
+
+ -- Colin King <colin.king@canonical.com>  Sat, 12 Jul 2014 21:50:00 +0100
+
 stress-ng (0.01.20-1) unstable; urgency=medium
 
   * Makefile: bump version
