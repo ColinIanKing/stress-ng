@@ -216,7 +216,9 @@ static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
+#if defined (__linux__)
 static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
+#endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
 #endif
