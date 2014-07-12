@@ -1316,7 +1316,7 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	struct sigevent sev;
 	struct itimerspec timer;
 	timer_t timerid;
-	double rate_ns = 1000000000 / opt_timer_freq;
+	double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 
 	set_proc_name(APP_NAME "-timer");
 	pr_dbg(stderr, "stress_timer: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
