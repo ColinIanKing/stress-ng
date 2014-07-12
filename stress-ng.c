@@ -22,6 +22,8 @@
  * functionality.
  *
  */
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -37,6 +39,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <time.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -121,6 +124,7 @@ enum {
 	STRESS_YIELD,
 	STRESS_FALLOCATE,
 	STRESS_FLOCK,
+	STRESS_AFFINITY,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -149,6 +153,8 @@ enum {
 	OPT_SCHED_PRIO,
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
+	OPT_AFFINITY,
+	OPT_AFFINITY_OPS,
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
@@ -210,6 +216,7 @@ static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
+static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
 #endif
@@ -242,6 +249,7 @@ static const char *const stressors[] = {
 	"Yield",
 	"Fallocate",
 	"Flock",
+	"Affinity",
 	/* Add new stress tests here */
 };
 
@@ -1250,6 +1258,33 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 	exit(EXIT_SUCCESS);
 }
 
+/*
+ *  stress on sched_affinity()
+ *	stress system by changing CPU affinity periodically
+ */
+static void stress_affinity(uint64_t *const counter, const uint32_t instance)
+{
+#if defined(__linux__)
+	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
+	unsigned long int cpu = 0;
+	cpu_set_t mask;
+	set_proc_name(APP_NAME "-affinity");
+	pr_dbg(stderr, "stress_affinity: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	
+	do {
+		cpu++;
+		cpu %= cpus;
+		CPU_ZERO(&mask);
+		CPU_SET(cpu, &mask);
+		sched_setaffinity(0, sizeof(mask), &mask);
+		(*counter)++;
+	} while (!opt_affinity_ops || *counter < opt_affinity_ops);
+#else
+	(void)counter;
+	(void)instance;
+#endif
+	exit(EXIT_SUCCESS);
+}
 
 /* stress tests */
 static const func child_funcs[] = {
@@ -1265,6 +1300,7 @@ static const func child_funcs[] = {
 	stress_yield,
 	stress_fallocate,
 	stress_flock,
+	stress_affinity,
 	/* Add new stress tests here */
 };
 
@@ -1286,6 +1322,10 @@ static void usage(void)
 	version();
 	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
 	printf(" -?,   --help            show help\n");
+#if defined (__linux__)
+	printf("       --affinity        start N workers that rapidly change CPU affinity\n");
+#endif
+	printf("       --affinity-ops    stop when N affinity bogo operations completed\n");
 	printf(" -a N, --all N           start N workers of each stress test\n");
 	printf(" -b N, --backoff N       wait of N microseconds before work starts\n");
 	printf(" -c N, --cpu N           start N workers spinning on sqrt(rand())\n");
@@ -1388,6 +1428,8 @@ static const struct option long_options[] = {
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
+	{ "affinity",	1,	0,	OPT_AFFINITY },
+	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ "yield",	1,	0,	'y' },
@@ -1595,6 +1637,12 @@ int main(int argc, char **argv)
 			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
 			check_value("Flock", num_procs[STRESS_FLOCK]);
 			break;
+#if defined(__linux__)
+		case OPT_AFFINITY:
+			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
+			check_value("Affinity", num_procs[STRESS_AFFINITY]);
+			break;
+#endif
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
@@ -1673,6 +1721,12 @@ int main(int argc, char **argv)
 			opt_flock_ops = get_uint64(optarg);
 			check_range("flock-ops", opt_flock_ops, 1000, 100000000);
 			break;
+#if defined(__linux__)
+		case OPT_AFFINITY_OPS:
+			opt_affinity_ops = get_uint64(optarg);
+			check_range("affinity-ops", opt_affinity_ops, 1000, 100000000);
+			break;
+#endif
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
 			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
@@ -1723,6 +1777,9 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_fallocate_ops, num_procs[STRESS_FALLOCATE]);
 #endif
 	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
+#if defined (__linux__)
+	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
+#endif
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -1749,7 +1806,8 @@ int main(int argc, char **argv)
 		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
-		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock.\n",
+		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
+		PRId32 " affinity.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1761,7 +1819,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_SOCKET],
 		num_procs[STRESS_YIELD],
 		num_procs[STRESS_FALLOCATE],
-		num_procs[STRESS_FLOCK]);
+		num_procs[STRESS_FLOCK],
+		num_procs[STRESS_AFFINITY]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
