@@ -1,3 +1,11 @@
+stress-ng (0.01.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add directory entry thrashing
+  * Track ftruncate errors
+
+ -- Colin King <colin.king@canonical.com>  Sun, 13 Jul 2014 17:19:05 +0100
+
 stress-ng (0.01.21-1) unstable; urgency=medium
 
   * Makefile: bump version
