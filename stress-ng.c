@@ -1179,6 +1179,7 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	const pid_t pid = getpid();
 	int fd;
 	char filename[64];
+	uint64_t ftrunc_errs = 0;
 
 	set_proc_name(APP_NAME "-fallocate");
 	pr_dbg(stderr, "stress_fallocate: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
@@ -1196,12 +1197,17 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	for (;;) {
 		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
 		fsync(fd);
-		(void)ftruncate(fd, 0);
+		if (ftruncate(fd, 0) < 0)
+			ftrunc_errs++;
 		fsync(fd);
 		(*counter)++;
 		if (opt_fallocate_ops && *counter >= opt_fallocate_ops)
 			break;
 	}
+	if (ftrunc_errs)
+		pr_dbg(stderr, "stress_fallocate: %" PRIu64
+			" ftruncate errors occurred.\n", ftrunc_errs);
+			
 	(void)close(fd);
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 		(void)unlink(filename);
