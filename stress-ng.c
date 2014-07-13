@@ -101,12 +101,14 @@
 
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
+#define DEFAULT_DENTRIES	(2048)
 
 #define CTXT_STOP		'X'
 #define PIPE_STOP		'S'
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
+
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
@@ -126,6 +128,7 @@ enum {
 	STRESS_FLOCK,
 	STRESS_AFFINITY,
 	STRESS_TIMER,
+	STRESS_DENTRY,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -169,6 +172,9 @@ enum {
 	OPT_VM_MMAP_POPULATE,
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
+	OPT_DENTRY,
+	OPT_DENTRY_OPS,
+	OPT_DENTRIES,
 };
 
 #if defined (__linux__)
@@ -220,6 +226,7 @@ static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
 static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
+static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -241,6 +248,8 @@ static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
 static bool	opt_flock_break = false;		/* true to break flock loop */
+static bool	opt_dentry_break = false;		/* true to break dentry loop */
+static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 
 
 /* Human readable stress test names */
@@ -259,6 +268,7 @@ static const char *const stressors[] = {
 	"Flock",
 	"Affinity",
 	"Timer",
+	"Dentry",
 	/* Add new stress tests here */
 };
 
@@ -1207,7 +1217,6 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	if (ftrunc_errs)
 		pr_dbg(stderr, "stress_fallocate: %" PRIu64
 			" ftruncate errors occurred.\n", ftrunc_errs);
-			
 	(void)close(fd);
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 		(void)unlink(filename);
@@ -1284,7 +1293,7 @@ static void stress_affinity(uint64_t *const counter, const uint32_t instance)
 	cpu_set_t mask;
 	set_proc_name(APP_NAME "-affinity");
 	pr_dbg(stderr, "stress_affinity: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
-	
+
 	do {
 		cpu++;
 		cpu %= cpus;
@@ -1332,7 +1341,7 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
 		pr_err(stderr, "stress_timer: sigaction failed: %d (%s)\n",
 			errno, strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	sev.sigev_notify = SIGEV_SIGNAL;
@@ -1341,7 +1350,7 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
 		pr_err(stderr, "stress_timer: timer_create failed: %d (%s)\n",
 			errno, strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	timer.it_value.tv_sec = (long long int)rate_ns / 1000000000;
@@ -1352,7 +1361,7 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
 		pr_err(stderr, "stress_timer: timer_settime failed: %d (%s)\n",
 			errno, strerror(errno));
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	do {
@@ -1372,6 +1381,86 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 }
 
 
+static void stress_dentry_unlink(uint64_t n)
+{
+	uint64_t i;
+	pid_t pid = getpid();
+
+	for (i = 0; i < n; i++) {
+		char path[PATH_MAX];
+		uint64_t gray_code = (i >> 1) ^ i;
+
+		snprintf(path, sizeof(path), "stress-dentry-%i-%" 
+			PRIu64 ".tmp", pid, gray_code);
+		(void)unlink(path);
+	}
+	sync();
+}
+
+static void stress_dentry_sighandler(int sig)
+{
+	(void)sig;
+	opt_dentry_break = true;
+}
+
+
+/*
+ *  stress_dentry
+ *	stress dentries
+ */
+static void stress_dentry(uint64_t *const counter, const uint32_t instance)
+{
+	struct sigaction new_action, old_action;
+	pid_t pid = getpid();
+
+	set_proc_name(APP_NAME "-dentry");
+	pr_dbg(stderr, "stress_dentry: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	new_action.sa_handler = stress_dentry_sighandler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	sigaction(SIGINT, &new_action, &old_action);
+	sigaction(SIGALRM, &new_action, &old_action);
+
+	do {
+		uint64_t i, n = opt_dentries;
+
+		for (i = 0; i < n; i++) {
+			char path[PATH_MAX];
+			uint64_t gray_code = (i >> 1) ^ i;
+			int fd;
+
+			snprintf(path, sizeof(path), "stress-dentry-%i-%" 
+				PRIu64 ".tmp", pid, gray_code);
+
+			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
+				pr_err(stderr, "stress_dentry: open failed: %d (%s)\n",
+					errno, strerror(errno));
+				n = i;
+				break;
+			}
+			close(fd);
+
+			if (opt_dentry_break ||
+			    (opt_dentry_ops && *counter >= opt_dentry_ops))
+				goto abort;
+
+			(*counter)++;
+		}
+		stress_dentry_unlink(n);
+		sync();
+	} while (!opt_dentry_break && (!opt_dentry_ops || *counter < opt_dentry_ops));
+
+abort:
+	/* interrupted, then force unlink of all files */
+	if (opt_dentry_break) {
+		pr_dbg(stdout, "stress-dentry: removing %" PRIu64 " entries\n", opt_dentries);
+		stress_dentry_unlink(opt_dentries);
+	}
+
+	exit(EXIT_SUCCESS);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1388,6 +1477,7 @@ static const func child_funcs[] = {
 	stress_flock,
 	stress_affinity,
 	stress_timer,
+	stress_dentry,
 	/* Add new stress tests here */
 };
 
@@ -1420,6 +1510,9 @@ static void usage(void)
 	printf("       --cpu-ops N       stop when N cpu bogo operations completed\n");
 	printf(" -C N, --cache N         start N CPU cache thrashing workers\n");
 	printf("       --cache-ops N     stop when N cache bogo operations completed\n");
+	printf(" -D N, --dentry N        start N dentry thrashing processes\n");
+	printf("       --dentry-ops N    stop when N dentry bogo operations completed\n");
+	printf("       --dentries N      create N dentries per iteration (default %d)\n", DEFAULT_DENTRIES);
 	printf(" -d N, --hdd N           start N workers spinning on write()/unlink()\n");
 	printf("       --hdd-bytes N     write N bytes per hdd worker (default is 1GB)\n");
 	printf("       --hdd-noclean     do not unlink files created by hdd workers\n");
@@ -1454,9 +1547,9 @@ static void usage(void)
 	printf("       --sched type      set scheduler type\n");
 	printf("       --sched-prio N    set scheduler priority level N\n");
 #endif
-	printf(" -s,   --switch N        start N workers doing rapid context switches\n");
+	printf(" -s N, --switch N        start N workers doing rapid context switches\n");
 	printf("       --switch-ops N    stop when N context switch bogo operations completed\n");
-	printf(" -S,   --sock N          start N workers doing socket activity\n");
+	printf(" -S N, --sock N          start N workers doing socket activity\n");
 	printf("       --sock-ops N      stop when N socket bogo operations completed\n");
 	printf("       --sock-port P     use socket ports P to P + number of workers - 1\n");
 	printf(" -t N, --timeout N       timeout after N seconds\n");
@@ -1468,7 +1561,7 @@ static void usage(void)
 	printf(" -v,   --verbose         verbose output\n");
 	printf(" -V,   --version         show version\n");
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-	printf(" -y,   --yield N         start N workers doing sched_yield() calls\n");
+	printf(" -y N, --yield N         start N workers doing sched_yield() calls\n");
 	printf("       --yield-ops N     stop when N bogo yield operations completed\n");
 #endif
 	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
@@ -1536,6 +1629,9 @@ static const struct option long_options[] = {
 #endif
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
+	{ "dentry",	1,	0,	'D' },
+	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
+	{ "dentries",	1,	0,	OPT_DENTRIES },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -1643,7 +1739,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:",
+		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -1688,6 +1784,10 @@ int main(int argc, char **argv)
 		case 'd':
 			num_procs[STRESS_HDD] = opt_long("hdd", optarg);
 			check_value("HDD", num_procs[STRESS_HDD]);
+			break;
+		case 'D':
+			num_procs[STRESS_DENTRY] = opt_long("dentry", optarg);
+			check_value("Dentry", num_procs[STRESS_DENTRY]);
 			break;
 		case 'f':
 			num_procs[STRESS_FORK] = opt_long("fork", optarg);
@@ -1788,6 +1888,14 @@ int main(int argc, char **argv)
 			opt_hdd_ops = get_uint64(optarg);
 			check_range("hdd-ops", opt_hdd_ops, 1000, 100000000);
 			break;
+		case OPT_DENTRY_OPS:
+			opt_dentry_ops = get_uint64(optarg);
+			check_range("dentry-ops", opt_dentry_ops, 1, 100000000);
+			break;
+		case OPT_DENTRIES:
+			opt_dentries = get_uint64(optarg);
+			check_range("dentries", opt_dentries, 1, 100000000);
+			break;
 		case OPT_FORK_OPS:
 			opt_fork_ops = get_uint64(optarg);
 			check_range("fork-ops", opt_fork_ops, 1000, 100000000);
@@ -1884,6 +1992,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_fallocate_ops, num_procs[STRESS_FALLOCATE]);
 #endif
 	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
+	DIV_OPS_BY_PROCS(opt_dentry_ops, num_procs[STRESS_DENTRY]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -1915,7 +2024,7 @@ int main(int argc, char **argv)
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
-		PRId32 " affinity, %" PRId32 " timer.\n",
+		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -1929,7 +2038,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_FALLOCATE],
 		num_procs[STRESS_FLOCK],
 		num_procs[STRESS_AFFINITY],
-		num_procs[STRESS_TIMER]);
+		num_procs[STRESS_TIMER],
+		num_procs[STRESS_DENTRY]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);

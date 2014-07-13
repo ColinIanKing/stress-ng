@@ -63,6 +63,15 @@ stop cache thrash processes after N bogo cache thrash operations
 .B \-n, \-\-dry-run
 parse options, but don't run stress tests
 .TP
+.B \-D, \-\-dentry N
+start N processes that create and remove directory entries
+.TP
+.B \-\-dentry\-ops N
+stop denty thrash processes after N bogo dentry operations
+.TP
+.B \-\-dentries N
+create N dentries per dentry thrashing loop, default is 2048
+.TP
 .B \-d, \-\-hdd
 start N processes continually writing and removing temporary files
 .TP
