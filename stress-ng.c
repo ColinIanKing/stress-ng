@@ -1597,7 +1597,7 @@ static void usage(void)
 {
 	version();
 	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
-	printf(" -?,   --help            show help\n");
+	printf(" -?,h, --help            show help\n");
 #if defined (__linux__)
 	printf("       --affinity        start N workers that rapidly change CPU affinity\n");
 #endif
@@ -1826,7 +1826,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?MVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -1837,6 +1837,7 @@ int main(int argc, char **argv)
 				num_procs[i] = val;
 			break;
 		case '?':
+		case 'h':
 			usage();
 		case 'V':
 			version();
