@@ -1,3 +1,17 @@
+stress-ng (0.01.23-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add snappier process termination
+  * Add -h option
+  * Add more debug on exit paths
+  * Add more checking on sigaction
+  * Minor code tidy up
+  * Move time_now()
+  * Use timeval helper in time_now()
+  * Fix build error on GNU HURD
+
+ -- Colin King <colin.king@canonical.com>  Mon, 14 Jul 2014 11:49:41 +0100
+
 stress-ng (0.01.22-1) unstable; urgency=medium
 
   * Makefile: bump version
