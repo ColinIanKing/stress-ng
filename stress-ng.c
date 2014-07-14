@@ -1644,9 +1644,9 @@ static const struct option long_options[] = {
 static inline double time_now(void)
 {
 	struct timeval now;
-	gettimeofday(&now, NULL);
 
-	return (double)now.tv_sec + ((double)now.tv_usec / 1000000.0);
+	gettimeofday(&now, NULL);
+	return timeval_to_double(&now);
 }
 
 /*
