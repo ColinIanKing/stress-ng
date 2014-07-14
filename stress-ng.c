@@ -1105,7 +1105,7 @@ retry:
 		int fd, status;
 		struct sockaddr_in addr;
 		int so_reuseaddr = 1;
-		struct sigaction new_action, old_action;
+		struct sigaction new_action;
 
 		socket_server = getpid();
 		socket_client = pid;
@@ -1113,8 +1113,11 @@ retry:
 		new_action.sa_handler = handle_socket_sigalrm;
 		sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = 0;
-		sigaction(SIGALRM, &new_action, &old_action);
-
+		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
+			pr_err(stderr, "stress_socket: sigaction failed: %d (%s)\n",
+				errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s) [%d]\n",
 				errno, strerror(errno), getpid());
@@ -1257,13 +1260,21 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 {
 	int fd;
 	char filename[64];
-	struct sigaction new_action, old_action;
+	struct sigaction new_action;
 
 	new_action.sa_handler = stress_flock_sighandler;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
-	sigaction(SIGINT, &new_action, &old_action);
-	sigaction(SIGALRM, &new_action, &old_action);
+	if (sigaction(SIGINT, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_flock: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_flock: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	set_proc_name(APP_NAME "-flock");
 	pr_dbg(stderr, "stress_flock: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
@@ -1428,7 +1439,7 @@ static void stress_dentry_sighandler(int sig)
  */
 static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 {
-	struct sigaction new_action, old_action;
+	struct sigaction new_action;
 	pid_t pid = getpid();
 
 	set_proc_name(APP_NAME "-dentry");
@@ -1437,8 +1448,16 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 	new_action.sa_handler = stress_dentry_sighandler;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
-	sigaction(SIGINT, &new_action, &old_action);
-	sigaction(SIGALRM, &new_action, &old_action);
+	if (sigaction(SIGINT, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_dentry: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_dentry: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	do {
 		uint64_t i, n = opt_dentries;
@@ -1733,7 +1752,7 @@ int main(int argc, char **argv)
 	double duration;
 	size_t len;
 	uint64_t *counters;
-	struct sigaction new_action, old_action;
+	struct sigaction new_action;
 	double time_start, time_finish;
 	char shm_name[64];
 	bool success = true;
@@ -2005,7 +2024,11 @@ int main(int argc, char **argv)
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
-	sigaction(SIGINT, &new_action, &old_action);
+	if (sigaction(SIGINT, &new_action, NULL) < 0) {
+		pr_err(stderr, "stress_ng: sigaction failed: %d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		if (max < num_procs[i])
