@@ -306,6 +306,18 @@ static inline double timeval_to_double(const struct timeval *tv)
 }
 
 /*
+ *  time_now()
+ *	time in seconds as a double
+ */
+static inline double time_now(void)
+{
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
+	return timeval_to_double(&now);
+}
+
+/*
  *  print()
  *	print some debug or info messages
  */
@@ -1636,18 +1648,6 @@ static const struct option long_options[] = {
 	{ "dentries",	1,	0,	OPT_DENTRIES },
 	{ NULL,		0, 	0, 	0 }
 };
-
-/*
- *  time_now()
- *	time in seconds as a double
- */
-static inline double time_now(void)
-{
-	struct timeval now;
-
-	gettimeofday(&now, NULL);
-	return timeval_to_double(&now);
-}
 
 /*
  *  handle_sigint()
