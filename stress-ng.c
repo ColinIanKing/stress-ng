@@ -59,12 +59,17 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#define APP_NAME		"stress-ng"
+
+/* GNU HURD */
 #ifndef PATH_MAX
 #define PATH_MAX 		(4096)
 #endif
 
-#define APP_NAME		"stress-ng"
-
+#ifndef PIPE_BUF
+#define PIPE_BUF		(512)
+#endif
+#define SOCKET_BUF		(8192)
 #define STRESS_HDD_BUF_SIZE	(64 * 1024)
 
 /* Option bit masks */
@@ -252,7 +257,6 @@ static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 static bool	opt_flock_break = false;		/* true to break flock loop */
 static bool	opt_dentry_break = false;		/* true to break dentry loop */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
-
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -471,7 +475,7 @@ static int get_opt_sched(const char *const str)
 #endif
 
 #if defined (__linux__)
-static inline int ioprio_set(int which, int who, int ioprio)
+static inline int ioprio_set(const int which, const int who, const int ioprio)
 {
         return syscall(SYS_ioprio_set, which, who, ioprio);
 }
@@ -913,10 +917,6 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 	exit(EXIT_SUCCESS);
 }
 
-#ifndef PIPE_BUF
-#define PIPE_BUF 512
-#endif
-
 /*
  *  stress_pipe
  *	stress by heavy pipe I/O
@@ -1018,8 +1018,6 @@ static void stress_cache(uint64_t *const counter, const uint32_t instance)
 
 	exit(EXIT_SUCCESS);
 }
-
-#define SOCKET_BUF	8192
 
 static pid_t socket_server, socket_client;
 
@@ -1394,7 +1392,10 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	exit(EXIT_SUCCESS);
 }
 
-
+/*
+ *  stress_dentry_unlink()
+ *	remove all dentries
+ */
 static void stress_dentry_unlink(uint64_t n)
 {
 	uint64_t i;
@@ -1411,12 +1412,15 @@ static void stress_dentry_unlink(uint64_t n)
 	sync();
 }
 
+/*
+ *  stress_dentry_sighandler()
+ *	catch SIGINT, SIGALRM and trigger break from stress_dentry
+ */
 static void stress_dentry_sighandler(int sig)
 {
 	(void)sig;
 	opt_dentry_break = true;
 }
-
 
 /*
  *  stress_dentry
@@ -1976,7 +1980,6 @@ int main(int argc, char **argv)
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
-
 	/* Share bogo ops between processes equally */
 	DIV_OPS_BY_PROCS(opt_cpu_ops, num_procs[STRESS_CPU]);
 	DIV_OPS_BY_PROCS(opt_iosync_ops, num_procs[STRESS_IOSYNC]);
@@ -1999,7 +2002,6 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
 #endif
-
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
