@@ -59,6 +59,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#ifndef PATH_MAX
+#define PATH_MAX 		(4096)
+#endif
+
 #define APP_NAME		"stress-ng"
 
 #define STRESS_HDD_BUF_SIZE	(64 * 1024)
@@ -108,7 +112,6 @@
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
-
 
 #define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
 
@@ -187,7 +190,6 @@ enum {
 #define IOPRIO_WHO_USER		(3)
 
 #define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
-
 #endif
 
 /* stress process prototype */
