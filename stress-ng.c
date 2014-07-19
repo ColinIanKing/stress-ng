@@ -1436,11 +1436,24 @@ finish:
 
 #if defined (__linux__)
 static volatile uint64_t timer_counter = 0;
+static timer_t timerid;
 
 static void stress_timer_handler(int sig)
 {
 	(void)sig;
 	timer_counter++;
+
+	/* Cancel timer if we detect no more runs */
+	if (!opt_do_run) {
+		struct itimerspec timer;
+
+		timer.it_value.tv_sec = 0;
+		timer.it_value.tv_nsec = 0;
+		timer.it_interval.tv_sec = timer.it_value.tv_sec;
+		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
+
+		timer_settime(timerid, 0, &timer, NULL);
+	}
 }
 #endif
 
@@ -1454,7 +1467,6 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-	timer_t timerid;
 	double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 	int rc = EXIT_FAILURE;
 
@@ -1494,7 +1506,11 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	}
 
 	do {
-		sleep(1);
+		struct timespec req;
+
+		req.tv_sec = 0;
+		req.tv_nsec = 10000000;
+		(void)nanosleep(&req, NULL);
 		*counter = timer_counter;
 	} while (opt_do_run && (!opt_timer_ops || timer_counter < opt_timer_ops));
 
