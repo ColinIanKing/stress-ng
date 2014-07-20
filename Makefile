@@ -19,7 +19,7 @@ stress-ng.1.gz: stress-ng.1
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
-	cp -rp Makefile stress-ng.c stress-ng.1 COPYING stress-ng-$(VERSION)
+	cp -rp Makefile stress-ng.c helper.c stress-ng.1 COPYING stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
