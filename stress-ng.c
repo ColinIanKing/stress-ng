@@ -1623,6 +1623,7 @@ finish:
  */
 static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 {
+#if defined (__linux__)
 	int fd, rc = EXIT_FAILURE;
 
 	set_proc_name(APP_NAME "-urandom");
@@ -1653,6 +1654,11 @@ static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 finish:
 	pr_dbg(stderr, "stress_urandom: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
 	exit(rc);
+#else
+	(void)counter;
+	(void)instance;
+	exit(EXIT_SUCCESS);
+#endif
 }
 
 /*
