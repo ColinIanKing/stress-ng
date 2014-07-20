@@ -1,3 +1,16 @@
+stress-ng (0.01.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add helper.c to make dist
+  * Add integer stressor, --int and --int-ops options
+  * urandom: cater for non-linux builds
+  * Add --float and --float-ops floatin point stressors
+  * Add urandom stress, -u, --urandom and --urandom-ops options
+  * Make timer stress more responsive to SIGINTs
+  * Forgot to add 'T' option to getopt
+
+ -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 17:38:43 +0100
+
 stress-ng (0.01.23-1) unstable; urgency=medium
 
   * Makefile: bump version
