@@ -139,6 +139,7 @@ enum {
 	STRESS_DENTRY,
 	STRESS_URANDOM,
 	STRESS_FLOAT,
+	STRESS_INT,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -189,6 +190,8 @@ enum {
 	OPT_DENTRIES,
 	OPT_FLOAT,
 	OPT_FLOAT_OPS,
+	OPT_INT,
+	OPT_INT_OPS,
 };
 
 #if defined (__linux__)
@@ -241,6 +244,7 @@ static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
 static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
 static uint64_t opt_float_ops = 0;			/* float bogo ops max */
+static uint64_t opt_int_ops = 0;			/* int bogo ops max */
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -266,6 +270,7 @@ static bool	opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 
 extern void double_put(double a, double b, double c, double d);
+extern void uint64_put(uint64_t a, uint64_t b);
 
 /* Human readable stress test names */
 static const char *const stressors[] = {
@@ -286,6 +291,7 @@ static const char *const stressors[] = {
 	"Dentry",
 	"Urandom",
 	"Float",
+	"Int",
 	/* Add new stress tests here */
 };
 
@@ -323,7 +329,7 @@ static int stress_sethandler(const char *stress)
 #endif
 
 /*
- *  mcw()
+ *  mwc()
  *	fast pseudo random number generator, see
  *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
@@ -1556,7 +1562,7 @@ static void stress_dentry_unlink(uint64_t n)
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		snprintf(path, sizeof(path), "stress-dentry-%i-%" 
+		snprintf(path, sizeof(path), "stress-dentry-%i-%"
 			PRIu64 ".tmp", pid, gray_code);
 		(void)unlink(path);
 	}
@@ -1585,7 +1591,7 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 			uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
-			snprintf(path, sizeof(path), "stress-dentry-%i-%" 
+			snprintf(path, sizeof(path), "stress-dentry-%i-%"
 				PRIu64 ".tmp", pid, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
@@ -1663,12 +1669,11 @@ finish:
 
 /*
  *  stress_float
- *	stress reading of floating point math operations
+ *	stress floating point math operations
  */
 static void stress_float(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
-	struct timespec clk;
 
 	set_proc_name(APP_NAME "-float");
 	pr_dbg(stderr, "stress_float: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
@@ -1676,20 +1681,20 @@ static void stress_float(uint64_t *const counter, const uint32_t instance)
 	if (stress_sethandler("stress_float") < 0)
 		goto finish;
 
-	if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-		pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
-			errno, strerror(errno));
-		goto finish;
-	}
-
 	do {
 		uint32_t i;
-		double a = 0.18728;
-		double b = (double)clk.tv_nsec;
-		double c = (double)clk.tv_sec;
-		double d = 0.0;
+		double a = 0.18728, b, c, d;
+		struct timespec clk;
 
-		for (i = 0; i < 1000; i++) {
+		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
+			pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
+				errno, strerror(errno));
+			goto finish;
+		}
+		b = clk.tv_nsec;
+		c = clk.tv_sec;
+
+		for (i = 0; i < 10000; i++) {
 			a = a + b;
 			b = a * c;
 			c = a - b;
@@ -1718,6 +1723,72 @@ finish:
 	exit(rc);
 }
 
+/*
+ *  stress_int
+ *	stress integer operations
+ */
+static void stress_int(uint64_t *const counter, const uint32_t instance)
+{
+	int rc = EXIT_FAILURE;
+
+	set_proc_name(APP_NAME "-int");
+	pr_dbg(stderr, "stress_int: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	if (stress_sethandler("stress_int") < 0)
+		goto finish;
+
+
+	do {
+		uint32_t i;
+		uint64_t a = mwc(), b = mwc();
+		struct timespec clk;
+
+		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
+			pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
+				errno, strerror(errno));
+			goto finish;
+		}
+		a ^= (uint64_t)clk.tv_nsec;
+		b ^= (uint64_t)clk.tv_sec;
+
+		for (i = 0; i < 10000; i++) {
+			a += b;
+			b ^= a;
+			a >>= 1;
+			b <<= 2;
+			b -= a;
+			a ^= ~0;
+			b ^= ~0xf0f0f0f0f0f0f0f0ULL;
+			a *= 3;
+			b *= 7;
+			a += 2;
+			b -= 3;
+			a /= 77;
+			b /= 3;
+			a <<= 1;
+			b <<= 2;
+			a |= 1;
+			b |= 3;
+			a *= mwc();
+			b ^= mwc();
+			a += mwc();
+			b -= mwc();
+			a /= 7;
+			b /= 9;
+			a |= 0x1000100010001000ULL;
+			b &= 0xffeffffefebefffeULL;
+		}
+		uint64_put(a, b);
+
+		(*counter)++;
+	} while (opt_do_run && (!opt_int_ops || *counter < opt_int_ops));
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "stress_int: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	exit(rc);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1737,6 +1808,7 @@ static const func child_funcs[] = {
 	stress_dentry,
 	stress_urandom,
 	stress_float,
+	stress_int,
 	/* Add new stress tests here */
 };
 
@@ -1784,6 +1856,8 @@ static void usage(void)
 	printf("       --flock-ops N     stop when N flock bogo operations completed\n");
 	printf(" -f N, --fork N          start N workers spinning on fork() and exit()\n");
 	printf("       --fork-ops N      stop when N fork bogo operations completed\n");
+	printf("       --int N           start N workers performing integer operations\n");
+	printf("       --int-ops N       stop when N int bogo operations completed\n");
 	printf(" -i N, --io N            start N workers spinning on sync()\n");
 	printf("       --io-ops N        stop when N io bogo operations completed\n");
 #if defined (__linux__)
@@ -1899,6 +1973,8 @@ static const struct option long_options[] = {
 	{ "dentries",	1,	0,	OPT_DENTRIES },
 	{ "float",	1,	0,	OPT_FLOAT },
 	{ "float-ops",	1,	0,	OPT_FLOAT_OPS },
+	{ "int",	1,	0,	OPT_INT },
+	{ "int-ops",	1,	0,	OPT_INT_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2092,6 +2168,10 @@ int main(int argc, char **argv)
 			num_procs[STRESS_FLOAT] = opt_long("float", optarg);
 			check_value("Float", num_procs[STRESS_FLOAT]);
 			break;
+		case OPT_INT:
+			num_procs[STRESS_INT] = opt_long("int", optarg);
+			check_value("Int", num_procs[STRESS_INT]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
@@ -2196,6 +2276,10 @@ int main(int argc, char **argv)
 			opt_float_ops = get_uint64(optarg);
 			check_range("float-ops", opt_float_ops, 1000, 100000000);
 			break;
+		case OPT_INT_OPS:
+			opt_int_ops = get_uint64(optarg);
+			check_range("int-ops", opt_int_ops, 1000, 100000000);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
 			opt_affinity_ops = get_uint64(optarg);
@@ -2236,7 +2320,7 @@ int main(int argc, char **argv)
 			opt_ionice_level = get_int(optarg);
 			break;
 #endif
-		default: 
+		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
 		}
@@ -2265,6 +2349,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
 	DIV_OPS_BY_PROCS(opt_dentry_ops, num_procs[STRESS_DENTRY]);
 	DIV_OPS_BY_PROCS(opt_float_ops, num_procs[STRESS_FLOAT]);
+	DIV_OPS_BY_PROCS(opt_int_ops, num_procs[STRESS_INT]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -2301,7 +2386,7 @@ int main(int argc, char **argv)
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry, %"
-		PRId32 " urandom, %" PRId32 " float.\n",
+		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2318,7 +2403,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_TIMER],
 		num_procs[STRESS_DENTRY],
 		num_procs[STRESS_URANDOM],
-		num_procs[STRESS_FLOAT]);
+		num_procs[STRESS_FLOAT],
+		num_procs[STRESS_INT]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);

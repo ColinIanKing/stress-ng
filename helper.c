@@ -22,6 +22,7 @@
  * functionality.
  *
  */
+#include <stdint.h>
 
 /*
  *  force stress-float to think the doubles are actually
@@ -34,4 +35,15 @@ void double_put(double a, double b, double c, double d)
 	(void)b;
 	(void)c;
 	(void)d;
+}
+
+/*
+ *  force stress-int to think the uint64_t args are actually
+ *  being used - this avoids the integer loop from being
+ *  over optimised out per iteration.
+ */
+void uint64_put(uint64_t a, uint64_t b)
+{
+	(void)a;
+	(void)b;
 }
