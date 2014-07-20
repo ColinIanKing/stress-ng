@@ -8,8 +8,10 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
-stress-ng: stress-ng.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) $< -lm -lrt -o $@ $(LDFLAGS)
+OBJS = stress-ng.o helper.o
+
+stress-ng: $(OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -o $@ $(LDFLAGS)
 
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@

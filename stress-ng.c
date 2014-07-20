@@ -138,6 +138,7 @@ enum {
 	STRESS_TIMER,
 	STRESS_DENTRY,
 	STRESS_URANDOM,
+	STRESS_FLOAT,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -186,6 +187,8 @@ enum {
 	OPT_DENTRY,
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
+	OPT_FLOAT,
+	OPT_FLOAT_OPS,
 };
 
 #if defined (__linux__)
@@ -237,6 +240,7 @@ static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
 static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
 static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
 static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
+static uint64_t opt_float_ops = 0;			/* float bogo ops max */
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -261,6 +265,8 @@ static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 static bool	opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 
+extern void double_put(double a, double b, double c, double d);
+
 /* Human readable stress test names */
 static const char *const stressors[] = {
 	"I/O-Sync",
@@ -279,6 +285,7 @@ static const char *const stressors[] = {
 	"Timer",
 	"Dentry",
 	"Urandom",
+	"Float",
 	/* Add new stress tests here */
 };
 
@@ -1648,6 +1655,63 @@ finish:
 	exit(rc);
 }
 
+/*
+ *  stress_float
+ *	stress reading of floating point math operations
+ */
+static void stress_float(uint64_t *const counter, const uint32_t instance)
+{
+	int rc = EXIT_FAILURE;
+	struct timespec clk;
+
+	set_proc_name(APP_NAME "-float");
+	pr_dbg(stderr, "stress_float: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	if (stress_sethandler("stress_float") < 0)
+		goto finish;
+
+	if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
+		pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
+			errno, strerror(errno));
+		goto finish;
+	}
+
+	do {
+		uint32_t i;
+		double a = 0.18728;
+		double b = (double)clk.tv_nsec;
+		double c = (double)clk.tv_sec;
+		double d = 0.0;
+
+		for (i = 0; i < 1000; i++) {
+			a = a + b;
+			b = a * c;
+			c = a - b;
+			d = a / b;
+			a = c / 0.1923;
+			b = c + a;
+			c = b * 3.12;
+			d = b + sin(a);
+			a = (b + c) / c;
+			b = b * c;
+			c = c + 1.0;
+			d = d - sin(c);
+			a = a * cos(b);
+			b = b + cos(c);
+			c = sin(a) / 2.344;
+			d = d - 1.0;
+		}
+		double_put(a, b, c, d);
+
+		(*counter)++;
+	} while (opt_do_run && (!opt_float_ops || *counter < opt_float_ops));
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "stress_float: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	exit(rc);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1666,6 +1730,7 @@ static const func child_funcs[] = {
 	stress_timer,
 	stress_dentry,
 	stress_urandom,
+	stress_float,
 	/* Add new stress tests here */
 };
 
@@ -1707,6 +1772,8 @@ static void usage(void)
 	printf("       --hdd-ops N       stop when N hdd bogo operations completed\n");
 	printf("       --fallocate N	 start N workers fallocating 16MB files\n");
 	printf("       --fallocate-ops N stop when N fallocate bogo operations completed\n");
+	printf("       --float N         start N workers performing floating point operations\n");
+	printf("       --float-ops N     stop when N float bogo operations completed\n");
 	printf("       --flock N         start N workers locking a single file\n");
 	printf("       --flock-ops N     stop when N flock bogo operations completed\n");
 	printf(" -f N, --fork N          start N workers spinning on fork() and exit()\n");
@@ -1824,6 +1891,8 @@ static const struct option long_options[] = {
 	{ "dentry",	1,	0,	'D' },
 	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
 	{ "dentries",	1,	0,	OPT_DENTRIES },
+	{ "float",	1,	0,	OPT_FLOAT },
+	{ "float-ops",	1,	0,	OPT_FLOAT_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2013,6 +2082,10 @@ int main(int argc, char **argv)
 			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
 			check_value("Flock", num_procs[STRESS_FLOCK]);
 			break;
+		case OPT_FLOAT:
+			num_procs[STRESS_FLOAT] = opt_long("float", optarg);
+			check_value("Float", num_procs[STRESS_FLOAT]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
@@ -2113,6 +2186,10 @@ int main(int argc, char **argv)
 			opt_flock_ops = get_uint64(optarg);
 			check_range("flock-ops", opt_flock_ops, 1000, 100000000);
 			break;
+		case OPT_FLOAT_OPS:
+			opt_float_ops = get_uint64(optarg);
+			check_range("float-ops", opt_float_ops, 1000, 100000000);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
 			opt_affinity_ops = get_uint64(optarg);
@@ -2181,6 +2258,7 @@ int main(int argc, char **argv)
 #endif
 	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
 	DIV_OPS_BY_PROCS(opt_dentry_ops, num_procs[STRESS_DENTRY]);
+	DIV_OPS_BY_PROCS(opt_float_ops, num_procs[STRESS_FLOAT]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -2217,7 +2295,7 @@ int main(int argc, char **argv)
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry, %"
-		PRId32 " urandom.\n",
+		PRId32 " urandom, %" PRId32 " float.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2233,7 +2311,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_AFFINITY],
 		num_procs[STRESS_TIMER],
 		num_procs[STRESS_DENTRY],
-		num_procs[STRESS_URANDOM]);
+		num_procs[STRESS_URANDOM],
+		num_procs[STRESS_FLOAT]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);

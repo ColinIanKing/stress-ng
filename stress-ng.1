@@ -100,7 +100,13 @@ stop fork stress processes after N bogo operations
 start N processes locking on a single file
 .TP
 .B \-\-flock-ops N
-stop flock stress processes after N goto flock operations
+stop flock stress processes after N bogo flock operations
+.TP
+.B \-\-float N
+start N processes executing various double precision floating point operations
+.TP
+.B \-\-float-ops N
+stop floating point stress processes after N bogo operarions
 .TP
 .B \-i, \-\-io N
 start N processes continuously calling sync()
