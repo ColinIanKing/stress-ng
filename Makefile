@@ -1,4 +1,4 @@
-VERSION=0.01.23
+VERSION=0.01.24
 #
 # Codename "enhanced stress maker"
 #
