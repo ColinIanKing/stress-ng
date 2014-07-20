@@ -189,6 +189,12 @@ stop timer stress processes after N bogo timer events (Linux only)
 .B \-\-timer-freq F
 run timers at F Hz; range from 1000 to 1000,000,000 Hz (Linux only)
 .TP
+.B \-u, \-\-urandom N
+start N processes reading /dev/urandom (Linux only)
+.TP
+.B \-\-urandom\-ops N
+stop urandom stress processes after N urandom bogo read operations (Linux only)
+.TP
 .B \-v, \-\-verbose
 show all debug, warnings and normal information output
 .TP

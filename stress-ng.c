@@ -137,6 +137,7 @@ enum {
 	STRESS_AFFINITY,
 	STRESS_TIMER,
 	STRESS_DENTRY,
+	STRESS_URANDOM,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -170,6 +171,8 @@ enum {
 	OPT_TIMER,
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
+	OPT_URANDOM,
+	OPT_URANDOM_OPS,
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
@@ -238,6 +241,7 @@ static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
+static uint64_t opt_urandom_ops = 0;			/* urandom bogo ops max */
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
@@ -274,6 +278,7 @@ static const char *const stressors[] = {
 	"Affinity",
 	"Timer",
 	"Dentry",
+	"Urandom",
 	/* Add new stress tests here */
 };
 
@@ -1605,6 +1610,44 @@ finish:
 	exit(rc);
 }
 
+/*
+ *  stress_urandom
+ *	stress reading of /dev/urandom
+ */
+static void stress_urandom(uint64_t *const counter, const uint32_t instance)
+{
+	int fd, rc = EXIT_FAILURE;
+
+	set_proc_name(APP_NAME "-urandom");
+	pr_dbg(stderr, "stress_urandom: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	if (stress_sethandler("stress_urandom") < 0)
+		goto finish;
+
+	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
+		pr_err(stderr, "stress_urandom: open failed: %d (%s)\n",
+			errno, strerror(errno));
+		goto finish;
+	}
+
+	do {
+		char buffer[8192];
+
+		if (read(fd, buffer, sizeof(buffer)) < 0) {
+			pr_err(stderr, "stress_urandom: read failed: %d (%s)\n",
+				errno, strerror(errno));
+			goto finish;
+		}
+		(*counter)++;
+	} while (opt_do_run && (!opt_urandom_ops || *counter < opt_urandom_ops));
+	(void)close(fd);
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "stress_urandom: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	exit(rc);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1622,6 +1665,7 @@ static const func child_funcs[] = {
 	stress_affinity,
 	stress_timer,
 	stress_dentry,
+	stress_urandom,
 	/* Add new stress tests here */
 };
 
@@ -1701,6 +1745,8 @@ static void usage(void)
 	printf(" -T N, --timer N         start N workers producing timer events\n");
 	printf("       --timer-ops N     stop when N timer bogo events completed\n");
 	printf("       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n");
+	printf(" -u N, --urandom N	 start M workers reading /dev/urandom\n");
+	printf("       --urandom-ops N	 start when N urandom bogo read operations completed\n");
 #endif
 	printf(" -v,   --verbose         verbose output\n");
 	printf(" -V,   --version         show version\n");
@@ -1762,6 +1808,8 @@ static const struct option long_options[] = {
 	{ "timer",	1,	0,	'T' },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
+	{ "urandom",	1,	0,	'u' },
+	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ "yield",	1,	0,	'y' },
@@ -1871,7 +1919,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -1974,6 +2022,10 @@ int main(int argc, char **argv)
 			num_procs[STRESS_TIMER] = opt_long("timer", optarg);
 			check_value("Timer", num_procs[STRESS_TIMER]);
 			break;
+		case 'u':
+			num_procs[STRESS_URANDOM] = opt_long("urandom", optarg);
+			check_value("Urandom", num_procs[STRESS_URANDOM]);
+			break;
 #endif
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
@@ -2074,6 +2126,10 @@ int main(int argc, char **argv)
 			opt_timer_freq = get_uint64(optarg);
 			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
 			break;
+		case OPT_URANDOM_OPS:
+			opt_urandom_ops = get_uint64(optarg);
+			check_range("urandom-ops", opt_urandom_ops, 1000, 100000000);
+			break;
 #endif
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
@@ -2128,6 +2184,7 @@ int main(int argc, char **argv)
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
+	DIV_OPS_BY_PROCS(opt_urandom_ops, num_procs[STRESS_URANDOM]);
 #endif
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
@@ -2159,7 +2216,8 @@ int main(int argc, char **argv)
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
-		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry.\n",
+		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry, %"
+		PRId32 " urandom.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2174,7 +2232,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_FLOCK],
 		num_procs[STRESS_AFFINITY],
 		num_procs[STRESS_TIMER],
-		num_procs[STRESS_DENTRY]);
+		num_procs[STRESS_DENTRY],
+		num_procs[STRESS_URANDOM]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
