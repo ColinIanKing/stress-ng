@@ -269,6 +269,9 @@ static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 static bool	opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 
+static proc_info_t *procs[STRESS_MAX];
+static int32_t	started_procs[STRESS_MAX];
+
 extern void double_put(double a, double b, double c, double d);
 extern void uint64_put(uint64_t a, uint64_t b);
 
@@ -1979,21 +1982,10 @@ static const struct option long_options[] = {
 };
 
 /*
- *  handle_sigint()
- *	catch SIGINT
- */
-static void handle_sigint(int dummy)
-{
-	(void)dummy;
-}
-
-/*
  *  send_alarm()
  * 	kill tasks using SIGALRM
  */
-static void send_alarm(
-	proc_info_t *const procs[STRESS_MAX],
-	const int started_procs[STRESS_MAX])
+static void send_alarm(void)
 {
 	int i;
 
@@ -2006,13 +1998,20 @@ static void send_alarm(
 }
 
 /*
+ *  handle_sigint()
+ *	catch SIGINT
+ */
+static void handle_sigint(int dummy)
+{
+	(void)dummy;
+	send_alarm();
+}
+
+/*
  *  proc_finished()
  *	mark a process as complete
  */
-static void proc_finished(
-	const pid_t pid,
-	proc_info_t *const procs[STRESS_MAX],
-	const int started_procs[STRESS_MAX])
+static void proc_finished(const pid_t pid)
 {
 	const double now = time_now();
 	int i, j;
@@ -2047,10 +2046,9 @@ static long int opt_long(const char *opt, const char *str)
 
 int main(int argc, char **argv)
 {
-	proc_info_t *procs[STRESS_MAX];
+
 	int32_t val;
 	int32_t	num_procs[STRESS_MAX];
-	int32_t	started_procs[STRESS_MAX];
 	int32_t n_procs, total_procs = 0;
 	int32_t max = 0;
 	int32_t i, j;
@@ -2457,7 +2455,7 @@ int main(int argc, char **argv)
 				case -1:
 					pr_err(stderr, "Cannot fork: %d (%s)\n",
 						errno, strerror(errno));
-					send_alarm(procs, started_procs);
+					send_alarm();
 					goto out;
 				case 0:
 					/* Child */
@@ -2489,11 +2487,11 @@ int main(int argc, char **argv)
 				pr_err(stderr, "Process %d terminated with an error: \n", status);
 				success = false;
 			}
-			proc_finished(pid, procs, started_procs);
+			proc_finished(pid);
 			pr_dbg(stderr, "process [%d] terminated\n", pid);
 			n_procs--;
 		} else if (pid == -1) {
-			send_alarm(procs, started_procs);
+			send_alarm();
 			printf("Break\n");
 		}
 	}
