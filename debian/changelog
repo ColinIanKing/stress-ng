@@ -1,3 +1,10 @@
+stress-ng (0.01.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * More aggresive process termination to kill any lingering processes
+
+ -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 18:05:01 +0100
+
 stress-ng (0.01.24-1) unstable; urgency=medium
 
   * Makefile: bump version
