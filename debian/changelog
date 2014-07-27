@@ -1,3 +1,10 @@
+stress-ng (0.01.26-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add semaphore stress, --sem and --sem-ops options
+
+ -- Colin King <colin.king@canonical.com>  Sun, 27 Jul 2014 16:24:22 +0100
+
 stress-ng (0.01.25-1) unstable; urgency=medium
 
   * Makefile: bump version
