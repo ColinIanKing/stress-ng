@@ -40,6 +40,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <time.h>
+#include <semaphore.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -140,6 +141,7 @@ enum {
 	STRESS_URANDOM,
 	STRESS_FLOAT,
 	STRESS_INT,
+	STRESS_SEMAPHORE,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -192,6 +194,8 @@ enum {
 	OPT_FLOAT_OPS,
 	OPT_INT,
 	OPT_INT_OPS,
+	OPT_SEMAPHORE,
+	OPT_SEMAPHORE_OPS,
 };
 
 #if defined (__linux__)
@@ -245,11 +249,16 @@ static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
 static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
 static uint64_t opt_float_ops = 0;			/* float bogo ops max */
 static uint64_t opt_int_ops = 0;			/* int bogo ops max */
+static uint64_t opt_semaphore_ops = 0;			/* semaphore bogo ops max */
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
 static uint64_t opt_urandom_ops = 0;			/* urandom bogo ops max */
+static int	opt_sched = UNDEFINED;			/* sched policy */
+static int	opt_sched_priority = UNDEFINED;		/* sched priority */
+static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
+static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
@@ -260,14 +269,9 @@ static uint64_t opt_fallocate_ops = 0;			/* fallocate bogo ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
-#if defined (__linux__)
-static int	opt_sched = UNDEFINED;			/* sched policy */
-static int	opt_sched_priority = UNDEFINED;		/* sched priority */
-static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
-static int	opt_ionice_level = UNDEFINED;		/* ionice level */
-#endif
 static bool	opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
+static sem_t	sem;					/* stress_semaphore sem */
 
 static proc_info_t *procs[STRESS_MAX];
 static int32_t	started_procs[STRESS_MAX];
@@ -295,6 +299,7 @@ static const char *const stressors[] = {
 	"Urandom",
 	"Float",
 	"Int",
+	"Semaphore",
 	/* Add new stress tests here */
 };
 
@@ -1792,6 +1797,34 @@ finish:
 	exit(rc);
 }
 
+/*
+ *  stress_sem()
+ *	stress system by sem ops
+ */
+static void stress_semaphore(uint64_t *const counter, const uint32_t instance)
+{
+	int rc = EXIT_FAILURE;
+	set_proc_name(APP_NAME "-semaphore");
+	pr_dbg(stderr, "stress_semaphore: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	if (stress_sethandler("stress_semaphore") < 0)
+		goto finish;
+	do {
+		int i;
+
+		for (i = 0; i < 1000; i++) {
+			sem_wait(&sem);
+			sem_post(&sem);
+		}
+		(*counter)++;
+	} while (opt_do_run && (!opt_semaphore_ops || *counter < opt_semaphore_ops));
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "stress_semaphore: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	exit(rc);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1812,6 +1845,7 @@ static const func child_funcs[] = {
 	stress_urandom,
 	stress_float,
 	stress_int,
+	stress_semaphore,
 	/* Add new stress tests here */
 };
 
@@ -1885,6 +1919,8 @@ static void usage(void)
 	printf("       --sched type      set scheduler type\n");
 	printf("       --sched-prio N    set scheduler priority level N\n");
 #endif
+	printf("       --sem N           start N workers doing semaphore operations\n");
+	printf("       --sem-ops         stop when N semaphore bogo operations completed\n");
 	printf(" -s N, --switch N        start N workers doing rapid context switches\n");
 	printf("       --switch-ops N    stop when N context switch bogo operations completed\n");
 	printf(" -S N, --sock N          start N workers doing socket activity\n");
@@ -1978,6 +2014,8 @@ static const struct option long_options[] = {
 	{ "float-ops",	1,	0,	OPT_FLOAT_OPS },
 	{ "int",	1,	0,	OPT_INT },
 	{ "int-ops",	1,	0,	OPT_INT_OPS },
+	{ "sem",	1,	0,	OPT_SEMAPHORE },
+	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2170,6 +2208,10 @@ int main(int argc, char **argv)
 			num_procs[STRESS_INT] = opt_long("int", optarg);
 			check_value("Int", num_procs[STRESS_INT]);
 			break;
+		case OPT_SEMAPHORE:
+			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
+			check_value("Semaphore", num_procs[STRESS_INT]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
@@ -2278,6 +2320,10 @@ int main(int argc, char **argv)
 			opt_int_ops = get_uint64(optarg);
 			check_range("int-ops", opt_int_ops, 1000, 100000000);
 			break;
+		case OPT_SEMAPHORE_OPS:
+			opt_semaphore_ops = get_uint64(optarg);
+			check_range("semaphore-ops", opt_semaphore_ops, 1000, 100000000);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
 			opt_affinity_ops = get_uint64(optarg);
@@ -2324,6 +2370,15 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if (num_procs[STRESS_SEMAPHORE]) {
+		/* create a mutex */
+		if (sem_init(&sem, 1, 1) < 0) {
+			pr_err(stderr, "Semaphore init failed: %d: %s\n",
+				errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+	}
+
 #if defined (__linux__)
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
@@ -2348,6 +2403,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_dentry_ops, num_procs[STRESS_DENTRY]);
 	DIV_OPS_BY_PROCS(opt_float_ops, num_procs[STRESS_FLOAT]);
 	DIV_OPS_BY_PROCS(opt_int_ops, num_procs[STRESS_INT]);
+	DIV_OPS_BY_PROCS(opt_semaphore_ops, num_procs[STRESS_SEMAPHORE]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -2384,7 +2440,8 @@ int main(int argc, char **argv)
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry, %"
-		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int.\n",
+		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
+		PRId32 " semaphore.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2402,7 +2459,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_DENTRY],
 		num_procs[STRESS_URANDOM],
 		num_procs[STRESS_FLOAT],
-		num_procs[STRESS_INT]);
+		num_procs[STRESS_INT],
+		num_procs[STRESS_SEMAPHORE]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
@@ -2516,6 +2574,12 @@ int main(int argc, char **argv)
 		}
 	}
 out:
+	if (num_procs[STRESS_SEMAPHORE]) {
+		if (sem_destroy(&sem) < 0) {
+			pr_err(stderr, "Semaphore destroy failed: %d: %s\n",
+				errno, strerror(errno));
+		}
+	}
 	(void)shm_unlink(shm_name);
 	exit(EXIT_SUCCESS);
 }

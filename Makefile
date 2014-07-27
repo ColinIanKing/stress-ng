@@ -11,7 +11,7 @@ MANDIR=/usr/share/man/man1
 OBJS = stress-ng.o helper.o
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -o $@ $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -lpthread -o $@ $(LDFLAGS)
 
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@

@@ -25,7 +25,7 @@ stress\-ng \- a tool to load and stress a computer system
 .br
 
 .SH DESCRIPTION
-stress\-ng will stress test a computer system in various optional ways.
+stress\-ng will stress test a computer system in various selectable ways.
 
 .SH OPTIONS
 .TP
@@ -163,6 +163,12 @@ stop pipe stress processes after N bogo pipe write operations
 .TP
 .B \-q, \-\-quiet
 don't show any output
+.TP
+.B \-\-sem N
+start N processes that perform semaphore wait and post operations
+.TP
+.B \-\-sem-ops N
+stop semaphore stress processes after N bogo semaphore operations
 .TP
 .B \-S, \-\-sock N
 start N processes that perform various socket stress activity
