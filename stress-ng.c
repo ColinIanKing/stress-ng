@@ -2439,7 +2439,7 @@ int main(int argc, char **argv)
 		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
 		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
-		PRId32 " affinity, %" PRId32 " timer %" PRId32 " dentry, %"
+		PRId32 " affinity, %" PRId32 " timer, %" PRId32 " dentry, %"
 		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
 		PRId32 " semaphore.\n",
 		num_procs[STRESS_CPU],
