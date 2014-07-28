@@ -1,3 +1,17 @@
+stress-ng (0.01.27-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add more info to man page
+  * Add open stress test
+  * Fix bug in semaphore range checking
+  * Fix dbg message for stress_int
+  * Add some more comments
+  * Add more information in man page
+  * Increase the -l option accuracy by biasing by the select() overhead time
+  * Add missing comma to output
+
+ -- Colin King <colin.king@canonical.com>  Tue, 29 Jul 2014 00:33:31 +0100
+
 stress-ng (0.01.26-1) unstable; urgency=medium
 
   * Makefile: bump version
