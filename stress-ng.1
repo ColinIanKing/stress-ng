@@ -38,24 +38,24 @@ start N processes that rapidly change CPU affinity (only on Linux).
 .B \-\-affinity-ops N
 stop affinity processes after N bogo affinity operations (only on Linux).
 .TP
-.B \-a, \-\-all
+.B \-a N, \-\-all N
 start N instances of each stress test.
 .TP
-.B \-b, \-\-backoff N
+.B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress process. This allows one
 to ramp up the stress tests over time.
 .TP
-.B \-c, \-\-cpu N
+.B \-c N, \-\-cpu N
 start N processes computing sqrt((double)rand()). Note that the rand function
 is based on a fast integer RNG with a period of about 2^60.
 .TP
 .B \-\-cpu\-ops N
 stop cpu stress processes after N bogo operations.
 .TP
-.B \-l, \-\-cpu\-load P
+.B \-l P, \-\-cpu\-load P
 load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo cpu operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
 .TP
-.B \-C, \-\-cache N
+.B \-C N, \-\-cache N
 start N processes that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
 .TP
 .B \-\-cache\-ops N
@@ -64,7 +64,7 @@ stop cache thrash processes after N bogo cache thrash operations.
 .B \-n, \-\-dry-run
 parse options, but don't run stress tests. A no-op.
 .TP
-.B \-D, \-\-dentry N
+.B \-D N, \-\-dentry N
 start N processes that create and remove directory entries.
 .TP
 .B \-\-dentry\-ops N
@@ -73,7 +73,7 @@ stop denty thrash processes after N bogo dentry operations.
 .B \-\-dentries N
 create N dentries per dentry thrashing loop, default is 2048.
 .TP
-.B \-d, \-\-hdd
+.B \-d N, \-\-hdd N
 start N processes continually writing and removing temporary files.
 .TP
 .B \-\-hdd\-bytes N
@@ -85,13 +85,13 @@ do not remove files created by hdd processes.
 .B \-\-hdd\-ops N
 stop hdd stress processes after N bogo operations.
 .TP
-.B \-F, \-\-fallocate N
+.B \-F N, \-\-fallocate N
 start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
 .TP
-.B \-f, \-\-fork N
+.B \-f N, \-\-fork N
 start N processes continually forking children that immediately exit.
 .TP
 .B \-\-fork\-ops N
@@ -115,7 +115,7 @@ start N processes executing various 64 bit integer operations.
 .B \-\-int-ops N
 stop integer stress processes after N bogo operarions.
 .TP
-.B \-i, \-\-io N
+.B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
 .TP
 .B \-\-io\-ops N
@@ -131,7 +131,7 @@ specify ionice level (only on Linux). For idle, 0 is the only possible option. F
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
 been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.  
 .TP
-.B \-m, \-\-vm N
+.B \-m N, \-\-vm N
 start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
 .TP
 .B \-\-vm\-bytes N
@@ -155,13 +155,13 @@ don't continually unmap and map memory, just keep on re-writing to it.
 .B \-\-vm\-populate
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
-.B \-o, \-\-open N
+.B \-o N, \-\-open N
 start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
 .B \-\-open-ops N
 stop the open stress processes after N bogo open operations.
 .TP
-.B \-p, \-\-pipe N
+.B \-p N, \-\-pipe N
 start N processes that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.
 .TP
 .B \-\-pipe\-ops N
@@ -176,7 +176,7 @@ start N processes that perform POSIX semaphore wait and post operation. This str
 .B \-\-sem-ops N
 stop semaphore stress processes after N bogo semaphore operations.
 .TP
-.B \-S, \-\-sock N
+.B \-S N, \-\-sock N
 start N processes that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
 .TP
 .B \-\-sched-scheduler sched
@@ -193,17 +193,17 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 .B \-\-sock-ops N
 stop socket stress processes after N bogo operations.
 .TP
-.B \-s, \-\-switch N
+.B \-s N, \-\-switch N
 start N processes that send messages via pipe to a child to force context switching.
 .TP
 .B \-\-switch\-ops N
 stop context switcing processes after N bogo operations.
 .TP
-.B \-t, \-\-timeout N
+.B \-t N, \-\-timeout N
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 .TP
-.B \-T, \-\-timer N
+.B \-T N, \-\-timer N
 start N processes creating timer events at a default rate of 1Mhz (Linux only); this
 can create a lot of timer clock interrupts.
 .TP
@@ -213,7 +213,7 @@ stop timer stress processes after N bogo timer events (Linux only).
 .B \-\-timer-freq F
 run timers at F Hz; range from 1000 to 1000000000 Hz (Linux only).
 .TP
-.B \-u, \-\-urandom N
+.B \-u N, \-\-urandom N
 start N processes reading /dev/urandom (Linux only).
 .TP
 .B \-\-urandom\-ops N
@@ -225,11 +225,11 @@ show all debug, warnings and normal information output.
 .B \-V, \-\-version
 show version.
 .TP
-.B \-y, \-\-yield N
+.B \-y N, \-\-yield N
 start N process that call sched_yield(). This should force rapid context switching.
 .TP
 .B \-\-yield\-ops N
-stop yield stress processes after N sched_yield bogo operations.
+stop yield stress processes after N sched_yield() bogo operations.
 .LP
 Examples:
 .LP
@@ -245,6 +245,12 @@ stress-\ng --all 4 \-\-timeout 5m
 .SH SEE ALSO
 .BR stress (1) 
 .BR ionice (1)
+.BR sched_yield (2)
+.BR sched_setaffinity (2)
+.BR fallocate (2)
+.BR ftruncate (2)
+.BR flock (2)
+.BR ioprio_set (2)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and is a clean
 room implementation of the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>.
