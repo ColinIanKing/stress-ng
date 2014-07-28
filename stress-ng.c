@@ -2244,7 +2244,7 @@ int main(int argc, char **argv)
 			break;
 		case OPT_SEMAPHORE:
 			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
-			check_value("Semaphore", num_procs[STRESS_INT]);
+			check_value("Semaphore", num_procs[STRESS_SEMAPHORE]);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
