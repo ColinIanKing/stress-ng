@@ -155,6 +155,12 @@ don't continually unmap and map memory, just keep on re-writing to it.
 .B \-\-vm\-populate
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
+.B \-o, \-\-open N
+start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+.TP
+.B \-\-open-ops N
+stop the open stress processes after N bogo open operations.
+.TP
 .B \-p, \-\-pipe N
 start N processes that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.
 .TP

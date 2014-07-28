@@ -67,6 +67,8 @@
 #define PATH_MAX 		(4096)
 #endif
 
+#define STRESS_FD_MAX		(65536)
+
 #ifndef PIPE_BUF
 #define PIPE_BUF		(512)
 #endif
@@ -142,6 +144,7 @@ enum {
 	STRESS_FLOAT,
 	STRESS_INT,
 	STRESS_SEMAPHORE,
+	STRESS_OPEN,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -196,6 +199,8 @@ enum {
 	OPT_INT_OPS,
 	OPT_SEMAPHORE,
 	OPT_SEMAPHORE_OPS,
+	OPT_OPEN,
+	OPT_OPEN_OPS,
 };
 
 #if defined (__linux__)
@@ -255,6 +260,7 @@ static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
 static uint64_t opt_float_ops = 0;			/* float bogo ops max */
 static uint64_t opt_int_ops = 0;			/* int bogo ops max */
 static uint64_t opt_semaphore_ops = 0;			/* semaphore bogo ops max */
+static uint64_t opt_open_ops = 0;			/* open bogo ops max */
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -311,6 +317,7 @@ static const char *const stressors[] = {
 	"Float",
 	"Int",
 	"Semaphore",
+	"Open",
 	/* Add new stress tests here */
 };
 
@@ -1859,6 +1866,42 @@ finish:
 	exit(rc);
 }
 
+/*
+ *  stress_open()
+ *	stress system by rapid open/close calls
+ */
+static void stress_open(uint64_t *const counter, const uint32_t instance)
+{
+	int rc = EXIT_FAILURE;
+	static int fds[STRESS_FD_MAX];
+
+	set_proc_name(APP_NAME "-open");
+	pr_dbg(stderr, "stress_open: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+
+	if (stress_sethandler("stress_open") < 0)
+		goto finish;
+	do {
+		int i;
+
+		for (i = 0; i < STRESS_FD_MAX; i++) {
+			fds[i] = open("/dev/zero", O_RDONLY);
+			if (fds[i] < 0) 
+				break;
+			(*counter)++;
+		}
+		for (i = 0; i < STRESS_FD_MAX; i++) {
+			if (fds[i] < 0)
+				break;
+			(void)close(fds[i]);
+		}
+	} while (opt_do_run && (!opt_open_ops || *counter < opt_open_ops));
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "stress_open: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	exit(rc);
+}
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1880,6 +1923,7 @@ static const func child_funcs[] = {
 	stress_float,
 	stress_int,
 	stress_semaphore,
+	stress_open,
 	/* Add new stress tests here */
 };
 
@@ -1946,6 +1990,8 @@ static void usage(void)
 	printf("       --vm-populate     populate (prefault) page tables for a mapping\n");
 #endif
 	printf(" -n,   --dry-run         don't run\n");
+	printf(" -o,   --open N          start N workers exercising open/close\n");
+	printf("       --open-ops N      stop when N open/close bogo operations completed\n");
 	printf(" -p N, --pipe N          start N workers exercising pipe I/O\n");
 	printf("       --pipe-ops N      stop when N pipe I/O bogo operations completed\n");
 	printf(" -q,   --quiet           quiet output\n");
@@ -2050,6 +2096,8 @@ static const struct option long_options[] = {
 	{ "int-ops",	1,	0,	OPT_INT_OPS },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
+	{ "open",	1,	0,	'o' },
+	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2140,7 +2188,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -2245,6 +2293,10 @@ int main(int argc, char **argv)
 		case OPT_SEMAPHORE:
 			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
 			check_value("Semaphore", num_procs[STRESS_SEMAPHORE]);
+			break;
+		case 'o':
+			num_procs[STRESS_OPEN] = opt_long("open", optarg);
+			check_value("Open", num_procs[STRESS_OPEN]);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
@@ -2358,6 +2410,10 @@ int main(int argc, char **argv)
 			opt_semaphore_ops = get_uint64(optarg);
 			check_range("semaphore-ops", opt_semaphore_ops, 1000, 100000000);
 			break;
+		case OPT_OPEN_OPS:
+			opt_open_ops = get_uint64(optarg);
+			check_range("open-ops", opt_open_ops, 1000, 100000000);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
 			opt_affinity_ops = get_uint64(optarg);
@@ -2438,6 +2494,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_float_ops, num_procs[STRESS_FLOAT]);
 	DIV_OPS_BY_PROCS(opt_int_ops, num_procs[STRESS_INT]);
 	DIV_OPS_BY_PROCS(opt_semaphore_ops, num_procs[STRESS_SEMAPHORE]);
+	DIV_OPS_BY_PROCS(opt_open_ops, num_procs[STRESS_OPEN]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -2475,7 +2532,7 @@ int main(int argc, char **argv)
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer, %" PRId32 " dentry, %"
 		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
-		PRId32 " semaphore.\n",
+		PRId32 " semaphore, %" PRId32 " open.\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2494,7 +2551,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_URANDOM],
 		num_procs[STRESS_FLOAT],
 		num_procs[STRESS_INT],
-		num_procs[STRESS_SEMAPHORE]);
+		num_procs[STRESS_SEMAPHORE],
+		num_procs[STRESS_OPEN]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
