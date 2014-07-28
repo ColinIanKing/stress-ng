@@ -199,6 +199,11 @@ enum {
 };
 
 #if defined (__linux__)
+/*
+ *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
+ *  for these at present. Also refer to Documentation/block/ioprio.txt 
+ *  in the Linux kernel source.
+ */
 #define IOPRIO_CLASS_RT 	(1)
 #define IOPRIO_CLASS_BE		(2)
 #define IOPRIO_CLASS_IDLE	(3)
@@ -272,10 +277,16 @@ static int	opt_socket_port = 5000;			/* Default socket port */
 static bool	opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 static sem_t	sem;					/* stress_semaphore sem */
+static pid_t socket_server, socket_client;		/* pids of socket client/servers */
 
 static proc_info_t *procs[STRESS_MAX];
 static int32_t	started_procs[STRESS_MAX];
 
+/*
+ *  externs to force gcc to stash computed values and hence
+ *  to stop the optimiser optimising code away to zero. The
+ *  *_put funcs are essentially no-op functions.
+ */
 extern void double_put(double a, double b, double c, double d);
 extern void uint64_put(uint64_t a, uint64_t b);
 
@@ -303,12 +314,19 @@ static const char *const stressors[] = {
 	/* Add new stress tests here */
 };
 
+/*
+ *  Catch signals and set flag to break out of stress loops
+ */
 static void stress_sighandler(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
 }
 
+/*
+ *  stress_sethandler()
+ *	set signal handler to catch SIGINT and SIGALRM
+ */
 static int stress_sethandler(const char *stress)
 {
 	struct sigaction new_action;
@@ -526,6 +544,10 @@ static int get_opt_sched(const char *const str)
 #endif
 
 #if defined (__linux__)
+/*
+ *  ioprio_set()
+ *	ioprio_set system call
+ */
 static inline int ioprio_set(const int which, const int who, const int ioprio)
 {
         return syscall(SYS_ioprio_set, which, who, ioprio);
@@ -533,6 +555,10 @@ static inline int ioprio_set(const int which, const int who, const int ioprio)
 #endif
 
 #if defined (__linux__)
+/*
+ *  get_opt_ionice_class()
+ *	string io scheduler to IOPRIO_CLASS
+ */
 static int get_opt_ionice_class(const char *const str)
 {
 	if (!strcmp("idle", str))
@@ -1140,8 +1166,6 @@ finish:
 	exit(rc);
 }
 
-static pid_t socket_server, socket_client;
-
 /*
  *  handle_socket_sigalrm()
  *	catch SIGALRM
@@ -1470,6 +1494,10 @@ finish:
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
 
+/*
+ *  stress_timer_handler()
+ *	catch timer signal and cancel if no more runs flagged
+ */
 static void stress_timer_handler(int sig)
 {
 	(void)sig;
