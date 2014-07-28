@@ -1786,7 +1786,7 @@ static void stress_int(uint64_t *const counter, const uint32_t instance)
 		struct timespec clk;
 
 		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
+			pr_dbg(stderr, "stress_int: cannot get start seet from clock_gettime: %d, %s\n",
 				errno, strerror(errno));
 			goto finish;
 		}
