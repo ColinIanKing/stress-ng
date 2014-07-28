@@ -721,6 +721,7 @@ finish:
 static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_SUCCESS;
+	double bias;
 
 	set_proc_name(APP_NAME "-cpu");
 	pr_dbg(stderr, "stress_cpu: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
@@ -756,10 +757,11 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 	 * not intended to be 100% accurate timing, it is good
 	 * enough for most purposes.
 	 */
+	bias = 0.0;
 	do {
 		int i, j;
 		double t, delay;
-		struct timeval tv1, tv2;
+		struct timeval tv1, tv2, tv3;
 
 		gettimeofday(&tv1, NULL);
 		for (j = 0; j < 64; j++) {
@@ -771,10 +773,14 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 		t = timeval_to_double(&tv2) - timeval_to_double(&tv1);
 		/* Must not calculate this with zero % load */
 		delay = t * (((100.0 / (double) opt_cpu_load)) - 1.0);
+		delay -= bias;
 
 		tv1.tv_sec = delay;
 		tv1.tv_usec = (delay - tv1.tv_sec) * 1000000.0;
 		select(0, NULL, NULL, NULL, &tv1);
+		gettimeofday(&tv3, NULL);
+		/* Bias takes account of the time to do the delay */
+		bias = (timeval_to_double(&tv3) - timeval_to_double(&tv2)) - delay;
 	} while (opt_do_run && (!opt_cpu_ops || *counter < opt_cpu_ops));
 
 finish:
