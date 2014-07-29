@@ -24,7 +24,7 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 
 clean:
-	rm -f stress-ng stress-ng.o stress-ng.1.gz
+	rm -f stress-ng $(OBJS) stress-ng.1.gz
 	rm -f stress-ng-$(VERSION).tar.gz
 
 install: stress-ng stress-ng.1.gz
