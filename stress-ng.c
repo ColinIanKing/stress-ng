@@ -280,7 +280,7 @@ static uint64_t opt_fallocate_ops = 0;			/* fallocate bogo ops max */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
-static bool	opt_do_run = true;			/* false to exit stressor */
+static volatile bool opt_do_run = true;			/* false to exit stressor */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 static sem_t	sem;					/* stress_semaphore sem */
 static pid_t socket_server, socket_client;		/* pids of socket client/servers */
