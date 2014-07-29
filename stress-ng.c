@@ -342,12 +342,12 @@ static int stress_sethandler(const char *stress)
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_err(stderr, "%s: sigaction failed: %d (%s)\n",
+		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
 			stress, errno, strerror(errno));
 		return -1;
 	}
 	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_err(stderr, "%s: sigaction failed: %d (%s)\n",
+		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
 			stress, errno, strerror(errno));
 		return -1;
 	}
@@ -614,7 +614,7 @@ static void set_iopriority(const int class, const int level)
 	}
 	rc = ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
-		fprintf(stderr, "Cannot set I/O priority: %d (%s)\n",
+		fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -729,11 +729,13 @@ static uint64_t get_uint64_time(const char *const str)
 static void stress_iosync(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-iosync";
 
-	set_proc_name(APP_NAME "-iosync");
-	pr_dbg(stderr, "stress_iosync: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_iosync") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	do {
@@ -743,7 +745,8 @@ static void stress_iosync(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_iosync: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -755,11 +758,13 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_SUCCESS;
 	double bias;
+	static const char *const stress = APP_NAME "-cpu";
 
-	set_proc_name(APP_NAME "-cpu");
-	pr_dbg(stderr, "stress_cpu: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_cpu") < 0) {
+	if (stress_sethandler(stress) < 0) {
 		rc = EXIT_FAILURE;
 		goto finish;
 	}
@@ -817,7 +822,8 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 	} while (opt_do_run && (!opt_cpu_ops || *counter < opt_cpu_ops));
 
 finish:
-	pr_dbg(stderr, "stress_cpu: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -832,10 +838,12 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 	size_t	i;
 	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-vm";
 
-	set_proc_name(APP_NAME "-vm");
-	pr_dbg(stderr, "stress_vm: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
-	if (stress_sethandler("stress_vm") < 0)
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	do {
@@ -847,7 +855,7 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 
 			if (buf == MAP_FAILED) {
-				pr_dbg(stderr, "mmap failed, re-trying\n");
+				pr_dbg(stderr, "%s: mmap failed, re-trying\n", stress);
 				continue;	/* Try again */
 			}
 		}
@@ -864,8 +872,8 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 
 		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
 			if (*(buf + i) != gray_code) {
-				pr_err(stderr, "stress_vm: detected memory error, offset : %zd, got: %x\n",
-					i, *(buf + i));
+				pr_err(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
+					stress, i, *(buf + i));
 				goto finish;
 			}
 		}
@@ -878,7 +886,8 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_vm: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -892,15 +901,17 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 	uint64_t i;
 	const pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-io";
 
-	set_proc_name(APP_NAME "-io");
-	pr_dbg(stderr, "stress_io: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_io") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish_no_free;
 
 	if ((buf = malloc(STRESS_HDD_BUF_SIZE)) == NULL) {
-		pr_err(stderr, "stress_io: cannot allocate buffer\n");
+		pr_err(stderr, "%s: cannot allocate buffer\n", stress);
 		goto finish_no_free;
 	}
 
@@ -911,11 +922,11 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 		int fd;
 		char filename[64];
 
-		snprintf(filename, sizeof(filename), "./stress-ng-%i.XXXXXXX", pid);
+		snprintf(filename, sizeof(filename), "./%s-%i.XXXXXXX", stress, pid);
 
 		(void)umask(0077);
 		if ((fd = mkstemp(filename)) < 0) {
-			pr_err(stderr, "stress_io: mkstemp failed\n");
+			pr_err(stderr, "%s: mkstemp failed\n", stress);
 			goto finish;
 		}
 		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
@@ -923,8 +934,8 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 
 		for (i = 0; i < opt_hdd_bytes; i += STRESS_HDD_BUF_SIZE) {
 			if (write(fd, buf, STRESS_HDD_BUF_SIZE) < 0) {
-				pr_err(stderr, "stress_io: write error: %d (%s)\n",
-					errno, strerror(errno));
+				pr_err(stderr, "%s: write error: errno=%d (%s)\n",
+					stress, errno, strerror(errno));
 				goto finish;
 			}
 			(*counter)++;
@@ -940,7 +951,8 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 finish:
 	free(buf);
 finish_no_free:
-	pr_dbg(stderr, "stress_io: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -951,11 +963,13 @@ finish_no_free:
 static void stress_fork(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-fork";
 
-	set_proc_name(APP_NAME "-fork");
-	pr_dbg(stderr, "stress_fork: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_fork") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	do {
@@ -976,7 +990,8 @@ static void stress_fork(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_fork: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -989,16 +1004,18 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 	pid_t pid;
 	int pipefds[2];
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-ctxt";
 
-	set_proc_name(APP_NAME "-ctxt");
-	pr_dbg(stderr, "stress_ctxt: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_ctx") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_ctxt: pipe failed, errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_dbg(stderr, "%s: pipe failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1006,8 +1023,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 	if (pid < 0) {
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_dbg(stderr, "stress_ctxt: fork failed, errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_dbg(stderr, "%s: fork failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	} else if (pid == 0) {
 		/* Child, immediately exit */
@@ -1018,8 +1035,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 			for (;;) {
 				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
-					pr_dbg(stderr, "stress_ctxt: read failed, errno=%d (%s)\n",
-						errno, strerror(errno));
+					pr_dbg(stderr, "%s: read failed, errno=%d (%s)\n",
+						stress, errno, strerror(errno));
 					break;
 				}
 				if (ch == CTXT_STOP)
@@ -1036,8 +1053,8 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 		do {
 			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
-				pr_dbg(stderr, "stress_ctxt: write failed, errno=%d (%s)\n",
-					errno, strerror(errno));
+				pr_dbg(stderr, "%s: write failed, errno=%d (%s)\n",
+					stress, errno, strerror(errno));
 				break;
 			}
 			(*counter)++;
@@ -1045,14 +1062,15 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 
 		ch = CTXT_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
-			pr_dbg(stderr, "stress_ctxt: termination write failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: termination write failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 		(void)kill(pid, SIGKILL);
 	}
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_ctxt: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1065,16 +1083,18 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 	pid_t pid;
 	int pipefds[2];
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-pipe";
 
-	set_proc_name(APP_NAME "-pipe");
-	pr_dbg(stderr, "stress_pipe: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_pipe") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	if (pipe(pipefds) < 0) {
-		pr_dbg(stderr, "stress_pipe: pipe failed, errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_dbg(stderr, "%s: pipe failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1082,8 +1102,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 	if (pid < 0) {
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_dbg(stderr, "stress_pipe: fork failed, errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_dbg(stderr, "%s: fork failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	} else if (pid == 0) {
 		/* Child, immediately exit */
@@ -1094,8 +1114,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 			for (;;) {
 				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
-					pr_dbg(stderr, "stress_pipe: read failed, errno=%d (%s)\n",
-						errno, strerror(errno));
+					pr_dbg(stderr, "%s: read failed, errno=%d (%s)\n",
+						stress, errno, strerror(errno));
 					break;
 				}
 				if (buf[0] == PIPE_STOP)
@@ -1114,8 +1134,8 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 		do {
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
-				pr_dbg(stderr, "stress_pipe: write failed, errno=%d (%s)\n",
-					errno, strerror(errno));
+				pr_dbg(stderr, "%s: write failed, errno=%d (%s)\n",
+					stress, errno, strerror(errno));
 				break;
 			}
 			(*counter)++;
@@ -1123,13 +1143,14 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 
 		memset(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_dbg(stderr, "stress_pipe: termination write failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: termination write failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 		(void)kill(pid, SIGKILL);
 	}
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_pipe: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1141,11 +1162,13 @@ static void stress_cache(uint64_t *const counter, const uint32_t instance)
 {
 	unsigned long total = 0;
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-cache";
 
-	set_proc_name(APP_NAME "-cache");
-	pr_dbg(stderr, "stress_cache: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_cache") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		unsigned long i = mwc() & (MEM_CHUNK_SIZE - 1);
@@ -1167,9 +1190,10 @@ static void stress_cache(uint64_t *const counter, const uint32_t instance)
 	} while (opt_do_run && (!opt_cache_ops || *counter < opt_cache_ops));
 
 	rc = EXIT_SUCCESS;
-	pr_dbg(stderr, "stress_cache: total [%lu]\n", total);
+	pr_dbg(stderr, "%s: total [%lu]\n", stress, total);
 finish:
-	pr_dbg(stderr, "stress_cache: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1196,15 +1220,18 @@ static void stress_socket(uint64_t *const counter, const uint32_t instance)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+	static const char *const stress = APP_NAME "-socket";
 
-	set_proc_name(APP_NAME "-socket");
-	pr_dbg(stderr, "stress_socket: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
-	pr_dbg(stderr, "stress_socket: process [%d] using socket port %d\n", getpid(), opt_socket_port + instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
+		stress, getpid(), opt_socket_port + instance);
 
 	pid = fork();
 	if (pid < 0) {
-		pr_dbg(stderr, "stress_socket: fork failed, errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_dbg(stderr, "%s: fork failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto finish;
 	} else if (pid == 0) {
@@ -1218,8 +1245,8 @@ static void stress_socket(uint64_t *const counter, const uint32_t instance)
 			int retries = 0;
 retry:
 			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-				pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s)\n",
-					errno, strerror(errno));
+				pr_dbg(stderr, "%s: socket failed, errno=%d (%s)\n",
+					stress, errno, strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 
@@ -1233,8 +1260,8 @@ retry:
 				usleep(10000);
 				retries++;
 				if (retries > 100) {
-					pr_dbg(stderr, "stress_socket: connect failed after 100 retries, errno=%d (%s)\n",
-						errno, strerror(errno));
+					pr_dbg(stderr, "%s: connect failed after 100 retries, errno=%d (%s)\n",
+						stress, errno, strerror(errno));
 					break;
 				}
 				goto retry;
@@ -1246,8 +1273,8 @@ retry:
 				if (n == 0)
 					break;
 				if (n < 0) {
-					pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s)\n",
-						errno, strerror(errno));
+					pr_dbg(stderr, "%s: write failed, errno=%d (%s)\n",
+						stress, errno, strerror(errno));
 					break;
 				}
 			}
@@ -1271,14 +1298,14 @@ retry:
 		sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = 0;
 		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_err(stderr, "stress_socket: sigaction failed: %d (%s)\n",
-				errno, strerror(errno));
+			pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			pr_dbg(stderr, "stress_socket: socket failed, errno=%d (%s) [%d]\n",
-				errno, strerror(errno), getpid());
+			pr_dbg(stderr, "%s: socket failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die;
 		}
@@ -1288,20 +1315,20 @@ retry:
 		addr.sin_port = htons(opt_socket_port + instance);
 
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_dbg(stderr, "stress_socket: setsockopt failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: setsockopt failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-			pr_dbg(stderr, "stress_socket: bind failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: bind failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (listen(fd, 10) < 0) {
-			pr_dbg(stderr, "stress_socket: listen failed, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: listen failed, errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -1315,8 +1342,8 @@ retry:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					int ret = write(sfd, buf, i);
 					if (ret < 0) {
-						pr_dbg(stderr, "stress_socket: write failed, errno=%d (%s)\n",
-							errno, strerror(errno));
+						pr_dbg(stderr, "%s: write failed, errno=%d (%s)\n",
+							stress, errno, strerror(errno));
 						break;
 					}
 				}
@@ -1332,7 +1359,8 @@ die:
 		waitpid(pid, &status, 0);
 	}
 finish:
-	pr_dbg(stderr, "stress_socket: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1344,10 +1372,13 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 {
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	int rc = EXIT_FAILURE;
-	set_proc_name(APP_NAME "-yield");
-	pr_dbg(stderr, "stress_yield: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	static const char *const stress = APP_NAME "-yield";
 
-	if (stress_sethandler("stress_yield") < 0)
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		sched_yield();
@@ -1356,7 +1387,8 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_yield: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 #else
 	(void)counter;
@@ -1376,17 +1408,19 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 	int fd, rc = EXIT_FAILURE;
 	char filename[64];
 	uint64_t ftrunc_errs = 0;
+	static const char *const stress = APP_NAME "-fallocate";
 
-	set_proc_name(APP_NAME "-fallocate");
-	pr_dbg(stderr, "stress_fallocate: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_fallocate") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
-	snprintf(filename, sizeof(filename), "./stress-ng-fallocate-%i.XXXXXXX", pid);
+	snprintf(filename, sizeof(filename), "./%s-%i.XXXXXXX", stress, pid);
 	(void)umask(0077);
 	if ((fd = mkstemp(filename)) < 0) {
-		pr_err(stderr, "stress_fallocate: mkstemp failed\n");
+		pr_err(stderr, "%s: mkstemp failed\n", stress);
 		goto finish;
 	}
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
@@ -1401,15 +1435,16 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 		(*counter)++;
 	} while (opt_do_run && (!opt_fallocate_ops || *counter < opt_fallocate_ops));
 	if (ftrunc_errs)
-		pr_dbg(stderr, "stress_fallocate: %" PRIu64
-			" ftruncate errors occurred.\n", ftrunc_errs);
+		pr_dbg(stderr, "%s: %" PRIu64
+			" ftruncate errors occurred.\n", stress, ftrunc_errs);
 	(void)close(fd);
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 		(void)unlink(filename);
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_fallocate: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 
 #else
@@ -1427,18 +1462,20 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 {
 	int fd, rc = EXIT_FAILURE;
 	char filename[64];
+	static const char *const stress = APP_NAME "-flock";
 
-	set_proc_name(APP_NAME "-flock");
-	pr_dbg(stderr, "stress_flock: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_flock") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
-	snprintf(filename, sizeof(filename), "./stress-ng-flock-%i", getppid());
+	snprintf(filename, sizeof(filename), "./%s-%i", stress, getppid());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_err(stderr, "stress_flock: open failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1456,7 +1493,8 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_flock: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1471,11 +1509,13 @@ static void stress_affinity(uint64_t *const counter, const uint32_t instance)
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-affinity";
 
-	set_proc_name(APP_NAME "-affinity");
-	pr_dbg(stderr, "stress_affinity: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_affinity") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		cpu++;
@@ -1488,7 +1528,8 @@ static void stress_affinity(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_affinity: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 #else
 	(void)counter;
@@ -1536,19 +1577,21 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	struct itimerspec timer;
 	double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-timer";
 
-	set_proc_name(APP_NAME "-timer");
-	pr_dbg(stderr, "stress_timer: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_timer") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	new_action.sa_flags = 0;
 	new_action.sa_handler = stress_timer_handler;
 	sigemptyset(&new_action.sa_mask);
 	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_err(stderr, "stress_timer: sigaction failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1556,8 +1599,8 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_err(stderr, "stress_timer: timer_create failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: timer_create failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1567,8 +1610,8 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_err(stderr, "stress_timer: timer_settime failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: timer_settime failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1582,14 +1625,15 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 	} while (opt_do_run && (!opt_timer_ops || timer_counter < opt_timer_ops));
 
 	if (timer_delete(timerid) < 0) {
-		pr_err(stderr, "stress_timer: timer_delete failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: timer_delete failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_timer: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 #else
 	(void)counter;
@@ -1626,11 +1670,13 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 {
 	pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-dentry";
 
-	set_proc_name(APP_NAME "-dentry");
-	pr_dbg(stderr, "stress_dentry: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_dentry") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		uint64_t i, n = opt_dentries;
@@ -1644,8 +1690,8 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 				PRIu64 ".tmp", pid, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
-				pr_err(stderr, "stress_dentry: open failed: %d (%s)\n",
-					errno, strerror(errno));
+				pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
+					stress, errno, strerror(errno));
 				n = i;
 				break;
 			}
@@ -1663,12 +1709,13 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 
 abort:
 	/* force unlink of all files */
-	pr_dbg(stdout, "stress-dentry: removing %" PRIu64 " entries\n", opt_dentries);
+	pr_dbg(stdout, "%s: removing %" PRIu64 " entries\n", stress, opt_dentries);
 	stress_dentry_unlink(opt_dentries);
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_dentry: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1680,16 +1727,18 @@ static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 {
 #if defined (__linux__)
 	int fd, rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-urandom";
 
-	set_proc_name(APP_NAME "-urandom");
-	pr_dbg(stderr, "stress_urandom: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_urandom") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_err(stderr, "stress_urandom: open failed: %d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
 		goto finish;
 	}
 
@@ -1697,8 +1746,8 @@ static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 		char buffer[8192];
 
 		if (read(fd, buffer, sizeof(buffer)) < 0) {
-			pr_err(stderr, "stress_urandom: read failed: %d (%s)\n",
-				errno, strerror(errno));
+			pr_err(stderr, "%s: read failed: errno=%d (%s)\n",
+				stress, errno, strerror(errno));
 			goto finish;
 		}
 		(*counter)++;
@@ -1707,7 +1756,8 @@ static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_urandom: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 #else
 	(void)counter;
@@ -1723,11 +1773,13 @@ finish:
 static void stress_float(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-float";
 
-	set_proc_name(APP_NAME "-float");
-	pr_dbg(stderr, "stress_float: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_float") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 
 	do {
@@ -1736,8 +1788,8 @@ static void stress_float(uint64_t *const counter, const uint32_t instance)
 		struct timespec clk;
 
 		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_dbg(stderr, "stress_float: cannot get start seet from clock_gettime: %d, %s\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: cannot get start seet from clock_gettime: errno=%d, %s\n",
+				stress, errno, strerror(errno));
 			goto finish;
 		}
 		b = clk.tv_nsec;
@@ -1768,7 +1820,8 @@ static void stress_float(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_float: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1779,13 +1832,14 @@ finish:
 static void stress_int(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
+	static const char *const stress = APP_NAME "-int";
 
-	set_proc_name(APP_NAME "-int");
-	pr_dbg(stderr, "stress_int: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_int") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
-
 
 	do {
 		uint32_t i;
@@ -1793,8 +1847,8 @@ static void stress_int(uint64_t *const counter, const uint32_t instance)
 		struct timespec clk;
 
 		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_dbg(stderr, "stress_int: cannot get start seet from clock_gettime: %d, %s\n",
-				errno, strerror(errno));
+			pr_dbg(stderr, "%s: cannot get start seet from clock_gettime: errno=%d, %s\n",
+				stress, errno, strerror(errno));
 			goto finish;
 		}
 		a ^= (uint64_t)clk.tv_nsec;
@@ -1834,7 +1888,8 @@ static void stress_int(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_int: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1845,10 +1900,13 @@ finish:
 static void stress_semaphore(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
-	set_proc_name(APP_NAME "-semaphore");
-	pr_dbg(stderr, "stress_semaphore: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	static const char *const stress = APP_NAME "-semaphore";
 
-	if (stress_sethandler("stress_semaphore") < 0)
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		int i;
@@ -1862,7 +1920,8 @@ static void stress_semaphore(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_semaphore: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -1874,11 +1933,13 @@ static void stress_open(uint64_t *const counter, const uint32_t instance)
 {
 	int rc = EXIT_FAILURE;
 	static int fds[STRESS_FD_MAX];
+	static const char *const stress = APP_NAME "-open";
 
-	set_proc_name(APP_NAME "-open");
-	pr_dbg(stderr, "stress_open: started on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 
-	if (stress_sethandler("stress_open") < 0)
+	if (stress_sethandler(stress) < 0)
 		goto finish;
 	do {
 		int i;
@@ -1898,7 +1959,8 @@ static void stress_open(uint64_t *const counter, const uint32_t instance)
 
 	rc = EXIT_SUCCESS;
 finish:
-	pr_dbg(stderr, "stress_open: exited on pid [%d] (instance %" PRIu32 ")\n", getpid(), instance);
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
 	exit(rc);
 }
 
@@ -2463,7 +2525,7 @@ int main(int argc, char **argv)
 	if (num_procs[STRESS_SEMAPHORE]) {
 		/* create a mutex */
 		if (sem_init(&sem, 1, 1) < 0) {
-			pr_err(stderr, "Semaphore init failed: %d: %s\n",
+			pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
 				errno, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
@@ -2504,7 +2566,7 @@ int main(int argc, char **argv)
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_err(stderr, "stress_ng: sigaction failed: %d (%s)\n",
+		pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -2558,14 +2620,14 @@ int main(int argc, char **argv)
 	(void)shm_unlink(shm_name);
 
 	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
-		pr_err(stderr, "Cannot open shared memory region: %d (%s)\n",
+		pr_err(stderr, "Cannot open shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	len = sizeof(uint64_t) * STRESS_MAX * max;
 	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
-		pr_err(stderr, "Cannot resize shared memory region: %d (%s)\n",
+		pr_err(stderr, "Cannot resize shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
@@ -2573,7 +2635,7 @@ int main(int argc, char **argv)
 	}
 	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
 	if (counters == MAP_FAILED) {
-		pr_err(stderr, "Cannot mmap to shared memory region: %d (%s)\n",
+		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
@@ -2582,7 +2644,7 @@ int main(int argc, char **argv)
 	if (num_procs[STRESS_CACHE]) {
 		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mem_chunk == MAP_FAILED) {
-			pr_err(stderr, "Cannot mmap to shared memory region: %d (%s)\n",
+			pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
 				errno, strerror(errno));
 			(void)close(fd);
 			(void)shm_unlink(shm_name);
@@ -2603,7 +2665,7 @@ int main(int argc, char **argv)
 				int pid = fork();
 				switch (pid) {
 				case -1:
-					pr_err(stderr, "Cannot fork: %d (%s)\n",
+					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
 					send_alarm();
 					goto out;
@@ -2668,7 +2730,7 @@ int main(int argc, char **argv)
 out:
 	if (num_procs[STRESS_SEMAPHORE]) {
 		if (sem_destroy(&sem) < 0) {
-			pr_err(stderr, "Semaphore destroy failed: %d: %s\n",
+			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}
 	}
