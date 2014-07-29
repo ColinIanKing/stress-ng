@@ -3,7 +3,7 @@ VERSION=0.01.27
 # Codename "enhanced stress maker"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"'
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
