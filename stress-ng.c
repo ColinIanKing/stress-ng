@@ -366,7 +366,7 @@ static int stress_sethandler(const char *stress)
  *	fast pseudo random number generator, see
  *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-static unsigned long mwc(void)
+static inline unsigned long mwc(void)
 {
 	static unsigned long z = 362436069, w = 521288629;
 
