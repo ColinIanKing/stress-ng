@@ -450,7 +450,7 @@ static void check_range(
 {
 	if (val < lo || val > hi) {
 		fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
-			" allowed: %" PRId64 " ..% " PRId64 "\n",
+			" allowed: %" PRId64 " .. %" PRId64 "\n",
 			val, opt, lo, hi);
 		exit(EXIT_FAILURE);
 	}
