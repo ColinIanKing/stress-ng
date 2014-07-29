@@ -2005,85 +2005,85 @@ static inline void version(void)
 static void usage(void)
 {
 	version();
-	printf("\nUsage: stress-ng [OPTION [ARG]]\n");
-	printf(" -?,h, --help            show help\n");
+	printf(	"\nUsage: stress-ng [OPTION [ARG]]\n"
+		" -?,h, --help            show help\n"
 #if defined (__linux__)
-	printf("       --affinity        start N workers that rapidly change CPU affinity\n");
+		"       --affinity        start N workers that rapidly change CPU affinity\n"
 #endif
-	printf("       --affinity-ops    stop when N affinity bogo operations completed\n");
-	printf(" -a N, --all N           start N workers of each stress test\n");
-	printf(" -b N, --backoff N       wait of N microseconds before work starts\n");
-	printf(" -c N, --cpu N           start N workers spinning on sqrt(rand())\n");
-	printf(" -l P, --cpu-load P      load CPU by P %%, 0=sleep, 100=full load (see -c)\n");
-	printf("       --cpu-ops N       stop when N cpu bogo operations completed\n");
-	printf(" -C N, --cache N         start N CPU cache thrashing workers\n");
-	printf("       --cache-ops N     stop when N cache bogo operations completed\n");
-	printf(" -D N, --dentry N        start N dentry thrashing processes\n");
-	printf("       --dentry-ops N    stop when N dentry bogo operations completed\n");
-	printf("       --dentries N      create N dentries per iteration (default %d)\n", DEFAULT_DENTRIES);
-	printf(" -d N, --hdd N           start N workers spinning on write()/unlink()\n");
-	printf("       --hdd-bytes N     write N bytes per hdd worker (default is 1GB)\n");
-	printf("       --hdd-noclean     do not unlink files created by hdd workers\n");
-	printf("       --hdd-ops N       stop when N hdd bogo operations completed\n");
-	printf("       --fallocate N	 start N workers fallocating 16MB files\n");
-	printf("       --fallocate-ops N stop when N fallocate bogo operations completed\n");
-	printf("       --float N         start N workers performing floating point operations\n");
-	printf("       --float-ops N     stop when N float bogo operations completed\n");
-	printf("       --flock N         start N workers locking a single file\n");
-	printf("       --flock-ops N     stop when N flock bogo operations completed\n");
-	printf(" -f N, --fork N          start N workers spinning on fork() and exit()\n");
-	printf("       --fork-ops N      stop when N fork bogo operations completed\n");
-	printf("       --int N           start N workers performing integer operations\n");
-	printf("       --int-ops N       stop when N int bogo operations completed\n");
-	printf(" -i N, --io N            start N workers spinning on sync()\n");
-	printf("       --io-ops N        stop when N io bogo operations completed\n");
+		"       --affinity-ops    stop when N affinity bogo operations completed\n"
+		" -a N, --all N           start N workers of each stress test\n"
+		" -b N, --backoff N       wait of N microseconds before work starts\n"
+		" -c N, --cpu N           start N workers spinning on sqrt(rand())\n"
+		" -l P, --cpu-load P      load CPU by P %%, 0=sleep, 100=full load (see -c)\n"
+		"       --cpu-ops N       stop when N cpu bogo operations completed\n"
+		" -C N, --cache N         start N CPU cache thrashing workers\n"
+		"       --cache-ops N     stop when N cache bogo operations completed\n"
+		" -D N, --dentry N        start N dentry thrashing processes\n"
+		"       --dentry-ops N    stop when N dentry bogo operations completed\n");
+	printf( "       --dentries N      create N dentries per iteration (default %d)\n", DEFAULT_DENTRIES);
+	printf( " -d N, --hdd N           start N workers spinning on write()/unlink()\n"
+		"       --hdd-bytes N     write N bytes per hdd worker (default is 1GB)\n"
+		"       --hdd-noclean     do not unlink files created by hdd workers\n"
+		"       --hdd-ops N       stop when N hdd bogo operations completed\n"
+		"       --fallocate N	 start N workers fallocating 16MB files\n"
+		"       --fallocate-ops N stop when N fallocate bogo operations completed\n"
+		"       --float N         start N workers performing floating point operations\n"
+		"       --float-ops N     stop when N float bogo operations completed\n"
+		"       --flock N         start N workers locking a single file\n"
+		"       --flock-ops N     stop when N flock bogo operations completed\n"
+		" -f N, --fork N          start N workers spinning on fork() and exit()\n"
+		"       --fork-ops N      stop when N fork bogo operations completed\n"
+		"       --int N           start N workers performing integer operations\n"
+		"       --int-ops N       stop when N int bogo operations completed\n"
+		" -i N, --io N            start N workers spinning on sync()\n"
+		"       --io-ops N        stop when N io bogo operations completed\n"
 #if defined (__linux__)
-	printf("       --ionice-class C  specify ionice class (idle, besteffort, realtime)\n");
-	printf("       --ionice-level L  specify ionice level (0 max, 7 min)\n");
+		"       --ionice-class C  specify ionice class (idle, besteffort, realtime)\n"
+		"       --ionice-level L  specify ionice level (0 max, 7 min)\n"
 #endif
-	printf(" -M,   --metrics         print pseudo metrics of activity\n");
-	printf(" -m N, --vm N            start N workers spinning on anonymous mmap\n");
-	printf("       --vm-bytes N      allocate N bytes per vm worker (default 256MB)\n");
-	printf("       --vm-stride N     touch a byte every N bytes (default 4K)\n");
-	printf("       --vm-hang N       sleep N seconds before freeing memory\n");
-	printf("       --vm-keep         redirty memory instead of reallocating\n");
-	printf("       --vm-ops N        stop when N vm bogo operations completed\n");
+		" -M,   --metrics         print pseudo metrics of activity\n"
+		" -m N, --vm N            start N workers spinning on anonymous mmap\n"
+		"       --vm-bytes N      allocate N bytes per vm worker (default 256MB)\n"
+		"       --vm-stride N     touch a byte every N bytes (default 4K)\n"
+		"       --vm-hang N       sleep N seconds before freeing memory\n"
+		"       --vm-keep         redirty memory instead of reallocating\n"
+		"       --vm-ops N        stop when N vm bogo operations completed\n"
 #ifdef MAP_POPULATE
-	printf("       --vm-populate     populate (prefault) page tables for a mapping\n");
+		"       --vm-populate     populate (prefault) page tables for a mapping\n"
 #endif
-	printf(" -n,   --dry-run         don't run\n");
-	printf(" -o,   --open N          start N workers exercising open/close\n");
-	printf("       --open-ops N      stop when N open/close bogo operations completed\n");
-	printf(" -p N, --pipe N          start N workers exercising pipe I/O\n");
-	printf("       --pipe-ops N      stop when N pipe I/O bogo operations completed\n");
-	printf(" -q,   --quiet           quiet output\n");
+		" -n,   --dry-run         don't run\n"
+		" -o,   --open N          start N workers exercising open/close\n"
+		"       --open-ops N      stop when N open/close bogo operations completed\n"
+		" -p N, --pipe N          start N workers exercising pipe I/O\n"
+		"       --pipe-ops N      stop when N pipe I/O bogo operations completed\n"
+		" -q,   --quiet           quiet output\n"
 #if defined (__linux__)
-	printf("       --sched type      set scheduler type\n");
-	printf("       --sched-prio N    set scheduler priority level N\n");
+		"       --sched type      set scheduler type\n"
+		"       --sched-prio N    set scheduler priority level N\n"
 #endif
-	printf("       --sem N           start N workers doing semaphore operations\n");
-	printf("       --sem-ops         stop when N semaphore bogo operations completed\n");
-	printf(" -s N, --switch N        start N workers doing rapid context switches\n");
-	printf("       --switch-ops N    stop when N context switch bogo operations completed\n");
-	printf(" -S N, --sock N          start N workers doing socket activity\n");
-	printf("       --sock-ops N      stop when N socket bogo operations completed\n");
-	printf("       --sock-port P     use socket ports P to P + number of workers - 1\n");
-	printf(" -t N, --timeout N       timeout after N seconds\n");
+		"       --sem N           start N workers doing semaphore operations\n"
+		"       --sem-ops         stop when N semaphore bogo operations completed\n"
+		" -s N, --switch N        start N workers doing rapid context switches\n"
+		"       --switch-ops N    stop when N context switch bogo operations completed\n"
+		" -S N, --sock N          start N workers doing socket activity\n"
+		"       --sock-ops N      stop when N socket bogo operations completed\n"
+		"       --sock-port P     use socket ports P to P + number of workers - 1\n"
+		" -t N, --timeout N       timeout after N seconds\n"
 #if defined (__linux__)
-	printf(" -T N, --timer N         start N workers producing timer events\n");
-	printf("       --timer-ops N     stop when N timer bogo events completed\n");
-	printf("       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n");
-	printf(" -u N, --urandom N	 start M workers reading /dev/urandom\n");
-	printf("       --urandom-ops N	 start when N urandom bogo read operations completed\n");
+		" -T N, --timer N         start N workers producing timer events\n"
+		"       --timer-ops N     stop when N timer bogo events completed\n"
+		"       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n"
+		" -u N, --urandom N	 start M workers reading /dev/urandom\n"
+		"       --urandom-ops N	 start when N urandom bogo read operations completed\n"
 #endif
-	printf(" -v,   --verbose         verbose output\n");
-	printf(" -V,   --version         show version\n");
+		" -v,   --verbose         verbose output\n"
+		" -V,   --version         show version\n"
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-	printf(" -y N, --yield N         start N workers doing sched_yield() calls\n");
-	printf("       --yield-ops N     stop when N bogo yield operations completed\n");
+		" -y N, --yield N         start N workers doing sched_yield() calls\n"
+		"       --yield-ops N     stop when N bogo yield operations completed\n"
 #endif
-	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n");
-	printf("Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
+		"\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
+		"Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
 }
 
