@@ -145,6 +145,7 @@ enum {
 	STRESS_INT,
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
+	STRESS_SIGQUEUE,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -180,6 +181,10 @@ enum {
 	OPT_TIMER_FREQ,
 	OPT_URANDOM,
 	OPT_URANDOM_OPS,
+#if  _POSIX_C_SOURCE >= 199309L
+	OPT_SIGQUEUE,
+	OPT_SIGQUEUE_OPS,
+#endif
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
@@ -277,6 +282,9 @@ static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 static uint64_t opt_fallocate_ops = 0;			/* fallocate bogo ops max */
 #endif
+#if _POSIX_C_SOURCE >= 199309L
+static uint64_t opt_sigqueue_ops = 0;			/* sigq bogo ops max */
+#endif
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
@@ -318,6 +326,7 @@ static const char *const stressors[] = {
 	"Int",
 	"Semaphore",
 	"Open",
+	"SigQueue",
 	/* Add new stress tests here */
 };
 
@@ -1027,7 +1036,6 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 			stress, errno, strerror(errno));
 		goto finish;
 	} else if (pid == 0) {
-		/* Child, immediately exit */
 		(void)close(pipefds[1]);
 
 		for (;;) {
@@ -1106,7 +1114,6 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 			stress, errno, strerror(errno));
 		goto finish;
 	} else if (pid == 0) {
-		/* Child, immediately exit */
 		(void)close(pipefds[1]);
 
 		for (;;) {
@@ -1964,6 +1971,94 @@ finish:
 	exit(rc);
 }
 
+#if _POSIX_C_SOURCE >= 199309L
+static void stress_sigqhandler(int dummy)
+{
+	(void)dummy;
+}
+#endif
+
+/*
+ *  stress_sigq
+ *	stress by heavy sigqueue message sending
+ */
+static void stress_sigq(uint64_t *const counter, const uint32_t instance)
+{
+#if _POSIX_C_SOURCE >= 199309L
+	pid_t pid;
+	int rc = EXIT_FAILURE;
+	struct sigaction new_action;
+	static const char *const stress = APP_NAME "-sigq";
+
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+
+	if (stress_sethandler(stress) < 0)
+		goto finish;
+
+	new_action.sa_handler = stress_sigqhandler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
+		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
+			stress, errno, strerror(errno));
+		goto finish;
+	}
+
+	pid = fork();
+	if (pid < 0) {
+		pr_dbg(stderr, "%s: fork failed, errno=%d (%s)\n",
+			stress, errno, strerror(errno));
+		goto finish;
+	} else if (pid == 0) {
+		sigset_t mask;
+
+		sigemptyset(&mask);
+		sigaddset(&mask, SIGUSR1);
+
+		for (;;) {
+			siginfo_t info;
+			sigwaitinfo(&mask, &info);
+			if (info.si_int)
+				break;
+		}
+		pr_dbg(stderr, "%s: child got termination notice\n", stress);
+		pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+			stress, getpid(), instance);
+		_exit(0);
+	} else {
+		/* Parent */
+		union sigval s;
+
+		do {
+
+			s.sival_int = 0;
+			sigqueue(pid, SIGUSR1, s);
+			(*counter)++;
+		} while (opt_do_run && (!opt_sigqueue_ops || *counter < opt_sigqueue_ops));
+
+		pr_dbg(stderr, "%s: parent sent termination notice\n", stress);
+		s.sival_int = 1;
+		sigqueue(pid, SIGUSR1, s);
+		usleep(250);
+		/* And ensure child is really dead */
+		(void)kill(pid, SIGKILL);
+	}
+
+	rc = EXIT_SUCCESS;
+finish:
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+	exit(rc);
+#else
+	(void)counter;
+	(void)instance;
+	exit(EXIT_SUCCESS);
+#endif
+}
+
+
 /* stress tests */
 static const func child_funcs[] = {
 	stress_iosync,
@@ -1986,6 +2081,7 @@ static const func child_funcs[] = {
 	stress_int,
 	stress_semaphore,
 	stress_open,
+	stress_sigq,
 	/* Add new stress tests here */
 };
 
@@ -2062,7 +2158,11 @@ static void usage(void)
 		"       --sched-prio N    set scheduler priority level N\n"
 #endif
 		"       --sem N           start N workers doing semaphore operations\n"
-		"       --sem-ops         stop when N semaphore bogo operations completed\n"
+		"       --sem-ops N       stop when N semaphore bogo operations completed\n"
+#if _POSIX_C_SOURCE >= 199309L
+		"       --sigq N          start N workers sending sigqueue signals\n"
+		"       --sigq-ops N      stop when N siqqueue bogo operations completed\n"
+#endif
 		" -s N, --switch N        start N workers doing rapid context switches\n"
 		"       --switch-ops N    stop when N context switch bogo operations completed\n"
 		" -S N, --sock N          start N workers doing socket activity\n"
@@ -2122,6 +2222,10 @@ static const struct option long_options[] = {
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "cache",	1,	0, 	'C' },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
+#if _POSIX_C_SOURCE >= 199309L
+	{ "sigq",	1,	0,	OPT_SIGQUEUE },
+	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
+#endif
 	{ "sock",	1,	0,	'S' },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
@@ -2374,6 +2478,12 @@ int main(int argc, char **argv)
 			check_value("Urandom", num_procs[STRESS_URANDOM]);
 			break;
 #endif
+#if  _POSIX_C_SOURCE >= 199309L
+		case OPT_SIGQUEUE:
+			num_procs[STRESS_SIGQUEUE] = opt_long("sigq", optarg);
+			check_value("SigQeueu", num_procs[STRESS_SIGQUEUE]);
+			break;
+#endif
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
@@ -2494,6 +2604,12 @@ int main(int argc, char **argv)
 			check_range("urandom-ops", opt_urandom_ops, 1000, 100000000);
 			break;
 #endif
+#if  _POSIX_C_SOURCE >= 199309L
+		case OPT_SIGQUEUE_OPS:
+			opt_sigqueue_ops = get_uint64(optarg);
+			check_range("sigq-ops", opt_sigqueue_ops, 1000, 100000000);
+			break;
+#endif
 		case OPT_SOCKET_OPS:
 			opt_socket_ops = get_uint64(optarg);
 			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
@@ -2594,7 +2710,7 @@ int main(int argc, char **argv)
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer, %" PRId32 " dentry, %"
 		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
-		PRId32 " semaphore, %" PRId32 " open.\n",
+		PRId32 " semaphore, %" PRId32 " open, %" PRId32 " sigq\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2614,7 +2730,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_FLOAT],
 		num_procs[STRESS_INT],
 		num_procs[STRESS_SEMAPHORE],
-		num_procs[STRESS_OPEN]);
+		num_procs[STRESS_OPEN],
+		num_procs[STRESS_SIGQUEUE]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
