@@ -1,3 +1,17 @@
+stress-ng (0.01.28-1) unstable; urgency=medium
+
+  * Makefile: bump version, change codename
+  * Add sigqueue and sigwaitinfo stress, new --sigq, --siqq-ops options
+  * Make mwc inline
+  * Make opt_do_run volatile
+  * Make -O2 default
+  * Remove numerous printfs in help info
+  * Remove lots of duplicate stress test names from code
+  * Fixup print % qualifier
+  * Clean all objects on make clean
+
+ -- Colin King <colin.king@canonical.com>  Wed, 30 Jul 2014 10:25:00 +0100
+
 stress-ng (0.01.27-1) unstable; urgency=medium
 
   * Makefile: bump version
