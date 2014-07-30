@@ -1,6 +1,6 @@
-VERSION=0.01.27
+VERSION=0.01.28
 #
-# Codename "enhanced stress maker"
+# Codename "stress my socks off"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
