@@ -2020,7 +2020,7 @@ static void stress_sigq(uint64_t *const counter, const uint32_t instance)
 		for (;;) {
 			siginfo_t info;
 			sigwaitinfo(&mask, &info);
-			if (info.si_int)
+			if (info.si_value.sival_int)
 				break;
 		}
 		pr_dbg(stderr, "%s: child got termination notice\n", stress);
@@ -2032,7 +2032,6 @@ static void stress_sigq(uint64_t *const counter, const uint32_t instance)
 		union sigval s;
 
 		do {
-
 			s.sival_int = 0;
 			sigqueue(pid, SIGUSR1, s);
 			(*counter)++;
