@@ -1,3 +1,11 @@
+stress-ng (0.01.29-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Use si_value.sival_int instead of info.si_int (Closes: #756787)
+  * Fix incorrect nesting of OPT_SIGQUEUE*
+
+ -- Colin King <colin.king@canonical.com>  Fri, 1 Aug 2014 23:25:23 +0100
+
 stress-ng (0.01.28-1) unstable; urgency=medium
 
   * Makefile: bump version, change codename
