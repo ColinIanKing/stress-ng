@@ -80,6 +80,8 @@
 #define OPT_FLAGS_DRY_RUN	0x00000002	/* Don't actually run */
 #define OPT_FLAGS_METRICS	0x00000004	/* Dump metrics at end */
 #define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
+#define OPT_FLAGS_RANDOM	0x00000010	/* Randomize */
+#define OPT_FLAGS_SET		0x00000020	/* Set if user specifies stress procs */
 
 /* debug output bitmasks */
 #define PR_ERR			0x00010000	/* Print errors */
@@ -296,6 +298,8 @@ static pid_t socket_server, socket_client;		/* pids of socket client/servers */
 static proc_info_t *procs[STRESS_MAX];
 static int32_t	started_procs[STRESS_MAX];
 
+static unsigned long mwc_z = 362436069, mwc_w = 521288629;
+
 /*
  *  externs to force gcc to stash computed values and hence
  *  to stop the optimiser optimising code away to zero. The
@@ -370,6 +374,7 @@ static int stress_sethandler(const char *stress)
 #define set_proc_name(name)
 #endif
 
+
 /*
  *  mwc()
  *	fast pseudo random number generator, see
@@ -377,11 +382,30 @@ static int stress_sethandler(const char *stress)
  */
 static inline unsigned long mwc(void)
 {
-	static unsigned long z = 362436069, w = 521288629;
 
-	z = 36969 * (z & 65535) + (z >> 16);
-	w = 18000 * (w & 65535) + (w >> 16);
-	return (z << 16) + w;
+	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
+	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
+	return (mwc_z << 16) + mwc_w;
+}
+
+/*
+ *  mwc_reseed()
+ *	dirty mwc reseed
+ */
+static inline void mwc_reseed(void)
+{
+	struct timeval tv;
+	int i, n;
+
+	mwc_z = 0;
+	if (gettimeofday(&tv, NULL) == 0)
+		mwc_z = (unsigned long)tv.tv_sec ^ (unsigned long)tv.tv_usec;
+	mwc_z += ~((unsigned char *)&mwc_z - (unsigned char *)&tv);
+	mwc_w = (unsigned long)getpid() ^ (unsigned long)getppid()<<12;
+
+	n = (int)mwc_z % 1733;
+	for (i = 0; i < n; i++)
+		(void)mwc();
 }
 
 
@@ -2152,6 +2176,7 @@ static void usage(void)
 		" -p N, --pipe N          start N workers exercising pipe I/O\n"
 		"       --pipe-ops N      stop when N pipe I/O bogo operations completed\n"
 		" -q,   --quiet           quiet output\n"
+		" -r,   --random N        start N random workers\n"
 #if defined (__linux__)
 		"       --sched type      set scheduler type\n"
 		"       --sched-prio N    set scheduler priority level N\n"
@@ -2263,6 +2288,7 @@ static const struct option long_options[] = {
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 	{ "open",	1,	0,	'o' },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
+	{ "random",	1,	0,	'r' },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2332,7 +2358,7 @@ static long int opt_long(const char *opt, const char *str)
 int main(int argc, char **argv)
 {
 
-	int32_t val;
+	int32_t val, opt_random = 0;
 	int32_t	num_procs[STRESS_MAX];
 	int32_t n_procs, total_procs = 0;
 	int32_t max = 0;
@@ -2348,20 +2374,27 @@ int main(int argc, char **argv)
 
 	memset(started_procs, 0, sizeof(num_procs));
 	memset(num_procs, 0, sizeof(num_procs));
+	mwc_reseed();
 
 	for (;;) {
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:r:",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
 		case 'a':
+			opt_flags |= OPT_FLAGS_SET;
 			val = opt_long("-a", optarg);
 			check_value("all", val);
 			for (i = 0; i < STRESS_MAX; i++)
 				num_procs[i] = val;
+			break;
+		case 'r':
+			opt_flags |= OPT_FLAGS_RANDOM;
+			opt_random = opt_long("-r", optarg);
+			check_value("random", opt_random);
 			break;
 		case '?':
 		case 'h':
@@ -2385,45 +2418,55 @@ int main(int argc, char **argv)
 			opt_backoff = opt_long("backoff", optarg);
 			break;
 		case 'c':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CPU] = opt_long("cpu", optarg);
 			check_value("CPU", num_procs[STRESS_CPU]);
 			break;
 		case 'i':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_IOSYNC] = opt_long("io", optarg);
 			check_value("IO sync", num_procs[STRESS_IOSYNC]);
 			break;
 		case 'm':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_VM] = opt_long("vm", optarg);
 			check_value("VM", num_procs[STRESS_VM]);
 			break;
 		case 'd':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_HDD] = opt_long("hdd", optarg);
 			check_value("HDD", num_procs[STRESS_HDD]);
 			break;
 		case 'D':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_DENTRY] = opt_long("dentry", optarg);
 			check_value("Dentry", num_procs[STRESS_DENTRY]);
 			break;
 		case 'f':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FORK] = opt_long("fork", optarg);
 			check_value("Forks", num_procs[STRESS_FORK]);
 			break;
 		case 's':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CTXT] = opt_long("switch", optarg);
 			check_value("Context-Switches", num_procs[STRESS_CTXT]);
 			break;
 		case 'p':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
 			check_value("Pipe", num_procs[STRESS_PIPE]);
 			break;
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		case 'F':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FALLOCATE] = opt_long("fallocate", optarg);
 			check_value("Fallocate", num_procs[STRESS_FALLOCATE]);
 			break;
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 		case 'y':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
 			check_value("Yield", num_procs[STRESS_YIELD]);
 			break;
@@ -2436,49 +2479,60 @@ int main(int argc, char **argv)
 			}
 			break;
 		case 'C':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
 			check_value("Cache", num_procs[STRESS_CACHE]);
 			break;
 		case 'S':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SOCKET] = opt_long("socket", optarg);
 			check_value("Socket", num_procs[STRESS_SOCKET]);
 			break;
 		case OPT_FLOCK:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
 			check_value("Flock", num_procs[STRESS_FLOCK]);
 			break;
 		case OPT_FLOAT:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FLOAT] = opt_long("float", optarg);
 			check_value("Float", num_procs[STRESS_FLOAT]);
 			break;
 		case OPT_INT:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_INT] = opt_long("int", optarg);
 			check_value("Int", num_procs[STRESS_INT]);
 			break;
 		case OPT_SEMAPHORE:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
 			check_value("Semaphore", num_procs[STRESS_SEMAPHORE]);
 			break;
 		case 'o':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_OPEN] = opt_long("open", optarg);
 			check_value("Open", num_procs[STRESS_OPEN]);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
 			check_value("Affinity", num_procs[STRESS_AFFINITY]);
 			break;
 		case 'T':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_TIMER] = opt_long("timer", optarg);
 			check_value("Timer", num_procs[STRESS_TIMER]);
 			break;
 		case 'u':
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_URANDOM] = opt_long("urandom", optarg);
 			check_value("Urandom", num_procs[STRESS_URANDOM]);
 			break;
 #endif
 #if  _POSIX_C_SOURCE >= 199309L
 		case OPT_SIGQUEUE:
+			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SIGQUEUE] = opt_long("sigq", optarg);
 			check_value("SigQeueu", num_procs[STRESS_SIGQUEUE]);
 			break;
@@ -2646,6 +2700,28 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if ((opt_flags & (OPT_FLAGS_RANDOM | OPT_FLAGS_SET)) ==
+	    (OPT_FLAGS_RANDOM | OPT_FLAGS_SET)) {
+	}
+
+	if (opt_flags & OPT_FLAGS_RANDOM) {
+		int32_t n = opt_random;
+
+		if (opt_flags & OPT_FLAGS_SET) {
+			pr_err(stderr, "Cannot specify random option with "
+				"other stress processes selected\n");
+			exit(EXIT_FAILURE);
+		}
+		
+		while (n > 0) {
+			int32_t rnd = mwc() % 3;
+			if (rnd > n)
+				rnd = n;
+			n -= rnd;
+			num_procs[mwc() % STRESS_MAX] += rnd;
+		}
+	}
+
 #if defined (__linux__)
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
@@ -2787,6 +2863,7 @@ int main(int argc, char **argv)
 					goto out;
 				case 0:
 					/* Child */
+					mwc_reseed();
 #if defined (__linux__)
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
