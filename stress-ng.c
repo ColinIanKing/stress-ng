@@ -82,6 +82,7 @@
 #define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
 #define OPT_FLAGS_RANDOM	0x00000010	/* Randomize */
 #define OPT_FLAGS_SET		0x00000020	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	0x00000040	/* Keep stress names to stress-ng */
 
 /* debug output bitmasks */
 #define PR_ERR			0x00010000	/* Print errors */
@@ -369,7 +370,9 @@ static int stress_sethandler(const char *stress)
 
 #if defined (__linux__)
 /* Set process name, we don't care if it fails */
-#define set_proc_name(name) (void)prctl(PR_SET_NAME, name)
+#define set_proc_name(name) 			\
+	if (!(opt_flags & OPT_FLAGS_KEEP_NAME)) \
+		(void)prctl(PR_SET_NAME, name)
 #else
 #define set_proc_name(name)
 #endif
@@ -2156,6 +2159,7 @@ static void usage(void)
 		"       --int-ops N       stop when N int bogo operations completed\n"
 		" -i N, --io N            start N workers spinning on sync()\n"
 		"       --io-ops N        stop when N io bogo operations completed\n"
+		" -k,   --keep-name       keep stress process names to be 'stress-ng'\n"
 #if defined (__linux__)
 		"       --ionice-class C  specify ionice class (idle, besteffort, realtime)\n"
 		"       --ionice-level L  specify ionice level (0 max, 7 min)\n"
@@ -2289,6 +2293,7 @@ static const struct option long_options[] = {
 	{ "open",	1,	0,	'o' },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
 	{ "random",	1,	0,	'r' },
+	{ "keep-name",	0,	0,	'k' },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2380,7 +2385,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:r:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:r:k",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -2395,6 +2400,9 @@ int main(int argc, char **argv)
 			opt_flags |= OPT_FLAGS_RANDOM;
 			opt_random = opt_long("-r", optarg);
 			check_value("random", opt_random);
+			break;
+		case 'k':
+			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
 		case '?':
 		case 'h':
