@@ -290,7 +290,7 @@ extern void uint64_put(uint64_t a, uint64_t b);
 /* Human readable stress test names */
 static const char *const stressors[] = {
 	"I/O-Sync",
-	"CPU-compute",
+	"CPU",
 	"VM-mmap",
 	"HDD-Write",
 	"Fork",
@@ -2787,37 +2787,11 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	pr_inf(stdout, "dispatching hogs: "
-		"%" PRId32 " cpu, %" PRId32 " io, %" PRId32 " vm, %"
-		PRId32 " hdd, %" PRId32 " fork, %" PRId32 " ctxtsw, %"
-		PRId32 " pipe, %" PRId32 " cache, %" PRId32 " socket, %"
-		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
-		PRId32 " affinity, %" PRId32 " timer, %" PRId32 " dentry, %"
-		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
-		PRId32 " semaphore, %" PRId32 " open, %" PRId32 " sigq, %"
-		PRId32 " poll\n",
-		num_procs[STRESS_CPU],
-		num_procs[STRESS_IOSYNC],
-		num_procs[STRESS_VM],
-		num_procs[STRESS_HDD],
-		num_procs[STRESS_FORK],
-		num_procs[STRESS_CTXT],
-		num_procs[STRESS_PIPE],
-		num_procs[STRESS_CACHE],
-		num_procs[STRESS_SOCKET],
-		num_procs[STRESS_YIELD],
-		num_procs[STRESS_FALLOCATE],
-		num_procs[STRESS_FLOCK],
-		num_procs[STRESS_AFFINITY],
-		num_procs[STRESS_TIMER],
-		num_procs[STRESS_DENTRY],
-		num_procs[STRESS_URANDOM],
-		num_procs[STRESS_FLOAT],
-		num_procs[STRESS_INT],
-		num_procs[STRESS_SEMAPHORE],
-		num_procs[STRESS_OPEN],
-		num_procs[STRESS_SIGQUEUE],
-		num_procs[STRESS_POLL]);
+	pr_inf(stdout, "dispatching hogs:");
+	for (i = 0; i < STRESS_MAX; i++) {
+		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i], 
+			i == STRESS_MAX - 1 ? '\n' : ',');
+	}
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
