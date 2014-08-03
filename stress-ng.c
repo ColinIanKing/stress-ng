@@ -41,6 +41,7 @@
 #include <limits.h>
 #include <time.h>
 #include <semaphore.h>
+#include <poll.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -149,6 +150,7 @@ enum {
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
 	STRESS_SIGQUEUE,
+	STRESS_POLL,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -209,6 +211,8 @@ enum {
 	OPT_SEMAPHORE_OPS,
 	OPT_OPEN,
 	OPT_OPEN_OPS,
+	OPT_POLL,
+	OPT_POLL_OPS,
 };
 
 #if defined (__linux__)
@@ -254,6 +258,7 @@ static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
+
 static uint64_t	opt_cpu_ops = 0;			/* CPU bogo ops max */
 static uint64_t	opt_iosync_ops = 0;			/* IO sync bogo ops */
 static uint64_t	opt_vm_ops = 0;				/* VM bogo ops max */
@@ -269,6 +274,8 @@ static uint64_t opt_float_ops = 0;			/* float bogo ops max */
 static uint64_t opt_int_ops = 0;			/* int bogo ops max */
 static uint64_t opt_semaphore_ops = 0;			/* semaphore bogo ops max */
 static uint64_t opt_open_ops = 0;			/* open bogo ops max */
+static uint64_t opt_poll_ops = 0;			/* poll bogo ops max */
+
 #if defined (__linux__)
 static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -332,6 +339,7 @@ static const char *const stressors[] = {
 	"Semaphore",
 	"Open",
 	"SigQueue",
+	"Poll",
 	/* Add new stress tests here */
 };
 
@@ -2084,6 +2092,35 @@ finish:
 #endif
 }
 
+/*
+ *  stress_poll()
+ *	stress system by rapid polling system calls
+ */
+static void stress_poll(uint64_t *const counter, const uint32_t instance)
+{
+	static const char *const stress = APP_NAME "-poll";
+
+	set_proc_name(stress);
+	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+
+	if (stress_sethandler(stress) < 0)
+		goto finish;
+	do {
+		struct timeval tv;
+
+		(void)poll(NULL, 0, 0);
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+		(void)select(0, NULL, NULL, NULL, &tv);
+		(void)sleep(0);
+		(*counter)++;
+	} while (opt_do_run && (!opt_poll_ops || *counter < opt_poll_ops));
+finish:
+	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		stress, getpid(), instance);
+	exit(EXIT_SUCCESS);
+}
 
 /* stress tests */
 static const func child_funcs[] = {
@@ -2108,6 +2145,7 @@ static const func child_funcs[] = {
 	stress_semaphore,
 	stress_open,
 	stress_sigq,
+	stress_poll,
 	/* Add new stress tests here */
 };
 
@@ -2179,6 +2217,8 @@ static void usage(void)
 		"       --open-ops N      stop when N open/close bogo operations completed\n"
 		" -p N, --pipe N          start N workers exercising pipe I/O\n"
 		"       --pipe-ops N      stop when N pipe I/O bogo operations completed\n"
+		" -P N, --poll N          start N workers exercising zero timeout polling\n"
+		"       --poll-ops N      stop when N poll bogo operations completed\n"
 		" -q,   --quiet           quiet output\n"
 		" -r,   --random N        start N random workers\n"
 #if defined (__linux__)
@@ -2294,6 +2334,8 @@ static const struct option long_options[] = {
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
 	{ "random",	1,	0,	'r' },
 	{ "keep-name",	0,	0,	'k' },
+	{ "poll",	1,	0,	'P' },
+	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2385,7 +2427,7 @@ int main(int argc, char **argv)
 		int c;
 		int option_index;
 
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:C:S:a:y:F:D:T:u:o:r:k",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:k",
 			long_options, &option_index)) == -1)
 			break;
 		switch (c) {
@@ -2521,6 +2563,11 @@ int main(int argc, char **argv)
 			num_procs[STRESS_OPEN] = opt_long("open", optarg);
 			check_value("Open", num_procs[STRESS_OPEN]);
 			break;
+		case 'P':
+			opt_flags |= OPT_FLAGS_SET;
+			num_procs[STRESS_POLL] = opt_long("poll", optarg);
+			check_value("Poll", num_procs[STRESS_POLL]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			opt_flags |= OPT_FLAGS_SET;
@@ -2647,6 +2694,10 @@ int main(int argc, char **argv)
 			opt_open_ops = get_uint64(optarg);
 			check_range("open-ops", opt_open_ops, 1000, 100000000);
 			break;
+		case OPT_POLL_OPS:
+			opt_poll_ops = get_uint64(optarg);
+			check_range("poll-ops", opt_poll_ops, 1000, 100000000);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
 			opt_affinity_ops = get_uint64(optarg);
@@ -2756,6 +2807,7 @@ int main(int argc, char **argv)
 	DIV_OPS_BY_PROCS(opt_int_ops, num_procs[STRESS_INT]);
 	DIV_OPS_BY_PROCS(opt_semaphore_ops, num_procs[STRESS_SEMAPHORE]);
 	DIV_OPS_BY_PROCS(opt_open_ops, num_procs[STRESS_OPEN]);
+	DIV_OPS_BY_PROCS(opt_poll_ops, num_procs[STRESS_POLL]);
 #if defined (__linux__)
 	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
 	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
@@ -2793,7 +2845,8 @@ int main(int argc, char **argv)
 		PRId32 " yield, %" PRId32 " fallocate, %" PRId32 " flock, %"
 		PRId32 " affinity, %" PRId32 " timer, %" PRId32 " dentry, %"
 		PRId32 " urandom, %" PRId32 " float, %" PRId32 " int, %"
-		PRId32 " semaphore, %" PRId32 " open, %" PRId32 " sigq\n",
+		PRId32 " semaphore, %" PRId32 " open, %" PRId32 " sigq, %"
+		PRId32 " poll\n",
 		num_procs[STRESS_CPU],
 		num_procs[STRESS_IOSYNC],
 		num_procs[STRESS_VM],
@@ -2814,7 +2867,8 @@ int main(int argc, char **argv)
 		num_procs[STRESS_INT],
 		num_procs[STRESS_SEMAPHORE],
 		num_procs[STRESS_OPEN],
-		num_procs[STRESS_SIGQUEUE]);
+		num_procs[STRESS_SIGQUEUE],
+		num_procs[STRESS_POLL]);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);

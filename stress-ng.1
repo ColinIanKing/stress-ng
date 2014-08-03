@@ -171,6 +171,12 @@ start N processes that perform large pipe writes and reads to exercise pipe I/O.
 .B \-\-pipe\-ops N
 stop pipe stress processes after N bogo pipe write operations.
 .TP
+.B \-P N, \-\-poll N
+start N processes that perform zero timeout polling via the poll(), select() and sleep() system calls. This wastes system and user time doing nothing.
+.TP
+.B \-\-poll\-ops N
+stop poll stress processes after N bogo poll operations.
+.TP
 .B \-q, \-\-quiet
 don't show any output.
 .TP
