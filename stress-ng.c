@@ -233,7 +233,7 @@ enum {
 #endif
 
 /* stress process prototype */
-typedef void (*func)(uint64_t *const counter, const uint32_t instance);
+typedef void (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops);
 
 typedef struct {
 	pid_t	pid;		/* process id */
@@ -250,6 +250,7 @@ static int print(FILE *fp, const char *const type, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 4, 5)));
 
 /* Various option settings and flags */
+static uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
@@ -258,42 +259,12 @@ static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
-
-static uint64_t	opt_cpu_ops = 0;			/* CPU bogo ops max */
-static uint64_t	opt_iosync_ops = 0;			/* IO sync bogo ops */
-static uint64_t	opt_vm_ops = 0;				/* VM bogo ops max */
-static uint64_t	opt_hdd_ops = 0;			/* HDD bogo ops max */
-static uint64_t opt_fork_ops = 0;			/* fork bogo ops max */
-static uint64_t opt_ctxt_ops = 0;			/* context ops max */
-static uint64_t opt_pipe_ops = 0;			/* pipe bogo ops max */
-static uint64_t opt_cache_ops = 0;			/* cache bogo ops max */
-static uint64_t opt_socket_ops = 0;			/* socket bogo ops max */
-static uint64_t opt_flock_ops = 0;			/* file lock bogo ops max */
-static uint64_t opt_dentry_ops = 0;			/* dentry bogo ops max */
-static uint64_t opt_float_ops = 0;			/* float bogo ops max */
-static uint64_t opt_int_ops = 0;			/* int bogo ops max */
-static uint64_t opt_semaphore_ops = 0;			/* semaphore bogo ops max */
-static uint64_t opt_open_ops = 0;			/* open bogo ops max */
-static uint64_t opt_poll_ops = 0;			/* poll bogo ops max */
-
 #if defined (__linux__)
-static uint64_t opt_timer_ops = 0;			/* timer lock bogo ops max */
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
-static uint64_t opt_affinity_ops = 0;			/* affiniy bogo ops max */
-static uint64_t opt_urandom_ops = 0;			/* urandom bogo ops max */
 static int	opt_sched = UNDEFINED;			/* sched policy */
 static int	opt_sched_priority = UNDEFINED;		/* sched priority */
 static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
-#endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
-static uint64_t opt_yield_ops = 0;			/* yield bogo ops max */
-#endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-static uint64_t opt_fallocate_ops = 0;			/* fallocate bogo ops max */
-#endif
-#if _POSIX_C_SOURCE >= 199309L
-static uint64_t opt_sigqueue_ops = 0;			/* sigq bogo ops max */
 #endif
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
@@ -303,8 +274,8 @@ static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 static sem_t	sem;					/* stress_semaphore sem */
 static pid_t socket_server, socket_client;		/* pids of socket client/servers */
 
-static proc_info_t *procs[STRESS_MAX];
-static int32_t	started_procs[STRESS_MAX];
+static proc_info_t *procs[STRESS_MAX];			/* per process info */
+static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 
 static unsigned long mwc_z = 362436069, mwc_w = 521288629;
 
@@ -770,7 +741,7 @@ static uint64_t get_uint64_time(const char *const str)
  *  stress on sync()
  *	stress system by IO sync calls
  */
-static void stress_iosync(uint64_t *const counter, const uint32_t instance)
+static void stress_iosync(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-iosync";
@@ -785,7 +756,7 @@ static void stress_iosync(uint64_t *const counter, const uint32_t instance)
 	do {
 		sync();
 		(*counter)++;
-	} while (opt_do_run && (!opt_iosync_ops || *counter < opt_iosync_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -798,7 +769,7 @@ finish:
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-static void stress_cpu(uint64_t *const counter, const uint32_t instance)
+static void stress_cpu(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_SUCCESS;
 	double bias;
@@ -821,7 +792,7 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 			for (i = 0; i < 16384; i++)
 				sqrt((double)mwc());
 			(*counter)++;
-		} while (opt_do_run && (!opt_cpu_ops || *counter < opt_cpu_ops));
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		goto finish;
 	}
 
@@ -863,7 +834,7 @@ static void stress_cpu(uint64_t *const counter, const uint32_t instance)
 		gettimeofday(&tv3, NULL);
 		/* Bias takes account of the time to do the delay */
 		bias = (timeval_to_double(&tv3) - timeval_to_double(&tv2)) - delay;
-	} while (opt_do_run && (!opt_cpu_ops || *counter < opt_cpu_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 finish:
 	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
@@ -875,7 +846,7 @@ finish:
  *  stress_vm()
  *	stress virtual memory
  */
-static void stress_vm(uint64_t *const counter, const uint32_t instance)
+static void stress_vm(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	uint8_t *buf = NULL;
 	uint8_t	val = 0;
@@ -926,7 +897,7 @@ static void stress_vm(uint64_t *const counter, const uint32_t instance)
 			(void)munmap(buf, opt_vm_bytes);
 
 		(*counter)++;
-	} while (opt_do_run && (!opt_vm_ops || *counter < opt_vm_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -939,7 +910,7 @@ finish:
  *  stress_io
  *	stress I/O via writes
  */
-static void stress_io(uint64_t *const counter, const uint32_t instance)
+static void stress_io(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	uint8_t *buf;
 	uint64_t i;
@@ -983,13 +954,13 @@ static void stress_io(uint64_t *const counter, const uint32_t instance)
 				goto finish;
 			}
 			(*counter)++;
-			if (!opt_do_run || (opt_hdd_ops && *counter >= opt_hdd_ops))
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
 				break;
 		}
 		(void)close(fd);
 		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 			(void)unlink(filename);
-	} while (opt_do_run && (!opt_hdd_ops || *counter < opt_hdd_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1004,7 +975,7 @@ finish_no_free:
  *  stress_fork()
  *	stress by forking and exiting
  */
-static void stress_fork(uint64_t *const counter, const uint32_t instance)
+static void stress_fork(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-fork";
@@ -1030,7 +1001,7 @@ static void stress_fork(uint64_t *const counter, const uint32_t instance)
 			waitpid(pid, &status, 0);
 		}
 		(*counter)++;
-	} while (opt_do_run && (!opt_fork_ops || *counter < opt_fork_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1043,7 +1014,7 @@ finish:
  *  stress_ctxt
  *	stress by heavy context switching
  */
-static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
+static void stress_ctxt(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	pid_t pid;
 	int pipefds[2];
@@ -1101,7 +1072,7 @@ static void stress_ctxt(uint64_t *const counter, const uint32_t instance)
 				break;
 			}
 			(*counter)++;
-		} while (opt_do_run && (!opt_ctxt_ops || *counter < opt_ctxt_ops));
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		ch = CTXT_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
@@ -1121,7 +1092,7 @@ finish:
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-static void stress_pipe(uint64_t *const counter, const uint32_t instance)
+static void stress_pipe(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	pid_t pid;
 	int pipefds[2];
@@ -1181,7 +1152,7 @@ static void stress_pipe(uint64_t *const counter, const uint32_t instance)
 				break;
 			}
 			(*counter)++;
-		} while (opt_do_run && (!opt_pipe_ops || *counter < opt_pipe_ops));
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		memset(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
@@ -1200,7 +1171,7 @@ finish:
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes
  */
-static void stress_cache(uint64_t *const counter, const uint32_t instance)
+static void stress_cache(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	unsigned long total = 0;
 	int rc = EXIT_FAILURE;
@@ -1229,7 +1200,7 @@ static void stress_cache(uint64_t *const counter, const uint32_t instance)
 			}
 		}
 		(*counter)++;
-	} while (opt_do_run && (!opt_cache_ops || *counter < opt_cache_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 	pr_dbg(stderr, "%s: total [%lu]\n", stress, total);
@@ -1258,7 +1229,7 @@ static void handle_socket_sigalrm(int dummy)
  *  stress_socket
  *	stress by heavy socket I/O
  */
-static void stress_socket(uint64_t *const counter, const uint32_t instance)
+static void stress_socket(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
@@ -1392,7 +1363,7 @@ retry:
 				(void)close(sfd);
 			}
 			(*counter)++;
-		} while (opt_do_run && (!opt_socket_ops || *counter < opt_socket_ops));
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 die_close:
 		(void)close(fd);
@@ -1410,7 +1381,7 @@ finish:
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
-static void stress_yield(uint64_t *const counter, const uint32_t instance)
+static void stress_yield(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	int rc = EXIT_FAILURE;
@@ -1425,7 +1396,7 @@ static void stress_yield(uint64_t *const counter, const uint32_t instance)
 	do {
 		sched_yield();
 		(*counter)++;
-	} while (opt_do_run && (!opt_yield_ops || *counter < opt_yield_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1443,7 +1414,7 @@ finish:
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
-static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
+static void stress_fallocate(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	const pid_t pid = getpid();
@@ -1475,7 +1446,7 @@ static void stress_fallocate(uint64_t *const counter, const uint32_t instance)
 			ftrunc_errs++;
 		fsync(fd);
 		(*counter)++;
-	} while (opt_do_run && (!opt_fallocate_ops || *counter < opt_fallocate_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	if (ftrunc_errs)
 		pr_dbg(stderr, "%s: %" PRIu64
 			" ftruncate errors occurred.\n", stress, ftrunc_errs);
@@ -1500,7 +1471,7 @@ finish:
  *  stress_flock
  *	stress file locking
  */
-static void stress_flock(uint64_t *const counter, const uint32_t instance)
+static void stress_flock(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int fd, rc = EXIT_FAILURE;
 	char filename[64];
@@ -1529,7 +1500,7 @@ static void stress_flock(uint64_t *const counter, const uint32_t instance)
 #endif
 		(void)flock(fd, LOCK_UN);
 		(*counter)++;
-	} while (opt_do_run && (!opt_flock_ops || *counter < opt_flock_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	(void)unlink(filename);
 	(void)close(fd);
 
@@ -1544,7 +1515,7 @@ finish:
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
-static void stress_affinity(uint64_t *const counter, const uint32_t instance)
+static void stress_affinity(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if defined(__linux__)
 	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
@@ -1566,7 +1537,7 @@ static void stress_affinity(uint64_t *const counter, const uint32_t instance)
 		CPU_SET(cpu, &mask);
 		sched_setaffinity(0, sizeof(mask), &mask);
 		(*counter)++;
-	} while (opt_do_run && (!opt_affinity_ops || *counter < opt_affinity_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1611,7 +1582,7 @@ static void stress_timer_handler(int sig)
  *  stress_timer
  *	stress timers
  */
-static void stress_timer(uint64_t *const counter, const uint32_t instance)
+static void stress_timer(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if defined (__linux__)
 	struct sigaction new_action;
@@ -1664,7 +1635,7 @@ static void stress_timer(uint64_t *const counter, const uint32_t instance)
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
 		*counter = timer_counter;
-	} while (opt_do_run && (!opt_timer_ops || timer_counter < opt_timer_ops));
+	} while (opt_do_run && (!max_ops || timer_counter < max_ops));
 
 	if (timer_delete(timerid) < 0) {
 		pr_err(stderr, "%s: timer_delete failed: errno=%d (%s)\n",
@@ -1708,7 +1679,7 @@ static void stress_dentry_unlink(uint64_t n)
  *  stress_dentry
  *	stress dentries
  */
-static void stress_dentry(uint64_t *const counter, const uint32_t instance)
+static void stress_dentry(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
@@ -1740,14 +1711,14 @@ static void stress_dentry(uint64_t *const counter, const uint32_t instance)
 			close(fd);
 
 			if (!opt_do_run ||
-			    (opt_dentry_ops && *counter >= opt_dentry_ops))
+			    (max_ops && *counter >= max_ops))
 				goto abort;
 
 			(*counter)++;
 		}
 		stress_dentry_unlink(n);
 		sync();
-	} while (opt_do_run && (!opt_dentry_ops || *counter < opt_dentry_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 abort:
 	/* force unlink of all files */
@@ -1765,7 +1736,7 @@ finish:
  *  stress_urandom
  *	stress reading of /dev/urandom
  */
-static void stress_urandom(uint64_t *const counter, const uint32_t instance)
+static void stress_urandom(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if defined (__linux__)
 	int fd, rc = EXIT_FAILURE;
@@ -1793,7 +1764,7 @@ static void stress_urandom(uint64_t *const counter, const uint32_t instance)
 			goto finish;
 		}
 		(*counter)++;
-	} while (opt_do_run && (!opt_urandom_ops || *counter < opt_urandom_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	(void)close(fd);
 
 	rc = EXIT_SUCCESS;
@@ -1812,7 +1783,7 @@ finish:
  *  stress_float
  *	stress floating point math operations
  */
-static void stress_float(uint64_t *const counter, const uint32_t instance)
+static void stress_float(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-float";
@@ -1858,7 +1829,7 @@ static void stress_float(uint64_t *const counter, const uint32_t instance)
 		double_put(a, b, c, d);
 
 		(*counter)++;
-	} while (opt_do_run && (!opt_float_ops || *counter < opt_float_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1871,7 +1842,7 @@ finish:
  *  stress_int
  *	stress integer operations
  */
-static void stress_int(uint64_t *const counter, const uint32_t instance)
+static void stress_int(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-int";
@@ -1926,7 +1897,7 @@ static void stress_int(uint64_t *const counter, const uint32_t instance)
 		uint64_put(a, b);
 
 		(*counter)++;
-	} while (opt_do_run && (!opt_int_ops || *counter < opt_int_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1939,7 +1910,7 @@ finish:
  *  stress_sem()
  *	stress system by sem ops
  */
-static void stress_semaphore(uint64_t *const counter, const uint32_t instance)
+static void stress_semaphore(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-semaphore";
@@ -1958,7 +1929,7 @@ static void stress_semaphore(uint64_t *const counter, const uint32_t instance)
 			sem_post(&sem);
 		}
 		(*counter)++;
-	} while (opt_do_run && (!opt_semaphore_ops || *counter < opt_semaphore_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -1971,7 +1942,7 @@ finish:
  *  stress_open()
  *	stress system by rapid open/close calls
  */
-static void stress_open(uint64_t *const counter, const uint32_t instance)
+static void stress_open(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	int rc = EXIT_FAILURE;
 	static int fds[STRESS_FD_MAX];
@@ -1997,7 +1968,7 @@ static void stress_open(uint64_t *const counter, const uint32_t instance)
 				break;
 			(void)close(fds[i]);
 		}
-	} while (opt_do_run && (!opt_open_ops || *counter < opt_open_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -2017,7 +1988,7 @@ static void stress_sigqhandler(int dummy)
  *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-static void stress_sigq(uint64_t *const counter, const uint32_t instance)
+static void stress_sigq(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 #if _POSIX_C_SOURCE >= 199309L
 	pid_t pid;
@@ -2070,7 +2041,7 @@ static void stress_sigq(uint64_t *const counter, const uint32_t instance)
 			s.sival_int = 0;
 			sigqueue(pid, SIGUSR1, s);
 			(*counter)++;
-		} while (opt_do_run && (!opt_sigqueue_ops || *counter < opt_sigqueue_ops));
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		pr_dbg(stderr, "%s: parent sent termination notice\n", stress);
 		s.sival_int = 1;
@@ -2096,7 +2067,7 @@ finish:
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-static void stress_poll(uint64_t *const counter, const uint32_t instance)
+static void stress_poll(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	static const char *const stress = APP_NAME "-poll";
 
@@ -2115,7 +2086,7 @@ static void stress_poll(uint64_t *const counter, const uint32_t instance)
 		(void)select(0, NULL, NULL, NULL, &tv);
 		(void)sleep(0);
 		(*counter)++;
-	} while (opt_do_run && (!opt_poll_ops || *counter < opt_poll_ops));
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 finish:
 	pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 		stress, getpid(), instance);
@@ -2421,6 +2392,7 @@ int main(int argc, char **argv)
 
 	memset(started_procs, 0, sizeof(num_procs));
 	memset(num_procs, 0, sizeof(num_procs));
+	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
 
 	for (;;) {
@@ -2623,108 +2595,108 @@ int main(int argc, char **argv)
 			opt_flags |= OPT_FLAGS_NO_CLEAN;
 			break;
 		case OPT_CPU_OPS:
-			opt_cpu_ops = get_uint64(optarg);
-			check_range("cpu-ops", opt_cpu_ops, 1000, 100000000);
+			opt_ops[STRESS_CPU] = get_uint64(optarg);
+			check_range("cpu-ops", opt_ops[STRESS_CPU], 1000, 100000000);
 			break;
 		case OPT_IOSYNC_OPS:
-			opt_iosync_ops = get_uint64(optarg);
-			check_range("io-ops", opt_iosync_ops, 1000, 100000000);
+			opt_ops[STRESS_IOSYNC] = get_uint64(optarg);
+			check_range("io-ops", opt_ops[STRESS_IOSYNC], 1000, 100000000);
 			break;
 		case OPT_VM_OPS:
-			opt_vm_ops = get_uint64(optarg);
-			check_range("vm-ops", opt_vm_ops, 100, 100000000);
+			opt_ops[STRESS_VM] = get_uint64(optarg);
+			check_range("vm-ops", opt_ops[STRESS_VM], 100, 100000000);
 			break;
 		case OPT_HDD_OPS:
-			opt_hdd_ops = get_uint64(optarg);
-			check_range("hdd-ops", opt_hdd_ops, 1000, 100000000);
+			opt_ops[STRESS_HDD] = get_uint64(optarg);
+			check_range("hdd-ops", opt_ops[STRESS_HDD], 1000, 100000000);
 			break;
 		case OPT_DENTRY_OPS:
-			opt_dentry_ops = get_uint64(optarg);
-			check_range("dentry-ops", opt_dentry_ops, 1, 100000000);
+			opt_ops[STRESS_DENTRY] = get_uint64(optarg);
+			check_range("dentry-ops", opt_ops[STRESS_DENTRY], 1, 100000000);
 			break;
 		case OPT_DENTRIES:
 			opt_dentries = get_uint64(optarg);
 			check_range("dentries", opt_dentries, 1, 100000000);
 			break;
 		case OPT_FORK_OPS:
-			opt_fork_ops = get_uint64(optarg);
-			check_range("fork-ops", opt_fork_ops, 1000, 100000000);
+			opt_ops[STRESS_FORK] = get_uint64(optarg);
+			check_range("fork-ops", opt_ops[STRESS_FORK], 1000, 100000000);
 			break;
 		case OPT_CTXT_OPS:
-			opt_ctxt_ops = get_uint64(optarg);
-			check_range("switch-ops", opt_ctxt_ops, 1000, 100000000);
+			opt_ops[STRESS_CTXT] = get_uint64(optarg);
+			check_range("switch-ops", opt_ops[STRESS_CTXT], 1000, 100000000);
 			break;
 		case OPT_PIPE_OPS:
-			opt_pipe_ops = get_uint64(optarg);
-			check_range("pipe-ops", opt_pipe_ops, 1000, 100000000);
+			opt_ops[STRESS_PIPE] = get_uint64(optarg);
+			check_range("pipe-ops", opt_ops[STRESS_PIPE], 1000, 100000000);
 			break;
 		case OPT_CACHE_OPS:
-			opt_cache_ops = get_uint64(optarg);
-			check_range("cache-ops", opt_cache_ops, 1000, 100000000);
+			opt_ops[STRESS_CACHE] = get_uint64(optarg);
+			check_range("cache-ops", opt_ops[STRESS_CACHE], 1000, 100000000);
 			break;
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		case OPT_FALLOCATE_OPS:
-			opt_fallocate_ops = get_uint64(optarg);
-			check_range("fallocate-ops", opt_fallocate_ops, 1000, 100000000);
+			opt_ops[STRESS_FALLOCATE] = get_uint64(optarg);
+			check_range("fallocate-ops", opt_ops[STRESS_FALLOCATE], 1000, 100000000);
 			break;
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 		case OPT_YIELD_OPS:
-			opt_yield_ops = get_uint64(optarg);
-			check_range("yield-ops", opt_yield_ops, 1000, 100000000);
+			opt_ops[STRESS_YIELD] = get_uint64(optarg);
+			check_range("yield-ops", opt_ops[STRESS_YIELD], 1000, 100000000);
 			break;
 #endif
 		case OPT_FLOCK_OPS:
-			opt_flock_ops = get_uint64(optarg);
-			check_range("flock-ops", opt_flock_ops, 1000, 100000000);
+			opt_ops[STRESS_FLOCK] = get_uint64(optarg);
+			check_range("flock-ops", opt_ops[STRESS_FLOCK], 1000, 100000000);
 			break;
 		case OPT_FLOAT_OPS:
-			opt_float_ops = get_uint64(optarg);
-			check_range("float-ops", opt_float_ops, 1000, 100000000);
+			opt_ops[STRESS_FLOAT] = get_uint64(optarg);
+			check_range("float-ops", opt_ops[STRESS_FLOAT], 1000, 100000000);
 			break;
 		case OPT_INT_OPS:
-			opt_int_ops = get_uint64(optarg);
-			check_range("int-ops", opt_int_ops, 1000, 100000000);
+			opt_ops[STRESS_INT] = get_uint64(optarg);
+			check_range("int-ops", opt_ops[STRESS_INT], 1000, 100000000);
 			break;
 		case OPT_SEMAPHORE_OPS:
-			opt_semaphore_ops = get_uint64(optarg);
-			check_range("semaphore-ops", opt_semaphore_ops, 1000, 100000000);
+			opt_ops[STRESS_SEMAPHORE] = get_uint64(optarg);
+			check_range("semaphore-ops", opt_ops[STRESS_SEMAPHORE], 1000, 100000000);
 			break;
 		case OPT_OPEN_OPS:
-			opt_open_ops = get_uint64(optarg);
-			check_range("open-ops", opt_open_ops, 1000, 100000000);
+			opt_ops[STRESS_OPEN] = get_uint64(optarg);
+			check_range("open-ops", opt_ops[STRESS_OPEN], 1000, 100000000);
 			break;
 		case OPT_POLL_OPS:
-			opt_poll_ops = get_uint64(optarg);
-			check_range("poll-ops", opt_poll_ops, 1000, 100000000);
+			opt_ops[STRESS_POLL] = get_uint64(optarg);
+			check_range("poll-ops", opt_ops[STRESS_POLL], 1000, 100000000);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
-			opt_affinity_ops = get_uint64(optarg);
-			check_range("affinity-ops", opt_affinity_ops, 1000, 100000000);
+			opt_ops[STRESS_AFFINITY] = get_uint64(optarg);
+			check_range("affinity-ops", opt_ops[STRESS_AFFINITY], 1000, 100000000);
 			break;
 		case OPT_TIMER_OPS:
-			opt_timer_ops = get_uint64(optarg);
-			check_range("timer-ops", opt_timer_ops, 1000, 100000000);
+			opt_ops[STRESS_TIMER] = get_uint64(optarg);
+			check_range("timer-ops", opt_ops[STRESS_TIMER], 1000, 100000000);
 			break;
 		case OPT_TIMER_FREQ:
 			opt_timer_freq = get_uint64(optarg);
 			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
 			break;
 		case OPT_URANDOM_OPS:
-			opt_urandom_ops = get_uint64(optarg);
-			check_range("urandom-ops", opt_urandom_ops, 1000, 100000000);
+			opt_ops[STRESS_URANDOM] = get_uint64(optarg);
+			check_range("urandom-ops", opt_ops[STRESS_URANDOM], 1000, 100000000);
 			break;
 #endif
 #if  _POSIX_C_SOURCE >= 199309L
 		case OPT_SIGQUEUE_OPS:
-			opt_sigqueue_ops = get_uint64(optarg);
-			check_range("sigq-ops", opt_sigqueue_ops, 1000, 100000000);
+			opt_ops[STRESS_SIGQUEUE] = get_uint64(optarg);
+			check_range("sigq-ops", opt_ops[STRESS_SIGQUEUE], 1000, 100000000);
 			break;
 #endif
 		case OPT_SOCKET_OPS:
-			opt_socket_ops = get_uint64(optarg);
-			check_range("sock-ops", opt_socket_ops, 1000, 100000000);
+			opt_ops[STRESS_SOCKET] = get_uint64(optarg);
+			check_range("sock-ops", opt_ops[STRESS_SOCKET], 1000, 100000000);
 			break;
 		case OPT_SOCKET_PORT:
 			opt_socket_port = get_uint64(optarg);
@@ -2786,33 +2758,10 @@ int main(int argc, char **argv)
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
 	/* Share bogo ops between processes equally */
-	DIV_OPS_BY_PROCS(opt_cpu_ops, num_procs[STRESS_CPU]);
-	DIV_OPS_BY_PROCS(opt_iosync_ops, num_procs[STRESS_IOSYNC]);
-	DIV_OPS_BY_PROCS(opt_vm_ops, num_procs[STRESS_VM]);
-	DIV_OPS_BY_PROCS(opt_hdd_ops, num_procs[STRESS_HDD]);
-	DIV_OPS_BY_PROCS(opt_fork_ops, num_procs[STRESS_FORK]);
-	DIV_OPS_BY_PROCS(opt_ctxt_ops, num_procs[STRESS_CTXT]);
-	DIV_OPS_BY_PROCS(opt_pipe_ops, num_procs[STRESS_PIPE]);
-	DIV_OPS_BY_PROCS(opt_cache_ops, num_procs[STRESS_CACHE]);
-	DIV_OPS_BY_PROCS(opt_socket_ops, num_procs[STRESS_SOCKET]);
-#if defined (_POSIX_PRIORITY_SCHEDULING)
-	DIV_OPS_BY_PROCS(opt_yield_ops, num_procs[STRESS_YIELD]);
-#endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	DIV_OPS_BY_PROCS(opt_fallocate_ops, num_procs[STRESS_FALLOCATE]);
-#endif
-	DIV_OPS_BY_PROCS(opt_flock_ops, num_procs[STRESS_FLOCK]);
-	DIV_OPS_BY_PROCS(opt_dentry_ops, num_procs[STRESS_DENTRY]);
-	DIV_OPS_BY_PROCS(opt_float_ops, num_procs[STRESS_FLOAT]);
-	DIV_OPS_BY_PROCS(opt_int_ops, num_procs[STRESS_INT]);
-	DIV_OPS_BY_PROCS(opt_semaphore_ops, num_procs[STRESS_SEMAPHORE]);
-	DIV_OPS_BY_PROCS(opt_open_ops, num_procs[STRESS_OPEN]);
-	DIV_OPS_BY_PROCS(opt_poll_ops, num_procs[STRESS_POLL]);
-#if defined (__linux__)
-	DIV_OPS_BY_PROCS(opt_affinity_ops, num_procs[STRESS_AFFINITY]);
-	DIV_OPS_BY_PROCS(opt_timer_ops, num_procs[STRESS_TIMER]);
-	DIV_OPS_BY_PROCS(opt_urandom_ops, num_procs[STRESS_URANDOM]);
-#endif
+
+	for (i = 0; i < STRESS_MAX; i++)
+		DIV_OPS_BY_PROCS(opt_ops[i], num_procs[i]);
+
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
@@ -2932,7 +2881,7 @@ int main(int argc, char **argv)
 					(void)alarm(opt_timeout);
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						child_funcs[i](counters + (i * max) + j, j);
+						child_funcs[i](counters + (i * max) + j, j, opt_ops[i]);
 					exit(0);
 				default:
 					procs[i][j].pid = pid;
