@@ -33,7 +33,8 @@ stress\-ng will stress test a computer system in various selectable ways.
 show help.
 .TP
 .B \-\-affinity N
-start N processes that rapidly change CPU affinity (only on Linux).
+start N processes that rapidly change CPU affinity (only on Linux). Rapidly switching
+CPU affinity can contribute to poor cache behaviour.
 .TP
 .B \-\-affinity-ops N
 stop affinity processes after N bogo affinity operations (only on Linux).
@@ -65,7 +66,7 @@ stop cache thrash processes after N bogo cache thrash operations.
 parse options, but don't run stress tests. A no-op.
 .TP
 .B \-D N, \-\-dentry N
-start N processes that create and remove directory entries.
+start N processes that create and remove directory entries.  This should create meta data activity.
 .TP
 .B \-\-dentry\-ops N
 stop denty thrash processes after N bogo dentry operations.
@@ -128,8 +129,7 @@ specify ionice class (only on Linux). Can be idle (default), besteffort, be, rea
 specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (hightest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
 .B \-k, \-\-keep\-name
-by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option
-disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
+by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
@@ -156,6 +156,9 @@ do an infinite wait.
 .B \-\-vm\-keep
 don't continually unmap and map memory, just keep on re-writing to it.
 .TP
+.B \-\-vm\-locked
+Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
+.TP
 .B \-\-vm\-populate
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
@@ -166,7 +169,7 @@ start N processes that perform open() and then close() operations on /dev/zero. 
 stop the open stress processes after N bogo open operations.
 .TP
 .B \-p N, \-\-pipe N
-start N processes that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.
+start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and and writer.
 .TP
 .B \-\-pipe\-ops N
 stop pipe stress processes after N bogo pipe write operations.
@@ -196,7 +199,7 @@ start N processes that rapidly send SIGUSR1 signals using sigqueue() to child pr
 stop sigq stress processes after N bogo signal send operations.
 .TP
 .B \-S N, \-\-sock N
-start N processes that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
+start N stressors that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
 .TP
 .B \-\-sched-scheduler sched
 select the named scheduler (only on Linux). To see the list of available schedulers
