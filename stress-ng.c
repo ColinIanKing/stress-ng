@@ -2731,10 +2731,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if ((opt_flags & (OPT_FLAGS_RANDOM | OPT_FLAGS_SET)) ==
-	    (OPT_FLAGS_RANDOM | OPT_FLAGS_SET)) {
-	}
-
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
