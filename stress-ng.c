@@ -1566,6 +1566,7 @@ finish:
 #else
 	(void)counter;
 	(void)instance;
+	(void)max_ops;
 	exit(EXIT_SUCCESS);
 #endif
 }
@@ -1670,6 +1671,7 @@ finish:
 #else
 	(void)counter;
 	(void)instance;
+	(void)max_ops;
 	exit(EXIT_SUCCESS);
 #endif
 }
@@ -1794,6 +1796,7 @@ finish:
 #else
 	(void)counter;
 	(void)instance;
+	(void)max_ops;
 	exit(EXIT_SUCCESS);
 #endif
 }
