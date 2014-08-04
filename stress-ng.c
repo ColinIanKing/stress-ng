@@ -2403,6 +2403,14 @@ static long int opt_long(const char *opt, const char *str)
 	return val;
 }
 
+static void free_procs(void)
+{
+	int32_t i;
+
+	for (i = 0; i < STRESS_MAX; i++)
+		free(procs[i]);
+}
+
 int main(int argc, char **argv)
 {
 
@@ -2814,6 +2822,7 @@ int main(int argc, char **argv)
 
 	if (total_procs == 0) {
 		pr_err(stderr, "No stress workers specified\n");
+		free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -2829,6 +2838,7 @@ int main(int argc, char **argv)
 	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
 		pr_err(stderr, "Cannot open shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
+		free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -2838,6 +2848,7 @@ int main(int argc, char **argv)
 			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
+		free_procs();
 		exit(EXIT_FAILURE);
 	}
 	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
@@ -2846,6 +2857,7 @@ int main(int argc, char **argv)
 			errno, strerror(errno));
 		(void)close(fd);
 		(void)shm_unlink(shm_name);
+		free_procs();
 		exit(EXIT_FAILURE);
 	}
 	if (num_procs[STRESS_CACHE]) {
@@ -2855,6 +2867,7 @@ int main(int argc, char **argv)
 				errno, strerror(errno));
 			(void)close(fd);
 			(void)shm_unlink(shm_name);
+			free_procs();
 			exit(EXIT_FAILURE);
 		}
 		memset(mem_chunk, 0, len);
@@ -2936,8 +2949,7 @@ int main(int argc, char **argv)
 		}
 	}
 out:
-	for (i = 0; i < STRESS_MAX; i++)
-		free(procs[i]);
+	free_procs();
 
 	if (num_procs[STRESS_SEMAPHORE]) {
 		if (sem_destroy(&sem) < 0) {
