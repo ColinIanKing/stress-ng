@@ -161,6 +161,12 @@ enum {
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
 	OPT_VM_KEEP,
+#ifdef MAP_POPULATE
+	OPT_VM_MMAP_POPULATE,
+#endif
+#ifdef MAP_LOCKED
+	OPT_VM_MMAP_LOCKED,
+#endif
 	OPT_HDD_BYTES,
 	OPT_HDD_NOCLEAN,
 	OPT_METRICS,
@@ -197,7 +203,6 @@ enum {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	OPT_FALLOCATE_OPS,
 #endif
-	OPT_VM_MMAP_POPULATE,
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
 	OPT_DENTRY,
@@ -1169,13 +1174,20 @@ finish:
 
 /*
  *  stress_cache()
- *	stress cache by psuedo-random memory read/writes
+ *	stress cache by psuedo-random memory read/writes and
+ *	if possible change CPU affinity to try to cause
+ *	poor cache behaviour
  */
 static void stress_cache(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops)
 {
 	unsigned long total = 0;
 	int rc = EXIT_FAILURE;
 	static const char *const stress = APP_NAME "-cache";
+#if defined(__linux__)
+	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
+	unsigned long int cpu = 0;
+	cpu_set_t mask;
+#endif
 
 	set_proc_name(stress);
 	pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
@@ -1199,6 +1211,13 @@ static void stress_cache(uint64_t *const counter, const uint32_t instance, const
 				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
 			}
 		}
+#if defined(__linux__)
+		cpu++;
+		cpu %= cpus;
+		CPU_ZERO(&mask);
+		CPU_SET(cpu, &mask);
+		sched_setaffinity(0, sizeof(mask), &mask);
+#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
@@ -2180,6 +2199,9 @@ static void usage(void)
 		"       --vm-hang N       sleep N seconds before freeing memory\n"
 		"       --vm-keep         redirty memory instead of reallocating\n"
 		"       --vm-ops N        stop when N vm bogo operations completed\n"
+#ifdef MAP_LOCKED
+		"       --vm-locked       Lock the pages of the mapped region into memory\n"
+#endif
 #ifdef MAP_POPULATE
 		"       --vm-populate     populate (prefault) page tables for a mapping\n"
 #endif
@@ -2245,6 +2267,9 @@ static const struct option long_options[] = {
 	{ "vm-keep",	0,	0,	OPT_VM_KEEP },
 #ifdef MAP_POPULATE
 	{ "vm-populate",0,	0,	OPT_VM_MMAP_POPULATE },
+#endif
+#ifdef MAP_LOCKED
+	{ "vm-locked",	0,	0,	OPT_VM_MMAP_LOCKED },
 #endif
 	{ "hdd",	1,	0,	'd' },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
@@ -2585,6 +2610,11 @@ int main(int argc, char **argv)
 #ifdef MAP_POPULATE
 		case OPT_VM_MMAP_POPULATE:
 			opt_vm_flags |= MAP_POPULATE;
+			break;
+#endif
+#ifdef MAP_LOCKED
+		case OPT_VM_MMAP_LOCKED:
+			opt_vm_flags |= MAP_LOCKED;
 			break;
 #endif
 		case OPT_HDD_BYTES:
