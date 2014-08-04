@@ -2470,55 +2470,55 @@ int main(int argc, char **argv)
 		case 'c':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CPU] = opt_long("cpu", optarg);
-			check_value("CPU", num_procs[STRESS_CPU]);
+			check_value(stressors[STRESS_CPU], num_procs[STRESS_CPU]);
 			break;
 		case 'i':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_IOSYNC] = opt_long("io", optarg);
-			check_value("IO sync", num_procs[STRESS_IOSYNC]);
+			check_value(stressors[STRESS_IOSYNC], num_procs[STRESS_IOSYNC]);
 			break;
 		case 'm':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_VM] = opt_long("vm", optarg);
-			check_value("VM", num_procs[STRESS_VM]);
+			check_value(stressors[STRESS_VM], num_procs[STRESS_VM]);
 			break;
 		case 'd':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_HDD] = opt_long("hdd", optarg);
-			check_value("HDD", num_procs[STRESS_HDD]);
+			check_value(stressors[STRESS_HDD], num_procs[STRESS_HDD]);
 			break;
 		case 'D':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_DENTRY] = opt_long("dentry", optarg);
-			check_value("Dentry", num_procs[STRESS_DENTRY]);
+			check_value(stressors[STRESS_DENTRY], num_procs[STRESS_DENTRY]);
 			break;
 		case 'f':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FORK] = opt_long("fork", optarg);
-			check_value("Forks", num_procs[STRESS_FORK]);
+			check_value(stressors[STRESS_FORK], num_procs[STRESS_FORK]);
 			break;
 		case 's':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CTXT] = opt_long("switch", optarg);
-			check_value("Context-Switches", num_procs[STRESS_CTXT]);
+			check_value(stressors[STRESS_CTXT], num_procs[STRESS_CTXT]);
 			break;
 		case 'p':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
-			check_value("Pipe", num_procs[STRESS_PIPE]);
+			check_value(stressors[STRESS_PIPE], num_procs[STRESS_PIPE]);
 			break;
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		case 'F':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FALLOCATE] = opt_long("fallocate", optarg);
-			check_value("Fallocate", num_procs[STRESS_FALLOCATE]);
+			check_value(stressors[STRESS_FALLOCATE], num_procs[STRESS_FALLOCATE]);
 			break;
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 		case 'y':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
-			check_value("Yield", num_procs[STRESS_YIELD]);
+			check_value(stressors[STRESS_YIELD], num_procs[STRESS_YIELD]);
 			break;
 #endif
 		case 'l':
@@ -2531,65 +2531,65 @@ int main(int argc, char **argv)
 		case 'C':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
-			check_value("Cache", num_procs[STRESS_CACHE]);
+			check_value(stressors[STRESS_CACHE], num_procs[STRESS_CACHE]);
 			break;
 		case 'S':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SOCKET] = opt_long("socket", optarg);
-			check_value("Socket", num_procs[STRESS_SOCKET]);
+			check_value(stressors[STRESS_SOCKET], num_procs[STRESS_SOCKET]);
 			break;
 		case OPT_FLOCK:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
-			check_value("Flock", num_procs[STRESS_FLOCK]);
+			check_value(stressors[STRESS_FLOCK], num_procs[STRESS_FLOCK]);
 			break;
 		case OPT_FLOAT:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_FLOAT] = opt_long("float", optarg);
-			check_value("Float", num_procs[STRESS_FLOAT]);
+			check_value(stressors[STRESS_FLOAT], num_procs[STRESS_FLOAT]);
 			break;
 		case OPT_INT:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_INT] = opt_long("int", optarg);
-			check_value("Int", num_procs[STRESS_INT]);
+			check_value(stressors[STRESS_INT], num_procs[STRESS_INT]);
 			break;
 		case OPT_SEMAPHORE:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
-			check_value("Semaphore", num_procs[STRESS_SEMAPHORE]);
+			check_value(stressors[STRESS_SEMAPHORE], num_procs[STRESS_SEMAPHORE]);
 			break;
 		case 'o':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_OPEN] = opt_long("open", optarg);
-			check_value("Open", num_procs[STRESS_OPEN]);
+			check_value(stressors[STRESS_OPEN], num_procs[STRESS_OPEN]);
 			break;
 		case 'P':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_POLL] = opt_long("poll", optarg);
-			check_value("Poll", num_procs[STRESS_POLL]);
+			check_value(stressors[STRESS_POLL], num_procs[STRESS_POLL]);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
-			check_value("Affinity", num_procs[STRESS_AFFINITY]);
+			check_value(stressors[STRESS_AFFINITY], num_procs[STRESS_AFFINITY]);
 			break;
 		case 'T':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_TIMER] = opt_long("timer", optarg);
-			check_value("Timer", num_procs[STRESS_TIMER]);
+			check_value(stressors[STRESS_TIMER], num_procs[STRESS_TIMER]);
 			break;
 		case 'u':
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_URANDOM] = opt_long("urandom", optarg);
-			check_value("Urandom", num_procs[STRESS_URANDOM]);
+			check_value(stressors[STRESS_URANDOM], num_procs[STRESS_URANDOM]);
 			break;
 #endif
 #if  _POSIX_C_SOURCE >= 199309L
 		case OPT_SIGQUEUE:
 			opt_flags |= OPT_FLAGS_SET;
 			num_procs[STRESS_SIGQUEUE] = opt_long("sigq", optarg);
-			check_value("SigQeueu", num_procs[STRESS_SIGQUEUE]);
+			check_value(stressors[STRESS_SIGQUEUE], num_procs[STRESS_SIGQUEUE]);
 			break;
 #endif
 		case 'M':
