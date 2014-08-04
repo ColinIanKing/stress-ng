@@ -2211,7 +2211,7 @@ static void usage(void)
 #if defined (__linux__)
 		" -T N, --timer N         start N workers producing timer events\n"
 		"       --timer-ops N     stop when N timer bogo events completed\n"
-		"       --timer-freq F    run timer(s) at F Hz, range 1,000 to 1000,000,000\n"
+		"       --timer-freq F    run timer(s) at F Hz, range 1000 to 1000000000\n"
 		" -u N, --urandom N       start M workers reading /dev/urandom\n"
 		"       --urandom-ops N   start when N urandom bogo read operations completed\n"
 #endif
