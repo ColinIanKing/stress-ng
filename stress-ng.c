@@ -2060,12 +2060,14 @@ static void stress_sigq(uint64_t *const counter, const uint32_t instance, const 
 		union sigval s;
 
 		do {
+			memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			sigqueue(pid, SIGUSR1, s);
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		pr_dbg(stderr, "%s: parent sent termination notice\n", stress);
+		memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		sigqueue(pid, SIGUSR1, s);
 		usleep(250);
