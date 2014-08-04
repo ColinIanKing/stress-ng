@@ -218,7 +218,7 @@ enum {
 #if defined (__linux__)
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
- *  for these at present. Also refer to Documentation/block/ioprio.txt 
+ *  for these at present. Also refer to Documentation/block/ioprio.txt
  *  in the Linux kernel source.
  */
 #define IOPRIO_CLASS_RT 	(1)
@@ -1959,7 +1959,7 @@ static void stress_open(uint64_t *const counter, const uint32_t instance, const 
 
 		for (i = 0; i < STRESS_FD_MAX; i++) {
 			fds[i] = open("/dev/zero", O_RDONLY);
-			if (fds[i] < 0) 
+			if (fds[i] < 0)
 				break;
 			(*counter)++;
 		}
@@ -2739,7 +2739,6 @@ int main(int argc, char **argv)
 				"other stress processes selected\n");
 			exit(EXIT_FAILURE);
 		}
-		
 		while (n > 0) {
 			int32_t rnd = mwc() % 3;
 			if (rnd > n)
@@ -2785,7 +2784,7 @@ int main(int argc, char **argv)
 
 	pr_inf(stdout, "dispatching hogs:");
 	for (i = 0; i < STRESS_MAX; i++) {
-		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i], 
+		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i],
 			i == STRESS_MAX - 1 ? '\n' : ',');
 	}
 
