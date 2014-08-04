@@ -2934,6 +2934,9 @@ int main(int argc, char **argv)
 		}
 	}
 out:
+	for (i = 0; i < STRESS_MAX; i++)
+		free(procs[i]);
+
 	if (num_procs[STRESS_SEMAPHORE]) {
 		if (sem_destroy(&sem) < 0) {
 			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
