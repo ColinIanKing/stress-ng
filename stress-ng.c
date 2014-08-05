@@ -872,7 +872,6 @@ static int stress_vm(
 		if (!keep || (keep && buf == NULL)) {
 			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
-
 			if (buf == MAP_FAILED) {
 				pr_dbg(stderr, "%s: mmap failed, re-trying\n", name);
 				continue;	/* Try again */
@@ -903,6 +902,9 @@ static int stress_vm(
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	if (keep)
+		(void)munmap(buf, opt_vm_bytes);
 
 	return EXIT_SUCCESS;
 }
@@ -963,6 +965,7 @@ static int stress_io(
 
 	rc = EXIT_SUCCESS;
 finish:
+	free(buf);
 	return rc;
 }
 
@@ -1711,6 +1714,7 @@ static int stress_urandom(
 		if (read(fd, buffer, sizeof(buffer)) < 0) {
 			pr_err(stderr, "%s: read failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
+			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		(*counter)++;
