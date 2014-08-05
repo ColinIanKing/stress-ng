@@ -132,6 +132,12 @@ typedef struct {
 	const char *label;
 } stress_t;
 
+typedef struct {
+	const char *opt_s;
+	const char *opt_l;
+	const char *description;
+} help_t;
+
 /* Stress tests */
 enum {
 	STRESS_IOSYNC	= 0,
@@ -440,7 +446,7 @@ static int print(
 		char buf[4096];
 		int n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
 			type, getpid());
-		ret = vsnprintf(buf + n, sizeof(buf) -n, fmt, ap);
+		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 		fprintf(fp, "%s", buf);
 	}
 	va_end(ap);
@@ -1423,6 +1429,7 @@ static int stress_fallocate(
 	(void)instance;
 	(void)max_ops;
 	(void)name;
+
 	return EXIT_SUCCESS;
 #endif
 }
@@ -1498,6 +1505,7 @@ static int stress_affinity(
 	(void)instance;
 	(void)max_ops;
 	(void)name;
+
 	return EXIT_SUCCESS;
 #endif
 }
@@ -1864,7 +1872,7 @@ static int stress_open(
 	const uint64_t max_ops,
 	const char *name)
 {
-	static int fds[STRESS_FD_MAX];
+	int fds[STRESS_FD_MAX];
 
 	(void)instance;
 	(void)name;
@@ -2033,103 +2041,116 @@ static inline void version(void)
 	printf(APP_NAME ", version " VERSION "\n");
 }
 
+static const help_t help[] = {
+	{ "?,-h",	"help",			"show help" },
+#if defined (__linux__)
+	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
+	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
+#endif
+	{ "a N",	"all N",		"start N workers of each stress test" },
+	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
+	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
+	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
+	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
+	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
+	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
+	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
+	{ NULL,		"dentries N",		"create N dentries per iteration" },
+	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
+	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
+	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
+	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
+	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
+	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
+	{ NULL,		"float N",		"start N workers performing floating point operations" },
+	{ NULL, 	"float-ops N",		"stop when N float bogo operations completed" },
+	{ NULL,		"flock N",		"start N workers locking a single file" },
+	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
+	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
+	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
+	{ NULL,		"int N",		"start N workers performing integer operations" },
+	{ NULL,		"int-ops N",		"stop when N int bogo operations completed" },
+	{ "i N",	"io N",			"start N workers spinning on sync()" },
+	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
+	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng" },
+#if defined (__linux__)
+	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
+	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
+#endif
+	{ "M",		"metrics",		"print pseudo metrics of activity" },
+	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
+	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
+	{ NULL,		"vm-hang N",		"sleep N seconds before freeing memory" },
+	{ NULL,		"vm-keep",		"redirty memory instead of reallocating" },
+	{ NULL,		"vm-ops N",		"stop when N vm bogo operations completed" },
+#ifdef MAP_LOCKED
+	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
+#endif
+#ifdef MAP_POPULATE
+	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
+#endif
+	{ "n",		"dry-run",		"do not run" },
+	{ "o",		"open N",		"start N workers exercising open/close" },
+	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
+	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
+	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
+	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
+	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
+	{ "q",		"quiet",		"quiet output" },
+	{ "r",		"random N",		"start N random workers" },
+#if defined (__linux__)
+	{ NULL,		"sched type",		"set scheduler type" },
+	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
+#endif
+	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
+	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
+#if _POSIX_C_SOURCE >= 199309L
+	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
+	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
+#endif
+	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
+	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
+	{ "S N",	"sock N",		"start N workers doing socket activity" },
+	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
+	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
+	{ "t N",	"timeout N",		"timeout after N seconds" },
+#if defined (__linux__)
+	{ "T N",	"timer N",		"start N workers producing timer events" },
+	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
+	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
+	{ "u N",	"urandom N",		"start M workers reading /dev/urandom" },
+	{ NULL,		"urandom-ops N",	"start when N urandom bogo read operations completed" },
+#endif
+	{ "v",		"verbose",		"verbose output" },
+	{ "V",		"version",		"show version" },
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
+	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
+#endif
+	{ NULL,		NULL,			NULL }
+};
+
 /*
  *  usage()
  *	print some help
  */
 static void usage(void)
 {
+	int i;
+
 	version();
-	printf(	"\nUsage: stress-ng [OPTION [ARG]]\n"
-		" -?,h, --help            show help\n"
-#if defined (__linux__)
-		"       --affinity        start N workers that rapidly change CPU affinity\n"
-#endif
-		"       --affinity-ops    stop when N affinity bogo operations completed\n"
-		" -a N, --all N           start N workers of each stress test\n"
-		" -b N, --backoff N       wait of N microseconds before work starts\n"
-		" -c N, --cpu N           start N workers spinning on sqrt(rand())\n"
-		" -l P, --cpu-load P      load CPU by P %%, 0=sleep, 100=full load (see -c)\n"
-		"       --cpu-ops N       stop when N cpu bogo operations completed\n"
-		" -C N, --cache N         start N CPU cache thrashing workers\n"
-		"       --cache-ops N     stop when N cache bogo operations completed\n"
-		" -D N, --dentry N        start N dentry thrashing processes\n"
-		"       --dentry-ops N    stop when N dentry bogo operations completed\n");
-	printf( "       --dentries N      create N dentries per iteration (default %d)\n", DEFAULT_DENTRIES);
-	printf( " -d N, --hdd N           start N workers spinning on write()/unlink()\n"
-		"       --hdd-bytes N     write N bytes per hdd worker (default is 1GB)\n"
-		"       --hdd-noclean     do not unlink files created by hdd workers\n"
-		"       --hdd-ops N       stop when N hdd bogo operations completed\n"
-		"       --fallocate N     start N workers fallocating 16MB files\n"
-		"       --fallocate-ops N stop when N fallocate bogo operations completed\n"
-		"       --float N         start N workers performing floating point operations\n"
-		"       --float-ops N     stop when N float bogo operations completed\n"
-		"       --flock N         start N workers locking a single file\n"
-		"       --flock-ops N     stop when N flock bogo operations completed\n"
-		" -f N, --fork N          start N workers spinning on fork() and exit()\n"
-		"       --fork-ops N      stop when N fork bogo operations completed\n"
-		"       --int N           start N workers performing integer operations\n"
-		"       --int-ops N       stop when N int bogo operations completed\n"
-		" -i N, --io N            start N workers spinning on sync()\n"
-		"       --io-ops N        stop when N io bogo operations completed\n"
-		" -k,   --keep-name       keep stress process names to be 'stress-ng'\n"
-#if defined (__linux__)
-		"       --ionice-class C  specify ionice class (idle, besteffort, realtime)\n"
-		"       --ionice-level L  specify ionice level (0 max, 7 min)\n"
-#endif
-		" -M,   --metrics         print pseudo metrics of activity\n"
-		" -m N, --vm N            start N workers spinning on anonymous mmap\n"
-		"       --vm-bytes N      allocate N bytes per vm worker (default 256MB)\n"
-		"       --vm-stride N     touch a byte every N bytes (default 4K)\n"
-		"       --vm-hang N       sleep N seconds before freeing memory\n"
-		"       --vm-keep         redirty memory instead of reallocating\n"
-		"       --vm-ops N        stop when N vm bogo operations completed\n"
-#ifdef MAP_LOCKED
-		"       --vm-locked       Lock the pages of the mapped region into memory\n"
-#endif
-#ifdef MAP_POPULATE
-		"       --vm-populate     populate (prefault) page tables for a mapping\n"
-#endif
-		" -n,   --dry-run         don't run\n"
-		" -o,   --open N          start N workers exercising open/close\n"
-		"       --open-ops N      stop when N open/close bogo operations completed\n"
-		" -p N, --pipe N          start N workers exercising pipe I/O\n"
-		"       --pipe-ops N      stop when N pipe I/O bogo operations completed\n"
-		" -P N, --poll N          start N workers exercising zero timeout polling\n"
-		"       --poll-ops N      stop when N poll bogo operations completed\n"
-		" -q,   --quiet           quiet output\n"
-		" -r,   --random N        start N random workers\n"
-#if defined (__linux__)
-		"       --sched type      set scheduler type\n"
-		"       --sched-prio N    set scheduler priority level N\n"
-#endif
-		"       --sem N           start N workers doing semaphore operations\n"
-		"       --sem-ops N       stop when N semaphore bogo operations completed\n"
-#if _POSIX_C_SOURCE >= 199309L
-		"       --sigq N          start N workers sending sigqueue signals\n"
-		"       --sigq-ops N      stop when N siqqueue bogo operations completed\n"
-#endif
-		" -s N, --switch N        start N workers doing rapid context switches\n"
-		"       --switch-ops N    stop when N context switch bogo operations completed\n"
-		" -S N, --sock N          start N workers doing socket activity\n"
-		"       --sock-ops N      stop when N socket bogo operations completed\n"
-		"       --sock-port P     use socket ports P to P + number of workers - 1\n"
-		" -t N, --timeout N       timeout after N seconds\n"
-#if defined (__linux__)
-		" -T N, --timer N         start N workers producing timer events\n"
-		"       --timer-ops N     stop when N timer bogo events completed\n"
-		"       --timer-freq F    run timer(s) at F Hz, range 1000 to 1000000000\n"
-		" -u N, --urandom N       start M workers reading /dev/urandom\n"
-		"       --urandom-ops N   start when N urandom bogo read operations completed\n"
-#endif
-		" -v,   --verbose         verbose output\n"
-		" -V,   --version         show version\n"
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-		" -y N, --yield N         start N workers doing sched_yield() calls\n"
-		"       --yield-ops N     stop when N bogo yield operations completed\n"
-#endif
-		"\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
-		"Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
+	printf(	"\nUsage: " APP_NAME " [OPTION [ARG]]\n");
+	for (i = 0; help[i].description; i++) {
+		char opt_s[10] = "";
+
+		if (help[i].opt_s)
+			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
+		printf(" %-6s--%-16s%s\n", opt_s, help[i].opt_l, help[i].description);
+	}
+	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
+	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
 	exit(EXIT_SUCCESS);
 }
 
