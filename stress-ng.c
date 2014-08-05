@@ -664,7 +664,7 @@ static int get_int(const char *const str)
 {
 	int val;
 
-	if (sscanf(str, "%d", &val) != 1) {
+	if (sscanf(str, "%12d", &val) != 1) {
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
