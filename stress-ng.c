@@ -494,7 +494,10 @@ static void check_range(
  */
 static void set_sched(const int sched, const int sched_priority)
 {
-	int min, max, rc;
+#if defined (SCHED_FIFO) || defined (SCHED_RR)
+	int min, max;
+#endif
+	int rc;
 	struct sched_param param;
 
 	switch (sched) {
@@ -1758,7 +1761,7 @@ static int stress_float(
 			a = c / 0.1923;
 			b = c + a;
 			c = b * 3.12;
-			d = b + sin(a);
+			d = d + b + sin(a);
 			a = (b + c) / c;
 			b = b * c;
 			c = c + 1.0;
@@ -1766,7 +1769,7 @@ static int stress_float(
 			a = a * cos(b);
 			b = b + cos(c);
 			c = sin(a) / 2.344;
-			d = d - 1.0;
+			b = d - 1.0;
 		}
 		double_put(a, b, c, d);
 
