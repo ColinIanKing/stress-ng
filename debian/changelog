@@ -1,3 +1,31 @@
+stress-ng (0.01.30-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix up a few resource leaks
+  * Add format length specifier to scanf on integers
+  * Minor var cleanup from cppcheck
+  * Re-work help info
+  * Remove common functionality, make code smaller
+  * Free procs more rigorously.
+  * Clear sigqueue union, keeps valgrind happy
+  * Free procs info at exit
+  * Add more information in man page
+  * Re-use stressor names in checks
+  * Cast max_ops to (void) to avoid unused var warnings
+  * Add --vm-locked option and force cpu affinity changes on cache stress
+  * Fix spelling mistake in man page
+  * Remove some extraneous white spaces
+  * Remove commas from nunbers in help
+  * Align help info
+  * Remove redundant code that got accidently left in
+  * Simplify hogs message
+  * Keep track of per stress test ops count in opt_ops array
+  * Add -P, --poll, --poll-ops zero timeout polling stress test
+  * Add -k, --keep-name option to not change name of stress processes
+  * Add -r, --random option to create N random stress processes
+
+ -- Colin King <colin.king@canonical.com>  Tue, 5 Aug 2014 17:25:01 +0100
+
 stress-ng (0.01.29-1) unstable; urgency=medium
 
   * Makefile: bump version
