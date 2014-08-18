@@ -2080,11 +2080,11 @@ static const help_t help[] = {
 	{ NULL,		"int-ops N",		"stop when N int bogo operations completed" },
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
-	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng" },
 #if defined (__linux__)
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
+	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
