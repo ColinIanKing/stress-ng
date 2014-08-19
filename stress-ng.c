@@ -125,15 +125,17 @@
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
+/* stress test metadata */
 typedef struct {
-	const char *name;
-	const char *label;
+	const char *name;		/* name of stress test */
+	const char *label;		/* human readable label */
 } stress_t;
 
+/* Help information for options */
 typedef struct {
-	const char *opt_s;
-	const char *opt_l;
-	const char *description;
+	const char *opt_s;		/* short option */
+	const char *opt_l;		/* long option */
+	const char *description;	/* description */
 } help_t;
 
 /* Stress tests */
@@ -378,7 +380,6 @@ static int stress_sethandler(const char *stress)
  */
 static inline unsigned long mwc(void)
 {
-
 	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
 	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
 	return (mwc_z << 16) + mwc_w;
@@ -2688,6 +2689,7 @@ int main(int argc, char **argv)
 				"other stress processes selected\n");
 			exit(EXIT_FAILURE);
 		}
+		/* create n randomly chosen stressors */
 		while (n > 0) {
 			int32_t rnd = mwc() % 3;
 			if (rnd > n)
@@ -2790,6 +2792,7 @@ int main(int argc, char **argv)
 				int rc = EXIT_SUCCESS;
 				int pid = fork();
 				char name[64];
+
 				switch (pid) {
 				case -1:
 					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
@@ -2829,6 +2832,7 @@ int main(int argc, char **argv)
 	}
 	pr_dbg(stderr, "%d processes running\n", n_procs);
 
+	/* Wait for children to exit */
 	while (n_procs) {
 		int pid, status;
 
