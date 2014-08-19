@@ -125,8 +125,6 @@
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
-#define DIV_OPS_BY_PROCS(opt, nproc) opt = (nproc == 0) ? 0 : opt / nproc;
-
 typedef struct {
 	const char *name;
 	const char *label;
@@ -2704,9 +2702,8 @@ int main(int argc, char **argv)
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
 	/* Share bogo ops between processes equally */
-
 	for (i = 0; i < STRESS_MAX; i++)
-		DIV_OPS_BY_PROCS(opt_ops[i], num_procs[i]);
+		opt_ops[i] = num_procs[i] ? opt_ops[i] / num_procs[i] : 0;
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
