@@ -292,8 +292,7 @@ static pid_t socket_server, socket_client;		/* pids of socket client/servers */
 
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
 static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
-
-static unsigned long mwc_z = 362436069, mwc_w = 521288629;
+static uint64_t	mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -378,7 +377,7 @@ static int stress_sethandler(const char *stress)
  *	fast pseudo random number generator, see
  *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-static inline unsigned long mwc(void)
+static inline uint64_t mwc(void)
 {
 	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
 	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
@@ -396,9 +395,9 @@ static inline void mwc_reseed(void)
 
 	mwc_z = 0;
 	if (gettimeofday(&tv, NULL) == 0)
-		mwc_z = (unsigned long)tv.tv_sec ^ (unsigned long)tv.tv_usec;
+		mwc_z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 	mwc_z += ~((unsigned char *)&mwc_z - (unsigned char *)&tv);
-	mwc_w = (unsigned long)getpid() ^ (unsigned long)getppid()<<12;
+	mwc_w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 
 	n = (int)mwc_z % 1733;
 	for (i = 0; i < n; i++)
@@ -931,7 +930,7 @@ static int stress_io(
 	}
 
 	for (i = 0; i < STRESS_HDD_BUF_SIZE; i++)
-		buf[i] = mwc();
+		buf[i] = (uint8_t)mwc();
 
 	do {
 		int fd;
@@ -1164,8 +1163,8 @@ static int stress_cache(
 	(void)instance;
 
 	do {
-		unsigned long i = mwc() & (MEM_CHUNK_SIZE - 1);
-		unsigned long r = mwc();
+		uint64_t i = mwc() & (MEM_CHUNK_SIZE - 1);
+		uint64_t r = mwc();
 		int j;
 
 		if ((r >> 13) & 1) {
