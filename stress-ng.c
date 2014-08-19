@@ -266,15 +266,22 @@ static int print(FILE *fp, const char *const type, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 4, 5)));
 
 /* Various option settings and flags */
+static sem_t	sem;					/* stress_semaphore sem */
+static uint8_t *mem_chunk;				/* Cache load shared memory */
+static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 static uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
-static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
-static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
-static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
-static int	opt_vm_flags = 0;			/* VM mmap flags */
 static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
+static uint64_t	mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
 static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
+static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
+static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
+static int32_t  opt_cpu_load = 100;			/* CPU max load */
+static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
+static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
+static int	opt_vm_flags = 0;			/* VM mmap flags */
+static pid_t	socket_server, socket_client;		/* pids of socket client/servers */
 #if defined (__linux__)
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 static int	opt_sched = UNDEFINED;			/* sched policy */
@@ -282,17 +289,10 @@ static int	opt_sched_priority = UNDEFINED;		/* sched priority */
 static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
-static int32_t  opt_cpu_load = 100;			/* CPU max load */
-static uint8_t *mem_chunk;				/* Cache load shared memory */
 static int	opt_socket_port = 5000;			/* Default socket port */
 static volatile bool opt_do_run = true;			/* false to exit stressor */
-static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
-static sem_t	sem;					/* stress_semaphore sem */
-static pid_t socket_server, socket_client;		/* pids of socket client/servers */
-
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
-static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
-static uint64_t	mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
+
 
 /*
  *  externs to force gcc to stash computed values and hence
