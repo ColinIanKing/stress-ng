@@ -303,7 +303,7 @@ extern void double_put(double a, double b, double c, double d);
 extern void uint64_put(uint64_t a, uint64_t b);
 
 /* Human readable stress test names */
-static const stress_t const stressors[] = {
+static const stress_t stressors[] = {
 	{ "iosync",	"I/O-Sync" },
 	{ "cpu",	"CPU" },
 	{ "vm",		"VM-mmap" },
