@@ -1,6 +1,6 @@
-VERSION=0.01.31
+VERSION=0.01.32
 #
-# Codename "stress my socks off"
+# Codename "chronically fatigued"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
