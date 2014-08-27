@@ -1,3 +1,14 @@
+stress-ng (0.01.32-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Handle forced abort and tidy up when errors occur during start up
+  * Add more termination checks to try to abort faster
+  * Fix --sched option that had missing .TP
+  * Remove duplicate const
+  * Neaten up the see also list
+
+ -- Colin King <colin.king@canonical.com>  Thu, 28 Aug 2014 00:21:01 +0100
+
 stress-ng (0.01.31-1) unstable; urgency=medium
 
   * Makefile: bump version
