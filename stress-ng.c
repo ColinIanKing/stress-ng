@@ -446,6 +446,7 @@ static int print(
 			type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 		fprintf(fp, "%s", buf);
+		fflush(fp);
 	}
 	va_end(ap);
 
@@ -1884,7 +1885,11 @@ static int stress_semaphore(
 		int i;
 
 		for (i = 0; i < 1000; i++) {
-			sem_wait(&sem);
+			if (sem_wait(&sem) < 0) {
+				pr_dbg(stderr, "%s: sem_wait failed, errno=%d (%s)\n",
+					name, errno, strerror(errno));
+				break;
+			}
 			sem_post(&sem);
 			if (!opt_do_run)
 				break;
@@ -2310,6 +2315,7 @@ static void kill_procs(int sig)
 static void handle_sigint(int dummy)
 {
 	(void)dummy;
+	opt_do_run = false;
 	kill_procs(SIGALRM);
 }
 
@@ -2839,9 +2845,12 @@ int main(int argc, char **argv)
 					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
 					kill_procs(SIGALRM);
-					goto out;
+					goto wait_for_procs;
 				case 0:
 					/* Child */
+					if (stress_sethandler(name) < 0)
+						exit(EXIT_FAILURE);
+					(void)alarm(opt_timeout);
 					mwc_reseed();
 					snprintf(name, sizeof(name), APP_NAME "-%s", stressors[i].name);
 #if defined (__linux__)
@@ -2851,10 +2860,6 @@ int main(int argc, char **argv)
 					pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 
-					if (stress_sethandler(name) < 0)
-						exit(EXIT_FAILURE);
-
-					(void)alarm(opt_timeout);
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stress_funcs[i](counters + (i * max) + j, j, opt_ops[i], name);
@@ -2866,6 +2871,13 @@ int main(int argc, char **argv)
 					procs[i][j].start = time_now() +
 						((double)(opt_backoff * n_procs) / 1000000.0);
 					started_procs[i]++;
+
+					/* Forced early abort during startup? */
+					if (!opt_do_run) {
+						pr_dbg(stderr, "abort signal during startup, cleaning up\n");
+						kill_procs(SIGALRM);
+						goto wait_for_procs;
+					}
 					break;
 				}
 			}
@@ -2873,6 +2885,7 @@ int main(int argc, char **argv)
 	}
 	pr_dbg(stderr, "%d processes running\n", n_procs);
 
+wait_for_procs:
 	/* Wait for children to exit */
 	while (n_procs) {
 		int pid, status;
@@ -2910,7 +2923,6 @@ int main(int argc, char **argv)
 				total_time > 0.0 ? (double)total / total_time : 0.0);
 		}
 	}
-out:
 	free_procs();
 
 	if (num_procs[STRESS_SEMAPHORE]) {
