@@ -796,8 +796,11 @@ static int stress_cpu(
 	if (opt_cpu_load == 100) {
 		do {
 			int i;
-			for (i = 0; i < 16384; i++)
+			for (i = 0; i < 16384; i++) {
 				sqrt((double)mwc());
+				if (!opt_do_run)
+					break;
+			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		return EXIT_SUCCESS;
@@ -825,8 +828,11 @@ static int stress_cpu(
 
 		gettimeofday(&tv1, NULL);
 		for (j = 0; j < 64; j++) {
-			for (i = 0; i < 16384; i++)
+			for (i = 0; i < 16384; i++) {
 				sqrt((double)mwc());
+				if (!opt_do_run)
+					break;
+			}
 			(*counter)++;
 		}
 		gettimeofday(&tv2, NULL);
@@ -876,8 +882,11 @@ static int stress_vm(
 			}
 		}
 
-		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride)
+		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
 			*(buf + i) = gray_code;
+			if (!opt_do_run)
+				goto unmap_cont;
+		}
 
 		if (opt_vm_hang == 0) {
 			for (;;)
@@ -893,8 +902,11 @@ static int stress_vm(
 				(void)munmap(buf, opt_vm_bytes);
 				return EXIT_FAILURE;
 			}
+			if (!opt_do_run)
+				goto unmap_cont;
 		}
 
+unmap_cont:
 		if (!keep)
 			(void)munmap(buf, opt_vm_bytes);
 
@@ -1171,11 +1183,15 @@ static int stress_cache(
 			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
 				mem_chunk[i] += mem_chunk[(MEM_CHUNK_SIZE - 1) - i] + r;
 				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+				if (!opt_do_run)
+					break;
 			}
 		} else {
 			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
 				total += mem_chunk[i] + mem_chunk[(MEM_CHUNK_SIZE - 1) - i];
 				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+				if (!opt_do_run)
+					break;
 			}
 		}
 #if defined(__linux__)
@@ -1414,9 +1430,13 @@ static int stress_fallocate(
 
 	do {
 		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
+		if (!opt_do_run)
+			break;
 		fsync(fd);
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
+		if (!opt_do_run)
+			break;
 		fsync(fd);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -1674,6 +1694,8 @@ static int stress_dentry(
 			(*counter)++;
 		}
 		stress_dentry_unlink(n);
+		if (!opt_do_run)
+			break;
 		sync();
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
@@ -1772,6 +1794,8 @@ static int stress_float(
 			b = b + cos(c);
 			c = sin(a) / 2.344;
 			b = d - 1.0;
+			if (!opt_do_run)
+				break;
 		}
 		double_put(a, b, c, d);
 
@@ -1832,6 +1856,8 @@ static int stress_int(
 			b /= 9;
 			a |= 0x1000100010001000ULL;
 			b &= 0xffeffffefebefffeULL;
+			if (!opt_do_run)
+				break;
 		}
 		uint64_put(a, b);
 
@@ -1860,6 +1886,8 @@ static int stress_semaphore(
 		for (i = 0; i < 1000; i++) {
 			sem_wait(&sem);
 			sem_post(&sem);
+			if (!opt_do_run)
+				break;
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -1889,10 +1917,14 @@ static int stress_open(
 			fds[i] = open("/dev/zero", O_RDONLY);
 			if (fds[i] < 0)
 				break;
+			if (!opt_do_run)
+				break;
 			(*counter)++;
 		}
 		for (i = 0; i < STRESS_FD_MAX; i++) {
 			if (fds[i] < 0)
+				break;
+			if (!opt_do_run)
 				break;
 			(void)close(fds[i]);
 		}
@@ -2003,6 +2035,8 @@ static int stress_poll(
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		(void)select(0, NULL, NULL, NULL, &tv);
+		if (!opt_do_run)
+			break;
 		(void)sleep(0);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -2247,17 +2281,24 @@ static const struct option long_options[] = {
 };
 
 /*
- *  send_alarm()
- * 	kill tasks using SIGALRM
+ *  kill_procs()
+ * 	kill tasks using signal
  */
-static void send_alarm(void)
+static void kill_procs(int sig)
 {
+	static int count = 0;
 	int i;
+
+	/* multiple calls will always fallback to SIGKILL */
+	count++;
+	if (count > 5)
+		sig = SIGKILL;
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
 		for (j = 0; j < started_procs[i]; j++) {
-			(void)kill(procs[i][j].pid, SIGALRM);
+			if (procs[i][j].pid)
+				(void)kill(procs[i][j].pid, sig);
 		}
 	}
 }
@@ -2269,7 +2310,7 @@ static void send_alarm(void)
 static void handle_sigint(int dummy)
 {
 	(void)dummy;
-	send_alarm();
+	kill_procs(SIGALRM);
 }
 
 /*
@@ -2285,6 +2326,7 @@ static void proc_finished(const pid_t pid)
 		for (j = 0; j < started_procs[i]; j++) {
 			if (procs[i][j].pid == pid) {
 				procs[i][j].finish = now;
+				procs[i][j].pid = 0;
 				return;
 			}
 		}
@@ -2796,7 +2838,7 @@ int main(int argc, char **argv)
 				case -1:
 					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
-					send_alarm();
+					kill_procs(SIGALRM);
 					goto out;
 				case 0:
 					/* Child */
@@ -2844,7 +2886,7 @@ int main(int argc, char **argv)
 			pr_dbg(stderr, "process [%d] terminated\n", pid);
 			n_procs--;
 		} else if (pid == -1) {
-			send_alarm();
+			kill_procs(SIGALRM);
 			printf("Break\n");
 		}
 	}
