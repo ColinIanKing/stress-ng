@@ -2165,7 +2165,7 @@ static const help_t help[] = {
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
 	{ "u N",	"urandom N",		"start M workers reading /dev/urandom" },
-	{ NULL,		"urandom-ops N",	"start when N urandom bogo read operations completed" },
+	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
 #endif
 	{ "v",		"verbose",		"verbose output" },
 	{ "V",		"version",		"show version" },
