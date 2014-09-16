@@ -118,7 +118,8 @@
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_DENTRIES	(2048)
-#define DEFAULT_LINKS		(4096)
+#define DEFAULT_LINKS		(8192)
+#define DEFAULT_DIRS		(8192)
 
 #define CTXT_STOP		'X'
 #define PIPE_STOP		'S'
@@ -165,6 +166,7 @@ enum {
 	STRESS_POLL,
 	STRESS_LINK,
 	STRESS_SYMLINK,
+	STRESS_DIR,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -235,7 +237,9 @@ enum {
 	OPT_LINK,
 	OPT_LINK_OPS,
 	OPT_SYMLINK,
-	OPT_SYMLINK_OPS
+	OPT_SYMLINK_OPS,
+	OPT_DIR,
+	OPT_DIR_OPS
 };
 
 #if defined (__linux__)
@@ -334,7 +338,8 @@ static const stress_t stressors[] = {
 	{ "sigq",	"SigQueue" },
 	{ "poll",	"Poll" },
 	{ "link",	"Link" },
-	{ "symlink",	"Symlink" }
+	{ "symlink",	"Symlink" },
+	{ "dir",	"Directory" }
 	/* Add new stress tests here */
 };
 
@@ -2167,6 +2172,75 @@ static int stress_symlink(
 		max_ops, name, symlink, "symlink");
 }
 
+/*
+ *  stress_dir_tidy()
+ *	remove all dentries
+ */
+static void stress_dir_tidy(const uint64_t n)
+{
+	uint64_t i;
+	pid_t pid = getpid();
+
+	for (i = 0; i < n; i++) {
+		char path[PATH_MAX];
+		uint64_t gray_code = (i >> 1) ^ i;
+
+		snprintf(path, sizeof(path), "stress-dir-%i-%"
+			PRIu64, pid, gray_code);
+		(void)rmdir(path);
+	}
+}
+
+/*
+ *  stress_dir
+ *	stress directory mkdir and rmdir
+ */
+static int stress_dir(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	pid_t pid = getpid();
+
+	(void)instance;
+
+	do {
+		uint64_t i, n = DEFAULT_DIRS;
+
+		for (i = 0; i < n; i++) {
+			char path[PATH_MAX];
+			uint64_t gray_code = (i >> 1) ^ i;
+
+			snprintf(path, sizeof(path), "stress-dir-%i-%"
+				PRIu64, pid, gray_code);
+			if (mkdir(path, 0666) < 0) {
+				pr_err(stderr, "%s: mkdir failed: errno=%d (%s)\n",
+					name, errno, strerror(errno));
+				n = i;
+				break;
+			}
+
+			if (!opt_do_run ||
+			    (max_ops && *counter >= max_ops))
+				goto abort;
+
+			(*counter)++;
+		}
+		stress_dir_tidy(n);
+		if (!opt_do_run)
+			break;
+		sync();
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+abort:
+	/* force unlink of all files */
+	pr_dbg(stdout, "%s: removing %" PRIu32 " directories\n", name, DEFAULT_DIRS);
+	stress_dir_tidy(DEFAULT_DIRS);
+
+	return EXIT_SUCCESS;
+}
+
 
 /* stress tests */
 static const func stress_funcs[] = {
@@ -2193,7 +2267,8 @@ static const func stress_funcs[] = {
 	stress_sigq,
 	stress_poll,
 	stress_link,
-	stress_symlink
+	stress_symlink,
+	stress_dir
 	/* Add new stress tests here */
 };
 
@@ -2222,6 +2297,8 @@ static const help_t help[] = {
 	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
 	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
+	{ NULL,		"dir N",		"start N directory thrashing processes" },
+	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
@@ -2411,6 +2488,8 @@ static const struct option long_options[] = {
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
 	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
+	{ "dir",	1,	0,	OPT_DIR },
+	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2671,6 +2750,11 @@ int main(int argc, char **argv)
 			num_procs[STRESS_SYMLINK] = opt_long("symlink", optarg);
 			check_value(stressors[STRESS_SYMLINK].label, num_procs[STRESS_SYMLINK]);
 			break;
+		case OPT_DIR:
+			opt_flags |= OPT_FLAGS_SET;
+			num_procs[STRESS_DIR] = opt_long("dir", optarg);
+			check_value(stressors[STRESS_DIR].label, num_procs[STRESS_DIR]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			opt_flags |= OPT_FLAGS_SET;
@@ -2813,6 +2897,10 @@ int main(int argc, char **argv)
 		case OPT_SYMLINK_OPS:
 			opt_ops[STRESS_SYMLINK] = get_uint64(optarg);
 			check_range("symlink-ops", opt_ops[STRESS_SYMLINK], 1000, 100000000);
+			break;
+		case OPT_DIR_OPS:
+			opt_ops[STRESS_DIR] = get_uint64(optarg);
+			check_range("dir-ops", opt_ops[STRESS_DIR], 1000, 100000000);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
