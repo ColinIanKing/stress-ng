@@ -118,6 +118,7 @@
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_DENTRIES	(2048)
+#define DEFAULT_LINKS		(4096)
 
 #define CTXT_STOP		'X'
 #define PIPE_STOP		'S'
@@ -162,6 +163,8 @@ enum {
 	STRESS_OPEN,
 	STRESS_SIGQUEUE,
 	STRESS_POLL,
+	STRESS_LINK,
+	STRESS_SYMLINK,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -229,6 +232,10 @@ enum {
 	OPT_OPEN_OPS,
 	OPT_POLL,
 	OPT_POLL_OPS,
+	OPT_LINK,
+	OPT_LINK_OPS,
+	OPT_SYMLINK,
+	OPT_SYMLINK_OPS
 };
 
 #if defined (__linux__)
@@ -325,7 +332,9 @@ static const stress_t stressors[] = {
 	{ "semaphore",	"Semaphore" },
 	{ "open",	"Open" },
 	{ "sigq",	"SigQueue" },
-	{ "poll",	"Poll" }
+	{ "poll",	"Poll" },
+	{ "link",	"Link" },
+	{ "symlink",	"Symlink" }
 	/* Add new stress tests here */
 };
 
@@ -2049,6 +2058,116 @@ static int stress_poll(
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_link_unlink()
+ *	remove all links
+ */
+static void stress_link_unlink(const char *funcname, const uint64_t n)
+{
+	uint64_t i;
+	pid_t pid = getpid();
+
+	for (i = 0; i < n; i++) {
+		char path[PATH_MAX];
+
+		snprintf(path, sizeof(path), "stress-%s-%i-%"
+			PRIu64 ".lnk", funcname, pid, i);
+		(void)unlink(path);
+	}
+	sync();
+}
+
+/*
+ *  stress_link_generic
+ *	stress links, generic case
+ */
+static int stress_link_generic(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name,
+	int (*linkfunc)(const char *oldpath, const char *newpath),
+	const char *funcname)
+{
+	pid_t pid = getpid();
+	int fd;
+	char oldpath[PATH_MAX];
+
+	(void)instance;
+
+	snprintf(oldpath, sizeof(oldpath), "stress-%s-%i", funcname, pid);
+	if ((fd = open(oldpath, O_CREAT | O_RDWR, 0666)) < 0) {
+		pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
+			oldpath, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	(void)close(fd);
+
+	do {
+		uint64_t i, n = DEFAULT_LINKS;
+
+		for (i = 0; i < n; i++) {
+			char newpath[PATH_MAX];
+
+			snprintf(newpath, sizeof(newpath), "stress-%s-%i-%"
+				PRIu64 ".lnk", funcname, pid, i);
+
+			if (linkfunc(oldpath, newpath) < 0) {
+				pr_err(stderr, "%s: %s failed: errno=%d (%s)\n",
+					name, funcname, errno, strerror(errno));
+				n = i;
+				break;
+			}
+
+			if (!opt_do_run ||
+			    (max_ops && *counter >= max_ops))
+				goto abort;
+
+			(*counter)++;
+		}
+		stress_link_unlink(funcname, n);
+		if (!opt_do_run)
+			break;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+abort:
+	/* force unlink of all files */
+	pr_dbg(stdout, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
+	stress_link_unlink(funcname, DEFAULT_LINKS);
+	(void)unlink(oldpath);
+
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_link
+ *	stress hard links
+ */
+static int stress_link(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_link_generic(counter, instance,
+		max_ops, name, link, "link");
+}
+
+/*
+ *  stress_symlink
+ *	stress symbolic links
+ */
+static int stress_symlink(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_link_generic(counter, instance,
+		max_ops, name, symlink, "symlink");
+}
+
+
 /* stress tests */
 static const func stress_funcs[] = {
 	stress_iosync,
@@ -2073,6 +2192,8 @@ static const func stress_funcs[] = {
 	stress_open,
 	stress_sigq,
 	stress_poll,
+	stress_link,
+	stress_symlink
 	/* Add new stress tests here */
 };
 
@@ -2122,6 +2243,8 @@ static const help_t help[] = {
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
+	{ NULL,		"link N",		"start N workers creating hard links" },
+	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
@@ -2159,6 +2282,8 @@ static const help_t help[] = {
 	{ "S N",	"sock N",		"start N workers doing socket activity" },
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
+	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
+	{ NULL,		"symlink-ops N",	"stop when N symbolic link bogo operations completed" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 #if defined (__linux__)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
@@ -2282,6 +2407,10 @@ static const struct option long_options[] = {
 	{ "keep-name",	0,	0,	'k' },
 	{ "poll",	1,	0,	'P' },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
+	{ "link",	1,	0,	OPT_LINK },
+	{ "link-ops",	1,	0,	OPT_LINK_OPS },
+	{ "symlink",	1,	0,	OPT_SYMLINK },
+	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2532,6 +2661,16 @@ int main(int argc, char **argv)
 			num_procs[STRESS_POLL] = opt_long("poll", optarg);
 			check_value(stressors[STRESS_POLL].label, num_procs[STRESS_POLL]);
 			break;
+		case OPT_LINK:
+			opt_flags |= OPT_FLAGS_SET;
+			num_procs[STRESS_LINK] = opt_long("link", optarg);
+			check_value(stressors[STRESS_LINK].label, num_procs[STRESS_LINK]);
+			break;
+		case OPT_SYMLINK:
+			opt_flags |= OPT_FLAGS_SET;
+			num_procs[STRESS_SYMLINK] = opt_long("symlink", optarg);
+			check_value(stressors[STRESS_SYMLINK].label, num_procs[STRESS_SYMLINK]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			opt_flags |= OPT_FLAGS_SET;
@@ -2666,6 +2805,14 @@ int main(int argc, char **argv)
 		case OPT_POLL_OPS:
 			opt_ops[STRESS_POLL] = get_uint64(optarg);
 			check_range("poll-ops", opt_ops[STRESS_POLL], 1000, 100000000);
+			break;
+		case OPT_LINK_OPS:
+			opt_ops[STRESS_LINK] = get_uint64(optarg);
+			check_range("link-ops", opt_ops[STRESS_LINK], 1000, 100000000);
+			break;
+		case OPT_SYMLINK_OPS:
+			opt_ops[STRESS_SYMLINK] = get_uint64(optarg);
+			check_range("symlink-ops", opt_ops[STRESS_SYMLINK], 1000, 100000000);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
