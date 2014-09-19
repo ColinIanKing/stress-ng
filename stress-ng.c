@@ -29,6 +29,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdarg.h>
+#include <setjmp.h>
 #include <string.h>
 #include <unistd.h>
 #include <inttypes.h>
@@ -167,6 +168,7 @@ enum {
 	STRESS_LINK,
 	STRESS_SYMLINK,
 	STRESS_DIR,
+	STRESS_SIGSEGV,
 	/* Add new stress tests here */
 	STRESS_MAX
 };
@@ -239,7 +241,9 @@ enum {
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
 	OPT_DIR,
-	OPT_DIR_OPS
+	OPT_DIR_OPS,
+	OPT_SIGSEGV,
+	OPT_SIGSEGV_OPS
 };
 
 #if defined (__linux__)
@@ -339,7 +343,8 @@ static const stress_t stressors[] = {
 	{ "poll",	"Poll" },
 	{ "link",	"Link" },
 	{ "symlink",	"Symlink" },
-	{ "dir",	"Directory" }
+	{ "dir",	"Directory" },
+	{ "sigsegv",	"SigSEGV" }
 	/* Add new stress tests here */
 };
 
@@ -2241,6 +2246,63 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static sigjmp_buf jmp_env;
+
+/*
+ *  stress_segvhandler()
+ *	SEGV handler
+ */
+static void stress_segvhandler(int dummy)
+{
+	(void)dummy;
+
+	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+
+/*
+ *  stress_sigsegv
+ *	stress by generating segmentation faults
+ */
+static int stress_sigsegv(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	uint8_t *ptr = NULL;
+
+	(void)instance;
+
+	for (;;) {
+		struct sigaction new_action;
+		int ret;
+
+		memset(&new_action, 0, sizeof new_action);
+		new_action.sa_handler = stress_segvhandler;
+		sigemptyset(&new_action.sa_mask);
+		new_action.sa_flags = 0;
+
+		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
+			pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		ret = sigsetjmp(jmp_env, 1);
+		/*
+		 * We return here if we segfault, so
+		 * first check if we need to terminate
+		 */
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		if (ret)
+			(*counter)++;	/* SEGV occurred */
+		else
+			*ptr = 0;	/* Trip a SEGV */
+	}
+
+	return EXIT_SUCCESS;
+}
 
 /* stress tests */
 static const func stress_funcs[] = {
@@ -2268,7 +2330,8 @@ static const func stress_funcs[] = {
 	stress_poll,
 	stress_link,
 	stress_symlink,
-	stress_dir
+	stress_dir,
+	stress_sigsegv
 	/* Add new stress tests here */
 };
 
@@ -2354,6 +2417,8 @@ static const help_t help[] = {
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
 #endif
+	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
+	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
 	{ "S N",	"sock N",		"start N workers doing socket activity" },
@@ -2490,6 +2555,8 @@ static const struct option long_options[] = {
 	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
 	{ "dir",	1,	0,	OPT_DIR },
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
+	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
+	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2755,6 +2822,11 @@ int main(int argc, char **argv)
 			num_procs[STRESS_DIR] = opt_long("dir", optarg);
 			check_value(stressors[STRESS_DIR].label, num_procs[STRESS_DIR]);
 			break;
+		case OPT_SIGSEGV:
+			opt_flags |= OPT_FLAGS_SET;
+			num_procs[STRESS_SIGSEGV] = opt_long("sigsegv", optarg);
+			check_value(stressors[STRESS_SIGSEGV].label, num_procs[STRESS_SIGSEGV]);
+			break;
 #if defined(__linux__)
 		case OPT_AFFINITY:
 			opt_flags |= OPT_FLAGS_SET;
@@ -2901,6 +2973,10 @@ int main(int argc, char **argv)
 		case OPT_DIR_OPS:
 			opt_ops[STRESS_DIR] = get_uint64(optarg);
 			check_range("dir-ops", opt_ops[STRESS_DIR], 1000, 100000000);
+			break;
+		case OPT_SIGSEGV_OPS:
+			opt_ops[STRESS_SIGSEGV] = get_uint64(optarg);
+			check_range("sigsegv-ops", opt_ops[STRESS_SIGSEGV], 1000, 100000000);
 			break;
 #if defined(__linux__)
 		case OPT_AFFINITY_OPS:
