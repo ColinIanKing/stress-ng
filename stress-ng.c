@@ -278,7 +278,7 @@ typedef enum {
 typedef struct {
 	const func stress_func;		/* stress test function */
 	const stress_id id;		/* stress test ID */
-	const int short_getopt;		/* getopt short option */
+	const short int short_getopt;	/* getopt short option */
 	const stress_op op;		/* ops option */
 	const char *name;		/* name of stress test */
 } stress_t;
