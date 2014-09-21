@@ -128,11 +128,8 @@
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
-/* stress test metadata */
-typedef struct {
-	const char *name;		/* name of stress test */
-	const char *label;		/* human readable label */
-} stress_t;
+/* stress process prototype */
+typedef int (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
 
 /* Help information for options */
 typedef struct {
@@ -142,7 +139,7 @@ typedef struct {
 } help_t;
 
 /* Stress tests */
-enum {
+typedef enum {
 	STRESS_IOSYNC	= 0,
 	STRESS_CPU,
 	STRESS_VM,
@@ -171,10 +168,10 @@ enum {
 	STRESS_SIGSEGV,
 	/* Add new stress tests here */
 	STRESS_MAX
-};
+} stress_id;
 
 /* Command line long options */
-enum {
+typedef enum {
 	OPT_VM_BYTES = 1,
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
@@ -244,7 +241,19 @@ enum {
 	OPT_DIR_OPS,
 	OPT_SIGSEGV,
 	OPT_SIGSEGV_OPS
-};
+} stress_op;
+
+/* stress test metadata */
+typedef struct {
+	const func stress_func;		/* stress test function */
+	const stress_id id;		/* stress test ID */
+	const int short_getopt;		/* getopt short option */
+	const stress_op op;		/* ops option */
+	const uint64_t lo;		/* low ops threshold */
+	const uint64_t hi;		/* high opts threshold */
+	const char *name;		/* name of stress test */
+	const char *label;		/* human readable label */
+} stress_t;
 
 #if defined (__linux__)
 /*
@@ -262,9 +271,6 @@ enum {
 
 #define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
 #endif
-
-/* stress process prototype */
-typedef int (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
 
 typedef struct {
 	pid_t	pid;		/* process id */
@@ -317,37 +323,6 @@ static proc_info_t *procs[STRESS_MAX];			/* per process info */
 extern void double_put(double a, double b, double c, double d);
 extern void uint64_put(uint64_t a, uint64_t b);
 
-/* Human readable stress test names */
-static const stress_t stressors[] = {
-	{ "iosync",	"I/O-Sync" },
-	{ "cpu",	"CPU" },
-	{ "vm",		"VM-mmap" },
-	{ "hdd",	"HDD-Write" },
-	{ "fork",	"Fork" },
-	{ "ctxt",	"Context-switch" },
-	{ "pipe",	"Pipe" },
-	{ "cache",	"Cache" },
-	{ "socket",	"Socket" },
-	{ "yield",	"Yield" },
-	{ "fallocate",	"Fallocate" },
-	{ "flock",	"Flock" },
-	{ "affinity",	"Affinity" },
-	{ "timer",	"Timer" },
-	{ "dentry",	"Dentry" },
-	{ "urandom",	"Urandom" },
-	{ "float",	"Float" },
-	{ "int",	"Int" },
-	{ "semaphore",	"Semaphore" },
-	{ "open",	"Open" },
-	{ "sigq",	"SigQueue" },
-	{ "poll",	"Poll" },
-	{ "link",	"Link" },
-	{ "symlink",	"Symlink" },
-	{ "dir",	"Directory" },
-	{ "sigsegv",	"SigSEGV" }
-	/* Add new stress tests here */
-};
-
 /*
  *  Catch signals and set flag to break out of stress loops
  */
@@ -396,7 +371,7 @@ static int stress_sethandler(const char *stress)
  *	fast pseudo random number generator, see
  *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-static inline uint64_t mwc(void)
+static uint64_t mwc(void)
 {
 	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
 	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
@@ -407,7 +382,7 @@ static inline uint64_t mwc(void)
  *  mwc_reseed()
  *	dirty mwc reseed
  */
-static inline void mwc_reseed(void)
+static  void mwc_reseed(void)
 {
 	struct timeval tv;
 	int i, n;
@@ -428,7 +403,7 @@ static inline void mwc_reseed(void)
  *  timeval_to_double()
  *      convert timeval to seconds as a double
  */
-static inline double timeval_to_double(const struct timeval *tv)
+static double timeval_to_double(const struct timeval *tv)
 {
 	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
@@ -437,7 +412,7 @@ static inline double timeval_to_double(const struct timeval *tv)
  *  time_now()
  *	time in seconds as a double
  */
-static inline double time_now(void)
+static double time_now(void)
 {
 	struct timeval now;
 
@@ -607,7 +582,7 @@ static int get_opt_sched(const char *const str)
  *  ioprio_set()
  *	ioprio_set system call
  */
-static inline int ioprio_set(const int which, const int who, const int ioprio)
+static int ioprio_set(const int which, const int who, const int ioprio)
 {
         return syscall(SYS_ioprio_set, which, who, ioprio);
 }
@@ -940,10 +915,10 @@ unmap_cont:
 }
 
 /*
- *  stress_io
+ *  stress_hdd
  *	stress I/O via writes
  */
-static int stress_io(
+static int stress_hdd(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
@@ -2304,42 +2279,79 @@ static int stress_sigsegv(
 	return EXIT_SUCCESS;
 }
 
-/* stress tests */
-static const func stress_funcs[] = {
-	stress_iosync,
-	stress_cpu,
-	stress_vm,
-	stress_io,
-	stress_fork,
-	stress_ctxt,
-	stress_pipe,
-	stress_cache,
-	stress_socket,
-	stress_yield,
-	stress_fallocate,
-	stress_flock,
-	stress_affinity,
-	stress_timer,
-	stress_dentry,
-	stress_urandom,
-	stress_float,
-	stress_int,
-	stress_semaphore,
-	stress_open,
-	stress_sigq,
-	stress_poll,
-	stress_link,
-	stress_symlink,
-	stress_dir,
-	stress_sigsegv
+static int stress_noop(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	(void)counter;
+	(void)instance;
+	(void)max_ops;
+	(void)name;
+
+	return EXIT_SUCCESS;
+}
+
+/* Human readable stress test names */
+static const stress_t stressors[] = {
+	{ stress_iosync, STRESS_IOSYNC,	'i',	OPT_IOSYNC_OPS, 1000, 100000000,	"iosync",	"I/O-Sync" },
+	{ stress_cpu,	 STRESS_CPU,	'c',	OPT_CPU_OPS,	1000, 100000000,	"cpu",		"CPU" },
+	{ stress_vm,	 STRESS_VM,	'm',	OPT_VM_OPS,	 100, 100000000,	"vm",		"VM-mmap" },
+	{ stress_hdd,	 STRESS_HDD,	'd',	OPT_HDD_OPS,	1000, 100000000, 	"hdd",		"HDD-Write" },
+	{ stress_fork,	 STRESS_FORK,	'f',	OPT_FORK_OPS,   1000, 100000000,	"fork",		"Fork" },
+	{ stress_ctxt,	 STRESS_CTXT,	's',	OPT_CTXT_OPS,   1000, 100000000,	"ctxt",		"Context-switch" },
+	{ stress_pipe,	 STRESS_PIPE,	'p',	OPT_PIPE_OPS,   1000, 100000000,	"pipe",		"Pipe" },
+	{ stress_cache,  STRESS_CACHE,	'C',	OPT_CACHE_OPS,  1000, 100000000,	"cache",	"Cache" },
+	{ stress_socket, STRESS_SOCKET, 'S',	OPT_SOCKET_OPS, 1000, 100000000,	"socket",	"Socket" },
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+	{ stress_yield,	 STRESS_YIELD,	'y',	OPT_YIELD_OPS,  1000, 100000000,	"yield",	"Yield" },
+#endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+	{ stress_fallocate, STRESS_FALLOCATE, 'F', OPT_FALLOCATE_OPS, 1000, 100000000, "fallocate",	"Fallocate" },
+#endif
+	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,   OPT_FLOCK_OPS,	1000, 100000000,	"flock",	"Flock" },
+#if defined(__linux__)
+	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS, 1000, 100000000,  "affinity",	"Affinity" },
+#endif
+#if defined(__linux__)
+	{ stress_timer,	 STRESS_TIMER,	'T',	OPT_TIMER_OPS,	1000, 100000000,	"timer",	"Timer" },
+#endif
+	{ stress_dentry, STRESS_DENTRY, 'D',	OPT_DENTRY_OPS, 1000, 100000000,	"dentry",	"Dentry" },
+#if defined(__linux__)
+	{ stress_urandom,STRESS_URANDOM,'u',	OPT_URANDOM_OPS,1000, 100000000,	"urandom",	"Urandom" },
+#endif
+	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, OPT_FLOAT_OPS,	1000, 100000000,	"float",	"Float" },
+	{ stress_int,	 STRESS_INT,	OPT_INT,   OPT_INT_OPS,	1000, 100000000,	"int",		"Int" },
+	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, 1000, 100000000,"semaphore",	"Semaphore" },
+	{ stress_open,	 STRESS_OPEN,	'o',  OPT_OPEN_OPS,	1000, 100000000,	"open",		"Open" },
+#if  _POSIX_C_SOURCE >= 199309L
+	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS, 1000, 100000000,	"sigq",		"SigQueue" },
+#endif
+	{ stress_poll,	 STRESS_POLL,	'P',	OPT_POLL_OPS,	1000, 100000000,	"poll",		"Poll" },
+	{ stress_link,	 STRESS_LINK,	OPT_LINK, OPT_LINK_OPS,	1000, 100000000,	"link",		"Link" },
+	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK, OPT_SYMLINK_OPS,1000, 100000000,	"symlink",	"Symlink" },
+	{ stress_dir,	 STRESS_DIR,	OPT_DIR, OPT_DIR_OPS,	1000, 100000000,	"dir",		"Directory" },
+	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV, OPT_SIGSEGV_OPS,1000, 100000000,	"sigsegv",	"SigSEGV" }
 	/* Add new stress tests here */
 };
+
+static func stress_func(stress_id id)
+{
+	unsigned int i;
+
+	for (i = 0; i < STRESS_MAX; i++)
+		if (i == id)
+			return stressors[i].stress_func;
+
+	return stress_noop;
+}
 
 /*
  *  version()
  *	print program version info
  */
-static inline void version(void)
+static void version(void)
 {
 	printf(APP_NAME ", version " VERSION "\n");
 }
@@ -2560,6 +2572,17 @@ static const struct option long_options[] = {
 	{ NULL,		0, 	0, 	0 }
 };
 
+static const char *opt_name(int opt_val)
+{
+	int i;
+
+	for (i = 0; long_options[i].name; i++)
+		if (long_options[i].val == opt_val)
+			return long_options[i].name;
+
+	return "<unknown>";
+}
+
 /*
  *  kill_procs()
  * 	kill tasks using signal
@@ -2663,12 +2686,29 @@ int main(int argc, char **argv)
 	mwc_reseed();
 
 	for (;;) {
-		int c;
-		int option_index;
-
+		int c, option_index;
+		stress_id id;
+next_opt:
 		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:k",
 			long_options, &option_index)) == -1)
 			break;
+
+		for (id = 0; id < STRESS_MAX; id++) {
+			if (stressors[id].short_getopt == c) {
+				const char *name = opt_name(c);
+
+				opt_flags |= OPT_FLAGS_SET;
+				num_procs[id] = opt_long(name, optarg);
+				check_value(name, num_procs[id]);
+				goto next_opt;
+			}
+			if (stressors[id].op == (stress_op)c) {
+				opt_ops[id] = get_uint64(optarg);
+				check_range(opt_name(c), opt_ops[id], stressors[id].lo, stressors[id].hi);
+				goto next_opt;
+			}
+		}
+
 		switch (c) {
 		case 'a':
 			opt_flags |= OPT_FLAGS_SET;
@@ -2706,60 +2746,6 @@ int main(int argc, char **argv)
 		case 'b':
 			opt_backoff = opt_long("backoff", optarg);
 			break;
-		case 'c':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_CPU] = opt_long("cpu", optarg);
-			check_value(stressors[STRESS_CPU].label, num_procs[STRESS_CPU]);
-			break;
-		case 'i':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_IOSYNC] = opt_long("io", optarg);
-			check_value(stressors[STRESS_IOSYNC].label, num_procs[STRESS_IOSYNC]);
-			break;
-		case 'm':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_VM] = opt_long("vm", optarg);
-			check_value(stressors[STRESS_VM].label, num_procs[STRESS_VM]);
-			break;
-		case 'd':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_HDD] = opt_long("hdd", optarg);
-			check_value(stressors[STRESS_HDD].label, num_procs[STRESS_HDD]);
-			break;
-		case 'D':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_DENTRY] = opt_long("dentry", optarg);
-			check_value(stressors[STRESS_DENTRY].label, num_procs[STRESS_DENTRY]);
-			break;
-		case 'f':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_FORK] = opt_long("fork", optarg);
-			check_value(stressors[STRESS_FORK].label, num_procs[STRESS_FORK]);
-			break;
-		case 's':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_CTXT] = opt_long("switch", optarg);
-			check_value(stressors[STRESS_CTXT].label, num_procs[STRESS_CTXT]);
-			break;
-		case 'p':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_PIPE] = opt_long("pipe", optarg);
-			check_value(stressors[STRESS_PIPE].label, num_procs[STRESS_PIPE]);
-			break;
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-		case 'F':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_FALLOCATE] = opt_long("fallocate", optarg);
-			check_value(stressors[STRESS_FALLOCATE].label, num_procs[STRESS_FALLOCATE]);
-			break;
-#endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
-		case 'y':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_YIELD] = opt_long("yield", optarg);
-			check_value(stressors[STRESS_YIELD].label, num_procs[STRESS_YIELD]);
-			break;
-#endif
 		case 'l':
 			opt_cpu_load = opt_long("cpu load", optarg);
 			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
@@ -2767,90 +2753,6 @@ int main(int argc, char **argv)
 				exit(EXIT_FAILURE);
 			}
 			break;
-		case 'C':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_CACHE] = opt_long("cache", optarg);
-			check_value(stressors[STRESS_CACHE].label, num_procs[STRESS_CACHE]);
-			break;
-		case 'S':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_SOCKET] = opt_long("socket", optarg);
-			check_value(stressors[STRESS_SOCKET].label, num_procs[STRESS_SOCKET]);
-			break;
-		case OPT_FLOCK:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_FLOCK] = opt_long("flock", optarg);
-			check_value(stressors[STRESS_FLOCK].label, num_procs[STRESS_FLOCK]);
-			break;
-		case OPT_FLOAT:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_FLOAT] = opt_long("float", optarg);
-			check_value(stressors[STRESS_FLOAT].label, num_procs[STRESS_FLOAT]);
-			break;
-		case OPT_INT:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_INT] = opt_long("int", optarg);
-			check_value(stressors[STRESS_INT].label, num_procs[STRESS_INT]);
-			break;
-		case OPT_SEMAPHORE:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_SEMAPHORE] = opt_long("sem", optarg);
-			check_value(stressors[STRESS_SEMAPHORE].label, num_procs[STRESS_SEMAPHORE]);
-			break;
-		case 'o':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_OPEN] = opt_long("open", optarg);
-			check_value(stressors[STRESS_OPEN].label, num_procs[STRESS_OPEN]);
-			break;
-		case 'P':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_POLL] = opt_long("poll", optarg);
-			check_value(stressors[STRESS_POLL].label, num_procs[STRESS_POLL]);
-			break;
-		case OPT_LINK:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_LINK] = opt_long("link", optarg);
-			check_value(stressors[STRESS_LINK].label, num_procs[STRESS_LINK]);
-			break;
-		case OPT_SYMLINK:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_SYMLINK] = opt_long("symlink", optarg);
-			check_value(stressors[STRESS_SYMLINK].label, num_procs[STRESS_SYMLINK]);
-			break;
-		case OPT_DIR:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_DIR] = opt_long("dir", optarg);
-			check_value(stressors[STRESS_DIR].label, num_procs[STRESS_DIR]);
-			break;
-		case OPT_SIGSEGV:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_SIGSEGV] = opt_long("sigsegv", optarg);
-			check_value(stressors[STRESS_SIGSEGV].label, num_procs[STRESS_SIGSEGV]);
-			break;
-#if defined(__linux__)
-		case OPT_AFFINITY:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_AFFINITY] = opt_long("affinity", optarg);
-			check_value(stressors[STRESS_AFFINITY].label, num_procs[STRESS_AFFINITY]);
-			break;
-		case 'T':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_TIMER] = opt_long("timer", optarg);
-			check_value(stressors[STRESS_TIMER].label, num_procs[STRESS_TIMER]);
-			break;
-		case 'u':
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_URANDOM] = opt_long("urandom", optarg);
-			check_value(stressors[STRESS_URANDOM].label, num_procs[STRESS_URANDOM]);
-			break;
-#endif
-#if  _POSIX_C_SOURCE >= 199309L
-		case OPT_SIGQUEUE:
-			opt_flags |= OPT_FLAGS_SET;
-			num_procs[STRESS_SIGQUEUE] = opt_long("sigq", optarg);
-			check_value(stressors[STRESS_SIGQUEUE].label, num_procs[STRESS_SIGQUEUE]);
-			break;
-#endif
 		case 'M':
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
@@ -2886,131 +2788,19 @@ int main(int argc, char **argv)
 		case OPT_HDD_NOCLEAN:
 			opt_flags |= OPT_FLAGS_NO_CLEAN;
 			break;
-		case OPT_CPU_OPS:
-			opt_ops[STRESS_CPU] = get_uint64(optarg);
-			check_range("cpu-ops", opt_ops[STRESS_CPU], 1000, 100000000);
-			break;
-		case OPT_IOSYNC_OPS:
-			opt_ops[STRESS_IOSYNC] = get_uint64(optarg);
-			check_range("io-ops", opt_ops[STRESS_IOSYNC], 1000, 100000000);
-			break;
-		case OPT_VM_OPS:
-			opt_ops[STRESS_VM] = get_uint64(optarg);
-			check_range("vm-ops", opt_ops[STRESS_VM], 100, 100000000);
-			break;
-		case OPT_HDD_OPS:
-			opt_ops[STRESS_HDD] = get_uint64(optarg);
-			check_range("hdd-ops", opt_ops[STRESS_HDD], 1000, 100000000);
-			break;
-		case OPT_DENTRY_OPS:
-			opt_ops[STRESS_DENTRY] = get_uint64(optarg);
-			check_range("dentry-ops", opt_ops[STRESS_DENTRY], 1, 100000000);
-			break;
 		case OPT_DENTRIES:
 			opt_dentries = get_uint64(optarg);
 			check_range("dentries", opt_dentries, 1, 100000000);
-			break;
-		case OPT_FORK_OPS:
-			opt_ops[STRESS_FORK] = get_uint64(optarg);
-			check_range("fork-ops", opt_ops[STRESS_FORK], 1000, 100000000);
-			break;
-		case OPT_CTXT_OPS:
-			opt_ops[STRESS_CTXT] = get_uint64(optarg);
-			check_range("switch-ops", opt_ops[STRESS_CTXT], 1000, 100000000);
-			break;
-		case OPT_PIPE_OPS:
-			opt_ops[STRESS_PIPE] = get_uint64(optarg);
-			check_range("pipe-ops", opt_ops[STRESS_PIPE], 1000, 100000000);
-			break;
-		case OPT_CACHE_OPS:
-			opt_ops[STRESS_CACHE] = get_uint64(optarg);
-			check_range("cache-ops", opt_ops[STRESS_CACHE], 1000, 100000000);
-			break;
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-		case OPT_FALLOCATE_OPS:
-			opt_ops[STRESS_FALLOCATE] = get_uint64(optarg);
-			check_range("fallocate-ops", opt_ops[STRESS_FALLOCATE], 1000, 100000000);
-			break;
-#endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
-		case OPT_YIELD_OPS:
-			opt_ops[STRESS_YIELD] = get_uint64(optarg);
-			check_range("yield-ops", opt_ops[STRESS_YIELD], 1000, 100000000);
-			break;
-#endif
-		case OPT_FLOCK_OPS:
-			opt_ops[STRESS_FLOCK] = get_uint64(optarg);
-			check_range("flock-ops", opt_ops[STRESS_FLOCK], 1000, 100000000);
-			break;
-		case OPT_FLOAT_OPS:
-			opt_ops[STRESS_FLOAT] = get_uint64(optarg);
-			check_range("float-ops", opt_ops[STRESS_FLOAT], 1000, 100000000);
-			break;
-		case OPT_INT_OPS:
-			opt_ops[STRESS_INT] = get_uint64(optarg);
-			check_range("int-ops", opt_ops[STRESS_INT], 1000, 100000000);
-			break;
-		case OPT_SEMAPHORE_OPS:
-			opt_ops[STRESS_SEMAPHORE] = get_uint64(optarg);
-			check_range("semaphore-ops", opt_ops[STRESS_SEMAPHORE], 1000, 100000000);
-			break;
-		case OPT_OPEN_OPS:
-			opt_ops[STRESS_OPEN] = get_uint64(optarg);
-			check_range("open-ops", opt_ops[STRESS_OPEN], 1000, 100000000);
-			break;
-		case OPT_POLL_OPS:
-			opt_ops[STRESS_POLL] = get_uint64(optarg);
-			check_range("poll-ops", opt_ops[STRESS_POLL], 1000, 100000000);
-			break;
-		case OPT_LINK_OPS:
-			opt_ops[STRESS_LINK] = get_uint64(optarg);
-			check_range("link-ops", opt_ops[STRESS_LINK], 1000, 100000000);
-			break;
-		case OPT_SYMLINK_OPS:
-			opt_ops[STRESS_SYMLINK] = get_uint64(optarg);
-			check_range("symlink-ops", opt_ops[STRESS_SYMLINK], 1000, 100000000);
-			break;
-		case OPT_DIR_OPS:
-			opt_ops[STRESS_DIR] = get_uint64(optarg);
-			check_range("dir-ops", opt_ops[STRESS_DIR], 1000, 100000000);
-			break;
-		case OPT_SIGSEGV_OPS:
-			opt_ops[STRESS_SIGSEGV] = get_uint64(optarg);
-			check_range("sigsegv-ops", opt_ops[STRESS_SIGSEGV], 1000, 100000000);
-			break;
-#if defined(__linux__)
-		case OPT_AFFINITY_OPS:
-			opt_ops[STRESS_AFFINITY] = get_uint64(optarg);
-			check_range("affinity-ops", opt_ops[STRESS_AFFINITY], 1000, 100000000);
-			break;
-		case OPT_TIMER_OPS:
-			opt_ops[STRESS_TIMER] = get_uint64(optarg);
-			check_range("timer-ops", opt_ops[STRESS_TIMER], 1000, 100000000);
-			break;
-		case OPT_TIMER_FREQ:
-			opt_timer_freq = get_uint64(optarg);
-			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
-			break;
-		case OPT_URANDOM_OPS:
-			opt_ops[STRESS_URANDOM] = get_uint64(optarg);
-			check_range("urandom-ops", opt_ops[STRESS_URANDOM], 1000, 100000000);
-			break;
-#endif
-#if  _POSIX_C_SOURCE >= 199309L
-		case OPT_SIGQUEUE_OPS:
-			opt_ops[STRESS_SIGQUEUE] = get_uint64(optarg);
-			check_range("sigq-ops", opt_ops[STRESS_SIGQUEUE], 1000, 100000000);
-			break;
-#endif
-		case OPT_SOCKET_OPS:
-			opt_ops[STRESS_SOCKET] = get_uint64(optarg);
-			check_range("sock-ops", opt_ops[STRESS_SOCKET], 1000, 100000000);
 			break;
 		case OPT_SOCKET_PORT:
 			opt_socket_port = get_uint64(optarg);
 			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
 			break;
 #if defined (__linux__)
+		case OPT_TIMER_FREQ:
+			opt_timer_freq = get_uint64(optarg);
+			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
+			break;
 		case OPT_SCHED:
 			opt_sched = get_opt_sched(optarg);
 			break;
@@ -3173,7 +2963,7 @@ int main(int argc, char **argv)
 
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stress_funcs[i](counters + (i * max) + j, j, opt_ops[i], name);
+						rc = stress_func(i)(counters + (i * max) + j, j, opt_ops[i], name);
 					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 					exit(rc);
