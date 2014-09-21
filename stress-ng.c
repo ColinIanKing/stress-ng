@@ -175,6 +175,40 @@ typedef enum {
 
 /* Command line long options */
 typedef enum {
+	OPT_QUERY = '?',
+	OPT_ALL = 'a',
+	OPT_BACKOFF = 'b',
+	OPT_CPU = 'c',
+	OPT_HDD = 'd',
+	OPT_FORK = 'f',
+	OPT_IOSYNC = 'i',
+	OPT_HELP = 'h',
+	OPT_KEEP_NAME = 'k',
+	OPT_CPU_LOAD = 'l',
+	OPT_VM = 'm',
+	OPT_DRY_RUN = 'n',
+	OPT_OPEN = 'o',
+	OPT_PIPE = 'p',
+	OPT_QUIET = 'q',
+	OPT_RANDOM = 'r',
+	OPT_CTXT = 's',
+	OPT_TIMEOUT = 't',
+#if defined (__linux__)
+	OPT_URANDOM = 'u',
+#endif
+	OPT_VERBOSE = 'v',
+	OPT_YIELD = 'y',
+	OPT_CACHE = 'C',
+	OPT_DENTRY = 'D',
+	OPT_FALLOCATE = 'F',
+	OPT_METRICS = 'M',
+	OPT_POLL = 'P',
+	OPT_SOCKET = 'S',
+#if defined (__linux__)
+	OPT_TIMER = 'T',
+#endif
+	OPT_VERSION = 'V',
+
 	OPT_VM_BYTES = 1,
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
@@ -187,7 +221,6 @@ typedef enum {
 #endif
 	OPT_HDD_BYTES,
 	OPT_HDD_NOCLEAN,
-	OPT_METRICS,
 	OPT_CPU_OPS,
 	OPT_IOSYNC_OPS,
 	OPT_VM_OPS,
@@ -205,10 +238,8 @@ typedef enum {
 	OPT_IONICE_LEVEL,
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
-	OPT_TIMER,
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
-	OPT_URANDOM,
 	OPT_URANDOM_OPS,
 #endif
 #if _POSIX_C_SOURCE >= 199309L
@@ -223,7 +254,6 @@ typedef enum {
 #endif
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
-	OPT_DENTRY,
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
 	OPT_FLOAT,
@@ -232,9 +262,7 @@ typedef enum {
 	OPT_INT_OPS,
 	OPT_SEMAPHORE,
 	OPT_SEMAPHORE_OPS,
-	OPT_OPEN,
 	OPT_OPEN_OPS,
-	OPT_POLL,
 	OPT_POLL_OPS,
 	OPT_LINK,
 	OPT_LINK_OPS,
@@ -2296,44 +2324,44 @@ static int stress_noop(
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
-	{ stress_iosync, STRESS_IOSYNC,	'i',	OPT_IOSYNC_OPS, 	"iosync",	"I/O-Sync" },
-	{ stress_cpu,	 STRESS_CPU,	'c',	OPT_CPU_OPS,		"cpu",		"CPU" },
-	{ stress_vm,	 STRESS_VM,	'm',	OPT_VM_OPS,		"vm",		"VM-mmap" },
-	{ stress_hdd,	 STRESS_HDD,	'd',	OPT_HDD_OPS,		"hdd",		"HDD-Write" },
-	{ stress_fork,	 STRESS_FORK,	'f',	OPT_FORK_OPS,   	"fork",		"Fork" },
-	{ stress_ctxt,	 STRESS_CTXT,	's',	OPT_CTXT_OPS,   	"ctxt",		"Context-switch" },
-	{ stress_pipe,	 STRESS_PIPE,	'p',	OPT_PIPE_OPS,   	"pipe",		"Pipe" },
-	{ stress_cache,  STRESS_CACHE,	'C',	OPT_CACHE_OPS,  	"cache",	"Cache" },
-	{ stress_socket, STRESS_SOCKET, 'S',	OPT_SOCKET_OPS, 	"socket",	"Socket" },
+	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync",	"I/O-Sync" },
+	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu",		"CPU" },
+	{ stress_vm,	 STRESS_VM,	OPT_VM,		OPT_VM_OPS,		"vm",		"VM-mmap" },
+	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd",		"HDD-Write" },
+	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork",		"Fork" },
+	{ stress_ctxt,	 STRESS_CTXT,	OPT_CTXT,	OPT_CTXT_OPS,   	"ctxt",		"Context-switch" },
+	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe",		"Pipe" },
+	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache",	"Cache" },
+	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket",	"Socket" },
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	{ stress_yield,	 STRESS_YIELD,	'y',	OPT_YIELD_OPS,  	"yield",	"Yield" },
+	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield",	"Yield" },
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	{ stress_fallocate, STRESS_FALLOCATE, 'F', OPT_FALLOCATE_OPS,	"fallocate",	"Fallocate" },
+	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate",	"Fallocate" },
 #endif
-	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,   OPT_FLOCK_OPS,	"flock",	"Flock" },
+	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock",	"Flock" },
 #if defined(__linux__)
-	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS, "affinity",	"Affinity" },
+	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity",	"Affinity" },
 #endif
 #if defined(__linux__)
-	{ stress_timer,	 STRESS_TIMER,	'T',	OPT_TIMER_OPS,		"timer",	"Timer" },
+	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer",	"Timer" },
 #endif
-	{ stress_dentry, STRESS_DENTRY, 'D',	OPT_DENTRY_OPS,		"dentry",	"Dentry" },
+	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry",	"Dentry" },
 #if defined(__linux__)
-	{ stress_urandom,STRESS_URANDOM,'u',	OPT_URANDOM_OPS,	"urandom",	"Urandom" },
+	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom",	"Urandom" },
 #endif
-	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, OPT_FLOAT_OPS,	"float",	"Float" },
-	{ stress_int,	 STRESS_INT,	OPT_INT,   OPT_INT_OPS,		"int",		"Int" },
+	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, 	OPT_FLOAT_OPS,		"float",	"Float" },
+	{ stress_int,	 STRESS_INT,	OPT_INT,   	OPT_INT_OPS,		"int",		"Int" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore",	"Semaphore" },
-	{ stress_open,	 STRESS_OPEN,	'o',  OPT_OPEN_OPS,		"open",		"Open" },
+	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open",		"Open" },
 #if  _POSIX_C_SOURCE >= 199309L
-	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,"sigq",		"SigQueue" },
+	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq",		"SigQueue" },
 #endif
-	{ stress_poll,	 STRESS_POLL,	'P',	OPT_POLL_OPS,		"poll",		"Poll" },
-	{ stress_link,	 STRESS_LINK,	OPT_LINK, OPT_LINK_OPS,		"link",		"Link" },
-	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK, OPT_SYMLINK_OPS,	"symlink",	"Symlink" },
-	{ stress_dir,	 STRESS_DIR,	OPT_DIR, OPT_DIR_OPS,		"dir",		"Directory" },
-	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV, OPT_SIGSEGV_OPS,	"sigsegv",	"SigSEGV" }
+	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll",		"Poll" },
+	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link",		"Link" },
+	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink",	"Symlink" },
+	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir",		"Directory" },
+	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv",	"SigSEGV" }
 	/* Add new stress tests here */
 };
 
@@ -2479,18 +2507,18 @@ static void usage(void)
 }
 
 static const struct option long_options[] = {
-	{ "help",	0,	0,	'?' },
-	{ "version",	0,	0,	'V' },
-	{ "verbose",	0,	0,	'v' },
-	{ "quiet",	0,	0,	'q' },
-	{ "dry-run",	0,	0,	'n' },
-	{ "timeout",	1,	0,	't' },
-	{ "backoff",	1,	0,	'b' },
-	{ "cpu",	1,	0,	'c' },
-	{ "io",		1,	0,	'i' },
-	{ "vm",		1,	0,	'm' },
-	{ "fork",	1,	0,	'f' },
-	{ "switch",	1,	0,	's' },
+	{ "help",	0,	0,	OPT_QUERY },
+	{ "version",	0,	0,	OPT_VERSION },
+	{ "verbose",	0,	0,	OPT_VERBOSE },
+	{ "quiet",	0,	0,	OPT_QUIET },
+	{ "dry-run",	0,	0,	OPT_DRY_RUN },
+	{ "timeout",	1,	0,	OPT_TIMEOUT },
+	{ "backoff",	1,	0,	OPT_BACKOFF },
+	{ "cpu",	1,	0,	OPT_CPU },
+	{ "io",		1,	0,	OPT_IOSYNC },
+	{ "vm",		1,	0,	OPT_VM },
+	{ "fork",	1,	0,	OPT_FORK },
+	{ "switch",	1,	0,	OPT_CTXT },
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
@@ -2501,29 +2529,29 @@ static const struct option long_options[] = {
 #ifdef MAP_LOCKED
 	{ "vm-locked",	0,	0,	OPT_VM_MMAP_LOCKED },
 #endif
-	{ "hdd",	1,	0,	'd' },
+	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
-	{ "metrics",	0,	0,	'M' },
+	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ "switch-ops",	1,	0,	OPT_CTXT_OPS },
-	{ "cpu-load",	1,	0,	'l' },
-	{ "pipe",	1,	0,	'p' },
+	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
+	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
-	{ "cache",	1,	0, 	'C' },
+	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
 #if _POSIX_C_SOURCE >= 199309L
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
 #endif
-	{ "sock",	1,	0,	'S' },
+	{ "sock",	1,	0,	OPT_SOCKET },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
-	{ "all",	1,	0,	'a' },
+	{ "all",	1,	0,	OPT_ALL },
 #if defined (__linux__)
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
@@ -2531,23 +2559,23 @@ static const struct option long_options[] = {
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
-	{ "timer",	1,	0,	'T' },
+	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
-	{ "urandom",	1,	0,	'u' },
+	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	{ "yield",	1,	0,	'y' },
+	{ "yield",	1,	0,	OPT_YIELD },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	{ "fallocate",	1,	0,	'F' },
+	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
 #endif
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
-	{ "dentry",	1,	0,	'D' },
+	{ "dentry",	1,	0,	OPT_DENTRY },
 	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
 	{ "dentries",	1,	0,	OPT_DENTRIES },
 	{ "float",	1,	0,	OPT_FLOAT },
@@ -2556,11 +2584,11 @@ static const struct option long_options[] = {
 	{ "int-ops",	1,	0,	OPT_INT_OPS },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
-	{ "open",	1,	0,	'o' },
+	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
-	{ "random",	1,	0,	'r' },
-	{ "keep-name",	0,	0,	'k' },
-	{ "poll",	1,	0,	'P' },
+	{ "random",	1,	0,	OPT_RANDOM },
+	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
+	{ "poll",	1,	0,	OPT_POLL },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
@@ -2711,50 +2739,50 @@ next_opt:
 		}
 
 		switch (c) {
-		case 'a':
+		case OPT_ALL:
 			opt_flags |= OPT_FLAGS_SET;
 			val = opt_long("-a", optarg);
 			check_value("all", val);
 			for (i = 0; i < STRESS_MAX; i++)
 				num_procs[i] = val;
 			break;
-		case 'r':
+		case OPT_RANDOM:
 			opt_flags |= OPT_FLAGS_RANDOM;
 			opt_random = opt_long("-r", optarg);
 			check_value("random", opt_random);
 			break;
-		case 'k':
+		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
-		case '?':
-		case 'h':
+		case OPT_QUERY:
+		case OPT_HELP:
 			usage();
-		case 'V':
+		case OPT_VERSION:
 			version();
 			exit(EXIT_SUCCESS);
-		case 'v':
+		case OPT_VERBOSE:
 			opt_flags |= PR_ALL;
 			break;
-		case 'q':
+		case OPT_QUIET:
 			opt_flags &= ~(PR_ALL);
 			break;
-		case 'n':
+		case OPT_DRY_RUN:
 			opt_flags |= OPT_FLAGS_DRY_RUN;
 			break;
-		case 't':
+		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);
 			break;
-		case 'b':
+		case OPT_BACKOFF:
 			opt_backoff = opt_long("backoff", optarg);
 			break;
-		case 'l':
+		case OPT_CPU_LOAD:
 			opt_cpu_load = opt_long("cpu load", optarg);
 			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
 				exit(EXIT_FAILURE);
 			}
 			break;
-		case 'M':
+		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
 		case OPT_VM_BYTES:
