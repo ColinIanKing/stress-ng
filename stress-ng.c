@@ -281,7 +281,6 @@ typedef struct {
 	const int short_getopt;		/* getopt short option */
 	const stress_op op;		/* ops option */
 	const char *name;		/* name of stress test */
-	const char *label;		/* human readable label */
 } stress_t;
 
 #if defined (__linux__)
@@ -2324,44 +2323,44 @@ static int stress_noop(
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
-	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync",	"I/O-Sync" },
-	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu",		"CPU" },
-	{ stress_vm,	 STRESS_VM,	OPT_VM,		OPT_VM_OPS,		"vm",		"VM-mmap" },
-	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd",		"HDD-Write" },
-	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork",		"Fork" },
-	{ stress_ctxt,	 STRESS_CTXT,	OPT_CTXT,	OPT_CTXT_OPS,   	"ctxt",		"Context-switch" },
-	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe",		"Pipe" },
-	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache",	"Cache" },
-	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket",	"Socket" },
+	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
+	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
+	{ stress_vm,	 STRESS_VM,	OPT_VM,		OPT_VM_OPS,		"vm" },
+	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
+	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
+	{ stress_ctxt,	 STRESS_CTXT,	OPT_CTXT,	OPT_CTXT_OPS,   	"ctxt" },
+	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
+	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache" },
+	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket" },
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield",	"Yield" },
+	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate",	"Fallocate" },
+	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate" },
 #endif
-	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock",	"Flock" },
+	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 #if defined(__linux__)
-	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity",	"Affinity" },
+	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity" },
 #endif
 #if defined(__linux__)
-	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer",	"Timer" },
+	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer" },
 #endif
-	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry",	"Dentry" },
+	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
 #if defined(__linux__)
-	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom",	"Urandom" },
+	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom" },
 #endif
-	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, 	OPT_FLOAT_OPS,		"float",	"Float" },
-	{ stress_int,	 STRESS_INT,	OPT_INT,   	OPT_INT_OPS,		"int",		"Int" },
-	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore",	"Semaphore" },
-	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open",		"Open" },
+	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, 	OPT_FLOAT_OPS,		"float" },
+	{ stress_int,	 STRESS_INT,	OPT_INT,   	OPT_INT_OPS,		"int" },
+	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
+	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 #if  _POSIX_C_SOURCE >= 199309L
-	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq",		"SigQueue" },
+	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
 #endif
-	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll",		"Poll" },
-	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link",		"Link" },
-	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink",	"Symlink" },
-	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir",		"Directory" },
-	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv",	"SigSEGV" }
+	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
+	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
+	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
+	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
+	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
 	/* Add new stress tests here */
 };
 
@@ -2912,7 +2911,7 @@ next_opt:
 
 	pr_inf(stdout, "dispatching hogs:");
 	for (i = 0; i < STRESS_MAX; i++) {
-		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i].label,
+		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i].name,
 			i == STRESS_MAX - 1 ? '\n' : ',');
 	}
 
@@ -3049,7 +3048,7 @@ wait_for_procs:
 				total_time += procs[i][j].finish - procs[i][j].start;
 			}
 			pr_inf(stdout, "%s: %" PRIu64 " in %.2f secs, rate: %.2f\n",
-				stressors[i].label, total, total_time,
+				stressors[i].name, total, total_time,
 				total_time > 0.0 ? (double)total / total_time : 0.0);
 		}
 	}
