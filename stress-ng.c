@@ -1383,6 +1383,7 @@ die:
 	return rc;
 }
 
+#if defined(_POSIX_PRIORITY_SCHEDULING)
 /*
  *  stress on sched_yield()
  *	stress system by sched_yield
@@ -1393,7 +1394,6 @@ static int stress_yield(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if defined(_POSIX_PRIORITY_SCHEDULING)
 	(void)instance;
 	(void)name;
 
@@ -1403,16 +1403,10 @@ static int stress_yield(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 /*
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
@@ -1423,7 +1417,6 @@ static int stress_fallocate(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	const pid_t pid = getpid();
 	int fd;
 	char filename[64];
@@ -1460,15 +1453,8 @@ static int stress_fallocate(
 		(void)unlink(filename);
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
 /*
  *  stress_flock
@@ -1506,6 +1492,7 @@ static int stress_flock(
 	return EXIT_SUCCESS;
 }
 
+#if defined(__linux__)
 /*
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
@@ -1516,7 +1503,6 @@ static int stress_affinity(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if defined(__linux__)
 	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
@@ -1534,15 +1520,8 @@ static int stress_affinity(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
 #if defined (__linux__)
 static volatile uint64_t timer_counter = 0;
@@ -1569,7 +1548,6 @@ static void stress_timer_handler(int sig)
 		timer_settime(timerid, 0, &timer, NULL);
 	}
 }
-#endif
 
 /*
  *  stress_timer
@@ -1581,7 +1559,6 @@ static int stress_timer(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if defined (__linux__)
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
@@ -1630,15 +1607,8 @@ static int stress_timer(
 	}
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
 /*
  *  stress_dentry_unlink()
@@ -1712,6 +1682,7 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+#if defined (__linux__)
 /*
  *  stress_urandom
  *	stress reading of /dev/urandom
@@ -1722,7 +1693,6 @@ static int stress_urandom(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if defined (__linux__)
 	int fd;
 
 	(void)instance;
@@ -1745,15 +1715,8 @@ static int stress_urandom(
 	(void)close(fd);
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
 /*
  *  stress_float
@@ -1942,7 +1905,6 @@ static void stress_sigqhandler(int dummy)
 {
 	(void)dummy;
 }
-#endif
 
 /*
  *  stress_sigq
@@ -1954,7 +1916,6 @@ static int stress_sigq(
 	const uint64_t max_ops,
 	const char *name)
 {
-#if _POSIX_C_SOURCE >= 199309L
 	pid_t pid;
 	struct sigaction new_action;
 
@@ -2007,15 +1968,8 @@ static int stress_sigq(
 	}
 
 	return EXIT_SUCCESS;
-#else
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
-#endif
 }
+#endif
 
 /*
  *  stress_poll()
@@ -2312,14 +2266,10 @@ static const stress_t stressors[] = {
 	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 #if defined(__linux__)
 	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity" },
-#endif
-#if defined(__linux__)
 	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer" },
-#endif
-	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
-#if defined(__linux__)
 	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom" },
 #endif
+	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
 	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, 	OPT_FLOAT_OPS,		"float" },
 	{ stress_int,	 STRESS_INT,	OPT_INT,   	OPT_INT_OPS,		"int" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
@@ -2382,8 +2332,10 @@ static const help_t help[] = {
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
+#endif
 	{ NULL,		"float N",		"start N workers performing floating point operations" },
 	{ NULL, 	"float-ops N",		"stop when N float bogo operations completed" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
