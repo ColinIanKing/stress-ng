@@ -2333,13 +2333,18 @@ static const stress_t stressors[] = {
 	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
 	/* Add new stress tests here */
+	{ NULL,		 STRESS_MAX,		0,		0,			NULL },
 };
 
-static func stress_func(stress_id id)
+/*
+ *  stress_func
+ *	return stress test based on a given stress test id
+ */
+static inline func stress_func(const stress_id id)
 {
 	unsigned int i;
 
-	for (i = 0; i < STRESS_MAX; i++)
+	for (i = 0; stressors[i].stress_func; i++)
 		if (i == id)
 			return stressors[i].stress_func;
 
@@ -2692,7 +2697,7 @@ next_opt:
 			long_options, &option_index)) == -1)
 			break;
 
-		for (id = 0; id < STRESS_MAX; id++) {
+		for (id = 0; stressors[id].id != STRESS_MAX; id++) {
 			if (stressors[id].short_getopt == c) {
 				const char *name = opt_name(c);
 
