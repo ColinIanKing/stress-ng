@@ -100,9 +100,16 @@
 #define	MB			(KB * KB)
 #define GB			(KB * KB * KB)
 
+#define PAGE_4K_SHIFT		(12)
+#define PAGE_4K			(1 << PAGE_4K_SHIFT)
+
 #define MIN_VM_BYTES		(4 * KB)
 #define MAX_VM_BYTES		(1 * GB)
 #define DEFAULT_VM_BYTES	(256 * MB)
+
+#define MIN_MMAP_BYTES		(4 * KB)
+#define MAX_MMAP_BYTES		(1 * GB)
+#define DEFAULT_MMAP_BYTES	(256 * MB)
 
 #define MIN_VM_STRIDE		(1)
 #define MAX_VM_STRIDE		(1 * MB)
@@ -130,6 +137,9 @@
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
+
+#define PAGE_MAPPED		(0x01)
+#define PAGE_MAPPED_FAIL	(0x02)
 
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
@@ -169,6 +179,7 @@ typedef enum {
 	STRESS_SYMLINK,
 	STRESS_DIR,
 	STRESS_SIGSEGV,
+	STRESS_MMAP,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -271,7 +282,10 @@ typedef enum {
 	OPT_DIR,
 	OPT_DIR_OPS,
 	OPT_SIGSEGV,
-	OPT_SIGSEGV_OPS
+	OPT_SIGSEGV_OPS,
+	OPT_MMAP,
+	OPT_MMAP_OPS,
+	OPT_MMAP_BYTES
 } stress_op;
 
 /* stress test metadata */
@@ -330,6 +344,7 @@ static int32_t  opt_cpu_load = 100;			/* CPU max load */
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
 static int	opt_vm_flags = 0;			/* VM mmap flags */
+static size_t	opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
 static pid_t	socket_server, socket_client;		/* pids of socket client/servers */
 #if defined (__linux__)
 static uint64_t	opt_timer_freq = 1000000;		/* timer frequency (Hz) */
@@ -2232,6 +2247,109 @@ static int stress_sigsegv(
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_mmap()
+ *	stress mmap
+ */
+static int stress_mmap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	uint8_t *buf = NULL;
+	const size_t sz = opt_mmap_bytes & ~(PAGE_4K - 1);
+	const size_t pages4k = sz >> PAGE_4K_SHIFT;
+
+	(void)instance;
+	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+
+#ifdef MAP_POPULATE
+	flags |= MAP_POPULATE;
+#endif
+	do {
+		uint8_t mapped[pages4k];
+		size_t n;
+
+		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+		if (buf == MAP_FAILED) {
+			/* Force MAP_POPULATE off, just in case */
+			flags &= ~MAP_POPULATE;
+			pr_failed_dbg(stderr, name, "mmap");
+			continue;	/* Try again */
+		}
+		memset(mapped, PAGE_MAPPED, sizeof(mapped));
+
+		/* Ensure we can write to the mapped pages */
+		memset(buf, 0xff, sz);
+
+		/*
+		 *  Step #1, unmap all pages in random order
+		 */
+		for (n = pages4k; n; ) {
+			uint64_t j, i = mwc() % pages4k;
+			for (j = 0; j < n; j++) {
+				uint64_t page = (i + j) % pages4k;
+				if (mapped[page] == PAGE_MAPPED) {
+					mapped[page] = 0;
+					munmap(buf + (page << PAGE_4K_SHIFT), PAGE_4K);
+					n--;
+					break;
+				}
+				if (!opt_do_run)
+					goto cleanup;
+			}
+		}
+
+#ifdef MAP_FIXED
+		/*
+		 *  Step #2, map them back in random order
+		 */
+		for (n = pages4k; n; ) {
+			uint64_t j, i = mwc() % pages4k;
+			for (j = 0; j < n; j++) {
+				uint64_t page = (i + j) % pages4k;
+				if (!mapped[page]) {
+					uint8_t *mem = buf + (page << PAGE_4K_SHIFT);
+					/*
+					 * Attempt to map them back into the original address, this
+					 * may fail (it's not the most portable operation), so keep
+					 * track of failed mappings too
+					 */
+					if (mmap(mem, PAGE_4K, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0) == MAP_FAILED) {
+						mapped[page] = PAGE_MAPPED_FAIL;
+					} else {
+						mapped[page] = PAGE_MAPPED;
+						/* Ensure we can write to the mapped page */
+						memset(mem, 0xff, PAGE_4K);
+					}
+					n--;
+					break;
+				}
+				if (!opt_do_run)
+					goto cleanup;
+			}
+		}
+#endif
+cleanup:
+		/*
+		 *  Step #3, unmap them all
+		 */
+		for (n = 0; n < pages4k; n++) {
+			if (mapped[n] & PAGE_MAPPED)
+				munmap(buf + ((uint64_t)n << PAGE_4K_SHIFT), PAGE_4K);
+		}
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	return EXIT_SUCCESS;
+}
+
+
+/*
+ *  stress_noop()
+ *	stress that does nowt
+ */
 static int stress_noop(
 	uint64_t *const counter,
 	const uint32_t instance,
@@ -2282,8 +2400,9 @@ static const stress_t stressors[] = {
 	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
 	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
+	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
 	/* Add new stress tests here */
-	{ NULL,		 STRESS_MAX,		0,		0,			NULL },
+	{ NULL,		 STRESS_MAX,	0,		0,			NULL },
 };
 
 /*
@@ -2353,6 +2472,9 @@ static const help_t help[] = {
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
+	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
+	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
+	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
@@ -2525,6 +2647,9 @@ static const struct option long_options[] = {
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
 	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
+	{ "mmap",	1,	0,	OPT_MMAP },
+	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
+	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -2770,6 +2895,10 @@ next_opt:
 			opt_ionice_level = get_int(optarg);
 			break;
 #endif
+		case OPT_MMAP_BYTES:
+			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
+			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
