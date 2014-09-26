@@ -2274,6 +2274,7 @@ static int stress_mmap(
 #endif
 	do {
 		uint8_t mapped[pages4k];
+		uint8_t *mappings[pages4k];
 		size_t n;
 
 		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -2284,6 +2285,8 @@ static int stress_mmap(
 			continue;	/* Try again */
 		}
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
+		for (n = 0; n < pages4k; n++)
+			mappings[n] = buf + (n << PAGE_4K_SHIFT);
 
 		/* Ensure we can write to the mapped pages */
 		memset(buf, 0xff, sz);
@@ -2297,7 +2300,7 @@ static int stress_mmap(
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
-					munmap(buf + (page << PAGE_4K_SHIFT), PAGE_4K);
+					munmap(mappings[page], PAGE_4K);
 					n--;
 					break;
 				}
@@ -2315,18 +2318,19 @@ static int stress_mmap(
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (!mapped[page]) {
-					uint8_t *mem = buf + (page << PAGE_4K_SHIFT);
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
-					if (mmap(mem, PAGE_4K, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0) == MAP_FAILED) {
+					mappings[page] = mmap(mappings[page], PAGE_4K, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0);
+					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
+						mappings[page] = NULL;
 					} else {
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						memset(mem, 0xff, PAGE_4K);
+						memset(mappings[page], 0xff, PAGE_4K);
 					}
 					n--;
 					break;
@@ -2342,7 +2346,7 @@ cleanup:
 		 */
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED)
-				munmap(buf + ((uint64_t)n << PAGE_4K_SHIFT), PAGE_4K);
+				munmap(mappings[n], PAGE_4K);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
