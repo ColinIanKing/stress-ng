@@ -75,7 +75,6 @@
 #define PIPE_BUF		(512)
 #endif
 #define SOCKET_BUF		(8192)
-#define STRESS_HDD_BUF_SIZE	(64 * 1024)
 
 /* Option bit masks */
 #define OPT_FLAGS_NO_CLEAN	0x00000001	/* Don't remove hdd files */
@@ -118,6 +117,10 @@
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(256 * GB)
 #define DEFAULT_HDD_BYTES	(1 * GB)
+
+#define MIN_HDD_WRITE_SIZE	(1)
+#define MAX_HDD_WRITE_SIZE	(4 * MB)
+#define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
 #define MIN_VM_HANG		(0)
 #define MAX_VM_HANG		(3600)
@@ -232,6 +235,7 @@ typedef enum {
 #endif
 	OPT_HDD_BYTES,
 	OPT_HDD_NOCLEAN,
+	OPT_HDD_WRITE_SIZE,
 	OPT_CPU_OPS,
 	OPT_IOSYNC_OPS,
 	OPT_VM_OPS,
@@ -335,6 +339,7 @@ static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 static uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 static uint64_t	opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
+static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 static uint64_t	mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
 static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
@@ -984,12 +989,12 @@ static int stress_hdd(
 
 	(void)instance;
 
-	if ((buf = malloc(STRESS_HDD_BUF_SIZE)) == NULL) {
+	if ((buf = malloc((size_t)opt_hdd_write_size)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
 		return EXIT_FAILURE;
 	}
 
-	for (i = 0; i < STRESS_HDD_BUF_SIZE; i++)
+	for (i = 0; i < opt_hdd_write_size; i++)
 		buf[i] = (uint8_t)mwc();
 
 	do {
@@ -1006,8 +1011,8 @@ static int stress_hdd(
 		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 			(void)unlink(filename);
 
-		for (i = 0; i < opt_hdd_bytes; i += STRESS_HDD_BUF_SIZE) {
-			if (write(fd, buf, STRESS_HDD_BUF_SIZE) < 0) {
+		for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+			if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
 				pr_failed_err(stderr, name, "write");
 				goto finish;
 			}
@@ -2451,6 +2456,7 @@ static const help_t help[] = {
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
+	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
@@ -2548,7 +2554,7 @@ static void usage(void)
 
 		if (help[i].opt_s)
 			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
-		printf(" %-6s--%-16s%s\n", opt_s, help[i].opt_l, help[i].description);
+		printf(" %-6s--%-17s%s\n", opt_s, help[i].opt_l, help[i].description);
 	}
 	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
 	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
@@ -2581,6 +2587,7 @@ static const struct option long_options[] = {
 	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
+	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
@@ -2868,6 +2875,10 @@ next_opt:
 			break;
 		case OPT_HDD_NOCLEAN:
 			opt_flags |= OPT_FLAGS_NO_CLEAN;
+			break;
+		case OPT_HDD_WRITE_SIZE:
+			opt_hdd_write_size = get_uint64_byte(optarg);
+			check_range("hdd-write-size", opt_hdd_write_size, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 			break;
 		case OPT_DENTRIES:
 			opt_dentries = get_uint64(optarg);
