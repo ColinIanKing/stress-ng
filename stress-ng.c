@@ -489,7 +489,7 @@ static int print(
 	va_start(ap, fmt);
 	if (opt_flags & flag) {
 		char buf[4096];
-		const char *type;
+		const char *type = "";
 		int n;
 
 		if (flag & PR_ERR)
