@@ -1215,7 +1215,7 @@ static int stress_cache(
 {
 	unsigned long total = 0;
 #if defined(__linux__)
-	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
+	const long int cpus = sysconf(_SC_NPROCESSORS_CONF);
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
 #endif
@@ -1528,7 +1528,7 @@ static int stress_affinity(
 	const uint64_t max_ops,
 	const char *name)
 {
-	long int cpus = sysconf(_SC_NPROCESSORS_CONF);
+	const long int cpus = sysconf(_SC_NPROCESSORS_CONF);
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
 
@@ -1587,7 +1587,7 @@ static int stress_timer(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-	double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
+	const double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 
 	(void)instance;
 
@@ -1642,7 +1642,7 @@ static int stress_timer(
 static void stress_dentry_unlink(uint64_t n)
 {
 	uint64_t i;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
@@ -1665,7 +1665,7 @@ static int stress_dentry(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	(void)instance;
 
@@ -2032,7 +2032,7 @@ static int stress_poll(
 static void stress_link_unlink(const char *funcname, const uint64_t n)
 {
 	uint64_t i;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
@@ -2056,7 +2056,7 @@ static int stress_link_generic(
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname)
 {
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 	int fd;
 	char oldpath[PATH_MAX];
 
@@ -2139,7 +2139,7 @@ static int stress_symlink(
 static void stress_dir_tidy(const uint64_t n)
 {
 	uint64_t i;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
@@ -2161,7 +2161,7 @@ static int stress_dir(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	(void)instance;
 
@@ -2275,14 +2275,13 @@ static int stress_mmap(
 #endif
 	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
 	const size_t pages4k = sz / page_size;
-
-	(void)instance;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-
 
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
 #endif
+	(void)instance;
+
 	do {
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
