@@ -70,6 +70,7 @@
 #endif
 
 #define STRESS_FD_MAX		(65536)
+#define STRESS_PROCS_MAX	(1024)
 
 #ifndef PIPE_BUF
 #define PIPE_BUF		(512)
@@ -513,9 +514,9 @@ static void check_value(
 	const char *const msg,
 	const int val)
 {
-	if (val < 0 || val > 1024) {
+	if (val < 0 || val > STRESS_PROCS_MAX) {
 		fprintf(stderr, "Number of %s workers must be between "
-			"0 and 1024\n", msg);
+			"0 and %d\n", msg, STRESS_PROCS_MAX);
 		exit(EXIT_FAILURE);
 	}
 }
