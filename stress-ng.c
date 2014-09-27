@@ -92,9 +92,11 @@
 #define PR_DBG			0x00040000	/* Print debug */
 #define PR_ALL			(PR_ERR | PR_INF | PR_DBG)
 
-#define pr_dbg(fp, fmt, args...) print(fp, "debug", PR_DBG, fmt, ## args)
-#define pr_inf(fp, fmt, args...) print(fp, "info",  PR_INF, fmt, ## args)
-#define pr_err(fp, fmt, args...) print(fp, "error", PR_ERR, fmt, ## args)
+#define pr_dbg(fp, fmt, args...)	print(fp, PR_DBG, fmt, ## args)
+#define pr_inf(fp, fmt, args...)	print(fp, PR_INF, fmt, ## args)
+#define pr_err(fp, fmt, args...)	print(fp, PR_ERR, fmt, ## args)
+#define pr_failed_err(name, what)	pr_failed(PR_ERR, name, what)
+#define pr_failed_dbg(name, what)	pr_failed(PR_DBG, name, what)
 
 #define KB			(1024ULL)
 #define	MB			(KB * KB)
@@ -330,8 +332,8 @@ typedef struct {
 	const uint64_t	scale;	/* Amount to scale by */
 } scale_t;
 
-static int print(FILE *fp, const char *const type, const int flag,
-	const char *const fmt, ...) __attribute__((format(printf, 4, 5)));
+static int print(FILE *fp, const int flag,
+	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
 
 /* Various option settings and flags */
 static sem_t	sem;					/* stress_semaphore sem */
@@ -363,7 +365,6 @@ static int	opt_socket_port = 5000;			/* Default socket port */
 static volatile bool opt_do_run = true;			/* false to exit stressor */
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
 
-
 /*
  *  externs to force gcc to stash computed values and hence
  *  to stop the optimiser optimising code away to zero. The
@@ -381,15 +382,9 @@ static void stress_sighandler(int dummy)
 	opt_do_run = false;
 }
 
-static void pr_failed_err(FILE *file, const char *name, const char *what)
+static void pr_failed(const int flag, const char *name, const char *what)
 {
-	pr_err(file, "%s: %s failed, errno=%d (%s)\n",
-		name, what, errno, strerror(errno));
-}
-
-static void pr_failed_dbg(FILE *file, const char *name, const char *what)
-{
-	pr_dbg(file, "%s: %s failed, errno=%d (%s)\n",
+	print(stderr, flag, "%s: %s failed, errno=%d (%s)\n",
 		name, what, errno, strerror(errno));
 }
 
@@ -405,11 +400,11 @@ static int stress_sethandler(const char *stress)
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_failed_err(stderr, stress, "sigaction");
+		pr_failed_err(stress, "sigaction");
 		return -1;
 	}
 	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_failed_err(stderr, stress, "sigaction");
+		pr_failed_err(stress, "sigaction");
 		return -1;
 	}
 	return 0;
@@ -485,7 +480,6 @@ static double time_now(void)
  */
 static int print(
 	FILE *fp,
-	const char *const type,
 	const int flag,
 	const char *const fmt, ...)
 {
@@ -495,7 +489,17 @@ static int print(
 	va_start(ap, fmt);
 	if (opt_flags & flag) {
 		char buf[4096];
-		int n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
+		const char *type;
+		int n;
+
+		if (flag & PR_ERR)
+			type = "error";
+		if (flag & PR_DBG)
+			type = "debug";
+		if (flag & PR_INF)
+			type = "info";
+		
+		n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
 			type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 		fprintf(fp, "%s", buf);
@@ -931,7 +935,7 @@ static int stress_vm(
 			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 			if (buf == MAP_FAILED) {
-				pr_failed_dbg(stderr, name, "mmap");
+				pr_failed_dbg(name, "mmap");
 				continue;	/* Try again */
 			}
 		}
@@ -1006,7 +1010,7 @@ static int stress_hdd(
 
 		(void)umask(0077);
 		if ((fd = mkstemp(filename)) < 0) {
-			pr_failed_err(stderr, name, "mkstemp");
+			pr_failed_err(name, "mkstemp");
 			goto finish;
 		}
 		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
@@ -1014,7 +1018,7 @@ static int stress_hdd(
 
 		for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 			if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
-				pr_failed_err(stderr, name, "write");
+				pr_failed_err(name, "write");
 				goto finish;
 			}
 			(*counter)++;
@@ -1080,7 +1084,7 @@ static int stress_ctxt(
 	(void)instance;
 
 	if (pipe(pipefds) < 0) {
-		pr_failed_dbg(stderr, name, "pipe");
+		pr_failed_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -1088,7 +1092,7 @@ static int stress_ctxt(
 	if (pid < 0) {
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_failed_dbg(stderr, name, "fork");
+		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)close(pipefds[1]);
@@ -1098,7 +1102,7 @@ static int stress_ctxt(
 
 			for (;;) {
 				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
-					pr_failed_dbg(stderr, name, "read");
+					pr_failed_dbg(name, "read");
 					break;
 				}
 				if (ch == CTXT_STOP)
@@ -1115,7 +1119,7 @@ static int stress_ctxt(
 
 		do {
 			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
-				pr_failed_dbg(stderr, name, "write");
+				pr_failed_dbg(name, "write");
 				break;
 			}
 			(*counter)++;
@@ -1123,7 +1127,7 @@ static int stress_ctxt(
 
 		ch = CTXT_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
-			pr_failed_dbg(stderr, name, "termination write");
+			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
 	}
 
@@ -1146,7 +1150,7 @@ static int stress_pipe(
 	(void)instance;
 
 	if (pipe(pipefds) < 0) {
-		pr_failed_dbg(stderr, name, "pipe");
+		pr_failed_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -1154,7 +1158,7 @@ static int stress_pipe(
 	if (pid < 0) {
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_failed_dbg(stderr, name, "fork");
+		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)close(pipefds[1]);
@@ -1164,7 +1168,7 @@ static int stress_pipe(
 
 			for (;;) {
 				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
-					pr_failed_dbg(stderr, name, "read");
+					pr_failed_dbg(name, "read");
 					break;
 				}
 				if (buf[0] == PIPE_STOP)
@@ -1183,7 +1187,7 @@ static int stress_pipe(
 
 		do {
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
-				pr_failed_dbg(stderr, name, "write");
+				pr_failed_dbg(name, "write");
 				break;
 			}
 			(*counter)++;
@@ -1191,7 +1195,7 @@ static int stress_pipe(
 
 		memset(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_failed_dbg(stderr, name, "termination write");
+			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
 	}
 	return EXIT_SUCCESS;
@@ -1284,7 +1288,7 @@ static int stress_socket(
 
 	pid = fork();
 	if (pid < 0) {
-		pr_failed_dbg(stderr, name, "fork");
+		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -1297,7 +1301,7 @@ static int stress_socket(
 			int retries = 0;
 retry:
 			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-				pr_failed_dbg(stderr, name, "socket");
+				pr_failed_dbg(name, "socket");
 				exit(EXIT_FAILURE);
 			}
 
@@ -1311,7 +1315,7 @@ retry:
 				usleep(10000);
 				retries++;
 				if (retries > 100) {
-					pr_failed_dbg(stderr, name, "connect");
+					pr_failed_dbg(name, "connect");
 					break;
 				}
 				goto retry;
@@ -1323,7 +1327,7 @@ retry:
 				if (n == 0)
 					break;
 				if (n < 0) {
-					pr_failed_dbg(stderr, name, "write");
+					pr_failed_dbg(name, "write");
 					break;
 				}
 			}
@@ -1347,12 +1351,12 @@ retry:
 		sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = 0;
 		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_failed_err(stderr, name, "sigaction");
+			pr_failed_err(name, "sigaction");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			pr_failed_dbg(stderr, name, "socket");
+			pr_failed_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
@@ -1362,17 +1366,17 @@ retry:
 		addr.sin_port = htons(opt_socket_port + instance);
 
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_failed_dbg(stderr, name, "setsockopt");
+			pr_failed_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-			pr_failed_dbg(stderr, name, "bind");
+			pr_failed_dbg(name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (listen(fd, 10) < 0) {
-			pr_failed_dbg(stderr, name, "listen");
+			pr_failed_dbg(name, "listen");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -1386,7 +1390,7 @@ retry:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					int ret = write(sfd, buf, i);
 					if (ret < 0) {
-						pr_failed_dbg(stderr, name, "write");
+						pr_failed_dbg(name, "write");
 						break;
 					}
 				}
@@ -1448,7 +1452,7 @@ static int stress_fallocate(
 	snprintf(filename, sizeof(filename), "./%s-%i.XXXXXXX", name, pid);
 	(void)umask(0077);
 	if ((fd = mkstemp(filename)) < 0) {
-		pr_failed_err(stderr, name, "mkstemp");
+		pr_failed_err(name, "mkstemp");
 		return EXIT_FAILURE;
 	}
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
@@ -1494,7 +1498,7 @@ static int stress_flock(
 
 	snprintf(filename, sizeof(filename), "./%s-%i", name, getppid());
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_failed_err(stderr, name, "open");
+		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -1591,7 +1595,7 @@ static int stress_timer(
 	new_action.sa_handler = stress_timer_handler;
 	sigemptyset(&new_action.sa_mask);
 	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_failed_err(stderr, name, "sigaction");
+		pr_failed_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
@@ -1599,7 +1603,7 @@ static int stress_timer(
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_failed_err(stderr, name, "timer_create");
+		pr_failed_err(name, "timer_create");
 		return EXIT_FAILURE;
 	}
 
@@ -1609,7 +1613,7 @@ static int stress_timer(
 	timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_failed_err(stderr, name, "timer_settime");
+		pr_failed_err(name, "timer_settime");
 		return EXIT_FAILURE;
 	}
 
@@ -1623,7 +1627,7 @@ static int stress_timer(
 	} while (opt_do_run && (!max_ops || timer_counter < max_ops));
 
 	if (timer_delete(timerid) < 0) {
-		pr_failed_err(stderr, name, "timer_delete");
+		pr_failed_err(name, "timer_delete");
 		return EXIT_FAILURE;
 	}
 
@@ -1677,7 +1681,7 @@ static int stress_dentry(
 				PRIu64 ".tmp", pid, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
-				pr_failed_err(stderr, name, "open");
+				pr_failed_err(name, "open");
 				n = i;
 				break;
 			}
@@ -1719,7 +1723,7 @@ static int stress_urandom(
 	(void)instance;
 
 	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_failed_err(stderr, name, "open");
+		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -1727,7 +1731,7 @@ static int stress_urandom(
 		char buffer[8192];
 
 		if (read(fd, buffer, sizeof(buffer)) < 0) {
-			pr_failed_err(stderr, name, "read");
+			pr_failed_err(name, "read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -1757,7 +1761,7 @@ static int stress_float(
 		struct timespec clk;
 
 		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_failed_dbg(stderr, name, "clock_gettime");
+			pr_failed_dbg(name, "clock_gettime");
 			return EXIT_FAILURE;
 		}
 		b = clk.tv_nsec;
@@ -1809,7 +1813,7 @@ static int stress_int(
 		struct timespec clk;
 
 		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_failed_dbg(stderr, name, "clock_gettime");
+			pr_failed_dbg(name, "clock_gettime");
 			return EXIT_FAILURE;
 		}
 		a ^= (uint64_t)clk.tv_nsec;
@@ -1870,7 +1874,7 @@ static int stress_semaphore(
 
 		for (i = 0; i < 1000; i++) {
 			if (sem_wait(&sem) < 0) {
-				pr_failed_dbg(stderr, name, "sem_wait");
+				pr_failed_dbg(name, "sem_wait");
 				break;
 			}
 			sem_post(&sem);
@@ -1944,13 +1948,13 @@ static int stress_sigq(
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_failed_err(stderr, name, "sigaction");
+		pr_failed_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
 	pid = fork();
 	if (pid < 0) {
-		pr_failed_dbg(stderr, name, "fork");
+		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		sigset_t mask;
@@ -2060,7 +2064,7 @@ static int stress_link_generic(
 
 	snprintf(oldpath, sizeof(oldpath), "stress-%s-%i", funcname, pid);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, 0666)) < 0) {
-		pr_failed_err(stderr, name, "open");
+		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
 	(void)close(fd);
@@ -2075,7 +2079,7 @@ static int stress_link_generic(
 				PRIu64 ".lnk", funcname, pid, i);
 
 			if (linkfunc(oldpath, newpath) < 0) {
-				pr_failed_err(stderr, name, funcname);
+				pr_failed_err(name, funcname);
 				n = i;
 				break;
 			}
@@ -2171,7 +2175,7 @@ static int stress_dir(
 			snprintf(path, sizeof(path), "stress-dir-%i-%"
 				PRIu64, pid, gray_code);
 			if (mkdir(path, 0666) < 0) {
-				pr_failed_err(stderr, name, "mkdir");
+				pr_failed_err(name, "mkdir");
 				n = i;
 				break;
 			}
@@ -2233,7 +2237,7 @@ static int stress_sigsegv(
 		new_action.sa_flags = 0;
 
 		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-			pr_failed_err(stderr, name, "sigaction");
+			pr_failed_err(name, "sigaction");
 			return EXIT_FAILURE;
 		}
 		ret = sigsetjmp(jmp_env, 1);
@@ -2288,7 +2292,7 @@ static int stress_mmap(
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 			flags &= ~MAP_POPULATE;
-			pr_failed_dbg(stderr, name, "mmap");
+			pr_failed_dbg(name, "mmap");
 			continue;	/* Try again */
 		}
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
