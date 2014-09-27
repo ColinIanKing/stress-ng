@@ -369,8 +369,8 @@ static proc_info_t *procs[STRESS_MAX];			/* per process info */
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
  */
-extern void double_put(double a, double b, double c, double d);
-extern void uint64_put(uint64_t a, uint64_t b);
+extern void double_put(const double a, const double b, const double c, const double d);
+extern void uint64_put(const uint64_t a, const uint64_t b);
 
 /*
  *  Catch signals and set flag to break out of stress loops

@@ -29,7 +29,7 @@
  *  being used - this avoids the float loop from being
  *  over optimised out per iteration.
  */
-void double_put(double a, double b, double c, double d)
+void double_put(const double a, const double b, const double c, const double d)
 {
 	(void)a;
 	(void)b;
@@ -42,7 +42,7 @@ void double_put(double a, double b, double c, double d)
  *  being used - this avoids the integer loop from being
  *  over optimised out per iteration.
  */
-void uint64_put(uint64_t a, uint64_t b)
+void uint64_put(const uint64_t a, const uint64_t b)
 {
 	(void)a;
 	(void)b;
