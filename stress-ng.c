@@ -62,8 +62,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define APP_NAME		"stress-ng"
-
 /* GNU HURD */
 #ifndef PATH_MAX
 #define PATH_MAX 		(4096)
@@ -95,6 +93,7 @@
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DBG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INF, fmt, ## args)
 #define pr_err(fp, fmt, args...)	print(fp, PR_ERR, fmt, ## args)
+
 #define pr_failed_err(name, what)	pr_failed(PR_ERR, name, what)
 #define pr_failed_dbg(name, what)	pr_failed(PR_DBG, name, what)
 
@@ -336,6 +335,7 @@ static int print(FILE *fp, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
 
 /* Various option settings and flags */
+static const char *app_name = "stress-ng";		/* Name of application */
 static sem_t	sem;					/* stress_semaphore sem */
 static uint8_t *mem_chunk;				/* Cache load shared memory */
 static uint64_t	opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
@@ -499,8 +499,8 @@ static int print(
 		if (flag & PR_INF)
 			type = "info";
 		
-		n = snprintf(buf, sizeof(buf), APP_NAME ": %s: [%i] ",
-			type, getpid());
+		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
+			app_name, type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 		fprintf(fp, "%s", buf);
 		fflush(fp);
@@ -2450,7 +2450,7 @@ static inline func stress_func(const stress_id id)
  */
 static void version(void)
 {
-	printf(APP_NAME ", version " VERSION "\n");
+	printf("%s, version " VERSION "\n", app_name);
 }
 
 static const help_t help[] = {
@@ -2567,7 +2567,7 @@ static void usage(void)
 	int i;
 
 	version();
-	printf(	"\nUsage: " APP_NAME " [OPTION [ARG]]\n");
+	printf(	"\nUsage: %s [OPTION [ARG]]\n", app_name);
 	for (i = 0; help[i].description; i++) {
 		char opt_s[10] = "";
 
@@ -2575,8 +2575,8 @@ static void usage(void)
 			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
 		printf(" %-6s--%-17s%s\n", opt_s, help[i].opt_l, help[i].description);
 	}
-	printf("\nExample " APP_NAME " --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
-	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n");
+	printf("\nExample %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
+	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", app_name);
 	exit(EXIT_SUCCESS);
 }
 
@@ -3068,7 +3068,7 @@ next_opt:
 						exit(EXIT_FAILURE);
 					(void)alarm(opt_timeout);
 					mwc_reseed();
-					snprintf(name, sizeof(name), APP_NAME "-%s", stressors[i].name);
+					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
 #if defined (__linux__)
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 #endif
