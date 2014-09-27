@@ -2264,11 +2264,17 @@ static int stress_mmap(
 	const char *name)
 {
 	uint8_t *buf = NULL;
-	const size_t sz = opt_mmap_bytes & ~(PAGE_4K - 1);
-	const size_t pages4k = sz >> PAGE_4K_SHIFT;
+#ifdef _SC_PAGESIZE
+	const long page_size = sysconf(_SC_PAGESIZE);
+#else
+	const long page_size = PAGE_4K;
+#endif
+	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
+	const size_t pages4k = sz / page_size;
 
 	(void)instance;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+
 
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
@@ -2287,7 +2293,7 @@ static int stress_mmap(
 		}
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
-			mappings[n] = buf + (n << PAGE_4K_SHIFT);
+			mappings[n] = buf + (n * page_size);
 
 		/* Ensure we can write to the mapped pages */
 		memset(buf, 0xff, sz);
@@ -2301,7 +2307,7 @@ static int stress_mmap(
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
-					munmap(mappings[page], PAGE_4K);
+					munmap(mappings[page], page_size);
 					n--;
 					break;
 				}
@@ -2324,14 +2330,14 @@ static int stress_mmap(
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
-					mappings[page] = mmap(mappings[page], PAGE_4K, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0);
+					mappings[page] = mmap(mappings[page], page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0);
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
 					} else {
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						memset(mappings[page], 0xff, PAGE_4K);
+						memset(mappings[page], 0xff, page_size);
 					}
 					n--;
 					break;
@@ -2347,7 +2353,7 @@ cleanup:
 		 */
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED)
-				munmap(mappings[n], PAGE_4K);
+				munmap(mappings[n], page_size);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
