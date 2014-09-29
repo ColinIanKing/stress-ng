@@ -3233,7 +3233,7 @@ next_opt:
 
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stressors[stress_info_index(i)].stress_func(counters + (i * max) + j, j, opt_ops[i], name);
+						rc = stressors[i].stress_func(counters + (i * max) + j, j, opt_ops[i], name);
 					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 					exit(rc);
