@@ -2564,22 +2564,22 @@ static const stress_t stressors[] = {
 	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
 #endif
 	/* Add new stress tests here */
-	{ NULL,		 STRESS_MAX,	0,		0,			NULL },
+	{ stress_noop,	STRESS_MAX,	0,		0,			NULL },
 };
 
 /*
  *  stress_func
  *	return stress test based on a given stress test id
  */
-static inline func stress_func(const stress_id id)
+static inline int stress_info_index(const stress_id id)
 {
 	unsigned int i;
 
-	for (i = 0; stressors[i].stress_func; i++)
-		if (i == id)
-			return stressors[i].stress_func;
+	for (i = 0; stressors[i].name; i++)
+		if (stressors[i].id == id)
+			break;
 
-	return stress_noop;
+	return i;	/* End of array is a special "NULL" entry */
 }
 
 /*
@@ -3090,7 +3090,7 @@ next_opt:
 		}
 	}
 
-	if (num_procs[STRESS_SEMAPHORE]) {
+	if (num_procs[stress_info_index(STRESS_SEMAPHORE)]) {
 		/* create a mutex */
 		if (sem_init(&sem, 1, 1) < 0) {
 			pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
@@ -3185,7 +3185,7 @@ next_opt:
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-	if (num_procs[STRESS_CACHE]) {
+	if (num_procs[stress_info_index(STRESS_CACHE)]) {
 		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 		if (mem_chunk == MAP_FAILED) {
 			pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
@@ -3233,7 +3233,7 @@ next_opt:
 
 					(void)usleep(opt_backoff * n_procs);
 					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stress_func(i)(counters + (i * max) + j, j, opt_ops[i], name);
+						rc = stressors[stress_info_index(i)].stress_func(counters + (i * max) + j, j, opt_ops[i], name);
 					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 					exit(rc);
@@ -3296,7 +3296,7 @@ wait_for_procs:
 	}
 	free_procs();
 
-	if (num_procs[STRESS_SEMAPHORE]) {
+	if (num_procs[stress_info_index(STRESS_SEMAPHORE)]) {
 		if (sem_destroy(&sem) < 0) {
 			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
