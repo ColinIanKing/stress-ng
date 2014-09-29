@@ -949,6 +949,31 @@ int stress_cpu_nsqrt(void)
 	return (int)d_sum;
 }
 
+int stress_cpu_phi(void)
+{
+	double phi; /* Golden ratio */
+	uint64_t a, b;
+	const uint64_t mask = 1ULL << 63;
+	int i;
+
+	/* Pick any two starting points */
+	a = mwc() % 99;
+	b = mwc() % 99;
+
+	/* Iterate until we approach overflow */
+	for (i = 0; (i < 64) && !((a | b) & mask); i++) {
+		/* Find nth term */
+		uint64_t c = a + b;
+
+		a = b;
+		b = c;
+	}
+	/* And we have the golden ratio */
+	phi = (double)a / (double)b;
+
+	return (int)phi;	/* Force phi to be calculated */
+}
+
 /*
  * Table of cpu stress methods
  */
@@ -960,6 +985,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "trig",	stress_cpu_trig },
 	{ "rand",	stress_cpu_rand },
 	{ "nsqrt",	stress_cpu_nsqrt },
+	{ "phi",	stress_cpu_phi },
 	{ NULL,		NULL }
 };
 
