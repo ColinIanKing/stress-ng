@@ -239,6 +239,7 @@ typedef enum {
 	OPT_HDD_NOCLEAN,
 	OPT_HDD_WRITE_SIZE,
 	OPT_CPU_OPS,
+	OPT_CPU_METHOD,
 	OPT_IOSYNC_OPS,
 	OPT_VM_OPS,
 	OPT_HDD_OPS,
@@ -303,6 +304,16 @@ typedef struct {
 	const char *name;		/* name of stress test */
 } stress_t;
 
+/*
+ *  the CPU stress test has different classes of cpu stressor
+ */
+typedef int (*stress_cpu_func)(void);
+
+typedef struct {
+	const char		*name;	/* human readable form of stressor */
+	const stress_cpu_func	func;	/* the stressor function */
+} stress_cpu_stressor_info_t;
+
 #if defined (__linux__)
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
@@ -349,6 +360,7 @@ static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
 static int32_t  opt_cpu_load = 100;			/* CPU max load */
+static stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 static size_t	opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 static size_t	opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
 static int	opt_vm_flags = 0;			/* VM mmap flags */
@@ -498,7 +510,7 @@ static int print(
 			type = "debug";
 		if (flag & PR_INF)
 			type = "info";
-		
+
 		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
 			app_name, type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
@@ -833,6 +845,139 @@ static int stress_iosync(
 	return EXIT_SUCCESS;
 }
 
+int stress_cpu_sqrt(void)
+{
+	int i;
+
+	for (i = 0; i < 16384; i++)
+		sqrt((double)mwc());
+
+	return i;
+}
+
+int stress_cpu_loop(void)
+{
+	int i, i_sum = 0;
+
+	for (i = 0; i < 16384; i++) {
+		i_sum += i;
+		__asm__ __volatile__("");	/* Stop optimising out */
+	}
+
+	return i_sum;
+}
+
+int stress_cpu_gcd(void)
+{
+	int i, i_sum = 0;
+
+	for (i = 0; i < 16384; i++) {
+		int a = i;
+		int b = mwc();
+		int r = 0;
+
+		while (b) {
+			int r = a % b;
+			a = b;
+			b = r;
+		}
+		i_sum += r;
+		__asm__ __volatile__("");	/* Stop optimising out */
+	}
+	return i_sum;
+}
+
+int stress_cpu_bitops(void)
+{
+	int i, i_sum = 0;
+
+	for (i = 0; i < 16384; i++) {
+		unsigned int v = i;
+		unsigned int r = v;
+		int s = (sizeof(v) * 8) - 1;
+
+		for (v >>= 1; v; v >>= 1, s--) {
+			r <<= 1;
+			r |= v & 1;
+		}
+		r <<= s;
+		i_sum += r;
+	}
+	return i_sum;
+}
+
+int stress_cpu_trig(void)
+{
+	int i;
+	double d_sum = 0.0;
+
+	for (i = 0; i < 16384; i++) {
+		double theta = (2.0 * M_PI * (double)i)/16384.0;
+		d_sum += (cos(theta) * sin(theta));
+	}
+	return (int)d_sum;
+}
+
+int stress_cpu_rand(void)
+{
+	int i;
+
+	for (i = 0; i < 16384; i++)
+		mwc();
+	return i;
+}
+
+int stress_cpu_nsqrt(void)
+{
+	int i;
+	double d_sum = 0.0;
+
+	for (i = 0; i < 16384; i++) {
+		double n = (double)i;
+		double lo = (n < 1.0) ? n : 1.0;
+		double hi = (n < 1.0) ? 1.0 : n;
+
+		while ((hi - lo) > 0.00001) {
+			double g = (lo + hi) / 2.0;
+			if (g * g > n)
+				hi = g;
+			else
+				lo = g;
+		}
+		d_sum += (lo + hi) / 2.0;
+	}
+	return (int)d_sum;
+}
+
+/*
+ * Table of cpu stress methods
+ */
+static stress_cpu_stressor_info_t cpu_methods[] = {
+	{ "sqrt", 	stress_cpu_sqrt },
+	{ "loop",	stress_cpu_loop },
+	{ "gcd",	stress_cpu_gcd },
+	{ "bitops",	stress_cpu_bitops },
+	{ "trig",	stress_cpu_trig },
+	{ "rand",	stress_cpu_rand },
+	{ "nsqrt",	stress_cpu_nsqrt },
+	{ NULL,		NULL }
+};
+
+/*
+ *  stress_cpu_find_by_name()
+ *	find cpu stress method by name
+ */
+static inline stress_cpu_stressor_info_t *stress_cpu_find_by_name(const char *name)
+{
+	stress_cpu_stressor_info_t *info = cpu_methods;
+
+	for (info = cpu_methods; info->func; info++) {
+		if (!strcmp(info->name, name))
+			return info;
+	}
+	return NULL;
+}
+
 /*
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
@@ -844,6 +989,7 @@ static int stress_cpu(
 	const char *name)
 {
 	double bias;
+	stress_cpu_func func = opt_cpu_stressor->func;
 
 	(void)instance;
 	(void)name;
@@ -853,12 +999,7 @@ static int stress_cpu(
 	 */
 	if (opt_cpu_load == 100) {
 		do {
-			int i;
-			for (i = 0; i < 16384; i++) {
-				sqrt((double)mwc());
-				if (!opt_do_run)
-					break;
-			}
+			(void)func();
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		return EXIT_SUCCESS;
@@ -880,17 +1021,15 @@ static int stress_cpu(
 	 */
 	bias = 0.0;
 	do {
-		int i, j;
+		int j;
 		double t, delay;
 		struct timeval tv1, tv2, tv3;
 
 		gettimeofday(&tv1, NULL);
 		for (j = 0; j < 64; j++) {
-			for (i = 0; i < 16384; i++) {
-				sqrt((double)mwc());
-				if (!opt_do_run)
-					break;
-			}
+			(void)func();
+			if (!opt_do_run)
+				break;
 			(*counter)++;
 		}
 		gettimeofday(&tv2, NULL);
@@ -2463,6 +2602,7 @@ static const help_t help[] = {
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
+	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is sqrt(rand())" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
 	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
 	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
@@ -2588,6 +2728,9 @@ static const struct option long_options[] = {
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
 	{ "backoff",	1,	0,	OPT_BACKOFF },
 	{ "cpu",	1,	0,	OPT_CPU },
+	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
+	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
+	{ "cpu-method",	1,	0,	OPT_CPU_METHOD },
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "vm",		1,	0,	OPT_VM },
 	{ "fork",	1,	0,	OPT_FORK },
@@ -2607,13 +2750,11 @@ static const struct option long_options[] = {
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "metrics",	0,	0,	OPT_METRICS },
-	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ "switch-ops",	1,	0,	OPT_CTXT_OPS },
-	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "cache",	1,	0, 	OPT_CACHE },
@@ -2791,6 +2932,8 @@ int main(int argc, char **argv)
 	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
 
+	opt_cpu_stressor = stress_cpu_find_by_name("sqrt");
+
 	for (;;) {
 		int c, option_index;
 		stress_id id;
@@ -2856,6 +2999,19 @@ next_opt:
 			opt_cpu_load = opt_long("cpu load", optarg);
 			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case OPT_CPU_METHOD:
+			opt_cpu_stressor = stress_cpu_find_by_name(optarg);
+			if (!opt_cpu_stressor) {
+				stress_cpu_stressor_info_t *info = cpu_methods;
+
+				fprintf(stderr, "cpu-method must be one of: ");
+				for (info = cpu_methods; info->func; info++)
+					fprintf(stderr, " %s", info->name);
+				fprintf(stderr, "\n");
+
 				exit(EXIT_FAILURE);
 			}
 			break;
