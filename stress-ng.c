@@ -1018,6 +1018,44 @@ static int stress_cpu_fft(void)
 	return 0;
 }
 
+static int stress_cpu_euler(void)
+{
+	long double e = 1.0;
+	long double fact = 1.0;
+	int n = 0;
+
+	/* Arbitary precision chosen */
+	for (n = 1; n < 32; n++) {
+		fact *= n;
+		e += (1.0 / fact);
+	}
+
+	return (int)e;
+}
+
+/*
+ *  stress_cpu_jenkin()
+ *	Jenkin's hash on 128 byte random data
+ *	http://www.burtleburtle.net/bob/hash/doobs.html
+ */
+static int stress_cpu_jenkin(void)
+{
+	const size_t len = 128;
+	uint8_t i, key;
+	uint32_t h = 0;
+
+	for (i = 0; i < len; i++) {
+		key = mwc() & 0xff;
+		h += key;
+		h += h << 10;
+		h ^= h >> 6;
+	}
+	h += h << 3;
+	h ^= h >> 11;
+	h += h << 15;
+
+	return (int)h;
+}
 
 /*
  * Table of cpu stress methods
@@ -1032,6 +1070,8 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
 	{ "fft",	stress_cpu_fft },
+	{ "euler",	stress_cpu_euler },
+	{ "jenkin",	stress_cpu_jenkin },
 	{ NULL,		NULL }
 };
 
