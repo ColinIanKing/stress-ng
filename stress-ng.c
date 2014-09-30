@@ -379,6 +379,7 @@ static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 static int	opt_socket_port = 5000;			/* Default socket port */
 static volatile bool opt_do_run = true;			/* false to exit stressor */
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
+static stress_cpu_stressor_info_t cpu_methods[];	/* fwd decl of cpu stressor methods */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -1058,6 +1059,69 @@ static int stress_cpu_jenkin(void)
 }
 
 /*
+ *  stress_cpu_idct()
+ *	compute 8x8 Inverse Discrete Cosine Transform
+ */
+int stress_cpu_idct(void)
+{
+	const double invsqrt2 = 1.0 / sqrt(2.0);
+	const double pi_over_16 = M_PI / 16.0;
+	const int sz = 8;
+	int i, j, u, v;
+	float data[sz][sz], idct[sz][sz];
+
+	/*
+	 *  Set up DCT
+	 */
+	for (i = 0; i < sz; i++) {
+		for (j = 0; j < sz; j++) {
+			data[i][j] = (i + j == 0) ? 2040: 0;
+		}
+	}
+	for (i = 0; i < sz; i++) {
+		double pi_i = (i + i + 1) * pi_over_16;
+
+		for (j = 0; j < sz; j++) {
+			double pi_j = (j + j + 1) * pi_over_16;
+			double sum = 0.0;
+
+			for (u = 0; u < sz; u++) {
+				double cos_pi_i_u = cos(pi_i * u);
+
+				for (v = 0; v < sz; v++) {
+					double cos_pi_j_v = cos(pi_j * v);
+
+					sum += (data[u][v] *
+						(u ? 1.0 : invsqrt2) *
+						(v ? 1.0 : invsqrt2) *
+						cos_pi_i_u * cos_pi_j_v);
+				}
+			}
+			idct[i][j] = 0.25 * sum;
+		}
+	}
+	/* Final output should be a 8x8 matrix of values 255 */
+	for (i = 0; i < sz; i++) {
+		for (j = 0; j < sz; j++) {
+			if ((int)idct[i][j] != 255)
+				return -1;
+		}
+	}
+	return 0;
+}
+
+int stress_cpu_all(void)
+{
+	static int i = 0;
+	int ret = cpu_methods[i++].func();
+
+	if (cpu_methods[i].func == stress_cpu_all)
+		i = 0;
+
+	return ret;
+}
+
+/*
  * Table of cpu stress methods
  */
 static stress_cpu_stressor_info_t cpu_methods[] = {
@@ -1072,6 +1136,8 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "fft",	stress_cpu_fft },
 	{ "euler",	stress_cpu_euler },
 	{ "jenkin",	stress_cpu_jenkin },
+	{ "idct",	stress_cpu_idct },
+	{ "all",	stress_cpu_all },
 	{ NULL,		NULL }
 };
 
