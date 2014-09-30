@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <math.h>
+#include <complex.h>
 #include <signal.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -145,6 +146,8 @@
 
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
+
+#define FFT_SIZE		(4096)
 
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
@@ -975,6 +978,48 @@ int stress_cpu_phi(void)
 }
 
 /*
+ *  fft_partial()
+ *  	partial Fast Fourier Transform
+ */
+static void fft_partial(complex *data, complex *tmp, const int n, const int m)
+{
+	if (m < n) {
+		const int m2 = m * 2;
+		int i;
+
+		fft_partial(tmp, data, n, m2);
+		fft_partial(tmp + m, data + m, n, m2);
+		for (i = 0; i < n; i += m2) {
+			complex v = tmp[i];
+			complex t =
+				cexp((-I * M_PI * (double)i) /
+				     (double)n) * tmp[i + m];
+			data[i / 2] = v + t;
+			data[(i + n) / 2] = v - t;
+		}
+	}
+}
+
+/*
+ *  stress_cpu_fft()
+ *	Fast Fourier Transform
+ */
+static int stress_cpu_fft(void)
+{
+	complex buf[FFT_SIZE], tmp[FFT_SIZE];
+	int i;
+
+	for (i = 0; i < FFT_SIZE; i++)
+		buf[i] = (complex)(i % 63);
+
+	memcpy(tmp, buf, sizeof(complex) * FFT_SIZE);
+	fft_partial(buf, tmp, FFT_SIZE, 1);
+
+	return 0;
+}
+
+
+/*
  * Table of cpu stress methods
  */
 static stress_cpu_stressor_info_t cpu_methods[] = {
@@ -986,6 +1031,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "rand",	stress_cpu_rand },
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
+	{ "fft",	stress_cpu_fft },
 	{ NULL,		NULL }
 };
 
