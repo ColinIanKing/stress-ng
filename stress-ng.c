@@ -849,6 +849,10 @@ static int stress_iosync(
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_cpu_sqrt()
+ *	stress CPU on square roots
+ */
 int stress_cpu_sqrt(void)
 {
 	int i;
@@ -859,6 +863,10 @@ int stress_cpu_sqrt(void)
 	return i;
 }
 
+/*
+ *  stress_cpu_loop()
+ *	simple CPU busy loop
+ */
 int stress_cpu_loop(void)
 {
 	int i, i_sum = 0;
@@ -871,6 +879,10 @@ int stress_cpu_loop(void)
 	return i_sum;
 }
 
+/*
+ *  stress_cpu_gcd()
+ *	compute Greatest Common Divisor
+ */
 int stress_cpu_gcd(void)
 {
 	int i, i_sum = 0;
@@ -891,6 +903,10 @@ int stress_cpu_gcd(void)
 	return i_sum;
 }
 
+/*
+ *  stress_cpu_bitops()
+ *	reverse binary digits to stress bit operations
+ */
 int stress_cpu_bitops(void)
 {
 	int i, i_sum = 0;
@@ -910,6 +926,10 @@ int stress_cpu_bitops(void)
 	return i_sum;
 }
 
+/*
+ *  stress_cpu_trig()
+ *	simple sin, cos trig functions
+ */
 int stress_cpu_trig(void)
 {
 	int i;
@@ -922,6 +942,10 @@ int stress_cpu_trig(void)
 	return (int)d_sum;
 }
 
+/*
+ *  stress_cpu_rand()
+ *	generate lots of pseudo-random integers
+ */
 int stress_cpu_rand(void)
 {
 	int i;
@@ -931,6 +955,10 @@ int stress_cpu_rand(void)
 	return i;
 }
 
+/*
+ *  stress_cpu_nsqrt()
+ *	iterative Newton–Raphson square root
+ */
 int stress_cpu_nsqrt(void)
 {
 	int i;
@@ -953,6 +981,10 @@ int stress_cpu_nsqrt(void)
 	return (int)d_sum;
 }
 
+/*
+ *  stress_cpu_phi()
+ *	compute the Golden Ratio
+ */
 int stress_cpu_phi(void)
 {
 	double phi; /* Golden ratio */
@@ -1019,6 +1051,10 @@ static int stress_cpu_fft(void)
 	return 0;
 }
 
+/*
+ *   stress_cpu_euler()
+ *	compute e using series
+ */
 static int stress_cpu_euler(void)
 {
 	long double e = 1.0;
@@ -1079,17 +1115,17 @@ int stress_cpu_idct(void)
 		}
 	}
 	for (i = 0; i < sz; i++) {
-		double pi_i = (i + i + 1) * pi_over_16;
+		const double pi_i = (i + i + 1) * pi_over_16;
 
 		for (j = 0; j < sz; j++) {
-			double pi_j = (j + j + 1) * pi_over_16;
+			const double pi_j = (j + j + 1) * pi_over_16;
 			double sum = 0.0;
 
 			for (u = 0; u < sz; u++) {
-				double cos_pi_i_u = cos(pi_i * u);
+				const double cos_pi_i_u = cos(pi_i * u);
 
 				for (v = 0; v < sz; v++) {
-					double cos_pi_j_v = cos(pi_j * v);
+					const double cos_pi_j_v = cos(pi_j * v);
 
 					sum += (data[u][v] *
 						(u ? 1.0 : invsqrt2) *
@@ -1110,6 +1146,10 @@ int stress_cpu_idct(void)
 	return 0;
 }
 
+/*
+ *  stress_cpu_all()
+ *	iterate over all cpu stressors
+ */
 int stress_cpu_all(void)
 {
 	static int i = 0;
