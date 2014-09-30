@@ -3225,7 +3225,7 @@ next_opt:
 			if (!opt_cpu_stressor) {
 				stress_cpu_stressor_info_t *info = cpu_methods;
 
-				fprintf(stderr, "cpu-method must be one of: ");
+				fprintf(stderr, "cpu-method must be one of:");
 				for (info = cpu_methods; info->func; info++)
 					fprintf(stderr, " %s", info->name);
 				fprintf(stderr, "\n");
