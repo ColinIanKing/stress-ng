@@ -1215,32 +1215,33 @@ static void stress_cpu_float(void)
  */
 static void stress_cpu_all(void)
 {
-	static int i = 0;
+	static int i = 1;	/* Skip over stress_cpu_all */
 
 	cpu_methods[i++].func();
-	if (cpu_methods[i].func == stress_cpu_all)
-		i = 0;
+	if (!cpu_methods[i].func)
+		i = 1;
 }
 
 /*
  * Table of cpu stress methods
  */
 static stress_cpu_stressor_info_t cpu_methods[] = {
-	{ "sqrt", 	stress_cpu_sqrt },
-	{ "loop",	stress_cpu_loop },
-	{ "gcd",	stress_cpu_gcd },
+	{ "all",	stress_cpu_all },	/* Special "all test */
+
 	{ "bitops",	stress_cpu_bitops },
-	{ "trig",	stress_cpu_trig },
-	{ "rand",	stress_cpu_rand },
-	{ "nsqrt",	stress_cpu_nsqrt },
-	{ "phi",	stress_cpu_phi },
-	{ "fft",	stress_cpu_fft },
 	{ "euler",	stress_cpu_euler },
-	{ "jenkin",	stress_cpu_jenkin },
+	{ "fft",	stress_cpu_fft },
+	{ "float",	stress_cpu_float },
+	{ "gcd",	stress_cpu_gcd },
 	{ "idct",	stress_cpu_idct },
 	{ "int",	stress_cpu_int },
-	{ "float",	stress_cpu_float },
-	{ "all",	stress_cpu_all },
+	{ "jenkin",	stress_cpu_jenkin },
+	{ "loop",	stress_cpu_loop },
+	{ "nsqrt",	stress_cpu_nsqrt },
+	{ "phi",	stress_cpu_phi },
+	{ "rand",	stress_cpu_rand },
+	{ "sqrt", 	stress_cpu_sqrt },
+	{ "trig",	stress_cpu_trig },
 	{ NULL,		NULL }
 };
 
