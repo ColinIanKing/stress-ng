@@ -1240,6 +1240,40 @@ static void stress_cpu_float(void)
 }
 
 /*
+ *  stress_cpu_rgb()
+ *	CCIR 601 RGB to YUV to RGB conversion
+ */
+static void stress_cpu_rgb(void)
+{
+	int i;
+	uint32_t rgb = mwc() & 0xffffff;
+	uint8_t r = rgb >> 16;
+	uint8_t g = rgb >> 8;
+	uint8_t b = rgb;
+
+	/* Do a 1000 colours starting from the rgb seed */
+	for (i = 0; i < 1000; i++) {
+		float y,u,v;
+
+		/* RGB to CCIR 601 YUV */
+		y = (0.299 * r) + (0.587 * g) + (0.114 * b);
+		u = (b - y) * 0.565;
+		v = (r - y) * 0.713;
+		
+		/* YUV back to RGB */
+		r = y + (1.403 * v);
+		g = y - (0.344 * u) - (0.714 * v);
+		b = y + (1.770 * u);
+
+		/* And bump each colour to make next round */
+		r += 1;
+		g += 2;
+		b += 3;
+	}
+	uint64_put(r + g + b);
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1270,6 +1304,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
 	{ "rand",	stress_cpu_rand },
+	{ "rgb",	stress_cpu_rgb },
 	{ "sqrt", 	stress_cpu_sqrt },
 	{ "trig",	stress_cpu_trig },
 	{ NULL,		NULL }
