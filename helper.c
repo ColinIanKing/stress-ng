@@ -29,12 +29,9 @@
  *  being used - this avoids the float loop from being
  *  over optimised out per iteration.
  */
-void double_put(const double a, const double b, const double c, const double d)
+void double_put(const double a)
 {
 	(void)a;
-	(void)b;
-	(void)c;
-	(void)d;
 }
 
 /*

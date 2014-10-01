@@ -177,7 +177,6 @@ typedef enum {
 	STRESS_TIMER,
 	STRESS_DENTRY,
 	STRESS_URANDOM,
-	STRESS_FLOAT,
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
 	STRESS_SIGQUEUE,
@@ -276,8 +275,6 @@ typedef enum {
 	OPT_FLOCK_OPS,
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
-	OPT_FLOAT,
-	OPT_FLOAT_OPS,
 	OPT_SEMAPHORE,
 	OPT_SEMAPHORE_OPS,
 	OPT_OPEN_OPS,
@@ -383,7 +380,7 @@ static stress_cpu_stressor_info_t cpu_methods[];	/* fwd decl of cpu stressor met
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
  */
-extern void double_put(const double a, const double b, const double c, const double d);
+extern void double_put(const double a);
 extern void uint64_put(const uint64_t a);
 
 /*
@@ -1188,6 +1185,40 @@ int stress_cpu_int(void)
 }
 
 /*
+ *  stress_cpu_float()
+ *	mix of floating point ops
+ */
+int stress_cpu_float(void)
+{
+	uint32_t i;
+	double a = 0.18728, b = mwc(), c = mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		a = a + b;
+		b = a * c;
+		c = a - b;
+		d = a / b;
+		a = c / 0.1923;
+		b = c + a;
+		c = b * 3.12;
+		d = d + b + sin(a);
+		a = (b + c) / c;
+		b = b * c;
+		c = c + 1.0;
+		d = d - sin(c);
+		a = a * cos(b);
+		b = b + cos(c);
+		c = sin(a) / 2.344;
+		b = d - 1.0;
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+
+	return 0;
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1219,6 +1250,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "jenkin",	stress_cpu_jenkin },
 	{ "idct",	stress_cpu_idct },
 	{ "int",	stress_cpu_int },
+	{ "float",	stress_cpu_float },
 	{ "all",	stress_cpu_all },
 	{ NULL,		NULL }
 };
@@ -2143,58 +2175,6 @@ static int stress_urandom(
 #endif
 
 /*
- *  stress_float
- *	stress floating point math operations
- */
-static int stress_float(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
-{
-	(void)instance;
-
-	do {
-		uint32_t i;
-		double a = 0.18728, b, c, d;
-		struct timespec clk;
-
-		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_failed_dbg(name, "clock_gettime");
-			return EXIT_FAILURE;
-		}
-		b = clk.tv_nsec;
-		c = clk.tv_sec;
-
-		for (i = 0; i < 10000; i++) {
-			a = a + b;
-			b = a * c;
-			c = a - b;
-			d = a / b;
-			a = c / 0.1923;
-			b = c + a;
-			c = b * 3.12;
-			d = d + b + sin(a);
-			a = (b + c) / c;
-			b = b * c;
-			c = c + 1.0;
-			d = d - sin(c);
-			a = a * cos(b);
-			b = b + cos(c);
-			c = sin(a) / 2.344;
-			b = d - 1.0;
-			if (!opt_do_run)
-				break;
-		}
-		double_put(a, b, c, d);
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	return EXIT_SUCCESS;
-}
-
-/*
  *  stress_sem()
  *	stress system by sem ops
  */
@@ -2734,7 +2714,6 @@ static const stress_t stressors[] = {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate" },
 #endif
-	{ stress_float,	 STRESS_FLOAT,	OPT_FLOAT, 	OPT_FLOAT_OPS,		"float" },
 	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
@@ -2991,8 +2970,6 @@ static const struct option long_options[] = {
 	{ "dentry",	1,	0,	OPT_DENTRY },
 	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
 	{ "dentries",	1,	0,	OPT_DENTRIES },
-	{ "float",	1,	0,	OPT_FLOAT },
-	{ "float-ops",	1,	0,	OPT_FLOAT_OPS },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 	{ "open",	1,	0,	OPT_OPEN },

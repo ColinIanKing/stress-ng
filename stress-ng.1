@@ -75,6 +75,7 @@ euler	compute e using (1 + 1 / n) ** n
 jenkin	Jenkin's integer hash on 128 bytes of random data
 idct	8 x 8 IDCT (Inverse Discrete Cosine Transform)
 int	mix of 64 bit integer operations
+float	mix of floating point operations
 all	Iterate over all the above cpu stress methods
 .TE
 .TP
@@ -134,12 +135,6 @@ start N processes locking on a single file.
 .TP
 .B \-\-flock-ops N
 stop flock stress processes after N bogo flock operations.
-.TP
-.B \-\-float N
-start N processes executing various double precision floating point operations.
-.TP
-.B \-\-float-ops N
-stop floating point stress processes after N bogo operations.
 .TP
 .B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
