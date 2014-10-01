@@ -178,7 +178,6 @@ typedef enum {
 	STRESS_DENTRY,
 	STRESS_URANDOM,
 	STRESS_FLOAT,
-	STRESS_INT,
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
 	STRESS_SIGQUEUE,
@@ -279,8 +278,6 @@ typedef enum {
 	OPT_DENTRIES,
 	OPT_FLOAT,
 	OPT_FLOAT_OPS,
-	OPT_INT,
-	OPT_INT_OPS,
 	OPT_SEMAPHORE,
 	OPT_SEMAPHORE_OPS,
 	OPT_OPEN_OPS,
@@ -387,7 +384,7 @@ static stress_cpu_stressor_info_t cpu_methods[];	/* fwd decl of cpu stressor met
  *  *_put funcs are essentially no-op functions.
  */
 extern void double_put(const double a, const double b, const double c, const double d);
-extern void uint64_put(const uint64_t a, const uint64_t b);
+extern void uint64_put(const uint64_t a);
 
 /*
  *  Catch signals and set flag to break out of stress loops
@@ -1147,6 +1144,50 @@ int stress_cpu_idct(void)
 }
 
 /*
+ *  stress_cpu_int()
+ *	mix of integer ops
+ */
+int stress_cpu_int(void)
+{
+	uint64_t a = mwc(), b = mwc();
+	int i;
+
+	for (i = 0; i < 10000; i++) {
+		a += b;
+		b ^= a;
+		a >>= 1;
+		b <<= 2;
+		b -= a;
+		a ^= ~0;
+		b ^= ~0xf0f0f0f0f0f0f0f0ULL;
+		a *= 3;
+		b *= 7;
+		a += 2;
+		b -= 3;
+		a /= 77;
+		b /= 3;
+		a <<= 1;
+		b <<= 2;
+		a |= 1;
+		b |= 3;
+		a *= mwc();
+		b ^= mwc();
+		a += mwc();
+		b -= mwc();
+		a /= 7;
+		b /= 9;
+		a |= 0x1000100010001000ULL;
+		b &= 0xffeffffefebefffeULL;
+
+		if (!opt_do_run)
+			break;
+	}
+	uint64_put(a * b);
+
+	return 0;
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1177,6 +1218,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "euler",	stress_cpu_euler },
 	{ "jenkin",	stress_cpu_jenkin },
 	{ "idct",	stress_cpu_idct },
+	{ "int",	stress_cpu_int },
 	{ "all",	stress_cpu_all },
 	{ NULL,		NULL }
 };
@@ -2153,67 +2195,6 @@ static int stress_float(
 }
 
 /*
- *  stress_int
- *	stress integer operations
- */
-static int stress_int(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
-{
-	(void)instance;
-
-	do {
-		uint32_t i;
-		uint64_t a = mwc(), b = mwc();
-		struct timespec clk;
-
-		if (clock_gettime(CLOCK_REALTIME, &clk) < 0) {
-			pr_failed_dbg(name, "clock_gettime");
-			return EXIT_FAILURE;
-		}
-		a ^= (uint64_t)clk.tv_nsec;
-		b ^= (uint64_t)clk.tv_sec;
-
-		for (i = 0; i < 10000; i++) {
-			a += b;
-			b ^= a;
-			a >>= 1;
-			b <<= 2;
-			b -= a;
-			a ^= ~0;
-			b ^= ~0xf0f0f0f0f0f0f0f0ULL;
-			a *= 3;
-			b *= 7;
-			a += 2;
-			b -= 3;
-			a /= 77;
-			b /= 3;
-			a <<= 1;
-			b <<= 2;
-			a |= 1;
-			b |= 3;
-			a *= mwc();
-			b ^= mwc();
-			a += mwc();
-			b -= mwc();
-			a /= 7;
-			b /= 9;
-			a |= 0x1000100010001000ULL;
-			b &= 0xffeffffefebefffeULL;
-			if (!opt_do_run)
-				break;
-		}
-		uint64_put(a, b);
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	return EXIT_SUCCESS;
-}
-
-/*
  *  stress_sem()
  *	stress system by sem ops
  */
@@ -2757,7 +2738,6 @@ static const stress_t stressors[] = {
 	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
-	{ stress_int,	 STRESS_INT,	OPT_INT,   	OPT_INT_OPS,		"int" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
@@ -3013,8 +2993,6 @@ static const struct option long_options[] = {
 	{ "dentries",	1,	0,	OPT_DENTRIES },
 	{ "float",	1,	0,	OPT_FLOAT },
 	{ "float-ops",	1,	0,	OPT_FLOAT_OPS },
-	{ "int",	1,	0,	OPT_INT },
-	{ "int-ops",	1,	0,	OPT_INT_OPS },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
