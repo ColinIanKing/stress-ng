@@ -304,7 +304,7 @@ typedef struct {
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
-typedef int (*stress_cpu_func)(void);
+typedef void (*stress_cpu_func)(void);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -847,21 +847,19 @@ static int stress_iosync(
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
-int stress_cpu_sqrt(void)
+static void stress_cpu_sqrt(void)
 {
 	int i;
 
 	for (i = 0; i < 16384; i++)
 		sqrt((double)mwc());
-
-	return i;
 }
 
 /*
  *  stress_cpu_loop()
  *	simple CPU busy loop
  */
-int stress_cpu_loop(void)
+static void stress_cpu_loop(void)
 {
 	int i, i_sum = 0;
 
@@ -870,14 +868,14 @@ int stress_cpu_loop(void)
 		__asm__ __volatile__("");	/* Stop optimising out */
 	}
 
-	return i_sum;
+	uint64_put(i_sum);
 }
 
 /*
  *  stress_cpu_gcd()
  *	compute Greatest Common Divisor
  */
-int stress_cpu_gcd(void)
+static void stress_cpu_gcd(void)
 {
 	int i, i_sum = 0;
 
@@ -894,14 +892,15 @@ int stress_cpu_gcd(void)
 		i_sum += r;
 		__asm__ __volatile__("");	/* Stop optimising out */
 	}
-	return i_sum;
+
+	uint64_put(i_sum);
 }
 
 /*
  *  stress_cpu_bitops()
  *	reverse binary digits to stress bit operations
  */
-int stress_cpu_bitops(void)
+static void stress_cpu_bitops(void)
 {
 	int i, i_sum = 0;
 
@@ -917,14 +916,14 @@ int stress_cpu_bitops(void)
 		r <<= s;
 		i_sum += r;
 	}
-	return i_sum;
+	uint64_put(i_sum);
 }
 
 /*
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-int stress_cpu_trig(void)
+static void stress_cpu_trig(void)
 {
 	int i;
 	double d_sum = 0.0;
@@ -933,30 +932,28 @@ int stress_cpu_trig(void)
 		double theta = (2.0 * M_PI * (double)i)/16384.0;
 		d_sum += (cos(theta) * sin(theta));
 	}
-	return (int)d_sum;
+	double_put(d_sum);
 }
 
 /*
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
-int stress_cpu_rand(void)
+static void stress_cpu_rand(void)
 {
 	int i;
 
 	for (i = 0; i < 16384; i++)
 		mwc();
-	return i;
 }
 
 /*
  *  stress_cpu_nsqrt()
  *	iterative Newton–Raphson square root
  */
-int stress_cpu_nsqrt(void)
+static void stress_cpu_nsqrt(void)
 {
 	int i;
-	double d_sum = 0.0;
 
 	for (i = 0; i < 16384; i++) {
 		double n = (double)i;
@@ -970,16 +967,15 @@ int stress_cpu_nsqrt(void)
 			else
 				lo = g;
 		}
-		d_sum += (lo + hi) / 2.0;
+		double_put((lo + hi) / 2.0);
 	}
-	return (int)d_sum;
 }
 
 /*
  *  stress_cpu_phi()
  *	compute the Golden Ratio
  */
-int stress_cpu_phi(void)
+static void stress_cpu_phi(void)
 {
 	double phi; /* Golden ratio */
 	uint64_t a, b;
@@ -1001,7 +997,7 @@ int stress_cpu_phi(void)
 	/* And we have the golden ratio */
 	phi = (double)a / (double)b;
 
-	return (int)phi;	/* Force phi to be calculated */
+	double_put(phi);
 }
 
 /*
@@ -1031,7 +1027,7 @@ static void fft_partial(complex *data, complex *tmp, const int n, const int m)
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static int stress_cpu_fft(void)
+static void stress_cpu_fft(void)
 {
 	complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
@@ -1041,15 +1037,13 @@ static int stress_cpu_fft(void)
 
 	memcpy(tmp, buf, sizeof(complex) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
-
-	return 0;
 }
 
 /*
  *   stress_cpu_euler()
  *	compute e using series
  */
-static int stress_cpu_euler(void)
+static void stress_cpu_euler(void)
 {
 	long double e = 1.0;
 	long double fact = 1.0;
@@ -1061,7 +1055,7 @@ static int stress_cpu_euler(void)
 		e += (1.0 / fact);
 	}
 
-	return (int)e;
+	double_put(e);
 }
 
 /*
@@ -1069,7 +1063,7 @@ static int stress_cpu_euler(void)
  *	Jenkin's hash on 128 byte random data
  *	http://www.burtleburtle.net/bob/hash/doobs.html
  */
-static int stress_cpu_jenkin(void)
+static void stress_cpu_jenkin(void)
 {
 	const size_t len = 128;
 	uint8_t i, key;
@@ -1085,14 +1079,14 @@ static int stress_cpu_jenkin(void)
 	h ^= h >> 11;
 	h += h << 15;
 
-	return (int)h;
+	uint64_put(h);
 }
 
 /*
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
-int stress_cpu_idct(void)
+static void stress_cpu_idct(void)
 {
 	const double invsqrt2 = 1.0 / sqrt(2.0);
 	const double pi_over_16 = M_PI / 16.0;
@@ -1133,18 +1127,19 @@ int stress_cpu_idct(void)
 	/* Final output should be a 8x8 matrix of values 255 */
 	for (i = 0; i < sz; i++) {
 		for (j = 0; j < sz; j++) {
-			if ((int)idct[i][j] != 255)
-				return -1;
+			if ((int)idct[i][j] != 255) {
+				uint64_put(1);
+				return;
+			}
 		}
 	}
-	return 0;
 }
 
 /*
  *  stress_cpu_int()
  *	mix of integer ops
  */
-int stress_cpu_int(void)
+static void stress_cpu_int(void)
 {
 	uint64_t a = mwc(), b = mwc();
 	int i;
@@ -1180,15 +1175,13 @@ int stress_cpu_int(void)
 			break;
 	}
 	uint64_put(a * b);
-
-	return 0;
 }
 
 /*
  *  stress_cpu_float()
  *	mix of floating point ops
  */
-int stress_cpu_float(void)
+static void stress_cpu_float(void)
 {
 	uint32_t i;
 	double a = 0.18728, b = mwc(), c = mwc(), d;
@@ -1214,23 +1207,19 @@ int stress_cpu_float(void)
 			break;
 	}
 	double_put(a + b + c + d);
-
-	return 0;
 }
 
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
-int stress_cpu_all(void)
+static void stress_cpu_all(void)
 {
 	static int i = 0;
-	int ret = cpu_methods[i++].func();
 
+	cpu_methods[i++].func();
 	if (cpu_methods[i].func == stress_cpu_all)
 		i = 0;
-
-	return ret;
 }
 
 /*
