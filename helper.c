@@ -42,8 +42,7 @@ void double_put(const double a, const double b, const double c, const double d)
  *  being used - this avoids the integer loop from being
  *  over optimised out per iteration.
  */
-void uint64_put(const uint64_t a, const uint64_t b)
+void uint64_put(const uint64_t a)
 {
 	(void)a;
-	(void)b;
 }
