@@ -1259,7 +1259,7 @@ static void stress_cpu_rgb(void)
 		y = (0.299 * r) + (0.587 * g) + (0.114 * b);
 		u = (b - y) * 0.565;
 		v = (r - y) * 0.713;
-		
+
 		/* YUV back to RGB */
 		r = y + (1.403 * v);
 		g = y - (0.344 * u) - (0.714 * v);
