@@ -62,21 +62,23 @@ specify cpu stress method. By default, sqrt(rand()) is used, however, there are 
 .TS
 l l.
 \fBMethod	Description\fR
-all	Iterate over all the above cpu stress methods
-bitops	reverse bits in integers
-euler	compute e using (1 + 1 / n) ** n
+all	iterate over all the below cpu stress methods
+bitops	T{
+various bit operations from bithack, namely: reverse bis, parity check, bit count, round to nearest power of 2
+T}
+euler	compute e using (1 + 1 / n) ^ n
 fft	4096 sample Fast Fourier Transform
 float	mix of floating point operations
 gcd	compute GCD of integers
-idct	8 x 8 IDCT (Inverse Discrete Cosine Transform)
+idct	8 \(mu 8 IDCT (Inverse Discrete Cosine Transform)
 int	mix of 64 bit integer operations
 jenkin	Jenkin's integer hash on 128 bytes of random data
 loop	simple empty loop
 nsqrt	sqrt() using Newton–Raphson
-phi	compute the Golden Ratio using series
+phi	compute the Golden Ratio \(*f using series
 rand	rand()
 sqrt	sqrt(rand())
-trig	sin(theta) * cos(theta)
+trig	sin\(*h \(mu cos\(*h
 .TE
 .TP
 .B \-C N, \-\-cache N

@@ -898,25 +898,55 @@ static void stress_cpu_gcd(void)
 
 /*
  *  stress_cpu_bitops()
- *	reverse binary digits to stress bit operations
+ *	various bit manipulation hacks from bithacks
+ *	https://graphics.stanford.edu/~seander/bithacks.html
  */
 static void stress_cpu_bitops(void)
 {
-	int i, i_sum = 0;
+	unsigned int i, i_sum = 0;
 
 	for (i = 0; i < 16384; i++) {
-		unsigned int v = i;
-		unsigned int r = v;
-		int s = (sizeof(v) * 8) - 1;
+		{
+			unsigned int r, v;
+			int s = (sizeof(v) * 8) - 1;
 
-		for (v >>= 1; v; v >>= 1, s--) {
-			r <<= 1;
-			r |= v & 1;
+			/* Reverse bits */
+			r = v = i;
+			for (v >>= 1; v; v >>= 1, s--) {
+				r <<= 1;
+				r |= v & 1;
+			}
+			r <<= s;
+			i_sum += r;
 		}
-		r <<= s;
-		i_sum += r;
+		{
+			/* parity check */
+			unsigned int v = i;
+			v ^= v >> 16;
+			v ^= v >> 8;
+			v ^= v >> 4;
+			v &= 0xf;
+			i_sum += v;
+		}
+		{
+			/* Brian Kernighan count bits */
+			unsigned int j, v = i;
+			for (j = 0; v; j++)
+				v &= v - 1;
+			i_sum += j;
+		}
+		{
+			/* round up to nearest highest power of 2 */
+			unsigned int v = i - 1;
+			v |= v >> 1;
+			v |= v >> 2;
+			v |= v >> 4;
+			v |= v >> 8;
+			v |= v >> 16;
+			i_sum += v;
+		}
+		uint64_put(i_sum);
 	}
-	uint64_put(i_sum);
 }
 
 /*
