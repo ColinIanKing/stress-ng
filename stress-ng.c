@@ -2786,14 +2786,10 @@ static const help_t help[] = {
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
 #endif
-	{ NULL,		"float N",		"start N workers performing floating point operations" },
-	{ NULL, 	"float-ops N",		"stop when N float bogo operations completed" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
 	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
-	{ NULL,		"int N",		"start N workers performing integer operations" },
-	{ NULL,		"int-ops N",		"stop when N int bogo operations completed" },
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
 #if defined (__linux__)
