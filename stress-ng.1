@@ -64,7 +64,7 @@ l l.
 \fBMethod	Description\fR
 all	iterate over all the below cpu stress methods
 bitops	T{
-various bit operations from bithack, namely: reverse bis, parity check, bit count, round to nearest power of 2
+various bit operations from bithack, namely: reverse bits, parity check, bit count, round to nearest power of 2
 T}
 euler	compute e using (1 + 1 / n) ^ n
 fft	4096 sample Fast Fourier Transform
@@ -81,6 +81,15 @@ rgb	convert RGB to YUV and back to RGB (CCIR 601)
 sqrt	sqrt(rand())
 trig	sin\(*h \(mu cos\(*h
 .TE
+.RS
+.PP
+Note that some of these methods try to exercise the CPU with
+computations found in some real world use cases. However, the
+code has not been optimised on a per-architecture basis, so
+may be a sub-optimal compared to hand-optimised code used
+in some applications.  They do, however, try to represent
+the typical instruction mixes found in these use cases.
+.RE
 .TP
 .B \-C N, \-\-cache N
 start N processes that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
