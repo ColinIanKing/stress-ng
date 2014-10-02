@@ -229,6 +229,15 @@ start N processes that perform zero timeout polling via the poll(), select() and
 .B \-\-poll\-ops N
 stop poll stress processes after N bogo poll operations.
 .TP
+.B \-Q, \-\-qsort N
+start N processes that sort 32 bit integers using qsort.
+.TP
+.B \-\-qsort\-ops N
+stop qsort srtess processes after N bogo qsorts.
+.TP
+.B \-\-qsort\-size N
+specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
+.TP
 .B \-q, \-\-quiet
 don't show any output.
 .TP
@@ -325,20 +334,25 @@ stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .LP
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
 .LP
+stress\-ng \-\-cpu 2 \-\-cpu-method=fft \-t 60s \-\-metrics
+.LP
+stress\-ng \-\-cpu 2 \-\-cpu-method=all \-t 1h
+.LP
 stress\-ng \-\-fork 4 \-\-fork-ops 100000
 .LP
 stress\-ng \-\-all 4 \-\-timeout 5m
 .LP
 stress\-ng \-\-random 64
 .SH SEE ALSO
-.BR stress (1),
+.BR fallocate (2),
+.BR flock (2),
+.BR ftruncate (2),
 .BR ionice (1),
+.BR ioprio_set (2),
+.BR qsort (3),
 .BR sched_yield (2),
 .BR sched_setaffinity (2),
-.BR fallocate (2),
-.BR ftruncate (2),
-.BR flock (2),
-.BR ioprio_set (2).
+.BR stress (1).
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and is a clean
 room implementation of the original stress tool by Amos Waterland <apw@rossby.metr.ou.edu>.

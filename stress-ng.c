@@ -186,6 +186,7 @@ typedef enum {
 	STRESS_DIR,
 	STRESS_SIGSEGV,
 	STRESS_MMAP,
+	STRESS_QSORT,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -289,7 +290,10 @@ typedef enum {
 	OPT_SIGSEGV_OPS,
 	OPT_MMAP,
 	OPT_MMAP_OPS,
-	OPT_MMAP_BYTES
+	OPT_MMAP_BYTES,
+	OPT_QSORT,
+	OPT_QSORT_OPS,
+	OPT_QSORT_INTEGERS
 } stress_op;
 
 /* stress test metadata */
@@ -353,6 +357,7 @@ static uint64_t	opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 static uint64_t	opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 static uint64_t	mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
+static uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 static int64_t	opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 static int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 static int32_t	opt_flags = PR_ERR | PR_INF;		/* option flags */
@@ -2737,6 +2742,78 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 
+static int stress_qsort_cmp_1(const void *p1, const void *p2)
+{
+	int32_t *i1 = (int32_t *)p1;
+	int32_t *i2 = (int32_t *)p2;
+
+	return *i1 - *i2;
+}
+
+static int stress_qsort_cmp_2(const void *p1, const void *p2)
+{
+	int32_t *i1 = (int32_t *)p1;
+	int32_t *i2 = (int32_t *)p2;
+
+	return *i2 - *i1;
+}
+
+static int stress_qsort_cmp_3(const void *p1, const void *p2)
+{
+	int8_t *i1 = (int8_t *)p1;
+	int8_t *i2 = (int8_t *)p2;
+
+	/* Force byte-wise re-ordering */
+	return *i1 - (*i2 ^ *i1);
+}
+
+/*
+ *  stress_qsort()
+ *	stress qsort
+ */
+static int stress_qsort(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	int32_t *data, *ptr;
+	const size_t n = (size_t)opt_qsort_size;
+	size_t i;
+
+	(void)instance;
+	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
+		pr_failed_dbg(name, "malloc");
+		return EXIT_FAILURE;
+	}
+
+	/* This is expensive, do it once */
+	for (ptr = data, i = 0; i < n; i++)
+		*ptr++ = mwc();
+
+	do {
+		/* Sort "random" data */
+		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
+		if (!opt_do_run)
+			break;
+		/* Reverse sort */
+		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
+		if (!opt_do_run)
+			break;
+		/* Reverse this again */
+		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
+		if (!opt_do_run)
+			break;
+		/* And re-order by byte compare */
+		qsort(data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
+
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	free(data);
+
+	return EXIT_SUCCESS;
+}
 
 /*
  *  stress_noop()
@@ -2778,6 +2855,7 @@ static const stress_t stressors[] = {
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
+	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
 #if  _POSIX_C_SOURCE >= 199309L
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
@@ -2887,6 +2965,9 @@ static const help_t help[] = {
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
+	{ "Q",		"qsort N",		"start N workers exercising qsort on 32 bit random integers" },
+	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
+	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
 #if defined (__linux__)
@@ -3040,6 +3121,9 @@ static const struct option long_options[] = {
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
+	{ "qsort",	1,	0,	OPT_QSORT },
+	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
+	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -3307,6 +3391,10 @@ next_opt:
 		case OPT_MMAP_BYTES:
 			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
 			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+			break;
+		case OPT_QSORT_INTEGERS:
+			opt_qsort_size = get_uint64(optarg);
+			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
 			break;
 		default:
 			printf("Unknown option\n");
