@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "January 16, 2014"
+.TH STRESS-NG 1 "October 2, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -183,6 +183,10 @@ KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
 been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.  
+.RS
+.PP
+The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.
+.RE
 .TP
 .B \-m N, \-\-vm N
 start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
@@ -334,7 +338,7 @@ stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .LP
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
 .LP
-stress\-ng \-\-cpu 2 \-\-cpu-method=fft \-t 60s \-\-metrics
+stress\-ng \-\-cpu 4 \-\-cpu-method=fft \-\-cpu-ops 10000 \-\-metrics
 .LP
 stress\-ng \-\-cpu 2 \-\-cpu-method=all \-t 1h
 .LP
@@ -343,6 +347,8 @@ stress\-ng \-\-fork 4 \-\-fork-ops 100000
 stress\-ng \-\-all 4 \-\-timeout 5m
 .LP
 stress\-ng \-\-random 64
+.SH BUGS
+File bug reports at https://launchpad.net/ubuntu/+source/stress-ng/+filebug
 .SH SEE ALSO
 .BR fallocate (2),
 .BR flock (2),
