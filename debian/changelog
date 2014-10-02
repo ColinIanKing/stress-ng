@@ -1,3 +1,53 @@
+stress-ng (0.02.00-1) unstable; urgency=medium
+
+  * Bump version to 0.02.00
+  * Minor tweaks to man page
+  * Add qsort stressor and --qsort, --qsort-ops, --qsort-size options
+  * Remove some whitespace
+  * Add some notes about the CPU methods used
+  * Add RGV <-> YUV cpu stress method
+  * Add more bithack stressors to bitops cpu method, update man page
+  * Remove --int, --int-ops, --float, --float-ops from help
+  * Re-order cpu stressor methods alphabetically
+  * Remove the need for cpu stressors to return anything
+  * Remove --float and --float-ops and merge into cpu stress
+  * Make uint64_put take 1 arg
+  * Remove --int and --int-ops, merge into int cpu stress
+  * Remove extraneous space
+  * Add comments and some consts
+  * Add IDCT and "all" cpu stress methods
+  * Add euler and jenkins cpu stress methods
+  * Add Fast Fourier Transform cpu stress method
+  * Add Golden Ratio computation as a cpu stressor
+  * Execute the correct stress function
+  * Fix indexing error on procs <---> stress id
+  * Add --cpu-method option to stress the CPU different ways
+  * Add const where applicable, small code tidy up
+  * Replace APP_NAME with app_name static string
+  * Guard against bad flag type
+  * Re-work print, saved ~60 bytes
+  * Sort stressors by name order
+  * Get page size for mmap using sysconf
+  * Make *_put helper args const
+  * Make maximum number of procs a #defined constant
+  * Track mmap'd memory, this stops coverity scan getting confused
+  * Add --hdd-write-size option
+  * Add mmap stressor and --mmap, --mmap-ops, mmap-bytes options
+  * Fully #define out unused stress tests
+  * Check for end-of-table on stressors
+  * Use err and dbg helpers to print syscall failures
+  * Make short get_opt short int
+  * Remove human readable label field, it's duplication
+  * Make short opts a stress_op enum
+  * Make all ops lo, hi thresholds the same (100,100000000)
+  * Make options table driven for stress test options
+  * Add segmentation fault stressor, --sigsegv and --sigsegv-ops options
+  * Add directory stressors
+  * Add link and symlink stressors
+  * Fix help information, start -> stop
+
+ -- Colin King <colin.king@canonical.com>  Thu, 3 Oct 2014 10:44:00 +0100
+
 stress-ng (0.01.32-1) unstable; urgency=medium
 
   * Makefile: bump version
