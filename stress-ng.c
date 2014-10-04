@@ -1373,6 +1373,32 @@ static void stress_cpu_rgb(void)
 }
 
 /*
+ *  stress_cpu_matrix_prod(void)
+ *	matrix product
+ */
+static void stress_cpu_matrix_prod(void)
+{
+	int i, j, k;
+	const int n = 128;
+
+	long double a[n][n], b[n][n], r[n][n];
+	long double v = 1 / (long double)((uint32_t)~0);
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			a[i][j] = (long double)mwc() * v;
+			b[i][j] = (long double)mwc() * v;
+			r[i][j] = 0.0;
+		}
+	}
+
+	for (i = 0; i < n; i++)
+		for (j = 0; j < n; j++)
+			for (k = 0; k < n; k++)
+				r[i][j] += a[i][k] * b[k][j];
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1405,6 +1431,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "jenkin",	stress_cpu_jenkin },
 	{ "longdouble",	stress_cpu_longdouble },
 	{ "loop",	stress_cpu_loop },
+	{ "matrixprod",	stress_cpu_matrix_prod },
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
 	{ "rand",	stress_cpu_rand },
