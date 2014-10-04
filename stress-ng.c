@@ -1170,47 +1170,122 @@ static void stress_cpu_idct(void)
 	}
 }
 
+#define int_ops(a, b)				\
+	do {					\
+		a += b;				\
+		b ^= a;				\
+		a >>= 1;			\
+		b <<= 2;			\
+		b -= a;				\
+		a ^= ~0;			\
+		b ^= ~0xf0f0f0f0f0f0f0f0ULL;	\
+		a *= 3;				\
+		b *= 7;				\
+		a += 2;				\
+		b -= 3;				\
+		a /= 77;			\
+		b /= 3;				\
+		a <<= 1;			\
+		b <<= 2;			\
+		a |= 1;				\
+		b |= 3;				\
+		a *= mwc();			\
+		b ^= mwc();			\
+		a += mwc();			\
+		b -= mwc();			\
+		a /= 7;				\
+		b /= 9;				\
+		a |= 0x1000100010001000ULL;	\
+		b &= 0xffeffffefebefffeULL;	\
+	} while (0);
+
 /*
- *  stress_cpu_int()
+ *  stress_cpu_int64()
  *	mix of integer ops
  */
-static void stress_cpu_int(void)
+static void stress_cpu_int64(void)
 {
 	uint64_t a = mwc(), b = mwc();
 	int i;
 
 	for (i = 0; i < 10000; i++) {
-		a += b;
-		b ^= a;
-		a >>= 1;
-		b <<= 2;
-		b -= a;
-		a ^= ~0;
-		b ^= ~0xf0f0f0f0f0f0f0f0ULL;
-		a *= 3;
-		b *= 7;
-		a += 2;
-		b -= 3;
-		a /= 77;
-		b /= 3;
-		a <<= 1;
-		b <<= 2;
-		a |= 1;
-		b |= 3;
-		a *= mwc();
-		b ^= mwc();
-		a += mwc();
-		b -= mwc();
-		a /= 7;
-		b /= 9;
-		a |= 0x1000100010001000ULL;
-		b &= 0xffeffffefebefffeULL;
-
+		int_ops(a, b);
 		if (!opt_do_run)
 			break;
 	}
 	uint64_put(a * b);
 }
+
+/*
+ *  stress_cpu_int32()
+ *	mix of integer ops
+ */
+static void stress_cpu_int32(void)
+{
+	uint32_t a = mwc(), b = mwc();
+	int i;
+
+	for (i = 0; i < 10000; i++) {
+		int_ops(a, b);
+		if (!opt_do_run)
+			break;
+	}
+	uint64_put(a * b);
+}
+
+/*
+ *  stress_cpu_int16()
+ *	mix of integer ops
+ */
+static void stress_cpu_int16(void)
+{
+	uint16_t a = mwc(), b = mwc();
+	int i;
+
+	for (i = 0; i < 10000; i++) {
+		int_ops(a, b);
+		if (!opt_do_run)
+			break;
+	}
+	uint64_put(a * b);
+}
+
+/*
+ *  stress_cpu_int8()
+ *	mix of integer ops
+ */
+static void stress_cpu_int8(void)
+{
+	uint8_t a = mwc(), b = mwc();
+	int i;
+
+	for (i = 0; i < 10000; i++) {
+		int_ops(a, b);
+		if (!opt_do_run)
+			break;
+	}
+	uint64_put(a * b);
+}
+
+#define float_ops(a, b, c, d)		\
+	do {				\
+		a = a + b;		\
+		b = a * c;		\
+		c = a - b;		\
+		d = a / b;		\
+		a = c / 0.1923;		\
+		b = c + a;		\
+		c = b * 3.12;		\
+		d = d + b + sin(a);	\
+		a = (b + c) / c;	\
+		b = b * c;		\
+		c = c + 1.0;		\
+		d = d - sin(c);		\
+		a = a * cos(b);		\
+		b = b + cos(c);		\
+		c = sin(a) / 2.344;	\
+		b = d - 1.0;		\
+	} while (0)
 
 /*
  *  stress_cpu_float()
@@ -1219,25 +1294,44 @@ static void stress_cpu_int(void)
 static void stress_cpu_float(void)
 {
 	uint32_t i;
+	float a = 0.18728, b = mwc(), c = mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		float_ops(a, b, c, d);
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+}
+
+/*
+ *  stress_cpu_double()
+ *	mix of floating point ops
+ */
+static void stress_cpu_double(void)
+{
+	uint32_t i;
 	double a = 0.18728, b = mwc(), c = mwc(), d;
 
 	for (i = 0; i < 10000; i++) {
-		a = a + b;
-		b = a * c;
-		c = a - b;
-		d = a / b;
-		a = c / 0.1923;
-		b = c + a;
-		c = b * 3.12;
-		d = d + b + sin(a);
-		a = (b + c) / c;
-		b = b * c;
-		c = c + 1.0;
-		d = d - sin(c);
-		a = a * cos(b);
-		b = b + cos(c);
-		c = sin(a) / 2.344;
-		b = d - 1.0;
+		float_ops(a, b, c, d);
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+}
+
+/*
+ *  stress_cpu_longdouble()
+ *	mix of floating point ops
+ */
+static void stress_cpu_longdouble(void)
+{
+	uint32_t i;
+	long double a = 0.18728, b = mwc(), c = mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		float_ops(a, b, c, d);
 		if (!opt_do_run)
 			break;
 	}
@@ -1298,13 +1392,18 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "all",	stress_cpu_all },	/* Special "all test */
 
 	{ "bitops",	stress_cpu_bitops },
+	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
 	{ "idct",	stress_cpu_idct },
-	{ "int",	stress_cpu_int },
+	{ "int64",	stress_cpu_int64 },
+	{ "int32",	stress_cpu_int32 },
+	{ "int16",	stress_cpu_int16 },
+	{ "int8",	stress_cpu_int8 },
 	{ "jenkin",	stress_cpu_jenkin },
+	{ "longdouble",	stress_cpu_longdouble },
 	{ "loop",	stress_cpu_loop },
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
