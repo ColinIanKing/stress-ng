@@ -3049,6 +3049,7 @@ static int stress_bigheap(
 	size_t chunk_size = 16 * 4096;
 	size_t stride = 4096;
 	pid_t pid;
+	uint32_t restarts = 0, nomems = 0;
 
 again:
 	pid = fork();
@@ -3063,7 +3064,6 @@ again:
 			pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
-			return EXIT_SUCCESS;
 		}
 		if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
@@ -3071,8 +3071,9 @@ again:
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)",
+					"restarting again (instance %d)\n",
 					name, instance);
+				restarts++;
 				goto again;
 			}
 		}
@@ -3090,6 +3091,7 @@ again:
 					name, (uint64_t)(4096ULL * size) >> 20, instance);
 				free(old_ptr);
 				size = 0;
+				nomems++;
 			} else {
 				size_t i, n;
 				uint8_t *u8ptr;
@@ -3111,6 +3113,8 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		free(ptr);
 	}
+	pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+			name, restarts, nomems);
 
 	return EXIT_SUCCESS;
 }
