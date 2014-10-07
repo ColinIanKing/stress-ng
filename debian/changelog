@@ -1,3 +1,15 @@
+stress-ng (0.02.01-1) unstable; urgency=medium
+
+  * Fix up errors found by coverity scan
+  * Add bigheap stressor
+  * Makefile: bump version
+  * Add coredumping limits
+  * Add oom killer adjustments
+  * Add maxtrix product cpu stressor
+  * Expand float and int tests to various sized arithmetic
+
+ -- Colin King <colin.king@canonical.com>  Tue, 7 Oct 2014 12:18:00 +0100
+
 stress-ng (0.02.00-1) unstable; urgency=medium
 
   * Bump version to 0.02.00
