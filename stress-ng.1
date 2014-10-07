@@ -46,6 +46,15 @@ start N instances of each stress test.
 wait N microseconds between the start of each stress process. This allows one
 to ramp up the stress tests over time.
 .TP
+.B \-B N, \-\-bigheap N
+start N processes that grow their heaps by reallocating memory. If the out of memory
+killer (OOM) on Linux kills the process or the allocation fails then the allocating starts all
+over again.  Note that the OOM adjustment for the process is set so that the OOM killer
+will treat these processes as the first candidate processes to kill.
+.TP
+.B \-\-bigheap\-ops N
+stop the big heap processes after N bogo allocation operations are completed.
+.TP
 .B \-c N, \-\-cpu N
 start N processes computing by default sqrt(rand()). Note that the rand function
 is based on a fast integer RNG with a period of about 2^60. One can specify different
