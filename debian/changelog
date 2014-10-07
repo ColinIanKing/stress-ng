@@ -1,3 +1,11 @@
+stress-ng (0.02.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * bigheap: account for the type of out of memory conditions in debug
+  * Forgot to update the man page for --big-heap options
+
+ -- Colin King <colin.king@canonical.com>  Tue, 7 Oct 2014 13:23:00 +0100
+
 stress-ng (0.02.01-1) unstable; urgency=medium
 
   * Fix up errors found by coverity scan
