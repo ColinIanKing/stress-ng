@@ -455,7 +455,7 @@ void set_oom_adjustment(const char *name, bool killable)
 	 *  Try modern oom interface
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_score_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) > 0) {
+	if ((fd = open(path, O_WRONLY)) >= 0) {
 		char *str;
 		ssize_t n;
 
@@ -476,7 +476,7 @@ void set_oom_adjustment(const char *name, bool killable)
 	 *  Fall back to old oom interface
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) > 0) {
+	if ((fd = open(path, O_WRONLY)) >= 0) {
 		char *str;
 		ssize_t n;
 
@@ -511,7 +511,7 @@ static void set_coredump(const char *name)
 	int fd;
 
 	snprintf(path, sizeof(path), "/proc/%d/coredump_filter", getpid());
-	if ((fd = open(path, O_WRONLY)) > 0) {
+	if ((fd = open(path, O_WRONLY)) >= 0) {
 		const char *str = "0x00";
 		ssize_t n = write(fd, str, strlen(str));
 		close(fd);
@@ -1262,7 +1262,7 @@ static void stress_cpu_idct(void)
 	}
 }
 
-#define int_ops(a, b)				\
+#define int_ops(a, b, mask)			\
 	do {					\
 		a += b;				\
 		b ^= a;				\
@@ -1270,7 +1270,7 @@ static void stress_cpu_idct(void)
 		b <<= 2;			\
 		b -= a;				\
 		a ^= ~0;			\
-		b ^= ~0xf0f0f0f0f0f0f0f0ULL;	\
+		b ^= ((~0xf0f0f0f0f0f0f0f0ULL) & mask);	\
 		a *= 3;				\
 		b *= 7;				\
 		a += 2;				\
@@ -1287,8 +1287,8 @@ static void stress_cpu_idct(void)
 		b -= mwc();			\
 		a /= 7;				\
 		b /= 9;				\
-		a |= 0x1000100010001000ULL;	\
-		b &= 0xffeffffefebefffeULL;	\
+		a |= ((0x1000100010001000ULL) & mask);	\
+		b &= ((0xffeffffefebefffeULL) & mask);	\
 	} while (0);
 
 /*
@@ -1301,7 +1301,7 @@ static void stress_cpu_int64(void)
 	int i;
 
 	for (i = 0; i < 10000; i++) {
-		int_ops(a, b);
+		int_ops(a, b, 0xffffffffffffULL);
 		if (!opt_do_run)
 			break;
 	}
@@ -1318,11 +1318,11 @@ static void stress_cpu_int32(void)
 	int i;
 
 	for (i = 0; i < 10000; i++) {
-		int_ops(a, b);
+		int_ops(a, b, 0xffffffffUL);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put(a * b);
+	uint64_put((a ^ b) & 0xffffffff);
 }
 
 /*
@@ -1335,11 +1335,11 @@ static void stress_cpu_int16(void)
 	int i;
 
 	for (i = 0; i < 10000; i++) {
-		int_ops(a, b);
+		int_ops(a, b, 0xffff);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put(a * b);
+	uint64_put((a ^ b) & 0xffff);
 }
 
 /*
@@ -1352,11 +1352,11 @@ static void stress_cpu_int8(void)
 	int i;
 
 	for (i = 0; i < 10000; i++) {
-		int_ops(a, b);
+		int_ops(a, b, 0xff);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put(a * b);
+	uint64_put((a + b) ^ 0xff);
 }
 
 #define float_ops(a, b, c, d)		\
