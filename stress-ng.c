@@ -187,6 +187,7 @@ typedef enum {
 	STRESS_SIGSEGV,
 	STRESS_MMAP,
 	STRESS_QSORT,
+	STRESS_BIGHEAP,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -226,7 +227,7 @@ typedef enum {
 	OPT_TIMER = 'T',
 #endif
 	OPT_VERSION = 'V',
-
+	OPT_BIGHEAP = 'B',
 	OPT_VM_BYTES = 1,
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
@@ -293,7 +294,8 @@ typedef enum {
 	OPT_MMAP_BYTES,
 	OPT_QSORT,
 	OPT_QSORT_OPS,
-	OPT_QSORT_INTEGERS
+	OPT_QSORT_INTEGERS,
+	OPT_BIGHEAP_OPS
 } stress_op;
 
 /* stress test metadata */
@@ -441,7 +443,7 @@ static int stress_sethandler(const char *stress)
  *	if we have root privileges then try and make process
  *	unkillable by oom killer
  */
-void set_oom_adjustment(const char *name)
+void set_oom_adjustment(const char *name, bool killable)
 {
 	char path[PATH_MAX];
 	int fd;
@@ -454,8 +456,15 @@ void set_oom_adjustment(const char *name)
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_score_adj", getpid());
 	if ((fd = open(path, O_WRONLY)) > 0) {
-		const char *str = high_priv ? "-1000" : "0";
-		ssize_t n = write(fd, str, strlen(str));
+		char *str;
+		ssize_t n;
+
+		if (killable)
+			str = "1000";
+		else
+			str = high_priv ? "-1000" : "0";
+
+		n = write(fd, str, strlen(str));
 		close(fd);
 
 		if (n < 0)
@@ -468,8 +477,15 @@ void set_oom_adjustment(const char *name)
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_adj", getpid());
 	if ((fd = open(path, O_WRONLY)) > 0) {
-		const char *str = high_priv ? "-17" : "-16";
-		ssize_t n = write(fd, str, strlen(str));
+		char *str;
+		ssize_t n;
+
+		if (killable)
+			str = high_priv ? "-17" : "-16";
+		else
+			str = "15";
+
+		n = write(fd, str, strlen(str));
 		close(fd);
 
 		if (n < 0)
@@ -479,7 +495,7 @@ void set_oom_adjustment(const char *name)
 }
 #else
 /* no-op */
-#define set_oom_adjustment(name)	
+#define set_oom_adjustment(name, killable)
 #endif
 
 #if defined (__linux__)
@@ -3018,6 +3034,88 @@ static int stress_qsort(
 }
 
 /*
+ *  stress_bigheap()
+ *	stress that does nowt
+ */
+static int stress_bigheap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	void *ptr = NULL, *last_ptr = NULL;
+	uint8_t *last_ptr_end = NULL;
+	size_t size = 0;
+	size_t chunk_size = 16 * 4096;
+	size_t stride = 4096;
+	pid_t pid;
+
+again:
+	pid = fork();
+	if (pid < 0) {
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			return EXIT_SUCCESS;
+		}
+		if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
+				name, WTERMSIG(status), instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)",
+					name, instance);
+				goto again;
+			}
+		}
+	} else if (pid == 0) {
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
+
+		do {
+			void *old_ptr = ptr;
+			size += chunk_size;
+
+			ptr = realloc(old_ptr, size);
+			if (ptr == NULL) {
+				pr_dbg(stderr, "%s: out of memory at %" PRIu64 " MB (instance %d)\n",
+					name, (uint64_t)(4096ULL * size) >> 20, instance);
+				free(old_ptr);
+				size = 0;
+			} else {
+				size_t i, n;
+				uint8_t *u8ptr;
+
+				if (last_ptr == ptr) {
+					u8ptr = last_ptr_end;
+					n = chunk_size;
+				} else {
+					u8ptr = ptr;
+					n = size;
+				}
+				for (i = 0; i < n; i+= stride, u8ptr += stride)
+					*u8ptr = 0xff;
+
+				last_ptr = ptr;
+				last_ptr_end = u8ptr;
+			}
+			(*counter)++;
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		free(ptr);
+	}
+
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_noop()
  *	stress that does nowt
  */
@@ -3040,6 +3138,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity" },
 #endif
+	{ stress_bigheap,STRESS_BIGHEAP,OPT_BIGHEAP,	OPT_BIGHEAP_OPS,	"bigheap" },
 	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache" },
 	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
 	{ stress_ctxt,	 STRESS_CTXT,	OPT_CTXT,	OPT_CTXT_OPS,   	"ctxt" },
@@ -3111,6 +3210,8 @@ static const help_t help[] = {
 #endif
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
+	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
+	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
@@ -3326,6 +3427,8 @@ static const struct option long_options[] = {
 	{ "qsort",	1,	0,	OPT_QSORT },
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
+	{ "bigheap",	1,	0,	OPT_BIGHEAP },
+	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -3448,7 +3551,7 @@ int main(int argc, char **argv)
 		int c, option_index;
 		stress_id id;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:k",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:k",
 			long_options, &option_index)) == -1)
 			break;
 
@@ -3631,7 +3734,7 @@ next_opt:
 		}
 	}
 
-	set_oom_adjustment("main");
+	set_oom_adjustment("main", false);
 	set_coredump("main");
 #if defined (__linux__)
 	set_sched(opt_sched, opt_sched_priority);
@@ -3739,7 +3842,7 @@ next_opt:
 						exit(EXIT_FAILURE);
 					(void)alarm(opt_timeout);
 					mwc_reseed();
-					set_oom_adjustment(name);
+					set_oom_adjustment(name, false);
 					set_coredump(name);
 					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
 #if defined (__linux__)
