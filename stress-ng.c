@@ -454,7 +454,7 @@ void set_oom_adjustment(const char *name)
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_score_adj", getpid());
 	if ((fd = open(path, O_WRONLY)) > 0) {
-		char *str = high_priv ? "-1000" : "0";
+		const char *str = high_priv ? "-1000" : "0";
 		ssize_t n = write(fd, str, strlen(str));
 		close(fd);
 
@@ -468,7 +468,7 @@ void set_oom_adjustment(const char *name)
 	 */
 	snprintf(path, sizeof(path), "/proc/%d/oom_adj", getpid());
 	if ((fd = open(path, O_WRONLY)) > 0) {
-		char *str = high_priv ? "-17" : "-16";
+		const char *str = high_priv ? "-17" : "-16";
 		ssize_t n = write(fd, str, strlen(str));
 		close(fd);
 
@@ -482,6 +482,34 @@ void set_oom_adjustment(const char *name)
 #define set_oom_adjustment(name)	
 #endif
 
+#if defined (__linux__)
+/*
+ *  set_coredump()
+ *	limit what is coredumped because
+ *	potentially we could have hugh dumps
+ *	with the vm and mmap tests
+ */
+static void set_coredump(const char *name)
+{
+	char path[PATH_MAX];
+	int fd;
+
+	snprintf(path, sizeof(path), "/proc/%d/coredump_filter", getpid());
+	if ((fd = open(path, O_WRONLY)) > 0) {
+		const char *str = "0x00";
+		ssize_t n = write(fd, str, strlen(str));
+		close(fd);
+
+		if (n < 0)
+			pr_failed_dbg(name, "can't set coredump_filter");
+		else
+			return;
+	}
+}
+#else
+/* no-op */
+#define set_coredump(name)
+#endif
 
 /*
  *  mwc()
@@ -3604,6 +3632,7 @@ next_opt:
 	}
 
 	set_oom_adjustment("main");
+	set_coredump("main");
 #if defined (__linux__)
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
@@ -3711,6 +3740,7 @@ next_opt:
 					(void)alarm(opt_timeout);
 					mwc_reseed();
 					set_oom_adjustment(name);
+					set_coredump(name);
 					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
 #if defined (__linux__)
 					set_iopriority(opt_ionice_class, opt_ionice_level);
