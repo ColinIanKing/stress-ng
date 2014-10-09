@@ -1077,6 +1077,22 @@ static void stress_cpu_trig(void)
 }
 
 /*
+ *  stress_cpu_hyperbolic()
+ *	simple hyperbolic sinh, cosh functions
+ */
+static void stress_cpu_hyperbolic(void)
+{
+	int i;
+	double d_sum = 0.0;
+
+	for (i = 0; i < 16384; i++) {
+		double theta = (2.0 * M_PI * (double)i)/16384.0;
+		d_sum += (cosh(theta) * sinh(theta));
+	}
+	double_put(d_sum);
+}
+
+/*
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
@@ -1724,6 +1740,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
+	{ "hyperbolic",	stress_cpu_hyperbolic },
 	{ "idct",	stress_cpu_idct },
 	{ "int64",	stress_cpu_int64 },
 	{ "int32",	stress_cpu_int32 },
