@@ -84,6 +84,7 @@
 #define OPT_FLAGS_RANDOM	0x00000010	/* Randomize */
 #define OPT_FLAGS_SET		0x00000020	/* Set if user specifies stress procs */
 #define OPT_FLAGS_KEEP_NAME	0x00000040	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_UTIME_FSYNC	0x00000080	/* fsync after utime modification */
 
 /* debug output bitmasks */
 #define PR_ERR			0x00010000	/* Print errors */
@@ -189,6 +190,7 @@ typedef enum {
 	STRESS_QSORT,
 	STRESS_BIGHEAP,
 	STRESS_RENAME,
+	STRESS_UTIME,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -299,6 +301,9 @@ typedef enum {
 	OPT_QSORT_INTEGERS,
 	OPT_BIGHEAP_OPS,
 	OPT_RENAME_OPS,
+	OPT_UTIME,
+	OPT_UTIME_OPS,
+	OPT_UTIME_FSYNC,
 } stress_op;
 
 /* stress test metadata */
@@ -3142,8 +3147,8 @@ restart:
 		name, instance, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
-		pr_err(stderr, "fopen init failed: errno=%d: (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	(void)fclose(fp);
@@ -3169,6 +3174,49 @@ restart:
 
 	return EXIT_SUCCESS;
 }
+
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+/*
+ *  stress_utime()
+ *	stress system by setting file utime
+ */
+static int stress_utime(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	char filename[PATH_MAX];
+	int fd;
+
+	snprintf(filename, sizeof(filename), "./%s-%" PRIu32,
+		name, instance);
+
+	if ((fd = open(filename, O_WRONLY | O_CREAT, 0666)) < 0) {
+		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	do {
+		if (futimens(fd, NULL) < 0) {
+			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		}
+		/* forces metadata writeback */
+		if (opt_flags & OPT_FLAGS_UTIME_FSYNC)
+			(void)fsync(fd);
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	(void)close(fd);
+	(void)unlink(filename);
+
+	return EXIT_SUCCESS;
+}
+#endif
+
 
 /*
  *  stress_noop()
@@ -3225,6 +3273,9 @@ static const stress_t stressors[] = {
 #endif
 #if defined(__linux__)
 	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom" },
+#endif
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+	{ stress_utime,	 STRESS_UTIME,	OPT_UTIME,	OPT_UTIME_OPS,		"utime" },
 #endif
 	{ stress_vm,	 STRESS_VM,	OPT_VM,		OPT_VM_OPS,		"vm" },
 #if defined (_POSIX_PRIORITY_SCHEDULING)
@@ -3355,8 +3406,13 @@ static const help_t help[] = {
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
-	{ "u N",	"urandom N",		"start M workers reading /dev/urandom" },
+	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
+#endif
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+	{ NULL,		"utime N",		"start N workers updating file timestamps" },
+	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
+	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
 #endif
 	{ "v",		"verbose",		"verbose output" },
 	{ "V",		"version",		"show version" },
@@ -3488,7 +3544,12 @@ static const struct option long_options[] = {
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
 	{ "rename",	1,	0,	OPT_RENAME },
-	{ "rename-ops",1,	0,	OPT_RENAME_OPS },
+	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+	{ "utime",	1,	0,	OPT_UTIME },
+	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
+	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -3760,6 +3821,9 @@ next_opt:
 		case OPT_QSORT_INTEGERS:
 			opt_qsort_size = get_uint64(optarg);
 			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
+			break;
+		case OPT_UTIME_FSYNC:
+			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
 			break;
 		default:
 			printf("Unknown option\n");

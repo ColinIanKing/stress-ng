@@ -64,7 +64,7 @@ CPU stress methods with the \-\-cpu\-method option.
 stop cpu stress processes after N bogo operations.
 .TP
 .B \-l P, \-\-cpu\-load P
-load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo cpu operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
+load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo CPU operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
 .TP
 .B \-\-cpu\-method method
 specify cpu stress method. By default, sqrt(rand()) is used, however, there are a selection of ways the CPU can be stressed:
@@ -338,6 +338,15 @@ number source.
 .TP
 .B \-\-urandom\-ops N
 stop urandom stress processes after N urandom bogo read operations (Linux only).
+.TP
+.B \-\-utime N
+start N processes updating file timestamps. This is mainly CPU bound when the default is used as the system flushes metadata changes only periodically.
+.TP
+.B \-\-utime-ops N
+stop utime stress processes after N utime bogo operations.
+.TP
+.B \-\-utime-fsync
+force metadata changes on each file timestamp update to be flushed to disk. This forces the test to become I/O bound and will result in many dirty metadata writes.
 .TP
 .B \-v, \-\-verbose
 show all debug, warnings and normal information output.
