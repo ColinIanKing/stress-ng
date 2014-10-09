@@ -263,6 +263,12 @@ don't show any output.
 .B \-r N, \-\-random N
 start N random stress processes.
 .TP
+.B \-R N, \-\-rename N
+start N processes that each create a file and then repeatedly rename it.
+.TP
+.B \-\-rename\-ops N
+stop rename stress processes after N bogo rename operations.
+.TP
 .B \-\-sem N
 start N processes that perform POSIX semaphore wait and post operation. This stresses fast semaphore operations and produces rapid context switching.
 .TP

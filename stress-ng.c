@@ -188,6 +188,7 @@ typedef enum {
 	STRESS_MMAP,
 	STRESS_QSORT,
 	STRESS_BIGHEAP,
+	STRESS_RENAME,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -206,6 +207,7 @@ typedef enum {
 	OPT_CPU_LOAD = 'l',
 	OPT_VM = 'm',
 	OPT_DRY_RUN = 'n',
+	OPT_RENAME = 'R',
 	OPT_OPEN = 'o',
 	OPT_PIPE = 'p',
 	OPT_QUIET = 'q',
@@ -295,7 +297,8 @@ typedef enum {
 	OPT_QSORT,
 	OPT_QSORT_OPS,
 	OPT_QSORT_INTEGERS,
-	OPT_BIGHEAP_OPS
+	OPT_BIGHEAP_OPS,
+	OPT_RENAME_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -3120,6 +3123,54 @@ again:
 }
 
 /*
+ *  stress_rename()
+ *	stress system by renames
+ */
+static int stress_rename(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	char name1[PATH_MAX], name2[PATH_MAX];
+	char *oldname = name1, *newname = name2, *tmpname;
+	FILE *fp;
+	uint32_t i = 0;
+
+restart:
+	snprintf(oldname, PATH_MAX, "./%s-%" PRIu32 "-%" PRIu32,
+		name, instance, i++);
+
+	if ((fp = fopen(oldname, "w+")) == NULL) {
+		pr_err(stderr, "fopen init failed: errno=%d: (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	(void)fclose(fp);
+
+	do {
+		snprintf(newname, PATH_MAX, "./%s-%" PRIu32 "-%" PRIu32,
+			name, instance, i++);
+		if (rename(oldname, newname) < 0) {
+			(void)unlink(oldname);
+			(void)unlink(newname);
+			goto restart;
+		}
+
+		tmpname = oldname;
+		oldname = newname;
+		newname = tmpname;
+
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	(void)unlink(oldname);
+	(void)unlink(newname);
+
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_noop()
  *	stress that does nowt
  */
@@ -3161,6 +3212,7 @@ static const stress_t stressors[] = {
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
 	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
+	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
 #if  _POSIX_C_SOURCE >= 199309L
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
@@ -3277,6 +3329,8 @@ static const help_t help[] = {
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
+	{ "R",		"rename N",		"start N workers exercising file renames" },
+	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
 #if defined (__linux__)
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
@@ -3433,6 +3487,8 @@ static const struct option long_options[] = {
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
+	{ "rename",	1,	0,	OPT_RENAME },
+	{ "rename-ops",1,	0,	OPT_RENAME_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -3555,7 +3611,7 @@ int main(int argc, char **argv)
 		int c, option_index;
 		stress_id id;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:k",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k",
 			long_options, &option_index)) == -1)
 			break;
 
