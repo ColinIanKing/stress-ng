@@ -1,3 +1,18 @@
+stress-ng (0.02.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add hyperbolic function sinh cosh cpu stressor
+  * Expand man page
+  * Add CCITT CRC16 cpu stressor
+  * Add compare + jmp cpu stressor
+  * Add cpu explog stressor and tidy up man page
+  * Add Ackermann function cpu stressor
+  * Add log(2) computation for cpu stressor
+  * Update man page
+  * Add fibonacci cpu stressor, use register where appropriate
+
+ -- Colin King <colin.king@canonical.com>  Thu, 9 Oct 2014 21:16:00 +0100
+
 stress-ng (0.02.03-1) unstable; urgency=medium
 
   * Bump version
