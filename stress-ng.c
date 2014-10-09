@@ -1216,19 +1216,39 @@ static void stress_cpu_euler(void)
 }
 
 /*
- *  stress_cpu_jenkin()
- *	Jenkin's hash on 128 byte random data
+ *  random_buffer()
+ *	fill a uint8_t buffer full of random data
+ *	buffer *must* be multiple of 4 bytes in size
+ */
+static void random_buffer(uint8_t *data, const size_t len)
+{
+	size_t i;
+
+	for (i = 0; i < len / 4; i++) {
+		uint32_t v = (uint32_t)mwc();
+
+		*data++ = v;
+		v >>= 8;
+		*data++ = v;
+		v >>= 8;
+		*data++ = v;
+		v >>= 8;
+		*data++ = v;
+	}
+}
+
+/*
+ *  jenkin()
+ *	Jenkin's hash on random data
  *	http://www.burtleburtle.net/bob/hash/doobs.html
  */
-static void stress_cpu_jenkin(void)
+static uint32_t jenkin(const uint8_t *data, const size_t len)
 {
-	const size_t len = 128;
-	uint8_t i, key;
+	uint8_t i;
 	register uint32_t h = 0;
 
 	for (i = 0; i < len; i++) {
-		key = mwc() & 0xff;
-		h += key;
+		h += *data++;
 		h += h << 10;
 		h ^= h >> 6;
 	}
@@ -1236,7 +1256,61 @@ static void stress_cpu_jenkin(void)
 	h ^= h >> 11;
 	h += h << 15;
 
-	uint64_put(h);
+	return h;
+}
+
+/*
+ *  stress_cpu_jenkin()
+ *	multiple iterations on jenkin hash
+ */
+static void stress_cpu_jenkin(void)
+{
+	uint8_t buffer[128];
+	size_t i;
+
+	random_buffer(buffer, sizeof(buffer));
+	for (i = 0; i < sizeof(buffer); i++)
+		uint64_put(jenkin(buffer, sizeof(buffer)));
+}
+
+/*
+ *  pjw()
+ *	Hash a string, from Aho, Sethi, Ullman, Compiling Techniques.
+ */
+static uint32_t pjw(const char *str)
+{
+	uint32_t h = 0;
+
+	while (*str) {
+		uint32_t g;
+		h = (h << 4) + (*str);
+		if (0 != (g = h & 0xf0000000)) {
+			h = h ^ (g >> 24);
+			h = h ^ g;
+		}
+		str++;
+	}
+	return h;
+}
+
+/*
+ *  stress_cpu_pjw()
+ *	stress test hash pjw
+ */
+static void stress_cpu_pjw(void)
+{
+	char buffer[128];
+	size_t i;
+
+	random_buffer((uint8_t *)buffer, sizeof(buffer));
+	/* Make it ASCII range ' '..'_' */
+	for (i = 0; i < sizeof(buffer); i++)
+		buffer[i] = (buffer[i] & 0x3f) + ' ';
+
+	for (i = sizeof(buffer) - 1; i; i--) {
+		buffer[i] = '\0';
+		uint64_put(pjw(buffer));
+	}
 }
 
 /*
@@ -1693,20 +1767,10 @@ static uint16_t ccitt_crc16(const uint8_t *data, size_t n)
  */
 void stress_cpu_crc16(void)
 {
-	uint8_t buffer[1024], *ptr = buffer;
+	uint8_t buffer[1024];
 	size_t i;
 
-	for (i = 0; i < sizeof(buffer) / 4; i++) {
-		uint32_t v = (uint32_t)mwc();
-
-		*ptr++ = v;
-		v >>= 8;
-		*ptr++ = v;
-		v >>= 8;
-		*ptr++ = v;
-		v >>= 8;
-		*ptr++ = v;
-	}
+	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
 		uint64_put(ccitt_crc16(buffer, i));
 }
@@ -1754,6 +1818,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "matrixprod",	stress_cpu_matrix_prod },
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
+	{ "pjw",	stress_cpu_pjw },
 	{ "rand",	stress_cpu_rand },
 	{ "rgb",	stress_cpu_rgb },
 	{ "sqrt", 	stress_cpu_sqrt },
