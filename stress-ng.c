@@ -991,12 +991,12 @@ static void stress_cpu_gcd(void)
 	int i, i_sum = 0;
 
 	for (i = 0; i < 16384; i++) {
-		int a = i;
-		int b = mwc();
-		int r = 0;
+		register int a = i;
+		register int b = mwc();
+		register int r = 0;
 
 		while (b) {
-			int r = a % b;
+			r = a % b;
 			a = b;
 			b = r;
 		}
@@ -1119,7 +1119,7 @@ static void stress_cpu_nsqrt(void)
 static void stress_cpu_phi(void)
 {
 	double phi; /* Golden ratio */
-	uint64_t a, b;
+	register uint64_t a, b;
 	const uint64_t mask = 1ULL << 63;
 	int i;
 
@@ -1130,7 +1130,7 @@ static void stress_cpu_phi(void)
 	/* Iterate until we approach overflow */
 	for (i = 0; (i < 64) && !((a | b) & mask); i++) {
 		/* Find nth term */
-		uint64_t c = a + b;
+		register uint64_t c = a + b;
 
 		a = b;
 		b = c;
@@ -1208,7 +1208,7 @@ static void stress_cpu_jenkin(void)
 {
 	const size_t len = 128;
 	uint8_t i, key;
-	uint32_t h = 0;
+	register uint32_t h = 0;
 
 	for (i = 0; i < len; i++) {
 		key = mwc() & 0xff;
@@ -1311,7 +1311,7 @@ static void stress_cpu_idct(void)
  */
 static void stress_cpu_int64(void)
 {
-	uint64_t a = mwc(), b = mwc();
+	register uint64_t a = mwc(), b = mwc();
 	int i;
 
 	for (i = 0; i < 10000; i++) {
@@ -1328,7 +1328,7 @@ static void stress_cpu_int64(void)
  */
 static void stress_cpu_int32(void)
 {
-	uint32_t a = mwc(), b = mwc();
+	register uint32_t a = mwc(), b = mwc();
 	int i;
 
 	for (i = 0; i < 10000; i++) {
@@ -1345,7 +1345,7 @@ static void stress_cpu_int32(void)
  */
 static void stress_cpu_int16(void)
 {
-	uint16_t a = mwc(), b = mwc();
+	register uint16_t a = mwc(), b = mwc();
 	int i;
 
 	for (i = 0; i < 10000; i++) {
@@ -1362,7 +1362,7 @@ static void stress_cpu_int16(void)
  */
 static void stress_cpu_int8(void)
 {
-	uint8_t a = mwc(), b = mwc();
+	register uint8_t a = mwc(), b = mwc();
 	int i;
 
 	for (i = 0; i < 10000; i++) {
@@ -1505,6 +1505,24 @@ static void stress_cpu_matrix_prod(void)
 }
 
 /*
+ *   stress_cpu_fibonacci()
+ *	compute fibonacci series
+ */
+static void stress_cpu_fibonacci(void)
+{
+	register uint64_t f1 = 0, f2 = 1, fn;
+
+	do {
+		fn = f1 + f2;
+		f1 = f2;
+		f2 = fn;
+	} while (!(fn & 0x8000000000000000ULL));
+
+	uint64_put(fn);
+}
+
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1526,6 +1544,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "bitops",	stress_cpu_bitops },
 	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
+	{ "fibonacci",	stress_cpu_fibonacci },
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
