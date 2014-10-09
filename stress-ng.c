@@ -1590,7 +1590,47 @@ static void stress_cpu_explog(void)
 		n = exp(log(n) / 1.00002);
 }
 
+/*
+ *  Undocumented gcc-ism, force -O0 optimisation
+ */
+static void stress_cpu_jmp(void)  __attribute__((optimize("-O0")));
 
+/*
+ *  This could be a ternary operator, v = (v op val) ? a : b
+ *  but it may be optimised down, so force a compare and jmp
+ *  with -O0 and a if/else construct
+ */
+#define JMP(v, op, val, a, b)		\
+	if (v op val)			\
+		v = a;			\
+	else				\
+		v = b;			\
+
+/*
+ *   stress_cpu_jmp
+ *	jmp conditionals
+ */
+static void stress_cpu_jmp(void)
+{
+	register int i, next = 0;
+
+	for (i = 1; i < 1000; i++) {
+		/* Force lots of compare jmps */
+		JMP(next, ==, 1, 2, 3);
+		JMP(next, >, 2, 0, 1);
+		JMP(next, <, 1, 1, 0);
+		JMP(next, ==, 1, 2, 3);
+		JMP(next, >, 2, 0, 1);
+		JMP(next, <, 1, 1, 0);
+		JMP(next, ==, 1, 2, 3);
+		JMP(next, >, 2, 0, 1);
+		JMP(next, <, 1, 1, 0);
+		JMP(next, ==, 1, 2, 3);
+		JMP(next, >, 2, 0, 1);
+		JMP(next, <, 1, 1, 0);
+		uint64_put(next + i);
+	}
+}
 
 /*
  *  stress_cpu_all()
@@ -1626,6 +1666,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "int16",	stress_cpu_int16 },
 	{ "int8",	stress_cpu_int8 },
 	{ "jenkin",	stress_cpu_jenkin },
+	{ "jmp",	stress_cpu_jmp },
 	{ "ln2",	stress_cpu_ln2 },
 	{ "longdouble",	stress_cpu_longdouble },
 	{ "loop",	stress_cpu_loop },
