@@ -1577,6 +1577,20 @@ static void stress_cpu_ackermann(void)
 	(void)ackermann(3, 10);
 }
 
+/*
+ *   stress_cpu_explog
+ *	compute exp(log(n))
+ */
+static void stress_cpu_explog(void)
+{
+	uint32_t i;
+	double n = 1e6;
+
+	for (i = 1; i < 100000; i++)
+		n = exp(log(n) / 1.00002);
+}
+
+
 
 /*
  *  stress_cpu_all()
@@ -1601,6 +1615,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "bitops",	stress_cpu_bitops },
 	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
+	{ "explog",	stress_cpu_explog },
 	{ "fibonacci",	stress_cpu_fibonacci },
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },

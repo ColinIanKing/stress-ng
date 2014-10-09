@@ -73,14 +73,20 @@ l l.
 \fBMethod	Description\fR
 all	iterate over all the below cpu stress methods
 ackermann	T{
-Ackermann function: compute A(3, 10), where A(m, n) = n + 1 if m = 0; A(m - 1, 1) if m > 0 and n = 0; A(m - 1, A(m, n - 1)) if m > 0 and n > 0
+Ackermann function: compute A(3, 10), where:
+ A(m, n) = n + 1 if m = 0;
+ A(m - 1, 1) if m > 0 and n = 0;
+ A(m - 1, A(m, n - 1)) if m > 0 and n > 0
 T}
 bitops	T{
 various bit operations from bithack, namely: reverse bits, parity check, bit count, round to nearest power of 2
 T}
 double	mix of double precision floating point operations
-euler	compute e using (1 + 1 / n) ^ n
-fibonacci	compute Fibonacci sequence of 0, 1, 1, 2, 5, 8, 13, ...
+euler	compute e using n \[eq] (1 + (1 \[di] n)) \[ua] n
+explog	iterate on n \[eq] exp(log(n) \[di] 1.00002)
+fibonacci	T{
+compute Fibonacci sequence of 0, 1, 1, 2, 5, 8, 13, ...
+T}
 fft	4096 sample Fast Fourier Transform
 float	mix of floating point operations
 gcd	compute GCD of integers
@@ -90,10 +96,17 @@ int16	mix of 16 bit integer operations
 int32	mix of 32 bit integer operations
 int64	mix of 64 bit integer operations
 jenkin	Jenkin's integer hash on 128 bytes of random data
-ln2	compute ln(2) based on series 1 - 1/2 + 1/3 - 1/4 + 1/5 - 1/6 ...
-longdouble	mix of long double precision floating point operations
+ln2	T{
+compute ln(2) based on series:
+ 1 - 1/2 + 1/3 - 1/4 + 1/5 - 1/6 ...
+T}
+longdouble	T{
+mix of long double precision floating point operations
+T}
 loop	simple empty loop
-matrixprod	matrix product of two 128 \(mu 128 matrices of double floats
+matrixprod	T{
+matrix product of two 128 \(mu 128 matrices of double floats
+T}
 nsqrt	sqrt() using Newton–Raphson
 phi	compute the Golden Ratio \(*f using series
 rand	rand()
