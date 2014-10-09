@@ -1,3 +1,12 @@
+stress-ng (0.02.03-1) unstable; urgency=medium
+
+  * Bump version
+  * Add --fstat, --fstat-ops and --fstat-path fstat stress options
+  * Add --utime, --utime-ops, --utime-fsync options
+  * Add -R, --rename, --rename-ops rename stressor
+
+ -- Colin King <colin.king@canonical.com>  Thu, 9 Oct 2014 11:03:00 +0100
+
 stress-ng (0.02.02-1) unstable; urgency=medium
 
   * Makefile: bump version
