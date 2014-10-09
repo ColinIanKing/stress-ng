@@ -1521,6 +1521,39 @@ static void stress_cpu_fibonacci(void)
 	uint64_put(fn);
 }
 
+/*
+ *   stress_cpu_ln2
+ *	compute ln(2) using series
+ */
+static void stress_cpu_ln2(void)
+{
+	register double ln2 = 0.0;
+	register const double math_ln2 = log(2.0);
+	register uint32_t n = 1;
+
+	/* Arbitary precision chosen */
+	while (n < 1000000) {
+		double delta;
+		/* Unroll, do several ops */
+		ln2 += (long double)1.0 / (long double)n++;
+		ln2 -= (long double)1.0 / (long double)n++;
+		ln2 += (long double)1.0 / (long double)n++;
+		ln2 -= (long double)1.0 / (long double)n++;
+		ln2 += (long double)1.0 / (long double)n++;
+		ln2 -= (long double)1.0 / (long double)n++;
+		ln2 += (long double)1.0 / (long double)n++;
+		ln2 -= (long double)1.0 / (long double)n++;
+
+		/* Arbitarily accurate enough? */
+		delta = ln2 - math_ln2;
+		delta = (delta < 0.0) ? -delta : delta;
+		if (delta < 0.000001)
+			break;
+	}
+
+	double_put(ln2);
+}
+
 
 /*
  *  stress_cpu_all()
@@ -1554,6 +1587,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "int16",	stress_cpu_int16 },
 	{ "int8",	stress_cpu_int8 },
 	{ "jenkin",	stress_cpu_jenkin },
+	{ "ln2",	stress_cpu_ln2 },
 	{ "longdouble",	stress_cpu_longdouble },
 	{ "loop",	stress_cpu_loop },
 	{ "matrixprod",	stress_cpu_matrix_prod },
