@@ -1,4 +1,4 @@
-VERSION=0.02.03
+VERSION=0.02.04
 #
 # Codename "chronically fatigued"
 #
