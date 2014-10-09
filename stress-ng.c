@@ -44,6 +44,7 @@
 #include <time.h>
 #include <semaphore.h>
 #include <poll.h>
+#include <dirent.h>
 
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -191,6 +192,7 @@ typedef enum {
 	STRESS_BIGHEAP,
 	STRESS_RENAME,
 	STRESS_UTIME,
+	STRESS_FSTAT,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -232,7 +234,7 @@ typedef enum {
 #endif
 	OPT_VERSION = 'V',
 	OPT_BIGHEAP = 'B',
-	OPT_VM_BYTES = 1,
+	OPT_VM_BYTES = 0x80,
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
 	OPT_VM_KEEP,
@@ -304,6 +306,9 @@ typedef enum {
 	OPT_UTIME,
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
+	OPT_FSTAT,
+	OPT_FSTAT_OPS,
+	OPT_FSTAT_DIR
 } stress_op;
 
 /* stress test metadata */
@@ -386,6 +391,7 @@ static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
 static int	opt_socket_port = 5000;			/* Default socket port */
+static char	*opt_fstat_dir = "/dev";		/* Default fstat directory */
 static volatile bool opt_do_run = true;			/* false to exit stressor */
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
 static stress_cpu_stressor_info_t cpu_methods[];	/* fwd decl of cpu stressor methods */
@@ -3175,6 +3181,77 @@ restart:
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_fstat()
+ *	stress system with fstat
+ */
+static int stress_fstat(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	typedef struct dir_info {
+		char	*path;
+		struct dir_info *next;
+	} dir_info_t;
+
+	DIR *dp;
+	dir_info_t *dir_info = NULL, *di;
+	struct dirent *d;
+
+	(void)instance;
+
+	if ((dp = opendir(opt_fstat_dir)) == NULL) {
+		pr_err(stderr, "%s: opendir on %s failed: errno=%d: (%s)\n",
+			name, opt_fstat_dir, errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	/* Cache all the directory entries */
+	while ((d = readdir(dp)) != NULL) {
+		char path[PATH_MAX];
+
+		snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
+		if ((di = calloc(1, sizeof(*di))) == NULL) {
+			pr_err(stderr, "%s: out of memory\n", name);
+			closedir(dp);
+			exit(EXIT_FAILURE);
+		}
+		if ((di->path = strdup(path)) == NULL) {
+			pr_err(stderr, "%s: out of memory\n", name);
+			closedir(dp);
+			exit(EXIT_FAILURE);
+		}
+		di->next = dir_info;
+		dir_info = di;
+	}
+	closedir(dp);
+
+	do {
+		struct stat buf;
+
+		for (di = dir_info; di; di = di->next) {
+			/* We don't care about it failing */
+			(void)stat(di->path, &buf);
+			(*counter)++;
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				break;
+		}
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	/* Free cache */
+	for (di = dir_info; di; ) {
+		dir_info_t *next = di->next;
+
+		free(di->path);
+		free(di);
+		di = next;
+	}
+
+	return EXIT_SUCCESS;
+}
+
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 /*
  *  stress_utime()
@@ -3252,6 +3329,7 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
+	{ stress_fstat,	 STRESS_FSTAT,	OPT_FSTAT,	OPT_FSTAT_OPS,		"fstat" },
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
@@ -3343,6 +3421,9 @@ static const help_t help[] = {
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
 	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
+	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
+	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
+	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
 #if defined (__linux__)
@@ -3550,6 +3631,9 @@ static const struct option long_options[] = {
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
 #endif
+	{ "fstat",	1,	0,	OPT_FSTAT },
+	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
+	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -3824,6 +3908,9 @@ next_opt:
 			break;
 		case OPT_UTIME_FSYNC:
 			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
+			break;
+		case OPT_FSTAT_DIR:
+			opt_fstat_dir = optarg;
 			break;
 		default:
 			printf("Unknown option\n");

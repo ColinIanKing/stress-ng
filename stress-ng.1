@@ -163,6 +163,16 @@ start N processes locking on a single file.
 .B \-\-flock-ops N
 stop flock stress processes after N bogo flock operations.
 .TP
+.B \-\-fstat N
+start N processes fstat'ing files in a directory (default is /dev).
+.TP
+.B \-\-fstat\-ops N
+stop fstat stress process after N bogo fstat operations.
+.TP
+.B \-\-fstat\-dir directory
+specify the directory to fstat to override the default of /dev.
+All the files in the directory will be fstat'd repeatedly.
+.TP
 .B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
 .TP
