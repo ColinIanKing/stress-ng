@@ -28,7 +28,7 @@ stress\-ng \- a tool to load and stress a computer system.
 stress\-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well
 as the various operating system kernel interfaces.
- stress-ng also has a wide range of CPU specific stress tests that exercise floating point, integer, bit manipulation and control flow.
+stress-ng also has a wide range of CPU specific stress tests that exercise floating point, integer, bit manipulation and control flow.
 .PP
 stress-ng was originally intended to make a machine work hard and trip
 hardware issues such as thermal overruns as well as operating
@@ -120,7 +120,9 @@ int8	mix of 8 bit integer operations
 int16	mix of 16 bit integer operations
 int32	mix of 32 bit integer operations
 int64	mix of 64 bit integer operations
-jenkin	Jenkin's integer hash on 128 bytes of random data
+jenkin	T{
+Jenkin's integer hash on 128 rounds of 128..1 bytes of random data
+T}
 jmp	Simple unoptimised compare >, <, == and jmp branching
 ln2	T{
 compute ln(2) based on series:
@@ -135,7 +137,19 @@ matrix product of two 128 \(mu 128 matrices of double floats
 T}
 nsqrt	sqrt() using Newton–Raphson
 phi	compute the Golden Ratio \(*f using series
-rand	rand()
+pjw	T{
+128 rounds of hash pjw function on 128 to 1 bytes of random strings
+T}
+rand	T{
+16384 iterations of rand(), where rand is the MWC pseudo
+random number generator.
+The MWC random function concatenates two 16 bit multiply
+with carry generators:
+ x(n) = 36969 \(mu x(n - 1) + carry,
+ y(n) = 18000 \(mu y(n - 1) + carry mod 2 \[ua] 16
+.br
+and has period of around 2 \[ua] 60
+T}
 rgb	convert RGB to YUV and back to RGB (CCIR 601)
 sqrt	sqrt(rand())
 trig	sin\(*h \(mu cos\(*h
