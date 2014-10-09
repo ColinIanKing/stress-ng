@@ -1633,6 +1633,69 @@ static void stress_cpu_jmp(void)
 }
 
 /*
+ *  ccitt_crc16()
+ *	perform naive CCITT CRC16
+ */
+static uint16_t ccitt_crc16(const uint8_t *data, size_t n)
+{
+	/*
+	 *  The CCITT CRC16 polynomial is
+	 *     16    12    5
+	 *    x   + x   + x  + 1
+	 *
+	 *  which is 0x11021, but to make the computation
+	 *  simpler, this has been reversed to 0x8408 and
+	 *  the top bit ignored..
+	 *  We can get away with a 17 bit polynomial
+	 *  being represented by a 16 bit value because
+	 *  we are assuming the top bit is always set.
+	 */
+	const uint16_t polynomial = 0x8408;
+	uint16_t crc = ~0;
+
+	if (!n)
+		return 0;
+
+	for (; n; n--) {
+		uint8_t i;
+		uint8_t val = (uint16_t)0xff & *data++;
+
+		for (i = 8; i; --i, val >>= 1) {
+			bool do_xor = 1 & (val ^ crc);
+			crc >>= 1;
+			crc ^= do_xor ? polynomial : 0;
+		}
+	}
+
+	crc = ~crc;
+	return (crc << 8) | (crc >> 8);
+}
+
+/*
+ *   stress_cpu_crc16
+ *	compute 1024 rounds of CCITT CRC16
+ */
+void stress_cpu_crc16(void)
+{
+	uint8_t buffer[1024], *ptr = buffer;
+	size_t i;
+
+	for (i = 0; i < sizeof(buffer) / 4; i++) {
+		uint32_t v = (uint32_t)mwc();
+
+		*ptr++ = v;
+		v >>= 8;
+		*ptr++ = v;
+		v >>= 8;
+		*ptr++ = v;
+		v >>= 8;
+		*ptr++ = v;
+	}
+	for (i = 0; i < sizeof(buffer); i++)
+		uint64_put(ccitt_crc16(buffer, i));
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1653,6 +1716,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 
 	{ "ackermann",	stress_cpu_ackermann },
 	{ "bitops",	stress_cpu_bitops },
+	{ "crc16",	stress_cpu_crc16 },
 	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
 	{ "explog",	stress_cpu_explog },
