@@ -72,6 +72,9 @@ specify cpu stress method. By default, sqrt(rand()) is used, however, there are 
 l l.
 \fBMethod	Description\fR
 all	iterate over all the below cpu stress methods
+ackermann	T{
+Ackermann function: compute A(3, 10), where A(m, n) = n + 1 if m = 0; A(m - 1, 1) if m > 0 and n = 0; A(m - 1, A(m, n - 1)) if m > 0 and n > 0
+T}
 bitops	T{
 various bit operations from bithack, namely: reverse bits, parity check, bit count, round to nearest power of 2
 T}
@@ -148,7 +151,7 @@ stop hdd stress processes after N bogo operations.
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
 .B \-F N, \-\-fallocate N
-start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  
+start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
@@ -209,7 +212,7 @@ KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
-been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.  
+been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
 .RS
 .PP
 The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.

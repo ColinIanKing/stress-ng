@@ -1554,6 +1554,29 @@ static void stress_cpu_ln2(void)
 	double_put(ln2);
 }
 
+/*
+ *  ackermann()
+ *	a naive/simple implementation of the ackermann function
+ */
+static uint32_t ackermann(const uint32_t m, const uint32_t n)
+{
+	if (m == 0)
+		return n + 1;
+	else if (n == 0)
+		return ackermann(m - 1, 1);
+	else
+		return ackermann(m - 1, ackermann(m, n - 1));
+}
+
+/*
+ *   stress_cpu_ackermann
+ *	compute ackermann function
+ */
+static void stress_cpu_ackermann(void)
+{
+	(void)ackermann(3, 10);
+}
+
 
 /*
  *  stress_cpu_all()
@@ -1574,6 +1597,7 @@ static void stress_cpu_all(void)
 static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "all",	stress_cpu_all },	/* Special "all test */
 
+	{ "ackermann",	stress_cpu_ackermann },
 	{ "bitops",	stress_cpu_bitops },
 	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
