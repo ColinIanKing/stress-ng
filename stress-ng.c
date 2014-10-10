@@ -86,6 +86,7 @@
 #define OPT_FLAGS_SET		0x00000020	/* Set if user specifies stress procs */
 #define OPT_FLAGS_KEEP_NAME	0x00000040	/* Keep stress names to stress-ng */
 #define OPT_FLAGS_UTIME_FSYNC	0x00000080	/* fsync after utime modification */
+#define OPT_FLAGS_METRICS_BRIEF	0x00000100	/* dump brief metrics */
 
 /* debug output bitmasks */
 #define PR_ERR			0x00010000	/* Print errors */
@@ -312,7 +313,8 @@ typedef enum {
 	OPT_UTIME_FSYNC,
 	OPT_FSTAT,
 	OPT_FSTAT_OPS,
-	OPT_FSTAT_DIR
+	OPT_FSTAT_DIR,
+	OPT_METRICS_BRIEF
 } stress_op;
 
 /* stress test metadata */
@@ -3849,6 +3851,7 @@ static const help_t help[] = {
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
+	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
@@ -3969,6 +3972,7 @@ static const struct option long_options[] = {
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "metrics",	0,	0,	OPT_METRICS },
+	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
@@ -4324,6 +4328,9 @@ next_opt:
 		case OPT_FSTAT_DIR:
 			opt_fstat_dir = optarg;
 			break;
+		case OPT_METRICS_BRIEF:
+			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -4533,6 +4540,8 @@ wait_for_procs:
 				total += *(counters + (i * max) + j);
 				total_time += procs[i][j].finish - procs[i][j].start;
 			}
+			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (total == 0))
+				continue;
 			pr_inf(stdout, "%s: %" PRIu64 " in %.2f secs, rate: %.2f\n",
 				stressors[i].name, total, total_time,
 				total_time > 0.0 ? (double)total / total_time : 0.0);
