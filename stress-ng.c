@@ -1765,7 +1765,7 @@ static uint16_t ccitt_crc16(const uint8_t *data, size_t n)
  *   stress_cpu_crc16
  *	compute 1024 rounds of CCITT CRC16
  */
-void stress_cpu_crc16(void)
+static void stress_cpu_crc16(void)
 {
 	uint8_t buffer[1024];
 	size_t i;
@@ -1773,6 +1773,34 @@ void stress_cpu_crc16(void)
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
 		uint64_put(ccitt_crc16(buffer, i));
+}
+
+/*
+ *  zeta()
+ *	Riemann zeta function
+ */
+static inline long double complex zeta(
+	const long double complex s,
+	long double precision)
+{
+	int i = 1;
+	long double complex z = 0.0, zold = 0.0;
+
+	do {
+		zold = z;
+		z += 1 / cpow(i++, s);
+	} while (cabs(z - zold) > precision);
+
+	return z;
+}
+
+static void stress_cpu_zeta(void)
+{
+	long double precision = 0.00000001;
+	double f;
+
+	for (f = 2.0; f < 11.0; f += 1.0)
+		double_put(zeta(f, precision));
 }
 
 /*
@@ -1823,6 +1851,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "rgb",	stress_cpu_rgb },
 	{ "sqrt", 	stress_cpu_sqrt },
 	{ "trig",	stress_cpu_trig },
+	{ "zeta",	stress_cpu_zeta },
 	{ NULL,		NULL }
 };
 
