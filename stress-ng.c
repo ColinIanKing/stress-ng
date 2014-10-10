@@ -1870,6 +1870,41 @@ static void stress_cpu_sieve(void)
 }
 
 /*
+ *  is_prime()
+ *	return true if n is prime
+ *	http://en.wikipedia.org/wiki/Primality_test
+ */
+static inline bool is_prime(uint32_t n)
+{
+	uint32_t i, max;
+
+	if (n <= 3)
+		return n >= 2;
+	if ((n % 2 == 0) || (n % 3 == 0))
+		return false;
+	max = sqrt(n) + 1;
+	for (i = 5; i < max; i+= 6)
+		if ((n % i == 0) || (n % (i + 2) == 0))
+			return false;
+	return true;
+}
+
+/*
+ *  stress_cpu_prime()
+ *
+ */
+static void stress_cpu_prime(void)
+{
+	uint32_t i, nprimes = 0;
+
+	for (i = 0; i < 1000000; i++) {
+		if (is_prime(i))
+			nprimes++;
+	}
+	uint64_put(nprimes);
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1914,6 +1949,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
 	{ "pjw",	stress_cpu_pjw },
+	{ "prime",	stress_cpu_prime },
 	{ "rand",	stress_cpu_rand },
 	{ "rgb",	stress_cpu_rgb },
 	{ "sieve",	stress_cpu_sieve },
