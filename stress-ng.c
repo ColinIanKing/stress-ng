@@ -151,6 +151,10 @@
 
 #define FFT_SIZE		(4096)
 
+#define SIEVE_GETBIT(a, i)	(a[i / 32] & (1 << (i & 31)))
+#define SIEVE_CLRBIT(a, i)	(a[i / 32] &= ~(1 << (i & 31)))
+#define SIEVE_SIZE 		(10000000)
+
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
 
@@ -1842,6 +1846,30 @@ static void stress_cpu_correlate(void)
 
 
 /*
+ * stress_cpu_sieve()
+ * 	slightly optimised Sieve of Eratosthenes
+ */
+static void stress_cpu_sieve(void)
+{
+	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
+	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
+	uint32_t i, j;
+
+	memset(sieve, 0xff, sizeof(sieve));
+	for (i = 2; i < nsqrt; i++)
+		if (SIEVE_GETBIT(sieve, i))
+			for (j = i * i; j < SIEVE_SIZE; j += i)
+				SIEVE_CLRBIT(sieve, j);
+
+	/* And count up number of primes */
+	for (j = 0, i = 2; i < SIEVE_SIZE; i++) {
+		if (SIEVE_GETBIT(sieve, i))
+			j++;
+	}
+	uint64_put(j);
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1888,6 +1916,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "pjw",	stress_cpu_pjw },
 	{ "rand",	stress_cpu_rand },
 	{ "rgb",	stress_cpu_rgb },
+	{ "sieve",	stress_cpu_sieve },
 	{ "sqrt", 	stress_cpu_sqrt },
 	{ "trig",	stress_cpu_trig },
 	{ "zeta",	stress_cpu_zeta },
