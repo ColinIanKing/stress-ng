@@ -1794,6 +1794,10 @@ static inline long double complex zeta(
 	return z;
 }
 
+/*
+ * stress_cpu_zeta()
+ *	stress test Zeta(2.0)..Zeta(10.0)
+ */
 static void stress_cpu_zeta(void)
 {
 	long double precision = 0.00000001;
@@ -1802,6 +1806,40 @@ static void stress_cpu_zeta(void)
 	for (f = 2.0; f < 11.0; f += 1.0)
 		double_put(zeta(f, precision));
 }
+
+/*
+ * stress_cpu_correlate()
+ *
+ *  Introduction to Signal Processing,
+ *  Prentice-Hall, 1995, ISBN: 0-13-209172-0.
+ */
+static void stress_cpu_correlate(void)
+{
+	const size_t data_len = 16384;
+	const size_t corr_len = data_len / 16;
+	size_t i, j;
+	double data_average = 0.0;
+	double data[data_len], corr[corr_len + 1];
+
+	/* Generate some random data */
+	for (i = 0; i < data_len; i++) {
+		data[i] = mwc();
+		data_average += data[i];
+	}
+	data_average /= (double)data_len;
+
+	/* And correlate */
+	for (i = 0; i <= corr_len; i++) {
+		corr[i] = 0.0;
+		for (j = 0; j < data_len - i; j++) {
+			corr[i] += (data[i + j] - data_average) *
+				   (data[j] - data_average);
+		}
+		corr[i] /= (double)corr_len;
+		double_put(corr[i]);
+	}
+}
+
 
 /*
  *  stress_cpu_all()
@@ -1825,6 +1863,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "ackermann",	stress_cpu_ackermann },
 	{ "bitops",	stress_cpu_bitops },
 	{ "crc16",	stress_cpu_crc16 },
+	{ "correlate",	stress_cpu_correlate },
 	{ "double",	stress_cpu_double },
 	{ "euler",	stress_cpu_euler },
 	{ "explog",	stress_cpu_explog },
