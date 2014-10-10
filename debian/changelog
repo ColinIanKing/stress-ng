@@ -1,3 +1,13 @@
+stress-ng (0.02.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add correlation cpu stressor
+  * Add Zeta function cpu stressor
+  * Add more information in manual
+  * Add hash pjw and make jenkin hash iterate more
+
+ -- Colin King <colin.king@canonical.com>  Fri, 10 Oct 2014 16:26:00 +0100
+
 stress-ng (0.02.04-1) unstable; urgency=medium
 
   * Makefile: bump version
