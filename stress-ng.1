@@ -121,6 +121,13 @@ gray	T{
 calculate binary to gray code and gray code back to binary for integers
 from 0 to 65535
 T}
+hamming	T{
+compute Hamming H(8,4) codes on 262144 lots of 4 bit data. This turns 4 bit data into 8 bit Hamming code containing 4 parity bits. For data bits d1..d4, parity bits are computed as:
+  p1 = d2 + d3 + d4
+  p2 = d1 + d3 + d4
+  p3 = d1 + d2 + d4
+  p4 = d1 + d2 + d3
+T}
 hanoi	T{
 solve a 21 disc Towers of Hanoi stack using the recursive solution
 T}

@@ -2036,6 +2036,85 @@ static void stress_cpu_omega(void)
 	} while (fabsl(omega - last_omega) > precision);
 }
 
+#define HAMMING(G, i, nybble, code) 			\
+{							\
+	int8_t res;					\
+	res = (((G[3] >> i) & (nybble >> 3)) & 1) ^	\
+	      (((G[2] >> i) & (nybble >> 2)) & 1) ^	\
+	      (((G[1] >> i) & (nybble >> 1)) & 1) ^	\
+	      (((G[0] >> i) & (nybble >> 0)) & 1);	\
+	code ^= ((res & 1) << i);			\
+}
+
+/*
+ *  hamming84()
+ *	compute Hamming (8,4) codes
+ */
+static uint8_t hamming84(const uint8_t nybble)
+{
+	/*
+	 * Hamming (8,4) Generator matrix
+	 * (4 parity bits, 4 data bits)
+	 *
+	 *  p1 p2 p3 p4 d1 d2 d3 d4
+	 *  0  1  1  1  1  0  0  0
+	 *  1  0  1  1  0  1  0  0
+	 *  1  1  0  1  0  0  1  0
+	 *  1  1  1  0  0  0  0  1
+	 *
+	 * Where:
+	 *  d1..d4 = 4 data bits
+	 *  p1..p4 = 4 parity bits:
+	 *    p1 = d2 + d3 + d4
+	 *    p2 = d1 + d3 + d4
+	 *    p3 = d1 + d2 + d4
+	 *    p4 = d1 + d2 + d3
+	 *
+	 * G[] is reversed to turn G[3-j] into G[j] to save a subtraction
+	 */
+	static const uint8_t G[] = {
+		0b11110001,
+		0b11010010,
+		0b10110100,
+		0b01111000,
+	};
+
+	register uint8_t code = 0;
+
+	/* Unrolled 8 bit loop x unrolled 4 bit loop  */
+	HAMMING(G, 7, nybble, code);
+	HAMMING(G, 6, nybble, code);
+	HAMMING(G, 5, nybble, code);
+	HAMMING(G, 4, nybble, code);
+	HAMMING(G, 3, nybble, code);
+	HAMMING(G, 2, nybble, code);
+	HAMMING(G, 1, nybble, code);
+	HAMMING(G, 0, nybble, code);
+
+	return code;
+}
+
+/*
+ *  stress_cpu_hamming()
+ *	compute hamming code on 256 byte patterns
+ */
+static void stress_cpu_hamming(void)
+{
+	uint32_t i;
+
+	for (i = 0; i < 65536; i++) {
+		uint32_t encoded;
+
+		/* 4 x 4 bits to 4 x 8 bits hamming encoded */
+		encoded =
+			  (hamming84((i >> 12) & 0xf) << 24) |
+			  (hamming84((i >> 8) & 0xf) << 16) |
+			  (hamming84((i >> 4) & 0xf) << 8) |
+			  (hamming84((i >> 0) & 0xf) << 0);
+		uint64_put(encoded);
+	}
+}
+
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
@@ -2067,6 +2146,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
 	{ "gray",	stress_cpu_gray },
+	{ "hamming",	stress_cpu_hamming },
 	{ "hanoi",	stress_cpu_hanoi },
 	{ "hyperbolic",	stress_cpu_hyperbolic },
 	{ "idct",	stress_cpu_idct },
