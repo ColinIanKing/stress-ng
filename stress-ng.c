@@ -2096,7 +2096,7 @@ static uint8_t hamming84(const uint8_t nybble)
 
 /*
  *  stress_cpu_hamming()
- *	compute hamming code on 256 byte patterns
+ *	compute hamming code on 65536 x 4 nybbles 
  */
 static void stress_cpu_hamming(void)
 {
