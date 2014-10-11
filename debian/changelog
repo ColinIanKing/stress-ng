@@ -1,3 +1,489 @@
+stress-ng (0.02.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add computation of the reciprocal Fibonacci constant psi
+  * Add computation of the omega constant as a cpu stressor
+  * Add computation of pi cpu stressor
+
+ -- Colin King <colin.king@canonical.com>  Sat, 11 Oct 2014 20:07:00 +0100
+
+stress-ng (0.02.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Rename ctxt -> switch
+  * Add metrics-brief example to man page
+  * Add Towers of Hanoi CPU stessor
+  * Add gray code cpu stressor
+  * Add --metrics-brief option
+  * Add brute force prime search
+  * Add Sieve of Eratosthenes cpu stressor
+
+ -- Colin King <colin.king@canonical.com>  Sat, 11 Oct 2014 11:33:00 +0100
+
+stress-ng (0.02.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add correlation cpu stressor
+  * Add Zeta function cpu stressor
+  * Add more information in manual
+  * Add hash pjw and make jenkin hash iterate more
+
+ -- Colin King <colin.king@canonical.com>  Fri, 10 Oct 2014 16:26:00 +0100
+
+stress-ng (0.02.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add hyperbolic function sinh cosh cpu stressor
+  * Expand man page
+  * Add CCITT CRC16 cpu stressor
+  * Add compare + jmp cpu stressor
+  * Add cpu explog stressor and tidy up man page
+  * Add Ackermann function cpu stressor
+  * Add log(2) computation for cpu stressor
+  * Update man page
+  * Add fibonacci cpu stressor, use register where appropriate
+
+ -- Colin King <colin.king@canonical.com>  Thu, 9 Oct 2014 21:16:00 +0100
+
+stress-ng (0.02.03-1) unstable; urgency=medium
+
+  * Bump version
+  * Add --fstat, --fstat-ops and --fstat-path fstat stress options
+  * Add --utime, --utime-ops, --utime-fsync options
+  * Add -R, --rename, --rename-ops rename stressor
+
+ -- Colin King <colin.king@canonical.com>  Thu, 9 Oct 2014 11:03:00 +0100
+
+stress-ng (0.02.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * bigheap: account for the type of out of memory conditions in debug
+  * Forgot to update the man page for --big-heap options
+
+ -- Colin King <colin.king@canonical.com>  Tue, 7 Oct 2014 13:23:00 +0100
+
+stress-ng (0.02.01-1) unstable; urgency=medium
+
+  * Fix up errors found by coverity scan
+  * Add bigheap stressor
+  * Makefile: bump version
+  * Add coredumping limits
+  * Add oom killer adjustments
+  * Add maxtrix product cpu stressor
+  * Expand float and int tests to various sized arithmetic
+
+ -- Colin King <colin.king@canonical.com>  Tue, 7 Oct 2014 12:18:00 +0100
+
+stress-ng (0.02.00-1) unstable; urgency=medium
+
+  * Bump version to 0.02.00
+  * Minor tweaks to man page
+  * Add qsort stressor and --qsort, --qsort-ops, --qsort-size options
+  * Remove some whitespace
+  * Add some notes about the CPU methods used
+  * Add RGV <-> YUV cpu stress method
+  * Add more bithack stressors to bitops cpu method, update man page
+  * Remove --int, --int-ops, --float, --float-ops from help
+  * Re-order cpu stressor methods alphabetically
+  * Remove the need for cpu stressors to return anything
+  * Remove --float and --float-ops and merge into cpu stress
+  * Make uint64_put take 1 arg
+  * Remove --int and --int-ops, merge into int cpu stress
+  * Remove extraneous space
+  * Add comments and some consts
+  * Add IDCT and "all" cpu stress methods
+  * Add euler and jenkins cpu stress methods
+  * Add Fast Fourier Transform cpu stress method
+  * Add Golden Ratio computation as a cpu stressor
+  * Execute the correct stress function
+  * Fix indexing error on procs <---> stress id
+  * Add --cpu-method option to stress the CPU different ways
+  * Add const where applicable, small code tidy up
+  * Replace APP_NAME with app_name static string
+  * Guard against bad flag type
+  * Re-work print, saved ~60 bytes
+  * Sort stressors by name order
+  * Get page size for mmap using sysconf
+  * Make *_put helper args const
+  * Make maximum number of procs a #defined constant
+  * Track mmap'd memory, this stops coverity scan getting confused
+  * Add --hdd-write-size option
+  * Add mmap stressor and --mmap, --mmap-ops, mmap-bytes options
+  * Fully #define out unused stress tests
+  * Check for end-of-table on stressors
+  * Use err and dbg helpers to print syscall failures
+  * Make short get_opt short int
+  * Remove human readable label field, it's duplication
+  * Make short opts a stress_op enum
+  * Make all ops lo, hi thresholds the same (100,100000000)
+  * Make options table driven for stress test options
+  * Add segmentation fault stressor, --sigsegv and --sigsegv-ops options
+  * Add directory stressors
+  * Add link and symlink stressors
+  * Fix help information, start -> stop
+
+ -- Colin King <colin.king@canonical.com>  Thu, 3 Oct 2014 10:44:00 +0100
+
+stress-ng (0.01.32-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Handle forced abort and tidy up when errors occur during start up
+  * Add more termination checks to try to abort faster
+  * Fix --sched option that had missing .TP
+  * Remove duplicate const
+  * Neaten up the see also list
+
+ -- Colin King <colin.king@canonical.com>  Thu, 28 Aug 2014 00:21:01 +0100
+
+stress-ng (0.01.31-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Minor fix-ups in man page
+  * Re-order globals, saves 8 bytes
+  * Make mwc uint64_t
+  * Add some more comments
+  * Remove DIV_OPS_BY_PROCS macro
+  * Fix --keep-name help info (order and missing ')
+  * Fix --sched man page option
+
+ -- Colin King <colin.king@canonical.com>  Tue, 19 Aug 2014 15:47:28 +0100
+
+stress-ng (0.01.30-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix up a few resource leaks
+  * Add format length specifier to scanf on integers
+  * Minor var cleanup from cppcheck
+  * Re-work help info
+  * Remove common functionality, make code smaller
+  * Free procs more rigorously.
+  * Clear sigqueue union, keeps valgrind happy
+  * Free procs info at exit
+  * Add more information in man page
+  * Re-use stressor names in checks
+  * Cast max_ops to (void) to avoid unused var warnings
+  * Add --vm-locked option and force cpu affinity changes on cache stress
+  * Fix spelling mistake in man page
+  * Remove some extraneous white spaces
+  * Remove commas from nunbers in help
+  * Align help info
+  * Remove redundant code that got accidently left in
+  * Simplify hogs message
+  * Keep track of per stress test ops count in opt_ops array
+  * Add -P, --poll, --poll-ops zero timeout polling stress test
+  * Add -k, --keep-name option to not change name of stress processes
+  * Add -r, --random option to create N random stress processes
+
+ -- Colin King <colin.king@canonical.com>  Tue, 5 Aug 2014 17:25:01 +0100
+
+stress-ng (0.01.29-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Use si_value.sival_int instead of info.si_int (Closes: #756787)
+  * Fix incorrect nesting of OPT_SIGQUEUE*
+
+ -- Colin King <colin.king@canonical.com>  Fri, 1 Aug 2014 23:25:23 +0100
+
+stress-ng (0.01.28-1) unstable; urgency=medium
+
+  * Makefile: bump version, change codename
+  * Add sigqueue and sigwaitinfo stress, new --sigq, --siqq-ops options
+  * Make mwc inline
+  * Make opt_do_run volatile
+  * Make -O2 default
+  * Remove numerous printfs in help info
+  * Remove lots of duplicate stress test names from code
+  * Fixup print % qualifier
+  * Clean all objects on make clean
+
+ -- Colin King <colin.king@canonical.com>  Wed, 30 Jul 2014 10:25:00 +0100
+
+stress-ng (0.01.27-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add more info to man page
+  * Add open stress test
+  * Fix bug in semaphore range checking
+  * Fix dbg message for stress_int
+  * Add some more comments
+  * Add more information in man page
+  * Increase the -l option accuracy by biasing by the select() overhead time
+  * Add missing comma to output
+
+ -- Colin King <colin.king@canonical.com>  Tue, 29 Jul 2014 00:33:31 +0100
+
+stress-ng (0.01.26-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add semaphore stress, --sem and --sem-ops options
+
+ -- Colin King <colin.king@canonical.com>  Sun, 27 Jul 2014 16:24:22 +0100
+
+stress-ng (0.01.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * More aggresive process termination to kill any lingering processes
+
+ -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 18:05:01 +0100
+
+stress-ng (0.01.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add helper.c to make dist
+  * Add integer stressor, --int and --int-ops options
+  * urandom: cater for non-linux builds
+  * Add --float and --float-ops floatin point stressors
+  * Add urandom stress, -u, --urandom and --urandom-ops options
+  * Make timer stress more responsive to SIGINTs
+  * Forgot to add 'T' option to getopt
+
+ -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 17:38:43 +0100
+
+stress-ng (0.01.23-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add snappier process termination
+  * Add -h option
+  * Add more debug on exit paths
+  * Add more checking on sigaction
+  * Minor code tidy up
+  * Move time_now()
+  * Use timeval helper in time_now()
+  * Fix build error on GNU HURD
+
+ -- Colin King <colin.king@canonical.com>  Mon, 14 Jul 2014 11:49:41 +0100
+
+stress-ng (0.01.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add directory entry thrashing
+  * Track ftruncate errors
+
+ -- Colin King <colin.king@canonical.com>  Sun, 13 Jul 2014 17:19:05 +0100
+
+stress-ng (0.01.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove need for rand, it makes Coverity Scan complain
+  * Check for freq divide by zero
+  * Add in __linux__ build dependency on timers
+  * Add timer stress test --timer, --timer-ops and --timer-freq options
+  * Note that affinity options linux only in man page
+  * opt_affinity_ops is linux only
+  * Fix man page -F option
+  * Add CPU affinity stress processes, add --affinity and --affinity-ops options
+
+ -- Colin King <colin.king@canonical.com>  Sat, 12 Jul 2014 21:50:00 +0100
+
+stress-ng (0.01.20-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Ignore return from ftruncate, we don't care
+  * Fix spelling mistakes
+  * Standardise error messages
+  * Remove extraneous pid at end of pr_* messages
+  * Add more information when error occurs
+
+ -- Colin King <colin.king@canonical.com>  Mon, 7 Jul 2014 20:00:00 +0100
+
+stress-ng (0.01.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Willfully ignore posix_fallocate() failures, we don't care
+  * Terminate and tidy up flock stress temp file
+  * Update help information
+  * Make conditional stress tests no-ops rather than not including them
+  * Add file locking stress, --flock and --flock-ops options
+  * Add --vm-populate option
+  * Add fallocate test and -F, --fallocate, --fallocate-ops options
+  * Divide yield bogo ops by number of yield processes
+
+ -- Colin King <colin.king@canonical.com>  Mon, 7 Jul 2014 19:26:00 +0100
+
+stress-ng (0.01.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add yield stress test and -y, --yield, --yield-ops options
+  * Add ionice-class and ionice-level options (Linux only)
+
+ -- Colin King <colin.king@canonical.com>  Sun, 6 Jul 2014 11:14:00 +0100
+
+stress-ng (0.01.17-1) unstable; urgency=medium
+
+  * Makefile: update version
+  * Add build hardening
+  * Add scheduler options to man page
+  * Allow --sched which to show available schedulers
+  * Add --sched and --sched-prio options
+
+ -- Colin King <colin.king@canonical.com>  Fri, 4 Jul 2014 16:38:00 +0100
+
+stress-ng (0.01.16-1) unstable; urgency=medium
+
+  * Don't include prctl.h unless compiled for a linux target
+  * Reduce scope of j loop index
+  * Reduce scope of ret
+  * Clarify bitwise operation
+  * Remove duplicate consts
+
+ -- Colin King <colin.king@canonical.com>  Sat, 21 Jun 2014 14:24:15 +0100
+
+stress-ng (0.01.15-1) unstable; urgency=medium
+
+  * Initial Debian upload (Closes: #735674)
+  * Makefile: bump version
+  * Minor tidy-ups
+  * Minor changes to man page
+
+ -- Colin King <colin.king@canonical.com>  Mon, 26 May 2014 10:39:00 +0200
+
+stress-ng (0.01.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add -a, -all run all stress test option
+  * Cast close returns to (void) when we don't care
+  * Minor comment and code clean up
+  * Re-order options in man page
+  * Add socket stressors
+  * Add CPU cache to hogs line
+  * Fix up and re-order options in help info
+
+ -- Colin King <colin.king@canonical.com>  Thu, 22 May 2014 16:01:01 +0100
+
+stress-ng (0.01.13-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * Fill memory with something other that '0'
+  * Add cache thrash stress options to man page
+  * Add cache stress
+  * Update man page with new pipe I/O options
+  * Add pipe I/O loading test
+
+ -- Colin King <colin.king@canonical.com>  Tue, 20 May 2014 12:14:00 +0100
+
+stress-ng (0.01.12-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * Add some more comments
+  * Remove atoi and use strtol to handle underflow/overflow checking
+  * Add print format specifier
+  * Fix status not being printed
+
+ -- Colin King <colin.king@canonical.com>  Mon, 19 May 2014 10:40:00 +0100
+
+stress-ng (0.01.11-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * Fix copyright
+  * Makefile: Fix make dist, use plain old tar to omit debian contents
+  * Add COPYING file
+  * Add a -l --cpu-load option to load CPUs to a specified amount
+
+ -- Colin King <colin.king@canonical.com>  Fri, 28 Mar 2014 21:08:11 +0000
+
+stress-ng (0.01.10-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * debian/control: set arch to any
+  * Fix up copyright company
+  * Fix formatting of the copywrite in the source
+  * Re-write the description and make it a little clearer in the source
+  * Detect and report if a worker stress process failed
+  * Make process name changing linux only feature
+
+ -- Colin King <colin.king@canonical.com>  Mon, 20 Jan 2014 17:00:01 +0000
+
+stress-ng (0.01.09-1) unstable; urgency=low
+
+  * Initial release into Debian (Closes: #735674)
+  * Makefile: bump version
+  * Fix up description once more
+  * Add some minimal comments
+  * Re-work debian control again.
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Jan 2014 11:52:13 +0000
+
+stress-ng (0.01.08-1) unstable; urgency=low
+
+  * Makefile: bump version
+  * debian/control: Update debian control
+  * debian/rules, remove override_dh_auto_build
+  * debian/control: update, minor changes
+  * debian/compat: update to 9
+  * Check for write fail
+
+ -- Colin King <colin.king@canonical.com>  Thu, 16 Jan 2014 13:47:11 +0000
+
+stress-ng (0.01.07) trusty; urgency=low
+
+  * Makefile: bump version
+  * Fix typo in help info
+  * Ensure we quit when ctxt switch parent is killed
+  * Update man page date
+  * Add context switch stress test
+  * Add fork stress test
+  * Update copyright year
+
+ -- Colin King <colin.king@canonical.com>  Thu, 16 Jan 2014 13:27:51 +0000
+
+stress-ng (0.01.06) trusty; urgency=low
+
+  * Makefile: bump version again
+  * vm-keep does not have an optarg
+
+ -- Colin King <colin.king@canonical.com>  Fri, 6 Dec 2013 18:46:20 +0000
+
+stress-ng (0.01.05) trusty; urgency=low
+
+  * Makefile: bump version
+  * Fix opt_vm_hang bug
+
+ -- Colin King <colin.king@canonical.com>  Fri, 6 Dec 2013 15:50:01 +0000
+
+stress-ng (0.01.04) trusty; urgency=low
+
+  * Makefile: bump version
+  * ensure ret is initialized in print()
+  * Fix some signed / unsinged comparison warnings
+  * Make print return number of chars emitted and ignore some func returns
+  * Makefile: add -Wextra
+  * Set shm mem name to be unique on parent pid
+  * handle out of memory error on procs
+  * tidy up and constify where applicable
+
+ -- Colin King <colin.king@canonical.com>  Tue, 19 Nov 2013 12:57:22 +0000
+
+stress-ng (0.01.03) saucy; urgency=low
+
+  * Makefile: bump version
+  * Make mmap failure non fatal
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Oct 2013 19:38:31 +0100
+
+stress-ng (0.01.02) saucy; urgency=low
+
+  * Makefile: bump version
+  * Set umask before using mkstemp
+
+ -- Colin King <colin.king@canonical.com>  Wed, 15 Oct 2013 15:28:33 +0100
+
+stress-ng (0.01.01) saucy; urgency=low
+
+  * Makefile: bump version
+  * hdd: fix --hdd-noclean option
+  * hdd: change buffer size, exit early if hdd-ops reached per write
+  * Add default settings as #defines
+  * Make metrics labels a little more understandable
+  * Limit vm-ops to min of 100
+
+ -- Colin King <colin.king@canonical.com>  Tue, 15 Oct 2013 16:20:05 +0100
+
+stress-ng (0.01.00) saucy; urgency=low
+
+  * Initial version 
+
+ -- Colin King <colin.king@canonical.com>  Tue, 15 Oct 2013 13:35:40 +0100
+
 stress-ng (0.02.06-1) unstable; urgency=medium
 
   * Makefile: bump version
