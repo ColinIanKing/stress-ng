@@ -141,7 +141,7 @@
 #define DEFAULT_OPS_MIN		(100ULL)
 #define DEFAULT_OPS_MAX		(100000000ULL)
 
-#define CTXT_STOP		'X'
+#define SWITCH_STOP		'X'
 #define PIPE_STOP		'S'
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
@@ -173,7 +173,7 @@ typedef enum {
 	STRESS_VM,
 	STRESS_HDD,
 	STRESS_FORK,
-	STRESS_CTXT,
+	STRESS_SWITCH,
 	STRESS_PIPE,
 	STRESS_CACHE,
 	STRESS_SOCKET,
@@ -221,7 +221,7 @@ typedef enum {
 	OPT_PIPE = 'p',
 	OPT_QUIET = 'q',
 	OPT_RANDOM = 'r',
-	OPT_CTXT = 's',
+	OPT_SWITCH = 's',
 	OPT_TIMEOUT = 't',
 #if defined (__linux__)
 	OPT_URANDOM = 'u',
@@ -258,7 +258,7 @@ typedef enum {
 	OPT_VM_OPS,
 	OPT_HDD_OPS,
 	OPT_FORK_OPS,
-	OPT_CTXT_OPS,
+	OPT_SWITCH_OPS,
 	OPT_PIPE_OPS,
 	OPT_CACHE_OPS,
 	OPT_SOCKET_OPS,
@@ -2262,10 +2262,10 @@ static int stress_fork(
 }
 
 /*
- *  stress_ctxt
+ *  stress_switch
  *	stress by heavy context switching
  */
-static int stress_ctxt(
+static int stress_switch(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
@@ -2298,7 +2298,7 @@ static int stress_ctxt(
 					pr_failed_dbg(name, "read");
 					break;
 				}
-				if (ch == CTXT_STOP)
+				if (ch == SWITCH_STOP)
 					break;
 			}
 			(void)close(pipefds[0]);
@@ -2318,7 +2318,7 @@ static int stress_ctxt(
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		ch = CTXT_STOP;
+		ch = SWITCH_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
 			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
@@ -3791,7 +3791,6 @@ static const stress_t stressors[] = {
 	{ stress_bigheap,STRESS_BIGHEAP,OPT_BIGHEAP,	OPT_BIGHEAP_OPS,	"bigheap" },
 	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache" },
 	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
-	{ stress_ctxt,	 STRESS_CTXT,	OPT_CTXT,	OPT_CTXT_OPS,   	"ctxt" },
 	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
 	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -3815,6 +3814,7 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
 	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket" },
+	{ stress_switch, STRESS_SWITCH,	OPT_SWITCH,	OPT_SWITCH_OPS,   	"switch" },
 	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
 #if defined(__linux__)
 	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer" },
@@ -4012,7 +4012,7 @@ static const struct option long_options[] = {
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "vm",		1,	0,	OPT_VM },
 	{ "fork",	1,	0,	OPT_FORK },
-	{ "switch",	1,	0,	OPT_CTXT },
+	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
@@ -4033,7 +4033,7 @@ static const struct option long_options[] = {
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
-	{ "switch-ops",	1,	0,	OPT_CTXT_OPS },
+	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "cache",	1,	0, 	OPT_CACHE },
