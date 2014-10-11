@@ -1907,6 +1907,29 @@ static void stress_cpu_prime(void)
 }
 
 /*
+ *  stress_cpu_gray()
+ *	compute gray codes
+ */
+static void stress_cpu_gray(void)
+{
+	uint32_t i;
+
+	for (i = 0; i < 0x10000; i++) {
+		register uint32_t gray_code, mask;
+
+		/* Binary to Gray code */
+		gray_code = (i >> 1) ^ i;
+
+		/* Gray code back to binary */
+		for (mask = gray_code >> 1; mask; mask >>= 1)
+			gray_code ^= mask;
+		if (gray_code != i) {
+			pr_err(stderr, "gray code error: %" PRIu32 ".\n", i);
+		}
+	}
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1936,6 +1959,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
+	{ "gray",	stress_cpu_gray },
 	{ "hyperbolic",	stress_cpu_hyperbolic },
 	{ "idct",	stress_cpu_idct },
 	{ "int64",	stress_cpu_int64 },
