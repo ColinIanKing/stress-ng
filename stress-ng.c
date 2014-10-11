@@ -1618,6 +1618,28 @@ static void stress_cpu_fibonacci(void)
 }
 
 /*
+ *  stress_cpu_psi
+ *	compute the constant psi,
+ * 	the reciprocal Fibonacci constant
+ */
+static void stress_cpu_psi(void)
+{
+	double long f1 = 0.0, f2 = 1.0, fn;
+	double long psi = 0.0, last_psi;
+	double long precision = 1.0e-20;
+
+	do {
+		fn = f1 + f2;
+		f1 = f2;
+		f2 = fn;
+		last_psi = psi;
+		psi += 1.0 / f1;
+	} while (fabsl(psi - last_psi) > precision);
+
+	double_put(psi);
+}
+
+/*
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
@@ -2064,6 +2086,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "pi",		stress_cpu_pi },
 	{ "pjw",	stress_cpu_pjw },
 	{ "prime",	stress_cpu_prime },
+	{ "psi",	stress_cpu_psi },
 	{ "rand",	stress_cpu_rand },
 	{ "rgb",	stress_cpu_rgb },
 	{ "sieve",	stress_cpu_sieve },
