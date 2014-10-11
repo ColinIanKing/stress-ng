@@ -2000,6 +2000,21 @@ static void stress_cpu_pi(void)
 
 
 /*
+ *  stress_cpu_omega()
+ *	compute the constant omega
+ */
+static void stress_cpu_omega(void)
+{
+	long double omega = 0.5, last_omega = 0.0;
+	const long double precision = 1.0e-20;
+
+	do {
+		last_omega = omega;
+		omega = (1 + omega) / (1 + expl(omega));
+	} while (fabsl(omega - last_omega) > precision);
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -2044,6 +2059,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "loop",	stress_cpu_loop },
 	{ "matrixprod",	stress_cpu_matrix_prod },
 	{ "nsqrt",	stress_cpu_nsqrt },
+	{ "omega",	stress_cpu_omega },
 	{ "phi",	stress_cpu_phi },
 	{ "pi",		stress_cpu_pi },
 	{ "pjw",	stress_cpu_pjw },
