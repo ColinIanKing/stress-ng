@@ -1,3 +1,16 @@
+stress-ng (0.02.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Rename ctxt -> switch
+  * Add metrics-brief example to man page
+  * Add Towers of Hanoi CPU stessor
+  * Add gray code cpu stressor
+  * Add --metrics-brief option
+  * Add brute force prime search
+  * Add Sieve of Eratosthenes cpu stressor
+
+ -- Colin King <colin.king@canonical.com>  Sat, 11 Oct 2014 11:33:00 +0100
+
 stress-ng (0.02.05-1) unstable; urgency=medium
 
   * Makefile: bump version
