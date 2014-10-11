@@ -1930,6 +1930,37 @@ static void stress_cpu_gray(void)
 }
 
 /*
+ * hanoi()
+ *	do a Hanoi move
+ */
+static uint32_t hanoi(
+	const uint16_t n,
+	const char p1,
+	const char p2,
+	const char p3)
+{
+	if (n == 0) {
+		/* Move p1 -> p2 */
+		return 1;
+	} else {
+		uint32_t m = hanoi(n - 1, p1, p3, p2);
+		/* Move p1 -> p2 */
+		m += hanoi(n - 1, p3, p2, p1);
+		return m;
+	}
+}
+
+/*
+ *  stress_cpu_hanoi
+ *	stress with recursive Towers of Hanoi
+ */
+static void stress_cpu_hanoi(void)
+{
+	uint64_put(hanoi(20, 'X', 'Y', 'Z'));
+}
+
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -1960,6 +1991,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
 	{ "gray",	stress_cpu_gray },
+	{ "hanoi",	stress_cpu_hanoi },
 	{ "hyperbolic",	stress_cpu_hyperbolic },
 	{ "idct",	stress_cpu_idct },
 	{ "int64",	stress_cpu_int64 },
