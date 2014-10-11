@@ -1959,6 +1959,45 @@ static void stress_cpu_hanoi(void)
 	uint64_put(hanoi(20, 'X', 'Y', 'Z'));
 }
 
+/*
+ *  factorial()
+ *	compute n!
+ */
+static long double factorial(int n)
+{
+	long double f = 1;
+
+	while (n > 0) {
+		f *= (long double)n;
+		n--;
+	}
+	return f;
+}
+
+/*
+ *  stress_cpu_pi()
+ *	compute pi using the Srinivasa Ramanujan
+ *	fast convergence algorithm
+ */
+static void stress_cpu_pi(void)
+{
+	long double s = 0.0, pi = 0.0, last_pi = 0.0;
+	const long double precision = 1.0e-18;
+	const long double c = 2.0 * sqrtl(2.0) / 9801.0;
+	int k = 0;
+
+	do {
+		last_pi = pi;
+		s += (factorial(4 * k) *
+			((26390.0 * (long double)k) + 1103)) /
+			(powl(factorial(k), 4.0) * powl(396.0, 4.0 * k));
+		pi = 1 / (s * c);
+		k++;
+	} while (fabsl(pi - last_pi) > precision);
+
+	double_put(pi);
+}
+
 
 /*
  *  stress_cpu_all()
@@ -2006,6 +2045,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "matrixprod",	stress_cpu_matrix_prod },
 	{ "nsqrt",	stress_cpu_nsqrt },
 	{ "phi",	stress_cpu_phi },
+	{ "pi",		stress_cpu_pi },
 	{ "pjw",	stress_cpu_pjw },
 	{ "prime",	stress_cpu_prime },
 	{ "rand",	stress_cpu_rand },
@@ -4217,7 +4257,6 @@ int main(int argc, char **argv)
 	char shm_name[64];
 	bool success = true;
 
-	memset(started_procs, 0, sizeof(num_procs));
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
@@ -4505,6 +4544,7 @@ next_opt:
 
 	(void)close(fd);
 	memset(counters, 0, len);
+	memset(started_procs, 0, sizeof(num_procs));
 
 	time_start = time_now();
 	pr_dbg(stderr, "starting processes\n");
