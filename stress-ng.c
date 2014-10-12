@@ -4339,6 +4339,20 @@ static void proc_finished(const pid_t pid)
 static long int opt_long(const char *opt, const char *str)
 {
 	long int val;
+	char c;
+	bool found = false;
+
+	for (c = '0'; c <= '9'; c++) {
+		if (strchr(str, c)) {
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		fprintf(stderr, "Given value %s is not a valid decimal for the %s option\n",
+			str, opt);
+		exit(EXIT_FAILURE);
+	}
 
 	errno = 0;
 	val = strtol(str, NULL, 10);
