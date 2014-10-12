@@ -397,6 +397,7 @@ static int 	opt_ionice_class = UNDEFINED;		/* ionice class */
 static int	opt_ionice_level = UNDEFINED;		/* ionice level */
 #endif
 static int	opt_socket_port = 5000;			/* Default socket port */
+static long int	opt_nprocessors_online;			/* Number of processors online */
 static char	*opt_fstat_dir = "/dev";		/* Default fstat directory */
 static volatile bool opt_do_run = true;			/* false to exit stressor */
 static proc_info_t *procs[STRESS_MAX];			/* per process info */
@@ -2567,7 +2568,6 @@ static int stress_cache(
 {
 	unsigned long total = 0;
 #if defined(__linux__)
-	const long int cpus = sysconf(_SC_NPROCESSORS_CONF);
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
 #endif
@@ -2595,7 +2595,7 @@ static int stress_cache(
 		}
 #if defined(__linux__)
 		cpu++;
-		cpu %= cpus;
+		cpu %= opt_nprocessors_online;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		sched_setaffinity(0, sizeof(mask), &mask);
@@ -2880,7 +2880,6 @@ static int stress_affinity(
 	const uint64_t max_ops,
 	const char *name)
 {
-	const long int cpus = sysconf(_SC_NPROCESSORS_CONF);
 	unsigned long int cpu = 0;
 	cpu_set_t mask;
 
@@ -2889,7 +2888,7 @@ static int stress_affinity(
 
 	do {
 		cpu++;
-		cpu %= cpus;
+		cpu %= opt_nprocessors_online;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		sched_setaffinity(0, sizeof(mask), &mask);
@@ -4381,6 +4380,11 @@ int main(int argc, char **argv)
 	mwc_reseed();
 
 	opt_cpu_stressor = stress_cpu_find_by_name("sqrt");
+	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
+		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
 	for (;;) {
 		int c, option_index;
@@ -4396,6 +4400,8 @@ next_opt:
 
 				opt_flags |= OPT_FLAGS_SET;
 				num_procs[id] = opt_long(name, optarg);
+				if (num_procs[id] <= 0)
+					num_procs[id] = opt_nprocessors_online;
 				check_value(name, num_procs[id]);
 				goto next_opt;
 			}
@@ -4410,6 +4416,8 @@ next_opt:
 		case OPT_ALL:
 			opt_flags |= OPT_FLAGS_SET;
 			val = opt_long("-a", optarg);
+			if (val <= 0)
+				val = opt_nprocessors_online;
 			check_value("all", val);
 			for (i = 0; i < STRESS_MAX; i++)
 				num_procs[i] = val;
@@ -4550,6 +4558,8 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	pr_dbg(stderr, "%ld processors online\n", opt_nprocessors_online);
 
 	if (num_procs[stress_info_index(STRESS_SEMAPHORE)]) {
 		/* create a mutex */

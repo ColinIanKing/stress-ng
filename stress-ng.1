@@ -48,6 +48,10 @@ on Linux systems to make the stressors unkillable in low memory situations,
 so use this judiciously.  With the apropriate privilege, stress-ng can allow
 the ionice class and ionice levels to be adjusted, again, this should be
 used with care.
+.PP
+One can specify the number of processes to invoke per type of stress test; specifying
+a negative or zero value will select the number of online processors as defined
+by sysconf(_SC_NPROCESSORS_ONLN).
 .SH OPTIONS
 .TP
 .B \-?, \-h, \-\-help
