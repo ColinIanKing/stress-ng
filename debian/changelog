@@ -1,3 +1,14 @@
+stress-ng (0.02.08-1) unstable; urgency=medium
+
+  * Bump version
+  * Add more sanity checking for numeric options
+  * fflush output before we fork
+  * Allow one to request number of stressors to match number of online CPUs
+  * Fix up comment
+  * Add hand optimised Hamming H(8,4) code cpu stressor
+
+ -- Colin King <colin.king@canonical.com>  Sun, 12 Oct 2014 22:33:00 +0100
+
 stress-ng (0.02.07-1) unstable; urgency=medium
 
   * Makefile: bump version
