@@ -4629,6 +4629,7 @@ next_opt:
 		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i].name,
 			i == STRESS_MAX - 1 ? '\n' : ',');
 	}
+	fflush(stdout);
 
 	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
