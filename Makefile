@@ -8,7 +8,41 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
-OBJS = stress-ng.o helper.o
+OBJS =	stress-affinity.o \
+	stress-bigheap.o \
+	stress-cache.o \
+	stress-cpu.o \
+	stress-dentry.o \
+	stress-dir.o \
+	stress-fallocate.o \
+	stress-flock.o \
+	stress-fork.o \
+	stress-fstat.o \
+	stress-hdd.o \
+	stress-iosync.o \
+	stress-link.o \
+	stress-mmap.o \
+	stress-noop.o \
+	stress-open.o \
+	stress-pipe.o \
+	stress-poll.o \
+	stress-qsort.o \
+	stress-rename.o \
+	stress-sem.o \
+	stress-sigsegv.o \
+	stress-sigq.o \
+	stress-socket.o \
+	stress-switch.o \
+	stress-timer.o \
+	stress-urandom.o \
+	stress-utime.o \
+	stress-vm.o \
+	stress-yield.o \
+	helper.o \
+	log.o \
+	mwc.o \
+	time.o \
+ 	stress-ng.o
 
 stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -lpthread -o $@ $(LDFLAGS)

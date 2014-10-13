@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,52 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/file.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
+#include <sched.h>
+#endif
+
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  stress_flock
+ *	stress file locking
  */
-void double_put(const double a)
+int stress_flock(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
-	(void)a;
-}
+	int fd;
+	char filename[64];
 
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
-{
-	(void)a;
+	(void)instance;
+
+	snprintf(filename, sizeof(filename), "./%s-%i", name, getppid());
+	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
+		pr_failed_err(name, "open");
+		return EXIT_FAILURE;
+	}
+
+	do {
+		if (flock(fd, LOCK_EX) < 0)
+			continue;
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+		sched_yield();
+#endif
+		(void)flock(fd, LOCK_UN);
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	(void)unlink(filename);
+	(void)close(fd);
+
+	return EXIT_SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,26 @@
  */
 #define _GNU_SOURCE
 
-#include <stdint.h>
+#include <stdio.h>
+#include <sys/time.h>
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  timeval_to_double()
+ *      convert timeval to seconds as a double
  */
-void double_put(const double a)
+double timeval_to_double(const struct timeval *tv)
 {
-	(void)a;
+	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
 /*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
+ *  time_now()
+ *	time in seconds as a double
  */
-void uint64_put(const uint64_t a)
+double time_now(void)
 {
-	(void)a;
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
+	return timeval_to_double(&now);
 }

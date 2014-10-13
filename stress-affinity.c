@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,26 +22,43 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#define _GNU_SOURCE 
 
+#if defined(__linux__)
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <sched.h>
+
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  stress on sched_affinity()
+ *	stress system by changing CPU affinity periodically
  */
-void double_put(const double a)
+int stress_affinity(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
-	(void)a;
-}
+	unsigned long int cpu = 0;
+	cpu_set_t mask;
 
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
-{
-	(void)a;
+	(void)instance;
+	(void)name;
+
+	do {
+		cpu++;
+		cpu %= opt_nprocessors_online;
+		CPU_ZERO(&mask);
+		CPU_SET(cpu, &mask);
+		sched_setaffinity(0, sizeof(mask), &mask);
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	return EXIT_SUCCESS;
 }
+#endif

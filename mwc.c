@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,43 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
 #include <stdint.h>
+#include <unistd.h>
+
+#include <sys/time.h>
+#include <sys/types.h>
+
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  mwc()
+ *	fast pseudo random number generator, see
+ *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-void double_put(const double a)
+uint64_t mwc(void)
 {
-	(void)a;
+	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
+	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
+	return (mwc_z << 16) + mwc_w;
 }
 
 /*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
+ *  mwc_reseed()
+ *	dirty mwc reseed
  */
-void uint64_put(const uint64_t a)
+void mwc_reseed(void)
 {
-	(void)a;
+	struct timeval tv;
+	int i, n;
+
+	mwc_z = 0;
+	if (gettimeofday(&tv, NULL) == 0)
+		mwc_z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+	mwc_z += ~((unsigned char *)&mwc_z - (unsigned char *)&tv);
+	mwc_w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+
+	n = (int)mwc_z % 1733;
+	for (i = 0; i < n; i++)
+		(void)mwc();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,50 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  stress_open()
+ *	stress system by rapid open/close calls
  */
-void double_put(const double a)
+int stress_open(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
-	(void)a;
-}
+	int fds[STRESS_FD_MAX];
 
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
-{
-	(void)a;
+	(void)instance;
+	(void)name;
+
+	do {
+		int i;
+
+		for (i = 0; i < STRESS_FD_MAX; i++) {
+			fds[i] = open("/dev/zero", O_RDONLY);
+			if (fds[i] < 0)
+				break;
+			if (!opt_do_run)
+				break;
+			(*counter)++;
+		}
+		for (i = 0; i < STRESS_FD_MAX; i++) {
+			if (fds[i] < 0)
+				break;
+			if (!opt_do_run)
+				break;
+			(void)close(fds[i]);
+		}
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	return EXIT_SUCCESS;
 }

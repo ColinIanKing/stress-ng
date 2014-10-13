@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,48 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-/*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
- */
-void double_put(const double a)
-{
-	(void)a;
-}
+#include "stress-ng.h"
 
+#if defined (__linux__)
 /*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
+ *  stress_urandom
+ *	stress reading of /dev/urandom
  */
-void uint64_put(const uint64_t a)
+int stress_urandom(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
-	(void)a;
+	int fd;
+
+	(void)instance;
+
+	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
+		pr_failed_err(name, "open");
+		return EXIT_FAILURE;
+	}
+
+	do {
+		char buffer[8192];
+
+		if (read(fd, buffer, sizeof(buffer)) < 0) {
+			pr_failed_err(name, "read");
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	(void)close(fd);
+
+	return EXIT_SUCCESS;
 }
+#endif

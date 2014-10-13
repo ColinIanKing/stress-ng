@@ -1,0 +1,125 @@
+/*
+ * Copyright (C) 2013-2014 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#define _GNU_SOURCE
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <inttypes.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#include "stress-ng.h"
+
+/*
+ *  stress_bigheap()
+ *	stress that does nowt
+ */
+int stress_bigheap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	void *ptr = NULL, *last_ptr = NULL;
+	uint8_t *last_ptr_end = NULL;
+	size_t size = 0;
+	size_t chunk_size = 16 * 4096;
+	size_t stride = 4096;
+	pid_t pid;
+	uint32_t restarts = 0, nomems = 0;
+
+again:
+	pid = fork();
+	if (pid < 0) {
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+		}
+		if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
+				name, WTERMSIG(status), instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)\n",
+					name, instance);
+				restarts++;
+				goto again;
+			}
+		}
+	} else if (pid == 0) {
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
+
+		do {
+			void *old_ptr = ptr;
+			size += chunk_size;
+
+			ptr = realloc(old_ptr, size);
+			if (ptr == NULL) {
+				pr_dbg(stderr, "%s: out of memory at %" PRIu64 " MB (instance %d)\n",
+					name, (uint64_t)(4096ULL * size) >> 20, instance);
+				free(old_ptr);
+				size = 0;
+				nomems++;
+			} else {
+				size_t i, n;
+				uint8_t *u8ptr;
+
+				if (last_ptr == ptr) {
+					u8ptr = last_ptr_end;
+					n = chunk_size;
+				} else {
+					u8ptr = ptr;
+					n = size;
+				}
+				for (i = 0; i < n; i+= stride, u8ptr += stride)
+					*u8ptr = 0xff;
+
+				last_ptr = ptr;
+				last_ptr_end = u8ptr;
+			}
+			(*counter)++;
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		free(ptr);
+	}
+	pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+			name, restarts, nomems);
+
+	return EXIT_SUCCESS;
+}

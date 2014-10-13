@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,29 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  stress on sync()
+ *	stress system by IO sync calls
  */
-void double_put(const double a)
+int stress_iosync(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
-	(void)a;
-}
+	(void)instance;
+	(void)name;
 
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
-{
-	(void)a;
+	do {
+		sync();
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	return EXIT_SUCCESS;
 }

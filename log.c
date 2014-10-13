@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Canonical, Ltd.
+ * Copyright (C) 2013-2014 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,24 +24,51 @@
  */
 #define _GNU_SOURCE
 
-#include <stdint.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <errno.h>
+
+#include "stress-ng.h"
 
 /*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
+ *  print()
+ *	print some debug or info messages
  */
-void double_put(const double a)
+int print(
+	FILE *fp,
+	const int flag,
+	const char *const fmt, ...)
 {
-	(void)a;
+	va_list ap;
+	int ret = 0;
+
+	va_start(ap, fmt);
+	if (opt_flags & flag) {
+		char buf[4096];
+		const char *type = "";
+		int n;
+
+		if (flag & PR_ERR)
+			type = "error";
+		if (flag & PR_DBG)
+			type = "debug";
+		if (flag & PR_INF)
+			type = "info";
+
+		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
+			app_name, type, getpid());
+		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
+		fprintf(fp, "%s", buf);
+		fflush(fp);
+	}
+	va_end(ap);
+
+	return ret;
 }
 
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
+void pr_failed(const int flag, const char *name, const char *what)
 {
-	(void)a;
+	print(stderr, flag, "%s: %s failed, errno=%d (%s)\n",
+		name, what, errno, strerror(errno));
 }
+
