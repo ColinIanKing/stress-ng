@@ -8,43 +8,48 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
-OBJS =	stress-affinity.o \
-	stress-bigheap.o \
-	stress-cache.o \
-	stress-cpu.o \
-	stress-dentry.o \
-	stress-dir.o \
-	stress-fallocate.o \
-	stress-flock.o \
-	stress-fork.o \
-	stress-fstat.o \
-	stress-hdd.o \
-	stress-iosync.o \
-	stress-link.o \
-	stress-mmap.o \
-	stress-noop.o \
-	stress-open.o \
-	stress-pipe.o \
-	stress-poll.o \
-	stress-qsort.o \
-	stress-rename.o \
-	stress-sem.o \
-	stress-sigsegv.o \
-	stress-sigq.o \
-	stress-socket.o \
-	stress-switch.o \
-	stress-timer.o \
-	stress-urandom.o \
-	stress-utime.o \
-	stress-vm.o \
-	stress-yield.o \
-	helper.o \
-	log.o \
-	mwc.o \
-	time.o \
- 	stress-ng.o
+SRC =   stress-affinity.c \
+	stress-bigheap.c \
+	stress-cache.c \
+	stress-cpu.c \
+	stress-dentry.c \
+	stress-dir.c \
+	stress-fallocate.c \
+	stress-flock.c \
+	stress-fork.c \
+	stress-fstat.c \
+	stress-hdd.c \
+	stress-iosync.c \
+	stress-link.c \
+	stress-mmap.c \
+	stress-noop.c \
+	stress-open.c \
+	stress-pipe.c \
+	stress-poll.c \
+	stress-qsort.c \
+	stress-rename.c \
+	stress-sem.c \
+	stress-sigsegv.c \
+	stress-sigq.c \
+	stress-socket.c \
+	stress-switch.c \
+	stress-timer.c \
+	stress-urandom.c \
+	stress-utime.c \
+	stress-vm.c \
+	stress-yield.c \
+	helper.c \
+	log.c \
+	mwc.c \
+	time.c \
+	stress-ng.c
 
-stress-ng: $(OBJS)
+OBJS = $(SRC:.c=.o)
+
+%.o: %.c stress-ng.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+stress-ng: $(OBJS) Makefile
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -lpthread -o $@ $(LDFLAGS)
 
 stress-ng.1.gz: stress-ng.1
