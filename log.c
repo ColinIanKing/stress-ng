@@ -48,12 +48,14 @@ int print(
 		const char *type = "";
 		int n;
 
-		if (flag & PR_ERR)
+		if (flag & PR_ERROR)
 			type = "error";
-		if (flag & PR_DBG)
+		if (flag & PR_DEBUG)
 			type = "debug";
-		if (flag & PR_INF)
+		if (flag & PR_INFO)
 			type = "info";
+		if (flag & PR_FAIL)
+			type = "fail";
 
 		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
 			app_name, type, getpid());

@@ -58,19 +58,22 @@
 #define OPT_FLAGS_KEEP_NAME	0x00000040	/* Keep stress names to stress-ng */
 #define OPT_FLAGS_UTIME_FSYNC	0x00000080	/* fsync after utime modification */
 #define OPT_FLAGS_METRICS_BRIEF	0x00000100	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	0x00000200	/* verify mode */
 
 /* debug output bitmasks */
-#define PR_ERR			0x00010000	/* Print errors */
-#define PR_INF			0x00020000	/* Print info */
-#define PR_DBG			0x00040000	/* Print debug */
-#define PR_ALL			(PR_ERR | PR_INF | PR_DBG)
+#define PR_ERROR		0x00010000	/* Print errors */
+#define PR_INFO			0x00020000	/* Print info */
+#define PR_DEBUG		0x00040000	/* Print debug */
+#define PR_FAIL			0x00080000	/* Print test failure message */
+#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG)
 
-#define pr_dbg(fp, fmt, args...)	print(fp, PR_DBG, fmt, ## args)
-#define pr_inf(fp, fmt, args...)	print(fp, PR_INF, fmt, ## args)
-#define pr_err(fp, fmt, args...)	print(fp, PR_ERR, fmt, ## args)
+#define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
+#define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
+#define pr_err(fp, fmt, args...)	print(fp, PR_ERROR, fmt, ## args)
+#define pr_fail(fp, fmt, args...)	print(fp, PR_FAIL, fmt, ## args)
 
-#define pr_failed_err(name, what)	pr_failed(PR_ERR, name, what)
-#define pr_failed_dbg(name, what)	pr_failed(PR_DBG, name, what)
+#define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what)
+#define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what)
 
 #define KB			(1024ULL)
 #define	MB			(KB * KB)
@@ -286,7 +289,8 @@ typedef enum {
 	OPT_FSTAT,
 	OPT_FSTAT_OPS,
 	OPT_FSTAT_DIR,
-	OPT_METRICS_BRIEF
+	OPT_METRICS_BRIEF,
+	OPT_VERIFY
 } stress_op;
 
 /* stress test metadata */
