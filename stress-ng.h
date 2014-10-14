@@ -65,7 +65,7 @@
 #define PR_INFO			0x00020000	/* Print info */
 #define PR_DEBUG		0x00040000	/* Print debug */
 #define PR_FAIL			0x00080000	/* Print test failure message */
-#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG)
+#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)

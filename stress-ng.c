@@ -1159,7 +1159,7 @@ next_opt:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
 		case OPT_VERIFY:
-			opt_flags |= OPT_FLAGS_VERIFY;
+			opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
 			break;
 		default:
 			printf("Unknown option\n");
