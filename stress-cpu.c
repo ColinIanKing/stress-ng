@@ -49,14 +49,17 @@ static void stress_cpu_sqrt(void)
  */
 static void stress_cpu_loop(void)
 {
-	int i, i_sum = 0;
+	uint32_t i, i_sum = 0;
+	const uint32_t sum = 134209536UL;
 
 	for (i = 0; i < 16384; i++) {
 		i_sum += i;
 		__asm__ __volatile__("");	/* Stop optimising out */
 	}
-
-	uint64_put(i_sum);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "cpu loop 0..16383 sum was %" PRIu32 " and "
+			"did not match the expected value of %" PRIu32 "\n",
+			i_sum, sum);
 }
 
 /*
@@ -65,23 +68,22 @@ static void stress_cpu_loop(void)
  */
 static void stress_cpu_gcd(void)
 {
-	int i, i_sum = 0;
+	uint32_t i, i_sum = 0;
+	const uint32_t sum = 63000868UL;
 
 	for (i = 0; i < 16384; i++) {
-		register int a = i;
-		register int b = mwc();
-		register int r = 0;
+		register uint32_t a = i, b = i % (3 + (1997 ^ i)), r = 0;
 
-		while (b) {
-			r = a % b;
-			a = b;
-			b = r;
+		while (b != 0) {
+			r = b;
+			b = a % b;
+			a = r;
 		}
-		i_sum += r;
+		i_sum += a;
 		__asm__ __volatile__("");	/* Stop optimising out */
 	}
-
-	uint64_put(i_sum);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "gcd error detected, failed modulo or assigment operations\n");
 }
 
 /*
@@ -91,12 +93,12 @@ static void stress_cpu_gcd(void)
  */
 static void stress_cpu_bitops(void)
 {
-	unsigned int i, i_sum = 0;
+	uint32_t i, i_sum = 0;
+	const uint32_t sum = 0x8aadcaab;
 
 	for (i = 0; i < 16384; i++) {
 		{
-			unsigned int r, v;
-			int s = (sizeof(v) * 8) - 1;
+			uint32_t r, v, s = (sizeof(v) * 8) - 1;
 
 			/* Reverse bits */
 			r = v = i;
@@ -109,7 +111,7 @@ static void stress_cpu_bitops(void)
 		}
 		{
 			/* parity check */
-			unsigned int v = i;
+			uint32_t v = i;
 			v ^= v >> 16;
 			v ^= v >> 8;
 			v ^= v >> 4;
@@ -118,14 +120,14 @@ static void stress_cpu_bitops(void)
 		}
 		{
 			/* Brian Kernighan count bits */
-			unsigned int j, v = i;
+			uint32_t j, v = i;
 			for (j = 0; v; j++)
 				v &= v - 1;
 			i_sum += j;
 		}
 		{
 			/* round up to nearest highest power of 2 */
-			unsigned int v = i - 1;
+			uint32_t v = i - 1;
 			v |= v >> 1;
 			v |= v >> 2;
 			v |= v >> 4;
@@ -133,8 +135,9 @@ static void stress_cpu_bitops(void)
 			v |= v >> 16;
 			i_sum += v;
 		}
-		uint64_put(i_sum);
 	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "bitops error detected, failed bitops operations\n");
 }
 
 /*
@@ -176,9 +179,15 @@ static void stress_cpu_hyperbolic(void)
 static void stress_cpu_rand(void)
 {
 	int i;
+	uint32_t i_sum = 0;
+	const uint32_t sum = 0xc253698c;
 
+	MWC_SEED();
 	for (i = 0; i < 16384; i++)
-		mwc();
+		i_sum += mwc();
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "rand error detected, failed sum of pseudo-random values\n");
 }
 
 /*
@@ -344,10 +353,16 @@ static void stress_cpu_jenkin(void)
 {
 	uint8_t buffer[128];
 	size_t i;
+	uint32_t i_sum = 0;
+	const uint32_t sum = 0x96673680;
 
+	MWC_SEED();
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
-		uint64_put(jenkin(buffer, sizeof(buffer)));
+		i_sum += jenkin(buffer, sizeof(buffer));
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "jenkin error detected, failed hash jenkin sum\n");
 }
 
 /*
@@ -378,7 +393,10 @@ static void stress_cpu_pjw(void)
 {
 	char buffer[128];
 	size_t i;
+	uint32_t i_sum = 0;
+	const uint32_t sum = 0xa89a91c0;
 
+	MWC_SEED();
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	/* Make it ASCII range ' '..'_' */
 	for (i = 0; i < sizeof(buffer); i++)
@@ -386,8 +404,10 @@ static void stress_cpu_pjw(void)
 
 	for (i = sizeof(buffer) - 1; i; i--) {
 		buffer[i] = '\0';
-		uint64_put(pjw(buffer));
+		i_sum += pjw(buffer);
 	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail(stderr, "pjw error detected, failed hash pjw sum\n");
 }
 
 /*
@@ -478,15 +498,22 @@ static void stress_cpu_idct(void)
  */
 static void stress_cpu_int64(void)
 {
-	register uint64_t a = mwc(), b = mwc();
+	const uint64_t a_final = 0x199b182aba853658ULL;
+	const uint64_t b_final = 0x21c06cb28f08ULL;
+	register uint64_t a, b;
 	int i;
+
+	MWC_SEED();
+	a = mwc();
+	b = mwc();
 
 	for (i = 0; i < 10000; i++) {
 		int_ops(a, b, 0xffffffffffffULL);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put(a * b);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
+		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
 }
 
 /*
@@ -495,15 +522,22 @@ static void stress_cpu_int64(void)
  */
 static void stress_cpu_int32(void)
 {
-	register uint32_t a = mwc(), b = mwc();
+	const uint32_t a_final = 0x19ecd617UL;
+	const uint32_t b_final = 0x4b6de8eUL;
+	register uint32_t a, b;
 	int i;
+
+	MWC_SEED();
+	a = mwc();
+	b = mwc();
 
 	for (i = 0; i < 10000; i++) {
 		int_ops(a, b, 0xffffffffUL);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put((a ^ b) & 0xffffffff);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
+		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
 }
 
 /*
@@ -512,15 +546,22 @@ static void stress_cpu_int32(void)
  */
 static void stress_cpu_int16(void)
 {
-	register uint16_t a = mwc(), b = mwc();
+	const uint16_t a_final = 0x11ae;
+	const uint16_t b_final = 0x0f5e;
+	register uint16_t a, b;
 	int i;
+
+	MWC_SEED();
+	a = mwc();
+	b = mwc();
 
 	for (i = 0; i < 10000; i++) {
 		int_ops(a, b, 0xffff);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put((a ^ b) & 0xffff);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
+		pr_fail(stderr, "int16 error detected, failed int16 math operations\n");
 }
 
 /*
@@ -529,15 +570,22 @@ static void stress_cpu_int16(void)
  */
 static void stress_cpu_int8(void)
 {
-	register uint8_t a = mwc(), b = mwc();
+	const uint8_t a_final = 0x24;
+	const uint8_t b_final = 0x16;
+	register uint8_t a, b;
 	int i;
+
+	MWC_SEED();
+	a = mwc();
+	b = mwc();
 
 	for (i = 0; i < 10000; i++) {
 		int_ops(a, b, 0xff);
 		if (!opt_do_run)
 			break;
 	}
-	uint64_put((a + b) ^ 0xff);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
+		pr_fail(stderr, "int16 error detected, failed int16 math operations\n");
 }
 
 #define float_ops(a, b, c, d)		\
@@ -677,6 +725,7 @@ static void stress_cpu_matrix_prod(void)
  */
 static void stress_cpu_fibonacci(void)
 {
+	const uint64_t fn_res = 0xa94fad42221f2702;
 	register uint64_t f1 = 0, f2 = 1, fn;
 
 	do {
@@ -685,7 +734,8 @@ static void stress_cpu_fibonacci(void)
 		f2 = fn;
 	} while (!(fn & 0x8000000000000000ULL));
 
-	uint64_put(fn);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (fn_res != fn))
+		pr_fail(stderr, "fibonacci error detected, summation or assignment failure\n");
 }
 
 /*
@@ -763,7 +813,10 @@ static uint32_t ackermann(const uint32_t m, const uint32_t n)
  */
 static void stress_cpu_ackermann(void)
 {
-	(void)ackermann(3, 10);
+	uint32_t a = ackermann(3, 10);
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (a != 0x1ffd))
+		pr_fail(stderr, "ackermann error detected, ackermann(3,10) miscalculated\n");
 }
 
 /*
@@ -961,7 +1014,8 @@ static void stress_cpu_sieve(void)
 		if (SIEVE_GETBIT(sieve, i))
 			j++;
 	}
-	uint64_put(j);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (j != 664579))
+		pr_fail(stderr, "sieve error detected, number of primes has been miscalculated\n");
 }
 
 /*
@@ -996,7 +1050,9 @@ static void stress_cpu_prime(void)
 		if (is_prime(i))
 			nprimes++;
 	}
-	uint64_put(nprimes);
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 78498))
+		pr_fail(stderr, "prime error detected, number of primes between 0 and 1000000 miscalculated\n");
 }
 
 /*
@@ -1006,20 +1062,23 @@ static void stress_cpu_prime(void)
 static void stress_cpu_gray(void)
 {
 	uint32_t i;
+	uint64_t sum = 0;
 
 	for (i = 0; i < 0x10000; i++) {
 		register uint32_t gray_code, mask;
 
 		/* Binary to Gray code */
 		gray_code = (i >> 1) ^ i;
+		sum += gray_code;
 
 		/* Gray code back to binary */
 		for (mask = gray_code >> 1; mask; mask >>= 1)
 			gray_code ^= mask;
-		if (gray_code != i) {
-			pr_err(stderr, "gray code error: %" PRIu32 ".\n", i);
-		}
+		sum += gray_code;
 	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff0000))
+		pr_fail(stderr, "gray code error detected, sum of gray codes "
+			"between 0x00000 and 0x10000 miscalculated\n");
 }
 
 /*
@@ -1172,6 +1231,7 @@ static uint8_t hamming84(const uint8_t nybble)
 static void stress_cpu_hamming(void)
 {
 	uint32_t i;
+	uint32_t sum = 0;
 
 	for (i = 0; i < 65536; i++) {
 		uint32_t encoded;
@@ -1182,8 +1242,11 @@ static void stress_cpu_hamming(void)
 			  (hamming84((i >> 8) & 0xf) << 16) |
 			  (hamming84((i >> 4) & 0xf) << 8) |
 			  (hamming84((i >> 0) & 0xf) << 0);
-		uint64_put(encoded);
+		sum += encoded;
 	}
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff8000))
+		pr_fail(stderr, "hamming error detected, sum of 65536 hamming codes not correct\n");
 }
 
 /*
