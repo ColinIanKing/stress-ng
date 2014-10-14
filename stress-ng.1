@@ -484,15 +484,17 @@ stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .LP
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
 .LP
-stress\-ng \-\-cpu 4 \-\-cpu-method=fft \-\-cpu-ops 10000 \-\-metrics\-brief
+stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief
 .LP
-stress\-ng \-\-cpu 2 \-\-cpu-method=all \-t 1h
+stress\-ng \-\-cpu 2 \-\-cpu-method all \-t 1h
 .LP
 stress\-ng \-\-fork 4 \-\-fork-ops 100000
 .LP
 stress\-ng \-\-all 4 \-\-timeout 5m
 .LP
 stress\-ng \-\-random 64
+.LP
+stress\-ng \-\-cpu 64 \-\-cpu\-method all \-\-verify \-t 10m \-\-metrics\-brief
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
