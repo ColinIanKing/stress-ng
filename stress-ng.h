@@ -392,6 +392,7 @@ extern void uint64_put(const uint64_t a);
 extern double timeval_to_double(const struct timeval *tv);
 extern double time_now(void);
 extern uint64_t mwc(void);
+extern void mwc_seed(const uint64_t w, const uint64_t z);
 extern void mwc_reseed(void);
 extern stress_cpu_stressor_info_t *stress_cpu_find_by_name(const char *name);
 extern void pr_failed(const int flag, const char *name, const char *what);

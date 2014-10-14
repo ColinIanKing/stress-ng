@@ -46,6 +46,17 @@ uint64_t mwc(void)
 }
 
 /*
+ *  mwc_seed()
+ *	set mwc seeds
+ */
+void mwc_seed(const uint64_t w, const uint64_t z)
+{
+	mwc_w = w;
+	mwc_z = z;
+}
+
+
+/*
  *  mwc_reseed()
  *	dirty mwc reseed
  */
