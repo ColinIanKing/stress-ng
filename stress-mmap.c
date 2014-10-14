@@ -34,6 +34,38 @@
 #include "stress-ng.h"
 
 /*
+ *  stress_mmap_check()
+ *	check if mmap'd data is sane
+ */
+int stress_mmap_check(uint8_t *buf, const size_t sz)
+{
+	size_t i, j;
+	uint8_t val = 0;
+	uint8_t *ptr = buf;
+
+	for (i = 0; i < sz; i += 4096) {
+		for (j = 0; j < 4096; j++)
+			if (*ptr++ != val++)
+				return -1;
+		val++;
+	}
+	return 0;
+}
+
+void stress_mmap_set(uint8_t *buf, const size_t sz)
+{
+	size_t i, j;
+	uint8_t val = 0;
+	uint8_t *ptr = buf;
+
+	for (i = 0; i < sz; i += 4096) {
+		for (j = 0; j < 4096; j++)
+			*ptr++ = val++;
+		val++;
+	}
+}
+
+/*
  *  stress_mmap()
  *	stress mmap
  */
@@ -75,7 +107,12 @@ int stress_mmap(
 			mappings[n] = buf + (n * page_size);
 
 		/* Ensure we can write to the mapped pages */
-		memset(buf, 0xff, sz);
+		stress_mmap_set(buf, sz);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (stress_mmap_check(buf, sz) < 0)
+				pr_inf(stderr, "mmap'd region of %zu bytes does "
+					"not contain expected data\n", sz);
+		}
 
 		/*
 		 *  Step #1, unmap all pages in random order
@@ -116,7 +153,10 @@ int stress_mmap(
 					} else {
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						memset(mappings[page], 0xff, page_size);
+						stress_mmap_set(mappings[page], page_size);
+						if (stress_mmap_check(mappings[page], page_size) < 0)
+							pr_inf(stderr, "mmap'd region of %zu bytes does "
+								"not contain expected data\n", page_size);
 					}
 					n--;
 					break;
