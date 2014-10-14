@@ -67,7 +67,7 @@ uint64_t mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
-int32_t  opt_flags = PR_ERR | PR_INF;		/* option flags */
+int32_t  opt_flags = PR_ERROR | PR_INFO;	/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
@@ -247,6 +247,7 @@ static const struct option long_options[] = {
 	{ "fstat",	1,	0,	OPT_FSTAT },
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
+	{ "verify",	0,	0,	OPT_VERIFY },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -360,6 +361,7 @@ static const help_t help[] = {
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
 #endif
 	{ "v",		"verbose",		"verbose output" },
+	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
@@ -1155,6 +1157,9 @@ next_opt:
 			break;
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
+			break;
+		case OPT_VERIFY:
+			opt_flags |= OPT_FLAGS_VERIFY;
 			break;
 		default:
 			printf("Unknown option\n");
