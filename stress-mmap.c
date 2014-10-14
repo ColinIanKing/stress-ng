@@ -110,7 +110,7 @@ int stress_mmap(
 		stress_mmap_set(buf, sz);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (stress_mmap_check(buf, sz) < 0)
-				pr_inf(stderr, "mmap'd region of %zu bytes does "
+				pr_fail(stderr, "mmap'd region of %zu bytes does "
 					"not contain expected data\n", sz);
 		}
 
@@ -155,7 +155,7 @@ int stress_mmap(
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
 						if (stress_mmap_check(mappings[page], page_size) < 0)
-							pr_inf(stderr, "mmap'd region of %zu bytes does "
+							pr_fail(stderr, "mmap'd region of %zu bytes does "
 								"not contain expected data\n", page_size);
 					}
 					n--;
