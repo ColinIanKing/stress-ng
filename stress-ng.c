@@ -63,7 +63,7 @@ uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
-uint64_t mwc_z = 362436069, mwc_w = 521288629;	/* random number vals */
+uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */

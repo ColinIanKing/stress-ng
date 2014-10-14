@@ -130,6 +130,11 @@
 #define SIEVE_CLRBIT(a, i)	(a[i / 32] &= ~(1 << (i & 31)))
 #define SIEVE_SIZE 		(10000000)
 
+#define MWC_SEED_Z		(362436069)
+#define MWC_SEED_W		(521288629)
+
+#define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
+
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
