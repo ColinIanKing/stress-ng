@@ -35,15 +35,17 @@ static int stress_qsort_cmp_1(const void *p1, const void *p2)
 	int32_t *i1 = (int32_t *)p1;
 	int32_t *i2 = (int32_t *)p2;
 
-	return *i1 - *i2;
+	if (*i1 > *i2)
+		return 1;
+	else if (*i1 < *i2)
+		return -1;
+	else
+		return 0;
 }
 
 static int stress_qsort_cmp_2(const void *p1, const void *p2)
 {
-	int32_t *i1 = (int32_t *)p1;
-	int32_t *i2 = (int32_t *)p2;
-
-	return *i2 - *i1;
+	return stress_qsort_cmp_1(p2, p1);
 }
 
 static int stress_qsort_cmp_3(const void *p1, const void *p2)
@@ -82,18 +84,44 @@ int stress_qsort(
 	do {
 		/* Sort "random" data */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr > *(ptr+1)) {
+					pr_fail(stderr, "sort error detected, incorrect ordering found\n");
+					break;
+				}
+			}
+		}
 		if (!opt_do_run)
 			break;
+
 		/* Reverse sort */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
-		if (!opt_do_run)
-			break;
-		/* Reverse this again */
-		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr < *(ptr+1)) {
+					pr_fail(stderr, "reverse sort error detected, incorrect ordering found\n");
+					break;
+				}
+			}
+		}
 		if (!opt_do_run)
 			break;
 		/* And re-order by byte compare */
 		qsort(data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
+
+		/* Reverse sort this again */
+		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+				if (*ptr < *(ptr+1)) {
+					pr_fail(stderr, "reverse sort error detected, incorrect ordering found\n");
+					break;
+				}
+			}
+		}
+		if (!opt_do_run)
+			break;
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
