@@ -1348,7 +1348,7 @@ wait_for_procs:
 
 		if ((pid = wait(&status)) > 0) {
 			if (WEXITSTATUS(status)) {
-				pr_err(stderr, "Process %d terminated with an error: \n", status);
+				pr_err(stderr, "Process %d terminated with an error: \n", pid);
 				success = false;
 			}
 			proc_finished(pid);
