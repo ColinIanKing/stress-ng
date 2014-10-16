@@ -108,6 +108,7 @@ static const stress_t stressors[] = {
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
+	{ stress_msg,	 STRESS_MSG,	OPT_MSG,	OPT_MSG_OPS,		"msg" },
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
@@ -248,6 +249,8 @@ static const struct option long_options[] = {
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
 	{ "verify",	0,	0,	OPT_VERIFY },
+	{ "msg",	1,	0,	OPT_MSG },
+	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -300,6 +303,8 @@ static const help_t help[] = {
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
+	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
+	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },

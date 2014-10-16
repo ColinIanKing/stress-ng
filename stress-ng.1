@@ -293,6 +293,14 @@ start N processes creating and removing hardlinks.
 .B \-\-link-ops N
 stop link stress processes after N bogo operations.
 .TP
+.B \-\-metrics
+output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
+been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
+.RS
+.PP
+The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.
+.RE
+.TP
 .B \-\-mmap N
 start N processes continuously calling mmap()/munmap().  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The
 MAP_POPULATE option is used to populate pages into memory on systems that support this.
@@ -304,13 +312,11 @@ stop mmap stress processes after N bogo operations.
 allocate N bytes per mmap stress process, the default is 256MB. One can specify the size in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
-.B \-\-metrics
-output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
-been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
-.RS
-.PP
-The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.
-.RE
+.B \-\-msg N
+start N sender and receiver processes that continually send and receive messages using System V message IPC.
+.TP
+.B \-\-msg-ops N
+stop after N bogo message send operations completed.
 .TP
 .B -\-metrics\-brief
 enable metrics and only output metrics that are non-zero.
