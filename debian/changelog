@@ -1,3 +1,26 @@
+stress-ng (0.02.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make n ssize_t
+  * Fix msg type field
+  * Add --msg and --msg-ops System V msg send/receive stressor
+  * Add --verify support to stress-pipe
+  * Minor code cleanup
+  * Print pid rather than status when printing failed stressor fork
+  * Add verification of qsort
+  * Add --verify example to manual
+  * Add verify mode to integer cpu stressors
+  * Enable OPT_FAIL for verify mode and all flags
+  * Add MWC_SEED and MWC_SEED_W MWC_SEED_Z macros
+  * Add mwc seeding helper
+  * Use pr_fail on test verify failures
+  * Add mmap memory verify
+  * Minor comment fix
+  * Add FAIL log state
+  * Add --verify option
+
+ -- Colin King <colin.king@canonical.com>  Thu, 16 Oct 2014 23:12:01 +0100
+
 stress-ng (0.02.09-1) unstable; urgency=medium
 
   * Makefile: bump version
