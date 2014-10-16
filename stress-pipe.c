@@ -94,7 +94,7 @@ int stress_pipe(
 			char buf[PIPE_BUF];
 
 			for (;;) {
-				size_t n;
+				ssize_t n;
 				n = read(pipefds[0], buf, sizeof(buf));
 				if (n <= 0) {
 					pr_failed_dbg(name, "read");
@@ -103,7 +103,7 @@ int stress_pipe(
 				if (!strcmp(buf, PIPE_STOP))
 					break;
 				if ((opt_flags & OPT_FLAGS_VERIFY) &&
-				     pipe_memchk(buf, val++, n)) {
+				     pipe_memchk(buf, val++, (size_t)n)) {
                 			pr_fail(stderr, "pipe read error detected, failed to read expected data\n");
 
 				}
