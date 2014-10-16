@@ -114,7 +114,7 @@ static const stress_t stressors[] = {
 	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
 	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
-#if  _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
 #endif
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
@@ -509,7 +509,7 @@ static void check_value(
 	const char *const msg,
 	const int val)
 {
-	if (val < 0 || val > STRESS_PROCS_MAX) {
+	if ((val < 0) || (val > STRESS_PROCS_MAX)) {
 		fprintf(stderr, "Number of %s workers must be between "
 			"0 and %d\n", msg, STRESS_PROCS_MAX);
 		exit(EXIT_FAILURE);
@@ -526,7 +526,7 @@ static void check_range(
 	const uint64_t lo,
 	const uint64_t hi)
 {
-	if (val < lo || val > hi) {
+	if ((val < lo) || (val > hi)) {
 		fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
 			" allowed: %" PRId64 " .. %" PRId64 "\n",
 			val, opt, lo, hi);
@@ -749,7 +749,7 @@ static uint64_t get_uint64_scale(
 	int i;
 
 	val = get_uint64(str);
-	if (len == 0) {
+	if (!len)  {
 		fprintf(stderr, "Value %s is an invalid size\n", str);
 		exit(EXIT_FAILURE);
 	}
@@ -965,20 +965,16 @@ static void free_procs(void)
 
 int main(int argc, char **argv)
 {
-
-	int32_t val, opt_random = 0;
-	int32_t	num_procs[STRESS_MAX];
-	int32_t n_procs, total_procs = 0;
-	int32_t max = 0;
-	int32_t i, j;
-	int	fd;
-	double duration;
-	size_t len;
+	double duration, time_start, time_finish;
 	uint64_t *counters;
-	struct sigaction new_action;
-	double time_start, time_finish;
-	char shm_name[64];
+	int32_t val, opt_random = 0, i, j;
+	int32_t	num_procs[STRESS_MAX];
+	int32_t n_procs, total_procs = 0, max = 0;
+	int	fd;
+	size_t len;
 	bool success = true;
+	char shm_name[64];
+	struct sigaction new_action;
 
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
@@ -1226,7 +1222,7 @@ next_opt:
 		total_procs += num_procs[i];
 	}
 
-	if (total_procs == 0) {
+	if (!total_procs) {
 		pr_err(stderr, "No stress workers specified\n");
 		free_procs();
 		exit(EXIT_FAILURE);
