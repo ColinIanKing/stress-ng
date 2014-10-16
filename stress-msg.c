@@ -41,7 +41,7 @@
 #define MSG_STOP	"STOPMSG"
 
 typedef struct {
-	int mtype;
+	long mtype;
 	char msg[MAX_SIZE];
 } msg_t;
 
@@ -100,6 +100,7 @@ int stress_msg(
 		/* Parent */
 		do {
 			memcpy(msg.msg, &i, sizeof(i));
+			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
 				pr_failed_dbg(name, "msgsnd");
 				break;
