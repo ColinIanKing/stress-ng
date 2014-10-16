@@ -116,7 +116,7 @@
 #define DEFAULT_OPS_MAX		(100000000ULL)
 
 #define SWITCH_STOP		'X'
-#define PIPE_STOP		'S'
+#define PIPE_STOP		"PIPE_STOP"
 
 #define MEM_CHUNK_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)

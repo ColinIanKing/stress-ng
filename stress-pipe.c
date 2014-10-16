@@ -35,6 +35,32 @@
 #include "stress-ng.h"
 
 /*
+ *  pipe_memset()
+ *	set pipe data to be incrementing chars from val upwards
+ */
+static inline void pipe_memset(char *buf, char val, const size_t sz)
+{
+	size_t i;
+
+	for (i = 0; i < sz; i++)
+		*buf++ = val++;
+}
+
+/*
+ *  pipe_memchk()
+ *	check pipe data contains incrementing chars from val upwards
+ */
+static inline int pipe_memchk(char *buf, char val, const size_t sz)
+{
+	size_t i;
+
+	for (i = 0; i < sz; i++)
+		if (*buf++ != val++)
+			return 1;
+	return 0;
+}
+
+/*
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
@@ -61,31 +87,39 @@ int stress_pipe(
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)close(pipefds[1]);
+		int val = 0;
 
+		(void)close(pipefds[1]);
 		for (;;) {
 			char buf[PIPE_BUF];
 
 			for (;;) {
-				if (read(pipefds[0], buf, sizeof(buf)) <= 0) {
+				size_t n;
+				n = read(pipefds[0], buf, sizeof(buf));
+				if (n <= 0) {
 					pr_failed_dbg(name, "read");
 					break;
 				}
-				if (buf[0] == PIPE_STOP)
+				if (!strcmp(buf, PIPE_STOP))
 					break;
+				if ((opt_flags & OPT_FLAGS_VERIFY) &&
+				     pipe_memchk(buf, val++, n)) {
+                			pr_fail(stderr, "pipe read error detected, failed to read expected data\n");
+
+				}
 			}
 			(void)close(pipefds[0]);
 			exit(EXIT_SUCCESS);
 		}
 	} else {
 		char buf[PIPE_BUF];
-
-		memset(buf, 0x41, sizeof(buf));
+		int val = 0;
 
 		/* Parent */
 		(void)close(pipefds[0]);
 
 		do {
+			pipe_memset(buf, val++, sizeof(buf));
 			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
 				pr_failed_dbg(name, "write");
 				break;
@@ -93,7 +127,7 @@ int stress_pipe(
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		memset(buf, PIPE_STOP, sizeof(buf));
+		strncpy(buf, PIPE_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
