@@ -155,7 +155,7 @@ int stress_mmap(
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
 						if (stress_mmap_check(mappings[page], page_size) < 0)
-							pr_fail(stderr, "mmap'd region of %zu bytes does "
+							pr_fail(stderr, "mmap'd region of %lu bytes does "
 								"not contain expected data\n", page_size);
 					}
 					n--;
