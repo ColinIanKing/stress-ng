@@ -23,6 +23,7 @@ SRC =   stress-affinity.c \
 	stress-link.c \
 	stress-mmap.c \
 	stress-msg.c \
+	stress-nice.c \
 	stress-noop.c \
 	stress-open.c \
 	stress-pipe.c \

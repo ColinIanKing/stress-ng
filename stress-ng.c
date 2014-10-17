@@ -109,6 +109,7 @@ static const stress_t stressors[] = {
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
 	{ stress_msg,	 STRESS_MSG,	OPT_MSG,	OPT_MSG_OPS,		"msg" },
+	{ stress_nice,	 STRESS_NICE,	OPT_NICE,	OPT_NICE_OPS,		"nice" },
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
@@ -251,6 +252,8 @@ static const struct option long_options[] = {
 	{ "verify",	0,	0,	OPT_VERIFY },
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
+	{ "nice",	1,	0,	OPT_NICE },
+	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -307,6 +310,8 @@ static const help_t help[] = {
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
+	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
+	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },

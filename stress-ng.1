@@ -321,6 +321,12 @@ stop after N bogo message send operations completed.
 .B -\-metrics\-brief
 enable metrics and only output metrics that are non-zero.
 .TP
+.B \-\-nice N
+start N cpu consuming processes that exercise the available nice levels. Each iteration forks off a child process that runs through the all the nice levels and then exits.
+.TP
+.B \-\-nice-ops N
+stop after N nice bogo nice loops
+.TP
 .B \-o N, \-\-open N
 start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP

@@ -179,6 +179,7 @@ typedef enum {
 	STRESS_UTIME,
 	STRESS_FSTAT,
 	STRESS_MSG,
+	STRESS_NICE,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -298,7 +299,9 @@ typedef enum {
 	OPT_METRICS_BRIEF,
 	OPT_VERIFY,
 	OPT_MSG,
-	OPT_MSG_OPS
+	OPT_MSG_OPS,
+	OPT_NICE,
+	OPT_NICE_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -425,6 +428,7 @@ STRESS(stress_iosync);
 STRESS(stress_link);
 STRESS(stress_mmap);
 STRESS(stress_msg);
+STRESS(stress_nice);
 STRESS(stress_noop);
 STRESS(stress_open);
 STRESS(stress_pipe);
