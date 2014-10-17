@@ -37,15 +37,6 @@
 
 #include "stress-ng.h"
 
-void consume_cpu(void)
-{
-	double start, now;
-
-	start = time_now();
-	do {
-		now = time_now();
-	} while (now - start < 0.1);
-}
 
 /*
  *  stress on sched_nice()
@@ -80,7 +71,10 @@ int stress_nice(
 				errno = 0;
 				setpriority(PRIO_PROCESS, pid, i);
 				if (!errno) {
-					consume_cpu();
+					double start = time_now();
+
+					while (time_now() - start < 0.1)
+						;
 					(*counter)++;
 				}
 			}
