@@ -229,21 +229,6 @@ start N processes that create and remove directories using mkdir and rmdir.
 .B \-\-dir\-ops N
 stop directory thrash processes after N bogo directory operations.
 .TP
-.B \-d N, \-\-hdd N
-start N processes continually writing and removing temporary files.
-.TP
-.B \-\-hdd\-bytes N
-write N bytes for each hdd process, the default is 1 GB.
-.TP
-.B \-\-hdd\-noclean
-do not remove files created by hdd processes.
-.TP
-.B \-\-hdd\-ops N
-stop hdd stress processes after N bogo operations.
-.TP
-.B \-\-hdd\-write\-size N
-specify size of each write in bytes. Size can be from 1 byte to 4MB.
-.TP
 .B \-F N, \-\-fallocate N
 start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
 .TP
@@ -271,6 +256,21 @@ stop fstat stress process after N bogo fstat operations.
 .B \-\-fstat\-dir directory
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
+.TP
+.B \-d N, \-\-hdd N
+start N processes continually writing and removing temporary files.
+.TP
+.B \-\-hdd\-bytes N
+write N bytes for each hdd process, the default is 1 GB.
+.TP
+.B \-\-hdd\-noclean
+do not remove files created by hdd processes.
+.TP
+.B \-\-hdd\-ops N
+stop hdd stress processes after N bogo operations.
+.TP
+.B \-\-hdd\-write\-size N
+specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
 .B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
@@ -320,33 +320,6 @@ stop after N bogo message send operations completed.
 .TP
 .B -\-metrics\-brief
 enable metrics and only output metrics that are non-zero.
-.TP
-.B \-m N, \-\-vm N
-start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
-.TP
-.B \-\-vm\-bytes N
-mmap N bytes per vm process, the default is 256MB. One can specify the size in units of Bytes,
-KBytes, MBytes and GBytes using the suffix b, k, m or g.
-.TP
-.B \-\-vm\-stride N
-write to every Nth byte, the default is every page (4096 bytes). One can specify the size in
-units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
-.TP
-.B \-\-vm\-ops N
-stop vm stress processes after N bogo operations.
-.TP
-.B \-\-vm\-hang N
-sleep N seconds before unmapping memory, the default is zero seconds. Specifying 0 will
-do an infinite wait.
-.TP
-.B \-\-vm\-keep
-don't continually unmap and map memory, just keep on re-writing to it.
-.TP
-.B \-\-vm\-locked
-Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
-.TP
-.B \-\-vm\-populate
-populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
 .B \-o N, \-\-open N
 start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
@@ -475,6 +448,33 @@ computations or memory contents from a test run and report to stderr any unexpec
 .TP
 .B \-V, \-\-version
 show version.
+.TP
+.B \-m N, \-\-vm N
+start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
+.TP
+.B \-\-vm\-bytes N
+mmap N bytes per vm process, the default is 256MB. One can specify the size in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-vm\-stride N
+write to every Nth byte, the default is every page (4096 bytes). One can specify the size in
+units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-vm\-ops N
+stop vm stress processes after N bogo operations.
+.TP
+.B \-\-vm\-hang N
+sleep N seconds before unmapping memory, the default is zero seconds. Specifying 0 will
+do an infinite wait.
+.TP
+.B \-\-vm\-keep
+don't continually unmap and map memory, just keep on re-writing to it.
+.TP
+.B \-\-vm\-locked
+Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
+.TP
+.B \-\-vm\-populate
+populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
 .B \-y N, \-\-yield N
 start N process that call sched_yield(). This should force rapid context switching.
