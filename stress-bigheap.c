@@ -51,7 +51,6 @@ int stress_bigheap(
 	void *ptr = NULL, *last_ptr = NULL;
 	uint8_t *last_ptr_end = NULL;
 	size_t size = 0;
-	size_t chunk_size = 16 * 4096;
 	size_t stride = 4096;
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
@@ -88,7 +87,7 @@ again:
 
 		do {
 			void *old_ptr = ptr;
-			size += chunk_size;
+			size += (size_t)opt_bigheap_growth;
 
 			ptr = realloc(old_ptr, size);
 			if (ptr == NULL) {
@@ -103,7 +102,7 @@ again:
 
 				if (last_ptr == ptr) {
 					u8ptr = last_ptr_end;
-					n = chunk_size;
+					n = (size_t)opt_bigheap_growth;
 				} else {
 					u8ptr = ptr;
 					n = size;

@@ -65,6 +65,7 @@ uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
+uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO;	/* option flags */
@@ -239,6 +240,7 @@ static const struct option long_options[] = {
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
+	{ "bigheap-growth",1,	0,	OPT_BIGHEAP_GROWTH },
 	{ "rename",	1,	0,	OPT_RENAME },
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
@@ -267,6 +269,7 @@ static const help_t help[] = {
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
+	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
@@ -1166,6 +1169,10 @@ next_opt:
 			break;
 		case OPT_VERIFY:
 			opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
+			break;
+		case OPT_BIGHEAP_GROWTH:
+			opt_bigheap_growth = get_uint64_byte(optarg);
+			check_range("bigheap-growth", opt_bigheap_growth, 4 * KB, 64 * MB);
 			break;
 		default:
 			printf("Unknown option\n");

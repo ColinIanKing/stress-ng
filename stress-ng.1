@@ -80,6 +80,9 @@ will treat these processes as the first candidate processes to kill.
 .B \-\-bigheap\-ops N
 stop the big heap processes after N bogo allocation operations are completed.
 .TP
+.B \-\-bigheap\-growth N
+specify amount of memory to grow heap by per iteration. Size can be from 4K to 64MB. Default is 64K.
+.TP
 .B \-c N, \-\-cpu N
 start N processes computing by default sqrt(rand()). Note that the rand function
 is based on a fast integer RNG with a period of about 2^60. One can specify different

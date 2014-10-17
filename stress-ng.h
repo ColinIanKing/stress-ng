@@ -289,6 +289,7 @@ typedef enum {
 	OPT_QSORT_OPS,
 	OPT_QSORT_INTEGERS,
 	OPT_BIGHEAP_OPS,
+	OPT_BIGHEAP_GROWTH,
 	OPT_RENAME_OPS,
 	OPT_UTIME,
 	OPT_UTIME_OPS,
@@ -368,6 +369,7 @@ extern uint64_t opt_hdd_write_size;
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
+extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
