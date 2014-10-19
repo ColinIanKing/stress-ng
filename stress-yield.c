@@ -24,12 +24,13 @@
  */
 #define _GNU_SOURCE
 
-#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <sched.h>
+#include <errno.h>
 
 #if defined(_POSIX_PRIORITY_SCHEDULING)
+#include <sched.h>
 #include "stress-ng.h"
 
 /*
@@ -46,7 +47,12 @@ int stress_yield(
 	(void)name;
 
 	do {
-		sched_yield();
+		int ret;
+
+		ret = sched_yield();
+		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+			pr_fail(stderr, "sched_yield failed: errno=%d (%s)\n",
+				errno, strerror(errno));
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
