@@ -98,20 +98,28 @@ again:
 				nomems++;
 			} else {
 				size_t i, n;
-				uint8_t *u8ptr;
+				uint8_t *u8ptr, *tmp;
 
 				if (last_ptr == ptr) {
-					u8ptr = last_ptr_end;
+					tmp = u8ptr = last_ptr_end;
 					n = (size_t)opt_bigheap_growth;
 				} else {
-					u8ptr = ptr;
+					tmp = u8ptr = ptr;
 					n = size;
 				}
 				for (i = 0; i < n; i+= stride, u8ptr += stride)
-					*u8ptr = 0xff;
+					*u8ptr = (uint8_t)i;
+
+				if (opt_flags & OPT_FLAGS_VERIFY) {
+					for (i = 0; i < n; i+= stride, tmp += stride)
+						if (*tmp != (uint8_t)i)
+							pr_fail(stderr, "byte at location %p was 0x%" PRIx8
+								" instead of 0x%" PRIx8 "\n", u8ptr, *tmp, (uint8_t)i);
+				}
 
 				last_ptr = ptr;
 				last_ptr_end = u8ptr;
+
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
