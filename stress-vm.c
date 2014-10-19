@@ -75,10 +75,16 @@ int stress_vm(
 
 		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
 			if (*(buf + i) != gray_code) {
-				pr_err(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
-					name, i, *(buf + i));
-				(void)munmap(buf, opt_vm_bytes);
-				return EXIT_FAILURE;
+				if (opt_flags & OPT_FLAGS_VERIFY) {
+					pr_fail(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
+						name, i, *(buf + i));
+					break;
+				} else {
+					pr_err(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
+						name, i, *(buf + i));
+					(void)munmap(buf, opt_vm_bytes);
+					return EXIT_FAILURE;
+				}
 			}
 			if (!opt_do_run)
 				goto unmap_cont;
