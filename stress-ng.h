@@ -135,6 +135,8 @@
 
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
+#define ABORT_FAILURES		(5)
+
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);

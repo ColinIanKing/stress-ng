@@ -25,10 +25,14 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <errno.h>
 
 #include "stress-ng.h"
+
+uint16_t abort_fails;	/* count of failures */
+bool	 abort_msg_emitted;
 
 /*
  *  print()
@@ -54,14 +58,27 @@ int print(
 			type = "debug";
 		if (flag & PR_INFO)
 			type = "info";
-		if (flag & PR_FAIL)
+		if (flag & PR_FAIL) {
 			type = "fail";
+		}
 
 		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
 			app_name, type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 		fprintf(fp, "%s", buf);
 		fflush(fp);
+
+		if (flag & PR_FAIL) {
+			abort_fails++;
+			if (abort_fails >= ABORT_FAILURES) {
+				if (!abort_msg_emitted) {
+					abort_msg_emitted = true;
+					opt_do_run = false;
+					print(fp, PR_INFO, "%d failures reached, aborting stress process\n", ABORT_FAILURES);
+					fflush(fp);
+				}
+			}
+		}
 	}
 	va_end(ap);
 
