@@ -68,11 +68,26 @@ int stress_fallocate(
 		if (!opt_do_run)
 			break;
 		fsync(fd);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			struct stat buf;
+
+			fstat(fd, &buf);
+			if (buf.st_size != (off_t)4096 * 4096)
+				pr_fail(stderr, "file size does not match size the expected file size\n");
+		}
+
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
 		if (!opt_do_run)
 			break;
 		fsync(fd);
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			struct stat buf;
+
+			fstat(fd, &buf);
+			if (buf.st_size != (off_t)0)
+				pr_fail(stderr, "file size does not match size the expected file size\n");
+		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	if (ftrunc_errs)
