@@ -59,6 +59,9 @@ int stress_fork(
 			/* Parent, wait for child */
 			waitpid(pid, &status, 0);
 		}
+		if ((pid < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			pr_fail(stderr, "fork failed\n");
+		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
