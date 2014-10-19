@@ -55,7 +55,17 @@ int stress_affinity(
 		cpu %= opt_nprocessors_online;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
-		sched_setaffinity(0, sizeof(mask), &mask);
+		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+			pr_fail(stderr, "failed to move to CPU %lu\n", cpu);
+		} else {
+			/* Now get and check */
+			CPU_ZERO(&mask);
+			CPU_SET(cpu, &mask);
+			sched_getaffinity(0, sizeof(mask), &mask);
+			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			    (!CPU_ISSET(cpu, &mask)))
+				pr_fail(stderr, "failed to move to CPU %lu\n", cpu);
+		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
