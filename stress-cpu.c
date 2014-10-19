@@ -38,9 +38,18 @@
 static void stress_cpu_sqrt(void)
 {
 	int i;
+	double r;
 
-	for (i = 0; i < 16384; i++)
-		sqrt((double)mwc());
+	for (i = 0; i < 16384; i++) {
+		uint64_t rnd = mwc();
+		r = sqrt((double)rnd) * sqrt((double)rnd);
+		if ((opt_flags & OPT_FLAGS_VERIFY) &&
+		    (uint64_t)rint(r) != rnd) {
+			pr_fail(stderr, "sqrt error detected on sqrt(%" PRIu64 ")\n", rnd);
+			if (!opt_do_run)
+				break;
+		}
+	}
 }
 
 /*
