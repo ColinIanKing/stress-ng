@@ -1,3 +1,24 @@
+stress-ng (0.02.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add fstat check in fallocate verify path
+  * Add verify to stress-yield
+  * Add verify to stress-vm
+  * Add verify to stress-poll
+  * Add verify to stress-fork
+  * Add verify to stress-fallocate
+  * Add verify on stress cpu sqrt
+  * Add verify to bigheap
+  * Add verify to stress-affinity
+  * Abort stressors after a threshold of failures reached
+  * Add --bigheap-growth option
+  * Clean up nice cpu consumer, add a little more info in manual about this
+  * Add --nice and --nice-ops for nice stressor
+  * Re-order some man page options
+  * Fix printf format specifier
+
+ -- Colin King <colin.king@canonical.com>  Sun, 19 Oct 2014 17:29:00 +0100
+
 stress-ng (0.02.10-1) unstable; urgency=medium
 
   * Makefile: bump version
