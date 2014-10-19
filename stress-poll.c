@@ -26,9 +26,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 #include <poll.h>
+#include <errno.h>
 
 #include "stress-ng.h"
 
@@ -47,11 +48,23 @@ int stress_poll(
 
 	do {
 		struct timeval tv;
+		int ret;
 
-		(void)poll(NULL, 0, 0);
+		ret = poll(NULL, 0, 0);
+		if ((opt_flags & OPT_FLAGS_VERIFY) &&
+                    (ret < 0) && (errno != EINTR)) {
+			pr_fail(stderr, "poll failed with error: %d (%s)\n",
+				errno, strerror(errno));
+		}
+
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		ret = select(0, NULL, NULL, NULL, &tv);
+		if ((opt_flags & OPT_FLAGS_VERIFY) &&
+                    (ret < 0) && (errno != EINTR)) {
+			pr_fail(stderr, "select failed with error: %d (%s)\n",
+				errno, strerror(errno));
+		}
 		if (!opt_do_run)
 			break;
 		(void)sleep(0);
