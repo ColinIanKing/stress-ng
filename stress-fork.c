@@ -46,23 +46,37 @@ int stress_fork(
 	(void)instance;
 	(void)name;
 
-	do {
-		pid_t pid;
+	pid_t pids[DEFAULT_FORKS_MAX];
 
-		pid = fork();
-		if (pid == 0) {
-			/* Child, immediately exit */
-			_exit(0);
+	do {
+		unsigned int i;
+
+		memset(pids, 0, sizeof(pids));
+
+		for (i = 0; i < opt_fork_max; i++) {
+			pids[i] = fork();
+
+			if (pids[i] == 0) {
+				/* Child, immediately exit */
+				_exit(0);
+			}
+			if (!opt_do_run)
+				break;
 		}
-		if (pid > 0) {
-			int status;
-			/* Parent, wait for child */
-			waitpid(pid, &status, 0);
+		for (i = 0; i < opt_fork_max; i++) {
+			if (pids[i] > 0) {
+				int status;
+				/* Parent, wait for child */
+				waitpid(pids[i], &status, 0);
+				(*counter)++;
+			}
 		}
-		if ((pid < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-			pr_fail(stderr, "fork failed\n");
+
+		for (i = 0; i < opt_fork_max; i++) {
+			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+				pr_fail(stderr, "fork failed\n");
+			}
 		}
-		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;

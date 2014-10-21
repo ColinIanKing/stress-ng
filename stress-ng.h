@@ -135,6 +135,10 @@
 
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
+#define DEFAULT_FORKS		(1)
+#define DEFAULT_FORKS_MIN	(1)
+#define DEFAULT_FORKS_MAX	(16000)
+
 #define ABORT_FAILURES		(5)
 
 /* stress process prototype */
@@ -242,6 +246,7 @@ typedef enum {
 	OPT_VM_OPS,
 	OPT_HDD_OPS,
 	OPT_FORK_OPS,
+	OPT_FORK_MAX,
 	OPT_SWITCH_OPS,
 	OPT_PIPE_OPS,
 	OPT_CACHE_OPS,
@@ -372,6 +377,7 @@ extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
+extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */

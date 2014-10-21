@@ -56,6 +56,7 @@ uint64_t opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
+uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO;	/* option flags */
@@ -167,6 +168,7 @@ static const struct option long_options[] = {
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
+	{ "fork-max",	1,	0,	OPT_FORK_MAX },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
@@ -284,6 +286,7 @@ static const help_t help[] = {
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
 	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
+	{ NULL,		"fork-max P",		"create P processes per iteration, default is 1" },
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
 	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
@@ -761,6 +764,10 @@ next_opt:
 		case OPT_BIGHEAP_GROWTH:
 			opt_bigheap_growth = get_uint64_byte(optarg);
 			check_range("bigheap-growth", opt_bigheap_growth, 4 * KB, 64 * MB);
+			break;
+		case OPT_FORK_MAX:
+			opt_fork_max = get_uint64_byte(optarg);
+			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
 			break;
 		default:
 			printf("Unknown option\n");
