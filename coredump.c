@@ -25,31 +25,7 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <signal.h>
 #include <fcntl.h>
-#include <getopt.h>
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <semaphore.h>
-
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
-#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
-#include <sched.h>
-#endif
-#if defined (__linux__)
-#include <sys/prctl.h>
-#include <sys/syscall.h>
-#endif
 
 #include "stress-ng.h"
 
