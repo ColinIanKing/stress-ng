@@ -46,6 +46,7 @@ SRC =   stress-affinity.c \
 	log.c \
 	mwc.c \
 	out-of-memory.c \
+	parse-opts.c \
 	proc-name.c \
 	sched.c \
 	time.c \

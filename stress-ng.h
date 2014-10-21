@@ -420,6 +420,16 @@ extern void set_oom_adjustment(const char *name, bool killable);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 
+extern void check_value(const char *const msg, const int val);
+extern void check_range(const char *const opt, const uint64_t val,
+	const uint64_t lo, const uint64_t hi);
+extern int get_int(const char *const str);
+extern uint64_t get_uint64(const char *const str);
+extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
+	const char *const msg);
+extern uint64_t get_uint64_byte(const char *const str);
+extern uint64_t get_uint64_time(const char *const str);
+
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\
         const uint64_t max_ops, const char *name)				
