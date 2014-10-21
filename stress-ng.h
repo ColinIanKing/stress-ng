@@ -412,6 +412,13 @@ extern void mwc_reseed(void);
 extern stress_cpu_stressor_info_t *stress_cpu_find_by_name(const char *name);
 extern void pr_failed(const int flag, const char *name, const char *what);
 extern void set_oom_adjustment(const char *name, bool killable);
+extern void set_sched(const int sched, const int sched_priority);
+extern int get_opt_sched(const char *const str);
+extern int get_opt_ionice_class(const char *const str);
+extern void set_iopriority(const int class, const int level);
+extern void set_oom_adjustment(const char *name, bool killable);
+extern void set_coredump(const char *name);
+extern void set_proc_name(const char *name);
 
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\

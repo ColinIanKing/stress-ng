@@ -40,9 +40,14 @@ SRC =   stress-affinity.c \
 	stress-utime.c \
 	stress-vm.c \
 	stress-yield.c \
+	coredump.c \
 	helper.c \
+	io-priority.c \
 	log.c \
 	mwc.c \
+	out-of-memory.c \
+	proc-name.c \
+	sched.c \
 	time.c \
 	stress-ng.c
 

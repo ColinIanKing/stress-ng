@@ -36,20 +36,11 @@
 #include <getopt.h>
 #include <ctype.h>
 #include <errno.h>
-#include <limits.h>
 #include <semaphore.h>
 
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
-#include <sched.h>
-#endif
-#if defined (__linux__)
-#include <sys/prctl.h>
-#include <sys/syscall.h>
-#endif
 
 #include "stress-ng.h"
 
@@ -414,106 +405,6 @@ static int stress_sethandler(const char *stress)
 	return 0;
 }
 
-#if defined (__linux__)
-/* Set process name, we don't care if it fails */
-#define set_proc_name(name) 			\
-	if (!(opt_flags & OPT_FLAGS_KEEP_NAME)) \
-		(void)prctl(PR_SET_NAME, name)
-#else
-#define set_proc_name(name)
-#endif
-
-#if defined (__linux__)
-/*
- *  set_oom_adjustment()
- *	attempt to stop oom killer
- *	if we have root privileges then try and make process
- *	unkillable by oom killer
- */
-void set_oom_adjustment(const char *name, bool killable)
-{
-	char path[PATH_MAX];
-	int fd;
-	bool high_priv;
-
-	high_priv = (getuid() == 0) && (geteuid() == 0);
-
-	/*
-	 *  Try modern oom interface
-	 */
-	snprintf(path, sizeof(path), "/proc/%d/oom_score_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
-		char *str;
-		ssize_t n;
-
-		if (killable)
-			str = "1000";
-		else
-			str = high_priv ? "-1000" : "0";
-
-		n = write(fd, str, strlen(str));
-		close(fd);
-
-		if (n < 0)
-			pr_failed_dbg(name, "can't set oom_score_adj");
-		else
-			return;
-	}
-	/*
-	 *  Fall back to old oom interface
-	 */
-	snprintf(path, sizeof(path), "/proc/%d/oom_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
-		char *str;
-		ssize_t n;
-
-		if (killable)
-			str = high_priv ? "-17" : "-16";
-		else
-			str = "15";
-
-		n = write(fd, str, strlen(str));
-		close(fd);
-
-		if (n < 0)
-			pr_failed_dbg(name, "can't set oom_adj");
-	}
-	return;
-}
-#else
-/* no-op */
-#define set_oom_adjustment(name, killable)
-#endif
-
-#if defined (__linux__)
-/*
- *  set_coredump()
- *	limit what is coredumped because
- *	potentially we could have hugh dumps
- *	with the vm and mmap tests
- */
-static void set_coredump(const char *name)
-{
-	char path[PATH_MAX];
-	int fd;
-
-	snprintf(path, sizeof(path), "/proc/%d/coredump_filter", getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
-		const char *str = "0x00";
-		ssize_t n = write(fd, str, strlen(str));
-		close(fd);
-
-		if (n < 0)
-			pr_failed_dbg(name, "can't set coredump_filter");
-		else
-			return;
-	}
-}
-#else
-/* no-op */
-#define set_coredump(name)
-#endif
-
 /*
  *  check_value()
  *	sanity check number of workers
@@ -546,174 +437,6 @@ static void check_range(
 		exit(EXIT_FAILURE);
 	}
 }
-
-#if defined (__linux__)
-/*
- *  set_sched()
- * 	are sched settings valid, if so, set them
- */
-static void set_sched(const int sched, const int sched_priority)
-{
-#if defined (SCHED_FIFO) || defined (SCHED_RR)
-	int min, max;
-#endif
-	int rc;
-	struct sched_param param;
-
-	switch (sched) {
-	case UNDEFINED:	/* No preference, don't set */
-		return;
-#if defined (SCHED_FIFO) || defined (SCHED_RR)
-	case SCHED_FIFO:
-	case SCHED_RR:
-		min = sched_get_priority_min(sched);
-		max = sched_get_priority_max(sched);
-		if ((sched_priority == UNDEFINED) ||
-		    (sched_priority > max) ||
-		    (sched_priority < min)) {
-			fprintf(stderr, "Scheduler priority level must be set between %d and %d\n",
-				min, max);
-			exit(EXIT_FAILURE);
-		}
-		param.sched_priority = sched_priority;
-		break;
-#endif
-	default:
-		if (sched_priority != UNDEFINED)
-			fprintf(stderr, "Cannot set sched priority for chosen scheduler, defaulting to 0\n");
-		param.sched_priority = 0;
-	}
-	pr_dbg(stderr, "setting scheduler class %d, priority %d\n",
-		sched, param.sched_priority);
-	rc = sched_setscheduler(getpid(), sched, &param);
-	if (rc < 0) {
-		fprintf(stderr, "Cannot set scheduler priority: errno=%d (%s)\n",
-			errno, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-}
-#endif
-
-#if defined (__linux__)
-/*
- *  get_opt_sched()
- *	get scheduler policy
- */
-static int get_opt_sched(const char *const str)
-{
-#ifdef SCHED_OTHER
-	if (!strcmp("other", str))
-		return SCHED_OTHER;
-#endif
-#ifdef SCHED_BATCH
-	if (!strcmp("batch", str))
-		return SCHED_BATCH;
-#endif
-#ifdef SCHED_IDLE
-	if (!strcmp("idle", str))
-		return SCHED_IDLE;
-#endif
-#ifdef SCHED_FIFO
-	if (!strcmp("fifo", str))
-		return SCHED_FIFO;
-#endif
-#ifdef SCHED_RR
-	if (!strcmp("rr", str))
-		return SCHED_RR;
-#endif
-	if (strcmp("which", str))
-		fprintf(stderr, "Invalid sched option: %s\n", str);
-	fprintf(stderr, "Available scheduler options are:"
-#ifdef SCHED_OTHER
-		" other"
-#endif
-#ifdef SCHED_BATCH
-		" batch"
-#endif
-#ifdef SCHED_IDLE
-		" idle"
-#endif
-#ifdef SCHED_FIFO
-		" fifo"
-#endif
-#ifdef SCHED_FIFO
-		" rr"
-#endif
-		"\n");
-	exit(EXIT_FAILURE);
-}
-#endif
-
-#if defined (__linux__)
-/*
- *  ioprio_set()
- *	ioprio_set system call
- */
-static int ioprio_set(const int which, const int who, const int ioprio)
-{
-        return syscall(SYS_ioprio_set, which, who, ioprio);
-}
-#endif
-
-#if defined (__linux__)
-/*
- *  get_opt_ionice_class()
- *	string io scheduler to IOPRIO_CLASS
- */
-static int get_opt_ionice_class(const char *const str)
-{
-	if (!strcmp("idle", str))
-		return IOPRIO_CLASS_IDLE;
-	if (!strcmp("besteffort", str) ||
-	    !strcmp("be", str))
-		return IOPRIO_CLASS_BE;
-	if (!strcmp("realtime", str) ||
-	    !strcmp("rt", str))
-		return IOPRIO_CLASS_RT;
-	if (strcmp("which", str))
-		fprintf(stderr, "Invalid ionice-class option: %s\n", str);
-	fprintf(stderr, "Available options are: idle besteffort be realtime rt\n");
-	exit(EXIT_FAILURE);
-}
-#endif
-
-#if defined (__linux__)
-/*
- *  set_iopriority()
- *	check ioprio settings and set
- */
-static void set_iopriority(const int class, const int level)
-{
-	int data = level, rc;
-
-	switch (class) {
-	case UNDEFINED:	/* No preference, don't set */
-		return;
-	case IOPRIO_CLASS_RT:
-	case IOPRIO_CLASS_BE:
-		if (level < 0 || level > 7) {
-			fprintf(stderr, "Priority levels range from 0 (max) to 7 (min)\n");
-			exit(EXIT_FAILURE);
-		}
-		break;
-	case IOPRIO_CLASS_IDLE:
-		if ((level != UNDEFINED) &&
-		    (level != 0))
-			fprintf(stderr, "Cannot set priority level with idle, defaulting to 0\n");
-		data = 0;
-		break;
-	default:
-		fprintf(stderr, "Unknown priority class: %d\n", class);
-		exit(EXIT_FAILURE);
-	}
-	rc = ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
-	if (rc < 0) {
-		fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
-			errno, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-}
-#endif
 
 #if defined (__linux__)
 /*
@@ -1211,10 +934,9 @@ next_opt:
 
 	set_oom_adjustment("main", false);
 	set_coredump("main");
-#if defined (__linux__)
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
-#endif
+
 	/* Share bogo ops between processes equally */
 	for (i = 0; i < STRESS_MAX; i++)
 		opt_ops[i] = num_procs[i] ? opt_ops[i] / num_procs[i] : 0;
@@ -1322,9 +1044,7 @@ next_opt:
 					set_oom_adjustment(name, false);
 					set_coredump(name);
 					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
-#if defined (__linux__)
 					set_iopriority(opt_ionice_class, opt_ionice_level);
-#endif
 					set_proc_name(name);
 					pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
