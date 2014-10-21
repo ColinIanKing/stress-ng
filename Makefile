@@ -31,6 +31,7 @@ SRC =   stress-affinity.c \
 	stress-qsort.c \
 	stress-rename.c \
 	stress-sem.c \
+	stress-sigfpe.c \
 	stress-sigsegv.c \
 	stress-sigq.c \
 	stress-socket.c \

@@ -186,6 +186,7 @@ typedef enum {
 	STRESS_FSTAT,
 	STRESS_MSG,
 	STRESS_NICE,
+	STRESS_SIGFPE,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -310,6 +311,8 @@ typedef enum {
 	OPT_MSG_OPS,
 	OPT_NICE,
 	OPT_NICE_OPS,
+	OPT_SIGFPE,
+	OPT_SIGFPE_OPS
 } stress_op;
 
 /* stress test metadata */
@@ -409,6 +412,7 @@ extern stress_cpu_stressor_info_t cpu_methods[];	/* cpu stressor methods */
  */
 extern void double_put(const double a);
 extern void uint64_put(const uint64_t a);
+extern uint64_t uint64_zero(void);
 
 extern double timeval_to_double(const struct timeval *tv);
 extern double time_now(void);
@@ -463,6 +467,7 @@ STRESS(stress_poll);
 STRESS(stress_qsort);
 STRESS(stress_rename);
 STRESS(stress_semaphore);
+STRESS(stress_sigfpe);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);
 STRESS(stress_socket);

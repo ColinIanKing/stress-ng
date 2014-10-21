@@ -45,3 +45,8 @@ void uint64_put(const uint64_t a)
 {
 	(void)a;
 }
+
+uint64_t uint64_zero(void)
+{
+	return 0ULL;
+}

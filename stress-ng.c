@@ -111,6 +111,7 @@ static const stress_t stressors[] = {
 #if _POSIX_C_SOURCE >= 199309L
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
 #endif
+	{ stress_sigfpe, STRESS_SIGFPE,	OPT_SIGFPE,	OPT_SIGFPE,		"sigfpe" },
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
 	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket" },
 	{ stress_switch, STRESS_SWITCH,	OPT_SWITCH,	OPT_SWITCH_OPS,   	"switch" },
@@ -248,6 +249,8 @@ static const struct option long_options[] = {
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
+	{ "sigfpe",	1,	0,	OPT_SIGFPE },
+	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -344,6 +347,8 @@ static const help_t help[] = {
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
 #endif
+	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
+	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
 	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
 	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },

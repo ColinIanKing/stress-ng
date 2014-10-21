@@ -379,6 +379,12 @@ start N processes that perform POSIX semaphore wait and post operation. This str
 .B \-\-sem-ops N
 stop semaphore stress processes after N bogo semaphore operations.
 .TP
+.B \-\-sigfpe N
+start N processes that rapidly cause division by zero SIGFPE faults.
+.TP
+.B \-\-sigfpe-ops N
+stop sigfpe stress processes after N bogo SIGFPE faults.
+.TP
 .B \-\-sigsegv N
 start N processes that rapidly create and catch segmentation faults.
 .TP
