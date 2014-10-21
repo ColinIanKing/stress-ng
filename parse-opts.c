@@ -25,12 +25,14 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <errno.h>
 
 #include "stress-ng.h"
 
@@ -68,6 +70,31 @@ void check_range(
 }
 
 /*
+ *  ensure_positive()
+ * 	ensure string containes just a +ve value
+ */
+static void ensure_positive(const char *const str)
+{
+	char *ptr = (char *)str;
+	bool negative = false;
+
+	for (ptr = (char *)str; *ptr; ptr++) {
+		if (*ptr == '-') {
+			negative = true;
+			continue;
+		}
+
+		if (isdigit(*ptr)) {
+			if (!negative)
+				return;
+
+			fprintf(stderr, "Invalid negative number %s\n", str);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+/*
  *  get_int()
  *	string to int
  */
@@ -90,6 +117,7 @@ uint64_t get_uint64(const char *const str)
 {
 	uint64_t val;
 
+	ensure_positive(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
