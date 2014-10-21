@@ -1,3 +1,16 @@
+stress-ng (0.02.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Reduce scope of variables
+  * Add SIGFPE stressor --sigfpe --sigfpe-ops
+  * Add --fork-max option
+  * Move opt parsing to parse-opts.c
+  * Remove unrequired headers from coredump
+  * Re-organise code, move helper functions
+  * Update man page on random cpu stressor
+
+ -- Colin King <colin.king@canonical.com>  Tue, 21 Oct 2014 13:16:00 +0100
+
 stress-ng (0.02.11-1) unstable; urgency=medium
 
   * Makefile: bump version
