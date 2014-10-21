@@ -52,11 +52,12 @@ uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-uint64_t opt_timeout = DEFAULT_TIMEOUT;		/* timeout in seconds */
+uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
+uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequention iterations */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO;	/* option flags */
@@ -251,6 +252,7 @@ static const struct option long_options[] = {
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "sigfpe",	1,	0,	OPT_SIGFPE },
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
+	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -343,6 +345,7 @@ static const help_t help[] = {
 #endif
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
+	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 #if _POSIX_C_SOURCE >= 199309L
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
@@ -572,13 +575,107 @@ static void free_procs(void)
 		free(procs[i]);
 }
 
+/*
+ *  stress_run ()
+ *	kick off and run stressors
+ */
+void stress_run(
+	const int total_procs,
+	const int32_t max_procs,
+	const int32_t const num_procs[],
+	uint64_t counters[],
+	double *duration,
+	bool *success
+)
+{
+	double time_start, time_finish;
+	int32_t n_procs, i, j;
+
+	time_start = time_now();
+	pr_dbg(stderr, "starting processes\n");
+	for (n_procs = 0; n_procs < total_procs; n_procs++) {
+		for (i = 0; i < STRESS_MAX; i++) {
+			j = started_procs[i];
+			if (j < num_procs[i]) {
+				int rc = EXIT_SUCCESS;
+				int pid = fork();
+				char name[64];
+
+				switch (pid) {
+				case -1:
+					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
+						errno, strerror(errno));
+					kill_procs(SIGALRM);
+					goto wait_for_procs;
+				case 0:
+					/* Child */
+					if (stress_sethandler(name) < 0)
+						exit(EXIT_FAILURE);
+					(void)alarm(opt_timeout);
+					mwc_reseed();
+					set_oom_adjustment(name, false);
+					set_coredump(name);
+					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
+					set_iopriority(opt_ionice_class, opt_ionice_level);
+					set_proc_name(name);
+					pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+						name, getpid(), j);
+
+					(void)usleep(opt_backoff * n_procs);
+					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
+						rc = stressors[i].stress_func(counters + (i * max_procs) + j, j, opt_ops[i], name);
+					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+						name, getpid(), j);
+					exit(rc);
+				default:
+					procs[i][j].pid = pid;
+					procs[i][j].start = time_now() +
+						((double)(opt_backoff * n_procs) / 1000000.0);
+					started_procs[i]++;
+
+					/* Forced early abort during startup? */
+					if (!opt_do_run) {
+						pr_dbg(stderr, "abort signal during startup, cleaning up\n");
+						kill_procs(SIGALRM);
+						goto wait_for_procs;
+					}
+					break;
+				}
+			}
+		}
+	}
+	pr_dbg(stderr, "%d processes running\n", n_procs);
+
+wait_for_procs:
+	/* Wait for children to exit */
+	while (n_procs) {
+		int pid, status;
+
+		if ((pid = wait(&status)) > 0) {
+			if (WEXITSTATUS(status)) {
+				pr_err(stderr, "Process %d terminated with an error: \n", pid);
+				*success = false;
+			}
+			proc_finished(pid);
+			pr_dbg(stderr, "process [%d] terminated\n", pid);
+			n_procs--;
+		} else if (pid == -1) {
+			kill_procs(SIGALRM);
+			printf("Break\n");
+		}
+	}
+	time_finish = time_now();
+
+	*duration += time_finish - time_start;
+}
+
 int main(int argc, char **argv)
 {
-	double duration, time_start, time_finish;
 	uint64_t *counters;
+	double duration = 0.0;
 	int32_t val, opt_random = 0, i, j;
 	int32_t	num_procs[STRESS_MAX];
-	int32_t n_procs, total_procs = 0, max = 0;
+	int32_t total_procs = 0, max_procs = 0;
 	int	fd;
 	size_t len;
 	bool success = true;
@@ -774,6 +871,10 @@ next_opt:
 			opt_fork_max = get_uint64_byte(optarg);
 			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
 			break;
+		case OPT_SEQUENTIAL:
+			opt_sequential = get_uint64_byte(optarg);
+			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -814,10 +915,6 @@ next_opt:
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 
-	/* Share bogo ops between processes equally */
-	for (i = 0; i < STRESS_MAX; i++)
-		opt_ops[i] = num_procs[i] ? opt_ops[i] / num_procs[i] : 0;
-
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
@@ -827,21 +924,46 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 
+	/* Share bogo ops between processes equally */
 	for (i = 0; i < STRESS_MAX; i++) {
-		if (max < num_procs[i])
-			max = num_procs[i];
+		opt_ops[i] = num_procs[i] ? opt_ops[i] / num_procs[i] : 0;
+		total_procs += num_procs[i];
+	}
+	
+	if (opt_sequential) {
+		if (total_procs) {
+			pr_err(stderr, "sequential option cannot be specified with other stressors enabled\n");
+			free_procs();
+			exit(EXIT_FAILURE);
+		}
+		for (i = 0; i < STRESS_MAX; i++) {
+			opt_ops[i] = 0;
+			num_procs[i] = opt_sequential;
+		}
+		if (opt_timeout == 0) {
+			opt_timeout = 60; 
+			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+		}
+	} else {
+		if (!total_procs) {
+			pr_err(stderr, "No stress workers specified\n");
+			free_procs();
+			exit(EXIT_FAILURE);
+		}
+		if (opt_timeout == 0) {
+			opt_timeout = DEFAULT_TIMEOUT; 
+			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+		}
+	}
+
+	for (i = 0; i < STRESS_MAX; i++) {
+		if (max_procs < num_procs[i])
+			max_procs = num_procs[i];
 		procs[i] = calloc(num_procs[i], sizeof(proc_info_t));
 		if (procs[i] == NULL) {
 			pr_err(stderr, "cannot allocate procs\n");
 			exit(EXIT_FAILURE);
 		}
-		total_procs += num_procs[i];
-	}
-
-	if (!total_procs) {
-		pr_err(stderr, "No stress workers specified\n");
-		free_procs();
-		exit(EXIT_FAILURE);
 	}
 
 	pr_inf(stdout, "dispatching hogs:");
@@ -861,7 +983,7 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 
-	len = sizeof(uint64_t) * STRESS_MAX * max;
+	len = sizeof(uint64_t) * STRESS_MAX * max_procs;
 	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
 		pr_err(stderr, "Cannot resize shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
@@ -896,82 +1018,24 @@ next_opt:
 	memset(counters, 0, len);
 	memset(started_procs, 0, sizeof(num_procs));
 
-	time_start = time_now();
-	pr_dbg(stderr, "starting processes\n");
-	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		for (i = 0; i < STRESS_MAX; i++) {
-			j = started_procs[i];
-			if (j < num_procs[i]) {
-				int rc = EXIT_SUCCESS;
-				int pid = fork();
-				char name[64];
-
-				switch (pid) {
-				case -1:
-					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
-						errno, strerror(errno));
-					kill_procs(SIGALRM);
-					goto wait_for_procs;
-				case 0:
-					/* Child */
-					if (stress_sethandler(name) < 0)
-						exit(EXIT_FAILURE);
-					(void)alarm(opt_timeout);
-					mwc_reseed();
-					set_oom_adjustment(name, false);
-					set_coredump(name);
-					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
-					set_iopriority(opt_ionice_class, opt_ionice_level);
-					set_proc_name(name);
-					pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
-						name, getpid(), j);
-
-					(void)usleep(opt_backoff * n_procs);
-					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stressors[i].stress_func(counters + (i * max) + j, j, opt_ops[i], name);
-					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
-						name, getpid(), j);
-					exit(rc);
-				default:
-					procs[i][j].pid = pid;
-					procs[i][j].start = time_now() +
-						((double)(opt_backoff * n_procs) / 1000000.0);
-					started_procs[i]++;
-
-					/* Forced early abort during startup? */
-					if (!opt_do_run) {
-						pr_dbg(stderr, "abort signal during startup, cleaning up\n");
-						kill_procs(SIGALRM);
-						goto wait_for_procs;
-					}
-					break;
-				}
-			}
+	if (opt_sequential) {
+		/*
+		 *  Step through each stressor one by one
+		 */
+		memset(num_procs, 0, sizeof(num_procs));
+		for (i = 0; opt_do_run && i < STRESS_MAX; i++) {
+			opt_ops[i] = 0;
+			num_procs[i] = opt_sequential;
+			stress_run(opt_sequential, opt_sequential, num_procs, counters, &duration, &success);
+			num_procs[i] = 0;
 		}
+	} else {
+		/*
+		 *  Run all stressors in parallel
+		 */
+		stress_run(total_procs, max_procs, num_procs, counters, &duration, &success);
 	}
-	pr_dbg(stderr, "%d processes running\n", n_procs);
 
-wait_for_procs:
-	/* Wait for children to exit */
-	while (n_procs) {
-		int pid, status;
-
-		if ((pid = wait(&status)) > 0) {
-			if (WEXITSTATUS(status)) {
-				pr_err(stderr, "Process %d terminated with an error: \n", pid);
-				success = false;
-			}
-			proc_finished(pid);
-			pr_dbg(stderr, "process [%d] terminated\n", pid);
-			n_procs--;
-		} else if (pid == -1) {
-			kill_procs(SIGALRM);
-			printf("Break\n");
-		}
-	}
-	time_finish = time_now();
-
-	duration = time_finish - time_start;
 	pr_inf(stdout, "%s run completed in %.2fs\n",
 		success ? "successful" : "unsuccessful",
 		duration);
@@ -980,8 +1044,9 @@ wait_for_procs:
 		for (i = 0; i < STRESS_MAX; i++) {
 			uint64_t total = 0;
 			double   total_time = 0.0;
+
 			for (j = 0; j < started_procs[i]; j++) {
-				total += *(counters + (i * max) + j);
+				total += *(counters + (i * max_procs) + j);
 				total_time += procs[i][j].finish - procs[i][j].start;
 			}
 			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (total == 0))

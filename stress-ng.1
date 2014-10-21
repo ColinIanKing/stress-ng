@@ -379,6 +379,12 @@ start N processes that perform POSIX semaphore wait and post operation. This str
 .B \-\-sem-ops N
 stop semaphore stress processes after N bogo semaphore operations.
 .TP
+.B \-\-sequential N
+sequentially run all the stressors one by one for a default of 60 seconds. The
+number of each individual stressors to be started is N.  If N is zero, then a
+stressor for each processor that is on-line is executed. Use the \-\-timeout
+option to specify the duration to run each stressor.
+.TP
 .B \-\-sigfpe N
 start N processes that rapidly cause division by zero SIGFPE faults.
 .TP
@@ -520,6 +526,8 @@ stress\-ng \-\-all 4 \-\-timeout 5m
 stress\-ng \-\-random 64
 .LP
 stress\-ng \-\-cpu 64 \-\-cpu\-method all \-\-verify \-t 10m \-\-metrics\-brief
+.LP
+stress\-ng --sequential 0 -t 10m
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug

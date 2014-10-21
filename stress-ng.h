@@ -139,6 +139,10 @@
 #define DEFAULT_FORKS_MIN	(1)
 #define DEFAULT_FORKS_MAX	(16000)
 
+#define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
+#define DEFAULT_SEQUENTIAL_MIN	(1)
+#define DEFAULT_SEQUENTIAL_MAX	(1000000)
+
 #define ABORT_FAILURES		(5)
 
 /* stress process prototype */
@@ -312,7 +316,8 @@ typedef enum {
 	OPT_NICE,
 	OPT_NICE_OPS,
 	OPT_SIGFPE,
-	OPT_SIGFPE_OPS
+	OPT_SIGFPE_OPS,
+	OPT_SEQUENTIAL
 } stress_op;
 
 /* stress test metadata */
@@ -381,6 +386,7 @@ extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
+extern uint64_t opt_sequential;				/* Number of sequention iterations */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
