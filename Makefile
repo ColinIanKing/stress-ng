@@ -44,6 +44,7 @@ SRC =   stress-affinity.c \
 	coredump.c \
 	helper.c \
 	io-priority.c \
+	lock-mem.c \
 	log.c \
 	mwc.c \
 	out-of-memory.c \

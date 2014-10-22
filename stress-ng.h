@@ -430,6 +430,8 @@ extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
 	const char *const msg);
 extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
+extern void lock_mem_current(void);
+
 
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\

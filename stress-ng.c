@@ -626,7 +626,9 @@ void stress_run(
 					/* Child */
 					if (stress_sethandler(name) < 0)
 						exit(EXIT_FAILURE);
+
 					(void)alarm(opt_timeout);
+					lock_mem_current();
 					mwc_reseed();
 					set_oom_adjustment(name, false);
 					set_coredump(name);
@@ -929,6 +931,7 @@ next_opt:
 	set_coredump("main");
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
+	lock_mem_current();
 
 	new_action.sa_handler = handle_sigint;
 	sigemptyset(&new_action.sa_mask);
