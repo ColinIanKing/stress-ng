@@ -463,10 +463,13 @@ static void stress_cpu_idct(void)
 	/* Final output should be a 8x8 matrix of values 255 */
 	for (i = 0; i < sz; i++) {
 		for (j = 0; j < sz; j++) {
-			if ((int)idct[i][j] != 255) {
-				uint64_put(1);
-				return;
+			if (((int)idct[i][j] != 255) &&
+			    (opt_flags & OPT_FLAGS_VERIFY)) {
+				pr_fail(stderr, "IDCT error detected, IDCT[%d][%d] was %d, expecting 255\n",
+					i, j, (int)idct[i][j]);
 			}
+			if (!opt_do_run)
+				return;
 		}
 	}
 }
