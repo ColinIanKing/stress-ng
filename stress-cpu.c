@@ -807,13 +807,14 @@ static void stress_cpu_psi(void)
  */
 static void stress_cpu_ln2(void)
 {
-	register double ln2 = 0.0;
-	register const double math_ln2 = log(2.0);
-	register uint32_t n = 1;
+	long double ln2 = 0.0, last_ln2 = 0.0;
+	long double precision = 1.0e-7;
+	register int n = 1;
+	const int max_iter = 10000;
 
-	/* Arbitary precision chosen */
-	while (n < 1000000) {
-		double delta;
+	/* Not the fastest converging series */
+	do {
+		last_ln2 = ln2;
 		/* Unroll, do several ops */
 		ln2 += (long double)1.0 / (long double)n++;
 		ln2 -= (long double)1.0 / (long double)n++;
@@ -823,13 +824,10 @@ static void stress_cpu_ln2(void)
 		ln2 -= (long double)1.0 / (long double)n++;
 		ln2 += (long double)1.0 / (long double)n++;
 		ln2 -= (long double)1.0 / (long double)n++;
+	} while ((n < max_iter) && (fabsl(ln2 - last_ln2) > precision));
 
-		/* Arbitarily accurate enough? */
-		delta = ln2 - math_ln2;
-		delta = (delta < 0.0) ? -delta : delta;
-		if (delta < 0.000001)
-			break;
-	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter))
+		pr_fail(stderr, "calculation of ln(2) took more iterations than expected\n");
 
 	double_put(ln2);
 }
