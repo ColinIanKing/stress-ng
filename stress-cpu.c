@@ -1203,20 +1203,35 @@ static void stress_cpu_pi(void)
 	double_put(pi);
 }
 
+#define OMEGA 0.5671432904097838729999686622
 
 /*
  *  stress_cpu_omega()
  *	compute the constant omega
+ *	See http://en.wikipedia.org/wiki/Omega_constant
  */
 static void stress_cpu_omega(void)
 {
 	long double omega = 0.5, last_omega = 0.0;
 	const long double precision = 1.0e-20;
+	const int max_iter = 6;
+	int n = 0;
 
+	/* Omega converges very quickly */
 	do {
 		last_omega = omega;
 		omega = (1 + omega) / (1 + expl(omega));
-	} while (fabsl(omega - last_omega) > precision);
+		n++;
+	} while ((n < max_iter) && (fabsl(omega - last_omega) > precision));
+
+	if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (n >= max_iter)
+			pr_fail(stderr, "number of iterations to compute omega was more than expected\n");
+		if (fabsl(omega - OMEGA) > 1.0e-16)
+			pr_fail(stderr, "accuracy of computed omega is not as good as expected\n");
+	}
+
+	double_put(omega);
 }
 
 #define HAMMING(G, i, nybble, code) 			\
