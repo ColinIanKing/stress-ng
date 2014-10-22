@@ -62,7 +62,9 @@ static void stress_cpu_loop(void)
 
 	for (i = 0; i < 16384; i++) {
 		i_sum += i;
+#if __GNUC__
 		__asm__ __volatile__("");	/* Stop optimising out */
+#endif
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail(stderr, "cpu loop 0..16383 sum was %" PRIu32 " and "
@@ -88,7 +90,9 @@ static void stress_cpu_gcd(void)
 			a = r;
 		}
 		i_sum += a;
+#if __GNUC__
 		__asm__ __volatile__("");	/* Stop optimising out */
+#endif
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail(stderr, "gcd error detected, failed modulo or assigment operations\n");
