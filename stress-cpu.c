@@ -1178,8 +1178,9 @@ static long double factorial(int n)
 static void stress_cpu_pi(void)
 {
 	long double s = 0.0, pi = 0.0, last_pi = 0.0;
-	const long double precision = 1.0e-18;
+	const long double precision = 1.0e-20;
 	const long double c = 2.0 * sqrtl(2.0) / 9801.0;
+	const int max_iter = 5;
 	int k = 0;
 
 	do {
@@ -1189,7 +1190,15 @@ static void stress_cpu_pi(void)
 			(powl(factorial(k), 4.0) * powl(396.0, 4.0 * k));
 		pi = 1 / (s * c);
 		k++;
-	} while (fabsl(pi - last_pi) > precision);
+	} while ((k < max_iter) && (fabsl(pi - last_pi) > precision));
+
+	/* Quick sanity checks */
+	if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (k >= max_iter)
+			pr_fail(stderr, "number of iterations to compute pi was more than expected\n");
+		if (fabsl(pi - M_PI) > 1.0e-15)
+			pr_fail(stderr, "accuracy of computed pi is not as good as expected\n");
+	}
 
 	double_put(pi);
 }
