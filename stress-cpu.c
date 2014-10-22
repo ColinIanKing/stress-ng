@@ -205,20 +205,31 @@ static void stress_cpu_rand(void)
 static void stress_cpu_nsqrt(void)
 {
 	int i;
+	const long double precision = 1.0e-15;
+	const int max_iter = 100;
 
 	for (i = 0; i < 16384; i++) {
-		double n = (double)i;
-		double lo = (n < 1.0) ? n : 1.0;
-		double hi = (n < 1.0) ? 1.0 : n;
+		long double n = (double)i;
+		long double lo = (n < 1.0) ? n : 1.0;
+		long double hi = (n < 1.0) ? 1.0 : n;
+		long double rt;
+		int j = 0;
 
-		while ((hi - lo) > 0.00001) {
-			double g = (lo + hi) / 2.0;
-			if (g * g > n)
+		while ((j++ < max_iter) && ((hi - lo) > precision)) {
+			long double g = (lo + hi) / 2.0;
+			if ((g * g) > n)
 				hi = g;
 			else
 				lo = g;
 		}
-		double_put((lo + hi) / 2.0);
+		rt = (lo + hi) / 2.0;
+
+		if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (j >= max_iter)
+				pr_fail(stderr, "Newton-Raphson sqrt computation took more iterations than expected\n");
+			if ((int)rintl(rt * rt) != i)
+				pr_fail(stderr, "Newton-Rapshon sqrt not accurate enough\n");
+		}
 	}
 }
 
