@@ -1,3 +1,16 @@
+stress-ng (0.02.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Properly report child exit error status
+  * mlock all pages down on so they don't get swapped out
+  * Add feedback on file system clean up on SIGINT
+  * Move ioprio_set out of stress-ng.h to io-priority.c
+  * Fix table width in stress-cpu stressors
+  * Add -ve value sanity checking
+  * Add --sequential option
+
+ -- Colin King <colin.king@canonical.com>  Wed, 22 Oct 2014 16:32:00 +0100
+
 stress-ng (0.02.12-1) unstable; urgency=medium
 
   * Makefile: bump version
