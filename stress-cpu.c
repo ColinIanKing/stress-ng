@@ -296,17 +296,20 @@ static void stress_cpu_fft(void)
  */
 static void stress_cpu_euler(void)
 {
-	long double e = 1.0;
+	long double e = 1.0, last_e = e;
 	long double fact = 1.0;
-	int n = 0;
+	long double precision = 1.0e-20;
+	int n = 1;
 
-	/* Arbitary precision chosen */
-	for (n = 1; n < 32; n++) {
+	do {
+		last_e = e;
 		fact *= n;
+		n++;
 		e += (1.0 / fact);
-	}
+	} while ((n < 25) && (fabsl(e - last_e) > precision));
 
-	double_put(e);
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (n >= 25))
+		pr_fail(stderr, "euler computation took more iterations than expected\n");
 }
 
 /*
