@@ -109,7 +109,7 @@ static int stress_link_generic(
 
 abort:
 	/* force unlink of all files */
-	pr_dbg(stdout, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
+	pr_tidy(stdout, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
 	stress_link_unlink(funcname, DEFAULT_LINKS);
 	(void)unlink(oldpath);
 

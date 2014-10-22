@@ -71,6 +71,7 @@
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
 #define pr_err(fp, fmt, args...)	print(fp, PR_ERROR, fmt, ## args)
 #define pr_fail(fp, fmt, args...)	print(fp, PR_FAIL, fmt, ## args)
+#define pr_tidy(fp, fmt, args...)	print(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 
 #define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what)
 #define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what)
@@ -391,6 +392,7 @@ extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
 extern char	*opt_fstat_dir;				/* Default fstat directory */
 extern volatile bool opt_do_run;			/* false to exit stressor */
+extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
 extern proc_info_t *procs[STRESS_MAX];			/* per process info */
 extern stress_cpu_stressor_info_t cpu_methods[];	/* cpu stressor methods */
 

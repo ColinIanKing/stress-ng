@@ -79,6 +79,7 @@ int      opt_socket_port = 5000;		/* Default socket port */
 long int opt_nprocessors_online;		/* Number of processors online */
 char     *opt_fstat_dir = "/dev";		/* Default fstat directory */
 volatile bool opt_do_run = true;		/* false to exit stressor */
+volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 proc_info_t *procs[STRESS_MAX];			/* per process info */
 
 /* Human readable stress test names */
@@ -387,11 +388,19 @@ static const help_t help[] = {
 /*
  *  Catch signals and set flag to break out of stress loops
  */
-static void stress_sighandler(int dummy)
+static void stress_sigint_handler(int dummy)
+{
+	(void)dummy;
+	opt_sigint = true;
+	opt_do_run = false;
+}
+
+static void stress_sigalrm_handler(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
 }
+
 
 /*
  *  stress_sethandler()
@@ -401,13 +410,19 @@ static int stress_sethandler(const char *stress)
 {
 	struct sigaction new_action;
 
-	new_action.sa_handler = stress_sighandler;
+	new_action.sa_handler = stress_sigint_handler;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
+
 	if (sigaction(SIGINT, &new_action, NULL) < 0) {
 		pr_failed_err(stress, "sigaction");
 		return -1;
 	}
+
+	new_action.sa_handler = stress_sigalrm_handler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+
 	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
 		pr_failed_err(stress, "sigaction");
 		return -1;
