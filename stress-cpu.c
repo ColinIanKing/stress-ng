@@ -1147,7 +1147,12 @@ static uint32_t hanoi(
  */
 static void stress_cpu_hanoi(void)
 {
-	uint64_put(hanoi(20, 'X', 'Y', 'Z'));
+	uint32_t n = hanoi(20, 'X', 'Y', 'Z');
+
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (n != 1048576))
+		pr_fail(stderr, "number of hanoi moves different from the expected number\n");
+
+	uint64_put(n);
 }
 
 /*
