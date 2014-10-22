@@ -767,6 +767,8 @@ static void stress_cpu_fibonacci(void)
 		pr_fail(stderr, "fibonacci error detected, summation or assignment failure\n");
 }
 
+#define PSI 3.35988566624317755317201130291892717968890513373
+
 /*
  *  stress_cpu_psi
  *	compute the constant psi,
@@ -774,9 +776,11 @@ static void stress_cpu_fibonacci(void)
  */
 static void stress_cpu_psi(void)
 {
-	double long f1 = 0.0, f2 = 1.0, fn;
-	double long psi = 0.0, last_psi;
-	double long precision = 1.0e-20;
+	long double f1 = 0.0, f2 = 1.0, fn;
+	long double psi = 0.0, last_psi;
+	long double precision = 1.0e-20;
+	int i = 0;
+	const int max_iter = 100;
 
 	do {
 		fn = f1 + f2;
@@ -784,7 +788,15 @@ static void stress_cpu_psi(void)
 		f2 = fn;
 		last_psi = psi;
 		psi += 1.0 / f1;
-	} while (fabsl(psi - last_psi) > precision);
+		i++;
+	} while ((i < max_iter) && (fabsl(psi - last_psi) > precision));
+
+	if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (fabsl(psi - PSI) > 1.0e-15)
+			pr_fail(stderr, "calculation of reciprocal Fibonacci constant phi not as accurate as expected\n");
+		if (i >= max_iter)
+			pr_fail(stderr, "calculation of reciprocal Fibonacci constant took more iterations than expected\n");
+	}
 
 	double_put(psi);
 }
