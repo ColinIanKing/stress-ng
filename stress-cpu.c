@@ -874,7 +874,9 @@ static void stress_cpu_explog(void)
 /*
  *  Undocumented gcc-ism, force -O0 optimisation
  */
+#if __GNUC__
 static void stress_cpu_jmp(void)  __attribute__((optimize("-O0")));
+#endif
 
 /*
  *  This could be a ternary operator, v = (v op val) ? a : b
