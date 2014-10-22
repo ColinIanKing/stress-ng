@@ -239,7 +239,9 @@ static void stress_cpu_nsqrt(void)
  */
 static void stress_cpu_phi(void)
 {
-	double phi; /* Golden ratio */
+	long double phi; /* Golden ratio */
+	const long double precision = 1.0e-15;
+	const long double phi_ = (1.0 + sqrtl(5.0)) / 2.0;
 	register uint64_t a, b;
 	const uint64_t mask = 1ULL << 63;
 	int i;
@@ -257,9 +259,11 @@ static void stress_cpu_phi(void)
 		b = c;
 	}
 	/* And we have the golden ratio */
-	phi = (double)a / (double)b;
+	phi = (long double)b / (long double)a;
 
-	double_put(phi);
+	if ((opt_flags & OPT_FLAGS_VERIFY) &&
+	    (fabsl(phi - phi_) > precision))
+		pr_fail(stderr, "Golden Ratio phi not accurate enough\n");
 }
 
 /*
