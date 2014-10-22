@@ -1,3 +1,20 @@
+stress-ng (0.02.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Compile in asm no-op hints only if using gcc
+  * Make gcc optimisation hint a gcc only feature
+  * Add verify mode to omega computation
+  * Add verify mode to pi computation
+  * Add verify mode on hanoi computation
+  * Add verify mode to ln(2) computation
+  * Add verify mode to psi computation
+  * Add verify mode to phi computation and make it long double
+  * Make nsqrt long double precision and add verify mode
+  * Add verify on euler computation
+  * Add verify on IDCT
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Oct 2014 00:45:00 +0100
+
 stress-ng (0.02.13-1) unstable; urgency=medium
 
   * Makefile: bump version
