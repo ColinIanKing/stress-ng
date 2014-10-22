@@ -339,23 +339,6 @@ typedef struct {
 	const stress_cpu_func	func;	/* the stressor function */
 } stress_cpu_stressor_info_t;
 
-#if defined (__linux__)
-/*
- *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
- *  for these at present. Also refer to Documentation/block/ioprio.txt
- *  in the Linux kernel source.
- */
-#define IOPRIO_CLASS_RT 	(1)
-#define IOPRIO_CLASS_BE		(2)
-#define IOPRIO_CLASS_IDLE	(3)
-
-#define IOPRIO_WHO_PROCESS	(1)
-#define IOPRIO_WHO_PGRP		(2)
-#define IOPRIO_WHO_USER		(3)
-
-#define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
-#endif
-
 typedef struct {
 	pid_t	pid;		/* process id */
 	double	start;		/* time process started */

@@ -30,6 +30,21 @@
 #include <errno.h>
 #if defined (__linux__)
 #include <sys/syscall.h>
+
+/*
+ *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
+ *  for these at present. Also refer to Documentation/block/ioprio.txt
+ *  in the Linux kernel source.
+ */
+#define IOPRIO_CLASS_RT 	(1)
+#define IOPRIO_CLASS_BE		(2)
+#define IOPRIO_CLASS_IDLE	(3)
+
+#define IOPRIO_WHO_PROCESS	(1)
+#define IOPRIO_WHO_PGRP		(2)
+#define IOPRIO_WHO_USER		(3)
+
+#define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
 #endif
 
 #include "stress-ng.h"
