@@ -60,7 +60,7 @@ int stress_fstat(
 	if ((dp = opendir(opt_fstat_dir)) == NULL) {
 		pr_err(stderr, "%s: opendir on %s failed: errno=%d: (%s)\n",
 			name, opt_fstat_dir, errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	/* Cache all the directory entries */
