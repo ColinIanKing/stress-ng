@@ -73,7 +73,7 @@ to ramp up the stress tests over time.
 .TP
 .B \-B N, \-\-bigheap N
 start N processes that grow their heaps by reallocating memory. If the out of memory
-killer (OOM) on Linux kills the process or the allocation fails then the allocating starts all
+killer (OOM) on Linux kills the process or the allocation fails then the allocating process starts all
 over again.  Note that the OOM adjustment for the process is set so that the OOM killer
 will treat these processes as the first candidate processes to kill.
 .TP
@@ -217,7 +217,7 @@ stop cache thrash processes after N bogo cache thrash operations.
 parse options, but don't run stress tests. A no-op.
 .TP
 .B \-D N, \-\-dentry N
-start N processes that create and remove directory entries.  This should create meta data activity.
+start N processes that create and remove directory entries.  This should create file system meta data activity.
 .TP
 .B \-\-dentry\-ops N
 stop denty thrash processes after N bogo dentry operations.
