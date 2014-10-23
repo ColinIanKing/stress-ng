@@ -54,6 +54,7 @@ int stress_fstat(
 	DIR *dp;
 	dir_info_t *dir_info = NULL, *di;
 	struct dirent *d;
+	int ret = EXIT_FAILURE;
 
 	(void)instance;
 
@@ -71,12 +72,13 @@ int stress_fstat(
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
 			closedir(dp);
-			return EXIT_FAILURE;
+			goto free_cache;
 		}
 		if ((di->path = strdup(path)) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
+			free(di);
 			closedir(dp);
-			return EXIT_FAILURE;
+			goto free_cache;
 		}
 		di->next = dir_info;
 		dir_info = di;
@@ -95,6 +97,8 @@ int stress_fstat(
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	ret = EXIT_SUCCESS;
+free_cache:
 	/* Free cache */
 	for (di = dir_info; di; ) {
 		dir_info_t *next = di->next;
@@ -104,5 +108,5 @@ int stress_fstat(
 		di = next;
 	}
 
-	return EXIT_SUCCESS;
+	return ret;
 }
