@@ -507,27 +507,46 @@ start N process that call sched_yield(). This should force rapid context switchi
 .B \-\-yield\-ops N
 stop yield stress processes after N sched_yield() bogo operations.
 .LP
-Examples:
+.SH EXAMPLES
 .LP
-stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 256M \-\-timeout 60s
+stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s
+.IP
+runs for 60 seconds with 4 cpu stressors, 2 io stressors and 1 vm stressor using 1GB of virtual memory.
 .LP
 stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
+.IP
+runs 8 cpu stressors and stops after 800000 bogo operations.
 .LP
-stress\-ng \-\-cpu 4 \-\-io 2 \-\-timeout 60s \-\-metrics
+stress\-ng \-\-sequential 2 \-\-timeout 2m \-\-metrics
+.IP
+run 2 simultaneous instances of all the stressors sequentially one by one, each for 2 minutes and summaries with performance metrics at the end.
 .LP
 stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief
+.IP
+run 4 FFT cpu stressors, stop after 10000 bogo operations and produce a summary just for the FFT results.
 .LP
-stress\-ng \-\-cpu 2 \-\-cpu-method all \-t 1h
-.LP
-stress\-ng \-\-fork 4 \-\-fork-ops 100000
+stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 1h
+.IP
+run cpu stressors on all online CPUs working through all the available CPU stressors for 1 hour.
 .LP
 stress\-ng \-\-all 4 \-\-timeout 5m
+.IP
+run 4 instances of all the stressors for 5 minutes.
 .LP
 stress\-ng \-\-random 64
+.IP
+run 64 stressors that are randomly chosen from all the available stressors.
 .LP
 stress\-ng \-\-cpu 64 \-\-cpu\-method all \-\-verify \-t 10m \-\-metrics\-brief
+.IP
+run 64 instances of all the different cpu stressors and verify that the
+computations are correct for 10 minutes with a bogo operations summary at the
+end.
 .LP
 stress\-ng --sequential 0 -t 10m
+.IP
+run all the stressors one by one for 10 minutes, with the number of instances
+of each stressor matching the number of online CPUs.
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
@@ -540,7 +559,7 @@ File bug reports at:
 .BR qsort (3),
 .BR sched_yield (2),
 .BR sched_setaffinity (2),
-.BR stress (1).
+.BR stress (1)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and
 is a clean room re-implementation of the original
@@ -550,6 +569,9 @@ Note that the stress-ng cpu, io, vm and hdd tests are different
 implementations of the original stress
 tests and hence may produce different stress characteristics.
 stress-ng does not support any GPU stress tests.
+.PP
+The bogo operations metrics may change with each release  because of bug
+fixes to the code, new features, compiler optimisations or changes in system call performance.
 .PP
 This manual page was written by Colin King <colin.king@canonical.com>,
 for the Ubuntu project (but may be used by others).
