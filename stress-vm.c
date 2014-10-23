@@ -27,7 +27,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <signal.h>
+#include <errno.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "stress-ng.h"
 
 /*
@@ -40,65 +45,103 @@ int stress_vm(
 	const uint64_t max_ops,
 	const char *name)
 {
+	uint32_t restarts = 0, nomems = 0;
 	uint8_t *buf = NULL;
 	uint8_t	val = 0;
 	size_t	i;
+	pid_t pid;
 	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 
 	(void)instance;
 
-	do {
-		const uint8_t gray_code = (val >> 1) ^ val;
-		val++;
-
-		if (!keep || (keep && buf == NULL)) {
-			buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
-			if (buf == MAP_FAILED) {
-				pr_failed_dbg(name, "mmap");
-				continue;	/* Try again */
+again:
+	if (!opt_do_run)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+		}
+		if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
+				name, WTERMSIG(status), instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)\n",
+					name, instance);
+				restarts++;
+				goto again;
 			}
 		}
+	} else if (pid == 0) {
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
 
-		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
-			*(buf + i) = gray_code;
-			if (!opt_do_run)
-				goto unmap_cont;
-		}
+		do {
+			const uint8_t gray_code = (val >> 1) ^ val;
+			val++;
 
-		if (opt_vm_hang == 0) {
-			for (;;)
-				(void)sleep(3600);
-		} else if (opt_vm_hang != DEFAULT_VM_HANG) {
-			(void)sleep((int)opt_vm_hang);
-		}
+			if (!keep || (keep && buf == NULL)) {
+				if (!opt_do_run)
+					return EXIT_SUCCESS;
+				buf = mmap(NULL, opt_vm_bytes, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
+				if (buf == MAP_FAILED)
+					continue;	/* Try again */
+			}
 
-		for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
-			if (*(buf + i) != gray_code) {
-				if (opt_flags & OPT_FLAGS_VERIFY) {
-					pr_fail(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
-						name, i, *(buf + i));
-					break;
-				} else {
-					pr_err(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
-						name, i, *(buf + i));
-					(void)munmap(buf, opt_vm_bytes);
-					return EXIT_FAILURE;
+			for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
+				if (!opt_do_run)
+					goto unmap_cont;
+				*(buf + i) = gray_code;
+			}
+
+			if (opt_vm_hang == 0) {
+				for (;;)
+					(void)sleep(3600);
+			} else if (opt_vm_hang != DEFAULT_VM_HANG) {
+				(void)sleep((int)opt_vm_hang);
+			}
+
+			for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
+				if (!opt_do_run)
+					goto unmap_cont;
+				if (*(buf + i) != gray_code) {
+					if (opt_flags & OPT_FLAGS_VERIFY) {
+						pr_fail(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
+							name, i, *(buf + i));
+						break;
+					} else {
+						pr_err(stderr, "%s: detected memory error, offset : %zd, got: %x\n",
+							name, i, *(buf + i));
+						(void)munmap(buf, opt_vm_bytes);
+						return EXIT_FAILURE;
+					}
 				}
+				if (!opt_do_run)
+					goto unmap_cont;
 			}
-			if (!opt_do_run)
-				goto unmap_cont;
-		}
-
 unmap_cont:
-		if (!keep)
+			if (!keep)
+				(void)munmap(buf, opt_vm_bytes);
+
+			(*counter)++;
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+		if (keep && buf != NULL)
 			(void)munmap(buf, opt_vm_bytes);
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	if (keep)
-		(void)munmap(buf, opt_vm_bytes);
+	}
+	pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+			name, restarts, nomems);
 
 	return EXIT_SUCCESS;
 }
