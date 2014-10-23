@@ -44,6 +44,8 @@ int stress_mmap_check(uint8_t *buf, const size_t sz)
 	uint8_t *ptr = buf;
 
 	for (i = 0; i < sz; i += 4096) {
+		if (!opt_do_run)
+			break;
 		for (j = 0; j < 4096; j++)
 			if (*ptr++ != val++)
 				return -1;
@@ -59,6 +61,8 @@ void stress_mmap_set(uint8_t *buf, const size_t sz)
 	uint8_t *ptr = buf;
 
 	for (i = 0; i < sz; i += 4096) {
+		if (!opt_do_run)
+			break;
 		for (j = 0; j < 4096; j++)
 			*ptr++ = val++;
 		val++;
@@ -90,16 +94,20 @@ int stress_mmap(
 #endif
 	(void)instance;
 
+	/* Make sure this is killable by OOM killer */
+	set_oom_adjustment(name, true);
+
 	do {
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
 		size_t n;
 
+		if (!opt_do_run)
+			break;
 		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 			flags &= ~MAP_POPULATE;
-			pr_failed_dbg(name, "mmap");
 			continue;	/* Try again */
 		}
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
