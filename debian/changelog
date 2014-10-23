@@ -1,3 +1,13 @@
+stress-ng (0.02.17-1) unstable; urgency=medium
+
+  * Makefile: bump version again
+  * Break out of stress_run if we've timed out
+  * Add more exit points to check for early abort
+  * stress-vm: restart processes killed by OOM, add more exit checking
+  * stress-bigheap: add more exit checking
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Oct 2014 17:38:00 +0100
+
 stress-ng (0.02.16-1) unstable; urgency=medium
 
   * Makefile: bump version
