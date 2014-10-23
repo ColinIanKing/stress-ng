@@ -89,6 +89,16 @@ again:
 			void *old_ptr = ptr;
 			size += (size_t)opt_bigheap_growth;
 
+			/*
+			 * With many instances running it is wise to
+			 * double check before the next realloc as
+			 * sometimes process start up is delayed for
+			 * some time and we should bail out before
+			 * exerting any more memory pressure
+			 */
+			if (!opt_do_run)
+				goto abort;
+
 			ptr = realloc(old_ptr, size);
 			if (ptr == NULL) {
 				pr_dbg(stderr, "%s: out of memory at %" PRIu64 " MB (instance %d)\n",
@@ -107,14 +117,20 @@ again:
 					tmp = u8ptr = ptr;
 					n = size;
 				}
-				for (i = 0; i < n; i+= stride, u8ptr += stride)
+				for (i = 0; i < n; i+= stride, u8ptr += stride) {
+					if (!opt_do_run)
+						goto abort;
 					*u8ptr = (uint8_t)i;
+				}
 
 				if (opt_flags & OPT_FLAGS_VERIFY) {
-					for (i = 0; i < n; i+= stride, tmp += stride)
+					for (i = 0; i < n; i+= stride, tmp += stride) {
+						if (!opt_do_run)
+							goto abort;
 						if (*tmp != (uint8_t)i)
 							pr_fail(stderr, "byte at location %p was 0x%" PRIx8
 								" instead of 0x%" PRIx8 "\n", u8ptr, *tmp, (uint8_t)i);
+					}
 				}
 
 				last_ptr = ptr;
@@ -123,6 +139,7 @@ again:
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
+abort:
 		free(ptr);
 	}
 	pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
