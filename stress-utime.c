@@ -56,7 +56,7 @@ int stress_utime(
 	if ((fd = open(filename, O_WRONLY | O_CREAT, 0666)) < 0) {
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	do {
