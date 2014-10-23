@@ -621,6 +621,9 @@ void stress_run(
 	pr_dbg(stderr, "starting processes\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (i = 0; i < STRESS_MAX; i++) {
+			if (time_now() - time_start > opt_timeout)
+				goto abort;
+
 			j = started_procs[i];
 			if (j < num_procs[i]) {
 				int rc = EXIT_SUCCESS;
@@ -650,7 +653,7 @@ void stress_run(
 						name, getpid(), j);
 
 					(void)usleep(opt_backoff * n_procs);
-					if (!(opt_flags & OPT_FLAGS_DRY_RUN))
+					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(counters + (i * max_procs) + j, j, opt_ops[i], name);
 					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
@@ -672,6 +675,8 @@ void stress_run(
 			}
 		}
 	}
+
+abort:
 	pr_dbg(stderr, "%d processes running\n", n_procs);
 
 wait_for_procs:
