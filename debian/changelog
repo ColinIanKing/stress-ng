@@ -1,3 +1,17 @@
+stress-ng (0.02.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add rdrand stressor (Intel Ivybridge+)
+  * stress-fstat: don't exit(), just return on error
+  * stress-fstat: don't exit(), just return on error
+  * stress-rename: don't exit(), return on error
+  * stress-utime: don't exit(), just return on failure
+  * Add more explanations to man page
+  * Spread --random stressors more evenly
+  * Fix minor issues in man page
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Oct 2014 11:22:00 +0100
+
 stress-ng (0.02.14-1) unstable; urgency=medium
 
   * Makefile: bump version
