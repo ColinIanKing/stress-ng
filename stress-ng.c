@@ -920,7 +920,7 @@ next_opt:
 		}
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			int32_t rnd = mwc() % 3;
+			int32_t rnd = mwc() % ((opt_random >> 5) + 2);
 			if (rnd > n)
 				rnd = n;
 			n -= rnd;
