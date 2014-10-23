@@ -71,12 +71,12 @@ int stress_fstat(
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
 			closedir(dp);
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		if ((di->path = strdup(path)) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
 			closedir(dp);
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 		di->next = dir_info;
 		dir_info = di;
