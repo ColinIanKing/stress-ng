@@ -1,3 +1,13 @@
+stress-ng (0.02.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make sequential minimum 0
+  * stress-fstat: free list on error return
+  * Default to number of online cpus if --sequential 0 is used
+  * Remove debug message
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Oct 2014 13:01:00 +0100
+
 stress-ng (0.02.15-1) unstable; urgency=medium
 
   * Makefile: bump version
