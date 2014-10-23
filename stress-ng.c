@@ -902,6 +902,8 @@ next_opt:
 			break;
 		case OPT_SEQUENTIAL:
 			opt_sequential = get_uint64_byte(optarg);
+			if (opt_sequential <= 0)
+				opt_sequential = opt_nprocessors_online;
 			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
 			break;
 		default:
