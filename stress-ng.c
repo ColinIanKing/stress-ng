@@ -711,8 +711,6 @@ int main(int argc, char **argv)
 	char shm_name[64];
 	struct sigaction new_action;
 
-	printf("%d\n", OPT_RDRAND);
-
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
