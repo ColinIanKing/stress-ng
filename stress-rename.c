@@ -57,7 +57,7 @@ restart:
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	(void)fclose(fp);
 
