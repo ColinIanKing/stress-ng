@@ -146,6 +146,10 @@
 
 #define ABORT_FAILURES		(5)
 
+#if defined(__x86_64__) || defined(__x86_64) || defined(__i386__) || defined(__i386)
+#define STRESS_X86	1
+#endif
+
 /* stress process prototype */
 typedef int (*func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
@@ -192,6 +196,7 @@ typedef enum {
 	STRESS_MSG,
 	STRESS_NICE,
 	STRESS_SIGFPE,
+	STRESS_RDRAND,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -318,7 +323,9 @@ typedef enum {
 	OPT_NICE_OPS,
 	OPT_SIGFPE,
 	OPT_SIGFPE_OPS,
-	OPT_SEQUENTIAL
+	OPT_SEQUENTIAL,
+	OPT_RDRAND,
+	OPT_RDRAND_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -458,6 +465,7 @@ STRESS(stress_open);
 STRESS(stress_pipe);
 STRESS(stress_poll);
 STRESS(stress_qsort);
+STRESS(stress_rdrand);
 STRESS(stress_rename);
 STRESS(stress_semaphore);
 STRESS(stress_sigfpe);

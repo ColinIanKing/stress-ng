@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "October 2, 2014"
+.TH STRESS-NG 1 "October 23, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -366,6 +366,12 @@ don't show any output.
 .TP
 .B \-r N, \-\-random N
 start N random stress processes.
+.TP
+.B \-\-rdrand N
+start N processes that read the Intel hardware random number generator (Intel Ivybridge processors upwards).
+.TP
+.B \-\-rdrand-ops N
+stop rdrand stress processes after N bogo rdrand operations (1 bogo op = 2048 random bits successfully read).
 .TP
 .B \-R N, \-\-rename N
 start N processes that each create a file and then repeatedly rename it.

@@ -108,6 +108,9 @@ static const stress_t stressors[] = {
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
 	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
+#if defined(STRESS_X86)
+	{ stress_rdrand, STRESS_RDRAND, OPT_RDRAND,	OPT_RDRAND_OPS,		"rdrand" },
+#endif
 	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
 #if _POSIX_C_SOURCE >= 199309L
@@ -253,6 +256,10 @@ static const struct option long_options[] = {
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "sigfpe",	1,	0,	OPT_SIGFPE },
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
+#if defined(STRESS_X86)
+	{ "rdrand",	1,	0,	OPT_RDRAND },
+	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
+#endif
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
 	{ NULL,		0, 	0, 	0 }
 };
@@ -338,6 +345,10 @@ static const help_t help[] = {
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
+#if defined(STRESS_X86)
+	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction" },
+	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
+#endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
 #if defined (__linux__)
@@ -699,6 +710,8 @@ int main(int argc, char **argv)
 	bool success = true;
 	char shm_name[64];
 	struct sigaction new_action;
+
+	printf("%d\n", OPT_RDRAND);
 
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
