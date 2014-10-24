@@ -206,7 +206,9 @@ typedef enum {
 	STRESS_UTIME,
 #endif
 	STRESS_FSTAT,
+#if !defined(__gnu_hurd__)
 	STRESS_MSG,
+#endif
 	STRESS_NICE,
 	STRESS_SIGFPE,
 #if defined(STRESS_X86)

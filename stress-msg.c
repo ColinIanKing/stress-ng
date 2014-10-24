@@ -37,6 +37,8 @@
 
 #include "stress-ng.h"
 
+#if !defined(__gnu_hurd__)
+
 #define MAX_SIZE	(8)
 #define MSG_STOP	"STOPMSG"
 
@@ -121,3 +123,5 @@ int stress_msg(
 	}
 	return EXIT_SUCCESS;
 }
+
+#endif

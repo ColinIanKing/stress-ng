@@ -103,7 +103,9 @@ static const stress_t stressors[] = {
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
+#if !defined(__gnu_hurd__)
 	{ stress_msg,	 STRESS_MSG,	OPT_MSG,	OPT_MSG_OPS,		"msg" },
+#endif
 	{ stress_nice,	 STRESS_NICE,	OPT_NICE,	OPT_NICE_OPS,		"nice" },
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
@@ -251,8 +253,10 @@ static const struct option long_options[] = {
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
 	{ "verify",	0,	0,	OPT_VERIFY },
+#if !defined(__gnu_hurd__)
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
+#endif
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "sigfpe",	1,	0,	OPT_SIGFPE },
