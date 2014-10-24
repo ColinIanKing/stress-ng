@@ -1,3 +1,10 @@
+stress-ng (0.02.20-1) unstable; urgency=medium
+
+  * Makefile: bump version again
+  * Remove shm_* and replace with mmap'd shared memory (fix GNU hurd issues)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 24 Oct 2014 19:40:00 +0100
+
 stress-ng (0.02.19-1) unstable; urgency=medium
 
   * Makefile: bump version
