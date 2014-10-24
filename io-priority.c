@@ -49,32 +49,43 @@
 
 #include "stress-ng.h"
 
-#if defined (__linux__)
 /*
  *  get_opt_ionice_class()
  *	string io scheduler to IOPRIO_CLASS
  */
 int get_opt_ionice_class(const char *const str)
 {
+#if defined (IOPRIO_CLASS_IDLE)
 	if (!strcmp("idle", str))
 		return IOPRIO_CLASS_IDLE;
+#endif
+#if defined (IOPRIO_CLASS_BE)
 	if (!strcmp("besteffort", str) ||
 	    !strcmp("be", str))
 		return IOPRIO_CLASS_BE;
+#endif
+#if defined (IOPRIO_CLASS_RT)
 	if (!strcmp("realtime", str) ||
 	    !strcmp("rt", str))
 		return IOPRIO_CLASS_RT;
+#endif
 	if (strcmp("which", str))
 		fprintf(stderr, "Invalid ionice-class option: %s\n", str);
-	fprintf(stderr, "Available options are: idle besteffort be realtime rt\n");
+
+	fprintf(stderr, "Available options are:");
+#if defined (IOPRIO_CLASS_IDLE)
+	fprintf(stderr, " idle");
+#endif
+#if defined (IOPRIO_CLASS_BE)
+	fprintf(stderr, " besteffort be");
+#endif
+#if defined (IOPRIO_CLASS_RT)
+	fprintf(stderr, " realtime rt");
+#endif
+	fprintf(stderr, "\n");
+
 	exit(EXIT_FAILURE);
 }
-#else
-int get_opt_ionice_class(const char *const str)
-{
-	(void)str;
-}
-#endif
 
 #if defined (__linux__)
 /*
