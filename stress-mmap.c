@@ -107,7 +107,9 @@ int stress_mmap(
 		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
+#ifdef MAP_POPULATE
 			flags &= ~MAP_POPULATE;
+#endif
 			continue;	/* Try again */
 		}
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
