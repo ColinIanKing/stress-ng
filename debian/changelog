@@ -1,3 +1,10 @@
+stress-ng (0.02.21-1) unstable; urgency=medium
+
+  * Bump version again
+  * Mixed up shared memory regions, fix these as --cache breaks
+
+ -- Colin King <colin.king@canonical.com>  Fri, 24 Oct 2014 21:13:00 +0100
+
 stress-ng (0.02.20-1) unstable; urgency=medium
 
   * Makefile: bump version again
