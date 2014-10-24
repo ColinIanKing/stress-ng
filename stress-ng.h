@@ -380,6 +380,7 @@ typedef int (*func)(uint64_t *const counter, const uint32_t
 /* Various option settings and flags */
 extern const char *app_name;				/* Name of application */
 extern sem_t	sem;					/* stress_semaphore sem */
+extern bool     sem_ok;					/* stress_semaphore init ok */
 extern uint8_t *mem_chunk;				/* Cache load shared memory */
 extern uint64_t	opt_dentries;				/* dentries per loop */
 extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */

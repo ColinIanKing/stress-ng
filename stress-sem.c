@@ -45,6 +45,11 @@ int stress_semaphore(
 	(void)instance;
 	(void)name;
 
+	if (!sem_ok) {
+		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
+		return EXIT_FAILURE;
+	}
+
 	do {
 		int i;
 

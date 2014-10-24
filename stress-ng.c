@@ -46,6 +46,7 @@
 /* Various option settings and flags */
 const char *app_name = "stress-ng";		/* Name of application */
 sem_t	 sem;					/* stress_semaphore sem */
+bool	 sem_ok = false;			/* stress_semaphore init ok */
 uint8_t  *mem_chunk;				/* Cache load shared memory */
 uint64_t opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
@@ -917,13 +918,20 @@ next_opt:
 
 	pr_dbg(stderr, "%ld processors online\n", opt_nprocessors_online);
 
-	if (num_procs[stress_info_index(STRESS_SEMAPHORE)]) {
+	if (num_procs[stress_info_index(STRESS_SEMAPHORE)] || opt_sequential) {
 		/* create a mutex */
 		if (sem_init(&sem, 1, 1) < 0) {
-			pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-				errno, strerror(errno));
-			exit(EXIT_FAILURE);
-		}
+			if (opt_sequential) {
+				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
+					"skipping semaphore stressor\n",
+					errno, strerror(errno));
+			} else {
+				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
+					errno, strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		} else
+			sem_ok = true;
 	}
 
 	if (opt_flags & OPT_FLAGS_RANDOM) {
