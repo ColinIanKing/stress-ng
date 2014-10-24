@@ -1029,8 +1029,8 @@ next_opt:
 	}
 
 	memset(shared, 0, len);
-	counters = (uint64_t *)shared;
-	mem_chunk = ((uint8_t *)shared + MEM_CHUNK_SIZE);
+	counters = (uint64_t *)((uint8_t *)shared + MEM_CHUNK_SIZE);
+	mem_chunk = shared;
 
 	memset(started_procs, 0, sizeof(num_procs));
 
