@@ -172,16 +172,26 @@ typedef enum {
 	STRESS_PIPE,
 	STRESS_CACHE,
 	STRESS_SOCKET,
+#if defined (_POSIX_PRIORITY_SCHEDULING)
 	STRESS_YIELD,
+#endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	STRESS_FALLOCATE,
+#endif
 	STRESS_FLOCK,
+#if defined(__linux__)
 	STRESS_AFFINITY,
 	STRESS_TIMER,
+#endif
 	STRESS_DENTRY,
+#if defined(__linux__)
 	STRESS_URANDOM,
+#endif
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
+#if _POSIX_C_SOURCE >= 199309L
 	STRESS_SIGQUEUE,
+#endif
 	STRESS_POLL,
 	STRESS_LINK,
 	STRESS_SYMLINK,
@@ -191,12 +201,16 @@ typedef enum {
 	STRESS_QSORT,
 	STRESS_BIGHEAP,
 	STRESS_RENAME,
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	STRESS_UTIME,
+#endif
 	STRESS_FSTAT,
 	STRESS_MSG,
 	STRESS_NICE,
 	STRESS_SIGFPE,
+#if defined(STRESS_X86)
 	STRESS_RDRAND,
+#endif
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -263,9 +277,9 @@ typedef enum {
 	OPT_CACHE_OPS,
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
-#if defined (__linux__)
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
+#if defined (__linux__)
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
 	OPT_AFFINITY,

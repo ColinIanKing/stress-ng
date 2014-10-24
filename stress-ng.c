@@ -70,11 +70,11 @@ size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
 pid_t    socket_server, socket_client;		/* pids of socket client/servers */
 #if defined (__linux__)
 uint64_t opt_timer_freq = 1000000;		/* timer frequency (Hz) */
+#endif
 int      opt_sched = UNDEFINED;			/* sched policy */
 int      opt_sched_priority = UNDEFINED;	/* sched priority */
 int      opt_ionice_class = UNDEFINED;		/* ionice class */
 int      opt_ionice_level = UNDEFINED;		/* ionice level */
-#endif
 int      opt_socket_port = 5000;		/* Default socket port */
 long int opt_nprocessors_online;		/* Number of processors online */
 char     *opt_fstat_dir = "/dev";		/* Default fstat directory */
@@ -188,9 +188,9 @@ static const struct option long_options[] = {
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 	{ "all",	1,	0,	OPT_ALL },
-#if defined (__linux__)
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+#if defined (__linux__)
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 	{ "affinity",	1,	0,	OPT_AFFINITY },
@@ -351,10 +351,8 @@ static const help_t help[] = {
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
-#if defined (__linux__)
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
-#endif
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
@@ -859,16 +857,16 @@ next_opt:
 			opt_socket_port = get_uint64(optarg);
 			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
 			break;
-#if defined (__linux__)
-		case OPT_TIMER_FREQ:
-			opt_timer_freq = get_uint64(optarg);
-			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
-			break;
 		case OPT_SCHED:
 			opt_sched = get_opt_sched(optarg);
 			break;
 		case OPT_SCHED_PRIO:
 			opt_sched_priority = get_int(optarg);
+			break;
+#if defined (__linux__)
+		case OPT_TIMER_FREQ:
+			opt_timer_freq = get_uint64(optarg);
+			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
 			break;
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);
