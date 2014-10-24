@@ -1,3 +1,23 @@
+stress-ng (0.02.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Don't enable stress-msg for GNU HURD
+  * Make lock_mem_current a no-op for GNU HURD
+  * Don't enable stress-sigq for GNU HURD
+  * Need <sys/time.h> in stress-ng.h
+  * Cater for systems where sem_init is not supported
+  * shm_open on /tmp path (for kFreeBSD)
+  * Fix non-linux build - don't build in options that are not available
+  * sched.c: make this build on non-linux systems
+  * io-proirity: make this more generic rather than linux specific
+  * stress-nice: work around systems that lack RLIMIT_NICE
+  * stress-mmap: fix kFreeBSD build failures, no MAP_POPULATE
+  * kFreeBSD has no MAP_POPULATE
+  * Update to latest policy standards
+  * debian/control: update to keep in sync with new features
+
+ -- Colin King <colin.king@canonical.com>  Fri, 24 Oct 2014 16:46:00 +0100
+
 stress-ng (0.02.18-1) unstable; urgency=medium
 
   * Makefile: bump version, add copyright, change codename, fix make dist
