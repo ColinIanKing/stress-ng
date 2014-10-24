@@ -49,14 +49,22 @@ int stress_nice(
 	const char *name)
 {
 	int max_prio, min_prio;
-	struct rlimit rlim;
 
 	(void)instance;
 	(void)name;
 
-	getrlimit(RLIMIT_NICE, &rlim);
-	max_prio = 20 - (int)rlim.rlim_cur;
-	min_prio = -max_prio;
+#ifdef RLIMIT_NICE
+	{
+		struct rlimit rlim;
+
+		getrlimit(RLIMIT_NICE, &rlim);
+		max_prio = 20 - (int)rlim.rlim_cur;
+		min_prio = -max_prio;
+	}
+#else
+	max_prio = 20;
+	min_prio = -20;
+#endif
 
 	do {
 		pid_t pid;
