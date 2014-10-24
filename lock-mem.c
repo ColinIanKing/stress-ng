@@ -28,5 +28,7 @@
 
 void lock_mem_current(void)
 {
+#if !defined(__gnu_hurd__)
 	(void)mlockall(MCL_CURRENT);
+#endif
 }
