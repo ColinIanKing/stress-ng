@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <semaphore.h>
+#include <sys/time.h>
 
 #define _GNU_SOURCE
 /* GNU HURD */
