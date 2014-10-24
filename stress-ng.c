@@ -709,14 +709,13 @@ wait_for_procs:
 int main(int argc, char **argv)
 {
 	uint64_t *counters;
+	uint8_t *shared;
 	double duration = 0.0;
 	int32_t val, opt_random = 0, i, j;
 	int32_t	num_procs[STRESS_MAX];
 	int32_t total_procs = 0, max_procs = 0;
-	int	fd;
 	size_t len;
 	bool success = true;
-	char shm_name[64];
 	struct sigaction new_action;
 
 	memset(num_procs, 0, sizeof(num_procs));
@@ -976,7 +975,7 @@ next_opt:
 		opt_ops[i] = num_procs[i] ? opt_ops[i] / num_procs[i] : 0;
 		total_procs += num_procs[i];
 	}
-	
+
 	if (opt_sequential) {
 		if (total_procs) {
 			pr_err(stderr, "sequential option cannot be specified with other stressors enabled\n");
@@ -1020,49 +1019,19 @@ next_opt:
 	}
 	fflush(stdout);
 
-	snprintf(shm_name, sizeof(shm_name) - 1, "/tmp/stress_ng_%d", getpid());
-	(void)shm_unlink(shm_name);
-
-	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
-		pr_err(stderr, "Cannot open shared memory region: errno=%d (%s)\n",
-			errno, strerror(errno));
-		free_procs();
-		exit(EXIT_FAILURE);
-	}
-
-	len = sizeof(uint64_t) * STRESS_MAX * max_procs;
-	if (ftruncate(fd, MEM_CHUNK_SIZE + len) < 0) {
-		pr_err(stderr, "Cannot resize shared memory region: errno=%d (%s)\n",
-			errno, strerror(errno));
-		(void)close(fd);
-		(void)shm_unlink(shm_name);
-		free_procs();
-		exit(EXIT_FAILURE);
-	}
-	counters = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, MEM_CHUNK_SIZE);
-	if (counters == MAP_FAILED) {
+	len = MEM_CHUNK_SIZE + (sizeof(uint64_t) * STRESS_MAX * max_procs);
+	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	if (shared == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
-		(void)close(fd);
-		(void)shm_unlink(shm_name);
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-	if (num_procs[stress_info_index(STRESS_CACHE)]) {
-		mem_chunk = mmap(NULL, MEM_CHUNK_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-		if (mem_chunk == MAP_FAILED) {
-			pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
-				errno, strerror(errno));
-			(void)close(fd);
-			(void)shm_unlink(shm_name);
-			free_procs();
-			exit(EXIT_FAILURE);
-		}
-		memset(mem_chunk, 0, len);
-	}
 
-	(void)close(fd);
-	memset(counters, 0, len);
+	memset(shared, 0, len);
+	counters = (uint64_t *)shared;
+	mem_chunk = ((uint8_t *)shared + MEM_CHUNK_SIZE);
+
 	memset(started_procs, 0, sizeof(num_procs));
 
 	if (opt_sequential) {
@@ -1111,6 +1080,6 @@ next_opt:
 				errno, strerror(errno));
 		}
 	}
-	(void)shm_unlink(shm_name);
+	(void)munmap(shared, len);
 	exit(EXIT_SUCCESS);
 }
