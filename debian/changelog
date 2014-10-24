@@ -1,3 +1,9 @@
+stress-ng (0.02.18-1) unstable; urgency=medium
+
+  * Makefile: bump version, add copyright, change codename, fix make dist
+
+ -- Colin King <colin.king@canonical.com>  Fri, 24 Oct 2014 09:24:00 +0100
+
 stress-ng (0.02.17-1) unstable; urgency=medium
 
   * Makefile: bump version again
