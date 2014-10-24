@@ -190,7 +190,7 @@ typedef enum {
 #endif
 	STRESS_SEMAPHORE,
 	STRESS_OPEN,
-#if _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	STRESS_SIGQUEUE,
 #endif
 	STRESS_POLL,

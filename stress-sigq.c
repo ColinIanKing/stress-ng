@@ -33,7 +33,7 @@
 
 #include "stress-ng.h"
 
-#if _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 static void stress_sigqhandler(int dummy)
 {
 	(void)dummy;

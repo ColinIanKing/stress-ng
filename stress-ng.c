@@ -114,7 +114,7 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
-#if _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
 #endif
 	{ stress_sigfpe, STRESS_SIGFPE,	OPT_SIGFPE,	OPT_SIGFPE,		"sigfpe" },
@@ -181,7 +181,7 @@ static const struct option long_options[] = {
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
-#if _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
 #endif
