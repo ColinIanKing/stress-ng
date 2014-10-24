@@ -1008,7 +1008,7 @@ next_opt:
 	}
 	fflush(stdout);
 
-	snprintf(shm_name, sizeof(shm_name) - 1, "stress_ng_%d", getpid());
+	snprintf(shm_name, sizeof(shm_name) - 1, "/tmp/stress_ng_%d", getpid());
 	(void)shm_unlink(shm_name);
 
 	if ((fd = shm_open(shm_name, O_RDWR | O_CREAT, 0)) < 0) {
