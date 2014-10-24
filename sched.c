@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
 #include <sched.h>
@@ -86,7 +87,6 @@ void set_sched(const int sched, const int sched_priority)
 }
 #endif
 
-#if defined (__linux__)
 /*
  *  get_opt_sched()
  *	get scheduler policy
@@ -134,9 +134,3 @@ int get_opt_sched(const char *const str)
 		"\n");
 	exit(EXIT_FAILURE);
 }
-#else
-int get_opt_sched(const char *const str)
-{
-	(void)str;
-}
-#endif
