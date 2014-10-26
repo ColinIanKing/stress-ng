@@ -1,3 +1,11 @@
+stress-ng (0.02.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Re-order some of the help options
+  * Fix --random option to create semaphore if semaphore is chosen by random
+
+ -- Colin King <colin.king@canonical.com>  Sun, 26 Oct 2014 11:54:00 +0000
+
 stress-ng (0.02.21-1) unstable; urgency=medium
 
   * Bump version again
