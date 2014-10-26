@@ -921,22 +921,6 @@ next_opt:
 
 	pr_dbg(stderr, "%ld processors online\n", opt_nprocessors_online);
 
-	if (num_procs[stress_info_index(STRESS_SEMAPHORE)] || opt_sequential) {
-		/* create a mutex */
-		if (sem_init(&sem, 1, 1) < 0) {
-			if (opt_sequential) {
-				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
-					"skipping semaphore stressor\n",
-					errno, strerror(errno));
-			} else {
-				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-					errno, strerror(errno));
-				exit(EXIT_FAILURE);
-			}
-		} else
-			sem_ok = true;
-	}
-
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
@@ -953,6 +937,22 @@ next_opt:
 			n -= rnd;
 			num_procs[mwc() % STRESS_MAX] += rnd;
 		}
+	}
+
+	if (num_procs[stress_info_index(STRESS_SEMAPHORE)] || opt_sequential) {
+		/* create a mutex */
+		if (sem_init(&sem, 1, 1) < 0) {
+			if (opt_sequential) {
+				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
+					"skipping semaphore stressor\n",
+					errno, strerror(errno));
+			} else {
+				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
+					errno, strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		} else
+			sem_ok = true;
 	}
 
 	set_oom_adjustment("main", false);
