@@ -300,6 +300,12 @@ specify ionice level (only on Linux). For idle, 0 is the only possible option. F
 .B \-k, \-\-keep\-name
 by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP
+.B \-\-kill N
+start N processes sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most of the process time will end up in kernel space.
+.TP
+.B \-\-kill\-ops N
+stop kill processes after N bogo kill operations.
+.TP
 .B \-\-link N
 start N processes creating and removing hardlinks.
 .TP

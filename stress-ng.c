@@ -104,6 +104,7 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
+	{ stress_kill,	 STRESS_KILL,	OPT_KILL,	OPT_KILL_OPS,		"kill" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
 #if !defined(__gnu_hurd__)
@@ -271,6 +272,8 @@ static const struct option long_options[] = {
 	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
 #endif
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
+	{ "kill",	1,	0,	OPT_KILL },
+	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -325,6 +328,8 @@ static const help_t help[] = {
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
+	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
+	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },

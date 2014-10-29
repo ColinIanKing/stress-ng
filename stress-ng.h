@@ -230,6 +230,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_FUTEX,
 #endif
+	STRESS_KILL,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -361,6 +362,8 @@ typedef enum {
 	OPT_RDRAND_OPS,
 	OPT_FUTEX,
 	OPT_FUTEX_OPS,
+	OPT_KILL,
+	OPT_KILL_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -493,6 +496,7 @@ STRESS(stress_fork);
 STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_iosync);
+STRESS(stress_kill);
 STRESS(stress_link);
 STRESS(stress_mmap);
 STRESS(stress_msg);

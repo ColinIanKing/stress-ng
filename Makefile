@@ -39,6 +39,7 @@ SRC =   stress-affinity.c \
 	stress-futex.c \
 	stress-hdd.c \
 	stress-iosync.c \
+	stress-kill.c \
 	stress-link.c \
 	stress-mmap.c \
 	stress-msg.c \
