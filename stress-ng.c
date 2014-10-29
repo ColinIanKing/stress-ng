@@ -674,6 +674,7 @@ void stress_run(
 					procs[i][j].pid = pid;
 					procs[i][j].start = time_now() +
 						((double)(opt_backoff * n_procs) / 1000000.0);
+					procs[i][j].finish = procs[i][j].start;
 					started_procs[i]++;
 
 					/* Forced early abort during startup? */
