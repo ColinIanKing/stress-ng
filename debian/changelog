@@ -1,3 +1,11 @@
+stress-ng (0.02.23-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Initialise finish time in case it is never run (LP: #1387104)
+  * Add futex stressor (LP: #1386831)
+
+ -- Colin King <colin.king@canonical.com>  Wed, 29 Oct 2014 10:32:00 +0000
+
 stress-ng (0.02.22-1) unstable; urgency=medium
 
   * Makefile: bump version
