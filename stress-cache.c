@@ -33,7 +33,6 @@
 
 #include "stress-ng.h"
 
-
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -53,22 +52,24 @@ int stress_cache(
 #endif
 	(void)instance;
 
+	uint8_t *mem_cache = shared->mem_cache;
+
 	do {
-		uint64_t i = mwc() & (MEM_CHUNK_SIZE - 1);
+		uint64_t i = mwc() & (MEM_CACHE_SIZE - 1);
 		uint64_t r = mwc();
 		int j;
 
 		if ((r >> 13) & 1) {
-			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
-				mem_chunk[i] += mem_chunk[(MEM_CHUNK_SIZE - 1) - i] + r;
-				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+			for (j = 0; j < MEM_CACHE_SIZE; j++) {
+				mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;
+				i = (i + 32769) & (MEM_CACHE_SIZE - 1);
 				if (!opt_do_run)
 					break;
 			}
 		} else {
-			for (j = 0; j < MEM_CHUNK_SIZE; j++) {
-				total += mem_chunk[i] + mem_chunk[(MEM_CHUNK_SIZE - 1) - i];
-				i = (i + 32769) & (MEM_CHUNK_SIZE - 1);
+			for (j = 0; j < MEM_CACHE_SIZE; j++) {
+				total += mem_cache[i] + mem_cache[(MEM_CACHE_SIZE - 1) - i];
+				i = (i + 32769) & (MEM_CACHE_SIZE - 1);
 				if (!opt_do_run)
 					break;
 			}

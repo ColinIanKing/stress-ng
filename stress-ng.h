@@ -120,7 +120,7 @@
 #define SWITCH_STOP		'X'
 #define PIPE_STOP		"PIPE_STOP"
 
-#define MEM_CHUNK_SIZE		(65536 * 8)
+#define MEM_CACHE_SIZE		(65536 * 8)
 #define UNDEFINED		(-1)
 
 #define PAGE_MAPPED		(0x01)
@@ -161,6 +161,19 @@ typedef struct {
 	const char *opt_l;		/* long option */
 	const char *description;	/* description */
 } help_t;
+
+#ifdef __GNUC__
+#define ALIGN64	__attribute__ ((aligned(64)))
+#else
+#define ALIGN64
+#endif
+
+typedef struct {
+	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;
+	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;
+	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
+	uint64_t counters[0] ALIGN64;
+} shared_t;
 
 /* Stress tests */
 typedef enum {
@@ -213,6 +226,9 @@ typedef enum {
 	STRESS_SIGFPE,
 #if defined(STRESS_X86)
 	STRESS_RDRAND,
+#endif
+#if defined(__linux__)
+	STRESS_FUTEX,
 #endif
 	/* Add new stress tests here */
 	STRESS_MAX
@@ -343,6 +359,8 @@ typedef enum {
 	OPT_SEQUENTIAL,
 	OPT_RDRAND,
 	OPT_RDRAND_OPS,
+	OPT_FUTEX,
+	OPT_FUTEX_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -384,7 +402,7 @@ typedef int (*func)(uint64_t *const counter, const uint32_t
 extern const char *app_name;				/* Name of application */
 extern sem_t	sem;					/* stress_semaphore sem */
 extern bool     sem_ok;					/* stress_semaphore init ok */
-extern uint8_t *mem_chunk;				/* Cache load shared memory */
+extern shared_t *shared;				/* shared memory */
 extern uint64_t	opt_dentries;				/* dentries per loop */
 extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
@@ -473,6 +491,7 @@ STRESS(stress_fallocate);
 STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fstat);
+STRESS(stress_futex);
 STRESS(stress_iosync);
 STRESS(stress_link);
 STRESS(stress_mmap);

@@ -264,6 +264,12 @@ stop fstat stress process after N bogo fstat operations.
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
 .TP
+.B \-\-futex N
+start N stressors that rapidly exercise the futex system call. Each stressor has two processes, a futex waiter and a futex waker. The waiter waits with a very small timeout to stress the timeout and rapid polled futex waiting. This is a Linux specific stress option.
+.TP
+.B \-\-futex-ops N
+stop futex stressors after N bogo successful futex wait operations.
+.TP
 .B \-d N, \-\-hdd N
 start N processes continually writing and removing temporary files.
 .TP
@@ -341,7 +347,7 @@ start N processes that perform open() and then close() operations on /dev/zero. 
 stop the open stress processes after N bogo open operations.
 .TP
 .B \-p N, \-\-pipe N
-start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and and writer.
+start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and a writer.
 .TP
 .B \-\-pipe\-ops N
 stop pipe stress processes after N bogo pipe write operations.

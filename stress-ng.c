@@ -47,7 +47,7 @@
 const char *app_name = "stress-ng";		/* Name of application */
 sem_t	 sem;					/* stress_semaphore sem */
 bool	 sem_ok = false;			/* stress_semaphore init ok */
-uint8_t  *mem_chunk;				/* Cache load shared memory */
+shared_t *shared;				/* shared memory */
 uint64_t opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
 uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
@@ -99,6 +99,9 @@ static const stress_t stressors[] = {
 	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
 	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
 	{ stress_fstat,	 STRESS_FSTAT,	OPT_FSTAT,	OPT_FSTAT_OPS,		"fstat" },
+#if defined(__linux__)
+	{ stress_futex,	 STRESS_FUTEX,	OPT_FUTEX,	OPT_FUTEX_OPS,		"futex" },
+#endif
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
@@ -203,6 +206,8 @@ static const struct option long_options[] = {
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
+	{ "futex",	1,	0,	OPT_FUTEX },
+	{ "futex-ops",	1,	0,	OPT_FUTEX_OPS },
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ "yield",	1,	0,	OPT_YIELD },
@@ -309,6 +314,10 @@ static const help_t help[] = {
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
 	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
+#if defined (__linux__)
+	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
+	{ NULL,		"futex-ops N",		"stop when N fast mutex bogo operations completed" },
+#endif
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
 #if defined (__linux__)
@@ -708,8 +717,6 @@ wait_for_procs:
 
 int main(int argc, char **argv)
 {
-	uint64_t *counters;
-	uint8_t *shared;
 	double duration = 0.0;
 	int32_t val, opt_random = 0, i, j;
 	int32_t	num_procs[STRESS_MAX];
@@ -1019,7 +1026,7 @@ next_opt:
 	}
 	fflush(stdout);
 
-	len = MEM_CHUNK_SIZE + (sizeof(uint64_t) * STRESS_MAX * max_procs);
+	len = sizeof(shared_t) + (sizeof(uint64_t) * STRESS_MAX * max_procs);
 	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
@@ -1029,9 +1036,6 @@ next_opt:
 	}
 
 	memset(shared, 0, len);
-	counters = (uint64_t *)((uint8_t *)shared + MEM_CHUNK_SIZE);
-	mem_chunk = shared;
-
 	memset(started_procs, 0, sizeof(num_procs));
 
 	if (opt_sequential) {
@@ -1042,14 +1046,14 @@ next_opt:
 		for (i = 0; opt_do_run && i < STRESS_MAX; i++) {
 			opt_ops[i] = 0;
 			num_procs[i] = opt_sequential;
-			stress_run(opt_sequential, opt_sequential, num_procs, counters, &duration, &success);
+			stress_run(opt_sequential, opt_sequential, num_procs, shared->counters, &duration, &success);
 			num_procs[i] = 0;
 		}
 	} else {
 		/*
 		 *  Run all stressors in parallel
 		 */
-		stress_run(total_procs, max_procs, num_procs, counters, &duration, &success);
+		stress_run(total_procs, max_procs, num_procs, shared->counters, &duration, &success);
 	}
 
 	pr_inf(stdout, "%s run completed in %.2fs\n",
@@ -1062,7 +1066,7 @@ next_opt:
 			double   total_time = 0.0;
 
 			for (j = 0; j < started_procs[i]; j++) {
-				total += *(counters + (i * max_procs) + j);
+				total += *(shared->counters + (i * max_procs) + j);
 				total_time += procs[i][j].finish - procs[i][j].start;
 			}
 			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (total == 0))
