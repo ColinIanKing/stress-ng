@@ -113,6 +113,7 @@ static const stress_t stressors[] = {
 	{ stress_msg,	 STRESS_MSG,	OPT_MSG,	OPT_MSG_OPS,		"msg" },
 #endif
 	{ stress_nice,	 STRESS_NICE,	OPT_NICE,	OPT_NICE_OPS,		"nice" },
+	{ stress_null,	 STRESS_NULL,	OPT_NULL,	OPT_NULL_OPS,		"null" },
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
@@ -147,7 +148,6 @@ static const stress_t stressors[] = {
 	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
 #endif
 	{ stress_zero,	 STRESS_ZERO,	OPT_ZERO,	OPT_ZERO_OPS,  		"zero" },
-	{ stress_null,	 STRESS_NULL,	OPT_NULL,	OPT_NULL_OPS,		"null" },
 	/* Add new stress tests here */
 	{ stress_noop,	STRESS_MAX,	0,		0,			NULL },
 };
