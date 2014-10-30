@@ -295,8 +295,8 @@ static const help_t help[] = {
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
-	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
+	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is sqrt(rand())" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
 	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
@@ -306,11 +306,6 @@ static const help_t help[] = {
 	{ NULL,		"dir N",		"start N directory thrashing processes" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
 	{ "n",		"dry-run",		"do not run" },
-	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
-	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
-	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
-	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
-	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
@@ -327,6 +322,11 @@ static const help_t help[] = {
 	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
 	{ NULL,		"futex-ops N",		"stop when N fast mutex bogo operations completed" },
 #endif
+	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
+	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
+	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
+	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
+	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
 #if defined (__linux__)
@@ -349,18 +349,6 @@ static const help_t help[] = {
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
-	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
-	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
-	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
-	{ NULL,		"vm-hang N",		"sleep N seconds before freeing memory" },
-	{ NULL,		"vm-keep",		"redirty memory instead of reallocating" },
-	{ NULL,		"vm-ops N",		"stop when N vm bogo operations completed" },
-#ifdef MAP_LOCKED
-	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
-#endif
-#ifdef MAP_POPULATE
-	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
-#endif
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
@@ -383,12 +371,12 @@ static const help_t help[] = {
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
+	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
 #if _POSIX_C_SOURCE >= 199309L
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
 #endif
-	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
-	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
 	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
 	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
 	{ "S N",	"sock N",		"start N workers doing socket activity" },
@@ -414,6 +402,18 @@ static const help_t help[] = {
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
+	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
+	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
+	{ NULL,		"vm-hang N",		"sleep N seconds before freeing memory" },
+	{ NULL,		"vm-keep",		"redirty memory instead of reallocating" },
+	{ NULL,		"vm-ops N",		"stop when N vm bogo operations completed" },
+#ifdef MAP_LOCKED
+	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
+#endif
+#ifdef MAP_POPULATE
+	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
+#endif
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
 	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
@@ -510,7 +510,7 @@ static void usage(void)
 			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
 		printf(" %-6s--%-17s%s\n", opt_s, help[i].opt_l, help[i].description);
 	}
-	printf("\nExample %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
+	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
 	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", app_name);
 	exit(EXIT_SUCCESS);
 }
