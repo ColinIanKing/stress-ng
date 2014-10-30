@@ -232,6 +232,7 @@ typedef enum {
 #endif
 	STRESS_KILL,
 	STRESS_ZERO,
+	STRESS_NULL,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -366,7 +367,9 @@ typedef enum {
 	OPT_KILL,
 	OPT_KILL_OPS,
 	OPT_ZERO,
-	OPT_ZERO_OPS
+	OPT_ZERO_OPS,
+	OPT_NULL,
+	OPT_NULL_OPS,
 } stress_op;
 
 /* stress test metadata */
@@ -505,6 +508,7 @@ STRESS(stress_mmap);
 STRESS(stress_msg);
 STRESS(stress_nice);
 STRESS(stress_noop);
+STRESS(stress_null);
 STRESS(stress_open);
 STRESS(stress_pipe);
 STRESS(stress_poll);

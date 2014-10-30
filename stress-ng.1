@@ -346,6 +346,12 @@ start N cpu consuming processes that exercise the available nice levels. Each it
 .B \-\-nice-ops N
 stop after N nice bogo nice loops
 .TP
+.B \-\-null N
+start N processes writing to /dev/null.
+.TP
+.B \-\-null\-ops N
+stop null stress processes after N /dev/null bogo write operations.
+.TP
 .B \-o N, \-\-open N
 start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
@@ -525,7 +531,7 @@ start N process that call sched_yield(). This should force rapid context switchi
 stop yield stress processes after N sched_yield() bogo operations.
 .TP
 .B \-\-zero N
-start N processes reading /dev/zero. 
+start N processes reading /dev/zero.
 .TP
 .B \-\-zero\-ops N
 stop zero stress processes after N /dev/zero bogo read operations.
@@ -586,9 +592,9 @@ File bug reports at:
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and
 is a clean room re-implementation of the original
-stress tool by Amos Waterland <apw@rossby.metr.ou.edu>. 
+stress tool by Amos Waterland <apw@rossby.metr.ou.edu>.
 .SH NOTES
-Note that the stress-ng cpu, io, vm and hdd tests are different 
+Note that the stress-ng cpu, io, vm and hdd tests are different
 implementations of the original stress
 tests and hence may produce different stress characteristics.
 stress-ng does not support any GPU stress tests.

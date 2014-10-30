@@ -45,6 +45,7 @@ SRC =   stress-affinity.c \
 	stress-msg.c \
 	stress-nice.c \
 	stress-noop.c \
+	stress-null.c \
 	stress-open.c \
 	stress-pipe.c \
 	stress-poll.c \

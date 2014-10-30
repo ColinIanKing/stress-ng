@@ -142,6 +142,7 @@ static const stress_t stressors[] = {
 	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
 #endif
 	{ stress_zero,	 STRESS_ZERO,	OPT_ZERO,	OPT_ZERO_OPS,  		"zero" },
+	{ stress_null,	 STRESS_NULL,	OPT_NULL,	OPT_NULL_OPS,		"null" },
 	/* Add new stress tests here */
 	{ stress_noop,	STRESS_MAX,	0,		0,			NULL },
 };
@@ -277,6 +278,8 @@ static const struct option long_options[] = {
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
 	{ "zero",	1,	0,	OPT_ZERO },
 	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
+	{ "null",	1,	0,	OPT_NULL },
+	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -344,6 +347,8 @@ static const help_t help[] = {
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
+	{ NULL,		"null N",		"start N workers writing to /dev/null" },
+	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
