@@ -1056,6 +1056,7 @@ next_opt:
 		procs[i] = calloc(num_procs[i], sizeof(proc_info_t));
 		if (procs[i] == NULL) {
 			pr_err(stderr, "cannot allocate procs\n");
+			free_procs();
 			exit(EXIT_FAILURE);
 		}
 	}
