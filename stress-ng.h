@@ -117,6 +117,8 @@
 #define DEFAULT_OPS_MIN		(100ULL)
 #define DEFAULT_OPS_MAX		(100000000ULL)
 
+#define DEFAULT_SENDFILE_SIZE	(4 * MB)
+
 #define SWITCH_STOP		'X'
 #define PIPE_STOP		"PIPE_STOP"
 
@@ -233,6 +235,7 @@ typedef enum {
 	STRESS_KILL,
 	STRESS_ZERO,
 	STRESS_NULL,
+	STRESS_SENDFILE,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -370,6 +373,9 @@ typedef enum {
 	OPT_ZERO_OPS,
 	OPT_NULL,
 	OPT_NULL_OPS,
+	OPT_SENDFILE,
+	OPT_SENDFILE_OPS,
+	OPT_SENDFILE_SIZE,
 } stress_op;
 
 /* stress test metadata */
@@ -417,6 +423,7 @@ extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in byts */
 extern uint64_t opt_hdd_write_size;
+extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
@@ -516,6 +523,7 @@ STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);
 STRESS(stress_semaphore);
+STRESS(stress_sendfile);
 STRESS(stress_sigfpe);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);

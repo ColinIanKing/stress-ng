@@ -53,6 +53,7 @@ uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
+uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;	/* sendfile size */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
@@ -119,6 +120,9 @@ static const stress_t stressors[] = {
 	{ stress_rdrand, STRESS_RDRAND, OPT_RDRAND,	OPT_RDRAND_OPS,		"rdrand" },
 #endif
 	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
+#if defined(__linux__)
+	{ stress_sendfile, STRESS_SENDFILE, OPT_SENDFILE, OPT_SENDFILE_OPS,	"sendfile" },
+#endif
 	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
@@ -280,6 +284,11 @@ static const struct option long_options[] = {
 	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
 	{ "null",	1,	0,	OPT_NULL },
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
+#if defined(__linux__)
+	{ "sendfile",	1,	0,	OPT_SENDFILE },
+	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
+	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -368,6 +377,11 @@ static const help_t help[] = {
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
+#if defined (__linux__)
+	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
+	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
+	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
+#endif
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
@@ -936,6 +950,12 @@ next_opt:
 				opt_sequential = opt_nprocessors_online;
 			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
 			break;
+#if defined (__linux__)
+		case OPT_SENDFILE_SIZE:
+			opt_sendfile_size = get_uint64_byte(optarg);
+			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
+			break;
+#endif
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
