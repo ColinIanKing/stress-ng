@@ -96,8 +96,6 @@ int stress_futex(
 				if (ret < 0)
 					pr_fail(stderr, "futex wake failed: errno=%d (%s)\n",
 						errno, strerror(errno));
-				if (ret != 1)
-					pr_fail(stderr, "futex wait failed to notify 1 waiter\n");
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
