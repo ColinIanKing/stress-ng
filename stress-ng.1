@@ -467,8 +467,7 @@ appropriate frequency stress-ng can generate hundreds of thousands of interrupts
 second.
 .TP
 .B \-u N, \-\-urandom N
-start N processes reading /dev/urandom (Linux only). This will load the kernel random
-number source.
+start N processes reading /dev/urandom (Linux only). This will load the kernel random number source.
 .TP
 .B \-\-urandom\-ops N
 stop urandom stress processes after N urandom bogo read operations (Linux only).
@@ -524,6 +523,12 @@ start N process that call sched_yield(). This should force rapid context switchi
 .TP
 .B \-\-yield\-ops N
 stop yield stress processes after N sched_yield() bogo operations.
+.TP
+.B \-\-zero N
+start N processes reading /dev/zero. 
+.TP
+.B \-\-zero\-ops N
+stop zero stress processes after N /dev/zero bogo read operations.
 .LP
 .SH EXAMPLES
 .LP

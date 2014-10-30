@@ -231,6 +231,7 @@ typedef enum {
 	STRESS_FUTEX,
 #endif
 	STRESS_KILL,
+	STRESS_ZERO,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -364,6 +365,8 @@ typedef enum {
 	OPT_FUTEX_OPS,
 	OPT_KILL,
 	OPT_KILL_OPS,
+	OPT_ZERO,
+	OPT_ZERO_OPS
 } stress_op;
 
 /* stress test metadata */
@@ -520,6 +523,7 @@ STRESS(stress_urandom);
 STRESS(stress_utime);
 STRESS(stress_vm);
 STRESS(stress_yield);
+STRESS(stress_zero);
 
 extern int print(FILE *fp, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));

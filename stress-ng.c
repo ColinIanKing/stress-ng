@@ -141,6 +141,7 @@ static const stress_t stressors[] = {
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
 #endif
+	{ stress_zero,	 STRESS_ZERO,	OPT_ZERO,	OPT_ZERO_OPS,  		"zero" },
 	/* Add new stress tests here */
 	{ stress_noop,	STRESS_MAX,	0,		0,			NULL },
 };
@@ -274,6 +275,8 @@ static const struct option long_options[] = {
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
 	{ "kill",	1,	0,	OPT_KILL },
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
+	{ "zero",	1,	0,	OPT_ZERO },
+	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -410,6 +413,8 @@ static const help_t help[] = {
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
 	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
 #endif
+	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
+	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },
 	{ NULL,		NULL,			NULL }
 };
 
