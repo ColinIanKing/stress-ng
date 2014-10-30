@@ -240,6 +240,12 @@ stop fallocate stress processes after N bogo fallocate operations.
 .B \-f N, \-\-fork N
 start N processes continually forking children that immediately exit.
 .TP
+.B \-\-flock N
+start N processes locking on a single file.
+.TP
+.B \-\-flock-ops N
+stop flock stress processes after N bogo flock operations.
+.TP
 .B \-\-fork\-ops N
 stop fork stress processes after N bogo operations.
 .TP
@@ -247,12 +253,6 @@ stop fork stress processes after N bogo operations.
 create P processes and then wait for them to exit per iteration. The default is just 1; higher
 values will create many temporary zombie processes that are waiting to be reaped. One can
 potentially fill up the the process table using high values for \-\-fork\-max and \-\-fork.
-.TP
-.B \-\-flock N
-start N processes locking on a single file.
-.TP
-.B \-\-flock-ops N
-stop flock stress processes after N bogo flock operations.
 .TP
 .B \-\-fstat N
 start N processes fstat'ing files in a directory (default is /dev).
@@ -320,6 +320,9 @@ been designed to be used for benchmarking whatsoever. The metrics are just a use
 The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.
 .RE
 .TP
+.B -\-metrics\-brief
+enable metrics and only output metrics that are non-zero.
+.TP
 .B \-\-mmap N
 start N processes continuously calling mmap()/munmap().  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The
 MAP_POPULATE option is used to populate pages into memory on systems that support this.
@@ -336,9 +339,6 @@ start N sender and receiver processes that continually send and receive messages
 .TP
 .B \-\-msg-ops N
 stop after N bogo message send operations completed.
-.TP
-.B -\-metrics\-brief
-enable metrics and only output metrics that are non-zero.
 .TP
 .B \-\-nice N
 start N cpu consuming processes that exercise the available nice levels. Each iteration forks off a child process that runs through the all the nice levels running a busy loop for 0.1 seconds per level and then exits.
@@ -397,6 +397,14 @@ start N processes that each create a file and then repeatedly rename it.
 .B \-\-rename\-ops N
 stop rename stress processes after N bogo rename operations.
 .TP
+.B \-\-sched scheduler
+select the named scheduler (only on Linux). To see the list of available schedulers
+use: stress\-ng \-\-sched which
+.TP
+.B \-\-sched\-prio prio
+select the scheduler priority level (only on Linux). If the scheduler does not support this then
+the default priority level of 0 is chosen.
+.TP
 .B \-\-sem N
 start N processes that perform POSIX semaphore wait and post operation. This stresses fast semaphore operations and produces rapid context switching.
 .TP
@@ -426,14 +434,6 @@ start N processes that rapidly send SIGUSR1 signals using sigqueue() to child pr
 .TP
 .B \-\-sigq-ops N
 stop sigq stress processes after N bogo signal send operations.
-.TP
-.B \-\-sched scheduler
-select the named scheduler (only on Linux). To see the list of available schedulers
-use: stress\-ng \-\-sched which
-.TP
-.B \-\-sched\-prio prio
-select the scheduler priority level (only on Linux). If the scheduler does not support this then
-the default priority level of 0 is chosen.
 .TP
 .B \-S N, \-\-sock N
 start N stressors that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
