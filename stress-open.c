@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
 
 #include "stress-ng.h"
 
@@ -45,14 +46,24 @@ int stress_open(
 	const char *name)
 {
 	int fds[STRESS_FD_MAX];
+	struct rlimit rlim;
+	rlim_t i, opened = 0;
 
 	(void)instance;
 	(void)name;
 
-	do {
-		int i;
+	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0)
+		rlim.rlim_cur = STRESS_FD_MAX;	/* Guess */
 
-		for (i = 0; i < STRESS_FD_MAX; i++) {
+	/* Determine max number of free file descriptors we have */
+	for (i = 0; i < rlim.rlim_cur; i++) {
+		if (fcntl((int)i, F_GETFL) > -1)
+			opened++;
+	}
+	rlim.rlim_cur -= opened;
+
+	do {
+		for (i = 0; i < rlim.rlim_cur; i++) {
 			fds[i] = open("/dev/zero", O_RDONLY);
 			if (fds[i] < 0)
 				break;
@@ -60,7 +71,7 @@ int stress_open(
 				break;
 			(*counter)++;
 		}
-		for (i = 0; i < STRESS_FD_MAX; i++) {
+		for (i = 0; i < rlim.rlim_cur; i++) {
 			if (fds[i] < 0)
 				break;
 			if (!opt_do_run)
