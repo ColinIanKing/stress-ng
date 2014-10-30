@@ -103,6 +103,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	{ stress_futex,	 STRESS_FUTEX,	OPT_FUTEX,	OPT_FUTEX_OPS,		"futex" },
 #endif
+	{ stress_get,	 STRESS_GET,	OPT_GET,	OPT_GET_OPS,		"get" },
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
 	{ stress_kill,	 STRESS_KILL,	OPT_KILL,	OPT_KILL_OPS,		"kill" },
@@ -289,6 +290,8 @@ static const struct option long_options[] = {
 	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
 	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
 #endif
+	{ "get",	1,	0,	OPT_GET },
+	{ "get-ops",	1,	0,	OPT_GET_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -331,6 +334,8 @@ static const help_t help[] = {
 	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
 	{ NULL,		"futex-ops N",		"stop when N fast mutex bogo operations completed" },
 #endif
+	{ NULL,		"get N",		"start N workers exercising the get*() system calls" },
+	{ NULL,		"get-ops N",		"stop when N get bogo operations completed" },
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },

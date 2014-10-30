@@ -236,6 +236,7 @@ typedef enum {
 	STRESS_ZERO,
 	STRESS_NULL,
 	STRESS_SENDFILE,
+	STRESS_GET,
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -376,6 +377,8 @@ typedef enum {
 	OPT_SENDFILE,
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
+	OPT_GET,
+	OPT_GET_OPS
 } stress_op;
 
 /* stress test metadata */
@@ -508,6 +511,7 @@ STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fstat);
 STRESS(stress_futex);
+STRESS(stress_get);
 STRESS(stress_iosync);
 STRESS(stress_kill);
 STRESS(stress_link);

@@ -270,6 +270,12 @@ start N stressors that rapidly exercise the futex system call. Each stressor has
 .B \-\-futex-ops N
 stop futex stressors after N bogo successful futex wait operations.
 .TP
+.B \-\-get N
+start N stressors that call all the get*() system calls.
+.TP
+.B \-\-get-ops N
+stop get stressors after N bogo get operations.
+.TP
 .B \-d N, \-\-hdd N
 start N processes continually writing and removing temporary files.
 .TP
