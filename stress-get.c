@@ -185,8 +185,9 @@ int stress_get(
 		check_do_run();
 
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
+			errno = 0;
 			ret = getpriority(priorities[i], 0);
-			if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+			if ((opt_flags & OPT_FLAGS_VERIFY) && errno && (ret < 0))
 				pr_fail(stderr, "%s: getpriority failed, errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			check_do_run();
