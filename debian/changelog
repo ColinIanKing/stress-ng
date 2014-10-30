@@ -1,3 +1,24 @@
+stress-ng (0.02.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Free procs on calloc failure
+  * stress-open: determine max number of fds allowed to open
+  * stress-vm: Handle WIFSIGNALED if waitpid succeeded
+  * Handle WIFSIGNALED if waitpid succeeded
+  * stress sock should be called sock and not socket in the metrics info
+  * Make futex waker verify less pendantic
+  * fix getpriorities returning < 0 for valid priority values
+  * Fix order of null stressor
+  * Add get stressor and --get, --get-ops options
+  * Add sendfile stressor and --sendfile, --sendfile-ops, --sendfile-size
+  * Re-order options man page
+  * Sort options in mini help
+  * Add null stress test and --null, --null-ops options
+  * Add zero stressor and --zero, --zero-ops options
+  * Add kill stressor and --kill, --kill-ops options
+
+ -- Colin King <colin.king@canonical.com>  Thu, 30 Oct 2014 22:14:00 +0000
+
 stress-ng (0.02.23-1) unstable; urgency=medium
 
   * Makefile: bump version
