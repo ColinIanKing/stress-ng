@@ -131,7 +131,7 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_sigfpe, STRESS_SIGFPE,	OPT_SIGFPE,	OPT_SIGFPE,		"sigfpe" },
 	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
-	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"socket" },
+	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"sock" },
 	{ stress_switch, STRESS_SWITCH,	OPT_SWITCH,	OPT_SWITCH_OPS,   	"switch" },
 	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
 #if defined(__linux__)
