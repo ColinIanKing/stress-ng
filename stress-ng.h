@@ -181,71 +181,75 @@ typedef struct {
 
 /* Stress tests */
 typedef enum {
-	STRESS_IOSYNC	= 0,
-	STRESS_CPU,
-	STRESS_VM,
-	STRESS_HDD,
-	STRESS_FORK,
-	STRESS_SWITCH,
-	STRESS_PIPE,
+#if defined(__linux__)
+	STRESS_AFFINITY = 0,
+#endif
+	STRESS_BIGHEAP,
 	STRESS_CACHE,
-	STRESS_SOCKET,
-#if defined (_POSIX_PRIORITY_SCHEDULING)
-	STRESS_YIELD,
+#if _POSIX_C_SOURCE >= 199309L
+	STRESS_CLOCK,
+#endif
+	STRESS_CPU,
+	STRESS_DENTRY,
+	STRESS_DIR,
+#if defined(__linux__)
+	STRESS_EVENTFD,
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	STRESS_FALLOCATE,
 #endif
 	STRESS_FLOCK,
-#if defined(__linux__)
-	STRESS_AFFINITY,
-	STRESS_TIMER,
-#endif
-	STRESS_DENTRY,
-#if defined(__linux__)
-	STRESS_URANDOM,
-#endif
-	STRESS_SEMAPHORE,
-	STRESS_OPEN,
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-	STRESS_SIGQUEUE,
-#endif
-	STRESS_POLL,
-	STRESS_LINK,
-	STRESS_SYMLINK,
-	STRESS_DIR,
-	STRESS_SIGSEGV,
-	STRESS_MMAP,
-	STRESS_QSORT,
-	STRESS_BIGHEAP,
-	STRESS_RENAME,
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
-	STRESS_UTIME,
-#endif
+	STRESS_FORK,
 	STRESS_FSTAT,
+#if defined(__linux__)
+	STRESS_FUTEX,
+#endif
+	STRESS_GET,
+	STRESS_HDD,
+	STRESS_IOSYNC,
+	STRESS_KILL,
+	STRESS_LINK,
+	STRESS_MMAP,
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
 #endif
 	STRESS_NICE,
-	STRESS_SIGFPE,
+	STRESS_NULL,
+	STRESS_OPEN,
+	STRESS_PIPE,
+	STRESS_POLL,
+	STRESS_QSORT,
 #if defined(STRESS_X86)
 	STRESS_RDRAND,
 #endif
+	STRESS_RENAME,
 #if defined(__linux__)
-	STRESS_FUTEX,
-#endif
-	STRESS_KILL,
-	STRESS_ZERO,
-	STRESS_NULL,
 	STRESS_SENDFILE,
-	STRESS_GET,
-#if _POSIX_C_SOURCE >= 199309L
-	STRESS_CLOCK,
+#endif
+	STRESS_SEMAPHORE,
+	STRESS_SIGFPE,
+#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
+	STRESS_SIGQUEUE,
+#endif
+	STRESS_SIGSEGV,
+	STRESS_SOCKET,
+	STRESS_SWITCH,
+	STRESS_SYMLINK,
+#if defined(__linux__)
+	STRESS_TIMER,
 #endif
 #if defined(__linux__)
-	STRESS_EVENTFD,
+	STRESS_URANDOM,
 #endif
-	/* Add new stress tests here */
+#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
+	STRESS_UTIME,
+#endif
+	STRESS_VM,
+#if defined (_POSIX_PRIORITY_SCHEDULING)
+	STRESS_YIELD,
+#endif
+	STRESS_ZERO,
+	/* STRESS_MAX must be last one */
 	STRESS_MAX
 } stress_id;
 
