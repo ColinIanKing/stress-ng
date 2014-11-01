@@ -112,8 +112,6 @@ static int priorities[] = {
 #endif
 };
 
-#define SIZEOF_ARRAY(a)	(sizeof(a) / sizeof(a[0]))
-
 #if defined(__linux__)
 static inline int gettid(void)
 {

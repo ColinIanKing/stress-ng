@@ -91,6 +91,9 @@ static const stress_t stressors[] = {
 #endif
 	{ stress_bigheap,STRESS_BIGHEAP,OPT_BIGHEAP,	OPT_BIGHEAP_OPS,	"bigheap" },
 	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache" },
+#if _POSIX_C_SOURCE >= 199309L
+	{ stress_clock,	 STRESS_CLOCK,	OPT_CLOCK,	OPT_CLOCK_OPS, 		"clock" },
+#endif
 	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
 	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
 	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
@@ -292,6 +295,10 @@ static const struct option long_options[] = {
 #endif
 	{ "get",	1,	0,	OPT_GET },
 	{ "get-ops",	1,	0,	OPT_GET_OPS },
+#if _POSIX_C_SOURCE >= 199309L
+	{ "clock",	1,	0,	OPT_CLOCK },
+	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -306,12 +313,16 @@ static const help_t help[] = {
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
+	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
+	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+#if _POSIX_C_SOURCE >= 199309L
+	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
+	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
+#endif
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is sqrt(rand())" },
-	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
-	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
 	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
 	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },

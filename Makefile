@@ -29,6 +29,7 @@ MANDIR=/usr/share/man/man1
 SRC =   stress-affinity.c \
 	stress-bigheap.c \
 	stress-cache.c \
+	stress-clock.c \
 	stress-cpu.c \
 	stress-dentry.c \
 	stress-dir.c \

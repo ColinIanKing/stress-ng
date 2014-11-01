@@ -147,6 +147,8 @@
 #define DEFAULT_SEQUENTIAL_MIN	(0)
 #define DEFAULT_SEQUENTIAL_MAX	(1000000)
 
+#define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
+
 #define ABORT_FAILURES		(5)
 
 #if defined(__x86_64__) || defined(__x86_64) || defined(__i386__) || defined(__i386)
@@ -237,6 +239,9 @@ typedef enum {
 	STRESS_NULL,
 	STRESS_SENDFILE,
 	STRESS_GET,
+#if _POSIX_C_SOURCE >= 199309L
+	STRESS_CLOCK,
+#endif
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -378,7 +383,11 @@ typedef enum {
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
 	OPT_GET,
-	OPT_GET_OPS
+	OPT_GET_OPS,
+#if _POSIX_C_SOURCE >= 199309L
+	OPT_CLOCK,
+	OPT_CLOCK_OPS,
+#endif
 } stress_op;
 
 /* stress test metadata */
@@ -502,6 +511,7 @@ extern void lock_mem_current(void);
 STRESS(stress_affinity);
 STRESS(stress_bigheap);
 STRESS(stress_cache);
+STRESS(stress_clock);
 STRESS(stress_cpu);
 STRESS(stress_dir);
 STRESS(stress_dentry);
