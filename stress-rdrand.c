@@ -45,7 +45,7 @@ static inline uint64_t rdrand64(void)
 }
 
 /*
- *  Unrolled 64 times
+ *  Unrolled 32 times
  */
 #define RDRAND64()	\
 {			\
