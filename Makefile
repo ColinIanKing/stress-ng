@@ -52,6 +52,7 @@ SRC =   stress-affinity.c \
 	stress-open.c \
 	stress-pipe.c \
 	stress-poll.c \
+	stress-procfs.c \
 	stress-qsort.c \
 	stress-rdrand.c \
 	stress-rename.c \

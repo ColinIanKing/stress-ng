@@ -123,6 +123,9 @@ static const stress_t stressors[] = {
 	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
 	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
 	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
+#if defined (__linux__)
+	{ stress_procfs, STRESS_PROCFS,	OPT_PROCFS,	OPT_PROCFS_OPS,		"procfs" },
+#endif
 	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
 #if defined(STRESS_X86)
 	{ stress_rdrand, STRESS_RDRAND, OPT_RDRAND,	OPT_RDRAND_OPS,		"rdrand" },
@@ -306,6 +309,10 @@ static const struct option long_options[] = {
 	{ "eventfd",	1,	0,	OPT_EVENTFD },
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
 #endif
+#if defined (__linux__)
+	{ "procfs",	1,	0,	OPT_PROCFS },
+	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -391,6 +398,10 @@ static const help_t help[] = {
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
+#if defined (__linux__)
+	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
+	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
+#endif
 	{ "Q",		"qsort N",		"start N workers exercising qsort on 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },

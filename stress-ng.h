@@ -218,6 +218,7 @@ typedef enum {
 	STRESS_OPEN,
 	STRESS_PIPE,
 	STRESS_POLL,
+	STRESS_PROCFS,
 	STRESS_QSORT,
 #if defined(STRESS_X86)
 	STRESS_RDRAND,
@@ -381,6 +382,9 @@ typedef enum {
 	OPT_PIPE_OPS,
 
 	OPT_POLL_OPS,
+
+	OPT_PROCFS,
+	OPT_PROCFS_OPS,
 
 	OPT_QSORT,
 	OPT_QSORT_OPS,
@@ -600,6 +604,7 @@ STRESS(stress_null);
 STRESS(stress_open);
 STRESS(stress_pipe);
 STRESS(stress_poll);
+STRESS(stress_procfs);
 STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);
