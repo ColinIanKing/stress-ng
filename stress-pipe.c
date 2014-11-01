@@ -92,25 +92,22 @@ int stress_pipe(
 		(void)close(pipefds[1]);
 		for (;;) {
 			char buf[PIPE_BUF];
+			ssize_t n;
 
-			for (;;) {
-				ssize_t n;
-				n = read(pipefds[0], buf, sizeof(buf));
-				if (n <= 0) {
-					pr_failed_dbg(name, "read");
-					break;
-				}
-				if (!strcmp(buf, PIPE_STOP))
-					break;
-				if ((opt_flags & OPT_FLAGS_VERIFY) &&
-				     pipe_memchk(buf, val++, (size_t)n)) {
-                			pr_fail(stderr, "pipe read error detected, failed to read expected data\n");
-
-				}
+			n = read(pipefds[0], buf, sizeof(buf));
+			if (n <= 0) {
+				pr_failed_dbg(name, "read");
+				break;
 			}
-			(void)close(pipefds[0]);
-			exit(EXIT_SUCCESS);
+			if (!strcmp(buf, PIPE_STOP))
+				break;
+			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			    pipe_memchk(buf, val++, (size_t)n)) {
+				pr_fail(stderr, "pipe read error detected, failed to read expected data\n");
+			}
 		}
+		(void)close(pipefds[0]);
+		exit(EXIT_SUCCESS);
 	} else {
 		char buf[PIPE_BUF];
 		int val = 0;
