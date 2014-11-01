@@ -97,6 +97,9 @@ static const stress_t stressors[] = {
 	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
 	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
 	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
+#if defined(__linux__)
+	{ stress_eventfd,STRESS_EVENTFD, OPT_EVENTFD,	OPT_EVENTFD_OPS,	"eventfd" },
+#endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate" },
 #endif
@@ -299,6 +302,10 @@ static const struct option long_options[] = {
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
 #endif
+#if defined (__linux__)
+	{ "eventfd",	1,	0,	OPT_EVENTFD },
+	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
+#endif
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -329,6 +336,10 @@ static const help_t help[] = {
 	{ NULL,		"dir N",		"start N directory thrashing processes" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
 	{ "n",		"dry-run",		"do not run" },
+#if defined (__linux__)
+	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
+	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
+#endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },

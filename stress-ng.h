@@ -242,6 +242,9 @@ typedef enum {
 #if _POSIX_C_SOURCE >= 199309L
 	STRESS_CLOCK,
 #endif
+#if defined(__linux__)
+	STRESS_EVENTFD,
+#endif
 	/* Add new stress tests here */
 	STRESS_MAX
 } stress_id;
@@ -388,6 +391,10 @@ typedef enum {
 	OPT_CLOCK,
 	OPT_CLOCK_OPS,
 #endif
+#if defined(__linux__)
+	OPT_EVENTFD,
+	OPT_EVENTFD_OPS
+#endif
 } stress_op;
 
 /* stress test metadata */
@@ -515,6 +522,7 @@ STRESS(stress_clock);
 STRESS(stress_cpu);
 STRESS(stress_dir);
 STRESS(stress_dentry);
+STRESS(stress_eventfd);
 STRESS(stress_hdd);
 STRESS(stress_fallocate);
 STRESS(stress_flock);

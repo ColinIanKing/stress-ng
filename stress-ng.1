@@ -238,6 +238,12 @@ stop directory thrash processes after N bogo directory operations.
 .B \-n, \-\-dry-run
 parse options, but don't run stress tests. A no-op.
 .TP
+.B \-\-eventfd N
+start N parent and child worker processes that read and write 8 byte event messages between them via the eventfd mechanism (Linux only).
+.TP
+.B \-\-eventfd-ops N
+stop eventfd workers after N bogo operations.
+.TP
 .B \-F N, \-\-fallocate N
 start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
 .TP
