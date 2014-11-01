@@ -218,7 +218,9 @@ typedef enum {
 	STRESS_OPEN,
 	STRESS_PIPE,
 	STRESS_POLL,
+#if defined(__linux__)
 	STRESS_PROCFS,
+#endif
 	STRESS_QSORT,
 #if defined(STRESS_X86)
 	STRESS_RDRAND,
