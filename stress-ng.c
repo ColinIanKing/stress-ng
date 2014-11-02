@@ -84,85 +84,95 @@ volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 proc_info_t *procs[STRESS_MAX];			/* per process info */
 
+
+#define STRESSOR(lower_name, upper_name)	\
+	{					\
+		stress_ ## lower_name,		\
+		STRESS_ ## upper_name,		\
+		OPT_ ## upper_name,		\
+		OPT_ ## upper_name  ## _OPS,	\
+		# lower_name			\
+	}
+
 /* Human readable stress test names */
 static const stress_t stressors[] = {
 #if defined(__linux__)
-	{ stress_affinity, STRESS_AFFINITY, OPT_AFFINITY, OPT_AFFINITY_OPS,	"affinity" },
+	STRESSOR(affinity, AFFINITY),
 #endif
-	{ stress_bigheap,STRESS_BIGHEAP,OPT_BIGHEAP,	OPT_BIGHEAP_OPS,	"bigheap" },
-	{ stress_cache,  STRESS_CACHE,	OPT_CACHE,	OPT_CACHE_OPS,  	"cache" },
+	STRESSOR(bigheap, BIGHEAP),
+	STRESSOR(cache, CACHE),
 #if _POSIX_C_SOURCE >= 199309L
-	{ stress_clock,	 STRESS_CLOCK,	OPT_CLOCK,	OPT_CLOCK_OPS, 		"clock" },
+	STRESSOR(clock, CLOCK),
 #endif
-	{ stress_cpu,	 STRESS_CPU,	OPT_CPU,	OPT_CPU_OPS,		"cpu" },
-	{ stress_dentry, STRESS_DENTRY, OPT_DENTRY,	OPT_DENTRY_OPS,		"dentry" },
-	{ stress_dir,	 STRESS_DIR,	OPT_DIR,	OPT_DIR_OPS,		"dir" },
+	STRESSOR(cpu, CPU),
+	STRESSOR(dentry, DENTRY),
+	STRESSOR(dir, DIR),
 #if defined(__linux__)
-	{ stress_eventfd,STRESS_EVENTFD, OPT_EVENTFD,	OPT_EVENTFD_OPS,	"eventfd" },
+	STRESSOR(eventfd, EVENTFD),
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	{ stress_fallocate, STRESS_FALLOCATE, OPT_FALLOCATE, OPT_FALLOCATE_OPS,	"fallocate" },
+	STRESSOR(fallocate, FALLOCATE),
 #endif
-	{ stress_flock,	 STRESS_FLOCK,	OPT_FLOCK,	OPT_FLOCK_OPS,		"flock" },
-	{ stress_fork,	 STRESS_FORK,	OPT_FORK,	OPT_FORK_OPS,   	"fork" },
-	{ stress_fstat,	 STRESS_FSTAT,	OPT_FSTAT,	OPT_FSTAT_OPS,		"fstat" },
+	STRESSOR(flock, FLOCK),
+	STRESSOR(fork, FORK),
+	STRESSOR(fstat, FSTAT),
 #if defined(__linux__)
-	{ stress_futex,	 STRESS_FUTEX,	OPT_FUTEX,	OPT_FUTEX_OPS,		"futex" },
+	STRESSOR(futex, FUTEX),
 #endif
-	{ stress_get,	 STRESS_GET,	OPT_GET,	OPT_GET_OPS,		"get" },
-	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
-	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
+	STRESSOR(get, GET),
+	STRESSOR(hdd, HDD),
+	STRESSOR(iosync, IOSYNC),
 #if defined(__linux__)
-	{ stress_inotify,STRESS_INOTIFY,OPT_INOTIFY,	OPT_INOTIFY_OPS,	"inotify" },
+	STRESSOR(inotify, INOTIFY),
 #endif
-	{ stress_kill,	 STRESS_KILL,	OPT_KILL,	OPT_KILL_OPS,		"kill" },
-	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
-	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
+	STRESSOR(kill, KILL),
+	STRESSOR(link, LINK),
+	STRESSOR(mmap, MMAP),
 #if !defined(__gnu_hurd__)
-	{ stress_msg,	 STRESS_MSG,	OPT_MSG,	OPT_MSG_OPS,		"msg" },
+	STRESSOR(msg, MSG),
 #endif
-	{ stress_nice,	 STRESS_NICE,	OPT_NICE,	OPT_NICE_OPS,		"nice" },
-	{ stress_null,	 STRESS_NULL,	OPT_NULL,	OPT_NULL_OPS,		"null" },
-	{ stress_open,	 STRESS_OPEN,	OPT_OPEN,  	OPT_OPEN_OPS,		"open" },
-	{ stress_pipe,	 STRESS_PIPE,	OPT_PIPE,	OPT_PIPE_OPS,   	"pipe" },
-	{ stress_poll,	 STRESS_POLL,	OPT_POLL,	OPT_POLL_OPS,		"poll" },
+	STRESSOR(nice, NICE),
+	STRESSOR(null, NULL),
+	STRESSOR(open, OPEN),
+	STRESSOR(pipe, PIPE),
+	STRESSOR(poll, POLL),
 #if defined (__linux__)
-	{ stress_procfs, STRESS_PROCFS,	OPT_PROCFS,	OPT_PROCFS_OPS,		"procfs" },
+	STRESSOR(procfs, PROCFS),
 #endif
-	{ stress_qsort,	 STRESS_QSORT,	OPT_QSORT,	OPT_QSORT_OPS,		"qsort" },
+	STRESSOR(qsort, QSORT),
 #if defined(STRESS_X86)
-	{ stress_rdrand, STRESS_RDRAND, OPT_RDRAND,	OPT_RDRAND_OPS,		"rdrand" },
+	STRESSOR(rdrand, RDRAND),
 #endif
-	{ stress_rename, STRESS_RENAME, OPT_RENAME,	OPT_RENAME_OPS, 	"rename" },
+	STRESSOR(rename, RENAME),
 #if defined(__linux__)
-	{ stress_sendfile, STRESS_SENDFILE, OPT_SENDFILE, OPT_SENDFILE_OPS,	"sendfile" },
+	STRESSOR(sendfile, SENDFILE),
 #endif
-	{ stress_semaphore, STRESS_SEMAPHORE, OPT_SEMAPHORE, OPT_SEMAPHORE_OPS, "semaphore" },
+	STRESSOR(semaphore, SEMAPHORE),
+	STRESSOR(sigfpe, SIGFPE),
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-	{ stress_sigq,	 STRESS_SIGQUEUE,OPT_SIGQUEUE, OPT_SIGQUEUE_OPS,	"sigq" },
+	STRESSOR(sigq, SIGQUEUE),
 #endif
-	{ stress_sigfpe, STRESS_SIGFPE,	OPT_SIGFPE,	OPT_SIGFPE,		"sigfpe" },
-	{ stress_sigsegv,STRESS_SIGSEGV,OPT_SIGSEGV,	OPT_SIGSEGV_OPS,	"sigsegv" },
-	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"sock" },
-	{ stress_switch, STRESS_SWITCH,	OPT_SWITCH,	OPT_SWITCH_OPS,   	"switch" },
-	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
-	{ stress_sysinfo,STRESS_SYSINFO,OPT_SYSINFO,	OPT_SYSINFO_OPS,	"sysinfo" },
+	STRESSOR(sigsegv, SIGSEGV),
+	STRESSOR(socket, SOCKET),
+	STRESSOR(switch, SWITCH),
+	STRESSOR(symlink, SYMLINK),
+	STRESSOR(sysinfo, SYSINFO),
 #if defined(__linux__)
-	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer" },
+	STRESSOR(timer, TIMER),
 #endif
 #if defined(__linux__)
-	{ stress_urandom,STRESS_URANDOM,OPT_URANDOM,	OPT_URANDOM_OPS,	"urandom" },
+	STRESSOR(urandom, URANDOM),
 #endif
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
-	{ stress_utime,	 STRESS_UTIME,	OPT_UTIME,	OPT_UTIME_OPS,		"utime" },
+	STRESSOR(utime, UTIME),
 #endif
-	{ stress_vm,	 STRESS_VM,	OPT_VM,		OPT_VM_OPS,		"vm" },
+	STRESSOR(vm, VM),
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	{ stress_yield,	 STRESS_YIELD,	OPT_YIELD,	OPT_YIELD_OPS,  	"yield" },
+	STRESSOR(yield, YIELD),
 #endif
-	{ stress_zero,	 STRESS_ZERO,	OPT_ZERO,	OPT_ZERO_OPS,  		"zero" },
+	STRESSOR(zero, ZERO),
 	/* Add new stress tests here */
-	{ stress_noop,	STRESS_MAX,	0,		0,			NULL },
+	{ stress_noop, STRESS_MAX, 0, 0, NULL }
 };
 
 static const struct option long_options[] = {
