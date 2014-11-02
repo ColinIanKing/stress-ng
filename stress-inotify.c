@@ -179,11 +179,12 @@ static int rm_file(const char *path)
 static int rm_dir(const char *path)
 {
 	DIR *dp;
-	struct dirent *d;
 	int ret;
 
 	dp = opendir(path);
 	if (dp != NULL) {
+		struct dirent *d;
+
 		while ((d = readdir(dp)) != NULL) {
 			char filename[PATH_MAX];
 
