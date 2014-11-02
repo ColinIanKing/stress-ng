@@ -18,7 +18,7 @@
 
 VERSION=0.02.24
 #
-# Codename "excessive excerciser"
+# Codename "excessive exerciser"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
