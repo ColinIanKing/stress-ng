@@ -60,7 +60,7 @@ void mount_add(
 		return;
 
 	mnt = strdup(name);
-	if (mnts == NULL)
+	if (mnt == NULL)
 		return;
 
 	mnts[*n] = mnt;
