@@ -105,11 +105,10 @@ int stress_futex(
 
 		pr_dbg(stderr, "futex timeouts: %" PRIu64 "\n", *timeout);
 	} else {
-		int ret;
-
 		do {
 			/* Small timeout to force rapid timer wakeups */
 			const struct timespec t = { .tv_sec = 0, .tv_nsec = 5000 };
+			int ret;
 
 			/* Break early before potential long wait */
 			if (!opt_do_run)
