@@ -140,6 +140,7 @@ int stress_clock(
 			struct sigevent sevp;
 			int64_t loops = 1000000;
 
+			memset(&sevp, 0, sizeof(sevp));
 			sevp.sigev_notify = SIGEV_NONE;
 			ret = timer_create(timers[i], &sevp, &timer_id);
 			if (ret < 0) {
