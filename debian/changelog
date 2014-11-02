@@ -384,7 +384,7 @@ stress-ng (0.01.30-1) unstable; urgency=medium
   * Remove some extraneous white spaces
   * Remove commas from nunbers in help
   * Align help info
-  * Remove redundant code that got accidently left in
+  * Remove redundant code that got accidentally left in
   * Simplify hogs message
   * Keep track of per stress test ops count in opt_ops array
   * Add -P, --poll, --poll-ops zero timeout polling stress test
@@ -439,7 +439,7 @@ stress-ng (0.01.26-1) unstable; urgency=medium
 stress-ng (0.01.25-1) unstable; urgency=medium
 
   * Makefile: bump version
-  * More aggresive process termination to kill any lingering processes
+  * More aggressive process termination to kill any lingering processes
 
  -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 18:05:01 +0100
 
@@ -603,7 +603,7 @@ stress-ng (0.01.10-1) unstable; urgency=low
   * Makefile: bump version
   * debian/control: set arch to any
   * Fix up copyright company
-  * Fix formatting of the copywrite in the source
+  * Fix formatting of the copyright in the source
   * Re-write the description and make it a little clearer in the source
   * Detect and report if a worker stress process failed
   * Make process name changing linux only feature
@@ -861,7 +861,7 @@ stress-ng (0.01.30-1) unstable; urgency=medium
   * Remove some extraneous white spaces
   * Remove commas from nunbers in help
   * Align help info
-  * Remove redundant code that got accidently left in
+  * Remove redundant code that got accidentally left in
   * Simplify hogs message
   * Keep track of per stress test ops count in opt_ops array
   * Add -P, --poll, --poll-ops zero timeout polling stress test
@@ -916,7 +916,7 @@ stress-ng (0.01.26-1) unstable; urgency=medium
 stress-ng (0.01.25-1) unstable; urgency=medium
 
   * Makefile: bump version
-  * More aggresive process termination to kill any lingering processes
+  * More aggressive process termination to kill any lingering processes
 
  -- Colin King <colin.king@canonical.com>  Sun, 20 Jul 2014 18:05:01 +0100
 
@@ -1080,7 +1080,7 @@ stress-ng (0.01.10-1) unstable; urgency=low
   * Makefile: bump version
   * debian/control: set arch to any
   * Fix up copyright company
-  * Fix formatting of the copywrite in the source
+  * Fix formatting of the copyright in the source
   * Re-write the description and make it a little clearer in the source
   * Detect and report if a worker stress process failed
   * Make process name changing linux only feature
