@@ -71,7 +71,7 @@ void check_range(
 
 /*
  *  ensure_positive()
- * 	ensure string containes just a +ve value
+ * 	ensure string contains just a +ve value
  */
 static void ensure_positive(const char *const str)
 {
