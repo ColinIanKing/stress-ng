@@ -71,7 +71,7 @@ static void inotify_exercise(
 	const int flags,	/* IN_* flags to watch for */
 	void *private)		/* Helper func private data */
 {
-	int len, fd, wd, ignored = 0, check_flags = flags;
+	int fd, wd, ignored = 0, check_flags = flags;
 	char buffer[1024];
 
 	if ((fd = inotify_init()) < 0) {
@@ -93,7 +93,7 @@ static void inotify_exercise(
 	}
 
 	while (check_flags) {
-		int i = 0;
+		ssize_t len, i = 0;
 		struct timeval tv;
 		fd_set rfds;
 		int err;
@@ -112,11 +112,13 @@ static void inotify_exercise(
 				errno, strerror(errno));
 			break;
 		} else if (err == 0) {
-			pr_err(stderr, "timeout waiting for event flags 0x%x\n", flags);
+			if (opt_flags & OPT_FLAGS_VERIFY)
+				pr_fail(stderr, "timed waiting for event flags 0x%x\n", flags);
 			break;
 		}
 
-		if ((len = read(fd, buffer, sizeof(buffer))) < 0) {
+		len = read(fd, buffer, sizeof(buffer));
+		if ((len < 0) || (len > (ssize_t)sizeof(buffer))) {
 			pr_fail(stderr, "error reading inotify: errno=%d (%s)\n",
 				errno, strerror(errno));
 			break;
