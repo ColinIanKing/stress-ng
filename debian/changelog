@@ -6,7 +6,7 @@ stress-ng (0.02.24-1) unstable; urgency=medium
   * stress-vm: Handle WIFSIGNALED if waitpid succeeded
   * Handle WIFSIGNALED if waitpid succeeded
   * stress sock should be called sock and not socket in the metrics info
-  * Make futex waker verify less pendantic
+  * Make futex waker verify less pedantic
   * fix getpriorities returning < 0 for valid priority values
   * Fix order of null stressor
   * Add get stressor and --get, --get-ops options
