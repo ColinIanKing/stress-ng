@@ -116,7 +116,7 @@ int stress_sysinfo(
 	const uint64_t max_ops,
 	const char *name)
 {
-	int n_mounts, i;
+	int n_mounts;
 	char *mnts[128];
 
 	(void)instance;
@@ -131,6 +131,7 @@ int stress_sysinfo(
 #if defined (__linux__)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
+		int i;
 #endif
 
 #if defined (__linux__)
