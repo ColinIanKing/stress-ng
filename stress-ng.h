@@ -238,6 +238,7 @@ typedef enum {
 	STRESS_SOCKET,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
+	STRESS_SYSINFO,
 #if defined(__linux__)
 	STRESS_TIMER,
 #endif
@@ -427,6 +428,9 @@ typedef enum {
 
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
+
+	OPT_SYSINFO,
+	OPT_SYSINFO_OPS,
 
 #if defined (__linux__)
 	OPT_TIMER_OPS,
@@ -618,6 +622,7 @@ STRESS(stress_sigq);
 STRESS(stress_socket);
 STRESS(stress_switch);
 STRESS(stress_symlink);
+STRESS(stress_sysinfo);
 STRESS(stress_timer);
 STRESS(stress_urandom);
 STRESS(stress_utime);

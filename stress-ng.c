@@ -143,6 +143,7 @@ static const stress_t stressors[] = {
 	{ stress_socket, STRESS_SOCKET, OPT_SOCKET,	OPT_SOCKET_OPS, 	"sock" },
 	{ stress_switch, STRESS_SWITCH,	OPT_SWITCH,	OPT_SWITCH_OPS,   	"switch" },
 	{ stress_symlink,STRESS_SYMLINK,OPT_SYMLINK,	OPT_SYMLINK_OPS,	"symlink" },
+	{ stress_sysinfo,STRESS_SYSINFO,OPT_SYSINFO,	OPT_SYSINFO_OPS,	"sysinfo" },
 #if defined(__linux__)
 	{ stress_timer,	 STRESS_TIMER,	OPT_TIMER,	OPT_TIMER_OPS,		"timer" },
 #endif
@@ -313,6 +314,8 @@ static const struct option long_options[] = {
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 #endif
+	{ "sysinfo",	1,	0,	OPT_SYSINFO },
+	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -438,6 +441,8 @@ static const help_t help[] = {
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
 	{ NULL,		"symlink-ops N",	"stop when N symbolic link bogo operations completed" },
+	{ NULL,		"sysinfo N",		"start N workers reading system information" },
+	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 #if defined (__linux__)
 	{ "T N",	"timer N",		"start N workers producing timer events" },

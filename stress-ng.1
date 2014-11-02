@@ -490,6 +490,12 @@ start N processes creating and removing symbolic links.
 .B \-\-symlink-ops N
 stop symlink stress processes after N bogo operations.
 .TP
+.B \-\-sysinfo N
+start N processes that continually read system and process specific information.  This reads the process user and system times using the times(2) system call. For Linux systems, it also reads overall system statistics using the sysinfo(2) system call and also the file system statistics for all mounted file systems using statfs(2).
+.TP
+.B \-\-sysinfo\-ops N
+stop the sysinfo stressors after N bogo operations.
+.TP
 .B \-t N, \-\-timeout N
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.

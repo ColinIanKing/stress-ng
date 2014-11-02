@@ -63,6 +63,7 @@ SRC =   stress-affinity.c \
 	stress-sigq.c \
 	stress-socket.c \
 	stress-switch.c \
+	stress-sysinfo.c \
 	stress-timer.c \
 	stress-urandom.c \
 	stress-utime.c \
