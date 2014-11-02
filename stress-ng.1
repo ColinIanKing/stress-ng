@@ -304,6 +304,12 @@ stop hdd stress processes after N bogo operations.
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
+.B \-\-inotify N
+start N processes performing file system activities such as making/deleting files/directories, moving files, etc. to stress exercise the various inotify events (Linux only).
+.TP
+.B \-\-inotify-ops N
+stop inotify stress processes after N inotify bogo operarions.
+.TP
 .B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
 .TP

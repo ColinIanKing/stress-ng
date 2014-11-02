@@ -112,6 +112,9 @@ static const stress_t stressors[] = {
 	{ stress_get,	 STRESS_GET,	OPT_GET,	OPT_GET_OPS,		"get" },
 	{ stress_hdd,	 STRESS_HDD,	OPT_HDD,	OPT_HDD_OPS,		"hdd" },
 	{ stress_iosync, STRESS_IOSYNC,	OPT_IOSYNC,	OPT_IOSYNC_OPS, 	"iosync" },
+#if defined(__linux__)
+	{ stress_inotify,STRESS_INOTIFY,OPT_INOTIFY,	OPT_INOTIFY_OPS,	"inotify" },
+#endif
 	{ stress_kill,	 STRESS_KILL,	OPT_KILL,	OPT_KILL_OPS,		"kill" },
 	{ stress_link,	 STRESS_LINK,	OPT_LINK,	OPT_LINK_OPS,		"link" },
 	{ stress_mmap,	 STRESS_MMAP,	OPT_MMAP,	OPT_MMAP_OPS,		"mmap" },
@@ -212,6 +215,10 @@ static const struct option long_options[] = {
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "help",	0,	0,	OPT_QUERY },
+#if defined (__linux__)
+	{ "inotify",	1,	0,	OPT_INOTIFY },
+	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
+#endif
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
 #if defined (__linux__)
@@ -377,6 +384,10 @@ static const help_t help[] = {
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
+#if defined (__linux__)
+	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
+	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
+#endif
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
 #if defined (__linux__)

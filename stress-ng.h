@@ -206,6 +206,9 @@ typedef enum {
 #endif
 	STRESS_GET,
 	STRESS_HDD,
+#if defined(__linux__)
+	STRESS_INOTIFY,
+#endif
 	STRESS_IOSYNC,
 	STRESS_KILL,
 	STRESS_LINK,
@@ -351,6 +354,11 @@ typedef enum {
 
 	OPT_GET,
 	OPT_GET_OPS,
+
+#if defined (__linux__)
+	OPT_INOTIFY,
+	OPT_INOTIFY_OPS,
+#endif
 
 #if defined (__linux__)
 	OPT_IONICE_CLASS,
@@ -599,6 +607,7 @@ STRESS(stress_fork);
 STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_get);
+STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_kill);
 STRESS(stress_link);
