@@ -780,14 +780,14 @@ static void stress_cpu_fibonacci(void)
  */
 static void stress_cpu_psi(void)
 {
-	long double f1 = 0.0, f2 = 1.0, fn;
+	long double f1 = 0.0, f2 = 1.0;
 	long double psi = 0.0, last_psi;
 	long double precision = 1.0e-20;
 	int i = 0;
 	const int max_iter = 100;
 
 	do {
-		fn = f1 + f2;
+		long double fn = f1 + f2;
 		f1 = f2;
 		f2 = fn;
 		last_psi = psi;
