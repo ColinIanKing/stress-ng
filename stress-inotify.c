@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -71,12 +72,26 @@ static void inotify_exercise(
 	const int flags,	/* IN_* flags to watch for */
 	void *private)		/* Helper func private data */
 {
-	int fd, wd, ignored = 0, check_flags = flags;
+	int fd, wd, check_flags = flags;
 	char buffer[1024];
+	static uint32_t n = 0;
 
+retry:
+	n++;
 	if ((fd = inotify_init()) < 0) {
-		pr_fail(stderr, "inotify_init failed: errno=%d (%s)",
-			errno, strerror(errno));
+		/* This is just so wrong... */
+		if (n < 1000 && errno == EMFILE) {
+			/*
+			 * inotify cleanup may be still running from a previous
+			 * iteration, in which case we've run out of resources
+			 * temporarily, so sleep a short while and retry.
+			 */
+			usleep(10000);
+			goto retry;
+		}
+		/* Nope, give up */
+		pr_fail(stderr, "inotify_init failed: errno=%d (%s) after %" PRIu32 " calls\n",
+			errno, strerror(errno), n);
 		return;
 	}
 
@@ -87,10 +102,8 @@ static void inotify_exercise(
 		return;
 	}
 
-	if (func(filename, private) < 0) {
-		(void)close(fd);
-		return;
-	}
+	if (func(filename, private) < 0)
+		goto cleanup;
 
 	while (check_flags) {
 		ssize_t len, i = 0;
@@ -118,6 +131,7 @@ static void inotify_exercise(
 		}
 
 		len = read(fd, buffer, sizeof(buffer));
+
 		if ((len < 0) || (len > (ssize_t)sizeof(buffer))) {
 			pr_fail(stderr, "error reading inotify: errno=%d (%s)\n",
 				errno, strerror(errno));
@@ -125,17 +139,9 @@ static void inotify_exercise(
 		}
 
 		/* Scan through inotify events */
-		while (i < len) {
+		for (i = 0; (i >= 0) && (i < len - (ssize_t)sizeof(struct inotify_event)); i++) {
 			int f;
 			struct inotify_event *event = (struct inotify_event *)&buffer[i];
-
-			/*
-			 * IN_IGNORED indicates the watch file/dir was removed and
-			 * a side effect is that the kernel removes the watch so
-			 * we shouldn't use inotify_rm_watch to reap this later
-			 */
-			if (event->mask & IN_IGNORED)
-				ignored = 1;
 
 			f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
 					   IN_MOVED_TO | IN_MOVED_FROM |
@@ -148,14 +154,17 @@ static void inotify_exercise(
 			else if (flags & f)
 				check_flags &= ~(flags & event->mask);
 
+			/* Need to ensure event->len won't make i go -ve */
 			i += sizeof(struct inotify_event) + event->len;
 		}
 	}
 
-	/* Note: EINVAL happens if the watched file itself is deleted */
-	if (!ignored)
-		inotify_rm_watch(fd, wd);
-	(void)close(fd);
+cleanup:
+	(void)inotify_rm_watch(fd, wd);
+	if (close(fd) < 0) {
+		pr_err(stderr, "close error: errno=%d (%s)\n",
+			errno, strerror(errno));
+	}
 }
 
 /*
