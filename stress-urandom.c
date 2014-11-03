@@ -34,7 +34,7 @@
 
 #include "stress-ng.h"
 
-#if defined (__linux__)
+#if defined (__linux__) || defined(__gnu_hurd__)
 /*
  *  stress_urandom
  *	stress reading of /dev/urandom

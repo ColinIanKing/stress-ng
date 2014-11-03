@@ -245,7 +245,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_TIMER,
 #endif
-#if defined(__linux__)
+#if defined(__linux__) || defined(__gnu_hurd__)
 	STRESS_URANDOM,
 #endif
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
@@ -294,7 +294,7 @@ typedef enum {
 #if defined (__linux__)
 	OPT_TIMER = 'T',
 #endif
-#if defined (__linux__)
+#if defined (__linux__) || defined(__gnu_hurd__)
 	OPT_URANDOM = 'u',
 #endif
 	OPT_VERBOSE = 'v',
@@ -445,7 +445,7 @@ typedef enum {
 	OPT_TIMER_FREQ,
 #endif
 
-#if defined (__linux__)
+#if defined (__linux__) || defined(__gnu_hurd__)
 	OPT_URANDOM_OPS,
 #endif
 	OPT_UTIME,

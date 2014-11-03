@@ -160,7 +160,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(timer, TIMER),
 #endif
-#if defined(__linux__)
+#if defined(__linux__) || defined(__gnu_hurd__)
 	STRESSOR(urandom, URANDOM),
 #endif
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
@@ -312,7 +312,7 @@ static const struct option long_options[] = {
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
 #endif
-#if defined (__linux__)
+#if defined (__linux__) || defined(__gnu_hurd__)
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
 #endif
@@ -473,6 +473,8 @@ static const help_t help[] = {
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
+#endif
+#if defined(__linux__) || defined(__gnu_hurd__)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
 #endif
