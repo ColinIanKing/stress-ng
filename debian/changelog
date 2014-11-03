@@ -1,3 +1,41 @@
+stress-ng (0.02.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Write file entry removal info to stderr rather than stdout
+  * Enable urandom for GNU HURD
+  * stress-fnotify: handle fnotify running out of resource
+  * Use timer_create for linux only
+  * stress-eventfd: make it build only for linux systems
+  * Forgot to add stress-eventfd.c
+  * stress-inotify.c: reduce scope of dirent
+  * stress-futex.c: reduce scope of variable ret
+  * stress-cpu.c: reduce scope of variable fn
+  * Replace stress fields with STRESSOR macro
+  * Check for timeout as an error and sanity check inotify buffer size
+  * Add stress-inotify and --inotify --inotify-ops options
+  * man page: fix spelling mistake
+  * parse-opts.c: fix spelling mistake
+  * Makefile: fix spelling mistake
+  * Fix more spelling mistakes in changelog
+  * Fix spelling mistake in changelog
+  * stress-clock: fully clear sevp
+  * Re-order long_options to make it easier to find options
+  * stress-sysinfo: move i to reduce scope
+  * Fix type on null ptr check on mnt
+  * Add sysinfo stressor and --sysinfo --sysinfo-ops options
+  * Make STRESS_PROCS linux only in stress-ng.h
+  * Add procfs stressor and --procfs --procfs-ops options
+  * Update manual date
+  * Add note about matrix produce CPU stressor
+  * Fix rdrand unrolled comment
+  * Re-order stress_op enum
+  * Re-order stress_id enum
+  * Remove redundant extra loop in stress_pipe
+  * Add linux eventfd stressor
+  * Add stress-clock, re-order man page and help info
+
+ -- Colin King <colin.king@canonical.com>  Mon, 3 Nov 2014 19:16:00 +0000
+
 stress-ng (0.02.24-1) unstable; urgency=medium
 
   * Makefile: bump version
