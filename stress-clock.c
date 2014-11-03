@@ -130,7 +130,7 @@ int stress_clock(
 		}
 #endif
 
-#if _POSIX_C_SOURCE >= 199309L
+#if _POSIX_C_SOURCE >= 199309L && defined(__linux__)
 		/*
 		 *  Stress the timers
 		 */
