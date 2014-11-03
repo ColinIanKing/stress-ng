@@ -103,7 +103,7 @@ int stress_dentry(
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stdout, "%s: removing %" PRIu64 " entries\n", name, opt_dentries);
+	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n", name, opt_dentries);
 	stress_dentry_unlink(opt_dentries);
 
 	return EXIT_SUCCESS;
