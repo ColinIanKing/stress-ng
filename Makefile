@@ -69,6 +69,7 @@ SRC =   stress-affinity.c \
 	stress-urandom.c \
 	stress-utime.c \
 	stress-vm.c \
+	stress-wait.c \
 	stress-yield.c \
 	stress-zero.c \
 	coredump.c \

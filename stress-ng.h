@@ -252,6 +252,7 @@ typedef enum {
 	STRESS_UTIME,
 #endif
 	STRESS_VM,
+	STRESS_WAIT,
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	STRESS_YIELD,
 #endif
@@ -466,6 +467,9 @@ typedef enum {
 #endif
 	OPT_VM_OPS,
 
+	OPT_WAIT,
+	OPT_WAIT_OPS,
+
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,
 #endif
@@ -636,6 +640,7 @@ STRESS(stress_timer);
 STRESS(stress_urandom);
 STRESS(stress_utime);
 STRESS(stress_vm);
+STRESS(stress_wait);
 STRESS(stress_yield);
 STRESS(stress_zero);
 
