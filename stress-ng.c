@@ -765,13 +765,13 @@ void stress_run(
 					snprintf(name, sizeof(name), "%s-%s", app_name, stressors[i].name);
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 					set_proc_name(name);
-					pr_dbg(stderr, "%s: started on pid [%d] (instance %" PRIu32 ")\n",
+					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 
 					(void)usleep(opt_backoff * n_procs);
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(counters + (i * max_procs) + j, j, opt_ops[i], name);
-					pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 					exit(rc);
 				default:
