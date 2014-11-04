@@ -33,7 +33,7 @@
 /*
  *  set_coredump()
  *	limit what is coredumped because
- *	potentially we could have hugh dumps
+ *	potentially we could have huge dumps
  *	with the vm and mmap tests
  */
 void set_coredump(const char *name)
