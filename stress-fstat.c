@@ -27,10 +27,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -48,6 +50,8 @@ int stress_fstat(
 {
 	typedef struct dir_info {
 		char	*path;
+		bool	ignore;
+		bool	noaccess;
 		struct dir_info *next;
 	} dir_info_t;
 
@@ -55,6 +59,7 @@ int stress_fstat(
 	dir_info_t *dir_info = NULL, *di;
 	struct dirent *d;
 	int ret = EXIT_FAILURE;
+	bool stat_some;
 
 	(void)instance;
 
@@ -80,22 +85,54 @@ int stress_fstat(
 			closedir(dp);
 			goto free_cache;
 		}
+		di->ignore = false;
+		di->noaccess = false;
 		di->next = dir_info;
 		dir_info = di;
 	}
 	closedir(dp);
 
 	do {
-		struct stat buf;
+		stat_some = false;
 
 		for (di = dir_info; di; di = di->next) {
-			/* We don't care about it failing */
-			(void)stat(di->path, &buf);
+			int fd;
+			struct stat buf;
+
+			if (di->ignore)
+				continue;
+
+			if ((stat(di->path, &buf) < 0) &&
+			    (errno != ENOMEM)) {
+				di->ignore = true;
+				continue;
+			}
+			if ((lstat(di->path, &buf) < 0) &&
+			    (errno != ENOMEM)) {
+				di->ignore = true;
+				continue;
+			}
+			if (di->noaccess)
+				continue;
+
+			fd = open(di->path, O_RDONLY);
+			if (fd < 0) {
+				di->noaccess = true;
+				continue;
+			}
+
+			if ((fstat(fd, &buf) < 0) &&
+			    (errno != ENOMEM))
+				di->ignore = true;
+			close(fd);
+
+			stat_some = true;
+
 			(*counter)++;
 			if (!opt_do_run || (max_ops && *counter >= max_ops))
 				break;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (stat_some && opt_do_run && (!max_ops || *counter < max_ops));
 
 	ret = EXIT_SUCCESS;
 free_cache:
