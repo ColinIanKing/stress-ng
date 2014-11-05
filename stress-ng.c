@@ -62,7 +62,8 @@ uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequention iterations */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
-int32_t  opt_flags = PR_ERROR | PR_INFO;	/* option flags */
+int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
+						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
@@ -252,6 +253,7 @@ static const struct option long_options[] = {
 #endif
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
+	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
 	{ "null",	1,	0,	OPT_NULL },
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
@@ -421,6 +423,7 @@ static const help_t help[] = {
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
+	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
@@ -1031,6 +1034,9 @@ next_opt:
 			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
 			break;
 #endif
+		case OPT_NO_MADVISE:
+			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);

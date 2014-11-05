@@ -96,6 +96,8 @@ again:
 					MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 				if (buf == MAP_FAILED)
 					continue;	/* Try again */
+
+				(void)madvise_random(buf, opt_vm_bytes);
 			}
 
 			for (i = 0; i < opt_vm_bytes; i += opt_vm_stride) {
@@ -130,8 +132,10 @@ again:
 					goto unmap_cont;
 			}
 unmap_cont:
-			if (!keep)
+			if (!keep) {
+				(void)madvise_random(buf, opt_vm_bytes);
 				(void)munmap(buf, opt_vm_bytes);
+			}
 
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));

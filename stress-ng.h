@@ -60,6 +60,7 @@
 #define OPT_FLAGS_UTIME_FSYNC	0x00000080	/* fsync after utime modification */
 #define OPT_FLAGS_METRICS_BRIEF	0x00000100	/* dump brief metrics */
 #define OPT_FLAGS_VERIFY	0x00000200	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
 
 /* debug output bitmasks */
 #define PR_ERROR		0x00010000	/* Print errors */
@@ -122,7 +123,7 @@
 #define SWITCH_STOP		'X'
 #define PIPE_STOP		"PIPE_STOP"
 
-#define MEM_CACHE_SIZE		(65536 * 8)
+#define MEM_CACHE_SIZE		(65536 * 32)
 #define UNDEFINED		(-1)
 
 #define PAGE_MAPPED		(0x01)
@@ -386,6 +387,8 @@ typedef enum {
 	OPT_NICE,
 	OPT_NICE_OPS,
 
+	OPT_NO_MADVISE,
+
 	OPT_NULL,
 	OPT_NULL_OPS,
 
@@ -579,6 +582,7 @@ extern void set_iopriority(const int class, const int level);
 extern void set_oom_adjustment(const char *name, bool killable);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
+extern int madvise_random(void *addr, size_t length);
 
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,

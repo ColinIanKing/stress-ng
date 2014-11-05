@@ -112,6 +112,7 @@ int stress_mmap(
 #endif
 			continue;	/* Try again */
 		}
+		(void)madvise_random(buf, sz);
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -133,6 +134,7 @@ int stress_mmap(
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
+					(void)madvise_random(mappings[page], page_size);
 					munmap(mappings[page], page_size);
 					n--;
 					break;
@@ -161,6 +163,7 @@ int stress_mmap(
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
 					} else {
+						(void)madvise_random(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
@@ -181,8 +184,10 @@ cleanup:
 		 *  Step #3, unmap them all
 		 */
 		for (n = 0; n < pages4k; n++) {
-			if (mapped[n] & PAGE_MAPPED)
+			if (mapped[n] & PAGE_MAPPED) {
+				(void)madvise_random(mappings[n], page_size);
 				munmap(mappings[n], page_size);
+			}
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

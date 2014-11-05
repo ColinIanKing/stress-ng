@@ -371,6 +371,9 @@ start N cpu consuming processes that exercise the available nice levels. Each it
 .B \-\-nice-ops N
 stop after N nice bogo nice loops
 .TP
+.B \-\-no\-advise
+from version 0.02.26 stress-ng automatically calls madvise() with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
+.TP
 .B \-\-null N
 start N processes writing to /dev/null.
 .TP

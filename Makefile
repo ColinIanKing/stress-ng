@@ -77,6 +77,7 @@ SRC =   stress-affinity.c \
 	io-priority.c \
 	lock-mem.c \
 	log.c \
+	madvise.c \
 	mwc.c \
 	out-of-memory.c \
 	parse-opts.c \
