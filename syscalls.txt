@@ -47,6 +47,9 @@ mkdir				dir
 mkstemp				hdd
 madvise				mmap
 madvise				vm
+mincore				bigheap
+mincore				mmap
+mincore				vm
 mmap				bigheap
 mmap				mmap
 msgctl				msg
