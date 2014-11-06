@@ -101,6 +101,7 @@ times				sysinfo
 unlink				dentry
 unlink				hdd
 unlink				unlink
+vfork				vfork
 waitid				wait
 waitpid				fork
 waitpid				wait
