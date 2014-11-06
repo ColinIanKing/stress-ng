@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/eventfd.h>
@@ -92,11 +93,13 @@ int stress_eventfd(
 			uint64_t val = 1;
 
 			if (write(fd1, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				pr_failed_dbg(name, "parent write");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "parent write");
 				break;
 			}
 			if (read(fd2, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				pr_failed_dbg(name, "parent read");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "parent read");
 				break;
 			}
 			(*counter)++;
