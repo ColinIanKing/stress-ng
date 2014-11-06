@@ -97,9 +97,7 @@ all known timers it will create a 50000ns timer and busy poll this until it expi
 stop clock stress processes after N bogo operations.
 .TP
 .B \-c N, \-\-cpu N
-start N processes computing by default sqrt(rand()). Note that the rand function
-is based on a fast integer RNG with a period of about 2^60. One can specify different
-CPU stress methods with the \-\-cpu\-method option.
+start N processes exercising the CPU by sequentially working through all the different CPU stress methods. Instead of exercising all the CPU stress methods, one can specify a specific CPU stress method with the \-\-cpu\-method option.
 .TP
 .B \-\-cpu\-ops N
 stop cpu stress processes after N bogo operations.
@@ -108,7 +106,7 @@ stop cpu stress processes after N bogo operations.
 load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo CPU operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
 .TP
 .B \-\-cpu\-method method
-specify cpu stress method. By default, sqrt(rand()) is used, however, there are a selection of ways the CPU can be stressed:
+specify a cpu stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Available cpu stress methods are described as follows:
 .TS
 l l.
 \fBMethod	Description\fR
@@ -216,7 +214,7 @@ Note that some of these methods try to exercise the CPU with
 computations found in some real world use cases. However, the
 code has not been optimised on a per-architecture basis, so
 may be a sub-optimal compared to hand-optimised code used
-in some applications.  They do, however, try to represent
+in some applications.  They do try to represent
 the typical instruction mixes found in these use cases.
 .RE
 .TP

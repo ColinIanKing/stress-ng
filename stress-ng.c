@@ -837,7 +837,7 @@ int main(int argc, char **argv)
 	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
 
-	opt_cpu_stressor = stress_cpu_find_by_name("sqrt");
+	opt_cpu_stressor = stress_cpu_find_by_name("all");
 	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
