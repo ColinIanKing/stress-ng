@@ -67,7 +67,8 @@ again:
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
-			pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 		} else if (WIFSIGNALED(status)) {
