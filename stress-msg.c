@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <limits.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -104,7 +105,8 @@ int stress_msg(
 			memcpy(msg.msg, &i, sizeof(i));
 			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
-				pr_failed_dbg(name, "msgsnd");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "msgsnd");
 				break;
 			}
 			i++;
