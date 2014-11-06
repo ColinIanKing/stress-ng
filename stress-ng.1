@@ -248,14 +248,14 @@ start N processes continally fallocating (preallocating file space) and ftuncati
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
 .TP
-.B \-f N, \-\-fork N
-start N processes continually forking children that immediately exit.
-.TP
 .B \-\-flock N
 start N processes locking on a single file.
 .TP
 .B \-\-flock-ops N
 stop flock stress processes after N bogo flock operations.
+.TP
+.B \-f N, \-\-fork N
+start N processes continually forking children that immediately exit.
 .TP
 .B \-\-fork\-ops N
 stop fork stress processes after N bogo operations.
@@ -549,6 +549,17 @@ computations or memory contents from a test run and report to stderr any unexpec
 .TP
 .B \-V, \-\-version
 show version.
+.TP
+.B \-\-vfork N
+start N processes continually vforking children that immediately exit.
+.TP
+.B \-\-vfork\-ops N
+stop vfork stress processes after N bogo operations.
+.TP
+.B \-\-vfork\-max P
+create P processes and then wait for them to exit per iteration. The default is just 1; higher
+values will create many temporary zombie processes that are waiting to be reaped. One can
+potentially fill up the the process table using high values for \-\-vfork\-max and \-\-vfork.
 .TP
 .B \-m N, \-\-vm N
 start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.

@@ -253,6 +253,11 @@ typedef enum {
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	STRESS_UTIME,
 #endif
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+	STRESS_VFORK,
+#endif
 	STRESS_VM,
 	STRESS_WAIT,
 #if defined (_POSIX_PRIORITY_SCHEDULING)
@@ -461,6 +466,14 @@ typedef enum {
 
 	OPT_VERIFY,
 
+#if  _BSD_SOURCE || \
+     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+	OPT_VFORK,
+	OPT_VFORK_OPS,
+	OPT_VFORK_MAX,
+#endif
+
 	OPT_VM_BYTES,
 	OPT_VM_STRIDE,
 	OPT_VM_HANG,
@@ -535,6 +548,7 @@ extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
+extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_sequential;				/* Number of sequention iterations */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
@@ -646,6 +660,7 @@ STRESS(stress_sysinfo);
 STRESS(stress_timer);
 STRESS(stress_urandom);
 STRESS(stress_utime);
+STRESS(stress_vfork);
 STRESS(stress_vm);
 STRESS(stress_wait);
 STRESS(stress_yield);

@@ -34,14 +34,17 @@
 #include "stress-ng.h"
 
 /*
- *  stress_fork()
- *	stress by forking and exiting
+ *  stress_fork_fn()
+ *	stress by forking and exiting using
+ *	fork function fork_fn (fork or vfork)
  */
-int stress_fork(
+int stress_fork_fn(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
-	const char *name)
+	const char *name,
+	pid_t (*fork_fn)(void),
+	const uint64_t fork_max)
 {
 	(void)instance;
 	(void)name;
@@ -53,8 +56,8 @@ int stress_fork(
 
 		memset(pids, 0, sizeof(pids));
 
-		for (i = 0; i < opt_fork_max; i++) {
-			pids[i] = fork();
+		for (i = 0; i < fork_max; i++) {
+			pids[i] = fork_fn();
 
 			if (pids[i] == 0) {
 				/* Child, immediately exit */
@@ -63,7 +66,7 @@ int stress_fork(
 			if (!opt_do_run)
 				break;
 		}
-		for (i = 0; i < opt_fork_max; i++) {
+		for (i = 0; i < fork_max; i++) {
 			if (pids[i] > 0) {
 				int status;
 				/* Parent, wait for child */
@@ -72,7 +75,7 @@ int stress_fork(
 			}
 		}
 
-		for (i = 0; i < opt_fork_max; i++) {
+		for (i = 0; i < fork_max; i++) {
 			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail(stderr, "fork failed\n");
 			}
@@ -81,3 +84,36 @@ int stress_fork(
 
 	return EXIT_SUCCESS;
 }
+
+/*
+ *  stress_fork()
+ *	stress by forking and exiting
+ */
+int stress_fork(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_fork_fn(counter, instance, max_ops,
+		name, fork, opt_fork_max);
+}
+
+
+#if _BSD_SOURCE || \
+   (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+   !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+/*
+ *  stress_vfork()
+ *	stress by vforking and exiting
+ */
+int stress_vfork(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_fork_fn(counter, instance, max_ops,
+		name, vfork, opt_vfork_max);
+}
+#endif

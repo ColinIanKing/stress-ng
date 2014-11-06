@@ -59,6 +59,7 @@ uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
+uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequention iterations */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
@@ -166,6 +167,11 @@ static const stress_t stressors[] = {
 #endif
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	STRESSOR(utime, UTIME),
+#endif
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+	STRESSOR(vfork, VFORK),
 #endif
 	STRESSOR(vm, VM),
 	STRESSOR(wait, WAIT),
@@ -323,6 +329,13 @@ static const struct option long_options[] = {
 	{ "verbose",	0,	0,	OPT_VERBOSE },
 	{ "verify",	0,	0,	OPT_VERIFY },
 	{ "version",	0,	0,	OPT_VERSION },
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+	{ "vfork",	1,	0,	OPT_VFORK },
+	{ "vfork-ops",	1,	0,	OPT_VFORK_OPS },
+	{ "vfork-max",	1,	0,	OPT_VFORK_MAX },
+#endif
 	{ "vm",		1,	0,	OPT_VM },
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
 	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
@@ -494,6 +507,13 @@ static const help_t help[] = {
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+	{ NULL,		"vfork N",		"start N workers spinning on vfork() and exit()" },
+	{ NULL,		"vfork-ops N",		"stop when N vfork bogo operations completed" },
+	{ NULL,		"vfork-max P",		"create P processes per iteration, default is 1" },
+#endif
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
@@ -1023,6 +1043,10 @@ next_opt:
 		case OPT_FORK_MAX:
 			opt_fork_max = get_uint64_byte(optarg);
 			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
+			break;
+		case OPT_VFORK_MAX:
+			opt_vfork_max = get_uint64_byte(optarg);
+			check_range("vfork-max", opt_vfork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
 			break;
 		case OPT_SEQUENTIAL:
 			opt_sequential = get_uint64_byte(optarg);
