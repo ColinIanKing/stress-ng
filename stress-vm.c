@@ -106,6 +106,7 @@ again:
 					goto unmap_cont;
 				*(buf + i) = gray_code;
 			}
+			(void)mincore_touch_pages(buf, opt_vm_bytes);
 
 			if (opt_vm_hang == 0) {
 				for (;;)

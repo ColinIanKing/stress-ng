@@ -258,6 +258,7 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
+	{ "page-in",	0,	0,	OPT_PAGE_IN },
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "poll",	1,	0,	OPT_POLL },
@@ -428,6 +429,7 @@ static const help_t help[] = {
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
+	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
@@ -1036,6 +1038,9 @@ next_opt:
 #endif
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+			break;
+		case OPT_PAGE_IN:
+			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
 		default:
 			printf("Unknown option\n");

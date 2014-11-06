@@ -384,6 +384,12 @@ start N processes that perform open() and then close() operations on /dev/zero. 
 .B \-\-open-ops N
 stop the open stress processes after N bogo open operations.
 .TP
+.B \-\-page\-in
+touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
+all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
+performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(1) to determine
+the pages that are not in core and so need touching to page them back in.
+.TP
 .B \-p N, \-\-pipe N
 start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and a writer.
 .TP

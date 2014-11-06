@@ -54,6 +54,8 @@ int stress_bigheap(
 	size_t stride = 4096;
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
+	long int page_size;
+	page_size = sysconf(_SC_PAGESIZE);
 
 again:
 	pid = fork();
@@ -116,6 +118,14 @@ again:
 					tmp = u8ptr = ptr;
 					n = size;
 				}
+
+				if (page_size > 0) {
+					long int sz = page_size - 1;
+					uintptr_t pg_ptr = ((uintptr_t)ptr + sz) & ~sz;
+					size_t len = size - (pg_ptr - (uintptr_t)ptr);
+					(void)mincore_touch_pages((void *)pg_ptr, len);
+				}
+
 				for (i = 0; i < n; i+= stride, u8ptr += stride) {
 					if (!opt_do_run)
 						goto abort;

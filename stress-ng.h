@@ -61,6 +61,7 @@
 #define OPT_FLAGS_METRICS_BRIEF	0x00000100	/* dump brief metrics */
 #define OPT_FLAGS_VERIFY	0x00000200	/* verify mode */
 #define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 
 /* debug output bitmasks */
 #define PR_ERROR		0x00010000	/* Print errors */
@@ -394,6 +395,8 @@ typedef enum {
 
 	OPT_OPEN_OPS,
 
+	OPT_PAGE_IN,
+
 	OPT_PIPE_OPS,
 
 	OPT_POLL_OPS,
@@ -594,7 +597,7 @@ extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
 extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
-
+extern int mincore_touch_pages(void *buf, size_t buf_len);
 
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\
