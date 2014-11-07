@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/eventfd.h>
 
 #include "stress-ng.h"
@@ -89,6 +90,8 @@ int stress_eventfd(
 		(void)close(fd2);
 		exit(EXIT_SUCCESS);
 	} else {
+		int status;
+
 		do {
 			uint64_t val = 1;
 
@@ -106,6 +109,7 @@ int stress_eventfd(
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 		close(fd1);
 		close(fd2);
 	}
