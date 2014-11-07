@@ -62,6 +62,7 @@
 #define OPT_FLAGS_VERIFY	0x00000200	/* verify mode */
 #define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
 
 /* debug output bitmasks */
 #define PR_ERROR		0x00010000	/* Print errors */
@@ -456,6 +457,8 @@ typedef enum {
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
 #endif
+
+	OPT_TIMES,
 
 #if defined (__linux__) || defined(__gnu_hurd__)
 	OPT_URANDOM_OPS,

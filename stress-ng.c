@@ -39,6 +39,7 @@
 
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <sys/times.h>
 #include <sys/wait.h>
 
 #include "stress-ng.h"
@@ -317,6 +318,7 @@ static const struct option long_options[] = {
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 #endif
+	{ "times",	0,	0,	OPT_TIMES },
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
@@ -495,6 +497,7 @@ static const help_t help[] = {
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
 #endif
+	{ NULL,		"times",		"show run time summary at end of the run" },
 #if defined(__linux__) || defined(__gnu_hurd__)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
@@ -1066,6 +1069,9 @@ next_opt:
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
+		case OPT_TIMES:
+			opt_flags |= OPT_FLAGS_TIMES;
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
@@ -1232,5 +1238,37 @@ next_opt:
 		}
 	}
 	(void)munmap(shared, len);
+
+	if (opt_flags & OPT_FLAGS_TIMES) {
+		struct tms buf;
+		long int ticks_per_sec;
+		double total_cpu_time = opt_nprocessors_online * duration;
+
+		if (times(&buf) < 0) {
+			pr_err(stderr, "Cannot get run time information: errno=%d (%s)\n",
+				errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+
+		ticks_per_sec = sysconf(_SC_CLK_TCK);
+		if (ticks_per_sec < 0) {
+			pr_err(stderr, "Cannot get clock ticks per second: errno=%d (%s)\n",
+				errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		pr_inf(stdout, "for a %.2fs run time:\n", duration);
+		pr_inf(stdout, "  %8.2fs available CPU time\n",
+			total_cpu_time);
+			
+		pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
+			(float)buf.tms_cutime / (float)ticks_per_sec,
+			100.0 * ((float)buf.tms_cutime / (float)ticks_per_sec) / total_cpu_time);
+		pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n",
+			(float)buf.tms_cstime / (float)ticks_per_sec,
+			100.0 * ((float)buf.tms_cstime / (float)ticks_per_sec) / total_cpu_time);
+		pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n",
+			((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec,
+			100.0 * (((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec) / total_cpu_time);
+	}
 	exit(EXIT_SUCCESS);
 }
