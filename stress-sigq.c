@@ -30,6 +30,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
 
@@ -83,6 +84,7 @@ int stress_sigq(
 	} else {
 		/* Parent */
 		union sigval s;
+		int status;
 
 		do {
 			memset(&s, 0, sizeof(s));
@@ -98,6 +100,7 @@ int stress_sigq(
 		usleep(250);
 		/* And ensure child is really dead */
 		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 	}
 
 	return EXIT_SUCCESS;
