@@ -855,7 +855,7 @@ int main(int argc, char **argv)
 	int32_t	num_procs[STRESS_MAX];
 	int32_t total_procs = 0, max_procs = 0;
 	size_t len;
-	bool success = true;
+	bool success = true, previous = false;
 	struct sigaction new_action;
 
 	memset(num_procs, 0, sizeof(num_procs));
@@ -1174,9 +1174,14 @@ next_opt:
 
 	pr_inf(stdout, "dispatching hogs:");
 	for (i = 0; i < STRESS_MAX; i++) {
-		fprintf(stdout, " %" PRId32 " %s%c", num_procs[i], stressors[i].name,
-			i == STRESS_MAX - 1 ? '\n' : ',');
+		if (num_procs[i]) {
+			fprintf(stdout, "%s %" PRId32 " %s",
+				previous ? "," : "",
+				num_procs[i], stressors[i].name);
+			previous = true;
+		}
 	}
+	fprintf(stdout, "\n");
 	fflush(stdout);
 
 	len = sizeof(shared_t) + (sizeof(uint64_t) * STRESS_MAX * max_procs);
