@@ -33,6 +33,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
@@ -99,6 +100,7 @@ int stress_msg(
 	} else {
 		msg_t msg;
 		uint64_t i = 0;
+		int status;
 
 		/* Parent */
 		do {
@@ -117,6 +119,7 @@ int stress_msg(
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
 			pr_failed_dbg(name, "termination msgsnd");
 		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
 			pr_failed_dbg(name, "msgctl");
