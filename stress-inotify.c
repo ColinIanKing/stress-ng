@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
@@ -140,14 +141,11 @@ retry:
 		}
 
 		/* Scan through inotify events */
-		for (i = 0; (i >= 0) && (i < len - (ssize_t)sizeof(struct inotify_event)); i++) {
-			int f;
+		do {
 			struct inotify_event *event = (struct inotify_event *)&buffer[i];
-
-			f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
-					   IN_MOVED_TO | IN_MOVED_FROM |
-					   IN_ATTRIB);
-
+			int f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
+					       IN_MOVED_TO | IN_MOVED_FROM |
+					       IN_ATTRIB);
 			if (event->len &&
 			    strcmp(event->name, matchname) == 0 &&
 			    flags & event->mask)
@@ -155,9 +153,8 @@ retry:
 			else if (flags & f)
 				check_flags &= ~(flags & event->mask);
 
-			/* Need to ensure event->len won't make i go -ve */
 			i += sizeof(struct inotify_event) + event->len;
-		}
+		} while (i < len);
 	}
 
 cleanup:
