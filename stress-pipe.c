@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
 
@@ -110,7 +111,7 @@ int stress_pipe(
 		exit(EXIT_SUCCESS);
 	} else {
 		char buf[PIPE_BUF];
-		int val = 0;
+		int val = 0, status;
 
 		/* Parent */
 		(void)close(pipefds[0]);
@@ -128,6 +129,7 @@ int stress_pipe(
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
+		waitpid(pid, &status, 0);
 	}
 	return EXIT_SUCCESS;
 }
