@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
 
@@ -78,6 +79,7 @@ int stress_switch(
 		}
 	} else {
 		char ch = '_';
+		int status;
 
 		/* Parent */
 		(void)close(pipefds[0]);
@@ -94,6 +96,7 @@ int stress_switch(
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
 			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 	}
 
 	return EXIT_SUCCESS;
