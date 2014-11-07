@@ -46,13 +46,19 @@
  */
 static void handle_socket_sigalrm(int dummy)
 {
+	int status;
+
 	(void)dummy;
 	opt_do_run = false;
 
-	if (socket_client)
+	if (socket_client) {
 		(void)kill(socket_client, SIGKILL);
-	if (socket_server)
+		waitpid(socket_client, &status, 0);
+	}
+	if (socket_server) {
 		(void)kill(socket_server, SIGKILL);
+		waitpid(socket_client, &status, 0);
+	}
 }
 
 /*
