@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
 
@@ -120,7 +121,7 @@ abort:
 	} else {
 		/* Parent read */
 
-		int maxfd = 0;
+		int maxfd = 0, status;
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
 
@@ -178,6 +179,7 @@ abort:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 	}
 
 tidy:
