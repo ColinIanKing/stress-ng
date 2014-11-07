@@ -121,8 +121,9 @@ retry:
 		/* Wait for an inotify event ... */
 		err = select(fd + 1, &rfds, NULL, NULL, &tv);
 		if (err == -1) {
-			pr_err(stderr, "select error: errno=%d (%s)\n",
-				errno, strerror(errno));
+			if (errno != EINTR)
+				pr_err(stderr, "select error: errno=%d (%s)\n",
+					errno, strerror(errno));
 			break;
 		} else if (err == 0) {
 			if (opt_flags & OPT_FLAGS_VERIFY)
