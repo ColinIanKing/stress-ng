@@ -357,6 +357,15 @@ start N processes creating and removing hardlinks.
 .B \-\-link-ops N
 stop link stress processes after N bogo operations.
 .TP
+.B \-\-lsearch N
+start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exericse sequential access of memory and processor cache.
+.TP
+.B \-\-lsearch\-ops N
+stop the lsearch processes after N bogo lsearch operations are completed.
+.TP
+.B \-\-lsearch\-size N
+specify the size (number of 32 bit integers) in the array to lsearch. Size can be from 1K to 4M.
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
 been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
@@ -690,10 +699,12 @@ File bug reports at:
 .BR ftruncate (2),
 .BR ionice (1),
 .BR ioprio_set (2),
+.BR lsearch (3),
 .BR qsort (3),
 .BR sched_yield (2),
 .BR sched_setaffinity (2),
-.BR stress (1)
+.BR stress (1),
+.BR tsearch (3)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and
 is a clean room re-implementation of the original

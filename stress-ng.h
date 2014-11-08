@@ -216,6 +216,7 @@ typedef enum {
 	STRESS_IOSYNC,
 	STRESS_KILL,
 	STRESS_LINK,
+	STRESS_LSEARCH,
 	STRESS_MMAP,
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
@@ -390,6 +391,10 @@ typedef enum {
 
 	OPT_LINK,
 	OPT_LINK_OPS,
+
+	OPT_LSEARCH,
+	OPT_LSEARCH_OPS,
+	OPT_LSEARCH_SIZE,
 
 	OPT_METRICS_BRIEF,
 
@@ -568,6 +573,7 @@ extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
+extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
@@ -659,6 +665,7 @@ STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_kill);
 STRESS(stress_link);
+STRESS(stress_lsearch);
 STRESS(stress_mmap);
 STRESS(stress_msg);
 STRESS(stress_nice);

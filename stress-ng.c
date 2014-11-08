@@ -60,6 +60,7 @@ uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
 uint64_t opt_tsearch_size = 65536;		/* Default tsearch size */
+uint64_t opt_lsearch_size = 8192;		/* Default lsearch size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
@@ -133,6 +134,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(kill, KILL),
 	STRESSOR(link, LINK),
+	STRESSOR(lsearch, LSEARCH),
 	STRESSOR(mmap, MMAP),
 #if !defined(__gnu_hurd__)
 	STRESSOR(msg, MSG),
@@ -258,6 +260,9 @@ static const struct option long_options[] = {
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
+	{ "lsearch",	1,	0,	OPT_LSEARCH },
+	{ "lsearch-ops",1,	0,	OPT_LSEARCH_OPS },
+	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
@@ -449,6 +454,9 @@ static const help_t help[] = {
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
+	{ NULL,		"lsearch",		"start N workers that exercise a linear search" },
+	{ NULL,		"lsearch-ops",		"stop when N linear search bogo operations completed" },
+	{ NULL,		"lsearch-size",		"number of 32 bit integers to lsearch" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
@@ -1107,6 +1115,10 @@ next_opt:
 		case OPT_TSEARCH_SIZE:
 			opt_tsearch_size = get_uint64_byte(optarg);
 			check_range("tsearch-size", opt_tsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_LSEARCH_SIZE:
+			opt_lsearch_size = get_uint64_byte(optarg);
+			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
 			break;
 		default:
 			printf("Unknown option\n");

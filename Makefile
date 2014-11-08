@@ -21,7 +21,7 @@ VERSION=0.02.26
 # Codename "excessive exerciser"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -g
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -45,6 +45,7 @@ SRC =   stress-affinity.c \
 	stress-inotify.c \
 	stress-iosync.c \
 	stress-kill.c \
+	stress-lsearch.c \
 	stress-link.c \
 	stress-mmap.c \
 	stress-msg.c \
