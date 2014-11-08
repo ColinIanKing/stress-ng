@@ -58,6 +58,7 @@ uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;	/* sendfile size */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
+uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
@@ -103,6 +104,7 @@ static const stress_t stressors[] = {
 	STRESSOR(affinity, AFFINITY),
 #endif
 	STRESSOR(bigheap, BIGHEAP),
+	STRESSOR(bsearch, BSEARCH),
 	STRESSOR(cache, CACHE),
 #if _POSIX_C_SOURCE >= 199309L
 	STRESSOR(clock, CLOCK),
@@ -194,6 +196,9 @@ static const struct option long_options[] = {
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
 	{ "bigheap-growth",1,	0,	OPT_BIGHEAP_GROWTH },
+	{ "bsearch",	1,	0,	OPT_BSEARCH },
+	{ "bsearch-ops",1,	0,	OPT_BSEARCH_OPS },
+	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
 #if _POSIX_C_SOURCE >= 199309L
@@ -378,6 +383,9 @@ static const help_t help[] = {
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
+	{ NULL,		"bsearch",		"start N workers that exercise a binary search" },
+	{ NULL,		"bsearch-ops",		"stop when N binary search bogo operations completed" },
+	{ NULL,		"bsearch-size",		"number of 32 bit integers to bsearch" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
 	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
 #if _POSIX_C_SOURCE >= 199309L
@@ -1034,7 +1042,7 @@ next_opt:
 			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
 			break;
 		case OPT_QSORT_INTEGERS:
-			opt_qsort_size = get_uint64(optarg);
+			opt_qsort_size = get_uint64_byte(optarg);
 			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
 			break;
 		case OPT_UTIME_FSYNC:
@@ -1084,6 +1092,10 @@ next_opt:
 			opt_flags |= OPT_FLAGS_TIMES;
 			break;
 #endif
+		case OPT_BSEARCH_SIZE:
+			opt_bsearch_size = get_uint64_byte(optarg);
+			check_range("bsearch-size", opt_bsearch_size, 1 * KB, 4 * MB);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);

@@ -83,6 +83,15 @@ stop the big heap processes after N bogo allocation operations are completed.
 .B \-\-bigheap\-growth N
 specify amount of memory to grow heap by per iteration. Size can be from 4K to 64MB. Default is 64K.
 .TP
+.B \-\-bsearch N
+start N processes that binary search a sorted array of 32 bit integers using bsearch(3). By default, there are 65536 elements in the array.  This is a useful method to exericse random access of memory and processor cache.
+.TP
+.B \-\-bsearch\-ops N
+stop the bsearch processes after N bogo bsearch operations are completed.
+.TP
+.B \-\-bsearch\-size N
+specify the size (number of 32 bit integers) in the array to bsearch. Size can be from 1K to 4M.
+.TP
 .B \-C N, \-\-cache N
 start N processes that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
 .TP
@@ -666,6 +675,7 @@ of each stressor matching the number of online CPUs.
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
 .SH SEE ALSO
+.BR bsearch (3),
 .BR fallocate (2),
 .BR flock (2),
 .BR ftruncate (2),

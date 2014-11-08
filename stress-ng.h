@@ -187,6 +187,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_AFFINITY = 0,
 #endif
+	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
 	STRESS_CACHE,
 #if _POSIX_C_SOURCE >= 199309L
@@ -314,8 +315,13 @@ typedef enum {
 
 	/* Long options only */
 
+
 	OPT_AFFINITY = 0x80,
 	OPT_AFFINITY_OPS,
+
+	OPT_BSEARCH,
+	OPT_BSEARCH_OPS,
+	OPT_BSEARCH_SIZE,
 
 	OPT_BIGHEAP_OPS,
 	OPT_BIGHEAP_GROWTH,
@@ -555,6 +561,7 @@ extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
+extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
@@ -628,6 +635,7 @@ extern int mincore_touch_pages(void *buf, size_t buf_len);
 
 STRESS(stress_affinity);
 STRESS(stress_bigheap);
+STRESS(stress_bsearch);
 STRESS(stress_cache);
 STRESS(stress_clock);
 STRESS(stress_cpu);
