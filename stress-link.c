@@ -103,8 +103,6 @@ static int stress_link_generic(
 			(*counter)++;
 		}
 		stress_link_unlink(funcname, n);
-		if (!opt_do_run)
-			break;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 abort:
