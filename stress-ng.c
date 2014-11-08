@@ -1073,9 +1073,11 @@ next_opt:
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
+#if defined (__linux__)
 		case OPT_TIMES:
 			opt_flags |= OPT_FLAGS_TIMES;
 			break;
+#endif
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
