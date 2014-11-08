@@ -260,7 +260,9 @@ typedef enum {
 	STRESS_VFORK,
 #endif
 	STRESS_VM,
+#if !defined(__gnu_hurd__)
 	STRESS_WAIT,
+#endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	STRESS_YIELD,
 #endif
@@ -491,8 +493,10 @@ typedef enum {
 #endif
 	OPT_VM_OPS,
 
+#if !defined(__gnu_hurd__)
 	OPT_WAIT,
 	OPT_WAIT_OPS,
+#endif
 
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	OPT_YIELD_OPS,

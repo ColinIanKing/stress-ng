@@ -175,7 +175,9 @@ static const stress_t stressors[] = {
 	STRESSOR(vfork, VFORK),
 #endif
 	STRESSOR(vm, VM),
+#if !defined(__gnu_hurd__)
 	STRESSOR(wait, WAIT),
+#endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	STRESSOR(yield, YIELD),
 #endif
@@ -352,8 +354,10 @@ static const struct option long_options[] = {
 	{ "vm-locked",	0,	0,	OPT_VM_MMAP_LOCKED },
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
+#if !defined(__gnu_hurd__)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
+#endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
 	{ "yield",	1,	0,	OPT_YIELD },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
@@ -533,8 +537,10 @@ static const help_t help[] = {
 #ifdef MAP_POPULATE
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
+#if !defined(__gnu_hurd__)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
 	{ NULL,		"wait-ops N",		"stop when N bogo wait operations completed" },
+#endif
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
 	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },

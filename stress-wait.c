@@ -36,6 +36,8 @@
 
 #include "stress-ng.h"
 
+#if !defined(__gnu_hurd__)
+
 #define ABORT_TIMEOUT	(2.0)
 
 /*
@@ -181,3 +183,5 @@ tidy:
 
 	return ret;
 }
+
+#endif
