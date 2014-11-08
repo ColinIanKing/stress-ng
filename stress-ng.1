@@ -15,6 +15,9 @@
 .\" .br        insert line break
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
+.\"
+.\" left margin - right margin minus a fudge factor
+.nr SZ ((\n[.l] - \n[.i]) / 1n - 29)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system.
 .br
@@ -117,9 +120,13 @@ load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is fu
 .B \-\-cpu\-method method
 specify a cpu stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Available cpu stress methods are described as follows:
 .TS
+expand;
+lB2 lBw(\n[SZ]n)
 l l.
-\fBMethod	Description\fR
-all	iterate over all the below cpu stress methods
+Method	Description
+all	T{
+iterate over all the below cpu stress methods
+T}
 ackermann	T{
 Ackermann function: compute A(3, 10), where:
  A(m, n) = n + 1 if m = 0;
