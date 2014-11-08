@@ -61,10 +61,13 @@ int stress_bsearch(
 {
 	int32_t *data, *ptr, prev = 0;
 	const size_t n = (size_t)opt_bsearch_size;
+	const size_t n8 = (n + 7) & ~7;
 	size_t i;
 
 	(void)instance;
-	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
+
+	/* allocate in multiples of 8 */
+	if ((data = malloc(sizeof(int32_t) * n8)) == NULL) {
 		pr_failed_dbg(name, "malloc");
 		return EXIT_FAILURE;
 	}
