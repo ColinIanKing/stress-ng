@@ -105,10 +105,10 @@ int stress_poll(
 		for (;;) {
 			char buf[POLL_BUF];
 
-			memset(buf, '0' + i, sizeof(buf));
 
 			/* Write on a randomly chosen pipe */
 			i = (mwc() >> 8) % MAX_PIPES;
+			memset(buf, '0' + i, sizeof(buf));
 			if (write(pipefds[i][1], buf, sizeof(buf)) < 0) {
 				pr_failed_dbg(name, "write");
 				goto abort;
