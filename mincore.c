@@ -76,6 +76,9 @@ int mincore_touch_pages(void *buf, size_t buf_len)
 			(*buffer)--;
 
 	free(vec);
+#else
+	(void)buf;
+	(void)buf_len;
 #endif
 	return 0;
 }
