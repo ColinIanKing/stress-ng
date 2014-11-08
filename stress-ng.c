@@ -59,6 +59,7 @@ uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
+uint64_t opt_tsearch_size = 65536;		/* Default tsearch size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
@@ -165,6 +166,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(timer, TIMER),
 #endif
+	STRESSOR(tsearch, TSEARCH),
 #if defined(__linux__) || defined(__gnu_hurd__)
 	STRESSOR(urandom, URANDOM),
 #endif
@@ -325,6 +327,9 @@ static const struct option long_options[] = {
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 #endif
+	{ "tsearch",	1,	0,	OPT_TSEARCH },
+	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
+	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
 #if defined (__linux__)
 	{ "times",	0,	0,	OPT_TIMES },
 #endif
@@ -511,6 +516,9 @@ static const help_t help[] = {
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
 #endif
+	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
+	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
+	{ NULL,		"tsearch-size",		"number of 32 bit integers to tsearch" },
 #if defined (__linux__)
 	{ NULL,		"times",		"show run time summary at end of the run" },
 #endif
@@ -1095,6 +1103,10 @@ next_opt:
 		case OPT_BSEARCH_SIZE:
 			opt_bsearch_size = get_uint64_byte(optarg);
 			check_range("bsearch-size", opt_bsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_TSEARCH_SIZE:
+			opt_tsearch_size = get_uint64_byte(optarg);
+			check_range("tsearch-size", opt_tsearch_size, 1 * KB, 4 * MB);
 			break;
 		default:
 			printf("Unknown option\n");
