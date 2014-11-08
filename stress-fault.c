@@ -108,7 +108,7 @@ int stress_fault(
 	(void)unlink(filename);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
-		pr_inf(stderr, "page faults: minor: %lu, major: %lu\n",
+		pr_dbg(stderr, "page faults: minor: %lu, major: %lu\n",
 			usage.ru_minflt, usage.ru_majflt);
 	}
 
