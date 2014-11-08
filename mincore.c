@@ -39,7 +39,7 @@ long int page_size;
  */
 int mincore_touch_pages(void *buf, size_t buf_len)
 {
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	unsigned char *vec;
 	char *buffer;
 	size_t vec_len, i;
