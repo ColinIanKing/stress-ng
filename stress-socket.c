@@ -57,7 +57,7 @@ static void handle_socket_sigalrm(int dummy)
 	}
 	if (socket_server) {
 		(void)kill(socket_server, SIGKILL);
-		waitpid(socket_client, &status, 0);
+		waitpid(socket_server, &status, 0);
 	}
 }
 
