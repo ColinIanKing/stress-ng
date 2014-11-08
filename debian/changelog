@@ -1,3 +1,46 @@
+stress-ng (0.02.26-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: include syscalls.txt in dist
+  * Fix cut-n-paste error on waitpid for socket_server
+  * Ignore args in no-op mincore build case
+  * Make mincore a no-op for GNU HURD
+  * Don't allow wait stressor if building for GNU HURD
+  * Forgot to make times option Linux only too
+  * Make --times option Linux only
+  * Only print the names of stressors if they are going to run
+  * Ensure we have read all the inotify events
+  * Add the new --times option to show system and user times
+  * stress-msg: wait for child to exit
+  * stress-inotify: ignore EINTR on select as an error
+  * stress-eventfd: wait for child to die
+  * stress-vm: wait for child to die
+  * stress-switch: wait for child to die
+  * stress-socket: wait for children to die
+  * stress-sigq: wait for child to die
+  * stress-poll: wait for child to die
+  * stress-pipe: wait for child to die
+  * stress-bigheap: wait on child after killing it
+  * Add vfork to syscalls.txt
+  * Add --vfork, --vfork-ops, --vfork-max options
+  * stress-bigheap: don't treat EINTR on waitpid as an error
+  * Add mincore to syscalls.txt
+  * Add the --page-in option to page in out-of-core pages
+  * stress-cpu: run all cpu methods rather than sqrt() by default
+  * stress-vm: treat EINTR on waitpid as a not a reportable error
+  * stress-eventfd: treat read/write EINTR as not a reportable error
+  * stress-msg: treat EINTR as not a reportable error
+  * Make poll and select act on multiple pipe fds
+  * Add madvise to syscalls.txt
+  * Enable random madvise() advice for mmaps, add --no-madvise option
+  * Fix spelling mistake in coredump.c
+  * Add table of syscalls/libc vs test coverage
+  * stress-fstat: add more stat* calls, don't spin if no valid files
+  * Modify started on text to be more like original stress tool
+  * Add wait stressor and --wait --wait-pid options
+
+ -- Colin King <colin.king@canonical.com>  Sat, 8 Nov 2014 14:24:00 +0000
+
 stress-ng (0.02.25-1) unstable; urgency=medium
 
   * Makefile: bump version
