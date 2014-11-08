@@ -120,6 +120,7 @@ static const stress_t stressors[] = {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	STRESSOR(fallocate, FALLOCATE),
 #endif
+	STRESSOR(fault, FAULT),
 	STRESSOR(flock, FLOCK),
 	STRESSOR(fork, FORK),
 	STRESSOR(fstat, FSTAT),
@@ -227,6 +228,8 @@ static const struct option long_options[] = {
 	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
 #endif
+	{ "fault",	1,	0,	OPT_FAULT },
+	{ "fault-ops",	1,	0,	OPT_FAULT_OPS },
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
 	{ "fork",	1,	0,	OPT_FORK },
@@ -420,6 +423,8 @@ static const help_t help[] = {
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
 #endif
+	{ NULL,		"fault N",		"start N workers producing page faults" },
+	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },

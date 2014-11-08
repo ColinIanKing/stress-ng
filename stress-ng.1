@@ -270,6 +270,12 @@ start N processes continally fallocating (preallocating file space) and ftuncati
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
 .TP
+.B \-\-fault N
+start N processes that generates minor and major page faults.
+.TP
+.B \-\-fault\-ops M
+stop the page fault processes after N bogo page fault operations.
+.TP
 .B \-\-flock N
 start N processes locking on a single file.
 .TP

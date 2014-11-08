@@ -202,6 +202,7 @@ typedef enum {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	STRESS_FALLOCATE,
 #endif
+	STRESS_FAULT,
 	STRESS_FLOCK,
 	STRESS_FORK,
 	STRESS_FSTAT,
@@ -357,6 +358,8 @@ typedef enum {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	OPT_FALLOCATE_OPS,
 #endif
+	OPT_FAULT,
+	OPT_FAULT_OPS,
 
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
@@ -656,6 +659,7 @@ STRESS(stress_dentry);
 STRESS(stress_eventfd);
 STRESS(stress_hdd);
 STRESS(stress_fallocate);
+STRESS(stress_fault);
 STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fstat);
