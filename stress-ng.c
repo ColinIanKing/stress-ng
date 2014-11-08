@@ -864,22 +864,30 @@ abort:
 	pr_dbg(stderr, "%d processes running\n", n_procs);
 
 wait_for_procs:
-	/* Wait for children to exit */
-	while (n_procs) {
-		int pid, status;
+	for (i = 0; i < STRESS_MAX; i++) {
+		for (j = 0; j < started_procs[i]; j++) {
+			pid_t pid;
+redo:
+			pid = procs[i][j].pid;
+			if (pid) {
+				int status, ret;
 
-		if ((pid = wait(&status)) > 0) {
-			if (WEXITSTATUS(status)) {
-				pr_err(stderr, "Process %d terminated with an error, exit status=%d\n",
-					pid, WEXITSTATUS(status));
-				*success = false;
+				ret = waitpid(pid, &status, 0);
+				if (ret > 0) {
+					if (WEXITSTATUS(status)) {
+						pr_err(stderr, "Process %d terminated with an error, exit status=%d\n",
+							ret, WEXITSTATUS(status));
+						*success = false;
+					}
+					proc_finished(ret);
+					pr_dbg(stderr, "process [%d] terminated\n", ret);
+				} else if (ret == -1) {
+					if (errno == EINTR) /* Somebody interrupted the wait */
+						goto redo;
+					if (errno == ECHILD)
+						proc_finished(pid);
+				}
 			}
-			proc_finished(pid);
-			pr_dbg(stderr, "process [%d] terminated\n", pid);
-			n_procs--;
-		} else if (pid == -1) {
-			kill_procs(SIGALRM);
-			printf("Break\n");
 		}
 	}
 	time_finish = time_now();
