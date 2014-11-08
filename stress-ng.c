@@ -318,7 +318,9 @@ static const struct option long_options[] = {
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 #endif
+#if defined (__linux__)
 	{ "times",	0,	0,	OPT_TIMES },
+#endif
 #if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
@@ -497,7 +499,9 @@ static const help_t help[] = {
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
 #endif
+#if defined (__linux__)
 	{ NULL,		"times",		"show run time summary at end of the run" },
+#endif
 #if defined(__linux__) || defined(__gnu_hurd__)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
@@ -1244,6 +1248,7 @@ next_opt:
 	}
 	(void)munmap(shared, len);
 
+#if defined (__linux__)
 	if (opt_flags & OPT_FLAGS_TIMES) {
 		struct tms buf;
 		long int ticks_per_sec;
@@ -1275,5 +1280,6 @@ next_opt:
 			((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec,
 			100.0 * (((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec) / total_cpu_time);
 	}
+#endif
 	exit(EXIT_SUCCESS);
 }
