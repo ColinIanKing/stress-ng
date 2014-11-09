@@ -126,6 +126,9 @@ T}
 crc	T{
 compute 1024 rounds of CCITT CRC16 on random data
 T}
+djb2a	T{
+128 rounds of hash DJB2a (Dan Bernstein hash using the xor variant) on 128 to 1 bytes of random strings
+T}
 double	mix of double precision floating point operations
 euler	compute e using n \[eq] (1 + (1 \[di] n)) \[ua] n
 explog	iterate on n \[eq] exp(log(n) \[di] 1.00002)
@@ -134,6 +137,9 @@ compute Fibonacci sequence of 0, 1, 1, 2, 5, 8...
 T}
 fft	4096 sample Fast Fourier Transform
 float	mix of floating point operations
+fnv1a	T{
+128 rounds of hash FNV-1a (Fowler–Noll–Vo hash using the xor then multiply variant) on 128 to 1 bytes of random strings
+T}
 gcd	compute GCD of integers
 gray	T{
 calculate binary to gray code and gray code back to binary for integers
@@ -199,6 +205,9 @@ The MWC random function concatenates two 16 bit multiply\-with\-carry generators
 and has period of around 2 \[ua] 60
 T}
 rgb	convert RGB to YUV and back to RGB (CCIR 601)
+sdbm	T{
+128 rounds of hash sdbm (as used in the SDBM database and GNU awk) on 128 to 1 bytes of random strings
+T}
 sieve	T{
 find the primes in the range 1..10000000 using the sieve of Eratosthenes
 T}

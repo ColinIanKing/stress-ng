@@ -354,6 +354,35 @@ static void random_buffer(uint8_t *data, const size_t len)
 }
 
 /*
+ *  stress_cpu_hash_generic()
+ *	stress test generic string hash function
+ */
+static void stress_cpu_hash_generic(
+	const char *name,
+	uint32_t (*hash_func)(const char *str),
+	const uint32_t result)
+{
+	char buffer[128];
+	size_t i;
+	uint32_t i_sum = 0;
+
+	MWC_SEED();
+	random_buffer((uint8_t *)buffer, sizeof(buffer));
+	/* Make it ASCII range ' '..'_' */
+	for (i = 0; i < sizeof(buffer); i++)
+		buffer[i] = (buffer[i] & 0x3f) + ' ';
+
+	for (i = sizeof(buffer) - 1; i; i--) {
+		buffer[i] = '\0';
+		i_sum += hash_func(buffer);
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != result))
+		pr_fail(stderr, "%s error detected, failed hash %s sum\n",
+			name, name);
+}
+
+
+/*
  *  jenkin()
  *	Jenkin's hash on random data
  *	http://www.burtleburtle.net/bob/hash/doobs.html
@@ -421,23 +450,82 @@ static uint32_t pjw(const char *str)
  */
 static void stress_cpu_pjw(void)
 {
-	char buffer[128];
-	size_t i;
-	uint32_t i_sum = 0;
-	const uint32_t sum = 0xa89a91c0;
+	stress_cpu_hash_generic("pjw", pjw, 0xa89a91c0);
+}
 
-	MWC_SEED();
-	random_buffer((uint8_t *)buffer, sizeof(buffer));
-	/* Make it ASCII range ' '..'_' */
-	for (i = 0; i < sizeof(buffer); i++)
-		buffer[i] = (buffer[i] & 0x3f) + ' ';
+/*
+ *  djb2a()
+ *	Hash a string, from Dan Bernstein comp.lang.c (xor verison)
+ */
+static uint32_t djb2a(const char *str)
+{
+	uint32_t hash = 5381;
+	int c;
 
-	for (i = sizeof(buffer) - 1; i; i--) {
-		buffer[i] = '\0';
-		i_sum += pjw(buffer);
+	while ((c = *str++)) {
+		/* (hash * 33) ^ c */
+		hash = ((hash << 5) + hash) ^ c;
 	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "pjw error detected, failed hash pjw sum\n");
+	return hash;
+}
+
+/*
+ *  stress_cpu_djb2a()
+ *	stress test hash djb2a
+ */
+static void stress_cpu_djb2a(void)
+{
+	stress_cpu_hash_generic("djb2a", djb2a, 0x6a60cb5a);
+}
+
+/*
+ *  fnv1a()
+ *	Hash a string, using the improved 32 bit FNV-1a hash
+ */
+static uint32_t fnv1a(const char *str)
+{
+	uint32_t hash = 5381;
+	const uint32_t fnv_prime = 16777619; /* 2^24 + 2^9 + 0x93 */
+	int c;
+
+	while ((c = *str++)) {
+		hash ^= c;
+		hash *= fnv_prime;
+	}
+	return hash;
+}
+
+/*
+ *  stress_cpu_fnv1a()
+ *	stress test hash fnv1a
+ */
+static void stress_cpu_fnv1a(void)
+{
+	stress_cpu_hash_generic("fnv1a", fnv1a, 0x8ef17e80);
+}
+
+/*
+ *  sdbm()
+ *	Hash a string, using the sdbm data base hash and also
+ *	apparently used in GNU awk.
+ */
+static uint32_t sdbm(const char *str)
+{
+	uint32_t hash = 0;
+	int c;
+
+	while ((c = *str++))
+		hash = c + (hash << 6) + (hash << 16) - hash;
+	return hash;
+}
+
+/*
+ *  stress_cpu_sdbm()
+ *	stress test hash sdbm
+ */
+static void stress_cpu_sdbm(void)
+{
+	stress_cpu_hash_generic("sdbm", sdbm, 0x46357819);
 }
 
 /*
@@ -1347,9 +1435,11 @@ stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "crc16",	stress_cpu_crc16 },
 	{ "correlate",	stress_cpu_correlate },
 	{ "double",	stress_cpu_double },
+	{ "djb2a",	stress_cpu_djb2a },
 	{ "euler",	stress_cpu_euler },
 	{ "explog",	stress_cpu_explog },
 	{ "fibonacci",	stress_cpu_fibonacci },
+	{ "fnv1a",	stress_cpu_fnv1a },
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
 	{ "gcd",	stress_cpu_gcd },
@@ -1377,6 +1467,7 @@ stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "psi",	stress_cpu_psi },
 	{ "rand",	stress_cpu_rand },
 	{ "rgb",	stress_cpu_rgb },
+	{ "sdbm",	stress_cpu_sdbm },
 	{ "sieve",	stress_cpu_sieve },
 	{ "sqrt", 	stress_cpu_sqrt },
 	{ "trig",	stress_cpu_trig },
