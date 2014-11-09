@@ -195,9 +195,27 @@ static void stress_cpu_hyperbolic(void)
 	int i;
 	double d_sum = 0.0;
 
-	for (i = 0; i < 16384; i++) {
-		double theta = (2.0 * M_PI * (double)i)/16384.0;
-		d_sum += (cosh(theta) * sinh(theta));
+	for (i = 0; i < 1500; i++) {
+		long double theta = (2.0 * M_PI * (double)i)/1500.0;
+		{
+			d_sum += (coshl(theta) * sinhl(theta));
+			d_sum += (cosh(theta) * sinh(theta));
+			d_sum += (coshf(theta) * sinhf(theta));
+		}
+		{
+			long double theta2 = theta * 2.0;
+
+			d_sum += coshl(theta2);
+			d_sum += cosh(theta2);
+			d_sum += coshf(theta2);
+		}
+		{
+			long double theta3 = theta * 3.0;
+
+			d_sum += sinhl(theta3);
+			d_sum += sinh(theta3);
+			d_sum += sinhf(theta3);
+		}
 	}
 	double_put(d_sum);
 }
