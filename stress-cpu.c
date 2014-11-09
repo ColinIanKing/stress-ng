@@ -159,11 +159,29 @@ static void stress_cpu_bitops(void)
 static void stress_cpu_trig(void)
 {
 	int i;
-	double d_sum = 0.0;
+	long double d_sum = 0.0;
 
-	for (i = 0; i < 16384; i++) {
-		double theta = (2.0 * M_PI * (double)i)/16384.0;
-		d_sum += (cos(theta) * sin(theta));
+	for (i = 0; i < 1500; i++) {
+		long double theta = (2.0 * M_PI * (double)i)/1500.0;
+		{
+			d_sum += (cosl(theta) * sinl(theta));
+			d_sum += (cos(theta) * sin(theta));
+			d_sum += (cosf(theta) * sinf(theta));
+		}
+		{
+			long double theta2 = theta * 2.0;
+
+			d_sum += cosl(theta2);
+			d_sum += cos(theta2);
+			d_sum += cosf(theta2);
+		}
+		{
+			long double theta3 = theta * 3.0;
+
+			d_sum += sinl(theta3);
+			d_sum += sin(theta3);
+			d_sum += sinf(theta3);
+		}
 	}
 	double_put(d_sum);
 }
