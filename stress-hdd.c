@@ -29,8 +29,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 #include "stress-ng.h"
 
@@ -48,8 +48,7 @@ int stress_hdd(
 	uint64_t i;
 	const pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
-
-	(void)instance;
+	char filename[PATH_MAX];
 
 	if ((buf = malloc((size_t)opt_hdd_write_size)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
@@ -59,15 +58,15 @@ int stress_hdd(
 	for (i = 0; i < opt_hdd_write_size; i++)
 		buf[i] = (uint8_t)mwc();
 
+
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, pid, instance, mwc());
 	do {
 		int fd;
-		char filename[64];
-
-		snprintf(filename, sizeof(filename), "./%s-%i.XXXXXXX", name, pid);
 
 		(void)umask(0077);
-		if ((fd = mkstemp(filename)) < 0) {
-			pr_failed_err(name, "mkstemp");
+		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+			pr_failed_err(name, "open");
 			goto finish;
 		}
 		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
