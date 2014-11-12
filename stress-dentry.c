@@ -38,10 +38,30 @@
 #include "stress-ng.h"
 
 /*
+ *  stress_dentry_filename()
+ *	construct a temp dentry filename
+ */
+static void stress_dentry_filename(
+	char *path,
+	const size_t len,
+	const char *name,
+	const pid_t pid,
+	const uint32_t instance,
+	const uint64_t gray_code)
+{
+	snprintf(path, len, "./%s-%i-%"
+		PRIu32 "-%" PRIu64,
+		name, pid, instance, gray_code);
+}
+
+/*
  *  stress_dentry_unlink()
  *	remove all dentries
  */
-static void stress_dentry_unlink(uint64_t n)
+static void stress_dentry_unlink(
+	const char *name,
+	const uint32_t instance,
+	const uint64_t n)
 {
 	uint64_t i;
 	const pid_t pid = getpid();
@@ -50,8 +70,8 @@ static void stress_dentry_unlink(uint64_t n)
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		snprintf(path, sizeof(path), "stress-dentry-%i-%"
-			PRIu64 ".tmp", pid, gray_code);
+		stress_dentry_filename(path, sizeof(path),
+			name, pid, instance, gray_code);
 		(void)unlink(path);
 	}
 	sync();
@@ -69,8 +89,6 @@ int stress_dentry(
 {
 	const pid_t pid = getpid();
 
-	(void)instance;
-
 	do {
 		uint64_t i, n = opt_dentries;
 
@@ -79,8 +97,8 @@ int stress_dentry(
 			uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
-			snprintf(path, sizeof(path), "stress-dentry-%i-%"
-				PRIu64 ".tmp", pid, gray_code);
+			stress_dentry_filename(path, sizeof(path),
+				name, pid, instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
 				pr_failed_err(name, "open");
@@ -95,7 +113,7 @@ int stress_dentry(
 
 			(*counter)++;
 		}
-		stress_dentry_unlink(n);
+		stress_dentry_unlink(name, instance, n);
 		if (!opt_do_run)
 			break;
 		sync();
@@ -104,7 +122,7 @@ int stress_dentry(
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n", name, opt_dentries);
-	stress_dentry_unlink(opt_dentries);
+	stress_dentry_unlink(name, instance, opt_dentries);
 
 	return EXIT_SUCCESS;
 }
