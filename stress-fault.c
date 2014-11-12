@@ -59,7 +59,7 @@ int stress_fault(
 		char *ptr;
 		int fd;
 
-		fd = open(filename, O_RDWR | O_CREAT, 0666);
+		fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
