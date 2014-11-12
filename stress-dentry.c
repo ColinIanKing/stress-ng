@@ -38,23 +38,6 @@
 #include "stress-ng.h"
 
 /*
- *  stress_dentry_filename()
- *	construct a temp dentry filename
- */
-static void stress_dentry_filename(
-	char *path,
-	const size_t len,
-	const char *name,
-	const pid_t pid,
-	const uint32_t instance,
-	const uint64_t gray_code)
-{
-	snprintf(path, len, "./%s-%i-%"
-		PRIu32 "-%" PRIu64,
-		name, pid, instance, gray_code);
-}
-
-/*
  *  stress_dentry_unlink()
  *	remove all dentries
  */
@@ -70,7 +53,7 @@ static void stress_dentry_unlink(
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		stress_dentry_filename(path, sizeof(path),
+		stress_temp_filename(path, sizeof(path),
 			name, pid, instance, gray_code);
 		(void)unlink(path);
 	}
@@ -97,7 +80,7 @@ int stress_dentry(
 			uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
-			stress_dentry_filename(path, sizeof(path),
+			stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
