@@ -53,7 +53,7 @@ int stress_flock(
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, getpid(), instance, mwc());
-	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
+	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
