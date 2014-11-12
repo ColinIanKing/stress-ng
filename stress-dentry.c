@@ -83,7 +83,7 @@ int stress_dentry(
 			stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 
-			if ((fd = open(path, O_CREAT | O_RDWR, 0666)) < 0) {
+			if ((fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 				pr_failed_err(name, "open");
 				n = i;
 				break;
