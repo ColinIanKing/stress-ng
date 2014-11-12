@@ -39,17 +39,20 @@
  *  stress_dir_tidy()
  *	remove all dentries
  */
-static void stress_dir_tidy(const uint64_t n)
+static void stress_dir_tidy(
+	const uint64_t n,
+	const char *name,
+	const pid_t pid,
+	const uint64_t instance)
 {
 	uint64_t i;
-	const pid_t pid = getpid();
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		snprintf(path, sizeof(path), "stress-dir-%i-%"
-			PRIu64, pid, gray_code);
+		(void)stress_temp_filename(path, sizeof(path),
+			name, pid, instance, gray_code);
 		(void)rmdir(path);
 	}
 }
@@ -66,8 +69,6 @@ int stress_dir(
 {
 	const pid_t pid = getpid();
 
-	(void)instance;
-
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
 
@@ -75,9 +76,9 @@ int stress_dir(
 			char path[PATH_MAX];
 			uint64_t gray_code = (i >> 1) ^ i;
 
-			snprintf(path, sizeof(path), "stress-dir-%i-%"
-				PRIu64, pid, gray_code);
-			if (mkdir(path, 0666) < 0) {
+			(void)stress_temp_filename(path, sizeof(path),
+				name, pid, instance, gray_code);
+			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 				pr_failed_err(name, "mkdir");
 				n = i;
 				break;
@@ -89,7 +90,7 @@ int stress_dir(
 
 			(*counter)++;
 		}
-		stress_dir_tidy(n);
+		stress_dir_tidy(n, name, pid, instance);
 		if (!opt_do_run)
 			break;
 		sync();
@@ -98,7 +99,7 @@ int stress_dir(
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n", name, DEFAULT_DIRS);
-	stress_dir_tidy(DEFAULT_DIRS);
+	stress_dir_tidy(DEFAULT_DIRS, name, pid, instance);
 
 	return EXIT_SUCCESS;
 }
