@@ -52,12 +52,11 @@ int stress_fallocate(
 	char filename[64];
 	uint64_t ftrunc_errs = 0;
 
-	(void)instance;
-
-	snprintf(filename, sizeof(filename), "./%s-%i.XXXXXXX", name, pid);
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, pid, instance, mwc());
 	(void)umask(0077);
-	if ((fd = mkstemp(filename)) < 0) {
-		pr_failed_err(name, "mkstemp");
+	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
