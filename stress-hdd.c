@@ -58,7 +58,6 @@ int stress_hdd(
 	for (i = 0; i < opt_hdd_write_size; i++)
 		buf[i] = (uint8_t)mwc();
 
-
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc());
 	do {
@@ -75,6 +74,7 @@ int stress_hdd(
 		for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 			if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
 				pr_failed_err(name, "write");
+				(void)close(fd);
 				goto finish;
 			}
 			(*counter)++;
