@@ -1094,10 +1094,14 @@ next_opt:
 			opt_fork_max = get_uint64_byte(optarg);
 			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
 			break;
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
 		case OPT_VFORK_MAX:
 			opt_vfork_max = get_uint64_byte(optarg);
 			check_range("vfork-max", opt_vfork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
 			break;
+#endif
 		case OPT_SEQUENTIAL:
 			opt_sequential = get_uint64_byte(optarg);
 			if (opt_sequential <= 0)
