@@ -628,7 +628,8 @@ int stress_inotify(
 	(void)counter;
 	(void)max_ops;
 
-	snprintf(dirname, sizeof(dirname), "%s-%i-%i", name, instance, getppid());
+	(void)stress_temp_filename(dirname, sizeof(dirname),
+		name, getpid(), instance, mwc());
 	if (mk_dir(dirname) < 0)
 		return EXIT_FAILURE;
 
