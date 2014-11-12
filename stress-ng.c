@@ -687,6 +687,17 @@ static const char *opt_name(int opt_val)
 }
 
 /*
+ *  proc_finished()
+ *	mark a process as complete
+ */
+static inline void proc_finished(proc_info_t *proc)
+{
+	proc->finish = time_now();
+	proc->pid = 0;
+}
+
+
+/*
  *  kill_procs()
  * 	kill tasks using signal
  */
@@ -710,34 +721,55 @@ static void kill_procs(int sig)
 }
 
 /*
+ *  wait_procs()
+ * 	wait for procs
+ */
+static void wait_procs(bool *success)
+{
+	int i;
+
+	for (i = 0; i < STRESS_MAX; i++) {
+		int j;
+		for (j = 0; j < started_procs[i]; j++) {
+			pid_t pid;
+redo:
+			pid = procs[i][j].pid;
+			if (pid) {
+				int status, ret;
+
+				ret = waitpid(pid, &status, 0);
+				if (ret > 0) {
+					if (WEXITSTATUS(status)) {
+						pr_err(stderr, "Process %d terminated with an error, exit status=%d\n",
+							ret, WEXITSTATUS(status));
+						*success = false;
+					}
+					proc_finished(&procs[i][j]);
+					pr_dbg(stderr, "process [%d] terminated\n", ret);
+				} else if (ret == -1) {
+					/* Somebody interrupted the wait */
+					if (errno == EINTR)
+						goto redo;
+					/* This child did not exist, mark it done anyhow */
+					if (errno == ECHILD)
+						proc_finished(&procs[i][j]);
+				}
+			}
+		}
+	}
+}
+
+
+/*
  *  handle_sigint()
  *	catch SIGINT
  */
 static void handle_sigint(int dummy)
 {
 	(void)dummy;
+
 	opt_do_run = false;
 	kill_procs(SIGALRM);
-}
-
-/*
- *  proc_finished()
- *	mark a process as complete
- */
-static void proc_finished(const pid_t pid)
-{
-	const double now = time_now();
-	int i, j;
-
-	for (i = 0; i < STRESS_MAX; i++) {
-		for (j = 0; j < started_procs[i]; j++) {
-			if (procs[i][j].pid == pid) {
-				procs[i][j].finish = now;
-				procs[i][j].pid = 0;
-				return;
-			}
-		}
-	}
 }
 
 /*
@@ -864,32 +896,7 @@ abort:
 	pr_dbg(stderr, "%d processes running\n", n_procs);
 
 wait_for_procs:
-	for (i = 0; i < STRESS_MAX; i++) {
-		for (j = 0; j < started_procs[i]; j++) {
-			pid_t pid;
-redo:
-			pid = procs[i][j].pid;
-			if (pid) {
-				int status, ret;
-
-				ret = waitpid(pid, &status, 0);
-				if (ret > 0) {
-					if (WEXITSTATUS(status)) {
-						pr_err(stderr, "Process %d terminated with an error, exit status=%d\n",
-							ret, WEXITSTATUS(status));
-						*success = false;
-					}
-					proc_finished(ret);
-					pr_dbg(stderr, "process [%d] terminated\n", ret);
-				} else if (ret == -1) {
-					if (errno == EINTR) /* Somebody interrupted the wait */
-						goto redo;
-					if (errno == ECHILD)
-						proc_finished(pid);
-				}
-			}
-		}
-	}
+	wait_procs(success);
 	time_finish = time_now();
 
 	*duration += time_finish - time_start;
