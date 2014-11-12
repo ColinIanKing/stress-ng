@@ -24,7 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>
+#include <sys/types.h>
 
 /*
  *  force stress-float to think the doubles are actually
@@ -50,3 +53,21 @@ uint64_t uint64_zero(void)
 {
 	return 0ULL;
 }
+
+/*
+ *  stress_temp_filename()
+ *      construct a temp filename
+ */
+int stress_temp_filename(
+        char *path,
+        const size_t len,
+        const char *name,
+        const pid_t pid,
+        const uint32_t instance,
+        const uint64_t magic)
+{
+        return snprintf(path, len, "./%s-%i-%"
+                PRIu32 "-%" PRIu64,
+                name, pid, instance, magic);
+}
+

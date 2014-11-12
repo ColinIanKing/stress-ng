@@ -614,6 +614,7 @@ extern stress_cpu_stressor_info_t cpu_methods[];	/* cpu stressor methods */
 extern void double_put(const double a);
 extern void uint64_put(const uint64_t a);
 extern uint64_t uint64_zero(void);
+extern int stress_temp_filename(char *path, const size_t len, const char *name, const pid_t pid, const uint32_t instance, const uint64_t magic);
 
 extern double timeval_to_double(const struct timeval *tv);
 extern double time_now(void);
