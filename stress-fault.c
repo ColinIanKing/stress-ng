@@ -51,8 +51,8 @@ int stress_fault(
 	char filename[128];
 	int i = 0;
 
-	snprintf(filename, sizeof(filename), "./%s-%i-%i",
-			name, getpid(), instance);
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, getpid(), instance, mwc());
 	(void)umask(0077);
 
 	do {
