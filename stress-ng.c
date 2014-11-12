@@ -90,6 +90,72 @@ volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 proc_info_t *procs[STRESS_MAX];			/* per process info */
 
+/*
+ *  Attempt to catch a range of signals so
+ *  we can clean up rather than leave
+ *  cruft everywhere.
+ */
+static const int signals[] = {
+	/* POSIX.1-1990 */
+#ifdef SIGHUP
+	SIGHUP,
+#endif
+#ifdef SIGINT
+	SIGINT,
+#endif
+#ifdef SIGQUIT
+	SIGQUIT,
+#endif
+#ifdef SIGILL
+	SIGILL,
+#endif
+#ifdef SIGABRT
+	SIGABRT,
+#endif
+#ifdef SIGFPE
+	SIGFPE,
+#endif
+#ifdef SIGSEGV
+	SIGSEGV,
+#endif
+#ifdef SIGTERM
+	SIGTERM,
+#endif
+#ifdef SIGUSR1
+	SIGUSR1,
+#endif
+#ifdef SIGUSR2
+	SIGUSR2,
+	/* POSIX.1-2001 */
+#endif
+#ifdef SIGBUS
+	SIGBUS,
+#endif
+#ifdef SIGXCPU
+	SIGXCPU,
+#endif
+#ifdef SIGXFSZ
+	SIGXFSZ,
+#endif
+	/* Linux various */
+#ifdef SIGIOT
+	SIGIOT,
+#endif
+#ifdef SIGSTKFLT
+	SIGSTKFLT,
+#endif
+#ifdef SIGPWR
+	SIGPWR,
+#endif
+#ifdef SIGINFO
+	SIGINFO,
+#endif
+#ifdef SIGVTALRM
+	SIGVTALRM,
+#endif
+	-1,
+};
+
 
 #define STRESSOR(lower_name, upper_name)	\
 	{					\
@@ -1192,13 +1258,15 @@ next_opt:
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 	lock_mem_current();
 
-	new_action.sa_handler = handle_sigint;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
-			errno, strerror(errno));
-		exit(EXIT_FAILURE);
+	for (i = 0; signals[i] != -1; i++) {
+		new_action.sa_handler = handle_sigint;
+		sigemptyset(&new_action.sa_mask);
+		new_action.sa_flags = 0;
+		if (sigaction(signals[i], &new_action, NULL) < 0) {
+			pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
+				errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 	}
 
 	/* Share bogo ops between processes equally */
