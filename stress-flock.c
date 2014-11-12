@@ -51,9 +51,8 @@ int stress_flock(
 	int fd;
 	char filename[64];
 
-	(void)instance;
-
-	snprintf(filename, sizeof(filename), "./%s-%i", name, getppid());
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, getpid(), instance, mwc());
 	if ((fd = open(filename, O_CREAT | O_RDWR, 0666)) < 0) {
 		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
