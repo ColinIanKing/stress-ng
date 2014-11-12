@@ -50,10 +50,9 @@ int stress_utime(
 	char filename[PATH_MAX];
 	int fd;
 
-	snprintf(filename, sizeof(filename), "./%s-%" PRIu32,
-		name, instance);
-
-	if ((fd = open(filename, O_WRONLY | O_CREAT, 0666)) < 0) {
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, getpid(), instance, mwc());
+	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
