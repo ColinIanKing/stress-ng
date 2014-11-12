@@ -53,10 +53,12 @@ int stress_sendfile(
 	size_t sz = (size_t)opt_sendfile_size;
 
         (void)umask(0077);
-        snprintf(filename, sizeof(filename), "/tmp/%s-%" PRIu32 ".XXXXXXX", name, instance);
 
-        if ((fdin = mkstemp(filename)) < 0) {
-                pr_failed_err(name, "mkstemp");
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, getpid(), instance, mwc());
+
+        if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+                pr_failed_err(name, "open");
                 return EXIT_FAILURE;
         }
 	(void)posix_fallocate(fdin, (off_t)0, (off_t)sz);
