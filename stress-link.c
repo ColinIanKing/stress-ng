@@ -41,16 +41,19 @@
  *  stress_link_unlink()
  *	remove all links
  */
-static void stress_link_unlink(const char *funcname, const uint64_t n)
+static void stress_link_unlink(
+	const uint64_t n,
+	const char *name,
+	const pid_t pid,
+	const uint32_t instance)
 {
 	uint64_t i;
-	const pid_t pid = getpid();
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 
-		snprintf(path, sizeof(path), "stress-%s-%i-%"
-			PRIu64 ".lnk", funcname, pid, i);
+		(void)stress_temp_filename(path, sizeof(path),
+			name, pid, instance, i);
 		(void)unlink(path);
 	}
 	sync();
@@ -72,10 +75,9 @@ static int stress_link_generic(
 	int fd;
 	char oldpath[PATH_MAX];
 
-	(void)instance;
-
-	snprintf(oldpath, sizeof(oldpath), "stress-%s-%i", funcname, pid);
-	if ((fd = open(oldpath, O_CREAT | O_RDWR, 0666)) < 0) {
+	(void)stress_temp_filename(oldpath, sizeof(oldpath),
+		name, pid, instance, ~0);
+	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
 		return EXIT_FAILURE;
 	}
@@ -87,9 +89,8 @@ static int stress_link_generic(
 		for (i = 0; i < n; i++) {
 			char newpath[PATH_MAX];
 
-			snprintf(newpath, sizeof(newpath), "stress-%s-%i-%"
-				PRIu64 ".lnk", funcname, pid, i);
-
+			(void)stress_temp_filename(newpath, sizeof(newpath),
+				name, pid, instance, i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				pr_failed_err(name, funcname);
 				n = i;
@@ -102,13 +103,13 @@ static int stress_link_generic(
 
 			(*counter)++;
 		}
-		stress_link_unlink(funcname, n);
+		stress_link_unlink(n, name, pid, instance);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
-	stress_link_unlink(funcname, DEFAULT_LINKS);
+	stress_link_unlink(DEFAULT_LINKS, name, pid, instance);
 	(void)unlink(oldpath);
 
 	return EXIT_SUCCESS;
