@@ -48,11 +48,12 @@ int stress_rename(
 	char name1[PATH_MAX], name2[PATH_MAX];
 	char *oldname = name1, *newname = name2, *tmpname;
 	FILE *fp;
-	uint32_t i = 0;
+	uint64_t i = 0;
+	pid_t pid = getpid();
 
 restart:
-	snprintf(oldname, PATH_MAX, "./%s-%" PRIu32 "-%" PRIu32,
-		name, instance, i++);
+	(void)stress_temp_filename(oldname, PATH_MAX,
+		name, pid, instance, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
@@ -62,8 +63,8 @@ restart:
 	(void)fclose(fp);
 
 	do {
-		snprintf(newname, PATH_MAX, "./%s-%" PRIu32 "-%" PRIu32,
-			name, instance, i++);
+		(void)stress_temp_filename(newname, PATH_MAX,
+			name, pid, instance, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);
 			(void)unlink(newname);
