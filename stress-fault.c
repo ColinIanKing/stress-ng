@@ -48,7 +48,7 @@ int stress_fault(
 	const char *name)
 {
 	struct rusage usage;
-	char filename[128];
+	char filename[PATH_MAX];
 	int i = 0;
 
 	(void)stress_temp_filename(filename, sizeof(filename),

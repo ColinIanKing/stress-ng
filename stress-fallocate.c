@@ -49,7 +49,7 @@ int stress_fallocate(
 {
 	const pid_t pid = getpid();
 	int fd;
-	char filename[64];
+	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 
 	(void)stress_temp_filename(filename, sizeof(filename),

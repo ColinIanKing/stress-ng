@@ -49,7 +49,7 @@ int stress_flock(
 	const char *name)
 {
 	int fd;
-	char filename[64];
+	char filename[PATH_MAX];
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, getpid(), instance, mwc());
