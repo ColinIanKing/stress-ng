@@ -98,7 +98,7 @@ int stress_fault(
 		}
 
 		/* Remove file on-non major fault case */
-		if (!i & 1)
+		if (!(i & 1))
 			(void)unlink(filename);
 
 		i++;
