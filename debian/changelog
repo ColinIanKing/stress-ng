@@ -1,3 +1,47 @@
+stress-ng (0.02.27-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-utime: use also utime and make futimes linux only
+  * stress-fault: use posix_fallocate instead of fallocate
+  * stress-fault: clarify negation on boolean expression
+  * stress-hdd: close file on error exit path
+  * Use PATH_MAX for filename sizes
+  * stress-hdd: use temp filename helper
+  * stress-fallocate: use temp filename helper
+  * stress-inotify: use temp filename helper
+  * stress-flock: open using S_IRUSR | S_IWUSR
+  * stress-fault: open using S_IRUSR | S_IWUSR
+  * stress-denty: open using S_IRUSR | S_IWUSR
+  * stress-dir: use temp filename helper
+  * stress-link: use temp filename helper
+  * stress-rename: use temp filename helper
+  * stress-utime: use temp filename helper
+  * stress-sendfile: use temp filename helper
+  * stress-flock: use temp filename helper
+  * stress-fault: use temp filename helper
+  * stress-dentry: use temp filename helper
+  * Add stress_temp_filename for standard temp filename building
+  * stress-dentry: include instance number in filename
+  * Catch a range of signals and handle termination better
+  * Re-work process wait by re-writing this with a helper
+  * Fix build issues on Arch
+  * Man page: tweak width for cpu methods to work on wide ttys
+  * Only print out page fault stats to debug
+  * Correctly wait for all running processes to terminate
+  * Remove redundant exit check
+  * Add page fault stressor
+  * Remove -g flag from Makefile
+  * Add lsearch stressor
+  * Add tsearch stressor
+  * Ensure we allocate in multiples of 8 elements
+  * Add bsearch stressor
+  * stress-poll: set data in correct place, fixes verify failures
+  * Make hyperbolic cpu test more demanding
+  * Make trig cpu test more demanding
+  * Add 3 more hash cpu stressors
+
+ -- Colin King <colin.king@canonical.com>  Thu, 13 Nov 2014 10:49:00 +0000
+
 stress-ng (0.02.26-1) unstable; urgency=medium
 
   * Makefile: bump version
