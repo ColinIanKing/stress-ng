@@ -65,9 +65,9 @@ int stress_fault(
 				name, errno, strerror(errno));
 			break;
 		}
-		if (fallocate(fd, 0, 0, 1) < 0) {
+		if (posix_fallocate(fd, 0, 1) < 0) {
 			close(fd);
-			pr_err(stderr, "%s: fallocate failed: errno=%d (%s)\n",
+			pr_err(stderr, "%s: posix_fallocate failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
