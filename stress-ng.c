@@ -239,9 +239,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__) || defined(__gnu_hurd__)
 	STRESSOR(urandom, URANDOM),
 #endif
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	STRESSOR(utime, UTIME),
-#endif
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
@@ -407,11 +405,9 @@ static const struct option long_options[] = {
 #if defined (__linux__)
 	{ "times",	0,	0,	OPT_TIMES },
 #endif
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
-#endif
 #if defined (__linux__) || defined(__gnu_hurd__)
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
@@ -605,11 +601,9 @@ static const help_t help[] = {
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
 #endif
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	{ NULL,		"utime N",		"start N workers updating file timestamps" },
 	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
-#endif
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },

@@ -33,10 +33,11 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <utime.h>
+
 
 #include "stress-ng.h"
 
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 /*
  *  stress_utime()
  *	stress system by setting file utime
@@ -59,8 +60,15 @@ int stress_utime(
 	}
 
 	do {
+#if defined(__linux__)
 		if (futimens(fd, NULL) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		}
+#endif
+		if (utime(filename, NULL) < 0) {
+			pr_dbg(stderr, "%s: utime failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
@@ -75,4 +83,3 @@ int stress_utime(
 
 	return EXIT_SUCCESS;
 }
-#endif

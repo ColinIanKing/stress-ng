@@ -255,9 +255,7 @@ typedef enum {
 #if defined(__linux__) || defined(__gnu_hurd__)
 	STRESS_URANDOM,
 #endif
-#if _XOPEN_SOURCE >= 700 || _POSIX_C_SOURCE >= 200809L
 	STRESS_UTIME,
-#endif
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
