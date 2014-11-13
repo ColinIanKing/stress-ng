@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.02.26
+VERSION=0.02.27
 #
 # Codename "excessive exerciser"
 #
