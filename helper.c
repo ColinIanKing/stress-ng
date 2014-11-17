@@ -26,8 +26,15 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <limits.h>
 #include <inttypes.h>
+#include <libgen.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+
+#include "stress-ng.h"
 
 /*
  *  force stress-float to think the doubles are actually
@@ -66,8 +73,52 @@ int stress_temp_filename(
         const uint32_t instance,
         const uint64_t magic)
 {
-        return snprintf(path, len, "./%s-%i-%"
+	return snprintf(path, len, ".%s-%i-%"
+		PRIu32 "/%s-%i-%"
                 PRIu32 "-%" PRIu64,
-                name, pid, instance, magic);
+                name, pid, instance,
+		name, pid, instance, magic);
 }
 
+int stress_temp_dir(
+	char *path,
+        const size_t len,
+	const char *name,
+        const pid_t pid,
+        const uint32_t instance)
+{
+	return snprintf(path, len, ".%s-%i-%" PRIu32,
+		name, pid, instance);
+}
+
+int stress_temp_dir_mk(
+	const char *name,
+        const pid_t pid,
+        const uint32_t instance)
+{
+	int ret;
+	char tmp[PATH_MAX];
+
+	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
+	ret = mkdir(tmp, S_IRWXU);
+	if (ret < 0)
+		pr_failed_err(name, "mkdir");
+
+	return ret;
+}
+
+int stress_temp_dir_rm(
+	const char *name,
+        const pid_t pid,
+        const uint32_t instance)
+{
+	int ret;
+	char tmp[PATH_MAX + 1];
+
+	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
+	ret = rmdir(tmp);
+	if (ret < 0)
+		pr_failed_err(name, "rmdir");
+
+	return ret;
+}
