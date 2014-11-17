@@ -51,6 +51,8 @@ int stress_rename(
 	uint64_t i = 0;
 	pid_t pid = getpid();
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 restart:
 	(void)stress_temp_filename(oldname, PATH_MAX,
 		name, pid, instance, i++);
@@ -58,6 +60,7 @@ restart:
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 	(void)fclose(fp);
@@ -80,6 +83,7 @@ restart:
 
 	(void)unlink(oldname);
 	(void)unlink(newname);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

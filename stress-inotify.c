@@ -624,21 +624,20 @@ int stress_inotify(
 {
 	char dirname[PATH_MAX];
 	int i;
+	pid_t pid = getpid();
 
 	(void)counter;
 	(void)max_ops;
 
-	(void)stress_temp_filename(dirname, sizeof(dirname),
-		name, getpid(), instance, mwc());
-	if (mk_dir(dirname) < 0)
+	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
-
 	do {
 		for (i = 0; opt_do_run && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(dirname);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	(void)rm_dir(dirname);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

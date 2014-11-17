@@ -72,6 +72,9 @@ int stress_dentry(
 {
 	const pid_t pid = getpid();
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
+
 	do {
 		uint64_t i, n = opt_dentries;
 
@@ -106,6 +109,7 @@ abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n", name, opt_dentries);
 	stress_dentry_unlink(name, instance, opt_dentries);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

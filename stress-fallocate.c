@@ -52,11 +52,15 @@ int stress_fallocate(
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
+
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
@@ -97,6 +101,7 @@ int stress_fallocate(
 	(void)close(fd);
 	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
 		(void)unlink(filename);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

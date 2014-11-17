@@ -69,6 +69,9 @@ int stress_dir(
 {
 	const pid_t pid = getpid();
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
+
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
 
@@ -100,6 +103,7 @@ abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n", name, DEFAULT_DIRS);
 	stress_dir_tidy(DEFAULT_DIRS, name, pid, instance);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

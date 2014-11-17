@@ -50,8 +50,12 @@ int stress_hdd(
 	int rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
+
 	if ((buf = malloc((size_t)opt_hdd_write_size)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 
@@ -89,5 +93,6 @@ int stress_hdd(
 	rc = EXIT_SUCCESS;
 finish:
 	free(buf);
+	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }

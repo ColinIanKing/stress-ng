@@ -50,9 +50,13 @@ int stress_fault(
 	struct rusage usage;
 	char filename[PATH_MAX];
 	int i = 0;
+	pid_t pid = getpid();
+
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, getpid(), instance, mwc());
+		name, pid, instance, mwc());
 	(void)umask(0077);
 
 	do {
@@ -106,6 +110,7 @@ int stress_fault(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	/* Clean up, most times this is redundant */
 	(void)unlink(filename);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg(stderr, "page faults: minor: %lu, major: %lu\n",

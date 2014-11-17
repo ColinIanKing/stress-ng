@@ -50,12 +50,17 @@ int stress_utime(
 {
 	char filename[PATH_MAX];
 	int fd;
+	pid_t pid = getpid();
+
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, getpid(), instance, mwc());
+		name, pid, instance, mwc());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 
@@ -80,6 +85,7 @@ int stress_utime(
 
 	(void)close(fd);
 	(void)unlink(filename);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

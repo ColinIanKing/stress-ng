@@ -49,12 +49,16 @@ int stress_flock(
 	const char *name)
 {
 	int fd;
+	pid_t pid = getpid();
 	char filename[PATH_MAX];
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, getpid(), instance, mwc());
+		name, pid, instance, mwc());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 
@@ -67,8 +71,9 @@ int stress_flock(
 		(void)flock(fd, LOCK_UN);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	(void)unlink(filename);
 	(void)close(fd);
+	(void)unlink(filename);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }

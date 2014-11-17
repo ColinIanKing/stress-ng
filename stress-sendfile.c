@@ -51,15 +51,20 @@ int stress_sendfile(
 	char filename[PATH_MAX];
 	int fdin, fdout, ret = EXIT_SUCCESS;
 	size_t sz = (size_t)opt_sendfile_size;
+	pid_t pid = getpid();
+
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 
         (void)umask(0077);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, getpid(), instance, mwc());
+		name, pid, instance, mwc());
 
         if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
                 pr_failed_err(name, "open");
-                return EXIT_FAILURE;
+		ret = EXIT_FAILURE;
+		goto dir_out;
         }
 	(void)posix_fallocate(fdin, (off_t)0, (off_t)sz);
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
@@ -83,6 +88,8 @@ close_out:
 close_in:
 	(void)close(fdin);
 	(void)unlink(filename);
+dir_out:
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return ret;
 }

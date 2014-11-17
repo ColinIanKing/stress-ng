@@ -75,10 +75,13 @@ static int stress_link_generic(
 	int fd;
 	char oldpath[PATH_MAX];
 
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return EXIT_FAILURE;
 	(void)stress_temp_filename(oldpath, sizeof(oldpath),
 		name, pid, instance, ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
+		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
 	(void)close(fd);
@@ -111,6 +114,7 @@ abort:
 	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
 	stress_link_unlink(DEFAULT_LINKS, name, pid, instance);
 	(void)unlink(oldpath);
+	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
 }
