@@ -861,6 +861,7 @@ static void stress_cpu_matrix_prod(void)
 
 	long double a[n][n], b[n][n], r[n][n];
 	long double v = 1 / (long double)((uint32_t)~0);
+	long double sum = 0.0;
 
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
@@ -870,10 +871,18 @@ static void stress_cpu_matrix_prod(void)
 		}
 	}
 
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			for (k = 0; k < n; k++) {
+				r[i][j] += a[i][k] * b[k][j];
+			}
+		}
+	}
+
 	for (i = 0; i < n; i++)
 		for (j = 0; j < n; j++)
-			for (k = 0; k < n; k++)
-				r[i][j] += a[i][k] * b[k][j];
+			sum += r[i][j];
+	double_put(sum);
 }
 
 /*
