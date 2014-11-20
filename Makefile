@@ -21,7 +21,7 @@ VERSION=0.02.28
 # Codename "excessive exerciser"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -fprofile-arcs -ftest-coverage 
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -48,6 +48,7 @@ SRC =   stress-affinity.c \
 	stress-kill.c \
 	stress-lsearch.c \
 	stress-link.c \
+	stress-memcpy.c \
 	stress-mmap.c \
 	stress-msg.c \
 	stress-nice.c \
