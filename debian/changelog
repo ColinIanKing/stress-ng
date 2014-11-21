@@ -1,3 +1,13 @@
+stress-ng (0.02.29-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix spelling mistake in man page
+  * Add seek stressor and --seek, --seek-ops, --seek-size options
+  * Add memcpy memory copying stressor
+  * Makefile: remove gcov options that got accidentally added
+
+ -- Colin King <colin.king@canonical.com>  Fri, 21 Nov 2014 10:19:00 +0000
+
 stress-ng (0.02.28-1) unstable; urgency=medium
 
   * Makefile: bump version
