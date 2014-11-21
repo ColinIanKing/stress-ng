@@ -493,6 +493,17 @@ use: stress\-ng \-\-sched which
 select the scheduler priority level (only on Linux). If the scheduler does not support this then
 the default priority level of 0 is chosen.
 .TP
+.B \-\-seek N
+start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file.
+.TP
+.B \-\-seek-ops N
+stop seek stress processes after N bogo seek operations.
+.TP
+.B \-\-seek-size N
+specify the size of the file in bytes. Small file sizes allow the I/O to occur in the cache, causing greater CPU load. Large file sizes force
+more I/O operations to drive causing more wait time and more I/O on the drive. One can specify the size in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-sem N
 start N processes that perform POSIX semaphore wait and post operation. This stresses fast semaphore operations and produces rapid context switching.
 .TP

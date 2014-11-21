@@ -55,6 +55,7 @@ uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;	/* sendfile size */
+uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;	/* seek file size */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
@@ -220,10 +221,11 @@ static const stress_t stressors[] = {
 	STRESSOR(rdrand, RDRAND),
 #endif
 	STRESSOR(rename, RENAME),
+	STRESSOR(seek, SEEK),
+	STRESSOR(semaphore, SEMAPHORE),
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE),
 #endif
-	STRESSOR(semaphore, SEMAPHORE),
 	STRESSOR(sigfpe, SIGFPE),
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	STRESSOR(sigq, SIGQUEUE),
@@ -371,6 +373,9 @@ static const struct option long_options[] = {
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+	{ "seek",	1,	0,	OPT_SEEK },
+	{ "seek-ops",	1,	0,	OPT_SEEK_OPS },
+	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 #if defined(__linux__)
@@ -565,13 +570,16 @@ static const help_t help[] = {
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
+	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
+	{ NULL,		"seek-ops N",		"stop when N seek bogo operations completed" },
+	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
+	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
+	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 #if defined (__linux__)
 	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
 #endif
-	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
-	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
 	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
@@ -1186,6 +1194,10 @@ next_opt:
 			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
 			break;
 #endif
+		case OPT_SEEK_SIZE:
+			opt_seek_size = get_uint64_byte(optarg);
+			check_range("seek-size", opt_seek_size, MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;

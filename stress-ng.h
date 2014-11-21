@@ -150,6 +150,10 @@
 #define DEFAULT_SEQUENTIAL_MIN	(0)
 #define DEFAULT_SEQUENTIAL_MAX	(1000000)
 
+#define MIN_SEEK_SIZE		(1 * MB)
+#define MAX_SEEK_SIZE 		(256 * GB)
+#define DEFAULT_SEEK_SIZE	(16 * MB)
+
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
 #define ABORT_FAILURES		(5)
@@ -236,6 +240,7 @@ typedef enum {
 	STRESS_RDRAND,
 #endif
 	STRESS_RENAME,
+	STRESS_SEEK,
 #if defined(__linux__)
 	STRESS_SENDFILE,
 #endif
@@ -441,6 +446,10 @@ typedef enum {
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
 
+	OPT_SEEK,
+	OPT_SEEK_OPS,
+	OPT_SEEK_SIZE,
+	
 	OPT_SENDFILE,
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
@@ -573,6 +582,7 @@ extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in byts */
 extern uint64_t opt_hdd_write_size;
 extern uint64_t opt_sendfile_size;			/* sendfile size */
+extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
@@ -689,6 +699,7 @@ STRESS(stress_procfs);
 STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);
+STRESS(stress_seek);
 STRESS(stress_semaphore);
 STRESS(stress_sendfile);
 STRESS(stress_sigfpe);
