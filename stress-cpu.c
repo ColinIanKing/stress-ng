@@ -1137,6 +1137,35 @@ static void stress_cpu_zeta(void)
 		double_put(zeta(f, precision));
 }
 
+#define GAMMA 0.57721566490153286060651209008240243104215933593992L
+
+/*
+ * stress_cpu_gamma()
+ *	stress Euler–Mascheroni constant gamma
+ */
+static void stress_cpu_gamma(void)
+{
+	long double precision = 1.0e-10;
+	long double sum = 0.0, k = 1.0, gamma = 0.0, gammaold;
+
+	do {
+		gammaold = gamma;
+		sum += 1.0 / k;
+		gamma = sum - logl(k);
+		k += 1.0;
+	} while (k < 1e6 && fabsl(gamma - gammaold) > precision);
+
+	double_put(gamma);
+
+	if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (fabsl(gamma - GAMMA) > 1.0e-5)
+			pr_fail(stderr, "calculation of Euler-Mascheroni constant not as accurate as expected\n");
+		if (k > 80000.0)
+			pr_fail(stderr, "calculation of Euler-Mascheroni constant took more iterations than expected\n");
+	}
+
+}
+
 /*
  * stress_cpu_correlate()
  *
@@ -1487,6 +1516,7 @@ stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "fnv1a",	stress_cpu_fnv1a },
 	{ "fft",	stress_cpu_fft },
 	{ "float",	stress_cpu_float },
+	{ "gamma",	stress_cpu_gamma },
 	{ "gcd",	stress_cpu_gcd },
 	{ "gray",	stress_cpu_gray },
 	{ "hamming",	stress_cpu_hamming },
