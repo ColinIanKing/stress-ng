@@ -394,7 +394,7 @@ enable metrics and only output metrics that are non-zero.
 start N processes that copy 2MB of data from a shared region to a buffer using memcpy() and then move the data in the buffer with memmove() with 3 different alignments.
 .TP
 .B \-\-memcpy-ops N
-stop memcpy stresses processes after N bogo memcpy operations.
+stop memcpy stress processes after N bogo memcpy operations.
 .TP
 .B \-\-mmap N
 start N processes continuously calling mmap()/munmap().  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The
