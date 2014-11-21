@@ -218,6 +218,7 @@ typedef enum {
 	STRESS_KILL,
 	STRESS_LINK,
 	STRESS_LSEARCH,
+	STRESS_MEMCPY,
 	STRESS_MMAP,
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
@@ -398,6 +399,9 @@ typedef enum {
 	OPT_LSEARCH_SIZE,
 
 	OPT_METRICS_BRIEF,
+
+	OPT_MEMCPY,
+	OPT_MEMCPY_OPS,
 
 	OPT_MMAP,
 	OPT_MMAP_OPS,
@@ -672,6 +676,7 @@ STRESS(stress_iosync);
 STRESS(stress_kill);
 STRESS(stress_link);
 STRESS(stress_lsearch);
+STRESS(stress_memcpy);
 STRESS(stress_mmap);
 STRESS(stress_msg);
 STRESS(stress_nice);
