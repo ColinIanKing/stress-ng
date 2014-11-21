@@ -31,6 +31,10 @@
 #include <sys/time.h>
 #include "stress-ng.h"
 
+#define GAMMA 	(0.57721566490153286060651209008240243104215933593992L)
+#define OMEGA	(0.5671432904097838729999686622L)
+#define PSI	(3.35988566624317755317201130291892717968890513373L)
+
 /*
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
@@ -904,8 +908,6 @@ static void stress_cpu_fibonacci(void)
 		pr_fail(stderr, "fibonacci error detected, summation or assignment failure\n");
 }
 
-#define PSI 3.35988566624317755317201130291892717968890513373
-
 /*
  *  stress_cpu_psi
  *	compute the constant psi,
@@ -1136,8 +1138,6 @@ static void stress_cpu_zeta(void)
 	for (f = 2.0; f < 11.0; f += 1.0)
 		double_put(zeta(f, precision));
 }
-
-#define GAMMA 0.57721566490153286060651209008240243104215933593992L
 
 /*
  * stress_cpu_gamma()
@@ -1370,8 +1370,6 @@ static void stress_cpu_pi(void)
 
 	double_put(pi);
 }
-
-#define OMEGA 0.5671432904097838729999686622
 
 /*
  *  stress_cpu_omega()
