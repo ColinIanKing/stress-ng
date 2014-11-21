@@ -71,6 +71,7 @@ int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
+uint32_t opt_class = 0;				/* Which kind of class is specified */
 stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 size_t   opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
@@ -158,106 +159,121 @@ static const int signals[] = {
 };
 
 
-#define STRESSOR(lower_name, upper_name)	\
+#define STRESSOR(lower_name, upper_name, class)	\
 	{					\
 		stress_ ## lower_name,		\
 		STRESS_ ## upper_name,		\
 		OPT_ ## upper_name,		\
 		OPT_ ## upper_name  ## _OPS,	\
-		# lower_name			\
+		# lower_name,			\
+		class				\
 	}
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
 #if defined(__linux__)
-	STRESSOR(affinity, AFFINITY),
+	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 #endif
-	STRESSOR(bigheap, BIGHEAP),
-	STRESSOR(bsearch, BSEARCH),
-	STRESSOR(cache, CACHE),
+	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
+	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
 #if _POSIX_C_SOURCE >= 199309L
-	STRESSOR(clock, CLOCK),
+	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
-	STRESSOR(cpu, CPU),
-	STRESSOR(dentry, DENTRY),
-	STRESSOR(dir, DIR),
+	STRESSOR(cpu, CPU, CLASS_CPU),
+	STRESSOR(dentry, DENTRY, CLASS_IO | CLASS_OS),
+	STRESSOR(dir, DIR, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
-	STRESSOR(eventfd, EVENTFD),
+	STRESSOR(eventfd, EVENTFD, CLASS_IO | CLASS_SCHEDULER | CLASS_OS),
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	STRESSOR(fallocate, FALLOCATE),
+	STRESSOR(fallocate, FALLOCATE, CLASS_IO | CLASS_OS),
 #endif
-	STRESSOR(fault, FAULT),
-	STRESSOR(flock, FLOCK),
-	STRESSOR(fork, FORK),
-	STRESSOR(fstat, FSTAT),
+	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(flock, FLOCK, CLASS_IO | CLASS_OS),
+	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(fstat, FSTAT, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
-	STRESSOR(futex, FUTEX),
+	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 #endif
-	STRESSOR(get, GET),
-	STRESSOR(hdd, HDD),
-	STRESSOR(iosync, IOSYNC),
+	STRESSOR(get, GET, CLASS_OS),
+	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
+	STRESSOR(iosync, IOSYNC, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
-	STRESSOR(inotify, INOTIFY),
+	STRESSOR(inotify, INOTIFY, CLASS_SCHEDULER | CLASS_OS),
 #endif
-	STRESSOR(kill, KILL),
-	STRESSOR(link, LINK),
-	STRESSOR(lsearch, LSEARCH),
-	STRESSOR(memcpy, MEMCPY),
-	STRESSOR(mmap, MMAP),
+	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(link, LINK, CLASS_IO | CLASS_OS),
+	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
+	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
 #if !defined(__gnu_hurd__)
-	STRESSOR(msg, MSG),
+	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
-	STRESSOR(nice, NICE),
-	STRESSOR(null, NULL),
-	STRESSOR(open, OPEN),
-	STRESSOR(pipe, PIPE),
-	STRESSOR(poll, POLL),
+	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(null, NULL, CLASS_IO | CLASS_MEMORY | CLASS_OS),
+	STRESSOR(open, OPEN, CLASS_IO | CLASS_OS),
+	STRESSOR(pipe, PIPE, CLASS_IO | CLASS_MEMORY | CLASS_OS),
+	STRESSOR(poll, POLL, CLASS_SCHEDULER | CLASS_OS),
 #if defined (__linux__)
-	STRESSOR(procfs, PROCFS),
+	STRESSOR(procfs, PROCFS, CLASS_IO | CLASS_OS),
 #endif
-	STRESSOR(qsort, QSORT),
+	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_X86)
-	STRESSOR(rdrand, RDRAND),
+	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 #endif
-	STRESSOR(rename, RENAME),
-	STRESSOR(seek, SEEK),
-	STRESSOR(semaphore, SEMAPHORE),
+	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
+	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
+	STRESSOR(semaphore, SEMAPHORE, CLASS_OS | CLASS_SCHEDULER),
 #if defined(__linux__)
-	STRESSOR(sendfile, SENDFILE),
+	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
 #endif
-	STRESSOR(sigfpe, SIGFPE),
+	STRESSOR(sigfpe, SIGFPE, CLASS_OS),
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-	STRESSOR(sigq, SIGQUEUE),
+	STRESSOR(sigq, SIGQUEUE, CLASS_INTERRUPT | CLASS_OS),
 #endif
-	STRESSOR(sigsegv, SIGSEGV),
-	STRESSOR(socket, SOCKET),
-	STRESSOR(switch, SWITCH),
-	STRESSOR(symlink, SYMLINK),
-	STRESSOR(sysinfo, SYSINFO),
+	STRESSOR(sigsegv, SIGSEGV, CLASS_OS),
+	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
+	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(symlink, SYMLINK, CLASS_IO | CLASS_OS),
+	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
 #if defined(__linux__)
-	STRESSOR(timer, TIMER),
+	STRESSOR(timer, TIMER, CLASS_INTERRUPT | CLASS_OS),
 #endif
-	STRESSOR(tsearch, TSEARCH),
+	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(__linux__) || defined(__gnu_hurd__)
-	STRESSOR(urandom, URANDOM),
+	STRESSOR(urandom, URANDOM, CLASS_IO | CLASS_OS),
 #endif
-	STRESSOR(utime, UTIME),
+	STRESSOR(utime, UTIME, CLASS_IO | CLASS_OS),
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
-	STRESSOR(vfork, VFORK),
+	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 #endif
-	STRESSOR(vm, VM),
+	STRESSOR(vm, VM, CLASS_IO | CLASS_VM | CLASS_MEMORY | CLASS_OS),
 #if !defined(__gnu_hurd__)
-	STRESSOR(wait, WAIT),
+	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	STRESSOR(yield, YIELD),
+	STRESSOR(yield, YIELD, CLASS_SCHEDULER | CLASS_OS),
 #endif
-	STRESSOR(zero, ZERO),
+	STRESSOR(zero, ZERO, CLASS_IO | CLASS_MEMORY | CLASS_OS),
 	/* Add new stress tests here */
-	{ stress_noop, STRESS_MAX, 0, 0, NULL }
+	{ stress_noop, STRESS_MAX, 0, 0, NULL, 0 }
+};
+
+/* Different stress classes */
+static const class_t classes[] = {
+	{ CLASS_CPU,		"cpu" },
+	{ CLASS_CPU_CACHE,	"cpu-cache" },
+	{ CLASS_IO,		"io" },
+	{ CLASS_INTERRUPT,	"interrupt" },
+	{ CLASS_MEMORY,		"memory" },
+	{ CLASS_NETWORK,	"network" },
+	{ CLASS_OS,		"os" },
+	{ CLASS_SCHEDULER,	"scheduler" },
+	{ CLASS_VM,		"vm" },
+	{ 0,			NULL }
 };
 
 static const struct option long_options[] = {
@@ -273,6 +289,7 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
+	{ "class",	1,	0,	OPT_CLASS },
 #if _POSIX_C_SOURCE >= 199309L
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
@@ -651,6 +668,17 @@ static const help_t help[] = {
 	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },
 	{ NULL,		NULL,			NULL }
 };
+
+static uint32_t get_class(const char *str)
+{
+	int i;
+
+	for (i = 0; classes[i].class; i++)
+		if (!strcmp(classes[i].name, str))
+			return classes[i].class;
+
+	return 0;
+}
 
 /*
  *  Catch signals and set flag to break out of stress loops
@@ -1221,10 +1249,27 @@ next_opt:
 			opt_lsearch_size = get_uint64_byte(optarg);
 			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
 			break;
+		case OPT_CLASS:
+			opt_class = get_class(optarg);
+			if (!opt_class) {
+				int i;
+
+				fprintf(stderr, "Unknown class: '%s', available classes:", optarg);
+				for (i = 0; classes[i].class; i++)
+					fprintf(stderr, " %s", classes[i].name);
+				fprintf(stderr, "\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
 		}
+	}
+
+	if (opt_class && !opt_sequential) {
+		fprintf(stderr, "class option is only used with sequential option\n");
+		exit(EXIT_FAILURE);
 	}
 
 	pr_dbg(stderr, "%ld processors online\n", opt_nprocessors_online);
@@ -1294,7 +1339,7 @@ next_opt:
 		}
 		for (i = 0; i < STRESS_MAX; i++) {
 			opt_ops[i] = 0;
-			num_procs[i] = opt_sequential;
+			num_procs[i] = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = 60; 
@@ -1354,9 +1399,11 @@ next_opt:
 		memset(num_procs, 0, sizeof(num_procs));
 		for (i = 0; opt_do_run && i < STRESS_MAX; i++) {
 			opt_ops[i] = 0;
-			num_procs[i] = opt_sequential;
-			stress_run(opt_sequential, opt_sequential, num_procs, shared->counters, &duration, &success);
-			num_procs[i] = 0;
+			num_procs[i] = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
+			if (num_procs[i]) {
+				stress_run(opt_sequential, opt_sequential, num_procs, shared->counters, &duration, &success);
+				num_procs[i] = 0;
+			}
 		}
 	} else {
 		/*

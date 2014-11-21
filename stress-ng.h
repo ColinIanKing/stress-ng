@@ -64,6 +64,17 @@
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 #define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
 
+/* Stressor classes */
+#define CLASS_CPU		0x00000001	/* CPU only */
+#define CLASS_MEMORY		0x00000002	/* Memory thrashers */
+#define CLASS_CPU_CACHE		0x00000004	/* CPU cache */
+#define CLASS_IO		0x00000008	/* I/O read/writes etc */
+#define CLASS_NETWORK		0x00000010	/* Network, sockets, etc */
+#define CLASS_SCHEDULER		0x00000020	/* Scheduling */
+#define CLASS_VM		0x00000040	/* VM stress, big memory, swapping */
+#define CLASS_INTERRUPT		0x00000080	/* interrupt floods */
+#define CLASS_OS		0x00000100	/* generic OS tests */
+
 /* debug output bitmasks */
 #define PR_ERROR		0x00010000	/* Print errors */
 #define PR_INFO			0x00020000	/* Print info */
@@ -185,6 +196,12 @@ typedef struct {
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
 	uint64_t counters[0] ALIGN64;
 } shared_t;
+
+/* Stress test classes */
+typedef struct {
+	uint32_t class;		/* Class type bit mask */
+	const char *name;	/* Name of class */
+} class_t;
 
 /* Stress tests */
 typedef enum {
@@ -333,6 +350,7 @@ typedef enum {
 	OPT_BIGHEAP_OPS,
 	OPT_BIGHEAP_GROWTH,
 
+	OPT_CLASS,
 	OPT_CACHE_OPS,
 
 #if _POSIX_C_SOURCE >= 199309L
@@ -543,6 +561,7 @@ typedef struct {
 	const short int short_getopt;	/* getopt short option */
 	const stress_op op;		/* ops option */
 	const char *name;		/* name of stress test */
+	const uint32_t class;		/* class of stress test */
 } stress_t;
 
 /*
