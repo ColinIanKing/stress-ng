@@ -578,6 +578,12 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 .B \-\-sock-ops N
 stop socket stress processes after N bogo operations.
 .TP
+.B \-\-stack N
+start N processes that rapidly cause stack overflows.
+.TP
+.B \-\-stack-ops N
+stop stack stress processes after N bogo stack overflows.
+.TP
 .B \-s N, \-\-switch N
 start N processes that send messages via pipe to a child to force context switching.
 .TP

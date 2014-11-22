@@ -274,6 +274,7 @@ typedef enum {
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SOCKET,
+	STRESS_STACK,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
@@ -505,6 +506,9 @@ typedef enum {
 	OPT_SOCKET_PORT,
 
 	OPT_SWITCH_OPS,
+
+	OPT_STACK,
+	OPT_STACK_OPS,
 
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
@@ -742,6 +746,7 @@ STRESS(stress_sigfpe);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);
 STRESS(stress_socket);
+STRESS(stress_stack);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sysinfo);
