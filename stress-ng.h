@@ -236,6 +236,7 @@ typedef enum {
 	STRESS_FUTEX,
 #endif
 	STRESS_GET,
+	STRESS_HSEARCH,
 	STRESS_HDD,
 #if defined(__linux__)
 	STRESS_INOTIFY,
@@ -406,6 +407,10 @@ typedef enum {
 
 	OPT_GET,
 	OPT_GET_OPS,
+
+	OPT_HSEARCH,
+	OPT_HSEARCH_OPS,
+	OPT_HSEARCH_SIZE,
 
 #if defined (__linux__)
 	OPT_INOTIFY,
@@ -616,6 +621,7 @@ extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
 extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
+extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
@@ -703,6 +709,7 @@ STRESS(stress_dir);
 STRESS(stress_dentry);
 STRESS(stress_eventfd);
 STRESS(stress_hdd);
+STRESS(stress_hsearch);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
 STRESS(stress_flock);

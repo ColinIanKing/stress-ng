@@ -62,6 +62,7 @@ uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
 uint64_t opt_tsearch_size = 65536;		/* Default tsearch size */
 uint64_t opt_lsearch_size = 8192;		/* Default lsearch size */
+uint64_t opt_hsearch_size = 8192;		/* Default hsearch size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
@@ -200,6 +201,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(get, GET, CLASS_OS),
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
+	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(iosync, IOSYNC, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
 	STRESSOR(inotify, INOTIFY, CLASS_SCHEDULER | CLASS_OS),
@@ -337,6 +339,9 @@ static const struct option long_options[] = {
 	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "help",	0,	0,	OPT_QUERY },
+	{ "hsearch",	1,	0,	OPT_HSEARCH },
+	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
+	{ "hsearch-size",1,	0,	OPT_HSEARCH_SIZE },
 #if defined (__linux__)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
@@ -1256,6 +1261,10 @@ next_opt:
 		case OPT_LSEARCH_SIZE:
 			opt_lsearch_size = get_uint64_byte(optarg);
 			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_HSEARCH_SIZE:
+			opt_hsearch_size = get_uint64_byte(optarg);
+			check_range("hsearch-size", opt_hsearch_size, 1 * KB, 4 * MB);
 			break;
 		case OPT_AIO_REQUESTS:
 			opt_aio_requests = get_uint64(optarg);

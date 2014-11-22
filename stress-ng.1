@@ -98,7 +98,7 @@ stop the big heap processes after N bogo allocation operations are completed.
 specify amount of memory to grow heap by per iteration. Size can be from 4K to 64MB. Default is 64K.
 .TP
 .B \-\-bsearch N
-start N processes that binary search a sorted array of 32 bit integers using bsearch(3). By default, there are 65536 elements in the array.  This is a useful method to exericse random access of memory and processor cache.
+start N processes that binary search a sorted array of 32 bit integers using bsearch(3). By default, there are 65536 elements in the array.  This is a useful method to exercise random access of memory and processor cache.
 .TP
 .B \-\-bsearch\-ops N
 stop the bsearch processes after N bogo bsearch operations are completed.
@@ -354,6 +354,15 @@ stop hdd stress processes after N bogo operations.
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
+.B \-\-hsearch N
+start N processes that search a 80% full hash table using hsearch(3). By default, there are 8192 elements inserted  into the hash table.  This is a useful method to exercise access of memory and processor cache.
+.TP
+.B \-\-hsearch\-ops N
+stop the hsearch processes after N bogo hsearch operations are completed.
+.TP
+.B \-\-hsearch\-size N
+specify the number of hash entries to be inserted into the hash table. Size can be from 1K to 4M.
+.TP
 .B \-\-inotify N
 start N processes performing file system activities such as making/deleting files/directories, moving files, etc. to stress exercise the various inotify events (Linux only).
 .TP
@@ -388,7 +397,7 @@ start N processes creating and removing hardlinks.
 stop link stress processes after N bogo operations.
 .TP
 .B \-\-lsearch N
-start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exericse sequential access of memory and processor cache.
+start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
 .TP
 .B \-\-lsearch\-ops N
 stop the lsearch processes after N bogo lsearch operations are completed.
@@ -607,7 +616,7 @@ second.
 show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system. (Linux only).
 .TP
 .B \-\-tsearch N
-start N processes that insert, search and delete 32 bit integers on a binary tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536 randomized integers used in the tree.  This is a useful method to exericse random access of memory and processor cache.
+start N processes that insert, search and delete 32 bit integers on a binary tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536 randomized integers used in the tree.  This is a useful method to exercise random access of memory and processor cache.
 .TP
 .B \-\-tsearch\-ops N
 stop the tsearch processes after N bogo tree operations are completed.
@@ -744,6 +753,7 @@ File bug reports at:
 .BR fallocate (2),
 .BR flock (2),
 .BR ftruncate (2),
+.BR hsearch (3),
 .BR ionice (1),
 .BR ioprio_set (2),
 .BR lsearch (3),
