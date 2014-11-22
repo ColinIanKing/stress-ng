@@ -108,3 +108,5 @@ waitpid				wait
 write				hdd
 write				null
 write				pipe
+pread				aio
+pwrite				aio
