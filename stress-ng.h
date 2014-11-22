@@ -122,6 +122,10 @@
 #define MAX_VM_HANG		(3600)
 #define DEFAULT_VM_HANG		(~0ULL)
 
+#define MIN_AIO_REQUESTS	(1)
+#define MAX_AIO_REQUESTS	(4096)
+#define DEFAULT_AIO_REQUESTS	(16)
+
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_DENTRIES	(2048)
@@ -207,6 +211,7 @@ typedef struct {
 typedef enum {
 #if defined(__linux__)
 	STRESS_AFFINITY = 0,
+	STRESS_AIO,
 #endif
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
@@ -339,9 +344,12 @@ typedef enum {
 
 	/* Long options only */
 
-
 	OPT_AFFINITY = 0x80,
 	OPT_AFFINITY_OPS,
+
+	OPT_AIO,
+	OPT_AIO_OPS,
+	OPT_AIO_REQUESTS,
 
 	OPT_BSEARCH,
 	OPT_BSEARCH_OPS,
@@ -611,7 +619,8 @@ extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
-extern uint64_t opt_sequential;				/* Number of sequention iterations */
+extern uint64_t opt_sequential;				/* Number of sequential iterations */
+extern uint64_t opt_aio_requests;			/* Number of async I/O requests */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
@@ -684,6 +693,7 @@ extern int mincore_touch_pages(void *buf, size_t buf_len);
         const uint64_t max_ops, const char *name)				
 
 STRESS(stress_affinity);
+STRESS(stress_aio);
 STRESS(stress_bigheap);
 STRESS(stress_bsearch);
 STRESS(stress_cache);

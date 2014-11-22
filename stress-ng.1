@@ -67,6 +67,17 @@ CPU affinity can contribute to poor cache behaviour.
 .B \-\-affinity-ops N
 stop affinity processes after N bogo affinity operations (only on Linux).
 .TP
+.B \-\-aio N
+start N processes that issue multiple small asynchronous I/O writes and reads on a relatively small
+temporary file.  This will just hit the file system cache and soak up a lot of user and kernel time
+in issuing and handling I/O requests.  By default, each process will handle 16 concurrent I/O requests.
+.TP
+.B \-\-aio-ops N
+stop asynchronous I/O workers after N bogo asynchronous I/O requests.
+.TP
+.B \-\-aio-requests N
+specify the number of asynchronous I/O requests each process should issue, the default is 16; 1 to 4096 are allowed.
+.TP
 .B \-a N, \-\-all N
 start N instances of each stress test.
 .TP

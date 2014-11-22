@@ -27,6 +27,7 @@ BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
 SRC =   stress-affinity.c \
+	stress-aio.c \
 	stress-bigheap.c \
 	stress-bsearch.c \
 	stress-cache.c \

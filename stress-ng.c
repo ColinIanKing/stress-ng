@@ -65,7 +65,8 @@ uint64_t opt_lsearch_size = 8192;		/* Default lsearch size */
 uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
-uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequention iterations */
+uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
+uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;/* Number of async I/O requests */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
@@ -174,6 +175,7 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 #endif
+	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
@@ -279,6 +281,9 @@ static const class_t classes[] = {
 static const struct option long_options[] = {
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
+	{ "aio",	1,	0,	OPT_AIO },
+	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
+	{ "aio-requests",1,	0,	OPT_AIO_REQUESTS },
 	{ "all",	1,	0,	OPT_ALL },
 	{ "backoff",	1,	0,	OPT_BACKOFF },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
@@ -478,6 +483,9 @@ static const help_t help[] = {
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 #endif
+	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
+	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
+	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
@@ -1248,6 +1256,10 @@ next_opt:
 		case OPT_LSEARCH_SIZE:
 			opt_lsearch_size = get_uint64_byte(optarg);
 			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_AIO_REQUESTS:
+			opt_aio_requests = get_uint64(optarg);
+			check_range("aio-requests", opt_aio_requests, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
