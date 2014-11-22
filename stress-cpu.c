@@ -56,6 +56,13 @@ static void stress_cpu_sqrt(void)
 }
 
 /*
+ *  We need to stop gcc optimising out the loop additions.. sigh
+ */
+#if __GNUC__
+static void stress_cpu_loop(void)  __attribute__((optimize("-O0")));
+#endif
+
+/*
  *  stress_cpu_loop()
  *	simple CPU busy loop
  */
