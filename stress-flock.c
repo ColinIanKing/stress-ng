@@ -32,6 +32,7 @@
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 #if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
 #include <sched.h>
 #endif
@@ -49,20 +50,37 @@ int stress_flock(
 	const char *name)
 {
 	int fd;
-	pid_t pid = getpid();
+	pid_t ppid = getppid();
 	char filename[PATH_MAX];
+	char dirname[PATH_MAX];
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	/*
+	 *  There will be a race to create the directory
+	 *  so EEXIST is expected on all but one instance
+	 */
+	(void)stress_temp_dir(dirname, sizeof(dirname), name, ppid, instance);
+	if (mkdir(dirname, S_IRWXU) < 0) {
+		if (errno != EEXIST) {
+			pr_failed_err(name, "mkdir");
+			return EXIT_FAILURE;
+		}
+	}
+
+	/*
+	 *  Lock file is based on parent pid and instance 0
+	 *  as we need to share this among all the other
+	 *  stress flock processes
+	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, ppid, 0, 0);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)rmdir(dirname);
 		return EXIT_FAILURE;
 	}
 
 	do {
+
 		if (flock(fd, LOCK_EX) < 0)
 			continue;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
@@ -71,9 +89,10 @@ int stress_flock(
 		(void)flock(fd, LOCK_UN);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
 	(void)close(fd);
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)rmdir(dirname);
 
 	return EXIT_SUCCESS;
 }
