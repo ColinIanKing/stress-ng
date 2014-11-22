@@ -73,7 +73,13 @@ int stress_flock(
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, ppid, 0, 0);
+retry:
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		if ((errno == ENOENT) && opt_do_run) {
+			/* Race, sometimes we need to retry */
+			goto retry;
+		}
+		/* Not sure why this fails.. report and abort */
 		pr_failed_err(name, "open");
 		(void)rmdir(dirname);
 		return EXIT_FAILURE;
