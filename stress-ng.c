@@ -811,7 +811,6 @@ static const char *opt_name(int opt_val)
  */
 static inline void proc_finished(proc_info_t *proc)
 {
-	proc->finish = time_now();
 	proc->pid = 0;
 }
 
@@ -943,13 +942,13 @@ void stress_run(
 	const int total_procs,
 	const int32_t max_procs,
 	const int32_t const num_procs[],
-	uint64_t counters[],
+	proc_stats_t stats[],
 	double *duration,
 	bool *success
 )
 {
 	double time_start, time_finish;
-	int32_t n_procs, i, j;
+	int32_t n_procs, i, j, n;
 
 	time_start = time_now();
 	pr_dbg(stderr, "starting processes\n");
@@ -986,17 +985,22 @@ void stress_run(
 					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 
+					n = (i * max_procs) + j;
+					stats[n].start = stats[n].finish = time_now();
+
 					(void)usleep(opt_backoff * n_procs);
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stressors[i].stress_func(counters + (i * max_procs) + j, j, opt_ops[i], name);
+						rc = stressors[i].stress_func(&stats[n].counter, j, opt_ops[i], name);
+					stats[n].finish = time_now();
+					if (times(&stats[n].tms) < 0) {
+						pr_dbg(stderr, "times failed: errno=%d (%s)\n",
+							errno, strerror(errno));
+					}
 					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 					exit(rc);
 				default:
 					procs[i][j].pid = pid;
-					procs[i][j].start = time_now() +
-						((double)(opt_backoff * n_procs) / 1000000.0);
-					procs[i][j].finish = procs[i][j].start;
 					started_procs[i]++;
 
 					/* Forced early abort during startup? */
@@ -1030,6 +1034,7 @@ int main(int argc, char **argv)
 	size_t len;
 	bool success = true, previous = false;
 	struct sigaction new_action;
+	long int ticks_per_sec;
 
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
@@ -1038,6 +1043,12 @@ int main(int argc, char **argv)
 	opt_cpu_stressor = stress_cpu_find_by_name("all");
 	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	ticks_per_sec = sysconf(_SC_CLK_TCK);
+	if (ticks_per_sec < 0) {
+		pr_err(stderr, "sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -1406,7 +1417,7 @@ next_opt:
 	fprintf(stdout, "\n");
 	fflush(stdout);
 
-	len = sizeof(shared_t) + (sizeof(uint64_t) * STRESS_MAX * max_procs);
+	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
 	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
@@ -1427,7 +1438,7 @@ next_opt:
 			opt_ops[i] = 0;
 			num_procs[i] = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
 			if (num_procs[i]) {
-				stress_run(opt_sequential, opt_sequential, num_procs, shared->counters, &duration, &success);
+				stress_run(opt_sequential, opt_sequential, num_procs, shared->stats, &duration, &success);
 				num_procs[i] = 0;
 			}
 		}
@@ -1435,7 +1446,7 @@ next_opt:
 		/*
 		 *  Run all stressors in parallel
 		 */
-		stress_run(total_procs, max_procs, num_procs, shared->counters, &duration, &success);
+		stress_run(total_procs, max_procs, num_procs, shared->stats, &duration, &success);
 	}
 
 	pr_inf(stdout, "%s run completed in %.2fs\n",
@@ -1443,19 +1454,44 @@ next_opt:
 		duration);
 
 	if (opt_flags & OPT_FLAGS_METRICS) {
+		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s\n",
+			"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops");
+		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s\n",
+			"", "", "(secs) ", "(secs) ", "(secs) ", "per sec");
 		for (i = 0; i < STRESS_MAX; i++) {
-			uint64_t total = 0;
-			double   total_time = 0.0;
+			uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
+			double   r_total = 0.0;
+			int32_t  n = (i * max_procs);
 
-			for (j = 0; j < started_procs[i]; j++) {
-				total += *(shared->counters + (i * max_procs) + j);
-				total_time += procs[i][j].finish - procs[i][j].start;
+			for (j = 0; j < started_procs[i]; j++, n++) {
+				c_total += shared->stats[n].counter;
+				u_total += shared->stats[n].tms.tms_utime + 
+					   shared->stats[n].tms.tms_cutime;
+				s_total += shared->stats[n].tms.tms_stime + 
+					   shared->stats[n].tms.tms_cstime;
+				r_total += shared->stats[n].finish - shared->stats[n].start;
 			}
-			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (total == 0))
+			/* Total usr + sys time of all procs */
+			us_total = u_total + s_total;
+
+			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 				continue;
-			pr_inf(stdout, "%s: %" PRIu64 " in %.2f secs, rate: %.2f\n",
-				stressors[i].name, total, total_time,
-				total_time > 0.0 ? (double)total / total_time : 0.0);
+#if 0
+			pr_inf(stdout, "%s: %" PRIu64 " in %.2fs (real) %.2fs (usr) %.2fs (sys), rate: %.2f ops/s\n",
+				stressors[i].name,
+				c_total,				 /* op count */
+				r_total / (double) started_procs[i],	 /* average real (wall) clock time */
+				(double)u_total / (double)ticks_per_sec, /* actual user time */
+				(double)s_total / (double)ticks_per_sec, /* actual system time */
+				us_total > 0.0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
+#endif
+			pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f\n",
+				stressors[i].name,
+				c_total,				 /* op count */
+				r_total / (double) started_procs[i],	 /* average real (wall) clock time */
+				(double)u_total / (double)ticks_per_sec, /* actual user time */
+				(double)s_total / (double)ticks_per_sec, /* actual system time */
+				us_total > 0.0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
 		}
 	}
 	free_procs();
@@ -1471,21 +1507,14 @@ next_opt:
 #if defined (__linux__)
 	if (opt_flags & OPT_FLAGS_TIMES) {
 		struct tms buf;
-		long int ticks_per_sec;
 		double total_cpu_time = opt_nprocessors_online * duration;
 
 		if (times(&buf) < 0) {
-			pr_err(stderr, "Cannot get run time information: errno=%d (%s)\n",
+			pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
 				errno, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
 
-		ticks_per_sec = sysconf(_SC_CLK_TCK);
-		if (ticks_per_sec < 0) {
-			pr_err(stderr, "Cannot get clock ticks per second: errno=%d (%s)\n",
-				errno, strerror(errno));
-			exit(EXIT_FAILURE);
-		}
 		pr_inf(stdout, "for a %.2fs run time:\n", duration);
 		pr_inf(stdout, "  %8.2fs available CPU time\n",
 			total_cpu_time);

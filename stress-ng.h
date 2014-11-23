@@ -34,6 +34,7 @@
 #include <inttypes.h>
 #include <semaphore.h>
 #include <sys/time.h>
+#include <sys/times.h>
 
 #define _GNU_SOURCE
 /* GNU HURD */
@@ -195,10 +196,17 @@ typedef struct {
 #endif
 
 typedef struct {
+	uint64_t counter;
+	struct tms tms;
+	double start;
+	double finish;
+} proc_stats_t;
+
+typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;
 	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
-	uint64_t counters[0] ALIGN64;
+	proc_stats_t stats[0] ALIGN64;
 } shared_t;
 
 /* Stress test classes */
@@ -593,8 +601,6 @@ typedef struct {
 
 typedef struct {
 	pid_t	pid;		/* process id */
-	double	start;		/* time process started */
-	double	finish;		/* time process got reaped */
 } proc_info_t;
 
 typedef struct {
