@@ -128,10 +128,10 @@ int stress_sysinfo(
 	do {
 		int ret;
 		struct tms tms_buf;
+		clock_t clk;
 #if defined (__linux__)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
-		clock_t clk;
 		int i;
 #endif
 
