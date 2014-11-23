@@ -646,7 +646,6 @@ extern size_t	opt_vm_bytes;				/* VM bytes */
 extern size_t	opt_vm_stride;				/* VM stride */
 extern int	opt_vm_flags;				/* VM mmap flags */
 extern size_t	opt_mmap_bytes;				/* MMAP size */
-extern pid_t	socket_server, socket_client;		/* pids of socket client/servers */
 #if defined (__linux__)
 extern uint64_t	opt_timer_freq;				/* timer frequency (Hz) */
 extern int	opt_sched;				/* sched policy */

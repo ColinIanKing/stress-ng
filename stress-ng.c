@@ -79,7 +79,6 @@ size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 size_t   opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
 int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
-pid_t    socket_server, socket_client;		/* pids of socket client/servers */
 #if defined (__linux__)
 uint64_t opt_timer_freq = 1000000;		/* timer frequency (Hz) */
 #endif

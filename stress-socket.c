@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -46,19 +47,8 @@
  */
 static void handle_socket_sigalrm(int dummy)
 {
-	int status;
-
 	(void)dummy;
 	opt_do_run = false;
-
-	if (socket_client) {
-		(void)kill(socket_client, SIGKILL);
-		waitpid(socket_client, &status, 0);
-	}
-	if (socket_server) {
-		(void)kill(socket_server, SIGKILL);
-		waitpid(socket_server, &status, 0);
-	}
 }
 
 /*
@@ -84,7 +74,7 @@ int stress_socket(
 	} else if (pid == 0) {
 		/* Child, client */
 
-		for (;;) {
+		do {
 			char buf[SOCKET_BUF];
 			ssize_t n;
 			struct sockaddr_in addr;
@@ -93,6 +83,8 @@ int stress_socket(
 retry:
 			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 				pr_failed_dbg(name, "socket");
+				/* failed, kick parent to finish */
+				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
 
@@ -106,14 +98,16 @@ retry:
 				usleep(10000);
 				retries++;
 				if (retries > 100) {
+					/* Give up.. */
 					pr_failed_dbg(name, "connect");
-					break;
+					(void)kill(getppid(), SIGALRM);
+					exit(EXIT_FAILURE);
 				}
 				goto retry;
 			}
 
 			retries = 0;
-			for (;;) {
+			do {
 				n = read(fd, buf, sizeof(buf));
 				if (n == 0)
 					break;
@@ -121,11 +115,13 @@ retry:
 					pr_failed_dbg(name, "write");
 					break;
 				}
-			}
+			} while (opt_do_run && (!max_ops || *counter < max_ops));
 			(void)close(fd);
-		}
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
-		exit(EXIT_FAILURE);
+		exit(EXIT_SUCCESS);
 	} else {
 		/* Parent, server */
 
@@ -134,9 +130,6 @@ retry:
 		struct sockaddr_in addr;
 		int so_reuseaddr = 1;
 		struct sigaction new_action;
-
-		socket_server = getpid();
-		socket_client = pid;
 
 		new_action.sa_handler = handle_socket_sigalrm;
 		sigemptyset(&new_action.sa_mask);
@@ -193,8 +186,10 @@ retry:
 die_close:
 		(void)close(fd);
 die:
-		(void)kill(pid, SIGKILL);
-		waitpid(pid, &status, 0);
+		if (pid) {
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		}
 	}
 	return rc;
 }
