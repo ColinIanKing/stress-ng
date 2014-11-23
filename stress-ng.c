@@ -443,9 +443,7 @@ static const struct option long_options[] = {
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
 	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
-#if defined (__linux__)
 	{ "times",	0,	0,	OPT_TIMES },
-#endif
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
@@ -647,9 +645,7 @@ static const help_t help[] = {
 	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
 	{ NULL,		"tsearch-size",		"number of 32 bit integers to tsearch" },
-#if defined (__linux__)
 	{ NULL,		"times",		"show run time summary at end of the run" },
-#endif
 #if defined(__linux__) || defined(__gnu_hurd__)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
@@ -1266,11 +1262,9 @@ next_opt:
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
-#if defined (__linux__)
 		case OPT_TIMES:
 			opt_flags |= OPT_FLAGS_TIMES;
 			break;
-#endif
 		case OPT_BSEARCH_SIZE:
 			opt_bsearch_size = get_uint64_byte(optarg);
 			check_range("bsearch-size", opt_bsearch_size, 1 * KB, 4 * MB);
@@ -1505,7 +1499,6 @@ next_opt:
 	}
 	(void)munmap(shared, len);
 
-#if defined (__linux__)
 	if (opt_flags & OPT_FLAGS_TIMES) {
 		struct tms buf;
 		double total_cpu_time = opt_nprocessors_online * duration;
@@ -1530,6 +1523,5 @@ next_opt:
 			((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec,
 			100.0 * (((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec) / total_cpu_time);
 	}
-#endif
 	exit(EXIT_SUCCESS);
 }

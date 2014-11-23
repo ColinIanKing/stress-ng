@@ -537,9 +537,7 @@ typedef enum {
 	OPT_TSEARCH_OPS,
 	OPT_TSEARCH_SIZE,
 
-#if defined (__linux__)
 	OPT_TIMES,
-#endif
 
 #if defined (__linux__) || defined(__gnu_hurd__)
 	OPT_URANDOM_OPS,
