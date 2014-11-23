@@ -502,7 +502,7 @@ static void stress_cpu_pjw(void)
 
 /*
  *  djb2a()
- *	Hash a string, from Dan Bernstein comp.lang.c (xor verison)
+ *	Hash a string, from Dan Bernstein comp.lang.c (xor version)
  */
 static uint32_t djb2a(const char *str)
 {
