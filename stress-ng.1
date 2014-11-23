@@ -751,6 +751,12 @@ stress\-ng --sequential 0 -t 10m
 .IP
 run all the stressors one by one for 10 minutes, with the number of instances
 of each stressor matching the number of online CPUs.
+.LP
+stress\-ng --sequential 8 --class io -t 5m --times
+.IP
+run all the stressors in the io class one by one for 5 minutes each, with 8
+instances of each stressor running concurrently and show overall time
+utilisation statistics at the end of the run.
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
