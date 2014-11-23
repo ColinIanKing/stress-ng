@@ -131,6 +131,7 @@ int stress_sysinfo(
 #if defined (__linux__)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
+		clock_t clk;
 		int i;
 #endif
 
@@ -163,8 +164,8 @@ int stress_sysinfo(
 		check_do_run();
 #endif
 
-		ret = times(&tms_buf);
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+		clk = times(&tms_buf);
+		if ((clk == (clock_t)-1) && (opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail(stderr, "%s: times failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		}
