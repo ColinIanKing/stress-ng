@@ -1453,10 +1453,10 @@ next_opt:
 		duration);
 
 	if (opt_flags & OPT_FLAGS_METRICS) {
-		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s\n",
-			"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops");
-		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s\n",
-			"", "", "(secs) ", "(secs) ", "(secs) ", "per sec");
+		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+			"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
+		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
 		for (i = 0; i < STRESS_MAX; i++) {
 			uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 			double   r_total = 0.0;
@@ -1472,25 +1472,19 @@ next_opt:
 			}
 			/* Total usr + sys time of all procs */
 			us_total = u_total + s_total;
+			/* Real time in terms of average wall clock time of all procs */
+			r_total /= (double)started_procs[i];
 
 			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 				continue;
-#if 0
-			pr_inf(stdout, "%s: %" PRIu64 " in %.2fs (real) %.2fs (usr) %.2fs (sys), rate: %.2f ops/s\n",
+			pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
 				stressors[i].name,
 				c_total,				 /* op count */
-				r_total / (double) started_procs[i],	 /* average real (wall) clock time */
+				r_total,	 			/* average real (wall) clock time */
 				(double)u_total / (double)ticks_per_sec, /* actual user time */
 				(double)s_total / (double)ticks_per_sec, /* actual system time */
-				us_total > 0.0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
-#endif
-			pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f\n",
-				stressors[i].name,
-				c_total,				 /* op count */
-				r_total / (double) started_procs[i],	 /* average real (wall) clock time */
-				(double)u_total / (double)ticks_per_sec, /* actual user time */
-				(double)s_total / (double)ticks_per_sec, /* actual system time */
-				us_total > 0.0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
+				r_total > 0.0 ? (double)c_total / r_total : 0.0,
+				us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
 		}
 	}
 	free_procs();
