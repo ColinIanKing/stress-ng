@@ -997,7 +997,7 @@ void stress_run(
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(&stats[n].counter, j, opt_ops[i], name);
 					stats[n].finish = time_now();
-					if (times(&stats[n].tms) < 0) {
+					if (times(&stats[n].tms) == (clock_t)-1) {
 						pr_dbg(stderr, "times failed: errno=%d (%s)\n",
 							errno, strerror(errno));
 					}
@@ -1510,7 +1510,7 @@ next_opt:
 		struct tms buf;
 		double total_cpu_time = opt_nprocessors_online * duration;
 
-		if (times(&buf) < 0) {
+		if (times(&buf) == (clock_t)-1) {
 			pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
 				errno, strerror(errno));
 			exit(EXIT_FAILURE);
