@@ -199,7 +199,7 @@ int stress_aio(
 			switch (io_reqs[i].status) {
 			case ECANCELED:
 			case 0:
-				/* Succeded or cancelled, so redo another */
+				/* Succeeded or cancelled, so redo another */
 				(*counter)++;
 				if (issue_aio_request(fd, i * BUFFER_SZ, &io_reqs[i], i,
 					(mwc() & 0x20) ? aio_read : aio_write) < 0)
