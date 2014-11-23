@@ -175,7 +175,9 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 #endif
+#if defined(__linux__)
 	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
+#endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
@@ -283,9 +285,11 @@ static const class_t classes[] = {
 static const struct option long_options[] = {
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
+#if defined(__linux__)
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
 	{ "aio-requests",1,	0,	OPT_AIO_REQUESTS },
+#endif
 	{ "all",	1,	0,	OPT_ALL },
 	{ "backoff",	1,	0,	OPT_BACKOFF },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
@@ -490,9 +494,11 @@ static const help_t help[] = {
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 #endif
+#if defined (__linux__)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
+#endif
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
@@ -1281,10 +1287,12 @@ next_opt:
 			opt_hsearch_size = get_uint64_byte(optarg);
 			check_range("hsearch-size", opt_hsearch_size, 1 * KB, 4 * MB);
 			break;
+#if defined(__linux__)
 		case OPT_AIO_REQUESTS:
 			opt_aio_requests = get_uint64(optarg);
 			check_range("aio-requests", opt_aio_requests, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 			break;
+#endif
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
 			if (!opt_class) {

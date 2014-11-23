@@ -219,6 +219,8 @@ typedef struct {
 typedef enum {
 #if defined(__linux__)
 	STRESS_AFFINITY = 0,
+#endif
+#if defined(__linux__)
 	STRESS_AIO,
 #endif
 	STRESS_BSEARCH,
@@ -357,9 +359,11 @@ typedef enum {
 	OPT_AFFINITY = 0x80,
 	OPT_AFFINITY_OPS,
 
+#if defined (__linux__)
 	OPT_AIO,
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
+#endif
 
 	OPT_BSEARCH,
 	OPT_BSEARCH_OPS,

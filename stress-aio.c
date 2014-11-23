@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#if defined (__linux__)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -228,3 +230,5 @@ finish:
 	free(io_reqs);
 	return rc;
 }
+
+#endif
