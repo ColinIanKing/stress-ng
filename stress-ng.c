@@ -1479,7 +1479,7 @@ next_opt:
 			/* Total usr + sys time of all procs */
 			us_total = u_total + s_total;
 			/* Real time in terms of average wall clock time of all procs */
-			r_total /= (double)started_procs[i];
+			r_total = started_procs[i] ? r_total / (double)started_procs[i] : 0.0;
 
 			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 				continue;
