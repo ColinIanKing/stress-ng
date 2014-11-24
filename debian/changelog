@@ -1,3 +1,36 @@
+stress-ng (0.03.00-1) unstable; urgency=medium
+
+  * Makefile: bump to version 0.03.00
+  * Clarify cpu stressors and tidy up the table formatting
+  * Reduce number of loops for int, float and complex by factor of 10
+  * Add cpu complex stressors to man page
+  * Add complex math stressors, make float macro use appropriate trig funcs
+  * stress-aio: Fix spelling mistake "Succeeded" in comment
+  * stress-cpu: fix spelling mistake "version" in comment
+  * Add one more stress-ng example to man page
+  * stress-sysinfo: make ret linux only
+  * stress-sysinfo: make clk not linux only
+  * Remove linux only restriction for --times option
+  * sysinfo: check for times() returning -1
+  * Check for time() error correctly
+  * Make stress-aio linux only
+  * Output metrics in terms of time in wall clock and user+sys times
+  * stress-socket: terminate child properly to fix process accounting
+  * Make metrics based on child usr and sys ticks rather than wall clock times
+  * Force gcc from over-optmising loop cpu stressor accumulates
+  * Fix flock stress on open failure because of race on same file
+  * Update syscalls text file
+  * Add stack overflow stressor
+  * Fix flock - ensure it locks on one file between all workers
+  * Add hsearch stressor
+  * Add async I/O aio stressor
+  * Add --class option
+  * stress-cpu: Move math constants and suffix them with L
+  * Add Euler–Mascheroni (gamma) calculation in cpu-stress
+  * Fix another spelling mistake in man page
+
+ -- Colin King <colin.king@canonical.com>  Mon, 24 Nov 2014 09:31:00 +0000
+
 stress-ng (0.02.29-1) unstable; urgency=medium
 
   * Makefile: bump version
