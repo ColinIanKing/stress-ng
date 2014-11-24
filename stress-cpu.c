@@ -699,7 +699,7 @@ static void stress_cpu_int32(void)
 	a = mwc();
 	b = mwc();
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		int_ops(a, b, 0xffffffffUL);
 		if (!opt_do_run)
 			break;
@@ -723,7 +723,7 @@ static void stress_cpu_int16(void)
 	a = mwc();
 	b = mwc();
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		int_ops(a, b, 0xffff);
 		if (!opt_do_run)
 			break;
@@ -747,7 +747,7 @@ static void stress_cpu_int8(void)
 	a = mwc();
 	b = mwc();
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		int_ops(a, b, 0xff);
 		if (!opt_do_run)
 			break;
@@ -785,7 +785,7 @@ static void stress_cpu_float(void)
 	uint32_t i;
 	float a = 0.18728, b = mwc(), c = mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, sinf, cosf);
 		if (!opt_do_run)
 			break;
@@ -802,7 +802,7 @@ static void stress_cpu_double(void)
 	uint32_t i;
 	double a = 0.18728, b = mwc(), c = mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, sin, cos);
 		if (!opt_do_run)
 			break;
@@ -819,7 +819,7 @@ static void stress_cpu_longdouble(void)
 	uint32_t i;
 	long double a = 0.18728, b = mwc(), c = mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, sinl, cosl);
 		if (!opt_do_run)
 			break;
@@ -838,7 +838,7 @@ static void stress_cpu_complex_float(void)
 		b = mwc() - I * 0.11121,
 		c = mwc() + I * mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, csinf, ccosf);
 		if (!opt_do_run)
 			break;
@@ -857,7 +857,7 @@ static void stress_cpu_complex_double(void)
 		b = mwc() - I * 0.11121,
 		c = mwc() + I * mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, csin, ccos);
 		if (!opt_do_run)
 			break;
@@ -876,7 +876,7 @@ static void stress_cpu_complex_long_double(void)
 		b = mwc() - I * 0.11121,
 		c = mwc() + I * mwc(), d;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		float_ops(a, b, c, d, csinl, ccosl);
 		if (!opt_do_run)
 			break;
