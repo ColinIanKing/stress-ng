@@ -756,7 +756,7 @@ static void stress_cpu_int8(void)
 		pr_fail(stderr, "int16 error detected, failed int16 math operations\n");
 }
 
-#define float_ops(a, b, c, d)		\
+#define float_ops(a, b, c, d, sin, cos)	\
 	do {				\
 		a = a + b;		\
 		b = a * c;		\
@@ -786,7 +786,7 @@ static void stress_cpu_float(void)
 	float a = 0.18728, b = mwc(), c = mwc(), d;
 
 	for (i = 0; i < 10000; i++) {
-		float_ops(a, b, c, d);
+		float_ops(a, b, c, d, sinf, cosf);
 		if (!opt_do_run)
 			break;
 	}
@@ -803,7 +803,7 @@ static void stress_cpu_double(void)
 	double a = 0.18728, b = mwc(), c = mwc(), d;
 
 	for (i = 0; i < 10000; i++) {
-		float_ops(a, b, c, d);
+		float_ops(a, b, c, d, sin, cos);
 		if (!opt_do_run)
 			break;
 	}
@@ -820,7 +820,64 @@ static void stress_cpu_longdouble(void)
 	long double a = 0.18728, b = mwc(), c = mwc(), d;
 
 	for (i = 0; i < 10000; i++) {
-		float_ops(a, b, c, d);
+		float_ops(a, b, c, d, sinl, cosl);
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+}
+
+/*
+ *  stress_cpu_complex_float()
+ *	mix of complex floating point ops
+ */
+static void stress_cpu_complex_float(void)
+{
+	uint32_t i;
+	complex float a = 0.18728 + I * 0.2762,
+		b = mwc() - I * 0.11121,
+		c = mwc() + I * mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		float_ops(a, b, c, d, csinf, ccosf);
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+}
+
+/*
+ *  stress_cpu_complex_double()
+ *	mix of complex double point ops
+ */
+static void stress_cpu_complex_double(void)
+{
+	uint32_t i;
+	complex double a = 0.18728 + I * 0.2762,
+		b = mwc() - I * 0.11121,
+		c = mwc() + I * mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		float_ops(a, b, c, d, csin, ccos);
+		if (!opt_do_run)
+			break;
+	}
+	double_put(a + b + c + d);
+}
+
+/*
+ *  stress_cpu_complex_long_double()
+ *	mix of complex long double point ops
+ */
+static void stress_cpu_complex_long_double(void)
+{
+	uint32_t i;
+	complex long double a = 0.18728 + I * 0.2762,
+		b = mwc() - I * 0.11121,
+		c = mwc() + I * mwc(), d;
+
+	for (i = 0; i < 10000; i++) {
+		float_ops(a, b, c, d, csinl, ccosl);
 		if (!opt_do_run)
 			break;
 	}
@@ -1512,6 +1569,9 @@ stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "ackermann",	stress_cpu_ackermann },
 	{ "bitops",	stress_cpu_bitops },
 	{ "crc16",	stress_cpu_crc16 },
+	{ "cdouble",	stress_cpu_complex_double },
+	{ "cfloat",	stress_cpu_complex_float },
+	{ "clongdouble",stress_cpu_complex_long_double },
 	{ "correlate",	stress_cpu_correlate },
 	{ "double",	stress_cpu_double },
 	{ "djb2a",	stress_cpu_djb2a },
