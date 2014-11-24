@@ -507,6 +507,7 @@ static const help_t help[] = {
 	{ NULL,		"bsearch-size",		"number of 32 bit integers to bsearch" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
 	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 #if _POSIX_C_SOURCE >= 199309L
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
@@ -550,6 +551,9 @@ static const help_t help[] = {
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
+	{ NULL,		"hsearch",		"start N workers that exercise a hash table search" },
+	{ NULL,		"hsearch-ops",		"stop when N hash search bogo operations completed" },
+	{ NULL,		"hsearch-size",		"number of integers to insert into hash table" },
 #if defined (__linux__)
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
