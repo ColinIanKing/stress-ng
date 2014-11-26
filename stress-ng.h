@@ -179,7 +179,7 @@
 #endif
 
 /* stress process prototype */
-typedef int (*func)(uint64_t *const counter, const uint32_t instance,
+typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
 
 /* Help information for options */
@@ -583,7 +583,7 @@ typedef enum {
 
 /* stress test metadata */
 typedef struct {
-	const func stress_func;		/* stress test function */
+	const stress_func stress_func;	/* stress test function */
 	const stress_id id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op op;		/* ops option */
@@ -609,11 +609,6 @@ typedef struct {
 	const char	ch;	/* Scaling suffix */
 	const uint64_t	scale;	/* Amount to scale by */
 } scale_t;
-
-/* stress process prototype */
-typedef int (*func)(uint64_t *const counter, const uint32_t
-	instance, const uint64_t max_ops, const char *name);
-
 
 /* Various option settings and flags */
 extern const char *app_name;				/* Name of application */
