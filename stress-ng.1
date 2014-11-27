@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "November 1, 2014"
+.TH STRESS-NG 1 "November 27, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -18,6 +18,7 @@
 .\"
 .\" left margin - right margin minus a fudge factor
 .nr SZ ((\n[.l] - \n[.i]) / 1n - 29)
+.nr SM ((\n[.l] - \n[.i]) / 1n - 41)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system.
 .br
@@ -453,14 +454,62 @@ output number of bogo operations in total performed by the stress processes. Not
 been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
 .RS
 .PP
-The metrics show the total cumulative CPU time consumed by all the processors exercised by a stress process. For example, if a test is run for 10 seconds across 8 processors, the total CPU time will be 80 seconds.
+The following columns of information are output:
+.TS
+expand;
+lB lBw(\n[SM]n)
+l l.
+Column Heading	Explanation
+T{
+stressor
+T}	T{
+name of the stressor
+T}
+T{
+bogo ops
+T}	T{
+number of iterations of the stressor during the run. This is metric of
+how much overall "work" has been achieved in bogo operations.
+T}
+T{
+real time (secs)
+T}	T{
+average wall clock duration (in seconds) of the stressor. This is the total wall clock time of all the instances of that particular stressor divided by the number of these stressors being run.
+T}
+T{
+usr time (secs)
+T}	T{
+total user time (in seconds) consumed running all the instances of the stressor.
+T}
+T{
+sys time (secs)
+T}	T{
+total system time (in seconds) consumed running all the instances of the stressor.
+T}
+T{
+bogo ops/s (real time)
+T}	T{
+total bogo operations per second based on wall clock run time. The wall clock time reflects
+the apparent run time. The more processors one has on a system the more the work load can be
+distributed onto these and hence the wall clock time will reduce and the bogo ops rate will
+increase.  This is essentially the "apparent" bogo ops rate of the system.
+T}
+T{
+bogo ops/s (usr+sys time)
+T}	T{
+total bogo operations per second based on cumulative user and system time. This is the real
+bogo ops rate of the system taking into consideration the actual time execution time of
+the stressor across all the processors.  Generally this will decrease as one adds more
+concurrent stressors due to contention on cache, memory, execution units, buses and I/O devices.
+T}
+.TE
 .RE
 .TP
 .B -\-metrics\-brief
 enable metrics and only output metrics that are non-zero.
 .TP
 .B \-\-memcpy N
-start N processes that copy 2MB of data from a shared region to a buffer using memcpy() and then move the data in the buffer with memmove() with 3 different alignments.
+start N processes that copy 2MB of data from a shared region to a buffer using memcpy() and then move the data in the buffer with memmove() with 3 different alignments. This will exercise processor cache and system memory.
 .TP
 .B \-\-memcpy-ops N
 stop memcpy stress processes after N bogo memcpy operations.
@@ -507,7 +556,7 @@ stop the open stress processes after N bogo open operations.
 touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
 all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
 performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(1) to determine
-the pages that are not in core and so need touching to page them back in.
+the pages that are not in core and hence need touching to page them back in.
 .TP
 .B \-p N, \-\-pipe N
 start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and a writer.
@@ -563,7 +612,7 @@ select the scheduler priority level (only on Linux). If the scheduler does not s
 the default priority level of 0 is chosen.
 .TP
 .B \-\-seek N
-start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file.
+start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file. The default file size is 16 GB.
 .TP
 .B \-\-seek-ops N
 stop seek stress processes after N bogo seek operations.
@@ -622,7 +671,7 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 stop socket stress processes after N bogo operations.
 .TP
 .B \-\-stack N
-start N processes that rapidly cause stack overflows.
+start N processes that rapidly cause and catch stack overflows by use of alloca().
 .TP
 .B \-\-stack-ops N
 stop stack stress processes after N bogo stack overflows.
@@ -651,7 +700,7 @@ seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 .TP
 .B \-T N, \-\-timer N
 start N processes creating timer events at a default rate of 1Mhz (Linux only); this
-can create a lot of timer clock interrupts.
+can create a many thousands of timer clock interrupts.
 .TP
 .B \-\-timer-ops N
 stop timer stress processes after N bogo timer events (Linux only).
