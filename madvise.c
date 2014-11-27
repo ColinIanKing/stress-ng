@@ -33,6 +33,7 @@
 
 #include "stress-ng.h"
 
+#if _BSD_SOURCE
 static const int madvise_options[] = {
 #ifdef MADV_NORMAL
 	MADV_NORMAL,
@@ -74,6 +75,7 @@ static const int madvise_options[] = {
 	MADV_DODUMP
 #endif
 };
+#endif
 
 /*
  * madvise_random()
@@ -87,6 +89,9 @@ int madvise_random(void *addr, size_t length)
 
 		return madvise(addr, length, madvise_options[i]);
 	}
+#else
+	(void)addr;
+	(void)length;
 #endif
 	return 0;
 }
