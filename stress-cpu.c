@@ -877,7 +877,11 @@ static void stress_cpu_complex_long_double(void)
 		c = mwc() + I * mwc(), d;
 
 	for (i = 0; i < 1000; i++) {
+#if __FreeBSD__
+		float_ops(a, b, c, d, csin, ccos);
+#else
 		float_ops(a, b, c, d, csinl, ccosl);
+#endif
 		if (!opt_do_run)
 			break;
 	}
@@ -1184,7 +1188,11 @@ static inline long double complex zeta(
 
 	do {
 		zold = z;
+#if __FreeBSD__
+		z += 1 / pow(i++, s);
+#else
 		z += 1 / cpow(i++, s);
+#endif
 	} while (cabsl(z - zold) > precision);
 
 	return z;
