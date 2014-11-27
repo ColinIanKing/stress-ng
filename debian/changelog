@@ -1,3 +1,31 @@
+stress-ng (0.03.01-1) unstable; urgency=medium
+
+  * Makefile: bump version, update codename
+  * More --metrics explanation, expand other mior options as well
+  * Use %zu print format specifier for size_t variable
+  * Fix builds for OpenBSD too
+  * Makefile: minor tweaks to build rules
+  * stress-cpu: remove cpow and csinl csinl for FreeBSD builds
+  * stress-cpu: build without warnings with clang
+  * madvise: fix build issues on FreeBSD
+  * stress-sysinfo: build for FreeBSD
+  * Fix build issues on FreeBSD
+  * stress-cpu: zeta precision should be using cabsl
+  * Use double complex for fft
+  * stress-nice: include signal.h
+  * stress-tsearch: use & rather than &&
+  * stress-lsearch: use & rather than &&
+  * opt_flags && OPT_FLAGS_VERIFY should be using & rather than &&
+  * Remove duplicate const
+  * Remove duplicate func declaration, rename other to stress_func
+  * Fix division by zero on r_total, emit zero if num procs is zero
+  * Fix spelling mistake "performance" in man page
+  * Fix float man page entry
+  * Fix clongdouble man page entry
+  * Add hsearch and class options to --help
+
+ -- Colin King <colin.king@canonical.com>  Thu, 27 Nov 2014 16:28:05 +0000
+
 stress-ng (0.03.00-1) unstable; urgency=medium
 
   * Makefile: bump to version 0.03.00
