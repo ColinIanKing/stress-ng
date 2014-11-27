@@ -98,11 +98,17 @@ SRC =   stress-affinity.c \
 
 OBJS = $(SRC:.c=.o)
 
-%.o: %.c stress-ng.h
+.SUFFIXES: .c .o
+
+.o: stress-ng.h Makefile
+
+.c.o: stress-ng.h Makefile $(SRC)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-ng: $(OBJS) Makefile
+stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lrt -lpthread -o $@ $(LDFLAGS)
+
+$(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@
