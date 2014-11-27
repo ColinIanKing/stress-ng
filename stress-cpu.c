@@ -1185,7 +1185,7 @@ static inline long double complex zeta(
 	do {
 		zold = z;
 		z += 1 / cpow(i++, s);
-	} while (cabs(z - zold) > precision);
+	} while (cabsl(z - zold) > precision);
 
 	return z;
 }
