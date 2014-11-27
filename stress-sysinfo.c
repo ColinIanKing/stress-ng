@@ -28,7 +28,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
+#ifndef __FreeBSD__
 #include <mntent.h>
+#endif
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -86,6 +88,17 @@ void mount_free(char *mnts[], const int n)
  *	populate mnts with up to max mount points
  *	from /etc/mtab
  */
+#ifdef __FreeBSD__
+int mount_get(char *mnts[], const int max)
+{
+	int n = 0;
+
+	mount_add(mnts, max, &n, "/");
+	mount_add(mnts, max, &n, "/dev");
+
+	return n;
+}
+#else
 int mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
@@ -105,6 +118,7 @@ int mount_get(char *mnts[], const int max)
 
 	return n;
 }
+#endif
 
 /*
  *  stress on system information
