@@ -28,7 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #include <mntent.h>
 #endif
 #include <sys/types.h>
@@ -88,7 +88,7 @@ void mount_free(char *mnts[], const int n)
  *	populate mnts with up to max mount points
  *	from /etc/mtab
  */
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 int mount_get(char *mnts[], const int max)
 {
 	int n = 0;

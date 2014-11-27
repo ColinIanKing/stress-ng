@@ -25,7 +25,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_X86)
+#if defined(STRESS_X86) && !defined(__OpenBSD__)
 
 #include <cpuid.h>
 

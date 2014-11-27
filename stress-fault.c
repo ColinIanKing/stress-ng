@@ -69,12 +69,25 @@ int stress_fault(
 				name, errno, strerror(errno));
 			break;
 		}
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		if (posix_fallocate(fd, 0, 1) < 0) {
 			close(fd);
 			pr_err(stderr, "%s: posix_fallocate failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
+#else
+		{
+			char buffer[1];
+
+			if (write(fd, buffer, sizeof(buffer)) < 0) {
+				close(fd);
+				pr_err(stderr, "%s: write failed: errno=%d (%s)\n",
+					name, errno, strerror(errno));
+				break;
+			}
+		}
+#endif
 
 		/*
 		 * Removing file here causes major fault when we touch

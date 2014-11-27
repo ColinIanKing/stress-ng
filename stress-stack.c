@@ -30,7 +30,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
-#ifndef __FreeBSD__
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
 #include <alloca.h>
 #endif
 

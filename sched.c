@@ -28,13 +28,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
 #include <sched.h>
 #endif
 
 #include "stress-ng.h"
 
-#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
