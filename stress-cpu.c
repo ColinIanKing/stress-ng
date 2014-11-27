@@ -58,7 +58,7 @@ static void stress_cpu_sqrt(void)
 /*
  *  We need to stop gcc optimising out the loop additions.. sigh
  */
-#if __GNUC__
+#if __GNUC__ && !defined(__clang__)
 static void stress_cpu_loop(void)  __attribute__((optimize("-O0")));
 #endif
 
@@ -1077,7 +1077,7 @@ static void stress_cpu_explog(void)
 /*
  *  Undocumented gcc-ism, force -O0 optimisation
  */
-#if __GNUC__
+#if __GNUC__ && !defined(__clang__)
 static void stress_cpu_jmp(void)  __attribute__((optimize("-O0")));
 #endif
 
