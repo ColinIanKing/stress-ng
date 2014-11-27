@@ -64,7 +64,7 @@ int stress_hsearch(
 		char buffer[32];
 		ENTRY e;
 
-		snprintf(buffer, sizeof(buffer), "%zd", i);
+		snprintf(buffer, sizeof(buffer), "%zu", i);
 		keys[i] = strdup(buffer);
 		if (!keys[i]) {
 			pr_err(stderr, "%s: cannot allocate key\n", name);
