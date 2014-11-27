@@ -30,7 +30,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#ifndef __FreeBSD__
 #include <alloca.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -69,7 +71,7 @@ int stress_stack(
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
-	ss.ss_sp = stack;
+	ss.ss_sp = (void *)stack;
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
