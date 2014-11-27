@@ -144,7 +144,7 @@ int stress_clock(
 			sevp.sigev_notify = SIGEV_NONE;
 			ret = timer_create(timers[i], &sevp, &timer_id);
 			if (ret < 0) {
-				if (opt_flags && OPT_FLAGS_VERIFY)
+				if (opt_flags & OPT_FLAGS_VERIFY)
 					pr_fail(stderr, "%s: timer_create failed for timer %zu, errno=%d (%s)\n",
 						name, i, errno, strerror(errno));
 				continue;
@@ -158,7 +158,7 @@ int stress_clock(
 
 			ret = timer_settime(timer_id, 0, &its, NULL);
 			if (ret < 0) {
-				if (opt_flags && OPT_FLAGS_VERIFY)
+				if (opt_flags & OPT_FLAGS_VERIFY)
 					pr_fail(stderr, "%s: timer_settime failed for timer %zu, errno=%d (%s)\n",
 						name, i, errno, strerror(errno));
 				goto timer_delete;
@@ -167,7 +167,7 @@ int stress_clock(
 			do {
 				ret = timer_gettime(timer_id, &its);
 				if (ret < 0) {
-					if (opt_flags && OPT_FLAGS_VERIFY)
+					if (opt_flags & OPT_FLAGS_VERIFY)
 						pr_fail(stderr, "%s: timer_gettime failed for timer %zu, errno=%d (%s)\n",
 							name, i, errno, strerror(errno));
 					goto timer_delete;
@@ -179,7 +179,7 @@ int stress_clock(
 timer_delete:
 			ret = timer_delete(timer_id);
 			if (ret < 0) {
-				if (opt_flags && OPT_FLAGS_VERIFY)
+				if (opt_flags & OPT_FLAGS_VERIFY)
 					pr_fail(stderr, "%s: timer_delete failed for timer %zu, errno=%d (%s)\n",
 						name, i, errno, strerror(errno));
 				break;
