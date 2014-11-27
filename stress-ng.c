@@ -946,7 +946,7 @@ static void free_procs(void)
 void stress_run(
 	const int total_procs,
 	const int32_t max_procs,
-	const int32_t const num_procs[],
+	const int32_t num_procs[],
 	proc_stats_t stats[],
 	double *duration,
 	bool *success
