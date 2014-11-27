@@ -321,7 +321,7 @@ static void stress_cpu_phi(void)
  *  fft_partial()
  *  	partial Fast Fourier Transform
  */
-static void fft_partial(complex *data, complex *tmp, const int n, const int m)
+static void fft_partial(double complex *data, double complex *tmp, const int n, const int m)
 {
 	if (m < n) {
 		const int m2 = m * 2;
@@ -330,8 +330,8 @@ static void fft_partial(complex *data, complex *tmp, const int n, const int m)
 		fft_partial(tmp, data, n, m2);
 		fft_partial(tmp + m, data + m, n, m2);
 		for (i = 0; i < n; i += m2) {
-			complex v = tmp[i];
-			complex t =
+			double complex v = tmp[i];
+			double complex t =
 				cexp((-I * M_PI * (double)i) /
 				     (double)n) * tmp[i + m];
 			data[i / 2] = v + t;
@@ -346,13 +346,13 @@ static void fft_partial(complex *data, complex *tmp, const int n, const int m)
  */
 static void stress_cpu_fft(void)
 {
-	complex buf[FFT_SIZE], tmp[FFT_SIZE];
+	double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
 
 	for (i = 0; i < FFT_SIZE; i++)
-		buf[i] = (complex)(i % 63);
+		buf[i] = (double complex)(i % 63);
 
-	memcpy(tmp, buf, sizeof(complex) * FFT_SIZE);
+	memcpy(tmp, buf, sizeof(double complex) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
 }
 
