@@ -1237,7 +1237,7 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 			break;
 	}
 abort:
-	stress_vm_check("prime-zero", bit_errors);
+	stress_vm_check("prime-gray-zero", bit_errors);
 
 	return bit_errors;
 }
@@ -1281,7 +1281,7 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 			break;
 	}
 abort:
-	stress_vm_check("prime-one", bit_errors);
+	stress_vm_check("prime-gray-one", bit_errors);
 
 	return bit_errors;
 }
