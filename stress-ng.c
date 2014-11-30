@@ -75,6 +75,7 @@ int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 uint32_t opt_class = 0;				/* Which kind of class is specified */
 stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
+stress_vm_stressor_info_t *opt_vm_stressor;	/* Default stress VM method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 size_t   opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
 int      opt_vm_flags = 0;			/* VM mmap flags */
@@ -473,6 +474,7 @@ static const struct option long_options[] = {
 	{ "vm-locked",	0,	0,	OPT_VM_MMAP_LOCKED },
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
+	{ "vm-method",	1,	0,	OPT_VM_METHOD },
 #if !defined(__gnu_hurd__)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
@@ -515,7 +517,7 @@ static const help_t help[] = {
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
-	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is sqrt(rand())" },
+	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
 	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
 	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
@@ -676,6 +678,7 @@ static const help_t help[] = {
 #ifdef MAP_LOCKED
 	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
 #endif
+	{ NULL,		"vm-method m",		"specify stress vm method m, default is all" },
 #ifdef MAP_POPULATE
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
@@ -1046,6 +1049,8 @@ int main(int argc, char **argv)
 	mwc_reseed();
 
 	opt_cpu_stressor = stress_cpu_find_by_name("all");
+	opt_vm_stressor = stress_vm_find_by_name("all");
+
 	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
@@ -1171,6 +1176,19 @@ next_opt:
 			opt_vm_flags |= MAP_LOCKED;
 			break;
 #endif
+		case OPT_VM_METHOD:
+			opt_vm_stressor = stress_vm_find_by_name(optarg);
+			if (!opt_vm_stressor) {
+				stress_vm_stressor_info_t *info = vm_methods;
+
+				fprintf(stderr, "vm-method must be one of:");
+				for (info = vm_methods; info->func; info++)
+					fprintf(stderr, " %s", info->name);
+				fprintf(stderr, "\n");
+
+				exit(EXIT_FAILURE);
+			}
+			break;
 		case OPT_HDD_BYTES:
 			opt_hdd_bytes =  get_uint64_byte(optarg);
 			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
