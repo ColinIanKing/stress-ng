@@ -19,6 +19,7 @@
 .\" left margin - right margin minus a fudge factor
 .nr SZ ((\n[.l] - \n[.i]) / 1n - 29)
 .nr SM ((\n[.l] - \n[.i]) / 1n - 41)
+.nr SV ((\n[.l] - \n[.i]) / 1n - 30)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system.
 .br
@@ -781,6 +782,97 @@ don't continually unmap and map memory, just keep on re-writing to it.
 .TP
 .B \-\-vm\-locked
 Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
+.TP
+.B \-\-vm\-method m
+specify a vm stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Each of the vm stressors have 3 phases:
+.RS
+.PP
+1. Initialised.  The anonymously memory mapped region is set to a known pattern.
+.PP
+2. Exercised.  Memory is modified in a known predictable way. Some vm stressors alter memory sequetially, some use small or large strides to step along memory.
+.PP
+3. Checked.  The modified memory is checked to see if it matches the expected result.
+.PP
+The vm methods containing 'prime' in their name have a stride of the largest prime less than 2^64, allowing to them to thoroughly step through memory and touch all locations just once while also doing without touching memory cells next to each other. This strategy exercises the cache and page non-locality.
+.PP
+Since the memory being exercised is virtually mapped then there is no gaurantee of touching page addresses in any particular physical order.  These stressors should not be used to test that all the system's memory is working correctly either, use tools such as memtest86 instead.
+.PP
+The vm stress methods are intented to exercise memory in ways to possibily find memory issues but also to drive memory read and writes in various access patterns to force thermal errors too.
+.PP
+Available vm stress methods are described as follows:
+.TS
+expand;
+lB2 lBw(\n[SV]n)
+l l.
+Method	Description
+all	T{
+iterate over all the below vm stress methods
+T}
+flip	T{
+sequentially work through memory 8 times, each time just one bit in memory flipped (inverted). This will effectively invert each byte in 8 passes.
+T}
+galpat-0	T{
+galloping pattern zeros. This sets all bits to 0 and flips just 1 in 4096 bits to 1. It then checks to see if the 1s are pulled down to 0 by their neighbours or of the neighbours have been pulled up to 1.
+T}
+galpat-1	T{
+galloping pattern ones. This sets all bits to 1 and flips just 1 in 4096 bits to 0. It then checks to see if the 0s are pulled up to 1 by their neighbours or of the neighbours have been pulled down to 0.
+T}
+gray	T{
+fill the memory with sequential gray codes (these only change 1 bit at a time between adjacent bytes) and then check if they are set correctly.
+T}
+incdec	T{
+work sequentially through memory twice, the first pass increments each byte by a specific value and the second pass decrements each byte back to the original start value. The increment/decrement value changes on each invocation of the stressor.
+T}
+inc-nybble	T{
+initialise memory to a set value (that changes on each invocation of the stressor) and then sequentially work through each byte incrementing the bottom 4 bits by 1 and the top 4 bits by 15.
+T}
+rand-set	T{
+sequentially work through memory in 64 bit chunks setting bytes in the chunk to the same 8 bit random value.  The random value changes on each chunk.  Check that the values have not changed.
+T}
+rand-sum	T{
+sequentially set all memory to random values and then summate the number of bits that have changed from the original set values.
+T}
+ror	T{
+fill memory with a random pattern and then sequentially rotate 64 bits of memory right by one bit, then check the final load/rotate/stored values.
+T}
+swap	T{
+fill memory in 64 byte chunks with random patters. Then swap each 64 chunk with a randomly chosen chunk. Finally, reverse the swap to put the chunks back to their original place and check if the data is correct. This exercises adjacent and random memory load/stores.
+T}
+move-inv	T{
+sequentially fill memory 64 bits of memory at a time with random values, and then check if the memory is set correctly.  Next, sequentially invert each 64 bit pattern and again check if the memory is set as expected.
+T}
+modulo-x	T{
+fill memory with 23 iterations. Each iteration starts one byte further along from the start of the memory and steps along in 23 byte strides. In each stride, the first byte is set to a random pattern and all other bytes are set to the inverse.  Then it checks see if the first byte contains the expected random pattern. This exercises cache store/reads as well as seeing if neighbouring cells influence each other.
+T}
+prime-0	T{
+iterate 8 times by stepping through memory in very large prime strides clearing just on bit at a time in every byte. Then check to see if all bits are set to zero.
+T}
+prime-1	T{
+iterate 8 times by stepping through memory in very large prime strides setting just on bit at a time in every byte. Then check to see if all bits are set to one.
+T}
+prime-gray-0	T{
+first step through memory in very large prime strides clearing just on bit (based on a gray code) in every byte. Next, repeat this but clear the other 7 bits. Then check to see if all bits are set to zero.
+T}
+prime-gray-1	T{
+first step through memory in very large prime strides setting just on bit (based on a gray code) in every byte. Next, repeat this but set the other 7 bits. Then check to see if all bits are set to one.
+T}
+walk-0d	T{
+for each byte in memory, walk through each data line setting them to low (and the others are set high) and check that the written value is as expected. This checks if any data lines are stuck.
+T}
+walk-1d	T{
+for each byte in memory, walk through each data line setting them to high (and the others are set low) and check that the written value is as expected. This checks if any data lines are stuck.
+T}
+walk-0a	T{
+in the given memory mapping, work through a range of specially chosen addresses working through address lines to see if any address lines are stuck low. This works best with physical memory addressing, however, exercising these virtual addresses has some value too.
+T}
+walk-1a	T{
+in the given memory mapping, work through a range of specially chosen addresses working through address lines to see if any address lines are stuck high. This works best with physical memory addressing, however, exercising these virtual addresses has some value too.
+T}
+zero-one	T{
+set all memory bits to zero and then check if any bits are not zero. Next, set all the memory bits to one and check if any bits are not one.
+T}
+.TE
+.RE
 .TP
 .B \-\-vm\-populate
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
