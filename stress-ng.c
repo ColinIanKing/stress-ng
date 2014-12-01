@@ -57,7 +57,6 @@ uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;	/* sendfile size */
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;	/* seek file size */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t mwc_z = MWC_SEED_Z, mwc_w = MWC_SEED_W;/* random number vals */
 uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
 uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
 uint64_t opt_tsearch_size = 65536;		/* Default tsearch size */

@@ -184,6 +184,12 @@ typedef struct {
 	const char *description;	/* description */
 } help_t;
 
+/* Fast random number generator state */
+typedef struct {
+	uint64_t z;
+	uint64_t w;
+} mwc_t;
+
 #ifdef __GNUC__
 #define ALIGN64	__attribute__ ((aligned(64)))
 #else
@@ -627,7 +633,6 @@ extern uint64_t opt_hdd_write_size;
 extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
-extern uint64_t	mwc_z, mwc_w;				/* random number vals */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
@@ -679,7 +684,6 @@ extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t 
 
 extern double timeval_to_double(const struct timeval *tv);
 extern double time_now(void);
-extern uint64_t mwc(void);
 extern void mwc_seed(const uint64_t w, const uint64_t z);
 extern void mwc_reseed(void);
 extern stress_cpu_stressor_info_t *stress_cpu_find_by_name(const char *name);
@@ -706,6 +710,19 @@ extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
+extern mwc_t __mwc;
+
+/*
+ *  mwc()
+ *      fast pseudo random number generator, see
+ *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
+ */
+static inline uint64_t mwc(void)
+{
+	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
+	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
+	return (__mwc.z << 16) + __mwc.w;
+}
 
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\

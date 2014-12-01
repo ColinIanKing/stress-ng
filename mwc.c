@@ -33,17 +33,7 @@
 
 #include "stress-ng.h"
 
-/*
- *  mwc()
- *	fast pseudo random number generator, see
- *	http://www.cse.yorku.ca/~oz/marsaglia-rng.html
- */
-uint64_t mwc(void)
-{
-	mwc_z = 36969 * (mwc_z & 65535) + (mwc_z >> 16);
-	mwc_w = 18000 * (mwc_w & 65535) + (mwc_w >> 16);
-	return (mwc_z << 16) + mwc_w;
-}
+mwc_t __mwc;
 
 /*
  *  mwc_seed()
@@ -51,8 +41,8 @@ uint64_t mwc(void)
  */
 void mwc_seed(const uint64_t w, const uint64_t z)
 {
-	mwc_w = w;
-	mwc_z = z;
+	__mwc.w = w;
+	__mwc.z = z;
 }
 
 
@@ -65,13 +55,13 @@ void mwc_reseed(void)
 	struct timeval tv;
 	int i, n;
 
-	mwc_z = 0;
+	__mwc.z = 0;
 	if (gettimeofday(&tv, NULL) == 0)
-		mwc_z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-	mwc_z += ~((unsigned char *)&mwc_z - (unsigned char *)&tv);
-	mwc_w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+		__mwc.z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+	__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
+	__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 
-	n = (int)mwc_z % 1733;
+	n = (int)__mwc.z % 1733;
 	for (i = 0; i < n; i++)
 		(void)mwc();
 }
