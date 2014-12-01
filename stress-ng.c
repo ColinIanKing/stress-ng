@@ -340,7 +340,6 @@ static const struct option long_options[] = {
 	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
-	{ "hdd-noclean",0,	0,	OPT_HDD_NOCLEAN },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "help",	0,	0,	OPT_QUERY },
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
@@ -549,7 +548,6 @@ static const help_t help[] = {
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
-	{ NULL,		"hdd-noclean",		"do not unlink files created by hdd workers" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 	{ NULL,		"hsearch",		"start N workers that exercise a hash table search" },
 	{ NULL,		"hsearch-ops",		"stop when N hash search bogo operations completed" },
@@ -1185,9 +1183,6 @@ next_opt:
 		case OPT_HDD_BYTES:
 			opt_hdd_bytes =  get_uint64_byte(optarg);
 			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
-			break;
-		case OPT_HDD_NOCLEAN:
-			opt_flags |= OPT_FLAGS_NO_CLEAN;
 			break;
 		case OPT_HDD_WRITE_SIZE:
 			opt_hdd_write_size = get_uint64_byte(optarg);

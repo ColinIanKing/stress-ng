@@ -72,8 +72,7 @@ int stress_hdd(
 			pr_failed_err(name, "open");
 			goto finish;
 		}
-		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
-			(void)unlink(filename);
+		(void)unlink(filename);
 
 		for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 			if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
@@ -86,8 +85,6 @@ int stress_hdd(
 				break;
 		}
 		(void)close(fd);
-		if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
-			(void)unlink(filename);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;

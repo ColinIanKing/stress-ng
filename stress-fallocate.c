@@ -63,8 +63,7 @@ int stress_fallocate(
 		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
-	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
-		(void)unlink(filename);
+	(void)unlink(filename);
 
 	do {
 		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
@@ -99,8 +98,6 @@ int stress_fallocate(
 		pr_dbg(stderr, "%s: %" PRIu64
 			" ftruncate errors occurred.\n", name, ftrunc_errs);
 	(void)close(fd);
-	if (!(opt_flags & OPT_FLAGS_NO_CLEAN))
-		(void)unlink(filename);
 	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;

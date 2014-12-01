@@ -51,7 +51,6 @@
 #define SOCKET_BUF		(8192)
 
 /* Option bit masks */
-#define OPT_FLAGS_NO_CLEAN	0x00000001	/* Don't remove hdd files */
 #define OPT_FLAGS_DRY_RUN	0x00000002	/* Don't actually run */
 #define OPT_FLAGS_METRICS	0x00000004	/* Dump metrics at end */
 #define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
@@ -386,7 +385,6 @@ typedef enum {
 	OPT_DIR_OPS,
 
 	OPT_HDD_BYTES,
-	OPT_HDD_NOCLEAN,
 	OPT_HDD_WRITE_SIZE,
 	OPT_HDD_OPS,
 
