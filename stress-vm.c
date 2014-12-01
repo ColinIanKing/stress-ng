@@ -1295,7 +1295,6 @@ static size_t stress_vm_all(uint8_t *buf, const size_t sz)
 	static int i = 1;
 	size_t bit_errors = 0;
 
-	pr_dbg(stderr, "stress-vm: %s\n", vm_methods[i].name);
 	bit_errors = vm_methods[i].func(buf, sz);
 	i++;
 	if (vm_methods[i].func == NULL)
