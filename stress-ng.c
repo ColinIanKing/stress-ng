@@ -284,6 +284,7 @@ static const class_t classes[] = {
 static const struct option long_options[] = {
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
+	{ "affinity-rand",0,	0,	OPT_AFFINITY_RAND },
 #if defined(__linux__)
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
@@ -489,6 +490,7 @@ static const help_t help[] = {
 #if defined (__linux__)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
+	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
 #if defined (__linux__)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
@@ -1092,6 +1094,9 @@ next_opt:
 			check_value("all", val);
 			for (i = 0; i < STRESS_MAX; i++)
 				num_procs[i] = val;
+			break;
+		case OPT_AFFINITY_RAND:
+			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
 		case OPT_RANDOM:
 			opt_flags |= OPT_FLAGS_RANDOM;

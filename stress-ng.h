@@ -51,6 +51,7 @@
 #define SOCKET_BUF		(8192)
 
 /* Option bit masks */
+#define OPT_FLAGS_AFFINITY_RAND	0x00000001	/* Change affinity randomly */
 #define OPT_FLAGS_DRY_RUN	0x00000002	/* Don't actually run */
 #define OPT_FLAGS_METRICS	0x00000004	/* Dump metrics at end */
 #define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
@@ -359,6 +360,7 @@ typedef enum {
 
 	OPT_AFFINITY = 0x80,
 	OPT_AFFINITY_OPS,
+	OPT_AFFINITY_RAND,
 
 #if defined (__linux__)
 	OPT_AIO,
