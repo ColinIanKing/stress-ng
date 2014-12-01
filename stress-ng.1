@@ -131,7 +131,7 @@ start N processes exercising the CPU by sequentially working through all the dif
 stop cpu stress processes after N bogo operations.
 .TP
 .B \-l P, \-\-cpu\-load P
-load CPU with P percent loading. 0 is effectivly a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo CPU operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
+load CPU with P percent loading. 0 is effectively a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo CPU operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
 .TP
 .B \-\-cpu\-method method
 specify a cpu stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Available cpu stress methods are described as follows:
@@ -249,7 +249,7 @@ matrixprod	T{
 matrix product of two 128 \(mu 128 matrices of double floats. Testing on 64 bit x86 hardware shows that this is provides a good mix of memory, cache and floating point operations and is probably the best CPU method to use to make a CPU run hot.
 T}
 nsqrt	T{
-compute sqrt() of long doubles using Newton–Raphson
+compute sqrt() of long doubles using Newton-Raphson
 T}
 omega	T{
 compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn)
@@ -334,7 +334,7 @@ start N parent and child worker processes that read and write 8 byte event messa
 stop eventfd workers after N bogo operations.
 .TP
 .B \-F N, \-\-fallocate N
-start N processes continally fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
+start N processes continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
@@ -412,7 +412,7 @@ specify the number of hash entries to be inserted into the hash table. Size can 
 start N processes performing file system activities such as making/deleting files/directories, moving files, etc. to stress exercise the various inotify events (Linux only).
 .TP
 .B \-\-inotify-ops N
-stop inotify stress processes after N inotify bogo operarions.
+stop inotify stress processes after N inotify bogo operations.
 .TP
 .B \-i N, \-\-io N
 start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
@@ -681,7 +681,7 @@ stop stack stress processes after N bogo stack overflows.
 start N processes that send messages via pipe to a child to force context switching.
 .TP
 .B \-\-switch\-ops N
-stop context switcing processes after N bogo operations.
+stop context switching processes after N bogo operations.
 .TP
 .B \-\-symlink N
 start N processes creating and removing symbolic links.
@@ -789,15 +789,15 @@ specify a vm stress method. By default, all the stress methods are exercised seq
 .PP
 1. Initialised.  The anonymously memory mapped region is set to a known pattern.
 .PP
-2. Exercised.  Memory is modified in a known predictable way. Some vm stressors alter memory sequetially, some use small or large strides to step along memory.
+2. Exercised.  Memory is modified in a known predictable way. Some vm stressors alter memory sequentially, some use small or large strides to step along memory.
 .PP
 3. Checked.  The modified memory is checked to see if it matches the expected result.
 .PP
 The vm methods containing 'prime' in their name have a stride of the largest prime less than 2^64, allowing to them to thoroughly step through memory and touch all locations just once while also doing without touching memory cells next to each other. This strategy exercises the cache and page non-locality.
 .PP
-Since the memory being exercised is virtually mapped then there is no gaurantee of touching page addresses in any particular physical order.  These stressors should not be used to test that all the system's memory is working correctly either, use tools such as memtest86 instead.
+Since the memory being exercised is virtually mapped then there is no guarantee of touching page addresses in any particular physical order.  These stressors should not be used to test that all the system's memory is working correctly either, use tools such as memtest86 instead.
 .PP
-The vm stress methods are intented to exercise memory in ways to possibily find memory issues but also to drive memory read and writes in various access patterns to force thermal errors too.
+The vm stress methods are intended to exercise memory in ways to possibly find memory issues and to try to force thermal errors.
 .PP
 Available vm stress methods are described as follows:
 .TS
@@ -806,7 +806,7 @@ lB2 lBw(\n[SV]n)
 l l.
 Method	Description
 all	T{
-iterate over all the below vm stress methods
+iterate over all the vm stress methods as listed below.
 T}
 flip	T{
 sequentially work through memory 8 times, each time just one bit in memory flipped (inverted). This will effectively invert each byte in 8 passes.
