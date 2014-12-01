@@ -77,7 +77,6 @@ uint32_t opt_class = 0;				/* Which kind of class is specified */
 stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 stress_vm_stressor_info_t *opt_vm_stressor;	/* Default stress VM method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
-size_t   opt_vm_stride = DEFAULT_VM_STRIDE;	/* VM stride */
 int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
 #if defined (__linux__)
@@ -464,7 +463,6 @@ static const struct option long_options[] = {
 #endif
 	{ "vm",		1,	0,	OPT_VM },
 	{ "vm-bytes",	1,	0,	OPT_VM_BYTES },
-	{ "vm-stride",	1,	0,	OPT_VM_STRIDE },
 	{ "vm-hang",	1,	0,	OPT_VM_HANG },
 	{ "vm-keep",	0,	0,	OPT_VM_KEEP },
 #ifdef MAP_POPULATE
@@ -671,7 +669,6 @@ static const help_t help[] = {
 #endif
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
-	{ NULL,		"vm-stride N",		"touch a byte every N bytes (default 4K)" },
 	{ NULL,		"vm-hang N",		"sleep N seconds before freeing memory" },
 	{ NULL,		"vm-keep",		"redirty memory instead of reallocating" },
 	{ NULL,		"vm-ops N",		"stop when N vm bogo operations completed" },
@@ -1154,10 +1151,6 @@ next_opt:
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
 			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
-			break;
-		case OPT_VM_STRIDE:
-			opt_vm_stride = (size_t)get_uint64_byte(optarg);
-			check_range("vm-stride", opt_vm_stride, MIN_VM_STRIDE, MAX_VM_STRIDE);
 			break;
 		case OPT_VM_HANG:
 			opt_vm_hang = get_uint64_byte(optarg);

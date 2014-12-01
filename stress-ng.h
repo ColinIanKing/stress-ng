@@ -107,10 +107,6 @@
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
-#define MIN_VM_STRIDE		(1)
-#define MAX_VM_STRIDE		(1 * MB)
-#define DEFAULT_VM_STRIDE	(4 * KB)
-
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(256 * GB)
 #define DEFAULT_HDD_BYTES	(1 * GB)
@@ -557,7 +553,6 @@ typedef enum {
 #endif
 
 	OPT_VM_BYTES,
-	OPT_VM_STRIDE,
 	OPT_VM_HANG,
 	OPT_VM_KEEP,
 #ifdef MAP_POPULATE
