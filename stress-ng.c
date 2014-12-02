@@ -975,6 +975,7 @@ void stress_run(
 					goto wait_for_procs;
 				case 0:
 					/* Child */
+					free_procs();
 					if (stress_sethandler(name) < 0)
 						exit(EXIT_FAILURE);
 
