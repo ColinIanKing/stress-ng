@@ -364,7 +364,8 @@ static size_t stress_vm_walking_one_addr(uint8_t *buf, const size_t sz)
 
 		*ptr = d1;
 		for (mask = 1, i = 1; i < 64; i++) {
-			addr = (uint8_t *)(((uintptr_t)ptr) ^ mask);
+			uintptr_t uintptr = ((uintptr_t)ptr) ^ mask;
+			addr = (uint8_t *)uintptr;
 			if (addr == ptr)
 				continue;
 			if (addr < buf || addr >= buf_end || addr == ptr)
@@ -411,7 +412,8 @@ static size_t stress_vm_walking_zero_addr(uint8_t *buf, const size_t sz)
 
 		*ptr = d1;
 		for (mask = 1, i = 1; i < 64; i++) {
-			addr = (uint8_t *)(((uintptr_t)ptr) ^ (~mask & sz_mask));
+			uintptr_t uintptr = ((uintptr_t)ptr) ^ (~mask & sz_mask);
+			addr = (uint8_t *)uintptr;
 			if (addr < buf || addr >= buf_end || addr == ptr)
 				continue;
 			*addr = d2;
