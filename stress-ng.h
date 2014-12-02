@@ -149,8 +149,8 @@
 #define SIEVE_CLRBIT(a, i)	(a[i / 32] &= ~(1 << (i & 31)))
 #define SIEVE_SIZE 		(10000000)
 
-#define MWC_SEED_Z		(362436069)
-#define MWC_SEED_W		(521288629)
+#define MWC_SEED_Z		(362436069ULL)
+#define MWC_SEED_W		(521288629ULL)
 
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
@@ -187,8 +187,8 @@ typedef struct {
 
 /* Fast random number generator state */
 typedef struct {
-	uint64_t z;
 	uint64_t w;
+	uint64_t z;
 } mwc_t;
 
 #ifdef __GNUC__
