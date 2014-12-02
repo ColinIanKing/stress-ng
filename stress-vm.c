@@ -512,9 +512,11 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0, i;
 	const uint64_t prime = 18446744073709551557ULL;
 
+#if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
+#endif
 
 	memset(buf, 0x00, sz);
 
@@ -1136,9 +1138,11 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
 
+#if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
+#endif
 
 	memset(buf, 0xff, sz);
 
@@ -1174,9 +1178,11 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
 
+#if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
+#endif
 
 	memset(buf, 0x00, sz);
 
@@ -1215,9 +1221,11 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
 
+#if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
+#endif
 
 	memset(buf, 0xff, sz);
 
@@ -1258,9 +1266,11 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
 
+#if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
 		return 0;
+#endif
 
 	memset(buf, 0x00, sz);
 
