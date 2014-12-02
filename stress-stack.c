@@ -83,6 +83,9 @@ int stress_stack(
 		struct sigaction new_action;
 		int ret;
 
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
 		memset(&new_action, 0, sizeof new_action);
 		new_action.sa_handler = stress_segvhandler;
 		sigemptyset(&new_action.sa_mask);
@@ -108,6 +111,9 @@ int stress_stack(
 			char *last_ptr = 0;
 			do {
 				char *ptr = alloca(256 * KB);
+
+				/* need this else gcc optimises out the alloca */
+				*ptr = 0;
 
 				/* Force gcc to actually do the alloca */
 				uint64_put((uint64_t)(last_ptr - ptr));
