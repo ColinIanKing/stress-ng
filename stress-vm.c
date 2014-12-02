@@ -83,6 +83,9 @@
 	(val) = ((val) & 0x0f) | hi;		\
 }
 
+#define UNSIGNED_ABS(a, b)			\
+	((a) > (b)) ? (a) - (b) : (b) - (a)
+
 #if INJECT_BIT_ERRORS
 /*
  *  inject_random_bit_errors()
@@ -943,7 +946,7 @@ static size_t stress_vm_galpat_zero(uint8_t *buf, const size_t sz)
 	}
 
 	if (bits_set != bits_bad)
-		bit_errors += abs(bits_set - bits_bad);
+		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
 	stress_vm_check("galpat-zero", bit_errors);
 
@@ -995,7 +998,7 @@ static size_t stress_vm_galpat_one(uint8_t *buf, const size_t sz)
 	}
 
 	if (bits_set != bits_bad)
-		bit_errors += abs(bits_set - bits_bad);
+		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
 	stress_vm_check("galpat-one", bit_errors);
 
