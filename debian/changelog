@@ -1,3 +1,23 @@
+stress-ng (0.03.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * free procs array in child stressor, stops valgrind complaining
+  * stress-vm: don't use abs, use UNSIGNED_ABS instead
+  * Ensure mwc internal state is intialised.
+  * stress-memcpy: copy back buffer to share memory region
+  * stress-affinity: add --affinity-rand option
+  * man page: fix - hypenations
+  * stress-vm: remove debug on vm stressor names, too noisy
+  * mwc: move mwc constants into a struct and inline mwc
+  * Deprecate --noclean option
+  * Deprecate --vm-stride
+  * man page: Fix spelling mistakes and re-phrase some text for clarity
+  * stress-vm: use correct name when checking prime-gray-* results
+  * Add --stress-vm documentation in man page
+  * stress-vm: Add different vm stressors and --vm-method option
+
+ -- Colin King <colin.king@canonical.com>  Tue, 2 Dec 2014 16:13:15 +0000
+
 stress-ng (0.03.01-1) unstable; urgency=medium
 
   * Makefile: bump version, update codename
