@@ -527,6 +527,7 @@ typedef enum {
 
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
+	OPT_SOCKET_DOMAIN,
 
 	OPT_SWITCH_OPS,
 
@@ -710,6 +711,8 @@ extern void set_oom_adjustment(const char *name, bool killable);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 extern int madvise_random(void *addr, size_t length);
+extern int stress_set_socket_domain(const char *name);
+
 
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,

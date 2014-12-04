@@ -677,6 +677,9 @@ stop sigq stress processes after N bogo signal send operations.
 .B \-S N, \-\-sock N
 start N stressors that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
 .TP
+.B \-\-sock\-domain D
+specifty the domain to use, the default is ipv4. Currently ipv4 and ipv6 are supported.
+.TP
 .B \-\-sock\-port P
 start at socket port P. For N socket worker processes, ports P to P - 1 are used.
 .TP

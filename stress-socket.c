@@ -38,8 +38,45 @@
 #include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#ifdef AF_INET6
+#include <netinet/in.h>
+#endif
 
 #include "stress-ng.h"
+
+static int opt_domain = AF_INET;
+
+typedef struct {
+	const char *name;
+	const int  domain;
+} domain_t;
+
+static const domain_t domains[] = {
+	{ "ipv4",	AF_INET },
+	{ "ipv6",	AF_INET6 },
+	{ NULL,		-1 }
+};
+
+/*
+ *  stress_set_socket_domain()
+ *	set the socket domain option
+ */
+int stress_set_socket_domain(const char *name)
+{
+	int i;
+
+	for (i = 0; domains[i].name; i++) {
+		if (!strcmp(name, domains[i].name)) {
+			opt_domain = domains[i].domain;
+			return 0;
+		}
+	}
+	fprintf(stderr, "socket domain must be one of:");
+	for (i = 0; domains[i].name; i++)
+		fprintf(stderr, " %s", domains[i].name);
+	fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  handle_socket_sigalrm()
@@ -76,23 +113,47 @@ int stress_socket(
 
 		do {
 			char buf[SOCKET_BUF];
-			struct sockaddr_in addr;
 			int fd;
 			int retries = 0;
+			int ret = -1;
 retry:
-			if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+			if ((fd = socket(opt_domain, SOCK_STREAM, 0)) < 0) {
 				pr_failed_dbg(name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
 
-			memset(&addr, 0, sizeof(addr));
-			addr.sin_family = AF_INET;
-			addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-			addr.sin_port = htons(opt_socket_port + instance);
+			switch (opt_domain) {
+			case AF_INET: {
+					struct sockaddr_in addr;
 
-			if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+					memset(&addr, 0, sizeof(addr));
+					addr.sin_family = opt_domain;
+					addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+					addr.sin_port = htons(opt_socket_port + instance);
+					ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+				}
+				break;
+#ifdef AF_INET6
+			case AF_INET6: {
+					struct sockaddr_in6 addr;
+
+					memset(&addr, 0, sizeof(addr));
+					addr.sin6_family = opt_domain;
+					addr.sin6_addr = in6addr_loopback;
+					addr.sin6_port = htons(opt_socket_port + instance);
+					ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+				}
+				break;
+#endif
+			default:
+				pr_failed_dbg(name, "unknown domain");
+				(void)kill(getppid(), SIGALRM);
+				exit(EXIT_FAILURE);
+			}
+
+			if (ret < 0) {
 				(void)close(fd);
 				usleep(10000);
 				retries++;
@@ -125,8 +186,7 @@ retry:
 		/* Parent, server */
 
 		char buf[SOCKET_BUF];
-		int fd, status;
-		struct sockaddr_in addr;
+		int fd, status, ret = -1;
 		int so_reuseaddr = 1;
 		struct sigaction new_action;
 
@@ -138,22 +198,46 @@ retry:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(opt_domain, SOCK_STREAM, 0)) < 0) {
 			pr_failed_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		memset(&addr, 0, sizeof(addr));
-		addr.sin_family = AF_INET;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		addr.sin_port = htons(opt_socket_port + instance);
-
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			pr_failed_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
-		if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+
+		switch (opt_domain) {
+		case AF_INET: {
+				struct sockaddr_in addr;
+
+				memset(&addr, 0, sizeof(addr));
+				addr.sin_family = opt_domain;
+				addr.sin_addr.s_addr = htonl(INADDR_ANY);
+				addr.sin_port = htons(opt_socket_port + instance);
+				ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+			}
+			break;
+#ifdef AF_INET6
+		case AF_INET6: {
+				struct sockaddr_in6 addr;
+
+				memset(&addr, 0, sizeof(addr));
+				addr.sin6_family = opt_domain;
+				addr.sin6_addr = in6addr_any;
+				addr.sin6_port = htons(opt_socket_port + instance);
+				ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+			}
+			break;
+#endif
+		default:
+			pr_failed_dbg(name, "unknown domain");
+			(void)kill(getppid(), SIGALRM);
+			exit(EXIT_FAILURE);
+		}
+		if (ret < 0) {
 			pr_failed_dbg(name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;

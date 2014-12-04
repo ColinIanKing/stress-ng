@@ -428,6 +428,7 @@ static const struct option long_options[] = {
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
 #endif
 	{ "sock",	1,	0,	OPT_SOCKET },
+	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 	{ "stack",	1,	0,	OPT_STACK},
@@ -639,6 +640,7 @@ static const help_t help[] = {
 	{ "S N",	"sock N",		"start N workers doing socket activity" },
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
+	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
 	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
@@ -1208,6 +1210,10 @@ next_opt:
 		case OPT_SOCKET_PORT:
 			opt_socket_port = get_uint64(optarg);
 			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
+			break;
+		case OPT_SOCKET_DOMAIN:
+			if (stress_set_socket_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_SCHED:
 			opt_sched = get_opt_sched(optarg);
