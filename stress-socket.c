@@ -76,7 +76,6 @@ int stress_socket(
 
 		do {
 			char buf[SOCKET_BUF];
-			ssize_t n;
 			struct sockaddr_in addr;
 			int fd;
 			int retries = 0;
@@ -108,7 +107,7 @@ retry:
 
 			retries = 0;
 			do {
-				n = read(fd, buf, sizeof(buf));
+				ssize_t n = read(fd, buf, sizeof(buf));
 				if (n == 0)
 					break;
 				if (n < 0) {
@@ -172,7 +171,7 @@ retry:
 
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
 				for (i = 16; i < sizeof(buf); i += 16) {
-					int ret = write(sfd, buf, i);
+					ssize_t ret = write(sfd, buf, i);
 					if (ret < 0) {
 						pr_failed_dbg(name, "write");
 						break;
