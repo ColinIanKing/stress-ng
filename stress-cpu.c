@@ -36,6 +36,19 @@
 #define PSI	(3.35988566624317755317201130291892717968890513373L)
 
 /*
+ *  the CPU stress test has different classes of cpu stressor
+ */
+typedef void (*stress_cpu_func)(void);
+
+typedef struct {
+	const char		*name;	/* human readable form of stressor */
+	const stress_cpu_func	func;	/* the stressor function */
+} stress_cpu_stressor_info_t;
+
+static stress_cpu_stressor_info_t *opt_cpu_stressor;
+static stress_cpu_stressor_info_t cpu_methods[];
+
+/*
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
@@ -1571,7 +1584,7 @@ static void stress_cpu_all(void)
 /*
  * Table of cpu stress methods
  */
-stress_cpu_stressor_info_t cpu_methods[] = {
+static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "all",	stress_cpu_all },	/* Special "all test */
 
 	{ "ackermann",	stress_cpu_ackermann },
@@ -1624,18 +1637,27 @@ stress_cpu_stressor_info_t cpu_methods[] = {
 };
 
 /*
- *  stress_cpu_find_by_name()
- *	find cpu stress method by name
+ *  stress_set_cpu_method()
+ *	set the default cpu stress method
  */
-stress_cpu_stressor_info_t *stress_cpu_find_by_name(const char *name)
+int stress_set_cpu_method(const char *name)
 {
 	stress_cpu_stressor_info_t *info = cpu_methods;
 
 	for (info = cpu_methods; info->func; info++) {
-		if (!strcmp(info->name, name))
-			return info;
+		if (!strcmp(info->name, name)) {
+			opt_cpu_stressor = info;
+			return 0;
+		}
 	}
-	return NULL;
+
+	fprintf(stderr, "cpu-method must be one of:");
+	for (info = cpu_methods; info->func; info++) {
+		fprintf(stderr, " %s", info->name);
+	}
+	fprintf(stderr, "\n");
+
+	return -1;
 }
 
 /*

@@ -74,7 +74,6 @@ int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 uint32_t opt_class = 0;				/* Which kind of class is specified */
-stress_cpu_stressor_info_t *opt_cpu_stressor;	/* Default stress CPU method */
 stress_vm_stressor_info_t *opt_vm_stressor;	/* Default stress VM method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 int      opt_vm_flags = 0;			/* VM mmap flags */
@@ -1055,7 +1054,7 @@ int main(int argc, char **argv)
 	memset(opt_ops, 0, sizeof(opt_ops));
 	mwc_reseed();
 
-	opt_cpu_stressor = stress_cpu_find_by_name("all");
+	(void)stress_set_cpu_method("all");
 	opt_vm_stressor = stress_vm_find_by_name("all");
 
 	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
@@ -1146,17 +1145,8 @@ next_opt:
 			}
 			break;
 		case OPT_CPU_METHOD:
-			opt_cpu_stressor = stress_cpu_find_by_name(optarg);
-			if (!opt_cpu_stressor) {
-				stress_cpu_stressor_info_t *info = cpu_methods;
-
-				fprintf(stderr, "cpu-method must be one of:");
-				for (info = cpu_methods; info->func; info++)
-					fprintf(stderr, " %s", info->name);
-				fprintf(stderr, "\n");
-
+			if (stress_set_cpu_method(optarg) < 0)
 				exit(EXIT_FAILURE);
-			}
 			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
