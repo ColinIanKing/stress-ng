@@ -123,6 +123,10 @@
 #define MAX_AIO_REQUESTS	(4096)
 #define DEFAULT_AIO_REQUESTS	(16)
 
+#define MIN_FIFO_READERS	(1)
+#define MAX_FIFO_READERS	(64)
+#define DEFAULT_FIFO_READERS	(4)
+
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_DENTRIES	(2048)
@@ -241,6 +245,7 @@ typedef enum {
 	STRESS_FALLOCATE,
 #endif
 	STRESS_FAULT,
+	STRESS_FIFO,
 	STRESS_FLOCK,
 	STRESS_FORK,
 	STRESS_FSTAT,
@@ -406,6 +411,10 @@ typedef enum {
 #endif
 	OPT_FAULT,
 	OPT_FAULT_OPS,
+
+	OPT_FIFO,
+	OPT_FIFO_OPS,
+	OPT_FIFO_READERS,
 
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
@@ -645,6 +654,7 @@ extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_aio_requests;			/* Number of async I/O requests */
+extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
@@ -744,6 +754,7 @@ STRESS(stress_hdd);
 STRESS(stress_hsearch);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
+STRESS(stress_fifo);
 STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fstat);

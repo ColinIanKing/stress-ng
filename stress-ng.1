@@ -345,8 +345,18 @@ stop fallocate stress processes after N bogo fallocate operations.
 .B \-\-fault N
 start N processes that generates minor and major page faults.
 .TP
-.B \-\-fault\-ops M
+.B \-\-fault\-ops N
 stop the page fault processes after N bogo page fault operations.
+.TP
+.B \-\-fifo N
+start N workers that exercise a named pipe transmitting 64 bit integers.
+.TP
+.B \-\-fifo-ops N
+stop fifo workers after N bogo pipe write operations.
+.TP
+.B \-\-fifo-readers N
+for each worker, create N fifo reader processes that read
+the named pipe using simple blocking reads.
 .TP
 .B \-\-flock N
 start N processes locking on a single file.

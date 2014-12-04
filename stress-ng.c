@@ -67,6 +67,7 @@ uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;/* Number of async I/O requests */
+uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;/* Number of fifo reader procs */
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
@@ -193,6 +194,7 @@ static const stress_t stressors[] = {
 	STRESSOR(fallocate, FALLOCATE, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(fifo, FIFO, CLASS_IO | CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(flock, FLOCK, CLASS_IO | CLASS_OS),
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fstat, FSTAT, CLASS_IO | CLASS_OS),
@@ -325,6 +327,9 @@ static const struct option long_options[] = {
 #endif
 	{ "fault",	1,	0,	OPT_FAULT },
 	{ "fault-ops",	1,	0,	OPT_FAULT_OPS },
+	{ "fifo",	1,	0,	OPT_FIFO },
+	{ "fifo-ops",	1,	0,	OPT_FIFO_OPS },
+	{ "fifo-readers",1,	0,	OPT_FIFO_READERS },
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
 	{ "fork",	1,	0,	OPT_FORK },
@@ -532,6 +537,9 @@ static const help_t help[] = {
 #endif
 	{ NULL,		"fault N",		"start N workers producing page faults" },
 	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
+	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
+	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
+	{ NULL,		"fifo-readers N",	"number of fifo reader processes to start" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
@@ -1313,6 +1321,10 @@ next_opt:
 				fprintf(stderr, "\n");
 				exit(EXIT_FAILURE);
 			}
+			break;
+		case OPT_FIFO_READERS:
+			opt_fifo_readers = get_uint64(optarg);
+			check_range("fifo-readers", opt_fifo_readers, MIN_FIFO_READERS, MAX_FIFO_READERS);
 			break;
 		default:
 			printf("Unknown option\n");
