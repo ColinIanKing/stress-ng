@@ -160,6 +160,7 @@ int stress_fifo(
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	(void)close(fd);
 	ret = EXIT_SUCCESS;
 reap:
 	for (i = 0; i < opt_fifo_readers; i++) {
