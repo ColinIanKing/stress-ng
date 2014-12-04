@@ -107,11 +107,11 @@ retry:
 
 			retries = 0;
 			do {
-				ssize_t n = read(fd, buf, sizeof(buf));
+				ssize_t n = recv(fd, buf, sizeof(buf), 0);
 				if (n == 0)
 					break;
 				if (n < 0) {
-					pr_failed_dbg(name, "write");
+					pr_failed_dbg(name, "recv");
 					break;
 				}
 			} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -171,9 +171,9 @@ retry:
 
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
 				for (i = 16; i < sizeof(buf); i += 16) {
-					ssize_t ret = write(sfd, buf, i);
+					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
-						pr_failed_dbg(name, "write");
+						pr_failed_dbg(name, "send");
 						break;
 					}
 				}
