@@ -151,6 +151,14 @@
 #define MAX_SENDFILE_SIZE	(1 * GB)
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
 
+#define MIN_SEEK_SIZE		(1 * MB)
+#define MAX_SEEK_SIZE 		(256 * GB)
+#define DEFAULT_SEEK_SIZE	(16 * MB)
+
+#define MIN_SEQUENTIAL		(0)
+#define MAX_SEQUENTIAL		(1000000)
+#define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65536)
 #define DEFAULT_SOCKET_PORT	(5000)
@@ -173,7 +181,6 @@
 
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
-
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
@@ -197,16 +204,7 @@
 
 #define MWC_SEED_Z		(362436069ULL)
 #define MWC_SEED_W		(521288629ULL)
-
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
-
-#define MIN_SEQUENTIAL		(0)
-#define MAX_SEQUENTIAL		(1000000)
-#define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
-
-#define MIN_SEEK_SIZE		(1 * MB)
-#define MAX_SEEK_SIZE 		(256 * GB)
-#define DEFAULT_SEEK_SIZE	(16 * MB)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
