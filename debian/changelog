@@ -1,3 +1,29 @@
+stress-ng (0.03.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Update date in man page
+  * IONICE_* opts are linux only
+  * Remove unwanted column headings
+  * Stress semaphore harder by multiple children
+  * Update syscalls, add send recv
+  * Add some more comments to stress-ng.h
+  * Move some #defines around
+  * stress-fork: use renamed constants
+  * Add in more #define'd min/max/default constants
+  * Re-order OPT_ case statement into alphabetical order
+  * Hide vm stressor option inside stress-vm
+  * Hide cpu stressor option inside stress-cpu
+  * stress-fifo: close fifo on exit
+  * stress-socket: add --sock-domain option
+  * stress-socket: use send/recv instead of write/read
+  * Use ssize_t for n to get write size
+  * Add named fifo stressor
+  * Break casting of uintptr_t into stages because GCC 4.9.2 complains
+  * stress-vm: no need to check sz if it is a 32 bit integer
+  * Force gcc not to optimise out the alloca
+
+ -- Colin King <colin.king@canonical.com>  Fri, 5 Dec 2014 23:19:00 +0000
+
 stress-ng (0.03.02-1) unstable; urgency=medium
 
   * Makefile: bump version
