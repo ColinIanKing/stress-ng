@@ -67,6 +67,7 @@ posix_fallocate			fallocate
 /proc				proc
 read				pipe
 read				zero
+recv				sock
 rename				rename
 rmdir				dir
 sched_getaffinity		affinity
@@ -77,6 +78,7 @@ sem_destroy			sem
 sem_init			sem
 sem_post			sem
 sem_wait			sem
+send				sock
 sendfile			sendfile
 setmntent			sysinfo
 setpriority			nice
