@@ -1095,6 +1095,12 @@ next_opt:
 		}
 
 		switch (c) {
+#if defined(__linux__)
+		case OPT_AIO_REQUESTS:
+			opt_aio_requests = get_uint64(optarg);
+			check_range("aio-requests", opt_aio_requests, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
+			break;
+#endif
 		case OPT_ALL:
 			opt_flags |= OPT_FLAGS_SET;
 			val = opt_long("-a", optarg);
@@ -1107,195 +1113,17 @@ next_opt:
 		case OPT_AFFINITY_RAND:
 			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
-		case OPT_RANDOM:
-			opt_flags |= OPT_FLAGS_RANDOM;
-			opt_random = opt_long("-r", optarg);
-			check_value("random", opt_random);
-			break;
-		case OPT_KEEP_NAME:
-			opt_flags |= OPT_FLAGS_KEEP_NAME;
-			break;
-		case OPT_QUERY:
-		case OPT_HELP:
-			usage();
-		case OPT_VERSION:
-			version();
-			exit(EXIT_SUCCESS);
-		case OPT_VERBOSE:
-			opt_flags |= PR_ALL;
-			break;
-		case OPT_QUIET:
-			opt_flags &= ~(PR_ALL);
-			break;
-		case OPT_DRY_RUN:
-			opt_flags |= OPT_FLAGS_DRY_RUN;
-			break;
-		case OPT_TIMEOUT:
-			opt_timeout = get_uint64_time(optarg);
-			break;
 		case OPT_BACKOFF:
 			opt_backoff = opt_long("backoff", optarg);
-			break;
-		case OPT_CPU_LOAD:
-			opt_cpu_load = opt_long("cpu load", optarg);
-			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
-				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
-				exit(EXIT_FAILURE);
-			}
-			break;
-		case OPT_CPU_METHOD:
-			if (stress_set_cpu_method(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_METRICS:
-			opt_flags |= OPT_FLAGS_METRICS;
-			break;
-		case OPT_VM_BYTES:
-			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
-			break;
-		case OPT_VM_HANG:
-			opt_vm_hang = get_uint64_byte(optarg);
-			check_range("vm-hang", opt_vm_hang, MIN_VM_HANG, MAX_VM_HANG);
-			break;
-		case OPT_VM_KEEP:
-			opt_flags |= OPT_FLAGS_VM_KEEP;
-		 	break;
-#ifdef MAP_POPULATE
-		case OPT_VM_MMAP_POPULATE:
-			opt_vm_flags |= MAP_POPULATE;
-			break;
-#endif
-#ifdef MAP_LOCKED
-		case OPT_VM_MMAP_LOCKED:
-			opt_vm_flags |= MAP_LOCKED;
-			break;
-#endif
-		case OPT_VM_METHOD:
-			if (stress_set_vm_method(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_HDD_BYTES:
-			opt_hdd_bytes =  get_uint64_byte(optarg);
-			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
-			break;
-		case OPT_HDD_WRITE_SIZE:
-			opt_hdd_write_size = get_uint64_byte(optarg);
-			check_range("hdd-write-size", opt_hdd_write_size, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
-			break;
-		case OPT_DENTRIES:
-			opt_dentries = get_uint64(optarg);
-			check_range("dentries", opt_dentries, 1, 100000000);
-			break;
-		case OPT_SOCKET_PORT:
-			opt_socket_port = get_uint64(optarg);
-			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
-			break;
-		case OPT_SOCKET_DOMAIN:
-			if (stress_set_socket_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_SCHED:
-			opt_sched = get_opt_sched(optarg);
-			break;
-		case OPT_SCHED_PRIO:
-			opt_sched_priority = get_int(optarg);
-			break;
-#if defined (__linux__)
-		case OPT_TIMER_FREQ:
-			opt_timer_freq = get_uint64(optarg);
-			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
-			break;
-		case OPT_IONICE_CLASS:
-			opt_ionice_class = get_opt_ionice_class(optarg);
-			break;
-		case OPT_IONICE_LEVEL:
-			opt_ionice_level = get_int(optarg);
-			break;
-#endif
-		case OPT_MMAP_BYTES:
-			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
-			break;
-		case OPT_QSORT_INTEGERS:
-			opt_qsort_size = get_uint64_byte(optarg);
-			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
-			break;
-		case OPT_UTIME_FSYNC:
-			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
-			break;
-		case OPT_FSTAT_DIR:
-			opt_fstat_dir = optarg;
-			break;
-		case OPT_METRICS_BRIEF:
-			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
-			break;
-		case OPT_VERIFY:
-			opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			opt_bigheap_growth = get_uint64_byte(optarg);
 			check_range("bigheap-growth", opt_bigheap_growth, 4 * KB, 64 * MB);
 			break;
-		case OPT_FORK_MAX:
-			opt_fork_max = get_uint64_byte(optarg);
-			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
-			break;
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
-		case OPT_VFORK_MAX:
-			opt_vfork_max = get_uint64_byte(optarg);
-			check_range("vfork-max", opt_vfork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
-			break;
-#endif
-		case OPT_SEQUENTIAL:
-			opt_sequential = get_uint64_byte(optarg);
-			if (opt_sequential <= 0)
-				opt_sequential = opt_nprocessors_online;
-			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
-			break;
-#if defined (__linux__)
-		case OPT_SENDFILE_SIZE:
-			opt_sendfile_size = get_uint64_byte(optarg);
-			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
-			break;
-#endif
-		case OPT_SEEK_SIZE:
-			opt_seek_size = get_uint64_byte(optarg);
-			check_range("seek-size", opt_seek_size, MIN_SEEK_SIZE, MAX_SEEK_SIZE);
-			break;
-		case OPT_NO_MADVISE:
-			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
-			break;
-		case OPT_PAGE_IN:
-			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
-			break;
-		case OPT_TIMES:
-			opt_flags |= OPT_FLAGS_TIMES;
-			break;
 		case OPT_BSEARCH_SIZE:
 			opt_bsearch_size = get_uint64_byte(optarg);
 			check_range("bsearch-size", opt_bsearch_size, 1 * KB, 4 * MB);
 			break;
-		case OPT_TSEARCH_SIZE:
-			opt_tsearch_size = get_uint64_byte(optarg);
-			check_range("tsearch-size", opt_tsearch_size, 1 * KB, 4 * MB);
-			break;
-		case OPT_LSEARCH_SIZE:
-			opt_lsearch_size = get_uint64_byte(optarg);
-			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
-			break;
-		case OPT_HSEARCH_SIZE:
-			opt_hsearch_size = get_uint64_byte(optarg);
-			check_range("hsearch-size", opt_hsearch_size, 1 * KB, 4 * MB);
-			break;
-#if defined(__linux__)
-		case OPT_AIO_REQUESTS:
-			opt_aio_requests = get_uint64(optarg);
-			check_range("aio-requests", opt_aio_requests, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
-			break;
-#endif
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
 			if (!opt_class) {
@@ -1308,10 +1136,182 @@ next_opt:
 				exit(EXIT_FAILURE);
 			}
 			break;
+		case OPT_CPU_LOAD:
+			opt_cpu_load = opt_long("cpu load", optarg);
+			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
+				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
+				exit(EXIT_FAILURE);
+			}
+			break;
+		case OPT_CPU_METHOD:
+			if (stress_set_cpu_method(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_DRY_RUN:
+			opt_flags |= OPT_FLAGS_DRY_RUN;
+			break;
+		case OPT_DENTRIES:
+			opt_dentries = get_uint64(optarg);
+			check_range("dentries", opt_dentries, 1, 100000000);
+			break;
 		case OPT_FIFO_READERS:
 			opt_fifo_readers = get_uint64(optarg);
 			check_range("fifo-readers", opt_fifo_readers, MIN_FIFO_READERS, MAX_FIFO_READERS);
 			break;
+		case OPT_FORK_MAX:
+			opt_fork_max = get_uint64_byte(optarg);
+			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
+			break;
+		case OPT_FSTAT_DIR:
+			opt_fstat_dir = optarg;
+			break;
+		case OPT_HELP:
+		case OPT_QUERY:
+			usage();
+		case OPT_HDD_BYTES:
+			opt_hdd_bytes =  get_uint64_byte(optarg);
+			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
+			break;
+		case OPT_HDD_WRITE_SIZE:
+			opt_hdd_write_size = get_uint64_byte(optarg);
+			check_range("hdd-write-size", opt_hdd_write_size, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
+			break;
+		case OPT_HSEARCH_SIZE:
+			opt_hsearch_size = get_uint64_byte(optarg);
+			check_range("hsearch-size", opt_hsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_IONICE_CLASS:
+			opt_ionice_class = get_opt_ionice_class(optarg);
+			break;
+		case OPT_IONICE_LEVEL:
+			opt_ionice_level = get_int(optarg);
+			break;
+		case OPT_KEEP_NAME:
+			opt_flags |= OPT_FLAGS_KEEP_NAME;
+			break;
+		case OPT_LSEARCH_SIZE:
+			opt_lsearch_size = get_uint64_byte(optarg);
+			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_METRICS:
+			opt_flags |= OPT_FLAGS_METRICS;
+			break;
+		case OPT_METRICS_BRIEF:
+			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
+			break;
+		case OPT_MMAP_BYTES:
+			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
+			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+			break;
+		case OPT_NO_MADVISE:
+			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+			break;
+		case OPT_PAGE_IN:
+			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
+			break;
+		case OPT_QSORT_INTEGERS:
+			opt_qsort_size = get_uint64_byte(optarg);
+			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
+			break;
+		case OPT_QUIET:
+			opt_flags &= ~(PR_ALL);
+			break;
+		case OPT_RANDOM:
+			opt_flags |= OPT_FLAGS_RANDOM;
+			opt_random = opt_long("-r", optarg);
+			check_value("random", opt_random);
+			break;
+		case OPT_SCHED:
+			opt_sched = get_opt_sched(optarg);
+			break;
+		case OPT_SCHED_PRIO:
+			opt_sched_priority = get_int(optarg);
+			break;
+		case OPT_SEEK_SIZE:
+			opt_seek_size = get_uint64_byte(optarg);
+			check_range("seek-size", opt_seek_size, MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+			break;
+#if defined (__linux__)
+		case OPT_SENDFILE_SIZE:
+			opt_sendfile_size = get_uint64_byte(optarg);
+			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
+			break;
+#endif
+		case OPT_SEQUENTIAL:
+			opt_sequential = get_uint64_byte(optarg);
+			if (opt_sequential <= 0)
+				opt_sequential = opt_nprocessors_online;
+			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
+			break;
+		case OPT_SOCKET_DOMAIN:
+			if (stress_set_socket_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_SOCKET_PORT:
+			opt_socket_port = get_uint64(optarg);
+			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
+			break;
+		case OPT_TIMEOUT:
+			opt_timeout = get_uint64_time(optarg);
+			break;
+#if defined (__linux__)
+		case OPT_TIMER_FREQ:
+			opt_timer_freq = get_uint64(optarg);
+			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
+			break;
+#endif
+		case OPT_TIMES:
+			opt_flags |= OPT_FLAGS_TIMES;
+			break;
+		case OPT_TSEARCH_SIZE:
+			opt_tsearch_size = get_uint64_byte(optarg);
+			check_range("tsearch-size", opt_tsearch_size, 1 * KB, 4 * MB);
+			break;
+		case OPT_UTIME_FSYNC:
+			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
+			break;
+		case OPT_VERBOSE:
+			opt_flags |= PR_ALL;
+			break;
+#if  _BSD_SOURCE || \
+    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
+    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+		case OPT_VFORK_MAX:
+			opt_vfork_max = get_uint64_byte(optarg);
+			check_range("vfork-max", opt_vfork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
+			break;
+#endif
+		case OPT_VERIFY:
+			opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
+			break;
+		case OPT_VERSION:
+			version();
+			exit(EXIT_SUCCESS);
+		case OPT_VM_BYTES:
+			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
+			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
+			break;
+		case OPT_VM_HANG:
+			opt_vm_hang = get_uint64_byte(optarg);
+			check_range("vm-hang", opt_vm_hang, MIN_VM_HANG, MAX_VM_HANG);
+			break;
+		case OPT_VM_KEEP:
+			opt_flags |= OPT_FLAGS_VM_KEEP;
+			break;
+		case OPT_VM_METHOD:
+			if (stress_set_vm_method(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+#ifdef MAP_LOCKED
+		case OPT_VM_MMAP_LOCKED:
+			opt_vm_flags |= MAP_LOCKED;
+			break;
+#endif
+#ifdef MAP_POPULATE
+		case OPT_VM_MMAP_POPULATE:
+			opt_vm_flags |= MAP_POPULATE;
+			break;
+#endif
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);
