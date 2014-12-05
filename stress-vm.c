@@ -36,6 +36,19 @@
 #include "stress-ng.h"
 
 /*
+ *  the VM stress test has diffent methods of vm stressor
+ */
+typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz);
+
+typedef struct {
+	const char *name;
+	const stress_vm_func func;
+} stress_vm_stressor_info_t;
+
+static stress_vm_stressor_info_t *opt_vm_stressor;
+static stress_vm_stressor_info_t vm_methods[];
+
+/*
  *  For testing, set this to 1 to simulate random memory errors
  */
 #define INJECT_BIT_ERRORS	(0)
@@ -1318,7 +1331,7 @@ static size_t stress_vm_all(uint8_t *buf, const size_t sz)
 	return bit_errors;
 }
 
-stress_vm_stressor_info_t vm_methods[] = {
+static stress_vm_stressor_info_t vm_methods[] = {
 	{ "all",	stress_vm_all },
 	{ "flip",	stress_vm_flip },
 	{ "galpat-0",	stress_vm_galpat_zero },
@@ -1346,18 +1359,27 @@ stress_vm_stressor_info_t vm_methods[] = {
 };
 
 /*
- *  stress_vm_find_by_name()
- *      find vm stress method by name
+ *  stress_set_vm_method()
+ *      set default vm stress method
  */
-stress_vm_stressor_info_t *stress_vm_find_by_name(const char *name)
+int stress_set_vm_method(const char *name)
 {
         stress_vm_stressor_info_t *info;
 
         for (info = vm_methods; info->func; info++) {
-                if (!strcmp(info->name, name))
-                        return info;
+                if (!strcmp(info->name, name)) {
+			opt_vm_stressor = info;
+			return 0;
+		}
         }
-        return NULL;
+
+	fprintf(stderr, "vm-method must be one of:");
+	for (info = vm_methods; info->func; info++) {
+		fprintf(stderr, " %s", info->name);
+	}
+	fprintf(stderr, "\n");
+
+	return -1;
 }
 
 

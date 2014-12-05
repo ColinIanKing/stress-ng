@@ -603,16 +603,6 @@ typedef struct {
 	const uint32_t class;		/* class of stress test */
 } stress_t;
 
-/*
- *  the VM stress test has diffent methods of vm stressor
- */
-typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz);
-
-typedef struct {
-	const char *name;
-	const stress_vm_func func;
-} stress_vm_stressor_info_t;
-
 typedef struct {
 	pid_t	pid;		/* process id */
 } proc_info_t;
@@ -650,7 +640,6 @@ extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
 extern int32_t  opt_cpu_load;				/* CPU max load */
-extern stress_vm_stressor_info_t *opt_vm_stressor;	/* Default stress VM method */
 extern size_t	opt_vm_bytes;				/* VM bytes */
 extern size_t	opt_vm_stride;				/* VM stride */
 extern int	opt_vm_flags;				/* VM mmap flags */
@@ -668,7 +657,6 @@ extern char	*opt_fstat_dir;				/* Default fstat directory */
 extern volatile bool opt_do_run;			/* false to exit stressor */
 extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
 extern proc_info_t *procs[STRESS_MAX];			/* per process info */
-extern stress_vm_stressor_info_t vm_methods[];		/* vm stressor methods */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -688,7 +676,7 @@ extern double time_now(void);
 extern void mwc_seed(const uint64_t w, const uint64_t z);
 extern void mwc_reseed(void);
 extern int stress_set_cpu_method(const char *name);
-extern stress_vm_stressor_info_t *stress_vm_find_by_name(const char *name);
+extern int stress_set_vm_method(const char *name);
 extern void pr_failed(const int flag, const char *name, const char *what);
 extern void set_oom_adjustment(const char *name, bool killable);
 extern void set_sched(const int sched, const int sched_priority);

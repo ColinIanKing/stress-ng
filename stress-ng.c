@@ -74,7 +74,6 @@ int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 uint32_t opt_class = 0;				/* Which kind of class is specified */
-stress_vm_stressor_info_t *opt_vm_stressor;	/* Default stress VM method */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
 int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
@@ -1055,7 +1054,7 @@ int main(int argc, char **argv)
 	mwc_reseed();
 
 	(void)stress_set_cpu_method("all");
-	opt_vm_stressor = stress_vm_find_by_name("all");
+	(void)stress_set_vm_method("all");
 
 	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
@@ -1173,17 +1172,8 @@ next_opt:
 			break;
 #endif
 		case OPT_VM_METHOD:
-			opt_vm_stressor = stress_vm_find_by_name(optarg);
-			if (!opt_vm_stressor) {
-				stress_vm_stressor_info_t *info = vm_methods;
-
-				fprintf(stderr, "vm-method must be one of:");
-				for (info = vm_methods; info->func; info++)
-					fprintf(stderr, " %s", info->name);
-				fprintf(stderr, "\n");
-
+			if (stress_set_vm_method(optarg) < 0)
 				exit(EXIT_FAILURE);
-			}
 			break;
 		case OPT_HDD_BYTES:
 			opt_hdd_bytes =  get_uint64_byte(optarg);
