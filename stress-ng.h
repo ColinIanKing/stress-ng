@@ -99,13 +99,21 @@
 #define PAGE_4K_SHIFT		(12)
 #define PAGE_4K			(1 << PAGE_4K_SHIFT)
 
-#define MIN_VM_BYTES		(4 * KB)
-#define MAX_VM_BYTES		(1 * GB)
-#define DEFAULT_VM_BYTES	(256 * MB)
+#define MIN_AIO_REQUESTS	(1)
+#define MAX_AIO_REQUESTS	(4096)
+#define DEFAULT_AIO_REQUESTS	(16)
 
-#define MIN_MMAP_BYTES		(4 * KB)
-#define MAX_MMAP_BYTES		(1 * GB)
-#define DEFAULT_MMAP_BYTES	(256 * MB)
+#define MIN_BIGHEAP_GROWTH	(4 * KB)
+#define MAX_BIGHEAP_GROWTH	(64 * MB)
+#define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
+
+#define MIN_BSEARCH_SIZE	(1 * KB)
+#define MAX_BSEARCH_SIZE	(4 * MB)
+#define DEFAULT_BSEARCH_SIZE	(64 * KB)
+
+#define MIN_DENTRIES		(1)
+#define MAX_DENTRIES		(100000000)
+#define DEFAULT_DENTRIES	(2048)
 
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(256 * GB)
@@ -115,28 +123,62 @@
 #define MAX_HDD_WRITE_SIZE	(4 * MB)
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
-#define MIN_VM_HANG		(0)
-#define MAX_VM_HANG		(3600)
-#define DEFAULT_VM_HANG		(~0ULL)
-
-#define MIN_AIO_REQUESTS	(1)
-#define MAX_AIO_REQUESTS	(4096)
-#define DEFAULT_AIO_REQUESTS	(16)
-
 #define MIN_FIFO_READERS	(1)
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
 
+#define MIN_FORKS		(1)
+#define MAX_FORKS		(16000)
+#define DEFAULT_FORKS		(1)
+
+#define MIN_HSEARCH_SIZE	(1 * KB)
+#define MAX_HSEARCH_SIZE	(4 * MB)
+#define DEFAULT_HSEARCH_SIZE	(8 * KB)
+
+#define MIN_LSEARCH_SIZE	(1 * KB)
+#define MAX_LSEARCH_SIZE	(4 * MB)
+#define DEFAULT_LSEARCH_SIZE	(8 * KB)
+
+#define MIN_MMAP_BYTES		(4 * KB)
+#define MAX_MMAP_BYTES		(1 * GB)
+#define DEFAULT_MMAP_BYTES	(256 * MB)
+
+#define MIN_QSORT_SIZE		(1 * KB)
+#define MAX_QSORT_SIZE		(64 * MB)
+#define DEFAULT_QSORT_SIZE	(256 * KB)
+
+#define MIN_SENDFILE_SIZE	(1 * KB)
+#define MAX_SENDFILE_SIZE	(1 * GB)
+#define DEFAULT_SENDFILE_SIZE	(4 * MB)
+
+#define MIN_SOCKET_PORT		(1024)
+#define MAX_SOCKET_PORT		(65536)
+#define DEFAULT_SOCKET_PORT	(5000)
+
+#define MIN_TSEARCH_SIZE	(1 * KB)
+#define MAX_TSEARCH_SIZE	(4 * MB)
+#define DEFAULT_TSEARCH_SIZE	(64 * KB)
+
+#define MIN_TIMER_FREQ		(1000)
+#define MAX_TIMER_FREQ		(100000000)
+#define DEFAULT_TIMER_FREQ	(1000000)
+
+#define MIN_VM_BYTES		(4 * KB)
+#define MAX_VM_BYTES		(1 * GB)
+#define DEFAULT_VM_BYTES	(256 * MB)
+
+#define MIN_VM_HANG		(0)
+#define MAX_VM_HANG		(3600)
+#define DEFAULT_VM_HANG		(~0ULL)
+
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
-#define DEFAULT_DENTRIES	(2048)
+
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
-#define DEFAULT_OPS_MIN		(100ULL)
-#define DEFAULT_OPS_MAX		(100000000ULL)
-
-#define DEFAULT_SENDFILE_SIZE	(4 * MB)
+#define MIN_OPS			(100ULL)
+#define MAX_OPS			(100000000ULL)
 
 #define SWITCH_STOP		'X'
 #define PIPE_STOP		"PIPE_STOP"
@@ -158,13 +200,9 @@
 
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
-#define DEFAULT_FORKS		(1)
-#define DEFAULT_FORKS_MIN	(1)
-#define DEFAULT_FORKS_MAX	(16000)
-
+#define MIN_SEQUENTIAL		(0)
+#define MAX_SEQUENTIAL		(1000000)
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
-#define DEFAULT_SEQUENTIAL_MIN	(0)
-#define DEFAULT_SEQUENTIAL_MAX	(1000000)
 
 #define MIN_SEEK_SIZE		(1 * MB)
 #define MAX_SEEK_SIZE 		(256 * GB)
@@ -504,7 +542,7 @@ typedef enum {
 	OPT_SEEK,
 	OPT_SEEK_OPS,
 	OPT_SEEK_SIZE,
-	
+
 	OPT_SENDFILE,
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
@@ -620,8 +658,8 @@ extern shared_t *shared;				/* shared memory */
 extern uint64_t	opt_dentries;				/* dentries per loop */
 extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
-extern uint64_t	opt_hdd_bytes; 				/* HDD size in byts */
-extern uint64_t opt_hdd_write_size;
+extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
+extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
@@ -657,6 +695,7 @@ extern char	*opt_fstat_dir;				/* Default fstat directory */
 extern volatile bool opt_do_run;			/* false to exit stressor */
 extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
 extern proc_info_t *procs[STRESS_MAX];			/* per process info */
+extern mwc_t __mwc;					/* internal mwc random state */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -666,6 +705,10 @@ extern proc_info_t *procs[STRESS_MAX];			/* per process info */
 extern void double_put(const double a);
 extern void uint64_put(const uint64_t a);
 extern uint64_t uint64_zero(void);
+
+/*
+ *  helper functions
+ */
 extern int stress_temp_filename(char *path, const size_t len, const char *name, const pid_t pid, const uint32_t instance, const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len, const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
@@ -688,8 +731,6 @@ extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 extern int madvise_random(void *addr, size_t length);
 extern int stress_set_socket_domain(const char *name);
-
-
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
@@ -701,7 +742,6 @@ extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
-extern mwc_t __mwc;
 
 /*
  *  mwc()
@@ -717,7 +757,7 @@ static inline uint64_t mwc(void)
 
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\
-        const uint64_t max_ops, const char *name)				
+        const uint64_t max_ops, const char *name)
 
 STRESS(stress_affinity);
 STRESS(stress_aio);

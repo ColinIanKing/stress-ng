@@ -49,42 +49,42 @@ const char *app_name = "stress-ng";		/* Name of application */
 sem_t	 sem;					/* stress_semaphore sem */
 bool	 sem_ok = false;			/* stress_semaphore init ok */
 shared_t *shared;				/* shared memory */
-uint64_t opt_dentries = DEFAULT_DENTRIES;	/* dentries per loop */
+uint64_t opt_dentries = DEFAULT_DENTRIES;
 uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
-uint64_t opt_vm_hang = DEFAULT_VM_HANG;		/* VM delay */
-uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;	/* HDD size in byts */
+uint64_t opt_vm_hang = DEFAULT_VM_HANG;
+uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;	/* sendfile size */
-uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;	/* seek file size */
+uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
+uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t opt_qsort_size = 256 * 1024;		/* Default qsort size */
-uint64_t opt_bsearch_size = 65536;		/* Default bsearch size */
-uint64_t opt_tsearch_size = 65536;		/* Default tsearch size */
-uint64_t opt_lsearch_size = 8192;		/* Default lsearch size */
-uint64_t opt_hsearch_size = 8192;		/* Default hsearch size */
-uint64_t opt_bigheap_growth = 16 * 4096;	/* Amount big heap grows */
+uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
+uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
+uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
+uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
+uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
+uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
-uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;/* Number of async I/O requests */
-uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;/* Number of fifo reader procs */
+uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
+uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
 uint32_t opt_class = 0;				/* Which kind of class is specified */
-size_t   opt_vm_bytes = DEFAULT_VM_BYTES;	/* VM bytes */
+size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
 int      opt_vm_flags = 0;			/* VM mmap flags */
-size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;	/* MMAP size */
+size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 #if defined (__linux__)
-uint64_t opt_timer_freq = 1000000;		/* timer frequency (Hz) */
+uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 #endif
 int      opt_sched = UNDEFINED;			/* sched policy */
 int      opt_sched_priority = UNDEFINED;	/* sched priority */
 int      opt_ionice_class = UNDEFINED;		/* ionice class */
 int      opt_ionice_level = UNDEFINED;		/* ionice level */
-int      opt_socket_port = 5000;		/* Default socket port */
+int      opt_socket_port = DEFAULT_SOCKET_PORT;	/* Default socket port */
 long int opt_nprocessors_online;		/* Number of processors online */
 char     *opt_fstat_dir = "/dev";		/* Default fstat directory */
 volatile bool opt_do_run = true;		/* false to exit stressor */
@@ -1089,7 +1089,8 @@ next_opt:
 			}
 			if (stressors[id].op == (stress_op)c) {
 				opt_ops[id] = get_uint64(optarg);
-				check_range(opt_name(c), opt_ops[id], DEFAULT_OPS_MIN, DEFAULT_OPS_MAX);
+				check_range(opt_name(c), opt_ops[id],
+					MIN_OPS, MAX_OPS);
 				goto next_opt;
 			}
 		}
@@ -1098,7 +1099,8 @@ next_opt:
 #if defined(__linux__)
 		case OPT_AIO_REQUESTS:
 			opt_aio_requests = get_uint64(optarg);
-			check_range("aio-requests", opt_aio_requests, MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
+			check_range("aio-requests", opt_aio_requests,
+				MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 			break;
 #endif
 		case OPT_ALL:
@@ -1118,11 +1120,13 @@ next_opt:
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			opt_bigheap_growth = get_uint64_byte(optarg);
-			check_range("bigheap-growth", opt_bigheap_growth, 4 * KB, 64 * MB);
+			check_range("bigheap-growth", opt_bigheap_growth,
+				MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
 			break;
 		case OPT_BSEARCH_SIZE:
 			opt_bsearch_size = get_uint64_byte(optarg);
-			check_range("bsearch-size", opt_bsearch_size, 1 * KB, 4 * MB);
+			check_range("bsearch-size", opt_bsearch_size,
+				MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
@@ -1152,15 +1156,18 @@ next_opt:
 			break;
 		case OPT_DENTRIES:
 			opt_dentries = get_uint64(optarg);
-			check_range("dentries", opt_dentries, 1, 100000000);
+			check_range("dentries", opt_dentries,
+				MIN_DENTRIES, MAX_DENTRIES);
 			break;
 		case OPT_FIFO_READERS:
 			opt_fifo_readers = get_uint64(optarg);
-			check_range("fifo-readers", opt_fifo_readers, MIN_FIFO_READERS, MAX_FIFO_READERS);
+			check_range("fifo-readers", opt_fifo_readers,
+				MIN_FIFO_READERS, MAX_FIFO_READERS);
 			break;
 		case OPT_FORK_MAX:
 			opt_fork_max = get_uint64_byte(optarg);
-			check_range("fork-max", opt_fork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
+			check_range("fork-max", opt_fork_max,
+				MIN_FORKS, MAX_FORKS);
 			break;
 		case OPT_FSTAT_DIR:
 			opt_fstat_dir = optarg;
@@ -1170,15 +1177,18 @@ next_opt:
 			usage();
 		case OPT_HDD_BYTES:
 			opt_hdd_bytes =  get_uint64_byte(optarg);
-			check_range("hdd-bytes", opt_hdd_bytes, MIN_HDD_BYTES, MAX_HDD_BYTES);
+			check_range("hdd-bytes", opt_hdd_bytes,
+				MIN_HDD_BYTES, MAX_HDD_BYTES);
 			break;
 		case OPT_HDD_WRITE_SIZE:
 			opt_hdd_write_size = get_uint64_byte(optarg);
-			check_range("hdd-write-size", opt_hdd_write_size, MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
+			check_range("hdd-write-size", opt_hdd_write_size,
+				MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 			break;
 		case OPT_HSEARCH_SIZE:
 			opt_hsearch_size = get_uint64_byte(optarg);
-			check_range("hsearch-size", opt_hsearch_size, 1 * KB, 4 * MB);
+			check_range("hsearch-size", opt_hsearch_size,
+				MIN_HSEARCH_SIZE, MAX_HSEARCH_SIZE);
 			break;
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);
@@ -1191,7 +1201,8 @@ next_opt:
 			break;
 		case OPT_LSEARCH_SIZE:
 			opt_lsearch_size = get_uint64_byte(optarg);
-			check_range("lsearch-size", opt_lsearch_size, 1 * KB, 4 * MB);
+			check_range("lsearch-size", opt_lsearch_size,
+				MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE);
 			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
@@ -1201,7 +1212,8 @@ next_opt:
 			break;
 		case OPT_MMAP_BYTES:
 			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("mmap-bytes", opt_vm_bytes, MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+			check_range("mmap-bytes", opt_vm_bytes,
+				MIN_MMAP_BYTES, MAX_MMAP_BYTES);
 			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
@@ -1211,7 +1223,8 @@ next_opt:
 			break;
 		case OPT_QSORT_INTEGERS:
 			opt_qsort_size = get_uint64_byte(optarg);
-			check_range("qsort-size", opt_qsort_size, 1 * KB, 64 * MB);
+			check_range("qsort-size", opt_qsort_size,
+				MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 			break;
 		case OPT_QUIET:
 			opt_flags &= ~(PR_ALL);
@@ -1229,19 +1242,22 @@ next_opt:
 			break;
 		case OPT_SEEK_SIZE:
 			opt_seek_size = get_uint64_byte(optarg);
-			check_range("seek-size", opt_seek_size, MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+			check_range("seek-size", opt_seek_size,
+				MIN_SEEK_SIZE, MAX_SEEK_SIZE);
 			break;
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
 			opt_sendfile_size = get_uint64_byte(optarg);
-			check_range("sendfile-size", opt_sendfile_size, 1 * KB, 1 * GB);
+			check_range("sendfile-size", opt_sendfile_size,
+				MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
 			break;
 #endif
 		case OPT_SEQUENTIAL:
 			opt_sequential = get_uint64_byte(optarg);
 			if (opt_sequential <= 0)
 				opt_sequential = opt_nprocessors_online;
-			check_range("sequential", opt_sequential, DEFAULT_SEQUENTIAL_MIN, DEFAULT_SEQUENTIAL_MAX);
+			check_range("sequential", opt_sequential,
+				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)
@@ -1249,7 +1265,8 @@ next_opt:
 			break;
 		case OPT_SOCKET_PORT:
 			opt_socket_port = get_uint64(optarg);
-			check_range("sock-port", opt_socket_port, 1024, 65536 - num_procs[STRESS_SOCKET]);
+			check_range("sock-port", opt_socket_port,
+				MIN_SOCKET_PORT, MAX_SOCKET_PORT - num_procs[STRESS_SOCKET]);
 			break;
 		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);
@@ -1257,7 +1274,8 @@ next_opt:
 #if defined (__linux__)
 		case OPT_TIMER_FREQ:
 			opt_timer_freq = get_uint64(optarg);
-			check_range("timer-freq", opt_timer_freq, 1000, 100000000);
+			check_range("timer-freq", opt_timer_freq,
+				MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 			break;
 #endif
 		case OPT_TIMES:
@@ -1265,7 +1283,8 @@ next_opt:
 			break;
 		case OPT_TSEARCH_SIZE:
 			opt_tsearch_size = get_uint64_byte(optarg);
-			check_range("tsearch-size", opt_tsearch_size, 1 * KB, 4 * MB);
+			check_range("tsearch-size", opt_tsearch_size,
+				MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 			break;
 		case OPT_UTIME_FSYNC:
 			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
@@ -1278,7 +1297,8 @@ next_opt:
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
 		case OPT_VFORK_MAX:
 			opt_vfork_max = get_uint64_byte(optarg);
-			check_range("vfork-max", opt_vfork_max, DEFAULT_FORKS_MIN, DEFAULT_FORKS_MAX);
+			check_range("vfork-max", opt_vfork_max,
+				MIN_FORKS, MAX_FORKS);
 			break;
 #endif
 		case OPT_VERIFY:
@@ -1289,11 +1309,13 @@ next_opt:
 			exit(EXIT_SUCCESS);
 		case OPT_VM_BYTES:
 			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("vm-bytes", opt_vm_bytes, MIN_VM_BYTES, MAX_VM_BYTES);
+			check_range("vm-bytes", opt_vm_bytes,
+				MIN_VM_BYTES, MAX_VM_BYTES);
 			break;
 		case OPT_VM_HANG:
 			opt_vm_hang = get_uint64_byte(optarg);
-			check_range("vm-hang", opt_vm_hang, MIN_VM_HANG, MAX_VM_HANG);
+			check_range("vm-hang", opt_vm_hang,
+				MIN_VM_HANG, MAX_VM_HANG);
 			break;
 		case OPT_VM_KEEP:
 			opt_flags |= OPT_FLAGS_VM_KEEP;
@@ -1393,7 +1415,7 @@ next_opt:
 			num_procs[i] = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
 		}
 		if (opt_timeout == 0) {
-			opt_timeout = 60; 
+			opt_timeout = 60;
 			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
 		}
 	} else {
@@ -1403,7 +1425,7 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 		if (opt_timeout == 0) {
-			opt_timeout = DEFAULT_TIMEOUT; 
+			opt_timeout = DEFAULT_TIMEOUT;
 			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
 		}
 	}
@@ -1479,9 +1501,9 @@ next_opt:
 
 			for (j = 0; j < started_procs[i]; j++, n++) {
 				c_total += shared->stats[n].counter;
-				u_total += shared->stats[n].tms.tms_utime + 
+				u_total += shared->stats[n].tms.tms_utime +
 					   shared->stats[n].tms.tms_cutime;
-				s_total += shared->stats[n].tms.tms_stime + 
+				s_total += shared->stats[n].tms.tms_stime +
 					   shared->stats[n].tms.tms_cstime;
 				r_total += shared->stats[n].finish - shared->stats[n].start;
 			}
@@ -1525,7 +1547,7 @@ next_opt:
 		pr_inf(stdout, "for a %.2fs run time:\n", duration);
 		pr_inf(stdout, "  %8.2fs available CPU time\n",
 			total_cpu_time);
-			
+
 		pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
 			(float)buf.tms_cutime / (float)ticks_per_sec,
 			100.0 * ((float)buf.tms_cutime / (float)ticks_per_sec) / total_cpu_time);
