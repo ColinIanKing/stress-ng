@@ -231,19 +231,22 @@ typedef struct {
 	uint64_t z;
 } mwc_t;
 
+/* Force aligment to nearest cache line */
 #ifdef __GNUC__
 #define ALIGN64	__attribute__ ((aligned(64)))
 #else
 #define ALIGN64
 #endif
 
+/* Per process statistics and accounting info */
 typedef struct {
-	uint64_t counter;
-	struct tms tms;
-	double start;
-	double finish;
+	uint64_t counter;		/* number of bogo ops */
+	struct tms tms;			/* run time stats of process */
+	double start;			/* wall clock start time */
+	double finish;			/* wall clock stop time */
 } proc_stats_t;
 
+/* Shared memory segment */
 typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;
 	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;
