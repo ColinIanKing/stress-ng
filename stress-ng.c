@@ -46,7 +46,6 @@
 
 /* Various option settings and flags */
 const char *app_name = "stress-ng";		/* Name of application */
-sem_t	 sem;					/* stress_semaphore sem */
 bool	 sem_ok = false;			/* stress_semaphore init ok */
 shared_t *shared;				/* shared memory */
 uint64_t opt_dentries = DEFAULT_DENTRIES;
@@ -68,6 +67,7 @@ uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
+uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
 int32_t  started_procs[STRESS_MAX];		/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
@@ -411,6 +411,7 @@ static const struct option long_options[] = {
 	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
+	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_PROCS },
 #if defined(__linux__)
 	{ "sendfile",	1,	0,	OPT_SENDFILE },
 	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
@@ -621,6 +622,7 @@ static const help_t help[] = {
 	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
+	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
 #if defined (__linux__)
 	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
@@ -1245,6 +1247,11 @@ next_opt:
 			check_range("seek-size", opt_seek_size,
 				MIN_SEEK_SIZE, MAX_SEEK_SIZE);
 			break;
+		case OPT_SEMAPHORE_PROCS:
+			opt_sem_procs = get_uint64_byte(optarg);
+			check_range("sem-procs", opt_sem_procs,
+				MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+			break;
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
 			opt_sendfile_size = get_uint64_byte(optarg);
@@ -1365,22 +1372,6 @@ next_opt:
 		}
 	}
 
-	if (num_procs[stress_info_index(STRESS_SEMAPHORE)] || opt_sequential) {
-		/* create a mutex */
-		if (sem_init(&sem, 1, 1) < 0) {
-			if (opt_sequential) {
-				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
-					"skipping semaphore stressor\n",
-					errno, strerror(errno));
-			} else {
-				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-					errno, strerror(errno));
-				exit(EXIT_FAILURE);
-			}
-		} else
-			sem_ok = true;
-	}
-
 	set_oom_adjustment("main", false);
 	set_coredump("main");
 	set_sched(opt_sched, opt_sched_priority);
@@ -1465,6 +1456,23 @@ next_opt:
 	memset(shared, 0, len);
 	memset(started_procs, 0, sizeof(num_procs));
 
+	if (num_procs[stress_info_index(STRESS_SEMAPHORE)] || opt_sequential) {
+		/* create a mutex */
+		if (sem_init(&shared->sem, 1, 1) < 0) {
+			if (opt_sequential) {
+				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
+					"skipping semaphore stressor\n",
+					errno, strerror(errno));
+			} else {
+				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
+					errno, strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		} else
+			sem_ok = true;
+	}
+
+
 	if (opt_sequential) {
 		/*
 		 *  Step through each stressor one by one
@@ -1527,7 +1535,7 @@ next_opt:
 	free_procs();
 
 	if (num_procs[stress_info_index(STRESS_SEMAPHORE)]) {
-		if (sem_destroy(&sem) < 0) {
+		if (sem_destroy(&shared->sem) < 0) {
 			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}

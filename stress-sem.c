@@ -29,8 +29,58 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <semaphore.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
+
+/*
+ *  sem_thrash()
+ *	exercise the semaphore
+ */
+static void sem_thrash(
+	const char *name,
+	const uint64_t max_ops,
+	uint64_t *counter)
+{
+	do {
+		int i;
+
+		for (i = 0; i < 1000; i++) {
+			if (sem_wait(&shared->sem) < 0) {
+				pr_failed_dbg(name, "sem_wait");
+				break;
+			}
+			(*counter)++;
+			sem_post(&shared->sem);
+			if (!opt_do_run)
+				break;
+		}
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+}
+
+/*
+ *  sem_spawn()
+ *	spawn a process
+ */
+static int sem_spawn(
+	const char *name,
+	const uint64_t max_ops,
+	uint64_t *counter)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0) {
+		return -1;
+	}
+	if (pid == 0) {
+		sem_thrash(name, max_ops, counter);
+		exit(EXIT_SUCCESS);
+	}
+	return pid;
+}
 
 /*
  *  stress_sem()
@@ -42,28 +92,33 @@ int stress_semaphore(
 	const uint64_t max_ops,
 	const char *name)
 {
+	pid_t pids[MAX_SEMAPHORE_PROCS];
+	uint64_t i;
+
 	(void)instance;
-	(void)name;
 
 	if (!sem_ok) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
 		return EXIT_FAILURE;
 	}
 
-	do {
-		int i;
+	memset(pids, 0, sizeof(pids));
+	for (i = 0; i < opt_sem_procs; i++) {
+		pids[i] = sem_spawn(name, max_ops, counter);
+		if (pids[i] < 0)
+			goto reap;
+	}
+	sem_thrash(name, max_ops, counter);
 
-		for (i = 0; i < 1000; i++) {
-			if (sem_wait(&sem) < 0) {
-				pr_failed_dbg(name, "sem_wait");
-				break;
-			}
-			sem_post(&sem);
-			if (!opt_do_run)
-				break;
+reap:
+	for (i = 0; i < opt_sem_procs; i++) {
+		if (pids[i] > 0) {
+			int status;
+
+			(void)kill(pids[i], SIGKILL);
+                        waitpid(pids[i], &status, 0);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	}
 
 	return EXIT_SUCCESS;
 }

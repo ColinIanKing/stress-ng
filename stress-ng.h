@@ -127,6 +127,10 @@
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
 
+#define MIN_SEMAPHORE_PROCS	(4)
+#define MAX_SEMAPHORE_PROCS	(64)
+#define DEFAULT_SEMAPHORE_PROCS	(1)
+
 #define MIN_FORKS		(1)
 #define MAX_FORKS		(16000)
 #define DEFAULT_FORKS		(1)
@@ -251,6 +255,7 @@ typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;
 	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
+	sem_t sem ALIGN64;
 	proc_stats_t stats[0] ALIGN64;
 } shared_t;
 
@@ -550,6 +555,7 @@ typedef enum {
 
 	OPT_SEMAPHORE,
 	OPT_SEMAPHORE_OPS,
+	OPT_SEMAPHORE_PROCS,
 
 	OPT_SEQUENTIAL,
 
@@ -653,7 +659,6 @@ typedef struct {
 
 /* Various option settings and flags */
 extern const char *app_name;				/* Name of application */
-extern sem_t	sem;					/* stress_semaphore sem */
 extern bool     sem_ok;					/* stress_semaphore init ok */
 extern shared_t *shared;				/* shared memory */
 extern uint64_t	opt_dentries;				/* dentries per loop */
@@ -675,6 +680,7 @@ extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_aio_requests;			/* Number of async I/O requests */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
+extern uint64_t opt_sem_procs;				/* Number of sem procs per stressor */
 extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	started_procs[STRESS_MAX];		/* number of processes per stressor */
 extern int32_t	opt_flags;				/* option flags */
