@@ -49,7 +49,7 @@ int stress_fork_fn(
 	(void)instance;
 	(void)name;
 
-	pid_t pids[DEFAULT_FORKS_MAX];
+	pid_t pids[MAX_FORKS];
 
 	do {
 		unsigned int i;
