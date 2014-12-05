@@ -1192,12 +1192,14 @@ next_opt:
 			check_range("hsearch-size", opt_hsearch_size,
 				MIN_HSEARCH_SIZE, MAX_HSEARCH_SIZE);
 			break;
+#if defined (__linux__)
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);
 			break;
 		case OPT_IONICE_LEVEL:
 			opt_ionice_level = get_int(optarg);
 			break;
+#endif
 		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
