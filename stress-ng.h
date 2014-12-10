@@ -442,6 +442,7 @@ typedef enum {
 
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
+	OPT_DENTRY_ORDER,
 
 	OPT_DIR,
 	OPT_DIR_OPS,
@@ -759,6 +760,7 @@ extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
+extern int stress_set_dentry_order(const char *opt);
 
 /*
  *  mwc()

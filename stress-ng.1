@@ -313,10 +313,16 @@ the typical instruction mixes found in these use cases.
 .RE
 .TP
 .B \-D N, \-\-dentry N
-start N processes that create and remove directory entries.  This should create file system meta data activity.
+start N processes that create and remove directory entries.  This should create file system meta data activity. The
+directory entry names are suffixed by a gray-code encoded number to try to mix up the hashing of the namespace.
 .TP
 .B \-\-dentry\-ops N
 stop denty thrash processes after N bogo dentry operations.
+.TP
+.B \-\-dentry\-order O
+specify unlink order of dentries, can be one of forward, reverse or stride. By default, dentries are unlinked
+in the order they were created, however, the reverse order option will unlink them from last to first and the
+stride option will unlink them by stepping around order in a quasi-random pattern.
 .TP
 .B \-\-dentries N
 create N dentries per dentry thrashing loop, default is 2048.

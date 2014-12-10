@@ -315,6 +315,7 @@ static const struct option long_options[] = {
 	{ "dentry",	1,	0,	OPT_DENTRY },
 	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
 	{ "dentries",	1,	0,	OPT_DENTRIES },
+	{ "dentry-order",1,	0,	OPT_DENTRY_ORDER },
 	{ "dir",	1,	0,	OPT_DIR },
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
@@ -529,6 +530,7 @@ static const help_t help[] = {
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
 	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
 	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
+	{ NULL,		"dentry-order O",	"specify dentry unlink order (reverse, forward, stride)" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
 	{ NULL,		"dir N",		"start N directory thrashing processes" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
@@ -1170,6 +1172,10 @@ next_opt:
 			opt_dentries = get_uint64(optarg);
 			check_range("dentries", opt_dentries,
 				MIN_DENTRIES, MAX_DENTRIES);
+			break;
+		case OPT_DENTRY_ORDER:
+			if (stress_set_dentry_order(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_FIFO_READERS:
 			opt_fifo_readers = get_uint64(optarg);

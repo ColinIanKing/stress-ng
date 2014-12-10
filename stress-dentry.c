@@ -37,6 +37,47 @@
 
 #include "stress-ng.h"
 
+typedef enum {
+	ORDER_FORWARD,
+	ORDER_REVERSE,
+	ORDER_STRIDE,
+	ORDER_NONE,
+} dentry_order_t;
+
+typedef struct {
+	const char *name;
+	const dentry_order_t order;
+} dentry_removal_t;
+
+static dentry_removal_t dentry_removals[] = {
+	{ "forward",	ORDER_FORWARD },
+	{ "reverse",	ORDER_REVERSE },
+	{ "stride",	ORDER_STRIDE },
+	{ NULL,		ORDER_NONE },
+};
+
+static dentry_order_t order = ORDER_REVERSE;
+
+int stress_set_dentry_order(const char *opt)
+{
+	dentry_removal_t *dr;
+
+	for (dr = dentry_removals; dr->name; dr++) {
+		if (!strcmp(dr->name, opt)) {
+			order = dr->order;
+			return 0;
+		}
+	}
+
+	fprintf(stderr, "dentry-order must be one of:");
+	for (dr = dentry_removals; dr->name; dr++) {
+                fprintf(stderr, " %s", dr->name);
+        }
+        fprintf(stderr, "\n");
+
+	return -1;
+}
+
 /*
  *  stress_dentry_unlink()
  *	remove all dentries
@@ -46,16 +87,43 @@ static void stress_dentry_unlink(
 	const uint32_t instance,
 	const uint64_t n)
 {
-	uint64_t i;
+	uint64_t i, j;
 	const pid_t pid = getpid();
+	const uint64_t prime = 18446744073709551557ULL;
 
-	for (i = 0; i < n; i++) {
-		char path[PATH_MAX];
-		uint64_t gray_code = (i >> 1) ^ i;
+	switch (order) {
+	case ORDER_REVERSE:
+		for (i = 0; i < n; i++) {
+			char path[PATH_MAX];
+			uint64_t j = (n - 1) - i, gray_code = (j >> 1) ^ j;
 
-		stress_temp_filename(path, sizeof(path),
-			name, pid, instance, gray_code);
-		(void)unlink(path);
+			stress_temp_filename(path, sizeof(path),
+				name, pid, instance, gray_code);
+			(void)unlink(path);
+		}
+		break;
+	case ORDER_STRIDE:
+		for (i = 0, j = prime; i < n; i++, j += prime) {
+			char path[PATH_MAX];
+			uint64_t k = j % n;
+			uint64_t gray_code = (k >> 1) ^ k;
+
+			stress_temp_filename(path, sizeof(path),
+				name, pid, instance, gray_code);
+			(void)unlink(path);
+		}
+		break;
+	case ORDER_FORWARD:
+	default:
+		for (i = 0; i < n; i++) {
+			char path[PATH_MAX];
+			uint64_t gray_code = (i >> 1) ^ i;
+
+			stress_temp_filename(path, sizeof(path),
+				name, pid, instance, gray_code);
+			(void)unlink(path);
+		}
+		break;
 	}
 	sync();
 }
