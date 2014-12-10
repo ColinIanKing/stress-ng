@@ -526,6 +526,7 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = 18446744073709551557ULL;
+	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -536,12 +537,17 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	memset(buf, 0x00, sz);
 
 	for (i = 0; i < sz; i++) {
-		ptr[i % prime] += val;
+		ptr[i] += val;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
-	for (i = 0; i < sz; i++) {
-		ptr[i % prime] -= val;
+	/*
+	 *  Step through memory in prime sized steps
+	 *  in a totally sub-optimal way to exercise
+	 *  memory and cache stalls
+	 */
+	for (i = 0, j = prime; i < sz; i++, j += prime) {
+		ptr[j % sz] -= val;
 	}
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
@@ -1152,6 +1158,7 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 	uint8_t j;
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
+	uint64_t k;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1163,8 +1170,13 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 
 	for (j = 0; j < 8; j++) {
 		uint8_t mask = ~(1 << j);
-		for (i = 0; i < sz; i++) {
-			ptr[i % prime] &= mask;
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		for (i = 0, k = prime; i < sz; i++, k += prime) {
+			ptr[k % sz] &= mask;
 		}
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1192,6 +1204,7 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 	uint8_t j;
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
+	uint64_t k;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1203,8 +1216,13 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 
 	for (j = 0; j < 8; j++) {
 		uint8_t mask = 1 << j;
-		for (i = 0; i < sz; i++) {
-			ptr[i % prime] |= mask;
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		for (i = 0, k = prime; i < sz; i++, k += prime) {
+			ptr[k % sz] |= mask;
 			if (!opt_do_run)
 				goto abort;
 		}
@@ -1235,6 +1253,7 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
+	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1244,13 +1263,23 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 
 	memset(buf, 0xff, sz);
 
-	for (i = 0; i < sz; i++) {
-		ptr[i % prime] &= ((i >> 1) ^ i);
+	for (i = 0, j = prime; i < sz; i++, j += prime) {
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		ptr[j % sz] &= ((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
 	}
-	for (i = 0; i < sz; i++) {
-		ptr[i % prime] &= ~((i >> 1) ^ i);
+	for (i = 0, j = prime; i < sz; i++, j += prime) {
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		ptr[j % sz] &= ~((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -1280,6 +1309,7 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
 	const uint64_t prime = 18446744073709551557ULL;
+	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1289,14 +1319,24 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 
 	memset(buf, 0x00, sz);
 
-	for (i = 0; i < sz; i++) {
-		ptr[i % prime] |= ((i >> 1) ^ i);
+	for (i = 0, j = prime; i < sz; i++, j += prime) {
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		ptr[j % sz] |= ((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
-	for (i = 0; i < sz; i++) {
-		ptr[i % prime] |= ~((i >> 1) ^ i);
+	for (i = 0, j = prime; i < sz; i++, j += prime) {
+		/*
+		 *  Step through memory in prime sized steps
+		 *  in a totally sub-optimal way to exercise
+		 *  memory and cache stalls
+		 */
+		ptr[j % sz] |= ~((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
 	}
