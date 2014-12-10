@@ -655,7 +655,7 @@ start N processes that send an empty file to /dev/null. This operation spends ne
 stop sendfile stressors after N sendfile bogo operations.
 .TP
 .B \-\-sendfile\-size S
-specify the size to be copied with each sendfile call. The default is 4MB.  Since the data is copied from a temporary file of the same size in /tmp, large values for this option may cause excessive swapping if /tmp is a memory based filesystem. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+specify the size to be copied with each sendfile call. The default size is 4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-sequential N
 sequentially run all the stressors one by one for a default of 60 seconds. The
