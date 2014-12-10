@@ -147,6 +147,10 @@
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
+#define MIN_PTHREAD		(1)
+#define MAX_PTHREAD		(30000)
+#define DEFAULT_PTHREAD		(16)
+
 #define MIN_QSORT_SIZE		(1 * KB)
 #define MAX_QSORT_SIZE		(64 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
@@ -319,6 +323,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_PROCFS,
 #endif
+	STRESS_PTHREAD,
 	STRESS_QSORT,
 #if defined(STRESS_X86)
 	STRESS_RDRAND,
@@ -533,6 +538,10 @@ typedef enum {
 	OPT_PROCFS,
 	OPT_PROCFS_OPS,
 
+	OPT_PTHREAD,
+	OPT_PTHREAD_OPS,
+	OPT_PTHREAD_MAX,
+
 	OPT_QSORT,
 	OPT_QSORT_OPS,
 	OPT_QSORT_INTEGERS,
@@ -677,6 +686,7 @@ extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
 extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
+extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_aio_requests;			/* Number of async I/O requests */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
@@ -801,6 +811,7 @@ STRESS(stress_open);
 STRESS(stress_pipe);
 STRESS(stress_poll);
 STRESS(stress_procfs);
+STRESS(stress_pthread);
 STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);

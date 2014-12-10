@@ -41,6 +41,7 @@
 #include <sys/types.h>
 #include <sys/times.h>
 #include <sys/wait.h>
+#include <sys/resource.h>
 
 #include "stress-ng.h"
 
@@ -64,6 +65,7 @@ uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
 uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
+uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
@@ -222,6 +224,7 @@ static const stress_t stressors[] = {
 #if defined (__linux__)
 	STRESSOR(procfs, PROCFS, CLASS_IO | CLASS_OS),
 #endif
+	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_X86)
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
@@ -393,6 +396,9 @@ static const struct option long_options[] = {
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 #endif
+	{ "pthread",	1,	0,	OPT_PTHREAD },
+	{ "pthread-ops",1,	0,	OPT_PTHREAD_OPS },
+	{ "pthread-max",1,	0,	OPT_PTHREAD_MAX },
 	{ "qsort",	1,	0,	OPT_QSORT },
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
@@ -604,6 +610,9 @@ static const help_t help[] = {
 	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
 	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
 #endif
+	{ NULL,		"pthread N",		"start N workers that create multiple threads" },
+	{ NULL,		"pthread-ops N",	"stop pthread workers after N bogo threads created" },
+	{ NULL,		"pthread-max P",	"create P threads at a time by each worker" },
 	{ "Q",		"qsort N",		"start N workers exercising qsort on 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
@@ -1050,6 +1059,7 @@ int main(int argc, char **argv)
 	bool success = true, previous = false;
 	struct sigaction new_action;
 	long int ticks_per_sec;
+	struct rlimit limit;
 
 	memset(num_procs, 0, sizeof(num_procs));
 	memset(opt_ops, 0, sizeof(opt_ops));
@@ -1224,6 +1234,11 @@ next_opt:
 			break;
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
+			break;
+		case OPT_PTHREAD_MAX:
+			opt_pthread_max = get_uint64_byte(optarg);
+			check_range("pthread-max", opt_pthread_max,
+				MIN_PTHREAD, MAX_PTHREAD);
 			break;
 		case OPT_QSORT_INTEGERS:
 			opt_qsort_size = get_uint64_byte(optarg);
@@ -1431,6 +1446,16 @@ next_opt:
 			pr_err(stderr, "cannot allocate procs\n");
 			free_procs();
 			exit(EXIT_FAILURE);
+		}
+	}
+
+	if (num_procs[STRESS_PTHREAD] && (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
+		uint64_t max = (uint64_t)limit.rlim_cur / num_procs[STRESS_PTHREAD];
+		if (opt_pthread_max > max) {
+			opt_pthread_max = max;
+			pr_inf(stdout, "re-adjusting maximum threads to "
+				"soft limit of %" PRIu64 "\n",
+				opt_pthread_max);
 		}
 	}
 

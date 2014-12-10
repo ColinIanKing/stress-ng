@@ -584,6 +584,15 @@ start N processes that read files from /proc and recursively read files from /pr
 .B \-\-procfs\-ops N
 stop procfs reading after N bogo read operations. Note, since the number of entries may vary between kernels, this bogo ops metric is probably very misleading.
 .TP
+.B \-\-pthread N
+start N workers that iteratively creates and terminates multiple pthreads (the default is 16 pthreads 16 worker). In each iteration, each newly created pthread waits until the worker has created all the pthreads and then they all terminate together.
+.TP
+.B \-\-pthread\-ops N
+stop pthread workers after N bogo pthread create operations.
+.TP
+.B \-\-pthread\-max N
+create N pthreads per worker. If the product of the number of pthreads by the number of workers is greater than the soft limit of allowed pthreads then the maximum is re-adjusted down to the maximum allowed.
+.TP
 .B \-Q, \-\-qsort N
 start N processes that sort 32 bit integers using qsort.
 .TP
@@ -965,6 +974,7 @@ File bug reports at:
 .BR ionice (1),
 .BR ioprio_set (2),
 .BR lsearch (3),
+.BR pthreads (7),
 .BR qsort (3),
 .BR sched_yield (2),
 .BR sched_setaffinity (2),
