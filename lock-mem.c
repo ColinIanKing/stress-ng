@@ -24,11 +24,12 @@
  */
 #define _GNU_SOURCE
 
+#include <unistd.h>
 #include <sys/mman.h>
 
 void lock_mem_current(void)
 {
-#if !defined(__gnu_hurd__)
+#if defined(_POSIX_MEMLOCK) && !defined(__gnu_hurd__)
 	(void)mlockall(MCL_CURRENT);
 #endif
 }
