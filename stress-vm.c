@@ -525,7 +525,7 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
@@ -1157,7 +1157,7 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr = buf;
 	uint8_t j;
 	size_t bit_errors = 0;
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 	uint64_t k;
 
 #if SIZE_MAX > UINT32_MAX
@@ -1203,7 +1203,7 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr = buf;
 	uint8_t j;
 	size_t bit_errors = 0;
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 	uint64_t k;
 
 #if SIZE_MAX > UINT32_MAX
@@ -1252,7 +1252,7 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
@@ -1308,7 +1308,7 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 	uint64_t j;
 
 #if SIZE_MAX > UINT32_MAX
