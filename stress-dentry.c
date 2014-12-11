@@ -89,7 +89,7 @@ static void stress_dentry_unlink(
 {
 	uint64_t i, j;
 	const pid_t pid = getpid();
-	const uint64_t prime = 18446744073709551557ULL;
+	const uint64_t prime = PRIME_64;
 
 	switch (order) {
 	case ORDER_REVERSE:
