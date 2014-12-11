@@ -35,10 +35,12 @@
 
 #include "stress-ng.h"
 
+#define VM_BOGO_SHIFT		(12)
+
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
-typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz);
+typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz, uint64_t *counter, const uint64_t max_ops);
 
 typedef struct {
 	const char *name;
@@ -175,9 +177,13 @@ static inline size_t stress_vm_count_bits(uint64_t v)
  *	with a random value, then check if it is correct, invert it and
  *	then check if that is correct.
  */
-static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
+static size_t stress_vm_moving_inversion(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
-	uint64_t w, z, *buf_end;
+	uint64_t w, z, *buf_end, c = *counter;
 	volatile uint64_t *ptr;
 	size_t bit_errors;
 
@@ -195,9 +201,13 @@ static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
 	mwc_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < buf_end; ) {
 		uint64_t val = mwc();
+
 		if (*ptr != val)
 			bit_errors++;
 		*(ptr++) = ~val;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -211,6 +221,9 @@ static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
 		uint64_t val = mwc();
 		if (*(ptr++) != ~val)
 			bit_errors++;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -218,6 +231,9 @@ static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
 	mwc_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
 		*--ptr = mwc();
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 	}
 
 	inject_random_bit_errors(buf, sz);
@@ -229,6 +245,9 @@ static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
 		if (*--ptr != val)
 			bit_errors++;
 		*ptr = ~val;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -243,6 +262,7 @@ static size_t stress_vm_moving_inversion(uint8_t *buf, const size_t sz)
 
 abort:
 	stress_vm_check("moving inversion", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -253,7 +273,11 @@ abort:
  *	all the other bytes to the complement of this. Check
  *	that the random patterns are still set.
  */
-static size_t stress_vm_modulo_x(uint8_t *buf, const size_t sz)
+static size_t stress_vm_modulo_x(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	uint32_t i, j;
 	const uint32_t stride = 23;	/* Small prime to hit cache */
@@ -261,6 +285,7 @@ static size_t stress_vm_modulo_x(uint8_t *buf, const size_t sz)
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
 	size_t bit_errors = 0;
+	uint64_t c = *counter;
 
 	mwc_reseed();
 	pattern = mwc();
@@ -273,13 +298,21 @@ static size_t stress_vm_modulo_x(uint8_t *buf, const size_t sz)
 				goto abort;
 		}
 		for (ptr = buf; ptr < buf_end; ptr += stride) {
-			for (j = 0; j < i && ptr < buf_end; j++)
+			for (j = 0; j < i && ptr < buf_end; j++) {
 				*ptr++ = compliment;
+				c++;
+				if (max_ops && c >= max_ops)
+					goto abort;
+			}
 			if (!opt_do_run)
 				goto abort;
 			ptr++;
-			for (j = i + 1; j < stride && ptr < buf_end; j++)
+			for (j = i + 1; j < stride && ptr < buf_end; j++) {
 				*ptr++ = compliment;
+				c++;
+				if (max_ops && c >= max_ops)
+					goto abort;
+			}
 			if (!opt_do_run)
 				goto abort;
 		}
@@ -295,6 +328,7 @@ static size_t stress_vm_modulo_x(uint8_t *buf, const size_t sz)
 
 abort:
 	stress_vm_check("modulo X", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -304,11 +338,16 @@ abort:
  *	for each byte, walk through each data line setting them to high
  *	setting each bit to see if none of the lines are stuck
  */
-static size_t stress_vm_walking_one_data(uint8_t *buf, const size_t sz)
+static size_t stress_vm_walking_one_data(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
+	uint64_t c = *counter;
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0x01, bit_errors);
@@ -319,10 +358,14 @@ static size_t stress_vm_walking_one_data(uint8_t *buf, const size_t sz)
 		SET_AND_TEST(ptr, 0x20, bit_errors);
 		SET_AND_TEST(ptr, 0x40, bit_errors);
 		SET_AND_TEST(ptr, 0x80, bit_errors);
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 		if (!opt_do_run)
 			break;
 	}
 	stress_vm_check("walking one (data)", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -332,11 +375,16 @@ static size_t stress_vm_walking_one_data(uint8_t *buf, const size_t sz)
  *	for each byte, walk through each data line setting them to low 
  *	setting each bit to see if none of the lines are stuck
  */
-static size_t stress_vm_walking_zero_data(uint8_t *buf, const size_t sz)
+static size_t stress_vm_walking_zero_data(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
+	uint64_t c = *counter;
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0xfe, bit_errors);
@@ -347,10 +395,14 @@ static size_t stress_vm_walking_zero_data(uint8_t *buf, const size_t sz)
 		SET_AND_TEST(ptr, 0xdf, bit_errors);
 		SET_AND_TEST(ptr, 0xbf, bit_errors);
 		SET_AND_TEST(ptr, 0x7f, bit_errors);
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 		if (!opt_do_run)
 			break;
 	}
 	stress_vm_check("walking zero (data)", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -361,13 +413,18 @@ static size_t stress_vm_walking_zero_data(uint8_t *buf, const size_t sz)
  *	the given memory mapped range to high to see if any address bits
  *	are stuck.
  */
-static size_t stress_vm_walking_one_addr(uint8_t *buf, const size_t sz)
+static size_t stress_vm_walking_one_addr(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
 	uint8_t d1 = 0, d2 = ~d1;
 	size_t bit_errors = 0;
 	size_t tests = 0;
+	uint64_t c = *counter;
 
 	memset(buf, d1, sz);
 	for (ptr = buf; ptr < buf_end; ptr += 256) {
@@ -389,10 +446,14 @@ static size_t stress_vm_walking_one_addr(uint8_t *buf, const size_t sz)
 				bit_errors++;
 			mask <<= 1;
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 		if (!opt_do_run)
 			break;
 	}
 	stress_vm_check("walking one (address)", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -403,7 +464,11 @@ static size_t stress_vm_walking_one_addr(uint8_t *buf, const size_t sz)
  *	the given memory mapped range to low to see if any address bits
  *	are stuck.
  */
-static size_t stress_vm_walking_zero_addr(uint8_t *buf, const size_t sz)
+static size_t stress_vm_walking_zero_addr(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
@@ -411,6 +476,7 @@ static size_t stress_vm_walking_zero_addr(uint8_t *buf, const size_t sz)
 	size_t bit_errors = 0;
 	size_t tests = 0;
 	uint64_t sz_mask;
+	uint64_t c = *counter;
 
 	for (sz_mask = 1; sz_mask < sz; sz_mask <<= 1)
 		;
@@ -435,10 +501,14 @@ static size_t stress_vm_walking_zero_addr(uint8_t *buf, const size_t sz)
 				bit_errors++;
 			mask <<= 1;
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 		if (!opt_do_run)
 			break;
 	}
 	stress_vm_check("walking zero (address)", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -449,17 +519,25 @@ static size_t stress_vm_walking_zero_addr(uint8_t *buf, const size_t sz)
  *	all the bits are set correctly. gray codes just change
  *	one bit at a time.
  */
-static size_t stress_vm_gray(uint8_t *buf, const size_t sz)
+static size_t stress_vm_gray(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	static uint8_t val;
 	uint8_t v, *buf_end = buf + sz;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
+	uint64_t c = *counter;
 
 	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
 		if (!opt_do_run)
 			return 0;
 		*ptr = (v >> 1) ^ v;
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -473,6 +551,7 @@ static size_t stress_vm_gray(uint8_t *buf, const size_t sz)
 	val++;
 
 	stress_vm_check("gray code", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -484,23 +563,34 @@ static size_t stress_vm_gray(uint8_t *buf, const size_t sz)
  *	Check that the memory has not changed by the inc + dec
  *	operations.
  */
-static size_t stress_vm_incdec(uint8_t *buf, const size_t sz)
+static size_t stress_vm_incdec(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
 	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
+	uint64_t c = *counter;
 
 	val++;
 	memset(buf, 0x00, sz);
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		*ptr += val;
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		*ptr -= val;
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
@@ -509,6 +599,7 @@ static size_t stress_vm_incdec(uint8_t *buf, const size_t sz)
 	}
 
 	stress_vm_check("incdec code", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -519,14 +610,18 @@ static size_t stress_vm_incdec(uint8_t *buf, const size_t sz)
  *	bytes and then re-walk again decrementing; then sanity
  *	check.
  */
-static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
+static size_t stress_vm_prime_incdec(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
 	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = PRIME_64;
-	uint64_t j;
+	uint64_t j, c = *counter;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -538,6 +633,9 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -548,6 +646,9 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	 */
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		ptr[j % sz] -= val;
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
@@ -556,6 +657,7 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
 	}
 
 	stress_vm_check("prime-incdec", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -565,10 +667,14 @@ static size_t stress_vm_prime_incdec(uint8_t *buf, const size_t sz)
  *	forward swap and then reverse swap chunks of memory
  *	and see that nothing got corrupted.
  */
-static size_t stress_vm_swap(uint8_t *buf, const size_t sz)
+static size_t stress_vm_swap(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
-	uint64_t w1, z1;
+	uint64_t w1, z1, c = *counter;
 	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0, i;
@@ -606,6 +712,9 @@ static size_t stress_vm_swap(uint8_t *buf, const size_t sz)
 			*src++ = *dst;
 			*dst++ = tmp;
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -622,6 +731,9 @@ static size_t stress_vm_swap(uint8_t *buf, const size_t sz)
 			*src++ = *dst;
 			*dst++ = tmp;
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -645,6 +757,7 @@ static size_t stress_vm_swap(uint8_t *buf, const size_t sz)
 abort:
 	free(swaps);
 	stress_vm_check("swap bytes", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -654,12 +767,16 @@ abort:
  *	fill 64 bit chunks of memory with a random pattern and
  *	and then sanity check they are all set correctly.
  */
-static size_t stress_vm_rand_set(uint8_t *buf, const size_t sz)
+static size_t stress_vm_rand_set(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
-	uint64_t w, z;
+	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
 
 	mwc_reseed();
@@ -678,6 +795,9 @@ static size_t stress_vm_rand_set(uint8_t *buf, const size_t sz)
 		*(ptr + 5) = val;
 		*(ptr + 6) = val;
 		*(ptr + 7) = val;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -702,6 +822,7 @@ static size_t stress_vm_rand_set(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("rand-set", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -713,12 +834,16 @@ abort:
  *	and then sanity check they are all shifted at the
  *	end.
  */
-static size_t stress_vm_ror(uint8_t *buf, const size_t sz)
+static size_t stress_vm_ror(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
-	uint64_t w, z;
+	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
 
 	mwc_reseed();
@@ -737,6 +862,9 @@ static size_t stress_vm_ror(uint8_t *buf, const size_t sz)
 		*(ptr + 5) = val;
 		*(ptr + 6) = val;
 		*(ptr + 7) = val;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -751,6 +879,9 @@ static size_t stress_vm_ror(uint8_t *buf, const size_t sz)
 		ROR64(*(ptr + 5));
 		ROR64(*(ptr + 6));
 		ROR64(*(ptr + 7));
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -776,6 +907,7 @@ static size_t stress_vm_ror(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("ror", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -787,12 +919,16 @@ abort:
  *	invert all the bits.  Check if the final bits are all
  *	correctly inverted.
  */
-static size_t stress_vm_flip(uint8_t *buf, const size_t sz)
+static size_t stress_vm_flip(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz, bit = 0b00000011;
-	uint64_t w, z;
+	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0, i;
 
 	mwc_reseed();
@@ -818,6 +954,9 @@ static size_t stress_vm_flip(uint8_t *buf, const size_t sz)
 		*(ptr + 6) = val;
 		ROR8(val);
 		*(ptr + 7) = val;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -834,6 +973,9 @@ static size_t stress_vm_flip(uint8_t *buf, const size_t sz)
 			*(ptr + 5) ^= bit;
 			*(ptr + 6) ^= bit;
 			*(ptr + 7) ^= bit;
+			c++;
+			if (max_ops && c >= max_ops)
+				goto abort;
 			if (!opt_do_run)
 				goto abort;
 		}
@@ -867,6 +1009,7 @@ static size_t stress_vm_flip(uint8_t *buf, const size_t sz)
 
 abort:
 	stress_vm_check("flip", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -876,15 +1019,23 @@ abort:
  *	set all memory to zero and see if any bits are stuck at one and
  *	set all memory to one and see if any bits are stuck at zero
  */
-static size_t stress_vm_zero_one(uint8_t *buf, const size_t sz)
+static size_t stress_vm_zero_one(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
+	uint64_t c = *counter;
 	size_t bit_errors = 0;
+
+	(void)max_ops;
 
 	memset(buf, 0x00, sz);
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
+	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0));
@@ -903,6 +1054,7 @@ static size_t stress_vm_zero_one(uint8_t *buf, const size_t sz)
 	memset(buf, 0xff, sz);
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
+	c += sz / 8;
 
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
 		bit_errors += stress_vm_count_bits(~*(ptr + 0));
@@ -919,6 +1071,7 @@ static size_t stress_vm_zero_one(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("zero-one", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -929,12 +1082,17 @@ abort:
  *	random bits to one.  Check if this one is pulled down
  *	or pulls its neighbours up.
  */
-static size_t stress_vm_galpat_zero(uint8_t *buf, const size_t sz)
+static size_t stress_vm_galpat_zero(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
+	uint64_t c = *counter;
 
 	memset(buf, 0x00, sz);
 
@@ -950,6 +1108,9 @@ static size_t stress_vm_galpat_zero(uint8_t *buf, const size_t sz)
 				break;
 			}
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -972,6 +1133,7 @@ static size_t stress_vm_galpat_zero(uint8_t *buf, const size_t sz)
 		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
 	stress_vm_check("galpat-zero", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -982,12 +1144,17 @@ static size_t stress_vm_galpat_zero(uint8_t *buf, const size_t sz)
  *	random bits to zero.  Check if this zero is pulled up
  *	or pulls its neighbours down.
  */
-static size_t stress_vm_galpat_one(uint8_t *buf, const size_t sz)
+static size_t stress_vm_galpat_one(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
+	uint64_t c = *counter;
 
 	memset(buf, 0xff, sz);
 
@@ -1003,6 +1170,9 @@ static size_t stress_vm_galpat_one(uint8_t *buf, const size_t sz)
 				break;
 			}
 		}
+		c++;
+		if (max_ops && c >= max_ops)
+			break;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -1024,6 +1194,7 @@ static size_t stress_vm_galpat_one(uint8_t *buf, const size_t sz)
 		bit_errors += UNSIGNED_ABS(bits_set, bits_bad);
 
 	stress_vm_check("galpat-one", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1033,12 +1204,17 @@ static size_t stress_vm_galpat_one(uint8_t *buf, const size_t sz)
  *	work through memort and bump increment lower nybbles by
  *	1 and upper nybbles by 0xf and sanity check byte.
  */
-static size_t stress_vm_inc_nybble(uint8_t *buf, const size_t sz)
+static size_t stress_vm_inc_nybble(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
 	size_t bit_errors = 0;
+	uint64_t c = *counter;
 
 	memset(buf, val, sz);
 	INC_LO_NYBBLE(val);
@@ -1054,6 +1230,9 @@ static size_t stress_vm_inc_nybble(uint8_t *buf, const size_t sz)
 		INC_LO_NYBBLE(*(ptr + 5));
 		INC_LO_NYBBLE(*(ptr + 6));
 		INC_LO_NYBBLE(*(ptr + 7));
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -1067,6 +1246,9 @@ static size_t stress_vm_inc_nybble(uint8_t *buf, const size_t sz)
 		INC_HI_NYBBLE(*(ptr + 5));
 		INC_HI_NYBBLE(*(ptr + 6));
 		INC_HI_NYBBLE(*(ptr + 7));
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -1088,6 +1270,7 @@ static size_t stress_vm_inc_nybble(uint8_t *buf, const size_t sz)
 
 abort:
 	stress_vm_check("inc-nybble", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1097,12 +1280,16 @@ abort:
  *	sequentially set all memory to random values and then
  *	check if they are still set correctly.
  */
-static size_t stress_vm_rand_sum(uint8_t *buf, const size_t sz)
+static size_t stress_vm_rand_sum(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
-	uint64_t w, z;
+	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
 
 	mwc_reseed();
@@ -1119,6 +1306,9 @@ static size_t stress_vm_rand_sum(uint8_t *buf, const size_t sz)
 		*(ptr + 5) = mwc();
 		*(ptr + 6) = mwc();
 		*(ptr + 7) = mwc();
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 		if (!opt_do_run)
 			goto abort;
 	}
@@ -1141,6 +1331,7 @@ static size_t stress_vm_rand_sum(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("rand-sum", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1151,14 +1342,18 @@ abort:
  *	and clearing each bit to one (one bit per complete memory cycle)
  *	and check if they are clear.
  */
-static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
+static size_t stress_vm_prime_zero(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	uint8_t j;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
-	uint64_t k;
+	uint64_t k, c = *counter;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1177,6 +1372,11 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
 			ptr[k % sz] &= mask;
+			c++;
+			if (max_ops && c >= max_ops)
+				goto abort;
+			if (!opt_do_run)
+				goto abort;
 		}
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1186,7 +1386,9 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
 		bit_errors += stress_vm_count_bits(buf[i]);
 	}
 
+abort:
 	stress_vm_check("prime-zero", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1197,14 +1399,18 @@ static size_t stress_vm_prime_zero(uint8_t *buf, const size_t sz)
  *	and set each bit to one (one bit per complete memory cycle)
  *	and check if they are set.
  */
-static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
+static size_t stress_vm_prime_one(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	uint8_t j;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
-	uint64_t k;
+	uint64_t k, c = *counter;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1223,6 +1429,9 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 		 */
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
 			ptr[k % sz] |= mask;
+			c++;
+			if (max_ops && c >= max_ops)
+				goto abort;
 			if (!opt_do_run)
 				goto abort;
 		}
@@ -1237,6 +1446,7 @@ static size_t stress_vm_prime_one(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("prime-one", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1247,13 +1457,17 @@ abort:
  *	and first clear just one bit (based on gray code) and then
  *	clear all the other bits and finally check if thay are all clear
  */
-static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
+static size_t stress_vm_prime_gray_zero(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
-	uint64_t j;
+	uint64_t j, c = *counter;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1272,6 +1486,9 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 		ptr[j % sz] &= ((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 	}
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*
@@ -1281,6 +1498,9 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 		 */
 		ptr[j % sz] &= ~((i >> 1) ^ i);
 		if (!opt_do_run)
+			goto abort;
+		c++;
+		if (max_ops && c >= max_ops)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1293,6 +1513,7 @@ static size_t stress_vm_prime_gray_zero(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("prime-gray-zero", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1303,13 +1524,17 @@ abort:
  *	and first set just one bit (based on gray code) and then
  *	set all the other bits and finally check if thay are all set
  */
-static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
+static size_t stress_vm_prime_gray_one(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
-	uint64_t j;
+	uint64_t j, c = *counter;
 
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
@@ -1328,6 +1553,9 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 		ptr[j % sz] |= ((i >> 1) ^ i);
 		if (!opt_do_run)
 			goto abort;
+		c++;
+		if (max_ops && c >= max_ops)
+			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
@@ -1338,6 +1566,9 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 		 */
 		ptr[j % sz] |= ~((i >> 1) ^ i);
 		if (!opt_do_run)
+			goto abort;
+		c++;
+		if (max_ops && c >= max_ops)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1350,6 +1581,7 @@ static size_t stress_vm_prime_gray_one(uint8_t *buf, const size_t sz)
 	}
 abort:
 	stress_vm_check("prime-gray-one", bit_errors);
+	*counter = c;
 
 	return bit_errors;
 }
@@ -1358,12 +1590,16 @@ abort:
  *  stress_vm_all()
  *	work through all vm stressors sequentially
  */
-static size_t stress_vm_all(uint8_t *buf, const size_t sz)
+static size_t stress_vm_all(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	static int i = 1;
 	size_t bit_errors = 0;
 
-	bit_errors = vm_methods[i].func(buf, sz);
+	bit_errors = vm_methods[i].func(buf, sz, counter, max_ops);
 	i++;
 	if (vm_methods[i].func == NULL)
 		i = 1;
@@ -1390,10 +1626,10 @@ static stress_vm_stressor_info_t vm_methods[] = {
 	{ "prime-gray-0",stress_vm_prime_gray_zero },
 	{ "prime-gray-1",stress_vm_prime_gray_one },
 	{ "prime-incdec",stress_vm_prime_incdec },
-	{ "walk-0d",	stress_vm_walking_zero_addr },
-	{ "walk-1d",	stress_vm_walking_one_addr },
-	{ "walk-0a",	stress_vm_walking_zero_data },
-	{ "walk-1a",	stress_vm_walking_one_data },
+	{ "walk-0d",	stress_vm_walking_zero_data },
+	{ "walk-1d",	stress_vm_walking_one_data },
+	{ "walk-0a",	stress_vm_walking_zero_addr },
+	{ "walk-1a",	stress_vm_walking_one_addr },
 	{ "zero-one",	stress_vm_zero_one },
 	{ NULL,		NULL  }
 };
@@ -1492,7 +1728,7 @@ again:
 			}
 
 			(void)mincore_touch_pages(buf, buf_sz);
-			(void)func(buf, buf_sz);
+			(void)func(buf, buf_sz, counter, max_ops << VM_BOGO_SHIFT);
 
 			if (opt_vm_hang == 0) {
 				for (;;) {
@@ -1506,13 +1742,12 @@ again:
 				(void)madvise_random(buf, buf_sz);
 				(void)munmap(buf, buf_sz);
 			}
-
-			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		if (keep && buf != NULL)
 			(void)munmap(buf, buf_sz);
 	}
+	*counter >>= VM_BOGO_SHIFT;
 	pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
