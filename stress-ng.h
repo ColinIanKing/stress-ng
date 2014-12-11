@@ -83,6 +83,8 @@
 #define PR_FAIL			0x00080000	/* Print test failure message */
 #define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
+#define PRIME_64		(0x8f0000000017116dULL)
+
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
 #define pr_err(fp, fmt, args...)	print(fp, PR_ERROR, fmt, ## args)
