@@ -194,7 +194,7 @@
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
-#define MIN_OPS			(100ULL)
+#define MIN_OPS			(1ULL)
 #define MAX_OPS			(100000000ULL)
 
 #define SWITCH_STOP		'X'
