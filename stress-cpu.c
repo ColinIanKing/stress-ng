@@ -679,8 +679,9 @@ static void stress_cpu_idct(void)
  */
 static void stress_cpu_int64(void)
 {
-	const uint64_t a_final = 0x199b182aba853658ULL;
-	const uint64_t b_final = 0x21c06cb28f08ULL;
+	const uint64_t a_final = 0xfd1536595d99c69ULL;
+	const uint64_t b_final = 0x5550a2bef2acULL;
+
 	register uint64_t a, b;
 	int i;
 
@@ -688,7 +689,7 @@ static void stress_cpu_int64(void)
 	a = mwc();
 	b = mwc();
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		int_ops(a, b, 0xffffffffffffULL);
 		if (!opt_do_run)
 			break;
@@ -703,8 +704,8 @@ static void stress_cpu_int64(void)
  */
 static void stress_cpu_int32(void)
 {
-	const uint32_t a_final = 0x19ecd617UL;
-	const uint32_t b_final = 0x4b6de8eUL;
+	const uint32_t a_final = 0x1ce9b547UL;
+	const uint32_t b_final = 0xa24b33aUL;
 	register uint32_t a, b;
 	int i;
 
@@ -717,6 +718,7 @@ static void stress_cpu_int32(void)
 		if (!opt_do_run)
 			break;
 	}
+
 	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
 		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
 }
@@ -727,8 +729,9 @@ static void stress_cpu_int32(void)
  */
 static void stress_cpu_int16(void)
 {
-	const uint16_t a_final = 0x11ae;
-	const uint16_t b_final = 0x0f5e;
+	const uint16_t a_final = 0x1871;
+	const uint16_t b_final = 0x07f0;
+
 	register uint16_t a, b;
 	int i;
 
@@ -751,8 +754,8 @@ static void stress_cpu_int16(void)
  */
 static void stress_cpu_int8(void)
 {
-	const uint8_t a_final = 0x24;
-	const uint8_t b_final = 0x16;
+	const uint8_t a_final = 0x12;
+	const uint8_t b_final = 0x1a;
 	register uint8_t a, b;
 	int i;
 
@@ -766,7 +769,7 @@ static void stress_cpu_int8(void)
 			break;
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
-		pr_fail(stderr, "int16 error detected, failed int16 math operations\n");
+		pr_fail(stderr, "int8 error detected, failed int8 math operations\n");
 }
 
 #define float_ops(a, b, c, d, sin, cos)	\
