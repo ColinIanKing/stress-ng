@@ -1,3 +1,22 @@
+stress-ng (0.03.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix verify checks in int{64,32,16,8} cpu stressors
+  * lock-mem: only use mlockall if _POSIX_MEMLOCK is defined
+  * stress-vm: add finer grained bogo ops
+  * Set MIN_OPS to be 1, 100 is quite large for slow vm tests
+  * stress-vm: use PRIME_64
+  * stress-denty: use PRIME_64
+  * Define PRIME_64 to be large 64 bit prime value
+  * Fix thinko in prime striding of memory
+  * Add --denty-order option to try and mix up dentry unlinking order
+  * Remove the reference to /tmp being used as sendfile data
+  * Add pthread stressor
+  * Re-work seek offset, the module fails on some arm 32 builds
+  * stress-fifo: fix error message
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 Dec 2014 12:23:12 +0000
+
 stress-ng (0.03.03-1) unstable; urgency=medium
 
   * Makefile: bump version
