@@ -67,7 +67,6 @@ uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
-uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
 int64_t  opt_backoff = DEFAULT_BACKOFF;		/* child delay */
@@ -1112,9 +1111,7 @@ next_opt:
 		switch (c) {
 #if defined(__linux__)
 		case OPT_AIO_REQUESTS:
-			opt_aio_requests = get_uint64(optarg);
-			check_range("aio-requests", opt_aio_requests,
-				MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
+			stress_set_aio_requests(optarg);
 			break;
 #endif
 		case OPT_ALL:

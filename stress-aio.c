@@ -41,6 +41,8 @@
 
 #define BUFFER_SZ	(16)
 
+static uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
+
 /* per request async I/O data */
 typedef struct {
 	int		request;		/* Request slot */
@@ -50,6 +52,12 @@ typedef struct {
 	volatile uint64_t count;		/* Signal handled count */
 } io_req_t;
 
+void stress_set_aio_requests(const char *optarg)
+{
+	opt_aio_requests = get_uint64(optarg);
+	check_range("aio-requests", opt_aio_requests,
+		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
+}
 
 /*
  *  aio_fill_buffer()

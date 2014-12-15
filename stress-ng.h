@@ -691,7 +691,6 @@ extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
-extern uint64_t opt_aio_requests;			/* Number of async I/O requests */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
 extern uint64_t opt_sem_procs;				/* Number of sem procs per stressor */
 extern int64_t	opt_backoff ;				/* child delay */
@@ -763,6 +762,7 @@ extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
 extern int stress_set_dentry_order(const char *opt);
+extern void stress_set_aio_requests(const char *optarg);
 
 /*
  *  mwc()
