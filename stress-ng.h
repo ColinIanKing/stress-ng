@@ -686,7 +686,6 @@ extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
 extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
 extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
-extern uint64_t opt_bigheap_growth;			/* Amount big heap grows */
 extern uint64_t opt_fork_max;				/* Number of fork stress processes */
 extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
@@ -761,8 +760,9 @@ extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
-extern int stress_set_dentry_order(const char *opt);
+extern int stress_set_dentry_order(const char *optarg);
 extern void stress_set_aio_requests(const char *optarg);
+extern void stress_set_bigheap_growth(const char *optarg);
 
 /*
  *  mwc()

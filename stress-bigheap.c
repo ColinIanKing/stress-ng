@@ -38,6 +38,20 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
+
+
+/*
+ *  stress_set_bigheap_growth()
+ *  	Set bigheap growth from given opt arg string
+ */
+void stress_set_bigheap_growth(const char *optarg)
+{
+	opt_bigheap_growth = get_uint64_byte(optarg);
+	check_range("bigheap-growth", opt_bigheap_growth,
+		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
+}
+
 /*
  *  stress_bigheap()
  *	stress that does nowt

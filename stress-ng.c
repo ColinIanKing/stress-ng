@@ -62,7 +62,6 @@ uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
 uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
 uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
 uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
-uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
 uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
@@ -1130,9 +1129,7 @@ next_opt:
 			opt_backoff = opt_long("backoff", optarg);
 			break;
 		case OPT_BIGHEAP_GROWTH:
-			opt_bigheap_growth = get_uint64_byte(optarg);
-			check_range("bigheap-growth", opt_bigheap_growth,
-				MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
+			stress_set_bigheap_growth(optarg);
 			break;
 		case OPT_BSEARCH_SIZE:
 			opt_bsearch_size = get_uint64_byte(optarg);
