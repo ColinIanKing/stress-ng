@@ -710,7 +710,6 @@ extern long int	opt_nprocessors_online;			/* Number of processors online */
 extern char	*opt_fstat_dir;				/* Default fstat directory */
 extern volatile bool opt_do_run;			/* false to exit stressor */
 extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
-extern proc_info_t *procs[STRESS_MAX];			/* per process info */
 extern mwc_t __mwc;					/* internal mwc random state */
 
 /*
