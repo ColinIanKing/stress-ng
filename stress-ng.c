@@ -58,7 +58,6 @@ static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
-size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static int opt_sched = UNDEFINED;		/* sched policy */
 static int opt_sched_priority = UNDEFINED;	/* sched priority */
 static int opt_ionice_class = UNDEFINED;	/* ionice class */
@@ -1187,9 +1186,7 @@ next_opt:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
 		case OPT_MMAP_BYTES:
-			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("mmap-bytes", opt_mmap_bytes,
-				MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+			stress_set_mmap_bytes(optarg);
 			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;

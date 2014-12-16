@@ -33,6 +33,15 @@
 
 #include "stress-ng.h"
 
+static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
+
+void stress_set_mmap_bytes(const char *optarg)
+{
+	opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
+	check_range("mmap-bytes", opt_mmap_bytes,
+		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+}
+
 /*
  *  stress_mmap_check()
  *	check if mmap'd data is sane
