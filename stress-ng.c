@@ -53,7 +53,6 @@ uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
@@ -1211,9 +1210,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
 		case OPT_PTHREAD_MAX:
-			opt_pthread_max = get_uint64_byte(optarg);
-			check_range("pthread-max", opt_pthread_max,
-				MIN_PTHREAD, MAX_PTHREAD);
+			stress_set_pthread_max(optarg);
 			break;
 		case OPT_QSORT_INTEGERS:
 			stress_set_qsort_size(optarg);
@@ -1414,12 +1411,7 @@ next_opt:
 
 	if (num_procs[STRESS_PTHREAD] && (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
 		uint64_t max = (uint64_t)limit.rlim_cur / num_procs[STRESS_PTHREAD];
-		if (opt_pthread_max > max) {
-			opt_pthread_max = max;
-			pr_inf(stdout, "re-adjusting maximum threads to "
-				"soft limit of %" PRIu64 "\n",
-				opt_pthread_max);
-		}
+		stress_adjust_ptread_max( max);
 	}
 
 	pr_inf(stdout, "dispatching hogs:");

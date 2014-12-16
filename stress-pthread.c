@@ -35,11 +35,29 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool thread_terminate;
 static uint64_t pthread_count;
 static sigset_t set;
+
+void stress_set_pthread_max(const char *optarg)
+{
+	opt_pthread_max = get_uint64_byte(optarg);
+	check_range("pthread-max", opt_pthread_max,
+		MIN_PTHREAD, MAX_PTHREAD);
+}
+
+void stress_adjust_ptread_max(uint64_t max)
+{
+	if (opt_pthread_max > max) {
+		opt_pthread_max = max;
+		pr_inf(stdout, "re-adjusting maximum threads to "
+			"soft limit of %" PRIu64 "\n",
+			opt_pthread_max);
+	}
+}
 
 /*
  *  stress_pthread_func()
