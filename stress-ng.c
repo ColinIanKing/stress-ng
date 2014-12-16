@@ -56,7 +56,6 @@ uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
-uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
 uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
@@ -1198,9 +1197,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
 		case OPT_LSEARCH_SIZE:
-			opt_lsearch_size = get_uint64_byte(optarg);
-			check_range("lsearch-size", opt_lsearch_size,
-				MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE);
+			stress_set_lsearch_size(optarg);
 			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
