@@ -699,7 +699,6 @@ extern int	opt_vm_flags;				/* VM mmap flags */
 extern size_t	opt_mmap_bytes;				/* MMAP size */
 extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
-extern char	*opt_fstat_dir;				/* Default fstat directory */
 extern volatile bool opt_do_run;			/* false to exit stressor */
 extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
 extern mwc_t __mwc;					/* internal mwc random state */
@@ -757,6 +756,7 @@ extern void stress_set_dentries(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_vfork_max(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
+extern void stress_set_fstat_dir(const char *optarg);
 
 /*
  *  mwc()

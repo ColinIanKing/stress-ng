@@ -78,7 +78,6 @@ static int opt_ionice_class = UNDEFINED;	/* ionice class */
 static int opt_ionice_level = UNDEFINED;	/* ionice level */
 int      opt_socket_port = DEFAULT_SOCKET_PORT;	/* Default socket port */
 long int opt_nprocessors_online;		/* Number of processors online */
-char     *opt_fstat_dir = "/dev";		/* Default fstat directory */
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 static proc_info_t *procs[STRESS_MAX];		/* per process info */
@@ -1168,7 +1167,7 @@ next_opt:
 			stress_set_fork_max(optarg);
 			break;
 		case OPT_FSTAT_DIR:
-			opt_fstat_dir = optarg;
+			stress_set_fstat_dir(optarg);
 			break;
 		case OPT_HELP:
 		case OPT_QUERY:

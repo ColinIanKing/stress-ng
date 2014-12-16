@@ -38,6 +38,13 @@
 
 #include "stress-ng.h"
 
+static const char *opt_fstat_dir = "/dev";
+
+void stress_set_fstat_dir(const char *optarg)
+{
+	opt_fstat_dir = optarg;
+}
+
 /*
  *  stress_fstat()
  *	stress system with fstat
