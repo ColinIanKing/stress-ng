@@ -677,7 +677,6 @@ typedef struct {
 extern const char *app_name;				/* Name of application */
 extern bool     sem_ok;					/* stress_semaphore init ok */
 extern shared_t *shared;				/* shared memory */
-extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */

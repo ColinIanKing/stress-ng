@@ -49,7 +49,7 @@
 const char *app_name = "stress-ng";		/* Name of application */
 bool	 sem_ok = false;			/* stress_semaphore init ok */
 shared_t *shared;				/* shared memory */
-uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
+static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
