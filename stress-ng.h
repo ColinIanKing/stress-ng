@@ -681,7 +681,6 @@ extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
-extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_sem_procs;				/* Number of sem procs per stressor */
 extern int32_t	opt_flags;				/* option flags */
 extern int32_t  opt_cpu_load;				/* CPU max load */

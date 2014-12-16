@@ -53,7 +53,7 @@ uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
+static uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
