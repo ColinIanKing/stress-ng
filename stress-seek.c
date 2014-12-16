@@ -34,6 +34,15 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
+
+void stress_set_seek_size(const char *optarg)
+{
+	opt_seek_size = get_uint64_byte(optarg);
+	check_range("seek-size", opt_seek_size,
+		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+}
+
 /*
  *  stress_seek
  *	stress I/O via random seeks and read/writes

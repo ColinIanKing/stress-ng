@@ -52,7 +52,6 @@ static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
@@ -1234,9 +1233,7 @@ next_opt:
 			opt_sched_priority = get_int(optarg);
 			break;
 		case OPT_SEEK_SIZE:
-			opt_seek_size = get_uint64_byte(optarg);
-			check_range("seek-size", opt_seek_size,
-				MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+			stress_set_seek_size(optarg);
 			break;
 		case OPT_SEMAPHORE_PROCS:
 			opt_sem_procs = get_uint64_byte(optarg);
