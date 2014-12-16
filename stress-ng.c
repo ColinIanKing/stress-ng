@@ -56,7 +56,6 @@ uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
-uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
@@ -1181,9 +1180,7 @@ next_opt:
 				MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 			break;
 		case OPT_HSEARCH_SIZE:
-			opt_hsearch_size = get_uint64_byte(optarg);
-			check_range("hsearch-size", opt_hsearch_size,
-				MIN_HSEARCH_SIZE, MAX_HSEARCH_SIZE);
+			stress_set_hsearch_size(optarg);
 			break;
 #if defined (__linux__)
 		case OPT_IONICE_CLASS:

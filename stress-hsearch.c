@@ -31,6 +31,19 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
+
+/*
+ *  stress_set_hsearch_size()
+ *      set hsearch size from given option string
+ */
+void stress_set_hsearch_size(const char *optarg)
+{
+        opt_hsearch_size = get_uint64_byte(optarg);
+        check_range("hsearch-size", opt_hsearch_size,
+                MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+}
+
 /*
  *  stress_hsearch()
  *	stress hsearch

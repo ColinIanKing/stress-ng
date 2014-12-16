@@ -684,7 +684,6 @@ extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
-extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
 extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
@@ -750,6 +749,7 @@ extern int stress_set_dentry_order(const char *optarg);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
+extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_dentries(const char *optarg);
