@@ -137,6 +137,10 @@
 #define MAX_FORKS		(16000)
 #define DEFAULT_FORKS		(1)
 
+#define MIN_VFORKS		(1)
+#define MAX_VFORKS		(16000)
+#define DEFAULT_VFORKS		(1)
+
 #define MIN_HSEARCH_SIZE	(1 * KB)
 #define MAX_HSEARCH_SIZE	(4 * MB)
 #define DEFAULT_HSEARCH_SIZE	(8 * KB)
@@ -684,8 +688,6 @@ extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
 extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
 extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
-extern uint64_t opt_fork_max;				/* Number of fork stress processes */
-extern uint64_t opt_vfork_max;				/* Number of vfork stress processes */
 extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
@@ -763,6 +765,8 @@ extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
 extern void stress_set_dentries(const char *optarg);
+extern void stress_set_fork_max(const char *optarg);
+extern void stress_set_vfork_max(const char *optarg);
 
 /*
  *  mwc()

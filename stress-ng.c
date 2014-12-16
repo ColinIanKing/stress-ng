@@ -60,8 +60,6 @@ uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
 uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
 uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
 uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
-uint64_t opt_fork_max = DEFAULT_FORKS;		/* Number of fork stress processes */
-uint64_t opt_vfork_max = DEFAULT_FORKS;		/* Number of vfork stress processes */
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
@@ -1171,9 +1169,7 @@ next_opt:
 				MIN_FIFO_READERS, MAX_FIFO_READERS);
 			break;
 		case OPT_FORK_MAX:
-			opt_fork_max = get_uint64_byte(optarg);
-			check_range("fork-max", opt_fork_max,
-				MIN_FORKS, MAX_FORKS);
+			stress_set_fork_max(optarg);
 			break;
 		case OPT_FSTAT_DIR:
 			opt_fstat_dir = optarg;
@@ -1314,9 +1310,7 @@ next_opt:
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
 		case OPT_VFORK_MAX:
-			opt_vfork_max = get_uint64_byte(optarg);
-			check_range("vfork-max", opt_vfork_max,
-				MIN_FORKS, MAX_FORKS);
+			stress_set_vfork_max(optarg);
 			break;
 #endif
 		case OPT_VERIFY:
