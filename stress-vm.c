@@ -47,8 +47,31 @@ typedef struct {
 	const stress_vm_func func;
 } stress_vm_stressor_info_t;
 
+static uint64_t opt_vm_hang = DEFAULT_VM_HANG;
+static size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
+static int      opt_vm_flags = 0;                      /* VM mmap flags */
+
 static stress_vm_stressor_info_t *opt_vm_stressor;
 static stress_vm_stressor_info_t vm_methods[];
+
+void stress_set_vm_hang(const char *optarg)
+{
+	opt_vm_hang = get_uint64_byte(optarg);
+	check_range("vm-hang", opt_vm_hang,
+		MIN_VM_HANG, MAX_VM_HANG);
+}
+
+void stress_set_vm_bytes(const char *optarg)
+{
+	opt_vm_bytes = (size_t)get_uint64_byte(optarg);
+	check_range("vm-bytes", opt_vm_bytes,
+		MIN_VM_BYTES, MAX_VM_BYTES);
+}
+
+void stress_set_vm_flags(const int flag)
+{
+	opt_vm_flags |= flag;
+}
 
 /*
  *  For testing, set this to 1 to simulate random memory errors

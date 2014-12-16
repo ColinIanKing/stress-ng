@@ -49,7 +49,6 @@
 const char *app_name = "stress-ng";		/* Name of application */
 shared_t *shared;				/* shared memory */
 static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
-uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
@@ -59,8 +58,6 @@ static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
-size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
-int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static int opt_sched = UNDEFINED;		/* sched policy */
 static int opt_sched_priority = UNDEFINED;	/* sched priority */
@@ -1191,7 +1188,7 @@ next_opt:
 			break;
 		case OPT_MMAP_BYTES:
 			opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("mmap-bytes", opt_vm_bytes,
+			check_range("mmap-bytes", opt_mmap_bytes,
 				MIN_MMAP_BYTES, MAX_MMAP_BYTES);
 			break;
 		case OPT_NO_MADVISE:
@@ -1281,17 +1278,13 @@ next_opt:
 			version();
 			exit(EXIT_SUCCESS);
 		case OPT_VM_BYTES:
-			opt_vm_bytes = (size_t)get_uint64_byte(optarg);
-			check_range("vm-bytes", opt_vm_bytes,
-				MIN_VM_BYTES, MAX_VM_BYTES);
+			stress_set_vm_bytes(optarg);
 			break;
 		case OPT_VM_HANG:
-			opt_vm_hang = get_uint64_byte(optarg);
-			check_range("vm-hang", opt_vm_hang,
-				MIN_VM_HANG, MAX_VM_HANG);
+			stress_set_vm_hang(optarg);
 			break;
 		case OPT_VM_KEEP:
-			opt_flags |= OPT_FLAGS_VM_KEEP;
+			stress_set_vm_flags(OPT_FLAGS_VM_KEEP);
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)
@@ -1299,12 +1292,12 @@ next_opt:
 			break;
 #ifdef MAP_LOCKED
 		case OPT_VM_MMAP_LOCKED:
-			opt_vm_flags |= MAP_LOCKED;
+			stress_set_vm_flags(MAP_LOCKED);
 			break;
 #endif
 #ifdef MAP_POPULATE
 		case OPT_VM_MMAP_POPULATE:
-			opt_vm_flags |= MAP_POPULATE;
+			stress_set_vm_flags(MAP_POPULATE);
 			break;
 #endif
 		default:

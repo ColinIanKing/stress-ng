@@ -113,7 +113,7 @@ int stress_mmap(
 			continue;	/* Try again */
 		}
 		(void)madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, opt_vm_bytes);
+		(void)mincore_touch_pages(buf, opt_mmap_bytes);
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -129,7 +129,7 @@ int stress_mmap(
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
-		(void)mincore_touch_pages(buf, opt_vm_bytes);
+		(void)mincore_touch_pages(buf, opt_mmap_bytes);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc() % pages4k;
 			for (j = 0; j < n; j++) {
