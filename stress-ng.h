@@ -681,7 +681,6 @@ extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern int32_t	opt_flags;				/* option flags */
-extern size_t	opt_vm_stride;				/* VM stride */
 extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
 extern volatile bool opt_do_run;			/* false to exit stressor */
