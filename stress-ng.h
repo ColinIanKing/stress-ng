@@ -175,7 +175,7 @@
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
 
 #define MIN_SOCKET_PORT		(1024)
-#define MAX_SOCKET_PORT		(65536)
+#define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
 #define MIN_TSEARCH_SIZE	(1 * KB)
@@ -681,7 +681,6 @@ extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern int32_t	opt_flags;				/* option flags */
-extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
 extern volatile bool opt_do_run;			/* false to exit stressor */
 extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
@@ -757,6 +756,7 @@ extern void stress_set_vm_hang(const char *optarg);
 extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
 extern void stress_set_mmap_bytes(const char *optarg);
+extern void stress_set_socket_port(const char *optarg);
 
 /*
  *  mwc()

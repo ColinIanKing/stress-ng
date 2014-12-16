@@ -62,7 +62,6 @@ static int opt_sched = UNDEFINED;		/* sched policy */
 static int opt_sched_priority = UNDEFINED;	/* sched priority */
 static int opt_ionice_class = UNDEFINED;	/* ionice class */
 static int opt_ionice_level = UNDEFINED;	/* ionice level */
-int      opt_socket_port = DEFAULT_SOCKET_PORT;	/* Default socket port */
 long int opt_nprocessors_online;		/* Number of processors online */
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
@@ -1237,9 +1236,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_SOCKET_PORT:
-			opt_socket_port = get_uint64(optarg);
-			check_range("sock-port", opt_socket_port,
-				MIN_SOCKET_PORT, MAX_SOCKET_PORT - num_procs[STRESS_SOCKET]);
+			stress_set_socket_port(optarg);
 			break;
 		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);

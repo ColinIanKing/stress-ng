@@ -45,6 +45,7 @@
 #include "stress-ng.h"
 
 static int opt_domain = AF_INET;
+static int opt_socket_port = DEFAULT_SOCKET_PORT;
 
 typedef struct {
 	const char *name;
@@ -56,6 +57,13 @@ static const domain_t domains[] = {
 	{ "ipv6",	AF_INET6 },
 	{ NULL,		-1 }
 };
+
+void stress_set_socket_port(const char *optarg)
+{
+	opt_socket_port = get_uint64(optarg);
+	check_range("sock-port", opt_socket_port,
+		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX);
+}
 
 /*
  *  stress_set_socket_domain()
