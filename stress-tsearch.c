@@ -31,7 +31,7 @@
 
 #include "stress-ng.h"
 
-uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
+static uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
 
 /*
  *  stress_set_tsearch_size()
