@@ -682,7 +682,6 @@ extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern int32_t	opt_flags;				/* option flags */
-extern int32_t  opt_cpu_load;				/* CPU max load */
 extern size_t	opt_vm_bytes;				/* VM bytes */
 extern size_t	opt_vm_stride;				/* VM stride */
 extern int	opt_vm_flags;				/* VM mmap flags */
@@ -738,6 +737,7 @@ extern uint64_t get_uint64_byte(const char *const str);
 extern uint64_t get_uint64_time(const char *const str);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
+extern long int opt_long(const char *opt, const char *str);
 extern int stress_set_dentry_order(const char *optarg);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
@@ -757,6 +757,7 @@ extern void stress_set_pthread_max(const char *optarg);
 extern void stress_adjust_ptread_max(uint64_t max);
 extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_sem_procs(const char *optarg);
+extern void stress_set_cpu_load(const char *optarg);
 
 /*
  *  mwc()

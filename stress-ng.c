@@ -58,7 +58,6 @@ static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
-int32_t  opt_cpu_load = 100;			/* CPU max load */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
 int      opt_vm_flags = 0;			/* VM mmap flags */
@@ -899,7 +898,7 @@ static void handle_sigint(int dummy)
  *  opt_long()
  *	parse long int option, check for invalid values
  */
-static long int opt_long(const char *opt, const char *str)
+long int opt_long(const char *opt, const char *str)
 {
 	long int val;
 	char c;
@@ -1129,11 +1128,7 @@ next_opt:
 			}
 			break;
 		case OPT_CPU_LOAD:
-			opt_cpu_load = opt_long("cpu load", optarg);
-			if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
-				fprintf(stderr, "CPU load must in the range 0 to 100.\n");
-				exit(EXIT_FAILURE);
-			}
+			stress_set_cpu_load(optarg);
 			break;
 		case OPT_CPU_METHOD:
 			if (stress_set_cpu_method(optarg) < 0)

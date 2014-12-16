@@ -45,8 +45,17 @@ typedef struct {
 	const stress_cpu_func	func;	/* the stressor function */
 } stress_cpu_stressor_info_t;
 
+static int32_t opt_cpu_load = 100;
 static stress_cpu_stressor_info_t *opt_cpu_stressor;
 static stress_cpu_stressor_info_t cpu_methods[];
+
+void stress_set_cpu_load(const char *optarg) {
+	opt_cpu_load = opt_long("cpu load", optarg);
+	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
+		fprintf(stderr, "CPU load must in the range 0 to 100.\n");
+		exit(EXIT_FAILURE);
+	}
+}
 
 /*
  *  stress_cpu_sqrt()
