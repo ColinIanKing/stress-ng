@@ -76,8 +76,8 @@ size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 #if defined (__linux__)
 uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 #endif
-int      opt_sched = UNDEFINED;			/* sched policy */
-int      opt_sched_priority = UNDEFINED;	/* sched priority */
+static int opt_sched = UNDEFINED;		/* sched policy */
+static int opt_sched_priority = UNDEFINED;	/* sched priority */
 static int opt_ionice_class = UNDEFINED;	/* ionice class */
 static int opt_ionice_level = UNDEFINED;	/* ionice level */
 int      opt_socket_port = DEFAULT_SOCKET_PORT;	/* Default socket port */

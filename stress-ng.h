@@ -701,8 +701,6 @@ extern int	opt_vm_flags;				/* VM mmap flags */
 extern size_t	opt_mmap_bytes;				/* MMAP size */
 #if defined (__linux__)
 extern uint64_t	opt_timer_freq;				/* timer frequency (Hz) */
-extern int	opt_sched;				/* sched policy */
-extern int	opt_sched_priority;			/* sched priority */
 #endif
 extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
