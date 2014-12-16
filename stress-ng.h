@@ -692,7 +692,6 @@ extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
 extern uint64_t opt_sem_procs;				/* Number of sem procs per stressor */
-extern int64_t	opt_backoff ;				/* child delay */
 extern int32_t	opt_flags;				/* option flags */
 extern int32_t  opt_cpu_load;				/* CPU max load */
 extern size_t	opt_vm_bytes;				/* VM bytes */
