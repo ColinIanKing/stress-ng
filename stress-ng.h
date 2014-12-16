@@ -704,8 +704,6 @@ extern size_t	opt_mmap_bytes;				/* MMAP size */
 extern uint64_t	opt_timer_freq;				/* timer frequency (Hz) */
 extern int	opt_sched;				/* sched policy */
 extern int	opt_sched_priority;			/* sched priority */
-extern int 	opt_ionice_class;			/* ionice class */
-extern int	opt_ionice_level;			/* ionice level */
 #endif
 extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
