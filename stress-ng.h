@@ -673,7 +673,6 @@ typedef struct {
 extern const char *app_name;				/* Name of application */
 extern bool     sem_ok;					/* stress_semaphore init ok */
 extern shared_t *shared;				/* shared memory */
-extern uint64_t	opt_dentries;				/* dentries per loop */
 extern uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
@@ -763,6 +762,7 @@ extern int stress_set_dentry_order(const char *optarg);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
+extern void stress_set_dentries(const char *optarg);
 
 /*
  *  mwc()

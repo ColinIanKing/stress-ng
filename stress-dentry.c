@@ -57,13 +57,21 @@ static dentry_removal_t dentry_removals[] = {
 };
 
 static dentry_order_t order = ORDER_REVERSE;
+static uint64_t opt_dentries = DEFAULT_DENTRIES;
 
-int stress_set_dentry_order(const char *opt)
+void stress_set_dentries(const char *optarg)
+{
+	opt_dentries = get_uint64(optarg);
+	check_range("dentries", opt_dentries,
+		MIN_DENTRIES, MAX_DENTRIES);
+}
+
+int stress_set_dentry_order(const char *optarg)
 {
 	dentry_removal_t *dr;
 
 	for (dr = dentry_removals; dr->name; dr++) {
-		if (!strcmp(dr->name, opt)) {
+		if (!strcmp(dr->name, optarg)) {
 			order = dr->order;
 			return 0;
 		}

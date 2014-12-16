@@ -49,7 +49,6 @@
 const char *app_name = "stress-ng";		/* Name of application */
 bool	 sem_ok = false;			/* stress_semaphore init ok */
 shared_t *shared;				/* shared memory */
-uint64_t opt_dentries = DEFAULT_DENTRIES;
 uint64_t opt_ops[STRESS_MAX];			/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
@@ -1160,9 +1159,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_DRY_RUN;
 			break;
 		case OPT_DENTRIES:
-			opt_dentries = get_uint64(optarg);
-			check_range("dentries", opt_dentries,
-				MIN_DENTRIES, MAX_DENTRIES);
+			stress_set_dentries(optarg);
 			break;
 		case OPT_DENTRY_ORDER:
 			if (stress_set_dentry_order(optarg) < 0)
