@@ -97,7 +97,7 @@ int stress_semaphore(
 
 	(void)instance;
 
-	if (!sem_ok) {
+	if (!(opt_flags & OPT_FLAGS_SEM_INIT)) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
 		return EXIT_FAILURE;
 	}

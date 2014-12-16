@@ -47,7 +47,6 @@
 
 /* Various option settings and flags */
 const char *app_name = "stress-ng";		/* Name of application */
-bool	 sem_ok = false;			/* stress_semaphore init ok */
 shared_t *shared;				/* shared memory */
 static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;
@@ -1479,7 +1478,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			}
 		} else
-			sem_ok = true;
+			opt_flags |= OPT_FLAGS_SEM_INIT;
 	}
 
 

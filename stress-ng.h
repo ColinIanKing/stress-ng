@@ -64,6 +64,7 @@
 #define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 #define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
+#define OPT_FLAGS_SEM_INIT	0x00002000	/* semaphore initialised */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -675,7 +676,6 @@ typedef struct {
 
 /* Various option settings and flags */
 extern const char *app_name;				/* Name of application */
-extern bool     sem_ok;					/* stress_semaphore init ok */
 extern shared_t *shared;				/* shared memory */
 extern uint64_t	opt_vm_hang; 				/* VM delay */
 extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
