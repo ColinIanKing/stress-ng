@@ -69,7 +69,7 @@ static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 						/* option flags */
 int32_t  opt_cpu_load = 100;			/* CPU max load */
-uint32_t opt_class = 0;				/* Which kind of class is specified */
+static uint32_t opt_class = 0;			/* Which kind of class is specified */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
 int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
