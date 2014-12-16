@@ -677,8 +677,6 @@ typedef struct {
 /* Various option settings and flags */
 extern const char *app_name;				/* Name of application */
 extern shared_t *shared;				/* shared memory */
-extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
-extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern int32_t	opt_flags;				/* option flags */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
@@ -757,6 +755,8 @@ extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_socket_port(const char *optarg);
+extern void stress_set_hdd_bytes(const char *optarg);
+extern void stress_set_hdd_write_size(const char *optarg);
 
 /*
  *  mwc()

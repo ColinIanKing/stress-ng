@@ -49,8 +49,6 @@
 const char *app_name = "stress-ng";		/* Name of application */
 shared_t *shared;				/* shared memory */
 static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
-uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
-uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 static uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
@@ -1152,14 +1150,10 @@ next_opt:
 		case OPT_QUERY:
 			usage();
 		case OPT_HDD_BYTES:
-			opt_hdd_bytes =  get_uint64_byte(optarg);
-			check_range("hdd-bytes", opt_hdd_bytes,
-				MIN_HDD_BYTES, MAX_HDD_BYTES);
+			stress_set_hdd_bytes(optarg);
 			break;
 		case OPT_HDD_WRITE_SIZE:
-			opt_hdd_write_size = get_uint64_byte(optarg);
-			check_range("hdd-write-size", opt_hdd_write_size,
-				MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
+			stress_set_hdd_write_size(optarg);
 			break;
 		case OPT_HSEARCH_SIZE:
 			stress_set_hsearch_size(optarg);

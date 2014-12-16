@@ -34,6 +34,23 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
+static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
+
+void stress_set_hdd_bytes(const char *optarg)
+{
+	opt_hdd_bytes =  get_uint64_byte(optarg);
+	check_range("hdd-bytes", opt_hdd_bytes,
+		MIN_HDD_BYTES, MAX_HDD_BYTES);
+}
+
+void stress_set_hdd_write_size(const char *optarg)
+{
+	opt_hdd_write_size = get_uint64_byte(optarg);
+	check_range("hdd-write-size", opt_hdd_write_size,
+		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
+}
+
 /*
  *  stress_hdd
  *	stress I/O via writes
