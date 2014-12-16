@@ -35,6 +35,17 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
+
+void stress_set_sem_procs(const char *optarg)
+{
+	opt_sem_procs = get_uint64_byte(optarg);
+	check_range("sem-procs", opt_sem_procs,
+		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+}
+
+
+
 /*
  *  sem_thrash()
  *	exercise the semaphore

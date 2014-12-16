@@ -54,7 +54,6 @@ uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 static uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
-uint64_t opt_sem_procs = DEFAULT_SEMAPHORE_PROCS;
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static int32_t started_procs[STRESS_MAX];	/* number of processes per stressor */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
@@ -1230,9 +1229,7 @@ next_opt:
 			stress_set_seek_size(optarg);
 			break;
 		case OPT_SEMAPHORE_PROCS:
-			opt_sem_procs = get_uint64_byte(optarg);
-			check_range("sem-procs", opt_sem_procs,
-				MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+			stress_set_sem_procs(optarg);
 			break;
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
