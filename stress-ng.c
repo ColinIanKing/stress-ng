@@ -56,7 +56,6 @@ uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
-uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
 uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
 uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
@@ -1289,9 +1288,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_TIMES;
 			break;
 		case OPT_TSEARCH_SIZE:
-			opt_tsearch_size = get_uint64_byte(optarg);
-			check_range("tsearch-size", opt_tsearch_size,
-				MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+			stress_set_tsearch_size(optarg);
 			break;
 		case OPT_UTIME_FSYNC:
 			opt_flags |= OPT_FLAGS_UTIME_FSYNC;

@@ -31,6 +31,19 @@
 
 #include "stress-ng.h"
 
+uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
+
+/*
+ *  stress_set_tsearch_size()
+ *      set tsearch size from given option string
+ */
+void stress_set_tsearch_size(const char *optarg)
+{
+	opt_tsearch_size = get_uint64_byte(optarg);
+	check_range("tsearch-size", opt_tsearch_size,
+		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+}
+
 static int cmp(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;
