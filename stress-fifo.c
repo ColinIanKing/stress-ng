@@ -38,6 +38,14 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
+
+void stress_set_fifo_readers(const char *optarg)
+{
+	opt_fifo_readers = get_uint64(optarg);
+	check_range("fifo-readers", opt_fifo_readers,
+		MIN_FIFO_READERS, MAX_FIFO_READERS);
+}
 
 /*
  *  fifo_spawn()
