@@ -38,6 +38,15 @@
 
 #include "stress-ng.h"
 
+static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
+
+void stress_set_sendfile_size(const char *optarg)
+{
+	opt_sendfile_size = get_uint64_byte(optarg);
+	check_range("sendfile-size", opt_sendfile_size,
+		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
+}
+
 /*
  *  stress_sendfile
  *	stress reading of a temp file and writing to /dev/null via sendfile

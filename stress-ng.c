@@ -52,7 +52,6 @@ static uint64_t opt_ops[STRESS_MAX];		/* max number of bogo ops */
 uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
@@ -1249,9 +1248,7 @@ next_opt:
 			break;
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
-			opt_sendfile_size = get_uint64_byte(optarg);
-			check_range("sendfile-size", opt_sendfile_size,
-				MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
+			stress_set_sendfile_size(optarg);
 			break;
 #endif
 		case OPT_SEQUENTIAL:
