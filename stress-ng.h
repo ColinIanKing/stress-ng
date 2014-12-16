@@ -682,7 +682,6 @@ extern uint64_t opt_sendfile_size;			/* sendfile size */
 extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
 extern uint64_t opt_qsort_size; 			/* Default qsort size */
-extern uint64_t opt_bsearch_size; 			/* Default bsearch size */
 extern uint64_t opt_tsearch_size; 			/* Default tsearch size */
 extern uint64_t opt_lsearch_size; 			/* Default lsearch size */
 extern uint64_t opt_hsearch_size; 			/* Default hsearch size */
@@ -763,6 +762,7 @@ extern int mincore_touch_pages(void *buf, size_t buf_len);
 extern int stress_set_dentry_order(const char *optarg);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
+extern void stress_set_bsearch_size(const char *optarg);
 
 /*
  *  mwc()

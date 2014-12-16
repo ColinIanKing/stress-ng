@@ -58,7 +58,6 @@ uint64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
-uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
 uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
 uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
 uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
@@ -1132,9 +1131,7 @@ next_opt:
 			stress_set_bigheap_growth(optarg);
 			break;
 		case OPT_BSEARCH_SIZE:
-			opt_bsearch_size = get_uint64_byte(optarg);
-			check_range("bsearch-size", opt_bsearch_size,
-				MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
+			stress_set_bsearch_size(optarg);
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);

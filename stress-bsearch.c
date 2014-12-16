@@ -30,6 +30,19 @@
 
 #include "stress-ng.h"
 
+uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
+
+/*
+ *  stress_set_bsearch_size()
+ *	set bsearch size from given option string
+ */
+void stress_set_bsearch_size(const char *optarg)
+{
+	opt_bsearch_size = get_uint64_byte(optarg);
+	check_range("bsearch-size", opt_bsearch_size,
+		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
+}
+
 static int cmp(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;
