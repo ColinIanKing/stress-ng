@@ -697,9 +697,6 @@ extern size_t	opt_vm_bytes;				/* VM bytes */
 extern size_t	opt_vm_stride;				/* VM stride */
 extern int	opt_vm_flags;				/* VM mmap flags */
 extern size_t	opt_mmap_bytes;				/* MMAP size */
-#if defined (__linux__)
-extern uint64_t	opt_timer_freq;				/* timer frequency (Hz) */
-#endif
 extern int	opt_socket_port;			/* Default socket port */
 extern long int	opt_nprocessors_online;			/* Number of processors online */
 extern char	*opt_fstat_dir;				/* Default fstat directory */
@@ -759,6 +756,7 @@ extern void stress_set_bsearch_size(const char *optarg);
 extern void stress_set_dentries(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_vfork_max(const char *optarg);
+extern void stress_set_timer_freq(const char *optarg);
 
 /*
  *  mwc()

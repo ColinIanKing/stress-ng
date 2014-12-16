@@ -35,6 +35,18 @@
 #if defined (__linux__)
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
+static uint64_t opt_timer_freq;
+
+/*
+ *  stress_set_timer_freq()
+ *	set timer frequency from given option
+ */
+void stress_set_timer_freq(const char *optarg)
+{
+	opt_timer_freq = get_uint64(optarg);
+	check_range("timer-freq", opt_timer_freq,
+		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
+}
 
 /*
  *  stress_timer_handler()

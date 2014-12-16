@@ -73,9 +73,6 @@ static uint32_t opt_class = 0;			/* Which kind of class is specified */
 size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
 int      opt_vm_flags = 0;			/* VM mmap flags */
 size_t   opt_mmap_bytes = DEFAULT_MMAP_BYTES;
-#if defined (__linux__)
-uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
-#endif
 static int opt_sched = UNDEFINED;		/* sched policy */
 static int opt_sched_priority = UNDEFINED;	/* sched priority */
 static int opt_ionice_class = UNDEFINED;	/* ionice class */
@@ -1287,9 +1284,7 @@ next_opt:
 			break;
 #if defined (__linux__)
 		case OPT_TIMER_FREQ:
-			opt_timer_freq = get_uint64(optarg);
-			check_range("timer-freq", opt_timer_freq,
-				MIN_TIMER_FREQ, MAX_TIMER_FREQ);
+			stress_set_timer_freq(optarg);
 			break;
 #endif
 		case OPT_TIMES:
