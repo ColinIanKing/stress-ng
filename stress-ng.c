@@ -54,7 +54,6 @@ uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
 uint64_t opt_pthread_max = DEFAULT_PTHREAD;	/* Number of pthread stress threads */
 uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
@@ -1218,9 +1217,7 @@ next_opt:
 				MIN_PTHREAD, MAX_PTHREAD);
 			break;
 		case OPT_QSORT_INTEGERS:
-			opt_qsort_size = get_uint64_byte(optarg);
-			check_range("qsort-size", opt_qsort_size,
-				MIN_QSORT_SIZE, MAX_QSORT_SIZE);
+			stress_set_qsort_size(optarg);
 			break;
 		case OPT_QUIET:
 			opt_flags &= ~(PR_ALL);

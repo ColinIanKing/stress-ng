@@ -682,7 +682,6 @@ extern uint64_t	opt_hdd_bytes; 				/* HDD size in bytes */
 extern uint64_t opt_hdd_write_size;			/* HDD write sise */
 extern uint64_t opt_seek_size;				/* seek file size */
 extern uint64_t	opt_timeout;				/* timeout in seconds */
-extern uint64_t opt_qsort_size; 			/* Default qsort size */
 extern uint64_t opt_pthread_max;			/* Number of pthread stress threads */
 extern uint64_t opt_sequential;				/* Number of sequential iterations */
 extern uint64_t opt_fifo_readers;			/* Number of fifo reader procs */
@@ -757,6 +756,7 @@ extern void stress_set_vfork_max(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
+extern void stress_set_qsort_size(const void *optarg);
 
 /*
  *  mwc()

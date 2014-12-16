@@ -30,6 +30,15 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
+
+void stress_set_qsort_size(const void *optarg)
+{
+	opt_qsort_size = get_uint64_byte(optarg);
+	check_range("qsort-size", opt_qsort_size,
+		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
+}
+
 static int stress_qsort_cmp_1(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;
