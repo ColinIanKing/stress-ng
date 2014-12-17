@@ -96,6 +96,8 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 			}
 			break;
 		}
+		if (sz == 0)
+			break;
 		if (sz != sizeof(val)) {
 			pr_err(stderr, "%s: fifo read did not get uint64\n",
 				name);
