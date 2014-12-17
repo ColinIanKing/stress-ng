@@ -1,3 +1,48 @@
+stress-ng (0.03.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix stress-poll random slow hangs running on --poll-ops N
+  * Find index into stressors via id
+  * stress-fifo: cater for zero reads on closed fifo
+  * Tidy up stress-ng.h, re-ordering and adding more comments
+  * Re-organise per stressor process info into procs
+  * Remove hdd related global vars, add stress_set_hdd* helpers
+  * Remove global socket_port, use helper stress_set_socket_port instead
+  * Remove unused opt_vm_stride
+  * Remove global mmap_bytes, use helper stress_set_mmap_bytes instead
+  * Remove vm related global flags, add stress_set_vm_* helpers
+  * Remove global cpu_load, use helper stress_set_cpu_load instead
+  * Remove global sem_procs, use helper stress_set_sem_procs instead
+  * Make opt_sequential static
+  * Remove global fifo_readers, use helper stress_set_fifo_readers instead
+  * Remove global pthread_max, use helper stress_set_pthread_max instead
+  * Remove global seek_size, use helper stress_set_seek_size instead
+  * Remove global qsort_size, use helper stress_set_qsort_size instead
+  * Remove global sendfile_size, use helper stress_set_sendfile_size instead
+  * Remove global hsearch_size, use helper stress_set_hsearch_size instead
+  * Remove global lsearch_size, use helper stress_set_lsearch_size instead
+  * Make opt_tsearch_size static
+  * Remove global tsearch_size, use helper stress_set_tsearch_size instead
+  * Replace opt_fstat_dir with stress_set_fstat_dir()
+  * Replace sem_ok bool with OPT_FLAGS_SEM_INIT opt_flag bit
+  * Remove opt_timer_freq, replace with stress_set_option_freq()
+  * Make opt_class static
+  * Make array opt_ops static
+  * Make opt_backoff static
+  * Make opt_sched and opt_sched_priority static
+  * Make started_procs array static
+  * Make procs, opt_ionice_class, opt_ionice_level static
+  * No need to extern procs array
+  * No need to extern opt_ionice_class, opt_ionice_level
+  * Remove globals for fork/vfork opts, use stress_set_{fork,vfork}_max
+  * Remove global opt_denties, use helper stress_set_dentries instead
+  * Remove global bsearch_size, use helper stress_set_bsearch_size instead
+  * Remove global bigheap_growth, use helper stress_set_bigheap_growth instead
+  * Remove global aio requests, use helper stress_set_aio_requests instead
+  * Remove tailing . on man page title
+
+ -- Colin King <colin.king@canonical.com>  Wed, 17 Dec 2014 14:37:41 +0000
+
 stress-ng (0.03.04-1) unstable; urgency=medium
 
   * Makefile: bump version
