@@ -684,6 +684,21 @@ static const help_t help[] = {
 	{ NULL,		NULL,			NULL }
 };
 
+/*
+ *  stressor_id_find()
+ *  	Find index into stressors by id
+ */
+static inline int stressor_id_find(const stress_id id)
+{
+	int i;
+
+	for (i = 0; stressors[i].name; i++)
+		if (stressors[i].id == id)
+			break;
+	
+	return i;       /* End of array is a special "NULL" entry */
+}
+
 static uint32_t get_class(const char *str)
 {
 	int i;
@@ -1017,6 +1032,7 @@ int main(int argc, char **argv)
 	struct sigaction new_action;
 	long int ticks_per_sec;
 	struct rlimit limit;
+	int id;
 
 	memset(procs, 0, sizeof(procs));
 	mwc_reseed();
@@ -1361,8 +1377,10 @@ next_opt:
 		}
 	}
 
-	if (procs[STRESS_PTHREAD].num_procs && (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
-		uint64_t max = (uint64_t)limit.rlim_cur / procs[STRESS_PTHREAD].num_procs;
+	id = stressor_id_find(STRESS_PTHREAD);
+	if (procs[id].num_procs &&
+	    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
+		uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
 		stress_adjust_ptread_max(max);
 	}
 
@@ -1389,7 +1407,8 @@ next_opt:
 
 	memset(shared, 0, len);
 
-	if (procs[STRESS_SEMAPHORE].num_procs || opt_sequential) {
+	id = stressor_id_find(STRESS_SEMAPHORE);
+	if (procs[id].num_procs || opt_sequential) {
 		/* create a mutex */
 		if (sem_init(&shared->sem, 1, 1) < 0) {
 			if (opt_sequential) {
@@ -1404,7 +1423,6 @@ next_opt:
 		} else
 			opt_flags |= OPT_FLAGS_SEM_INIT;
 	}
-
 
 	if (opt_sequential) {
 		/*
