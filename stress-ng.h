@@ -666,7 +666,10 @@ typedef struct {
 } stress_t;
 
 typedef struct {
-	pid_t	pid;		/* process id */
+	pid_t	*pids;		/* process id */
+	int32_t started_procs;	/* count of started processes */
+	int32_t num_procs;	/* number of process per stressor */
+	uint64_t bogo_ops;	/* number of bogo ops */
 } proc_info_t;
 
 typedef struct {
