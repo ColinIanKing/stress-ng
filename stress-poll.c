@@ -39,7 +39,7 @@
 #define MAX_PIPES	(5)
 #define POLL_BUF	(4)
 
-static inline void pipe_read(int fd, int n)
+static inline int pipe_read(int fd, int n)
 {
 	char buf[POLL_BUF];
 	ssize_t ret;
@@ -48,7 +48,7 @@ static inline void pipe_read(int fd, int n)
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (ret < 0) {
 			pr_fail(stderr, "pipe read error detected\n");
-			return;
+			return ret;
 		}
 		if (ret > 0) {
 			ssize_t i;
@@ -56,11 +56,12 @@ static inline void pipe_read(int fd, int n)
 			for (i = 0; i < ret; i++) {
 				if (buf[i] != '0' + n) {
 					pr_fail(stderr, "pipe read error, expecting different data on pipe\n");
-					return;
+					return ret;
 				}
 			}
 		}
 	}
+	return ret;
 }
 
 /*
@@ -102,18 +103,19 @@ int stress_poll(
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][0]);
 
-		for (;;) {
+		do {
 			char buf[POLL_BUF];
-
+			ssize_t ret;
 
 			/* Write on a randomly chosen pipe */
 			i = (mwc() >> 8) % MAX_PIPES;
 			memset(buf, '0' + i, sizeof(buf));
-			if (write(pipefds[i][1], buf, sizeof(buf)) < 0) {
+			ret = write(pipefds[i][1], buf, sizeof(buf));
+			if (ret < (ssize_t)sizeof(buf)) {
 				pr_failed_dbg(name, "write");
 				goto abort;
 			}
-		}
+		 } while (opt_do_run && (!max_ops || *counter < max_ops));
 abort:
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][1]);
@@ -140,22 +142,30 @@ abort:
 			struct timeval tv;
 			int ret;
 
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				break;
+
 			/* First, stress out poll */
-			ret = poll(fds, MAX_PIPES, mwc() & 15);
+			ret = poll(fds, MAX_PIPES, 1);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail(stderr, "poll failed with error: %d (%s)\n",
 				errno, strerror(errno));
 			}
 			if (ret > 0) {
-				for (i = 0; i < MAX_PIPES; i++)
-					if (fds[i].revents == POLLIN)
+				for (i = 0; i < MAX_PIPES; i++) {
+					if (fds[i].revents == POLLIN) {
 						pipe_read(fds[i].fd, i);
+					}
+				}
+				(*counter)++;
 			}
 
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				break;
 			/* Second, stress out select */
 			tv.tv_sec = 0;
-			tv.tv_usec = mwc() & 1023;
+			tv.tv_usec = 20000;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
@@ -164,18 +174,19 @@ abort:
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
-					if (FD_ISSET(pipefds[i][0], &rfds))
-						pipe_read(pipefds[i][0], i);
+					if (FD_ISSET(pipefds[i][0], &rfds)) {
+						if (pipe_read(pipefds[i][0], i) < 0)
+							break;
+					}
 					FD_SET(pipefds[i][0], &rfds);
 				}
+				(*counter)++;
 			}
-			if (!opt_do_run)
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
 				break;
-
 			/* Third, stress zero sleep, this is like a select zero timeout */
 			(void)sleep(0);
 
-			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		(void)kill(pid, SIGKILL);
