@@ -292,7 +292,7 @@ abort:
 
 /*
  *  stress_vm_modulo_x()
- *	set every 20th byte to a random pattern and then set
+ *	set every 23rd byte to a random pattern and then set
  *	all the other bytes to the complement of this. Check
  *	that the random patterns are still set.
  */
