@@ -39,16 +39,16 @@
 #define _GNU_SOURCE
 /* GNU HURD */
 #ifndef PATH_MAX
-#define PATH_MAX 		(4096)
+#define PATH_MAX 		(4096)		/* Some systems don't define this */
 #endif
 
-#define STRESS_FD_MAX		(65536)
-#define STRESS_PROCS_MAX	(1024)
+#define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
+#define STRESS_PROCS_MAX	(1024)		/* Max number of processes per stressor */
 
 #ifndef PIPE_BUF
-#define PIPE_BUF		(512)
+#define PIPE_BUF		(512)		/* PIPE I/O buffer size */
 #endif
-#define SOCKET_BUF		(8192)
+#define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
 
 /* Option bit masks */
 #define OPT_FLAGS_AFFINITY_RAND	0x00000001	/* Change affinity randomly */
@@ -84,7 +84,13 @@
 #define PR_FAIL			0x00080000	/* Print test failure message */
 #define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
+/* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
+
+/* Logging helpers */
+extern int print(FILE *fp, const int flag,
+	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
+extern void pr_failed(const int flag, const char *name, const char *what);
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
@@ -95,13 +101,19 @@
 #define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what)
 #define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what)
 
+#define ABORT_FAILURES		(5)
+
+/* Memory size constants */
 #define KB			(1024ULL)
 #define	MB			(KB * KB)
 #define GB			(KB * KB * KB)
-
 #define PAGE_4K_SHIFT		(12)
 #define PAGE_4K			(1 << PAGE_4K_SHIFT)
 
+#define MIN_OPS			(1ULL)
+#define MAX_OPS			(100000000ULL)
+
+/* Stressor defaults */
 #define MIN_AIO_REQUESTS	(1)
 #define MAX_AIO_REQUESTS	(4096)
 #define DEFAULT_AIO_REQUESTS	(16)
@@ -199,9 +211,6 @@
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
-#define MIN_OPS			(1ULL)
-#define MAX_OPS			(100000000ULL)
-
 #define SWITCH_STOP		'X'
 #define PIPE_STOP		"PIPE_STOP"
 
@@ -217,13 +226,12 @@
 #define SIEVE_CLRBIT(a, i)	(a[i / 32] &= ~(1 << (i & 31)))
 #define SIEVE_SIZE 		(10000000)
 
+/* MWC random number initial seed */
 #define MWC_SEED_Z		(362436069ULL)
 #define MWC_SEED_W		(521288629ULL)
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
-
-#define ABORT_FAILURES		(5)
 
 #if defined(__x86_64__) || defined(__x86_64) || defined(__i386__) || defined(__i386)
 #define STRESS_X86	1
@@ -263,17 +271,17 @@ typedef struct {
 
 /* Shared memory segment */
 typedef struct {
-	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;
-	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;
+	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;	/* Shared memory cache */
+	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;	/* Shared futexes */
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
-	sem_t sem ALIGN64;
-	proc_stats_t stats[0] ALIGN64;
+	sem_t sem ALIGN64;				/* Shared semaphores */
+	proc_stats_t stats[0] ALIGN64;			/* Shared statistics */
 } shared_t;
 
 /* Stress test classes */
 typedef struct {
-	uint32_t class;		/* Class type bit mask */
-	const char *name;	/* Name of class */
+	uint32_t class;			/* Class type bit mask */
+	const char *name;		/* Name of class */
 } class_t;
 
 /* Stress tests */
@@ -666,26 +674,26 @@ typedef struct {
 } stress_t;
 
 typedef struct {
-	pid_t	*pids;		/* process id */
-	int32_t started_procs;	/* count of started processes */
-	int32_t num_procs;	/* number of process per stressor */
-	uint64_t bogo_ops;	/* number of bogo ops */
+	pid_t	*pids;			/* process id */
+	int32_t started_procs;		/* count of started processes */
+	int32_t num_procs;		/* number of process per stressor */
+	uint64_t bogo_ops;		/* number of bogo ops */
 } proc_info_t;
 
 typedef struct {
-	const char	ch;	/* Scaling suffix */
-	const uint64_t	scale;	/* Amount to scale by */
+	const char	ch;		/* Scaling suffix */
+	const uint64_t	scale;		/* Amount to scale by */
 } scale_t;
 
 /* Various option settings and flags */
-extern const char *app_name;				/* Name of application */
-extern shared_t *shared;				/* shared memory */
-extern uint64_t	opt_timeout;				/* timeout in seconds */
-extern int32_t	opt_flags;				/* option flags */
-extern long int	opt_nprocessors_online;			/* Number of processors online */
-extern volatile bool opt_do_run;			/* false to exit stressor */
-extern volatile bool opt_sigint;			/* true if stopped by SIGINT */
-extern mwc_t __mwc;					/* internal mwc random state */
+extern const char *app_name;		/* Name of application */
+extern shared_t *shared;		/* shared memory */
+extern uint64_t	opt_timeout;		/* timeout in seconds */
+extern int32_t	opt_flags;		/* option flags */
+extern long int	opt_nprocessors_online;	/* Number of processors online */
+extern volatile bool opt_do_run;	/* false to exit stressor */
+extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
+extern mwc_t __mwc;			/* internal mwc random state */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -696,73 +704,17 @@ extern void double_put(const double a);
 extern void uint64_put(const uint64_t a);
 extern uint64_t uint64_zero(void);
 
-/*
- *  helper functions
- */
-extern int stress_temp_filename(char *path, const size_t len, const char *name, const pid_t pid, const uint32_t instance, const uint64_t magic);
-extern int stress_temp_dir(char *path, const size_t len, const char *name, const pid_t pid, const uint32_t instance);
+/* Filenames and directories */
+extern int stress_temp_filename(char *path, const size_t len, const char *name,
+	const pid_t pid, const uint32_t instance, const uint64_t magic);
+extern int stress_temp_dir(char *path, const size_t len, const char *name,
+	const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
 
-extern double timeval_to_double(const struct timeval *tv);
-extern double time_now(void);
-extern void mwc_seed(const uint64_t w, const uint64_t z);
-extern void mwc_reseed(void);
-extern int stress_set_cpu_method(const char *name);
-extern int stress_set_vm_method(const char *name);
-extern void pr_failed(const int flag, const char *name, const char *what);
-extern void set_oom_adjustment(const char *name, bool killable);
-extern void set_sched(const int sched, const int sched_priority);
-extern int get_opt_sched(const char *const str);
-extern int get_opt_ionice_class(const char *const str);
-extern void set_iopriority(const int class, const int level);
-extern void set_oom_adjustment(const char *name, bool killable);
-extern void set_coredump(const char *name);
-extern void set_proc_name(const char *name);
-extern int madvise_random(void *addr, size_t length);
-extern int stress_set_socket_domain(const char *name);
-extern void check_value(const char *const msg, const int val);
-extern void check_range(const char *const opt, const uint64_t val,
-	const uint64_t lo, const uint64_t hi);
-extern int get_int(const char *const str);
-extern uint64_t get_uint64(const char *const str);
-extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
-	const char *const msg);
-extern uint64_t get_uint64_byte(const char *const str);
-extern uint64_t get_uint64_time(const char *const str);
-extern void lock_mem_current(void);
-extern int mincore_touch_pages(void *buf, size_t buf_len);
-extern long int opt_long(const char *opt, const char *str);
-extern int stress_set_dentry_order(const char *optarg);
-extern void stress_set_aio_requests(const char *optarg);
-extern void stress_set_bigheap_growth(const char *optarg);
-extern void stress_set_bsearch_size(const char *optarg);
-extern void stress_set_hsearch_size(const char *optarg);
-extern void stress_set_tsearch_size(const char *optarg);
-extern void stress_set_lsearch_size(const char *optarg);
-extern void stress_set_dentries(const char *optarg);
-extern void stress_set_fork_max(const char *optarg);
-extern void stress_set_vfork_max(const char *optarg);
-extern void stress_set_timer_freq(const char *optarg);
-extern void stress_set_fstat_dir(const char *optarg);
-extern void stress_set_sendfile_size(const char *optarg);
-extern void stress_set_qsort_size(const void *optarg);
-extern void stress_set_seek_size(const char *optarg);
-extern void stress_set_pthread_max(const char *optarg);
-extern void stress_adjust_ptread_max(uint64_t max);
-extern void stress_set_fifo_readers(const char *optarg);
-extern void stress_set_sem_procs(const char *optarg);
-extern void stress_set_cpu_load(const char *optarg);
-extern void stress_set_vm_hang(const char *optarg);
-extern void stress_set_vm_bytes(const char *optarg);
-extern void stress_set_vm_flags(const int flag);
-extern void stress_set_mmap_bytes(const char *optarg);
-extern void stress_set_socket_port(const char *optarg);
-extern void stress_set_hdd_bytes(const char *optarg);
-extern void stress_set_hdd_write_size(const char *optarg);
-
 /*
- *  mwc()
+ *  mwc() 
+ *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
@@ -773,10 +725,77 @@ static inline uint64_t mwc(void)
 	return (__mwc.z << 16) + __mwc.w;
 }
 
+extern void mwc_seed(const uint64_t w, const uint64_t z);
+extern void mwc_reseed(void);
+
+/* Time handling */
+extern double timeval_to_double(const struct timeval *tv);
+extern double time_now(void);
+
+/* Misc settings helpers */
+extern void set_oom_adjustment(const char *name, bool killable);
+extern void set_sched(const int sched, const int sched_priority);
+extern void set_iopriority(const int class, const int level);
+extern void set_oom_adjustment(const char *name, bool killable);
+extern void set_coredump(const char *name);
+extern void set_proc_name(const char *name);
+
+/* Argument parsing and range checking */
+extern int get_opt_sched(const char *const str);
+extern int get_opt_ionice_class(const char *const str);
+extern int get_int(const char *const str);
+extern uint64_t get_uint64(const char *const str);
+extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
+	const char *const msg);
+extern uint64_t get_uint64_byte(const char *const str);
+extern uint64_t get_uint64_time(const char *const str);
+extern long int opt_long(const char *opt, const char *str);
+extern void check_value(const char *const msg, const int val);
+extern void check_range(const char *const opt, const uint64_t val,
+	const uint64_t lo, const uint64_t hi);
+
+/* Memory tweaking */
+extern int madvise_random(void *addr, size_t length);
+extern void lock_mem_current(void);
+extern int mincore_touch_pages(void *buf, size_t buf_len);
+
+/* Used to set options for specific stressors */
+extern void stress_adjust_ptread_max(uint64_t max);
+extern void stress_set_aio_requests(const char *optarg);
+extern void stress_set_bigheap_growth(const char *optarg);
+extern void stress_set_bsearch_size(const char *optarg);
+extern void stress_set_cpu_load(const char *optarg);
+extern int  stress_set_cpu_method(const char *name);
+extern void stress_set_dentries(const char *optarg);
+extern int  stress_set_dentry_order(const char *optarg);
+extern void stress_set_fifo_readers(const char *optarg);
+extern void stress_set_fork_max(const char *optarg);
+extern void stress_set_fstat_dir(const char *optarg);
+extern void stress_set_hdd_bytes(const char *optarg);
+extern void stress_set_hdd_write_size(const char *optarg);
+extern void stress_set_hsearch_size(const char *optarg);
+extern void stress_set_lsearch_size(const char *optarg);
+extern void stress_set_mmap_bytes(const char *optarg);
+extern void stress_set_pthread_max(const char *optarg);
+extern void stress_set_qsort_size(const void *optarg);
+extern void stress_set_seek_size(const char *optarg);
+extern void stress_set_sendfile_size(const char *optarg);
+extern void stress_set_sem_procs(const char *optarg);
+extern int  stress_set_socket_domain(const char *name);
+extern void stress_set_socket_port(const char *optarg);
+extern void stress_set_timer_freq(const char *optarg);
+extern void stress_set_tsearch_size(const char *optarg);
+extern void stress_set_vfork_max(const char *optarg);
+extern void stress_set_vm_bytes(const char *optarg);
+extern void stress_set_vm_flags(const int flag);
+extern void stress_set_vm_hang(const char *optarg);
+extern int  stress_set_vm_method(const char *name);
+
 #define STRESS(name)								\
 	extern int name(uint64_t *const counter, const uint32_t instance,	\
         const uint64_t max_ops, const char *name)
 
+/* Stressors */
 STRESS(stress_affinity);
 STRESS(stress_aio);
 STRESS(stress_bigheap);
@@ -837,7 +856,5 @@ STRESS(stress_wait);
 STRESS(stress_yield);
 STRESS(stress_zero);
 
-extern int print(FILE *fp, const int flag,
-	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
 
 #endif
