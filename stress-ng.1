@@ -114,6 +114,12 @@ specify the size (number of 32 bit integers) in the array to bsearch. Size can b
 .B \-C N, \-\-cache N
 start N processes that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
 .TP
+.B \-\-cache\-fence
+force write serialization on each store operation (x86 only). This is a no-op for non-x86 architectures.
+.TP
+.B \-\-cache\-flush
+force flush cache on each store operation (x86 only). This is a no-op for non-x86 architectures.
+.TP
 .B \-\-cache\-ops N
 stop cache thrash processes after N bogo cache thrash operations.
 .TP

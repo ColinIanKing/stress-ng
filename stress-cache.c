@@ -33,6 +33,20 @@
 
 #include "stress-ng.h"
 
+/* The compiler optimises out the unused cache flush and mfence calls */
+#define CACHE_WRITE(flag)						\
+	for (j = 0; j < MEM_CACHE_SIZE; j++) {				\
+		mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;\
+		if ((flag) & OPT_FLAGS_CACHE_FLUSH)			\
+			clflush(&mem_cache[i]);				\
+		if ((flag) & OPT_FLAGS_CACHE_FENCE)			\
+			mfence();					\
+		i = (i + 32769) & (MEM_CACHE_SIZE - 1);			\
+		if (!opt_do_run)					\
+			break;						\
+	}
+
+
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -57,14 +71,22 @@ int stress_cache(
 	do {
 		uint64_t i = mwc() & (MEM_CACHE_SIZE - 1);
 		uint64_t r = mwc();
-		int j;
+		register int j;
 
 		if ((r >> 13) & 1) {
-			for (j = 0; j < MEM_CACHE_SIZE; j++) {
-				mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;
-				i = (i + 32769) & (MEM_CACHE_SIZE - 1);
-				if (!opt_do_run)
-					break;
+			switch (opt_flags & OPT_FLAGS_CACHE_MASK) {
+			case OPT_FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH);
+				break;
+			case OPT_FLAGS_CACHE_FENCE:
+				CACHE_WRITE(OPT_FLAGS_CACHE_FENCE);
+				break;
+			case OPT_FLAGS_CACHE_FENCE | OPT_FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE);
+				break;
+			default:
+				CACHE_WRITE(0);
+				break;
 			}
 		} else {
 			for (j = 0; j < MEM_CACHE_SIZE; j++) {

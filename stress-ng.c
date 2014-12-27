@@ -275,6 +275,8 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
+	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
+	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
 	{ "class",	1,	0,	OPT_CLASS },
 #if _POSIX_C_SOURCE >= 199309L
 	{ "clock",	1,	0,	OPT_CLOCK },
@@ -490,7 +492,9 @@ static const help_t help[] = {
 	{ NULL,		"bsearch-ops",		"stop when N binary search bogo operations completed" },
 	{ NULL,		"bsearch-size",		"number of 32 bit integers to bsearch" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
-	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed (x86 only)" },
+	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
+	{ NULL,		"cache-fence",		"serialize stores" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 #if _POSIX_C_SOURCE >= 199309L
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
@@ -593,7 +597,7 @@ static const help_t help[] = {
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
 #if defined(STRESS_X86)
-	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction" },
+	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
@@ -1105,6 +1109,12 @@ next_opt:
 			break;
 		case OPT_BSEARCH_SIZE:
 			stress_set_bsearch_size(optarg);
+			break;
+		case OPT_CACHE_FLUSH:
+			opt_flags |= OPT_FLAGS_CACHE_FLUSH;
+			break;
+		case OPT_CACHE_FENCE:
+			opt_flags |= OPT_FLAGS_CACHE_FENCE;
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);

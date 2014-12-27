@@ -65,6 +65,9 @@
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 #define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
 #define OPT_FLAGS_SEM_INIT	0x00002000	/* semaphore initialised */
+#define OPT_FLAGS_CACHE_FLUSH	0x00004000	/* cache flush */
+#define OPT_FLAGS_CACHE_FENCE	0x00008000	/* cache fence */
+#define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -446,6 +449,8 @@ typedef enum {
 
 	OPT_CLASS,
 	OPT_CACHE_OPS,
+	OPT_CACHE_FLUSH,
+	OPT_CACHE_FENCE,
 
 #if _POSIX_C_SOURCE >= 199309L
 	OPT_CLOCK,
@@ -711,6 +716,25 @@ extern int stress_temp_dir(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
+
+#if defined(STRESS_X86)
+
+static inline void clflush(volatile void *ptr)
+{
+        asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
+}
+
+static inline void mfence(void)
+{
+	asm volatile("mfence" : : : "memory");
+}
+
+#else
+
+#define clflush(ptr)	/* No-op */
+#define mfence()	/* No-op */
+
+#endif
 
 /*
  *  mwc() 
