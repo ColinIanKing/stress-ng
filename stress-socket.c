@@ -41,6 +41,9 @@
 #ifdef AF_INET6
 #include <netinet/in.h>
 #endif
+#ifdef AF_UNIX
+#include <sys/un.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -55,6 +58,7 @@ typedef struct {
 static const domain_t domains[] = {
 	{ "ipv4",	AF_INET },
 	{ "ipv6",	AF_INET6 },
+	{ "unix",	AF_UNIX },
 	{ NULL,		-1 }
 };
 
@@ -106,8 +110,17 @@ int stress_socket(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pid;
+	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
+#ifdef AF_UNIX
+	struct sockaddr_un addr;
+
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	snprintf(addr.sun_path, sizeof(addr.sun_path),
+		"/tmp/stress-ng-%d-%" PRIu32,
+		ppid, instance);
+#endif
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
 		name, getpid(), opt_socket_port + instance);
@@ -155,6 +168,12 @@ retry:
 				}
 				break;
 #endif
+#ifdef AF_UNIX
+			case AF_UNIX:
+				ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
+				break;
+#endif
+
 			default:
 				pr_failed_dbg(name, "unknown domain");
 				(void)kill(getppid(), SIGALRM);
@@ -187,6 +206,11 @@ retry:
 			(void)close(fd);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+#ifdef AF_UNIX
+		if (opt_domain == AF_UNIX) {
+			(void)unlink(addr.sun_path);
+		}
+#endif
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 		exit(EXIT_SUCCESS);
@@ -240,6 +264,11 @@ retry:
 			}
 			break;
 #endif
+#ifdef AF_UNIX
+		case AF_UNIX:
+			ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
+			break;
+#endif
 		default:
 			pr_failed_dbg(name, "unknown domain");
 			(void)kill(getppid(), SIGALRM);
@@ -277,6 +306,11 @@ retry:
 die_close:
 		(void)close(fd);
 die:
+#ifdef AF_UNIX
+		if (opt_domain == AF_UNIX) {
+			(void)unlink(addr.sun_path);
+		}
+#endif
 		if (pid) {
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
