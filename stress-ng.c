@@ -348,7 +348,9 @@ static const struct option long_options[] = {
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
+	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
+	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
 #if !defined(__gnu_hurd__)
@@ -569,7 +571,9 @@ static const help_t help[] = {
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
+	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
+	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
@@ -1186,8 +1190,14 @@ next_opt:
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
+		case OPT_MMAP_ASYNC:
+			opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
+			break;
 		case OPT_MMAP_BYTES:
 			stress_set_mmap_bytes(optarg);
+			break;
+		case OPT_MMAP_FILE:
+			opt_flags |= OPT_FLAGS_MMAP_FILE;
 			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;

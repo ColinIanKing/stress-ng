@@ -68,6 +68,8 @@
 #define OPT_FLAGS_CACHE_FLUSH	0x00004000	/* cache flush */
 #define OPT_FLAGS_CACHE_FENCE	0x00008000	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
+#define OPT_FLAGS_MMAP_FILE	0x00010000	/* mmap onto a file */
+#define OPT_FLAGS_MMAP_ASYNC	0x00020000	/* mmap onto a file */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -81,10 +83,10 @@
 #define CLASS_OS		0x00000100	/* generic OS tests */
 
 /* debug output bitmasks */
-#define PR_ERROR		0x00010000	/* Print errors */
-#define PR_INFO			0x00020000	/* Print info */
-#define PR_DEBUG		0x00040000	/* Print debug */
-#define PR_FAIL			0x00080000	/* Print test failure message */
+#define PR_ERROR		0x10000000	/* Print errors */
+#define PR_INFO			0x20000000	/* Print info */
+#define PR_DEBUG		0x40000000	/* Print debug */
+#define PR_FAIL			0x80000000	/* Print test failure message */
 #define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Large prime to stride around large VM regions */
@@ -536,6 +538,8 @@ typedef enum {
 	OPT_MMAP,
 	OPT_MMAP_OPS,
 	OPT_MMAP_BYTES,
+	OPT_MMAP_FILE,
+	OPT_MMAP_ASYNC,
 
 	OPT_MSG,
 	OPT_MSG_OPS,

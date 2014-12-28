@@ -30,6 +30,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "stress-ng.h"
 
@@ -96,7 +99,10 @@ int stress_mmap(
 #endif
 	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
 	const size_t pages4k = sz / page_size;
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	const int ms_flags = opt_flags & OPT_FLAGS_MMAP_ASYNC ? MS_ASYNC : MS_SYNC;
+	const pid_t pid = getpid();
+	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	char filename[PATH_MAX];
 
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
@@ -106,6 +112,42 @@ int stress_mmap(
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(name, true);
 
+	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+		char ch = '\0';
+
+		if (stress_temp_dir_mk(name, pid, instance) < 0)
+			return EXIT_FAILURE;
+
+		(void)stress_temp_filename(filename, sizeof(filename),
+			name, pid, instance, mwc());
+
+		(void)umask(0077);
+		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+			pr_failed_err(name, "open");
+			(void)unlink(filename);
+			(void)stress_temp_dir_rm(name, pid, instance);
+
+			return EXIT_FAILURE;
+		}
+		(void)unlink(filename);
+		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
+			pr_failed_err(name, "lseek");
+			(void)close(fd);
+			(void)stress_temp_dir_rm(name, pid, instance);
+
+			return EXIT_FAILURE;
+		}
+		if (write(fd, &ch, sizeof(ch)) != sizeof(ch)) {
+			pr_failed_err(name, "write");
+			(void)close(fd);
+			(void)stress_temp_dir_rm(name, pid, instance);
+
+			return EXIT_FAILURE;
+		}
+		flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
+		flags |= MAP_SHARED;
+	}
+
 	do {
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
@@ -113,13 +155,17 @@ int stress_mmap(
 
 		if (!opt_do_run)
 			break;
-		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #ifdef MAP_POPULATE
 			flags &= ~MAP_POPULATE;
 #endif
 			continue;	/* Try again */
+		}
+		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+			memset(buf, 0xff, sz);
+			msync(buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
@@ -164,12 +210,14 @@ int stress_mmap(
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (!mapped[page]) {
+					off_t offset = (opt_flags & OPT_FLAGS_MMAP_FILE) ?
+							page * page_size : 0;
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
-					mappings[page] = mmap(mappings[page], page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, -1, 0);
+					mappings[page] = mmap(mappings[page], page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
@@ -182,6 +230,10 @@ int stress_mmap(
 						if (stress_mmap_check(mappings[page], page_size) < 0)
 							pr_fail(stderr, "mmap'd region of %lu bytes does "
 								"not contain expected data\n", page_size);
+						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+							memset(mappings[page], n, page_size);
+							msync(mappings[page], page_size, ms_flags);
+						}
 					}
 					n--;
 					break;
@@ -204,5 +256,9 @@ cleanup:
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+		(void)close(fd);
+		(void)stress_temp_dir_rm(name, pid, instance);
+	}
 	return EXIT_SUCCESS;
 }
