@@ -46,7 +46,7 @@ void stress_set_mmap_bytes(const char *optarg)
  *  stress_mmap_check()
  *	check if mmap'd data is sane
  */
-int stress_mmap_check(uint8_t *buf, const size_t sz)
+static int stress_mmap_check(uint8_t *buf, const size_t sz)
 {
 	size_t i, j;
 	uint8_t val = 0;
@@ -63,7 +63,7 @@ int stress_mmap_check(uint8_t *buf, const size_t sz)
 	return 0;
 }
 
-void stress_mmap_set(uint8_t *buf, const size_t sz)
+static void stress_mmap_set(uint8_t *buf, const size_t sz)
 {
 	size_t i, j;
 	uint8_t val = 0;
