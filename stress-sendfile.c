@@ -60,7 +60,7 @@ int stress_sendfile(
 	char filename[PATH_MAX];
 	int fdin, fdout, ret = EXIT_SUCCESS;
 	size_t sz = (size_t)opt_sendfile_size;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

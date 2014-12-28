@@ -50,7 +50,7 @@ int stress_utime(
 {
 	char filename[PATH_MAX];
 	int fd;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

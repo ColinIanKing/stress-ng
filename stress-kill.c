@@ -44,7 +44,7 @@ int stress_kill(
 	const char *name)
 {
 	struct sigaction new_action;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	(void)instance;
 	(void)name;

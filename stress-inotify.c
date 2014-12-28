@@ -624,7 +624,7 @@ int stress_inotify(
 {
 	char dirname[PATH_MAX];
 	int i;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	(void)counter;
 	(void)max_ops;

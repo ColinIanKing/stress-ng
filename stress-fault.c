@@ -50,7 +50,7 @@ int stress_fault(
 	struct rusage usage;
 	char filename[PATH_MAX];
 	int i = 0;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

@@ -141,12 +141,11 @@ int stress_get(
 		gid_t rgid, egid, sgid;
 		uid_t ruid, euid, suid;
 #endif
-		pid_t mypid;
+		const pid_t mypid = getpid();
 		int ret;
 		size_t i;
 		struct timeval tv;
 
-		mypid = getpid();
 		check_do_run();
 
 		(void)getppid();

@@ -49,7 +49,7 @@ int stress_rename(
 	char *oldname = name1, *newname = name2, *tmpname;
 	FILE *fp;
 	uint64_t i = 0;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

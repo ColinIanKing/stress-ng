@@ -125,13 +125,12 @@ int stress_fifo(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pids[MAX_FIFO_READERS], pid;
+	pid_t pids[MAX_FIFO_READERS];
 	int fd;
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
 	int ret = EXIT_FAILURE;
-
-	pid = getpid();
+	const pid_t pid = getpid();
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
