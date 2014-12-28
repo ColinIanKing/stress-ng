@@ -36,6 +36,7 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/stat.h>
 
 #include "stress-ng.h"
 
@@ -64,7 +65,7 @@ int stress_msg(
 
 	(void)instance;
 
-	msgq_id= msgget(IPC_PRIVATE, 0600 | IPC_CREAT | IPC_EXCL);
+	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
 		pr_failed_dbg(name, "msgget");
 		return EXIT_FAILURE;
