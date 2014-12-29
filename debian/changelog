@@ -1,3 +1,19 @@
+stress-ng (0.03.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add mascot svg to dist
+  * Make getpid pid const
+  * Don't use 0600 flags, use constants instead
+  * Add --mmap-file and --mmap-async file based mmap options
+  * Make stress-mmap helper functions static
+  * Update manual for the new unix --sock-domain option
+  * Add unix --sock-domain option
+  * Add cache fencing and cache flushing to cache stressor
+  * Add mascot svg
+  * Fix comment in modulo-x comment, 20th -> 23rd
+
+ -- Colin King <colin.king@canonical.com>  Mon, 29 Dec 2014 15:57:00 +0000
+
 stress-ng (0.03.05-1) unstable; urgency=medium
 
   * Makefile: bump version
