@@ -360,6 +360,12 @@ stop directory thrash processes after N bogo directory operations.
 .B \-n, \-\-dry\-run
 parse options, but don't run stress tests. A no-op.
 .TP
+.B \-\-dup N
+start N processes that perform dup() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+.TP
+.B \-\-dup\-ops N
+stop the dup stress processes after N bogo open operations.
+.TP
 .B \-\-eventfd N
 start N parent and child worker processes that read and write 8 byte event messages between them via the eventfd mechanism (Linux only).
 .TP

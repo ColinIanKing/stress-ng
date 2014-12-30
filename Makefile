@@ -35,6 +35,7 @@ SRC =   stress-affinity.c \
 	stress-cpu.c \
 	stress-dentry.c \
 	stress-dir.c \
+	stress-dup.c \
 	stress-eventfd.c \
 	stress-fallocate.c \
 	stress-fault.c \

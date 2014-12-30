@@ -159,6 +159,7 @@ static const stress_t stressors[] = {
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(dentry, DENTRY, CLASS_IO | CLASS_OS),
 	STRESSOR(dir, DIR, CLASS_IO | CLASS_OS),
+	STRESSOR(dup, DUP, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
 	STRESSOR(eventfd, EVENTFD, CLASS_IO | CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -297,6 +298,8 @@ static const struct option long_options[] = {
 	{ "dir",	1,	0,	OPT_DIR },
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
+	{ "dup",	1,	0,	OPT_DUP },
+	{ "dup-ops",	1,	0,	OPT_DUP_OPS },
 #if defined (__linux__)
 	{ "eventfd",	1,	0,	OPT_EVENTFD },
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
@@ -523,6 +526,8 @@ static const help_t help[] = {
 	{ NULL,		"dir N",		"start N directory thrashing processes" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
 	{ "n",		"dry-run",		"do not run" },
+	{ NULL,		"dup N",		"start N workers exercising dup/close" },
+	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
 #if defined (__linux__)
 	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
 	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },

@@ -307,6 +307,7 @@ typedef enum {
 	STRESS_CPU,
 	STRESS_DENTRY,
 	STRESS_DIR,
+	STRESS_DUP,
 #if defined(__linux__)
 	STRESS_EVENTFD,
 #endif
@@ -473,6 +474,9 @@ typedef enum {
 
 	OPT_DIR,
 	OPT_DIR_OPS,
+
+	OPT_DUP,
+	OPT_DUP_OPS,
 
 	OPT_HDD_BYTES,
 	OPT_HDD_WRITE_SIZE,
@@ -843,8 +847,9 @@ STRESS(stress_bsearch);
 STRESS(stress_cache);
 STRESS(stress_clock);
 STRESS(stress_cpu);
-STRESS(stress_dir);
 STRESS(stress_dentry);
+STRESS(stress_dir);
+STRESS(stress_dup);
 STRESS(stress_eventfd);
 STRESS(stress_hdd);
 STRESS(stress_hsearch);
