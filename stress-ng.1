@@ -59,9 +59,6 @@ a negative or zero value will select the number of online processors as defined
 by sysconf(_SC_NPROCESSORS_ONLN).
 .SH OPTIONS
 .TP
-.B \-?, \-h, \-\-help
-show help.
-.TP
 .B \-\-affinity N
 start N processes that rapidly change CPU affinity (only on Linux). Rapidly switching
 CPU affinity can contribute to poor cache behaviour.
@@ -447,6 +444,9 @@ stop hdd stress processes after N bogo operations.
 .TP
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
+.TP
+.B \-h, \-\-help
+show help.
 .TP
 .B \-\-hsearch N
 start N processes that search a 80% full hash table using hsearch(3). By default, there are 8192 elements inserted  into the hash table.  This is a useful method to exercise access of memory and processor cache.

@@ -329,7 +329,7 @@ static const struct option long_options[] = {
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
-	{ "help",	0,	0,	OPT_QUERY },
+	{ "help",	0,	0,	OPT_HELP },
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
 	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
 	{ "hsearch-size",1,	0,	OPT_HSEARCH_SIZE },
@@ -487,7 +487,7 @@ static const struct option long_options[] = {
 };
 
 static const help_t help[] = {
-	{ "?,-h",	"help",			"show help" },
+	{ "-h",		"help",			"show help" },
 #if defined (__linux__)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
@@ -1180,8 +1180,8 @@ next_opt:
 			stress_set_fstat_dir(optarg);
 			break;
 		case OPT_HELP:
-		case OPT_QUERY:
 			usage();
+			break;
 		case OPT_HDD_BYTES:
 			stress_set_hdd_bytes(optarg);
 			break;
@@ -1237,6 +1237,10 @@ next_opt:
 			break;
 		case OPT_QSORT_INTEGERS:
 			stress_set_qsort_size(optarg);
+			break;
+		case OPT_QUERY:
+			printf("Try '%s --help' for more information.\n", app_name);
+			exit(EXIT_FAILURE);
 			break;
 		case OPT_QUIET:
 			opt_flags &= ~(PR_ALL);
