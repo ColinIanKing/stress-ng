@@ -688,9 +688,8 @@ static void stress_cpu_idct(void)
  */
 static void stress_cpu_int64(void)
 {
-	const uint64_t a_final = 0xfd1536595d99c69ULL;
-	const uint64_t b_final = 0x5550a2bef2acULL;
-
+	const uint64_t a_final = 0x1ee5773113afd25aULL;
+	const uint64_t b_final = 0x174df454b030714cULL;
 	register uint64_t a, b;
 	int i;
 
@@ -699,7 +698,7 @@ static void stress_cpu_int64(void)
 	b = mwc();
 
 	for (i = 0; i < 1000; i++) {
-		int_ops(a, b, 0xffffffffffffULL);
+		int_ops(a, b, 0xffffffffffffffffULL);
 		if (!opt_do_run)
 			break;
 	}
@@ -911,6 +910,209 @@ static void stress_cpu_complex_long_double(void)
 			break;
 	}
 	double_put(a + b + c + d);
+}
+
+#define int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, mask)	\
+	do {							\
+		int_a += int_b;					\
+		int_b ^= int_a;					\
+		flt_a = flt_a + flt_b;				\
+		int_a >>= 1;					\
+		int_b <<= 2;					\
+		flt_b = flt_a * flt_c;				\
+		int_b -= int_a;					\
+		int_a ^= ~0;					\
+		flt_c = flt_a - flt_b;				\
+		int_b ^= ((~0xf0f0f0f0f0f0f0f0ULL) & mask);	\
+		int_a *= 3;					\
+		flt_d = flt_a / flt_b;				\
+		int_b *= 7;					\
+		int_a += 2;					\
+		flt_a = flt_c / 0.1923;				\
+		int_b -= 3;					\
+		int_a /= 77;					\
+		flt_b = flt_c + flt_a;				\
+		int_b /= 3;					\
+		int_a <<= 1;					\
+		flt_c = flt_b * 3.12;				\
+		int_b <<= 2;					\
+		int_a |= 1;					\
+		flt_d = flt_d + flt_b + sin(flt_a);		\
+		int_b |= 3;					\
+		int_a *= mwc();					\
+		flt_a = (flt_b + flt_c) / flt_c;		\
+		int_b ^= mwc();					\
+		int_a += mwc();					\
+		flt_b = flt_b * flt_c;				\
+		int_b -= mwc();					\
+		int_a /= 7;					\
+		flt_c = flt_c + 1.0;				\
+		int_b /= 9;					\
+		flt_d = flt_d - sin(flt_c);			\
+		int_a |= ((0x1000100010001000ULL) & mask);	\
+		flt_a = flt_a * cos(flt_b);			\
+		flt_b = flt_b + cos(flt_c);			\
+		int_b &= ((0xffeffffefebefffeULL) & mask);	\
+		flt_c = sin(flt_a) / 2.344;			\
+		flt_b = flt_d - 1.0;				\
+	} while (0)
+
+
+/*
+ *  stress_cpu_int32_float()
+ *	mix of floating point and integer ops
+ */
+static void stress_cpu_int32_float(void)
+{
+	uint32_t i, int_a, int_b;
+	const uint64_t a_final = 0x1ee5773113afd25aULL;
+	const uint64_t b_final = 0x174df454b030714cULL;
+	float flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinf, cosf, int_a, int_b, 0xffffffffffffffffULL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
+}
+
+/*
+ *  stress_cpu_int32_double()
+ *	mix of double floating point and integer ops
+ */
+static void stress_cpu_int32_double(void)
+{
+	uint32_t i, int_a, int_b;
+	const uint32_t a_final = 0x1ce9b547UL;
+	const uint32_t b_final = 0xa24b33aUL;
+	double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, 0xffffffffUL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
+}
+
+/*
+ *  stress_cpu_int32_longdouble()
+ *	mix of floating point and integer ops
+ */
+static void stress_cpu_int32_longdouble(void)
+{
+	uint32_t i, int_a, int_b;
+	const uint32_t a_final = 0x1ce9b547UL;
+	const uint32_t b_final = 0xa24b33aUL;
+	long double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinl, cosl, int_a, int_b, 0xffffffffUL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
+}
+
+
+/*
+ *  stress_cpu_int64_float()
+ *	mix of floating point and integer ops
+ */
+static void stress_cpu_int64_float(void)
+{
+	uint64_t i, int_a, int_b;
+	const uint64_t a_final = 0xfd1536595d99c69ULL;
+	const uint64_t b_final = 0x5550a2bef2acULL;
+	float flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinf, cosf, int_a, int_b, 0xffffffffffffULL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
+}
+
+/*
+ *  stress_cpu_int64_double()
+ *	mix of doublefloating point and integer ops
+ */
+static void stress_cpu_int64_double(void)
+{
+	uint64_t i, int_a, int_b;
+	const uint64_t a_final = 0xfd1536595d99c69ULL;
+	const uint64_t b_final = 0x5550a2bef2acULL;
+	double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, 0xffffffffffffULL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
+}
+
+/*
+ *  stress_cpu_int64_longdouble()
+ *	mix of long double floating point and integer ops
+ */
+static void stress_cpu_int64_longdouble(void)
+{
+	uint64_t i, int_a, int_b;
+	const uint64_t a_final = 0xfd1536595d99c69ULL;
+	const uint64_t b_final = 0x5550a2bef2acULL;
+	long double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+
+	MWC_SEED();
+	int_a = mwc();
+	int_b = mwc();
+
+	for (i = 0; i < 1000; i++) {
+		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinl, cosl, int_a, int_b, 0xffffffffffffULL);
+		if (!opt_do_run)
+			break;
+	}
+	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
+		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
+
+	double_put(flt_a + flt_b + flt_c + flt_d);
 }
 
 /*
@@ -1625,6 +1827,12 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "int32",	stress_cpu_int32 },
 	{ "int16",	stress_cpu_int16 },
 	{ "int8",	stress_cpu_int8 },
+	{ "int32float",	stress_cpu_int32_float },
+	{ "int32double",stress_cpu_int32_double },
+	{ "int32longdouble",	stress_cpu_int32_longdouble },
+	{ "int64float",	stress_cpu_int64_float },
+	{ "int64double",stress_cpu_int64_double },
+	{ "int64longdouble",	stress_cpu_int64_longdouble },
 	{ "jenkin",	stress_cpu_jenkin },
 	{ "jmp",	stress_cpu_jmp },
 	{ "ln2",	stress_cpu_ln2 },
