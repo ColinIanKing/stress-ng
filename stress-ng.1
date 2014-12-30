@@ -484,6 +484,15 @@ start N processes creating and removing hardlinks.
 .B \-\-link\-ops N
 stop link stress processes after N bogo operations.
 .TP
+.B \-\-lockf N
+start N processes randomly locking regions of a file using the POSIX lockf(3) locking mechanism. A single 4K file is locked in one of two randonly chosen 2K regions at offsets 0 and 2K. Note that lockf on many systems is implemented via fcntl(2) locking interface.
+.TP
+.B \-\-lockf\-ops N
+stop flock stress processes after N bogo flock operations.
+.TP
+.B \-\-lockf\-nonblock
+instead of using blocking F_LOCK lockf() commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and hence increases locking contention.
+.TP
 .B \-\-lsearch N
 start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
 .TP

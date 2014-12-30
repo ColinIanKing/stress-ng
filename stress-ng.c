@@ -182,6 +182,10 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(link, LINK, CLASS_IO | CLASS_OS),
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+	STRESSOR(lockf, LOCKF, CLASS_IO | CLASS_OS),
+#endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
@@ -341,6 +345,12 @@ static const struct option long_options[] = {
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+	{ "lockf",	1,	0,	OPT_LOCKF },
+	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
+	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
+#endif
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
 	{ "lsearch-ops",1,	0,	OPT_LSEARCH_OPS },
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
@@ -562,6 +572,12 @@ static const help_t help[] = {
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },
+	{ NULL,		"lockf-ops N",		"stop when N lockf bogo operations completed" },
+	{ NULL,		"lockf-nonblock",	"don't block if lock cannot be obtained, re-try" },
+#endif
 	{ NULL,		"lsearch",		"start N workers that exercise a linear search" },
 	{ NULL,		"lsearch-ops",		"stop when N linear search bogo operations completed" },
 	{ NULL,		"lsearch-size",		"number of 32 bit integers to lsearch" },
@@ -1181,6 +1197,12 @@ next_opt:
 		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+		case OPT_LOCKF_NONBLOCK:
+			opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
+			break;
+#endif
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
 			break;

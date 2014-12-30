@@ -70,6 +70,7 @@
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
 #define OPT_FLAGS_MMAP_FILE	0x00010000	/* mmap onto a file */
 #define OPT_FLAGS_MMAP_ASYNC	0x00020000	/* mmap onto a file */
+#define OPT_FLAGS_LOCKF_NONBLK	0x00040000	/* Non-blocking lockf */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -329,6 +330,10 @@ typedef enum {
 	STRESS_IOSYNC,
 	STRESS_KILL,
 	STRESS_LINK,
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+	STRESS_LOCKF,
+#endif
 	STRESS_LSEARCH,
 	STRESS_MEMCPY,
 	STRESS_MMAP,
@@ -525,6 +530,13 @@ typedef enum {
 
 	OPT_LINK,
 	OPT_LINK_OPS,
+
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+	OPT_LOCKF,
+	OPT_LOCKF_OPS,
+	OPT_LOCKF_NONBLOCK,
+#endif
 
 	OPT_LSEARCH,
 	OPT_LSEARCH_OPS,
@@ -848,6 +860,7 @@ STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_kill);
 STRESS(stress_link);
+STRESS(stress_lockf);
 STRESS(stress_lsearch);
 STRESS(stress_memcpy);
 STRESS(stress_mmap);
@@ -883,6 +896,5 @@ STRESS(stress_vm);
 STRESS(stress_wait);
 STRESS(stress_yield);
 STRESS(stress_zero);
-
 
 #endif
