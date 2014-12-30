@@ -10,7 +10,7 @@ close				dentry
 connect				sock
 endmntent			sysinfo
 eventfd				eventfd
-fcntl				open
+fcntl				open, lockf
 flock				flock
 fork				fork
 fstat				fallocate
