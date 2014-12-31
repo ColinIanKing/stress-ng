@@ -182,6 +182,9 @@ static const stress_t stressors[] = {
 	STRESSOR(inotify, INOTIFY, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+	STRESSOR(lease, LEASE, CLASS_IO | CLASS_OS),
+#endif
 	STRESSOR(link, LINK, CLASS_IO | CLASS_OS),
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
@@ -346,6 +349,11 @@ static const struct option long_options[] = {
 	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
 	{ "kill",	1,	0,	OPT_KILL },
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+	{ "lease",	1,	0,	OPT_LEASE },
+	{ "lease-ops",	1,	0,	OPT_LEASE_OPS },
+	{ "lease-breakers",1,	0,	OPT_LEASE_BREAKERS },
+#endif
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
@@ -575,6 +583,9 @@ static const help_t help[] = {
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
+	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
+	{ NULL,		"lease-ops N",		"stop when N lease bogo operations completed" },
+	{ NULL,		"lease-breakers N",	"number of lease breaking processes to start" },
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
@@ -1202,6 +1213,11 @@ next_opt:
 		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+		case OPT_LEASE_BREAKERS:
+			stress_set_lease_breakers(optarg);
+			break;
+#endif
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
 		case OPT_LOCKF_NONBLOCK:

@@ -35,6 +35,7 @@
 #include <semaphore.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <fcntl.h>
 
 #define _GNU_SOURCE
 /* GNU HURD */
@@ -163,6 +164,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MIN_HSEARCH_SIZE	(1 * KB)
 #define MAX_HSEARCH_SIZE	(4 * MB)
 #define DEFAULT_HSEARCH_SIZE	(8 * KB)
+
+#define MIN_LEASE_BREAKERS	(1)
+#define MAX_LEASE_BREAKERS	(16)
+#define DEFAULT_LEASE_BREAKERS	(1)
 
 #define MIN_LSEARCH_SIZE	(1 * KB)
 #define MAX_LSEARCH_SIZE	(4 * MB)
@@ -330,6 +335,9 @@ typedef enum {
 #endif
 	STRESS_IOSYNC,
 	STRESS_KILL,
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+	STRESS_LEASE,
+#endif
 	STRESS_LINK,
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
@@ -531,6 +539,12 @@ typedef enum {
 
 	OPT_KILL,
 	OPT_KILL_OPS,
+
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+	OPT_LEASE,
+	OPT_LEASE_OPS,
+	OPT_LEASE_BREAKERS,
+#endif
 
 	OPT_LINK,
 	OPT_LINK_OPS,
@@ -818,6 +832,7 @@ extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
 extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
+extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
@@ -835,8 +850,8 @@ extern void stress_set_vm_flags(const int flag);
 extern void stress_set_vm_hang(const char *optarg);
 extern int  stress_set_vm_method(const char *name);
 
-#define STRESS(name)								\
-	extern int name(uint64_t *const counter, const uint32_t instance,	\
+#define STRESS(name)							\
+extern int name(uint64_t *const counter, const uint32_t instance,	\
         const uint64_t max_ops, const char *name)
 
 /* Stressors */
@@ -864,6 +879,7 @@ STRESS(stress_get);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_kill);
+STRESS(stress_lease);
 STRESS(stress_link);
 STRESS(stress_lockf);
 STRESS(stress_lsearch);

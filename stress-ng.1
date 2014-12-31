@@ -484,6 +484,15 @@ start N processes sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most
 .B \-\-kill\-ops N
 stop kill processes after N bogo kill operations.
 .TP
+.B \-\-lease N
+start N processes locking, unlocking and breaking leases via the fcntl(2) F_SETLEASE operation. A parent processes continually locks and unlocks a lease on a file while a user selectable number of child processes open the file with a non-blocking open to generate SIGIO lease breaking notifications to the parent.  This stressor is only available if F_SETLEASE, F_WRLCK and F_UNLCK support is provided by fcntl(2).
+.TP
+.B \-\-lease\-ops N
+stop lease stressors after N bogo operations.
+.TP
+.B \-\-lease\-breakers N
+start N lease breaker child processes per lease stressor.  Normally one child is plenty for force many SIGIO lease breaking notification signals to the parent, however, this option allows one to specify more child processes if required.
+.TP
 .B \-\-link N
 start N processes creating and removing hardlinks.
 .TP
@@ -1019,6 +1028,7 @@ File bug reports at:
 .SH SEE ALSO
 .BR bsearch (3),
 .BR fallocate (2),
+.BR fcntl(2),
 .BR flock (2),
 .BR ftruncate (2),
 .BR hsearch (3),
