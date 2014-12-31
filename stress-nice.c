@@ -58,11 +58,17 @@ int stress_nice(
 	{
 		struct rlimit rlim;
 
-		getrlimit(RLIMIT_NICE, &rlim);
-		max_prio = 20 - (int)rlim.rlim_cur;
-		min_prio = -max_prio;
+		if (getrlimit(RLIMIT_NICE, &rlim) < 0) {
+			/* Make an assumption, bah */
+			max_prio = 20;
+			min_prio = -20;
+		} else {
+			max_prio = 20 - (int)rlim.rlim_cur;
+			min_prio = -max_prio;
+		}
 	}
 #else
+	/* Make an assumption, bah */
 	max_prio = 20;
 	min_prio = -20;
 #endif
