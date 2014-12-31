@@ -157,7 +157,6 @@ int stress_lease(
 		if (fd < 0) {
 			pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));
-			(void)stress_temp_dir_rm(name, pid, instance);
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
@@ -168,7 +167,12 @@ int stress_lease(
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		(void)sched_yield();
 #endif
-		fcntl(fd, F_SETLEASE, F_UNLCK);
+		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
+			pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			close(fd);
+			break;
+		}
 		close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
