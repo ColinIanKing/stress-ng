@@ -1,3 +1,27 @@
+stress-ng (0.03.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix pluarity of --lease man page description
+  * Fix int64 float descriptions in man page
+  * Make lease help info appear only if it is supported
+  * Make assumption about nice limits if getrlimit fails
+  * Close and abort rather than close and break
+  * Fix incorrect closing on in stress-lease
+  * Clear buffer in lockf
+  * Check return of unlocking fcntl call in stress-lease
+  * Forgot to add stress-lease.c to Makefile
+  * Add lease stressor and --lease, --lease-ops, --lease-breakers
+  * Don't print full help on failed getopt '?' returns
+  * Add dup stressor and --dup, --dup-ops options
+  * Update syscalls table
+  * Minor lockf corrections in manual
+  * Add POSIX lockf file locking stressor
+  * Fix int64_{float|double|longdouble} verifies
+  * Add mixed integer and floating point cpu stressors
+  * Manual: don't -> do not
+
+ -- Colin King <colin.king@canonical.com>  Wed, 31 Dec 2014 13:13:13 +0000
+
 stress-ng (0.03.06-1) unstable; urgency=medium
 
   * Makefile: bump version
