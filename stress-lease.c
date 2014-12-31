@@ -162,7 +162,7 @@ int stress_lease(
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
 			if (!opt_do_run) {
 				(void)close(fd);
-				break;
+				goto reap;
 			}
 		}
 		(*counter)++;
