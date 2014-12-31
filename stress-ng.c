@@ -583,9 +583,11 @@ static const help_t help[] = {
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
 	{ NULL,		"lease-ops N",		"stop when N lease bogo operations completed" },
 	{ NULL,		"lease-breakers N",	"number of lease breaking processes to start" },
+#endif
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
