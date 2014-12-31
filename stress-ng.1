@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "December 5, 2014"
+.TH STRESS-NG 1 "December 31, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -485,7 +485,7 @@ start N processes sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most
 stop kill processes after N bogo kill operations.
 .TP
 .B \-\-lease N
-start N processes locking, unlocking and breaking leases via the fcntl(2) F_SETLEASE operation. A parent processes continually locks and unlocks a lease on a file while a user selectable number of child processes open the file with a non-blocking open to generate SIGIO lease breaking notifications to the parent.  This stressor is only available if F_SETLEASE, F_WRLCK and F_UNLCK support is provided by fcntl(2).
+start N processes locking, unlocking and breaking leases via the fcntl(2) F_SETLEASE operation. The parent processes continually lock and unlock a lease on a file while a user selectable number of child processes open the file with a non-blocking open to generate SIGIO lease breaking notifications to the parent.  This stressor is only available if F_SETLEASE, F_WRLCK and F_UNLCK support is provided by fcntl(2).
 .TP
 .B \-\-lease\-ops N
 stop lease stressors after N bogo operations.
