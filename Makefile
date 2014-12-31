@@ -50,6 +50,7 @@ SRC =   stress-affinity.c \
 	stress-inotify.c \
 	stress-iosync.c \
 	stress-kill.c \
+	stress-lease.c \
 	stress-lsearch.c \
 	stress-link.c \
 	stress-lockf.c \
