@@ -160,8 +160,10 @@ int stress_lease(
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
-			if (!opt_do_run)
+			if (!opt_do_run) {
+				(void)close(fd);
 				break;
+			}
 		}
 		(*counter)++;
 #if defined(_POSIX_PRIORITY_SCHEDULING)
@@ -170,13 +172,11 @@ int stress_lease(
 		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
 			pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));
-			close(fd);
+			(void)close(fd);
 			break;
 		}
 		close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	(void)close(fd);
 
 reap:
 	for (i = 0; i < opt_lease_breakers; i++) {
