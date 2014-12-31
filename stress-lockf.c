@@ -58,6 +58,9 @@ int stress_lockf(
 	const int lock_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
 		F_TLOCK : F_LOCK;
 
+
+	memset(buffer, 0, sizeof(buffer));
+
 	/*
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
