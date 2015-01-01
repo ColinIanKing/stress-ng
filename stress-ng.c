@@ -1403,11 +1403,8 @@ next_opt:
 		}
 	}
 
-	/* Share bogo ops between processes equally */
-	for (i = 0; i < STRESS_MAX; i++) {
-		procs[i].bogo_ops = procs[i].num_procs ? procs[i].bogo_ops / procs[i].num_procs : 0;
+	for (i = 0; i < STRESS_MAX; i++)
 		total_procs += procs[i].num_procs;
-	}
 
 	if (opt_sequential) {
 		if (total_procs) {
@@ -1415,14 +1412,22 @@ next_opt:
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
-		for (i = 0; i < STRESS_MAX; i++) {
-			procs[i].bogo_ops = 0;
-			procs[i].num_procs = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
-		}
 		if (opt_timeout == 0) {
 			opt_timeout = 60;
 			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
 		}
+
+		/* Sequential mode has no bogo ops threshold */
+		for (i = 0; i < STRESS_MAX; i++) {
+			procs[i].bogo_ops = 0;
+			procs[i].pids = calloc(opt_sequential, sizeof(pid_t));
+			if (!procs[i].pids) {
+				pr_err(stderr, "cannot allocate pid list\n");
+				free_procs();
+				exit(EXIT_FAILURE);
+			}
+		}
+		max_procs = opt_sequential;
 	} else {
 		if (!total_procs) {
 			pr_err(stderr, "No stress workers specified\n");
@@ -1433,16 +1438,22 @@ next_opt:
 			opt_timeout = DEFAULT_TIMEOUT;
 			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
 		}
-	}
 
-	for (i = 0; i < STRESS_MAX; i++) {
-		if (max_procs < procs[i].num_procs)
-			max_procs = procs[i].num_procs;
-		procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
-		if (!procs[i].pids) {
-			pr_err(stderr, "cannot allocate pid list\n");
-			free_procs();
-			exit(EXIT_FAILURE);
+		/* Share bogo ops between processes equally */
+		for (i = 0; i < STRESS_MAX; i++) {
+			procs[i].bogo_ops = procs[i].num_procs ? procs[i].bogo_ops / procs[i].num_procs : 0;
+			procs[i].pids = NULL;
+
+			if (max_procs < procs[i].num_procs)
+				max_procs = procs[i].num_procs;
+			if (procs[i].num_procs) {
+				procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
+				if (!procs[i].pids) {
+					pr_err(stderr, "cannot allocate pid list\n");
+					free_procs();
+					exit(EXIT_FAILURE);
+				}
+			}
 		}
 	}
 
@@ -1498,12 +1509,14 @@ next_opt:
 		 *  Step through each stressor one by one
 		 */
 		for (i = 0; opt_do_run && i < STRESS_MAX; i++) {
-			procs[i].bogo_ops = 0;
-			procs[i].num_procs = opt_class ? (stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
-			if (procs[i].num_procs) {
-				stress_run(opt_sequential, opt_sequential, shared->stats, &duration, &success);
+			int32_t j;
+
+			for (j = 0; opt_do_run && j < STRESS_MAX; j++)
 				procs[i].num_procs = 0;
-			}
+			procs[i].num_procs = opt_class ?
+				(stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
+			if (procs[i].num_procs)
+				stress_run(opt_sequential, opt_sequential, shared->stats, &duration, &success);
 		}
 	} else {
 		/*
