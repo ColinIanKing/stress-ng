@@ -186,7 +186,7 @@ static int epoll_set_fd_nonblock(const int fd)
 
 	if ((flags = fcntl(fd, F_GETFL, 0)) < 0)
 		return -1;
-  	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
 		return -1;
 	return 0;
 }
@@ -204,10 +204,10 @@ static void epoll_recv_data(const int fd) {
 		n = recv(fd, buf, sizeof(buf), 0);
 		if (n == -1) {
 			if (errno != EAGAIN)
-  				(void)close(fd);
+			(void)close(fd);
 			break;
 		} else if (n == 0) {
-  			(void)close(fd);
+			(void)close(fd);
 			break;
 		}
 	}
