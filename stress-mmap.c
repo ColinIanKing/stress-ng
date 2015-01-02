@@ -99,7 +99,8 @@ int stress_mmap(
 #endif
 	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
 	const size_t pages4k = sz / page_size;
-	const int ms_flags = opt_flags & OPT_FLAGS_MMAP_ASYNC ? MS_ASYNC : MS_SYNC;
+	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
+		MS_ASYNC : MS_SYNC;
 	const pid_t pid = getpid();
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	char filename[PATH_MAX];
