@@ -1,3 +1,15 @@
+stress-ng (0.03.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Update copyright year to sources
+  * Add epoll stressor
+  * stress-vm: reduce scope of addr
+  * stress-mmap: clarify calculation precedence of & in ternary expr
+  * stress-memory: reduce scope of addr
+  * Fix --sequential mode, correctly set up number of procs and pid list
+
+ -- Colin King <colin.king@canonical.com>  Fri, 2 Jan 2015 09:57:11 +0000
+
 stress-ng (0.03.07-1) unstable; urgency=medium
 
   * Makefile: bump version
