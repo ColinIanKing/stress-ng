@@ -9,6 +9,9 @@ clock_nanosleep			clock
 close				dentry
 connect				sock
 endmntent			sysinfo
+epoll_create1			epoll
+epoll_ctl_add			epoll
+epoll_wait			epoll
 eventfd				eventfd
 fcntl				open, lockf
 flock				flock

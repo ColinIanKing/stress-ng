@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "December 31, 2014"
+.TH STRESS-NG 1 "January 2, 2014"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -362,6 +362,19 @@ start N processes that perform dup() and then close() operations on /dev/zero. T
 .TP
 .B \-\-dup\-ops N
 stop the dup stress processes after N bogo open operations.
+.TP
+.B \-\-epoll N
+start N stressors that perform various related socket stress activity using epoll_wait to monitor and handle new connections. This involves client/server processes performing rapid connect, send/receives and disconnects on the local host.  Using epoll allows a large number of connections to be efficiently handled, however, this can lead to the connection table filling up and blocking further socket connections, hence impacting on the epoll bogo op stats.  For ipv4 and ipv6
+domains, multiple servers are spawned on multiple ports. The epoll stressor is for Linux only.
+.TP
+.B \-\-epoll\-domain D
+specifty the domain to use, the default is unix (aka local). Currently ipv4, ipv6 and unix are supported.
+.TP
+.B \-\-epoll\-port P
+start at socket port P. For N epoll worker processes, ports P to (P * 4) - 1 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix domain.
+.TP
+.B \-\-epoll\-ops N
+stop epoll stress processes after N bogo operations.
 .TP
 .B \-\-eventfd N
 start N parent and child worker processes that read and write 8 byte event messages between them via the eventfd mechanism (Linux only).

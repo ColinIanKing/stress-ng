@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Canonical, Ltd.
+ * Copyright (C) 2013-2015 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -161,6 +161,9 @@ static const stress_t stressors[] = {
 	STRESSOR(dir, DIR, CLASS_IO | CLASS_OS),
 	STRESSOR(dup, DUP, CLASS_IO | CLASS_OS),
 #if defined(__linux__)
+	STRESSOR(epoll, EPOLL, CLASS_NETWORK | CLASS_OS),
+#endif
+#if defined(__linux__)
 	STRESSOR(eventfd, EVENTFD, CLASS_IO | CLASS_SCHEDULER | CLASS_OS),
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -303,6 +306,12 @@ static const struct option long_options[] = {
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
 	{ "dup",	1,	0,	OPT_DUP },
 	{ "dup-ops",	1,	0,	OPT_DUP_OPS },
+#if defined (__linux__)
+	{ "epoll",	1,	0,	OPT_EPOLL },
+	{ "epoll-ops",	1,	0,	OPT_EPOLL_OPS },
+	{ "epoll-port",	1,	0,	OPT_EPOLL_PORT },
+	{ "epoll-domain",1,	0,	OPT_EPOLL_DOMAIN },
+#endif
 #if defined (__linux__)
 	{ "eventfd",	1,	0,	OPT_EVENTFD },
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
@@ -536,6 +545,12 @@ static const help_t help[] = {
 	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
 	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
+#if defined (__linux__)
+	{ NULL,		"epoll N",		"start N workers doing epoll handled socket activity" },
+	{ NULL,		"epoll-ops N",		"stop when N epoll bogo operations completed" },
+	{ NULL,		"epoll-port P",		"use socket ports P upwards" },
+	{ NULL,		"epoll-domain D",	"specify socket domain, default is unix" },
+#endif
 #if defined (__linux__)
 	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
 	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
@@ -1183,6 +1198,15 @@ next_opt:
 			if (stress_set_dentry_order(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+#if defined (__linux__)
+		case OPT_EPOLL_DOMAIN:
+			if (stress_set_epoll_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_EPOLL_PORT:
+			stress_set_epoll_port(optarg);
+			break;
+#endif
 		case OPT_FIFO_READERS:
 			stress_set_fifo_readers(optarg);
 			break;

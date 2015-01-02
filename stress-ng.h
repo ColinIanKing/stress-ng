@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2014 Canonical, Ltd.
+ * Copyright (C) 2013-2015 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -136,6 +136,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MIN_DENTRIES		(1)
 #define MAX_DENTRIES		(100000000)
 #define DEFAULT_DENTRIES	(2048)
+
+#define MIN_EPOLL_PORT		(1024)
+#define MAX_EPOLL_PORT		(65535)
+#define DEFAULT_EPOLL_PORT	(6000)
 
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(256 * GB)
@@ -314,6 +318,9 @@ typedef enum {
 	STRESS_DIR,
 	STRESS_DUP,
 #if defined(__linux__)
+	STRESS_EPOLL,
+#endif
+#if defined(__linux__)
 	STRESS_EVENTFD,
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -485,6 +492,13 @@ typedef enum {
 
 	OPT_DUP,
 	OPT_DUP_OPS,
+
+#if defined(__linux__)
+	OPT_EPOLL,
+	OPT_EPOLL_OPS,
+	OPT_EPOLL_PORT,
+	OPT_EPOLL_DOMAIN,
+#endif
 
 	OPT_HDD_BYTES,
 	OPT_HDD_WRITE_SIZE,
@@ -826,6 +840,8 @@ extern void stress_set_cpu_load(const char *optarg);
 extern int  stress_set_cpu_method(const char *name);
 extern void stress_set_dentries(const char *optarg);
 extern int  stress_set_dentry_order(const char *optarg);
+extern void stress_set_epoll_port(const char *optarg);
+extern int  stress_set_epoll_domain(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
@@ -865,6 +881,7 @@ STRESS(stress_cpu);
 STRESS(stress_dentry);
 STRESS(stress_dir);
 STRESS(stress_dup);
+STRESS(stress_epoll);
 STRESS(stress_eventfd);
 STRESS(stress_hdd);
 STRESS(stress_hsearch);

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2013-2014 Canonical, Ltd.
+# Copyright (C) 2013-2015 Canonical, Ltd.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -36,6 +36,7 @@ SRC =   stress-affinity.c \
 	stress-dentry.c \
 	stress-dir.c \
 	stress-dup.c \
+	stress-epoll.c \
 	stress-eventfd.c \
 	stress-fallocate.c \
 	stress-fault.c \
