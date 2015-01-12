@@ -120,6 +120,12 @@ force flush cache on each store operation (x86 only). This is a no-op for non-x8
 .B \-\-cache\-ops N
 stop cache thrash processes after N bogo cache thrash operations.
 .TP
+.B \-\-chmod N
+start N processes that change the file mode bits via chmod(2) and fchmod(2) on the same file. The greater the value for N then the more contention on the single file.  The stressor will work through all the combination of mode bits.
+.TP
+.B \-\-chmod\-ops N
+stop after N chmod bogo operations.
+.TP
 .B \-\-class name
 specify the class of stressors to run. Stressors are classified into one or more of the following classes: cpu, cpu-cache, io, interrupt, memory, network, os, scheduler and vm.  Some stressors fall into just one class. For example the 'get' stressor is just in the 'os' class. Other stressors fall into more than one class, for example, the 'lsearch' stressor falls into the 'cpu', 'cpu-cache' and 'memory' classes as it exercises all these three.  Selecting a specific class will run all the stressors that fall into that class only when run with the \-\-sequential option.
 .TP

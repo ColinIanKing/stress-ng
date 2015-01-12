@@ -153,6 +153,7 @@ static const stress_t stressors[] = {
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
+	STRESSOR(chmod, CHMOD, CLASS_IO | CLASS_OS),
 #if _POSIX_C_SOURCE >= 199309L
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
@@ -286,6 +287,8 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
+	{ "chmod",	1,	0, 	OPT_CHMOD },
+	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
 	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
 	{ "class",	1,	0,	OPT_CLASS },
@@ -528,6 +531,8 @@ static const help_t help[] = {
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
 	{ NULL,		"cache-fence",		"serialize stores" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
+	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
+	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
 #if _POSIX_C_SOURCE >= 199309L
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
