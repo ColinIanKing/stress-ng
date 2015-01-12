@@ -71,7 +71,8 @@
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
 #define OPT_FLAGS_MMAP_FILE	0x00010000	/* mmap onto a file */
 #define OPT_FLAGS_MMAP_ASYNC	0x00020000	/* mmap onto a file */
-#define OPT_FLAGS_LOCKF_NONBLK	0x00040000	/* Non-blocking lockf */
+#define OPT_FLAGS_MMAP_MPROTECT	0x00040000	/* mmap mprotect enabled */
+#define OPT_FLAGS_LOCKF_NONBLK	0x00080000	/* Non-blocking lockf */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -588,6 +589,7 @@ typedef enum {
 	OPT_MMAP_BYTES,
 	OPT_MMAP_FILE,
 	OPT_MMAP_ASYNC,
+	OPT_MMAP_MPROTECT,
 
 	OPT_MSG,
 	OPT_MSG_OPS,

@@ -82,6 +82,27 @@ static void stress_mmap_set(uint8_t *buf, const size_t sz)
 }
 
 /*
+ *  stress_mmap_mprotect()
+ *	cycle through page settings on a region of mmap'd memory
+ */
+static void stress_mmap_mprotect(void *addr, size_t len)
+{
+	if (opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
+		/* Cycle through potection */
+		if (mprotect(addr, len, PROT_NONE) < 0)
+			pr_fail(stderr, "mprotect set to PROT_NONE failed\n");
+		if (mprotect(addr, len, PROT_READ) < 0)
+			pr_fail(stderr, "mprotect set to PROT_READ failed\n");
+		if (mprotect(addr, len, PROT_WRITE) < 0)
+			pr_fail(stderr, "mprotect set to PROT_WRITE failed\n");
+		if (mprotect(addr, len, PROT_EXEC) < 0)
+			pr_fail(stderr, "mprotect set to PROT_EXEC failed\n");
+		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
+			pr_fail(stderr, "mprotect set to PROT_READ | PROT_WRITE failed\n");
+	}
+}
+
+/*
  *  stress_mmap()
  *	stress mmap
  */
@@ -166,10 +187,11 @@ int stress_mmap(
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
-			msync(buf, sz, ms_flags);
+			(void)msync(buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
+		stress_mmap_mprotect(buf, sz);
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -193,6 +215,7 @@ int stress_mmap(
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
+					stress_mmap_mprotect(mappings[page], page_size);
 					munmap(mappings[page], page_size);
 					n--;
 					break;
@@ -225,6 +248,7 @@ int stress_mmap(
 					} else {
 						(void)mincore_touch_pages(buf, page_size);
 						(void)madvise_random(mappings[page], page_size);
+						stress_mmap_mprotect(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
@@ -233,7 +257,7 @@ int stress_mmap(
 								"not contain expected data\n", page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
-							msync(mappings[page], page_size, ms_flags);
+							(void)msync(mappings[page], page_size, ms_flags);
 						}
 					}
 					n--;
@@ -251,6 +275,7 @@ cleanup:
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
+				stress_mmap_mprotect(mappings[n], page_size);
 				munmap(mappings[n], page_size);
 			}
 		}

@@ -384,6 +384,7 @@ static const struct option long_options[] = {
 	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
+	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
 #if !defined(__gnu_hurd__)
@@ -628,6 +629,7 @@ static const help_t help[] = {
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
+	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
@@ -1272,6 +1274,9 @@ next_opt:
 			break;
 		case OPT_MMAP_FILE:
 			opt_flags |= OPT_FLAGS_MMAP_FILE;
+			break;
+		case OPT_MMAP_MPROTECT:
+			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
 			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;

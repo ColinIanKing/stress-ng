@@ -606,11 +606,13 @@ stop mmap stress processes after N bogo operations.
 enable file based memory mapping and use asynchronous msync'ing on each page, see \-\-mmap\-file.
 .TP
 .B \-\-mmap\-bytes N
-allocate N bytes per mmap stress process, the default is 256MB. One can specify the size in units of Bytes,
-KBytes, MBytes and GBytes using the suffix b, k, m or g.
+allocate N bytes per mmap stress process, the default is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mmap\-file
 enable file based memory mapping and by default use synchronous msync'ing on each page.
+.TP
+.B \-\-mmap\-mprotect
+change protection settings on each page of memory.  Each time a page or a group of pages are mapped or remapped then this option will make the pages read-only, write-only, exec-only, and read-write.
 .TP
 .B \-\-msg N
 start N sender and receiver processes that continually send and receive messages using System V message IPC.
