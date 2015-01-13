@@ -362,7 +362,9 @@ typedef enum {
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
 #endif
+#if defined(__linux__)
 	STRESS_MQ,
+#endif
 	STRESS_NICE,
 	STRESS_NULL,
 	STRESS_OPEN,
@@ -460,9 +462,11 @@ typedef enum {
 
 	/* Long options only */
 
+#if defined(__linux__)
 	OPT_AFFINITY = 0x80,
 	OPT_AFFINITY_OPS,
 	OPT_AFFINITY_RAND,
+#endif
 
 #if defined (__linux__)
 	OPT_AIO,
@@ -599,9 +603,11 @@ typedef enum {
 	OPT_MSG,
 	OPT_MSG_OPS,
 
+#if defined(__linux__)
 	OPT_MQ,
 	OPT_MQ_OPS,
 	OPT_MQ_SIZE,
+#endif
 
 	OPT_NICE,
 	OPT_NICE_OPS,

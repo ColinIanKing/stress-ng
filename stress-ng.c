@@ -200,7 +200,9 @@ static const stress_t stressors[] = {
 #if !defined(__gnu_hurd__)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
+#if defined(__linux__)
 	STRESSOR(mq, MQ, CLASS_SCHEDULER | CLASS_OS),
+#endif
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(null, NULL, CLASS_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(open, OPEN, CLASS_IO | CLASS_OS),
@@ -270,9 +272,11 @@ static const class_t classes[] = {
 };
 
 static const struct option long_options[] = {
+#if defined(__linux__)
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
 	{ "affinity-rand",0,	0,	OPT_AFFINITY_RAND },
+#endif
 #if defined(__linux__)
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
@@ -392,9 +396,11 @@ static const struct option long_options[] = {
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
 #endif
+#if defined(__linux__)
 	{ "mq",		1,	0,	OPT_MQ },
 	{ "mq-ops",	1,	0,	OPT_MQ_OPS },
 	{ "mq-size",	1,	0,	OPT_MQ_SIZE },
+#endif
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
@@ -636,9 +642,11 @@ static const help_t help[] = {
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
+#if defined(__linux__)
 	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
 	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages completed" },
 	{ NULL,		"mq-size N",		"specify the size of the POSIX message queue" },
+#endif
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
@@ -1165,9 +1173,11 @@ next_opt:
 			for (i = 0; i < STRESS_MAX; i++)
 				procs[i].num_procs = val;
 			break;
+#if defined(__linux__)
 		case OPT_AFFINITY_RAND:
 			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
+#endif
 		case OPT_BACKOFF:
 			opt_backoff = opt_long("backoff", optarg);
 			break;
@@ -1285,9 +1295,11 @@ next_opt:
 		case OPT_MMAP_MPROTECT:
 			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
 			break;
+#if defined(__linux__)
 		case OPT_MQ_SIZE:
 			stress_set_mq_size(optarg);
 			break;
+#endif
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
