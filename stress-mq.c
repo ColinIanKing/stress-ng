@@ -86,6 +86,10 @@ int stress_mq(
 		if (fscanf(fp, "%d", &max_sz) != 1)
 			max_sz = MAX_MQ_SIZE;
 		fclose(fp);
+		if (max_sz < MIN_MQ_SIZE)
+			max_sz = MIN_MQ_SIZE;
+		if (max_sz > MAX_MQ_SIZE)
+			max_sz = MAX_MQ_SIZE;
 	} else {
 		max_sz = MAX_MQ_SIZE;
 	}
