@@ -154,6 +154,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
 
+#define MIN_MQ_SIZE		(1)
+#define MAX_MQ_SIZE		(32)
+#define DEFAULT_MQ_SIZE		(10)
+
 #define MIN_SEMAPHORE_PROCS	(4)
 #define MAX_SEMAPHORE_PROCS	(64)
 #define DEFAULT_SEMAPHORE_PROCS	(1)
@@ -358,6 +362,7 @@ typedef enum {
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
 #endif
+	STRESS_MQ,
 	STRESS_NICE,
 	STRESS_NULL,
 	STRESS_OPEN,
@@ -593,6 +598,10 @@ typedef enum {
 
 	OPT_MSG,
 	OPT_MSG_OPS,
+
+	OPT_MQ,
+	OPT_MQ_OPS,
+	OPT_MQ_SIZE,
 
 	OPT_NICE,
 	OPT_NICE_OPS,
@@ -857,6 +866,7 @@ extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
+extern void stress_set_mq_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern void stress_set_seek_size(const char *optarg);
@@ -910,6 +920,7 @@ STRESS(stress_lsearch);
 STRESS(stress_memcpy);
 STRESS(stress_mmap);
 STRESS(stress_msg);
+STRESS(stress_mq);
 STRESS(stress_nice);
 STRESS(stress_noop);
 STRESS(stress_null);

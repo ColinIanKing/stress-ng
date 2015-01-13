@@ -200,6 +200,7 @@ static const stress_t stressors[] = {
 #if !defined(__gnu_hurd__)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
+	STRESSOR(mq, MQ, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(null, NULL, CLASS_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(open, OPEN, CLASS_IO | CLASS_OS),
@@ -391,6 +392,9 @@ static const struct option long_options[] = {
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
 #endif
+	{ "mq",		1,	0,	OPT_MQ },
+	{ "mq-ops",	1,	0,	OPT_MQ_OPS },
+	{ "mq-size",	1,	0,	OPT_MQ_SIZE },
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
@@ -632,6 +636,9 @@ static const help_t help[] = {
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
+	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
+	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages completed" },
+	{ NULL,		"mq-size N",		"specify the size of the POSIX message queue" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
@@ -1277,6 +1284,9 @@ next_opt:
 			break;
 		case OPT_MMAP_MPROTECT:
 			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
+			break;
+		case OPT_MQ_SIZE:
+			stress_set_mq_size(optarg);
 			break;
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
