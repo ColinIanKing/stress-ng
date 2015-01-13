@@ -3,6 +3,7 @@ Syscall				Stressor
 accept				sock
 bind				sock
 brk				bigheap
+chmod				chmod
 clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
@@ -13,6 +14,7 @@ epoll_create1			epoll
 epoll_ctl_add			epoll
 epoll_wait			epoll
 eventfd				eventfd
+fchmod				chmod
 fcntl				open, lockf
 flock				flock
 fork				fork
@@ -55,11 +57,17 @@ mincore				mmap
 mincore				vm
 mmap				bigheap
 mmap				mmap
+mprotect			mmap
 msgctl				msg
 msgget				msg
 msgrcv				msg
 msgsnd				msg
 munmap				mmap
+mq_open				mq
+mq_send				mq
+mq_receive			mq
+mq_unlink			mq
+mq_close			mq
 nanosleep			timer
 open				dentry
 open				open
