@@ -1,3 +1,16 @@
+stress-ng (0.03.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add bounds checking on data from /proc
+  * Make stress-mq a no-op for non-Linux
+  * Update syscalls table
+  * Make mq a linux only stressor
+  * Add mq stressor for POSIX message queues
+  * Add --mmap-protect page protection settings option
+  * Add the chmod stressor
+
+ -- Colin King <colin.king@canonical.com>  Tue, 13 Jan 2015 11:54:00 +0000
+
 stress-ng (0.03.08-1) unstable; urgency=medium
 
   * Makefile: bump version
