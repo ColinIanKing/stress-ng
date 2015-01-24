@@ -358,6 +358,9 @@ typedef enum {
 #endif
 	STRESS_LSEARCH,
 	STRESS_MEMCPY,
+#if _BSD_SOURCE || _SVID_SOURCE
+	STRESS_MINCORE,
+#endif
 	STRESS_MMAP,
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
@@ -587,6 +590,9 @@ typedef enum {
 	OPT_LSEARCH,
 	OPT_LSEARCH_OPS,
 	OPT_LSEARCH_SIZE,
+
+	OPT_MINCORE,
+	OPT_MINCORE_OPS,
 
 	OPT_METRICS_BRIEF,
 
@@ -924,6 +930,7 @@ STRESS(stress_link);
 STRESS(stress_lockf);
 STRESS(stress_lsearch);
 STRESS(stress_memcpy);
+STRESS(stress_mincore);
 STRESS(stress_mmap);
 STRESS(stress_msg);
 STRESS(stress_mq);

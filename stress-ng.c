@@ -196,6 +196,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
+#if _BSD_SOURCE || _SVID_SOURCE
+	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
+#endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
 #if !defined(__gnu_hurd__)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
@@ -384,6 +387,8 @@ static const struct option long_options[] = {
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
+	{ "mincore",	1,	0,	OPT_MINCORE },
+	{ "mincore-ops",1,	0,	OPT_MINCORE_OPS },
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
@@ -634,6 +639,8 @@ static const help_t help[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
+	{ NULL,		"mincore N",		"start N workers exercising mincore" },
+	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
