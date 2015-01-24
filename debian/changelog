@@ -1,3 +1,18 @@
+stress-ng (0.03.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make mask ptrdiff_t and cast to allow clean 32 bit build
+  * Use ptrdiff_t for addr math
+  * Remove need for ms_flags if building for GNU HURD
+  * Cater for GNU HURD not supporting mincore()
+  * Cater for msync not functioning for GNU HURD
+  * Add --mincore-random option
+  * Update syscalls.txt with mincore test
+  * Remove the page reading from mincore
+  * Add mincore stressor
+
+ -- Colin King <colin.king@canonical.com>  Sat, 24 Jan 2015 13:43:00 +0000
+
 stress-ng (0.03.09-1) unstable; urgency=medium
 
   * Makefile: bump version
