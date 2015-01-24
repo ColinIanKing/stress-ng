@@ -3,6 +3,7 @@ Syscall				Stressor
 accept				sock
 bind				sock
 brk				bigheap
+brk				brk
 chmod				chmod
 clock_getres			clock
 clock_gettime			clock
@@ -82,6 +83,7 @@ read				zero
 recv				sock
 rename				rename
 rmdir				dir
+sbrk				brk
 sched_getaffinity		affinity
 sched_setaffinity		affinity
 sched_yield			yield
