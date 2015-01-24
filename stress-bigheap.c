@@ -54,7 +54,7 @@ void stress_set_bigheap_growth(const char *optarg)
 
 /*
  *  stress_bigheap()
- *	stress that does nowt
+ *	stress heap allocation
  */
 int stress_bigheap(
 	uint64_t *const counter,
