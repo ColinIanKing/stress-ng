@@ -187,7 +187,9 @@ int stress_mmap(
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
+#if !defined(__gnu_hurd__)
 			(void)msync(buf, sz, ms_flags);
+#endif
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
@@ -257,7 +259,9 @@ int stress_mmap(
 								"not contain expected data\n", page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
+#if !defined(__gnu_hurd__)
 							(void)msync(mappings[page], page_size, ms_flags);
+#endif
 						}
 					}
 					n--;
