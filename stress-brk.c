@@ -97,6 +97,7 @@ again:
 			ptr = sbrk((intptr_t)page_size);
 			if (ptr == (void *)-1) {
 				if (errno == ENOMEM) {
+					nomems++;
 					if (brk(start_ptr) < 0) {
 						pr_err(stderr, "%s: brk(%p) failed: errno=%d (%s)\n",
 							name, start_ptr, errno, strerror(errno));
@@ -111,7 +112,6 @@ again:
 				/* Touch page, force it to be resident */
 				*(ptr - 1) = 0;
 			}
-
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		free(ptr);
