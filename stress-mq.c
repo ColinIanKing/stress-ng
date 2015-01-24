@@ -85,7 +85,7 @@ int stress_mq(
 	if ((fp = fopen("/proc/sys/fs/mqueue/msg_default", "r")) != NULL) {
 		if (fscanf(fp, "%d", &max_sz) != 1)
 			max_sz = MAX_MQ_SIZE;
-		fclose(fp);
+		(void)fclose(fp);
 		if (max_sz < MIN_MQ_SIZE)
 			max_sz = MIN_MQ_SIZE;
 		if (max_sz > MAX_MQ_SIZE)

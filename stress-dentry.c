@@ -167,7 +167,7 @@ int stress_dentry(
 				n = i;
 				break;
 			}
-			close(fd);
+			(void)close(fd);
 
 			if (!opt_do_run ||
 			    (max_ops && *counter >= max_ops))

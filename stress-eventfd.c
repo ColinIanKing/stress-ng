@@ -62,15 +62,15 @@ int stress_eventfd(
 	fd2 = eventfd(0, 0);
 	if (fd1 < 0) {
 		pr_failed_dbg(name, "eventfd");
-		close(fd1);
+		(void)close(fd1);
 		return EXIT_FAILURE;
 	}
 
 	pid = fork();
 	if (pid < 0) {
 		pr_failed_dbg(name, "fork");
-		close(fd1);
-		close(fd2);
+		(void)close(fd1);
+		(void)close(fd2);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		for (;;) {
@@ -110,8 +110,8 @@ int stress_eventfd(
 
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
-		close(fd1);
-		close(fd2);
+		(void)close(fd1);
+		(void)close(fd2);
 	}
 	return EXIT_SUCCESS;
 }

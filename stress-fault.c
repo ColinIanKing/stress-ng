@@ -71,7 +71,7 @@ int stress_fault(
 		}
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		if (posix_fallocate(fd, 0, 1) < 0) {
-			close(fd);
+			(void)close(fd);
 			pr_err(stderr, "%s: posix_fallocate failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
@@ -81,7 +81,7 @@ int stress_fault(
 			char buffer[1];
 
 			if (write(fd, buffer, sizeof(buffer)) < 0) {
-				close(fd);
+				(void)close(fd);
 				pr_err(stderr, "%s: write failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 				break;

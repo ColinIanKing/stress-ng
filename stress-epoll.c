@@ -330,7 +330,7 @@ retry:
 		sev.sigev_value.sival_ptr = &epoll_timerid;
 		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
 			pr_failed_err(name, "timer_create");
-			close(fd);
+			(void)close(fd);
 			return -1;
 		}
 
@@ -346,7 +346,7 @@ retry:
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
 			pr_failed_err(name, "timer_settime");
-			close(fd);
+			(void)close(fd);
 			return -1;
 		}
 		errno = 0;
@@ -381,14 +381,14 @@ retry:
 
 		default:
 			pr_failed_err(name, "unknown domain");
-			close(fd);
+			(void)close(fd);
 			return -1;
 		}
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
 			pr_failed_err(name, "timer_delete");
-			close(fd);
+			(void)close(fd);
 			return -1;
 		}
 

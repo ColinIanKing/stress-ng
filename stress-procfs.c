@@ -57,7 +57,7 @@ static inline void stress_proc_read(const char *path)
 		if (read(fd, buffer, PROC_BUF_SZ) < PROC_BUF_SZ)
 			break;
 	}
-	close(fd);
+	(void)close(fd);
 }
 
 /*
@@ -108,7 +108,7 @@ static void stress_proc_dir(
 			break;
 		}
 	}
-	closedir(dp);
+	(void)closedir(dp);
 }
 
 /*

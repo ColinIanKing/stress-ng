@@ -202,7 +202,7 @@ static int rm_dir(const char *path)
 			snprintf(filename, sizeof(filename), "%s/%s", path, d->d_name);
 			(void)rm_file(filename);
 		}
-		closedir(dp);
+		(void)closedir(dp);
 	}
 	ret = rmdir(path);
 	if (ret < 0 && errno != ENOENT)

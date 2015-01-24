@@ -83,13 +83,13 @@ int stress_fstat(
 		snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
-			closedir(dp);
+			(void)closedir(dp);
 			goto free_cache;
 		}
 		if ((di->path = strdup(path)) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
 			free(di);
-			closedir(dp);
+			(void)closedir(dp);
 			goto free_cache;
 		}
 		di->ignore = false;
@@ -97,7 +97,7 @@ int stress_fstat(
 		di->next = dir_info;
 		dir_info = di;
 	}
-	closedir(dp);
+	(void)closedir(dp);
 
 	do {
 		stat_some = false;
@@ -131,7 +131,7 @@ int stress_fstat(
 			if ((fstat(fd, &buf) < 0) &&
 			    (errno != ENOMEM))
 				di->ignore = true;
-			close(fd);
+			(void)close(fd);
 
 			stat_some = true;
 

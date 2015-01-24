@@ -45,7 +45,7 @@ void set_coredump(const char *name)
 	if ((fd = open(path, O_WRONLY)) >= 0) {
 		const char *str = "0x00";
 		ssize_t n = write(fd, str, strlen(str));
-		close(fd);
+		(void)close(fd);
 
 		if (n < 0)
 			pr_failed_dbg(name, "can't set coredump_filter");

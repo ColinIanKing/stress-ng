@@ -197,7 +197,7 @@ int stress_chmod(
 tidy:
 	(void)fchmod(fd, 0666);
 	if (fd >= 0)
-		close(fd);
+		(void)close(fd);
 	(void)unlink(filename);
 	(void)rmdir(dirname);
 

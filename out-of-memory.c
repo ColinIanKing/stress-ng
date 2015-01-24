@@ -62,7 +62,7 @@ void set_oom_adjustment(const char *name, bool killable)
 			str = high_priv ? "-1000" : "0";
 
 		n = write(fd, str, strlen(str));
-		close(fd);
+		(void)close(fd);
 
 		if (n < 0)
 			pr_failed_dbg(name, "can't set oom_score_adj");
@@ -83,7 +83,7 @@ void set_oom_adjustment(const char *name, bool killable)
 			str = "15";
 
 		n = write(fd, str, strlen(str));
-		close(fd);
+		(void)close(fd);
 
 		if (n < 0)
 			pr_failed_dbg(name, "can't set oom_adj");

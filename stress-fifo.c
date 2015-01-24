@@ -111,7 +111,7 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 		}
 	}
 
-	close(fd);
+	(void)close(fd);
 }
 
 

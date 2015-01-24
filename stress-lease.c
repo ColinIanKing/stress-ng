@@ -94,7 +94,7 @@ static int stress_lease_spawn(
 				}
 				continue;
 			}
-			close(fd);
+			(void)close(fd);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		exit(EXIT_SUCCESS);
 	}
@@ -175,7 +175,7 @@ int stress_lease(
 			(void)close(fd);
 			break;
 		}
-		close(fd);
+		(void)close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 reap:
