@@ -52,7 +52,6 @@ int stress_mincore(
 	const char *name)
 {
 	volatile uint8_t *addr = 0;
-	uint8_t sum = 0;
 #ifdef _SC_PAGESIZE
 	const long page_size = sysconf(_SC_PAGESIZE);
 #else
@@ -83,17 +82,11 @@ redo:
 						name, addr, errno, strerror(errno));
 					return EXIT_FAILURE;
 				}
-			} else {
-				/* Page not resident, read it in */
-				if (!vec[0])
-					sum += *addr;
 			}
 			addr += page_size;
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	uint64_put(sum);
 
 	return EXIT_SUCCESS;
 }

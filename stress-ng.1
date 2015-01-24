@@ -597,7 +597,7 @@ start N processes that copy 2MB of data from a shared region to a buffer using m
 stop memcpy stress processes after N bogo memcpy operations.
 .TP
 .B \-\-mincore N
-start N processes that walk through all of memory 1 page at a time checking of the page mapped and also is resident in memory using mincore(2). Any pages that are mapped and not resident in memory are read to force them to be paged in.
+start N processes that walk through all of memory 1 page at a time checking of the page mapped and also is resident in memory using mincore(2).
 .TP
 .B \-\-mincore\-ops N
 stop after N mincore bogo operations. One mincore bogo op is equivalent to a 1000 mincore(2) calls.
