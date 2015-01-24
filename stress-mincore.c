@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -70,7 +71,7 @@ int stress_mincore(
 
 			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
 				if (addr < (uint8_t *)page_size)
-					addr = (uint8_t *)(uintptr_t)(mwc() & mask);
+					addr = (uint8_t *)((ptrdiff_t)(mwc() & mask));
 redo:
 			errno = 0;
 			ret = mincore((void *)addr, page_size, vec);
@@ -91,7 +92,7 @@ redo:
 			}
 			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
 				addr = (uint8_t *)
-					(((uintptr_t)addr >> 1) & mask);
+					(((ptrdiff_t)addr >> 1) & mask);
 			else
 				addr += page_size;
 		}
