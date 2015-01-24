@@ -359,7 +359,7 @@ typedef enum {
 #endif
 	STRESS_LSEARCH,
 	STRESS_MEMCPY,
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	STRESS_MINCORE,
 #endif
 	STRESS_MMAP,
@@ -592,9 +592,11 @@ typedef enum {
 	OPT_LSEARCH_OPS,
 	OPT_LSEARCH_SIZE,
 
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	OPT_MINCORE,
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
+#endif
 
 	OPT_METRICS_BRIEF,
 
@@ -627,7 +629,9 @@ typedef enum {
 
 	OPT_OPEN_OPS,
 
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	OPT_PAGE_IN,
+#endif
 
 	OPT_PIPE_OPS,
 

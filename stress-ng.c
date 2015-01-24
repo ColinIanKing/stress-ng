@@ -196,7 +196,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
@@ -389,7 +389,7 @@ static const struct option long_options[] = {
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	{ "mincore",	1,	0,	OPT_MINCORE },
 	{ "mincore-ops",1,	0,	OPT_MINCORE_OPS },
 	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
@@ -416,7 +416,9 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
+#endif
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "poll",	1,	0,	OPT_POLL },
@@ -642,9 +644,11 @@ static const help_t help[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
 	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
+#endif
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
@@ -665,7 +669,9 @@ static const help_t help[] = {
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
+#endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
@@ -1294,7 +1300,7 @@ next_opt:
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 		case OPT_MINCORE_RAND:
 			opt_flags |= OPT_FLAGS_MINCORE_RAND;
 			break;
@@ -1319,9 +1325,11 @@ next_opt:
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
+#endif
 		case OPT_PTHREAD_MAX:
 			stress_set_pthread_max(optarg);
 			break;

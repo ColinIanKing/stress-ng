@@ -37,7 +37,7 @@
 
 #include "stress-ng.h"
 
-#if _BSD_SOURCE || _SVID_SOURCE
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 
 #define VEC_MAX_SIZE 	(64)
 
