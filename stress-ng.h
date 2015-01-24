@@ -869,6 +869,11 @@ extern int madvise_random(void *addr, size_t length);
 extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
 
+/* Mounts */
+extern int mount_add(char *mnts[], const int max, int *n, const char *name);
+extern void mount_free(char *mnts[], const int n);
+extern int mount_get(char *mnts[], const int max);
+
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
 extern void stress_set_aio_requests(const char *optarg);

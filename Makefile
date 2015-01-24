@@ -98,6 +98,7 @@ SRC =   stress-affinity.c \
 	log.c \
 	madvise.c \
 	mincore.c \
+	mounts.c \
 	mwc.c \
 	out-of-memory.c \
 	parse-opts.c \

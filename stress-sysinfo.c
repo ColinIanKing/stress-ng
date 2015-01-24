@@ -28,12 +28,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
-#include <mntent.h>
-#endif
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #if defined (__linux__)
 #include <sys/sysinfo.h>
 #include <sys/statfs.h>
@@ -45,80 +39,6 @@
 #define check_do_run()		\
 	if (!opt_do_run)	\
 		break;		\
-
-/*
- *  mount_add()
- *	add a new mount point to table
- */
-void mount_add(
-	char *mnts[],
-	const int max,
-	int *n,
-	const char *name)
-{
-	char *mnt;
-
-	if (*n >= max)
-		return;
-
-	mnt = strdup(name);
-	if (mnt == NULL)
-		return;
-
-	mnts[*n] = mnt;
-	(*n)++;
-}
-
-/*
- *  mount_free()
- *	free mount info
- */
-void mount_free(char *mnts[], const int n)
-{
-	int i;
-
-	for (i = 0; i < n; i++) {
-		free(mnts[i]);
-		mnts[i] = NULL;
-	}
-}
-
-/*
- *  mount_get()
- *	populate mnts with up to max mount points
- *	from /etc/mtab
- */
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-int mount_get(char *mnts[], const int max)
-{
-	int n = 0;
-
-	mount_add(mnts, max, &n, "/");
-	mount_add(mnts, max, &n, "/dev");
-
-	return n;
-}
-#else
-int mount_get(char *mnts[], const int max)
-{
-	FILE *mounts;
-	struct mntent* mount;
-	int n = 0;
-
-	mounts = setmntent("/etc/mtab", "r");
-	/* Failed, so assume / is available */
-	if (mounts == NULL) {
-		mount_add(mnts, max, &n, "/");
-		return n;
-	}
-	while ((mount = getmntent(mounts)) != NULL)
-		mount_add(mnts, max, &n, mount->mnt_dir);
-
-	(void)endmntent(mounts);
-
-	return n;
-}
-#endif
 
 /*
  *  stress on system information
@@ -136,7 +56,11 @@ int stress_sysinfo(
 	(void)instance;
 
 	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
-	pr_dbg(stderr, "%s: statfs on %d mount points\n",
+	if (n_mounts < 0) {
+		pr_err(stderr, "%s: failed to get mount points\n", name);
+		return EXIT_FAILURE;
+	}
+	pr_dbg(stderr, "%s: found %d mount points\n",
 		name, n_mounts);
 
 	do {
@@ -171,8 +95,10 @@ int stress_sysinfo(
 				continue;
 			}
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: statfs on %s failed: errno=%d (%s)\n",
-					name, mnts[i], errno, strerror(errno));
+				if (errno != ENOSYS && errno != EOVERFLOW) {
+					pr_fail(stderr, "%s: statfs on %s failed: errno=%d (%s)\n",
+						name, mnts[i], errno, strerror(errno));
+				}
 			}
 		}
 		check_do_run();
