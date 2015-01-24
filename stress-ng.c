@@ -387,16 +387,19 @@ static const struct option long_options[] = {
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
+	{ "metrics",	0,	0,	OPT_METRICS },
+	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
+#if _BSD_SOURCE || _SVID_SOURCE
 	{ "mincore",	1,	0,	OPT_MINCORE },
 	{ "mincore-ops",1,	0,	OPT_MINCORE_OPS },
+	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
+#endif
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
-	{ "metrics",	0,	0,	OPT_METRICS },
-	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
 #if !defined(__gnu_hurd__)
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
@@ -641,6 +644,7 @@ static const help_t help[] = {
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
 	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
+	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
@@ -1290,6 +1294,11 @@ next_opt:
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
+#if _BSD_SOURCE || _SVID_SOURCE
+		case OPT_MINCORE_RAND:
+			opt_flags |= OPT_FLAGS_MINCORE_RAND;
+			break;
+#endif
 		case OPT_MMAP_ASYNC:
 			opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
 			break;

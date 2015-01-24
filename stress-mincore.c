@@ -57,6 +57,8 @@ int stress_mincore(
 #else
 	const long page_size = PAGE_4K;
 #endif
+	const uint64_t mask = ~(page_size - 1);
+
 	(void)instance;
 
 	do {
@@ -65,6 +67,10 @@ int stress_mincore(
 		for (i = 0; (i < 100) && opt_do_run; i++) {
 			int ret, redo = 0;
 			unsigned char vec[1];
+
+			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
+				if (addr < (uint8_t *)page_size)
+					addr = (uint8_t *)(uintptr_t)(mwc() & mask);
 redo:
 			errno = 0;
 			ret = mincore((void *)addr, page_size, vec);
@@ -83,7 +89,11 @@ redo:
 					return EXIT_FAILURE;
 				}
 			}
-			addr += page_size;
+			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
+				addr = (uint8_t *)
+					(((uintptr_t)addr >> 1) & mask);
+			else
+				addr += page_size;
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

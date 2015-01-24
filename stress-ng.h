@@ -73,6 +73,7 @@
 #define OPT_FLAGS_MMAP_ASYNC	0x00020000	/* mmap onto a file */
 #define OPT_FLAGS_MMAP_MPROTECT	0x00040000	/* mmap mprotect enabled */
 #define OPT_FLAGS_LOCKF_NONBLK	0x00080000	/* Non-blocking lockf */
+#define OPT_FLAGS_MINCORE_RAND	0x00100000	/* mincore randomize */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -593,6 +594,7 @@ typedef enum {
 
 	OPT_MINCORE,
 	OPT_MINCORE_OPS,
+	OPT_MINCORE_RAND,
 
 	OPT_METRICS_BRIEF,
 

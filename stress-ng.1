@@ -602,6 +602,9 @@ start N processes that walk through all of memory 1 page at a time checking of t
 .B \-\-mincore\-ops N
 stop after N mincore bogo operations. One mincore bogo op is equivalent to a 1000 mincore(2) calls.
 .TP
+.B \-\-mincore\-random
+instead of walking through pages sequentially, select pages at random. The chosen address is iterated over by shifting it right one place and checked by mincore until the address is less or equal to the page size.
+.TP
 .B \-\-mmap N
 start N processes continuously calling mmap()/munmap().  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.
 .TP
