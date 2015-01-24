@@ -58,7 +58,7 @@ int stress_mincore(
 #else
 	const long page_size = PAGE_4K;
 #endif
-	const uint64_t mask = ~(page_size - 1);
+	const ptrdiff_t mask = ~(page_size - 1);
 
 	(void)instance;
 
@@ -91,7 +91,7 @@ redo:
 				}
 			}
 			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
-				addr = (uint8_t *)
+				addr = (uint8_t *)(ptrdiff_t)
 					(((ptrdiff_t)addr >> 1) & mask);
 			else
 				addr += page_size;
