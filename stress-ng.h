@@ -313,6 +313,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_AIO,
 #endif
+	STRESS_BRK,
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
 	STRESS_CACHE,
@@ -477,6 +478,8 @@ typedef enum {
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
 #endif
+	OPT_BRK,
+	OPT_BRK_OPS,
 
 	OPT_BSEARCH,
 	OPT_BSEARCH_OPS,
@@ -908,6 +911,7 @@ extern int name(uint64_t *const counter, const uint32_t instance,	\
 STRESS(stress_affinity);
 STRESS(stress_aio);
 STRESS(stress_bigheap);
+STRESS(stress_brk);
 STRESS(stress_bsearch);
 STRESS(stress_cache);
 STRESS(stress_chmod);
