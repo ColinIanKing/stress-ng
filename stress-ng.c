@@ -226,6 +226,9 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
 #endif
+#if defined(__linux__)
+	STRESSOR(sigfd, SIGFD, CLASS_INTERRUPT | CLASS_OS),
+#endif
 	STRESSOR(sigfpe, SIGFPE, CLASS_OS),
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	STRESSOR(sigq, SIGQUEUE, CLASS_INTERRUPT | CLASS_OS),
@@ -459,6 +462,10 @@ static const struct option long_options[] = {
 	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
 #endif
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
+#if defined(__linux__)
+	{ "sigfd",	1,	0,	OPT_SIGFD },
+	{ "sigfd-ops",	1,	0,	OPT_SIGFD_OPS },
+#endif
 	{ "sigfpe",	1,	0,	OPT_SIGFPE },
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
@@ -715,6 +722,10 @@ static const help_t help[] = {
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
 #endif
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+#if defined (__linux__)
+	{ NULL,		"sigfd N",		"start N workers reading signals via signalfd reads " },
+	{ NULL,		"sigfd-ops N",		"stop when N bogo signalfd reads completed" },
+#endif
 	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
 	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
 #if _POSIX_C_SOURCE >= 199309L

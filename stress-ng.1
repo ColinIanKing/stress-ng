@@ -771,6 +771,12 @@ number of each individual stressors to be started is N.  If N is zero, then a
 stressor for each processor that is on-line is executed. Use the \-\-timeout
 option to specify the duration to run each stressor.
 .TP
+.B \-\-sigfd N
+start N processess that generate SIGUSR1 signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load.
+.TP
+.B \-\-sigfd\-ops
+stop sigfd processes after N bogo SIGUSR1 signals are sent.
+.TP
 .B \-\-sigfpe N
 start N processes that rapidly cause division by zero SIGFPE faults.
 .TP
