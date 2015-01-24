@@ -82,6 +82,7 @@ again:
 		}
 	} else if (pid == 0) {
 		uint8_t *ptr, *start_ptr;
+		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);
@@ -110,7 +111,8 @@ again:
 				}
 			} else {
 				/* Touch page, force it to be resident */
-				*(ptr - 1) = 0;
+				if (touch)
+					*(ptr - 1) = 0;
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));

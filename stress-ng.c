@@ -293,6 +293,7 @@ static const struct option long_options[] = {
 	{ "bigheap-growth",1,	0,	OPT_BIGHEAP_GROWTH },
 	{ "brk",	1,	0,	OPT_BRK },
 	{ "brk-ops",	1,	0,	OPT_BRK_OPS },
+	{ "brk-notouch",0,	0,	OPT_BRK_NOTOUCH },
 	{ "bsearch",	1,	0,	OPT_BSEARCH },
 	{ "bsearch-ops",1,	0,	OPT_BSEARCH_OPS },
 	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
@@ -549,6 +550,7 @@ static const help_t help[] = {
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ NULL,		"brk N",		"start N workers performing rapid brk calls" },
 	{ NULL,		"brk-ops N",		"stop when N brk bogo operations completed" },
+	{ NULL,		"brk-notouch",		"don't touch (page in) new data segment page" },
 	{ NULL,		"bsearch",		"start N workers that exercise a binary search" },
 	{ NULL,		"bsearch-ops",		"stop when N binary search bogo operations completed" },
 	{ NULL,		"bsearch-size",		"number of 32 bit integers to bsearch" },
@@ -1205,6 +1207,9 @@ next_opt:
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			stress_set_bigheap_growth(optarg);
+			break;
+		case OPT_BRK_NOTOUCH:
+			opt_flags |= OPT_FLAGS_BRK_NOTOUCH;
 			break;
 		case OPT_BSEARCH_SIZE:
 			stress_set_bsearch_size(optarg);

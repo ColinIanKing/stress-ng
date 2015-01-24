@@ -74,6 +74,7 @@
 #define OPT_FLAGS_MMAP_MPROTECT	0x00040000	/* mmap mprotect enabled */
 #define OPT_FLAGS_LOCKF_NONBLK	0x00080000	/* Non-blocking lockf */
 #define OPT_FLAGS_MINCORE_RAND	0x00100000	/* mincore randomize */
+#define OPT_FLAGS_BRK_NOTOUCH	0x00200000	/* brk, don't touch page */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -480,6 +481,7 @@ typedef enum {
 #endif
 	OPT_BRK,
 	OPT_BRK_OPS,
+	OPT_BRK_NOTOUCH,
 
 	OPT_BSEARCH,
 	OPT_BSEARCH_OPS,
