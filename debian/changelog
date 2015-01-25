@@ -1,3 +1,19 @@
+stress-ng (0.03.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add --hdd-sync, --hdd-dsync, --hdd-direct, --hdd-noatime options
+  * Add sigfd stressor
+  * Move mount handling helper functions to mounts.c
+  * Add --brk-notouch option
+  * Account of out of memory nomems in stress-brk
+  * Explicitly ignore *close*() failures with (void) cast
+  * Update copyright at end of manual
+  * Update syscalls.txt with brk/sbrk calls
+  * Add a brk stress tester and --brk, --brk-ops options
+  * Fix incorrect comment on bigheap stressor function
+
+ -- Colin King <colin.king@canonical.com>  Sun, 25 Jan 2015 14:23:00 +0000
+
 stress-ng (0.03.10-1) unstable; urgency=medium
 
   * Makefile: bump version
