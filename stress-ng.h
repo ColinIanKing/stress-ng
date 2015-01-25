@@ -35,6 +35,8 @@
 #include <semaphore.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 
 #define _GNU_SOURCE
@@ -75,6 +77,10 @@
 #define OPT_FLAGS_LOCKF_NONBLK	0x00080000	/* Non-blocking lockf */
 #define OPT_FLAGS_MINCORE_RAND	0x00100000	/* mincore randomize */
 #define OPT_FLAGS_BRK_NOTOUCH	0x00200000	/* brk, don't touch page */
+#define OPT_FLAGS_HDD_SYNC	0x00400000	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	0x00800000	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	0x01000000	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	0x02000000	/* HDD O_NOATIME */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -525,6 +531,18 @@ typedef enum {
 #endif
 
 	OPT_HDD_BYTES,
+#if defined(O_DIRECT)
+	OPT_HDD_DIRECT,
+#endif
+#if defined(O_DSYNC)
+	OPT_HDD_DSYNC,
+#endif
+#if defined(O_NOATIME)
+	OPT_HDD_NOATIME,
+#endif
+#if defined(O_SYNC)
+	OPT_HDD_SYNC,
+#endif
 	OPT_HDD_WRITE_SIZE,
 	OPT_HDD_OPS,
 

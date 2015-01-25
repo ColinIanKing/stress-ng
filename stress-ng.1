@@ -462,13 +462,23 @@ stop get stressors after N bogo get operations.
 start N processes continually writing and removing temporary files.
 .TP
 .B \-\-hdd\-bytes N
-write N bytes for each hdd process, the default is 1 GB.
+write N bytes for each hdd process, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
-.B \-\-hdd\-noclean
-do not remove files created by hdd processes.
+.B \-\-hdd\-dsync
+ensure output has been transferred to underlying hardware and file metadata has been updated. This is equivalent to each write(2) being
+followed by a call to fdatasync(2).
+.TP
+.B \-\-hdd\-direct
+try to minimize cache effects of the I/O. File I/O writes are performed directly from user space buffers and synchronous transfer is also attempted. To guarantee synchronous I/O, also use the \-\-hdd\-sync option.
+.TP
+.B \-\-hdd\-noatime
+do not update the file last access timestamp, this can reduce metadata writes.
 .TP
 .B \-\-hdd\-ops N
 stop hdd stress processes after N bogo operations.
+.TP
+.B \-\-hdd\-sync
+ensure output has been transferred to underlying hardware. This is equivalent to a each write(2) being followed by a call to fdatasync(2).
 .TP
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
