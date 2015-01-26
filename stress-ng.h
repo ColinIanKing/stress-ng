@@ -888,7 +888,6 @@ extern void check_range(const char *const opt, const uint64_t val,
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, size_t length);
-extern void lock_mem_current(void);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
 
 /* Mounts */
