@@ -71,6 +71,7 @@ int stress_stack(
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
+	memset(stack, 0, sizeof(stack));
 	ss.ss_sp = (void *)stack;
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
