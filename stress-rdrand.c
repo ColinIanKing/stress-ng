@@ -118,7 +118,6 @@ int stress_rdrand(
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
 		pr_err(stderr, "%s: rdrand test aborted, CPU does not support rdrand instruction.\n", name);
-		fprintf(stderr, "CPU does not support rdrand.\n");
 		return EXIT_FAILURE;
 	}
 
