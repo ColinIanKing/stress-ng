@@ -156,7 +156,7 @@ int stress_pthread(
 					break;
 				}
 				/* Something really unexpected */
-				pr_failed_err(name, "pthread create failed");
+				pr_failed_err(name, "pthread create");
 				ok = false;
 				break;
 			}
@@ -174,13 +174,13 @@ int stress_pthread(
 			bool all_running = false;
 
 			if (pthread_mutex_lock(&mutex)) {
-				pr_failed_err(name, "mutex lock failed\n");
+				pr_failed_err(name, "mutex lock");
 				ok = false;
 				goto reap;
 			}
 			all_running = (pthread_count == i);
 			if (pthread_mutex_unlock(&mutex)) {
-				pr_failed_err(name, "mutex unlock failed\n");
+				pr_failed_err(name, "mutex unlock");
 				ok = false;
 				goto reap;
 			}
@@ -190,24 +190,24 @@ int stress_pthread(
 		}
 
 		if (pthread_mutex_lock(&mutex)) {
-			pr_failed_err(name, "mutex lock failed\n");
+			pr_failed_err(name, "mutex lock");
 			ok = false;
 			goto reap;
 		}
 		thread_terminate = true;
 		if (pthread_cond_broadcast(&cond)) {
-			pr_failed_err(name, "pthread condition broadcast failed\n");
+			pr_failed_err(name, "pthread condition broadcast");
 			ok = false;
 			/* fall through and unlock */
 		}
 		if (pthread_mutex_unlock(&mutex)) {
-			pr_failed_err(name, "mutex unlock failed\n");
+			pr_failed_err(name, "mutex unlock");
 			ok = false;
 		}
 reap:
 		for (j = 0; j < i; j++) {
 			if (pthread_join(pthreads[j], NULL)) {
-				pr_failed_err(name, "pthread join failed\n");
+				pr_failed_err(name, "pthread join");
 				ok = false;
 			}
 		}
