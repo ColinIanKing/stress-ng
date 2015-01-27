@@ -83,7 +83,7 @@ int stress_mq(
 	snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
 		name, pid, instance);
 	if ((fp = fopen("/proc/sys/fs/mqueue/msg_default", "r")) != NULL) {
-		if (fscanf(fp, "%d", &max_sz) != 1)
+		if (fscanf(fp, "%20d", &max_sz) != 1)
 			max_sz = MAX_MQ_SIZE;
 		(void)fclose(fp);
 		if (max_sz < MIN_MQ_SIZE)
