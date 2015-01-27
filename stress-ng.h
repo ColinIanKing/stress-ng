@@ -222,7 +222,7 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_TSEARCH_SIZE	(4 * MB)
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
 
-#define MIN_TIMER_FREQ		(1000)
+#define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
 
