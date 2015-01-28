@@ -52,6 +52,7 @@
 #define PIPE_BUF		(512)		/* PIPE I/O buffer size */
 #endif
 #define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
+#define UDP_BUF			(1024)		/* UDP I/O buffer size */
 
 /* Option bit masks */
 #define OPT_FLAGS_AFFINITY_RAND	0x00000001	/* Change affinity randomly */
@@ -225,6 +226,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
+
+#define MIN_UDP_PORT		(1024)
+#define MAX_UDP_PORT		(65535)
+#define DEFAULT_UDP_PORT	(7000)
 
 #define MIN_VM_BYTES		(4 * KB)
 #define MAX_VM_BYTES		(1 * GB)
@@ -411,6 +416,7 @@ typedef enum {
 	STRESS_TIMER,
 #endif
 	STRESS_TSEARCH,
+	STRESS_UDP,
 #if defined(__linux__) || defined(__gnu_hurd__)
 	STRESS_URANDOM,
 #endif
@@ -734,6 +740,11 @@ typedef enum {
 
 	OPT_TIMES,
 
+	OPT_UDP,
+	OPT_UDP_OPS,
+	OPT_UDP_PORT,
+	OPT_UDP_DOMAIN,
+
 #if defined (__linux__) || defined(__gnu_hurd__)
 	OPT_URANDOM_OPS,
 #endif
@@ -925,6 +936,8 @@ extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
+extern int  stress_set_udp_domain(const char *name);
+extern void stress_set_udp_port(const char *optarg);
 extern void stress_set_vfork_max(const char *optarg);
 extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
@@ -997,6 +1010,7 @@ STRESS(stress_symlink);
 STRESS(stress_sysinfo);
 STRESS(stress_timer);
 STRESS(stress_tsearch);
+STRESS(stress_udp);
 STRESS(stress_urandom);
 STRESS(stress_utime);
 STRESS(stress_vfork);

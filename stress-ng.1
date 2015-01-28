@@ -869,6 +869,18 @@ stop the tsearch processes after N bogo tree operations are completed.
 .B \-\-tsearch\-size N
 specify the size (number of 32 bit integers) in the array to tsearch. Size can be from 1K to 4M.
 .TP
+.B \-\-udp N
+start N stressors that transmit data using UDP. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
+.TP
+.B \-\-udp\-domain D
+specifty the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix are supported.
+.TP
+.B \-\-udp\-port P
+start at port P. For N udp  worker processes, ports P to P - 1 are used.
+.TP
+.B \-\-udp\-ops N
+stop udp stress processes after N bogo operations.
+.TP
 .B \-u N, \-\-urandom N
 start N processes reading /dev/urandom (Linux only). This will load the kernel random number source.
 .TP

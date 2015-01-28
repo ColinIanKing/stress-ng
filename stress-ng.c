@@ -243,10 +243,11 @@ static const stress_t stressors[] = {
 	STRESSOR(timer, TIMER, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(udp, UDP, CLASS_IO | CLASS_OS),
 #if defined(__linux__) || defined(__gnu_hurd__)
 	STRESSOR(urandom, URANDOM, CLASS_IO | CLASS_OS),
 #endif
-	STRESSOR(utime, UTIME, CLASS_IO | CLASS_OS),
+	STRESSOR(utime, UTIME, CLASS_NETWORK | CLASS_OS),
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
@@ -508,6 +509,10 @@ static const struct option long_options[] = {
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
 	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
 	{ "times",	0,	0,	OPT_TIMES },
+	{ "udp",	1,	0,	OPT_UDP },
+	{ "udp-domain",1,	0,	OPT_UDP_DOMAIN },
+	{ "udp-ops",	1,	0,	OPT_UDP_OPS },
+	{ "udp-port",	1,	0,	OPT_UDP_PORT },
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
@@ -1456,6 +1461,13 @@ next_opt:
 			break;
 		case OPT_TSEARCH_SIZE:
 			stress_set_tsearch_size(optarg);
+			break;
+		case OPT_UDP_DOMAIN:
+			if (stress_set_udp_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_UDP_PORT:
+			stress_set_udp_port(optarg);
 			break;
 		case OPT_UTIME_FSYNC:
 			opt_flags |= OPT_FLAGS_UTIME_FSYNC;

@@ -86,6 +86,7 @@ SRC =   stress-affinity.c \
 	stress-sysinfo.c \
 	stress-timer.c \
 	stress-tsearch.c \
+	stress-udp.c \
 	stress-urandom.c \
 	stress-utime.c \
 	stress-vm.c \
