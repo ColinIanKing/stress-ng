@@ -154,6 +154,7 @@ int stress_mq(
 
 		/* Parent */
 		do {
+			memset(&msg, 0, sizeof(msg));
 			msg.value = (*counter);
 			msg.stop = false;
 
