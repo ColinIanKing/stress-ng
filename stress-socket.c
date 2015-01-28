@@ -88,15 +88,6 @@ int stress_socket(
 {
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
-#ifdef AF_UNIX
-	struct sockaddr_un addr;
-
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	snprintf(addr.sun_path, sizeof(addr.sun_path),
-		"/tmp/stress-ng-%d-%" PRIu32,
-		ppid, instance);
-#endif
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
 		name, getpid(), opt_socket_port + instance);
