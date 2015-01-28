@@ -71,28 +71,16 @@ typedef void (epoll_func_t)(
 	const char *name,
 	const pid_t ppid);
 
-typedef struct {
-	const char *name;
-	const int  domain;
-	const int  max_servers;
-} domain_t;
-
-static const domain_t domains[] = {
-	{ "ipv4",	AF_INET,	4 },
-	{ "ipv6",	AF_INET6,	4 },
-	{ "unix",	AF_UNIX,	1 },
-	{ NULL,		-1,		0 }
-};
-
 /*
  *  stress_set_epoll_port()
  *	set the default port base
  */
 void stress_set_epoll_port(const char *optarg)
 {
-	opt_epoll_port = get_uint64(optarg);
-	check_range("epoll-port", opt_epoll_port,
-		MIN_EPOLL_PORT, MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS));
+	stress_set_net_port("epoll-port", optarg,
+		MIN_EPOLL_PORT,
+		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
+		&opt_epoll_port);
 }
 
 /*
@@ -101,20 +89,21 @@ void stress_set_epoll_port(const char *optarg)
  */
 int stress_set_epoll_domain(const char *name)
 {
-	int i;
+	int ret;
 
-	for (i = 0; domains[i].name; i++) {
-		if (!strcmp(name, domains[i].name)) {
-			opt_epoll_domain = domains[i].domain;
-			max_servers = domains[i].max_servers;
-			return 0;
-		}
+	ret = stress_set_net_domain("epoll-domain", name, &opt_epoll_domain);
+
+	switch (opt_epoll_domain) {
+	case AF_INET:
+	case AF_INET6:
+		max_servers = 4;
+		break;
+	case AF_UNIX:
+	default:
+		max_servers = 1;
 	}
-	fprintf(stderr, "socket domain must be one of:");
-	for (i = 0; domains[i].name; i++)
-		fprintf(stderr, " %s", domains[i].name);
-	fprintf(stderr, "\n");
-	return -1;
+
+	return ret;
 }
 
 /*
@@ -291,15 +280,8 @@ static int epoll_client(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-#ifdef AF_UNIX
-	struct sockaddr_un addr;
+	struct sockaddr *addr;
 
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	snprintf(addr.sun_path, sizeof(addr.sun_path),
-		"/tmp/stress-ng-%d-%" PRIu32,
-		ppid, instance);
-#endif
 	new_action.sa_flags = 0;
 	new_action.sa_handler = epoll_timer_handler;
 	sigemptyset(&new_action.sa_mask);
@@ -314,6 +296,7 @@ static int epoll_client(
 		int retries = 0;
 		int ret = -1;
 		int port = opt_epoll_port + port_counter + (max_servers * instance);
+		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
 		port_counter = (port_counter + 1) % max_servers;
@@ -351,40 +334,11 @@ retry:
 			return -1;
 		}
 		errno = 0;
-		switch (opt_epoll_domain) {
-		case AF_INET: {
-				struct sockaddr_in addr;
+	
+		stress_set_sockaddr(name, instance, ppid,
+			opt_epoll_domain, port, &addr, &addr_len);
 
-				memset(&addr, 0, sizeof(addr));
-				addr.sin_family = opt_epoll_domain;
-				addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-				addr.sin_port = htons(port);
-				ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-			}
-			break;
-#ifdef AF_INET6
-		case AF_INET6: {
-				struct sockaddr_in6 addr;
-
-				memset(&addr, 0, sizeof(addr));
-				addr.sin6_family = opt_epoll_domain;
-				addr.sin6_addr = in6addr_loopback;
-				addr.sin6_port = htons(port);
-				ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-			}
-			break;
-#endif
-#ifdef AF_UNIX
-		case AF_UNIX:
-			ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-			break;
-#endif
-
-		default:
-			pr_failed_err(name, "unknown domain");
-			(void)close(fd);
-			return -1;
-		}
+		ret = connect(fd, addr, addr_len);
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
@@ -435,7 +389,8 @@ retry:
 
 #ifdef AF_UNIX
 	if (opt_epoll_domain == AF_UNIX) {
-		(void)unlink(addr.sun_path);
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
 	}
 #endif
 	if (connect_timeouts)
@@ -457,20 +412,13 @@ static void epoll_server(
 	const char *name,
 	const pid_t ppid)
 {
-	int efd = -1, sfd = -1, ret = -1, rc = EXIT_SUCCESS;
+	int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	int port = opt_epoll_port + child + (max_servers * instance);
 	struct sigaction new_action;
 	struct epoll_event *events = NULL;
-#ifdef AF_UNIX
-	struct sockaddr_un addr;
-
-	memset(&addr, 0, sizeof(addr));
-	addr.sun_family = AF_UNIX;
-	snprintf(addr.sun_path, sizeof(addr.sun_path),
-		"/tmp/stress-ng-%d-%" PRIu32,
-		ppid, instance);
-#endif
+	struct sockaddr *addr;
+	socklen_t addr_len = 0;
 
 	new_action.sa_handler = handle_socket_sigalrm;
 	sigemptyset(&new_action.sa_mask);
@@ -491,45 +439,14 @@ static void epoll_server(
 		goto die_close;
 	}
 
-	switch (opt_epoll_domain) {
-	case AF_INET: {
-			struct sockaddr_in addr;
+	stress_set_sockaddr(name, instance, ppid,
+		opt_epoll_domain, port, &addr, &addr_len);
 
-			memset(&addr, 0, sizeof(addr));
-			addr.sin_family = opt_epoll_domain;
-			addr.sin_addr.s_addr = htonl(INADDR_ANY);
-			addr.sin_port = htons(port);
-			ret = bind(sfd, (struct sockaddr *)&addr, sizeof(addr));
-		}
-		break;
-#ifdef AF_INET6
-	case AF_INET6: {
-			struct sockaddr_in6 addr;
-
-			memset(&addr, 0, sizeof(addr));
-			addr.sin6_family = opt_epoll_domain;
-			addr.sin6_addr = in6addr_any;
-			addr.sin6_port = htons(port);
-			ret = bind(sfd, (struct sockaddr *)&addr, sizeof(addr));
-		}
-		break;
-#endif
-#ifdef AF_UNIX
-	case AF_UNIX:
-		ret = bind(sfd, (struct sockaddr *)&addr, sizeof(addr));
-		break;
-#endif
-	default:
-		pr_failed_err(name, "unknown domain");
-		(void)kill(getppid(), SIGALRM);
-		exit(EXIT_FAILURE);
-	}
-	if (ret < 0) {
+	if (bind(sfd, addr, addr_len) < 0) {
 		pr_failed_err(name, "bind");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
 	if (epoll_set_fd_nonblock(sfd) < 0) {
 		pr_failed_err(name, "setting socket to non-blocking");
 		rc = EXIT_FAILURE;
@@ -609,7 +526,8 @@ die_close:
 die:
 #ifdef AF_UNIX
 	if (opt_epoll_domain == AF_UNIX) {
-		(void)unlink(addr.sun_path);
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
 	}
 #endif
 	free(events);
