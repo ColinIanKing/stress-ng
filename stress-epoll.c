@@ -221,6 +221,7 @@ static int epoll_ctl_add(const int efd, const int fd)
 {
 	struct epoll_event event;
 
+	memset(&event, 0, sizeof(event));
 	event.data.fd = fd;
 	event.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0)
