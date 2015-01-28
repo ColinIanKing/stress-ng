@@ -101,6 +101,7 @@ SRC =   stress-affinity.c \
 	mincore.c \
 	mounts.c \
 	mwc.c \
+	net.c \
 	out-of-memory.c \
 	parse-opts.c \
 	proc-name.c \

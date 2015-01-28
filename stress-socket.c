@@ -47,26 +47,14 @@
 
 #include "stress-ng.h"
 
-static int opt_domain = AF_INET;
+static int opt_socket_domain = AF_INET;
 static int opt_socket_port = DEFAULT_SOCKET_PORT;
-
-typedef struct {
-	const char *name;
-	const int  domain;
-} domain_t;
-
-static const domain_t domains[] = {
-	{ "ipv4",	AF_INET },
-	{ "ipv6",	AF_INET6 },
-	{ "unix",	AF_UNIX },
-	{ NULL,		-1 }
-};
 
 void stress_set_socket_port(const char *optarg)
 {
-	opt_socket_port = get_uint64(optarg);
-	check_range("sock-port", opt_socket_port,
-		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX);
+	stress_set_net_port("sock-port", optarg,
+		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
+		&opt_socket_port);
 }
 
 /*
@@ -75,19 +63,7 @@ void stress_set_socket_port(const char *optarg)
  */
 int stress_set_socket_domain(const char *name)
 {
-	int i;
-
-	for (i = 0; domains[i].name; i++) {
-		if (!strcmp(name, domains[i].name)) {
-			opt_domain = domains[i].domain;
-			return 0;
-		}
-	}
-	fprintf(stderr, "socket domain must be one of:");
-	for (i = 0; domains[i].name; i++)
-		fprintf(stderr, " %s", domains[i].name);
-	fprintf(stderr, "\n");
-	return -1;
+	return stress_set_net_domain("sock-domain", name, &opt_socket_domain);
 }
 
 /*
@@ -131,56 +107,24 @@ int stress_socket(
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
+		struct sockaddr *addr;
 
 		do {
 			char buf[SOCKET_BUF];
 			int fd;
 			int retries = 0;
-			int ret = -1;
+			socklen_t addr_len = 0;
 retry:
-			if ((fd = socket(opt_domain, SOCK_STREAM, 0)) < 0) {
+			if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
 				pr_failed_dbg(name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
 
-			switch (opt_domain) {
-			case AF_INET: {
-					struct sockaddr_in addr;
-
-					memset(&addr, 0, sizeof(addr));
-					addr.sin_family = opt_domain;
-					addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-					addr.sin_port = htons(opt_socket_port + instance);
-					ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-				}
-				break;
-#ifdef AF_INET6
-			case AF_INET6: {
-					struct sockaddr_in6 addr;
-
-					memset(&addr, 0, sizeof(addr));
-					addr.sin6_family = opt_domain;
-					addr.sin6_addr = in6addr_loopback;
-					addr.sin6_port = htons(opt_socket_port + instance);
-					ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-				}
-				break;
-#endif
-#ifdef AF_UNIX
-			case AF_UNIX:
-				ret = connect(fd, (struct sockaddr *)&addr, sizeof(addr));
-				break;
-#endif
-
-			default:
-				pr_failed_dbg(name, "unknown domain");
-				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
-			}
-
-			if (ret < 0) {
+			stress_set_sockaddr(name, instance, ppid,
+				opt_socket_domain, opt_socket_port, &addr, &addr_len);
+			if (connect(fd, addr, addr_len) < 0) {
 				(void)close(fd);
 				usleep(10000);
 				retries++;
@@ -207,8 +151,9 @@ retry:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 #ifdef AF_UNIX
-		if (opt_domain == AF_UNIX) {
-			(void)unlink(addr.sun_path);
+		if (opt_socket_domain == AF_UNIX) {
+			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+			(void)unlink(addr_un->sun_path);
 		}
 #endif
 		/* Inform parent we're all done */
@@ -218,9 +163,11 @@ retry:
 		/* Parent, server */
 
 		char buf[SOCKET_BUF];
-		int fd, status, ret = -1;
+		int fd, status;
 		int so_reuseaddr = 1;
 		struct sigaction new_action;
+		socklen_t addr_len = 0;
+		struct sockaddr *addr;
 
 		new_action.sa_handler = handle_socket_sigalrm;
 		sigemptyset(&new_action.sa_mask);
@@ -230,7 +177,7 @@ retry:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		if ((fd = socket(opt_domain, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
 			pr_failed_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
@@ -241,40 +188,9 @@ retry:
 			goto die_close;
 		}
 
-		switch (opt_domain) {
-		case AF_INET: {
-				struct sockaddr_in addr;
-
-				memset(&addr, 0, sizeof(addr));
-				addr.sin_family = opt_domain;
-				addr.sin_addr.s_addr = htonl(INADDR_ANY);
-				addr.sin_port = htons(opt_socket_port + instance);
-				ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-			}
-			break;
-#ifdef AF_INET6
-		case AF_INET6: {
-				struct sockaddr_in6 addr;
-
-				memset(&addr, 0, sizeof(addr));
-				addr.sin6_family = opt_domain;
-				addr.sin6_addr = in6addr_any;
-				addr.sin6_port = htons(opt_socket_port + instance);
-				ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-			}
-			break;
-#endif
-#ifdef AF_UNIX
-		case AF_UNIX:
-			ret = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
-			break;
-#endif
-		default:
-			pr_failed_dbg(name, "unknown domain");
-			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
-		}
-		if (ret < 0) {
+		stress_set_sockaddr(name, instance, ppid,
+			opt_socket_domain, opt_socket_port, &addr, &addr_len);
+		if (bind(fd, addr, addr_len) < 0) {
 			pr_failed_dbg(name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
@@ -307,8 +223,9 @@ die_close:
 		(void)close(fd);
 die:
 #ifdef AF_UNIX
-		if (opt_domain == AF_UNIX) {
-			(void)unlink(addr.sun_path);
+		if (opt_socket_domain == AF_UNIX) {
+			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+			(void)unlink(addr_un->sun_path);
 		}
 #endif
 		if (pid) {

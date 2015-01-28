@@ -37,6 +37,7 @@
 #include <sys/times.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
 #include <fcntl.h>
 
 #define _GNU_SOURCE
@@ -905,6 +906,14 @@ extern int mincore_touch_pages(void *buf, size_t buf_len);
 extern int mount_add(char *mnts[], const int max, int *n, const char *name);
 extern void mount_free(char *mnts[], const int n);
 extern int mount_get(char *mnts[], const int max);
+
+/* Network helpers */
+void stress_set_net_port(const char *optname, const char *optarg,
+	const int min_port, const int max_port, int *port);
+int stress_set_net_domain(const char *name, const char *domain_name, int *domain);
+void stress_set_sockaddr(const char *name, const uint32_t instance,
+	const pid_t ppid, const int domain, const int port,
+	struct sockaddr **sockaddr, socklen_t *len);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);

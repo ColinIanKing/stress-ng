@@ -50,23 +50,11 @@
 static int opt_udp_domain = AF_INET;
 static int opt_udp_port = DEFAULT_SOCKET_PORT;
 
-typedef struct {
-	const char *name;
-	const int  domain;
-} domain_t;
-
-static const domain_t domains[] = {
-	{ "ipv4",	AF_INET },
-	{ "ipv6",	AF_INET6 },
-	{ "unix",	AF_UNIX },
-	{ NULL,		-1 }
-};
-
 void stress_set_udp_port(const char *optarg)
 {
-	opt_udp_port = get_uint64(optarg);
-	check_range("udp-port", opt_udp_port,
-		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX);
+	stress_set_net_port("udp-port", optarg, 
+		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
+		&opt_udp_port);
 }
 
 /*
@@ -75,19 +63,7 @@ void stress_set_udp_port(const char *optarg)
  */
 int stress_set_udp_domain(const char *name)
 {
-	int i;
-
-	for (i = 0; domains[i].name; i++) {
-		if (!strcmp(name, domains[i].name)) {
-			opt_udp_domain = domains[i].domain;
-			return 0;
-		}
-	}
-	fprintf(stderr, "socket domain must be one of:");
-	for (i = 0; domains[i].name; i++)
-		fprintf(stderr, " %s", domains[i].name);
-	fprintf(stderr, "\n");
-	return -1;
+	return stress_set_net_domain("udp-domain", name, &opt_udp_domain);
 }
 
 /*
@@ -98,64 +74,6 @@ static void handle_udp_sigalrm(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
-}
-
-/*
- *  setup socket address
- */
-static void set_sockaddr(
-	const char *name,
-	const uint32_t instance,
-	const pid_t ppid,
-	struct sockaddr **sockaddr,
-	socklen_t *len)
-{
-	switch (opt_udp_domain) {
-#ifdef AF_INET
-	case AF_INET: {
-		static struct sockaddr_in addr;
-
-		memset(&addr, 0, sizeof(addr));
-		addr.sin_family = opt_udp_domain;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
-		addr.sin_port = htons(opt_udp_port + instance);
-		*sockaddr = (struct sockaddr *)&addr;
-		*len = sizeof(addr);
-		break;
-	}
-#endif
-#ifdef AF_INET6
-	case AF_INET6: {
-		static struct sockaddr_in6 addr;
-
-		memset(&addr, 0, sizeof(addr));
-		addr.sin6_family = opt_udp_domain;
-		addr.sin6_addr = in6addr_any;
-		addr.sin6_port = htons(opt_udp_port + instance);
-		*sockaddr = (struct sockaddr *)&addr;
-		*len = sizeof(addr);
-		break;
-	}
-#endif
-#ifdef AF_UNIX
-	case AF_UNIX: {
-		static struct sockaddr_un addr;
-
-		memset(&addr, 0, sizeof(addr));
-		addr.sun_family = AF_UNIX;
-		snprintf(addr.sun_path, sizeof(addr.sun_path),
-			"/tmp/stress-ng-%d-%" PRIu32,
-			ppid, instance);
-		*sockaddr = (struct sockaddr *)&addr;
-		*len = sizeof(addr);
-		break;
-	}
-#endif
-	default:
-		pr_failed_dbg(name, "unknown domain");
-		(void)kill(getppid(), SIGALRM);
-		exit(EXIT_FAILURE);
-	}
 }
 
 /*
@@ -194,7 +112,8 @@ int stress_udp(
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
-			set_sockaddr(name, instance, ppid, &addr, &len);
+			stress_set_sockaddr(name, instance, ppid,
+				opt_udp_domain, opt_udp_port, &addr, &len);
 
 			do {
 				size_t i;
@@ -243,7 +162,8 @@ int stress_udp(
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		set_sockaddr(name, instance, ppid, &addr, &addr_len);
+		stress_set_sockaddr(name, instance, ppid,
+			opt_udp_domain, opt_udp_port, &addr, &addr_len);
 		if (bind(fd, addr, addr_len) < 0) {
 			pr_failed_dbg(name, "bind");
 			rc = EXIT_FAILURE;
