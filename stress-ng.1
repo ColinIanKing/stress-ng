@@ -766,6 +766,15 @@ stop semaphore stress processes after N bogo semaphore operations.
 .B \-\-sem\-procs N
 start N child processes per worker to provide contention on the semaphore, the default is 4 and a maximum of 64 are allowed.
 .TP
+.B \-\-sem\-sysv N
+start N workers that perform System V semaphore wait and post operations. By default, a parent and 4 children are started per worker to provide some contention on the semaphore. This stresses fast semaphore operations and produces rapid context switching.
+.TP
+.B \-\-sem\-sysv\-ops N
+stop semaphore stress processes after N bogo System V semaphore operations.
+.TP
+.B \-\-sem\-sysv\-procs N
+start N child processes per worker to provide contention on the System V semaphore, the default is 4 and a maximum of 64 are allowed.
+.TP
 .B \-\-sendfile N
 start N processes that send an empty file to /dev/null. This operation spends nearly all the time in the kernel.  The default sendfile size is 4MB.  The sendfile options are for Linux only.
 .TP

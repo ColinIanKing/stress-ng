@@ -309,6 +309,9 @@ typedef struct {
 	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;	/* Shared futexes */
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
 	sem_t sem ALIGN64;				/* Shared semaphores */
+	key_t sem_sysv_key_id;				/* System V semaphore key id */
+	int sem_sysv_id;				/* System V semaphore id */
+	bool sem_sysv_init;				/* System V semaphore initialized */
 	proc_stats_t stats[0] ALIGN64;			/* Shared statistics */
 } shared_t;
 
@@ -402,6 +405,7 @@ typedef enum {
 	STRESS_SENDFILE,
 #endif
 	STRESS_SEMAPHORE,
+	STRESS_SEMAPHORE_SYSV,
 	STRESS_SIGFD,
 	STRESS_SIGFPE,
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
@@ -699,6 +703,10 @@ typedef enum {
 	OPT_SEMAPHORE_OPS,
 	OPT_SEMAPHORE_PROCS,
 
+	OPT_SEMAPHORE_SYSV,
+	OPT_SEMAPHORE_SYSV_OPS,
+	OPT_SEMAPHORE_SYSV_PROCS,
+
 	OPT_SEQUENTIAL,
 
 	OPT_SIGFD,
@@ -816,6 +824,7 @@ extern shared_t *shared;		/* shared memory */
 extern uint64_t	opt_timeout;		/* timeout in seconds */
 extern int32_t	opt_flags;		/* option flags */
 extern long int	opt_nprocessors_online;	/* Number of processors online */
+extern uint64_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool opt_do_run;	/* false to exit stressor */
 extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
@@ -915,6 +924,9 @@ void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
 
+extern void stress_semaphore_sysv_init(void);
+extern void stress_semaphore_sysv_destroy(void);
+
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
 extern void stress_set_aio_requests(const char *optarg);
@@ -941,6 +953,7 @@ extern void stress_set_qsort_size(const void *optarg);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_sem_procs(const char *optarg);
+extern void stress_set_semaphore_sysv_procs(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
@@ -1007,6 +1020,7 @@ STRESS(stress_rdrand);
 STRESS(stress_rename);
 STRESS(stress_seek);
 STRESS(stress_semaphore);
+STRESS(stress_semaphore_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);
 STRESS(stress_sigfpe);

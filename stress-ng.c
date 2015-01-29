@@ -48,7 +48,7 @@
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
-static uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
+uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
@@ -223,6 +223,7 @@ static const stress_t stressors[] = {
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(semaphore, SEMAPHORE, CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(semaphore_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
 #endif
@@ -469,6 +470,9 @@ static const struct option long_options[] = {
 	{ "sem",	1,	0,	OPT_SEMAPHORE },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
 	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_PROCS },
+	{ "sem-sysv",	1,	0,	OPT_SEMAPHORE_SYSV },
+	{ "sem-sysv-ops",1,	0,	OPT_SEMAPHORE_SYSV_OPS },
+	{ "sem-sysv-procs",1,	0,	OPT_SEMAPHORE_SYSV_PROCS },
 #if defined(__linux__)
 	{ "sendfile",	1,	0,	OPT_SENDFILE },
 	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
@@ -745,6 +749,9 @@ static const help_t help[] = {
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
+	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
+	{ NULL,		"sem-sysv-ops N",	"stop when N System V semaphore bogo operations completed" },
+	{ NULL,		"sem-sysv-procs N",	"number of processes to start per worker" },
 #if defined (__linux__)
 	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
@@ -1433,6 +1440,9 @@ next_opt:
 		case OPT_SEMAPHORE_PROCS:
 			stress_set_sem_procs(optarg);
 			break;
+		case OPT_SEMAPHORE_SYSV_PROCS:
+			stress_set_semaphore_sysv_procs(optarg);
+			break;
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
 			stress_set_sendfile_size(optarg);
@@ -1663,6 +1673,10 @@ next_opt:
 			opt_flags |= OPT_FLAGS_SEM_INIT;
 	}
 
+	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
+	if (procs[id].num_procs || opt_sequential) 
+		stress_semaphore_sysv_init();
+
 	if (opt_sequential) {
 		/*
 		 *  Step through each stressor one by one
@@ -1731,6 +1745,7 @@ next_opt:
 				errno, strerror(errno));
 		}
 	}
+	stress_semaphore_sysv_destroy();
 	(void)munmap(shared, len);
 
 	if (opt_flags & OPT_FLAGS_TIMES) {
