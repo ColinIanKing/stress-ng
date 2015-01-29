@@ -785,6 +785,10 @@ static const help_t help[] = {
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
 	{ NULL,		"tsearch-size",		"number of 32 bit integers to tsearch" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
+	{ NULL,		"udp N",		"start N workers performing UDP send/receives " },
+	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
+	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
+	{ NULL,		"udo-domain D",		"specify domain, default is ipv4" },
 #if defined(__linux__) || defined(__gnu_hurd__)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
