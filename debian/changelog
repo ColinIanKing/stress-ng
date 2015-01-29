@@ -1,3 +1,22 @@
+stress-ng (0.03.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add udp to --help output
+  * remove need to setup unix pathname in stress-socket
+  * stress-epoll: use net helper funcs
+  * stress-mq: memset msg to zero to stop valgrind complaining
+  * Clear epoll_event struct; warning from valgrind
+  * Add net helper functions, refactor udp and socket stressors
+  * Add udp stressor
+  * Reduce the minimum timer frequency to 1Hz
+  * Remove duplicate error message in rdrand stressor
+  * Correct error messages, removed "failed" and trailing "\n"
+  * Clear alternative signal stack, stops cppcheck warning
+  * Limit sscanf field to avoid overflows
+  * Remove memory locking, it wasn't such a good idea after all
+
+ -- Colin King <colin.king@canonical.com>  Thu, 29 Jan 2015 11:49:00 +0000
+
 stress-ng (0.03.11-1) unstable; urgency=medium
 
   * Makefile: bump version
