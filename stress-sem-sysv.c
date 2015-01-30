@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#if !defined(__gnu_hurd__)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -185,3 +187,5 @@ reap:
 
 	return EXIT_SUCCESS;
 }
+
+#endif

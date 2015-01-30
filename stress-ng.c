@@ -223,7 +223,9 @@ static const stress_t stressors[] = {
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(semaphore_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
+#if !defined(__gnu_hurd__)
 	STRESSOR(semaphore_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
+#endif
 	STRESSOR(shm_sysv, SHM_SYSV, CLASS_VM | CLASS_OS),
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
@@ -471,9 +473,11 @@ static const struct option long_options[] = {
 	{ "sem",	1,	0,	OPT_SEMAPHORE_POSIX },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_POSIX_OPS },
 	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_POSIX_PROCS },
+#if !defined(__gnu_hurd__)
 	{ "sem-sysv",	1,	0,	OPT_SEMAPHORE_SYSV },
 	{ "sem-sysv-ops",1,	0,	OPT_SEMAPHORE_SYSV_OPS },
 	{ "sem-sysv-procs",1,	0,	OPT_SEMAPHORE_SYSV_PROCS },
+#endif
 #if defined(__linux__)
 	{ "sendfile",	1,	0,	OPT_SENDFILE },
 	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
@@ -754,9 +758,11 @@ static const help_t help[] = {
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
+#if !defined(__gnu_hurd__)
 	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
 	{ NULL,		"sem-sysv-ops N",	"stop when N System V semaphore bogo operations completed" },
 	{ NULL,		"sem-sysv-procs N",	"number of processes to start per worker" },
+#endif
 #if defined (__linux__)
 	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
@@ -1449,9 +1455,11 @@ next_opt:
 		case OPT_SEMAPHORE_POSIX_PROCS:
 			stress_set_semaphore_posix_procs(optarg);
 			break;
+#if !defined(__gnu_hurd__)
 		case OPT_SEMAPHORE_SYSV_PROCS:
 			stress_set_semaphore_sysv_procs(optarg);
 			break;
+#endif
 #if defined (__linux__)
 		case OPT_SENDFILE_SIZE:
 			stress_set_sendfile_size(optarg);
@@ -1675,9 +1683,11 @@ next_opt:
 	if (procs[id].num_procs || opt_sequential)
 		stress_semaphore_posix_init();
 
+#if !defined(__gnu_hurd__)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
 	if (procs[id].num_procs || opt_sequential) 
 		stress_semaphore_sysv_init();
+#endif
 
 	if (opt_sequential) {
 		/*
@@ -1742,7 +1752,9 @@ next_opt:
 	free_procs();
 
 	stress_semaphore_posix_destroy();
+#if !defined(__gnu_hurd__)
 	stress_semaphore_sysv_destroy();
+#endif
 	(void)munmap(shared, len);
 
 	if (opt_flags & OPT_FLAGS_TIMES) {
