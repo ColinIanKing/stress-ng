@@ -29,7 +29,6 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
-#include <semaphore.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
