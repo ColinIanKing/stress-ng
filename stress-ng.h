@@ -437,6 +437,7 @@ typedef enum {
 	STRESS_URANDOM,
 #endif
 	STRESS_UTIME,
+	STRESS_VECMATH,
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
@@ -779,6 +780,9 @@ typedef enum {
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
 
+	OPT_VECMATH,
+	OPT_VECMATH_OPS,
+
 	OPT_VERIFY,
 
 #if  _BSD_SOURCE || \
@@ -1060,6 +1064,7 @@ STRESS(stress_tsearch);
 STRESS(stress_udp);
 STRESS(stress_urandom);
 STRESS(stress_utime);
+STRESS(stress_vecmath);
 STRESS(stress_vfork);
 STRESS(stress_vm);
 STRESS(stress_wait);

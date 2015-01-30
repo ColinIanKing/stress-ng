@@ -916,6 +916,12 @@ stop utime stress processes after N utime bogo operations.
 .B \-\-utime\-fsync
 force metadata changes on each file timestamp update to be flushed to disk. This forces the test to become I/O bound and will result in many dirty metadata writes.
 .TP
+.B \-\-vecmath N
+start N processes that perform various unsigned integer math operations on various 128 bit vectors. A mix of vector math operations are performed on the following vectors: 16 x 8 bits, 8 x 16 bits, 4 x 32 bits, 2 x 64 bits. The metrics produced by this mix depend on the processor architecture and the vector math optimisations produced by the compiler.
+.TP
+.B \-\-vecmath\-ops N
+stop after N bogo vector integer math operations.
+.TP
 .B \-v, \-\-verbose
 show all debug, warnings and normal information output.
 .TP

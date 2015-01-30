@@ -91,6 +91,7 @@ SRC =   stress-affinity.c \
 	stress-udp.c \
 	stress-urandom.c \
 	stress-utime.c \
+	stress-vecmath.c \
 	stress-vm.c \
 	stress-wait.c \
 	stress-yield.c \
