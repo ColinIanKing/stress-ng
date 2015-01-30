@@ -53,7 +53,6 @@ void stress_semaphore_sysv_init(void)
 	while (count < 100) {
 		shared->sem_sysv_key_id = (key_t)(mwc() & 0xffff);
 		shared->sem_sysv_id = semget(shared->sem_sysv_key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
-		shared->sem_sysv_init = true;
 		if (shared->sem_sysv_id >= 0)
 			break;
 
@@ -62,8 +61,12 @@ void stress_semaphore_sysv_init(void)
 
 	if (shared->sem_sysv_id >= 0) {
 		unsigned short semval = 1;
-		if (semctl(shared->sem_sysv_id, 0, SETVAL, semval) == 0)
+		if (semctl(shared->sem_sysv_id, 0, SETVAL, semval) == 0) {
+			shared->sem_sysv_init = true;
 			return;
+		}
+		/* Clean up */
+		(void)semctl(shared->sem_sysv_id, 0, IPC_RMID);
 	}
 
 	if (opt_sequential) {
