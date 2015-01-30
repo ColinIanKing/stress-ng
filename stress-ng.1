@@ -139,7 +139,7 @@ stop after N chmod bogo operations.
 specify the class of stressors to run. Stressors are classified into one or more of the following classes: cpu, cpu-cache, io, interrupt, memory, network, os, scheduler and vm.  Some stressors fall into just one class. For example the 'get' stressor is just in the 'os' class. Other stressors fall into more than one class, for example, the 'lsearch' stressor falls into the 'cpu', 'cpu-cache' and 'memory' classes as it exercises all these three.  Selecting a specific class will run all the stressors that fall into that class only when run with the \-\-sequential option.
 .TP
 .B \-\-clock N
-start N processes exercising clocks and POSIX timers. For all known clock types this will exercise clock_getres(), clock_gettime() and clock_nanosleep(). For
+start N processes exercising clocks and POSIX timers. For all known clock types this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2). For
 all known timers it will create a 50000ns timer and busy poll this until it expires.  This stressor will cause frequent context switching.
 .TP
 .B \-\-clock\-ops N
@@ -373,7 +373,7 @@ stop directory thrash processes after N bogo directory operations.
 parse options, but don't run stress tests. A no-op.
 .TP
 .B \-\-dup N
-start N processes that perform dup() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+start N processes that perform dup(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
 .B \-\-dup\-ops N
 stop the dup stress processes after N bogo open operations.
@@ -453,7 +453,7 @@ start N stressors that rapidly exercise the futex system call. Each stressor has
 stop futex stressors after N bogo successful futex wait operations.
 .TP
 .B \-\-get N
-start N stressors that call all the get*() system calls.
+start N stressors that call all the get*(2) system calls.
 .TP
 .B \-\-get\-ops N
 stop get stressors after N bogo get operations.
@@ -502,7 +502,7 @@ start N processes performing file system activities such as making/deleting file
 stop inotify stress processes after N inotify bogo operations.
 .TP
 .B \-i N, \-\-io N
-start N processes continuously calling sync() to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
+start N processes continuously calling sync(2) to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
 .TP
 .B \-\-io\-ops N
 stop io stress processes after N bogo operations.
@@ -544,7 +544,7 @@ start N processes randomly locking regions of a file using the POSIX lockf(3) lo
 stop lockf stress processes after N bogo lockf operations.
 .TP
 .B \-\-lockf\-nonblock
-instead of using blocking F_LOCK lockf() commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and hence increases locking contention.
+instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and hence increases locking contention.
 .TP
 .B \-\-lsearch N
 start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
@@ -610,7 +610,7 @@ T}
 enable metrics and only output metrics that are non-zero.
 .TP
 .B \-\-memcpy N
-start N processes that copy 2MB of data from a shared region to a buffer using memcpy() and then move the data in the buffer with memmove() with 3 different alignments. This will exercise processor cache and system memory.
+start N processes that copy 2MB of data from a shared region to a buffer using memcpy(3) and then move the data in the buffer with memmove(3) with 3 different alignments. This will exercise processor cache and system memory.
 .TP
 .B \-\-memcpy\-ops N
 stop memcpy stress processes after N bogo memcpy operations.
@@ -625,7 +625,7 @@ stop after N mincore bogo operations. One mincore bogo op is equivalent to a 100
 instead of walking through pages sequentially, select pages at random. The chosen address is iterated over by shifting it right one place and checked by mincore until the address is less or equal to the page size.
 .TP
 .B \-\-mmap N
-start N processes continuously calling mmap()/munmap().  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.
+start N processes continuously calling mmap(2)/munmap(2).  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.
 .TP
 .B \-\-mmap\-ops N
 stop mmap stress processes after N bogo operations.
@@ -664,7 +664,7 @@ start N cpu consuming processes that exercise the available nice levels. Each it
 stop after N nice bogo nice loops
 .TP
 .B \-\-no\-advise
-from version 0.02.26 stress-ng automatically calls madvise() with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
+from version 0.02.26 stress-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
 .TP
 .B \-\-null N
 start N processes writing to /dev/null.
@@ -673,7 +673,7 @@ start N processes writing to /dev/null.
 stop null stress processes after N /dev/null bogo write operations.
 .TP
 .B \-o N, \-\-open N
-start N processes that perform open() and then close() operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+start N processes that perform open(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
 .B \-\-open\-ops N
 stop the open stress processes after N bogo open operations.
@@ -681,8 +681,7 @@ stop the open stress processes after N bogo open operations.
 .B \-\-page\-in
 touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
 all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
-performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(1) to determine
-the pages that are not in core and hence need touching to page them back in.
+performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(2) to determine the pages that are not in core and hence need touching to page them back in.
 .TP
 .B \-p N, \-\-pipe N
 start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and a writer.
@@ -691,7 +690,7 @@ start N stressors that perform large pipe writes and reads to exercise pipe I/O.
 stop pipe stress processes after N bogo pipe write operations.
 .TP
 .B \-P N, \-\-poll N
-start N processes that perform zero timeout polling via the poll(), select() and sleep() system calls. This wastes system and user time doing nothing.
+start N processes that perform zero timeout polling via the poll(2), select(2) and sleep(3) calls. This wastes system and user time doing nothing.
 .TP
 .B \-\-poll\-ops N
 stop poll stress processes after N bogo poll operations.
@@ -821,7 +820,7 @@ start N processes that rapidly create and catch segmentation faults.
 stop sigsegv stress processes after N bogo segmentation faults.
 .TP
 .B \-\-sigq N
-start N processes that rapidly send SIGUSR1 signals using sigqueue() to child processes that wait for the signal via sigwaitinfo().
+start N processes that rapidly send SIGUSR1 signals using sigqueue(3) to child processes that wait for the signal via sigwaitinfo(2).
 .TP
 .B \-\-sigq\-ops N
 stop sigq stress processes after N bogo signal send operations.
@@ -839,7 +838,7 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 stop socket stress processes after N bogo operations.
 .TP
 .B \-\-stack N
-start N processes that rapidly cause and catch stack overflows by use of alloca().
+start N processes that rapidly cause and catch stack overflows by use of alloca(3).
 .TP
 .B \-\-stack\-ops N
 stop stack stress processes after N bogo stack overflows.
@@ -939,7 +938,7 @@ values will create many temporary zombie processes that are waiting to be reaped
 potentially fill up the the process table using high values for \-\-vfork\-max and \-\-vfork.
 .TP
 .B \-m N, \-\-vm N
-start N processes continuously calling mmap()/munmap() and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
+start N processes continuously calling mmap(2)/munmap(2) and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
 .TP
 .B \-\-vm\-bytes N
 mmap N bytes per vm process, the default is 256MB. One can specify the size in units of Bytes,
@@ -1056,16 +1055,16 @@ T}
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
 .B \-\-wait N
-start N workers that spawn off two children; one spins in a pause() loop, the other continually stops and continues the first. The controlling process waits on the first child to be resumed by the delivery of SIGCONT using waitpid() and waitid().
+start N workers that spawn off two children; one spins in a pause(2) loop, the other continually stops and continues the first. The controlling process waits on the first child to be resumed by the delivery of SIGCONT using waitpid(2) and waitid(2).
 .TP
 .B \-\-wait\-ops N
 stop after N bogo wait operations.
 .TP
 .B \-y N, \-\-yield N
-start N process that call sched_yield(). This should force rapid context switching.
+start N process that call sched_yield(2). This should force rapid context switching.
 .TP
 .B \-\-yield\-ops N
-stop yield stress processes after N sched_yield() bogo operations.
+stop yield stress processes after N sched_yield(2) bogo operations.
 .TP
 .B \-\-zero N
 start N processes reading /dev/zero.
