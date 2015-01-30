@@ -69,7 +69,6 @@
 #define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 #define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
-#define OPT_FLAGS_SEM_INIT	0x00002000	/* semaphore initialised */
 #define OPT_FLAGS_CACHE_FLUSH	0x00004000	/* cache flush */
 #define OPT_FLAGS_CACHE_FENCE	0x00008000	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
@@ -308,10 +307,11 @@ typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;	/* Shared memory cache */
 	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;	/* Shared futexes */
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
-	sem_t sem ALIGN64;				/* Shared semaphores */
-	key_t sem_sysv_key_id;				/* System V semaphore key id */
-	int sem_sysv_id;				/* System V semaphore id */
-	bool sem_sysv_init;				/* System V semaphore initialized */
+	sem_t sem_posix ALIGN64;			/* Shared semaphores */
+	bool sem_posix_init ALIGN64;
+	key_t sem_sysv_key_id ALIGN64;			/* System V semaphore key id */
+	int sem_sysv_id ALIGN64;			/* System V semaphore id */
+	bool sem_sysv_init ALIGN64;			/* System V semaphore initialized */
 	proc_stats_t stats[0] ALIGN64;			/* Shared statistics */
 } shared_t;
 
@@ -404,7 +404,7 @@ typedef enum {
 #if defined(__linux__)
 	STRESS_SENDFILE,
 #endif
-	STRESS_SEMAPHORE,
+	STRESS_SEMAPHORE_POSIX,
 	STRESS_SEMAPHORE_SYSV,
 	STRESS_SIGFD,
 	STRESS_SIGFPE,
@@ -699,9 +699,9 @@ typedef enum {
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
 
-	OPT_SEMAPHORE,
-	OPT_SEMAPHORE_OPS,
-	OPT_SEMAPHORE_PROCS,
+	OPT_SEMAPHORE_POSIX,
+	OPT_SEMAPHORE_POSIX_OPS,
+	OPT_SEMAPHORE_POSIX_PROCS,
 
 	OPT_SEMAPHORE_SYSV,
 	OPT_SEMAPHORE_SYSV_OPS,
@@ -924,6 +924,9 @@ void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
 
+extern void stress_semaphore_posix_init(void);
+extern void stress_semaphore_posix_destroy(void);
+
 extern void stress_semaphore_sysv_init(void);
 extern void stress_semaphore_sysv_destroy(void);
 
@@ -952,7 +955,7 @@ extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
-extern void stress_set_sem_procs(const char *optarg);
+extern void stress_set_semaphore_posix_procs(const char *optarg);
 extern void stress_set_semaphore_sysv_procs(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
@@ -1019,7 +1022,7 @@ STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);
 STRESS(stress_seek);
-STRESS(stress_semaphore);
+STRESS(stress_semaphore_posix);
 STRESS(stress_semaphore_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);

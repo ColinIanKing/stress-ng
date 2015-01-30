@@ -222,7 +222,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
-	STRESSOR(semaphore, SEMAPHORE, CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(semaphore_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(semaphore_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
@@ -467,9 +467,9 @@ static const struct option long_options[] = {
 	{ "seek",	1,	0,	OPT_SEEK },
 	{ "seek-ops",	1,	0,	OPT_SEEK_OPS },
 	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },
-	{ "sem",	1,	0,	OPT_SEMAPHORE },
-	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_OPS },
-	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_PROCS },
+	{ "sem",	1,	0,	OPT_SEMAPHORE_POSIX },
+	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_POSIX_OPS },
+	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_POSIX_PROCS },
 	{ "sem-sysv",	1,	0,	OPT_SEMAPHORE_SYSV },
 	{ "sem-sysv-ops",1,	0,	OPT_SEMAPHORE_SYSV_OPS },
 	{ "sem-sysv-procs",1,	0,	OPT_SEMAPHORE_SYSV_PROCS },
@@ -1437,8 +1437,8 @@ next_opt:
 		case OPT_SEEK_SIZE:
 			stress_set_seek_size(optarg);
 			break;
-		case OPT_SEMAPHORE_PROCS:
-			stress_set_sem_procs(optarg);
+		case OPT_SEMAPHORE_POSIX_PROCS:
+			stress_set_semaphore_posix_procs(optarg);
 			break;
 		case OPT_SEMAPHORE_SYSV_PROCS:
 			stress_set_semaphore_sysv_procs(optarg);
@@ -1656,22 +1656,9 @@ next_opt:
 
 	memset(shared, 0, len);
 
-	id = stressor_id_find(STRESS_SEMAPHORE);
-	if (procs[id].num_procs || opt_sequential) {
-		/* create a mutex */
-		if (sem_init(&shared->sem, 1, 1) < 0) {
-			if (opt_sequential) {
-				pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
-					"skipping semaphore stressor\n",
-					errno, strerror(errno));
-			} else {
-				pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-					errno, strerror(errno));
-				exit(EXIT_FAILURE);
-			}
-		} else
-			opt_flags |= OPT_FLAGS_SEM_INIT;
-	}
+	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
+	if (procs[id].num_procs || opt_sequential)
+		stress_semaphore_posix_init();
 
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
 	if (procs[id].num_procs || opt_sequential) 
@@ -1739,12 +1726,7 @@ next_opt:
 	}
 	free_procs();
 
-	if (procs[STRESS_SEMAPHORE].num_procs) {
-		if (sem_destroy(&shared->sem) < 0) {
-			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
-				errno, strerror(errno));
-		}
-	}
+	stress_semaphore_posix_destroy();
 	stress_semaphore_sysv_destroy();
 	(void)munmap(shared, len);
 
