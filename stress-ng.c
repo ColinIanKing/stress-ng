@@ -224,6 +224,7 @@ static const stress_t stressors[] = {
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(semaphore_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(semaphore_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(shm_sysv, SHM_SYSV, CLASS_VM | CLASS_OS),
 #if defined(__linux__)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
 #endif
@@ -479,6 +480,10 @@ static const struct option long_options[] = {
 	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
 #endif
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
+	{ "shm-sysv",	1,	0,	OPT_SHM_SYSV },
+	{ "shm-sysv-ops",1,	0,	OPT_SHM_SYSV_OPS },
+	{ "shm-sysv-bytes",1,	0,	OPT_SHM_SYSV_BYTES },
+	{ "shm-sysv-segs",1,	0,	OPT_SHM_SYSV_SEGMENTS },
 #if defined(__linux__)
 	{ "sigfd",	1,	0,	OPT_SIGFD },
 	{ "sigfd-ops",	1,	0,	OPT_SIGFD_OPS },
@@ -758,6 +763,10 @@ static const help_t help[] = {
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
 #endif
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ NULL,		"shm-sysv N",		"start N workers that exercise System V shared memory" },
+	{ NULL,		"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
+	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per iteration" },
+	{ NULL,		"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
 #if defined (__linux__)
 	{ NULL,		"sigfd N",		"start N workers reading signals via signalfd reads " },
 	{ NULL,		"sigfd-ops N",		"stop when N bogo signalfd reads completed" },
@@ -1454,6 +1463,12 @@ next_opt:
 				opt_sequential = opt_nprocessors_online;
 			check_range("sequential", opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
+			break;
+		case OPT_SHM_SYSV_BYTES:
+			stress_set_shm_sysv_bytes(optarg);
+			break;
+		case OPT_SHM_SYSV_SEGMENTS:
+			stress_set_shm_sysv_segments(optarg);
 			break;
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)

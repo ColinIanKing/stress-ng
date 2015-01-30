@@ -215,6 +215,14 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_SEQUENTIAL		(1000000)
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
 
+#define MIN_SHM_SYSV_BYTES	(1 * MB)
+#define MAX_SHM_SYSV_BYTES	(1 * GB)
+#define DEFAULT_SHM_SYSV_BYTES	(64 * MB)
+
+#define MIN_SHM_SYSV_SEGMENTS	(1)
+#define MAX_SHM_SYSV_SEGMENTS	(128)
+#define DEFAULT_SHM_SYSV_SEGMENTS (8)
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
@@ -406,6 +414,7 @@ typedef enum {
 #endif
 	STRESS_SEMAPHORE_POSIX,
 	STRESS_SEMAPHORE_SYSV,
+	STRESS_SHM_SYSV,
 	STRESS_SIGFD,
 	STRESS_SIGFPE,
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
@@ -707,6 +716,11 @@ typedef enum {
 	OPT_SEMAPHORE_SYSV_OPS,
 	OPT_SEMAPHORE_SYSV_PROCS,
 
+	OPT_SHM_SYSV,
+	OPT_SHM_SYSV_OPS,
+	OPT_SHM_SYSV_BYTES,
+	OPT_SHM_SYSV_SEGMENTS,
+
 	OPT_SEQUENTIAL,
 
 	OPT_SIGFD,
@@ -957,6 +971,8 @@ extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_semaphore_posix_procs(const char *optarg);
 extern void stress_set_semaphore_sysv_procs(const char *optarg);
+extern void stress_set_shm_sysv_bytes(const char *optarg);
+extern void stress_set_shm_sysv_segments(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
@@ -1024,6 +1040,7 @@ STRESS(stress_rename);
 STRESS(stress_seek);
 STRESS(stress_semaphore_posix);
 STRESS(stress_semaphore_sysv);
+STRESS(stress_shm_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);
 STRESS(stress_sigfpe);

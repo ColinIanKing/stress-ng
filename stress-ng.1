@@ -790,6 +790,18 @@ number of each individual stressors to be started is N.  If N is zero, then a
 stressor for each processor that is on-line is executed. Use the \-\-timeout
 option to specify the duration to run each stressor.
 .TP
+.B \-\-shm\-sysv N
+start N processes that allocate shared memory using the System V shared memory interface.  By default, the test will repeatedly create and destroy 8 shared memory segments, each of which is 64MB in size.
+.TP
+.B \-\-shm\-sysv\-ops N
+stop after N shared memory create and destory bogo operations are complete.
+.TP
+.B \-\-shm\-sysv\-bytes N
+specify the size of the shared memory segment to be created. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-shm\-sysv\-segs N
+specify the number of shared memory segments to be created.
+.TP
 .B \-\-sigfd N
 start N processess that generate SIGUSR1 signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load.
 .TP
