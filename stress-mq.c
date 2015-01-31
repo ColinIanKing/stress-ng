@@ -72,7 +72,7 @@ int stress_mq(
 	const char *name)
 {
 	pid_t pid = getpid();
-	mqd_t mq;
+	mqd_t mq = -1;
 	int sz = opt_mq_size, max_sz;
 	FILE *fp;
 	struct mq_attr attr;
