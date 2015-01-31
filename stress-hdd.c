@@ -293,40 +293,60 @@ int stress_hdd(
 		}
 		/* Sequential Read */
 		if (opt_hdd_flags & HDD_OPT_RD_SEQ) {
+			uint64_t misreads = 0;
+
 			if (lseek(fd, 0, SEEK_SET) < 0) {
 				pr_failed_err(name, "lseek");
 				(void)close(fd);
 				goto finish;
 			}
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				if (read(fd, buf, (size_t)opt_hdd_write_size) < 0) {
+				ssize_t ret;
+
+				ret = read(fd, buf, (size_t)opt_hdd_write_size);
+				if (ret < 0) {
 					pr_failed_err(name, "read");
 					(void)close(fd);
 					goto finish;
 				}
+				if (ret != (ssize_t)opt_hdd_write_size)
+					misreads++;
+
 				(*counter)++;
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 			}
+			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+				name, misreads);
 		}
 		/* Random Read */
 		if (opt_hdd_flags & HDD_OPT_RD_RND) {
+			uint64_t misreads = 0;
+
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+				ssize_t ret;
 				off_t offset = (mwc() % opt_hdd_bytes) & ~511;
+
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_failed_err(name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
-				if (read(fd, buf, (size_t)opt_hdd_write_size) < 0) {
+				ret = read(fd, buf, (size_t)opt_hdd_write_size);
+				if (ret < 0) {
 					pr_failed_err(name, "read");
 					(void)close(fd);
 					goto finish;
 				}
+				if (ret != (ssize_t)opt_hdd_write_size)
+					misreads++;
+
 				(*counter)++;
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 			}
+			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+				name, misreads);
 		}
 		(void)close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
