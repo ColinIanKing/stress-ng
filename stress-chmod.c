@@ -76,6 +76,16 @@ static mode_t modes[] = {
 };
 
 /*
+ *  BSD systems can return EFTYPE which we can ignore
+ *  as a "known" error on invalid chmod mode bits
+ */
+#ifdef EFTYPE
+#define CHECK(x) if ((x) && (errno != EFTYPE)) return -1	
+#else
+#define CHECK(x) if (x) return -1
+#endif
+
+/*
  *  do_fchmod()
  *	fchmod the 4 different masks from a mode flag, namely:
  *		mode flag
@@ -85,14 +95,10 @@ static mode_t modes[] = {
  */
 static int do_fchmod(const int fd, const int i, const mode_t mask, const mode_t all_mask)
 {
-	if (fchmod(fd, modes[i]) < 0)
-		return -1;
-	if (fchmod(fd, mask) < 0)
-		return -1;
-	if (fchmod(fd, modes[i] ^ all_mask) < 0)
-		return -1;
-	if (fchmod(fd, mask ^ all_mask) < 0)
-		return -1;
+	CHECK(fchmod(fd, modes[i]) < 0);
+	CHECK(fchmod(fd, mask) < 0);
+	CHECK(fchmod(fd, modes[i] ^ all_mask) < 0);
+	CHECK(fchmod(fd, mask ^ all_mask) < 0);
 	return 0;
 }
 
@@ -106,14 +112,10 @@ static int do_fchmod(const int fd, const int i, const mode_t mask, const mode_t 
  */
 static int do_chmod(const char *filename, const int i, const mode_t mask, const mode_t all_mask)
 {
-	if (chmod(filename, modes[i]) < 0)
-		return -1;
-	if (chmod(filename, mask) < 0)
-		return -1;
-	if (chmod(filename, modes[i] ^ all_mask) < 0)
-		return -1;
-	if (chmod(filename, mask ^ all_mask) < 0)
-		return -1;
+	CHECK(chmod(filename, modes[i]) < 0);
+	CHECK(chmod(filename, mask) < 0);
+	CHECK(chmod(filename, modes[i] ^ all_mask) < 0);
+	CHECK(chmod(filename, mask ^ all_mask) < 0);
 	return 0;
 }
 
