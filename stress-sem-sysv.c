@@ -149,10 +149,10 @@ static int semaphore_sysv_spawn(
 }
 
 /*
- *  stress_semaphore_sysv()
+ *  stress_sem_sysv()
  *	stress system by sem ops
  */
-int stress_semaphore_sysv(
+int stress_sem_sysv(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

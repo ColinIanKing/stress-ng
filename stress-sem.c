@@ -122,10 +122,10 @@ static int semaphore_posix_spawn(
 }
 
 /*
- *  stress_semaphore_posix()
+ *  stress_sem_posix()
  *	stress system by POSIX sem ops
  */
-int stress_semaphore_posix(
+int stress_sem_posix(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

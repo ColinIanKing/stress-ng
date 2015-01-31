@@ -36,6 +36,27 @@
 
 #include "stress-ng.h"
 
+#define MUNGE_MIN(a,b) (((a) < (b)) ? (a) : (b))
+
+/*
+ *  munge_underscore()
+ *	turn '_' to '-' in strings
+ */
+char *munge_underscore(char *str)
+{
+	static char munged[128];
+	char *src, *dst;
+	size_t str_len = strlen(str);
+	ssize_t len = MUNGE_MIN(str_len, sizeof(munged) - 1);
+
+	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
+		*dst++ = (*src == '_' ? '-' : *src);
+
+	*dst = '\0';
+
+	return munged;
+}
+
 /*
  *  force stress-float to think the doubles are actually
  *  being used - this avoids the float loop from being

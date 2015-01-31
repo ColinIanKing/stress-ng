@@ -216,9 +216,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
-	STRESSOR(semaphore_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
 #if !defined(__gnu_hurd__)
-	STRESSOR(semaphore_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(sem_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #endif
 	STRESSOR(shm_sysv, SHM_SYSV, CLASS_VM | CLASS_OS),
 #if defined(__linux__)
@@ -1696,12 +1696,12 @@ next_opt:
 			/* Total usr + sys time of all procs */
 			us_total = u_total + s_total;
 			/* Real time in terms of average wall clock time of all procs */
-			r_total = procs[i].started_procs? r_total / (double)procs[i].started_procs : 0.0;
+			r_total = procs[i].started_procs ? r_total / (double)procs[i].started_procs : 0.0;
 
 			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 				continue;
 			pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
-				stressors[i].name,
+				munge_underscore((char *)stressors[i].name),
 				c_total,				 /* op count */
 				r_total,	 			/* average real (wall) clock time */
 				(double)u_total / (double)ticks_per_sec, /* actual user time */

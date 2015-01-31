@@ -918,6 +918,9 @@ extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 
+/* Misc helper funcs */
+extern char *munge_underscore(char *str);
+
 /* Memory tweaking */
 extern int madvise_random(void *addr, size_t length);
 extern int mincore_touch_pages(void *buf, size_t buf_len);
@@ -1036,8 +1039,8 @@ STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_rename);
 STRESS(stress_seek);
-STRESS(stress_semaphore_posix);
-STRESS(stress_semaphore_sysv);
+STRESS(stress_sem_posix);
+STRESS(stress_sem_sysv);
 STRESS(stress_shm_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);
