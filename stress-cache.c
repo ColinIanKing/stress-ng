@@ -37,10 +37,12 @@
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < MEM_CACHE_SIZE; j++) {				\
 		mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;\
-		if ((flag) & OPT_FLAGS_CACHE_FLUSH)			\
+		if ((flag) & OPT_FLAGS_CACHE_FLUSH) {			\
 			clflush(&mem_cache[i]);				\
-		if ((flag) & OPT_FLAGS_CACHE_FENCE)			\
+		}							\
+		if ((flag) & OPT_FLAGS_CACHE_FENCE) {			\
 			mfence();					\
+		}							\
 		i = (i + 32769) & (MEM_CACHE_SIZE - 1);			\
 		if (!opt_do_run)					\
 			break;						\
