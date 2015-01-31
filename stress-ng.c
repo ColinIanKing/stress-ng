@@ -358,19 +358,8 @@ static const struct option long_options[] = {
 	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
-#if defined(O_DIRECT)
-	{ "hdd-direct",	0,	0,	OPT_HDD_DIRECT },
-#endif
-#if defined(O_DSYNC)
-	{ "hdd-dsync",	0,	0,	OPT_HDD_DSYNC },
-#endif
-#if defined(O_NOATIME)
-	{ "hdd-noatime",0,	0,	OPT_HDD_NOATIME },
-#endif
-#if defined(O_SYNC)
-	{ "hdd-sync",	0,	0,	OPT_HDD_SYNC },
-#endif
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
+	{ "hdd-opts",	1,	0,	OPT_HDD_OPTS },
 	{ "help",	0,	0,	OPT_HELP },
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
 	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
@@ -648,18 +637,7 @@ static const help_t help[] = {
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
-#if defined (O_DIRECT)
-	{ NULL,		"hdd-direct",		"minimize cache effects of the I/O" },
-#endif
-#if defined (O_DSYNC)
-	{ NULL,		"hdd-dsync",		"equivalent to a write followed by fdatasync" },
-#endif
-#if defined (O_NOATIME)
-	{ NULL,		"hdd-noatime",		"do not update the file last access time" },
-#endif
-#if defined (O_SYNC)
-	{ NULL,		"hdd-sync",		"equivalent to a write followed by fsync" },
-#endif
+	{ NULL,		"hdd-opts list",	"specify list of various stressor options" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 	{ NULL,		"hsearch",		"start N workers that exercise a hash table search" },
 	{ NULL,		"hsearch-ops",		"stop when N hash search bogo operations completed" },
@@ -1337,26 +1315,10 @@ next_opt:
 		case OPT_HDD_BYTES:
 			stress_set_hdd_bytes(optarg);
 			break;
-#if defined(O_DIRECT)
-		case OPT_HDD_DIRECT:
-			opt_flags |= OPT_FLAGS_HDD_DIRECT;
+		case OPT_HDD_OPTS:
+			if (stress_hdd_opts(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
-#endif
-#if defined(O_DSYNC)
-		case OPT_HDD_DSYNC:
-			opt_flags |= OPT_FLAGS_HDD_DSYNC;
-			break;
-#endif
-#if defined(O_NOATIME)
-		case OPT_HDD_NOATIME:
-			opt_flags |= OPT_FLAGS_HDD_NOATIME;
-			break;
-#endif
-#if defined(O_SYNC)
-		case OPT_HDD_SYNC:
-			opt_flags |= OPT_FLAGS_HDD_SYNC;
-			break;
-#endif
 		case OPT_HDD_WRITE_SIZE:
 			stress_set_hdd_write_size(optarg);
 			break;

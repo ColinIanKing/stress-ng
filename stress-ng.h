@@ -554,20 +554,9 @@ typedef enum {
 #endif
 
 	OPT_HDD_BYTES,
-#if defined(O_DIRECT)
-	OPT_HDD_DIRECT,
-#endif
-#if defined(O_DSYNC)
-	OPT_HDD_DSYNC,
-#endif
-#if defined(O_NOATIME)
-	OPT_HDD_NOATIME,
-#endif
-#if defined(O_SYNC)
-	OPT_HDD_SYNC,
-#endif
 	OPT_HDD_WRITE_SIZE,
 	OPT_HDD_OPS,
+	OPT_HDD_OPTS,
 
 #if defined(__linux__)
 	OPT_EVENTFD,
@@ -967,6 +956,7 @@ extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
+extern int stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);

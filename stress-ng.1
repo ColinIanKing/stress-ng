@@ -464,22 +464,64 @@ start N processes continually writing and removing temporary files.
 .B \-\-hdd\-bytes N
 write N bytes for each hdd process, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
-.B \-\-hdd\-dsync
-ensure output has been transferred to underlying hardware and file metadata has been updated. This is equivalent to each write(2) being
-followed by a call to fdatasync(2).
-.TP
-.B \-\-hdd\-direct
-try to minimize cache effects of the I/O. File I/O writes are performed directly from user space buffers and synchronous transfer is also attempted. To guarantee synchronous I/O, also use the \-\-hdd\-sync option.
-.TP
-.B \-\-hdd\-noatime
+.B \-\-hdd\-opts list
+specify various stress test options as a comma separated list. Options are as follows:
+.TS
+expand;
+lB lBw(\n[SZ]n)
+l l.
+Option	Description
+direct	T{
+try to minimize cache effects of the I/O. File I/O writes are performed directly from user space buffers and synchronous transfer is also attempted. To guarantee synchronous I/O, also use the sync option.
+T}
+dsync	T{
+ensure output has been transferred to underlying hardware and file metadata has been updated. This is equivalent to each write(2) being followed by a call to fdatasync(2).
+T}
+noatime	T{
 do not update the file last access timestamp, this can reduce metadata writes.
+T}
+sync	T{
+ensure output has been transferred to underlying hardware. This is equivalent to a each write(2) being followed by a call to fdatasync(2).
+T}
+wr\-seq	T{
+write data sequentially. This is the default if no write modes are specified.
+T}
+wr\-rnd	T{
+write data randomly. The wr\-seq option cannot be used at the same time.
+T}
+rd\-seq	T{
+read data sequentially. By default, written data is not read back, however, this option will force it to be read back sequentially.
+T}
+rd\-rnd	T{
+read data randomly. By default, written data is not read back, however, this option will force it to be read back randonly.
+T}
+fadv-normal	T{
+advise kernel there are no explicit access pattern for the data. This is the default advice assumption.
+T}
+fadv-seq	T{
+advise kernel to expect sequential access patterns for the data.
+T}
+fadv-rnd	T{
+advise kernel to expect random access patterns for the data.
+T}
+fadv-noreuse	T{
+advise kernel to expect the data to be accessed only once.
+T}
+fadv-willneed	T{
+advise kernel to expect the data to be accessed in the near future.
+T}
+fadv-dontneed	T{
+advise kernel to expect the data will not be accessed in the near future.
+T}
+.TE
+.br
+
+Note that some of these options are mutually exclusive, for example, there can be only one method of writing or reading.  Also, fadvise flags may be mutually exclusive, for example fadv-willneed cannot be used with fadv-dontneed.
 .TP
 .B \-\-hdd\-ops N
 stop hdd stress processes after N bogo operations.
 .TP
 .B \-\-hdd\-sync
-ensure output has been transferred to underlying hardware. This is equivalent to a each write(2) being followed by a call to fdatasync(2).
-.TP
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
