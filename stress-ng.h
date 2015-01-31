@@ -217,7 +217,7 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(1 * GB)
-#define DEFAULT_SHM_SYSV_BYTES	(64 * MB)
+#define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
 
 #define MIN_SHM_SYSV_SEGMENTS	(1)
 #define MAX_SHM_SYSV_SEGMENTS	(128)
