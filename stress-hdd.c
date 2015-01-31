@@ -299,8 +299,6 @@ int stress_hdd(
 				goto finish;
 			}
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				printf("%d %d\n",
-					(int)i, (int)opt_hdd_bytes);
 				if (read(fd, buf, (size_t)opt_hdd_write_size) < 0) {
 					pr_failed_err(name, "read");
 					(void)close(fd);
