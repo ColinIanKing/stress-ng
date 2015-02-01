@@ -97,6 +97,7 @@ int stress_shm_sysv(
 	const long page_size = PAGE_4K;
 #endif
 	size_t sz = opt_shm_sysv_bytes & ~(page_size - 1);
+	const size_t orig_sz = sz;
 	void *addrs[opt_shm_sysv_segments];
 	key_t keys[opt_shm_sysv_segments];
 	int shm_ids[opt_shm_sysv_segments];
@@ -212,5 +213,8 @@ reap:
 		}
 	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
 
+	if (orig_sz != sz)
+		pr_dbg(stderr, "%s: reduced shared memory size from %zu to %zu bytes\n",
+			name, orig_sz, sz);
 	return rc;
 }
