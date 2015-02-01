@@ -74,6 +74,10 @@ int stress_sigsegv(
 			pr_failed_err(name, "sigaction");
 			return EXIT_FAILURE;
 		}
+		if (sigaction(SIGILL, &new_action, NULL) < 0) {
+			pr_failed_err(name, "sigaction");
+			return EXIT_FAILURE;
+		}
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we segfault, so
@@ -83,9 +87,9 @@ int stress_sigsegv(
 			break;
 
 		if (ret)
-			(*counter)++;	/* SEGV occurred */
+			(*counter)++;	/* SIGSEGV/SIGILL occurred */
 		else
-			*ptr = 0;	/* Trip a SEGV */
+			*ptr = 0;	/* Trip a SIGSEGV/SIGILL */
 	}
 
 	return EXIT_SUCCESS;
