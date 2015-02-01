@@ -38,7 +38,7 @@
 
 #include "stress-ng.h"
 
-#define KEY_GET_RETRIES		(10)
+#define KEY_GET_RETRIES		(40)
 
 static size_t opt_shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
@@ -96,10 +96,11 @@ int stress_shm_sysv(
 #else
 	const long page_size = PAGE_4K;
 #endif
-	const size_t sz = opt_shm_sysv_bytes & ~(page_size - 1);
+	size_t sz = opt_shm_sysv_bytes & ~(page_size - 1);
 	void *addrs[opt_shm_sysv_segments];
 	key_t keys[opt_shm_sysv_segments];
 	int shm_ids[opt_shm_sysv_segments];
+	int rc = EXIT_SUCCESS;
 	bool ok = true;
 
 	(void)instance;
@@ -147,11 +148,17 @@ int stress_shm_sysv(
 					break;
 				if (errno == EINTR)
 					goto reap;
+				if (errno == EINVAL) {
+					/* On some systems we may need to reduce the size */
+					if (sz > (size_t)page_size)
+						sz = sz / 2;
+				}
 			}
 			if (shm_id < 0) {
 				ok = false;
 				pr_fail(stderr, "%s: shmget failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				goto reap;
 				
 			}
@@ -160,6 +167,7 @@ int stress_shm_sysv(
 				ok = false;
 				pr_fail(stderr, "%s: shmat failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				goto reap;
 			}
 			addrs[i] = addr;
@@ -179,6 +187,7 @@ int stress_shm_sysv(
 			if (stress_shm_sysv_check(addr, sz) < 0) {
 				ok = false;
 				pr_fail(stderr, "%s: memory check failed\n", name);
+				rc = EXIT_FAILURE;
 				goto reap;
 			}
 			(*counter)++;
@@ -203,5 +212,5 @@ reap:
 		}
 	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
 
-	return EXIT_SUCCESS;
+	return rc;
 }
