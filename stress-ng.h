@@ -38,6 +38,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 
 #define _GNU_SOURCE
@@ -281,6 +282,11 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #if defined(__GNUC__) && defined (__GNUC_MINOR__) && \
     (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 6)
 #define STRESS_VECTOR	1
+#endif
+
+/* NetBSD does not define MAP_ANONYMOUS */
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#define MAP_ANONYMOUS MAP_ANON
 #endif
 
 /* stress process prototype */
