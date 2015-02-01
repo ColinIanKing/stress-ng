@@ -82,9 +82,6 @@ static const int signals[] = {
 #ifdef SIGQUIT
 	SIGQUIT,
 #endif
-#ifdef SIGILL
-	SIGILL,
-#endif
 #ifdef SIGABRT
 	SIGABRT,
 #endif
