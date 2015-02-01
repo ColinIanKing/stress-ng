@@ -35,6 +35,20 @@
 #define OMEGA	(0.5671432904097838729999686622L)
 #define PSI	(3.35988566624317755317201130291892717968890513373L)
 
+#if defined(__NetBSD__)
+#define rintl	rint
+#define logl	log
+#define expl	exp
+#define powl	pow
+#define cosl	cos
+#define	sinl	sin
+#define coshl	cosh
+#define	sinhl	sinh
+#define ccosl	ccos
+#define	csinl	csin
+#define cabsl	cabs
+#endif
+
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
