@@ -32,6 +32,7 @@
 #include <sys/wait.h>
 #include <pthread.h>
 #include <errno.h>
+#include <signal.h>
 
 #include "stress-ng.h"
 
