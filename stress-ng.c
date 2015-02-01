@@ -252,7 +252,7 @@ static const stress_t stressors[] = {
 	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(vm, VM, CLASS_IO | CLASS_VM | CLASS_MEMORY | CLASS_OS),
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
@@ -542,7 +542,7 @@ static const struct option long_options[] = {
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
 #endif
@@ -820,7 +820,7 @@ static const help_t help[] = {
 #ifdef MAP_POPULATE
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
 	{ NULL,		"wait-ops N",		"stop when N bogo wait operations completed" },
 #endif

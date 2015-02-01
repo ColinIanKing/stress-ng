@@ -36,7 +36,7 @@
 
 #include "stress-ng.h"
 
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 
 #define ABORT_TIMEOUT	(2.0)
 
