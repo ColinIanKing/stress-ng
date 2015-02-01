@@ -1,3 +1,48 @@
+stress-ng (0.03.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Cater for non-existent long double math functions in NetBSD
+  * mounts: forgot to handle NetBSD in mount detection
+  * Make mounts build for NetBSD too
+  * Disabled stress-wait for NetBSD - can't see how to do CONT sig wait
+  * Cater for systems that do not have MAP_ANONYMOUS
+  * Add NetBSD support to stress-stack
+  * Make vector gcc'isms compile in for modern versions of gcc only
+  * stress-hdd: void unused params
+  * Also catch SIGILL for FreeBSD
+  * Remove trapping of SIGILL
+  * stress-qsort: fix cmp3 byte-wise re-ordering
+  * include signal.h in stress-pthread to fix FreeBSD build
+  * Minor source reformatting on stress-ng.c
+  * Reduce the precision and number of iterations for nsqrt
+  * stress-shm-sysv: also shrink and re-try if ENOMEM occurs
+  * Add some feedback of shm-sysv had to shrink shared memory size
+  * Cater for EINVAL on shmget if size is too large.
+  * Mungify stressor names when invoking the stressor
+  * Drop default System V shared memory size to 8MB for *BSD kernels
+  * Add check for BSD invalid chmod mode bits error
+  * Fix printing of stressor names, some names too long and _ -> - conversion
+  * stress-cache: put { } braces around cflush and mfence
+  * stress-mq: intialise mq to -1 to avoid gcc warning (false positive)
+  * Add full read checks in stress-hdd read stressor loops
+  * stress-hdd: remove debug cruft
+  * Forgot to escape some - hyphens in manual
+  * Stress-hdd: remove ad-hoc open flags, replace with --hdd-opts option
+  * Manual: fix spelling, destory -> destroy
+  * Add vector maths stressor
+  * Man page: naive -> naïve
+  * Manual, lease-breakers: for --> to
+  * Don't handle SIGSEGV and SIGBUS
+  * Don't build sem-sysv for GNU HURD
+  * Add sections of man pages for sys calls and libc functions
+  * Add System V shared memory stress test
+  * Fix error path on SYSV sem creation - need to reap semaphore
+  * Re-work POSIX sem test to be aligned with SYSV sem test
+  * Remove POSIX semaphore header, not required
+  * Add System V semaphore stressor
+
+ -- Colin King <colin.king@canonical.com>  Sun, 1 Feb 2015 15:22:10 +0000
+
 stress-ng (0.03.12-1) unstable; urgency=medium
 
   * Makefile: bump version
