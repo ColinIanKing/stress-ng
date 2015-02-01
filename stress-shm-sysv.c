@@ -149,7 +149,7 @@ int stress_shm_sysv(
 					break;
 				if (errno == EINTR)
 					goto reap;
-				if (errno == EINVAL) {
+				if ((errno == EINVAL) || (errno == ENOMEM)) {
 					/* On some systems we may need to reduce the size */
 					if (sz > (size_t)page_size)
 						sz = sz / 2;
