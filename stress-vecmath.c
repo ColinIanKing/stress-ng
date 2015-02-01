@@ -31,6 +31,8 @@
 
 #include "stress-ng.h"
 
+#if defined(STRESS_VECTOR)
+
 typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t vint32_t __attribute__ ((vector_size (16)));
@@ -130,3 +132,5 @@ int stress_vecmath(
 
 	return EXIT_SUCCESS;
 }
+
+#endif

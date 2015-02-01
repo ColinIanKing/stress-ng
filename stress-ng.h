@@ -278,6 +278,11 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define STRESS_X86	1
 #endif
 
+#if defined(__GNUC__) && defined (__GNUC_MINOR__) && \
+    (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 6)
+#define STRESS_VECTOR	1
+#endif
+
 /* stress process prototype */
 typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
@@ -437,7 +442,9 @@ typedef enum {
 	STRESS_URANDOM,
 #endif
 	STRESS_UTIME,
+#if defined(STRESS_VECTOR)
 	STRESS_VECMATH,
+#endif
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
@@ -769,8 +776,10 @@ typedef enum {
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
 
+#if defined(STRESS_VECTOR)
 	OPT_VECMATH,
 	OPT_VECMATH_OPS,
+#endif
 
 	OPT_VERIFY,
 

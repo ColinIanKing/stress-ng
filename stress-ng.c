@@ -243,7 +243,9 @@ static const stress_t stressors[] = {
 	STRESSOR(urandom, URANDOM, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(utime, UTIME, CLASS_NETWORK | CLASS_OS),
+#if defined(STRESS_VECTOR)
 	STRESSOR(vecmath, VECMATH, CLASS_CPU),
+#endif
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
@@ -514,8 +516,10 @@ static const struct option long_options[] = {
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
 #endif
+#if defined(STRESS_VECTOR)
 	{ "vecmath",	1,	0,	OPT_VECMATH },
 	{ "vecmath-ops",1,	0,	OPT_VECMATH_OPS },
+#endif
 	{ "verbose",	0,	0,	OPT_VERBOSE },
 	{ "verify",	0,	0,	OPT_VERIFY },
 	{ "version",	0,	0,	OPT_VERSION },
@@ -790,8 +794,10 @@ static const help_t help[] = {
 	{ NULL,		"utime N",		"start N workers updating file timestamps" },
 	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
+#if defined(STRESS_VECTOR)
 	{ NULL,		"vecmath N",		"start N workers performing vector math ops" },
 	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations completed" },
+#endif
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
