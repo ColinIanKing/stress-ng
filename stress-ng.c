@@ -841,7 +841,7 @@ static inline int stressor_id_find(const stress_id id)
 	for (i = 0; stressors[i].name; i++)
 		if (stressors[i].id == id)
 			break;
-	
+
 	return i;       /* End of array is a special "NULL" entry */
 }
 
@@ -926,7 +926,8 @@ static void usage(void)
 
 		if (help[i].opt_s)
 			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
-		printf(" %-6s--%-17s%s\n", opt_s, help[i].opt_l, help[i].description);
+		printf(" %-6s--%-17s%s\n", opt_s,
+			help[i].opt_l, help[i].description);
 	}
 	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
 	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", app_name);
@@ -1595,7 +1596,8 @@ next_opt:
 
 		/* Share bogo ops between processes equally */
 		for (i = 0; i < STRESS_MAX; i++) {
-			procs[i].bogo_ops = procs[i].num_procs ? procs[i].bogo_ops / procs[i].num_procs : 0;
+			procs[i].bogo_ops = procs[i].num_procs ?
+				procs[i].bogo_ops / procs[i].num_procs : 0;
 			procs[i].pids = NULL;
 
 			if (max_procs < procs[i].num_procs)
@@ -1647,7 +1649,7 @@ next_opt:
 
 #if !defined(__gnu_hurd__)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
-	if (procs[id].num_procs || opt_sequential) 
+	if (procs[id].num_procs || opt_sequential)
 		stress_semaphore_sysv_init();
 #endif
 
@@ -1661,7 +1663,8 @@ next_opt:
 			for (j = 0; opt_do_run && j < STRESS_MAX; j++)
 				procs[i].num_procs = 0;
 			procs[i].num_procs = opt_class ?
-				(stressors[i].class & opt_class ? opt_sequential : 0) : opt_sequential;
+				(stressors[i].class & opt_class ?
+					opt_sequential : 0) : opt_sequential;
 			if (procs[i].num_procs)
 				stress_run(opt_sequential, opt_sequential, shared->stats, &duration, &success);
 		}
@@ -1735,13 +1738,18 @@ next_opt:
 
 		pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
 			(float)buf.tms_cutime / (float)ticks_per_sec,
-			100.0 * ((float)buf.tms_cutime / (float)ticks_per_sec) / total_cpu_time);
+			100.0 * ((float)buf.tms_cutime /
+				(float)ticks_per_sec) / total_cpu_time);
 		pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n",
 			(float)buf.tms_cstime / (float)ticks_per_sec,
-			100.0 * ((float)buf.tms_cstime / (float)ticks_per_sec) / total_cpu_time);
+			100.0 * ((float)buf.tms_cstime /
+				(float)ticks_per_sec) / total_cpu_time);
 		pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n",
-			((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec,
-			100.0 * (((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec) / total_cpu_time);
+			((float)buf.tms_cutime + (float)buf.tms_cstime) /
+				(float)ticks_per_sec,
+			100.0 * (((float)buf.tms_cutime +
+				  (float)buf.tms_cstime) /
+				(float)ticks_per_sec) / total_cpu_time);
 	}
 	exit(EXIT_SUCCESS);
 }
