@@ -206,6 +206,10 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
 			}
 		}
 	}
+#else
+	(void)name;
+	(void)fd;
+	(void)flags;
 #endif
 	return 0;
 }
