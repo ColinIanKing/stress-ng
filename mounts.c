@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__)
 #include <mntent.h>
 #endif
 
