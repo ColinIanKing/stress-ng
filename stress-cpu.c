@@ -278,8 +278,8 @@ static void stress_cpu_rand(void)
 static void stress_cpu_nsqrt(void)
 {
 	int i;
-	const long double precision = 1.0e-15;
-	const int max_iter = 100;
+	const long double precision = 1.0e-12;
+	const int max_iter = 56;
 
 	for (i = 0; i < 16384; i++) {
 		long double n = (double)i;
