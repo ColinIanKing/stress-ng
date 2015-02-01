@@ -62,8 +62,8 @@ static int stress_qsort_cmp_3(const void *p1, const void *p2)
 	int8_t *i1 = (int8_t *)p1;
 	int8_t *i2 = (int8_t *)p2;
 
-	/* Force byte-wise re-ordering */
-	return *i1 - (*i2 ^ *i1);
+	/* Force re-ordering on address */
+	return *i1 - *i2;
 }
 
 /*
