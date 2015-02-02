@@ -1057,6 +1057,9 @@ T}
 rand-sum	T{
 sequentially set all memory to random values and then summate the number of bits that have changed from the original set values.
 T}
+read64	T{
+sequentially read memory using 32 x 64 bit reads per bogo loop. Each loop equates to one bogo operation.  This exercises raw memory reads.
+T}
 ror	T{
 fill memory with a random pattern and then sequentially rotate 64 bits of memory right by one bit, then check the final load/rotate/stored values.
 T}
@@ -1092,6 +1095,9 @@ in the given memory mapping, work through a range of specially chosen addresses 
 T}
 walk-1a	T{
 in the given memory mapping, work through a range of specially chosen addresses working through address lines to see if any address lines are stuck high. This works best with physical memory addressing, however, exercising these virtual addresses has some value too.
+T}
+write64	T{
+sequentially write memory using 32 x 64 bit writes per bogo loop. Each loop equates to one bogo operation.  This exercises raw memory writes.  Note that memory writes are not checked at the end of each test iteration.
 T}
 zero-one	T{
 set all memory bits to zero and then check if any bits are not zero. Next, set all the memory bits to one and check if any bits are not one.

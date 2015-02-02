@@ -1608,6 +1608,126 @@ abort:
 }
 
 /*
+ *  stress_vm_write_64()
+ *	simple 64 bit write, no read check
+ */
+static size_t stress_vm_write64(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
+{
+	static uint64_t val;
+	uint64_t *ptr = (uint64_t *)buf;
+	register uint64_t v = val;
+	register size_t i = 0, n = sz / (sizeof(uint64_t) * 32);
+
+	while (i < n) {
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		*ptr++ = v;
+		i++;
+		if (!opt_do_run || (max_ops && i >= max_ops))
+			break;
+	}
+	*counter += i;
+	val++;
+
+	return 0;
+}
+
+/*
+ *  stress_vm_read_64()
+ *	simple 64 bit read
+ */
+static size_t stress_vm_read64(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
+{
+	volatile uint64_t *ptr = (uint64_t *)buf;
+	register size_t i = 0, n = sz / (sizeof(uint64_t) * 32);
+
+	while (i < n) {
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+		(void)*(ptr++);
+
+		i++;
+		if (!opt_do_run || (max_ops && i >= max_ops))
+			break;
+	}
+	*counter += i;
+
+	return 0;
+}
+
+/*
  *  stress_vm_all()
  *	work through all vm stressors sequentially
  */
@@ -1638,6 +1758,7 @@ static stress_vm_stressor_info_t vm_methods[] = {
 	{ "inc-nybble",	stress_vm_inc_nybble },
 	{ "rand-set",	stress_vm_rand_set },
 	{ "rand-sum",	stress_vm_rand_sum },
+	{ "read64",	stress_vm_read64 },
 	{ "ror",	stress_vm_ror },
 	{ "swap",	stress_vm_swap },
 	{ "move-inv",	stress_vm_moving_inversion },
@@ -1651,6 +1772,7 @@ static stress_vm_stressor_info_t vm_methods[] = {
 	{ "walk-1d",	stress_vm_walking_one_data },
 	{ "walk-0a",	stress_vm_walking_zero_addr },
 	{ "walk-1a",	stress_vm_walking_one_addr },
+	{ "write64",	stress_vm_write64 },
 	{ "zero-one",	stress_vm_zero_one },
 	{ NULL,		NULL  }
 };
