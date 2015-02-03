@@ -879,6 +879,15 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 .B \-\-sock\-ops N
 stop socket stress processes after N bogo operations.
 .TP
+.B \-\-splice N
+move data from /dev/zero to /dev/null through a pipe without any copying between kernel address space and user address space using splice(2). This is only available for Linux.
+.TP
+.B \-\-splice-ops N
+stop after N bogo splice operations.
+.TP
+.B \-\-splice-bytes N
+transfer N bytes per splice operation, the default is 64K. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-stack N
 start N processes that rapidly cause and catch stack overflows by use of alloca(3).
 .TP
@@ -1200,6 +1209,7 @@ File bug reports at:
 .BR sched_yield (2),
 .BR sched_setaffinity (2),
 .BR stress (1),
+.BR slice (2),
 .BR tsearch (3)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and

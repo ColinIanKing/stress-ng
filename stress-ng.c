@@ -230,6 +230,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(sigsegv, SIGSEGV, CLASS_OS),
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
+#if defined(__linux__)
+	STRESSOR(splice, SPLICE, CLASS_IO | CLASS_OS),
+#endif
 	STRESSOR(stack, STACK, CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_IO | CLASS_OS),
@@ -490,6 +493,11 @@ static const struct option long_options[] = {
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
+#if defined (__linux__)
+	{ "splice",	1,	0,	OPT_SPLICE },
+	{ "splice-ops",	1,	0,	OPT_SPLICE_OPS },
+	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
+#endif
 	{ "stack",	1,	0,	OPT_STACK},
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
 	{ "switch",	1,	0,	OPT_SWITCH },
@@ -773,6 +781,11 @@ static const help_t help[] = {
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
+#if defined (__linux__)
+	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
+	{ NULL,		"splice-ops N",		"stop when N bogo splice operations completed" },
+	{ NULL,		"splice-bytes N",	"number of bytes to transfer per splice call" },
+#endif
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
 	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
@@ -1459,6 +1472,11 @@ next_opt:
 		case OPT_SOCKET_PORT:
 			stress_set_socket_port(optarg);
 			break;
+#if defined (__linux__)
+		case OPT_SPLICE_BYTES:
+			stress_set_splice_bytes(optarg);
+			break;
+#endif
 		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);
 			break;

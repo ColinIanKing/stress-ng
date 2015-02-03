@@ -228,6 +228,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
+#define MIN_SPLICE_BYTES	(1*KB)
+#define MAX_SPLICE_BYTES	(64*MB)
+#define DEFAULT_SPLICE_BYTES	(64*KB)
+
 #define MIN_TSEARCH_SIZE	(1 * KB)
 #define MAX_TSEARCH_SIZE	(4 * MB)
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
@@ -439,6 +443,9 @@ typedef enum {
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SOCKET,
+#if defined(__linux__)
+	STRESS_SPLICE,
+#endif
 	STRESS_STACK,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
@@ -757,6 +764,12 @@ typedef enum {
 
 	OPT_SWITCH_OPS,
 
+#if defined(__linux__)
+	OPT_SPLICE,
+	OPT_SPLICE_OPS,
+	OPT_SPLICE_BYTES,
+#endif
+
 	OPT_STACK,
 	OPT_STACK_OPS,
 
@@ -1004,6 +1017,7 @@ extern void stress_set_shm_sysv_bytes(const char *optarg);
 extern void stress_set_shm_sysv_segments(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
+extern void stress_set_splice_bytes(const char *optarg);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
@@ -1077,6 +1091,7 @@ STRESS(stress_sigfpe);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);
 STRESS(stress_socket);
+STRESS(stress_splice);
 STRESS(stress_stack);
 STRESS(stress_switch);
 STRESS(stress_symlink);
