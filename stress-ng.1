@@ -886,7 +886,7 @@ move data from /dev/zero to /dev/null through a pipe without any copying between
 stop after N bogo splice operations.
 .TP
 .B \-\-splice-bytes N
-transfer N bytes per splice operation, the default is 64K. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+transfer N bytes per splice call, the default is 64K. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-stack N
 start N processes that rapidly cause and catch stack overflows by use of alloca(3).
@@ -1126,6 +1126,15 @@ stop vm\-rw workers after N memory read/writes.
 .B \-\-vm\-rw\-bytes N
 mmap N bytes per vm\-rw process, the default is 16MB. One can specify the size in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-vm\-splice N
+move data from memory to /dev/null through a pipe without any copying between kernel address space and user address space using vmsplice(2) and splice(2). This is only available for Linux.
+.TP
+.B \-\-vm\-splice-ops N
+stop after N bogo vm\-splice operations.
+.TP
+.B \-\-vm\-splice-bytes N
+transfer N bytes per vmsplice call, the default is 64K. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-wait N
 start N workers that spawn off two children; one spins in a pause(2) loop, the other continually stops and continues the first. The controlling process waits on the first child to be resumed by the delivery of SIGCONT using waitpid(2) and waitid(2).

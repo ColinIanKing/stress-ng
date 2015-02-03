@@ -258,6 +258,9 @@ static const stress_t stressors[] = {
 #if defined (__linux__)
 	STRESSOR(vm_rw, VM_RW, CLASS_VM | CLASS_MEMORY | CLASS_OS),
 #endif
+#if defined(__linux__)
+	STRESSOR(vm_splice, VM_SPLICE, CLASS_VM | CLASS_IO | CLASS_OS),
+#endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -558,6 +561,11 @@ static const struct option long_options[] = {
 	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
 	{ "vm-rw-ops",	1,	0,	OPT_VM_RW_OPS },
 #endif
+#if defined (__linux__)
+	{ "vm-splice",	1,	0,	OPT_VM_SPLICE },
+	{ "vm-splice-bytes",1,	0,	OPT_VM_SPLICE_BYTES },
+	{ "vm-splice-ops",1,	0,	OPT_VM_SPLICE_OPS },
+#endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
@@ -845,6 +853,11 @@ static const help_t help[] = {
 	{ NULL,		"vm-rw N",		"start N vm read/write process_vm* copy workers" },
 	{ NULL,		"vm-rw-bytes N",	"transfer N bytes of memory per bogo operation" },
 	{ NULL,		"vm-rw-ops N",		"stop after N vm process_vm* copy bogo operations" },
+#endif
+#if defined (__linux__)
+	{ NULL,		"vm-splice N",		"start N workers reading/writing using vmsplice" },
+	{ NULL,		"vm-splice-ops N",	"stop when N bogo splice operations completed" },
+	{ NULL,		"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
 #endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
@@ -1548,6 +1561,11 @@ next_opt:
 #if defined (__linux__)
 		case OPT_VM_RW_BYTES:
 			stress_set_vm_rw_bytes(optarg);
+			break;
+#endif
+#if defined (__linux__)
+		case OPT_VM_SPLICE_BYTES:
+			stress_set_vm_splice_bytes(optarg);
 			break;
 #endif
 		default:
