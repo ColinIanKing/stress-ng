@@ -47,6 +47,7 @@
 #define ccosl	ccos
 #define	csinl	csin
 #define cabsl	cabs
+#define sqrtl	sqrt
 #endif
 
 /*
