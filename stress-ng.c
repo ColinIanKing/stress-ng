@@ -495,8 +495,8 @@ static const struct option long_options[] = {
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 #if defined (__linux__)
 	{ "splice",	1,	0,	OPT_SPLICE },
-	{ "splice-ops",	1,	0,	OPT_SPLICE_OPS },
 	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
+	{ "splice-ops",	1,	0,	OPT_SPLICE_OPS },
 #endif
 	{ "stack",	1,	0,	OPT_STACK},
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
@@ -840,6 +840,11 @@ static const help_t help[] = {
 	{ NULL,		"vm-method m",		"specify stress vm method m, default is all" },
 #ifdef MAP_POPULATE
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
+#endif
+#if defined (__linux__)
+	{ NULL,		"vm-rw N",		"start N vm read/write process_vm* copy workers" },
+	{ NULL,		"vm-rw-bytes N",	"transfer N bytes of memory per bogo operation" },
+	{ NULL,		"vm-rw-ops N",		"stop after N vm process_vm* copy bogo operations" },
 #endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
