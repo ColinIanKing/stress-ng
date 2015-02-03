@@ -252,6 +252,9 @@ static const stress_t stressors[] = {
 	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(vm, VM, CLASS_IO | CLASS_VM | CLASS_MEMORY | CLASS_OS),
+#if defined (__linux__)
+	STRESSOR(vm_rw, VM_RW, CLASS_VM | CLASS_MEMORY | CLASS_OS),
+#endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -542,6 +545,11 @@ static const struct option long_options[] = {
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
+#if defined (__linux)
+	{ "vm-rw",	1,	0,	OPT_VM_RW },
+	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
+	{ "vm-rw-ops",	1,	0,	OPT_VM_RW_OPS },
+#endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
@@ -1512,6 +1520,11 @@ next_opt:
 #ifdef MAP_POPULATE
 		case OPT_VM_MMAP_POPULATE:
 			stress_set_vm_flags(MAP_POPULATE);
+			break;
+#endif
+#if defined (__linux__)
+		case OPT_VM_RW_BYTES:
+			stress_set_vm_rw_bytes(optarg);
 			break;
 #endif
 		default:

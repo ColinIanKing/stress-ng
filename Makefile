@@ -93,6 +93,7 @@ SRC =   stress-affinity.c \
 	stress-utime.c \
 	stress-vecmath.c \
 	stress-vm.c \
+	stress-vm-rw.c \
 	stress-wait.c \
 	stress-yield.c \
 	stress-zero.c \

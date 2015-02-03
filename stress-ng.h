@@ -248,6 +248,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_VM_HANG		(3600)
 #define DEFAULT_VM_HANG		(~0ULL)
 
+#define MIN_VM_RW_BYTES		(4 * KB)
+#define MAX_VM_RW_BYTES		(1 * GB)
+#define DEFAULT_VM_RW_BYTES	(16 * MB)
+
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_LINKS		(8192)
@@ -457,6 +461,9 @@ typedef enum {
 	STRESS_VFORK,
 #endif
 	STRESS_VM,
+#if defined(__linux__)
+	STRESS_VM_RW,
+#endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	STRESS_WAIT,
 #endif
@@ -809,6 +816,12 @@ typedef enum {
 	OPT_VM_OPS,
 	OPT_VM_METHOD,
 
+#if defined(__linux__)
+	OPT_VM_RW,
+	OPT_VM_RW_OPS,
+	OPT_VM_RW_BYTES,
+#endif
+
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 	OPT_WAIT,
 	OPT_WAIT_OPS,
@@ -1000,6 +1013,7 @@ extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
 extern void stress_set_vm_hang(const char *optarg);
 extern int  stress_set_vm_method(const char *name);
+extern void stress_set_vm_rw_bytes(const char *optarg);
 
 #define STRESS(name)							\
 extern int name(uint64_t *const counter, const uint32_t instance,	\
@@ -1075,6 +1089,7 @@ STRESS(stress_utime);
 STRESS(stress_vecmath);
 STRESS(stress_vfork);
 STRESS(stress_vm);
+STRESS(stress_vm_rw);
 STRESS(stress_wait);
 STRESS(stress_yield);
 STRESS(stress_zero);

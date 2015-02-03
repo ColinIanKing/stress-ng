@@ -1108,6 +1108,16 @@ T}
 .B \-\-vm\-populate
 populate (prefault) page tables for the memory mappings; this can stress swapping. Only available on systems that support MAP_POPULATE (since Linux 2.5.46).
 .TP
+.B \-\-vm\-rw N
+start N workers that transfer memory to/from a parent/child using process_vm_writev(2) and process_vm_readv(2). This is feature is only supported on Linux.  Memory transfers are only verified if the \-\-verify option is enabled.
+.TP
+.B \-\-vm\-rw\-ops N
+stop vm\-rw workers after N memory read/writes.
+.TP
+.B \-\-vm\-rw\-bytes N
+mmap N bytes per vm\-rw process, the default is 16MB. One can specify the size in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-wait N
 start N workers that spawn off two children; one spins in a pause(2) loop, the other continually stops and continues the first. The controlling process waits on the first child to be resumed by the delivery of SIGCONT using waitpid(2) and waitid(2).
 .TP

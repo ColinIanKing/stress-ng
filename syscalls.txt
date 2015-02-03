@@ -78,6 +78,8 @@ pipe				switch
 poll				poll
 posix_fallocate			fallocate
 /proc				proc
+process_vm_readv		vm_rw
+process_vm_writev		vm_rw
 read				pipe
 read				zero
 recv				sock
