@@ -60,7 +60,7 @@ int stress_splice(
 	(void)instance;
 
 	if (pipe(fds) < 0) {
-		pr_failed_err(name, "open");
+		pr_failed_err(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
