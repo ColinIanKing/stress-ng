@@ -136,11 +136,7 @@ int stress_mremap(
 	const char *name)
 {
 	uint8_t *buf = NULL;
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	const size_t sz = opt_mremap_bytes & ~(page_size - 1);
 	size_t new_sz = sz, old_sz;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -182,7 +178,7 @@ int stress_mremap(
 
 		old_sz = new_sz;
 		new_sz >>= 1;
-		while (new_sz > (size_t)page_size) {
+		while (new_sz > page_size) {
 			if (try_remap(name, &buf, old_sz, new_sz) < 0) {
 				munmap(buf, old_sz);
 				return EXIT_FAILURE;
