@@ -35,6 +35,7 @@
 #define OMEGA	(0.5671432904097838729999686622L)
 #define PSI	(3.35988566624317755317201130291892717968890513373L)
 
+/* Some awful *BSD math lib workarounds */
 #if defined(__NetBSD__)
 #define rintl	rint
 #define logl	log
@@ -48,6 +49,12 @@
 #define	csinl	csin
 #define cabsl	cabs
 #define sqrtl	sqrt
+#endif
+
+#if defined(__FreeBSD__)
+#define	ccosl	ccos
+#define	csinl	csin
+#define cpow	pow
 #endif
 
 /*
@@ -898,11 +905,7 @@ static void stress_cpu_complex_long_double(void)
 		c = mwc() + I * mwc(), d;
 
 	for (i = 0; i < 1000; i++) {
-#if __FreeBSD__
-		float_ops(a, b, c, d, csin, ccos);
-#else
 		float_ops(a, b, c, d, csinl, ccosl);
-#endif
 	}
 	double_put(a + b + c + d);
 }
@@ -1398,11 +1401,7 @@ static inline long double complex zeta(
 
 	do {
 		zold = z;
-#if __FreeBSD__
-		z += 1 / pow(i++, s);
-#else
 		z += 1 / cpow(i++, s);
-#endif
 	} while (cabsl(z - zold) > precision);
 
 	return z;
