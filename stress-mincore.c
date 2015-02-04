@@ -53,11 +53,7 @@ int stress_mincore(
 	const char *name)
 {
 	volatile uint8_t *addr = 0;
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	const ptrdiff_t mask = ~(page_size - 1);
 
 	(void)instance;

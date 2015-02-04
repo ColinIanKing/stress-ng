@@ -31,8 +31,6 @@
 
 #include "stress-ng.h"
 
-long int page_size;
-
 /*
  * madvise_random()
  *	apply random madvise setting to a memory region
@@ -43,14 +41,10 @@ int mincore_touch_pages(void *buf, size_t buf_len)
 	unsigned char *vec;
 	char *buffer;
 	size_t vec_len, i;
+	const size_t page_size = stress_get_pagesize();
 
 	if (!(opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
-
-	if (!page_size)
-		page_size = sysconf(_SC_PAGESIZE);
-	if (page_size < 0)
-		return -1;
 
 	vec_len = buf_len / page_size;
 	if (vec_len < 1)

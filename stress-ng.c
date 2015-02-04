@@ -1244,6 +1244,7 @@ int main(int argc, char **argv)
 	memset(procs, 0, sizeof(procs));
 	mwc_reseed();
 
+	(void)stress_get_pagesize();
 	(void)stress_set_cpu_method("all");
 	(void)stress_set_vm_method("all");
 

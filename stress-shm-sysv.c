@@ -91,11 +91,7 @@ int stress_shm_sysv(
 	const uint64_t max_ops,
 	const char *name)
 {
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	size_t sz = opt_shm_sysv_bytes & ~(page_size - 1);
 	const size_t orig_sz = sz;
 	void *addrs[opt_shm_sysv_segments];
@@ -151,7 +147,7 @@ int stress_shm_sysv(
 					goto reap;
 				if ((errno == EINVAL) || (errno == ENOMEM)) {
 					/* On some systems we may need to reduce the size */
-					if (sz > (size_t)page_size)
+					if (sz > page_size)
 						sz = sz / 2;
 				}
 			}

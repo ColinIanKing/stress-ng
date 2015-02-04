@@ -997,6 +997,7 @@ extern void check_range(const char *const opt, const uint64_t val,
 
 /* Misc helper funcs */
 extern char *munge_underscore(char *str);
+extern size_t stress_get_pagesize(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, size_t length);

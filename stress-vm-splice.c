@@ -58,11 +58,7 @@ int stress_vm_splice(
 {
 	int fd, fds[2];
 	uint8_t *buf;
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	const size_t sz = opt_vm_splice_bytes & ~(page_size - 1);
 
 	(void)instance;

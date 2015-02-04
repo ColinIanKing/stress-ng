@@ -113,11 +113,7 @@ int stress_mmap(
 	const char *name)
 {
 	uint8_t *buf = NULL;
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
 	const size_t pages4k = sz / page_size;
 #if !defined(__gnu_hurd__)
@@ -257,7 +253,7 @@ int stress_mmap(
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
 						if (stress_mmap_check(mappings[page], page_size) < 0)
-							pr_fail(stderr, "mmap'd region of %lu bytes does "
+							pr_fail(stderr, "mmap'd region of %zu bytes does "
 								"not contain expected data\n", page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);

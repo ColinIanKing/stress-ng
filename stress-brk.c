@@ -50,8 +50,7 @@ int stress_brk(
 {
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
-	long int page_size;
-	page_size = sysconf(_SC_PAGESIZE);
+	const size_t page_size = stress_get_pagesize();
 
 again:
 	pid = fork();

@@ -38,6 +38,29 @@
 
 #define MUNGE_MIN(a,b) (((a) < (b)) ? (a) : (b))
 
+static size_t page_size = 0;
+
+/*
+ *  stress_get_pagesize()
+ *	get pagesize
+ */
+size_t stress_get_pagesize(void)
+{
+	long sz;
+
+	if (page_size > 0)
+		return page_size;
+
+#ifdef _SC_PAGESIZE
+        sz = sysconf(_SC_PAGESIZE);
+	page_size = (sz <= 0) ? PAGE_4K : (size_t)sz;
+#else
+        page_size = PAGE_4K;
+#endif
+
+	return page_size;
+}
+
 /*
  *  munge_underscore()
  *	turn '_' to '-' in strings

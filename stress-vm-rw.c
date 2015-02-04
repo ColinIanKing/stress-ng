@@ -64,11 +64,7 @@ int stress_vm_rw(
 {
 	pid_t pid;
 	int pipe_wr[2], pipe_rd[2];
-#ifdef _SC_PAGESIZE
-	const long page_size = sysconf(_SC_PAGESIZE);
-#else
-	const long page_size = PAGE_4K;
-#endif
+	const size_t page_size = stress_get_pagesize();
 	const size_t sz = opt_vm_rw_bytes & ~(page_size - 1);
 
 	(void)instance;
