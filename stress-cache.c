@@ -100,7 +100,7 @@ int stress_cache(
 		}
 #if defined(__linux__)
 		cpu++;
-		cpu %= opt_nprocessors_online;
+		cpu %= stress_get_processors_online();
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		sched_setaffinity(0, sizeof(mask), &mask);

@@ -53,7 +53,6 @@ static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
-long int opt_nprocessors_online;		/* Number of processors online */
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 
@@ -1248,7 +1247,7 @@ int main(int argc, char **argv)
 	(void)stress_set_cpu_method("all");
 	(void)stress_set_vm_method("all");
 
-	if ((opt_nprocessors_online = sysconf(_SC_NPROCESSORS_ONLN)) < 0) {
+	if (stress_get_processors_online() < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
@@ -1275,7 +1274,7 @@ next_opt:
 				opt_flags |= OPT_FLAGS_SET;
 				procs[id].num_procs = opt_long(name, optarg);
 				if (procs[id].num_procs <= 0)
-					procs[id].num_procs = opt_nprocessors_online;
+					procs[id].num_procs = stress_get_processors_online();
 				check_value(name, procs[id].num_procs);
 				goto next_opt;
 			}
@@ -1297,7 +1296,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_SET;
 			val = opt_long("-a", optarg);
 			if (val <= 0)
-				val = opt_nprocessors_online;
+				val = stress_get_processors_online();
 			check_value("all", val);
 			for (i = 0; i < STRESS_MAX; i++)
 				procs[i].num_procs = val;
@@ -1501,7 +1500,7 @@ next_opt:
 		case OPT_SEQUENTIAL:
 			opt_sequential = get_uint64_byte(optarg);
 			if (opt_sequential <= 0)
-				opt_sequential = opt_nprocessors_online;
+				opt_sequential = stress_get_processors_online();
 			check_range("sequential", opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
@@ -1607,7 +1606,7 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 
-	pr_dbg(stderr, "%ld processors online\n", opt_nprocessors_online);
+	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
 
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
@@ -1809,7 +1808,7 @@ next_opt:
 
 	if (opt_flags & OPT_FLAGS_TIMES) {
 		struct tms buf;
-		double total_cpu_time = opt_nprocessors_online * duration;
+		double total_cpu_time = stress_get_processors_online() * duration;
 
 		if (times(&buf) == (clock_t)-1) {
 			pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",

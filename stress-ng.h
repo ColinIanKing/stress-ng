@@ -911,7 +911,6 @@ extern const char *app_name;		/* Name of application */
 extern shared_t *shared;		/* shared memory */
 extern uint64_t	opt_timeout;		/* timeout in seconds */
 extern int32_t	opt_flags;		/* option flags */
-extern long int	opt_nprocessors_online;	/* Number of processors online */
 extern uint64_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool opt_do_run;	/* false to exit stressor */
 extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
@@ -998,6 +997,7 @@ extern void check_range(const char *const opt, const uint64_t val,
 /* Misc helper funcs */
 extern char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
+extern long stress_get_processors_online(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, size_t length);

@@ -38,7 +38,6 @@
 
 #define MUNGE_MIN(a,b) (((a) < (b)) ? (a) : (b))
 
-static size_t page_size = 0;
 
 /*
  *  stress_get_pagesize()
@@ -47,6 +46,7 @@ static size_t page_size = 0;
 size_t stress_get_pagesize(void)
 {
 	long sz;
+	static size_t page_size = 0;
 
 	if (page_size > 0)
 		return page_size;
@@ -59,6 +59,25 @@ size_t stress_get_pagesize(void)
 #endif
 
 	return page_size;
+}
+
+/*
+ *  stress_get_processors_online()
+ *	get number of processors that are online
+ */
+long stress_get_processors_online(void)
+{
+	static size_t processors_online = 0;
+
+	if (processors_online > 0)
+		return processors_online;
+
+#ifdef _SC_NPROCESSORS_ONLN
+	processors_online = sysconf(_SC_NPROCESSORS_ONLN);
+	return processors_online;
+#else
+	return -1;
+#endif
 }
 
 /*
