@@ -196,6 +196,10 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
+#define MIN_MREMAP_BYTES	(4 * KB)
+#define MAX_MREMAP_BYTES	(1 * GB)
+#define DEFAULT_MREMAP_BYTES	(256 * MB)
+
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(16)
@@ -411,6 +415,7 @@ typedef enum {
 	STRESS_MINCORE,
 #endif
 	STRESS_MMAP,
+	STRESS_MREMAP,
 #if !defined(__gnu_hurd__)
 	STRESS_MSG,
 #endif
@@ -679,6 +684,10 @@ typedef enum {
 	OPT_MMAP_FILE,
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
+
+	OPT_MREMAP,
+	OPT_MREMAP_OPS,
+	OPT_MREMAP_BYTES,
 
 	OPT_MSG,
 	OPT_MSG_OPS,
@@ -1019,6 +1028,7 @@ extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
+extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
@@ -1082,6 +1092,7 @@ STRESS(stress_lsearch);
 STRESS(stress_memcpy);
 STRESS(stress_mincore);
 STRESS(stress_mmap);
+STRESS(stress_mremap);
 STRESS(stress_msg);
 STRESS(stress_mq);
 STRESS(stress_nice);
