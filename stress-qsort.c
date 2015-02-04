@@ -39,6 +39,10 @@ void stress_set_qsort_size(const void *optarg)
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 }
 
+/*
+ *  stress_qsort_cmp_1()
+ *	qsort comparison - sort on int32 values
+ */
 static int stress_qsort_cmp_1(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;
@@ -52,17 +56,25 @@ static int stress_qsort_cmp_1(const void *p1, const void *p2)
 		return 0;
 }
 
+/*
+ *  stress_qsort_cmp_1()
+ *	qsort comparison - reverse sort on int32 values
+ */
 static int stress_qsort_cmp_2(const void *p1, const void *p2)
 {
 	return stress_qsort_cmp_1(p2, p1);
 }
 
+/*
+ *  stress_qsort_cmp_1()
+ *	qsort comparison - sort on int8 values
+ */
 static int stress_qsort_cmp_3(const void *p1, const void *p2)
 {
 	int8_t *i1 = (int8_t *)p1;
 	int8_t *i2 = (int8_t *)p2;
 
-	/* Force re-ordering on address */
+	/* Force re-ordering on 8 bit value */
 	return *i1 - *i2;
 }
 

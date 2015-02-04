@@ -85,6 +85,10 @@ int print(
 	return ret;
 }
 
+/*
+ *  pr_failed()
+ *	print failure message with errno
+ */
 void pr_failed(const int flag, const char *name, const char *what)
 {
 	print(stderr, flag, "%s: %s failed, errno=%d (%s)\n",

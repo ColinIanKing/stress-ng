@@ -39,7 +39,11 @@
 #define MAX_PIPES	(5)
 #define POLL_BUF	(4)
 
-static inline int pipe_read(int fd, int n)
+/*
+ *  pipe_read()
+ *	read a pipe with some verification and checking
+ */
+static int pipe_read(int fd, int n)
 {
 	char buf[POLL_BUF];
 	ssize_t ret;

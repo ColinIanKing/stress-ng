@@ -44,6 +44,10 @@ void stress_set_lsearch_size(const char *optarg)
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 }
 
+/*
+ *  cmp()
+ *	lsearch uint32 comparison for sorting
+ */
 static int cmp(const void *p1, const void *p2)
 {
 	return (*(uint32_t *)p1 - *(uint32_t *)p2);

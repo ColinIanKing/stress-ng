@@ -66,6 +66,10 @@ void stress_set_dentries(const char *optarg)
 		MIN_DENTRIES, MAX_DENTRIES);
 }
 
+/*
+ *  stress_set_dentry_order()
+ *	set dentry ordering from give option
+ */
 int stress_set_dentry_order(const char *optarg)
 {
 	dentry_removal_t *dr;

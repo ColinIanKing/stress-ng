@@ -44,6 +44,10 @@ void stress_set_tsearch_size(const char *optarg)
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 }
 
+/*
+ *  cmp()
+ *	sort on int32 values
+ */
 static int cmp(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;

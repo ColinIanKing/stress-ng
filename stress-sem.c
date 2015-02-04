@@ -45,6 +45,10 @@ void stress_set_semaphore_posix_procs(const char *optarg)
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }
 
+/*
+ *  stress_semaphore_posix_init()
+ *	initialize a POSIX semaphore
+ */
 void stress_semaphore_posix_init(void)
 {
 	/* create a mutex */
@@ -64,6 +68,10 @@ void stress_semaphore_posix_init(void)
 	}
 }
 
+/*
+ *  stress_semaphore_posix_destroy()
+ *	destory a POSIX semaphore
+ */
 void stress_semaphore_posix_destroy(void)
 {
         if (shared->sem_posix_init) {

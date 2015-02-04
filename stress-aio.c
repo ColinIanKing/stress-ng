@@ -118,6 +118,10 @@ static void aio_issue_cancel(io_req_t *io_req)
 	}
 }
 
+/*
+ *  issue_aio_request()
+ *	construct an AIO request and action it
+ */
 static int issue_aio_request(
 	const int fd,
 	const off_t offset,

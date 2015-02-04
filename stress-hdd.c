@@ -140,6 +140,10 @@ void stress_set_hdd_write_size(const char *optarg)
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 }
 
+/*
+ *  stress_hdd_opts
+ *	parse --hdd-opts option(s) list
+ */
 int stress_hdd_opts(char *opts)
 {
 	char *str, *token, *saveptr = NULL;

@@ -43,6 +43,10 @@ void stress_set_bsearch_size(const char *optarg)
 		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
 }
 
+/*
+ *  cmp()
+ *	compare int32 values for bsearch
+ */
 static int cmp(const void *p1, const void *p2)
 {
 	int32_t *i1 = (int32_t *)p1;
@@ -56,7 +60,10 @@ static int cmp(const void *p1, const void *p2)
 		return 0;
 }
 
-#define SETDATA(d,i,v,prev)		\
+/*
+ *  Monotonically increasing values
+ */
+#define SETDATA(d, i, v, prev)		\
 	d[i] = 1 + prev + (v & 0x7);	\
 	v >>= 2;			\
 	prev = d[i];			\

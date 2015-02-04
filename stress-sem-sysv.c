@@ -48,6 +48,10 @@ void stress_set_semaphore_sysv_procs(const char *optarg)
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }
 
+/*
+ *  stress_semaphore_sysv_init()
+ *	initialise a System V semaphore
+ */
 void stress_semaphore_sysv_init(void)
 {
 	int count = 0;
@@ -82,6 +86,10 @@ void stress_semaphore_sysv_init(void)
 	}
 }
 
+/*
+ *  stress_semaphore_sysv_destory()
+ *	destroy a System V semaphore
+ */
 void stress_semaphore_sysv_destroy(void)
 {
 	if (shared->sem_sysv_init)

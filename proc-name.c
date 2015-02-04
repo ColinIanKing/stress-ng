@@ -26,13 +26,13 @@
 
 #include "stress-ng.h"
 
+#if defined (__linux__)
+#include <sys/prctl.h>
+
 /*
  *  set_proc_name()
  *	Set process name, we don't care if it fails
  */
-#if defined (__linux__)
-#include <sys/prctl.h>
-
 void set_proc_name(const char *name)
 {
 	if (!(opt_flags & OPT_FLAGS_KEEP_NAME))
@@ -41,6 +41,6 @@ void set_proc_name(const char *name)
 #else
 void set_proc_name(const char *name)
 {
-	(void)name;
+	(void)name;	/* No-op */
 }
 #endif

@@ -77,6 +77,13 @@ void uint64_put(const uint64_t a)
 	(void)a;
 }
 
+/*
+ *  uint64_zero()
+ *	return uint64 zero in way that force less smart
+ *	static analysers to realise we are doing this
+ *	to force a division by zero. I'd like to have
+ *	a better solution than this ghastly way.
+ */
 uint64_t uint64_zero(void)
 {
 	return 0ULL;
@@ -101,6 +108,10 @@ int stress_temp_filename(
 		name, pid, instance, magic);
 }
 
+/*
+ *  stress_temp_dir()
+ *	create a temporary directory name
+ */
 int stress_temp_dir(
 	char *path,
         const size_t len,
@@ -112,6 +123,10 @@ int stress_temp_dir(
 		name, pid, instance);
 }
 
+/*
+ *   stress_temp_dir_mk()
+ *	create a temportary directory
+ */
 int stress_temp_dir_mk(
 	const char *name,
         const pid_t pid,
@@ -128,6 +143,10 @@ int stress_temp_dir_mk(
 	return ret;
 }
 
+/*
+ *  stress_temp_dir_rm()
+ *	remove a temporary directory
+ */
 int stress_temp_dir_rm(
 	const char *name,
         const pid_t pid,

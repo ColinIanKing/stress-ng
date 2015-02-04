@@ -82,7 +82,8 @@ again:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			waitpid(pid, &status, 0);
