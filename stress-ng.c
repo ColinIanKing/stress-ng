@@ -187,6 +187,7 @@ static const stress_t stressors[] = {
 	STRESSOR(lockf, LOCKF, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
@@ -402,6 +403,12 @@ static const struct option long_options[] = {
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
 	{ "lsearch-ops",1,	0,	OPT_LSEARCH_OPS },
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
+	{ "malloc",	1,	0,	OPT_MALLOC },
+	{ "malloc-bytes",1,	0,	OPT_MALLOC_BYTES },
+	{ "malloc-max",	1,	0,	OPT_MALLOC_MAX },
+	{ "malloc-ops",	1,	0,	OPT_MALLOC_OPS },
+	{ "memcpy",	1,	0,	OPT_MEMCPY },
+	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "metrics",	0,	0,	OPT_METRICS },
@@ -621,11 +628,11 @@ static const help_t help[] = {
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
-	{ "D N",	"dentry N",		"start N dentry thrashing processes" },
+	{ "D N",	"dentry N",		"start N dentry thrashing stressors" },
 	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
 	{ NULL,		"dentry-order O",	"specify dentry unlink order (reverse, forward, stride)" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
-	{ NULL,		"dir N",		"start N directory thrashing processes" },
+	{ NULL,		"dir N",		"start N directory thrashing stressors" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
 	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
@@ -648,7 +655,7 @@ static const help_t help[] = {
 	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
-	{ NULL,		"fifo-readers N",	"number of fifo reader processes to start" },
+	{ NULL,		"fifo-readers N",	"number of fifo reader stessors to start" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
@@ -700,6 +707,10 @@ static const help_t help[] = {
 	{ NULL,		"lsearch",		"start N workers that exercise a linear search" },
 	{ NULL,		"lsearch-ops",		"stop when N linear search bogo operations completed" },
 	{ NULL,		"lsearch-size",		"number of 32 bit integers to lsearch" },
+	{ NULL,		"malloc N",		"start N workers exercising malloc/realloc/free" },
+	{ NULL,		"malloc-bytes N",	"allocate up to N bytes per allocation" },
+	{ NULL,		"malloc-max N",		"keep up to N allocations at a time" },
+	{ NULL,		"malloc-ops N",		"stop when N malloc bogo operations completed" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
@@ -1143,7 +1154,7 @@ void stress_run(
 	int32_t n_procs, i, j, n;
 
 	time_start = time_now();
-	pr_dbg(stderr, "starting processes\n");
+	pr_dbg(stderr, "starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (time_now() - time_start > opt_timeout)
@@ -1209,7 +1220,7 @@ void stress_run(
 	}
 
 abort:
-	pr_dbg(stderr, "%d processes running\n", n_procs);
+	pr_dbg(stderr, "%d stressors running\n", n_procs);
 
 wait_for_procs:
 	wait_procs(success);
@@ -1400,6 +1411,12 @@ next_opt:
 #endif
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
+			break;
+		case OPT_MALLOC_BYTES:
+			stress_set_malloc_bytes(optarg);
+			break;
+		case OPT_MALLOC_MAX:
+			stress_set_malloc_max(optarg);
 			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;

@@ -594,6 +594,18 @@ start N processes that linear search a unsorted array of 32 bit integers using l
 .B \-\-lsearch\-ops N
 stop the lsearch processes after N bogo lsearch operations are completed.
 .TP
+.B \-\-malloc N
+start N processes continuously calling malloc(3), calloc(3), realloc(3) and free(3). By default, up to 65536 allocations can be active at any point, but this can be altered with the \-\-malloc\-max option.  Allocation, reallocation and freeing are chosen at random; 50% of the time memory is allocation (via malloc, calloc or realloc) and 50% of the time allocations are free'd.  Allocation sizes are also random, with the maximum allocation size controlled by the \-\-malloc\-bytes option, the default size being 64K.  The stressor is re-started if it is killed by the out of mememory (OOM) killer.
+.TP
+.B \-\-malloc\-bytes N
+maximum per allocation/reallocation size. Allocations are randomly selected from from 1 to N bytes. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.  Large allocation sizes cause the memory allocator to use mmap(2) rather than expanding the heap using brk(2).
+.TP
+.B \-\-malloc\-max N
+maximum number of active allocations allowed. Allocations are chosen at ramdom and placed in an allocation slot. Because about 50%/50% split between allocation and freeing, typically half of the allocation slots are in use at any one time.
+.TP
+.B \-\-malloc\-ops N
+stop after N malloc bogo operations. One bogo operations relates to a successfull malloc(3), calloc(3) or realloc(3).
+.TP
 .B \-\-lsearch\-size N
 specify the size (number of 32 bit integers) in the array to lsearch. Size can be from 1K to 4M.
 .TP

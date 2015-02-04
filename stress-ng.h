@@ -192,6 +192,14 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define MAX_LSEARCH_SIZE	(4 * MB)
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
+#define MIN_MALLOC_BYTES	(1 * KB)
+#define MAX_MALLOC_BYTES	(1 * GB)
+#define DEFAULT_MALLOC_BYTES	(64 * KB)
+
+#define MIN_MALLOC_MAX		(32)
+#define MAX_MALLOC_MAX		(256 * 1024)
+#define DEFAULT_MALLOC_MAX	(64 * KB)
+
 #define MIN_MMAP_BYTES		(4 * KB)
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
@@ -410,6 +418,7 @@ typedef enum {
 	STRESS_LOCKF,
 #endif
 	STRESS_LSEARCH,
+	STRESS_MALLOC,
 	STRESS_MEMCPY,
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	STRESS_MINCORE,
@@ -667,16 +676,21 @@ typedef enum {
 	OPT_LSEARCH_OPS,
 	OPT_LSEARCH_SIZE,
 
+	OPT_MALLOC,
+	OPT_MALLOC_OPS,
+	OPT_MALLOC_BYTES,
+	OPT_MALLOC_MAX,
+
+	OPT_MEMCPY,
+	OPT_MEMCPY_OPS,
+
+	OPT_METRICS_BRIEF,
+
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	OPT_MINCORE,
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
 #endif
-
-	OPT_METRICS_BRIEF,
-
-	OPT_MEMCPY,
-	OPT_MEMCPY_OPS,
 
 	OPT_MMAP,
 	OPT_MMAP_OPS,
@@ -1027,6 +1041,8 @@ extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
+extern void stress_set_malloc_bytes(const char *optarg);
+extern void stress_set_malloc_max(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
@@ -1089,6 +1105,7 @@ STRESS(stress_lease);
 STRESS(stress_link);
 STRESS(stress_lockf);
 STRESS(stress_lsearch);
+STRESS(stress_malloc);
 STRESS(stress_memcpy);
 STRESS(stress_mincore);
 STRESS(stress_mmap);
