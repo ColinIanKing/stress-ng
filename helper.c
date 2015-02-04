@@ -67,7 +67,7 @@ size_t stress_get_pagesize(void)
  */
 long stress_get_processors_online(void)
 {
-	static size_t processors_online = 0;
+	static long processors_online = 0;
 
 	if (processors_online > 0)
 		return processors_online;
@@ -75,6 +75,25 @@ long stress_get_processors_online(void)
 #ifdef _SC_NPROCESSORS_ONLN
 	processors_online = sysconf(_SC_NPROCESSORS_ONLN);
 	return processors_online;
+#else
+	return -1;
+#endif
+}
+
+/*
+ *  stress_get_ticks_per_second()
+ *	get number of processors that are online
+ */
+long stress_get_ticks_per_second(void)
+{
+	static long ticks_per_second = 0;
+
+	if (ticks_per_second > 0)
+		return ticks_per_second;
+
+#ifdef _SC_CLK_TCK
+	ticks_per_second = sysconf(_SC_CLK_TCK);
+	return ticks_per_second;
 #else
 	return -1;
 #endif

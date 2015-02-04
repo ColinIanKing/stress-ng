@@ -1252,7 +1252,7 @@ int main(int argc, char **argv)
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	ticks_per_sec = sysconf(_SC_CLK_TCK);
+	ticks_per_sec = stress_get_ticks_per_second();
 	if (ticks_per_sec < 0) {
 		pr_err(stderr, "sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
 			errno, strerror(errno));
