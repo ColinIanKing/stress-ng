@@ -84,7 +84,7 @@ static void ensure_positive(const char *const str)
 			continue;
 		}
 
-		if (isdigit(*ptr)) {
+		if (isdigit((int)*ptr)) {
 			if (!negative)
 				return;
 
@@ -136,7 +136,7 @@ uint64_t get_uint64_scale(
 {
 	uint64_t val;
 	size_t len = strlen(str);
-	char ch;
+	int ch;
 	int i;
 
 	val = get_uint64(str);
