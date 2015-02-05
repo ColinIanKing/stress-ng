@@ -456,7 +456,9 @@ typedef enum {
 	STRESS_SENDFILE,
 #endif
 	STRESS_SHM_SYSV,
+#if defined(__linux__)
 	STRESS_SIGFD,
+#endif
 	STRESS_SIGFPE,
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	STRESS_SIGQUEUE,
