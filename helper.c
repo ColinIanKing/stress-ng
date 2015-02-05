@@ -45,7 +45,9 @@
  */
 size_t stress_get_pagesize(void)
 {
+#ifdef _SC_PAGESIZE
 	long sz;
+#endif
 	static size_t page_size = 0;
 
 	if (page_size > 0)
