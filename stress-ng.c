@@ -729,9 +729,11 @@ static const help_t help[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
+#if defined(__linux__)
 	{ NULL,		"mremap N",		"start N workers stressing mremap" },
 	{ NULL,		"mremap-ops N",		"stop when N mremap bogo operations completed" },
 	{ NULL,		"mremap-bytes N",	"mremap N bytes maximum for each stress iteration" },
+#endif
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 #if defined(__linux__)
