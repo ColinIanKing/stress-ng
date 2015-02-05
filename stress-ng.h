@@ -402,8 +402,8 @@ typedef enum {
 	STRESS_FUTEX,
 #endif
 	STRESS_GET,
-	STRESS_HSEARCH,
 	STRESS_HDD,
+	STRESS_HSEARCH,
 #if defined(__linux__)
 	STRESS_INOTIFY,
 #endif
