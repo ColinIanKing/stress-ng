@@ -570,7 +570,7 @@ static const struct option long_options[] = {
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
-#if defined (__linux)
+#if defined (__linux__)
 	{ "vm-rw",	1,	0,	OPT_VM_RW },
 	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
 	{ "vm-rw-ops",	1,	0,	OPT_VM_RW_OPS },
