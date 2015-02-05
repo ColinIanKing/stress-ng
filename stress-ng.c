@@ -362,8 +362,10 @@ static const struct option long_options[] = {
 	{ "fstat",	1,	0,	OPT_FSTAT },
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
+#if defined(__linux__)
 	{ "futex",	1,	0,	OPT_FUTEX },
 	{ "futex-ops",	1,	0,	OPT_FUTEX_OPS },
+#endif
 	{ "get",	1,	0,	OPT_GET },
 	{ "get-ops",	1,	0,	OPT_GET_OPS },
 	{ "hdd",	1,	0,	OPT_HDD },
