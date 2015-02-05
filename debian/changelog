@@ -1,3 +1,39 @@
+stress-ng (0.03.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix build warning for systems w/o _SC_PAGESIZE
+  * Make semaphore creation non-fatal
+  * Fix a few warnings on gcc 4.5.3 (NetBSD)
+  * Make STRESS_SIGFD linux only
+  * Re-order sendfile #define
+  * Re-order hdd and hsearch #defines
+  * Forgot to make futex linux only
+  * Typo: replace __linux with __linux__
+  * Use pow since powl has less precision than advertised warning on FreeBSD
+  * Forgot to remove mremap from help if non-Linux
+  * Update manual, stress-mremap is linux only
+  * Make mremap test linux only
+  * stress-mremap: move to using page size helper
+  * Add helper to get cpu clock ticks
+  * Add number of processors online helper.
+  * Add page size helper, we don't need to repeat the sysconf calls
+  * Add malloc stressor
+  * Add some more comments
+  * Clean up BSD workarounds
+  * stress-brk: wrap an overly long line
+  * Add memory remapping stressor
+  * Turn off madvise DONTNEED as it can cause us checking errors
+  * Add another NetBSD long double workaround
+  * stress-hdd - don't allow fadvise on GNU HURD
+  * Add vmsplice stressor
+  * Correct error message on pipe failure
+  * Fix up latest stressors, re-order options and add vm-rw-* help
+  * Add splice stressor
+  * Add vm-rw stressor
+  * Add read64 and write64 vm memory stress methods.
+
+ -- Colin King <colin.king@canonical.com>  Thu, 5 Feb 2015 15:22:10 +0000
+
 stress-ng (0.03.13-1) unstable; urgency=medium
 
   * Makefile: bump version
