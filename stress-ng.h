@@ -448,12 +448,12 @@ typedef enum {
 #endif
 	STRESS_RENAME,
 	STRESS_SEEK,
-#if defined(__linux__)
-	STRESS_SENDFILE,
-#endif
 	STRESS_SEMAPHORE_POSIX,
 #if !defined(__gnu_hurd__)
 	STRESS_SEMAPHORE_SYSV,
+#endif
+#if defined(__linux__)
+	STRESS_SENDFILE,
 #endif
 	STRESS_SHM_SYSV,
 	STRESS_SIGFD,
