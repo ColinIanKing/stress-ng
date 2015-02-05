@@ -192,7 +192,9 @@ static const stress_t stressors[] = {
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
+#if defined(__linux__)
 	STRESSOR(mremap, MREMAP, CLASS_VM | CLASS_OS),
+#endif
 #if !defined(__gnu_hurd__)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -423,9 +425,11 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
+#if defined(__linux__)
 	{ "mremap",	1,	0,	OPT_MREMAP },
 	{ "mremap-ops",	1,	0,	OPT_MREMAP_OPS },
 	{ "mremap-bytes",1,	0,	OPT_MREMAP_BYTES },
+#endif
 #if !defined(__gnu_hurd__)
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
@@ -1441,9 +1445,11 @@ next_opt:
 		case OPT_MMAP_MPROTECT:
 			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
 			break;
+#if defined(__linux__)
 		case OPT_MREMAP_BYTES:
 			stress_set_mremap_bytes(optarg);
 			break;
+#endif
 #if defined(__linux__)
 		case OPT_MQ_SIZE:
 			stress_set_mq_size(optarg);
