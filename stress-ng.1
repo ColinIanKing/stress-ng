@@ -697,7 +697,7 @@ enable file based memory mapping and by default use synchronous msync'ing on eac
 change protection settings on each page of memory.  Each time a page or a group of pages are mapped or remapped then this option will make the pages read-only, write-only, exec-only, and read-write.
 .TP
 .B \-\-mremap N
-start N processes continuously calling mmap(2), mremap(2) and munmap(2).  The initial anonymous mapping is a large chunk (size specified by \-\-mremap\-bytes) and then iteratively halved in size by remapping all the way down to a page size and then back up to the original size.
+start N processes continuously calling mmap(2), mremap(2) and munmap(2).  The initial anonymous mapping is a large chunk (size specified by \-\-mremap\-bytes) and then iteratively halved in size by remapping all the way down to a page size and then back up to the original size.  This stressor is only available for Linux.
 .TP
 .B \-\-mremap\-ops N
 stop mremap stress processes after N bogo operations.
