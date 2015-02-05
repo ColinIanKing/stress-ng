@@ -55,6 +55,7 @@
 #define	ccosl	ccos
 #define	csinl	csin
 #define cpow	pow
+#define powl	pow
 #endif
 
 /*
