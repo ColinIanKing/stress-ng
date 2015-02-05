@@ -64,7 +64,6 @@ void stress_semaphore_posix_init(void)
 	} else {
 		pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
 			errno, strerror(errno));
-		exit(EXIT_FAILURE);
 	}
 }
 
