@@ -755,19 +755,19 @@ stress_cpu_int(__uint128_t, 128,					\
 
 stress_cpu_int(uint64_t, 64, \
 	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
-	C1 & mask, C2 & mask, C3 & mask);
+	C1 & mask, C2 & mask, C3 & mask)
 
 stress_cpu_int(uint32_t, 32, \
 	0x1ce9b547UL, 0xa24b33aUL,
-	C1 & mask, C2 & mask, C3 & mask);
+	C1 & mask, C2 & mask, C3 & mask)
 
 stress_cpu_int(uint16_t, 16, \
 	0x1871, 0x07f0,
-	C1 & mask, C2 & mask, C3 & mask);
+	C1 & mask, C2 & mask, C3 & mask)
 
 stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
-	C1 & mask, C2 & mask, C3 & mask);
+	C1 & mask, C2 & mask, C3 & mask)
 
 #define float_ops(a, b, c, d, sin, cos)	\
 	do {				\
@@ -790,100 +790,44 @@ stress_cpu_int(uint8_t, 8, \
 	} while (0)
 
 /*
- *  stress_cpu_float()
- *	mix of floating point ops
+ *  Generic floating point stressor macro
  */
-static void stress_cpu_float(void)
-{
-	uint32_t i;
-	float a = 0.18728, b = mwc(), c = mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, sinf, cosf);
-	}
-	double_put(a + b + c + d);
+#define stress_cpu_fp(_type, _name, _sin, _cos)		\
+static void stress_cpu_ ## _name(void)			\
+{							\
+	uint32_t i;					\
+	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
+							\
+	for (i = 0; i < 1000; i++) {			\
+		float_ops(a, b, c, d, _sin, _cos);	\
+	}						\
+	double_put(a + b + c + d);			\
 }
+
+stress_cpu_fp(float, float, sinf, cosf)
+stress_cpu_fp(double, double, sin, cos)
+stress_cpu_fp(long double, longdouble, sinl, cosl)
 
 /*
- *  stress_cpu_double()
- *	mix of floating point ops
+ *  Generic complex stressor macro
  */
-static void stress_cpu_double(void)
-{
-	uint32_t i;
-	double a = 0.18728, b = mwc(), c = mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, sin, cos);
-	}
-	double_put(a + b + c + d);
+#define stress_cpu_complex(_type, _name, _csin, _ccos)	\
+static void stress_cpu_ ## _name(void)			\
+{							\
+	uint32_t i;					\
+	_type a = 0.18728 + I * 0.2762,			\
+		b = mwc() - I * 0.11121,		\
+		c = mwc() + I * mwc(), d;		\
+							\
+	for (i = 0; i < 1000; i++) {			\
+		float_ops(a, b, c, d, csinf, ccosf);	\
+	}						\
+	double_put(a + b + c + d);			\
 }
 
-/*
- *  stress_cpu_longdouble()
- *	mix of floating point ops
- */
-static void stress_cpu_longdouble(void)
-{
-	uint32_t i;
-	long double a = 0.18728, b = mwc(), c = mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, sinl, cosl);
-	}
-	double_put(a + b + c + d);
-}
-
-/*
- *  stress_cpu_complex_float()
- *	mix of complex floating point ops
- */
-static void stress_cpu_complex_float(void)
-{
-	uint32_t i;
-	complex float a = 0.18728 + I * 0.2762,
-		b = mwc() - I * 0.11121,
-		c = mwc() + I * mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, csinf, ccosf);
-	}
-	double_put(a + b + c + d);
-}
-
-/*
- *  stress_cpu_complex_double()
- *	mix of complex double point ops
- */
-static void stress_cpu_complex_double(void)
-{
-	uint32_t i;
-	complex double a = 0.18728 + I * 0.2762,
-		b = mwc() - I * 0.11121,
-		c = mwc() + I * mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, csin, ccos);
-	}
-	double_put(a + b + c + d);
-}
-
-/*
- *  stress_cpu_complex_long_double()
- *	mix of complex long double point ops
- */
-static void stress_cpu_complex_long_double(void)
-{
-	uint32_t i;
-	complex long double a = 0.18728 + I * 0.2762,
-		b = mwc() - I * 0.11121,
-		c = mwc() + I * mwc(), d;
-
-	for (i = 0; i < 1000; i++) {
-		float_ops(a, b, c, d, csinl, ccosl);
-	}
-	double_put(a + b + c + d);
-}
+stress_cpu_complex(complex float, complex_float, csinf, ccosf)
+stress_cpu_complex(complex double, complex_double, csin, ccos)
+stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
 
 #define int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, mask)	\
 	do {							\
