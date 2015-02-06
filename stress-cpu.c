@@ -676,124 +676,98 @@ static void stress_cpu_idct(void)
 	}
 }
 
-#define int_ops(a, b, mask)			\
-	do {					\
-		a += b;				\
-		b ^= a;				\
-		a >>= 1;			\
-		b <<= 2;			\
-		b -= a;				\
-		a ^= ~0;			\
-		b ^= ((~0xf0f0f0f0f0f0f0f0ULL) & mask);	\
-		a *= 3;				\
-		b *= 7;				\
-		a += 2;				\
-		b -= 3;				\
-		a /= 77;			\
-		b /= 3;				\
-		a <<= 1;			\
-		b <<= 2;			\
-		a |= 1;				\
-		b |= 3;				\
-		a *= mwc();			\
-		b ^= mwc();			\
-		a += mwc();			\
-		b -= mwc();			\
-		a /= 7;				\
-		b /= 9;				\
-		a |= ((0x1000100010001000ULL) & mask);	\
-		b &= ((0xffeffffefebefffeULL) & mask);	\
+#define int_ops(a, b, c1, c2, c3)	\
+	do {				\
+		a += b;			\
+		b ^= a;			\
+		a >>= 1;		\
+		b <<= 2;		\
+		b -= a;			\
+		a ^= ~0;		\
+		b ^= ~(c1);		\
+		a *= 3;			\
+		b *= 7;			\
+		a += 2;			\
+		b -= 3;			\
+		a /= 77;		\
+		b /= 3;			\
+		a <<= 1;		\
+		b <<= 2;		\
+		a |= 1;			\
+		b |= 3;			\
+		a *= mwc();		\
+		b ^= mwc();		\
+		a += mwc();		\
+		b -= mwc();		\
+		a /= 7;			\
+		b /= 9;			\
+		a |= (c2);		\
+		b &= (c3);		\
 	} while (0);
 
-/*
- *  stress_cpu_int64()
- *	mix of integer ops
- */
-static void stress_cpu_int64(void)
-{
-	const uint64_t a_final = 0x1ee5773113afd25aULL;
-	const uint64_t b_final = 0x174df454b030714cULL;
-	register uint64_t a, b;
-	int i;
-
-	MWC_SEED();
-	a = mwc();
-	b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_ops(a, b, 0xffffffffffffffffULL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
-		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
-}
+#define C1 	(0xf0f0f0f0f0f0f0f0ULL)
+#define C2	(0x1000100010001000ULL)
+#define C3	(0xffeffffefebefffeULL)
 
 /*
- *  stress_cpu_int32()
- *	mix of integer ops
+ *  Generic int stressor macro
  */
-static void stress_cpu_int32(void)
-{
-	const uint32_t a_final = 0x1ce9b547UL;
-	const uint32_t b_final = 0xa24b33aUL;
-	register uint32_t a, b;
-	int i;
+#define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
+static void stress_cpu_int ## _sz(void)				\
+{								\
+	const _type mask = ~0;					\
+	const _type a_final = _a;				\
+	const _type b_final = _b;				\
+	const _type c1 = _c1;					\
+	const _type c2 = _c2;					\
+	const _type c3 = _c3;					\
+	register _type a, b;					\
+	int i;							\
+								\
+	MWC_SEED();						\
+	a = mwc();						\
+	b = mwc();						\
+								\
+	for (i = 0; i < 1000; i++) {				\
+		int_ops(a, b, c1, c2, c3)			\
+	}							\
+								\
+	if ((opt_flags & OPT_FLAGS_VERIFY) &&			\
+	    ((a != a_final) || (b != b_final)))			\
+		pr_fail(stderr, "int" # _sz " error detected, "	\
+			"failed int" # _sz 			\
+			" math operations\n");			\
+}								\
 
-	MWC_SEED();
-	a = mwc();
-	b = mwc();
+/* For compilers that support int128 .. */
+#if __GNUC__ && !defined(__clang__)
 
-	for (i = 0; i < 1000; i++) {
-		int_ops(a, b, 0xffffffffUL);
-	}
+#define _UINT128(hi, lo, mask)	((((__uint128_t)hi << 64) | (__uint128_t)lo) & mask)
 
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
-		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
-}
+stress_cpu_int(__uint128_t, 128,					\
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785,mask),	\
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800,mask),	\
+	_UINT128(C1, C1, mask),					\
+	_UINT128(C2, C2, mask),					\
+	_UINT128(C3, C3, mask))					\
 
-/*
- *  stress_cpu_int16()
- *	mix of integer ops
- */
-static void stress_cpu_int16(void)
-{
-	const uint16_t a_final = 0x1871;
-	const uint16_t b_final = 0x07f0;
+#endif
 
-	register uint16_t a, b;
-	int i;
+stress_cpu_int(uint64_t, 64, \
+	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	C1 & mask, C2 & mask, C3 & mask);
 
-	MWC_SEED();
-	a = mwc();
-	b = mwc();
+stress_cpu_int(uint32_t, 32, \
+	0x1ce9b547UL, 0xa24b33aUL,
+	C1 & mask, C2 & mask, C3 & mask);
 
-	for (i = 0; i < 1000; i++) {
-		int_ops(a, b, 0xffff);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
-		pr_fail(stderr, "int16 error detected, failed int16 math operations\n");
-}
+stress_cpu_int(uint16_t, 16, \
+	0x1871, 0x07f0,
+	C1 & mask, C2 & mask, C3 & mask);
 
-/*
- *  stress_cpu_int8()
- *	mix of integer ops
- */
-static void stress_cpu_int8(void)
-{
-	const uint8_t a_final = 0x12;
-	const uint8_t b_final = 0x1a;
-	register uint8_t a, b;
-	int i;
-
-	MWC_SEED();
-	a = mwc();
-	b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_ops(a, b, 0xff);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((a != a_final) || (b != b_final)))
-		pr_fail(stderr, "int8 error detected, failed int8 math operations\n");
-}
+stress_cpu_int(uint8_t, 8, \
+	0x12, 0x1a,
+	C1 & mask, C2 & mask, C3 & mask);
 
 #define float_ops(a, b, c, d, sin, cos)	\
 	do {				\
@@ -1806,6 +1780,9 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "hanoi",	stress_cpu_hanoi },
 	{ "hyperbolic",	stress_cpu_hyperbolic },
 	{ "idct",	stress_cpu_idct },
+#if __GNUC__ && !defined(__clang__)
+	{ "int128",	stress_cpu_int128 },
+#endif
 	{ "int64",	stress_cpu_int64 },
 	{ "int32",	stress_cpu_int32 },
 	{ "int16",	stress_cpu_int16 },
