@@ -769,24 +769,24 @@ stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
 	C1 & mask, C2 & mask, C3 & mask)
 
-#define float_ops(a, b, c, d, sin, cos)	\
+#define float_ops(_type, a, b, c, d, sin, cos)	\
 	do {				\
 		a = a + b;		\
 		b = a * c;		\
 		c = a - b;		\
 		d = a / b;		\
-		a = c / 0.1923;		\
+		a = c / (_type)0.1923;	\
 		b = c + a;		\
-		c = b * 3.12;		\
+		c = b * (_type)3.12;	\
 		d = d + b + sin(a);	\
 		a = (b + c) / c;	\
 		b = b * c;		\
-		c = c + 1.0;		\
+		c = c + (_type)1.0;	\
 		d = d - sin(c);		\
 		a = a * cos(b);		\
 		b = b + cos(c);		\
-		c = sin(a) / 2.344;	\
-		b = d - 1.0;		\
+		c = sin(a) / (_type)2.344;\
+		b = d - (_type)1.0;	\
 	} while (0)
 
 /*
@@ -799,7 +799,7 @@ static void stress_cpu_ ## _name(void)			\
 	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(a, b, c, d, _sin, _cos);	\
+		float_ops(_type, a, b, c, d, _sin, _cos);	\
 	}						\
 	double_put(a + b + c + d);			\
 }
@@ -807,6 +807,11 @@ static void stress_cpu_ ## _name(void)			\
 stress_cpu_fp(float, float, sinf, cosf)
 stress_cpu_fp(double, double, sin, cos)
 stress_cpu_fp(long double, longdouble, sinl, cosl)
+#if __GNUC__ && !defined(__clang__)
+stress_cpu_fp(_Decimal32, decimal32, (_Decimal32)sinf, (_Decimal32)cosf)
+stress_cpu_fp(_Decimal64, decimal64, (_Decimal64)sin, (_Decimal64)cos)
+stress_cpu_fp(_Decimal128, decimal128, (_Decimal128)sinl, (_Decimal64)cosl)
+#endif
 
 /*
  *  Generic complex stressor macro
@@ -820,7 +825,7 @@ static void stress_cpu_ ## _name(void)			\
 		c = mwc() + I * mwc(), d;		\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(a, b, c, d, csinf, ccosf);	\
+		float_ops(_type, a, b, c, d, csinf, ccosf);	\
 	}						\
 	double_put(a + b + c + d);			\
 }
@@ -1709,6 +1714,11 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "cfloat",	stress_cpu_complex_float },
 	{ "clongdouble",stress_cpu_complex_long_double },
 	{ "correlate",	stress_cpu_correlate },
+#if __GNUC__ && !defined(__clang__)
+	{ "decimal32",	stress_cpu_decimal32 },
+	{ "decimal64",	stress_cpu_decimal64 },
+	{ "decimal128",	stress_cpu_decimal128 },
+#endif
 	{ "double",	stress_cpu_double },
 	{ "djb2a",	stress_cpu_djb2a },
 	{ "euler",	stress_cpu_euler },
