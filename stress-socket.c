@@ -134,7 +134,8 @@ retry:
 				if (n == 0)
 					break;
 				if (n < 0) {
-					pr_failed_dbg(name, "recv");
+					if (errno != EINTR)
+						pr_failed_dbg(name, "recv");
 					break;
 				}
 			} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -201,7 +202,8 @@ retry:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
-						pr_failed_dbg(name, "send");
+						if (errno != EINTR)
+							pr_failed_dbg(name, "send");
 						break;
 					}
 				}
