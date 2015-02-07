@@ -134,7 +134,6 @@ int stress_chmod(
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], dirname[PATH_MAX];
 
-
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
@@ -166,8 +165,9 @@ int stress_chmod(
 		break;
 	} while (opt_do_run && ++retries < 100);
 
-	pr_dbg(stderr, "%s: chmod: file %s took %d retries to create (instance %" PRIu32 ")\n",
-		name, filename, retries, instance);
+	if (retries > 0)
+		pr_dbg(stderr, "%s: chmod: file %s took %d retries to create (instance %" PRIu32 ")\n",
+			name, filename, retries, instance);
 
 	for (i = 0; modes[i]; i++)
 		all_mask |= modes[i];
