@@ -1005,6 +1005,7 @@ extern char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
 extern long stress_get_processors_online(void);
 extern long stress_get_ticks_per_second(void);
+extern void set_max_limits(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, size_t length);

@@ -1189,6 +1189,7 @@ void stress_run(
 					mwc_reseed();
 					set_oom_adjustment(name, false);
 					set_coredump(name);
+					set_max_limits();
 					snprintf(name, sizeof(name), "%s-%s", app_name,
 						munge_underscore((char *)stressors[i].name));
 					set_iopriority(opt_ionice_class, opt_ionice_level);

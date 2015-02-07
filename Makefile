@@ -104,6 +104,7 @@ SRC =   stress-affinity.c \
 	coredump.c \
 	helper.c \
 	io-priority.c \
+	limit.c \
 	log.c \
 	madvise.c \
 	mincore.c \
