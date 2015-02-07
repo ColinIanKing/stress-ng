@@ -122,7 +122,8 @@ int stress_udp(
 					memset(buf, 'A' + (j % 26), sizeof(buf));
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
-						pr_failed_dbg(name, "sendto");
+						if (errno != EINTR)
+							pr_failed_dbg(name, "sendto");
 						break;
 					}
 				}
@@ -181,7 +182,8 @@ int stress_udp(
 			if (n == 0)
 				break;
 			if (n < 0) {
-				pr_failed_dbg(name, "recvfrom");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "recvfrom");
 				break;
 			}
 			(*counter)++;
