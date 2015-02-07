@@ -120,12 +120,14 @@ static void semaphore_sysv_thrash(
 			semsignal.sem_flg = SEM_UNDO;
 
 			if (semop(shared->sem_sysv_id, &semwait, 1) < 0) {
-				pr_failed_dbg(name, "semop wait");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "semop wait");
 				break;
 			}
 			(*counter)++;
 			if (semop(shared->sem_sysv_id, &semsignal, 1) < 0) {
-				pr_failed_dbg(name, "semop signal");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "semop signal");
 				break;
 			}
 			if (!opt_do_run)
