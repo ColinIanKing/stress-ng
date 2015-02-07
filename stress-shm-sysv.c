@@ -199,8 +199,9 @@ reap:
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
-					pr_fail(stderr, "%s: shmctl failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					if (errno != EIDRM)
+						pr_fail(stderr, "%s: shmctl failed: errno=%d (%s)\n",
+							name, errno, strerror(errno));
 				}
 			}
 			addrs[i] = NULL;
