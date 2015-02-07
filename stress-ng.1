@@ -173,11 +173,11 @@ T}
 bitops	T{
 various bit operations from bithack, namely: reverse bits, parity check, bit count, round to nearest power of 2
 T}
-cdouble	T{
-1000 iterations of a mix of double floating point complex operations
-T}
 cfloat	T{
 1000 iterations of a mix of floating point complex operations
+T}
+cdouble	T{
+1000 iterations of a mix of double floating point complex operations
 T}
 clongdouble	T{
 1000 iterations of a mix of long double floating point complex operations
@@ -260,7 +260,7 @@ int64	T{
 1000 iterations of a mix of 64 bit integer operations
 T}
 int128	T{
-1000 iterations of a mix of 128 bit integer operations
+1000 iterations of a mix of 128 bit integer operations (GCC only)
 T}
 int32float	T{
 1000 iterations of a mix of 32 bit integer and floating point operations
@@ -279,6 +279,24 @@ int64double	T{
 T}
 int64longdouble	T{
 1000 iterations of a mix of 64 bit integer and long double precision floating point operations
+T}
+int128float	T{
+1000 iterations of a mix of 128 bit integer and floating point operations (GCC only)
+T}
+int128double	T{
+1000 iterations of a mix of 128 bit integer and double precision floating point operations (GCC only)
+T}
+int128longdouble	T{
+1000 iterations of a mix of 128 bit integer and long double precision floating point operations (GCC only)
+T}
+int128decimal32	T{
+1000 iterations of a mix of 128 bit integer and 32 bit decimal floating point operations (GCC only)
+T}
+int128decimal64	T{
+1000 iterations of a mix of 128 bit integer and 64 bit decimal floating point operations (GCC only)
+T}
+int128decimal128	T{
+1000 iterations of a mix of 128 bit integer and 128 bit decimal floating point operations (GCC only)
 T}
 jenkin	T{
 Jenkin's integer hash on 128 rounds of 128..1 bytes of random data

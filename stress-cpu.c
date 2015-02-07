@@ -718,9 +718,9 @@ static void stress_cpu_int ## _sz(void)				\
 	const _type mask = ~0;					\
 	const _type a_final = _a;				\
 	const _type b_final = _b;				\
-	const _type c1 = _c1;					\
-	const _type c2 = _c2;					\
-	const _type c3 = _c3;					\
+	const _type c1 = _c1 & mask;				\
+	const _type c2 = _c2 & mask;				\
+	const _type c3 = _c3 & mask;				\
 	register _type a, b;					\
 	int i;							\
 								\
@@ -742,51 +742,48 @@ static void stress_cpu_int ## _sz(void)				\
 /* For compilers that support int128 .. */
 #if __GNUC__ && !defined(__clang__)
 
-#define _UINT128(hi, lo, mask)	((((__uint128_t)hi << 64) | (__uint128_t)lo) & mask)
+#define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 
-stress_cpu_int(__uint128_t, 128,					\
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785,mask),	\
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800,mask),	\
-	_UINT128(C1, C1, mask),					\
-	_UINT128(C2, C2, mask),					\
-	_UINT128(C3, C3, mask))					\
-
+stress_cpu_int(__uint128_t, 128,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3))
 #endif
 
 stress_cpu_int(uint64_t, 64, \
 	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
-	C1 & mask, C2 & mask, C3 & mask)
+	C1, C2, C3)
 
 stress_cpu_int(uint32_t, 32, \
 	0x1ce9b547UL, 0xa24b33aUL,
-	C1 & mask, C2 & mask, C3 & mask)
+	C1, C2, C3)
 
 stress_cpu_int(uint16_t, 16, \
 	0x1871, 0x07f0,
-	C1 & mask, C2 & mask, C3 & mask)
+	C1, C2, C3)
 
 stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
-	C1 & mask, C2 & mask, C3 & mask)
+	C1, C2, C3)
 
-#define float_ops(_type, a, b, c, d, sin, cos)	\
-	do {				\
-		a = a + b;		\
-		b = a * c;		\
-		c = a - b;		\
-		d = a / b;		\
-		a = c / (_type)0.1923;	\
-		b = c + a;		\
-		c = b * (_type)3.12;	\
-		d = d + b + sin(a);	\
-		a = (b + c) / c;	\
-		b = b * c;		\
-		c = c + (_type)1.0;	\
-		d = d - sin(c);		\
-		a = a * cos(b);		\
-		b = b + cos(c);		\
-		c = sin(a) / (_type)2.344;\
-		b = d - (_type)1.0;	\
+#define float_ops(_type, a, b, c, d, sin, cos)		\
+	do {						\
+		a = a + b;				\
+		b = a * c;				\
+		c = a - b;				\
+		d = a / b;				\
+		a = c / (_type)0.1923;			\
+		b = c + a;				\
+		c = b * (_type)3.12;			\
+		d = d + b + (_type)sin(a);		\
+		a = (b + c) / c;			\
+		b = b * c;				\
+		c = c + (_type)1.0;			\
+		d = d - (_type)sin(c);			\
+		a = a * (_type)cos(b);			\
+		b = b + (_type)cos(c);			\
+		c = (_type)sin(a) / (_type)2.344;	\
+		b = d - (_type)1.0;			\
 	} while (0)
 
 /*
@@ -795,11 +792,12 @@ stress_cpu_int(uint8_t, 8, \
 #define stress_cpu_fp(_type, _name, _sin, _cos)		\
 static void stress_cpu_ ## _name(void)			\
 {							\
-	uint32_t i;					\
+	int i;						\
 	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(_type, a, b, c, d, _sin, _cos);	\
+		float_ops(_type, a, b, c, d,		\
+			_sin, _cos);			\
 	}						\
 	double_put(a + b + c + d);			\
 }
@@ -808,9 +806,9 @@ stress_cpu_fp(float, float, sinf, cosf)
 stress_cpu_fp(double, double, sin, cos)
 stress_cpu_fp(long double, longdouble, sinl, cosl)
 #if __GNUC__ && !defined(__clang__)
-stress_cpu_fp(_Decimal32, decimal32, (_Decimal32)sinf, (_Decimal32)cosf)
-stress_cpu_fp(_Decimal64, decimal64, (_Decimal64)sin, (_Decimal64)cos)
-stress_cpu_fp(_Decimal128, decimal128, (_Decimal128)sinl, (_Decimal64)cosl)
+stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
+stress_cpu_fp(_Decimal64, decimal64, sin, cos)
+stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
 #endif
 
 /*
@@ -819,13 +817,14 @@ stress_cpu_fp(_Decimal128, decimal128, (_Decimal128)sinl, (_Decimal64)cosl)
 #define stress_cpu_complex(_type, _name, _csin, _ccos)	\
 static void stress_cpu_ ## _name(void)			\
 {							\
-	uint32_t i;					\
+	int i;						\
 	_type a = 0.18728 + I * 0.2762,			\
 		b = mwc() - I * 0.11121,		\
 		c = mwc() + I * mwc(), d;		\
 							\
 	for (i = 0; i < 1000; i++) {			\
-		float_ops(_type, a, b, c, d, csinf, ccosf);	\
+		float_ops(_type, a, b, c, d,		\
+			_csin, _ccos);			\
 	}						\
 	double_put(a + b + c + d);			\
 }
@@ -834,7 +833,8 @@ stress_cpu_complex(complex float, complex_float, csinf, ccosf)
 stress_cpu_complex(complex double, complex_double, csin, ccos)
 stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
 
-#define int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, mask)	\
+#define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
+	_sin, _cos, int_a, int_b, _c1, _c2, _c3)		\
 	do {							\
 		int_a += int_b;					\
 		int_b ^= int_a;					\
@@ -845,21 +845,21 @@ stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
 		int_b -= int_a;					\
 		int_a ^= ~0;					\
 		flt_c = flt_a - flt_b;				\
-		int_b ^= ((~0xf0f0f0f0f0f0f0f0ULL) & mask);	\
+		int_b ^= ~(_c1);				\
 		int_a *= 3;					\
 		flt_d = flt_a / flt_b;				\
 		int_b *= 7;					\
 		int_a += 2;					\
-		flt_a = flt_c / 0.1923;				\
+		flt_a = flt_c / (_ftype)0.1923;			\
 		int_b -= 3;					\
 		int_a /= 77;					\
 		flt_b = flt_c + flt_a;				\
 		int_b /= 3;					\
 		int_a <<= 1;					\
-		flt_c = flt_b * 3.12;				\
+		flt_c = flt_b * (_ftype)3.12;			\
 		int_b <<= 2;					\
 		int_a |= 1;					\
-		flt_d = flt_d + flt_b + sin(flt_a);		\
+		flt_d = flt_d + flt_b + (_ftype)_sin(flt_a);	\
 		int_b |= 3;					\
 		int_a *= mwc();					\
 		flt_a = (flt_b + flt_c) / flt_c;		\
@@ -868,162 +868,104 @@ stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
 		flt_b = flt_b * flt_c;				\
 		int_b -= mwc();					\
 		int_a /= 7;					\
-		flt_c = flt_c + 1.0;				\
+		flt_c = flt_c + (_ftype)1.0;			\
 		int_b /= 9;					\
-		flt_d = flt_d - sin(flt_c);			\
-		int_a |= ((0x1000100010001000ULL) & mask);	\
-		flt_a = flt_a * cos(flt_b);			\
-		flt_b = flt_b + cos(flt_c);			\
-		int_b &= ((0xffeffffefebefffeULL) & mask);	\
-		flt_c = sin(flt_a) / 2.344;			\
-		flt_b = flt_d - 1.0;				\
+		flt_d = flt_d - (_ftype)_sin(flt_c);		\
+		int_a |= (_c2);					\
+		flt_a = flt_a * (_ftype)_cos(flt_b);		\
+		flt_b = flt_b + (_ftype)_cos(flt_c);		\
+		int_b &= (_c3);					\
+		flt_c = (_ftype)_sin(flt_a) / (_ftype)2.344;	\
+		flt_b = flt_d - (_ftype)1.0;			\
 	} while (0)
 
 
 /*
- *  stress_cpu_int32_float()
- *	mix of floating point and integer ops
+ *  Generic integer and floating point stressor macro
  */
-static void stress_cpu_int32_float(void)
-{
-	uint32_t i, int_a, int_b;
-	const uint32_t a_final = 0x1ce9b547UL;
-	const uint32_t b_final = 0xa24b33aUL;
-	float flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
-
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinf, cosf, int_a, int_b, 0xffffffffUL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
+#define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
+	_c1, _c2, _c3, _sinf, _cosf)				\
+static void stress_cpu_int ## _sz ## _ ## _name(void)		\
+{								\
+	int i;							\
+	_inttype int_a, int_b;					\
+	const _inttype mask = ~0;				\
+	const _inttype a_final = _a;				\
+	const _inttype b_final = _b;				\
+	const _inttype c1 = _c1 & mask;				\
+	const _inttype c2 = _c2 & mask;				\
+	const _inttype c3 = _c3 & mask;				\
+	_ftype flt_a = 0.18728, flt_b = mwc(), 			\
+		flt_c = mwc(), flt_d;				\
+								\
+	MWC_SEED();						\
+	int_a = mwc();						\
+	int_b = mwc();						\
+								\
+	for (i = 0; i < 1000; i++) {				\
+		int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,\
+			_sinf, _cosf, int_a, int_b, c1, c2, c3);\
+	}							\
+	if ((opt_flags & OPT_FLAGS_VERIFY) &&			\
+	    ((int_a != a_final) || (int_b != b_final)))		\
+		pr_fail(stderr, "int" # _sz " error detected, "	\
+			"failed int" # _sz 			\
+			" math operations\n");			\
+								\
+	double_put(flt_a + flt_b + flt_c + flt_d);		\
 }
 
-/*
- *  stress_cpu_int32_double()
- *	mix of double floating point and integer ops
- */
-static void stress_cpu_int32_double(void)
-{
-	uint32_t i, int_a, int_b;
-	const uint32_t a_final = 0x1ce9b547UL;
-	const uint32_t b_final = 0xa24b33aUL;
-	double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
+stress_cpu_int_fp(uint32_t, 32, float, float,
+	0x1ce9b547UL, 0xa24b33aUL,
+	C1, C2, C3, sinf, cosf)
+stress_cpu_int_fp(uint32_t, 32, double, double,
+	0x1ce9b547UL, 0xa24b33aUL,
+	C1, C2, C3, sin, cos)
+stress_cpu_int_fp(uint32_t, 32, long double, longdouble,
+	0x1ce9b547UL, 0xa24b33aUL,
+	C1, C2, C3, sinl, cosl)
+stress_cpu_int_fp(uint64_t, 64, float, float,
+	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	C1, C2, C3, sinf, cosf)
+stress_cpu_int_fp(uint64_t, 64, double, double,
+	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	C1, C2, C3, sin, cos)
+stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
+	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	C1, C2, C3, sinl, cosl)
 
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, 0xffffffffUL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
-}
-
-/*
- *  stress_cpu_int32_longdouble()
- *	mix of floating point and integer ops
- */
-static void stress_cpu_int32_longdouble(void)
-{
-	uint32_t i, int_a, int_b;
-	const uint32_t a_final = 0x1ce9b547UL;
-	const uint32_t b_final = 0xa24b33aUL;
-	long double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
-
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinl, cosl, int_a, int_b, 0xffffffffUL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int32 error detected, failed int32 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
-}
-
-
-/*
- *  stress_cpu_int64_float()
- *	mix of floating point and integer ops
- */
-static void stress_cpu_int64_float(void)
-{
-	uint64_t i, int_a, int_b;
-	const uint64_t a_final = 0x1ee5773113afd25aULL;
-	const uint64_t b_final = 0x174df454b030714cULL;
-	float flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
-
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinf, cosf, int_a, int_b, 0xffffffffffffffffULL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
-}
-
-/*
- *  stress_cpu_int64_double()
- *	mix of doublefloating point and integer ops
- */
-static void stress_cpu_int64_double(void)
-{
-	uint64_t i, int_a, int_b;
-	const uint64_t a_final = 0x1ee5773113afd25aULL;
-	const uint64_t b_final = 0x174df454b030714cULL;
-	double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
-
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sin, cos, int_a, int_b, 0xffffffffffffffffULL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
-}
-
-/*
- *  stress_cpu_int64_longdouble()
- *	mix of long double floating point and integer ops
- */
-static void stress_cpu_int64_longdouble(void)
-{
-	uint64_t i, int_a, int_b;
-	const uint64_t a_final = 0x1ee5773113afd25aULL;
-	const uint64_t b_final = 0x174df454b030714cULL;
-	long double flt_a = 0.18728, flt_b = mwc(), flt_c = mwc(), flt_d;
-
-	MWC_SEED();
-	int_a = mwc();
-	int_b = mwc();
-
-	for (i = 0; i < 1000; i++) {
-		int_float_ops(flt_a, flt_b, flt_c, flt_d, sinl, cosl, int_a, int_b, 0xffffffffffffffffULL);
-	}
-	if ((opt_flags & OPT_FLAGS_VERIFY) && ((int_a != a_final) || (int_b != b_final)))
-		pr_fail(stderr, "int64 error detected, failed int64 math operations\n");
-
-	double_put(flt_a + flt_b + flt_c + flt_d);
-}
+#if __GNUC__ && !defined(__clang__)
+stress_cpu_int_fp(__uint128_t, 128, float, float, 
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	sinf, cosf)
+stress_cpu_int_fp(__uint128_t, 128, double, double,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	sin, cos)
+stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	sinl, cosl)
+stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	(_Decimal32)sinf, (_Decimal32)cosf)
+stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	(_Decimal64)sin, (_Decimal64)cos)
+stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
+	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
+	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	(_Decimal128)sinl, (_Decimal128)cosl)
+#endif
 
 /*
  *  stress_cpu_rgb()
@@ -1705,69 +1647,77 @@ static void stress_cpu_all(void)
  * Table of cpu stress methods
  */
 static stress_cpu_stressor_info_t cpu_methods[] = {
-	{ "all",	stress_cpu_all },	/* Special "all test */
+	{ "all",		stress_cpu_all },	/* Special "all test */
 
-	{ "ackermann",	stress_cpu_ackermann },
-	{ "bitops",	stress_cpu_bitops },
-	{ "crc16",	stress_cpu_crc16 },
-	{ "cdouble",	stress_cpu_complex_double },
-	{ "cfloat",	stress_cpu_complex_float },
-	{ "clongdouble",stress_cpu_complex_long_double },
-	{ "correlate",	stress_cpu_correlate },
+	{ "ackermann",		stress_cpu_ackermann },
+	{ "bitops",		stress_cpu_bitops },
+	{ "crc16",		stress_cpu_crc16 },
+	{ "cdouble",		stress_cpu_complex_double },
+	{ "cfloat",		stress_cpu_complex_float },
+	{ "clongdouble",	stress_cpu_complex_long_double },
+	{ "correlate",		stress_cpu_correlate },
 #if __GNUC__ && !defined(__clang__)
-	{ "decimal32",	stress_cpu_decimal32 },
-	{ "decimal64",	stress_cpu_decimal64 },
-	{ "decimal128",	stress_cpu_decimal128 },
+	{ "decimal32",		stress_cpu_decimal32 },
+	{ "decimal64",		stress_cpu_decimal64 },
+	{ "decimal128",		stress_cpu_decimal128 },
 #endif
-	{ "double",	stress_cpu_double },
-	{ "djb2a",	stress_cpu_djb2a },
-	{ "euler",	stress_cpu_euler },
-	{ "explog",	stress_cpu_explog },
-	{ "fibonacci",	stress_cpu_fibonacci },
-	{ "fnv1a",	stress_cpu_fnv1a },
-	{ "fft",	stress_cpu_fft },
-	{ "float",	stress_cpu_float },
-	{ "gamma",	stress_cpu_gamma },
-	{ "gcd",	stress_cpu_gcd },
-	{ "gray",	stress_cpu_gray },
-	{ "hamming",	stress_cpu_hamming },
-	{ "hanoi",	stress_cpu_hanoi },
-	{ "hyperbolic",	stress_cpu_hyperbolic },
-	{ "idct",	stress_cpu_idct },
+	{ "double",		stress_cpu_double },
+	{ "djb2a",		stress_cpu_djb2a },
+	{ "euler",		stress_cpu_euler },
+	{ "explog",		stress_cpu_explog },
+	{ "fibonacci",		stress_cpu_fibonacci },
+	{ "fnv1a",		stress_cpu_fnv1a },
+	{ "fft",		stress_cpu_fft },
+	{ "float",		stress_cpu_float },
+	{ "gamma",		stress_cpu_gamma },
+	{ "gcd",		stress_cpu_gcd },
+	{ "gray",		stress_cpu_gray },
+	{ "hamming",		stress_cpu_hamming },
+	{ "hanoi",		stress_cpu_hanoi },
+	{ "hyperbolic",		stress_cpu_hyperbolic },
+	{ "idct",		stress_cpu_idct },
 #if __GNUC__ && !defined(__clang__)
-	{ "int128",	stress_cpu_int128 },
+	{ "int128",		stress_cpu_int128 },
 #endif
-	{ "int64",	stress_cpu_int64 },
-	{ "int32",	stress_cpu_int32 },
-	{ "int16",	stress_cpu_int16 },
-	{ "int8",	stress_cpu_int8 },
-	{ "int32float",	stress_cpu_int32_float },
-	{ "int32double",stress_cpu_int32_double },
-	{ "int32longdouble",	stress_cpu_int32_longdouble },
-	{ "int64float",	stress_cpu_int64_float },
-	{ "int64double",stress_cpu_int64_double },
+	{ "int64",		stress_cpu_int64 },
+	{ "int32",		stress_cpu_int32 },
+	{ "int16",		stress_cpu_int16 },
+	{ "int8",		stress_cpu_int8 },
+#if __GNUC__ && !defined(__clang__)
+	{ "int128float",	stress_cpu_int128_float },
+	{ "int128double",	stress_cpu_int128_double },
+	{ "int128longdouble",	stress_cpu_int128_longdouble },
+	{ "int128decimal32",	stress_cpu_int128_decimal32 },
+	{ "int128decimal64",	stress_cpu_int128_decimal64 },
+	{ "int128decimal128",	stress_cpu_int128_decimal128 },
+#endif
+	{ "int64float",		stress_cpu_int64_float },
+	{ "int64double",	stress_cpu_int64_double },
 	{ "int64longdouble",	stress_cpu_int64_longdouble },
-	{ "jenkin",	stress_cpu_jenkin },
-	{ "jmp",	stress_cpu_jmp },
-	{ "ln2",	stress_cpu_ln2 },
-	{ "longdouble",	stress_cpu_longdouble },
-	{ "loop",	stress_cpu_loop },
-	{ "matrixprod",	stress_cpu_matrix_prod },
-	{ "nsqrt",	stress_cpu_nsqrt },
-	{ "omega",	stress_cpu_omega },
-	{ "phi",	stress_cpu_phi },
-	{ "pi",		stress_cpu_pi },
-	{ "pjw",	stress_cpu_pjw },
-	{ "prime",	stress_cpu_prime },
-	{ "psi",	stress_cpu_psi },
-	{ "rand",	stress_cpu_rand },
-	{ "rgb",	stress_cpu_rgb },
-	{ "sdbm",	stress_cpu_sdbm },
-	{ "sieve",	stress_cpu_sieve },
-	{ "sqrt", 	stress_cpu_sqrt },
-	{ "trig",	stress_cpu_trig },
-	{ "zeta",	stress_cpu_zeta },
-	{ NULL,		NULL }
+	{ "int32float",		stress_cpu_int32_float },
+	{ "int32double",	stress_cpu_int32_double },
+	{ "int32longdouble",	stress_cpu_int32_longdouble },
+	{ "jenkin",		stress_cpu_jenkin },
+	{ "jmp",		stress_cpu_jmp },
+	{ "ln2",		stress_cpu_ln2 },
+	{ "longdouble",		stress_cpu_longdouble },
+	{ "loop",		stress_cpu_loop },
+	{ "matrixprod",		stress_cpu_matrix_prod },
+	{ "nsqrt",		stress_cpu_nsqrt },
+	{ "omega",		stress_cpu_omega },
+	{ "phi",		stress_cpu_phi },
+	{ "pi",			stress_cpu_pi },
+	{ "pjw",		stress_cpu_pjw },
+	{ "prime",		stress_cpu_prime },
+	{ "psi",		stress_cpu_psi },
+	{ "rand",		stress_cpu_rand },
+	{ "rgb",		stress_cpu_rgb },
+	{ "sdbm",		stress_cpu_sdbm },
+	{ "sieve",		stress_cpu_sieve },
+	{ "sqrt", 		stress_cpu_sqrt },
+	{ "trig",		stress_cpu_trig },
+	{ "zeta",		stress_cpu_zeta },
+	{ NULL,			NULL }
 };
 
 /*
