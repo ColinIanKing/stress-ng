@@ -183,8 +183,7 @@ int stress_chmod(
 			}
 			if (do_chmod(filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
-					pr_dbg(stderr, "%s: chmod: file %s has been removed\n",
-						name, filename);
+					/* File was removed during test by another worker */
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
