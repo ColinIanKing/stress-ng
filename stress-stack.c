@@ -30,9 +30,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 #if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__)
 #include <alloca.h>
 #endif
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "stress-ng.h"
 
@@ -49,6 +52,8 @@ static void stress_segvhandler(int dummy)
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 
+
+
 /*
  *  stress_stack
  *	stress by forcing stack overflows
@@ -59,10 +64,12 @@ int stress_stack(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint8_t stack[SIGSTKSZ];
-	stack_t ss;
+	pid_t pid;
 
 	(void)instance;
+
+	uint8_t stack[SIGSTKSZ];
+	stack_t ss;
 
 	/*
 	 *  We need to create an alternative signal
@@ -80,46 +87,90 @@ int stress_stack(
 		return EXIT_FAILURE;
 	}
 
-	for (;;) {
-		struct sigaction new_action;
-		int ret;
-
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
-			break;
-
-		memset(&new_action, 0, sizeof new_action);
-		new_action.sa_handler = stress_segvhandler;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = SA_ONSTACK;
-
-		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigaction");
-			return EXIT_FAILURE;
+again:
+	pid = fork();
+	if (pid < 0) {
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
+				name, WTERMSIG(status), instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)\n",
+					name, instance);
+				goto again;
+			}
 		}
-		ret = sigsetjmp(jmp_env, 1);
-		/*
-		 * We return here if we segfault, so
-		 * first check if we need to terminate
-		 */
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
-			break;
+	} else if (pid == 0) {
+		char *start_ptr = sbrk(0);
 
-		if (ret) {
-			/* We end up here after handling the fault */
-			(*counter)++;
-		} else {
-			/* Expand the stack and cause a fault */
-			char *last_ptr = 0;
-			do {
-				char *ptr = alloca(256 * KB);
+		if (start_ptr == (void *) -1) {
+			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			exit(EXIT_FAILURE);
+		}
 
-				/* need this else gcc optimises out the alloca */
-				*ptr = 0;
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
 
-				/* Force gcc to actually do the alloca */
-				uint64_put((uint64_t)(last_ptr - ptr));
-				last_ptr = ptr;
-			} while (opt_do_run);
+		for (;;) {
+			struct sigaction new_action;
+			int ret;
+
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				break;
+
+			memset(&new_action, 0, sizeof new_action);
+			new_action.sa_handler = stress_segvhandler;
+			sigemptyset(&new_action.sa_mask);
+			new_action.sa_flags = SA_ONSTACK;
+
+			if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
+				pr_failed_err(name, "sigaction");
+				return EXIT_FAILURE;
+			}
+			if (sigaction(SIGBUS, &new_action, NULL) < 0) {
+				pr_failed_err(name, "sigaction");
+				return EXIT_FAILURE;
+			}
+			ret = sigsetjmp(jmp_env, 1);
+			/*
+			 * We return here if we segfault, so
+			 * first check if we need to terminate
+			 */
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				break;
+
+			if (ret) {
+				/* We end up here after handling the fault */
+				(*counter)++;
+			} else {
+				/* Expand the stack and cause a fault */
+				char *last_ptr = 0;
+				do {
+					char *ptr = alloca(256 * KB);
+
+					/* need this else gcc optimises out the alloca */
+					*ptr = 0;
+
+					/* Force gcc to actually do the alloca */
+					uint64_put((uint64_t)(last_ptr - ptr));
+					last_ptr = ptr;
+				} while (opt_do_run);
+			}
 		}
 	}
 
