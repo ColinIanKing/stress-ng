@@ -132,9 +132,9 @@ stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -o $@ $(LDFLAGS)
 
 stress-cpu.o: stress-cpu.c
-	@echo "_Decimal32 x;" > test-decimal.c
-	-@$(CC) $(CFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
+	@echo "_Decimal32 x;" > test-decimal.c
+	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
 	@if [ -e test-decimal.o ]; then \
 		$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< ;\
 	else \
@@ -159,6 +159,7 @@ dist:
 clean:
 	rm -f stress-ng $(OBJS) stress-ng.1.gz
 	rm -f stress-ng-$(VERSION).tar.gz
+	rm -f test-decimal.c
 
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}
