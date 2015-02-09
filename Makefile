@@ -130,6 +130,10 @@ OBJS = $(SRC:.c=.o)
 stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -o $@ $(LDFLAGS)
 
+stress-cpu.o: stress-cpu.c
+	# Try with decimal floats, if fail, rebuild without
+	$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< || $(CC) $(CFLAGS) -c -o $@ $<
+
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
