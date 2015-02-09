@@ -317,12 +317,6 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define STRESS_INT128	1
 #endif
 
-#if defined(__GNUC__) && !defined(__clang__) && \
-    defined(__x86_64__) || defined(__x86_64) && \
-    defined(__DEC128_MIN__)
-#define STRESS_FLOAT_DECIMAL	1
-#endif
-
 /* stress process prototype */
 typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
