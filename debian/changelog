@@ -1,3 +1,28 @@
+stress-ng (0.03.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Don't make sieve static, it wastes space in the executable
+  * Keep make quiet on builds that don't support _Decimal types
+  * Makefile: more smarts to conditionally build stress-cpu
+  * remove STRESS_FLOAT_DECIMAL
+  * Try to build with _Decimal* floats, if fail, build without
+  * Check for __int128 and _Decimal support
+  * Don't complain about IPC_RMID failure if it's already been reaped
+  * Don't report sem-op errors on EINTR
+  * Only report OOM restarts and nomems if they actually occurred
+  * stress-chmod: remove some unnecessary debug info
+  * stress-socket: don't emit errno if EINTR
+  * stress-udp: don't emit errno if EINTR
+  * stress-chmod: only report number of retries if a retry occurred
+  * stress-stack: handle OOM killer with monitoring parent
+  * Add set_max_limits() to push user limits to maximum allowed
+  * stress-cpu: re-work math stressors with macros
+  * Add decimal{32|64|128} math ops in cpu stressor
+  * Re-work floating point and complex floating point stressors
+  * Re-work int stressors to use generic macro, and add int128 test
+
+ -- Colin King <colin.king@canonical.com>  Mon, 9 Feb 2015 23:28:00 +0000
+
 stress-ng (0.03.14-1) unstable; urgency=medium
 
   * Makefile: bump version
