@@ -1356,7 +1356,7 @@ static void stress_cpu_correlate(void)
 static void stress_cpu_sieve(void)
 {
 	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
-	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
+	uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
 	memset(sieve, 0xff, sizeof(sieve));
