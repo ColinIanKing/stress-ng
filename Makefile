@@ -125,14 +125,22 @@ OBJS = $(SRC:.c=.o)
 .o: stress-ng.h Makefile
 
 .c.o: stress-ng.h Makefile $(SRC)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	@echo $(CC) $(CFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -o $@ $(LDFLAGS)
 
 stress-cpu.o: stress-cpu.c
-	# Try with decimal floats, if fail, rebuild without
-	$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< || $(CC) $(CFLAGS) -c -o $@ $<
+	@echo "_Decimal32 x;" > test-decimal.c
+	-@$(CC) $(CFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null
+	@echo $(CC) $(CFLAGS) -c -o $@ $<
+	@if [ -e test-decimal.o ]; then \
+		$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< ;\
+	else \
+		$(CC) $(CFLAGS) -c -o $@ $< ;\
+	fi
+	@rm -f test-decimal.c test-decimal.o
 
 $(OBJS): stress-ng.h Makefile
 
