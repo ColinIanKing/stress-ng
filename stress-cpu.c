@@ -740,7 +740,7 @@ static void stress_cpu_int ## _sz(void)				\
 }								\
 
 /* For compilers that support int128 .. */
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_INT128)
 
 #define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 
@@ -805,7 +805,7 @@ static void stress_cpu_ ## _name(void)			\
 stress_cpu_fp(float, float, sinf, cosf)
 stress_cpu_fp(double, double, sin, cos)
 stress_cpu_fp(long double, longdouble, sinl, cosl)
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_FLOAT_DECIMAL)
 stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
 stress_cpu_fp(_Decimal64, decimal64, sin, cos)
 stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
@@ -934,7 +934,7 @@ stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
 	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
 	C1, C2, C3, sinl, cosl)
 
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_INT128)
 stress_cpu_int_fp(__uint128_t, 128, float, float, 
 	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
 	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
@@ -950,6 +950,7 @@ stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
 	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sinl, cosl)
+#if defined(STRESS_FLOAT_DECIMAL)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
 	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
@@ -965,6 +966,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
 	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal128)sinl, (_Decimal128)cosl)
+#endif
 #endif
 
 /*
@@ -1656,7 +1658,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "cfloat",		stress_cpu_complex_float },
 	{ "clongdouble",	stress_cpu_complex_long_double },
 	{ "correlate",		stress_cpu_correlate },
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_FLOAT_DECIMAL)
 	{ "decimal32",		stress_cpu_decimal32 },
 	{ "decimal64",		stress_cpu_decimal64 },
 	{ "decimal128",		stress_cpu_decimal128 },
@@ -1676,20 +1678,22 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "hanoi",		stress_cpu_hanoi },
 	{ "hyperbolic",		stress_cpu_hyperbolic },
 	{ "idct",		stress_cpu_idct },
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_INT128)
 	{ "int128",		stress_cpu_int128 },
 #endif
 	{ "int64",		stress_cpu_int64 },
 	{ "int32",		stress_cpu_int32 },
 	{ "int16",		stress_cpu_int16 },
 	{ "int8",		stress_cpu_int8 },
-#if __GNUC__ && !defined(__clang__)
+#if defined(STRESS_INT128)
 	{ "int128float",	stress_cpu_int128_float },
 	{ "int128double",	stress_cpu_int128_double },
 	{ "int128longdouble",	stress_cpu_int128_longdouble },
+#if defined(STRESS_FLOAT_DECIMAL)
 	{ "int128decimal32",	stress_cpu_int128_decimal32 },
 	{ "int128decimal64",	stress_cpu_int128_decimal64 },
 	{ "int128decimal128",	stress_cpu_int128_decimal128 },
+#endif
 #endif
 	{ "int64float",		stress_cpu_int64_float },
 	{ "int64double",	stress_cpu_int64_double },
