@@ -40,6 +40,7 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #define _GNU_SOURCE
 /* GNU HURD */
@@ -108,7 +109,7 @@
 /* Logging helpers */
 extern int print(FILE *fp, const int flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
-extern void pr_failed(const int flag, const char *name, const char *what);
+extern void pr_failed(const int flag, const char *name, const char *what, const int err);
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
@@ -116,8 +117,9 @@ extern void pr_failed(const int flag, const char *name, const char *what);
 #define pr_fail(fp, fmt, args...)	print(fp, PR_FAIL, fmt, ## args)
 #define pr_tidy(fp, fmt, args...)	print(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 
-#define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what)
-#define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what)
+#define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what, errno)
+#define pr_failed_errno(name, what, e)	pr_failed(PR_ERROR, name, what, e)
+#define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what, errno)
 
 #define ABORT_FAILURES		(5)
 
