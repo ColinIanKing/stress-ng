@@ -1619,10 +1619,12 @@ next_opt:
 
 	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
 
+#if defined(STRESS_X86)
 	id = stressor_id_find(STRESS_RDRAND);
 	if ((procs[id].num_procs) &&
 	    (stress_rdrand_supported() < 0))
 		procs[id].num_procs = 0;
+#endif
 
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
