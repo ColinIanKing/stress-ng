@@ -1483,7 +1483,9 @@ next_opt:
 			break;
 		case OPT_RANDOM:
 			opt_flags |= OPT_FLAGS_RANDOM;
-			opt_random = opt_long("-r", optarg);
+			opt_random = get_uint64(optarg);
+			if (opt_random <= 0)
+				opt_random = stress_get_processors_online();
 			check_value("random", opt_random);
 			break;
 		case OPT_SCHED:
@@ -1509,7 +1511,7 @@ next_opt:
 			break;
 #endif
 		case OPT_SEQUENTIAL:
-			opt_sequential = get_uint64_byte(optarg);
+			opt_sequential = get_uint64(optarg);
 			if (opt_sequential <= 0)
 				opt_sequential = stress_get_processors_online();
 			check_range("sequential", opt_sequential,
