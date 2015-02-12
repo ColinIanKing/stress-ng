@@ -69,6 +69,7 @@ void *stress_pthread_func(void *ctxt)
 	uint8_t stack[SIGSTKSZ];
 	stack_t ss;
 	static void *nowt = NULL;
+	int ret;
 
 	(void)ctxt;
 
@@ -95,13 +96,15 @@ void *stress_pthread_func(void *ctxt)
 	/*
 	 *  Bump count of running threads
 	 */
-	if (pthread_mutex_lock(&mutex)) {
-		pr_failed_err("pthread", "mutex lock");
+	ret = pthread_mutex_lock(&mutex);
+	if (ret) {
+		pr_failed_errno("pthread", "mutex lock", ret);
 		goto die;
 	}
 	pthread_count++;
-	if (pthread_mutex_unlock(&mutex)) {
-		pr_failed_err("pthread", "mutex unlock");
+	ret = pthread_mutex_unlock(&mutex);
+	if (ret) {
+		pr_failed_errno("pthread", "mutex unlock", ret);
 		goto die;
 	}
 
@@ -109,19 +112,21 @@ void *stress_pthread_func(void *ctxt)
 	 *  Wait for controlling thread to
 	 *  indicate it is time to die
 	 */
-	if (pthread_mutex_lock(&mutex)) {
-		pr_failed_err("pthread", "mutex unlock");
+	ret = pthread_mutex_lock(&mutex);
+	if (ret) {
+		pr_failed_errno("pthread", "mutex unlock", ret);
 		goto die;
 	}
 	while (!thread_terminate) {
-		if (pthread_cond_wait(&cond, &mutex)) {
-			pr_failed_err("pthread", "pthread condition wait");
+		ret = pthread_cond_wait(&cond, &mutex);
+		if (ret) {
+			pr_failed_errno("pthread", "pthread condition wait", ret);
 			break;
 		}
 	}
-	if (pthread_mutex_unlock(&mutex)) {
-		pr_failed_err("pthread", "mutex unlock");
-	}
+	ret = pthread_mutex_unlock(&mutex);
+	if (ret)
+		pr_failed_errno("pthread", "mutex unlock", ret);
 die:
 	return &nowt;
 }
@@ -145,19 +150,21 @@ int stress_pthread(
 	sigfillset(&set);
 	do {
 		uint64_t i, j;
+		int ret;
 
 		thread_terminate = false;
 		pthread_count = 0;
 
 		for (i = 0; (i < opt_pthread_max) && (!max_ops || *counter < max_ops); i++) {
-			if (pthread_create(&pthreads[i], NULL, stress_pthread_func, NULL)) {
+			ret = pthread_create(&pthreads[i], NULL, stress_pthread_func, NULL);
+			if (ret) {
 				/* Out of resources, don't try any more */
-				if (errno == EAGAIN) {
+				if (ret == EAGAIN) {
 					limited++;
 					break;
 				}
 				/* Something really unexpected */
-				pr_failed_err(name, "pthread create");
+				pr_failed_errno(name, "pthread create", ret);
 				ok = false;
 				break;
 			}
@@ -174,14 +181,16 @@ int stress_pthread(
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
 
-			if (pthread_mutex_lock(&mutex)) {
-				pr_failed_err(name, "mutex lock");
+			ret = pthread_mutex_lock(&mutex);
+			if (ret) {
+				pr_failed_errno(name, "mutex lock", ret);
 				ok = false;
 				goto reap;
 			}
 			all_running = (pthread_count == i);
-			if (pthread_mutex_unlock(&mutex)) {
-				pr_failed_err(name, "mutex unlock");
+			ret = pthread_mutex_unlock(&mutex);
+			if (ret) {
+				pr_failed_errno(name, "mutex unlock", ret);
 				ok = false;
 				goto reap;
 			}
@@ -190,25 +199,29 @@ int stress_pthread(
 				break;
 		}
 
-		if (pthread_mutex_lock(&mutex)) {
-			pr_failed_err(name, "mutex lock");
+		ret = pthread_mutex_lock(&mutex);
+		if (ret) {
+			pr_failed_errno(name, "mutex lock", ret);
 			ok = false;
 			goto reap;
 		}
 		thread_terminate = true;
-		if (pthread_cond_broadcast(&cond)) {
-			pr_failed_err(name, "pthread condition broadcast");
+		ret = pthread_cond_broadcast(&cond);
+		if (ret) {
+			pr_failed_errno(name, "pthread condition broadcast", ret);
 			ok = false;
 			/* fall through and unlock */
 		}
-		if (pthread_mutex_unlock(&mutex)) {
-			pr_failed_err(name, "mutex unlock");
+		ret = pthread_mutex_unlock(&mutex);
+		if (ret) {
+			pr_failed_errno(name, "mutex unlock", ret);
 			ok = false;
 		}
 reap:
 		for (j = 0; j < i; j++) {
-			if (pthread_join(pthreads[j], NULL)) {
-				pr_failed_err(name, "pthread join");
+			ret = pthread_join(pthreads[j], NULL);
+			if (ret) {
+				pr_failed_errno(name, "pthread join", ret);
 				ok = false;
 			}
 		}
