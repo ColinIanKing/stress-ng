@@ -212,7 +212,7 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
-#define DEFAULT_PTHREAD		(16)
+#define DEFAULT_PTHREAD		(1024)
 
 #define MIN_QSORT_SIZE		(1 * KB)
 #define MAX_QSORT_SIZE		(64 * MB)

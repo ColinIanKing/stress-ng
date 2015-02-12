@@ -795,7 +795,7 @@ start N processes that read files from /proc and recursively read files from /pr
 stop procfs reading after N bogo read operations. Note, since the number of entries may vary between kernels, this bogo ops metric is probably very misleading.
 .TP
 .B \-\-pthread N
-start N workers that iteratively creates and terminates multiple pthreads (the default is 16 pthreads 16 worker). In each iteration, each newly created pthread waits until the worker has created all the pthreads and then they all terminate together.
+start N workers that iteratively creates and terminates multiple pthreads (the default is 1024 pthreads per worker). In each iteration, each newly created pthread waits until the worker has created all the pthreads and then they all terminate together.
 .TP
 .B \-\-pthread\-ops N
 stop pthread workers after N bogo pthread create operations.
