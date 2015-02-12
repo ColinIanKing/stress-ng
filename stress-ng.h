@@ -1063,6 +1063,7 @@ extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
+extern int  stress_rdrand_supported(void);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_semaphore_posix_procs(const char *optarg);

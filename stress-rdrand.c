@@ -35,7 +35,35 @@
 
 #if defined(STRESS_X86) && !defined(__OpenBSD__)
 
+static bool rdrand_supported = false;
+
 #include <cpuid.h>
+
+/*
+ *  stress_rdrand_supported()
+ *	check if rdrand is supported
+ */
+int stress_rdrand_supported(void)
+{
+	uint32_t eax, ebx, ecx, edx;
+
+	/* Intel CPU? */
+	__cpuid(0, eax, ebx, ecx, edx);
+	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
+	      (memcmp(&edx, "ineI", 4) == 0) &&
+	      (memcmp(&ecx, "ntel", 4) == 0))) {
+		pr_inf(stderr, "rdrand stressor will be skipped, not a recognised Intel CPU.\n");
+		return -1;
+	}
+	/* ..and supports rdrand? */
+	__cpuid(1, eax, ebx, ecx, edx);
+	if (!(ecx & 0x40000000)) {
+		pr_inf(stderr, "rdrand stressor will be skipped, CPU does not support the rdrand instruction.\n");
+		return -1;
+	}
+	rdrand_supported = true;
+	return 0;
+}
 
 /*
  *  rdrand64()
@@ -102,37 +130,31 @@ int stress_rdrand(
         const uint64_t max_ops,
         const char *name)
 {
-	uint32_t eax, ebx, ecx, edx;
-
 	(void)instance;
 
-	/* Intel CPU? */
-	__cpuid(0, eax, ebx, ecx, edx);
-	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
-	      (memcmp(&edx, "ineI", 4) == 0) &&
-	      (memcmp(&ecx, "ntel", 4) == 0))) {
-		pr_err(stderr, "%s: rdrand test aborted, not a recognised Intel CPU.\n", name);
-		return EXIT_FAILURE;
+	if (rdrand_supported) {
+		do {
+			RDRAND64();
+			(*counter)++;
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
-	/* ..and supports rdrand? */
-	__cpuid(1, eax, ebx, ecx, edx);
-	if (!(ecx & 0x40000000)) {
-		pr_err(stderr, "%s: rdrand test aborted, CPU does not support rdrand instruction.\n", name);
-		return EXIT_FAILURE;
-	}
-
-	do {
-		RDRAND64();
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
 	pr_dbg(stderr, "%s: %" PRIu64 " random bits read\n",
 		name,  (*counter) * 64 * 32);
-
 	return EXIT_SUCCESS;
 }
 
 #else
+
+/*
+ *  stress_rdrand_supported()
+ *	check if rdrand is supported
+ */
+int stress_rdrand_supported(void)
+{
+	pr_inf(stderr, "rdrand stressor will be skipped, CPU does not support the rdrand instruction.\n");
+	return -1;
+}
+
 /*
  *  stress_rdrand()
  *      no-op for non-intel
@@ -146,8 +168,7 @@ int stress_rdrand(
 	(void)counter;
 	(void)instance;
 	(void)max_ops;
-
-	pr_dbg(stderr, "%s: rdrand instruction not supported on this architecture\n", name);
+	(void)name;
 
 	return EXIT_SUCCESS;
 }

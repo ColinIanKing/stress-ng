@@ -1619,6 +1619,11 @@ next_opt:
 
 	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
 
+	id = stressor_id_find(STRESS_RDRAND);
+	if ((procs[id].num_procs) &&
+	    (stress_rdrand_supported() < 0))
+		procs[id].num_procs = 0;
+
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
@@ -1680,7 +1685,7 @@ next_opt:
 		max_procs = opt_sequential;
 	} else {
 		if (!total_procs) {
-			pr_err(stderr, "No stress workers specified\n");
+			pr_err(stderr, "No stress workers\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
