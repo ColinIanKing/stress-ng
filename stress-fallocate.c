@@ -36,6 +36,15 @@
 
 #include "stress-ng.h"
 
+static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
+
+void stress_set_fallocate_bytes(const char *optarg)
+{
+	opt_fallocate_bytes = (off_t)get_uint64_byte(optarg);
+	check_range("fallocate-bytes", opt_fallocate_bytes,
+		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
+}
+
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 /*
  *  stress_fallocate
@@ -66,7 +75,7 @@ int stress_fallocate(
 	(void)unlink(filename);
 
 	do {
-		(void)posix_fallocate(fd, (off_t)0, 4096 * 4096);
+		(void)posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
 		if (!opt_do_run)
 			break;
 		fsync(fd);
@@ -75,7 +84,7 @@ int stress_fallocate(
 
 			if (fstat(fd, &buf) < 0)
 				pr_fail(stderr, "fstat on file failed");
-			else if (buf.st_size != (off_t)4096 * 4096)
+			else if (buf.st_size != opt_fallocate_bytes)
 					pr_fail(stderr, "file size does not match size the expected file size\n");
 		}
 

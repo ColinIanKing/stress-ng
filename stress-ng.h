@@ -163,6 +163,10 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 #define MAX_HDD_WRITE_SIZE	(4 * MB)
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
+#define MIN_FALLOCATE_BYTES	(1 * MB)
+#define MAX_FALLOCATE_BYTES	(256 * GB)
+#define DEFAULT_FALLOCATE_BYTES	(1 * GB)
+
 #define MIN_FIFO_READERS	(1)
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
@@ -627,6 +631,7 @@ typedef enum {
 
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	OPT_FALLOCATE_OPS,
+	OPT_FALLOCATE_BYTES,
 #endif
 	OPT_FAULT,
 	OPT_FAULT_OPS,
@@ -1058,6 +1063,7 @@ extern void stress_set_dentries(const char *optarg);
 extern int  stress_set_dentry_order(const char *optarg);
 extern void stress_set_epoll_port(const char *optarg);
 extern int  stress_set_epoll_domain(const char *optarg);
+extern void stress_set_fallocate_bytes(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);

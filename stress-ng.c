@@ -352,6 +352,7 @@ static const struct option long_options[] = {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
+	{ "fallocate-bytes",1,	0,	OPT_FALLOCATE_BYTES },
 #endif
 	{ "fault",	1,	0,	OPT_FAULT },
 	{ "fault-ops",	1,	0,	OPT_FAULT_OPS },
@@ -664,6 +665,7 @@ static const help_t help[] = {
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
+	{ NULL,		"fallocate-bytes N",	"specify size of file to allocate" },
 #endif
 	{ NULL,		"fault N",		"start N workers producing page faults" },
 	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
@@ -1007,7 +1009,7 @@ static void usage(void)
 
 		if (help[i].opt_s)
 			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
-		printf(" %-6s--%-17s%s\n", opt_s,
+		printf("%-6s--%-18s%s\n", opt_s,
 			help[i].opt_l, help[i].description);
 	}
 	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
@@ -1424,6 +1426,11 @@ next_opt:
 			break;
 		case OPT_EPOLL_PORT:
 			stress_set_epoll_port(optarg);
+			break;
+#endif
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+		case OPT_FALLOCATE_BYTES:
+			stress_set_fallocate_bytes(optarg);
 			break;
 #endif
 		case OPT_FIFO_READERS:

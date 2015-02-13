@@ -428,7 +428,10 @@ start N parent and child worker processes that read and write 8 byte event messa
 stop eventfd workers after N bogo operations.
 .TP
 .B \-F N, \-\-fallocate N
-start N processes continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.
+start N processes continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  If the file is larger than the free space, fallocate will produce an ENOSPC error which is ignored by this stressor.
+.TP
+.B \-\-fallocate\-bytes N
+allocated file size, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress processes after N bogo fallocate operations.
