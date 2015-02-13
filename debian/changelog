@@ -1,3 +1,24 @@
+stress-ng (0.03.16-1) unstable; urgency=medium
+
+  * Makefile: bump version again
+  * Fix missing .TP in man page
+  * Re-work the "dispatching hogs" message to log atomically
+  * Add --syslog option to log non-debug messages to syslog
+  * stress-hdd: don't use strtok_r, we're not threaded
+  * Just define KCMP_* ourselves, broken distros don't have linux/kcmp.h
+  * stress-kcmp: close fd1, fix resource leak
+  * Add kcmp stressor
+  * Remove unnecessary { }
+  * Remove redundant assignment of first enum to zero
+  * Make --random 0 select the number of on-line CPUs
+  * Forgot to make RDRAND check arch specific
+  * Add check to see if rdrand is supported and skip stressor if not
+  * stress-pthread: increase to 1024 pthreads per stressor
+  * stress-pthread: handle error correctly; as from the return from pthread*
+  * Make pr_failed more generic and make a new pr_failed_errno macro
+
+ -- Colin King <colin.king@canonical.com>  Fri, 13 Feb 2015 19:40:00 +0000
+
 stress-ng (0.03.15-1) unstable; urgency=medium
 
   * Makefile: bump version
