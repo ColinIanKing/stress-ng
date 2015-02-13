@@ -146,9 +146,9 @@ void stress_set_hdd_write_size(const char *optarg)
  */
 int stress_hdd_opts(char *opts)
 {
-	char *str, *token, *saveptr = NULL;
+	char *str, *token;
 
-	for (str = opts; (token = strtok_r(str, ",", &saveptr)) != NULL; str = NULL) {
+	for (str = opts; (token = strtok(str, ",")) != NULL; str = NULL) {
 		int i;
 		bool opt_ok = false;
 
