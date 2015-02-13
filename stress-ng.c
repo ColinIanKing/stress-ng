@@ -36,6 +36,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <semaphore.h>
+#include <syslog.h>
 
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -532,6 +533,7 @@ static const struct option long_options[] = {
 	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
 	{ "sysinfo",	1,	0,	OPT_SYSINFO },
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
+	{ "syslog",	0,	0,	OPT_SYSLOG },
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
 #if defined (__linux__)
 	{ "timer",	1,	0,	OPT_TIMER },
@@ -838,6 +840,7 @@ static const help_t help[] = {
 	{ NULL,		"symlink-ops N",	"stop when N symbolic link bogo operations completed" },
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
 	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
+	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 #if defined (__linux__)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
@@ -1546,6 +1549,9 @@ next_opt:
 			stress_set_splice_bytes(optarg);
 			break;
 #endif
+		case OPT_SYSLOG:
+			opt_flags |= OPT_FLAGS_SYSLOG;
+			break;
 		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);
 			break;
@@ -1624,6 +1630,9 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	if (opt_flags & OPT_SYSLOG)
+		openlog("stress-ng", 0, LOG_USER);
 
 	if (opt_class && !opt_sequential) {
 		fprintf(stderr, "class option is only used with sequential option\n");
@@ -1866,5 +1875,8 @@ next_opt:
 				  (float)buf.tms_cstime) /
 				(float)ticks_per_sec) / total_cpu_time);
 	}
+	if (opt_flags & OPT_SYSLOG)
+		closelog();
+
 	exit(EXIT_SUCCESS);
 }

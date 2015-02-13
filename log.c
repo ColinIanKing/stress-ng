@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <syslog.h>
 
 #include "stress-ng.h"
 
@@ -61,10 +62,9 @@ int print(
 		if (flag & PR_FAIL)
 			type = "fail";
 
-		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
-			app_name, type, getpid());
+		n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
 		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
-		fprintf(fp, "%s", buf);
+		fprintf(fp, "%s: %s", app_name, buf);
 		fflush(fp);
 
 		if (flag & PR_FAIL) {
@@ -77,6 +77,12 @@ int print(
 					fflush(fp);
 				}
 			}
+		}
+
+		/* Log messages if syslog requested, don't log DEBUG */
+		if ((opt_flags & OPT_FLAGS_SYSLOG) &&
+		    (!(flag & PR_DEBUG))) {
+			syslog(LOG_INFO, "%s", buf);
 		}
 	}
 	va_end(ap);

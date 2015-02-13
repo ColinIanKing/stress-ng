@@ -71,6 +71,7 @@
 #define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
 #define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
 #define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
+#define OPT_FLAGS_SYSLOG	0x00002000	/* log test progress to syslog */
 #define OPT_FLAGS_CACHE_FLUSH	0x00004000	/* cache flush */
 #define OPT_FLAGS_CACHE_FENCE	0x00008000	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
@@ -828,6 +829,8 @@ typedef enum {
 
 	OPT_SYSINFO,
 	OPT_SYSINFO_OPS,
+
+	OPT_SYSLOG,
 
 #if defined (__linux__)
 	OPT_TIMER_OPS,
