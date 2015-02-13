@@ -373,7 +373,7 @@ typedef struct {
 /* Stress tests */
 typedef enum {
 #if defined(__linux__)
-	STRESS_AFFINITY = 0,
+	STRESS_AFFINITY,
 #endif
 #if defined(__linux__)
 	STRESS_AIO,
