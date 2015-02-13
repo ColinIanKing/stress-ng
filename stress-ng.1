@@ -585,6 +585,12 @@ specify ionice class (only on Linux). Can be idle (default), besteffort, be, rea
 .B \-\-ionice\-level level
 specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (hightest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
+.B \-\-kcmp N
+start N processes that use kcmp(2) to compare parent and child processes to determine if they share kernel resources (Linux only).
+.TP
+.B \-\-kcmp\-ops N
+stop kcmp stressors after N bogo kcmp operations.
+.TP
 .B \-k, \-\-keep\-name
 by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP

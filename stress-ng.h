@@ -117,8 +117,8 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 #define pr_fail(fp, fmt, args...)	print(fp, PR_FAIL, fmt, ## args)
 #define pr_tidy(fp, fmt, args...)	print(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 
-#define pr_failed_err(name, what)	pr_failed(PR_ERROR, name, what, errno)
-#define pr_failed_errno(name, what, e)	pr_failed(PR_ERROR, name, what, e)
+#define pr_failed_err(name, what)	pr_failed(PR_FAIL | PR_ERROR, name, what, errno)
+#define pr_failed_errno(name, what, e)	pr_failed(PR_FAIL | PR_ERROR, name, what, e)
 #define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what, errno)
 
 #define ABORT_FAILURES		(5)
@@ -414,6 +414,9 @@ typedef enum {
 	STRESS_INOTIFY,
 #endif
 	STRESS_IOSYNC,
+#if defined(__linux__)
+	STRESS_KCMP,
+#endif
 	STRESS_KILL,
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 	STRESS_LEASE,
@@ -662,6 +665,11 @@ typedef enum {
 #endif
 
 	OPT_IOSYNC_OPS,
+
+#if defined (__linux__)
+	OPT_KCMP,
+	OPT_KCMP_OPS,
+#endif
 
 	OPT_KILL,
 	OPT_KILL_OPS,
@@ -1116,6 +1124,7 @@ STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
+STRESS(stress_kcmp);
 STRESS(stress_kill);
 STRESS(stress_lease);
 STRESS(stress_link);

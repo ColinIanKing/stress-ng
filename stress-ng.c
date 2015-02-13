@@ -176,6 +176,9 @@ static const stress_t stressors[] = {
 #if defined(__linux__)
 	STRESSOR(inotify, INOTIFY, CLASS_SCHEDULER | CLASS_OS),
 #endif
+#if defined(__linux__)
+	STRESSOR(kcmp, KCMP, CLASS_OS),
+#endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 	STRESSOR(lease, LEASE, CLASS_IO | CLASS_OS),
@@ -386,6 +389,10 @@ static const struct option long_options[] = {
 #if defined (__linux__)
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
+#endif
+#if defined (__linux__)
+	{ "kcmp",	1,	0,	OPT_KCMP },
+	{ "kcmp-ops",	1,	0,	OPT_KCMP_OPS },
 #endif
 	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
 	{ "kill",	1,	0,	OPT_KILL },
@@ -692,6 +699,10 @@ static const help_t help[] = {
 #if defined (__linux__)
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
+#endif
+#if defined (__linux__)
+	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
+	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
 #endif
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
