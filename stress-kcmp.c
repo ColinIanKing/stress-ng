@@ -100,6 +100,7 @@ int stress_kcmp(
 	pid1 = fork();
 	if (pid1 < 0) {
 		pr_failed_dbg(name, "fork");
+		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
 		/* Child */
