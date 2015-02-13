@@ -58,9 +58,8 @@ int print(
 			type = "debug";
 		if (flag & PR_INFO)
 			type = "info";
-		if (flag & PR_FAIL) {
+		if (flag & PR_FAIL)
 			type = "fail";
-		}
 
 		n = snprintf(buf, sizeof(buf), "%s: %s: [%i] ",
 			app_name, type, getpid());
