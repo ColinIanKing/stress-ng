@@ -1251,13 +1251,54 @@ wait_for_procs:
 	*duration += time_finish - time_start;
 }
 
+/*
+ *  show_hogs()
+ *	show names of stressors that are going to be run
+ */
+static int show_hogs(void)
+{
+	char *newstr, *str = NULL;
+	ssize_t len = 0;
+	char buffer[64];
+	bool previous = false;
+	int i;
+
+	for (i = 0; i < STRESS_MAX; i++) {
+		if (procs[i].num_procs) {
+			ssize_t buffer_len;
+
+			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
+				previous ? "," : "",
+				procs[i].num_procs, stressors[i].name);
+			previous = true;
+			if (buffer_len >= 0) {
+				newstr = realloc(str, len + buffer_len + 1);
+				if (!newstr) {
+					pr_err(stderr, "Cannot allocate temporary buffer\n");
+					free(str);
+					return -1;
+				}	
+				str = newstr;
+				strncpy(str + len, buffer, buffer_len + 1);
+			}
+			len += buffer_len;
+		}
+	}
+	pr_inf(stdout, "dispatching hogs: %s\n", str);
+	free(str);
+	fflush(stdout);
+
+	return 0;
+}
+
+
 int main(int argc, char **argv)
 {
 	double duration = 0.0;
 	int32_t val, opt_random = 0, i, j;
 	int32_t total_procs = 0, max_procs = 0;
 	size_t len;
-	bool success = true, previous = false;
+	bool success = true;
 	struct sigaction new_action;
 	long int ticks_per_sec;
 	struct rlimit limit;
@@ -1744,17 +1785,11 @@ next_opt:
 		stress_adjust_ptread_max(max);
 	}
 
-	pr_inf(stdout, "dispatching hogs:");
-	for (i = 0; i < STRESS_MAX; i++) {
-		if (procs[i].num_procs) {
-			fprintf(stdout, "%s %" PRId32 " %s",
-				previous ? "," : "",
-				procs[i].num_procs, stressors[i].name);
-			previous = true;
-		}
+	if (show_hogs() < 0) {
+		free_procs();
+		exit(EXIT_FAILURE);
 	}
-	fprintf(stdout, "\n");
-	fflush(stdout);
+		
 
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
 	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
