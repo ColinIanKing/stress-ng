@@ -951,6 +951,9 @@ transfer N bytes per splice call, the default is 64K. One can specify the size i
 .B \-\-stack N
 start N processes that rapidly cause and catch stack overflows by use of alloca(3).
 .TP
+.B \-\-stack\-full
+the default action is to touch the lowest page on each stack allocation. This option touches all the pages by filling the new stack allocation with zeros which forces physical pages to be allocated and hence is more aggressve.
+.TP
 .B \-\-stack\-ops N
 stop stack stress processes after N bogo stack overflows.
 .TP

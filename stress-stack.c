@@ -164,7 +164,10 @@ again:
 					char *ptr = alloca(256 * KB);
 
 					/* need this else gcc optimises out the alloca */
-					*ptr = 0;
+					if (opt_flags & OPT_STACK_FILL)
+						memset(ptr, 0, 256 * KB);
+					else
+						*ptr = 0;
 
 					/* Force gcc to actually do the alloca */
 					uint64_put((uint64_t)(last_ptr - ptr));

@@ -85,6 +85,7 @@
 #define OPT_FLAGS_HDD_DSYNC	0x00800000	/* HDD O_DYNC */
 #define OPT_FLAGS_HDD_DIRECT	0x01000000	/* HDD O_DIRECT */
 #define OPT_FLAGS_HDD_NOATIME	0x02000000	/* HDD O_NOATIME */
+#define OPT_FLAGS_STACK_FILL	0x04000000	/* Fill stack */
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -828,6 +829,7 @@ typedef enum {
 
 	OPT_STACK,
 	OPT_STACK_OPS,
+	OPT_STACK_FILL,
 
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,

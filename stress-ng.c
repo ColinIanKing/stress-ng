@@ -528,6 +528,7 @@ static const struct option long_options[] = {
 #endif
 	{ "stack",	1,	0,	OPT_STACK},
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
+	{ "stack-fill",	0,	0,	OPT_STACK_FILL },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
@@ -836,6 +837,7 @@ static const help_t help[] = {
 #endif
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
 	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
+	{ NULL,		"stack-fill",		"fill stack, touches all new pages " },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
@@ -1597,6 +1599,9 @@ next_opt:
 			stress_set_splice_bytes(optarg);
 			break;
 #endif
+		case OPT_STACK_FILL:
+			opt_flags |= OPT_FLAGS_STACK_FILL;
+			break;
 		case OPT_SYSLOG:
 			opt_flags |= OPT_FLAGS_SYSLOG;
 			break;
