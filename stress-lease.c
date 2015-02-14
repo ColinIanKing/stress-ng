@@ -122,7 +122,7 @@ int stress_lease(
 	char filename[PATH_MAX];
 	struct sigaction new_action;
 	int fd, status;
-	pid_t l_pids[opt_lease_breakers];
+	pid_t l_pids[MAX_LEASE_BREAKERS];
 	pid_t pid = getpid();
 	uint64_t i;
 
