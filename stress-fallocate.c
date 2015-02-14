@@ -127,7 +127,7 @@ int stress_fallocate(
 		(void)fsync(fd);
 
 #if defined(__linux__)
-		{
+		if (SIZEOF_ARRAY(modes) > 1) {
 			/*
 			 *  non-portable Linux fallocate()
 			 */
