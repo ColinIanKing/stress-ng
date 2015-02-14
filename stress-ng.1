@@ -1275,6 +1275,10 @@ stress\-ng \-\-sequential 8 \-\-class io \-t 5m \-\-times
 run all the stressors in the io class one by one for 5 minutes each, with 8
 instances of each stressor running concurrently and show overall time
 utilisation statistics at the end of the run.
+.LP
+stress\-ng \-\-all 0 \-\-maximize \-\-aggressive
+.IP
+run all the stressors (1 instance of each per CPU) similtaneously, maximize the settings (memory sizes, file allocations, etc.) and select the most demanding/aggressive options.
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
