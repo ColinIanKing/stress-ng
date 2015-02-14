@@ -15,6 +15,7 @@ epoll_create1			epoll
 epoll_ctl_add			epoll
 epoll_wait			epoll
 eventfd				eventfd
+fallocate			fallocate
 fchmod				chmod
 fcntl				open, lockf
 flock				flock
@@ -47,6 +48,7 @@ getuid				get
 inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
+kcmp				kcmp
 kill				kill
 listen				sock
 mkdir				dir
@@ -73,6 +75,7 @@ mq_close			mq
 nanosleep			timer
 open				dentry
 open				open
+pause				kcmp
 pipe				pipe
 pipe				switch
 poll				poll
