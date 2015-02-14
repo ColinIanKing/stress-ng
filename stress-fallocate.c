@@ -36,6 +36,8 @@
 
 #include "stress-ng.h"
 
+#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+
 static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 
 void stress_set_fallocate_bytes(const char *optarg)
@@ -45,7 +47,21 @@ void stress_set_fallocate_bytes(const char *optarg)
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 }
 
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(__linux__)
+static const int modes[] = {
+#if defined(FALLOC_FL_KEEP_SIZE)
+	FALLOC_FL_KEEP_SIZE,
+#endif
+#if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
+	FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE,
+#endif
+#if defined(FALLOC_FL_ZERO_RANGE)
+	FALLOC_FL_ZERO_RANGE,
+#endif
+	0
+};
+#endif
+
 /*
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
@@ -78,29 +94,60 @@ int stress_fallocate(
 		(void)posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
 		if (!opt_do_run)
 			break;
-		fsync(fd);
+		(void)fsync(fd);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
 				pr_fail(stderr, "fstat on file failed");
 			else if (buf.st_size != opt_fallocate_bytes)
-					pr_fail(stderr, "file size does not match size the expected file size\n");
+				pr_fail(stderr, "file size does not match size the expected file size\n");
 		}
 
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
 		if (!opt_do_run)
 			break;
-		fsync(fd);
+		(void)fsync(fd);
+
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
 				pr_fail(stderr, "fstat on file failed");
 			else if (buf.st_size != (off_t)0)
-					pr_fail(stderr, "file size does not match size the expected file size\n");
+				pr_fail(stderr, "file size does not match size the expected file size\n");
 		}
+
+		if (ftruncate(fd, opt_fallocate_bytes) < 0)
+			ftrunc_errs++;
+		(void)fsync(fd);
+		if (ftruncate(fd, 0) < 0)
+			ftrunc_errs++;
+		(void)fsync(fd);
+
+#if defined(__linux__)
+		{
+			/*
+			 *  non-portable Linux fallocate()
+			 */
+			int i;
+			(void)fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
+			if (!opt_do_run)
+				break;
+			(void)fsync(fd);
+
+			for (i = 0; i < 64; i++) {
+				off_t offset = (mwc() % opt_fallocate_bytes) & ~0xfff;
+				int j = (mwc() >> 8) % SIZEOF_ARRAY(modes);
+				
+				(void)fallocate(fd, modes[j], offset, 64 * KB);
+				if (!opt_do_run)
+					break;
+				(void)fsync(fd);
+			}
+		}
+#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	if (ftrunc_errs)
