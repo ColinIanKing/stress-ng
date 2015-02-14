@@ -69,6 +69,9 @@ stop affinity processes after N bogo affinity operations (only on Linux).
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.
 .TP
+.B \-\-aggressive
+enables more file, cache and memory aggressive options. This may slow tests down, increase latencies and reduce the number of bogo ops as well as changing the balance of user time vs system time used depending on the type of stressor being used.
+.TP
 .B \-\-aio N
 start N processes that issue multiple small asynchronous I/O writes and reads on a relatively small
 temporary file.  This will just hit the file system cache and soak up a lot of user and kernel time

@@ -299,6 +299,7 @@ static const struct option long_options[] = {
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
 	{ "affinity-rand",0,	0,	OPT_AFFINITY_RAND },
 #endif
+	{ "aggressive",	0,	0,	OPT_AGGRESSIVE },
 #if defined(__linux__)
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
@@ -615,6 +616,7 @@ static const help_t help[] = {
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
+	{ NULL,		"aggressive",		"enable all aggressive options" },
 #if defined (__linux__)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
@@ -744,6 +746,7 @@ static const help_t help[] = {
 	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
+	{ NULL,		"minimize",		"enable minimal stress options" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
@@ -1377,6 +1380,9 @@ next_opt:
 			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
 #endif
+		case OPT_AGGRESSIVE:
+			opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
+			break;
 		case OPT_BACKOFF:
 			opt_backoff = opt_long("backoff", optarg);
 			break;
