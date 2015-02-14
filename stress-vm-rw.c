@@ -44,9 +44,11 @@ typedef struct {
 } addr_msg_t;
 
 static size_t opt_vm_rw_bytes = DEFAULT_VM_RW_BYTES;
+static bool set_vm_rw_bytes = false;
 
 void stress_set_vm_rw_bytes(const char *optarg)
 {
+	set_vm_rw_bytes = true;
 	opt_vm_rw_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("vm-rw-bytes", opt_vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
@@ -65,9 +67,17 @@ int stress_vm_rw(
 	pid_t pid;
 	int pipe_wr[2], pipe_rd[2];
 	const size_t page_size = stress_get_pagesize();
-	const size_t sz = opt_vm_rw_bytes & ~(page_size - 1);
+	size_t sz;
 
 	(void)instance;
+
+	if (!set_vm_rw_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_vm_rw_bytes = MAX_VM_RW_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
+	}
+	sz = opt_vm_rw_bytes & ~(page_size - 1);
 
 	if (pipe(pipe_wr) < 0) {
 		pr_failed_dbg(name, "pipe");

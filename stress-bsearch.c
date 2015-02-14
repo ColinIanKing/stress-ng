@@ -30,7 +30,8 @@
 
 #include "stress-ng.h"
 
-uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
+static uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
+static bool set_bsearch_size = false;
 
 /*
  *  stress_set_bsearch_size()
@@ -38,6 +39,7 @@ uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
  */
 void stress_set_bsearch_size(const char *optarg)
 {
+	set_bsearch_size = true;
 	opt_bsearch_size = get_uint64_byte(optarg);
 	check_range("bsearch-size", opt_bsearch_size,
 		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
@@ -80,11 +82,18 @@ int stress_bsearch(
 	const char *name)
 {
 	int32_t *data, *ptr, prev = 0;
-	const size_t n = (size_t)opt_bsearch_size;
-	const size_t n8 = (n + 7) & ~7;
-	size_t i;
+	size_t n, n8, i;
 
 	(void)instance;
+
+	if (!set_bsearch_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_bsearch_size = MAX_BSEARCH_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_bsearch_size = MIN_BSEARCH_SIZE;
+	}
+	n = (size_t)opt_bsearch_size;
+	n8 = (n + 7) & ~7;
 
 	/* allocate in multiples of 8 */
 	if ((data = malloc(sizeof(int32_t) * n8)) == NULL) {
@@ -118,7 +127,6 @@ int stress_bsearch(
 					pr_fail(stderr, "element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
 						i, *result, *ptr);
 			}
-
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

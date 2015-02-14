@@ -39,9 +39,11 @@
 #include "stress-ng.h"
 
 static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
+static bool set_sendfile_size = false;
 
 void stress_set_sendfile_size(const char *optarg)
 {
+	set_sendfile_size = true;
 	opt_sendfile_size = get_uint64_byte(optarg);
 	check_range("sendfile-size", opt_sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
@@ -59,8 +61,16 @@ int stress_sendfile(
 {
 	char filename[PATH_MAX];
 	int fdin, fdout, ret = EXIT_SUCCESS;
-	size_t sz = (size_t)opt_sendfile_size;
+	size_t sz;
 	const pid_t pid = getpid();
+
+	if (!set_sendfile_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_sendfile_size = MAX_SENDFILE_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_sendfile_size = MIN_SENDFILE_SIZE;
+	}
+	sz = (size_t)opt_sendfile_size;
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

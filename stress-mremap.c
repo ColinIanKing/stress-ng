@@ -39,13 +39,15 @@
 
 #include "stress-ng.h"
 
-static size_t opt_mremap_bytes = DEFAULT_MMAP_BYTES;
+static size_t opt_mremap_bytes = DEFAULT_MREMAP_BYTES;
+static bool set_mremap_bytes = false;
 
 void stress_set_mremap_bytes(const char *optarg)
 {
+	set_mremap_bytes = true;
 	opt_mremap_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("mmap-bytes", opt_mremap_bytes,
-		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
 }
 
 
@@ -139,14 +141,20 @@ int stress_mremap(
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
-	const size_t sz = opt_mremap_bytes & ~(page_size - 1);
-	size_t new_sz = sz, old_sz;
+	size_t sz, new_sz, old_sz;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 
+	(void)instance;
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
 #endif
-	(void)instance;
+	if (!set_mremap_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_mremap_bytes = MAX_MREMAP_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_mremap_bytes = MIN_MREMAP_BYTES;
+	}
+	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(name, true);

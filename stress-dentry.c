@@ -58,9 +58,11 @@ static dentry_removal_t dentry_removals[] = {
 
 static dentry_order_t order = ORDER_REVERSE;
 static uint64_t opt_dentries = DEFAULT_DENTRIES;
+static bool set_dentries = false;
 
 void stress_set_dentries(const char *optarg)
 {
+	set_dentries = true;
 	opt_dentries = get_uint64(optarg);
 	check_range("dentries", opt_dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
@@ -151,6 +153,13 @@ int stress_dentry(
 	const char *name)
 {
 	const pid_t pid = getpid();
+
+	if (!set_dentries) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_dentries = MAX_DENTRIES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_dentries = MIN_DENTRIES;
+	}
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

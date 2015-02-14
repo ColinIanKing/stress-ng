@@ -39,9 +39,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
+static bool set_fifo_readers = false;
 
 void stress_set_fifo_readers(const char *optarg)
 {
+	set_fifo_readers = true;
 	opt_fifo_readers = get_uint64(optarg);
 	check_range("fifo-readers", opt_fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
@@ -70,8 +72,8 @@ static int fifo_spawn(
 }
 
 /*
- *
- *
+ *  stress_fifo_readers()
+ *	read fifo
  */
 void stress_fifo_reader(const char *name, const char *fifoname)
 {
@@ -131,6 +133,13 @@ int stress_fifo(
 	uint64_t i, val = 0ULL;
 	int ret = EXIT_FAILURE;
 	const pid_t pid = getpid();
+
+	if (!set_fifo_readers) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_fifo_readers = MAX_FIFO_READERS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_fifo_readers = MIN_FIFO_READERS;
+	}
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

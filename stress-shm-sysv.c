@@ -42,10 +42,13 @@
 
 static size_t opt_shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
+static bool set_shm_sysv_bytes = false;
+static bool set_shm_sysv_segments = false;
 
 
 void stress_set_shm_sysv_bytes(const char *optarg)
 {
+	set_shm_sysv_bytes = true;
 	opt_shm_sysv_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("shm-sysv-bytes", opt_shm_sysv_bytes,
 		MIN_SHM_SYSV_BYTES, MAX_SHM_SYSV_BYTES);
@@ -53,6 +56,7 @@ void stress_set_shm_sysv_bytes(const char *optarg)
 
 void stress_set_shm_sysv_segments(const char *optarg)
 {
+	opt_shm_sysv_segments = true;
 	opt_shm_sysv_segments = (size_t)get_uint64_byte(optarg);
 	check_range("shm-sysv-segments", opt_shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
@@ -92,15 +96,29 @@ int stress_shm_sysv(
 	const char *name)
 {
 	const size_t page_size = stress_get_pagesize();
-	size_t sz = opt_shm_sysv_bytes & ~(page_size - 1);
-	const size_t orig_sz = sz;
-	void *addrs[opt_shm_sysv_segments];
-	key_t keys[opt_shm_sysv_segments];
-	int shm_ids[opt_shm_sysv_segments];
+	size_t orig_sz, sz = opt_shm_sysv_bytes & ~(page_size - 1);
+	void *addrs[MAX_SHM_SYSV_SEGMENTS];
+	key_t keys[MAX_SHM_SYSV_SEGMENTS];
+	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 
 	(void)instance;
+
+	if (!set_shm_sysv_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
+	}
+
+	if (!set_shm_sysv_segments) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
+	}
+	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));

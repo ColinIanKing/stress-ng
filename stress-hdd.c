@@ -63,6 +63,8 @@
 
 static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
+static bool set_hdd_bytes = false;
+static bool set_hdd_write_size = false;
 static int opt_hdd_flags = 0;
 static int opt_hdd_oflags = 0;
 
@@ -128,6 +130,7 @@ static const hdd_opts_t hdd_opts[] = {
 
 void stress_set_hdd_bytes(const char *optarg)
 {
+	set_hdd_bytes = true;
 	opt_hdd_bytes =  get_uint64_byte(optarg);
 	check_range("hdd-bytes", opt_hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
@@ -135,6 +138,7 @@ void stress_set_hdd_bytes(const char *optarg)
 
 void stress_set_hdd_write_size(const char *optarg)
 {
+	set_hdd_write_size = true;
 	opt_hdd_write_size = get_uint64_byte(optarg);
 	check_range("hdd-write-size", opt_hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
@@ -234,6 +238,21 @@ int stress_hdd(
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC | opt_hdd_oflags;
 	int fadvise_flags = opt_hdd_flags & HDD_OPT_FADV_MASK;
+
+
+	if (!set_hdd_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_hdd_bytes = MAX_HDD_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_hdd_bytes = MIN_HDD_BYTES;
+	}
+
+	if (!set_hdd_write_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_hdd_write_size = MAX_HDD_WRITE_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_hdd_write_size = MIN_HDD_WRITE_SIZE;
+	}
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

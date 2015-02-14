@@ -633,6 +633,9 @@ start N processes that linear search a unsorted array of 32 bit integers using l
 .B \-\-lsearch\-ops N
 stop the lsearch processes after N bogo lsearch operations are completed.
 .TP
+.B \-\-lsearch\-size N
+specify the size (number of 32 bit integers) in the array to lsearch. Size can be from 1K to 4M.
+.TP
 .B \-\-malloc N
 start N processes continuously calling malloc(3), calloc(3), realloc(3) and free(3). By default, up to 65536 allocations can be active at any point, but this can be altered with the \-\-malloc\-max option.  Allocation, reallocation and freeing are chosen at random; 50% of the time memory is allocation (via malloc, calloc or realloc) and 50% of the time allocations are free'd.  Allocation sizes are also random, with the maximum allocation size controlled by the \-\-malloc\-bytes option, the default size being 64K.  The stressor is re-started if it is killed by the out of mememory (OOM) killer.
 .TP
@@ -645,8 +648,8 @@ maximum number of active allocations allowed. Allocations are chosen at ramdom a
 .B \-\-malloc\-ops N
 stop after N malloc bogo operations. One bogo operations relates to a successfull malloc(3), calloc(3) or realloc(3).
 .TP
-.B \-\-lsearch\-size N
-specify the size (number of 32 bit integers) in the array to lsearch. Size can be from 1K to 4M.
+.B \-\-maximize
+overrides the default stressor settings and instead sets these to the maximum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
@@ -716,6 +719,9 @@ stop after N mincore bogo operations. One mincore bogo op is equivalent to a 100
 .TP
 .B \-\-mincore\-random
 instead of walking through pages sequentially, select pages at random. The chosen address is iterated over by shifting it right one place and checked by mincore until the address is less or equal to the page size.
+.TP
+.B \-\-minimize
+overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-mmap N
 start N processes continuously calling mmap(2)/munmap(2).  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.

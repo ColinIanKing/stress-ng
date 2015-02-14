@@ -39,9 +39,11 @@
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 
 static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
+static bool set_fallocate_bytes = false;
 
 void stress_set_fallocate_bytes(const char *optarg)
 {
+	set_fallocate_bytes = true;
 	opt_fallocate_bytes = (off_t)get_uint64_byte(optarg);
 	check_range("fallocate-bytes", opt_fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
@@ -76,6 +78,13 @@ int stress_fallocate(
 	int fd;
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
+
+	if (!set_fallocate_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_fallocate_bytes = MAX_FALLOCATE_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
+	}
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

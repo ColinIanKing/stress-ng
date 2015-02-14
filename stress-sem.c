@@ -37,9 +37,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
+static bool set_semaphore_posix_procs = false;
 
 void stress_set_semaphore_posix_procs(const char *optarg)
 {
+	set_semaphore_posix_procs = true;
 	opt_semaphore_posix_procs = get_uint64_byte(optarg);
 	check_range("sem-procs", opt_semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
@@ -142,6 +144,13 @@ int stress_sem_posix(
 	uint64_t i;
 
 	(void)instance;
+
+	if (!set_semaphore_posix_procs) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
+	}
 
 	if (!shared->sem_posix_init) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);

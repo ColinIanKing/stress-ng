@@ -31,9 +31,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
+static bool set_qsort_size = false;
 
 void stress_set_qsort_size(const void *optarg)
 {
+	set_qsort_size = true;
 	opt_qsort_size = get_uint64_byte(optarg);
 	check_range("qsort-size", opt_qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
@@ -89,10 +91,18 @@ int stress_qsort(
 	const char *name)
 {
 	int32_t *data, *ptr;
-	const size_t n = (size_t)opt_qsort_size;
-	size_t i;
+	size_t n, i;
 
 	(void)instance;
+
+	if (!set_qsort_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_qsort_size = MAX_QSORT_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_qsort_size = MIN_QSORT_SIZE;
+	}
+	n = (size_t)opt_qsort_size;
+
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
 		pr_failed_dbg(name, "malloc");
 		return EXIT_FAILURE;

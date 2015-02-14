@@ -40,9 +40,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
+static bool set_semaphore_sysv_procs = false;
 
 void stress_set_semaphore_sysv_procs(const char *optarg)
 {
+	set_semaphore_sysv_procs = true;
 	opt_semaphore_sysv_procs = get_uint64_byte(optarg);
 	check_range("sem-procs", opt_semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
@@ -172,6 +174,13 @@ int stress_sem_sysv(
 	uint64_t i;
 
 	(void)instance;
+
+	if (!set_semaphore_sysv_procs) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
+	}
 
 	if (!shared->sem_sysv_init) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);

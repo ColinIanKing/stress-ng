@@ -49,17 +49,18 @@ typedef struct {
 } msg_t;
 
 static int opt_mq_size = DEFAULT_MQ_SIZE;
+static bool set_mq_size = false;
 
 void stress_set_mq_size(const char *optarg)
 {
 	uint64_t sz;
 
+	set_mq_size = true;
 	sz = get_uint64_byte(optarg);
-        check_range("mq-size", opt_mq_size,
-                MIN_MQ_SIZE, MAX_MQ_SIZE);
 	opt_mq_size = (int)sz;
+        check_range("mq-size", sz,
+                MIN_MQ_SIZE, MAX_MQ_SIZE);
 }
-
 
 /*
  *  stress_mq
@@ -73,12 +74,20 @@ int stress_mq(
 {
 	pid_t pid = getpid();
 	mqd_t mq = -1;
-	int sz = opt_mq_size, max_sz;
+	int sz, max_sz;
 	FILE *fp;
 	struct mq_attr attr;
 	char mq_name[64];
 
 	(void)instance;
+
+	if (!set_mq_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_mq_size = MAX_MQ_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_mq_size = MIN_MQ_SIZE;
+	}
+	sz = opt_mq_size;
 
 	snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
 		name, pid, instance);

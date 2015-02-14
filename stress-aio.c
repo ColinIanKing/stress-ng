@@ -42,6 +42,7 @@
 #define BUFFER_SZ	(16)
 
 static uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
+static bool set_aio_requests = false;
 
 /* per request async I/O data */
 typedef struct {
@@ -54,6 +55,7 @@ typedef struct {
 
 void stress_set_aio_requests(const char *optarg)
 {
+	set_aio_requests = true;
 	opt_aio_requests = get_uint64(optarg);
 	check_range("aio-requests", opt_aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
@@ -69,6 +71,13 @@ static inline void aio_fill_buffer(
 	const size_t size)
 {
 	register size_t i;
+
+	if (!set_aio_requests) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_aio_requests = MAX_AIO_REQUESTS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_aio_requests = MIN_AIO_REQUESTS;
+	}
 
 	for (i = 0; i < size; i++)
 		buffer[i] = request + i;

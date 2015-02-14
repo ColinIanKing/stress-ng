@@ -32,6 +32,7 @@
 #include "stress-ng.h"
 
 static uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
+static bool set_lsearch_size = false;
 
 /*
  *  stress_set_lsearch_size()
@@ -39,6 +40,7 @@ static uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
  */
 void stress_set_lsearch_size(const char *optarg)
 {
+	set_lsearch_size = true;
 	opt_lsearch_size = get_uint64_byte(optarg);
 	check_range("lsearch-size", opt_lsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
@@ -64,10 +66,18 @@ int stress_lsearch(
 	const char *name)
 {
 	int32_t *data, *root;
-	const size_t max = (size_t)opt_lsearch_size;
-	size_t i;
+	size_t i, max;
 
 	(void)instance;
+
+	if (!set_lsearch_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_lsearch_size = MAX_LSEARCH_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_lsearch_size = MIN_LSEARCH_SIZE;
+	}
+	max = (size_t)opt_lsearch_size;
+
 	if ((data = calloc(max, sizeof(int32_t))) == NULL) {
 		pr_failed_dbg(name, "malloc");
 		return EXIT_FAILURE;
@@ -81,8 +91,8 @@ int stress_lsearch(
 	do {
 		size_t n = 0;
 
-		/* Step #1, populate tree */
-		for (i = 0; i < max; i++) {
+		/* Step #1, populate with data */
+		for (i = 0; opt_do_run && i < max; i++) {
 			data[i] = ((mwc() & 0xfff) << 20) ^ i;
 			(void)lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
 		}

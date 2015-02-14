@@ -35,6 +35,8 @@
 
 static uint64_t opt_fork_max = DEFAULT_FORKS;
 static uint64_t opt_vfork_max = DEFAULT_VFORKS;
+static bool set_fork_max = false;
+static bool set_vfork_max = false;
 
 /*
  *  stress_set_fork_max()
@@ -42,6 +44,7 @@ static uint64_t opt_vfork_max = DEFAULT_VFORKS;
  */
 void stress_set_fork_max(const char *optarg)
 {
+	set_fork_max = true;
 	opt_fork_max = get_uint64_byte(optarg);
 	check_range("fork-max", opt_fork_max,
 		MIN_FORKS, MAX_FORKS);
@@ -53,6 +56,7 @@ void stress_set_fork_max(const char *optarg)
  */
 void stress_set_vfork_max(const char *optarg)
 {
+	set_vfork_max = true;
 	opt_vfork_max = get_uint64_byte(optarg);
 	check_range("vfork-max", opt_vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
@@ -120,6 +124,13 @@ int stress_fork(
 	const uint64_t max_ops,
 	const char *name)
 {
+	if (!set_fork_max) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_fork_max = MAX_FORKS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_fork_max = MIN_FORKS;
+	}
+
 	return stress_fork_fn(counter, instance, max_ops,
 		name, fork, opt_fork_max);
 }
@@ -138,6 +149,13 @@ int stress_vfork(
 	const uint64_t max_ops,
 	const char *name)
 {
+	if (!set_vfork_max) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_vfork_max = MAX_VFORKS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_vfork_max = MIN_VFORKS;
+	}
+
 	return stress_fork_fn(counter, instance, max_ops,
 		name, vfork, opt_vfork_max);
 }

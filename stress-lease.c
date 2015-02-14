@@ -45,14 +45,15 @@
 
 static uint64_t lease_sigio;
 static uint64_t opt_lease_breakers = DEFAULT_LEASE_BREAKERS;
+static bool set_lease_breakers = false;
 
 void stress_set_lease_breakers(const char *optarg)
 {
+	set_lease_breakers = true;
 	opt_lease_breakers = get_uint64(optarg);
 	check_range("lease-breakers", opt_lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
 }
-
 
 /*
  *  stress_lease_handler()
@@ -76,6 +77,13 @@ static int stress_lease_spawn(
 	uint64_t *counter)
 {
 	pid_t pid;
+
+	if (!set_lease_breakers) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_lease_breakers = MAX_LEASE_BREAKERS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_lease_breakers = MIN_LEASE_BREAKERS;
+	}
 
 	pid = fork();
 	if (pid < 0) {

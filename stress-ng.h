@@ -58,34 +58,55 @@
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
 
 /* Option bit masks */
-#define OPT_FLAGS_AFFINITY_RAND	0x00000001	/* Change affinity randomly */
-#define OPT_FLAGS_DRY_RUN	0x00000002	/* Don't actually run */
-#define OPT_FLAGS_METRICS	0x00000004	/* Dump metrics at end */
-#define OPT_FLAGS_VM_KEEP	0x00000008	/* Don't keep re-allocating */
-#define OPT_FLAGS_RANDOM	0x00000010	/* Randomize */
-#define OPT_FLAGS_SET		0x00000020	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	0x00000040	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_UTIME_FSYNC	0x00000080	/* fsync after utime modification */
-#define OPT_FLAGS_METRICS_BRIEF	0x00000100	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	0x00000200	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	0x00000400	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	0x00000800	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		0x00001000	/* user/system time summary */
-#define OPT_FLAGS_SYSLOG	0x00002000	/* log test progress to syslog */
-#define OPT_FLAGS_CACHE_FLUSH	0x00004000	/* cache flush */
-#define OPT_FLAGS_CACHE_FENCE	0x00008000	/* cache fence */
+#define OPT_FLAGS_AFFINITY_RAND	0x0000000001ULL	/* Change affinity randomly */
+#define OPT_FLAGS_DRY_RUN	0x0000000002ULL	/* Don't actually run */
+#define OPT_FLAGS_METRICS	0x0000000004ULL	/* Dump metrics at end */
+#define OPT_FLAGS_VM_KEEP	0x0000000008ULL	/* Don't keep re-allocating */
+#define OPT_FLAGS_RANDOM	0x0000000010ULL	/* Randomize */
+#define OPT_FLAGS_SET		0x0000000020ULL	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	0x0000000040ULL	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_UTIME_FSYNC	0x0000000080ULL	/* fsync after utime modification */
+#define OPT_FLAGS_METRICS_BRIEF	0x0000000100ULL	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	0x0000000200ULL	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	0x0000000400ULL	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	0x0000000800ULL	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		0x0000001000ULL	/* user/system time summary */
+#define OPT_FLAGS_SYSLOG	0x0000002000ULL	/* log test progress to syslog */
+#define OPT_FLAGS_CACHE_FLUSH	0x0000004000ULL	/* cache flush */
+#define OPT_FLAGS_CACHE_FENCE	0x0000008000ULL	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE)
-#define OPT_FLAGS_MMAP_FILE	0x00010000	/* mmap onto a file */
-#define OPT_FLAGS_MMAP_ASYNC	0x00020000	/* mmap onto a file */
-#define OPT_FLAGS_MMAP_MPROTECT	0x00040000	/* mmap mprotect enabled */
-#define OPT_FLAGS_LOCKF_NONBLK	0x00080000	/* Non-blocking lockf */
-#define OPT_FLAGS_MINCORE_RAND	0x00100000	/* mincore randomize */
-#define OPT_FLAGS_BRK_NOTOUCH	0x00200000	/* brk, don't touch page */
-#define OPT_FLAGS_HDD_SYNC	0x00400000	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	0x00800000	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	0x01000000	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	0x02000000	/* HDD O_NOATIME */
-#define OPT_FLAGS_STACK_FILL	0x04000000	/* Fill stack */
+#define OPT_FLAGS_MMAP_FILE	0x0000010000ULL	/* mmap onto a file */
+#define OPT_FLAGS_MMAP_ASYNC	0x0000020000ULL	/* mmap file asynchronous I/O */
+#define OPT_FLAGS_MMAP_MPROTECT	0x0000040000ULL	/* mmap mprotect enabled */
+#define OPT_FLAGS_LOCKF_NONBLK	0x0000080000ULL	/* Non-blocking lockf */
+#define OPT_FLAGS_MINCORE_RAND	0x0000100000ULL	/* mincore randomize */
+#define OPT_FLAGS_BRK_NOTOUCH	0x0000200000ULL	/* brk, don't touch page */
+#define OPT_FLAGS_HDD_SYNC	0x0000400000ULL	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	0x0000800000ULL	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	0x0001000000ULL	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	0x0002000000ULL	/* HDD O_NOATIME */
+#define OPT_FLAGS_STACK_FILL	0x0004000000ULL	/* Fill stack */
+#define OPT_FLAGS_MINIMIZE	0x0008000000ULL	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	0x0010000000ULL	/* Maximize */
+#define OPT_FLAGS_MINMAX_MASK	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
+
+#define OPT_FLAGS_AGGRESSIVE \
+	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
+	 OPT_FLAGS_MMAP_MADVISE | OPT_FLAGS_MMAP_MINCORE | \
+	 OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE |   \
+	 OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC |      \
+	 OPT_FLAGS_MMAP_MPROTECT | OPT_FLAGS_LOCKF_NONBLK |\
+	 OPT_FLAGS_MINCORE_RAND | OPT_FLAGS_HDD_SYNC |     \
+	 OPT_FLAGS_HDD_DSYNC | OPT_FLAGS_HDD_DIRECT |      \
+	 OPT_FLAGS_STACK_FILL)
+
+/* debug output bitmasks */
+#define PR_ERROR		0x1000000000000000ULL /* Print errors */
+#define PR_INFO			0x2000000000000000ULL /* Print info */
+#define PR_DEBUG		0x4000000000000000ULL /* Print debug */
+#define PR_FAIL			0x8000000000000000ULL /* Print test failure message */
+#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
+
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -98,20 +119,13 @@
 #define CLASS_INTERRUPT		0x00000080	/* interrupt floods */
 #define CLASS_OS		0x00000100	/* generic OS tests */
 
-/* debug output bitmasks */
-#define PR_ERROR		0x10000000	/* Print errors */
-#define PR_INFO			0x20000000	/* Print info */
-#define PR_DEBUG		0x40000000	/* Print debug */
-#define PR_FAIL			0x80000000	/* Print test failure message */
-#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
-
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
 /* Logging helpers */
-extern int print(FILE *fp, const int flag,
+extern int print(FILE *fp, const uint64_t flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
-extern void pr_failed(const int flag, const char *name, const char *what, const int err);
+extern void pr_failed(const uint64_t flag, const char *name, const char *what, const int err);
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
@@ -149,7 +163,7 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 #define DEFAULT_BSEARCH_SIZE	(64 * KB)
 
 #define MIN_DENTRIES		(1)
-#define MAX_DENTRIES		(100000000)
+#define MAX_DENTRIES		(1000000)
 #define DEFAULT_DENTRIES	(2048)
 
 #define MIN_EPOLL_PORT		(1024)
@@ -197,7 +211,7 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 #define DEFAULT_LEASE_BREAKERS	(1)
 
 #define MIN_LSEARCH_SIZE	(1 * KB)
-#define MAX_LSEARCH_SIZE	(4 * MB)
+#define MAX_LSEARCH_SIZE	(1 * MB)
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 #define MIN_MALLOC_BYTES	(1 * KB)
@@ -221,7 +235,7 @@ extern void pr_failed(const int flag, const char *name, const char *what, const 
 #define DEFAULT_PTHREAD		(1024)
 
 #define MIN_QSORT_SIZE		(1 * KB)
-#define MAX_QSORT_SIZE		(64 * MB)
+#define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
 #define MIN_SENDFILE_SIZE	(1 * KB)
@@ -565,8 +579,10 @@ typedef enum {
 
 	/* Long options only */
 
+	OPT_LONG_OPS_START = 0x7f,
+
 #if defined(__linux__)
-	OPT_AFFINITY = 0x80,
+	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
 	OPT_AFFINITY_RAND,
 #endif
@@ -706,6 +722,8 @@ typedef enum {
 	OPT_MALLOC_BYTES,
 	OPT_MALLOC_MAX,
 
+	OPT_MAXIMIZE,
+
 	OPT_MEMCPY,
 	OPT_MEMCPY_OPS,
 
@@ -716,6 +734,8 @@ typedef enum {
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
 #endif
+
+	OPT_MINIMIZE,
 
 	OPT_MMAP,
 	OPT_MMAP_OPS,
@@ -940,7 +960,7 @@ typedef struct {
 extern const char *app_name;		/* Name of application */
 extern shared_t *shared;		/* shared memory */
 extern uint64_t	opt_timeout;		/* timeout in seconds */
-extern int32_t	opt_flags;		/* option flags */
+extern uint64_t	opt_flags;		/* option flags */
 extern uint64_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool opt_do_run;	/* false to exit stressor */
 extern volatile bool opt_sigint;	/* true if stopped by SIGINT */

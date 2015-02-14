@@ -35,9 +35,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
+static bool set_seek_size = false;
 
 void stress_set_seek_size(const char *optarg)
 {
+	set_seek_size = true;
 	opt_seek_size = get_uint64_byte(optarg);
 	check_range("seek-size", opt_seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
@@ -53,12 +55,19 @@ int stress_seek(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint64_t i;
+	uint64_t len, i;
 	const pid_t pid = getpid();
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	uint8_t buf[512];
-	uint64_t len = opt_seek_size - sizeof(buf);
+
+	if (!set_seek_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_seek_size = MAX_SEEK_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_seek_size = MIN_SEEK_SIZE;
+	}
+	len = opt_seek_size - sizeof(buf);
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

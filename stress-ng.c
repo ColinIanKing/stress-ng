@@ -53,7 +53,7 @@ uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
-int32_t  opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
+uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 
@@ -419,6 +419,7 @@ static const struct option long_options[] = {
 	{ "malloc-bytes",1,	0,	OPT_MALLOC_BYTES },
 	{ "malloc-max",	1,	0,	OPT_MALLOC_MAX },
 	{ "malloc-ops",	1,	0,	OPT_MALLOC_OPS },
+	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
@@ -430,6 +431,7 @@ static const struct option long_options[] = {
 	{ "mincore-ops",1,	0,	OPT_MINCORE_OPS },
 	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
 #endif
+	{ "minimize",	0,	0,	OPT_MINIMIZE },
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
@@ -732,6 +734,7 @@ static const help_t help[] = {
 	{ NULL,		"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,		"malloc-max N",		"keep up to N allocations at a time" },
 	{ NULL,		"malloc-ops N",		"stop when N malloc bogo operations completed" },
+	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
@@ -1491,6 +1494,9 @@ next_opt:
 		case OPT_MALLOC_MAX:
 			stress_set_malloc_max(optarg);
 			break;
+		case OPT_MAXIMIZE:
+			opt_flags |= OPT_FLAGS_MAXIMIZE;
+			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
@@ -1502,6 +1508,9 @@ next_opt:
 			opt_flags |= OPT_FLAGS_MINCORE_RAND;
 			break;
 #endif
+		case OPT_MINIMIZE:
+			opt_flags |= OPT_FLAGS_MINIMIZE;
+			break;
 		case OPT_MMAP_ASYNC:
 			opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
 			break;
@@ -1693,6 +1702,11 @@ next_opt:
 	}
 
 	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
+
+	if ((opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
+		fprintf(stderr, "maximize and minimize cannot be used together\n");
+		exit(EXIT_FAILURE);
+	}
 
 #if defined(STRESS_X86)
 	id = stressor_id_find(STRESS_RDRAND);

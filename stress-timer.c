@@ -36,6 +36,7 @@
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
 static uint64_t opt_timer_freq;
+static bool set_timer_freq = false;
 
 /*
  *  stress_set_timer_freq()
@@ -43,6 +44,7 @@ static uint64_t opt_timer_freq;
  */
 void stress_set_timer_freq(const char *optarg)
 {
+	set_timer_freq = true;
 	opt_timer_freq = get_uint64(optarg);
 	check_range("timer-freq", opt_timer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
@@ -83,9 +85,17 @@ int stress_timer(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-	const double rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
+	double rate_ns;
 
 	(void)instance;
+
+	if (!set_timer_freq) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_timer_freq = MAX_TIMER_FREQ;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_timer_freq = MIN_TIMER_FREQ;
+	}
+	rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 
 	new_action.sa_flags = 0;
 	new_action.sa_handler = stress_timer_handler;

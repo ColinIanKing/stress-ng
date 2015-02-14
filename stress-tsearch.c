@@ -32,6 +32,7 @@
 #include "stress-ng.h"
 
 static uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
+static bool set_tsearch_size = false;
 
 /*
  *  stress_set_tsearch_size()
@@ -39,6 +40,7 @@ static uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
  */
 void stress_set_tsearch_size(const char *optarg)
 {
+	set_tsearch_size = true;
 	opt_tsearch_size = get_uint64_byte(optarg);
 	check_range("tsearch-size", opt_tsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
@@ -72,10 +74,18 @@ int stress_tsearch(
 	const char *name)
 {
 	int32_t *data;
-	const size_t n = (size_t)opt_tsearch_size;
-	size_t i;
+	size_t i, n;
 
 	(void)instance;
+
+	if (!set_tsearch_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_tsearch_size = MAX_TSEARCH_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_tsearch_size = MIN_TSEARCH_SIZE;
+	}
+	n = (size_t)opt_tsearch_size;
+
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
 		pr_failed_dbg(name, "malloc");
 		return EXIT_FAILURE;

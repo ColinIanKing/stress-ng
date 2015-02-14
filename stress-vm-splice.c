@@ -38,9 +38,11 @@
 #if defined (__linux__)
 
 static size_t opt_vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
+static bool set_vm_splice_bytes = false;
 
 void stress_set_vm_splice_bytes(const char *optarg)
 {
+	set_vm_splice_bytes = true;
 	opt_vm_splice_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("vm-splice-bytes", opt_vm_splice_bytes,
 		MIN_VM_SPLICE_BYTES, MAX_VM_SPLICE_BYTES);
@@ -59,9 +61,17 @@ int stress_vm_splice(
 	int fd, fds[2];
 	uint8_t *buf;
 	const size_t page_size = stress_get_pagesize();
-	const size_t sz = opt_vm_splice_bytes & ~(page_size - 1);
+	size_t sz;
 
 	(void)instance;
+
+	if (!set_vm_splice_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_vm_splice_bytes = MAX_VM_SPLICE_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_vm_splice_bytes = MIN_VM_SPLICE_BYTES;
+	}
+	sz = opt_vm_splice_bytes & ~(page_size - 1);
 
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {

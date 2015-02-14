@@ -40,9 +40,12 @@
 
 static size_t opt_malloc_bytes = DEFAULT_MALLOC_BYTES;
 static size_t opt_malloc_max = DEFAULT_MALLOC_MAX;
+static bool set_malloc_bytes = false;
+static bool set_malloc_max = false;
 
 void stress_set_malloc_bytes(const char *optarg)
 {
+	set_malloc_bytes = true;
 	opt_malloc_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("malloc-bytes", opt_malloc_bytes,
 	MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
@@ -50,6 +53,7 @@ void stress_set_malloc_bytes(const char *optarg)
 
 void stress_set_malloc_max(const char *optarg)
 {
+	set_malloc_max = true;
 	opt_malloc_max = (size_t)get_uint64_byte(optarg);
 	check_range("malloc-max", opt_malloc_max,
 	MIN_MALLOC_MAX, MAX_MALLOC_MAX);
@@ -81,6 +85,19 @@ int stress_malloc(
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
 
+	if (!set_malloc_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_malloc_bytes = MAX_MALLOC_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_malloc_bytes = MIN_MALLOC_BYTES;
+	}
+
+	if (!set_malloc_max) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_malloc_max = MAX_MALLOC_MAX;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_malloc_max = MIN_MALLOC_MAX;
+	}
 again:
 	pid = fork();
 	if (pid < 0) {

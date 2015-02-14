@@ -37,9 +37,11 @@
 #if defined (__linux__)
 
 static size_t opt_splice_bytes = DEFAULT_SPLICE_BYTES;
+static bool set_splice_bytes = false;
 
 void stress_set_splice_bytes(const char *optarg)
 {
+	set_splice_bytes = true;
 	opt_splice_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("splice-bytes", opt_splice_bytes,
 		MIN_SPLICE_BYTES, MAX_SPLICE_BYTES);
@@ -56,6 +58,13 @@ int stress_splice(
 	const char *name)
 {
 	int fd_in, fd_out, fds[2];
+
+	if (!set_splice_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_splice_bytes = MAX_SPLICE_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_splice_bytes = MIN_SPLICE_BYTES;
+	}
 
 	(void)instance;
 

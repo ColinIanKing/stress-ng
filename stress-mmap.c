@@ -37,9 +37,11 @@
 #include "stress-ng.h"
 
 static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
+static bool set_mmap_bytes = false;
 
 void stress_set_mmap_bytes(const char *optarg)
 {
+	set_mmap_bytes = true;
 	opt_mmap_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("mmap-bytes", opt_mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
@@ -114,8 +116,7 @@ int stress_mmap(
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
-	const size_t sz = opt_mmap_bytes & ~(page_size - 1);
-	const size_t pages4k = sz / page_size;
+	size_t sz, pages4k;
 #if !defined(__gnu_hurd__)
 	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
 		MS_ASYNC : MS_SYNC;
@@ -124,10 +125,19 @@ int stress_mmap(
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	char filename[PATH_MAX];
 
+	(void)instance;
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
 #endif
-	(void)instance;
+
+	if (!set_mmap_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_mmap_bytes = MAX_MMAP_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_mmap_bytes = MIN_MMAP_BYTES;
+	}
+	sz = opt_mmap_bytes & ~(page_size - 1);
+	pages4k = sz / page_size;
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(name, true);

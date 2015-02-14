@@ -39,7 +39,7 @@
 #include "stress-ng.h"
 
 static uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
-
+static bool set_bigheap_growth = false;
 
 /*
  *  stress_set_bigheap_growth()
@@ -47,6 +47,7 @@ static uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
  */
 void stress_set_bigheap_growth(const char *optarg)
 {
+	set_bigheap_growth = true;
 	opt_bigheap_growth = get_uint64_byte(optarg);
 	check_range("bigheap-growth", opt_bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
@@ -70,6 +71,12 @@ int stress_bigheap(
 	uint32_t restarts = 0, nomems = 0;
 	const size_t page_size = stress_get_pagesize();
 
+	if (!set_bigheap_growth) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_bigheap_growth = MAX_BIGHEAP_GROWTH;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_bigheap_growth = MIN_BIGHEAP_GROWTH;
+	}
 again:
 	pid = fork();
 	if (pid < 0) {

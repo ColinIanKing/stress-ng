@@ -41,7 +41,7 @@ bool	 abort_msg_emitted;
  */
 int print(
 	FILE *fp,
-	const int flag,
+	const uint64_t flag,
 	const char *const fmt, ...)
 {
 	va_list ap;
@@ -95,7 +95,7 @@ int print(
  *	print failure message with errno
  */
 void pr_failed(
-	const int flag,
+	const uint64_t flag,
 	const char *name,
 	const char *what,
 	const int err)

@@ -49,6 +49,7 @@ typedef struct {
 
 static uint64_t opt_vm_hang = DEFAULT_VM_HANG;
 static size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
+static bool	set_vm_bytes = false;
 static int      opt_vm_flags = 0;                      /* VM mmap flags */
 
 static stress_vm_stressor_info_t *opt_vm_stressor;
@@ -63,6 +64,7 @@ void stress_set_vm_hang(const char *optarg)
 
 void stress_set_vm_bytes(const char *optarg)
 {
+	set_vm_bytes = true;
 	opt_vm_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("vm-bytes", opt_vm_bytes,
 		MIN_VM_BYTES, MAX_VM_BYTES);
@@ -1818,9 +1820,18 @@ int stress_vm(
 	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 	const stress_vm_func func = opt_vm_stressor->func;
         const size_t page_size = stress_get_pagesize();
-	const size_t buf_sz = opt_vm_bytes & ~(page_size - 1);
+	size_t buf_sz;
 
 	(void)instance;
+
+	if (!set_vm_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_vm_bytes = MAX_VM_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_vm_bytes = MIN_VM_BYTES;
+	}
+	buf_sz = opt_vm_bytes & ~(page_size - 1);
+
 again:
 	if (!opt_do_run)
 		return EXIT_SUCCESS;
