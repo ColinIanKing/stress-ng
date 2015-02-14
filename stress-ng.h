@@ -207,7 +207,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_HSEARCH_SIZE	(8 * KB)
 
 #define MIN_LEASE_BREAKERS	(1)
-#define MAX_LEASE_BREAKERS	(16)
+#define MAX_LEASE_BREAKERS	(64)
 #define DEFAULT_LEASE_BREAKERS	(1)
 
 #define MIN_LSEARCH_SIZE	(1 * KB)
