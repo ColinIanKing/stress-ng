@@ -1272,7 +1272,7 @@ static int show_hogs(void)
 
 			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
 				previous ? "," : "",
-				procs[i].num_procs, stressors[i].name);
+				procs[i].num_procs, munge_underscore((char *)stressors[i].name));
 			previous = true;
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);
