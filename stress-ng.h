@@ -179,7 +179,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
 #define MIN_FALLOCATE_BYTES	(1 * MB)
-#define MAX_FALLOCATE_BYTES	(256 * GB)
+#define MAX_FALLOCATE_BYTES	(2 * GB)
 #define DEFAULT_FALLOCATE_BYTES	(1 * GB)
 
 #define MIN_FIFO_READERS	(1)
