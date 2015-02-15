@@ -26,12 +26,13 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_IOPRIO)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+#if defined(STRESS_IOPRIO)
+
 #include <sys/syscall.h>
 
 /*
