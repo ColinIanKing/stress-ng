@@ -355,7 +355,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_IOPRIO
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && defined(__linux__)
 #define STRESS_MALLOPT
 #endif
 
