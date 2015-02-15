@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,20 +37,27 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "stress-ng.h"
+#if defined(STRESS_MALLOPT)
+#include <malloc.h>
+#endif
 
 static size_t opt_malloc_bytes = DEFAULT_MALLOC_BYTES;
-static size_t opt_malloc_max = DEFAULT_MALLOC_MAX;
 static bool set_malloc_bytes = false;
+
+static size_t opt_malloc_max = DEFAULT_MALLOC_MAX;
 static bool set_malloc_max = false;
+
+#if defined(STRESS_MALLOPT)
+static int opt_malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
+static bool set_malloc_threshold = false;
+#endif
 
 void stress_set_malloc_bytes(const char *optarg)
 {
 	set_malloc_bytes = true;
 	opt_malloc_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("malloc-bytes", opt_malloc_bytes,
-	MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
+		MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
 }
 
 void stress_set_malloc_max(const char *optarg)
@@ -56,8 +65,18 @@ void stress_set_malloc_max(const char *optarg)
 	set_malloc_max = true;
 	opt_malloc_max = (size_t)get_uint64_byte(optarg);
 	check_range("malloc-max", opt_malloc_max,
-	MIN_MALLOC_MAX, MAX_MALLOC_MAX);
+		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
 }
+
+#if defined(STRESS_MALLOPT)
+void stress_set_malloc_threshold(const char *optarg)
+{
+	set_malloc_threshold = true;
+	opt_malloc_threshold = (size_t)get_uint64_byte(optarg);
+	check_range("malloc-threshold", opt_malloc_threshold,
+		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
+}
+#endif
 
 /*
  *  stress_alloc_size()
@@ -98,6 +117,12 @@ int stress_malloc(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_malloc_max = MIN_MALLOC_MAX;
 	}
+
+#if defined(STRESS_MALLOPT)
+	if (set_malloc_threshold)
+		mallopt(M_MMAP_THRESHOLD, opt_malloc_threshold);
+#endif
+
 again:
 	pid = fork();
 	if (pid < 0) {

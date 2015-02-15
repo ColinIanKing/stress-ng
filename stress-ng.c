@@ -416,6 +416,9 @@ static const struct option long_options[] = {
 	{ "malloc-bytes",1,	0,	OPT_MALLOC_BYTES },
 	{ "malloc-max",	1,	0,	OPT_MALLOC_MAX },
 	{ "malloc-ops",	1,	0,	OPT_MALLOC_OPS },
+#if defined(STRESS_MALLOPT)
+	{ "malloc-thresh",1,	0,	OPT_MALLOC_THRESHOLD },
+#endif
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
@@ -729,6 +732,9 @@ static const help_t help[] = {
 	{ NULL,		"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,		"malloc-max N",		"keep up to N allocations at a time" },
 	{ NULL,		"malloc-ops N",		"stop when N malloc bogo operations completed" },
+#if defined(STRESS_MALLOPT)
+	{ NULL,		"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
+#endif
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
@@ -1492,6 +1498,11 @@ next_opt:
 		case OPT_MALLOC_MAX:
 			stress_set_malloc_max(optarg);
 			break;
+#if defined(STRESS_MALLOPT)
+		case OPT_MALLOC_THRESHOLD:
+			stress_set_malloc_threshold(optarg);
+			break;
+#endif
 		case OPT_MAXIMIZE:
 			opt_flags |= OPT_FLAGS_MAXIMIZE;
 			break;

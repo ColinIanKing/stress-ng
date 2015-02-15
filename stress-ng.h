@@ -222,6 +222,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_MALLOC_MAX		(256 * 1024)
 #define DEFAULT_MALLOC_MAX	(64 * KB)
 
+#define MIN_MALLOC_THRESHOLD	(1)
+#define MAX_MALLOC_THRESHOLD	(256 * MB)
+#define DEFAULT_MALLOC_THRESHOLD (128 * KB)
+
 #define MIN_MMAP_BYTES		(4 * KB)
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
@@ -349,6 +353,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 
 #if defined(__linux__)
 #define STRESS_IOPRIO
+#endif
+
+#if defined(__GNUC__)
+#define STRESS_MALLOPT
 #endif
 
 /* stress process prototype */
@@ -766,6 +774,9 @@ typedef enum {
 	OPT_MALLOC_OPS,
 	OPT_MALLOC_BYTES,
 	OPT_MALLOC_MAX,
+#if defined(STRESS_MALLOPT)
+	OPT_MALLOC_THRESHOLD,
+#endif
 
 	OPT_MAXIMIZE,
 
@@ -1148,6 +1159,7 @@ extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_malloc_bytes(const char *optarg);
 extern void stress_set_malloc_max(const char *optarg);
+extern void stress_set_malloc_threshold(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
