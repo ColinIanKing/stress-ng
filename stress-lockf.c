@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_LOCKF)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,11 +37,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-
-#include "stress-ng.h"
-
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
 
 /*
  *  stress_lockf

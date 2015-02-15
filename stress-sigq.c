@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_SIGQUEUE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -32,9 +36,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-#include "stress-ng.h"
-
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 static void stress_sigqhandler(int dummy)
 {
 	(void)dummy;

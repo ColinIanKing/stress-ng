@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined (__linux__)
+#include "stress-ng.h"
+
+#if defined (STRESS_AIO)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +39,6 @@
 #include <aio.h>
 #include <fcntl.h>
 
-#include "stress-ng.h"
 
 #define BUFFER_SZ	(16)
 

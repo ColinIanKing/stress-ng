@@ -135,10 +135,10 @@ static const int signals[] = {
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
-#if defined(__linux__)
+#if defined(STRESS_AFFINITY)
 	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_AIO)
 	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
@@ -146,20 +146,20 @@ static const stress_t stressors[] = {
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
 	STRESSOR(chmod, CHMOD, CLASS_IO | CLASS_OS),
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_CLOCK)
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(dentry, DENTRY, CLASS_IO | CLASS_OS),
 	STRESSOR(dir, DIR, CLASS_IO | CLASS_OS),
 	STRESSOR(dup, DUP, CLASS_IO | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_EPOLL)
 	STRESSOR(epoll, EPOLL, CLASS_NETWORK | CLASS_OS),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_EVENTFD)
 	STRESSOR(eventfd, EVENTFD, CLASS_IO | CLASS_SCHEDULER | CLASS_OS),
 #endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 	STRESSOR(fallocate, FALLOCATE, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
@@ -167,42 +167,41 @@ static const stress_t stressors[] = {
 	STRESSOR(flock, FLOCK, CLASS_IO | CLASS_OS),
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fstat, FSTAT, CLASS_IO | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_FUTEX)
 	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(get, GET, CLASS_OS),
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
 	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(iosync, IOSYNC, CLASS_IO | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_INOTIFY)
 	STRESSOR(inotify, INOTIFY, CLASS_SCHEDULER | CLASS_OS),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_KCMP)
 	STRESSOR(kcmp, KCMP, CLASS_OS),
 #endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(STRESS_LEASE)
 	STRESSOR(lease, LEASE, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(link, LINK, CLASS_IO | CLASS_OS),
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+#if defined(STRESS_LOCKF)
 	STRESSOR(lockf, LOCKF, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_MREMAP)
 	STRESSOR(mremap, MREMAP, CLASS_VM | CLASS_OS),
 #endif
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_MSG)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_MQ)
 	STRESSOR(mq, MQ, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
@@ -210,68 +209,66 @@ static const stress_t stressors[] = {
 	STRESSOR(open, OPEN, CLASS_IO | CLASS_OS),
 	STRESSOR(pipe, PIPE, CLASS_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(poll, POLL, CLASS_SCHEDULER | CLASS_OS),
-#if defined (__linux__)
+#if defined(STRESS_PROCFS)
 	STRESSOR(procfs, PROCFS, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
-#if defined(STRESS_X86)
+#if defined(STRESS_RDRAND)
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 #endif
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	STRESSOR(sem_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #endif
 	STRESSOR(shm_sysv, SHM_SYSV, CLASS_VM | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_SENDFILE)
 	STRESSOR(sendfile, SENDFILE, CLASS_IO | CLASS_OS),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_SIGFD)
 	STRESSOR(sigfd, SIGFD, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(sigfpe, SIGFPE, CLASS_OS),
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
+#if defined(STRESS_SIGQUEUE)
 	STRESSOR(sigq, SIGQUEUE, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(sigsegv, SIGSEGV, CLASS_OS),
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_SPLICE)
 	STRESSOR(splice, SPLICE, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(stack, STACK, CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_IO | CLASS_OS),
 	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_TIMER)
 	STRESSOR(timer, TIMER, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(udp, UDP, CLASS_IO | CLASS_OS),
-#if defined(__linux__) || defined(__gnu_hurd__)
+#if defined(STRESS_URANDOM)
 	STRESSOR(urandom, URANDOM, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(utime, UTIME, CLASS_NETWORK | CLASS_OS),
-#if defined(STRESS_VECTOR)
+#if defined(STRESS_VECMATH)
 	STRESSOR(vecmath, VECMATH, CLASS_CPU),
 #endif
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(vm, VM, CLASS_IO | CLASS_VM | CLASS_MEMORY | CLASS_OS),
-#if defined (__linux__)
+#if defined (STRESS_VM_RW)
 	STRESSOR(vm_rw, VM_RW, CLASS_VM | CLASS_MEMORY | CLASS_OS),
 #endif
-#if defined(__linux__)
+#if defined(STRESS_VM_SPLICE)
 	STRESSOR(vm_splice, VM_SPLICE, CLASS_VM | CLASS_IO | CLASS_OS),
 #endif
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
+#if defined(STRESS_WAIT)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
+#if defined(STRESS_YIELD)
 	STRESSOR(yield, YIELD, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(zero, ZERO, CLASS_IO | CLASS_MEMORY | CLASS_OS),
@@ -294,13 +291,13 @@ static const class_t classes[] = {
 };
 
 static const struct option long_options[] = {
-#if defined(__linux__)
+#if defined(STRESS_AFFINITY)
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
 	{ "affinity-rand",0,	0,	OPT_AFFINITY_RAND },
 #endif
 	{ "aggressive",	0,	0,	OPT_AGGRESSIVE },
-#if defined(__linux__)
+#if defined(STRESS_AIO)
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
 	{ "aio-requests",1,	0,	OPT_AIO_REQUESTS },
@@ -323,7 +320,7 @@ static const struct option long_options[] = {
 	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
 	{ "class",	1,	0,	OPT_CLASS },
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_CLOCK)
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
 #endif
@@ -340,17 +337,17 @@ static const struct option long_options[] = {
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
 	{ "dup",	1,	0,	OPT_DUP },
 	{ "dup-ops",	1,	0,	OPT_DUP_OPS },
-#if defined (__linux__)
+#if defined(EPOLL)
 	{ "epoll",	1,	0,	OPT_EPOLL },
 	{ "epoll-ops",	1,	0,	OPT_EPOLL_OPS },
 	{ "epoll-port",	1,	0,	OPT_EPOLL_PORT },
 	{ "epoll-domain",1,	0,	OPT_EPOLL_DOMAIN },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_EVENTFD)
 	{ "eventfd",	1,	0,	OPT_EVENTFD },
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
 #endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
 	{ "fallocate-bytes",1,	0,	OPT_FALLOCATE_BYTES },
@@ -368,7 +365,7 @@ static const struct option long_options[] = {
 	{ "fstat",	1,	0,	OPT_FSTAT },
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
-#if defined(__linux__)
+#if defined(STRESS_FUTEX)
 	{ "futex",	1,	0,	OPT_FUTEX },
 	{ "futex-ops",	1,	0,	OPT_FUTEX_OPS },
 #endif
@@ -383,32 +380,31 @@ static const struct option long_options[] = {
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
 	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
 	{ "hsearch-size",1,	0,	OPT_HSEARCH_SIZE },
-#if defined (__linux__)
+#if defined(STRESS_INOTIFY)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
 #endif
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
-#if defined (__linux__)
+#if defined (STRESS_IONICE)
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_KCMP)
 	{ "kcmp",	1,	0,	OPT_KCMP },
 	{ "kcmp-ops",	1,	0,	OPT_KCMP_OPS },
 #endif
 	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
 	{ "kill",	1,	0,	OPT_KILL },
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(STRESS_LEASE)
 	{ "lease",	1,	0,	OPT_LEASE },
 	{ "lease-ops",	1,	0,	OPT_LEASE_OPS },
 	{ "lease-breakers",1,	0,	OPT_LEASE_BREAKERS },
 #endif
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+#if defined(STRESS_LOCKF)
 	{ "lockf",	1,	0,	OPT_LOCKF },
 	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
 	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
@@ -427,7 +423,7 @@ static const struct option long_options[] = {
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_MINCORE)
 	{ "mincore",	1,	0,	OPT_MINCORE },
 	{ "mincore-ops",1,	0,	OPT_MINCORE_OPS },
 	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
@@ -439,16 +435,16 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
-#if defined(__linux__)
+#if defined(STRESS_MREMAP)
 	{ "mremap",	1,	0,	OPT_MREMAP },
 	{ "mremap-ops",	1,	0,	OPT_MREMAP_OPS },
 	{ "mremap-bytes",1,	0,	OPT_MREMAP_BYTES },
 #endif
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_MSG)
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
 #endif
-#if defined(__linux__)
+#if defined(STRESS_MQ)
 	{ "mq",		1,	0,	OPT_MQ },
 	{ "mq-ops",	1,	0,	OPT_MQ_OPS },
 	{ "mq-size",	1,	0,	OPT_MQ_SIZE },
@@ -460,14 +456,14 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STESS_PAGE_IN)
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
 #endif
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "poll",	1,	0,	OPT_POLL },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
-#if defined (__linux__)
+#if defined (STRESS_PROCFS)
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 #endif
@@ -479,7 +475,7 @@ static const struct option long_options[] = {
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
 	{ "quiet",	0,	0,	OPT_QUIET },
 	{ "random",	1,	0,	OPT_RANDOM },
-#if defined(STRESS_X86)
+#if defined(STRESS_RDRAND)
 	{ "rdrand",	1,	0,	OPT_RDRAND },
 	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
 #endif
@@ -493,12 +489,12 @@ static const struct option long_options[] = {
 	{ "sem",	1,	0,	OPT_SEMAPHORE_POSIX },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_POSIX_OPS },
 	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_POSIX_PROCS },
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	{ "sem-sysv",	1,	0,	OPT_SEMAPHORE_SYSV },
 	{ "sem-sysv-ops",1,	0,	OPT_SEMAPHORE_SYSV_OPS },
 	{ "sem-sysv-procs",1,	0,	OPT_SEMAPHORE_SYSV_PROCS },
 #endif
-#if defined(__linux__)
+#if defined(STRESS_SENDFILE)
 	{ "sendfile",	1,	0,	OPT_SENDFILE },
 	{ "sendfile-ops",1,	0,	OPT_SENDFILE_OPS },
 	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
@@ -508,7 +504,7 @@ static const struct option long_options[] = {
 	{ "shm-sysv-ops",1,	0,	OPT_SHM_SYSV_OPS },
 	{ "shm-sysv-bytes",1,	0,	OPT_SHM_SYSV_BYTES },
 	{ "shm-sysv-segs",1,	0,	OPT_SHM_SYSV_SEGMENTS },
-#if defined(__linux__)
+#if defined(STRESS_SIGFD)
 	{ "sigfd",	1,	0,	OPT_SIGFD },
 	{ "sigfd-ops",	1,	0,	OPT_SIGFD_OPS },
 #endif
@@ -516,7 +512,7 @@ static const struct option long_options[] = {
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
 	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
+#if defined(SIG_QUEUE)
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
 #endif
@@ -524,7 +520,7 @@ static const struct option long_options[] = {
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
-#if defined (__linux__)
+#if defined(STRESS_SPLICE)
 	{ "splice",	1,	0,	OPT_SPLICE },
 	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
 	{ "splice-ops",	1,	0,	OPT_SPLICE_OPS },
@@ -540,7 +536,7 @@ static const struct option long_options[] = {
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
 	{ "syslog",	0,	0,	OPT_SYSLOG },
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
-#if defined (__linux__)
+#if defined(STESS_TIMER)
 	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
@@ -556,20 +552,18 @@ static const struct option long_options[] = {
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
-#if defined (__linux__) || defined(__gnu_hurd__)
+#if defined(STRESS_URANDOM)
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
 #endif
-#if defined(STRESS_VECTOR)
+#if defined(STRESS_VECMATH)
 	{ "vecmath",	1,	0,	OPT_VECMATH },
 	{ "vecmath-ops",1,	0,	OPT_VECMATH_OPS },
 #endif
 	{ "verbose",	0,	0,	OPT_VERBOSE },
 	{ "verify",	0,	0,	OPT_VERIFY },
 	{ "version",	0,	0,	OPT_VERSION },
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 	{ "vfork",	1,	0,	OPT_VFORK },
 	{ "vfork-ops",	1,	0,	OPT_VFORK_OPS },
 	{ "vfork-max",	1,	0,	OPT_VFORK_MAX },
@@ -586,21 +580,21 @@ static const struct option long_options[] = {
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
-#if defined (__linux__)
+#if defined(STRESS_VM_RW)
 	{ "vm-rw",	1,	0,	OPT_VM_RW },
 	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
 	{ "vm-rw-ops",	1,	0,	OPT_VM_RW_OPS },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_VM_SPLICE)
 	{ "vm-splice",	1,	0,	OPT_VM_SPLICE },
 	{ "vm-splice-bytes",1,	0,	OPT_VM_SPLICE_BYTES },
 	{ "vm-splice-ops",1,	0,	OPT_VM_SPLICE_OPS },
 #endif
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
+#if defined(STRESS_WAIT)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
 #endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
+#if defined(STRESS_YIELD)
 	{ "yield",	1,	0,	OPT_YIELD },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
 #endif
@@ -611,13 +605,13 @@ static const struct option long_options[] = {
 
 static const help_t help[] = {
 	{ "-h",		"help",			"show help" },
-#if defined (__linux__)
+#if defined (STRESS_AFFINITY)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
 	{ NULL,		"aggressive",		"enable all aggressive options" },
-#if defined (__linux__)
+#if defined (STRESS_AIO)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
@@ -640,7 +634,7 @@ static const help_t help[] = {
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_CLOCK)
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
 #endif
@@ -657,17 +651,17 @@ static const help_t help[] = {
 	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
 	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
-#if defined (__linux__)
+#if defined (STRESS_EPOLL)
 	{ NULL,		"epoll N",		"start N workers doing epoll handled socket activity" },
 	{ NULL,		"epoll-ops N",		"stop when N epoll bogo operations completed" },
 	{ NULL,		"epoll-port P",		"use socket ports P upwards" },
 	{ NULL,		"epoll-domain D",	"specify socket domain, default is unix" },
 #endif
-#if defined (__linux__)
+#if defined (STRESS_EVENTFD)
 	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
 	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
 #endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
 	{ NULL,		"fallocate-bytes N",	"specify size of file to allocate" },
@@ -685,7 +679,7 @@ static const help_t help[] = {
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
 	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
-#if defined (__linux__)
+#if defined(STRESS_FUTEX)
 	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
 	{ NULL,		"futex-ops N",		"stop when N fast mutex bogo operations completed" },
 #endif
@@ -699,32 +693,31 @@ static const help_t help[] = {
 	{ NULL,		"hsearch",		"start N workers that exercise a hash table search" },
 	{ NULL,		"hsearch-ops",		"stop when N hash search bogo operations completed" },
 	{ NULL,		"hsearch-size",		"number of integers to insert into hash table" },
-#if defined (__linux__)
+#if defined(STRESS_INOTIFY)
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
 #endif
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
 	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
-#if defined (__linux__)
+#if defined(STRESS_IONICE)
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_KCMP)
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
 	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
 #endif
 	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(STRESS_LEASE)
 	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
 	{ NULL,		"lease-ops N",		"stop when N lease bogo operations completed" },
 	{ NULL,		"lease-breakers N",	"number of lease breaking processes to start" },
 #endif
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+#if defined(STRESS_LOCKF)
 	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },
 	{ NULL,		"lockf-ops N",		"stop when N lockf bogo operations completed" },
 	{ NULL,		"lockf-nonblock",	"don't block if lock cannot be obtained, re-try" },
@@ -741,7 +734,7 @@ static const help_t help[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_MINCORE)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
 	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
@@ -753,14 +746,16 @@ static const help_t help[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
-#if defined(__linux__)
+#if defined(STRESS_MREMAP)
 	{ NULL,		"mremap N",		"start N workers stressing mremap" },
 	{ NULL,		"mremap-ops N",		"stop when N mremap bogo operations completed" },
 	{ NULL,		"mremap-bytes N",	"mremap N bytes maximum for each stress iteration" },
 #endif
+#if defined(STRESS_MSG)
 	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
-#if defined(__linux__)
+#endif
+#if defined(STRESS_MQ)
 	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
 	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages completed" },
 	{ NULL,		"mq-size N",		"specify the size of the POSIX message queue" },
@@ -772,14 +767,14 @@ static const help_t help[] = {
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_PAGE_IN)
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 #endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
-#if defined (__linux__)
+#if defined(STRESS_PROCFS)
 	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
 	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
 #endif
@@ -791,7 +786,7 @@ static const help_t help[] = {
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
-#if defined(STRESS_X86)
+#if defined(STRESS_RDRAND)
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
 #endif
@@ -805,12 +800,12 @@ static const help_t help[] = {
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
 	{ NULL,		"sem-sysv-ops N",	"stop when N System V semaphore bogo operations completed" },
 	{ NULL,		"sem-sysv-procs N",	"number of processes to start per worker" },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_SENDFILE)
 	{ NULL,		"sendfile N",		"start N workers exercising sendfile" },
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
@@ -820,13 +815,13 @@ static const help_t help[] = {
 	{ NULL,		"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per iteration" },
 	{ NULL,		"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
-#if defined (__linux__)
+#if defined(STRESS_SIGFD)
 	{ NULL,		"sigfd N",		"start N workers reading signals via signalfd reads " },
 	{ NULL,		"sigfd-ops N",		"stop when N bogo signalfd reads completed" },
 #endif
 	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
 	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_SIGQUEUE)
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
 #endif
@@ -836,7 +831,7 @@ static const help_t help[] = {
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
-#if defined (__linux__)
+#if defined(STRESS_SPLICE)
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
 	{ NULL,		"splice-ops N",		"stop when N bogo splice operations completed" },
 	{ NULL,		"splice-bytes N",	"number of bytes to transfer per splice call" },
@@ -852,7 +847,7 @@ static const help_t help[] = {
 	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
 	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
-#if defined (__linux__)
+#if defined(STRESS_TIMER)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
@@ -865,23 +860,21 @@ static const help_t help[] = {
 	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
 	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
 	{ NULL,		"udo-domain D",		"specify domain, default is ipv4" },
-#if defined(__linux__) || defined(__gnu_hurd__)
+#if defined(STRESS_URANDOM)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
 #endif
 	{ NULL,		"utime N",		"start N workers updating file timestamps" },
 	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
-#if defined(STRESS_VECTOR)
+#if defined(STRESS_VECMATH)
 	{ NULL,		"vecmath N",		"start N workers performing vector math ops" },
 	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations completed" },
 #endif
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 	{ NULL,		"vfork N",		"start N workers spinning on vfork() and exit()" },
 	{ NULL,		"vfork-ops N",		"stop when N vfork bogo operations completed" },
 	{ NULL,		"vfork-max P",		"create P processes per iteration, default is 1" },
@@ -898,21 +891,21 @@ static const help_t help[] = {
 #ifdef MAP_POPULATE
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_VM_RW)
 	{ NULL,		"vm-rw N",		"start N vm read/write process_vm* copy workers" },
 	{ NULL,		"vm-rw-bytes N",	"transfer N bytes of memory per bogo operation" },
 	{ NULL,		"vm-rw-ops N",		"stop after N vm process_vm* copy bogo operations" },
 #endif
-#if defined (__linux__)
+#if defined(STRESS_VM_SPLICE)
 	{ NULL,		"vm-splice N",		"start N workers reading/writing using vmsplice" },
 	{ NULL,		"vm-splice-ops N",	"stop when N bogo splice operations completed" },
 	{ NULL,		"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
 #endif
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
+#if defined(STRESS_WAIT)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
 	{ NULL,		"wait-ops N",		"stop when N bogo wait operations completed" },
 #endif
-#if defined(_POSIX_PRIORITY_SCHEDULING)
+#if defined(STRESS_YIELD)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
 	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
 #endif
@@ -1361,7 +1354,7 @@ next_opt:
 		}
 
 		switch (c) {
-#if defined(__linux__)
+#if defined(STRESS_AIO)
 		case OPT_AIO_REQUESTS:
 			stress_set_aio_requests(optarg);
 			break;
@@ -1375,7 +1368,7 @@ next_opt:
 			for (i = 0; i < STRESS_MAX; i++)
 				procs[i].num_procs = val;
 			break;
-#if defined(__linux__)
+#if defined(STRESS_AFFINITY)
 		case OPT_AFFINITY_RAND:
 			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
@@ -1430,7 +1423,7 @@ next_opt:
 			if (stress_set_dentry_order(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
-#if defined (__linux__)
+#if defined(EPOLL)
 		case OPT_EPOLL_DOMAIN:
 			if (stress_set_epoll_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
@@ -1439,7 +1432,7 @@ next_opt:
 			stress_set_epoll_port(optarg);
 			break;
 #endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 		case OPT_FALLOCATE_BYTES:
 			stress_set_fallocate_bytes(optarg);
 			break;
@@ -1469,7 +1462,7 @@ next_opt:
 		case OPT_HSEARCH_SIZE:
 			stress_set_hsearch_size(optarg);
 			break;
-#if defined (__linux__)
+#if defined(STRESS_IONICE)
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);
 			break;
@@ -1480,13 +1473,12 @@ next_opt:
 		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(STRESS_LEASE)
 		case OPT_LEASE_BREAKERS:
 			stress_set_lease_breakers(optarg);
 			break;
 #endif
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+#if defined(STRESS_LOCKF)
 		case OPT_LOCKF_NONBLOCK:
 			opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
 			break;
@@ -1509,7 +1501,7 @@ next_opt:
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_MINCORE)
 		case OPT_MINCORE_RAND:
 			opt_flags |= OPT_FLAGS_MINCORE_RAND;
 			break;
@@ -1529,12 +1521,12 @@ next_opt:
 		case OPT_MMAP_MPROTECT:
 			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
 			break;
-#if defined(__linux__)
+#if defined(STRESS_MREMAP)
 		case OPT_MREMAP_BYTES:
 			stress_set_mremap_bytes(optarg);
 			break;
 #endif
-#if defined(__linux__)
+#if defined(STRESS_MQ)
 		case OPT_MQ_SIZE:
 			stress_set_mq_size(optarg);
 			break;
@@ -1542,7 +1534,7 @@ next_opt:
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_PAGE_IN)
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
@@ -1579,12 +1571,12 @@ next_opt:
 		case OPT_SEMAPHORE_POSIX_PROCS:
 			stress_set_semaphore_posix_procs(optarg);
 			break;
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 		case OPT_SEMAPHORE_SYSV_PROCS:
 			stress_set_semaphore_sysv_procs(optarg);
 			break;
 #endif
-#if defined (__linux__)
+#if defined (STRESS_SENDFILE)
 		case OPT_SENDFILE_SIZE:
 			stress_set_sendfile_size(optarg);
 			break;
@@ -1609,7 +1601,7 @@ next_opt:
 		case OPT_SOCKET_PORT:
 			stress_set_socket_port(optarg);
 			break;
-#if defined (__linux__)
+#if defined(STRESS_SPLICE)
 		case OPT_SPLICE_BYTES:
 			stress_set_splice_bytes(optarg);
 			break;
@@ -1623,7 +1615,7 @@ next_opt:
 		case OPT_TIMEOUT:
 			opt_timeout = get_uint64_time(optarg);
 			break;
-#if defined (__linux__)
+#if defined(STRESS_TIMER)
 		case OPT_TIMER_FREQ:
 			stress_set_timer_freq(optarg);
 			break;
@@ -1647,9 +1639,7 @@ next_opt:
 		case OPT_VERBOSE:
 			opt_flags |= PR_ALL;
 			break;
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 		case OPT_VFORK_MAX:
 			stress_set_vfork_max(optarg);
 			break;
@@ -1683,12 +1673,12 @@ next_opt:
 			stress_set_vm_flags(MAP_POPULATE);
 			break;
 #endif
-#if defined (__linux__)
+#if defined(STRESS_VM_RW)
 		case OPT_VM_RW_BYTES:
 			stress_set_vm_rw_bytes(optarg);
 			break;
 #endif
-#if defined (__linux__)
+#if defined(STRESS_VM_SPLICE)
 		case OPT_VM_SPLICE_BYTES:
 			stress_set_vm_splice_bytes(optarg);
 			break;
@@ -1714,7 +1704,7 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 
-#if defined(STRESS_X86)
+#if defined(STRESS_RDRAND)
 	id = stressor_id_find(STRESS_RDRAND);
 	if ((procs[id].num_procs) &&
 	    (stress_rdrand_supported() < 0))
@@ -1838,7 +1828,7 @@ next_opt:
 	if (procs[id].num_procs || opt_sequential)
 		stress_semaphore_posix_init();
 
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
 	if (procs[id].num_procs || opt_sequential)
 		stress_semaphore_sysv_init();
@@ -1908,7 +1898,7 @@ next_opt:
 	free_procs();
 
 	stress_semaphore_posix_destroy();
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	stress_semaphore_sysv_destroy();
 #endif
 	(void)munmap(shared, len);

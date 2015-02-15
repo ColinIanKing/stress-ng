@@ -24,16 +24,16 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_RDRAND)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-
-#include "stress-ng.h"
-
-#if defined(STRESS_X86) && !defined(__OpenBSD__)
 
 static bool rdrand_supported = false;
 

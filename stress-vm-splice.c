@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_VM_SPLICE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -32,10 +36,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-
-#include "stress-ng.h"
-
-#if defined (__linux__)
 
 static size_t opt_vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 static bool set_vm_splice_bytes = false;

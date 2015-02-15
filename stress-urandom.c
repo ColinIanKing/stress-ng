@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_URANDOM)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -32,9 +36,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "stress-ng.h"
-
-#if defined (__linux__) || defined(__gnu_hurd__)
 /*
  *  stress_urandom
  *	stress reading of /dev/urandom

@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MINCORE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,10 +39,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "stress-ng.h"
-
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 
 #define VEC_MAX_SIZE 	(64)
 

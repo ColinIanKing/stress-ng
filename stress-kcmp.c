@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_KCMP)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +36,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/syscall.h>
-
-#include "stress-ng.h"
 
 /* Urgh, should be from linux/kcmp.h */
 enum {

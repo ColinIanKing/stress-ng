@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_SIGFD)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +36,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/signalfd.h>
-
-#include "stress-ng.h"
 
 /*
  *  stress_sigfd

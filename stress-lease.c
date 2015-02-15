@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_LEASE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -38,10 +42,6 @@
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 #include <sched.h>
 #endif
-
-#include "stress-ng.h"
-
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 
 static uint64_t lease_sigio;
 static uint64_t opt_lease_breakers = DEFAULT_LEASE_BREAKERS;

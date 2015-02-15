@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_MREMAP)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,8 +38,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "stress-ng.h"
 
 static size_t opt_mremap_bytes = DEFAULT_MREMAP_BYTES;
 static bool set_mremap_bytes = false;

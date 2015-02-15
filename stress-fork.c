@@ -34,9 +34,11 @@
 #include "stress-ng.h"
 
 static uint64_t opt_fork_max = DEFAULT_FORKS;
-static uint64_t opt_vfork_max = DEFAULT_VFORKS;
 static bool set_fork_max = false;
+#if defined(STRESS_VFORK)
+static uint64_t opt_vfork_max = DEFAULT_VFORKS;
 static bool set_vfork_max = false;
+#endif
 
 /*
  *  stress_set_fork_max()
@@ -50,6 +52,7 @@ void stress_set_fork_max(const char *optarg)
 		MIN_FORKS, MAX_FORKS);
 }
 
+#if defined(STRESS_VFORK)
 /*
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
@@ -61,6 +64,7 @@ void stress_set_vfork_max(const char *optarg)
 	check_range("vfork-max", opt_vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 }
+#endif
 
 /*
  *  stress_fork_fn()
@@ -136,9 +140,7 @@ int stress_fork(
 }
 
 
-#if _BSD_SOURCE || \
-   (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-   !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 /*
  *  stress_vfork()
  *	stress by vforking and exiting

@@ -339,6 +339,18 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_INT128	1
 #endif
 
+#if defined(__linux__)
+#define STRESS_IONICE
+#endif
+
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#define STRESS_PAGE_IN
+#endif
+
+#if defined(__linux__)
+#define STRESS_IOPRIO
+#endif
+
 /* stress process prototype */
 typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
@@ -392,11 +404,14 @@ typedef struct {
 
 /* Stress tests */
 typedef enum {
+	STRESS_START = -1,
 #if defined(__linux__)
-	STRESS_AFFINITY,
+	__STRESS_AFFINITY,
+#define STRESS_AFFINITY __STRESS_AFFINITY
 #endif
 #if defined(__linux__)
-	STRESS_AIO,
+	__STRESS_AIO,
+#define STRESS_AIO __STRESS_AIO
 #endif
 	STRESS_BRK,
 	STRESS_BSEARCH,
@@ -404,20 +419,24 @@ typedef enum {
 	STRESS_CACHE,
 	STRESS_CHMOD,
 #if _POSIX_C_SOURCE >= 199309L
-	STRESS_CLOCK,
+	__STRESS_CLOCK,
+#define STRESS_CLOCK __STRESS_CLOCK
 #endif
 	STRESS_CPU,
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DUP,
 #if defined(__linux__)
-	STRESS_EPOLL,
+	__STRESS_EPOLL,
+#define STRESS_EPOLL __STRESS_EPOLL
 #endif
 #if defined(__linux__)
-	STRESS_EVENTFD,
+	__STRESS_EVENTFD,
+#define STRESS_EVENTFD __STRESS_EVENTFD
 #endif
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
-	STRESS_FALLOCATE,
+	__STRESS_FALLOCATE,
+#define STRESS_FALLOCATE __STRESS_FALLOCATE
 #endif
 	STRESS_FAULT,
 	STRESS_FIFO,
@@ -425,42 +444,51 @@ typedef enum {
 	STRESS_FORK,
 	STRESS_FSTAT,
 #if defined(__linux__)
-	STRESS_FUTEX,
+	__STRESS_FUTEX,
+#define STRESS_FUTEX __STRESS_FUTEX
 #endif
 	STRESS_GET,
 	STRESS_HDD,
 	STRESS_HSEARCH,
 #if defined(__linux__)
-	STRESS_INOTIFY,
+	__STRESS_INOTIFY,
+#define STRESS_INOTIFY __STRESS_INOTIFY
 #endif
 	STRESS_IOSYNC,
 #if defined(__linux__)
-	STRESS_KCMP,
+	__STRESS_KCMP,
+#define STRESS_KCMP __STRESS_KCMP
 #endif
 	STRESS_KILL,
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
-	STRESS_LEASE,
+	__STRESS_LEASE,
+#define STRESS_LEASE __STRESS_LEASE
 #endif
 	STRESS_LINK,
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
-	STRESS_LOCKF,
+	__STRESS_LOCKF,
+#define STRESS_LOCKF __STRESS_LOCKF
 #endif
 	STRESS_LSEARCH,
 	STRESS_MALLOC,
 	STRESS_MEMCPY,
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
-	STRESS_MINCORE,
+	__STRESS_MINCORE,
+#define STRESS_MINCORE __STRESS_MINCORE
 #endif
 	STRESS_MMAP,
 #if defined(__linux__)
-	STRESS_MREMAP,
+	__STRESS_MREMAP,
+#define STRESS_MREMAP __STRESS_MREMAP
 #endif
 #if !defined(__gnu_hurd__)
-	STRESS_MSG,
+	__STRESS_MSG,
+#define STRESS_MSG __STRESS_MSG
 #endif
 #if defined(__linux__)
-	STRESS_MQ,
+	__STRESS_MQ,
+#define STRESS_MQ __STRESS_MQ
 #endif
 	STRESS_NICE,
 	STRESS_NULL,
@@ -468,68 +496,83 @@ typedef enum {
 	STRESS_PIPE,
 	STRESS_POLL,
 #if defined(__linux__)
-	STRESS_PROCFS,
+	__STRESS_PROCFS,
+#define STRESS_PROCFS __STRESS_PROCFS
 #endif
 	STRESS_PTHREAD,
 	STRESS_QSORT,
-#if defined(STRESS_X86)
-	STRESS_RDRAND,
+#if defined(STRESS_X86) && !defined(__OpenBSD__)
+	__STRESS_RDRAND,
+#define STRESS_RDRAND __STRESS_RDRAND
 #endif
 	STRESS_RENAME,
 	STRESS_SEEK,
 	STRESS_SEMAPHORE_POSIX,
 #if !defined(__gnu_hurd__)
-	STRESS_SEMAPHORE_SYSV,
+	__STRESS_SEMAPHORE_SYSV,
+#define STRESS_SEMAPHORE_SYSV __STRESS_SEMAPHORE_SYSV
 #endif
 #if defined(__linux__)
-	STRESS_SENDFILE,
+	__STRESS_SENDFILE,
+#define STRESS_SENDFILE __STRESS_SENDFILE
 #endif
 	STRESS_SHM_SYSV,
 #if defined(__linux__)
-	STRESS_SIGFD,
+	__STRESS_SIGFD,
+#define STRESS_SIGFD __STRESS_SIGFD
 #endif
 	STRESS_SIGFPE,
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-	STRESS_SIGQUEUE,
+	__STRESS_SIGQUEUE,
+#define STRESS_SIGQUEUE __STRESS_SIGQUEUE
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SOCKET,
 #if defined(__linux__)
-	STRESS_SPLICE,
+	__STRESS_SPLICE,
+#define STRESS_SPLICE __STRESS_SPLICE
 #endif
 	STRESS_STACK,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
 #if defined(__linux__)
-	STRESS_TIMER,
+	__STRESS_TIMER,
+#define STRESS_TIMER __STRESS_TIMER
 #endif
 	STRESS_TSEARCH,
 	STRESS_UDP,
 #if defined(__linux__) || defined(__gnu_hurd__)
-	STRESS_URANDOM,
+	__STRESS_URANDOM,
+#define STRESS_URANDOM __STRESS_URANDOM
 #endif
 	STRESS_UTIME,
 #if defined(STRESS_VECTOR)
-	STRESS_VECMATH,
+	__STRESS_VECMATH,
+#define STRESS_VECMATH __STRESS_VECMATH
 #endif
 #if  _BSD_SOURCE || \
     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
-	STRESS_VFORK,
+	__STRESS_VFORK,
+#define STRESS_VFORK __STRESS_VFORK
 #endif
 	STRESS_VM,
 #if defined(__linux__)
-	STRESS_VM_RW,
+	__STRESS_VM_RW,
+#define STRESS_VM_RW __STRESS_VM_RW
 #endif
 #if defined(__linux__)
-	STRESS_VM_SPLICE,
+	__STRESS_VM_SPLICE,
+#define STRESS_VM_SPLICE __STRESS_VM_SPLICE
 #endif
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
-	STRESS_WAIT,
+	__STRESS_WAIT,
+#define STRESS_WAIT __STRESS_WAIT
 #endif
 #if defined (_POSIX_PRIORITY_SCHEDULING)
-	STRESS_YIELD,
+	__STRESS_YIELD,
+#define STRESS_YIELD __STRESS_YIELD
 #endif
 	STRESS_ZERO,
 	/* STRESS_MAX must be last one */
@@ -548,7 +591,7 @@ typedef enum {
 	OPT_HDD = 'd',
 	OPT_DENTRY = 'D',
 	OPT_FORK = 'f',
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 	OPT_FALLOCATE = 'F',
 #endif
 	OPT_IOSYNC = 'i',
@@ -567,10 +610,10 @@ typedef enum {
 	OPT_SWITCH = 's',
 	OPT_SOCKET = 'S',
 	OPT_TIMEOUT = 't',
-#if defined (__linux__)
+#if defined(STRESS_TIMER)
 	OPT_TIMER = 'T',
 #endif
-#if defined (__linux__) || defined(__gnu_hurd__)
+#if defined(STRESS_URANDOM)
 	OPT_URANDOM = 'u',
 #endif
 	OPT_VERBOSE = 'v',
@@ -581,7 +624,7 @@ typedef enum {
 
 	OPT_LONG_OPS_START = 0x7f,
 
-#if defined(__linux__)
+#if defined(STRESS_AFFINITY)
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
 	OPT_AFFINITY_RAND,
@@ -589,7 +632,7 @@ typedef enum {
 
 	OPT_AGGRESSIVE,
 
-#if defined (__linux__)
+#if defined (STRESS_AIO)
 	OPT_AIO,
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
@@ -614,7 +657,7 @@ typedef enum {
 	OPT_CHMOD,
 	OPT_CHMOD_OPS,
 
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_CLOCK)
 	OPT_CLOCK,
 	OPT_CLOCK_OPS,
 #endif
@@ -632,7 +675,7 @@ typedef enum {
 	OPT_DUP,
 	OPT_DUP_OPS,
 
-#if defined(__linux__)
+#if defined(STRESS_EPOLL)
 	OPT_EPOLL,
 	OPT_EPOLL_OPS,
 	OPT_EPOLL_PORT,
@@ -644,12 +687,12 @@ typedef enum {
 	OPT_HDD_OPS,
 	OPT_HDD_OPTS,
 
-#if defined(__linux__)
+#if defined(STRESS_EVENTFD)
 	OPT_EVENTFD,
 	OPT_EVENTFD_OPS,
 #endif
 
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(STRESS_FALLOCATE)
 	OPT_FALLOCATE_OPS,
 	OPT_FALLOCATE_BYTES,
 #endif
@@ -680,19 +723,19 @@ typedef enum {
 	OPT_HSEARCH_OPS,
 	OPT_HSEARCH_SIZE,
 
-#if defined (__linux__)
+#if defined(STRESS_INOTIFY)
 	OPT_INOTIFY,
 	OPT_INOTIFY_OPS,
 #endif
 
-#if defined (__linux__)
+#if defined(STRESS_IONICE)
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
 #endif
 
 	OPT_IOSYNC_OPS,
 
-#if defined (__linux__)
+#if defined(STRESS_KCMP)
 	OPT_KCMP,
 	OPT_KCMP_OPS,
 #endif
@@ -700,7 +743,7 @@ typedef enum {
 	OPT_KILL,
 	OPT_KILL_OPS,
 
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(STRESS_LEASE)
 	OPT_LEASE,
 	OPT_LEASE_OPS,
 	OPT_LEASE_BREAKERS,
@@ -709,8 +752,7 @@ typedef enum {
 	OPT_LINK,
 	OPT_LINK_OPS,
 
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
+#if defined(STRESS_LOCKF)
 	OPT_LOCKF,
 	OPT_LOCKF_OPS,
 	OPT_LOCKF_NONBLOCK,
@@ -732,7 +774,7 @@ typedef enum {
 
 	OPT_METRICS_BRIEF,
 
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_MINCORE)
 	OPT_MINCORE,
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
@@ -747,7 +789,7 @@ typedef enum {
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
 
-#if defined(__linux__)
+#if defined(STRESS_MREMAP)
 	OPT_MREMAP,
 	OPT_MREMAP_OPS,
 	OPT_MREMAP_BYTES,
@@ -756,7 +798,7 @@ typedef enum {
 	OPT_MSG,
 	OPT_MSG_OPS,
 
-#if defined(__linux__)
+#if defined(STRESS_MQ)
 	OPT_MQ,
 	OPT_MQ_OPS,
 	OPT_MQ_SIZE,
@@ -772,7 +814,7 @@ typedef enum {
 
 	OPT_OPEN_OPS,
 
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if defined(STRESS_PAGE_IN)
 	OPT_PAGE_IN,
 #endif
 
@@ -780,8 +822,10 @@ typedef enum {
 
 	OPT_POLL_OPS,
 
+#if defined(STRESS_PROCFS)
 	OPT_PROCFS,
 	OPT_PROCFS_OPS,
+#endif
 
 	OPT_PTHREAD,
 	OPT_PTHREAD_OPS,
@@ -791,8 +835,10 @@ typedef enum {
 	OPT_QSORT_OPS,
 	OPT_QSORT_INTEGERS,
 
+#if defined(STRESS_RDRAND)
 	OPT_RDRAND,
 	OPT_RDRAND_OPS,
+#endif
 
 	OPT_RENAME_OPS,
 
@@ -803,15 +849,17 @@ typedef enum {
 	OPT_SEEK_OPS,
 	OPT_SEEK_SIZE,
 
+#if defined(STRESS_SENDFILE)
 	OPT_SENDFILE,
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
+#endif
 
 	OPT_SEMAPHORE_POSIX,
 	OPT_SEMAPHORE_POSIX_OPS,
 	OPT_SEMAPHORE_POSIX_PROCS,
 
-#if !defined(__gnu_hurd__)
+#if defined(STRESS_SEMAPHORE_SYSV)
 	OPT_SEMAPHORE_SYSV,
 	OPT_SEMAPHORE_SYSV_OPS,
 	OPT_SEMAPHORE_SYSV_PROCS,
@@ -824,8 +872,10 @@ typedef enum {
 
 	OPT_SEQUENTIAL,
 
+#if defined(STRESS_SIGFD)
 	OPT_SIGFD,
 	OPT_SIGFD_OPS,
+#endif
 
 	OPT_SIGFPE,
 	OPT_SIGFPE_OPS,
@@ -833,7 +883,7 @@ typedef enum {
 	OPT_SIGSEGV,
 	OPT_SIGSEGV_OPS,
 
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(STRESS_SIGQUEUE)
 	OPT_SIGQUEUE,
 	OPT_SIGQUEUE_OPS,
 #endif
@@ -844,7 +894,7 @@ typedef enum {
 
 	OPT_SWITCH_OPS,
 
-#if defined(__linux__)
+#if defined(STRESS_SPLICE)
 	OPT_SPLICE,
 	OPT_SPLICE_OPS,
 	OPT_SPLICE_BYTES,
@@ -862,7 +912,7 @@ typedef enum {
 
 	OPT_SYSLOG,
 
-#if defined (__linux__)
+#if defined(STRESS_TIMER)
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
 #endif
@@ -878,23 +928,21 @@ typedef enum {
 	OPT_UDP_PORT,
 	OPT_UDP_DOMAIN,
 
-#if defined (__linux__) || defined(__gnu_hurd__)
+#if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
 #endif
 	OPT_UTIME,
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
 
-#if defined(STRESS_VECTOR)
+#if defined(STRESS_VECMATH)
 	OPT_VECMATH,
 	OPT_VECMATH_OPS,
 #endif
 
 	OPT_VERIFY,
 
-#if  _BSD_SOURCE || \
-     (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-     !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
+#if defined(STRESS_VFORK)
 	OPT_VFORK,
 	OPT_VFORK_OPS,
 	OPT_VFORK_MAX,
@@ -912,24 +960,24 @@ typedef enum {
 	OPT_VM_OPS,
 	OPT_VM_METHOD,
 
-#if defined(__linux__)
+#if defined(STRESS_VM_RW)
 	OPT_VM_RW,
 	OPT_VM_RW_OPS,
 	OPT_VM_RW_BYTES,
 #endif
 
-#if defined(__linux__)
+#if defined(STRESS_VM_SPLICE)
 	OPT_VM_SPLICE,
 	OPT_VM_SPLICE_OPS,
 	OPT_VM_SPLICE_BYTES,
 #endif
 
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
+#if defined(STRESS_WAIT)
 	OPT_WAIT,
 	OPT_WAIT_OPS,
 #endif
 
-#if defined (_POSIX_PRIORITY_SCHEDULING)
+#if defined (STRESS_YIELD)
 	OPT_YIELD_OPS,
 #endif
 

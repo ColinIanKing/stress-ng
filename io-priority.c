@@ -24,11 +24,14 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_IOPRIO)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#if defined (__linux__)
 #include <sys/syscall.h>
 
 /*
@@ -47,7 +50,6 @@
 #define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
 #endif
 
-#include "stress-ng.h"
 
 /*
  *  get_opt_ionice_class()
@@ -87,7 +89,7 @@ int get_opt_ionice_class(const char *const str)
 	exit(EXIT_FAILURE);
 }
 
-#if defined (__linux__)
+#if defined(STRESS_IOPRIO)
 /*
  *  ioprio_set()
  *	ioprio_set system call

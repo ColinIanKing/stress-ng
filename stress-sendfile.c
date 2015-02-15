@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined (__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_SENDFILE)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +38,6 @@
 #include <sys/stat.h>
 #include <sys/sendfile.h>
 
-#include "stress-ng.h"
 
 static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 static bool set_sendfile_size = false;

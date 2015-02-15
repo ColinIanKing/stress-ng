@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined (__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_FUTEX)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,8 +42,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/syscall.h>
-
-#include "stress-ng.h"
 
 /*
  *  futex wake()

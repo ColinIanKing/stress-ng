@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_MQ)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,8 +42,6 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <mqueue.h>
-
-#include "stress-ng.h"
 
 typedef struct {
 	uint64_t	value;

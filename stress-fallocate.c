@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_FALLOCATE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,10 +37,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#include "stress-ng.h"
-
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 
 static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 static bool set_fallocate_bytes = false;

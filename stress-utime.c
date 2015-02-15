@@ -35,7 +35,6 @@
 #include <sys/stat.h>
 #include <utime.h>
 
-
 #include "stress-ng.h"
 
 /*

@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if !defined(__gnu_hurd__)
+#include "stress-ng.h"
+
+#if defined(STRESS_SEMAPHORE_SYSV)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,8 +38,6 @@
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-
-#include "stress-ng.h"
 
 static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_sysv_procs = false;

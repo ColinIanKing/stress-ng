@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,9 +34,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#if _POSIX_C_SOURCE >= 199309L
-
-#include "stress-ng.h"
+#if defined(STRESS_CLOCK)
 
 static const int clocks[] = {
 #ifdef CLOCK_REALTIME

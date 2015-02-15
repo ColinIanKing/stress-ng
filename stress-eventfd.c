@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined (__linux__)
+#include "stress-ng.h"
+
+#if defined (STRESS_EVENTFD)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,8 +38,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/eventfd.h>
-
-#include "stress-ng.h"
 
 /*
  *  stress_eventfd

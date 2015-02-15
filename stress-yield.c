@@ -24,14 +24,15 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_YIELD)
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-
-#if defined(_POSIX_PRIORITY_SCHEDULING)
 #include <sched.h>
-#include "stress-ng.h"
 
 /*
  *  stress on sched_yield()

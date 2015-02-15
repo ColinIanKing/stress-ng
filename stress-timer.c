@@ -24,15 +24,16 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_TIMER)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <signal.h>
 #include <time.h>
 
-#include "stress-ng.h"
-
-#if defined (__linux__)
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
 static uint64_t opt_timer_freq;

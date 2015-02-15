@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_SPLICE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,10 +35,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#include "stress-ng.h"
-
-#if defined (__linux__)
 
 static size_t opt_splice_bytes = DEFAULT_SPLICE_BYTES;
 static bool set_splice_bytes = false;

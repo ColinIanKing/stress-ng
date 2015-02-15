@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_VM_RW)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,10 +37,6 @@
 #include <sys/wait.h>
 #include <sys/mman.h>
 #include <errno.h>
-
-#if defined(__linux__)
-
-#include "stress-ng.h"
 
 typedef struct {
 	void *addr;	/* Buffer to read/write to */

@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_WAIT)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,10 +37,6 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "stress-ng.h"
-
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 
 #define ABORT_TIMEOUT	(2.0)
 

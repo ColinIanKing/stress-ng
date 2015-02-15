@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_EPOLL)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,8 +54,6 @@
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 #include <sched.h>
 #endif
-
-#include "stress-ng.h"
 
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)

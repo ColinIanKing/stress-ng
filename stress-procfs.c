@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_PROCFS)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -33,11 +37,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "stress-ng.h"
-
 #define PROC_BUF_SZ	(4096)
 
-#if defined(__linux__)
 /*
  *  stress_proc_read()
  *	read a proc file

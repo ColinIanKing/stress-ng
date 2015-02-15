@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MSG)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -37,10 +41,6 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/stat.h>
-
-#include "stress-ng.h"
-
-#if !defined(__gnu_hurd__)
 
 #define MAX_SIZE	(8)
 #define MSG_STOP	"STOPMSG"

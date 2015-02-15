@@ -26,7 +26,9 @@
  */
 #define _GNU_SOURCE
 
-#if defined(__linux__)
+#include "stress-ng.h"
+
+#if defined(STRESS_INOTIFY)
 
 #include <stdio.h>
 #include <stdint.h>
@@ -44,7 +46,6 @@
 #include <sys/select.h>
 #include <sys/inotify.h>
 
-#include "stress-ng.h"
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)
 #define FILE_FLAGS	(S_IRUSR | S_IWUSR)
