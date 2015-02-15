@@ -29,7 +29,7 @@
 
 #include "stress-ng.h"
 
-#if defined (__linux__)
+#if defined(__linux__)
 /*
  *  set_coredump()
  *	limit what is coredumped because

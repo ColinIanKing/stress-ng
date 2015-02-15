@@ -259,7 +259,7 @@ static const stress_t stressors[] = {
 	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(vm, VM, CLASS_IO | CLASS_VM | CLASS_MEMORY | CLASS_OS),
-#if defined (STRESS_VM_RW)
+#if defined(STRESS_VM_RW)
 	STRESSOR(vm_rw, VM_RW, CLASS_VM | CLASS_MEMORY | CLASS_OS),
 #endif
 #if defined(STRESS_VM_SPLICE)
@@ -386,7 +386,7 @@ static const struct option long_options[] = {
 #endif
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
-#if defined (STRESS_IONICE)
+#if defined(STRESS_IONICE)
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 #endif
@@ -463,7 +463,7 @@ static const struct option long_options[] = {
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "poll",	1,	0,	OPT_POLL },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
-#if defined (STRESS_PROCFS)
+#if defined(STRESS_PROCFS)
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 #endif
@@ -605,13 +605,13 @@ static const struct option long_options[] = {
 
 static const help_t help[] = {
 	{ "-h",		"help",			"show help" },
-#if defined (STRESS_AFFINITY)
+#if defined(STRESS_AFFINITY)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
 	{ NULL,		"aggressive",		"enable all aggressive options" },
-#if defined (STRESS_AIO)
+#if defined(STRESS_AIO)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
@@ -651,13 +651,13 @@ static const help_t help[] = {
 	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
 	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
-#if defined (STRESS_EPOLL)
+#if defined(STRESS_EPOLL)
 	{ NULL,		"epoll N",		"start N workers doing epoll handled socket activity" },
 	{ NULL,		"epoll-ops N",		"stop when N epoll bogo operations completed" },
 	{ NULL,		"epoll-port P",		"use socket ports P upwards" },
 	{ NULL,		"epoll-domain D",	"specify socket domain, default is unix" },
 #endif
-#if defined (STRESS_EVENTFD)
+#if defined(STRESS_EVENTFD)
 	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
 	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
 #endif
@@ -1576,7 +1576,7 @@ next_opt:
 			stress_set_semaphore_sysv_procs(optarg);
 			break;
 #endif
-#if defined (STRESS_SENDFILE)
+#if defined(STRESS_SENDFILE)
 		case OPT_SENDFILE_SIZE:
 			stress_set_sendfile_size(optarg);
 			break;

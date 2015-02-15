@@ -33,7 +33,7 @@
 
 #include "stress-ng.h"
 
-#if defined (__linux__)
+#if defined(__linux__)
 /*
  *  set_oom_adjustment()
  *	attempt to stop oom killer

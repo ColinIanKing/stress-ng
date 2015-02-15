@@ -28,7 +28,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#if defined (__linux__)
+#if defined(__linux__)
 #include <sys/sysinfo.h>
 #include <sys/statfs.h>
 #endif
@@ -66,14 +66,14 @@ int stress_sysinfo(
 	do {
 		struct tms tms_buf;
 		clock_t clk;
-#if defined (__linux__)
+#if defined(__linux__)
 		int ret;
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
 		int i;
 #endif
 
-#if defined (__linux__)
+#if defined(__linux__)
 		ret = sysinfo(&sysinfo_buf);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail(stderr, "%s: sysinfo failed: errno=%d (%s)\n",

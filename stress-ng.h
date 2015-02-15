@@ -325,7 +325,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_X86	1
 #endif
 
-#if defined(__GNUC__) && defined (__GNUC_MINOR__) && \
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && \
     (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 6)
 #define STRESS_VECTOR	1
 #endif
@@ -570,7 +570,7 @@ typedef enum {
 	__STRESS_WAIT,
 #define STRESS_WAIT __STRESS_WAIT
 #endif
-#if defined (_POSIX_PRIORITY_SCHEDULING)
+#if defined(_POSIX_PRIORITY_SCHEDULING)
 	__STRESS_YIELD,
 #define STRESS_YIELD __STRESS_YIELD
 #endif
@@ -632,7 +632,7 @@ typedef enum {
 
 	OPT_AGGRESSIVE,
 
-#if defined (STRESS_AIO)
+#if defined(STRESS_AIO)
 	OPT_AIO,
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
@@ -977,7 +977,7 @@ typedef enum {
 	OPT_WAIT_OPS,
 #endif
 
-#if defined (STRESS_YIELD)
+#if defined(STRESS_YIELD)
 	OPT_YIELD_OPS,
 #endif
 

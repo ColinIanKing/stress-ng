@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
-#if defined (_POSIX_PRIORITY_SCHEDULING) || defined (__linux__)
+#if defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)
 #include <sched.h>
 #endif
 

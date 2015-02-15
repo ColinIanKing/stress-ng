@@ -41,7 +41,7 @@
  */
 void set_sched(const int sched, const int sched_priority)
 {
-#if defined (SCHED_FIFO) || defined (SCHED_RR)
+#if defined(SCHED_FIFO) || defined(SCHED_RR)
 	int min, max;
 #endif
 	int rc;
@@ -50,7 +50,7 @@ void set_sched(const int sched, const int sched_priority)
 	switch (sched) {
 	case UNDEFINED:	/* No preference, don't set */
 		return;
-#if defined (SCHED_FIFO) || defined (SCHED_RR)
+#if defined(SCHED_FIFO) || defined(SCHED_RR)
 	case SCHED_FIFO:
 	case SCHED_RR:
 		min = sched_get_priority_min(sched);

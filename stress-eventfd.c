@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined (STRESS_EVENTFD)
+#if defined(STRESS_EVENTFD)
 
 #include <stdio.h>
 #include <stdlib.h>

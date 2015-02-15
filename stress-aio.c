@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined (STRESS_AIO)
+#if defined(STRESS_AIO)
 
 #include <stdio.h>
 #include <stdlib.h>
