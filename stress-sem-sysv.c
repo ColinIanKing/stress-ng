@@ -42,6 +42,13 @@
 static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_sysv_procs = false;
 
+typedef union semun {
+	int              val;	/* Value for SETVAL */
+	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */
+	unsigned short  *array;	/* Array for GETALL, SETALL */
+	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */
+} semun_t;
+
 void stress_set_semaphore_sysv_procs(const char *optarg)
 {
 	set_semaphore_sysv_procs = true;
@@ -68,8 +75,10 @@ void stress_semaphore_sysv_init(void)
 	}
 
 	if (shared->sem_sysv_id >= 0) {
-		unsigned short semval = 1;
-		if (semctl(shared->sem_sysv_id, 0, SETVAL, semval) == 0) {
+		semun_t arg;
+
+		arg.val = 1;
+		if (semctl(shared->sem_sysv_id, 0, SETVAL, arg) == 0) {
 			shared->sem_sysv_init = true;
 			return;
 		}
