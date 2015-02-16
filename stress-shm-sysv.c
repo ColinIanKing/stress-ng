@@ -102,6 +102,7 @@ int stress_shm_sysv(
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
+	ssize_t i;
 
 	(void)instance;
 
@@ -122,14 +123,13 @@ int stress_shm_sysv(
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));
-	memset(shm_ids, 0, sizeof(shm_ids));
+	for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++)
+		shm_ids[i] = -1;
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(name, true);
 
 	do {
-		ssize_t i;
-
 		for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
 			int shm_id, count = 0;
 			void *addr;
@@ -223,7 +223,7 @@ reap:
 				}
 			}
 			addrs[i] = NULL;
-			shm_ids[i] = 0;
+			shm_ids[i] = -1;
 			keys[i] = 0;
 		}
 	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
