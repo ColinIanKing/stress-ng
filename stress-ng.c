@@ -1033,7 +1033,7 @@ static void usage(void)
  *  opt_name()
  *	find name associated with an option value
  */
-static const char *opt_name(int opt_val)
+static const char *opt_name(const int opt_val)
 {
 	int i;
 
@@ -1058,21 +1058,22 @@ static inline void proc_finished(pid_t *pid)
  *  kill_procs()
  * 	kill tasks using signal
  */
-static void kill_procs(int sig)
+static void kill_procs(const int sig)
 {
 	static int count = 0;
-	int i;
+	int i, signum = sig;
 
 	/* multiple calls will always fallback to SIGKILL */
 	count++;
 	if (count > 5)
-		sig = SIGKILL;
+		signum = SIGKILL;
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
+
 		for (j = 0; j < procs[i].started_procs; j++) {
 			if (procs[i].pids[j])
-				(void)kill(procs[i].pids[j], sig);
+				(void)kill(procs[i].pids[j], signum);
 		}
 	}
 }
@@ -1087,6 +1088,7 @@ static void wait_procs(bool *success)
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
+
 		for (j = 0; j < procs[i].started_procs; j++) {
 			pid_t pid;
 redo:
