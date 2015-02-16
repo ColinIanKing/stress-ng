@@ -1069,8 +1069,8 @@ static inline void mfence(void)
 
 #else
 
-#define clflush(ptr)	/* No-op */
-#define mfence()	/* No-op */
+#define clflush(ptr)	do { } while (0) /* No-op */
+#define mfence()	do { } while (0) /* No-op */
 
 #endif
 
