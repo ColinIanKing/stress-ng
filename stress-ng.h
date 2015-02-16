@@ -226,6 +226,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_MALLOC_THRESHOLD	(256 * MB)
 #define DEFAULT_MALLOC_THRESHOLD (128 * KB)
 
+#define MIN_MATRIX_SIZE		(16)
+#define MAX_MATRIX_SIZE		(4096)
+#define DEFAULT_MATRIX_SIZE	(256)
+
 #define MIN_MMAP_BYTES		(4 * KB)
 #define MAX_MMAP_BYTES		(1 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
@@ -480,6 +484,7 @@ typedef enum {
 #endif
 	STRESS_LSEARCH,
 	STRESS_MALLOC,
+	STRESS_MATRIX,
 	STRESS_MEMCPY,
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	__STRESS_MINCORE,
@@ -777,6 +782,11 @@ typedef enum {
 #if defined(STRESS_MALLOPT)
 	OPT_MALLOC_THRESHOLD,
 #endif
+
+	OPT_MATRIX,
+	OPT_MATRIX_OPS,
+	OPT_MATRIX_SIZE,
+	OPT_MATRIX_METHOD,
 
 	OPT_MAXIMIZE,
 
@@ -1160,6 +1170,8 @@ extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_malloc_bytes(const char *optarg);
 extern void stress_set_malloc_max(const char *optarg);
 extern void stress_set_malloc_threshold(const char *optarg);
+extern int stress_set_matrix_method(const char *name);
+extern void stress_set_matrix_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
@@ -1225,6 +1237,7 @@ STRESS(stress_link);
 STRESS(stress_lockf);
 STRESS(stress_lsearch);
 STRESS(stress_malloc);
+STRESS(stress_matrix);
 STRESS(stress_memcpy);
 STRESS(stress_mincore);
 STRESS(stress_mmap);

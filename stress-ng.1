@@ -654,6 +654,45 @@ stop after N malloc bogo operations. One bogo operations relates to a successful
 .B \-\-malloc\-thresh N
 specify the threshold where malloc uses mmap(2) instead of sbrk(2) to allocate more memory. This is only available on systems that provide the GNU C mallopt(3) tuning function.
 .TP
+.B \-\-matrix N
+start N processes that perform various matrix operations on long double floating point values. By default, this will exercise all the matrix stress methods one by one.  One can specify a specific matrix stress method with the \-\-matrix\-method option.
+.TP
+.B \-\-matrix\-ops N
+stop matrix stress processes after N bogo operations.
+.TP
+.B \-\-matrix\-method method
+specify a matrix stress method. Available matrix stress methods are described as follows:
+.TS
+expand;
+lB2 lBw(\n[SZ]n)
+l l.
+Method	Description
+all	T{
+iterate over all the below matrix stress methods
+T}
+add	T{
+add two N x N matrices
+T}
+div	T{
+divide an N x N matrix by a scalar
+T}
+mult	T{
+multiply n N x N matrix by a scalar
+T}
+prod	T{
+product of two N x N matrices
+T}
+sub	T{
+subtrace one N x N matrix from another N x N matrix
+T}
+trans	T{
+transpose an N x N matrix
+T}
+.TE
+.TP
+.B \-\-matrix\-size N
+specify the N x N size of the matrices.  Smaller values result in a floating point compute throughput bound stressor, where as large values result in a cache and/or memory bandwidth bound stressor.
+.TP
 .B \-\-maximize
 overrides the default stressor settings and instead sets these to the maximum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP

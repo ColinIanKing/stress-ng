@@ -190,6 +190,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_OS),
+	STRESSOR(matrix, MATRIX, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_CPU),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
 #if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
@@ -419,6 +420,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_MALLOPT)
 	{ "malloc-thresh",1,	0,	OPT_MALLOC_THRESHOLD },
 #endif
+	{ "matrix",	1,	0,	OPT_MATRIX },
+	{ "matrix-ops",	1,	0,	OPT_MATRIX_OPS },
+	{ "matrix-method",1,	0,	OPT_MATRIX_METHOD },
+	{ "matrix-size",1,	0,	OPT_MATRIX_SIZE },
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
@@ -1319,6 +1324,7 @@ int main(int argc, char **argv)
 	(void)stress_get_pagesize();
 	(void)stress_set_cpu_method("all");
 	(void)stress_set_vm_method("all");
+	(void)stress_set_matrix_method("all");
 
 	if (stress_get_processors_online() < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
@@ -1503,6 +1509,13 @@ next_opt:
 			stress_set_malloc_threshold(optarg);
 			break;
 #endif
+		case OPT_MATRIX_METHOD:
+			if (stress_set_matrix_method(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_MATRIX_SIZE:
+			stress_set_matrix_size(optarg);
+			break;
 		case OPT_MAXIMIZE:
 			opt_flags |= OPT_FLAGS_MAXIMIZE;
 			break;
