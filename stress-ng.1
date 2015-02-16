@@ -655,7 +655,7 @@ stop after N malloc bogo operations. One bogo operations relates to a successful
 specify the threshold where malloc uses mmap(2) instead of sbrk(2) to allocate more memory. This is only available on systems that provide the GNU C mallopt(3) tuning function.
 .TP
 .B \-\-matrix N
-start N processes that perform various matrix operations on long double floating point values. By default, this will exercise all the matrix stress methods one by one.  One can specify a specific matrix stress method with the \-\-matrix\-method option.
+start N processes that perform various matrix operations on floating point values. By default, this will exercise all the matrix stress methods one by one.  One can specify a specific matrix stress method with the \-\-matrix\-method option.
 .TP
 .B \-\-matrix\-ops N
 stop matrix stress processes after N bogo operations.
