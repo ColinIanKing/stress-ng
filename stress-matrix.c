@@ -200,6 +200,54 @@ static void stress_matrix_div(
 }
 
 /*
+ *  stress_matrix_hadamard(void)
+ *	matrix hadamard product
+ *	(A o B)ij = AijBij
+ */
+static void stress_matrix_hadamard(
+	const size_t n,
+	MATRIX_TYPE a[n][n],
+	MATRIX_TYPE b[n][n],
+	MATRIX_TYPE r[n][n])
+{
+	size_t i, j;
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			r[i][j] = a[i][j] * b[i][j];
+		}
+		if (!opt_do_run)
+			return;
+	}
+}
+
+/*
+ *  stress_matrix_frobenius(void)
+ *	matrix frobenius product
+ *	A : B = Sum(AijBij)
+ */
+static void stress_matrix_frobenius(
+	const size_t n,
+	MATRIX_TYPE a[n][n],
+	MATRIX_TYPE b[n][n],
+	MATRIX_TYPE r[n][n])
+{
+	size_t i, j;
+	MATRIX_TYPE sum = 0.0;
+
+	(void)r;
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			sum += a[i][j] * b[i][j];
+		}
+		if (!opt_do_run)
+			return;
+	}
+	double_put(sum);
+}
+
+/*
  *  stress_matrix_all()
  *	iterate over all cpu stressors
  */
@@ -224,9 +272,11 @@ static stress_matrix_stressor_info_t matrix_methods[] = {
 
 	{ "add",		stress_matrix_add },
 	{ "div",		stress_matrix_div },
+	{ "frobenius",		stress_matrix_frobenius },
 	{ "mult",		stress_matrix_mult },
 	{ "prod",		stress_matrix_prod },
 	{ "sub",		stress_matrix_sub },
+	{ "hadamard",		stress_matrix_hadamard },
 	{ "trans",		stress_matrix_trans },
 	{ NULL,			NULL }
 };
