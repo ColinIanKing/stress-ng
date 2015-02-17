@@ -39,6 +39,9 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
+#if defined (__linux__)
+#include <sys/syscall.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 
@@ -363,6 +366,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_MALLOPT
 #endif
 
+
 /* stress process prototype */
 typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
 		    const uint64_t max_ops, const char *name);
@@ -467,7 +471,7 @@ typedef enum {
 #define STRESS_INOTIFY __STRESS_INOTIFY
 #endif
 	STRESS_IOSYNC,
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_kcmp)
 	__STRESS_KCMP,
 #define STRESS_KCMP __STRESS_KCMP
 #endif
@@ -572,7 +576,8 @@ typedef enum {
 #define STRESS_VFORK __STRESS_VFORK
 #endif
 	STRESS_VM,
-#if defined(__linux__)
+#if defined(__linux__) && \
+    defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev)
 	__STRESS_VM_RW,
 #define STRESS_VM_RW __STRESS_VM_RW
 #endif
