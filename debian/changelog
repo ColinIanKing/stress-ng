@@ -1,3 +1,50 @@
+stress-ng (0.03.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix name clash on union on *BSD systems
+  * Explicitly ignore return from wait*() calls by (void) cast
+  * Add minimize/maximize to matrix size
+  * Add --cache-prefetch option
+  * Make opt_sequential int32 and print out hogs if --seq is being used
+  * Handle builds for system calls that don't exist
+  * stress-vm-rw: include missing header
+  * Ignore args in kcmp for systems that don't support this call
+  * Forgot ULL after fibonacci uint64_t assignment, warning on 32 bit mips
+  * Add longjmp stressor
+  * Constify a few more function args
+  * Add in some shifts to vecmath
+  * Constify a few more func args
+  * Make cache no-ops into do {} while (0) statement
+  * Move PR_* bit flags to bottom nybble, makes stress-ng smaller
+  * Fix spelling mistake in manual: subtrace -> subtract
+  * Forgot to capitalise the matrix product methods
+  * Add two more matrix product methods
+  * man page: long double floats -> floats for matrix
+  * Add matrix stressor with a bunch of stressor methods
+  * stress-shm-sysv: initialise shm_ids as -1 to indicate not set
+  * Use semun union when passing values to semctl, fixes powerpc segfault
+  * stress-rdrand: move #includes to fix build warning on ARM
+  * Make mallopt code depend on GNUC and linux
+  * Reduce MAX stress-fallocate allocation size for 32 bit systems
+  * Move #includes in io-priority to stop build warnings
+  * Add --malloc-thresh tuneable option
+  * Used #if defined(...) consistently.
+  * Munge stressor names when showing hoggers
+  * Remove repeated #if defined() checks, simplify them into stress-ng.h
+  * Add another example to the manual
+  * Increase maximum lease breakers
+  * stress-lease: max sure the pid array is large enough
+  * Add --aggressive option
+  * Don't print null string of no hogs listed when dispatching hogd
+  * Add --minimize and --maximize options
+  * Add --stack-fill option
+  * Update syscalls.txt with recently added syscalls
+  * stress-fallocate: only use fallocate if FALLOC_FL_* defined
+  * stress-fallocate: employ linux fallocate on linux builds
+  * Add --fallocate-bytes option
+
+ -- Colin King <colin.king@canonical.com>  Tue, 17 Feb 2015 18:28:00 +0000
+
 stress-ng (0.03.16-1) unstable; urgency=medium
 
   * Makefile: bump version again
