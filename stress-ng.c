@@ -317,10 +317,11 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_BSEARCH_SIZE },
 	{ "cache",	1,	0, 	OPT_CACHE },
 	{ "cache-ops",	1,	0,	OPT_CACHE_OPS },
-	{ "chmod",	1,	0, 	OPT_CHMOD },
-	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
+	{ "cache-prefetch",0,	0,	OPT_CACHE_PREFETCH },
 	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
+	{ "chmod",	1,	0, 	OPT_CHMOD },
+	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
 	{ "class",	1,	0,	OPT_CLASS },
 #if defined(STRESS_CLOCK)
 	{ "clock",	1,	0,	OPT_CLOCK },
@@ -639,9 +640,10 @@ static const help_t help[] = {
 	{ NULL,		"bsearch-ops",		"stop when N binary search bogo operations completed" },
 	{ NULL,		"bsearch-size",		"number of 32 bit integers to bsearch" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
-	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed (x86 only)" },
+	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+	{ NULL,		"cache-prefetch",	"prefetch on memory reads/writes" },
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
-	{ NULL,		"cache-fence",		"serialize stores" },
+	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
@@ -1407,6 +1409,9 @@ next_opt:
 			break;
 		case OPT_BSEARCH_SIZE:
 			stress_set_bsearch_size(optarg);
+			break;
+		case OPT_CACHE_PREFETCH:
+			opt_flags |= OPT_FLAGS_CACHE_PREFETCH;
 			break;
 		case OPT_CACHE_FLUSH:
 			opt_flags |= OPT_FLAGS_CACHE_FLUSH;

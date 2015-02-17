@@ -36,6 +36,9 @@
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < MEM_CACHE_SIZE; j++) {				\
+		if ((flag) & OPT_FLAGS_CACHE_PREFETCH) {		\
+			__builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
+		}							\
 		mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;\
 		if ((flag) & OPT_FLAGS_CACHE_FLUSH) {			\
 			clflush(&mem_cache[i]);				\
@@ -85,6 +88,18 @@ int stress_cache(
 				break;
 			case OPT_FLAGS_CACHE_FENCE | OPT_FLAGS_CACHE_FLUSH:
 				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE);
+				break;
+			case OPT_FLAGS_CACHE_PREFETCH:
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH);
+				break;
+			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH);
+				break;
+			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FENCE:
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FENCE);
+				break;
+			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE:
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE);
 				break;
 			default:
 				CACHE_WRITE(0);

@@ -132,6 +132,9 @@ force flush cache on each store operation (x86 only). This is a no-op for non-x8
 .B \-\-cache\-ops N
 stop cache thrash processes after N bogo cache thrash operations.
 .TP
+.B \-\-cache\-prefetch
+force read prefetch on next read address on architectures that support prefetching.
+.TP
 .B \-\-chmod N
 start N processes that change the file mode bits via chmod(2) and fchmod(2) on the same file. The greater the value for N then the more contention on the single file.  The stressor will work through all the combination of mode bits.
 .TP
