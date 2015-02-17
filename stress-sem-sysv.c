@@ -42,7 +42,7 @@
 static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_sysv_procs = false;
 
-typedef union semun {
+typedef union _semun {
 	int              val;	/* Value for SETVAL */
 	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */
 	unsigned short  *array;	/* Array for GETALL, SETALL */
