@@ -100,8 +100,8 @@ int stress_futex(
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		/* Kill waiter process */
-		kill(pid, SIGKILL);
-		waitpid(pid, &status, 0);
+		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
 
 		pr_dbg(stderr, "futex timeouts: %" PRIu64 "\n", *timeout);
 	} else {

@@ -154,7 +154,7 @@ int stress_wait(
 	}
 
 	do {
-		waitpid(pid_r, &status, WCONTINUED);
+		(void)waitpid(pid_r, &status, WCONTINUED);
 		if (!opt_do_run)
 			break;
 		if (WIFCONTINUED(status))
@@ -166,7 +166,7 @@ int stress_wait(
 		{
 			siginfo_t info;
 
-			waitid(P_PID, pid_r, &info, WCONTINUED);
+			(void)waitid(P_PID, pid_r, &info, WCONTINUED);
 			if (!opt_do_run)
 				break;
 			if (WIFCONTINUED(status))

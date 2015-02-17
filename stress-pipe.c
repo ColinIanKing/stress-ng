@@ -129,7 +129,7 @@ int stress_pipe(
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_failed_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
-		waitpid(pid, &status, 0);
+		(void)waitpid(pid, &status, 0);
 	}
 	return EXIT_SUCCESS;
 }

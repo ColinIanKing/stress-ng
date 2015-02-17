@@ -184,7 +184,7 @@ reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
 		(void)kill(pid1, SIGKILL);
-		waitpid(pid1, &status, 0);
+		(void)waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
 	return ret;

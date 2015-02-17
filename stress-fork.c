@@ -103,7 +103,7 @@ int stress_fork_fn(
 			if (pids[i] > 0) {
 				int status;
 				/* Parent, wait for child */
-				waitpid(pids[i], &status, 0);
+				(void)waitpid(pids[i], &status, 0);
 				(*counter)++;
 			}
 		}

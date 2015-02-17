@@ -209,7 +209,7 @@ reap:
 			int status;
 
 			(void)kill(pids[i], SIGKILL);
-                        waitpid(pids[i], &status, 0);
+                        (void)waitpid(pids[i], &status, 0);
 		}
 	}
 

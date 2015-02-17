@@ -1848,7 +1848,7 @@ again:
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
-			waitpid(pid, &status, 0);
+			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %d (instance %d)\n",
 				name, WTERMSIG(status), instance);
