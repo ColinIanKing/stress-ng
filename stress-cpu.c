@@ -1044,7 +1044,7 @@ static void stress_cpu_matrix_prod(void)
  */
 static void stress_cpu_fibonacci(void)
 {
-	const uint64_t fn_res = 0xa94fad42221f2702;
+	const uint64_t fn_res = 0xa94fad42221f2702ULL;
 	register uint64_t f1 = 0, f2 = 1, fn;
 
 	do {
