@@ -630,6 +630,12 @@ stop lockf stress processes after N bogo lockf operations.
 .B \-\-lockf\-nonblock
 instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and hence increases locking contention.
 .TP
+.B \-\-longjmp N
+start N processes that exercise setjmp(3)/longjmp(3) by rapid looping on longjmp calls.
+.TP
+.B \-\-longjmp-ops N
+stop longjmp stress processes after N bogo longjmp operations (1 bogo op is 1000 longjmp calls).
+.TP
 .B \-\-lsearch N
 start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
 .TP

@@ -188,6 +188,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_LOCKF)
 	STRESSOR(lockf, LOCKF, CLASS_IO | CLASS_OS),
 #endif
+	STRESSOR(longjmp, LONGJMP, CLASS_CPU),
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(matrix, MATRIX, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_CPU),
@@ -410,6 +411,8 @@ static const struct option long_options[] = {
 	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
 	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
 #endif
+	{ "longjmp",	1,	0,	OPT_LONGJMP },
+	{ "longjmp-ops",1,	0,	OPT_LONGJMP_OPS },
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
 	{ "lsearch-ops",1,	0,	OPT_LSEARCH_OPS },
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
@@ -730,6 +733,8 @@ static const help_t help[] = {
 	{ NULL,		"lockf-ops N",		"stop when N lockf bogo operations completed" },
 	{ NULL,		"lockf-nonblock",	"don't block if lock cannot be obtained, re-try" },
 #endif
+	{ NULL,		"longjmp N",		"start N workers exercising setjmp/longjmp" },
+	{ NULL,		"longjmp-ops N",	"stop when N longjmp bogo operations completed" },
 	{ NULL,		"lsearch",		"start N workers that exercise a linear search" },
 	{ NULL,		"lsearch-ops",		"stop when N linear search bogo operations completed" },
 	{ NULL,		"lsearch-size",		"number of 32 bit integers to lsearch" },
