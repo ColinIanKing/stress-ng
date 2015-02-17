@@ -47,6 +47,9 @@ typedef int64_t vint64_t __attribute__ ((vector_size (16)));
 	a = ~a;		\
 	a *= s;		\
 	a ^= c;		\
+	a <<= 1;	\
+	b >>= 1;	\
+	b += c;		\
 
 /*
  *  stress_vecmath()
