@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.03.16
+VERSION=0.03.17
 #
 # Codename "stressed silicon"
 #
