@@ -315,33 +315,42 @@ int stress_matrix(
 	const uint64_t max_ops,
 	const char *name)
 {
-	const size_t n = opt_matrix_size;
-	MATRIX_TYPE a[n][n], b[n][n], r[n][n];
 	stress_matrix_func func = opt_matrix_stressor->func;
-	size_t i, j;
+	size_t i, j, n;
 	const MATRIX_TYPE v = 1 / (MATRIX_TYPE)((uint32_t)~0);
 
 	(void)instance;
 	(void)name;
 
-	/*
-	 *  Initialise matrices
-	 */
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			a[i][j] = (MATRIX_TYPE)mwc() * v;
-			b[i][j] = (MATRIX_TYPE)mwc() * v;
-			r[i][j] = 0.0;
-		}
+	if (!set_matrix_size) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_matrix_size = MAX_MATRIX_SIZE;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_matrix_size = MIN_MATRIX_SIZE;
 	}
+	n = opt_matrix_size;
 
-	/*
-	 * Normal use case, 100% load, simple spinning on CPU
-	 */
-	do {
-		(void)func(n, a, b, r);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	{
+		MATRIX_TYPE a[n][n], b[n][n], r[n][n];
+		/*
+		 *  Initialise matrices
+		 */
+		for (i = 0; i < n; i++) {
+			for (j = 0; j < n; j++) {
+				a[i][j] = (MATRIX_TYPE)mwc() * v;
+				b[i][j] = (MATRIX_TYPE)mwc() * v;
+				r[i][j] = 0.0;
+			}
+		}
+
+		/*
+		 * Normal use case, 100% load, simple spinning on CPU
+		 */
+		do {
+			(void)func(n, a, b, r);
+			(*counter)++;
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+	}
 
 	return EXIT_SUCCESS;
 }
