@@ -1095,10 +1095,9 @@ extern double timeval_to_double(const struct timeval *tv);
 extern double time_now(void);
 
 /* Misc settings helpers */
-extern void set_oom_adjustment(const char *name, bool killable);
+extern void set_oom_adjustment(const char *name, const bool killable);
 extern void set_sched(const int sched, const int sched_priority);
 extern void set_iopriority(const int class, const int level);
-extern void set_oom_adjustment(const char *name, bool killable);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 
@@ -1124,8 +1123,8 @@ extern long stress_get_ticks_per_second(void);
 extern void set_max_limits(void);
 
 /* Memory tweaking */
-extern int madvise_random(void *addr, size_t length);
-extern int mincore_touch_pages(void *buf, size_t buf_len);
+extern int madvise_random(void *addr, const size_t length);
+extern int mincore_touch_pages(void *buf, const size_t buf_len);
 
 /* Mounts */
 extern int mount_add(char *mnts[], const int max, int *n, const char *name);

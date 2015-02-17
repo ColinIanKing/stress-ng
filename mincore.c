@@ -35,7 +35,7 @@
  * madvise_random()
  *	apply random madvise setting to a memory region
  */
-int mincore_touch_pages(void *buf, size_t buf_len)
+int mincore_touch_pages(void *buf, const size_t buf_len)
 {
 #if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
 	unsigned char *vec;

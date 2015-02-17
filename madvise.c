@@ -88,7 +88,7 @@ static const int madvise_options[] = {
  * madvise_random()
  *	apply random madvise setting to a memory region
  */
-int madvise_random(void *addr, size_t length)
+int madvise_random(void *addr, const size_t length)
 {
 #if _BSD_SOURCE
 	if (opt_flags & OPT_FLAGS_MMAP_MADVISE) {

@@ -40,7 +40,7 @@
  *	if we have root privileges then try and make process
  *	unkillable by oom killer
  */
-void set_oom_adjustment(const char *name, bool killable)
+void set_oom_adjustment(const char *name, const bool killable)
 {
 	char path[PATH_MAX];
 	int fd;
@@ -91,7 +91,7 @@ void set_oom_adjustment(const char *name, bool killable)
 	return;
 }
 #else
-void set_oom_adjustment(const char *name, bool killable)
+void set_oom_adjustment(const char *name, const bool killable)
 {
 	(void)name;
 	(void)killable;
