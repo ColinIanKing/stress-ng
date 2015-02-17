@@ -59,6 +59,11 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 	errno = 0;
 	return syscall(__NR_kcmp, pid1, pid2, type, fd1, fd2);
 #else
+	(void)pid1;
+	(void)pid2;
+	(void)type;
+	(void)fd1;
+	(void)fd2;
 	errno = ENOSYS;
 	return -1;
 #endif
