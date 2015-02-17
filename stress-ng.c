@@ -49,7 +49,7 @@
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
-uint64_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
+int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
@@ -1285,12 +1285,13 @@ static int show_hogs(void)
 	int i;
 
 	for (i = 0; i < STRESS_MAX; i++) {
-		if (procs[i].num_procs) {
+		if (opt_sequential || procs[i].num_procs) {
 			ssize_t buffer_len;
 
 			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
 				previous ? "," : "",
-				procs[i].num_procs, munge_underscore((char *)stressors[i].name));
+				opt_sequential ? opt_sequential : procs[i].num_procs,
+				munge_underscore((char *)stressors[i].name));
 			previous = true;
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);

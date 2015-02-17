@@ -1042,7 +1042,7 @@ extern const char *app_name;		/* Name of application */
 extern shared_t *shared;		/* shared memory */
 extern uint64_t	opt_timeout;		/* timeout in seconds */
 extern uint64_t	opt_flags;		/* option flags */
-extern uint64_t opt_sequential;		/* Number of sequential iterations */
+extern int32_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool opt_do_run;	/* false to exit stressor */
 extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
