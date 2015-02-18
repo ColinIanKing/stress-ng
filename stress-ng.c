@@ -747,6 +747,10 @@ static const help_t help[] = {
 #if defined(STRESS_MALLOPT)
 	{ NULL,		"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 #endif
+	{ NULL,		"matrix N",		"start N workers exercising matrix operations" },
+	{ NULL,		"matrix-ops N",		"stop when N maxtrix bogo operations completed" },
+	{ NULL,		"matrix-method m",	"specify matrix stress method m, default is all" },
+	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
