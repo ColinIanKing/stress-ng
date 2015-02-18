@@ -1,3 +1,12 @@
+stress-ng (0.03.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Move order of hadamard matrix method, now in alphabetical order
+  * Fix macro typos - STESS -> STRESS (LP: #1423241)
+  * Add in matrix info into help
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 Feb 2015 16:08:00 +0000
+
 stress-ng (0.03.17-1) unstable; urgency=medium
 
   * Makefile: bump version
