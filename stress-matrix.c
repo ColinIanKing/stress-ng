@@ -273,10 +273,10 @@ static stress_matrix_stressor_info_t matrix_methods[] = {
 	{ "add",		stress_matrix_add },
 	{ "div",		stress_matrix_div },
 	{ "frobenius",		stress_matrix_frobenius },
+	{ "hadamard",		stress_matrix_hadamard },
 	{ "mult",		stress_matrix_mult },
 	{ "prod",		stress_matrix_prod },
 	{ "sub",		stress_matrix_sub },
-	{ "hadamard",		stress_matrix_hadamard },
 	{ "trans",		stress_matrix_trans },
 	{ NULL,			NULL }
 };
