@@ -468,7 +468,7 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
-#if defined(STESS_PAGE_IN)
+#if defined(STRESS_PAGE_IN)
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
 #endif
 	{ "pipe",	1,	0,	OPT_PIPE },
@@ -548,7 +548,7 @@ static const struct option long_options[] = {
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
 	{ "syslog",	0,	0,	OPT_SYSLOG },
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
-#if defined(STESS_TIMER)
+#if defined(STRESS_TIMER)
 	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
@@ -1576,6 +1576,7 @@ next_opt:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
 #if defined(STRESS_PAGE_IN)
+		printf("PAGEIN!\n");
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
