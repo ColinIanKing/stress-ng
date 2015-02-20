@@ -75,17 +75,44 @@ int stress_eventfd(
 	} else if (pid == 0) {
 		for (;;) {
 			uint64_t val;
+			ssize_t ret;
 
-			if (read(fd1, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				pr_failed_dbg(name, "child read");
+			for (;;) {
+				if (!opt_do_run)
+					goto exit_child;
+				ret = read(fd1, &val, sizeof(val));
+				if (ret < 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					pr_failed_dbg(name, "child read");
+					goto exit_child;
+				}
+				if (ret < (ssize_t)sizeof(val)) {
+					pr_failed_dbg(name, "child short read");
+					goto exit_child;
+				}
 				break;
 			}
 			val = 1;
-			if (write(fd2, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				pr_failed_dbg(name, "child write");
+
+			for (;;) {
+				if (!opt_do_run)
+					goto exit_child;
+				ret = write(fd2, &val, sizeof(val));
+				if (ret < 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					pr_failed_dbg(name, "child write");
+					goto exit_child;
+				}
+				if (ret  < (ssize_t)sizeof(val)) {
+					pr_failed_dbg(name, "child short write");
+					goto exit_child;
+				}
 				break;
 			}
 		}
+exit_child:
 		(void)close(fd1);
 		(void)close(fd2);
 		exit(EXIT_SUCCESS);
@@ -94,20 +121,42 @@ int stress_eventfd(
 
 		do {
 			uint64_t val = 1;
+			int ret;
 
-			if (write(fd1, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				if (errno != EINTR)
+			for (;;) {
+				if (!opt_do_run)
+					goto exit_parent;
+		
+				ret = write(fd1, &val, sizeof(val));
+				if (ret < 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
 					pr_failed_dbg(name, "parent write");
+					goto exit_parent;
+				}
+				if (ret < (ssize_t)sizeof(val)) {
+					pr_failed_dbg(name, "parent short write");
+					goto exit_parent;
+				}
 				break;
 			}
-			if (read(fd2, &val, sizeof(val)) < (ssize_t)sizeof(val)) {
-				if (errno != EINTR)
+			for (;;) {
+				ret = read(fd2, &val, sizeof(val));
+				if (ret < 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
 					pr_failed_dbg(name, "parent read");
+					goto exit_parent;
+				}
+				if (ret < (ssize_t)sizeof(val)) {
+					pr_failed_dbg(name, "parent short read");
+					goto exit_parent;
+				}
 				break;
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
-
+exit_parent:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 		(void)close(fd1);
