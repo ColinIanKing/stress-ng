@@ -1291,12 +1291,23 @@ static int show_hogs(void)
 	int i;
 
 	for (i = 0; i < STRESS_MAX; i++) {
-		if (opt_sequential || procs[i].num_procs) {
+		int32_t n;
+
+		if (opt_sequential) {
+			if (opt_class) {
+				n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
+			} else {
+				n = opt_sequential;
+			}
+		} else {
+			n = procs[i].num_procs;
+		}
+
+		if (n) {
 			ssize_t buffer_len;
 
 			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
-				previous ? "," : "",
-				opt_sequential ? opt_sequential : procs[i].num_procs,
+				previous ? "," : "", n,
 				munge_underscore((char *)stressors[i].name));
 			previous = true;
 			if (buffer_len >= 0) {
