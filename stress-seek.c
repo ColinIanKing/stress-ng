@@ -103,9 +103,17 @@ int stress_seek(
 			pr_failed_err(name, "lseek");
 			goto close_finish;
 		}
-		if (write(fd, buf, sizeof(buf)) < 0) {
-			pr_failed_err(name, "write");
-			goto close_finish;
+re_write:
+		if (!opt_do_run)
+			break;
+		ret = write(fd, buf, sizeof(buf));
+		if (ret <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto re_write;
+			if (errno) {
+				pr_failed_err(name, "write");
+				goto close_finish;
+			}
 		}
 
 		offset = mwc() % len;
@@ -113,9 +121,17 @@ int stress_seek(
 			pr_failed_err(name, "lseek");
 			goto close_finish;
 		}
-		if ((ret = read(fd, tmp, sizeof(tmp))) < 0) {
-			pr_failed_err(name, "read");
-			goto close_finish;
+re_read:
+		if (!opt_do_run)
+			break;
+		ret = read(fd, tmp, sizeof(tmp));
+		if (ret <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto re_read;
+			if (errno) {
+				pr_failed_err(name, "read");
+				goto close_finish;
+			}
 		}
 		if ((ret != sizeof(tmp)) &&
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
