@@ -133,16 +133,23 @@ retry:
 			break;
 		}
 
+redo:
+		if (!opt_do_run)
+			break;
 		len = read(fd, buffer, sizeof(buffer));
 
-		if ((len < 0) || (len > (ssize_t)sizeof(buffer))) {
-			pr_fail(stderr, "error reading inotify: errno=%d (%s)\n",
-				errno, strerror(errno));
-			break;
+		if ((len <= 0) || (len > (ssize_t)sizeof(buffer))) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
+			if (errno) {
+				pr_fail(stderr, "error reading inotify: errno=%d (%s)\n",
+					errno, strerror(errno));
+				break;
+			}
 		}
 
 		/* Scan through inotify events */
-		do {
+		while (i + (ssize_t)sizeof(struct inotify_event) <= len) {
 			struct inotify_event *event = (struct inotify_event *)&buffer[i];
 			int f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
 					       IN_MOVED_TO | IN_MOVED_FROM |
@@ -155,7 +162,7 @@ retry:
 				check_flags &= ~(flags & event->mask);
 
 			i += sizeof(struct inotify_event) + event->len;
-		} while (i < len);
+		}
 	}
 
 cleanup:
@@ -317,7 +324,10 @@ static int inotify_access_helper(const char *path, const void *dummy)
 	}
 
 	/* Just want to force an access */
-	if (read(fd, buffer, 1) < 0) {
+do_access:
+	if (opt_do_run && (read(fd, buffer, 1) < 0)) {
+		if ((errno == EAGAIN) || (errno == EINTR))
+			goto do_access;
 		pr_err(stderr, "cannot read file %s: errno=%d (%s)\n",
 			path, errno, strerror(errno));
 		rc = -1;
@@ -352,7 +362,10 @@ static int inotify_modify_helper(const char *path, const void *dummy)
 		rc = -1;
 		goto remove;
 	}
-	if (write(fd, buffer, 1) < 0) {
+do_modify:
+	if (opt_do_run && (write(fd, buffer, 1) < 0)) {
+		if ((errno == EAGAIN) || (errno == EINTR))
+			goto do_modify;
 		pr_err(stderr, "cannot write to file %s: errno=%d (%s)\n",
 			path, errno, strerror(errno));
 		rc = -1;
