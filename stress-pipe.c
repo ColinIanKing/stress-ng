@@ -122,7 +122,7 @@ int stress_pipe(
 		(void)close(pipefds[0]);
 
 		do {
-			size_t ret;
+			ssize_t ret;
 
 			pipe_memset(buf, val++, sizeof(buf));
 			ret = write(pipefds[1], buf, sizeof(buf));
