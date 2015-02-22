@@ -143,6 +143,7 @@ int stress_mmap(
 	set_oom_adjustment(name, true);
 
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+		ssize_t ret;
 		char ch = '\0';
 
 		if (stress_temp_dir_mk(name, pid, instance) < 0)
@@ -167,7 +168,11 @@ int stress_mmap(
 
 			return EXIT_FAILURE;
 		}
-		if (write(fd, &ch, sizeof(ch)) != sizeof(ch)) {
+redo:
+		ret = write(fd, &ch, sizeof(ch));
+		if (ret != sizeof(ch)) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
 			pr_failed_err(name, "write");
 			(void)close(fd);
 			(void)stress_temp_dir_rm(name, pid, instance);
