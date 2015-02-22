@@ -124,15 +124,24 @@ int stress_vm_rw(
 			msg_wr.val = 0;
 
 			/* Send address of buffer to parent */
+redo_wr1:
 			ret = write(pipe_wr[1], &msg_wr, sizeof(msg_wr));
 			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					goto redo_wr1;
 				if (errno != EBADF)
 					pr_failed_dbg(name, "write");
 				break;
 			}
-
+redo_rd1:
 			/* Wait for parent to populate data */
 			ret = read(pipe_rd[0], &msg_rd, sizeof(msg_rd));
+			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					goto redo_rd1;
+				pr_failed_dbg(name, "read");
+				break;
+			}
 			if (ret == 0)
 				break;
 			if (ret != sizeof(msg_rd)) {
@@ -196,7 +205,16 @@ cleanup:
 			int ret;
 
 			/* Wait for address of child's buffer */
+redo_rd2:
+			if (!opt_do_run)
+				break;
 			ret = read(pipe_wr[0], &msg_rd, sizeof(msg_rd));
+			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					goto redo_rd2;
+				pr_failed_dbg(name, "read");
+				break;
+			}
 			if (ret == 0)
 				break;
 			if (ret != sizeof(msg_rd)) {
@@ -245,9 +263,14 @@ cleanup:
 			msg_wr.val = val;
 			val++;
 
+redo_wr2:
+			if (!opt_do_run)
+				break;
 			/* Inform child that memory has been changed */
 			ret = write(pipe_rd[1], &msg_wr, sizeof(msg_wr));
 			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					goto redo_wr2;
 				if (errno != EBADF)
 					pr_failed_dbg(name, "write");
 				break;
