@@ -67,10 +67,17 @@ int stress_switch(
 			char ch;
 
 			for (;;) {
-				if (read(pipefds[0], &ch, sizeof(ch)) <= 0) {
+				ssize_t ret;
+
+				ret = read(pipefds[0], &ch, sizeof(ch));
+				if (ret < 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
 					pr_failed_dbg(name, "read");
 					break;
 				}
+				if (ret == 0)
+					break;
 				if (ch == SWITCH_STOP)
 					break;
 			}
@@ -85,7 +92,12 @@ int stress_switch(
 		(void)close(pipefds[0]);
 
 		do {
-			if (write(pipefds[1],  &ch, sizeof(ch)) < 0) {
+			ssize_t ret;
+
+			ret = write(pipefds[1],  &ch, sizeof(ch));
+			if (ret <= 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
 				pr_failed_dbg(name, "write");
 				break;
 			}
