@@ -80,7 +80,10 @@ int stress_fault(
 		{
 			char buffer[1];
 
-			if (write(fd, buffer, sizeof(buffer)) < 0) {
+redo:
+			if (opt_do_run && (write(fd, buffer, sizeof(buffer)) < 0)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					goto redo;
 				(void)close(fd);
 				pr_err(stderr, "%s: write failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
