@@ -289,33 +289,51 @@ int stress_hdd(
 		/* Sequential Write */
 		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
-					pr_failed_err(name, "write");
-					(void)close(fd);
-					goto finish;
-				}
-				(*counter)++;
+				size_t ret;
+seq_wr_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
+
+				ret = write(fd, buf, (size_t)opt_hdd_write_size);
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						goto seq_wr_retry;
+					if (errno) {
+						pr_failed_err(name, "write");
+						(void)close(fd);
+						goto finish;
+					}
+					continue;
+				}
+				(*counter)++;
 			}
 		}
 		/* Random Write */
 		if (opt_hdd_flags & HDD_OPT_WR_RND) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				off_t offset = (mwc() % opt_hdd_bytes) & ~511;
+				ssize_t ret;
+
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_failed_err(name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
-				if (write(fd, buf, (size_t)opt_hdd_write_size) < 0) {
-					pr_failed_err(name, "write");
-					(void)close(fd);
-					goto finish;
-				}
-				(*counter)++;
+rnd_wr_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
+				ret = write(fd, buf, (size_t)opt_hdd_write_size);
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						goto rnd_wr_retry;
+					if (errno) {
+						pr_failed_err(name, "write");
+						(void)close(fd);
+						goto finish;
+					}
+					continue;
+				}
+				(*counter)++;
 			}
 		}
 		/* Sequential Read */
@@ -329,19 +347,25 @@ int stress_hdd(
 			}
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				ssize_t ret;
+seq_rd_retry:
+				if (!opt_do_run || (max_ops && *counter >= max_ops))
+					break;
 
 				ret = read(fd, buf, (size_t)opt_hdd_write_size);
-				if (ret < 0) {
-					pr_failed_err(name, "read");
-					(void)close(fd);
-					goto finish;
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						goto seq_rd_retry;
+					if (errno) {
+						pr_failed_err(name, "read");
+						(void)close(fd);
+						goto finish;
+					}
+					continue;
 				}
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
 				(*counter)++;
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
-					break;
 			}
 			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
 				name, misreads);
@@ -359,18 +383,24 @@ int stress_hdd(
 					(void)close(fd);
 					goto finish;
 				}
+rnd_rd_retry:
+				if (!opt_do_run || (max_ops && *counter >= max_ops))
+					break;
 				ret = read(fd, buf, (size_t)opt_hdd_write_size);
-				if (ret < 0) {
-					pr_failed_err(name, "read");
-					(void)close(fd);
-					goto finish;
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						goto rnd_rd_retry;
+					if (errno) {
+						pr_failed_err(name, "read");
+						(void)close(fd);
+						goto finish;
+					}
+					continue;
 				}
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
 				(*counter)++;
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
-					break;
 			}
 			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
 				name, misreads);
