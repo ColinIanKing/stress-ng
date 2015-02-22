@@ -91,13 +91,18 @@ int stress_sigfd(
 			struct signalfd_siginfo fdsi;
 
 			ret = read(sfd, &fdsi, sizeof(fdsi));
+			if ((ret < 0) || (ret != sizeof(fdsi))) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno) {
+					pr_failed_dbg(name, "signalfd read");
+					(void)close(sfd);
+					_exit(EXIT_FAILURE);
+				}
+				continue;
+			}
 			if (ret == 0)
 				break;
-			if (ret != sizeof(fdsi)) {
-				pr_failed_dbg(name, "signalfd read");
-				(void)close(sfd);
-				_exit(EXIT_FAILURE);
-			}
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (fdsi.ssi_signo != SIGUSR1) {
 					pr_fail(stderr, "%s: unexpected signal %d",
