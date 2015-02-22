@@ -48,9 +48,14 @@ static int pipe_read(int fd, int n)
 	char buf[POLL_BUF];
 	ssize_t ret;
 
+redo:
+	if (!opt_do_run)
+		return -1;
 	ret = read(fd, buf, sizeof(buf));
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
 			pr_fail(stderr, "pipe read error detected\n");
 			return ret;
 		}
@@ -116,6 +121,8 @@ int stress_poll(
 			memset(buf, '0' + i, sizeof(buf));
 			ret = write(pipefds[i][1], buf, sizeof(buf));
 			if (ret < (ssize_t)sizeof(buf)) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
 				pr_failed_dbg(name, "write");
 				goto abort;
 			}
@@ -159,7 +166,8 @@ abort:
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
 					if (fds[i].revents == POLLIN) {
-						pipe_read(fds[i].fd, i);
+						if (pipe_read(fds[i].fd, i) < 0)
+							break;
 					}
 				}
 				(*counter)++;
