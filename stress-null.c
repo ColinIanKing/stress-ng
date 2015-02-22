@@ -56,10 +56,18 @@ int stress_null(
 
 	memset(buffer, 0xff, sizeof(buffer));
 	do {
-		if (write(fd, buffer, sizeof(buffer)) < 0) {
-			pr_failed_err(name, "write");
-			(void)close(fd);
-			return EXIT_FAILURE;
+		ssize_t ret;
+
+		ret = write(fd, buffer, sizeof(buffer));
+		if (ret <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno) {
+				pr_failed_err(name, "write");
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
+			continue;
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
