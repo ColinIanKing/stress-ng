@@ -53,9 +53,17 @@ static inline void stress_proc_read(const char *path)
 
 	/* Limit to 4K * 4K of data to read per file */
 	for (i = 0; i < 4096; i++) {
+		ssize_t ret;
+redo:
 		if (!opt_do_run)
 			break;
-		if (read(fd, buffer, PROC_BUF_SZ) < PROC_BUF_SZ)
+		ret = read(fd, buffer, PROC_BUF_SZ);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
+			break;
+		}
+		if (ret < PROC_BUF_SZ)
 			break;
 	}
 	(void)close(fd);
