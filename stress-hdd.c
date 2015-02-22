@@ -289,7 +289,7 @@ int stress_hdd(
 		/* Sequential Write */
 		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				size_t ret;
+				ssize_t ret;
 seq_wr_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
