@@ -97,8 +97,13 @@ int stress_pipe(
 
 			n = read(pipefds[0], buf, sizeof(buf));
 			if (n <= 0) {
-				pr_failed_dbg(name, "read");
-				break;
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno) {
+					pr_failed_dbg(name, "read");
+					break;
+				}
+				continue;
 			}
 			if (!strcmp(buf, PIPE_STOP))
 				break;
@@ -117,10 +122,18 @@ int stress_pipe(
 		(void)close(pipefds[0]);
 
 		do {
+			size_t ret;
+
 			pipe_memset(buf, val++, sizeof(buf));
-			if (write(pipefds[1], buf, sizeof(buf)) < 0) {
-				pr_failed_dbg(name, "write");
-				break;
+			ret = write(pipefds[1], buf, sizeof(buf));
+			if (ret <= 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno) {
+					pr_failed_dbg(name, "write");
+					break;
+				}
+				continue;
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
