@@ -61,13 +61,16 @@ void set_oom_adjustment(const char *name, const bool killable)
 		else
 			str = high_priv ? "-1000" : "0";
 
+redo_wr1:
 		n = write(fd, str, strlen(str));
+		if (n <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo_wr1;
+			if (errno)
+				pr_failed_dbg(name, "can't set oom_score_adj");
+		}
 		(void)close(fd);
-
-		if (n < 0)
-			pr_failed_dbg(name, "can't set oom_score_adj");
-		else
-			return;
+		return;
 	}
 	/*
 	 *  Fall back to old oom interface
@@ -82,11 +85,15 @@ void set_oom_adjustment(const char *name, const bool killable)
 		else
 			str = "15";
 
+redo_wr2:
 		n = write(fd, str, strlen(str));
+		if (n <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo_wr2;
+			if (errno)
+				pr_failed_dbg(name, "can't set oom_adj");
+		}
 		(void)close(fd);
-
-		if (n < 0)
-			pr_failed_dbg(name, "can't set oom_adj");
 	}
 	return;
 }
