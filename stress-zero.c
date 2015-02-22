@@ -55,8 +55,12 @@ int stress_zero(
 
 	do {
 		char buffer[4096];
+		ssize_t ret;
 
-		if (read(fd, buffer, sizeof(buffer)) < 0) {
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
 			pr_failed_err(name, "read");
 			(void)close(fd);
 			return EXIT_FAILURE;
