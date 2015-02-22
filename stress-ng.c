@@ -1587,7 +1587,6 @@ next_opt:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
 #if defined(STRESS_PAGE_IN)
-		printf("PAGEIN!\n");
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
