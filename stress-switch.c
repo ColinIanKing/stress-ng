@@ -98,8 +98,11 @@ int stress_switch(
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_failed_dbg(name, "write");
-				break;
+				if (errno) {
+					pr_failed_dbg(name, "write");
+					break;
+				}
+				continue;
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
