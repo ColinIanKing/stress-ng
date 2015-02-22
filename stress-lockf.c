@@ -54,6 +54,7 @@ int stress_lockf(
 	char dirname[PATH_MAX];
 	char buffer[4096];
 	off_t offset;
+	ssize_t rc;
 	const int lock_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
 		F_TLOCK : F_LOCK;
 
@@ -95,7 +96,13 @@ retry:
 		pr_failed_err(name, "lseek");
 		goto tidy;
 	}
-	if (write(fd, buffer, sizeof(buffer)) != sizeof(buffer)) {
+redo:
+	if (!opt_do_run)
+		goto tidy;
+	rc = write(fd, buffer, sizeof(buffer));
+	if ((rc < 0) || (rc != sizeof(buffer))) {
+		if ((errno == EAGAIN) || (errno == EINTR))
+			goto redo;
 		pr_failed_err(name, "write");
 		goto tidy;
 	}
