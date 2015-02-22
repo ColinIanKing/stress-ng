@@ -92,10 +92,10 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 
 		sz = read(fd, &val, sizeof(val));
 		if (sz < 0) {
-			if (errno != EINTR) {
-				pr_err(stderr, "%s: fifo read failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
-			}
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_err(stderr, "%s: fifo read failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
 			break;
 		}
 		if (sz == 0)
@@ -112,7 +112,6 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 			break;
 		}
 	}
-
 	(void)close(fd);
 }
 
@@ -169,10 +168,17 @@ int stress_fifo(
 	}
 
 	do {
-		if (write(fd, &val, sizeof(val)) < 0) {
-			if (errno != EINTR)
+		ssize_t ret;
+
+		ret = write(fd, &val, sizeof(val));
+		if (ret <= 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			if (errno) {
 				pr_failed_dbg(name, "write");
-			break;
+				break;
+			}
+			continue;
 		}
 		val++;
 		(*counter)++;
