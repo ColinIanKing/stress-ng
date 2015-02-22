@@ -149,7 +149,7 @@ redo:
 		}
 
 		/* Scan through inotify events */
-		while (i + (ssize_t)sizeof(struct inotify_event) <= len) {
+		while ((i >= 0) && (i <= len - (ssize_t)sizeof(struct inotify_event))) {
 			struct inotify_event *event = (struct inotify_event *)&buffer[i];
 			int f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
 					       IN_MOVED_TO | IN_MOVED_FROM |
