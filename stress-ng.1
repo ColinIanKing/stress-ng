@@ -532,7 +532,7 @@ rd\-seq	T{
 read data sequentially. By default, written data is not read back, however, this option will force it to be read back sequentially.
 T}
 rd\-rnd	T{
-read data randomly. By default, written data is not read back, however, this option will force it to be read back randonly.
+read data randomly. By default, written data is not read back, however, this option will force it to be read back randomly.
 T}
 fadv\-normal	T{
 advise kernel there are no explicit access pattern for the data. This is the default advice assumption.
@@ -625,7 +625,7 @@ start N processes creating and removing hardlinks.
 stop link stress processes after N bogo operations.
 .TP
 .B \-\-lockf N
-start N processes randomly locking regions of a file using the POSIX lockf(3) locking mechanism. A single 4K file is locked in one of two randonly chosen 2K regions at offsets 0 and 2K.
+start N processes randomly locking regions of a file using the POSIX lockf(3) locking mechanism. A single 4K file is locked in one of two randomly chosen 2K regions at offsets 0 and 2K.
 .TP
 .B \-\-lockf\-ops N
 stop lockf stress processes after N bogo lockf operations.
