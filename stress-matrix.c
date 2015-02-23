@@ -73,10 +73,14 @@ static void stress_matrix_prod(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j, k;
+	size_t i;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
+			register size_t k;
+
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * b[k][j];
 			}
@@ -96,9 +100,11 @@ static void stress_matrix_add(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] + b[i][j];
 		}
@@ -117,9 +123,11 @@ static void stress_matrix_sub(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] - b[i][j];
 		}
@@ -138,11 +146,13 @@ static void stress_matrix_trans(
 	MATRIX_TYPE b[n][n],	/* Ignored */
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	(void)b;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[j][i];
 		}
@@ -161,12 +171,14 @@ static void stress_matrix_mult(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	(void)b;
 	MATRIX_TYPE v = b[0][0];
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = v * a[i][j];
 		}
@@ -185,12 +197,14 @@ static void stress_matrix_div(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	(void)b;
 	MATRIX_TYPE v = b[0][0];
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] / v;
 		}
@@ -210,9 +224,11 @@ static void stress_matrix_hadamard(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] * b[i][j];
 		}
@@ -232,12 +248,14 @@ static void stress_matrix_frobenius(
 	MATRIX_TYPE b[n][n],
 	MATRIX_TYPE r[n][n])
 {
-	size_t i, j;
+	register size_t i;
 	MATRIX_TYPE sum = 0.0;
 
 	(void)r;
 
 	for (i = 0; i < n; i++) {
+		register size_t j;
+
 		for (j = 0; j < n; j++) {
 			sum += a[i][j] * b[i][j];
 		}
@@ -316,7 +334,7 @@ int stress_matrix(
 	const char *name)
 {
 	stress_matrix_func func = opt_matrix_stressor->func;
-	size_t i, j, n;
+	size_t n;
 	const MATRIX_TYPE v = 1 / (MATRIX_TYPE)((uint32_t)~0);
 
 	(void)instance;
@@ -331,11 +349,14 @@ int stress_matrix(
 	n = opt_matrix_size;
 
 	{
+		register size_t i;
 		MATRIX_TYPE a[n][n], b[n][n], r[n][n];
 		/*
 		 *  Initialise matrices
 		 */
 		for (i = 0; i < n; i++) {
+			register size_t j;
+
 			for (j = 0; j < n; j++) {
 				a[i][j] = (MATRIX_TYPE)mwc() * v;
 				b[i][j] = (MATRIX_TYPE)mwc() * v;
