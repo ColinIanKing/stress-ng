@@ -415,11 +415,11 @@ start N processes that perform dup(2) and then close(2) operations on /dev/zero.
 stop the dup stress processes after N bogo open operations.
 .TP
 .B \-\-epoll N
-start N stressors that perform various related socket stress activity using epoll_wait to monitor and handle new connections. This involves client/server processes performing rapid connect, send/receives and disconnects on the local host.  Using epoll allows a large number of connections to be efficiently handled, however, this can lead to the connection table filling up and blocking further socket connections, hence impacting on the epoll bogo op stats.  For ipv4 and ipv6
+start N stressors that perform various related socket stress activity using epoll_wait(2) to monitor and handle new connections. This involves client/server processes performing rapid connect, send/receives and disconnects on the local host.  Using epoll allows a large number of connections to be efficiently handled, however, this can lead to the connection table filling up and blocking further socket connections, hence impacting on the epoll bogo op stats.  For ipv4 and ipv6
 domains, multiple servers are spawned on multiple ports. The epoll stressor is for Linux only.
 .TP
 .B \-\-epoll\-domain D
-specifty the domain to use, the default is unix (aka local). Currently ipv4, ipv6 and unix are supported.
+specify the domain to use, the default is unix (aka local). Currently ipv4, ipv6 and unix are supported.
 .TP
 .B \-\-epoll\-port P
 start at socket port P. For N epoll worker processes, ports P to (P * 4) - 1 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix domain.
