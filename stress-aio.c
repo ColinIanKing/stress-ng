@@ -42,7 +42,7 @@
 
 #define BUFFER_SZ	(16)
 
-static uint64_t opt_aio_requests = DEFAULT_AIO_REQUESTS;
+static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
 static bool set_aio_requests = false;
 
 /* per request async I/O data */
@@ -56,10 +56,13 @@ typedef struct {
 
 void stress_set_aio_requests(const char *optarg)
 {
+	uint64_t aio_requests;
+
 	set_aio_requests = true;
-	opt_aio_requests = get_uint64(optarg);
-	check_range("aio-requests", opt_aio_requests,
+	aio_requests = get_uint64(optarg);
+	check_range("aio-requests", aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
+	opt_aio_requests = (int)aio_requests;
 }
 
 /*
@@ -81,7 +84,7 @@ static inline void aio_fill_buffer(
 	}
 
 	for (i = 0; i < size; i++)
-		buffer[i] = request + i;
+		buffer[i] = (uint8_t)(request + i);
 }
 
 /*
@@ -173,7 +176,8 @@ int stress_aio(
 	int fd, rc = EXIT_FAILURE;
 	io_req_t *io_reqs;
 	struct sigaction sa;
-	uint64_t i, total = 0;
+	int i;
+	uint64_t total = 0;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
@@ -206,7 +210,7 @@ int stress_aio(
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
-		if (issue_aio_request(fd, i * BUFFER_SZ, &io_reqs[i], i, aio_write) < 0)
+		if (issue_aio_request(fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write) < 0)
 			goto cancel;
 	}
 
@@ -223,7 +227,7 @@ int stress_aio(
 			case 0:
 				/* Succeeded or cancelled, so redo another */
 				(*counter)++;
-				if (issue_aio_request(fd, i * BUFFER_SZ, &io_reqs[i], i,
+				if (issue_aio_request(fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i,
 					(mwc() & 0x20) ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
