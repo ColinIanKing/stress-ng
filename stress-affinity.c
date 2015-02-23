@@ -22,7 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE 
+#define _GNU_SOURCE
 
 #include "stress-ng.h"
 

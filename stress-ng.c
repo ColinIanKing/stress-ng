@@ -1316,7 +1316,7 @@ static int show_hogs(void)
 					pr_err(stderr, "Cannot allocate temporary buffer\n");
 					free(str);
 					return -1;
-				}	
+				}
 				str = newstr;
 				strncpy(str + len, buffer, buffer_len + 1);
 			}
@@ -1863,7 +1863,6 @@ next_opt:
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-		
 
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
 	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);

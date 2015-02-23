@@ -126,7 +126,7 @@ exit_child:
 			for (;;) {
 				if (!opt_do_run)
 					goto exit_parent;
-		
+
 				ret = write(fd1, &val, sizeof(val));
 				if (ret < 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))

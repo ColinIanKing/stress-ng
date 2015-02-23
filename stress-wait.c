@@ -114,7 +114,7 @@ static void killer(const pid_t pid, uint64_t *counter, const uint64_t max_ops)
 			last_counter = *counter;
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	
+
 	/* forcefully kill runner, wait is in parent */
 	(void)kill(pid, SIGKILL);
 	/* tell parent to wake up! */

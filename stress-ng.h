@@ -1088,7 +1088,7 @@ static inline void mfence(void)
 #endif
 
 /*
- *  mwc() 
+ *  mwc()
  *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html

@@ -103,7 +103,7 @@ int stress_vecmath(
 		0x0102030201020302ULL, 0x0302010203020102ULL };
 	vint64_t s64 = {
 		0x0000000000000001ULL, 0x0000000000000002ULL };
-		
+
 	do {
 		int i;
 		for (i = 1000; i; i--) {

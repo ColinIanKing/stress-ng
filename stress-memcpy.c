@@ -46,7 +46,7 @@ int stress_memcpy(
 	(void)name;
 
 	uint8_t *mem_cache = shared->mem_cache;
-	
+
 	do {
 		memcpy(buffer, mem_cache, MEM_CACHE_SIZE);
 		memcpy(mem_cache, buffer, MEM_CACHE_SIZE);

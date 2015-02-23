@@ -121,7 +121,7 @@ int stress_futex(
 				(*timeout)++;
 				continue;
 			}
-	
+
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail(stderr, "futex wait failed: errno=%d (%s)\n",
 					errno, strerror(errno));

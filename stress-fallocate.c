@@ -149,7 +149,7 @@ int stress_fallocate(
 			for (i = 0; i < 64; i++) {
 				off_t offset = (mwc() % opt_fallocate_bytes) & ~0xfff;
 				int j = (mwc() >> 8) % SIZEOF_ARRAY(modes);
-				
+
 				(void)fallocate(fd, modes[j], offset, 64 * KB);
 				if (!opt_do_run)
 					break;

@@ -397,7 +397,7 @@ static size_t stress_vm_walking_one_data(
 
 /*
  *  stress_vm_walking_zero_data()
- *	for each byte, walk through each data line setting them to low 
+ *	for each byte, walk through each data line setting them to low
  *	setting each bit to see if none of the lines are stuck
  */
 static size_t stress_vm_walking_zero_data(

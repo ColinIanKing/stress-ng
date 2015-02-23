@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: stress-ng 
+Upstream-Name: stress-ng
 Upstream-Contact: Colin King <colin.king@canonical.com>
 Source: git://kernel.ubuntu.com/cking/stress-ng.git
 

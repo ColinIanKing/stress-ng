@@ -80,7 +80,7 @@ static mode_t modes[] = {
  *  as a "known" error on invalid chmod mode bits
  */
 #ifdef EFTYPE
-#define CHECK(x) if ((x) && (errno != EFTYPE)) return -1	
+#define CHECK(x) if ((x) && (errno != EFTYPE)) return -1
 #else
 #define CHECK(x) if (x) return -1
 #endif

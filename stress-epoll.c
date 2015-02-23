@@ -334,7 +334,7 @@ retry:
 			return -1;
 		}
 		errno = 0;
-	
+
 		stress_set_sockaddr(name, instance, ppid,
 			opt_epoll_domain, port, &addr, &addr_len);
 

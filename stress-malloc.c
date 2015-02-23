@@ -192,7 +192,6 @@ again:
 						(void)mincore_touch_pages(addr[i], len);
 						(*counter)++;
 					}
-					
 				}
 			} else {
 				/* 50% free, 50% alloc */

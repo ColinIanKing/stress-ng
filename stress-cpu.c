@@ -935,7 +935,7 @@ stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
 	C1, C2, C3, sinl, cosl)
 
 #if defined(STRESS_INT128)
-stress_cpu_int_fp(__uint128_t, 128, float, float, 
+stress_cpu_int_fp(__uint128_t, 128, float, float,
 	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
 	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),

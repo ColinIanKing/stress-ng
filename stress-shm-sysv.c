@@ -144,7 +144,7 @@ int stress_shm_sysv(
 
 				do {
 					ssize_t j;
-			
+
 					if (!opt_do_run)
 						goto reap;
 
@@ -175,7 +175,6 @@ int stress_shm_sysv(
 					name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
-				
 			}
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {

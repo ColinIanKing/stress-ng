@@ -91,10 +91,10 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 		}					\
 	}						\
 }
-			
+
 /*
  *  stress_kcmp
- *	stress sys_kcmp 
+ *	stress sys_kcmp
  */
 int stress_kcmp(
 	uint64_t *const counter,
@@ -166,7 +166,7 @@ int stress_kcmp(
 			KCMP(pid1, pid2, KCMP_VM, 0, 0);
 			KCMP(pid1, pid1, KCMP_VM, 0, 0);
 			KCMP(pid2, pid2, KCMP_VM, 0, 0);
-			
+
 			/* Same simple checks */
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				KCMP_VERIFY(pid1, pid1, KCMP_FILE, fd1, fd1, 0);
