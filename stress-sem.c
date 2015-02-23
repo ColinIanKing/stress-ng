@@ -71,7 +71,7 @@ void stress_semaphore_posix_init(void)
 
 /*
  *  stress_semaphore_posix_destroy()
- *	destory a POSIX semaphore
+ *	destroy a POSIX semaphore
  */
 void stress_semaphore_posix_destroy(void)
 {
