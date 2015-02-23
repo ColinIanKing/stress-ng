@@ -10,12 +10,10 @@ Package: stress-ng
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: tool to load and stress a computer
- stress-ng can stress various subsystems of a computer.
- It can stress load CPU, cache, disk, memory, socket
- and pipe I/O, scheduling and much more.  stress-ng is
- a re-write of the original stress tool by
- Amos Waterland but has additional features such as
- specifying the number of bogo operations to run,
- execution metrics, a stress verification on memory
- and compute operations and many more stress mechanisms.
+ stress-ng can stress various subsystems of a computer.  It can stress load
+ CPU, cache, disk, memory, socket and pipe I/O, scheduling and much more.
+ stress-ng is a re-write of the original stress tool by Amos Waterland but
+ has many additional features such as specifying the number of bogo operations
+ to run, execution metrics, a stress verification on memory and compute
+ operations and considerably more stress mechanisms.
 
