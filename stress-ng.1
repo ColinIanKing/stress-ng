@@ -592,7 +592,7 @@ stop io stress processes after N bogo operations.
 specify ionice class (only on Linux). Can be idle (default), besteffort, be, realtime, rt.
 .TP
 .B \-\-ionice\-level level
-specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (hightest priority) to 7 (lowest priority). See ionice(1) for more details.
+specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (highest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
 .B \-\-kcmp N
 start N processes that use kcmp(2) to compare parent and child processes to determine if they share kernel resources (Linux only).
