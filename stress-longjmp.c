@@ -44,7 +44,6 @@ int stress_longjmp(
 	const char *name)
 {
 	int ret;
-	static int c = 0;
 	static jmp_buf buf;
 
 	(void)instance;
@@ -53,6 +52,8 @@ int stress_longjmp(
 	ret = setjmp(buf);
 
 	if (ret) {
+		static int c = 0;
+
 		c++;
 		if (c >= 1000) {
 			(*counter)++;
