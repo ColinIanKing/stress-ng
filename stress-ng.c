@@ -1334,7 +1334,7 @@ static int show_hogs(void)
 int main(int argc, char **argv)
 {
 	double duration = 0.0;
-	int32_t val, opt_random = 0, i, j;
+	int32_t val, opt_random = 0, i;
 	int32_t total_procs = 0, max_procs = 0;
 	size_t len;
 	bool success = true;
@@ -1919,7 +1919,7 @@ next_opt:
 		for (i = 0; i < STRESS_MAX; i++) {
 			uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 			double   r_total = 0.0;
-			int32_t  n = (i * max_procs);
+			int32_t  j, n = (i * max_procs);
 
 			for (j = 0; j < procs[i].started_procs; j++, n++) {
 				c_total += shared->stats[n].counter;
