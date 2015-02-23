@@ -177,7 +177,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_EPOLL_PORT	(6000)
 
 #define MIN_HDD_BYTES		(1 * MB)
-#define MAX_HDD_BYTES		(256 * GB)
+#define MAX_HDD_BYTES		(256ULL * GB)
 #define DEFAULT_HDD_BYTES	(1 * GB)
 
 #define MIN_HDD_WRITE_SIZE	(1)
@@ -257,7 +257,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
 
 #define MIN_SEEK_SIZE		(1 * MB)
-#define MAX_SEEK_SIZE 		(256 * GB)
+#define MAX_SEEK_SIZE 		(256ULL * GB)
 #define DEFAULT_SEEK_SIZE	(16 * MB)
 
 #define MIN_SEQUENTIAL		(0)
