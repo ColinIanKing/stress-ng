@@ -1,3 +1,54 @@
+stress-ng (0.03.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-sem: fix spelling mistake in comment: destory -> destroy
+  * Manual: fix spelling mistake: successfull -> sucessful
+  * Manual: fix typo: summaries -> summarise
+  * Manual: vecmath: Replace x with \(mu multiply sign for correct formatting
+  * Manual: Fix udp port description, add the default base port being used.
+  * Manual: remove deprecated --hdd-sync option
+  * Manual: fix typo: mremmap -> remap
+  * Manual: Replace x with \(mu multiply sign
+  * Manual: Fix typo: randonly -> randomly
+  * Manual: Fix spelling mistake: hightest -> highest
+  * Manual: Correct description for --fifo option
+  * Manual: Fix spelling mistake and epoll_wait section
+  * Rename id to s_id to stop variable shadowing
+  * Move scope of j, removes shadowing of j too.
+  * stress-aio: clean up clang warnings on integer conversions
+  * Re-format and slightly re-word debian control description text
+  * Remove trailing white spaces from lines and empty lines
+  * Remove duplicated changelog entries
+  * Fix macro expansion overflows on 32 bit architectures
+  * stress-matrix: clean up some more cppcheck style warnings
+  * stress-longjmp: move counter c, cleans up cppcheck style warning
+  * stress-inotify: fix buffer bounds checking on inotify input
+  * stress-ng: remove some debug that never got printed
+  * stress-pipe: ret should be ssize_t
+  * stress-hdd: ret should be ssize_t
+  * stress-mmap: better error handling on write
+  * out-of-memory: add better write error checking
+  * stress-null: better error handling on write
+  * stress-lockf: better error handling on write
+  * stress-fault: better error handling on write
+  * stress-vm-rw: better error handling on read/write
+  * stress-sigfd: better error handling on read
+  * stress-seek: better error handling on read/write
+  * stress-procfs: better error handling on read
+  * stress-poll: better error handling on read/write
+  * stress-pipe: better error handling on read/write
+  * stress-inotify: better error handling on read/write
+  * stress-hdd: better error handling on read/write
+  * stress-switch: cater for zero write w/o error
+  * stress-fifo: better error handling on read/write
+  * stress-pipe: better error handling on read/write
+  * stress-urandom: better error handling on read
+  * stress-zero: better error handling on read
+  * stress-eventfd: better read/write handling
+  * print correct number of hogs when --class is used
+
+ -- Colin King <colin.king@canonical.com>  Mon, 23 Feb 2015 15:58:00 +0000
+
 stress-ng (0.03.18-1) unstable; urgency=medium
 
   * Makefile: bump version
