@@ -1365,26 +1365,26 @@ int main(int argc, char **argv)
 
 	for (;;) {
 		int c, option_index;
-		stress_id id;
+		stress_id s_id;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k",
 			long_options, &option_index)) == -1)
 			break;
 
-		for (id = 0; stressors[id].id != STRESS_MAX; id++) {
-			if (stressors[id].short_getopt == c) {
+		for (s_id = 0; stressors[s_id].id != STRESS_MAX; s_id++) {
+			if (stressors[s_id].short_getopt == c) {
 				const char *name = opt_name(c);
 
 				opt_flags |= OPT_FLAGS_SET;
-				procs[id].num_procs = opt_long(name, optarg);
-				if (procs[id].num_procs <= 0)
-					procs[id].num_procs = stress_get_processors_online();
-				check_value(name, procs[id].num_procs);
+				procs[s_id].num_procs = opt_long(name, optarg);
+				if (procs[s_id].num_procs <= 0)
+					procs[s_id].num_procs = stress_get_processors_online();
+				check_value(name, procs[s_id].num_procs);
 				goto next_opt;
 			}
-			if (stressors[id].op == (stress_op)c) {
-				procs[id].bogo_ops = get_uint64(optarg);
-				check_range(opt_name(c), procs[id].bogo_ops,
+			if (stressors[s_id].op == (stress_op)c) {
+				procs[s_id].bogo_ops = get_uint64(optarg);
+				check_range(opt_name(c), procs[s_id].bogo_ops,
 					MIN_OPS, MAX_OPS);
 				goto next_opt;
 			}
