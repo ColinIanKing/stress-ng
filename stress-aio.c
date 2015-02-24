@@ -144,23 +144,29 @@ static int issue_aio_request(
 {
 	int ret;
 
-	io_req->request = request;
-	io_req->status = EINPROGRESS;
-	io_req->aiocb.aio_fildes = fd;
-	io_req->aiocb.aio_buf = io_req->buffer;
-	io_req->aiocb.aio_nbytes = BUFFER_SZ;
-	io_req->aiocb.aio_reqprio = 0;
-	io_req->aiocb.aio_offset = offset;
-	io_req->aiocb.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
-	io_req->aiocb.aio_sigevent.sigev_signo = SIGUSR1;
-	io_req->aiocb.aio_sigevent.sigev_value.sival_ptr = io_req;
+	while (opt_do_run) {
+		io_req->request = request;
+		io_req->status = EINPROGRESS;
+		io_req->aiocb.aio_fildes = fd;
+		io_req->aiocb.aio_buf = io_req->buffer;
+		io_req->aiocb.aio_nbytes = BUFFER_SZ;
+		io_req->aiocb.aio_reqprio = 0;
+		io_req->aiocb.aio_offset = offset;
+		io_req->aiocb.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
+		io_req->aiocb.aio_sigevent.sigev_signo = SIGUSR1;
+		io_req->aiocb.aio_sigevent.sigev_value.sival_ptr = io_req;
 
-	ret = aio_func(&io_req->aiocb);
-	if (ret < 0) {
-		pr_err(stderr, "failed to issue aio request: %d (%s)\n",
-			errno, strerror(errno));
+		ret = aio_func(&io_req->aiocb);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_err(stderr, "failed to issue aio request: %d (%s)\n",
+				errno, strerror(errno));
+		}
+		return ret;
 	}
-	return ret;
+	/* Given up */
+	return -1;
 }
 
 /*
