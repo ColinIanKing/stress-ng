@@ -158,6 +158,9 @@ int stress_fallocate(
 					break;
 				(void)fsync(fd);
 			}
+			if (ftruncate(fd, 0) < 0)
+				ftrunc_errs++;
+			(void)fsync(fd);
 		}
 #endif
 		(*counter)++;
