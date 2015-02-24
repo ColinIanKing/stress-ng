@@ -367,8 +367,9 @@ seq_rd_retry:
 
 				(*counter)++;
 			}
-			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
-				name, misreads);
+			if (misreads)
+				pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+					name, misreads);
 		}
 		/* Random Read */
 		if (opt_hdd_flags & HDD_OPT_RD_RND) {
@@ -402,8 +403,9 @@ rnd_rd_retry:
 
 				(*counter)++;
 			}
-			pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
-				name, misreads);
+			if (misreads)
+				pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+					name, misreads);
 		}
 		(void)close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
