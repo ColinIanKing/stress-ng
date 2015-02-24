@@ -223,7 +223,7 @@ int stress_aio(
 	do {
 		usleep(250000); /* wait until a signal occurs */
 
-		for (i = 0; i < opt_aio_requests; i++) {
+		for (i = 0; opt_do_run && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 
@@ -241,7 +241,7 @@ int stress_aio(
 				break;
 			default:
 				/* Something went wrong */
-				pr_failed_err(name, "aio_error");
+				pr_failed_errno(name, "aio_error", io_reqs[i].status);
 				goto cancel;
 			}
 		}
