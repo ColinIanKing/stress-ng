@@ -1323,7 +1323,7 @@ static int show_hogs(void)
 			len += buffer_len;
 		}
 	}
-	pr_inf(stdout, "dispatching hogs: %s\n", str ? str : "");
+	pr_inf(stdout, "dispatching hogs:%s\n", str ? str : "");
 	free(str);
 	fflush(stdout);
 
