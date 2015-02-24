@@ -254,6 +254,12 @@ int stress_hdd(
 			opt_hdd_write_size = MIN_HDD_WRITE_SIZE;
 	}
 
+	if (opt_hdd_bytes < opt_hdd_write_size) {
+		opt_hdd_bytes = opt_hdd_write_size;
+		pr_inf(stderr, "%s: increasing file size to write size of %zu bytes\n",
+			name, opt_hdd_bytes);
+	}
+
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
 
@@ -368,7 +374,7 @@ seq_rd_retry:
 				(*counter)++;
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+				pr_dbg(stderr, "%s: %" PRIu64 " incomplete sequential reads\n",
 					name, misreads);
 		}
 		/* Random Read */
@@ -377,7 +383,7 @@ seq_rd_retry:
 
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				ssize_t ret;
-				off_t offset = (mwc() % opt_hdd_bytes) & ~511;
+				off_t offset = (mwc() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_failed_err(name, "lseek");
@@ -404,7 +410,7 @@ rnd_rd_retry:
 				(*counter)++;
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64 " incomplete reads\n",
+				pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",
 					name, misreads);
 		}
 		(void)close(fd);
