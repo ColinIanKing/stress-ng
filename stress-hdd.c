@@ -317,7 +317,9 @@ seq_wr_retry:
 		/* Random Write */
 		if (opt_hdd_flags & HDD_OPT_WR_RND) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				off_t offset = (mwc() % opt_hdd_bytes) & ~511;
+				off_t offset = (i == 0) ?
+					opt_hdd_bytes - opt_hdd_write_size :
+					(mwc() % opt_hdd_bytes) & ~511;
 				ssize_t ret;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
