@@ -105,7 +105,7 @@ static const hdd_opts_t hdd_opts[] = {
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_RND),
 		POSIX_FADV_SEQUENTIAL, 0 },
 #endif
-#if defined(POSIX_FADV_RND) && !defined(__gnu_hurd__)
+#if defined(POSIX_FADV_RANDOM) && !defined(__gnu_hurd__)
 	{ "fadv-rnd",	HDD_OPT_FADV_RND,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_SEQ),
 		POSIX_FADV_RANDOM, 0 },
@@ -198,7 +198,7 @@ int stress_hdd_opts(char *opts)
  */
 static int stress_hdd_advise(const char *name, const int fd, const int flags)
 {
-#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RND) || \
+#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
     defined(POSIX_FADV_DONTNEED)) && !defined(__gnu_hurd__)
 	int i;
