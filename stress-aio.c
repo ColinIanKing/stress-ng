@@ -143,9 +143,9 @@ static int issue_aio_request(
 	const int request,
 	int (*aio_func)(struct aiocb *aiocbp) )
 {
-	int ret;
-
 	while (opt_do_run) {
+		int ret;
+
 		io_req->request = request;
 		io_req->status = EINPROGRESS;
 		io_req->aiocb.aio_fildes = fd;
