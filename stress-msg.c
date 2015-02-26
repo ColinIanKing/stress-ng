@@ -92,8 +92,8 @@ int stress_msg(
 				if (opt_flags & OPT_FLAGS_VERIFY) {
 					memcpy(&v, msg.msg, sizeof(v));
 					if (v != i)
-						pr_fail(stderr, "msgrcv: expected msg containing 0x%" PRIx64
-							" but received 0x%" PRIx64 " instead\n", i, v);
+						pr_fail(stderr, "%s: msgrcv: expected msg containing 0x%" PRIx64
+							" but received 0x%" PRIx64 " instead\n", name, i, v);
 				}
 			}
 			exit(EXIT_SUCCESS);

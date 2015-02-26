@@ -113,13 +113,13 @@ int stress_tsearch(
 			result = tfind(&data[i], &root, cmp);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail(stderr, "element %zu could not be found\n", i);
+					pr_fail(stderr, "%s: element %zu could not be found\n", name, i);
 				else {
 					int32_t *val;
 					val = *result;
 					if (*val != data[i])
-						pr_fail(stderr, "element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
-							i, *val, data[i]);
+						pr_fail(stderr, "%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
+							name, i, *val, data[i]);
 				}
 			}
 		}
@@ -129,7 +129,7 @@ int stress_tsearch(
 
 			result = tdelete(&data[i], &root, cmp);
 			if ((opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
-				pr_fail(stderr, "element %zu could not be found\n", i);
+				pr_fail(stderr, "%s: element %zu could not be found\n", name, i);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

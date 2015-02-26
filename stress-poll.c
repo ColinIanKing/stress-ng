@@ -43,7 +43,7 @@
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static int pipe_read(int fd, int n)
+static int pipe_read(const char *name, const int fd, const int n)
 {
 	char buf[POLL_BUF];
 	ssize_t ret;
@@ -56,7 +56,7 @@ redo:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			pr_fail(stderr, "pipe read error detected\n");
+			pr_fail(stderr, "%s: pipe read error detected\n", name);
 			return ret;
 		}
 		if (ret > 0) {
@@ -64,7 +64,7 @@ redo:
 
 			for (i = 0; i < ret; i++) {
 				if (buf[i] != '0' + n) {
-					pr_fail(stderr, "pipe read error, expecting different data on pipe\n");
+					pr_fail(stderr, "%s: pipe read error, expecting different data on pipe\n", name);
 					return ret;
 				}
 			}
@@ -160,13 +160,13 @@ abort:
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail(stderr, "poll failed with error: %d (%s)\n",
-				errno, strerror(errno));
+				pr_fail(stderr, "%s: poll failed with error: %d (%s)\n",
+					name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
 					if (fds[i].revents == POLLIN) {
-						if (pipe_read(fds[i].fd, i) < 0)
+						if (pipe_read(name, fds[i].fd, i) < 0)
 							break;
 					}
 				}
@@ -181,13 +181,13 @@ abort:
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail(stderr, "select failed with error: %d (%s)\n",
-					errno, strerror(errno));
+				pr_fail(stderr, "%s: select failed with error: %d (%s)\n",
+					name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
 					if (FD_ISSET(pipefds[i][0], &rfds)) {
-						if (pipe_read(pipefds[i][0], i) < 0)
+						if (pipe_read(name, pipefds[i][0], i) < 0)
 							break;
 					}
 					FD_SET(pipefds[i][0], &rfds);

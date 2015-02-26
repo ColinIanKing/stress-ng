@@ -178,7 +178,7 @@ int stress_chmod(
 		for (i = 0; modes[i]; i++) {
 			mask |= modes[i];
 			if (do_fchmod(fd, i, mask, all_mask) < 0) {
-				pr_fail(stderr, "%s fchmod: errno=%d (%s)\n",
+				pr_fail(stderr, "%s: fchmod: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			}
 			if (do_chmod(filename, i, mask, all_mask) < 0) {
@@ -187,7 +187,7 @@ int stress_chmod(
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
-				pr_fail(stderr, "%s chmod: errno=%d (%s)\n",
+				pr_fail(stderr, "%s: chmod: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			}
 		}

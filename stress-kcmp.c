@@ -85,9 +85,9 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 		if (rc < 0) {				\
 			pr_failed_err(name, "kcmp: " # type);\
 		} else {				\
-			pr_fail(stderr, "kcmp " # type 	\
+			pr_fail(stderr, "%s: kcmp " # type \
 			" returned %d, expected: %d\n",	\
-			rc, ret);			\
+			name, rc, ret);			\
 		}					\
 	}						\
 }

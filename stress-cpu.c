@@ -61,7 +61,7 @@
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
-typedef void (*stress_cpu_func)(void);
+typedef void (*stress_cpu_func)(const char *name);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -84,7 +84,7 @@ void stress_set_cpu_load(const char *optarg) {
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
-static void stress_cpu_sqrt(void)
+static void stress_cpu_sqrt(const char *name)
 {
 	int i;
 
@@ -93,7 +93,7 @@ static void stress_cpu_sqrt(void)
 		double r = sqrt((double)rnd) * sqrt((double)rnd);
 		if ((opt_flags & OPT_FLAGS_VERIFY) &&
 		    (uint64_t)rint(r) != rnd) {
-			pr_fail(stderr, "sqrt error detected on sqrt(%" PRIu64 ")\n", rnd);
+			pr_fail(stderr, "%s: sqrt error detected on sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!opt_do_run)
 				break;
 		}
@@ -104,14 +104,14 @@ static void stress_cpu_sqrt(void)
  *  We need to stop gcc optimising out the loop additions.. sigh
  */
 #if __GNUC__ && !defined(__clang__)
-static void stress_cpu_loop(void)  __attribute__((optimize("-O0")));
+static void stress_cpu_loop(const char *)  __attribute__((optimize("-O0")));
 #endif
 
 /*
  *  stress_cpu_loop()
  *	simple CPU busy loop
  */
-static void stress_cpu_loop(void)
+static void stress_cpu_loop(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 134209536UL;
@@ -123,16 +123,16 @@ static void stress_cpu_loop(void)
 #endif
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "cpu loop 0..16383 sum was %" PRIu32 " and "
+		pr_fail(stderr, "%s: cpu loop 0..16383 sum was %" PRIu32 " and "
 			"did not match the expected value of %" PRIu32 "\n",
-			i_sum, sum);
+			name, i_sum, sum);
 }
 
 /*
  *  stress_cpu_gcd()
  *	compute Greatest Common Divisor
  */
-static void stress_cpu_gcd(void)
+static void stress_cpu_gcd(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 63000868UL;
@@ -151,7 +151,7 @@ static void stress_cpu_gcd(void)
 #endif
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "gcd error detected, failed modulo or assigment operations\n");
+		pr_fail(stderr, "%s: gcd error detected, failed modulo or assigment operations\n", name);
 }
 
 /*
@@ -159,7 +159,7 @@ static void stress_cpu_gcd(void)
  *	various bit manipulation hacks from bithacks
  *	https://graphics.stanford.edu/~seander/bithacks.html
  */
-static void stress_cpu_bitops(void)
+static void stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 0x8aadcaab;
@@ -205,17 +205,19 @@ static void stress_cpu_bitops(void)
 		}
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "bitops error detected, failed bitops operations\n");
+		pr_fail(stderr, "%s: bitops error detected, failed bitops operations\n", name);
 }
 
 /*
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-static void stress_cpu_trig(void)
+static void stress_cpu_trig(const char *name)
 {
 	int i;
 	long double d_sum = 0.0;
+
+	(void)name;
 
 	for (i = 0; i < 1500; i++) {
 		long double theta = (2.0 * M_PI * (double)i)/1500.0;
@@ -246,10 +248,12 @@ static void stress_cpu_trig(void)
  *  stress_cpu_hyperbolic()
  *	simple hyperbolic sinh, cosh functions
  */
-static void stress_cpu_hyperbolic(void)
+static void stress_cpu_hyperbolic(const char *name)
 {
 	int i;
 	double d_sum = 0.0;
+
+	(void)name;
 
 	for (i = 0; i < 1500; i++) {
 		long double theta = (2.0 * M_PI * (double)i)/1500.0;
@@ -280,7 +284,7 @@ static void stress_cpu_hyperbolic(void)
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
-static void stress_cpu_rand(void)
+static void stress_cpu_rand(const char *name)
 {
 	int i;
 	uint32_t i_sum = 0;
@@ -291,14 +295,14 @@ static void stress_cpu_rand(void)
 		i_sum += mwc();
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "rand error detected, failed sum of pseudo-random values\n");
+		pr_fail(stderr, "%s: rand error detected, failed sum of pseudo-random values\n", name);
 }
 
 /*
  *  stress_cpu_nsqrt()
  *	iterative Newton–Raphson square root
  */
-static void stress_cpu_nsqrt(void)
+static void stress_cpu_nsqrt(const char *name)
 {
 	int i;
 	const long double precision = 1.0e-12;
@@ -322,9 +326,9 @@ static void stress_cpu_nsqrt(void)
 
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (j >= max_iter)
-				pr_fail(stderr, "Newton-Raphson sqrt computation took more iterations than expected\n");
+				pr_fail(stderr, "%s: Newton-Raphson sqrt computation took more iterations than expected\n", name);
 			if ((int)rintl(rt * rt) != i)
-				pr_fail(stderr, "Newton-Rapshon sqrt not accurate enough\n");
+				pr_fail(stderr, "%s: Newton-Rapshon sqrt not accurate enough\n", name);
 		}
 	}
 }
@@ -333,7 +337,7 @@ static void stress_cpu_nsqrt(void)
  *  stress_cpu_phi()
  *	compute the Golden Ratio
  */
-static void stress_cpu_phi(void)
+static void stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
 	const long double precision = 1.0e-15;
@@ -359,7 +363,7 @@ static void stress_cpu_phi(void)
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) &&
 	    (fabsl(phi - phi_) > precision))
-		pr_fail(stderr, "Golden Ratio phi not accurate enough\n");
+		pr_fail(stderr, "%s: Golden Ratio phi not accurate enough\n", name);
 }
 
 /*
@@ -389,10 +393,12 @@ static void fft_partial(double complex *data, double complex *tmp, const int n, 
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static void stress_cpu_fft(void)
+static void stress_cpu_fft(const char *name)
 {
 	double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
+
+	(void)name;
 
 	for (i = 0; i < FFT_SIZE; i++)
 		buf[i] = (double complex)(i % 63);
@@ -405,7 +411,7 @@ static void stress_cpu_fft(void)
  *   stress_cpu_euler()
  *	compute e using series
  */
-static void stress_cpu_euler(void)
+static void stress_cpu_euler(const char *name)
 {
 	long double e = 1.0, last_e = e;
 	long double fact = 1.0;
@@ -420,7 +426,7 @@ static void stress_cpu_euler(void)
 	} while ((n < 25) && (fabsl(e - last_e) > precision));
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (n >= 25))
-		pr_fail(stderr, "euler computation took more iterations than expected\n");
+		pr_fail(stderr, "%s: Euler computation took more iterations than expected\n", name);
 }
 
 /*
@@ -451,6 +457,7 @@ static void random_buffer(uint8_t *data, const size_t len)
  */
 static void stress_cpu_hash_generic(
 	const char *name,
+	const char *hash_name,
 	uint32_t (*hash_func)(const char *str),
 	const uint32_t result)
 {
@@ -469,8 +476,8 @@ static void stress_cpu_hash_generic(
 		i_sum += hash_func(buffer);
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != result))
-		pr_fail(stderr, "%s error detected, failed hash %s sum\n",
-			name, name);
+		pr_fail(stderr, "%s: %s error detected, failed hash %s sum\n",
+			name, hash_name, hash_name);
 }
 
 
@@ -500,7 +507,7 @@ static uint32_t jenkin(const uint8_t *data, const size_t len)
  *  stress_cpu_jenkin()
  *	multiple iterations on jenkin hash
  */
-static void stress_cpu_jenkin(void)
+static void stress_cpu_jenkin(const char *name)
 {
 	uint8_t buffer[128];
 	size_t i;
@@ -513,7 +520,7 @@ static void stress_cpu_jenkin(void)
 		i_sum += jenkin(buffer, sizeof(buffer));
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail(stderr, "jenkin error detected, failed hash jenkin sum\n");
+		pr_fail(stderr, "%s: jenkin error detected, failed hash jenkin sum\n", name);
 }
 
 /*
@@ -540,9 +547,9 @@ static uint32_t pjw(const char *str)
  *  stress_cpu_pjw()
  *	stress test hash pjw
  */
-static void stress_cpu_pjw(void)
+static void stress_cpu_pjw(const char *name)
 {
-	stress_cpu_hash_generic("pjw", pjw, 0xa89a91c0);
+	stress_cpu_hash_generic(name, "pjw", pjw, 0xa89a91c0);
 }
 
 /*
@@ -565,9 +572,9 @@ static uint32_t djb2a(const char *str)
  *  stress_cpu_djb2a()
  *	stress test hash djb2a
  */
-static void stress_cpu_djb2a(void)
+static void stress_cpu_djb2a(const char *name)
 {
-	stress_cpu_hash_generic("djb2a", djb2a, 0x6a60cb5a);
+	stress_cpu_hash_generic(name, "djb2a", djb2a, 0x6a60cb5a);
 }
 
 /*
@@ -591,9 +598,9 @@ static uint32_t fnv1a(const char *str)
  *  stress_cpu_fnv1a()
  *	stress test hash fnv1a
  */
-static void stress_cpu_fnv1a(void)
+static void stress_cpu_fnv1a(const char *name)
 {
-	stress_cpu_hash_generic("fnv1a", fnv1a, 0x8ef17e80);
+	stress_cpu_hash_generic(name, "fnv1a", fnv1a, 0x8ef17e80);
 }
 
 /*
@@ -615,16 +622,16 @@ static uint32_t sdbm(const char *str)
  *  stress_cpu_sdbm()
  *	stress test hash sdbm
  */
-static void stress_cpu_sdbm(void)
+static void stress_cpu_sdbm(const char *name)
 {
-	stress_cpu_hash_generic("sdbm", sdbm, 0x46357819);
+	stress_cpu_hash_generic(name, "sdbm", sdbm, 0x46357819);
 }
 
 /*
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
-static void stress_cpu_idct(void)
+static void stress_cpu_idct(const char *name)
 {
 	const double invsqrt2 = 1.0 / sqrt(2.0);
 	const double pi_over_16 = M_PI / 16.0;
@@ -667,8 +674,8 @@ static void stress_cpu_idct(void)
 		for (j = 0; j < sz; j++) {
 			if (((int)idct[i][j] != 255) &&
 			    (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "IDCT error detected, IDCT[%d][%d] was %d, expecting 255\n",
-					i, j, (int)idct[i][j]);
+				pr_fail(stderr, "%s: IDCT error detected, IDCT[%d][%d] was %d, expecting 255\n",
+					name, i, j, (int)idct[i][j]);
 			}
 			if (!opt_do_run)
 				return;
@@ -713,7 +720,7 @@ static void stress_cpu_idct(void)
  *  Generic int stressor macro
  */
 #define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
-static void stress_cpu_int ## _sz(void)				\
+static void stress_cpu_int ## _sz(const char *name)		\
 {								\
 	const _type mask = ~0;					\
 	const _type a_final = _a;				\
@@ -734,9 +741,9 @@ static void stress_cpu_int ## _sz(void)				\
 								\
 	if ((opt_flags & OPT_FLAGS_VERIFY) &&			\
 	    ((a != a_final) || (b != b_final)))			\
-		pr_fail(stderr, "int" # _sz " error detected, "	\
+		pr_fail(stderr, "%s: int" # _sz " error detected, " \
 			"failed int" # _sz 			\
-			" math operations\n");			\
+			" math operations\n", name);		\
 }								\
 
 /* For compilers that support int128 .. */
@@ -790,10 +797,12 @@ stress_cpu_int(uint8_t, 8, \
  *  Generic floating point stressor macro
  */
 #define stress_cpu_fp(_type, _name, _sin, _cos)		\
-static void stress_cpu_ ## _name(void)			\
+static void stress_cpu_ ## _name(const char *name)	\
 {							\
 	int i;						\
 	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
+							\
+	(void)name;					\
 							\
 	for (i = 0; i < 1000; i++) {			\
 		float_ops(_type, a, b, c, d,		\
@@ -815,12 +824,14 @@ stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
  *  Generic complex stressor macro
  */
 #define stress_cpu_complex(_type, _name, _csin, _ccos)	\
-static void stress_cpu_ ## _name(void)			\
+static void stress_cpu_ ## _name(const char *name)	\
 {							\
 	int i;						\
 	_type a = 0.18728 + I * 0.2762,			\
 		b = mwc() - I * 0.11121,		\
 		c = mwc() + I * mwc(), d;		\
+							\
+	(void)name;					\
 							\
 	for (i = 0; i < 1000; i++) {			\
 		float_ops(_type, a, b, c, d,		\
@@ -885,7 +896,7 @@ stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
  */
 #define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
 	_c1, _c2, _c3, _sinf, _cosf)				\
-static void stress_cpu_int ## _sz ## _ ## _name(void)		\
+static void stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 {								\
 	int i;							\
 	_inttype int_a, int_b;					\
@@ -908,9 +919,9 @@ static void stress_cpu_int ## _sz ## _ ## _name(void)		\
 	}							\
 	if ((opt_flags & OPT_FLAGS_VERIFY) &&			\
 	    ((int_a != a_final) || (int_b != b_final)))		\
-		pr_fail(stderr, "int" # _sz " error detected, "	\
+		pr_fail(stderr, "%s: int" # _sz " error detected, "\
 			"failed int" # _sz 			\
-			" math operations\n");			\
+			" math operations\n", name);		\
 								\
 	double_put(flt_a + flt_b + flt_c + flt_d);		\
 }
@@ -973,13 +984,15 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
  *  stress_cpu_rgb()
  *	CCIR 601 RGB to YUV to RGB conversion
  */
-static void stress_cpu_rgb(void)
+static void stress_cpu_rgb(const char *name)
 {
 	int i;
 	uint32_t rgb = mwc() & 0xffffff;
 	uint8_t r = rgb >> 16;
 	uint8_t g = rgb >> 8;
 	uint8_t b = rgb;
+
+	(void)name;
 
 	/* Do a 1000 colours starting from the rgb seed */
 	for (i = 0; i < 1000; i++) {
@@ -1007,7 +1020,7 @@ static void stress_cpu_rgb(void)
  *  stress_cpu_matrix_prod(void)
  *	matrix product
  */
-static void stress_cpu_matrix_prod(void)
+static void stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 	const int n = 128;
@@ -1015,6 +1028,8 @@ static void stress_cpu_matrix_prod(void)
 	long double a[n][n], b[n][n], r[n][n];
 	long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0;
+
+	(void)name;
 
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
@@ -1042,7 +1057,7 @@ static void stress_cpu_matrix_prod(void)
  *   stress_cpu_fibonacci()
  *	compute fibonacci series
  */
-static void stress_cpu_fibonacci(void)
+static void stress_cpu_fibonacci(const char *name)
 {
 	const uint64_t fn_res = 0xa94fad42221f2702ULL;
 	register uint64_t f1 = 0, f2 = 1, fn;
@@ -1054,7 +1069,7 @@ static void stress_cpu_fibonacci(void)
 	} while (!(fn & 0x8000000000000000ULL));
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (fn_res != fn))
-		pr_fail(stderr, "fibonacci error detected, summation or assignment failure\n");
+		pr_fail(stderr, "%s: fibonacci error detected, summation or assignment failure\n", name);
 }
 
 /*
@@ -1062,7 +1077,7 @@ static void stress_cpu_fibonacci(void)
  *	compute the constant psi,
  * 	the reciprocal Fibonacci constant
  */
-static void stress_cpu_psi(void)
+static void stress_cpu_psi(const char *name)
 {
 	long double f1 = 0.0, f2 = 1.0;
 	long double psi = 0.0, last_psi;
@@ -1081,9 +1096,9 @@ static void stress_cpu_psi(void)
 
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (fabsl(psi - PSI) > 1.0e-15)
-			pr_fail(stderr, "calculation of reciprocal Fibonacci constant phi not as accurate as expected\n");
+			pr_fail(stderr, "%s: calculation of reciprocal Fibonacci constant phi not as accurate as expected\n", name);
 		if (i >= max_iter)
-			pr_fail(stderr, "calculation of reciprocal Fibonacci constant took more iterations than expected\n");
+			pr_fail(stderr, "%s: calculation of reciprocal Fibonacci constant took more iterations than expected\n", name);
 	}
 
 	double_put(psi);
@@ -1093,7 +1108,7 @@ static void stress_cpu_psi(void)
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
-static void stress_cpu_ln2(void)
+static void stress_cpu_ln2(const char *name)
 {
 	long double ln2 = 0.0, last_ln2 = 0.0;
 	long double precision = 1.0e-7;
@@ -1115,7 +1130,7 @@ static void stress_cpu_ln2(void)
 	} while ((n < max_iter) && (fabsl(ln2 - last_ln2) > precision));
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter))
-		pr_fail(stderr, "calculation of ln(2) took more iterations than expected\n");
+		pr_fail(stderr, "%s: calculation of ln(2) took more iterations than expected\n", name);
 
 	double_put(ln2);
 }
@@ -1138,22 +1153,24 @@ static uint32_t ackermann(const uint32_t m, const uint32_t n)
  *   stress_cpu_ackermann
  *	compute ackermann function
  */
-static void stress_cpu_ackermann(void)
+static void stress_cpu_ackermann(const char *name)
 {
 	uint32_t a = ackermann(3, 10);
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (a != 0x1ffd))
-		pr_fail(stderr, "ackermann error detected, ackermann(3,10) miscalculated\n");
+		pr_fail(stderr, "%s: ackermann error detected, ackermann(3,10) miscalculated\n", name);
 }
 
 /*
  *   stress_cpu_explog
  *	compute exp(log(n))
  */
-static void stress_cpu_explog(void)
+static void stress_cpu_explog(const char *name)
 {
 	uint32_t i;
 	double n = 1e6;
+
+	(void)name;
 
 	for (i = 1; i < 100000; i++)
 		n = exp(log(n) / 1.00002);
@@ -1163,7 +1180,7 @@ static void stress_cpu_explog(void)
  *  Undocumented gcc-ism, force -O0 optimisation
  */
 #if __GNUC__ && !defined(__clang__)
-static void stress_cpu_jmp(void)  __attribute__((optimize("-O0")));
+static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
 #endif
 
 /*
@@ -1181,9 +1198,11 @@ static void stress_cpu_jmp(void)  __attribute__((optimize("-O0")));
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static void stress_cpu_jmp(void)
+static void stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
+
+	(void)name;
 
 	for (i = 1; i < 1000; i++) {
 		/* Force lots of compare jmps */
@@ -1246,10 +1265,12 @@ static uint16_t ccitt_crc16(const uint8_t *data, size_t n)
  *   stress_cpu_crc16
  *	compute 1024 rounds of CCITT CRC16
  */
-static void stress_cpu_crc16(void)
+static void stress_cpu_crc16(const char *name)
 {
 	uint8_t buffer[1024];
 	size_t i;
+
+	(void)name;
 
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
@@ -1279,10 +1300,12 @@ static inline long double complex zeta(
  * stress_cpu_zeta()
  *	stress test Zeta(2.0)..Zeta(10.0)
  */
-static void stress_cpu_zeta(void)
+static void stress_cpu_zeta(const char *name)
 {
 	long double precision = 0.00000001;
 	double f;
+
+	(void)name;
 
 	for (f = 2.0; f < 11.0; f += 1.0)
 		double_put(zeta(f, precision));
@@ -1292,7 +1315,7 @@ static void stress_cpu_zeta(void)
  * stress_cpu_gamma()
  *	stress Euler–Mascheroni constant gamma
  */
-static void stress_cpu_gamma(void)
+static void stress_cpu_gamma(const char *name)
 {
 	long double precision = 1.0e-10;
 	long double sum = 0.0, k = 1.0, gamma = 0.0, gammaold;
@@ -1308,9 +1331,9 @@ static void stress_cpu_gamma(void)
 
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (fabsl(gamma - GAMMA) > 1.0e-5)
-			pr_fail(stderr, "calculation of Euler-Mascheroni constant not as accurate as expected\n");
+			pr_fail(stderr, "%s: calculation of Euler-Mascheroni constant not as accurate as expected\n", name);
 		if (k > 80000.0)
-			pr_fail(stderr, "calculation of Euler-Mascheroni constant took more iterations than expected\n");
+			pr_fail(stderr, "%s: calculation of Euler-Mascheroni constant took more iterations than expected\n", name);
 	}
 
 }
@@ -1321,13 +1344,15 @@ static void stress_cpu_gamma(void)
  *  Introduction to Signal Processing,
  *  Prentice-Hall, 1995, ISBN: 0-13-209172-0.
  */
-static void stress_cpu_correlate(void)
+static void stress_cpu_correlate(const char *name)
 {
 	const size_t data_len = 16384;
 	const size_t corr_len = data_len / 16;
 	size_t i, j;
 	double data_average = 0.0;
 	double data[data_len], corr[corr_len + 1];
+
+	(void)name;
 
 	/* Generate some random data */
 	for (i = 0; i < data_len; i++) {
@@ -1353,7 +1378,7 @@ static void stress_cpu_correlate(void)
  * stress_cpu_sieve()
  * 	slightly optimised Sieve of Eratosthenes
  */
-static void stress_cpu_sieve(void)
+static void stress_cpu_sieve(const char *name)
 {
 	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
 	uint32_t sieve[(SIEVE_SIZE + 31) / 32];
@@ -1371,7 +1396,7 @@ static void stress_cpu_sieve(void)
 			j++;
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (j != 664579))
-		pr_fail(stderr, "sieve error detected, number of primes has been miscalculated\n");
+		pr_fail(stderr, "%s: sieve error detected, number of primes has been miscalculated\n", name);
 }
 
 /*
@@ -1398,7 +1423,7 @@ static inline bool is_prime(uint32_t n)
  *  stress_cpu_prime()
  *
  */
-static void stress_cpu_prime(void)
+static void stress_cpu_prime(const char *name)
 {
 	uint32_t i, nprimes = 0;
 
@@ -1408,14 +1433,14 @@ static void stress_cpu_prime(void)
 	}
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 78498))
-		pr_fail(stderr, "prime error detected, number of primes between 0 and 1000000 miscalculated\n");
+		pr_fail(stderr, "%s: prime error detected, number of primes between 0 and 1000000 miscalculated\n", name);
 }
 
 /*
  *  stress_cpu_gray()
  *	compute gray codes
  */
-static void stress_cpu_gray(void)
+static void stress_cpu_gray(const char *name)
 {
 	uint32_t i;
 	uint64_t sum = 0;
@@ -1433,8 +1458,8 @@ static void stress_cpu_gray(void)
 		sum += gray_code;
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff0000))
-		pr_fail(stderr, "gray code error detected, sum of gray codes "
-			"between 0x00000 and 0x10000 miscalculated\n");
+		pr_fail(stderr, "%s: gray code error detected, sum of gray codes "
+			"between 0x00000 and 0x10000 miscalculated\n", name);
 }
 
 /*
@@ -1462,12 +1487,12 @@ static uint32_t hanoi(
  *  stress_cpu_hanoi
  *	stress with recursive Towers of Hanoi
  */
-static void stress_cpu_hanoi(void)
+static void stress_cpu_hanoi(const char *name)
 {
 	uint32_t n = hanoi(20, 'X', 'Y', 'Z');
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (n != 1048576))
-		pr_fail(stderr, "number of hanoi moves different from the expected number\n");
+		pr_fail(stderr, "%s: number of hanoi moves different from the expected number\n", name);
 
 	uint64_put(n);
 }
@@ -1492,7 +1517,7 @@ static long double factorial(int n)
  *	compute pi using the Srinivasa Ramanujan
  *	fast convergence algorithm
  */
-static void stress_cpu_pi(void)
+static void stress_cpu_pi(const char *name)
 {
 	long double s = 0.0, pi = 0.0, last_pi = 0.0;
 	const long double precision = 1.0e-20;
@@ -1512,9 +1537,9 @@ static void stress_cpu_pi(void)
 	/* Quick sanity checks */
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (k >= max_iter)
-			pr_fail(stderr, "number of iterations to compute pi was more than expected\n");
+			pr_fail(stderr, "%s: number of iterations to compute pi was more than expected\n", name);
 		if (fabsl(pi - M_PI) > 1.0e-15)
-			pr_fail(stderr, "accuracy of computed pi is not as good as expected\n");
+			pr_fail(stderr, "%s: accuracy of computed pi is not as good as expected\n", name);
 	}
 
 	double_put(pi);
@@ -1525,7 +1550,7 @@ static void stress_cpu_pi(void)
  *	compute the constant omega
  *	See http://en.wikipedia.org/wiki/Omega_constant
  */
-static void stress_cpu_omega(void)
+static void stress_cpu_omega(const char *name)
 {
 	long double omega = 0.5, last_omega = 0.0;
 	const long double precision = 1.0e-20;
@@ -1541,9 +1566,9 @@ static void stress_cpu_omega(void)
 
 	if (opt_flags & OPT_FLAGS_VERIFY) {
 		if (n >= max_iter)
-			pr_fail(stderr, "number of iterations to compute omega was more than expected\n");
+			pr_fail(stderr, "%s: number of iterations to compute omega was more than expected\n", name);
 		if (fabsl(omega - OMEGA) > 1.0e-16)
-			pr_fail(stderr, "accuracy of computed omega is not as good as expected\n");
+			pr_fail(stderr, "%s: accuracy of computed omega is not as good as expected\n", name);
 	}
 
 	double_put(omega);
@@ -1611,7 +1636,7 @@ static uint8_t hamming84(const uint8_t nybble)
  *  stress_cpu_hamming()
  *	compute hamming code on 65536 x 4 nybbles
  */
-static void stress_cpu_hamming(void)
+static void stress_cpu_hamming(const char *name)
 {
 	uint32_t i;
 	uint32_t sum = 0;
@@ -1629,18 +1654,18 @@ static void stress_cpu_hamming(void)
 	}
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff8000))
-		pr_fail(stderr, "hamming error detected, sum of 65536 hamming codes not correct\n");
+		pr_fail(stderr, "%s: hamming error detected, sum of 65536 hamming codes not correct\n", name);
 }
 
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
-static void stress_cpu_all(void)
+static void stress_cpu_all(const char *name)
 {
 	static int i = 1;	/* Skip over stress_cpu_all */
 
-	cpu_methods[i++].func();
+	cpu_methods[i++].func(name);
 	if (!cpu_methods[i].func)
 		i = 1;
 }
@@ -1769,7 +1794,7 @@ int stress_cpu(
 	 */
 	if (opt_cpu_load == 100) {
 		do {
-			(void)func();
+			(void)func(name);
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		return EXIT_SUCCESS;
@@ -1797,7 +1822,7 @@ int stress_cpu(
 
 		gettimeofday(&tv1, NULL);
 		for (j = 0; j < 64; j++) {
-			(void)func();
+			(void)func(name);
 			if (!opt_do_run)
 				break;
 			(*counter)++;

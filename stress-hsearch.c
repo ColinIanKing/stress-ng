@@ -112,10 +112,10 @@ int stress_hsearch(
 			ep = hsearch(e, FIND);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ep == NULL) {
-					pr_fail(stderr, "cannot find key %s\n", keys[i]);
+					pr_fail(stderr, "%s: cannot find key %s\n", name, keys[i]);
 				} else {
 					if (i != (size_t)ep->data) {
-						pr_fail(stderr, "hash returned incorrect data %zd\n", i);
+						pr_fail(stderr, "%s: hash returned incorrect data %zd\n", name, i);
 					}
 				}
 			}

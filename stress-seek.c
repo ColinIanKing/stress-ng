@@ -135,7 +135,7 @@ re_read:
 		}
 		if ((ret != sizeof(tmp)) &&
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
-			pr_fail(stderr, "incorrect read size, expecting 512 bytes");
+			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", name);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

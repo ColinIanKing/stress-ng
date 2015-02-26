@@ -87,20 +87,20 @@ static void stress_mmap_set(uint8_t *buf, const size_t sz)
  *  stress_mmap_mprotect()
  *	cycle through page settings on a region of mmap'd memory
  */
-static void stress_mmap_mprotect(void *addr, size_t len)
+static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 {
 	if (opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
-			pr_fail(stderr, "mprotect set to PROT_NONE failed\n");
+			pr_fail(stderr, "%s: mprotect set to PROT_NONE failed\n", name);
 		if (mprotect(addr, len, PROT_READ) < 0)
-			pr_fail(stderr, "mprotect set to PROT_READ failed\n");
+			pr_fail(stderr, "%s: mprotect set to PROT_READ failed\n", name);
 		if (mprotect(addr, len, PROT_WRITE) < 0)
-			pr_fail(stderr, "mprotect set to PROT_WRITE failed\n");
+			pr_fail(stderr, "%s: mprotect set to PROT_WRITE failed\n", name);
 		if (mprotect(addr, len, PROT_EXEC) < 0)
-			pr_fail(stderr, "mprotect set to PROT_EXEC failed\n");
+			pr_fail(stderr, "%s: mprotect set to PROT_EXEC failed\n", name);
 		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
-			pr_fail(stderr, "mprotect set to PROT_READ | PROT_WRITE failed\n");
+			pr_fail(stderr, "%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
 	}
 }
 
@@ -206,7 +206,7 @@ redo:
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
-		stress_mmap_mprotect(buf, sz);
+		stress_mmap_mprotect(name, buf, sz);
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -215,8 +215,8 @@ redo:
 		stress_mmap_set(buf, sz);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (stress_mmap_check(buf, sz) < 0)
-				pr_fail(stderr, "mmap'd region of %zu bytes does "
-					"not contain expected data\n", sz);
+				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
+					"not contain expected data\n", name, sz);
 		}
 
 		/*
@@ -230,7 +230,7 @@ redo:
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
-					stress_mmap_mprotect(mappings[page], page_size);
+					stress_mmap_mprotect(name, mappings[page], page_size);
 					munmap(mappings[page], page_size);
 					n--;
 					break;
@@ -263,13 +263,13 @@ redo:
 					} else {
 						(void)mincore_touch_pages(buf, page_size);
 						(void)madvise_random(mappings[page], page_size);
-						stress_mmap_mprotect(mappings[page], page_size);
+						stress_mmap_mprotect(name, mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size);
 						if (stress_mmap_check(mappings[page], page_size) < 0)
-							pr_fail(stderr, "mmap'd region of %zu bytes does "
-								"not contain expected data\n", page_size);
+							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
+								"not contain expected data\n", name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
 #if !defined(__gnu_hurd__)
@@ -292,7 +292,7 @@ cleanup:
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
-				stress_mmap_mprotect(mappings[n], page_size);
+				stress_mmap_mprotect(name, mappings[n], page_size);
 				munmap(mappings[n], page_size);
 			}
 		}
