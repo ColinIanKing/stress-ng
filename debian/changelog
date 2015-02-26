@@ -1,3 +1,30 @@
+stress-ng (0.03.20-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * sched: Fix build warning on get_sched_name on GNU HURD
+  * stress-hdd: Fix incorrect format specifier %zu for a uint64_t
+  * stress-fallocate: Fix off_t printf warnings on 32 bit GNU HURD
+  * Fix resource leak (file descriptor) on error exit of stress-hdd
+  * Fix Manual, clarify the action of hdd stressor
+  * stress-aio: reduce scope of ret
+  * Fix missing stressor name in pr_err() messages
+  * Fix missing stressor name in pr_inf() and pr_dbg() messages
+  * Fix missing stressor name in pr_fail() messages
+  * stress-hdd: fix verify mode for hdd stressor
+  * stress-hdd: fix missing read if no read preference specified
+  * sched: fix default priority levels and lack of class name in messages
+  * stress-hdd: fix read of end of file when generated with random writes
+  * Fix extraneous leading space after the "hogs:" message
+  * stress-hdd: fix false error reports on short reads
+  * stress-hdd: fix noisy "incomplete reads" debug message
+  * stress-fallocate: fix incorrect errors reported on fallocate sizes
+  * stress-fallocate: fix error messages, they are rather meaningless
+  * stress-aio: report correct errno on async error
+  * stress-aio: handle EAGAIN and EINTR correctly
+  * stress-hdd: POSIX_FADV_RND should be POSIX_FADV_RANDOM
+
+ -- Colin King <colin.king@canonical.com>  Thu, 26 Feb 2015 17:17:00 +0000
+
 stress-ng (0.03.19-1) unstable; urgency=medium
 
   * Makefile: bump version
