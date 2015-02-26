@@ -53,7 +53,7 @@
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*inotify_helper)(const char *path, const void *private);
+typedef int (*inotify_helper)(const char *name, const char *path, const void *private);
 typedef void (*inotify_func)(const char *name, const char *path);
 
 typedef struct {
@@ -105,7 +105,7 @@ retry:
 		return;
 	}
 
-	if (func(filename, private) < 0)
+	if (func(name, filename, private) < 0)
 		goto cleanup;
 
 	while (check_flags) {
@@ -125,8 +125,8 @@ retry:
 		err = select(fd + 1, &rfds, NULL, NULL, &tv);
 		if (err == -1) {
 			if (errno != EINTR)
-				pr_err(stderr, "select error: errno=%d (%s)\n",
-					errno, strerror(errno));
+				pr_err(stderr, "%s: select error: errno=%d (%s)\n",
+					name, errno, strerror(errno));
 			break;
 		} else if (err == 0) {
 			if (opt_flags & OPT_FLAGS_VERIFY)
@@ -169,8 +169,8 @@ redo:
 cleanup:
 	(void)inotify_rm_watch(fd, wd);
 	if (close(fd) < 0) {
-		pr_err(stderr, "close error: errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "%s: close error: errno=%d (%s)\n",
+			name, errno, strerror(errno));
 	}
 }
 
@@ -178,11 +178,11 @@ cleanup:
  *  rm_file()
  *	remove a file
  */
-static int rm_file(const char *path)
+static int rm_file(const char *name, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
-		pr_err(stderr, "cannot remove file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot remove file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -192,7 +192,7 @@ static int rm_file(const char *path)
  *  rm_dir()
  *	clean files in directory and directory
  */
-static int rm_dir(const char *path)
+static int rm_dir(const char *name, const char *path)
 {
 	DIR *dp;
 	int ret;
@@ -209,14 +209,14 @@ static int rm_dir(const char *path)
 				continue;
 
 			snprintf(filename, sizeof(filename), "%s/%s", path, d->d_name);
-			(void)rm_file(filename);
+			(void)rm_file(name, filename);
 		}
 		(void)closedir(dp);
 	}
 	ret = rmdir(path);
 	if (ret < 0 && errno != ENOENT)
-		pr_err(stderr, "cannot remove directory %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot remove directory %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 	return ret;
 }
 
@@ -224,11 +224,11 @@ static int rm_dir(const char *path)
  *  mk_dir()
  *	make a directory
  */
-static int mk_dir(const char *path)
+static int mk_dir(const char *name, const char *path)
 {
 	if (mkdir(path, DIR_FLAGS) < 0) {
-		pr_err(stderr, "cannot mkdir %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot mkdir %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -251,17 +251,17 @@ static void mk_filename(
  *  mk_file()
  *	create file of length len bytes
  */
-static int mk_file(const char *filename, const size_t len)
+static int mk_file(const char *name, const char *filename, const size_t len)
 {
 	int fd;
 	size_t sz = len;
 
 	char buffer[BUF_SIZE];
 
-	(void)rm_file(filename);
+	(void)rm_file(name, filename);
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "cannot create file %s: errno=%d (%s)\n",
-			filename, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+			name, filename, errno, strerror(errno));
 		return -1;
 	}
 
@@ -271,8 +271,8 @@ static int mk_file(const char *filename, const size_t len)
 		int ret;
 
 		if ((ret = write(fd, buffer, n)) < 0) {
-			pr_err(stderr, "error writing to file %s: errno=%d (%s)\n",
-				filename, errno, strerror(errno));
+			pr_err(stderr, "%s: error writing to file %s: errno=%d (%s)\n",
+				name, filename, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
 		}
@@ -280,20 +280,20 @@ static int mk_file(const char *filename, const size_t len)
 	}
 
 	if (close(fd) < 0) {
-		pr_err(stderr, "cannot close file %s: errno=%d (%s)\n",
-			filename, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot close file %s: errno=%d (%s)\n",
+			name, filename, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
 
-static int inotify_attrib_helper(const char *path, const void *dummy)
+static int inotify_attrib_helper(const char *name, const char *path, const void *dummy)
 {
 	(void)dummy;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
-		pr_err(stderr, "cannot chmod file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot chmod file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -304,14 +304,14 @@ void inotify_attrib_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_attrib_helper, IN_ATTRIB, NULL);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 }
 
-static int inotify_access_helper(const char *path, const void *dummy)
+static int inotify_access_helper(const char *name, const char *path, const void *dummy)
 {
 	int fd;
 	char buffer[1];
@@ -319,8 +319,8 @@ static int inotify_access_helper(const char *path, const void *dummy)
 
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
-		pr_err(stderr, "cannot open file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 
@@ -329,8 +329,8 @@ do_access:
 	if (opt_do_run && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
-		pr_err(stderr, "cannot read file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot read file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		rc = -1;
 	}
 	(void)close(fd);
@@ -342,24 +342,24 @@ static void inotify_access_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_access_helper, IN_ACCESS, NULL);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 }
 
-static int inotify_modify_helper(const char *path, const void *dummy)
+static int inotify_modify_helper(const char *name, const char *path, const void *dummy)
 {
 	int fd, rc = 0;
 	char buffer[1] = { 0 };
 
 	(void)dummy;
-	if (mk_file(path, 4096) < 0)
+	if (mk_file(name, path, 4096) < 0)
 		return -1;
 	if ((fd = open(path, O_RDWR)) < 0) {
-		pr_err(stderr, "cannot open file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		rc = -1;
 		goto remove;
 	}
@@ -367,13 +367,13 @@ do_modify:
 	if (opt_do_run && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
-		pr_err(stderr, "cannot write to file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot write to file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		rc = -1;
 	}
 	(void)close(fd);
 remove:
-	(void)rm_file(path);
+	(void)rm_file(name, path);
 	return rc;
 }
 
@@ -385,13 +385,13 @@ static void inotify_modify_file(const char *name, const char *path)
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_modify_helper, IN_MODIFY, NULL);
 }
 
-static int inotify_creat_helper(const char *path, const void *dummy)
+static int inotify_creat_helper(const char *name, const char *path, const void *dummy)
 {
 	(void)dummy;
 	int fd;
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "cannot create file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 	(void)close(fd);
@@ -404,17 +404,17 @@ static void inotify_creat_file(const char *name, const char *path)
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_creat_helper, IN_CREATE, NULL);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 }
 
-static int inotify_open_helper(const char *path, const void *dummy)
+static int inotify_open_helper(const char *name, const char *path, const void *dummy)
 {
 	int fd;
 
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
-		pr_err(stderr, "cannot open file %s: errno=%d (%s)\n",
-			path, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
 		return -1;
 	}
 	(void)close(fd);
@@ -426,17 +426,17 @@ static void inotify_open_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_open_helper, IN_OPEN, NULL);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 }
 
-static int inotify_delete_helper(const char *path, const void *dummy)
+static int inotify_delete_helper(const char *name, const char *path, const void *dummy)
 {
 	(void)dummy;
 
-	return rm_file(path);
+	return rm_file(name, path);
 }
 
 static void inotify_delete_file(const char *name, const char *path)
@@ -444,18 +444,18 @@ static void inotify_delete_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_delete_helper, IN_DELETE, NULL);
 	/* We remove (again) it just in case the test failed */
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 }
 
-static int inotify_delete_self_helper(const char *path, const void *dummy)
+static int inotify_delete_self_helper(const char *name, const char *path, const void *dummy)
 {
 	(void)dummy;
 
-	return rm_dir(path);
+	return rm_dir(name, path);
 }
 
 static void inotify_delete_self(const char *name, const char *path)
@@ -463,20 +463,20 @@ static void inotify_delete_self(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_dir");
-	if (mk_dir(filepath) < 0)
+	if (mk_dir(name, filepath) < 0)
 		return;
 	inotify_exercise(name, filepath, filepath, "inotify_dir", inotify_delete_self_helper, IN_DELETE_SELF, NULL);
 	/* We remove (again) in case the test failed */
-	(void)rm_dir(filepath);
+	(void)rm_dir(name, filepath);
 }
 
-static int inotify_move_self_helper(const char *oldpath, const void *private)
+static int inotify_move_self_helper(const char *name, const char *oldpath, const void *private)
 {
 	char *newpath = (char*)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "cannot rename %s to %s: errno=%d (%s)\n",
-			oldpath, newpath, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+			name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -487,22 +487,22 @@ static void inotify_move_self(const char *name, const char *path)
 	char filepath[PATH_MAX], newpath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_dir");
-	if (mk_dir(filepath) < 0)
+	if (mk_dir(name, filepath) < 0)
 		return;
 	mk_filename(newpath, PATH_MAX, path, "renamed_dir");
 
 	inotify_exercise(name, filepath, filepath, "inotify_dir", inotify_move_self_helper, IN_MOVE_SELF, newpath);
-	(void)rm_dir(newpath);
-	(void)rm_dir(filepath);	/* In case rename failed */
+	(void)rm_dir(name, newpath);
+	(void)rm_dir(name, filepath);	/* In case rename failed */
 }
 
-static int inotify_moved_to_helper(const char *newpath, const void *private)
+static int inotify_moved_to_helper(const char *name, const char *newpath, const void *private)
 {
 	char *oldpath = (char*)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "cannot rename %s to %s: errno=%d (%s)\n",
-			oldpath, newpath, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+			name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -513,26 +513,26 @@ static void inotify_moved_to(const char *name, const char *path)
 	char olddir[PATH_MAX], oldfile[PATH_MAX], newfile[PATH_MAX];
 
 	mk_filename(olddir, PATH_MAX, path, "new_dir");
-	(void)rm_dir(olddir);
-	if (mk_dir(olddir) < 0)
+	(void)rm_dir(name, olddir);
+	if (mk_dir(name, olddir) < 0)
 		return;
 	mk_filename(oldfile, PATH_MAX, olddir, "inotify_file");
-	if (mk_file(oldfile, 4096) < 0)
+	if (mk_file(name, oldfile, 4096) < 0)
 		return;
 
 	mk_filename(newfile, PATH_MAX, path, "inotify_file");
 	inotify_exercise(name, newfile, path, "inotify_dir", inotify_moved_to_helper, IN_MOVED_TO, oldfile);
-	(void)rm_file(newfile);
-	(void)rm_dir(olddir);
+	(void)rm_file(name, newfile);
+	(void)rm_dir(name, olddir);
 }
 
-static int inotify_moved_from_helper(const char *oldpath, const void *private)
+static int inotify_moved_from_helper(const char *name, const char *oldpath, const void *private)
 {
 	char *newpath = (char*)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "cannot rename %s to %s: errno=%d (%s)\n",
-			oldpath, newpath, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+			name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -543,22 +543,24 @@ static void inotify_moved_from(const char *name, const char *path)
 	char oldfile[PATH_MAX], newdir[PATH_MAX], newfile[PATH_MAX];
 
 	mk_filename(oldfile, PATH_MAX, path, "inotify_file");
-	if (mk_file(oldfile, 4096) < 0)
+	if (mk_file(name, oldfile, 4096) < 0)
 		return;
 	mk_filename(newdir, PATH_MAX, path, "new_dir");
-	(void)rm_dir(newdir);
-	if (mk_dir(newdir) < 0)
+	(void)rm_dir(name, newdir);
+	if (mk_dir(name, newdir) < 0)
 		return;
 	mk_filename(newfile, PATH_MAX, newdir, "inotify_file");
 	inotify_exercise(name, oldfile, path, "inotify_dir", inotify_moved_from_helper, IN_MOVED_FROM, newfile);
-	(void)rm_file(newfile);
-	(void)rm_file(oldfile);	/* In case rename failed */
-	(void)rm_dir(newdir);
+	(void)rm_file(name, newfile);
+	(void)rm_file(name, oldfile);	/* In case rename failed */
+	(void)rm_dir(name, newdir);
 }
 
-static int inotify_close_write_helper(const char *path, const void *fdptr)
+static int inotify_close_write_helper(const char *name, const char *path, const void *fdptr)
 {
+	(void)name;
 	(void)path;
+
 	(void)close(*(int *)fdptr);
 	return 0;
 }
@@ -569,23 +571,25 @@ static void inotify_close_write_file(const char *name, const char *path)
 	int fd;
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
 	if ((fd = open(filepath, O_RDWR)) < 0) {
-		pr_err(stderr, "cannot re-open %s: errno=%d (%s)\n",
-			filepath, errno, strerror(errno));
+		pr_err(stderr, "%s: cannot re-open %s: errno=%d (%s)\n",
+			name, filepath, errno, strerror(errno));
 		return;
 	}
 
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 	(void)close(fd);
 }
 
-static int inotify_close_nowrite_helper(const char *path, const void *fdptr)
+static int inotify_close_nowrite_helper(const char *name, const char *path, const void *fdptr)
 {
+	(void)name;
 	(void)path;
+
 	(void)close(*(int *)fdptr);
 	return 0;
 }
@@ -596,18 +600,18 @@ static void inotify_close_nowrite_file(const char *name, const char *path)
 	int fd;
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	if (mk_file(filepath, 4096) < 0)
+	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
 	if ((fd = open(filepath, O_RDONLY)) < 0) {
-		pr_err(stderr, "cannot re-open %s: errno=%d (%s)\n",
-			filepath, errno, strerror(errno));
-		(void)rm_file(filepath);
+		pr_err(stderr, "%s: cannot re-open %s: errno=%d (%s)\n",
+			name, filepath, errno, strerror(errno));
+		(void)rm_file(name, filepath);
 		return;
 	}
 
 	inotify_exercise(name, filepath, path, "inotify_file", inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd);
-	(void)rm_file(filepath);
+	(void)rm_file(name, filepath);
 	(void)close(fd);
 }
 

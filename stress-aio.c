@@ -136,6 +136,7 @@ static void aio_issue_cancel(const char *name, io_req_t *io_req)
  *	construct an AIO request and action it
  */
 static int issue_aio_request(
+	const char *name,
 	const int fd,
 	const off_t offset,
 	io_req_t *const io_req,
@@ -160,8 +161,8 @@ static int issue_aio_request(
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err(stderr, "failed to issue aio request: %d (%s)\n",
-				errno, strerror(errno));
+			pr_err(stderr, "%s: failed to issue aio request: %d (%s)\n",
+				name, errno, strerror(errno));
 		}
 		return ret;
 	}
@@ -216,7 +217,7 @@ int stress_aio(
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
-		if (issue_aio_request(fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write) < 0)
+		if (issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write) < 0)
 			goto cancel;
 	}
 
@@ -233,7 +234,7 @@ int stress_aio(
 			case 0:
 				/* Succeeded or cancelled, so redo another */
 				(*counter)++;
-				if (issue_aio_request(fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i,
+				if (issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i,
 					(mwc() & 0x20) ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
