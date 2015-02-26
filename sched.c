@@ -34,6 +34,7 @@
 
 #include "stress-ng.h"
 
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -69,6 +70,7 @@ static const char *get_sched_name(const int sched)
 		return "unknown";
 	}
 }
+#endif
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
 /*
