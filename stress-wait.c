@@ -45,7 +45,8 @@
  *	spawn a process
  */
 static int spawn(
-	void (*func)(const pid_t pid, uint64_t *counter, const uint64_t max_ops),
+	const char *name,
+	void (*func)(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops),
 	pid_t pid_arg,
 	uint64_t *counter,
 	uint64_t max_ops)
@@ -57,7 +58,7 @@ static int spawn(
 		return -1;
 	}
 	if (pid == 0) {
-		func(pid_arg, counter, max_ops);
+		func(name, pid_arg, counter, max_ops);
 		exit(EXIT_SUCCESS);
 	}
 	return pid;
@@ -68,11 +69,11 @@ static int spawn(
  *	this process pauses, but is continually being
  *	stopped and continued by the killer process
  */
-static void runner(const pid_t pid, uint64_t *counter, const uint64_t max_ops)
+static void runner(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops)
 {
 	(void)pid;
 
-	pr_dbg(stderr, "wait: runner started [%d]\n", getpid());
+	pr_dbg(stderr, "%s: wait: runner started [%d]\n", name, getpid());
 
 	do {
 		(void)pause();
@@ -86,12 +87,12 @@ static void runner(const pid_t pid, uint64_t *counter, const uint64_t max_ops)
  *  killer()
  *	this continually stops and continues the runner process
  */
-static void killer(const pid_t pid, uint64_t *counter, const uint64_t max_ops)
+static void killer(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops)
 {
 	double start = time_now();
 	uint64_t last_counter = *counter;
 
-	pr_dbg(stderr, "wait: killer started [%d]\n", getpid());
+	pr_dbg(stderr, "%s: wait: killer started [%d]\n", name, getpid());
 
 	do {
 		(void)kill(pid, SIGSTOP);
@@ -106,7 +107,7 @@ static void killer(const pid_t pid, uint64_t *counter, const uint64_t max_ops)
 		 */
 		if (last_counter == *counter) {
 			if (time_now() - start > ABORT_TIMEOUT) {
-				pr_dbg(stderr, "waits were blocked, aborting\n");
+				pr_dbg(stderr, "%s: waits were blocked, aborting\n", name);
 				break;
 			}
 		} else {
@@ -140,13 +141,13 @@ int stress_wait(
 	pr_dbg(stderr, "%s: waiter started [%d]\n",
 		name, getpid());
 
-	pid_r = spawn(runner, 0, counter, max_ops);
+	pid_r = spawn(name, runner, 0, counter, max_ops);
 	if (pid_r < 0) {
 		pr_failed_dbg(name, "fork");
 		exit(EXIT_FAILURE);
 	}
 
-	pid_k = spawn(killer, pid_r, counter, max_ops);
+	pid_k = spawn(name, killer, pid_r, counter, max_ops);
 	if (pid_k < 0) {
 		pr_failed_dbg(name, "fork");
 		ret = EXIT_FAILURE;

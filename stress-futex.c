@@ -103,7 +103,7 @@ int stress_futex(
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
-		pr_dbg(stderr, "futex timeouts: %" PRIu64 "\n", *timeout);
+		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n", name, *timeout);
 	} else {
 		do {
 			/* Small timeout to force rapid timer wakeups */

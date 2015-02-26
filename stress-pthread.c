@@ -237,9 +237,10 @@ reap:
 	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
 
 	if (limited) {
-		pr_inf(stdout, "%.2f%% of iterations could not reach "
+		pr_inf(stdout, "%s: %.2f%% of iterations could not reach "
 			"requested %" PRIu64 " threads (instance %"
 			PRIu32 ")\n",
+			name,
 			100.0 * (double)limited / (double)attempted,
 			opt_pthread_max, instance);
 	}

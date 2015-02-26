@@ -107,7 +107,7 @@ static void aio_signal_handler(int sig, siginfo_t *si, void *ucontext)
  *  aio_issue_cancel()
  *	cancel an in-progress async I/O request
  */
-static void aio_issue_cancel(io_req_t *io_req)
+static void aio_issue_cancel(const char *name, io_req_t *io_req)
 {
 	int ret;
 
@@ -121,12 +121,12 @@ static void aio_issue_cancel(io_req_t *io_req)
 	case AIO_ALLDONE:
 		break;
 	case AIO_NOTCANCELED:
-		pr_dbg(stderr, "async I/O request %d not cancelled\n",
-			io_req->request);
+		pr_dbg(stderr, "%s: async I/O request %d not cancelled\n",
+			name, io_req->request);
 		break;
 	default:
-		pr_err(stderr, "%d error: %d %s\n",
-			io_req->request,
+		pr_err(stderr, "%s: %d error: %d %s\n",
+			name, io_req->request,
 			errno, strerror(errno));
 	}
 }
@@ -251,13 +251,13 @@ int stress_aio(
 
 cancel:
 	for (i = 0; i < opt_aio_requests; i++) {
-		aio_issue_cancel(&io_reqs[i]);
+		aio_issue_cancel(name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
 	(void)close(fd);
 finish:
-	pr_dbg(stderr, "total of %" PRIu64 " async I/O signals caught (instance %d)\n",
-		total, instance);
+	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals caught (instance %d)\n",
+		name, total, instance);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	free(io_reqs);
 	return rc;

@@ -129,8 +129,8 @@ redo:
 	(void)stress_temp_dir_rm(name, pid, instance);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
-		pr_dbg(stderr, "page faults: minor: %lu, major: %lu\n",
-			usage.ru_minflt, usage.ru_majflt);
+		pr_dbg(stderr, "%s: page faults: minor: %lu, major: %lu\n",
+			name, usage.ru_minflt, usage.ru_majflt);
 	}
 
 	return EXIT_SUCCESS;
