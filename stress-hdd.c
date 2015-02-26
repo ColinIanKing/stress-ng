@@ -289,38 +289,22 @@ int stress_hdd(
 			pr_failed_err(name, "open");
 			goto finish;
 		}
+		if (ftruncate(fd, (off_t)0) < 0) {
+			pr_failed_err(name, "ftruncate");
+			goto finish;
+		}
 		(void)unlink(filename);
 
 		if (stress_hdd_advise(name, fd, fadvise_flags) < 0)
 			goto finish;
 
-		/* Sequential Write */
-		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
-			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				ssize_t ret;
-seq_wr_retry:
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
-					break;
-
-				ret = write(fd, buf, (size_t)opt_hdd_write_size);
-				if (ret <= 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
-						goto seq_wr_retry;
-					if (errno) {
-						pr_failed_err(name, "write");
-						(void)close(fd);
-						goto finish;
-					}
-					continue;
-				}
-				(*counter)++;
-			}
-		}
 		/* Random Write */
 		if (opt_hdd_flags & HDD_OPT_WR_RND) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+				size_t j;
+
 				off_t offset = (i == 0) ?
-					opt_hdd_bytes - opt_hdd_write_size :
+					opt_hdd_bytes :
 					(mwc() % opt_hdd_bytes) & ~511;
 				ssize_t ret;
 
@@ -332,6 +316,10 @@ seq_wr_retry:
 rnd_wr_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
+
+				for (j = 0; j < opt_hdd_write_size; j++)
+					buf[j] = (offset + j) & 0xff;
+
 				ret = write(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -346,9 +334,36 @@ rnd_wr_retry:
 				(*counter)++;
 			}
 		}
+		/* Sequential Write */
+		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
+			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+				ssize_t ret;
+				size_t j;
+seq_wr_retry:
+				if (!opt_do_run || (max_ops && *counter >= max_ops))
+					break;
+
+				for (j = 0; j < opt_hdd_write_size; j += 512)
+					buf[j] = (i + j) & 0xff;
+				ret = write(fd, buf, (size_t)opt_hdd_write_size);
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						goto seq_wr_retry;
+					if (errno) {
+						pr_failed_err(name, "write");
+						(void)close(fd);
+						goto finish;
+					}
+					continue;
+				}
+				(*counter)++;
+			}
+		}
+
 		/* Sequential Read */
 		if (opt_hdd_flags & HDD_OPT_RD_SEQ) {
 			uint64_t misreads = 0;
+			uint64_t baddata = 0;
 
 			if (lseek(fd, 0, SEEK_SET) < 0) {
 				pr_failed_err(name, "lseek");
@@ -375,15 +390,35 @@ seq_rd_retry:
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
+				if (opt_flags & OPT_FLAGS_VERIFY) {
+					size_t j;
+
+					for (j = 0; j < opt_hdd_write_size; j += 512) {
+						uint8_t v = (i + j) & 0xff;
+						if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
+							/* Write seq has written to all of the file, so it should always be OK */
+							if (buf[0] != v)
+								baddata++;
+						} else {
+							/* Write rnd has written to some of the file, so data either zero or OK */
+							if (buf[0] != 0 && buf[0] != v)
+								baddata++;
+						}
+					}
+				}
 				(*counter)++;
 			}
 			if (misreads)
 				pr_dbg(stderr, "%s: %" PRIu64 " incomplete sequential reads\n",
 					name, misreads);
+			if (baddata)
+				pr_fail(stderr, "%s: incorrect data found %" PRIu64 " times\n",
+					name, baddata);
 		}
 		/* Random Read */
 		if (opt_hdd_flags & HDD_OPT_RD_RND) {
 			uint64_t misreads = 0;
+			uint64_t baddata = 0;
 
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				ssize_t ret;
@@ -411,6 +446,23 @@ rnd_rd_retry:
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
+				if (opt_flags & OPT_FLAGS_VERIFY) {
+					size_t j;
+
+					for (j = 0; j < opt_hdd_write_size; j += 512) {
+						uint8_t v = (i + j) & 0xff;
+						if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
+							/* Write seq has written to all of the file, so it should always be OK */
+							if (buf[0] != v)
+								baddata++;
+						} else {
+							/* Write rnd has written to some of the file, so data either zero or OK */
+							if (buf[0] != 0 && buf[0] != v)
+								baddata++;
+						}
+					}
+				}
+
 				(*counter)++;
 			}
 			if (misreads)
@@ -418,6 +470,7 @@ rnd_rd_retry:
 					name, misreads);
 		}
 		(void)close(fd);
+
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
