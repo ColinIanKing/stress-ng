@@ -291,12 +291,15 @@ int stress_hdd(
 		}
 		if (ftruncate(fd, (off_t)0) < 0) {
 			pr_failed_err(name, "ftruncate");
+			(void)close(fd);
 			goto finish;
 		}
 		(void)unlink(filename);
 
-		if (stress_hdd_advise(name, fd, fadvise_flags) < 0)
+		if (stress_hdd_advise(name, fd, fadvise_flags) < 0) {
+			(void)close(fd);
 			goto finish;
+		}
 
 		/* Random Write */
 		if (opt_hdd_flags & HDD_OPT_WR_RND) {
