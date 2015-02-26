@@ -255,7 +255,7 @@ int stress_hdd(
 
 	if (opt_hdd_bytes < opt_hdd_write_size) {
 		opt_hdd_bytes = opt_hdd_write_size;
-		pr_inf(stderr, "%s: increasing file size to write size of %zu bytes\n",
+		pr_inf(stderr, "%s: increasing file size to write size of %" PRIu64 " bytes\n",
 			name, opt_hdd_bytes);
 	}
 
