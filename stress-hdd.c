@@ -239,7 +239,6 @@ int stress_hdd(
 	int flags = O_CREAT | O_RDWR | O_TRUNC | opt_hdd_oflags;
 	int fadvise_flags = opt_hdd_flags & HDD_OPT_FADV_MASK;
 
-
 	if (!set_hdd_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_hdd_bytes = MAX_HDD_BYTES;
@@ -266,6 +265,9 @@ int stress_hdd(
 	/* Must have some write option */
 	if ((opt_hdd_flags & HDD_OPT_WR_MASK) == 0)
 		opt_hdd_flags |= HDD_OPT_WR_SEQ;
+	/* Must have some read option */
+	if ((opt_hdd_flags & HDD_OPT_RD_MASK) == 0)
+		opt_hdd_flags |= HDD_OPT_RD_SEQ;
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
 	if (ret || !buf) {
