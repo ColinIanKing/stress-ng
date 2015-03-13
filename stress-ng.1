@@ -1224,6 +1224,9 @@ T}
 prime-gray-1	T{
 first step through memory in very large prime strides setting just on bit (based on a gray code) in every byte. Next, repeat this but set the other 7 bits. Then check to see if all bits are set to one.
 T}
+rowhammer	T{
+try to force memory corruption using the rowhammer memory stressor. This fetches two 32 bit integers from memory and forces a cache flush on the two addresses multiple times. This has been known to force bit flipping on some hardware, especially with lower frequency memory refresh cycles.
+T}
 walk-0d	T{
 for each byte in memory, walk through each data line setting them to low (and the others are set high) and check that the written value is as expected. This checks if any data lines are stuck.
 T}

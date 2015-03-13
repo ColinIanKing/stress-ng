@@ -36,6 +36,8 @@
 #include "stress-ng.h"
 
 #define VM_BOGO_SHIFT		(12)
+#define VM_ROWHAMMER_LOOPS	1000000
+
 
 /*
  *  the VM stress test has diffent methods of vm stressor
@@ -1730,6 +1732,70 @@ static size_t stress_vm_read64(
 }
 
 /*
+ *  stress_vm_rowhammer()
+ *
+ */
+static size_t stress_vm_rowhammer(
+	uint8_t *buf,
+	const size_t sz,
+	uint64_t *counter,
+	const uint64_t max_ops)
+{
+	size_t bit_errors = 0;
+	uint32_t *buf32 = (uint32_t *)buf;
+	uint32_t val = 0xff5a00a5;
+	const size_t n = sz / sizeof(uint32_t);
+	register size_t j;
+
+	(void)mincore_touch_pages(buf, sz);
+
+	do {
+		for (j = 0; j < n; j++)
+			buf32[j] = val;
+		register volatile uint32_t *addr0, *addr1;
+		register size_t errors = 0;
+
+		/* Pick two random addresses */
+		addr0 = &buf32[(mwc() << 12) % n];
+		addr1 = &buf32[(mwc() << 12) % n];
+
+		/* Hammer the rows */
+		for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {
+			*addr0;
+			*addr1;
+			clflush(addr0);
+			clflush(addr1);
+			*addr0;
+			*addr1;
+			clflush(addr0);
+			clflush(addr1);
+			*addr0;
+			*addr1;
+			clflush(addr0);
+			clflush(addr1);
+			*addr0;
+			*addr1;
+			clflush(addr0);
+			clflush(addr1);
+		}
+		for (j = 0; j < n; j++)
+			if (buf32[j] != val)
+				errors++;
+		if (errors) {
+			bit_errors += errors;
+			pr_dbg(stderr, "rowhammer: %zu errors on addresses %p and %p\n",
+				errors, addr0, addr1);
+		}
+		(*counter) += VM_ROWHAMMER_LOOPS;
+		val = (val >> 31) | (val << 1);
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	stress_vm_check("rowhammer", bit_errors);
+
+	return bit_errors;
+}
+
+/*
  *  stress_vm_all()
  *	work through all vm stressors sequentially
  */
@@ -1756,6 +1822,7 @@ static stress_vm_stressor_info_t vm_methods[] = {
 	{ "galpat-0",	stress_vm_galpat_zero },
 	{ "galpat-1",	stress_vm_galpat_one },
 	{ "gray",	stress_vm_gray },
+	{ "rowhammer",	stress_vm_rowhammer },
 	{ "incdec",	stress_vm_incdec },
 	{ "inc-nybble",	stress_vm_inc_nybble },
 	{ "rand-set",	stress_vm_rand_set },
