@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <math.h>
 #include <complex.h>
 #include <sys/time.h>
@@ -1657,6 +1658,48 @@ static void stress_cpu_hamming(const char *name)
 		pr_fail(stderr, "%s: hamming error detected, sum of 65536 hamming codes not correct\n", name);
 }
 
+
+static ptrdiff_t stress_cpu_callfunc_func(
+	ssize_t		n,
+	uint64_t	u64arg,
+	uint32_t	u32arg,
+	uint16_t	u16arg,
+	uint8_t		u8arg,
+	uint64_t	*p_u64arg,
+	uint32_t	*p_u32arg,
+	uint16_t	*p_u16arg,
+	uint8_t		*p_u8arg)
+{
+	if (n > 0)
+		return stress_cpu_callfunc_func(n - 1,
+			u64arg, u32arg, u16arg, u8arg,
+			p_u64arg, p_u32arg, p_u16arg, p_u8arg);
+	else
+		return &u64arg - p_u64arg;
+}
+
+/*
+ *  stress_cpu_callfunc()
+ *	deep function calls
+ */
+static void stress_cpu_callfunc(const char *name)
+{
+	uint64_t	u64arg = mwc();
+	uint32_t	u32arg = mwc();
+	uint16_t	u16arg = mwc();
+	uint8_t		u8arg  = mwc();
+	ptrdiff_t	ret;
+
+	(void)name;
+
+	ret = stress_cpu_callfunc_func(1024,
+		u64arg, u32arg, u16arg, u8arg,
+		&u64arg, &u32arg, &u16arg, &u8arg);
+
+	uint64_put((uint64_t)ret);
+}
+
+
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
@@ -1678,6 +1721,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 
 	{ "ackermann",		stress_cpu_ackermann },
 	{ "bitops",		stress_cpu_bitops },
+	{ "callfunc",		stress_cpu_callfunc },
 	{ "crc16",		stress_cpu_crc16 },
 	{ "cdouble",		stress_cpu_complex_double },
 	{ "cfloat",		stress_cpu_complex_float },
