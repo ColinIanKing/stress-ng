@@ -219,6 +219,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_RDRAND)
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 #endif
+#if defined(STRESS_READAHEAD)
+	STRESSOR(readahead, READAHEAD, CLASS_IO | CLASS_OS),
+#endif
 	STRESSOR(rename, RENAME, CLASS_IO | CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
@@ -490,6 +493,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_RDRAND)
 	{ "rdrand",	1,	0,	OPT_RDRAND },
 	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
+#endif
+#if defined(STRESS_READAHEAD)
+	{ "readahead",	1,	0,	OPT_READAHEAD },
+	{ "readahead-ops",1,	0,	OPT_READAHEAD_OPS },
+	{ "readahead-bytes",1,	0,	OPT_READAHEAD_BYTES },
 #endif
 	{ "rename",	1,	0,	OPT_RENAME },
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
@@ -811,6 +819,11 @@ static const help_t help[] = {
 #if defined(STRESS_RDRAND)
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
+#endif
+#if defined(STRESS_READAHEAD)
+	{ NULL,		"readahead N",		"start N workers exercising file readahead" },
+	{ NULL,		"readahead-bytes N",	"size of file to readahead on (default is 1GB)" },
+	{ NULL,		"readahead-ops N",	"stop when N readahead bogo operations completed" },
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
@@ -1610,6 +1623,9 @@ next_opt:
 			if (opt_random <= 0)
 				opt_random = stress_get_processors_online();
 			check_value("random", opt_random);
+			break;
+		case OPT_READAHEAD_BYTES:
+			stress_set_readahead_bytes(optarg);
 			break;
 		case OPT_SCHED:
 			opt_sched = get_opt_sched(optarg);

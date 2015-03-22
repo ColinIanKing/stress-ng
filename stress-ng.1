@@ -901,6 +901,16 @@ start N processes that read the Intel hardware random number generator (Intel Iv
 .B \-\-rdrand\-ops N
 stop rdrand stress processes after N bogo rdrand operations (1 bogo op = 2048 random bits successfully read).
 .TP
+.B \-\-readahead N
+start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file with readahead. The default file size is 1 GB.
+Readaheads and reads are batched into 16 readaheads and then 16 reads.
+.TP
+.B \-\-readahead\-bytes N
+set the size of readahead file, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-readahead\-ops N
+stop readahead stress processes after N bogo read operations.
+.TP
 .B \-R N, \-\-rename N
 start N processes that each create a file and then repeatedly rename it.
 .TP

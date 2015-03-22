@@ -254,6 +254,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
+#define MIN_READAHEAD_BYTES	(1 * MB)
+#define MAX_READAHEAD_BYTES	(256ULL * GB)
+#define DEFAULT_READAHEAD_BYTES	(1 * GB)
+
 #define MIN_SENDFILE_SIZE	(1 * KB)
 #define MAX_SENDFILE_SIZE	(1 * GB)
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
@@ -527,6 +531,10 @@ typedef enum {
 #if defined(STRESS_X86) && !defined(__OpenBSD__)
 	__STRESS_RDRAND,
 #define STRESS_RDRAND __STRESS_RDRAND
+#endif
+#if defined(__linux__)
+	__STRESS_READAHEAD,
+#define STRESS_READAHEAD __STRESS_READAHEAD
 #endif
 	STRESS_RENAME,
 	STRESS_SEEK,
@@ -876,6 +884,12 @@ typedef enum {
 	OPT_RDRAND_OPS,
 #endif
 
+#if defined(STRESS_READAHEAD)
+	OPT_READAHEAD,
+	OPT_READAHEAD_OPS,
+	OPT_READAHEAD_BYTES,
+#endif
+
 	OPT_RENAME_OPS,
 
 	OPT_SCHED,
@@ -1192,6 +1206,7 @@ extern void stress_set_mq_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern int  stress_rdrand_supported(void);
+extern void stress_set_readahead_bytes(const char *optarg);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_semaphore_posix_procs(const char *optarg);
@@ -1269,6 +1284,7 @@ STRESS(stress_procfs);
 STRESS(stress_pthread);
 STRESS(stress_qsort);
 STRESS(stress_rdrand);
+STRESS(stress_readahead);
 STRESS(stress_rename);
 STRESS(stress_seek);
 STRESS(stress_sem_posix);
