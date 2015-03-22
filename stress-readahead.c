@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_READAHEAD)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,7 +37,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "stress-ng.h"
 
 #define BUF_ALIGNMENT		(4096)
 #define BUF_SIZE		(512)
@@ -203,3 +206,5 @@ finish:
 
 	return rc;
 }
+
+#endif
