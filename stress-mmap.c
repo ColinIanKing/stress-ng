@@ -231,7 +231,7 @@ redo:
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(name, mappings[page], page_size);
-					munmap(mappings[page], page_size);
+					(void)munmap(mappings[page], page_size);
 					n--;
 					break;
 				}
@@ -239,7 +239,7 @@ redo:
 					goto cleanup;
 			}
 		}
-
+		(void)munmap(buf, sz);
 #ifdef MAP_FIXED
 		/*
 		 *  Step #2, map them back in random order
@@ -261,7 +261,7 @@ redo:
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
 					} else {
-						(void)mincore_touch_pages(buf, page_size);
+						(void)mincore_touch_pages(mappings[page], page_size);
 						(void)madvise_random(mappings[page], page_size);
 						stress_mmap_mprotect(name, mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
@@ -293,7 +293,7 @@ cleanup:
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(name, mappings[n], page_size);
-				munmap(mappings[n], page_size);
+				(void)munmap(mappings[n], page_size);
 			}
 		}
 		(*counter)++;
