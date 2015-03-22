@@ -273,6 +273,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_WAIT)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
+#if defined(STRESS_XATTR)
+	STRESSOR(xattr, XATTR, CLASS_IO | CLASS_OS),
+#endif
 #if defined(STRESS_YIELD)
 	STRESSOR(yield, YIELD, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -614,6 +617,10 @@ static const struct option long_options[] = {
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
 #endif
+#if defined(STRESS_XATTR)
+	{ "xattr",	1,	0,	OPT_XATTR },
+	{ "xattr-ops",	1,	0,	OPT_XATTR_OPS },
+#endif
 #if defined(STRESS_YIELD)
 	{ "yield",	1,	0,	OPT_YIELD },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
@@ -943,6 +950,10 @@ static const help_t help[] = {
 #if defined(STRESS_YIELD)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
 	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
+#endif
+#if defined(STRESS_XATTR)
+	{ NULL,		"xattr N",		"start N workers stressing file extended attributes" },
+	{ NULL,		"xattr-ops N",		"stop when N bogo xattr operations completed" },
 #endif
 	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
 	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },

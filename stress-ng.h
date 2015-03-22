@@ -602,6 +602,10 @@ typedef enum {
 	__STRESS_WAIT,
 #define STRESS_WAIT __STRESS_WAIT
 #endif
+#if defined(__linux__)
+	__STRESS_XATTR,
+#define STRESS_XATTR __STRESS_XATTR
+#endif
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	__STRESS_YIELD,
 #define STRESS_YIELD __STRESS_YIELD
@@ -1027,6 +1031,11 @@ typedef enum {
 	OPT_WAIT_OPS,
 #endif
 
+#if defined(STRESS_XATTR)
+	OPT_XATTR,
+	OPT_XATTR_OPS,
+#endif
+
 #if defined(STRESS_YIELD)
 	OPT_YIELD_OPS,
 #endif
@@ -1312,6 +1321,7 @@ STRESS(stress_vm);
 STRESS(stress_vm_rw);
 STRESS(stress_vm_splice);
 STRESS(stress_wait);
+STRESS(stress_xattr);
 STRESS(stress_yield);
 STRESS(stress_zero);
 

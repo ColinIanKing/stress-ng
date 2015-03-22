@@ -1289,6 +1289,12 @@ start N workers that spawn off two children; one spins in a pause(2) loop, the o
 .B \-\-wait\-ops N
 stop after N bogo wait operations.
 .TP
+.B \-\-xattr N
+start N workers that create, update and delete batches of extended attributes on a file.
+.TP
+.B \-\-xattr\-ops N
+stop after N bogo extended attribute operations.
+.TP
 .B \-y N, \-\-yield N
 start N process that call sched_yield(2). This should force rapid context switching.
 .TP

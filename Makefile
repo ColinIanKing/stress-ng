@@ -104,6 +104,7 @@ SRC =   stress-affinity.c \
 	stress-vm-splice.c \
 	stress-wait.c \
 	stress-yield.c \
+	stress-xattr.c \
 	stress-zero.c \
 	coredump.c \
 	helper.c \
