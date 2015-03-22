@@ -66,6 +66,19 @@ int stress_kill(
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
+
+		/* Zero signal can be used to see if process exists */
+		ret = kill(pid, 0);
+		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+
+		/* Zero signal can be used to see if process exists */
+		ret = kill(-1, 0);
+		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
