@@ -55,7 +55,7 @@ typedef int64_t vint64_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-int stress_vecmath(
+int HOT stress_vecmath(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

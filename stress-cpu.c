@@ -85,7 +85,7 @@ void stress_set_cpu_load(const char *optarg) {
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
-static void stress_cpu_sqrt(const char *name)
+static void HOT stress_cpu_sqrt(const char *name)
 {
 	int i;
 
@@ -133,7 +133,7 @@ static void stress_cpu_loop(const char *name)
  *  stress_cpu_gcd()
  *	compute Greatest Common Divisor
  */
-static void stress_cpu_gcd(const char *name)
+static void HOT stress_cpu_gcd(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 63000868UL;
@@ -160,7 +160,7 @@ static void stress_cpu_gcd(const char *name)
  *	various bit manipulation hacks from bithacks
  *	https://graphics.stanford.edu/~seander/bithacks.html
  */
-static void stress_cpu_bitops(const char *name)
+static void HOT stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 0x8aadcaab;
@@ -213,7 +213,7 @@ static void stress_cpu_bitops(const char *name)
  *  stress_cpu_trig()
  *	simple sin, cos trig functions
  */
-static void stress_cpu_trig(const char *name)
+static void HOT stress_cpu_trig(const char *name)
 {
 	int i;
 	long double d_sum = 0.0;
@@ -249,7 +249,7 @@ static void stress_cpu_trig(const char *name)
  *  stress_cpu_hyperbolic()
  *	simple hyperbolic sinh, cosh functions
  */
-static void stress_cpu_hyperbolic(const char *name)
+static void HOT stress_cpu_hyperbolic(const char *name)
 {
 	int i;
 	double d_sum = 0.0;
@@ -285,7 +285,7 @@ static void stress_cpu_hyperbolic(const char *name)
  *  stress_cpu_rand()
  *	generate lots of pseudo-random integers
  */
-static void stress_cpu_rand(const char *name)
+static void HOT stress_cpu_rand(const char *name)
 {
 	int i;
 	uint32_t i_sum = 0;
@@ -303,7 +303,7 @@ static void stress_cpu_rand(const char *name)
  *  stress_cpu_nsqrt()
  *	iterative Newton–Raphson square root
  */
-static void stress_cpu_nsqrt(const char *name)
+static void HOT stress_cpu_nsqrt(const char *name)
 {
 	int i;
 	const long double precision = 1.0e-12;
@@ -338,7 +338,7 @@ static void stress_cpu_nsqrt(const char *name)
  *  stress_cpu_phi()
  *	compute the Golden Ratio
  */
-static void stress_cpu_phi(const char *name)
+static void HOT stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
 	const long double precision = 1.0e-15;
@@ -371,7 +371,7 @@ static void stress_cpu_phi(const char *name)
  *  fft_partial()
  *  	partial Fast Fourier Transform
  */
-static void fft_partial(double complex *data, double complex *tmp, const int n, const int m)
+static void HOT fft_partial(double complex *data, double complex *tmp, const int n, const int m)
 {
 	if (m < n) {
 		const int m2 = m * 2;
@@ -394,7 +394,7 @@ static void fft_partial(double complex *data, double complex *tmp, const int n, 
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static void stress_cpu_fft(const char *name)
+static void HOT stress_cpu_fft(const char *name)
 {
 	double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
@@ -412,7 +412,7 @@ static void stress_cpu_fft(const char *name)
  *   stress_cpu_euler()
  *	compute e using series
  */
-static void stress_cpu_euler(const char *name)
+static void HOT stress_cpu_euler(const char *name)
 {
 	long double e = 1.0, last_e = e;
 	long double fact = 1.0;
@@ -487,7 +487,7 @@ static void stress_cpu_hash_generic(
  *	Jenkin's hash on random data
  *	http://www.burtleburtle.net/bob/hash/doobs.html
  */
-static uint32_t jenkin(const uint8_t *data, const size_t len)
+static uint32_t HOT jenkin(const uint8_t *data, const size_t len)
 {
 	uint8_t i;
 	register uint32_t h = 0;
@@ -528,7 +528,7 @@ static void stress_cpu_jenkin(const char *name)
  *  pjw()
  *	Hash a string, from Aho, Sethi, Ullman, Compiling Techniques.
  */
-static uint32_t pjw(const char *str)
+static uint32_t HOT pjw(const char *str)
 {
 	uint32_t h = 0;
 
@@ -557,7 +557,7 @@ static void stress_cpu_pjw(const char *name)
  *  djb2a()
  *	Hash a string, from Dan Bernstein comp.lang.c (xor version)
  */
-static uint32_t djb2a(const char *str)
+static uint32_t HOT djb2a(const char *str)
 {
 	uint32_t hash = 5381;
 	int c;
@@ -582,7 +582,7 @@ static void stress_cpu_djb2a(const char *name)
  *  fnv1a()
  *	Hash a string, using the improved 32 bit FNV-1a hash
  */
-static uint32_t fnv1a(const char *str)
+static uint32_t HOT fnv1a(const char *str)
 {
 	uint32_t hash = 5381;
 	const uint32_t fnv_prime = 16777619; /* 2^24 + 2^9 + 0x93 */
@@ -599,7 +599,7 @@ static uint32_t fnv1a(const char *str)
  *  stress_cpu_fnv1a()
  *	stress test hash fnv1a
  */
-static void stress_cpu_fnv1a(const char *name)
+static void HOT stress_cpu_fnv1a(const char *name)
 {
 	stress_cpu_hash_generic(name, "fnv1a", fnv1a, 0x8ef17e80);
 }
@@ -632,7 +632,7 @@ static void stress_cpu_sdbm(const char *name)
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
-static void stress_cpu_idct(const char *name)
+static void HOT stress_cpu_idct(const char *name)
 {
 	const double invsqrt2 = 1.0 / sqrt(2.0);
 	const double pi_over_16 = M_PI / 16.0;
@@ -721,7 +721,7 @@ static void stress_cpu_idct(const char *name)
  *  Generic int stressor macro
  */
 #define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
-static void stress_cpu_int ## _sz(const char *name)		\
+static void HOT stress_cpu_int ## _sz(const char *name)		\
 {								\
 	const _type mask = ~0;					\
 	const _type a_final = _a;				\
@@ -798,7 +798,7 @@ stress_cpu_int(uint8_t, 8, \
  *  Generic floating point stressor macro
  */
 #define stress_cpu_fp(_type, _name, _sin, _cos)		\
-static void stress_cpu_ ## _name(const char *name)	\
+static void HOT stress_cpu_ ## _name(const char *name)	\
 {							\
 	int i;						\
 	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
@@ -825,7 +825,7 @@ stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
  *  Generic complex stressor macro
  */
 #define stress_cpu_complex(_type, _name, _csin, _ccos)	\
-static void stress_cpu_ ## _name(const char *name)	\
+static void HOT stress_cpu_ ## _name(const char *name)	\
 {							\
 	int i;						\
 	_type a = 0.18728 + I * 0.2762,			\
@@ -897,7 +897,7 @@ stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
  */
 #define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
 	_c1, _c2, _c3, _sinf, _cosf)				\
-static void stress_cpu_int ## _sz ## _ ## _name(const char *name)\
+static void HOT stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 {								\
 	int i;							\
 	_inttype int_a, int_b;					\
@@ -985,7 +985,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
  *  stress_cpu_rgb()
  *	CCIR 601 RGB to YUV to RGB conversion
  */
-static void stress_cpu_rgb(const char *name)
+static void HOT stress_cpu_rgb(const char *name)
 {
 	int i;
 	uint32_t rgb = mwc() & 0xffffff;
@@ -1021,7 +1021,7 @@ static void stress_cpu_rgb(const char *name)
  *  stress_cpu_matrix_prod(void)
  *	matrix product
  */
-static void stress_cpu_matrix_prod(const char *name)
+static void HOT stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 	const int n = 128;
@@ -1058,7 +1058,7 @@ static void stress_cpu_matrix_prod(const char *name)
  *   stress_cpu_fibonacci()
  *	compute fibonacci series
  */
-static void stress_cpu_fibonacci(const char *name)
+static void HOT stress_cpu_fibonacci(const char *name)
 {
 	const uint64_t fn_res = 0xa94fad42221f2702ULL;
 	register uint64_t f1 = 0, f2 = 1, fn;
@@ -1078,7 +1078,7 @@ static void stress_cpu_fibonacci(const char *name)
  *	compute the constant psi,
  * 	the reciprocal Fibonacci constant
  */
-static void stress_cpu_psi(const char *name)
+static void HOT stress_cpu_psi(const char *name)
 {
 	long double f1 = 0.0, f2 = 1.0;
 	long double psi = 0.0, last_psi;
@@ -1109,7 +1109,7 @@ static void stress_cpu_psi(const char *name)
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
-static void stress_cpu_ln2(const char *name)
+static void HOT stress_cpu_ln2(const char *name)
 {
 	long double ln2 = 0.0, last_ln2 = 0.0;
 	long double precision = 1.0e-7;
@@ -1140,7 +1140,7 @@ static void stress_cpu_ln2(const char *name)
  *  ackermann()
  *	a naive/simple implementation of the ackermann function
  */
-static uint32_t ackermann(const uint32_t m, const uint32_t n)
+static uint32_t HOT ackermann(const uint32_t m, const uint32_t n)
 {
 	if (m == 0)
 		return n + 1;
@@ -1166,7 +1166,7 @@ static void stress_cpu_ackermann(const char *name)
  *   stress_cpu_explog
  *	compute exp(log(n))
  */
-static void stress_cpu_explog(const char *name)
+static void HOT stress_cpu_explog(const char *name)
 {
 	uint32_t i;
 	double n = 1e6;
@@ -1199,7 +1199,7 @@ static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static void stress_cpu_jmp(const char *name)
+static void HOT stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
 
@@ -1227,7 +1227,7 @@ static void stress_cpu_jmp(const char *name)
  *  ccitt_crc16()
  *	perform naive CCITT CRC16
  */
-static uint16_t ccitt_crc16(const uint8_t *data, size_t n)
+static uint16_t HOT ccitt_crc16(const uint8_t *data, size_t n)
 {
 	/*
 	 *  The CCITT CRC16 polynomial is
@@ -1282,7 +1282,7 @@ static void stress_cpu_crc16(const char *name)
  *  zeta()
  *	Riemann zeta function
  */
-static inline long double complex zeta(
+static inline long double complex HOT zeta(
 	const long double complex s,
 	long double precision)
 {
@@ -1316,7 +1316,7 @@ static void stress_cpu_zeta(const char *name)
  * stress_cpu_gamma()
  *	stress Euler–Mascheroni constant gamma
  */
-static void stress_cpu_gamma(const char *name)
+static void HOT stress_cpu_gamma(const char *name)
 {
 	long double precision = 1.0e-10;
 	long double sum = 0.0, k = 1.0, gamma = 0.0, gammaold;
@@ -1345,7 +1345,7 @@ static void stress_cpu_gamma(const char *name)
  *  Introduction to Signal Processing,
  *  Prentice-Hall, 1995, ISBN: 0-13-209172-0.
  */
-static void stress_cpu_correlate(const char *name)
+static void HOT stress_cpu_correlate(const char *name)
 {
 	const size_t data_len = 16384;
 	const size_t corr_len = data_len / 16;
@@ -1379,7 +1379,7 @@ static void stress_cpu_correlate(const char *name)
  * stress_cpu_sieve()
  * 	slightly optimised Sieve of Eratosthenes
  */
-static void stress_cpu_sieve(const char *name)
+static void HOT stress_cpu_sieve(const char *name)
 {
 	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
 	uint32_t sieve[(SIEVE_SIZE + 31) / 32];
@@ -1405,7 +1405,7 @@ static void stress_cpu_sieve(const char *name)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline bool is_prime(uint32_t n)
+static inline HOT bool is_prime(uint32_t n)
 {
 	uint32_t i, max;
 
@@ -1441,7 +1441,7 @@ static void stress_cpu_prime(const char *name)
  *  stress_cpu_gray()
  *	compute gray codes
  */
-static void stress_cpu_gray(const char *name)
+static void HOT stress_cpu_gray(const char *name)
 {
 	uint32_t i;
 	uint64_t sum = 0;
@@ -1467,7 +1467,7 @@ static void stress_cpu_gray(const char *name)
  * hanoi()
  *	do a Hanoi move
  */
-static uint32_t hanoi(
+static uint32_t HOT hanoi(
 	const uint16_t n,
 	const char p1,
 	const char p2,
@@ -1502,7 +1502,7 @@ static void stress_cpu_hanoi(const char *name)
  *  factorial()
  *	compute n!
  */
-static long double factorial(int n)
+static long double HOT factorial(int n)
 {
 	long double f = 1;
 
@@ -1518,7 +1518,7 @@ static long double factorial(int n)
  *	compute pi using the Srinivasa Ramanujan
  *	fast convergence algorithm
  */
-static void stress_cpu_pi(const char *name)
+static void HOT stress_cpu_pi(const char *name)
 {
 	long double s = 0.0, pi = 0.0, last_pi = 0.0;
 	const long double precision = 1.0e-20;
@@ -1551,7 +1551,7 @@ static void stress_cpu_pi(const char *name)
  *	compute the constant omega
  *	See http://en.wikipedia.org/wiki/Omega_constant
  */
-static void stress_cpu_omega(const char *name)
+static void HOT stress_cpu_omega(const char *name)
 {
 	long double omega = 0.5, last_omega = 0.0;
 	const long double precision = 1.0e-20;
@@ -1589,7 +1589,7 @@ static void stress_cpu_omega(const char *name)
  *  hamming84()
  *	compute Hamming (8,4) codes
  */
-static uint8_t hamming84(const uint8_t nybble)
+static uint8_t HOT hamming84(const uint8_t nybble)
 {
 	/*
 	 * Hamming (8,4) Generator matrix
@@ -1637,7 +1637,7 @@ static uint8_t hamming84(const uint8_t nybble)
  *  stress_cpu_hamming()
  *	compute hamming code on 65536 x 4 nybbles
  */
-static void stress_cpu_hamming(const char *name)
+static void HOT stress_cpu_hamming(const char *name)
 {
 	uint32_t i;
 	uint32_t sum = 0;

@@ -400,6 +400,12 @@ typedef struct {
 #define ALIGN64
 #endif
 
+#ifdef __GNUC__
+#define HOT	__attribute__ ((hot))
+#else
+#define HOT
+#endif
+
 /* Per process statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
