@@ -76,6 +76,7 @@ nanosleep			timer
 open				dentry
 open				open
 pause				kcmp
+pread				readahead
 pipe				pipe
 pipe				switch
 poll				poll
@@ -83,8 +84,10 @@ posix_fallocate			fallocate
 /proc				proc
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
+pwrite				readahead
 read				pipe
 read				zero
+readahead			readahead
 recv				sock
 rename				rename
 rmdir				dir
