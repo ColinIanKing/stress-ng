@@ -245,6 +245,7 @@ static const stress_t stressors[] = {
 	STRESSOR(splice, SPLICE, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(stack, STACK, CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(str, STR, CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_IO | CLASS_OS),
 	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
@@ -550,6 +551,9 @@ static const struct option long_options[] = {
 #endif
 	{ "stack",	1,	0,	OPT_STACK},
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
+	{ "str",	1,	0,	OPT_STR},
+	{ "str-ops",	1,	0,	OPT_STR_OPS },
+	{ "str-method",	1,	0,	OPT_STR_METHOD },
 	{ "stack-fill",	0,	0,	OPT_STACK_FILL },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
@@ -881,6 +885,8 @@ static const help_t help[] = {
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
 	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
 	{ NULL,		"stack-fill",		"fill stack, touches all new pages " },
+	{ NULL,		"str N",		"start N workers exercising lib C string functions" },
+	{ NULL,		"str-ops N",		"stop when N bogo string operations completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
@@ -1372,8 +1378,9 @@ int main(int argc, char **argv)
 
 	(void)stress_get_pagesize();
 	(void)stress_set_cpu_method("all");
-	(void)stress_set_vm_method("all");
+	(void)stress_set_str_method("all");
 	(void)stress_set_matrix_method("all");
+	(void)stress_set_vm_method("all");
 
 	if (stress_get_processors_online() < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
@@ -1687,6 +1694,10 @@ next_opt:
 #endif
 		case OPT_STACK_FILL:
 			opt_flags |= OPT_FLAGS_STACK_FILL;
+			break;
+		case OPT_STR_METHOD:
+			if (stress_set_str_method(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_SYSLOG:
 			opt_flags |= OPT_FLAGS_SYSLOG;

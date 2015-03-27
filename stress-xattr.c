@@ -62,7 +62,7 @@ int stress_xattr(
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
-		goto finish;
+		goto out;
 	}
 	(void)unlink(filename);
 
@@ -84,7 +84,7 @@ int stress_xattr(
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
 				pr_failed_err(name, "fsetxattr");
-				goto finish;
+				goto out_close;
 			}
 		}
 		for (j = 0; j < i; j++) {
@@ -96,7 +96,7 @@ int stress_xattr(
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
 				pr_failed_err(name, "fsetxattr");
-				goto finish;
+				goto out_close;
 			}
 		}
 		for (j = 0; j < i; j++) {
@@ -105,15 +105,16 @@ int stress_xattr(
 			ret = fremovexattr(fd, name);
 			if (ret < 0) {
 				pr_failed_err(name, "fremovexattr");
-				goto finish;
+				goto out_close;
 			}
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
-finish:
+out_close:
 	(void)close(fd);
+out:
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }

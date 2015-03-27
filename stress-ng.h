@@ -570,6 +570,7 @@ typedef enum {
 #define STRESS_SPLICE __STRESS_SPLICE
 #endif
 	STRESS_STACK,
+	STRESS_STR,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
@@ -964,6 +965,10 @@ typedef enum {
 	OPT_STACK_OPS,
 	OPT_STACK_FILL,
 
+	OPT_STR,
+	OPT_STR_OPS,
+	OPT_STR_METHOD,
+
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
 
@@ -1231,6 +1236,7 @@ extern void stress_set_shm_sysv_segments(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
+extern int  stress_set_str_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
@@ -1313,6 +1319,7 @@ STRESS(stress_sigq);
 STRESS(stress_socket);
 STRESS(stress_splice);
 STRESS(stress_stack);
+STRESS(stress_str);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sysinfo);
