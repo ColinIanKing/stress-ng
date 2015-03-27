@@ -886,6 +886,7 @@ static const help_t help[] = {
 	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
 	{ NULL,		"stack-fill",		"fill stack, touches all new pages " },
 	{ NULL,		"str N",		"start N workers exercising lib C string functions" },
+	{ NULL,		"str-method func",	"specify the string function to stress" },
 	{ NULL,		"str-ops N",		"stop when N bogo string operations completed" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
