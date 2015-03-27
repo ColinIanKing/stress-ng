@@ -375,6 +375,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_MALLOPT
 #endif
 
+#if __GNUC__ && !defined(__clang__)
+#define OPTIMIZE3 __attribute__((optimize("-O3")))
+#else
+#define OPTIMIZE3
+#endif
 
 /* stress process prototype */
 typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,

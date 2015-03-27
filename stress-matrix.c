@@ -67,7 +67,7 @@ void stress_set_matrix_size(const char *optarg)
  *  stress_matrix_prod(void)
  *	matrix product
  */
-static void stress_matrix_prod(
+static void OPTIMIZE3 stress_matrix_prod(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -94,7 +94,7 @@ static void stress_matrix_prod(
  *  stress_matrix_add(void)
  *	matrix addition
  */
-static void stress_matrix_add(
+static void OPTIMIZE3 stress_matrix_add(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -117,7 +117,7 @@ static void stress_matrix_add(
  *  stress_matrix_sub(void)
  *	matrix subtraction
  */
-static void stress_matrix_sub(
+static void OPTIMIZE3 stress_matrix_sub(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -140,7 +140,7 @@ static void stress_matrix_sub(
  *  stress_matrix_trans(void)
  *	matrix transpose
  */
-static void stress_matrix_trans(
+static void OPTIMIZE3 stress_matrix_trans(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],	/* Ignored */
@@ -165,7 +165,7 @@ static void stress_matrix_trans(
  *  stress_matrix_mult(void)
  *	matrix scalar multiply
  */
-static void stress_matrix_mult(
+static void OPTIMIZE3 stress_matrix_mult(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -191,7 +191,7 @@ static void stress_matrix_mult(
  *  stress_matrix_div(void)
  *	matrix scalar divide
  */
-static void stress_matrix_div(
+static void OPTIMIZE3 stress_matrix_div(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -218,7 +218,7 @@ static void stress_matrix_div(
  *	matrix hadamard product
  *	(A o B)ij = AijBij
  */
-static void stress_matrix_hadamard(
+static void OPTIMIZE3 stress_matrix_hadamard(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -242,7 +242,7 @@ static void stress_matrix_hadamard(
  *	matrix frobenius product
  *	A : B = Sum(AijBij)
  */
-static void stress_matrix_frobenius(
+static void OPTIMIZE3 stress_matrix_frobenius(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
@@ -269,7 +269,7 @@ static void stress_matrix_frobenius(
  *  stress_matrix_all()
  *	iterate over all cpu stressors
  */
-static void stress_matrix_all(
+static void OPTIMIZE3 stress_matrix_all(
 	const size_t n,
 	MATRIX_TYPE a[n][n],
 	MATRIX_TYPE b[n][n],
