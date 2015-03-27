@@ -1013,8 +1013,8 @@ static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
 		r += 1;
 		g += 2;
 		b += 3;
+		uint64_put(r + g + b);
 	}
-	uint64_put(r + g + b);
 }
 
 /*
@@ -1199,7 +1199,7 @@ static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static void HOT OPTIMIZE3 stress_cpu_jmp(const char *name)
+static void HOT stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
 
