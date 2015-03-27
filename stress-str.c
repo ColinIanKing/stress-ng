@@ -218,7 +218,7 @@ static void stress_strcat(
 	const size_t len2)
 {
 	uint32_t i;
-	char buf[len1 + len2];
+	char buf[len1 + len2 + 1];
 
 
 	for (i = 0; i < len1 - 1; i++) {
@@ -232,6 +232,35 @@ static void stress_strcat(
 		*buf = '\0';
 		STRCHK(name, buf == strcat(buf, str2));
 		STRCHK(name, buf == strcat(buf, str1));
+	}
+}
+
+/*
+ *  stress_strncat()
+ *	stress on strncat
+ */
+static void stress_strncat(
+	const char *name,
+	char *str1,
+	const size_t len1,
+	char *str2,
+	const size_t len2)
+{
+	uint32_t i;
+	char buf[len1 + len2 + 1];
+
+
+	for (i = 0; i < len1 - 1; i++) {
+		*buf = '\0';
+		STRCHK(name, buf == strncat(buf, str1, len1));
+		*buf = '\0';
+		STRCHK(name, buf == strncat(buf, str2, len2));
+		*buf = '\0';
+		STRCHK(name, buf == strncat(buf, str1, len1));
+		STRCHK(name, buf == strncat(buf, str2, len1 + len2));
+		*buf = '\0';
+		STRCHK(name, buf == strncat(buf, str2, i));
+		STRCHK(name, buf == strncat(buf, str1, i));
 	}
 }
 
@@ -460,6 +489,7 @@ static stress_str_stressor_info_t str_methods[] = {
 	{ "strcpy",		stress_strcpy },
 	{ "strlen",		stress_strlen },
 	{ "strncasecmp",	stress_strncasecmp },
+	{ "strncat",		stress_strncat },
 	{ "strncmp",		stress_strncmp },
 	{ "strrchr",		stress_strrchr },
 	{ "strxfrm",		stress_strxfrm },

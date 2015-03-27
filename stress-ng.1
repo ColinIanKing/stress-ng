@@ -1035,6 +1035,15 @@ the default action is to touch the lowest page on each stack allocation. This op
 .B \-\-stack\-ops N
 stop stack stress processes after N bogo stack overflows.
 .TP
+.B \-\-str N
+start N processes that exercise various libc string functions on random strings.
+.TP
+.B \-\-str-method strfunc
+select a specific libc string function to stress. Available string functions to stress are: all, index, rindex, strcasecmp, strcat, strchr, strcoll, strcmp, strcpy, strlen, strncasecmp, strncat, strncmp, strrchr and strxfrm.  See string(3) for more information on these string functions.  The 'all' method is the default and will exercise all the string methods.
+.TP
+.B \-\-str-ops N
+stop after N bogo string operations.
+.TP
 .B \-s N, \-\-switch N
 start N processes that send messages via pipe to a child to force context switching.
 .TP
