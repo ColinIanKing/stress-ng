@@ -1447,15 +1447,29 @@ static void HOT OPTIMIZE3 stress_cpu_gray(const char *name)
 	uint64_t sum = 0;
 
 	for (i = 0; i < 0x10000; i++) {
-		register uint32_t gray_code, mask;
+		register uint32_t gray_code;
 
 		/* Binary to Gray code */
 		gray_code = (i >> 1) ^ i;
 		sum += gray_code;
 
 		/* Gray code back to binary */
-		for (mask = gray_code >> 1; mask; mask >>= 1)
-			gray_code ^= mask;
+#if 0
+		{
+			/* Slow iterative method */
+			register uint32_t mask;
+			
+			for (mask = gray_code >> 1; mask; mask >>= 1)
+				gray_code ^= mask;
+		}
+#else
+		/* Fast non-loop method */
+		gray_code ^= (gray_code >> 1);
+		gray_code ^= (gray_code >> 2);
+		gray_code ^= (gray_code >> 4);
+		gray_code ^= (gray_code >> 8);
+		gray_code ^= (gray_code >> 16);
+#endif
 		sum += gray_code;
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (sum != 0xffff0000))
