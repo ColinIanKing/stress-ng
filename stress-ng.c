@@ -1643,9 +1643,11 @@ next_opt:
 				opt_random = stress_get_processors_online();
 			check_value("random", opt_random);
 			break;
+#if defined(STRESS_READAHEAD)
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
 			break;
+#endif
 		case OPT_SCHED:
 			opt_sched = get_opt_sched(optarg);
 			break;
