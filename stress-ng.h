@@ -398,7 +398,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_MALLOPT
 #endif
 
-#if __GNUC__ && !defined(__clang__)
+#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
 #define OPTIMIZE3 __attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3
@@ -422,13 +422,13 @@ typedef struct {
 } mwc_t;
 
 /* Force aligment to nearest cache line */
-#ifdef __GNUC__
+#if defined(_GNUC__)
 #define ALIGN64	__attribute__ ((aligned(64)))
 #else
 #define ALIGN64
 #endif
 
-#ifdef __GNUC__
+#if defined(_GNUC__) && NEED_GNUC(4,6,0)
 #define HOT	__attribute__ ((hot))
 #else
 #define HOT
