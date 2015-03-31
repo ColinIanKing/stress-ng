@@ -44,6 +44,29 @@
 #endif
 #include <fcntl.h>
 #include <errno.h>
+#include <features.h>
+
+#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
+#define NEED_GLIB(major, minor, patchlevel) 			\
+	((major * 10000) + (minor * 100) + patchlevel) <= 	\
+	((__GLIBC__ * 10000) + (__GLIBC_MINOR__ * 100) + 0)
+#else
+#define NEED_GLIB(major, minor, patchlevel) 	(0)
+#endif
+
+#if defined(__GNUC__) && defined(__GNUC_MINOR__)
+#if defined(__GNUC_PATCHLEVEL__)
+#define NEED_GNUC(major, minor, patchlevel) 			\
+	((major * 10000) + (minor * 100) + patchlevel) <= 	\
+	((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100) + __GNUC_PATCHLEVEL__)
+#else
+#define NEED_GNUC(major, minor, patchlevel) 			\
+	((major * 10000) + (minor * 100) + patchlevel) <= 	\
+	((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100) + 0)
+#endif
+#else
+#define NEED_GNUC(major, minor, patchlevel) 	(0)
+#endif
 
 #define _GNU_SOURCE
 /* GNU HURD */
@@ -539,7 +562,7 @@ typedef enum {
 #endif
 	STRESS_PTHREAD,
 	STRESS_QSORT,
-#if defined(STRESS_X86) && !defined(__OpenBSD__)
+#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 	__STRESS_RDRAND,
 #define STRESS_RDRAND __STRESS_RDRAND
 #endif
@@ -602,7 +625,8 @@ typedef enum {
 #endif
 	STRESS_VM,
 #if defined(__linux__) && \
-    defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev)
+    defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev) && \
+    NEED_GLIB(2,15,0)
 	__STRESS_VM_RW,
 #define STRESS_VM_RW __STRESS_VM_RW
 #endif
