@@ -36,7 +36,7 @@
 
 /*
  *  stress_null
- *	stress reading of /dev/null
+ *	stress writing to /dev/null
  */
 int stress_null(
 	uint64_t *const counter,
