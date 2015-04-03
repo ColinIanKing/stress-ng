@@ -337,6 +337,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_VM_SPLICE_BYTES	(64*MB)
 #define DEFAULT_VM_SPLICE_BYTES	(64*KB)
 
+#define MIN_ZOMBIES		(1)
+#define MAX_ZOMBIES		(1000000)
+#define DEFAULT_ZOMBIES		(8192)
+
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_LINKS		(8192)
@@ -647,6 +651,7 @@ typedef enum {
 #define STRESS_YIELD __STRESS_YIELD
 #endif
 	STRESS_ZERO,
+	STRESS_ZOMBIE,
 	/* STRESS_MAX must be last one */
 	STRESS_MAX
 } stress_id;
@@ -1082,6 +1087,10 @@ typedef enum {
 
 	OPT_ZERO,
 	OPT_ZERO_OPS,
+
+	OPT_ZOMBIE,
+	OPT_ZOMBIE_OPS,
+	OPT_ZOMBIE_MAX,
 } stress_op;
 
 /* stress test metadata */
@@ -1277,6 +1286,7 @@ extern void stress_set_vm_hang(const char *optarg);
 extern int  stress_set_vm_method(const char *name);
 extern void stress_set_vm_rw_bytes(const char *optarg);
 extern void stress_set_vm_splice_bytes(const char *optarg);
+extern void stress_set_zombie_max(const char *optarg);
 
 #define STRESS(name)							\
 extern int name(uint64_t *const counter, const uint32_t instance,	\
@@ -1366,5 +1376,6 @@ STRESS(stress_wait);
 STRESS(stress_xattr);
 STRESS(stress_yield);
 STRESS(stress_zero);
+STRESS(stress_zombie);
 
 #endif

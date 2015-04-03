@@ -281,7 +281,7 @@ static const stress_t stressors[] = {
 	STRESSOR(yield, YIELD, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(zero, ZERO, CLASS_IO | CLASS_MEMORY | CLASS_OS),
-	/* Add new stress tests here */
+	STRESSOR(zombie, ZOMBIE, CLASS_SCHEDULER | CLASS_OS),
 	{ stress_noop, STRESS_MAX, 0, 0, NULL, 0 }
 };
 
@@ -631,6 +631,9 @@ static const struct option long_options[] = {
 #endif
 	{ "zero",	1,	0,	OPT_ZERO },
 	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
+	{ "zombie",	1,	0,	OPT_ZOMBIE },
+	{ "zombie-ops",	1,	0,	OPT_ZOMBIE_OPS },
+	{ "zombie-max",	1,	0,	OPT_ZOMBIE_MAX },
 	{ NULL,		0, 	0, 	0 }
 };
 
@@ -964,6 +967,9 @@ static const help_t help[] = {
 #endif
 	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
 	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },
+	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
+	{ NULL,		"zombie-ops N",		"stop when N bogo fork operations completed" },
+	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
 	{ NULL,		NULL,			NULL }
 };
 
@@ -1776,6 +1782,9 @@ next_opt:
 			stress_set_vm_splice_bytes(optarg);
 			break;
 #endif
+		case OPT_ZOMBIE_MAX:
+			stress_set_zombie_max(optarg);
+			break;
 		default:
 			printf("Unknown option\n");
 			exit(EXIT_FAILURE);

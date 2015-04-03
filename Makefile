@@ -107,6 +107,7 @@ SRC =   stress-affinity.c \
 	stress-yield.c \
 	stress-xattr.c \
 	stress-zero.c \
+	stress-zombie.c \
 	coredump.c \
 	helper.c \
 	io-priority.c \
