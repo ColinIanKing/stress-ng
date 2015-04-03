@@ -621,12 +621,8 @@ typedef enum {
 	__STRESS_VECMATH,
 #define STRESS_VECMATH __STRESS_VECMATH
 #endif
-#if  _BSD_SOURCE || \
-    (_XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED) && \
-    !(_POSIX_C_SOURCE >= 200809L || _XOPEN_SOURCE >= 700)
 	__STRESS_VFORK,
 #define STRESS_VFORK __STRESS_VFORK
-#endif
 	STRESS_VM,
 #if defined(__linux__) && \
     defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev) && \
