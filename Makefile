@@ -64,6 +64,7 @@ SRC =   stress-affinity.c \
 	stress-memcpy.c \
 	stress-mincore.c \
 	stress-mmap.c \
+	stress-mmapmany.c \
 	stress-mremap.c \
 	stress-msg.c \
 	stress-mq.c \

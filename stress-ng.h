@@ -543,6 +543,7 @@ typedef enum {
 #define STRESS_MINCORE __STRESS_MINCORE
 #endif
 	STRESS_MMAP,
+	STRESS_MMAPMANY,
 #if defined(__linux__)
 	__STRESS_MREMAP,
 #define STRESS_MREMAP __STRESS_MREMAP
@@ -873,6 +874,9 @@ typedef enum {
 	OPT_MMAP_FILE,
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
+
+	OPT_MMAPMANY,
+	OPT_MMAPMANY_OPS,
 
 #if defined(STRESS_MREMAP)
 	OPT_MREMAP,
@@ -1327,6 +1331,7 @@ STRESS(stress_matrix);
 STRESS(stress_memcpy);
 STRESS(stress_mincore);
 STRESS(stress_mmap);
+STRESS(stress_mmapmany);
 STRESS(stress_mremap);
 STRESS(stress_msg);
 STRESS(stress_mq);

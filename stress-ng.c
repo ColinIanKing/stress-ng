@@ -197,6 +197,7 @@ static const stress_t stressors[] = {
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_IO | CLASS_OS),
+	STRESSOR(mmapmany, MMAPMANY, CLASS_VM | CLASS_IO | CLASS_OS),
 #if defined(STRESS_MREMAP)
 	STRESSOR(mremap, MREMAP, CLASS_VM | CLASS_OS),
 #endif
@@ -454,6 +455,8 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
+	{ "mmapmany",	1,	0,	OPT_MMAPMANY },
+	{ "mmapmany-ops",1,	0,	OPT_MMAPMANY_OPS },
 #if defined(STRESS_MREMAP)
 	{ "mremap",	1,	0,	OPT_MREMAP },
 	{ "mremap-ops",	1,	0,	OPT_MREMAP_OPS },
@@ -790,6 +793,8 @@ static const help_t help[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
+	{ NULL,		"mmapmany N",		"start N workers stressing many mmap and munmap" },
+	{ NULL,		"mmapmany-ops N",	"stop when N mmapmany bogo operations completed" },
 #if defined(STRESS_MREMAP)
 	{ NULL,		"mremap N",		"start N workers stressing mremap" },
 	{ NULL,		"mremap-ops N",		"stop when N mremap bogo operations completed" },
