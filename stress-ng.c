@@ -1253,11 +1253,18 @@ void stress_run(
 			j = procs[i].started_procs;
 			if (j < procs[i].num_procs) {
 				int rc = EXIT_SUCCESS;
-				int pid = fork();
+				pid_t pid;
 				char name[64];
-
+again:
+				if (!opt_do_run)
+					break;
+				pid = fork();
 				switch (pid) {
 				case -1:
+					if (errno == EAGAIN) {
+						usleep(100000);
+						goto again;
+					}
 					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
 					kill_procs(SIGALRM);
