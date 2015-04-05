@@ -35,6 +35,7 @@ SRC =   stress-affinity.c \
 	stress-chmod.c \
 	stress-clock.c \
 	stress-cpu.c \
+	stress-crypt.c \
 	stress-dentry.c \
 	stress-dir.c \
 	stress-dup.c \
@@ -137,7 +138,7 @@ OBJS = $(SRC:.c=.o)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -o $@ $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -lcrypt -o $@ $(LDFLAGS)
 
 stress-cpu.o: stress-cpu.c
 	@echo $(CC) $(CFLAGS) -c -o $@ $<

@@ -387,6 +387,12 @@ in some applications.  They do try to represent
 the typical instruction mixes found in these use cases.
 .RE
 .TP
+.B \-\-crypt N
+start N workers that encrypt a 16 character random password using crypt(3). The password is encypted using MD5, SHA-256 and SHA-512 encryption methods.
+.TP
+.B \-\-crypt\-ops N
+stop after N bogo encryption operations.
+.TP
 .B \-D N, \-\-dentry N
 start N processes that create and remove directory entries.  This should create file system meta data activity. The
 directory entry names are suffixed by a gray-code encoded number to try to mix up the hashing of the namespace.

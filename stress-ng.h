@@ -487,6 +487,7 @@ typedef enum {
 #define STRESS_CLOCK __STRESS_CLOCK
 #endif
 	STRESS_CPU,
+	STRESS_CRYPT,
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DUP,
@@ -740,6 +741,9 @@ typedef enum {
 
 	OPT_CPU_OPS,
 	OPT_CPU_METHOD,
+
+	OPT_CRYPT,
+	OPT_CRYPT_OPS,
 
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
@@ -1304,6 +1308,7 @@ STRESS(stress_cache);
 STRESS(stress_chmod);
 STRESS(stress_clock);
 STRESS(stress_cpu);
+STRESS(stress_crypt);
 STRESS(stress_dentry);
 STRESS(stress_dir);
 STRESS(stress_dup);
