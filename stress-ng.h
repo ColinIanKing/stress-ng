@@ -427,13 +427,13 @@ typedef struct {
 } mwc_t;
 
 /* Force aligment to nearest cache line */
-#if defined(_GNUC__)
+#if defined(__GNUC__)
 #define ALIGN64	__attribute__ ((aligned(64)))
 #else
 #define ALIGN64
 #endif
 
-#if defined(_GNUC__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) && NEED_GNUC(4,6,0)
 #define HOT	__attribute__ ((hot))
 #else
 #define HOT
