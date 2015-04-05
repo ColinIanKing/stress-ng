@@ -1083,9 +1083,10 @@ can create a many thousands of timer clock interrupts.
 stop timer stress processes after N bogo timer events (Linux only).
 .TP
 .B \-\-timer\-freq F
-run timers at F Hz; range from 1000 to 1000000000 Hz (Linux only). By selecting an
-appropriate frequency stress-ng can generate hundreds of thousands of interrupts per
-second.
+run timers at F Hz; range from 1000 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
+.TP
+.B \-\-timer\-rand
+select a random interval between 1/freq to 1/(freq * 0.5). This tries to force more variability in the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-times
 show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system.

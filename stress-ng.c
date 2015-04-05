@@ -570,6 +570,7 @@ static const struct option long_options[] = {
 	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
+	{ "timer-rand", 0,	0,	OPT_TIMER_RAND },
 #endif
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
@@ -908,6 +909,7 @@ static const help_t help[] = {
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
+	{ NULL,		"timer-rand",		"enable random timer frequency" },
 #endif
 	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
@@ -1729,6 +1731,9 @@ next_opt:
 #if defined(STRESS_TIMER)
 		case OPT_TIMER_FREQ:
 			stress_set_timer_freq(optarg);
+			break;
+		case OPT_TIMER_RAND:
+			opt_flags |= OPT_FLAGS_TIMER_RAND;
 			break;
 #endif
 		case OPT_TIMES:

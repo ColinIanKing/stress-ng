@@ -126,6 +126,7 @@
 #define OPT_FLAGS_MINMAX_MASK	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
 #define OPT_FLAGS_SYSLOG	0x0200000000ULL	/* log test progress to syslog */
 #define OPT_FLAGS_AGGRESSIVE	0x0400000000ULL	/* aggressive mode enabled */
+#define OPT_FLAGS_TIMER_RAND	0x0800000000ULL /* Enable random timer freq */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -1014,6 +1015,7 @@ typedef enum {
 #if defined(STRESS_TIMER)
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
+	OPT_TIMER_RAND,
 #endif
 
 	OPT_TSEARCH,

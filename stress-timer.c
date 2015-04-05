@@ -38,6 +38,7 @@ static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
 static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 static bool set_timer_freq = false;
+static double rate_ns;
 
 /*
  *  stress_set_timer_freq()
@@ -52,25 +53,58 @@ void stress_set_timer_freq(const char *optarg)
 }
 
 /*
+ *  stress_timer_rnd()
+ *	set timer to a random value val / 2 .. val
+ */
+static inline uint64_t stress_timer_rnd(const uint64_t val)
+{
+	uint64_t half = val / 2;
+
+	return half + (half ? (mwc() % half) : 0);
+}
+
+/*
+ *  stress_timer_set()
+ *	set timer, ensure it is never zero
+ */
+void stress_timer_set(struct itimerspec *timer)
+{
+	timer->it_value.tv_sec = (long long int)rate_ns / 1000000000;
+	timer->it_value.tv_nsec = (long long int)rate_ns % 1000000000;
+	if (opt_flags & OPT_FLAGS_TIMER_RAND) {
+		timer->it_value.tv_sec = stress_timer_rnd(timer->it_value.tv_sec);
+		timer->it_value.tv_nsec = stress_timer_rnd(timer->it_value.tv_nsec);
+	}
+	if (timer->it_interval.tv_sec == 0 &&
+	    timer->it_interval.tv_nsec < 1)
+		timer->it_interval.tv_nsec = 1;
+
+	timer->it_interval.tv_sec = timer->it_value.tv_sec;
+	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
+}
+
+/*
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
 static void stress_timer_handler(int sig)
 {
+	struct itimerspec timer;
+
 	(void)sig;
 	timer_counter++;
 
-	/* Cancel timer if we detect no more runs */
-	if (!opt_do_run) {
-		struct itimerspec timer;
+	if (opt_do_run) {
+		stress_timer_set(&timer);
+	} else {
+		/* Cancel timer if we detect no more runs */
 
 		timer.it_value.tv_sec = 0;
 		timer.it_value.tv_nsec = 0;
-		timer.it_interval.tv_sec = timer.it_value.tv_sec;
-		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
-
-		timer_settime(timerid, 0, &timer, NULL);
+		timer.it_interval.tv_sec = 0;
+		timer.it_interval.tv_nsec = 0;
 	}
+	(void)timer_settime(timerid, 0, &timer, NULL);
 }
 
 /*
@@ -86,7 +120,6 @@ int stress_timer(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-	double rate_ns;
 
 	(void)instance;
 
@@ -114,11 +147,7 @@ int stress_timer(
 		return EXIT_FAILURE;
 	}
 
-	timer.it_value.tv_sec = (long long int)rate_ns / 1000000000;
-	timer.it_value.tv_nsec = (long long int)rate_ns % 1000000000;
-	timer.it_interval.tv_sec = timer.it_value.tv_sec;
-	timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
-
+	stress_timer_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
 		pr_failed_err(name, "timer_settime");
 		return EXIT_FAILURE;
