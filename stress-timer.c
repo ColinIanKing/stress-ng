@@ -36,7 +36,7 @@
 
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
-static uint64_t opt_timer_freq;
+static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 static bool set_timer_freq = false;
 
 /*
