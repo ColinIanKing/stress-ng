@@ -251,6 +251,9 @@ static const stress_t stressors[] = {
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_IO | CLASS_OS),
 	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
+#if defined(STRESS_TEE)
+	STRESSOR(tee, TEE, CLASS_IO | CLASS_OS | CLASS_SCHEDULER),
+#endif
 #if defined(STRESS_TIMER)
 	STRESSOR(timer, TIMER, CLASS_INTERRUPT | CLASS_OS),
 #endif
@@ -569,6 +572,10 @@ static const struct option long_options[] = {
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
 	{ "syslog",	0,	0,	OPT_SYSLOG },
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
+#if defined(STRESS_TEE)
+	{ "tee",	1,	0,	OPT_TEE },
+	{ "tee-ops",	1,	0,	OPT_TEE_OPS },
+#endif
 #if defined(STRESS_TIMER)
 	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
@@ -909,6 +916,10 @@ static const help_t help[] = {
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
 	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
 	{ NULL,		"syslog",		"log messages to the syslog" },
+#if defined(STRESS_TEE)
+	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
+	{ NULL,		"tee-ops N",		"stop after N tee bogo operations completed" },
+#endif
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 #if defined(STRESS_TIMER)
 	{ "T N",	"timer N",		"start N workers producing timer events" },

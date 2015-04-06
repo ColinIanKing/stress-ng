@@ -1077,6 +1077,12 @@ stop the sysinfo stressors after N bogo operations.
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
 .TP
+.B \-\-tee N
+move data from a writer process to a reader process through pipes and to /dev/null without any copying between kernel address space and user address space using tee(2). This is only available for Linux.
+.TP
+.B \-\-tee-ops N
+stop after N bogo tee operations.
+.TP
 .B \-t N, \-\-timeout N
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
