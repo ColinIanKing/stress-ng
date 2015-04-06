@@ -44,7 +44,7 @@
  *  spawn()
  *	spawn a process
  */
-static int spawn(
+static pid_t spawn(
 	const char *name,
 	void (*func)(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops),
 	pid_t pid_arg,
