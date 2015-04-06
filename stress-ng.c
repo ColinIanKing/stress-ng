@@ -1841,7 +1841,7 @@ next_opt:
 
 #if defined(STRESS_RDRAND)
 	id = stressor_id_find(STRESS_RDRAND);
-	if ((procs[id].num_procs) &&
+	if ((procs[id].num_procs || opt_sequential) &&
 	    (stress_rdrand_supported() < 0))
 		procs[id].num_procs = 0;
 #endif
