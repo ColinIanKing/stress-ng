@@ -633,13 +633,13 @@ start N processes creating and removing hardlinks.
 stop link stress processes after N bogo operations.
 .TP
 .B \-\-lockf N
-start N processes randomly locking regions of a file using the POSIX lockf(3) locking mechanism. A single 4K file is locked in one of two randomly chosen 2K regions at offsets 0 and 2K.
+start N stressors that randomly lock and unlock regions of a file using the POSIX lockf(3) locking mechanism. Each stressor creates a 64K file and attempts to hold a maximum of 1024 concurrent locks with a child process that also tries to hold 1024 concurrent locks. Old locks are unlocked in a first-in first-out basis.
 .TP
 .B \-\-lockf\-ops N
-stop lockf stress processes after N bogo lockf operations.
+stop lockf stressors after N bogo lockf operations.
 .TP
 .B \-\-lockf\-nonblock
-instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and hence increases locking contention.
+instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and should increase locking contention.
 .TP
 .B \-\-longjmp N
 start N processes that exercise setjmp(3)/longjmp(3) by rapid looping on longjmp calls.

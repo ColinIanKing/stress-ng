@@ -36,7 +36,168 @@
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <errno.h>
+#include <signal.h>
+
+#define LOCK_FILE_SIZE	(64 * 1024)
+#define LOCK_SIZE	(8)
+#define LOCK_MAX	(1024)
+
+typedef struct lockf_info {
+	off_t	offset;
+	struct lockf_info *next;
+} lockf_info_t;
+
+typedef struct {
+	lockf_info_t *head;		/* Head of lockf_info procs list */
+	lockf_info_t *tail;		/* Tail of lockf_info procs list */
+	lockf_info_t *free;		/* List of free'd lockf_infos */
+	uint64_t length;	/* Length of list */
+} lockf_info_list_t;
+
+static lockf_info_list_t lockf_infos;
+
+/*
+ *  stress_lockf_info_new()
+ *	allocate a new lockf_info, add to end of list
+ */
+static lockf_info_t *stress_lockf_info_new(void)
+{
+	lockf_info_t *new;
+
+	if (lockf_infos.free) {
+		/* Pop an old one off the free list */
+		new = lockf_infos.free;
+		lockf_infos.free = new->next;
+		new->next = NULL;
+	} else {
+		new = calloc(1, sizeof(*new));
+		if (!new)
+			return NULL;
+	}
+
+	if (lockf_infos.head)
+		lockf_infos.tail->next = new;
+	else
+		lockf_infos.head = new;
+
+	lockf_infos.tail = new;
+	lockf_infos.length++;
+
+	return new;
+}
+
+/*
+ *  stress_lockf_info_head_remove
+ *	reap a lockf_info and remove a lockf_info from head of list, put it onto
+ *	the free lockf_info list
+ */
+void stress_lockf_info_head_remove(void)
+{
+	if (lockf_infos.head) {
+		lockf_info_t *head = lockf_infos.head;
+
+		if (lockf_infos.tail == lockf_infos.head) {
+			lockf_infos.tail = NULL;
+			lockf_infos.head = NULL;
+		} else {
+			lockf_infos.head = head->next;
+		}
+
+		/* Shove it on the free list */
+		head->next = lockf_infos.free;
+		lockf_infos.free = head;
+
+		lockf_infos.length--;
+	}
+}
+
+/*
+ *  stress_lockf_info_free()
+ *	free the lockf_infos off the lockf_info free list
+ */
+void stress_lockf_info_free(void)
+{
+	while (lockf_infos.free) {
+		lockf_info_t *next = lockf_infos.free->next;
+
+		free(lockf_infos.free);
+		lockf_infos.free = next;
+	}
+}
+
+/*
+ *  stress_lockf_unlock()
+ *	pop oldest lock record off list and unlock it
+ */
+int stress_lockf_unlock(const char *name, const int fd)
+{
+	/* Pop one off list */
+	if (!lockf_infos.head)
+		return 0;
+
+	if (lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0) {
+		pr_failed_err(name, "lseek");
+		return -1;
+	}
+	stress_lockf_info_head_remove();
+
+	if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
+		pr_failed_err(name, "lockf unlock");
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_lockf_contention()
+ *	hammer lock/unlock to create some file lock contention
+ */
+static int stress_lockf_contention(
+	const char *name,
+	const int fd,
+	uint64_t *const counter,
+	const uint64_t max_ops)
+{
+	const int lockf_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
+		F_TLOCK : F_LOCK;
+
+	mwc_reseed();
+
+	do {
+		off_t offset;
+		int rc;
+		lockf_info_t *lockf_info;
+
+		if (lockf_infos.length >= LOCK_MAX)
+			if (stress_lockf_unlock(name, fd) < 0)
+				return -1;
+
+		offset = mwc() % (LOCK_FILE_SIZE - LOCK_SIZE);
+		if (lseek(fd, offset, SEEK_SET) < 0) {
+			pr_failed_err(name, "lseek");
+			return -1;
+		}
+		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
+		if (rc < 0) {
+			if (stress_lockf_unlock(name, fd) < 0)
+				return -1;
+			continue;
+		}
+		/* Locked OK, add to lock list */
+
+		lockf_info = stress_lockf_info_new();
+		if (!lockf_info) {
+			pr_failed_err(name, "calloc");
+			return -1;
+		}
+		lockf_info->offset = offset;
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	return 0;
+}
 
 /*
  *  stress_lockf
@@ -49,15 +210,12 @@ int stress_lockf(
 	const char *name)
 {
 	int fd, ret = EXIT_FAILURE;
-	pid_t ppid = getppid();
+	pid_t pid = getpid(), cpid = -1;
 	char filename[PATH_MAX];
 	char dirname[PATH_MAX];
 	char buffer[4096];
 	off_t offset;
 	ssize_t rc;
-	const int lock_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
-		F_TLOCK : F_LOCK;
-
 
 	memset(buffer, 0, sizeof(buffer));
 
@@ -65,7 +223,7 @@ int stress_lockf(
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), name, ppid, instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_failed_err(name, "mkdir");
@@ -79,14 +237,9 @@ int stress_lockf(
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, ppid, 0, 0);
-retry:
+		name, pid, instance, mwc());
+
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		if ((errno == ENOENT) && opt_do_run) {
-			/* Race, sometimes we need to retry */
-			goto retry;
-		}
-		/* Not sure why this fails.. report and abort */
 		pr_failed_err(name, "open");
 		(void)rmdir(dirname);
 		return EXIT_FAILURE;
@@ -96,36 +249,41 @@ retry:
 		pr_failed_err(name, "lseek");
 		goto tidy;
 	}
+	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-	if (!opt_do_run)
-		goto tidy;
-	rc = write(fd, buffer, sizeof(buffer));
-	if ((rc < 0) || (rc != sizeof(buffer))) {
-		if ((errno == EAGAIN) || (errno == EINTR))
-			goto redo;
-		pr_failed_err(name, "write");
-		goto tidy;
+		if (!opt_do_run)
+			goto tidy;
+		rc = write(fd, buffer, sizeof(buffer));
+		if ((rc < 0) || (rc != sizeof(buffer))) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
+			pr_failed_err(name, "write");
+			goto tidy;
+		}
 	}
 
-	do {
-		offset = mwc() & 0x1000 ? 0 : sizeof(buffer) / 2;
-		if (lseek(fd, offset, SEEK_SET) < 0) {
-			pr_failed_err(name, "lseek");
-			goto tidy;
-		}
-		while (lockf(fd, lock_cmd, sizeof(buffer) / 2) < 0) {
-			if (!opt_do_run)
-				break;
-		}
-		if (lockf(fd, F_ULOCK, sizeof(buffer) / 2) < 0) {
-			pr_failed_err(name, "lockf unlock");
-			goto tidy;
-		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	cpid = fork();
+	if (cpid < 0) {
+		pr_failed_err(name, "fork");
+		goto tidy;
+	}
+	if (cpid == 0) {
+		if (stress_lockf_contention(name, fd, counter, max_ops) < 0)
+			exit(EXIT_FAILURE);
+		exit(EXIT_SUCCESS);
+	}
 
-	ret = EXIT_SUCCESS;
+	if (stress_lockf_contention(name, fd, counter, max_ops) == 0)
+		ret = EXIT_SUCCESS;
 tidy:
+	if (cpid > 0) {
+		int status;
+
+		kill(cpid, SIGKILL);
+		waitpid(cpid, &status, 0);
+	}
+	stress_lockf_info_free();
+
 	(void)close(fd);
 	(void)unlink(filename);
 	(void)rmdir(dirname);
