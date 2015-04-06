@@ -46,23 +46,23 @@
 #include <errno.h>
 #include <features.h>
 
+#define _VER_(major, minor, patchlevel)			\
+	((major * 10000) + (minor * 100) + patchlevel)
+
 #if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
-#define NEED_GLIB(major, minor, patchlevel) 			\
-	((major * 10000) + (minor * 100) + patchlevel) <= 	\
-	((__GLIBC__ * 10000) + (__GLIBC_MINOR__ * 100) + 0)
+#define NEED_GLIBC(major, minor, patchlevel) 			\
+	_VER_(major, minor, patchlevel) <= _VER_(__GLIBC__, __GLIBC_MINOR__, 0)
 #else
-#define NEED_GLIB(major, minor, patchlevel) 	(0)
+#define NEED_GLIBC(major, minor, patchlevel) 	(0)
 #endif
 
 #if defined(__GNUC__) && defined(__GNUC_MINOR__)
 #if defined(__GNUC_PATCHLEVEL__)
 #define NEED_GNUC(major, minor, patchlevel) 			\
-	((major * 10000) + (minor * 100) + patchlevel) <= 	\
-	((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100) + __GNUC_PATCHLEVEL__)
+	_VER_(major, minor, patchlevel) <= _VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
 #else
 #define NEED_GNUC(major, minor, patchlevel) 			\
-	((major * 10000) + (minor * 100) + patchlevel) <= 	\
-	((__GNUC__ * 10000) + (__GNUC_MINOR__ * 100) + 0)
+	_VER_(major, minor, patchlevel) <= _VER_(__GNUC__, __GNUC_MINOR__, 0)
 #endif
 #else
 #define NEED_GNUC(major, minor, patchlevel) 	(0)
@@ -491,15 +491,15 @@ typedef enum {
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DUP,
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,3,2)
 	__STRESS_EPOLL,
 #define STRESS_EPOLL __STRESS_EPOLL
 #endif
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,8,0)
 	__STRESS_EVENTFD,
 #define STRESS_EVENTFD __STRESS_EVENTFD
 #endif
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
 	__STRESS_FALLOCATE,
 #define STRESS_FALLOCATE __STRESS_FALLOCATE
 #endif
@@ -540,17 +540,17 @@ typedef enum {
 	STRESS_MALLOC,
 	STRESS_MATRIX,
 	STRESS_MEMCPY,
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
 	__STRESS_MINCORE,
 #define STRESS_MINCORE __STRESS_MINCORE
 #endif
 	STRESS_MMAP,
 	STRESS_MMAPMANY,
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,4,0)
 	__STRESS_MREMAP,
 #define STRESS_MREMAP __STRESS_MREMAP
 #endif
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,0,0)
 	__STRESS_MSG,
 #define STRESS_MSG __STRESS_MSG
 #endif
@@ -573,7 +573,7 @@ typedef enum {
 	__STRESS_RDRAND,
 #define STRESS_RDRAND __STRESS_RDRAND
 #endif
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
 	__STRESS_READAHEAD,
 #define STRESS_READAHEAD __STRESS_READAHEAD
 #endif
@@ -584,12 +584,12 @@ typedef enum {
 	__STRESS_SEMAPHORE_SYSV,
 #define STRESS_SEMAPHORE_SYSV __STRESS_SEMAPHORE_SYSV
 #endif
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,1,0)
 	__STRESS_SENDFILE,
 #define STRESS_SENDFILE __STRESS_SENDFILE
 #endif
 	STRESS_SHM_SYSV,
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,8,0)
 	__STRESS_SIGFD,
 #define STRESS_SIGFD __STRESS_SIGFD
 #endif
@@ -600,7 +600,7 @@ typedef enum {
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SOCKET,
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_SPLICE,
 #define STRESS_SPLICE __STRESS_SPLICE
 #endif
@@ -609,7 +609,7 @@ typedef enum {
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
-#if defined(__linux__) &&  NEED_GLIB(2,5,0)
+#if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_TEE,
 #define STRESS_TEE __STRESS_TEE
 #endif
@@ -633,11 +633,11 @@ typedef enum {
 	STRESS_VM,
 #if defined(__linux__) && \
     defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev) && \
-    NEED_GLIB(2,15,0)
+    NEED_GLIBC(2,15,0)
 	__STRESS_VM_RW,
 #define STRESS_VM_RW __STRESS_VM_RW
 #endif
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_VM_SPLICE,
 #define STRESS_VM_SPLICE __STRESS_VM_SPLICE
 #endif

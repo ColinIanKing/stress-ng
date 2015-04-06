@@ -87,7 +87,7 @@ int stress_crypt(
 
 		if (stress_crypt_id(name, '1', "MD5", passwd, salt) < 0)
 			break;
-#if NEED_GLIB(2,7,0)
+#if NEED_GLIBC(2,7,0)
 		if (stress_crypt_id(name, '5', "SHA-256", passwd, salt) < 0)
 			break;
 		if (stress_crypt_id(name, '6', "SHA-512", passwd, salt) < 0)
