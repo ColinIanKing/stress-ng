@@ -70,7 +70,7 @@ static void stress_lease_handler(int dummy)
  *  stress_lease_spawn()
  *	spawn a process
  */
-static int stress_lease_spawn(
+static pid_t stress_lease_spawn(
 	const char *filename,
 	const char *name,
 	const uint64_t max_ops,
