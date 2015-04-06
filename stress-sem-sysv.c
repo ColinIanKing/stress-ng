@@ -151,7 +151,7 @@ static void semaphore_sysv_thrash(
  *  semaphore_sysv_spawn()
  *	spawn a process
  */
-static int semaphore_sysv_spawn(
+static pid_t semaphore_sysv_spawn(
 	const char *name,
 	const uint64_t max_ops,
 	uint64_t *counter)
