@@ -112,7 +112,7 @@ static void semaphore_posix_thrash(
  *  semaphore_posix_spawn()
  *	spawn a process
  */
-static int semaphore_posix_spawn(
+static pid_t semaphore_posix_spawn(
 	const char *name,
 	const uint64_t max_ops,
 	uint64_t *counter)
