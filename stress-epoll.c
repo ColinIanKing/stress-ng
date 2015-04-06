@@ -143,7 +143,7 @@ static void handle_socket_sigalrm(int dummy)
  *  epoll_spawn()
  *	spawn a process
  */
-static int epoll_spawn(
+static pid_t epoll_spawn(
 	epoll_func_t func,
 	const int child,
 	uint64_t *const counter,
