@@ -508,7 +508,7 @@ typedef enum {
 	STRESS_FLOCK,
 	STRESS_FORK,
 	STRESS_FSTAT,
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_futex)
 	__STRESS_FUTEX,
 #define STRESS_FUTEX __STRESS_FUTEX
 #endif
