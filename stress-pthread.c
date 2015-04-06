@@ -85,7 +85,7 @@ void *stress_pthread_func(void *ctxt)
 	 *  According to POSIX.1 a thread should have
 	 *  a distinct alternative signal stack.
 	 *  However, we block signals in this thread
-	 *  so this is probably just totall unncessary.
+	 *  so this is probably just totally unncessary.
 	 */
 	ss.ss_sp = (void *)stack;
 	ss.ss_size = SIGSTKSZ;
