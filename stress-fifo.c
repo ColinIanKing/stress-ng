@@ -53,7 +53,7 @@ void stress_set_fifo_readers(const char *optarg)
  *  fifo_spawn()
  *	spawn a process
  */
-static int fifo_spawn(
+static pid_t fifo_spawn(
 	void (*func)(const char *name, const char *fifoname),
 	const char *name,
 	const char *fifoname)
