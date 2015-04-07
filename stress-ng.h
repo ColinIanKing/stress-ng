@@ -150,6 +150,9 @@
 #define CLASS_VM		0x00000040	/* VM stress, big memory, swapping */
 #define CLASS_INTERRUPT		0x00000080	/* interrupt floods */
 #define CLASS_OS		0x00000100	/* generic OS tests */
+#define CLASS_PIPE_IO		0x00000200	/* pipe I/O */
+#define CLASS_FILESYSTEM	0x00000400	/* file system */
+#define CLASS_DEV		0x00000800	/* device (null, zero, etc) */
 
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
