@@ -279,8 +279,8 @@ tidy:
 	if (cpid > 0) {
 		int status;
 
-		kill(cpid, SIGKILL);
-		waitpid(cpid, &status, 0);
+		(void)kill(cpid, SIGKILL);
+		(void)waitpid(cpid, &status, 0);
 	}
 	stress_lockf_info_free();
 
