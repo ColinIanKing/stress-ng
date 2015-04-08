@@ -817,7 +817,7 @@ static const help_t help[] = {
 	{ NULL,		"mremap-bytes N",	"mremap N bytes maximum for each stress iteration" },
 #endif
 #if defined(STRESS_MSG)
-	{ NULL,		"msg N",		"start N workers passing messages using System V messages" },
+	{ NULL,		"msg N",		"start N workers stressing System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
 #endif
 #if defined(STRESS_MQ)
@@ -846,13 +846,13 @@ static const help_t help[] = {
 	{ NULL,		"pthread N",		"start N workers that create multiple threads" },
 	{ NULL,		"pthread-ops N",	"stop pthread workers after N bogo threads created" },
 	{ NULL,		"pthread-max P",	"create P threads at a time by each worker" },
-	{ "Q",		"qsort N",		"start N workers exercising qsort on 32 bit random integers" },
+	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
 #if defined(STRESS_RDRAND)
-	{ NULL,		"rdrand N",		"start N workers exercising rdrand instruction (x86 only)" },
+	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
 #endif
 #if defined(STRESS_READAHEAD)
@@ -872,7 +872,7 @@ static const help_t help[] = {
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
 #if defined(STRESS_SEMAPHORE_SYSV)
 	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
-	{ NULL,		"sem-sysv-ops N",	"stop when N System V semaphore bogo operations completed" },
+	{ NULL,		"sem-sysv-ops N",	"stop when N System V sem bogo operations completed" },
 	{ NULL,		"sem-sysv-procs N",	"number of processes to start per worker" },
 #endif
 #if defined(STRESS_SENDFILE)
@@ -883,7 +883,7 @@ static const help_t help[] = {
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"shm-sysv N",		"start N workers that exercise System V shared memory" },
 	{ NULL,		"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
-	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per iteration" },
+	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
 	{ NULL,		"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
 #if defined(STRESS_SIGFD)
 	{ NULL,		"sigfd N",		"start N workers reading signals via signalfd reads " },
