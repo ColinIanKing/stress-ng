@@ -44,7 +44,9 @@
 #endif
 #include <fcntl.h>
 #include <errno.h>
+#if defined (__GLIBC__)
 #include <features.h>
+#endif
 
 #define _VER_(major, minor, patchlevel)			\
 	((major * 10000) + (minor * 100) + patchlevel)
