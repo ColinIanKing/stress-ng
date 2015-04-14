@@ -1,3 +1,56 @@
+stress-ng (0.03.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-crypt: fix build on FreeBSD
+  * stress-mmapmany: include signal.h to stop build warnings
+  * Make features.h dependent on GLIBC
+  * Make help info less than 80 chars wide
+  * stress-lockf: explicitly ignore return from waitpid and kill
+  * Add device, filesystem and pipe classes, re-classify some tests
+  * stress-pthread: fix comment
+  * Only allow futex test if system call is defined
+  * Check if rdrand is supported if sequential mode selected
+  * Make stress-lockf more aggressive with more concurrent locking
+  * Rename NEED_GLIB to NEED_GLIBC and use on newer system calls
+  * Add tee stressor
+  * Fix wait spawn to return pid_t rather than int
+  * Fix sem spawn to return pid_t rather than int
+  * Fix sem-sysv spawn to return pid_t rather than int
+  * Fix lease spawn to return pid_t rather than int
+  * Fix fifo spawn to return pid_t rather than int
+  * Fix epoll spawn to return pid_t rather than int
+  * Fix typo: _GNUC__ -> __GNUC__
+  * Add crypt stressor
+  * Add --timer-rand option for more of a mix in timer scheduling
+  * Fix uninitialised timer frequency in stress-timer
+  * Fix typo in manual
+  * Check for fork EAGAIN failure, polled retry
+  * Add mmanmany stressor
+  * The current VFORK build check fails, just make it build w/o checks for now
+  * Add zombie stressor - fill up process table with children wait to be reaped
+  * stress-null: fix comment
+  * Don't define HOT and OPTIMIZE3 for older versions of GNUC
+  * Add glibc and gcc version macros, use them for rdrand and vm-rw stressors
+  * Add depends on libattr1-dev
+  * Option --readahead-bytes should only built in if readahead supported
+  * stress-cpu: Use more optimal gray to integer conversion
+  * stress-cpu: minor tweaks to ensure optimizer does not over optimize
+  * Add and use OPTIMIZE3 -O3 macro
+  * Forgot to add the --str-method to the help
+  * Add the str string stressor
+  * stress-xattr: fix incorrect clean up path on error
+  * Add HOT macro, add it to cpu intensive busy loops
+  * stress-readahead: build only if readahead allowed on system
+  * Add xattr stressor
+  * stress-kill: Add some more kill variations
+  * Update syscalls table
+  * stress-mmap: unmap buf, fixes resouce leak
+  * Add readahead I/O stressor
+  * Add deep function call cpu stressor method
+  * stress-vm: add rowhammer memory stressor
+
+ -- Colin King <colin.king@canonical.com>  Tue, 14 Apr 2015 16:15:00 +0500
+
 stress-ng (0.03.20-1) unstable; urgency=medium
 
   * Makefile: bump version
