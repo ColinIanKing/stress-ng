@@ -1198,7 +1198,15 @@ extern void mwc_seed(const uint64_t w, const uint64_t z);
 extern void mwc_reseed(void);
 
 /* Time handling */
-extern double timeval_to_double(const struct timeval *tv);
+/*
+ *  timeval_to_double()
+ *      convert timeval to seconds as a double
+ */
+static inline double timeval_to_double(const struct timeval *tv)
+{
+        return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
+}
+
 extern double time_now(void);
 
 /* Misc settings helpers */

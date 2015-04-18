@@ -27,14 +27,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-/*
- *  timeval_to_double()
- *      convert timeval to seconds as a double
- */
-double timeval_to_double(const struct timeval *tv)
-{
-	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
-}
+#include "stress-ng.h"
 
 /*
  *  time_now()
