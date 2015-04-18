@@ -1,3 +1,13 @@
+stress-ng (0.03.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-eventfd: check if termination flag set
+  * stress-tee: handle EINTR in tee()
+  * Make timeval_to_double an inlined func
+  * stress-sigfd: return rather than _exit() on error
+
+ -- Colin King <colin.king@canonical.com>  Sat, 18 Apr 2015 13:04:00 +0500
+
 stress-ng (0.03.21-1) unstable; urgency=medium
 
   * Makefile: bump version
