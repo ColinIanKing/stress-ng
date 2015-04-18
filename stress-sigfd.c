@@ -57,12 +57,12 @@ int stress_sigfd(
 	sigaddset(&mask, SIGUSR1);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
 		pr_failed_dbg(name, "sigprocmask");
-		_exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
 		pr_failed_dbg(name, "signalfd");
-		_exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	pid = fork();
