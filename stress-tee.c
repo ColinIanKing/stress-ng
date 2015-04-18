@@ -161,6 +161,8 @@ int stress_tee(
 		if (len < 0) {
 			if (errno == EAGAIN)
 				continue;
+			if (errno == EINTR)
+				break;
 			pr_err(stderr, "%s: tee failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			goto tidy_child2;
