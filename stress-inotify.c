@@ -75,15 +75,16 @@ static void inotify_exercise(
 	const int flags,	/* IN_* flags to watch for */
 	void *private)		/* Helper func private data */
 {
-	int fd, wd, check_flags = flags;
+	int fd, wd, check_flags = flags, n = 0;
 	char buffer[1024];
-	static uint32_t n = 0;
-
 retry:
 	n++;
 	if ((fd = inotify_init()) < 0) {
+		if (!opt_do_run)
+			return;
+
 		/* This is just so wrong... */
-		if (n < 1000 && errno == EMFILE) {
+		if (n < 10000 && errno == EMFILE) {
 			/*
 			 * inotify cleanup may be still running from a previous
 			 * iteration, in which case we've run out of resources
