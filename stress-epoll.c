@@ -295,7 +295,7 @@ static int epoll_client(
 
 	do {
 		char buf[4096];
-		int fd;
+		int fd, saved_errno;
 		int retries = 0;
 		int ret = -1;
 		int port = opt_epoll_port + port_counter + (max_servers * instance);
@@ -336,12 +336,13 @@ retry:
 			(void)close(fd);
 			return -1;
 		}
-		errno = 0;
 
 		stress_set_sockaddr(name, instance, ppid,
 			opt_epoll_domain, port, &addr, &addr_len);
 
+		errno = 0;
 		ret = connect(fd, addr, addr_len);
+		saved_errno = errno;
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
@@ -351,7 +352,7 @@ retry:
 		}
 
 		if (ret < 0) {
-			switch (errno) {
+			switch (saved_errno) {
 			case EINTR:
 				connect_timeouts++;
 				break;
@@ -360,7 +361,7 @@ retry:
 				break;
 			default:
 				pr_dbg(stderr, "%s: connect failed: %d (%s)\n",
-					name, errno, strerror(errno));
+					name, saved_errno, strerror(saved_errno));
 				break;
 			}
 			(void)close(fd);
