@@ -97,7 +97,8 @@ static void semaphore_posix_thrash(
 
 		for (i = 0; i < 1000; i++) {
 			if (sem_wait(&shared->sem_posix) < 0) {
-				pr_failed_dbg(name, "sem_wait");
+				if (errno != EINTR)
+					pr_failed_dbg(name, "sem_wait");
 				break;
 			}
 			(*counter)++;
