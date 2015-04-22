@@ -365,12 +365,13 @@ retry:
 				break;
 			}
 			(void)close(fd);
-			usleep(1000);		/* Twiddle fingers for a moment */
+			usleep(100000);		/* Twiddle fingers for a moment */
 
 			retries++;
-			if (retries > 100) {
+			if (retries > 1000) {
 				/* Sigh, give up.. */
-				pr_failed_dbg(name, "connect");
+				errno = saved_errno;
+				pr_failed_dbg(name, "too many connects");
 				return -1;
 			}
 			goto retry;
