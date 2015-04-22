@@ -38,7 +38,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define ABORT_TIMEOUT	(2.0)
+#define ABORT_TIMEOUT	(8.0)
 
 /*
  *  spawn()
