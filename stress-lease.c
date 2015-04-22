@@ -97,7 +97,7 @@ static pid_t stress_lease_spawn(
 			fd = open(filename, O_NONBLOCK | O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				if (errno != EWOULDBLOCK && errno != EACCES) {
-					pr_dbg(stderr, "%s: open failed: errno=%d: (%s)\n",
+					pr_dbg(stderr, "%s: open failed (child): errno=%d: (%s)\n",
 						name, errno, strerror(errno));
 				}
 				continue;
@@ -145,7 +145,7 @@ int stress_lease(
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
+		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
@@ -163,7 +163,7 @@ int stress_lease(
 	do {
 		fd = open(filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
-			pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
+			pr_err(stderr, "%s: open failed (parent): errno=%d: (%s)\n",
 				name, errno, strerror(errno));
 			goto reap;
 		}
@@ -178,7 +178,7 @@ int stress_lease(
 		(void)sched_yield();
 #endif
 		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-			pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
+			pr_err(stderr, "%s: fcntl failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));
 			(void)close(fd);
 			break;
