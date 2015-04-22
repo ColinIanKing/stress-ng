@@ -101,8 +101,11 @@ int stress_poll(
 		}
 	}
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		ret = EXIT_FAILURE;
 		goto tidy;

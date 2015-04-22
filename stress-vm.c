@@ -1904,6 +1904,8 @@ again:
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 	} else if (pid > 0) {

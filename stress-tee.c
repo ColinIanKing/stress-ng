@@ -59,8 +59,12 @@ static pid_t stress_tee_spawn(
 		return -1;
 	}
 
+again:
         pid = fork();
         if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
+
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		pr_err(stderr, "%s: fork failed: %d (%s)\n",

@@ -119,8 +119,11 @@ static pid_t semaphore_posix_spawn(
 {
 	pid_t pid;
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		return -1;
 	}
 	if (pid == 0) {

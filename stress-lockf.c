@@ -262,8 +262,11 @@ redo:
 		}
 	}
 
+again:
 	cpid = fork();
 	if (cpid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_err(name, "fork");
 		goto tidy;
 	}

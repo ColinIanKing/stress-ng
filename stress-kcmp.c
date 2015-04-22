@@ -113,8 +113,12 @@ int stress_kcmp(
 		return EXIT_FAILURE;
 	}
 
+again:
 	pid1 = fork();
 	if (pid1 < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
+
 		pr_failed_dbg(name, "fork");
 		(void)close(fd1);
 		return EXIT_FAILURE;

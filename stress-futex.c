@@ -77,8 +77,11 @@ int stress_futex(
 	uint32_t *futex = &shared->futex[instance];
 	pid_t pid;
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 	}

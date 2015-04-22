@@ -65,8 +65,11 @@ int stress_sigfd(
 		return EXIT_FAILURE;
 	}
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {

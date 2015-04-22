@@ -72,8 +72,11 @@ int stress_msg(
 	}
 	pr_dbg(stderr, "System V message queue created, id: %d\n", msgq_id);
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {

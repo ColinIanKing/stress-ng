@@ -129,8 +129,11 @@ int stress_mq(
 	pr_dbg(stderr, "POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {

@@ -66,8 +66,11 @@ int stress_eventfd(
 		return EXIT_FAILURE;
 	}
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		(void)close(fd1);
 		(void)close(fd2);

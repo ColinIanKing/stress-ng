@@ -54,8 +54,11 @@ int stress_switch(
 		return EXIT_FAILURE;
 	}
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
 		pr_failed_dbg(name, "fork");

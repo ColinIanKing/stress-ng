@@ -85,8 +85,11 @@ static pid_t stress_lease_spawn(
 			opt_lease_breakers = MIN_LEASE_BREAKERS;
 	}
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		return -1;
 	}
 	if (pid == 0) {

@@ -92,8 +92,11 @@ int stress_socket(
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
 		name, getpid(), opt_socket_port + instance);
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
