@@ -95,7 +95,7 @@ int stress_sysinfo(
 				continue;
 			}
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno != ENOSYS && errno != EOVERFLOW) {
+				if (errno != ENOSYS && errno != EOVERFLOW && errno != EACCES) {
 					pr_fail(stderr, "%s: statfs on %s failed: errno=%d (%s)\n",
 						name, mnts[i], errno, strerror(errno));
 				}
