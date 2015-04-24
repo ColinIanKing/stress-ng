@@ -60,6 +60,9 @@ int stress_affinity(
 		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
 			pr_fail(stderr, "%s: failed to move to CPU %lu\n",
 				name, cpu);
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+			sched_yield();
+#endif
 		} else {
 			/* Now get and check */
 			CPU_ZERO(&mask);
