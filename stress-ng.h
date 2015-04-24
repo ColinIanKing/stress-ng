@@ -520,7 +520,7 @@ typedef enum {
 	STRESS_GET,
 	STRESS_HDD,
 	STRESS_HSEARCH,
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
 	__STRESS_INOTIFY,
 #define STRESS_INOTIFY __STRESS_INOTIFY
 #endif
