@@ -88,6 +88,7 @@ pwrite				readahead
 read				pipe
 read				zero
 readahead			readahead
+readv				hdd
 recv				sock
 rename				rename
 rmdir				dir
@@ -132,5 +133,6 @@ waitpid				wait
 write				hdd
 write				null
 write				pipe
+writev				hdd
 pread				aio
 pwrite				aio
