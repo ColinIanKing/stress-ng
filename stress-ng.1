@@ -525,6 +525,9 @@ T}
 dsync	T{
 ensure output has been transferred to underlying hardware and file metadata has been updated. This is equivalent to each write(2) being followed by a call to fdatasync(2).
 T}
+iovec	T{
+use readv/writev multiple buffer I/Os rather than read/write. Instead of 1 read/write operation, the buffer is broken into an iovec of 16 buffers.
+T}
 noatime	T{
 do not update the file last access timestamp, this can reduce metadata writes.
 T}

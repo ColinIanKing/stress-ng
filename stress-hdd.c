@@ -36,6 +36,7 @@
 #include "stress-ng.h"
 
 #define BUF_ALIGNMENT		(4096)
+#define HDD_IO_VEC_MAX		(16)		/* Must be power of 2 */
 
 /* Write and read stress modes */
 #define HDD_OPT_WR_SEQ		(0x00000001)
@@ -60,6 +61,9 @@
 #define HDD_OPT_O_DIRECT	(0x00040000)
 #define HDD_OPT_O_NOATIME	(0x00080000)
 #define HDD_OPT_O_MASK		(0x000f0000)
+
+/* Other modes */
+#define HDD_OPT_IOVEC		(0x00100000)
 
 static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
@@ -125,6 +129,7 @@ static const hdd_opts_t hdd_opts[] = {
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_WILLNEED),
 		POSIX_FADV_DONTNEED, 0 },
 #endif
+	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
 	{ NULL, 0, 0, 0, 0 }
 };
 
@@ -143,6 +148,55 @@ void stress_set_hdd_write_size(const char *optarg)
 	check_range("hdd-write-size", opt_hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 }
+
+/*
+ *  stress_hdd_write()
+ *	write with writev or write depending on mode
+ */
+static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
+{
+	if (opt_hdd_flags & HDD_OPT_IOVEC) {
+		struct iovec iov[HDD_IO_VEC_MAX];
+		size_t i;
+		uint8_t *data = (uint8_t *)buf;
+		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
+
+		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
+			iov[i].iov_base = data;
+			iov[i].iov_len = (size_t)sz;
+
+			buf += sz;
+		}
+		return writev(fd, iov, HDD_IO_VEC_MAX);
+	} else {
+		return write(fd, buf, count);
+	}
+}
+
+/*
+ *  stress_hdd_read()
+ *	read with readv or read depending on mode
+ */
+static ssize_t stress_hdd_read(const int fd, void *buf, size_t count)
+{
+	if (opt_hdd_flags & HDD_OPT_IOVEC) {
+		struct iovec iov[HDD_IO_VEC_MAX];
+		size_t i;
+		uint8_t *data = (uint8_t *)buf;
+		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
+
+		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
+			iov[i].iov_base = data;
+			iov[i].iov_len = (size_t)sz;
+
+			buf += sz;
+		}
+		return readv(fd, iov, HDD_IO_VEC_MAX);
+	} else {
+		return read(fd, buf, count);
+	}
+}
+
 
 /*
  *  stress_hdd_opts
@@ -232,7 +286,7 @@ int stress_hdd(
 	const char *name)
 {
 	uint8_t *buf = NULL;
-	uint64_t i;
+	uint64_t i, min_size, remainder;
 	const pid_t pid = getpid();
 	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -253,11 +307,35 @@ int stress_hdd(
 			opt_hdd_write_size = MIN_HDD_WRITE_SIZE;
 	}
 
+	if (opt_hdd_flags & HDD_OPT_O_DIRECT) {
+		min_size = (opt_hdd_flags & HDD_OPT_IOVEC) ?
+			HDD_IO_VEC_MAX * BUF_ALIGNMENT : MIN_HDD_WRITE_SIZE;
+	} else {
+		min_size = (opt_hdd_flags & HDD_OPT_IOVEC) ?
+			HDD_IO_VEC_MAX * MIN_HDD_WRITE_SIZE : MIN_HDD_WRITE_SIZE;
+	}
+	/* Ensure I/O size is not too small */
+	if (opt_hdd_write_size < min_size) {
+		opt_hdd_write_size = min_size;
+		pr_inf(stderr, "%s: increasing read/write size to %" PRIu64 " bytes\n",
+			name, opt_hdd_write_size);
+	}
+
+	/* Ensure we get same sized iovec I/O sizes */
+	remainder = opt_hdd_write_size % HDD_IO_VEC_MAX;
+	if ((opt_hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
+		opt_hdd_write_size += HDD_IO_VEC_MAX - remainder;
+		pr_inf(stderr, "%s: increasing read/write size to %" PRIu64 " bytes in iovec mode\n",
+			name, opt_hdd_write_size);
+	}
+
+	/* Ensure complete file size is not less than the I/O size */
 	if (opt_hdd_bytes < opt_hdd_write_size) {
 		opt_hdd_bytes = opt_hdd_write_size;
 		pr_inf(stderr, "%s: increasing file size to write size of %" PRIu64 " bytes\n",
 			name, opt_hdd_bytes);
 	}
+
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
@@ -323,7 +401,7 @@ rnd_wr_retry:
 				for (j = 0; j < opt_hdd_write_size; j++)
 					buf[j] = (offset + j) & 0xff;
 
-				ret = write(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_write(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_wr_retry;
@@ -348,7 +426,7 @@ seq_wr_retry:
 
 				for (j = 0; j < opt_hdd_write_size; j += 512)
 					buf[j] = (i + j) & 0xff;
-				ret = write(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_write(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_wr_retry;
@@ -379,7 +457,7 @@ seq_rd_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 
-				ret = read(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
@@ -435,7 +513,7 @@ seq_rd_retry:
 rnd_rd_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
-				ret = read(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
