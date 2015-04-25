@@ -33,7 +33,9 @@
 #include <sys/resource.h>
 #if defined(__linux__)
 #include <sys/syscall.h>
+#include <sys/utsname.h>
 #endif
+#include <time.h>
 
 #include "stress-ng.h"
 
@@ -140,11 +142,13 @@ int stress_get(
 #if defined(__linux__)
 		gid_t rgid, egid, sgid;
 		uid_t ruid, euid, suid;
+		struct utsname utsbuf;
 #endif
 		const pid_t mypid = getpid();
 		int ret;
 		size_t i;
 		struct timeval tv;
+		time_t t;
 
 		check_do_run();
 
@@ -237,10 +241,21 @@ int stress_get(
 		check_do_run();
 #endif
 
+		t = time(NULL);
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (t == (time_t)-1))
+			pr_fail(stderr, "%s: time failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+
 		ret = gettimeofday(&tv, NULL);
 		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
 			pr_fail(stderr, "%s: gettimeval failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
+#if defined(__linux__)
+		ret = uname(&utsbuf);
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+			pr_fail(stderr, "%s: uname failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+#endif
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
