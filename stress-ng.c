@@ -198,6 +198,9 @@ static const stress_t stressors[] = {
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS),
 	STRESSOR(matrix, MATRIX, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_CPU),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
+#if defined(STRESS_MEMFD)
+	STRESSOR(memfd, MEMFD, CLASS_OS | CLASS_MEMORY),
+#endif
 #if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
@@ -454,6 +457,10 @@ static const struct option long_options[] = {
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
+#if defined(STRESS_MEMFD)
+	{ "memfd",	1,	0,	OPT_MEMFD },
+	{ "memfd-ops",	1,	0,	OPT_MEMFD_OPS },
+#endif
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
 #if defined(STRESS_MINCORE)
@@ -801,6 +808,10 @@ static const help_t help[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
+#if defined(STRESS_MEMFD)
+	{ NULL,		"memfd N",		"start N workers allocating memory with memfd_create" },
+	{ NULL,		"memfd-ops N",		"stop when N memfd bogo operations completed" },
+#endif
 #if defined(STRESS_MINCORE)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
 	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },

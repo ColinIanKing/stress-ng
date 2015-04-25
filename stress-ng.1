@@ -782,6 +782,12 @@ start N processes that copy 2MB of data from a shared region to a buffer using m
 .B \-\-memcpy\-ops N
 stop memcpy stress processes after N bogo memcpy operations.
 .TP
+.B \-\-memfd N
+start N workers that create 256 allocations of 1024 pages using memfd_create(2) and ftruncate(2) for allocation and mmap(2) to map the allocation into the process address space.  (Linux only).
+.TP
+.B \-\-memfd-ops N
+stop after N memfd-create(2) bogo operations.
+.TP
 .B \-\-mincore N
 start N processes that walk through all of memory 1 page at a time checking of the page mapped and also is resident in memory using mincore(2).
 .TP

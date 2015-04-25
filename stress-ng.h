@@ -396,7 +396,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_IONICE
 #endif
 
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__)
+#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
 #define STRESS_PAGE_IN
 #endif
 
@@ -545,9 +545,13 @@ typedef enum {
 	STRESS_MALLOC,
 	STRESS_MATRIX,
 	STRESS_MEMCPY,
-#if (_BSD_SOURCE || _SVID_SOURCE) && !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
+#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__)) && NEED_GLIBC(2,2,0)
 	__STRESS_MINCORE,
 #define STRESS_MINCORE __STRESS_MINCORE
+#endif
+#if defined(__linux__) && defined(__NR_memfd_create)
+	__STRESS_MEMFD,
+#define STRESS_MEMFD __STRESS_MEMFD
 #endif
 	STRESS_MMAP,
 	STRESS_MMAPMANY,
@@ -888,6 +892,11 @@ typedef enum {
 	OPT_MMAP_FILE,
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
+
+#if defined(STRESS_MEMFD)
+	OPT_MEMFD,
+	OPT_MEMFD_OPS,
+#endif
 
 	OPT_MMAPMANY,
 	OPT_MMAPMANY_OPS,
@@ -1358,6 +1367,7 @@ STRESS(stress_lsearch);
 STRESS(stress_malloc);
 STRESS(stress_matrix);
 STRESS(stress_memcpy);
+STRESS(stress_memfd);
 STRESS(stress_mincore);
 STRESS(stress_mmap);
 STRESS(stress_mmapmany);
