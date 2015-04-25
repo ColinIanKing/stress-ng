@@ -130,7 +130,7 @@ lsetxattr
 lstat				fstat
 madvise				mmap, vm
 mbind
-memfd_create
+memfd_create			memfd
 migrate_pages
 mincore				bigheap, mincore, mmap, vm
 mkdir				dir
