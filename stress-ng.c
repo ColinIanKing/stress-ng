@@ -46,6 +46,10 @@
 
 #include "stress-ng.h"
 
+#if defined(STRESS_AFFINITY)
+#include <sched.h>
+#endif
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
@@ -1160,6 +1164,41 @@ static void wait_procs(bool *success)
 {
 	int i;
 
+#if defined(STRESS_AFFINITY)
+	/*
+	 *  On systems that support changing CPU affinity
+	 *  we keep on moving processed between processors
+	 *  to impact on memory locality (e.g. NUMA) to
+	 *  try to thrash the system when in aggressive mode
+	 */
+	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
+		unsigned long int cpu = 0;
+
+		while (opt_do_run) {
+			const unsigned long cpus = stress_get_processors_online();
+			unsigned long int cpu_num = cpu;
+
+			for (i = 0; i < STRESS_MAX; i++) {
+				int j;
+
+				for (j = 0; j < procs[i].started_procs; j++) {
+					const pid_t pid = procs[i].pids[j];
+					cpu_set_t mask;
+					cpu_num = (cpu_num + 1) % cpus;
+
+					CPU_ZERO(&mask);
+					CPU_SET(cpu_num, &mask);
+					if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
+						goto do_wait;
+				}
+			}
+			usleep(100000);
+			cpu++;
+		}
+	}
+#endif
+
+do_wait:
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
 
@@ -1337,6 +1376,8 @@ again:
 			}
 		}
 	}
+	(void)stress_sethandler("stress-ng");
+	(void)alarm(opt_timeout);
 
 abort:
 	pr_dbg(stderr, "%d stressors running\n", n_procs);
