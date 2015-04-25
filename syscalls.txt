@@ -1,40 +1,89 @@
 Syscall				Stressor
 
 accept				sock
+accept4
+access
+acct
+add_key
+adjtimex
+alarm
 bind				sock
 brk				bigheap
 brk				brk
+capget
+capset
+chdir
 chmod				chmod
+chown
+chroot
+clock_adjtime
 clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
+clock_settime
+clone
 close				dentry
 connect				sock
+creat
+dup				dup
+dup2
+dup3
 endmntent			sysinfo
+epoll_create
 epoll_create1			epoll
+epoll_ctl
 epoll_ctl_add			epoll
+epoll_pwait
 epoll_wait			epoll
 eventfd				eventfd
+eventfd2
+execve
+exit				fork
+exit_group
+faccessat
+fadvise				readahead
 fallocate			fallocate
+fanotify_init
+fanotify_mark
 fchmod				chmod
+fchmodat
+fchown
+fchownat
 fcntl				open, lockf
+fdatasync
+fgetxattr
+flistxattr
 flock				flock
 fork				fork
+fremovexattr			xattr
+fsetxattr			xattr
 fstat				fallocate
+fstatfs
 fsync				fallocate
 ftruncate			fallocate
 futex				futex
+futimesat
 futimens			wait
+get_mempolicy
+get_robust_list
+getthread_area
+getcpu
+getcwd				get
+getdents
 getegid				get
 geteuid				get
 getgid				get
 getgroups			get
+getitimer
 getmntent			sysinfo
+getpeername
+getpagesize
 getpgid				get
 getpgrp				get
 getpid				get
 getppid				get
 getpriority			get
+getrandom
 getpwd				get
 getresgid			get
 getresuid			get
@@ -42,97 +91,246 @@ getrlimit			get
 getrlimit			nice
 getrusage			get
 getsid				get
+getsockname
+getsockopt
 gettid				get
 gettimeofday			get
 getuid				get
+getxattr
 inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
+io_cancel			
+io_destroy
+io_getevents
+io_setup
+io_submit
+ioctl
+ioperm
+iopl
+ioprio_get
+ioprio_set
+ipc
 kcmp				kcmp
+kexec_file_load
+kexec_Load
+keyctl
 kill				kill
+lchown
+lgetxattr
+link				link
+linkat
 listen				sock
+listxattr
+llistxattr
+lookup_dcookie
+lremovexattr
+lseek				hdd, lockf, mmap, seek
+lsetxattr
+lstat				fstat
+madvise				mmap, vm
+mbind
+memfd_create
+migrate_pages
+mincore				bigheap, mincore, mmap, vm
 mkdir				dir
+mkdirat
+mknod
+mknodat
+mlock
+mlockall
 mkstemp				hdd
-madvise				mmap
-madvise				vm
-mincore				bigheap
-mincore				mincore
-mincore				mmap
-mincore				vm
-mmap				bigheap
-mmap				mmap
+mount
+move_pages
+mmap				bigheap, mmap
 mprotect			mmap
+munmap				mmap
+mq_getsetattr
+mq_notify
+mq_open				mq
+mq_send				mq
+mq_timedreceive
+mq_timedsend
+mq_unlink			mq
+mq_receive			mq
+mq_close			mq
+mremap				mremap
 msgctl				msg
 msgget				msg
 msgrcv				msg
 msgsnd				msg
-munmap				mmap
-mq_open				mq
-mq_send				mq
-mq_receive			mq
-mq_unlink			mq
-mq_close			mq
+msync				mmap
+munlock
+munlockall
+munmap				mmap, mremap
+name_to_handle_at
 nanosleep			timer
-open				dentry
-open				open
+nice				nice
+open				dentry, open, etc
+open_by_handle_at
+openat
 pause				kcmp
-pread				readahead
-pipe				pipe
-pipe				switch
+personality
+pipe				pipe, switch, etc
+pipe2
+pivot_root
 poll				poll
 posix_fallocate			fallocate
+ppoll
+prctl				process name setting
+pread				readahead
+preadv
+prlimit
 /proc				proc
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
-pwrite				readahead
-read				pipe
-read				zero
+pselect6
+ptrace
+pwrite				readahead, aio
+pwritev
+quotactl
+read				pipe, zero, ..
 readahead			readahead
+readdir				fstat, inotitfy, proc
+readlink
+readlinkat
 readv				hdd
+reboot
 recv				sock
+recvfrom
+recvmsg
+recvmmsg
+removexattr
 rename				rename
+renameat
+request_key
+restart_syscall			[ ignore this ]
 rmdir				dir
-sbrk				brk
+rt_sigaction
+rt_sigpending
+rt_sigprocmask
+rt_sigqueueinfo
+rt_sigreturn
+rt_sigsuspend
+rt_sigtimedwait
+rt_tgsigqueueinfo
+sched_get_priority_max		sched
+sched_get_priority_min		sched
 sched_getaffinity		affinity
+sched_getattr
+sched_getparam
+sched_getscheduler
+sched_get_rr_interval
 sched_setaffinity		affinity
+sched_setparam
+sched_setscheduler		sched
 sched_yield			yield
+seccomp
 select				poll
+semctl				sem-sysv
+semget				sem-sysv
+semop				sem-sysv
+semtimedop
 sem_destroy			sem
 sem_init			sem
 sem_post			sem
 sem_wait			sem
 send				sock
 sendfile			sendfile
+sendmmsg
+sendmsg
+sendto
+set_mempolicy
+set_robust_list
+set_thread_area
+set_tid_address
+setdomainname
+setfsgid
+setfssuid
+setgid
+setgroups
+sethostname
+setitimer
 setmntent			sysinfo
+setns
+setpgid
 setpriority			nice
+setregid
+setresgid
+setresuid
+setreuid
+setrlimit
+setsid
 setsockopt			sock
+settimeofday
+setuid
+setxattr			
+sgmast
+shmat				shm-sysv
+shmctl				shm-sysv
+shmdt				shm-sysv
+shmget				shm-sysv
+shutdown
 sigaction			sigfpe
+sigaltstack			pthread, stack
+signal				
+signalfd			sigfd
+signalfd4
+sigpending
+sigprocmask			pthread, sigfd
+sigreturn			[ ignore ]
 siglongjmp			sigfpe
 sigqueue			sigq
 sigsetjmp			sigfpe
 sigwaitinfo			sigfpe
+sigsuspend
 socket				sock
-statfs				sysinfo
+socketcall
+socketpair
 stat				fstat
+statfs				sysinfo
+stime
+swapoff
+swapon
+symlink				symlink
+symlinkat
 sync				iosync
+sync_file_range
+syncfs
+sysfs
 sysinfo				sysinfo
-timer_create			clock
-timer_create			timer
-timer_delete			clock
-timer_delete			timer
+syslog
+tee				tee
+tgkill
+time				get
+timer_create			clock, timer
+timer_delete			clock, timer
+timer_getoverrun
 timer_gettime			clock
 timer_settime			timer
+timerfd_create
+timerfd_gettime
+timerfd_settime
 times				sysinfo
-unlink				dentry
-unlink				hdd
-unlink				unlink
+tkill
+truncate
+ugetrlimit
+umask				aio, mmap, sendfile, etc
+umount
+uname				get
+unlink				dentry, hdd, unlink
+unlinkat
+unshare
+ustat				[ deprecated ]
+utime				utime
+utimesat
+utimes
 vfork				vfork
+vhangup
+vmsplice			vm-splice
+wait				various
+wait4	
 waitid				wait
-waitpid				fork
-waitpid				wait
-write				hdd
-write				null
-write				pipe
+waitpid				fork, wait, etc
+write				hdd, null, pull
 writev				hdd
-pread				aio
-pwrite				aio
