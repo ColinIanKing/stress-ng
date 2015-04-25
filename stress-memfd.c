@@ -86,8 +86,6 @@ static void stress_memfd_allocs(
 					opt_do_run = false;
 					goto clean;
 				}
-			} else {
-				(*counter)++;
 			}
 		}
 	
@@ -123,6 +121,7 @@ clean:
 			if (fds[i] >= 0)
 				(void)close(fds[i]);
 		}
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 }
 
