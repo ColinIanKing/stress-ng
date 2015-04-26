@@ -53,28 +53,23 @@ void stress_set_timer_freq(const char *optarg)
 }
 
 /*
- *  stress_timer_rnd()
- *	set timer to a random value val / 2 .. val
- */
-static inline uint64_t stress_timer_rnd(const uint64_t val)
-{
-	uint64_t half = val / 2;
-
-	return half + (half ? (mwc() % half) : 0);
-}
-
-/*
  *  stress_timer_set()
  *	set timer, ensure it is never zero
  */
 void stress_timer_set(struct itimerspec *timer)
 {
-	timer->it_value.tv_sec = (long long int)rate_ns / 1000000000;
-	timer->it_value.tv_nsec = (long long int)rate_ns % 1000000000;
+	double rate;
+
 	if (opt_flags & OPT_FLAGS_TIMER_RAND) {
-		timer->it_value.tv_sec = stress_timer_rnd(timer->it_value.tv_sec);
-		timer->it_value.tv_nsec = stress_timer_rnd(timer->it_value.tv_nsec);
+		/* Mix in some random variation */
+		double r = ((double)(mwc() % 10000) - 5000.0) / 40000.0;
+		rate = rate_ns + (rate_ns * r);
+	} else {
+		rate = rate_ns;
 	}
+
+	timer->it_value.tv_sec = (long long int)rate / 1000000000;
+	timer->it_value.tv_nsec = (long long int)rate % 1000000000;
 	if (timer->it_interval.tv_sec == 0 &&
 	    timer->it_interval.tv_nsec < 1)
 		timer->it_interval.tv_nsec = 1;
