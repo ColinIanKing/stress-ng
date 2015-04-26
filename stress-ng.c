@@ -576,11 +576,11 @@ static const struct option long_options[] = {
 	{ "splice-ops",	1,	0,	OPT_SPLICE_OPS },
 #endif
 	{ "stack",	1,	0,	OPT_STACK},
+	{ "stack-fill",	0,	0,	OPT_STACK_FILL },
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
 	{ "str",	1,	0,	OPT_STR},
 	{ "str-ops",	1,	0,	OPT_STR_OPS },
 	{ "str-method",	1,	0,	OPT_STR_METHOD },
-	{ "stack-fill",	0,	0,	OPT_STACK_FILL },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
