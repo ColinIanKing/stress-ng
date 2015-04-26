@@ -1362,7 +1362,7 @@ stop zero stress processes after N /dev/zero bogo read operations.
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create a default
 of 8192 child processes that immediately die and wait in a zombie state until they are reaped.
-Once the maxiumum number of processes is reached (or fork fails because one has reached the
+Once the maximum number of processes is reached (or fork fails because one has reached the
 maximum allowed number of children) the oldest child is reaped and a new process is then created
 in a first-in first-out manner, and then repeated.
 .TP
