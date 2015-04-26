@@ -77,7 +77,7 @@ getgroups			get
 getitimer
 getmntent			sysinfo
 getpeername
-getpagesize
+getpagesize			[ legacy ]
 getpgid				get
 getpgrp				get
 getpid				get
@@ -297,7 +297,7 @@ symlinkat
 sync				iosync
 sync_file_range
 syncfs
-sysfs
+sysfs				[ obsolete ]
 sysinfo				sysinfo
 syslog
 tee				tee
@@ -308,9 +308,9 @@ timer_delete			clock, timer
 timer_getoverrun
 timer_gettime			clock
 timer_settime			timer
-timerfd_create
-timerfd_gettime
-timerfd_settime
+timerfd_create			timerfd
+timerfd_gettime			timerfd
+timerfd_settime			timerfd
 times				sysinfo
 tkill
 truncate
