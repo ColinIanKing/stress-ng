@@ -100,6 +100,23 @@ int stress_xattr(
 			}
 		}
 		for (j = 0; j < i; j++) {
+			char tmp[sizeof(value)];
+
+			snprintf(name, sizeof(name), "user.var_%d", j);
+			snprintf(value, sizeof(value), "value-%i", j);
+
+			ret = fgetxattr(fd, name, tmp, sizeof(tmp));
+			if (ret < 0) {
+				pr_failed_err(name, "fgetxattr");
+				goto out_close;
+			}
+			if (strncmp(value, tmp, ret)) {
+				pr_fail(stderr, "%s: fgetxattr values different %.*s vs %.*s\n",
+					name, ret, value, ret, tmp);
+				goto out_close;
+			}
+		}
+		for (j = 0; j < i; j++) {
 			snprintf(name, sizeof(name), "user.var_%d", j);
 			
 			ret = fremovexattr(fd, name);
