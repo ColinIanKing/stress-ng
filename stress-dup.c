@@ -73,6 +73,9 @@ int stress_dup(
 			fds[i] = dup(fds[0]);
 			if (fds[i] < 0)
 				break;
+			fds[i] = dup2(fds[0], fds[i]);
+			if (fds[i] < 0)
+				break;
 			if (!opt_do_run)
 				break;
 			(*counter)++;
