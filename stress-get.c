@@ -132,6 +132,8 @@ int stress_get(
 	const uint64_t max_ops,
 	const char *name)
 {
+	const bool verify = (opt_flags & OPT_FLAGS_VERIFY);
+
 	(void)instance;
 	(void)name;
 
@@ -156,7 +158,7 @@ int stress_get(
 		check_do_run();
 
 		ptr = getcwd(path, sizeof path);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (!ptr))
+		if (verify && !ptr)
 			pr_fail(stderr, "%s: getcwd failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		check_do_run();
@@ -174,7 +176,7 @@ int stress_get(
 		check_do_run();
 
 		ret = getgroups(GIDS_MAX, gids);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: getgroups failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		check_do_run();
@@ -188,7 +190,7 @@ int stress_get(
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
-			if ((opt_flags & OPT_FLAGS_VERIFY) && errno && (ret < 0))
+			if (verify && errno && (ret < 0))
 				pr_fail(stderr, "%s: getpriority failed, errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			check_do_run();
@@ -196,13 +198,13 @@ int stress_get(
 
 #if defined(__linux__)
 		ret = getresgid(&rgid, &egid, &sgid);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: getresgid failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		check_do_run();
 
 		ret = getresuid(&ruid, &euid, &suid);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: getresuid failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		check_do_run();
@@ -212,7 +214,7 @@ int stress_get(
 			struct rlimit rlim;
 
 			ret = getrlimit(rlimits[i], &rlim);
-			if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+			if (verify && (ret < 0))
 				pr_fail(stderr, "%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
 					name, i, errno, strerror(errno));
 			check_do_run();
@@ -222,7 +224,7 @@ int stress_get(
 			struct rusage usage;
 
 			ret = getrusage(rusages[i], &usage);
-			if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+			if (verify && (ret < 0))
 				pr_fail(stderr, "%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
 					name, i, errno, strerror(errno));
 			check_do_run();
@@ -230,7 +232,7 @@ int stress_get(
 
 #if _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
 		ret = getsid(mypid);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: getsid failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		check_do_run();
@@ -242,17 +244,17 @@ int stress_get(
 #endif
 
 		t = time(NULL);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (t == (time_t)-1))
+		if (verify && (t == (time_t)-1))
 			pr_fail(stderr, "%s: time failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 
 		ret = gettimeofday(&tv, NULL);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: gettimeval failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 #if defined(__linux__)
 		ret = uname(&utsbuf);
-		if ((opt_flags & OPT_FLAGS_VERIFY) && (ret < 0))
+		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: uname failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 #endif
