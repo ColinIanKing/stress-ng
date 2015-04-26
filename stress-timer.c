@@ -37,6 +37,7 @@
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
 static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
+static uint64_t overruns = 0;
 static bool set_timer_freq = false;
 static double rate_ns;
 
@@ -85,9 +86,14 @@ void stress_timer_set(struct itimerspec *timer)
 static void stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
+	int ret;
 
 	(void)sig;
 	timer_counter++;
+
+	ret = timer_getoverrun(timerid);
+	if (ret > 0)
+		overruns += ret;
 
 	if (opt_do_run) {
 		stress_timer_set(&timer);
@@ -161,6 +167,8 @@ int stress_timer(
 		pr_failed_err(name, "timer_delete");
 		return EXIT_FAILURE;
 	}
+	pr_dbg(stderr, "%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
+		name, overruns, instance);
 
 	return EXIT_SUCCESS;
 }
