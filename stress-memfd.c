@@ -67,6 +67,11 @@ static void stress_memfd_allocs(
 
 	do {
 		for (i = 0; i < MAX_MEM_FDS; i++) {
+			fds[i] = -1;
+			maps[i] = MAP_FAILED;
+		}
+
+		for (i = 0; i < MAX_MEM_FDS; i++) {
 			char name[PATH_MAX];
 
 			snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
