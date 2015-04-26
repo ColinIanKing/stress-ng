@@ -165,7 +165,7 @@ int stress_chmod(
 		break;
 	} while (opt_do_run && ++retries < 100);
 
-	if (retries > 0) {
+	if (retries >= 100) {
 		pr_err(stderr, "%s: chmod: file %s took %d retries to create (instance %" PRIu32 ")\n",
 			name, filename, retries, instance);
 		goto tidy;
