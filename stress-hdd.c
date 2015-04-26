@@ -64,6 +64,7 @@
 
 /* Other modes */
 #define HDD_OPT_IOVEC		(0x00100000)
+#define HDD_OPT_UTIMES		(0x00200000)
 
 static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
@@ -130,6 +131,7 @@ static const hdd_opts_t hdd_opts[] = {
 		POSIX_FADV_DONTNEED, 0 },
 #endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
+	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 	{ NULL, 0, 0, 0, 0 }
 };
 
@@ -155,6 +157,9 @@ void stress_set_hdd_write_size(const char *optarg)
  */
 static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
 {
+	if (opt_hdd_flags & HDD_OPT_UTIMES)
+		(void)futimes(fd, NULL);
+
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
@@ -179,6 +184,9 @@ static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
  */
 static ssize_t stress_hdd_read(const int fd, void *buf, size_t count)
 {
+	if (opt_hdd_flags & HDD_OPT_UTIMES)
+		(void)futimes(fd, NULL);
+
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
