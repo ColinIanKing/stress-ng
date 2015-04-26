@@ -264,6 +264,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_TIMER)
 	STRESSOR(timer, TIMER, CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_TIMERFD)
+	STRESSOR(timerfd, TIMERFD, CLASS_INTERRUPT | CLASS_OS),
+#endif
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(udp, UDP, CLASS_NETWORK | CLASS_OS),
 #if defined(STRESS_URANDOM)
@@ -595,6 +598,12 @@ static const struct option long_options[] = {
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
 	{ "timer-freq",	1,	0,	OPT_TIMER_FREQ },
 	{ "timer-rand", 0,	0,	OPT_TIMER_RAND },
+#endif
+#if defined(STRESS_TIMERFD)
+	{ "timerfd",	1,	0,	OPT_TIMERFD },
+	{ "timerfd-ops",1,	0,	OPT_TIMERFD_OPS },
+	{ "timerfd-freq",1,	0,	OPT_TIMERFD_FREQ },
+	{ "timerfd-rand",0,	0,	OPT_TIMERFD_RAND },
 #endif
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
@@ -942,8 +951,14 @@ static const help_t help[] = {
 #if defined(STRESS_TIMER)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
-	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1000 to 1000000000" },
+	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timer-rand",		"enable random timer frequency" },
+#endif
+#if defined(STRESS_TIMERFD)
+	{ NULL,		"timerfd N",		"start N workers producing timerfd events" },
+	{ NULL,		"timerfd-ops N",	"stop when N timerfd bogo events completed" },
+	{ NULL,		"timerfd-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
+	{ NULL,		"timerfd-rand",		"enable random timerfd frequency" },
 #endif
 	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
@@ -1805,6 +1820,14 @@ next_opt:
 			break;
 		case OPT_TIMER_RAND:
 			opt_flags |= OPT_FLAGS_TIMER_RAND;
+			break;
+#endif
+#if defined(STRESS_TIMERFD)
+		case OPT_TIMERFD_FREQ:
+			stress_set_timerfd_freq(optarg);
+			break;
+		case OPT_TIMERFD_RAND:
+			opt_flags |= OPT_FLAGS_TIMERFD_RAND;
 			break;
 #endif
 		case OPT_TIMES:

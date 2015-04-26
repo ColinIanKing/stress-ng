@@ -129,6 +129,7 @@
 #define OPT_FLAGS_SYSLOG	0x0200000000ULL	/* log test progress to syslog */
 #define OPT_FLAGS_AGGRESSIVE	0x0400000000ULL	/* aggressive mode enabled */
 #define OPT_FLAGS_TIMER_RAND	0x0800000000ULL /* Enable random timer freq */
+#define OPT_FLAGS_TIMERFD_RAND	0x1000000000ULL /* Enable random timerfd freq */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -322,6 +323,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
+
+#define MIN_TIMERFD_FREQ	(1)
+#define MAX_TIMERFD_FREQ	(100000000)
+#define DEFAULT_TIMERFD_FREQ	(1000000)
 
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)
@@ -625,6 +630,10 @@ typedef enum {
 #if defined(__linux__)
 	__STRESS_TIMER,
 #define STRESS_TIMER __STRESS_TIMER
+#endif
+#if defined(__linux__)
+	__STRESS_TIMERFD,
+#define STRESS_TIMERFD __STRESS_TIMERFD
 #endif
 	STRESS_TSEARCH,
 	STRESS_UDP,
@@ -1045,6 +1054,13 @@ typedef enum {
 	OPT_TIMER_RAND,
 #endif
 
+#if defined(STRESS_TIMERFD)
+	OPT_TIMERFD,
+	OPT_TIMERFD_OPS,
+	OPT_TIMERFD_FREQ,
+	OPT_TIMERFD_RAND,
+#endif
+
 	OPT_TSEARCH,
 	OPT_TSEARCH_OPS,
 	OPT_TSEARCH_SIZE,
@@ -1313,6 +1329,7 @@ extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
+extern void stress_set_timerfd_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *optarg);
@@ -1404,6 +1421,7 @@ STRESS(stress_symlink);
 STRESS(stress_sysinfo);
 STRESS(stress_tee);
 STRESS(stress_timer);
+STRESS(stress_timerfd);
 STRESS(stress_tsearch);
 STRESS(stress_udp);
 STRESS(stress_urandom);

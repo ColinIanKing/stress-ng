@@ -1098,16 +1098,31 @@ seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 .TP
 .B \-T N, \-\-timer N
 start N processes creating timer events at a default rate of 1Mhz (Linux only); this
-can create a many thousands of timer clock interrupts.
+can create a many thousands of timer clock interrupts. Each timer event is caught by a
+signal handler and counted as a bogo timer op.
 .TP
 .B \-\-timer\-ops N
 stop timer stress processes after N bogo timer events (Linux only).
 .TP
 .B \-\-timer\-freq F
-run timers at F Hz; range from 1000 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
+run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
 .TP
 .B \-\-timer\-rand
-select a random interval between 1/freq to 1/(freq * 0.5). This tries to force more variability in the timer interval to make the scheduling less predictable.
+select a timer frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
+.TP
+.B \-\-timerfd N
+start N processes creating timerfd events at a default rate of 1Mhz (Linux only); this
+can create a many thousands of timer clock events. Timer events are waited for on the timer file descriptor
+using select(2) and then read and counted as a bogo timerfd op.
+.TP
+.B \-\-timerfd\-ops N
+stop timerfd stress processes after N bogo timerfd events (Linux only).
+.TP
+.B \-\-timerfd\-freq F
+run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
+.TP
+.B \-\-timerfd\-rand
+select a timerfd frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-times
 show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system.
