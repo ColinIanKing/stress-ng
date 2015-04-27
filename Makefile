@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.03.22
+VERSION=0.04.00
 #
-# Codename "severely stressed silicon"
+# Codename "system straining overloader"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
