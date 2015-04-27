@@ -1222,9 +1222,9 @@ static void wait_procs(bool *success)
 			cpu++;
 		}
 	}
+do_wait:
 #endif
 
-do_wait:
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
 
