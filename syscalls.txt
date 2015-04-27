@@ -26,7 +26,7 @@ close				dentry
 connect				sock
 creat
 dup				dup
-dup2
+dup2				dup
 dup3
 endmntent			sysinfo
 epoll_create
@@ -51,7 +51,7 @@ fchown
 fchownat
 fcntl				open, lockf
 fdatasync
-fgetxattr
+fgetxattr			xattr
 flistxattr
 flock				flock
 fork				fork
@@ -69,7 +69,7 @@ get_robust_list
 getthread_area
 getcpu
 getcwd				get
-getdents
+getdents			used in readdir
 getegid				get
 geteuid				get
 getgid				get
@@ -83,7 +83,7 @@ getpgrp				get
 getpid				get
 getppid				get
 getpriority			get
-getrandom
+getrandom			perhaps emulate BSD getentropy
 getpwd				get
 getresgid			get
 getresuid			get
@@ -110,10 +110,10 @@ ioperm
 iopl
 ioprio_get
 ioprio_set
-ipc
+ipc				used by msg* glibc wrappers
 kcmp				kcmp
 kexec_file_load
-kexec_Load
+kexec_load
 keyctl
 kill				kill
 lchown
@@ -295,17 +295,17 @@ swapon
 symlink				symlink
 symlinkat
 sync				iosync
-sync_file_range
+sync_file_range			[ potentially dangerous to data ]
 syncfs
 sysfs				[ obsolete ]
 sysinfo				sysinfo
-syslog
+syslog				[ ignore, don't want to spam the syslog ]
 tee				tee
 tgkill
 time				get
 timer_create			clock, timer
 timer_delete			clock, timer
-timer_getoverrun
+timer_getoverrun		timer
 timer_gettime			clock
 timer_settime			timer
 timerfd_create			timerfd
@@ -326,7 +326,7 @@ utime				utime
 utimesat
 utimes
 vfork				vfork
-vhangup
+vhangup				[ ignore ]
 vmsplice			vm-splice
 wait				various
 wait4	
