@@ -38,7 +38,11 @@
 int mincore_touch_pages(void *buf, const size_t buf_len)
 {
 #if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+	char *vec;
+#else
 	unsigned char *vec;
+#endif
 	char *buffer;
 	size_t vec_len, i;
 	const size_t page_size = stress_get_pagesize();
