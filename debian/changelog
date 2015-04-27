@@ -1,3 +1,46 @@
+stress-ng (0.04.00-1) unstable; urgency=medium
+
+  * Makefile: bump to version 4.0, update codename
+  * Update syscalls.txt with more annotations
+  * stress-hdd: forgot to include sys/uio.h
+  * mincore: cater for BSD mincore API difference
+  * Move do_wait inside #if/#endif to avoid warning on BSD systems
+  * Manual: sort --hdd-opts options
+  * stress-hdd: add utimes metadata update --hdd-opts option
+  * stress-xattr: also use fgetxattr
+  * stress-dup: add dup2 call on same fd
+  * stress-verify: refactor verify checking, small optimisation
+  * stress-timer: add timer overrun accounting
+  * stress-chmod: fix retries abort check
+  * Re-order stack-fill option in table
+  * Manual: fix spelling mistake, maxiumum -> maximum
+  * stress-memfd: initialize fd and maps for correctly cleanup handling
+  * Update syscalls.txt (added timerfd, minor other tweaks)
+  * Add timerfd stressor
+  * stress-timer: Fix random timers to adjust correctly by randomized rate
+  * stress-memfd: make bogo ops match iterations rather than per memfd-create
+  * Add stress-memfd stressor and fix mincore/pagein builds
+  * Update syscalls.txt with a fuller set of syscalls
+  * stress-get: add calls to time() and utime()
+  * Add aggressive mode CPU affinity changing
+  * stress-affinity: add a yield to push IPIs up
+  * Make inotify test depend on glibc 2.9 or higher
+  * Make aio test depend on glibc 2.1 or higher
+  * Make affinity test depend on glibc 2.3.0 or above
+  * Update syscall.txt with readv/writev
+  * Add iovec readv/writev mode to --hdd-opts
+  * stress-sem: don't report EINTR as an error on sem_wait
+  * stress-chmod: give up of we took too many tries to create file
+  * stress-epoll: add more delay on re-try connect failures
+  * stress-epoll: use a saved errno to report error
+  * Handle fork() EAGAIN correctly by re-trying
+  * stress-lease: correct and improve failure error messages
+  * stress-wait: increase wait timeout to 8 seconds
+  * stress-inotify: break out of init loop if end of tests, increase retries
+  * stress-sysinfo: make EACCES non-fatal error on stat
+
+ -- Colin King <colin.king@canonical.com>  Mon, 27 Apr 2015 13:24:00 +0100
+
 stress-ng (0.03.22-1) unstable; urgency=medium
 
   * Makefile: bump version
