@@ -31,9 +31,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__NetBSD__)
-#include <alloca.h>
-#endif
 #include <sys/types.h>
 #include <sys/wait.h>
 
