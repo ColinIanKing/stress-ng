@@ -204,6 +204,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
+	STRESSOR(mlock, MLOCK, CLASS_VM | CLASS_OS),
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_OS),
 	STRESSOR(mmapmany, MMAPMANY, CLASS_VM | CLASS_OS),
 #if defined(STRESS_MREMAP)
@@ -472,6 +473,10 @@ static const struct option long_options[] = {
 	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
 #endif
 	{ "minimize",	0,	0,	OPT_MINIMIZE },
+#if defined(STRESS_MLOCK)
+	{ "mlock",	1,	0,	OPT_MLOCK },
+	{ "mlock-ops",	1,	0,	OPT_MLOCK_OPS },
+#endif
 	{ "mmap",	1,	0,	OPT_MMAP },
 	{ "mmap-ops",	1,	0,	OPT_MMAP_OPS },
 	{ "mmap-async",	0,	0,	OPT_MMAP_ASYNC },
@@ -827,6 +832,10 @@ static const help_t help[] = {
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
 	{ NULL,		"minimize",		"enable minimal stress options" },
+#if defined(STRESS_MLOCK)
+	{ NULL,		"mlock N",		"start N workers exercising mlock/munlock" },
+	{ NULL,		"mlock-ops N",		"stop when N mlock bogo operations completed" },
+#endif
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },

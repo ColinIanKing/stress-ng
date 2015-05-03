@@ -137,7 +137,7 @@ mkdir				dir
 mkdirat
 mknod
 mknodat
-mlock
+mlock				mlock
 mlockall
 mkstemp				hdd
 mount
@@ -160,7 +160,7 @@ msgget				msg
 msgrcv				msg
 msgsnd				msg
 msync				mmap
-munlock
+munlock				mlock
 munlockall
 munmap				mmap, mremap
 name_to_handle_at

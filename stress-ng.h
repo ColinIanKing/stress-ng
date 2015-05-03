@@ -558,6 +558,10 @@ typedef enum {
 	__STRESS_MEMFD,
 #define STRESS_MEMFD __STRESS_MEMFD
 #endif
+#if defined(_POSIX_MEMLOCK_RANGE)
+	__STRESS_MLOCK,
+#define STRESS_MLOCK __STRESS_MLOCK
+#endif
 	STRESS_MMAP,
 	STRESS_MMAPMANY,
 #if defined(__linux__) && NEED_GLIBC(2,4,0)
@@ -894,6 +898,11 @@ typedef enum {
 #endif
 
 	OPT_MINIMIZE,
+
+#if defined(STRESS_MLOCK)
+	OPT_MLOCK,
+	OPT_MLOCK_OPS,
+#endif
 
 	OPT_MMAP,
 	OPT_MMAP_OPS,
@@ -1386,6 +1395,7 @@ STRESS(stress_matrix);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
 STRESS(stress_mincore);
+STRESS(stress_mlock);
 STRESS(stress_mmap);
 STRESS(stress_mmapmany);
 STRESS(stress_mremap);
