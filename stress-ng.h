@@ -224,6 +224,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)
 
+#define MIN_ITIMER_FREQ		(1)
+#define MAX_ITIMER_FREQ		(100000000)
+#define DEFAULT_ITIMER_FREQ	(1000000)
+
 #define MIN_MQ_SIZE		(1)
 #define MAX_MQ_SIZE		(32)
 #define DEFAULT_MQ_SIZE		(10)
@@ -530,6 +534,7 @@ typedef enum {
 #define STRESS_INOTIFY __STRESS_INOTIFY
 #endif
 	STRESS_IOSYNC,
+	STRESS_ITIMER,
 #if defined(__linux__) && defined(__NR_kcmp)
 	__STRESS_KCMP,
 #define STRESS_KCMP __STRESS_KCMP
@@ -840,6 +845,10 @@ typedef enum {
 #endif
 
 	OPT_IOSYNC_OPS,
+
+	OPT_ITIMER,
+	OPT_ITIMER_OPS,
+	OPT_ITIMER_FREQ,
 
 #if defined(STRESS_KCMP)
 	OPT_KCMP,
@@ -1313,6 +1322,7 @@ extern void stress_set_hdd_bytes(const char *optarg);
 extern int stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
+extern void stress_set_itimer_freq(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_malloc_bytes(const char *optarg);
@@ -1383,6 +1393,7 @@ STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
+STRESS(stress_itimer);
 STRESS(stress_kcmp);
 STRESS(stress_kill);
 STRESS(stress_lease);

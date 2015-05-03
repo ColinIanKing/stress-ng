@@ -74,7 +74,7 @@ getegid				get
 geteuid				get
 getgid				get
 getgroups			get
-getitimer
+getitimer			itimer
 getmntent			sysinfo
 getpeername
 getpagesize			[ legacy ]
@@ -250,7 +250,7 @@ setfssuid
 setgid
 setgroups
 sethostname
-setitimer
+setitimer			itimer
 setmntent			sysinfo
 setns
 setpgid

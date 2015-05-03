@@ -608,6 +608,20 @@ specify ionice class (only on Linux). Can be idle (default), besteffort, be, rea
 .B \-\-ionice\-level level
 specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (highest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
+.B \-\-itimer N
+start N processes that exercise the system interval timers. This sets up an
+ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
+the itimer is 1Mhz, however, the Linux kernel will set this to be no more that
+the jiffy setting, hence high frequency SIGPROF signals are not normally
+possible.  A busy loop spins on getitimer(2) calls to consume CPU and hence
+decrement the itimer based on amount of time spent in CPU and system time.
+.TP
+.B \-\-itimer\-ops N
+stop itimer stress processes after N bogo itimer SIGPROF signals.
+.TP
+.B \-\-itimer\-freq F
+run itimer at F Hz; range from 1 to 1000000 Hz. Normally the highest frequency is limited by the number of jiffy ticks per second, so running above 1000 Hz is difficult to attain in practice.
+.TP
 .B \-\-kcmp N
 start N processes that use kcmp(2) to compare parent and child processes to determine if they share kernel resources (Linux only).
 .TP

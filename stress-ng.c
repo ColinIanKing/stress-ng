@@ -182,6 +182,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_INOTIFY)
 	STRESSOR(inotify, INOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 #endif
+	STRESSOR(itimer, ITIMER, CLASS_INTERRUPT | CLASS_OS),
 #if defined(STRESS_KCMP)
 	STRESSOR(kcmp, KCMP, CLASS_OS),
 #endif
@@ -421,6 +422,9 @@ static const struct option long_options[] = {
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 #endif
+	{ "itimer",	1,	0,	OPT_ITIMER },
+	{ "itimer-ops",	1,	0,	OPT_ITIMER_OPS },
+	{ "itimer-freq",1,	0,	OPT_ITIMER_FREQ },
 #if defined(STRESS_KCMP)
 	{ "kcmp",	1,	0,	OPT_KCMP },
 	{ "kcmp-ops",	1,	0,	OPT_KCMP_OPS },
@@ -782,6 +786,8 @@ static const help_t help[] = {
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
+	{ NULL,		"itimer N",		"start N workers exercising interval timers" },
+	{ NULL,		"itimer-ops N",		"stop when N interval timer bogo ops completed" },
 #if defined(STRESS_KCMP)
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
 	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
@@ -1657,6 +1663,9 @@ next_opt:
 			opt_ionice_level = get_int(optarg);
 			break;
 #endif
+		case OPT_ITIMER_FREQ:
+			stress_set_itimer_freq(optarg);
+			break;
 		case OPT_KEEP_NAME:
 			opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
