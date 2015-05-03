@@ -828,7 +828,7 @@ static const help_t help[] = {
 #endif
 #if defined(STRESS_MINCORE)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
-	{ NULL,		"mincore-ops N",	"stop when N mimcore bogo operations completed" },
+	{ NULL,		"mincore-ops N",	"stop when N mincore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
 	{ NULL,		"minimize",		"enable minimal stress options" },
