@@ -59,6 +59,7 @@ static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool opt_do_run = true;		/* false to exit stressor */
+volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 
 /* Scheduler options */
@@ -1083,20 +1084,26 @@ static void stress_sigint_handler(int dummy)
 	(void)dummy;
 	opt_sigint = true;
 	opt_do_run = false;
+	opt_do_wait = false;
 }
 
-static void stress_sigalrm_handler(int dummy)
+static void stress_sigalrm_child_handler(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
 }
 
+static void stress_sigalrm_parent_handler(int dummy)
+{
+	(void)dummy;
+	opt_do_wait = false;
+}
 
 /*
  *  stress_sethandler()
  *	set signal handler to catch SIGINT and SIGALRM
  */
-static int stress_sethandler(const char *stress)
+static int stress_sethandler(const char *stress, const bool child)
 {
 	struct sigaction new_action;
 
@@ -1109,7 +1116,9 @@ static int stress_sethandler(const char *stress)
 		return -1;
 	}
 
-	new_action.sa_handler = stress_sigalrm_handler;
+	new_action.sa_handler = child ?
+		stress_sigalrm_child_handler :
+		stress_sigalrm_parent_handler;
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 
@@ -1220,7 +1229,7 @@ static void wait_procs(bool *success)
 	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		unsigned long int cpu = 0;
 
-		while (opt_do_run) {
+		while (opt_do_wait) {
 			const unsigned long cpus = stress_get_processors_online();
 			unsigned long int cpu_num = cpu;
 
@@ -1349,6 +1358,7 @@ void stress_run(
 	double time_start, time_finish;
 	int32_t n_procs, i, j, n;
 
+	opt_do_wait = true;
 	time_start = time_now();
 	pr_dbg(stderr, "starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
@@ -1378,7 +1388,7 @@ again:
 				case 0:
 					/* Child */
 					free_procs();
-					if (stress_sethandler(name) < 0)
+					if (stress_sethandler(name, true) < 0)
 						exit(EXIT_FAILURE);
 
 					(void)alarm(opt_timeout);
@@ -1422,7 +1432,7 @@ again:
 			}
 		}
 	}
-	(void)stress_sethandler("stress-ng");
+	(void)stress_sethandler("stress-ng", false);
 	(void)alarm(opt_timeout);
 
 abort:
@@ -2068,7 +2078,6 @@ next_opt:
 	if (procs[id].num_procs || opt_sequential)
 		stress_semaphore_sysv_init();
 #endif
-
 	if (opt_sequential) {
 		/*
 		 *  Step through each stressor one by one
@@ -2077,7 +2086,7 @@ next_opt:
 			int32_t j;
 
 			for (j = 0; opt_do_run && j < STRESS_MAX; j++)
-				procs[i].num_procs = 0;
+				procs[j].num_procs = 0;
 			procs[i].num_procs = opt_class ?
 				(stressors[i].class & opt_class ?
 					opt_sequential : 0) : opt_sequential;
