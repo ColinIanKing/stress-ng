@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_RLIMIT)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -34,7 +38,6 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-#include "stress-ng.h"
 
 static sigjmp_buf jmp_env;
 
@@ -127,3 +130,5 @@ int stress_rlimit(
 
 	return EXIT_SUCCESS;
 }
+
+#endif

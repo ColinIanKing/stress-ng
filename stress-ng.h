@@ -601,7 +601,10 @@ typedef enum {
 #define STRESS_READAHEAD __STRESS_READAHEAD
 #endif
 	STRESS_RENAME,
-	STRESS_RLIMIT,
+#if defined(__linux__)
+	__STRESS_RLIMIT,
+#define STRESS_RLIMIT __STRESS_RLIMIT
+#endif
 	STRESS_SEEK,
 	STRESS_SEMAPHORE_POSIX,
 #if !defined(__gnu_hurd__)
@@ -988,8 +991,10 @@ typedef enum {
 
 	OPT_RENAME_OPS,
 
+#if defined(STRESS_RLIMIT)
 	OPT_RLIMIT,
 	OPT_RLIMIT_OPS,
+#endif
 
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
