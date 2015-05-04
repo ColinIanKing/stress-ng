@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_TIMER)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -148,4 +146,3 @@ int stress_itimer(
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 	return EXIT_SUCCESS;
 }
-#endif
