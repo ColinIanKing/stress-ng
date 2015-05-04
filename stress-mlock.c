@@ -108,8 +108,7 @@ again:
 						continue;
 					if (errno == ENOMEM)
 						break;
-					pr_err(stderr, "%s: mlock failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_failed_err(name, "mlock");
 					break;
 				} else {
 					/*
