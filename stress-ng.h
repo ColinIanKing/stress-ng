@@ -601,6 +601,7 @@ typedef enum {
 #define STRESS_READAHEAD __STRESS_READAHEAD
 #endif
 	STRESS_RENAME,
+	STRESS_RLIMIT,
 	STRESS_SEEK,
 	STRESS_SEMAPHORE_POSIX,
 #if !defined(__gnu_hurd__)
@@ -986,6 +987,9 @@ typedef enum {
 #endif
 
 	OPT_RENAME_OPS,
+
+	OPT_RLIMIT,
+	OPT_RLIMIT_OPS,
 
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
@@ -1424,6 +1428,7 @@ STRESS(stress_qsort);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_rename);
+STRESS(stress_rlimit);
 STRESS(stress_seek);
 STRESS(stress_sem_posix);
 STRESS(stress_sem_sysv);

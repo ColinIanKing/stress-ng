@@ -6,7 +6,7 @@ access
 acct
 add_key
 adjtimex
-alarm
+alarm				generic run duration timers
 bind				sock
 brk				bigheap
 brk				brk
@@ -259,7 +259,7 @@ setregid
 setresgid
 setresuid
 setreuid
-setrlimit
+setrlimit			limit, rlimit
 setsid
 setsockopt			sock
 settimeofday

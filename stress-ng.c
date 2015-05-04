@@ -234,6 +234,7 @@ static const stress_t stressors[] = {
 	STRESSOR(readahead, READAHEAD, CLASS_IO | CLASS_OS),
 #endif
 	STRESSOR(rename, RENAME, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
 #if defined(STRESS_SEMAPHORE_SYSV)
@@ -540,6 +541,8 @@ static const struct option long_options[] = {
 #endif
 	{ "rename",	1,	0,	OPT_RENAME },
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
+	{ "rlimit",	1,	0,	OPT_RLIMIT },
+	{ "rlimit-ops",	1,	0,	OPT_RLIMIT_OPS },
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
 	{ "seek",	1,	0,	OPT_SEEK },
@@ -901,6 +904,8 @@ static const help_t help[] = {
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
+	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
+	{ NULL,		"rlimit-ops N",		"stop when N rlimit bogo operations completed" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },

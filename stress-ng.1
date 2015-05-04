@@ -961,6 +961,12 @@ start N processes that each create a file and then repeatedly rename it.
 .B \-\-rename\-ops N
 stop rename stress processes after N bogo rename operations.
 .TP
+.B \-\-rlimit N
+start N workers that exceed CPU and file size resource imits, generating SIGXCPU and SIGXFSZ signals.
+.TP
+.B \-\-rlimit\-ops N
+stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
+.TP
 .B \-\-sched scheduler
 select the named scheduler (only on Linux). To see the list of available schedulers
 use: stress\-ng \-\-sched which
