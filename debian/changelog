@@ -1,3 +1,21 @@
+stress-ng (0.04.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-rlimit: for now, make this Linux only
+  * stress-rlimit: add loop limit checking
+  * stress-mlock: report mlock failure with pr_failed_err()
+  * stress-itimer: remove the build dep on STRESS_TIMER
+  * stress-ng: Fix --seq mode
+  * Add resource limit stressor, stress-rlimit
+  * stress-chmod: use creat instead of open
+  * Makefile: sort order of sources, stress-yield, stress-xattr
+  * Add itimer stressor
+  * Fix typo: mimcore -> mincore
+  * Add mlock stressor
+  * stress-stack: Don't need alloc.h included, it comes in stdlib.h
+
+ -- Colin King <colin.king@canonical.com>  Mon, 4 May 2015 21:08:00 +0100
+
 stress-ng (0.04.00-1) unstable; urgency=medium
 
   * Makefile: bump to version 4.0, update codename
