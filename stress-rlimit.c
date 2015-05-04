@@ -103,7 +103,7 @@ int stress_rlimit(
 	limit.rlim_max = 1;
 	setrlimit(RLIMIT_FSIZE, &limit);
 
-	for (;;) {
+	do {
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we generate an rlimit signal, so
@@ -120,7 +120,7 @@ int stress_rlimit(
 				/* Ignore */
 			}
 		}
-	}
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm(name, pid, instance);
