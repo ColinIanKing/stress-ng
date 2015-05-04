@@ -154,7 +154,7 @@ int stress_chmod(
 		 *  other chmod stressors have already created it and changed the
 		 *  permission bits. If so, wait a while and retry (ugh).
 		 */
-		if ((fd = open(filename, O_CREAT | O_APPEND | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			if (errno == EPERM || errno == EACCES) {
 				(void)usleep(100000);
 				continue;

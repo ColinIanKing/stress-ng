@@ -24,7 +24,7 @@ clock_settime
 clone
 close				dentry
 connect				sock
-creat
+creat				chmod
 dup				dup
 dup2				dup
 dup3
