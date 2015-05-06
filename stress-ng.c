@@ -856,7 +856,7 @@ static const help_t help[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
-	{ NULL,		"mmapmany N",		"start N workers stressing many mmap and munmap" },
+	{ NULL,		"mmapmany N",		"start N workers stressing many mmaps and munmaps" },
 	{ NULL,		"mmapmany-ops N",	"stop when N mmapmany bogo operations completed" },
 #if defined(STRESS_MREMAP)
 	{ NULL,		"mremap N",		"start N workers stressing mremap" },
@@ -994,7 +994,7 @@ static const help_t help[] = {
 	{ NULL,		"udp N",		"start N workers performing UDP send/receives " },
 	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
 	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
-	{ NULL,		"udo-domain D",		"specify domain, default is ipv4" },
+	{ NULL,		"udp-domain D",		"specify domain, default is ipv4" },
 #if defined(STRESS_URANDOM)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
@@ -1051,7 +1051,7 @@ static const help_t help[] = {
 	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
 	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
-	{ NULL,		"zombie-ops N",		"stop when N bogo fork operations completed" },
+	{ NULL,		"zombie-ops N",		"stop when N bogo zombie fork operations completed" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
 	{ NULL,		NULL,			NULL }
 };
