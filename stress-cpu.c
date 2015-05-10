@@ -73,6 +73,9 @@ static int32_t opt_cpu_load = 100;
 static stress_cpu_stressor_info_t *opt_cpu_stressor;
 static stress_cpu_stressor_info_t cpu_methods[];
 
+/* Don't make this static to ensure dithering does not get optimised out */
+uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
+
 void stress_set_cpu_load(const char *optarg) {
 	opt_cpu_load = opt_long("cpu load", optarg);
 	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
@@ -1807,6 +1810,70 @@ static void stress_cpu_parity(const char *name)
 	}
 }
 
+/*
+ *  stress_cpu_dither
+ *	perform 8 bit to 1 bit gray scale
+ *	Floyd–Steinberg dither
+ */
+static void stress_cpu_dither(const char *name)
+{
+	size_t x, y;
+
+	(void)name;
+
+	/*
+	 *  Generate some random 8 bit image
+	 */
+	for (y = 0; y < STRESS_CPU_DITHER_Y; y += 8) {
+		for (x = 0; x < STRESS_CPU_DITHER_X; x ++) {
+			uint64_t v = mwc();
+
+			pixels[x][y + 0] = v;
+			v >>= 8;
+			pixels[x][y + 1] = v;
+			v >>= 8;
+			pixels[x][y + 2] = v;
+			v >>= 8;
+			pixels[x][y + 3] = v;
+			v >>= 8;
+			pixels[x][y + 4] = v;
+			v >>= 8;
+			pixels[x][y + 5] = v;
+			v >>= 8;
+			pixels[x][y + 6] = v;
+			v >>= 8;
+			pixels[x][y + 7] = v;
+		}
+	}
+
+	/*
+	 *  ..and dither
+	 */
+	for (y = 0; y < STRESS_CPU_DITHER_Y; y++) {
+		for (x = 0; x < STRESS_CPU_DITHER_X; x++) {
+			uint8_t pixel = pixels[x][y];
+			uint8_t quant = (pixel < 128) ? 0 : 255;
+			int32_t error = pixel - quant;
+
+			bool xok1 = x < (STRESS_CPU_DITHER_X - 1);
+			bool xok2 = x > 1;
+			bool yok1 = y < (STRESS_CPU_DITHER_Y - 1);
+
+			if (xok1)
+				pixels[x + 1][y] +=
+					(error * 7) >> 4;
+			if (xok2 && yok1)
+				pixels[x - 1][y + 1] +=
+					(error * 3) >> 4;
+			if (yok1)
+				pixels[x][y + 1] +=
+					(error * 5) >> 4;
+			if (xok1 && yok1)
+				pixels[x + 1][y + 1] +=
+					error >> 4;
+		}
+	}
+}
 
 /*
  *  stress_cpu_all()
@@ -1840,6 +1907,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "decimal64",		stress_cpu_decimal64 },
 	{ "decimal128",		stress_cpu_decimal128 },
 #endif
+	{ "dither",		stress_cpu_dither },
 	{ "djb2a",		stress_cpu_djb2a },
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },

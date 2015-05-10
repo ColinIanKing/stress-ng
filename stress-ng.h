@@ -372,6 +372,9 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 
 #define FFT_SIZE		(4096)
 
+#define STRESS_CPU_DITHER_X	(1024)
+#define STRESS_CPU_DITHER_Y	(768)
+
 #define SIEVE_GETBIT(a, i)	(a[i / 32] & (1 << (i & 31)))
 #define SIEVE_CLRBIT(a, i)	(a[i / 32] &= ~(1 << (i & 31)))
 #define SIEVE_SIZE 		(10000000)
