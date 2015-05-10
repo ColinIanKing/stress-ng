@@ -1458,7 +1458,7 @@ static void HOT OPTIMIZE3 stress_cpu_gray(const char *name)
 		{
 			/* Slow iterative method */
 			register uint32_t mask;
-			
+
 			for (mask = gray_code >> 1; mask; mask >>= 1)
 				gray_code ^= mask;
 		}
@@ -1714,6 +1714,100 @@ static void stress_cpu_callfunc(const char *name)
 }
 
 
+#define P2(n) n, n^1, n^1, n
+#define P4(n) P2(n), P2(n^1), P2(n^1), P2(n)
+#define P6(n) P4(n), P4(n^1), P4(n^1), P4(n)
+
+static const bool stress_cpu_parity_table[256] = {
+	P6(0), P6(1), P6(1), P6(0)
+};
+
+/*
+ *  stress_cpu_parity
+ *	compute parity different ways
+ */
+static void stress_cpu_parity(const char *name)
+{
+	uint32_t v, val = 0x83fb5acf, parity, p;
+	uint8_t *ptr;
+	size_t i;
+
+	for (i = 0; i < 1000; i++, val++) {
+		/*
+		 * Naive way
+		 */
+		v = val;
+		parity = 0;
+		while (v) {
+			if (v & 1)
+				parity = !parity;
+			v >>= 1;
+		}
+
+		/*
+		 * Naive way with Brian Kernigan's bit counting optimisation
+		 * https://graphics.stanford.edu/~seander/bithacks.html
+		 */
+		v = val;
+		p = 0;
+		while (v) {
+			p = !p;
+			v = v & (v - 1);
+		}
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail(stderr, "%s: parity error detected, using optimised naive method\n",  name);
+
+		/*
+		 * "Compute parity of a word with a multiply"
+		 * the Andrew Shapira method,
+		 * https://graphics.stanford.edu/~seander/bithacks.html
+		 */
+		v = val;
+		v ^= v >> 1;
+		v ^= v >> 2;
+		v = (v & 0x11111111U) * 0x11111111U;
+		p = (v >> 28) & 1;
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail(stderr, "%s: parity error detected, using the multiply Shapira method\n",  name);
+
+		/*
+		 * "Compute parity in parallel"
+		 * https://graphics.stanford.edu/~seander/bithacks.html
+		 */
+		v = val;
+		v ^= v >> 16;
+		v ^= v >> 8;
+		v ^= v >> 4;
+		v &= 0xf;
+		p = (0x6996 >> v) & 1;
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail(stderr, "%s: parity error detected, using the parallel method\n",  name);
+
+		/*
+		 * "Compute parity by lookup table"
+		 * https://graphics.stanford.edu/~seander/bithacks.html
+		 * Variation #1
+		 */
+		v = val;
+		v ^= v >> 16;
+		v ^= v >> 8;
+		p = stress_cpu_parity_table[v & 0xff];
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail(stderr, "%s: parity error detected, using the lookup method, variation 1\n",  name);
+
+		/*
+		 * "Compute parity by lookup table"
+		 * https://graphics.stanford.edu/~seander/bithacks.html
+		 * Variation #2
+		 */
+		ptr = (uint8_t *)&val;
+		p = stress_cpu_parity_table[ptr[0] ^ ptr[1] ^ ptr[2] ^ ptr[3]];
+		if ((opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail(stderr, "%s: parity error detected, using the lookup method, variation 1\n",  name);
+	}
+}
+
+
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
@@ -1792,6 +1886,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "matrixprod",		stress_cpu_matrix_prod },
 	{ "nsqrt",		stress_cpu_nsqrt },
 	{ "omega",		stress_cpu_omega },
+	{ "parity",		stress_cpu_parity },
 	{ "phi",		stress_cpu_phi },
 	{ "pi",			stress_cpu_pi },
 	{ "pjw",		stress_cpu_pjw },
