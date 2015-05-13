@@ -1263,6 +1263,7 @@ static inline double timeval_to_double(const struct timeval *tv)
 }
 
 extern double time_now(void);
+extern const char *duration_to_str(const double duration);
 
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);

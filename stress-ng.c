@@ -2105,10 +2105,9 @@ next_opt:
 		 */
 		stress_run(total_procs, max_procs, shared->stats, &duration, &success);
 	}
-
-	pr_inf(stdout, "%s run completed in %.2fs\n",
+	pr_inf(stdout, "%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
-		duration);
+		duration, duration_to_str(duration));
 
 	if (opt_flags & OPT_FLAGS_METRICS) {
 		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
