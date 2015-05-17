@@ -30,6 +30,7 @@
 #include <math.h>
 #include <complex.h>
 #include <sys/time.h>
+#include <unistd.h>
 #include "stress-ng.h"
 
 #define GAMMA 	(0.57721566490153286060651209008240243104215933593992L)
@@ -300,6 +301,25 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail(stderr, "%s: rand error detected, failed sum of pseudo-random values\n", name);
+}
+
+/*
+ *  stress_cpu_rand48()
+ *	generate random values using rand48 family of functions
+ */
+static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
+{
+	int i;
+	double d = 0;
+	long int l = 0;
+
+	(void)name;
+
+	srand48(0x0defaced);
+	for (i = 0; i < 16384; i++) {
+		d += drand48();
+		l += lrand48();
+	}
 }
 
 /*
@@ -1961,6 +1981,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "prime",		stress_cpu_prime },
 	{ "psi",		stress_cpu_psi },
 	{ "rand",		stress_cpu_rand },
+	{ "rand48",		stress_cpu_rand48 },
 	{ "rgb",		stress_cpu_rgb },
 	{ "sdbm",		stress_cpu_sdbm },
 	{ "sieve",		stress_cpu_sieve },
