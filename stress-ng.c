@@ -1404,11 +1404,11 @@ again:
 
 					(void)alarm(opt_timeout);
 					mwc_reseed();
+					snprintf(name, sizeof(name), "%s-%s", app_name,
+						munge_underscore((char *)stressors[i].name));
 					set_oom_adjustment(name, false);
 					set_coredump(name);
 					set_max_limits();
-					snprintf(name, sizeof(name), "%s-%s", app_name,
-						munge_underscore((char *)stressors[i].name));
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 					set_proc_name(name);
 					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
