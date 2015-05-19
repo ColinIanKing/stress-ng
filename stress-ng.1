@@ -60,11 +60,11 @@ by sysconf(_SC_NPROCESSORS_ONLN).
 .SH OPTIONS
 .TP
 .B \-\-affinity N
-start N processes that rapidly change CPU affinity (only on Linux). Rapidly switching
+start N workers that rapidly change CPU affinity (only on Linux). Rapidly switching
 CPU affinity can contribute to poor cache behaviour.
 .TP
 .B \-\-affinity\-ops N
-stop affinity processes after N bogo affinity operations (only on Linux).
+stop affinity workers after N bogo affinity operations (only on Linux).
 .TP
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.
@@ -73,55 +73,55 @@ switch CPU affinity randomly rather than the default of sequentially.
 enables more file, cache and memory aggressive options. This may slow tests down, increase latencies and reduce the number of bogo ops as well as changing the balance of user time vs system time used depending on the type of stressor being used.
 .TP
 .B \-\-aio N
-start N processes that issue multiple small asynchronous I/O writes and reads on a relatively small
+start N workers that issue multiple small asynchronous I/O writes and reads on a relatively small
 temporary file.  This will just hit the file system cache and soak up a lot of user and kernel time
-in issuing and handling I/O requests.  By default, each process will handle 16 concurrent I/O requests.
+in issuing and handling I/O requests.  By default, each worker process will handle 16 concurrent I/O requests.
 .TP
 .B \-\-aio\-ops N
 stop asynchronous I/O workers after N bogo asynchronous I/O requests.
 .TP
 .B \-\-aio\-requests N
-specify the number of asynchronous I/O requests each process should issue, the default is 16; 1 to 4096 are allowed.
+specify the number of asynchronous I/O requests each worker should issue, the default is 16; 1 to 4096 are allowed.
 .TP
 .B \-a N, \-\-all N
 start N instances of each stress test.
 .TP
 .B \-b N, \-\-backoff N
-wait N microseconds between the start of each stress process. This allows one
+wait N microseconds between the start of each stress worker process. This allows one
 to ramp up the stress tests over time.
 .TP
 .B \-B N, \-\-bigheap N
-start N processes that grow their heaps by reallocating memory. If the out of memory
-killer (OOM) on Linux kills the process or the allocation fails then the allocating process starts all
-over again.  Note that the OOM adjustment for the process is set so that the OOM killer
-will treat these processes as the first candidate processes to kill.
+start N workers that grow their heaps by reallocating memory. If the out of memory
+killer (OOM) on Linux kills the worker or the allocation fails then the allocating process starts all
+over again.  Note that the OOM adjustment for the worker is set so that the OOM killer
+will treat these workers as the first candidate processes to kill.
 .TP
 .B \-\-bigheap\-ops N
-stop the big heap processes after N bogo allocation operations are completed.
+stop the big heap workers after N bogo allocation operations are completed.
 .TP
 .B \-\-bigheap\-growth N
 specify amount of memory to grow heap by per iteration. Size can be from 4K to 64MB. Default is 64K.
 .TP
 .B \-\-brk N
-start N processes that grow the data segment by one page at a time using multiple brk(2) calls. Each successfully allocated new page is touched to ensure it is resident in memory.  If an out of memory condition occurs then the test will reset the data segment to the point before it started and repeat the data segment resizing over again.  The process adjusts the out of memory setting so that it may be killed by the out of memory (OOM) killer before other processes. If it is killed by the OOM killer then it will be automatically re-started by a monitoring parent process.
+start N workers that grow the data segment by one page at a time using multiple brk(2) calls. Each successfully allocated new page is touched to ensure it is resident in memory.  If an out of memory condition occurs then the test will reset the data segment to the point before it started and repeat the data segment resizing over again.  The process adjusts the out of memory setting so that it may be killed by the out of memory (OOM) killer before other processes. If it is killed by the OOM killer then it will be automatically re-started by a monitoring parent process.
 .TP
 .B \-\-brk\-ops N
-stop the brk stressor after N bogo brk operations.
+stop the brk workers after N bogo brk operations.
 .TP
 .B \-\-brk\-notouch
 do not touch each newly allocated data segment page. This disables the default of touching each newly allocated page and hence avoids the kernel from necessarily backing the page with real physical memory.
 .TP
 .B \-\-bsearch N
-start N processes that binary search a sorted array of 32 bit integers using bsearch(3). By default, there are 65536 elements in the array.  This is a useful method to exercise random access of memory and processor cache.
+start N workers that binary search a sorted array of 32 bit integers using bsearch(3). By default, there are 65536 elements in the array.  This is a useful method to exercise random access of memory and processor cache.
 .TP
 .B \-\-bsearch\-ops N
-stop the bsearch processes after N bogo bsearch operations are completed.
+stop the bsearch worker after N bogo bsearch operations are completed.
 .TP
 .B \-\-bsearch\-size N
 specify the size (number of 32 bit integers) in the array to bsearch. Size can be from 1K to 4M.
 .TP
 .B \-C N, \-\-cache N
-start N processes that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
+start N workers that perform random wide spread memory read and writes to thrash the CPU cache.  The code does not intelligently determine the CPU cache configuration and so it may be sub-optimal in producing hit-miss read/write activity for some processors.
 .TP
 .B \-\-cache\-fence
 force write serialization on each store operation (x86 only). This is a no-op for non-x86 architectures.
@@ -130,19 +130,19 @@ force write serialization on each store operation (x86 only). This is a no-op fo
 force flush cache on each store operation (x86 only). This is a no-op for non-x86 architectures.
 .TP
 .B \-\-cache\-ops N
-stop cache thrash processes after N bogo cache thrash operations.
+stop cache thrash workers after N bogo cache thrash operations.
 .TP
 .B \-\-cache\-prefetch
 force read prefetch on next read address on architectures that support prefetching.
 .TP
 .B \-\-chdir N
-start N processes that change directory between 8192 directories using chdir(2).
+start N workers that change directory between 8192 directories using chdir(2).
 .TP
 .B \-\-chdir\-ops N
 stop after N chdir bogo operations.
 .TP
 .B \-\-chmod N
-start N processes that change the file mode bits via chmod(2) and fchmod(2) on the same file. The greater the value for N then the more contention on the single file.  The stressor will work through all the combination of mode bits.
+start N workers that change the file mode bits via chmod(2) and fchmod(2) on the same file. The greater the value for N then the more contention on the single file.  The stressor will work through all the combination of mode bits.
 .TP
 .B \-\-chmod\-ops N
 stop after N chmod bogo operations.
@@ -151,17 +151,17 @@ stop after N chmod bogo operations.
 specify the class of stressors to run. Stressors are classified into one or more of the following classes: cpu, cpu-cache, device, io, interrupt, filesystem, memory, network, os, pipe, scheduler and vm.  Some stressors fall into just one class. For example the 'get' stressor is just in the 'os' class. Other stressors fall into more than one class, for example, the 'lsearch' stressor falls into the 'cpu', 'cpu-cache' and 'memory' classes as it exercises all these three.  Selecting a specific class will run all the stressors that fall into that class only when run with the \-\-sequential option.
 .TP
 .B \-\-clock N
-start N processes exercising clocks and POSIX timers. For all known clock types this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2). For
+start N workers exercising clocks and POSIX timers. For all known clock types this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2). For
 all known timers it will create a 50000ns timer and busy poll this until it expires.  This stressor will cause frequent context switching.
 .TP
 .B \-\-clock\-ops N
-stop clock stress processes after N bogo operations.
+stop clock stress workers after N bogo operations.
 .TP
 .B \-c N, \-\-cpu N
-start N processes exercising the CPU by sequentially working through all the different CPU stress methods. Instead of exercising all the CPU stress methods, one can specify a specific CPU stress method with the \-\-cpu\-method option.
+start N workers exercising the CPU by sequentially working through all the different CPU stress methods. Instead of exercising all the CPU stress methods, one can specify a specific CPU stress method with the \-\-cpu\-method option.
 .TP
 .B \-\-cpu\-ops N
-stop cpu stress processes after N bogo operations.
+stop cpu stress workers after N bogo operations.
 .TP
 .B \-l P, \-\-cpu\-load P
 load CPU with P percent loading. 0 is effectively a sleep (no load) and 100 is full loading.  The loading loop is broken into compute time (load%) and sleep time (100% - load%). Accuracy depends on the overall load of the processor and the responsiveness of the scheduler, so the actual load may be different from the desired load.  Note that the number of bogo CPU operations may not be linearly scaled with the load as some systems employ CPU frequency scaling and so heavier loads produce an increased CPU frequency and greater CPU bogo operations.
@@ -409,11 +409,11 @@ start N workers that encrypt a 16 character random password using crypt(3). The 
 stop after N bogo encryption operations.
 .TP
 .B \-D N, \-\-dentry N
-start N processes that create and remove directory entries.  This should create file system meta data activity. The
+start N workers that create and remove directory entries.  This should create file system meta data activity. The
 directory entry names are suffixed by a gray-code encoded number to try to mix up the hashing of the namespace.
 .TP
 .B \-\-dentry\-ops N
-stop denty thrash processes after N bogo dentry operations.
+stop denty thrash workers after N bogo dentry operations.
 .TP
 .B \-\-dentry\-order O
 specify unlink order of dentries, can be one of forward, reverse or stride. By default, dentries are unlinked
@@ -424,22 +424,22 @@ stride option will unlink them by stepping around order in a quasi-random patter
 create N dentries per dentry thrashing loop, default is 2048.
 .TP
 .B \-\-dir N
-start N processes that create and remove directories using mkdir and rmdir.
+start N workers that create and remove directories using mkdir and rmdir.
 .TP
 .B \-\-dir\-ops N
-stop directory thrash processes after N bogo directory operations.
+stop directory thrash workers after N bogo directory operations.
 .TP
 .B \-n, \-\-dry\-run
 parse options, but don't run stress tests. A no-op.
 .TP
 .B \-\-dup N
-start N processes that perform dup(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+start N workers that perform dup(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
 .B \-\-dup\-ops N
-stop the dup stress processes after N bogo open operations.
+stop the dup stress workers after N bogo open operations.
 .TP
 .B \-\-epoll N
-start N stressors that perform various related socket stress activity using epoll_wait(2) to monitor and handle new connections. This involves client/server processes performing rapid connect, send/receives and disconnects on the local host.  Using epoll allows a large number of connections to be efficiently handled, however, this can lead to the connection table filling up and blocking further socket connections, hence impacting on the epoll bogo op stats.  For ipv4 and ipv6
+start N workers that perform various related socket stress activity using epoll_wait(2) to monitor and handle new connections. This involves client/server processes performing rapid connect, send/receives and disconnects on the local host.  Using epoll allows a large number of connections to be efficiently handled, however, this can lead to the connection table filling up and blocking further socket connections, hence impacting on the epoll bogo op stats.  For ipv4 and ipv6
 domains, multiple servers are spawned on multiple ports. The epoll stressor is for Linux only.
 .TP
 .B \-\-epoll\-domain D
@@ -449,7 +449,7 @@ specify the domain to use, the default is unix (aka local). Currently ipv4, ipv6
 start at socket port P. For N epoll worker processes, ports P to (P * 4) - 1 are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix domain.
 .TP
 .B \-\-epoll\-ops N
-stop epoll stress processes after N bogo operations.
+stop epoll workers after N bogo operations.
 .TP
 .B \-\-eventfd N
 start N parent and child worker processes that read and write 8 byte event messages between them via the eventfd mechanism (Linux only).
@@ -458,19 +458,19 @@ start N parent and child worker processes that read and write 8 byte event messa
 stop eventfd workers after N bogo operations.
 .TP
 .B \-F N, \-\-fallocate N
-start N processes continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  If the file is larger than the free space, fallocate will produce an ENOSPC error which is ignored by this stressor.
+start N workers continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  If the file is larger than the free space, fallocate will produce an ENOSPC error which is ignored by this stressor.
 .TP
 .B \-\-fallocate\-bytes N
 allocated file size, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-fallocate\-ops N
-stop fallocate stress processes after N bogo fallocate operations.
+stop fallocate stress workers after N bogo fallocate operations.
 .TP
 .B \-\-fault N
-start N processes that generates minor and major page faults.
+start N workers that generates minor and major page faults.
 .TP
 .B \-\-fault\-ops N
-stop the page fault processes after N bogo page fault operations.
+stop the page fault workers after N bogo page fault operations.
 .TP
 .B \-\-fifo N
 start N workers that exercise a named pipe by transmitting 64 bit integers.
@@ -479,50 +479,50 @@ start N workers that exercise a named pipe by transmitting 64 bit integers.
 stop fifo workers after N bogo pipe write operations.
 .TP
 .B \-\-fifo-readers N
-for each worker, create N fifo reader processes that read
+for each worker, create N fifo reader workers that read
 the named pipe using simple blocking reads.
 .TP
 .B \-\-flock N
-start N processes locking on a single file.
+start N workers locking on a single file.
 .TP
 .B \-\-flock\-ops N
-stop flock stress processes after N bogo flock operations.
+stop flock stress workers after N bogo flock operations.
 .TP
 .B \-f N, \-\-fork N
-start N processes continually forking children that immediately exit.
+start N workers continually forking children that immediately exit.
 .TP
 .B \-\-fork\-ops N
-stop fork stress processes after N bogo operations.
+stop fork stress workers after N bogo operations.
 .TP
 .B \-\-fork\-max P
-create P processes and then wait for them to exit per iteration. The default is just 1; higher
+create P child processes and then wait for them to exit per iteration. The default is just 1; higher
 values will create many temporary zombie processes that are waiting to be reaped. One can
 potentially fill up the the process table using high values for \-\-fork\-max and \-\-fork.
 .TP
 .B \-\-fstat N
-start N processes fstat'ing files in a directory (default is /dev).
+start N workers fstat'ing files in a directory (default is /dev).
 .TP
 .B \-\-fstat\-ops N
-stop fstat stress process after N bogo fstat operations.
+stop fstat stress workers after N bogo fstat operations.
 .TP
 .B \-\-fstat\-dir directory
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
 .TP
 .B \-\-futex N
-start N stressors that rapidly exercise the futex system call. Each stressor has two processes, a futex waiter and a futex waker. The waiter waits with a very small timeout to stress the timeout and rapid polled futex waiting. This is a Linux specific stress option.
+start N workers that rapidly exercise the futex system call. Each worker has two processes, a futex waiter and a futex waker. The waiter waits with a very small timeout to stress the timeout and rapid polled futex waiting. This is a Linux specific stress option.
 .TP
 .B \-\-futex\-ops N
-stop futex stressors after N bogo successful futex wait operations.
+stop futex workers after N bogo successful futex wait operations.
 .TP
 .B \-\-get N
-start N stressors that call all the get*(2) system calls.
+start N workers that call all the get*(2) system calls.
 .TP
 .B \-\-get\-ops N
-stop get stressors after N bogo get operations.
+stop get workers after N bogo get operations.
 .TP
 .B \-d N, \-\-hdd N
-start N processes continually writing, reading and removing temporary files.
+start N workers continually writing, reading and removing temporary files.
 .TP
 .B \-\-hdd\-bytes N
 write N bytes for each hdd process, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
@@ -580,7 +580,7 @@ rd\-seq	T{
 read data sequentially. By default, written data is not read back, however, this option will force it to be read back sequentially.
 T}
 syncfs	T{
-write all buffered modifications of file metadata and data on the filesystem that contains the hdd stressor files.
+write all buffered modifications of file metadata and data on the filesystem that contains the hdd worker files.
 T}
 utimes	T{
 force update of file timestamp which may increase metadata writes.
@@ -597,7 +597,7 @@ T}
 Note that some of these options are mutually exclusive, for example, there can be only one method of writing or reading.  Also, fadvise flags may be mutually exclusive, for example fadv-willneed cannot be used with fadv-dontneed.
 .TP
 .B \-\-hdd\-ops N
-stop hdd stress processes after N bogo operations.
+stop hdd stress workers after N bogo operations.
 .TP
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
@@ -606,25 +606,25 @@ specify size of each write in bytes. Size can be from 1 byte to 4MB.
 show help.
 .TP
 .B \-\-hsearch N
-start N processes that search a 80% full hash table using hsearch(3). By default, there are 8192 elements inserted  into the hash table.  This is a useful method to exercise access of memory and processor cache.
+start N workers that search a 80% full hash table using hsearch(3). By default, there are 8192 elements inserted  into the hash table.  This is a useful method to exercise access of memory and processor cache.
 .TP
 .B \-\-hsearch\-ops N
-stop the hsearch processes after N bogo hsearch operations are completed.
+stop the hsearch workers after N bogo hsearch operations are completed.
 .TP
 .B \-\-hsearch\-size N
 specify the number of hash entries to be inserted into the hash table. Size can be from 1K to 4M.
 .TP
 .B \-\-inotify N
-start N processes performing file system activities such as making/deleting files/directories, moving files, etc. to stress exercise the various inotify events (Linux only).
+start N workers performing file system activities such as making/deleting files/directories, moving files, etc. to stress exercise the various inotify events (Linux only).
 .TP
 .B \-\-inotify\-ops N
-stop inotify stress processes after N inotify bogo operations.
+stop inotify stress workers after N inotify bogo operations.
 .TP
 .B \-i N, \-\-io N
-start N processes continuously calling sync(2) to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
+start N workers continuously calling sync(2) to commit buffer cache to disk. This can be used in conjunction with the \-\-hdd options.
 .TP
 .B \-\-io\-ops N
-stop io stress processes after N bogo operations.
+stop io stress workers after N bogo operations.
 .TP
 .B \-\-ionice\-class class
 specify ionice class (only on Linux). Can be idle (default), besteffort, be, realtime, rt.
@@ -633,7 +633,7 @@ specify ionice class (only on Linux). Can be idle (default), besteffort, be, rea
 specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (highest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
 .B \-\-itimer N
-start N processes that exercise the system interval timers. This sets up an
+start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
 the itimer is 1Mhz, however, the Linux kernel will set this to be no more that
 the jiffy setting, hence high frequency SIGPROF signals are not normally
@@ -641,67 +641,67 @@ possible.  A busy loop spins on getitimer(2) calls to consume CPU and hence
 decrement the itimer based on amount of time spent in CPU and system time.
 .TP
 .B \-\-itimer\-ops N
-stop itimer stress processes after N bogo itimer SIGPROF signals.
+stop itimer stress workers after N bogo itimer SIGPROF signals.
 .TP
 .B \-\-itimer\-freq F
 run itimer at F Hz; range from 1 to 1000000 Hz. Normally the highest frequency is limited by the number of jiffy ticks per second, so running above 1000 Hz is difficult to attain in practice.
 .TP
 .B \-\-kcmp N
-start N processes that use kcmp(2) to compare parent and child processes to determine if they share kernel resources (Linux only).
+start N workers that use kcmp(2) to compare parent and child processes to determine if they share kernel resources (Linux only).
 .TP
 .B \-\-kcmp\-ops N
-stop kcmp stressors after N bogo kcmp operations.
+stop kcmp workers after N bogo kcmp operations.
 .TP
 .B \-k, \-\-keep\-name
 by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP
 .B \-\-kill N
-start N processes sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most of the process time will end up in kernel space.
+start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most of the process time will end up in kernel space.
 .TP
 .B \-\-kill\-ops N
-stop kill processes after N bogo kill operations.
+stop kill workers after N bogo kill operations.
 .TP
 .B \-\-lease N
-start N processes locking, unlocking and breaking leases via the fcntl(2) F_SETLEASE operation. The parent processes continually lock and unlock a lease on a file while a user selectable number of child processes open the file with a non-blocking open to generate SIGIO lease breaking notifications to the parent.  This stressor is only available if F_SETLEASE, F_WRLCK and F_UNLCK support is provided by fcntl(2).
+start N workers locking, unlocking and breaking leases via the fcntl(2) F_SETLEASE operation. The parent processes continually lock and unlock a lease on a file while a user selectable number of child processes open the file with a non-blocking open to generate SIGIO lease breaking notifications to the parent.  This stressor is only available if F_SETLEASE, F_WRLCK and F_UNLCK support is provided by fcntl(2).
 .TP
 .B \-\-lease\-ops N
-stop lease stressors after N bogo operations.
+stop lease workers after N bogo operations.
 .TP
 .B \-\-lease\-breakers N
-start N lease breaker child processes per lease stressor.  Normally one child is plenty to force many SIGIO lease breaking notification signals to the parent, however, this option allows one to specify more child processes if required.
+start N lease breaker child processes per lease worker.  Normally one child is plenty to force many SIGIO lease breaking notification signals to the parent, however, this option allows one to specify more child processes if required.
 .TP
 .B \-\-link N
-start N processes creating and removing hardlinks.
+start N workers creating and removing hardlinks.
 .TP
 .B \-\-link\-ops N
-stop link stress processes after N bogo operations.
+stop link stress workers after N bogo operations.
 .TP
 .B \-\-lockf N
-start N stressors that randomly lock and unlock regions of a file using the POSIX lockf(3) locking mechanism. Each stressor creates a 64K file and attempts to hold a maximum of 1024 concurrent locks with a child process that also tries to hold 1024 concurrent locks. Old locks are unlocked in a first-in first-out basis.
+start N workers that randomly lock and unlock regions of a file using the POSIX lockf(3) locking mechanism. Each worker creates a 64K file and attempts to hold a maximum of 1024 concurrent locks with a child process that also tries to hold 1024 concurrent locks. Old locks are unlocked in a first-in first-out basis.
 .TP
 .B \-\-lockf\-ops N
-stop lockf stressors after N bogo lockf operations.
+stop lockf workers after N bogo lockf operations.
 .TP
 .B \-\-lockf\-nonblock
-instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf stressors increases and should increase locking contention.
+instead of using blocking F_LOCK lockf(3) commands, use non-blocking F_TLOCK commands and re-try if the lock failed.  This creates extra system call overhead and CPU utilisation as the number of lockf workers increases and should increase locking contention.
 .TP
 .B \-\-longjmp N
-start N processes that exercise setjmp(3)/longjmp(3) by rapid looping on longjmp calls.
+start N workers that exercise setjmp(3)/longjmp(3) by rapid looping on longjmp calls.
 .TP
 .B \-\-longjmp-ops N
-stop longjmp stress processes after N bogo longjmp operations (1 bogo op is 1000 longjmp calls).
+stop longjmp stress workers after N bogo longjmp operations (1 bogo op is 1000 longjmp calls).
 .TP
 .B \-\-lsearch N
-start N processes that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
+start N workers that linear search a unsorted array of 32 bit integers using lsearch(3). By default, there are 8192 elements in the array.  This is a useful method to exercise sequential access of memory and processor cache.
 .TP
 .B \-\-lsearch\-ops N
-stop the lsearch processes after N bogo lsearch operations are completed.
+stop the lsearch workers after N bogo lsearch operations are completed.
 .TP
 .B \-\-lsearch\-size N
 specify the size (number of 32 bit integers) in the array to lsearch. Size can be from 1K to 4M.
 .TP
 .B \-\-malloc N
-start N processes continuously calling malloc(3), calloc(3), realloc(3) and free(3). By default, up to 65536 allocations can be active at any point, but this can be altered with the \-\-malloc\-max option.  Allocation, reallocation and freeing are chosen at random; 50% of the time memory is allocation (via malloc, calloc or realloc) and 50% of the time allocations are free'd.  Allocation sizes are also random, with the maximum allocation size controlled by the \-\-malloc\-bytes option, the default size being 64K.  The stressor is re-started if it is killed by the out of mememory (OOM) killer.
+start N workers continuously calling malloc(3), calloc(3), realloc(3) and free(3). By default, up to 65536 allocations can be active at any point, but this can be altered with the \-\-malloc\-max option.  Allocation, reallocation and freeing are chosen at random; 50% of the time memory is allocation (via malloc, calloc or realloc) and 50% of the time allocations are free'd.  Allocation sizes are also random, with the maximum allocation size controlled by the \-\-malloc\-bytes option, the default size being 64K.  The worker is re-started if it is killed by the out of mememory (OOM) killer.
 .TP
 .B \-\-malloc\-bytes N
 maximum per allocation/reallocation size. Allocations are randomly selected from from 1 to N bytes. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.  Large allocation sizes cause the memory allocator to use mmap(2) rather than expanding the heap using brk(2).
@@ -716,10 +716,10 @@ stop after N malloc bogo operations. One bogo operations relates to a successful
 specify the threshold where malloc uses mmap(2) instead of sbrk(2) to allocate more memory. This is only available on systems that provide the GNU C mallopt(3) tuning function.
 .TP
 .B \-\-matrix N
-start N processes that perform various matrix operations on floating point values. By default, this will exercise all the matrix stress methods one by one.  One can specify a specific matrix stress method with the \-\-matrix\-method option.
+start N workers that perform various matrix operations on floating point values. By default, this will exercise all the matrix stress methods one by one.  One can specify a specific matrix stress method with the \-\-matrix\-method option.
 .TP
 .B \-\-matrix\-ops N
-stop matrix stress processes after N bogo operations.
+stop matrix stress workers after N bogo operations.
 .TP
 .B \-\-matrix\-method method
 specify a matrix stress method. Available matrix stress methods are described as follows:
@@ -818,10 +818,10 @@ T}
 enable metrics and only output metrics that are non-zero.
 .TP
 .B \-\-memcpy N
-start N processes that copy 2MB of data from a shared region to a buffer using memcpy(3) and then move the data in the buffer with memmove(3) with 3 different alignments. This will exercise processor cache and system memory.
+start N workers that copy 2MB of data from a shared region to a buffer using memcpy(3) and then move the data in the buffer with memmove(3) with 3 different alignments. This will exercise processor cache and system memory.
 .TP
 .B \-\-memcpy\-ops N
-stop memcpy stress processes after N bogo memcpy operations.
+stop memcpy stress workers after N bogo memcpy operations.
 .TP
 .B \-\-memfd N
 start N workers that create 256 allocations of 1024 pages using memfd_create(2) and ftruncate(2) for allocation and mmap(2) to map the allocation into the process address space.  (Linux only).
@@ -830,7 +830,7 @@ start N workers that create 256 allocations of 1024 pages using memfd_create(2) 
 stop after N memfd-create(2) bogo operations.
 .TP
 .B \-\-mincore N
-start N processes that walk through all of memory 1 page at a time checking of the page mapped and also is resident in memory using mincore(2).
+start N workers that walk through all of memory 1 page at a time checking of the page mapped and also is resident in memory using mincore(2).
 .TP
 .B \-\-mincore\-ops N
 stop after N mincore bogo operations. One mincore bogo op is equivalent to a 1000 mincore(2) calls.
@@ -842,22 +842,22 @@ instead of walking through pages sequentially, select pages at random. The chose
 overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-mlock N
-start N stressors that lock and unlock memory mapped pages using mlock(2), munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.  Next, all futute mappings are mlocked and the stressor attempts to map 262144 pages, then all pages are munlocked and the pages are unmapped.
+start N workers that lock and unlock memory mapped pages using mlock(2), munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.  Next, all futute mappings are mlocked and the worker attempts to map 262144 pages, then all pages are munlocked and the pages are unmapped.
 .TP
 .B \-\-mlock\-ops N
 stop after N mlock bogo operations.
 .TP
 .B \-\-mmap N
-start N processes continuously calling mmap(2)/munmap(2).  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.
+start N workers continuously calling mmap(2)/munmap(2).  The initial mapping is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random 4K unmappings, then pseudo-random 4K mappings, and then linear 4K unmappings. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.  The MAP_POPULATE option is used to populate pages into memory on systems that support this.  By default, anonymous mappings are used, however, the \-\-mmap\-file and \-\-mmap\-async options allow one to perform file based mappings if desired.
 .TP
 .B \-\-mmap\-ops N
-stop mmap stress processes after N bogo operations.
+stop mmap stress workers after N bogo operations.
 .TP
 .B \-\-mmap\-async
 enable file based memory mapping and use asynchronous msync'ing on each page, see \-\-mmap\-file.
 .TP
 .B \-\-mmap\-bytes N
-allocate N bytes per mmap stress process, the default is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+allocate N bytes per mmap stress worker, the default is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mmap\-file
 enable file based memory mapping and by default use synchronous msync'ing on each page.
@@ -866,19 +866,19 @@ enable file based memory mapping and by default use synchronous msync'ing on eac
 change protection settings on each page of memory.  Each time a page or a group of pages are mapped or remapped then this option will make the pages read-only, write-only, exec-only, and read-write.
 .TP
 .B \-\-mmapmany N
-start N stressors that attempt to create the maximum allowed per-process memory mappings. This is achieved by mapping 3 contiguous pages and then unmapping the middle page hence splitting the mapping into two. This is then repeated until the maximum allowed mappings or a maximum of 262144 mappings are made.
+start N workers that attempt to create the maximum allowed per-process memory mappings. This is achieved by mapping 3 contiguous pages and then unmapping the middle page hence splitting the mapping into two. This is then repeated until the maximum allowed mappings or a maximum of 262144 mappings are made.
 .TP
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations.
 .TP
 .B \-\-mremap N
-start N processes continuously calling mmap(2), mremap(2) and munmap(2).  The initial anonymous mapping is a large chunk (size specified by \-\-mremap\-bytes) and then iteratively halved in size by remapping all the way down to a page size and then back up to the original size.  This stressor is only available for Linux.
+start N workers continuously calling mmap(2), mremap(2) and munmap(2).  The initial anonymous mapping is a large chunk (size specified by \-\-mremap\-bytes) and then iteratively halved in size by remapping all the way down to a page size and then back up to the original size.  This worker is only available for Linux.
 .TP
 .B \-\-mremap\-ops N
-stop mremap stress processes after N bogo operations.
+stop mremap stress workers after N bogo operations.
 .TP
 .B \-\-mremap\-bytes N
-initially allocate N bytes per remap stress process, the default is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+initially allocate N bytes per remap stress worker, the default is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-msg N
 start N sender and receiver processes that continually send and receive messages using System V message IPC.
@@ -896,7 +896,7 @@ stop after N bogo POSIX message send operations completed.
 specify size of POSIX message queue. The default size is 10 messages and most Linux systems this is the maximum allowed size for normal users. If the given size is greater than the allowed message queue size then a warning is issued and the maximum allowed size is used instead.
 .TP
 .B \-\-nice N
-start N cpu consuming processes that exercise the available nice levels. Each iteration forks off a child process that runs through the all the nice levels running a busy loop for 0.1 seconds per level and then exits.
+start N cpu consuming workers that exercise the available nice levels. Each iteration forks off a child process that runs through the all the nice levels running a busy loop for 0.1 seconds per level and then exits.
 .TP
 .B \-\-nice\-ops N
 stop after N nice bogo nice loops
@@ -905,16 +905,16 @@ stop after N nice bogo nice loops
 from version 0.02.26 stress-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
 .TP
 .B \-\-null N
-start N processes writing to /dev/null.
+start N workers writing to /dev/null.
 .TP
 .B \-\-null\-ops N
-stop null stress processes after N /dev/null bogo write operations.
+stop null stress workers after N /dev/null bogo write operations.
 .TP
 .B \-o N, \-\-open N
-start N processes that perform open(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
+start N workers that perform open(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP
 .B \-\-open\-ops N
-stop the open stress processes after N bogo open operations.
+stop the open stress workers after N bogo open operations.
 .TP
 .B \-\-page\-in
 touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
@@ -922,19 +922,19 @@ all the allocated pages to be paged in when using the bigheap, mmap and vm stres
 performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(2) to determine the pages that are not in core and hence need touching to page them back in.
 .TP
 .B \-p N, \-\-pipe N
-start N stressors that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each stressor has two processes, a reader and a writer.
+start N workers that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each worker has two processes, a reader and a writer.
 .TP
 .B \-\-pipe\-ops N
-stop pipe stress processes after N bogo pipe write operations.
+stop pipe stress workers after N bogo pipe write operations.
 .TP
 .B \-P N, \-\-poll N
-start N processes that perform zero timeout polling via the poll(2), select(2) and sleep(3) calls. This wastes system and user time doing nothing.
+start N workers that perform zero timeout polling via the poll(2), select(2) and sleep(3) calls. This wastes system and user time doing nothing.
 .TP
 .B \-\-poll\-ops N
-stop poll stress processes after N bogo poll operations.
+stop poll stress workers after N bogo poll operations.
 .TP
 .B \-\-procfs N
-start N processes that read files from /proc and recursively read files from /proc/self (Linux only).
+start N workers that read files from /proc and recursively read files from /proc/self (Linux only).
 .TP
 .B \-\-procfs\-ops N
 stop procfs reading after N bogo read operations. Note, since the number of entries may vary between kernels, this bogo ops metric is probably very misleading.
@@ -949,10 +949,10 @@ stop pthread workers after N bogo pthread create operations.
 create N pthreads per worker. If the product of the number of pthreads by the number of workers is greater than the soft limit of allowed pthreads then the maximum is re-adjusted down to the maximum allowed.
 .TP
 .B \-Q, \-\-qsort N
-start N processes that sort 32 bit integers using qsort.
+start N workers that sort 32 bit integers using qsort.
 .TP
 .B \-\-qsort\-ops N
-stop qsort stress processes after N bogo qsorts.
+stop qsort stress workers after N bogo qsorts.
 .TP
 .B \-\-qsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
@@ -961,29 +961,29 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 do not show any output.
 .TP
 .B \-r N, \-\-random N
-start N random stress processes. If N is 0, then the number of on-line processors is used for N.
+start N random stress workers. If N is 0, then the number of on-line processors is used for N.
 .TP
 .B \-\-rdrand N
-start N processes that read the Intel hardware random number generator (Intel Ivybridge processors upwards).
+start N workers that read the Intel hardware random number generator (Intel Ivybridge processors upwards).
 .TP
 .B \-\-rdrand\-ops N
-stop rdrand stress processes after N bogo rdrand operations (1 bogo op = 2048 random bits successfully read).
+stop rdrand stress workers after N bogo rdrand operations (1 bogo op = 2048 random bits successfully read).
 .TP
 .B \-\-readahead N
-start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file with readahead. The default file size is 1 GB.
+start N workers that randomly seeks and performs 512 byte read/write I/O operations on a file with readahead. The default file size is 1 GB.
 Readaheads and reads are batched into 16 readaheads and then 16 reads.
 .TP
 .B \-\-readahead\-bytes N
 set the size of readahead file, the default is 1 GB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-readahead\-ops N
-stop readahead stress processes after N bogo read operations.
+stop readahead stress workers after N bogo read operations.
 .TP
 .B \-R N, \-\-rename N
-start N processes that each create a file and then repeatedly rename it.
+start N workers that each create a file and then repeatedly rename it.
 .TP
 .B \-\-rename\-ops N
-stop rename stress processes after N bogo rename operations.
+stop rename stress workers after N bogo rename operations.
 .TP
 .B \-\-rlimit N
 start N workers that exceed CPU and file size resource imits, generating SIGXCPU and SIGXFSZ signals.
@@ -1000,10 +1000,10 @@ select the scheduler priority level (only on Linux). If the scheduler does not s
 the default priority level of 0 is chosen.
 .TP
 .B \-\-seek N
-start N processes that randomly seeks and performs 512 byte read/write I/O operations on a file. The default file size is 16 GB.
+start N workers that randomly seeks and performs 512 byte read/write I/O operations on a file. The default file size is 16 GB.
 .TP
 .B \-\-seek\-ops N
-stop seek stress processes after N bogo seek operations.
+stop seek stress workers after N bogo seek operations.
 .TP
 .B \-\-seek\-size N
 specify the size of the file in bytes. Small file sizes allow the I/O to occur in the cache, causing greater CPU load. Large file sizes force
@@ -1014,37 +1014,37 @@ GBytes using the suffix b, k, m or g.
 start N workers that perform POSIX semaphore wait and post operations. By default, a parent and 4 children are started per worker to provide some contention on the semaphore. This stresses fast semaphore operations and produces rapid context switching.
 .TP
 .B \-\-sem\-ops N
-stop semaphore stress processes after N bogo semaphore operations.
+stop semaphore stress workers after N bogo semaphore operations.
 .TP
 .B \-\-sem\-procs N
-start N child processes per worker to provide contention on the semaphore, the default is 4 and a maximum of 64 are allowed.
+start N child workers per worker to provide contention on the semaphore, the default is 4 and a maximum of 64 are allowed.
 .TP
 .B \-\-sem\-sysv N
 start N workers that perform System V semaphore wait and post operations. By default, a parent and 4 children are started per worker to provide some contention on the semaphore. This stresses fast semaphore operations and produces rapid context switching.
 .TP
 .B \-\-sem\-sysv\-ops N
-stop semaphore stress processes after N bogo System V semaphore operations.
+stop semaphore stress workers after N bogo System V semaphore operations.
 .TP
 .B \-\-sem\-sysv\-procs N
 start N child processes per worker to provide contention on the System V semaphore, the default is 4 and a maximum of 64 are allowed.
 .TP
 .B \-\-sendfile N
-start N processes that send an empty file to /dev/null. This operation spends nearly all the time in the kernel.  The default sendfile size is 4MB.  The sendfile options are for Linux only.
+start N workers that send an empty file to /dev/null. This operation spends nearly all the time in the kernel.  The default sendfile size is 4MB.  The sendfile options are for Linux only.
 .TP
 .B \-\-sendfile\-ops N
-stop sendfile stressors after N sendfile bogo operations.
+stop sendfile workers after N sendfile bogo operations.
 .TP
 .B \-\-sendfile\-size S
 specify the size to be copied with each sendfile call. The default size is 4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-sequential N
-sequentially run all the stressors one by one for a default of 60 seconds. The
+sequentially run all the stressor one by one for a default of 60 seconds. The
 number of each individual stressors to be started is N.  If N is zero, then a
 stressor for each processor that is on-line is executed. Use the \-\-timeout
 option to specify the duration to run each stressor.
 .TP
 .B \-\-shm\-sysv N
-start N processes that allocate shared memory using the System V shared memory interface.  By default, the test will repeatedly create and destroy 8 shared memory segments, each of which is 8MB in size.
+start N workers that allocate shared memory using the System V shared memory interface.  By default, the test will repeatedly create and destroy 8 shared memory segments, each of which is 8MB in size.
 .TP
 .B \-\-shm\-sysv\-ops N
 stop after N shared memory create and destroy bogo operations are complete.
@@ -1056,31 +1056,31 @@ specify the size of the shared memory segment to be created. One can specify the
 specify the number of shared memory segments to be created.
 .TP
 .B \-\-sigfd N
-start N processess that generate SIGUSR1 signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load.
+start N workers that generate SIGUSR1 signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load.
 .TP
 .B \-\-sigfd\-ops
-stop sigfd processes after N bogo SIGUSR1 signals are sent.
+stop sigfd workers after N bogo SIGUSR1 signals are sent.
 .TP
 .B \-\-sigfpe N
-start N processes that rapidly cause division by zero SIGFPE faults.
+start N workers that rapidly cause division by zero SIGFPE faults.
 .TP
 .B \-\-sigfpe\-ops N
-stop sigfpe stress processes after N bogo SIGFPE faults.
+stop sigfpe stress workers after N bogo SIGFPE faults.
 .TP
 .B \-\-sigsegv N
-start N processes that rapidly create and catch segmentation faults.
+start N workers that rapidly create and catch segmentation faults.
 .TP
 .B \-\-sigsegv\-ops N
-stop sigsegv stress processes after N bogo segmentation faults.
+stop sigsegv stress workers after N bogo segmentation faults.
 .TP
 .B \-\-sigq N
-start N processes that rapidly send SIGUSR1 signals using sigqueue(3) to child processes that wait for the signal via sigwaitinfo(2).
+start N workers that rapidly send SIGUSR1 signals using sigqueue(3) to child processes that wait for the signal via sigwaitinfo(2).
 .TP
 .B \-\-sigq\-ops N
-stop sigq stress processes after N bogo signal send operations.
+stop sigq stress workers after N bogo signal send operations.
 .TP
 .B \-S N, \-\-sock N
-start N stressors that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
+start N workers that perform various socket stress activity. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
 .TP
 .B \-\-sock\-domain D
 specifty the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix are supported.
@@ -1089,7 +1089,7 @@ specifty the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix a
 start at socket port P. For N socket worker processes, ports P to P - 1 are used.
 .TP
 .B \-\-sock\-ops N
-stop socket stress processes after N bogo operations.
+stop socket stress workers after N bogo operations.
 .TP
 .B \-\-splice N
 move data from /dev/zero to /dev/null through a pipe without any copying between kernel address space and user address space using splice(2). This is only available for Linux.
@@ -1101,16 +1101,16 @@ stop after N bogo splice operations.
 transfer N bytes per splice call, the default is 64K. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-stack N
-start N processes that rapidly cause and catch stack overflows by use of alloca(3).
+start N workers that rapidly cause and catch stack overflows by use of alloca(3).
 .TP
 .B \-\-stack\-full
 the default action is to touch the lowest page on each stack allocation. This option touches all the pages by filling the new stack allocation with zeros which forces physical pages to be allocated and hence is more aggressve.
 .TP
 .B \-\-stack\-ops N
-stop stack stress processes after N bogo stack overflows.
+stop stack stress workers after N bogo stack overflows.
 .TP
 .B \-\-str N
-start N processes that exercise various libc string functions on random strings.
+start N workers that exercise various libc string functions on random strings.
 .TP
 .B \-\-str-method strfunc
 select a specific libc string function to stress. Available string functions to stress are: all, index, rindex, strcasecmp, strcat, strchr, strcoll, strcmp, strcpy, strlen, strncasecmp, strncat, strncmp, strrchr and strxfrm.  See string(3) for more information on these string functions.  The 'all' method is the default and will exercise all the string methods.
@@ -1119,22 +1119,22 @@ select a specific libc string function to stress. Available string functions to 
 stop after N bogo string operations.
 .TP
 .B \-s N, \-\-switch N
-start N processes that send messages via pipe to a child to force context switching.
+start N workers that send messages via pipe to a child to force context switching.
 .TP
 .B \-\-switch\-ops N
-stop context switching processes after N bogo operations.
+stop context switching workers after N bogo operations.
 .TP
 .B \-\-symlink N
-start N processes creating and removing symbolic links.
+start N workers creating and removing symbolic links.
 .TP
 .B \-\-symlink\-ops N
-stop symlink stress processes after N bogo operations.
+stop symlink stress workers after N bogo operations.
 .TP
 .B \-\-sysinfo N
-start N processes that continually read system and process specific information.  This reads the process user and system times using the times(2) system call. For Linux systems, it also reads overall system statistics using the sysinfo(2) system call and also the file system statistics for all mounted file systems using statfs(2).
+start N workers that continually read system and process specific information.  This reads the process user and system times using the times(2) system call. For Linux systems, it also reads overall system statistics using the sysinfo(2) system call and also the file system statistics for all mounted file systems using statfs(2).
 .TP
 .B \-\-sysinfo\-ops N
-stop the sysinfo stressors after N bogo operations.
+stop the sysinfo workers after N bogo operations.
 .TP
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
@@ -1150,12 +1150,12 @@ stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 .TP
 .B \-T N, \-\-timer N
-start N processes creating timer events at a default rate of 1Mhz (Linux only); this
+start N workers creating timer events at a default rate of 1Mhz (Linux only); this
 can create a many thousands of timer clock interrupts. Each timer event is caught by a
 signal handler and counted as a bogo timer op.
 .TP
 .B \-\-timer\-ops N
-stop timer stress processes after N bogo timer events (Linux only).
+stop timer stress workers after N bogo timer events (Linux only).
 .TP
 .B \-\-timer\-freq F
 run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
@@ -1164,12 +1164,12 @@ run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an 
 select a timer frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-timerfd N
-start N processes creating timerfd events at a default rate of 1Mhz (Linux only); this
+start N workers creating timerfd events at a default rate of 1Mhz (Linux only); this
 can create a many thousands of timer clock events. Timer events are waited for on the timer file descriptor
 using select(2) and then read and counted as a bogo timerfd op.
 .TP
 .B \-\-timerfd\-ops N
-stop timerfd stress processes after N bogo timerfd events (Linux only).
+stop timerfd stress workers after N bogo timerfd events (Linux only).
 .TP
 .B \-\-timerfd\-freq F
 run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
@@ -1181,43 +1181,43 @@ select a timerfd frequency based around the timer frequency +/- 12.5% random jit
 show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system.
 .TP
 .B \-\-tsearch N
-start N processes that insert, search and delete 32 bit integers on a binary tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536 randomized integers used in the tree.  This is a useful method to exercise random access of memory and processor cache.
+start N workers that insert, search and delete 32 bit integers on a binary tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536 randomized integers used in the tree.  This is a useful method to exercise random access of memory and processor cache.
 .TP
 .B \-\-tsearch\-ops N
-stop the tsearch processes after N bogo tree operations are completed.
+stop the tsearch workers after N bogo tree operations are completed.
 .TP
 .B \-\-tsearch\-size N
 specify the size (number of 32 bit integers) in the array to tsearch. Size can be from 1K to 4M.
 .TP
 .B \-\-udp N
-start N stressors that transmit data using UDP. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
+start N workers that transmit data using UDP. This involves a pair of client/server processes performing rapid connect, send and receives and disconnects on the local host.
 .TP
 .B \-\-udp\-domain D
 specifty the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix are supported.
 .TP
 .B \-\-udp\-port P
-start at port P. For N udp  worker processes, ports P to P - 1 are used. By default, ports 7000 upwards are used.
+start at port P. For N udp worker processes, ports P to P - 1 are used. By default, ports 7000 upwards are used.
 .TP
 .B \-\-udp\-ops N
-stop udp stress processes after N bogo operations.
+stop udp stress workers after N bogo operations.
 .TP
 .B \-u N, \-\-urandom N
-start N processes reading /dev/urandom (Linux only). This will load the kernel random number source.
+start N workers reading /dev/urandom (Linux only). This will load the kernel random number source.
 .TP
 .B \-\-urandom\-ops N
-stop urandom stress processes after N urandom bogo read operations (Linux only).
+stop urandom stress workers after N urandom bogo read operations (Linux only).
 .TP
 .B \-\-utime N
-start N processes updating file timestamps. This is mainly CPU bound when the default is used as the system flushes metadata changes only periodically.
+start N workers updating file timestamps. This is mainly CPU bound when the default is used as the system flushes metadata changes only periodically.
 .TP
 .B \-\-utime\-ops N
-stop utime stress processes after N utime bogo operations.
+stop utime stress workers after N utime bogo operations.
 .TP
 .B \-\-utime\-fsync
 force metadata changes on each file timestamp update to be flushed to disk. This forces the test to become I/O bound and will result in many dirty metadata writes.
 .TP
 .B \-\-vecmath N
-start N processes that perform various unsigned integer math operations on various 128 bit vectors. A mix of vector math operations are performed on the following vectors: 16 \(mu 8 bits, 8 \(mu 16 bits, 4 \(mu 32 bits, 2 \(mu 64 bits. The metrics produced by this mix depend on the processor architecture and the vector math optimisations produced by the compiler.
+start N workers that perform various unsigned integer math operations on various 128 bit vectors. A mix of vector math operations are performed on the following vectors: 16 \(mu 8 bits, 8 \(mu 16 bits, 4 \(mu 32 bits, 2 \(mu 64 bits. The metrics produced by this mix depend on the processor architecture and the vector math optimisations produced by the compiler.
 .TP
 .B \-\-vecmath\-ops N
 stop after N bogo vector integer math operations.
@@ -1233,10 +1233,10 @@ computations or memory contents from a test run and report to stderr any unexpec
 show version.
 .TP
 .B \-\-vfork N
-start N processes continually vforking children that immediately exit.
+start N workers continually vforking children that immediately exit.
 .TP
 .B \-\-vfork\-ops N
-stop vfork stress processes after N bogo operations.
+stop vfork stress workers after N bogo operations.
 .TP
 .B \-\-vfork\-max P
 create P processes and then wait for them to exit per iteration. The default is just 1; higher
@@ -1244,17 +1244,17 @@ values will create many temporary zombie processes that are waiting to be reaped
 potentially fill up the the process table using high values for \-\-vfork\-max and \-\-vfork.
 .TP
 .B \-m N, \-\-vm N
-start N processes continuously calling mmap(2)/munmap(2) and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
+start N workers continuously calling mmap(2)/munmap(2) and writing to the allocated memory. Note that this can cause systems to trip the kernel OOM killer on Linux systems if not enough physical memory and swap is not available.
 .TP
 .B \-\-vm\-bytes N
-mmap N bytes per vm process, the default is 256MB. One can specify the size in units of Bytes,
+mmap N bytes per vm worker, the default is 256MB. One can specify the size in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-stride N
 deprecated since version 0.03.02
 .TP
 .B \-\-vm\-ops N
-stop vm stress processes after N bogo operations.
+stop vm workers after N bogo operations.
 .TP
 .B \-\-vm\-hang N
 sleep N seconds before unmapping memory, the default is zero seconds. Specifying 0 will
@@ -1267,18 +1267,18 @@ don't continually unmap and map memory, just keep on re-writing to it.
 Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
 .TP
 .B \-\-vm\-method m
-specify a vm stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Each of the vm stressors have 3 phases:
+specify a vm stress method. By default, all the stress methods are exercised sequentially, however one can specify just one method to be used if required. Each of the vm workers have 3 phases:
 .RS
 .PP
 1. Initialised.  The anonymously memory mapped region is set to a known pattern.
 .PP
-2. Exercised.  Memory is modified in a known predictable way. Some vm stressors alter memory sequentially, some use small or large strides to step along memory.
+2. Exercised.  Memory is modified in a known predictable way. Some vm workers alter memory sequentially, some use small or large strides to step along memory.
 .PP
 3. Checked.  The modified memory is checked to see if it matches the expected result.
 .PP
 The vm methods containing 'prime' in their name have a stride of the largest prime less than 2^64, allowing to them to thoroughly step through memory and touch all locations just once while also doing without touching memory cells next to each other. This strategy exercises the cache and page non-locality.
 .PP
-Since the memory being exercised is virtually mapped then there is no guarantee of touching page addresses in any particular physical order.  These stressors should not be used to test that all the system's memory is working correctly either, use tools such as memtest86 instead.
+Since the memory being exercised is virtually mapped then there is no guarantee of touching page addresses in any particular physical order.  These workers should not be used to test that all the system's memory is working correctly either, use tools such as memtest86 instead.
 .PP
 The vm stress methods are intended to exercise memory in ways to possibly find memory issues and to try to force thermal errors.
 .PP
@@ -1376,7 +1376,7 @@ start N workers that transfer memory to/from a parent/child using process_vm_wri
 stop vm\-rw workers after N memory read/writes.
 .TP
 .B \-\-vm\-rw\-bytes N
-mmap N bytes per vm\-rw process, the default is 16MB. One can specify the size in units of Bytes,
+mmap N bytes per vm\-rw worker, the default is 16MB. One can specify the size in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-splice N
@@ -1401,16 +1401,16 @@ start N workers that create, update and delete batches of extended attributes on
 stop after N bogo extended attribute operations.
 .TP
 .B \-y N, \-\-yield N
-start N process that call sched_yield(2). This should force rapid context switching.
+start N workers that call sched_yield(2). This should force rapid context switching.
 .TP
 .B \-\-yield\-ops N
-stop yield stress processes after N sched_yield(2) bogo operations.
+stop yield stress workers after N sched_yield(2) bogo operations.
 .TP
 .B \-\-zero N
-start N processes reading /dev/zero.
+start N workers reading /dev/zero.
 .TP
 .B \-\-zero\-ops N
-stop zero stress processes after N /dev/zero bogo read operations.
+stop zero stress workers after N /dev/zero bogo read operations.
 .TP
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create a default
