@@ -1136,6 +1136,12 @@ start N workers that continually read system and process specific information.  
 .B \-\-sysinfo\-ops N
 stop the sysinfo workers after N bogo operations.
 .TP
+.B \-\-sysfs N
+start N workers that recursively read files from /sys (Linux only).  This may cause specific kernel drivers to emit messages into the kernel log.
+.TP
+.B \-\-sys\-ops N
+stop sysfs reading after N bogo read operations. Note, since the number of entries may vary between kernels, this bogo ops metric is probably very misleading.
+.TP
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
 .TP

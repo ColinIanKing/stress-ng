@@ -640,6 +640,10 @@ typedef enum {
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
+#if defined(__linux__)
+	__STRESS_SYSFS,
+#define STRESS_SYSFS __STRESS_SYSFS
+#endif
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_TEE,
 #define STRESS_TEE __STRESS_TEE
@@ -1075,6 +1079,11 @@ typedef enum {
 	OPT_SYSINFO,
 	OPT_SYSINFO_OPS,
 
+#if defined(STRESS_SYSFS)
+	OPT_SYSFS,
+	OPT_SYSFS_OPS,
+#endif
+
 	OPT_SYSLOG,
 
 #if defined(STRESS_TEE)
@@ -1459,6 +1468,7 @@ STRESS(stress_str);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sysinfo);
+STRESS(stress_sysfs);
 STRESS(stress_tee);
 STRESS(stress_timer);
 STRESS(stress_timerfd);

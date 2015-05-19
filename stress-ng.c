@@ -265,6 +265,9 @@ static const stress_t stressors[] = {
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
+#if defined(STRESS_SYSFS)
+	STRESSOR(sysfs, SYSFS, CLASS_OS),
+#endif
 #if defined(STRESS_TEE)
 	STRESSOR(tee, TEE, CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER),
 #endif
@@ -607,6 +610,10 @@ static const struct option long_options[] = {
 	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
 	{ "sysinfo",	1,	0,	OPT_SYSINFO },
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
+#if defined(STRESS_SYSFS)
+	{ "sysfs",	1,	0,	OPT_SYSFS },
+	{ "sysfs-ops",1,	0,	OPT_SYSFS_OPS },
+#endif
 	{ "syslog",	0,	0,	OPT_SYSLOG },
 	{ "timeout",	1,	0,	OPT_TIMEOUT },
 #if defined(STRESS_TEE)
@@ -974,6 +981,10 @@ static const help_t help[] = {
 	{ NULL,		"symlink-ops N",	"stop when N symbolic link bogo operations completed" },
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
 	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
+#if defined(STRESS_SYSFS)
+	{ NULL,		"sysfs N",		"start N workers reading files from /sys" },
+	{ NULL,		"sysfs-ops N",		"stop when sysfs bogo operations completed" },
+#endif
 	{ NULL,		"syslog",		"log messages to the syslog" },
 #if defined(STRESS_TEE)
 	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
