@@ -320,6 +320,8 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 		d += drand48();
 		l += lrand48();
 	}
+	double_put(d);
+	uint64_put(l);
 }
 
 /*
