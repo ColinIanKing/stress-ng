@@ -771,7 +771,7 @@ static const help_t help[] = {
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
 	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
-	{ NULL,		"fork-max P",		"create P processes per iteration, default is 1" },
+	{ NULL,		"fork-max P",		"create P workers per iteration, default is 1" },
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
 	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
@@ -805,13 +805,13 @@ static const help_t help[] = {
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
 	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
 #endif
-	{ "k",		"keep-name",		"keep stress process names to be 'stress-ng'" },
+	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
 #if defined(STRESS_LEASE)
 	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
 	{ NULL,		"lease-ops N",		"stop when N lease bogo operations completed" },
-	{ NULL,		"lease-breakers N",	"number of lease breaking processes to start" },
+	{ NULL,		"lease-breakers N",	"number of lease breaking workers to start" },
 #endif
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
