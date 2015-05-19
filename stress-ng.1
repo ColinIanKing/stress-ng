@@ -532,7 +532,7 @@ direct	T{
 try to minimize cache effects of the I/O. File I/O writes are performed directly from user space buffers and synchronous transfer is also attempted. To guarantee synchronous I/O, also use the sync option.
 T}
 dsync	T{
-ensure output has been transferred to underlying hardware and file metadata has been updated. This is equivalent to each write(2) being followed by a call to fdatasync(2).
+ensure output has been transferred to underlying hardware and file metadata has been updated (using the O_DSYNC open flag). This is equivalent to each write(2) being followed by a call to fdatasync(2). See also the fdatasync option.
 T}
 fadv\-dontneed	T{
 advise kernel to expect the data will not be accessed in the near future.
@@ -552,6 +552,12 @@ T}
 fadv\-willneed	T{
 advise kernel to expect the data to be accessed in the near future.
 T}
+fsync	T{
+flush all modified in-core data after each write to the output device using an explicit fsync(2) call.
+T}
+fdatasync	T{
+similar to fsync, but do not flush the modified metadata unless metadata is required for later data reads to be handled correctly. This uses an explicit fdatasync(2) call.
+T}
 iovec	T{
 use readv/writev multiple buffer I/Os rather than read/write. Instead of 1 read/write operation, the buffer is broken into an iovec of 16 buffers.
 T}
@@ -559,7 +565,7 @@ noatime	T{
 do not update the file last access timestamp, this can reduce metadata writes.
 T}
 sync	T{
-ensure output has been transferred to underlying hardware. This is equivalent to a each write(2) being followed by a call to fdatasync(2).
+ensure output has been transferred to underlying hardware (using the O_SYNC open flag). This is equivalent to a each write(2) being followed by a call to fsync(2). See also the fsync option.
 T}
 rd\-rnd	T{
 read data randomly. By default, written data is not read back, however, this option will force it to be read back randomly.

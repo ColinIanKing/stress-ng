@@ -66,6 +66,8 @@
 /* Other modes */
 #define HDD_OPT_IOVEC		(0x00100000)
 #define HDD_OPT_UTIMES		(0x00200000)
+#define HDD_OPT_FSYNC		(0x00400000)
+#define HDD_OPT_FDATASYNC	(0x00800000)
 
 static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
@@ -131,6 +133,12 @@ static const hdd_opts_t hdd_opts[] = {
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_WILLNEED),
 		POSIX_FADV_DONTNEED, 0 },
 #endif
+#if _BSD_SOURCE || _XOPEN_SOURCE || _POSIX_C_SOURCE >= 200112L
+	{ "fsync",	HDD_OPT_FSYNC, 0, 0, 0 },
+#endif
+#if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
+	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
+#endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 	{ NULL, 0, 0, 0, 0 }
@@ -158,6 +166,8 @@ void stress_set_hdd_write_size(const char *optarg)
  */
 static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
 {
+	ssize_t ret;
+
 	if (opt_hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
 
@@ -173,10 +183,17 @@ static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
 
 			buf += sz;
 		}
-		return writev(fd, iov, HDD_IO_VEC_MAX);
+		ret = writev(fd, iov, HDD_IO_VEC_MAX);
 	} else {
-		return write(fd, buf, count);
+		ret = write(fd, buf, count);
 	}
+
+	if (opt_hdd_flags & HDD_OPT_FSYNC)
+		(void)fsync(fd);
+	if (opt_hdd_flags & HDD_OPT_FDATASYNC)
+		(void)fdatasync(fd);
+
+	return ret;
 }
 
 /*
