@@ -498,6 +498,7 @@ typedef enum {
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
 	STRESS_CACHE,
+	STRESS_CHDIR,
 	STRESS_CHMOD,
 #if _POSIX_C_SOURCE >= 199309L
 	__STRESS_CLOCK,
@@ -768,6 +769,9 @@ typedef enum {
 	OPT_CACHE_PREFETCH,
 	OPT_CACHE_FLUSH,
 	OPT_CACHE_FENCE,
+
+	OPT_CHDIR,
+	OPT_CHDIR_OPS,
 
 	OPT_CHMOD,
 	OPT_CHMOD_OPS,
@@ -1385,6 +1389,7 @@ STRESS(stress_bigheap);
 STRESS(stress_brk);
 STRESS(stress_bsearch);
 STRESS(stress_cache);
+STRESS(stress_chdir);
 STRESS(stress_chmod);
 STRESS(stress_clock);
 STRESS(stress_cpu);

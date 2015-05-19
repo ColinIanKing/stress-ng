@@ -32,6 +32,7 @@ SRC =   stress-affinity.c \
 	stress-brk.c \
 	stress-bsearch.c \
 	stress-cache.c \
+	stress-chdir.c \
 	stress-chmod.c \
 	stress-clock.c \
 	stress-cpu.c \

@@ -150,6 +150,7 @@ static const stress_t stressors[] = {
 	STRESSOR(brk, BRK, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
+	STRESSOR(chdir, CHDIR, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(chmod, CHMOD, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_CLOCK)
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
@@ -351,6 +352,8 @@ static const struct option long_options[] = {
 	{ "cache-prefetch",0,	0,	OPT_CACHE_PREFETCH },
 	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
+	{ "chdir",	1,	0, 	OPT_CHDIR },
+	{ "chdir-ops",	1,	0, 	OPT_CHDIR_OPS },
 	{ "chmod",	1,	0, 	OPT_CHMOD },
 	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
 	{ "class",	1,	0,	OPT_CLASS },
@@ -721,6 +724,8 @@ static const help_t help[] = {
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
 	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
+	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
+	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
 #if defined(STRESS_CLOCK)

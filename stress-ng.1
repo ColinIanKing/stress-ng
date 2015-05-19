@@ -135,6 +135,12 @@ stop cache thrash processes after N bogo cache thrash operations.
 .B \-\-cache\-prefetch
 force read prefetch on next read address on architectures that support prefetching.
 .TP
+.B \-\-chdir N
+start N processes that change directory between 8192 directories using chdir(2).
+.TP
+.B \-\-chdir\-ops N
+stop after N chdir bogo operations.
+.TP
 .B \-\-chmod N
 start N processes that change the file mode bits via chmod(2) and fchmod(2) on the same file. The greater the value for N then the more contention on the single file.  The stressor will work through all the combination of mode bits.
 .TP
