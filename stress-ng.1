@@ -833,7 +833,7 @@ instead of walking through pages sequentially, select pages at random. The chose
 overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-mlock N
-start N stressors that lock and unlock memory mapped pages using mlock(2) and munlock(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.
+start N stressors that lock and unlock memory mapped pages using mlock(2), munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.  Next, all futute mappings are mlocked and the stressor attempts to map 262144 pages, then all pages are munlocked and the pages are unmapped.
 .TP
 .B \-\-mlock\-ops N
 stop after N mlock bogo operations.

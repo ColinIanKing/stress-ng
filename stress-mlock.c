@@ -132,6 +132,20 @@ again:
 					(void)munlock((void *)addr + page_size, page_size);
 				munmap((void *)addr, page_size * 3);
 			}
+			(void)mlockall(MCL_CURRENT);
+			(void)mlockall(MCL_FUTURE);
+			for (n = 0; opt_do_run && (n < max); n++) {
+				if (!opt_do_run || (max_ops && *counter >= max_ops))
+					break;
+
+				mappings[n] = mmap(NULL, page_size,
+					PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				if (mappings[n] == MAP_FAILED)
+					break;
+			}
+			(void)munlockall();
+			for (i = 0; i < n;  i++)
+				munmap(mappings[i], page_size);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
 
