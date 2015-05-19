@@ -1880,7 +1880,7 @@ static void stress_cpu_dither(const char *name)
 			int32_t error = pixel - quant;
 
 			bool xok1 = x < (STRESS_CPU_DITHER_X - 1);
-			bool xok2 = x > 1;
+			bool xok2 = x > 0;
 			bool yok1 = y < (STRESS_CPU_DITHER_Y - 1);
 
 			if (xok1)
