@@ -68,6 +68,7 @@
 #define HDD_OPT_UTIMES		(0x00200000)
 #define HDD_OPT_FSYNC		(0x00400000)
 #define HDD_OPT_FDATASYNC	(0x00800000)
+#define HDD_OPT_SYNCFS		(0x01000000)
 
 static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
@@ -140,6 +141,9 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
+#if defined(_GNU_SOURCE) && NEED_GLIBC(2,14,0) && defined(__linux__)
+	{ "syncfs",	HDD_OPT_SYNCFS, 0, 0, 0 },
+#endif
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 	{ NULL, 0, 0, 0, 0 }
 };
@@ -188,10 +192,18 @@ static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
 		ret = write(fd, buf, count);
 	}
 
+#if _BSD_SOURCE || _XOPEN_SOURCE || _POSIX_C_SOURCE >= 200112L
 	if (opt_hdd_flags & HDD_OPT_FSYNC)
 		(void)fsync(fd);
+#endif
+#if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
 	if (opt_hdd_flags & HDD_OPT_FDATASYNC)
 		(void)fdatasync(fd);
+#endif
+#if defined(_GNU_SOURCE) && NEED_GLIBC(2,14,0) && defined(__linux__)
+	if (opt_hdd_flags & HDD_OPT_SYNCFS)
+		(void)syncfs(fd);
+#endif
 
 	return ret;
 }
