@@ -22,13 +22,11 @@
 .nr SV ((\n[.l] - \n[.i]) / 1n - 30)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system
-.br
-
+.sp 1
 .SH SYNOPSIS
 .B stress\-ng
 [\fIOPTION \fR[\fIARG\fR]] ...
-.br
-
+.sp 1
 .SH DESCRIPTION
 stress\-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well
@@ -58,6 +56,139 @@ One can specify the number of processes to invoke per type of stress test; speci
 a negative or zero value will select the number of online processors as defined
 by sysconf(_SC_NPROCESSORS_ONLN).
 .SH OPTIONS
+.PP
+.B General stress-ng control options:
+.TP
+.B \-\-aggressive
+enables more file, cache and memory aggressive options. This may slow tests down, increase latencies and reduce the number of bogo ops as well as changing the balance of user time vs system time used depending on the type of stressor being used.
+.TP
+.B \-a N, \-\-all N
+start N instances of each stressor.
+.TP
+.B \-b N, \-\-backoff N
+wait N microseconds between the start of each stress worker process. This allows one
+to ramp up the stress tests over time.
+.TP
+.B \-\-class name
+specify the class of stressors to run. Stressors are classified into one or more of the following classes: cpu, cpu-cache, device, io, interrupt, filesystem, memory, network, os, pipe, scheduler and vm.  Some stressors fall into just one class. For example the 'get' stressor is just in the 'os' class. Other stressors fall into more than one class, for example, the 'lsearch' stressor falls into the 'cpu', 'cpu-cache' and 'memory' classes as it exercises all these three.  Selecting a specific class will run all the stressors that fall into that class only when run with the \-\-sequential option.
+.TP
+.B \-n, \-\-dry\-run
+parse options, but don't run stress tests. A no-op.
+.TP
+.B \-h, \-\-help
+show help.
+.TP
+.B \-k, \-\-keep\-name
+by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
+.TP
+.B \-\-maximize
+overrides the default stressor settings and instead sets these to the maximum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
+.TP
+.B \-\-metrics
+output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
+been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
+.RS
+.PP
+The following columns of information are output:
+.TS
+expand;
+lB lBw(\n[SM]n)
+l l.
+Column Heading	Explanation
+T{
+bogo ops
+T}	T{
+number of iterations of the stressor during the run. This is metric of
+how much overall "work" has been achieved in bogo operations.
+T}
+T{
+real time (secs)
+T}	T{
+average wall clock duration (in seconds) of the stressor. This is the total wall clock time of all the instances of that particular stressor divided by the number of these stressors being run.
+T}
+T{
+usr time (secs)
+T}	T{
+total user time (in seconds) consumed running all the instances of the stressor.
+T}
+T{
+sys time (secs)
+T}	T{
+total system time (in seconds) consumed running all the instances of the stressor.
+T}
+T{
+bogo ops/s (real time)
+T}	T{
+total bogo operations per second based on wall clock run time. The wall clock time reflects
+the apparent run time. The more processors one has on a system the more the work load can be
+distributed onto these and hence the wall clock time will reduce and the bogo ops rate will
+increase.  This is essentially the "apparent" bogo ops rate of the system.
+T}
+T{
+bogo ops/s (usr+sys time)
+T}	T{
+total bogo operations per second based on cumulative user and system time. This is the real
+bogo ops rate of the system taking into consideration the actual time execution time of
+the stressor across all the processors.  Generally this will decrease as one adds more
+concurrent stressors due to contention on cache, memory, execution units, buses and I/O devices.
+T}
+.TE
+.RE
+.TP
+.B -\-metrics\-brief
+enable metrics and only output metrics that are non-zero.
+.TP
+.B \-\-minimize
+overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
+.TP
+.B \-\-no\-advise
+from version 0.02.26 stress-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
+.TP
+.B \-\-page\-in
+touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
+all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
+performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(2) to determine the pages that are not in core and hence need touching to page them back in.
+.TP
+.B \-q, \-\-quiet
+do not show any output.
+.TP
+.B \-r N, \-\-random N
+start N random stress workers. If N is 0, then the number of on-line processors is used for N.
+.TP
+.B \-\-sched scheduler
+select the named scheduler (only on Linux). To see the list of available schedulers
+use: stress\-ng \-\-sched which
+.TP
+.B \-\-sched\-prio prio
+select the scheduler priority level (only on Linux). If the scheduler does not support this then
+the default priority level of 0 is chosen.
+.TP
+.B \-\-sequential N
+sequentially run all the stressors one by one for a default of 60 seconds. The
+number of each individual stressors to be started is N.  If N is zero, then a
+stressor for each processor that is on-line is executed. Use the \-\-timeout
+option to specify the duration to run each stressor.
+.TP
+.B \-t N, \-\-timeout N
+stop stress test after N seconds. One can also specify the units of time in
+seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
+.TP
+.B \-\-times
+show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system.
+.TP
+.B \-v, \-\-verbose
+show all debug, warnings and normal information output.
+.TP
+.B \-\-verify
+verify results when a test is run. This is not available on all tests. This will sanity check the
+computations or memory contents from a test run and report to stderr any unexpected failures.
+.TP
+.B \-V, \-\-version
+show version.
+.br
+.sp 2
+.PP 
+.B Stressor specific options:
 .TP
 .B \-\-affinity N
 start N workers that rapidly change CPU affinity (only on Linux). Rapidly switching
@@ -69,9 +200,6 @@ stop affinity workers after N bogo affinity operations (only on Linux).
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.
 .TP
-.B \-\-aggressive
-enables more file, cache and memory aggressive options. This may slow tests down, increase latencies and reduce the number of bogo ops as well as changing the balance of user time vs system time used depending on the type of stressor being used.
-.TP
 .B \-\-aio N
 start N workers that issue multiple small asynchronous I/O writes and reads on a relatively small
 temporary file.  This will just hit the file system cache and soak up a lot of user and kernel time
@@ -82,13 +210,6 @@ stop asynchronous I/O workers after N bogo asynchronous I/O requests.
 .TP
 .B \-\-aio\-requests N
 specify the number of asynchronous I/O requests each worker should issue, the default is 16; 1 to 4096 are allowed.
-.TP
-.B \-a N, \-\-all N
-start N instances of each stress test.
-.TP
-.B \-b N, \-\-backoff N
-wait N microseconds between the start of each stress worker process. This allows one
-to ramp up the stress tests over time.
 .TP
 .B \-B N, \-\-bigheap N
 start N workers that grow their heaps by reallocating memory. If the out of memory
@@ -146,9 +267,6 @@ start N workers that change the file mode bits via chmod(2) and fchmod(2) on the
 .TP
 .B \-\-chmod\-ops N
 stop after N chmod bogo operations.
-.TP
-.B \-\-class name
-specify the class of stressors to run. Stressors are classified into one or more of the following classes: cpu, cpu-cache, device, io, interrupt, filesystem, memory, network, os, pipe, scheduler and vm.  Some stressors fall into just one class. For example the 'get' stressor is just in the 'os' class. Other stressors fall into more than one class, for example, the 'lsearch' stressor falls into the 'cpu', 'cpu-cache' and 'memory' classes as it exercises all these three.  Selecting a specific class will run all the stressors that fall into that class only when run with the \-\-sequential option.
 .TP
 .B \-\-clock N
 start N workers exercising clocks and POSIX timers. For all known clock types this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2). For
@@ -367,7 +485,7 @@ random number generator.
 The MWC random function concatenates two 16 bit multiply\-with\-carry generators:
  x(n) = 36969 \(mu x(n - 1) + carry,
  y(n) = 18000 \(mu y(n - 1) + carry mod 2 \[ua] 16
-.br
+.sp 1
 and has period of around 2 \[ua] 60
 T}
 rand48	T{
@@ -428,9 +546,6 @@ start N workers that create and remove directories using mkdir and rmdir.
 .TP
 .B \-\-dir\-ops N
 stop directory thrash workers after N bogo directory operations.
-.TP
-.B \-n, \-\-dry\-run
-parse options, but don't run stress tests. A no-op.
 .TP
 .B \-\-dup N
 start N workers that perform dup(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
@@ -602,9 +717,6 @@ stop hdd stress workers after N bogo operations.
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
-.B \-h, \-\-help
-show help.
-.TP
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default, there are 8192 elements inserted  into the hash table.  This is a useful method to exercise access of memory and processor cache.
 .TP
@@ -651,9 +763,6 @@ start N workers that use kcmp(2) to compare parent and child processes to determ
 .TP
 .B \-\-kcmp\-ops N
 stop kcmp workers after N bogo kcmp operations.
-.TP
-.B \-k, \-\-keep\-name
-by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP
 .B \-\-kill N
 start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most of the process time will end up in kernel space.
@@ -760,63 +869,6 @@ T}
 .B \-\-matrix\-size N
 specify the N \(mu N size of the matrices.  Smaller values result in a floating point compute throughput bound stressor, where as large values result in a cache and/or memory bandwidth bound stressor.
 .TP
-.B \-\-maximize
-overrides the default stressor settings and instead sets these to the maximum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
-.TP
-.B \-\-metrics
-output number of bogo operations in total performed by the stress processes. Note that these are not a reliable metric of performance or throughput and have not
-been designed to be used for benchmarking whatsoever. The metrics are just a useful way to observe how a system behaves when under various kinds of load.
-.RS
-.PP
-The following columns of information are output:
-.TS
-expand;
-lB lBw(\n[SM]n)
-l l.
-Column Heading	Explanation
-T{
-bogo ops
-T}	T{
-number of iterations of the stressor during the run. This is metric of
-how much overall "work" has been achieved in bogo operations.
-T}
-T{
-real time (secs)
-T}	T{
-average wall clock duration (in seconds) of the stressor. This is the total wall clock time of all the instances of that particular stressor divided by the number of these stressors being run.
-T}
-T{
-usr time (secs)
-T}	T{
-total user time (in seconds) consumed running all the instances of the stressor.
-T}
-T{
-sys time (secs)
-T}	T{
-total system time (in seconds) consumed running all the instances of the stressor.
-T}
-T{
-bogo ops/s (real time)
-T}	T{
-total bogo operations per second based on wall clock run time. The wall clock time reflects
-the apparent run time. The more processors one has on a system the more the work load can be
-distributed onto these and hence the wall clock time will reduce and the bogo ops rate will
-increase.  This is essentially the "apparent" bogo ops rate of the system.
-T}
-T{
-bogo ops/s (usr+sys time)
-T}	T{
-total bogo operations per second based on cumulative user and system time. This is the real
-bogo ops rate of the system taking into consideration the actual time execution time of
-the stressor across all the processors.  Generally this will decrease as one adds more
-concurrent stressors due to contention on cache, memory, execution units, buses and I/O devices.
-T}
-.TE
-.RE
-.TP
-.B -\-metrics\-brief
-enable metrics and only output metrics that are non-zero.
-.TP
 .B \-\-memcpy N
 start N workers that copy 2MB of data from a shared region to a buffer using memcpy(3) and then move the data in the buffer with memmove(3) with 3 different alignments. This will exercise processor cache and system memory.
 .TP
@@ -837,9 +889,6 @@ stop after N mincore bogo operations. One mincore bogo op is equivalent to a 100
 .TP
 .B \-\-mincore\-random
 instead of walking through pages sequentially, select pages at random. The chosen address is iterated over by shifting it right one place and checked by mincore until the address is less or equal to the page size.
-.TP
-.B \-\-minimize
-overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-mlock N
 start N workers that lock and unlock memory mapped pages using mlock(2), munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.  Next, all futute mappings are mlocked and the worker attempts to map 262144 pages, then all pages are munlocked and the pages are unmapped.
@@ -901,9 +950,6 @@ start N cpu consuming workers that exercise the available nice levels. Each iter
 .B \-\-nice\-ops N
 stop after N nice bogo nice loops
 .TP
-.B \-\-no\-advise
-from version 0.02.26 stress-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
-.TP
 .B \-\-null N
 start N workers writing to /dev/null.
 .TP
@@ -915,11 +961,6 @@ start N workers that perform open(2) and then close(2) operations on /dev/zero. 
 .TP
 .B \-\-open\-ops N
 stop the open stress workers after N bogo open operations.
-.TP
-.B \-\-page\-in
-touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
-all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
-performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(2) to determine the pages that are not in core and hence need touching to page them back in.
 .TP
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each worker has two processes, a reader and a writer.
@@ -957,12 +998,6 @@ stop qsort stress workers after N bogo qsorts.
 .B \-\-qsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
-.B \-q, \-\-quiet
-do not show any output.
-.TP
-.B \-r N, \-\-random N
-start N random stress workers. If N is 0, then the number of on-line processors is used for N.
-.TP
 .B \-\-rdrand N
 start N workers that read the Intel hardware random number generator (Intel Ivybridge processors upwards).
 .TP
@@ -990,14 +1025,6 @@ start N workers that exceed CPU and file size resource imits, generating SIGXCPU
 .TP
 .B \-\-rlimit\-ops N
 stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
-.TP
-.B \-\-sched scheduler
-select the named scheduler (only on Linux). To see the list of available schedulers
-use: stress\-ng \-\-sched which
-.TP
-.B \-\-sched\-prio prio
-select the scheduler priority level (only on Linux). If the scheduler does not support this then
-the default priority level of 0 is chosen.
 .TP
 .B \-\-seek N
 start N workers that randomly seeks and performs 512 byte read/write I/O operations on a file. The default file size is 16 GB.
@@ -1036,12 +1063,6 @@ stop sendfile workers after N sendfile bogo operations.
 .TP
 .B \-\-sendfile\-size S
 specify the size to be copied with each sendfile call. The default size is 4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
-.TP
-.B \-\-sequential N
-sequentially run all the stressor one by one for a default of 60 seconds. The
-number of each individual stressors to be started is N.  If N is zero, then a
-stressor for each processor that is on-line is executed. Use the \-\-timeout
-option to specify the duration to run each stressor.
 .TP
 .B \-\-shm\-sysv N
 start N workers that allocate shared memory using the System V shared memory interface.  By default, the test will repeatedly create and destroy 8 shared memory segments, each of which is 8MB in size.
@@ -1151,10 +1172,6 @@ move data from a writer process to a reader process through pipes and to /dev/nu
 .B \-\-tee-ops N
 stop after N bogo tee operations.
 .TP
-.B \-t N, \-\-timeout N
-stop stress test after N seconds. One can also specify the units of time in
-seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
-.TP
 .B \-T N, \-\-timer N
 start N workers creating timer events at a default rate of 1Mhz (Linux only); this
 can create a many thousands of timer clock interrupts. Each timer event is caught by a
@@ -1182,9 +1199,6 @@ run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an 
 .TP
 .B \-\-timerfd\-rand
 select a timerfd frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
-.TP
-.B \-\-times
-show the cumulative user and system times of all the child processes at the end of the stress run.  The percentage of utilisation of available CPU time is also calculated from the number of on-line CPUs in the system.
 .TP
 .B \-\-tsearch N
 start N workers that insert, search and delete 32 bit integers on a binary tree using tsearch(3), tfind(3) and tdelete(3). By default, there are 65536 randomized integers used in the tree.  This is a useful method to exercise random access of memory and processor cache.
@@ -1227,16 +1241,6 @@ start N workers that perform various unsigned integer math operations on various
 .TP
 .B \-\-vecmath\-ops N
 stop after N bogo vector integer math operations.
-.TP
-.B \-v, \-\-verbose
-show all debug, warnings and normal information output.
-.TP
-.B \-\-verify
-verify results when a test is run. This is not available on all tests. This will sanity check the
-computations or memory contents from a test run and report to stderr any unexpected failures.
-.TP
-.B \-V, \-\-version
-show version.
 .TP
 .B \-\-vfork N
 start N workers continually vforking children that immediately exit.
