@@ -1753,11 +1753,13 @@ static const bool stress_cpu_parity_table[256] = {
  */
 static void stress_cpu_parity(const char *name)
 {
-	uint32_t v, val = 0x83fb5acf, parity, p;
-	uint8_t *ptr;
+	uint32_t val = 0x83fb5acf;
 	size_t i;
 
 	for (i = 0; i < 1000; i++, val++) {
+		uint32_t v, parity, p;
+		uint8_t *ptr;
+
 		/*
 		 * Naive way
 		 */
