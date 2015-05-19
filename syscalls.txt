@@ -8,11 +8,10 @@ add_key
 adjtimex
 alarm				generic run duration timers
 bind				sock
-brk				bigheap
-brk				brk
+brk				bigheap, brk
 capget
 capset
-chdir
+chdir				chdir
 chmod				chmod
 chown
 chroot
@@ -50,7 +49,7 @@ fchmodat
 fchown
 fchownat
 fcntl				open, lockf
-fdatasync
+fdatasync			hdd
 fgetxattr			xattr
 flistxattr
 flock				flock
@@ -59,7 +58,7 @@ fremovexattr			xattr
 fsetxattr			xattr
 fstat				fallocate
 fstatfs
-fsync				fallocate
+fsync				fallocate, hdd
 ftruncate			fallocate
 futex				futex
 futimesat
@@ -100,7 +99,7 @@ getxattr
 inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
-io_cancel			
+io_cancel
 io_destroy
 io_getevents
 io_setup
@@ -138,7 +137,7 @@ mkdirat
 mknod
 mknodat
 mlock				mlock
-mlockall
+mlockall			mlock
 mkstemp				hdd
 mount
 move_pages
@@ -161,7 +160,7 @@ msgrcv				msg
 msgsnd				msg
 msync				mmap
 munlock				mlock
-munlockall
+munlockall			mlock
 munmap				mmap, mremap
 name_to_handle_at
 nanosleep			timer
@@ -264,8 +263,8 @@ setsid
 setsockopt			sock
 settimeofday
 setuid
-setxattr			
-sgmast
+setxattr
+sgetmask			[obsolete]
 shmat				shm-sysv
 shmctl				shm-sysv
 shmdt				shm-sysv
@@ -273,7 +272,7 @@ shmget				shm-sysv
 shutdown
 sigaction			sigfpe
 sigaltstack			pthread, stack
-signal				
+signal
 signalfd			sigfd
 signalfd4
 sigpending
@@ -296,7 +295,7 @@ symlink				symlink
 symlinkat
 sync				iosync
 sync_file_range			[ potentially dangerous to data ]
-syncfs
+syncfs				hdd
 sysfs				[ obsolete ]
 sysinfo				sysinfo
 syslog				[ ignore, don't want to spam the syslog ]
@@ -329,7 +328,7 @@ vfork				vfork
 vhangup				[ ignore ]
 vmsplice			vm-splice
 wait				various
-wait4	
+wait4
 waitid				wait
 waitpid				fork, wait, etc
 write				hdd, null, pull
