@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_PROCFS)
+#if defined(STRESS_SYSFS)
 
 #include <stdio.h>
 #include <stdlib.h>
