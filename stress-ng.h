@@ -130,6 +130,8 @@
 #define OPT_FLAGS_AGGRESSIVE	0x0400000000ULL	/* aggressive mode enabled */
 #define OPT_FLAGS_TIMER_RAND	0x0800000000ULL /* Enable random timer freq */
 #define OPT_FLAGS_TIMERFD_RAND	0x1000000000ULL /* Enable random timerfd freq */
+#define OPT_FLAGS_ALL		0x2000000000ULL /* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	0x4000000000ULL /* --sequential mode */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
