@@ -510,7 +510,7 @@ static void epoll_server(
 			} else if (sfd == events[i].data.fd) {
 				/*
 				 *  The listening socket has notification(s)
-				 *  pending, so handle incomming connections
+				 *  pending, so handle incoming connections
 				 */
 				if (epoll_notification(name, efd, sfd) < 0)
 					break;
