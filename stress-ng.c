@@ -701,21 +701,52 @@ static const struct option long_options[] = {
 	{ NULL,		0, 	0, 	0 }
 };
 
-static const help_t help[] = {
+/*
+ *  Generic help options
+ */
+static const help_t help_generic[] = {
+	{ NULL,		"aggressive",		"enable all aggressive options" },
+	{ "a N",	"all N",		"start N workers of each stress test" },
+	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
+	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
+	{ "n",		"dry-run",		"do not run" },
 	{ "-h",		"help",			"show help" },
+	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
+	{ NULL,		"maximize",		"enable maximum stress options" },
+	{ "M",		"metrics",		"print pseudo metrics of activity" },
+	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
+	{ NULL,		"minimize",		"enable minimal stress options" },
+	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
+#if defined(STRESS_PAGE_IN)
+	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
+#endif
+	{ "q",		"quiet",		"quiet output" },
+	{ "r",		"random N",		"start N random workers" },
+	{ NULL,		"sched type",		"set scheduler type" },
+	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
+	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ "t N",	"timeout N",		"timeout after N seconds" },
+	{ NULL,		"times",		"show run time summary at end of the run" },
+	{ "v",		"verbose",		"verbose output" },
+	{ NULL,		"verify",		"verify results (not available on all tests)" },
+	{ "V",		"version",		"show version" },
+	{ NULL,		NULL,			NULL }
+};
+
+/*
+ *  Stress test specific options
+ */
+static const help_t help_stressors[] = {
 #if defined(STRESS_AFFINITY)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
-	{ NULL,		"aggressive",		"enable all aggressive options" },
 #if defined(STRESS_AIO)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
 #endif
-	{ "a N",	"all N",		"start N workers of each stress test" },
-	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
@@ -730,7 +761,6 @@ static const help_t help[] = {
 	{ NULL,		"cache-prefetch",	"prefetch on memory reads/writes" },
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
 	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
-	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
@@ -751,7 +781,6 @@ static const help_t help[] = {
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
 	{ NULL,		"dir N",		"start N directory thrashing stressors" },
 	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
-	{ "n",		"dry-run",		"do not run" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
 	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
 #if defined(STRESS_EPOLL)
@@ -812,7 +841,6 @@ static const help_t help[] = {
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
 	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
 #endif
-	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
 #if defined(STRESS_LEASE)
@@ -843,9 +871,6 @@ static const help_t help[] = {
 	{ NULL,		"matrix-ops N",		"stop when N maxtrix bogo operations completed" },
 	{ NULL,		"matrix-method m",	"specify matrix stress method m, default is all" },
 	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
-	{ NULL,		"maximize",		"enable maximum stress options" },
-	{ "M",		"metrics",		"print pseudo metrics of activity" },
-	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
 #if defined(STRESS_MEMFD)
@@ -857,7 +882,6 @@ static const help_t help[] = {
 	{ NULL,		"mincore-ops N",	"stop when N mincore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
-	{ NULL,		"minimize",		"enable minimal stress options" },
 #if defined(STRESS_MLOCK)
 	{ NULL,		"mlock N",		"start N workers exercising mlock/munlock" },
 	{ NULL,		"mlock-ops N",		"stop when N mlock bogo operations completed" },
@@ -886,14 +910,10 @@ static const help_t help[] = {
 #endif
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
-	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
-#if defined(STRESS_PAGE_IN)
-	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
-#endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
@@ -908,8 +928,6 @@ static const help_t help[] = {
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
-	{ "q",		"quiet",		"quiet output" },
-	{ "r",		"random N",		"start N random workers" },
 #if defined(STRESS_RDRAND)
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
@@ -925,8 +943,6 @@ static const help_t help[] = {
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
 	{ NULL,		"rlimit-ops N",		"stop when N rlimit bogo operations completed" },
 #endif
-	{ NULL,		"sched type",		"set scheduler type" },
-	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop when N seek bogo operations completed" },
 	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
@@ -943,7 +959,6 @@ static const help_t help[] = {
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
 #endif
-	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"shm-sysv N",		"start N workers that exercise System V shared memory" },
 	{ NULL,		"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
@@ -990,7 +1005,6 @@ static const help_t help[] = {
 	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
 	{ NULL,		"tee-ops N",		"stop after N tee bogo operations completed" },
 #endif
-	{ "t N",	"timeout N",		"timeout after N seconds" },
 #if defined(STRESS_TIMER)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
 	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
@@ -1006,7 +1020,6 @@ static const help_t help[] = {
 	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
 	{ NULL,		"tsearch-size",		"number of 32 bit integers to tsearch" },
-	{ NULL,		"times",		"show run time summary at end of the run" },
 	{ NULL,		"udp N",		"start N workers performing UDP send/receives " },
 	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
 	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
@@ -1022,9 +1035,6 @@ static const help_t help[] = {
 	{ NULL,		"vecmath N",		"start N workers performing vector math ops" },
 	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations completed" },
 #endif
-	{ "v",		"verbose",		"verbose output" },
-	{ NULL,		"verify",		"verify results (not available on all tests)" },
-	{ "V",		"version",		"show version" },
 #if defined(STRESS_VFORK)
 	{ NULL,		"vfork N",		"start N workers spinning on vfork() and exit()" },
 	{ NULL,		"vfork-ops N",		"stop when N vfork bogo operations completed" },
@@ -1160,6 +1170,24 @@ static void version(void)
 	printf("%s, version " VERSION "\n", app_name);
 }
 
+/*
+ *  usage_help()
+ *	show generic help information
+ */
+static void usage_help(const help_t help_info[])
+{
+	size_t i;
+
+	for (i = 0; help_info[i].description; i++) {
+		char opt_s[10] = "";
+
+		if (help_info[i].opt_s)
+			snprintf(opt_s, sizeof(opt_s), "-%s,", help_info[i].opt_s);
+		printf("%-6s--%-18s%s\n", opt_s,
+			help_info[i].opt_l, help_info[i].description);
+	}
+}
+
 
 /*
  *  usage()
@@ -1167,18 +1195,12 @@ static void version(void)
  */
 static void usage(void)
 {
-	int i;
-
 	version();
-	printf(	"\nUsage: %s [OPTION [ARG]]\n", app_name);
-	for (i = 0; help[i].description; i++) {
-		char opt_s[10] = "";
-
-		if (help[i].opt_s)
-			snprintf(opt_s, sizeof(opt_s), "-%s,", help[i].opt_s);
-		printf("%-6s--%-18s%s\n", opt_s,
-			help[i].opt_l, help[i].description);
-	}
+	printf("\nUsage: %s [OPTION [ARG]]\n", app_name);
+	printf("\nGeneral control options:\n");
+	usage_help(help_generic);
+	printf("\nStressor specific options:\n");
+	usage_help(help_stressors);
 	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
 	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", app_name);
 	exit(EXIT_SUCCESS);
