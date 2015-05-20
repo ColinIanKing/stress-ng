@@ -53,7 +53,8 @@
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
-int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential iterations */
+int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
+int32_t opt_all = 0;				/* Number of concurrent workers */
 static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
@@ -1504,7 +1505,7 @@ static int show_hogs(void)
 	for (i = 0; i < STRESS_MAX; i++) {
 		int32_t n;
 
-		if (opt_sequential) {
+		if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 			if (opt_class) {
 				n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
 			} else {
@@ -1545,7 +1546,7 @@ static int show_hogs(void)
 int main(int argc, char **argv)
 {
 	double duration = 0.0;
-	int32_t val, opt_random = 0, i;
+	int32_t opt_random = 0, i;
 	int32_t total_procs = 0, max_procs = 0;
 	size_t len;
 	bool success = true;
@@ -1609,13 +1610,11 @@ next_opt:
 			break;
 #endif
 		case OPT_ALL:
-			opt_flags |= OPT_FLAGS_SET;
-			val = opt_long("-a", optarg);
-			if (val <= 0)
-				val = stress_get_processors_online();
-			check_value("all", val);
-			for (i = 0; i < STRESS_MAX; i++)
-				procs[i].num_procs = val;
+			opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
+			opt_all = opt_long("-a", optarg);
+			if (opt_all <= 0)
+				opt_all = stress_get_processors_online();
+			check_value("all", opt_all);
 			break;
 #if defined(STRESS_AFFINITY)
 		case OPT_AFFINITY_RAND:
@@ -1854,6 +1853,7 @@ next_opt:
 			break;
 #endif
 		case OPT_SEQUENTIAL:
+			opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			opt_sequential = get_uint64(optarg);
 			if (opt_sequential <= 0)
 				opt_sequential = stress_get_processors_online();
@@ -1979,13 +1979,19 @@ next_opt:
 		}
 	}
 
-	if (opt_flags & OPT_SYSLOG)
-		openlog("stress-ng", 0, LOG_USER);
-
-	if (opt_class && !opt_sequential) {
-		fprintf(stderr, "class option is only used with sequential option\n");
+	if ((opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
+	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
+		fprintf(stderr, "cannot invoke --sequential and --all options together\n");
 		exit(EXIT_FAILURE);
 	}
+
+	if (opt_class && !(opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
+		fprintf(stderr, "class option is only used with --sequential or --all options\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if (opt_flags & OPT_SYSLOG)
+		openlog("stress-ng", 0, LOG_USER);
 
 	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
 
@@ -1996,7 +2002,7 @@ next_opt:
 
 #if defined(STRESS_RDRAND)
 	id = stressor_id_find(STRESS_RDRAND);
-	if ((procs[id].num_procs || opt_sequential) &&
+	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
 	    (stress_rdrand_supported() < 0))
 		procs[id].num_procs = 0;
 #endif
@@ -2038,7 +2044,7 @@ next_opt:
 	for (i = 0; i < STRESS_MAX; i++)
 		total_procs += procs[i].num_procs;
 
-	if (opt_sequential) {
+	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		if (total_procs) {
 			pr_err(stderr, "sequential option cannot be specified with other stressors enabled\n");
 			free_procs();
@@ -2060,6 +2066,33 @@ next_opt:
 			}
 		}
 		max_procs = opt_sequential;
+	} else if (opt_flags & OPT_FLAGS_ALL) {
+		if (total_procs) {
+			pr_err(stderr, "all option cannot be specified with other stressors enabled\n");
+			free_procs();
+			exit(EXIT_FAILURE);
+		}
+		if (opt_timeout == 0) {
+			opt_timeout = DEFAULT_TIMEOUT;
+			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+		}
+
+		for (i = 0; i < STRESS_MAX; i++) {
+			procs[i].num_procs = opt_class ?
+				(stressors[i].class & opt_class ?
+					opt_all : 0) : opt_all;
+			total_procs += procs[i].num_procs;
+			if (max_procs < procs[i].num_procs)
+				max_procs = procs[i].num_procs;
+			if (procs[i].num_procs) {
+				procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
+				if (!procs[i].pids) {
+					pr_err(stderr, "cannot allocate pid list\n");
+					free_procs();
+					exit(EXIT_FAILURE);
+				}
+			}
+		}
 	} else {
 		if (!total_procs) {
 			pr_err(stderr, "No stress workers\n");
@@ -2114,15 +2147,15 @@ next_opt:
 	memset(shared, 0, len);
 
 	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
-	if (procs[id].num_procs || opt_sequential)
+	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
 		stress_semaphore_posix_init();
 
 #if defined(STRESS_SEMAPHORE_SYSV)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
-	if (procs[id].num_procs || opt_sequential)
+	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
 		stress_semaphore_sysv_init();
 #endif
-	if (opt_sequential) {
+	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		/*
 		 *  Step through each stressor one by one
 		 */
