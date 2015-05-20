@@ -1098,15 +1098,35 @@ static inline int stressor_id_find(const stress_id id)
 	return i;       /* End of array is a special "NULL" entry */
 }
 
-static uint32_t get_class(const char *str)
+/*
+ *  get_class()
+ *	parse for allowed class types, return bit mask of types, 0 if error
+ */
+static uint32_t get_class(char *const class_str)
 {
-	int i;
+	char *str, *token;
+	uint32_t class = 0;
 
-	for (i = 0; classes[i].class; i++)
-		if (!strcmp(classes[i].name, str))
-			return classes[i].class;
+	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
+		int i;
+		uint32_t cl = 0;
 
-	return 0;
+		for (i = 0; classes[i].class; i++) {
+			if (!strcmp(classes[i].name, token)) {
+				cl = classes[i].class;
+				break;
+			}
+		}
+		if (!cl) {
+			fprintf(stderr, "Unknown class: '%s', available classes:", token);
+			for (i = 0; classes[i].class; i++)
+				fprintf(stderr, " %s", classes[i].name);
+			fprintf(stderr, "\n");
+			return 0;
+		}
+		class |= cl;
+	}
+	return class;
 }
 
 /*
@@ -1647,15 +1667,8 @@ next_opt:
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
-			if (!opt_class) {
-				int i;
-
-				fprintf(stderr, "Unknown class: '%s', available classes:", optarg);
-				for (i = 0; classes[i].class; i++)
-					fprintf(stderr, " %s", classes[i].name);
-				fprintf(stderr, "\n");
+			if (!opt_class)
 				exit(EXIT_FAILURE);
-			}
 			break;
 		case OPT_CPU_LOAD:
 			stress_set_cpu_load(optarg);
