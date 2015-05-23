@@ -156,6 +156,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_CLOCK)
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
+	STRESSOR(context, CONTEXT, CLASS_MEMORY | CLASS_CPU),
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
@@ -365,6 +366,8 @@ static const struct option long_options[] = {
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
 #endif
+	{ "context",	1,	0,	OPT_CONTEXT },
+	{ "context-ops",1,	0,	OPT_CONTEXT_OPS },
 	{ "cpu",	1,	0,	OPT_CPU },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
@@ -770,6 +773,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
 #endif
+	{ NULL,		"context N",		"start N workers exercising user context" },
+	{ NULL,		"context-ops N",	"stop context workers after N bogo operations" },
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
