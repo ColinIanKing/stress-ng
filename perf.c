@@ -54,33 +54,33 @@ typedef struct {
 
 /* perf grouped data read from leader */
 typedef struct {
-	uint64_t nr;			/* number of perf counters read */
-	uint64_t counter[STRESS_PERF_MAX];/* perf counters */
+	uint64_t time_enabled;		/* perf time enabled */
+	uint64_t time_running;		/* perf time running */
+	uint64_t counter;		/* perf counter */
 } perf_data_t;
 
 #define PERF_INFO(type, config, label)	\
 	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, PERF_COUNT_ ## config, label }
 
 /* perf counters to be read */
-static const perf_info_t perf_info[STRESS_PERF_MAX] = {
+static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	PERF_INFO(HARDWARE, HW_CPU_CYCLES,		"CPU Cycles"),
 	PERF_INFO(HARDWARE, HW_INSTRUCTIONS,		"Instructions"),
 	PERF_INFO(HARDWARE, HW_CACHE_REFERENCES,	"Cache References"),
 	PERF_INFO(HARDWARE, HW_CACHE_MISSES,		"Cache Misses"),
 	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_FRONTEND,	"Stalled Cycles Frontend"),
 	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_BACKEND,	"Stalled Cycles Backend"),
+	PERF_INFO(HARDWARE, HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
+	PERF_INFO(HARDWARE, HW_BRANCH_MISSES,		"Branch Misses"),
+	PERF_INFO(HARDWARE, HW_BUS_CYCLES,		"Bus Cycles"),
+	PERF_INFO(HARDWARE, HW_REF_CPU_CYCLES,		"Total Cycles"),
 
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MIN,		"Page Faults Minor"),
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MAJ,		"Page Faults Major"),
 	PERF_INFO(SOFTWARE, SW_CONTEXT_SWITCHES,	"Context Switches"),
 	PERF_INFO(SOFTWARE, SW_CPU_MIGRATIONS,		"CPU Migrations"),
 	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Aligment Faults"),
-	/*
-	PERF_INFO(HARDWARE, HW_BUS_CYCLES,		"Bus Cycles"),
-	PERF_INFO(HARDWARE, HW_REF_CPU_CYCLES,	"Total Cycles"),
-	PERF_INFO(HARDWARE, HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
-	PERF_INFO(HARDWARE, HW_BRANCH_MISSES,		"Branch Misses"),
-	*/
+
 	{ 0, 0, 0, NULL }
 };
 
@@ -96,8 +96,6 @@ int perf_open(stress_perf_t *sp)
 		return -1;
 
 	memset(sp, 0, sizeof(stress_perf_t));
-
-	sp->perf_leader = -1;
 	sp->perf_opened = 0;
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
@@ -112,17 +110,14 @@ int perf_open(stress_perf_t *sp)
 		attr.type = perf_info[i].type;
 		attr.config = perf_info[i].config;
 		attr.disabled = 1;
-		attr.read_format = PERF_FORMAT_GROUP;
+		attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
+				   PERF_FORMAT_TOTAL_TIME_RUNNING;
 		attr.size = sizeof(attr);
-		sp->perf_stat[i].fd = syscall(__NR_perf_event_open, &attr, 0, -1, sp->perf_leader, 0);
-		if (sp->perf_stat[i].fd > -1) {
+		sp->perf_stat[i].fd = syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
+		if (sp->perf_stat[i].fd > -1)
 			sp->perf_opened++;
-			if (sp->perf_leader < 0)
-				sp->perf_leader = sp->perf_stat[i].fd;
-		}
 	}
-
-	if (sp->perf_leader < 0) {
+	if (!sp->perf_opened) {
 		pr_dbg(stderr, "perf_event_open failed, no perf events [%u]\n", getpid());
 		return -1;
 	}
@@ -136,19 +131,28 @@ int perf_open(stress_perf_t *sp)
  */
 int perf_enable(stress_perf_t *sp)
 {
-	int rc;
+	size_t i;
 
 	if (!sp)
 		return -1;
-	if (sp->perf_leader < 0)
+	if (!sp->perf_opened)
 		return 0;
 
-	rc = ioctl(sp->perf_leader, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP);
-	if (rc < 0)
-		return rc;
-	rc = ioctl(sp->perf_leader, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP);
-	if (rc < 0)
-		return rc;
+	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+		int fd = sp->perf_stat[i].fd;
+
+		if (fd > -1) {
+			if (ioctl(fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP) < 0) {
+				(void)close(fd);
+				sp->perf_stat[i].fd = -1;
+				continue;
+			}
+			if (ioctl(fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP) < 0) {
+				(void)close(fd);
+				sp->perf_stat[i].fd = -1;
+			}
+		}
+	}
 	return 0;
 }
 
@@ -158,12 +162,24 @@ int perf_enable(stress_perf_t *sp)
  */
 int perf_disable(stress_perf_t *sp)
 {
+	size_t i;
+
 	if (!sp)
 		return -1;
-	if (sp->perf_leader < 0)
+	if (!sp->perf_opened)
 		return 0;
 
-	return ioctl(sp->perf_leader, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP);
+	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+		int fd = sp->perf_stat[i].fd;
+
+		if (fd > -1) {
+			if (ioctl(fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP) < 0) {
+				(void)close(fd);
+				sp->perf_stat[i].fd = -1;
+			}
+		}
+	}
+	return 0;
 }
 
 /*
@@ -172,35 +188,38 @@ int perf_disable(stress_perf_t *sp)
  */
 int perf_close(stress_perf_t *sp)
 {
-	size_t i = 0, j;
+	size_t i = 0;
 	perf_data_t data;
 	ssize_t ret;
 	int rc = -1;
+	double scale;
 
 	if (!sp)
 		return -1;
-	if (sp->perf_leader < 0)
+	if (!sp->perf_opened)
 		goto out_ok;
 
-	memset(&data, 0, sizeof(data));
-	ret = read(sp->perf_leader, &data,
-		sizeof(data.nr) +
-		(sizeof(data.counter[0]) * (sp->perf_opened)) );
-	if (ret < 0)
-		goto out;
-
-	for (i = 0, j = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
-		if (sp->perf_stat[i].fd > -1) {
-			(void)close(sp->perf_stat[i].fd);
-			sp->perf_stat[i].counter = data.counter[j++];
-		} else {
-			sp->perf_stat[j].counter = STRESS_PERF_INVALID;
+	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
+		int fd = sp->perf_stat[i].fd;
+		if (fd < 0 ) {
+			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
+			continue;
 		}
+
+		memset(&data, 0, sizeof(data));
+		ret = read(fd, &data, sizeof(data));
+		if (ret != sizeof(data))
+			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
+		else {
+			scale = (double)data.time_enabled / data.time_running;
+			sp->perf_stat[i].counter = (uint64_t)((double)data.counter * scale);
+		}
+		(void)close(fd);
+		sp->perf_stat[i].fd = -1;
 	}
 
 out_ok:
 	rc = 0;
-out:
 	for (; i < STRESS_PERF_MAX; i++)
 		sp->perf_stat[i].counter = STRESS_PERF_INVALID;
 
@@ -276,7 +295,7 @@ int perf_get_counter_by_id(
  */
 bool perf_stat_succeeded(const stress_perf_t *sp)
 {
-	return sp->perf_leader > -1;
+	return sp->perf_opened > 0;
 }
 
 #else

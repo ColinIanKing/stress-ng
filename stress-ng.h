@@ -493,7 +493,6 @@ typedef struct {
 typedef struct {
 #if defined(STRESS_PERF_STATS)
 	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
-	int		perf_leader;		/* perf leader fd */
 	int		perf_opened;		/* count of opened counters */
 #endif
 } stress_perf_t;

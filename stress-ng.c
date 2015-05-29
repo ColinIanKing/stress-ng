@@ -2263,6 +2263,7 @@ next_opt:
 			uint64_t counter_totals[STRESS_PERF_MAX];
 			uint64_t total_cpu_cycles = 0;
 			uint64_t total_cache_refs = 0;
+			uint64_t total_branches = 0;
 			int ids[STRESS_PERF_MAX];
 			bool got_data = false;
 
@@ -2292,6 +2293,8 @@ next_opt:
 					total_cpu_cycles = counter_totals[p];
 				if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
 					total_cache_refs = counter_totals[p];
+				if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
+					total_branches = counter_totals[p];
 			}
 
 			if (!got_data)
@@ -2311,9 +2314,9 @@ next_opt:
 					if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
 						snprintf(extra, sizeof(extra), " (%5.2f%%)",
 							100.0 * (double)counter_totals[p] / (double)total_cache_refs);
-					if ((ids[p] == STRESS_PERF_HW_STALLED_CYCLES_FRONTEND) && (total_cpu_cycles > 0))
-						snprintf(extra, sizeof(extra), " (%5.2f%% idle)",
-							100.0 * (double)counter_totals[p] / (double)total_cpu_cycles);
+					if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
+						snprintf(extra, sizeof(extra), " (%5.2f%%)",
+							100.0 * (double)counter_totals[p] / (double)total_branches);
 
 					pr_inf(stdout, "%20" PRIu64 " %-23s %s%s\n",
 						counter_totals[p], l,
