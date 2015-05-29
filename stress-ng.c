@@ -527,6 +527,9 @@ static const struct option long_options[] = {
 #if defined(STRESS_PAGE_IN)
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
 #endif
+#if defined(STRESS_PERF_STATS)
+	{ "perf",	0,	0,	OPT_PERF_STATS },
+#endif
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
 	{ "poll",	1,	0,	OPT_POLL },
@@ -723,6 +726,9 @@ static const help_t help_generic[] = {
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 #if defined(STRESS_PAGE_IN)
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
+#endif
+#if defined(STRESS_PERF_STATS)
+	{ NULL,		"perf",			"display perf statistics" },
 #endif
 	{ "q",		"quiet",		"quiet output" },
 	{ "r",		"random N",		"start N random workers" },
@@ -1470,15 +1476,19 @@ again:
 					set_max_limits();
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 					set_proc_name(name);
+
 					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
 
 					n = (i * max_procs) + j;
 					stats[n].start = stats[n].finish = time_now();
-
+					(void)perf_open(&stats[n].sp);
 					(void)usleep(opt_backoff * n_procs);
+					(void)perf_enable(&stats[n].sp);
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(&stats[n].counter, j, procs[i].bogo_ops, name);
+					(void)perf_disable(&stats[n].sp);
+					(void)perf_close(&stats[n].sp);
 					stats[n].finish = time_now();
 					if (times(&stats[n].tms) == (clock_t)-1) {
 						pr_dbg(stderr, "times failed: errno=%d (%s)\n",
@@ -1821,6 +1831,11 @@ next_opt:
 #if defined(STRESS_PAGE_IN)
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
+			break;
+#endif
+#if defined(STRESS_PERF_STATS)
+		case OPT_PERF_STATS:
+			opt_flags |= OPT_FLAGS_PERF_STATS;
 			break;
 #endif
 		case OPT_PTHREAD_MAX:
@@ -2232,6 +2247,76 @@ next_opt:
 				r_total > 0.0 ? (double)c_total / r_total : 0.0,
 				us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
 		}
+	}
+	if (opt_flags & OPT_FLAGS_PERF_STATS) {
+		int32_t i;
+		bool no_perf_stats = true;
+
+		for (i = 0; i < STRESS_MAX; i++) {
+			int p;
+			uint64_t counter_totals[STRESS_PERF_MAX];
+			uint64_t total_cpu_cycles = 0;
+			uint64_t total_cache_refs = 0;
+			int ids[STRESS_PERF_MAX];
+			bool got_data = false;
+
+			memset(counter_totals, 0, sizeof(counter_totals));
+
+			/* Sum totals across all instances of the stressor */
+			for (p = 0; p < STRESS_PERF_MAX; p++) {
+				int32_t j, n = (i * max_procs);
+				stress_perf_t *sp = &shared->stats[n].sp;
+
+				if (!perf_stat_succeeded(sp))
+					continue;
+
+				for (j = 0; j < procs[i].started_procs; j++, n++) {
+					uint64_t counter;
+
+					perf_get_counter_by_index(sp, p, &counter, &ids[p]);
+					if (counter == STRESS_PERF_INVALID) {
+						counter_totals[p] = STRESS_PERF_INVALID;
+						break;
+					}
+					counter_totals[p] += counter;
+					got_data |= (counter > 0);
+				}
+				if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
+					total_cpu_cycles = counter_totals[p];
+				if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
+					total_cache_refs = counter_totals[p];
+			}
+
+			if (!got_data)
+				continue;
+
+			no_perf_stats = false;
+			pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
+			for (p = 0; p < STRESS_PERF_MAX; p++) {
+				const char *l = perf_get_label_by_index(p);
+				if (l && counter_totals[p] != STRESS_PERF_INVALID) {
+					char extra[32];
+					*extra = '\0';
+
+					if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
+						snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
+							(double)counter_totals[p] / (double)total_cpu_cycles);
+					if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
+						snprintf(extra, sizeof(extra), " (%5.2f%%)",
+							100.0 * (double)counter_totals[p] / (double)total_cache_refs);
+					if ((ids[p] == STRESS_PERF_HW_STALLED_CYCLES_FRONTEND) && (total_cpu_cycles > 0))
+						snprintf(extra, sizeof(extra), " (%5.2f%% idle)",
+							100.0 * (double)counter_totals[p] / (double)total_cpu_cycles);
+
+					pr_inf(stdout, "%20" PRIu64 " %-23s %s%s\n",
+						counter_totals[p], l,
+						perf_stat_scale(counter_totals[p], duration),
+						extra);
+				}
+			}
+		}
+		if (no_perf_stats)
+			pr_inf(stdout, "perf counters not available\n");
 	}
 	free_procs();
 

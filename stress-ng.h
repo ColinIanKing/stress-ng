@@ -132,6 +132,7 @@
 #define OPT_FLAGS_TIMERFD_RAND	0x1000000000ULL /* Enable random timerfd freq */
 #define OPT_FLAGS_ALL		0x2000000000ULL /* --all mode */
 #define OPT_FLAGS_SEQUENTIAL	0x4000000000ULL /* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	0x8000000000ULL /* --perf stats mode */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -457,12 +458,53 @@ typedef struct {
 #define HOT
 #endif
 
+#define STRESS_PERF_INVALID	(~0ULL)
+
+enum {
+	STRESS_PERF_HW_CPU_CYCLES = 0,
+	STRESS_PERF_HW_INSTRUCTIONS,
+	STRESS_PERF_HW_CACHE_REFERENCES,
+	STRESS_PERF_HW_CACHE_MISSES,
+	STRESS_PERF_HW_BRANCH_INSTRUCTIONS,
+	STRESS_PERF_HW_BRANCH_MISSES,
+	STRESS_PERF_HW_BUS_CYCLES,
+	STRESS_PERF_HW_REF_CPU_CYCLES,
+	STRESS_PERF_HW_STALLED_CYCLES_FRONTEND,
+	STRESS_PERF_HW_STALLED_CYCLES_BACKEND,
+	STRESS_PERF_SW_PAGE_FAULTS_MIN,
+	STRESS_PERF_SW_PAGE_FAULTS_MAJ,
+	STRESS_PERF_SW_CONTEXT_SWITCHES,
+	STRESS_PERF_SW_CPU_MIGRATIONS,
+	STRESS_PERF_SW_ALIGNMENT_FAULTS,
+	STRESS_PERF_MAX
+};
+
+#if defined(__linux__) && defined(__NR_perf_event_open)
+#define STRESS_PERF_STATS	(1)
+#endif
+
+/* per perf counter info */
+typedef struct {
+	uint64_t counter;		/* perf counter */
+	int	 fd;			/* perf per counter fd */
+} perf_stat_t;
+
+/* per stressor perf info */
+typedef struct {
+	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
+	int		perf_leader;		/* perf leader fd */
+	int		perf_opened;		/* count of opened counters */
+} stress_perf_t;
+
 /* Per process statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
 	struct tms tms;			/* run time stats of process */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
+#if defined(STRESS_PERF_STATS)
+	stress_perf_t sp;		/* perf counters */
+#endif
 } proc_stats_t;
 
 /* Shared memory segment */
@@ -977,6 +1019,10 @@ typedef enum {
 	OPT_PAGE_IN,
 #endif
 
+#if defined(STRESS_PERF_STATS)
+	OPT_PERF_STATS,
+#endif
+
 	OPT_PIPE_OPS,
 
 	OPT_POLL_OPS,
@@ -1271,6 +1317,7 @@ extern void mwc_seed(const uint64_t w, const uint64_t z);
 extern void mwc_reseed(void);
 
 /* Time handling */
+
 /*
  *  timeval_to_double()
  *      convert timeval to seconds as a double
@@ -1279,6 +1326,17 @@ static inline double timeval_to_double(const struct timeval *tv)
 {
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
+
+/* Perf stats */
+int perf_open(stress_perf_t *sp);
+int perf_enable(stress_perf_t *sp);
+int perf_disable(stress_perf_t *sp);
+int perf_close(stress_perf_t *sp);
+int perf_get_counter_by_index(const stress_perf_t *sp, const int index, uint64_t *counter, int *id);
+int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *counter, int *index);
+bool perf_stat_succeeded(const stress_perf_t *sp);
+const char *perf_get_label_by_index(const int i);
+const char *perf_stat_scale(const uint64_t counter, const double duration);
 
 extern double time_now(void);
 extern const char *duration_to_str(const double duration);

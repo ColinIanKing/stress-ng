@@ -149,6 +149,9 @@ touch allocated pages that are not in core, forcing them to be paged back in.  T
 all the allocated pages to be paged in when using the bigheap, mmap and vm stressors.  It will severely degrade
 performance when the memory in the system is less than the allocated buffer sizes.  This uses mincore(2) to determine the pages that are not in core and hence need touching to page them back in.
 .TP
+.B \-\-perf
+measure processor and system activity using perf events. Linux only and caveat emptor, according to perf_event_open(2): "Always double-check your results! Various generalized events have had wrong values."
+.TP
 .B \-q, \-\-quiet
 do not show any output.
 .TP

@@ -131,6 +131,7 @@ SRC =   stress-affinity.c \
 	net.c \
 	out-of-memory.c \
 	parse-opts.c \
+	perf.c \
 	proc-name.c \
 	sched.c \
 	time.c \
