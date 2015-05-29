@@ -547,7 +547,10 @@ typedef enum {
 	__STRESS_CLOCK,
 #define STRESS_CLOCK __STRESS_CLOCK
 #endif
-	STRESS_CONTEXT,
+#if !defined(__OpenBSD__) 
+	__STRESS_CONTEXT,
+#define STRESS_CONTEXT __STRESS_CONTEXT
+#endif
 	STRESS_CPU,
 	STRESS_CRYPT,
 	STRESS_DENTRY,
@@ -829,8 +832,10 @@ typedef enum {
 	OPT_CLOCK_OPS,
 #endif
 
+#if defined(STRESS_CONTEXT)
 	OPT_CONTEXT,
 	OPT_CONTEXT_OPS,
+#endif
 
 	OPT_CPU_OPS,
 	OPT_CPU_METHOD,

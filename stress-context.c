@@ -24,13 +24,15 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_CONTEXT)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <ucontext.h>
-
-#include "stress-ng.h"
 
 static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
 static uint64_t __counter, __max_ops;
@@ -122,3 +124,5 @@ int stress_context(
 
 	return EXIT_SUCCESS;
 }
+
+#endif
