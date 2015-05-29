@@ -381,7 +381,7 @@ bool perf_stat_succeeded(const stress_perf_t *sp)
 {
 	(void)sp;
 
-	return false
+	return false;
 }
 
 #endif

@@ -491,9 +491,11 @@ typedef struct {
 
 /* per stressor perf info */
 typedef struct {
+#if defined(STRESS_PERF_STATS)
 	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
 	int		perf_leader;		/* perf leader fd */
 	int		perf_opened;		/* count of opened counters */
+#endif
 } stress_perf_t;
 
 /* Per process statistics and accounting info */
@@ -502,9 +504,7 @@ typedef struct {
 	struct tms tms;			/* run time stats of process */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
-#if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
-#endif
 } proc_stats_t;
 
 /* Shared memory segment */

@@ -2270,6 +2270,7 @@ next_opt:
 				if (!perf_stat_succeeded(sp))
 					continue;
 
+				ids[p] = ~0;
 				for (j = 0; j < procs[i].started_procs; j++, n++) {
 					uint64_t counter;
 
