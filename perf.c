@@ -36,6 +36,7 @@
 #define BILLION		(THOUSAND * MILLION)
 #define TRILLION	(THOUSAND * BILLION)
 #define QUADRILLION	(THOUSAND * TRILLION)
+#define QUINTILLION	(THOUSAND * QUADRILLION)
 
 #if defined(STRESS_PERF_STATS)
 /* perf enabled systems */
@@ -407,6 +408,22 @@ bool perf_stat_succeeded(const stress_perf_t *sp)
 
 #endif
 
+typedef struct {
+	double		threshold;
+	double		scale;
+	char 		*suffix;
+} perf_scale_t;
+
+static perf_scale_t perf_scale[] = {
+	{ THOUSAND,		1.0,		"sec" },
+	{ 100 * THOUSAND,	THOUSAND,	"K/sec" },
+	{ 100 * MILLION,	MILLION,	"M/sec" },
+	{ 100 * BILLION,	BILLION,	"B/sec" },
+	{ 100 * TRILLION,	TRILLION,	"T/sec" },
+	{ 100 * QUADRILLION,	QUADRILLION,	"P/sec" },
+	{ 100 * QUINTILLION,	QUINTILLION,	"E/sec" },
+	{ -1, 			-1,		NULL }
+};
 
 /*
  *  perf_stat_scale()
@@ -416,29 +433,22 @@ bool perf_stat_succeeded(const stress_perf_t *sp)
 const char *perf_stat_scale(const uint64_t counter, const double duration)
 {
 	static char buffer[40];
-	char *suffix = "";
+	char *suffix = "E/sec";
+	double scale = QUINTILLION;
+	size_t i;
 
 	double scaled =
 		duration > 0.0 ? (double)counter / duration : 0.0;
 
-	if (scaled < THOUSAND) {
-		suffix = "sec";
-	} else if (scaled < 100 * THOUSAND) {
-		suffix = "K/sec";
-		scaled /= THOUSAND;
-	} else if (scaled < 100 * MILLION) {
-		suffix = "M/sec";
-		scaled /= MILLION;
-	} else if (scaled < 100 * BILLION) {
-		suffix = "B/sec";
-		scaled /= BILLION;
-	} else if (scaled < 100 * TRILLION) {
-		suffix = "T/sec";
-		scaled /= TRILLION;
-	} else {
-		suffix = "P/sec";
-		scaled /= QUADRILLION;
+	for (i = 0; perf_scale[i].suffix; i++) {
+		if (scaled < perf_scale[i].threshold) {
+			suffix = perf_scale[i].suffix;
+			scale = perf_scale[i].scale;
+			break;
+		}
 	}
+	scaled /= scale;
+
 	snprintf(buffer, sizeof(buffer), "%11.2f %-5s",
 		scaled, suffix);
 
