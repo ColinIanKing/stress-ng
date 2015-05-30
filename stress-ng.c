@@ -37,6 +37,7 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <syslog.h>
+#include <locale.h>
 
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -2258,6 +2259,8 @@ next_opt:
 		int32_t i;
 		bool no_perf_stats = true;
 
+		setlocale(LC_ALL, "");
+
 		for (i = 0; i < STRESS_MAX; i++) {
 			int p;
 			uint64_t counter_totals[STRESS_PERF_MAX];
@@ -2318,7 +2321,7 @@ next_opt:
 						snprintf(extra, sizeof(extra), " (%5.2f%%)",
 							100.0 * (double)counter_totals[p] / (double)total_branches);
 
-					pr_inf(stdout, "%20" PRIu64 " %-23s %s%s\n",
+					pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
 						counter_totals[p], l,
 						perf_stat_scale(counter_totals[p], duration),
 						extra);
