@@ -214,7 +214,12 @@ int perf_close(stress_perf_t *sp)
 		if (ret != sizeof(data))
 			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
 		else {
-			scale = (double)data.time_enabled / data.time_running;
+			/* Ensure we don't get division by zero */
+			if (data.time_running == 0) {
+				scale = (data.time_enabled == 0) ? 1.0 : 0.0;
+			} else {
+				scale = (double)data.time_enabled / data.time_running;
+			}
 			sp->perf_stat[i].counter = (uint64_t)((double)data.counter * scale);
 		}
 		(void)close(fd);
