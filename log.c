@@ -62,9 +62,13 @@ int print(
 		if (flag & PR_FAIL)
 			type = "fail";
 
-		n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
-		ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
-		fprintf(fp, "%s: %s", app_name, buf);
+		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
+			ret = vfprintf(fp, fmt, ap);
+		} else {
+			n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
+			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
+			fprintf(fp, "%s: %s", app_name, buf);
+		}
 		fflush(fp);
 
 		if (flag & PR_FAIL) {

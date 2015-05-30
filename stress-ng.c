@@ -463,6 +463,7 @@ static const struct option long_options[] = {
 	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
 	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
 #endif
+	{ "log-brief",	0,	0,	OPT_LOG_BRIEF },
 	{ "longjmp",	1,	0,	OPT_LONGJMP },
 	{ "longjmp-ops",1,	0,	OPT_LONGJMP_OPS },
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
@@ -724,6 +725,7 @@ static const help_t help_generic[] = {
 	{ "n",		"dry-run",		"do not run" },
 	{ "-h",		"help",			"show help" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
+	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
@@ -1772,6 +1774,9 @@ next_opt:
 			opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
 			break;
 #endif
+		case OPT_LOG_BRIEF:
+			opt_flags |= OPT_FLAGS_LOG_BRIEF;
+			break;
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
 			break;

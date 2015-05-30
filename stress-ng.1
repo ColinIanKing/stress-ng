@@ -81,6 +81,10 @@ show help.
 .B \-k, \-\-keep\-name
 by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
 .TP
+.B \-\-log\-brief
+By default stress-ng will report the name of the program, the message type and the process id as a prefix to all output. The \-\-log\-brief
+option will output messages without these fields to produce a less verbose output.
+.TP
 .B \-\-maximize
 overrides the default stressor settings and instead sets these to the maximum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP

@@ -93,46 +93,47 @@
 #define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
-#define OPT_FLAGS_AFFINITY_RAND	0x0000000010ULL	/* Change affinity randomly */
-#define OPT_FLAGS_DRY_RUN	0x0000000020ULL	/* Don't actually run */
-#define OPT_FLAGS_METRICS	0x0000000040ULL	/* Dump metrics at end */
-#define OPT_FLAGS_VM_KEEP	0x0000000080ULL	/* Don't keep re-allocating */
-#define OPT_FLAGS_RANDOM	0x0000000100ULL	/* Randomize */
-#define OPT_FLAGS_SET		0x0000000200ULL	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	0x0000000400ULL	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_UTIME_FSYNC	0x0000000800ULL	/* fsync after utime modification */
-#define OPT_FLAGS_METRICS_BRIEF	0x0000001000ULL	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	0x0000002000ULL	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	0x0000004000ULL	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	0x0000008000ULL	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		0x0000010000ULL	/* user/system time summary */
-#define OPT_FLAGS_CACHE_PREFETCH 0x0000020000ULL /* cache prefetch */
-#define OPT_FLAGS_CACHE_FLUSH	0x0000040000ULL	/* cache flush */
-#define OPT_FLAGS_CACHE_FENCE	0x0000080000ULL	/* cache fence */
+#define OPT_FLAGS_AFFINITY_RAND	0x00000000010ULL	/* Change affinity randomly */
+#define OPT_FLAGS_DRY_RUN	0x00000000020ULL	/* Don't actually run */
+#define OPT_FLAGS_METRICS	0x00000000040ULL	/* Dump metrics at end */
+#define OPT_FLAGS_VM_KEEP	0x00000000080ULL	/* Don't keep re-allocating */
+#define OPT_FLAGS_RANDOM	0x00000000100ULL	/* Randomize */
+#define OPT_FLAGS_SET		0x00000000200ULL	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	0x00000000400ULL	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_UTIME_FSYNC	0x00000000800ULL	/* fsync after utime modification */
+#define OPT_FLAGS_METRICS_BRIEF	0x00000001000ULL	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	0x00000002000ULL	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	0x00000004000ULL	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	0x00000008000ULL	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		0x00000010000ULL	/* user/system time summary */
+#define OPT_FLAGS_CACHE_PREFETCH 0x00000020000ULL 	/* cache prefetch */
+#define OPT_FLAGS_CACHE_FLUSH	0x00000040000ULL	/* cache flush */
+#define OPT_FLAGS_CACHE_FENCE	0x00000080000ULL	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | \
 				 OPT_FLAGS_CACHE_FENCE | \
 				 OPT_FLAGS_CACHE_PREFETCH)
-#define OPT_FLAGS_MMAP_FILE	0x0000100000ULL	/* mmap onto a file */
-#define OPT_FLAGS_MMAP_ASYNC	0x0000200000ULL	/* mmap file asynchronous I/O */
-#define OPT_FLAGS_MMAP_MPROTECT	0x0000400000ULL	/* mmap mprotect enabled */
-#define OPT_FLAGS_LOCKF_NONBLK	0x0000800000ULL	/* Non-blocking lockf */
-#define OPT_FLAGS_MINCORE_RAND	0x0001000000ULL	/* mincore randomize */
-#define OPT_FLAGS_BRK_NOTOUCH	0x0002000000ULL	/* brk, don't touch page */
-#define OPT_FLAGS_HDD_SYNC	0x0004000000ULL	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	0x0008000000ULL	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	0x0010000000ULL	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	0x0020000000ULL	/* HDD O_NOATIME */
-#define OPT_FLAGS_STACK_FILL	0x0040000000ULL	/* Fill stack */
-#define OPT_FLAGS_MINIMIZE	0x0080000000ULL	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	0x0100000000ULL	/* Maximize */
+#define OPT_FLAGS_MMAP_FILE	0x00000100000ULL	/* mmap onto a file */
+#define OPT_FLAGS_MMAP_ASYNC	0x00000200000ULL	/* mmap file asynchronous I/O */
+#define OPT_FLAGS_MMAP_MPROTECT	0x00000400000ULL	/* mmap mprotect enabled */
+#define OPT_FLAGS_LOCKF_NONBLK	0x00000800000ULL	/* Non-blocking lockf */
+#define OPT_FLAGS_MINCORE_RAND	0x00001000000ULL	/* mincore randomize */
+#define OPT_FLAGS_BRK_NOTOUCH	0x00002000000ULL	/* brk, don't touch page */
+#define OPT_FLAGS_HDD_SYNC	0x00004000000ULL	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	0x00008000000ULL	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	0x00010000000ULL	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	0x00020000000ULL	/* HDD O_NOATIME */
+#define OPT_FLAGS_STACK_FILL	0x00040000000ULL	/* Fill stack */
+#define OPT_FLAGS_MINIMIZE	0x00080000000ULL	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	0x00100000000ULL	/* Maximize */
 #define OPT_FLAGS_MINMAX_MASK	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
-#define OPT_FLAGS_SYSLOG	0x0200000000ULL	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	0x0400000000ULL	/* aggressive mode enabled */
-#define OPT_FLAGS_TIMER_RAND	0x0800000000ULL /* Enable random timer freq */
-#define OPT_FLAGS_TIMERFD_RAND	0x1000000000ULL /* Enable random timerfd freq */
-#define OPT_FLAGS_ALL		0x2000000000ULL /* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	0x4000000000ULL /* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	0x8000000000ULL /* --perf stats mode */
+#define OPT_FLAGS_SYSLOG	0x00200000000ULL	/* log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	0x00400000000ULL	/* aggressive mode enabled */
+#define OPT_FLAGS_TIMER_RAND	0x00800000000ULL	/* Enable random timer freq */
+#define OPT_FLAGS_TIMERFD_RAND	0x01000000000ULL	/* Enable random timerfd freq */
+#define OPT_FLAGS_ALL		0x02000000000ULL	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	0x04000000000ULL	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	0x08000000000ULL	/* --perf stats mode */
+#define OPT_FLAGS_LOG_BRIEF	0x10000000000ULL	/* --log-brief */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -938,6 +939,8 @@ typedef enum {
 	OPT_LOCKF_OPS,
 	OPT_LOCKF_NONBLOCK,
 #endif
+
+	OPT_LOG_BRIEF,
 
 	OPT_LONGJMP,
 	OPT_LONGJMP_OPS,
