@@ -1,3 +1,22 @@
+stress-ng (0.04.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-hdd: make buffer in read/write helpers uint8_t *
+  * log: Reduce the scope of n, clean up cppcheck style warning
+  * perf: cater for zero time_running case, avoid division by zero
+  * Add --log-brief option to make output less verbose
+  * print perf counters as , separated decimals
+  * perf: scale using lookup table, add in quintillions
+  * perf: Add back PERF_FORMAT_GROUP, we get wrong stats otherwise
+  * perf: re-work to allow for more HW perf counters
+  * Don't build in stress-context for OpenBSD
+  * perf: fix build errors on GNU/HURD
+  * Add --perf option
+  * Fix STRESS_VECTOR, use the NEED_GNUC macro
+  * Add context stressor to stress context switch save/restores
+
+ -- Colin King <colin.king@canonical.com>  Sun, 31 May 2015 13:33:00 +0100
+
 stress-ng (0.04.03-1) unstable; urgency=medium
 
   * Makefile: bump version
