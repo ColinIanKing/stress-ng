@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.04.03
+VERSION=0.04.04
 #
 # Codename "system straining overloader"
 #
