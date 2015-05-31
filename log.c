@@ -51,7 +51,6 @@ int print(
 	if (opt_flags & flag) {
 		char buf[4096];
 		const char *type = "";
-		int n;
 
 		if (flag & PR_ERROR)
 			type = "error";
@@ -65,7 +64,7 @@ int print(
 		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
-			n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
+			int n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			fprintf(fp, "%s: %s", app_name, buf);
 		}
