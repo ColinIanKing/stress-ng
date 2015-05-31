@@ -723,7 +723,7 @@ static const help_t help_generic[] = {
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ "n",		"dry-run",		"do not run" },
-	{ "-h",		"help",			"show help" },
+	{ "h",		"help",			"show help" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
