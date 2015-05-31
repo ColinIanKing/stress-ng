@@ -168,7 +168,7 @@ void stress_set_hdd_write_size(const char *optarg)
  *  stress_hdd_write()
  *	write with writev or write depending on mode
  */
-static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
+static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
 {
 	ssize_t ret;
 
@@ -178,7 +178,7 @@ static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
-		uint8_t *data = (uint8_t *)buf;
+		uint8_t *data = buf;
 		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
@@ -212,7 +212,7 @@ static ssize_t stress_hdd_write(const int fd, const void *buf, size_t count)
  *  stress_hdd_read()
  *	read with readv or read depending on mode
  */
-static ssize_t stress_hdd_read(const int fd, void *buf, size_t count)
+static ssize_t stress_hdd_read(const int fd, uint8_t *buf, size_t count)
 {
 	if (opt_hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
@@ -220,7 +220,7 @@ static ssize_t stress_hdd_read(const int fd, void *buf, size_t count)
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
-		uint8_t *data = (uint8_t *)buf;
+		uint8_t *data = buf;
 		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
