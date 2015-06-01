@@ -29,7 +29,7 @@
 #include "stress-ng.h"
 
 /*
- *  the CPU stress test has different classes of cpu stressor
+ *  the STR stress test has different classes of string stressors
  */
 typedef void (*stress_str_func)(
 	const char *name,
@@ -43,7 +43,7 @@ typedef struct {
 	const stress_str_func	func;	/* the stressor function */
 } stress_str_stressor_info_t;
 
-static stress_str_stressor_info_t *opt_cpu_stressor;
+static stress_str_stressor_info_t *opt_str_stressor;
 static stress_str_stressor_info_t str_methods[];
 
 /*
@@ -457,7 +457,7 @@ static void stress_strxfrm(
 
 /*
  *  stress_str_all()
- *	iterate over all cpu stressors
+ *	iterate over all string stressors
  */
 static void stress_str_all(
 	const char *name,
@@ -474,7 +474,7 @@ static void stress_str_all(
 }
 
 /*
- * Table of cpu stress methods
+ * Table of string stress methods
  */
 static stress_str_stressor_info_t str_methods[] = {
 	{ "all",		stress_str_all },	/* Special "all test */
@@ -498,7 +498,7 @@ static stress_str_stressor_info_t str_methods[] = {
 
 /*
  *  stress_set_str_method()
- *	set the default cpu stress method
+ *	set the default string stress method
  */
 int stress_set_str_method(const char *name)
 {
@@ -507,7 +507,7 @@ int stress_set_str_method(const char *name)
 
 	for (info = str_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			opt_cpu_stressor = info;
+			opt_str_stressor = info;
 			return 0;
 		}
 	}
@@ -523,7 +523,7 @@ int stress_set_str_method(const char *name)
 
 /*
  *  stress_str()
- *	stress CPU by doing floating point math ops
+ *	stress CPU by doing various string operations
  */
 int stress_str(
 	uint64_t *const counter,
@@ -531,7 +531,7 @@ int stress_str(
 	const uint64_t max_ops,
 	const char *name)
 {
-	stress_str_func func = opt_cpu_stressor->func;
+	stress_str_func func = opt_str_stressor->func;
 
 	(void)instance;
 	(void)name;
