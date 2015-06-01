@@ -183,6 +183,9 @@ static const stress_t stressors[] = {
 	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(get, GET, CLASS_OS),
+#if defined(STRESS_GETRANDOM)
+	STRESSOR(getrandom, GETRANDOM, CLASS_OS | CLASS_CPU),
+#endif
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
 	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(iosync, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
@@ -423,6 +426,10 @@ static const struct option long_options[] = {
 #endif
 	{ "get",	1,	0,	OPT_GET },
 	{ "get-ops",	1,	0,	OPT_GET_OPS },
+#if defined(STRESS_GETRANDOM)
+	{ "getrandom",	1,	0,	OPT_GETRANDOM },
+	{ "getrandom-ops",1,	0,	OPT_GETRANDOM_OPS },
+#endif
 	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
@@ -842,6 +849,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"get N",		"start N workers exercising the get*() system calls" },
 	{ NULL,		"get-ops N",		"stop when N get bogo operations completed" },
+#if defined(STRESS_GETRANDOM)
+	{ NULL,		"getrandom N",		"start N workers fetching random data via getrandom()" },
+	{ NULL,		"getrandom-ops N",	"stop when N getrandom bogo operations completed" },
+#endif
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },

@@ -578,6 +578,10 @@ typedef enum {
 #define STRESS_FUTEX __STRESS_FUTEX
 #endif
 	STRESS_GET,
+#if defined(__linux__) && defined(__NR_getrandom)
+	__STRESS_GETRANDOM,
+#define STRESS_GETRANDOM __STRESS_GETRANDOM
+#endif
 	STRESS_HDD,
 	STRESS_HSEARCH,
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
@@ -897,6 +901,11 @@ typedef enum {
 
 	OPT_GET,
 	OPT_GET_OPS,
+
+#if defined(STRESS_GETRANDOM)
+	OPT_GETRANDOM,
+	OPT_GETRANDOM_OPS,
+#endif
 
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
@@ -1495,6 +1504,7 @@ STRESS(stress_fork);
 STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_get);
+STRESS(stress_getrandom);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_itimer);

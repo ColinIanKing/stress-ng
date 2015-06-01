@@ -649,6 +649,12 @@ start N workers that call all the get*(2) system calls.
 .B \-\-get\-ops N
 stop get workers after N bogo get operations.
 .TP
+.B \-\-getrandom N
+start N workers that get 8192 random bytes from the /dev/urandom pool using the getrandom(2) system call (Linux only).
+.TP
+.B \-\-getrandom\-ops N
+stop getrandom workers after N bogo get operations.
+.TP
 .B \-d N, \-\-hdd N
 start N workers continually writing, reading and removing temporary files.
 .TP
