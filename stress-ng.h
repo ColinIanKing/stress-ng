@@ -221,7 +221,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
 #define MIN_FALLOCATE_BYTES	(1 * MB)
-#define MAX_FALLOCATE_BYTES	(2 * GB)
+#define MAX_FALLOCATE_BYTES	(4 * GB)
 #define DEFAULT_FALLOCATE_BYTES	(1 * GB)
 
 #define MIN_FIFO_READERS	(1)
@@ -261,7 +261,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 #define MIN_MALLOC_BYTES	(1 * KB)
-#define MAX_MALLOC_BYTES	(1 * GB)
+#define MAX_MALLOC_BYTES	(4 * GB)
 #define DEFAULT_MALLOC_BYTES	(64 * KB)
 
 #define MIN_MALLOC_MAX		(32)
@@ -277,11 +277,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_MATRIX_SIZE	(256)
 
 #define MIN_MMAP_BYTES		(4 * KB)
-#define MAX_MMAP_BYTES		(1 * GB)
+#define MAX_MMAP_BYTES		(4 * GB)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
 #define MIN_MREMAP_BYTES	(4 * KB)
-#define MAX_MREMAP_BYTES	(1 * GB)
+#define MAX_MREMAP_BYTES	(4 * GB)
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 
 #define MIN_PTHREAD		(1)
@@ -341,7 +341,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_UDP_PORT	(7000)
 
 #define MIN_VM_BYTES		(4 * KB)
-#define MAX_VM_BYTES		(1 * GB)
+#define MAX_VM_BYTES		(4 * GB)
 #define DEFAULT_VM_BYTES	(256 * MB)
 
 #define MIN_VM_HANG		(0)
@@ -349,7 +349,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_VM_HANG		(~0ULL)
 
 #define MIN_VM_RW_BYTES		(4 * KB)
-#define MAX_VM_RW_BYTES		(1 * GB)
+#define MAX_VM_RW_BYTES		(4 * GB)
 #define DEFAULT_VM_RW_BYTES	(16 * MB)
 
 #define MIN_VM_SPLICE_BYTES	(4*KB)
