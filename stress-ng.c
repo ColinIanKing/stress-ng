@@ -304,6 +304,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_WAIT)
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
 #endif
+	STRESSOR(wcs, WCS, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 #if defined(STRESS_XATTR)
 	STRESSOR(xattr, XATTR, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -694,6 +695,9 @@ static const struct option long_options[] = {
 	{ "vm-splice-bytes",1,	0,	OPT_VM_SPLICE_BYTES },
 	{ "vm-splice-ops",1,	0,	OPT_VM_SPLICE_OPS },
 #endif
+	{ "wcs",	1,	0,	OPT_WCS},
+	{ "wcs-ops",	1,	0,	OPT_WCS_OPS },
+	{ "wcs-method",	1,	0,	OPT_WCS_METHOD },
 #if defined(STRESS_WAIT)
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
@@ -1083,6 +1087,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"vm-splice-ops N",	"stop when N bogo splice operations completed" },
 	{ NULL,		"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
 #endif
+	{ NULL,		"wcs N",		"start N workers on lib C wide character string functions" },
+	{ NULL,		"wcs-method func",	"specify the wide character string function to stress" },
+	{ NULL,		"wcs-ops N",		"stop when N bogo wide character string ops completed" },
 #if defined(STRESS_WAIT)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
 	{ NULL,		"wait-ops N",		"stop when N bogo wait operations completed" },
@@ -1605,6 +1612,7 @@ int main(int argc, char **argv)
 	(void)stress_get_pagesize();
 	(void)stress_set_cpu_method("all");
 	(void)stress_set_str_method("all");
+	(void)stress_set_wcs_method("all");
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
 
@@ -2015,11 +2023,15 @@ next_opt:
 			stress_set_vm_splice_bytes(optarg);
 			break;
 #endif
+		case OPT_WCS_METHOD:
+			if (stress_set_wcs_method(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
 		case OPT_ZOMBIE_MAX:
 			stress_set_zombie_max(optarg);
 			break;
 		default:
-			printf("Unknown option\n");
+			printf("Unknown option (%d)\n",c);
 			exit(EXIT_FAILURE);
 		}
 	}

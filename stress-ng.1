@@ -1152,6 +1152,15 @@ select a specific libc string function to stress. Available string functions to 
 .B \-\-str-ops N
 stop after N bogo string operations.
 .TP
+.B \-\-wcs N
+start N workers that exercise various libc wide character string functions on random strings.
+.TP
+.B \-\-wcs-method wcsfunc
+select a specific libc wide character string function to stress. Available string functions to stress are: all, wcscasecmp, wcscat, wcschr, wcscoll, wcscmp, wcscpy, wcslen, wcsncasecmp, wcsncat, wcsncmp, wcsrchr and wcsxfrm. The 'all' method is the default and will exercise all the string methods.
+.TP
+.B \-\-wcs-ops N
+stop after N bogo wide character string operations.
+.TP
 .B \-s N, \-\-switch N
 start N workers that send messages via pipe to a child to force context switching.
 .TP

@@ -731,6 +731,7 @@ typedef enum {
 	__STRESS_WAIT,
 #define STRESS_WAIT __STRESS_WAIT
 #endif
+	STRESS_WCS,
 #if defined(__linux__)
 	__STRESS_XATTR,
 #define STRESS_XATTR __STRESS_XATTR
@@ -1222,6 +1223,10 @@ typedef enum {
 	OPT_WAIT_OPS,
 #endif
 
+	OPT_WCS,
+	OPT_WCS_OPS,
+	OPT_WCS_METHOD,
+
 #if defined(STRESS_XATTR)
 	OPT_XATTR,
 	OPT_XATTR_OPS,
@@ -1443,6 +1448,7 @@ extern int  stress_set_socket_domain(const char *name);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);
+extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_timerfd_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
@@ -1553,6 +1559,7 @@ STRESS(stress_vm);
 STRESS(stress_vm_rw);
 STRESS(stress_vm_splice);
 STRESS(stress_wait);
+STRESS(stress_wcs);
 STRESS(stress_xattr);
 STRESS(stress_yield);
 STRESS(stress_zero);
