@@ -1331,18 +1331,19 @@ static void wait_procs(bool *success)
 	 */
 	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		unsigned long int cpu = 0;
+		const long ticks_per_sec = stress_get_ticks_per_second() * 5;
+		const unsigned long usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
 
 		while (opt_do_wait) {
 			const unsigned long cpus = stress_get_processors_online();
-			unsigned long int cpu_num = cpu;
 
 			for (i = 0; i < STRESS_MAX; i++) {
 				int j;
 
 				for (j = 0; j < procs[i].started_procs; j++) {
 					const pid_t pid = procs[i].pids[j];
+					unsigned long int cpu_num = (mwc() >> 7) % cpus;
 					cpu_set_t mask;
-					cpu_num = (cpu_num + 1) % cpus;
 
 					CPU_ZERO(&mask);
 					CPU_SET(cpu_num, &mask);
@@ -1350,7 +1351,7 @@ static void wait_procs(bool *success)
 						goto do_wait;
 				}
 			}
-			usleep(100000);
+			usleep(usec_sleep);
 			cpu++;
 		}
 	}
