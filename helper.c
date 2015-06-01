@@ -84,7 +84,7 @@ long stress_get_processors_online(void)
 
 /*
  *  stress_get_ticks_per_second()
- *	get number of processors that are online
+ *	get number of ticks perf second
  */
 long stress_get_ticks_per_second(void)
 {
