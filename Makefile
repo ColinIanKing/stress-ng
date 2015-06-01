@@ -162,6 +162,14 @@ stress-cpu.o: stress-cpu.c
 	fi
 	@rm -f test-decimal.c test-decimal.o
 
+stress-str.o: stress-str.c
+	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+
+stress-wcstr.o: stress-wcstr.c
+	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
