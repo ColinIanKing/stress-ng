@@ -388,7 +388,7 @@ static const struct option long_options[] = {
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
 	{ "dup",	1,	0,	OPT_DUP },
 	{ "dup-ops",	1,	0,	OPT_DUP_OPS },
-#if defined(EPOLL)
+#if defined(STRESS_EPOLL)
 	{ "epoll",	1,	0,	OPT_EPOLL },
 	{ "epoll-ops",	1,	0,	OPT_EPOLL_OPS },
 	{ "epoll-port",	1,	0,	OPT_EPOLL_PORT },
@@ -1711,7 +1711,7 @@ next_opt:
 			if (stress_set_dentry_order(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
-#if defined(EPOLL)
+#if defined(STRESS_EPOLL)
 		case OPT_EPOLL_DOMAIN:
 			if (stress_set_epoll_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
