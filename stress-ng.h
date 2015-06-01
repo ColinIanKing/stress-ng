@@ -394,7 +394,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define STRESS_X86	1
 #endif
 
-#if NEED_GNUC(4,6,0)
+#if NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
 #endif
 
