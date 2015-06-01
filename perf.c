@@ -53,12 +53,11 @@ typedef struct {
 	char *label;			/* human readable name for perf type */
 } perf_info_t;
 
-/* perf grouped data read from leader */
+/* perf data */
 typedef struct {
-	uint64_t nr;
+	uint64_t counter;		/* perf counter */
 	uint64_t time_enabled;		/* perf time enabled */
 	uint64_t time_running;		/* perf time running */
-	uint64_t counter;		/* perf counter */
 } perf_data_t;
 
 #define PERF_INFO(type, config, label)	\
@@ -112,8 +111,8 @@ int perf_open(stress_perf_t *sp)
 		attr.type = perf_info[i].type;
 		attr.config = perf_info[i].config;
 		attr.disabled = 1;
-		attr.read_format = PERF_FORMAT_GROUP |
-				   PERF_FORMAT_TOTAL_TIME_ENABLED |
+		attr.inherit = 1;
+		attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
 				   PERF_FORMAT_TOTAL_TIME_RUNNING;
 		attr.size = sizeof(attr);
 		sp->perf_stat[i].fd = syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
