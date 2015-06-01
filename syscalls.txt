@@ -82,7 +82,7 @@ getpgrp				get
 getpid				get
 getppid				get
 getpriority			get
-getrandom			perhaps emulate BSD getentropy
+getrandom			getrandom
 getpwd				get
 getresgid			get
 getresuid			get
@@ -169,6 +169,7 @@ open				dentry, open, etc
 open_by_handle_at
 openat
 pause				kcmp
+perf_event_open			--perf option
 personality
 pipe				pipe, switch, etc
 pipe2
