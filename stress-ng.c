@@ -599,7 +599,7 @@ static const struct option long_options[] = {
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
 	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
-#if defined(SIG_QUEUE)
+#if defined(STRESS_SIGQUEUE)
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
 #endif
