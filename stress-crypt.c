@@ -29,7 +29,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#if defined (__linux__)
 #include <crypt.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -46,10 +48,14 @@ static int stress_crypt_id(
 {
 	salt[1] = id;
 	char *crypted;
+#if defined (__linux__)
 	struct crypt_data data;
 
 	memset(&data, 0, sizeof(data));
 	crypted = crypt_r(passwd, salt, &data);
+#else
+	crypted = crypt(passwd, salt);
+#endif
 	if (!crypted) {
 		pr_fail(stderr, "%s: cannot encrypt with %s", name, method);
 		return -1;
