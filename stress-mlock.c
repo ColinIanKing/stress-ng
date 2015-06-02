@@ -145,7 +145,9 @@ again:
 				if (mappings[n] == MAP_FAILED)
 					break;
 			}
+#if !defined(__gnu_hurd__)
 			(void)munlockall();
+#endif
 			for (i = 0; i < n;  i++)
 				munmap(mappings[i], page_size);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
