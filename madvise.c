@@ -33,7 +33,7 @@
 
 #include "stress-ng.h"
 
-#if _BSD_SOURCE
+#if !defined(__gnu_hurd__)
 static const int madvise_options[] = {
 #ifdef MADV_NORMAL
 	MADV_NORMAL,
@@ -90,9 +90,9 @@ static const int madvise_options[] = {
  */
 int madvise_random(void *addr, const size_t length)
 {
-#if _BSD_SOURCE
+#if !defined(__gnu_hurd__)
 	if (opt_flags & OPT_FLAGS_MMAP_MADVISE) {
-		int i = (mwc() >> 7) % SIZEOF_ARRAY(madvise_options);
+		int i = (mwc32() >> 7) % SIZEOF_ARRAY(madvise_options);
 
 		return madvise(addr, length, madvise_options[i]);
 	}
