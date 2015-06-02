@@ -635,7 +635,7 @@ typedef enum {
 	STRESS_MALLOC,
 	STRESS_MATRIX,
 	STRESS_MEMCPY,
-#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__)) && NEED_GLIBC(2,2,0)
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
 	__STRESS_MINCORE,
 #define STRESS_MINCORE __STRESS_MINCORE
 #endif
