@@ -111,10 +111,16 @@ void stress_zombie_head_remove(void)
 
 /*
  *  stress_zombie_free()
- *	free the zombies off the zombie free list
+ *	free the zombies off the zombie free lists
  */
 void stress_zombie_free(void)
 {
+	while (zombies.head) {
+		zombie_t *next = zombies.head->next;
+
+		free(zombies.head);
+		zombies.head = next;
+	}
 	while (zombies.free) {
 		zombie_t *next = zombies.free->next;
 
@@ -165,8 +171,10 @@ int stress_zombie(
 				break;
 
 			zombie->pid = fork();
-			if (zombie->pid == 0)
+			if (zombie->pid == 0) {
+				stress_zombie_free();
 				_exit(0);
+			}
 			if (zombie->pid == -1) {
 				/* Reached max forks? .. then reap */
 				stress_zombie_head_remove();
