@@ -58,7 +58,7 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 	size_t i;
 
 	for (i = 0; i < (len-1); i++) {
-		*wcstr++=(mwc8() % 26) + L'a';
+		*wcstr++ = (mwc8() % 26) + L'a';
 	}
 	*wcstr = L'\0';
 }
@@ -496,7 +496,7 @@ int stress_wcs(
 		stress_wcs_fill(str1, STR1LEN);
 		stress_wcs_fill(str2, STR2LEN);
 
-		(void)func(name, str1, sizeof(str1), str2, sizeof(str2));
+		(void)func(name, str1, STR1LEN, str2, STR2LEN);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	return EXIT_SUCCESS;
