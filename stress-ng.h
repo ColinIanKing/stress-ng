@@ -190,6 +190,7 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 
 #define MIN_OPS			(1ULL)
 #define MAX_OPS			(100000000ULL)
+#define MAX_32			(0xffffffffUL)
 
 /* Stressor defaults */
 #define MIN_AIO_REQUESTS	(1)
@@ -221,7 +222,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
 #define MIN_FALLOCATE_BYTES	(1 * MB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_FALLOCATE_BYTES	(MAX_32)
+#else
 #define MAX_FALLOCATE_BYTES	(4 * GB)
+#endif
 #define DEFAULT_FALLOCATE_BYTES	(1 * GB)
 
 #define MIN_FIFO_READERS	(1)
@@ -261,7 +266,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 #define MIN_MALLOC_BYTES	(1 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_MALLOC_BYTES	(MAX_32)
+#else
 #define MAX_MALLOC_BYTES	(4 * GB)
+#endif
 #define DEFAULT_MALLOC_BYTES	(64 * KB)
 
 #define MIN_MALLOC_MAX		(32)
@@ -277,11 +286,19 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_MATRIX_SIZE	(256)
 
 #define MIN_MMAP_BYTES		(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_MMAP_BYTES		(MAX_32)
+#else
 #define MAX_MMAP_BYTES		(4 * GB)
+#endif
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
 #define MIN_MREMAP_BYTES	(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_MREMAP_BYTES	(MAX_32)
+#else
 #define MAX_MREMAP_BYTES	(4 * GB)
+#endif
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 
 #define MIN_PTHREAD		(1)
@@ -341,7 +358,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_UDP_PORT	(7000)
 
 #define MIN_VM_BYTES		(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_VM_BYTES		(MAX_32)
+#else
 #define MAX_VM_BYTES		(4 * GB)
+#endif
 #define DEFAULT_VM_BYTES	(256 * MB)
 
 #define MIN_VM_HANG		(0)
@@ -349,7 +370,11 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define DEFAULT_VM_HANG		(~0ULL)
 
 #define MIN_VM_RW_BYTES		(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_VM_RW_BYTES		(MAX_32)
+#else
 #define MAX_VM_RW_BYTES		(4 * GB)
+#endif
 #define DEFAULT_VM_RW_BYTES	(16 * MB)
 
 #define MIN_VM_SPLICE_BYTES	(4*KB)
