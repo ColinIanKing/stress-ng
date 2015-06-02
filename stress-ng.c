@@ -1605,6 +1605,164 @@ static int show_hogs(void)
 	return 0;
 }
 
+/*
+ *  dump_metrics()
+ *	output metrics
+ */
+static void dump_metrics(
+	const int32_t max_procs,
+	const long int ticks_per_sec)
+{
+	int32_t i;
+
+	pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+		"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
+	pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
+	for (i = 0; i < STRESS_MAX; i++) {
+		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
+		double   r_total = 0.0;
+		int32_t  j, n = (i * max_procs);
+
+		for (j = 0; j < procs[i].started_procs; j++, n++) {
+			c_total += shared->stats[n].counter;
+			u_total += shared->stats[n].tms.tms_utime +
+				   shared->stats[n].tms.tms_cutime;
+			s_total += shared->stats[n].tms.tms_stime +
+				   shared->stats[n].tms.tms_cstime;
+			r_total += shared->stats[n].finish - shared->stats[n].start;
+		}
+		/* Total usr + sys time of all procs */
+		us_total = u_total + s_total;
+		/* Real time in terms of average wall clock time of all procs */
+		r_total = procs[i].started_procs ?
+			r_total / (double)procs[i].started_procs : 0.0;
+
+		if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
+			continue;
+		pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
+			munge_underscore((char *)stressors[i].name),
+			c_total,				 /* op count */
+			r_total,	 			/* average real (wall) clock time */
+			(double)u_total / (double)ticks_per_sec, /* actual user time */
+			(double)s_total / (double)ticks_per_sec, /* actual system time */
+			r_total > 0.0 ? (double)c_total / r_total : 0.0,
+			us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
+	}
+}
+
+static void dump_perf_stats(
+	const int32_t max_procs,
+	const double duration)
+{
+	int32_t i;
+	bool no_perf_stats = true;
+
+	setlocale(LC_ALL, "");
+
+	for (i = 0; i < STRESS_MAX; i++) {
+		int p;
+		uint64_t counter_totals[STRESS_PERF_MAX];
+		uint64_t total_cpu_cycles = 0;
+		uint64_t total_cache_refs = 0;
+		uint64_t total_branches = 0;
+		int ids[STRESS_PERF_MAX];
+		bool got_data = false;
+
+		memset(counter_totals, 0, sizeof(counter_totals));
+
+		/* Sum totals across all instances of the stressor */
+		for (p = 0; p < STRESS_PERF_MAX; p++) {
+			int32_t j, n = (i * max_procs);
+			stress_perf_t *sp = &shared->stats[n].sp;
+
+			if (!perf_stat_succeeded(sp))
+				continue;
+
+			ids[p] = ~0;
+			for (j = 0; j < procs[i].started_procs; j++, n++) {
+				uint64_t counter;
+
+				perf_get_counter_by_index(sp, p, &counter, &ids[p]);
+				if (counter == STRESS_PERF_INVALID) {
+					counter_totals[p] = STRESS_PERF_INVALID;
+					break;
+				}
+				counter_totals[p] += counter;
+				got_data |= (counter > 0);
+			}
+			if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
+				total_cpu_cycles = counter_totals[p];
+			if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
+				total_cache_refs = counter_totals[p];
+			if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
+				total_branches = counter_totals[p];
+		}
+
+		if (!got_data)
+			continue;
+
+		no_perf_stats = false;
+		pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
+		for (p = 0; p < STRESS_PERF_MAX; p++) {
+			const char *l = perf_get_label_by_index(p);
+			if (l && counter_totals[p] != STRESS_PERF_INVALID) {
+				char extra[32];
+				*extra = '\0';
+
+				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
+					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
+						(double)counter_totals[p] / (double)total_cpu_cycles);
+				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
+					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+						100.0 * (double)counter_totals[p] / (double)total_cache_refs);
+				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
+					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+						100.0 * (double)counter_totals[p] / (double)total_branches);
+
+				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
+					counter_totals[p], l,
+					perf_stat_scale(counter_totals[p], duration),
+					extra);
+			}
+		}
+	}
+	if (no_perf_stats)
+		pr_inf(stdout, "perf counters not available\n");
+}
+
+static void dump_times(
+	const long int ticks_per_sec,
+	const double duration)
+{
+	struct tms buf;
+	double total_cpu_time = stress_get_processors_online() * duration;
+
+	if (times(&buf) == (clock_t)-1) {
+		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
+			errno, strerror(errno));
+		return;
+	}
+
+	pr_inf(stdout, "for a %.2fs run time:\n", duration);
+	pr_inf(stdout, "  %8.2fs available CPU time\n",
+		total_cpu_time);
+
+	pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
+		(float)buf.tms_cutime / (float)ticks_per_sec,
+		100.0 * ((float)buf.tms_cutime /
+			 (float)ticks_per_sec) / total_cpu_time);
+	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n",
+		(float)buf.tms_cstime / (float)ticks_per_sec,
+		100.0 * ((float)buf.tms_cstime /
+			 (float)ticks_per_sec) / total_cpu_time);
+	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n",
+		((float)buf.tms_cutime + (float)buf.tms_cstime) /
+			(float)ticks_per_sec,
+		100.0 * (((float)buf.tms_cutime +
+			  (float)buf.tms_cstime) /
+			  (float)ticks_per_sec) / total_cpu_time);
+}
 
 int main(int argc, char **argv)
 {
@@ -2249,117 +2407,12 @@ next_opt:
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));
 
-	if (opt_flags & OPT_FLAGS_METRICS) {
-		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-			"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
-		pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
-		for (i = 0; i < STRESS_MAX; i++) {
-			uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
-			double   r_total = 0.0;
-			int32_t  j, n = (i * max_procs);
-
-			for (j = 0; j < procs[i].started_procs; j++, n++) {
-				c_total += shared->stats[n].counter;
-				u_total += shared->stats[n].tms.tms_utime +
-					   shared->stats[n].tms.tms_cutime;
-				s_total += shared->stats[n].tms.tms_stime +
-					   shared->stats[n].tms.tms_cstime;
-				r_total += shared->stats[n].finish - shared->stats[n].start;
-			}
-			/* Total usr + sys time of all procs */
-			us_total = u_total + s_total;
-			/* Real time in terms of average wall clock time of all procs */
-			r_total = procs[i].started_procs ? r_total / (double)procs[i].started_procs : 0.0;
-
-			if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
-				continue;
-			pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
-				munge_underscore((char *)stressors[i].name),
-				c_total,				 /* op count */
-				r_total,	 			/* average real (wall) clock time */
-				(double)u_total / (double)ticks_per_sec, /* actual user time */
-				(double)s_total / (double)ticks_per_sec, /* actual system time */
-				r_total > 0.0 ? (double)c_total / r_total : 0.0,
-				us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
-		}
-	}
-	if (opt_flags & OPT_FLAGS_PERF_STATS) {
-		int32_t i;
-		bool no_perf_stats = true;
-
-		setlocale(LC_ALL, "");
-
-		for (i = 0; i < STRESS_MAX; i++) {
-			int p;
-			uint64_t counter_totals[STRESS_PERF_MAX];
-			uint64_t total_cpu_cycles = 0;
-			uint64_t total_cache_refs = 0;
-			uint64_t total_branches = 0;
-			int ids[STRESS_PERF_MAX];
-			bool got_data = false;
-
-			memset(counter_totals, 0, sizeof(counter_totals));
-
-			/* Sum totals across all instances of the stressor */
-			for (p = 0; p < STRESS_PERF_MAX; p++) {
-				int32_t j, n = (i * max_procs);
-				stress_perf_t *sp = &shared->stats[n].sp;
-
-				if (!perf_stat_succeeded(sp))
-					continue;
-
-				ids[p] = ~0;
-				for (j = 0; j < procs[i].started_procs; j++, n++) {
-					uint64_t counter;
-
-					perf_get_counter_by_index(sp, p, &counter, &ids[p]);
-					if (counter == STRESS_PERF_INVALID) {
-						counter_totals[p] = STRESS_PERF_INVALID;
-						break;
-					}
-					counter_totals[p] += counter;
-					got_data |= (counter > 0);
-				}
-				if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
-					total_cpu_cycles = counter_totals[p];
-				if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
-					total_cache_refs = counter_totals[p];
-				if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
-					total_branches = counter_totals[p];
-			}
-
-			if (!got_data)
-				continue;
-
-			no_perf_stats = false;
-			pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
-			for (p = 0; p < STRESS_PERF_MAX; p++) {
-				const char *l = perf_get_label_by_index(p);
-				if (l && counter_totals[p] != STRESS_PERF_INVALID) {
-					char extra[32];
-					*extra = '\0';
-
-					if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
-						snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
-							(double)counter_totals[p] / (double)total_cpu_cycles);
-					if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
-						snprintf(extra, sizeof(extra), " (%5.2f%%)",
-							100.0 * (double)counter_totals[p] / (double)total_cache_refs);
-					if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
-						snprintf(extra, sizeof(extra), " (%5.2f%%)",
-							100.0 * (double)counter_totals[p] / (double)total_branches);
-
-					pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
-						counter_totals[p], l,
-						perf_stat_scale(counter_totals[p], duration),
-						extra);
-				}
-			}
-		}
-		if (no_perf_stats)
-			pr_inf(stdout, "perf counters not available\n");
-	}
+	if (opt_flags & OPT_FLAGS_METRICS)
+		dump_metrics(max_procs, ticks_per_sec);
+	if (opt_flags & OPT_FLAGS_PERF_STATS)
+		dump_perf_stats(max_procs, duration);
+	if (opt_flags & OPT_FLAGS_TIMES)
+		dump_times(ticks_per_sec, duration);
 	free_procs();
 
 	stress_semaphore_posix_destroy();
@@ -2368,35 +2421,6 @@ next_opt:
 #endif
 	(void)munmap(shared, len);
 
-	if (opt_flags & OPT_FLAGS_TIMES) {
-		struct tms buf;
-		double total_cpu_time = stress_get_processors_online() * duration;
-
-		if (times(&buf) == (clock_t)-1) {
-			pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
-				errno, strerror(errno));
-			exit(EXIT_FAILURE);
-		}
-
-		pr_inf(stdout, "for a %.2fs run time:\n", duration);
-		pr_inf(stdout, "  %8.2fs available CPU time\n",
-			total_cpu_time);
-
-		pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
-			(float)buf.tms_cutime / (float)ticks_per_sec,
-			100.0 * ((float)buf.tms_cutime /
-				(float)ticks_per_sec) / total_cpu_time);
-		pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n",
-			(float)buf.tms_cstime / (float)ticks_per_sec,
-			100.0 * ((float)buf.tms_cstime /
-				(float)ticks_per_sec) / total_cpu_time);
-		pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n",
-			((float)buf.tms_cutime + (float)buf.tms_cstime) /
-				(float)ticks_per_sec,
-			100.0 * (((float)buf.tms_cutime +
-				  (float)buf.tms_cstime) /
-				(float)ticks_per_sec) / total_cpu_time);
-	}
 	if (opt_flags & OPT_SYSLOG)
 		closelog();
 
