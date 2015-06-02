@@ -1,3 +1,41 @@
+stress-ng (0.04.05-1) unstable; urgency=medium
+
+  [ Colin Ian King ]
+  * Makefile: bump version
+  * mincore: fix build for GNU/HURD; make it a no-op
+  * stress-mlock: don't build in munlockall for GNU/HURD
+  * stress-mlock: don't build in mlockall, munlockall for GNU/HURD
+  * Fix MINCORE dependency for GNU/HURD
+  * Ensure maximum sizes don't exceed 4GB-1 for 32 bit systems
+  * stress-crypt: only use re-entrant crypt_r on Linux for now
+  * Make madvise build on non-GNU/HURD systems
+  * Add perf reference in manual, update date
+  * stress-vm-rw: zero msg_wr just to be totally safe
+  * stress-crypt: use reentrant crypt_r to avoid any memory leaks
+  * stress-zombie: free items on list head on exit
+  * stress-lockf: free items on list head on exit
+  * stress-wcstr: fix incorrect wide string size
+  * Add int8, int16, int32 and int64 versions of mwc*()
+  * Move results emitting code into dump_* functions
+  * Increase various stressors upper memory limits
+  * Make --aggressive force more CPU migrations and context switches
+  * Fix comment for stress_get_ticks_per_second
+  * perf: enable inherit flag to trace children
+  * Update syscalls.txt with perf and getrandom
+  * Add the new --getrandom stressor
+  * Fix sigq options, missing because not using STRESS_SIGQUEUE
+  * Add Christian Ehrhardt to the contributors list on man page
+  * Fix help -h option, was --h, should be -h
+
+  [ Christian Ehrhardt ]
+  * stress-ng: avoid builtins when libs shall be tested
+  * stress-ng: add stressor for wide character sting operations
+  * stress-ng: fix string names
+  * stress-ng: avoid compiler error in stress-vector
+  * stress-ng: fix EPOLL build
+
+ -- Colin King <colin.king@canonical.com>  Tue, 2 Jun 2015 20:35:00 +0100
+
 stress-ng (0.04.04-1) unstable; urgency=medium
 
   * Makefile: bump version
