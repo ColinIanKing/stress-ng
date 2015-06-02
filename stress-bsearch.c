@@ -104,7 +104,7 @@ int stress_bsearch(
 	/* Populate with ascending data */
 	prev = 0;
 	for (i = 0; i < n;) {
-		uint64_t v = mwc();
+		uint64_t v = mwc64();
 
 		SETDATA(data, i, v, prev);
 		SETDATA(data, i, v, prev);

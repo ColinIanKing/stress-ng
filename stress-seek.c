@@ -73,10 +73,10 @@ int stress_seek(
 		return EXIT_FAILURE;
 
 	for (i = 0; i < sizeof(buf); i++)
-		buf[i] = (uint8_t)mwc();
+		buf[i] = mwc8();
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
@@ -98,7 +98,7 @@ int stress_seek(
 		uint8_t tmp[512];
 		ssize_t ret;
 
-		offset = mwc() % len;
+		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_failed_err(name, "lseek");
 			goto close_finish;
@@ -116,7 +116,7 @@ re_write:
 			}
 		}
 
-		offset = mwc() % len;
+		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_failed_err(name, "lseek");
 			goto close_finish;

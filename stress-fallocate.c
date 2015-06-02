@@ -90,7 +90,7 @@ int stress_fallocate(
 		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");
@@ -150,8 +150,8 @@ int stress_fallocate(
 			(void)fsync(fd);
 
 			for (i = 0; i < 64; i++) {
-				off_t offset = (mwc() % opt_fallocate_bytes) & ~0xfff;
-				int j = (mwc() >> 8) % SIZEOF_ARRAY(modes);
+				off_t offset = (mwc64() % opt_fallocate_bytes) & ~0xfff;
+				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)fallocate(fd, modes[j], offset, 64 * KB);
 				if (!opt_do_run)

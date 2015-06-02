@@ -110,7 +110,7 @@ int stress_qsort(
 
 	/* This is expensive, do it once */
 	for (ptr = data, i = 0; i < n; i++)
-		*ptr++ = mwc();
+		*ptr++ = mwc32();
 
 	do {
 		/* Sort "random" data */

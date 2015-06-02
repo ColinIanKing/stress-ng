@@ -67,7 +67,7 @@ int stress_mincore(
 
 			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
 				if (addr < (uint8_t *)page_size)
-					addr = (uint8_t *)((ptrdiff_t)(mwc() & mask));
+					addr = (uint8_t *)((ptrdiff_t)(mwc64() & mask));
 redo:
 			errno = 0;
 			ret = mincore((void *)addr, page_size, vec);

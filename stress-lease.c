@@ -144,7 +144,7 @@ int stress_lease(
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename(filename, PATH_MAX,
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

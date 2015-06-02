@@ -174,7 +174,7 @@ static int stress_lockf_contention(
 			if (stress_lockf_unlock(name, fd) < 0)
 				return -1;
 
-		offset = mwc() % (LOCK_FILE_SIZE - LOCK_SIZE);
+		offset = mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			pr_failed_err(name, "lseek");
 			return -1;
@@ -237,7 +237,7 @@ int stress_lockf(
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		pr_failed_err(name, "open");

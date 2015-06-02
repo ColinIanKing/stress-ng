@@ -150,7 +150,7 @@ int stress_mmap(
 			return EXIT_FAILURE;
 
 		(void)stress_temp_filename(filename, sizeof(filename),
-			name, pid, instance, mwc());
+			name, pid, instance, mwc32());
 
 		(void)umask(0077);
 		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
@@ -224,7 +224,7 @@ redo:
 		 */
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc() % pages4k;
+			uint64_t j, i = mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
@@ -245,7 +245,7 @@ redo:
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc() % pages4k;
+			uint64_t j, i = mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (!mapped[page]) {

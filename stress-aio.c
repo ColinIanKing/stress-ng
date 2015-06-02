@@ -198,7 +198,7 @@ int stress_aio(
 		return EXIT_FAILURE;
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
@@ -235,7 +235,7 @@ int stress_aio(
 				/* Succeeded or cancelled, so redo another */
 				(*counter)++;
 				if (issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i,
-					(mwc() & 0x20) ? aio_read : aio_write) < 0)
+					(mwc32() & 0x8) ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
 			case EINPROGRESS:

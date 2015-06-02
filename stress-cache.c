@@ -74,8 +74,8 @@ int stress_cache(
 	uint8_t *mem_cache = shared->mem_cache;
 
 	do {
-		uint64_t i = mwc() & (MEM_CACHE_SIZE - 1);
-		uint64_t r = mwc();
+		uint64_t i = mwc64() & (MEM_CACHE_SIZE - 1);
+		uint64_t r = mwc64();
 		register int j;
 
 		if ((r >> 13) & 1) {

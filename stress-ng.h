@@ -384,8 +384,8 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define SIEVE_SIZE 		(10000000)
 
 /* MWC random number initial seed */
-#define MWC_SEED_Z		(362436069ULL)
-#define MWC_SEED_W		(521288629ULL)
+#define MWC_SEED_Z		(362436069UL)
+#define MWC_SEED_W		(521288629UL)
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
@@ -442,8 +442,8 @@ typedef struct {
 
 /* Fast random number generator state */
 typedef struct {
-	uint64_t w;
-	uint64_t z;
+	uint32_t w;
+	uint32_t z;
 } mwc_t;
 
 /* Force aligment to nearest cache line */
@@ -1322,19 +1322,34 @@ static inline void mfence(void)
 #endif
 
 /*
- *  mwc()
+ *  mwc32()
  *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-static inline uint64_t mwc(void)
+static inline uint32_t mwc32(void)
 {
 	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
 	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
 	return (__mwc.z << 16) + __mwc.w;
 }
 
-extern void mwc_seed(const uint64_t w, const uint64_t z);
+static inline uint64_t mwc64(void)
+{
+	return (((uint64_t)mwc32()) << 32) | mwc32();
+}
+
+static inline uint16_t mwc16(void)
+{
+	return mwc32() & 0xffff;
+}
+
+static inline uint8_t mwc8(void)
+{
+	return mwc32() & 0xff;
+}
+
+extern void mwc_seed(const uint32_t w, const uint32_t z);
 extern void mwc_reseed(void);
 
 /* Time handling */

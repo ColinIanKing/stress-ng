@@ -76,13 +76,13 @@ int stress_crypt(
 		uint64_t seed[2];
 		size_t i;
 
-		seed[0] = mwc();
-		seed[1] = mwc();
+		seed[0] = mwc64();
+		seed[1] = mwc64();
 
 		for (i = 0; i < 8; i++)
 			salt[i + 3] = seedchars[(seed[i / 5] >> (i % 5) * 6) & 0x3f];
 		for (i = 0; i < sizeof(passwd) - 1; i++)
-			passwd[i] = seedchars[mwc() % sizeof(seedchars)];
+			passwd[i] = seedchars[mwc32() % sizeof(seedchars)];
 		passwd[i] = '\0';
 
 		if (stress_crypt_id(name, '1', "MD5", passwd, salt) < 0)

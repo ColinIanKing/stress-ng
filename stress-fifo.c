@@ -144,7 +144,7 @@ int stress_fifo(
 		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(fifoname, sizeof(fifoname),
-                name, pid, instance, mwc());
+                name, pid, instance, mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {

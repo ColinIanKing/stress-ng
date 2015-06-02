@@ -59,7 +59,7 @@ void stress_itimer_set(struct itimerval *timer)
 
 	if (opt_flags & OPT_FLAGS_TIMER_RAND) {
 		/* Mix in some random variation */
-		double r = ((double)(mwc() % 10000) - 5000.0) / 40000.0;
+		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_us + (rate_us * r);
 	} else {
 		rate = rate_us;

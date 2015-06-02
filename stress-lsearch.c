@@ -93,7 +93,7 @@ int stress_lsearch(
 
 		/* Step #1, populate with data */
 		for (i = 0; opt_do_run && i < max; i++) {
-			data[i] = ((mwc() & 0xfff) << 20) ^ i;
+			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
 			(void)lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
 		}
 		/* Step #2, find */

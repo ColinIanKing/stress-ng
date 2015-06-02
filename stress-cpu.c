@@ -94,7 +94,7 @@ static void HOT stress_cpu_sqrt(const char *name)
 	int i;
 
 	for (i = 0; i < 16384; i++) {
-		uint64_t rnd = mwc();
+		uint64_t rnd = mwc32();
 		double r = sqrt((double)rnd) * sqrt((double)rnd);
 		if ((opt_flags & OPT_FLAGS_VERIFY) &&
 		    (uint64_t)rint(r) != rnd) {
@@ -297,7 +297,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 
 	MWC_SEED();
 	for (i = 0; i < 16384; i++)
-		i_sum += mwc();
+		i_sum += mwc32();
 
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail(stderr, "%s: rand error detected, failed sum of pseudo-random values\n", name);
@@ -373,8 +373,8 @@ static void HOT OPTIMIZE3 stress_cpu_phi(const char *name)
 	int i;
 
 	/* Pick any two starting points */
-	a = mwc() % 99;
-	b = mwc() % 99;
+	a = mwc64() % 99;
+	b = mwc64() % 99;
 
 	/* Iterate until we approach overflow */
 	for (i = 0; (i < 64) && !((a | b) & mask); i++) {
@@ -465,7 +465,7 @@ static void random_buffer(uint8_t *data, const size_t len)
 	size_t i;
 
 	for (i = 0; i < len / 4; i++) {
-		uint32_t v = (uint32_t)mwc();
+		uint32_t v = mwc32();
 
 		*data++ = v;
 		v >>= 8;
@@ -728,10 +728,10 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
 		b <<= 2;		\
 		a |= 1;			\
 		b |= 3;			\
-		a *= mwc();		\
-		b ^= mwc();		\
-		a += mwc();		\
-		b -= mwc();		\
+		a *= mwc32();		\
+		b ^= mwc32();		\
+		a += mwc32();		\
+		b -= mwc32();		\
 		a /= 7;			\
 		b /= 9;			\
 		a |= (c2);		\
@@ -758,8 +758,8 @@ static void HOT OPTIMIZE3 stress_cpu_int ## _sz(const char *name)\
 	int i;							\
 								\
 	MWC_SEED();						\
-	a = mwc();						\
-	b = mwc();						\
+	a = mwc32();						\
+	b = mwc32();						\
 								\
 	for (i = 0; i < 1000; i++) {				\
 		int_ops(a, b, c1, c2, c3)			\
@@ -778,13 +778,13 @@ static void HOT OPTIMIZE3 stress_cpu_int ## _sz(const char *name)\
 #define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 
 stress_cpu_int(__uint128_t, 128,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x62f086e6160e4e,0xd84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3))
 #endif
 
 stress_cpu_int(uint64_t, 64, \
-	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	0x013f7f6dc1d79197cULL, 0x01863d2c6969a51ceULL,
 	C1, C2, C3)
 
 stress_cpu_int(uint32_t, 32, \
@@ -826,7 +826,7 @@ stress_cpu_int(uint8_t, 8, \
 static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
-	_type a = 0.18728, b = mwc(), c = mwc(), d;	\
+	_type a = 0.18728, b = mwc32(), c = mwc32(), d;	\
 							\
 	(void)name;					\
 							\
@@ -854,8 +854,8 @@ static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
 	_type a = 0.18728 + I * 0.2762,			\
-		b = mwc() - I * 0.11121,		\
-		c = mwc() + I * mwc(), d;		\
+		b = mwc32() - I * 0.11121,		\
+		c = mwc32() + I * mwc32(), d;		\
 							\
 	(void)name;					\
 							\
@@ -898,12 +898,12 @@ stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
 		int_a |= 1;					\
 		flt_d = flt_d + flt_b + (_ftype)_sin(flt_a);	\
 		int_b |= 3;					\
-		int_a *= mwc();					\
+		int_a *= mwc32();				\
 		flt_a = (flt_b + flt_c) / flt_c;		\
-		int_b ^= mwc();					\
-		int_a += mwc();					\
+		int_b ^= mwc32();				\
+		int_a += mwc32();				\
 		flt_b = flt_b * flt_c;				\
-		int_b -= mwc();					\
+		int_b -= mwc32();				\
 		int_a /= 7;					\
 		flt_c = flt_c + (_ftype)1.0;			\
 		int_b /= 9;					\
@@ -932,12 +932,12 @@ static void HOT OPTIMIZE3 stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 	const _inttype c1 = _c1 & mask;				\
 	const _inttype c2 = _c2 & mask;				\
 	const _inttype c3 = _c3 & mask;				\
-	_ftype flt_a = 0.18728, flt_b = mwc(), 			\
-		flt_c = mwc(), flt_d;				\
+	_ftype flt_a = 0.18728, flt_b = mwc32(),		\
+		flt_c = mwc32(), flt_d;				\
 								\
 	MWC_SEED();						\
-	int_a = mwc();						\
-	int_b = mwc();						\
+	int_a = mwc32();					\
+	int_b = mwc32();					\
 								\
 	for (i = 0; i < 1000; i++) {				\
 		int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,\
@@ -946,7 +946,7 @@ static void HOT OPTIMIZE3 stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 	if ((opt_flags & OPT_FLAGS_VERIFY) &&			\
 	    ((int_a != a_final) || (int_b != b_final)))		\
 		pr_fail(stderr, "%s: int" # _sz " error detected, "\
-			"failed int" # _sz 			\
+			"failed int" # _sz "" # _ftype		\
 			" math operations\n", name);		\
 								\
 	double_put(flt_a + flt_b + flt_c + flt_d);		\
@@ -962,45 +962,45 @@ stress_cpu_int_fp(uint32_t, 32, long double, longdouble,
 	0x1ce9b547UL, 0xa24b33aUL,
 	C1, C2, C3, sinl, cosl)
 stress_cpu_int_fp(uint64_t, 64, float, float,
-	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, sinf, cosf)
 stress_cpu_int_fp(uint64_t, 64, double, double,
-	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, sin, cos)
 stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
-	0x1ee5773113afd25aULL, 0x174df454b030714cULL,
+	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, sinl, cosl)
 
 #if defined(STRESS_INT128)
 stress_cpu_int_fp(__uint128_t, 128, float, float,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sinf, cosf)
 stress_cpu_int_fp(__uint128_t, 128, double, double,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sin, cos)
 stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sinl, cosl)
 #if defined(STRESS_FLOAT_DECIMAL)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal32)sinf, (_Decimal32)cosf)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal64)sin, (_Decimal64)cos)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
-	_UINT128(0x1caaffe276809a64,0xf7a3387557025785),
-	_UINT128(0x052970104c342020,0x4e4cc51e06b44800),
+	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal128)sinl, (_Decimal128)cosl)
 #endif
@@ -1013,7 +1013,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
 static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
 {
 	int i;
-	uint32_t rgb = mwc() & 0xffffff;
+	uint32_t rgb = mwc32() & 0xffffff;
 	uint8_t r = rgb >> 16;
 	uint8_t g = rgb >> 8;
 	uint8_t b = rgb;
@@ -1059,8 +1059,8 @@ static void HOT OPTIMIZE3 stress_cpu_matrix_prod(const char *name)
 
 	for (i = 0; i < n; i++) {
 		for (j = 0; j < n; j++) {
-			a[i][j] = (long double)mwc() * v;
-			b[i][j] = (long double)mwc() * v;
+			a[i][j] = (long double)mwc32() * v;
+			b[i][j] = (long double)mwc32() * v;
 			r[i][j] = 0.0;
 		}
 	}
@@ -1382,7 +1382,7 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 
 	/* Generate some random data */
 	for (i = 0; i < data_len; i++) {
-		data[i] = mwc();
+		data[i] = mwc64();
 		data_average += data[i];
 	}
 	data_average /= (double)data_len;
@@ -1723,10 +1723,10 @@ static ptrdiff_t stress_cpu_callfunc_func(
  */
 static void stress_cpu_callfunc(const char *name)
 {
-	uint64_t	u64arg = mwc();
-	uint32_t	u32arg = mwc();
-	uint16_t	u16arg = mwc();
-	uint8_t		u8arg  = mwc();
+	uint64_t	u64arg = mwc64();
+	uint32_t	u32arg = mwc32();
+	uint16_t	u16arg = mwc16();
+	uint8_t		u8arg  = mwc8();
 	ptrdiff_t	ret;
 
 	(void)name;
@@ -1850,7 +1850,7 @@ static void stress_cpu_dither(const char *name)
 	 */
 	for (y = 0; y < STRESS_CPU_DITHER_Y; y += 8) {
 		for (x = 0; x < STRESS_CPU_DITHER_X; x ++) {
-			uint64_t v = mwc();
+			uint64_t v = mwc64();
 
 			pixels[x][y + 0] = v;
 			v >>= 8;

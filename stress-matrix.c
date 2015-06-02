@@ -358,8 +358,8 @@ int stress_matrix(
 			register size_t j;
 
 			for (j = 0; j < n; j++) {
-				a[i][j] = (MATRIX_TYPE)mwc() * v;
-				b[i][j] = (MATRIX_TYPE)mwc() * v;
+				a[i][j] = (MATRIX_TYPE)mwc64() * v;
+				b[i][j] = (MATRIX_TYPE)mwc64() * v;
 				r[i][j] = 0.0;
 			}
 		}

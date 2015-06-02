@@ -58,7 +58,7 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 	size_t i;
 
 	for (i = 0; i < (len-1); i++) {
-		*wcstr++=(mwc() % 26) + L'a';
+		*wcstr++=(mwc8() % 26) + L'a';
 	}
 	*wcstr = L'\0';
 }

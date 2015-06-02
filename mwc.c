@@ -42,7 +42,7 @@ mwc_t __mwc = {
  *  mwc_seed()
  *	set mwc seeds
  */
-void mwc_seed(const uint64_t w, const uint64_t z)
+void mwc_seed(const uint32_t w, const uint32_t z)
 {
 	__mwc.w = w;
 	__mwc.z = z;
@@ -66,5 +66,5 @@ void mwc_reseed(void)
 
 	n = (int)__mwc.z % 1733;
 	for (i = 0; i < n; i++)
-		(void)mwc();
+		(void)mwc32();
 }

@@ -149,7 +149,7 @@ int stress_shm_sysv(
 						goto reap;
 
 					/* Get a unique random key */
-					key = (key_t)(mwc() & 0xffff);
+					key = (key_t)mwc16();
 					for (j = 0; j < i - 1; j++) {
 						if (key == keys[j]) {
 							unique = false;

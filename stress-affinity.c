@@ -53,7 +53,7 @@ int stress_affinity(
 
 	do {
 		cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
-			(mwc() >> 4) : cpu + 1;
+			(mwc32() >> 4) : cpu + 1;
 		cpu %= stress_get_processors_online();
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);

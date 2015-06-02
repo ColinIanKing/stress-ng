@@ -393,10 +393,10 @@ int stress_hdd(
 	}
 
 	for (i = 0; i < opt_hdd_write_size; i++)
-		buf[i] = (uint8_t)mwc();
+		buf[i] = mwc8();
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 	do {
 		int fd;
 
@@ -424,7 +424,7 @@ int stress_hdd(
 
 				off_t offset = (i == 0) ?
 					opt_hdd_bytes :
-					(mwc() % opt_hdd_bytes) & ~511;
+					(mwc64() % opt_hdd_bytes) & ~511;
 				ssize_t ret;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
@@ -541,7 +541,7 @@ seq_rd_retry:
 
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				ssize_t ret;
-				off_t offset = (mwc() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
+				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_failed_err(name, "lseek");

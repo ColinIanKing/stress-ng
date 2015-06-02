@@ -85,7 +85,7 @@ void stress_set_malloc_threshold(const char *optarg)
  */
 static inline size_t stress_alloc_size(void)
 {
-	size_t len = mwc() % opt_malloc_bytes;
+	size_t len = mwc64() % opt_malloc_bytes;
 
 	return len ? len : 1;
 }
@@ -163,7 +163,7 @@ again:
 		set_oom_adjustment(name, true);
 
 		do {
-			unsigned int rnd = mwc();
+			unsigned int rnd = mwc32();
 			unsigned int i = rnd % opt_malloc_max;
 			unsigned int action = (rnd >> 12) & 1;
 			unsigned int do_calloc = (rnd >> 14) & 0x1f;

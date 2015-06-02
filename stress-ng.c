@@ -1342,7 +1342,7 @@ static void wait_procs(bool *success)
 
 				for (j = 0; j < procs[i].started_procs; j++) {
 					const pid_t pid = procs[i].pids[j];
-					unsigned long int cpu_num = (mwc() >> 7) % cpus;
+					unsigned long int cpu_num = (mwc32() >> 7) % cpus;
 					cpu_set_t mask;
 
 					CPU_ZERO(&mask);
@@ -2244,11 +2244,11 @@ next_opt:
 		}
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			int32_t rnd = mwc() % ((opt_random >> 5) + 2);
+			int32_t rnd = mwc32() % ((opt_random >> 5) + 2);
 			if (rnd > n)
 				rnd = n;
 			n -= rnd;
-			procs[mwc() % STRESS_MAX].num_procs += rnd;
+			procs[mwc32() % STRESS_MAX].num_procs += rnd;
 		}
 	}
 

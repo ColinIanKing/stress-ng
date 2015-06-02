@@ -66,7 +66,7 @@ void stress_semaphore_sysv_init(void)
 	int count = 0;
 
 	while (count < 100) {
-		shared->sem_sysv_key_id = (key_t)(mwc() & 0xffff);
+		shared->sem_sysv_key_id = (key_t)mwc16();
 		shared->sem_sysv_id = semget(shared->sem_sysv_key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (shared->sem_sysv_id >= 0)
 			break;

@@ -55,7 +55,7 @@ static void stress_str_fill(char *str, const size_t len)
 	char *end = str + len;
 
 	while (str < end - 1)
-		*str++ = (mwc() % 26) + 'a';
+		*str++ = (mwc8() % 26) + 'a';
 
 	*str = '\0';
 }

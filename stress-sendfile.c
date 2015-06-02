@@ -79,7 +79,7 @@ int stress_sendfile(
         (void)umask(0077);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 
         if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
                 pr_failed_err(name, "open");

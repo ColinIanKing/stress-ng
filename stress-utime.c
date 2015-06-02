@@ -55,7 +55,7 @@ int stress_utime(
 		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));

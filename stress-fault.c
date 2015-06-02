@@ -56,7 +56,7 @@ int stress_fault(
 		return EXIT_FAILURE;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc());
+		name, pid, instance, mwc32());
 	(void)umask(0077);
 
 	do {
