@@ -132,8 +132,10 @@ again:
 					(void)munlock((void *)addr + page_size, page_size);
 				munmap((void *)addr, page_size * 3);
 			}
+#if !defined(__gnu_hurd__)
 			(void)mlockall(MCL_CURRENT);
 			(void)mlockall(MCL_FUTURE);
+#endif
 			for (n = 0; opt_do_run && (n < max); n++) {
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
