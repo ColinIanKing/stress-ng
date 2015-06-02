@@ -120,6 +120,7 @@ int stress_vm_rw(
 			uint8_t *ptr, *end = buf + sz;
 			int ret;
 
+			memset(&msg_wr, 0, sizeof(msg_wr));
 			msg_wr.addr = buf;
 			msg_wr.val = 0;
 
