@@ -115,10 +115,17 @@ void stress_lockf_info_head_remove(void)
 
 /*
  *  stress_lockf_info_free()
- *	free the lockf_infos off the lockf_info free list
+ *	free the lockf_infos off the lockf_info head and free lists
  */
 void stress_lockf_info_free(void)
 {
+	while (lockf_infos.head) {
+		lockf_info_t *next = lockf_infos.head->next;
+
+		free(lockf_infos.head);
+		lockf_infos.head = next;
+	}
+
 	while (lockf_infos.free) {
 		lockf_info_t *next = lockf_infos.free->next;
 
@@ -273,6 +280,7 @@ again:
 	if (cpid == 0) {
 		if (stress_lockf_contention(name, fd, counter, max_ops) < 0)
 			exit(EXIT_FAILURE);
+		stress_lockf_info_free();
 		exit(EXIT_SUCCESS);
 	}
 
