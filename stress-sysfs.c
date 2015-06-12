@@ -77,7 +77,8 @@ redo:
 static void stress_sys_dir(
 	const char *path,
 	const bool recurse,
-	const int depth)
+	const int depth,
+	bool sys_read)
 {
 	DIR *dp;
 	struct dirent *d;
@@ -106,13 +107,15 @@ static void stress_sys_dir(
 			if (recurse) {
 				snprintf(name, sizeof(name),
 					"%s/%s", path, d->d_name);
-				stress_sys_dir(name, recurse, depth + 1);
+				stress_sys_dir(name, recurse, depth + 1, sys_read);
 			}
 			break;
 		case DT_REG:
-			snprintf(name, sizeof(name),
-				"%s/%s", path, d->d_name);
-			stress_sys_read(name);
+			if (sys_read) {
+				snprintf(name, sizeof(name),
+					"%s/%s", path, d->d_name);
+				stress_sys_read(name);
+			}
 			break;
 		default:
 			break;
@@ -131,11 +134,19 @@ int stress_sysfs(
 	const uint64_t max_ops,
 	const char *name)
 {
+	bool sys_read = true;
+
 	(void)instance;
 	(void)name;
 
+
+	if (geteuid() == 0) {
+		pr_inf(stderr, "%s: running as root, just traversing /sys and not reading files.\n", name);
+		sys_read = false;
+	}
+
 	do {
-		stress_sys_dir("/sys", true, 0);
+		stress_sys_dir("/sys", true, 0, sys_read);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
