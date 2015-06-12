@@ -1,3 +1,9 @@
+stress-ng (0.04.06-1) unstable; urgency=medium
+
+  * stess-sysfs: Do not read sysfs files when running as root (LP: #1464073)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 Jun 2015 09:44:00 +0100
+
 stress-ng (0.04.05-1) unstable; urgency=medium
 
   [ Colin Ian King ]
