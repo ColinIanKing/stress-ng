@@ -205,7 +205,7 @@ int stress_sem_sysv(
 		if (pids[i] < 0)
 			goto reap;
 	}
-	semaphore_sysv_thrash(name, max_ops, counter);
+	pause();
 reap:
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		if (pids[i] > 0) {
