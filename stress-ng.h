@@ -241,9 +241,9 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_MQ_SIZE		(32)
 #define DEFAULT_MQ_SIZE		(10)
 
-#define MIN_SEMAPHORE_PROCS	(4)
+#define MIN_SEMAPHORE_PROCS	(2)
 #define MAX_SEMAPHORE_PROCS	(64)
-#define DEFAULT_SEMAPHORE_PROCS	(1)
+#define DEFAULT_SEMAPHORE_PROCS	(2)
 
 #define MIN_FORKS		(1)
 #define MAX_FORKS		(16000)

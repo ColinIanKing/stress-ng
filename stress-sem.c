@@ -102,7 +102,10 @@ static void semaphore_posix_thrash(
 				break;
 			}
 			(*counter)++;
-			sem_post(&shared->sem_posix);
+			if (sem_post(&shared->sem_posix) < 0) {
+				pr_failed_dbg(name, "sem_post");
+				break;
+			}
 			if (!opt_do_run)
 				break;
 		}
@@ -167,8 +170,8 @@ int stress_sem_posix(
 		if (pids[i] < 0)
 			goto reap;
 	}
-	semaphore_posix_thrash(name, max_ops, counter);
-
+	/* Wait for SIGALRM */
+	pause();
 reap:
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
 		if (pids[i] > 0) {
