@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/ipc.h>
@@ -118,6 +119,13 @@ static void semaphore_sysv_thrash(
 {
 	do {
 		int i;
+		struct timespec timeout;
+
+		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
+			pr_failed_dbg(name, "clock_gettime");
+			return;
+		}
+		timeout.tv_sec++;
 
 		for (i = 0; i < 1000; i++) {
 			struct sembuf semwait, semsignal;
@@ -130,7 +138,12 @@ static void semaphore_sysv_thrash(
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
-			if (semop(shared->sem_sysv_id, &semwait, 1) < 0) {
+			if (semtimedop(shared->sem_sysv_id, &semwait, 1, &timeout) < 0) {
+				if (errno == EAGAIN) {
+					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
+						errno, strerror(errno));
+					goto timed_out;
+				}
 				if (errno != EINTR)
 					pr_failed_dbg(name, "semop wait");
 				break;
@@ -141,6 +154,7 @@ static void semaphore_sysv_thrash(
 					pr_failed_dbg(name, "semop signal");
 				break;
 			}
+timed_out:
 			if (!opt_do_run)
 				break;
 		}
