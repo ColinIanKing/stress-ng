@@ -1,3 +1,21 @@
+stress-ng (0.04.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make stress-sem conditional on STRESS_SEMAPHORE_POSIX
+  * Make semaphore stressors linux only because of timeout
+  * stress-sem: remove verbose timeout info, it can spam the output
+  * stress-sem-sysv: Add timeout to semaphore wait
+  * stress-sem: Add timeout to semaphore wait
+  * stress-sem-sysv: ensure parent is waiting and not thrashing
+  * stress-sem: ensure parent is waiting and not thrashing
+  * stress-sem: remove verbose timeout info, it can spam the output
+  * stress-sem-sysv: Add timeout to semaphore wait
+  * stress-sem: Add timeout to semaphore wait
+  * stress-sem-sysv: ensure parent is waiting and not thrashing
+  * stress-sem: ensure parent is waiting and not thrashing
+
+ -- Colin King <colin.king@canonical.com>  Thu, 18 Jun 2015 16:34:00 +0100
+
 stress-ng (0.04.06-1) unstable; urgency=medium
 
   * stess-sysfs: Do not read sysfs files when running as root (LP: #1464073)
