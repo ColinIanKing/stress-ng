@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -94,9 +95,21 @@ static void semaphore_posix_thrash(
 {
 	do {
 		int i;
+		struct timespec timeout;
+
+		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
+			pr_failed_dbg(name, "clock_gettime");
+			return;
+		}
+		timeout.tv_sec++;
 
 		for (i = 0; i < 1000; i++) {
-			if (sem_wait(&shared->sem_posix) < 0) {
+			if (sem_timedwait(&shared->sem_posix, &timeout) < 0) {
+				if (errno == ETIMEDOUT) {
+					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
+						errno, strerror(errno));
+					goto timed_out;
+				}
 				if (errno != EINTR)
 					pr_failed_dbg(name, "sem_wait");
 				break;
@@ -106,6 +119,7 @@ static void semaphore_posix_thrash(
 				pr_failed_dbg(name, "sem_post");
 				break;
 			}
+timed_out:
 			if (!opt_do_run)
 				break;
 		}
