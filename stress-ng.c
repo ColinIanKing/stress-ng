@@ -248,7 +248,9 @@ static const stress_t stressors[] = {
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 #endif
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
+#if defined(STRESS_SEMAPHORE_POSIX)
 	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
+#endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 	STRESSOR(sem_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #endif
@@ -580,9 +582,11 @@ static const struct option long_options[] = {
 	{ "seek",	1,	0,	OPT_SEEK },
 	{ "seek-ops",	1,	0,	OPT_SEEK_OPS },
 	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },
+#if defined(STRESS_SEMAPHORE_POSIX)
 	{ "sem",	1,	0,	OPT_SEMAPHORE_POSIX },
 	{ "sem-ops",	1,	0,	OPT_SEMAPHORE_POSIX_OPS },
 	{ "sem-procs",	1,	0,	OPT_SEMAPHORE_POSIX_PROCS },
+#endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 	{ "sem-sysv",	1,	0,	OPT_SEMAPHORE_SYSV },
 	{ "sem-sysv-ops",1,	0,	OPT_SEMAPHORE_SYSV_OPS },
@@ -982,9 +986,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop when N seek bogo operations completed" },
 	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
+#if defined(STRESS_SEMAPHORE_POSIX)
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
 	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
+#endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
 	{ NULL,		"sem-sysv-ops N",	"stop when N System V sem bogo operations completed" },
@@ -2062,9 +2068,11 @@ next_opt:
 		case OPT_SEEK_SIZE:
 			stress_set_seek_size(optarg);
 			break;
+#if defined(STRESS_SEMAPHORE_POSIX)
 		case OPT_SEMAPHORE_POSIX_PROCS:
 			stress_set_semaphore_posix_procs(optarg);
 			break;
+#endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 		case OPT_SEMAPHORE_SYSV_PROCS:
 			stress_set_semaphore_sysv_procs(optarg);
@@ -2373,9 +2381,11 @@ next_opt:
 
 	memset(shared, 0, len);
 
+#if defined(STRESS_SEMAPHORE_POSIX)
 	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
 	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
 		stress_semaphore_posix_init();
+#endif
 
 #if defined(STRESS_SEMAPHORE_SYSV)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
@@ -2415,7 +2425,9 @@ next_opt:
 		dump_times(ticks_per_sec, duration);
 	free_procs();
 
+#if defined(STRESS_SEMAPHORE_POSIX)
 	stress_semaphore_posix_destroy();
+#endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 	stress_semaphore_sysv_destroy();
 #endif
