@@ -686,8 +686,11 @@ typedef enum {
 #define STRESS_RLIMIT __STRESS_RLIMIT
 #endif
 	STRESS_SEEK,
-	STRESS_SEMAPHORE_POSIX,
-#if !defined(__gnu_hurd__)
+#if defined(__linux__)
+	__STRESS_SEMAPHORE_POSIX,
+#define STRESS_SEMAPHORE_POSIX __STRESS_SEMAPHORE_POSIX
+#endif
+#if defined(__linux__)
 	__STRESS_SEMAPHORE_SYSV,
 #define STRESS_SEMAPHORE_SYSV __STRESS_SEMAPHORE_SYSV
 #endif
