@@ -106,8 +106,10 @@ static void semaphore_posix_thrash(
 		for (i = 0; i < 1000; i++) {
 			if (sem_timedwait(&shared->sem_posix, &timeout) < 0) {
 				if (errno == ETIMEDOUT) {
+					/*
 					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
 						errno, strerror(errno));
+					*/
 					goto timed_out;
 				}
 				if (errno != EINTR)
