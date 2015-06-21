@@ -661,6 +661,9 @@ static const struct option long_options[] = {
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
 	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
 	{ "times",	0,	0,	OPT_TIMES },
+#if defined(STRESS_THERMAL_ZONES)
+	{ "tz",		0,	0,	OPT_THERMAL_ZONES },
+#endif
 	{ "udp",	1,	0,	OPT_UDP },
 	{ "udp-domain",1,	0,	OPT_UDP_DOMAIN },
 	{ "udp-ops",	1,	0,	OPT_UDP_OPS },
@@ -759,6 +762,9 @@ static const help_t help_generic[] = {
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
+#if defined(STRESS_THERMAL_ZONES)
+	{ NULL,		"tz",			"collect temperatures from thermal zones (Linux only)" },
+#endif
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
@@ -1523,6 +1529,11 @@ again:
 						rc = stressors[i].stress_func(&stats[n].counter, j, procs[i].bogo_ops, name);
 					(void)perf_disable(&stats[n].sp);
 					(void)perf_close(&stats[n].sp);
+#if defined(STRESS_THERMAL_ZONES)
+					if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
+						(void)tz_get_temperatures(&shared->tz_info, &stats[n].tz);
+#endif
+
 					stats[n].finish = time_now();
 					if (times(&stats[n].tms) == (clock_t)-1) {
 						pr_dbg(stderr, "times failed: errno=%d (%s)\n",
@@ -1530,6 +1541,7 @@ again:
 					}
 					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
+					tz_free(&shared->tz_info);
 					exit(rc);
 				default:
 					procs[i].pids[j] = pid;
@@ -2144,6 +2156,11 @@ next_opt:
 		case OPT_TSEARCH_SIZE:
 			stress_set_tsearch_size(optarg);
 			break;
+#if defined(STRESS_THERMAL_ZONES)
+		case OPT_THERMAL_ZONES:
+			opt_flags |= OPT_FLAGS_THERMAL_ZONES;
+			break;
+#endif
 		case OPT_UDP_DOMAIN:
 			if (stress_set_udp_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
@@ -2380,6 +2397,10 @@ next_opt:
 	}
 
 	memset(shared, 0, len);
+#if defined(STRESS_THERMAL_ZONES)
+	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
+		tz_init(&shared->tz_info);
+#endif
 
 #if defined(STRESS_SEMAPHORE_POSIX)
 	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
@@ -2421,6 +2442,12 @@ next_opt:
 		dump_metrics(max_procs, ticks_per_sec);
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
 		dump_perf_stats(max_procs, duration);
+#if defined(STRESS_THERMAL_ZONES)
+	if (opt_flags & OPT_FLAGS_THERMAL_ZONES) {
+		tz_dump(shared, stressors, procs, max_procs);
+		tz_free(&shared->tz_info);
+	}
+#endif
 	if (opt_flags & OPT_FLAGS_TIMES)
 		dump_times(ticks_per_sec, duration);
 	free_procs();

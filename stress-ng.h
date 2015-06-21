@@ -134,6 +134,7 @@
 #define OPT_FLAGS_SEQUENTIAL	0x04000000000ULL	/* --sequential mode */
 #define OPT_FLAGS_PERF_STATS	0x08000000000ULL	/* --perf stats mode */
 #define OPT_FLAGS_LOG_BRIEF	0x10000000000ULL	/* --log-brief */
+#define OPT_FLAGS_THERMAL_ZONES 0x20000000000ULL	/* --tz thermal zones */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -505,8 +506,15 @@ enum {
 	STRESS_PERF_MAX
 };
 
+
 #if defined(__linux__) && defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
+#endif
+
+#if defined(__linux__)
+#define	STRESS_THERMAL_ZONES	 (1)
+#define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
+
 #endif
 
 /* per perf counter info */
@@ -523,6 +531,24 @@ typedef struct {
 #endif
 } stress_perf_t;
 
+#if defined(STRESS_THERMAL_ZONES)
+/* per stressor thermal zone info */
+typedef struct tz_info {
+	char	*path;
+	char 	*type;
+	size_t	index;
+	struct tz_info *next;
+} tz_info_t;
+
+typedef struct {
+	uint64_t temperature;		/* temperature in Celsius * 1000 */
+} tz_stat_t;
+
+typedef struct {
+	tz_stat_t tz_stat[STRESS_THERMAL_ZONES_MAX];
+} stress_tz_t;
+#endif
+
 /* Per process statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
@@ -530,6 +556,9 @@ typedef struct {
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
 	stress_perf_t sp;		/* perf counters */
+#if defined(STRESS_THERMAL_ZONES)
+	stress_tz_t tz;			/* thermal zones */
+#endif
 } proc_stats_t;
 
 /* Shared memory segment */
@@ -542,6 +571,9 @@ typedef struct {
 	key_t sem_sysv_key_id ALIGN64;			/* System V semaphore key id */
 	int sem_sysv_id ALIGN64;			/* System V semaphore id */
 	bool sem_sysv_init ALIGN64;			/* System V semaphore initialized */
+#if defined(STRESS_THERMAL_ZONES)
+	tz_info_t *tz_info ALIGN64;			/* List of valid thermal zones */
+#endif
 	proc_stats_t stats[0] ALIGN64;			/* Shared statistics */
 } shared_t;
 
@@ -1200,6 +1232,8 @@ typedef enum {
 	OPT_TIMERFD_RAND,
 #endif
 
+	OPT_THERMAL_ZONES,
+
 	OPT_TSEARCH,
 	OPT_TSEARCH_OPS,
 	OPT_TSEARCH_SIZE,
@@ -1442,11 +1476,20 @@ extern int mount_add(char *mnts[], const int max, int *n, const char *name);
 extern void mount_free(char *mnts[], const int n);
 extern int mount_get(char *mnts[], const int max);
 
+#if defined(STRESS_THERMAL_ZONES)
+/* thermal zones */
+extern int tz_init(tz_info_t **tz_info_list);
+extern void tz_free(tz_info_t **tz_info_list);
+extern int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
+extern void tz_dump(const shared_t *shared, const stress_t stressors[],
+	const proc_info_t procs[STRESS_MAX], const int32_t max_procs);
+#endif
+
 /* Network helpers */
-void stress_set_net_port(const char *optname, const char *optarg,
+extern void stress_set_net_port(const char *optname, const char *optarg,
 	const int min_port, const int max_port, int *port);
-int stress_set_net_domain(const char *name, const char *domain_name, int *domain);
-void stress_set_sockaddr(const char *name, const uint32_t instance,
+extern int stress_set_net_domain(const char *name, const char *domain_name, int *domain);
+extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
 

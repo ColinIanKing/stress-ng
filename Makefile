@@ -18,7 +18,7 @@
 
 VERSION=0.04.07
 #
-# Codename "system straining overloader"
+# Codename "hot toaster"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
@@ -136,6 +136,7 @@ SRC =   stress-affinity.c \
 	perf.c \
 	proc-name.c \
 	sched.c \
+	thermal-zone.c \
 	time.c \
 	stress-ng.c
 
