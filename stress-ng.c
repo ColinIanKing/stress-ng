@@ -1629,10 +1629,10 @@ static int show_hogs(void)
 }
 
 /*
- *  dump_metrics()
+ *  metrics_dump()
  *	output metrics
  */
-static void dump_metrics(
+static void metrics_dump(
 	const int32_t max_procs,
 	const long int ticks_per_sec)
 {
@@ -1674,7 +1674,11 @@ static void dump_metrics(
 	}
 }
 
-static void dump_times(
+/*
+ *  times_dump()
+ *	output the run times
+ */
+static void times_dump(
 	const long int ticks_per_sec,
 	const double duration)
 {
@@ -2364,7 +2368,7 @@ next_opt:
 		duration, duration_to_str(duration));
 
 	if (opt_flags & OPT_FLAGS_METRICS)
-		dump_metrics(max_procs, ticks_per_sec);
+		metrics_dump(max_procs, ticks_per_sec);
 #if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_stat_dump(stressors, procs, max_procs, duration);
@@ -2376,7 +2380,7 @@ next_opt:
 	}
 #endif
 	if (opt_flags & OPT_FLAGS_TIMES)
-		dump_times(ticks_per_sec, duration);
+		times_dump(ticks_per_sec, duration);
 	free_procs();
 
 #if defined(STRESS_SEMAPHORE_POSIX)
