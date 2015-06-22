@@ -485,8 +485,9 @@ typedef struct {
 #define HOT
 #endif
 
+#if defined(__linux__) && defined(__NR_perf_event_open)
+#define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
-
 enum {
 	STRESS_PERF_HW_CPU_CYCLES = 0,
 	STRESS_PERF_HW_INSTRUCTIONS,
@@ -506,17 +507,6 @@ enum {
 	STRESS_PERF_MAX
 };
 
-
-#if defined(__linux__) && defined(__NR_perf_event_open)
-#define STRESS_PERF_STATS	(1)
-#endif
-
-#if defined(__linux__)
-#define	STRESS_THERMAL_ZONES	 (1)
-#define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
-
-#endif
-
 /* per perf counter info */
 typedef struct {
 	uint64_t counter;		/* perf counter */
@@ -525,11 +515,15 @@ typedef struct {
 
 /* per stressor perf info */
 typedef struct {
-#if defined(STRESS_PERF_STATS)
 	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
 	int		perf_opened;		/* count of opened counters */
-#endif
 } stress_perf_t;
+#endif
+
+#if defined(__linux__)
+#define	STRESS_THERMAL_ZONES	 (1)
+#define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
+#endif
 
 #if defined(STRESS_THERMAL_ZONES)
 /* per stressor thermal zone info */
@@ -555,7 +549,9 @@ typedef struct {
 	struct tms tms;			/* run time stats of process */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
+#if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
+#endif
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_t tz;			/* thermal zones */
 #endif
@@ -1425,6 +1421,7 @@ static inline double timeval_to_double(const struct timeval *tv)
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
+#if defined(STRESS_PERF_STATS)
 /* Perf stats */
 int perf_open(stress_perf_t *sp);
 int perf_enable(stress_perf_t *sp);
@@ -1435,6 +1432,9 @@ int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *counter, i
 bool perf_stat_succeeded(const stress_perf_t *sp);
 const char *perf_get_label_by_index(const int i);
 const char *perf_stat_scale(const uint64_t counter, const double duration);
+void perf_stat_dump(const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
+	const int32_t max_procs, const double duration);
+#endif
 
 extern double time_now(void);
 extern const char *duration_to_str(const double duration);

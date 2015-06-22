@@ -37,7 +37,6 @@
 #include <errno.h>
 #include <semaphore.h>
 #include <syslog.h>
-#include <locale.h>
 
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -1522,13 +1521,19 @@ again:
 
 					n = (i * max_procs) + j;
 					stats[n].start = stats[n].finish = time_now();
+#if defined(STRESS_PERF_STATS)
 					(void)perf_open(&stats[n].sp);
+#endif
 					(void)usleep(opt_backoff * n_procs);
+#if defined(STRESS_PERF_STATS)
 					(void)perf_enable(&stats[n].sp);
+#endif
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(&stats[n].counter, j, procs[i].bogo_ops, name);
+#if defined(STRESS_PERF_STATS)
 					(void)perf_disable(&stats[n].sp);
 					(void)perf_close(&stats[n].sp);
+#endif
 #if defined(STRESS_THERMAL_ZONES)
 					if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
 						(void)tz_get_temperatures(&shared->tz_info, &stats[n].tz);
@@ -1667,86 +1672,6 @@ static void dump_metrics(
 			r_total > 0.0 ? (double)c_total / r_total : 0.0,
 			us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
 	}
-}
-
-static void dump_perf_stats(
-	const int32_t max_procs,
-	const double duration)
-{
-	int32_t i;
-	bool no_perf_stats = true;
-
-	setlocale(LC_ALL, "");
-
-	for (i = 0; i < STRESS_MAX; i++) {
-		int p;
-		uint64_t counter_totals[STRESS_PERF_MAX];
-		uint64_t total_cpu_cycles = 0;
-		uint64_t total_cache_refs = 0;
-		uint64_t total_branches = 0;
-		int ids[STRESS_PERF_MAX];
-		bool got_data = false;
-
-		memset(counter_totals, 0, sizeof(counter_totals));
-
-		/* Sum totals across all instances of the stressor */
-		for (p = 0; p < STRESS_PERF_MAX; p++) {
-			int32_t j, n = (i * max_procs);
-			stress_perf_t *sp = &shared->stats[n].sp;
-
-			if (!perf_stat_succeeded(sp))
-				continue;
-
-			ids[p] = ~0;
-			for (j = 0; j < procs[i].started_procs; j++, n++) {
-				uint64_t counter;
-
-				perf_get_counter_by_index(sp, p, &counter, &ids[p]);
-				if (counter == STRESS_PERF_INVALID) {
-					counter_totals[p] = STRESS_PERF_INVALID;
-					break;
-				}
-				counter_totals[p] += counter;
-				got_data |= (counter > 0);
-			}
-			if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
-				total_cpu_cycles = counter_totals[p];
-			if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
-				total_cache_refs = counter_totals[p];
-			if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
-				total_branches = counter_totals[p];
-		}
-
-		if (!got_data)
-			continue;
-
-		no_perf_stats = false;
-		pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
-		for (p = 0; p < STRESS_PERF_MAX; p++) {
-			const char *l = perf_get_label_by_index(p);
-			if (l && counter_totals[p] != STRESS_PERF_INVALID) {
-				char extra[32];
-				*extra = '\0';
-
-				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
-					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
-						(double)counter_totals[p] / (double)total_cpu_cycles);
-				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
-					snprintf(extra, sizeof(extra), " (%5.2f%%)",
-						100.0 * (double)counter_totals[p] / (double)total_cache_refs);
-				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
-					snprintf(extra, sizeof(extra), " (%5.2f%%)",
-						100.0 * (double)counter_totals[p] / (double)total_branches);
-
-				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
-					counter_totals[p], l,
-					perf_stat_scale(counter_totals[p], duration),
-					extra);
-			}
-		}
-	}
-	if (no_perf_stats)
-		pr_inf(stdout, "perf counters not available\n");
 }
 
 static void dump_times(
@@ -2440,8 +2365,10 @@ next_opt:
 
 	if (opt_flags & OPT_FLAGS_METRICS)
 		dump_metrics(max_procs, ticks_per_sec);
+#if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
-		dump_perf_stats(max_procs, duration);
+		perf_stat_dump(stressors, procs, max_procs, duration);
+#endif
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES) {
 		tz_dump(shared, stressors, procs, max_procs);

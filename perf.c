@@ -24,12 +24,17 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_PERF_STATS)
+/* perf enabled systems */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <locale.h>
 
-#include "stress-ng.h"
 
 #define THOUSAND	(1000.0)
 #define MILLION		(THOUSAND * THOUSAND)
@@ -38,8 +43,6 @@
 #define QUADRILLION	(THOUSAND * TRILLION)
 #define QUINTILLION	(THOUSAND * QUADRILLION)
 
-#if defined(STRESS_PERF_STATS)
-/* perf enabled systems */
 
 #include <sys/ioctl.h>
 #include <sys/syscall.h>
@@ -305,113 +308,6 @@ bool perf_stat_succeeded(const stress_perf_t *sp)
 	return sp->perf_opened > 0;
 }
 
-#else
-/* Non-perf enabled systems */
-
-/*
- *  perf_open()
- *	open perf, get leader and perf fd's, no-op
- */
-int perf_open(stress_perf_t *sp)
-{
-	(void)sp;
-
-	return -1;
-}
-
-/*
- *  perf_enable()
- *	enable perf counters, no-op
- */
-int perf_enable(stress_perf_t *sp)
-{
-	(void)sp;
-
-	return -1;
-}
-
-/*
- *  perf_disable()
- *	disable perf counters, no-op
- */
-int perf_disable(stress_perf_t *sp)
-{
-	(void)sp;
-
-	return -1;
-}
-
-/*
- *  perf_close()
- *	read counters and close, no-op
- */
-int perf_close(stress_perf_t *sp)
-{
-	(void)sp;
-
-	return -1;
-}
-
-/*
- *  perf_get_counter_by_index()
- *	fetch counter and perf ID via index i, no-op
- */
-int perf_get_counter_by_index(
-	const stress_perf_t *sp,
-	const int i,
-	uint64_t *counter,
-	int *id)
-{
-	(void)sp;
-	(void)i;
-
-	*id = -1;
-	*counter = 0;
-	return -1;
-}
-
-/*
- *  perf_get_label_by_index()
- *	fetch label via index i, no-op
- */
-const char *perf_get_label_by_index(const int i)
-{
-	(void)i;
-
-	return NULL;
-}
-
-/*
- *  perf_get_counter_by_id()
- *	fetch counter and index via perf ID, no-op
- */
-int perf_get_counter_by_id(
-	const stress_perf_t *sp,
-	int id,
-	uint64_t *counter,
-	int *index)
-{
-	(void)sp;
-	(void)id;
-
-	*index = -1;
-	*counter = 0;
-	return -1;
-}
-
-/*
- *  perf_stat_succeeded()
- *	did perf event open work OK?
- */
-bool perf_stat_succeeded(const stress_perf_t *sp)
-{
-	(void)sp;
-
-	return false;
-}
-
-#endif
-
 typedef struct {
 	double		threshold;
 	double		scale;
@@ -458,3 +354,86 @@ const char *perf_stat_scale(const uint64_t counter, const double duration)
 
 	return buffer;
 }
+
+void perf_stat_dump(
+	const stress_t stressors[],
+	const proc_info_t procs[STRESS_MAX],
+	const int32_t max_procs,
+	const double duration)
+{
+	int32_t i;
+	bool no_perf_stats = true;
+
+	setlocale(LC_ALL, "");
+
+	for (i = 0; i < STRESS_MAX; i++) {
+		int p;
+		uint64_t counter_totals[STRESS_PERF_MAX];
+		uint64_t total_cpu_cycles = 0;
+		uint64_t total_cache_refs = 0;
+		uint64_t total_branches = 0;
+		int ids[STRESS_PERF_MAX];
+		bool got_data = false;
+
+		memset(counter_totals, 0, sizeof(counter_totals));
+
+		/* Sum totals across all instances of the stressor */
+		for (p = 0; p < STRESS_PERF_MAX; p++) {
+			int32_t j, n = (i * max_procs);
+			stress_perf_t *sp = &shared->stats[n].sp;
+
+			if (!perf_stat_succeeded(sp))
+				continue;
+
+			ids[p] = ~0;
+			for (j = 0; j < procs[i].started_procs; j++, n++) {
+				uint64_t counter;
+
+				perf_get_counter_by_index(sp, p, &counter, &ids[p]);
+				if (counter == STRESS_PERF_INVALID) {
+					counter_totals[p] = STRESS_PERF_INVALID;
+					break;
+				}
+				counter_totals[p] += counter;
+				got_data |= (counter > 0);
+			}
+			if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
+				total_cpu_cycles = counter_totals[p];
+			if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
+				total_cache_refs = counter_totals[p];
+			if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
+				total_branches = counter_totals[p];
+		}
+
+		if (!got_data)
+			continue;
+
+		no_perf_stats = false;
+		pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
+		for (p = 0; p < STRESS_PERF_MAX; p++) {
+			const char *l = perf_get_label_by_index(p);
+			if (l && counter_totals[p] != STRESS_PERF_INVALID) {
+				char extra[32];
+				*extra = '\0';
+
+				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
+					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
+						(double)counter_totals[p] / (double)total_cpu_cycles);
+				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
+					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+						100.0 * (double)counter_totals[p] / (double)total_cache_refs);
+				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
+					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+						100.0 * (double)counter_totals[p] / (double)total_branches);
+
+				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
+					counter_totals[p], l,
+					perf_stat_scale(counter_totals[p], duration),
+					extra);
+			}
+		}
+	}
+	if (no_perf_stats)
+		pr_inf(stdout, "perf counters not available\n");
+}
+#endif
