@@ -1546,7 +1546,9 @@ again:
 					}
 					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, getpid(), j);
+#if defined(STRESS_THERMAL_ZONES)
 					tz_free(&shared->tz_info);
+#endif
 					exit(rc);
 				default:
 					procs[i].pids[j] = pid;
