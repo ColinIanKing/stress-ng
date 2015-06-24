@@ -1,3 +1,13 @@
+stress-ng (0.04.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Only call tz_free() if STRESS_THERMAL_ZONES defined
+  * Rename dump_* to *_dump
+  * perf: re-organise, move dump into perf.c, more #if checks
+  * Add --tz thermal zone option
+
+ -- Colin King <colin.king@canonical.com>  Wed, 24 Jun 2015 15:12:00 +0100
+
 stress-ng (0.04.07-1) unstable; urgency=medium
 
   * Makefile: bump version
