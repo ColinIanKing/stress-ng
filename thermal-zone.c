@@ -173,8 +173,14 @@ void tz_dump(
 
 		for (tz_info = shared->tz_info; tz_info; tz_info = tz_info->next) {
 			for (j = 0; j < procs[i].started_procs; j++, n++) {
+				uint64_t temp;
+
 				n = (i * max_procs) + j;
-				total += shared->stats[n].tz.tz_stat[tz_info->index].temperature;
+				temp = shared->stats[n].tz.tz_stat[tz_info->index].temperature;
+				/* Avoid crazy temperatures. e.g. > 250 C */
+				if (temp > 250000)
+					temp = 0;
+				total += temp;
 				count++;
 			}
 
