@@ -759,6 +759,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
 #if defined(STRESS_THERMAL_ZONES)
@@ -1047,7 +1048,6 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sysfs N",		"start N workers reading files from /sys" },
 	{ NULL,		"sysfs-ops N",		"stop when sysfs bogo operations completed" },
 #endif
-	{ NULL,		"syslog",		"log messages to the syslog" },
 #if defined(STRESS_TEE)
 	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
 	{ NULL,		"tee-ops N",		"stop after N tee bogo operations completed" },
