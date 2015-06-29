@@ -1464,6 +1464,7 @@ extern void check_range(const char *const opt, const uint64_t val,
 extern char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
 extern long stress_get_processors_online(void);
+extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
 extern void set_max_limits(void);
 

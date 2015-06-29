@@ -1346,7 +1346,7 @@ static void wait_procs(bool *success)
 		const unsigned long usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
 
 		while (opt_do_wait) {
-			const unsigned long cpus = stress_get_processors_online();
+			const unsigned long cpus = stress_get_processors_configured();
 
 			for (i = 0; i < STRESS_MAX; i++) {
 				int j;
@@ -1685,7 +1685,7 @@ static void times_dump(
 	const double duration)
 {
 	struct tms buf;
-	double total_cpu_time = stress_get_processors_online() * duration;
+	double total_cpu_time = stress_get_processors_configured() * duration;
 
 	if (times(&buf) == (clock_t)-1) {
 		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
@@ -1735,8 +1735,8 @@ int main(int argc, char **argv)
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
 
-	if (stress_get_processors_online() < 0) {
-		pr_err(stderr, "sysconf failed, number of cpus online unknown: errno=%d: (%s)\n",
+	if (stress_get_processors_configured() < 0) {
+		pr_err(stderr, "sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -1762,7 +1762,7 @@ next_opt:
 				opt_flags |= OPT_FLAGS_SET;
 				procs[s_id].num_procs = opt_long(name, optarg);
 				if (procs[s_id].num_procs <= 0)
-					procs[s_id].num_procs = stress_get_processors_online();
+					procs[s_id].num_procs = stress_get_processors_configured();
 				check_value(name, procs[s_id].num_procs);
 				goto next_opt;
 			}
@@ -1784,7 +1784,7 @@ next_opt:
 			opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
 			opt_all = opt_long("-a", optarg);
 			if (opt_all <= 0)
-				opt_all = stress_get_processors_online();
+				opt_all = stress_get_processors_configured();
 			check_value("all", opt_all);
 			break;
 #if defined(STRESS_AFFINITY)
@@ -1994,7 +1994,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_RANDOM;
 			opt_random = get_uint64(optarg);
 			if (opt_random <= 0)
-				opt_random = stress_get_processors_online();
+				opt_random = stress_get_processors_configured();
 			check_value("random", opt_random);
 			break;
 #if defined(STRESS_READAHEAD)
@@ -2030,7 +2030,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			opt_sequential = get_uint64(optarg);
 			if (opt_sequential <= 0)
-				opt_sequential = stress_get_processors_online();
+				opt_sequential = stress_get_processors_configured();
 			check_range("sequential", opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
@@ -2176,7 +2176,9 @@ next_opt:
 	if (opt_flags & OPT_SYSLOG)
 		openlog("stress-ng", 0, LOG_USER);
 
-	pr_dbg(stderr, "%ld processors online\n", stress_get_processors_online());
+	pr_dbg(stderr, "%ld processors online, %ld processors configured\n",
+		stress_get_processors_online(),
+		stress_get_processors_configured());
 
 	if ((opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
 		fprintf(stderr, "maximize and minimize cannot be used together\n");

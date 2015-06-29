@@ -83,6 +83,25 @@ long stress_get_processors_online(void)
 }
 
 /*
+ *  stress_get_processors_configured()
+ *	get number of processors that are configured
+ */
+long stress_get_processors_configured(void)
+{
+	static long processors_configured = 0;
+
+	if (processors_configured > 0)
+		return processors_configured;
+
+#ifdef _SC_NPROCESSORS_CONF
+	processors_configured = sysconf(_SC_NPROCESSORS_CONF);
+	return processors_configured;
+#else
+	return -1;
+#endif
+}
+
+/*
  *  stress_get_ticks_per_second()
  *	get number of ticks perf second
  */
