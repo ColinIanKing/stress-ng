@@ -91,7 +91,7 @@ int stress_set_epoll_domain(const char *name)
 {
 	int ret;
 
-	ret = stress_set_net_domain("epoll-domain", name, &opt_epoll_domain);
+	ret = stress_set_net_domain(DOMAIN_ALL, "epoll-domain", name, &opt_epoll_domain);
 
 	switch (opt_epoll_domain) {
 	case AF_INET:

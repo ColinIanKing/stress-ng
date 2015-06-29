@@ -162,6 +162,14 @@
 #define CLASS_FILESYSTEM	0x00000400	/* file system */
 #define CLASS_DEV		0x00000800	/* device (null, zero, etc) */
 
+/* Network domains flags */
+#define DOMAIN_INET		0x00000001	/* AF_INET */
+#define DOMAIN_INET6		0x00000002	/* AF_INET6 */
+#define DOMAIN_UNIX		0x00000004	/* AF_UNIX */
+
+#define DOMAIN_INET_ALL		(DOMAIN_INET | DOMAIN_INET6)
+#define DOMAIN_ALL		(DOMAIN_INET | DOMAIN_INET6 | DOMAIN_UNIX)
+
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
@@ -765,6 +773,7 @@ typedef enum {
 #endif
 	STRESS_TSEARCH,
 	STRESS_UDP,
+	STRESS_UDP_FLOOD,
 #if defined(__linux__) || defined(__gnu_hurd__)
 	__STRESS_URANDOM,
 #define STRESS_URANDOM __STRESS_URANDOM
@@ -1241,6 +1250,10 @@ typedef enum {
 	OPT_UDP_PORT,
 	OPT_UDP_DOMAIN,
 
+	OPT_UDP_FLOOD,
+	OPT_UDP_FLOOD_OPS,
+	OPT_UDP_FLOOD_DOMAIN,
+
 #if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
 #endif
@@ -1489,10 +1502,11 @@ extern void tz_dump(const shared_t *shared, const stress_t stressors[],
 /* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *optarg,
 	const int min_port, const int max_port, int *port);
-extern int stress_set_net_domain(const char *name, const char *domain_name, int *domain);
+extern int stress_set_net_domain(const int domain_mask, const char *name, const char *domain_name, int *domain);
 extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
+void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 extern void stress_semaphore_posix_init(void);
 extern void stress_semaphore_posix_destroy(void);
@@ -1550,6 +1564,7 @@ extern void stress_set_timerfd_freq(const char *optarg);
 extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *optarg);
+extern int  stress_set_udp_flood_domain(const char *name);
 extern void stress_set_vfork_max(const char *optarg);
 extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
@@ -1648,6 +1663,7 @@ STRESS(stress_timer);
 STRESS(stress_timerfd);
 STRESS(stress_tsearch);
 STRESS(stress_udp);
+STRESS(stress_udp_flood);
 STRESS(stress_urandom);
 STRESS(stress_utime);
 STRESS(stress_vecmath);

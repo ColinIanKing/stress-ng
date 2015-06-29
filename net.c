@@ -50,13 +50,14 @@
 typedef struct {
 	const char *name;
 	const int  domain;
+	const int  domain_flags;
 } domain_t;
 
 static const domain_t domains[] = {
-	{ "ipv4",	AF_INET },
-	{ "ipv6",	AF_INET6 },
-	{ "unix",	AF_UNIX },
-	{ NULL,		-1 }
+	{ "ipv4",	AF_INET,	DOMAIN_INET },
+	{ "ipv6",	AF_INET6,	DOMAIN_INET6 },
+	{ "unix",	AF_UNIX,	DOMAIN_UNIX },
+	{ NULL,		-1, ~0 }
 };
 
 /*
@@ -80,6 +81,7 @@ void stress_set_net_port(
  *	set the domain option
  */
 int stress_set_net_domain(
+	const int domain_mask,
 	const char *name,
 	const char *domain_name,
 	int *domain)
@@ -87,14 +89,16 @@ int stress_set_net_domain(
 	int i;
 
 	for (i = 0; domains[i].name; i++) {
-		if (!strcmp(domain_name, domains[i].name)) {
+		if ((domain_mask & domains[i].domain_flags) &&
+		    !strcmp(domain_name, domains[i].name)) {
 			*domain = domains[i].domain;
 			return 0;
 		}
 	}
 	fprintf(stderr, "%s: domain must be one of:", name);
 	for (i = 0; domains[i].name; i++)
-		fprintf(stderr, " %s", domains[i].name);
+		if (domain_mask & domains[i].domain_flags)
+			fprintf(stderr, " %s", domains[i].name);
 	fprintf(stderr, "\n");
 	*domain = 0;
 	return -1;
@@ -157,5 +161,38 @@ void stress_set_sockaddr(
 		pr_failed_dbg(name, "unknown domain");
 		(void)kill(getppid(), SIGALRM);
 		exit(EXIT_FAILURE);
+	}
+}
+
+/*
+ *  setup just the socket address port
+ */
+void HOT stress_set_sockaddr_port(
+	const int domain,
+	const int port,
+	struct sockaddr *sockaddr)
+{
+	switch (domain) {
+#ifdef AF_INET
+	case AF_INET: {
+		struct sockaddr_in *addr = (struct sockaddr_in *)sockaddr;
+
+		addr->sin_port = htons(port);
+		break;
+	}
+#endif
+#ifdef AF_INET6
+	case AF_INET6: {
+		struct sockaddr_in6 *addr = (struct sockaddr_in6 *)sockaddr;
+		addr->sin6_port = htons(port);
+		break;
+	}
+#endif
+#ifdef AF_UNIX
+	case AF_UNIX:
+		break;
+#endif
+	default:
+		break;
 	}
 }

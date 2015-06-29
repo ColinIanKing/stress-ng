@@ -63,7 +63,7 @@ void stress_set_socket_port(const char *optarg)
  */
 int stress_set_socket_domain(const char *name)
 {
-	return stress_set_net_domain("sock-domain", name, &opt_socket_domain);
+	return stress_set_net_domain(DOMAIN_ALL, "sock-domain", name, &opt_socket_domain);
 }
 
 /*

@@ -63,7 +63,7 @@ void stress_set_udp_port(const char *optarg)
  */
 int stress_set_udp_domain(const char *name)
 {
-	return stress_set_net_domain("udp-domain", name, &opt_udp_domain);
+	return stress_set_net_domain(DOMAIN_ALL, "udp-domain", name, &opt_udp_domain);
 }
 
 /*
