@@ -288,7 +288,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(udp, UDP, CLASS_NETWORK | CLASS_OS),
-#if defined(STRESS_UPD_FLOOD)
+#if defined(STRESS_UDP_FLOOD)
 	STRESSOR(udp_flood, UDP_FLOOD, CLASS_NETWORK | CLASS_OS),
 #endif
 #if defined(STRESS_URANDOM)
@@ -670,7 +670,7 @@ static const struct option long_options[] = {
 	{ "udp-domain",1,	0,	OPT_UDP_DOMAIN },
 	{ "udp-ops",	1,	0,	OPT_UDP_OPS },
 	{ "udp-port",	1,	0,	OPT_UDP_PORT },
-#if defined(STRESS_UPD_FLOOD)
+#if defined(STRESS_UDP_FLOOD)
 	{ "udp-flood",	1,	0,	OPT_UDP_FLOOD },
 	{ "udp-flood-domain",1,	0,	OPT_UDP_FLOOD_DOMAIN },
 	{ "udp-flood-ops",1,	0,	OPT_UDP_FLOOD_OPS },
@@ -1079,7 +1079,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
 	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
 	{ NULL,		"udp-domain D",		"specify domain, default is ipv4" },
-#if defined(STRESS_UPD_FLOOD)
+#if defined(STRESS_UDP_FLOOD)
 	{ NULL,		"udp-flood N",		"start N workers that performs a UDP flood attack" },
 	{ NULL,		"udp-flood-ops N",	"stop when N udp flood bogo operations completed" },
 	{ NULL,		"udp-flood-domain D",	"specify domain, default is ipv4" },
@@ -2112,7 +2112,7 @@ next_opt:
 		case OPT_UDP_PORT:
 			stress_set_udp_port(optarg);
 			break;
-#if defined(STRESS_UPD_FLOOD)
+#if defined(STRESS_UDP_FLOOD)
 		case OPT_UDP_FLOOD_DOMAIN:
 			if (stress_set_udp_flood_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
