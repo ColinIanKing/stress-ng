@@ -1,3 +1,15 @@
+stress-ng (0.04.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make stress-udp-flood build dependent on AF_PACKET being defined
+  * stress-udp-flood: close fd, fixes resource leak
+  * Add UDP flood stressor
+  * Stress up to number of cpus configured not number that are online
+  * Avoid crazy temperatures in thermal zones
+  * Move syslog help to correct section
+
+ -- Colin King <colin.king@canonical.com>  Thu, 2 Jul 2015 10:45:00 +0100
+
 stress-ng (0.04.08-1) unstable; urgency=medium
 
   * Makefile: bump version
