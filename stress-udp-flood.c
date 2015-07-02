@@ -101,5 +101,7 @@ int stress_udp_flood(
 			sz = 1;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	(void)close(fd);
+
 	return rc;
 }
