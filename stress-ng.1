@@ -1253,7 +1253,7 @@ start at port P. For N udp worker processes, ports P to P - 1 are used. By defau
 stop udp stress workers after N bogo operations.
 .TP
 .B \-\-udp\-flood N
-start N workers that attempt to flood the host with UDP packets to random ports. The IP address of the packets are currently not spoofed.
+start N workers that attempt to flood the host with UDP packets to random ports. The IP address of the packets are currently not spoofed. This is only available on systems that support AF_PACKET.
 .TP
 .B \-\-udp\-flood\-domain D
 specify the domain to use, the default is ipv4. Currently ipv4 and ipv6 are supported.

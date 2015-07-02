@@ -47,6 +47,8 @@
 
 #include "stress-ng.h"
 
+#if defined(STRESS_UDP_FLOOD)
+
 static int opt_udp_flood_domain = AF_INET;
 
 /*
@@ -105,3 +107,5 @@ int stress_udp_flood(
 
 	return rc;
 }
+
+#endif

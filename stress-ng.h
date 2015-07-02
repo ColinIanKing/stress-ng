@@ -773,7 +773,10 @@ typedef enum {
 #endif
 	STRESS_TSEARCH,
 	STRESS_UDP,
-	STRESS_UDP_FLOOD,
+#if defined(AF_PACKET)
+	__STRESS_UDP_FLOOD,
+#define STRESS_UDP_FLOOD __STRESS_UDP_FLOOD
+#endif
 #if defined(__linux__) || defined(__gnu_hurd__)
 	__STRESS_URANDOM,
 #define STRESS_URANDOM __STRESS_URANDOM
@@ -1250,9 +1253,11 @@ typedef enum {
 	OPT_UDP_PORT,
 	OPT_UDP_DOMAIN,
 
+#if defined(STRESS_UDP_FLOOD)
 	OPT_UDP_FLOOD,
 	OPT_UDP_FLOOD_OPS,
 	OPT_UDP_FLOOD_DOMAIN,
+#endif
 
 #if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
