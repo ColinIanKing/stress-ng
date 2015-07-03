@@ -120,7 +120,6 @@ again:
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
-		free(ptr);
 	}
 	if (restarts + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
