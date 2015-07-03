@@ -53,18 +53,18 @@ int print(
 		const char *type = "";
 
 		if (flag & PR_ERROR)
-			type = "error";
+			type = "error:";
 		if (flag & PR_DEBUG)
-			type = "debug";
+			type = "debug:";
 		if (flag & PR_INFO)
-			type = "info";
+			type = "info: ";
 		if (flag & PR_FAIL)
-			type = "fail";
+			type = "fail: ";
 
 		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
-			int n = snprintf(buf, sizeof(buf), "%s: [%i] ", type, getpid());
+			int n = snprintf(buf, sizeof(buf), "%s [%i] ", type, getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			fprintf(fp, "%s: %s", app_name, buf);
 		}
