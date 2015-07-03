@@ -34,7 +34,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <locale.h>
-
+#include <pthread.h>
 
 #define THOUSAND	(1000.0)
 #define MILLION		(THOUSAND * THOUSAND)
@@ -98,6 +98,8 @@ int perf_open(stress_perf_t *sp)
 
 	if (!sp)
 		return -1;
+	if (shared->perf.no_perf)
+		return -1;
 
 	memset(sp, 0, sizeof(stress_perf_t));
 	sp->perf_opened = 0;
@@ -123,7 +125,12 @@ int perf_open(stress_perf_t *sp)
 			sp->perf_opened++;
 	}
 	if (!sp->perf_opened) {
-		pr_dbg(stderr, "perf_event_open failed, no perf events [%u]\n", getpid());
+		pthread_spin_lock(&shared->perf.lock);
+		if (!shared->perf.no_perf) {
+			pr_dbg(stderr, "perf_event_open failed, no perf events [%u]\n", getpid());
+			shared->perf.no_perf = true;
+		}
+		pthread_spin_unlock(&shared->perf.lock);
 		return -1;
 	}
 

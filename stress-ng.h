@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <semaphore.h>
+#include <pthread.h>
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/types.h>
@@ -572,6 +573,10 @@ typedef struct {
 	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
 	sem_t sem_posix ALIGN64;			/* Shared semaphores */
 	bool sem_posix_init ALIGN64;
+	struct {
+		bool no_perf ALIGN64;			/* true = Perf not available */
+		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
+	} perf ALIGN64;
 	key_t sem_sysv_key_id ALIGN64;			/* System V semaphore key id */
 	int sem_sysv_id ALIGN64;			/* System V semaphore id */
 	bool sem_sysv_init ALIGN64;			/* System V semaphore initialized */
