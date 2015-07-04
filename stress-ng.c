@@ -1366,13 +1366,15 @@ static void wait_procs(bool *success)
 
 				for (j = 0; j < procs[i].started_procs; j++) {
 					const pid_t pid = procs[i].pids[j];
-					unsigned long int cpu_num = (mwc32() >> 7) % cpus;
-					cpu_set_t mask;
+					if (pid) {
+						unsigned long int cpu_num = mwc32() % cpus;
+						cpu_set_t mask;
 
-					CPU_ZERO(&mask);
-					CPU_SET(cpu_num, &mask);
-					if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
-						goto do_wait;
+						CPU_ZERO(&mask);
+						CPU_SET(cpu_num, &mask);
+						if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
+							goto do_wait;
+					}
 				}
 			}
 			usleep(usec_sleep);
@@ -1381,7 +1383,6 @@ static void wait_procs(bool *success)
 	}
 do_wait:
 #endif
-
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
 
@@ -1564,8 +1565,10 @@ again:
 #endif
 					exit(rc);
 				default:
-					procs[i].pids[j] = pid;
-					procs[i].started_procs++;
+					if (pid > -1) {
+						procs[i].pids[j] = pid;
+						procs[i].started_procs++;
+					}
 
 					/* Forced early abort during startup? */
 					if (!opt_do_run) {
