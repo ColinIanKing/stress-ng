@@ -70,7 +70,7 @@ int stress_set_socket_domain(const char *name)
  *  handle_socket_sigalrm()
  *	catch SIGALRM
  */
-static void handle_socket_sigalrm(int dummy)
+static void MLOCKED handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;

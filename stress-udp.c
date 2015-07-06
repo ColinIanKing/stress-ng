@@ -70,7 +70,7 @@ int stress_set_udp_domain(const char *name)
  *  handle_udp_sigalrm()
  *	catch SIGALRM
  */
-static void handle_udp_sigalrm(int dummy)
+static void MLOCKED handle_udp_sigalrm(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;

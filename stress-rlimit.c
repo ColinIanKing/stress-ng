@@ -45,7 +45,7 @@ static sigjmp_buf jmp_env;
  *  stress_rlimit_handler()
  *	rlimit generic handler
  */
-static void stress_rlimit_handler(int dummy)
+static void MLOCKED stress_rlimit_handler(int dummy)
 {
 	(void)dummy;
 

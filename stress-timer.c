@@ -83,7 +83,7 @@ void stress_timer_set(struct itimerspec *timer)
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
-static void stress_timer_handler(int sig)
+static void MLOCKED stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
 	int ret;

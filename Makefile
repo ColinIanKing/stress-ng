@@ -129,6 +129,7 @@ SRC =   stress-affinity.c \
 	log.c \
 	madvise.c \
 	mincore.c \
+	mlock.c \
 	mounts.c \
 	mwc.c \
 	net.c \

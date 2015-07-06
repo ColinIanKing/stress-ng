@@ -1194,7 +1194,7 @@ static uint32_t get_class(char *const class_str)
 /*
  *  Catch signals and set flag to break out of stress loops
  */
-static void stress_sigint_handler(int dummy)
+static void MLOCKED stress_sigint_handler(int dummy)
 {
 	(void)dummy;
 	opt_sigint = true;
@@ -1202,13 +1202,13 @@ static void stress_sigint_handler(int dummy)
 	opt_do_wait = false;
 }
 
-static void stress_sigalrm_child_handler(int dummy)
+static void MLOCKED stress_sigalrm_child_handler(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
 }
 
-static void stress_sigalrm_parent_handler(int dummy)
+static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 {
 	(void)dummy;
 	opt_do_wait = false;
@@ -1342,7 +1342,7 @@ static void kill_procs(const int sig)
  *  wait_procs()
  * 	wait for procs
  */
-static void wait_procs(bool *success)
+static void MLOCKED wait_procs(bool *success)
 {
 	int i;
 
@@ -1420,7 +1420,7 @@ redo:
  *  handle_sigint()
  *	catch SIGINT
  */
-static void handle_sigint(int dummy)
+static void MLOCKED handle_sigint(int dummy)
 {
 	(void)dummy;
 
@@ -1476,7 +1476,7 @@ static void free_procs(void)
  *  stress_run ()
  *	kick off and run stressors
  */
-void stress_run(
+static void MLOCKED stress_run(
 	const int total_procs,
 	const int32_t max_procs,
 	proc_stats_t stats[],
@@ -2237,6 +2237,14 @@ next_opt:
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 
+#if defined(MLOCKED_SECTION)
+	{
+		extern void *__start_mlocked;
+		extern void *__stop_mlocked;
+
+		stress_mlock_region(&__start_mlocked, &__stop_mlocked);
+	}
+#endif
 	for (i = 0; signals[i] != -1; i++) {
 		new_action.sa_handler = handle_sigint;
 		sigemptyset(&new_action.sa_mask);

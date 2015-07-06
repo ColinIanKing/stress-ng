@@ -59,7 +59,7 @@ void stress_set_lease_breakers(const char *optarg)
  *  stress_lease_handler()
  *	lease signal handler
  */
-static void stress_lease_handler(int dummy)
+static void MLOCKED stress_lease_handler(int dummy)
 {
 	(void)dummy;
 

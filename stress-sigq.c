@@ -36,7 +36,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-static void stress_sigqhandler(int dummy)
+static void MLOCKED stress_sigqhandler(int dummy)
 {
 	(void)dummy;
 }

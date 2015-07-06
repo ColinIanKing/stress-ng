@@ -494,6 +494,13 @@ typedef struct {
 #define HOT
 #endif
 
+#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#define MLOCKED __attribute__((__section__("mlocked")))
+#define MLOCKED_SECTION 1
+#else
+#define MLOCKED
+#endif
+
 #if defined(__linux__) && defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
@@ -613,7 +620,7 @@ typedef enum {
 	__STRESS_CLOCK,
 #define STRESS_CLOCK __STRESS_CLOCK
 #endif
-#if !defined(__OpenBSD__) 
+#if !defined(__OpenBSD__)
 	__STRESS_CONTEXT,
 #define STRESS_CONTEXT __STRESS_CONTEXT
 #endif
@@ -1468,6 +1475,9 @@ extern void set_sched(const int sched, const int sched_priority);
 extern void set_iopriority(const int class, const int level);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
+
+/* Memory locking */
+int stress_mlock_region(void *addr_start, void *addr_end);
 
 /* Argument parsing and range checking */
 extern int get_opt_sched(const char *const str);
