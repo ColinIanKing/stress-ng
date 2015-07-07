@@ -147,6 +147,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_AIO)
 	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_AIO_LINUX)
+	STRESSOR(aio_linux, AIO_LINUX, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
+#endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 	STRESSOR(brk, BRK, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
@@ -352,6 +355,11 @@ static const struct option long_options[] = {
 	{ "aio",	1,	0,	OPT_AIO },
 	{ "aio-ops",	1,	0,	OPT_AIO_OPS },
 	{ "aio-requests",1,	0,	OPT_AIO_REQUESTS },
+#endif
+#if defined(STRESS_AIO_LINUX)
+	{ "aiol",	1,	0,	OPT_AIO_LINUX },
+	{ "aiol-ops",	1,	0,	OPT_AIO_LINUX_OPS },
+	{ "aiol-requests",1,	0,	OPT_AIO_LINUX_REQUESTS },
 #endif
 	{ "all",	1,	0,	OPT_ALL },
 	{ "backoff",	1,	0,	OPT_BACKOFF },
@@ -795,6 +803,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
 	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
+#endif
+#if defined(STRESS_AIO_LINUX)
+	{ NULL,		"aiol N",		"start N workers that issue async I/O requests via Linux aio" },
+	{ NULL,		"aiol-ops N",		"stop when N bogo Linux aio async I/O requests completed" },
+	{ NULL,		"aiol-requests N",	"number of Linux aio async I/O requests per worker" },
 #endif
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
@@ -1799,6 +1812,11 @@ next_opt:
 #if defined(STRESS_AIO)
 		case OPT_AIO_REQUESTS:
 			stress_set_aio_requests(optarg);
+			break;
+#endif
+#if defined(STRESS_AIO_LINUX)
+		case OPT_AIO_LINUX_REQUESTS:
+			stress_set_aio_linux_requests(optarg);
 			break;
 #endif
 		case OPT_ALL:

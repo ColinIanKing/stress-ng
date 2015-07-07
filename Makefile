@@ -28,6 +28,7 @@ MANDIR=/usr/share/man/man1
 
 SRC =   stress-affinity.c \
 	stress-aio.c \
+	stress-aio-linux.c \
 	stress-bigheap.c \
 	stress-brk.c \
 	stress-bsearch.c \

@@ -100,10 +100,10 @@ inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
 io_cancel
-io_destroy
-io_getevents
-io_setup
-io_submit
+io_destroy			aioabi
+io_getevents			aioabi
+io_setup			aioabi
+io_submit			aioabi
 ioctl
 ioperm
 iopl

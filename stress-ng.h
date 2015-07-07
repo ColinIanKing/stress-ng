@@ -208,6 +208,10 @@ extern void pr_failed(const uint64_t flag, const char *name, const char *what, c
 #define MAX_AIO_REQUESTS	(4096)
 #define DEFAULT_AIO_REQUESTS	(16)
 
+#define MIN_AIO_LINUX_REQUESTS	(1)
+#define MAX_AIO_LINUX_REQUESTS	(4096)
+#define DEFAULT_AIO_LINUX_REQUESTS	(64)
+
 #define MIN_BIGHEAP_GROWTH	(4 * KB)
 #define MAX_BIGHEAP_GROWTH	(64 * MB)
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
@@ -611,6 +615,14 @@ typedef enum {
 	__STRESS_AIO,
 #define STRESS_AIO __STRESS_AIO
 #endif
+#if defined(__linux__) &&		\
+    defined(__NR_io_setup) &&		\
+    defined(__NR_io_destroy) &&		\
+    defined(__NR_io_submit) && 		\
+    defined(__NR_io_getevents)
+	__STRESS_AIO_LINUX,
+#define STRESS_AIO_LINUX __STRESS_AIO_LINUX
+#endif
 	STRESS_BRK,
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
@@ -889,6 +901,12 @@ typedef enum {
 	OPT_AIO,
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
+#endif
+
+#if defined(STRESS_AIO_LINUX)
+	OPT_AIO_LINUX,
+	OPT_AIO_LINUX_OPS,
+	OPT_AIO_LINUX_REQUESTS,
 #endif
 
 	OPT_BRK,
@@ -1542,6 +1560,7 @@ extern void stress_semaphore_sysv_destroy(void);
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
 extern void stress_set_aio_requests(const char *optarg);
+extern void stress_set_aio_linux_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
 extern void stress_set_cpu_load(const char *optarg);
@@ -1606,6 +1625,7 @@ extern int name(uint64_t *const counter, const uint32_t instance,	\
 /* Stressors */
 STRESS(stress_affinity);
 STRESS(stress_aio);
+STRESS(stress_aio_linux);
 STRESS(stress_bigheap);
 STRESS(stress_brk);
 STRESS(stress_bsearch);
