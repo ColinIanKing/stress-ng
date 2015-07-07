@@ -32,6 +32,7 @@
 #include <sys/sysinfo.h>
 #include <sys/statfs.h>
 #endif
+#include <sys/statvfs.h>
 #include <sys/times.h>
 
 #include "stress-ng.h"
@@ -66,6 +67,7 @@ int stress_sysinfo(
 	do {
 		struct tms tms_buf;
 		clock_t clk;
+		struct statvfs statvfs_buf;
 #if defined(__linux__)
 		int ret;
 		struct sysinfo sysinfo_buf;
@@ -81,6 +83,7 @@ int stress_sysinfo(
 		}
 		check_do_run();
 
+		/* Linux statfs variant */
 		for (i = 0; i < n_mounts; i++) {
 			check_do_run();
 
@@ -101,8 +104,26 @@ int stress_sysinfo(
 				}
 			}
 		}
-		check_do_run();
 #endif
+		check_do_run();
+
+		/* POSIX.1-2001 statfs variant */
+		for (i = 0; i < n_mounts; i++) {
+			check_do_run();
+
+			if (!mnts[i])
+				continue;
+
+			ret = statvfs(mnts[i], &statvfs_buf);
+			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+				if (errno != ENOSYS && errno != EOVERFLOW && errno != EACCES) {
+					pr_fail(stderr, "%s: statvfs on %s failed: errno=%d (%s)\n",
+						name, mnts[i], errno, strerror(errno));
+				}
+			}
+		}
+
+		check_do_run();
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail(stderr, "%s: times failed: errno=%d (%s)\n",
