@@ -142,6 +142,7 @@ retry:
 					break;
 				}
 			} while (opt_do_run && (!max_ops || *counter < max_ops));
+			(void)shutdown(fd, SHUT_RDWR);
 			(void)close(fd);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
