@@ -285,7 +285,7 @@ sigsetjmp			sigfpe
 sigwaitinfo			sigfpe
 sigsuspend
 socket				sock	
-socketcall			
+socketcall			[ implicit ]
 socketpair			sockpair
 stat				fstat
 statfs				sysinfo
