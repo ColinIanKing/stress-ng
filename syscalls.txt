@@ -270,7 +270,7 @@ shmat				shm-sysv
 shmctl				shm-sysv
 shmdt				shm-sysv
 shmget				shm-sysv
-shutdown
+shutdown			sock, sockpair
 sigaction			sigfpe
 sigaltstack			pthread, stack
 signal
