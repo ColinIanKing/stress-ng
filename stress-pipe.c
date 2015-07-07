@@ -142,10 +142,13 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		strncpy(buf, PIPE_STOP, sizeof(buf));
-		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_failed_dbg(name, "termination write");
+		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
+			if (errno != EPIPE)
+				pr_failed_dbg(name, "termination write");
+		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
+		(void)close(pipefds[1]);
 	}
 	return EXIT_SUCCESS;
 }

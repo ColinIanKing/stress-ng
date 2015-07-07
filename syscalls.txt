@@ -284,9 +284,9 @@ sigqueue			sigq
 sigsetjmp			sigfpe
 sigwaitinfo			sigfpe
 sigsuspend
-socket				sock
-socketcall
-socketpair
+socket				sock	
+socketcall			
+socketpair			sockpair
 stat				fstat
 statfs				sysinfo
 stime
