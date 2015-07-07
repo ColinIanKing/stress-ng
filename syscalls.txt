@@ -30,7 +30,7 @@ dup3
 endmntent			sysinfo
 epoll_create
 epoll_create1			epoll
-epoll_ctl
+epoll_ctl			epoll
 epoll_ctl_add			epoll
 epoll_pwait
 epoll_wait			epoll

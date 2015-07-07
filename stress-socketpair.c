@@ -32,6 +32,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 
 #include "stress-ng.h"
 
@@ -126,8 +127,6 @@ again:
 					}
 					continue;
 				}
-				if (!strcmp((char *)buf, PIPE_STOP))
-					break;
 				if ((opt_flags & OPT_FLAGS_VERIFY) &&
 				    socket_pair_memchk(buf, (size_t)n)) {
 					pr_fail(stderr, "%s: socket_pair read error detected, "
@@ -161,12 +160,9 @@ again:
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		strncpy((char *)buf, PIPE_STOP, sizeof(buf));
 		for (i = 0; i < max; i++) {
-			if (write(socket_pair_fds[i][1], buf, sizeof(buf)) < 0) {
-				if (errno != EPIPE)
-					 pr_failed_dbg(name, "termination write");
-			}
+			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
+				pr_failed_dbg(name, "socket shutdown");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
