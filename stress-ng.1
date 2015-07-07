@@ -1134,6 +1134,12 @@ start at socket port P. For N socket worker processes, ports P to P - 1 are used
 .B \-\-sock\-ops N
 stop socket stress workers after N bogo operations.
 .TP
+.B \-\-sockpair N
+start N workers that perform socket pair I/O read/writes. This involves a pair of client/server processes performing randomly sized socket I/O operations.
+.TP
+.B \-\-sockpair\-ops N
+stop socket pair stress workers after N bogo operations.
+.TP
 .B \-\-splice N
 move data from /dev/zero to /dev/null through a pipe without any copying between kernel address space and user address space using splice(2). This is only available for Linux.
 .TP

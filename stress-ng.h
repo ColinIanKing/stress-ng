@@ -85,6 +85,7 @@
 #endif
 #define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
+#define SOCKET_PAIR_BUF		(64)		/* Socket pair I/O buffer size */
 
 /* debug output bitmasks */
 #define PR_ERROR		0x0000000001ULL /* Print errors */
@@ -758,6 +759,7 @@ typedef enum {
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SOCKET,
+	STRESS_SOCKET_PAIR,
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_SPLICE,
 #define STRESS_SPLICE __STRESS_SPLICE
@@ -1204,6 +1206,9 @@ typedef enum {
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
 	OPT_SOCKET_DOMAIN,
+
+	OPT_SOCKET_PAIR,
+	OPT_SOCKET_PAIR_OPS,
 
 	OPT_SWITCH_OPS,
 
@@ -1671,6 +1676,7 @@ STRESS(stress_sigfpe);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);
 STRESS(stress_socket);
+STRESS(stress_socket_pair);
 STRESS(stress_splice);
 STRESS(stress_stack);
 STRESS(stress_str);

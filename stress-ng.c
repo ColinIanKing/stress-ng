@@ -266,6 +266,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(sigsegv, SIGSEGV, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
+	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
 #if defined(STRESS_SPLICE)
 	STRESSOR(splice, SPLICE, CLASS_PIPE_IO | CLASS_OS),
 #endif
@@ -620,6 +621,8 @@ static const struct option long_options[] = {
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
+	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
+	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
 #if defined(STRESS_SPLICE)
 	{ "splice",	1,	0,	OPT_SPLICE },
 	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
@@ -1031,10 +1034,12 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
 	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
-	{ "S N",	"sock N",		"start N workers doing socket activity" },
+	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
+	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
+	{ NULL,		"sockpair-ops N",	"stop when N socket pair bogo operations completed" },
 #if defined(STRESS_SPLICE)
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
 	{ NULL,		"splice-ops N",		"stop when N bogo splice operations completed" },
