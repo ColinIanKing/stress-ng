@@ -35,30 +35,44 @@
 
 #include "stress-ng.h"
 
+#define MAX_SOCKET_PAIRS	(32768)
+
 /*
  *  socket_pair_memset()
  *	set data to be incrementing chars from val upwards
  */
-static inline void socket_pair_memset(char *buf, char val, const size_t sz)
+static inline void socket_pair_memset(uint8_t *buf, uint8_t val, const size_t sz)
 {
-	size_t i;
+	register uint8_t *ptr;
+	register uint8_t checksum = 0;
 
-	for (i = 0; i < sz; i++)
-		*buf++ = val++;
+	for (ptr = buf + 1 ; ptr < buf + sz; *ptr++ = val++)
+		checksum += val;
+	*buf = checksum;
 }
 
 /*
  *  socket_pair_memchk()
  *	check data contains incrementing chars from val upwards
  */
-static inline int socket_pair_memchk(char *buf, char val, const size_t sz)
+static inline int socket_pair_memchk(uint8_t *buf, const size_t sz)
 {
-	size_t i;
+	register uint8_t *ptr;
+	register uint8_t checksum = 0;
 
-	for (i = 0; i < sz; i++)
-		if (*buf++ != val++)
-			return 1;
-	return 0;
+	for (ptr = buf + 1; ptr < buf + sz; checksum += *ptr++)
+		;
+
+	return !(checksum == *buf);
+}
+
+static void socket_pair_close(int fds[MAX_SOCKET_PAIRS][2], int max, int which)
+{
+	int i;
+
+	for (i = 0; i < max; i++)
+		(void)close(fds[i][which]);
+
 }
 
 /*
@@ -72,11 +86,16 @@ int stress_socket_pair(
 	const char *name)
 {
 	pid_t pid;
-	int socket_pair_fds[2];
+	int socket_pair_fds[MAX_SOCKET_PAIRS][2], i, max;
 
 	(void)instance;
 
-	if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds) < 0) {
+	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
+		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
+			break;
+	}
+
+	if (max == 0) {
 		pr_failed_dbg(name, "socket_pair");
 		return EXIT_FAILURE;
 	}
@@ -86,68 +105,72 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		(void)close(socket_pair_fds[0]);
-		(void)close(socket_pair_fds[1]);
+		socket_pair_close(socket_pair_fds, max, 0);
+		socket_pair_close(socket_pair_fds, max, 1);
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		int val = 0;
-
-		(void)close(socket_pair_fds[1]);
+		socket_pair_close(socket_pair_fds, max, 1);
 		for (;;) {
-			char buf[SOCKET_PAIR_BUF];
+			uint8_t buf[SOCKET_PAIR_BUF];
 			ssize_t n;
 
-			n = read(socket_pair_fds[0], buf, sizeof(buf));
-			if (n <= 0) {
-				if ((errno == EAGAIN) || (errno == EINTR))
+			for (i = 0; opt_do_run && (i < max); i++) {
+				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
+				if (n <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					if (errno) {
+						pr_failed_dbg(name, "read");
+						break;
+					}
 					continue;
-				if (errno) {
-					pr_failed_dbg(name, "read");
-					break;
 				}
-				continue;
-			}
-			if (!strcmp(buf, PIPE_STOP))
-				break;
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
-			    socket_pair_memchk(buf, val++, (size_t)n)) {
-				pr_fail(stderr, "%s: socket_pair read error detected, "
-					"failed to read expected data\n", name);
+				if (!strcmp((char *)buf, PIPE_STOP))
+					break;
+				if ((opt_flags & OPT_FLAGS_VERIFY) &&
+				    socket_pair_memchk(buf, (size_t)n)) {
+					pr_fail(stderr, "%s: socket_pair read error detected, "
+						"failed to read expected data\n", name);
+				}
 			}
 		}
-		(void)close(socket_pair_fds[0]);
+		socket_pair_close(socket_pair_fds, max, 0);
 		exit(EXIT_SUCCESS);
 	} else {
-		char buf[SOCKET_PAIR_BUF];
+		uint8_t buf[SOCKET_PAIR_BUF];
 		int val = 0, status;
 
 		/* Parent */
-		(void)close(socket_pair_fds[0]);
-
+		socket_pair_close(socket_pair_fds, max, 0);
 		do {
 			ssize_t ret;
-			size_t sz = (mwc16() % sizeof(buf)) + 1;
-
-			socket_pair_memset(buf, val++, sz);
-			ret = write(socket_pair_fds[1], buf, sz);
-			if (ret <= 0) {
-				if ((errno == EAGAIN) || (errno == EINTR))
+			for (i = 0; opt_do_run && (i < max); i++) {
+				socket_pair_memset(buf, val++, sizeof(buf));
+				ret = write(socket_pair_fds[i][1], buf, sizeof(buf));
+				if (ret <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					if (errno) {
+						pr_failed_dbg(name, "write");
+						break;
+					}
 					continue;
-				if (errno) {
-					pr_failed_dbg(name, "write");
-					break;
 				}
-				continue;
+				(*counter)++;
 			}
-			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		strncpy(buf, PIPE_STOP, sizeof(buf));
-		if (write(socket_pair_fds[1], buf, sizeof(buf)) <= 0)
-			pr_failed_dbg(name, "termination write");
+		strncpy((char *)buf, PIPE_STOP, sizeof(buf));
+		for (i = 0; i < max; i++) {
+			if (write(socket_pair_fds[i][1], buf, sizeof(buf)) < 0) {
+				if (errno != EPIPE)
+					 pr_failed_dbg(name, "termination write");
+			}
+		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
+		socket_pair_close(socket_pair_fds, max, 1);
 	}
 	return EXIT_SUCCESS;
 }
