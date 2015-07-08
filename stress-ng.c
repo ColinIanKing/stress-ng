@@ -231,6 +231,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(null, NULL, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
+#if defined(STRESS_NUMA)
+	STRESSOR(numa, NUMA, CLASS_CPU | CLASS_MEMORY | CLASS_OS),
+#endif
 	STRESSOR(open, OPEN, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(pipe, PIPE, CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(poll, POLL, CLASS_SCHEDULER | CLASS_OS),
@@ -549,6 +552,10 @@ static const struct option long_options[] = {
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
 	{ "null",	1,	0,	OPT_NULL },
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
+#if defined(STRESS_NUMA)
+	{ "numa",	1,	0,	OPT_NUMA },
+	{ "numa-ops",	1,	0,	OPT_NUMA_OPS },
+#endif
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
 #if defined(STRESS_PAGE_IN)
@@ -982,6 +989,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
 	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
+#if defined(STRESS_NUMA)
+	{ NULL,		"numa N",		"start N workers stressing NUMA interfaces" },
+	{ NULL,		"numa-ops N",		"stop when N NUMA bogo operations completed" },
+#endif
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },

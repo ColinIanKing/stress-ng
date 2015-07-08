@@ -989,6 +989,12 @@ start N workers writing to /dev/null.
 .B \-\-null\-ops N
 stop null stress workers after N /dev/null bogo write operations.
 .TP
+.B \-\-numa N
+start N workers that migrate stressors and a 4MB memory mapped buffer around all the available NUMA nodes.  This uses migrate_pages(2) to move the stressors and mbind(2) and move_pages(2) to move the pages of the mapped buffer. After each move, the buffer is written to to force activity over the bus which results cache misses.
+.TP
+.B \-\-numa\-ops N
+stop NUMA stress workers after N bogo NUMA operations.
+.TP
 .B \-o N, \-\-open N
 start N workers that perform open(2) and then close(2) operations on /dev/zero. The maximum opens at one time is system defined, so the test will run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .TP

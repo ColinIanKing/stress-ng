@@ -724,6 +724,15 @@ typedef enum {
 #endif
 	STRESS_NICE,
 	STRESS_NULL,
+#if defined(__linux__) &&		\
+    defined(__NR_get_mempolicy) &&	\
+    defined(__NR_mbind) &&		\
+    defined(__NR_migrate_pages) &&	\
+    defined(__NR_move_pages) &&		\
+    defined(__NR_set_mempolicy)
+	__STRESS_NUMA,
+#define STRESS_NUMA __STRESS_NUMA
+#endif
 	STRESS_OPEN,
 	STRESS_PIPE,
 	STRESS_POLL,
@@ -830,7 +839,7 @@ typedef enum {
 #define STRESS_WAIT __STRESS_WAIT
 #endif
 	STRESS_WCS,
-#if defined(__linux__)
+#if 0 && defined(__linux__)
 	__STRESS_XATTR,
 #define STRESS_XATTR __STRESS_XATTR
 #endif
@@ -1129,6 +1138,11 @@ typedef enum {
 
 	OPT_NULL,
 	OPT_NULL_OPS,
+
+#if defined(STRESS_NUMA)
+	OPT_NUMA,
+	OPT_NUMA_OPS,
+#endif
 
 	OPT_OPEN_OPS,
 
@@ -1676,6 +1690,7 @@ STRESS(stress_mq);
 STRESS(stress_nice);
 STRESS(stress_noop);
 STRESS(stress_null);
+STRESS(stress_numa);
 STRESS(stress_open);
 STRESS(stress_pipe);
 STRESS(stress_poll);
