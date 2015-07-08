@@ -63,7 +63,7 @@ ftruncate			fallocate
 futex				futex
 futimesat
 futimens			wait
-get_mempolicy
+get_mempolicy			numa
 get_robust_list
 getthread_area
 getcpu
@@ -128,9 +128,9 @@ lseek				hdd, lockf, mmap, seek
 lsetxattr
 lstat				fstat
 madvise				mmap, vm
-mbind
+mbind				numa
 memfd_create			memfd
-migrate_pages
+migrate_pages			numa
 mincore				bigheap, mincore, mmap, vm
 mkdir				dir
 mkdirat
@@ -140,7 +140,7 @@ mlock				mlock
 mlockall			mlock
 mkstemp				hdd
 mount
-move_pages
+move_pages			numa`
 mmap				bigheap, mmap
 mprotect			mmap
 munmap				mmap
@@ -240,7 +240,7 @@ sendfile			sendfile
 sendmmsg
 sendmsg
 sendto
-set_mempolicy
+set_mempolicy			numa
 set_robust_list
 set_thread_area
 set_tid_address
