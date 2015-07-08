@@ -53,7 +53,7 @@ typedef struct {
 	lockf_info_t *head;		/* Head of lockf_info procs list */
 	lockf_info_t *tail;		/* Tail of lockf_info procs list */
 	lockf_info_t *free;		/* List of free'd lockf_infos */
-	uint64_t length;	/* Length of list */
+	uint64_t length;		/* Length of list */
 } lockf_info_list_t;
 
 static lockf_info_list_t lockf_infos;
