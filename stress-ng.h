@@ -974,11 +974,6 @@ typedef enum {
 	OPT_EPOLL_DOMAIN,
 #endif
 
-	OPT_HDD_BYTES,
-	OPT_HDD_WRITE_SIZE,
-	OPT_HDD_OPS,
-	OPT_HDD_OPTS,
-
 #if defined(STRESS_EVENTFD)
 	OPT_EVENTFD,
 	OPT_EVENTFD_OPS,
@@ -1015,6 +1010,11 @@ typedef enum {
 	OPT_GETRANDOM,
 	OPT_GETRANDOM_OPS,
 #endif
+
+	OPT_HDD_BYTES,
+	OPT_HDD_WRITE_SIZE,
+	OPT_HDD_OPS,
+	OPT_HDD_OPTS,
 
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
@@ -1655,8 +1655,6 @@ STRESS(stress_dir);
 STRESS(stress_dup);
 STRESS(stress_epoll);
 STRESS(stress_eventfd);
-STRESS(stress_hdd);
-STRESS(stress_hsearch);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
 STRESS(stress_fifo);
@@ -1666,6 +1664,8 @@ STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_getrandom);
+STRESS(stress_hdd);
+STRESS(stress_hsearch);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_itimer);
