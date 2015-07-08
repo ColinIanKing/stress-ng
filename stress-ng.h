@@ -655,6 +655,7 @@ typedef enum {
 #define STRESS_FALLOCATE __STRESS_FALLOCATE
 #endif
 	STRESS_FAULT,
+	STRESS_FCNTL,
 	STRESS_FIFO,
 	STRESS_FLOCK,
 	STRESS_FORK,
@@ -985,6 +986,9 @@ typedef enum {
 #endif
 	OPT_FAULT,
 	OPT_FAULT_OPS,
+
+	OPT_FCNTL,
+	OPT_FCNTL_OPS,
 
 	OPT_FIFO,
 	OPT_FIFO_OPS,
@@ -1657,6 +1661,7 @@ STRESS(stress_epoll);
 STRESS(stress_eventfd);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
+STRESS(stress_fcntl);
 STRESS(stress_fifo);
 STRESS(stress_flock);
 STRESS(stress_fork);

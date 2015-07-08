@@ -177,6 +177,7 @@ static const stress_t stressors[] = {
 	STRESSOR(fallocate, FALLOCATE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
 	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(fcntl, FCNTL, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(fifo, FIFO, CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(flock, FLOCK, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
@@ -425,6 +426,8 @@ static const struct option long_options[] = {
 #endif
 	{ "fault",	1,	0,	OPT_FAULT },
 	{ "fault-ops",	1,	0,	OPT_FAULT_OPS },
+	{ "fcntl",	1,	0,	OPT_FCNTL},
+	{ "fcntl-ops",	1,	0,	OPT_FCNTL_OPS },
 	{ "fifo",	1,	0,	OPT_FIFO },
 	{ "fifo-ops",	1,	0,	OPT_FIFO_OPS },
 	{ "fifo-readers",1,	0,	OPT_FIFO_READERS },
@@ -876,6 +879,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
 	{ NULL,		"fifo-readers N",	"number of fifo reader stessors to start" },
+	{ NULL,		"fcntl N",		"start N workers exercising fcntl commands" },
+	{ NULL,		"fcntl-ops N",		"stop when N fcntl bogo operations completed" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
 	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },

@@ -48,7 +48,7 @@ fchmod				chmod
 fchmodat
 fchown
 fchownat
-fcntl				open, lockf
+fcntl				open, lockf, fcntl
 fdatasync			hdd
 fgetxattr			xattr
 flistxattr
