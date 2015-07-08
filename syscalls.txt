@@ -3,14 +3,14 @@ Syscall				Stressor
 accept				sock
 accept4
 access
-acct
+acct				[ need privilege, ignore for now ]
 add_key
 adjtimex
 alarm				generic run duration timers
 bind				sock
 brk				bigheap, brk
 capget
-capset
+capset				[ need privilege, ignore for now ]
 chdir				chdir
 chmod				chmod
 chown
@@ -19,7 +19,7 @@ clock_adjtime
 clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
-clock_settime
+clock_settime			[ need privilege, ignore for now ]
 clone
 close				dentry
 connect				sock
@@ -42,8 +42,8 @@ exit_group
 faccessat
 fadvise				readahead
 fallocate			fallocate
-fanotify_init
-fanotify_mark
+fanotify_init			[ need privilege, ignore for now ]
+fanotify_mark			[ need privilege, ignore for now ]
 fchmod				chmod
 fchmodat
 fchown
@@ -104,15 +104,15 @@ io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
 io_submit			aiol
-ioctl
-ioperm
-iopl
+ioctl				[ need privilege, ignore for now ]
+ioperm				ditto
+iopl				ditto
 ioprio_get
 ioprio_set
 ipc				used by msg* glibc wrappers
 kcmp				kcmp
-kexec_file_load
-kexec_load
+kexec_file_load			[ need privilege, ignore for now ]
+kexec_load			[ need privilege, ignore for now ]
 keyctl
 kill				kill
 lchown
@@ -139,7 +139,7 @@ mknodat
 mlock				mlock
 mlockall			mlock
 mkstemp				hdd
-mount
+mount				[ need privilege, ignore for now ]
 move_pages			numa`
 mmap				bigheap, mmap
 mprotect			mmap
@@ -173,7 +173,7 @@ perf_event_open			--perf option
 personality
 pipe				pipe, switch, etc
 pipe2
-pivot_root
+pivot_root			[ need privilege, ignore for now ]
 poll				poll
 posix_fallocate			fallocate
 ppoll
@@ -188,14 +188,14 @@ pselect6
 ptrace
 pwrite				readahead, aio
 pwritev
-quotactl
+quotactl			
 read				pipe, zero, ..
 readahead			readahead
 readdir				fstat, inotitfy, proc
 readlink
 readlinkat
 readv				hdd
-reboot
+reboot				[ need privilege, ignore for now ]
 recv				sock
 recvfrom
 recvmsg
@@ -290,8 +290,8 @@ socketpair			sockpair
 stat				fstat
 statfs				sysinfo
 stime
-swapoff
-swapon
+swapoff				[ need privilege, ignore for now ]
+swapon				[ need privilege, ignore for now ]
 symlink				symlink
 symlinkat
 sync				iosync
@@ -316,7 +316,7 @@ tkill
 truncate
 ugetrlimit
 umask				aio, mmap, sendfile, etc
-umount
+umount				[ need privilege, ignore for now ]
 uname				get
 unlink				dentry, hdd, unlink
 unlinkat
