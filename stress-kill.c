@@ -73,7 +73,11 @@ int stress_kill(
 			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 
-		/* Zero signal can be used to see if process exists */
+		/*
+		 * Zero signal can be used to see if process exists,
+		 * -1 pid means signal sent to every proces caller has
+		 * permission to send to
+		 */
 		ret = kill(-1, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
