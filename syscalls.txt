@@ -90,8 +90,8 @@ getrlimit			get
 getrlimit			nice
 getrusage			get
 getsid				get
-getsockname
-getsockopt
+getsockname			sock
+getsockopt			sock
 gettid				get
 gettimeofday			get
 getuid				get
@@ -261,7 +261,7 @@ setresuid
 setreuid
 setrlimit			limit, rlimit
 setsid
-setsockopt			sock
+setsockopt			sock	
 settimeofday
 setuid
 setxattr
