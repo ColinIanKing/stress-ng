@@ -211,7 +211,7 @@ retry:
 				}
 				len = sizeof(sndbuf);
 				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-					pr_failed_dbg(name, "getsockname");
+					pr_failed_dbg(name, "getsockopt");
 					break;
 				}
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
