@@ -188,8 +188,8 @@ int stress_aio_linux(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
-finish:
 	(void)close(fd);
+finish:
 	(void)io_destroy(ctx);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
