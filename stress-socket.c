@@ -202,13 +202,18 @@ retry:
 			if (sfd >= 0) {
 				size_t i;
 				struct sockaddr addr;
-				socklen_t addr_len;
+				socklen_t len;
+				int sndbuf;
 
-				if (getsockname(fd, &addr, &addr_len) < 0) {
+				if (getsockname(fd, &addr, &len) < 0) {
 					pr_failed_dbg(name, "getsockname");
 					break;
 				}
-
+				len = sizeof(sndbuf);
+				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
+					pr_failed_dbg(name, "getsockname");
+					break;
+				}
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
