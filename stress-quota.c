@@ -48,29 +48,80 @@ typedef struct {
 	bool	valid;
 } dev_info_t;
 
+#define DO_Q_GETQUOTA	0x0001
+#define DO_Q_GETFMT	0x0002
+#define DO_Q_GETINFO	0x0004
+#define DO_Q_GETSTATS	0x0008
+#define DO_Q_SYNC	0x0010
+
 /*
- *  do_quota()
+ *  do_quotactl()
+ *	do a quotactl command
  */
-static void do_quota(const dev_info_t *dev)
+static void do_quotactl(
+	const char *name,
+	const int flag,
+	const char *cmdname,
+	int *tested,
+	int *failed,
+	int *enosys,
+	int cmd,
+	const char *special,
+	int id,
+	caddr_t addr)
 {
+	static int failed_mask = 0;
+	int ret = quotactl(cmd, special, id, addr);
+
+	(*tested)++;
+	if (ret < 0) {
+		if ((failed_mask & flag) == 0) {
+			/* Just issue the warning once, reduce log spamming */
+			failed_mask |= flag;
+			pr_fail(stderr, "%s: quotactl command %s failed: errno=%d (%s)\n",
+				name, cmdname, errno, strerror(errno));
+		}
+		if (errno == ENOSYS)
+			(*enosys)++;
+		else
+			(*failed)++;
+	}
+}
+
+/*
+ *  do_quotas()
+ *	do quotactl commands
+ */
+static int do_quotas(const dev_info_t *dev, const char *name)
+{
+	int tested = 0, failed = 0, enosys = 0;
 #if defined(Q_GETQUOTA)
 	if (opt_do_run) {
 		struct dqblk dqblk;
-		(void)quotactl(QCMD(Q_GETQUOTA, USRQUOTA),
+
+		do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
+			&tested, &failed, &enosys,
+			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
 	}
 #endif
 #if defined(Q_GETFMT)
 	if (opt_do_run) {
 		uint32_t format;
-		(void)quotactl(QCMD(Q_GETFMT, USRQUOTA),
+
+		do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
+			&tested, &failed, &enosys,
+			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
 	}
 #endif
 #if defined(Q_GETINFO)
 	if (opt_do_run) {
 		struct dqinfo dqinfo;
-		(void)quotactl(QCMD(Q_GETINFO, USRQUOTA),
+
+		do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
+			&tested, &failed, &enosys,
+			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
 	}
 #endif
@@ -78,16 +129,34 @@ static void do_quota(const dev_info_t *dev)
 	/* Obsolete in recent kernels */
 	if (opt_do_run) {
 		struct dqstats dqstats;
-		(void)quotactl(QCMD(Q_GETSTATS, USRQUOTA),
+
+		do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
+			&tested, &failed, &enosys,
+			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
 	}
 #endif
 #if defined(Q_SYNC)
 	if (opt_do_run) {
-		(void)quotactl(QCMD(Q_SYNC, USRQUOTA),
+		do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
+			&tested, &failed, &enosys,
+			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
 	}
 #endif
+	if (tested == 0) {
+		pr_err(stderr, "%s: quotactl() failed, quota commands not available\n", name);
+		return -1;
+	}
+	if (tested == enosys) {
+		pr_err(stderr, "%s: quotactl() failed, not available on this kernel\n", name);
+		return -1;
+	}
+	if (tested == failed) {
+		pr_err(stderr, "%s: quotactl() failed, all quota commands failed (maybe privilege issues, use -v to see why)\n", name);
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -176,7 +245,9 @@ int stress_quota(
 	} else {
 		do {
 			for (i = 0; opt_do_run && (i < n_devs); i++)
-				do_quota(&devs[i]);
+				if (do_quotas(&devs[i], name) < 0) {
+					goto tidy;
+				}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
