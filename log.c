@@ -36,6 +36,23 @@ uint16_t abort_fails;	/* count of failures */
 bool	 abort_msg_emitted;
 
 /*
+ *  pr_yaml()
+ *	print to yaml file if it is open
+ */
+int pr_yaml(FILE *fp, const char *const fmt, ...)
+{
+	va_list ap;
+	int ret = 0;
+
+	va_start(ap, fmt);
+	if (fp)
+		ret = vfprintf(fp, fmt, ap);
+	va_end(ap);
+
+	return ret;
+}
+
+/*
  *  print()
  *	print some debug or info messages
  */

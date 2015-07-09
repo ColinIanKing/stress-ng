@@ -755,6 +755,7 @@ static const struct option long_options[] = {
 	{ "xattr",	1,	0,	OPT_XATTR },
 	{ "xattr-ops",	1,	0,	OPT_XATTR_OPS },
 #endif
+	{ "yaml",	1,	0,	OPT_YAML },
 #if defined(STRESS_YIELD)
 	{ "yield",	1,	0,	OPT_YIELD },
 	{ "yield-ops",	1,	0,	OPT_YIELD_OPS },
@@ -804,6 +805,7 @@ static const help_t help_generic[] = {
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
+	{ "Y",		"yaml",			"output results to YAML formatted filed" },
 	{ NULL,		NULL,			NULL }
 };
 
@@ -1696,6 +1698,7 @@ static int show_hogs(void)
  *	output metrics
  */
 static void metrics_dump(
+	FILE *yaml,
 	const int32_t max_procs,
 	const long int ticks_per_sec)
 {
@@ -1705,10 +1708,14 @@ static void metrics_dump(
 		"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
 	pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
 		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
+	pr_yaml(yaml, "metrics:\n");
+
 	for (i = 0; i < STRESS_MAX; i++) {
 		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 		double   r_total = 0.0;
 		int32_t  j, n = (i * max_procs);
+		char *munged = munge_underscore((char *)stressors[i].name);
+		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 
 		for (j = 0; j < procs[i].started_procs; j++, n++) {
 			c_total += shared->stats[n].counter;
@@ -1726,14 +1733,29 @@ static void metrics_dump(
 
 		if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 			continue;
+
+		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
+		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
+		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
+		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
+
 		pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
-			munge_underscore((char *)stressors[i].name),
-			c_total,				 /* op count */
-			r_total,	 			/* average real (wall) clock time */
-			(double)u_total / (double)ticks_per_sec, /* actual user time */
-			(double)s_total / (double)ticks_per_sec, /* actual system time */
-			r_total > 0.0 ? (double)c_total / r_total : 0.0,
-			us_total > 0 ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0);
+			munged,			/* stress test name */
+			c_total,		/* op count */
+			r_total,	 	/* average real (wall) clock time */
+			u_time, 		/* actual user time */
+			s_time,			/* actual system time */
+			bogo_rate_r_time,	/* bogo ops on wall clock time */
+			bogo_rate);		/* bogo ops per second */
+
+		pr_yaml(yaml, "    - stressor: %s\n", munged);
+		pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
+		pr_yaml(yaml, "      bogo-ops-per-second-usr-sys-time: %f\n", bogo_rate);
+		pr_yaml(yaml, "      bogo-ops-per-second-real-time: %f\n", bogo_rate_r_time);
+		pr_yaml(yaml, "      wall-clock-time: %f\n", r_total);
+		pr_yaml(yaml, "      user-time: %f\n", u_time);
+		pr_yaml(yaml, "      system-time: %f\n", s_time);
+		pr_yaml(yaml, "\n");
 	}
 }
 
@@ -1742,36 +1764,43 @@ static void metrics_dump(
  *	output the run times
  */
 static void times_dump(
+	FILE *yaml,
 	const long int ticks_per_sec,
 	const double duration)
 {
 	struct tms buf;
 	double total_cpu_time = stress_get_processors_configured() * duration;
+	float u_time, s_time, t_time, u_pc, s_pc, t_pc;
 
 	if (times(&buf) == (clock_t)-1) {
 		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return;
 	}
+	u_time = (float)buf.tms_cutime / (float)ticks_per_sec;
+	s_time = (float)buf.tms_cstime / (float)ticks_per_sec;
+	t_time = ((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec;
+	u_pc = (total_cpu_time > 0.0) ? 100.0 * u_time / total_cpu_time : 0.0;
+	s_pc = (total_cpu_time > 0.0) ? 100.0 * s_time / total_cpu_time : 0.0;
+	t_pc = (total_cpu_time > 0.0) ? 100.0 * t_time / total_cpu_time : 0.0;
 
 	pr_inf(stdout, "for a %.2fs run time:\n", duration);
 	pr_inf(stdout, "  %8.2fs available CPU time\n",
 		total_cpu_time);
 
-	pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n",
-		(float)buf.tms_cutime / (float)ticks_per_sec,
-		100.0 * ((float)buf.tms_cutime /
-			 (float)ticks_per_sec) / total_cpu_time);
-	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n",
-		(float)buf.tms_cstime / (float)ticks_per_sec,
-		100.0 * ((float)buf.tms_cstime /
-			 (float)ticks_per_sec) / total_cpu_time);
-	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n",
-		((float)buf.tms_cutime + (float)buf.tms_cstime) /
-			(float)ticks_per_sec,
-		100.0 * (((float)buf.tms_cutime +
-			  (float)buf.tms_cstime) /
-			  (float)ticks_per_sec) / total_cpu_time);
+	pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n", u_time, u_pc);
+	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
+	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
+
+	pr_yaml(yaml, "times:\n");
+	pr_yaml(yaml, "    - run-time: %f\n", duration);
+	pr_yaml(yaml, "      available-cpu-time: %f\n", total_cpu_time);
+	pr_yaml(yaml, "      user-time: %f\n", u_time);
+	pr_yaml(yaml, "      system-time: %f\n", s_time);
+	pr_yaml(yaml, "      total-time: %f\n", t_time);
+	pr_yaml(yaml, "      user-time-percent: %f\n", u_pc);
+	pr_yaml(yaml, "      system-time-percent: %f\n", s_pc);
+	pr_yaml(yaml, "      total-time-percent: %f\n", t_pc);
 }
 
 int main(int argc, char **argv)
@@ -1785,6 +1814,8 @@ int main(int argc, char **argv)
 	long int ticks_per_sec;
 	struct rlimit limit;
 	int id;
+	char *yamlfile = NULL;
+	FILE *yaml = NULL;
 
 	memset(procs, 0, sizeof(procs));
 	mwc_reseed();
@@ -1812,7 +1843,7 @@ int main(int argc, char **argv)
 		int c, option_index;
 		stress_id s_id;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k:Y:",
 			long_options, &option_index)) == -1)
 			break;
 
@@ -2225,6 +2256,9 @@ next_opt:
 			if (stress_set_wcs_method(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+		case OPT_YAML:
+			yamlfile = optarg;
+			break;
 		case OPT_ZOMBIE_MAX:
 			stress_set_zombie_max(optarg);
 			break;
@@ -2453,20 +2487,28 @@ next_opt:
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));
 
+	if (yamlfile) {
+		yaml = fopen(yamlfile, "w");
+		if (!yaml)
+			pr_err(stdout, "Cannot output YAML data to %s\n", yamlfile);
+
+		pr_yaml(yaml, "---\n");
+	}
+
 	if (opt_flags & OPT_FLAGS_METRICS)
-		metrics_dump(max_procs, ticks_per_sec);
+		metrics_dump(yaml, max_procs, ticks_per_sec);
 #if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
-		perf_stat_dump(stressors, procs, max_procs, duration);
+		perf_stat_dump(yaml, stressors, procs, max_procs, duration);
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES) {
-		tz_dump(shared, stressors, procs, max_procs);
+		tz_dump(yaml, shared, stressors, procs, max_procs);
 		tz_free(&shared->tz_info);
 	}
 #endif
 	if (opt_flags & OPT_FLAGS_TIMES)
-		times_dump(ticks_per_sec, duration);
+		times_dump(yaml, ticks_per_sec, duration);
 	free_procs();
 
 #if defined(STRESS_SEMAPHORE_POSIX)
@@ -2479,6 +2521,12 @@ next_opt:
 
 	if (opt_flags & OPT_SYSLOG)
 		closelog();
+
+
+	if (yaml) {
+		pr_yaml(yaml, "...\n");
+		fclose(yaml);
+	}
 
 	exit(EXIT_SUCCESS);
 }

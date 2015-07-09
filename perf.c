@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <locale.h>
 #include <pthread.h>
+#include <ctype.h>
 
 #define THOUSAND	(1000.0)
 #define MILLION		(THOUSAND * THOUSAND)
@@ -87,6 +88,35 @@ static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 
 	{ 0, 0, 0, NULL }
 };
+
+/*
+ *  perf_yaml_label()
+ *	turns text into a yaml compatible lable.
+ */
+static char *perf_yaml_label(char *dst, const char *src, size_t n)
+{
+	if (n) {
+		char *d = dst;
+		const char *s = src;
+
+		do {
+			if (*s == ' ')
+				*d = '_';
+			else if (isupper(*s))
+				*d = tolower(*s);
+			else if (*s)
+				*d = *s;
+			else {
+				while (--n != 0)
+					*d++ = 0;
+				break;
+			}
+			s++;
+			d++;
+		} while (--n != 0);
+	}
+	return dst;
+}
 
 /*
  *  perf_open()
@@ -363,6 +393,7 @@ const char *perf_stat_scale(const uint64_t counter, const double duration)
 }
 
 void perf_stat_dump(
+	FILE *yaml,
 	const stress_t stressors[],
 	const proc_info_t procs[STRESS_MAX],
 	const int32_t max_procs,
@@ -373,6 +404,8 @@ void perf_stat_dump(
 
 	setlocale(LC_ALL, "");
 
+	pr_yaml(yaml, "perfstats:\n");
+
 	for (i = 0; i < STRESS_MAX; i++) {
 		int p;
 		uint64_t counter_totals[STRESS_PERF_MAX];
@@ -381,6 +414,7 @@ void perf_stat_dump(
 		uint64_t total_branches = 0;
 		int ids[STRESS_PERF_MAX];
 		bool got_data = false;
+		char *munged;
 
 		memset(counter_totals, 0, sizeof(counter_totals));
 
@@ -416,29 +450,39 @@ void perf_stat_dump(
 			continue;
 
 		no_perf_stats = false;
-		pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
+		munged = munge_underscore((char *)stressors[i].name);
+		pr_inf(stdout, "%s:\n", munged);
+		pr_yaml(yaml, "    - stressor: %s\n", munged);
+		pr_yaml(yaml, "      duration: %f\n", duration);
+
 		for (p = 0; p < STRESS_PERF_MAX; p++) {
 			const char *l = perf_get_label_by_index(p);
-			if (l && counter_totals[p] != STRESS_PERF_INVALID) {
+			uint64_t ct = counter_totals[p];
+
+			if (l && (ct != STRESS_PERF_INVALID)) {
 				char extra[32];
+				char yaml_label[128];
 				*extra = '\0';
 
 				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
 					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
-						(double)counter_totals[p] / (double)total_cpu_cycles);
+						(double)ct / (double)total_cpu_cycles);
 				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
 					snprintf(extra, sizeof(extra), " (%5.2f%%)",
-						100.0 * (double)counter_totals[p] / (double)total_cache_refs);
+						100.0 * (double)ct / (double)total_cache_refs);
 				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
 					snprintf(extra, sizeof(extra), " (%5.2f%%)",
-						100.0 * (double)counter_totals[p] / (double)total_branches);
+						100.0 * (double)ct / (double)total_branches);
 
 				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
-					counter_totals[p], l,
-					perf_stat_scale(counter_totals[p], duration),
-					extra);
+					ct, l, perf_stat_scale(ct, duration), extra);
+
+				perf_yaml_label(yaml_label, l, sizeof(yaml_label));
+				pr_yaml(yaml, "      %s_total: %" PRIu64 "\n", yaml_label, ct);
+				pr_yaml(yaml, "      %s_per_second: %f\n", yaml_label, (double)ct / duration);
 			}
 		}
+		pr_yaml(yaml, "\n");
 	}
 	if (no_perf_stats)
 		pr_inf(stdout, "perf counters not available\n");

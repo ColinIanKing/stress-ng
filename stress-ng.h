@@ -180,6 +180,7 @@
 extern int print(FILE *fp, const uint64_t flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
 extern void pr_failed(const uint64_t flag, const char *name, const char *what, const int err);
+extern int pr_yaml(FILE *fp, const char *const fmt, ...);
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
@@ -905,6 +906,7 @@ typedef enum {
 	OPT_VERBOSE = 'v',
 	OPT_VERSION = 'V',
 	OPT_YIELD = 'y',
+	OPT_YAML = 'Y',
 
 	/* Long options only */
 
@@ -1517,7 +1519,7 @@ int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *counter, i
 bool perf_stat_succeeded(const stress_perf_t *sp);
 const char *perf_get_label_by_index(const int i);
 const char *perf_stat_scale(const uint64_t counter, const double duration);
-void perf_stat_dump(const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
+void perf_stat_dump(FILE *yaml, const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
 	const int32_t max_procs, const double duration);
 #endif
 
@@ -1570,7 +1572,7 @@ extern int mount_get(char *mnts[], const int max);
 extern int tz_init(tz_info_t **tz_info_list);
 extern void tz_free(tz_info_t **tz_info_list);
 extern int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
-extern void tz_dump(const shared_t *shared, const stress_t stressors[],
+extern void tz_dump(FILE *fp, const shared_t *shared, const stress_t stressors[],
 	const proc_info_t procs[STRESS_MAX], const int32_t max_procs);
 #endif
 

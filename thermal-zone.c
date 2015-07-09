@@ -156,6 +156,7 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
  *	dump thermal zone temperatures
  */
 void tz_dump(
+	FILE *yaml,
 	const shared_t *shared,
 	const stress_t stressors[],
 	const proc_info_t procs[STRESS_MAX],
@@ -163,6 +164,8 @@ void tz_dump(
 {
 	uint32_t i;
 	bool no_tz_stats = true;
+
+	pr_yaml(yaml, "thermal-zones:\n");
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		tz_info_t *tz_info;
@@ -185,15 +188,21 @@ void tz_dump(
 			}
 
 			if (total) {
+				double temp = ((float)total / count) / 1000.0;
+				char *munged = munge_underscore((char *)stressors[i].name);
+
 				if (!dumped_heading) {
 					dumped_heading = true;
-					pr_inf(stdout, "%s:\n", munge_underscore((char *)stressors[i].name));
+					pr_inf(stdout, "%s:\n", munged);
+					pr_yaml(yaml, "    - stressor: %s\n", munged);
 				}
-				pr_inf(stdout, "%20s %7.2f °C\n", tz_info->type, 
-					((float)total / count) / 1000.0);
+				pr_inf(stdout, "%20s %7.2f °C\n", tz_info->type, temp);
+				pr_yaml(yaml, "      %s: %7.2f\n", tz_info->type, temp);
 				no_tz_stats = false;
 			}
 		}
+		if (total)
+			pr_yaml(yaml, "\n");
 	}
 
 	if (no_tz_stats)
