@@ -78,8 +78,13 @@ static int sys_get_mempolicy(
 	unsigned long maxnode, unsigned long addr,
 	unsigned long flags)
 {
+#if defined(__NR_get_mempolicy)
 	return syscall(__NR_get_mempolicy,
 		mode, nodemask, maxnode, addr, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 static int sys_set_mempolicy(
@@ -87,8 +92,13 @@ static int sys_set_mempolicy(
 	unsigned long *nodemask,
 	unsigned long maxnode)
 {
+#if defined(__NR_set_mempolicy)
 	return syscall(__NR_set_mempolicy,
 		mode, nodemask, maxnode);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 static long sys_mbind(
@@ -96,27 +106,56 @@ static long sys_mbind(
 	int mode, const unsigned long *nodemask,
 	unsigned long maxnode, unsigned flags)
 {
+#if defined(__NR_mbind)
 	return syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
-static long migrate_pages(
+static long sys_migrate_pages(
 	int pid, unsigned long maxnode,
 	const unsigned long *old_nodes,
 	const unsigned long *new_nodes)
 {
+#if defined(__NR_migrate_pages)
 	return syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
-static long move_pages(
+static long sys_move_pages(
 	int pid, unsigned long count,
 	void **pages, const int *nodes,
 	int *status, int flags)
 {
+#if defined(__NR_move_pages)
 	return syscall(__NR_move_pages,
 		pid, count, pages, nodes,
 		status, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/* Added to kernel 2.6.19 for x86_64 and i386 */
+static long sys_getcpu(
+	unsigned *cpu,
+	unsigned *node,
+	void *tcache)
+{
+#if defined(__NR_getcpu)
+	return syscall(__NR_getcpu, cpu, node, tcache);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 /*
@@ -228,6 +267,7 @@ int stress_numa(
 		void *pages[num_pages];
 		uint8_t *ptr;
 		node_t *n_tmp;
+		unsigned cpu, curr_node;
 
 		/*
 		 *  Fetch memory policy
@@ -253,6 +293,12 @@ int stress_numa(
 			break;
 
 		/*
+		 *  Fetch CPU and node, we just waste some cycled
+		 *  doing this for stress reasons only
+		 */
+		(void)sys_getcpu(&cpu, &curr_node, NULL);
+
+		/*
 		 *  mbind the buffer
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
@@ -275,7 +321,7 @@ int stress_numa(
 		memset(old_node_mask, 0xff, sizeof(old_node_mask));
 		memset(node_mask, 0, sizeof(node_mask));
 		NUMA_SETBIT(node_mask, n->node_id);
-		ret = migrate_pages(mypid, max_nodes, old_node_mask, node_mask);
+		ret = sys_migrate_pages(mypid, max_nodes, old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: migrate_pages: errno=%d (%s)\n",
 				name, errno, strerror(errno));
@@ -293,9 +339,9 @@ int stress_numa(
 				dest_nodes[i] = n_tmp->node_id;
 			}
 			memset(status, 0, sizeof(status));
-			ret = move_pages(mypid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE);
+			ret = sys_move_pages(mypid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
-				pr_fail(stderr, "%s: migrate_pages: errno=%d (%s)\n",
+				pr_fail(stderr, "%s: move_pages: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			}
 			memset(buf, j, MMAP_SZ);
