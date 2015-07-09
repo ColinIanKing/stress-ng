@@ -188,7 +188,7 @@ pselect6
 ptrace
 pwrite				readahead, aio
 pwritev
-quotactl			
+quotactl			quota
 read				pipe, zero, ..
 readahead			readahead
 readdir				fstat, inotitfy, proc
