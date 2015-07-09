@@ -1045,6 +1045,13 @@ stop qsort stress workers after N bogo qsorts.
 .B \-\-qsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
+.B \-\-quota N
+start N workers that exercise the Q_GETQUOTA, Q_GETFMT, Q_GETINFO, Q_GETSTATS and Q_SYNC quotctl(2) commands on all the available
+mounted block based file systems.
+.TP
+.B \-\-\quota\-ops N
+stop quota stress workers after N bogo quotactl operations.
+.TP
 .B \-\-rdrand N
 start N workers that read the Intel hardware random number generator (Intel Ivybridge processors upwards).
 .TP

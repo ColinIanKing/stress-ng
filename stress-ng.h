@@ -42,6 +42,7 @@
 #include <sys/mman.h>
 #if defined (__linux__)
 #include <sys/syscall.h>
+#include <sys/quota.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -744,6 +745,15 @@ typedef enum {
 #endif
 	STRESS_PTHREAD,
 	STRESS_QSORT,
+#if defined(__linux__) && (		\
+    defined(Q_GETQUOTA) ||		\
+    defined(Q_GETFMT) ||		\
+    defined(Q_GETINFO) ||		\
+    defined(Q_GETSTATS) ||		\
+    defined(Q_SYNC))
+	__STRESS_QUOTA,
+#define STRESS_QUOTA __STRESS_QUOTA
+#endif
 #if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 	__STRESS_RDRAND,
 #define STRESS_RDRAND __STRESS_RDRAND
@@ -1175,6 +1185,9 @@ typedef enum {
 	OPT_QSORT,
 	OPT_QSORT_OPS,
 	OPT_QSORT_INTEGERS,
+
+	OPT_QUOTA,
+	OPT_QUOTA_OPS,
 
 #if defined(STRESS_RDRAND)
 	OPT_RDRAND,
@@ -1703,6 +1716,7 @@ STRESS(stress_poll);
 STRESS(stress_procfs);
 STRESS(stress_pthread);
 STRESS(stress_qsort);
+STRESS(stress_quota);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_rename);

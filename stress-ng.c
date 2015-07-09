@@ -243,6 +243,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+#if defined(STRESS_QUOTA)
+	STRESSOR(quota, QUOTA, CLASS_OS),
+#endif
 #if defined(STRESS_RDRAND)
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 #endif
@@ -582,6 +585,10 @@ static const struct option long_options[] = {
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
 	{ "quiet",	0,	0,	OPT_QUIET },
+#if defined(STRESS_QUOTA)
+	{ "quota",	1,	0,	OPT_QUOTA },
+	{ "quota-ops",	1,	0,	OPT_QUOTA_OPS },
+#endif
 	{ "random",	1,	0,	OPT_RANDOM },
 #if defined(STRESS_RDRAND)
 	{ "rdrand",	1,	0,	OPT_RDRAND },
@@ -1014,6 +1021,10 @@ static const help_t help_stressors[] = {
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
+#if defined(STRESS_QUOTA)
+	{ NULL,		"quota N",		"start N workers exercising quotactl commands" },
+	{ NULL,		"quota -ops N",		"stop when N quotactl bogo operations completed" },
+#endif
 #if defined(STRESS_RDRAND)
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
