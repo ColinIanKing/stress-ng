@@ -45,6 +45,7 @@ typedef struct {
 	char	*name;
 	char	*mount;
 	dev_t	st_dev;
+	bool	valid;
 } dev_info_t;
 
 /*
@@ -74,6 +75,7 @@ static void do_quota(const dev_info_t *dev)
 	}
 #endif
 #if defined(Q_GETSTATS)
+	/* Obsolete in recent kernels */
 	if (opt_do_run) {
 		struct dqstats dqstats;
 		(void)quotactl(QCMD(Q_GETSTATS, USRQUOTA),
@@ -98,8 +100,9 @@ int stress_quota(
 	const uint64_t max_ops,
 	const char *name)
 {
-        int i, n_mounts, n_devs = 0;
-        char *mnts[MAX_DEVS];
+	int i, n_mounts, n_devs = 0;
+	int rc = EXIT_FAILURE;
+	char *mnts[MAX_DEVS];
 	dev_info_t devs[MAX_DEVS];
 	DIR *dir;
 	struct dirent *d;
@@ -116,12 +119,14 @@ int stress_quota(
 	if (!dir) {
 		pr_err(stderr, "%s: opendir on /dev failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	for (i = 0; i < n_mounts; i++) {
-		lstat(mnts[i], &buf);
-		devs[i].st_dev = buf.st_dev;
+		if (lstat(mnts[i], &buf) == 0) {
+			devs[i].st_dev = buf.st_dev;
+			devs[i].valid = true;
+		}
 	}
 
 	while ((d = readdir(dir)) != NULL) {
@@ -133,7 +138,9 @@ int stress_quota(
 		if ((buf.st_mode & S_IFBLK) == 0)
 			continue;
 		for (i = 0; i < n_mounts; i++) {
-			if (!devs[i].name && (buf.st_rdev == devs[i].st_dev)) {
+			if (devs[i].valid &&
+			    !devs[i].name &&
+			    (buf.st_rdev == devs[i].st_dev)) {
 				devs[i].name = strdup(path);
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
@@ -173,13 +180,14 @@ int stress_quota(
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
+	rc = EXIT_SUCCESS;
 
+tidy:
 	for (i = 0; i < n_devs; i++)
 		free(devs[i].name);
 
 	mount_free(mnts, n_mounts);
-tidy:
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 #endif
