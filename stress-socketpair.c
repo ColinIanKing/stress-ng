@@ -121,6 +121,8 @@ again:
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
+					if (errno == EMFILE) /* Occurs on socket shutdown */
+						goto abort;
 					if (errno) {
 						pr_failed_dbg(name, "read");
 						break;
@@ -134,6 +136,7 @@ again:
 				}
 			}
 		}
+abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 		exit(EXIT_SUCCESS);
 	} else {
