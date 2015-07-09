@@ -68,9 +68,8 @@ int stress_sysinfo(
 		struct tms tms_buf;
 		clock_t clk;
 		struct statvfs statvfs_buf;
-		int i;
+		int i, ret;
 #if defined(__linux__)
-		int ret;
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
 #endif
