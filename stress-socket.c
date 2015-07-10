@@ -205,6 +205,7 @@ retry:
 				socklen_t len;
 				int sndbuf;
 
+				len = sizeof(addr);
 				if (getsockname(fd, &addr, &len) < 0) {
 					pr_failed_dbg(name, "getsockname");
 					(void)close(sfd);
