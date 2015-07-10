@@ -207,11 +207,13 @@ retry:
 
 				if (getsockname(fd, &addr, &len) < 0) {
 					pr_failed_dbg(name, "getsockname");
+					(void)close(sfd);
 					break;
 				}
 				len = sizeof(sndbuf);
 				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
 					pr_failed_dbg(name, "getsockopt");
+					(void)close(sfd);
 					break;
 				}
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
