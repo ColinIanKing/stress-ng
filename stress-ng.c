@@ -220,6 +220,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(mlock, MLOCK, CLASS_VM | CLASS_OS),
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_OS),
+#if defined(__linux__)
+	STRESSOR(mmapfork, MMAPFORK, CLASS_SCHEDULER | CLASS_VM | CLASS_OS),
+#endif
 	STRESSOR(mmapmany, MMAPMANY, CLASS_VM | CLASS_OS),
 #if defined(STRESS_MREMAP)
 	STRESSOR(mremap, MREMAP, CLASS_VM | CLASS_OS),
@@ -537,6 +540,10 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
+#if defined(__linux__)
+	{ "mmapfork",	1,	0,	OPT_MMAPFORK },
+	{ "mmapfork-ops",1,	0,	OPT_MMAPFORK_OPS },
+#endif
 	{ "mmapmany",	1,	0,	OPT_MMAPMANY },
 	{ "mmapmany-ops",1,	0,	OPT_MMAPMANY_OPS },
 #if defined(STRESS_MREMAP)
@@ -983,6 +990,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
+#if defined(__linux__)
+	{ NULL,		"mmapfork N",		"start N workers stressing many forked mmaps/munmaps" },
+	{ NULL,		"mmapfork-ops N",	"stop when N mmapfork bogo operations completed" },
+#endif
 	{ NULL,		"mmapmany N",		"start N workers stressing many mmaps and munmaps" },
 	{ NULL,		"mmapmany-ops N",	"stop when N mmapmany bogo operations completed" },
 #if defined(STRESS_MREMAP)
@@ -1192,6 +1203,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		NULL,			NULL }
 };
 
+
 /*
  *  stressor_id_find()
  *  	Find index into stressors by id
@@ -1206,6 +1218,18 @@ static inline int stressor_id_find(const stress_id id)
 
 	return i;       /* End of array is a special "NULL" entry */
 }
+
+/*
+ *   stressor_instances()
+ *	return the number of instances for a specific stress test
+ */
+int stressor_instances(const stress_id id)
+{
+	int i = stressor_id_find(id);
+
+        return procs[i].num_procs;
+}
+
 
 /*
  *  get_class()

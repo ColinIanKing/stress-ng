@@ -713,6 +713,9 @@ typedef enum {
 #define STRESS_MLOCK __STRESS_MLOCK
 #endif
 	STRESS_MMAP,
+#if defined(__linux__)
+	STRESS_MMAPFORK,
+#endif
 	STRESS_MMAPMANY,
 #if defined(__linux__) && NEED_GLIBC(2,4,0)
 	__STRESS_MREMAP,
@@ -1130,6 +1133,11 @@ typedef enum {
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
 
+#if defined(__linux__)
+	OPT_MMAPFORK,
+	OPT_MMAPFORK_OPS,
+#endif
+
 	OPT_MMAPMANY,
 	OPT_MMAPMANY_OPS,
 
@@ -1508,6 +1516,8 @@ static inline double timeval_to_double(const struct timeval *tv)
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
+extern int stressor_instances(const stress_id id);
+
 #if defined(STRESS_PERF_STATS)
 /* Perf stats */
 int perf_open(stress_perf_t *sp);
@@ -1704,6 +1714,7 @@ STRESS(stress_memfd);
 STRESS(stress_mincore);
 STRESS(stress_mlock);
 STRESS(stress_mmap);
+STRESS(stress_mmapfork);
 STRESS(stress_mmapmany);
 STRESS(stress_mremap);
 STRESS(stress_msg);
