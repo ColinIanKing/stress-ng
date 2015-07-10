@@ -214,6 +214,7 @@ int stress_quota(
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
 					pr_err(stderr, "%s: out of memory\n", name);
+					closedir(dir);
 					goto tidy;
 				}
 			}
