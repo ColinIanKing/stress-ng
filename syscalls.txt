@@ -75,7 +75,7 @@ getgid				get
 getgroups			get
 getitimer			itimer
 getmntent			sysinfo
-getpeername
+getpeername			sock
 getpagesize			[ legacy ]
 getpgid				get
 getpgrp				get
@@ -140,7 +140,7 @@ mlock				mlock
 mlockall			mlock
 mkstemp				hdd
 mount				[ need privilege, ignore for now ]
-move_pages			numa`
+move_pages			numa
 mmap				bigheap, mmap
 mprotect			mmap
 munmap				mmap
@@ -289,7 +289,7 @@ socketcall			[ implicit ]
 socketpair			sockpair
 stat				fstat
 statfs				sysinfo
-stime
+stime				[ need privilege, ignore for now ]
 swapoff				[ need privilege, ignore for now ]
 swapon				[ need privilege, ignore for now ]
 symlink				symlink

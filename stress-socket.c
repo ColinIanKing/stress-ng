@@ -226,6 +226,9 @@ retry:
 						break;
 					}
 				}
+				if (getpeername(sfd, &addr, &len) < 0) {
+					pr_failed_dbg(name, "getpeername");
+				}
 				(void)close(sfd);
 			}
 			(*counter)++;
