@@ -1165,6 +1165,13 @@ start N workers that rapidly create and catch segmentation faults.
 .B \-\-sigsegv\-ops N
 stop sigsegv stress workers after N bogo segmentation faults.
 .TP
+.B \-\-sigsuspend N
+start N workers that each spawn off 4 child processes that wait for a SIGUSR1 signal from the parent using sigsuspend(2). The parent sends
+SIGUSR1 signals to each child in rapid succession.  Each sigsuspend wakeup is counted as one bogo operation.
+.TP
+.B \-\-sigsuspend-ops N
+stop sigsuspend stress workers after N bogo sigsuspend wakeups.
+.TP
 .B \-\-sigq N
 start N workers that rapidly send SIGUSR1 signals using sigqueue(3) to child processes that wait for the signal via sigwaitinfo(2).
 .TP

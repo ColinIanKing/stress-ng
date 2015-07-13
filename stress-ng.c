@@ -279,6 +279,7 @@ static const stress_t stressors[] = {
 	STRESSOR(sigq, SIGQUEUE, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(sigsegv, SIGSEGV, CLASS_INTERRUPT | CLASS_OS),
+	STRESSOR(sigsuspend, SIGSUSPEND, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
 #if defined(STRESS_SPLICE)
@@ -646,6 +647,8 @@ static const struct option long_options[] = {
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
 	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
+	{ "sigsuspend",	1,	0,	OPT_SIGSUSPEND},
+	{ "sigsuspend-ops",1,	0,	OPT_SIGSUSPEND_OPS},
 	{ "sigpending",	1,	0,	OPT_SIGPENDING},
 	{ "sigpending-ops",1,	0,	OPT_SIGPENDING_OPS },
 #if defined(STRESS_SIGQUEUE)
@@ -1092,6 +1095,8 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
 	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
+	{ NULL,		"sigsuspend N",		"start N workers exercising sigsuspend" },
+	{ NULL,		"sigsuspend-ops N",	"stop when N bogo sigsuspend wakes completed" },
 	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
@@ -2474,6 +2479,7 @@ next_opt:
 
 	memset(shared, 0, len);
 	pthread_spin_init(&shared->perf.lock, 0);
+	pthread_spin_init(&shared->sigsuspend.lock, 0);
 
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)

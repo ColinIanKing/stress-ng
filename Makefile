@@ -102,6 +102,7 @@ SRC =   stress-affinity.c \
 	stress-sigfpe.c \
 	stress-sigpending.c \
 	stress-sigsegv.c \
+	stress-sigsuspend.c \
 	stress-sigq.c \
 	stress-socket.c \
 	stress-socketpair.c \

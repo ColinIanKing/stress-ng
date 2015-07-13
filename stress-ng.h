@@ -589,9 +589,12 @@ typedef struct {
 	sem_t sem_posix ALIGN64;			/* Shared semaphores */
 	bool sem_posix_init ALIGN64;
 	struct {
-		bool no_perf ALIGN64;			/* true = Perf not available */
+		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf ALIGN64;
+	struct {
+		pthread_spinlock_t lock;		/* spinlock on sigsuspend updates */
+	} sigsuspend ALIGN64;
 	key_t sem_sysv_key_id ALIGN64;			/* System V semaphore key id */
 	int sem_sysv_id ALIGN64;			/* System V semaphore id */
 	bool sem_sysv_init ALIGN64;			/* System V semaphore initialized */
@@ -796,6 +799,7 @@ typedef enum {
 #define STRESS_SIGQUEUE __STRESS_SIGQUEUE
 #endif
 	STRESS_SIGSEGV,
+	STRESS_SIGSUSPEND,
 	STRESS_SOCKET,
 	STRESS_SOCKET_PAIR,
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
@@ -1266,6 +1270,9 @@ typedef enum {
 
 	OPT_SIGSEGV,
 	OPT_SIGSEGV_OPS,
+
+	OPT_SIGSUSPEND,
+	OPT_SIGSUSPEND_OPS,
 
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
@@ -1747,6 +1754,7 @@ STRESS(stress_sigfd);
 STRESS(stress_sigfpe);
 STRESS(stress_sigpending);
 STRESS(stress_sigsegv);
+STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
 STRESS(stress_socket);
 STRESS(stress_socket_pair);
