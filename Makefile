@@ -100,6 +100,7 @@ SRC =   stress-affinity.c \
 	stress-shm-sysv.c \
 	stress-sigfd.c \
 	stress-sigfpe.c \
+	stress-sigpending.c \
 	stress-sigsegv.c \
 	stress-sigq.c \
 	stress-socket.c \

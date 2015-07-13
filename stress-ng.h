@@ -790,6 +790,7 @@ typedef enum {
 #define STRESS_SIGFD __STRESS_SIGFD
 #endif
 	STRESS_SIGFPE,
+	STRESS_SIGPENDING,
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
 	__STRESS_SIGQUEUE,
 #define STRESS_SIGQUEUE __STRESS_SIGQUEUE
@@ -1255,13 +1256,16 @@ typedef enum {
 	OPT_SIGFPE,
 	OPT_SIGFPE_OPS,
 
-	OPT_SIGSEGV,
-	OPT_SIGSEGV_OPS,
+	OPT_SIGPENDING,
+	OPT_SIGPENDING_OPS,
 
 #if defined(STRESS_SIGQUEUE)
 	OPT_SIGQUEUE,
 	OPT_SIGQUEUE_OPS,
 #endif
+
+	OPT_SIGSEGV,
+	OPT_SIGSEGV_OPS,
 
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
@@ -1741,6 +1745,7 @@ STRESS(stress_shm_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);
 STRESS(stress_sigfpe);
+STRESS(stress_sigpending);
 STRESS(stress_sigsegv);
 STRESS(stress_sigq);
 STRESS(stress_socket);

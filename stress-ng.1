@@ -1153,6 +1153,12 @@ start N workers that rapidly cause division by zero SIGFPE faults.
 .B \-\-sigfpe\-ops N
 stop sigfpe stress workers after N bogo SIGFPE faults.
 .TP
+.B \-\-sigpending N
+start N workers that check if SIGUSR1 signals are pending. This stressor masks SIGUSR1, generates a SIGUSR1 signal and uses sigpending(2) to see if the signal is pending. Then it unmasks the signal and checks if the signal is no longer pending.
+.TP
+.B \-\-signpending-ops N
+stop sigpending stress workers after N bogo sigpending pending/unpending checks.
+.TP
 .B \-\-sigsegv N
 start N workers that rapidly create and catch segmentation faults.
 .TP

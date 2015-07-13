@@ -192,7 +192,7 @@ quotactl			quota
 read				pipe, zero, ..
 readahead			readahead
 readdir				fstat, inotitfy, proc
-readlink
+readlink			symlink
 readlinkat
 readv				hdd
 reboot				[ need privilege, ignore for now ]
@@ -244,7 +244,7 @@ set_mempolicy			numa
 set_robust_list
 set_thread_area
 set_tid_address
-setdomainname
+setdomainname			[ need privilege, ignore for now ]
 setfsgid
 setfssuid
 setgid
@@ -262,7 +262,7 @@ setreuid
 setrlimit			limit, rlimit
 setsid
 setsockopt			sock	
-settimeofday
+settimeofday			[ need privilege, ignore for now ]
 setuid
 setxattr
 sgetmask			[obsolete]
@@ -273,10 +273,9 @@ shmget				shm-sysv
 shutdown			sock, sockpair
 sigaction			sigfpe
 sigaltstack			pthread, stack
-signal
+signal				[ Avoid  its  use: use sigaction(2) instead ]
 signalfd			sigfd
-signalfd4
-sigpending
+sigpending			sigpending
 sigprocmask			pthread, sigfd
 sigreturn			[ ignore ]
 siglongjmp			sigfpe

@@ -274,6 +274,7 @@ static const stress_t stressors[] = {
 	STRESSOR(sigfd, SIGFD, CLASS_INTERRUPT | CLASS_OS),
 #endif
 	STRESSOR(sigfpe, SIGFPE, CLASS_INTERRUPT | CLASS_OS),
+	STRESSOR(sigpending, SIGPENDING, CLASS_INTERRUPT | CLASS_OS),
 #if defined(STRESS_SIGQUEUE)
 	STRESSOR(sigq, SIGQUEUE, CLASS_INTERRUPT | CLASS_OS),
 #endif
@@ -645,6 +646,8 @@ static const struct option long_options[] = {
 	{ "sigfpe-ops",	1,	0,	OPT_SIGFPE_OPS },
 	{ "sigsegv",	1,	0,	OPT_SIGSEGV },
 	{ "sigsegv-ops",1,	0,	OPT_SIGSEGV_OPS },
+	{ "sigpending",	1,	0,	OPT_SIGPENDING},
+	{ "sigpending-ops",1,	0,	OPT_SIGPENDING_OPS },
 #if defined(STRESS_SIGQUEUE)
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
@@ -1081,6 +1084,8 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
 	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
+	{ NULL,		"sigpending N",		"start N workers exercising sigpending" },
+	{ NULL,		"sigpending-ops N",	"stop when N sigpending bogo operations completed" },
 #if defined(STRESS_SIGQUEUE)
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
 	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
