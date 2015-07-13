@@ -146,7 +146,7 @@ int stress_aio_linux(
 		for (i = 0; i < opt_aio_linux_requests; i++) {
 			cb[i].aio_fildes = fd;
 			cb[i].aio_lio_opcode = IOCB_CMD_PWRITE;
-			cb[i].aio_buf = (uint64_t)buffers[i];
+			cb[i].aio_buf = (long)buffers[i];
 			cb[i].aio_offset = mwc16() * BUFFER_SZ;
 			cb[i].aio_nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
