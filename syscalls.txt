@@ -282,7 +282,7 @@ siglongjmp			sigfpe
 sigqueue			sigq
 sigsetjmp			sigfpe
 sigwaitinfo			sigfpe
-sigsuspend
+sigsuspend			sigsuspend
 socket				sock	
 socketcall			[ implicit ]
 socketpair			sockpair
