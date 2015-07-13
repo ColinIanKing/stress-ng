@@ -161,7 +161,7 @@ OBJS = $(SRC:.c=.o)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -lpthread -lrt -lcrypt -o $@ $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt -o $@ $(LDFLAGS)
 
 stress-cpu.o: stress-cpu.c
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
