@@ -1047,6 +1047,12 @@ stop pthread workers after N bogo pthread create operations.
 .B \-\-pthread\-max N
 create N pthreads per worker. If the product of the number of pthreads by the number of workers is greater than the soft limit of allowed pthreads then the maximum is re-adjusted down to the maximum allowed.
 .TP
+.B \-\-ptrace N
+start N workers that fork and trace system calls of a child process using ptrace(2).
+.TP
+.B \-\-ptrace\-ops N
+stop ptracer workers after N bogo system calls are traced.
+.TP
 .B \-Q, \-\-qsort N
 start N workers that sort 32 bit integers using qsort.
 .TP

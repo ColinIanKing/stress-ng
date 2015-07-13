@@ -185,7 +185,7 @@ prlimit
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
 pselect6
-ptrace
+ptrace				ptrace
 pwrite				readahead, aio
 pwritev
 quotactl			quota
