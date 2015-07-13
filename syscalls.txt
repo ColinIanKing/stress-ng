@@ -328,7 +328,8 @@ vfork				vfork
 vhangup				[ ignore ]
 vmsplice			vm-splice
 wait				various
-wait4
+wait3				[ obsolete ]
+wait4				[ obsolete ]
 waitid				wait
 waitpid				fork, wait, etc
 write				hdd, null, pull
