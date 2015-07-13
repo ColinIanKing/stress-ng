@@ -69,11 +69,13 @@ static int stress_link_generic(
 	const uint64_t max_ops,
 	const char *name,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
-	const char *funcname)
+	const char *funcname,
+	bool symlink)
 {
 	const pid_t pid = getpid();
 	int fd;
 	char oldpath[PATH_MAX];
+	size_t oldpathlen;
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
@@ -85,6 +87,8 @@ static int stress_link_generic(
 		return EXIT_FAILURE;
 	}
 	(void)close(fd);
+
+	oldpathlen = strlen(oldpath);
 
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
@@ -98,6 +102,21 @@ static int stress_link_generic(
 				pr_failed_err(name, funcname);
 				n = i;
 				break;
+			}
+			if (symlink) {
+				char buf[PATH_MAX];
+				ssize_t ret;
+
+				ret = readlink(newpath, buf, sizeof(buf));
+				if (ret < 0) {
+					pr_failed_err(name, "readlink");
+				} else {
+					if ((size_t)ret != oldpathlen)
+						pr_failed_err(name, "readlink length error");
+					else
+						if (strncmp(oldpath, buf, ret))
+							pr_failed_err(name, "readlink path error");
+				}
 			}
 
 			if (!opt_do_run ||
@@ -130,7 +149,7 @@ int stress_link(
 	const char *name)
 {
 	return stress_link_generic(counter, instance,
-		max_ops, name, link, "link");
+		max_ops, name, link, "link", false);
 }
 
 /*
@@ -144,5 +163,5 @@ int stress_symlink(
 	const char *name)
 {
 	return stress_link_generic(counter, instance,
-		max_ops, name, symlink, "symlink");
+		max_ops, name, symlink, "symlink", true);
 }
