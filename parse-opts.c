@@ -95,14 +95,14 @@ static void ensure_positive(const char *const str)
 }
 
 /*
- *  get_int()
+ *  get_int32()
  *	string to int
  */
-int get_int(const char *const str)
+int32_t get_int32(const char *const str)
 {
-	int val;
+	int32_t val;
 
-	if (sscanf(str, "%12d", &val) != 1) {
+	if (sscanf(str, "%12" SCNd32, &val) != 1) {
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}

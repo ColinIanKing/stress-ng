@@ -55,8 +55,6 @@ static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 /* Various option settings and flags */
 int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
 int32_t opt_all = 0;				/* Number of concurrent workers */
-static int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
-static uint32_t opt_class = 0;			/* Which kind of class is specified */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool opt_do_run = true;		/* false to exit stressor */
@@ -64,10 +62,6 @@ volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 
 /* Scheduler options */
-static int opt_sched = UNDEFINED;		/* sched policy */
-static int opt_sched_priority = UNDEFINED;	/* sched priority */
-static int opt_ionice_class = UNDEFINED;	/* ionice class */
-static int opt_ionice_level = UNDEFINED;	/* ionice level */
 
 const char *app_name = "stress-ng";		/* Name of application */
 shared_t *shared;				/* shared memory */
@@ -1229,9 +1223,9 @@ static const help_t help_stressors[] = {
  *  stressor_id_find()
  *  	Find index into stressors by id
  */
-static inline int stressor_id_find(const stress_id id)
+static inline int32_t stressor_id_find(const stress_id id)
 {
-	int i;
+	int32_t i;
 
 	for (i = 0; stressors[i].name; i++)
 		if (stressors[i].id == id)
@@ -1246,7 +1240,7 @@ static inline int stressor_id_find(const stress_id id)
  */
 int stressor_instances(const stress_id id)
 {
-	int i = stressor_id_find(id);
+	int32_t i = stressor_id_find(id);
 
         return procs[i].num_procs;
 }
@@ -1571,6 +1565,9 @@ static void free_procs(void)
 static void MLOCKED stress_run(
 	const int total_procs,
 	const int32_t max_procs,
+	const uint64_t opt_backoff,
+	const int32_t opt_ionice_class,
+	const int32_t opt_ionice_level,
 	proc_stats_t stats[],
 	double *duration,
 	bool *success
@@ -1690,7 +1687,7 @@ wait_for_procs:
  *  show_hogs()
  *	show names of stressors that are going to be run
  */
-static int show_hogs(void)
+static int show_hogs(const uint32_t opt_class)
 {
 	char *newstr, *str = NULL;
 	ssize_t len = 0;
@@ -1851,16 +1848,22 @@ static void times_dump(
 int main(int argc, char **argv)
 {
 	double duration = 0.0;
-	int32_t opt_random = 0, i;
-	int32_t total_procs = 0, max_procs = 0;
 	size_t len;
 	bool success = true;
 	struct sigaction new_action;
 	long int ticks_per_sec;
 	struct rlimit limit;
-	int id;
 	char *yamlfile = NULL;
 	FILE *yaml = NULL;
+	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
+	int32_t id;
+	int32_t opt_sched = UNDEFINED;		/* sched policy */
+	int32_t opt_sched_priority = UNDEFINED;	/* sched priority */
+	int32_t opt_ionice_class = UNDEFINED;	/* ionice class */
+	int32_t opt_ionice_level = UNDEFINED;	/* ionice level */
+	uint32_t opt_class = 0;			/* Which kind of class is specified */
+	int32_t opt_random = 0, i;
+	int32_t total_procs = 0, max_procs = 0;
 
 	memset(procs, 0, sizeof(procs));
 	mwc_reseed();
@@ -2024,7 +2027,7 @@ next_opt:
 			opt_ionice_class = get_opt_ionice_class(optarg);
 			break;
 		case OPT_IONICE_LEVEL:
-			opt_ionice_level = get_int(optarg);
+			opt_ionice_level = get_int32(optarg);
 			break;
 #endif
 		case OPT_ITIMER_FREQ:
@@ -2148,7 +2151,7 @@ next_opt:
 			opt_sched = get_opt_sched(optarg);
 			break;
 		case OPT_SCHED_PRIO:
-			opt_sched_priority = get_int(optarg);
+			opt_sched_priority = get_int32(optarg);
 			break;
 		case OPT_SEEK_SIZE:
 			stress_set_seek_size(optarg);
@@ -2474,7 +2477,7 @@ next_opt:
 		stress_adjust_ptread_max(max);
 	}
 
-	if (show_hogs() < 0) {
+	if (show_hogs(opt_class) < 0) {
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
@@ -2521,13 +2524,17 @@ next_opt:
 				(stressors[i].class & opt_class ?
 					opt_sequential : 0) : opt_sequential;
 			if (procs[i].num_procs)
-				stress_run(opt_sequential, opt_sequential, shared->stats, &duration, &success);
+				stress_run(opt_sequential, opt_sequential,
+					opt_backoff, opt_ionice_class, opt_ionice_level,
+					shared->stats, &duration, &success);
 		}
 	} else {
 		/*
 		 *  Run all stressors in parallel
 		 */
-		stress_run(total_procs, max_procs, shared->stats, &duration, &success);
+		stress_run(total_procs, max_procs,
+			opt_backoff, opt_ionice_class, opt_ionice_level,
+			shared->stats, &duration, &success);
 	}
 	pr_inf(stdout, "%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",

@@ -1556,18 +1556,18 @@ extern const char *duration_to_str(const double duration);
 
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
-extern void set_sched(const int sched, const int sched_priority);
-extern void set_iopriority(const int class, const int level);
+extern void set_sched(const int32_t sched, const int32_t sched_priority);
+extern void set_iopriority(const int32_t class, const int32_t level);
 extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 
 /* Memory locking */
-int stress_mlock_region(void *addr_start, void *addr_end);
+extern int stress_mlock_region(void *addr_start, void *addr_end);
 
 /* Argument parsing and range checking */
-extern int get_opt_sched(const char *const str);
-extern int get_opt_ionice_class(const char *const str);
-extern int get_int(const char *const str);
+extern int32_t get_opt_sched(const char *const str);
+extern int32_t get_opt_ionice_class(const char *const str);
+extern int32_t get_int32(const char *const str);
 extern uint64_t get_uint64(const char *const str);
 extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
 	const char *const msg);

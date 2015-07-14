@@ -56,7 +56,7 @@
  *  get_opt_ionice_class()
  *	string io scheduler to IOPRIO_CLASS
  */
-int get_opt_ionice_class(const char *const str)
+int32_t get_opt_ionice_class(const char *const str)
 {
 #if defined(IOPRIO_CLASS_IDLE)
 	if (!strcmp("idle", str))
@@ -104,7 +104,7 @@ static int ioprio_set(const int which, const int who, const int ioprio)
  *  set_iopriority()
  *	check ioprio settings and set
  */
-void set_iopriority(const int class, const int level)
+void set_iopriority(const int32_t class, const int32_t level)
 {
 	int data = level, rc;
 
@@ -136,7 +136,7 @@ void set_iopriority(const int class, const int level)
 	}
 }
 #else
-void set_iopriority(const int class, const int level)
+void set_iopriority(const int32_t class, const int32_t level)
 {
 	(void)class;
 	(void)level;

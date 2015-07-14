@@ -39,7 +39,7 @@
  *  get_sched_name()
  *	convert sched class to human readable string
  */
-static const char *get_sched_name(const int sched)
+static const char *get_sched_name(const int32_t sched)
 {
 	switch (sched) {
 #if defined(SCHED_IDLE)
@@ -77,7 +77,7 @@ static const char *get_sched_name(const int sched)
  *  set_sched()
  * 	are sched settings valid, if so, set them
  */
-void set_sched(const int sched, const int sched_priority)
+void set_sched(const int32_t sched, const int32_t sched_priority)
 {
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
 	int min, max;
@@ -135,7 +135,7 @@ void set_sched(const int sched, const int sched_priority)
 	}
 }
 #else
-void set_sched(const int sched, const int sched_priority)
+void set_sched(const int32_t sched, const int32_t sched_priority)
 {
 	(void)sched;
 	(void)sched_priority;
@@ -146,7 +146,7 @@ void set_sched(const int sched, const int sched_priority)
  *  get_opt_sched()
  *	get scheduler policy
  */
-int get_opt_sched(const char *const str)
+int32_t get_opt_sched(const char *const str)
 {
 #ifdef SCHED_OTHER
 	if (!strcmp("other", str))
