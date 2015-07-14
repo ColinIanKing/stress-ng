@@ -545,7 +545,7 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_MMAP_BYTES },
 	{ "mmap-file",	0,	0,	OPT_MMAP_FILE },
 	{ "mmap-mprotect",0,	0,	OPT_MMAP_MPROTECT },
-#if defined(__linux__)
+#if defined(STRESS_MMAPFORK)
 	{ "mmapfork",	1,	0,	OPT_MMAPFORK },
 	{ "mmapfork-ops",1,	0,	OPT_MMAPFORK_OPS },
 #endif
@@ -1003,7 +1003,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
-#if defined(__linux__)
+#if defined(STRESS_MMAPFORK)
 	{ NULL,		"mmapfork N",		"start N workers stressing many forked mmaps/munmaps" },
 	{ NULL,		"mmapfork-ops N",	"stop when N mmapfork bogo operations completed" },
 #endif
