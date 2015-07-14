@@ -1,0 +1,28 @@
+stress-ng
+
+stress-ng will stress test a computer system in various selectable ways. It
+was designed to exercise various physical subsystems of a computer as well as
+the various operating system kernel interfaces. Stress-ng features:
+
+  * 105 stress tests
+  * over 50 CPU specific stress tests that exercise floating point, integer,
+    bit manipulation and control flow
+  * over 20 virtual memory stress tests 
+
+stress-ng was originally intended to make a machine work hard and trip hardware
+issues such as thermal overruns as well as operating system bugs that only
+occur when a system is being thrashed hard. Use stress-ng with caution as some
+of the tests can make a system run hot on poorly designed hardware and also can
+cause excessive system thrashing which may be difficult to stop.
+
+stress-ng can also measure test throughput rates; this can be useful to observe
+performance changes across different operating system releases or types of
+hardware. However, it has never been intended to be used as a precise benchmark
+test suite, so do NOT use it in this manner.
+
+Running stress-ng with root privileges will adjust out of memory settings on
+Linux systems to make the stressors unkillable in low memory situations, so use
+this judiciously. With the apropriate privilege, stress-ng can allow the ionice
+class and ionice levels to be adjusted, again, this should be used with care.
+
+For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
