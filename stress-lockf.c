@@ -93,7 +93,7 @@ static lockf_info_t *stress_lockf_info_new(void)
  *	reap a lockf_info and remove a lockf_info from head of list, put it onto
  *	the free lockf_info list
  */
-void stress_lockf_info_head_remove(void)
+static void stress_lockf_info_head_remove(void)
 {
 	if (lockf_infos.head) {
 		lockf_info_t *head = lockf_infos.head;
@@ -117,7 +117,7 @@ void stress_lockf_info_head_remove(void)
  *  stress_lockf_info_free()
  *	free the lockf_infos off the lockf_info head and free lists
  */
-void stress_lockf_info_free(void)
+static void stress_lockf_info_free(void)
 {
 	while (lockf_infos.head) {
 		lockf_info_t *next = lockf_infos.head->next;
@@ -138,7 +138,7 @@ void stress_lockf_info_free(void)
  *  stress_lockf_unlock()
  *	pop oldest lock record off list and unlock it
  */
-int stress_lockf_unlock(const char *name, const int fd)
+static int stress_lockf_unlock(const char *name, const int fd)
 {
 	/* Pop one off list */
 	if (!lockf_infos.head)
