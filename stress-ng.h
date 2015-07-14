@@ -751,7 +751,10 @@ typedef enum {
 #define STRESS_PROCFS __STRESS_PROCFS
 #endif
 	STRESS_PTHREAD,
-	STRESS_PTRACE,
+#if !defined(__gnu_hurd__)
+	__STRESS_PTRACE,
+#define STRESS_PTRACE __STRESS_PTRACE
+#endif
 	STRESS_QSORT,
 #if defined(__linux__) && (		\
     defined(Q_GETQUOTA) ||		\

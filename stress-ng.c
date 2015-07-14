@@ -245,7 +245,9 @@ static const stress_t stressors[] = {
 	STRESSOR(procfs, PROCFS, CLASS_FILESYSTEM | CLASS_OS),
 #endif
 	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
+#if defined(STRESS_PTRACE)
 	STRESSOR(ptrace, PTRACE, CLASS_OS),
+#endif
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_QUOTA)
 	STRESSOR(quota, QUOTA, CLASS_OS),
@@ -591,8 +593,10 @@ static const struct option long_options[] = {
 	{ "pthread",	1,	0,	OPT_PTHREAD },
 	{ "pthread-ops",1,	0,	OPT_PTHREAD_OPS },
 	{ "pthread-max",1,	0,	OPT_PTHREAD_MAX },
+#if defined(STRESS_PTRACE)
 	{ "ptrace",	1,	0,	OPT_PTRACE },
 	{ "ptrace-ops",1,	0,	OPT_PTRACE_OPS },
+#endif
 	{ "qsort",	1,	0,	OPT_QSORT },
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
@@ -1040,8 +1044,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"pthread N",		"start N workers that create multiple threads" },
 	{ NULL,		"pthread-ops N",	"stop pthread workers after N bogo threads created" },
 	{ NULL,		"pthread-max P",	"create P threads at a time by each worker" },
+#if defined(STRESS_PTRACE)
 	{ NULL,		"ptrace N",		"start N workers that trace a child using ptrace" },
 	{ NULL,		"ptrace-ops N",		"stop ptrace workers after N system calls are traced" },
+#endif
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },

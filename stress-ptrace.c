@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_PTRACE)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -36,8 +40,6 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/reg.h>
-
-#include "stress-ng.h"
 
 /*
  *  main syscall ptrace loop
@@ -146,3 +148,5 @@ int stress_ptrace(
 	}
 	return EXIT_SUCCESS;
 }
+
+#endif
