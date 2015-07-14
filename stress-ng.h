@@ -980,6 +980,7 @@ typedef enum {
 
 	OPT_CPU_OPS,
 	OPT_CPU_METHOD,
+	OPT_CPU_LOAD_SLICE,
 
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
@@ -1627,6 +1628,7 @@ extern void stress_set_aio_linux_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
 extern void stress_set_cpu_load(const char *optarg);
+extern void stress_set_cpu_load_slice(const char *optarg);
 extern int  stress_set_cpu_method(const char *name);
 extern void stress_set_dentries(const char *optarg);
 extern int  stress_set_dentry_order(const char *optarg);

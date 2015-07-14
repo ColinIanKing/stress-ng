@@ -70,6 +70,13 @@ typedef struct {
 	const stress_cpu_func	func;	/* the stressor function */
 } stress_cpu_stressor_info_t;
 
+/*
+ *  opt_cpu_load_slice:
+ *	< 0   - number of iterations per busy slice
+ *	= 0   - random duration between 0..0.5 seconds
+ *	> 0   - milliseconds per busy slice
+ */
+static int32_t opt_cpu_load_slice = -64;
 static int32_t opt_cpu_load = 100;
 static stress_cpu_stressor_info_t *opt_cpu_stressor;
 static stress_cpu_stressor_info_t cpu_methods[];
@@ -81,6 +88,15 @@ void stress_set_cpu_load(const char *optarg) {
 	opt_cpu_load = opt_long("cpu load", optarg);
 	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 		fprintf(stderr, "CPU load must in the range 0 to 100.\n");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void stress_set_cpu_load_slice(const char *optarg)
+{
+	opt_cpu_load_slice = opt_long("cpu load slice", optarg);
+	if ((opt_cpu_load < -5000) || (opt_cpu_load > 5000)) {
+		fprintf(stderr, "CPU load must in the range -5000 to 5000.\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -2064,27 +2080,46 @@ int stress_cpu(
 	do {
 		int j;
 		double t, delay;
-		struct timeval tv1, tv2, tv3;
+		double t1, t2, t3;
+		struct timeval tv;
 
-		gettimeofday(&tv1, NULL);
-		for (j = 0; j < 64; j++) {
-			(void)func(name);
-			if (!opt_do_run)
-				break;
-			(*counter)++;
+		t1 = time_now();
+		if (opt_cpu_load_slice < 0) {
+			/* < 0, specifies number of iterations to do per slice */
+			for (j = 0; j < -opt_cpu_load_slice; j++) {
+				(void)func(name);
+				if (!opt_do_run)
+					break;
+				(*counter)++;
+			}
+			t2 = time_now();
+		} else if (opt_cpu_load_slice == 0) {
+			/* == 0, random time slices */
+			double slice_end = t1 + (((double)mwc16()) / 131072.0);
+			do {
+				(void)func(name);
+				t2 = time_now();
+			} while (t2 < slice_end);
+		} else {
+			/* > 0, time slice in milliseconds */
+			double slice_end = t1 + ((double)opt_cpu_load_slice / 1000.0);
+			do {
+				(void)func(name);
+				t2 = time_now();
+			} while (t2 < slice_end);
 		}
-		gettimeofday(&tv2, NULL);
-		t = timeval_to_double(&tv2) - timeval_to_double(&tv1);
+		t = t2 - t1;
 		/* Must not calculate this with zero % load */
 		delay = t * (((100.0 / (double) opt_cpu_load)) - 1.0);
 		delay -= bias;
 
-		tv1.tv_sec = delay;
-		tv1.tv_usec = (delay - tv1.tv_sec) * 1000000.0;
-		select(0, NULL, NULL, NULL, &tv1);
-		gettimeofday(&tv3, NULL);
+		tv.tv_sec = delay;
+		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
+		select(0, NULL, NULL, NULL, &tv);
+
+		t3 = time_now();
 		/* Bias takes account of the time to do the delay */
-		bias = (timeval_to_double(&tv3) - timeval_to_double(&tv2)) - delay;
+		bias = (t3 - t2) - delay;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;

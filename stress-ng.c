@@ -402,6 +402,7 @@ static const struct option long_options[] = {
 	{ "cpu",	1,	0,	OPT_CPU },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
 	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
+	{ "cpu-load-slice",1,	0,	OPT_CPU_LOAD_SLICE },
 	{ "cpu-method",	1,	0,	OPT_CPU_METHOD },
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
@@ -871,6 +872,7 @@ static const help_t help_stressors[] = {
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
+	{ NULL,		"cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
 	{ NULL,		"crypt N",		"start N workers performing password encryption" },
 	{ NULL,		"crypt-ops N",		"stop when N bogo crypt operations completed" },
@@ -1968,6 +1970,9 @@ next_opt:
 			break;
 		case OPT_CPU_LOAD:
 			stress_set_cpu_load(optarg);
+			break;
+		case OPT_CPU_LOAD_SLICE:
+			stress_set_cpu_load_slice(optarg);
 			break;
 		case OPT_CPU_METHOD:
 			if (stress_set_cpu_method(optarg) < 0)
