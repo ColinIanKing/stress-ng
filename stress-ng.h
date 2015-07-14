@@ -1538,16 +1538,16 @@ extern int stressor_instances(const stress_id id);
 
 #if defined(STRESS_PERF_STATS)
 /* Perf stats */
-int perf_open(stress_perf_t *sp);
-int perf_enable(stress_perf_t *sp);
-int perf_disable(stress_perf_t *sp);
-int perf_close(stress_perf_t *sp);
-int perf_get_counter_by_index(const stress_perf_t *sp, const int index, uint64_t *counter, int *id);
-int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *counter, int *index);
-bool perf_stat_succeeded(const stress_perf_t *sp);
-const char *perf_get_label_by_index(const int i);
-const char *perf_stat_scale(const uint64_t counter, const double duration);
-void perf_stat_dump(FILE *yaml, const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
+extern int perf_open(stress_perf_t *sp);
+extern int perf_enable(stress_perf_t *sp);
+extern int perf_disable(stress_perf_t *sp);
+extern int perf_close(stress_perf_t *sp);
+extern int perf_get_counter_by_index(const stress_perf_t *sp, const int index, uint64_t *counter, int *id);
+extern int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *counter, int *index);
+extern bool perf_stat_succeeded(const stress_perf_t *sp);
+extern const char *perf_get_label_by_index(const int i);
+extern const char *perf_stat_scale(const uint64_t counter, const double duration);
+extern void perf_stat_dump(FILE *yaml, const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
 	const int32_t max_procs, const double duration);
 #endif
 
@@ -1611,7 +1611,7 @@ extern int stress_set_net_domain(const int domain_mask, const char *name, const 
 extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
-void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
+extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 extern void stress_semaphore_posix_init(void);
 extern void stress_semaphore_posix_destroy(void);
@@ -1636,7 +1636,7 @@ extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
-extern int stress_hdd_opts(char *opts);
+extern int  stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_itimer_freq(const char *optarg);
@@ -1645,7 +1645,7 @@ extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_malloc_bytes(const char *optarg);
 extern void stress_set_malloc_max(const char *optarg);
 extern void stress_set_malloc_threshold(const char *optarg);
-extern int stress_set_matrix_method(const char *name);
+extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
