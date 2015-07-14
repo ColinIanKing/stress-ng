@@ -16,12 +16,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.04.11
+VERSION=0.04.12
 #
 # Codename "red hot toaster"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
