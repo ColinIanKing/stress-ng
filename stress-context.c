@@ -61,7 +61,7 @@ static void thread3(void)
 	} while (opt_do_run && (!__max_ops || __counter < __max_ops));
 }
 
-int stress_context_init(
+static int stress_context_init(
 	const char *name,
 	void (*func)(void),
 	ucontext_t *link,
