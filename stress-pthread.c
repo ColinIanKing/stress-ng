@@ -66,7 +66,7 @@ void stress_adjust_ptread_max(uint64_t max)
  *  stress_pthread_func()
  *	pthread that exits immediately
  */
-void *stress_pthread_func(void *ctxt)
+static void *stress_pthread_func(void *ctxt)
 {
 	uint8_t stack[SIGSTKSZ];
 	stack_t ss;
