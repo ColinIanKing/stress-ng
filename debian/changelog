@@ -1,3 +1,17 @@
+stress-ng (0.04.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix segfault in metrics because MMAPFORK macro not defined correctly
+  * Add --cpu-load-slice option for CPU stressor time slice tweaks
+  * Minor re-organising of main globals and make ints into int32_t
+  * stress-ng.h: extern some misc funcs
+  * stress-pthread: make stress_pthread_func static
+  * stress-lockf: make lock helpers static
+  * stress-epoll: mlock handle_socket_sigalarm
+  * stress-context: make stress_context_init static
+
+ -- Colin King <colin.king@canonical.com>  Wed, 15 Jul 2015 00:44:00 +0100
+
 stress-ng (0.04.11-1) unstable; urgency=medium
 
   * Makefile: bump version
