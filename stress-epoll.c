@@ -132,7 +132,7 @@ static void MLOCKED epoll_timer_handler(int sig)
  *  handle_socket_sigalrm()
  *	catch SIGALRM
  */
-static void handle_socket_sigalrm(int dummy)
+static MLOCKED void handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
