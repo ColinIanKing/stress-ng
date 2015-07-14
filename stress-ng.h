@@ -717,7 +717,8 @@ typedef enum {
 #endif
 	STRESS_MMAP,
 #if defined(__linux__)
-	STRESS_MMAPFORK,
+	__STRESS_MMAPFORK,
+#define STRESS_MMAPFORK	__STRESS_MMAPFORK
 #endif
 	STRESS_MMAPMANY,
 #if defined(__linux__) && NEED_GLIBC(2,4,0)
