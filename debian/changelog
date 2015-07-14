@@ -1,3 +1,74 @@
+stress-ng (0.04.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add README and README.Android to make dist rule
+  * Add README
+  * Add Android porting notes, thanks to M.Srikanth Kumar.
+  * For now, enable ptrace stressor for just linux
+  * Remove unwanted sys/regs include from ptrace stressor
+  * Make mmapfork help and options build on STRESS_MMAPFORK
+  * Don't build ptrace stressor for GNU/HURD
+  * Fix stress-mmapfork builds on non-Linux systems
+  * Add ptrace stressor
+  * Use -pthread rather that -lpthread to allow for static builds
+  * stress-aio: cast to (long) for aio_buf for 32/64 bit portability
+  * Update syscalls.txt with sigsuspend
+  * Add sigsuspend stressor
+  * Update syscalls.txt w.r.t obsolete wait3, wait4 calls
+  * Add sigpending stressor
+  * stress-symlink: add readlink to symlink stressor
+  * Add getpeername call to sock stressor
+  * stress-quota: ensure we closedir on dir on error exit path
+  * stress-socket: initialise len to be sizeof(addr)
+  * stress-socket: fix fd resource leak
+  * Add mmapmany fork + mmap VM stressor
+  * Re-order MEMFD in header
+  * Add --yaml option to output data to a structured YAML file
+  * socketpair: handle shutdown when we've maxed out socket fds
+  * stress-sysinfo: Move ret so checks work on non-Linux systems
+  * stress-sysinfo: fix build for non-Linux systems
+  * Re-enable xattr tests
+  * Update syscalls.txt, add getcpu
+  * stress-numa: clean up code, add getcpu call
+  * Update syscalls.txt with getsock* calls
+  * stress-socket: correct dbg error text
+  * stress-socket: call getsockopt() for more stress overhead
+  * stress-socket: call getsockname() for more stress overhead
+  * stress-quota: improve error handling reporting
+  * stress-quota: minor resource leak and stat checks
+  * Update syscalls.txt with quotactl
+  * Add stress-quota quotactl stressor
+  * Make SIEVE macro not size dependent
+  * stress-aio-linux: change finish label, fixes close of fd -1
+  * Update syscalls.txt
+  * Add a fcntl stressor
+  * Re-order HDD and HSEARCH in stress-ng.h
+  * Correct man page concerning the 0 stressor option
+  * Use _SC_NPROCESSORS_CONF stressors when zero stressors selected
+  * Update syscalls with NUMA test update
+  * Add some NUMA clarifications in the manual
+  * Add NUMA stressor
+  * stress-lockf: re-align a comment
+  * stress-kill: improve comment on kill on -1 pid
+  * syscalls - rename aioabi to aiol
+  * Add fstatvfs to sysinfo test
+  * Add Linux asynchronous I/O io_* system call stressors
+  * Add shutdown to syscalls
+  * stress-socket: add socket shutdown
+  * stress-socketpair: close with shutdown, don't use magic string
+  * Update syscalls.txt
+  * Make socket pair even more stressy
+  * Close pipe, and don't report error on EPIPE as that is expected
+  * Add socketpair stressor
+  * Try to mlock all sig handlers and critical code into memory
+  * If a fork fails, set pid num to zero to avoid killing pid -1
+  * Make log type name fields the same width
+  * Change "stressors started" to "stressors spawned"
+  * Emit perf not enabled message just once.
+  * stress-brk: remove incorrect free on ptr
+
+ -- Colin King <colin.king@canonical.com>  Tue, 14 Jul 2015 10:20:00 +0100
+
 stress-ng (0.04.10-1) unstable; urgency=medium
 
   * Makefile: bump version
