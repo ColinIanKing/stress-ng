@@ -192,7 +192,7 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile $(SRC) stress-ng.h stress-ng.1 \
-		COPYING syscalls.txt mascot \
+		COPYING syscalls.txt mascot README README.Android \
 		stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
