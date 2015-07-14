@@ -220,7 +220,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(mlock, MLOCK, CLASS_VM | CLASS_OS),
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_OS),
-#if defined(__linux__)
+#if defined(STRESS_MMAPFORK)
 	STRESSOR(mmapfork, MMAPFORK, CLASS_SCHEDULER | CLASS_VM | CLASS_OS),
 #endif
 	STRESSOR(mmapmany, MMAPMANY, CLASS_VM | CLASS_OS),

@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MMAPFORK)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -32,8 +36,6 @@
 #include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "stress-ng.h"
 
 #define MAX_PIDS	(32)
 
@@ -109,3 +111,5 @@ reap:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
