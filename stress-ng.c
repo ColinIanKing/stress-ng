@@ -1484,8 +1484,8 @@ redo:
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
 					if (WEXITSTATUS(status)) {
-						pr_err(stderr, "Process %d terminated with an error, exit status=%d\n",
-							ret, WEXITSTATUS(status));
+						pr_err(stderr, "Process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
+							ret, stressors[i].name, WEXITSTATUS(status));
 						*success = false;
 					}
 					proc_finished(&procs[i].pids[j]);
