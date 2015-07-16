@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <inttypes.h>
 #include <libgen.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
