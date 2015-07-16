@@ -22,7 +22,7 @@ test suite, so do NOT use it in this manner.
 
 Running stress-ng with root privileges will adjust out of memory settings on
 Linux systems to make the stressors unkillable in low memory situations, so use
-this judiciously. With the apropriate privilege, stress-ng can allow the ionice
+this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
