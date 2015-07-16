@@ -50,6 +50,15 @@
 #include <features.h>
 #endif
 
+/*
+ * STRESS_ASSERT(test)
+ *   throw compile time error if test not true
+ */
+#define STRESS_CONCAT(a, b) a ## b
+#define STRESS_CONCAT_EXPAND(a, b) STRESS_CONCAT(a, b)
+#define STRESS_ASSERT(expr) \
+	enum { STRESS_CONCAT_EXPAND(STRESS_ASSERT_AT_LINE_, __LINE__) = 1 / !!(expr) };
+
 #define _VER_(major, minor, patchlevel)			\
 	((major * 10000) + (minor * 100) + patchlevel)
 
