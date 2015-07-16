@@ -592,25 +592,25 @@ typedef struct {
 
 /* Shared memory segment */
 typedef struct {
-	uint8_t	 mem_cache[MEM_CACHE_SIZE] ALIGN64;	/* Shared memory cache */
-	uint32_t futex[STRESS_PROCS_MAX] ALIGN64;	/* Shared futexes */
-	uint64_t futex_timeout[STRESS_PROCS_MAX] ALIGN64;
-	sem_t sem_posix ALIGN64;			/* Shared semaphores */
-	bool sem_posix_init ALIGN64;
+	uint8_t	 mem_cache[MEM_CACHE_SIZE];		/* Shared memory cache */
+	uint32_t futex[STRESS_PROCS_MAX];		/* Shared futexes */
+	uint64_t futex_timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
+	sem_t sem_posix;				/* Shared semaphores */
+	bool sem_posix_init;
 	struct {
 		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
-	} perf ALIGN64;
+	} perf;
 	struct {
 		pthread_spinlock_t lock;		/* spinlock on sigsuspend updates */
-	} sigsuspend ALIGN64;
-	key_t sem_sysv_key_id ALIGN64;			/* System V semaphore key id */
-	int sem_sysv_id ALIGN64;			/* System V semaphore id */
-	bool sem_sysv_init ALIGN64;			/* System V semaphore initialized */
+	} sigsuspend;
+	key_t sem_sysv_key_id;				/* System V semaphore key id */
+	int sem_sysv_id;				/* System V semaphore id */
+	bool sem_sysv_init;				/* System V semaphore initialized */
 #if defined(STRESS_THERMAL_ZONES)
-	tz_info_t *tz_info ALIGN64;			/* List of valid thermal zones */
+	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
-	proc_stats_t stats[0] ALIGN64;			/* Shared statistics */
+	proc_stats_t stats[0];				/* Shared statistics */
 } shared_t;
 
 /* Stress test classes */
