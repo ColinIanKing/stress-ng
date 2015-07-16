@@ -75,7 +75,7 @@ int stress_kill(
 
 		/*
 		 * Zero signal can be used to see if process exists,
-		 * -1 pid means signal sent to every proces caller has
+		 * -1 pid means signal sent to every process caller has
 		 * permission to send to
 		 */
 		ret = kill(-1, 0);
