@@ -1476,6 +1476,8 @@ extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t 
 extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
 extern void stress_cwd_readwriteable(void);
 
+extern const char *stress_strsignal(const int signum);
+
 #if defined(STRESS_X86)
 
 static inline void clflush(volatile void *ptr)

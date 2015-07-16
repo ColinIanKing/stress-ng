@@ -263,3 +263,29 @@ void stress_cwd_readwriteable(void)
 		return;
 	}
 }
+
+/*
+ *  stress_strsignal()
+ *	signum to human readable string
+ */
+const char *stress_strsignal(const int signum)
+{
+	static char buffer[128];
+	char *str = NULL;
+
+#if defined(NSIG)
+	if ((signum >= 0) || (signum < NSIG))
+		str = strsignal(signum);
+#elif defined(_NSIG)
+	if ((signum >= 0) || (signum < N_SIG))
+		str = strsignal(signum);
+#endif
+	if (str) {
+		snprintf(buffer, sizeof(buffer), "signal %d (%s)",
+			signum, str);
+	} else {
+		snprintf(buffer, sizeof(buffer), "signal %d",
+			signum);
+	}
+	return buffer;
+}
