@@ -2369,6 +2369,7 @@ next_opt:
 		}
 	}
 
+	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
 	set_coredump("main");
 	set_sched(opt_sched, opt_sched_priority);

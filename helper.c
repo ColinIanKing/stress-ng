@@ -244,3 +244,22 @@ int stress_temp_dir_rm(
 
 	return ret;
 }
+
+/*
+ *  stress_cwd_readwriteable()
+ *	check if cwd is read/writeable
+ */
+void stress_cwd_readwriteable(void)
+{
+	char path[PATH_MAX];
+
+	if (getcwd(path, sizeof(path)) == NULL) {
+		pr_dbg(stderr, "Cannot determine current working directory\n");
+		return;
+	}
+	if (access(path, R_OK | W_OK)) {
+		pr_inf(stderr, "Working directory %s is not read/writeable, "
+			"some I/O tests may fail\n", path);
+		return;
+	}
+}

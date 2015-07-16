@@ -1474,6 +1474,7 @@ extern int stress_temp_dir(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
+extern void stress_cwd_readwriteable(void);
 
 #if defined(STRESS_X86)
 
