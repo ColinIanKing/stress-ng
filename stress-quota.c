@@ -242,7 +242,7 @@ int stress_quota(
 		memset(&devs[i], 0, sizeof(devs[i]));
 
 	if (!n_devs) {
-		pr_err(stderr, "%s: cannot find any canditate block devices\n", name);
+		pr_err(stderr, "%s: cannot find any candidate block devices with quota enabled\n", name);
 	} else {
 		do {
 			for (i = 0; opt_do_run && (i < n_devs); i++)
