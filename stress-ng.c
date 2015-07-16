@@ -1746,7 +1746,7 @@ static int show_hogs(const uint32_t opt_class)
 static void metrics_dump(
 	FILE *yaml,
 	const int32_t max_procs,
-	const long int ticks_per_sec)
+	const int32_t ticks_per_sec)
 {
 	int32_t i;
 
@@ -1811,7 +1811,7 @@ static void metrics_dump(
  */
 static void times_dump(
 	FILE *yaml,
-	const long int ticks_per_sec,
+	const int32_t ticks_per_sec,
 	const double duration)
 {
 	struct tms buf;
@@ -1851,16 +1851,16 @@ static void times_dump(
 
 int main(int argc, char **argv)
 {
-	double duration = 0.0;
+	double duration = 0.0;			/* stressor run time in secs */
 	size_t len;
 	bool success = true;
 	struct sigaction new_action;
-	long int ticks_per_sec;
 	struct rlimit limit;
-	char *yamlfile = NULL;
-	FILE *yaml = NULL;
+	char *yamlfile = NULL;			/* YAML filename */
+	FILE *yaml = NULL;			/* YAML output file */
 	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
-	int32_t id;
+	int32_t id;				/* stressor id */
+	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
 	int32_t opt_sched = UNDEFINED;		/* sched policy */
 	int32_t opt_sched_priority = UNDEFINED;	/* sched priority */
 	int32_t opt_ionice_class = UNDEFINED;	/* ionice class */
@@ -2498,7 +2498,6 @@ next_opt:
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-
 	memset(shared, 0, len);
 	pthread_spin_init(&shared->perf.lock, 0);
 	pthread_spin_init(&shared->sigsuspend.lock, 0);
