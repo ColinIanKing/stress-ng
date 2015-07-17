@@ -32,8 +32,13 @@
 #include <inttypes.h>
 #include <libgen.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(__linux__)
+#include <sys/utsname.h>
+#include <sys/sysinfo.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -289,4 +294,59 @@ const char *stress_strsignal(const int signum)
 			signum);
 	}
 	return buffer;
+}
+
+/*
+ *  pr_yaml_runinfo()
+ *	log info about the system we are running stress-ng on
+ */
+void pr_yaml_runinfo(FILE *yaml)
+{
+#if defined(__linux__)
+	struct utsname uts;
+	struct sysinfo info;
+#endif
+	time_t t;
+	struct tm *tm = NULL;
+	char hostname[128];
+	char *user = getlogin();
+
+	pr_yaml(yaml, "system-info:\n");
+	if (time(&t) != ((time_t)-1))
+		tm = localtime(&t);
+
+	pr_yaml(yaml, "    - stress-ng-version: " VERSION "\n");
+	pr_yaml(yaml, "      run-by: %s\n", user ? user : "unknown");
+	if (tm) {
+		pr_yaml(yaml, "      date-yyyy-mm-dd: %4.4d:%2.2d:%2.2d\n",
+			tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+		pr_yaml(yaml, "      time-hh-mm-ss: %2.2d:%2.2d:%2.2d\n",
+			tm->tm_hour, tm->tm_min, tm->tm_sec);
+		pr_yaml(yaml, "      epoch-secs: %ld\n", (long)t);
+	}
+	if (!gethostname(hostname, sizeof(hostname)))
+		pr_yaml(yaml, "      hostname: %s\n", hostname);
+#if defined(__linux__)
+	if (uname(&uts) == 0) {
+		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
+		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
+		pr_yaml(yaml, "      release: %s\n", uts.release);
+		pr_yaml(yaml, "      version: %s\n", uts.version);
+		pr_yaml(yaml, "      machine: %s\n", uts.machine);
+	}
+	if (sysinfo(&info) == 0) {
+		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
+		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
+		pr_yaml(yaml, "      freeram: %lu\n", info.freeram);
+		pr_yaml(yaml, "      sharedram: %lu\n", info.sharedram);
+		pr_yaml(yaml, "      bufferram: %lu\n", info.bufferram);
+		pr_yaml(yaml, "      totalswap: %lu\n", info.totalswap);
+		pr_yaml(yaml, "      freeswap: %lu\n", info.freeswap);
+	}
+#endif
+	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_pagesize());
+	pr_yaml(yaml, "      cpus: %ld\n", stress_get_processors_configured());
+	pr_yaml(yaml, "      cpus-online: %ld\n", stress_get_processors_online());
+	pr_yaml(yaml, "      ticks-per-second: %ld\n", stress_get_ticks_per_second());
+	pr_yaml(yaml, "\n");
 }

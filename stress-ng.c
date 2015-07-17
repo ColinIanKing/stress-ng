@@ -2553,6 +2553,7 @@ next_opt:
 			pr_err(stdout, "Cannot output YAML data to %s\n", yamlfile);
 
 		pr_yaml(yaml, "---\n");
+		pr_yaml_runinfo(yaml);
 	}
 
 	if (opt_flags & OPT_FLAGS_METRICS)

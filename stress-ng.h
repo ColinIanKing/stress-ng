@@ -190,6 +190,8 @@ extern int print(FILE *fp, const uint64_t flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
 extern void pr_failed(const uint64_t flag, const char *name, const char *what, const int err);
 extern int pr_yaml(FILE *fp, const char *const fmt, ...);
+extern void pr_yaml_runinfo(FILE *fp);
+
 
 #define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
 #define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
