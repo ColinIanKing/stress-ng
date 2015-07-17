@@ -35,7 +35,7 @@
 /*
  *  getrandom() syscall
  */
-static inline int __getrandom(void *buff, size_t buflen, unsigned int flags)
+static inline int sys_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
 	return syscall(__NR_getrandom, buff, buflen, flags);
 }
@@ -56,7 +56,7 @@ int stress_getrandom(
 		char buffer[8192];
 		ssize_t ret;
 
-		ret = __getrandom(buffer, sizeof(buffer), 0);
+		ret = sys_getrandom(buffer, sizeof(buffer), 0);
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
