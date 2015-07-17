@@ -46,9 +46,14 @@
 /*
  *  Ugly hack until glibc defines this
  */
-static inline int __memfd_create(const char *name, unsigned int flags)
+static inline int sys_memfd_create(const char *name, unsigned int flags)
 {
+#if defined(__NR_memfd_create)
 	return syscall(__NR_memfd_create, name, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 /*
@@ -75,7 +80,7 @@ static void stress_memfd_allocs(
 			char name[PATH_MAX];
 
 			snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
-			fds[i] = __memfd_create(name, 0);
+			fds[i] = sys_memfd_create(name, 0);
 			if (fds[i] < 0) {
 				switch (errno) {
 				case EMFILE:
