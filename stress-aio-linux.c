@@ -46,25 +46,45 @@
 static int opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 static bool set_aio_linux_requests = false;
 
-static inline int io_setup(unsigned nr_events, aio_context_t *ctx_idp)
+static inline int sys_io_setup(unsigned nr_events, aio_context_t *ctx_idp)
 {
+#if defined(__NR_io_setup)
 	return syscall(__NR_io_setup, nr_events, ctx_idp);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
-static inline int io_destroy(aio_context_t ctx_id)
+static inline int sys_io_destroy(aio_context_t ctx_id)
 {
+#if defined(__NR_io_destroy)
 	return syscall(__NR_io_destroy, ctx_id);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
-static inline int io_submit(aio_context_t ctx_id, long nr, struct iocb **iocbpp)
+static inline int sys_io_submit(aio_context_t ctx_id, long nr, struct iocb **iocbpp)
 {
+#if defined(__NR_io_submit)
 	return syscall(__NR_io_submit, ctx_id, nr, iocbpp);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
-static inline int io_getevents(aio_context_t ctx_id, long min_nr, long max_nr,
+static inline int sys_io_getevents(aio_context_t ctx_id, long min_nr, long max_nr,
 	struct io_event *events, struct timespec *timeout)
 {
+#if defined(__NR_io_getevents)
 	return syscall(__NR_io_getevents, ctx_id, min_nr, max_nr, events, timeout);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 void stress_set_aio_linux_requests(const char *optarg)
@@ -114,7 +134,7 @@ int stress_aio_linux(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_linux_requests = MIN_AIO_REQUESTS;
 	}
-	if (io_setup(opt_aio_linux_requests, &ctx) < 0) {
+	if (sys_io_setup(opt_aio_linux_requests, &ctx) < 0) {
 		pr_failed_err(name, "io_setup");
 		return EXIT_FAILURE;
 	}
@@ -151,7 +171,7 @@ int stress_aio_linux(
 			cb[i].aio_nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		ret = io_submit(ctx, opt_aio_linux_requests, cbs);
+		ret = sys_io_submit(ctx, opt_aio_linux_requests, cbs);
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
@@ -174,7 +194,7 @@ int stress_aio_linux(
 				timeout_ptr = &timeout;
 			}
 
-			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
+			ret = sys_io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
 				if ((errno == EINTR) && (opt_do_run))
 					continue;
@@ -190,7 +210,7 @@ int stress_aio_linux(
 	rc = EXIT_SUCCESS;
 	(void)close(fd);
 finish:
-	(void)io_destroy(ctx);
+	(void)sys_io_destroy(ctx);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }
