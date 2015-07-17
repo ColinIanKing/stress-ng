@@ -90,6 +90,8 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 			name, rc, ret);			\
 		}					\
 	}						\
+	if (!opt_do_run)				\
+		break;					\
 }
 
 /*
