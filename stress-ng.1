@@ -794,7 +794,7 @@ specify ionice level (only on Linux). For idle, 0 is the only possible option. F
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
-the itimer is 1Mhz, however, the Linux kernel will set this to be no more that
+the itimer is 1 MHz, however, the Linux kernel will set this to be no more that
 the jiffy setting, hence high frequency SIGPROF signals are not normally
 possible.  A busy loop spins on getitimer(2) calls to consume CPU and hence
 decrement the itimer based on amount of time spent in CPU and system time.
@@ -1275,7 +1275,7 @@ move data from a writer process to a reader process through pipes and to /dev/nu
 stop after N bogo tee operations.
 .TP
 .B \-T N, \-\-timer N
-start N workers creating timer events at a default rate of 1Mhz (Linux only); this
+start N workers creating timer events at a default rate of 1 MHz (Linux only); this
 can create a many thousands of timer clock interrupts. Each timer event is caught by a
 signal handler and counted as a bogo timer op.
 .TP
@@ -1289,7 +1289,7 @@ run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an 
 select a timer frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-timerfd N
-start N workers creating timerfd events at a default rate of 1Mhz (Linux only); this
+start N workers creating timerfd events at a default rate of 1 MHz (Linux only); this
 can create a many thousands of timer clock events. Timer events are waited for on the timer file descriptor
 using select(2) and then read and counted as a bogo timerfd op.
 .TP
