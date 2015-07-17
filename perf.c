@@ -89,6 +89,16 @@ static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	{ 0, 0, 0, NULL }
 };
 
+static inline int sys_perf_event_open(
+	struct perf_event_attr *attr,
+	pid_t pid,
+	int cpu,
+	int group_fd,
+	unsigned long flags)
+{
+	return syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
+}
+
 /*
  *  perf_yaml_label()
  *	turns text into a yaml compatible lable.
@@ -150,7 +160,7 @@ int perf_open(stress_perf_t *sp)
 		attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
 				   PERF_FORMAT_TOTAL_TIME_RUNNING;
 		attr.size = sizeof(attr);
-		sp->perf_stat[i].fd = syscall(__NR_perf_event_open, &attr, 0, -1, -1, 0);
+		sp->perf_stat[i].fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
 		if (sp->perf_stat[i].fd > -1)
 			sp->perf_opened++;
 	}
