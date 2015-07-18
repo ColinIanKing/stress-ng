@@ -2078,7 +2078,6 @@ int stress_cpu(
 	 */
 	bias = 0.0;
 	do {
-		int j;
 		double t, delay;
 		double t1, t2, t3;
 		struct timeval tv;
@@ -2086,6 +2085,8 @@ int stress_cpu(
 		t1 = time_now();
 		if (opt_cpu_load_slice < 0) {
 			/* < 0, specifies number of iterations to do per slice */
+			int j;
+
 			for (j = 0; j < -opt_cpu_load_slice; j++) {
 				(void)func(name);
 				if (!opt_do_run)
