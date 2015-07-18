@@ -85,7 +85,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		uint8_t *ptr, *start_ptr;
+		uint8_t *start_ptr;
 		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 
 		/* Make sure this is killable by OOM killer */
@@ -99,7 +99,7 @@ again:
 		}
 
 		do {
-			ptr = sbrk((intptr_t)page_size);
+			uint8_t *ptr = sbrk((intptr_t)page_size);
 			if (ptr == (void *)-1) {
 				if (errno == ENOMEM) {
 					nomems++;
