@@ -64,7 +64,7 @@ int stress_rlimit(
 {
 	struct rlimit limit;
 	struct sigaction new_action;
-	int ret, fd;
+	int fd;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
@@ -107,6 +107,8 @@ int stress_rlimit(
 	setrlimit(RLIMIT_FSIZE, &limit);
 
 	do {
+		int ret;
+
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we generate an rlimit signal, so
