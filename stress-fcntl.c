@@ -54,94 +54,135 @@ static void check_return(const int ret, const char *name, const char *cmd)
  */
 static int do_fcntl(const int fd, const char *name)
 {
-	int ret, old_flags, new_flags;
-#if defined(F_SETOWN_EX) || defined(F_GETOWN_EX)
-	struct f_owner_ex owner;
-#endif
-
 #if defined(F_DUPFD)
-	ret = fcntl(fd, F_DUPFD, mwc8());
-	check_return(ret, name, "F_DUPFD");
-	if (ret > -1)
-		(void)close(ret);
+	{
+		int ret;
+
+		ret = fcntl(fd, F_DUPFD, mwc8());
+		check_return(ret, name, "F_DUPFD");
+		if (ret > -1)
+			(void)close(ret);
+	}
 #endif
 
 #if defined(F_DUPFD_CLOEXEC)
-	ret = fcntl(fd, F_DUPFD_CLOEXEC, mwc8());
-	check_return(ret, name, "F_DUPFD_CLOEXEC");
-	if (ret > -1)
-		(void)close(ret);
+	{
+		int ret;
+
+		ret = fcntl(fd, F_DUPFD_CLOEXEC, mwc8());
+		check_return(ret, name, "F_DUPFD_CLOEXEC");
+		if (ret > -1)
+			(void)close(ret);
+	}
 #endif
 
 #if defined(F_GETFD)
-	old_flags = fcntl(fd, F_GETFD);
-	check_return(old_flags, name, "F_GETFD");
+	{
+		int old_flags;
+
+		old_flags = fcntl(fd, F_GETFD);
+		check_return(old_flags, name, "F_GETFD");
 
 #if defined(F_SETFD) && defined(O_CLOEXEC)
-	if (old_flags > -1) {
-		new_flags = old_flags |= O_CLOEXEC;
-		ret = fcntl(fd, F_SETFD, new_flags);
-		check_return(ret, name, "F_SETFD");
+		if (old_flags > -1) {
+			int new_flags, ret;
 
-		new_flags &= ~O_CLOEXEC;
-		ret = fcntl(fd, F_SETFD, new_flags);
-		check_return(ret, name, "F_SETFD");
-	}
+			new_flags = old_flags |= O_CLOEXEC;
+			ret = fcntl(fd, F_SETFD, new_flags);
+			check_return(ret, name, "F_SETFD");
+
+			new_flags &= ~O_CLOEXEC;
+			ret = fcntl(fd, F_SETFD, new_flags);
+			check_return(ret, name, "F_SETFD");
+		}
 #endif
+	}
 #endif
 
 #if defined(F_GETFL)
-	old_flags = fcntl(fd, F_GETFL);
-	check_return(old_flags, name, "F_GETFL");
+	{
+		int old_flags;
+
+		old_flags = fcntl(fd, F_GETFL);
+		check_return(old_flags, name, "F_GETFL");
 
 #if defined(F_SETFL) && defined(O_APPEND)
-	if (old_flags > -1) {
-		new_flags = old_flags |= O_APPEND;
-		ret = fcntl(fd, F_SETFL, new_flags);
-		check_return(ret, name, "F_SETFL");
+		if (old_flags > -1) {
+			int new_flags, ret;
 
-		new_flags &= ~O_APPEND;
-		ret = fcntl(fd, F_SETFL, new_flags);
-		check_return(ret, name, "F_SETFL");
-	}
+			new_flags = old_flags |= O_APPEND;
+			ret = fcntl(fd, F_SETFL, new_flags);
+			check_return(ret, name, "F_SETFL");
+
+			new_flags &= ~O_APPEND;
+			ret = fcntl(fd, F_SETFL, new_flags);
+			check_return(ret, name, "F_SETFL");
+		}
 #endif
+	}
 #endif
 
 #if defined(F_SETOWN)
-	ret = fcntl(fd, F_SETOWN, getpid());
-	check_return(ret, name, "F_SETOWN");
+	{
+		int ret;
+
+		ret = fcntl(fd, F_SETOWN, getpid());
+		check_return(ret, name, "F_SETOWN");
+	}
 #endif
 
 #if defined(F_GETOWN)
-	ret = fcntl(fd, F_GETOWN);
-	check_return(ret, name, "F_GETOWN");
+	{
+		int ret;
+
+		ret = fcntl(fd, F_GETOWN);
+		check_return(ret, name, "F_GETOWN");
+	}
 #endif
 
 #if defined(F_SETOWN_EX)
-	owner.type = F_OWNER_PID;
-	owner.pid = getpid();
-	ret = fcntl(fd, F_SETOWN_EX, &owner);
-	check_return(ret, name, "F_SETOWN_EX");
+	{
+		int ret;
+		struct f_owner_ex owner;
+	
+		owner.type = F_OWNER_PID;
+		owner.pid = getpid();
+		ret = fcntl(fd, F_SETOWN_EX, &owner);
+		check_return(ret, name, "F_SETOWN_EX");
+	}
 #endif
 
 #if defined(F_GETOWN_EX)
-	owner.type = F_OWNER_PID;
-	ret = fcntl(fd, F_GETOWN_EX, &owner);
-	check_return(ret, name, "F_GETOWN_EX");
+	{
+		int ret;
+		struct f_owner_ex owner;
+
+		owner.type = F_OWNER_PID;
+		ret = fcntl(fd, F_GETOWN_EX, &owner);
+		check_return(ret, name, "F_GETOWN_EX");
+	}
 #endif
 
 #if defined(F_SETSIG)
-	ret = fcntl(fd, F_SETSIG, SIGKILL);
-	check_return(ret, name, "F_SETSIG");
-	ret = fcntl(fd, F_SETSIG, 0);
-	check_return(ret, name, "F_SETSIG");
-	ret = fcntl(fd, F_SETSIG, SIGIO);
-	check_return(ret, name, "F_SETSIG");
+	{
+		int ret;
+
+		ret = fcntl(fd, F_SETSIG, SIGKILL);
+		check_return(ret, name, "F_SETSIG");
+		ret = fcntl(fd, F_SETSIG, 0);
+		check_return(ret, name, "F_SETSIG");
+		ret = fcntl(fd, F_SETSIG, SIGIO);
+		check_return(ret, name, "F_SETSIG");
+	}
 #endif
 
 #if defined(F_GETSIG)
-	ret = fcntl(fd, F_GETSIG);
-	check_return(ret, name, "F_GETSIG");
+	{
+		int ret;
+
+		ret = fcntl(fd, F_GETSIG);
+		check_return(ret, name, "F_GETSIG");
+	}
 #endif
 	return 0;
 }
