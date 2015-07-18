@@ -146,8 +146,9 @@ abort:
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {
-			ssize_t ret;
 			for (i = 0; opt_do_run && (i < max); i++) {
+				ssize_t ret;
+
 				socket_pair_memset(buf, val++, sizeof(buf));
 				ret = write(socket_pair_fds[i][1], buf, sizeof(buf));
 				if (ret <= 0) {
