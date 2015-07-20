@@ -1151,7 +1151,7 @@ specify the size of the shared memory segment to be created. One can specify the
 specify the number of shared memory segments to be created.
 .TP
 .B \-\-sigfd N
-start N workers that generate SIGUSR1 signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load.
+start N workers that generate SIGRT signals and are handled by reads by a child process using a file descriptor set up using signalfd(2).  (Linux only). This will generate a heavy context switch load when all CPUs are fully loaded.
 .TP
 .B \-\-sigfd\-ops
 stop sigfd workers after N bogo SIGUSR1 signals are sent.

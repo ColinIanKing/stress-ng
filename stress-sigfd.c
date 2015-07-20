@@ -54,7 +54,7 @@ int stress_sigfd(
 	(void)instance;
 
 	sigemptyset(&mask);
-	sigaddset(&mask, SIGUSR1);
+	sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
 		pr_failed_dbg(name, "sigprocmask");
 		return EXIT_FAILURE;
@@ -79,7 +79,7 @@ again:
 
 			memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
-			ret = sigqueue(ppid, SIGUSR1, s);
+			ret = sigqueue(ppid, SIGRTMIN, s);
 			if (ret < 0)
 				break;
 		}
@@ -107,7 +107,7 @@ again:
 			if (ret == 0)
 				break;
 			if (opt_flags & OPT_FLAGS_VERIFY) {
-				if (fdsi.ssi_signo != SIGUSR1) {
+				if (fdsi.ssi_signo != SIGRTMIN) {
 					pr_fail(stderr, "%s: unexpected signal %d",
 						name, fdsi.ssi_signo);
 					break;
