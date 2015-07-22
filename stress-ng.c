@@ -1246,7 +1246,7 @@ int stressor_instances(const stress_id id)
 {
 	int32_t i = stressor_id_find(id);
 
-        return procs[i].num_procs;
+	return procs[i].num_procs;
 }
 
 
