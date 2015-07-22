@@ -129,7 +129,7 @@ again:
 
 				addr ^= mlocked;
 				if (mlocked)
-					(void)munlock((void *)addr + page_size, page_size);
+					(void)munlock((uint8_t *)addr + page_size, page_size);
 				munmap((void *)addr, page_size * 3);
 			}
 #if !defined(__gnu_hurd__)
