@@ -281,21 +281,21 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 		{
 			d_sum += (coshl(theta) * sinhl(theta));
 			d_sum += (cosh(theta) * sinh(theta));
-			d_sum += (coshf(theta) * sinhf(theta));
+			d_sum += (double)(coshf(theta) * sinhf(theta));
 		}
 		{
 			long double theta2 = theta * 2.0;
 
 			d_sum += coshl(theta2);
 			d_sum += cosh(theta2);
-			d_sum += coshf(theta2);
+			d_sum += (double)coshf(theta2);
 		}
 		{
 			long double theta3 = theta * 3.0;
 
 			d_sum += sinhl(theta3);
 			d_sum += sinh(theta3);
-			d_sum += sinhf(theta3);
+			d_sum += (double)sinhf(theta3);
 		}
 	}
 	double_put(d_sum);
@@ -421,9 +421,10 @@ static void HOT OPTIMIZE3 fft_partial(double complex *data, double complex *tmp,
 		fft_partial(tmp, data, n, m2);
 		fft_partial(tmp + m, data + m, n, m2);
 		for (i = 0; i < n; i += m2) {
+			const double complex negI = -I;
 			double complex v = tmp[i];
 			double complex t =
-				cexp((-I * M_PI * (double)i) /
+				cexp((negI * M_PI * (double)i) /
 				     (double)n) * tmp[i + m];
 			data[i / 2] = v + t;
 			data[(i + n) / 2] = v - t;
@@ -679,7 +680,7 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
 	const double pi_over_16 = M_PI / 16.0;
 	const int sz = 8;
 	int i, j, u, v;
-	float data[sz][sz], idct[sz][sz];
+	double data[sz][sz], idct[sz][sz];
 
 	/*
 	 *  Set up DCT
@@ -862,16 +863,21 @@ stress_cpu_fp(_Decimal64, decimal64, sin, cos)
 stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
 #endif
 
+/* Append floating point literal specifier to literal value */
+#define FP(val, ltype)	val ## ltype
+
 /*
  *  Generic complex stressor macro
  */
-#define stress_cpu_complex(_type, _name, _csin, _ccos)	\
+#define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos)	\
 static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
-	_type a = 0.18728 + I * 0.2762,			\
-		b = mwc32() - I * 0.11121,		\
-		c = mwc32() + I * mwc32(), d;		\
+	_type cI = I;					\
+	_type a = FP(0.18728, _ltype) + 		\
+		cI * FP(0.2762, _ltype),		\
+		b = mwc32() - cI * FP(0.11121, _ltype),	\
+		c = mwc32() + cI * mwc32(), d;		\
 							\
 	(void)name;					\
 							\
@@ -882,9 +888,9 @@ static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 	double_put(a + b + c + d);			\
 }
 
-stress_cpu_complex(complex float, complex_float, csinf, ccosf)
-stress_cpu_complex(complex double, complex_double, csin, ccos)
-stress_cpu_complex(complex long double, complex_long_double, csinl, ccosl)
+stress_cpu_complex(complex float, f, complex_float, csinf, ccosf)
+stress_cpu_complex(complex double, , complex_double, csin, ccos)
+stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 
 #define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
 	_sin, _cos, int_a, int_b, _c1, _c2, _c3)		\
@@ -1041,14 +1047,14 @@ static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
 		float y,u,v;
 
 		/* RGB to CCIR 601 YUV */
-		y = (0.299 * r) + (0.587 * g) + (0.114 * b);
-		u = (b - y) * 0.565;
-		v = (r - y) * 0.713;
+		y = (0.299f * r) + (0.587f * g) + (0.114f * b);
+		u = (b - y) * 0.565f;
+		v = (r - y) * 0.713f;
 
 		/* YUV back to RGB */
-		r = y + (1.403 * v);
-		g = y - (0.344 * u) - (0.714 * v);
-		b = y + (1.770 * u);
+		r = y + (1.403f * v);
+		g = y - (0.344f * u) - (0.714f * v);
+		b = y + (1.770f * u);
 
 		/* And bump each colour to make next round */
 		r += 1;
