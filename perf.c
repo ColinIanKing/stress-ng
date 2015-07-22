@@ -304,7 +304,7 @@ int perf_get_counter_by_index(
 
 fail:
 	*id = -1;
-	*counter = 0;
+	*counter = STRESS_PERF_INVALID;
 	return -1;
 }
 
@@ -440,7 +440,8 @@ void perf_stat_dump(
 			for (j = 0; j < procs[i].started_procs; j++, n++) {
 				uint64_t counter;
 
-				perf_get_counter_by_index(sp, p, &counter, &ids[p]);
+				if (perf_get_counter_by_index(sp, p, &counter, &ids[p]) < 0)
+					break;
 				if (counter == STRESS_PERF_INVALID) {
 					counter_totals[p] = STRESS_PERF_INVALID;
 					break;
@@ -459,7 +460,6 @@ void perf_stat_dump(
 		if (!got_data)
 			continue;
 
-		no_perf_stats = false;
 		munged = munge_underscore((char *)stressors[i].name);
 		pr_inf(stdout, "%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
@@ -473,6 +473,8 @@ void perf_stat_dump(
 				char extra[32];
 				char yaml_label[128];
 				*extra = '\0';
+
+				no_perf_stats = false;
 
 				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
 					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
@@ -495,6 +497,6 @@ void perf_stat_dump(
 		pr_yaml(yaml, "\n");
 	}
 	if (no_perf_stats)
-		pr_inf(stdout, "perf counters not available\n");
+		pr_inf(stdout, "perf counters are not available on this device\n");
 }
 #endif
