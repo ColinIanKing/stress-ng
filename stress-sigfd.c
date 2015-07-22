@@ -107,7 +107,7 @@ again:
 			if (ret == 0)
 				break;
 			if (opt_flags & OPT_FLAGS_VERIFY) {
-				if (fdsi.ssi_signo != SIGRTMIN) {
+				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {
 					pr_fail(stderr, "%s: unexpected signal %d",
 						name, fdsi.ssi_signo);
 					break;
