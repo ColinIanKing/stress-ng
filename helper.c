@@ -280,10 +280,10 @@ const char *stress_strsignal(const int signum)
 	char *str = NULL;
 
 #if defined(NSIG)
-	if ((signum >= 0) || (signum < NSIG))
+	if ((signum >= 0) && (signum < NSIG))
 		str = strsignal(signum);
 #elif defined(_NSIG)
-	if ((signum >= 0) || (signum < N_SIG))
+	if ((signum >= 0) && (signum < N_SIG))
 		str = strsignal(signum);
 #endif
 	if (str) {
