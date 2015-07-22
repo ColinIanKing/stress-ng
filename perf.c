@@ -84,7 +84,7 @@ static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MAJ,		"Page Faults Major"),
 	PERF_INFO(SOFTWARE, SW_CONTEXT_SWITCHES,	"Context Switches"),
 	PERF_INFO(SOFTWARE, SW_CPU_MIGRATIONS,		"CPU Migrations"),
-	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Aligment Faults"),
+	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
 
 	{ 0, 0, 0, NULL }
 };
