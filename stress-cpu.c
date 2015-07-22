@@ -1916,6 +1916,71 @@ static void stress_cpu_dither(const char *name)
 }
 
 /*
+ *  stress_cpu_union
+ *	perform bit field operations on a packed union
+ */
+static void stress_cpu_union(const char *name)
+{
+	typedef union {
+		struct {
+			uint64_t	b1:1;
+			uint64_t	b10:10;
+			uint64_t	b2:2;
+			uint64_t	b9:9;
+			uint64_t	b3:3;
+			uint64_t	b8:8;
+			uint64_t	b4:4;
+			uint64_t	b7:7;
+			uint64_t	b5:5;
+			uint64_t	b6:6;
+		} bits64;
+		uint64_t	u64:64;
+		union {
+			uint8_t		b1:1;
+			uint8_t		b7:7;
+			uint8_t		b8:8;
+		} bits8;
+		struct {
+			uint16_t	b15:15;
+			uint16_t	b1:1;
+		} bits16;
+		struct {
+			uint32_t	b10:10;
+			uint32_t	b20:20;
+			uint32_t	:1;
+			uint32_t	b1:1;
+		} bits32;
+		uint32_t	u32:30;
+	} __attribute__ ((packed)) u_t;
+
+	static u_t u;
+	size_t i;
+
+	(void)name;
+	for (i = 0; i < 1000; i++) {
+		u.bits64.b1 ^= 1;
+		u.bits64.b2--;
+		u.bits32.b10 ^= ~0;
+		u.bits64.b3++;
+		u.bits16.b1--;
+		u.bits8.b1++;
+		u.bits64.b4 *= 2;
+		u.bits32.b20 += 3;
+		u.u64 += 0x1037fc2ae21ef829ULL;
+		u.bits64.b6--;
+		u.bits8.b7 *= 3;
+		u.bits64.b5 += (u.bits64.b4 << 1);
+		u.bits32.b1 ^= 1;
+		u.bits64.b7++;
+		u.bits8.b8 ^= 0xaa;
+		u.bits64.b8--;
+		u.bits16.b15 ^= 0xbeef;
+		u.bits64.b9++;
+		u.bits64.b10 *= 5;
+	}
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -2007,6 +2072,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "sieve",		stress_cpu_sieve },
 	{ "sqrt", 		stress_cpu_sqrt },
 	{ "trig",		stress_cpu_trig },
+	{ "union",		stress_cpu_union },
 	{ "zeta",		stress_cpu_zeta },
 	{ NULL,			NULL }
 };
