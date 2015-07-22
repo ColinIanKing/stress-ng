@@ -67,6 +67,8 @@ int stress_cache(
 	unsigned long total = 0;
 #if defined(__linux__)
 	unsigned long int cpu = 0;
+	const unsigned long int cpus =
+		stress_get_processors_configured();
 	cpu_set_t mask;
 #endif
 	(void)instance;
@@ -115,7 +117,7 @@ int stress_cache(
 		}
 #if defined(__linux__)
 		cpu++;
-		cpu %= stress_get_processors_configured();
+		cpu %= cpus;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		sched_setaffinity(0, sizeof(mask), &mask);
