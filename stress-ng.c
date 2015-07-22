@@ -1816,7 +1816,7 @@ static void times_dump(
 {
 	struct tms buf;
 	double total_cpu_time = stress_get_processors_configured() * duration;
-	float u_time, s_time, t_time, u_pc, s_pc, t_pc;
+	double u_time, s_time, t_time, u_pc, s_pc, t_pc;
 
 	if (times(&buf) == (clock_t)-1) {
 		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
