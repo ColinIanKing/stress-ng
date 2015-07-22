@@ -46,6 +46,8 @@ int stress_affinity(
 	const char *name)
 {
 	unsigned long int cpu = 0;
+	const unsigned long int cpus =
+		(unsigned long int)stress_get_processors_configured();
 	cpu_set_t mask;
 
 	(void)instance;
@@ -54,7 +56,7 @@ int stress_affinity(
 	do {
 		cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
 			(mwc32() >> 4) : cpu + 1;
-		cpu %= stress_get_processors_configured();
+		cpu %= cpus;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
