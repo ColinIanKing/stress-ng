@@ -41,7 +41,7 @@ void set_coredump(const char *name)
 	char path[PATH_MAX];
 	int fd;
 
-	snprintf(path, sizeof(path), "/proc/%d/coredump_filter", getpid());
+	snprintf(path, sizeof(path), "/proc/%u/coredump_filter", getpid());
 	if ((fd = open(path, O_WRONLY)) >= 0) {
 		const char *str = "0x00";
 		ssize_t n = write(fd, str, strlen(str));
