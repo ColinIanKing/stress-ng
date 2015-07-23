@@ -2371,6 +2371,9 @@ next_opt:
 		}
 	}
 
+#if defined(STRESS_PERF_STATS)
+	perf_init();
+#endif
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
 	set_coredump("main");

@@ -64,11 +64,40 @@ typedef struct {
 	uint64_t time_running;		/* perf time running */
 } perf_data_t;
 
+/* perf trace point id -> path resolution */
+typedef struct {
+	int id;				/* stress-ng perf ID */
+	char *path;			/* path to config value */
+} perf_tp_info_t;
+
+#define PERF_TP_INFO(id, path) \
+	{ STRESS_PERF_ ## id, path }
+
 #define PERF_INFO(type, config, label)	\
 	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, PERF_COUNT_ ## config, label }
 
+#define UNRESOLVED				(~0UL)
+#define PERF_COUNT_TP_SYSCALLS_ENTER		UNRESOLVED
+#define PERF_COUNT_TP_SYSCALLS_EXIT		UNRESOLVED
+#define PERF_COUNT_TP_TLB_FLUSH			UNRESOLVED
+#define PERF_COUNT_TP_KMALLOC			UNRESOLVED
+#define PERF_COUNT_TP_KMALLOC_NODE		UNRESOLVED
+#define PERF_COUNT_TP_KFREE			UNRESOLVED
+#define PERF_COUNT_TP_KMEM_CACHE_ALLOC		UNRESOLVED
+#define PERF_COUNT_TP_KMEM_CACHE_ALLOC_NODE	UNRESOLVED
+#define PERF_COUNT_TP_KMEM_CACHE_FREE		UNRESOLVED
+#define PERF_COUNT_TP_MM_PAGE_ALLOC		UNRESOLVED
+#define PERF_COUNT_TP_MM_PAGE_FREE		UNRESOLVED
+#define PERF_COUNT_TP_RCU_UTILIZATION		UNRESOLVED
+#define PERF_COUNT_TP_SCHED_MIGRATE_TASK	UNRESOLVED
+#define PERF_COUNT_TP_SCHED_MOVE_NUMA		UNRESOLVED
+#define PERF_COUNT_TP_SIGNAL_GENERATE		UNRESOLVED
+#define PERF_COUNT_TP_SIGNAL_DELIVER		UNRESOLVED
+#define PERF_COUNT_TP_PAGE_FAULT_USER		UNRESOLVED
+#define PERF_COUNT_TP_PAGE_FAULT_KERNEL		UNRESOLVED
+
 /* perf counters to be read */
-static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
+static perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	PERF_INFO(HARDWARE, HW_CPU_CYCLES,		"CPU Cycles"),
 	PERF_INFO(HARDWARE, HW_INSTRUCTIONS,		"Instructions"),
 	PERF_INFO(HARDWARE, HW_CACHE_REFERENCES,	"Cache References"),
@@ -82,12 +111,94 @@ static const perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MIN,		"Page Faults Minor"),
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MAJ,		"Page Faults Major"),
+	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_USER,	"Page Faults User"),
+	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_KERNEL,	"Page Faults Kernel"),
 	PERF_INFO(SOFTWARE, SW_CONTEXT_SWITCHES,	"Context Switches"),
 	PERF_INFO(SOFTWARE, SW_CPU_MIGRATIONS,		"CPU Migrations"),
 	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
 
+	PERF_INFO(TRACEPOINT, TP_SYSCALLS_ENTER,	"System Call Enter"),
+	PERF_INFO(TRACEPOINT, TP_SYSCALLS_EXIT,		"System Call Exit"),
+	PERF_INFO(TRACEPOINT, TP_TLB_FLUSH,		"TLB Flushes"),
+	PERF_INFO(TRACEPOINT, TP_KMALLOC,		"Kmalloc"),
+	PERF_INFO(TRACEPOINT, TP_KMALLOC_NODE,		"Kmalloc Node"),
+	PERF_INFO(TRACEPOINT, TP_KFREE,			"Kfree"),
+	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_ALLOC,	"Kmem Cache Alloc"),
+	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_ALLOC_NODE,	"Kmem Cache Alloc Node"),
+	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_FREE,	"Kmem Cache Free"),
+	PERF_INFO(TRACEPOINT, TP_MM_PAGE_ALLOC,		"MM Page Alloc"),
+	PERF_INFO(TRACEPOINT, TP_MM_PAGE_FREE,		"MM Page Free"),
+	PERF_INFO(TRACEPOINT, TP_RCU_UTILIZATION,	"RCU Utilization"),
+	PERF_INFO(TRACEPOINT, TP_SCHED_MIGRATE_TASK,	"Sched Migrate Task"),
+	PERF_INFO(TRACEPOINT, TP_SCHED_MOVE_NUMA,	"Sched Move NUMA"),
+	PERF_INFO(TRACEPOINT, TP_SIGNAL_GENERATE,	"Signal Generate"),
+	PERF_INFO(TRACEPOINT, TP_SIGNAL_DELIVER,	"Signal Deliver"),
 	{ 0, 0, 0, NULL }
 };
+
+static perf_tp_info_t perf_tp_info[] = {
+	PERF_TP_INFO(TP_SYSCALLS_ENTER,		"raw_syscalls/sys_enter"),
+	PERF_TP_INFO(TP_SYSCALLS_EXIT,		"raw_syscalls/sys_exit"),
+	PERF_TP_INFO(TP_TLB_FLUSH, 		"tlb/tlb_flush"),
+	PERF_TP_INFO(TP_KMALLOC,		"kmem/kmalloc"),
+	PERF_TP_INFO(TP_KMALLOC_NODE,		"kmem/kmalloc_node"),
+	PERF_TP_INFO(TP_KFREE,			"kmem/kfree"),
+	PERF_TP_INFO(TP_KMEM_CACHE_ALLOC,	"kmem/kmem_cache_alloc"),
+	PERF_TP_INFO(TP_KMEM_CACHE_ALLOC_NODE,	"kmem/kmem_cache_alloc_node"),
+	PERF_TP_INFO(TP_KMEM_CACHE_FREE,	"kmem/kmem_cache_free"),
+	PERF_TP_INFO(TP_MM_PAGE_ALLOC,		"kmem/mm_page_alloc"),
+	PERF_TP_INFO(TP_MM_PAGE_FREE,		"kmem/mm_page_free"),
+	PERF_TP_INFO(TP_RCU_UTILIZATION,	"rcu/rcu_utilization"),
+	PERF_TP_INFO(TP_SCHED_MIGRATE_TASK,	"sched/sched_migrate_task"),
+	PERF_TP_INFO(TP_SCHED_MOVE_NUMA,	"sched/sched_move_numa"),
+	PERF_TP_INFO(TP_SIGNAL_GENERATE,	"signal/signal_generate"),
+	PERF_TP_INFO(TP_SIGNAL_DELIVER,		"signal/signal_deliver"),
+	PERF_TP_INFO(TP_PAGE_FAULT_USER,	"exceptions/page_fault_user"),
+	PERF_TP_INFO(TP_PAGE_FAULT_KERNEL,	"exceptions/page_fault_kernel"),
+	{ 0, NULL }
+};
+
+static unsigned long perf_type_tracepoint_resolve_config(const int id)
+{
+	char path[PATH_MAX];
+	size_t i;
+	unsigned long config;
+	bool not_found = true;
+	FILE *fp;
+
+	for (i = 0; perf_tp_info[i].path; i++) {
+		if (perf_tp_info[i].id == id) {
+			not_found = false;
+			break;
+		}
+	}
+	if (not_found)
+		return UNRESOLVED;
+
+	snprintf(path, sizeof(path), "/sys/kernel/debug/tracing/events/%s/id",
+		perf_tp_info[i].path);
+	if ((fp = fopen(path, "r")) == NULL)
+		return UNRESOLVED;
+	if (fscanf(fp, "%lu", &config) != 1) {
+		fclose(fp);
+		return UNRESOLVED;
+	}
+	fclose(fp);
+
+	return config;
+}
+
+void perf_init(void)
+{
+	size_t i;
+
+	for (i = 0; i < STRESS_PERF_MAX; i++) {
+		if (perf_info[i].type == PERF_TYPE_TRACEPOINT) {
+			perf_info[i].config =
+				perf_type_tracepoint_resolve_config(perf_info[i].id);
+		}
+	}
+}
 
 static inline int sys_perf_event_open(
 	struct perf_event_attr *attr,
@@ -150,19 +261,21 @@ int perf_open(stress_perf_t *sp)
 	}
 
 	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
-		struct perf_event_attr attr;
+		if (perf_info[i].config != UNRESOLVED) {
+			struct perf_event_attr attr;
 
-		memset(&attr, 0, sizeof(attr));
-		attr.type = perf_info[i].type;
-		attr.config = perf_info[i].config;
-		attr.disabled = 1;
-		attr.inherit = 1;
-		attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
-				   PERF_FORMAT_TOTAL_TIME_RUNNING;
-		attr.size = sizeof(attr);
-		sp->perf_stat[i].fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
-		if (sp->perf_stat[i].fd > -1)
-			sp->perf_opened++;
+			memset(&attr, 0, sizeof(attr));
+			attr.type = perf_info[i].type;
+			attr.config = perf_info[i].config;
+			attr.disabled = 1;
+			attr.inherit = 1;
+			attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
+					   PERF_FORMAT_TOTAL_TIME_RUNNING;
+			attr.size = sizeof(attr);
+			sp->perf_stat[i].fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
+			if (sp->perf_stat[i].fd > -1)
+				sp->perf_opened++;
+		}
 	}
 	if (!sp->perf_opened) {
 		pthread_spin_lock(&shared->perf.lock);
