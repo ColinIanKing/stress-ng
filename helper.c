@@ -315,7 +315,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	if (time(&t) != ((time_t)-1))
 		tm = localtime(&t);
 
-	pr_yaml(yaml, "    - stress-ng-version: " VERSION "\n");
+	pr_yaml(yaml, "      stress-ng-version: " VERSION "\n");
 	pr_yaml(yaml, "      run-by: %s\n", user ? user : "unknown");
 	if (tm) {
 		pr_yaml(yaml, "      date-yyyy-mm-dd: %4.4d:%2.2d:%2.2d\n",

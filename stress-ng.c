@@ -1839,7 +1839,7 @@ static void times_dump(
 	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
 
 	pr_yaml(yaml, "times:\n");
-	pr_yaml(yaml, "    - run-time: %f\n", duration);
+	pr_yaml(yaml, "      run-time: %f\n", duration);
 	pr_yaml(yaml, "      available-cpu-time: %f\n", total_cpu_time);
 	pr_yaml(yaml, "      user-time: %f\n", u_time);
 	pr_yaml(yaml, "      system-time: %f\n", s_time);
