@@ -1629,17 +1629,21 @@ again:
 					n = (i * max_procs) + j;
 					stats[n].start = stats[n].finish = time_now();
 #if defined(STRESS_PERF_STATS)
-					(void)perf_open(&stats[n].sp);
+					if (opt_flags & OPT_FLAGS_PERF_STATS)
+						(void)perf_open(&stats[n].sp);
 #endif
 					(void)usleep(opt_backoff * n_procs);
 #if defined(STRESS_PERF_STATS)
-					(void)perf_enable(&stats[n].sp);
+					if (opt_flags & OPT_FLAGS_PERF_STATS)
+						(void)perf_enable(&stats[n].sp);
 #endif
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
 						rc = stressors[i].stress_func(&stats[n].counter, j, procs[i].bogo_ops, name);
 #if defined(STRESS_PERF_STATS)
-					(void)perf_disable(&stats[n].sp);
-					(void)perf_close(&stats[n].sp);
+					if (opt_flags & OPT_FLAGS_PERF_STATS) {
+						(void)perf_disable(&stats[n].sp);
+						(void)perf_close(&stats[n].sp);
+					}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 					if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
@@ -2372,7 +2376,8 @@ next_opt:
 	}
 
 #if defined(STRESS_PERF_STATS)
-	perf_init();
+	if (opt_flags & OPT_FLAGS_PERF_STATS)
+		perf_init();
 #endif
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
