@@ -1539,14 +1539,12 @@ long int opt_long(const char *opt, const char *str)
 			str, opt);
 		exit(EXIT_FAILURE);
 	}
-
 	errno = 0;
 	val = strtol(str, NULL, 10);
 	if (errno) {
 		fprintf(stderr, "Invalid value for the %s option\n", opt);
 		exit(EXIT_FAILURE);
 	}
-
 	return val;
 }
 
@@ -1837,7 +1835,6 @@ static void times_dump(
 	pr_inf(stdout, "for a %.2fs run time:\n", duration);
 	pr_inf(stdout, "  %8.2fs available CPU time\n",
 		total_cpu_time);
-
 	pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n", u_time, u_pc);
 	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
 	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
@@ -2326,18 +2323,15 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 	}
-
 	if ((opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
 		fprintf(stderr, "cannot invoke --sequential and --all options together\n");
 		exit(EXIT_FAILURE);
 	}
-
 	if (opt_class && !(opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		fprintf(stderr, "class option is only used with --sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
-
 	if (opt_flags & OPT_SYSLOG)
 		openlog("stress-ng", 0, LOG_USER);
 
@@ -2349,14 +2343,12 @@ next_opt:
 		fprintf(stderr, "maximize and minimize cannot be used together\n");
 		exit(EXIT_FAILURE);
 	}
-
 #if defined(STRESS_RDRAND)
 	id = stressor_id_find(STRESS_RDRAND);
 	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
 	    (stress_rdrand_supported() < 0))
 		procs[id].num_procs = 0;
 #endif
-
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
@@ -2374,7 +2366,6 @@ next_opt:
 			procs[mwc32() % STRESS_MAX].num_procs += rnd;
 		}
 	}
-
 #if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_init();
@@ -2485,19 +2476,16 @@ next_opt:
 			}
 		}
 	}
-
 	id = stressor_id_find(STRESS_PTHREAD);
 	if (procs[id].num_procs &&
 	    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
 		uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
 		stress_adjust_ptread_max(max);
 	}
-
 	if (show_hogs(opt_class) < 0) {
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
 	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == MAP_FAILED) {
@@ -2514,13 +2502,11 @@ next_opt:
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		tz_init(&shared->tz_info);
 #endif
-
 #if defined(STRESS_SEMAPHORE_POSIX)
 	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
 	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
 		stress_semaphore_posix_init();
 #endif
-
 #if defined(STRESS_SEMAPHORE_SYSV)
 	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
 	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
@@ -2554,7 +2540,6 @@ next_opt:
 	pr_inf(stdout, "%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));
-
 	if (yamlfile) {
 		yaml = fopen(yamlfile, "w");
 		if (!yaml)
@@ -2563,7 +2548,6 @@ next_opt:
 		pr_yaml(yaml, "---\n");
 		pr_yaml_runinfo(yaml);
 	}
-
 	if (opt_flags & OPT_FLAGS_METRICS)
 		metrics_dump(yaml, max_procs, ticks_per_sec);
 #if defined(STRESS_PERF_STATS)
@@ -2587,15 +2571,11 @@ next_opt:
 	stress_semaphore_sysv_destroy();
 #endif
 	(void)munmap(shared, len);
-
 	if (opt_flags & OPT_SYSLOG)
 		closelog();
-
-
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
 		fclose(yaml);
 	}
-
 	exit(EXIT_SUCCESS);
 }
