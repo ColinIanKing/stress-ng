@@ -55,7 +55,7 @@ static stress_wcs_stressor_info_t wcs_methods[];
  */
 static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 {
-	size_t i;
+	register size_t i;
 
 	for (i = 0; i < (len-1); i++) {
 		*wcstr++ = (mwc8() % 26) + L'a';
@@ -90,7 +90,7 @@ static void stress_wcscasecmp(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -121,7 +121,7 @@ static void stress_wcsncasecmp(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -152,7 +152,7 @@ static void stress_wcscpy(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	wchar_t buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
@@ -172,7 +172,7 @@ static void stress_wcscat(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	wchar_t buf[len1 + len2 + 1];
 
 
@@ -201,7 +201,7 @@ static void stress_wcsncat(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	wchar_t buf[len1 + len2 + 1];
 
 
@@ -230,7 +230,7 @@ static void stress_wcschr(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -254,7 +254,7 @@ static void stress_wcsrchr(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -278,7 +278,7 @@ static void stress_wcscmp(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -309,7 +309,7 @@ static void stress_wcsncmp(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	for (i = 1; i < len1; i++) {
 		WCSCHK(name, 0 == wcsncmp(str1, str1, len1));
@@ -338,7 +338,7 @@ static void stress_wcslen(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	for (i = 0; i < len1 - 1; i++) {
 		WCSCHK(name, len1 - 1 == wcslen(str1));
@@ -362,7 +362,7 @@ static void stress_wcscoll(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -393,7 +393,7 @@ static void stress_wcsxfrm(
 	wchar_t *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	wchar_t buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
