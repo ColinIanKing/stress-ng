@@ -239,7 +239,7 @@ static int mk_dir(const char *name, const char *path)
  *  mk_filename()
  *	simple helper to create a filename
  */
-static void mk_filename(
+static inline void mk_filename(
 	char *filename,
 	const size_t len,
 	const char *path,
