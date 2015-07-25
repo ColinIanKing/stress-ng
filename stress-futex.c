@@ -73,8 +73,8 @@ int stress_futex(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint64_t *timeout = &shared->futex_timeout[instance];
-	uint32_t *futex = &shared->futex[instance];
+	uint64_t *timeout = &shared->futex.timeout[instance];
+	uint32_t *futex = &shared->futex.futex[instance];
 	pid_t pid;
 
 again:

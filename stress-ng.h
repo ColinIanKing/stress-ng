@@ -617,8 +617,10 @@ typedef struct {
 /* Shared memory segment */
 typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE];		/* Shared memory cache */
-	uint32_t futex[STRESS_PROCS_MAX];		/* Shared futexes */
-	uint64_t futex_timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
+	struct {
+		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
+		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
+	} futex;
 #if defined(__linux__)
 	struct {
 		sem_t sem;				/* Shared posix semaphores */
