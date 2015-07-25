@@ -162,6 +162,7 @@ again:
 		}
 	} else {
 		int status;
+		int attr_count = 0;
 		msg_t msg;
 
 		/* Parent */
@@ -169,6 +170,12 @@ again:
 			memset(&msg, 0, sizeof(msg));
 			msg.value = (*counter);
 			msg.stop = false;
+			if ((attr_count++ & 31) == 0) {
+				struct mq_attr attr;
+
+				if (mq_getattr(mq, &attr) < 0)
+					pr_failed_dbg(name, "mq_getattr");
+			}
 
 			if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
 				if (errno != EINTR)
