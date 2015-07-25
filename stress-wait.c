@@ -46,7 +46,8 @@
  */
 static pid_t spawn(
 	const char *name,
-	void (*func)(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops),
+	void (*func)(const char *name, const pid_t pid,
+		uint64_t *counter, const uint64_t max_ops),
 	pid_t pid_arg,
 	uint64_t *counter,
 	uint64_t max_ops)
@@ -72,7 +73,11 @@ again:
  *	this process pauses, but is continually being
  *	stopped and continued by the killer process
  */
-static void runner(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops)
+static void runner(
+	const char *name,
+	const pid_t pid,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	(void)pid;
 
@@ -90,7 +95,11 @@ static void runner(const char *name, const pid_t pid, uint64_t *counter, const u
  *  killer()
  *	this continually stops and continues the runner process
  */
-static void killer(const char *name, const pid_t pid, uint64_t *counter, const uint64_t max_ops)
+static void killer(
+	const char *name,
+	const pid_t pid,
+	uint64_t *counter,
+	const uint64_t max_ops)
 {
 	double start = time_now();
 	uint64_t last_counter = *counter;
