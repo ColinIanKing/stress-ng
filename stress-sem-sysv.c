@@ -67,24 +67,24 @@ void stress_semaphore_sysv_init(void)
 	int count = 0;
 
 	while (count < 100) {
-		shared->sem_sysv_key_id = (key_t)mwc16();
-		shared->sem_sysv_id = semget(shared->sem_sysv_key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
-		if (shared->sem_sysv_id >= 0)
+		shared->sem_sysv.key_id = (key_t)mwc16();
+		shared->sem_sysv.sem_id = semget(shared->sem_sysv.key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
+		if (shared->sem_sysv.sem_id >= 0)
 			break;
 
 		count++;
 	}
 
-	if (shared->sem_sysv_id >= 0) {
+	if (shared->sem_sysv.sem_id >= 0) {
 		semun_t arg;
 
 		arg.val = 1;
-		if (semctl(shared->sem_sysv_id, 0, SETVAL, arg) == 0) {
-			shared->sem_sysv_init = true;
+		if (semctl(shared->sem_sysv.sem_id, 0, SETVAL, arg) == 0) {
+			shared->sem_sysv.init = true;
 			return;
 		}
 		/* Clean up */
-		(void)semctl(shared->sem_sysv_id, 0, IPC_RMID);
+		(void)semctl(shared->sem_sysv.sem_id, 0, IPC_RMID);
 	}
 
 	if (opt_sequential) {
@@ -104,8 +104,8 @@ void stress_semaphore_sysv_init(void)
  */
 void stress_semaphore_sysv_destroy(void)
 {
-	if (shared->sem_sysv_init)
-		(void)semctl(shared->sem_sysv_id, 0, IPC_RMID);
+	if (shared->sem_sysv.init)
+		(void)semctl(shared->sem_sysv.sem_id, 0, IPC_RMID);
 }
 
 /*
@@ -138,7 +138,7 @@ static void semaphore_sysv_thrash(
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
-			if (semtimedop(shared->sem_sysv_id, &semwait, 1, &timeout) < 0) {
+			if (semtimedop(shared->sem_sysv.sem_id, &semwait, 1, &timeout) < 0) {
 				if (errno == EAGAIN) {
 					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
 						errno, strerror(errno));
@@ -149,7 +149,7 @@ static void semaphore_sysv_thrash(
 				break;
 			}
 			(*counter)++;
-			if (semop(shared->sem_sysv_id, &semsignal, 1) < 0) {
+			if (semop(shared->sem_sysv.sem_id, &semsignal, 1) < 0) {
 				if (errno != EINTR)
 					pr_failed_dbg(name, "semop signal");
 				break;
@@ -208,7 +208,7 @@ int stress_sem_sysv(
 			opt_semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	if (!shared->sem_sysv_init) {
+	if (!shared->sem_sysv.init) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
 		return EXIT_FAILURE;
 	}

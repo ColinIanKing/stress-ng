@@ -626,15 +626,17 @@ typedef struct {
 	} sem_posix;
 #endif
 	struct {
+		key_t key_id;				/* System V semaphore key id */
+		int sem_id;				/* System V semaphore id */
+		bool init;				/* System V semaphore initialized */
+	} sem_sysv;
+	struct {
 		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf;
 	struct {
 		pthread_spinlock_t lock;		/* spinlock on sigsuspend updates */
 	} sigsuspend;
-	key_t sem_sysv_key_id;				/* System V semaphore key id */
-	int sem_sysv_id;				/* System V semaphore id */
-	bool sem_sysv_init;				/* System V semaphore initialized */
 #if defined(STRESS_THERMAL_ZONES)
 	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
