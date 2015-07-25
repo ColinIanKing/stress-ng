@@ -124,7 +124,9 @@ int stress_mq(
 		return EXIT_FAILURE;
 	}
 	if (sz < opt_mq_size) {
-		pr_inf(stdout, "%s: POSIX message queue requested size %d messages, maximum of %d allowed\n", name, opt_mq_size, sz);
+		pr_inf(stdout, "%s: POSIX message queue requested "
+			"size %d messages, maximum of %d allowed\n",
+			name, opt_mq_size, sz);
 	}
 	pr_dbg(stderr, "POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);
@@ -179,7 +181,7 @@ again:
 
 			if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
 				if (errno != EINTR)
-					pr_failed_dbg(name, "msgsnd");
+					pr_failed_dbg(name, "mq_send");
 				break;
 			}
 			(*counter)++;
@@ -189,7 +191,7 @@ again:
 		msg.stop = true;
 
 		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
-			pr_failed_dbg(name, "termination msgsnd");
+			pr_failed_dbg(name, "termination mq_send");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
