@@ -60,8 +60,7 @@ int stress_mmapfork(
 		instances = (int)stress_get_processors_configured();
 
 	do {
-		size_t i, n;
-		size_t len;
+		size_t i, n, len;
 
 		memset(pids, 0, sizeof(pids));
 
