@@ -432,9 +432,11 @@ extern void pr_yaml_runinfo(FILE *fp);
 #define STRESS_CPU_DITHER_X	(1024)
 #define STRESS_CPU_DITHER_Y	(768)
 
-#define SIEVE_BITS(a)		(sizeof(a[0]) * 8)
-#define SIEVE_GETBIT(a, i)	(a[i / SIEVE_BITS(a)] & (1 << (i & (SIEVE_BITS(a)-1))))
-#define SIEVE_CLRBIT(a, i)	(a[i / SIEVE_BITS(a)] &= ~(1 << (i & (SIEVE_BITS(a)-1))))
+#define STRESS_NBITS(a)		(sizeof(a[0]) * 8)
+#define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & (1 << (i & (STRESS_NBITS(a)-1))))
+#define STRESS_CLRBIT(a, i)	(a[i / STRESS_NBITS(a)] &= ~(1 << (i & (STRESS_NBITS(a)-1))))
+#define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= (1 << (i & (STRESS_NBITS(a)-1))))
+
 #define SIEVE_SIZE 		(10000000)
 
 /* MWC random number initial seed */

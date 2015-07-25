@@ -43,10 +43,6 @@
 
 #define NUMA_LONG_BITS		(sizeof(unsigned long) * 8)
 
-#define NUMA_GETBIT(a, i)      (a[i / NUMA_LONG_BITS] & (1 << (i & (NUMA_LONG_BITS - 1))))
-#define NUMA_CLRBIT(a, i)      (a[i / NUMA_LONG_BITS] &= ~(1 << (i & (NUMA_LONG_BITS - 1))))
-#define NUMA_SETBIT(a, i)      (a[i / NUMA_LONG_BITS] |= (1 << (i & (NUMA_LONG_BITS - 1))))
-
 #define MPOL_DEFAULT		(0)
 #define MPOL_PREFERRED		(1)
 #define MPOL_BIND		(2)
@@ -282,7 +278,7 @@ int stress_numa(
 			break;
 
 		memset(node_mask, 0, sizeof(node_mask));
-		NUMA_SETBIT(node_mask, n->node_id);
+		STRESS_SETBIT(node_mask, n->node_id);
 		ret = sys_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: set_mempolicy: errno=%d (%s)\n",
@@ -302,7 +298,7 @@ int stress_numa(
 		 *  mbind the buffer
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
-		NUMA_SETBIT(node_mask, n->node_id);
+		STRESS_SETBIT(node_mask, n->node_id);
 		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
@@ -320,7 +316,7 @@ int stress_numa(
 		 */
 		memset(old_node_mask, 0xff, sizeof(old_node_mask));
 		memset(node_mask, 0, sizeof(node_mask));
-		NUMA_SETBIT(node_mask, n->node_id);
+		STRESS_SETBIT(node_mask, n->node_id);
 		ret = sys_migrate_pages(mypid, max_nodes, old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: migrate_pages: errno=%d (%s)\n",

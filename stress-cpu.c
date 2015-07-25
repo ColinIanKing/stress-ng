@@ -1434,13 +1434,13 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 
 	memset(sieve, 0xff, sizeof(sieve));
 	for (i = 2; i < nsqrt; i++)
-		if (SIEVE_GETBIT(sieve, i))
+		if (STRESS_GETBIT(sieve, i))
 			for (j = i * i; j < SIEVE_SIZE; j += i)
-				SIEVE_CLRBIT(sieve, j);
+				STRESS_CLRBIT(sieve, j);
 
 	/* And count up number of primes */
 	for (j = 0, i = 2; i < SIEVE_SIZE; i++) {
-		if (SIEVE_GETBIT(sieve, i))
+		if (STRESS_GETBIT(sieve, i))
 			j++;
 	}
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (j != 664579))
