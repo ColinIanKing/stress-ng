@@ -59,6 +59,9 @@
 #define STRESS_ASSERT(expr) \
 	enum { STRESS_CONCAT_EXPAND(STRESS_ASSERT_AT_LINE_, __LINE__) = 1 / !!(expr) };
 
+#define STRESS_MIN(a,b) (((a) < (b)) ? (a) : (b))
+#define STRESS_MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 #define _VER_(major, minor, patchlevel)			\
 	((major * 10000) + (minor * 100) + patchlevel)
 

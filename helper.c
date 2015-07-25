@@ -42,9 +42,6 @@
 
 #include "stress-ng.h"
 
-#define MUNGE_MIN(a,b) (((a) < (b)) ? (a) : (b))
-
-
 /*
  *  stress_get_pagesize()
  *	get pagesize
@@ -135,7 +132,7 @@ char *munge_underscore(char *str)
 	static char munged[128];
 	char *src, *dst;
 	size_t str_len = strlen(str);
-	ssize_t len = MUNGE_MIN(str_len, sizeof(munged) - 1);
+	ssize_t len = STRESS_MIN(str_len, sizeof(munged) - 1);
 
 	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
 		*dst++ = (*src == '_' ? '-' : *src);
