@@ -31,16 +31,16 @@
 #include <sys/time.h>
 #include "stress-ng.h"
 
-#define MATRIX_TYPE	float
+typedef float	matrix_type_t;
 
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
 typedef void (*stress_matrix_func)(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n]);
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n]);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -69,9 +69,9 @@ void stress_set_matrix_size(const char *optarg)
  */
 static void OPTIMIZE3 stress_matrix_prod(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	size_t i;
 
@@ -96,9 +96,9 @@ static void OPTIMIZE3 stress_matrix_prod(
  */
 static void OPTIMIZE3 stress_matrix_add(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
@@ -119,9 +119,9 @@ static void OPTIMIZE3 stress_matrix_add(
  */
 static void OPTIMIZE3 stress_matrix_sub(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
@@ -142,9 +142,9 @@ static void OPTIMIZE3 stress_matrix_sub(
  */
 static void OPTIMIZE3 stress_matrix_trans(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],	/* Ignored */
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],	/* Ignored */
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
@@ -167,14 +167,14 @@ static void OPTIMIZE3 stress_matrix_trans(
  */
 static void OPTIMIZE3 stress_matrix_mult(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
 	(void)b;
-	MATRIX_TYPE v = b[0][0];
+	matrix_type_t v = b[0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -193,14 +193,14 @@ static void OPTIMIZE3 stress_matrix_mult(
  */
 static void OPTIMIZE3 stress_matrix_div(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
 	(void)b;
-	MATRIX_TYPE v = b[0][0];
+	matrix_type_t v = b[0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -220,9 +220,9 @@ static void OPTIMIZE3 stress_matrix_div(
  */
 static void OPTIMIZE3 stress_matrix_hadamard(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
 
@@ -244,12 +244,12 @@ static void OPTIMIZE3 stress_matrix_hadamard(
  */
 static void OPTIMIZE3 stress_matrix_frobenius(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	register size_t i;
-	MATRIX_TYPE sum = 0.0;
+	matrix_type_t sum = 0.0;
 
 	(void)r;
 
@@ -271,9 +271,9 @@ static void OPTIMIZE3 stress_matrix_frobenius(
  */
 static void OPTIMIZE3 stress_matrix_all(
 	const size_t n,
-	MATRIX_TYPE a[n][n],
-	MATRIX_TYPE b[n][n],
-	MATRIX_TYPE r[n][n])
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
@@ -335,7 +335,7 @@ int stress_matrix(
 {
 	stress_matrix_func func = opt_matrix_stressor->func;
 	size_t n;
-	const MATRIX_TYPE v = 1 / (MATRIX_TYPE)((uint32_t)~0);
+	const matrix_type_t v = 1 / (matrix_type_t)((uint32_t)~0);
 
 	(void)instance;
 	(void)name;
@@ -350,7 +350,7 @@ int stress_matrix(
 
 	{
 		register size_t i;
-		MATRIX_TYPE a[n][n], b[n][n], r[n][n];
+		matrix_type_t a[n][n], b[n][n], r[n][n];
 		/*
 		 *  Initialise matrices
 		 */
@@ -358,8 +358,8 @@ int stress_matrix(
 			register size_t j;
 
 			for (j = 0; j < n; j++) {
-				a[i][j] = (MATRIX_TYPE)mwc64() * v;
-				b[i][j] = (MATRIX_TYPE)mwc64() * v;
+				a[i][j] = (matrix_type_t)mwc64() * v;
+				b[i][j] = (matrix_type_t)mwc64() * v;
 				r[i][j] = 0.0;
 			}
 		}
