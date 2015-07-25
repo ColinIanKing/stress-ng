@@ -36,7 +36,7 @@
  *  mount_add()
  *	add a new mount point to table
  */
-int mount_add(
+static void mount_add(
 	char *mnts[],
 	const int max,
 	int *n,
@@ -45,16 +45,12 @@ int mount_add(
 	char *mnt;
 
 	if (*n >= max)
-		return 0;
-
+		return;
 	mnt = strdup(name);
-	if (mnt == NULL)
-		return -1;
-
+	if (!mnt)
+		return;
 	mnts[*n] = mnt;
 	(*n)++;
-
-	return 0;
 }
 
 /*
@@ -96,7 +92,7 @@ int mount_get(char *mnts[], const int max)
 
 	mounts = setmntent("/etc/mtab", "r");
 	/* Failed, so assume / is available */
-	if (mounts == NULL) {
+	if (!mounts) {
 		mount_add(mnts, max, &n, "/");
 		return n;
 	}
@@ -104,7 +100,6 @@ int mount_get(char *mnts[], const int max)
 		mount_add(mnts, max, &n, mount->mnt_dir);
 
 	(void)endmntent(mounts);
-
 	return n;
 }
 #endif

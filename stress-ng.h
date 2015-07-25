@@ -1643,7 +1643,6 @@ extern int madvise_random(void *addr, const size_t length);
 extern int mincore_touch_pages(void *buf, const size_t buf_len);
 
 /* Mounts */
-extern int mount_add(char *mnts[], const int max, int *n, const char *name);
 extern void mount_free(char *mnts[], const int n);
 extern int mount_get(char *mnts[], const int max);
 
