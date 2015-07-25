@@ -613,13 +613,18 @@ typedef struct {
 #endif
 } proc_stats_t;
 
+
 /* Shared memory segment */
 typedef struct {
 	uint8_t	 mem_cache[MEM_CACHE_SIZE];		/* Shared memory cache */
 	uint32_t futex[STRESS_PROCS_MAX];		/* Shared futexes */
 	uint64_t futex_timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
-	sem_t sem_posix;				/* Shared semaphores */
-	bool sem_posix_init;
+#if defined(__linux__)
+	struct {
+		sem_t sem;				/* Shared posix semaphores */
+		bool init;				/* Semaphores initialised? */
+	} sem_posix;
+#endif
 	struct {
 		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */

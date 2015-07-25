@@ -57,8 +57,8 @@ void stress_set_semaphore_posix_procs(const char *optarg)
 void stress_semaphore_posix_init(void)
 {
 	/* create a mutex */
-	if (sem_init(&shared->sem_posix, 1, 1) >= 0) {
-		shared->sem_posix_init = true;
+	if (sem_init(&shared->sem_posix.sem, 1, 1) >= 0) {
+		shared->sem_posix.init = true;
 		return;
 	}
 
@@ -78,8 +78,8 @@ void stress_semaphore_posix_init(void)
  */
 void stress_semaphore_posix_destroy(void)
 {
-        if (shared->sem_posix_init) {
-		if (sem_destroy(&shared->sem_posix) < 0) {
+        if (shared->sem_posix.init) {
+		if (sem_destroy(&shared->sem_posix.sem) < 0) {
 			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}
@@ -106,7 +106,7 @@ static void semaphore_posix_thrash(
 		timeout.tv_sec++;
 
 		for (i = 0; i < 1000; i++) {
-			if (sem_timedwait(&shared->sem_posix, &timeout) < 0) {
+			if (sem_timedwait(&shared->sem_posix.sem, &timeout) < 0) {
 				if (errno == ETIMEDOUT) {
 					/*
 					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
@@ -119,7 +119,7 @@ static void semaphore_posix_thrash(
 				break;
 			}
 			(*counter)++;
-			if (sem_post(&shared->sem_posix) < 0) {
+			if (sem_post(&shared->sem_posix.sem) < 0) {
 				pr_failed_dbg(name, "sem_post");
 				break;
 			}
@@ -177,7 +177,7 @@ int stress_sem_posix(
 			opt_semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	if (!shared->sem_posix_init) {
+	if (!shared->sem_posix.init) {
 		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
 		return EXIT_FAILURE;
 	}
