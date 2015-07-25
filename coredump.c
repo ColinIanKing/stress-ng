@@ -43,7 +43,7 @@ void set_coredump(const char *name)
 
 	snprintf(path, sizeof(path), "/proc/%u/coredump_filter", getpid());
 	if ((fd = open(path, O_WRONLY)) >= 0) {
-		const char *str = "0x00";
+		static const char *str = "0x00";
 		ssize_t n = write(fd, str, strlen(str));
 		(void)close(fd);
 
