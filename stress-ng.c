@@ -2431,7 +2431,7 @@ next_opt:
 		max_procs = opt_sequential;
 	} else if (opt_flags & OPT_FLAGS_ALL) {
 		if (total_procs) {
-			pr_err(stderr, "all option cannot be specified with other stressors enabled\n");
+			pr_err(stderr, "the all option cannot be specified with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
