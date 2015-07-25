@@ -87,7 +87,7 @@ static void stress_strcasecmp(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -118,7 +118,7 @@ static void stress_strncasecmp(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -149,7 +149,7 @@ static void stress_index(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -173,7 +173,7 @@ static void stress_rindex(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -197,7 +197,7 @@ static void stress_strcpy(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	char buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
@@ -217,9 +217,8 @@ static void stress_strcat(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	char buf[len1 + len2 + 1];
-
 
 	for (i = 0; i < len1 - 1; i++) {
 		*buf = '\0';
@@ -246,9 +245,8 @@ static void stress_strncat(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	char buf[len1 + len2 + 1];
-
 
 	for (i = 0; i < len1 - 1; i++) {
 		*buf = '\0';
@@ -275,7 +273,7 @@ static void stress_strchr(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -299,7 +297,7 @@ static void stress_strrchr(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -323,7 +321,7 @@ static void stress_strcmp(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -354,7 +352,7 @@ static void stress_strncmp(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	for (i = 1; i < len1; i++) {
 		STRCHK(name, 0 == strncmp(str1, str1, len1));
@@ -382,7 +380,7 @@ static void stress_strcoll(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	(void)len2;
 
@@ -413,7 +411,7 @@ static void stress_strlen(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 
 	for (i = 0; i < len1 - 1; i++) {
 		STRCHK(name, len1 - 1 == strlen(str1));
@@ -437,7 +435,7 @@ static void stress_strxfrm(
 	char *str2,
 	const size_t len2)
 {
-	uint32_t i;
+	register size_t i;
 	char buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
