@@ -51,7 +51,7 @@ fchownat
 fcntl				open, lockf, fcntl
 fdatasync			hdd
 fgetxattr			xattr
-flistxattr
+flistxattr			xattr
 flock				flock
 fork				fork
 fremovexattr			xattr
@@ -144,7 +144,7 @@ move_pages			numa
 mmap				bigheap, mmap
 mprotect			mmap
 munmap				mmap
-mq_getsetattr
+mq_getsetattr			mq
 mq_notify
 mq_open				mq
 mq_send				mq

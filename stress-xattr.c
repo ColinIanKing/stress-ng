@@ -71,11 +71,13 @@ int stress_xattr(
 		int ret;
 		char name[32];
 		char value[32];
+		ssize_t sz;
+		char *buffer;
 
 		for (i = 0; i < 4096; i++) {
 			snprintf(name, sizeof(name), "user.var_%d", i);
 			snprintf(value, sizeof(value), "orig-value-%i", i);
-		
+
 			ret = fsetxattr(fd, name, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if (errno == ENOTSUP) {
@@ -115,6 +117,22 @@ int stress_xattr(
 					name, ret, value, ret, tmp);
 				goto out_close;
 			}
+		}
+		/* Determine how large a buffer we required... */
+		sz = flistxattr(fd, NULL, 0);
+		if (sz < 0) {
+			pr_failed_err(name, "fremovexattr");
+			goto out_close;
+		}
+		buffer = malloc(sz);
+		if (buffer) {
+			/* ...and fetch */
+			sz = flistxattr(fd, buffer, sz);
+			if (sz < 0) {
+				pr_failed_err(name, "fremovexattr");
+				goto out_close;
+			}
+			free(buffer);
 		}
 		for (j = 0; j < i; j++) {
 			snprintf(name, sizeof(name), "user.var_%d", j);
