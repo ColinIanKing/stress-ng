@@ -723,6 +723,10 @@ typedef enum {
 #endif
 	STRESS_HDD,
 	STRESS_HSEARCH,
+#if defined(STRESS_X86) && defined(__GNUC__) && NEED_GNUC(4,6,0)
+	__STRESS_ICACHE,
+#define STRESS_ICACHE __STRESS_ICACHE
+#endif
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	__STRESS_INOTIFY,
 #define STRESS_INOTIFY __STRESS_INOTIFY
@@ -1096,6 +1100,9 @@ typedef enum {
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
 	OPT_HSEARCH_SIZE,
+
+	OPT_ICACHE,
+	OPT_ICACHE_OPS,
 
 #if defined(STRESS_INOTIFY)
 	OPT_INOTIFY,
@@ -1767,6 +1774,7 @@ STRESS(stress_get);
 STRESS(stress_getrandom);
 STRESS(stress_hdd);
 STRESS(stress_hsearch);
+STRESS(stress_icache);
 STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_itimer);

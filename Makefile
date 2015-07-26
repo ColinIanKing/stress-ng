@@ -21,7 +21,7 @@ VERSION=0.04.12
 # Codename "red hot toaster"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -56,6 +56,7 @@ SRC =   stress-affinity.c \
 	stress-getrandom.c \
 	stress-hdd.c \
 	stress-hsearch.c \
+	stress-icache.c \
 	stress-inotify.c \
 	stress-iosync.c \
 	stress-itimer.c \

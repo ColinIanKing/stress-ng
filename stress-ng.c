@@ -185,6 +185,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
 	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+#if defined(STRESS_ICACHE)
+	STRESSOR(icache, ICACHE, CLASS_CPU_CACHE),
+#endif
 	STRESSOR(iosync, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_INOTIFY)
 	STRESSOR(inotify, INOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
@@ -466,6 +469,10 @@ static const struct option long_options[] = {
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
 	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
 	{ "hsearch-size",1,	0,	OPT_HSEARCH_SIZE },
+#if defined(STRESS_ICACHE)
+	{ "icache",	1,	0,	OPT_ICACHE },
+	{ "icache-ops",	1,	0,	OPT_ICACHE_OPS },
+#endif
 #if defined(STRESS_INOTIFY)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
@@ -934,6 +941,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"hsearch",		"start N workers that exercise a hash table search" },
 	{ NULL,		"hsearch-ops",		"stop when N hash search bogo operations completed" },
 	{ NULL,		"hsearch-size",		"number of integers to insert into hash table" },
+#if defined(STRESS_ICACHE)
+	{ NULL,		"icache N",		"start N CPU instruction cache thrashing workers" },
+	{ NULL,		"icache-ops N",		"stop when N icache bogo operations completed" },
+#endif
 #if defined(STRESS_INOTIFY)
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
