@@ -557,7 +557,7 @@ the typical instruction mixes found in these use cases.
 .RE
 .TP
 .B \-\-crypt N
-start N workers that encrypt a 16 character random password using crypt(3). The password is encypted using MD5, SHA-256 and SHA-512 encryption methods.
+start N workers that encrypt a 16 character random password using crypt(3). The password is encrypted using MD5, SHA-256 and SHA-512 encryption methods.
 .TP
 .B \-\-crypt\-ops N
 stop after N bogo encryption operations.
@@ -1221,7 +1221,7 @@ transfer N bytes per splice call, the default is 64K. One can specify the size i
 start N workers that rapidly cause and catch stack overflows by use of alloca(3).
 .TP
 .B \-\-stack\-full
-the default action is to touch the lowest page on each stack allocation. This option touches all the pages by filling the new stack allocation with zeros which forces physical pages to be allocated and hence is more aggressve.
+the default action is to touch the lowest page on each stack allocation. This option touches all the pages by filling the new stack allocation with zeros which forces physical pages to be allocated and hence is more aggressive.
 .TP
 .B \-\-stack\-ops N
 stop stack stress workers after N bogo stack overflows.
@@ -1547,7 +1547,7 @@ in a first-in first-out manner, and then repeated.
 stop zombie stress workers after N bogo fork operations.
 .TP
 .B \-\-zombie\-max N
-try to create as many as N child proccesses. This may not be reached if the system limit is less than N.
+try to create as many as N child processes. This may not be reached if the system limit is less than N.
 .LP
 .SH EXAMPLES
 .LP
@@ -1598,7 +1598,7 @@ utilisation statistics at the end of the run.
 .LP
 stress\-ng \-\-all 0 \-\-maximize \-\-aggressive
 .IP
-run all the stressors (1 instance of each per CPU) similtaneously, maximize the settings (memory sizes, file allocations, etc.) and select the most demanding/aggressive options.
+run all the stressors (1 instance of each per CPU) simultaneously, maximize the settings (memory sizes, file allocations, etc.) and select the most demanding/aggressive options.
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress-ng/+filebug
