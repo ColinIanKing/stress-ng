@@ -210,7 +210,7 @@ int stress_temp_dir(
 
 /*
  *   stress_temp_dir_mk()
- *	create a temportary directory
+ *	create a temporary directory
  */
 int stress_temp_dir_mk(
 	const char *name,
