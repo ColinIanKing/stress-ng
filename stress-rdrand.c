@@ -83,7 +83,7 @@ static inline uint64_t rdrand64(void)
 /*
  *  Unrolled 32 times
  */
-#define RDRAND64()	\
+#define RDRAND64x32()	\
 {			\
 	rdrand64();	\
 	rdrand64();	\
@@ -119,7 +119,6 @@ static inline uint64_t rdrand64(void)
 	rdrand64();	\
 }
 
-
 /*
  *  stress_rdrand()
  *      stress Intel rdrand instruction
@@ -130,16 +129,25 @@ int stress_rdrand(
         const uint64_t max_ops,
         const char *name)
 {
-	(void)instance;
-
 	if (rdrand_supported) {
+		double time_start, duration, billion_bits;
+
+		time_start = time_now();
 		do {
-			RDRAND64();
+			RDRAND64x32();
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+		duration = time_now() - time_start;
+		billion_bits = ((double)*counter * 64.0 * 32.0) / 1000000000.0;
+
+		pr_dbg(stderr, "%s: %.3f billion random bits read (instance %" PRIu32")\n",
+			name, billion_bits, instance);
+		if (duration > 0.0) {
+			pr_dbg(stderr, "%s: %.3f billion random bits per second (instance %" PRIu32")\n",
+				name, (double)billion_bits / duration, instance);
+		}
 	}
-	pr_dbg(stderr, "%s: %" PRIu64 " random bits read\n",
-		name,  (*counter) * 64 * 32);
 	return EXIT_SUCCESS;
 }
 
