@@ -36,7 +36,7 @@
 #include "stress-ng.h"
 
 #define VM_BOGO_SHIFT		(12)
-#define VM_ROWHAMMER_LOOPS	1000000
+#define VM_ROWHAMMER_LOOPS	(1000000)
 
 
 /*
