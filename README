@@ -7,7 +7,7 @@ the various operating system kernel interfaces. Stress-ng features:
   * 105 stress tests
   * over 50 CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
-  * over 20 virtual memory stress tests 
+  * over 20 virtual memory stress tests
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only

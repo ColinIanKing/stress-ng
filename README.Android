@@ -9,7 +9,7 @@ Install tools:
 sudo apt-get install kernel-package build-essential git gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf gcc-4.6-multilib-arm-linux-gnueabihf gcc-4.6-multilib-arm-linux-gnueabi
 
 == Environment ==
-Ubuntu has a command called ''dpkg-architecture'' which setups up most of the cross compile environment.  
+Ubuntu has a command called ''dpkg-architecture'' which setups up most of the cross compile environment.
 
 64-bit x86:
  export $(dpkg-architecture -aamd64)

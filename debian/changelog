@@ -198,18 +198,18 @@ stress-ng (0.04.03-1) unstable; urgency=medium
   * Makefile: bump version
   * Forgot to include new OPT_FLAG #defines
   * Allow --class option to specify a list of classes
-  * Allow --seq and --all modes to have --class option 
+  * Allow --seq and --all modes to have --class option
   * Make break stress help into generic and per stress test sections
   * stress-epoll: fix spelling mistake in comment "incomming"
   * Manual: break options into stress-ng specific options and stressors
-  * Make sysfs conditionally compile on STRESS_SYSFS 
+  * Make sysfs conditionally compile on STRESS_SYSFS
   * Add sysfs stressor
   * Fix oom error message with corrupt name because name is not yet set
   * stress-cpu: dither: correct min x boundary check, off by 1
   * Change scope of variables in stress_cpu_parity
   * stress-cpu: stash d and l to overcome over optimization
   * Call "stressors" workers
-  * Manual, call stressors and processes "workers" 
+  * Manual, call stressors and processes "workers"
   * Sync up syscalls.txt with latest changes to stressors
   * Add chdir stressor
   * Add syncfs otion to hdd stressor

@@ -113,8 +113,8 @@ again:
 				} else {
 					/*
 					 * Mappings are always page aligned so
-					 * we can use the bottom bit to 
-					 * indicate if the page has been 
+					 * we can use the bottom bit to
+					 * indicate if the page has been
 					 * mlocked or not
 				 	 */
 					mappings[n] = (uint8_t *)
