@@ -1935,7 +1935,7 @@ again:
 		set_oom_adjustment(name, true);
 
 		do {
-			if (!keep || (keep && buf == NULL)) {
+			if (!keep || (buf == NULL)) {
 				if (!opt_do_run)
 					return EXIT_SUCCESS;
 				buf = mmap(NULL, buf_sz, PROT_READ | PROT_WRITE,
