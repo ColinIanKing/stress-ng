@@ -4,7 +4,7 @@ accept				sock
 accept4
 access
 acct				[ need privilege, ignore for now ]
-add_key
+add_key				key
 adjtimex
 alarm				generic run duration timers
 bind				sock
@@ -113,7 +113,7 @@ ipc				used by msg* glibc wrappers
 kcmp				kcmp
 kexec_file_load			[ need privilege, ignore for now ]
 kexec_load			[ need privilege, ignore for now ]
-keyctl
+keyctl				key
 kill				kill
 lchown
 lgetxattr
