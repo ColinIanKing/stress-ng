@@ -75,6 +75,8 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 							\
 	if (rc < 0)	 				\
 		pr_failed_err(name, "kcmp: " # type);	\
+	if (!opt_do_run)				\
+		break;					\
 }
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)	\
