@@ -820,6 +820,14 @@ start N workers that use kcmp(2) to compare parent and child processes to determ
 .B \-\-kcmp\-ops N
 stop kcmp workers after N bogo kcmp operations.
 .TP
+.B \-\-key N
+start N workers that create and manipulate keys using add_key(2) and ketctl(2). As many keys are created as the per user limit allows and
+then the following keyctl commands are exercised on each key: KEYCTL_SET_TIMEOUT, KEYCTL_DESCRIBE, KEYCTL_UPDATE, KEYCTL_READ, KEYCTL_CLEAR
+and KEYCTL_INVALIDATE.
+.TP
+.B \-\-key\-ops N
+stop key workers after N bogo key operations.
+.TP
 .B \-\-kill N
 start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most of the process time will end up in kernel space.
 .TP

@@ -737,6 +737,10 @@ typedef enum {
 	__STRESS_KCMP,
 #define STRESS_KCMP __STRESS_KCMP
 #endif
+#if defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
+	__STRESS_KEY,
+#define STRESS_KEY __STRESS_KEY
+#endif
 	STRESS_KILL,
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 	__STRESS_LEASE,
@@ -1123,6 +1127,11 @@ typedef enum {
 #if defined(STRESS_KCMP)
 	OPT_KCMP,
 	OPT_KCMP_OPS,
+#endif
+
+#if defined(STRESS_KEY)
+	OPT_KEY,
+	OPT_KEY_OPS,
 #endif
 
 	OPT_KILL,
@@ -1779,6 +1788,7 @@ STRESS(stress_inotify);
 STRESS(stress_iosync);
 STRESS(stress_itimer);
 STRESS(stress_kcmp);
+STRESS(stress_key);
 STRESS(stress_kill);
 STRESS(stress_lease);
 STRESS(stress_link);

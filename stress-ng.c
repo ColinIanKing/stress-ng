@@ -196,6 +196,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_KCMP)
 	STRESSOR(kcmp, KCMP, CLASS_OS),
 #endif
+#if defined(STRESS_KEY)
+	STRESSOR(key, KEY, CLASS_OS),
+#endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 #if defined(STRESS_LEASE)
 	STRESSOR(lease, LEASE, CLASS_FILESYSTEM | CLASS_OS),
@@ -489,6 +492,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_KCMP)
 	{ "kcmp",	1,	0,	OPT_KCMP },
 	{ "kcmp-ops",	1,	0,	OPT_KCMP_OPS },
+#endif
+#if defined(STRESS_KEY)
+	{ "key",	1,	0,	OPT_KEY },
+	{ "key-ops",	1,	0,	OPT_KEY_OPS },
 #endif
 	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
 	{ "kill",	1,	0,	OPT_KILL },
@@ -960,6 +967,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_KCMP)
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
 	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
+#endif
+#if defined(STRESS_KEY)
+	{ NULL,		"key N",		"start N workers exercising key operations" },
+	{ NULL,		"key-ops N",		"stop when N key bogo operations completed" },
 #endif
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
