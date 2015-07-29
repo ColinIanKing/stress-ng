@@ -1333,6 +1333,7 @@ static int stress_exclude(char *const opt_exclude)
 			return -1;
 		}
 		procs[i].exclude = true;
+		procs[i].num_procs = 0;
 	}
 	return 0;
 }
@@ -1970,10 +1971,6 @@ next_opt:
 					procs[s_id].num_procs = stress_get_processors_configured();
 				check_value(name, procs[s_id].num_procs);
 
-				if (procs[s_id].exclude) {
-					fprintf(stderr, "ignoring stressor '%s' as it is excluded\n", name);
-					procs[s_id].num_procs = 0;
-				}
 				goto next_opt;
 			}
 			if (stressors[s_id].op == (stress_op)c) {
@@ -2067,8 +2064,6 @@ next_opt:
 #endif
 		case OPT_EXCLUDE:
 			opt_exclude = optarg;
-			if (stress_exclude(opt_exclude) < 0)
-				exit(EXIT_FAILURE);
 			break;
 #if defined(STRESS_FALLOCATE)
 		case OPT_FALLOCATE_BYTES:
@@ -2393,6 +2388,8 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 	}
+	if (stress_exclude(opt_exclude) < 0)
+		exit(EXIT_FAILURE);
 	if ((opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
 		fprintf(stderr, "cannot invoke --sequential and --all options together\n");
