@@ -121,21 +121,33 @@ int stress_key(
 				"-%zu", ppid, instance, i);
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_DESCRIBE");
+			if (!opt_do_run)
+				break;
 
 			snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_UPDATE");
+			if (!opt_do_run)
+				break;
 
 			memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_READ");
+			if (!opt_do_run)
+				break;
 
 			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
 			(*counter)++;
+		}
+		/* If we hit too many errors and bailed out early, clean up */
+		while (i < n) {
+			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
+			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+			i++;
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
