@@ -974,6 +974,7 @@ typedef enum {
 	OPT_VERSION = 'V',
 	OPT_YIELD = 'y',
 	OPT_YAML = 'Y',
+	OPT_EXCLUDE = 'x',
 
 	/* Long options only */
 
@@ -1503,6 +1504,7 @@ typedef struct {
 	int32_t started_procs;		/* count of started processes */
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
+	bool	exclude;		/* true if excluded */
 } proc_info_t;
 
 typedef struct {

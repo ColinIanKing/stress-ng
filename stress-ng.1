@@ -31,24 +31,24 @@ stress\-ng \- a tool to load and stress a computer system
 stress\-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well
 as the various operating system kernel interfaces.
-stress-ng also has a wide range of CPU specific stress tests that exercise floating point, integer, bit manipulation and control flow.
+stress\-ng also has a wide range of CPU specific stress tests that exercise floating point, integer, bit manipulation and control flow.
 .PP
-stress-ng was originally intended to make a machine work hard and trip
+stress\-ng was originally intended to make a machine work hard and trip
 hardware issues such as thermal overruns as well as operating
-system bugs that only occur when a system is being thrashed hard. Use stress-ng
+system bugs that only occur when a system is being thrashed hard. Use stress\-ng
 with caution as some of the tests can make a system run hot
 on poorly designed hardware and also can cause excessive system thrashing
 which may be difficult to stop.
 .PP
-stress-ng can also measure test throughput rates; this can be
+stress\-ng can also measure test throughput rates; this can be
 useful to observe performance changes across different
 operating system releases or types of hardware. However, it has never been
 intended to be used as a precise benchmark test suite, so do NOT use it
 in this manner.
 .PP
-Running stress-ng with root privileges will adjust out of memory settings
+Running stress\-ng with root privileges will adjust out of memory settings
 on Linux systems to make the stressors unkillable in low memory situations,
-so use this judiciously.  With the appropriate privilege, stress-ng can allow
+so use this judiciously.  With the appropriate privilege, stress\-ng can allow
 the ionice class and ionice levels to be adjusted, again, this should be
 used with care.
 .PP
@@ -57,7 +57,7 @@ a negative or zero value will select the number of online processors as defined
 by sysconf(_SC_NPROCESSORS_CONF).
 .SH OPTIONS
 .PP
-.B General stress-ng control options:
+.B General stress\-ng control options:
 .TP
 .B \-\-aggressive
 enables more file, cache and memory aggressive options. This may slow tests down, increase latencies and reduce the number of bogo ops as well as changing the balance of user time vs system time used depending on the type of stressor being used.
@@ -79,10 +79,10 @@ parse options, but don't run stress tests. A no-op.
 show help.
 .TP
 .B \-k, \-\-keep\-name
-by default, stress-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress-ng.
+by default, stress\-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress\-ng.
 .TP
 .B \-\-log\-brief
-By default stress-ng will report the name of the program, the message type and the process id as a prefix to all output. The \-\-log\-brief
+By default stress\-ng will report the name of the program, the message type and the process id as a prefix to all output. The \-\-log\-brief
 option will output messages without these fields to produce a less verbose output.
 .TP
 .B \-\-maximize
@@ -146,7 +146,7 @@ enable metrics and only output metrics that are non-zero.
 overrides the default stressor settings and instead sets these to the minimum settings allowed.  These defaults can always be overridden by the per stressor settings options if required.
 .TP
 .B \-\-no\-advise
-from version 0.02.26 stress-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
+from version 0.02.26 stress\-ng automatically calls madvise(2) with random advise options before each mmap and munmap to stress the the vm subsystem a little harder. The \-\-no\-advise option turns this default off.
 .TP
 .B \-\-page\-in
 touch allocated pages that are not in core, forcing them to be paged back in.  This is a useful option to force
@@ -195,6 +195,11 @@ computations or memory contents from a test run and report to stderr any unexpec
 .TP
 .B \-V, \-\-version
 show version.
+.TP
+.B \-x, \-\-exclude list
+specify a list of one or more stressors to exclude (that is, do not run them).  This is useful to exclude specific stressors when one selects many stressors to run using the \-\-class option, \-\-sequential, \-\-all and \-\-random options. Example, run the cpu class stressors concurrently and exclude the numa and search stressors:
+.IP
+stress\-ng \-\-class cpu \-\-all 1 \-x numa,bsearch,hsearch,lsearch
 .TP
 .B \-Y, \-\-yaml filename
 output gathered statistics to a YAML formatted file named 'filename'.
@@ -1300,7 +1305,7 @@ signal handler and counted as a bogo timer op.
 stop timer stress workers after N bogo timer events (Linux only).
 .TP
 .B \-\-timer\-freq F
-run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
+run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress\-ng can generate hundreds of thousands of interrupts per second.
 .TP
 .B \-\-timer\-rand
 select a timer frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
@@ -1314,7 +1319,7 @@ using select(2) and then read and counted as a bogo timerfd op.
 stop timerfd stress workers after N bogo timerfd events (Linux only).
 .TP
 .B \-\-timerfd\-freq F
-run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress-ng can generate hundreds of thousands of interrupts per second.
+run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting an appropriate frequency stress\-ng can generate hundreds of thousands of interrupts per second.
 .TP
 .B \-\-timerfd\-rand
 select a timerfd frequency based around the timer frequency +/- 12.5% random jitter. This tries to force more variability in the timer interval to make the scheduling less predictable.
@@ -1613,9 +1618,17 @@ utilisation statistics at the end of the run.
 stress\-ng \-\-all 0 \-\-maximize \-\-aggressive
 .IP
 run all the stressors (1 instance of each per CPU) simultaneously, maximize the settings (memory sizes, file allocations, etc.) and select the most demanding/aggressive options.
+.LP
+stress\-ng \-\-random 32 \-x numa,hdd,key
+.IP
+run 32 randomly selected stressors and exclude the numa, hdd and key stressors
+.LP
+stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack
+.IP
+run 4 instances of the VM stressors one after each other, excluding the bigheap, brk and stack stressors
 .SH BUGS
 File bug reports at:
-  https://launchpad.net/ubuntu/+source/stress-ng/+filebug
+  https://launchpad.net/ubuntu/+source/stress\-ng/+filebug
 .SH SEE ALSO
 .BR bsearch (3),
 .BR fallocate (2),
@@ -1640,10 +1653,10 @@ is a clean room re-implementation and extension of the original
 stress tool by Amos Waterland <apw@rossby.metr.ou.edu>. Thanks also for
 contributions from Christian Ehrhardt.
 .SH NOTES
-Note that the stress-ng cpu, io, vm and hdd tests are different
+Note that the stress\-ng cpu, io, vm and hdd tests are different
 implementations of the original stress
 tests and hence may produce different stress characteristics.
-stress-ng does not support any GPU stress tests.
+stress\-ng does not support any GPU stress tests.
 .PP
 The bogo operations metrics may change with each release  because of bug
 fixes to the code, new features, compiler optimisations or changes in system call performance.

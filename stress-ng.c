@@ -433,6 +433,7 @@ static const struct option long_options[] = {
 	{ "eventfd",	1,	0,	OPT_EVENTFD },
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
 #endif
+	{ "exclude",	1,	0,	OPT_EXCLUDE },
 #if defined(STRESS_FALLOCATE)
 	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
@@ -837,6 +838,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
 	{ "Y",		"yaml",			"output results to YAML formatted filed" },
+	{ "x",		"exclude",		"list of stressors to exclude (not run)" },
 	{ NULL,		NULL,			NULL }
 };
 
@@ -1244,7 +1246,6 @@ static const help_t help_stressors[] = {
 	{ NULL,		NULL,			NULL }
 };
 
-
 /*
  *  stressor_id_find()
  *  	Find index into stressors by id
@@ -1253,12 +1254,30 @@ static inline int32_t stressor_id_find(const stress_id id)
 {
 	int32_t i;
 
-	for (i = 0; stressors[i].name; i++)
+	for (i = 0; stressors[i].name; i++) {
 		if (stressors[i].id == id)
 			break;
+	}
 
 	return i;       /* End of array is a special "NULL" entry */
 }
+
+/*
+ *  stressor_name_find()
+ *  	Find index into stressors by name
+ */
+static inline int32_t stressor_name_find(const char *name)
+{
+	int32_t i;
+
+	for (i = 0; stressors[i].name; i++) {
+		if (!strcmp(stressors[i].name, name))
+			break;
+	}
+
+	return i;       /* End of array is a special "NULL" entry */
+}
+
 
 /*
  *   stressor_instances()
@@ -1301,6 +1320,21 @@ static uint32_t get_class(char *const class_str)
 		class |= cl;
 	}
 	return class;
+}
+
+static int stress_exclude(char *const opt_exclude)
+{
+	char *str, *token;
+
+	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
+		uint32_t i = stressor_name_find(token);
+		if (!stressors[i].name) {
+			fprintf(stderr, "Unknown stressor: '%s', invalid exclude option\n", token);
+			return -1;
+		}
+		procs[i].exclude = true;
+	}
+	return 0;
 }
 
 /*
@@ -1726,16 +1760,17 @@ static int show_hogs(const uint32_t opt_class)
 	for (i = 0; i < STRESS_MAX; i++) {
 		int32_t n;
 
-		if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
-			if (opt_class) {
-				n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
+		if (!procs[i].exclude) {
+			if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
+				if (opt_class) {
+					n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
+				} else {
+					n = opt_sequential;
+				}
 			} else {
-				n = opt_sequential;
+				n = procs[i].num_procs;
 			}
-		} else {
-			n = procs[i].num_procs;
 		}
-
 		if (n) {
 			ssize_t buffer_len;
 
@@ -1879,6 +1914,7 @@ int main(int argc, char **argv)
 	bool success = true;
 	struct sigaction new_action;
 	struct rlimit limit;
+	char *opt_exclude = NULL;		/* List of stressors to exclude */
 	char *yamlfile = NULL;			/* YAML filename */
 	FILE *yaml = NULL;			/* YAML output file */
 	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
@@ -1918,7 +1954,7 @@ int main(int argc, char **argv)
 		int c, option_index;
 		stress_id s_id;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k:Y:",
+		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k:Y:x:",
 			long_options, &option_index)) == -1)
 			break;
 
@@ -1931,6 +1967,11 @@ next_opt:
 				if (procs[s_id].num_procs <= 0)
 					procs[s_id].num_procs = stress_get_processors_configured();
 				check_value(name, procs[s_id].num_procs);
+
+				if (procs[s_id].exclude) {
+					fprintf(stderr, "ignoring stressor '%s' as it is excluded\n", name);
+					procs[s_id].num_procs = 0;
+				}
 				goto next_opt;
 			}
 			if (stressors[s_id].op == (stress_op)c) {
@@ -2022,6 +2063,11 @@ next_opt:
 			stress_set_epoll_port(optarg);
 			break;
 #endif
+		case OPT_EXCLUDE:
+			opt_exclude = optarg;
+			if (stress_exclude(opt_exclude) < 0)
+				exit(EXIT_FAILURE);
+			break;
 #if defined(STRESS_FALLOCATE)
 		case OPT_FALLOCATE_BYTES:
 			stress_set_fallocate_bytes(optarg);
@@ -2382,12 +2428,17 @@ next_opt:
 		/* create n randomly chosen stressors */
 		while (n > 0) {
 			int32_t rnd = mwc32() % ((opt_random >> 5) + 2);
-			if (rnd > n)
-				rnd = n;
-			n -= rnd;
-			procs[mwc32() % STRESS_MAX].num_procs += rnd;
+			int32_t i = mwc32() % STRESS_MAX;
+
+			if (!procs[i].exclude) {
+				if (rnd > n)
+					rnd = n;
+				procs[i].num_procs += rnd;
+				n -= rnd;
+			}
 		}
 	}
+
 #if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_init();
@@ -2454,9 +2505,10 @@ next_opt:
 		}
 
 		for (i = 0; i < STRESS_MAX; i++) {
-			procs[i].num_procs = opt_class ?
-				(stressors[i].class & opt_class ?
-					opt_all : 0) : opt_all;
+			if (!procs[i].exclude)
+				procs[i].num_procs = opt_class ?
+					(stressors[i].class & opt_class ?
+						opt_all : 0) : opt_all;
 			total_procs += procs[i].num_procs;
 			if (max_procs < procs[i].num_procs)
 				max_procs = procs[i].num_procs;
@@ -2543,13 +2595,15 @@ next_opt:
 
 			for (j = 0; opt_do_run && j < STRESS_MAX; j++)
 				procs[j].num_procs = 0;
-			procs[i].num_procs = opt_class ?
-				(stressors[i].class & opt_class ?
-					opt_sequential : 0) : opt_sequential;
-			if (procs[i].num_procs)
-				stress_run(opt_sequential, opt_sequential,
-					opt_backoff, opt_ionice_class, opt_ionice_level,
-					shared->stats, &duration, &success);
+			if (!procs[i].exclude) {
+				procs[i].num_procs = opt_class ?
+					(stressors[i].class & opt_class ?
+						opt_sequential : 0) : opt_sequential;
+				if (procs[i].num_procs)
+					stress_run(opt_sequential, opt_sequential,
+						opt_backoff, opt_ionice_class, opt_ionice_level,
+						shared->stats, &duration, &success);
+			}
 		}
 	} else {
 		/*
