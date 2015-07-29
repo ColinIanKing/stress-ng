@@ -1,3 +1,89 @@
+stress-ng (0.04.13-1) unstable; urgency=medium
+
+  * Makefile: bump version, change code name
+  * Move exclude parsing after we have parsed all the stressor options
+  * stress-ng: fix unitialised n, found by clang
+  * stress-key: handle clean up when we bail out early
+  * stress-stack should not be part of the CPU stress class
+  * Add the -x, --exclude test exclusion option
+  * Add libkeyutils-dev to debian control
+  * Update syscalls list
+  * Add key stressor (keyctl, add_key)
+  * stress-kcmp: bail out early after 5 kcmp test failures per instance
+  * Remove some trailing white spaces from lines
+  * stress-vm: replace logic with simplified version
+  * stress-vm: parenthesis around macro definition
+  * stress-rdrand: add more useful debug stats
+  * Add instruction cache stressor
+  * helper: fix spelling mistake
+  * Manual: fix a few spelling mistakes
+  * stress-str: make index a register size_t type
+  * stress-wdstr: make index a register size_t type
+  * stress-wait: tidy up formatting of function args
+  * stress-mmapmany: use STRESS_MAX macro
+  * stress-mmapfork: minor variable cleanup
+  * stress-inotify: make mk_filename static
+  * stress-matrix: replace #defined MATRIX_TYPE with typedef
+  * coredump: make string static
+  * mounts: make mount_add static, clean up code a bit
+  * Put MIN/MAX macros into stress-ng.h
+  * Small amount of white space empty line clean up
+  * Unify SET/GET/CLR macros
+  * stress-futex: move futex info into futex struct
+  * stress-sem-sysv: move sem sysv info into sem_sysv struct
+  * stress-sem-posix: move sem and init into sem_posix struct
+  * stress-xattr: add flistxattr calls
+  * Minor change to error message
+  * Fix typo in man page, exerised -> exercised
+  * stress-mq: use correct stressor name in dbg messages
+  * stress-mq: add occasional use of mq_getattr()
+  * Only call perf_* if --perf is actually being used
+  * yaml: times and system-info are not arrays, but lists
+  * Add perf tracepoint events
+  * coredump: pid_t should be %u rather than %d, pids are not -ve
+  * stress-mlock: avoid using void * ptr arithmetic
+  * helper: fix signum comparisons, use && instead of ||
+  * stress-cache: don't keep fetching number of cpus available
+  * stress-affinity: don't keep fetching number of cpus available
+  * Make u_time, s_time, t_time, u_pc, s_pc, t_pc doubles
+  * thermal-zone: cast to double rather than float
+  * stress-cpu: ensure we don't get double promotion issues
+  * minor adjustment to whitespace/tab indentation
+  * perf: fix spelling mistake: Aligment -> Alignment
+  * stress-cpu: add C union bit field stressor
+  * Really ensure we don't report perf counters if they are not available
+  * stress-sigfd.c: Fix compile warning
+  * stress-sigfd: user SIGRTMIN instead of SIGUSR1
+  * coredump: remove redundant code
+  * stress-mlock: clarify cast to void, ensure we are not doing void * math
+  * stress-socketpair: reduce the scope of variable ret
+  * stress-rlimit: reduce scope of variable ret
+  * stress-fcntl: put each fcntl cmd into its own block
+  * stress-brk: reduce scope of ptr
+  * stress-cpu: reduce scope of loop variable
+  * Add more system info to yaml output to help with test result gathering
+  * stress-getrandom: cater for builds without the syscall defined
+  * stress-aio-linux: clean up syscalls
+  * Clean up memfd syscall wrapper
+  * perf: call perf_event_open via a wrapper rather than direct syscall
+  * stress-getrandom: rename __getrandom to sys_getrandom
+  * stress-kcmp: break out early if we get multiple ENOSYS errors
+  * Fix spelling mistake 1Mhz -> 1 MHz
+  * README: fix spelling mistake
+  * stress-kill: fix typo in comment
+  * Remove 64 byte alignment on shared region, it does not save much
+  * Tidy main vars up, add more comments, make ticks_per_sec int32_t
+  * Add STRESS_ASSERT macro to catch incorrect stressor array size
+  * Make quota block devices message a little clearer and fix typo
+  * Use %s instead of %d in stress-malloc signum printing
+  * Forgot to include signal.h in helper to get NSIG define
+  * Print signal death number as human readable string
+  * Warn user if cwd is not read-writeable
+  * Show process name when a stressor process exits with an error
+  * Fix typo "quotctl" -> "quotactl" in man page
+
+ -- Colin King <colin.king@canonical.com>  Wed, 29 Jul 2015 17:10:10 +0100
+
 stress-ng (0.04.12-1) unstable; urgency=medium
 
   * Makefile: bump version
