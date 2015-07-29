@@ -1760,7 +1760,9 @@ static int show_hogs(const uint32_t opt_class)
 	for (i = 0; i < STRESS_MAX; i++) {
 		int32_t n;
 
-		if (!procs[i].exclude) {
+		if (procs[i].exclude) {
+			n = 0;
+		} else {
 			if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 				if (opt_class) {
 					n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
