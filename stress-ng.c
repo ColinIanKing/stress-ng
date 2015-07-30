@@ -1326,6 +1326,9 @@ static int stress_exclude(char *const opt_exclude)
 {
 	char *str, *token;
 
+	if (!opt_exclude)
+		return 0;
+
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		uint32_t i = stressor_name_find(token);
 		if (!stressors[i].name) {
