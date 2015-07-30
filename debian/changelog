@@ -1,3 +1,11 @@
+stress-ng (0.04.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Debian: control: don't depend on libkeyutils-dev for some arches
+  * Don't parse NULL exclude list
+
+ -- Colin King <colin.king@canonical.com>  Thu, 30 Jul 2015 12:48:00 +0100
+
 stress-ng (0.04.13-1) unstable; urgency=medium
 
   * Makefile: bump version, change code name
