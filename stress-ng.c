@@ -2350,7 +2350,7 @@ next_opt:
 			stress_set_vm_hang(optarg);
 			break;
 		case OPT_VM_KEEP:
-			stress_set_vm_flags(OPT_FLAGS_VM_KEEP);
+			opt_flags |= OPT_FLAGS_VM_KEEP;
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)
