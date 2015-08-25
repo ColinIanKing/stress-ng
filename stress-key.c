@@ -110,8 +110,10 @@ int stress_key(
 					pr_failed_err(name, "add_key");
 				break;
 			}
+#if defined(KEYCTL_SET_TIMEOUT)
 			if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_SET_TIMEOUT");
+#endif
 		}
 
 		/* And manipulate the keys */
@@ -119,34 +121,48 @@ int stress_key(
 			snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, instance, i);
+#if defined(KEYCTL_DESCRIBE)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_DESCRIBE");
 			if (!opt_do_run)
 				break;
+#endif
 
 			snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
+#if defined(KEYCTL_UPDATE)
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_UPDATE");
 			if (!opt_do_run)
 				break;
+#endif
 
+#if defined(KEYCTL_READ)
 			memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
 				pr_failed_err(name, "keyctl KEYCTL_READ");
 			if (!opt_do_run)
 				break;
+#endif
 
+#if defined(KEYCTL_CLEAR)
 			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
+#endif
+#if defined(KEYCTL_INVALIDATE)
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+#endif
 			(*counter)++;
 		}
 		/* If we hit too many errors and bailed out early, clean up */
 		while (i < n) {
+#if defined(KEYCTL_CLEAR)
 			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
+#endif
+#if defined(KEYCTL_INVALIDATE)
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+#endif
 			i++;
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
