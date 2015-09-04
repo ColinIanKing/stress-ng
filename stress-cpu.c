@@ -1986,6 +1986,56 @@ static void stress_cpu_union(const char *name)
 	}
 }
 
+static uint32_t queens_solutions[] = {
+	-1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
+};
+
+/*
+ *  Solution from http://www.cl.cam.ac.uk/~mr10/backtrk.pdf
+ *     see section 2.1
+ */
+static uint32_t queens_try(
+	uint32_t left_diag,
+	uint32_t cols,
+	uint32_t right_diag,
+	uint32_t all)
+{
+	register uint32_t solutions = 0;
+	register uint32_t poss = ~(left_diag | cols | right_diag) & all;
+
+	while (poss) {
+		register uint32_t bit = poss & -poss;
+		register uint32_t new_cols = cols | bit;
+
+		poss -= bit;
+		solutions += (new_cols == all) ?
+			1 : queens_try((left_diag | bit) << 1,
+				new_cols, (right_diag | bit) >> 1, all);
+	}
+	return solutions;
+}
+
+
+/*
+ *  stress_cpu_queens
+ *	solve the queens problem for sizes 1..12
+ */
+static void stress_cpu_queens(const char *name)
+{
+	uint32_t all, n;
+
+        for (all = 1, n = 1; n < 13; n++) {
+		uint32_t solutions = queens_try(0, 0, 0, all);
+		if ((opt_flags & OPT_FLAGS_VERIFY) && 
+		    (solutions != queens_solutions[n]))
+			pr_fail(stderr, "%s: queens solution error detected "
+				"on board size %" PRIu32 "\n", 
+				name, n);
+                all = (all + all) + 1;
+        }
+
+}
+
 /*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
@@ -2071,6 +2121,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "pjw",		stress_cpu_pjw },
 	{ "prime",		stress_cpu_prime },
 	{ "psi",		stress_cpu_psi },
+	{ "queens",		stress_cpu_queens },
 	{ "rand",		stress_cpu_rand },
 	{ "rand48",		stress_cpu_rand48 },
 	{ "rgb",		stress_cpu_rgb },
