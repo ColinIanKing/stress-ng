@@ -20,7 +20,7 @@ clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
 clock_settime			[ need privilege, ignore for now ]
-clone
+clone				clone
 close				dentry
 connect				sock
 creat				chmod
