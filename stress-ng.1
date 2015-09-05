@@ -304,6 +304,20 @@ all known timers it will create a 50000ns timer and busy poll this until it expi
 .B \-\-clock\-ops N
 stop clock stress workers after N bogo operations.
 .TP
+.B \-\-clone N
+start N workers that create clones (via the clone(2) system call). This will rapidly try to create a default
+of 8192 clones that immediately die and wait in a zombie state until they are reaped.
+Once the maximum number of clones is reached (or clone fails because one has reached the
+maximum allowed) the oldest clone thread is reaped and a new clone is then created
+in a first-in first-out manner, and then repeated.  A random clone flag is selected for each clone
+to try to exercise different clone operarions.  The clone stressor is a Linux only option.
+.TP
+.B \-\-clone\-ops N
+stop clone stress workers after N bogo clone operations.
+.TP
+.B \-\-clone\-max N
+try to create as many as N clone threads. This may not be reached if the system limit is less than N.
+.TP
 .B \-\-context N
 start N workers that run three threads that use swapcontext(3) to implement the thread-to-thread context switching. This exercises rapid process context saving and restoring and is bandwidth limited by register and memory save and restore rates.
 .TP
@@ -1566,10 +1580,10 @@ maximum allowed number of children) the oldest child is reaped and a new process
 in a first-in first-out manner, and then repeated.
 .TP
 .B \-\-zombie\-ops N
-stop zombie stress workers after N bogo fork operations.
+stop zombie stress workers after N bogo zombie operations.
 .TP
 .B \-\-zombie\-max N
-try to create as many as N child processes. This may not be reached if the system limit is less than N.
+try to create as many as N zombie processes. This may not be reached if the system limit is less than N.
 .LP
 .SH EXAMPLES
 .LP

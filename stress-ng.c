@@ -153,6 +153,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_CLOCK)
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_CLONE)
+	STRESSOR(clone, CLONE, CLASS_SCHEDULER | CLASS_OS),
+#endif
 #if defined(STRESS_CONTEXT)
 	STRESSOR(context, CONTEXT, CLASS_MEMORY | CLASS_CPU),
 #endif
@@ -402,6 +405,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_CLOCK)
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
+#endif
+#if defined(STRESS_CLONE)
+	{ "clone",	1,	0,	OPT_CLONE },
+	{ "clone-ops",	1,	0,	OPT_CLONE_OPS },
+	{ "clone-max",	1,	0,	OPT_CLONE_MAX },
 #endif
 #if defined(STRESS_CONTEXT)
 	{ "context",	1,	0,	OPT_CONTEXT },
@@ -882,6 +890,11 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_CLOCK)
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
+#endif
+#if defined(STRESS_CLONE)
+	{ NULL,		"clone N",		"start N workers that rapidly create and reap clones" },
+	{ NULL,		"clone-ops N",		"stop when N bogo clone operations completed" },
+	{ NULL,		"clone-max N",		"set upper limit of N clones per worker" },
 #endif
 #if defined(STRESS_CONTEXT)
 	{ NULL,		"context N",		"start N workers exercising user context" },
@@ -2035,6 +2048,9 @@ next_opt:
 			opt_class = get_class(optarg);
 			if (!opt_class)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_CLONE_MAX:
+			stress_set_clone_max(optarg);
 			break;
 		case OPT_CPU_LOAD:
 			stress_set_cpu_load(optarg);

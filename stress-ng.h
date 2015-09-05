@@ -236,6 +236,10 @@ extern void pr_yaml_runinfo(FILE *fp);
 #define MAX_BSEARCH_SIZE	(4 * MB)
 #define DEFAULT_BSEARCH_SIZE	(64 * KB)
 
+#define MIN_CLONES		(1)
+#define MAX_CLONES		(1000000)
+#define DEFAULT_CLONES		(8192)
+
 #define MIN_DENTRIES		(1)
 #define MAX_DENTRIES		(1000000)
 #define DEFAULT_DENTRIES	(2048)
@@ -685,6 +689,10 @@ typedef enum {
 	__STRESS_CLOCK,
 #define STRESS_CLOCK __STRESS_CLOCK
 #endif
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
+	__STRESS_CLONE,
+#define STRESS_CLONE __STRESS_CLONE
+#endif
 #if !defined(__OpenBSD__)
 	__STRESS_CONTEXT,
 #define STRESS_CONTEXT __STRESS_CONTEXT
@@ -1026,6 +1034,12 @@ typedef enum {
 #if defined(STRESS_CLOCK)
 	OPT_CLOCK,
 	OPT_CLOCK_OPS,
+#endif
+
+#if defined(STRESS_CLONE)
+	OPT_CLONE,
+	OPT_CLONE_OPS,
+	OPT_CLONE_MAX,
 #endif
 
 #if defined(STRESS_CONTEXT)
@@ -1694,6 +1708,7 @@ extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_aio_linux_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
+extern void stress_set_clone_max(const char *optarg);
 extern void stress_set_cpu_load(const char *optarg);
 extern void stress_set_cpu_load_slice(const char *optarg);
 extern int  stress_set_cpu_method(const char *name);
@@ -1765,6 +1780,7 @@ STRESS(stress_cache);
 STRESS(stress_chdir);
 STRESS(stress_chmod);
 STRESS(stress_clock);
+STRESS(stress_clone);
 STRESS(stress_context);
 STRESS(stress_cpu);
 STRESS(stress_crypt);
