@@ -23,6 +23,7 @@
  *
  */
 #define _GNU_SOURCE
+#define _BSD_SOURCE 1
 
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +35,7 @@
 #if defined(__linux__)
 #include <sys/syscall.h>
 #include <sys/utsname.h>
+#include <sys/timex.h>
 #endif
 #include <time.h>
 
@@ -145,6 +147,7 @@ int stress_get(
 		gid_t rgid, egid, sgid;
 		uid_t ruid, euid, suid;
 		struct utsname utsbuf;
+		struct timex timexbuf;
 #endif
 		const pid_t mypid = getpid();
 		int ret;
@@ -256,6 +259,14 @@ int stress_get(
 		ret = uname(&utsbuf);
 		if (verify && (ret < 0))
 			pr_fail(stderr, "%s: uname failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+#endif
+
+#if defined(__linux__)
+		timexbuf.modes = 0;
+		ret = adjtimex(&timexbuf);
+		if (verify && (ret < 0))
+			pr_fail(stderr, "%s: adjtimex failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 #endif
 

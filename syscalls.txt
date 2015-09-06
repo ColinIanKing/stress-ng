@@ -5,7 +5,7 @@ accept4
 access
 acct				[ need privilege, ignore for now ]
 add_key				key
-adjtimex
+adjtimex			get (modes = 0 only)
 alarm				generic run duration timers
 bind				sock
 brk				bigheap, brk
