@@ -56,7 +56,7 @@ static clone_list_t clones;
 /*
  *  A random selection of clone flags that are worth exercising
  */
-int flags[] = {
+static int flags[] = {
 	0,
 #if defined(CLONE_FILES)
 	CLONE_FILES,
@@ -95,6 +95,31 @@ int flags[] = {
 	CLONE_VM,
 #endif
 };
+
+static int unshare_flags[] = {
+#if defined(CLONE_FILES)
+	CLONE_FILES,
+#endif
+#if defined(CLONE_FS)
+	CLONE_FS,
+#endif
+#if defined(CLONE_NEWIPC)
+	CLONE_NEWIPC,
+#endif
+#if defined(CLONE_NEWNET)
+	CLONE_NEWNET,
+#endif
+#if defined(CLONE_NEWNS)
+	CLONE_NEWNS,
+#endif
+#if defined(CLONE_NEWUTS)
+	CLONE_NEWUTS,
+#endif
+#if defined(CLONE_SYSVSEM)
+	CLONE_SYSVSEM,
+#endif
+};
+
 
 /*
  *  stress_clone_new()
@@ -199,7 +224,13 @@ void stress_set_clone_max(const char *optarg)
  */
 static int clone_func(void *arg)
 {
+	size_t i;
+
 	(void)arg;
+
+	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
+		(void)unshare(unshare_flags[i]);
+	}
 
 	return 0;
 }

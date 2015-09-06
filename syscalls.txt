@@ -319,7 +319,7 @@ umount				[ need privilege, ignore for now ]
 uname				get
 unlink				dentry, hdd, unlink
 unlinkat
-unshare
+unshare				clone
 ustat				[ deprecated ]
 utime				utime
 utimesat
