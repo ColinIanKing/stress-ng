@@ -2049,9 +2049,11 @@ next_opt:
 			if (!opt_class)
 				exit(EXIT_FAILURE);
 			break;
+#if defined(STRESS_CLONE)
 		case OPT_CLONE_MAX:
 			stress_set_clone_max(optarg);
 			break;
+#endif
 		case OPT_CPU_LOAD:
 			stress_set_cpu_load(optarg);
 			break;

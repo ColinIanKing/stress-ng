@@ -24,14 +24,16 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_CLONE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "stress-ng.h"
 
 #define CLONE_STACK_SIZE	(32*1024)
 
@@ -306,3 +308,5 @@ int stress_clone(
 
 	return EXIT_SUCCESS;
 }
+
+#endif
