@@ -1747,6 +1747,11 @@ static size_t stress_vm_rowhammer(
 	const size_t n = sz / sizeof(uint32_t);
 	register size_t j;
 
+	if (!n) {
+		pr_dbg(stderr, "rowhammer: zero uint32_t integers could be hammered, aborting\n");
+		return 0;
+	}
+
 	(void)mincore_touch_pages(buf, sz);
 
 	do {
