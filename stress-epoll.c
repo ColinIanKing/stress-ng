@@ -377,8 +377,6 @@ retry:
 			goto retry;
 		}
 
-		retries = 0;
-
 		memset(buf, 'A' + (*counter % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
