@@ -96,7 +96,7 @@ int stress_shm_sysv(
 	const char *name)
 {
 	const size_t page_size = stress_get_pagesize();
-	size_t orig_sz, sz = opt_shm_sysv_bytes & ~(page_size - 1);
+	size_t orig_sz, sz;
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
