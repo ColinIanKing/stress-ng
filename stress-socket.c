@@ -131,7 +131,6 @@ retry:
 				goto retry;
 			}
 
-			retries = 0;
 			do {
 				ssize_t n = recv(fd, buf, sizeof(buf), 0);
 				if (n == 0)
