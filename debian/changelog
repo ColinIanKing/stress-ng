@@ -1,3 +1,16 @@
+stress-ng (0.04.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Don't build in stress-clone features if clone() not available
+  * stress-clone: add unshare call
+  * stress-get: add timex info get
+  * Update syscalls.txt with clone
+  * Add clone stressor
+  * Add the 8-queens solver to the CPU stressor
+  * stress-key: add build checks on KEYCTL_* features
+
+ -- Colin King <colin.king@canonical.com>  Mon, 7 Sep 2015 10:03:00 +0100
+
 stress-ng (0.04.15-1) unstable; urgency=medium
 
   * Makefile: bump version
