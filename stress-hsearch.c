@@ -56,7 +56,7 @@ int stress_hsearch(
 	const uint64_t max_ops,
 	const char *name)
 {
-	size_t i, max = (size_t)opt_hsearch_size;
+	size_t i, max;
 	int ret = EXIT_FAILURE;
 	char **keys;
 
