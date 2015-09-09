@@ -283,7 +283,7 @@ static int epoll_client(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
-	struct sockaddr *addr;
+	struct sockaddr *addr = NULL;
 
 	new_action.sa_flags = 0;
 	new_action.sa_handler = epoll_timer_handler;
@@ -391,7 +391,7 @@ retry:
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 #ifdef AF_UNIX
-	if (opt_epoll_domain == AF_UNIX) {
+	if (addr && (opt_epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -420,7 +420,7 @@ static void epoll_server(
 	int port = opt_epoll_port + child + (max_servers * instance);
 	struct sigaction new_action;
 	struct epoll_event *events = NULL;
-	struct sockaddr *addr;
+	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 
 	new_action.sa_handler = handle_socket_sigalrm;
@@ -528,7 +528,7 @@ die_close:
 		(void)close(sfd);
 die:
 #ifdef AF_UNIX
-	if (opt_epoll_domain == AF_UNIX) {
+	if (addr && (opt_epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
