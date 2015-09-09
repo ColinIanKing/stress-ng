@@ -122,7 +122,7 @@ int stress_fstat(
 			if (di->noaccess)
 				continue;
 
-			fd = open(di->path, O_RDONLY);
+			fd = open(di->path, O_RDONLY | O_NONBLOCK);
 			if (fd < 0) {
 				di->noaccess = true;
 				continue;
