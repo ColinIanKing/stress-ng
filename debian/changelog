@@ -1,3 +1,19 @@
+stress-ng (0.04.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fstat: open devices with O_NONBLOCK (LP: #1493717)
+  * stress-epoll: ensure addr is initialised to NULL
+  * stress-vm: Add sanity check for rowhammer sizes
+  * stress-timer: fix incorrect setting of timer
+  * stress-itimer: fix incorrect setting of timer
+  * stress-shm-sysv: remove dead initialisation of sz
+  * stress-hsearch: remove dead initialisation of max
+  * thermal-zone: remove dead initialisation
+  * stress-epoll: remove redundant retries assignment
+  * stress-socket: remove redundant retries assignment
+
+ -- Colin King <colin.king@canonical.com>  Wed, 9 Sep 2015 09:08:00 +0100
+
 stress-ng (0.04.16-1) unstable; urgency=medium
 
   * Makefile: bump version
