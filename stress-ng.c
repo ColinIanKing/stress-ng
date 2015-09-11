@@ -1753,7 +1753,8 @@ again:
 	(void)alarm(opt_timeout);
 
 abort:
-	pr_dbg(stderr, "%d stressors spawned\n", n_procs);
+	pr_dbg(stderr, "%d stressor%s spawned\n", n_procs,
+		n_procs == 1 ? "" : "s");
 
 wait_for_procs:
 	wait_procs(success);
