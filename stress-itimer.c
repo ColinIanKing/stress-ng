@@ -36,6 +36,7 @@ static volatile uint64_t itimer_counter = 0;
 static uint64_t opt_itimer_freq = DEFAULT_TIMER_FREQ;
 static bool set_itimer_freq = false;
 static double rate_us;
+static double start;
 
 /*
  *  stress_set_itimer_freq()
@@ -82,20 +83,28 @@ void stress_itimer_set(struct itimerval *timer)
 static void stress_itimer_handler(int sig)
 {
 	struct itimerval timer;
+	sigset_t mask;
 
 	(void)sig;
+
 	itimer_counter++;
 
+	if (sigpending(&mask) == 0)
+		if (sigismember(&mask, SIGINT))
+			goto cancel;
+	/* High freq timer, check periodically for timeout */
+	if ((itimer_counter & 65535) == 0)
+		if ((time_now() - start) > (double)opt_timeout)
+			goto cancel;
 	if (opt_do_run) {
 		stress_itimer_set(&timer);
-	} else {
-		/* Cancel timer if we detect no more runs */
-
-		timer.it_value.tv_sec = 0;
-		timer.it_value.tv_usec = 0;
-		timer.it_interval.tv_sec = 0;
-		timer.it_interval.tv_usec = 0;
+		return;
 	}
+
+cancel:
+	opt_do_run = false;
+	/* Cancel timer if we detect no more runs */
+	memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
@@ -111,8 +120,13 @@ int stress_itimer(
 {
 	struct sigaction action;
 	struct itimerval timer;
+	sigset_t mask;
 
 	(void)instance;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGINT);
+	sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	if (!set_itimer_freq) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)

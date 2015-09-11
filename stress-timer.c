@@ -40,6 +40,7 @@ static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 static uint64_t overruns = 0;
 static bool set_timer_freq = false;
 static double rate_ns;
+static double start;
 
 /*
  *  stress_set_timer_freq()
@@ -86,25 +87,31 @@ void stress_timer_set(struct itimerspec *timer)
 static void MLOCKED stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
-	int ret;
+	sigset_t mask;
 
 	(void)sig;
+
 	timer_counter++;
 
-	ret = timer_getoverrun(timerid);
-	if (ret > 0)
-		overruns += ret;
-
+	if (sigpending(&mask) == 0)
+		if (sigismember(&mask, SIGINT))
+			goto cancel;
+	/* High freq timer, check periodically for timeout */
+	if ((timer_counter & 65535) == 0)
+		if ((time_now() - start) > (double)opt_timeout)
+			goto cancel;
 	if (opt_do_run) {
+		int ret = timer_getoverrun(timerid);
+		if (ret > 0)
+			overruns += ret;
 		stress_timer_set(&timer);
-	} else {
-		/* Cancel timer if we detect no more runs */
-
-		timer.it_value.tv_sec = 0;
-		timer.it_value.tv_nsec = 0;
-		timer.it_interval.tv_sec = 0;
-		timer.it_interval.tv_nsec = 0;
+		return;
 	}
+
+cancel:
+	opt_do_run = false;
+	/* Cancel timer if we detect no more runs */
+	memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 }
 
@@ -121,8 +128,15 @@ int stress_timer(
 	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
+	sigset_t mask;
 
 	(void)instance;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGINT);
+	sigprocmask(SIG_SETMASK, &mask, NULL);
+
+	start = time_now();
 
 	if (!set_timer_freq) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
