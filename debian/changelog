@@ -1,3 +1,12 @@
+stress-ng (0.04.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix singular/plural of "stressors spawned" message (LP: #1494797)
+  * stress-ureadahead: provide feed back when timout occurs (LP: #1494784)
+  * stress-timer, itimer: fix termination hangs (LP: #1494751)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 11 Sep 2015 16:24:42 +0100
+
 stress-ng (0.04.17-1) unstable; urgency=medium
 
   * Makefile: bump version
