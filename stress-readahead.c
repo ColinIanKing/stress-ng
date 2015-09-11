@@ -133,8 +133,11 @@ int stress_readahead(
 		size_t j;
 		off_t o = i / BUF_SIZE;
 seq_wr_retry:
-		if (!opt_do_run)
+		if (!opt_do_run) {
+			pr_inf(stderr, "time expired during test setup (writing of data file)\n");
+			rc = EXIT_SUCCESS;
 			goto close_finish;
+		}
 
 		for (j = 0; j < BUF_SIZE; j++)
 			buf[j] = (o + j) & 0xff;
