@@ -1673,10 +1673,10 @@ static uint8_t HOT OPTIMIZE3 hamming84(const uint8_t nybble)
 	 * G[] is reversed to turn G[3-j] into G[j] to save a subtraction
 	 */
 	static const uint8_t G[] = {
-		0b11110001,
-		0b11010010,
-		0b10110100,
-		0b01111000,
+		0xf1,	/* 0b11110001 */
+		0xd2,	/* 0b11010010 */
+		0xb4,	/* 0b10110100 */
+		0x78,	/* 0b01111000 */
 	};
 
 	register uint8_t code = 0;
