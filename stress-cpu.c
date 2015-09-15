@@ -680,7 +680,7 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
 	const double pi_over_16 = M_PI / 16.0;
 	const int sz = 8;
 	int i, j, u, v;
-	double data[sz][sz], idct[sz][sz];
+	float data[sz][sz], idct[sz][sz];
 
 	/*
 	 *  Set up DCT
