@@ -228,8 +228,8 @@ int stress_numa(
         const uint64_t max_ops,
         const char *name)
 {
-	unsigned long numa_nodes, max_nodes;
-	unsigned long nbits, lbits = 8 * sizeof(unsigned long);
+	long numa_nodes;
+	unsigned long max_nodes, nbits, lbits = 8 * sizeof(unsigned long);
 	uint8_t *buf;
 	const pid_t mypid = getpid();
 	const unsigned long page_sz = stress_get_pagesize();
