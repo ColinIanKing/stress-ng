@@ -1,3 +1,12 @@
+stress-ng (0.04.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-cpu: data and idct should be floats for idct (LP: #1495882)
+  * stress-cpu: use hex initialisers for G constants instead of binary
+  * stress-numa: fix out of bounds memory read on ARM64 (LP: #1495761)
+
+ -- Colin King <colin.king@canonical.com>  Tue, 15 Sep 2015 10:43:11 +0100
+
 stress-ng (0.04.18-1) unstable; urgency=medium
 
   * Makefile: bump version
