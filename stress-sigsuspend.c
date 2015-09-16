@@ -35,7 +35,7 @@
 #include <sys/wait.h>
 #include <pthread.h>
 
-#define MAX_PIDS	(4)
+#define CACHE_STRIDE_SHIFT	(6)
 
 /*
  *  stress_sigsuspend
@@ -47,17 +47,29 @@ int stress_sigsuspend(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pid[MAX_PIDS];
+	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
 	sigset_t mask;
 	int status;
+	uint64_t *counters, c;
+	volatile uint64_t *v_counters;
+	const size_t counters_size =
+		(sizeof(uint64_t) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
 
 	(void)instance;
+
+	v_counters = counters = mmap(NULL, counters_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (counters == MAP_FAILED) {
+		pr_failed_dbg(name, "mmap");
+		return EXIT_FAILURE;
+	}
+	memset(counters, 0, counters_size);
 
 	sigfillset(&mask);
 	sigdelset(&mask, SIGUSR1);
 
-	for (n = 0; n < MAX_PIDS; n++) {
+	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:
 		pid[n] = fork();
 		if (pid[n] < 0) {
@@ -68,9 +80,7 @@ again:
 		} else if (pid[n] == 0) {
 			for (;;) {
 				sigsuspend(&mask);
-				pthread_spin_lock(&shared->sigsuspend.lock);
-				(*counter)++;
-				pthread_spin_unlock(&shared->sigsuspend.lock);
+				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}
 			_exit(0);
 		}
@@ -78,9 +88,14 @@ again:
 
 	/* Parent */
 	do {
-		for (i = 0; i < n; i++)
+		c = 0;
+		for (i = 0; i < n; i++) {
+			c += v_counters[i << CACHE_STRIDE_SHIFT];
 			kill(pid[i], SIGUSR1);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		}
+	} while (opt_do_run && (!max_ops || c < max_ops));
+
+	*counter = c;
 
 reap:
 	for (i = 0; i < n; i++) {
@@ -88,6 +103,7 @@ reap:
 		(void)kill(pid[i], SIGKILL);
 		(void)waitpid(pid[i], &status, 0);
 	}
+	(void)munmap(counters, counters_size);
 
 	return EXIT_SUCCESS;
 }

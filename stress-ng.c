@@ -2591,7 +2591,6 @@ next_opt:
 	}
 	memset(shared, 0, len);
 	pthread_spin_init(&shared->perf.lock, 0);
-	pthread_spin_init(&shared->sigsuspend.lock, 0);
 
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)

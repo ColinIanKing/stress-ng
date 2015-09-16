@@ -368,6 +368,8 @@ extern void pr_yaml_runinfo(FILE *fp);
 #define MAX_SHM_SYSV_SEGMENTS	(128)
 #define DEFAULT_SHM_SYSV_SEGMENTS (8)
 
+#define MAX_SIGSUSPEND_PIDS	(4)
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
@@ -645,9 +647,6 @@ typedef struct {
 		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf;
-	struct {
-		pthread_spinlock_t lock;		/* spinlock on sigsuspend updates */
-	} sigsuspend;
 #if defined(STRESS_THERMAL_ZONES)
 	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
