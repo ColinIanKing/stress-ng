@@ -44,6 +44,9 @@
 
 static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
 static bool set_aio_requests = false;
+static volatile bool do_accounting = true;
+
+typedef void(*sa_handler_t)(int);
 
 /* per request async I/O data */
 typedef struct {
@@ -99,7 +102,7 @@ static void MLOCKED aio_signal_handler(int sig, siginfo_t *si, void *ucontext)
 	(void)si;
 	(void)ucontext;
 
-	if (io_req)
+	if (do_accounting && io_req)
 		io_req->count++;
 }
 
@@ -182,13 +185,13 @@ int stress_aio(
 {
 	int fd, rc = EXIT_FAILURE;
 	io_req_t *io_reqs;
-	struct sigaction sa;
+	struct sigaction sa, sa_old;
 	int i;
 	uint64_t total = 0;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
-	if ((io_reqs = calloc((size_t)opt_aio_requests, sizeof(io_req_t))) == NULL) {
+	if ((io_reqs = alloca((size_t)opt_aio_requests * sizeof(io_req_t))) == NULL) {
 		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
 		return EXIT_FAILURE;
 	}
@@ -210,9 +213,8 @@ int stress_aio(
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
-	if (sigaction(SIGUSR1, &sa, NULL) < 0) {
+	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)
 		pr_failed_err(name, "sigaction");
-	}
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
@@ -251,6 +253,12 @@ int stress_aio(
 	rc = EXIT_SUCCESS;
 
 cancel:
+	/* Stop accounting, restore handler */
+	do_accounting = false;
+	if (sigaction(SIGUSR1, &sa_old, NULL) < 0)
+		pr_failed_err(name, "sigaction");
+
+	/* Cancel pending AIO requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_issue_cancel(name, &io_reqs[i]);
 		total += io_reqs[i].count;
@@ -260,7 +268,6 @@ finish:
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals caught (instance %d)\n",
 		name, total, instance);
 	(void)stress_temp_dir_rm(name, pid, instance);
-	free(io_reqs);
 	return rc;
 }
 
