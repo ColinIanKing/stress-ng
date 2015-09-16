@@ -35,7 +35,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define CLONE_STACK_SIZE	(32*1024)
+#define CLONE_STACK_SIZE	(16*1024)
 
 static uint64_t opt_clone_max = DEFAULT_ZOMBIES;
 static bool set_clone_max = false;
@@ -43,7 +43,7 @@ static bool set_clone_max = false;
 typedef struct clone {
 	pid_t	pid;
 	struct clone *next;
-	char *stack;
+	char stack[CLONE_STACK_SIZE];
 } clone_t;
 
 typedef struct {
@@ -140,11 +140,6 @@ static clone_t *stress_clone_new(void)
 		new = calloc(1, sizeof(*new));
 		if (!new)
 			return NULL;
-		new->stack = malloc(CLONE_STACK_SIZE);
-		if (!new->stack) {
-			free(new);
-			return NULL;
-		}
 	}
 
 	if (clones.head)
@@ -195,14 +190,12 @@ void stress_clone_free(void)
 	while (clones.head) {
 		clone_t *next = clones.head->next;
 
-		free(clones.head->stack);
 		free(clones.head);
 		clones.head = next;
 	}
 	while (clones.free) {
 		clone_t *next = clones.free->next;
 
-		free(clones.free->stack);
 		free(clones.free);
 		clones.free = next;
 	}
@@ -260,7 +253,7 @@ int stress_clone(
 	const char *name)
 {
 	uint64_t max_clones = 0;
-	const ssize_t stack_offset = clone_stack_dir((uint8_t *)&max_clones) * CLONE_STACK_SIZE;
+	const ssize_t stack_offset = clone_stack_dir((uint8_t *)&max_clones) * (CLONE_STACK_SIZE - 64);
 
 	(void)instance;
 
