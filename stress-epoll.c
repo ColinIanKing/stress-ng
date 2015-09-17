@@ -187,9 +187,9 @@ static int epoll_set_fd_nonblock(const int fd)
  *  epoll_recv_data()
  *	receive data on fd
  */
-static void epoll_recv_data(const int fd) {
-
-	for (;;) {
+static void epoll_recv_data(const int fd)
+{
+	while (opt_do_run) {
 		char buf[8192];
 		ssize_t n;
 
