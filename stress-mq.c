@@ -139,7 +139,7 @@ again:
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		for (;;) {
+		while (opt_do_run) {
 			uint64_t i;
 
 			for (i = 0; ; i++) {
