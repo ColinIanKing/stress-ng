@@ -112,7 +112,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		socket_pair_close(socket_pair_fds, max, 1);
-		for (;;) {
+		while (opt_do_run) {
 			uint8_t buf[SOCKET_PAIR_BUF];
 			ssize_t n;
 
