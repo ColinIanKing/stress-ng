@@ -75,7 +75,7 @@ again:
 		sigemptyset(&mask);
 		sigaddset(&mask, SIGUSR1);
 
-		for (;;) {
+		while (opt_do_run) {
 			siginfo_t info;
 			sigwaitinfo(&mask, &info);
 			if (info.si_value.sival_int)
