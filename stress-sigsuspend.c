@@ -78,7 +78,7 @@ again:
 			pr_failed_dbg(name, "fork");
 			goto reap;
 		} else if (pid[n] == 0) {
-			for (;;) {
+			while (opt_do_run) {
 				sigsuspend(&mask);
 				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}
