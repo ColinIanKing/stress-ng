@@ -87,7 +87,7 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 			name, errno, strerror(errno));
 		return;
 	}
-	for (;;) {
+	while (opt_do_run) {
 		ssize_t sz;
 
 		sz = read(fd, &val, sizeof(val));
