@@ -116,7 +116,7 @@ int stress_vm_rw(
 			goto cleanup;
 		}
 
-		for (;;) {
+		while (opt_do_run) {
 			uint8_t *ptr, *end = buf + sz;
 			int ret;
 
