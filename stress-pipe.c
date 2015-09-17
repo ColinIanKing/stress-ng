@@ -94,7 +94,7 @@ again:
 		int val = 0;
 
 		(void)close(pipefds[1]);
-		for (;;) {
+		while (opt_do_run) {
 			char buf[PIPE_BUF];
 			ssize_t n;
 
