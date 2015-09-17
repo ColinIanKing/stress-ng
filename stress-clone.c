@@ -93,9 +93,6 @@ static int flags[] = {
 #if defined(CLONE_UNTRACED)
 	CLONE_UNTRACED,
 #endif
-#if defined(CLONE_VM)
-	CLONE_VM,
-#endif
 };
 
 static int unshare_flags[] = {
