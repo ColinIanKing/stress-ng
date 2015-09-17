@@ -128,7 +128,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
 		/* Child */
-		for (;;)
+		while (opt_do_run)
 			pause();
 
 		/* will never get here */
