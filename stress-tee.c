@@ -89,7 +89,7 @@ static void stress_tee_pipe_write(int fds[2])
 	(void)close(fds[0]);
 
 	memset(buffer, 0, sizeof(buffer));
-	for (;;) {
+	while (opt_do_run) {
 		ssize_t ret;
 
 		ret = write(fds[1], buffer, sizeof(buffer));
@@ -111,7 +111,7 @@ static void stress_tee_pipe_read(int fds[2])
 
 	(void)close(fds[1]);
 
-	for (;;) {
+	while (opt_do_run) {
 		ssize_t ret;
 
 		ret = read(fds[0], buffer, sizeof(buffer));
