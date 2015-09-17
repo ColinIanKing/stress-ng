@@ -122,14 +122,20 @@ again:
 			/* timeout, re-do, stress on stupid fast polling */
 			if ((ret < 0) && (errno == ETIMEDOUT)) {
 				(*timeout)++;
-				continue;
+				if (*timeout > 100000) {
+					pr_fail(stderr, "%s: futex wait, too "
+						"many timeouts: errno=%d (%s)\n",
+						name, errno, strerror(errno));
+					break;
+				}
+			} else {
+				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+					pr_fail(stderr, "%s: futex wait "
+						"failed: errno=%d (%s)\n",
+						name, errno, strerror(errno));
+				}
+				(*counter)++;
 			}
-
-			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: futex wait failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
-			}
-			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
 
