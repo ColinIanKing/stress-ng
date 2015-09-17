@@ -109,6 +109,10 @@ again:
 			int retries = 0;
 			socklen_t addr_len = 0;
 retry:
+			if (!opt_do_run) {
+				(void)kill(getppid(), SIGALRM);
+				exit(EXIT_FAILURE);
+			}
 			if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
 				pr_failed_dbg(name, "socket");
 				/* failed, kick parent to finish */
