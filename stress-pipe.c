@@ -106,7 +106,8 @@ again:
 					pr_failed_dbg(name, "read");
 					break;
 				}
-				continue;
+				pr_failed_dbg(name, "zero byte read");
+				break;
 			}
 			if (!strcmp(buf, PIPE_STOP))
 				break;
