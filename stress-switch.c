@@ -64,29 +64,27 @@ again:
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		char ch;
+
 		(void)close(pipefds[1]);
 
-		for (;;) {
-			char ch;
+		while (opt_do_run) {
+			ssize_t ret;
 
-			for (;;) {
-				ssize_t ret;
-
-				ret = read(pipefds[0], &ch, sizeof(ch));
-				if (ret < 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
-						continue;
-					pr_failed_dbg(name, "read");
-					break;
-				}
-				if (ret == 0)
-					break;
-				if (ch == SWITCH_STOP)
-					break;
+			ret = read(pipefds[0], &ch, sizeof(ch));
+			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				pr_failed_dbg(name, "read");
+				break;
 			}
-			(void)close(pipefds[0]);
-			exit(EXIT_SUCCESS);
+			if (ret == 0)
+				break;
+			if (ch == SWITCH_STOP)
+				break;
 		}
+		(void)close(pipefds[0]);
+		exit(EXIT_SUCCESS);
 	} else {
 		char ch = '_';
 		int status;
