@@ -76,7 +76,7 @@ again:
 		(void)close(fd2);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		for (;;) {
+		while (opt_do_run) {
 			uint64_t val;
 			ssize_t ret;
 
