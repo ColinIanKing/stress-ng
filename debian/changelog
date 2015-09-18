@@ -1,3 +1,36 @@
+stress-ng (0.04.20-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * cater for system V and BSD variants of setpgrp
+  * stress-fifo: avoid blocking on reader to avoid deadlock (LP: #1497268)
+  * stress-readahead: give feedback on premature exit
+  * stress-aio: no need to free io_reqs, its now on the stack
+  * Put all child processes under the parents process group ID (LP: #1497236)
+  * Remove SIGUSR1 and SIGUSR2 trapping, we don't need to trap these
+  * stress-fifo: check for run flag in child loop
+  * stress-eventfd: check for run flag in child loop
+  * stress-epoll: check for run flag on recv loop
+  * stress-mq: check for run flag in child loop
+  * stress-msg: check for run flag in child loop
+  * stress-pipe: check for run flag in child loop
+  * stress-sigfd: check for run flag in child loop
+  * stress-socket: check for run flag in child loop
+  * stress-switch: check for run flag in child loop
+  * stress-tee: check for run flag in child loop
+  * stress-vm-rw: check for run flag in child loop
+  * stress-sigq: check for run flag in child loop
+  * stress-kcmp: check for run flag in child loop
+  * stress_sigsuspend: check for run flag in child loop
+  * stress-socket-pair: check for run flag rather in child loop
+  * stress-pipe: bail out on zero byte pipe reads (LP: #1496966)
+  * stress-futex: bail out after 0.5 seconds of failed waits (LP: #1496963)
+  * stress-clone: remove CLONE_VM unsharing (LP: #1496957)
+  * stress-sigsuspend: remove spinlock to remove contention (LP: #1496439)
+  * Put stack in per clone struct, reduce stack size
+  * stress-aio: cancel signal handler at end of test (LP: #1496340)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 18 Sep 2015 15:38:00 +0100
+
 stress-ng (0.04.19-1) unstable; urgency=medium
 
   * Makefile: bump version
