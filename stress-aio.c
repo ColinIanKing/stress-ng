@@ -196,10 +196,9 @@ int stress_aio(
 		return EXIT_FAILURE;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0) {
-		free(io_reqs);
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
-	}
+
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 
