@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/select.h>
 #include <errno.h>
 #include <fcntl.h>
 
@@ -83,7 +84,7 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 	uint64_t val, lastval = 0;
 	uint64_t wrap_mask = 0xffff000000000000ULL;
 
-	fd = open(fifoname, O_RDONLY);
+	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
 		pr_err(stderr, "%s: fifo read open failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
@@ -91,7 +92,27 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 	}
 	while (opt_do_run) {
 		ssize_t sz;
+		int ret;
+		struct timeval timeout;
+		fd_set rdfds;
 
+		FD_ZERO(&rdfds);
+		FD_SET(fd, &rdfds);
+
+		timeout.tv_sec = 10;
+		timeout.tv_usec = 0;
+
+		ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_err(stderr, "%s: select failed: errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		} else if (ret == 0) {
+			pr_err(stderr, "%s: read timeout!\n", name);
+			break;
+		}
 		sz = read(fd, &val, sizeof(val));
 		if (sz < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
@@ -159,6 +180,8 @@ int stress_fifo(
 	for (i = 0; i < opt_fifo_readers; i++) {
 		pids[i] = fifo_spawn(stress_fifo_reader, name, fifoname);
 		if (pids[i] < 0)
+			goto reap;
+		if (!opt_do_run)
 			goto reap;
 	}
 
