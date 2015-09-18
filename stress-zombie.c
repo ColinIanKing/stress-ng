@@ -172,6 +172,7 @@ int stress_zombie(
 
 			zombie->pid = fork();
 			if (zombie->pid == 0) {
+				setpgid(0, pgrp);
 				stress_zombie_free();
 				_exit(0);
 			}
@@ -180,6 +181,7 @@ int stress_zombie(
 				stress_zombie_head_remove();
 				continue;
 			}
+			setpgid(zombie->pid, pgrp);
 
 			if (max_zombies < zombies.length)
 				max_zombies = zombies.length;

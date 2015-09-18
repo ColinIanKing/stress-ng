@@ -93,6 +93,7 @@ again:
 	} else if (pid == 0) {
 		int val = 0;
 
+		setpgid(0, pgrp);
 		(void)close(pipefds[1]);
 		while (opt_do_run) {
 			char buf[PIPE_BUF];
@@ -123,6 +124,7 @@ again:
 		int val = 0, status;
 
 		/* Parent */
+		setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
 
 		do {

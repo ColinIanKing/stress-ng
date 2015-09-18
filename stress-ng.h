@@ -813,7 +813,7 @@ typedef enum {
 #define STRESS_PROCFS __STRESS_PROCFS
 #endif
 	STRESS_PTHREAD,
-#if defined(__linux__)
+#if 0 && defined(__linux__)
 	__STRESS_PTRACE,
 #define STRESS_PTRACE __STRESS_PTRACE
 #endif
@@ -1534,6 +1534,7 @@ extern int32_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool opt_do_run;	/* false to exit stressor */
 extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
+extern pid_t pgrp;			/* proceess group leader */
 
 /*
  *  externs to force gcc to stash computed values and hence

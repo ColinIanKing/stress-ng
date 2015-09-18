@@ -93,6 +93,8 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
+		setpgid(0, pgrp);
+
 		do {
 			int fd;
 
@@ -109,6 +111,7 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		exit(EXIT_SUCCESS);
 	}
+	setpgid(pid, pgrp);
 	return pid;
 }
 

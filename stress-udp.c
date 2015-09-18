@@ -103,6 +103,8 @@ again:
 		/* Child, client */
 		struct sockaddr *addr;
 
+		setpgid(0, pgrp);
+
 		do {
 			char buf[UDP_BUF];
 			socklen_t len;
@@ -152,6 +154,8 @@ again:
 		socklen_t addr_len = 0;
 		struct sigaction new_action;
 		struct sockaddr *addr;
+
+		setpgid(pid, pgrp);
 
 		new_action.sa_handler = handle_udp_sigalrm;
 		sigemptyset(&new_action.sa_mask);

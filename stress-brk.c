@@ -63,6 +63,8 @@ again:
 			name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
+
+		setpgid(pid, pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -87,6 +89,8 @@ again:
 	} else if (pid == 0) {
 		uint8_t *start_ptr;
 		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
+
+		setpgid(0, pgrp);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);

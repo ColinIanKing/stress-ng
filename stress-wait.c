@@ -62,9 +62,11 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
+		setpgid(0, pgrp);
 		func(name, pid_arg, counter, max_ops);
 		exit(EXIT_SUCCESS);
 	}
+	setpgid(pid, pgrp);
 	return pid;
 }
 

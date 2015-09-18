@@ -65,6 +65,9 @@ again:
 			name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
+
+		setpgid(pid, pgrp);
+
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -88,6 +91,8 @@ again:
 	} else if (pid == 0) {
 		uint8_t *mappings[max];
 		size_t i, n;
+
+		setpgid(0, pgrp);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);

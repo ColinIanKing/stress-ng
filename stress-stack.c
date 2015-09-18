@@ -92,7 +92,9 @@ again:
 			name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
+
 		/* Parent, wait for child */
+		setpgid(pid, pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -114,6 +116,8 @@ again:
 		}
 	} else if (pid == 0) {
 		char *start_ptr = sbrk(0);
+
+		setpgid(0, pgrp);
 
 		if (start_ptr == (void *) -1) {
 			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",

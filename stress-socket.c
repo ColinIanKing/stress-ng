@@ -103,6 +103,7 @@ again:
 		/* Child, client */
 		struct sockaddr *addr;
 
+		setpgid(0, pgrp);
 		do {
 			char buf[SOCKET_BUF];
 			int fd;
@@ -167,6 +168,8 @@ retry:
 		struct sigaction new_action;
 		socklen_t addr_len = 0;
 		struct sockaddr *addr;
+
+		setpgid(pid, pgrp);
 
 		new_action.sa_handler = handle_socket_sigalrm;
 		sigemptyset(&new_action.sa_mask);

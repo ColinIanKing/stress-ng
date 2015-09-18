@@ -79,6 +79,8 @@ retry:			if (!opt_do_run)
 			}
 			if (pids[n] == 0) {
 				/* Child */
+				setpgid(0, pgrp);
+
 				if (sysinfo(&info) < 0) {
 					pr_failed_err(name, "sysinfo");
 					_exit(0);
@@ -94,6 +96,7 @@ retry:			if (!opt_do_run)
 				}
 				_exit(0);
 			}
+			setpgid(pids[n], pgrp);
 		}
 reap:
 		for (i = 0; i < n; i++) {

@@ -127,6 +127,8 @@ again:
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
+		setpgid(0, pgrp);
+
 		/* Child */
 		while (opt_do_run)
 			pause();
@@ -138,6 +140,7 @@ again:
 		/* Parent */
 		int fd2, status, pid2;
 
+		setpgid(pid1, pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
 			pr_failed_err(name, "open");

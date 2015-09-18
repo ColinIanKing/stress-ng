@@ -81,6 +81,7 @@ int stress_nice(
 			int i;
 
 			/* Child */
+			setpgid(0, pgrp);
 			pid = getpid();
 			for (i = min_prio; i <= max_prio; i++) {
 				errno = 0;
@@ -97,6 +98,8 @@ int stress_nice(
 		}
 		if (pid > 0) {
 			int status;
+
+			setpgid(pid, pgrp);
 
 			/* Parent, wait for child */
 			if (waitpid(pid, &status, 0) < 0) {

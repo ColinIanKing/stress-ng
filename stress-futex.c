@@ -88,6 +88,8 @@ again:
 	if (pid > 0) {
 		int status;
 
+		setpgid(pid, pgrp);
+
 		do {
 			int ret;
 
@@ -108,6 +110,8 @@ again:
 
 		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n", name, *timeout);
 	} else {
+		setpgid(0, pgrp);
+
 		do {
 			/* Small timeout to force rapid timer wakeups */
 			const struct timespec t = { .tv_sec = 0, .tv_nsec = 5000 };

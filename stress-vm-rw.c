@@ -105,6 +105,8 @@ int stress_vm_rw(
 		int ret = EXIT_SUCCESS;
 		addr_msg_t msg_rd, msg_wr;
 
+		setpgid(0, pgrp);
+
 		/* Close unwanted ends */
 		(void)close(pipe_wr[0]);
 		(void)close(pipe_rd[1]);
@@ -185,6 +187,8 @@ cleanup:
 		uint8_t val = 0;
 		uint8_t *localbuf;
 		addr_msg_t msg_rd, msg_wr;
+
+		setpgid(pid, pgrp);
 
 		localbuf = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (localbuf == MAP_FAILED) {

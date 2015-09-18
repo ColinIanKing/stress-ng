@@ -112,6 +112,8 @@ again:
 	}
 	else if (pid == 0) {
 		/* Child writer */
+
+		setpgid(0, pgrp);
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][0]);
 
@@ -140,6 +142,8 @@ abort:
 		int maxfd = 0, status;
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
+
+		setpgid(pid, pgrp);
 
 		FD_ZERO(&rfds);
 		for (i = 0; i < MAX_PIPES; i++) {

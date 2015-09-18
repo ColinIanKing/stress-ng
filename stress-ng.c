@@ -60,6 +60,8 @@ uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
+pid_t pgrp;					/* proceess group leader */
+
 
 /* Scheduler options */
 
@@ -1484,6 +1486,8 @@ static void kill_procs(const int sig)
 	if (count > 5)
 		signum = SIGKILL;
 
+	killpg(pgrp, sig);
+
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
 
@@ -1673,6 +1677,7 @@ again:
 					goto wait_for_procs;
 				case 0:
 					/* Child */
+					setpgid(0, pgrp);
 					free_procs();
 					if (stress_sethandler(name, true) < 0)
 						exit(EXIT_FAILURE);
@@ -1727,6 +1732,7 @@ again:
 					exit(rc);
 				default:
 					if (pid > -1) {
+						setpgid(pid, pgrp);
 						procs[i].pids[j] = pid;
 						procs[i].started_procs++;
 					}
@@ -1950,6 +1956,9 @@ int main(int argc, char **argv)
 	(void)stress_set_wcs_method("all");
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
+
+	setpgrp();
+	pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
 		pr_err(stderr, "sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",

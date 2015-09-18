@@ -78,12 +78,15 @@ again:
 			pr_failed_dbg(name, "fork");
 			goto reap;
 		} else if (pid[n] == 0) {
+			setpgid(0, pgrp);
+
 			while (opt_do_run) {
 				sigsuspend(&mask);
 				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}
 			_exit(0);
 		}
+		setpgid(pid[n], pgrp);
 	}
 
 	/* Parent */

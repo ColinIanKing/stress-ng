@@ -65,9 +65,11 @@ static pid_t fifo_spawn(
 		return -1;
 	}
 	if (pid == 0) {
+		setpgid(0, pgrp);
 		func(name, fifoname);
 		exit(EXIT_SUCCESS);
 	}
+	setpgid(pid, pgrp);
 	return pid;
 }
 

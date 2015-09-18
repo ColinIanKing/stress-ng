@@ -278,11 +278,14 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
+		setpgid(0, pgrp);
+
 		if (stress_lockf_contention(name, fd, counter, max_ops) < 0)
 			exit(EXIT_FAILURE);
 		stress_lockf_info_free();
 		exit(EXIT_SUCCESS);
 	}
+	setpgid(cpid, pgrp);
 
 	if (stress_lockf_contention(name, fd, counter, max_ops) == 0)
 		ret = EXIT_SUCCESS;

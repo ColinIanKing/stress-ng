@@ -88,6 +88,7 @@ int stress_ptrace(
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		setpgid(0, pgrp);
 		/*
 		 * Child to be traced, we abort if we detect
 		 * we are already being traced by someone else
@@ -117,6 +118,8 @@ int stress_ptrace(
 	} else {
 		/* Parent to do the tracing */
 		int status;
+
+		setpgid(pid, pgrp);
 
 		if (waitpid(pid, &status, 0) < 0) {
 			pr_failed_dbg(name, "waitpid");

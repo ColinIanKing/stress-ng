@@ -73,6 +73,8 @@ again:
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		setpgid(0, pgrp);
+
 		while (opt_do_run) {
 			union sigval s;
 			int ret;
@@ -89,6 +91,7 @@ again:
 		/* Parent */
 		int status;
 
+		setpgid(pid, pgrp);
 		do {
 			int ret;
 			struct signalfd_siginfo fdsi;

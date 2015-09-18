@@ -139,6 +139,8 @@ again:
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		setpgid(0, pgrp);
+
 		while (opt_do_run) {
 			uint64_t i;
 
@@ -168,6 +170,8 @@ again:
 		msg_t msg;
 
 		/* Parent */
+		setpgid(pid, pgrp);
+
 		do {
 			memset(&msg, 0, sizeof(msg));
 			msg.value = (*counter);

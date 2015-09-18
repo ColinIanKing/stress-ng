@@ -132,6 +132,9 @@ again:
 			name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
+
+		setpgid(pid, pgrp);
+
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -157,6 +160,7 @@ again:
 		void *addr[opt_malloc_max];
 		size_t j;
 
+		setpgid(0, pgrp);
 		memset(addr, 0, sizeof(addr));
 
 		/* Make sure this is killable by OOM killer */

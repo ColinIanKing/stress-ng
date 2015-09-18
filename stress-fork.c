@@ -93,9 +93,13 @@ int stress_fork_fn(
 			pids[i] = fork_fn();
 
 			if (pids[i] == 0) {
+				setpgid(0, pgrp);
+
 				/* Child, immediately exit */
 				_exit(0);
 			}
+			if (pids[i] > -1)
+				setpgid(pids[i], pgrp);
 			if (!opt_do_run)
 				break;
 		}

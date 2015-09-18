@@ -66,6 +66,7 @@ again:
 	} else if (pid == 0) {
 		char ch;
 
+		setpgid(0, pgrp);
 		(void)close(pipefds[1]);
 
 		while (opt_do_run) {
@@ -90,6 +91,7 @@ again:
 		int status;
 
 		/* Parent */
+		setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
 
 		do {
