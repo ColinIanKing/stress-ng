@@ -1957,7 +1957,11 @@ int main(int argc, char **argv)
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
 
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+	setpgrp(0, 0);
+#else
 	setpgrp();
+#endif
 	pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
