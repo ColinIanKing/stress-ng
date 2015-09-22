@@ -43,7 +43,7 @@
  *  stress_sys_read()
  *	read a proc file
  */
-static inline void stress_sys_read(const char *path)
+static inline void stress_sys_read(const char *name, const char *path)
 {
 	int fd, i;
 	char buffer[SYS_BUF_SZ];
@@ -68,6 +68,13 @@ redo:
 			break;
 	}
 	(void)close(fd);
+
+	/* file should be R_OK if we've just opened it */
+	if ((access(path, R_OK) < 0) &&
+	    (opt_flags & OPT_FLAGS_VERIFY)) {
+		pr_fail(stderr, "%s: R_OK access failed on %s which could be opened, errno=%d (%s)\n",
+			name, path, errno, strerror(errno));
+	}
 }
 
 /*
@@ -75,6 +82,7 @@ redo:
  *	read directory
  */
 static void stress_sys_dir(
+	const char *name,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -95,7 +103,7 @@ static void stress_sys_dir(
 		return;
 
 	while ((d = readdir(dp)) != NULL) {
-		char name[PATH_MAX];
+		char filename[PATH_MAX];
 
 		if (!opt_do_run)
 			break;
@@ -105,16 +113,16 @@ static void stress_sys_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
-				snprintf(name, sizeof(name),
+				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_dir(name, recurse, depth + 1, sys_read);
+				stress_sys_dir(name, filename, recurse, depth + 1, sys_read);
 			}
 			break;
 		case DT_REG:
 			if (sys_read) {
-				snprintf(name, sizeof(name),
+				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_read(name);
+				stress_sys_read(name, filename);
 			}
 			break;
 		default:
@@ -146,7 +154,7 @@ int stress_sysfs(
 	}
 
 	do {
-		stress_sys_dir("/sys", true, 0, sys_read);
+		stress_sys_dir(name, "/sys", true, 0, sys_read);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 

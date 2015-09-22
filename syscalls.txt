@@ -2,7 +2,7 @@ Syscall				Stressor
 
 accept				sock
 accept4
-access
+access				sysfs
 acct				[ need privilege, ignore for now ]
 add_key				key
 adjtimex			get (modes = 0 only)
