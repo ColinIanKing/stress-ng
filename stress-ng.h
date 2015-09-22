@@ -280,6 +280,10 @@ extern void pr_yaml_runinfo(FILE *fp);
 #define MAX_SEMAPHORE_PROCS	(64)
 #define DEFAULT_SEMAPHORE_PROCS	(2)
 
+#define MIN_EXECS		(1)
+#define MAX_EXECS		(16000)
+#define DEFAULT_EXECS		(1)
+
 #define MIN_FORKS		(1)
 #define MAX_FORKS		(16000)
 #define DEFAULT_FORKS		(1)
@@ -709,6 +713,10 @@ typedef enum {
 	__STRESS_EVENTFD,
 #define STRESS_EVENTFD __STRESS_EVENTFD
 #endif
+#if defined(__linux__)
+	__STRESS_EXEC,
+#define STRESS_EXEC __STRESS_EXEC
+#endif
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
 	__STRESS_FALLOCATE,
 #define STRESS_FALLOCATE __STRESS_FALLOCATE
@@ -1073,6 +1081,12 @@ typedef enum {
 #if defined(STRESS_EVENTFD)
 	OPT_EVENTFD,
 	OPT_EVENTFD_OPS,
+#endif
+
+#if defined(STRESS_EXEC)
+	OPT_EXEC,
+	OPT_EXEC_OPS,
+	OPT_EXEC_MAX,
 #endif
 
 #if defined(STRESS_FALLOCATE)
@@ -1716,6 +1730,7 @@ extern void stress_set_dentries(const char *optarg);
 extern int  stress_set_dentry_order(const char *optarg);
 extern void stress_set_epoll_port(const char *optarg);
 extern int  stress_set_epoll_domain(const char *optarg);
+extern void stress_set_exec_max(const char *optarg);
 extern void stress_set_fallocate_bytes(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
@@ -1789,6 +1804,7 @@ STRESS(stress_dir);
 STRESS(stress_dup);
 STRESS(stress_epoll);
 STRESS(stress_eventfd);
+STRESS(stress_exec);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
 STRESS(stress_fcntl);

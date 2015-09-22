@@ -165,6 +165,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_EVENTFD)
 	STRESSOR(eventfd, EVENTFD, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 #endif
+#if defined(STRESS_EXEC)
+	STRESSOR(exec, EXEC, CLASS_SCHEDULER | CLASS_OS),
+#endif
 #if defined(STRESS_FALLOCATE)
 	STRESSOR(fallocate, FALLOCATE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -437,6 +440,11 @@ static const struct option long_options[] = {
 	{ "eventfd-ops",1,	0,	OPT_EVENTFD_OPS },
 #endif
 	{ "exclude",	1,	0,	OPT_EXCLUDE },
+#if defined(STRESS_EXEC)
+	{ "exec",	1,	0,	OPT_EXEC },
+	{ "exec-ops",	1,	0,	OPT_EXEC_OPS },
+	{ "exec-max",	1,	0,	OPT_EXEC_MAX },
+#endif
 #if defined(STRESS_FALLOCATE)
 	{ "fallocate",	1,	0,	OPT_FALLOCATE },
 	{ "fallocate-ops",1,	0,	OPT_FALLOCATE_OPS },
@@ -919,6 +927,11 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_EVENTFD)
 	{ NULL,		"eventfd N",		"start N workers stressing eventfd read/writes" },
 	{ NULL,		"eventfd-ops N",	"stop eventfd workers after N bogo operations" },
+#endif
+#if defined(STRESS_EXEC)
+	{ NULL,		"exec N",		"start N workers spinning on fork() and exec()" },
+	{ NULL,		"exec-ops N",		"stop when N exec bogo operations completed" },
+	{ NULL,		"exec-max P",		"create P workers per iteration, default is 1" },
 #endif
 #if defined(STRESS_FALLOCATE)
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
@@ -1947,6 +1960,10 @@ int main(int argc, char **argv)
 	int32_t opt_random = 0, i;
 	int32_t total_procs = 0, max_procs = 0;
 
+	/* --exec stressor uses this to exec itself and then exit early */
+	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
+		exit(EXIT_SUCCESS);
+
 	memset(procs, 0, sizeof(procs));
 	mwc_reseed();
 
@@ -2093,6 +2110,11 @@ next_opt:
 		case OPT_EXCLUDE:
 			opt_exclude = optarg;
 			break;
+#if defined(STRESS_EXEC)
+		case OPT_EXEC_MAX:
+			stress_set_exec_max(optarg);
+			break;
+#endif
 #if defined(STRESS_FALLOCATE)
 		case OPT_FALLOCATE_BYTES:
 			stress_set_fallocate_bytes(optarg);

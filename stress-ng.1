@@ -630,6 +630,17 @@ start N parent and child worker processes that read and write 8 byte event messa
 .B \-\-eventfd\-ops N
 stop eventfd workers after N bogo operations.
 .TP
+.B \-\-exec N
+start N workers continually forking children that exec stress-ng and then exit almost immediately.
+.TP
+.B \-\-exec\-ops N
+stop exec stress workers after N bogo operations.
+.TP
+.B \-\-exec\-max P
+create P child processes that exec stress-ng and then wait for them to exit per iteration. The default is just 1; higher
+values will create many temporary zombie processes that are waiting to be reaped. One can
+potentially fill up the the process table using high values for \-\-exec\-max and \-\-exec.
+.TP
 .B \-F N, \-\-fallocate N
 start N workers continually fallocating (preallocating file space) and ftuncating (file truncating) temporary files.  If the file is larger than the free space, fallocate will produce an ENOSPC error which is ignored by this stressor.
 .TP
