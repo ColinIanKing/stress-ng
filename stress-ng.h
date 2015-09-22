@@ -780,6 +780,7 @@ typedef enum {
 	__STRESS_MINCORE,
 #define STRESS_MINCORE __STRESS_MINCORE
 #endif
+	STRESS_MKNOD,
 #if defined(_POSIX_MEMLOCK_RANGE)
 	__STRESS_MLOCK,
 #define STRESS_MLOCK __STRESS_MLOCK
@@ -1219,6 +1220,9 @@ typedef enum {
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
 #endif
+
+	OPT_MKNOD,
+	OPT_MKNOD_OPS,
 
 	OPT_MINIMIZE,
 
@@ -1834,6 +1838,7 @@ STRESS(stress_matrix);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
 STRESS(stress_mincore);
+STRESS(stress_mknod);
 STRESS(stress_mlock);
 STRESS(stress_mmap);
 STRESS(stress_mmapfork);

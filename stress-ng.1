@@ -987,6 +987,12 @@ stop after N mincore bogo operations. One mincore bogo op is equivalent to a 100
 .B \-\-mincore\-random
 instead of walking through pages sequentially, select pages at random. The chosen address is iterated over by shifting it right one place and checked by mincore until the address is less or equal to the page size.
 .TP
+.B \-\-mknod N
+start N workers that create and remove fifos, empty files and named sockets using mknod and unlink.
+.TP
+.B \-\-mknod\-ops N
+stop directory thrash workers after N bogo mknod operations.
+.TP
 .B \-\-mlock N
 start N workers that lock and unlock memory mapped pages using mlock(2), munlock(2), mlockall(2) and munlockall(2). This is achieved by the mapping of three contiguous pages and then locking the second page, hence ensuring non-contiguous pages are locked . This is then repeated until the maximum allowed mlocks or a maximum of 262144 mappings are made.  Next, all futute mappings are mlocked and the worker attempts to map 262144 pages, then all pages are munlocked and the pages are unmapped.
 .TP

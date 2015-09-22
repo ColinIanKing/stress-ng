@@ -134,7 +134,7 @@ migrate_pages			numa
 mincore				bigheap, mincore, mmap, vm
 mkdir				dir
 mkdirat
-mknod
+mknod				mknod
 mknodat
 mlock				mlock
 mlockall			mlock

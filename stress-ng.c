@@ -219,6 +219,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
+	STRESSOR(mknod, MKNOD, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(mlock, MLOCK, CLASS_VM | CLASS_OS),
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_OS),
 #if defined(STRESS_MMAPFORK)
@@ -558,6 +559,8 @@ static const struct option long_options[] = {
 	{ "mincore-random",0,	0,	OPT_MINCORE_RAND },
 #endif
 	{ "minimize",	0,	0,	OPT_MINIMIZE },
+	{ "mknod",	1,	0,	OPT_MKNOD },
+	{ "mknod-ops",	1,	0,	OPT_MKNOD_OPS },
 #if defined(STRESS_MLOCK)
 	{ "mlock",	1,	0,	OPT_MLOCK },
 	{ "mlock-ops",	1,	0,	OPT_MLOCK_OPS },
@@ -1036,6 +1039,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"mincore-ops N",	"stop when N mincore bogo operations completed" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
+	{ NULL,		"mknod N",		"start N workers that exercise mknod" },
+	{ NULL,		"mknod-ops N",		"stop when N mknod bogo operations completed" },
 #if defined(STRESS_MLOCK)
 	{ NULL,		"mlock N",		"start N workers exercising mlock/munlock" },
 	{ NULL,		"mlock-ops N",		"stop when N mlock bogo operations completed" },
