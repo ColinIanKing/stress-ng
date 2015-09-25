@@ -78,6 +78,12 @@ parse options, but don't run stress tests. A no-op.
 .B \-h, \-\-help
 show help.
 .TP
+.B \-\-ionice\-class class
+specify ionice class (only on Linux). Can be idle (default), besteffort, be, realtime, rt.
+.TP
+.B \-\-ionice\-level level
+specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (highest priority) to 7 (lowest priority). See ionice(1) for more details.
+.TP
 .B \-k, \-\-keep\-name
 by default, stress\-ng will attempt to change the name of the stress processes according to their functionality; this option disables this and keeps the process names to be the name of the parent process, that is, stress\-ng.
 .TP
@@ -829,12 +835,6 @@ start N workers continuously calling sync(2) to commit buffer cache to disk. Thi
 .TP
 .B \-\-io\-ops N
 stop io stress workers after N bogo operations.
-.TP
-.B \-\-ionice\-class class
-specify ionice class (only on Linux). Can be idle (default), besteffort, be, realtime, rt.
-.TP
-.B \-\-ionice\-level level
-specify ionice level (only on Linux). For idle, 0 is the only possible option. For besteffort or realtime values 0 (highest priority) to 7 (lowest priority). See ionice(1) for more details.
 .TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
