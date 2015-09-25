@@ -176,6 +176,9 @@ number of each individual stressors to be started is N.  If N is zero, then a
 stressor for each processor that is on-line is executed. Use the \-\-timeout
 option to specify the duration to run each stressor.
 .TP
+.B \-\-syslog
+log output (except for verbose \-v messages) to the syslog.
+.TP
 .B \-t N, \-\-timeout N
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
@@ -1326,9 +1329,6 @@ start N workers that recursively read files from /sys (Linux only).  This may ca
 .TP
 .B \-\-sys\-ops N
 stop sysfs reading after N bogo read operations. Note, since the number of entries may vary between kernels, this bogo ops metric is probably very misleading.
-.TP
-.B \-\-syslog
-log output (except for verbose \-v messages) to the syslog.
 .TP
 .B \-\-tee N
 move data from a writer process to a reader process through pipes and to /dev/null without any copying between kernel address space and user address space using tee(2). This is only available for Linux.
