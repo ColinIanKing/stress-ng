@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#define NAGLE_DISABLE	(0)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,6 +35,9 @@
 #include <unistd.h>
 #include <errno.h>
 
+#if NAGLE_DISABLE
+#include <netinet/tcp.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -210,6 +215,9 @@ retry:
 				struct sockaddr addr;
 				socklen_t len;
 				int sndbuf;
+#if NAGLE_DISABLE
+				int one = 1;
+#endif
 
 				len = sizeof(addr);
 				if (getsockname(fd, &addr, &len) < 0) {
@@ -223,6 +231,13 @@ retry:
 					(void)close(sfd);
 					break;
 				}
+#if NAGLE_DISABLE
+				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
+					pr_failed_dbg(name, "setsockopt TCP_NODELAY");
+					(void)close(sfd);
+					break;
+				}
+#endif
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
