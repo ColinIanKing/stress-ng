@@ -241,6 +241,9 @@ static const stress_t stressors[] = {
 	STRESSOR(numa, NUMA, CLASS_CPU | CLASS_MEMORY | CLASS_OS),
 #endif
 	STRESSOR(open, OPEN, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_PERSONALITY)
+	STRESSOR(personality, PERSONALITY, CLASS_OS),
+#endif
 	STRESSOR(pipe, PIPE, CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(poll, POLL, CLASS_SCHEDULER | CLASS_OS),
 #if defined(STRESS_PROCFS)
@@ -607,6 +610,10 @@ static const struct option long_options[] = {
 #endif
 #if defined(STRESS_PERF_STATS)
 	{ "perf",	0,	0,	OPT_PERF_STATS },
+#endif
+#if defined(STRESS_PERSONALITY)
+	{ "personality",1,	0,	OPT_PERSONALITY },
+	{ "personality-ops",1,	0,	OPT_PERSONALITY_OPS },
 #endif
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
@@ -1081,6 +1088,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
+#if defined(STRESS_PERSONALITY)
+	{ NULL,		"personality N",	"start N workers that change their personality" },
+	{ NULL,		"personality-ops N",	"stop when N bogo personality calls completed" },
+#endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },

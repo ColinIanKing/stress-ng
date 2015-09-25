@@ -815,6 +815,10 @@ typedef enum {
 #define STRESS_NUMA __STRESS_NUMA
 #endif
 	STRESS_OPEN,
+#if 0 && defined(__linux__)
+	__STRESS_PERSONALITY,
+#define STRESS_PERSONALITY __STRESS_PERSONALITY
+#endif
 	STRESS_PIPE,
 	STRESS_POLL,
 #if defined(__linux__)
@@ -1282,6 +1286,11 @@ typedef enum {
 
 #if defined(STRESS_PERF_STATS)
 	OPT_PERF_STATS,
+#endif
+
+#if defined(STRESS_PERSONALITY)
+	OPT_PERSONALITY,
+	OPT_PERSONALITY_OPS,
 #endif
 
 	OPT_PIPE_OPS,
@@ -1851,6 +1860,7 @@ STRESS(stress_noop);
 STRESS(stress_null);
 STRESS(stress_numa);
 STRESS(stress_open);
+STRESS(stress_personality);
 STRESS(stress_pipe);
 STRESS(stress_poll);
 STRESS(stress_procfs);

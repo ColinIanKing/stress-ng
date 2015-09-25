@@ -88,6 +88,7 @@ SRC =   stress-affinity.c \
 	stress-null.c \
 	stress-numa.c \
 	stress-open.c \
+	stress-personality.c \
 	stress-pipe.c \
 	stress-poll.c \
 	stress-procfs.c \
@@ -169,6 +170,15 @@ OBJS = $(SRC:.c=.o)
 stress-ng: $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt -o $@ $(LDFLAGS)
 
+#
+#  extract the PER_* personality enums
+#
+personality.h:
+	@$(CPP) personality.c | grep -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	| sed "s/.$$/,/" > personality.h
+
+stress-personality.c: personality.h
+
 stress-cpu.o: stress-cpu.c
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
 	@echo "_Decimal32 x;" > test-decimal.c
@@ -206,6 +216,7 @@ clean:
 	rm -f stress-ng $(OBJS) stress-ng.1.gz
 	rm -f stress-ng-$(VERSION).tar.gz
 	rm -f test-decimal.c
+	rm -f personality.h
 
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}

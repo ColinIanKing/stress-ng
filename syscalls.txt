@@ -170,7 +170,7 @@ open_by_handle_at
 openat
 pause				kcmp
 perf_event_open			--perf option
-personality
+personality			personality
 pipe				pipe, switch, etc
 pipe2
 pivot_root			[ need privilege, ignore for now ]

@@ -1079,6 +1079,12 @@ start N workers that perform open(2) and then close(2) operations on /dev/zero. 
 .B \-\-open\-ops N
 stop the open stress workers after N bogo open operations.
 .TP
+.B \-\-personality N
+start N workers that attempt to set personality and get all the available personality types (process execution domain types) via the personality(2) system call. (Linux only).
+.TP
+.B \-\-personality\-ops N
+stop personality stress workers after N bogo personality operations.
+.TP
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O. This exercises memory write and reads as well as context switching.  Each worker has two processes, a reader and a writer.
 .TP
