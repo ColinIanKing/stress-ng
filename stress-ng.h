@@ -736,6 +736,10 @@ typedef enum {
 	__STRESS_GETRANDOM,
 #define STRESS_GETRANDOM __STRESS_GETRANDOM
 #endif
+#if defined(__linux__) && defined(__NR_name_to_handle_at) && defined(__NR_open_by_handle_at)
+	__STRESS_HANDLE,
+#define STRESS_HANDLE __STRESS_HANDLE
+#endif
 	STRESS_HDD,
 	STRESS_HSEARCH,
 #if defined(STRESS_X86) && defined(__GNUC__) && NEED_GNUC(4,6,0)
@@ -1127,6 +1131,11 @@ typedef enum {
 #if defined(STRESS_GETRANDOM)
 	OPT_GETRANDOM,
 	OPT_GETRANDOM_OPS,
+#endif
+
+#if defined(STRESS_HANDLE)
+	OPT_HANDLE,
+	OPT_HANDLE_OPS,
 #endif
 
 	OPT_HDD_BYTES,
@@ -1828,6 +1837,7 @@ STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_getrandom);
+STRESS(stress_handle);
 STRESS(stress_hdd);
 STRESS(stress_hsearch);
 STRESS(stress_icache);

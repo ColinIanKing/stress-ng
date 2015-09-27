@@ -56,6 +56,7 @@ SRC =   stress-affinity.c \
 	stress-futex.c \
 	stress-get.c \
 	stress-getrandom.c \
+	stress-handle.c \
 	stress-hdd.c \
 	stress-hsearch.c \
 	stress-icache.c \

@@ -184,6 +184,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_GETRANDOM)
 	STRESSOR(getrandom, GETRANDOM, CLASS_OS | CLASS_CPU),
 #endif
+#if defined(STRESS_HANDLE)
+	STRESSOR(handle, HANDLE, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
 	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_ICACHE)
@@ -478,6 +481,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_GETRANDOM)
 	{ "getrandom",	1,	0,	OPT_GETRANDOM },
 	{ "getrandom-ops",1,	0,	OPT_GETRANDOM_OPS },
+#endif
+#if defined(STRESS_HANDLE)
+	{ "handle",	1,	0,	OPT_HANDLE },
+	{ "handle-ops",	1,	0,	OPT_HANDLE_OPS },
 #endif
 	{ "hdd",	1,	0,	OPT_HDD },
 	{ "hdd-ops",	1,	0,	OPT_HDD_OPS },
@@ -972,6 +979,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_GETRANDOM)
 	{ NULL,		"getrandom N",		"start N workers fetching random data via getrandom()" },
 	{ NULL,		"getrandom-ops N",	"stop when N getrandom bogo operations completed" },
+#endif
+#if defined(STRESS_HANDLE)
+	{ NULL,		"handle N",		"start N workers exercising name_to_handle_at" },
+	{ NULL,		"handle-ops N",		"stop when N handle bogo operations completed" },
 #endif
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
