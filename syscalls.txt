@@ -162,11 +162,11 @@ msync				mmap
 munlock				mlock
 munlockall			mlock
 munmap				mmap, mremap
-name_to_handle_at
+name_to_handle_at		handle
 nanosleep			timer
 nice				nice
 open				dentry, open, etc
-open_by_handle_at
+open_by_handle_at		handle
 openat
 pause				kcmp
 perf_event_open			--perf option
