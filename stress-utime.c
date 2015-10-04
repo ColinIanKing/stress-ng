@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <utime.h>
 
 #include "stress-ng.h"
@@ -64,6 +65,19 @@ int stress_utime(
 	}
 
 	do {
+		struct timeval times[2], *t;
+
+		if (gettimeofday(&times[0], NULL) < 0) {
+			t = NULL;
+		} else {
+			times[1] = times[0];
+			t = times;
+		}
+		if (utimes(filename, t) < 0) {
+			pr_dbg(stderr, "%s: utimes failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		}
 #if defined(__linux__)
 		if (futimens(fd, NULL) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",

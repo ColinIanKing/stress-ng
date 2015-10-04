@@ -148,7 +148,7 @@ mq_getsetattr			mq
 mq_notify
 mq_open				mq
 mq_send				mq
-mq_timedreceive
+mq_timedreceive			mq
 mq_timedsend
 mq_unlink			mq
 mq_receive			mq
@@ -323,7 +323,7 @@ unshare				clone
 ustat				[ deprecated ]
 utime				utime
 utimesat
-utimes
+utimes				utime
 vfork				vfork
 vhangup				[ ignore ]
 vmsplice			vm-splice
