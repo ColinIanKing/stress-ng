@@ -42,6 +42,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <mqueue.h>
+#include <time.h>
 
 typedef struct {
 	uint64_t	value;
@@ -139,7 +140,19 @@ again:
 		pr_failed_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		time_t time_start;
+		struct timespec abs_timeout;
+		bool do_timedreceive;
+
 		setpgid(0, pgrp);
+		if (time(&time_start) == ((time_t)-1)) {
+			do_timedreceive = false;
+			pr_failed_dbg(name, "mq_timedreceive skipped");
+		} else {
+			do_timedreceive = true;
+			abs_timeout.tv_sec = time_start + opt_timeout + 1;
+			abs_timeout.tv_nsec = 0;
+		}
 
 		while (opt_do_run) {
 			uint64_t i;
@@ -147,9 +160,19 @@ again:
 			for (i = 0; ; i++) {
 				msg_t msg;
 
-				if (mq_receive(mq, (char *)&msg, sizeof(msg), NULL) < 0) {
-					pr_failed_dbg(name, "mq_receive");
-					break;
+				/*
+				 * toggle between timedreceive and receive
+				 */
+				if (do_timedreceive && !(i & 1)) {
+					if (mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout) < 0) {
+						pr_failed_dbg(name, "mq_timedreceive");
+						break;
+					}
+				} else {
+					if (mq_receive(mq, (char *)&msg, sizeof(msg), NULL) < 0) {
+						pr_failed_dbg(name, "mq_receive");
+						break;
+					}
 				}
 				if (msg.stop)
 					break;
