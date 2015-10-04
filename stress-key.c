@@ -132,8 +132,10 @@ int stress_key(
 				"somedata-%zu", n);
 #if defined(KEYCTL_UPDATE)
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
-			    payload, strlen(payload)) < 0)
-				pr_failed_err(name, "keyctl KEYCTL_UPDATE");
+			    payload, strlen(payload)) < 0) {
+				if ((errno != ENOMEM) && (errno != EDQUOT))
+					pr_failed_err(name, "keyctl KEYCTL_UPDATE");
+			}
 			if (!opt_do_run)
 				break;
 #endif
