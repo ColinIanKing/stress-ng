@@ -269,6 +269,10 @@ int stress_get(
 			pr_fail(stderr, "%s: adjtimex failed, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 #endif
+		ret = adjtime(NULL, &tv);
+		if (verify && (ret < 0))
+			pr_fail(stderr, "%s: adjtime failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
