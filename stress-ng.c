@@ -208,6 +208,9 @@ static const stress_t stressors[] = {
 	STRESSOR(lease, LEASE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
 	STRESSOR(link, LINK, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_LOCKBUS)
+	STRESSOR(lockbus, LOCKBUS, CLASS_CPU_CACHE | CLASS_MEMORY),
+#endif
 #if defined(STRESS_LOCKF)
 	STRESSOR(lockf, LOCKF, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -530,6 +533,10 @@ static const struct option long_options[] = {
 #endif
 	{ "link",	1,	0,	OPT_LINK },
 	{ "link-ops",	1,	0,	OPT_LINK_OPS },
+#if defined(STRESS_LOCKBUS)
+	{ "lockbus",	1,	0,	OPT_LOCKBUS },
+	{ "lockbus-ops",1,	0,	OPT_LOCKBUS_OPS },
+#endif
 #if defined(STRESS_LOCKF)
 	{ "lockf",	1,	0,	OPT_LOCKF },
 	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
@@ -1025,6 +1032,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"link N",		"start N workers creating hard links" },
 	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
+#if defined(STRESS_LOCKBUS)
+	{ NULL,		"lockbus N",		"start N workers locking a memory increment" },
+	{ NULL,		"lockbus-ops N",	"stop when N lockbus bogo operations completed" },
+#endif
 #if defined(STRESS_LOCKF)
 	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },
 	{ NULL,		"lockf-ops N",		"stop when N lockf bogo operations completed" },

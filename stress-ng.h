@@ -766,6 +766,10 @@ typedef enum {
 #define STRESS_LEASE __STRESS_LEASE
 #endif
 	STRESS_LINK,
+#if (defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86) && defined(__linux__)
+	__STRESS_LOCKBUS,
+#define STRESS_LOCKBUS __STRESS_LOCKBUS
+#endif
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
 	__STRESS_LOCKF,
@@ -1187,6 +1191,11 @@ typedef enum {
 
 	OPT_LINK,
 	OPT_LINK_OPS,
+
+#if defined(STRESS_LOCKBUS)
+	OPT_LOCKBUS,
+	OPT_LOCKBUS_OPS,
+#endif
 
 #if defined(STRESS_LOCKF)
 	OPT_LOCKF,
@@ -1849,6 +1858,7 @@ STRESS(stress_key);
 STRESS(stress_kill);
 STRESS(stress_lease);
 STRESS(stress_link);
+STRESS(stress_lockbus);
 STRESS(stress_lockf);
 STRESS(stress_longjmp);
 STRESS(stress_lsearch);

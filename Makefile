@@ -69,6 +69,7 @@ SRC =   stress-affinity.c \
 	stress-lease.c \
 	stress-lsearch.c \
 	stress-link.c \
+	stress-lockbus.c \
 	stress-lockf.c \
 	stress-longjmp.c \
 	stress-malloc.c \
