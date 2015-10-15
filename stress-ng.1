@@ -979,6 +979,12 @@ T}
 .B \-\-matrix\-size N
 specify the N \(mu N size of the matrices.  Smaller values result in a floating point compute throughput bound stressor, where as large values result in a cache and/or memory bandwidth bound stressor.
 .TP
+.B \-\-membarrier N
+start N workers that exercise the membarrier system call (Linux only).
+.TP
+.B \-\-membarrier\-ops N
+stop membarrier stress workers after N bogo membarrier operations.
+.TP
 .B \-\-memcpy N
 start N workers that copy 2MB of data from a shared region to a buffer using memcpy(3) and then move the data in the buffer with memmove(3) with 3 different alignments. This will exercise processor cache and system memory.
 .TP

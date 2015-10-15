@@ -218,6 +218,9 @@ static const stress_t stressors[] = {
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS),
 	STRESSOR(matrix, MATRIX, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_CPU),
+#if defined(STRESS_MEMBARRIER)
+	STRESSOR(membarrier, MEMBARRIER, CLASS_CPU_CACHE | CLASS_MEMORY),
+#endif
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
 #if defined(STRESS_MEMFD)
 	STRESSOR(memfd, MEMFD, CLASS_OS | CLASS_MEMORY),
@@ -560,6 +563,10 @@ static const struct option long_options[] = {
 	{ "matrix-method",1,	0,	OPT_MATRIX_METHOD },
 	{ "matrix-size",1,	0,	OPT_MATRIX_SIZE },
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
+#if defined(STRESS_MEMBARRIER)
+	{ "membarrier",	1,	0,	OPT_MEMBARRIER },
+	{ "membarrier-ops",1,	0,	OPT_MEMBARRIER_OPS },
+#endif
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy",	1,	0,	OPT_MEMCPY },
@@ -1057,6 +1064,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"matrix-ops N",		"stop when N maxtrix bogo operations completed" },
 	{ NULL,		"matrix-method m",	"specify matrix stress method m, default is all" },
 	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
+#if defined(STRESS_MEMBARRIER)
+	{ NULL,		"membarrier N",		"start N workers performing membarrier system calls" },
+	{ NULL,		"membarrier-ops N",	"stop when N membarrier bogo operations completed" },
+#endif
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
 	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
 #if defined(STRESS_MEMFD)

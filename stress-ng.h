@@ -779,6 +779,10 @@ typedef enum {
 	STRESS_LSEARCH,
 	STRESS_MALLOC,
 	STRESS_MATRIX,
+#if defined(__linux__) && defined(__NR_membarrier)
+	__STRESS_MEMBARRIER,
+#define STRESS_MEMBARRIER __STRESS_MEMBARRIER
+#endif
 	STRESS_MEMCPY,
 #if defined(__linux__) && defined(__NR_memfd_create)
 	__STRESS_MEMFD,
@@ -1226,6 +1230,11 @@ typedef enum {
 	OPT_MATRIX_METHOD,
 
 	OPT_MAXIMIZE,
+
+#if defined(STRESS_MEMBARRIER)
+	OPT_MEMBARRIER,
+	OPT_MEMBARRIER_OPS,
+#endif
 
 	OPT_MEMCPY,
 	OPT_MEMCPY_OPS,
@@ -1864,6 +1873,7 @@ STRESS(stress_longjmp);
 STRESS(stress_lsearch);
 STRESS(stress_malloc);
 STRESS(stress_matrix);
+STRESS(stress_membarrier);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
 STRESS(stress_mincore);
