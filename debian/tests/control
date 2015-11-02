@@ -1,0 +1,2 @@
+Tests: fast-test-all
+Depends: stress-ng, @
