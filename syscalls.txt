@@ -129,6 +129,7 @@ lsetxattr
 lstat				fstat
 madvise				mmap, vm
 mbind				numa
+membarrier			membarrier
 memfd_create			memfd
 migrate_pages			numa
 mincore				bigheap, mincore, mmap, vm
