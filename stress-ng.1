@@ -727,8 +727,10 @@ start N workers that get 8192 random bytes from the /dev/urandom pool using the 
 .TP
 .B \-\-getrandom\-ops N
 stop getrandom workers after N bogo get operations.
-.TP \-\-handle N
+.TP
+.B \-\-handle N
 start N workers that exercise the name_to_handle_at(2) and open_by_handle_at(2) system calls. (Linux only).
+.TP
 .B \-\-handle\-ops N
 stop after N handle bogo operations.
 .TP
