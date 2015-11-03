@@ -1,3 +1,34 @@
+stress-ng (0.04.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix man page --handle options, errors found by lintian
+  * Makefile: add personality.c to dist rule
+  * Add dep8 tests
+  * Add membarrier to syscalls.txt
+  * Fix spelling mistake in membarrier error message
+  * Add membarrier stressor
+  * stress-sysfs: make sysfs reader more stressful
+  * stress-procfs: make proc fs reader more stressful
+  * Makefile: remove -g option
+  * Add new lockbus cache line stressor
+  * stress-get: add adjtime() call
+  * Add utimes(2) call to stress-utime
+  * stress-mq: also exercise mq_timedreceive
+  * stress-key: don't abort on EDQUOT for a KEYCTL_UPDATE
+  * Update syscalls.txt
+  * Manual: update contributor list
+  * stress-cpu: check complex supported by C lib (LP: #1500349)
+  * Add handle stressor
+  * stress-socket: add nagle disable build option
+  * Move ionice options in manual to general settings section
+  * Move --syslog option in manual to general settings section
+  * Add stress-personality personality() stressor
+  * Add mknod stressor
+  * Add stress-exec execve stressor
+  * stress-sysfs: add access() check on file
+
+ -- Colin King <colin.king@canonical.com>  Mon, 2 Nov 2015 17:03:00 +0600
+
 stress-ng (0.04.20-1) unstable; urgency=medium
 
   * Makefile: bump version
