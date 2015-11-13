@@ -68,7 +68,9 @@ void stress_semaphore_sysv_init(void)
 
 	while (count < 100) {
 		shared->sem_sysv.key_id = (key_t)mwc16();
-		shared->sem_sysv.sem_id = semget(shared->sem_sysv.key_id, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
+		shared->sem_sysv.sem_id =
+			semget(shared->sem_sysv.key_id, 1,
+				IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (shared->sem_sysv.sem_id >= 0)
 			break;
 
@@ -218,16 +220,21 @@ int stress_sem_sysv(
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(name, max_ops, counter);
-		if (pids[i] < 0)
+		if (!opt_do_run || pids[i] < 0)
 			goto reap;
 	}
-	pause();
+	/* Wait for termination */
+	while (opt_do_run && (!max_ops || *counter < max_ops));
+		usleep(100000);
 reap:
+	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
+		if (pids[i] > 0)
+			(void)kill(pids[i], SIGKILL);
+	}
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		if (pids[i] > 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
                         (void)waitpid(pids[i], &status, 0);
 		}
 	}
