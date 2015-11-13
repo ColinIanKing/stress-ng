@@ -2046,7 +2046,7 @@ int main(int argc, char **argv)
 		int c, option_index;
 		stress_id s_id;
 next_opt:
-		if ((c = getopt_long(argc, argv, "?hMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:k:Y:x:",
+		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1)
 			break;
 
