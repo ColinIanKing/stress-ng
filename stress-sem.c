@@ -187,17 +187,22 @@ int stress_sem_posix(
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
 		pids[i] = semaphore_posix_spawn(name, max_ops, counter);
-		if (pids[i] < 0)
+		if (!opt_do_run || pids[i] < 0)
 			goto reap;
 	}
-	/* Wait for SIGALRM */
-	pause();
+
+	/* Wait for termination */
+	while (opt_do_run && (!max_ops || *counter < max_ops));
+		usleep(100000);
 reap:
+	for (i = 0; i < opt_semaphore_posix_procs; i++) {
+		if (pids[i] > 0)
+			(void)kill(pids[i], SIGKILL);
+	}
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
 		if (pids[i] > 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
                         (void)waitpid(pids[i], &status, 0);
 		}
 	}
