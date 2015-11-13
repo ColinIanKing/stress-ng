@@ -55,7 +55,7 @@ static inline void stress_proc_read(const char *path)
 	ssize_t i = 0;
 	char buffer[PROC_BUF_SZ];
 
-	if ((fd = open(path, O_RDONLY)) < 0)
+	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 		return;
 	/*
 	 *  Multiple randomly sized reads
