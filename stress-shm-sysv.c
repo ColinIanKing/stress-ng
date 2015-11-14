@@ -34,11 +34,18 @@
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/wait.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #include "stress-ng.h"
 
 #define KEY_GET_RETRIES		(40)
+
+typedef struct {
+	int	index;
+	int	shm_id;
+} shm_msg_t;
 
 static size_t opt_shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
@@ -86,40 +93,27 @@ static int stress_shm_sysv_check(uint8_t *buf, const size_t sz)
 }
 
 /*
- *  stress_shm_sysv()
- *	stress SYSTEM V shared memory
+ *  stress_shm_sysv_child()
+ * 	stress out the shm allocations. This can be killed by
+ *	the out of memory killer, so we need to keep the parent
+ *	informed of the allocated shared memory ids so these can
+ *	be reaped cleanly if this process gets prematurely killed.
  */
-int stress_shm_sysv(
+static int stress_shm_sysv_child(
+	const int fd,
 	uint64_t *const counter,
-	const uint32_t instance,
 	const uint64_t max_ops,
-	const char *name)
+	const char *name,
+	size_t sz,
+	const size_t page_size)
 {
-	const size_t page_size = stress_get_pagesize();
-	size_t orig_sz, sz;
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
+	shm_msg_t msg;
+	int i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
-	ssize_t i;
-
-	(void)instance;
-
-	if (!set_shm_sysv_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
-	}
-
-	if (!set_shm_sysv_segments) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
-	}
-	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));
@@ -176,6 +170,17 @@ int stress_shm_sysv(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+
+			/* Inform parent of the new shm ID */
+			msg.index = i;
+			msg.shm_id = shm_id;
+			if (write(fd, &msg, sizeof(msg)) < 0) {
+				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+					name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto reap;
+			}
+
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
@@ -221,14 +226,146 @@ reap:
 							name, errno, strerror(errno));
 				}
 			}
+
+			/* Inform parent shm ID is now free */
+			msg.index = i;
+			msg.shm_id = -1;
+			if (write(fd, &msg, sizeof(msg)) < 0) {
+				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+					name, errno, strerror(errno));
+			}
 			addrs[i] = NULL;
 			shm_ids[i] = -1;
 			keys[i] = 0;
 		}
 	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
 
+	/* Inform parent of end of run */
+	msg.index = -1;
+	msg.shm_id = -1;
+	if (write(fd, &msg, sizeof(msg)) < 0) {
+		pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+	}
+
+	return rc;
+}
+
+/*
+ *  stress_shm_sysv()
+ *	stress SYSTEM V shared memory
+ */
+int stress_shm_sysv(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	const size_t page_size = stress_get_pagesize();
+	size_t orig_sz, sz;
+	int pipefds[2];
+	int rc = EXIT_SUCCESS;
+	ssize_t i;
+	pid_t pid;
+
+	(void)instance;
+
+	if (!set_shm_sysv_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
+	}
+
+	if (!set_shm_sysv_segments) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
+	}
+	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
+
+	while (opt_do_run) {
+		if (pipe(pipefds) < 0) {
+			pr_failed_dbg(name, "pipe");
+			return EXIT_FAILURE;
+		}
+fork_again:
+		pid = fork();
+		if (pid < 0) {
+			/* Can't fork, retry? */
+			if (errno == EAGAIN)
+				goto fork_again;
+			pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			(void)close(pipefds[0]);
+			(void)close(pipefds[1]);
+
+			/* Nope, give up! */
+			return EXIT_FAILURE;
+		} else if (pid > 0) {
+			/* Parent */
+			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
+			ssize_t n;
+
+			setpgid(pid, pgrp);
+			(void)close(pipefds[1]);
+
+			for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++)
+				shm_ids[i] = -1;
+
+			while (opt_do_run) {
+				shm_msg_t 	msg;
+
+				/*
+				 *  Blocking read on child shm ID info
+				 *  pipe.  We break out if pipe breaks
+				 *  on child death, or child tells us
+				 *  off its demise.
+				 */
+				n = read(pipefds[0], &msg, sizeof(msg));
+				if (n <= 0) {
+					if ((errno == EAGAIN) || (errno == EINTR))
+						continue;
+					if (errno) {
+						pr_failed_dbg(name, "read");
+						break;
+					}
+					pr_failed_dbg(name, "zero byte read");
+					break;
+				}
+				if ((msg.index < 0) ||
+				    (msg.index >= MAX_SHM_SYSV_SEGMENTS))
+					break;
+				shm_ids[msg.index] = msg.shm_id;
+			}
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+			(void)close(pipefds[1]);
+
+			/*
+			 *  The child may have been killed by the OOM killer or
+			 *  some other way, so it may have left the shared
+			 *  memory segment around.  At this point the child
+			 *  has died, so we should be able to remove the
+			 *  shared memory segment.
+			 */
+			for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
+				if (shm_ids[i] != -1)
+					(void)shmctl(shm_ids[i], IPC_RMID, NULL);
+			}
+		} else if (pid == 0) {
+			/* Child, stress memory */
+			(void)close(pipefds[0]);
+			rc = stress_shm_sysv_child(pipefds[1], counter,
+				max_ops, name, sz, page_size);
+			(void)close(pipefds[1]);
+			_exit(rc);
+		}
+	}
 	if (orig_sz != sz)
-		pr_dbg(stderr, "%s: reduced shared memory size from %zu to %zu bytes\n",
-			name, orig_sz, sz);
+		pr_dbg(stderr, "%s: reduced shared memory size from "
+			"%zu to %zu bytes\n", name, orig_sz, sz);
 	return rc;
 }
