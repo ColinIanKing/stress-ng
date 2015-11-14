@@ -44,7 +44,7 @@ static const int madvise_options[] = {
 #ifdef MADV_SEQUENTIAL
 	MADV_SEQUENTIAL,
 #endif
-#ifdef MADV_WILLNEDD
+#ifdef MADV_WILLNEED
 	MADV_WILLNEED,
 #endif
 /*
