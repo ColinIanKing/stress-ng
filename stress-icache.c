@@ -87,6 +87,9 @@ int SECTION(stress_icache_caller) stress_icache(
 			*addr ^= ~0;
 			*addr = val;
 			stress_icache_func();
+#if defined(__GNUC__)
+			__clear_cache((char *)addr, (char *)addr + 64);
+#endif
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
