@@ -250,7 +250,8 @@ int stress_numa(
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
 	 */
-	buf = mmap(NULL, MMAP_SZ, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
+	buf = mmap(NULL, MMAP_SZ, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (buf == MAP_FAILED) {
 		pr_fail(stderr, "%s: mmap'd region of %zu bytes failed",
 			name, (size_t)MMAP_SZ);
@@ -299,7 +300,8 @@ int stress_numa(
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT);
+		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
 				name, errno, strerror(errno));
@@ -317,7 +319,8 @@ int stress_numa(
 		memset(old_node_mask, 0xff, sizeof(old_node_mask));
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_migrate_pages(mypid, max_nodes, old_node_mask, node_mask);
+		ret = sys_migrate_pages(mypid, max_nodes,
+			old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: migrate_pages: errno=%d (%s)\n",
 				name, errno, strerror(errno));
@@ -335,7 +338,8 @@ int stress_numa(
 				dest_nodes[i] = n_tmp->node_id;
 			}
 			memset(status, 0, sizeof(status));
-			ret = sys_move_pages(mypid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE);
+			ret = sys_move_pages(mypid, num_pages, pages,
+				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				pr_fail(stderr, "%s: move_pages: errno=%d (%s)\n",
 					name, errno, strerror(errno));

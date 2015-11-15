@@ -129,7 +129,8 @@ static void stress_proc_read_threads(char *path)
 	keep_running = true;
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL, stress_proc_read_thread, path);
+		ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_proc_read_thread, path);
 	}
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)

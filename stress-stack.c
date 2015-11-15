@@ -105,12 +105,13 @@ again:
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
-				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					name, instance);
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n", name, instance);
 				goto again;
 			}
 		}
@@ -165,7 +166,10 @@ again:
 				do {
 					char *ptr = alloca(256 * KB);
 
-					/* need this else gcc optimises out the alloca */
+					/*
+					 * need this else gcc optimises out
+					 * the alloca()
+					 */
 					if (opt_flags & OPT_STACK_FILL)
 						memset(ptr, 0, 256 * KB);
 					else

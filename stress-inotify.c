@@ -152,7 +152,8 @@ redo:
 
 		/* Scan through inotify events */
 		while ((i >= 0) && (i <= len - (ssize_t)sizeof(struct inotify_event))) {
-			struct inotify_event *event = (struct inotify_event *)&buffer[i];
+			struct inotify_event *event =
+				(struct inotify_event *)&buffer[i];
 			int f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
 					       IN_MOVED_TO | IN_MOVED_FROM |
 					       IN_ATTRIB);
@@ -209,7 +210,8 @@ static int rm_dir(const char *name, const char *path)
 			    !strcmp(d->d_name, ".."))
 				continue;
 
-			snprintf(filename, sizeof(filename), "%s/%s", path, d->d_name);
+			snprintf(filename, sizeof(filename), "%s/%s",
+				path, d->d_name);
 			(void)rm_file(name, filename);
 		}
 		(void)closedir(dp);
@@ -289,7 +291,10 @@ static int mk_file(const char *name, const char *filename, const size_t len)
 }
 
 
-static int inotify_attrib_helper(const char *name, const char *path, const void *dummy)
+static int inotify_attrib_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	(void)dummy;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
@@ -308,11 +313,15 @@ void inotify_attrib_file(const char *name, const char *path)
 	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_attrib_helper, IN_ATTRIB, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_attrib_helper, IN_ATTRIB, NULL);
 	(void)rm_file(name, filepath);
 }
 
-static int inotify_access_helper(const char *name, const char *path, const void *dummy)
+static int inotify_access_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	int fd;
 	char buffer[1];
@@ -346,11 +355,15 @@ static void inotify_access_file(const char *name, const char *path)
 	if (mk_file(name, filepath, 4096) < 0)
 		return;
 
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_access_helper, IN_ACCESS, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_access_helper, IN_ACCESS, NULL);
 	(void)rm_file(name, filepath);
 }
 
-static int inotify_modify_helper(const char *name, const char *path, const void *dummy)
+static int inotify_modify_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	int fd, rc = 0;
 	char buffer[1] = { 0 };
@@ -383,10 +396,14 @@ static void inotify_modify_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_modify_helper, IN_MODIFY, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_modify_helper, IN_MODIFY, NULL);
 }
 
-static int inotify_creat_helper(const char *name, const char *path, const void *dummy)
+static int inotify_creat_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	(void)dummy;
 	int fd;
@@ -404,11 +421,15 @@ static void inotify_creat_file(const char *name, const char *path)
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_creat_helper, IN_CREATE, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_creat_helper, IN_CREATE, NULL);
 	(void)rm_file(name, filepath);
 }
 
-static int inotify_open_helper(const char *name, const char *path, const void *dummy)
+static int inotify_open_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	int fd;
 
@@ -429,11 +450,15 @@ static void inotify_open_file(const char *name, const char *path)
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
 	if (mk_file(name, filepath, 4096) < 0)
 		return;
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_open_helper, IN_OPEN, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_open_helper, IN_OPEN, NULL);
 	(void)rm_file(name, filepath);
 }
 
-static int inotify_delete_helper(const char *name, const char *path, const void *dummy)
+static int inotify_delete_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	(void)dummy;
 
@@ -447,12 +472,16 @@ static void inotify_delete_file(const char *name, const char *path)
 	mk_filename(filepath, PATH_MAX, path, "inotify_file");
 	if (mk_file(name, filepath, 4096) < 0)
 		return;
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_delete_helper, IN_DELETE, NULL);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_delete_helper, IN_DELETE, NULL);
 	/* We remove (again) it just in case the test failed */
 	(void)rm_file(name, filepath);
 }
 
-static int inotify_delete_self_helper(const char *name, const char *path, const void *dummy)
+static int inotify_delete_self_helper(
+	const char *name,
+	const char *path,
+	const void *dummy)
 {
 	(void)dummy;
 
@@ -466,12 +495,16 @@ static void inotify_delete_self(const char *name, const char *path)
 	mk_filename(filepath, PATH_MAX, path, "inotify_dir");
 	if (mk_dir(name, filepath) < 0)
 		return;
-	inotify_exercise(name, filepath, filepath, "inotify_dir", inotify_delete_self_helper, IN_DELETE_SELF, NULL);
+	inotify_exercise(name, filepath, filepath, "inotify_dir",
+		inotify_delete_self_helper, IN_DELETE_SELF, NULL);
 	/* We remove (again) in case the test failed */
 	(void)rm_dir(name, filepath);
 }
 
-static int inotify_move_self_helper(const char *name, const char *oldpath, const void *private)
+static int inotify_move_self_helper(
+	const char *name,
+	const char *oldpath,
+	const void *private)
 {
 	char *newpath = (char*)private;
 
@@ -492,12 +525,16 @@ static void inotify_move_self(const char *name, const char *path)
 		return;
 	mk_filename(newpath, PATH_MAX, path, "renamed_dir");
 
-	inotify_exercise(name, filepath, filepath, "inotify_dir", inotify_move_self_helper, IN_MOVE_SELF, newpath);
+	inotify_exercise(name, filepath, filepath, "inotify_dir",
+		inotify_move_self_helper, IN_MOVE_SELF, newpath);
 	(void)rm_dir(name, newpath);
 	(void)rm_dir(name, filepath);	/* In case rename failed */
 }
 
-static int inotify_moved_to_helper(const char *name, const char *newpath, const void *private)
+static int inotify_moved_to_helper(
+	const char *name,
+	const char *newpath,
+	const void *private)
 {
 	char *oldpath = (char*)private;
 
@@ -522,12 +559,16 @@ static void inotify_moved_to(const char *name, const char *path)
 		return;
 
 	mk_filename(newfile, PATH_MAX, path, "inotify_file");
-	inotify_exercise(name, newfile, path, "inotify_dir", inotify_moved_to_helper, IN_MOVED_TO, oldfile);
+	inotify_exercise(name, newfile, path, "inotify_dir",
+		inotify_moved_to_helper, IN_MOVED_TO, oldfile);
 	(void)rm_file(name, newfile);
 	(void)rm_dir(name, olddir);
 }
 
-static int inotify_moved_from_helper(const char *name, const char *oldpath, const void *private)
+static int inotify_moved_from_helper(
+	const char *name,
+	const char *oldpath,
+	const void *private)
 {
 	char *newpath = (char*)private;
 
@@ -551,13 +592,17 @@ static void inotify_moved_from(const char *name, const char *path)
 	if (mk_dir(name, newdir) < 0)
 		return;
 	mk_filename(newfile, PATH_MAX, newdir, "inotify_file");
-	inotify_exercise(name, oldfile, path, "inotify_dir", inotify_moved_from_helper, IN_MOVED_FROM, newfile);
+	inotify_exercise(name, oldfile, path, "inotify_dir",
+		inotify_moved_from_helper, IN_MOVED_FROM, newfile);
 	(void)rm_file(name, newfile);
 	(void)rm_file(name, oldfile);	/* In case rename failed */
 	(void)rm_dir(name, newdir);
 }
 
-static int inotify_close_write_helper(const char *name, const char *path, const void *fdptr)
+static int inotify_close_write_helper(
+	const char *name,
+	const char *path,
+	const void *fdptr)
 {
 	(void)name;
 	(void)path;
@@ -581,12 +626,16 @@ static void inotify_close_write_file(const char *name, const char *path)
 		return;
 	}
 
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd);
 	(void)rm_file(name, filepath);
 	(void)close(fd);
 }
 
-static int inotify_close_nowrite_helper(const char *name, const char *path, const void *fdptr)
+static int inotify_close_nowrite_helper(
+	const char *name,
+	const char *path,
+	const void *fdptr)
 {
 	(void)name;
 	(void)path;
@@ -611,7 +660,8 @@ static void inotify_close_nowrite_file(const char *name, const char *path)
 		return;
 	}
 
-	inotify_exercise(name, filepath, path, "inotify_file", inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd);
+	inotify_exercise(name, filepath, path, "inotify_file",
+		inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd);
 	(void)rm_file(name, filepath);
 	(void)close(fd);
 }

@@ -179,8 +179,9 @@ int stress_mremap(
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			stress_mremap_set(buf, new_sz);
 			if (stress_mremap_check(buf, sz) < 0) {
-				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
-					"not contain expected data\n", name, sz);
+				pr_fail(stderr, "%s: mmap'd region of %zu "
+					"bytes does not contain expected data\n",
+					name, sz);
 				munmap(buf, new_sz);
 				return EXIT_FAILURE;
 			}
@@ -196,8 +197,10 @@ int stress_mremap(
 			(void)madvise_random(buf, new_sz);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (stress_mremap_check(buf, new_sz) < 0) {
-					pr_fail(stderr, "%s: mremap'd region of %zu bytes does "
-						"not contain expected data\n", name, sz);
+					pr_fail(stderr, "%s: mremap'd region "
+						"of %zu bytes does "
+						"not contain expected data\n",
+						name, sz);
 					munmap(buf, new_sz);
 					return EXIT_FAILURE;
 				}

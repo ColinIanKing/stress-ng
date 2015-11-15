@@ -100,7 +100,8 @@ int stress_tsearch(
 			if (tsearch(&data[i], &root, cmp) == NULL) {
 				size_t j;
 
-				pr_err(stderr, "%s: cannot allocate new tree node\n", name);
+				pr_err(stderr, "%s: cannot allocate new "
+					"tree node\n", name);
 				for (j = 0; j < i; j++)
 					tdelete(&data[j], &root, cmp);
 				goto abort;
@@ -113,12 +114,16 @@ int stress_tsearch(
 			result = tfind(&data[i], &root, cmp);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail(stderr, "%s: element %zu could not be found\n", name, i);
+					pr_fail(stderr, "%s: element %zu "
+						"could not be found\n",
+						name, i);
 				else {
 					int32_t *val;
 					val = *result;
 					if (*val != data[i])
-						pr_fail(stderr, "%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
+						pr_fail(stderr, "%s: element "
+							"%zu found %" PRIu32
+							", expecting %" PRIu32 "\n",
 							name, i, *val, data[i]);
 				}
 			}
@@ -129,7 +134,8 @@ int stress_tsearch(
 
 			result = tdelete(&data[i], &root, cmp);
 			if ((opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
-				pr_fail(stderr, "%s: element %zu could not be found\n", name, i);
+				pr_fail(stderr, "%s: element %zu could not "
+					"be found\n", name, i);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

@@ -121,7 +121,8 @@ static void killer(
 		 */
 		if (last_counter == *counter) {
 			if (time_now() - start > ABORT_TIMEOUT) {
-				pr_dbg(stderr, "%s: waits were blocked, aborting\n", name);
+				pr_dbg(stderr, "%s: waits were blocked, "
+					"aborting\n", name);
 				break;
 			}
 		} else {

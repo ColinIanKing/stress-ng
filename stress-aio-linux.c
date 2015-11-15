@@ -66,7 +66,10 @@ static inline int sys_io_destroy(aio_context_t ctx_id)
 #endif
 }
 
-static inline int sys_io_submit(aio_context_t ctx_id, long nr, struct iocb **iocbpp)
+static inline int sys_io_submit(
+	aio_context_t ctx_id,
+	long nr,
+	struct iocb **iocbpp)
 {
 #if defined(__NR_io_submit)
 	return syscall(__NR_io_submit, ctx_id, nr, iocbpp);
@@ -76,11 +79,16 @@ static inline int sys_io_submit(aio_context_t ctx_id, long nr, struct iocb **ioc
 #endif
 }
 
-static inline int sys_io_getevents(aio_context_t ctx_id, long min_nr, long max_nr,
-	struct io_event *events, struct timespec *timeout)
+static inline int sys_io_getevents(
+	aio_context_t ctx_id,
+	long min_nr,
+	long max_nr,
+	struct io_event *events,
+	struct timespec *timeout)
 {
 #if defined(__NR_io_getevents)
-	return syscall(__NR_io_getevents, ctx_id, min_nr, max_nr, events, timeout);
+	return syscall(__NR_io_getevents, ctx_id, min_nr,
+		max_nr, events, timeout);
 #else
 	errno = ENOSYS;
 	return -1;

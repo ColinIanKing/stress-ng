@@ -111,7 +111,8 @@ int stress_vm_rw(
 		(void)close(pipe_wr[0]);
 		(void)close(pipe_rd[1]);
 
-		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (buf == MAP_FAILED) {
 			pr_failed_dbg(name, "mmap");
 			ret = EXIT_FAILURE;
@@ -190,7 +191,8 @@ cleanup:
 
 		setpgid(pid, pgrp);
 
-		localbuf = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		localbuf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (localbuf == MAP_FAILED) {
 			(void)close(pipe_wr[0]);
 			(void)close(pipe_wr[1]);
@@ -288,7 +290,8 @@ fail:
 		msg_wr.val = 0;
 		if (write(pipe_wr[0], &msg_wr, sizeof(msg_wr)) < 0) {
 			if (errno != EBADF)
-				pr_dbg(stderr, "%s: failed to write termination message "
+				pr_dbg(stderr, "%s: failed to write "
+					"termination message "
 					"over pipe: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 		}

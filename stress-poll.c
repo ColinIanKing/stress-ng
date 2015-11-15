@@ -64,7 +64,9 @@ redo:
 
 			for (i = 0; i < ret; i++) {
 				if (buf[i] != '0' + n) {
-					pr_fail(stderr, "%s: pipe read error, expecting different data on pipe\n", name);
+					pr_fail(stderr, "%s: pipe read error, "
+						"expecting different data on "
+						"pipe\n", name);
 					return ret;
 				}
 			}
@@ -203,7 +205,10 @@ abort:
 			}
 			if (!opt_do_run || (max_ops && *counter >= max_ops))
 				break;
-			/* Third, stress zero sleep, this is like a select zero timeout */
+			/*
+			 * Third, stress zero sleep, this is like
+			 * a select zero timeout
+			 */
 			(void)sleep(0);
 
 		} while (opt_do_run && (!max_ops || *counter < max_ops));

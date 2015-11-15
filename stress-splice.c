@@ -92,11 +92,13 @@ int stress_splice(
 
 		ssize_t bytes;
 
-		bytes = splice(fd_in, NULL, fds[1], NULL, opt_splice_bytes, SPLICE_F_MOVE);
+		bytes = splice(fd_in, NULL, fds[1], NULL,
+				opt_splice_bytes, SPLICE_F_MOVE);
 		if (bytes < 0)
 			break;
 
-		ret = splice(fds[0], NULL, fd_out, NULL, opt_splice_bytes, SPLICE_F_MOVE);
+		ret = splice(fds[0], NULL, fd_out, NULL,
+				opt_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 

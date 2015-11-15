@@ -152,13 +152,18 @@ static int stress_shm_sysv_child(
 					}
 				} while (!unique);
 
-				shm_id = shmget(key, sz,  IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
+				shm_id = shmget(key, sz, 
+					IPC_CREAT | IPC_EXCL |
+					S_IRUSR | S_IWUSR);
 				if (shm_id >= 0)
 					break;
 				if (errno == EINTR)
 					goto reap;
 				if ((errno == EINVAL) || (errno == ENOMEM)) {
-					/* On some systems we may need to reduce the size */
+					/*
+					 * On some systems we may need
+					 * to reduce the size
+					 */
 					if (sz > page_size)
 						sz = sz / 2;
 				}

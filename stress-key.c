@@ -68,7 +68,8 @@ static key_serial_t sys_add_key(
 	size_t plen,
 	key_serial_t keyring)
 {
-	return (key_serial_t)syscall(__NR_add_key, type, description, payload, plen, keyring);
+	return (key_serial_t)syscall(__NR_add_key, type,
+		description, payload, plen, keyring);
 }
 
 #endif

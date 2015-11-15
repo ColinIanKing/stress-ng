@@ -122,7 +122,8 @@ static void *stress_pthread_func(void *ctxt)
 	while (!thread_terminate) {
 		ret = pthread_cond_wait(&cond, &mutex);
 		if (ret) {
-			pr_failed_errno("pthread", "pthread condition wait", ret);
+			pr_failed_errno("pthread",
+				"pthread condition wait", ret);
 			break;
 		}
 	}
@@ -165,7 +166,8 @@ int stress_pthread(
 		pthread_count = 0;
 
 		for (i = 0; (i < opt_pthread_max) && (!max_ops || *counter < max_ops); i++) {
-			ret = pthread_create(&pthreads[i], NULL, stress_pthread_func, NULL);
+			ret = pthread_create(&pthreads[i], NULL,
+				stress_pthread_func, NULL);
 			if (ret) {
 				/* Out of resources, don't try any more */
 				if (ret == EAGAIN) {
@@ -217,7 +219,8 @@ int stress_pthread(
 		thread_terminate = true;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
-			pr_failed_errno(name, "pthread condition broadcast", ret);
+			pr_failed_errno(name,
+				"pthread condition broadcast", ret);
 			ok = false;
 			/* fall through and unlock */
 		}

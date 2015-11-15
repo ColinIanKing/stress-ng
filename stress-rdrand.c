@@ -52,13 +52,15 @@ int stress_rdrand_supported(void)
 	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
 	      (memcmp(&edx, "ineI", 4) == 0) &&
 	      (memcmp(&ecx, "ntel", 4) == 0))) {
-		pr_inf(stderr, "rdrand stressor will be skipped, not a recognised Intel CPU.\n");
+		pr_inf(stderr, "rdrand stressor will be skipped, "
+			"not a recognised Intel CPU.\n");
 		return -1;
 	}
 	/* ..and supports rdrand? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
-		pr_inf(stderr, "rdrand stressor will be skipped, CPU does not support the rdrand instruction.\n");
+		pr_inf(stderr, "rdrand stressor will be skipped, CPU "
+			"does not support the rdrand instruction.\n");
 		return -1;
 	}
 	rdrand_supported = true;
@@ -141,10 +143,12 @@ int stress_rdrand(
 		duration = time_now() - time_start;
 		billion_bits = ((double)*counter * 64.0 * 32.0) / 1000000000.0;
 
-		pr_dbg(stderr, "%s: %.3f billion random bits read (instance %" PRIu32")\n",
+		pr_dbg(stderr, "%s: %.3f billion random bits read "
+			"(instance %" PRIu32")\n",
 			name, billion_bits, instance);
 		if (duration > 0.0) {
-			pr_dbg(stderr, "%s: %.3f billion random bits per second (instance %" PRIu32")\n",
+			pr_dbg(stderr, "%s: %.3f billion random bits per "
+				"second (instance %" PRIu32")\n",
 				name, (double)billion_bits / duration, instance);
 		}
 	}
@@ -159,7 +163,8 @@ int stress_rdrand(
  */
 int stress_rdrand_supported(void)
 {
-	pr_inf(stderr, "rdrand stressor will be skipped, CPU does not support the rdrand instruction.\n");
+	pr_inf(stderr, "rdrand stressor will be skipped, CPU does not "
+		"support the rdrand instruction.\n");
 	return -1;
 }
 

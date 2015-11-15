@@ -86,7 +86,8 @@ redo:
 	/* file should be R_OK if we've just opened it */
 	if ((access(path, R_OK) < 0) &&
 	    (opt_flags & OPT_FLAGS_VERIFY)) {
-		pr_fail(stderr, "%s: R_OK access failed on %s which could be opened, errno=%d (%s)\n",
+		pr_fail(stderr, "%s: R_OK access failed on %s which "
+			"could be opened, errno=%d (%s)\n",
 			name, path, errno, strerror(errno));
 	}
 }
@@ -147,7 +148,8 @@ static void stress_sys_read_threads(const char *name, const char *path)
 	keep_running = true;
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL, stress_sys_read_thread, &ctxt);
+		ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_sys_read_thread, &ctxt);
 	}
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)
@@ -200,7 +202,8 @@ static void stress_sys_dir(
 			if (recurse) {
 				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_dir(name, filename, recurse, depth + 1, sys_read);
+				stress_sys_dir(name, filename, recurse,
+					depth + 1, sys_read);
 			}
 			break;
 		case DT_REG:
@@ -234,7 +237,8 @@ int stress_sysfs(
 
 
 	if (geteuid() == 0) {
-		pr_inf(stderr, "%s: running as root, just traversing /sys and not reading files.\n", name);
+		pr_inf(stderr, "%s: running as root, just traversing /sys "
+			"and not reading files.\n", name);
 		sys_read = false;
 	}
 

@@ -93,7 +93,11 @@ static mode_t modes[] = {
  *		inverse mode flag
  *		inverse all mode flags or'd together
  */
-static int do_fchmod(const int fd, const int i, const mode_t mask, const mode_t all_mask)
+static int do_fchmod(
+	const int fd,
+	const int i,
+	const mode_t mask,
+	const mode_t all_mask)
 {
 	CHECK(fchmod(fd, modes[i]) < 0);
 	CHECK(fchmod(fd, mask) < 0);
@@ -110,7 +114,11 @@ static int do_fchmod(const int fd, const int i, const mode_t mask, const mode_t 
  *		inverse mode flag
  *		inverse all mode flags or'd together
  */
-static int do_chmod(const char *filename, const int i, const mode_t mask, const mode_t all_mask)
+static int do_chmod(
+	const char *filename,
+	const int i,
+	const mode_t mask,
+	const mode_t all_mask)
 {
 	CHECK(chmod(filename, modes[i]) < 0);
 	CHECK(chmod(filename, mask) < 0);
@@ -150,9 +158,9 @@ int stress_chmod(
 	do {
 		errno = 0;
 		/*
-		 *  Try and open the file, it may be impossible momentarily because
-		 *  other chmod stressors have already created it and changed the
-		 *  permission bits. If so, wait a while and retry (ugh).
+		 *  Try and open the file, it may be impossible momentarily
+		 *  because other chmod stressors have already created it and
+		 *  changed the permission bits. If so, wait a while and retry.
 		 */
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			if (errno == EPERM || errno == EACCES) {
@@ -185,7 +193,10 @@ int stress_chmod(
 			}
 			if (do_chmod(filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
-					/* File was removed during test by another worker */
+					/*
+					 * File was removed during test by
+					 * another worker
+					 */
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}

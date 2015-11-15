@@ -111,7 +111,8 @@ int stress_fallocate(
 				pr_fail(stderr, "%s: fstat on file failed", name);
 			else if (buf.st_size != opt_fallocate_bytes)
 				pr_fail(stderr, "%s: file size %jd does not match size the expected file size of %jd\n",
-					name, (intmax_t)buf.st_size, (intmax_t)opt_fallocate_bytes);
+					name, (intmax_t)buf.st_size,
+					(intmax_t)opt_fallocate_bytes);
 		}
 
 		if (ftruncate(fd, 0) < 0)

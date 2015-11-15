@@ -145,15 +145,19 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	}
 #endif
 	if (tested == 0) {
-		pr_err(stderr, "%s: quotactl() failed, quota commands not available\n", name);
+		pr_err(stderr, "%s: quotactl() failed, quota commands "
+			"not available\n", name);
 		return -1;
 	}
 	if (tested == enosys) {
-		pr_err(stderr, "%s: quotactl() failed, not available on this kernel\n", name);
+		pr_err(stderr, "%s: quotactl() failed, not available "
+			"on this kernel\n", name);
 		return -1;
 	}
 	if (tested == failed) {
-		pr_err(stderr, "%s: quotactl() failed, all quota commands failed (maybe privilege issues, use -v to see why)\n", name);
+		pr_err(stderr, "%s: quotactl() failed, all quota commands "
+			"failed (maybe privilege issues, use -v "
+			"to see why)\n", name);
 		return -1;
 	}
 	return 0;
@@ -213,7 +217,8 @@ int stress_quota(
 				devs[i].name = strdup(path);
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
-					pr_err(stderr, "%s: out of memory\n", name);
+					pr_err(stderr, "%s: out of memory\n",
+						name);
 					closedir(dir);
 					goto tidy;
 				}
@@ -242,7 +247,8 @@ int stress_quota(
 		memset(&devs[i], 0, sizeof(devs[i]));
 
 	if (!n_devs) {
-		pr_err(stderr, "%s: cannot find any candidate block devices with quota enabled\n", name);
+		pr_err(stderr, "%s: cannot find any candidate block "
+			"devices with quota enabled\n", name);
 	} else {
 		do {
 			for (i = 0; opt_do_run && (i < n_devs); i++)

@@ -250,7 +250,9 @@ int stress_clone(
 	const char *name)
 {
 	uint64_t max_clones = 0;
-	const ssize_t stack_offset = clone_stack_dir((uint8_t *)&max_clones) * (CLONE_STACK_SIZE - 64);
+	const ssize_t stack_offset =
+		clone_stack_dir((uint8_t *)&max_clones) *
+		(CLONE_STACK_SIZE - 64);
 
 	(void)instance;
 
@@ -273,7 +275,10 @@ int stress_clone(
 			stack_top = clone_info->stack + stack_offset;
 			clone_info->pid = clone(clone_func, stack_top, flag, NULL);
 			if (clone_info->pid == -1) {
-				/* Reached max forks or error (e.g. EPERM)? .. then reap */
+				/*
+				 * Reached max forks or error
+				 * (e.g. EPERM)? .. then reap
+				 */
 				stress_clone_head_remove();
 				continue;
 			}

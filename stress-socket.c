@@ -68,7 +68,8 @@ void stress_set_socket_port(const char *optarg)
  */
 int stress_set_socket_domain(const char *name)
 {
-	return stress_set_net_domain(DOMAIN_ALL, "sock-domain", name, &opt_socket_domain);
+	return stress_set_net_domain(DOMAIN_ALL, "sock-domain",
+				     name, &opt_socket_domain);
 }
 
 /*
@@ -127,7 +128,8 @@ retry:
 			}
 
 			stress_set_sockaddr(name, instance, ppid,
-				opt_socket_domain, opt_socket_port, &addr, &addr_len);
+				opt_socket_domain, opt_socket_port,
+				&addr, &addr_len);
 			if (connect(fd, addr, addr_len) < 0) {
 				(void)close(fd);
 				usleep(10000);
@@ -189,7 +191,8 @@ retry:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			pr_failed_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;

@@ -58,7 +58,8 @@ int stress_sigsuspend(
 
 	(void)instance;
 
-	v_counters = counters = mmap(NULL, counters_size, PROT_READ | PROT_WRITE,
+	v_counters = counters = mmap(NULL, counters_size,
+			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_failed_dbg(name, "mmap");

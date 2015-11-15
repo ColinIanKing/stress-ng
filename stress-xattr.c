@@ -81,7 +81,9 @@ int stress_xattr(
 			ret = fsetxattr(fd, name, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if (errno == ENOTSUP) {
-					pr_inf(stderr, "%s stressor will be skipped, filesystem does not support xattr.\n", name);
+					pr_inf(stderr, "%s stressor will be "
+						"skipped, filesystem does not "
+						"support xattr.\n", name);
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
@@ -93,7 +95,8 @@ int stress_xattr(
 			snprintf(name, sizeof(name), "user.var_%d", j);
 			snprintf(value, sizeof(value), "value-%i", j);
 
-			ret = fsetxattr(fd, name, value, strlen(value), XATTR_REPLACE);
+			ret = fsetxattr(fd, name, value, strlen(value),
+				XATTR_REPLACE);
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
@@ -113,7 +116,8 @@ int stress_xattr(
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
-				pr_fail(stderr, "%s: fgetxattr values different %.*s vs %.*s\n",
+				pr_fail(stderr, "%s: fgetxattr values "
+					"different %.*s vs %.*s\n",
 					name, ret, value, ret, tmp);
 				goto out_close;
 			}

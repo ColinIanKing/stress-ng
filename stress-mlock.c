@@ -79,12 +79,13 @@ again:
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
-				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					name, instance);
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n", name, instance);
 				goto again;
 			}
 		}
@@ -104,7 +105,8 @@ again:
 					break;
 
 				mappings[n] = mmap(NULL, page_size * 3,
-					PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
 				ret = mlock(mappings[n] + page_size, page_size);
@@ -146,7 +148,8 @@ again:
 					break;
 
 				mappings[n] = mmap(NULL, page_size,
-					PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
 			}

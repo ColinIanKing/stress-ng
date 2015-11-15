@@ -42,7 +42,8 @@
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
-typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz, uint64_t *counter, const uint64_t max_ops);
+typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz,
+		uint64_t *counter, const uint64_t max_ops);
 
 typedef struct {
 	const char *name;
@@ -1748,7 +1749,8 @@ static size_t stress_vm_rowhammer(
 	register size_t j;
 
 	if (!n) {
-		pr_dbg(stderr, "rowhammer: zero uint32_t integers could be hammered, aborting\n");
+		pr_dbg(stderr, "rowhammer: zero uint32_t integers could "
+			"be hammered, aborting\n");
 		return 0;
 	}
 
@@ -1788,8 +1790,8 @@ static size_t stress_vm_rowhammer(
 				errors++;
 		if (errors) {
 			bit_errors += errors;
-			pr_dbg(stderr, "rowhammer: %zu errors on addresses %p and %p\n",
-				errors, addr0, addr1);
+			pr_dbg(stderr, "rowhammer: %zu errors on addresses "
+				"%p and %p\n", errors, addr0, addr1);
 		}
 		(*counter) += VM_ROWHAMMER_LOOPS;
 		val = (val >> 31) | (val << 1);
@@ -1921,13 +1923,15 @@ again:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n", name, errno, strerror(errno));
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
@@ -1978,7 +1982,8 @@ again:
 	*counter >>= VM_BOGO_SHIFT;
 
 	if (restarts + nomems > 0)
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			"out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
 	return EXIT_SUCCESS;

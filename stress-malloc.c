@@ -146,11 +146,13 @@ again:
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
-				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n",
 					name, instance);
 				restarts++;
 				goto again;
@@ -223,7 +225,8 @@ abort:
 		}
 	}
 	if (restarts + nomems > 0)
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			"out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
 	return EXIT_SUCCESS;

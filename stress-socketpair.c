@@ -42,7 +42,10 @@
  *  socket_pair_memset()
  *	set data to be incrementing chars from val upwards
  */
-static inline void socket_pair_memset(uint8_t *buf, uint8_t val, const size_t sz)
+static inline void socket_pair_memset(
+	uint8_t *buf,
+	uint8_t val,
+	const size_t sz)
 {
 	register uint8_t *ptr;
 	register uint8_t checksum = 0;
@@ -56,7 +59,9 @@ static inline void socket_pair_memset(uint8_t *buf, uint8_t val, const size_t sz
  *  socket_pair_memchk()
  *	check data contains incrementing chars from val upwards
  */
-static inline int socket_pair_memchk(uint8_t *buf, const size_t sz)
+static inline int socket_pair_memchk(
+	uint8_t *buf,
+	const size_t sz)
 {
 	register uint8_t *ptr;
 	register uint8_t checksum = 0;
@@ -67,7 +72,10 @@ static inline int socket_pair_memchk(uint8_t *buf, const size_t sz)
 	return !(checksum == *buf);
 }
 
-static void socket_pair_close(int fds[MAX_SOCKET_PAIRS][2], int max, int which)
+static void socket_pair_close(
+	int fds[MAX_SOCKET_PAIRS][2],
+	const int max,
+	const int which)
 {
 	int i;
 

@@ -118,9 +118,13 @@ static void stress_memfd_allocs(
 						break;
 					}
 				}
-				/* ..and map it in, using MAP_POPULATE to force page it in */
+				/*
+				 * ..and map it in, using MAP_POPULATE
+				 * to force page it in
+				 */
 				maps[i] = mmap(NULL, size, PROT_WRITE,
-					MAP_FILE | MAP_PRIVATE | MAP_POPULATE, fds[i], 0);
+					MAP_FILE | MAP_PRIVATE | MAP_POPULATE,
+					fds[i], 0);
 				mincore_touch_pages(maps[i], size);
 			}
 		}
@@ -193,7 +197,8 @@ again:
 		stress_memfd_allocs(name, counter, max_ops);
 	}
 	if (restarts + nomems > 0)
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			"out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
 	return EXIT_SUCCESS;

@@ -76,11 +76,13 @@ again:
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
-				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n",
 					name, instance);
 				restarts++;
 				goto again;
@@ -109,12 +111,14 @@ again:
 					nomems++;
 					if (brk(start_ptr) < 0) {
 						pr_err(stderr, "%s: brk(%p) failed: errno=%d (%s)\n",
-							name, start_ptr, errno, strerror(errno));
+							name, start_ptr, errno,
+							strerror(errno));
 						exit(EXIT_FAILURE);
 					}
 				} else {
 					pr_err(stderr, "%s: sbrk(%d) failed: errno=%d (%s)\n",
-						name, (int)page_size, errno, strerror(errno));
+						name, (int)page_size, errno,
+						strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 			} else {
@@ -126,7 +130,8 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
 	if (restarts + nomems > 0)
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 ", out of memory restarts: %" PRIu32 ".\n",
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
 	return EXIT_SUCCESS;

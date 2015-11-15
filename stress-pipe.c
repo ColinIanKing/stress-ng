@@ -114,7 +114,8 @@ again:
 				break;
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    pipe_memchk(buf, val++, (size_t)n)) {
-				pr_fail(stderr, "%s: pipe read error detected, failed to read expected data\n", name);
+				pr_fail(stderr, "%s: pipe read error detected, "
+					"failed to read expected data\n", name);
 			}
 		}
 		(void)close(pipefds[0]);

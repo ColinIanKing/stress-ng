@@ -355,22 +355,24 @@ int stress_hdd(
 	/* Ensure I/O size is not too small */
 	if (opt_hdd_write_size < min_size) {
 		opt_hdd_write_size = min_size;
-		pr_inf(stderr, "%s: increasing read/write size to %" PRIu64 " bytes\n",
-			name, opt_hdd_write_size);
+		pr_inf(stderr, "%s: increasing read/write size to %"
+			PRIu64 " bytes\n", name, opt_hdd_write_size);
 	}
 
 	/* Ensure we get same sized iovec I/O sizes */
 	remainder = opt_hdd_write_size % HDD_IO_VEC_MAX;
 	if ((opt_hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
 		opt_hdd_write_size += HDD_IO_VEC_MAX - remainder;
-		pr_inf(stderr, "%s: increasing read/write size to %" PRIu64 " bytes in iovec mode\n",
+		pr_inf(stderr, "%s: increasing read/write size to %"
+			PRIu64 " bytes in iovec mode\n",
 			name, opt_hdd_write_size);
 	}
 
 	/* Ensure complete file size is not less than the I/O size */
 	if (opt_hdd_bytes < opt_hdd_write_size) {
 		opt_hdd_bytes = opt_hdd_write_size;
-		pr_inf(stderr, "%s: increasing file size to write size of %" PRIu64 " bytes\n",
+		pr_inf(stderr, "%s: increasing file size to write size of %"
+			PRIu64 " bytes\n",
 			name, opt_hdd_bytes);
 	}
 
@@ -528,11 +530,12 @@ seq_rd_retry:
 				(*counter)++;
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64 " incomplete sequential reads\n",
+				pr_dbg(stderr, "%s: %" PRIu64
+					" incomplete sequential reads\n",
 					name, misreads);
 			if (baddata)
-				pr_fail(stderr, "%s: incorrect data found %" PRIu64 " times\n",
-					name, baddata);
+				pr_fail(stderr, "%s: incorrect data found %"
+					PRIu64 " times\n", name, baddata);
 		}
 		/* Random Read */
 		if (opt_hdd_flags & HDD_OPT_RD_RND) {
@@ -585,7 +588,8 @@ rnd_rd_retry:
 				(*counter)++;
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",
+				pr_dbg(stderr, "%s: %" PRIu64
+					" incomplete random reads\n",
 					name, misreads);
 		}
 		(void)close(fd);

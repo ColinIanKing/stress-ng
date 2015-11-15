@@ -56,7 +56,10 @@ static inline int futex_wake(const void *futex, const int n)
  *  futex_wait()
  *	wait on futex with a timeout
  */
-static inline int futex_wait(const void *futex, const int val, const struct timespec *timeout)
+static inline int futex_wait(
+	const void *futex,
+	const int val,
+	const struct timespec *timeout)
 {
 	return syscall(SYS_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
 }
@@ -93,7 +96,10 @@ again:
 		do {
 			int ret;
 
-			/* Break early in case wake gets stuck (which it shouldn't) */
+			/*
+			 * Break early in case wake gets stuck
+			 * (which it shouldn't)
+			 */
 			if (!opt_do_run)
 				break;
 			ret = futex_wake(futex, 1);

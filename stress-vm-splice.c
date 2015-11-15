@@ -73,7 +73,8 @@ int stress_vm_splice(
 	}
 	sz = opt_vm_splice_bytes & ~(page_size - 1);
 
-	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		pr_failed_dbg(name, "mmap");
 		return(EXIT_FAILURE);
@@ -104,7 +105,8 @@ int stress_vm_splice(
 		bytes = vmsplice(fds[1], &iov, 1, 0);
 		if (bytes < 0)
 			break;
-		ret = splice(fds[0], NULL, fd, NULL, opt_vm_splice_bytes, SPLICE_F_MOVE);
+		ret = splice(fds[0], NULL, fd, NULL,
+			opt_vm_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 

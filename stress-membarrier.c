@@ -119,8 +119,8 @@ int stress_membarrier(
 		return EXIT_FAILURE;
 	}
 	if (!(ret & MEMBARRIER_CMD_SHARED)) {
-		pr_inf(stderr, "%s: membarrier MEMBARRIER_CMD_SHARED not supported\n",
-			name);
+		pr_inf(stderr, "%s: membarrier MEMBARRIER_CMD_SHARED "
+			"not supported\n", name);
 		return EXIT_FAILURE;
 	}
 
@@ -129,7 +129,9 @@ int stress_membarrier(
 	keep_running = true;
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
-		pthread_ret[i] = pthread_create(&pthreads[i], NULL, stress_membarrier_thread, (void *)name);
+		pthread_ret[i] =
+			pthread_create(&pthreads[i], NULL,
+				stress_membarrier_thread, (void *)name);
 	}
 
 	do {
