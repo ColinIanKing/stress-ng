@@ -187,7 +187,7 @@ int stress_sem_posix(
 	}
 
 	/* Wait for termination */
-	while (opt_do_run && (!max_ops || *counter < max_ops));
+	while (opt_do_run && (!max_ops || *counter < max_ops))
 		usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
