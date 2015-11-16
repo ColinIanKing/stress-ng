@@ -60,7 +60,6 @@ int pr_yaml(FILE *fp, const char *const fmt, ...)
  */
 static void pr_closelog(void)
 {
-	printf("CLOSING LOGFILE!\n");
 	if (log_file) {
 		fclose(log_file);
 		log_file = NULL;
