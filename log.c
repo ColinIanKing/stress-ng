@@ -25,6 +25,7 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <errno.h>
@@ -34,6 +35,7 @@
 
 uint16_t abort_fails;	/* count of failures */
 bool	 abort_msg_emitted;
+FILE    *log_file = NULL;
 
 /*
  *  pr_yaml()
@@ -51,6 +53,37 @@ int pr_yaml(FILE *fp, const char *const fmt, ...)
 
 	return ret;
 }
+
+/*
+ *  pr_closelog()
+ *	log closing, performed via exit()
+ */
+static void pr_closelog(void)
+{
+	printf("CLOSING LOGFILE!\n");
+	if (log_file) {
+		fclose(log_file);
+		log_file = NULL;
+	}
+}
+
+/*
+ *  pr_openlog()
+ *	optional pr logging to a file
+ */
+void pr_openlog(const char *filename)
+{
+	if (!filename)
+		return;
+
+	log_file = fopen(filename, "w");
+	if (!log_file) {
+		pr_err(stderr, "Cannot open log file %s\n", filename);
+		return;
+	}
+	atexit(pr_closelog);
+}
+
 
 /*
  *  print()
@@ -81,7 +114,8 @@ int print(
 		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
-			int n = snprintf(buf, sizeof(buf), "%s [%i] ", type, getpid());
+			int n = snprintf(buf, sizeof(buf), "%s [%i] ",
+				type, getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			fprintf(fp, "%s: %s", app_name, buf);
 		}
@@ -93,10 +127,18 @@ int print(
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
 					opt_do_run = false;
-					print(fp, PR_INFO, "%d failures reached, aborting stress process\n", ABORT_FAILURES);
+					print(fp, PR_INFO, "%d failures "
+						"reached, aborting stress "
+						"process\n", ABORT_FAILURES);
 					fflush(fp);
 				}
 			}
+		}
+
+		/* Log messages to log file if --log-file specified */
+		if (log_file) {
+			fprintf(log_file, "%s: %s", app_name, buf);
+			fflush(log_file);
 		}
 
 		/* Log messages if syslog requested, don't log DEBUG */

@@ -546,6 +546,7 @@ static const struct option long_options[] = {
 	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
 #endif
 	{ "log-brief",	0,	0,	OPT_LOG_BRIEF },
+	{ "log-file",	1,	0,	OPT_LOG_FILE },
 	{ "longjmp",	1,	0,	OPT_LONGJMP },
 	{ "longjmp-ops",1,	0,	OPT_LONGJMP_OPS },
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
@@ -854,6 +855,7 @@ static const help_t help_generic[] = {
 	{ "h",		"help",			"show help" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
+	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
@@ -1998,6 +2000,7 @@ int main(int argc, char **argv)
 	char *opt_exclude = NULL;		/* List of stressors to exclude */
 	char *yamlfile = NULL;			/* YAML filename */
 	FILE *yaml = NULL;			/* YAML output file */
+	char *logfile = NULL;			/* log filename */
 	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
 	int32_t id;				/* stressor id */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
@@ -2215,6 +2218,9 @@ next_opt:
 #endif
 		case OPT_LOG_BRIEF:
 			opt_flags |= OPT_FLAGS_LOG_BRIEF;
+			break;
+		case OPT_LOG_FILE:
+			logfile = optarg;
 			break;
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
@@ -2493,6 +2499,8 @@ next_opt:
 		fprintf(stderr, "class option is only used with --sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
+	if (logfile) 
+		pr_openlog(logfile);
 	if (opt_flags & OPT_SYSLOG)
 		openlog("stress-ng", 0, LOG_USER);
 
@@ -2514,7 +2522,7 @@ next_opt:
 		int32_t n = opt_random;
 
 		if (opt_flags & OPT_FLAGS_SET) {
-			pr_err(stderr, "Cannot specify random option with "
+			fprintf(stderr, "Cannot specify random option with "
 				"other stress processes selected\n");
 			exit(EXIT_FAILURE);
 		}
