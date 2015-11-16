@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <setjmp.h>
 #include <string.h>
 #include <unistd.h>
@@ -38,7 +39,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
-
+static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
 /*
@@ -49,7 +50,8 @@ static void MLOCKED stress_rlimit_handler(int dummy)
 {
 	(void)dummy;
 
-	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	if (do_jmp)
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 
 /*
@@ -63,24 +65,31 @@ int stress_rlimit(
 	const char *name)
 {
 	struct rlimit limit;
-	struct sigaction new_action;
+	struct sigaction new_action_xcpu, old_action_xcpu,
+			 new_action_xfsz, old_action_xfsz;
 	int fd;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
 	(void)instance;
 
-	memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = stress_rlimit_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
+	memset(&new_action_xcpu, 0, sizeof new_action_xcpu);
+	new_action_xcpu.sa_handler = stress_rlimit_handler;
+	sigemptyset(&new_action_xcpu.sa_mask);
+	new_action_xcpu.sa_flags = 0;
 
-	if (sigaction(SIGXCPU, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+	if (sigaction(SIGXCPU, &new_action_xcpu, &old_action_xcpu) < 0) {
+		pr_failed_err(name, "sigaction SIGXCPU");
 		return EXIT_FAILURE;
 	}
-	if (sigaction(SIGXFSZ, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+
+	memset(&new_action_xfsz, 0, sizeof new_action_xfsz);
+	new_action_xfsz.sa_handler = stress_rlimit_handler;
+	sigemptyset(&new_action_xfsz.sa_mask);
+	new_action_xfsz.sa_flags = 0;
+
+	if (sigaction(SIGXFSZ, &new_action_xfsz, &old_action_xfsz) < 0) {
+		pr_failed_err(name, "sigaction SIGXFSZ");
 		return EXIT_FAILURE;
 	}
 
@@ -126,6 +135,12 @@ int stress_rlimit(
 			}
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	do_jmp = false;
+	if (sigaction(SIGXCPU, &old_action_xcpu, NULL) < 0)
+		pr_failed_err(name, "sigaction SIGXCPU restore");
+	if (sigaction(SIGXFSZ, &old_action_xfsz, NULL) < 0)
+		pr_failed_err(name, "sigaction SIGXFSZ restore");
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm(name, pid, instance);
