@@ -27,12 +27,35 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <setjmp.h>
+#include <signal.h>
 
 #include "stress-ng.h"
 
 static uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
 static bool set_qsort_size = false;
+static volatile bool do_jmp = true;
+static sigjmp_buf jmp_env;
 
+/*
+ *  stress_qsort_handler()
+ *	SIGALRM generic handler
+ */
+static void MLOCKED stress_qsort_handler(int dummy)
+{
+	(void)dummy;
+
+	if (do_jmp) {
+		do_jmp = false;
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+	}
+}
+
+/*
+ *  stress_set_qsort_size()
+ *	set qsort size
+ */
 void stress_set_qsort_size(const void *optarg)
 {
 	set_qsort_size = true;
@@ -92,6 +115,8 @@ int stress_qsort(
 {
 	int32_t *data, *ptr;
 	size_t n, i;
+	struct sigaction new_action, old_action;
+	int ret;
 
 	(void)instance;
 
@@ -106,6 +131,26 @@ int stress_qsort(
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
 		pr_failed_dbg(name, "malloc");
 		return EXIT_FAILURE;
+	}
+
+	memset(&new_action, 0, sizeof new_action);
+	new_action.sa_handler = stress_qsort_handler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+
+	if (sigaction(SIGALRM, &new_action, &old_action) < 0) {
+		pr_failed_err(name, "sigaction SIGALRM");
+		return EXIT_FAILURE;
+	}
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		/*
+		 * We return here if SIGARLM jmp'd back
+		 */
+		if (sigaction(SIGALRM, &old_action, NULL) < 0)
+			pr_failed_err(name, "sigaction SIGALRM restore");
+		goto tidy;
 	}
 
 	/* This is expensive, do it once */
@@ -163,6 +208,10 @@ int stress_qsort(
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	do_jmp = false;
+	if (sigaction(SIGALRM, &old_action, NULL) < 0)
+		pr_failed_err(name, "sigaction SIGALRM restore");
+tidy:
 	free(data);
 
 	return EXIT_SUCCESS;
