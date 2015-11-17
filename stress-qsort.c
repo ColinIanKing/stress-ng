@@ -140,6 +140,7 @@ int stress_qsort(
 
 	if (sigaction(SIGALRM, &new_action, &old_action) < 0) {
 		pr_failed_err(name, "sigaction SIGALRM");
+		free(data);
 		return EXIT_FAILURE;
 	}
 
@@ -149,7 +150,7 @@ int stress_qsort(
 		 * We return here if SIGARLM jmp'd back
 		 */
 		if (sigaction(SIGALRM, &old_action, NULL) < 0)
-			pr_failed_err(name, "sigaction SIGALRM restore");
+			pr_dbg(stderr, "sigaction SIGALRM restore");
 		goto tidy;
 	}
 
