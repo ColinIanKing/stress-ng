@@ -208,6 +208,7 @@ reap:
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
 					name, errno, strerror(errno));
+				ok = false;
 			}
 			addrs[i] = NULL;
 			*shm_name = '\0';
