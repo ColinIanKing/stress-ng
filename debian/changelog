@@ -1,3 +1,30 @@
+stress-ng (0.05.00-1) unstable; urgency=medium
+
+  * Makefile: bump version to 0.05.00, update codename
+  * man page: fix wrapped line so 'lsearch' is not seen as a macro
+  * shm stressors: make final write failures a debug message
+  * shm stressors: exit child stressor if pipe write fails
+  * Add POSIX shared memory stressor
+  * stress-qsort: fix resource leak on error return path
+  * man page: make it 80 column tty friendly
+  * stress-qsort: bail out when SIGALRM triggers
+  * stress-rlimit: disable handlers once we finish to avoid setjmp looping
+  * log: remove debug cruft
+  * Add --log-file logging option
+  * stress-sem*: remove ; after while loop
+  * stress-icache: force cache clear using __clear_cache
+  * Make source more 80 column friendly
+  * manual: clarify number of cpus
+  * madvise: fix typo
+  * stress-shm-sysv: make shm cleanup robust
+  * stress-ng: remove setpgrp() calls
+  * stress-sem-sysv: handle signal during setup phase correctly
+  * stress-sem: handle signal during setup phase correctly
+  * fix -k option: it does not require a parameter
+  * stress-procfs: use non-blocking open
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 Nov 2015 23:05:00 +0600
+
 stress-ng (0.04.21-1) unstable; urgency=medium
 
   * Makefile: bump version
