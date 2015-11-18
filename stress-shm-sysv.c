@@ -236,7 +236,7 @@ reap:
 			msg.index = i;
 			msg.shm_id = -1;
 			if (write(fd, &msg, sizeof(msg)) < 0) {
-				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+				pr_dbg(stderr, "%s: write failed: errno=%d: (%s)\n",
 					name, errno, strerror(errno));
 				ok = false;
 			}

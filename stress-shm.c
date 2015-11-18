@@ -206,7 +206,7 @@ reap:
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
 			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
-				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+				pr_dbg(stderr, "%s: write failed: errno=%d: (%s)\n",
 					name, errno, strerror(errno));
 				ok = false;
 			}
