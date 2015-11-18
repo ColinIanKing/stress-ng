@@ -372,6 +372,14 @@ extern void pr_openlog(const char *filename);
 #define MAX_SHM_SYSV_SEGMENTS	(128)
 #define DEFAULT_SHM_SYSV_SEGMENTS (8)
 
+#define MIN_SHM_POSIX_BYTES	(1 * MB)
+#define MAX_SHM_POSIX_BYTES	(1 * GB)
+#define DEFAULT_SHM_POSIX_BYTES	(8 * MB)
+
+#define MIN_SHM_POSIX_OBJECTS	(1)
+#define MAX_SHM_POSIX_OBJECTS	(128)
+#define DEFAULT_SHM_POSIX_OBJECTS (32)
+
 #define MAX_SIGSUSPEND_PIDS	(4)
 
 #define MIN_SOCKET_PORT		(1024)
@@ -878,6 +886,7 @@ typedef enum {
 	__STRESS_SENDFILE,
 #define STRESS_SENDFILE __STRESS_SENDFILE
 #endif
+	STRESS_SHM_POSIX,
 	STRESS_SHM_SYSV,
 #if defined(__linux__) && NEED_GLIBC(2,8,0)
 	__STRESS_SIGFD,
@@ -1385,6 +1394,11 @@ typedef enum {
 	OPT_SEMAPHORE_SYSV_PROCS,
 #endif
 
+	OPT_SHM_POSIX,
+	OPT_SHM_POSIX_OPS,
+	OPT_SHM_POSIX_BYTES,
+	OPT_SHM_POSIX_OBJECTS,
+
 	OPT_SHM_SYSV,
 	OPT_SHM_SYSV_OPS,
 	OPT_SHM_SYSV_BYTES,
@@ -1799,6 +1813,8 @@ extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_semaphore_posix_procs(const char *optarg);
 extern void stress_set_semaphore_sysv_procs(const char *optarg);
+extern void stress_set_shm_posix_bytes(const char *optarg);
+extern void stress_set_shm_posix_objects(const char *optarg);
 extern void stress_set_shm_sysv_bytes(const char *optarg);
 extern void stress_set_shm_sysv_segments(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
@@ -1906,6 +1922,7 @@ STRESS(stress_rlimit);
 STRESS(stress_seek);
 STRESS(stress_sem_posix);
 STRESS(stress_sem_sysv);
+STRESS(stress_shm_posix);
 STRESS(stress_shm_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_sigfd);
