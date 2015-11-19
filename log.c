@@ -33,9 +33,9 @@
 
 #include "stress-ng.h"
 
-uint16_t abort_fails;	/* count of failures */
-bool	 abort_msg_emitted;
-FILE    *log_file = NULL;
+static uint16_t	abort_fails;	/* count of failures */
+static bool	abort_msg_emitted;
+static FILE	*log_file = NULL;
 
 /*
  *  pr_yaml()
