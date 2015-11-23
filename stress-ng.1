@@ -854,6 +854,36 @@ stop fifo workers after N bogo pipe write operations.
 for each worker, create N fifo reader workers that read
 the named pipe using simple blocking reads.
 .TP
+.B \-\-filename N
+start N workers that exercise file creation using various length filenames
+containing a range of allower filename characters.  This will try to see if
+it can exceed the file system allowed filename length was well as test
+various filename lengths between 1 and the maximum allowed by the file system.
+.TP
+.B \-\-filename-ops N
+stop filename workers after N bogo filename tests.
+.TP
+.B \-\-filename-opts opt
+use characters in the filename based on option 'opt'. Valid options are:
+.TS
+expand;
+lB lBw(\n[SZ]n)
+l l.
+Option	Description
+probe	T{
+default option, probe the file system for valid allowed characters in a file name
+and use these
+T}
+posix	T{
+use characters as specifed by The Open Group Base Specifications Issue 7,
+POSIX.1-2008, 3.278 Portable Filename Character Set
+T}
+ext	T{
+use characters allowed by the ext2, ext3, ext4 file systems, namely any 8
+bit character apart from NUL and /
+T}
+.TE
+.TP
 .B \-\-flock N
 start N workers locking on a single file.
 .TP

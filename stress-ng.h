@@ -740,6 +740,7 @@ typedef enum {
 	STRESS_FAULT,
 	STRESS_FCNTL,
 	STRESS_FIFO,
+	STRESS_FILENAME,
 	STRESS_FLOCK,
 	STRESS_FORK,
 	STRESS_FSTAT,
@@ -1136,6 +1137,10 @@ typedef enum {
 	OPT_FIFO,
 	OPT_FIFO_OPS,
 	OPT_FIFO_READERS,
+
+	OPT_FILENAME,
+	OPT_FILENAME_OPS,
+	OPT_FILENAME_OPTS,
 
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
@@ -1805,6 +1810,7 @@ extern int  stress_set_epoll_domain(const char *optarg);
 extern void stress_set_exec_max(const char *optarg);
 extern void stress_set_fallocate_bytes(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
+extern int stress_filename_opts(const char *opt);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
@@ -1883,6 +1889,7 @@ STRESS(stress_fallocate);
 STRESS(stress_fault);
 STRESS(stress_fcntl);
 STRESS(stress_fifo);
+STRESS(stress_filename);
 STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fstat);

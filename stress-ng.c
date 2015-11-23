@@ -174,6 +174,7 @@ static const stress_t stressors[] = {
 	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fcntl, FCNTL, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(fifo, FIFO, CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER),
+	STRESSOR(filename, FILENAME, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(flock, FLOCK, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fstat, FSTAT, CLASS_FILESYSTEM | CLASS_OS),
@@ -470,6 +471,9 @@ static const struct option long_options[] = {
 	{ "fcntl-ops",	1,	0,	OPT_FCNTL_OPS },
 	{ "fifo",	1,	0,	OPT_FIFO },
 	{ "fifo-ops",	1,	0,	OPT_FIFO_OPS },
+	{ "filename",	1,	0,	OPT_FILENAME },
+	{ "filename-ops",1,	0,	OPT_FILENAME_OPS },
+	{ "filename-opts",1,	0,	OPT_FILENAME_OPTS },
 	{ "fifo-readers",1,	0,	OPT_FIFO_READERS },
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
@@ -985,6 +989,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
 	{ NULL,		"fifo-readers N",	"number of fifo reader stessors to start" },
+	{ NULL,		"filename N",		"start N workers exercising filenames" },
+	{ NULL,		"filename-ops N",	"stop when N filename bogo operations completed" },
+	{ NULL,		"filename-opts opt",	"specify allowed filename options" },
 	{ NULL,		"fcntl N",		"start N workers exercising fcntl commands" },
 	{ NULL,		"fcntl-ops N",		"stop when N fcntl bogo operations completed" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
@@ -2186,6 +2193,10 @@ next_opt:
 #endif
 		case OPT_FIFO_READERS:
 			stress_set_fifo_readers(optarg);
+			break;
+		case OPT_FILENAME_OPTS:
+			if (stress_filename_opts(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_FORK_MAX:
 			stress_set_fork_max(optarg);
