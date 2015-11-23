@@ -119,6 +119,7 @@ again:
 		char *start_ptr = sbrk(0);
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		if (start_ptr == (void *) -1) {
 			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",

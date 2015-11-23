@@ -93,6 +93,7 @@ again:
 		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);

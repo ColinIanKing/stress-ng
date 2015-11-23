@@ -94,6 +94,7 @@ int stress_fork_fn(
 
 			if (pids[i] == 0) {
 				setpgid(0, pgrp);
+				stress_parent_died_alarm();
 
 				/* Child, immediately exit */
 				_exit(0);

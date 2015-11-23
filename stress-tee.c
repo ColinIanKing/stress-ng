@@ -73,6 +73,8 @@ again:
         }
         if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
                 func(fds);
                 exit(EXIT_SUCCESS);
         }

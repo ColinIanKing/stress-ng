@@ -145,6 +145,8 @@ again:
 		bool do_timedreceive;
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		if (time(&time_start) == ((time_t)-1)) {
 			do_timedreceive = false;
 			pr_failed_dbg(name, "mq_timedreceive skipped");

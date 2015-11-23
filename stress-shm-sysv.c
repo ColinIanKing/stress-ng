@@ -363,6 +363,10 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
+
+			setpgid(0, pgrp);
+			stress_parent_died_alarm();
+
 			(void)close(pipefds[0]);
 			rc = stress_shm_sysv_child(pipefds[1], counter,
 				max_ops, name, sz, page_size);

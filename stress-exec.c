@@ -103,6 +103,7 @@ int stress_exec(
 				int ret, fd_out, fd_in;
 
 				setpgid(0, pgrp);
+				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 					pr_fail(stderr, "%s: child open on /dev/null failed\n", name);

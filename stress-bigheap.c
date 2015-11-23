@@ -115,6 +115,7 @@ again:
 		}
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);

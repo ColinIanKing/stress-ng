@@ -67,6 +67,7 @@ static pid_t fifo_spawn(
 	}
 	if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 		func(name, fifoname);
 		exit(EXIT_SUCCESS);
 	}

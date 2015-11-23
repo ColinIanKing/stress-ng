@@ -80,6 +80,7 @@ retry:			if (!opt_do_run)
 			if (pids[n] == 0) {
 				/* Child */
 				setpgid(0, pgrp);
+				stress_parent_died_alarm();
 
 				if (sysinfo(&info) < 0) {
 					pr_failed_err(name, "sysinfo");

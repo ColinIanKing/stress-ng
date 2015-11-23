@@ -67,6 +67,7 @@ again:
 		int status, ret;
 
 		setpgid(pid, pgrp);
+		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);

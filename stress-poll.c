@@ -116,6 +116,8 @@ again:
 		/* Child writer */
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][0]);
 

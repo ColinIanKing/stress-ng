@@ -117,6 +117,7 @@ again:
 		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n", name, *timeout);
 	} else {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		do {
 			/* Small timeout to force rapid timer wakeups */

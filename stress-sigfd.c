@@ -74,6 +74,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		while (opt_do_run) {
 			union sigval s;

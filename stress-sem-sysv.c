@@ -183,6 +183,8 @@ again:
 	}
 	if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		semaphore_sysv_thrash(name, max_ops, counter);
 		exit(EXIT_SUCCESS);
 	}

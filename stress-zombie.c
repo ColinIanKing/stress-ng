@@ -173,6 +173,8 @@ int stress_zombie(
 			zombie->pid = fork();
 			if (zombie->pid == 0) {
 				setpgid(0, pgrp);
+				stress_parent_died_alarm();
+
 				stress_zombie_free();
 				_exit(0);
 			}

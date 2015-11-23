@@ -106,6 +106,7 @@ int stress_vm_rw(
 		addr_msg_t msg_rd, msg_wr;
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		/* Close unwanted ends */
 		(void)close(pipe_wr[0]);

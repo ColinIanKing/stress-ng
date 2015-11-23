@@ -279,6 +279,7 @@ again:
 	}
 	if (cpid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		if (stress_lockf_contention(name, fd, counter, max_ops) < 0)
 			exit(EXIT_FAILURE);

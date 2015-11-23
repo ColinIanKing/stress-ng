@@ -94,6 +94,8 @@ again:
 		int val = 0;
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		(void)close(pipefds[1]);
 		while (opt_do_run) {
 			char buf[PIPE_BUF];

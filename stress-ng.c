@@ -1754,6 +1754,7 @@ again:
 					free_procs();
 					if (stress_sethandler(name, true) < 0)
 						exit(EXIT_FAILURE);
+					stress_parent_died_alarm();
 
 					(void)alarm(opt_timeout);
 					mwc_reseed();

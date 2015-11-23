@@ -164,6 +164,7 @@ again:
 	}
 	if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 		func(child, counter, instance, max_ops, name, ppid);
 		exit(EXIT_SUCCESS);
 	}

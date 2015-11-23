@@ -128,6 +128,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		/* Child */
 		while (opt_do_run)

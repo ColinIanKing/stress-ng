@@ -110,6 +110,8 @@ again:
 		struct sockaddr *addr;
 
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		do {
 			char buf[SOCKET_BUF];
 			int fd;

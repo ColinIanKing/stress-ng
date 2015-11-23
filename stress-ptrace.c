@@ -89,6 +89,8 @@ int stress_ptrace(
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
 		/*
 		 * Child to be traced, we abort if we detect
 		 * we are already being traced by someone else

@@ -38,6 +38,7 @@
 #if defined(__linux__)
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
+#include <sys/prctl.h>
 #endif
 
 #include "stress-ng.h"
@@ -120,6 +121,17 @@ long stress_get_ticks_per_second(void)
 	return ticks_per_second;
 #else
 	return -1;
+#endif
+}
+
+/*
+ *  stress_parent_died_alarm()
+ *	send child SIGALRM if the parent died
+ */
+void stress_parent_died_alarm(void)
+{
+#if defined(__linux__) && defined(PR_SET_PDEATHSIG)
+	(void)prctl(PR_SET_PDEATHSIG, SIGALRM);
 #endif
 }
 

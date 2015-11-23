@@ -1738,6 +1738,7 @@ extern long stress_get_processors_online(void);
 extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
 extern void set_max_limits(void);
+extern void stress_parent_died_alarm(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

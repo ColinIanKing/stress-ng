@@ -80,6 +80,7 @@ again:
 			goto reap;
 		} else if (pid[n] == 0) {
 			setpgid(0, pgrp);
+			stress_parent_died_alarm();
 
 			while (opt_do_run) {
 				sigsuspend(&mask);

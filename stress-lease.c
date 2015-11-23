@@ -94,6 +94,7 @@ again:
 	}
 	if (pid == 0) {
 		setpgid(0, pgrp);
+		stress_parent_died_alarm();
 
 		do {
 			int fd;

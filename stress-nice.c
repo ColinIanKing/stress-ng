@@ -82,6 +82,8 @@ int stress_nice(
 
 			/* Child */
 			setpgid(0, pgrp);
+			stress_parent_died_alarm();
+
 			pid = getpid();
 			for (i = min_prio; i <= max_prio; i++) {
 				errno = 0;
