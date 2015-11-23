@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -42,6 +43,13 @@
 #endif
 
 #include "stress-ng.h"
+
+#if !defined(PR_SET_DISABLE)
+#define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
+#endif
+#if !defined(SUID_DUMP_USER)
+#define SUID_DUMP_USER		(1)       /* Dump as user of process */
+#endif
 
 /*
  *  stress_get_pagesize()
@@ -132,6 +140,18 @@ void stress_parent_died_alarm(void)
 {
 #if defined(__linux__) && defined(PR_SET_PDEATHSIG)
 	(void)prctl(PR_SET_PDEATHSIG, SIGALRM);
+#endif
+}
+
+/*
+ *  stress_process_dumpable()
+ *	set dumpable flag, e.g. produce a core dump or not
+ */
+void stress_process_dumpable(const bool dumpable)
+{
+#if defined(__linux__) && defined(PR_SET_DUMPABLE)
+	(void)prctl(PR_SET_DUMPABLE, 
+		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
 }
 

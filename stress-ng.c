@@ -1755,6 +1755,7 @@ again:
 					if (stress_sethandler(name, true) < 0)
 						exit(EXIT_FAILURE);
 					stress_parent_died_alarm();
+					stress_process_dumpable(false);
 
 					(void)alarm(opt_timeout);
 					mwc_reseed();
