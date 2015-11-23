@@ -43,6 +43,7 @@
 #if defined (__linux__)
 #include <sys/syscall.h>
 #include <sys/quota.h>
+#include <sys/prctl.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -150,6 +151,7 @@
 #define OPT_FLAGS_PERF_STATS	0x08000000000ULL	/* --perf stats mode */
 #define OPT_FLAGS_LOG_BRIEF	0x10000000000ULL	/* --log-brief */
 #define OPT_FLAGS_THERMAL_ZONES 0x20000000000ULL	/* --tz thermal zones */
+#define OPT_FLAGS_TIMER_SLACK	0x40000000000ULL	/* --timer-slack */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -504,6 +506,12 @@ extern void pr_openlog(const char *filename);
 #define OPTIMIZE3 __attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3
+#endif
+
+#if defined(__linux__) && \
+    defined(PR_SET_TIMERSLACK) && \
+    defined(PR_GET_TIMERSLACK)
+#define PRCTL_TIMER_SLACK
 #endif
 
 /* stress process prototype */
@@ -1469,6 +1477,10 @@ typedef enum {
 	OPT_TEE_OPS,
 #endif
 
+#if defined(PRCTL_TIMER_SLACK)
+	OPT_TIMER_SLACK,
+#endif
+
 #if defined(STRESS_TIMER)
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
@@ -1720,6 +1732,7 @@ extern int stress_mlock_region(void *addr_start, void *addr_end);
 /* Argument parsing and range checking */
 extern int32_t get_opt_sched(const char *const str);
 extern int32_t get_opt_ionice_class(const char *const str);
+extern unsigned long get_unsigned_long(const char *const str);
 extern int32_t get_int32(const char *const str);
 extern uint64_t get_uint64(const char *const str);
 extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
@@ -1740,6 +1753,8 @@ extern long stress_get_ticks_per_second(void);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
 extern void stress_process_dumpable(const bool dumpable);
+extern void stress_set_timer_slack_ns(const char *optarg);
+extern void stress_set_timer_slack(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

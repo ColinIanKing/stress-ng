@@ -95,6 +95,22 @@ static void ensure_positive(const char *const str)
 }
 
 /*
+ *  get_unsigned_long()
+ *	string to unsigned long
+ */
+unsigned long get_unsigned_long(const char *const str)
+{
+	unsigned long val;
+
+	ensure_positive(str);
+	if (sscanf(str, "%lu" , &val) != 1) {
+		fprintf(stderr, "Invalid number %s\n", str);
+		exit(EXIT_FAILURE);
+	}
+	return val;
+}
+
+/*
  *  get_int32()
  *	string to int
  */

@@ -232,6 +232,13 @@ log output (except for verbose \-v messages) to the syslog.
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 .TP
+.B \-\-timer\-slack N
+adjust the per process timer slack to N nanoseconds (Linux only). Increasing
+the timer slack allows the kernel to coalesce timer events by adding some
+fuzzinesss to timer expiration times and hence reduce wakeups.  Conversely,
+decreasing the timer slack will increase wakeups.  A value of 0 for the
+timer-slack will set the system default of 50,000 nanoseconds.
+.TP
 .B \-\-times
 show the cumulative user and system times of all the child processes at the
 end of the stress run.  The percentage of utilisation of available CPU time is

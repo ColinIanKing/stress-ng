@@ -767,6 +767,9 @@ static const struct option long_options[] = {
 	{ "timerfd-freq",1,	0,	OPT_TIMERFD_FREQ },
 	{ "timerfd-rand",0,	0,	OPT_TIMERFD_RAND },
 #endif
+#if defined(PRCTL_TIMER_SLACK)
+	{ "timer-slack",1,	0,	OPT_TIMER_SLACK },
+#endif
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
 	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
@@ -879,6 +882,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
+	{ NULL,		"timer-slack",		"enable timer slack mode" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
 #if defined(STRESS_THERMAL_ZONES)
 	{ NULL,		"tz",			"collect temperatures from thermal zones (Linux only)" },
@@ -1756,6 +1760,8 @@ again:
 						exit(EXIT_FAILURE);
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
+					if (opt_flags & OPT_FLAGS_TIMER_SLACK)
+						stress_set_timer_slack();
 
 					(void)alarm(opt_timeout);
 					mwc_reseed();
@@ -2414,6 +2420,12 @@ next_opt:
 			break;
 		case OPT_TIMERFD_RAND:
 			opt_flags |= OPT_FLAGS_TIMERFD_RAND;
+			break;
+#endif
+#if defined(PRCTL_TIMER_SLACK)
+		case OPT_TIMER_SLACK:
+			opt_flags |= OPT_FLAGS_TIMER_SLACK;
+			stress_set_timer_slack_ns(optarg);
 			break;
 #endif
 		case OPT_TIMES:
