@@ -204,7 +204,7 @@ reap:
 			/* Inform parent shm ID is now free */
 			msg.index = i;
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
-			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
+			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_dbg(stderr, "%s: write failed: errno=%d: (%s)\n",
 					name, errno, strerror(errno));
@@ -316,7 +316,7 @@ fork_again:
 
 				shm_name = shm_names[msg.index];
 				shm_name[SHM_NAME_LEN - 1] = '\0';
-				strncpy(shm_name, msg.shm_name, SHM_NAME_LEN);
+				strncpy(shm_name, msg.shm_name, SHM_NAME_LEN - 1);
 			}
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);

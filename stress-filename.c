@@ -235,7 +235,7 @@ int stress_filename (
 	pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",
 		name, (long unsigned) buf.f_namemax);
 
-	strncpy(filename, dirname, sizeof(filename));
+	strncpy(filename, dirname, sizeof(filename) - 1);
 	ptr = filename + strlen(dirname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
