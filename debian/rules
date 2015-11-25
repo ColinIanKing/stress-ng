@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
-export DEB_BUILD_HARDENING=1
+override_dh_auto_build:
+	$(shell dpkg-buildflags --export=sh); dh_auto_build
 
 %:
 	dh $@
