@@ -88,6 +88,7 @@ int stress_filename_opts(const char *opt)
  *	determine allowed filename chars by probing
  */
 void stress_filename_probe(
+	const char *name,
 	char *filename,
 	char *ptr,
 	size_t *chars_allowed)
@@ -106,7 +107,18 @@ void stress_filename_probe(
 		*(ptr + 1) = 'X';
 		*(ptr + 2) = '\0';
 
-		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) >= 0) {
+		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+			/* We only expect EINVAL on bad filenames */
+			if (errno != EINVAL) {
+				pr_err(stderr, "%s: creat() failed when probing "
+					"for allowed filename characters, "
+					"errno = %d (%s)\n",
+					name, errno, strerror(errno));
+				pr_inf(stderr, "%s: perhaps retry and use --filename-opts posix\n", name);
+				*chars_allowed = 0;
+				return;
+			}
+		} else {
 			(void)close(fd);
 			(void)unlink(filename);
 			allowed[j] = i;
@@ -257,7 +269,7 @@ int stress_filename (
 		break;
 	case STRESS_FILENAME_PROBE:
 	default:
-		stress_filename_probe(filename, ptr, &chars_allowed);
+		stress_filename_probe(name, filename, ptr, &chars_allowed);
 		break;
 	}
 
