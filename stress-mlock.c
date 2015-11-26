@@ -116,7 +116,7 @@ again:
 						continue;
 					if (errno == ENOMEM)
 						break;
-					pr_failed_err(name, "mlock");
+					pr_fail_err(name, "mlock");
 					break;
 				} else {
 					/*

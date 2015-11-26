@@ -61,7 +61,7 @@ int stress_xattr(
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		goto out;
 	}
 	(void)unlink(filename);
@@ -87,7 +87,7 @@ int stress_xattr(
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_failed_err(name, "fsetxattr");
+				pr_fail_err(name, "fsetxattr");
 				goto out_close;
 			}
 		}
@@ -100,7 +100,7 @@ int stress_xattr(
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_failed_err(name, "fsetxattr");
+				pr_fail_err(name, "fsetxattr");
 				goto out_close;
 			}
 		}
@@ -112,7 +112,7 @@ int stress_xattr(
 
 			ret = fgetxattr(fd, name, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_failed_err(name, "fgetxattr");
+				pr_fail_err(name, "fgetxattr");
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
@@ -125,7 +125,7 @@ int stress_xattr(
 		/* Determine how large a buffer we required... */
 		sz = flistxattr(fd, NULL, 0);
 		if (sz < 0) {
-			pr_failed_err(name, "fremovexattr");
+			pr_fail_err(name, "fremovexattr");
 			goto out_close;
 		}
 		buffer = malloc(sz);
@@ -133,7 +133,7 @@ int stress_xattr(
 			/* ...and fetch */
 			sz = flistxattr(fd, buffer, sz);
 			if (sz < 0) {
-				pr_failed_err(name, "fremovexattr");
+				pr_fail_err(name, "fremovexattr");
 				goto out_close;
 			}
 			free(buffer);
@@ -143,7 +143,7 @@ int stress_xattr(
 			
 			ret = fremovexattr(fd, name);
 			if (ret < 0) {
-				pr_failed_err(name, "fremovexattr");
+				pr_fail_err(name, "fremovexattr");
 				goto out_close;
 			}
 		}

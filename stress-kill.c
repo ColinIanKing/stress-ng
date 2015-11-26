@@ -55,7 +55,7 @@ int stress_kill(
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigusr1");
+		pr_fail_err(name, "sigusr1");
 		return EXIT_FAILURE;
 	}
 

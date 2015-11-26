@@ -154,7 +154,7 @@ int stress_mmap(
 
 		(void)umask(0077);
 		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-			pr_failed_err(name, "open");
+			pr_fail_err(name, "open");
 			(void)unlink(filename);
 			(void)stress_temp_dir_rm(name, pid, instance);
 
@@ -162,7 +162,7 @@ int stress_mmap(
 		}
 		(void)unlink(filename);
 		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
-			pr_failed_err(name, "lseek");
+			pr_fail_err(name, "lseek");
 			(void)close(fd);
 			(void)stress_temp_dir_rm(name, pid, instance);
 
@@ -173,7 +173,7 @@ redo:
 		if (ret != sizeof(ch)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			pr_failed_err(name, "write");
+			pr_fail_err(name, "write");
 			(void)close(fd);
 			(void)stress_temp_dir_rm(name, pid, instance);
 

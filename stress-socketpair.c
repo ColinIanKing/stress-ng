@@ -105,7 +105,7 @@ int stress_socket_pair(
 	}
 
 	if (max == 0) {
-		pr_failed_dbg(name, "socket_pair");
+		pr_fail_dbg(name, "socket_pair");
 		return EXIT_FAILURE;
 	}
 
@@ -116,7 +116,7 @@ again:
 			goto again;
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
@@ -135,7 +135,7 @@ again:
 					if (errno == EMFILE) /* Occurs on socket shutdown */
 						goto abort;
 					if (errno) {
-						pr_failed_dbg(name, "read");
+						pr_fail_dbg(name, "read");
 						break;
 					}
 					continue;
@@ -167,7 +167,7 @@ abort:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_failed_dbg(name, "write");
+						pr_fail_dbg(name, "write");
 						break;
 					}
 					continue;
@@ -178,7 +178,7 @@ abort:
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
-				pr_failed_dbg(name, "socket shutdown");
+				pr_fail_dbg(name, "socket shutdown");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

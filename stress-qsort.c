@@ -129,7 +129,7 @@ int stress_qsort(
 	n = (size_t)opt_qsort_size;
 
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
-		pr_failed_dbg(name, "malloc");
+		pr_fail_dbg(name, "malloc");
 		return EXIT_FAILURE;
 	}
 
@@ -139,7 +139,7 @@ int stress_qsort(
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGALRM, &new_action, &old_action) < 0) {
-		pr_failed_err(name, "sigaction SIGALRM");
+		pr_fail_err(name, "sigaction SIGALRM");
 		free(data);
 		return EXIT_FAILURE;
 	}
@@ -211,7 +211,7 @@ int stress_qsort(
 
 	do_jmp = false;
 	if (sigaction(SIGALRM, &old_action, NULL) < 0)
-		pr_failed_err(name, "sigaction SIGALRM restore");
+		pr_fail_err(name, "sigaction SIGALRM restore");
 tidy:
 	free(data);
 

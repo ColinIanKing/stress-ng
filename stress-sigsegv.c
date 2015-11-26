@@ -71,11 +71,11 @@ int stress_sigsegv(
 		new_action.sa_flags = 0;
 
 		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigaction");
+			pr_fail_err(name, "sigaction");
 			return EXIT_FAILURE;
 		}
 		if (sigaction(SIGILL, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigaction");
+			pr_fail_err(name, "sigaction");
 			return EXIT_FAILURE;
 		}
 		ret = sigsetjmp(jmp_env, 1);

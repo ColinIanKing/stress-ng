@@ -87,7 +87,7 @@ int stress_tsearch(
 	n = (size_t)opt_tsearch_size;
 
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
-		pr_failed_dbg(name, "malloc");
+		pr_fail_dbg(name, "malloc");
 		return EXIT_FAILURE;
 	}
 

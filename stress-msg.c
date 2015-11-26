@@ -67,7 +67,7 @@ int stress_msg(
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
-		pr_failed_dbg(name, "msgget");
+		pr_fail_dbg(name, "msgget");
 		return EXIT_FAILURE;
 	}
 	pr_dbg(stderr, "System V message queue created, id: %d\n", msgq_id);
@@ -77,7 +77,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
@@ -90,7 +90,7 @@ again:
 			for (i = 0; ; i++) {
 				uint64_t v;
 				if (msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0) < 0) {
-					pr_failed_dbg(name, "msgrcv");
+					pr_fail_dbg(name, "msgrcv");
 					break;
 				}
 				if (!strcmp(msg.msg, MSG_STOP))
@@ -117,7 +117,7 @@ again:
 			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
 				if (errno != EINTR)
-					pr_failed_dbg(name, "msgsnd");
+					pr_fail_dbg(name, "msgsnd");
 				break;
 			}
 			i++;
@@ -126,12 +126,12 @@ again:
 
 		strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
-			pr_failed_dbg(name, "termination msgsnd");
+			pr_fail_dbg(name, "termination msgsnd");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
-			pr_failed_dbg(name, "msgctl");
+			pr_fail_dbg(name, "msgctl");
 		else
 			pr_dbg(stderr, "System V message queue deleted, id: %d\n", msgq_id);
 	}

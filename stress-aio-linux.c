@@ -143,7 +143,7 @@ int stress_aio_linux(
 			opt_aio_linux_requests = MIN_AIO_REQUESTS;
 	}
 	if (sys_io_setup(opt_aio_linux_requests, &ctx) < 0) {
-		pr_failed_err(name, "io_setup");
+		pr_fail_err(name, "io_setup");
 		return EXIT_FAILURE;
 	}
 	if (stress_temp_dir_mk(name, pid, instance) < 0) {
@@ -154,7 +154,7 @@ int stress_aio_linux(
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -183,7 +183,7 @@ int stress_aio_linux(
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
-			pr_failed_err(name, "io_submit");
+			pr_fail_err(name, "io_submit");
 			break;
 		}
 
@@ -206,7 +206,7 @@ int stress_aio_linux(
 			if (ret < 0) {
 				if ((errno == EINTR) && (opt_do_run))
 					continue;
-				pr_failed_err(name, "io_getevents");
+				pr_fail_err(name, "io_getevents");
 				break;
 			} else {
 				n -= ret;

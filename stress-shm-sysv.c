@@ -294,7 +294,7 @@ int stress_shm_sysv(
 
 	while (opt_do_run) {
 		if (pipe(pipefds) < 0) {
-			pr_failed_dbg(name, "pipe");
+			pr_fail_dbg(name, "pipe");
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -335,10 +335,10 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_failed_dbg(name, "read");
+						pr_fail_dbg(name, "read");
 						break;
 					}
-					pr_failed_dbg(name, "zero byte read");
+					pr_fail_dbg(name, "zero byte read");
 					break;
 				}
 				if ((msg.index < 0) ||

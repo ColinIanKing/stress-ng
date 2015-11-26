@@ -48,7 +48,7 @@ void set_coredump(const char *name)
 		(void)close(fd);
 
 		if (n < 0)
-			pr_failed_dbg(name, "can't set coredump_filter");
+			pr_fail_dbg(name, "can't set coredump_filter");
 	}
 }
 #else

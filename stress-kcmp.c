@@ -74,7 +74,7 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 	int rc = sys_kcmp(pid1, pid2, type, idx1, idx2);\
 							\
 	if (rc < 0)	 				\
-		pr_failed_err(name, "kcmp: " # type);	\
+		pr_fail_err(name, "kcmp: " # type);	\
 	if (!opt_do_run)				\
 		break;					\
 }
@@ -85,7 +85,7 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 							\
 	if (rc != res) {				\
 		if (rc < 0) {				\
-			pr_failed_err(name, "kcmp: " # type);\
+			pr_fail_err(name, "kcmp: " # type);\
 		} else {				\
 			pr_fail(stderr, "%s: kcmp " # type \
 			" returned %d, expected: %d\n",	\
@@ -113,7 +113,7 @@ int stress_kcmp(
 	(void)instance;
 
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -123,7 +123,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
@@ -144,7 +144,7 @@ again:
 		setpgid(pid1, pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
-			pr_failed_err(name, "open");
+			pr_fail_err(name, "open");
 			ret = EXIT_FAILURE;
 			goto reap;
 		}

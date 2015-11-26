@@ -176,7 +176,7 @@ int stress_dentry(
 				name, pid, instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-				pr_failed_err(name, "open");
+				pr_fail_err(name, "open");
 				n = i;
 				break;
 			}

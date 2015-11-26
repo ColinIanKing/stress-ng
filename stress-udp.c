@@ -97,7 +97,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -113,7 +113,7 @@ again:
 			int j = 0;
 
 			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, 0)) < 0) {
-				pr_failed_dbg(name, "socket");
+				pr_fail_dbg(name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
@@ -129,7 +129,7 @@ again:
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_failed_dbg(name, "sendto");
+							pr_fail_dbg(name, "sendto");
 						break;
 					}
 				}
@@ -162,24 +162,24 @@ again:
 		sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = 0;
 		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigaction");
+			pr_fail_err(name, "sigaction");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, 0)) < 0) {
-			pr_failed_dbg(name, "socket");
+			pr_fail_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		stress_set_sockaddr(name, instance, ppid,
 			opt_udp_domain, opt_udp_port, &addr, &addr_len);
 		if (bind(fd, addr, addr_len) < 0) {
-			pr_failed_dbg(name, "bind");
+			pr_fail_dbg(name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_failed_dbg(name, "setsockopt");
+			pr_fail_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -191,7 +191,7 @@ again:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_failed_dbg(name, "recvfrom");
+					pr_fail_dbg(name, "recvfrom");
 				break;
 			}
 			(*counter)++;

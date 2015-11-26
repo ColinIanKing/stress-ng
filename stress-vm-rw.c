@@ -81,13 +81,13 @@ int stress_vm_rw(
 	sz = opt_vm_rw_bytes & ~(page_size - 1);
 
 	if (pipe(pipe_wr) < 0) {
-		pr_failed_dbg(name, "pipe");
+		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
 	if (pipe(pipe_rd) < 0) {
 		(void)close(pipe_wr[0]);
 		(void)close(pipe_wr[1]);
-		pr_failed_dbg(name, "pipe");
+		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -97,7 +97,7 @@ int stress_vm_rw(
 		(void)close(pipe_wr[1]);
 		(void)close(pipe_rd[0]);
 		(void)close(pipe_rd[1]);
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child */
@@ -115,7 +115,7 @@ int stress_vm_rw(
 		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (buf == MAP_FAILED) {
-			pr_failed_dbg(name, "mmap");
+			pr_fail_dbg(name, "mmap");
 			ret = EXIT_FAILURE;
 			goto cleanup;
 		}
@@ -135,7 +135,7 @@ redo_wr1:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo_wr1;
 				if (errno != EBADF)
-					pr_failed_dbg(name, "write");
+					pr_fail_dbg(name, "write");
 				break;
 			}
 redo_rd1:
@@ -144,13 +144,13 @@ redo_rd1:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo_rd1;
-				pr_failed_dbg(name, "read");
+				pr_fail_dbg(name, "read");
 				break;
 			}
 			if (ret == 0)
 				break;
 			if (ret != sizeof(msg_rd)) {
-				pr_failed_dbg(name, "read");
+				pr_fail_dbg(name, "read");
 				break;
 			}
 
@@ -199,7 +199,7 @@ cleanup:
 			(void)close(pipe_wr[1]);
 			(void)close(pipe_rd[0]);
 			(void)close(pipe_rd[1]);
-			pr_failed_dbg(name, "mmap");
+			pr_fail_dbg(name, "mmap");
 			exit(EXIT_FAILURE);
 		}
 
@@ -220,13 +220,13 @@ redo_rd2:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo_rd2;
-				pr_failed_dbg(name, "read");
+				pr_fail_dbg(name, "read");
 				break;
 			}
 			if (ret == 0)
 				break;
 			if (ret != sizeof(msg_rd)) {
-				pr_failed_dbg(name, "read");
+				pr_fail_dbg(name, "read");
 				break;
 			}
 			/* Child telling us it's terminating? */
@@ -239,7 +239,7 @@ redo_rd2:
 			remote[0].iov_base = msg_rd.addr;
 			remote[0].iov_len = sz;
 			if (process_vm_readv(pid, local, 1, remote, 1, 0) < 0) {
-				pr_failed_dbg(name, "process_vm_readv");
+				pr_fail_dbg(name, "process_vm_readv");
 				break;
 			}
 
@@ -265,7 +265,7 @@ redo_rd2:
 			remote[0].iov_base = msg_rd.addr;
 			remote[0].iov_len = sz;
 			if (process_vm_writev(pid, local, 1, remote, 1, 0) < 0) {
-				pr_failed_dbg(name, "process_vm_writev");
+				pr_fail_dbg(name, "process_vm_writev");
 				break;
 			}
 			msg_wr.val = val;
@@ -280,7 +280,7 @@ redo_wr2:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo_wr2;
 				if (errno != EBADF)
-					pr_failed_dbg(name, "write");
+					pr_fail_dbg(name, "write");
 				break;
 			}
 			(*counter)++;

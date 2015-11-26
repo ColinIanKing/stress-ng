@@ -1469,7 +1469,7 @@ static int stress_sethandler(const char *stress, const bool child)
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_failed_err(stress, "sigaction");
+		pr_fail_err(stress, "sigaction");
 		return -1;
 	}
 
@@ -1480,7 +1480,7 @@ static int stress_sethandler(const char *stress, const bool child)
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_failed_err(stress, "sigaction");
+		pr_fail_err(stress, "sigaction");
 		return -1;
 	}
 	return 0;

@@ -204,9 +204,9 @@ extern void pr_openlog(const char *filename);
 #define pr_fail(fp, fmt, args...)	pr_msg(fp, PR_FAIL, fmt, ## args)
 #define pr_tidy(fp, fmt, args...)	pr_msg(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 
-#define pr_failed_err(name, what)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, errno)
-#define pr_failed_errno(name, what, e)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, e)
-#define pr_failed_dbg(name, what)	pr_msg_fail(PR_DEBUG, name, what, errno)
+#define pr_fail_err(name, what)		pr_msg_fail(PR_FAIL | PR_ERROR, name, what, errno)
+#define pr_fail_errno(name, what, e)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, e)
+#define pr_fail_dbg(name, what)		pr_msg_fail(PR_DEBUG, name, what, errno)
 
 #define ABORT_FAILURES		(5)
 

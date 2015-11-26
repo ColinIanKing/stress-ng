@@ -160,13 +160,13 @@ int stress_wait(
 
 	pid_r = spawn(name, runner, 0, counter, max_ops);
 	if (pid_r < 0) {
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		exit(EXIT_FAILURE);
 	}
 
 	pid_k = spawn(name, killer, pid_r, counter, max_ops);
 	if (pid_k < 0) {
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		ret = EXIT_FAILURE;
 		goto tidy;
 	}

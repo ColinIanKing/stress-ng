@@ -93,7 +93,7 @@ int stress_fallocate(
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}

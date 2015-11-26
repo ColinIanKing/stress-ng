@@ -204,7 +204,7 @@ int stress_aio(
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -213,7 +213,7 @@ int stress_aio(
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
 	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
@@ -243,7 +243,7 @@ int stress_aio(
 				break;
 			default:
 				/* Something went wrong */
-				pr_failed_errno(name, "aio_error", io_reqs[i].status);
+				pr_fail_errno(name, "aio_error", io_reqs[i].status);
 				goto cancel;
 			}
 		}
@@ -255,7 +255,7 @@ cancel:
 	/* Stop accounting, restore handler */
 	do_accounting = false;
 	if (sigaction(SIGUSR1, &sa_old, NULL) < 0)
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 
 	/* Cancel pending AIO requests */
 	for (i = 0; i < opt_aio_requests; i++) {

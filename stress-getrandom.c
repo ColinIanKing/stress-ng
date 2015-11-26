@@ -65,7 +65,7 @@ int stress_getrandom(
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
-			pr_failed_err(name, "getrandom");
+			pr_fail_err(name, "getrandom");
 			return EXIT_FAILURE;
 		}
 		(*counter)++;

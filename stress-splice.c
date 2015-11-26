@@ -69,21 +69,21 @@ int stress_splice(
 	(void)instance;
 
 	if (pipe(fds) < 0) {
-		pr_failed_err(name, "pipe");
+		pr_fail_err(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 		(void)close(fd_in);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 

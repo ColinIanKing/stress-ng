@@ -63,7 +63,7 @@ int stress_sigpending(
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
@@ -72,18 +72,18 @@ int stress_sigpending(
 		sigemptyset(&sigset);
 		sigaddset(&sigset, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &sigset, NULL) < 0) {
-			pr_failed_err(name, "sigprocmask");
+			pr_fail_err(name, "sigprocmask");
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(mypid, SIGUSR1);
 		if (sigpending(&sigset) < 0) {
-			pr_failed_err(name, "sigpending");
+			pr_fail_err(name, "sigpending");
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
 		if (!sigismember(&sigset, SIGUSR1)) {
-			pr_failed_err(name, "sigismember");
+			pr_fail_err(name, "sigismember");
 			continue;
 		}
 
@@ -93,11 +93,11 @@ int stress_sigpending(
 
 		/* And it is no longer pending */
 		if (sigpending(&sigset) < 0) {
-			pr_failed_err(name, "sigpending");
+			pr_fail_err(name, "sigpending");
 			continue;
 		}
 		if (sigismember(&sigset, SIGUSR1)) {
-			pr_failed_err(name, "sigismember");
+			pr_fail_err(name, "sigismember");
 			continue;
 		}
 		/* Success! */

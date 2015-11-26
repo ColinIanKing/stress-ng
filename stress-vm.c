@@ -711,7 +711,7 @@ static size_t stress_vm_swap(
 	w1 = mwc64();
 
 	if ((swaps = calloc(chunks, sizeof(size_t))) == NULL) {
-		pr_failed_dbg("stress-vm", "calloc");
+		pr_fail_dbg("stress-vm", "calloc");
 		return 0;
 	}
 

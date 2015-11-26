@@ -150,7 +150,7 @@ int stress_timer(
 	new_action.sa_handler = stress_timer_handler;
 	sigemptyset(&new_action.sa_mask);
 	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
@@ -158,13 +158,13 @@ int stress_timer(
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_failed_err(name, "timer_create");
+		pr_fail_err(name, "timer_create");
 		return EXIT_FAILURE;
 	}
 
 	stress_timer_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_failed_err(name, "timer_settime");
+		pr_fail_err(name, "timer_settime");
 		return EXIT_FAILURE;
 	}
 
@@ -178,7 +178,7 @@ int stress_timer(
 	} while (opt_do_run && (!max_ops || timer_counter < max_ops));
 
 	if (timer_delete(timerid) < 0) {
-		pr_failed_err(name, "timer_delete");
+		pr_fail_err(name, "timer_delete");
 		return EXIT_FAILURE;
 	}
 	pr_dbg(stderr, "%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",

@@ -301,7 +301,7 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
 	for (i = 0; hdd_opts[i].opt; i++) {
 		if (hdd_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
-				pr_failed_err(name, "posix_fadvise");
+				pr_fail_err(name, "posix_fadvise");
 				return -1;
 			}
 		}
@@ -404,11 +404,11 @@ int stress_hdd(
 
 		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
-			pr_failed_err(name, "open");
+			pr_fail_err(name, "open");
 			goto finish;
 		}
 		if (ftruncate(fd, (off_t)0) < 0) {
-			pr_failed_err(name, "ftruncate");
+			pr_fail_err(name, "ftruncate");
 			(void)close(fd);
 			goto finish;
 		}
@@ -430,7 +430,7 @@ int stress_hdd(
 				ssize_t ret;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_failed_err(name, "lseek");
+					pr_fail_err(name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
@@ -446,7 +446,7 @@ rnd_wr_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_wr_retry;
 					if (errno) {
-						pr_failed_err(name, "write");
+						pr_fail_err(name, "write");
 						(void)close(fd);
 						goto finish;
 					}
@@ -471,7 +471,7 @@ seq_wr_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_wr_retry;
 					if (errno) {
-						pr_failed_err(name, "write");
+						pr_fail_err(name, "write");
 						(void)close(fd);
 						goto finish;
 					}
@@ -487,7 +487,7 @@ seq_wr_retry:
 			uint64_t baddata = 0;
 
 			if (lseek(fd, 0, SEEK_SET) < 0) {
-				pr_failed_err(name, "lseek");
+				pr_fail_err(name, "lseek");
 				(void)close(fd);
 				goto finish;
 			}
@@ -502,7 +502,7 @@ seq_rd_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
 					if (errno) {
-						pr_failed_err(name, "read");
+						pr_fail_err(name, "read");
 						(void)close(fd);
 						goto finish;
 					}
@@ -547,7 +547,7 @@ seq_rd_retry:
 				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_failed_err(name, "lseek");
+					pr_fail_err(name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
@@ -559,7 +559,7 @@ rnd_rd_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
 					if (errno) {
-						pr_failed_err(name, "read");
+						pr_fail_err(name, "read");
 						(void)close(fd);
 						goto finish;
 					}

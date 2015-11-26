@@ -91,7 +91,7 @@ static void *stress_pthread_func(void *ctxt)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_failed_err("pthread", "sigaltstack");
+		pr_fail_err("pthread", "sigaltstack");
 		goto die;
 	}
 
@@ -100,13 +100,13 @@ static void *stress_pthread_func(void *ctxt)
 	 */
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
-		pr_failed_errno("pthread", "mutex lock", ret);
+		pr_fail_errno("pthread", "mutex lock", ret);
 		goto die;
 	}
 	pthread_count++;
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret) {
-		pr_failed_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno("pthread", "mutex unlock", ret);
 		goto die;
 	}
 
@@ -116,20 +116,20 @@ static void *stress_pthread_func(void *ctxt)
 	 */
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
-		pr_failed_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno("pthread", "mutex unlock", ret);
 		goto die;
 	}
 	while (!thread_terminate) {
 		ret = pthread_cond_wait(&cond, &mutex);
 		if (ret) {
-			pr_failed_errno("pthread",
+			pr_fail_errno("pthread",
 				"pthread condition wait", ret);
 			break;
 		}
 	}
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret)
-		pr_failed_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno("pthread", "mutex unlock", ret);
 die:
 	return &nowt;
 }
@@ -175,7 +175,7 @@ int stress_pthread(
 					break;
 				}
 				/* Something really unexpected */
-				pr_failed_errno(name, "pthread create", ret);
+				pr_fail_errno(name, "pthread create", ret);
 				ok = false;
 				break;
 			}
@@ -194,14 +194,14 @@ int stress_pthread(
 
 			ret = pthread_mutex_lock(&mutex);
 			if (ret) {
-				pr_failed_errno(name, "mutex lock", ret);
+				pr_fail_errno(name, "mutex lock", ret);
 				ok = false;
 				goto reap;
 			}
 			all_running = (pthread_count == i);
 			ret = pthread_mutex_unlock(&mutex);
 			if (ret) {
-				pr_failed_errno(name, "mutex unlock", ret);
+				pr_fail_errno(name, "mutex unlock", ret);
 				ok = false;
 				goto reap;
 			}
@@ -212,28 +212,28 @@ int stress_pthread(
 
 		ret = pthread_mutex_lock(&mutex);
 		if (ret) {
-			pr_failed_errno(name, "mutex lock", ret);
+			pr_fail_errno(name, "mutex lock", ret);
 			ok = false;
 			goto reap;
 		}
 		thread_terminate = true;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
-			pr_failed_errno(name,
+			pr_fail_errno(name,
 				"pthread condition broadcast", ret);
 			ok = false;
 			/* fall through and unlock */
 		}
 		ret = pthread_mutex_unlock(&mutex);
 		if (ret) {
-			pr_failed_errno(name, "mutex unlock", ret);
+			pr_fail_errno(name, "mutex unlock", ret);
 			ok = false;
 		}
 reap:
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j], NULL);
 			if (ret) {
-				pr_failed_errno(name, "pthread join", ret);
+				pr_fail_errno(name, "pthread join", ret);
 				ok = false;
 			}
 		}

@@ -158,7 +158,7 @@ void stress_set_sockaddr(
 	}
 #endif
 	default:
-		pr_failed_dbg(name, "unknown domain");
+		pr_fail_dbg(name, "unknown domain");
 		(void)kill(getppid(), SIGALRM);
 		exit(EXIT_FAILURE);
 	}

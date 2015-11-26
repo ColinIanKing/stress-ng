@@ -50,7 +50,7 @@ int stress_null(
 	(void)instance;
 
 	if ((fd = open("/dev/null", O_WRONLY)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -63,7 +63,7 @@ int stress_null(
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_failed_err(name, "write");
+				pr_fail_err(name, "write");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}

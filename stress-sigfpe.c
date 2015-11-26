@@ -69,7 +69,7 @@ int stress_sigfpe(
 		new_action.sa_flags = 0;
 
 		if (sigaction(SIGFPE, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigfpe");
+			pr_fail_err(name, "sigfpe");
 			return EXIT_FAILURE;
 		}
 		ret = sigsetjmp(jmp_env, 1);

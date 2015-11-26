@@ -76,13 +76,13 @@ int stress_vm_splice(
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_failed_dbg(name, "mmap");
+		pr_fail_dbg(name, "mmap");
 		return(EXIT_FAILURE);
 	}
 
 	if (pipe(fds) < 0) {
 		(void)munmap(buf, sz);
-		pr_failed_err(name, "pipe");
+		pr_fail_err(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -90,7 +90,7 @@ int stress_vm_splice(
 		(void)munmap(buf, sz);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 

@@ -64,7 +64,7 @@ int stress_dup(
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
-		pr_failed_dbg(name, "open on /dev/zero");
+		pr_fail_dbg(name, "open on /dev/zero");
 		return EXIT_FAILURE;
 	}
 

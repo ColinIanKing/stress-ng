@@ -79,17 +79,17 @@ int stress_seek(
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
-		pr_failed_err(name, "lseek");
+		pr_fail_err(name, "lseek");
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
-		pr_failed_err(name, "write");
+		pr_fail_err(name, "write");
 		goto close_finish;
 	}
 
@@ -100,7 +100,7 @@ int stress_seek(
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_failed_err(name, "lseek");
+			pr_fail_err(name, "lseek");
 			goto close_finish;
 		}
 re_write:
@@ -111,14 +111,14 @@ re_write:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
-				pr_failed_err(name, "write");
+				pr_fail_err(name, "write");
 				goto close_finish;
 			}
 		}
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_failed_err(name, "lseek");
+			pr_fail_err(name, "lseek");
 			goto close_finish;
 		}
 re_read:
@@ -129,7 +129,7 @@ re_read:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
-				pr_failed_err(name, "read");
+				pr_fail_err(name, "read");
 				goto close_finish;
 			}
 		}

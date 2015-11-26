@@ -82,7 +82,7 @@ int stress_dir(
 			(void)stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
-				pr_failed_err(name, "mkdir");
+				pr_fail_err(name, "mkdir");
 				n = i;
 				break;
 			}

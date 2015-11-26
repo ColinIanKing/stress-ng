@@ -145,13 +145,13 @@ static int stress_lockf_unlock(const char *name, const int fd)
 		return 0;
 
 	if (lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0) {
-		pr_failed_err(name, "lseek");
+		pr_fail_err(name, "lseek");
 		return -1;
 	}
 	stress_lockf_info_head_remove();
 
 	if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
-		pr_failed_err(name, "lockf unlock");
+		pr_fail_err(name, "lockf unlock");
 		return -1;
 	}
 	return 0;
@@ -183,7 +183,7 @@ static int stress_lockf_contention(
 
 		offset = mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
-			pr_failed_err(name, "lseek");
+			pr_fail_err(name, "lseek");
 			return -1;
 		}
 		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
@@ -196,7 +196,7 @@ static int stress_lockf_contention(
 
 		lockf_info = stress_lockf_info_new();
 		if (!lockf_info) {
-			pr_failed_err(name, "calloc");
+			pr_fail_err(name, "calloc");
 			return -1;
 		}
 		lockf_info->offset = offset;
@@ -233,7 +233,7 @@ int stress_lockf(
 	(void)stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_failed_err(name, "mkdir");
+			pr_fail_err(name, "mkdir");
 			return EXIT_FAILURE;
 		}
 	}
@@ -247,13 +247,13 @@ int stress_lockf(
 		name, pid, instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		(void)rmdir(dirname);
 		return EXIT_FAILURE;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_failed_err(name, "lseek");
+		pr_fail_err(name, "lseek");
 		goto tidy;
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
@@ -264,7 +264,7 @@ redo:
 		if ((rc < 0) || (rc != sizeof(buffer))) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			pr_failed_err(name, "write");
+			pr_fail_err(name, "write");
 			goto tidy;
 		}
 	}
@@ -274,7 +274,7 @@ again:
 	if (cpid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_err(name, "fork");
+		pr_fail_err(name, "fork");
 		goto tidy;
 	}
 	if (cpid == 0) {

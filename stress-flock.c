@@ -61,7 +61,7 @@ int stress_flock(
 	(void)stress_temp_dir(dirname, sizeof(dirname), name, ppid, instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_failed_err(name, "mkdir");
+			pr_fail_err(name, "mkdir");
 			return EXIT_FAILURE;
 		}
 	}
@@ -80,7 +80,7 @@ retry:
 			goto retry;
 		}
 		/* Not sure why this fails.. report and abort */
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		(void)rmdir(dirname);
 		return EXIT_FAILURE;
 	}

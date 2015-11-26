@@ -121,7 +121,7 @@ int stress_mq(
 		sz--;
 	}
 	if (mq < 0) {
-		pr_failed_dbg(name, "mq_open");
+		pr_fail_dbg(name, "mq_open");
 		return EXIT_FAILURE;
 	}
 	if (sz < opt_mq_size) {
@@ -137,7 +137,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		time_t time_start;
@@ -149,7 +149,7 @@ again:
 
 		if (time(&time_start) == ((time_t)-1)) {
 			do_timedreceive = false;
-			pr_failed_dbg(name, "mq_timedreceive skipped");
+			pr_fail_dbg(name, "mq_timedreceive skipped");
 		} else {
 			do_timedreceive = true;
 			abs_timeout.tv_sec = time_start + opt_timeout + 1;
@@ -167,12 +167,12 @@ again:
 				 */
 				if (do_timedreceive && !(i & 1)) {
 					if (mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout) < 0) {
-						pr_failed_dbg(name, "mq_timedreceive");
+						pr_fail_dbg(name, "mq_timedreceive");
 						break;
 					}
 				} else {
 					if (mq_receive(mq, (char *)&msg, sizeof(msg), NULL) < 0) {
-						pr_failed_dbg(name, "mq_receive");
+						pr_fail_dbg(name, "mq_receive");
 						break;
 					}
 				}
@@ -205,12 +205,12 @@ again:
 				struct mq_attr attr;
 
 				if (mq_getattr(mq, &attr) < 0)
-					pr_failed_dbg(name, "mq_getattr");
+					pr_fail_dbg(name, "mq_getattr");
 			}
 
 			if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
 				if (errno != EINTR)
-					pr_failed_dbg(name, "mq_send");
+					pr_fail_dbg(name, "mq_send");
 				break;
 			}
 			(*counter)++;
@@ -220,15 +220,15 @@ again:
 		msg.stop = true;
 
 		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
-			pr_failed_dbg(name, "termination mq_send");
+			pr_fail_dbg(name, "termination mq_send");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)
-			pr_failed_dbg(name, "mq_close");
+			pr_fail_dbg(name, "mq_close");
 		if (mq_unlink(mq_name) < 0)
-			pr_failed_dbg(name, "mq_unlink");
+			pr_fail_dbg(name, "mq_unlink");
 	}
 	return EXIT_SUCCESS;
 }

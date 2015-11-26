@@ -108,12 +108,12 @@ int stress_key(
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
 				if ((errno != ENOMEM) && (errno != EDQUOT))
-					pr_failed_err(name, "add_key");
+					pr_fail_err(name, "add_key");
 				break;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0)
-				pr_failed_err(name, "keyctl KEYCTL_SET_TIMEOUT");
+				pr_fail_err(name, "keyctl KEYCTL_SET_TIMEOUT");
 #endif
 		}
 
@@ -124,7 +124,7 @@ int stress_key(
 				"-%zu", ppid, instance, i);
 #if defined(KEYCTL_DESCRIBE)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
-				pr_failed_err(name, "keyctl KEYCTL_DESCRIBE");
+				pr_fail_err(name, "keyctl KEYCTL_DESCRIBE");
 			if (!opt_do_run)
 				break;
 #endif
@@ -135,7 +135,7 @@ int stress_key(
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0) {
 				if ((errno != ENOMEM) && (errno != EDQUOT))
-					pr_failed_err(name, "keyctl KEYCTL_UPDATE");
+					pr_fail_err(name, "keyctl KEYCTL_UPDATE");
 			}
 			if (!opt_do_run)
 				break;
@@ -145,7 +145,7 @@ int stress_key(
 			memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
-				pr_failed_err(name, "keyctl KEYCTL_READ");
+				pr_fail_err(name, "keyctl KEYCTL_READ");
 			if (!opt_do_run)
 				break;
 #endif

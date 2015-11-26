@@ -83,7 +83,7 @@ retry:			if (!opt_do_run)
 				stress_parent_died_alarm();
 
 				if (sysinfo(&info) < 0) {
-					pr_failed_err(name, "sysinfo");
+					pr_fail_err(name, "sysinfo");
 					_exit(0);
 				}
 				len = ((size_t)info.freeram / (instances * MAX_PIDS)) / 2;

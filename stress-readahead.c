@@ -60,7 +60,7 @@ int do_readahead(const char *name, const int fd, off_t *offsets)
 	for (i = 0; i < MAX_OFFSETS; i++) {
 		offsets[i] = (mwc64() % (opt_readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
-			pr_failed_err(name, "ftruncate");
+			pr_fail_err(name, "ftruncate");
 			return -1;
 		}
 	}
@@ -109,11 +109,11 @@ int stress_readahead(
 
 	(void)umask(0077);
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		goto finish;
 	}
 	if (ftruncate(fd, (off_t)0) < 0) {
-		pr_failed_err(name, "ftruncate");
+		pr_fail_err(name, "ftruncate");
 		goto close_finish;
 	}
 	(void)unlink(filename);
@@ -122,7 +122,7 @@ int stress_readahead(
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
     defined(POSIX_FADV_DONTNEED)) && !defined(__gnu_hurd__)
 	if (posix_fadvise(fd, 0, opt_readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
-		pr_failed_err(name, "posix_fadvise");
+		pr_fail_err(name, "posix_fadvise");
 		goto close_finish;
 	}
 #endif
@@ -148,7 +148,7 @@ seq_wr_retry:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto seq_wr_retry;
 			if (errno) {
-				pr_failed_err(name, "write");
+				pr_fail_err(name, "write");
 				goto close_finish;
 			}
 			continue;
@@ -170,7 +170,7 @@ rnd_rd_retry:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_failed_err(name, "read");
+					pr_fail_err(name, "read");
 					goto close_finish;
 				}
 				continue;

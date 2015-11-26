@@ -62,7 +62,7 @@ int stress_sigsuspend(
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_failed_dbg(name, "mmap");
+		pr_fail_dbg(name, "mmap");
 		return EXIT_FAILURE;
 	}
 	memset(counters, 0, counters_size);
@@ -76,7 +76,7 @@ again:
 		if (pid[n] < 0) {
 			if (opt_do_run && (errno == EAGAIN))
 				goto again;
-			pr_failed_dbg(name, "fork");
+			pr_fail_dbg(name, "fork");
 			goto reap;
 		} else if (pid[n] == 0) {
 			setpgid(0, pgrp);

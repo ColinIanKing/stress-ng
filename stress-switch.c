@@ -50,7 +50,7 @@ int stress_switch(
 	(void)instance;
 
 	if (pipe(pipefds) < 0) {
-		pr_failed_dbg(name, "pipe");
+		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -61,7 +61,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		char ch;
@@ -78,7 +78,7 @@ again:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_failed_dbg(name, "read");
+				pr_fail_dbg(name, "read");
 				break;
 			}
 			if (ret == 0)
@@ -104,7 +104,7 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_failed_dbg(name, "write");
+					pr_fail_dbg(name, "write");
 					break;
 				}
 				continue;
@@ -114,7 +114,7 @@ again:
 
 		ch = SWITCH_STOP;
 		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
-			pr_failed_dbg(name, "termination write");
+			pr_fail_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}

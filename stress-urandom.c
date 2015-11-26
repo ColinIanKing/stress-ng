@@ -51,7 +51,7 @@ int stress_urandom(
 	(void)instance;
 
 	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -63,7 +63,7 @@ int stress_urandom(
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_failed_err(name, "read");
+			pr_fail_err(name, "read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}

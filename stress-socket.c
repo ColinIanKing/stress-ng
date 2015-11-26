@@ -103,7 +103,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -123,7 +123,7 @@ retry:
 				exit(EXIT_FAILURE);
 			}
 			if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
-				pr_failed_dbg(name, "socket");
+				pr_fail_dbg(name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
@@ -138,7 +138,7 @@ retry:
 				retries++;
 				if (retries > 100) {
 					/* Give up.. */
-					pr_failed_dbg(name, "connect");
+					pr_fail_dbg(name, "connect");
 					(void)kill(getppid(), SIGALRM);
 					exit(EXIT_FAILURE);
 				}
@@ -151,7 +151,7 @@ retry:
 					break;
 				if (n < 0) {
 					if (errno != EINTR)
-						pr_failed_dbg(name, "recv");
+						pr_fail_dbg(name, "recv");
 					break;
 				}
 			} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -184,18 +184,18 @@ retry:
 		sigemptyset(&new_action.sa_mask);
 		new_action.sa_flags = 0;
 		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_failed_err(name, "sigaction");
+			pr_fail_err(name, "sigaction");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
-			pr_failed_dbg(name, "socket");
+			pr_fail_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_failed_dbg(name, "setsockopt");
+			pr_fail_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -203,12 +203,12 @@ retry:
 		stress_set_sockaddr(name, instance, ppid,
 			opt_socket_domain, opt_socket_port, &addr, &addr_len);
 		if (bind(fd, addr, addr_len) < 0) {
-			pr_failed_dbg(name, "bind");
+			pr_fail_dbg(name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 		if (listen(fd, 10) < 0) {
-			pr_failed_dbg(name, "listen");
+			pr_fail_dbg(name, "listen");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -226,19 +226,19 @@ retry:
 
 				len = sizeof(addr);
 				if (getsockname(fd, &addr, &len) < 0) {
-					pr_failed_dbg(name, "getsockname");
+					pr_fail_dbg(name, "getsockname");
 					(void)close(sfd);
 					break;
 				}
 				len = sizeof(sndbuf);
 				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-					pr_failed_dbg(name, "getsockopt");
+					pr_fail_dbg(name, "getsockopt");
 					(void)close(sfd);
 					break;
 				}
 #if NAGLE_DISABLE
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-					pr_failed_dbg(name, "setsockopt TCP_NODELAY");
+					pr_fail_dbg(name, "setsockopt TCP_NODELAY");
 					(void)close(sfd);
 					break;
 				}
@@ -248,12 +248,12 @@ retry:
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_failed_dbg(name, "send");
+							pr_fail_dbg(name, "send");
 						break;
 					}
 				}
 				if (getpeername(sfd, &addr, &len) < 0) {
-					pr_failed_dbg(name, "getpeername");
+					pr_fail_dbg(name, "getpeername");
 				}
 				(void)close(sfd);
 			}

@@ -101,7 +101,7 @@ int stress_mknod(
 			(void)stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
-				pr_failed_err(name, "mknod");
+				pr_fail_err(name, "mknod");
 				n = i;
 				break;
 			}

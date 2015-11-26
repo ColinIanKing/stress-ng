@@ -250,19 +250,19 @@ static int epoll_notification(
 				/* out of file descriptors! */
 				return 0;
 			}
-			pr_failed_err(name, "accept");
+			pr_fail_err(name, "accept");
 			return -1;
 		}
 		/*
 		 *  Add non-blocking fd to epoll event list
 		 */
 		if (epoll_set_fd_nonblock(fd) < 0) {
-			pr_failed_err(name, "setting socket to non-blocking");
+			pr_fail_err(name, "setting socket to non-blocking");
 			(void)close(fd);
 			return -1;
 		}
 		if (epoll_ctl_add(efd, fd) < 0) {
-			pr_failed_err(name, "epoll ctl add");
+			pr_fail_err(name, "epoll ctl add");
 			(void)close(fd);
 			return -1;
 		}
@@ -293,7 +293,7 @@ static int epoll_client(
 	new_action.sa_handler = epoll_timer_handler;
 	sigemptyset(&new_action.sa_mask);
 	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		return -1;
 	}
 
@@ -312,7 +312,7 @@ retry:
 			break;
 
 		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-			pr_failed_dbg(name, "socket");
+			pr_fail_dbg(name, "socket");
 			return -1;
 		}
 
@@ -320,7 +320,7 @@ retry:
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
 		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
-			pr_failed_err(name, "timer_create");
+			pr_fail_err(name, "timer_create");
 			(void)close(fd);
 			return -1;
 		}
@@ -336,7 +336,7 @@ retry:
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
-			pr_failed_err(name, "timer_settime");
+			pr_fail_err(name, "timer_settime");
 			(void)close(fd);
 			return -1;
 		}
@@ -350,7 +350,7 @@ retry:
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
-			pr_failed_err(name, "timer_delete");
+			pr_fail_err(name, "timer_delete");
 			(void)close(fd);
 			return -1;
 		}
@@ -375,7 +375,7 @@ retry:
 			if (retries > 1000) {
 				/* Sigh, give up.. */
 				errno = saved_errno;
-				pr_failed_dbg(name, "too many connects");
+				pr_fail_dbg(name, "too many connects");
 				return -1;
 			}
 			goto retry;
@@ -384,7 +384,7 @@ retry:
 		memset(buf, 'A' + (*counter % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
-			pr_failed_dbg(name, "send");
+			pr_fail_dbg(name, "send");
 			break;
 		}
 		(void)close(fd);
@@ -431,17 +431,17 @@ static void epoll_server(
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if ((sfd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-		pr_failed_err(name, "socket");
+		pr_fail_err(name, "socket");
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_failed_err(name, "setsockopt");
+		pr_fail_err(name, "setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -450,32 +450,32 @@ static void epoll_server(
 		opt_epoll_domain, port, &addr, &addr_len);
 
 	if (bind(sfd, addr, addr_len) < 0) {
-		pr_failed_err(name, "bind");
+		pr_fail_err(name, "bind");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_set_fd_nonblock(sfd) < 0) {
-		pr_failed_err(name, "setting socket to non-blocking");
+		pr_fail_err(name, "setting socket to non-blocking");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (listen(sfd, SOMAXCONN) < 0) {
-		pr_failed_err(name, "listen");
+		pr_fail_err(name, "listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((efd = epoll_create1(0)) < 0) {
-		pr_failed_err(name, "epoll_create1");
+		pr_fail_err(name, "epoll_create1");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_ctl_add(efd, sfd) < 0) {
-		pr_failed_err(name, "epoll ctl add");
+		pr_fail_err(name, "epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((events = calloc(MAX_EPOLL_EVENTS, sizeof(struct epoll_event))) == NULL) {
-		pr_failed_err(name, "epoll ctl add");
+		pr_fail_err(name, "epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -493,7 +493,7 @@ static void epoll_server(
 		n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		if (n < 0) {
 			if (errno != EINTR) {
-				pr_failed_err(name, "epoll_wait");
+				pr_fail_err(name, "epoll_wait");
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
@@ -584,7 +584,7 @@ int stress_epoll(
 	for (i = 0; i < max_servers; i++) {
 		pids[i] = epoll_spawn(epoll_server, i, counter, instance, max_ops, name, ppid);
 		if (pids[i] < 0) {
-			pr_failed_dbg(name, "fork");
+			pr_fail_dbg(name, "fork");
 			goto reap;
 		}
 	}
@@ -597,7 +597,7 @@ reap:
 		if (pids[i] > 0) {
 			(void)kill(pids[i], SIGKILL);
 			if (waitpid(pids[i], &status, 0) < 0) {
-				pr_failed_dbg(name, "waitpid");
+				pr_fail_dbg(name, "waitpid");
 			}
 		}
 	}

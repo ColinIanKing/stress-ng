@@ -54,7 +54,7 @@ int stress_chdir(
 	memset(paths, 0, sizeof(paths));
 
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
-		pr_failed_err(name, "getcwd");
+		pr_fail_err(name, "getcwd");
 		return ret;
 	}
 
@@ -71,7 +71,7 @@ int stress_chdir(
 		if (paths[i] == NULL)
 			goto abort;
 		if (mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
-			pr_failed_err(name, "mkdir");
+			pr_fail_err(name, "mkdir");
 			goto abort;
 		}
 		if (!opt_do_run)
@@ -84,7 +84,7 @@ int stress_chdir(
 				goto done;
 			if (chdir(paths[i]) < 0) {
 				if (errno != ENOMEM) {
-					pr_failed_err(name, "chdir");
+					pr_fail_err(name, "chdir");
 					goto abort;
 				}
 			}
@@ -95,7 +95,7 @@ redo:
 			if (chdir(cwd) < 0) {
 				if (errno == ENOMEM)	/* Maybe low memory, force retry */
 					goto redo;
-				pr_failed_err(name, "chdir");
+				pr_fail_err(name, "chdir");
 				goto abort;
 			}
 		}
@@ -105,7 +105,7 @@ done:
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
-		pr_failed_err(name, "chdir");
+		pr_fail_err(name, "chdir");
 
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n", name, DEFAULT_DIRS);

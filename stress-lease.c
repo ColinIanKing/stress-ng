@@ -141,7 +141,7 @@ int stress_lease(
 	new_action.sa_flags = 0;
 
 	if (sigaction(SIGIO, &new_action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 

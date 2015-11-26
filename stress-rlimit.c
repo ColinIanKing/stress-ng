@@ -79,7 +79,7 @@ int stress_rlimit(
 	new_action_xcpu.sa_flags = 0;
 
 	if (sigaction(SIGXCPU, &new_action_xcpu, &old_action_xcpu) < 0) {
-		pr_failed_err(name, "sigaction SIGXCPU");
+		pr_fail_err(name, "sigaction SIGXCPU");
 		return EXIT_FAILURE;
 	}
 
@@ -89,7 +89,7 @@ int stress_rlimit(
 	new_action_xfsz.sa_flags = 0;
 
 	if (sigaction(SIGXFSZ, &new_action_xfsz, &old_action_xfsz) < 0) {
-		pr_failed_err(name, "sigaction SIGXFSZ");
+		pr_fail_err(name, "sigaction SIGXFSZ");
 		return EXIT_FAILURE;
 	}
 
@@ -99,7 +99,7 @@ int stress_rlimit(
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_failed_err(name, "creat");
+		pr_fail_err(name, "creat");
 		(void)stress_temp_dir_rm(name, pid, instance);
 		return EXIT_FAILURE;
 	}
@@ -138,9 +138,9 @@ int stress_rlimit(
 
 	do_jmp = false;
 	if (sigaction(SIGXCPU, &old_action_xcpu, NULL) < 0)
-		pr_failed_err(name, "sigaction SIGXCPU restore");
+		pr_fail_err(name, "sigaction SIGXCPU restore");
 	if (sigaction(SIGXFSZ, &old_action_xfsz, NULL) < 0)
-		pr_failed_err(name, "sigaction SIGXFSZ restore");
+		pr_fail_err(name, "sigaction SIGXFSZ restore");
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm(name, pid, instance);

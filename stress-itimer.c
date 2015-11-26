@@ -139,13 +139,13 @@ int stress_itimer(
 	memset(&action, 0, sizeof(action));
 	action.sa_handler = stress_itimer_handler;
 	if (sigaction(SIGPROF, &action, NULL) < 0) {
-		pr_failed_err(name, "sigaction");
+		pr_fail_err(name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
-		pr_failed_err(name, "setitimer");
+		pr_fail_err(name, "setitimer");
 		return EXIT_FAILURE;
 	}
 

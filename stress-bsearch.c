@@ -97,7 +97,7 @@ int stress_bsearch(
 
 	/* allocate in multiples of 8 */
 	if ((data = malloc(sizeof(int32_t) * n8)) == NULL) {
-		pr_failed_dbg(name, "malloc");
+		pr_fail_dbg(name, "malloc");
 		return EXIT_FAILURE;
 	}
 

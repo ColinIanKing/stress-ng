@@ -94,7 +94,7 @@ int stress_poll(
 
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipe(pipefds[i]) < 0) {
-			pr_failed_dbg(name, "pipe");
+			pr_fail_dbg(name, "pipe");
 			while (--i >= 0) {
 				(void)close(pipefds[i][0]);
 				(void)close(pipefds[i][1]);
@@ -108,7 +108,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		ret = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -132,7 +132,7 @@ again:
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_failed_dbg(name, "write");
+				pr_fail_dbg(name, "write");
 				goto abort;
 			}
 		 } while (opt_do_run && (!max_ops || *counter < max_ops));

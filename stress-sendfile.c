@@ -82,13 +82,13 @@ int stress_sendfile(
 		name, pid, instance, mwc32());
 
         if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-                pr_failed_err(name, "open");
+                pr_fail_err(name, "open");
 		ret = EXIT_FAILURE;
 		goto dir_out;
         }
 	(void)posix_fallocate(fdin, (off_t)0, (off_t)sz);
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
-		pr_failed_err(name, "open");
+		pr_fail_err(name, "open");
 		ret = EXIT_FAILURE;
 		goto close_in;
 	}
@@ -96,7 +96,7 @@ int stress_sendfile(
 	do {
 		off_t offset = 0;
 		if (sendfile(fdout, fdin, &offset, sz) < 0) {
-			pr_failed_err(name, "sendfile");
+			pr_fail_err(name, "sendfile");
 			ret = EXIT_FAILURE;
 			goto close_out;
 		}

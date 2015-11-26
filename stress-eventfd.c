@@ -56,12 +56,12 @@ int stress_eventfd(
 
 	fd1 = eventfd(0, 0);
 	if (fd1 < 0) {
-		pr_failed_dbg(name, "eventfd");
+		pr_fail_dbg(name, "eventfd");
 		return EXIT_FAILURE;
 	}
 	fd2 = eventfd(0, 0);
 	if (fd1 < 0) {
-		pr_failed_dbg(name, "eventfd");
+		pr_fail_dbg(name, "eventfd");
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	}
@@ -71,7 +71,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_failed_dbg(name, "fork");
+		pr_fail_dbg(name, "fork");
 		(void)close(fd1);
 		(void)close(fd2);
 		return EXIT_FAILURE;
@@ -90,11 +90,11 @@ again:
 				if (ret < 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
-					pr_failed_dbg(name, "child read");
+					pr_fail_dbg(name, "child read");
 					goto exit_child;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_failed_dbg(name, "child short read");
+					pr_fail_dbg(name, "child short read");
 					goto exit_child;
 				}
 				break;
@@ -108,11 +108,11 @@ again:
 				if (ret < 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
-					pr_failed_dbg(name, "child write");
+					pr_fail_dbg(name, "child write");
 					goto exit_child;
 				}
 				if (ret  < (ssize_t)sizeof(val)) {
-					pr_failed_dbg(name, "child short write");
+					pr_fail_dbg(name, "child short write");
 					goto exit_child;
 				}
 				break;
@@ -137,11 +137,11 @@ exit_child:
 				if (ret < 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
-					pr_failed_dbg(name, "parent write");
+					pr_fail_dbg(name, "parent write");
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_failed_dbg(name, "parent short write");
+					pr_fail_dbg(name, "parent short write");
 					goto exit_parent;
 				}
 				break;
@@ -155,11 +155,11 @@ exit_child:
 				if (ret < 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
-					pr_failed_dbg(name, "parent read");
+					pr_fail_dbg(name, "parent read");
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_failed_dbg(name, "parent short read");
+					pr_fail_dbg(name, "parent short read");
 					goto exit_parent;
 				}
 				break;

@@ -235,13 +235,13 @@ int stress_filename (
 	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
         if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_failed_err(name, "mkdir");
+			pr_fail_err(name, "mkdir");
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (statvfs(dirname, &buf) < 0) {
-		pr_failed_err(name, "statvfs");
+		pr_fail_err(name, "statvfs");
 		goto tidy_dir;
 	}
 	pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",

@@ -207,7 +207,7 @@ int stress_fcntl(
 	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
         if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_failed_err(name, "mkdir");
+			pr_fail_err(name, "mkdir");
 			return EXIT_FAILURE;
 		}
 	}
@@ -226,7 +226,7 @@ int stress_fcntl(
 				(void)usleep(100000);
 				continue;
 			}
-			pr_failed_err(name, "open");
+			pr_fail_err(name, "open");
 			goto tidy;
 		}
 		break;
