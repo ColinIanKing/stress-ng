@@ -191,22 +191,22 @@
 #define PRIME_64		(0x8f0000000017116dULL)
 
 /* Logging helpers */
-extern int print(FILE *fp, const uint64_t flag,
+extern int pr_msg(FILE *fp, const uint64_t flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
-extern void pr_failed(const uint64_t flag, const char *name, const char *what, const int err);
+extern void pr_msg_fail(const uint64_t flag, const char *name, const char *what, const int err);
 extern int pr_yaml(FILE *fp, const char *const fmt, ...);
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
 
-#define pr_dbg(fp, fmt, args...)	print(fp, PR_DEBUG, fmt, ## args)
-#define pr_inf(fp, fmt, args...)	print(fp, PR_INFO, fmt, ## args)
-#define pr_err(fp, fmt, args...)	print(fp, PR_ERROR, fmt, ## args)
-#define pr_fail(fp, fmt, args...)	print(fp, PR_FAIL, fmt, ## args)
-#define pr_tidy(fp, fmt, args...)	print(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
+#define pr_dbg(fp, fmt, args...)	pr_msg(fp, PR_DEBUG, fmt, ## args)
+#define pr_inf(fp, fmt, args...)	pr_msg(fp, PR_INFO, fmt, ## args)
+#define pr_err(fp, fmt, args...)	pr_msg(fp, PR_ERROR, fmt, ## args)
+#define pr_fail(fp, fmt, args...)	pr_msg(fp, PR_FAIL, fmt, ## args)
+#define pr_tidy(fp, fmt, args...)	pr_msg(fp, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 
-#define pr_failed_err(name, what)	pr_failed(PR_FAIL | PR_ERROR, name, what, errno)
-#define pr_failed_errno(name, what, e)	pr_failed(PR_FAIL | PR_ERROR, name, what, e)
-#define pr_failed_dbg(name, what)	pr_failed(PR_DEBUG, name, what, errno)
+#define pr_failed_err(name, what)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, errno)
+#define pr_failed_errno(name, what, e)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, e)
+#define pr_failed_dbg(name, what)	pr_msg_fail(PR_DEBUG, name, what, errno)
 
 #define ABORT_FAILURES		(5)
 

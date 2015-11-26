@@ -85,10 +85,10 @@ void pr_openlog(const char *filename)
 
 
 /*
- *  print()
+ *  pr_msg()
  *	print some debug or info messages
  */
-int print(
+int pr_msg(
 	FILE *fp,
 	const uint64_t flag,
 	const char *const fmt, ...)
@@ -126,7 +126,7 @@ int print(
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
 					opt_do_run = false;
-					print(fp, PR_INFO, "%d failures "
+					pr_msg(fp, PR_INFO, "%d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);
 					fflush(fp);
@@ -152,16 +152,16 @@ int print(
 }
 
 /*
- *  pr_failed()
+ *  pr_msg_fail()
  *	print failure message with errno
  */
-void pr_failed(
+void pr_msg_fail(
 	const uint64_t flag,
 	const char *name,
 	const char *what,
 	const int err)
 {
-	print(stderr, flag, "%s: %s failed, errno=%d (%s)\n",
+	pr_msg(stderr, flag, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
 
