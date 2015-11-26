@@ -97,7 +97,7 @@ int print(
 	int ret = 0;
 
 	va_start(ap, fmt);
-	if (opt_flags & flag) {
+	if ((flag & PR_FAIL) || (opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
 
