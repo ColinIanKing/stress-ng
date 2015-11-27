@@ -39,6 +39,33 @@
 static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static bool set_mmap_bytes = false;
 
+/* Misc randomly chosen mmap flags */
+static int mmap_flags[] = {
+#if defined(MAP_HUGE_2MB) && defined(MAP_HUGETLB)
+	MAP_HUGE_2MB | MAP_HUGETLB,
+#endif
+#if defined(MAP_HUGE_1GB) && defined(MAP_HUGETLB)
+	MAP_HUGE_1GB | MAP_HUGETLB,
+#endif
+#if defined(MAP_NONBLOCK)
+	MAP_NONBLOCK,
+#endif
+#if defined(MAP_GROWSDOWN)
+	MAP_GROWSDOWN,
+#endif
+#if defined(MAP_LOCKED)
+	MAP_LOCKED,
+#endif
+#if defined(MAP_32BIT) && (defined(__x86_64__) || defined(__x86_64))
+	MAP_32BIT,
+#endif
+/* This will segv if no backing, so don't use it for now */
+#if 0 && defined(MAP_NORESERVE)
+	MAP_NORESERVE,
+#endif
+	0
+};
+
 void stress_set_mmap_bytes(const char *optarg)
 {
 	set_mmap_bytes = true;
@@ -187,10 +214,12 @@ redo:
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
 		size_t n;
+		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
+		const int rnd_flag = mmap_flags[rnd];
 
 		if (!opt_do_run)
 			break;
-		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
+		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #ifdef MAP_POPULATE
