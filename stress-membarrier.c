@@ -80,7 +80,7 @@ static void *stress_membarrier_thread(void *ctxt)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_failed_err("pthread", "sigaltstack");
+		pr_fail_err("pthread", "sigaltstack");
 		return &nowt;
 	}
 	while (keep_running && opt_do_run) {
