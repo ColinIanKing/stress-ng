@@ -1243,6 +1243,7 @@ static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
 		v = a;			\
 	else				\
 		v = b;			\
+	uint64_put(next + i);
 
 /*
  *   stress_cpu_jmp
@@ -1268,7 +1269,6 @@ static void HOT stress_cpu_jmp(const char *name)
 		JMP(next, ==, 1, 2, 3);
 		JMP(next, >, 2, 0, 1);
 		JMP(next, <, 1, 1, 0);
-		uint64_put(next + i);
 	}
 }
 
