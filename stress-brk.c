@@ -91,6 +91,7 @@ again:
 	} else if (pid == 0) {
 		uint8_t *start_ptr;
 		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
+		int i = 0;
 
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
@@ -106,7 +107,18 @@ again:
 		}
 
 		do {
-			uint8_t *ptr = sbrk((intptr_t)page_size);
+			uint8_t *ptr;
+
+			i++;
+			if (i > 8) {
+				i = 0;
+				ptr = sbrk(0);
+				ptr -= page_size;
+				if (brk(ptr) < 0)
+					ptr = (void *)-1;
+			} else {
+				ptr = sbrk((intptr_t)page_size);
+			}
 			if (ptr == (void *)-1) {
 				if (errno == ENOMEM) {
 					nomems++;
