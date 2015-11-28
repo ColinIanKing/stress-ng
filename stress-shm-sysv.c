@@ -52,6 +52,22 @@ static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 static bool set_shm_sysv_bytes = false;
 static bool set_shm_sysv_segments = false;
 
+static int shm_flags[] = {
+#if defined(SHM_HUGETLB)
+	SHM_HUGETLB,
+#endif
+#if defined(SHM_HUGE_2MB)
+	SHM_HUGE_2MB,
+#endif
+#if defined(SHM_HUGE_1GB)
+	SHM_HUGE_1GB,
+#endif
+/* This will segv if no backing, so don't use it for now */
+#if 0 && defined(SHM_NORESERVE)
+	SHM_NORESERVED,
+#endif
+	0
+};
 
 void stress_set_shm_sysv_bytes(const char *optarg)
 {
@@ -114,6 +130,7 @@ static int stress_shm_sysv_child(
 	int i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
+	int mask = ~0;
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));
@@ -133,9 +150,12 @@ static int stress_shm_sysv_child(
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
-				/* Get a unique key */
 				bool unique = true;
+				const int rnd =
+					mwc32() % SIZEOF_ARRAY(shm_flags);
+				const int rnd_flag = shm_flags[rnd] & mask;
 
+				/* Get a unique key */
 				do {
 					ssize_t j;
 
@@ -154,11 +174,15 @@ static int stress_shm_sysv_child(
 
 				shm_id = shmget(key, sz, 
 					IPC_CREAT | IPC_EXCL |
-					S_IRUSR | S_IWUSR);
+					S_IRUSR | S_IWUSR | rnd_flag);
 				if (shm_id >= 0)
 					break;
 				if (errno == EINTR)
 					goto reap;
+				if (errno == EPERM) {
+					/* ignore using the flag again */
+					mask &= ~rnd_flag;
+				}
 				if ((errno == EINVAL) || (errno == ENOMEM)) {
 					/*
 					 * On some systems we may need
