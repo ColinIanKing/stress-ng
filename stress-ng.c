@@ -647,6 +647,10 @@ static const struct option long_options[] = {
 #endif
 	{ "pipe",	1,	0,	OPT_PIPE },
 	{ "pipe-ops",	1,	0,	OPT_PIPE_OPS },
+	{ "pipe-data-size",1,	0,	OPT_PIPE_DATA_SIZE },
+#if defined(F_SETPIPE_SZ)
+	{ "pipe-size",	1,	0,	OPT_PIPE_SIZE },
+#endif
 	{ "poll",	1,	0,	OPT_POLL },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
 #if defined(STRESS_PROCFS)
@@ -1153,6 +1157,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
 	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
+	{ NULL,		"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
+#if defined(F_SETPIPE_SZ)
+	{ NULL,		"pipe-size N",		"set pipe size to N bytes" },
+#endif
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
 #if defined(STRESS_PROCFS)
@@ -2333,6 +2341,14 @@ next_opt:
 #if defined(STRESS_PERF_STATS)
 		case OPT_PERF_STATS:
 			opt_flags |= OPT_FLAGS_PERF_STATS;
+			break;
+#endif
+		case OPT_PIPE_DATA_SIZE:
+			stress_set_pipe_data_size(optarg);
+			break;
+#if defined(F_SETPIPE_SZ)
+		case OPT_PIPE_SIZE:
+			stress_set_pipe_size(optarg);
 			break;
 #endif
 		case OPT_PTHREAD_MAX:

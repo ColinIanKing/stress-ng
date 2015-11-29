@@ -35,6 +35,37 @@
 
 #include "stress-ng.h"
 
+#if defined(F_SETPIPE_SZ)
+static size_t opt_pipe_size = 0;
+#endif
+static size_t opt_pipe_data_size = 512;
+
+#define PIPE_STOP	"PS!"
+
+#if defined(F_SETPIPE_SZ)
+/*
+ *  stress_set_pipe_size()
+ *	set pipe size in bytes
+ */
+void stress_set_pipe_size(const char *optarg)
+{
+        opt_pipe_size = (size_t)get_uint64_byte(optarg);
+        check_range("pipe-size", opt_pipe_size,
+                stress_get_pagesize(), 1024 * 1024);
+}
+#endif
+
+/*
+ *  stress_set_pipe_size()
+ *	set pipe data write size in bytes
+ */
+void stress_set_pipe_data_size(const char *optarg)
+{
+        opt_pipe_data_size = (size_t)get_uint64_byte(optarg);
+        check_range("pipe-data_size", opt_pipe_data_size,
+                4, stress_get_pagesize());
+}
+
 /*
  *  pipe_memset()
  *	set pipe data to be incrementing chars from val upwards
@@ -61,6 +92,25 @@ static inline int pipe_memchk(char *buf, char val, const size_t sz)
 	return 0;
 }
 
+#if defined(F_SETPIPE_SZ)
+/*
+ *  pipe_change_size()
+ *	see if we can change the pipe size
+ */
+static void pipe_change_size(const char *name, const int fd)
+{
+	if (!opt_pipe_size)
+		return;
+
+	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {
+		pr_err(stderr, "%s: cannot set pipe size, keeping "
+			"default pipe size, errno=%d (%s)\n",
+			name, errno, strerror(errno));
+	}
+}
+#endif
+
+
 /*
  *  stress_pipe
  *	stress by heavy pipe I/O
@@ -81,6 +131,11 @@ int stress_pipe(
 		return EXIT_FAILURE;
 	}
 
+#if defined(F_SETPIPE_SZ)
+	pipe_change_size(name, pipefds[0]);
+	pipe_change_size(name, pipefds[1]);
+#endif
+
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -98,10 +153,10 @@ again:
 
 		(void)close(pipefds[1]);
 		while (opt_do_run) {
-			char buf[PIPE_BUF];
+			char buf[opt_pipe_data_size];
 			ssize_t n;
 
-			n = read(pipefds[0], buf, sizeof(buf));
+			n = read(pipefds[0], buf, opt_pipe_data_size);
 			if (n <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -123,18 +178,19 @@ again:
 		(void)close(pipefds[0]);
 		exit(EXIT_SUCCESS);
 	} else {
-		char buf[PIPE_BUF];
+		char buf[opt_pipe_data_size];
 		int val = 0, status;
 
 		/* Parent */
 		setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
 
+
 		do {
 			ssize_t ret;
 
-			pipe_memset(buf, val++, sizeof(buf));
-			ret = write(pipefds[1], buf, sizeof(buf));
+			pipe_memset(buf, val++, opt_pipe_data_size);
+			ret = write(pipefds[1], buf, opt_pipe_data_size);
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -147,7 +203,7 @@ again:
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		strncpy(buf, PIPE_STOP, sizeof(buf));
+		strncpy(buf, PIPE_STOP, opt_pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
 				pr_fail_dbg(name, "termination write");

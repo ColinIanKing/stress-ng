@@ -94,9 +94,6 @@
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(1024)		/* Max number of processes per stressor */
 
-#ifndef PIPE_BUF
-#define PIPE_BUF		(512)		/* PIPE I/O buffer size */
-#endif
 #define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
 #define SOCKET_PAIR_BUF		(64)		/* Socket pair I/O buffer size */
@@ -450,7 +447,6 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_DIRS		(8192)
 
 #define SWITCH_STOP		'X'
-#define PIPE_STOP		"PIPE_STOP"
 
 #define MEM_CACHE_SIZE		(65536 * 32)
 #define UNDEFINED		(-1)
@@ -1357,6 +1353,10 @@ typedef enum {
 #endif
 
 	OPT_PIPE_OPS,
+#if defined(F_SETPIPE_SZ)
+	OPT_PIPE_SIZE,
+#endif
+	OPT_PIPE_DATA_SIZE,
 
 	OPT_POLL_OPS,
 
@@ -1848,6 +1848,8 @@ extern void stress_set_matrix_size(const char *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
+extern void stress_set_pipe_data_size(const char *optarg);
+extern void stress_set_pipe_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern int  stress_rdrand_supported(void);

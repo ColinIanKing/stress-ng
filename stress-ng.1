@@ -1454,6 +1454,19 @@ worker has two processes, a reader and a writer.
 .B \-\-pipe\-ops N
 stop pipe stress workers after N bogo pipe write operations.
 .TP
+.B \-\-pipe\-data\-size N
+specifies the size in bytes of each write to the pipe (range from 4 bytes
+to 4096 bytes). Setting a small data size will cause more writes to be
+buffered in the pipe, hence reducing the context switch rate between the
+pipe writer and pipe reader processes. Default size is the page size.
+.TP
+.B \-\-pipe\-size N
+specifies the size of the pipe in bytes (for systems that support the
+F_SETPIPE_SZ fcntl() command). Setting a small pipe size will cause the pipe
+to fill and block more frequently, hence increasing the context switch rate
+between the pipe writer and the pipe reader processes. Default size is 512
+bytes.
+.TP
 .B \-P N, \-\-poll N
 start N workers that perform zero timeout polling via the poll(2), select(2)
 and sleep(3) calls. This wastes system and user time doing nothing.
