@@ -94,7 +94,7 @@ int stress_seek(
 	}
 
 	do {
-		uint64_t offset;
+		off_t offset;
 		uint8_t tmp[512];
 		ssize_t ret;
 
@@ -118,7 +118,7 @@ re_write:
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek");
+			pr_fail_err(name, "lseek SEEK_SET");
 			goto close_finish;
 		}
 re_read:
@@ -137,6 +137,16 @@ re_read:
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
 			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", name);
 		}
+#if defined(SEEK_HOLE)
+		if (lseek(fd, 0, SEEK_HOLE) < 0) {
+			pr_fail_err(name, "lseek SEEK_HOLE");
+		}
+#endif
+#if defined(SEEK_DATA)
+		if (lseek(fd, 0, SEEK_DATA) < 0) {
+			pr_fail_err(name, "lseek SEEK_DATA");
+		}
+#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
