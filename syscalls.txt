@@ -321,6 +321,7 @@ uname				get
 unlink				dentry, hdd, unlink
 unlinkat
 unshare				clone
+userfaultfd			userfaultfd
 ustat				[ deprecated ]
 utime				utime
 utimesat
