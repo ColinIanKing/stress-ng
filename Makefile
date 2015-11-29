@@ -131,6 +131,7 @@ SRC =   stress-affinity.c \
 	stress-udp.c \
 	stress-udp-flood.c \
 	stress-urandom.c \
+	stress-userfaultfd.c \
 	stress-utime.c \
 	stress-vecmath.c \
 	stress-vm.c \

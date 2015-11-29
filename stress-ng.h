@@ -408,6 +408,14 @@ extern void pr_openlog(const char *filename);
 #define MAX_UDP_PORT		(65535)
 #define DEFAULT_UDP_PORT	(7000)
 
+#define MIN_USERFAULTFD_BYTES	(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_USERFAULTFD_BYTES	(MAX_32)
+#else
+#define MAX_USERFAULTFD_BYTES	(4 * GB)
+#endif
+#define DEFAULT_USERFAULTFD_BYTES (16 * MB)
+
 #define MIN_VM_BYTES		(4 * KB)
 #if UINTPTR_MAX == MAX_32
 #define MAX_VM_BYTES		(MAX_32)
@@ -945,6 +953,11 @@ typedef enum {
 #if defined(__linux__) || defined(__gnu_hurd__)
 	__STRESS_URANDOM,
 #define STRESS_URANDOM __STRESS_URANDOM
+#endif
+#if defined(__linux__) &&		\
+    defined(__NR_userfaultfd)
+	__STRESS_USERFAULTFD,
+#define STRESS_USERFAULTFD __STRESS_USERFAULTFD
 #endif
 	STRESS_UTIME,
 #if defined(STRESS_VECTOR)
@@ -1521,6 +1534,13 @@ typedef enum {
 #if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
 #endif
+
+#if defined(STRESS_USERFAULTFD)
+	OPT_USERFAULTFD,
+	OPT_USERFAULTFD_OPS,
+	OPT_USERFAULTFD_BYTES,
+#endif
+
 	OPT_UTIME,
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
@@ -1851,6 +1871,7 @@ extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *optarg);
 extern int  stress_set_udp_flood_domain(const char *name);
+extern void stress_set_userfaultfd_bytes(const char *optarg);
 extern void stress_set_vfork_max(const char *optarg);
 extern void stress_set_vm_bytes(const char *optarg);
 extern void stress_set_vm_flags(const int flag);
@@ -1971,6 +1992,7 @@ STRESS(stress_tsearch);
 STRESS(stress_udp);
 STRESS(stress_udp_flood);
 STRESS(stress_urandom);
+STRESS(stress_userfaultfd);
 STRESS(stress_utime);
 STRESS(stress_vecmath);
 STRESS(stress_vfork);

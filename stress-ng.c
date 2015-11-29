@@ -329,6 +329,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_URANDOM)
 	STRESSOR(urandom, URANDOM, CLASS_DEV | CLASS_OS),
 #endif
+#if defined(STRESS_USERFAULTFD)
+	STRESSOR(userfaultfd, USERFAULTFD, CLASS_VM | CLASS_OS),
+#endif
 	STRESSOR(utime, UTIME, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_VECMATH)
 	STRESSOR(vecmath, VECMATH, CLASS_CPU | CLASS_CPU_CACHE),
@@ -789,6 +792,11 @@ static const struct option long_options[] = {
 	{ "udp-flood",	1,	0,	OPT_UDP_FLOOD },
 	{ "udp-flood-domain",1,	0,	OPT_UDP_FLOOD_DOMAIN },
 	{ "udp-flood-ops",1,	0,	OPT_UDP_FLOOD_OPS },
+#endif
+#if defined(STRESS_USERFAULTFD)
+	{ "userfaultfd",1,	0,	OPT_USERFAULTFD },
+	{ "userfaultfd-ops",1,	0,	OPT_USERFAULTFD_OPS },
+	{ "userfaultfd-bytes",1,0,	OPT_USERFAULTFD_BYTES },
 #endif
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
@@ -1280,6 +1288,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_URANDOM)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
 	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
+#endif
+#if defined(STRESS_USERFAULTFD)
+	{ NULL,		"userfaultfd N",	"start N page faulting workers with userspace handling" },
+	{ NULL,		"userfaultfd-ops N",	"stop when N page faults have been handled" },
 #endif
 	{ NULL,		"utime N",		"start N workers updating file timestamps" },
 	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
@@ -2461,6 +2473,11 @@ next_opt:
 		case OPT_UDP_FLOOD_DOMAIN:
 			if (stress_set_udp_flood_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+#endif
+#if defined(STRESS_USERFAULTFD)
+		case OPT_USERFAULTFD_BYTES:
+			stress_set_userfaultfd_bytes(optarg);
 			break;
 #endif
 		case OPT_UTIME_FSYNC:
