@@ -139,12 +139,14 @@ re_read:
 		}
 #if defined(SEEK_HOLE)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
-			pr_fail_err(name, "lseek SEEK_HOLE");
+			if (errno != EINVAL)
+				pr_fail_err(name, "lseek SEEK_HOLE");
 		}
 #endif
 #if defined(SEEK_DATA)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
-			pr_fail_err(name, "lseek SEEK_DATA");
+			if (errno != EINVAL)
+				pr_fail_err(name, "lseek SEEK_DATA");
 		}
 #endif
 		(*counter)++;
