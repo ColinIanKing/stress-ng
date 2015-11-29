@@ -1875,6 +1875,7 @@ start N workers that generate write page faults on a small anonymously mapped
 memory region and handle these faults using the user space fault handling via
 the userfaultfd mechanism.  This will generate a large quanity of major page
 faults and also context switches during the handling of the page faults.
+(Linux only).
 .TP
 .B \-\-userfaultfd-ops N
 stop userfaultfd stress workers after N page faults.
