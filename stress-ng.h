@@ -846,7 +846,7 @@ typedef enum {
 #define STRESS_NUMA __STRESS_NUMA
 #endif
 	STRESS_OPEN,
-#if 0 && defined(__linux__)
+#if defined(__linux__)
 	__STRESS_PERSONALITY,
 #define STRESS_PERSONALITY __STRESS_PERSONALITY
 #endif
