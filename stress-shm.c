@@ -119,7 +119,7 @@ static int stress_shm_posix_child(
 	set_oom_adjustment(name, true);
 
 	do {
-		for (i = 0; i < (ssize_t)opt_shm_posix_objects; i++) {
+		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
 			int shm_fd;
 			void *addr;
 			char *shm_name = shm_names[i];
@@ -188,7 +188,7 @@ static int stress_shm_posix_child(
 			(*counter)++;
 		}
 reap:
-		for (i = 0; i < (ssize_t)opt_shm_posix_objects; i++) {
+		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
 			char *shm_name = shm_names[i];
 
 			if (addrs[i])
