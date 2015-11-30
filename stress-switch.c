@@ -29,10 +29,13 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
 #include "stress-ng.h"
+
+#define SWITCH_STOP	'X'
 
 /*
  *  stress_switch
@@ -46,6 +49,7 @@ int stress_switch(
 {
 	pid_t pid;
 	int pipefds[2];
+	size_t buf_size = stress_get_pagesize();
 
 	(void)instance;
 
@@ -53,6 +57,13 @@ int stress_switch(
 		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
+#if defined(F_SETPIPE_SZ)
+	if (fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0) {
+		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
+			"errno = %d (%s)\n",
+			name, errno, strerror(errno));
+	}
+#endif
 
 again:
 	pid = fork();
@@ -64,7 +75,7 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		char ch;
+		char buf[buf_size];
 
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
@@ -74,7 +85,7 @@ again:
 		while (opt_do_run) {
 			ssize_t ret;
 
-			ret = read(pipefds[0], &ch, sizeof(ch));
+			ret = read(pipefds[0], buf, sizeof(buf));
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -83,23 +94,25 @@ again:
 			}
 			if (ret == 0)
 				break;
-			if (ch == SWITCH_STOP)
+			if (*buf == SWITCH_STOP)
 				break;
 		}
 		(void)close(pipefds[0]);
 		exit(EXIT_SUCCESS);
 	} else {
-		char ch = '_';
+		char buf[buf_size];
 		int status;
 
 		/* Parent */
 		setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
 
+		memset(buf, '_', buf_size);
+
 		do {
 			ssize_t ret;
 
-			ret = write(pipefds[1],  &ch, sizeof(ch));
+			ret = write(pipefds[1], buf, sizeof(buf));
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -112,8 +125,8 @@ again:
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-		ch = SWITCH_STOP;
-		if (write(pipefds[1],  &ch, sizeof(ch)) <= 0)
+		memset(buf, SWITCH_STOP, sizeof(buf));
+		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_fail_dbg(name, "termination write");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

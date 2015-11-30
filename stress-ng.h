@@ -446,8 +446,6 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
-#define SWITCH_STOP		'X'
-
 #define MEM_CACHE_SIZE		(65536 * 32)
 #define UNDEFINED		(-1)
 
