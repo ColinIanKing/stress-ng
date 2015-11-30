@@ -156,6 +156,8 @@ void stress_process_dumpable(const bool dumpable)
 #if defined(__linux__) && defined(PR_SET_DUMPABLE)
 	(void)prctl(PR_SET_DUMPABLE, 
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
+#else
+	(void)dumpable;
 #endif
 }
 
@@ -167,6 +169,8 @@ void stress_set_timer_slack_ns(const char *optarg)
 {
 #if defined(PRCTL_TIMER_SLACK)
 	timer_slack = get_unsigned_long(optarg);
+#else
+	(void)optarg;
 #endif
 }
 
