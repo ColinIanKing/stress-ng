@@ -122,7 +122,7 @@ static int do_fcntl(const int fd, const char *name)
 	}
 #endif
 
-#if defined(F_SETOWN)
+#if defined(F_SETOWN) && defined(__linux__)
 	{
 		int ret;
 
@@ -131,7 +131,7 @@ static int do_fcntl(const int fd, const char *name)
 	}
 #endif
 
-#if defined(F_GETOWN)
+#if defined(F_GETOWN) && defined(__linux__)
 	{
 		int ret;
 
