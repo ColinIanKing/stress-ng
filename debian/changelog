@@ -1,3 +1,36 @@
+stress-ng (0.05.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-shm: break out of loops when ok is false
+  * stress-fcntl: make F_SETOWN and F_GETOWN linux only for now
+  * helper: fix warning on FreeBSD, unused args caused warnings
+  * stress-switch: force more context switches
+  * stress-pipe: add pipe-data-size and pipe-size options
+  * stress-seek: only report error if SEEK_DATA/SEEK_HOLE supported
+  * stress-seek: add SEEK_DATA and SEEK_HOLE seeks
+  * syscalls.txt: add new userfaultfd syscall
+  * Manual: note that userfaultfd is only for Linux
+  * Add new userfaultfd stressor
+  * stress-membarrier: rename pr_failed_err -> pr_fail_err
+  * stress-cpu: force more jmps in cpu-jmp method
+  * stress-brk: add occasional brk shrink to add a bit more variety
+  * stress-shm-sysv: use some more random shm flags
+  * stress-mmap: use some more random mmap flags
+  * stress-fallocate: add some more fallocate modes
+  * Rename pr_failed_* macros to pr_fail
+  * log: rename logging functions
+  * log: don't be silent when we have failure messages
+  * stress-filename: Add more error handling feedback
+  * Update debian/rules: enable debian build flags
+  * Fix buffer not null terminated error with strncpy
+  * Add filename stressor
+  * Add --timer-slack option to adjust timer slackness
+  * disable core dump via prctl() to avoid massive core files
+  * Signal to child processes if parent has died.
+  * log: make variables static
+
+ -- Colin King <colin.king@canonical.com>  Mon, 30 Nov 2015 10:55:00 +0000
+
 stress-ng (0.05.00-1) unstable; urgency=medium
 
   * Makefile: bump version to 0.05.00, update codename
