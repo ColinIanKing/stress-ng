@@ -857,7 +857,7 @@ typedef enum {
 #define STRESS_PROCFS __STRESS_PROCFS
 #endif
 	STRESS_PTHREAD,
-#if 0 && defined(__linux__)
+#if defined(__linux__)
 	__STRESS_PTRACE,
 #define STRESS_PTRACE __STRESS_PTRACE
 #endif
