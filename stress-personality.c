@@ -89,7 +89,7 @@ int stress_personality(
 			}
 		}
 		if (fails == n) {
-			pr_fail(stderr, "%s: all %lu personalities failed "
+			pr_fail(stderr, "%s: all %zu personalities failed "
 				"to be set\n", name, fails);
 			break;
 		}
