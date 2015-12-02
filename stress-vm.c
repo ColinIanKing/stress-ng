@@ -38,6 +38,8 @@
 #define VM_BOGO_SHIFT		(12)
 #define VM_ROWHAMMER_LOOPS	(1000000)
 
+#define NO_MEM_RETRIES_MAX	(100)
+
 
 /*
  *  the VM stress test has diffent methods of vm stressor
@@ -1942,6 +1944,8 @@ again:
 			}
 		}
 	} else if (pid == 0) {
+		int no_mem_retries = 0;
+
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
@@ -1949,17 +1953,26 @@ again:
 		set_oom_adjustment(name, true);
 
 		do {
+			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+				pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
+					name);
+				break;
+			}
 			if (!keep || (buf == NULL)) {
 				if (!opt_do_run)
 					return EXIT_SUCCESS;
 				buf = mmap(NULL, buf_sz, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
-				if (buf == MAP_FAILED)
+				if (buf == MAP_FAILED) {
+					buf = NULL;
+					no_mem_retries++;
+					usleep(100000);
 					continue;	/* Try again */
-
+				}
 				(void)madvise_random(buf, buf_sz);
 			}
 
+			no_mem_retries = 0;
 			(void)mincore_touch_pages(buf, buf_sz);
 			(void)func(buf, buf_sz, counter, max_ops << VM_BOGO_SHIFT);
 
