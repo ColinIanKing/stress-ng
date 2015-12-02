@@ -228,18 +228,6 @@ static int clone_func(void *arg)
 }
 
 /*
- *  clone_stack_dir()
- *	determine which way the stack goes, up / down
- */
-static ssize_t clone_stack_dir(uint8_t *val1)
-{
-	uint8_t val2;
-
-	return (val1 - &val2) > 0 ? 1 : -1;
-}
-
-
-/*
  *  stress_clone()
  *	stress by cloning and exiting
  */
@@ -251,7 +239,7 @@ int stress_clone(
 {
 	uint64_t max_clones = 0;
 	const ssize_t stack_offset =
-		clone_stack_dir((uint8_t *)&max_clones) *
+		stress_get_stack_direction(&max_clones) *
 		(CLONE_STACK_SIZE - 64);
 
 	(void)instance;

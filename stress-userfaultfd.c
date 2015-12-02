@@ -69,17 +69,6 @@ void stress_set_userfaultfd_bytes(const char *optarg)
 }
 
 /*
- *  clone_stack_dir()
- *      determine which way the stack goes, up / down
- */
-static ssize_t clone_stack_dir(uint8_t *val1)
-{
-        uint8_t val2;
-
-        return (val1 - &val2) > 0 ? 1 : -1;
-}
-
-/*
  *  stress_userfaultfd_child()
  *	generate page faults for parent to handle
  */
@@ -161,7 +150,7 @@ int stress_userfaultfd(
 	/* Child clone stack */
 	static uint8_t stack[64*1024];
         const ssize_t stack_offset =
-                clone_stack_dir((uint8_t *)&fd) * (STACK_SIZE - 64);
+                stress_get_stack_direction(&fd) * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
 	(void)instance;

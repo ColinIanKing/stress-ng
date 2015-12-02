@@ -205,6 +205,19 @@ char *munge_underscore(char *str)
 }
 
 /*
+ *  stress_get_stack_direction()
+ *      determine which way the stack goes, up / down
+ *	just pass in any var on the stack before calling
+ */
+ssize_t stress_get_stack_direction(void *val1)
+{
+	uint8_t val2;
+
+	return ((uint8_t *)val1 - &val2) > 0 ? 1 : -1;
+}
+
+
+/*
  *  force stress-float to think the doubles are actually
  *  being used - this avoids the float loop from being
  *  over optimised out per iteration.

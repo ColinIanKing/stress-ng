@@ -1773,6 +1773,7 @@ extern size_t stress_get_pagesize(void);
 extern long stress_get_processors_online(void);
 extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
+extern ssize_t stress_get_stack_direction(void *val1);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
 extern void stress_process_dumpable(const bool dumpable);
