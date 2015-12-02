@@ -181,7 +181,8 @@ again:
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
 				name, stress_strsignal(WTERMSIG(status)), instance);
 			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
+			if ((WTERMSIG(status) == SIGKILL) ||
+			    (WTERMSIG(status) == SIGKILL)) {
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
 					name, instance);
