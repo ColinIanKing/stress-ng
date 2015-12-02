@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -159,7 +160,7 @@ static int stress_shm_posix_child(
 				MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
-				pr_fail(stderr, "%s: mmap failed: errno=%d (%s)\n",
+				pr_fail(stderr, "%s: mmap failed, giving up: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
@@ -243,6 +244,8 @@ int stress_shm_posix(
 	int rc = EXIT_SUCCESS;
 	ssize_t i;
 	pid_t pid;
+	bool retry = true;
+	uint32_t restarts = 0;
 
 	(void)instance;
 
@@ -260,7 +263,7 @@ int stress_shm_posix(
 	}
 	orig_sz = sz = opt_shm_posix_bytes & ~(page_size - 1);
 
-	while (opt_do_run) {
+	while (opt_do_run && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg(name, "pipe");
 			return EXIT_FAILURE;
@@ -311,8 +314,10 @@ fork_again:
 					break;
 				}
 				if ((msg.index < 0) ||
-				    (msg.index >= MAX_SHM_POSIX_OBJECTS))
+				    (msg.index >= MAX_SHM_POSIX_OBJECTS)) {
+					retry = false;
 					break;
+				}
 
 				shm_name = shm_names[msg.index];
 				shm_name[SHM_NAME_LEN - 1] = '\0';
@@ -320,6 +325,15 @@ fork_again:
 			}
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
+			if (WIFSIGNALED(status)) {
+				if ((WTERMSIG(status) == SIGKILL) ||
+				    (WTERMSIG(status) == SIGKILL)) {
+					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+						"restarting again (instance %d)\n",
+						name, instance);
+					restarts++;
+				}
+			}
 			(void)close(pipefds[1]);
 
 			/*
@@ -349,5 +363,9 @@ fork_again:
 	if (orig_sz != sz)
 		pr_dbg(stderr, "%s: reduced shared memory size from "
 			"%zu to %zu bytes\n", name, orig_sz, sz);
+	if (restarts) {
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
+			name, restarts);
+	}
 	return rc;
 }
