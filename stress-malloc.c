@@ -227,7 +227,7 @@ abort:
 	}
 	if (restarts + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
-			"out of memory restarts: %" PRIu32 ".\n",
+			", out of memory restarts: %" PRIu32 ".\n",
 			name, restarts, nomems);
 
 	return EXIT_SUCCESS;
