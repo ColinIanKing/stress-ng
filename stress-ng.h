@@ -356,7 +356,11 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
 
 #define MIN_SEEK_SIZE		(1 * MB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_SEEK_SIZE		(0xffffe00)
+#else
 #define MAX_SEEK_SIZE 		(256ULL * GB)
+#endif
 #define DEFAULT_SEEK_SIZE	(16 * MB)
 
 #define MIN_SEQUENTIAL		(0)
