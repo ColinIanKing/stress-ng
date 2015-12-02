@@ -36,6 +36,8 @@
 
 #include "stress-ng.h"
 
+#define NO_MEM_RETRIES_MAX	(100)
+
 static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static bool set_mmap_bytes = false;
 
@@ -216,6 +218,13 @@ redo:
 		size_t n;
 		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
 		const int rnd_flag = mmap_flags[rnd];
+		int no_mem_retries = 0;
+
+		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
+				name);
+			break;
+		}
 
 		if (!opt_do_run)
 			break;
@@ -225,6 +234,9 @@ redo:
 #ifdef MAP_POPULATE
 			flags &= ~MAP_POPULATE;
 #endif
+			no_mem_retries++;
+			if (no_mem_retries > 1)
+				usleep(100000);
 			continue;	/* Try again */
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
