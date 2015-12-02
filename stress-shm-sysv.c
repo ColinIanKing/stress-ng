@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -298,6 +299,8 @@ int stress_shm_sysv(
 	int rc = EXIT_SUCCESS;
 	ssize_t i;
 	pid_t pid;
+	bool retry = true;
+	uint32_t restarts = 0;
 
 	(void)instance;
 
@@ -316,7 +319,7 @@ int stress_shm_sysv(
 	}
 	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
 
-	while (opt_do_run) {
+	while (opt_do_run && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg(name, "pipe");
 			return EXIT_FAILURE;
@@ -366,12 +369,23 @@ fork_again:
 					break;
 				}
 				if ((msg.index < 0) ||
-				    (msg.index >= MAX_SHM_SYSV_SEGMENTS))
+				    (msg.index >= MAX_SHM_SYSV_SEGMENTS)) {
+					retry = false;
 					break;
+				}
 				shm_ids[msg.index] = msg.shm_id;
 			}
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
+			if (WIFSIGNALED(status)) {
+				if ((WTERMSIG(status) == SIGKILL) ||
+				    (WTERMSIG(status) == SIGKILL)) {
+					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+						"restarting again (instance %d)\n",
+						name, instance);
+					restarts++;
+				}
+			}
 			(void)close(pipefds[1]);
 
 			/*
@@ -401,5 +415,9 @@ fork_again:
 	if (orig_sz != sz)
 		pr_dbg(stderr, "%s: reduced shared memory size from "
 			"%zu to %zu bytes\n", name, orig_sz, sz);
+	if (restarts) {
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
+			name, restarts);
+	}
 	return rc;
 }
