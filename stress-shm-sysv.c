@@ -43,6 +43,16 @@
 
 #define KEY_GET_RETRIES		(40)
 
+/*
+ *  Note, running this test with the --maximize option on
+ *  low memory systems with many instances can trigger the
+ *  OOM killer fairly easily.  The test tries hard to reap
+ *  reap shared memory segments that are left over if the
+ *  child is killed, however if the OOM killer kills the
+ *  parent that does the reaping, then one can be left with
+ *  a system with many shared segments still reserved and
+ *  little free memory.
+ */
 typedef struct {
 	int	index;
 	int	shm_id;
@@ -64,9 +74,11 @@ static int shm_flags[] = {
 	SHM_HUGE_1GB,
 #endif
 /* This will segv if no backing, so don't use it for now */
-#if 0 && defined(SHM_NORESERVE)
-	SHM_NORESERVED,
+/*
+#if defined(SHM_NO_RESERVE)
+	SHM_NO_RESERVE
 #endif
+*/
 	0
 };
 
@@ -95,8 +107,6 @@ static int stress_shm_sysv_check(uint8_t *buf, const size_t sz)
 	uint8_t *ptr, *end = buf + sz;
 	uint8_t val;
 
-	memset(buf, 0xa5, sz);
-
 	for (val = 0, ptr = buf; ptr < end; ptr += 4096, val++) {
 		*ptr = val;
 	}
@@ -107,6 +117,18 @@ static int stress_shm_sysv_check(uint8_t *buf, const size_t sz)
 
 	}
 	return 0;
+}
+
+
+/*
+ *  handle_shm_sysv_sigalrm()
+ *      catch SIGALRM, flag termination
+ */
+static MLOCKED void handle_shm_sysv_sigalrm(int dummy)
+{
+	(void)dummy;
+
+	opt_do_run = false;
 }
 
 /*
@@ -121,9 +143,10 @@ static int stress_shm_sysv_child(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
-	size_t sz,
+	const size_t max_sz,
 	const size_t page_size)
 {
+	struct sigaction new_action;
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
@@ -132,6 +155,15 @@ static int stress_shm_sysv_child(
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
+	int instances;
+
+	new_action.sa_handler = handle_shm_sysv_sigalrm;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
+		pr_fail_err(name, "sigaction");
+		return EXIT_FAILURE;
+	}
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));
@@ -141,12 +173,29 @@ static int stress_shm_sysv_child(
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(name, true);
 
+	if ((instances = stressor_instances(STRESS_SHM_SYSV)) < 1)
+		instances = (int)stress_get_processors_configured();
+	/* Should never happen, but be safe */
+	if (instances < 1)
+		instances = 1;
+
 	do {
+		size_t sz = max_sz;
+
 		for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
 			int shm_id, count = 0;
 			void *addr;
 			key_t key;
+			size_t shmall, freemem, totalmem;
 
+			/* Try hard not to overcommit at this current time */
+			stress_get_memlimits(&shmall, &freemem, &totalmem);
+			shmall /= instances;
+			freemem /= instances;
+			if ((shmall > page_size) && sz > shmall)
+				sz = shmall;
+			if ((freemem > page_size) && sz > freemem)
+				sz = freemem;
 			if (!opt_do_run)
 				goto reap;
 
@@ -155,6 +204,9 @@ static int stress_shm_sysv_child(
 				const int rnd =
 					mwc32() % SIZEOF_ARRAY(shm_flags);
 				const int rnd_flag = shm_flags[rnd] & mask;
+
+				if (sz < page_size)
+					goto reap;
 
 				/* Get a unique key */
 				do {
@@ -171,9 +223,12 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
+					if (!opt_do_run)
+						goto reap;
+
 				} while (!unique);
 
-				shm_id = shmget(key, sz, 
+				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
 				if (shm_id >= 0)
@@ -189,8 +244,7 @@ static int stress_shm_sysv_child(
 					 * On some systems we may need
 					 * to reduce the size
 					 */
-					if (sz > page_size)
-						sz = sz / 2;
+					sz = sz / 2;
 				}
 			}
 			if (shm_id < 0) {
@@ -343,6 +397,7 @@ fork_again:
 			ssize_t n;
 
 			setpgid(pid, pgrp);
+			set_oom_adjustment(name, false);
 			(void)close(pipefds[1]);
 
 			for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++)
@@ -375,11 +430,11 @@ fork_again:
 				}
 				shm_ids[msg.index] = msg.shm_id;
 			}
-			(void)kill(pid, SIGKILL);
+			(void)kill(pid, SIGALRM);
 			(void)waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
-				    (WTERMSIG(status) == SIGKILL)) {
+				    (WTERMSIG(status) == SIGBUS)) {
 					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
 						name, instance);
@@ -387,7 +442,6 @@ fork_again:
 				}
 			}
 			(void)close(pipefds[1]);
-
 			/*
 			 *  The child may have been killed by the OOM killer or
 			 *  some other way, so it may have left the shared
@@ -401,9 +455,16 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
-
 			setpgid(0, pgrp);
 			stress_parent_died_alarm();
+
+			/*
+			 * Nicing the child may OOM it first as this
+			 * doubles the OOM score
+			 */
+			if (nice(5) < 0)
+				pr_dbg(stderr, "%s: nice of child failed, "
+					"(instance %d)\n", name, instance);
 
 			(void)close(pipefds[0]);
 			rc = stress_shm_sysv_child(pipefds[1], counter,

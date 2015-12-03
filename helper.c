@@ -137,6 +137,42 @@ long stress_get_ticks_per_second(void)
 }
 
 /*
+ *  stress_get_memlimits()
+ *	get SHMALL and memory in system
+ *	these are set to zero on failure
+ */
+void stress_get_memlimits(
+	size_t *shmall,
+	size_t *freemem,
+	size_t *totalmem)
+{
+#if defined(__linux__)
+	struct sysinfo info;
+	FILE *fp;
+#endif
+	*shmall = 0;
+	*freemem = 0;
+	*totalmem = 0;
+
+#if defined(__linux__)
+	if (sysinfo(&info) == 0) {
+		*freemem = info.freeram * info.mem_unit;
+		*totalmem = info.totalram * info.mem_unit;
+	}
+
+	fp = fopen("/proc/sys/kernel/shmall", "r");
+	if (!fp)
+		return;
+
+	if (fscanf(fp, "%zu", shmall) != 1) {
+		fclose(fp);
+		return;
+	}
+	fclose(fp);
+#endif
+}
+
+/*
  *  stress_parent_died_alarm()
  *	send child SIGALRM if the parent died
  */

@@ -368,7 +368,7 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
 
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
-#define MAX_SHM_SYSV_BYTES	(1 * GB)
+#define MAX_SHM_SYSV_BYTES	(256 * MB)
 #define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
 
 #define MIN_SHM_SYSV_SEGMENTS	(1)
@@ -1778,6 +1778,7 @@ extern long stress_get_processors_online(void);
 extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
 extern ssize_t stress_get_stack_direction(void *val1);
+extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
 extern void stress_process_dumpable(const bool dumpable);
