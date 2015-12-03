@@ -152,6 +152,7 @@ int stress_mmap(
 #endif
 	const pid_t pid = getpid();
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	int no_mem_retries = 0;
 	char filename[PATH_MAX];
 
 	(void)instance;
@@ -218,7 +219,6 @@ redo:
 		size_t n;
 		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
 		const int rnd_flag = mmap_flags[rnd];
-		int no_mem_retries = 0;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
