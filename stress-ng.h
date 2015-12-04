@@ -888,6 +888,10 @@ typedef enum {
 	__STRESS_RLIMIT,
 #define STRESS_RLIMIT __STRESS_RLIMIT
 #endif
+#if defined(__linux__) && defined(PR_SET_SECCOMP)
+	__STRESS_SECCOMP,
+#define STRESS_SECCOMP __STRESS_SECCOMP
+#endif
 	STRESS_SEEK,
 #if defined(__linux__)
 	__STRESS_SEMAPHORE_POSIX,
@@ -1401,6 +1405,11 @@ typedef enum {
 
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
+
+#if defined(STRESS_SECCOMP)
+	OPT_SECCOMP,
+	OPT_SECCOMP_OPS,
+#endif
 
 	OPT_SEEK,
 	OPT_SEEK_OPS,
@@ -1970,6 +1979,7 @@ STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_rename);
 STRESS(stress_rlimit);
+STRESS(stress_seccomp);
 STRESS(stress_seek);
 STRESS(stress_sem_posix);
 STRESS(stress_sem_sysv);

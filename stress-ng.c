@@ -277,6 +277,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_RLIMIT)
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 #endif
+#if defined(STRESS_SECCOMP)
+	STRESSOR(seccomp, SECCOMP, CLASS_OS),
+#endif
 	STRESSOR(seek, SEEK, CLASS_IO | CLASS_OS),
 #if defined(STRESS_SEMAPHORE_POSIX)
 	STRESSOR(sem_posix, SEMAPHORE_POSIX, CLASS_OS | CLASS_SCHEDULER),
@@ -690,6 +693,10 @@ static const struct option long_options[] = {
 #endif
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+#if defined(STRESS_SECCOMP)
+	{ "seccomp",	1,	0,	OPT_SECCOMP },
+	{ "seccomp-ops",1,	0,	OPT_SECCOMP_OPS },
+#endif
 	{ "seek",	1,	0,	OPT_SEEK },
 	{ "seek-ops",	1,	0,	OPT_SEEK_OPS },
 	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },

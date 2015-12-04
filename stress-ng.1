@@ -1554,6 +1554,17 @@ SIGXCPU and SIGXFSZ signals.
 .B \-\-rlimit\-ops N
 stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
 .TP
+.B \-\-seccomp N
+start N workers that exercise Secure Computing system call filtering. Each
+worker creates child processes that write a short message to /dev/null and then
+exits. 2% of the child processes have a seccomp filter that disallows
+the write system call and hence it is killed by seccomp with a SIGSYS.  Note
+that this stressor can generate many audit log messages each time the child is
+killed.
+.TP
+.B \-\-seccomp-ops N
+stop seccomp stress workers after N seccomp filter tests.
+.TP
 .B \-\-seek N
 start N workers that randomly seeks and performs 512 byte read/write I/O
 operations on a file. The default file size is 16 GB.

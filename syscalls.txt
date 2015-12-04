@@ -226,7 +226,7 @@ sched_setaffinity		affinity
 sched_setparam
 sched_setscheduler		sched
 sched_yield			yield
-seccomp
+seccomp				seccomp (prctl)
 select				poll
 semctl				sem-sysv
 semget				sem-sysv
