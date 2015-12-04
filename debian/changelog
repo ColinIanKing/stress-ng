@@ -1,3 +1,26 @@
+stress-ng (0.05.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-get: define _DEFAULT_SOURCE to stop gcc 5.2.1 warnings
+  * Add new seccomp stressor
+  * stress-mmap: fix thinko, init no_mem_retires in correct place
+  * stress-shm-sysv: add more allocation smarts
+  * stress-shm-sysv: add mmap failure abort and OOM counting
+  * stress-shm: add mmap failure abort and OOM counting
+  * stress-seek: set a useable upper seek limit for 32 bit arches
+  * stress-mmap: add mmap retry mechanism if we can't mmap memory
+  * stress-memfd: trap SIGBUS as well as SIGKILL for OOM catching
+  * stress-vm: add spacing on OOM restarts message
+  * stress-malloc: add spacing on OOM restarts message
+  * stress-memfd: add spacing on OOM restarts message
+  * stress-vm: add mmap retry mechanism if we can't mmap memory
+  * refactor stack direction checking function
+  * stress-personality: fix warning on %lu being used on a size_t
+  * stress-ptrace: re-enable this stressor and fix up pr_failed_* macro
+  * Enable personality stressor
+
+ -- Colin King <colin.king@canonical.com>  Fri, 4 Dec 2015 12:49:02 +0000
+
 stress-ng (0.05.01-1) unstable; urgency=medium
 
   * Makefile: bump version
