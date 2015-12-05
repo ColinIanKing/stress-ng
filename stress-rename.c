@@ -50,24 +50,31 @@ int stress_rename(
 	FILE *fp;
 	uint64_t i = 0;
 	const pid_t pid = getpid();
+	const uint32_t inst1 = instance * 2;
+	const uint32_t inst2 = inst1 + 1;
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+	if (stress_temp_dir_mk(name, pid, inst1) < 0)
 		return EXIT_FAILURE;
+	if (stress_temp_dir_mk(name, pid, inst2) < 0) {
+		(void)stress_temp_dir_rm(name, pid, inst1);
+		return EXIT_FAILURE;
+	}
 restart:
 	(void)stress_temp_filename(oldname, PATH_MAX,
-		name, pid, instance, i++);
+		name, pid, inst1, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)stress_temp_dir_rm(name, pid, inst1);
+		(void)stress_temp_dir_rm(name, pid, inst2);
 		return EXIT_FAILURE;
 	}
 	(void)fclose(fp);
 
-	do {
+	for (;;) {
 		(void)stress_temp_filename(newname, PATH_MAX,
-			name, pid, instance, i++);
+			name, pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);
 			(void)unlink(newname);
@@ -77,13 +84,30 @@ restart:
 		tmpname = oldname;
 		oldname = newname;
 		newname = tmpname;
-
 		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		if (!opt_do_run || (!max_ops || *counter >= max_ops))
+			break;
+
+		(void)stress_temp_filename(newname, PATH_MAX,
+			name, pid, inst1, i++);
+		if (rename(oldname, newname) < 0) {
+			(void)unlink(oldname);
+			(void)unlink(newname);
+			goto restart;
+		}
+
+		tmpname = oldname;
+		oldname = newname;
+		newname = tmpname;
+		(*counter)++;
+		if (!opt_do_run || (!max_ops || *counter >= max_ops))
+			break;
+	}
 
 	(void)unlink(oldname);
 	(void)unlink(newname);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(name, pid, inst1);
+	(void)stress_temp_dir_rm(name, pid, inst2);
 
 	return EXIT_SUCCESS;
 }
