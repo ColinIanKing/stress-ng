@@ -1,3 +1,10 @@
+stress-ng (0.05.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-seccomp: avoid build failures on arm64 targets
+
+ -- Colin King <colin.king@canonical.com>  Sat, 5 Dec 2015 10:04:23 +0000
+
 stress-ng (0.05.02-1) unstable; urgency=medium
 
   * Makefile: bump version
