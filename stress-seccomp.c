@@ -52,20 +52,38 @@
 
 static struct sock_filter filter_allow_write[] = {
         BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+#if defined(__NR_open)
 	ALLOW_SYSCALL(open),
+#endif
+#if defined(__NR_write)
 	ALLOW_SYSCALL(write),
+#endif
+#if defined(__NR_close)
 	ALLOW_SYSCALL(close),
+#endif
+#if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
+#endif
+#if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
+#endif
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 };
 
 static struct sock_filter filter[] = {
         BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+#if defined(__NR_open)
 	ALLOW_SYSCALL(open),
+#endif
+#if defined(__NR_close)
 	ALLOW_SYSCALL(close),
+#endif
+#if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
+#endif
+#if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
+#endif
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 };
 
