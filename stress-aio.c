@@ -190,11 +190,13 @@ int stress_aio(
 	uint64_t total = 0;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
+	const size_t io_req_sz = (size_t)opt_aio_requests * sizeof(io_req_t);
 
-	if ((io_reqs = alloca((size_t)opt_aio_requests * sizeof(io_req_t))) == NULL) {
+	if ((io_reqs = alloca(io_req_sz)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
 		return EXIT_FAILURE;
 	}
+	memset(io_reqs, 0, io_req_sz);
 
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
@@ -252,16 +254,16 @@ int stress_aio(
 	rc = EXIT_SUCCESS;
 
 cancel:
-	/* Stop accounting, restore handler */
+	/* Stop accounting */
 	do_accounting = false;
-	if (sigaction(SIGUSR1, &sa_old, NULL) < 0)
-		pr_fail_err(name, "sigaction");
-
 	/* Cancel pending AIO requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_issue_cancel(name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
+	/* restore handler */
+	if (sigaction(SIGUSR1, &sa_old, NULL) < 0)
+		pr_fail_err(name, "sigaction");
 	(void)close(fd);
 finish:
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals caught (instance %d)\n",
