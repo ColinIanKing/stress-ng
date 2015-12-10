@@ -39,6 +39,60 @@
 
 #define MLOCK_MAX	(256*1024)
 
+#if defined(__NR_mlock2)
+
+#ifndef MLOCK_ONFAULT
+#define MLOCK_ONFAULT 1
+#endif
+
+static int sys_mlock2(const void *addr, size_t len, int flags)
+{
+        return (int)syscall(__NR_mlock2, addr, len, flags);
+}
+
+/*
+ *  mlock_shim()
+ *	if mlock2 is available, randonly exerise this
+ *	or mlock.  If not available, just fallback to
+ *	mlock.  Also, pick random mlock2 flags
+ */
+static int mlock_shim(const void *addr, size_t len)
+{
+	static bool use_mlock2 = true;
+
+	if (use_mlock2) {
+		uint32_t rnd = mwc32() >> 5;
+		/* Randomly use mlock2 or mlock */
+		if (rnd & 1) {
+			const int flags = (rnd & 2) ?
+				0 : MLOCK_ONFAULT;
+			int ret;
+
+			printf("%d %d %d\n",
+				rnd, rnd & 2, flags);
+
+			ret = sys_mlock2(addr, len, flags);
+			if (!ret)
+				return 0;
+			if (errno != ENOSYS)
+				return ret;
+
+			/* mlock2 not supported... */
+			use_mlock2 = false;
+		}
+	}
+
+	/* Just do mlock */
+	return mlock(addr, len);
+}
+#else
+static inline int mlock_shim(const void *addr, size_t len)
+{
+	return mlock(addr, len);
+}
+#endif
+
+
 /*
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
@@ -110,7 +164,7 @@ again:
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
-				ret = mlock(mappings[n] + page_size, page_size);
+				ret = mlock_shim(mappings[n] + page_size, page_size);
 				if (ret < 0) {
 					if (errno == EAGAIN)
 						continue;
@@ -143,6 +197,9 @@ again:
 #if !defined(__gnu_hurd__)
 			(void)mlockall(MCL_CURRENT);
 			(void)mlockall(MCL_FUTURE);
+#if defined(MCL_ONFAULT)
+			(void)mlockall(MCL_ONFAULT);
+#endif
 #endif
 			for (n = 0; opt_do_run && (n < max); n++) {
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
