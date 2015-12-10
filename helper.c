@@ -258,7 +258,7 @@ char *munge_underscore(char *str)
  *      determine which way the stack goes, up / down
  *	just pass in any var on the stack before calling
  */
-ssize_t stress_get_stack_direction(void *val1)
+ssize_t stress_get_stack_direction(const void *val1)
 {
 	uint8_t val2;
 

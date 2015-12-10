@@ -1785,7 +1785,7 @@ extern size_t stress_get_pagesize(void);
 extern long stress_get_processors_online(void);
 extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
-extern ssize_t stress_get_stack_direction(void *val1);
+extern ssize_t stress_get_stack_direction(const void *val1);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
