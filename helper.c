@@ -235,6 +235,20 @@ void stress_set_timer_slack(void)
 }
 
 /*
+ *  set_proc_name()
+ *	Set process name, we don't care if it fails
+ */
+void set_proc_name(const char *name)
+{
+#if defined(__linux__) && defined(PR_SET_NAME)
+	if (!(opt_flags & OPT_FLAGS_KEEP_NAME))
+		(void)prctl(PR_SET_NAME, name);
+#else
+	(void)name;	/* No-op */
+#endif
+}
+
+/*
  *  munge_underscore()
  *	turn '_' to '-' in strings
  */

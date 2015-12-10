@@ -157,7 +157,6 @@ SRC =   stress-affinity.c \
 	out-of-memory.c \
 	parse-opts.c \
 	perf.c \
-	proc-name.c \
 	sched.c \
 	thermal-zone.c \
 	time.c \
