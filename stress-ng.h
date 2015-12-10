@@ -1762,7 +1762,7 @@ extern void set_iopriority(const int32_t class, const int32_t level);
 extern void set_proc_name(const char *name);
 
 /* Memory locking */
-extern int stress_mlock_region(void *addr_start, void *addr_end);
+extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 
 /* Argument parsing and range checking */
 extern int32_t get_opt_sched(const char *const str);
