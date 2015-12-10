@@ -1802,7 +1802,6 @@ again:
 					snprintf(name, sizeof(name), "%s-%s", app_name,
 						munge_underscore((char *)stressors[i].name));
 					set_oom_adjustment(name, false);
-					set_coredump(name);
 					set_max_limits();
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 					set_proc_name(name);
@@ -2624,9 +2623,9 @@ next_opt:
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_init();
 #endif
+	stress_process_dumpable(false);
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
-	set_coredump("main");
 	set_sched(opt_sched, opt_sched_priority);
 	set_iopriority(opt_ionice_class, opt_ionice_level);
 

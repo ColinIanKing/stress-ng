@@ -185,16 +185,29 @@ void stress_parent_died_alarm(void)
 
 /*
  *  stress_process_dumpable()
- *	set dumpable flag, e.g. produce a core dump or not
+ *	set dumpable flag, e.g. produce a core dump or not,
+ *	don't print an error if these fail, it's not that
+ *	critical
  */
-void stress_process_dumpable(const bool dumpable)
+int stress_process_dumpable(const bool dumpable)
 {
+	char path[PATH_MAX];
+	int fd, rc = 0;
+
 #if defined(__linux__) && defined(PR_SET_DUMPABLE)
 	(void)prctl(PR_SET_DUMPABLE, 
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
-#else
-	(void)dumpable;
 #endif
+	snprintf(path, sizeof(path), "/proc/%u/coredump_filter", getpid());
+	if ((fd = open(path, O_WRONLY)) >= 0) {
+		char const *str =
+			dumpable ? "0x33" : "0x00";
+
+		if (write(fd, str, strlen(str)) < 0)
+			rc = -1;
+		(void)close(fd);
+	}
+	return rc;
 }
 
 /*

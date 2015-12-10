@@ -1759,7 +1759,6 @@ extern const char *duration_to_str(const double duration);
 extern void set_oom_adjustment(const char *name, const bool killable);
 extern void set_sched(const int32_t sched, const int32_t sched_priority);
 extern void set_iopriority(const int32_t class, const int32_t level);
-extern void set_coredump(const char *name);
 extern void set_proc_name(const char *name);
 
 /* Memory locking */
@@ -1790,7 +1789,7 @@ extern ssize_t stress_get_stack_direction(void *val1);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
-extern void stress_process_dumpable(const bool dumpable);
+extern int stress_process_dumpable(const bool dumpable);
 extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
 
