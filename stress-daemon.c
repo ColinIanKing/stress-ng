@@ -39,18 +39,20 @@
  */
 static void daemons(const int fd)
 {
+	int fds[3];
+
 	if (setsid() < 0)
 		goto err;
 	(void)close(0);
 	(void)close(1);
 	(void)close(2);
 
-	if (open("/dev/null", O_RDWR) < 0)
+	if ((fds[0] = open("/dev/null", O_RDWR)) < 0)
 		goto err;
-	if (dup(0) < 0)
-		goto err;
-	if (dup(0) < 0)
-		goto err;
+	if ((fds[1] = dup(0)) < 0)
+		goto err0;
+	if ((fds[2] = dup(0)) < 0)
+		goto err1;
 
 	for (;;) {
 		pid_t pid;
@@ -74,8 +76,11 @@ static void daemons(const int fd)
 			return;
 		}
 	}
-err:
-	(void)close(fd);
+
+	(void)close(fds[2]);
+err1:	(void)close(fds[1]);
+err0: 	(void)close(fds[0]);
+err:	(void)close(fd);
 }
 
 /*
