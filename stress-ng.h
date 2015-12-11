@@ -724,6 +724,7 @@ typedef enum {
 #endif
 	STRESS_CPU,
 	STRESS_CRYPT,
+	STRESS_DAEMON,
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DUP,
@@ -1110,6 +1111,9 @@ typedef enum {
 
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
+
+	OPT_DAEMON,
+	OPT_DAEMON_OPS,
 
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
@@ -1914,6 +1918,7 @@ STRESS(stress_clone);
 STRESS(stress_context);
 STRESS(stress_cpu);
 STRESS(stress_crypt);
+STRESS(stress_daemon);
 STRESS(stress_dentry);
 STRESS(stress_dir);
 STRESS(stress_dup);

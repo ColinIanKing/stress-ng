@@ -85,7 +85,7 @@ the stressors that fall into that class only when run with the \-\-sequential
 option.
 .TP
 .B \-n, \-\-dry\-run
-parse options, but don't run stress tests. A no-op.
+parse options, but do not run stress tests. A no-op.
 .TP
 .B \-h, \-\-help
 show help.
@@ -742,6 +742,17 @@ The password is encrypted using MD5, SHA-256 and SHA-512 encryption methods.
 .TP
 .B \-\-crypt\-ops N
 stop after N bogo encryption operations.
+.TP
+.B \-\-daemon N
+start N workers that each create a daemon that dies immediately after creating
+another daemon and so on. This effectively works through the process table with
+short lived processes that do not have a parent and are waited for by init.
+This puts pressure on init to do rapid child reaping.  The daemon processes
+perform the usual mix of calls to turn into typical UNIX daemons, so this
+artificially mimics very heavy daemon system stress.
+.TP
+.B \-\-daemon\-ops N
+stop daemon workers after N daemons have been created.
 .TP
 .B \-D N, \-\-dentry N
 start N workers that create and remove directory entries.  This should create
@@ -1964,7 +1975,7 @@ sleep N seconds before unmapping memory, the default is zero seconds.
 Specifying 0 will do an infinite wait.
 .TP
 .B \-\-vm\-keep
-don't continually unmap and map memory, just keep on re-writing to it.
+do not continually unmap and map memory, just keep on re-writing to it.
 .TP
 .B \-\-vm\-locked
 Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since
