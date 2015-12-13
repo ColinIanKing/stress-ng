@@ -102,16 +102,19 @@ void stress_set_shm_sysv_segments(const char *optarg)
  *  stress_shm_sysv_check()
  *	simple check if shared memory is sane
  */
-static int stress_shm_sysv_check(uint8_t *buf, const size_t sz)
+static int stress_shm_sysv_check(
+	uint8_t *buf,
+	const size_t sz,
+	const size_t page_size)
 {
 	uint8_t *ptr, *end = buf + sz;
 	uint8_t val;
 
-	for (val = 0, ptr = buf; ptr < end; ptr += 4096, val++) {
+	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
 	}
 
-	for (val = 0, ptr = buf; ptr < end; ptr += 4096, val++) {
+	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		if (*ptr != val)
 			return -1;
 
@@ -287,7 +290,7 @@ static int stress_shm_sysv_child(
 
 			if (!opt_do_run)
 				goto reap;
-			if (stress_shm_sysv_check(addr, sz) < 0) {
+			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
 				pr_fail(stderr, "%s: memory check failed\n", name);
 				rc = EXIT_FAILURE;
