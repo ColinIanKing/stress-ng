@@ -71,18 +71,21 @@ void stress_set_shm_posix_objects(const char *optarg)
  *  stress_shm_posix_check()
  *	simple check if shared memory is sane
  */
-static int stress_shm_posix_check(uint8_t *buf, const size_t sz)
+static int stress_shm_posix_check(
+	uint8_t *buf,
+	const size_t sz,
+	const size_t page_size)
 {
 	uint8_t *ptr, *end = buf + sz;
 	uint8_t val;
 
 	memset(buf, 0xa5, sz);
 
-	for (val = 0, ptr = buf; ptr < end; ptr += 4096, val++) {
+	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
 	}
 
-	for (val = 0, ptr = buf; ptr < end; ptr += 4096, val++) {
+	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		if (*ptr != val)
 			return -1;
 
@@ -112,6 +115,7 @@ static int stress_shm_posix_child(
 	bool ok = true;
 	pid_t pid = getpid();
 	uint64_t id = 0;
+	const size_t page_size = stress_get_pagesize();
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(shm_names, 0, sizeof(shm_names));
@@ -179,7 +183,7 @@ static int stress_shm_posix_child(
 
 			if (!opt_do_run)
 				goto reap;
-			if (stress_shm_posix_check(addr, sz) < 0) {
+			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
 				pr_fail(stderr, "%s: memory check failed\n", name);
 				rc = EXIT_FAILURE;
