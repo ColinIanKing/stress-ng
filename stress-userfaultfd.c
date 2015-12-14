@@ -28,6 +28,7 @@
 
 #if defined(STRESS_USERFAULTFD)
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -270,7 +271,7 @@ int stress_userfaultfd(
 			continue;
 		}
 		/* Go handle the page fault */
-		if (handle_page_fault(name, fd, (uint8_t *)msg.arg.pagefault.address,
+		if (handle_page_fault(name, fd, (uint8_t *)(ptrdiff_t)msg.arg.pagefault.address,
 				zero_page, data, data + sz, page_size) < 0)
 			break;
 		(*counter)++;
