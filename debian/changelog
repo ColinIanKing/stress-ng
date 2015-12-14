@@ -1,3 +1,28 @@
+stress-ng (0.05.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-userfaultfd: fix 32 bit build warning
+  * stress-shm: replace strides of 4096 with page size
+  * stress-shm-sysv: replace strides of 4096 with page size
+  * stress-mremap: replace strides of 4096 with page size
+  * stress-mmap: replace strides of 4096 with page size
+  * stress-bigheap: make stride the page size
+  * parse-opts: ensure_positive: don't reassign ptr twice
+  * stress-daemon: close dup'd fds on exit
+  * Add daemon stressor
+  * Move set_proc_name into helper, remove proc-name.c
+  * helper: make timer slack also depend on __linux__
+  * stress_mlock_region: constify args
+  * stress_get_stack_direction: constify arg
+  * Remove coredump, merge functionality into helper
+  * Update README
+  * syscalls: add mlock2
+  * stress-mlock: add support for mlock2
+  * stress-aio: clear io_reqs before use and disable handler later
+  * stress-rename: rename between directories
+
+ -- Colin King <colin.king@canonical.com>  Mon, 14 Dec 2015 16:10:00 +0000
+
 stress-ng (0.05.03-1) unstable; urgency=medium
 
   * Makefile: bump version
