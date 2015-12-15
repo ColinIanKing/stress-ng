@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -47,8 +46,10 @@
 
 typedef int (*apparmor_func)(const char *name, const uint64_t max_ops, uint64_t *counter);
 
+#if defined(STRESS_APPARMOR)
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
+#endif
 
 /*
  *  stress_apparmor_supported()
