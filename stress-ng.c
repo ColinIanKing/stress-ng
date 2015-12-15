@@ -139,6 +139,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_AIO_LINUX)
 	STRESSOR(aio_linux, AIO_LINUX, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_APPARMOR)
+	STRESSOR(apparmor, APPARMOR, CLASS_OS | CLASS_SECURITY),
+#endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 	STRESSOR(brk, BRK, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
@@ -380,6 +383,7 @@ static const class_t classes[] = {
 	{ CLASS_OS,		"os" },
 	{ CLASS_PIPE_IO,	"pipe" },
 	{ CLASS_SCHEDULER,	"scheduler" },
+	{ CLASS_SECURITY,	"security" },
 	{ CLASS_VM,		"vm" },
 	{ 0,			NULL }
 };
@@ -402,6 +406,10 @@ static const struct option long_options[] = {
 	{ "aiol-requests",1,	0,	OPT_AIO_LINUX_REQUESTS },
 #endif
 	{ "all",	1,	0,	OPT_ALL },
+#if defined(STRESS_APPARMOR)
+	{ "apparmor",	1,	0,	OPT_APPARMOR },
+	{ "apparmor-ops",1,	0,	OPT_APPARMOR_OPS },
+#endif
 	{ "backoff",	1,	0,	OPT_BACKOFF },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
@@ -939,6 +947,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"aiol N",		"start N workers that issue async I/O requests via Linux aio" },
 	{ NULL,		"aiol-ops N",		"stop when N bogo Linux aio async I/O requests completed" },
 	{ NULL,		"aiol-requests N",	"number of Linux aio async I/O requests per worker" },
+#endif
+#if defined(STRESS_APPARMOR)
+	{ NULL,		"apparmor",		"start N workers exercising AppArmor interfaces" },
+	{ NULL,		"apparmor-ops",		"stop when N bogo AppArmor worker ops completed" },
 #endif
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
@@ -2601,6 +2613,13 @@ next_opt:
 	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
 	    (stress_rdrand_supported() < 0))
 		procs[id].num_procs = 0;
+#endif
+#if defined(STRESS_APPARMOR)
+	id = stressor_id_find(STRESS_APPARMOR);
+	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
+	    (stress_apparmor_supported() < 0))
+		procs[id].num_procs = 0;
+	
 #endif
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;

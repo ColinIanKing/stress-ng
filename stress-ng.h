@@ -175,6 +175,7 @@
 #define CLASS_PIPE_IO		0x00000200	/* pipe I/O */
 #define CLASS_FILESYSTEM	0x00000400	/* file system */
 #define CLASS_DEV		0x00000800	/* device (null, zero, etc) */
+#define CLASS_SECURITY		0x00001000	/* security APIs */
 
 /* Network domains flags */
 #define DOMAIN_INET		0x00000001	/* AF_INET */
@@ -704,6 +705,10 @@ typedef enum {
 	__STRESS_AIO_LINUX,
 #define STRESS_AIO_LINUX __STRESS_AIO_LINUX
 #endif
+#if defined(__linux__) && defined(HAVE_APPARMOR)
+	__STRESS_APPARMOR,
+#define STRESS_APPARMOR __STRESS_APPARMOR
+#endif
 	STRESS_BRK,
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
@@ -1064,6 +1069,11 @@ typedef enum {
 	OPT_AIO_LINUX,
 	OPT_AIO_LINUX_OPS,
 	OPT_AIO_LINUX_REQUESTS,
+#endif
+
+#if defined(STRESS_APPARMOR)
+	OPT_APPARMOR,
+	OPT_APPARMOR_OPS,
 #endif
 
 	OPT_BRK,
@@ -1831,6 +1841,7 @@ extern void stress_semaphore_sysv_destroy(void);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
+extern int  stress_apparmor_supported(void);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_aio_linux_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
@@ -1907,6 +1918,7 @@ extern int name(uint64_t *const counter, const uint32_t instance,	\
 STRESS(stress_affinity);
 STRESS(stress_aio);
 STRESS(stress_aio_linux);
+STRESS(stress_apparmor);
 STRESS(stress_bigheap);
 STRESS(stress_brk);
 STRESS(stress_bsearch);

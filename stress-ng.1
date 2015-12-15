@@ -313,6 +313,14 @@ stop Linux asynchronous I/O workers after N bogo asynchronous I/O requests.
 specify the number of Linux asynchronous I/O requests each worker should issue,
 the default is 16; 1 to 4096 are allowed.
 .TP
+.B \-\-apparmor N
+start N workers that exercise various parts of the AppArmor interface. Currently
+one needs root permission to run this particular test. This test is only available
+on Linux systems with AppArmor support.
+.TP
+.B \-\-apparmor-ops
+stop the AppArmor workers after N bogo operations.
+.TP
 .B \-B N, \-\-bigheap N
 start N workers that grow their heaps by reallocating memory. If the out of
 memory killer (OOM) on Linux kills the worker or the allocation fails then the

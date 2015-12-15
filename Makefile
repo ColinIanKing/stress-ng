@@ -29,6 +29,7 @@ MANDIR=/usr/share/man/man1
 SRC =   stress-affinity.c \
 	stress-aio.c \
 	stress-aio-linux.c \
+	stress-apparmor.c \
 	stress-bigheap.c \
 	stress-brk.c \
 	stress-bsearch.c \
@@ -165,6 +166,21 @@ SRC =   stress-affinity.c \
 
 OBJS = $(SRC:.c=.o)
 
+LIB_APPARMOR := -lapparmor
+
+#
+# A bit recursive, 2nd time around HAVE_APPARMOR is
+# defined so we don't call ourselves over and over
+#
+ifndef $(HAVE_APPARMOR)
+HAVE_APPARMOR = $(shell make HAVE_APPARMOR=0 have_apparmor)
+ifeq ($(HAVE_APPARMOR),1)
+	CFLAGS += -DHAVE_APPARMOR
+	LDFLAGS += $(LIB_APPARMOR)
+endif
+endif
+
+
 .SUFFIXES: .c .o
 
 .o: stress-ng.h Makefile
@@ -174,7 +190,19 @@ OBJS = $(SRC:.c=.o)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt -o $@ $(LDFLAGS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt $(LDFLAGS) -o $@
+
+#
+#  check if we can build against AppArmor
+#
+have_apparmor:
+	@$(CC) $(CPPFLAGS) test-apparmor.c $(LIB_APPARMOR) -o test-apparmor 2> /dev/null || true
+	@if [ -e test-apparmor ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-apparmor
 
 #
 #  extract the PER_* personality enums
