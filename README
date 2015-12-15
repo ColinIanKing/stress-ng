@@ -28,4 +28,6 @@ class and ionice levels to be adjusted, again, this should be used with care.
 To build, the following libraries are required:
 	libattr1-dev, libkeyutils-dev
 
+To build on BSD systems, one requires GNU make
+
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
