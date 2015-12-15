@@ -320,7 +320,7 @@ static int apparmor_stress_kernel_interface(
 			start, len);
 		if (ret < 0) {
 			if (errno != EEXIST) {
-				pr_fail(stderr, "%s: aa_kernel_interface_load_policy) failed, "
+				pr_fail(stderr, "%s: aa_kernel_interface_load_policy() failed, "
 					"errno=%d (%s)\n", name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
@@ -335,7 +335,7 @@ static int apparmor_stress_kernel_interface(
 		if (ret < 0) {
 			aa_kernel_interface_unref(kern_if);
 
-			pr_fail(stderr, "%s: aa_kernel_interface_replace_policy) failed, "
+			pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
 				"errno=%d (%s)\n", name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
@@ -347,7 +347,7 @@ static int apparmor_stress_kernel_interface(
 		ret = aa_kernel_interface_remove_policy(kern_if, "/usr/bin/pulseaudio-eg");
 		if (ret < 0) {
 			if (errno != ENOENT) {
-				pr_fail(stderr, "%s: aa_kernel_interface_remove_policy) failed, "
+				pr_fail(stderr, "%s: aa_kernel_interface_remove_policy() failed, "
 					"errno=%d (%s)\n", name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
@@ -360,10 +360,65 @@ static int apparmor_stress_kernel_interface(
 	return rc;
 }
 
+static int apparmor_stress_corruption(
+	const char *name,
+	const uint64_t max_ops,
+	uint64_t *counter)
+{
+	const void *start = &_binary_apparmor_data_bin_start;
+	const void *end = &_binary_apparmor_data_bin_end;
+	const size_t len = end - start;
+	char copy[len];
+
+	int ret, rc = EXIT_SUCCESS;
+	aa_kernel_interface *kern_if;
+
+
+	/*
+	 *  Lets feed AppArmor with some bit corrupted data...
+	 */
+	do {
+		const uint32_t n = mwc32() % 17;
+		uint32_t i;
+
+		memcpy(copy, start, len);
+		for (i = 0; i < n; i++) {
+			uint32_t rnd = mwc32();
+
+			copy[rnd % len] ^= (1 << ((rnd >> 16) & 7));
+		}
+
+		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
+		if (ret < 0) {
+			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
+				"errno=%d (%s)\n", name, errno, strerror(errno));
+			return EXIT_FAILURE;
+		}
+		/*
+		 *  Expect EPROTO failures
+		 */
+		ret = aa_kernel_interface_replace_policy(kern_if, copy, len);
+		if (ret < 0) {
+			if ((errno != EPROTO) &&
+			    (errno != EPROTONOSUPPORT)) {
+				pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
+		}
+		aa_kernel_interface_unref(kern_if);
+		(*counter)++;
+	} while (opt_do_run && apparmor_run && (!max_ops || *counter < max_ops));
+
+	return rc;
+}
+
+
 static const apparmor_func apparmor_funcs[] = {
 	apparmor_stress_profiles,
 	apparmor_stress_features,
 	apparmor_stress_kernel_interface,
+	apparmor_stress_corruption,
 };
 
 
@@ -405,7 +460,7 @@ int stress_apparmor(
 	}
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
-		for (i = 0; i < n; i++) 
+		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];
 	} while (opt_do_run && (!max_ops || tmp_counter < max_ops));
 
