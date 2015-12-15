@@ -49,6 +49,10 @@ typedef int (*apparmor_func)(const char *name, const uint64_t max_ops, uint64_t 
 #if defined(STRESS_APPARMOR)
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
+
+extern uint8_t *_binary_apparmor_data_bin_start;
+extern uint8_t *_binary_apparmor_data_bin_end;
+
 #endif
 
 /*
@@ -92,7 +96,6 @@ int stress_apparmor_supported(void)
 				"errno=%d (%s)\n", errno, strerror(errno));
 			break;
 		}
-		(void)close(fd);
 		return -1;
 	}
 	(void)close(fd);
@@ -113,7 +116,7 @@ int stress_apparmor_supported(void)
 static void MLOCKED stress_apparmor_handler(int dummy)
 {
 	(void)dummy;
-	
+
 	apparmor_run = false;
 }
 
@@ -202,7 +205,6 @@ static void stress_apparmor_dir(
 }
 
 
-
 /*
  *  apparmor_spawn()
  *	spawn a process
@@ -286,9 +288,82 @@ static int apparmor_stress_features(
 	return EXIT_SUCCESS;
 }
 
+static int apparmor_stress_kernel_interface(
+	const char *name,
+	const uint64_t max_ops,
+	uint64_t *counter)
+{
+	const void *start = &_binary_apparmor_data_bin_start;
+	const void *end = &_binary_apparmor_data_bin_end;
+	const size_t len = end - start;
+
+	int ret, rc = EXIT_SUCCESS;
+	aa_kernel_interface *kern_if;
+
+	/*
+	 *  Try and create a lot of contention and load
+	 */
+	do {
+		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
+		if (ret < 0) {
+			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
+				"errno=%d (%s)\n", name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
+		}
+
+		/*
+		 *  Loading a policy may fail if another stressor has already loaded
+		 *  the same policy, so we may get EEXIST
+		 */
+		ret = aa_kernel_interface_load_policy(kern_if,
+			start, len);
+		if (ret < 0) {
+			if (errno != EEXIST) {
+				pr_fail(stderr, "%s: aa_kernel_interface_load_policy) failed, "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
+		}
+
+		/*
+		 *  Replacing should always be atomic and not fail when competing against
+		 *  other stressors if I understand the interface correctly.
+		 */
+		ret = aa_kernel_interface_replace_policy(kern_if,
+			start, len);
+		if (ret < 0) {
+			aa_kernel_interface_unref(kern_if);
+
+			pr_fail(stderr, "%s: aa_kernel_interface_replace_policy) failed, "
+				"errno=%d (%s)\n", name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+
+		/*
+		 *  Removal may fail if another stressor has already removed the
+		 *  policy, so we may get ENOENT
+		 */
+		ret = aa_kernel_interface_remove_policy(kern_if, "/usr/bin/pulseaudio-eg");
+		if (ret < 0) {
+			if (errno != ENOENT) {
+				pr_fail(stderr, "%s: aa_kernel_interface_remove_policy) failed, "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
+		}
+		aa_kernel_interface_unref(kern_if);
+
+		(*counter)++;
+	} while (opt_do_run && apparmor_run && (!max_ops || *counter < max_ops));
+
+	return rc;
+}
+
 static const apparmor_func apparmor_funcs[] = {
 	apparmor_stress_profiles,
 	apparmor_stress_features,
+	apparmor_stress_kernel_interface,
 };
 
 
@@ -324,12 +399,12 @@ int stress_apparmor(
 	else
 		ops = max_ops / n;
 
-	for (i = 0; i < n; i++)
+	for (i = 0; i < n; i++) {
 		pids[i] = apparmor_spawn(name, ops,
 			&counters[i], apparmor_funcs[i]);
+	}
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
-			
 		for (i = 0; i < n; i++) 
 			tmp_counter += counters[i];
 	} while (opt_do_run && (!max_ops || tmp_counter < max_ops));
