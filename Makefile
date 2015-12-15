@@ -21,7 +21,7 @@ VERSION=0.05.04
 # Codename "determined distressor"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -g
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -175,6 +175,7 @@ LIB_APPARMOR := -lapparmor
 ifndef $(HAVE_APPARMOR)
 HAVE_APPARMOR = $(shell make HAVE_APPARMOR=0 have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
+	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
 	LDFLAGS += $(LIB_APPARMOR)
 endif
@@ -203,6 +204,12 @@ have_apparmor:
 		echo 0 ;\
 	fi
 	@rm -f test-apparmor
+
+
+apparmor-data.o: usr.bin.pulseaudio.eg
+	apparmor_parser -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
+	ld -s -r -o apparmor-data.o -b binary apparmor-data.bin
+	@rm -rf apparmor-data.bin
 
 #
 #  extract the PER_* personality enums

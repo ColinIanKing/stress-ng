@@ -1,0 +1,97 @@
+# Last Modified: Mon Dec 31 16:52:55 2012
+#include <tunables/global>
+
+/usr/bin/pulseaudio-eg {
+  #include <abstractions/base>
+  #include <abstractions/audio>
+  #include <abstractions/dbus-session>
+  #include <abstractions/nameservice>
+  #include <abstractions/X>
+
+  /usr/bin/pulseaudio mixr,
+
+  /dev/null rw,
+  /dev/random r,
+  /dev/urandom r,
+
+  /etc/pulse/ r,
+  /etc/pulse/* r,
+  /etc/udev/udev.conf r,
+  /etc/timidity/.pulse_cookie w,
+
+  @{HOME}/.esd_auth rwk,
+  @{HOME}/.pulse-cookie rwk,
+  @{HOME}/.config/pulse/cookie rwk,
+  @{HOME}/{.config/pulse,.pulse}/ rw,
+  @{HOME}/{.config/pulse,.pulse}/* rw,
+
+  /run/pulse/ rw,
+  /run/pulse/.pulse-cookie rwk,
+  /run/pulse/dbus-socket rwk,
+  /run/pulse/native rwk,
+  /run/pulse/pid rwk,
+  /run/udev/data/+sound:card* r,
+
+  # logind
+  /run/systemd/users/* r,
+  /run/user/*/dconf/user k,
+
+  /sys/bus/ r,
+  /sys/class/ r,
+  /sys/class/sound/ r,
+  /sys/devices/pci[0-9]*/**/*class r,
+  /sys/devices/pci[0-9]*/**/uevent r,
+  /sys/devices/system/cpu/ r,
+  /sys/devices/system/cpu/online r,
+  /sys/devices/virtual/dmi/id/bios_vendor r,
+  /sys/devices/virtual/dmi/id/board_vendor r,
+  /sys/devices/virtual/dmi/id/sys_vendor r,
+  /sys/devices/**/sound/card[0-9]*/uevent r,
+
+  /usr/share/alsa/** r,
+  /usr/share/applications/ r,
+  /usr/share/applications/* r,
+  /usr/share/pulseaudio/** r,
+  /usr/lib/pulse-[2-9].[0-9]/modules/*.so mr,
+  /usr/lib/pulseaudio/pulse/gconf-helper Cx,
+
+  owner /var/lib/gdm3/.config/pulse/ rw,
+  owner /var/lib/gdm3/.config/pulse/* rw,
+  owner /var/lib/gdm3/.config/pulse/cookie rwk,
+
+  owner /var/lib/lightdm/.Xauthority r,
+  owner /var/lib/lightdm/.esd_auth rwk,
+  owner /var/lib/lightdm/.pulse-cookie rwk,
+  owner /var/lib/lightdm/.pulse/ rw,
+  owner /var/lib/lightdm/.pulse/* w,
+  owner /var/lib/lightdm/.pulse/* r,
+
+  # are these needed?
+  /var/lib/pulse/ rw,
+  /var/lib/pulse/*-default-sink rw,
+  /var/lib/pulse/*-default-source rw,
+  /var/lib/pulse/*.tdb rw,
+
+  @{PROC}/[0-9]*/fd/ r,
+  @{PROC}/[0-9]*/maps r,
+  @{PROC}/[0-9]*/stat r,
+
+  owner /tmp/pulse-*/pid rwk,
+  owner /tmp/pulse-*/native rwk,
+  owner /tmp/pulse-*/autospawn.lock rwk,
+
+  owner /tmp/orcexec.* mrw,
+  owner /{,var/}run/user/[0-9]*/orcexec.* mrw,
+  # needed if /tmp is mounted noexec:
+  owner @{HOME}/orcexec.* mr,
+
+  # replace with @{pid}
+  owner /tmp/.esd-[0-9]*/ rw,
+  owner /tmp/.esd-[0-9]*/socket rw,
+
+  profile /usr/lib/pulseaudio/pulse/gconf-helper {
+    #include <abstractions/base>
+
+    /usr/lib/pulseaudio/pulse/gconf-helper mr,
+  }
+}
