@@ -154,7 +154,7 @@ static int stress_shm_sysv_child(
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
 	shm_msg_t msg;
-	int i;
+	size_t i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
@@ -170,7 +170,7 @@ static int stress_shm_sysv_child(
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));
-	for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++)
+	for (i = 0; i < MAX_SHM_SYSV_SEGMENTS; i++)
 		shm_ids[i] = -1;
 
 	/* Make sure this is killable by OOM killer */
@@ -185,7 +185,7 @@ static int stress_shm_sysv_child(
 	do {
 		size_t sz = max_sz;
 
-		for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
+		for (i = 0; i < opt_shm_sysv_segments; i++) {
 			int shm_id, count = 0;
 			void *addr;
 			key_t key;
@@ -213,7 +213,7 @@ static int stress_shm_sysv_child(
 
 				/* Get a unique key */
 				do {
-					ssize_t j;
+					size_t j;
 
 					if (!opt_do_run)
 						goto reap;
@@ -299,7 +299,7 @@ static int stress_shm_sysv_child(
 			(*counter)++;
 		}
 reap:
-		for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
+		for (i = 0; i < opt_shm_sysv_segments; i++) {
 			if (addrs[i]) {
 				if (shmdt(addrs[i]) < 0) {
 					pr_fail(stderr, "%s: shmdt failed: errno=%d (%s)\n",
