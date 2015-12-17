@@ -79,6 +79,7 @@ int stress_spawn(
 		int ret;
 		pid_t pid;
 
+		spawn_calls++;
 		ret = posix_spawn(&pid, path, NULL, NULL, argv_new, env_new);
 		if (ret < 0) {
 			pr_fail_err(name, "posix_spawn()");
@@ -88,7 +89,6 @@ int stress_spawn(
 			/* Parent, wait for child */
 
 			(void)waitpid(pid, &status, 0);
-			spawn_calls++;
 			(*counter)++;
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				spawn_fails++;
