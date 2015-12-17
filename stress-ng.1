@@ -1738,6 +1738,13 @@ of client/server processes performing randomly sized socket I/O operations.
 .B \-\-sockpair\-ops N
 stop socket pair stress workers after N bogo operations.
 .TP
+.B \-\-spawn N
+start N workers continually spawn children using posix_spawn(3) that exec
+stress-ng and then exit almost immediately.
+.TP
+.B \-\-spawn\-ops N
+stop spawn stress workers after N bogo spawns.
+.TP
 .B \-\-splice N
 move data from /dev/zero to /dev/null through a pipe without any copying
 between kernel address space and user address space using splice(2). This is

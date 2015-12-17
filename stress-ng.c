@@ -308,6 +308,7 @@ static const stress_t stressors[] = {
 	STRESSOR(sigsuspend, SIGSUSPEND, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
+	STRESSOR(spawn, SPAWN, CLASS_SCHEDULER | CLASS_OS),
 #if defined(STRESS_SPLICE)
 	STRESSOR(splice, SPLICE, CLASS_PIPE_IO | CLASS_OS),
 #endif
@@ -760,6 +761,8 @@ static const struct option long_options[] = {
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
+	{ "spawn",	1,	0,	OPT_SPAWN },
+	{ "spawn-ops",	1,	0,	OPT_SPAWN_OPS },
 #if defined(STRESS_SPLICE)
 	{ "splice",	1,	0,	OPT_SPLICE },
 	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
@@ -1275,7 +1278,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop when N socket pair bogo operations completed" },
+	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
 #if defined(STRESS_SPLICE)
+	{ NULL,		"spawn-ops N",		"stop when N spawn bogo operations completed" },
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
 	{ NULL,		"splice-ops N",		"stop when N bogo splice operations completed" },
 	{ NULL,		"splice-bytes N",	"number of bytes to transfer per splice call" },

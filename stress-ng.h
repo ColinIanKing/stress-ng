@@ -927,6 +927,8 @@ typedef enum {
 	STRESS_SIGSUSPEND,
 	STRESS_SOCKET,
 	STRESS_SOCKET_PAIR,
+	__STRESS_SPAWN,
+#define STRESS_SPAWN __STRESS_SPAWN
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_SPLICE,
 #define STRESS_SPLICE __STRESS_SPLICE
@@ -1492,6 +1494,9 @@ typedef enum {
 
 	OPT_SWITCH_OPS,
 
+	OPT_SPAWN,
+	OPT_SPAWN_OPS,
+
 #if defined(STRESS_SPLICE)
 	OPT_SPLICE,
 	OPT_SPLICE_OPS,
@@ -2019,6 +2024,7 @@ STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
 STRESS(stress_socket);
 STRESS(stress_socket_pair);
+STRESS(stress_spawn);
 STRESS(stress_splice);
 STRESS(stress_stack);
 STRESS(stress_str);

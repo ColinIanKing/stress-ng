@@ -121,6 +121,7 @@ SRC =   stress-affinity.c \
 	stress-sigq.c \
 	stress-socket.c \
 	stress-socketpair.c \
+	stress-spawn.c \
 	stress-splice.c \
 	stress-stack.c \
 	stress-str.c \
