@@ -958,6 +958,10 @@ typedef enum {
 	__STRESS_UDP_FLOOD,
 #define STRESS_UDP_FLOOD __STRESS_UDP_FLOOD
 #endif
+#if defined(__linux__) && defined(__NR_unshare)
+	__STRESS_UNSHARE,
+#define STRESS_UNSHARE __STRESS_UNSHARE
+#endif
 #if defined(__linux__) || defined(__gnu_hurd__)
 	__STRESS_URANDOM,
 #define STRESS_URANDOM __STRESS_URANDOM
@@ -1556,6 +1560,11 @@ typedef enum {
 	OPT_UDP_FLOOD_DOMAIN,
 #endif
 
+#if defined(STRESS_UNSHARE)
+	OPT_UNSHARE,
+	OPT_UNSHARE_OPS,
+#endif
+
 #if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
 #endif
@@ -2023,6 +2032,7 @@ STRESS(stress_timerfd);
 STRESS(stress_tsearch);
 STRESS(stress_udp);
 STRESS(stress_udp_flood);
+STRESS(stress_unshare);
 STRESS(stress_urandom);
 STRESS(stress_userfaultfd);
 STRESS(stress_utime);

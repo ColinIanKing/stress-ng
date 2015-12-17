@@ -321,7 +321,7 @@ umount				[ need privilege, ignore for now ]
 uname				get
 unlink				dentry, hdd, unlink
 unlinkat
-unshare				clone
+unshare				clone, unshare
 userfaultfd			userfaultfd
 ustat				[ deprecated ]
 utime				utime

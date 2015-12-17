@@ -1906,6 +1906,14 @@ supported.
 .B \-\-udp\-flood\-ops N
 stop udp-flood stress workers after N bogo operations.
 .TP
+.B \-\-unshare N
+start N workers that each fork off 32 child processes, each of which exercises
+the unshare(2) system call by disassociating parts of the process execution
+context. (Linux only).
+.TP
+.B \-\-unshare\-ops N
+stop after N bogo unshare operations.
+.TP
 .B \-u N, \-\-urandom N
 start N workers reading /dev/urandom (Linux only). This will load the kernel
 random number source.

@@ -21,7 +21,7 @@ VERSION=0.05.04
 # Codename "determined distressor"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -g
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -133,6 +133,7 @@ SRC =   stress-affinity.c \
 	stress-tsearch.c \
 	stress-udp.c \
 	stress-udp-flood.c \
+	stress-unshare.c \
 	stress-urandom.c \
 	stress-userfaultfd.c \
 	stress-utime.c \

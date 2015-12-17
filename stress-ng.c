@@ -333,6 +333,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_UDP_FLOOD)
 	STRESSOR(udp_flood, UDP_FLOOD, CLASS_NETWORK | CLASS_OS),
 #endif
+#if defined(STRESS_UNSHARE)
+	STRESSOR(unshare, UNSHARE, CLASS_OS),
+#endif
 #if defined(STRESS_URANDOM)
 	STRESSOR(urandom, URANDOM, CLASS_DEV | CLASS_OS),
 #endif
@@ -823,6 +826,10 @@ static const struct option long_options[] = {
 	{ "utime",	1,	0,	OPT_UTIME },
 	{ "utime-ops",	1,	0,	OPT_UTIME_OPS },
 	{ "utime-fsync",0,	0,	OPT_UTIME_FSYNC },
+#if defined(STRESS_UNSHARE)
+	{ "unshare",	1,	0,	OPT_UNSHARE },
+	{ "unshare-ops",1,	0,	OPT_UNSHARE_OPS },
+#endif
 #if defined(STRESS_URANDOM)
 	{ "urandom",	1,	0,	OPT_URANDOM },
 	{ "urandom-ops",1,	0,	OPT_URANDOM_OPS },
@@ -1316,6 +1323,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"udp-flood N",		"start N workers that performs a UDP flood attack" },
 	{ NULL,		"udp-flood-ops N",	"stop when N udp flood bogo operations completed" },
 	{ NULL,		"udp-flood-domain D",	"specify domain, default is ipv4" },
+#endif
+#if defined(STRESS_UNSHARE)
+	{ NULL,		"unshare N",		"start N workers exercising resource unsharing" },
+	{ NULL,		"unshare-ops N",	"stop when N bogo unshare operations completed" },
 #endif
 #if defined(STRESS_URANDOM)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
