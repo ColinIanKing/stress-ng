@@ -270,6 +270,10 @@ static int apparmor_stress_profiles(
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  apparmor_stress_features()
+ *	hammer features reading
+ */
 static int apparmor_stress_features(
 	const char *name,
 	const uint64_t max_ops,
@@ -288,6 +292,10 @@ static int apparmor_stress_features(
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  apparmor_stress_kernel_interface()
+ *	load/replace/unload stressing
+ */
 static int apparmor_stress_kernel_interface(
 	const char *name,
 	const uint64_t max_ops,
@@ -360,6 +368,161 @@ static int apparmor_stress_kernel_interface(
 	return rc;
 }
 
+/*
+ *  apparmor_corrupt_flip_bits_random()
+ *	bit flip random bits in data
+ */
+static inline void apparmor_corrupt_flip_bits_random(
+	char *copy, const size_t len)
+{
+	uint32_t i;
+	const uint32_t n = mwc32() % 17;
+
+	for (i = 0; i < n; i++) {
+		uint32_t rnd = mwc32();
+
+		copy[rnd % len] ^= (1 << ((rnd >> 16) & 7));
+	}
+}
+
+/*
+ *  apparmor_corrupt_flip_seq()
+ *	sequentially flip bits
+ */
+static inline void apparmor_corrupt_flip_seq(
+	char *copy, const size_t len)
+{
+	static size_t p = 0;
+
+	if (p > (len * sizeof(char)))
+		p = 0;
+
+	copy[p / sizeof(char)] ^= (1 << (p & 7));
+	p++;
+}
+
+/*
+ *  apparmor_corrupt_clr_seq()
+ *	sequentially clear bits
+ */
+static inline void apparmor_corrupt_clr_seq(
+	char *copy, const size_t len)
+{
+	static size_t p = 0;
+
+	if (p > (len * sizeof(char)))
+		p = 0;
+
+	copy[p / sizeof(char)] &= ~(1 << (p & 7));
+	p++;
+}
+
+/*
+ *  apparmor_corrupt_set_seq()
+ *	sequentially set bits
+ */
+static inline void apparmor_corrupt_set_seq(
+	char *copy, const size_t len)
+{
+	static size_t p = 0;
+
+	if (p > (len * sizeof(char)))
+		p = 0;
+
+	copy[p / sizeof(char)] |= (1 << (p & 7));
+	p++;
+}
+
+
+/*
+ *  apparmor_corrupt_flip_byte_random()
+ *	ramndomly flip entire bytes
+ */
+static inline void apparmor_corrupt_flip_byte_random(
+	char *copy, const size_t len)
+{
+	copy[mwc32() % len] ^= 0xff;
+}
+
+/*
+ *  apparmor_corrupt_clr_bits_random()
+ *	randomly clear bits
+ */
+static inline void apparmor_corrupt_clr_bits_random(
+	char *copy, const size_t len)
+{
+	uint32_t i;
+	const uint32_t n = mwc32() % 17;
+
+	for (i = 0; i < n; i++) {
+		uint32_t rnd = mwc32();
+
+		copy[rnd % len] &= ~(1 << ((rnd >> 16) & 7));
+	}
+}
+
+/*
+ *  apparmor_corrupt_set_bits_random()
+ *	randomly set bits
+ */
+static inline void apparmor_corrupt_set_bits_random(
+	char *copy, const size_t len)
+{
+	uint32_t i;
+	const uint32_t n = mwc32() % 17;
+
+	for (i = 0; i < n; i++) {
+		uint32_t rnd = mwc32();
+
+		copy[rnd % len] |= (1 << ((rnd >> 16) & 7));
+	}
+}
+
+/*
+ *  apparmor_corrupt_clr_byte_random()
+ *	randomly clear an entire byte
+ */
+static inline void apparmor_corrupt_clr_byte_random(
+	char *copy, const size_t len)
+{
+	copy[mwc32() % len] = 0;
+}
+
+/*
+ *  apparmor_corrupt_set_byte_random()
+ *	randomly set an entire byte
+ */
+static inline void apparmor_corrupt_set_byte_random(
+	char *copy, const size_t len)
+{
+	copy[mwc32() % len] = 0xff;
+}
+
+/*
+ *  apparmor_corrupt_flip_bits_random_burst
+ *	randomly flip a burst of contiguous bits
+ */
+static inline void apparmor_corrupt_flip_bits_random_burst(
+	char *copy, const size_t len)
+{
+	uint32_t i;
+	size_t p = (size_t)mwc32() % (len * sizeof(char));
+
+	for (i = 0; i < 32; i++) {
+		if (p > (len * sizeof(char)))
+			p = 0;
+
+		copy[p / sizeof(char)] ^= (1 << (p & 7));
+		p++;
+	}
+}
+
+
+/*
+ *  apparmor_stress_corruption()
+ *	corrupt data and see if we can oops the loader
+ *	parser.
+ */
 static int apparmor_stress_corruption(
 	const char *name,
 	const uint64_t max_ops,
@@ -378,14 +541,44 @@ static int apparmor_stress_corruption(
 	 *  Lets feed AppArmor with some bit corrupted data...
 	 */
 	do {
-		const uint32_t n = mwc32() % 17;
-		uint32_t i;
-
 		memcpy(copy, start, len);
-		for (i = 0; i < n; i++) {
-			uint32_t rnd = mwc32();
-
-			copy[rnd % len] ^= (1 << ((rnd >> 16) & 7));
+		/*
+		 *  Apply various corruption methods
+		 */
+		switch ((*counter) % 10) {
+		case 0:
+			apparmor_corrupt_flip_seq(copy, len);
+			break;
+		case 1:
+			apparmor_corrupt_clr_seq(copy, len);
+			break;
+		case 2:
+			apparmor_corrupt_set_seq(copy, len);
+			break;
+		case 3:
+			apparmor_corrupt_flip_bits_random(copy, len);
+			break;
+		case 4:
+			apparmor_corrupt_flip_byte_random(copy, len);
+			break;
+		case 5:
+			apparmor_corrupt_clr_bits_random(copy, len);
+			break;
+		case 6:
+			apparmor_corrupt_set_bits_random(copy, len);
+			break;
+		case 7:
+			apparmor_corrupt_clr_byte_random(copy, len);
+			break;
+		case 8:
+			apparmor_corrupt_set_byte_random(copy, len);
+			break;
+		case 9:
+			apparmor_corrupt_flip_bits_random_burst(copy, len);
+			break;
+		default:
+			/* Should not happen */
+			break;
 		}
 
 		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
