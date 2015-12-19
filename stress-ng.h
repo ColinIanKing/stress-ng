@@ -1721,6 +1721,17 @@ static inline void mfence(void)
 #endif
 
 /*
+ *  mwc_seed()
+ *      set mwc seeds
+ */
+static inline void mwc_seed(const uint32_t w, const uint32_t z)
+{
+	__mwc.w = w;
+	__mwc.z = z;
+}
+
+
+/*
  *  mwc32()
  *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
