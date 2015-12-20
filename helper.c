@@ -26,6 +26,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
@@ -170,6 +171,47 @@ void stress_get_memlimits(
 	}
 	fclose(fp);
 #endif
+}
+
+/*
+ *  stress_get_load_avg()
+ *	get load average
+ */
+int stress_get_load_avg(
+	double *min1,
+	double *min5,
+	double *min15)
+{
+#if NEED_GLIBC(2, 2, 0)
+	int rc;
+	double loadavg[3];
+
+	rc = getloadavg(loadavg, 3);
+	if (rc < 0)
+		goto fail;
+
+	*min1 = loadavg[0];
+	*min5 = loadavg[1];
+	*min15 = loadavg[2];
+
+	return 0;
+fail:
+#elif defined(__linux__)
+	struct sysinfo info;
+	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
+
+	if (sysinfo(&info) < 0)
+		goto fail;
+
+	*min1 = info.loads[0] * scale;
+	*min5 = info.loads[1] * scale;
+	*min15 = info.loads[2] * scale;
+
+	return 0;
+fail:
+#endif
+	*min1 = *min5 = *min15 = 0.0;
+	return -1;
 }
 
 /*

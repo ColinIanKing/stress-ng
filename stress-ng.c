@@ -2042,12 +2042,16 @@ static void times_dump(
 	struct tms buf;
 	double total_cpu_time = stress_get_processors_configured() * duration;
 	double u_time, s_time, t_time, u_pc, s_pc, t_pc;
+	double min1, min5, min15;
+	int rc;
 
 	if (times(&buf) == (clock_t)-1) {
 		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return;
 	}
+	rc = stress_get_load_avg(&min1, &min5, &min15);
+
 	u_time = (float)buf.tms_cutime / (float)ticks_per_sec;
 	s_time = (float)buf.tms_cstime / (float)ticks_per_sec;
 	t_time = ((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec;
@@ -2062,6 +2066,11 @@ static void times_dump(
 	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
 	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
 
+	if (!rc) {
+		pr_inf(stdout, "load average: %.2f %.2f %.2f\n",
+			min1, min5, min15);
+	}
+
 	pr_yaml(yaml, "times:\n");
 	pr_yaml(yaml, "      run-time: %f\n", duration);
 	pr_yaml(yaml, "      available-cpu-time: %f\n", total_cpu_time);
@@ -2071,6 +2080,11 @@ static void times_dump(
 	pr_yaml(yaml, "      user-time-percent: %f\n", u_pc);
 	pr_yaml(yaml, "      system-time-percent: %f\n", s_pc);
 	pr_yaml(yaml, "      total-time-percent: %f\n", t_pc);
+	if (!rc) {
+		pr_yaml(yaml, "      load-average-1-minute: %f\n", min1);
+		pr_yaml(yaml, "      load-average-5-minute: %f\n", min5);
+		pr_yaml(yaml, "      load-average-15-minute: %f\n", min15);
+	}
 }
 
 int main(int argc, char **argv)
