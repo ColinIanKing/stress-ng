@@ -39,17 +39,6 @@ mwc_t __mwc = {
 };
 
 /*
- *  mwc_seed()
- *	set mwc seeds
- */
-void mwc_seed(const uint32_t w, const uint32_t z)
-{
-	__mwc.w = w;
-	__mwc.z = z;
-}
-
-
-/*
  *  mwc_reseed()
  *	dirty mwc reseed
  */
