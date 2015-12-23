@@ -1,3 +1,30 @@
+stress-ng (0.05.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: --no-print-directory is required when make calls itself
+  * Add apparmor as a build dependency
+  * Makefile: Add test-apparmor.c usr.bin.pulseaudio.eg to make dist dist
+  * stress-seccomp: stop build warnings on systems without seccomp
+  * Ensure test-appormor build test covers the aa API
+  * Remove mwc_seed from mwc.c
+  * Add load average stats to --times option
+  * inline mwc_seed, faster and shrinks text size a bit
+  * stress-apparmor: perform some more devious corruption actions
+  * Debian: control: dependency should be libapparmor-dev
+  * stress-spawn: move spawn_calls to correct accounting stats
+  * Add a posix-spawn stressor
+  * Add unshare stressor
+  * stress-shm-sysv: ensure all shm_ids are initialised to -1
+  * Update Makefile to autogenerate AppArmor binary blob
+  * stress-apparmor: add some random bit corruption
+  * stress-apparmor: add profile add/replace/remove stressing
+  * Debian: control: add libapparmor1 dependency
+  * stress-apparmor: #if def global vars
+  * README: Add note about requiring GNU make
+  * Add initial simple AppArmor test, more features later
+
+ -- Colin King <colin.king@canonical.com>  Wed, 23 Dec 2015 13:58:00 +0000
+
 stress-ng (0.05.04-1) unstable; urgency=medium
 
   * Makefile: bump version
