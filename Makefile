@@ -175,7 +175,7 @@ LIB_APPARMOR := -lapparmor
 # defined so we don't call ourselves over and over
 #
 ifndef $(HAVE_APPARMOR)
-HAVE_APPARMOR = $(shell make HAVE_APPARMOR=0 have_apparmor)
+HAVE_APPARMOR = $(shell make --no-print-directory HAVE_APPARMOR=0 have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
