@@ -115,8 +115,6 @@ static inline int stress_seccomp_set_filter(
 {
 #if defined(__NR_seccomp)
 	static bool use_seccomp = true;
-#else
-	static bool use_seccomp = false;
 #endif
 
 	/*
