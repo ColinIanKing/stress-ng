@@ -239,8 +239,8 @@ sem_post			sem
 sem_wait			sem
 send				sock
 sendfile			sendfile
-sendmmsg
-sendmsg
+sendmmsg			sock
+sendmsg				sock
 sendto
 set_mempolicy			numa
 set_robust_list
