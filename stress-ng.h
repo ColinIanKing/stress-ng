@@ -1488,6 +1488,7 @@ typedef enum {
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_PORT,
 	OPT_SOCKET_DOMAIN,
+	OPT_SOCKET_OPTS,
 
 	OPT_SOCKET_PAIR,
 	OPT_SOCKET_PAIR_OPS,
@@ -1916,6 +1917,7 @@ extern void stress_set_shm_posix_objects(const char *optarg);
 extern void stress_set_shm_sysv_bytes(const char *optarg);
 extern void stress_set_shm_sysv_segments(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
+extern int  stress_set_socket_opts(const char *optarg);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);

@@ -758,6 +758,7 @@ static const struct option long_options[] = {
 	{ "sock",	1,	0,	OPT_SOCKET },
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
+	{ "sock-opts",	1,	0,	OPT_SOCKET_OPTS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
@@ -1276,6 +1277,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
+	{ NULL,		"sock-opts option",	"socket options [send|sendmsg|sendmmsg]" },
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop when N socket pair bogo operations completed" },
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
@@ -2475,6 +2477,10 @@ next_opt:
 			break;
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_SOCKET_OPTS:
+			if (stress_set_socket_opts(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_SOCKET_PORT:

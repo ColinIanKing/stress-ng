@@ -1731,6 +1731,11 @@ used.
 .B \-\-sock\-ops N
 stop socket stress workers after N bogo operations.
 .TP
+.B \-\-sock\-opts [ send | sendmsg | sendmmsg ]
+by default, messages are sent using send(2). This option allows one to specify
+the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
+sendmmsg is only available for Linux systems that support this system call.
+.TP
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair
 of client/server processes performing randomly sized socket I/O operations.

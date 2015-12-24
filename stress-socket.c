@@ -49,12 +49,67 @@
 #ifdef AF_UNIX
 #include <sys/un.h>
 #endif
+#if defined(__linux__)
+#include <sys/syscall.h>
+#endif
 
 #include "stress-ng.h"
 
+#if defined(__linux__) && defined(__NR_sendmmsg)
+#define HAVE_SENDMMSG
+#endif
+
+#define SOCKET_OPT_SEND		0x01
+#define SOCKET_OPT_SENDMSG	0x02
+#define SOCKET_OPT_SENDMMSG	0x03
+
+#define MSGVEC_SIZE		(4)
+
+typedef struct {
+	const char *optname;
+	int	   opt;
+} socket_opts_t;
+
 static int opt_socket_domain = AF_INET;
 static int opt_socket_port = DEFAULT_SOCKET_PORT;
+static int opt_socket_opts = SOCKET_OPT_SEND;
 
+static socket_opts_t socket_opts[] = {
+	{ "send",	SOCKET_OPT_SEND },
+	{ "sendmsg",	SOCKET_OPT_SENDMSG },
+#if defined(HAVE_SENDMMSG)
+	{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
+#endif
+	{ NULL,		0 }
+};
+
+/*
+ *  stress_set_socket_opts()
+ *	parse --send-opts
+ */
+int stress_set_socket_opts(const char *optarg)
+{
+	int i;
+
+	for (i = 0; socket_opts[i].optname; i++) {
+		if (!strcmp(optarg, socket_opts[i].optname)) {
+			opt_socket_opts = socket_opts[i].opt;
+			return 0;
+		}
+	}
+	fprintf(stderr, "sock-opts option '%s' not known, options are:", optarg);
+	for (i = 0; socket_opts[i].opt; i++) {
+		fprintf(stderr, "%s %s",
+			i == 0 ? "" : ",", socket_opts[i].optname);
+	}
+	fprintf(stderr, "\n");
+	return -1;
+}
+
+/*
+ *  stress_set_socket_port()
+ *	set port to use
+ */
 void stress_set_socket_port(const char *optarg)
 {
 	stress_set_net_port("sock-port", optarg,
@@ -177,6 +232,7 @@ retry:
 		struct sigaction new_action;
 		socklen_t addr_len = 0;
 		struct sockaddr *addr;
+		uint64_t msgs = 0;
 
 		setpgid(pid, pgrp);
 
@@ -216,10 +272,16 @@ retry:
 		do {
 			int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 			if (sfd >= 0) {
-				size_t i;
+				size_t i, j;
 				struct sockaddr addr;
 				socklen_t len;
 				int sndbuf;
+				struct msghdr msg;
+				struct iovec vec[sizeof(buf)/16];
+#if defined(HAVE_SENDMMSG)
+				struct mmsghdr msgvec[MSGVEC_SIZE];
+				unsigned int msg_len = 0;
+#endif
 #if NAGLE_DISABLE
 				int one = 1;
 #endif
@@ -244,13 +306,56 @@ retry:
 				}
 #endif
 				memset(buf, 'A' + (*counter % 26), sizeof(buf));
-				for (i = 16; i < sizeof(buf); i += 16) {
-					ssize_t ret = send(sfd, buf, i, 0);
-					if (ret < 0) {
-						if (errno != EINTR)
-							pr_fail_dbg(name, "send");
-						break;
+				switch (opt_socket_opts) {
+				case SOCKET_OPT_SEND:
+					for (i = 16; i < sizeof(buf); i += 16) {
+						ssize_t ret = send(sfd, buf, i, 0);
+						if (ret < 0) {
+							if (errno != EINTR)
+								pr_fail_dbg(name, "send");
+							break;
+						} else
+							msgs++;
 					}
+					break;
+				case SOCKET_OPT_SENDMSG:
+					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+					}
+					memset(&msg, 0, sizeof(msg));
+					msg.msg_iov = vec;
+					msg.msg_iovlen = j;
+					if (sendmsg(sfd, &msg, 0) < 0) {
+						if (errno != EINTR)
+							pr_fail_dbg(name, "sendmsg");
+					} else
+						msgs += j;
+					break;
+#if defined(HAVE_SENDMMSG)
+				case SOCKET_OPT_SENDMMSG:
+					memset(msgvec, 0, sizeof(msgvec));
+					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+						vec[j].iov_base = buf;
+						vec[j].iov_len = i;
+						msg_len += i;
+					}
+					for (i = 0; i < MSGVEC_SIZE; i++) {
+						msgvec[i].msg_hdr.msg_iov = vec;
+						msgvec[i].msg_hdr.msg_iovlen = j;
+					}
+					if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
+						if (errno != EINTR)
+							pr_fail_dbg(name, "sendmmsg");
+					} else
+						msgs += (MSGVEC_SIZE * j);
+					break;
+#endif
+				default:
+					/* Should never happen */
+					pr_err(stderr, "%s: bad option %d\n", name, opt_socket_opts);
+					(void)close(sfd);
+					goto die_close;
 				}
 				if (getpeername(sfd, &addr, &len) < 0) {
 					pr_fail_dbg(name, "getpeername");
@@ -273,6 +378,7 @@ die:
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		}
+		pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", name, msgs);
 	}
 	return rc;
 }
