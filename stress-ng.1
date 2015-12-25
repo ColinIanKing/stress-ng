@@ -228,6 +228,11 @@ option to specify the duration to run each stressor.
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
 .TP
+.B \-\-temp\-path path
+specify a path for stress\-ng temporary directories and temporary files;
+the default path is the current working directory.  This path must have
+read and write access for the stress-ng stress processes.
+.TP
 .B \-t N, \-\-timeout N
 stop stress test after N seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.

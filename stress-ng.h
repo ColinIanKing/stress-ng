@@ -1530,6 +1530,10 @@ typedef enum {
 	OPT_TEE_OPS,
 #endif
 
+	OPT_TEMP_PATH,
+
+	OPT_THERMAL_ZONES,
+
 #if defined(PRCTL_TIMER_SLACK)
 	OPT_TIMER_SLACK,
 #endif
@@ -1546,14 +1550,11 @@ typedef enum {
 	OPT_TIMERFD_FREQ,
 	OPT_TIMERFD_RAND,
 #endif
-
-	OPT_THERMAL_ZONES,
+	OPT_TIMES,
 
 	OPT_TSEARCH,
 	OPT_TSEARCH_OPS,
 	OPT_TSEARCH_SIZE,
-
-	OPT_TIMES,
 
 	OPT_UDP,
 	OPT_UDP_OPS,
@@ -1833,6 +1834,7 @@ extern void stress_parent_died_alarm(void);
 extern int stress_process_dumpable(const bool dumpable);
 extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
+extern int stress_set_temp_path(char *path);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

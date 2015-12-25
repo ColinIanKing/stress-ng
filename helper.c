@@ -56,6 +56,8 @@
 static unsigned long timer_slack = 0;
 #endif
 
+static char *stress_temp_path = ".";
+
 /*
  *  stress_get_pagesize()
  *	get pagesize
@@ -355,6 +357,24 @@ uint64_t uint64_zero(void)
 }
 
 /*
+ *  stress_set_temp_path()
+ *	set temporary file path, default
+ *	is . - current dir
+ */
+int stress_set_temp_path(char *path)
+{
+	stress_temp_path = path;
+
+	if (access(path, R_OK | W_OK) < 0) {
+		fprintf(stderr, "temp-path '%s' must be readable "
+			"and writeable\n", path);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
  *  stress_temp_filename()
  *      construct a temp filename
  */
@@ -366,9 +386,10 @@ int stress_temp_filename(
         const uint32_t instance,
         const uint64_t magic)
 {
-	return snprintf(path, len, ".%s-%i-%"
+	return snprintf(path, len, "%s/tmp-%s-%i-%"
 		PRIu32 "/%s-%i-%"
                 PRIu32 "-%" PRIu64,
+		stress_temp_path,
                 name, pid, instance,
 		name, pid, instance, magic);
 }
@@ -384,8 +405,8 @@ int stress_temp_dir(
         const pid_t pid,
         const uint32_t instance)
 {
-	return snprintf(path, len, ".%s-%i-%" PRIu32,
-		name, pid, instance);
+	return snprintf(path, len, "%s/tmp-%s-%i-%" PRIu32,
+		stress_temp_path, name, pid, instance);
 }
 
 /*
