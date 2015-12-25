@@ -68,7 +68,6 @@ int stress_exec(
 	char *env_new[] = { NULL };
 
 	(void)instance;
-	(void)name;
 
 	/*
 	 *  Don't want to run this when running as root as
