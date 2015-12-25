@@ -41,6 +41,7 @@ typedef enum {
 	ORDER_FORWARD,
 	ORDER_REVERSE,
 	ORDER_STRIDE,
+	ORDER_RANDOM,
 	ORDER_NONE,
 } dentry_order_t;
 
@@ -53,10 +54,11 @@ static dentry_removal_t dentry_removals[] = {
 	{ "forward",	ORDER_FORWARD },
 	{ "reverse",	ORDER_REVERSE },
 	{ "stride",	ORDER_STRIDE },
+	{ "random",	ORDER_RANDOM },
 	{ NULL,		ORDER_NONE },
 };
 
-static dentry_order_t order = ORDER_REVERSE;
+static dentry_order_t order = ORDER_RANDOM;
 static uint64_t opt_dentries = DEFAULT_DENTRIES;
 static bool set_dentries = false;
 
@@ -104,8 +106,12 @@ static void stress_dentry_unlink(
 	uint64_t i, j;
 	const pid_t pid = getpid();
 	const uint64_t prime = PRIME_64;
+	dentry_order_t ord;
 
-	switch (order) {
+	ord = (order == ORDER_RANDOM) ?
+		mwc32() % 3 : order;
+
+	switch (ord) {
 	case ORDER_REVERSE:
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
