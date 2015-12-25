@@ -45,13 +45,10 @@ int stress_affinity(
 	const uint64_t max_ops,
 	const char *name)
 {
-	unsigned long int cpu = 0;
+	unsigned long int cpu = instance;
 	const unsigned long int cpus =
 		(unsigned long int)stress_get_processors_configured();
 	cpu_set_t mask;
-
-	(void)instance;
-	(void)name;
 
 	do {
 		cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
