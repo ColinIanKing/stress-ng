@@ -128,13 +128,258 @@ int stress_set_socket_domain(const char *name)
 }
 
 /*
+ *  stress_socket_client()
+ *	client reader
+ */
+static void stress_socket_client(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name,
+	const pid_t ppid)
+{
+	struct sockaddr *addr;
+
+	setpgid(0, pgrp);
+	stress_parent_died_alarm();
+
+	do {
+		char buf[SOCKET_BUF];
+		int fd;
+		int retries = 0;
+		socklen_t addr_len = 0;
+retry:
+		if (!opt_do_run) {
+			(void)kill(getppid(), SIGALRM);
+			exit(EXIT_FAILURE);
+		}
+		if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
+			pr_fail_dbg(name, "socket");
+			/* failed, kick parent to finish */
+			(void)kill(getppid(), SIGALRM);
+			exit(EXIT_FAILURE);
+		}
+
+		stress_set_sockaddr(name, instance, ppid,
+			opt_socket_domain, opt_socket_port,
+			&addr, &addr_len);
+		if (connect(fd, addr, addr_len) < 0) {
+			(void)close(fd);
+			usleep(10000);
+			retries++;
+			if (retries > 100) {
+				/* Give up.. */
+				pr_fail_dbg(name, "connect");
+				(void)kill(getppid(), SIGALRM);
+				exit(EXIT_FAILURE);
+			}
+			goto retry;
+		}
+
+		do {
+			ssize_t n = recv(fd, buf, sizeof(buf), 0);
+			if (n == 0)
+				break;
+			if (n < 0) {
+				if (errno != EINTR)
+					pr_fail_dbg(name, "recv");
+				break;
+			}
+		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		(void)shutdown(fd, SHUT_RDWR);
+		(void)close(fd);
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+#ifdef AF_UNIX
+	if (opt_socket_domain == AF_UNIX) {
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
+	}
+#endif
+	/* Inform parent we're all done */
+	(void)kill(getppid(), SIGALRM);
+}
+
+/*
  *  handle_socket_sigalrm()
- *	catch SIGALRM
+ *     catch SIGALRM
+ *  stress_socket_client()
+ *     client reader
  */
 static void MLOCKED handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
 	opt_do_run = false;
+}
+
+/*
+ *  stress_socket_server()
+ *	server writer
+ */
+static int stress_socket_server(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name,
+	const pid_t pid,
+	const pid_t ppid)
+{
+	char buf[SOCKET_BUF];
+	int fd, status;
+	int so_reuseaddr = 1;
+	struct sigaction new_action;
+	socklen_t addr_len = 0;
+	struct sockaddr *addr;
+	uint64_t msgs = 0;
+	int rc = EXIT_SUCCESS;
+
+	setpgid(pid, pgrp);
+
+	new_action.sa_handler = handle_socket_sigalrm;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
+		pr_fail_err(name, "sigaction");
+		rc = EXIT_FAILURE;
+		goto die;
+	}
+	if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
+		pr_fail_dbg(name, "socket");
+		rc = EXIT_FAILURE;
+		goto die;
+	}
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		pr_fail_dbg(name, "setsockopt");
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
+
+	stress_set_sockaddr(name, instance, ppid,
+		opt_socket_domain, opt_socket_port, &addr, &addr_len);
+	if (bind(fd, addr, addr_len) < 0) {
+		pr_fail_dbg(name, "bind");
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
+	if (listen(fd, 10) < 0) {
+		pr_fail_dbg(name, "listen");
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
+
+	do {
+		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+		if (sfd >= 0) {
+			size_t i, j;
+			struct sockaddr addr;
+			socklen_t len;
+			int sndbuf;
+			struct msghdr msg;
+			struct iovec vec[sizeof(buf)/16];
+#if defined(HAVE_SENDMMSG)
+			struct mmsghdr msgvec[MSGVEC_SIZE];
+			unsigned int msg_len = 0;
+#endif
+#if NAGLE_DISABLE
+			int one = 1;
+#endif
+
+			len = sizeof(addr);
+			if (getsockname(fd, &addr, &len) < 0) {
+				pr_fail_dbg(name, "getsockname");
+				(void)close(sfd);
+				break;
+			}
+			len = sizeof(sndbuf);
+			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
+				pr_fail_dbg(name, "getsockopt");
+				(void)close(sfd);
+				break;
+			}
+#if NAGLE_DISABLE
+			if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
+				pr_fail_dbg(name, "setsockopt TCP_NODELAY");
+				(void)close(sfd);
+				break;
+			}
+#endif
+			memset(buf, 'A' + (*counter % 26), sizeof(buf));
+			switch (opt_socket_opts) {
+			case SOCKET_OPT_SEND:
+				for (i = 16; i < sizeof(buf); i += 16) {
+					ssize_t ret = send(sfd, buf, i, 0);
+					if (ret < 0) {
+						if (errno != EINTR)
+							pr_fail_dbg(name, "send");
+						break;
+					} else
+						msgs++;
+				}
+				break;
+			case SOCKET_OPT_SENDMSG:
+				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+					vec[j].iov_base = buf;
+					vec[j].iov_len = i;
+				}
+				memset(&msg, 0, sizeof(msg));
+				msg.msg_iov = vec;
+				msg.msg_iovlen = j;
+				if (sendmsg(sfd, &msg, 0) < 0) {
+					if (errno != EINTR)
+						pr_fail_dbg(name, "sendmsg");
+				} else
+					msgs += j;
+				break;
+#if defined(HAVE_SENDMMSG)
+			case SOCKET_OPT_SENDMMSG:
+				memset(msgvec, 0, sizeof(msgvec));
+				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+					vec[j].iov_base = buf;
+					vec[j].iov_len = i;
+					msg_len += i;
+				}
+				for (i = 0; i < MSGVEC_SIZE; i++) {
+					msgvec[i].msg_hdr.msg_iov = vec;
+					msgvec[i].msg_hdr.msg_iovlen = j;
+				}
+				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
+					if (errno != EINTR)
+						pr_fail_dbg(name, "sendmmsg");
+				} else
+					msgs += (MSGVEC_SIZE * j);
+				break;
+#endif
+			default:
+				/* Should never happen */
+				pr_err(stderr, "%s: bad option %d\n", name, opt_socket_opts);
+				(void)close(sfd);
+				goto die_close;
+			}
+			if (getpeername(sfd, &addr, &len) < 0) {
+				pr_fail_dbg(name, "getpeername");
+			}
+			(void)close(sfd);
+		}
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+die_close:
+	(void)close(fd);
+die:
+#ifdef AF_UNIX
+	if (opt_socket_domain == AF_UNIX) {
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
+	}
+#endif
+	if (pid) {
+		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
+	}
+	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", name, msgs);
+
+	return rc;
 }
 
 /*
@@ -148,7 +393,6 @@ int stress_socket(
 	const char *name)
 {
 	pid_t pid, ppid = getppid();
-	int rc = EXIT_SUCCESS;
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
 		name, getpid(), opt_socket_port + instance);
@@ -161,224 +405,9 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		/* Child, client */
-		struct sockaddr *addr;
-
-		setpgid(0, pgrp);
-		stress_parent_died_alarm();
-
-		do {
-			char buf[SOCKET_BUF];
-			int fd;
-			int retries = 0;
-			socklen_t addr_len = 0;
-retry:
-			if (!opt_do_run) {
-				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
-			}
-			if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
-				pr_fail_dbg(name, "socket");
-				/* failed, kick parent to finish */
-				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
-			}
-
-			stress_set_sockaddr(name, instance, ppid,
-				opt_socket_domain, opt_socket_port,
-				&addr, &addr_len);
-			if (connect(fd, addr, addr_len) < 0) {
-				(void)close(fd);
-				usleep(10000);
-				retries++;
-				if (retries > 100) {
-					/* Give up.. */
-					pr_fail_dbg(name, "connect");
-					(void)kill(getppid(), SIGALRM);
-					exit(EXIT_FAILURE);
-				}
-				goto retry;
-			}
-
-			do {
-				ssize_t n = recv(fd, buf, sizeof(buf), 0);
-				if (n == 0)
-					break;
-				if (n < 0) {
-					if (errno != EINTR)
-						pr_fail_dbg(name, "recv");
-					break;
-				}
-			} while (opt_do_run && (!max_ops || *counter < max_ops));
-			(void)shutdown(fd, SHUT_RDWR);
-			(void)close(fd);
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-#ifdef AF_UNIX
-		if (opt_socket_domain == AF_UNIX) {
-			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
-			(void)unlink(addr_un->sun_path);
-		}
-#endif
-		/* Inform parent we're all done */
-		(void)kill(getppid(), SIGALRM);
+		stress_socket_client(counter, instance, max_ops, name, ppid);
 		exit(EXIT_SUCCESS);
 	} else {
-		/* Parent, server */
-
-		char buf[SOCKET_BUF];
-		int fd, status;
-		int so_reuseaddr = 1;
-		struct sigaction new_action;
-		socklen_t addr_len = 0;
-		struct sockaddr *addr;
-		uint64_t msgs = 0;
-
-		setpgid(pid, pgrp);
-
-		new_action.sa_handler = handle_socket_sigalrm;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_fail_err(name, "sigaction");
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-		if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg(name, "socket");
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
-			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_fail_dbg(name, "setsockopt");
-			rc = EXIT_FAILURE;
-			goto die_close;
-		}
-
-		stress_set_sockaddr(name, instance, ppid,
-			opt_socket_domain, opt_socket_port, &addr, &addr_len);
-		if (bind(fd, addr, addr_len) < 0) {
-			pr_fail_dbg(name, "bind");
-			rc = EXIT_FAILURE;
-			goto die_close;
-		}
-		if (listen(fd, 10) < 0) {
-			pr_fail_dbg(name, "listen");
-			rc = EXIT_FAILURE;
-			goto die_close;
-		}
-
-		do {
-			int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
-			if (sfd >= 0) {
-				size_t i, j;
-				struct sockaddr addr;
-				socklen_t len;
-				int sndbuf;
-				struct msghdr msg;
-				struct iovec vec[sizeof(buf)/16];
-#if defined(HAVE_SENDMMSG)
-				struct mmsghdr msgvec[MSGVEC_SIZE];
-				unsigned int msg_len = 0;
-#endif
-#if NAGLE_DISABLE
-				int one = 1;
-#endif
-
-				len = sizeof(addr);
-				if (getsockname(fd, &addr, &len) < 0) {
-					pr_fail_dbg(name, "getsockname");
-					(void)close(sfd);
-					break;
-				}
-				len = sizeof(sndbuf);
-				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-					pr_fail_dbg(name, "getsockopt");
-					(void)close(sfd);
-					break;
-				}
-#if NAGLE_DISABLE
-				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-					pr_fail_dbg(name, "setsockopt TCP_NODELAY");
-					(void)close(sfd);
-					break;
-				}
-#endif
-				memset(buf, 'A' + (*counter % 26), sizeof(buf));
-				switch (opt_socket_opts) {
-				case SOCKET_OPT_SEND:
-					for (i = 16; i < sizeof(buf); i += 16) {
-						ssize_t ret = send(sfd, buf, i, 0);
-						if (ret < 0) {
-							if (errno != EINTR)
-								pr_fail_dbg(name, "send");
-							break;
-						} else
-							msgs++;
-					}
-					break;
-				case SOCKET_OPT_SENDMSG:
-					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
-						vec[j].iov_base = buf;
-						vec[j].iov_len = i;
-					}
-					memset(&msg, 0, sizeof(msg));
-					msg.msg_iov = vec;
-					msg.msg_iovlen = j;
-					if (sendmsg(sfd, &msg, 0) < 0) {
-						if (errno != EINTR)
-							pr_fail_dbg(name, "sendmsg");
-					} else
-						msgs += j;
-					break;
-#if defined(HAVE_SENDMMSG)
-				case SOCKET_OPT_SENDMMSG:
-					memset(msgvec, 0, sizeof(msgvec));
-					for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
-						vec[j].iov_base = buf;
-						vec[j].iov_len = i;
-						msg_len += i;
-					}
-					for (i = 0; i < MSGVEC_SIZE; i++) {
-						msgvec[i].msg_hdr.msg_iov = vec;
-						msgvec[i].msg_hdr.msg_iovlen = j;
-					}
-					if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
-						if (errno != EINTR)
-							pr_fail_dbg(name, "sendmmsg");
-					} else
-						msgs += (MSGVEC_SIZE * j);
-					break;
-#endif
-				default:
-					/* Should never happen */
-					pr_err(stderr, "%s: bad option %d\n", name, opt_socket_opts);
-					(void)close(sfd);
-					goto die_close;
-				}
-				if (getpeername(sfd, &addr, &len) < 0) {
-					pr_fail_dbg(name, "getpeername");
-				}
-				(void)close(sfd);
-			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-die_close:
-		(void)close(fd);
-die:
-#ifdef AF_UNIX
-		if (opt_socket_domain == AF_UNIX) {
-			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
-			(void)unlink(addr_un->sun_path);
-		}
-#endif
-		if (pid) {
-			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
-		}
-		pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", name, msgs);
+		return stress_socket_server(counter, instance, max_ops, name, pid, ppid);
 	}
-	return rc;
 }
