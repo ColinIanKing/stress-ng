@@ -266,6 +266,55 @@ static void OPTIMIZE3 stress_matrix_frobenius(
 }
 
 /*
+ *  stress_matrix_copy(void)
+ *	naive matrix copy, r = a
+ */
+static void OPTIMIZE3 stress_matrix_copy(
+	const size_t n,
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
+{
+	register size_t i;
+
+	(void)b;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++)
+			r[i][j] = a[i][j];
+
+		if (!opt_do_run)
+			return;
+	}
+}
+
+/*
+ *  stress_matrix_mean(void)
+ *	arithmetic mean
+ */
+static void OPTIMIZE3 stress_matrix_mean(
+	const size_t n,
+	matrix_type_t a[n][n],
+	matrix_type_t b[n][n],
+	matrix_type_t r[n][n])
+{
+	register size_t i;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++)
+			r[i][j] = (a[i][j] + b[i][j]) / 2.0;
+
+		if (!opt_do_run)
+			return;
+	}
+}
+
+
+/*
  *  stress_matrix_all()
  *	iterate over all cpu stressors
  */
@@ -286,12 +335,14 @@ static void OPTIMIZE3 stress_matrix_all(
  * Table of cpu stress methods
  */
 static stress_matrix_stressor_info_t matrix_methods[] = {
-	{ "all",		stress_matrix_all },	/* Special "alli" test */
+	{ "all",		stress_matrix_all },	/* Special "all" test */
 
 	{ "add",		stress_matrix_add },
+	{ "copy",		stress_matrix_copy },
 	{ "div",		stress_matrix_div },
 	{ "frobenius",		stress_matrix_frobenius },
 	{ "hadamard",		stress_matrix_hadamard },
+	{ "mean",		stress_matrix_mean },
 	{ "mult",		stress_matrix_mult },
 	{ "prod",		stress_matrix_prod },
 	{ "sub",		stress_matrix_sub },
