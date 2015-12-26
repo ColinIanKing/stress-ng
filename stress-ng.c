@@ -2658,15 +2658,18 @@ next_opt:
 #if defined(STRESS_RDRAND)
 	id = stressor_id_find(STRESS_RDRAND);
 	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_rdrand_supported() < 0))
+	    (stress_rdrand_supported() < 0)) {
 		procs[id].num_procs = 0;
+		procs[id].exclude = true;
+	}
 #endif
 #if defined(STRESS_APPARMOR)
 	id = stressor_id_find(STRESS_APPARMOR);
 	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_apparmor_supported() < 0))
+	    (stress_apparmor_supported() < 0)) {
 		procs[id].num_procs = 0;
-	
+		procs[id].exclude = true;
+	}
 #endif
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
