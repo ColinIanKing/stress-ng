@@ -35,6 +35,7 @@
 #include <sched.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 /*
  *  stress on sched_yield()
