@@ -169,7 +169,7 @@ nanosleep			timer
 nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
-openat
+openat				io
 pause				kcmp
 perf_event_open			--perf option
 personality			personality
@@ -295,9 +295,9 @@ swapoff				[ need privilege, ignore for now ]
 swapon				[ need privilege, ignore for now ]
 symlink				symlink
 symlinkat
-sync				iosync
+sync				io
 sync_file_range			[ potentially dangerous to data ]
-syncfs				hdd
+syncfs				hdd, io
 sysfs				[ obsolete ]
 sysinfo				sysinfo
 syslog				[ ignore, don't want to spam the syslog ]
