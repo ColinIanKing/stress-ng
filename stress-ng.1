@@ -1732,6 +1732,12 @@ and disconnects on the local host.
 specify the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix
 are supported.
 .TP
+.B \-\-sock\-nodelay
+This disables the TCP Nagle algorithm, so data segments are always sent
+as soon as possible.  This stops data from being buffered before being
+transmitted, hence resulting in poorer network utilisation and more context
+switches between the sender and receiver.
+.TP
 .B \-\-sock\-port P
 start at socket port P. For N socket worker processes, ports P to P - 1 are
 used.

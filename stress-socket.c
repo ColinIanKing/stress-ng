@@ -24,7 +24,9 @@
  */
 #define _GNU_SOURCE
 
-#define NAGLE_DISABLE	(0)
+#if defined(__linux__)
+#define SOCKET_NODELAY
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +37,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#if NAGLE_DISABLE
+#if defined(SOCKET_NODELAY)
 #include <netinet/tcp.h>
 #endif
 #include <sys/types.h>
@@ -281,7 +283,7 @@ static int stress_socket_server(
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 			unsigned int msg_len = 0;
 #endif
-#if NAGLE_DISABLE
+#if defined(SOCKET_NODELAY)
 			int one = 1;
 #endif
 
@@ -297,11 +299,14 @@ static int stress_socket_server(
 				(void)close(sfd);
 				break;
 			}
-#if NAGLE_DISABLE
-			if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-				pr_fail_dbg(name, "setsockopt TCP_NODELAY");
-				(void)close(sfd);
-				break;
+#if defined(SOCKET_NODELAY)
+			if (opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
+				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
+					pr_inf(stderr, "%s: setsockopt TCP_NODELAY "
+						"failed and disabled, errno=%d (%s)\n",
+						name, errno, strerror(errno));
+					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
+				}
 			}
 #endif
 			memset(buf, 'A' + (*counter % 26), sizeof(buf));

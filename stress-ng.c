@@ -757,6 +757,7 @@ static const struct option long_options[] = {
 #endif
 	{ "sock",	1,	0,	OPT_SOCKET },
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
+	{ "sock-nodelay",0,	0,	OPT_SOCKET_NODELAY },
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-opts",	1,	0,	OPT_SOCKET_OPTS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
@@ -1276,10 +1277,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sigsuspend N",		"start N workers exercising sigsuspend" },
 	{ NULL,		"sigsuspend-ops N",	"stop when N bogo sigsuspend wakes completed" },
 	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
-	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
-	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
+	{ NULL,		"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
+	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
 	{ NULL,		"sock-opts option",	"socket options [send|sendmsg|sendmmsg]" },
+	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop when N socket pair bogo operations completed" },
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
@@ -2480,6 +2482,9 @@ next_opt:
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_SOCKET_NODELAY:
+			opt_flags |= OPT_FLAGS_SOCKET_NODELAY;
 			break;
 		case OPT_SOCKET_OPTS:
 			if (stress_set_socket_opts(optarg) < 0)
