@@ -28,6 +28,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#if defined(__linux__)
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#endif
+
 #include "stress-ng.h"
 
 /*
@@ -40,13 +46,29 @@ int stress_iosync(
 	const uint64_t max_ops,
 	const char *name)
 {
+#if defined(__linux__)
+	int fd;
+#endif
+
 	(void)instance;
 	(void)name;
 
+#if defined(__linux__)
+	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);
+#endif
+
 	do {
 		sync();
+#if defined(__linux__)
+		if ((fd != -1) && (syncfs(fd) < 0))
+			pr_fail_err(name, "syncfs");
+#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+#if defined(__linux__)
+	(void)close(fd);
+#endif
 
 	return EXIT_SUCCESS;
 }
