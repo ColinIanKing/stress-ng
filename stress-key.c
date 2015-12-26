@@ -38,14 +38,6 @@
 
 #define MAX_KEYS 	(256)
 
-#if 0
-#define sys_keyctl(cmd, ...) \
-	syscall(__NR_keyctl, cmd, ##__VA_ARGS__)
-#define sys_add_key(type, description, payload, plen, keyring) \
-	syscall(__NR_add_key, type, description, payload, plen, keyring)
-
-#else
-
 static long sys_keyctl(int cmd, ...)
 {
 	va_list args;
@@ -71,8 +63,6 @@ static key_serial_t sys_add_key(
 	return (key_serial_t)syscall(__NR_add_key, type,
 		description, payload, plen, keyring);
 }
-
-#endif
 
 /*
  *  stress_key
