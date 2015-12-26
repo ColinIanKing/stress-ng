@@ -1,3 +1,27 @@
+stress-ng (0.05.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-yield: include signal.h to build on FreeBSD
+  * Exclude stressors that cannot be run
+  * stress-matrix: add copy and mean methods
+  * stress-yield: ensure at least 2 child processes per CPU
+  * Update syscalls.txt with syncfs
+  * stress-key: remove if def'd debug code
+  * stress-iosync: add syncfs() for Linux only
+  * Add --sock-nodelay option to disable the Nagle algorithm
+  * stress-socket: split out client/server code into separate functions
+  * stress-exec: remove (void)name;
+  * stress-dentry: add 'random' ordering option
+  * stress-affinity: set initial cpu to instance number
+  * stress-clock: output name of clock timer id on error
+  * Add --temp-path option
+  * Debian/control: change priority because of apparmor dependency
+  * Add apparmor to excluded adt tests
+  * Add sendmsg and sendmmsg to syscalls.txt
+  * Add --sock-opts option
+
+ -- Colin King <colin.king@canonical.com>  Sat, 26 Dec 2015 17:34:00 +0000
+
 stress-ng (0.05.06-1) unstable; urgency=medium
 
   * Makefile: bump version
