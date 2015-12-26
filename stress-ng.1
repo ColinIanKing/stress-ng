@@ -2231,8 +2231,9 @@ on a file.
 stop after N bogo extended attribute operations.
 .TP
 .B \-y N, \-\-yield N
-start N workers that call sched_yield(2). This should force rapid context
-switching.
+start N workers that call sched_yield(2). This stressor ensures that at
+least 2 child processes per CPU exercice shield_yield(2) no matter how
+many workers are specified, thus always ensuring rapid context switching.
 .TP
 .B \-\-yield\-ops N
 stop yield stress workers after N sched_yield(2) bogo operations.

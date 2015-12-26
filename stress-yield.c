@@ -33,6 +33,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sched.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /*
  *  stress on sched_yield()
@@ -44,18 +46,91 @@ int stress_yield(
 	const uint64_t max_ops,
 	const char *name)
 {
-	(void)instance;
-	(void)name;
+	uint64_t *counters;
+	uint64_t max_ops_per_yielder;
+	size_t counters_sz, yielders_sz;
+	long cpus = stress_get_processors_configured();
+	size_t instances = stressor_instances(STRESS_YIELD);
+	size_t yielders = 2;
+	pid_t *pids;
+	size_t i;
+
+	/*
+	 *  Ensure we always have at least 2 yielders per
+	 *  CPU available to force context switching on yields
+	 */
+	if (cpus > 0) {
+		if (!instances) {
+			/* Should not happen, but avoids division by zero */
+			instances = 1;
+		}
+		cpus *= 2;
+		yielders = cpus / instances;
+		if (yielders < 1)
+			yielders = 1;
+		if (!instance) {
+			long residual = cpus - (yielders * instances);
+			if (residual > 0)
+				yielders += residual;
+		}
+	}
+
+	max_ops_per_yielder = max_ops / yielders;
+	yielders_sz = yielders * sizeof(pid_t);
+	pids = alloca(yielders_sz);
+	memset(pids, 0, yielders_sz);
+
+	counters_sz = yielders * sizeof(uint64_t);
+	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (counters == MAP_FAILED) {
+		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+			name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+	memset(counters, 0, counters_sz);
+
+	for (i = 0; opt_do_run && (i < yielders); i++) {
+		pids[i] = fork();
+		if (pids[i] < 0) {
+			pr_dbg(stderr, "%s: fork failed (instance %" PRIu32
+				", yielder %zd): errno=%d (%s)\n",
+				name, instance, i, errno, strerror(errno));
+		} else if (pids[i] == 0) {
+			setpgid(0, pgrp);
+			stress_parent_died_alarm();
+
+			do {
+				int ret;
+
+				ret = sched_yield();
+				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+					pr_fail(stderr, "%s: sched_yield failed: errno=%d (%s)\n",
+						name, errno, strerror(errno));
+				counters[i]++;
+			} while (opt_do_run && (!max_ops_per_yielder || *counter < max_ops_per_yielder));
+			_exit(EXIT_SUCCESS);
+		}
+	}
 
 	do {
-		int ret;
-
-		ret = sched_yield();
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail(stderr, "%s: sched_yield failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
-		(*counter)++;
+		*counter = 0;
+		pause();
+		for (i = 0; i < yielders; i++)
+			*counter += counters[i];
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	/* Parent, wait for children */
+	for (i = 0; i < yielders; i++) {
+		if (pids[i] > 0) {
+			int status;
+
+			(void)kill(pids[i], SIGKILL);
+			(void)waitpid(pids[i], &status, 0);
+			*counter += counters[i];
+		}
+	}
+	(void)munmap(counters, counters_sz);
 
 	return EXIT_SUCCESS;
 }
