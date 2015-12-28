@@ -67,7 +67,8 @@ int stress_iosync(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 #if defined(__linux__)
-	(void)close(fd);
+	if (fd != -1)
+		(void)close(fd);
 #endif
 
 	return EXIT_SUCCESS;
