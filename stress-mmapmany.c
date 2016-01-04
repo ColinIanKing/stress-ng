@@ -50,7 +50,7 @@ int stress_mmapmany(
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
 	size_t max = sysconf(_SC_MAPPED_FILES);
-	max = STRESS_MAX(max, MMAP_MAX);
+	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
 	(void)instance;
 
