@@ -323,27 +323,6 @@ ssize_t stress_get_stack_direction(const void *val1)
 	return ((uint8_t *)val1 - &val2) > 0 ? 1 : -1;
 }
 
-
-/*
- *  force stress-float to think the doubles are actually
- *  being used - this avoids the float loop from being
- *  over optimised out per iteration.
- */
-void double_put(const double a)
-{
-	(void)a;
-}
-
-/*
- *  force stress-int to think the uint64_t args are actually
- *  being used - this avoids the integer loop from being
- *  over optimised out per iteration.
- */
-void uint64_put(const uint64_t a)
-{
-	(void)a;
-}
-
 /*
  *  uint64_zero()
  *	return uint64 zero in way that force less smart

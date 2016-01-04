@@ -1690,9 +1690,20 @@ extern pid_t pgrp;			/* proceess group leader */
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
  */
-extern void double_put(const double a);
-extern void uint64_put(const uint64_t a);
 extern uint64_t uint64_zero(void);
+
+static uint64_t uint64_val;
+static double   double_val;
+
+static inline void uint64_put(const uint64_t a)
+{
+	uint64_val = a;
+}
+
+static inline void double_put(const double a)
+{
+	double_val = a;
+}
 
 /* Filenames and directories */
 extern int stress_temp_filename(char *path, const size_t len, const char *name,
