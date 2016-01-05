@@ -60,12 +60,9 @@ int stress_stack(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pid;
-
-	(void)instance;
-
 	uint8_t stack[SIGSTKSZ];
 	stack_t ss;
+	pid_t pid;
 
 	/*
 	 *  We need to create an alternative signal

@@ -51,7 +51,6 @@ int stress_iosync(
 #endif
 
 	(void)instance;
-	(void)name;
 
 #if defined(__linux__)
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);

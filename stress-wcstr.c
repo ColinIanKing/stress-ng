@@ -488,7 +488,6 @@ int stress_wcs(
 	stress_wcs_func func = opt_wcs_stressor->func;
 
 	(void)instance;
-	(void)name;
 
 	do {
 		wchar_t str1[STR1LEN], str2[STR2LEN];

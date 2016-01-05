@@ -696,9 +696,6 @@ int stress_inotify(
 	int i;
 	const pid_t pid = getpid();
 
-	(void)counter;
-	(void)max_ops;
-
 	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;

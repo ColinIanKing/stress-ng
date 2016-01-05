@@ -359,8 +359,6 @@ int stress_shm_sysv(
 	bool retry = true;
 	uint32_t restarts = 0;
 
-	(void)instance;
-
 	if (!set_shm_sysv_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;

@@ -148,8 +148,6 @@ int stress_pthread(
 	bool ok = true;
 	uint64_t limited = 0, attempted = 0;
 
-	(void)instance;
-
 	if (!set_pthread_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_pthread_max = MAX_PTHREAD;

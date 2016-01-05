@@ -161,7 +161,6 @@ int stress_mmap(
 	int no_mem_retries = 0;
 	char filename[PATH_MAX];
 
-	(void)instance;
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
 #endif

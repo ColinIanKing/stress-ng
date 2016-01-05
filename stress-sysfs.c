@@ -233,8 +233,6 @@ int stress_sysfs(
 	bool sys_read = true;
 
 	(void)instance;
-	(void)name;
-
 
 	if (geteuid() == 0) {
 		pr_inf(stderr, "%s: running as root, just traversing /sys "

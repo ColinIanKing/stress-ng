@@ -74,7 +74,6 @@ int stress_crypt(
 	const char *name)
 {
 	(void)instance;
-	(void)name;
 
 	do {
 		static const char seedchars[] =

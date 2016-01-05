@@ -71,8 +71,6 @@ int stress_rlimit(
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
-	(void)instance;
-
 	memset(&new_action_xcpu, 0, sizeof new_action_xcpu);
 	new_action_xcpu.sa_handler = stress_rlimit_handler;
 	sigemptyset(&new_action_xcpu.sa_mask);

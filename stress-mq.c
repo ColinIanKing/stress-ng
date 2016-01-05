@@ -80,8 +80,6 @@ int stress_mq(
 	struct mq_attr attr;
 	char mq_name[64];
 
-	(void)instance;
-
 	if (!set_mq_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_mq_size = MAX_MQ_SIZE;

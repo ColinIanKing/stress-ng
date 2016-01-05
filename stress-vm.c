@@ -1898,8 +1898,6 @@ int stress_vm(
         const size_t page_size = stress_get_pagesize();
 	size_t buf_sz;
 
-	(void)instance;
-
 	if (!set_vm_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_vm_bytes = MAX_VM_BYTES;

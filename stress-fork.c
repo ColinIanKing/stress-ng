@@ -80,7 +80,6 @@ int stress_fork_fn(
 	const uint64_t fork_max)
 {
 	(void)instance;
-	(void)name;
 
 	pid_t pids[MAX_FORKS];
 

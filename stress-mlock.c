@@ -108,8 +108,6 @@ int stress_mlock(
 	size_t max = sysconf(_SC_MAPPED_FILES);
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
-	(void)instance;
-
 again:
 	pid = fork();
 	if (pid < 0) {

@@ -110,7 +110,6 @@ int stress_membarrier(
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
 
 	(void)instance;
-	(void)name;
 
 	ret = sys_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {

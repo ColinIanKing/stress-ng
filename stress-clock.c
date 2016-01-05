@@ -113,7 +113,6 @@ int stress_clock(
 	const char *name)
 {
 	(void)instance;
-	(void)name;
 
 	do {
 		size_t i;

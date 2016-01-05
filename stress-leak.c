@@ -28,66 +28,84 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <sys/types.h>
-#include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/resource.h>
+
+#define MMAP_SIZE	(1024 * 1024)
 
 #include "stress-ng.h"
 
 /*
- *  stress_dup()
- *	stress system by rapid dup/close calls
+ *  stress_leak()
+ *	stress by leaking and exiting
  */
-int stress_dup(
+int stress_leak(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name)
 {
-	int fds[STRESS_FD_MAX];
 	struct rlimit rlim;
 	rlim_t i, opened = 0;
+	pid_t pid;
+	int pipefds[2];
 
 	(void)instance;
 
-	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0)
-		rlim.rlim_cur = STRESS_FD_MAX;	/* Guess */
+	if (pipe(pipefds) < 0) {
+		pr_fail_dbg(name, "pipe");
+		return EXIT_FAILURE;
+	}
 
-	/* Determine max number of free file descriptors we have */
+	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0)
+		rlim.rlim_cur = STRESS_FD_MAX;  /* Guess */
 	for (i = 0; i < rlim.rlim_cur; i++) {
 		if (fcntl((int)i, F_GETFL) > -1)
 			opened++;
 	}
+
 	rlim.rlim_cur -= opened;
 
-	fds[0] = open("/dev/zero", O_RDONLY);
-	if (fds[0] < 0) {
-		pr_fail_dbg(name, "open on /dev/zero");
-		return EXIT_FAILURE;
-	}
-
 	do {
-		for (i = 1; i < rlim.rlim_cur; i++) {
-			fds[i] = dup(fds[0]);
-			if (fds[i] < 0)
-				break;
-			fds[i] = dup2(fds[0], fds[i]);
-			if (fds[i] < 0)
-				break;
+		pid = fork();
+
+		if (pid == 0) {
+			/* Child */
+
+			int fds[STRESS_FD_MAX];
+			void *mem;
+
+			setpgid(0, pgrp);
+			stress_parent_died_alarm();
+
+			mem = mmap(NULL, MMAP_SIZE, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			if (mem != MAP_FAILED)
+				memset(mem, 0, MMAP_SIZE);
+			for (opened = 0, i = 0; i < rlim.rlim_cur; i++) {
+				fds[i] = open("/dev/zero", O_RDONLY);
+				if (fds[i] >= 0)
+					opened++;
+				else
+					break;
+			}
+			_exit(0);
+		} else if (pid > -1) {
+			/* Parent, wait for child */
+			int status;
+
+			setpgid(pid, pgrp);
 			if (!opt_do_run)
 				break;
+
+			(void)waitpid(pid, &status, 0);
 			(*counter)++;
 		}
-		for (i = 1; i < rlim.rlim_cur; i++) {
-			if (fds[i] < 0)
-				break;
-			if (!opt_do_run)
-				break;
-			(void)close(fds[i]);
-		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	(void)close(fds[0]);
+
+	(void)close(pipefds[0]);
+	(void)close(pipefds[1]);
 
 	return EXIT_SUCCESS;
 }

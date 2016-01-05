@@ -130,8 +130,6 @@ int stress_timer(
 	struct itimerspec timer;
 	sigset_t mask;
 
-	(void)instance;
-
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGINT);
 	sigprocmask(SIG_SETMASK, &mask, NULL);

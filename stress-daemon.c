@@ -97,7 +97,6 @@ int stress_daemon(
 	pid_t pid;
 
 	(void)instance;
-	(void)name;
 
 	if (pipe(fds) < 0) {
 		pr_fail_dbg(name, "pipe");

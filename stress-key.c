@@ -74,11 +74,8 @@ int stress_key(
 	const uint64_t max_ops,
 	const char *name)
 {
-	(void)instance;
-	(void)name;
-	pid_t ppid = getppid();
-
 	key_serial_t keys[MAX_KEYS];
+	pid_t ppid = getppid();
 
 	do {
 		size_t i, n = 0;

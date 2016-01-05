@@ -47,7 +47,6 @@ int stress_kill(
 	const pid_t pid = getpid();
 
 	(void)instance;
-	(void)name;
 
 	memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = SIG_IGN;

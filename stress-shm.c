@@ -251,8 +251,6 @@ int stress_shm_posix(
 	bool retry = true;
 	uint32_t restarts = 0;
 
-	(void)instance;
-
 	if (!set_shm_posix_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_posix_bytes = MAX_SHM_POSIX_BYTES;

@@ -138,7 +138,6 @@ int stress_get(
 	const bool verify = (opt_flags & OPT_FLAGS_VERIFY);
 
 	(void)instance;
-	(void)name;
 
 	do {
 		char path[PATH_MAX];

@@ -532,7 +532,6 @@ int stress_str(
 	stress_str_func func = opt_str_stressor->func;
 
 	(void)instance;
-	(void)name;
 
 	do {
 		char str1[256], str2[128];

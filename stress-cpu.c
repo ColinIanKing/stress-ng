@@ -2176,7 +2176,6 @@ int stress_cpu(
 	stress_cpu_func func = opt_cpu_stressor->func;
 
 	(void)instance;
-	(void)name;
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU

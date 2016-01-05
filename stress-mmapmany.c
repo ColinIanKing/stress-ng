@@ -52,8 +52,6 @@ int stress_mmapmany(
 	size_t max = sysconf(_SC_MAPPED_FILES);
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
-	(void)instance;
-
 again:
 	pid = fork();
 	if (pid < 0) {
