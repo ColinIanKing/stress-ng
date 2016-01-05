@@ -118,7 +118,7 @@ static int priorities[] = {
 };
 
 #if defined(__linux__)
-static inline int gettid(void)
+static inline int sys_gettid(void)
 {
         return syscall(SYS_gettid);
 }
@@ -243,7 +243,7 @@ int stress_get(
 #endif
 
 #if defined(__linux__)
-		(void)gettid();
+		(void)sys_gettid();
 		check_do_run();
 #endif
 
