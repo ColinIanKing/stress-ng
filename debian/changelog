@@ -1,3 +1,24 @@
+stress-ng (0.05.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove stress-leak.c, it was accidentally added
+  * Update man page date
+  * Debian control: Use dh_apparmor
+  * Fix incorrectly placed #endif around TSEARCH
+  * stress-iosync: (void)name if not building for Linux
+  * stress-mlock: remove debug message
+  * Add in options to *search stressors in mini built-in help
+  * Add TSC read stressor
+  * Remove some redundant (void)var statements
+  * stress-get: rename gettid to sys_gettid to avoid name clash
+  * Move uint64_put and double_put from helper.c to stress-ng.h
+  * Rename macros STRESS_{MIN|MAX} -> STRESS_{MINIMUM|MAXIMUM}
+  * Update debian copyright to 2016
+  * Update copyright year to 2016
+  * stress-iosync: don't close -ve fd
+
+ -- Colin King <colin.king@canonical.com>  Wed, 6 Jan 2016 15:22:12 +0000
+
 stress-ng (0.05.07-1) unstable; urgency=medium
 
   * Makefile: bump version
