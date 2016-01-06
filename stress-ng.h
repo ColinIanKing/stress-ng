@@ -958,8 +958,8 @@ typedef enum {
 #if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 	__STRESS_TSC,
 #define STRESS_TSC __STRESS_TSC
-	STRESS_TSEARCH,
 #endif
+	STRESS_TSEARCH,
 	STRESS_UDP,
 #if defined(AF_PACKET)
 	__STRESS_UDP_FLOOD,
