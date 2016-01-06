@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.05.07
+VERSION=0.05.08
 #
 # Codename "determined distressor"
 #
