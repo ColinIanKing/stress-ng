@@ -68,9 +68,6 @@ static int mlock_shim(const void *addr, size_t len)
 				0 : MLOCK_ONFAULT;
 			int ret;
 
-			printf("%d %d %d\n",
-				rnd, rnd & 2, flags);
-
 			ret = sys_mlock2(addr, len, flags);
 			if (!ret)
 				return 0;
