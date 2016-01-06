@@ -131,6 +131,7 @@ SRC =   stress-affinity.c \
 	stress-tee.c \
 	stress-timer.c \
 	stress-timerfd.c \
+	stress-tsc.c \
 	stress-tsearch.c \
 	stress-udp.c \
 	stress-udp-flood.c \

@@ -329,6 +329,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_TIMERFD)
 	STRESSOR(timerfd, TIMERFD, CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_TSC)
+	STRESSOR(tsc, TSC, CLASS_CPU),
+#endif
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(udp, UDP, CLASS_NETWORK | CLASS_OS),
 #if defined(STRESS_UDP_FLOOD)
@@ -807,6 +810,10 @@ static const struct option long_options[] = {
 #endif
 #if defined(PRCTL_TIMER_SLACK)
 	{ "timer-slack",1,	0,	OPT_TIMER_SLACK },
+#endif
+#if defined(STRESS_TSC)
+	{ "tsc",	1,	0,	OPT_TSC },
+	{ "tsc-ops",	1,	0,	OPT_TSC_OPS },
 #endif
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
@@ -1322,6 +1329,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"timerfd-ops N",	"stop when N timerfd bogo events completed" },
 	{ NULL,		"timerfd-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timerfd-rand",		"enable random timerfd frequency" },
+#endif
+#if defined(STRESS_TSC)
+	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },
+	{ NULL,		"tsc-ops N",		"stop when N TSC bogo ops completed" },
 #endif
 	{ NULL,		"tsearch",		"start N workers that exercise a tree search" },
 	{ NULL,		"tsearch-ops",		"stop when N tree search bogo operations completed" },
@@ -2659,6 +2670,14 @@ next_opt:
 	id = stressor_id_find(STRESS_RDRAND);
 	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
 	    (stress_rdrand_supported() < 0)) {
+		procs[id].num_procs = 0;
+		procs[id].exclude = true;
+	}
+#endif
+#if defined(STRESS_TSC)
+	id = stressor_id_find(STRESS_TSC);
+	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
+	    (stress_tsc_supported() < 0)) {
 		procs[id].num_procs = 0;
 		procs[id].exclude = true;
 	}

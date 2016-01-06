@@ -955,7 +955,11 @@ typedef enum {
 	__STRESS_TIMERFD,
 #define STRESS_TIMERFD __STRESS_TIMERFD
 #endif
+#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
+	__STRESS_TSC,
+#define STRESS_TSC __STRESS_TSC
 	STRESS_TSEARCH,
+#endif
 	STRESS_UDP,
 #if defined(AF_PACKET)
 	__STRESS_UDP_FLOOD,
@@ -1554,6 +1558,11 @@ typedef enum {
 #endif
 	OPT_TIMES,
 
+#if defined(STRESS_TSC)
+	OPT_TSC,
+	OPT_TSC_OPS,
+#endif
+
 	OPT_TSEARCH,
 	OPT_TSEARCH_OPS,
 	OPT_TSEARCH_SIZE,
@@ -1939,6 +1948,7 @@ extern int  stress_set_str_method(const char *name);
 extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_timerfd_freq(const char *optarg);
+extern int  stress_tsc_supported(void);
 extern void stress_set_tsearch_size(const char *optarg);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *optarg);
@@ -2064,6 +2074,7 @@ STRESS(stress_sysfs);
 STRESS(stress_tee);
 STRESS(stress_timer);
 STRESS(stress_timerfd);
+STRESS(stress_tsc);
 STRESS(stress_tsearch);
 STRESS(stress_udp);
 STRESS(stress_udp_flood);
