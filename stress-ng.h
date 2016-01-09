@@ -102,10 +102,10 @@
 #define SOCKET_PAIR_BUF		(64)		/* Socket pair I/O buffer size */
 
 /* debug output bitmasks */
-#define PR_ERROR		0x0000000001ULL /* Print errors */
-#define PR_INFO			0x0000000002ULL /* Print info */
-#define PR_DEBUG		0x0000000004ULL /* Print debug */
-#define PR_FAIL			0x0000000008ULL /* Print test failure message */
+#define PR_ERROR		0x0000000000001ULL 	/* Print errors */
+#define PR_INFO			0x0000000000002ULL 	/* Print info */
+#define PR_DEBUG		0x0000000000004ULL 	/* Print debug */
+#define PR_FAIL			0x0000000000008ULL 	/* Print test failure message */
 #define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
