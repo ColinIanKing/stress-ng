@@ -46,20 +46,6 @@ typedef struct {
 static stress_str_stressor_info_t *opt_str_stressor;
 static stress_str_stressor_info_t str_methods[];
 
-/*
- *  stress_str_fill
- *
- */
-static void stress_str_fill(char *str, const size_t len)
-{
-	char *end = str + len;
-
-	while (str < end - 1)
-		*str++ = (mwc8() % 26) + 'a';
-
-	*str = '\0';
-}
-
 static inline void strchk(
 	const char *name,
 	const int ok,
@@ -536,8 +522,8 @@ int stress_str(
 	do {
 		char str1[256], str2[128];
 
-		stress_str_fill(str1, sizeof(str1));
-		stress_str_fill(str2, sizeof(str2));
+		stress_strnrnd(str1, sizeof(str1));
+		stress_strnrnd(str2, sizeof(str2));
 
 		(void)func(name, str1, sizeof(str1), str2, sizeof(str2));
 		(*counter)++;

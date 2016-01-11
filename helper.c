@@ -473,6 +473,21 @@ const char *stress_strsignal(const int signum)
 	return buffer;
 }
 
+
+/*
+ *  stress_strnrnd()
+ *	fill string with random chars
+ */
+void stress_strnrnd(char *str, const size_t len)
+{
+	char *end = str + len;
+
+	while (str < end - 1)
+		*str++ = (mwc8() % 26) + 'a';
+
+	*str = '\0';
+}
+
 /*
  *  pr_yaml_runinfo()
  *	log info about the system we are running stress-ng on

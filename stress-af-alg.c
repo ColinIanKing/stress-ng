@@ -84,20 +84,6 @@ static alg_info_t algo_info[] = {
 };
 
 /*
- *  stress_strnrnd()
- *	fill string with random chars
- */
-static void stress_strnrnd(char *str, const size_t len)
-{
-	char *end = str + len;
-
-	while (str < end - 1)
-		*str++ = (mwc8() % 26) + 'a';
-
-	*str = '\0';
-}
-
-/*
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */

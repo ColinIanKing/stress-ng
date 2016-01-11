@@ -55,7 +55,7 @@ int stress_seek(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint64_t len, i;
+	uint64_t len;
 	const pid_t pid = getpid();
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -72,8 +72,7 @@ int stress_seek(
 	if (stress_temp_dir_mk(name, pid, instance) < 0)
 		return EXIT_FAILURE;
 
-	for (i = 0; i < sizeof(buf); i++)
-		buf[i] = mwc8();
+	stress_strnrnd((char *)buf, sizeof(buf));
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());

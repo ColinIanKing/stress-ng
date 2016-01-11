@@ -394,8 +394,7 @@ int stress_hdd(
 		return EXIT_FAILURE;
 	}
 
-	for (i = 0; i < opt_hdd_write_size; i++)
-		buf[i] = mwc8();
+	stress_strnrnd((char *)buf, opt_hdd_write_size);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());

@@ -1873,6 +1873,7 @@ extern int stress_process_dumpable(const bool dumpable);
 extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
 extern int stress_set_temp_path(char *path);
+extern void stress_strnrnd(char *str, const size_t len);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);
