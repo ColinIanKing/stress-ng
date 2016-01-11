@@ -133,6 +133,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_AFFINITY)
 	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 #endif
+#if defined(STRESS_AF_ALG)
+	STRESSOR(af_alg, AF_ALG, CLASS_CPU | CLASS_OS),
+#endif
 #if defined(STRESS_AIO)
 	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
 #endif
@@ -400,6 +403,10 @@ static const struct option long_options[] = {
 	{ "affinity",	1,	0,	OPT_AFFINITY },
 	{ "affinity-ops",1,	0,	OPT_AFFINITY_OPS },
 	{ "affinity-rand",0,	0,	OPT_AFFINITY_RAND },
+#endif
+#if defined(STRESS_AF_ALG)
+	{ "af-alg",	1,	0,	OPT_AF_ALG },
+	{ "af-alg-ops",	1,	0,	OPT_AF_ALG_OPS },
 #endif
 	{ "aggressive",	0,	0,	OPT_AGGRESSIVE },
 #if defined(STRESS_AIO)
@@ -958,6 +965,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
 	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
+#endif
+#if defined(STRESS_AF_ALG)
+	{ NULL,		"af-alg N",		"start N workers that stress AF_ALG socket domain" },
+	{ NULL,		"af-alg-ops N",		"stop when N af-alg bogo operations completed" },
 #endif
 #if defined(STRESS_AIO)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },

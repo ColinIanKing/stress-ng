@@ -27,6 +27,7 @@ BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
 SRC =   stress-affinity.c \
+	stress-af-alg.c \
 	stress-aio.c \
 	stress-aio-linux.c \
 	stress-apparmor.c \

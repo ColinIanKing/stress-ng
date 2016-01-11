@@ -701,6 +701,10 @@ typedef enum {
 	__STRESS_AFFINITY,
 #define STRESS_AFFINITY __STRESS_AFFINITY
 #endif
+#if defined(__linux__) && defined(AF_ALG)
+	__STRESS_AF_ALG,
+#define STRESS_AF_ALG __STRESS_AF_ALG
+#endif
 #if defined(__linux__) && NEED_GLIBC(2,1,0)
 	__STRESS_AIO,
 #define STRESS_AIO __STRESS_AIO
@@ -1073,6 +1077,11 @@ typedef enum {
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
 	OPT_AFFINITY_RAND,
+#endif
+
+#if defined(STRESS_AF_ALG)
+	OPT_AF_ALG,
+	OPT_AF_ALG_OPS,
 #endif
 
 	OPT_AGGRESSIVE,
@@ -1976,6 +1985,7 @@ extern int name(uint64_t *const counter, const uint32_t instance,	\
 
 /* Stressors */
 STRESS(stress_affinity);
+STRESS(stress_af_alg);
 STRESS(stress_aio);
 STRESS(stress_aio_linux);
 STRESS(stress_apparmor);
