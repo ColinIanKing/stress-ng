@@ -46,8 +46,6 @@ static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
 static bool set_aio_requests = false;
 static volatile bool do_accounting = true;
 
-typedef void(*sa_handler_t)(int);
-
 /* per request async I/O data */
 typedef struct {
 	int		request;		/* Request slot */
