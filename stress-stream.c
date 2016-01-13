@@ -148,7 +148,7 @@ int stress_stream(
 			"to the STREAM benchmark results\n", name);
 		if (guess) {
 			pr_inf(stderr, "%s: cannot determine CPU L3 cache size, "
-				"defaulting to %" PRIu64 " K\n",
+				"defaulting to %" PRIu64 "K\n",
 				name, l3 / 1024);
 		} else {
 			pr_inf(stderr, "%s: CPU cache: L2: %" PRIu64
