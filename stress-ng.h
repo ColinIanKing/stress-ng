@@ -490,6 +490,12 @@ extern void pr_openlog(const char *filename);
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define RESTRICT __restrict
+#else
+#define RESTRICT
+#endif
+
 #if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
 #define STRESS_INT128	1
 #endif

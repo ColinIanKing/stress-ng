@@ -43,8 +43,8 @@
 #include "stress-ng.h"
 
 static inline void OPTIMIZE3 stress_stream_copy(
-	double *restrict c,
-	const double *restrict a,
+	double *RESTRICT c,
+	const double *RESTRICT a,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -54,8 +54,8 @@ static inline void OPTIMIZE3 stress_stream_copy(
 }
 
 static inline void OPTIMIZE3 stress_stream_scale(
-	double *restrict b,
-	const double *restrict c,
+	double *RESTRICT b,
+	const double *RESTRICT c,
 	const double q,
 	const uint64_t n)
 {
@@ -66,9 +66,9 @@ static inline void OPTIMIZE3 stress_stream_scale(
 }
 
 static inline void OPTIMIZE3 stress_stream_add(
-	const double *restrict a,
-	const double *restrict b,
-	double *restrict c,
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	double *RESTRICT c,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -78,9 +78,9 @@ static inline void OPTIMIZE3 stress_stream_add(
 }
 
 static inline void OPTIMIZE3 stress_stream_triad(
-	double *restrict a,
-	const double *restrict b,
-	const double *restrict c,
+	double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
 	const double q,
 	const uint64_t n)
 {
@@ -91,7 +91,7 @@ static inline void OPTIMIZE3 stress_stream_triad(
 }
 
 static void stress_stream_init_data(
-	double *restrict data,
+	double *RESTRICT data,
 	const uint64_t n)
 {
 	uint64_t i;
