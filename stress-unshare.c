@@ -51,7 +51,7 @@ void sys_unshare(const char *name, int flags, const char *flags_name)
 #else
 	rc = syscall(__NR_unshare, flags);
 #endif
-	if ((rc < 0) && (errno != EPERM)) {
+	if ((rc < 0) && (errno != EPERM) && (errno != EINVAL)) {
 		pr_fail(stderr, "%s: unshare(%s) failed, "
 			"errno=%d (%s)\n", name, flags_name,
 			errno, strerror(errno));
