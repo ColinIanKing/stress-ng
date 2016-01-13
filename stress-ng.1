@@ -1816,6 +1816,43 @@ the default and will exercise all the string methods.
 .B \-\-str-ops N
 stop after N bogo string operations.
 .TP
+.B \-\-stream N
+start N workers exercising a memory bandwidth stressor loosely based on the
+STREAM "Sustainable Memory Bandwidth in High Performance Computers" benchmarking
+tool by John D. McCalpin, Ph.D.  This stressor allocates buffers that are at
+least 4 times the size of the CPU L2 cache and continually performs rounds of
+following computations on large arrays of double precision floating point numbers:
+.TS
+expand;
+lB2 lBw(\n[SV]n)
+l l.
+Operation	Description
+copy	T{
+c[i] = a[i]
+T}
+scale	T{
+b[i] = scalar * c[i]
+T}
+add	T{
+c[i] = a[i] + b[i]
+T}
+triad	T{
+a[i] = b[i] + (c[i] * scalar)
+T}
+.TE
+.RS
+.PP
+Since this is loosely based on a variant of the STREAM benchmark code,
+DO NOT submit results based on this as it is intended to in stress-ng just
+to stress memory and compute and NOT intended for STREAM accurate
+tuned or non-tuned benchmarking whatsoever.  Use the official STREAM
+benchmarking tool if you desire accurate and standardised STREAM benchmarks.
+.RE
+.TP
+.B \-\-stream\-ops N
+stop after N stream bogo operations, where a bogo operation is one round
+of copy, scale, add and triad operations.
+.TP
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.

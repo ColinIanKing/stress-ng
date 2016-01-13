@@ -947,6 +947,7 @@ typedef enum {
 #endif
 	STRESS_STACK,
 	STRESS_STR,
+	STRESS_STREAM,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
@@ -1534,6 +1535,9 @@ typedef enum {
 	OPT_STR_OPS,
 	OPT_STR_METHOD,
 
+	OPT_STREAM,
+	OPT_STREAM_OPS,
+
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
 
@@ -1874,6 +1878,7 @@ extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
 extern int stress_set_temp_path(char *path);
 extern void stress_strnrnd(char *str, const size_t len);
+extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);
@@ -2085,6 +2090,7 @@ STRESS(stress_spawn);
 STRESS(stress_splice);
 STRESS(stress_stack);
 STRESS(stress_str);
+STRESS(stress_stream);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sysinfo);

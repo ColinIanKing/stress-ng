@@ -126,6 +126,7 @@ SRC =   stress-affinity.c \
 	stress-splice.c \
 	stress-stack.c \
 	stress-str.c \
+	stress-stream.c \
 	stress-switch.c \
 	stress-sysinfo.c \
 	stress-sysfs.c \
@@ -150,6 +151,7 @@ SRC =   stress-affinity.c \
 	stress-yield.c \
 	stress-zero.c \
 	stress-zombie.c \
+	cpu-cache.c \
 	helper.c \
 	io-priority.c \
 	limit.c \
