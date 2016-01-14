@@ -395,6 +395,15 @@ extern void pr_openlog(const char *filename);
 #define MAX_SPLICE_BYTES	(64*MB)
 #define DEFAULT_SPLICE_BYTES	(64*KB)
 
+#define MIN_STREAM_L3_SIZE	(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_STREAM_L3_SIZE	(MAX_32)
+#else
+#define MAX_STREAM_L3_SIZE	(4 * GB)
+#endif
+#define DEFAULT_STREAM_L3_SIZE	(4 * MB)
+
+
 #define MIN_TSEARCH_SIZE	(1 * KB)
 #define MAX_TSEARCH_SIZE	(4 * MB)
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
@@ -1543,6 +1552,7 @@ typedef enum {
 
 	OPT_STREAM,
 	OPT_STREAM_OPS,
+	OPT_STREAM_L3_SIZE,
 
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
@@ -1973,6 +1983,7 @@ extern int  stress_set_socket_opts(const char *optarg);
 extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);
+extern void stress_set_stream_L3_size(const char *optarg);
 extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_timerfd_freq(const char *optarg);

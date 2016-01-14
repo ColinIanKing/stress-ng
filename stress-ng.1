@@ -1853,6 +1853,12 @@ benchmarking tool if you desire accurate and standardised STREAM benchmarks.
 stop after N stream bogo operations, where a bogo operation is one round
 of copy, scale, add and triad operations.
 .TP
+.B \-\-stream\-l3\-size N
+Specify the CPU Level 3 cache size in bytes.  One can specify the size in
+units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+If the L3 cache size is not provided, then stress-ng will attempt to
+determine the cache size, and failing this, will default the size to 4MB.
+.TP
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.

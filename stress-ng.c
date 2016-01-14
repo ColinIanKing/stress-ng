@@ -789,6 +789,7 @@ static const struct option long_options[] = {
 	{ "str-method",	1,	0,	OPT_STR_METHOD },
 	{ "stream",	1,	0,	OPT_STREAM },
 	{ "stream-ops",	1,	0,	OPT_STREAM_OPS },
+	{ "stream-l3-size" ,1,	0,	OPT_STREAM_L3_SIZE },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
@@ -1320,6 +1321,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"str-ops N",		"stop when N bogo string operations completed" },
 	{ NULL,		"stream N",		"start N workers exercising memory bandwidth" },
 	{ NULL,		"stream-ops N",		"stop when N bogo stream operations completed" },
+	{ NULL,		"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
@@ -2531,6 +2533,9 @@ next_opt:
 		case OPT_STR_METHOD:
 			if (stress_set_str_method(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_STREAM_L3_SIZE:
+			stress_set_stream_L3_size(optarg);
 			break;
 		case OPT_SYSLOG:
 			opt_flags |= OPT_FLAGS_SYSLOG;

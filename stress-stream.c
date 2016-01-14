@@ -42,6 +42,17 @@
 
 #include "stress-ng.h"
 
+static uint64_t opt_stream_L3_size = DEFAULT_STREAM_L3_SIZE;
+static bool     set_stream_L3_size = false;
+
+void stress_set_stream_L3_size(const char *optarg)
+{
+	set_stream_L3_size = true;
+	opt_stream_L3_size = get_uint64_byte(optarg);
+	check_range("stream-L3-size", opt_stream_L3_size,
+		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
+}
+
 static inline void OPTIMIZE3 stress_stream_copy(
 	double *RESTRICT c,
 	const double *RESTRICT a,
@@ -130,15 +141,18 @@ int stress_stream(
 	double *a, *b, *c;
 	const double q = 3.0;
 	double mb_rate, mb, fp_rate, fp, t1, t2, dt;
-	uint64_t l2, l3, sz, n;
+	uint64_t L2, L3, sz, n;
 	bool guess = false;
 
-	stress_get_cache_size(&l2, &l3);
+	if (set_stream_L3_size)
+		L3 = opt_stream_L3_size;
+	else
+		stress_get_cache_size(&L2, &L3);
 
 	/* Have to take a hunch and badly guess size */
-	if (l3 == 0) {
+	if (L3 == 0) {
 		guess = true;
-		l3 = stress_get_processors_configured() * 4 * MB;
+		L3 = stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
 	}
 
 	if (instance == 0) {
@@ -149,21 +163,21 @@ int stress_stream(
 		if (guess) {
 			pr_inf(stderr, "%s: cannot determine CPU L3 cache size, "
 				"defaulting to %" PRIu64 "K\n",
-				name, l3 / 1024);
+				name, L3 / 1024);
 		} else {
-			pr_inf(stderr, "%s: CPU cache: L2: %" PRIu64
-				"K L3: %" PRIu64 "K\n",
-				name, l2 / 1024, l3 / 1024);
+			pr_inf(stderr, "%s: Using L3 CPU cache size of %" PRIu64 "K\n",
+				name, L3 / 1024);
 		}
 	}
+
 	/* ..and shared amongst all the STREAM stressor instances */
-	l3 /= stressor_instances(STRESS_STREAM);
+	L3 /= stressor_instances(STRESS_STREAM);
 
 	/*
 	 *  Each array must be at least 4 x the
 	 *  size of the L3 cache
 	 */
-	sz = (l3 * 4);
+	sz = (L3 * 4);
 	n = sz / sizeof(double);
 
 	a = stress_stream_mmap(name, sz);
