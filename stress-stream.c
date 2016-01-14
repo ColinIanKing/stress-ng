@@ -120,9 +120,11 @@ static inline void *stress_stream_mmap(const char *name, uint64_t sz)
 		MAP_POPULATE |
 #endif
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ptr == MAP_FAILED) {
+	/* Coverity Scan believes NULL can be returned, doh */
+	if (!ptr || (ptr == MAP_FAILED)) {
 		pr_err(stderr, "%s: cannot allocate %" PRIu64 " bytes\n",
 			name, sz);
+		ptr = MAP_FAILED;
 	}
 	return ptr;
 }
