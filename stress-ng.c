@@ -180,6 +180,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(fault, FAULT, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fcntl, FCNTL, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_FIEMAP)
+	STRESSOR(fiemap, FIEMAP, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 	STRESSOR(fifo, FIFO, CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(filename, FILENAME, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(flock, FLOCK, CLASS_FILESYSTEM | CLASS_OS),
@@ -501,12 +504,16 @@ static const struct option long_options[] = {
 	{ "fault-ops",	1,	0,	OPT_FAULT_OPS },
 	{ "fcntl",	1,	0,	OPT_FCNTL},
 	{ "fcntl-ops",	1,	0,	OPT_FCNTL_OPS },
+#if defined(STRESS_FIEMAP)
+	{ "fiemap",	1,	0,	OPT_FIEMAP },
+	{ "fiemap-ops",	1,	0,	OPT_FIEMAP_OPS },
+#endif
 	{ "fifo",	1,	0,	OPT_FIFO },
 	{ "fifo-ops",	1,	0,	OPT_FIFO_OPS },
+	{ "fifo-readers",1,	0,	OPT_FIFO_READERS },
 	{ "filename",	1,	0,	OPT_FILENAME },
 	{ "filename-ops",1,	0,	OPT_FILENAME_OPS },
 	{ "filename-opts",1,	0,	OPT_FILENAME_OPTS },
-	{ "fifo-readers",1,	0,	OPT_FIFO_READERS },
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
 	{ "fork",	1,	0,	OPT_FORK },
@@ -1058,6 +1065,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"fault N",		"start N workers producing page faults" },
 	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
+#if defined(STRESS_FIEMAP)
+	{ NULL,		"fiemap N",		"start N workers exercising the FIEMAP ioctl" },
+	{ NULL,		"fiemap-ops N",		"stop when N FIEMAP ioctl bogo operations completed" },
+#endif
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
 	{ NULL,		"fifo-readers N",	"number of fifo reader stessors to start" },

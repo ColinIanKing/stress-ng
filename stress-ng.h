@@ -40,10 +40,13 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
+#include <sys/ioctl.h>
 #if defined (__linux__)
 #include <sys/syscall.h>
 #include <sys/quota.h>
 #include <sys/prctl.h>
+#include <linux/fs.h>
+#include <linux/fiemap.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -264,6 +267,14 @@ extern void pr_openlog(const char *filename);
 #define MAX_FALLOCATE_BYTES	(4 * GB)
 #endif
 #define DEFAULT_FALLOCATE_BYTES	(1 * GB)
+
+#define MIN_FIEMAP_SIZE		(1 * MB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_FIEMAP_SIZE		(0xffffe00)
+#else
+#define MAX_FIEMAP_SIZE		(256ULL * GB)
+#endif
+#define DEFAULT_FIEMAP_SIZE	(16 * MB)
 
 #define MIN_FIFO_READERS	(1)
 #define MAX_FIFO_READERS	(64)
@@ -778,6 +789,10 @@ typedef enum {
 #endif
 	STRESS_FAULT,
 	STRESS_FCNTL,
+#if defined(__linux__) && defined(FS_IOC_FIEMAP)
+	__STRESS_FIEMAP,
+#define STRESS_FIEMAP __STRESS_FIEMAP
+#endif
 	STRESS_FIFO,
 	STRESS_FILENAME,
 	STRESS_FLOCK,
@@ -1205,6 +1220,11 @@ typedef enum {
 
 	OPT_FCNTL,
 	OPT_FCNTL_OPS,
+
+#if defined(STRESS_FIEMAP)
+	OPT_FIEMAP,
+	OPT_FIEMAP_OPS,
+#endif
 
 	OPT_FIFO,
 	OPT_FIFO_OPS,
@@ -2033,6 +2053,7 @@ STRESS(stress_exec);
 STRESS(stress_fallocate);
 STRESS(stress_fault);
 STRESS(stress_fcntl);
+STRESS(stress_fiemap);
 STRESS(stress_fifo);
 STRESS(stress_filename);
 STRESS(stress_flock);

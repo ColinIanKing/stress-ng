@@ -52,6 +52,7 @@ SRC =   stress-affinity.c \
 	stress-fallocate.c \
 	stress-fault.c \
 	stress-fcntl.c \
+	stress-fiemap.c \
 	stress-fifo.c \
 	stress-filename.c \
 	stress-flock.c \
