@@ -132,6 +132,8 @@ again:
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
+					if (errno == ENFILE) /* Too many files! */
+						goto abort;
 					if (errno == EMFILE) /* Occurs on socket shutdown */
 						goto abort;
 					if (errno) {
