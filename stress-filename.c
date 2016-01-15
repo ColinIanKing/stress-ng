@@ -244,8 +244,9 @@ int stress_filename (
 		pr_fail_err(name, "statvfs");
 		goto tidy_dir;
 	}
-	pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",
-		name, (long unsigned) buf.f_namemax);
+	if (instance == 0)
+		pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",
+			name, (long unsigned) buf.f_namemax);
 
 	strncpy(filename, dirname, sizeof(filename) - 1);
 	ptr = filename + strlen(dirname);
@@ -273,8 +274,9 @@ int stress_filename (
 		break;
 	}
 
-	pr_dbg(stdout, "%s: filesystem allows %zu unique characters in a filename\n",
-		name, chars_allowed);
+	if (instance == 0)
+		pr_dbg(stdout, "%s: filesystem allows %zu unique characters in a filename\n",
+			name, chars_allowed);
 
 	if (chars_allowed == 0) {
 		pr_fail(stderr, "%s: cannot determine allowed characters in a filename\n", name);
