@@ -1628,6 +1628,10 @@ operations on a file. The default file size is 16 GB.
 .B \-\-seek\-ops N
 stop seek stress workers after N bogo seek operations.
 .TP
+.B \-\-seek\-punch
+punch randomly located 8K holes into the file to cause more extents to force
+a more demanding seek stressor, (Linux only).
+.TP
 .B \-\-seek\-size N
 specify the size of the file in bytes. Small file sizes allow the I/O to occur
 in the cache, causing greater CPU load. Large file sizes force more I/O

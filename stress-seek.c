@@ -60,6 +60,9 @@ int stress_seek(
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	uint8_t buf[512];
+#if defined(OPT_SEEK_PUNCH)
+	bool punch_hole = true;
+#endif
 
 	if (!set_seek_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -146,6 +149,18 @@ re_read:
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
 				pr_fail_err(name, "lseek SEEK_DATA");
+		}
+#endif
+
+#if defined(OPT_SEEK_PUNCH)
+		if (!punch_hole)
+			continue;
+
+		offset = mwc64() % len;
+		if (fallocate(fd, FALLOC_FL_PUNCH_HOLE |
+				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
+			if (errno == EOPNOTSUPP)
+				punch_hole = false;
 		}
 #endif
 		(*counter)++;

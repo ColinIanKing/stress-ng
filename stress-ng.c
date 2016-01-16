@@ -732,6 +732,9 @@ static const struct option long_options[] = {
 #endif
 	{ "seek",	1,	0,	OPT_SEEK },
 	{ "seek-ops",	1,	0,	OPT_SEEK_OPS },
+#if defined(OPT_SEEK_PUNCH)
+	{ "seek-punch",	0,	0,	OPT_SEEK_PUNCH  },
+#endif
 	{ "seek-size",	1,	0,	OPT_SEEK_SIZE },
 #if defined(STRESS_SEMAPHORE_POSIX)
 	{ "sem",	1,	0,	OPT_SEMAPHORE_POSIX },
@@ -1272,6 +1275,9 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop when N seek bogo operations completed" },
+#if defined(OPT_SEEK_PUNCH)
+	{ NULL,		"seek-punch",		"punch random holes in file to stress extents" },
+#endif
 	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
 #if defined(STRESS_SEMAPHORE_POSIX)
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
@@ -2487,6 +2493,11 @@ next_opt:
 		case OPT_SCHED_PRIO:
 			opt_sched_priority = get_int32(optarg);
 			break;
+#if defined(OPT_SEEK_PUNCH)
+		case OPT_SEEK_PUNCH:
+			opt_flags |= OPT_FLAGS_SEEK_PUNCH;
+			break;
+#endif
 		case OPT_SEEK_SIZE:
 			stress_set_seek_size(optarg);
 			break;
