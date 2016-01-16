@@ -841,8 +841,11 @@ static const struct option long_options[] = {
 	{ "tz",		0,	0,	OPT_THERMAL_ZONES },
 #endif
 	{ "udp",	1,	0,	OPT_UDP },
-	{ "udp-domain",1,	0,	OPT_UDP_DOMAIN },
 	{ "udp-ops",	1,	0,	OPT_UDP_OPS },
+	{ "udp-domain",1,	0,	OPT_UDP_DOMAIN },
+#if defined(OPT_UDP_LITE)
+	{ "udp-lite",	0,	0,	OPT_UDP_LITE },
+#endif
 	{ "udp-port",	1,	0,	OPT_UDP_PORT },
 #if defined(STRESS_UDP_FLOOD)
 	{ "udp-flood",	1,	0,	OPT_UDP_FLOOD },
@@ -1368,8 +1371,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"tsearch-size N",	"number of 32 bit integers to tsearch" },
 	{ NULL,		"udp N",		"start N workers performing UDP send/receives " },
 	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
-	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
 	{ NULL,		"udp-domain D",		"specify domain, default is ipv4" },
+#if defined(OPT_UDP_LITE)
+	{ NULL,		"udp-lite",		"use the UDP-Lite (RFC 3828) protocol" },
+#endif
+	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
 #if defined(STRESS_UDP_FLOOD)
 	{ NULL,		"udp-flood N",		"start N workers that performs a UDP flood attack" },
 	{ NULL,		"udp-flood-ops N",	"stop when N udp flood bogo operations completed" },
@@ -2597,6 +2603,11 @@ next_opt:
 			break;
 		case OPT_UDP_PORT:
 			stress_set_udp_port(optarg);
+			break;
+#if defined(OPT_UDP_LITE)
+		case OPT_UDP_LITE:
+#endif
+			opt_flags |= OPT_FLAGS_UDP_LITE;
 			break;
 #if defined(STRESS_UDP_FLOOD)
 		case OPT_UDP_FLOOD_DOMAIN:

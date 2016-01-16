@@ -88,6 +88,24 @@ int stress_udp(
 {
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
+#if defined(OPT_UDP_LITE)
+	int proto = (opt_flags & OPT_UDP_LITE) ?
+		IPPROTO_UDPLITE : 0;
+#else
+	int proto = 0;
+#endif
+
+#if defined(OPT_UDP_LITE)
+	if ((proto == IPPROTO_UDPLITE) &&
+	    (opt_udp_domain == AF_UNIX)) {
+		proto = 0;
+		if (instance == 0) {
+			pr_inf(stderr, "%s: disabling UDP-Lite as it is not "
+				"available for UNIX domain UDP\n",
+				name);
+		}
+	}
+#endif
 
 	pr_dbg(stderr, "%s: process [%d] using udp port %d\n",
 		name, getpid(), opt_udp_port + instance);
@@ -112,7 +130,7 @@ again:
 			int fd;
 			int j = 0;
 
-			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, 0)) < 0) {
+			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
 				pr_fail_dbg(name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
@@ -166,7 +184,7 @@ again:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, 0)) < 0) {
+		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
 			pr_fail_dbg(name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;

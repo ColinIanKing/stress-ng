@@ -45,6 +45,7 @@
 #include <sys/syscall.h>
 #include <sys/quota.h>
 #include <sys/prctl.h>
+#include <netinet/in.h>
 #include <linux/fs.h>
 #include <linux/fiemap.h>
 #endif
@@ -153,6 +154,7 @@
 #define OPT_FLAGS_THERMAL_ZONES 0x0020000000000ULL	/* --tz thermal zones */
 #define OPT_FLAGS_TIMER_SLACK	0x0040000000000ULL	/* --timer-slack */
 #define OPT_FLAGS_SOCKET_NODELAY 0x0080000000000ULL	/* --sock-nodelay */
+#define OPT_FLAGS_UDP_LITE	0x0100000000000ULL	/* --udp-lite */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -1627,6 +1629,10 @@ typedef enum {
 	OPT_UDP_OPS,
 	OPT_UDP_PORT,
 	OPT_UDP_DOMAIN,
+#if defined(IPPROTO_UDPLITE)
+	__OPT_UDP_LITE,
+#define OPT_UDP_LITE __OPT_UDP_LITE
+#endif
 
 #if defined(STRESS_UDP_FLOOD)
 	OPT_UDP_FLOOD,
