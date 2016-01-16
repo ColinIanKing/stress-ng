@@ -47,6 +47,17 @@
 
 #include "stress-ng.h"
 
+/* See bugs section of udplite(7) */
+#if !defined(SOL_UDPLITE)
+#define SOL_UDPLITE		(136)
+#endif
+#if !defined(UDPLITE_SEND_CSCOV)
+#define UDPLITE_SEND_CSCOV	(10)
+#endif
+#if !defined(UDPLITE_RECV_CSCOV)
+#define UDPLITE_RECV_CSCOV	(11)
+#endif
+
 static int opt_udp_domain = AF_INET;
 static int opt_udp_port = DEFAULT_SOCKET_PORT;
 
@@ -129,6 +140,9 @@ again:
 			socklen_t len;
 			int fd;
 			int j = 0;
+#if defined(OPT_UDP_LITE)
+			int val;
+#endif
 
 			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
 				pr_fail_dbg(name, "socket");
@@ -138,7 +152,10 @@ again:
 			}
 			stress_set_sockaddr(name, instance, ppid,
 				opt_udp_domain, opt_udp_port, &addr, &len);
-
+#if defined(OPT_UDP_LITE)
+			val = 8;	/* Just the 8 byte header */
+			setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int));
+#endif
 			do {
 				size_t i;
 
@@ -170,6 +187,9 @@ again:
 		char buf[UDP_BUF];
 		int fd, status;
 		int so_reuseaddr = 1;
+#if defined(OPT_UDP_LITE)
+		int val;
+#endif
 		socklen_t addr_len = 0;
 		struct sigaction new_action;
 		struct sockaddr *addr;
@@ -191,6 +211,10 @@ again:
 		}
 		stress_set_sockaddr(name, instance, ppid,
 			opt_udp_domain, opt_udp_port, &addr, &addr_len);
+#if defined(OPT_UDP_LITE)
+		val = 8;	/* Just the 8 byte header */
+		setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int));
+#endif
 		if (bind(fd, addr, addr_len) < 0) {
 			pr_fail_dbg(name, "bind");
 			rc = EXIT_FAILURE;
