@@ -180,7 +180,7 @@ LIB_APPARMOR := -lapparmor
 # defined so we don't call ourselves over and over
 #
 ifndef $(HAVE_APPARMOR)
-HAVE_APPARMOR = $(shell make --no-print-directory HAVE_APPARMOR=0 have_apparmor)
+HAVE_APPARMOR = $(shell make --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
@@ -188,6 +188,12 @@ ifeq ($(HAVE_APPARMOR),1)
 endif
 endif
 
+ifndef $(HAVE_KEYUTILS_H)
+HAVE_KEYUTILS_H = $(shell make --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 have_keyutils_h)
+ifeq ($(HAVE_KEYUTILS_H),1)
+	CFLAGS += -DHAVE_KEYUTILS_H
+endif
+endif
 
 .SUFFIXES: .c .o
 
@@ -211,6 +217,20 @@ have_apparmor:
 		echo 0 ;\
 	fi
 	@rm -f test-apparmor
+
+#
+#  check if we have keyutils.h
+#
+have_keyutils_h:
+	@echo "#include <sys/types.h>" > test-key.c
+	@echo "#include <keyutils.h>" >> test-key.c
+	@$(CC) $(CPPFLAGS) -c -o test-key.o test-key.c 2> /dev/null || true
+	@if [ -e test-key.o ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-key.c test-key.o
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

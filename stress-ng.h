@@ -830,7 +830,7 @@ typedef enum {
 	__STRESS_KCMP,
 #define STRESS_KCMP __STRESS_KCMP
 #endif
-#if defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
+#if defined(HAVE_KEYUTILS_H) && defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
 	__STRESS_KEY,
 #define STRESS_KEY __STRESS_KEY
 #endif
