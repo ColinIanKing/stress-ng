@@ -1046,7 +1046,7 @@ typedef enum {
 #define STRESS_WAIT __STRESS_WAIT
 #endif
 	STRESS_WCS,
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_XATTR_H)
 	__STRESS_XATTR,
 #define STRESS_XATTR __STRESS_XATTR
 #endif
