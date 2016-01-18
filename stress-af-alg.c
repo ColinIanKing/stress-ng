@@ -26,6 +26,8 @@
 
 #include "stress-ng.h"
 
+#if defined(STRESS_AF_ALG)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -175,3 +177,4 @@ tidy:
 
 	return rc;
 }
+#endif
