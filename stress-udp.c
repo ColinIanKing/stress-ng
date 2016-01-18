@@ -154,7 +154,12 @@ again:
 				opt_udp_domain, opt_udp_port, &addr, &len);
 #if defined(OPT_UDP_LITE)
 			val = 8;	/* Just the 8 byte header */
-			setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int));
+			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
+				pr_fail_dbg(name, "setsockopt");
+				(void)close(fd);
+				(void)kill(getppid(), SIGALRM);
+				exit(EXIT_FAILURE);
+			}
 #endif
 			do {
 				size_t i;
@@ -213,7 +218,11 @@ again:
 			opt_udp_domain, opt_udp_port, &addr, &addr_len);
 #if defined(OPT_UDP_LITE)
 		val = 8;	/* Just the 8 byte header */
-		setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int));
+		if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
+			pr_fail_dbg(name, "setsockopt");
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
 #endif
 		if (bind(fd, addr, addr_len) < 0) {
 			pr_fail_dbg(name, "bind");
