@@ -100,8 +100,8 @@ int stress_udp(
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
 #if defined(OPT_UDP_LITE)
-	int proto = (opt_flags & OPT_UDP_LITE) ?
-		IPPROTO_UDPLITE : 0;
+	int proto = (opt_flags & OPT_FLAGS_UDP_LITE) ?
+		IPPROTO_UDPLITE : IPPROTO_UDP;
 #else
 	int proto = 0;
 #endif
@@ -153,12 +153,14 @@ again:
 			stress_set_sockaddr(name, instance, ppid,
 				opt_udp_domain, opt_udp_port, &addr, &len);
 #if defined(OPT_UDP_LITE)
-			val = 8;	/* Just the 8 byte header */
-			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
-				pr_fail_dbg(name, "setsockopt");
-				(void)close(fd);
-				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
+			if (proto == IPPROTO_UDPLITE) {
+				val = 8;	/* Just the 8 byte header */
+				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
+					pr_fail_dbg(name, "setsockopt");
+					(void)close(fd);
+					(void)kill(getppid(), SIGALRM);
+					exit(EXIT_FAILURE);
+				}
 			}
 #endif
 			do {
@@ -217,11 +219,13 @@ again:
 		stress_set_sockaddr(name, instance, ppid,
 			opt_udp_domain, opt_udp_port, &addr, &addr_len);
 #if defined(OPT_UDP_LITE)
-		val = 8;	/* Just the 8 byte header */
-		if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
-			pr_fail_dbg(name, "setsockopt");
-			rc = EXIT_FAILURE;
-			goto die_close;
+		if (proto == IPPROTO_UDPLITE) {
+			val = 8;	/* Just the 8 byte header */
+			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
+				pr_fail_dbg(name, "setsockopt");
+				rc = EXIT_FAILURE;
+				goto die_close;
+			}
 		}
 #endif
 		if (bind(fd, addr, addr_len) < 0) {
