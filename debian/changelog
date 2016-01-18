@@ -1,3 +1,35 @@
+stress-ng (0.05.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix incorrect position of \ in man page
+  * stress-udp: fix UDP-Lite enable options
+  * stress-af-alg: don't build for non-Linux systems
+  * stress-udp: add error checking to setsockopt calls
+  * Add auto detection of xattr.h to avoid build failures
+  * Add auto detection of keyutils.h to avoid build failures
+  * stress-numa: prefix abort message with stressor name
+  * stress-udp: in UDP-Lite mode, limit checksum to 8 byte UDP header
+  * Fix formatting of --hdd-opts in man page
+  * Add --seek-punch option to punch holes in seek file
+  * Add UDP-Lite option --udp-lite
+  * Align bitfields in flags
+  * stress-socketpair: handle ENFILE errors more gracefully
+  * stress-filename: only emit filename information on instance 0
+  * Add fiemap stressor
+  * stress-stream: kludge around a false positive from static analysis
+  * Add --stream-l3-size option to specify stream L3 CPU cache size
+  * stress-unshare: don't complain on -EINVAL
+  * stress-stream: remove extraneous space between cache size and K
+  * Use RESTRICT macro as an alias for __restict
+  * Add stream memory bandwidth and computation stressor
+  * Add 8 more bits to OPT_FLAGS
+  * stress-aio: remove unused typedef
+  * refactor random string filling using stress_strnrnd()
+  * Add AF_ALG socket domain (hash) tester
+  * Add more tracing perf events to --perf output
+
+ -- Colin King <colin.king@canonical.com>  Mon, 18 Jan 2016 11:07:02 +0000
+
 stress-ng (0.05.08-1) unstable; urgency=medium
 
   * Makefile: bump version
