@@ -20,6 +20,7 @@
 .nr SZ ((\n[.l] - \n[.i]) / 1n - 31)
 .nr SM ((\n[.l] - \n[.i]) / 1n - 41)
 .nr SV ((\n[.l] - \n[.i]) / 1n - 30)
+.nr SQ ((\n[.l] - \n[.i]) / 1n - 35)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system
 .sp 1
@@ -1843,7 +1844,7 @@ least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
 .TS
 expand;
-lB2 lBw(\n[SV]n)
+lB2 lBw(\n[SQ]n)
 l l.
 Operation	Description
 copy	T{
