@@ -25,8 +25,6 @@
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define GLOB_PATTERN SYS_CPU_PREFIX  "/cpu[0-9]*"
 #define GLOB_PATTERN_INDEX_PREFIX    "/cache/index[0-9]*"
-/* Generally, LLC */
-#define DEFAULT_CACHE_LEVEL          3
 
 typedef enum cache_type {
 	CACHE_TYPE_UNKNOWN = 0,

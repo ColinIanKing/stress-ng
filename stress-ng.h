@@ -478,6 +478,7 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_DIRS		(8192)
 
 #define MEM_CACHE_SIZE		(65536 * 32)
+#define DEFAULT_CACHE_LEVEL     3
 #define UNDEFINED		(-1)
 
 #define PAGE_MAPPED		(0x01)

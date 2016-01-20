@@ -66,6 +66,7 @@ int stress_cache(
 	const char *name)
 {
 	unsigned long total = 0;
+	int ret = EXIT_SUCCESS;
 #if defined(__linux__)
 	unsigned long int cpu = 0;
 	const unsigned long int cpus =
@@ -73,7 +74,6 @@ int stress_cache(
 	cpu_set_t mask;
 	cpus_t *cpu_caches = NULL;
 	cpu_cache_t *cache = NULL;
-	int ret = EXIT_SUCCESS;
 	int pinned = false;
 
 #endif
