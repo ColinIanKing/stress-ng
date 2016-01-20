@@ -443,6 +443,9 @@ static const struct option long_options[] = {
 	{ "cache-prefetch",0,	0,	OPT_CACHE_PREFETCH },
 	{ "cache-flush",0,	0,	OPT_CACHE_FLUSH },
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
+	{ "cache-level",1,	0,	OPT_CACHE_LEVEL},
+	{ "cache-ways",1,	0,	OPT_CACHE_WAYS},
+	{ "cache-no-affinity",0,	0,	OPT_CACHE_NO_AFFINITY },
 	{ "chdir",	1,	0, 	OPT_CHDIR },
 	{ "chdir-ops",	1,	0, 	OPT_CHDIR_OPS },
 	{ "chmod",	1,	0, 	OPT_CHMOD },
@@ -1015,6 +1018,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cache-prefetch",	"prefetch on memory reads/writes" },
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
 	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
+	{ NULL,		"cache-level N",	"only exercise specified cache" },
+	{ NULL,		"cache-ways N",		"only fill specified number of cache ways" },
 	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
@@ -2166,6 +2171,8 @@ int main(int argc, char **argv)
 	uint32_t opt_class = 0;			/* Which kind of class is specified */
 	int32_t opt_random = 0, i;
 	int32_t total_procs = 0, max_procs = 0;
+	int mem_cache_level = DEFAULT_CACHE_LEVEL;
+	int mem_cache_ways = 0;
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
@@ -2269,6 +2276,22 @@ next_opt:
 			break;
 		case OPT_CACHE_FENCE:
 			opt_flags |= OPT_FLAGS_CACHE_FENCE;
+			break;
+		case OPT_CACHE_LEVEL:
+			mem_cache_level = atoi(optarg);
+			/* Overly high values will be caught in the
+			 * caching code.
+			 */
+			if (mem_cache_level <= 0)
+				mem_cache_level = DEFAULT_CACHE_LEVEL;
+			break;
+		case OPT_CACHE_NO_AFFINITY:
+			opt_flags |= OPT_FLAGS_CACHE_NOAFF;
+			break;
+		case OPT_CACHE_WAYS:
+			mem_cache_ways = atoi(optarg);
+			if (mem_cache_ways <= 0)
+				mem_cache_ways = 0;
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);
@@ -2897,6 +2920,9 @@ next_opt:
 	}
 	memset(shared, 0, len);
 	pthread_spin_init(&shared->perf.lock, 0);
+
+	shared->mem_cache_level = mem_cache_level;
+	shared->mem_cache_ways = mem_cache_ways;
 
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)

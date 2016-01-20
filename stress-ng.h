@@ -48,6 +48,7 @@
 #include <netinet/in.h>
 #include <linux/fs.h>
 #include <linux/fiemap.h>
+#include "cache.h"
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -156,6 +157,7 @@
 #define OPT_FLAGS_SOCKET_NODELAY 0x0080000000000ULL	/* --sock-nodelay */
 #define OPT_FLAGS_UDP_LITE	0x0100000000000ULL	/* --udp-lite */
 #define OPT_FLAGS_SEEK_PUNCH	0x0200000000000ULL	/* --seek-punch */
+#define OPT_FLAGS_CACHE_NOAFF	0x0400000000000ULL	/* disable CPU affinity */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -691,7 +693,10 @@ typedef struct {
 
 /* Shared memory segment */
 typedef struct {
-	uint8_t	 mem_cache[MEM_CACHE_SIZE];		/* Shared memory cache */
+	uint8_t	*mem_cache;				/* Shared memory cache */
+	size_t mem_cache_size;				/* Bytes */
+	int mem_cache_level;				/* 1=L1, 2=L2, 3=L3 */
+	int mem_cache_ways;
 	struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
@@ -1153,6 +1158,9 @@ typedef enum {
 	OPT_CACHE_PREFETCH,
 	OPT_CACHE_FLUSH,
 	OPT_CACHE_FENCE,
+	OPT_CACHE_LEVEL,
+	OPT_CACHE_WAYS,
+	OPT_CACHE_NO_AFFINITY,
 
 	OPT_CHDIR,
 	OPT_CHDIR_OPS,

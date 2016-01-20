@@ -169,6 +169,7 @@ SRC =   stress-affinity.c \
 	sched.c \
 	thermal-zone.c \
 	time.c \
+	cache.c \
 	stress-ng.c
 
 OBJS = $(SRC:.c=.o)

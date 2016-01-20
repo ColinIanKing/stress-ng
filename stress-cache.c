@@ -35,22 +35,23 @@
 
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
-	for (j = 0; j < MEM_CACHE_SIZE; j++) {				\
+	for (j = 0; j < mem_cache_size; j++) {				\
 		if ((flag) & OPT_FLAGS_CACHE_PREFETCH) {		\
 			__builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
 		}							\
-		mem_cache[i] += mem_cache[(MEM_CACHE_SIZE - 1) - i] + r;\
+		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
 		if ((flag) & OPT_FLAGS_CACHE_FLUSH) {			\
 			clflush(&mem_cache[i]);				\
 		}							\
 		if ((flag) & OPT_FLAGS_CACHE_FENCE) {			\
 			mfence();					\
 		}							\
-		i = (i + 32769) & (MEM_CACHE_SIZE - 1);			\
+		i = (i + 32769) & (mem_cache_size - 1);			\
 		if (!opt_do_run)					\
 			break;						\
 	}
 
+static int mem_cache_size = 0;
 
 /*
  *  stress_cache()
@@ -70,13 +71,70 @@ int stress_cache(
 	const unsigned long int cpus =
 		stress_get_processors_configured();
 	cpu_set_t mask;
+	cpus_t *cpu_caches = NULL;
+	cpu_cache_t *cache = NULL;
+	int ret = EXIT_SUCCESS;
+	int pinned = false;
+
 #endif
 	(void)instance;
+
+#if defined(__linux__)
+
+	cpu_caches = get_all_cpu_cache_details ();
+	if (! cpu_caches) {
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
+	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
+	if (! cache) {
+		pr_err(stderr, "no suitable cache found\n");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
+	if (shared->mem_cache_ways > 0) {
+		size_t way_size;
+
+		if (shared->mem_cache_ways > cache->ways) {
+			pr_err(stderr, "cache way value too high (try 1-%d)\n",
+					cache->ways);
+			ret = EXIT_FAILURE;
+			goto out;
+		}
+
+		way_size = cache->size / cache->ways;
+
+		/* only fill the specified number of cache ways */
+		shared->mem_cache_size = way_size * shared->mem_cache_ways;
+	} else {
+		/* fill the entire cache */
+		shared->mem_cache_size = cache->size;
+	}
+
+	if (! shared->mem_cache_size) {
+		ret = EXIT_FAILURE;
+		goto out;
+	}
+
+#else
+	shared->mem_cache_size = MEM_CACHE_SIZE;
+#endif
+
+	mem_cache_size = shared->mem_cache_size;
+
+	shared->mem_cache = calloc(shared->mem_cache_size, 1);
+	if (! shared->mem_cache) {
+		pr_fail_err(name, "calloc");
+		ret = EXIT_FAILURE;
+		goto out;
+	}
 
 	uint8_t *mem_cache = shared->mem_cache;
 
 	do {
-		uint64_t i = mwc64() & (MEM_CACHE_SIZE - 1);
+		uint64_t i = mwc64() & (mem_cache_size - 1);
 		uint64_t r = mwc64();
 		register int j;
 
@@ -108,23 +166,54 @@ int stress_cache(
 				break;
 			}
 		} else {
-			for (j = 0; j < MEM_CACHE_SIZE; j++) {
-				total += mem_cache[i] + mem_cache[(MEM_CACHE_SIZE - 1) - i];
-				i = (i + 32769) & (MEM_CACHE_SIZE - 1);
+			for (j = 0; j < mem_cache_size; j++) {
+				total += mem_cache[i] + mem_cache[(mem_cache_size - 1) - i];
+				i = (i + 32769) & (mem_cache_size - 1);
 				if (!opt_do_run)
 					break;
 			}
 		}
 #if defined(__linux__)
-		cpu++;
-		cpu %= cpus;
-		CPU_ZERO(&mask);
-		CPU_SET(cpu, &mask);
-		sched_setaffinity(0, sizeof(mask), &mask);
+		if ((opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
+			int current;
+
+			/* Pin to the current CPU */
+			current = sched_getcpu();
+			if (current < 0) {
+				ret = EXIT_FAILURE;
+				goto out;
+			}
+
+			cpu = current;
+		} else {
+			cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
+				(mwc32() >> 4) : cpu + 1;
+			cpu %= cpus;
+		}
+
+		if (!(opt_flags & OPT_FLAGS_CACHE_NOAFF) || !pinned) {
+			CPU_ZERO(&mask);
+			CPU_SET(cpu, &mask);
+			sched_setaffinity(0, sizeof(mask), &mask);
+
+			if ((opt_flags & OPT_FLAGS_CACHE_NOAFF)) {
+				/* Don't continually set the affinity */
+				pinned = true;
+			}
+
+		}
 #endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	pr_dbg(stderr, "%s: total [%lu]\n", name, total);
-	return EXIT_SUCCESS;
+
+out:
+#if defined(__linux__)
+	free_cpu_caches(cpu_caches);
+#endif
+	if (shared->mem_cache)
+		free(shared->mem_cache);
+
+	return ret;
 }
