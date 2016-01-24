@@ -22,7 +22,7 @@
  * functionality.
  *
  * This stressor is loosely based on the STREAM Sustainable
- * Memory Bandwith In High Performance Computers tool.
+ * Memory Bandwidth In High Performance Computers tool.
  *   https://www.cs.virginia.edu/stream/
  *   https://www.cs.virginia.edu/stream/FTP/Code/stream.c
  *
