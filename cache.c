@@ -33,6 +33,13 @@
 
 #include "stress-ng.h"
 
+#if defined(__linux__)
+#define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
+#define GLOB_PATTERN SYS_CPU_PREFIX  "/cpu[0-9]*"
+#define SYS_CPU_CACHE_DIR            "/cache"
+#define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
+#endif
+
 /* append @element to array @path (which has len @len) */
 #define mk_path(path, len, element) \
 	memset((path)+len, '\0', sizeof(path) - len); \

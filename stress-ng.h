@@ -48,7 +48,6 @@
 #include <netinet/in.h>
 #include <linux/fs.h>
 #include <linux/fiemap.h>
-#include "cache.h"
 #endif
 #include <fcntl.h>
 #include <errno.h>
@@ -1760,6 +1759,40 @@ typedef struct {
 	const uint64_t	scale;		/* Amount to scale by */
 } scale_t;
 
+#if defined(__linux__)
+typedef enum cache_type {
+	CACHE_TYPE_UNKNOWN = 0,
+	CACHE_TYPE_DATA,
+	CACHE_TYPE_INSTRUCTION,
+	CACHE_TYPE_UNIFIED,
+} cache_type_t;
+
+typedef struct cpu_cache {
+	uint16_t           level;
+	cache_type_t       type;
+	uint64_t           size;      /* bytes */
+	uint32_t           line_size; /* bytes */
+	uint32_t           ways;
+} cpu_cache_t;
+
+struct generic_map {
+	const char   *name;
+	uint32_t      value;
+};
+
+typedef struct cpu {
+	uint32_t       num;
+	bool           online;
+	uint32_t       cache_count;
+	cpu_cache_t   *caches;
+} cpu_t;
+
+typedef struct cpus {
+	uint32_t   count;
+	cpu_t     *cpus;
+} cpus_t;
+#endif
+
 /* Various option settings and flags */
 extern const char *app_name;		/* Name of application */
 extern shared_t *shared;		/* shared memory */
@@ -1968,6 +2001,11 @@ extern void stress_semaphore_posix_destroy(void);
 
 extern void stress_semaphore_sysv_init(void);
 extern void stress_semaphore_sysv_destroy(void);
+
+/* CPU caches */
+extern cpus_t *get_all_cpu_cache_details(void);
+extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, uint16_t cache_level);
+extern void free_cpu_caches(cpus_t *cpus);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
