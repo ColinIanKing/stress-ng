@@ -2003,9 +2003,11 @@ extern void stress_semaphore_sysv_init(void);
 extern void stress_semaphore_sysv_destroy(void);
 
 /* CPU caches */
+#if defined (__linux__)
 extern cpus_t *get_all_cpu_cache_details(void);
 extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, uint16_t cache_level);
 extern void free_cpu_caches(cpus_t *cpus);
+#endif
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
