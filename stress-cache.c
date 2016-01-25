@@ -51,7 +51,7 @@
 			break;						\
 	}
 
-static int mem_cache_size = 0;
+static uint64_t mem_cache_size = 0;
 
 /*
  *  stress_cache()
@@ -82,20 +82,20 @@ int stress_cache(
 #if defined(__linux__)
 
 	cpu_caches = get_all_cpu_cache_details ();
-	if (! cpu_caches) {
+	if (!cpu_caches) {
 		ret = EXIT_FAILURE;
 		goto out;
 	}
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
-	if (! cache) {
+	if (!cache) {
 		pr_err(stderr, "no suitable cache found\n");
 		ret = EXIT_FAILURE;
 		goto out;
 	}
 
 	if (shared->mem_cache_ways > 0) {
-		size_t way_size;
+		uint64_t way_size;
 
 		if (shared->mem_cache_ways > cache->ways) {
 			pr_err(stderr, "cache way value too high (try 1-%d)\n",
@@ -113,7 +113,7 @@ int stress_cache(
 		shared->mem_cache_size = cache->size;
 	}
 
-	if (! shared->mem_cache_size) {
+	if (!shared->mem_cache_size) {
 		ret = EXIT_FAILURE;
 		goto out;
 	}
@@ -125,7 +125,7 @@ int stress_cache(
 	mem_cache_size = shared->mem_cache_size;
 
 	shared->mem_cache = calloc(shared->mem_cache_size, 1);
-	if (! shared->mem_cache) {
+	if (!shared->mem_cache) {
 		pr_fail_err(name, "calloc");
 		ret = EXIT_FAILURE;
 		goto out;
@@ -136,7 +136,7 @@ int stress_cache(
 	do {
 		uint64_t i = mwc64() & (mem_cache_size - 1);
 		uint64_t r = mwc64();
-		register int j;
+		register uint64_t j;
 
 		if ((r >> 13) & 1) {
 			switch (opt_flags & OPT_FLAGS_CACHE_MASK) {

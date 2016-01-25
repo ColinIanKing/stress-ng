@@ -24,7 +24,8 @@
 
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define GLOB_PATTERN SYS_CPU_PREFIX  "/cpu[0-9]*"
-#define GLOB_PATTERN_INDEX_PREFIX    "/cache/index[0-9]*"
+#define SYS_CPU_CACHE_DIR            "/cache"
+#define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
 
 typedef enum cache_type {
 	CACHE_TYPE_UNKNOWN = 0,
@@ -35,32 +36,32 @@ typedef enum cache_type {
 } cache_type_t;
 
 typedef struct cpu_cache {
-	int                level;
+	uint16_t           level;
 	cache_type_t       type;
-	size_t             size;      /* bytes */
-	int                line_size; /* bytes */
-	int                ways;
+	uint64_t           size;      /* bytes */
+	uint32_t           line_size; /* bytes */
+	uint32_t           ways;
 } cpu_cache_t;
 
 struct generic_map {
 	const char   *name;
-	unsigned int  value;
+	uint32_t      value;
 };
 
 typedef struct cpu {
-	unsigned int   num;
+	uint32_t       num;
 	bool           online;
-	unsigned int   cache_count;
+	uint32_t       cache_count;
 	cpu_cache_t   *caches;
 } cpu_t;
 
 typedef struct cpus {
-	unsigned int   count;
-	cpu_t         *cpus;
+	uint32_t   count;
+	cpu_t     *cpus;
 } cpus_t;
 
 cpus_t *get_all_cpu_cache_details(void);
-cpu_cache_t *get_cpu_cache(const cpus_t *cpus, int cache_level);
+cpu_cache_t *get_cpu_cache(const cpus_t *cpus, uint16_t cache_level);
 void free_cpu_caches(cpus_t *cpus);
 
 #endif /* __linux__ */

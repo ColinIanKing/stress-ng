@@ -695,9 +695,9 @@ typedef struct {
 /* Shared memory segment */
 typedef struct {
 	uint8_t	*mem_cache;				/* Shared memory cache */
-	size_t mem_cache_size;				/* Bytes */
-	int mem_cache_level;				/* 1=L1, 2=L2, 3=L3 */
-	int mem_cache_ways;
+	uint64_t mem_cache_size;				/* Bytes */
+	uint16_t mem_cache_level;				/* 1=L1, 2=L2, 3=L3 */
+	uint32_t mem_cache_ways;
 	struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
