@@ -442,7 +442,10 @@ get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	ret2 = file_exists(glob_path);
 	if (!ret2) {
-		pr_err(stderr, "%s does not exist\n", glob_path);
+		/* Not an error since some platforms don't provide cache details
+		 * via /sys (ARM).
+		 */
+		pr_dbg(stderr, "%s does not exist\n", glob_path);
 		return ret;
 	}
 

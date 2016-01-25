@@ -83,8 +83,10 @@ int stress_cache(
 
 	cpu_caches = get_all_cpu_cache_details ();
 	if (!cpu_caches) {
-		ret = EXIT_FAILURE;
-		goto out;
+		pr_inf(stderr, "%s: using built-in defaults as unable to determine cache details\n",
+                __func__);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
+		goto init_done;
 	}
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
@@ -121,6 +123,8 @@ int stress_cache(
 #else
 	shared->mem_cache_size = MEM_CACHE_SIZE;
 #endif
+
+init_done:
 
 	mem_cache_size = shared->mem_cache_size;
 
