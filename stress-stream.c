@@ -179,8 +179,7 @@ int stress_stream(
 	double *a, *b, *c;
 	const double q = 3.0;
 	double mb_rate, mb, fp_rate, fp, t1, t2, dt;
-	unsigned long L3;
-	uint64_t sz, n;
+	uint64_t L3, sz, n;
 	bool guess = false;
 
 	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(name);
