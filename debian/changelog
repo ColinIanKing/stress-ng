@@ -1,3 +1,36 @@
+stress-ng (0.05.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-stream: use new cache probing api
+  * Add James Hunt to contributors in man page
+  * cache: constify a few args and (void) fclose returns
+  * Makefile: re-order cache.c in source list
+  * stress-cache: make source 80 col friendly, use name instead of __func__
+  * Removed bogus check.
+  * Reduce cache level to maximum available if specified too high.
+  * New function to check max cache level. Also, reduced variable scope.
+  * Merge branch 'master' into cache-handling
+  * Rather than failing, display a message and fall back to defaults.
+  * Reduce variable scope and remove redundant assignment.
+  * stress-copy-file: off_t should be loff_t
+  * Remove debug forced enabled of stress-file-copy
+  * Merge branch 'master' into cache-handling
+  * Add --cache-level=, --cache-ways=, and --cache-no-affinity to man page.
+  * Add linux guard for cpu cache function prototypes.
+  * Handle systems not providing cache details via sysfs
+  * Dispense with cache.h.
+  * get_contents(): Fixed resource leak.
+  * Add --copy-file copy_file_range() stress test
+  * Fix spelling mistake of "bandwidth"
+  * Fix spelling mistake of "weird" in comment
+  * man page: Fix formatting on vm stressor method table
+  * Fixes for building on non-Linux platforms.
+  * Add Linux support to specify cache type and size.
+  * Fix column width of vm-method options
+  * Fix column width of stream option description
+
+ -- Colin King <colin.king@canonical.com>  Tue, 26 Jan 2016 16:44:00 +0000
+
 stress-ng (0.05.09-1) unstable; urgency=medium
 
   * Makefile: bump version
