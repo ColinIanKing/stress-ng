@@ -75,6 +75,7 @@ int stress_cache(
 	cpus_t *cpu_caches = NULL;
 	cpu_cache_t *cache = NULL;
 	int pinned = false;
+	uint16_t max_cache_level = 0;
 
 #endif
 	(void)instance;
@@ -86,6 +87,14 @@ int stress_cache(
                 __func__);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
+	}
+
+	max_cache_level = get_max_cache_level(cpu_caches);
+
+	if (shared->mem_cache_level > max_cache_level) {
+		pr_inf(stderr, "%s: reducing cache level from %d (too high) to %d\n",
+				__func__, shared->mem_cache_level, max_cache_level);
+		shared->mem_cache_level = max_cache_level;
 	}
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
