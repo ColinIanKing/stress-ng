@@ -160,6 +160,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_CONTEXT)
 	STRESSOR(context, CONTEXT, CLASS_MEMORY | CLASS_CPU),
 #endif
+#if defined(STRESS_COPY_FILE)
+	STRESSOR(copy_file, COPY_FILE, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
@@ -463,6 +466,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_CONTEXT)
 	{ "context",	1,	0,	OPT_CONTEXT },
 	{ "context-ops",1,	0,	OPT_CONTEXT_OPS },
+#endif
+#if defined(STRESS_COPY_FILE)
+	{ "copy-file",	1,	0,	OPT_COPY_FILE },
+	{ "copy-file-ops", 1,	0,	OPT_COPY_FILE_OPS },
+	{ "copy-file-bytes", 1, 0,	OPT_COPY_FILE_BYTES },
 #endif
 	{ "cpu",	1,	0,	OPT_CPU },
 	{ "cpu-ops",	1,	0,	OPT_CPU_OPS },
@@ -1036,6 +1044,11 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_CONTEXT)
 	{ NULL,		"context N",		"start N workers exercising user context" },
 	{ NULL,		"context-ops N",	"stop context workers after N bogo operations" },
+#endif
+#if defined(STRESS_COPY_FILE)
+	{ NULL,		"copy-file N",		"start N workers that copy file data" },
+	{ NULL,		"copy-file-ops N",	"stop when N copy bogo operations completed" },
+	{ NULL,		"copy-file-bytes N",	"specify size of file to be copied" },
 #endif
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
@@ -2301,6 +2314,11 @@ next_opt:
 #if defined(STRESS_CLONE)
 		case OPT_CLONE_MAX:
 			stress_set_clone_max(optarg);
+			break;
+#endif
+#if defined(STRESS_COPY_FILE)
+		case OPT_COPY_FILE_BYTES:
+			stress_set_copy_file_bytes(optarg);
 			break;
 #endif
 		case OPT_CPU_LOAD:

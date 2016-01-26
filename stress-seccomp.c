@@ -213,7 +213,7 @@ int stress_seccomp(
 				pr_dbg(stderr, "%s: waitpid failed, errno = %d (%s)\n",
 					name, errno, strerror(errno));
 			} else {
-				/* Did the child hit a wierd error? */
+				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&
 				    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
 					pr_fail(stderr,
