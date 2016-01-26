@@ -78,6 +78,7 @@ static const int clocks_nanosleep[] = {
 };
 #endif
 
+#if _POSIX_C_SOURCE >= 199309L && defined(__linux__)
 static const int timers[] = {
 #ifdef CLOCK_REALTIME
 	CLOCK_REALTIME,
@@ -86,6 +87,7 @@ static const int timers[] = {
 	CLOCK_MONOTONIC
 #endif
 };
+#endif
 
 /*
  *  stress_clock_name()
