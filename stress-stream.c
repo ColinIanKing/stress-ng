@@ -131,10 +131,10 @@ static inline void *stress_stream_mmap(const char *name, uint64_t sz)
 
 static inline uint64_t stream_L3_size(const char *name)
 {
+	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
 	cpus_t *cpu_caches = NULL;
 	cpu_cache_t *cache = NULL;
-	uint64_t cache_size = MEM_CACHE_SIZE;
 
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
