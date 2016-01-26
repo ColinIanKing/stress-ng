@@ -2021,7 +2021,7 @@ extern void stress_semaphore_sysv_destroy(void);
 #if defined (__linux__)
 extern cpus_t *get_all_cpu_cache_details(void);
 extern uint16_t get_max_cache_level(const cpus_t *cpus);
-extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, uint16_t cache_level);
+extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level);
 extern void free_cpu_caches(cpus_t *cpus);
 #endif
 

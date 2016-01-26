@@ -116,12 +116,12 @@ get_contents(const char *path)
 	if (!fgets(contents, size, f))
 		goto err;
 
-	fclose(f);
+	(void)fclose(f);
 	return contents;
 
 err:
 	if (f)
-		fclose(f);
+		(void)fclose(f);
 
 	if (contents)
 		free(contents);
@@ -344,7 +344,7 @@ out:
  * Returns: cpu_cache_t, or NULL on error.
  */
 static cpu_cache_t *
-get_cache_by_cpu(const cpu_t *cpu, int cache_level)
+get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 {
 	uint32_t  i;
 
@@ -411,7 +411,7 @@ get_max_cache_level(const cpus_t *cpus)
  * Returns: cpu_cache_t pointer, or NULL on error.
  */
 cpu_cache_t *
-get_cpu_cache(const cpus_t *cpus, uint16_t cache_level)
+get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 {
 	cpu_t *cpu;
 
