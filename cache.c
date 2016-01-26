@@ -430,12 +430,6 @@ get_cpu_cache(const cpus_t *cpus, uint16_t cache_level)
 	 */
 	cpu = &cpus->cpus[0];
 
-	if ((uint32_t)cache_level > cpu->cache_count) {
-		pr_err(stderr, "no cache available at this level (try 1-%d)\n",
-				(int)cpu->cache_count - 1);
-		return NULL;
-	}
-
 	return get_cache_by_cpu(cpu, cache_level);
 }
 
