@@ -600,19 +600,18 @@ void
 free_cpu_caches(cpus_t *cpus)
 {
 	uint32_t  i;
-	cpu_t    *cpu;
 
 	if (!cpus)
 		return;
 
 	for (i = 0; i < cpus->count; i++) {
+		cpu_t *cpu;
 		cpu = &cpus->cpus[i];
 		free(cpu->caches);
 	}
 
 	free(cpus->cpus);
 	free(cpus);
-	cpus = NULL;
 }
 
 #endif /* __linux__ */
