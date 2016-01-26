@@ -1,3 +1,12 @@
+stress-ng (0.05.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-stream: make L3 a uint64_t
+  * stress-clock: fix build warning on non-Linux systems
+  * stress-stream: fix FTBFS on non-Linux systems
+
+ -- Colin King <colin.king@canonical.com>  Tue, 26 Jan 2016 20:50:11 +0000
+
 stress-ng (0.05.10-1) unstable; urgency=medium
 
   * Makefile: bump version
