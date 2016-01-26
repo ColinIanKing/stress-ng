@@ -80,7 +80,6 @@ int stress_cache(
 	(void)instance;
 
 #if defined(__linux__)
-
 	cpu_caches = get_all_cpu_cache_details ();
 	if (!cpu_caches) {
 		pr_inf(stderr, "%s: using built-in defaults as unable to determine cache details\n",
@@ -91,19 +90,20 @@ int stress_cache(
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
 	if (!cache) {
-		pr_err(stderr, "no suitable cache found\n");
-		ret = EXIT_FAILURE;
-		goto out;
+		pr_inf(stderr, "%s: using built-in defaults as no suitable cache found\n",
+                __func__);
+		free_cpu_caches(cpu_caches);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
+		goto init_done;
 	}
 
 	if (shared->mem_cache_ways > 0) {
 		uint64_t way_size;
 
 		if (shared->mem_cache_ways > cache->ways) {
-			pr_err(stderr, "cache way value too high (try 1-%d)\n",
-					cache->ways);
-			ret = EXIT_FAILURE;
-			goto out;
+			pr_inf(stderr, "%s: cache way value too high - defaulting to %d (the maximum)\n",
+					__func__, cache->ways);
+			shared->mem_cache_ways = cache->ways;
 		}
 
 		way_size = cache->size / cache->ways;
@@ -116,15 +116,17 @@ int stress_cache(
 	}
 
 	if (!shared->mem_cache_size) {
-		ret = EXIT_FAILURE;
-		goto out;
+		pr_inf(stderr, "%s: using built-in defaults as unable to determine cache size\n",
+				__func__);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
-
 #else
 	shared->mem_cache_size = MEM_CACHE_SIZE;
 #endif
 
+#if defined(__linux__)
 init_done:
+#endif
 
 	mem_cache_size = shared->mem_cache_size;
 
