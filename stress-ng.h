@@ -778,7 +778,7 @@ typedef enum {
 	__STRESS_CONTEXT,
 #define STRESS_CONTEXT __STRESS_CONTEXT
 #endif
-#if defined(__linux__) || 1 // && ((__NR_copy_file_range) || 1)
+#if defined(__linux__) && (__NR_copy_file_range)
 	__STRESS_COPY_FILE,
 #define STRESS_COPY_FILE __STRESS_COPY_FILE
 #endif

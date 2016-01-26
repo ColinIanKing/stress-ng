@@ -41,7 +41,7 @@ static int sys_copy_file_range(
 	int fd_in,
 	loff_t *off_in,
 	int fd_out,
-	off_t *off_out,
+	loff_t *off_out,
 	size_t len,
 	unsigned int flags)
 {
@@ -122,7 +122,7 @@ int stress_copy_file(
 
 	do {
 		ssize_t ret;
-		off_t off_in, off_out;
+		loff_t off_in, off_out;
 
 		off_in = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
