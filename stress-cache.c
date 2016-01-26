@@ -83,8 +83,8 @@ int stress_cache(
 #if defined(__linux__)
 	cpu_caches = get_all_cpu_cache_details ();
 	if (!cpu_caches) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to determine cache details\n",
-                __func__);
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache details\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
@@ -92,15 +92,16 @@ int stress_cache(
 	max_cache_level = get_max_cache_level(cpu_caches);
 
 	if (shared->mem_cache_level > max_cache_level) {
-		pr_inf(stderr, "%s: reducing cache level from %d (too high) to %d\n",
-				__func__, shared->mem_cache_level, max_cache_level);
+		pr_inf(stderr, "%s: reducing cache level from %d (too high) "
+			"to %d\n", name,
+			shared->mem_cache_level, max_cache_level);
 		shared->mem_cache_level = max_cache_level;
 	}
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
 	if (!cache) {
-		pr_inf(stderr, "%s: using built-in defaults as no suitable cache found\n",
-                __func__);
+		pr_inf(stderr, "%s: using built-in defaults as no suitable "
+			"cache found\n", name);
 		free_cpu_caches(cpu_caches);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
@@ -110,8 +111,9 @@ int stress_cache(
 		uint64_t way_size;
 
 		if (shared->mem_cache_ways > cache->ways) {
-			pr_inf(stderr, "%s: cache way value too high - defaulting to %d (the maximum)\n",
-					__func__, cache->ways);
+			pr_inf(stderr, "%s: cache way value too high - "
+				"defaulting to %d (the maximum)\n",
+				name, cache->ways);
 			shared->mem_cache_ways = cache->ways;
 		}
 
@@ -125,8 +127,8 @@ int stress_cache(
 	}
 
 	if (!shared->mem_cache_size) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to determine cache size\n",
-				__func__);
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache size\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
 #else
@@ -162,19 +164,25 @@ init_done:
 				CACHE_WRITE(OPT_FLAGS_CACHE_FENCE);
 				break;
 			case OPT_FLAGS_CACHE_FENCE | OPT_FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE);
+				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH |
+					    OPT_FLAGS_CACHE_FENCE);
 				break;
 			case OPT_FLAGS_CACHE_PREFETCH:
 				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH);
 				break;
 			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH);
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
+					    OPT_FLAGS_CACHE_FLUSH);
 				break;
 			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FENCE:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FENCE);
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
+					    OPT_FLAGS_CACHE_FENCE);
 				break;
-			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE);
+			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH |
+			     OPT_FLAGS_CACHE_FENCE:
+				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
+					    OPT_FLAGS_CACHE_FLUSH |
+					    OPT_FLAGS_CACHE_FENCE);
 				break;
 			default:
 				CACHE_WRITE(0);
@@ -182,7 +190,8 @@ init_done:
 			}
 		} else {
 			for (j = 0; j < mem_cache_size; j++) {
-				total += mem_cache[i] + mem_cache[(mem_cache_size - 1) - i];
+				total += mem_cache[i] +
+					mem_cache[(mem_cache_size - 1) - i];
 				i = (i + 32769) & (mem_cache_size - 1);
 				if (!opt_do_run)
 					break;
