@@ -346,13 +346,14 @@ out:
 static cpu_cache_t *
 get_cache_by_cpu(const cpu_t *cpu, int cache_level)
 {
-	cpu_cache_t  *p;
-	uint32_t      i;
+	uint32_t  i;
 
 	if (!cpu || !cache_level)
 		goto err;
 
 	for (i = 0; i < cpu->cache_count; i++) {
+		cpu_cache_t *p;
+
 		p = &cpu->caches[i];
 
 		if (p->level != cache_level)
@@ -365,6 +366,40 @@ get_cache_by_cpu(const cpu_t *cpu, int cache_level)
 
 err:
 	return NULL;
+}
+
+/*
+ * get_max_cache_level()
+ * @cpus: array of cpus to query.
+ * Determine the maximum cache level available on the system.
+ *
+ * Returns: 1-index value denoting highest cache level, or 0 on error.
+ */
+uint16_t
+get_max_cache_level(const cpus_t *cpus)
+{
+	cpu_t    *cpu;
+	uint32_t  i;
+	uint16_t  max = 0;
+
+	if (!cpus) {
+		pr_dbg(stderr, "%s: invalid cpus parameter\n", __func__);
+		return 0;
+	}
+
+	/* FIXME: should really determine current CPU index using
+	 * sched_getcpu(3) rather than just taking the first cpu.
+	 */
+	cpu = &cpus->cpus[0];
+
+	for (i=0; i < cpu->cache_count; i++) {
+		cpu_cache_t *cache;
+
+		cache = &cpu->caches[i];
+		max = cache->level > max ? cache->level : max;
+	}
+
+	return max;
 }
 
 /*
