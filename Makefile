@@ -154,7 +154,6 @@ SRC =   stress-affinity.c \
 	stress-zero.c \
 	stress-zombie.c \
 	cache.c \
-	cpu-cache.c \
 	helper.c \
 	io-priority.c \
 	limit.c \

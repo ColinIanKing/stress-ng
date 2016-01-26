@@ -129,6 +129,42 @@ static inline void *stress_stream_mmap(const char *name, uint64_t sz)
 	return ptr;
 }
 
+static inline uint64_t stream_L3_size(const char *name)
+{
+#if defined(__linux__)
+	cpus_t *cpu_caches = NULL;
+	cpu_cache_t *cache = NULL;
+	uint64_t cache_size = MEM_CACHE_SIZE;
+
+	cpu_caches = get_all_cpu_cache_details();
+	if (!cpu_caches) {
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache details\n", name);
+		return cache_size;
+	}
+	cache = get_cpu_cache(cpu_caches, 3);
+	if (!cache) {
+		pr_inf(stderr, "%s: using built-in defaults as no suitable "
+			"cache found\n", name);
+		free_cpu_caches(cpu_caches);
+		return cache_size;
+	}
+	if (!cache->size) {
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache size\n", name);
+		free_cpu_caches(cpu_caches);
+		return cache_size;
+	}
+	cache_size = cache->size;
+
+	free_cpu_caches(cpu_caches);
+#else
+	pr_inf(stderr, "%s: using built-in defaults as unable to "
+		"determine cache details\n", name);
+#endif
+	return cache_size;
+}
+
 /*
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
@@ -143,16 +179,14 @@ int stress_stream(
 	double *a, *b, *c;
 	const double q = 3.0;
 	double mb_rate, mb, fp_rate, fp, t1, t2, dt;
-	uint64_t L2, L3, sz, n;
+	unsigned long L3;
+	uint64_t sz, n;
 	bool guess = false;
 
-	if (set_stream_L3_size)
-		L3 = opt_stream_L3_size;
-	else
-		stress_get_cache_size(&L2, &L3);
+	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(name);
 
 	/* Have to take a hunch and badly guess size */
-	if (L3 == 0) {
+	if (!L3) {
 		guess = true;
 		L3 = stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
 	}
