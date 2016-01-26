@@ -153,6 +153,7 @@ SRC =   stress-affinity.c \
 	stress-yield.c \
 	stress-zero.c \
 	stress-zombie.c \
+	cache.c \
 	cpu-cache.c \
 	helper.c \
 	io-priority.c \
@@ -170,7 +171,6 @@ SRC =   stress-affinity.c \
 	sched.c \
 	thermal-zone.c \
 	time.c \
-	cache.c \
 	stress-ng.c
 
 OBJS = $(SRC:.c=.o)
