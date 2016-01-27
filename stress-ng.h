@@ -552,6 +552,10 @@ extern void pr_openlog(const char *filename);
 #define OPTIMIZE3
 #endif
 
+#if defined(__GNUC__)
+#define WARN_UNUSED __attribute__((warn_unused_result))
+#endif
+
 #if defined(__linux__) && \
     defined(PR_SET_TIMERSLACK) && \
     defined(PR_GET_TIMERSLACK)
@@ -1853,7 +1857,7 @@ extern int stress_temp_filename(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance, const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len, const char *name,
 	const pid_t pid, const uint32_t instance);
-extern int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
+extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
 extern void stress_cwd_readwriteable(void);
 
@@ -1962,16 +1966,16 @@ extern void set_proc_name(const char *name);
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 
 /* Argument parsing and range checking */
-extern int32_t get_opt_sched(const char *const str);
-extern int32_t get_opt_ionice_class(const char *const str);
-extern unsigned long get_unsigned_long(const char *const str);
-extern int32_t get_int32(const char *const str);
-extern uint64_t get_uint64(const char *const str);
-extern uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
+extern WARN_UNUSED int32_t get_opt_sched(const char *const str);
+extern WARN_UNUSED int32_t get_opt_ionice_class(const char *const str);
+extern WARN_UNUSED unsigned long get_unsigned_long(const char *const str);
+extern WARN_UNUSED int32_t get_int32(const char *const str);
+extern WARN_UNUSED uint64_t get_uint64(const char *const str);
+extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
 	const char *const msg);
-extern uint64_t get_uint64_byte(const char *const str);
-extern uint64_t get_uint64_time(const char *const str);
-extern long int opt_long(const char *opt, const char *str);
+extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);
+extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
+extern WARN_UNUSED long int opt_long(const char *opt, const char *str);
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
@@ -1984,13 +1988,13 @@ extern long stress_get_processors_configured(void);
 extern long stress_get_ticks_per_second(void);
 extern ssize_t stress_get_stack_direction(const void *val1);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
-extern int stress_get_load_avg(double *min1, double *min5, double *min15);
+extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5, double *min15);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
 extern int stress_process_dumpable(const bool dumpable);
 extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
-extern int stress_set_temp_path(char *path);
+extern WARN_UNUSED int stress_set_temp_path(char *path);
 extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 
@@ -2000,7 +2004,7 @@ extern int mincore_touch_pages(void *buf, const size_t buf_len);
 
 /* Mounts */
 extern void mount_free(char *mnts[], const int n);
-extern int mount_get(char *mnts[], const int max);
+extern WARN_UNUSED int mount_get(char *mnts[], const int max);
 
 #if defined(STRESS_THERMAL_ZONES)
 /* thermal zones */
@@ -2014,7 +2018,7 @@ extern void tz_dump(FILE *fp, const shared_t *shared, const stress_t stressors[]
 /* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *optarg,
 	const int min_port, const int max_port, int *port);
-extern int stress_set_net_domain(const int domain_mask, const char *name, const char *domain_name, int *domain);
+extern WARN_UNUSED int stress_set_net_domain(const int domain_mask, const char *name, const char *domain_name, int *domain);
 extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
 	struct sockaddr **sockaddr, socklen_t *len);
