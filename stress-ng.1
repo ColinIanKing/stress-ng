@@ -785,6 +785,13 @@ used in some applications.  They do try to represent the typical instruction
 mixes found in these use cases.
 .RE
 .TP
+.B \-\-cpu\-online N
+start N workers that put randomly selected CPUs offline and online. This Linux
+only stressor requires root privilege to perform this action.
+.TP
+.B \-\-cpu\-online\-ops N
+stop after offline/online operations.
+.TP
 .B \-\-crypt N
 start N workers that encrypt a 16 character random password using crypt(3).
 The password is encrypted using MD5, SHA-256 and SHA-512 encryption methods.

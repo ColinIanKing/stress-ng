@@ -783,6 +783,10 @@ typedef enum {
 #define STRESS_COPY_FILE __STRESS_COPY_FILE
 #endif
 	STRESS_CPU,
+#if defined(__linux__)
+	__STRESS_CPU_ONLINE,
+#define STRESS_CPU_ONLINE __STRESS_CPU_ONLINE
+#endif
 	STRESS_CRYPT,
 	STRESS_DAEMON,
 	STRESS_DENTRY,
@@ -1202,6 +1206,11 @@ typedef enum {
 	OPT_CPU_OPS,
 	OPT_CPU_METHOD,
 	OPT_CPU_LOAD_SLICE,
+
+#if defined(STRESS_CPU_ONLINE)
+	OPT_CPU_ONLINE,
+	OPT_CPU_ONLINE_OPS,
+#endif
 
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
@@ -2121,6 +2130,7 @@ STRESS(stress_clone);
 STRESS(stress_context);
 STRESS(stress_copy_file);
 STRESS(stress_cpu);
+STRESS(stress_cpu_online);
 STRESS(stress_crypt);
 STRESS(stress_daemon);
 STRESS(stress_dentry);

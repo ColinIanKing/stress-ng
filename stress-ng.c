@@ -164,6 +164,9 @@ static const stress_t stressors[] = {
 	STRESSOR(copy_file, COPY_FILE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
 	STRESSOR(cpu, CPU, CLASS_CPU),
+#if defined(STRESS_CPU_ONLINE)
+	STRESSOR(cpu_online, CPU_ONLINE, CLASS_CPU | CLASS_OS),
+#endif
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
@@ -477,6 +480,8 @@ static const struct option long_options[] = {
 	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
 	{ "cpu-load-slice",1,	0,	OPT_CPU_LOAD_SLICE },
 	{ "cpu-method",	1,	0,	OPT_CPU_METHOD },
+	{ "cpu-online",	1,	0,	OPT_CPU_ONLINE },
+	{ "cpu-inline-ops",1,	0,	OPT_CPU_ONLINE_OPS },
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "daemon",	1,	0,	OPT_DAEMON },

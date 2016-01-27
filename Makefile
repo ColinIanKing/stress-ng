@@ -42,6 +42,7 @@ SRC =   stress-affinity.c \
 	stress-context.c \
 	stress-copy-file.c \
 	stress-cpu.c \
+	stress-cpu-online.c \
 	stress-crypt.c \
 	stress-daemon.c \
 	stress-dentry.c \
