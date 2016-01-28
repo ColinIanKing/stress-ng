@@ -1,3 +1,32 @@
+stress-ng (0.05.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * cache: memset globbuf, work around clang warnings
+  * stress-cpu-online: free cpu_online on error return
+  * fast-test-all: use the -v verbose flag
+  * fast-test-all: Don't yet test copy-file
+  * stress-copy-file: only build if syscall is supported
+  * Change type of error messages in cache helper
+  * cache: use %zd format specifier for size_t
+  * cache: make source 80 column friendly
+  * fast-test-all: return with error exit status
+  * Tweak man page exit status table
+  * Exit with status 2 if a stressor failured
+  * Change mini help text to make it consistent
+  * Add cpu-online to mini help
+  * stress-cache: cater for non-powers of 2 cache size
+  * Remove hard #undef __linux__ used during debugging
+  * Re-work shared cache buffer allocation
+  * stress-memcpy: fix segfault due to changes in allocation of cache buffer
+  * Add kcmp to exclude list on adt test
+  * Add cpu-online to exclude list on adt test
+  * Make some helpers return int32_t rather than long
+  * Add WARN_UNUSED macro and use it against functions that need return checks
+  * Add CPU online stressor
+  * Fix indentation issue after --hdd
+
+ -- Colin King <colin.king@canonical.com>  Thu, 28 Jan 2016 12:30:47 +0000
+
 stress-ng (0.05.11-1) unstable; urgency=medium
 
   * Makefile: bump version
