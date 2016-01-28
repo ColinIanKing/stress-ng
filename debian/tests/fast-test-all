@@ -4,7 +4,7 @@ set -e
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
 #
-EXCLUDE="sysfs procfs rdrand numa quota apparmor"
+EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online"
 #
 # Get built-in stressor names
 #
