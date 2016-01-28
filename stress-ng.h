@@ -55,8 +55,6 @@
 #include <features.h>
 #endif
 
-#undef __linux__
-
 /*
  * STRESS_ASSERT(test)
  *   throw compile time error if test not true
