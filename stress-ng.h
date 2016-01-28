@@ -55,6 +55,8 @@
 #include <features.h>
 #endif
 
+#undef __linux__
+
 /*
  * STRESS_ASSERT(test)
  *   throw compile time error if test not true
@@ -1999,6 +2001,8 @@ extern void stress_set_timer_slack(void);
 extern WARN_UNUSED int stress_set_temp_path(char *path);
 extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
+extern WARN_UNUSED int stress_cache_alloc(const char *name);
+extern void stress_cache_free(void);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

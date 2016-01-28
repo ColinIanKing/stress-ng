@@ -51,8 +51,6 @@
 			break;						\
 	}
 
-static uint64_t mem_cache_size = 0;
-
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -65,89 +63,20 @@ int stress_cache(
 	const uint64_t max_ops,
 	const char *name)
 {
-	unsigned long total = 0;
-	int ret = EXIT_SUCCESS;
 #if defined(__linux__)
+	cpu_set_t mask;
 	uint32_t cpu = 0;
 	const uint32_t cpus = stress_get_processors_configured();
-	cpu_set_t mask;
-	cpus_t *cpu_caches = NULL;
-	cpu_cache_t *cache = NULL;
 	int pinned = false;
-	uint16_t max_cache_level = 0;
-
 #endif
-	(void)instance;
+	uint32_t total = 0;
+	int ret = EXIT_SUCCESS;
+	uint8_t *const mem_cache = shared->mem_cache;
+	const uint64_t mem_cache_size = shared->mem_cache_size;
 
-#if defined(__linux__)
-	cpu_caches = get_all_cpu_cache_details ();
-	if (!cpu_caches) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache details\n", name);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
-		goto init_done;
-	}
-
-	max_cache_level = get_max_cache_level(cpu_caches);
-
-	if (shared->mem_cache_level > max_cache_level) {
-		pr_inf(stderr, "%s: reducing cache level from %d (too high) "
-			"to %d\n", name,
-			shared->mem_cache_level, max_cache_level);
-		shared->mem_cache_level = max_cache_level;
-	}
-
-	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
-	if (!cache) {
-		pr_inf(stderr, "%s: using built-in defaults as no suitable "
-			"cache found\n", name);
-		free_cpu_caches(cpu_caches);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
-		goto init_done;
-	}
-
-	if (shared->mem_cache_ways > 0) {
-		uint64_t way_size;
-
-		if (shared->mem_cache_ways > cache->ways) {
-			pr_inf(stderr, "%s: cache way value too high - "
-				"defaulting to %d (the maximum)\n",
-				name, cache->ways);
-			shared->mem_cache_ways = cache->ways;
-		}
-
-		way_size = cache->size / cache->ways;
-
-		/* only fill the specified number of cache ways */
-		shared->mem_cache_size = way_size * shared->mem_cache_ways;
-	} else {
-		/* fill the entire cache */
-		shared->mem_cache_size = cache->size;
-	}
-
-	if (!shared->mem_cache_size) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache size\n", name);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
-	}
-#else
-	shared->mem_cache_size = MEM_CACHE_SIZE;
-#endif
-
-#if defined(__linux__)
-init_done:
-#endif
-
-	mem_cache_size = shared->mem_cache_size;
-
-	shared->mem_cache = calloc(shared->mem_cache_size, 1);
-	if (!shared->mem_cache) {
-		pr_fail_err(name, "calloc");
-		ret = EXIT_FAILURE;
-		goto out;
-	}
-
-	uint8_t *mem_cache = shared->mem_cache;
+	if (instance == 0)
+		pr_dbg(stderr, "%s: using cache buffer size of %" PRIu64 "K\n",
+			name, mem_cache_size / 1024);
 
 	do {
 		uint64_t i = mwc64() & (mem_cache_size - 1);
@@ -202,10 +131,8 @@ init_done:
 
 			/* Pin to the current CPU */
 			current = sched_getcpu();
-			if (current < 0) {
-				ret = EXIT_FAILURE;
-				goto out;
-			}
+			if (current < 0)
+				return EXIT_FAILURE;
 
 			cpu = (int32_t)current;
 		} else {
@@ -229,14 +156,6 @@ init_done:
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-	pr_dbg(stderr, "%s: total [%lu]\n", name, total);
-
-out:
-#if defined(__linux__)
-	free_cpu_caches(cpu_caches);
-#endif
-	if (shared->mem_cache)
-		free(shared->mem_cache);
-
+	pr_dbg(stderr, "%s: total [%" PRIu32 "]\n", name, total);
 	return ret;
 }

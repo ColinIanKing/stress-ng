@@ -542,3 +542,91 @@ void pr_yaml_runinfo(FILE *yaml)
 	pr_yaml(yaml, "      ticks-per-second: %ld\n", stress_get_ticks_per_second());
 	pr_yaml(yaml, "\n");
 }
+
+
+/*
+ *  stress_cache_alloc()
+ *	allocate shared cache buffer
+ */
+int stress_cache_alloc(const char *name)
+{
+#if defined(__linux__)
+	cpus_t *cpu_caches = NULL;
+	cpu_cache_t *cache = NULL;
+	uint16_t max_cache_level = 0;
+#endif
+
+#if !defined(__linux__)
+	shared->mem_cache_size = MEM_CACHE_SIZE;
+#else
+	cpu_caches = get_all_cpu_cache_details();
+	if (!cpu_caches) {
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache details\n", name);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
+		goto init_done;
+	}
+
+	max_cache_level = get_max_cache_level(cpu_caches);
+
+	if (shared->mem_cache_level > max_cache_level) {
+		pr_inf(stderr, "%s: reducing cache level from %d (too high) "
+			"to %d\n", name,
+			shared->mem_cache_level, max_cache_level);
+		shared->mem_cache_level = max_cache_level;
+	}
+
+	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
+	if (!cache) {
+		pr_inf(stderr, "%s: using built-in defaults as no suitable "
+			"cache found\n", name);
+		free_cpu_caches(cpu_caches);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
+		goto init_done;
+	}
+
+	if (shared->mem_cache_ways > 0) {
+		uint64_t way_size;
+
+		if (shared->mem_cache_ways > cache->ways) {
+			pr_inf(stderr, "%s: cache way value too high - "
+				"defaulting to %d (the maximum)\n",
+				name, cache->ways);
+			shared->mem_cache_ways = cache->ways;
+		}
+
+		way_size = cache->size / cache->ways;
+
+		/* only fill the specified number of cache ways */
+		shared->mem_cache_size = way_size * shared->mem_cache_ways;
+	} else {
+		/* fill the entire cache */
+		shared->mem_cache_size = cache->size;
+	}
+
+	if (!shared->mem_cache_size) {
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache size\n", name);
+		shared->mem_cache_size = MEM_CACHE_SIZE;
+	}
+init_done:
+	free_cpu_caches(cpu_caches);
+#endif
+	shared->mem_cache = calloc(shared->mem_cache_size, 1);
+	if (!shared->mem_cache) {
+		pr_inf(stderr, "%s: failed to allocate shared cache buffer\n",
+			name);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ *  stress_cache_free()
+ *	free shared cache buffer
+ */
+void stress_cache_free(void)
+{
+	free(shared->mem_cache);
+}

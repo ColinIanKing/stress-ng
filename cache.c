@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#include "stress-ng.h"
 
 #if defined(__linux__)
 
@@ -30,8 +31,6 @@
 #include <limits.h>
 #include <errno.h>
 #include <sched.h>
-
-#include "stress-ng.h"
 
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"

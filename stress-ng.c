@@ -480,8 +480,10 @@ static const struct option long_options[] = {
 	{ "cpu-load",	1,	0,	OPT_CPU_LOAD },
 	{ "cpu-load-slice",1,	0,	OPT_CPU_LOAD_SLICE },
 	{ "cpu-method",	1,	0,	OPT_CPU_METHOD },
+#if defined(STRESS_CPU_ONLINE)
 	{ "cpu-online",	1,	0,	OPT_CPU_ONLINE },
-	{ "cpu-inline-ops",1,	0,	OPT_CPU_ONLINE_OPS },
+	{ "cpu-online-ops",1,	0,	OPT_CPU_ONLINE_OPS },
+#endif
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "daemon",	1,	0,	OPT_DAEMON },
@@ -1740,8 +1742,8 @@ static void MLOCKED wait_procs(bool *success)
 	 */
 	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		unsigned long int cpu = 0;
-		const long ticks_per_sec = stress_get_ticks_per_second() * 5;
-		const unsigned long usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
+		const uint32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
+		const useconds_t usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
 
 		while (opt_do_wait) {
 			const int32_t cpus = stress_get_processors_configured();
@@ -2945,8 +2947,16 @@ next_opt:
 	memset(shared, 0, len);
 	pthread_spin_init(&shared->perf.lock, 0);
 
+	/*
+	 *  Allocate shared cache memory
+	 */
 	shared->mem_cache_level = mem_cache_level;
 	shared->mem_cache_ways = mem_cache_ways;
+	if (stress_cache_alloc("main") < 0) {
+		(void)munmap(shared, len);
+		free_procs();
+		exit(EXIT_FAILURE);
+	}
 
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
