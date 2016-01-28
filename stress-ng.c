@@ -3043,5 +3043,5 @@ next_opt:
 		pr_yaml(yaml, "...\n");
 		fclose(yaml);
 	}
-	exit(EXIT_SUCCESS);
+	exit(success ? EXIT_SUCCESS : EXIT_NOT_SUCCESS);
 }

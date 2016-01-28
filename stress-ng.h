@@ -55,6 +55,8 @@
 #include <features.h>
 #endif
 
+#define EXIT_NOT_SUCCESS	(2)
+
 /*
  * STRESS_ASSERT(test)
  *   throw compile time error if test not true

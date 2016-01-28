@@ -2445,6 +2445,21 @@ stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack
 .IP
 run 4 instances of the VM stressors one after each other, excluding the
 bigheap, brk and stack stressors
+.SH EXIT STATUS
+.TS
+cB lBw(50)
+c l.
+Status	Description
+0	T{
+Success.
+T}
+1	T{
+Error; incorrect user options or a fatal resource issue (for example, out of memory).
+T}
+2	T{
+One or more stressors failed.
+T}
+.TE
 .SH BUGS
 File bug reports at:
   https://launchpad.net/ubuntu/+source/stress\-ng/+filebug
