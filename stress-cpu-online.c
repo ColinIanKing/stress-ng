@@ -125,6 +125,7 @@ int stress_cpu_online(
 	}
 	if (cpu_online_count == 0) {
 		pr_inf(stderr, "%s: no CPUs can be set online/offline\n", name);
+		free(cpu_online);
 		return EXIT_FAILURE;
 	}
 
