@@ -481,6 +481,7 @@ extern void pr_openlog(const char *filename);
 #define DEFAULT_LINKS		(8192)
 #define DEFAULT_DIRS		(8192)
 
+#define STR_SHARED_SIZE		(65536 * 32)
 #define MEM_CACHE_SIZE		(65536 * 32)
 #define DEFAULT_CACHE_LEVEL     3
 #define UNDEFINED		(-1)
@@ -703,9 +704,10 @@ typedef struct {
 /* Shared memory segment */
 typedef struct {
 	uint8_t	*mem_cache;				/* Shared memory cache */
-	uint64_t mem_cache_size;				/* Bytes */
-	uint16_t mem_cache_level;				/* 1=L1, 2=L2, 3=L3 */
-	uint32_t mem_cache_ways;
+	uint64_t mem_cache_size;			/* Bytes */
+	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
+	uint32_t mem_cache_ways;			/* cache ways size */
+	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */

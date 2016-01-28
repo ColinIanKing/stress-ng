@@ -30,7 +30,7 @@
 
 #include "stress-ng.h"
 
-static uint8_t buffer[MEM_CACHE_SIZE] ALIGN64;
+static uint8_t buffer[STR_SHARED_SIZE] ALIGN64;
 
 /*
  *  stress_memcpy()
@@ -42,17 +42,17 @@ int stress_memcpy(
 	const uint64_t max_ops,
 	const char *name)
 {
+	uint8_t *str_shared = shared->str_shared;
+
 	(void)instance;
 	(void)name;
 
-	uint8_t *mem_cache = shared->mem_cache;
-
 	do {
-		memcpy(buffer, mem_cache, MEM_CACHE_SIZE);
-		memcpy(mem_cache, buffer, MEM_CACHE_SIZE);
-		memmove(buffer, buffer + 64, MEM_CACHE_SIZE - 64);
-		memmove(buffer + 64, buffer, MEM_CACHE_SIZE - 64);
-		memmove(buffer + 1, buffer, MEM_CACHE_SIZE - 1);
+		memcpy(buffer, str_shared, STR_SHARED_SIZE);
+		memcpy(str_shared, buffer, STR_SHARED_SIZE);
+		memmove(buffer, buffer + 64, STR_SHARED_SIZE - 64);
+		memmove(buffer + 64, buffer, STR_SHARED_SIZE - 64);
+		memmove(buffer + 1, buffer, STR_SHARED_SIZE - 1);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
