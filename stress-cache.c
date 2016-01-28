@@ -68,9 +68,8 @@ int stress_cache(
 	unsigned long total = 0;
 	int ret = EXIT_SUCCESS;
 #if defined(__linux__)
-	unsigned long int cpu = 0;
-	const unsigned long int cpus =
-		stress_get_processors_configured();
+	uint32_t cpu = 0;
+	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t mask;
 	cpus_t *cpu_caches = NULL;
 	cpu_cache_t *cache = NULL;
@@ -208,7 +207,7 @@ init_done:
 				goto out;
 			}
 
-			cpu = current;
+			cpu = (int32_t)current;
 		} else {
 			cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
 				(mwc32() >> 4) : cpu + 1;

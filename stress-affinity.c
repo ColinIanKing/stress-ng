@@ -45,9 +45,8 @@ int stress_affinity(
 	const uint64_t max_ops,
 	const char *name)
 {
-	unsigned long int cpu = instance;
-	const unsigned long int cpus =
-		(unsigned long int)stress_get_processors_configured();
+	uint32_t cpu = instance;
+	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t mask;
 
 	do {
@@ -57,7 +56,7 @@ int stress_affinity(
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
-			pr_fail(stderr, "%s: failed to move to CPU %lu\n",
+			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32 "\n",
 				name, cpu);
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 			sched_yield();
@@ -69,7 +68,7 @@ int stress_affinity(
 			sched_getaffinity(0, sizeof(mask), &mask);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (!CPU_ISSET(cpu, &mask)))
-				pr_fail(stderr, "%s: failed to move to CPU %lu\n",
+				pr_fail(stderr, "%s: failed to move to CPU %" PRIu32 "\n",
 					name, cpu);
 		}
 		(*counter)++;

@@ -42,7 +42,7 @@
  */
 int stress_cpu_online_set(
 	const char *name,
-	const unsigned long cpu,
+	const int32_t cpu,
 	const int setting)
 {
 	char filename[PATH_MAX];
@@ -51,7 +51,7 @@ int stress_cpu_online_set(
 	int fd, rc = EXIT_SUCCESS;
 
 	snprintf(filename, sizeof(filename),
-		"/sys/devices/system/cpu/cpu%lu/online", cpu);
+		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
 	fd = open(filename, O_WRONLY);
 	if (fd < 0) {
 		pr_fail_err(name, "open");
@@ -84,8 +84,8 @@ int stress_cpu_online(
 	const uint64_t max_ops,
 	const char *name)
 {
-	const long cpus = stress_get_processors_configured();
-	long i, cpu_online_count = 0;
+	const int32_t cpus = stress_get_processors_configured();
+	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
 
@@ -97,7 +97,7 @@ int stress_cpu_online(
 	}
 
 	if ((cpus < 1) || (cpus > 65536)) {
-		pr_inf(stderr, "%s: too few or too many CPUs (found %lu)\n", name, cpus);
+		pr_inf(stderr, "%s: too few or too many CPUs (found %" PRId32 ")\n", name, cpus);
 		return EXIT_FAILURE;
 	}
 
@@ -116,13 +116,12 @@ int stress_cpu_online(
 		int ret;
 
 		snprintf(filename, sizeof(filename),
-			"/sys/devices/system/cpu/cpu%lu/online", i);
+			"/sys/devices/system/cpu/cpu%" PRId32 "/online", i);
 		ret = access(filename, O_RDWR);
 		if (ret == 0) {
 			cpu_online[i] = true;
 			cpu_online_count++;
 		}
-		printf("%lu %d\n", i, cpu_online[i]);
 	}
 	if (cpu_online_count == 0) {
 		pr_inf(stderr, "%s: no CPUs can be set online/offline\n", name);

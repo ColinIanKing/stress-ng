@@ -1983,9 +1983,9 @@ extern void check_range(const char *const opt, const uint64_t val,
 /* Misc helper funcs */
 extern char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
-extern long stress_get_processors_online(void);
-extern long stress_get_processors_configured(void);
-extern long stress_get_ticks_per_second(void);
+extern int32_t stress_get_processors_online(void);
+extern int32_t stress_get_processors_configured(void);
+extern int32_t stress_get_ticks_per_second(void);
 extern ssize_t stress_get_stack_direction(const void *val1);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5, double *min15);

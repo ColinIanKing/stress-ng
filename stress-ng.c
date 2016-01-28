@@ -1744,7 +1744,7 @@ static void MLOCKED wait_procs(bool *success)
 		const unsigned long usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
 
 		while (opt_do_wait) {
-			const unsigned long cpus = stress_get_processors_configured();
+			const int32_t cpus = stress_get_processors_configured();
 
 			for (i = 0; i < STRESS_MAX; i++) {
 				int j;
@@ -1752,7 +1752,7 @@ static void MLOCKED wait_procs(bool *success)
 				for (j = 0; j < procs[i].started_procs; j++) {
 					const pid_t pid = procs[i].pids[j];
 					if (pid) {
-						unsigned long int cpu_num = mwc32() % cpus;
+						int32_t cpu_num = mwc32() % cpus;
 						cpu_set_t mask;
 
 						CPU_ZERO(&mask);
@@ -2758,7 +2758,8 @@ next_opt:
 	if (opt_flags & OPT_SYSLOG)
 		openlog("stress-ng", 0, LOG_USER);
 
-	pr_dbg(stderr, "%ld processors online, %ld processors configured\n",
+	pr_dbg(stderr, "%" PRId32 " processors online, %" PRId32
+		" processors configured\n",
 		stress_get_processors_online(),
 		stress_get_processors_configured());
 

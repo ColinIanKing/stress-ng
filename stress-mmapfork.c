@@ -52,12 +52,12 @@ int stress_mmapfork(
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;
 	void *ptr;
-	int instances;
+	int32_t instances;
 
 	(void)instance;
 
 	if ((instances = stressor_instances(STRESS_MMAPFORK)) < 1)
-		instances = (int)stress_get_processors_configured();
+		instances = stress_get_processors_configured();
 
 	do {
 		size_t i, n, len;

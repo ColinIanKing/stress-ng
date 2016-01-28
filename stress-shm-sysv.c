@@ -158,7 +158,7 @@ static int stress_shm_sysv_child(
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
-	int instances;
+	int32_t instances;
 
 	new_action.sa_handler = handle_shm_sysv_sigalrm;
 	sigemptyset(&new_action.sa_mask);
@@ -177,7 +177,7 @@ static int stress_shm_sysv_child(
 	set_oom_adjustment(name, true);
 
 	if ((instances = stressor_instances(STRESS_SHM_SYSV)) < 1)
-		instances = (int)stress_get_processors_configured();
+		instances = stress_get_processors_configured();
 	/* Should never happen, but be safe */
 	if (instances < 1)
 		instances = 1;

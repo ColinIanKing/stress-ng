@@ -50,7 +50,7 @@ int stress_yield(
 	uint64_t *counters;
 	uint64_t max_ops_per_yielder;
 	size_t counters_sz, yielders_sz;
-	long cpus = stress_get_processors_configured();
+	int32_t cpus = stress_get_processors_configured();
 	size_t instances = stressor_instances(STRESS_YIELD);
 	size_t yielders = 2;
 	pid_t *pids;
@@ -70,7 +70,7 @@ int stress_yield(
 		if (yielders < 1)
 			yielders = 1;
 		if (!instance) {
-			long residual = cpus - (yielders * instances);
+			int32_t residual = cpus - (yielders * instances);
 			if (residual > 0)
 				yielders += residual;
 		}
