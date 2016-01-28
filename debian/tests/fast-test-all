@@ -31,7 +31,6 @@ do
 		if [ $? -ne 0 ]
 		then
 			echo "$s FAILED"
-			rc=1
 		else
 			echo "$s PASSED"
 		fi
