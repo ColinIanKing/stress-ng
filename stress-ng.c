@@ -1062,6 +1062,10 @@ static const help_t help_stressors[] = {
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
+#if defined(STRESS_CPU_ONLINE)
+	{ NULL,		"cpu-online N",		"start N workers offlining/onlining the CPUs" },
+	{ NULL,		"cpu-online-ops N",	"stop after N offline/online operations" },
+#endif
 	{ NULL,		"crypt N",		"start N workers performing password encryption" },
 	{ NULL,		"crypt-ops N",		"stop when N bogo crypt operations completed" },
 	{ NULL,		"daemon N",		"start N workers creating multiple daemons" },
