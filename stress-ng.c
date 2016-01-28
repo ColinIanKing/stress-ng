@@ -998,38 +998,38 @@ static const help_t help_generic[] = {
 static const help_t help_stressors[] = {
 #if defined(STRESS_AFFINITY)
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },
-	{ NULL, 	"affinity-ops N",   	"stop when N affinity bogo operations completed" },
+	{ NULL, 	"affinity-ops N",   	"stop after N affinity bogo operations" },
 	{ NULL, 	"affinity-rand",   	"change affinity randomly rather than sequentially" },
 #endif
 #if defined(STRESS_AF_ALG)
 	{ NULL,		"af-alg N",		"start N workers that stress AF_ALG socket domain" },
-	{ NULL,		"af-alg-ops N",		"stop when N af-alg bogo operations completed" },
+	{ NULL,		"af-alg-ops N",		"stop after N af-alg bogo operations" },
 #endif
 #if defined(STRESS_AIO)
 	{ NULL,		"aio N",		"start N workers that issue async I/O requests" },
-	{ NULL,		"aio-ops N",		"stop when N bogo async I/O requests completed" },
+	{ NULL,		"aio-ops N",		"stop after N bogo async I/O requests" },
 	{ NULL,		"aio-requests N",	"number of async I/O requests per worker" },
 #endif
 #if defined(STRESS_AIO_LINUX)
 	{ NULL,		"aiol N",		"start N workers that issue async I/O requests via Linux aio" },
-	{ NULL,		"aiol-ops N",		"stop when N bogo Linux aio async I/O requests completed" },
+	{ NULL,		"aiol-ops N",		"stop after N bogo Linux aio async I/O requests" },
 	{ NULL,		"aiol-requests N",	"number of Linux aio async I/O requests per worker" },
 #endif
 #if defined(STRESS_APPARMOR)
 	{ NULL,		"apparmor",		"start N workers exercising AppArmor interfaces" },
-	{ NULL,		"apparmor-ops",		"stop when N bogo AppArmor worker ops completed" },
+	{ NULL,		"apparmor-ops",		"stop after N bogo AppArmor worker bogo operations" },
 #endif
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
-	{ NULL,		"bigheap-ops N",	"stop when N bogo bigheap operations completed" },
+	{ NULL,		"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ NULL,		"brk N",		"start N workers performing rapid brk calls" },
-	{ NULL,		"brk-ops N",		"stop when N brk bogo operations completed" },
+	{ NULL,		"brk-ops N",		"stop after N brk bogo operations" },
 	{ NULL,		"brk-notouch",		"don't touch (page in) new data segment page" },
 	{ NULL,		"bsearch N",		"start N workers that exercise a binary search" },
-	{ NULL,		"bsearch-ops N",	"stop when N binary search bogo operations completed" },
+	{ NULL,		"bsearch-ops N",	"stop after N binary search bogo operations" },
 	{ NULL,		"bsearch-size N",	"number of 32 bit integers to bsearch" },
 	{ "C N",	"cache N",		"start N CPU cache thrashing workers" },
-	{ NULL,		"cache-ops N",		"stop when N cache bogo operations completed" },
+	{ NULL,		"cache-ops N",		"stop after N cache bogo operations" },
 	{ NULL,		"cache-prefetch",	"prefetch on memory reads/writes" },
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
 	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
@@ -1045,7 +1045,7 @@ static const help_t help_stressors[] = {
 #endif
 #if defined(STRESS_CLONE)
 	{ NULL,		"clone N",		"start N workers that rapidly create and reap clones" },
-	{ NULL,		"clone-ops N",		"stop when N bogo clone operations completed" },
+	{ NULL,		"clone-ops N",		"stop after N bogo clone operations" },
 	{ NULL,		"clone-max N",		"set upper limit of N clones per worker" },
 #endif
 #if defined(STRESS_CONTEXT)
@@ -1054,11 +1054,11 @@ static const help_t help_stressors[] = {
 #endif
 #if defined(STRESS_COPY_FILE)
 	{ NULL,		"copy-file N",		"start N workers that copy file data" },
-	{ NULL,		"copy-file-ops N",	"stop when N copy bogo operations completed" },
+	{ NULL,		"copy-file-ops N",	"stop after N copy bogo operations" },
 	{ NULL,		"copy-file-bytes N",	"specify size of file to be copied" },
 #endif
 	{ "c N",	"cpu N",		"start N workers spinning on sqrt(rand())" },
-	{ NULL,		"cpu-ops N",		"stop when N cpu bogo operations completed" },
+	{ NULL,		"cpu-ops N",		"stop after N cpu bogo operations" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
@@ -1067,20 +1067,20 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cpu-online-ops N",	"stop after N offline/online operations" },
 #endif
 	{ NULL,		"crypt N",		"start N workers performing password encryption" },
-	{ NULL,		"crypt-ops N",		"stop when N bogo crypt operations completed" },
+	{ NULL,		"crypt-ops N",		"stop after N bogo crypt operations" },
 	{ NULL,		"daemon N",		"start N workers creating multiple daemons" },
 	{ NULL,		"daemon-ops N",		"stop when N daemons have been created" },
 	{ "D N",	"dentry N",		"start N dentry thrashing stressors" },
-	{ NULL,		"dentry-ops N",		"stop when N dentry bogo operations completed" },
+	{ NULL,		"dentry-ops N",		"stop after N dentry bogo operations" },
 	{ NULL,		"dentry-order O",	"specify dentry unlink order (reverse, forward, stride)" },
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
 	{ NULL,		"dir N",		"start N directory thrashing stressors" },
-	{ NULL,		"dir-ops N",		"stop when N directory bogo operations completed" },
+	{ NULL,		"dir-ops N",		"stop after N directory bogo operations" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
-	{ NULL,		"dup-ops N",		"stop when N dup/close bogo operations completed" },
+	{ NULL,		"dup-ops N",		"stop after N dup/close bogo operations" },
 #if defined(STRESS_EPOLL)
 	{ NULL,		"epoll N",		"start N workers doing epoll handled socket activity" },
-	{ NULL,		"epoll-ops N",		"stop when N epoll bogo operations completed" },
+	{ NULL,		"epoll-ops N",		"stop after N epoll bogo operations" },
 	{ NULL,		"epoll-port P",		"use socket ports P upwards" },
 	{ NULL,		"epoll-domain D",	"specify socket domain, default is unix" },
 #endif
@@ -1090,185 +1090,185 @@ static const help_t help_stressors[] = {
 #endif
 #if defined(STRESS_EXEC)
 	{ NULL,		"exec N",		"start N workers spinning on fork() and exec()" },
-	{ NULL,		"exec-ops N",		"stop when N exec bogo operations completed" },
+	{ NULL,		"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,		"exec-max P",		"create P workers per iteration, default is 1" },
 #endif
 #if defined(STRESS_FALLOCATE)
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
-	{ NULL,		"fallocate-ops N",	"stop when N fallocate bogo operations completed" },
+	{ NULL,		"fallocate-ops N",	"stop after N fallocate bogo operations" },
 	{ NULL,		"fallocate-bytes N",	"specify size of file to allocate" },
 #endif
 	{ NULL,		"fault N",		"start N workers producing page faults" },
-	{ NULL,		"fault-ops N",		"stop when N page fault bogo operations completed" },
+	{ NULL,		"fault-ops N",		"stop after N page fault bogo operations" },
 #if defined(STRESS_FIEMAP)
 	{ NULL,		"fiemap N",		"start N workers exercising the FIEMAP ioctl" },
-	{ NULL,		"fiemap-ops N",		"stop when N FIEMAP ioctl bogo operations completed" },
+	{ NULL,		"fiemap-ops N",		"stop after N FIEMAP ioctl bogo operations" },
 #endif
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
-	{ NULL,		"fifo-ops N",		"stop when N fifo bogo operations completed" },
+	{ NULL,		"fifo-ops N",		"stop after N fifo bogo operations" },
 	{ NULL,		"fifo-readers N",	"number of fifo reader stessors to start" },
 	{ NULL,		"filename N",		"start N workers exercising filenames" },
-	{ NULL,		"filename-ops N",	"stop when N filename bogo operations completed" },
+	{ NULL,		"filename-ops N",	"stop after N filename bogo operations" },
 	{ NULL,		"filename-opts opt",	"specify allowed filename options" },
 	{ NULL,		"fcntl N",		"start N workers exercising fcntl commands" },
-	{ NULL,		"fcntl-ops N",		"stop when N fcntl bogo operations completed" },
+	{ NULL,		"fcntl-ops N",		"stop after N fcntl bogo operations" },
 	{ NULL,		"flock N",		"start N workers locking a single file" },
-	{ NULL,		"flock-ops N",		"stop when N flock bogo operations completed" },
+	{ NULL,		"flock-ops N",		"stop after N flock bogo operations" },
 	{ "f N",	"fork N",		"start N workers spinning on fork() and exit()" },
-	{ NULL,		"fork-ops N",		"stop when N fork bogo operations completed" },
+	{ NULL,		"fork-ops N",		"stop after N fork bogo operations" },
 	{ NULL,		"fork-max P",		"create P workers per iteration, default is 1" },
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
-	{ NULL,		"fstat-ops N",		"stop when N fstat bogo operations completed" },
+	{ NULL,		"fstat-ops N",		"stop after N fstat bogo operations" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
 #if defined(STRESS_FUTEX)
 	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
-	{ NULL,		"futex-ops N",		"stop when N fast mutex bogo operations completed" },
+	{ NULL,		"futex-ops N",		"stop after N fast mutex bogo operations" },
 #endif
 	{ NULL,		"get N",		"start N workers exercising the get*() system calls" },
-	{ NULL,		"get-ops N",		"stop when N get bogo operations completed" },
+	{ NULL,		"get-ops N",		"stop after N get bogo operations" },
 #if defined(STRESS_GETRANDOM)
 	{ NULL,		"getrandom N",		"start N workers fetching random data via getrandom()" },
-	{ NULL,		"getrandom-ops N",	"stop when N getrandom bogo operations completed" },
+	{ NULL,		"getrandom-ops N",	"stop after N getrandom bogo operations" },
 #endif
 #if defined(STRESS_HANDLE)
 	{ NULL,		"handle N",		"start N workers exercising name_to_handle_at" },
-	{ NULL,		"handle-ops N",		"stop when N handle bogo operations completed" },
+	{ NULL,		"handle-ops N",		"stop after N handle bogo operations" },
 #endif
 	{ "d N",	"hdd N",		"start N workers spinning on write()/unlink()" },
-	{ NULL,		"hdd-ops N",		"stop when N hdd bogo operations completed" },
+	{ NULL,		"hdd-ops N",		"stop after N hdd bogo operations" },
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-opts list",	"specify list of various stressor options" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
 	{ NULL,		"hsearch N",		"start N workers that exercise a hash table search" },
-	{ NULL,		"hsearch-ops N",	"stop when N hash search bogo operations completed" },
+	{ NULL,		"hsearch-ops N",	"stop afer N hash search bogo operations" },
 	{ NULL,		"hsearch-size N",	"number of integers to insert into hash table" },
 #if defined(STRESS_ICACHE)
 	{ NULL,		"icache N",		"start N CPU instruction cache thrashing workers" },
-	{ NULL,		"icache-ops N",		"stop when N icache bogo operations completed" },
+	{ NULL,		"icache-ops N",		"stop after N icache bogo operations" },
 #endif
 #if defined(STRESS_INOTIFY)
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
 #endif
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
-	{ NULL,		"io-ops N",		"stop when N io bogo operations completed" },
+	{ NULL,		"io-ops N",		"stop after N io bogo operations" },
 #if defined(STRESS_IONICE)
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 #endif
 	{ NULL,		"itimer N",		"start N workers exercising interval timers" },
-	{ NULL,		"itimer-ops N",		"stop when N interval timer bogo ops completed" },
+	{ NULL,		"itimer-ops N",		"stop after N interval timer bogo operations" },
 #if defined(STRESS_KCMP)
 	{ NULL,		"kcmp N",		"start N workers exercising kcmp" },
-	{ NULL,		"kcmp-ops N",		"stop when N kcmp bogo operations completed" },
+	{ NULL,		"kcmp-ops N",		"stop after N kcmp bogo operations" },
 #endif
 #if defined(STRESS_KEY)
 	{ NULL,		"key N",		"start N workers exercising key operations" },
-	{ NULL,		"key-ops N",		"stop when N key bogo operations completed" },
+	{ NULL,		"key-ops N",		"stop after N key bogo operations" },
 #endif
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
-	{ NULL,		"kill-ops N",		"stop when N kill bogo operations completed" },
+	{ NULL,		"kill-ops N",		"stop after N kill bogo operations" },
 #if defined(STRESS_LEASE)
 	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
-	{ NULL,		"lease-ops N",		"stop when N lease bogo operations completed" },
+	{ NULL,		"lease-ops N",		"stop after N lease bogo operations" },
 	{ NULL,		"lease-breakers N",	"number of lease breaking workers to start" },
 #endif
 	{ NULL,		"link N",		"start N workers creating hard links" },
-	{ NULL,		"link-ops N",		"stop when N link bogo operations completed" },
+	{ NULL,		"link-ops N",		"stop after N link bogo operations" },
 #if defined(STRESS_LOCKBUS)
 	{ NULL,		"lockbus N",		"start N workers locking a memory increment" },
-	{ NULL,		"lockbus-ops N",	"stop when N lockbus bogo operations completed" },
+	{ NULL,		"lockbus-ops N",	"stop after N lockbus bogo operations" },
 #endif
 #if defined(STRESS_LOCKF)
 	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },
-	{ NULL,		"lockf-ops N",		"stop when N lockf bogo operations completed" },
+	{ NULL,		"lockf-ops N",		"stop after N lockf bogo operations" },
 	{ NULL,		"lockf-nonblock",	"don't block if lock cannot be obtained, re-try" },
 #endif
 	{ NULL,		"longjmp N",		"start N workers exercising setjmp/longjmp" },
-	{ NULL,		"longjmp-ops N",	"stop when N longjmp bogo operations completed" },
+	{ NULL,		"longjmp-ops N",	"stop after N longjmp bogo operations" },
 	{ NULL,		"lsearch N",		"start N workers that exercise a linear search" },
-	{ NULL,		"lsearch-ops N",	"stop when N linear search bogo operations completed" },
+	{ NULL,		"lsearch-ops N",	"stop after N linear search bogo operations" },
 	{ NULL,		"lsearch-size N",	"number of 32 bit integers to lsearch" },
 	{ NULL,		"malloc N",		"start N workers exercising malloc/realloc/free" },
 	{ NULL,		"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,		"malloc-max N",		"keep up to N allocations at a time" },
-	{ NULL,		"malloc-ops N",		"stop when N malloc bogo operations completed" },
+	{ NULL,		"malloc-ops N",		"stop after N malloc bogo operations" },
 #if defined(STRESS_MALLOPT)
 	{ NULL,		"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 #endif
 	{ NULL,		"matrix N",		"start N workers exercising matrix operations" },
-	{ NULL,		"matrix-ops N",		"stop when N maxtrix bogo operations completed" },
+	{ NULL,		"matrix-ops N",		"stop after N maxtrix bogo operations" },
 	{ NULL,		"matrix-method m",	"specify matrix stress method m, default is all" },
 	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
 #if defined(STRESS_MEMBARRIER)
 	{ NULL,		"membarrier N",		"start N workers performing membarrier system calls" },
-	{ NULL,		"membarrier-ops N",	"stop when N membarrier bogo operations completed" },
+	{ NULL,		"membarrier-ops N",	"stop after N membarrier bogo operations" },
 #endif
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
-	{ NULL,		"memcpy-ops N",		"stop when N memcpy bogo operations completed" },
+	{ NULL,		"memcpy-ops N",		"stop after N memcpy bogo operations" },
 #if defined(STRESS_MEMFD)
 	{ NULL,		"memfd N",		"start N workers allocating memory with memfd_create" },
-	{ NULL,		"memfd-ops N",		"stop when N memfd bogo operations completed" },
+	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
 #endif
 #if defined(STRESS_MINCORE)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
-	{ NULL,		"mincore-ops N",	"stop when N mincore bogo operations completed" },
+	{ NULL,		"mincore-ops N",	"stop after N mincore bogo operations" },
 	{ NULL,		"mincore-random",	"randomly select pages rather than linear scan" },
 #endif
 	{ NULL,		"mknod N",		"start N workers that exercise mknod" },
-	{ NULL,		"mknod-ops N",		"stop when N mknod bogo operations completed" },
+	{ NULL,		"mknod-ops N",		"stop after N mknod bogo operations" },
 #if defined(STRESS_MLOCK)
 	{ NULL,		"mlock N",		"start N workers exercising mlock/munlock" },
-	{ NULL,		"mlock-ops N",		"stop when N mlock bogo operations completed" },
+	{ NULL,		"mlock-ops N",		"stop after N mlock bogo operations" },
 #endif
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
-	{ NULL,		"mmap-ops N",		"stop when N mmap bogo operations completed" },
+	{ NULL,		"mmap-ops N",		"stop after N mmap bogo operations" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
 	{ NULL,		"mmap-bytes N",		"mmap and munmap N bytes for each stress iteration" },
 	{ NULL,		"mmap-file",		"mmap onto a file using synchronous msyncs" },
 	{ NULL,		"mmap-mprotect",	"enable mmap mprotect stressing" },
 #if defined(STRESS_MMAPFORK)
 	{ NULL,		"mmapfork N",		"start N workers stressing many forked mmaps/munmaps" },
-	{ NULL,		"mmapfork-ops N",	"stop when N mmapfork bogo operations completed" },
+	{ NULL,		"mmapfork-ops N",	"stop after N mmapfork bogo operations" },
 #endif
 	{ NULL,		"mmapmany N",		"start N workers stressing many mmaps and munmaps" },
-	{ NULL,		"mmapmany-ops N",	"stop when N mmapmany bogo operations completed" },
+	{ NULL,		"mmapmany-ops N",	"stop after N mmapmany bogo operations" },
 #if defined(STRESS_MREMAP)
 	{ NULL,		"mremap N",		"start N workers stressing mremap" },
-	{ NULL,		"mremap-ops N",		"stop when N mremap bogo operations completed" },
+	{ NULL,		"mremap-ops N",		"stop after N mremap bogo operations" },
 	{ NULL,		"mremap-bytes N",	"mremap N bytes maximum for each stress iteration" },
 #endif
 #if defined(STRESS_MSG)
 	{ NULL,		"msg N",		"start N workers stressing System V messages" },
-	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages completed" },
+	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages" },
 #endif
 #if defined(STRESS_MQ)
 	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
-	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages completed" },
+	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages" },
 	{ NULL,		"mq-size N",		"specify the size of the POSIX message queue" },
 #endif
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
-	{ NULL,		"nice-ops N",		"stop when N nice bogo operations completed" },
+	{ NULL,		"nice-ops N",		"stop after N nice bogo operations" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
-	{ NULL,		"null-ops N",		"stop when N /dev/null bogo write operations completed" },
+	{ NULL,		"null-ops N",		"stop after N /dev/null bogo write operations" },
 #if defined(STRESS_NUMA)
 	{ NULL,		"numa N",		"start N workers stressing NUMA interfaces" },
-	{ NULL,		"numa-ops N",		"stop when N NUMA bogo operations completed" },
+	{ NULL,		"numa-ops N",		"stop after N NUMA bogo operations" },
 #endif
 	{ "o",		"open N",		"start N workers exercising open/close" },
-	{ NULL,		"open-ops N",		"stop when N open/close bogo operations completed" },
+	{ NULL,		"open-ops N",		"stop after N open/close bogo operations" },
 #if defined(STRESS_PERSONALITY)
 	{ NULL,		"personality N",	"start N workers that change their personality" },
-	{ NULL,		"personality-ops N",	"stop when N bogo personality calls completed" },
+	{ NULL,		"personality-ops N",	"stop after N bogo personality calls" },
 #endif
 	{ "p N",	"pipe N",		"start N workers exercising pipe I/O" },
-	{ NULL,		"pipe-ops N",		"stop when N pipe I/O bogo operations completed" },
+	{ NULL,		"pipe-ops N",		"stop after N pipe I/O bogo operations" },
 	{ NULL,		"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
 #if defined(F_SETPIPE_SZ)
 	{ NULL,		"pipe-size N",		"set pipe size to N bytes" },
 #endif
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
-	{ NULL,		"poll-ops N",		"stop when N poll bogo operations completed" },
+	{ NULL,		"poll-ops N",		"stop after N poll bogo operations" },
 #if defined(STRESS_PROCFS)
 	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
 	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
@@ -1281,41 +1281,41 @@ static const help_t help_stressors[] = {
 	{ NULL,		"ptrace-ops N",		"stop ptrace workers after N system calls are traced" },
 #endif
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
-	{ NULL,		"qsort-ops N",		"stop when N qsort bogo operations completed" },
+	{ NULL,		"qsort-ops N",		"stop after N qsort bogo operations" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 #if defined(STRESS_QUOTA)
 	{ NULL,		"quota N",		"start N workers exercising quotactl commands" },
-	{ NULL,		"quota -ops N",		"stop when N quotactl bogo operations completed" },
+	{ NULL,		"quota -ops N",		"stop after N quotactl bogo operations" },
 #endif
 #if defined(STRESS_RDRAND)
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
-	{ NULL,		"rdrand-ops N",		"stop when N rdrand bogo operations completed" },
+	{ NULL,		"rdrand-ops N",		"stop after N rdrand bogo operations" },
 #endif
 #if defined(STRESS_READAHEAD)
 	{ NULL,		"readahead N",		"start N workers exercising file readahead" },
 	{ NULL,		"readahead-bytes N",	"size of file to readahead on (default is 1GB)" },
-	{ NULL,		"readahead-ops N",	"stop when N readahead bogo operations completed" },
+	{ NULL,		"readahead-ops N",	"stop after N readahead bogo operations" },
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
-	{ NULL,		"rename-ops N",		"stop when N rename bogo operations completed" },
+	{ NULL,		"rename-ops N",		"stop after N rename bogo operations" },
 #if defined(STRESS_RLIMIT)
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
-	{ NULL,		"rlimit-ops N",		"stop when N rlimit bogo operations completed" },
+	{ NULL,		"rlimit-ops N",		"stop after N rlimit bogo operations" },
 #endif
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
-	{ NULL,		"seek-ops N",		"stop when N seek bogo operations completed" },
+	{ NULL,		"seek-ops N",		"stop after N seek bogo operations" },
 #if defined(OPT_SEEK_PUNCH)
 	{ NULL,		"seek-punch",		"punch random holes in file to stress extents" },
 #endif
 	{ NULL,		"seek-size N",		"length of file to do random I/O upon" },
 #if defined(STRESS_SEMAPHORE_POSIX)
 	{ NULL,		"sem N",		"start N workers doing semaphore operations" },
-	{ NULL,		"sem-ops N",		"stop when N semaphore bogo operations completed" },
+	{ NULL,		"sem-ops N",		"stop after N semaphore bogo operations" },
 	{ NULL,		"sem-procs N",		"number of processes to start per worker" },
 #endif
 #if defined(STRESS_SEMAPHORE_SYSV)
 	{ NULL,		"sem-sysv N",		"start N workers doing System V semaphore operations" },
-	{ NULL,		"sem-sysv-ops N",	"stop when N System V sem bogo operations completed" },
+	{ NULL,		"sem-sysv-ops N",	"stop after N System V sem bogo operations" },
 	{ NULL,		"sem-sysv-procs N",	"number of processes to start per worker" },
 #endif
 #if defined(STRESS_SENDFILE)
@@ -1333,79 +1333,79 @@ static const help_t help_stressors[] = {
 	{ NULL,		"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
 #if defined(STRESS_SIGFD)
 	{ NULL,		"sigfd N",		"start N workers reading signals via signalfd reads " },
-	{ NULL,		"sigfd-ops N",		"stop when N bogo signalfd reads completed" },
+	{ NULL,		"sigfd-ops N",		"stop after N bogo signalfd reads" },
 #endif
 	{ NULL,		"sigfpe N",		"start N workers generating floating point math faults" },
-	{ NULL,		"sigfpe-ops N",		"stop when N bogo floating point math faults completed" },
+	{ NULL,		"sigfpe-ops N",		"stop after N bogo floating point math faults" },
 	{ NULL,		"sigpending N",		"start N workers exercising sigpending" },
-	{ NULL,		"sigpending-ops N",	"stop when N sigpending bogo operations completed" },
+	{ NULL,		"sigpending-ops N",	"stop after N sigpending bogo operations" },
 #if defined(STRESS_SIGQUEUE)
 	{ NULL,		"sigq N",		"start N workers sending sigqueue signals" },
-	{ NULL,		"sigq-ops N",		"stop when N siqqueue bogo operations completed" },
+	{ NULL,		"sigq-ops N",		"stop after N siqqueue bogo operations" },
 #endif
 	{ NULL,		"sigsegv N",		"start N workers generating segmentation faults" },
-	{ NULL,		"sigsegv-ops N",	"stop when N bogo segmentation faults completed" },
+	{ NULL,		"sigsegv-ops N",	"stop after N bogo segmentation faults" },
 	{ NULL,		"sigsuspend N",		"start N workers exercising sigsuspend" },
-	{ NULL,		"sigsuspend-ops N",	"stop when N bogo sigsuspend wakes completed" },
+	{ NULL,		"sigsuspend-ops N",	"stop after N bogo sigsuspend wakes" },
 	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,		"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
-	{ NULL,		"sock-ops N",		"stop when N socket bogo operations completed" },
+	{ NULL,		"sock-ops N",		"stop after N socket bogo operations" },
 	{ NULL,		"sock-opts option",	"socket options [send|sendmsg|sendmmsg]" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
-	{ NULL,		"sockpair-ops N",	"stop when N socket pair bogo operations completed" },
+	{ NULL,		"sockpair-ops N",	"stop after N socket pair bogo operations" },
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
 #if defined(STRESS_SPLICE)
-	{ NULL,		"spawn-ops N",		"stop when N spawn bogo operations completed" },
+	{ NULL,		"spawn-ops N",		"stop after N spawn bogo operations" },
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
-	{ NULL,		"splice-ops N",		"stop when N bogo splice operations completed" },
+	{ NULL,		"splice-ops N",		"stop after N bogo splice operations" },
 	{ NULL,		"splice-bytes N",	"number of bytes to transfer per splice call" },
 #endif
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
-	{ NULL,		"stack-ops N",		"stop when N bogo stack overflows completed" },
+	{ NULL,		"stack-ops N",		"stop after N bogo stack overflows" },
 	{ NULL,		"stack-fill",		"fill stack, touches all new pages " },
 	{ NULL,		"str N",		"start N workers exercising lib C string functions" },
 	{ NULL,		"str-method func",	"specify the string function to stress" },
-	{ NULL,		"str-ops N",		"stop when N bogo string operations completed" },
+	{ NULL,		"str-ops N",		"stop after N bogo string operations" },
 	{ NULL,		"stream N",		"start N workers exercising memory bandwidth" },
-	{ NULL,		"stream-ops N",		"stop when N bogo stream operations completed" },
+	{ NULL,		"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,		"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
-	{ NULL,		"switch-ops N",		"stop when N context switch bogo operations completed" },
+	{ NULL,		"switch-ops N",		"stop after N context switch bogo operations" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
-	{ NULL,		"symlink-ops N",	"stop when N symbolic link bogo operations completed" },
+	{ NULL,		"symlink-ops N",	"stop after N symbolic link bogo operations" },
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
-	{ NULL,		"sysinfo-ops N",	"stop when sysinfo bogo operations completed" },
+	{ NULL,		"sysinfo-ops N",	"stop after sysinfo bogo operations" },
 #if defined(STRESS_SYSFS)
 	{ NULL,		"sysfs N",		"start N workers reading files from /sys" },
-	{ NULL,		"sysfs-ops N",		"stop when sysfs bogo operations completed" },
+	{ NULL,		"sysfs-ops N",		"stop after sysfs bogo operations" },
 #endif
 #if defined(STRESS_TEE)
 	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
-	{ NULL,		"tee-ops N",		"stop after N tee bogo operations completed" },
+	{ NULL,		"tee-ops N",		"stop after N tee bogo operations" },
 #endif
 #if defined(STRESS_TIMER)
 	{ "T N",	"timer N",		"start N workers producing timer events" },
-	{ NULL,		"timer-ops N",		"stop when N timer bogo events completed" },
+	{ NULL,		"timer-ops N",		"stop after N timer bogo events" },
 	{ NULL,		"timer-freq F",		"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timer-rand",		"enable random timer frequency" },
 #endif
 #if defined(STRESS_TIMERFD)
 	{ NULL,		"timerfd N",		"start N workers producing timerfd events" },
-	{ NULL,		"timerfd-ops N",	"stop when N timerfd bogo events completed" },
+	{ NULL,		"timerfd-ops N",	"stop after N timerfd bogo events" },
 	{ NULL,		"timerfd-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timerfd-rand",		"enable random timerfd frequency" },
 #endif
 #if defined(STRESS_TSC)
 	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },
-	{ NULL,		"tsc-ops N",		"stop when N TSC bogo ops completed" },
+	{ NULL,		"tsc-ops N",		"stop after N TSC bogo operations" },
 #endif
 	{ NULL,		"tsearch N",		"start N workers that exercise a tree search" },
-	{ NULL,		"tsearch-ops N",	"stop when N tree search bogo operations completed" },
+	{ NULL,		"tsearch-ops N",	"stop after N tree search bogo operations" },
 	{ NULL,		"tsearch-size N",	"number of 32 bit integers to tsearch" },
 	{ NULL,		"udp N",		"start N workers performing UDP send/receives " },
-	{ NULL,		"udp-ops N",		"stop when N udp bogo operations completed" },
+	{ NULL,		"udp-ops N",		"stop after N udp bogo operations" },
 	{ NULL,		"udp-domain D",		"specify domain, default is ipv4" },
 #if defined(OPT_UDP_LITE)
 	{ NULL,		"udp-lite",		"use the UDP-Lite (RFC 3828) protocol" },
@@ -1413,38 +1413,38 @@ static const help_t help_stressors[] = {
 	{ NULL,		"udp-port P",		"use ports P to P + number of workers - 1" },
 #if defined(STRESS_UDP_FLOOD)
 	{ NULL,		"udp-flood N",		"start N workers that performs a UDP flood attack" },
-	{ NULL,		"udp-flood-ops N",	"stop when N udp flood bogo operations completed" },
+	{ NULL,		"udp-flood-ops N",	"stop after N udp flood bogo operations" },
 	{ NULL,		"udp-flood-domain D",	"specify domain, default is ipv4" },
 #endif
 #if defined(STRESS_UNSHARE)
 	{ NULL,		"unshare N",		"start N workers exercising resource unsharing" },
-	{ NULL,		"unshare-ops N",	"stop when N bogo unshare operations completed" },
+	{ NULL,		"unshare-ops N",	"stop after N bogo unshare operations" },
 #endif
 #if defined(STRESS_URANDOM)
 	{ "u N",	"urandom N",		"start N workers reading /dev/urandom" },
-	{ NULL,		"urandom-ops N",	"stop when N urandom bogo read operations completed" },
+	{ NULL,		"urandom-ops N",	"stop after N urandom bogo read operations" },
 #endif
 #if defined(STRESS_USERFAULTFD)
 	{ NULL,		"userfaultfd N",	"start N page faulting workers with userspace handling" },
-	{ NULL,		"userfaultfd-ops N",	"stop when N page faults have been handled" },
+	{ NULL,		"userfaultfd-ops N",	"stop after N page faults have been handled" },
 #endif
 	{ NULL,		"utime N",		"start N workers updating file timestamps" },
-	{ NULL,		"utime-ops N",		"stop after N utime bogo operations completed" },
+	{ NULL,		"utime-ops N",		"stop after N utime bogo operations" },
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
 #if defined(STRESS_VECMATH)
 	{ NULL,		"vecmath N",		"start N workers performing vector math ops" },
-	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations completed" },
+	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations" },
 #endif
 #if defined(STRESS_VFORK)
 	{ NULL,		"vfork N",		"start N workers spinning on vfork() and exit()" },
-	{ NULL,		"vfork-ops N",		"stop when N vfork bogo operations completed" },
+	{ NULL,		"vfork-ops N",		"stop after N vfork bogo operations" },
 	{ NULL,		"vfork-max P",		"create P processes per iteration, default is 1" },
 #endif
 	{ "m N",	"vm N",			"start N workers spinning on anonymous mmap" },
 	{ NULL,		"vm-bytes N",		"allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,		"vm-hang N",		"sleep N seconds before freeing memory" },
 	{ NULL,		"vm-keep",		"redirty memory instead of reallocating" },
-	{ NULL,		"vm-ops N",		"stop when N vm bogo operations completed" },
+	{ NULL,		"vm-ops N",		"stop after N vm bogo operations" },
 #ifdef MAP_LOCKED
 	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
 #endif
@@ -1459,28 +1459,28 @@ static const help_t help_stressors[] = {
 #endif
 #if defined(STRESS_VM_SPLICE)
 	{ NULL,		"vm-splice N",		"start N workers reading/writing using vmsplice" },
-	{ NULL,		"vm-splice-ops N",	"stop when N bogo splice operations completed" },
+	{ NULL,		"vm-splice-ops N",	"stop after N bogo splice operations" },
 	{ NULL,		"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
 #endif
 	{ NULL,		"wcs N",		"start N workers on lib C wide character string functions" },
 	{ NULL,		"wcs-method func",	"specify the wide character string function to stress" },
-	{ NULL,		"wcs-ops N",		"stop when N bogo wide character string ops completed" },
+	{ NULL,		"wcs-ops N",		"stop after N bogo wide character string operations" },
 #if defined(STRESS_WAIT)
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
-	{ NULL,		"wait-ops N",		"stop when N bogo wait operations completed" },
+	{ NULL,		"wait-ops N",		"stop after N bogo wait operations" },
 #endif
 #if defined(STRESS_YIELD)
 	{ "y N",	"yield N",		"start N workers doing sched_yield() calls" },
-	{ NULL,		"yield-ops N",		"stop when N bogo yield operations completed" },
+	{ NULL,		"yield-ops N",		"stop after N bogo yield operations" },
 #endif
 #if defined(STRESS_XATTR)
 	{ NULL,		"xattr N",		"start N workers stressing file extended attributes" },
-	{ NULL,		"xattr-ops N",		"stop when N bogo xattr operations completed" },
+	{ NULL,		"xattr-ops N",		"stop after N bogo xattr operations" },
 #endif
 	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
-	{ NULL,		"zero-ops N",		"stop when N /dev/zero bogo read operations completed" },
+	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
-	{ NULL,		"zombie-ops N",		"stop when N bogo zombie fork operations completed" },
+	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
 	{ NULL,		NULL,			NULL }
 };
