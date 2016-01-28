@@ -506,8 +506,8 @@ get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	if (!cpu->caches) {
 		size_t cache_bytes = cpu->cache_count * sizeof(cpu_cache_t);
 
-		pr_err(stderr, "failed to allocate %lu bytes for cpu caches\n",
-				(unsigned long int)cache_bytes);
+		pr_err(stderr, "failed to allocate %zu bytes for cpu caches\n",
+			cache_bytes);
 		goto err;
 	}
 
