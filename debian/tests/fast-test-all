@@ -27,7 +27,7 @@ for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
 	then
-		stress-ng -t 1 --${s} 4 2>&1
+		stress-ng -v -t 1 --${s} 4 2>&1
 		if [ $? -ne 0 ]
 		then
 			echo "$s FAILED"
