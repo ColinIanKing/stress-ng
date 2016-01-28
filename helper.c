@@ -570,7 +570,7 @@ int stress_cache_alloc(const char *name)
 	max_cache_level = get_max_cache_level(cpu_caches);
 
 	if (shared->mem_cache_level > max_cache_level) {
-		pr_inf(stderr, "%s: reducing cache level from %d (too high) "
+		pr_dbg(stderr, "%s: reducing cache level from %d (too high) "
 			"to %d\n", name,
 			shared->mem_cache_level, max_cache_level);
 		shared->mem_cache_level = max_cache_level;
@@ -614,7 +614,7 @@ init_done:
 #endif
 	shared->mem_cache = calloc(shared->mem_cache_size, 1);
 	if (!shared->mem_cache) {
-		pr_inf(stderr, "%s: failed to allocate shared cache buffer\n",
+		pr_err(stderr, "%s: failed to allocate shared cache buffer\n",
 			name);
 		return -1;
 	}
