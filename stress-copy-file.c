@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_COPY_FILE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -31,8 +35,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#include "stress-ng.h"
 
 static uint64_t opt_copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 static bool set_copy_file_bytes;
@@ -148,3 +150,5 @@ tidy_dir:
 
 	return rc;
 }
+
+#endif
