@@ -180,7 +180,8 @@ size_to_bytes(const char *str)
 
 	ret = sscanf(str, "%lu%ms", &value, &s);
 	if (ret != 2 || !s) {
-		pr_dbg(stderr, "%s: failed to parse suffix from \"%s\"\n", __func__, str);
+		pr_dbg(stderr, "%s: failed to parse suffix from \"%s\"\n",
+			__func__, str);
 		return 0;
 	}
 
@@ -420,7 +421,8 @@ get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 	}
 
 	if (!cache_level) {
-		pr_dbg(stderr, "%s: invalid cache_level: %d\n", __func__, cache_level);
+		pr_dbg(stderr, "%s: invalid cache_level: %d\n",
+			__func__, cache_level);
 		return NULL;
 	}
 
@@ -470,8 +472,9 @@ get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	ret2 = file_exists(glob_path);
 	if (!ret2) {
-		/* Not an error since some platforms don't provide cache details
-		 * via /sys (ARM).
+		/*
+		 * Not an error since some platforms don't provide cache
+		 * details * via /sys (ARM).
 		 */
 		pr_dbg(stderr, "%s does not exist\n", glob_path);
 		return ret;
@@ -486,7 +489,8 @@ get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
 
 	if (ret2 != 0) {
-		pr_err(stderr, "glob on regex \"%s\" failed: %d\n", glob_path, ret);
+		pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
+			glob_path, ret);
 		return ret;
 	}
 
@@ -556,7 +560,8 @@ get_all_cpu_cache_details(void)
 	ret = glob(GLOB_PATTERN, GLOB_ONLYDIR, NULL, &globbuf);
 
 	if (ret != 0) {
-		pr_err(stderr, "glob on regex \"%s\" failed: %d\n", GLOB_PATTERN, ret);
+		pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
+			GLOB_PATTERN, ret);
 		return NULL;
 	}
 
