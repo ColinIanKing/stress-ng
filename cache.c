@@ -264,7 +264,7 @@ get_cache_name(cache_type_t type)
 static int
 add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	char     path[PATH_MAX] = {0};
+	char     path[PATH_MAX] = { 0 };
 	size_t   len;
 	char    *contents = NULL;
 	int      ret = EXIT_FAILURE;
@@ -447,12 +447,13 @@ get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
 	uint32_t   i;
 	size_t     len, len2;
-	glob_t     globbuf = {0};
-	char       glob_path[PATH_MAX] = {0};
+	glob_t     globbuf;
+	char       glob_path[PATH_MAX] = { 0 };
 	char     **results;
 	int        ret = EXIT_FAILURE;
 	int        ret2;
 
+	memset(&globbuf, 0, sizeof(globbuf));
 	if (!cpu) {
 		pr_dbg(stderr, "%s: invalid cpu parameter\n", __func__);
 		return ret;
@@ -539,12 +540,14 @@ get_all_cpu_cache_details(void)
 {
 	uint32_t   i;
 	int        ret;
-	char       path[PATH_MAX] = {0};
-	glob_t     globbuf = {0};
+	char       path[PATH_MAX] = { 0 };
+	glob_t     globbuf;
 	char     **results;
 	cpus_t    *cpus = NULL;
 	size_t     cpu_count;
 	size_t     len;
+
+	memset(&globbuf, 0, sizeof(globbuf));
 
 	ret = file_exists(SYS_CPU_PREFIX);
 	if (!ret) {
