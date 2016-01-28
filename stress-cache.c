@@ -79,7 +79,7 @@ int stress_cache(
 			name, mem_cache_size / 1024);
 
 	do {
-		uint64_t i = mwc64() & (mem_cache_size - 1);
+		uint64_t i = mwc64() % mem_cache_size;
 		uint64_t r = mwc64();
 		register uint64_t j;
 
@@ -120,7 +120,7 @@ int stress_cache(
 			for (j = 0; j < mem_cache_size; j++) {
 				total += mem_cache[i] +
 					mem_cache[(mem_cache_size - 1) - i];
-				i = (i + 32769) & (mem_cache_size - 1);
+				i = (i + 32769) % mem_cache_size;
 				if (!opt_do_run)
 					break;
 			}
