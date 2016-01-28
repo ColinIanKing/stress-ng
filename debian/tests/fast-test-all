@@ -9,6 +9,7 @@ EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp"
 # Get built-in stressor names
 #
 STRESSORS=$(stress-ng --help | grep "\-ops " | awk '{print $1}' | sed 's/--//' | sed 's/-ops//g')
+rc=0
 
 not_exclude()
 {
@@ -30,8 +31,11 @@ do
 		if [ $? -ne 0 ]
 		then
 			echo "$s FAILED"
+			rc=1
 		else
 			echo "$s PASSED"
 		fi
 	fi
 done
+
+exit $rc
