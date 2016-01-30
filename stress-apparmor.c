@@ -300,14 +300,14 @@ static int apparmor_stress_kernel_interface(
 	const uint64_t max_ops,
 	uint64_t *counter)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
 
 	/*
 	 *  Try and create a lot of contention and load
 	 */
 	do {
-		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
+		int ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
 				"errno=%d (%s)\n", name, errno, strerror(errno));
@@ -525,7 +525,7 @@ static int apparmor_stress_corruption(
 {
 	char copy[apparmor_data_len];
 
-	int ret, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
 
 
@@ -533,6 +533,8 @@ static int apparmor_stress_corruption(
 	 *  Lets feed AppArmor with some bit corrupted data...
 	 */
 	do {
+		int ret;
+
 		memcpy(copy, apparmor_data, apparmor_data_len);
 		/*
 		 *  Apply various corruption methods
