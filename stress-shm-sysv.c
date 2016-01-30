@@ -395,7 +395,6 @@ fork_again:
 		} else if (pid > 0) {
 			/* Parent */
 			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
-			ssize_t n;
 
 			setpgid(pid, pgrp);
 			set_oom_adjustment(name, false);
@@ -406,6 +405,7 @@ fork_again:
 
 			while (opt_do_run) {
 				shm_msg_t 	msg;
+				ssize_t n;
 
 				/*
 				 *  Blocking read on child shm ID info
