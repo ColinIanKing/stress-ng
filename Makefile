@@ -182,7 +182,7 @@ LIB_APPARMOR := -lapparmor
 # defined so we don't call ourselves over and over
 #
 ifndef $(HAVE_APPARMOR)
-HAVE_APPARMOR = $(shell make --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_apparmor)
+HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
@@ -191,14 +191,14 @@ endif
 endif
 
 ifndef $(HAVE_KEYUTILS_H)
-HAVE_KEYUTILS_H = $(shell make --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_keyutils_h)
+HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_keyutils_h)
 ifeq ($(HAVE_KEYUTILS_H),1)
 	CFLAGS += -DHAVE_KEYUTILS_H
 endif
 endif
 
 ifndef $(HAVE_XATTR_H)
-HAVE_XATTR_H = $(shell make --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_xattr_h)
+HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_xattr_h)
 ifeq ($(HAVE_XATTR_H),1)
 	CFLAGS += -DHAVE_XATTR_H
 endif
