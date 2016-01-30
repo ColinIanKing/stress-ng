@@ -287,7 +287,6 @@ fork_again:
 			/* Parent */
 			int status;
 			char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
-			ssize_t n;
 
 			setpgid(pid, pgrp);
 			(void)close(pipefds[1]);
@@ -295,6 +294,7 @@ fork_again:
 			memset(shm_names, 0, sizeof(shm_names));
 
 			while (opt_do_run) {
+				ssize_t n;
 				shm_msg_t 	msg;
 				char *shm_name;
 
