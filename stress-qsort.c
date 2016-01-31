@@ -147,7 +147,7 @@ int stress_qsort(
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		/*
-		 * We return here if SIGARLM jmp'd back
+		 * We return here if SIGALRM jmp'd back
 		 */
 		if (sigaction(SIGALRM, &old_action, NULL) < 0)
 			pr_dbg(stderr, "sigaction SIGALRM restore");
