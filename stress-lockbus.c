@@ -64,7 +64,7 @@ int stress_lockbus(
         const char *name)
 {
 	uint8_t *buffer;
-	int flags = MAP_ANONYMOUS | MAP_PRIVATE;
+	int flags = MAP_ANONYMOUS | MAP_SHARED;
 
 	(void)instance;
 

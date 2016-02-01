@@ -123,7 +123,7 @@ static void stress_memfd_allocs(
 				 * to force page it in
 				 */
 				maps[i] = mmap(NULL, size, PROT_WRITE,
-					MAP_FILE | MAP_PRIVATE | MAP_POPULATE,
+					MAP_FILE | MAP_SHARED | MAP_POPULATE,
 					fds[i], 0);
 				mincore_touch_pages(maps[i], size);
 			}

@@ -156,7 +156,7 @@ again:
 
 				mappings[n] = mmap(NULL, page_size * 3,
 					PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
 				ret = mlock_shim(mappings[n] + page_size, page_size);
@@ -202,7 +202,7 @@ again:
 
 				mappings[n] = mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
 			}
