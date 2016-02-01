@@ -1746,9 +1746,11 @@ static size_t stress_vm_rowhammer(
 {
 	size_t bit_errors = 0;
 	uint32_t *buf32 = (uint32_t *)buf;
-	uint32_t val = 0xff5a00a5;
+	static uint32_t val = 0xff5a00a5;
 	const size_t n = sz / sizeof(uint32_t);
 	register size_t j;
+
+	(void)max_ops;
 
 	if (!n) {
 		pr_dbg(stderr, "rowhammer: zero uint32_t integers could "
@@ -1758,46 +1760,44 @@ static size_t stress_vm_rowhammer(
 
 	(void)mincore_touch_pages(buf, sz);
 
-	do {
-		for (j = 0; j < n; j++)
-			buf32[j] = val;
-		register volatile uint32_t *addr0, *addr1;
-		register size_t errors = 0;
+	for (j = 0; j < n; j++)
+		buf32[j] = val;
+	register volatile uint32_t *addr0, *addr1;
+	register size_t errors = 0;
 
-		/* Pick two random addresses */
-		addr0 = &buf32[(mwc64() << 12) % n];
-		addr1 = &buf32[(mwc64() << 12) % n];
+	/* Pick two random addresses */
+	addr0 = &buf32[(mwc64() << 12) % n];
+	addr1 = &buf32[(mwc64() << 12) % n];
 
-		/* Hammer the rows */
-		for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {
-			*addr0;
-			*addr1;
-			clflush(addr0);
-			clflush(addr1);
-			*addr0;
-			*addr1;
-			clflush(addr0);
-			clflush(addr1);
-			*addr0;
-			*addr1;
-			clflush(addr0);
-			clflush(addr1);
-			*addr0;
-			*addr1;
-			clflush(addr0);
-			clflush(addr1);
-		}
-		for (j = 0; j < n; j++)
-			if (buf32[j] != val)
-				errors++;
-		if (errors) {
-			bit_errors += errors;
-			pr_dbg(stderr, "rowhammer: %zu errors on addresses "
-				"%p and %p\n", errors, addr0, addr1);
-		}
-		(*counter) += VM_ROWHAMMER_LOOPS;
-		val = (val >> 31) | (val << 1);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	/* Hammer the rows */
+	for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {
+		*addr0;
+		*addr1;
+		clflush(addr0);
+		clflush(addr1);
+		*addr0;
+		*addr1;
+		clflush(addr0);
+		clflush(addr1);
+		*addr0;
+		*addr1;
+		clflush(addr0);
+		clflush(addr1);
+		*addr0;
+		*addr1;
+		clflush(addr0);
+		clflush(addr1);
+	}
+	for (j = 0; j < n; j++)
+		if (buf32[j] != val)
+			errors++;
+	if (errors) {
+		bit_errors += errors;
+		pr_dbg(stderr, "rowhammer: %zu errors on addresses "
+			"%p and %p\n", errors, addr0, addr1);
+	}
+	(*counter) += VM_ROWHAMMER_LOOPS;
+	val = (val >> 31) | (val << 1);
 
 	stress_vm_check("rowhammer", bit_errors);
 
@@ -1960,7 +1960,7 @@ again:
 				if (!opt_do_run)
 					return EXIT_SUCCESS;
 				buf = mmap(NULL, buf_sz, PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
+					MAP_SHARED | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
 				if (buf == MAP_FAILED) {
 					buf = NULL;
 					no_mem_retries++;
