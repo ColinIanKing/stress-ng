@@ -177,10 +177,8 @@ cleanup:
 					name, errno, strerror(errno));
 		}
 
-		(void)close(pipe_wr[0]);
 		(void)close(pipe_wr[1]);
 		(void)close(pipe_rd[0]);
-		(void)close(pipe_rd[1]);
 		(void)munmap(buf, sz);
 		exit(ret);
 	} else {
@@ -297,8 +295,6 @@ fail:
 					name, errno, strerror(errno));
 		}
 		(void)close(pipe_wr[0]);
-		(void)close(pipe_wr[1]);
-		(void)close(pipe_rd[0]);
 		(void)close(pipe_rd[1]);
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
