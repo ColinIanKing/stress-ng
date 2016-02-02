@@ -79,7 +79,10 @@ static const int madvise_options[] = {
 	MADV_DONTDUMP,
 #endif
 #ifdef MADV_DODUMP
-	MADV_DODUMP
+	MADV_DODUMP,
+#endif
+#ifdef MADV_FREE
+	MADV_FREE
 #endif
 };
 #endif
