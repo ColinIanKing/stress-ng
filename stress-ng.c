@@ -245,6 +245,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_MEMFD)
 	STRESSOR(memfd, MEMFD, CLASS_OS | CLASS_MEMORY),
 #endif
+#if defined(STRESS_MERGESORT)
+	STRESSOR(mergesort, MERGESORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+#endif
 #if defined(STRESS_MINCORE)
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
@@ -645,6 +648,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_MEMFD)
 	{ "memfd",	1,	0,	OPT_MEMFD },
 	{ "memfd-ops",	1,	0,	OPT_MEMFD_OPS },
+#endif
+#if defined(STRESS_MERGESORT)
+	{ "mergesort",	1,	0,	OPT_MERGESORT },
+	{ "mergesort-ops",1,	0,	OPT_MERGESORT_OPS },
+	{ "mergesort-size",1,	0,	OPT_MERGESORT_INTEGERS },
 #endif
 	{ "metrics",	0,	0,	OPT_METRICS },
 	{ "metrics-brief",0,	0,	OPT_METRICS_BRIEF },
@@ -1222,6 +1230,11 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_MEMFD)
 	{ NULL,		"memfd N",		"start N workers allocating memory with memfd_create" },
 	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
+#endif
+#if defined(STRESS_MERGESORT)
+	{ NULL,		"mergesort N",		"start N workers merge sorting 32 bit random integers" },
+	{ NULL,		"mergesort-ops N",	"stop after N merge sort bogo operations" },
+	{ NULL,		"mergesort-size N",	"number of 32 bit integers to sort" },
 #endif
 #if defined(STRESS_MINCORE)
 	{ NULL,		"mincore N",		"start N workers exercising mincore" },
@@ -2481,6 +2494,11 @@ next_opt:
 		case OPT_METRICS_BRIEF:
 			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
+#if defined(STRESS_MERGESORT)
+		case OPT_MERGESORT_INTEGERS:
+			stress_set_mergesort_size(optarg);
+			break;
+#endif
 #if defined(STRESS_MINCORE)
 		case OPT_MINCORE_RAND:
 			opt_flags |= OPT_FLAGS_MINCORE_RAND;

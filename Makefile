@@ -85,6 +85,7 @@ SRC =   stress-affinity.c \
 	stress-membarrier.c \
 	stress-memcpy.c \
 	stress-memfd.c \
+	stress-mergesort.c \
 	stress-mincore.c \
 	stress-mknod.c \
 	stress-mlock.c \

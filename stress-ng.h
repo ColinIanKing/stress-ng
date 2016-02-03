@@ -351,6 +351,10 @@ extern void pr_openlog(const char *filename);
 #define MAX_MATRIX_SIZE		(4096)
 #define DEFAULT_MATRIX_SIZE	(256)
 
+#define MIN_MERGESORT_SIZE	(1 * KB)
+#define MAX_MERGESORT_SIZE	(4 * MB)
+#define DEFAULT_MERGESORT_SIZE	(256 * KB)
+
 #define MIN_MMAP_BYTES		(4 * KB)
 #if UINTPTR_MAX == MAX_32
 #define MAX_MMAP_BYTES		(MAX_32)
@@ -896,6 +900,10 @@ typedef enum {
 	__STRESS_MEMFD,
 #define STRESS_MEMFD __STRESS_MEMFD
 #endif
+#if defined(HAVE_LIB_BSD)
+	__STRESS_MERGESORT,
+#define STRESS_MERGESORT __STRESS_MERGESORT
+#endif
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
 	__STRESS_MINCORE,
 #define STRESS_MINCORE __STRESS_MINCORE
@@ -1414,6 +1422,12 @@ typedef enum {
 #if defined(STRESS_MEMFD)
 	OPT_MEMFD,
 	OPT_MEMFD_OPS,
+#endif
+
+#if defined(STRESS_MERGESORT)
+	OPT_MERGESORT,
+	OPT_MERGESORT_OPS,
+	OPT_MERGESORT_INTEGERS,
 #endif
 
 	OPT_METRICS_BRIEF,
@@ -2093,6 +2107,7 @@ extern void stress_set_malloc_max(const char *optarg);
 extern void stress_set_malloc_threshold(const char *optarg);
 extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *optarg);
+extern void stress_set_mergesort_size(const void *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
@@ -2198,6 +2213,7 @@ STRESS(stress_matrix);
 STRESS(stress_membarrier);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
+STRESS(stress_mergesort);
 STRESS(stress_mincore);
 STRESS(stress_mknod);
 STRESS(stress_mlock);

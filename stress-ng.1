@@ -1386,6 +1386,15 @@ process address space.  (Linux only).
 .B \-\-memfd-ops N
 stop after N memfd-create(2) bogo operations.
 .TP
+.B -\-mergesort N
+start N workers that sort 32 bit integers using the BSD mergesort.
+.TP
+.B \-\-mergesort\-ops N
+stop mergesort stress workers after N bogo mergesorts.
+.TP
+.B \-\-mergesort\-size N
+specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
+.TP
 .B \-\-mincore N
 start N workers that walk through all of memory 1 page at a time checking of
 the page mapped and also is resident in memory using mincore(2).
