@@ -1125,6 +1125,15 @@ stop hdd stress workers after N bogo operations.
 .B \-\-hdd\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
 .TP
+.B \-\-heapsort N
+start N workers that sort 32 bit integers using the BSD heapsort.
+.TP
+.B \-\-heapsort\-ops N
+stop heapsort stress workers after N bogo heapsorts.
+.TP
+.B \-\-heapsort\-size N
+specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
+.TP
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default,
 there are 8192 elements inserted into the hash table.  This is a useful method

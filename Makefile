@@ -65,6 +65,7 @@ SRC =   stress-affinity.c \
 	stress-getrandom.c \
 	stress-handle.c \
 	stress-hdd.c \
+	stress-heapsort.c \
 	stress-hsearch.c \
 	stress-icache.c \
 	stress-inotify.c \
@@ -176,13 +177,14 @@ SRC =   stress-affinity.c \
 OBJS = $(SRC:.c=.o)
 
 LIB_APPARMOR := -lapparmor
+LIB_BSD := -lbsd
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
 # defined so we don't call ourselves over and over
 #
 ifndef $(HAVE_APPARMOR)
-HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_apparmor)
+HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
@@ -191,16 +193,24 @@ endif
 endif
 
 ifndef $(HAVE_KEYUTILS_H)
-HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_keyutils_h)
+HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_keyutils_h)
 ifeq ($(HAVE_KEYUTILS_H),1)
 	CFLAGS += -DHAVE_KEYUTILS_H
 endif
 endif
 
 ifndef $(HAVE_XATTR_H)
-HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 have_xattr_h)
+HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_xattr_h)
 ifeq ($(HAVE_XATTR_H),1)
 	CFLAGS += -DHAVE_XATTR_H
+endif
+endif
+
+ifndef $(HAVE_LIB_BSD)
+HAVE_LIB_BSD = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_lib_bsd)
+ifeq ($(HAVE_LIB_BSD),1)
+	CFLAGS += -DHAVE_LIB_BSD
+	LDFLAGS += $(LIB_BSD)
 endif
 endif
 
@@ -254,6 +264,19 @@ have_xattr_h:
 		echo 0 ;\
 	fi
 	@rm -f test-xattr.c test-xattr.o
+
+#
+#  check if we can build against libbsd
+#
+have_lib_bsd:
+	@$(CC) $(CPPFLAGS) test-libbsd.c $(LIB_BSD) -o test-libbsd 2> /dev/null || true
+	@if [ -e test-libbsd ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libbsd
+
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

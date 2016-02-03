@@ -311,6 +311,10 @@ extern void pr_openlog(const char *filename);
 #define MAX_FORKS		(16000)
 #define DEFAULT_FORKS		(1)
 
+#define MIN_HEAPSORT_SIZE	(1 * KB)
+#define MAX_HEAPSORT_SIZE	(4 * MB)
+#define DEFAULT_HEAPSORT_SIZE	(256 * KB)
+
 #define MIN_VFORKS		(1)
 #define MAX_VFORKS		(16000)
 #define DEFAULT_VFORKS		(1)
@@ -841,6 +845,10 @@ typedef enum {
 #define STRESS_HANDLE __STRESS_HANDLE
 #endif
 	STRESS_HDD,
+#if defined(HAVE_LIB_BSD)
+	__STRESS_HEAPSORT,
+#define STRESS_HEAPSORT __STRESS_HEAPSORT
+#endif
 	STRESS_HSEARCH,
 #if defined(STRESS_X86) && defined(__GNUC__) && NEED_GNUC(4,6,0)
 	__STRESS_ICACHE,
@@ -1307,6 +1315,12 @@ typedef enum {
 	OPT_HDD_WRITE_SIZE,
 	OPT_HDD_OPS,
 	OPT_HDD_OPTS,
+
+#if defined(STRESS_HEAPSORT)
+	OPT_HEAPSORT,
+	OPT_HEAPSORT_OPS,
+	OPT_HEAPSORT_INTEGERS,
+#endif
 
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
@@ -2069,6 +2083,7 @@ extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
 extern int  stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *optarg);
+extern void stress_set_heapsort_size(const void *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
 extern void stress_set_itimer_freq(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
@@ -2163,6 +2178,7 @@ STRESS(stress_get);
 STRESS(stress_getrandom);
 STRESS(stress_handle);
 STRESS(stress_hdd);
+STRESS(stress_heapsort);
 STRESS(stress_hsearch);
 STRESS(stress_icache);
 STRESS(stress_inotify);

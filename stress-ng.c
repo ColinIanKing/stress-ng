@@ -205,6 +205,9 @@ static const stress_t stressors[] = {
 	STRESSOR(handle, HANDLE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
 	STRESSOR(hdd, HDD, CLASS_IO | CLASS_OS),
+#if defined(STRESS_HEAPSORT)
+	STRESSOR(heapsort, HEAPSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+#endif
 	STRESSOR(hsearch, HSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_ICACHE)
 	STRESSOR(icache, ICACHE, CLASS_CPU_CACHE),
@@ -559,6 +562,11 @@ static const struct option long_options[] = {
 	{ "hdd-bytes",	1,	0,	OPT_HDD_BYTES },
 	{ "hdd-write-size", 1,	0,	OPT_HDD_WRITE_SIZE },
 	{ "hdd-opts",	1,	0,	OPT_HDD_OPTS },
+#if defined(STRESS_HEAPSORT)
+	{ "heapsort",	1,	0,	OPT_HEAPSORT },
+	{ "heapsort-ops",1,	0,	OPT_HEAPSORT_OPS },
+	{ "heapsort-size",1,	0,	OPT_HEAPSORT_INTEGERS },
+#endif
 	{ "help",	0,	0,	OPT_HELP },
 	{ "hsearch",	1,	0,	OPT_HSEARCH },
 	{ "hsearch-ops",1,	0,	OPT_HSEARCH_OPS },
@@ -1139,6 +1147,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
 	{ NULL,		"hdd-opts list",	"specify list of various stressor options" },
 	{ NULL,		"hdd-write-size N",	"set the default write size to N bytes" },
+#if defined(STRESS_HEAPSORT)
+	{ NULL,		"heapsort N",		"start N workers heap sorting 32 bit random integers" },
+	{ NULL,		"heapsort-ops N",	"stop after N heap sort bogo operations" },
+	{ NULL,		"heapsort-size N",	"number of 32 bit integers to sort" },
+#endif
 	{ NULL,		"hsearch N",		"start N workers that exercise a hash table search" },
 	{ NULL,		"hsearch-ops N",	"stop afer N hash search bogo operations" },
 	{ NULL,		"hsearch-size N",	"number of integers to insert into hash table" },
@@ -2400,6 +2413,11 @@ next_opt:
 		case OPT_HDD_WRITE_SIZE:
 			stress_set_hdd_write_size(optarg);
 			break;
+#if defined(STRESS_HEAPSORT)
+		case OPT_HEAPSORT_INTEGERS:
+			stress_set_heapsort_size(optarg);
+			break;
+#endif
 		case OPT_HSEARCH_SIZE:
 			stress_set_hsearch_size(optarg);
 			break;
