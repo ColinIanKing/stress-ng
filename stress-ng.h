@@ -1871,8 +1871,8 @@ extern pid_t pgrp;			/* proceess group leader */
  */
 extern uint64_t uint64_zero(void);
 
-static uint64_t uint64_val;
-static double   double_val;
+static volatile uint64_t uint64_val;
+static volatile double   double_val;
 
 static inline void uint64_put(const uint64_t a)
 {
