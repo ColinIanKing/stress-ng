@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MERGESORT)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,8 +35,6 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <bsd/stdlib.h>
-
-#include "stress-ng.h"
 
 static uint64_t opt_mergesort_size = DEFAULT_MERGESORT_SIZE;
 static bool set_mergesort_size = false;
@@ -218,3 +220,5 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
