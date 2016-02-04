@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_HEAPSORT)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -31,8 +35,6 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <bsd/stdlib.h>
-
-#include "stress-ng.h"
 
 static uint64_t opt_heapsort_size = DEFAULT_HEAPSORT_SIZE;
 static bool set_heapsort_size = false;
@@ -218,3 +220,5 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
