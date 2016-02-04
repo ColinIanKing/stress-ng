@@ -182,8 +182,10 @@ int stress_fifo(
 		pids[i] = fifo_spawn(stress_fifo_reader, name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
-		if (!opt_do_run)
+		if (!opt_do_run) {
+			ret = EXIT_SUCCESS;
 			goto reap;
+		}
 	}
 
 	fd = open(fifoname, O_WRONLY);
