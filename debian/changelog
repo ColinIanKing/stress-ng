@@ -1,3 +1,27 @@
+stress-ng (0.05.13-1) unstable; urgency=medium
+
+  * Makefile bump version
+  * Makefile: add test-libbsd.c to dist rule
+  * adt: Bar a few more tests that can be problematic on different arches
+  * stress-fifo: don't return and error status if we have to abort early
+  * Exclude tests that may fail because system calls not fully implemented
+  * Build stress-mergesort if STRESS_MERGESORT is defined
+  * Built stress-heapsort if STRESS_HEAPSORT is defined
+  * Make *put globals volatile to force gcc to compute values
+  * Add BSD mergesort stressor
+  * Add BSD heapsort stressor
+  * madvise: add MADV_FREE
+  * stress-vm-rw: don't close already closed pipe ends
+  * stress-vm: just one top level iteration in rowhammer method
+  * Use MAP_SHARED where appropriate
+  * stress-qsort: fix typo in comment SIGARLM -> SIGALRM
+  * Makefile: call make using $(MAKE)
+  * stress-apparmor: reduce scope of ret
+  * stress-shm: reduce the scope of variable n
+  * stress-shm-sysc: reduce scope of variable n
+
+ -- Colin King <colin.king@canonical.com>  Thu, 4 Feb 2016 16:02:00 +0000
+
 stress-ng (0.05.12-1) unstable; urgency=medium
 
   * Makefile: bump version
