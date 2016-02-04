@@ -26,7 +26,7 @@ this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
 To build, the following libraries are required:
-	libattr1-dev, libkeyutils-dev
+	libattr1-dev, libkeyutils-dev, libbsd-dev
 
 To build on BSD systems, one requires GNU make
 
