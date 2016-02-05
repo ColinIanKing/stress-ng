@@ -137,6 +137,7 @@ static inline uint64_t stream_L3_size(
 #if defined(__linux__)
 	cpus_t *cpu_caches = NULL;
 	cpu_cache_t *cache = NULL;
+	uint16_t max_cache_level;
 
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
@@ -145,7 +146,12 @@ static inline uint64_t stream_L3_size(
 				"determine cache details\n", name);
 		return cache_size;
 	}
-	cache = get_cpu_cache(cpu_caches, 3);
+	max_cache_level = get_max_cache_level(cpu_caches);
+	if ((max_cache_level > 0) && (max_cache_level < 3) && (!instance))
+		pr_inf(stderr, "%s: no L3 cache, using L%" PRIu16 " size instead\n",
+			name, max_cache_level);
+
+	cache = get_cpu_cache(cpu_caches, max_cache_level);
 	if (!cache) {
 		if (!instance)
 			pr_inf(stderr, "%s: using built-in defaults as no suitable "
@@ -206,7 +212,7 @@ int stress_stream(
 				"defaulting to %" PRIu64 "K\n",
 				name, L3 / 1024);
 		} else {
-			pr_inf(stderr, "%s: Using L3 CPU cache size of %" PRIu64 "K\n",
+			pr_inf(stderr, "%s: Using CPU cache size of %" PRIu64 "K\n",
 				name, L3 / 1024);
 		}
 	}
