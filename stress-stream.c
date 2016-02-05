@@ -129,7 +129,9 @@ static inline void *stress_stream_mmap(const char *name, uint64_t sz)
 	return ptr;
 }
 
-static inline uint64_t stream_L3_size(const char *name)
+static inline uint64_t stream_L3_size(
+	const char *name,
+	const uint32_t instance)
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
@@ -138,20 +140,23 @@ static inline uint64_t stream_L3_size(const char *name)
 
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache details\n", name);
+		if (!instance)
+			pr_inf(stderr, "%s: using built-in defaults as unable to "
+				"determine cache details\n", name);
 		return cache_size;
 	}
 	cache = get_cpu_cache(cpu_caches, 3);
 	if (!cache) {
-		pr_inf(stderr, "%s: using built-in defaults as no suitable "
-			"cache found\n", name);
+		if (!instance)
+			pr_inf(stderr, "%s: using built-in defaults as no suitable "
+				"cache found\n", name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->size) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache size\n", name);
+		if (!instance)
+			pr_inf(stderr, "%s: using built-in defaults as unable to "
+				"determine cache size\n", name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
@@ -159,8 +164,9 @@ static inline uint64_t stream_L3_size(const char *name)
 
 	free_cpu_caches(cpu_caches);
 #else
-	pr_inf(stderr, "%s: using built-in defaults as unable to "
-		"determine cache details\n", name);
+	if (!instance)
+		pr_inf(stderr, "%s: using built-in defaults as unable to "
+			"determine cache details\n", name);
 #endif
 	return cache_size;
 }
@@ -182,7 +188,7 @@ int stress_stream(
 	uint64_t L3, sz, n;
 	bool guess = false;
 
-	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(name);
+	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(name, instance);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {
