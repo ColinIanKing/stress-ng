@@ -311,7 +311,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_SEMAPHORE_SYSV)
 	STRESSOR(sem_sysv, SEMAPHORE_SYSV, CLASS_OS | CLASS_SCHEDULER),
 #endif
+#if defined(STRESS_SHM_POSIX)
 	STRESSOR(shm_posix, SHM_POSIX, CLASS_VM | CLASS_OS),
+#endif
 	STRESSOR(shm_sysv, SHM_SYSV, CLASS_VM | CLASS_OS),
 #if defined(STRESS_SENDFILE)
 	STRESSOR(sendfile, SENDFILE, CLASS_PIPE_IO | CLASS_OS),
@@ -793,10 +795,12 @@ static const struct option long_options[] = {
 	{ "sendfile-size",1,	0,	OPT_SENDFILE_SIZE },
 #endif
 	{ "sequential",	1,	0,	OPT_SEQUENTIAL },
+#if defined(STRESS_SHM_POSIX)
 	{ "shm",	1,	0,	OPT_SHM_POSIX },
 	{ "shm-ops",	1,	0,	OPT_SHM_POSIX_OPS },
 	{ "shm-bytes",	1,	0,	OPT_SHM_POSIX_BYTES },
 	{ "shm-objs",	1,	0,	OPT_SHM_POSIX_OBJECTS },
+#endif
 	{ "shm-sysv",	1,	0,	OPT_SHM_SYSV },
 	{ "shm-sysv-ops",1,	0,	OPT_SHM_SYSV_OPS },
 	{ "shm-sysv-bytes",1,	0,	OPT_SHM_SYSV_BYTES },
@@ -1362,10 +1366,12 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sendfile-ops N",	"stop after N bogo sendfile operations" },
 	{ NULL,		"sendfile-size N",	"size of data to be sent with sendfile" },
 #endif
+#if defined(STRESS_SHM_POSIX)
 	{ NULL,		"shm N",		"start N workers that exercise POSIX shared memory" },
 	{ NULL,		"shm-ops N",		"stop after N POSIX shared memory bogo operations" },
 	{ NULL,		"shm-bytes N",		"allocate and free N bytes of POSIX shared memory per loop" },
 	{ NULL,		"shm-segs N",		"allocate N POSIX shared memory segments per iteration" },
+#endif
 	{ NULL,		"shm-sysv N",		"start N workers that exercise System V shared memory" },
 	{ NULL,		"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,		"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
@@ -2629,12 +2635,14 @@ next_opt:
 			check_range("sequential", opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
+#if defined(STRESS_SHM_POSIX)
 		case OPT_SHM_POSIX_BYTES:
 			stress_set_shm_posix_bytes(optarg);
 			break;
 		case OPT_SHM_POSIX_OBJECTS:
 			stress_set_shm_posix_objects(optarg);
 			break;
+#endif
 		case OPT_SHM_SYSV_BYTES:
 			stress_set_shm_sysv_bytes(optarg);
 			break;

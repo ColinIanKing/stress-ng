@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_TIMER)
+#if defined(STRESS_TIMERFD)
 
 #include <stdio.h>
 #include <stdlib.h>

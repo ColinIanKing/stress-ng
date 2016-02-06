@@ -766,7 +766,7 @@ typedef enum {
 	__STRESS_AF_ALG,
 #define STRESS_AF_ALG __STRESS_AF_ALG
 #endif
-#if defined(__linux__) && NEED_GLIBC(2,1,0)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
 	__STRESS_AIO,
 #define STRESS_AIO __STRESS_AIO
 #endif
@@ -788,7 +788,7 @@ typedef enum {
 	STRESS_CACHE,
 	STRESS_CHDIR,
 	STRESS_CHMOD,
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(HAVE_LIB_RT) && _POSIX_C_SOURCE >= 199309L
 	__STRESS_CLOCK,
 #define STRESS_CLOCK __STRESS_CLOCK
 #endif
@@ -817,7 +817,7 @@ typedef enum {
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DUP,
-#if defined(__linux__) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 	__STRESS_EPOLL,
 #define STRESS_EPOLL __STRESS_EPOLL
 #endif
@@ -936,7 +936,7 @@ typedef enum {
 	__STRESS_MSG,
 #define STRESS_MSG __STRESS_MSG
 #endif
-#if defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 	__STRESS_MQ,
 #define STRESS_MQ __STRESS_MQ
 #endif
@@ -1007,7 +1007,10 @@ typedef enum {
 	__STRESS_SENDFILE,
 #define STRESS_SENDFILE __STRESS_SENDFILE
 #endif
-	STRESS_SHM_POSIX,
+#if defined(HAVE_LIB_RT)
+	__STRESS_SHM_POSIX,
+#define STRESS_SHM_POSIX __STRESS_SHM_POSIX
+#endif
 	STRESS_SHM_SYSV,
 #if defined(__linux__) && NEED_GLIBC(2,8,0)
 	__STRESS_SIGFD,
@@ -1043,7 +1046,7 @@ typedef enum {
 	__STRESS_TEE,
 #define STRESS_TEE __STRESS_TEE
 #endif
-#if defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 	__STRESS_TIMER,
 #define STRESS_TIMER __STRESS_TIMER
 #endif
@@ -1600,10 +1603,12 @@ typedef enum {
 	OPT_SEMAPHORE_SYSV_PROCS,
 #endif
 
+#if defined(STRESS_SHM_POSIX)
 	OPT_SHM_POSIX,
 	OPT_SHM_POSIX_OPS,
 	OPT_SHM_POSIX_BYTES,
 	OPT_SHM_POSIX_OBJECTS,
+#endif
 
 	OPT_SHM_SYSV,
 	OPT_SHM_SYSV_OPS,

@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_SHM_POSIX)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -36,8 +40,6 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <signal.h>
-
-#include "stress-ng.h"
 
 #define SHM_NAME_LEN	128
 
@@ -371,3 +373,5 @@ fork_again:
 	}
 	return rc;
 }
+
+#endif
