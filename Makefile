@@ -155,6 +155,7 @@ SRC =   stress-affinity.c \
 	stress-xattr.c \
 	stress-yield.c \
 	stress-zero.c \
+	stress-zlib.c \
 	stress-zombie.c \
 	cache.c \
 	helper.c \
@@ -179,13 +180,16 @@ OBJS = $(SRC:.c=.o)
 
 LIB_APPARMOR := -lapparmor
 LIB_BSD := -lbsd
+LIB_Z := -lz
+
+HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 HAVE_LIB_Z=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
 # defined so we don't call ourselves over and over
 #
 ifndef $(HAVE_APPARMOR)
-HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_apparmor)
+HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	OBJS += apparmor-data.o
 	CFLAGS += -DHAVE_APPARMOR
@@ -194,26 +198,35 @@ endif
 endif
 
 ifndef $(HAVE_KEYUTILS_H)
-HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_keyutils_h)
+HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_keyutils_h)
 ifeq ($(HAVE_KEYUTILS_H),1)
 	CFLAGS += -DHAVE_KEYUTILS_H
 endif
 endif
 
 ifndef $(HAVE_XATTR_H)
-HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_xattr_h)
+HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_xattr_h)
 ifeq ($(HAVE_XATTR_H),1)
 	CFLAGS += -DHAVE_XATTR_H
 endif
 endif
 
 ifndef $(HAVE_LIB_BSD)
-HAVE_LIB_BSD = $(shell $(MAKE) --no-print-directory HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 have_lib_bsd)
+HAVE_LIB_BSD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_bsd)
 ifeq ($(HAVE_LIB_BSD),1)
 	CFLAGS += -DHAVE_LIB_BSD
 	LDFLAGS += $(LIB_BSD)
 endif
 endif
+
+ifndef $(HAVE_LIB_Z)
+HAVE_LIB_Z = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_z)
+ifeq ($(HAVE_LIB_Z),1)
+	CFLAGS += -DHAVE_LIB_Z
+	LDFLAGS += $(LIB_Z)
+endif
+endif
+
 
 .SUFFIXES: .c .o
 
@@ -278,6 +291,17 @@ have_lib_bsd:
 	fi
 	@rm -f test-libbsd
 
+#
+#  check if we can build against libz
+#
+have_lib_z:
+	@$(CC) $(CPPFLAGS) test-libz.c $(LIB_Z) -o test-libz 2> /dev/null || true
+	@if [ -e test-libz ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libbsd
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
@@ -333,8 +357,8 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile $(SRC) stress-ng.h stress-ng.1 personality.c \
 		COPYING syscalls.txt mascot README README.Android \
-		test-apparmor.c test-libbsd.c usr.bin.pulseaudio.eg \
-		stress-ng-$(VERSION)
+		test-apparmor.c test-libbsd.c test-libz.c \
+		usr.bin.pulseaudio.eg stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 

@@ -1097,6 +1097,10 @@ typedef enum {
 #define STRESS_YIELD __STRESS_YIELD
 #endif
 	STRESS_ZERO,
+#if defined(HAVE_LIB_Z)
+	__STRESS_ZLIB,
+#define STRESS_ZLIB __STRESS_ZLIB
+#endif
 	STRESS_ZOMBIE,
 	/* STRESS_MAX must be last one */
 	STRESS_MAX
@@ -1791,6 +1795,11 @@ typedef enum {
 	OPT_ZERO,
 	OPT_ZERO_OPS,
 
+#if defined(STRESS_ZLIB)
+	OPT_ZLIB,
+	OPT_ZLIB_OPS,
+#endif
+
 	OPT_ZOMBIE,
 	OPT_ZOMBIE_OPS,
 	OPT_ZOMBIE_MAX,
@@ -2285,6 +2294,7 @@ STRESS(stress_wcs);
 STRESS(stress_xattr);
 STRESS(stress_yield);
 STRESS(stress_zero);
+STRESS(stress_zlib);
 STRESS(stress_zombie);
 
 #endif

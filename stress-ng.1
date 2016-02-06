@@ -2383,6 +2383,16 @@ start N workers reading /dev/zero.
 .B \-\-zero\-ops N
 stop zero stress workers after N /dev/zero bogo read operations.
 .TP
+.B \-\-zlib N
+start N workers compressing and decompressing random data using zlib. Each
+worker has two processes, one that compresses random data and pipes it to
+another process that decompresses the data. This stressor exercises CPU,
+cache and memory.
+.TP
+.B \-\-zlib\-ops N
+stop after N bogo compression operations, each bogo compression operation
+is a compression of 64K of random data at the highest compression level.
+.TP
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create
 a default of 8192 child processes that immediately die and wait in a zombie

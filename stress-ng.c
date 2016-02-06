@@ -390,6 +390,9 @@ static const stress_t stressors[] = {
 	STRESSOR(yield, YIELD, CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(zero, ZERO, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
+#if defined(STRESS_ZLIB)
+	STRESSOR(zlib, ZLIB, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
+#endif
 	STRESSOR(zombie, ZOMBIE, CLASS_SCHEDULER | CLASS_OS),
 	{ stress_noop, STRESS_MAX, 0, 0, NULL, 0 }
 };
@@ -957,6 +960,10 @@ static const struct option long_options[] = {
 #endif
 	{ "zero",	1,	0,	OPT_ZERO },
 	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
+#if defined(STRESS_ZLIB)
+	{ "zlib",	1,	0,	OPT_ZLIB },
+	{ "zlib-ops",	1,	0,	OPT_ZLIB_OPS },
+#endif
 	{ "zombie",	1,	0,	OPT_ZOMBIE },
 	{ "zombie-ops",	1,	0,	OPT_ZOMBIE_OPS },
 	{ "zombie-max",	1,	0,	OPT_ZOMBIE_MAX },
@@ -1505,6 +1512,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"zero N",		"start N workers reading /dev/zero" },
 	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
+#if defined(STRESS_ZLIB)
+	{ NULL,		"zlib N",		"start N workers compressing data with zlib" },
+	{ NULL,		"zlib-ops N",		"stop after N zlib bogo compression operations" },
+#endif
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
 	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
