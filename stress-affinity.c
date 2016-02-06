@@ -56,8 +56,17 @@ int stress_affinity(
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
-			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32 "\n",
-				name, cpu);
+			if (errno == EINVAL) {
+				/*
+				 * We get this if CPU is offline'd,
+				 * and since that can be dynamically
+				 * set, we should just retry
+				 */
+				continue;
+			}
+			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32
+				", errno=%d (%s)\n",
+				name, cpu, errno, strerror(errno));
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 			sched_yield();
 #endif
