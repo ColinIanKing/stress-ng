@@ -1749,6 +1749,20 @@ static const char *opt_name(const int opt_val)
 }
 
 /*
+ *  stress_get_processors()
+ *	get number of processors, set count if <=0 as:
+ *		count = 0 -> number of CPUs in system
+ *		count < 9 -> number of CPUs online
+ */
+void stress_get_processors(int32_t *count)
+{
+	if (*count == 0)
+		*count = stress_get_processors_configured();
+	else if (*count < 0)
+		*count = stress_get_processors_online();
+}
+
+/*
  *  proc_finished()
  *	mark a process as complete
  */
@@ -2264,8 +2278,7 @@ next_opt:
 
 				opt_flags |= OPT_FLAGS_SET;
 				procs[s_id].num_procs = get_int32(optarg);
-				if (procs[s_id].num_procs <= 0)
-					procs[s_id].num_procs = stress_get_processors_configured();
+				stress_get_processors(&procs[s_id].num_procs);
 				check_value(name, procs[s_id].num_procs);
 
 				goto next_opt;
@@ -2292,8 +2305,7 @@ next_opt:
 		case OPT_ALL:
 			opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
 			opt_all = get_int32(optarg);
-			if (opt_all <= 0)
-				opt_all = stress_get_processors_configured();
+			stress_get_processors(&opt_all);
 			check_value("all", opt_all);
 			break;
 #if defined(STRESS_AFFINITY)
@@ -2565,9 +2577,8 @@ next_opt:
 			break;
 		case OPT_RANDOM:
 			opt_flags |= OPT_FLAGS_RANDOM;
-			opt_random = get_uint64(optarg);
-			if (opt_random <= 0)
-				opt_random = stress_get_processors_configured();
+			opt_random = get_int32(optarg);
+			stress_get_processors(&opt_random);
 			check_value("random", opt_random);
 			break;
 #if defined(STRESS_READAHEAD)
@@ -2607,8 +2618,7 @@ next_opt:
 		case OPT_SEQUENTIAL:
 			opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			opt_sequential = get_int32(optarg);
-			if (opt_sequential <= 0)
-				opt_sequential = stress_get_processors_configured();
+			stress_get_processors(&opt_sequential);
 			check_range("sequential", opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;

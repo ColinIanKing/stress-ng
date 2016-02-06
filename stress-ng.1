@@ -68,7 +68,9 @@ the balance of user time vs system time used depending on the type of stressor
 being used.
 .TP
 .B \-a N, \-\-all N
-start N instances of each stressor.
+start N instances of each stressor. If N is less than zero, then the number
+of CPUs online is used for the number of instances.  If N is zero, then the
+number of CPUs in the system is used.
 .TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
@@ -222,9 +224,10 @@ not support this then the default priority level of 0 is chosen.
 .TP
 .B \-\-sequential N
 sequentially run all the stressors one by one for a default of 60 seconds. The
-number of each individual stressors to be started is N.  If N is zero, then a
-stressor for each processor that is on-line is executed. Use the \-\-timeout
-option to specify the duration to run each stressor.
+number of instances of each individual stressors to be started is N.  If
+N is less than zero, then the number of CPUs online is used for the number
+of instances.  If N is zero, then the number of CPUs in the system is used.
+Use the \-\-timeout option to specify the duration to run each stressor.
 .TP
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
