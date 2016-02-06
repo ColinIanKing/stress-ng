@@ -567,6 +567,12 @@ extern void pr_openlog(const char *filename);
 #define WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("")
+#else
+#define FORCE_DO_NOTHING() while (0)
+#endif
+
 #if defined(__linux__) && \
     defined(PR_SET_TIMERSLACK) && \
     defined(PR_GET_TIMERSLACK)
