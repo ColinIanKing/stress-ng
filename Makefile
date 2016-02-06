@@ -245,7 +245,6 @@ endif
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	#$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt $(LDFLAGS) -o $@
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt $(LDFLAGS) -o $@
 
 #
