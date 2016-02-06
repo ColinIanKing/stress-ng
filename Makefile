@@ -301,7 +301,7 @@ have_lib_z:
 	else \
 		echo 0 ;\
 	fi
-	@rm -f test-libbsd
+	@rm -f test-libz
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
