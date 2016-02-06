@@ -809,7 +809,10 @@ typedef enum {
 	__STRESS_CPU_ONLINE,
 #define STRESS_CPU_ONLINE __STRESS_CPU_ONLINE
 #endif
-	STRESS_CRYPT,
+#if defined(HAVE_LIB_CRYPT)
+	__STRESS_CRYPT,
+#define STRESS_CRYPT __STRESS_CRYPT
+#endif
 	STRESS_DAEMON,
 	STRESS_DENTRY,
 	STRESS_DIR,
@@ -1246,8 +1249,11 @@ typedef enum {
 	OPT_CPU_ONLINE_OPS,
 #endif
 
+
+#if defined(STRESS_CRYPT)
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
+#endif
 
 	OPT_DAEMON,
 	OPT_DAEMON_OPS,

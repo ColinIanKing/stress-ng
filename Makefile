@@ -181,8 +181,9 @@ OBJS = $(SRC:.c=.o)
 LIB_APPARMOR := -lapparmor
 LIB_BSD := -lbsd
 LIB_Z := -lz
+LIB_CRYPT := -lcrypt
 
-HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 HAVE_LIB_Z=0
+HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -227,6 +228,13 @@ ifeq ($(HAVE_LIB_Z),1)
 endif
 endif
 
+ifndef $(HAVE_LIB_CRYPT)
+HAVE_LIB_CRYPT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_crypt)
+ifeq ($(HAVE_LIB_CRYPT),1)
+	CFLAGS += -DHAVE_LIB_CRYPT
+	LDFLAGS += $(LIB_CRYPT)
+endif
+endif
 
 .SUFFIXES: .c .o
 
@@ -237,7 +245,8 @@ endif
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt $(LDFLAGS) -o $@
+	#$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt -lcrypt $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread -lrt $(LDFLAGS) -o $@
 
 #
 #  check if we can build against AppArmor
@@ -302,6 +311,18 @@ have_lib_z:
 		echo 0 ;\
 	fi
 	@rm -f test-libz
+
+#
+#  check if we can build against libcrypt
+#
+have_lib_crypt:
+	@$(CC) $(CPPFLAGS) test-libcrypt.c $(LIB_CRYPT) -o test-libcrypt 2> /dev/null || true
+	@if [ -e test-libcrypt ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libcrypt
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

@@ -167,7 +167,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_CPU_ONLINE)
 	STRESSOR(cpu_online, CPU_ONLINE, CLASS_CPU | CLASS_OS),
 #endif
+#if defined(STRESS_CRYPT)
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
+#endif
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(dir, DIR, CLASS_FILESYSTEM | CLASS_OS),
@@ -493,8 +495,10 @@ static const struct option long_options[] = {
 	{ "cpu-online",	1,	0,	OPT_CPU_ONLINE },
 	{ "cpu-online-ops",1,	0,	OPT_CPU_ONLINE_OPS },
 #endif
+#if defined(STRESS_CRYPT)
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
+#endif
 	{ "daemon",	1,	0,	OPT_DAEMON },
 	{ "daemon-ops",	1,	0,	OPT_DAEMON_OPS },
 	{ "dentry",	1,	0,	OPT_DENTRY },
@@ -1089,8 +1093,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cpu-online N",		"start N workers offlining/onlining the CPUs" },
 	{ NULL,		"cpu-online-ops N",	"stop after N offline/online operations" },
 #endif
+#if defined(STRESS_CRYPT)
 	{ NULL,		"crypt N",		"start N workers performing password encryption" },
 	{ NULL,		"crypt-ops N",		"stop after N bogo crypt operations" },
+#endif
 	{ NULL,		"daemon N",		"start N workers creating multiple daemons" },
 	{ NULL,		"daemon-ops N",		"stop when N daemons have been created" },
 	{ "D N",	"dentry N",		"start N dentry thrashing stressors" },

@@ -25,6 +25,10 @@
 #define _GNU_SOURCE
 #define _XOPEN_SOURCE	600
 
+#include "stress-ng.h"
+
+#if defined(STRESS_CRYPT)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -32,8 +36,6 @@
 #if defined (__linux__)
 #include <crypt.h>
 #endif
-
-#include "stress-ng.h"
 
 /*
  *  stress_crypt_id()
@@ -107,3 +109,5 @@ int stress_crypt(
 
 	return EXIT_SUCCESS;
 }
+
+#endif
