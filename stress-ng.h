@@ -2038,7 +2038,6 @@ extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str, const scale_
 	const char *const msg);
 extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);
 extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
-extern WARN_UNUSED long int opt_long(const char *opt, const char *str);
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);

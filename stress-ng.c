@@ -1875,36 +1875,6 @@ static void MLOCKED handle_sigint(int dummy)
 }
 
 /*
- *  opt_long()
- *	parse long int option, check for invalid values
- */
-long int opt_long(const char *opt, const char *str)
-{
-	long int val;
-	char c;
-	bool found = false;
-
-	for (c = '0'; c <= '9'; c++) {
-		if (strchr(str, c)) {
-			found = true;
-			break;
-		}
-	}
-	if (!found) {
-		fprintf(stderr, "Given value %s is not a valid decimal for the %s option\n",
-			str, opt);
-		exit(EXIT_FAILURE);
-	}
-	errno = 0;
-	val = strtol(str, NULL, 10);
-	if (errno) {
-		fprintf(stderr, "Invalid value for the %s option\n", opt);
-		exit(EXIT_FAILURE);
-	}
-	return val;
-}
-
-/*
  *  free_procs()
  *	free proc info in procs table
  */
@@ -2293,7 +2263,7 @@ next_opt:
 				const char *name = opt_name(c);
 
 				opt_flags |= OPT_FLAGS_SET;
-				procs[s_id].num_procs = opt_long(name, optarg);
+				procs[s_id].num_procs = get_int32(optarg);
 				if (procs[s_id].num_procs <= 0)
 					procs[s_id].num_procs = stress_get_processors_configured();
 				check_value(name, procs[s_id].num_procs);
@@ -2321,7 +2291,7 @@ next_opt:
 #endif
 		case OPT_ALL:
 			opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
-			opt_all = opt_long("-a", optarg);
+			opt_all = get_int32(optarg);
 			if (opt_all <= 0)
 				opt_all = stress_get_processors_configured();
 			check_value("all", opt_all);
@@ -2335,7 +2305,7 @@ next_opt:
 			opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
 			break;
 		case OPT_BACKOFF:
-			opt_backoff = opt_long("backoff", optarg);
+			opt_backoff = get_uint64(optarg);
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			stress_set_bigheap_growth(optarg);
@@ -2636,7 +2606,7 @@ next_opt:
 #endif
 		case OPT_SEQUENTIAL:
 			opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			opt_sequential = get_uint64(optarg);
+			opt_sequential = get_int32(optarg);
 			if (opt_sequential <= 0)
 				opt_sequential = stress_get_processors_configured();
 			check_range("sequential", opt_sequential,

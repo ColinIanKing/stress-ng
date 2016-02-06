@@ -85,7 +85,7 @@ static stress_cpu_stressor_info_t cpu_methods[];
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
 void stress_set_cpu_load(const char *optarg) {
-	opt_cpu_load = opt_long("cpu load", optarg);
+	opt_cpu_load = get_int32(optarg);
 	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 		fprintf(stderr, "CPU load must in the range 0 to 100.\n");
 		exit(EXIT_FAILURE);
@@ -94,7 +94,7 @@ void stress_set_cpu_load(const char *optarg) {
 
 void stress_set_cpu_load_slice(const char *optarg)
 {
-	opt_cpu_load_slice = opt_long("cpu load slice", optarg);
+	opt_cpu_load_slice = get_int32(optarg);
 	if ((opt_cpu_load < -5000) || (opt_cpu_load > 5000)) {
 		fprintf(stderr, "CPU load must in the range -5000 to 5000.\n");
 		exit(EXIT_FAILURE);
