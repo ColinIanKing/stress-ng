@@ -616,7 +616,7 @@ typedef struct {
 #define MLOCKED
 #endif
 
-#if defined(__linux__) && defined(__NR_perf_event_open)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
 enum {
@@ -739,10 +739,12 @@ typedef struct {
 		int sem_id;				/* System V semaphore id */
 		bool init;				/* System V semaphore initialized */
 	} sem_sysv;
+#if defined(STRESS_PERF_STATS)
 	struct {
 		bool no_perf;				/* true = Perf not available */
 		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf;
+#endif
 #if defined(STRESS_THERMAL_ZONES)
 	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
@@ -900,7 +902,7 @@ typedef enum {
 	STRESS_LSEARCH,
 	STRESS_MALLOC,
 	STRESS_MATRIX,
-#if defined(__linux__) && defined(__NR_membarrier)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_membarrier)
 	__STRESS_MEMBARRIER,
 #define STRESS_MEMBARRIER __STRESS_MEMBARRIER
 #endif
@@ -958,11 +960,14 @@ typedef enum {
 #endif
 	STRESS_PIPE,
 	STRESS_POLL,
-#if defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 	__STRESS_PROCFS,
 #define STRESS_PROCFS __STRESS_PROCFS
 #endif
-	STRESS_PTHREAD,
+#if defined(HAVE_LIB_PTHREAD)
+	__STRESS_PTHREAD,
+#define STRESS_PTHREAD __STRESS_PTHREAD
+#endif
 #if defined(__linux__)
 	__STRESS_PTRACE,
 #define STRESS_PTRACE __STRESS_PTRACE
@@ -995,7 +1000,7 @@ typedef enum {
 #define STRESS_SECCOMP __STRESS_SECCOMP
 #endif
 	STRESS_SEEK,
-#if defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 	__STRESS_SEMAPHORE_POSIX,
 #define STRESS_SEMAPHORE_POSIX __STRESS_SEMAPHORE_POSIX
 #endif
@@ -1038,7 +1043,7 @@ typedef enum {
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYSINFO,
-#if defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 	__STRESS_SYSFS,
 #define STRESS_SYSFS __STRESS_SYSFS
 #endif

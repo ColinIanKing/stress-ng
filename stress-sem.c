@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_SEMAPHORE_POSIX)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -34,10 +38,6 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-
-#include "stress-ng.h"
-
-#if defined(STRESS_SEMAPHORE_POSIX)
 
 static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_posix_procs = false;

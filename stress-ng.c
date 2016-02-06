@@ -283,7 +283,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_PROCFS)
 	STRESSOR(procfs, PROCFS, CLASS_FILESYSTEM | CLASS_OS),
 #endif
+#if defined(STRESS_PTHREAD)
 	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
+#endif
 #if defined(STRESS_PTRACE)
 	STRESSOR(ptrace, PTRACE, CLASS_OS),
 #endif
@@ -736,9 +738,11 @@ static const struct option long_options[] = {
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 #endif
+#if defined(STRESS_PTHREAD)
 	{ "pthread",	1,	0,	OPT_PTHREAD },
 	{ "pthread-ops",1,	0,	OPT_PTHREAD_OPS },
 	{ "pthread-max",1,	0,	OPT_PTHREAD_MAX },
+#endif
 #if defined(STRESS_PTRACE)
 	{ "ptrace",	1,	0,	OPT_PTRACE },
 	{ "ptrace-ops",1,	0,	OPT_PTRACE_OPS },
@@ -1316,9 +1320,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
 	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
 #endif
+#if defined(STRESS_PTHREAD)
 	{ NULL,		"pthread N",		"start N workers that create multiple threads" },
 	{ NULL,		"pthread-ops N",	"stop pthread workers after N bogo threads created" },
 	{ NULL,		"pthread-max P",	"create P threads at a time by each worker" },
+#endif
 #if defined(STRESS_PTRACE)
 	{ NULL,		"ptrace N",		"start N workers that trace a child using ptrace" },
 	{ NULL,		"ptrace-ops N",		"stop ptrace workers after N system calls are traced" },
@@ -2229,7 +2235,6 @@ int main(int argc, char **argv)
 	size_t len;
 	bool success = true;
 	struct sigaction new_action;
-	struct rlimit limit;
 	char *opt_exclude = NULL;		/* List of stressors to exclude */
 	char *yamlfile = NULL;			/* YAML filename */
 	FILE *yaml = NULL;			/* YAML output file */
@@ -2573,9 +2578,11 @@ next_opt:
 			stress_set_pipe_size(optarg);
 			break;
 #endif
+#if defined(STRESS_PTHREAD)
 		case OPT_PTHREAD_MAX:
 			stress_set_pthread_max(optarg);
 			break;
+#endif
 		case OPT_QSORT_INTEGERS:
 			stress_set_qsort_size(optarg);
 			break;
@@ -2991,12 +2998,17 @@ next_opt:
 			}
 		}
 	}
-	id = stressor_id_find(STRESS_PTHREAD);
-	if (procs[id].num_procs &&
-	    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
-		uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
-		stress_adjust_ptread_max(max);
+#if defined(STRESS_PTHREAD)
+	{
+		id = stressor_id_find(STRESS_PTHREAD);
+		struct rlimit limit;
+		if (procs[id].num_procs &&
+		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
+			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
+			stress_adjust_ptread_max(max);
+		}
 	}
+#endif
 	if (show_hogs(opt_class) < 0) {
 		free_procs();
 		exit(EXIT_FAILURE);
@@ -3010,7 +3022,9 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 	memset(shared, 0, len);
+#if defined(STRESS_PERF_STATS)
 	pthread_spin_init(&shared->perf.lock, 0);
+#endif
 
 	/*
 	 *  Allocate shared cache memory

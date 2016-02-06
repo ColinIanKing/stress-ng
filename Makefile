@@ -183,9 +183,10 @@ LIB_BSD := -lbsd
 LIB_Z := -lz
 LIB_CRYPT := -lcrypt
 LIB_RT := -lrt
+LIB_PTHREAD := -lpthread
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
-	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0
+	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -246,6 +247,14 @@ ifeq ($(HAVE_LIB_RT),1)
 endif
 endif
 
+ifndef $(HAVE_LIB_PTHREAD)
+HAVE_LIB_PTHREAD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_pthread)
+ifeq ($(HAVE_LIB_PTHREAD),1)
+	CFLAGS += -DHAVE_LIB_PTHREAD
+	LDFLAGS += $(LIB_PTHREAD)
+endif
+endif
+
 .SUFFIXES: .c .o
 
 .o: stress-ng.h Makefile
@@ -255,7 +264,7 @@ endif
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm -pthread $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
 
 #
 #  check if we can build against AppArmor
@@ -344,6 +353,18 @@ have_lib_rt:
 		echo 0 ;\
 	fi
 	@rm -f test-librt
+
+#
+#  check if we can build against libpthread
+#
+have_lib_pthread:
+	@$(CC) $(CPPFLAGS) test-libpthread.c $(LIB_PTHREAD) -o test-libpthread 2> /dev/null || true
+	@if [ -e test-libpthread ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libpthread
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

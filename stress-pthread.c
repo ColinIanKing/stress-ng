@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_PTHREAD)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -33,8 +37,6 @@
 #include <pthread.h>
 #include <errno.h>
 #include <signal.h>
-
-#include "stress-ng.h"
 
 static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
 static bool set_pthread_max = false;
@@ -251,3 +253,5 @@ reap:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
