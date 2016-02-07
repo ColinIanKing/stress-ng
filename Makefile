@@ -196,7 +196,8 @@ LIB_RT := -lrt
 LIB_PTHREAD := -lpthread
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
-	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0
+	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
+	 HAVE_FLOAT_DECIMAL=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -262,6 +263,13 @@ HAVE_LIB_PTHREAD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_pth
 ifeq ($(HAVE_LIB_PTHREAD),1)
 	CFLAGS += -DHAVE_LIB_PTHREAD
 	LDFLAGS += $(LIB_PTHREAD)
+endif
+endif
+
+ifndef $(HAVE_FLOAT_DECIMAL)
+HAVE_FLOAT_DECIMAL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_float_decimal)
+ifeq ($(HAVE_FLOAT_DECIMAL),1)
+	CFLAGS += -DHAVE_FLOAT_DECIMAL
 endif
 endif
 
@@ -375,6 +383,19 @@ have_lib_pthread:
 		echo 0 ;\
 	fi
 	@rm -f test-libpthread
+
+#
+#  check if compiler supports floating point decimal format
+#
+have_float_decimal:
+	@echo "_Decimal32 x;" > test-decimal.c
+	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
+	@if [ -e test-decimal.o ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-decimal.c test-decimal.o
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

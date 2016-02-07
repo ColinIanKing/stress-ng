@@ -869,7 +869,7 @@ static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 stress_cpu_fp(float, float, sinf, cosf)
 stress_cpu_fp(double, double, sin, cos)
 stress_cpu_fp(long double, longdouble, sinl, cosl)
-#if defined(STRESS_FLOAT_DECIMAL)
+#if defined(HAVE_FLOAT_DECIMAL)
 stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
 stress_cpu_fp(_Decimal64, decimal64, sin, cos)
 stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
@@ -1023,7 +1023,7 @@ stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sinl, cosl)
-#if defined(STRESS_FLOAT_DECIMAL)
+#if defined(HAVE_FLOAT_DECIMAL)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
@@ -2103,7 +2103,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 #endif /* __STDC_IEC_559_COMPLEX__ */
 	{ "correlate",		stress_cpu_correlate },
 	{ "crc16",		stress_cpu_crc16 },
-#if defined(STRESS_FLOAT_DECIMAL)
+#if defined(HAVE_FLOAT_DECIMAL)
 	{ "decimal32",		stress_cpu_decimal32 },
 	{ "decimal64",		stress_cpu_decimal64 },
 	{ "decimal128",		stress_cpu_decimal128 },
@@ -2135,7 +2135,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "int128float",	stress_cpu_int128_float },
 	{ "int128double",	stress_cpu_int128_double },
 	{ "int128longdouble",	stress_cpu_int128_longdouble },
-#if defined(STRESS_FLOAT_DECIMAL)
+#if defined(HAVE_FLOAT_DECIMAL)
 	{ "int128decimal32",	stress_cpu_int128_decimal32 },
 	{ "int128decimal64",	stress_cpu_int128_decimal64 },
 	{ "int128decimal128",	stress_cpu_int128_decimal128 },
