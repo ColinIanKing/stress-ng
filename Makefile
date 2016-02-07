@@ -26,7 +26,11 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 
-SRC =   stress-affinity.c \
+#
+#  Stressors
+#
+STRESS_SRC = \
+	stress-affinity.c \
 	stress-af-alg.c \
 	stress-aio.c \
 	stress-aio-linux.c \
@@ -157,6 +161,11 @@ SRC =   stress-affinity.c \
 	stress-zero.c \
 	stress-zlib.c \
 	stress-zombie.c \
+
+#
+# Stress core
+#
+CORE_SRC = \
 	cache.c \
 	helper.c \
 	io-priority.c \
@@ -176,6 +185,7 @@ SRC =   stress-affinity.c \
 	time.c \
 	stress-ng.c
 
+SRC = $(STRESS_SRC) $(CORE_SRC)
 OBJS = $(SRC:.c=.o)
 
 LIB_APPARMOR := -lapparmor
@@ -421,6 +431,7 @@ dist:
 	cp -rp Makefile $(SRC) stress-ng.h stress-ng.1 personality.c \
 		COPYING syscalls.txt mascot README README.Android \
 		test-apparmor.c test-libbsd.c test-libz.c \
+		test-libcrypt.c test-librt.c test-libpthread \
 		usr.bin.pulseaudio.eg stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
