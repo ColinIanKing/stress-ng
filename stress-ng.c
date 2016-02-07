@@ -1616,6 +1616,10 @@ static uint32_t get_class(char *const class_str)
 	return class;
 }
 
+/*
+ *  stress_exclude()
+ *  	parse -x --exlude exclude list
+ */
 static int stress_exclude(char *const opt_exclude)
 {
 	char *str, *token;
