@@ -1,3 +1,41 @@
+stress-ng (0.05.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Fix make dist - typo in test-libpthread.c
+  * stress-fiemap: initialise counter at start of loop
+  * stress-fiemap: ensure counter is being updated
+  * adt: exclude bind mount from list of stressors
+  * Don't emit warning on --pathological if number of stressors is zero
+  * ignite-cpu: add null entry at end of list, don't scan by array size
+  * Only include <sys/mount.h> for linux for the bind mount stressor
+  * stress-bind-mount: build stressor if STRESS_BIND_MOUNT defined
+  * stress-bind-mount: stop cppcheck whining about uninitialised pid
+  * stress-numa: don't fatally fail on -EIO with MPOL_MF_STRICT (LP: #1542741)
+  * Enabled IGNITE_CPU with the --aggressive option
+  * Add bind-mount stressor (LP: #1542010)
+  * Add --ignite-cpu option to maximize CPU frequency
+  * Make float decimal auto detect set -DHAVE_FLOAT_DECIMAL
+  * Minor re-org of Makefile, and add more files to dist rule
+  * Update README - increase number of stressors
+  * adt tests: remove membarrier, it fails on older kernels in Debian
+  * Add some more comments
+  * stress-affinity: handle EINVAL when CPU(s) are offline
+  * Set number of instances to on-line CPUs if N is -ve (LP: #1513546)
+  * Remove opt_long, replace with get_int32 or get_uint64
+  * Add libpthread build time checks
+  * Add librt build time checks
+  * Remove commented out old link line
+  * Add libcrypt check
+  * Makefile: remove test-libz correctly
+  * stress-cpu: make source 80 column friendly
+  * Add FORCE_DO_NOTHING macro do force compiler to stop opimizing out loops
+  * Add zlib stressor
+  * stress-stream: cater for systems without L3 cache
+  * stress-stream: only emit cache size info on instance 0
+  * Add libbsd-dev to README
+
+ -- Colin King <colin.king@canonical.com>  Mon, 8 Feb 2016 18:29:11 +0000
+
 stress-ng (0.05.13-1) unstable; urgency=medium
 
   * Makefile bump version
