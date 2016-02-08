@@ -596,7 +596,7 @@ static const struct option long_options[] = {
 	{ "icache",	1,	0,	OPT_ICACHE },
 	{ "icache-ops",	1,	0,	OPT_ICACHE_OPS },
 #endif
-	{ "ignite-cpu",	1,	0, 	OPT_IGNITE_CPU },
+	{ "ignite-cpu",	0,	0, 	OPT_IGNITE_CPU },
 #if defined(STRESS_INOTIFY)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
@@ -2468,6 +2468,9 @@ next_opt:
 		case OPT_HSEARCH_SIZE:
 			stress_set_hsearch_size(optarg);
 			break;
+		case OPT_IGNITE_CPU:
+			opt_flags |= OPT_FLAGS_IGNITE_CPU;
+			break;
 #if defined(STRESS_IONICE)
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);
@@ -2929,7 +2932,8 @@ next_opt:
 	 */
 	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
 		for (i = 0; i < STRESS_MAX; i++) {
-			if (stressors[i].class & CLASS_PATHOLOGICAL) {
+			if ((procs[i].num_procs > 0) &&
+			    (stressors[i].class & CLASS_PATHOLOGICAL)) {
 				pr_inf(stderr, "disabled '%s' (enable it "
 					"with --pathological option)\n",
 					munge_underscore((char *)stressors[i].name));
