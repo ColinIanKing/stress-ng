@@ -79,7 +79,8 @@ int stress_fiemap_writer(
 
 	do {
 		uint64_t offset;
-		size_t i;
+		size_t i;	
+		counter = 0;
 
 		offset = (mwc64() % len) & ~0x1fff;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
@@ -102,7 +103,7 @@ int stress_fiemap_writer(
 				punch_hole = false;
 		}
 #endif
-		for (i = 0, counter = 0; i < MAX_FIEMAP_PROCS; i++)
+		for (i = 0; i < MAX_FIEMAP_PROCS; i++)
 			counter += counters[i];
 	} while (opt_do_run && (!max_ops || counter < max_ops));
 	rc = EXIT_SUCCESS;
