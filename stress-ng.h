@@ -41,6 +41,7 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <sys/mount.h>
 #if defined (__linux__)
 #include <sys/syscall.h>
 #include <sys/quota.h>
@@ -160,6 +161,7 @@
 #define OPT_FLAGS_SEEK_PUNCH	0x0200000000000ULL	/* --seek-punch */
 #define OPT_FLAGS_CACHE_NOAFF	0x0400000000000ULL	/* disable CPU affinity */
 #define OPT_FLAGS_IGNITE_CPU	0x0800000000000ULL	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	0x1000000000000ULL	/* --pathological */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -187,6 +189,7 @@
 #define CLASS_FILESYSTEM	0x00000400	/* file system */
 #define CLASS_DEV		0x00000800	/* device (null, zero, etc) */
 #define CLASS_SECURITY		0x00001000	/* security APIs */
+#define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
 /* Network domains flags */
 #define DOMAIN_INET		0x00000001	/* AF_INET */
@@ -788,6 +791,10 @@ typedef enum {
 	STRESS_BRK,
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
+#if defined(__linux__) && defined(MS_BIND) && defined(MS_REC)
+	__STRESS_BIND_MOUNT,
+#define STRESS_BIND_MOUNT __STRESS_BIND_MOUNT
+#endif
 	STRESS_CACHE,
 	STRESS_CHDIR,
 	STRESS_CHMOD,
@@ -1212,6 +1219,11 @@ typedef enum {
 	OPT_BIGHEAP_OPS,
 	OPT_BIGHEAP_GROWTH,
 
+#if defined(STRESS_BIND_MOUNT)
+	OPT_BIND_MOUNT,
+	OPT_BIND_MOUNT_OPS,
+#endif
+
 	OPT_CLASS,
 	OPT_CACHE_OPS,
 	OPT_CACHE_PREFETCH,
@@ -1523,6 +1535,7 @@ typedef enum {
 #if defined(STRESS_PAGE_IN)
 	OPT_PAGE_IN,
 #endif
+	OPT_PATHOLOGICAL,
 
 #if defined(STRESS_PERF_STATS)
 	OPT_PERF_STATS,
@@ -2197,6 +2210,7 @@ STRESS(stress_aio);
 STRESS(stress_aio_linux);
 STRESS(stress_apparmor);
 STRESS(stress_bigheap);
+STRESS(stress_bind_mount);
 STRESS(stress_brk);
 STRESS(stress_bsearch);
 STRESS(stress_cache);

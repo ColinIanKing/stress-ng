@@ -207,6 +207,13 @@ performance when the memory in the system is less than the allocated buffer
 sizes.  This uses mincore(2) to determine the pages that are not in core and
 hence need touching to page them back in.
 .TP
+.B \-\-pathological
+enable stressors that are known to hang systems.  Some stressors can quickly
+consume resources in such a way that they can rapidly hang a system before
+the kernel can OOM kill them. These stressors are not enabled by default,
+this option enables them, but you probably don't want to do this. You have
+been warned.
+.TP
 .B \-\-perf
 measure processor and system activity using perf events. Linux only and
 caveat emptor, according to perf_event_open(2): "Always double-check your
@@ -357,6 +364,14 @@ stop the big heap workers after N bogo allocation operations are completed.
 .B \-\-bigheap\-growth N
 specify amount of memory to grow heap by per iteration. Size can be from 4K to
 64MB. Default is 64K.
+.TP
+.B \-\-bind\-mount N
+start N workers that repeatedly bind mount / to / inside a user namespace. This
+can consume resources rapidly, forcing out of memory situations. Do not use this
+stressor unless you want to risk hanging your machine.
+.TP
+.B \-\-bind\-mount\-ops N
+stop after N bind mount bogo operations.
 .TP
 .B \-\-brk N
 start N workers that grow the data segment by one page at a time using multiple

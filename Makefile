@@ -36,6 +36,7 @@ STRESS_SRC = \
 	stress-aio-linux.c \
 	stress-apparmor.c \
 	stress-bigheap.c \
+	stress-bind-mount.c \
 	stress-brk.c \
 	stress-bsearch.c \
 	stress-cache.c \

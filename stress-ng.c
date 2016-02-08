@@ -146,6 +146,9 @@ static const stress_t stressors[] = {
 	STRESSOR(apparmor, APPARMOR, CLASS_OS | CLASS_SECURITY),
 #endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
+#if defined(STRESS_BIND_MOUNT)
+	STRESSOR(bind_mount, BIND_MOUNT, CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL),
+#endif
 	STRESSOR(brk, BRK, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
@@ -453,6 +456,10 @@ static const struct option long_options[] = {
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
 	{ "bigheap-ops",1,	0,	OPT_BIGHEAP_OPS },
 	{ "bigheap-growth",1,	0,	OPT_BIGHEAP_GROWTH },
+#if defined(STRESS_BIND_MOUNT)
+	{ "bind-mount",	1,	0,	OPT_BIND_MOUNT },
+	{ "bind-mount-ops",1,	0,	OPT_BIND_MOUNT_OPS },
+#endif
 	{ "brk",	1,	0,	OPT_BRK },
 	{ "brk-ops",	1,	0,	OPT_BRK_OPS },
 	{ "brk-notouch",0,	0,	OPT_BRK_NOTOUCH },
@@ -720,6 +727,7 @@ static const struct option long_options[] = {
 #if defined(STRESS_PAGE_IN)
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
 #endif
+	{ "pathological",0,	0,	OPT_PATHOLOGICAL },
 #if defined(STRESS_PERF_STATS)
 	{ "perf",	0,	0,	OPT_PERF_STATS },
 #endif
@@ -1005,6 +1013,7 @@ static const help_t help_generic[] = {
 #if defined(STRESS_PAGE_IN)
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 #endif
+	{ NULL,		"pathological",		"enable stressors that are known to hang a machine" },
 #if defined(STRESS_PERF_STATS)
 	{ NULL,		"perf",			"display perf statistics" },
 #endif
@@ -1059,6 +1068,10 @@ static const help_t help_stressors[] = {
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL, 	"bigheap-growth N",	"grow heap by N bytes per iteration" },
+#if defined(STRESS_BIND_MOUNT)
+	{ NULL,		"bind-mount N",		"start N workers exercising bind mounts" },
+	{ NULL,		"bind-mount-ops N",	"stop after N bogo bind mount operations" },
+#endif
 	{ NULL,		"brk N",		"start N workers performing rapid brk calls" },
 	{ NULL,		"brk-ops N",		"stop after N brk bogo operations" },
 	{ NULL,		"brk-notouch",		"don't touch (page in) new data segment page" },
@@ -2558,6 +2571,9 @@ next_opt:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
 #endif
+		case OPT_PATHOLOGICAL:
+			opt_flags |= OPT_FLAGS_PATHOLOGICAL;
+			break;
 #if defined(STRESS_PERF_STATS)
 		case OPT_PERF_STATS:
 			opt_flags |= OPT_FLAGS_PERF_STATS;
@@ -2904,6 +2920,21 @@ next_opt:
 			pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 			exit(EXIT_FAILURE);
+		}
+	}
+
+	/*
+	 *  Disable pathological stressors if user has not explicitly
+	 *  request them to be used. Let's play safe.
+	 */
+	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
+		for (i = 0; i < STRESS_MAX; i++) {
+			if (stressors[i].class & CLASS_PATHOLOGICAL) {
+				pr_inf(stderr, "disabled '%s' (enable it "
+					"with --pathological option)\n",
+					munge_underscore((char *)stressors[i].name));
+				procs[i].num_procs = 0;
+			}
 		}
 	}
 
