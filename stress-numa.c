@@ -297,17 +297,37 @@ int stress_numa(
 		(void)sys_getcpu(&cpu, &curr_node, NULL);
 
 		/*
-		 *  mbind the buffer
+		 *  mbind the buffer, first try MPOL_STRICT which
+		 *  may fail with EIO
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			if (errno != EIO)
+				pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
+					name, errno, strerror(errno));
+		} else {
+			memset(buf, 0xaa, MMAP_SZ);
 		}
-		memset(buf, 0xaa, MMAP_SZ);
+		if (!opt_do_run)
+			break;
+
+		/*
+		 *  mbind the buffer, now try MPOL_DEFAULT
+		 */
+		memset(node_mask, 0, sizeof(node_mask));
+		STRESS_SETBIT(node_mask, n->node_id);
+		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, MPOL_DEFAULT);
+		if (ret < 0) {
+			if (errno != EIO)
+				pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
+					name, errno, strerror(errno));
+		} else {
+			memset(buf, 0x5c, MMAP_SZ);
+		}
 		if (!opt_do_run)
 			break;
 
