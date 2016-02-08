@@ -93,6 +93,11 @@ parse options, but do not run stress tests. A no-op.
 .B \-h, \-\-help
 show help.
 .TP
+.B \-\-ignite\-cpu
+alter kernel controls to try and maximize the CPU. This requires root
+privilege to alter various /sys interface controls.  Currently this only
+works for Intel P-State enabled x86 systems on Linux.
+.TP
 .B \-\-ionice\-class class
 specify ionice class (only on Linux). Can be idle (default), besteffort, be,
 realtime, rt.

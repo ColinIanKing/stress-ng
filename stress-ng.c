@@ -589,6 +589,7 @@ static const struct option long_options[] = {
 	{ "icache",	1,	0,	OPT_ICACHE },
 	{ "icache-ops",	1,	0,	OPT_ICACHE_OPS },
 #endif
+	{ "ignite-cpu",	1,	0, 	OPT_IGNITE_CPU },
 #if defined(STRESS_INOTIFY)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
@@ -992,6 +993,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"class name",		"specify a class of stressors, use with --sequential" },
 	{ "n",		"dry-run",		"do not run" },
 	{ "h",		"help",			"show help" },
+	{ NULL,		"ignite-cpu",		"alter kernel controls to make CPU run hot" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
@@ -1810,6 +1812,9 @@ static void MLOCKED wait_procs(bool *success)
 {
 	int i;
 
+	if (opt_flags & OPT_FLAGS_IGNITE_CPU)
+		ignite_cpu_start();
+
 #if defined(STRESS_AFFINITY)
 	/*
 	 *  On systems that support changing CPU affinity
@@ -1877,6 +1882,8 @@ redo:
 			}
 		}
 	}
+	if (opt_flags & OPT_FLAGS_IGNITE_CPU)
+		ignite_cpu_stop();
 }
 
 

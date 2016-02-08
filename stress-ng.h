@@ -159,6 +159,7 @@
 #define OPT_FLAGS_UDP_LITE	0x0100000000000ULL	/* --udp-lite */
 #define OPT_FLAGS_SEEK_PUNCH	0x0200000000000ULL	/* --seek-punch */
 #define OPT_FLAGS_CACHE_NOAFF	0x0400000000000ULL	/* disable CPU affinity */
+#define OPT_FLAGS_IGNITE_CPU	0x0800000000000ULL	/* --cpu-ignite */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -1361,6 +1362,8 @@ typedef enum {
 	OPT_ICACHE,
 	OPT_ICACHE_OPS,
 
+	OPT_IGNITE_CPU,
+
 #if defined(STRESS_INOTIFY)
 	OPT_INOTIFY,
 	OPT_INOTIFY_OPS,
@@ -2061,6 +2064,10 @@ extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
+extern void ignite_cpu_start(void);
+extern void ignite_cpu_stop(void);
+extern int system_write(const char *path, const char *buf, const size_t buf_len);
+extern WARN_UNUSED int system_read(const char *path, char *buf, const size_t buf_len);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

@@ -630,3 +630,51 @@ void stress_cache_free(void)
 {
 	free(shared->mem_cache);
 }
+
+/*
+ *  system_write()
+ *	write a buffer to a /sys or /proc entry
+ */
+int system_write(
+	const char *path,
+	const char *buf,
+	const size_t buf_len)
+{
+	int fd;
+	ssize_t ret;
+
+	fd = open(path, O_WRONLY);
+	if (fd < 0)
+		return -errno;
+	ret = write(fd, buf, buf_len);
+	if (ret < (ssize_t)buf_len)
+		ret = -errno;
+	(void)close(fd);
+
+	return ret;
+}
+
+/*
+ *  system_read()
+ *	write a buffer from a /sys or /proc entry
+ */
+int system_read(
+	const char *path,
+	char *buf,
+	const size_t buf_len)
+{
+	int fd;
+	ssize_t ret;
+
+	memset(buf, 0, buf_len);
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+		return -errno;
+	ret = read(fd, buf, buf_len);
+	if (ret < 0)
+		ret = -errno;
+	(void)close(fd);
+
+	return ret;
+}

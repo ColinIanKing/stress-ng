@@ -168,6 +168,7 @@ STRESS_SRC = \
 CORE_SRC = \
 	cache.c \
 	helper.c \
+	ignite-cpu.c \
 	io-priority.c \
 	limit.c \
 	log.c \
