@@ -41,8 +41,8 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
-#include <sys/mount.h>
 #if defined (__linux__)
+#include <sys/mount.h>
 #include <sys/syscall.h>
 #include <sys/quota.h>
 #include <sys/prctl.h>
