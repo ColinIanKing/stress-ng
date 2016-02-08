@@ -80,7 +80,7 @@ int stress_bind_mount(
         const uint64_t max_ops,
         const char *name)
 {
-	int pid, status;
+	int pid = 0, status;
 	context_t context;
 	const ssize_t stack_offset =
 		stress_get_stack_direction(&pid) *
