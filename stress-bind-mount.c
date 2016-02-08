@@ -26,6 +26,8 @@
 
 #include "stress-ng.h"
 
+#if defined(STRESS_BIND_MOUNT)
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -112,3 +114,5 @@ int stress_bind_mount(
 
 	return EXIT_SUCCESS;
 }
+
+#endif
