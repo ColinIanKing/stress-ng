@@ -101,9 +101,9 @@ int stress_fiemap_writer(
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
+#endif
 		for (i = 0, counter = 0; i < MAX_FIEMAP_PROCS; i++)
 			counter += counters[i];
-#endif
 	} while (opt_do_run && (!max_ops || counter < max_ops));
 	rc = EXIT_SUCCESS;
 tidy:
