@@ -56,6 +56,7 @@ settings_t settings[] = {
 	SETTING("/sys/devices/system/cpu/intel_pstate/max_perf_pct", "100"),
 	SETTING("/sys/devices/system/cpu/intel_pstate/no_turbo", "0"),
 #endif
+	SETTING(NULL, NULL)
 };
 
 /*
@@ -71,7 +72,7 @@ void ignite_cpu_start(void)
 		return;
 
 	pid = -1;
-	for (i = 0; i < SIZEOF_ARRAY(settings); i++) {
+	for (i = 0; settings[i].path; i++) {
 		char buf[4096];
 		int ret;
 		size_t len;
@@ -121,7 +122,7 @@ void ignite_cpu_start(void)
 		stress_parent_died_alarm();
 
 		for (;;) {
-			for (i = 0; i < SIZEOF_ARRAY(settings); i++) {
+			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
 				(void)system_write(settings[i].path, settings[i].default_setting,
@@ -150,7 +151,7 @@ void ignite_cpu_stop(void)
 		(void)waitpid(pid, &status, 0);
 	}
 
-	for (i = 0; i < SIZEOF_ARRAY(settings); i++) {
+	for (i = 0; settings[i].path; i++) {
 		if (settings[i].ignore)
 			continue;
 
