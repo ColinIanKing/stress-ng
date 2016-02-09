@@ -3069,7 +3069,7 @@ next_opt:
 	 */
 	shared->mem_cache_level = mem_cache_level;
 	shared->mem_cache_ways = mem_cache_ways;
-	if (stress_cache_alloc("main") < 0) {
+	if (stress_cache_alloc("cache allocate") < 0) {
 		(void)munmap(shared, len);
 		free_procs();
 		exit(EXIT_FAILURE);
