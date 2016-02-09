@@ -400,6 +400,8 @@ int stress_hdd(
 		name, pid, instance, mwc32());
 	do {
 		int fd;
+		struct stat statbuf;
+		uint64_t hdd_read_size;
 
 		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
@@ -444,6 +446,8 @@ rnd_wr_retry:
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_wr_retry;
+					if (errno == ENOSPC)
+						break;
 					if (errno) {
 						pr_fail_err(name, "write");
 						(void)close(fd);
@@ -469,6 +473,8 @@ seq_wr_retry:
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_wr_retry;
+					if (errno == ENOSPC)
+						break;
 					if (errno) {
 						pr_fail_err(name, "write");
 						(void)close(fd);
@@ -480,6 +486,14 @@ seq_wr_retry:
 			}
 		}
 
+		if (fstat(fd, &statbuf) < 0) {
+			pr_fail_err(name, "fstat");
+			continue;
+		}
+		/* Round to write size to get no partial reads */
+		hdd_read_size = (uint64_t)statbuf.st_size -
+			(statbuf.st_size % opt_hdd_write_size);
+
 		/* Sequential Read */
 		if (opt_hdd_flags & HDD_OPT_RD_SEQ) {
 			uint64_t misreads = 0;
@@ -490,7 +504,7 @@ seq_wr_retry:
 				(void)close(fd);
 				goto finish;
 			}
-			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
 				ssize_t ret;
 seq_rd_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
@@ -541,7 +555,7 @@ seq_rd_retry:
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
-			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
 				ssize_t ret;
 				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
