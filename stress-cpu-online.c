@@ -92,7 +92,9 @@ int stress_cpu_online(
 	(void)instance;
 
 	if (geteuid() != 0) {
-		pr_inf(stderr, "%s: need root privilege to run this stressor\n", name);
+		if (instance == 0)
+			pr_inf(stderr, "%s: need root privilege to run "
+				"this stressor\n", name);
 		/* Not strictly a test failure */
 		return EXIT_SUCCESS;
 	}
