@@ -580,7 +580,6 @@ int stress_cache_alloc(const char *name)
 	if (!cache) {
 		pr_inf(stderr, "%s: using built-in defaults as no suitable "
 			"cache found\n", name);
-		free_cpu_caches(cpu_caches);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
