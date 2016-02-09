@@ -182,7 +182,8 @@ int stress_dentry(
 				name, pid, instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-				pr_fail_err(name, "open");
+				if (errno != ENOSPC)
+					pr_fail_err(name, "open");
 				n = i;
 				break;
 			}
