@@ -265,7 +265,7 @@ int stress_zlib_inflate(const char *name, const int fd)
 			stream_inf.next_out = out;
 
 			ret = inflate(&stream_inf, Z_NO_FLUSH);
-		} while ((ret = Z_OK) && (stream_inf.avail_out == 0));
+		} while ((ret == Z_OK) && (stream_inf.avail_out == 0));
 	}
 	(void)inflateEnd(&stream_inf);
 
