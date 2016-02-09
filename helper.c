@@ -617,6 +617,8 @@ init_done:
 			name);
 		return -1;
 	}
+	pr_inf(stderr, "%s: default cache size: %" PRIu64 "K\n",
+		name, shared->mem_cache_size / 1024);
 
 	return 0;
 }
