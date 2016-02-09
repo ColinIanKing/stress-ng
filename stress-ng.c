@@ -2875,6 +2875,24 @@ next_opt:
 		procs[id].exclude = true;
 	}
 #endif
+	/*
+	 *  Disable pathological stressors if user has not explicitly
+	 *  request them to be used. Let's play safe.
+	 */
+	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
+		for (i = 0; i < STRESS_MAX; i++) {
+			if (stressors[i].class & CLASS_PATHOLOGICAL) {
+				if (procs[i].num_procs > 0) {
+					pr_inf(stderr, "disabled '%s' (enable it "
+						"with --pathological option)\n",
+						munge_underscore((char *)stressors[i].name));
+				}
+				procs[i].num_procs = 0;
+				procs[i].exclude = true;
+			}
+		}
+	}
+
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
@@ -2923,22 +2941,6 @@ next_opt:
 			pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 			exit(EXIT_FAILURE);
-		}
-	}
-
-	/*
-	 *  Disable pathological stressors if user has not explicitly
-	 *  request them to be used. Let's play safe.
-	 */
-	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
-		for (i = 0; i < STRESS_MAX; i++) {
-			if ((procs[i].num_procs > 0) &&
-			    (stressors[i].class & CLASS_PATHOLOGICAL)) {
-				pr_inf(stderr, "disabled '%s' (enable it "
-					"with --pathological option)\n",
-					munge_underscore((char *)stressors[i].name));
-				procs[i].num_procs = 0;
-			}
 		}
 	}
 
