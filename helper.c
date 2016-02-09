@@ -570,8 +570,8 @@ int stress_cache_alloc(const char *name)
 	max_cache_level = get_max_cache_level(cpu_caches);
 
 	if (shared->mem_cache_level > max_cache_level) {
-		pr_dbg(stderr, "%s: reducing cache level from %d (too high) "
-			"to %d\n", name,
+		pr_dbg(stderr, "%s: reducing cache level from L%d (too high) "
+			"to L%d\n", name,
 			shared->mem_cache_level, max_cache_level);
 		shared->mem_cache_level = max_cache_level;
 	}
