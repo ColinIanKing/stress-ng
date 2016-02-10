@@ -488,6 +488,7 @@ seq_wr_retry:
 
 		if (fstat(fd, &statbuf) < 0) {
 			pr_fail_err(name, "fstat");
+			(void)close(fd);
 			continue;
 		}
 		/* Round to write size to get no partial reads */
