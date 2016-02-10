@@ -96,6 +96,8 @@ int stress_sendfile(
 	do {
 		off_t offset = 0;
 		if (sendfile(fdout, fdin, &offset, sz) < 0) {
+			if (errno == EINTR)
+				continue;
 			pr_fail_err(name, "sendfile");
 			ret = EXIT_FAILURE;
 			goto close_out;
