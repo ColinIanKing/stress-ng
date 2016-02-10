@@ -189,7 +189,7 @@ int stress_qsort(
 		if (!opt_do_run)
 			break;
 		/* And re-order by byte compare */
-		qsort(data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
+		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
 
 		/* Reverse sort this again */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
