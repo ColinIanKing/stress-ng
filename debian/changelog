@@ -1,3 +1,31 @@
+stress-ng (0.05.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * fast-test-all: add pass/fail summary at end
+  * fast-test-all: fix typo, socket-pair should be sockpair
+  * stress-handle: specify width of integer in sscanf
+  * Manual: expand the error exit code notes
+  * stress-qsort: cast data to (uint8_t *) to stop static analysis warnings
+  * stress-hdd: close file on a fstat failure
+  * stress-futex: add backoff delay if futex is too much in contention
+  * stress-sendfile: ignore EINTR on sendfile calls
+  * stress-readahead: handle -ENOSPC as a non-failure condition
+  * stress-vm-rw: re-organise the code into parent/child helpers
+  * stress-userfaultfd: set stack size to be STACK_SIZE
+  * stress-hdd: handle -ENOSPC as a non-failure condition
+  * adt: remove socket-pair from tests
+  * cache helper: output cache allocation size
+  * stress-cpu-online: only report root requirement on instance 0
+  * stress-cpu-online: Don't report a failure if not run as root
+  * Add L before cache level to make the debug less abstract
+  * stress-denty: ENOSPC should not be a fatal error that stops the test
+  * Fix -x option, compare munged strings to treat '_' like '-'
+  * Ensure pathological class is disabled if we don't enable --pathological
+  * stress-zlib: fix comparison which should not be an assignment
+  * helper: fix double free on error exit
+
+ -- Colin King <colin.king@canonical.com>  Wed, 10 Feb 2016 10:35:16 +0000
+
 stress-ng (0.05.14-1) unstable; urgency=medium
 
   * Makefile: bump version
