@@ -23,6 +23,8 @@ not_exclude()
 	return 0
 }
 
+p=0
+f=0
 for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
@@ -31,10 +33,15 @@ do
 		if [ $? -ne 0 ]
 		then
 			echo "$s FAILED"
+			f=$((f + 1))
 		else
 			echo "$s PASSED"
+			p=$((p + 1))
 		fi
 	fi
 done
+
+echo "$p PASSED"
+echo "$f FAILED"
 
 exit $rc
