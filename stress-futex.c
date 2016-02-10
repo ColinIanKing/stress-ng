@@ -43,6 +43,8 @@
 #include <sys/wait.h>
 #include <sys/syscall.h>
 
+#define THRESHOLD	(100000)
+
 /*
  *  futex wake()
  *	wake n waiters on futex
@@ -116,6 +118,8 @@ again:
 
 		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n", name, *timeout);
 	} else {
+		uint64_t threshold = THRESHOLD;
+
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
@@ -133,11 +137,10 @@ again:
 			/* timeout, re-do, stress on stupid fast polling */
 			if ((ret < 0) && (errno == ETIMEDOUT)) {
 				(*timeout)++;
-				if (*timeout > 100000) {
-					pr_fail(stderr, "%s: futex wait, too "
-						"many timeouts: errno=%d (%s)\n",
-						name, errno, strerror(errno));
-					break;
+				if (*timeout > threshold) {
+					/* Backoff for a short while and start again */
+					usleep(250000);
+					threshold += THRESHOLD;
 				}
 			} else {
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
