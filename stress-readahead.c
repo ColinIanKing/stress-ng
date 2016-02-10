@@ -37,7 +37,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
 #define BUF_ALIGNMENT		(4096)
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
@@ -53,12 +52,16 @@ void stress_set_readahead_bytes(const char *optarg)
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
 
-int do_readahead(const char *name, const int fd, off_t *offsets)
+int do_readahead(
+	const char *name,
+	const int fd,
+	off_t *offsets,
+	const uint64_t readahead_bytes)
 {
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (mwc64() % (opt_readahead_bytes - BUF_SIZE)) & ~511;
+		offsets[i] = (mwc64() % (readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail_err(name, "ftruncate");
 			return -1;
@@ -78,7 +81,7 @@ int stress_readahead(
 	const char *name)
 {
 	uint8_t *buf = NULL;
-	uint64_t i;
+	uint64_t readahead_bytes, i;
 	uint64_t misreads = 0;
 	uint64_t baddata = 0;
 	const pid_t pid = getpid();
@@ -86,6 +89,7 @@ int stress_readahead(
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC;
 	int fd;
+	struct stat statbuf;
 
 	if (!set_readahead_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -147,18 +151,29 @@ seq_wr_retry:
 		if (ret <= 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto seq_wr_retry;
+			if (errno == ENOSPC)
+				break;
 			if (errno) {
-				pr_fail_err(name, "write");
+				pr_fail_err(name, "pwrite");
 				goto close_finish;
 			}
 			continue;
 		}
 	}
 
+	if (fstat(fd, &statbuf) < 0) {
+		pr_fail_err(name, "fstat");
+		goto close_finish;
+	}
+
+	/* Round to write size to get no partial reads */
+	readahead_bytes = (uint64_t)statbuf.st_size -
+		(statbuf.st_size % BUF_SIZE);
+
 	do {
 		off_t offsets[MAX_OFFSETS];
 
-		if (do_readahead(name, fd, offsets) < 0)
+		if (do_readahead(name, fd, offsets, readahead_bytes) < 0)
 			goto close_finish;
 				
 		for (i = 0; i < MAX_OFFSETS; i++) {
