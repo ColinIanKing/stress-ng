@@ -74,7 +74,7 @@ int get_mount_info(const char *name)
 		if (nread == -1)
 			break;
 
-		nread = sscanf(line, "%d %*d %*s %*s %s",
+		nread = sscanf(line, "%12d %*d %*s %*s %s",
 			&mount_info[mounts].mount_id,
 			mount_path);
 		if (nread != 2)
