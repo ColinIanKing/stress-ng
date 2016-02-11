@@ -863,7 +863,8 @@ typedef enum {
 	__STRESS_GETRANDOM,
 #define STRESS_GETRANDOM __STRESS_GETRANDOM
 #endif
-#if defined(__linux__) && defined(__NR_name_to_handle_at) && defined(__NR_open_by_handle_at)
+#if defined(__linux__) && defined(__NR_name_to_handle_at) && \
+    defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
 	__STRESS_HANDLE,
 #define STRESS_HANDLE __STRESS_HANDLE
 #endif
