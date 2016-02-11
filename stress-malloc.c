@@ -209,7 +209,8 @@ again:
 
 					if (do_calloc == 0) {
 						size_t n = ((rnd >> 15) % 17) + 1;
-						addr[i] = calloc(len / n, len * n);
+						addr[i] = calloc(n, len / n);
+						len = n * (len / n);
 					} else {
 						addr[i] = malloc(len);
 					}
