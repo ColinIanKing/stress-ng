@@ -1004,7 +1004,7 @@ typedef enum {
 	__STRESS_RLIMIT,
 #define STRESS_RLIMIT __STRESS_RLIMIT
 #endif
-#if defined(__linux__) && defined(PR_SET_SECCOMP)
+#if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
 	__STRESS_SECCOMP,
 #define STRESS_SECCOMP __STRESS_SECCOMP
 #endif

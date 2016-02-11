@@ -199,7 +199,7 @@ LIB_PTHREAD := -lpthread
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
-	 HAVE_FLOAT_DECIMAL=0
+	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -274,6 +274,14 @@ ifeq ($(HAVE_FLOAT_DECIMAL),1)
 	CFLAGS += -DHAVE_FLOAT_DECIMAL
 endif
 endif
+
+ifndef $(HAVE_SECCOMP_H)
+HAVE_SECCOMP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_seccomp_h)
+ifeq ($(HAVE_SECCOMP_H),1)
+	CFLAGS += -DHAVE_SECCOMP_H
+endif
+endif
+
 
 .SUFFIXES: .c .o
 
@@ -398,6 +406,19 @@ have_float_decimal:
 		echo 0 ;\
 	fi
 	@rm -f test-decimal.c test-decimal.o
+
+#
+#  check if we have seccomp.h
+#
+have_seccomp_h:
+	@echo "#include <linux/seccomp.h>" > test-seccomp.c
+	@$(CC) $(CPPFLAGS) -c -o test-seccomp.o test-seccomp.c 2> /dev/null || true
+	@if [ -e test-seccomp.o ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-seccomp.c test-seccomp.o
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
