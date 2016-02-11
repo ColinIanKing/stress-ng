@@ -90,7 +90,7 @@ void ignite_cpu_start(void)
 		ret = system_write(settings[i].path, settings[i].default_setting,
 			settings[i].default_setting_len);
 		if (ret < 0) {
-			pr_inf(stderr, "cannot set %s to %s, errno=%d (%s)\n",
+			pr_dbg(stderr, "ignite-cpu: cannot set %s to %s, errno=%d (%s)\n",
 				settings[i].path, settings[i].default_setting,
 				-ret, strerror(-ret));
 			continue;
