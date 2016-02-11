@@ -1887,8 +1887,25 @@ redo:
 
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
+					if (WIFSIGNALED(status)) {
+#if defined(WTERMSIG)
+#if NEED_GLIBC(2,1,0)
+						const char *signame = strsignal(WTERMSIG(status));
+
+						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal: %d (%s)\n",
+							ret, stressors[i].name, WTERMSIG(status), signame);
+#else
+						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal: %d\n",
+							ret, stressors[i].name, WTERMSIG(status));
+#endif
+#else
+						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal\n",		
+							ret, stressors[i].name);
+#endif
+						*success = false;
+					}
 					if (WEXITSTATUS(status)) {
-						pr_err(stderr, "Process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
+						pr_err(stderr, "process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
 							ret, stressors[i].name, WEXITSTATUS(status));
 						*success = false;
 					}
