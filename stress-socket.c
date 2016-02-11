@@ -57,7 +57,7 @@
 
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_sendmmsg)
+#if defined(__linux__) && defined(__NR_sendmmsg) && NEED_GLIBC(2,14,0)
 #define HAVE_SENDMMSG
 #endif
 
