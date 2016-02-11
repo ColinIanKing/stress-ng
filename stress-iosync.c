@@ -61,7 +61,7 @@ int stress_iosync(
 
 	do {
 		sync();
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
 		if ((fd != -1) && (syncfs(fd) < 0))
 			pr_fail_err(name, "syncfs");
 #endif
