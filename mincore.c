@@ -43,9 +43,10 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 #else
 	unsigned char *vec;
 #endif
-	char *buffer;
+	volatile char *buffer;
 	size_t vec_len, i;
 	const size_t page_size = stress_get_pagesize();
+	uintptr_t uintptr = (uintptr_t)buf & (page_size - 1);
 
 	if (!(opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
@@ -58,7 +59,7 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	if (!vec)
 		return -1;
 
-	if (mincore(buf, buf_len, vec) < 0) {
+	if (mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
 		return -1;
 	}
@@ -68,11 +69,10 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 		if (!(vec[i] & 1))
 			(*buffer)++;
 
-	/* And return it back */
+	/* And restore contents */
 	for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
 		if (!(vec[i] & 1))
 			(*buffer)--;
-
 	free(vec);
 #else
 	(void)buf;
