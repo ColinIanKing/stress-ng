@@ -58,7 +58,7 @@ typedef struct {
  *  do_quotactl()
  *	do a quotactl command
  */
-static void do_quotactl(
+static int do_quotactl(
 	const char *name,
 	const int flag,
 	const char *cmdname,
@@ -75,6 +75,12 @@ static void do_quotactl(
 
 	(*tested)++;
 	if (ret < 0) {
+		if (errno == EPERM) {
+			pr_inf(stderr, "%s: need CAP_SYS_ADMIN capability to "
+				"run quota stressor, aborting stress test\n",
+				name);
+			return errno;
+		}
 		if ((failed_mask & flag) == 0) {
 			/* Just issue the warning once, reduce log spamming */
 			failed_mask |= flag;
@@ -86,6 +92,7 @@ static void do_quotactl(
 		else
 			(*failed)++;
 	}
+	return errno;
 }
 
 /*
@@ -95,34 +102,41 @@ static void do_quotactl(
 static int do_quotas(const dev_info_t *dev, const char *name)
 {
 	int tested = 0, failed = 0, enosys = 0;
+	int errno;
 #if defined(Q_GETQUOTA)
 	if (opt_do_run) {
 		struct dqblk dqblk;
 
-		do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
+		errno = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
+		if (errno == EPERM)
+			return errno;
 	}
 #endif
 #if defined(Q_GETFMT)
 	if (opt_do_run) {
 		uint32_t format;
 
-		do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
+		errno = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
+		if (errno == EPERM)
+			return errno;
 	}
 #endif
 #if defined(Q_GETINFO)
 	if (opt_do_run) {
 		struct dqinfo dqinfo;
 
-		do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
+		errno = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
+		if (errno == EPERM)
+			return errno;
 	}
 #endif
 #if defined(Q_GETSTATS)
@@ -130,22 +144,26 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	if (opt_do_run) {
 		struct dqstats dqstats;
 
-		do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
+		errno = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
+		if (errno == EPERM)
+			return errno;
 	}
 #endif
 #if defined(Q_SYNC)
 	if (opt_do_run) {
-		do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
+		errno = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
 			&tested, &failed, &enosys,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
+		if (errno == EPERM)
+			return errno;
 	}
 #endif
 	if (tested == 0) {
-		pr_err(stderr, "%s: quotactl() failed, quota commands "
+		errno = pr_err(stderr, "%s: quotactl() failed, quota commands "
 			"not available\n", name);
 		return -1;
 	}
@@ -251,10 +269,13 @@ int stress_quota(
 			"devices with quota enabled\n", name);
 	} else {
 		do {
-			for (i = 0; opt_do_run && (i < n_devs); i++)
-				if (do_quotas(&devs[i], name) < 0) {
+			for (i = 0; opt_do_run && (i < n_devs); i++) {
+				int ret = do_quotas(&devs[i], name);
+				if (ret == EPERM)
+					rc = EXIT_SUCCESS;
+				if (ret)
 					goto tidy;
-				}
+			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
