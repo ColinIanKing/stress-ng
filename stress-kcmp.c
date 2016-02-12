@@ -73,8 +73,13 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 {							\
 	int rc = sys_kcmp(pid1, pid2, type, idx1, idx2);\
 							\
-	if (rc < 0)	 				\
+	if (rc < 0) {	 				\
+		if (errno == EPERM) {			\
+			pr_inf(stderr, capfail, name);	\
+			break;				\
+		}					\
 		pr_fail_err(name, "kcmp: " # type);	\
+	}						\
 	if (!opt_do_run)				\
 		break;					\
 }
@@ -85,6 +90,10 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 							\
 	if (rc != res) {				\
 		if (rc < 0) {				\
+			if (errno == EPERM) {		\
+				pr_inf(stderr, capfail, name); \
+				break;			\
+			}				\
 			pr_fail_err(name, "kcmp: " # type);\
 		} else {				\
 			pr_fail(stderr, "%s: kcmp " # type \
@@ -109,6 +118,10 @@ int stress_kcmp(
 	pid_t pid1;
 	int fd1;
 	int ret = EXIT_SUCCESS;
+
+	static const char *capfail =
+		"%s: need CAP_SYS_PTRACE capability to run kcmp stressor, "
+		"aborting stress test\n";
 
 	(void)instance;
 
