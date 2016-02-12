@@ -777,6 +777,7 @@ typedef enum {
 #define STRESS_AIO __STRESS_AIO
 #endif
 #if defined(__linux__) &&		\
+    defined(HAVE_LIB_AIO) &&		\
     defined(__NR_io_setup) &&		\
     defined(__NR_io_destroy) &&		\
     defined(__NR_io_submit) && 		\

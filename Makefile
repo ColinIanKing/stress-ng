@@ -196,10 +196,11 @@ LIB_Z := -lz
 LIB_CRYPT := -lcrypt
 LIB_RT := -lrt
 LIB_PTHREAD := -lpthread
+LIB_AIO = -laio
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
-	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0
+	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0
 
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -281,6 +282,15 @@ ifeq ($(HAVE_SECCOMP_H),1)
 	CFLAGS += -DHAVE_SECCOMP_H
 endif
 endif
+
+ifndef $(HAVE_LIB_AIO)
+HAVE_LIB_AIO = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_aio)
+ifeq ($(HAVE_LIB_AIO),1)
+	CFLAGS += -DHAVE_LIB_AIO
+	LDFLAGS += $(LIB_AIO)
+endif
+endif
+
 
 
 .SUFFIXES: .c .o
@@ -419,6 +429,18 @@ have_seccomp_h:
 		echo 0 ;\
 	fi
 	@rm -f test-seccomp.c test-seccomp.o
+
+#
+#  check if we can build against libaio
+#
+have_lib_aio:
+	@$(CC) $(CPPFLAGS) test-libaio.c $(LIB_AIO) -o test-libaio 2> /dev/null || true
+	@if [ -e test-libaio ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libaio
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor

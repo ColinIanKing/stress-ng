@@ -36,64 +36,13 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/syscall.h>
-#include <aio.h>
 #include <fcntl.h>
-#include <linux/aio_abi.h>
+#include <libaio.h>
 
 #define BUFFER_SZ	(4096)
 
 static int opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 static bool set_aio_linux_requests = false;
-
-static inline int sys_io_setup(unsigned nr_events, aio_context_t *ctx_idp)
-{
-#if defined(__NR_io_setup)
-	return syscall(__NR_io_setup, nr_events, ctx_idp);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static inline int sys_io_destroy(aio_context_t ctx_id)
-{
-#if defined(__NR_io_destroy)
-	return syscall(__NR_io_destroy, ctx_id);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static inline int sys_io_submit(
-	aio_context_t ctx_id,
-	long nr,
-	struct iocb **iocbpp)
-{
-#if defined(__NR_io_submit)
-	return syscall(__NR_io_submit, ctx_id, nr, iocbpp);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static inline int sys_io_getevents(
-	aio_context_t ctx_id,
-	long min_nr,
-	long max_nr,
-	struct io_event *events,
-	struct timespec *timeout)
-{
-#if defined(__NR_io_getevents)
-	return syscall(__NR_io_getevents, ctx_id, min_nr,
-		max_nr, events, timeout);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
 
 void stress_set_aio_linux_requests(const char *optarg)
 {
@@ -134,7 +83,7 @@ int stress_aio_linux(
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
-	aio_context_t ctx = 0;
+	io_context_t ctx = 0;
 
 	if (!set_aio_linux_requests) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -142,7 +91,7 @@ int stress_aio_linux(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_linux_requests = MIN_AIO_REQUESTS;
 	}
-	if (sys_io_setup(opt_aio_linux_requests, &ctx) < 0) {
+	if (io_setup(opt_aio_linux_requests, &ctx) < 0) {
 		pr_fail_err(name, "io_setup");
 		return EXIT_FAILURE;
 	}
@@ -173,13 +122,13 @@ int stress_aio_linux(
 		memset(cb, 0, sizeof(cb));
 		for (i = 0; i < opt_aio_linux_requests; i++) {
 			cb[i].aio_fildes = fd;
-			cb[i].aio_lio_opcode = IOCB_CMD_PWRITE;
-			cb[i].aio_buf = (long)buffers[i];
-			cb[i].aio_offset = mwc16() * BUFFER_SZ;
-			cb[i].aio_nbytes = BUFFER_SZ;
+			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
+			cb[i].u.c.buf = buffers[i];
+			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
+			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		ret = sys_io_submit(ctx, opt_aio_linux_requests, cbs);
+		ret = io_submit(ctx, opt_aio_linux_requests, cbs);
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
@@ -202,7 +151,7 @@ int stress_aio_linux(
 				timeout_ptr = &timeout;
 			}
 
-			ret = sys_io_getevents(ctx, 1, n, events, timeout_ptr);
+			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
 				if ((errno == EINTR) && (opt_do_run))
 					continue;
@@ -218,7 +167,7 @@ int stress_aio_linux(
 	rc = EXIT_SUCCESS;
 	(void)close(fd);
 finish:
-	(void)sys_io_destroy(ctx);
+	(void)io_destroy(ctx);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }
