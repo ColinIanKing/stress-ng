@@ -1,3 +1,24 @@
+stress-ng (0.05.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add test-libaio.c to dist rule
+  * stress-seccomp: EINTR on waitpid is not a failure, so ignore it
+  * stress-numa: aborted test should not be a failure, nothing got tested
+  * stress-quota: check for EPERM, abort if we don't have permission
+  * stress-kcmp: check for EPERM, abort if we don't have permission
+  * debian/control: add libaio-dev dependency
+  * stress-aio: use aiolib instead of direct system calls
+  * Catch faults in child stressor and flag them as a fatal failure
+  * stress-socket: only build in sendmmsg test for glibc 2.14 or higher
+  * stress-iosync: build in syncfs call for glibc 2.14 or higher
+  * Add detection for <linux/seccomp.h>
+  * stress-handle: only build in if we have glibc 2.14 or higher
+  * ignite-cpu: don't print failure message as inf, make it dbg
+  * stress-malloc: calloc'd size is too big, fix the size (LP: #1544575)
+  * mincore: page align address of buffer before passing it to mincore
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 Feb 2016 19:02:59 +0000
+
 stress-ng (0.05.15-1) unstable; urgency=medium
 
   * Makefile: bump version
