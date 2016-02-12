@@ -243,6 +243,7 @@ int stress_numa(
 	if (numa_nodes <= 1) {
 		pr_inf(stderr, "%s: multiple NUMA nodes not found, "
 			"aborting test.\n", name);
+		rc = EXIT_SUCCESS;
 		goto numa_free;
 	}
 	nbits = (numa_nodes + lbits - 1) / lbits;
