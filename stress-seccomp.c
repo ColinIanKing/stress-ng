@@ -210,8 +210,9 @@ int stress_seccomp(
 
 			/* Wait for child to exit or get killed by seccomp */
 			if (waitpid(pid, &status, 0) < 0) {
-				pr_dbg(stderr, "%s: waitpid failed, errno = %d (%s)\n",
-					name, errno, strerror(errno));
+				if (errno != EINTR)
+					pr_dbg(stderr, "%s: waitpid failed, errno = %d (%s)\n",
+						name, errno, strerror(errno));
 			} else {
 				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&
