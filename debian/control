@@ -3,7 +3,7 @@ Section: devel
 Priority: extra
 Maintainer: Colin King <colin.king@canonical.com>
 Standards-Version: 3.9.6
-Build-Depends: debhelper (>= 9), zlib1g-dev, libbsd-dev, libattr1-dev, libkeyutils-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64], libapparmor-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64], apparmor [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
+Build-Depends: debhelper (>= 9), zlib1g-dev, libbsd-dev, libattr1-dev, libkeyutils-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64], libapparmor-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64], apparmor [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64], libaio-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
 Homepage: http://kernel.ubuntu.com/~cking/stress-ng
 
 Package: stress-ng
