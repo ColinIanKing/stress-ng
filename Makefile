@@ -203,6 +203,10 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0
 
 #
+# Do build time config only if cmd is "make" and no goals given
+#
+ifeq ($(MAKECMDGOALS),)
+#
 # A bit recursive, 2nd time around HAVE_APPARMOR is
 # defined so we don't call ourselves over and over
 #
@@ -288,6 +292,7 @@ HAVE_LIB_AIO = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_aio)
 ifeq ($(HAVE_LIB_AIO),1)
 	CFLAGS += -DHAVE_LIB_AIO
 	LDFLAGS += $(LIB_AIO)
+endif
 endif
 endif
 
