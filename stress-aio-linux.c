@@ -41,18 +41,18 @@
 
 #define BUFFER_SZ	(4096)
 
-static int opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
+static uint32_t opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 static bool set_aio_linux_requests = false;
 
 void stress_set_aio_linux_requests(const char *optarg)
 {
-	uint64_t aio_linux_requests;
+	uint32_t aio_linux_requests;
 
 	set_aio_linux_requests = true;
-	aio_linux_requests = get_uint64(optarg);
-	check_range("aioabi-requests", aio_linux_requests,
+	aio_linux_requests = get_unsigned_long(optarg);
+	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	opt_aio_linux_requests = (int)aio_linux_requests;
+	opt_aio_linux_requests = aio_linux_requests;
 }
 
 /*
@@ -91,6 +91,11 @@ int stress_aio_linux(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_linux_requests = MIN_AIO_REQUESTS;
 	}
+	if ((opt_aio_linux_requests < MIN_AIO_REQUESTS) ||
+	    (opt_aio_linux_requests > MAX_AIO_REQUESTS)) {
+		pr_err(stderr, "%s: iol_requests out of range", name);
+		return EXIT_FAILURE;
+	}
 	if (io_setup(opt_aio_linux_requests, &ctx) < 0) {
 		pr_fail_err(name, "io_setup");
 		return EXIT_FAILURE;
@@ -113,7 +118,8 @@ int stress_aio_linux(
 		struct iocb *cbs[opt_aio_linux_requests];
 		struct io_event events[opt_aio_linux_requests];
 		uint8_t buffers[opt_aio_linux_requests][BUFFER_SZ];
-		int ret, i;
+		uint32_t i;
+		int ret;
 		long n;
 
 		for (i = 0; i < opt_aio_linux_requests; i++)
@@ -128,7 +134,7 @@ int stress_aio_linux(
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		ret = io_submit(ctx, opt_aio_linux_requests, cbs);
+		ret = io_submit(ctx, (long)opt_aio_linux_requests, cbs);
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
