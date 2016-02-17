@@ -49,6 +49,7 @@
 #include <netinet/in.h>
 #include <linux/fs.h>
 #include <linux/fiemap.h>
+#include <linux/posix_types.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
