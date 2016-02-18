@@ -168,7 +168,7 @@ static int issue_aio_request(
 		return ret;
 	}
 	/* Given up */
-	return -1;
+	return 1;
 }
 
 /*
@@ -220,8 +220,13 @@ int stress_aio(
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
-		if (issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write) < 0)
+		ret = issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write);
+		if (ret < 0)
 			goto cancel;
+		if (ret > 0) {
+			rc = EXIT_SUCCESS;
+			goto cancel;
+		}
 	}
 
 	do {
