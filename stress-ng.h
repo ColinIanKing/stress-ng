@@ -2097,6 +2097,7 @@ extern void ignite_cpu_start(void);
 extern void ignite_cpu_stop(void);
 extern int system_write(const char *path, const char *buf, const size_t buf_len);
 extern WARN_UNUSED int system_read(const char *path, char *buf, const size_t buf_len);
+extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);
