@@ -57,6 +57,19 @@
 #include <features.h>
 #endif
 
+#if defined (__linux__)
+/*
+ *  BeagleBoneBlack with 4.1.15 kernel does not
+ *  define the following, these should be defined
+ *  in linux/posix_types.h - define them just in
+ *  case they don't exist.
+ */
+#ifndef __kernel_long_t
+typedef long int __kernel_long_t;
+typedef unsigned long int __kernel_ulong_t;
+#endif
+#endif
+
 #define EXIT_NOT_SUCCESS	(2)
 
 /*
