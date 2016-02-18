@@ -105,7 +105,7 @@ static void stress_dentry_unlink(
 {
 	uint64_t i, j;
 	const pid_t pid = getpid();
-	const uint64_t prime = PRIME_64;
+	uint64_t prime;
 	dentry_order_t ord;
 
 	ord = (order == ORDER_RANDOM) ?
@@ -123,6 +123,7 @@ static void stress_dentry_unlink(
 		}
 		break;
 	case ORDER_STRIDE:
+		prime = stress_get_prime64(n);
 		for (i = 0, j = prime; i < n; i++, j += prime) {
 			char path[PATH_MAX];
 			uint64_t k = j % n;
