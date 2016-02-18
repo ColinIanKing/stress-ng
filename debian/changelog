@@ -1,3 +1,21 @@
+stress-ng (0.05.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-aio: don't cancel the signal handler before exiting (LP: #1547108)
+  * stress-lockf: don't return failure if we get a timeout (LP: #154107)
+  * stress-aio: don't return failure if we get a timeout (LP: #1547090)
+  * Check for ENOMEM ENOSPC errors during init (LP: #1547062)
+  * make stress_temp_dir_mk and stress_temp_dir_rm return -errno on failure
+  * stress-dentry: fix file striding on clean-up (LP: #1547004)
+  * Add stress_get_prime64 to stress-ng header
+  * Add stress_get_prime64 to find a prime for filename striding
+  * typedef possibly missing __kernel_long_t and __kernel_ulong_t
+  * Add <linux/posix_types.h> for linux builds
+  * stress-aio-linux: fix clang scan-build warning
+  * Makefile: only do build time config detection when building target
+
+ -- Colin King <colin.king@canonical.com>  Thu, 18 Feb 2016 17:52:11 +0000
+
 stress-ng (0.05.16-1) unstable; urgency=medium
 
   * Makefile: bump version
