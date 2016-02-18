@@ -35,6 +35,7 @@
 #include <libgen.h>
 #include <signal.h>
 #include <time.h>
+#include <math.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if defined(__linux__)
@@ -678,4 +679,46 @@ int system_read(
 	(void)close(fd);
 
 	return ret;
+}
+
+
+/*
+ *  stress_is_prime64()
+ *      return true if 64 bit value n is prime
+ *      http://en.wikipedia.org/wiki/Primality_test
+ */
+static inline bool stress_is_prime64(uint64_t n)
+{
+        register uint64_t i, max;
+
+        if (n <= 3)
+                return n >= 2;
+        if ((n % 2 == 0) || (n % 3 == 0))
+                return false;
+        max = sqrt(n) + 1;
+        for (i = 5; i < max; i+= 6)
+                if ((n % i == 0) || (n % (i + 2) == 0))
+                        return false;
+        return true;
+}
+
+/*
+ *  stress_get_prime64()
+ *	find a prime that is not a multiple of n,
+ *	used for file name striding
+ */
+uint64_t stress_get_prime64(const uint64_t n)
+{
+	static uint p = 1009;
+
+	if (n != p)
+		return p;
+
+	/* Search for next prime.. */
+	for (;;) {
+		p += 2;
+
+		if ((n % p) && stress_is_prime64(p))
+			return p;
+	}
 }
