@@ -266,9 +266,6 @@ cancel:
 		aio_issue_cancel(name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
-	/* restore handler */
-	if (sigaction(SIGUSR1, &sa_old, NULL) < 0)
-		pr_fail_err(name, "sigaction");
 	(void)close(fd);
 finish:
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals caught (instance %d)\n",
