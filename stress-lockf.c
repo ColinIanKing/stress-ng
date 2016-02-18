@@ -260,12 +260,15 @@ int stress_lockf(
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-		if (!opt_do_run)
+		if (!opt_do_run) {
+			ret = EXIT_SUCCESS;
 			goto tidy;
+		}
 		rc = write(fd, buffer, sizeof(buffer));
 		if ((rc < 0) || (rc != sizeof(buffer))) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
+			ret = exit_status(errno);
 			pr_fail_err(name, "write");
 			goto tidy;
 		}
@@ -274,7 +277,11 @@ redo:
 again:
 	cpid = fork();
 	if (cpid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (!opt_do_run) {
+			ret = EXIT_SUCCESS;
+			goto tidy;
+		}
+		if (errno == EAGAIN)
 			goto again;
 		pr_fail_err(name, "fork");
 		goto tidy;
