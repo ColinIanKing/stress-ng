@@ -49,11 +49,12 @@ int stress_fault(
 {
 	struct rusage usage;
 	char filename[PATH_MAX];
-	int i = 0;
+	int ret, i = 0;
 	const pid_t pid = getpid();
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
@@ -65,12 +66,18 @@ int stress_fault(
 
 		fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
+			if ((errno == ENOSPC) || (errno == ENOMEM))
+				continue;	/* Try again */
 			pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
 		if (posix_fallocate(fd, 0, 1) < 0) {
+			if (errno == ENOSPC) {
+				(void)close(fd);
+				continue;	/* Try again */
+			}
 			(void)close(fd);
 			pr_err(stderr, "%s: posix_fallocate failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
@@ -84,6 +91,10 @@ redo:
 			if (opt_do_run && (write(fd, buffer, sizeof(buffer)) < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo;
+				if (errno == ENOSPC) {
+					(void)close(fd);
+					continue;
+				}
 				(void)close(fd);
 				pr_err(stderr, "%s: write failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));

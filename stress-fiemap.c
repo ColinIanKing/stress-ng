@@ -205,7 +205,7 @@ int stress_fiemap(
 	const char *name)
 {
 	pid_t pids[MAX_FIEMAP_PROCS], mypid;
-	int fd, rc = EXIT_FAILURE, status;
+	int ret, fd, rc = EXIT_FAILURE, status;
 	char filename[PATH_MAX];
 	size_t i;
 	const size_t counters_sz = sizeof(uint64_t) * MAX_FIEMAP_PROCS;
@@ -226,18 +226,22 @@ int stress_fiemap(
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 	memset(counters, 0, counters_sz);
 
 	mypid = getpid();
-	if (stress_temp_dir_mk(name, mypid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, mypid, instance);
+	if (ret < 0) {
+		rc = exit_status(-ret);
+		goto clean;
+	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, mypid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto clean;
 	}

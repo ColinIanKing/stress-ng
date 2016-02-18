@@ -80,7 +80,7 @@ int stress_aio_linux(
 	const uint64_t max_ops,
 	const char *name)
 {
-	int fd, rc = EXIT_FAILURE;
+	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 	io_context_t ctx = 0;
@@ -100,14 +100,16 @@ int stress_aio_linux(
 		pr_fail_err(name, "io_setup");
 		return EXIT_FAILURE;
 	}
-	if (stress_temp_dir_mk(name, pid, instance) < 0) {
-		return EXIT_FAILURE;
-	}
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
+
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto finish;
 	}

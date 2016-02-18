@@ -64,11 +64,12 @@ restart:
 		name, pid, inst1, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
+		int rc = exit_status(errno);
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 		(void)stress_temp_dir_rm(name, pid, inst1);
 		(void)stress_temp_dir_rm(name, pid, inst2);
-		return EXIT_FAILURE;
+		return rc;
 	}
 	(void)fclose(fp);
 

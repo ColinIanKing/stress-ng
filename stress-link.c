@@ -73,23 +73,26 @@ static int stress_link_generic(
 	bool symlink)
 {
 	const pid_t pid = getpid();
-	int fd;
+	int rc, ret, fd;
 	char oldpath[PATH_MAX];
 	size_t oldpathlen;
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 	(void)stress_temp_filename(oldpath, sizeof(oldpath),
 		name, pid, instance, ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		ret = exit_status(errno);
 		pr_fail_err(name, "open");
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return ret;
 	}
 	(void)close(fd);
 
 	oldpathlen = strlen(oldpath);
 
+	rc = EXIT_SUCCESS;
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
 
@@ -99,6 +102,7 @@ static int stress_link_generic(
 			(void)stress_temp_filename(newpath, sizeof(newpath),
 				name, pid, instance, i);
 			if (linkfunc(oldpath, newpath) < 0) {
+				rc = exit_status(errno);
 				pr_fail_err(name, funcname);
 				n = i;
 				break;
@@ -109,6 +113,7 @@ static int stress_link_generic(
 
 				ret = readlink(newpath, buf, sizeof(buf));
 				if (ret < 0) {
+					rc = exit_status(errno);
 					pr_fail_err(name, "readlink");
 				} else {
 					if ((size_t)ret != oldpathlen)
@@ -135,7 +140,7 @@ abort:
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm(name, pid, instance);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 /*

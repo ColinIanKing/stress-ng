@@ -85,9 +85,11 @@ int stress_yield(
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
+		int rc = exit_status(errno);
+
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		return rc;
 	}
 	memset(counters, 0, counters_sz);
 

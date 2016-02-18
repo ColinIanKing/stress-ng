@@ -246,8 +246,8 @@ static int stress_socket_server(
 		goto die;
 	}
 	if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_dbg(name, "socket");
-		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
@@ -260,8 +260,8 @@ static int stress_socket_server(
 	stress_set_sockaddr(name, instance, ppid,
 		opt_socket_domain, opt_socket_port, &addr, &addr_len);
 	if (bind(fd, addr, addr_len) < 0) {
+		rc = exit_status(errno);
 		pr_fail_dbg(name, "bind");
-		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {

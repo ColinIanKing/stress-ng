@@ -377,8 +377,9 @@ int stress_hdd(
 	}
 
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	/* Must have some write option */
 	if ((opt_hdd_flags & HDD_OPT_WR_MASK) == 0)
@@ -389,9 +390,10 @@ int stress_hdd(
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
 	if (ret || !buf) {
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	stress_strnrnd((char *)buf, opt_hdd_write_size);
@@ -405,6 +407,8 @@ int stress_hdd(
 
 		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
+			if ((errno == ENOSPC) || (errno == ENOMEM))
+				continue;	/* Retry */
 			pr_fail_err(name, "open");
 			goto finish;
 		}

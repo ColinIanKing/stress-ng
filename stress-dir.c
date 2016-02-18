@@ -68,9 +68,11 @@ int stress_dir(
 	const char *name)
 {
 	const pid_t pid = getpid();
+	int ret;
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
@@ -82,9 +84,11 @@ int stress_dir(
 			(void)stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
-				pr_fail_err(name, "mkdir");
-				n = i;
-				break;
+				if ((errno != ENOSPC) && (errno != ENOMEM)) {
+					pr_fail_err(name, "mkdir");
+					n = i;
+					break;
+				}
 			}
 
 			if (!opt_do_run ||
@@ -105,5 +109,5 @@ abort:
 	stress_dir_tidy(DEFAULT_DIRS, name, pid, instance);
 	(void)stress_temp_dir_rm(name, pid, instance);
 
-	return EXIT_SUCCESS;
+	return ret;
 }

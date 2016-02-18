@@ -130,7 +130,7 @@ int stress_qsort(
 
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
 		pr_fail_dbg(name, "malloc");
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	memset(&new_action, 0, sizeof new_action);

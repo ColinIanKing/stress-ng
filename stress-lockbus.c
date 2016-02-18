@@ -73,8 +73,9 @@ int stress_lockbus(
 #endif
 	buffer = mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (buffer == MAP_FAILED) {
+		int rc = exit_status(errno);
 		pr_err(stderr, "%s: mmap failed\n", name);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	do {

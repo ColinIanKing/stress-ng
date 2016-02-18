@@ -57,7 +57,7 @@ int stress_seek(
 {
 	uint64_t len;
 	const pid_t pid = getpid();
-	int fd, rc = EXIT_FAILURE;
+	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	uint8_t buf[512];
 #if defined(OPT_SEEK_PUNCH)
@@ -72,8 +72,9 @@ int stress_seek(
 	}
 	len = opt_seek_size - sizeof(buf);
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	stress_strnrnd((char *)buf, sizeof(buf));
 
@@ -81,16 +82,19 @@ int stress_seek(
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "lseek");
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "write");
 		goto close_finish;
 	}

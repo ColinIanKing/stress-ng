@@ -208,7 +208,7 @@ int stress_fcntl(
         if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err(name, "mkdir");
-			return EXIT_FAILURE;
+			return exit_status(errno);
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
@@ -222,7 +222,8 @@ int stress_fcntl(
 		 *  already created it
 		 */
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-			if (errno == EPERM || errno == EACCES) {
+			if ((errno == EPERM) || (errno == EACCES) ||
+			    (errno == ENOMEM) || (errno == ENOSPC)) {
 				(void)usleep(100000);
 				continue;
 			}

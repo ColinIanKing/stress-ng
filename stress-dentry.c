@@ -160,6 +160,7 @@ int stress_dentry(
 	const char *name)
 {
 	const pid_t pid = getpid();
+	int ret;
 
 	if (!set_dentries) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -168,8 +169,9 @@ int stress_dentry(
 			opt_dentries = MIN_DENTRIES;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	do {
 		uint64_t i, n = opt_dentries;

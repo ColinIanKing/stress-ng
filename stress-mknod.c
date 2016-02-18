@@ -81,14 +81,16 @@ int stress_mknod(
 {
 	const pid_t pid = getpid();
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
+	int ret;
 
 	if (num_nodes == 0) {
 		pr_inf(stderr, "%s: aborting, no valid mknod modes.\n",
 			name);
 		return EXIT_FAILURE;
 	}
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
@@ -101,6 +103,8 @@ int stress_mknod(
 			(void)stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
+				if ((errno == ENOSPC) || (errno = ENOMEM))
+					continue;	/* Try again */
 				pr_fail_err(name, "mknod");
 				n = i;
 				break;

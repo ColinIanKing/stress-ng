@@ -165,23 +165,24 @@ int stress_userfaultfd(
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: zero page allocation failed\n", name);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	data = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: mmap failed\n", name);
-		rc = EXIT_FAILURE;
 		goto free_zeropage;
 	}
 
 	/* Get userfault fd */
 	if ((fd = sys_userfaultfd(0)) < 0) {
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: userfaultfd failed, errno = %d (%s)\n",
 			name, errno, strerror(errno));
-		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 

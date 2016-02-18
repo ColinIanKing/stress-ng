@@ -68,7 +68,7 @@ int stress_msg(
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
 		pr_fail_dbg(name, "msgget");
-		return EXIT_FAILURE;
+		return exit_status(errno);
 	}
 	pr_dbg(stderr, "System V message queue created, id: %d\n", msgq_id);
 

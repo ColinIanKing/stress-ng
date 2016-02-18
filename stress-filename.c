@@ -87,7 +87,7 @@ int stress_filename_opts(const char *opt)
  *  stress_filename_probe()
  *	determine allowed filename chars by probing
  */
-void stress_filename_probe(
+int stress_filename_probe(
 	const char *name,
 	char *filename,
 	char *ptr,
@@ -116,7 +116,7 @@ void stress_filename_probe(
 					name, errno, strerror(errno));
 				pr_inf(stderr, "%s: perhaps retry and use --filename-opts posix\n", name);
 				*chars_allowed = 0;
-				return;
+				return -errno;
 			}
 		} else {
 			(void)close(fd);
@@ -126,6 +126,8 @@ void stress_filename_probe(
 		}
 	}
 	*chars_allowed = j;
+
+	return 0;
 }
 
 /*
@@ -224,7 +226,7 @@ int stress_filename (
 	const char *name)
 {
 	const pid_t pid = getpid();
-	int rc = EXIT_FAILURE;
+	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
 	char dirname[PATH_MAX];
 	char filename[PATH_MAX];
@@ -270,7 +272,11 @@ int stress_filename (
 		break;
 	case STRESS_FILENAME_PROBE:
 	default:
-		stress_filename_probe(name, filename, ptr, &chars_allowed);
+		ret = stress_filename_probe(name, filename, ptr, &chars_allowed);
+		if (ret < 0) {
+			rc = exit_status(-ret);
+			goto tidy_dir;
+		}
 		break;
 	}
 

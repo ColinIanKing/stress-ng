@@ -49,19 +49,21 @@ int stress_utime(
 	const char *name)
 {
 	char filename[PATH_MAX];
-	int fd;
+	int ret, fd;
 	const pid_t pid = getpid();
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
+		ret = exit_status(errno);
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return ret;
 	}
 
 	do {

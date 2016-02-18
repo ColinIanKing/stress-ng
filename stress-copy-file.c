@@ -102,11 +102,13 @@ int stress_copy_file(
 		name, pid, instance, mwc32());
 	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
 	if (ftruncate(fd_in, opt_copy_file_bytes) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "ftruncate");
 		goto tidy_in;
 	}
@@ -117,6 +119,7 @@ int stress_copy_file(
 
 	snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto tidy_in;
 	}

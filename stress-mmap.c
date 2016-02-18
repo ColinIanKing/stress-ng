@@ -178,22 +178,24 @@ int stress_mmap(
 	set_oom_adjustment(name, true);
 
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
-		ssize_t ret;
+		ssize_t ret, rc;
 		char ch = '\0';
 
-		if (stress_temp_dir_mk(name, pid, instance) < 0)
-			return EXIT_FAILURE;
+		rc = stress_temp_dir_mk(name, pid, instance);
+		if (rc < 0)
+			return exit_status(-rc);
 
 		(void)stress_temp_filename(filename, sizeof(filename),
 			name, pid, instance, mwc32());
 
 		(void)umask(0077);
 		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+			rc = exit_status(errno);
 			pr_fail_err(name, "open");
 			(void)unlink(filename);
 			(void)stress_temp_dir_rm(name, pid, instance);
 
-			return EXIT_FAILURE;
+			return rc;
 		}
 		(void)unlink(filename);
 		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
@@ -208,11 +210,12 @@ redo:
 		if (ret != sizeof(ch)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
+			rc = exit_status(errno);
 			pr_fail_err(name, "write");
 			(void)close(fd);
 			(void)stress_temp_dir_rm(name, pid, instance);
 
-			return EXIT_FAILURE;
+			return rc;
 		}
 		flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
 		flags |= MAP_SHARED;

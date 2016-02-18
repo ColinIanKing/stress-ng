@@ -99,9 +99,11 @@ int stress_bind_mount(
 	pid = clone(stress_bind_mount_child,
 		stack_top, CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM, &context, 0);
 	if (pid < 0) {
+		int rc = exit_status(errno);
+
 		pr_fail(stderr, "%s: clone failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	do {

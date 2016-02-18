@@ -48,7 +48,7 @@ int stress_chdir(
 	const pid_t pid = getpid();
 	uint64_t i;
 	char path[PATH_MAX], cwd[PATH_MAX];
-	int ret = EXIT_FAILURE;
+	int rc, ret = EXIT_FAILURE;
 	char *paths[DEFAULT_DIRS];
 
 	memset(paths, 0, sizeof(paths));
@@ -58,8 +58,9 @@ int stress_chdir(
 		return ret;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return ret;
+	rc = stress_temp_dir_mk(name, pid, instance);
+	if (rc < 0)
+		return exit_status(-rc);
 
 	/* Populate */
 	for (i = 0; i < DEFAULT_DIRS; i++) {
@@ -70,7 +71,9 @@ int stress_chdir(
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;
-		if (mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
+		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
+		if (rc < 0) {
+			ret = exit_status(errno);
 			pr_fail_err(name, "mkdir");
 			goto abort;
 		}

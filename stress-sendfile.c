@@ -61,7 +61,7 @@ int stress_sendfile(
 	const char *name)
 {
 	char filename[PATH_MAX];
-	int fdin, fdout, ret = EXIT_SUCCESS;
+	int fdin, fdout, ret, rc = EXIT_SUCCESS;
 	size_t sz;
 	const pid_t pid = getpid();
 
@@ -73,8 +73,9 @@ int stress_sendfile(
 	}
 	sz = (size_t)opt_sendfile_size;
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
         (void)umask(0077);
 
@@ -82,14 +83,19 @@ int stress_sendfile(
 		name, pid, instance, mwc32());
 
         if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
                 pr_fail_err(name, "open");
-		ret = EXIT_FAILURE;
 		goto dir_out;
         }
-	(void)posix_fallocate(fdin, (off_t)0, (off_t)sz);
+	ret = posix_fallocate(fdin, (off_t)0, (off_t)sz);
+	if (ret < 0) {
+		rc = exit_status(errno);
+                pr_fail_err(name, "open");
+		goto dir_out;
+	}
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail_err(name, "open");
-		ret = EXIT_FAILURE;
+		rc = EXIT_FAILURE;
 		goto close_in;
 	}
 
@@ -99,7 +105,7 @@ int stress_sendfile(
 			if (errno == EINTR)
 				continue;
 			pr_fail_err(name, "sendfile");
-			ret = EXIT_FAILURE;
+			rc = EXIT_FAILURE;
 			goto close_out;
 		}
 		(*counter)++;
@@ -113,6 +119,6 @@ close_in:
 dir_out:
 	(void)stress_temp_dir_rm(name, pid, instance);
 
-	return ret;
+	return rc;
 }
 #endif

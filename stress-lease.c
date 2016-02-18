@@ -128,7 +128,7 @@ int stress_lease(
 {
 	char filename[PATH_MAX];
 	struct sigaction new_action;
-	int fd, status;
+	int ret, fd, status;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
 	pid_t pid = getpid();
 	uint64_t i;
@@ -145,17 +145,19 @@ int stress_lease(
 		return EXIT_FAILURE;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 	(void)stress_temp_filename(filename, PATH_MAX,
 		name, pid, instance, mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
+		ret = exit_status(errno);
 		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return ret;
 	}
 	(void)close(fd);
 
@@ -170,6 +172,7 @@ int stress_lease(
 	do {
 		fd = open(filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
+			ret = exit_status(errno);
 			pr_err(stderr, "%s: open failed (parent): errno=%d: (%s)\n",
 				name, errno, strerror(errno));
 			goto reap;
@@ -193,6 +196,8 @@ int stress_lease(
 		(void)close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	ret = EXIT_SUCCESS;
+
 reap:
 	for (i = 0; i < opt_lease_breakers; i++) {
 		if (l_pids[i]) {
@@ -206,7 +211,7 @@ reap:
 
 	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", name, lease_sigio);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 #endif

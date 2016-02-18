@@ -62,7 +62,7 @@ int stress_flock(
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err(name, "mkdir");
-			return EXIT_FAILURE;
+			return exit_status(errno);
 		}
 	}
 
@@ -75,6 +75,8 @@ int stress_flock(
 		name, ppid, 0, 0);
 retry:
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		int rc = exit_status(errno);
+
 		if ((errno == ENOENT) && opt_do_run) {
 			/* Race, sometimes we need to retry */
 			goto retry;
@@ -82,7 +84,7 @@ retry:
 		/* Not sure why this fails.. report and abort */
 		pr_fail_err(name, "open");
 		(void)rmdir(dirname);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	do {

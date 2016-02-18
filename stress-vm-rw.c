@@ -86,8 +86,8 @@ int stress_vm_child(void *arg)
 	buf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
+		ret = exit_status(errno);
 		pr_fail_dbg(ctxt->name, "mmap");
-		ret = EXIT_FAILURE;
 		goto cleanup;
 	}
 

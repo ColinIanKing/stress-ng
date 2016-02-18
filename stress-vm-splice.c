@@ -76,8 +76,10 @@ int stress_vm_splice(
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
+		int rc = exit_status(errno);
+
 		pr_fail_dbg(name, "mmap");
-		return(EXIT_FAILURE);
+		return rc;
 	}
 
 	if (pipe(fds) < 0) {

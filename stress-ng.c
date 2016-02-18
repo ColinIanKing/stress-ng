@@ -1831,7 +1831,7 @@ static void kill_procs(const int sig)
  *  wait_procs()
  * 	wait for procs
  */
-static void MLOCKED wait_procs(bool *success)
+static void MLOCKED wait_procs(bool *success, bool *resource_success)
 {
 	int i;
 
@@ -1899,15 +1899,24 @@ redo:
 							ret, stressors[i].name, WTERMSIG(status));
 #endif
 #else
-						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal\n",		
+						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal\n",
 							ret, stressors[i].name);
 #endif
 						*success = false;
 					}
-					if (WEXITSTATUS(status)) {
+					switch (WEXITSTATUS(status)) {
+					case EXIT_SUCCESS:
+						break;
+					case EXIT_NO_RESOURCE:
+						pr_err(stderr, "process %d (stress-ng-%s) aborted early, out of system resources\n",
+							ret, stressors[i].name);
+						*resource_success = false;
+						break;
+					default:
 						pr_err(stderr, "process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
 							ret, stressors[i].name, WEXITSTATUS(status));
 						*success = false;
+						break;
 					}
 					proc_finished(&procs[i].pids[j]);
 					pr_dbg(stderr, "process [%d] terminated\n", ret);
@@ -1963,7 +1972,8 @@ static void MLOCKED stress_run(
 	const int32_t opt_ionice_level,
 	proc_stats_t stats[],
 	double *duration,
-	bool *success
+	bool *success,
+	bool *resource_success
 )
 {
 	double time_start, time_finish;
@@ -2080,7 +2090,7 @@ abort:
 		n_procs == 1 ? "" : "s");
 
 wait_for_procs:
-	wait_procs(success);
+	wait_procs(success, resource_success);
 	time_finish = time_now();
 
 	*duration += time_finish - time_start;
@@ -2268,7 +2278,7 @@ int main(int argc, char **argv)
 {
 	double duration = 0.0;			/* stressor run time in secs */
 	size_t len;
-	bool success = true;
+	bool success = true, resource_success = true;
 	struct sigaction new_action;
 	char *opt_exclude = NULL;		/* List of stressors to exclude */
 	char *yamlfile = NULL;			/* YAML filename */
@@ -3122,7 +3132,7 @@ next_opt:
 				if (procs[i].num_procs)
 					stress_run(opt_sequential, opt_sequential,
 						opt_backoff, opt_ionice_class, opt_ionice_level,
-						shared->stats, &duration, &success);
+						shared->stats, &duration, &success, &resource_success);
 			}
 		}
 	} else {
@@ -3131,7 +3141,7 @@ next_opt:
 		 */
 		stress_run(total_procs, max_procs,
 			opt_backoff, opt_ionice_class, opt_ionice_level,
-			shared->stats, &duration, &success);
+			shared->stats, &duration, &success, &resource_success);
 	}
 	pr_inf(stdout, "%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
@@ -3173,5 +3183,10 @@ next_opt:
 		pr_yaml(yaml, "...\n");
 		fclose(yaml);
 	}
-	exit(success ? EXIT_SUCCESS : EXIT_NOT_SUCCESS);
+
+	if (!success)
+		exit(EXIT_NOT_SUCCESS);
+	if (!resource_success)
+		exit(EXIT_NO_RESOURCE);
+	exit(EXIT_SUCCESS);
 }

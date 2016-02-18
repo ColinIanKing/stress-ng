@@ -181,7 +181,7 @@ int stress_aio(
 	const uint64_t max_ops,
 	const char *name)
 {
-	int fd, rc = EXIT_FAILURE;
+	int ret, fd, rc = EXIT_FAILURE;
 	io_req_t *io_reqs;
 	struct sigaction sa, sa_old;
 	int i;
@@ -192,18 +192,20 @@ int stress_aio(
 
 	if ((io_reqs = alloca(io_req_sz)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 	memset(io_reqs, 0, io_req_sz);
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto finish;
 	}

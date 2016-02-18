@@ -693,12 +693,13 @@ int stress_inotify(
 	const char *name)
 {
 	char dirname[PATH_MAX];
-	int i;
+	int ret, i;
 	const pid_t pid = getpid();
 
 	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 	do {
 		for (i = 0; opt_do_run && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(name, dirname);

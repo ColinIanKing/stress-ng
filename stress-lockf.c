@@ -233,8 +233,9 @@ int stress_lockf(
 	(void)stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
+			ret = exit_status(errno);
 			pr_fail_err(name, "mkdir");
-			return EXIT_FAILURE;
+			return ret;
 		}
 	}
 
@@ -247,9 +248,10 @@ int stress_lockf(
 		name, pid, instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		ret = exit_status(errno);
 		pr_fail_err(name, "open");
 		(void)rmdir(dirname);
-		return EXIT_FAILURE;
+		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {

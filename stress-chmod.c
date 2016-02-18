@@ -148,8 +148,9 @@ int stress_chmod(
 	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
         if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
+			rc = exit_status(errno);
 			pr_fail_err(name, "mkdir");
-			return EXIT_FAILURE;
+			return rc;
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
@@ -163,10 +164,11 @@ int stress_chmod(
 		 *  changed the permission bits. If so, wait a while and retry.
 		 */
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-			if (errno == EPERM || errno == EACCES) {
+			if ((errno == EPERM) || (errno == EACCES)) {
 				(void)usleep(100000);
 				continue;
 			}
+			rc = exit_status(errno);
 			pr_fail_err(name, "open");
 			goto tidy;
 		}

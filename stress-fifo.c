@@ -164,14 +164,16 @@ int stress_fifo(
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename(fifoname, sizeof(fifoname),
                 name, pid, instance, mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
+		ret = exit_status(errno);
 		pr_err(stderr, "%s: mkfifo failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		goto tidy;
@@ -190,6 +192,7 @@ int stress_fifo(
 
 	fd = open(fifoname, O_WRONLY);
 	if (fd < 0) {
+		ret = exit_status(fd);
 		pr_err(stderr, "%s: fifo write open failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		goto reap;

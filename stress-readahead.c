@@ -103,9 +103,10 @@ int stress_readahead(
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
@@ -113,10 +114,12 @@ int stress_readahead(
 
 	(void)umask(0077);
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto finish;
 	}
 	if (ftruncate(fd, (off_t)0) < 0) {
+		rc = exit_status(errno);
 		pr_fail_err(name, "ftruncate");
 		goto close_finish;
 	}

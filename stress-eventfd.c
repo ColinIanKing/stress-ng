@@ -50,20 +50,22 @@ int stress_eventfd(
 	const char *name)
 {
 	pid_t pid;
-	int fd1, fd2;
+	int fd1, fd2, rc;
 
 	(void)instance;
 
 	fd1 = eventfd(0, 0);
 	if (fd1 < 0) {
+		rc = exit_status(errno);
 		pr_fail_dbg(name, "eventfd");
-		return EXIT_FAILURE;
+		return rc;
 	}
 	fd2 = eventfd(0, 0);
 	if (fd1 < 0) {
+		rc = exit_status(errno);
 		pr_fail_dbg(name, "eventfd");
 		(void)close(fd1);
-		return EXIT_FAILURE;
+		return rc;
 	}
 
 again:

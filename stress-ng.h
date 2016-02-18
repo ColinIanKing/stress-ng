@@ -27,6 +27,7 @@
 #define __STRESS_NG_H__
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
@@ -71,6 +72,7 @@ typedef unsigned long int __kernel_ulong_t;
 #endif
 
 #define EXIT_NOT_SUCCESS	(2)
+#define EXIT_NO_RESOURCE	(3)
 
 /*
  * STRESS_ASSERT(test)
@@ -2098,6 +2100,18 @@ extern void ignite_cpu_stop(void);
 extern int system_write(const char *path, const char *buf, const size_t buf_len);
 extern WARN_UNUSED int system_read(const char *path, char *buf, const size_t buf_len);
 extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
+
+/*
+ *  Indicate a stress test failed because of limited resources
+ *  rather than a failure of the tests during execution.
+ *  err is the errno of the failure.
+ */
+static inline int exit_status(const int err)
+{
+	return ((err == ENOMEM) || (err == ENOSPC)) ?
+		EXIT_NO_RESOURCE : EXIT_FAILURE;
+}
+
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

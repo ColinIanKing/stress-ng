@@ -80,7 +80,7 @@ int stress_fallocate(
 	const char *name)
 {
 	const pid_t pid = getpid();
-	int fd;
+	int fd, ret;
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 
@@ -91,16 +91,18 @@ int stress_fallocate(
 			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk(name, pid, instance);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		ret = exit_status(errno);
 		pr_fail_err(name, "open");
 		(void)stress_temp_dir_rm(name, pid, instance);
-		return EXIT_FAILURE;
+		return ret;
 	}
 	(void)unlink(filename);
 
