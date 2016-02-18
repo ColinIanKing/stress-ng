@@ -403,8 +403,10 @@ int stress_temp_dir_mk(
 
 	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
 	ret = mkdir(tmp, S_IRWXU);
-	if (ret < 0)
+	if (ret < 0) {
+		ret = -errno;
 		pr_fail_err(name, "mkdir");
+	}
 
 	return ret;
 }
@@ -423,8 +425,10 @@ int stress_temp_dir_rm(
 
 	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
 	ret = rmdir(tmp);
-	if (ret < 0)
+	if (ret < 0) {
+		ret = -errno;
 		pr_fail_err(name, "rmdir");
+	}
 
 	return ret;
 }
