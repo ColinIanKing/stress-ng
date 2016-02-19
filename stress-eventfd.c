@@ -61,7 +61,7 @@ int stress_eventfd(
 		return rc;
 	}
 	fd2 = eventfd(0, 0);
-	if (fd1 < 0) {
+	if (fd2 < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg(name, "eventfd");
 		(void)close(fd1);
