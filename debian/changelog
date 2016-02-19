@@ -1,3 +1,12 @@
+stress-ng (0.05.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-eventfd: fix incorrect return check on eventfd (LP: #1547450)
+  * stress-mknod: fix == comparison on errno (LP: #1547446)
+  * stress-tee: catch EINTR in splice() calls (LP: #1547434)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 19 Feb 2016 12:40:24 +0000
+
 stress-ng (0.05.17-1) unstable; urgency=medium
 
   * Makefile: bump version
