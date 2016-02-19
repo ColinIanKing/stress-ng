@@ -182,6 +182,8 @@ int stress_tee(
 		while (len > 0) {
 			slen = splice(pipe_in[0], NULL, fd, NULL,
 				len, SPLICE_F_MOVE);
+			if (errno == EINTR)
+				break;
 			if (slen < 0) {
 				pr_err(stderr, "%s: splice failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
