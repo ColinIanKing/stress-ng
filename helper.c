@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -43,8 +45,6 @@
 #include <sys/sysinfo.h>
 #include <sys/prctl.h>
 #endif
-
-#include "stress-ng.h"
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */

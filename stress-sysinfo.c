@@ -24,6 +24,8 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -34,8 +36,6 @@
 #endif
 #include <sys/statvfs.h>
 #include <sys/times.h>
-
-#include "stress-ng.h"
 
 #define check_do_run()		\
 	if (!opt_do_run)	\
