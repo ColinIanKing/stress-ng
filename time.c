@@ -53,7 +53,7 @@ double time_now(void)
  */
 static inline void format_time(
 	bool last,			/* Last unit to format */
-	const double secs_in_units,	/* Seconds in the specific unit of time */
+	const double secs_in_units,	/* Seconds in the specific time unit */
 	const char *units,		/* Unit of time */
 	char **ptr,			/* Destination string ptr */
 	double *duration,		/* Duration left in seconds */
