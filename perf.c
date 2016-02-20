@@ -74,7 +74,8 @@ typedef struct {
 	{ STRESS_PERF_ ## id, path }
 
 #define PERF_INFO(type, config, label)	\
-	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, PERF_COUNT_ ## config, label }
+	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, \
+	  PERF_COUNT_ ## config, label }
 
 #define UNRESOLVED				(~0UL)
 #define PERF_COUNT_TP_SYSCALLS_ENTER		UNRESOLVED
@@ -297,7 +298,8 @@ int perf_open(stress_perf_t *sp)
 			attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED |
 					   PERF_FORMAT_TOTAL_TIME_RUNNING;
 			attr.size = sizeof(attr);
-			sp->perf_stat[i].fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
+			sp->perf_stat[i].fd =
+				sys_perf_event_open(&attr, 0, -1, -1, 0);
 			if (sp->perf_stat[i].fd > -1)
 				sp->perf_opened++;
 		}
@@ -305,7 +307,8 @@ int perf_open(stress_perf_t *sp)
 	if (!sp->perf_opened) {
 		pthread_spin_lock(&shared->perf.lock);
 		if (!shared->perf.no_perf) {
-			pr_dbg(stderr, "perf_event_open failed, no perf events [%u]\n", getpid());
+			pr_dbg(stderr, "perf_event_open failed, no "
+				"perf events [%u]\n", getpid());
 			shared->perf.no_perf = true;
 		}
 		pthread_spin_unlock(&shared->perf.lock);
@@ -332,12 +335,14 @@ int perf_enable(stress_perf_t *sp)
 		int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
-			if (ioctl(fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP) < 0) {
+			if (ioctl(fd, PERF_EVENT_IOC_RESET,
+				  PERF_IOC_FLAG_GROUP) < 0) {
 				(void)close(fd);
 				sp->perf_stat[i].fd = -1;
 				continue;
 			}
-			if (ioctl(fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP) < 0) {
+			if (ioctl(fd, PERF_EVENT_IOC_ENABLE,
+				  PERF_IOC_FLAG_GROUP) < 0) {
 				(void)close(fd);
 				sp->perf_stat[i].fd = -1;
 			}
@@ -363,7 +368,8 @@ int perf_disable(stress_perf_t *sp)
 		int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
-			if (ioctl(fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP) < 0) {
+			if (ioctl(fd, PERF_EVENT_IOC_DISABLE,
+			          PERF_IOC_FLAG_GROUP) < 0) {
 				(void)close(fd);
 				sp->perf_stat[i].fd = -1;
 			}
@@ -405,9 +411,11 @@ int perf_close(stress_perf_t *sp)
 			if (data.time_running == 0) {
 				scale = (data.time_enabled == 0) ? 1.0 : 0.0;
 			} else {
-				scale = (double)data.time_enabled / data.time_running;
+				scale = (double)data.time_enabled /
+					data.time_running;
 			}
-			sp->perf_stat[i].counter = (uint64_t)((double)data.counter * scale);
+			sp->perf_stat[i].counter = (uint64_t)
+				((double)data.counter * scale);
 		}
 		(void)close(fd);
 		sp->perf_stat[i].fd = -1;
@@ -578,7 +586,8 @@ void perf_stat_dump(
 			for (j = 0; j < procs[i].started_procs; j++, n++) {
 				uint64_t counter;
 
-				if (perf_get_counter_by_index(sp, p, &counter, &ids[p]) < 0)
+				if (perf_get_counter_by_index(sp, p,
+				    &counter, &ids[p]) < 0)
 					break;
 				if (counter == STRESS_PERF_INVALID) {
 					counter_totals[p] = STRESS_PERF_INVALID;
@@ -614,27 +623,37 @@ void perf_stat_dump(
 
 				no_perf_stats = false;
 
-				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) && (total_cpu_cycles > 0))
-					snprintf(extra, sizeof(extra), " (%.3f instr. per cycle)",
+				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) &&
+				    (total_cpu_cycles > 0))
+					snprintf(extra, sizeof(extra),
+						" (%.3f instr. per cycle)",
 						(double)ct / (double)total_cpu_cycles);
-				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) && (total_cache_refs > 0))
-					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) &&
+				     (total_cache_refs > 0))
+					snprintf(extra, sizeof(extra),
+						" (%5.2f%%)",
 						100.0 * (double)ct / (double)total_cache_refs);
-				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) && (total_branches > 0))
-					snprintf(extra, sizeof(extra), " (%5.2f%%)",
+				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) &&
+				    (total_branches > 0))
+					snprintf(extra, sizeof(extra),
+						" (%5.2f%%)",
 						100.0 * (double)ct / (double)total_branches);
 
 				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
-					ct, l, perf_stat_scale(ct, duration), extra);
+					ct, l, perf_stat_scale(ct, duration),
+					extra);
 
 				perf_yaml_label(yaml_label, l, sizeof(yaml_label));
-				pr_yaml(yaml, "      %s_total: %" PRIu64 "\n", yaml_label, ct);
-				pr_yaml(yaml, "      %s_per_second: %f\n", yaml_label, (double)ct / duration);
+				pr_yaml(yaml, "      %s_total: %" PRIu64
+					"\n", yaml_label, ct);
+				pr_yaml(yaml, "      %s_per_second: %f\n",
+					yaml_label, (double)ct / duration);
 			}
 		}
 		pr_yaml(yaml, "\n");
 	}
 	if (no_perf_stats)
-		pr_inf(stdout, "perf counters are not available on this device\n");
+		pr_inf(stdout, "perf counters are not available "
+			"on this device\n");
 }
 #endif
