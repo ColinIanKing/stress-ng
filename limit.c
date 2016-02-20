@@ -24,10 +24,6 @@
  */
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 
