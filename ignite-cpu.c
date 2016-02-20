@@ -85,12 +85,15 @@ void ignite_cpu_start(void)
 		if (len == 0)
 			continue;
 	
-		settings[i].default_setting_len = strlen(settings[i].default_setting);
+		settings[i].default_setting_len =
+			strlen(settings[i].default_setting);
 		/* If we can't update the setting, skip it */
-		ret = system_write(settings[i].path, settings[i].default_setting,
+		ret = system_write(settings[i].path,
+			settings[i].default_setting,
 			settings[i].default_setting_len);
 		if (ret < 0) {
-			pr_dbg(stderr, "ignite-cpu: cannot set %s to %s, errno=%d (%s)\n",
+			pr_dbg(stderr, "ignite-cpu: cannot set %s to %s, "
+				"errno=%d (%s)\n",
 				settings[i].path, settings[i].default_setting,
 				-ret, strerror(-ret));
 			continue;
@@ -125,7 +128,8 @@ void ignite_cpu_start(void)
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
-				(void)system_write(settings[i].path, settings[i].default_setting,
+				(void)system_write(settings[i].path,
+					settings[i].default_setting,
 					settings[i].default_setting_len);
 			}
 			sleep(1);
@@ -155,7 +159,8 @@ void ignite_cpu_stop(void)
 		if (settings[i].ignore)
 			continue;
 
-		(void)system_write(settings[i].path, settings[i].setting, settings[i].setting_len);
+		(void)system_write(settings[i].path, settings[i].setting,
+			settings[i].setting_len);
 		free(settings[i].setting);
 		settings[i].setting = NULL;
 		settings[i].ignore = true;
