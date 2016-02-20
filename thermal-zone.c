@@ -143,8 +143,10 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 
 		tz->tz_stat[i].temperature = 0;
 		if ((fp = fopen(path, "r")) != NULL) {
-			if (fscanf(fp, "%" SCNu64, &tz->tz_stat[i].temperature) != 1)
+			if (fscanf(fp, "%" SCNu64,
+			     &tz->tz_stat[i].temperature) != 1) {
 				tz->tz_stat[i].temperature = 0;
+			}
 			fclose(fp);
 		}
 	}
@@ -194,10 +196,13 @@ void tz_dump(
 				if (!dumped_heading) {
 					dumped_heading = true;
 					pr_inf(stdout, "%s:\n", munged);
-					pr_yaml(yaml, "    - stressor: %s\n", munged);
+					pr_yaml(yaml, "    - stressor: %s\n",
+					munged);
 				}
-				pr_inf(stdout, "%20s %7.2f °C\n", tz_info->type, temp);
-				pr_yaml(yaml, "      %s: %7.2f\n", tz_info->type, temp);
+				pr_inf(stdout, "%20s %7.2f °C\n",
+					tz_info->type, temp);
+				pr_yaml(yaml, "      %s: %7.2f\n",
+					tz_info->type, temp);
 				no_tz_stats = false;
 			}
 		}
