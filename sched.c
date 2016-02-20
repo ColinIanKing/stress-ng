@@ -28,13 +28,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
+    !defined(__OpenBSD__)
 #include <sched.h>
 #endif
 
 #include "stress-ng.h"
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
+    !defined(__OpenBSD__)
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -72,7 +74,8 @@ static const char *get_sched_name(const int32_t sched)
 }
 #endif
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && !defined(__OpenBSD__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
+     !defined(__OpenBSD__)
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
@@ -111,8 +114,10 @@ void set_sched(const int32_t sched, const int32_t sched_priority)
 			pr_inf(stderr, "priority not given, defaulting to %d\n",
 				param.sched_priority);
 		}
-		if ((param.sched_priority < min) || (param.sched_priority > max)) {
-			fprintf(stderr, "Scheduler priority level must be set between %d and %d\n",
+		if ((param.sched_priority < min) ||
+		    (param.sched_priority > max)) {
+			fprintf(stderr, "Scheduler priority level must be "
+				"set between %d and %d\n",
 				min, max);
 			exit(EXIT_FAILURE);
 		}
@@ -123,7 +128,8 @@ void set_sched(const int32_t sched, const int32_t sched_priority)
 	default:
 		param.sched_priority = 0;
 		if (sched_priority != UNDEFINED)
-			pr_inf(stderr, "ignoring priority level for scheduler class '%s'\n", name);
+			pr_inf(stderr, "ignoring priority level for "
+			"scheduler class '%s'\n", name);
 		pr_dbg(stderr, "setting scheduler class '%s'\n", name);
 		break;
 	}
