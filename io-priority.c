@@ -114,14 +114,16 @@ void set_iopriority(const int32_t class, const int32_t level)
 	case IOPRIO_CLASS_RT:
 	case IOPRIO_CLASS_BE:
 		if (level < 0 || level > 7) {
-			fprintf(stderr, "Priority levels range from 0 (max) to 7 (min)\n");
+			fprintf(stderr, "Priority levels range from 0 "
+				"(max) to 7 (min)\n");
 			exit(EXIT_FAILURE);
 		}
 		break;
 	case IOPRIO_CLASS_IDLE:
 		if ((level != UNDEFINED) &&
 		    (level != 0))
-			fprintf(stderr, "Cannot set priority level with idle, defaulting to 0\n");
+			fprintf(stderr, "Cannot set priority level "
+				"with idle, defaulting to 0\n");
 		data = 0;
 		break;
 	default:
