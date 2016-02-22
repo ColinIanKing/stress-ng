@@ -64,12 +64,12 @@ int stress_bigheap(
 	const char *name)
 {
 	void *ptr = NULL, *last_ptr = NULL;
-	uint8_t *last_ptr_end = NULL;
-	size_t size = 0;
-	const size_t stride = stress_get_pagesize();
-	pid_t pid;
-	uint32_t restarts = 0, nomems = 0;
 	const size_t page_size = stress_get_pagesize();
+	const size_t stride = stress_get_pagesize();
+	size_t size = 0;
+	uint32_t restarts = 0, nomems = 0;
+	pid_t pid;
+	uint8_t *last_ptr_end = NULL;
 
 	if (!set_bigheap_growth) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
