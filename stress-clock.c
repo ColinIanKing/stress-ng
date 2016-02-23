@@ -37,8 +37,8 @@
 #if defined(STRESS_CLOCK)
 
 typedef struct {
-	int	id;
-	char 	*name;
+	int	id;		/* Clock ID */
+	char 	*name;		/* Clock name */
 } clock_info_t;
 
 #define CLOCK_INFO(x)	{ x, #x }
@@ -127,13 +127,13 @@ int stress_clock(
 		for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 			ret = clock_getres(clocks[i].id, &t);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-				pr_fail(stderr, "%s: clock_getres failed for timer '%s', "
-					"errno=%d (%s)\n",
+				pr_fail(stderr, "%s: clock_getres failed for "
+				"timer '%s', errno=%d (%s)\n",
 				name, clocks[i].name, errno, strerror(errno));
 			ret = clock_gettime(clocks[i].id, &t);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-				pr_fail(stderr, "%s: clock_gettime failed for timer '%s', "
-					"errno=%d (%s)\n",
+				pr_fail(stderr, "%s: clock_gettime failed for "
+				"timer '%s', errno=%d (%s)\n",
 				name, clocks[i].name, errno, strerror(errno));
 		}
 
