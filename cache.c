@@ -88,7 +88,7 @@ static int file_exists(const char *path)
  */
 static char *get_contents(const char *path)
 {
-	FILE         *f = NULL;
+	FILE         *fp = NULL;
 	char         *contents = NULL;
 	struct stat   st;
 	size_t        size;
@@ -98,31 +98,29 @@ static char *get_contents(const char *path)
 		return NULL;
 	}
 
-	f = fopen(path, "r");
-	if (!f)
-		goto err;
+	fp = fopen(path, "r");
+	if (!fp)
+		return NULL;
 
-	if (fstat(fileno(f), &st) < 0)
-		goto err;
+	if (fstat(fileno(fp), &st) < 0)
+		goto err_close;
 
 	size = st.st_size;
 
 	contents = malloc(size);
 	if (!contents)
+		goto err_close;
+
+	if (!fgets(contents, size, fp))
 		goto err;
 
-	if (!fgets(contents, size, f))
-		goto err;
-
-	(void)fclose(f);
+	(void)fclose(fp);
 	return contents;
 
 err:
-	if (f)
-		(void)fclose(f);
-
-	if (contents)
-		free(contents);
+	free(contents);
+err_close:
+	(void)fclose(fp);
 	return NULL;
 }
 
