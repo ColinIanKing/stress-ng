@@ -339,7 +339,7 @@ static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 	uint32_t  i;
 
 	if (!cpu || !cache_level)
-		goto err;
+		return NULL;
 
 	for (i = 0; i < cpu->cache_count; i++) {
 		cpu_cache_t *p;
@@ -353,8 +353,6 @@ static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 		if (p->type != CACHE_TYPE_INSTRUCTION)
 			return p;
 	}
-
-err:
 	return NULL;
 }
 
@@ -376,7 +374,8 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
 		return 0;
 	}
 
-	/* FIXME: should really determine current CPU index using
+	/* 
+	 * FIXME: should really determine current CPU index using
 	 * sched_getcpu(3) rather than just taking the first cpu.
 	 */
 	cpu = &cpus->cpus[0];
@@ -626,11 +625,10 @@ void free_cpu_caches(cpus_t *cpus)
 		return;
 
 	for (i = 0; i < cpus->count; i++) {
-		cpu_t *cpu;
-		cpu = &cpus->cpus[i];
+		cpu_t *cpu = &cpus->cpus[i];
+
 		free(cpu->caches);
 	}
-
 	free(cpus->cpus);
 	free(cpus);
 }
