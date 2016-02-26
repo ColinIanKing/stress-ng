@@ -190,6 +190,8 @@ CORE_SRC = \
 SRC = $(STRESS_SRC) $(CORE_SRC)
 OBJS = $(SRC:.c=.o)
 
+APPARMOR_PARSER=/sbin/apparmor_parser
+
 LIB_APPARMOR := -lapparmor
 LIB_BSD := -lbsd
 LIB_Z := -lz
@@ -315,7 +317,11 @@ stress-ng: $(OBJS)
 have_apparmor:
 	@$(CC) $(CPPFLAGS) test-apparmor.c $(LIB_APPARMOR) -o test-apparmor 2> /dev/null || true
 	@if [ -e test-apparmor ]; then \
-		echo 1 ;\
+		if [ -x $(APPARMOR_PARSER) ]; then \
+			echo 1 ;\
+		else \
+			echo 0 ;\
+		fi \
 	else \
 		echo 0 ;\
 	fi
@@ -452,7 +458,7 @@ have_lib_aio:
 #  parser output
 #
 apparmor-data.o: usr.bin.pulseaudio.eg
-	apparmor_parser -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
+	$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
 	echo "#include <stddef.h>" > apparmor-data.c
 	echo "char apparmor_data[]= { " >> apparmor-data.c
 	od -tx1 -An -v < apparmor-data.bin | \
