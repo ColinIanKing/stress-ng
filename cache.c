@@ -137,19 +137,18 @@ err:
 static char *
 get_string_from_file(const char *path)
 {
-	char   *s;
-	size_t  len;
+	char   *str;
+	ssize_t  len;
 
-	s = get_contents(path);
-	if (!s)
+	str = get_contents(path);
+	if (!str)
 		return NULL;
 
-	len = strlen(s);
+	len = strlen(str) - 1;
+	if ((len >= 0) && (str[len] == '\n'))
+		str[len] = '\0';
 
-	if (s[len-1] == '\n')
-		s[len-1] = '\0';
-
-	return s;
+	return str;
 }
 
 /*
