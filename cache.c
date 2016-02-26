@@ -50,7 +50,6 @@ static struct generic_map cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
 	{"unified"     , CACHE_TYPE_UNIFIED},
-
 	{ NULL         , CACHE_TYPE_UNKNOWN}
 };
 
@@ -64,8 +63,7 @@ static const char *get_cache_name(cache_type_t type)
  *
  * Returns: file type if @path exists, else 0.
  **/
-static int
-file_exists(const char *path)
+static int file_exists(const char *path)
 {
 	struct stat st;
 
@@ -88,8 +86,7 @@ file_exists(const char *path)
  * Returns: dynamically-allocated copy of the contents of @path,
  * or NULL on error.
  */
-static char *
-get_contents(const char *path)
+static char *get_contents(const char *path)
 {
 	FILE         *f = NULL;
 	char         *contents = NULL;
@@ -136,8 +133,7 @@ err:
  * Returns: dynamically-allocated copy of the contents of @path,
  * or NULL on error.
  */
-static char *
-get_string_from_file(const char *path)
+static char *get_string_from_file(const char *path)
 {
 	char   *str;
 	ssize_t  len;
@@ -165,8 +161,7 @@ get_string_from_file(const char *path)
  *
  * Returns: size in bytes, or 0 on error.
  */
-static uint64_t
-size_to_bytes(const char *str)
+static uint64_t size_to_bytes(const char *str)
 {
 	uint64_t            bytes;
 	uint64_t            multiplier;
@@ -215,8 +210,7 @@ out:
  *
  * Returns: cache_type_t or CACHE_TYPE_UNKNOWN on error.
  */
-static cache_type_t
-get_cache_type(const char *name)
+static cache_type_t get_cache_type(const char *name)
 {
 	struct generic_map *p;
 
@@ -241,8 +235,7 @@ out:
  *
  * Returns: read-only string representation, or NULL on error.
  */
-static const char *
-get_cache_name(cache_type_t type)
+static const char * get_cache_name(cache_type_t type)
 {
 	struct generic_map *p;
 
@@ -262,8 +255,7 @@ get_cache_name(cache_type_t type)
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int
-add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
+static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
 	char     path[PATH_MAX] = { 0 };
 	size_t   len;
@@ -344,8 +336,7 @@ out:
  *
  * Returns: cpu_cache_t, or NULL on error.
  */
-static cpu_cache_t *
-get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
+static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 {
 	uint32_t  i;
 
@@ -376,8 +367,7 @@ err:
  *
  * Returns: 1-index value denoting highest cache level, or 0 on error.
  */
-uint16_t
-get_max_cache_level(const cpus_t *cpus)
+uint16_t get_max_cache_level(const cpus_t *cpus)
 {
 	cpu_t    *cpu;
 	uint32_t  i;
@@ -411,8 +401,7 @@ get_max_cache_level(const cpus_t *cpus)
  *
  * Returns: cpu_cache_t pointer, or NULL on error.
  */
-cpu_cache_t *
-get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
+cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 {
 	cpu_t *cpu;
 
@@ -443,8 +432,7 @@ get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int
-get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
+static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
 	uint32_t   i;
 	size_t     len, len2;
@@ -536,8 +524,7 @@ err:
  *
  * Returns: dynamically-allocated cpus_t object, or NULL on error.
  */
-cpus_t *
-get_all_cpu_cache_details(void)
+cpus_t * get_all_cpu_cache_details(void)
 {
 	uint32_t   i;
 	int        ret;
@@ -633,8 +620,7 @@ out:
  * Undo the action of get_all_cpu_cache_details() by freeing all
  * associated resources.
  */
-void
-free_cpu_caches(cpus_t *cpus)
+void free_cpu_caches(cpus_t *cpus)
 {
 	uint32_t  i;
 
