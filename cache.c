@@ -39,10 +39,12 @@
 #define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
 #endif
 
-/* append @element to array @path (which has len @len) */
-#define mk_path(path, len, element) \
-	memset((path)+len, '\0', sizeof(path) - len); \
-strncpy((path)+len, element, strlen(element))
+/*
+ * append @element to array @path (which has len @len)
+ */
+#define MK_PATH(path, len, element) 			\
+	memset((path) + len, '\0', sizeof(path) - len);	\
+	strncpy((path) + len, element, strlen(element))
 
 static struct generic_map cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
@@ -281,7 +283,7 @@ add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	len = strlen(index_path);
 	strncpy(path, index_path, len);
 
-	mk_path(path, len, "/type");
+	MK_PATH(path, len, "/type");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -291,7 +293,7 @@ add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	free(contents);
 
-	mk_path(path, len, "/size");
+	MK_PATH(path, len, "/size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -299,7 +301,7 @@ add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->size = size_to_bytes(contents);
 	free(contents);
 
-	mk_path(path, len, "/level");
+	MK_PATH(path, len, "/level");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -307,7 +309,7 @@ add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->level = (uint16_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, len, "/coherency_line_size");
+	MK_PATH(path, len, "/coherency_line_size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -315,7 +317,7 @@ add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->line_size = (uint32_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, len, "/ways_of_associativity");
+	MK_PATH(path, len, "/ways_of_associativity");
 	contents = get_string_from_file(path);
 
 	/* Don't error if file is not readable: cache may not be
@@ -600,7 +602,7 @@ get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			len = strlen(results[i]);
-			mk_path(path, len, "/online");
+			MK_PATH(path, len, "/online");
 
 			contents = get_string_from_file(path);
 			if (!contents)
