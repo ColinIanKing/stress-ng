@@ -86,7 +86,7 @@ int stress_set_net_domain(
 	const char *domain_name,
 	int *domain)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; domains[i].name; i++) {
 		if ((domain_mask & domains[i].domain_flags) &&
