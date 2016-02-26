@@ -133,9 +133,7 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 	for (tz_info = *tz_info_list; tz_info; tz_info = tz_info->next) {
 		char path[PATH_MAX];
 		FILE *fp;
-		size_t i;
-
-		i = tz_info->index;
+		size_t i = tz_info->index;
 
 		snprintf(path, sizeof(path),
 			"/sys/class/thermal/%s/temp",
