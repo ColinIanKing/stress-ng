@@ -75,7 +75,7 @@ static int file_exists(const char *path)
 	if (stat(path, &st) < 0)
 		return 0;
 
-	return(st.st_mode & S_IFMT);
+	return (st.st_mode & S_IFMT);
 }
 
 /*
