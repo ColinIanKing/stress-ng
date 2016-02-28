@@ -72,9 +72,9 @@ static void stress_timerfd_set(struct itimerspec *timer)
 	timer->it_value.tv_sec = (long long int)rate / 1000000000;
 	timer->it_value.tv_nsec = (long long int)rate % 1000000000;
 
-	if (timer->it_interval.tv_sec == 0 &&
-	    timer->it_interval.tv_nsec < 1)
-		timer->it_interval.tv_nsec = 1;
+	if (timer->it_value.tv_sec == 0 &&
+	    timer->it_value.tv_nsec < 1)
+		timer->it_value.tv_nsec = 1;
 
 	timer->it_interval.tv_sec = timer->it_value.tv_sec;
 	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
