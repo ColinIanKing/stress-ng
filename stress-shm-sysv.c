@@ -400,7 +400,7 @@ fork_again:
 			set_oom_adjustment(name, false);
 			(void)close(pipefds[1]);
 
-			for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++)
+			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
 				shm_ids[i] = -1;
 
 			while (opt_do_run) {
