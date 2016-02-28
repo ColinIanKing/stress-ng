@@ -134,11 +134,12 @@ int stress_xattr(
 		if (buffer) {
 			/* ...and fetch */
 			sz = flistxattr(fd, buffer, sz);
+			free(buffer);
+
 			if (sz < 0) {
 				pr_fail_err(name, "fremovexattr");
 				goto out_close;
 			}
-			free(buffer);
 		}
 		for (j = 0; j < i; j++) {
 			snprintf(name, sizeof(name), "user.var_%d", j);
