@@ -437,6 +437,10 @@ extern void pr_openlog(const char *filename);
 
 #define MAX_SIGSUSPEND_PIDS	(4)
 
+#define MIN_SLEEP		(1)
+#define MAX_SLEEP		(30000)
+#define DEFAULT_SLEEP		(1024)
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
@@ -1055,6 +1059,10 @@ typedef enum {
 #endif
 	STRESS_SIGSEGV,
 	STRESS_SIGSUSPEND,
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+	__STRESS_SLEEP,
+#define STRESS_SLEEP __STRESS_SLEEP
+#endif
 	STRESS_SOCKET,
 	STRESS_SOCKET_PAIR,
 	__STRESS_SPAWN,
@@ -1678,6 +1686,12 @@ typedef enum {
 	OPT_SIGSUSPEND,
 	OPT_SIGSUSPEND_OPS,
 
+#if defined(STRESS_SLEEP)
+	OPT_SLEEP,
+	OPT_SLEEP_OPS,
+	OPT_SLEEP_MAX,
+#endif
+
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_DOMAIN,
 	OPT_SOCKET_NODELAY,
@@ -2155,6 +2169,7 @@ extern void free_cpu_caches(cpus_t *cpus);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_ptread_max(uint64_t max);
+extern void stress_adjust_sleep_max(uint64_t max);
 extern int  stress_apparmor_supported(void);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_aio_linux_requests(const char *optarg);
@@ -2206,6 +2221,7 @@ extern void stress_set_shm_posix_bytes(const char *optarg);
 extern void stress_set_shm_posix_objects(const char *optarg);
 extern void stress_set_shm_sysv_bytes(const char *optarg);
 extern void stress_set_shm_sysv_segments(const char *optarg);
+extern void stress_set_sleep_max(const char *optarg);
 extern int  stress_set_socket_domain(const char *name);
 extern int  stress_set_socket_opts(const char *optarg);
 extern void stress_set_socket_port(const char *optarg);
@@ -2335,6 +2351,7 @@ STRESS(stress_sigpending);
 STRESS(stress_sigsegv);
 STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
+STRESS(stress_sleep);
 STRESS(stress_socket);
 STRESS(stress_socket_pair);
 STRESS(stress_spawn);

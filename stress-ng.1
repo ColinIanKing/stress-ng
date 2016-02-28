@@ -1832,6 +1832,18 @@ processes that wait for the signal via sigwaitinfo(2).
 .B \-\-sigq\-ops N
 stop sigq stress workers after N bogo signal send operations.
 .TP
+.B \-\-sleep N
+start N workers that spawn off multiple threads that each perform multiple
+sleeps of ranges 1us to 0.1s.  This creates multiple context switches and
+timer interrupts.
+.TP
+.B \-\-sleep\-ops N
+stop after N sleep bogo operations.
+.TP
+.B \-\-sleep\-max P
+start P threads per worker. The default is 1024, the maximum allowed is
+30000.
+.TP
 .B \-S N, \-\-sock N
 start N workers that perform various socket stress activity. This involves a
 pair of client/server processes performing rapid connect, send and receives

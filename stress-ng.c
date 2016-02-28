@@ -333,6 +333,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(sigsegv, SIGSEGV, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(sigsuspend, SIGSUSPEND, CLASS_INTERRUPT | CLASS_OS),
+#if defined(STRESS_SLEEP)
+	STRESSOR(sleep, SLEEP, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+#endif
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(spawn, SPAWN, CLASS_SCHEDULER | CLASS_OS),
@@ -833,6 +836,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_SIGQUEUE)
 	{ "sigq",	1,	0,	OPT_SIGQUEUE },
 	{ "sigq-ops",	1,	0,	OPT_SIGQUEUE_OPS },
+#endif
+#if defined(STRESS_SLEEP)
+	{ "sleep",	1,	0,	OPT_SLEEP },
+	{ "sleep-ops",	1,	0,	OPT_SLEEP_OPS },
+	{ "sleep-max",	1,	0,	OPT_SLEEP_MAX },
 #endif
 	{ "sock",	1,	0,	OPT_SOCKET },
 	{ "sock-domain",1,	0,	OPT_SOCKET_DOMAIN },
@@ -1413,6 +1421,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sigsegv-ops N",	"stop after N bogo segmentation faults" },
 	{ NULL,		"sigsuspend N",		"start N workers exercising sigsuspend" },
 	{ NULL,		"sigsuspend-ops N",	"stop after N bogo sigsuspend wakes" },
+	{ NULL,		"sleep N",		"start N workers performing various duration sleeps" },
+	{ NULL,		"sleep-ops N",		"stop after N bogo sleep operations" },
+	{ NULL,		"sleep-max P",		"create P threads at a time by each worker" },
 	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,		"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
@@ -2703,6 +2714,11 @@ next_opt:
 		case OPT_SHM_SYSV_SEGMENTS:
 			stress_set_shm_sysv_segments(optarg);
 			break;
+#if defined(STRESS_SLEEP)
+		case OPT_SLEEP_MAX:
+			stress_set_sleep_max(optarg);
+			break;
+#endif
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)
 				exit(EXIT_FAILURE);
@@ -3071,6 +3087,17 @@ next_opt:
 		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
 			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
 			stress_adjust_ptread_max(max);
+		}
+	}
+#endif
+#if defined(STRESS_SLEEP)
+	{
+		id = stressor_id_find(STRESS_SLEEP);
+		struct rlimit limit;
+		if (procs[id].num_procs &&
+		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
+			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
+			stress_adjust_sleep_max(max);
 		}
 	}
 #endif
