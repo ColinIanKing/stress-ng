@@ -464,7 +464,7 @@ static void HOT stress_cpu_fft(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_euler(const char *name)
 {
-	long double e = 1.0, last_e = e;
+	long double e = 1.0, last_e;
 	long double fact = 1.0;
 	long double precision = 1.0e-20;
 	int n = 1;
