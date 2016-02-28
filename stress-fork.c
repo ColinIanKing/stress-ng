@@ -89,17 +89,15 @@ int stress_fork_fn(
 		memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < fork_max; i++) {
-			pids[i] = fork_fn();
+			pid_t pid = fork_fn();
 
-			if (pids[i] == 0) {
-				setpgid(0, pgrp);
-				stress_parent_died_alarm();
-
+			if (pid == 0) {
 				/* Child, immediately exit */
 				_exit(0);
 			}
-			if (pids[i] > -1)
+			if (pid > -1)
 				setpgid(pids[i], pgrp);
+			pids[i] = pid;
 			if (!opt_do_run)
 				break;
 		}
