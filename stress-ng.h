@@ -1586,9 +1586,11 @@ typedef enum {
 	OPT_PROCFS_OPS,
 #endif
 
+#if defined(STRESS_PTHREAD)
 	OPT_PTHREAD,
 	OPT_PTHREAD_OPS,
 	OPT_PTHREAD_MAX,
+#endif
 
 	OPT_PTRACE,
 	OPT_PTRACE_OPS,
