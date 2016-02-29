@@ -121,6 +121,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
 #define SOCKET_PAIR_BUF		(64)		/* Socket pair I/O buffer size */
 
+#define ABORT_FAILURES		(5)		/* Number of failures before we abort */
+
 /* debug output bitmasks */
 #define PR_ERROR		0x0000000000001ULL 	/* Print errors */
 #define PR_INFO			0x0000000000002ULL 	/* Print info */
@@ -236,7 +238,6 @@ extern void pr_openlog(const char *filename);
 #define pr_fail_errno(name, what, e)	pr_msg_fail(PR_FAIL | PR_ERROR, name, what, e)
 #define pr_fail_dbg(name, what)		pr_msg_fail(PR_DEBUG, name, what, errno)
 
-#define ABORT_FAILURES		(5)
 
 /* Memory size constants */
 #define KB			(1024ULL)
@@ -628,7 +629,7 @@ typedef struct {
 #endif
 
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define HOT	__attribute__ ((hot))
+#define HOT __attribute__ ((hot))
 #else
 #define HOT
 #endif
