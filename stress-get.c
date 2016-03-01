@@ -105,7 +105,7 @@ static const int rlimits[] = {
 #endif
 };
 
-static int priorities[] = {
+static const int priorities[] = {
 #ifdef PRIO_PROCESS
 	PRIO_PROCESS,
 #endif
