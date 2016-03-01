@@ -47,8 +47,8 @@ typedef struct {
 	const stress_wcs_func	func;	/* the stressor function */
 } stress_wcs_stressor_info_t;
 
-static stress_wcs_stressor_info_t *opt_wcs_stressor;
-static stress_wcs_stressor_info_t wcs_methods[];
+static const stress_wcs_stressor_info_t *opt_wcs_stressor;
+static const stress_wcs_stressor_info_t wcs_methods[];
 
 /*
  *  stress_wcs_fill
@@ -432,7 +432,7 @@ static void stress_wcs_all(
 /*
  * Table of wcs stress methods
  */
-static stress_wcs_stressor_info_t wcs_methods[] = {
+static const stress_wcs_stressor_info_t wcs_methods[] = {
 	{ "all",		stress_wcs_all },	/* Special "all" test */
 
 	{ "wcscasecmp",		stress_wcscasecmp },
@@ -456,7 +456,7 @@ static stress_wcs_stressor_info_t wcs_methods[] = {
  */
 int stress_set_wcs_method(const char *name)
 {
-	stress_wcs_stressor_info_t *wcsfunction = wcs_methods;
+	stress_wcs_stressor_info_t const *wcsfunction = wcs_methods;
 
 
 	for (wcsfunction = wcs_methods; wcsfunction->func; wcsfunction++) {
