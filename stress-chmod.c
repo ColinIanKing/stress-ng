@@ -35,7 +35,7 @@
 
 #include "stress-ng.h"
 
-static mode_t modes[] = {
+static const mode_t modes[] = {
 #ifdef S_ISUID
 	S_ISUID,
 #endif
