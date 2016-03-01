@@ -58,7 +58,7 @@ static clone_list_t clones;
 /*
  *  A random selection of clone flags that are worth exercising
  */
-static int flags[] = {
+static const int flags[] = {
 	0,
 #if defined(CLONE_FILES)
 	CLONE_FILES,
@@ -95,7 +95,7 @@ static int flags[] = {
 #endif
 };
 
-static int unshare_flags[] = {
+static const int unshare_flags[] = {
 #if defined(CLONE_FILES)
 	CLONE_FILES,
 #endif
