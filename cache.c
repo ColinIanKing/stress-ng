@@ -46,7 +46,7 @@
 	memset((path) + len, '\0', sizeof(path) - len);	\
 	strncpy((path) + len, element, strlen(element))
 
-static struct generic_map cache_type_map[] = {
+static const struct generic_map cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
 	{"unified"     , CACHE_TYPE_UNIFIED},
@@ -210,7 +210,7 @@ out:
  */
 static cache_type_t get_cache_type(const char *name)
 {
-	struct generic_map *p;
+	const struct generic_map *p;
 
 	if (!name) {
 		pr_dbg(stderr, "%s: no cache type specified\n", __func__);
@@ -235,7 +235,7 @@ out:
  */
 static const char * get_cache_name(cache_type_t type)
 {
-	struct generic_map *p;
+	const struct generic_map *p;
 
 	for (p = cache_type_map; p && p->name; p++) {
 		if (p->value == type)
