@@ -54,7 +54,7 @@ void stress_set_pthread_max(const char *optarg)
 		MIN_PTHREAD, MAX_PTHREAD);
 }
 
-void stress_adjust_ptread_max(uint64_t max)
+void stress_adjust_pthread_max(uint64_t max)
 {
 	if (opt_pthread_max > max) {
 		opt_pthread_max = max;

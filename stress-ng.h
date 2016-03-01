@@ -2171,7 +2171,7 @@ extern void free_cpu_caches(cpus_t *cpus);
 #endif
 
 /* Used to set options for specific stressors */
-extern void stress_adjust_ptread_max(uint64_t max);
+extern void stress_adjust_pthread_max(uint64_t max);
 extern void stress_adjust_sleep_max(uint64_t max);
 extern int  stress_apparmor_supported(void);
 extern void stress_set_aio_requests(const char *optarg);

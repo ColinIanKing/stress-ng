@@ -3086,7 +3086,7 @@ next_opt:
 		if (procs[id].num_procs &&
 		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
 			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
-			stress_adjust_ptread_max(max);
+			stress_adjust_pthread_max(max);
 		}
 	}
 #endif
