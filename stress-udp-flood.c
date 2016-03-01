@@ -78,7 +78,7 @@ int stress_udp_flood(
 	const size_t sz_max = 23 + instance;
 	size_t sz = 1;
 
-	static char data[64] =
+	static const char data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
