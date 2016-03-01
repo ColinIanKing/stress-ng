@@ -154,7 +154,7 @@ static perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	{ 0, 0, 0, NULL }
 };
 
-static perf_tp_info_t perf_tp_info[] = {
+static const perf_tp_info_t perf_tp_info[] = {
 	PERF_TP_INFO(TP_SYSCALLS_ENTER,		"raw_syscalls/sys_enter"),
 	PERF_TP_INFO(TP_SYSCALLS_EXIT,		"raw_syscalls/sys_exit"),
 	PERF_TP_INFO(TP_TLB_FLUSH, 		"tlb/tlb_flush"),
