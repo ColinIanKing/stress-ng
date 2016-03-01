@@ -49,8 +49,8 @@ int stress_spawn(
 	char path[PATH_MAX + 1];
 	ssize_t len;
 	uint64_t spawn_fails = 0, spawn_calls = 0;
-	char *argv_new[] = { NULL, "--exec-exit", NULL };
-	char *env_new[] = { NULL };
+	static char *argv_new[] = { NULL, "--exec-exit", NULL };
+	static char *env_new[] = { NULL };
 
 	(void)instance;
 
