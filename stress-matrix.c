@@ -47,8 +47,8 @@ typedef struct {
 	const stress_matrix_func	func;	/* the stressor function */
 } stress_matrix_stressor_info_t;
 
-static stress_matrix_stressor_info_t *opt_matrix_stressor;
-static stress_matrix_stressor_info_t matrix_methods[];
+static const stress_matrix_stressor_info_t *opt_matrix_stressor;
+static const stress_matrix_stressor_info_t matrix_methods[];
 static size_t opt_matrix_size = 128;
 static bool set_matrix_size = false;
 
@@ -334,7 +334,7 @@ static void OPTIMIZE3 stress_matrix_all(
 /*
  * Table of cpu stress methods
  */
-static stress_matrix_stressor_info_t matrix_methods[] = {
+static const stress_matrix_stressor_info_t matrix_methods[] = {
 	{ "all",		stress_matrix_all },	/* Special "all" test */
 
 	{ "add",		stress_matrix_add },
@@ -356,7 +356,7 @@ static stress_matrix_stressor_info_t matrix_methods[] = {
  */
 int stress_set_matrix_method(const char *name)
 {
-	stress_matrix_stressor_info_t *info = matrix_methods;
+	stress_matrix_stressor_info_t const *info = matrix_methods;
 
 	for (info = matrix_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
