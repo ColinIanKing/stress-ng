@@ -76,7 +76,7 @@ static int opt_socket_domain = AF_INET;
 static int opt_socket_port = DEFAULT_SOCKET_PORT;
 static int opt_socket_opts = SOCKET_OPT_SEND;
 
-static socket_opts_t socket_opts[] = {
+static const socket_opts_t socket_opts[] = {
 	{ "send",	SOCKET_OPT_SEND },
 	{ "sendmsg",	SOCKET_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
