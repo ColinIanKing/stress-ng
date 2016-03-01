@@ -50,7 +50,7 @@ typedef struct {
 	const dentry_order_t order;
 } dentry_removal_t;
 
-static dentry_removal_t dentry_removals[] = {
+static const dentry_removal_t dentry_removals[] = {
 	{ "forward",	ORDER_FORWARD },
 	{ "reverse",	ORDER_REVERSE },
 	{ "stride",	ORDER_STRIDE },
@@ -76,7 +76,7 @@ void stress_set_dentries(const char *optarg)
  */
 int stress_set_dentry_order(const char *optarg)
 {
-	dentry_removal_t *dr;
+	const dentry_removal_t *dr;
 
 	for (dr = dentry_removals; dr->name; dr++) {
 		if (!strcmp(dr->name, optarg)) {
