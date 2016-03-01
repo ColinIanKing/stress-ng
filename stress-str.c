@@ -43,8 +43,8 @@ typedef struct {
 	const stress_str_func	func;	/* the stressor function */
 } stress_str_stressor_info_t;
 
-static stress_str_stressor_info_t *opt_str_stressor;
-static stress_str_stressor_info_t str_methods[];
+static const stress_str_stressor_info_t *opt_str_stressor;
+static const stress_str_stressor_info_t str_methods[];
 
 static inline void strchk(
 	const char *name,
@@ -460,7 +460,7 @@ static void stress_str_all(
 /*
  * Table of string stress methods
  */
-static stress_str_stressor_info_t str_methods[] = {
+static const stress_str_stressor_info_t str_methods[] = {
 	{ "all",		stress_str_all },	/* Special "all test */
 
 	{ "index",		stress_index },
@@ -486,7 +486,7 @@ static stress_str_stressor_info_t str_methods[] = {
  */
 int stress_set_str_method(const char *name)
 {
-	stress_str_stressor_info_t *info = str_methods;
+	stress_str_stressor_info_t const *info = str_methods;
 
 
 	for (info = str_methods; info->func; info++) {
