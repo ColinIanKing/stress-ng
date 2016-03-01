@@ -78,8 +78,8 @@ typedef struct {
  */
 static int32_t opt_cpu_load_slice = -64;
 static int32_t opt_cpu_load = 100;
-static stress_cpu_stressor_info_t *opt_cpu_stressor;
-static stress_cpu_stressor_info_t cpu_methods[];
+static const stress_cpu_stressor_info_t *opt_cpu_stressor;
+static const stress_cpu_stressor_info_t cpu_methods[];
 
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
@@ -2024,7 +2024,7 @@ static void stress_cpu_union(const char *name)
 	}
 }
 
-static uint32_t queens_solutions[] = {
+static const uint32_t queens_solutions[] = {
 	-1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
 };
 
@@ -2090,7 +2090,7 @@ static HOT OPTIMIZE3 void stress_cpu_all(const char *name)
 /*
  * Table of cpu stress methods
  */
-static stress_cpu_stressor_info_t cpu_methods[] = {
+static const stress_cpu_stressor_info_t cpu_methods[] = {
 	{ "all",		stress_cpu_all },	/* Special "all test */
 
 	{ "ackermann",		stress_cpu_ackermann },
@@ -2180,7 +2180,7 @@ static stress_cpu_stressor_info_t cpu_methods[] = {
  */
 int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
 {
-	stress_cpu_stressor_info_t *info = cpu_methods;
+	stress_cpu_stressor_info_t const *info = cpu_methods;
 
 	for (info = cpu_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
