@@ -57,8 +57,8 @@ static size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
 static bool	set_vm_bytes = false;
 static int      opt_vm_flags = 0;                      /* VM mmap flags */
 
-static stress_vm_stressor_info_t *opt_vm_stressor;
-static stress_vm_stressor_info_t vm_methods[];
+static const stress_vm_stressor_info_t *opt_vm_stressor;
+static const stress_vm_stressor_info_t vm_methods[];
 
 void stress_set_vm_hang(const char *optarg)
 {
@@ -1825,7 +1825,7 @@ static size_t stress_vm_all(
 	return bit_errors;
 }
 
-static stress_vm_stressor_info_t vm_methods[] = {
+static const stress_vm_stressor_info_t vm_methods[] = {
 	{ "all",	stress_vm_all },
 	{ "flip",	stress_vm_flip },
 	{ "galpat-0",	stress_vm_galpat_zero },
@@ -1861,7 +1861,7 @@ static stress_vm_stressor_info_t vm_methods[] = {
  */
 int stress_set_vm_method(const char *name)
 {
-        stress_vm_stressor_info_t *info;
+        stress_vm_stressor_info_t const *info;
 
         for (info = vm_methods; info->func; info++) {
                 if (!strcmp(info->name, name)) {
