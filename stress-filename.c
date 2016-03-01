@@ -45,7 +45,7 @@ typedef struct {
 	const char *opt_text;
 } filename_opts_t;
 
-static filename_opts_t filename_opts[] = {
+static const filename_opts_t filename_opts[] = {
 	{ STRESS_FILENAME_PROBE,	"probe" },
 	{ STRESS_FILENAME_POSIX,	"posix" },
 	{ STRESS_FILENAME_EXT,		"ext" },
