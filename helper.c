@@ -57,7 +57,7 @@
 static unsigned long timer_slack = 0;
 #endif
 
-static char *stress_temp_path = ".";
+static const char *stress_temp_path = ".";
 
 /*
  *  stress_get_pagesize()
