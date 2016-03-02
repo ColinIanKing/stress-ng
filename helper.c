@@ -662,7 +662,7 @@ int system_write(
 
 /*
  *  system_read()
- *	write a buffer from a /sys or /proc entry
+ *	read a buffer from a /sys or /proc entry
  */
 int system_read(
 	const char *path,
