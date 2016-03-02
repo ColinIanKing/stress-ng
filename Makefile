@@ -104,6 +104,7 @@ STRESS_SRC = \
 	stress-noop.c \
 	stress-null.c \
 	stress-numa.c \
+	stress-oom-pipe.c \
 	stress-open.c \
 	stress-personality.c \
 	stress-pipe.c \
