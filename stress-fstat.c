@@ -45,6 +45,25 @@ void stress_set_fstat_dir(const char *optarg)
 	opt_fstat_dir = optarg;
 }
 
+static const char *blacklist[] = {
+	"/dev/watchdog"
+};
+
+/*
+ *  do_not_stat()
+ *	Check if file should not be stat'd
+ */
+static bool do_not_stat(const char *filename)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(blacklist); i++) {
+		if (!strncmp(filename, blacklist[i], strlen(blacklist[i])))
+			return true;
+	}
+	return false;
+}
+
 /*
  *  stress_fstat()
  *	stress system with fstat
@@ -81,6 +100,8 @@ int stress_fstat(
 		char path[PATH_MAX];
 
 		snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
+		if (do_not_stat(path))
+			continue;
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
 			pr_err(stderr, "%s: out of memory\n", name);
 			(void)closedir(dp);
