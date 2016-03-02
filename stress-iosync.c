@@ -51,7 +51,7 @@ int stress_iosync(
 #endif
 
 	(void)instance;
-#if !defined(__linux__)
+#if !(defined(__linux__) && NEED_GLIBC(2,14,0))
 	(void)name;
 #endif
 
