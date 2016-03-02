@@ -51,6 +51,7 @@ void stress_set_fallocate_bytes(const char *optarg)
 
 #if defined(__linux__)
 static const int modes[] = {
+	0,
 #if defined(FALLOC_FL_KEEP_SIZE)
 	FALLOC_FL_KEEP_SIZE,
 #endif
