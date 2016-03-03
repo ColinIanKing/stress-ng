@@ -442,7 +442,7 @@ fork_again:
 					restarts++;
 				}
 			}
-			(void)close(pipefds[1]);
+			(void)close(pipefds[0]);
 			/*
 			 *  The child may have been killed by the OOM killer or
 			 *  some other way, so it may have left the shared
