@@ -220,7 +220,7 @@ static int stress_shm_sysv_child(
 
 					/* Get a unique random key */
 					key = (key_t)mwc16();
-					for (j = 0; j < i - 1; j++) {
+					for (j = 0; j < i; j++) {
 						if (key == keys[j]) {
 							unique = false;
 							break;
