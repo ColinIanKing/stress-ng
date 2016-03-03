@@ -53,11 +53,25 @@ int stress_switch(
 
 	(void)instance;
 
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+	if (pipe2(pipefds, O_DIRECT) < 0) {
+		pr_fail_dbg(name, "pipe2");
+		return EXIT_FAILURE;
+	}
+	buf_size = 1;
+#else
 	if (pipe(pipefds) < 0) {
 		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
+#endif
+
 #if defined(F_SETPIPE_SZ)
+	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {
+		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
+			"errno = %d (%s)\n",
+			name, errno, strerror(errno));
+	}
 	if (fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0) {
 		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
 			"errno = %d (%s)\n",
