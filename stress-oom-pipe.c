@@ -234,20 +234,20 @@ again:
 		do {
 			/* Set to maximum size */
 			for (i = 0, fd = fds; i < max_pipes * 2; i++, fd++) {
+				int max_size = max_pipe_size;
 				if (*fd < 0)
 					continue;
-				if (fcntl(*fd, F_SETPIPE_SZ, max_pipe_size) < 0)
-					pr_fail_err(name, "fcntl F_SETPIPE_SZ");
-				pipe_fill(fd[1], max_pipe_size);
+				if (fcntl(*fd, F_SETPIPE_SZ, max_size) < 0)
+					max_size = page_size;
+				pipe_fill(fd[1], max_size);
 				if (!aggressive)
-					pipe_empty(fd[0], max_pipe_size);
+					pipe_empty(fd[0], max_size);
 			}
 			/* Set to minimum size */
 			for (i = 0, fd = fds; i < max_pipes * 2; i++, fd++) {
 				if (*fd < 0)
 					continue;
-				if (fcntl(*fd, F_SETPIPE_SZ, page_size) < 0)
-					pr_fail_err(name, "fcntl F_SETPIPE_SZ");
+				(void)fcntl(*fd, F_SETPIPE_SZ, page_size);
 				pipe_fill(fd[1], max_pipe_size);
 				if (!aggressive)
 					pipe_empty(fd[0], page_size);
