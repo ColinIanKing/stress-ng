@@ -1432,9 +1432,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sigsegv-ops N",	"stop after N bogo segmentation faults" },
 	{ NULL,		"sigsuspend N",		"start N workers exercising sigsuspend" },
 	{ NULL,		"sigsuspend-ops N",	"stop after N bogo sigsuspend wakes" },
+#if defined(STRESS_SLEEP)
 	{ NULL,		"sleep N",		"start N workers performing various duration sleeps" },
 	{ NULL,		"sleep-ops N",		"stop after N bogo sleep operations" },
 	{ NULL,		"sleep-max P",		"create P threads at a time by each worker" },
+#endif
 	{ "S N",	"sock N",		"start N workers exercising socket I/O" },
 	{ NULL,		"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,		"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
