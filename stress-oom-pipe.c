@@ -90,11 +90,10 @@ static int probe_max_pipe_size(void)
 	max = INT_MAX;
 	prev_sz = 0;
 	for (i = 0; i < 64; i++) {
+		sz = min + (max - min) / 2;
 		if (prev_sz == sz)
 			return sz;
-
 		prev_sz = sz;
-		sz = min + (max - min) / 2;
 		if (check_max_pipe_size(sz) == 0) {
 			min = sz;
 		} else {
