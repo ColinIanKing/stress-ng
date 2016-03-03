@@ -34,6 +34,8 @@
 #include <unistd.h>
 #include <ucontext.h>
 
+#define STACK_SIZE	(16384)
+
 static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
 static uint64_t __counter, __max_ops;
 
@@ -92,7 +94,9 @@ int stress_context(
 	const uint64_t max_ops,
 	const char *name)
 {
-	char stack_thread1[1024], stack_thread2[1024], stack_thread3[1024];
+	char stack_thread1[STACK_SIZE],
+	     stack_thread2[STACK_SIZE],
+	     stack_thread3[STACK_SIZE];
 
 	(void)instance;
 
