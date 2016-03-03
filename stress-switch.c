@@ -49,7 +49,7 @@ int stress_switch(
 {
 	pid_t pid;
 	int pipefds[2];
-	size_t buf_size = stress_get_pagesize();
+	size_t buf_size;
 
 	(void)instance;
 
@@ -64,6 +64,7 @@ int stress_switch(
 		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
+	buf_size = stress_get_pagesize();
 #endif
 
 #if defined(F_SETPIPE_SZ)
