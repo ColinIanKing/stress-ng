@@ -1,3 +1,69 @@
+stress-ng (0.05.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-switch: don't initialize buf_size twice
+  * stress-ng: don't stress-sleep options unless STRESS_SLEEP defined
+  * stress-shm-sysv: comparing j < i - 1 is incorrect when i = 0
+  * stress-shm-sysv: parent should close read end of pipe
+  * stress-context: make stacks larger, avoid segfault on kFreeBSD
+  * stress-oom-pipe: handle condition where pipe size can't be set
+  * stress-pipe: use O_DIRECT when possible
+  * stress-switch: use O_DIRECT with 1 byte buffer is possible
+  * stress-oom-pipe: ensure sz is set before we check it against prev_sz
+  * Add stress-oom-pipe pipe buffer stressor
+  * helper: fix comment on system_read()
+  * stress-fallocate: add in default mode 0
+  * stress-iosync: fix build warning when using old glibc:
+  * stress-fstat: add blacklist of paths not to open/fstat/close
+  * correctly spell stress_adjust_pthread_max
+  * stress-str: make some statics into static const
+  * stress-socket: make socket_opts static const
+  * stress-maxtrix: make some statics static const
+  * stress-vm: make some statics static const
+  * stress-wcstr: make variables static const
+  * stress-get: make priorities static const
+  * stress-filename: make filename_opts static const
+  * stress-dentry: make dentry_removals static const
+  * stress-cpu: make some variables static const
+  * stress-clone: make flags and unshare flags static const
+  * stress-chmod: make modes static const
+  * perf: make perf_tp_info static const
+  * cache: make struct generic_map const
+  * helper: make stress_temp_path static const
+  * stress-udp-flood: make data static const
+  * stress-spawn: make exec strings static
+  * Only define OPT_PTHREAD* macros if STRESS_PHREAD is defined
+  * Minor #define changes, no functional change
+  * stress-cpu: remove redundant initialisation of last_e
+  * stress-cpu: don't build _Decimal stressors with clang
+  * stress-shm-sysv: set entire shm_ids array to -1
+  * stress-fork: make child exit immediately and stash pid only in parent
+  * stress-xattr: free buffer on error exit path
+  * stress-timerfd: fix timer thresholding check
+  * Add sleep stressor
+  * stress-clock: add some comments and make source 80 column friendly
+  * bigheap: reorder some variables on the stack for better packing
+  * Add whitespace in return statement
+  * thermal-zone: minor clean up
+  * net: make loop iterator size_t
+  * cache: minor code tweaks, no functional changes
+  * cache: rework get_contents error return paths
+  * cache: reformat function declarations to match the stress-ng code style
+  * clean up and rename macro mk_path to MK_PATH
+  * Ensure we do not under run string buffer
+  * Add apparmor_parser excutable check
+  * time: make source 80 column friendly
+  * thermal-zone: make source 80 column friendly
+  * sched: make source 80 column friendly
+  * perf: make source 80 column friendly
+  * mlock: make source 80 column friendly
+  * limit.c: remove redundant #includes
+  * io-priority: make source 80 column friendly
+  * ignite-cpu: make source 80 column friendly
+  * Include stress-ng.h first for __kernel_long_t and __kernel_ulong_t
+
+ -- Colin King <colin.king@canonical.com>  Thu, 3 Mar 2016 17:20:01 +0000
+
 stress-ng (0.05.18-1) unstable; urgency=medium
 
   * Makefile: bump version
