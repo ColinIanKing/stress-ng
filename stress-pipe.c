@@ -51,7 +51,7 @@ void stress_set_pipe_size(const char *optarg)
 {
         opt_pipe_size = (size_t)get_uint64_byte(optarg);
         check_range("pipe-size", opt_pipe_size,
-                stress_get_pagesize(), 1024 * 1024);
+               4, 1024 * 1024);
 }
 #endif
 
@@ -102,6 +102,10 @@ static void pipe_change_size(const char *name, const int fd)
 	if (!opt_pipe_size)
 		return;
 
+#if !(defined(__linux__) && NEED_GLIBC(2,9,0))
+	if (opt_pipe_size < stress_get_pagesize())
+		return;
+#endif
 	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {
 		pr_err(stderr, "%s: cannot set pipe size, keeping "
 			"default pipe size, errno=%d (%s)\n",
@@ -126,10 +130,17 @@ int stress_pipe(
 
 	(void)instance;
 
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+	if (pipe2(pipefds, O_DIRECT) < 0) {
+		pr_fail_dbg(name, "pipe2");
+		return EXIT_FAILURE;
+	}
+#else
 	if (pipe(pipefds) < 0) {
 		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
 	}
+#endif
 
 #if defined(F_SETPIPE_SZ)
 	pipe_change_size(name, pipefds[0]);
@@ -184,7 +195,6 @@ again:
 		/* Parent */
 		setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
-
 
 		do {
 			ssize_t ret;
