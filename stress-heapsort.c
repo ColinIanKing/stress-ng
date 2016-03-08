@@ -131,7 +131,7 @@ int stress_heapsort(
 	}
 	n = (size_t)opt_heapsort_size;
 
-	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
+	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg(name, "malloc");
 		return EXIT_FAILURE;
 	}
