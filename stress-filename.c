@@ -264,7 +264,7 @@ int stress_filename (
 
 	switch (filename_opt) {
 	case STRESS_FILENAME_POSIX:
-		strcpy(allowed, posix_allowed);
+		strncpy(allowed, posix_allowed, sizeof(allowed));
 		chars_allowed = strlen(allowed);
 		break;
 	case STRESS_FILENAME_EXT:
