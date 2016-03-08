@@ -81,9 +81,16 @@ static const int madvise_options[] = {
 #ifdef MADV_DODUMP
 	MADV_DODUMP,
 #endif
+/*
+ *  Don't use MADV_FREE as this can zero fill
+ *  pages that don't have backing store which
+ *  trips checksum errors when we check that
+ *  the pages are sane.
+ *
 #ifdef MADV_FREE
 	MADV_FREE
 #endif
+*/
 };
 #endif
 
