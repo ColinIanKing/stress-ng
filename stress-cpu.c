@@ -1372,12 +1372,12 @@ static inline long double complex HOT OPTIMIZE3 zeta(
 static void stress_cpu_zeta(const char *name)
 {
 	long double precision = 0.00000001;
-	double f;
+	int i;
 
 	(void)name;
 
-	for (f = 2.0; f < 11.0; f += 1.0)
-		double_put(zeta(f, precision));
+	for (i = 2; i < 11; i++)
+		double_put(zeta((double complex)i, precision));
 }
 
 /*
