@@ -446,6 +446,10 @@ extern void pr_openlog(const char *filename);
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
+#define MIN_SOCKET_FD_PORT	(1024)
+#define MAX_SOCKET_FD_PORT	(65535)
+#define DEFAULT_SOCKET_FD_PORT	(8000)
+
 #define MIN_SPLICE_BYTES	(1*KB)
 #define MAX_SPLICE_BYTES	(64*MB)
 #define DEFAULT_SPLICE_BYTES	(64*KB)
@@ -1073,6 +1077,10 @@ typedef enum {
 #define STRESS_SLEEP __STRESS_SLEEP
 #endif
 	STRESS_SOCKET,
+#if defined(__linux__)
+	__STRESS_SOCKET_FD,
+#define STRESS_SOCKET_FD __STRESS_SOCKET_FD
+#endif
 	STRESS_SOCKET_PAIR,
 	__STRESS_SPAWN,
 #define STRESS_SPAWN __STRESS_SPAWN
@@ -1718,6 +1726,11 @@ typedef enum {
 	OPT_SOCKET_NODELAY,
 	OPT_SOCKET_OPTS,
 	OPT_SOCKET_PORT,
+
+#if defined(STRESS_SOCKET_FD)
+	OPT_SOCKET_FD,
+	OPT_SOCKET_FD_OPS,
+#endif
 
 	OPT_SOCKET_PAIR,
 	OPT_SOCKET_PAIR_OPS,
@@ -2376,6 +2389,7 @@ STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
 STRESS(stress_sleep);
 STRESS(stress_socket);
+STRESS(stress_socket_fd);
 STRESS(stress_socket_pair);
 STRESS(stress_spawn);
 STRESS(stress_splice);

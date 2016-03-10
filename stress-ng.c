@@ -343,6 +343,9 @@ static const stress_t stressors[] = {
 	STRESSOR(sleep, SLEEP, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
 #endif
 	STRESSOR(socket, SOCKET, CLASS_NETWORK | CLASS_OS),
+#if defined(STRESS_SOCKET_FD)
+	STRESSOR(socket_fd, SOCKET_FD, CLASS_NETWORK | CLASS_OS),
+#endif
 	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(spawn, SPAWN, CLASS_SCHEDULER | CLASS_OS),
 #if defined(STRESS_SPLICE)
@@ -862,6 +865,10 @@ static const struct option long_options[] = {
 	{ "sock-ops",	1,	0,	OPT_SOCKET_OPS },
 	{ "sock-opts",	1,	0,	OPT_SOCKET_OPTS },
 	{ "sock-port",	1,	0,	OPT_SOCKET_PORT },
+#if defined(STRESS_SOCKET_FD)
+	{ "sockfd",	1,	0,	OPT_SOCKET_FD },
+	{ "sockfd-ops",1,	0,	OPT_SOCKET_FD_OPS },
+#endif
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
 	{ "spawn",	1,	0,	OPT_SPAWN },
@@ -1454,6 +1461,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sock-ops N",		"stop after N socket bogo operations" },
 	{ NULL,		"sock-opts option",	"socket options [send|sendmsg|sendmmsg]" },
 	{ NULL,		"sock-port P",		"use socket ports P to P + number of workers - 1" },
+#if defined(STRESS_SOCKET_FD)
+	{ NULL,		"sockfd N",		"start N workers sending file descriptors over sockets" },
+	{ NULL,		"sockfd-ops N",		"stop after N sockfd bogo operations" },
+#endif
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop after N socket pair bogo operations" },
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },

@@ -134,6 +134,7 @@ STRESS_SRC = \
 	stress-sigq.c \
 	stress-sleep.c \
 	stress-socket.c \
+	stress-socket-fd.c \
 	stress-socketpair.c \
 	stress-spawn.c \
 	stress-splice.c \
