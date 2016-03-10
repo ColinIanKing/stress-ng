@@ -68,6 +68,7 @@ STRESS_SRC = \
 	stress-futex.c \
 	stress-get.c \
 	stress-getrandom.c \
+	stress-getdent.c \
 	stress-handle.c \
 	stress-hdd.c \
 	stress-heapsort.c \

@@ -68,7 +68,7 @@ get_robust_list
 getthread_area
 getcpu				numa
 getcwd				get
-getdents			used in readdir
+getdents			getdent
 getegid				get
 geteuid				get
 getgid				get

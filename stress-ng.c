@@ -206,6 +206,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_GETRANDOM)
 	STRESSOR(getrandom, GETRANDOM, CLASS_OS | CLASS_CPU),
 #endif
+#if defined(STRESS_GETDENT)
+	STRESSOR(getdent, GETDENT, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 #if defined(STRESS_HANDLE)
 	STRESSOR(handle, HANDLE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -579,6 +582,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_GETRANDOM)
 	{ "getrandom",	1,	0,	OPT_GETRANDOM },
 	{ "getrandom-ops",1,	0,	OPT_GETRANDOM_OPS },
+#endif
+#if defined(STRESS_GETDENT)
+	{ "getdent",	1,	0,	OPT_GETDENT },
+	{ "getdent-ops",1,	0,	OPT_GETDENT_OPS },
 #endif
 #if defined(STRESS_HANDLE)
 	{ "handle",	1,	0,	OPT_HANDLE },
@@ -1193,6 +1200,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"get N",		"start N workers exercising the get*() system calls" },
 	{ NULL,		"get-ops N",		"stop after N get bogo operations" },
+#if defined(STRESS_GETDENT)
+	{ NULL,		"getdent N",		"start N workers reading directories using getdents" },
+	{ NULL,		"getdent-ops N",	"stop after N getdents bogo operations" },
+#endif
 #if defined(STRESS_GETRANDOM)
 	{ NULL,		"getrandom N",		"start N workers fetching random data via getrandom()" },
 	{ NULL,		"getrandom-ops N",	"stop after N getrandom bogo operations" },

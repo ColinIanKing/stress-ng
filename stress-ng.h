@@ -885,6 +885,10 @@ typedef enum {
 	__STRESS_GETRANDOM,
 #define STRESS_GETRANDOM __STRESS_GETRANDOM
 #endif
+#if defined(__linux__) && defined(__NR_getdents64)
+	__STRESS_GETDENT,
+#define STRESS_GETDENT __STRESS_GETDENT
+#endif
 #if defined(__linux__) && defined(__NR_name_to_handle_at) && \
     defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
 	__STRESS_HANDLE,
@@ -1380,6 +1384,11 @@ typedef enum {
 #if defined(STRESS_GETRANDOM)
 	OPT_GETRANDOM,
 	OPT_GETRANDOM_OPS,
+#endif
+
+#if defined(STRESS_GETDENT)
+	OPT_GETDENT,
+	OPT_GETDENT_OPS,
 #endif
 
 #if defined(STRESS_HANDLE)
@@ -2301,6 +2310,7 @@ STRESS(stress_fstat);
 STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_getrandom);
+STRESS(stress_getdent);
 STRESS(stress_handle);
 STRESS(stress_hdd);
 STRESS(stress_heapsort);

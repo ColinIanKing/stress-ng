@@ -1034,6 +1034,13 @@ start N workers that call all the get*(2) system calls.
 .B \-\-get\-ops N
 stop get workers after N bogo get operations.
 .TP
+.B \-\-getdent N
+start N workers that recursively read directories /proc, /dev/, /tmp, /sys
+and /run using getdents and getdents64 (Linux only).
+.TP
+.B \-\-getdent\-ops N
+stop getdent workers after N bogo getdent bogo operations.
+.TP
 .B \-\-getrandom N
 start N workers that get 8192 random bytes from the /dev/urandom pool using
 the getrandom(2) system call (Linux only).
