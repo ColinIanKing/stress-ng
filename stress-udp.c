@@ -130,7 +130,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
-		struct sockaddr *addr;
+		struct sockaddr *addr = NULL;
 
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
@@ -180,7 +180,7 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 #ifdef AF_UNIX
-		if (opt_udp_domain == AF_UNIX) {
+		if ((opt_udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 			(void)unlink(addr_un->sun_path);
 		}
@@ -198,7 +198,7 @@ again:
 		int val;
 #endif
 		socklen_t addr_len = 0;
-		struct sockaddr *addr;
+		struct sockaddr *addr = NULL;
 
 		setpgid(pid, pgrp);
 
@@ -251,7 +251,7 @@ die_close:
 		(void)close(fd);
 die:
 #ifdef AF_UNIX
-		if (opt_udp_domain == AF_UNIX) {
+		if ((opt_udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 			(void)unlink(addr_un->sun_path);
 		}
