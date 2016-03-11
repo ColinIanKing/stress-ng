@@ -124,7 +124,8 @@ static inline int stress_socket_fd_recv(const int fd)
 		return -1;
 
 	cmsg = CMSG_FIRSTHDR(&msg);
-	if ((cmsg->cmsg_level == SOL_SOCKET) &&
+	if (cmsg &&
+	    (cmsg->cmsg_level == SOL_SOCKET) &&
 	    (cmsg->cmsg_type == SCM_RIGHTS) &&
 	    ((size_t)cmsg->cmsg_len >= (size_t)CMSG_LEN(sizeof(int)))) {
 		int *const ptr = (int *)CMSG_DATA(cmsg);
@@ -229,7 +230,7 @@ static int stress_socket_server(
 	int so_reuseaddr = 1;
 	struct sockaddr_un *addr_un;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr;
+	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -285,8 +286,10 @@ static int stress_socket_server(
 die_close:
 	(void)close(fd);
 die:
-	addr_un = (struct sockaddr_un *)addr;
-	(void)unlink(addr_un->sun_path);
+	if (addr) {
+		addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
+	}
 
 	if (pid) {
 		(void)kill(pid, SIGKILL);
