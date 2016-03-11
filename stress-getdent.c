@@ -81,7 +81,7 @@ static inline int stress_getdents_rand(
 	uint64_t max_ops,
 	const size_t page_size)
 {
-	int ret;
+	int ret = -ENOSYS;
 	const size_t n = SIZEOF_ARRAY(getdents_funcs);
 	size_t i, j = mwc32() % n;
 
@@ -101,7 +101,7 @@ static inline int stress_getdents_rand(
 	pr_fail(stderr, "%s: getdents: errno=%d (%s)\n",
 		name, -ret, strerror(-ret));
 
-	return -ENOSYS;
+	return ret;
 }
 
 /*
