@@ -36,7 +36,6 @@
 #include <limits.h>
 #include <signal.h>
 #include <sys/time.h>
-#include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -277,20 +276,11 @@ int stress_oom_pipe(
 	const uint64_t max_ops,
 	const char *name)
 {
-	struct rlimit rlim;
-	rlim_t i, opened = 0, max_pipes;
+	const size_t max_fd = stress_get_file_limit();
+	const size_t max_pipes = max_fd / 2;
 	int max_pipe_size;
 
 	page_size = stress_get_pagesize();
-
-	/* Figure out how many fds we can use */
-	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0)
-		rlim.rlim_cur = STRESS_FD_MAX; 	/* Guess */
-	for (i = 0; i < rlim.rlim_cur; i++) {
-		if (fcntl((int)i, F_GETFL) > -1)
-			opened++;
-	}
-	max_pipes = (rlim.rlim_cur - opened) / 2;
 	max_pipe_size = probe_max_pipe_size() & ~(page_size - 1);
 
 	return stress_oom_pipe_expander(
