@@ -35,6 +35,7 @@
 #include <inttypes.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <signal.h>
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/types.h>
@@ -2149,6 +2150,8 @@ extern int system_write(const char *path, const char *buf, const size_t buf_len)
 extern WARN_UNUSED int system_read(const char *path, char *buf, const size_t buf_len);
 extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
+extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
+extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
 
 /*
  *  Indicate a stress test failed because of limited resources

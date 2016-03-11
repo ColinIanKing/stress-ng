@@ -38,6 +38,7 @@
 #include <signal.h>
 #include <time.h>
 #include <math.h>
+#include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if defined(__linux__)
@@ -241,7 +242,7 @@ int stress_process_dumpable(const bool dumpable)
 	int fd, rc = 0;
 
 #if defined(__linux__) && defined(PR_SET_DUMPABLE)
-	(void)prctl(PR_SET_DUMPABLE, 
+	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
 	snprintf(path, sizeof(path), "/proc/%u/coredump_filter", getpid());
@@ -747,4 +748,46 @@ size_t stress_get_file_limit(void)
 			opened++;
 	}
 	return max - opened;
+}
+
+/*
+ *  stress_sighandler()
+ *	set signal handler in generic way
+ */
+int stress_sighandler(
+	const char *name,
+	const int signum,
+	void (*handler)(int),
+	struct sigaction *orig_action)
+{
+	struct sigaction new_action;
+
+	memset(&new_action, 0, sizeof new_action);
+	new_action.sa_handler = handler;
+	sigemptyset(&new_action.sa_mask);
+	new_action.sa_flags = 0;
+
+	if (sigaction(signum, &new_action, orig_action) < 0) {
+		pr_fail(stderr, "%s: sigaction %s: errno=%d (%s)\n",
+			name, stress_strsignal(signum), errno, strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_sigrestore()
+ *	restore a handler
+ */
+int stress_sigrestore(
+	const char *name,
+	const int signum,
+	struct sigaction *orig_action)
+{
+	if (sigaction(signum, orig_action, NULL) < 0) {
+		pr_fail(stderr, "%s: sigaction %s restore: errno=%d (%s)\n",
+			name, stress_strsignal(signum), errno, strerror(errno));
+		return -1;
+	}
+	return 0;
 }
