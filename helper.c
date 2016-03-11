@@ -45,6 +45,7 @@
 #include <sys/sysinfo.h>
 #include <sys/prctl.h>
 #endif
+#include <sys/resource.h>
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
@@ -725,4 +726,25 @@ uint64_t stress_get_prime64(const uint64_t n)
 		if ((n % p) && stress_is_prime64(p))
 			return p;
 	}
+}
+
+/*
+ *  stress_get_file_limit()
+ *	get max number of files that the current
+ *	process can open;
+ */
+size_t stress_get_file_limit(void)
+{
+	struct rlimit rlim;
+	size_t i, opened = 0, max = 65536;	/* initial guess */
+
+	if (!getrlimit(RLIMIT_NOFILE, &rlim))
+		max = (size_t)rlim.rlim_cur;
+
+	/* Determine max number of free file descriptors we have */
+	for (i = 0; i < max; i++) {
+		if (fcntl((int)i, F_GETFL) > -1)
+			opened++;
+	}
+	return max - opened;
 }
