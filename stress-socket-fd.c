@@ -39,7 +39,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/un.h>
-#include <sys/resource.h>
 
 #include "stress-ng.h"
 
@@ -145,7 +144,7 @@ static void stress_socket_client(
 	const uint64_t max_ops,
 	const char *name,
 	const pid_t ppid,
-	const rlim_t max_fd)
+	const size_t max_fd)
 {
 	struct sockaddr *addr;
 
@@ -154,7 +153,7 @@ static void stress_socket_client(
 
 	do {
 		int fd, retries = 0, fds[max_fd];
-		rlim_t i;
+		size_t i;
 		socklen_t addr_len = 0;
 retry:
 		if (!opt_do_run) {
@@ -224,7 +223,7 @@ static int stress_socket_server(
 	const char *name,
 	const pid_t pid,
 	const pid_t ppid,
-	const rlim_t max_fd)
+	const size_t max_fd)
 {
 	int fd, status;
 	int so_reuseaddr = 1;
@@ -273,7 +272,7 @@ static int stress_socket_server(
 	do {
 		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
-			rlim_t i;
+			size_t i;
 
 			for (i = 0; i < max_fd; i++) {
 				int newfd = open("/dev/null", O_RDWR);
@@ -314,25 +313,10 @@ int stress_socket_fd(
 	const char *name)
 {
 	pid_t pid, ppid = getppid();
-	struct rlimit rlim;
-        rlim_t i, opened = 0;
-
-        (void)instance;
-        (void)name;
+	const size_t max_fd = stress_get_file_limit();
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
 		name, getpid(), opt_socket_fd_port + instance);
-
-	if (getrlimit(RLIMIT_NOFILE, &rlim) < 0)
-		rlim.rlim_cur = MAX_FDS;  /* Guess */
-
-	/* Determine max number of free file descriptors we have */
-	for (i = 0; i < rlim.rlim_cur; i++) {
-		if (fcntl((int)i, F_GETFL) > -1)
-			opened++;
-	}
-	rlim.rlim_cur -= (opened + 5);
-
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -341,9 +325,9 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_socket_client(counter, instance, max_ops, name, ppid, rlim.rlim_cur);
+		stress_socket_client(counter, instance, max_ops, name, ppid, max_fd);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_socket_server(counter, instance, max_ops, name, pid, ppid, rlim.rlim_cur);
+		return stress_socket_server(counter, instance, max_ops, name, pid, ppid, max_fd);
 	}
 }
