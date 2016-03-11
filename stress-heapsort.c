@@ -118,7 +118,7 @@ int stress_heapsort(
 {
 	int32_t *data, *ptr;
 	size_t n, i;
-	struct sigaction new_action, old_action;
+	struct sigaction old_action;
 	int ret;
 
 	(void)instance;
@@ -136,13 +136,7 @@ int stress_heapsort(
 		return EXIT_FAILURE;
 	}
 
-	memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = stress_heapsort_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGALRM, &new_action, &old_action) < 0) {
-		pr_fail_err(name, "sigaction SIGALRM");
+	if (stress_sighandler(name, SIGALRM, stress_heapsort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
 	}
@@ -152,8 +146,7 @@ int stress_heapsort(
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		if (sigaction(SIGALRM, &old_action, NULL) < 0)
-			pr_dbg(stderr, "sigaction SIGALRM restore");
+		(void)stress_sigrestore(name, SIGALRM, &old_action);
 		goto tidy;
 	}
 
@@ -213,8 +206,7 @@ int stress_heapsort(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	do_jmp = false;
-	if (sigaction(SIGALRM, &old_action, NULL) < 0)
-		pr_fail_err(name, "sigaction SIGALRM restore");
+	(void)stress_sigrestore(name, SIGALRM, &old_action);
 tidy:
 	free(data);
 

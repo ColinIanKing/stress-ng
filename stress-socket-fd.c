@@ -227,7 +227,6 @@ static int stress_socket_server(
 {
 	int fd, status;
 	int so_reuseaddr = 1;
-	struct sigaction new_action;
 	struct sockaddr_un *addr_un;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr;
@@ -236,11 +235,7 @@ static int stress_socket_server(
 
 	setpgid(pid, pgrp);
 
-	new_action.sa_handler = handle_socket_sigalrm;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

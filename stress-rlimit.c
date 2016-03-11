@@ -65,32 +65,15 @@ int stress_rlimit(
 	const char *name)
 {
 	struct rlimit limit;
-	struct sigaction new_action_xcpu, old_action_xcpu,
-			 new_action_xfsz, old_action_xfsz;
+	struct sigaction old_action_xcpu, old_action_xfsz;
 	int fd;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
 
-	memset(&new_action_xcpu, 0, sizeof new_action_xcpu);
-	new_action_xcpu.sa_handler = stress_rlimit_handler;
-	sigemptyset(&new_action_xcpu.sa_mask);
-	new_action_xcpu.sa_flags = 0;
-
-	if (sigaction(SIGXCPU, &new_action_xcpu, &old_action_xcpu) < 0) {
-		pr_fail_err(name, "sigaction SIGXCPU");
+	if (stress_sighandler(name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 		return EXIT_FAILURE;
-	}
-
-	memset(&new_action_xfsz, 0, sizeof new_action_xfsz);
-	new_action_xfsz.sa_handler = stress_rlimit_handler;
-	sigemptyset(&new_action_xfsz.sa_mask);
-	new_action_xfsz.sa_flags = 0;
-
-	if (sigaction(SIGXFSZ, &new_action_xfsz, &old_action_xfsz) < 0) {
-		pr_fail_err(name, "sigaction SIGXFSZ");
+	if (stress_sighandler(name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
 		return EXIT_FAILURE;
-	}
-
 	(void)umask(0077);
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
@@ -135,11 +118,8 @@ int stress_rlimit(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	do_jmp = false;
-	if (sigaction(SIGXCPU, &old_action_xcpu, NULL) < 0)
-		pr_fail_err(name, "sigaction SIGXCPU restore");
-	if (sigaction(SIGXFSZ, &old_action_xfsz, NULL) < 0)
-		pr_fail_err(name, "sigaction SIGXFSZ restore");
-
+	(void)stress_sigrestore(name, SIGXCPU, &old_action_xcpu);
+	(void)stress_sigrestore(name, SIGXFSZ, &old_action_xfsz);
 	(void)close(fd);
 	(void)stress_temp_dir_rm(name, pid, instance);
 

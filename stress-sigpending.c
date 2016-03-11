@@ -51,22 +51,13 @@ int stress_sigpending(
 	const uint64_t max_ops,
 	const char *name)
 {
-	struct sigaction new_action;
 	sigset_t sigset;
 	const pid_t mypid = getpid();
 
 	(void)instance;
 
-	memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = stress_usr1_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	}
-
 
 	do {
 		sigemptyset(&sigset);

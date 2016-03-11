@@ -43,20 +43,12 @@ int stress_kill(
 	const uint64_t max_ops,
 	const char *name)
 {
-	struct sigaction new_action;
 	const pid_t pid = getpid();
 
 	(void)instance;
 
-	memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = SIG_IGN;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigusr1");
+	if (stress_sighandler(name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 	do {
 		int ret;

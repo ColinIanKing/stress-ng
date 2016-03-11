@@ -125,7 +125,6 @@ int stress_timer(
 	const uint64_t max_ops,
 	const char *name)
 {
-	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
 	sigset_t mask;
@@ -144,13 +143,8 @@ int stress_timer(
 	}
 	rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 
-	new_action.sa_flags = 0;
-	new_action.sa_handler = stress_timer_handler;
-	sigemptyset(&new_action.sa_mask);
-	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;

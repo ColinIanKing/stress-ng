@@ -284,18 +284,12 @@ static int epoll_client(
 {
 	int port_counter = 0;
 	uint64_t connect_timeouts = 0;
-	struct sigaction new_action;
 	struct sigevent sev;
 	struct itimerspec timer;
 	struct sockaddr *addr = NULL;
 
-	new_action.sa_flags = 0;
-	new_action.sa_handler = epoll_timer_handler;
-	sigemptyset(&new_action.sa_mask);
-	if (sigaction(SIGRTMIN, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
 		return -1;
-	}
 
 	do {
 		char buf[4096];
@@ -422,16 +416,11 @@ static void epoll_server(
 	int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	int port = opt_epoll_port + child + (max_servers * instance);
-	struct sigaction new_action;
 	struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 
-	new_action.sa_handler = handle_socket_sigalrm;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

@@ -118,7 +118,6 @@ int stress_itimer(
 	const uint64_t max_ops,
 	const char *name)
 {
-	struct sigaction action;
 	struct itimerval timer;
 	sigset_t mask;
 
@@ -136,12 +135,8 @@ int stress_itimer(
 	}
 	rate_us = opt_itimer_freq ? 1000000 / opt_itimer_freq : 1000000;
 
-	memset(&action, 0, sizeof(action));
-	action.sa_handler = stress_itimer_handler;
-	if (sigaction(SIGPROF, &action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {

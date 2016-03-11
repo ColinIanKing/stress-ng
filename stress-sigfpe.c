@@ -60,18 +60,11 @@ int stress_sigfpe(
 	(void)instance;
 
 	for (;;) {
-		struct sigaction new_action;
 		int ret;
 
-		memset(&new_action, 0, sizeof new_action);
-		new_action.sa_handler = stress_fpehandler;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-
-		if (sigaction(SIGFPE, &new_action, NULL) < 0) {
-			pr_fail_err(name, "sigfpe");
+		if (stress_sighandler(name, SIGFPE, stress_fpehandler, NULL) < 0)
 			return EXIT_FAILURE;
-		}
+
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we get SIGFPE, so

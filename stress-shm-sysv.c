@@ -149,7 +149,6 @@ static int stress_shm_sysv_child(
 	const size_t max_sz,
 	const size_t page_size)
 {
-	struct sigaction new_action;
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
@@ -160,13 +159,8 @@ static int stress_shm_sysv_child(
 	int mask = ~0;
 	int32_t instances;
 
-	new_action.sa_handler = handle_shm_sysv_sigalrm;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGALRM, handle_shm_sysv_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(keys, 0, sizeof(keys));

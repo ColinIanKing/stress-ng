@@ -127,7 +127,6 @@ int stress_lease(
 	const char *name)
 {
 	char filename[PATH_MAX];
-	struct sigaction new_action;
 	int ret, fd, status;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
 	pid_t pid = getpid();
@@ -135,15 +134,8 @@ int stress_lease(
 
 	memset(l_pids, 0, sizeof(l_pids));
 
-	memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = stress_lease_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGIO, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 	ret = stress_temp_dir_mk(name, pid, instance);
 	if (ret < 0)

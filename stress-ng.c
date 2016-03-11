@@ -1739,27 +1739,13 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
  */
 static int stress_sethandler(const char *stress, const bool child)
 {
-	struct sigaction new_action;
-
-	new_action.sa_handler = stress_sigint_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGINT, &new_action, NULL) < 0) {
-		pr_fail_err(stress, "sigaction");
+	if (stress_sighandler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
 		return -1;
-	}
 
-	new_action.sa_handler = child ?
-		stress_sigalrm_child_handler :
-		stress_sigalrm_parent_handler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-
-	if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-		pr_fail_err(stress, "sigaction");
+	if (stress_sighandler(stress, SIGALRM,
+	    child ?  stress_sigalrm_child_handler :
+		     stress_sigalrm_parent_handler, NULL) < 0)
 		return -1;
-	}
 	return 0;
 }
 
@@ -2325,7 +2311,6 @@ int main(int argc, char **argv)
 	double duration = 0.0;			/* stressor run time in secs */
 	size_t len;
 	bool success = true, resource_success = true;
-	struct sigaction new_action;
 	char *opt_exclude = NULL;		/* List of stressors to exclude */
 	char *yamlfile = NULL;			/* YAML filename */
 	FILE *yaml = NULL;			/* YAML output file */
@@ -3022,14 +3007,8 @@ next_opt:
 	}
 #endif
 	for (i = 0; signals[i] != -1; i++) {
-		new_action.sa_handler = handle_sigint;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-		if (sigaction(signals[i], &new_action, NULL) < 0) {
-			pr_err(stderr, "stress_ng: sigaction failed: errno=%d (%s)\n",
-				errno, strerror(errno));
+		if (stress_sighandler("stress-ng", signals[i], handle_sigint, NULL) < 0)
 			exit(EXIT_FAILURE);
-		}
 	}
 
 	for (i = 0; i < STRESS_MAX; i++)

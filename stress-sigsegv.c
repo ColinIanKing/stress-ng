@@ -62,22 +62,13 @@ int stress_sigsegv(
 	(void)instance;
 
 	for (;;) {
-		struct sigaction new_action;
 		int ret;
 
-		memset(&new_action, 0, sizeof new_action);
-		new_action.sa_handler = stress_segvhandler;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
+		if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
+			return EXIT_FAILURE;
+		if (stress_sighandler(name, SIGILL, stress_segvhandler, NULL) < 0)
+			return EXIT_FAILURE;
 
-		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-			pr_fail_err(name, "sigaction");
-			return EXIT_FAILURE;
-		}
-		if (sigaction(SIGILL, &new_action, NULL) < 0) {
-			pr_fail_err(name, "sigaction");
-			return EXIT_FAILURE;
-		}
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we segfault, so

@@ -198,16 +198,11 @@ again:
 		int val;
 #endif
 		socklen_t addr_len = 0;
-		struct sigaction new_action;
 		struct sockaddr *addr;
 
 		setpgid(pid, pgrp);
 
-		new_action.sa_handler = handle_udp_sigalrm;
-		sigemptyset(&new_action.sa_mask);
-		new_action.sa_flags = 0;
-		if (sigaction(SIGALRM, &new_action, NULL) < 0) {
-			pr_fail_err(name, "sigaction");
+		if (stress_sighandler(name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
 			rc = EXIT_FAILURE;
 			goto die;
 		}

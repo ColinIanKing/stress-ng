@@ -226,16 +226,8 @@ again:
 	if (pid == 0) {
 		int ret;
 
-		struct sigaction sa;
-
-		sa.sa_handler = stress_apparmor_handler;
-		sigemptyset(&sa.sa_mask);
- 		sa.sa_flags = 0;
-
-		if (sigaction(SIGALRM, &sa, NULL) < 0) {
-			pr_fail_err(name, "sigaction");
+		if (stress_sighandler(name, SIGALRM, stress_apparmor_handler, NULL) < 0)
 			exit(EXIT_FAILURE);
-		}
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
 

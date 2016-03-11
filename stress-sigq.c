@@ -52,15 +52,9 @@ int stress_sigq(
 	const char *name)
 {
 	pid_t pid;
-	struct sigaction new_action;
 
-	new_action.sa_handler = stress_sigqhandler;
-	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
-	if (sigaction(SIGUSR1, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+	if (stress_sighandler(name, SIGUSR1, stress_sigqhandler, NULL) < 0)
 		return EXIT_FAILURE;
-	}
 
 again:
 	pid = fork();
