@@ -1,3 +1,30 @@
+stress-ng (0.05.20-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-getdent: fix build warnings on systems with no getdents syscalls
+  * Manual: update date
+  * Debian/changelog: fix spelling mistake
+  * stress-udp: fix two warnings on uninitialised addr
+  * stress-socket-fd: fix two scan-build warnings
+  * stress-getdent: init ret to -ENOSYS, fix scan-build warning
+  * Use the generic signal handler helpers
+  * helper: add generic signal handling/restoring helper functions
+  * stress-oom-pipe: use stress_get_file_limit
+  * stress-open: use stress_get_file_limit
+  * stress-dup: use stress_get_file_limit
+  * stress-socket-fd: use stress_get_file_limit
+  * helper: add stress_get_file_limit to get max open files allowed
+  * Add sockfd stressor
+  * Add getdent stressor
+  * stress-filename: use strncpy rather than strcpy
+  * stress-qsort: use calloc
+  * stress-cpu: zeta method should be counting in integers
+  * stress-mergesort: use calloc
+  * stress-heapsort: use calloc
+  * stress-bsearch: use calloc
+
+ -- Colin King <colin.king@canonical.com>  Sat, 12 Mar 2016 17:58:42 +0000
+
 stress-ng (0.05.19-1) unstable; urgency=medium
 
   * Makefile: bump version
