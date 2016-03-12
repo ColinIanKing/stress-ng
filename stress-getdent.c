@@ -60,8 +60,12 @@ typedef int (getdents_func)(
 	uint64_t *counter, uint64_t max_ops,
 	const size_t page_size);
 
+#if defined(__NR_getdents)
 static getdents_func stress_getdents_dir;
+#endif
+#if defined(__NR_getdents64)
 static getdents_func stress_getdents64_dir;
+#endif
 
 static getdents_func * getdents_funcs[] = {
 #if defined(__NR_getdents)
@@ -112,7 +116,16 @@ static inline int sys_getdents(
 	struct linux_dirent *dirp,
 	unsigned int count)
 {
+#if defined(__NR_getdents)
         return syscall(__NR_getdents, fd, dirp, count);
+#else
+	(void)fd;
+	(void)dirp;
+	(void)count;
+
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
 /*
@@ -123,9 +136,19 @@ static inline int sys_getdents64(
 	struct linux_dirent64 *dirp,
 	unsigned int count)
 {
+#if defined(__NR_getdents64)
         return syscall(__NR_getdents64, fd, dirp, count);
+#else
+	(void)fd;
+	(void)dirp;
+	(void)count;
+
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
+#if defined(__NR_getdents)
 /*
  *  stress_getdents_dir()
  *	read directory via the old 32 bit interface
@@ -197,7 +220,9 @@ exit_close:
 
 	return rc;
 }
+#endif
 
+#if defined(__NR_getdents64)
 /*
  *  stress_getdents64_dir()
  *	read directory via the 64 bit interface
@@ -268,6 +293,7 @@ exit_close:
 
 	return rc;
 }
+#endif
 
 /*
  *  stress_getdent
