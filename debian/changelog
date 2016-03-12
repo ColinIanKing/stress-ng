@@ -51,7 +51,7 @@ stress-ng (0.05.19-1) unstable; urgency=medium
   * cache: reformat function declarations to match the stress-ng code style
   * clean up and rename macro mk_path to MK_PATH
   * Ensure we do not under run string buffer
-  * Add apparmor_parser excutable check
+  * Add apparmor_parser executable check
   * time: make source 80 column friendly
   * thermal-zone: make source 80 column friendly
   * sched: make source 80 column friendly
