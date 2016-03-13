@@ -223,6 +223,29 @@ int stress_get(
 			check_do_run();
 		}
 
+#if defined(__linux__)
+		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
+			struct rlimit rlim[2];
+
+			ret = prlimit(mypid, rlimits[i], NULL, &rlim[0]);
+			if (verify && (ret < 0))
+				pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+					name, mypid, i, errno, strerror(errno));
+			if (!ret) {
+				prlimit(mypid, rlimits[i], &rlim[0], NULL);
+				if (verify && (ret < 0))
+					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+						name, mypid, i, errno, strerror(errno));
+				prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
+				if (verify && (ret < 0))
+					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+						name, mypid, i, errno, strerror(errno));
+			}
+		
+			check_do_run();
+		}
+#endif
+
 		for (i = 0; i < SIZEOF_ARRAY(rusages); i++) {
 			struct rusage usage;
 
