@@ -44,6 +44,7 @@ fadvise				readahead
 fallocate			fallocate
 fanotify_init			[ need privilege, ignore for now ]
 fanotify_mark			[ need privilege, ignore for now ]
+fchdir
 fchmod				chmod
 fchmodat
 fchown
@@ -51,6 +52,7 @@ fchownat
 fcntl				open, lockf, fcntl
 fdatasync			hdd
 fgetxattr			xattr
+finit_module
 flistxattr			xattr
 flock				flock
 fork				fork
@@ -65,7 +67,7 @@ futimesat
 futimens			wait
 get_mempolicy			numa
 get_robust_list
-getthread_area
+get_thread_area
 getcpu				numa
 getcwd				get
 getdents			getdent
@@ -96,6 +98,7 @@ gettid				get
 gettimeofday			get
 getuid				get
 getxattr
+init_module
 inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
@@ -144,8 +147,8 @@ mkstemp				hdd
 mount				[ need privilege, ignore for now ]
 move_pages			numa
 mmap				bigheap, mmap
+mmap2
 mprotect			mmap
-munmap				mmap
 mq_getsetattr			mq
 mq_notify
 mq_open				mq
@@ -224,6 +227,7 @@ sched_getparam
 sched_getscheduler
 sched_get_rr_interval
 sched_setaffinity		affinity
+sched_setattr
 sched_setparam
 sched_setscheduler		sched
 sched_yield			yield
@@ -288,6 +292,8 @@ sigsuspend			sigsuspend
 socket				sock	
 socketcall			[ implicit ]
 socketpair			sockpair
+splice				splice
+ssetmask			[ obsolete ]
 stat				fstat
 statfs				sysinfo
 stime				[ need privilege, ignore for now ]
@@ -297,6 +303,7 @@ symlink				symlink
 symlinkat
 sync				io
 sync_file_range			[ potentially dangerous to data ]
+sync_file_range2		[ potentially dangerous to data ]
 syncfs				hdd, io
 sysfs				[ obsolete ]
 sysinfo				sysinfo
