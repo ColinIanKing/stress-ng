@@ -207,7 +207,7 @@ LIB_AIO = -laio
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
-	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0
+	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0
 
 #
 # Do build time config only if cmd is "make" and no goals given
@@ -299,6 +299,13 @@ HAVE_LIB_AIO = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_aio)
 ifeq ($(HAVE_LIB_AIO),1)
 	CFLAGS += -DHAVE_LIB_AIO
 	LDFLAGS += $(LIB_AIO)
+endif
+endif
+
+ifndef $(HAVE_SYS_CAP_H)
+HAVE_SYS_CAP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sys_cap_h)
+ifeq ($(HAVE_SYS_CAP_H),1)
+	CFLAGS += -DHAVE_SYS_CAP_H
 endif
 endif
 endif
@@ -473,6 +480,18 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 	echo "const size_t apparmor_data_len = sizeof(apparmor_data);" >> apparmor-data.c
 	$(CC) -c apparmor-data.c -o apparmor-data.o
 	@rm -rf apparmor-data.c
+
+#
+#  check if we have sys/capability.h
+#
+have_sys_cap_h:
+	@$(CC) $(CPPFLAGS) test-cap.c -o test-cap 2> /dev/null || true
+	@if [ -e test-cap ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-cap
 
 #
 #  extract the PER_* personality enums

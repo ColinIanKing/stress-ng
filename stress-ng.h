@@ -823,7 +823,7 @@ typedef enum {
 #define STRESS_BIND_MOUNT __STRESS_BIND_MOUNT
 #endif
 	STRESS_CACHE,
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
 	__STRESS_CAP,
 #define STRESS_CAP __STRESS_CAP
 #endif
