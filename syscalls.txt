@@ -9,7 +9,7 @@ adjtimex			get (modes = 0 only)
 alarm				generic run duration timers
 bind				sock
 brk				bigheap, brk
-capget
+capget				cap
 capset				[ need privilege, ignore for now ]
 chdir				chdir
 chmod				chmod
