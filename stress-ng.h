@@ -823,6 +823,10 @@ typedef enum {
 #define STRESS_BIND_MOUNT __STRESS_BIND_MOUNT
 #endif
 	STRESS_CACHE,
+#if defined(__linux__)
+	__STRESS_CAP,
+#define STRESS_CAP __STRESS_CAP
+#endif
 	STRESS_CHDIR,
 	STRESS_CHMOD,
 #if defined(HAVE_LIB_RT) && _POSIX_C_SOURCE >= 199309L
@@ -1276,6 +1280,11 @@ typedef enum {
 	OPT_CACHE_LEVEL,
 	OPT_CACHE_WAYS,
 	OPT_CACHE_NO_AFFINITY,
+
+#if defined(STRESS_CAP)
+	OPT_CAP,
+	OPT_CAP_OPS,
+#endif
 
 	OPT_CHDIR,
 	OPT_CHDIR_OPS,
@@ -2299,6 +2308,7 @@ STRESS(stress_bind_mount);
 STRESS(stress_brk);
 STRESS(stress_bsearch);
 STRESS(stress_cache);
+STRESS(stress_cap);
 STRESS(stress_chdir);
 STRESS(stress_chmod);
 STRESS(stress_clock);

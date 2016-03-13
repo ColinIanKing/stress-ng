@@ -437,6 +437,13 @@ prefetching.
 specify the number of cache ways to exercise. This allows a subset of
 the overall cache size to be exercised.
 .TP
+.B \-\-cap N
+start N workers that read per process capabililties via calls to capget(2)
+(Linux only).
+.TP
+.B \-\-cap\-ops N
+stop after N cap bogo operations.
+.TP
 .B \-\-chdir N
 start N workers that change directory between 8192 directories using chdir(2).
 .TP

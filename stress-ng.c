@@ -152,6 +152,9 @@ static const stress_t stressors[] = {
 	STRESSOR(brk, BRK, CLASS_OS | CLASS_VM),
 	STRESSOR(bsearch, BSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(cache, CACHE, CLASS_CPU_CACHE),
+#if defined(STRESS_CAP)
+	STRESSOR(cap, CAP, CLASS_OS),
+#endif
 	STRESSOR(chdir, CHDIR, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(chmod, CHMOD, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_CLOCK)
@@ -486,6 +489,10 @@ static const struct option long_options[] = {
 	{ "cache-level",1,	0,	OPT_CACHE_LEVEL},
 	{ "cache-ways",1,	0,	OPT_CACHE_WAYS},
 	{ "cache-no-affinity",0,	0,	OPT_CACHE_NO_AFFINITY },
+#if defined(STRESS_CAP)
+	{ "cap",	1,	0, 	OPT_CAP },
+	{ "cap-ops",	1,	0, 	OPT_CAP_OPS },
+#endif
 	{ "chdir",	1,	0, 	OPT_CHDIR },
 	{ "chdir-ops",	1,	0, 	OPT_CHDIR_OPS },
 	{ "chmod",	1,	0, 	OPT_CHMOD },
@@ -1114,6 +1121,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
 	{ NULL,		"cache-level N",	"only exercise specified cache" },
 	{ NULL,		"cache-ways N",		"only fill specified number of cache ways" },
+#if defined(STRESS_CAP)
+	{ NULL,		"cap N",		"start N workers exercsing capget" },
+	{ NULL,		"cap-ops N",		"stop cap workers after N bogo capget operations" },
+#endif
 	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
