@@ -1016,6 +1016,15 @@ default is just 1; higher values will create many temporary zombie processes
 that are waiting to be reaped. One can potentially fill up the the process
 table using high values for \-\-fork\-max and \-\-fork.
 .TP
+.B \-\-fp\-error N
+start N workers that generate floating point exceptions. Computations are
+performed to force and check for the FE_DIVBYZERO, FE_INEXACT, FE_INVALID,
+FE_OVERFLOW and FE_UNDERFLOW exceptions.  EDOM and ERANGE errors are also
+checked.
+.TP
+.B \-\-fp\-error\-ops N
+stop after N bogo floating point exceptions.
+.TP
 .B \-\-fstat N
 start N workers fstat'ing files in a directory (default is /dev).
 .TP
