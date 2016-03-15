@@ -84,6 +84,8 @@ int stress_sysinfo(
 
 		/* Linux statfs variant */
 		for (i = 0; i < n_mounts; i++) {
+			int fd;
+
 			check_do_run();
 
 			if (!mnts[i])
@@ -101,6 +103,25 @@ int stress_sysinfo(
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
 					pr_fail(stderr, "%s: statfs on %s "
+						"failed: errno=%d (%s)\n",
+						name, mnts[i], errno,
+						strerror(errno));
+				}
+			}
+
+			fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
+			if (fd < 0)
+				continue;
+
+			ret = fstatfs(fd, &statfs_buf);
+			(void)close(fd);
+			if ((ret < 0) && (errno == ENOENT))
+				continue;
+			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+				if (errno != ENOSYS &&
+				    errno != EOVERFLOW &&
+				    errno != EACCES) {
+					pr_fail(stderr, "%s: fstatfs on %s "
 						"failed: errno=%d (%s)\n",
 						name, mnts[i], errno,
 						strerror(errno));

@@ -59,7 +59,7 @@ fork				fork
 fremovexattr			xattr
 fsetxattr			xattr
 fstat				fallocate
-fstatfs
+fstatfs				sysinfo
 fsync				fallocate, hdd
 ftruncate			fallocate
 futex				futex
