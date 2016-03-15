@@ -37,6 +37,14 @@
 #include <pthread.h>
 #include <errno.h>
 #include <signal.h>
+#if defined(__linux__)
+/* For get_robust_list on Linux: */
+#include <syscall.h>
+#if defined(__NR_get_robust_list)
+#include <linux/futex.h>
+#include <sys/types.h>
+#endif
+#endif
 
 static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
 static bool set_pthread_max = false;
@@ -64,6 +72,13 @@ void stress_adjust_pthread_max(uint64_t max)
 	}
 }
 
+#if defined(__linux__) && defined(__NR_get_robust_list)
+static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
+{
+	return syscall(__NR_get_robust_list, pid, head_ptr, len_ptr);
+}
+#endif
+
 /*
  *  stress_pthread_func()
  *	pthread that exits immediately
@@ -74,6 +89,10 @@ static void *stress_pthread_func(void *ctxt)
 	stack_t ss;
 	static void *nowt = NULL;
 	int ret;
+#if defined(__linux__) && defined(__NR_get_robust_list)
+	struct robust_list_head *head_ptr;
+	size_t len_ptr;
+#endif
 
 	(void)ctxt;
 
@@ -96,6 +115,18 @@ static void *stress_pthread_func(void *ctxt)
 		pr_fail_err("pthread", "sigaltstack");
 		goto die;
 	}
+
+#if defined(__linux__) && defined(__NR_get_robust_list)
+	/*
+	 *  Check that get_robust_list() works OK
+	 */
+	if (sys_get_robust_list(0, &head_ptr, &len_ptr) < 0) {
+		if (errno != ENOSYS) {
+			pr_fail_err("pthread", "get_robust_list");
+			goto die;
+		}
+	}
+#endif
 
 	/*
 	 *  Bump count of running threads
