@@ -360,6 +360,9 @@ static const stress_t stressors[] = {
 	STRESSOR(stream, STREAM, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_SYNC_FILE)
+	STRESSOR(sync_file, SYNC_FILE, CLASS_IO | CLASS_FILESYSTEM | CLASS_OS),
+#endif
 	STRESSOR(sysinfo, SYSINFO, CLASS_OS),
 #if defined(STRESS_SYSFS)
 	STRESSOR(sysfs, SYSFS, CLASS_OS),
@@ -901,6 +904,11 @@ static const struct option long_options[] = {
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
 	{ "symlink-ops",1,	0,	OPT_SYMLINK_OPS },
+#if defined(STRESS_SYNC_FILE)
+	{ "sync-file",	1,	0,	OPT_SYNC_FILE },
+	{ "sync-file-ops", 1,	0,	OPT_SYNC_FILE_OPS },
+	{ "sync-file-bytes", 1,	0,	OPT_SYNC_FILE_BYTES },
+#endif
 	{ "sysinfo",	1,	0,	OPT_SYSINFO },
 	{ "sysinfo-ops",1,	0,	OPT_SYSINFO_OPS },
 #if defined(STRESS_SYSFS)
@@ -1503,6 +1511,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"switch-ops N",		"stop after N context switch bogo operations" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
 	{ NULL,		"symlink-ops N",	"stop after N symbolic link bogo operations" },
+#if defined(STRESS_SYNC_FILE)
+	{ NULL,		"sync-file N",		"start N workers exercise sync_file_range" },
+	{ NULL,		"sync-file-ops N",	"stop after N sync_file_range bogo operations" },
+	{ NULL,		"sync-file-bytes N",	"size of file to be sync'd" },
+#endif
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
 	{ NULL,		"sysinfo-ops N",	"stop after sysinfo bogo operations" },
 #if defined(STRESS_SYSFS)
@@ -2784,6 +2797,11 @@ next_opt:
 		case OPT_STREAM_L3_SIZE:
 			stress_set_stream_L3_size(optarg);
 			break;
+#if defined(STRESS_SYNC_FILE)
+		case OPT_SYNC_FILE_BYTES:
+			stress_set_sync_file_bytes(optarg);
+			break;
+#endif
 		case OPT_SYSLOG:
 			opt_flags |= OPT_FLAGS_SYSLOG;
 			break;

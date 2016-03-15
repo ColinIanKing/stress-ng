@@ -144,6 +144,7 @@ STRESS_SRC = \
 	stress-str.c \
 	stress-stream.c \
 	stress-switch.c \
+	stress-sync-file.c \
 	stress-sysinfo.c \
 	stress-sysfs.c \
 	stress-tee.c \

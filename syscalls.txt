@@ -302,7 +302,7 @@ swapon				[ need privilege, ignore for now ]
 symlink				symlink
 symlinkat
 sync				io
-sync_file_range			[ potentially dangerous to data ]
+sync_file_range			sync-file
 sync_file_range2		[ potentially dangerous to data ]
 syncfs				hdd, io
 sysfs				[ obsolete ]

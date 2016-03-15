@@ -463,6 +463,14 @@ extern void pr_openlog(const char *filename);
 #endif
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)
 
+#define MIN_SYNC_FILE_BYTES	(1 * MB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_SYNC_FILE_BYTES	(MAX_32)
+#else
+#define MAX_SYNC_FILE_BYTES	(4 * GB)
+#endif
+#define DEFAULT_SYNC_FILE_BYTES	(1 * GB)
+
 
 #define MIN_TSEARCH_SIZE	(1 * KB)
 #define MAX_TSEARCH_SIZE	(4 * MB)
@@ -1099,6 +1107,10 @@ typedef enum {
 	STRESS_STREAM,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
+#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
+	__STRESS_SYNC_FILE,
+#define STRESS_SYNC_FILE __STRESS_SYNC_FILE
+#endif
 	STRESS_SYSINFO,
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 	__STRESS_SYSFS,
@@ -1775,6 +1787,12 @@ typedef enum {
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
 
+#if defined(STRESS_SYNC_FILE)
+	OPT_SYNC_FILE,
+	OPT_SYNC_FILE_OPS,
+	OPT_SYNC_FILE_BYTES,
+#endif
+
 	OPT_SYSINFO,
 	OPT_SYSINFO_OPS,
 
@@ -2279,6 +2297,7 @@ extern void stress_set_socket_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);
 extern void stress_set_stream_L3_size(const char *optarg);
+extern void stress_set_sync_file_bytes(const char *optarg);
 extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *optarg);
 extern void stress_set_timerfd_freq(const char *optarg);
@@ -2417,6 +2436,7 @@ STRESS(stress_str);
 STRESS(stress_stream);
 STRESS(stress_switch);
 STRESS(stress_symlink);
+STRESS(stress_sync_file);
 STRESS(stress_sysinfo);
 STRESS(stress_sysfs);
 STRESS(stress_tee);

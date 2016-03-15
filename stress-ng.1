@@ -2036,6 +2036,20 @@ start N workers creating and removing symbolic links.
 .B \-\-symlink\-ops N
 stop symlink stress workers after N bogo operations.
 .TP
+.B \-\-sync\-file N
+start N workers that perform a range of data syncs across a file using
+sync_file_range(2).  Three mixes of syncs are performed, from start to the end
+of the file,  from end of the file to the start, and a random mix. A random
+selection of valid sync types are used, covering the SYNC_FILE_RANGE_WAIT_BEFORE,
+SYNC_FILE_RANGE_WRITE and SYNC_FILE_RANGE_WAIT_AFTER flag bits.
+.TP
+.B \-\-sync\-file\-ops N
+stop sync\-file workers after N bogo sync operations.
+.TP
+.B \-\-sync\-file\-bytes N
+specify the size of the file to be sync'd. One can specify the size in units
+of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-sysinfo N
 start N workers that continually read system and process specific information.
 This reads the process user and system times using the times(2) system call.
