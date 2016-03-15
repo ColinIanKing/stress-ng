@@ -2010,19 +2010,6 @@ units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 If the L3 cache size is not provided, then stress-ng will attempt to
 determine the cache size, and failing this, will default the size to 4MB.
 .TP
-.B \-\-wcs N
-start N workers that exercise various libc wide character string functions on
-random strings.
-.TP
-.B \-\-wcs-method wcsfunc
-select a specific libc wide character string function to stress. Available
-string functions to stress are: all, wcscasecmp, wcscat, wcschr, wcscoll,
-wcscmp, wcscpy, wcslen, wcsncasecmp, wcsncat, wcsncmp, wcsrchr and wcsxfrm.
-The 'all' method is the default and will exercise all the string methods.
-.TP
-.B \-\-wcs-ops N
-stop after N bogo wide character string operations.
-.TP
 .B \-s N, \-\-switch N
 start N workers that send messages via pipe to a child to force context
 switching.
@@ -2455,6 +2442,19 @@ and waitid(2).
 .TP
 .B \-\-wait\-ops N
 stop after N bogo wait operations.
+.TP
+.B \-\-wcs N
+start N workers that exercise various libc wide character string functions on
+random strings.
+.TP
+.B \-\-wcs-method wcsfunc
+select a specific libc wide character string function to stress. Available
+string functions to stress are: all, wcscasecmp, wcscat, wcschr, wcscoll,
+wcscmp, wcscpy, wcslen, wcsncasecmp, wcsncat, wcsncmp, wcsrchr and wcsxfrm.
+The 'all' method is the default and will exercise all the string methods.
+.TP
+.B \-\-wcs-ops N
+stop after N bogo wide character string operations.
 .TP
 .B \-\-xattr N
 start N workers that create, update and delete batches of extended attributes
