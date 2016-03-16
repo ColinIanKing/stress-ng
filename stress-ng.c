@@ -312,6 +312,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_READAHEAD)
 	STRESSOR(readahead, READAHEAD, CLASS_IO | CLASS_OS),
 #endif
+#if defined(STRESS_REMAP_FILE_PAGES)
+	STRESSOR(remap_file_pages, REMAP_FILE_PAGES, CLASS_MEMORY | CLASS_OS),
+#endif
 	STRESSOR(rename, RENAME, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_RLIMIT)
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
@@ -806,6 +809,10 @@ static const struct option long_options[] = {
 	{ "readahead",	1,	0,	OPT_READAHEAD },
 	{ "readahead-ops",1,	0,	OPT_READAHEAD_OPS },
 	{ "readahead-bytes",1,	0,	OPT_READAHEAD_BYTES },
+#endif
+#if defined(STRESS_REMAP_FILE_PAGES)
+	{ "remap",	1,	0,	OPT_REMAP_FILE_PAGES },
+	{ "remap-ops",	1,	0,	OPT_REMAP_FILE_PAGES_OPS },
 #endif
 	{ "rename",	1,	0,	OPT_RENAME },
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
@@ -1420,6 +1427,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"readahead N",		"start N workers exercising file readahead" },
 	{ NULL,		"readahead-bytes N",	"size of file to readahead on (default is 1GB)" },
 	{ NULL,		"readahead-ops N",	"stop after N readahead bogo operations" },
+#endif
+#if defined(STRESS_REMAP_FILE_PAGES)
+	{ NULL,		"remap N",		"start N workers exercising page remappings" },
+	{ NULL,		"remap-ops N",		"stop after N remapping bogo operations" },
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop after N rename bogo operations" },

@@ -1708,6 +1708,14 @@ in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .B \-\-readahead\-ops N
 stop readahead stress workers after N bogo read operations.
 .TP
+.B \-\-remap N
+start N workers that map 512 pages and re-order these pages using the
+deprecated system call remap_file_pages(2). Several page re-orderings are
+exercised: forward, reverse, random and many pages to 1 page.
+.TP
+.B \-\-remap\-ops N
+stop after N remapping bogo operations.
+.TP
 .B \-R N, \-\-rename N
 start N workers that each create a file and then repeatedly rename it.
 .TP

@@ -1047,6 +1047,10 @@ typedef enum {
 	__STRESS_READAHEAD,
 #define STRESS_READAHEAD __STRESS_READAHEAD
 #endif
+#if defined(__linux__) && NEED_GLIBC(2,3,0) && defined(__NR_remap_file_pages)
+	__STRESS_REMAP_FILE_PAGES,
+#define STRESS_REMAP_FILE_PAGES __STRESS_REMAP_FILE_PAGES
+#endif
 	STRESS_RENAME,
 #if defined(__linux__)
 	__STRESS_RLIMIT,
@@ -1663,6 +1667,11 @@ typedef enum {
 	OPT_READAHEAD,
 	OPT_READAHEAD_OPS,
 	OPT_READAHEAD_BYTES,
+#endif
+
+#if defined(STRESS_REMAP_FILE_PAGES)
+	OPT_REMAP_FILE_PAGES,
+	OPT_REMAP_FILE_PAGES_OPS,
 #endif
 
 	OPT_RENAME_OPS,
@@ -2410,6 +2419,7 @@ STRESS(stress_qsort);
 STRESS(stress_quota);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
+STRESS(stress_remap_file_pages);
 STRESS(stress_rename);
 STRESS(stress_rlimit);
 STRESS(stress_seccomp);
