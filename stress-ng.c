@@ -236,6 +236,9 @@ static const stress_t stressors[] = {
 	STRESSOR(key, KEY, CLASS_OS),
 #endif
 	STRESSOR(kill, KILL, CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS),
+#if defined(STRESS_KLOG)
+	STRESSOR(klog, KLOG, CLASS_OS),
+#endif
 #if defined(STRESS_LEASE)
 	STRESSOR(lease, LEASE, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -653,6 +656,10 @@ static const struct option long_options[] = {
 	{ "keep-name",	0,	0,	OPT_KEEP_NAME },
 	{ "kill",	1,	0,	OPT_KILL },
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
+#if defined(STRESS_KLOG)
+	{ "klog",	1,	0,	OPT_KLOG },
+	{" klog-ops",	1,	0,	OPT_KLOG_OPS },
+#endif
 #if defined(STRESS_LEASE)
 	{ "lease",	1,	0,	OPT_LEASE },
 	{ "lease-ops",	1,	0,	OPT_LEASE_OPS },
@@ -1289,6 +1296,10 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"kill N",		"start N workers killing with SIGUSR1" },
 	{ NULL,		"kill-ops N",		"stop after N kill bogo operations" },
+#if defined(STRESS_KLOG)
+	{ NULL,		"klog N",		"start N workers exercising kernel syslog interface" },
+	{ NULL,		"klog -ops N",		"stop after N klog bogo operations" },
+#endif
 #if defined(STRESS_LEASE)
 	{ NULL,		"lease N",		"start N workers holding and breaking a lease" },
 	{ NULL,		"lease-ops N",		"stop after N lease bogo operations" },

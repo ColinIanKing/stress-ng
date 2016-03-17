@@ -937,6 +937,10 @@ typedef enum {
 #define STRESS_KEY __STRESS_KEY
 #endif
 	STRESS_KILL,
+#if defined(__linux__) && defined(__NR_syslog)
+	__STRESS_KLOG,
+#define STRESS_KLOG __STRESS_KLOG
+#endif
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 	__STRESS_LEASE,
 #define STRESS_LEASE __STRESS_LEASE
@@ -1482,6 +1486,11 @@ typedef enum {
 
 	OPT_KILL,
 	OPT_KILL_OPS,
+
+#if defined(STRESS_KLOG)
+	OPT_KLOG,
+	OPT_KLOG_OPS,
+#endif
 
 #if defined(STRESS_LEASE)
 	OPT_LEASE,
@@ -2382,6 +2391,7 @@ STRESS(stress_itimer);
 STRESS(stress_kcmp);
 STRESS(stress_key);
 STRESS(stress_kill);
+STRESS(stress_klog);
 STRESS(stress_lease);
 STRESS(stress_link);
 STRESS(stress_lockbus);

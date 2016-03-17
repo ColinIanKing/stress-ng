@@ -1256,6 +1256,13 @@ of the process time will end up in kernel space.
 .B \-\-kill\-ops N
 stop kill workers after N bogo kill operations.
 .TP
+.B \-\-klog N
+start N workers exercising the kernel syslog(2) system call.  This will
+attempt to read the kernel log with various sized read buffers. Linux only.
+.TP
+.B \-\-klog\-ops N
+stop klog workers after N syslog operations.
+.TP
 .B \-\-lease N
 start N workers locking, unlocking and breaking leases via the fcntl(2)
 F_SETLEASE operation. The parent processes continually lock and unlock a lease

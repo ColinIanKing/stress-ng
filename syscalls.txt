@@ -308,7 +308,7 @@ sync_file_range2		[ potentially dangerous to data ]
 syncfs				hdd, io
 sysfs				[ obsolete ]
 sysinfo				sysinfo
-syslog				[ ignore, don't want to spam the syslog ]
+syslog				klog
 tee				tee
 tgkill
 time				get

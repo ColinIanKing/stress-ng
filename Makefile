@@ -82,6 +82,7 @@ STRESS_SRC = \
 	stress-kcmp.c \
 	stress-key.c \
 	stress-kill.c \
+	stress-klog.c \
 	stress-lease.c \
 	stress-lsearch.c \
 	stress-link.c \
