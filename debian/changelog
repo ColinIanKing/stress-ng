@@ -1,3 +1,24 @@
+stress-ng (0.05.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add test-cap.c to Makefile dist rule
+  * debian: tests: don't run remap stressor
+  * stress-ng: add klog (syslog) stressor
+  * syscalls: add remap_file_pages
+  * Add page remapping stressor
+  * stress-pthread: Add get_robust_list call
+  * stress-sysinfo: exercise fstatfs()
+  * Move wcs options to correct postion in manual
+  * Add the sync-file stressor
+  * Add fp-error stressor
+  * syscalls.txt: update some missing syscalls and some re-ordering
+  * Add sys/capability.h and capget build time checks
+  * stress-get: add prlimit
+  * Update syscalls.txt with capget stressor
+  * Add capabilities stressor
+
+ -- Colin King <colin.king@canonical.com>  Sun, 20 Mar 2016 11:39:31 +0000
+
 stress-ng (0.05.20-1) unstable; urgency=medium
 
   * Makefile: bump version
