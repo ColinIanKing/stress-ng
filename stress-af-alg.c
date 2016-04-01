@@ -37,6 +37,8 @@
 #include <linux/if_alg.h>
 #include <linux/socket.h>
 
+#define MAX_AF_ALG_RETRIES	(25)
+
 #define SHA1_DIGEST_SIZE        (20)
 #define SHA224_DIGEST_SIZE      (28)
 #define SHA256_DIGEST_SIZE      (32)
@@ -95,15 +97,29 @@ int stress_af_alg(
 	const uint64_t max_ops,
 	const char *name)
 {
-	int sockfd, rc = EXIT_FAILURE;
+	int sockfd = -1, rc = EXIT_FAILURE;
+	int retries = MAX_AF_ALG_RETRIES;
 
 	(void)instance;
 	(void)name;
 
-	sockfd = socket(AF_ALG, SOCK_SEQPACKET, 0);
-	if (sockfd < 0) {
-		pr_fail_err(name, "socket");
-		return rc;
+	for (;;) {
+		sockfd = socket(AF_ALG, SOCK_SEQPACKET, 0);
+		if (sockfd >= 0)
+			break;
+
+		retries--;
+		if ((!opt_do_run) || (retries < 0) || (errno != EAFNOSUPPORT)) {
+			pr_fail_err(name, "socket");
+			return rc;
+		}
+		/*
+		 * We may need to retry on EAFNOSUPPORT
+		 * as udev may have to load in some
+		 * crypto modules which can be racy or
+		 * take some time
+		 */
+		usleep(200000);
 	}
 
 	do {
