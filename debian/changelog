@@ -1,3 +1,10 @@
+stress-ng (0.05.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-af-alg: retry open if we get EAFNOSUPPORT (LP: #1564786)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 1 Apr 2016 09:40:56 +0100
+
 stress-ng (0.05.21-1) unstable; urgency=medium
 
   * Makefile: bump version
