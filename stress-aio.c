@@ -77,13 +77,6 @@ static inline void aio_fill_buffer(
 {
 	register size_t i;
 
-	if (!set_aio_requests) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_aio_requests = MAX_AIO_REQUESTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_aio_requests = MIN_AIO_REQUESTS;
-	}
-
 	for (i = 0; i < size; i++)
 		buffer[i] = (uint8_t)(request + i);
 }
@@ -188,7 +181,15 @@ int stress_aio(
 	uint64_t total = 0;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
-	const size_t io_req_sz = (size_t)opt_aio_requests * sizeof(io_req_t);
+	size_t io_req_sz;
+
+	if (!set_aio_requests) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_aio_requests = MAX_AIO_REQUESTS;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_aio_requests = MIN_AIO_REQUESTS;
+	}
+	io_req_sz = (size_t)opt_aio_requests * sizeof(io_req_t);
 
 	if ((io_reqs = alloca(io_req_sz)) == NULL) {
 		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
