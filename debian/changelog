@@ -1,3 +1,11 @@
+stress-ng (0.05.23-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-aio: fix segfault on --maximumize option (LP: #1568335)
+  * stress-chmod: just instance 0 should create the file (LP: #1568333)
+
+ -- Colin King <colin.king@canonical.com>  Sat, 9 Apr 2016 17:48:23 +0100
+
 stress-ng (0.05.22-1) unstable; urgency=medium
 
   * Makefile: bump version
