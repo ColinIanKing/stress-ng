@@ -146,7 +146,7 @@ int stress_chmod(
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
 	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
-        if (mkdir(dirname, S_IRWXU) < 0) {
+        if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
 			pr_fail_err(name, "mkdir");
@@ -156,29 +156,30 @@ int stress_chmod(
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, ppid, 0, 0);
 
-	do {
-		errno = 0;
-		/*
-		 *  Try and open the file, it may be impossible momentarily
-		 *  because other chmod stressors have already created it and
-		 *  changed the permission bits. If so, wait a while and retry.
-		 */
+	if (instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-			if ((errno == EPERM) || (errno == EACCES)) {
-				(void)usleep(100000);
-				continue;
-			}
 			rc = exit_status(errno);
-			pr_fail_err(name, "open");
+			pr_fail_err(name, "creat");
 			goto tidy;
 		}
-		break;
-	} while (opt_do_run && ++retries < 100);
+	} else {
+		/* Other instances must try to open the file */
+		for (;;) {
+			if ((fd = open(filename, O_RDWR, S_IRUSR | S_IWUSR)) > - 1)
+				break;
 
-	if (retries >= 100) {
-		pr_err(stderr, "%s: chmod: file %s took %d retries to create (instance %" PRIu32 ")\n",
-			name, filename, retries, instance);
-		goto tidy;
+			(void)usleep(100000);
+			if (++retries >= 100) {
+				pr_err(stderr, "%s: chmod: file %s took %d retries to open and gave up(instance %" PRIu32 ")\n",
+					name, filename, retries, instance);
+				goto tidy;
+			}
+			/* Timed out, then give up */
+			if (!opt_do_run) {
+				rc = EXIT_SUCCESS;
+				goto tidy;
+			}
+		}
 	}
 
 	for (i = 0; modes[i]; i++)
@@ -211,9 +212,10 @@ int stress_chmod(
 
 	rc = EXIT_SUCCESS;
 tidy:
-	(void)fchmod(fd, 0666);
-	if (fd >= 0)
+	if (fd >= 0) {
+		(void)fchmod(fd, 0666);
 		(void)close(fd);
+	}
 	(void)unlink(filename);
 	(void)rmdir(dirname);
 
