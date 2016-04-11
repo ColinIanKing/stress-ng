@@ -67,7 +67,7 @@ int stress_bigheap(
 	const size_t page_size = stress_get_pagesize();
 	const size_t stride = stress_get_pagesize();
 	size_t size = 0;
-	uint32_t restarts = 0, nomems = 0;
+	uint32_t ooms = 0, segvs = 0, nomems = 0;
 	pid_t pid;
 	uint8_t *last_ptr_end = NULL;
 
@@ -109,7 +109,16 @@ again:
 					"killer, restarting again "
 					"(instance %d)\n",
 					name, instance);
-				restarts++;
+				ooms++;
+				goto again;
+			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg(stderr, "%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					name, instance);
+				segvs++;
 				goto again;
 			}
 		}
@@ -178,20 +187,19 @@ again:
 								name, u8ptr, *tmp, (uint8_t)i);
 					}
 				}
-
 				last_ptr = ptr;
 				last_ptr_end = u8ptr;
-
 			}
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 abort:
 		free(ptr);
 	}
-	if (restarts + nomems > 0)
+	if (ooms + segvs + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, restarts, nomems);
+			name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }
