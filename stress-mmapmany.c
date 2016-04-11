@@ -89,6 +89,14 @@ again:
 					"(instance %d)\n", name, instance);
 				goto again;
 			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg(stderr, "%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					name, instance);
+				goto again;
+			}
 		}
 	} else if (pid == 0) {
 		size_t i, n;
