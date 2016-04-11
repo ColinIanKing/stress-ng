@@ -49,7 +49,7 @@ int stress_brk(
 	const char *name)
 {
 	pid_t pid;
-	uint32_t restarts = 0, nomems = 0;
+	uint32_t ooms= 0, segvs = 0, nomems = 0;
 	const size_t page_size = stress_get_pagesize();
 
 again:
@@ -84,7 +84,16 @@ again:
 					"killer, restarting again "
 					"(instance %d)\n",
 					name, instance);
-				restarts++;
+				ooms++;
+				goto again;
+			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg(stderr, "%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					name, instance);
+				segvs++;
 				goto again;
 			}
 		}
@@ -142,10 +151,11 @@ again:
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
-	if (restarts + nomems > 0)
+	if (ooms + segvs + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, restarts, nomems);
+			name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }
