@@ -136,7 +136,7 @@ void stress_fiemap_ioctl(
 
 		/* Find out how many extents there are */
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
-			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()\n");
+			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
@@ -148,7 +148,7 @@ void stress_fiemap_ioctl(
 		/* Resize fiemap to allow us to read in the extents */
 		tmp = (struct fiemap *)realloc(fiemap, sizeof(struct fiemap) + extents_size);
 		if (!tmp) {
-			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()\n");
+			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
@@ -159,7 +159,7 @@ void stress_fiemap_ioctl(
 		fiemap->fm_mapped_extents = 0;
 
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
-			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()\n");
+			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
