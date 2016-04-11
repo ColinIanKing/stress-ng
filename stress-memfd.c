@@ -151,7 +151,7 @@ int stress_memfd(
 	const char *name)
 {
 	pid_t pid;
-	uint32_t restarts = 0, nomems = 0;
+	uint32_t ooms = 0, segvs = 0, nomems = 0;
 
 again:
 	if (!opt_do_run)
@@ -186,9 +186,17 @@ again:
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
 					name, instance);
-				restarts++;
+				ooms++;
 				goto again;
 			}
+
+		} else if (WTERMSIG(status) == SIGSEGV) {
+			pr_dbg(stderr, "%s: killed by SIGSEGV, "
+				"restarting again "
+				"(instance %d)\n",
+				name, instance);
+			segvs++;
+			goto again;
 		}
 	} else if (pid == 0) {
 		setpgid(0, pgrp);
@@ -198,10 +206,12 @@ again:
 
 		stress_memfd_allocs(name, counter, max_ops);
 	}
-	if (restarts + nomems > 0)
+
+	if (ooms + segvs + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, restarts, nomems);
+			name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }
