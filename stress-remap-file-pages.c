@@ -86,6 +86,7 @@ static int remap_order(
 		if (ret < 0) {
 			pr_fail(stderr, "%s: remap_file_pages: errno=%d (%s)\n",
 				name, errno, strerror(errno));
+			return -1;
 		}
 	}
 
@@ -128,7 +129,8 @@ int stress_remap_file_pages(
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = N_PAGES - 1 - i;
 
-		remap_order(name, stride, data, order, page_size);
+		if (remap_order(name, stride, data, order, page_size) < 0)
+			break;
 		check_order(name, stride, data, order, "reverse");
 
 		/* random order pages */
@@ -142,19 +144,22 @@ int stress_remap_file_pages(
 			order[j] = tmp;
 		}
 
-		remap_order(name, stride, data, order, page_size);
+		if (remap_order(name, stride, data, order, page_size) < 0)
+			break;
 		check_order(name, stride, data, order, "random");
 
 		/* all mapped to 1 page */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = 0;
-		remap_order(name, stride, data, order, page_size);
+		if (remap_order(name, stride, data, order, page_size) < 0)
+			break;
 		check_order(name, stride, data, order, "all-to-1");
 
 		/* reorder pages back again */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
-		remap_order(name, stride, data, order, page_size);
+		if (remap_order(name, stride, data, order, page_size) < 0)
+			break;
 		check_order(name, stride, data, order, "forward");
 
 		(*counter)++;
