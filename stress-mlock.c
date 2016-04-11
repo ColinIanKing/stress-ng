@@ -103,8 +103,13 @@ int stress_mlock(
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
 	size_t max = sysconf(_SC_MAPPED_FILES);
+	uint8_t **mappings;
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
+	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
+                pr_fail_dbg(name, "malloc");
+                return EXIT_NO_RESOURCE;
+	}
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -140,7 +145,6 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		uint8_t *mappings[max];
 		size_t i, n;
 
 		setpgid(0, pgrp);
@@ -213,6 +217,8 @@ again:
 				munmap(mappings[i], page_size);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
+
+	free(mappings);
 
 	return EXIT_SUCCESS;
 }
