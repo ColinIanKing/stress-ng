@@ -49,10 +49,14 @@ int stress_mmapmany(
 {
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
-	size_t max = sysconf(_SC_MAPPED_FILES);
+	ssize_t max = sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
+	if (max < 1) {
+		pr_fail_dbg(name, "sysconf(_SC_MAPPED_FILES)");
+		return EXIT_NO_RESOURCE;
+	}
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
 		pr_fail_dbg(name, "malloc");
 		return EXIT_NO_RESOURCE;
@@ -99,7 +103,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		size_t i, n;
+		ssize_t i, n;
 
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
