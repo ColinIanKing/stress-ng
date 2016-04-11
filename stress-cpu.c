@@ -1453,7 +1453,7 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
 	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
-	uint32_t sieve[(SIEVE_SIZE + 31) / 32];
+	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
 	memset(sieve, 0xff, sizeof(sieve));
