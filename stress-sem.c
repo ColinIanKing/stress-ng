@@ -63,12 +63,12 @@ void stress_semaphore_posix_init(void)
 	}
 
 	if (opt_sequential) {
-		pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
-			"skipping semaphore stressor\n",
+		pr_inf(stderr, "semaphore init (POSIX) failed: errno=%d: "
+			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
-		pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "semaphore init (POSIX) failed: errno=%d: "
+			"(%s)\n", errno, strerror(errno));
 	}
 }
 
@@ -80,7 +80,7 @@ void stress_semaphore_posix_destroy(void)
 {
         if (shared->sem_posix.init) {
 		if (sem_destroy(&shared->sem_posix.sem) < 0) {
-			pr_err(stderr, "Semaphore destroy failed: errno=%d (%s)\n",
+			pr_err(stderr, "semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}
 	}

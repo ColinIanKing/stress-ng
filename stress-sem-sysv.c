@@ -90,12 +90,12 @@ void stress_semaphore_sysv_init(void)
 	}
 
 	if (opt_sequential) {
-		pr_inf(stderr, "Semaphore init failed: errno=%d: (%s), "
-			"skipping semaphore stressor\n",
+		pr_inf(stderr, "semaphore init (System V) failed: errno=%d: "
+			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
-		pr_err(stderr, "Semaphore init failed: errno=%d: (%s)\n",
-			errno, strerror(errno));
+		pr_err(stderr, "semaphore init (System V) failed: errno=%d: "
+			"(%s)\n", errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
