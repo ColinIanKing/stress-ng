@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <setjmp.h>
+#include <signal.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -36,10 +38,12 @@
 
 #include "stress-ng.h"
 
-#define NO_MEM_RETRIES_MAX	(100)
+#define NO_MEM_RETRIES_MAX	(256)
 
 static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static bool set_mmap_bytes = false;
+static sigjmp_buf jmp_env;
+static uint64_t sigbus_count;
 
 /* Misc randomly chosen mmap flags */
 static int mmap_flags[] = {
@@ -140,6 +144,19 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 }
 
 /*
+ *  stress_sigbus_handler()
+ *     SIGBUS handler
+ */
+static void MLOCKED stress_sigbus_handler(int dummy)
+{
+	(void)dummy;
+
+	sigbus_count++;
+
+	siglongjmp(jmp_env, 1); /* bounce back */
+}
+
+/*
  *  stress_mmap()
  *	stress mmap
  */
@@ -157,13 +174,20 @@ int stress_mmap(
 		MS_ASYNC : MS_SYNC;
 #endif
 	const pid_t pid = getpid();
-	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	int ret, fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	int no_mem_retries = 0;
 	char filename[PATH_MAX];
 
 #ifdef MAP_POPULATE
 	flags |= MAP_POPULATE;
 #endif
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		pr_fail_err(name, "sigsetjmp");
+		return EXIT_FAILURE;
+	}
+	if (stress_sighandler(name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	if (!set_mmap_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -247,6 +271,13 @@ redo:
 				usleep(100000);
 			continue;	/* Try again */
 		}
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret) {
+			(void)munmap(buf, sz);
+			/* Try again */
+			continue;
+		}
+
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
 #if !defined(__gnu_hurd__)
@@ -352,5 +383,8 @@ cleanup:
 		(void)close(fd);
 		(void)stress_temp_dir_rm(name, pid, instance);
 	}
+	if (sigbus_count)
+		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",
+			name, sigbus_count);
 	return EXIT_SUCCESS;
 }
