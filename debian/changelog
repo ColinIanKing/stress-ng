@@ -1,3 +1,22 @@
+stress-ng (0.05.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmap: handle SIGBUS signals (LP: #1569468)
+  * stress-mmapmany: sanity check sysconf return
+  * stress-mmapmany: detect SEGV deaths
+  * stress-mlock: detect SEGV deaths
+  * stress-brk: detect SEGV deaths
+  * stress-bigheap: detect SEGV deaths
+  * stress-memfd: detect SEGV deaths
+  * stress-mmapmany: allocate mappings on heap rather than stack
+  * stress-mlock: allocate mappings on heap rather than stack
+  * stress-cpu: move sieve buffer to static to reduce stack size
+  * stress-sem*: differentiate between which semaphore init that failed
+  * stress-remap-file-pages: abort if remap fails
+  * stress-fiemap: remove \n from pr_fail_err messages
+
+ -- Colin King <colin.king@canonical.com>  Thu, 14 Apr 2016 11:00:11 +0100
+
 stress-ng (0.05.23-1) unstable; urgency=medium
 
   * Makefile: bump version
