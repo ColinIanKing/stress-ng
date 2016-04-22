@@ -1,3 +1,11 @@
+stress-ng (0.05.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * debian/control: update standards version to 3.9.7
+  * Ensure all clone() calls are 16 byte aligned for aarch64 (LP: #1573117)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 22 Apr 2016 09:50:44 +0100
+
 stress-ng (0.05.24-1) unstable; urgency=medium
 
   * Makefile: bump version
