@@ -317,7 +317,8 @@ int stress_vm_rw(
 		return EXIT_FAILURE;
 	}
 
-	ctxt.pid = clone(stress_vm_child, stack_top, SIGCHLD | CLONE_VM, &ctxt);
+	ctxt.pid = clone(stress_vm_child, align_stack(stack_top),
+		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);

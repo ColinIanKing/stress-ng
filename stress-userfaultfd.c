@@ -236,7 +236,7 @@ int stress_userfaultfd(
 	 *  We need to clone the child and share the same VM address space
 	 *  as parent so we can perform the page fault handling
 	 */
-	pid = clone(stress_userfaultfd_child, stack_top, 
+	pid = clone(stress_userfaultfd_child, align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
 		pr_err(stderr, "%s: fork failed, errno = %d (%s)\n",
@@ -265,7 +265,7 @@ int stress_userfaultfd(
 		if (msg.event != UFFD_EVENT_PAGEFAULT) {
 			pr_fail_err(name, "userfaultfd msg not pagefault event");
 			continue;
-		} 
+		}
 		/* We only expect a write fault */
 		if (!(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WRITE)) {
 			pr_fail_err(name, "userfaultfd msg not write pahge fault event");

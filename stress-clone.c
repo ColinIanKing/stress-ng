@@ -261,7 +261,8 @@ int stress_clone(
 			if (!clone_info)
 				break;
 			stack_top = clone_info->stack + stack_offset;
-			clone_info->pid = clone(clone_func, stack_top, flag, NULL);
+			clone_info->pid = clone(clone_func,
+				align_stack(stack_top), flag, NULL);
 			if (clone_info->pid == -1) {
 				/*
 				 * Reached max forks or error

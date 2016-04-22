@@ -2213,6 +2213,16 @@ static inline int exit_status(const int err)
 		EXIT_NO_RESOURCE : EXIT_FAILURE;
 }
 
+/*
+ *  Stack aligning for clone() system calls
+ *	align to nearest 16 bytes for aarch64 et al,
+ *	assumes we have enough slop to do this
+ */
+static inline void *align_stack(void *stack_top)
+{
+	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0);
+
+}
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

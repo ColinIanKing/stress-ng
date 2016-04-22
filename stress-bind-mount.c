@@ -97,7 +97,9 @@ int stress_bind_mount(
 	context.counter = counter;
 
 	pid = clone(stress_bind_mount_child,
-		stack_top, CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM, &context, 0);
+		align_stack(stack_top),
+		CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM,
+		&context, 0);
 	if (pid < 0) {
 		int rc = exit_status(errno);
 
