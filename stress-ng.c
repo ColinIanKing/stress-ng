@@ -2357,6 +2357,39 @@ static void times_dump(
 	}
 }
 
+/*
+ * log_args()
+ *	dump to syslog argv[]
+ */
+void log_args(int argc, char **argv)
+{
+	int i;
+	size_t len, arglen[argc];
+	char *buf;
+
+	for (len = 0, i = 0; i < argc; i++) {
+		arglen[i] = strlen(argv[i]);
+		len += arglen[i] + 1;
+	}
+
+	printf("LOG: %zd\n", len);
+
+	buf = calloc(len, sizeof(char));
+	if (!buf)
+		return;
+
+	for (len = 0, i = 0; i < argc; i++) {
+		if (i) {
+			strncat(buf + len, " ", 1);
+			len++;
+		}
+		strncat(buf + len, argv[i], arglen[i]);
+		len += arglen[i];
+	}
+	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
+	free(buf);
+}
+
 int main(int argc, char **argv)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -2968,8 +3001,8 @@ next_opt:
 	}
 	if (logfile) 
 		pr_openlog(logfile);
-	if (opt_flags & OPT_SYSLOG)
-		openlog("stress-ng", 0, LOG_USER);
+	openlog("stress-ng", 0, LOG_USER);
+	log_args(argc, argv);
 
 	pr_dbg(stderr, "%" PRId32 " processors online, %" PRId32
 		" processors configured\n",
@@ -3213,6 +3246,7 @@ next_opt:
 	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
 		stress_semaphore_sysv_init();
 #endif
+
 	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		/*
 		 *  Step through each stressor one by one
@@ -3274,8 +3308,7 @@ next_opt:
 	stress_semaphore_sysv_destroy();
 #endif
 	(void)munmap(shared, len);
-	if (opt_flags & OPT_SYSLOG)
-		closelog();
+	closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
 		fclose(yaml);
