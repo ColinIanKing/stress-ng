@@ -2372,8 +2372,6 @@ void log_args(int argc, char **argv)
 		len += arglen[i] + 1;
 	}
 
-	printf("LOG: %zd\n", len);
-
 	buf = calloc(len, sizeof(char));
 	if (!buf)
 		return;
