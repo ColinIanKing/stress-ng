@@ -43,6 +43,10 @@
 #include <sys/times.h>
 #include <sys/wait.h>
 #include <sys/resource.h>
+#if defined(__linux__)
+#include <sys/utsname.h>
+#include <sys/sysinfo.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -2358,7 +2362,7 @@ static void times_dump(
 }
 
 /*
- * log_args()
+ *  log_args()
  *	dump to syslog argv[]
  */
 void log_args(int argc, char **argv)
@@ -2386,6 +2390,53 @@ void log_args(int argc, char **argv)
 	}
 	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
 	free(buf);
+}
+
+/*
+ *  log_system_mem_info()
+ *	dump system memory info
+ */
+void log_system_mem_info(void)
+{
+#if defined(__linux__)
+	struct sysinfo info;
+
+	if (sysinfo(&info) == 0) {
+		syslog(LOG_INFO, "memory (MB): total %.2f, "
+			"free %.2f, "
+			"shared %.2f, "
+			"buffer %.2f, "
+			"swap %.2f, "
+			"free swap %.2f\n",
+			(double)(info.totalram * info.mem_unit) / MB,
+			(double)(info.freeram * info.mem_unit) / MB,
+			(double)(info.sharedram * info.mem_unit) / MB,
+			(double)(info.bufferram * info.mem_unit) / MB,
+			(double)(info.totalswap * info.mem_unit) / MB,
+			(double)(info.freeswap * info.mem_unit) / MB);
+	}
+#endif
+}
+
+/*
+ *  log_system_info()
+ *	dump system info
+ */
+void log_system_info(void)
+{
+#if defined(__linux__)
+	struct utsname buf;
+#endif
+#if defined(__linux__)
+	if (uname(&buf) == 0) {
+		syslog(LOG_INFO, "system: '%s' %s %s %s %s\n",
+			buf.nodename,
+			buf.sysname,
+			buf.release,
+			buf.version,
+			buf.machine);
+	}
+#endif
 }
 
 int main(int argc, char **argv)
@@ -3001,6 +3052,8 @@ next_opt:
 		pr_openlog(logfile);
 	openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);
+	log_system_info();
+	log_system_mem_info();
 
 	pr_dbg(stderr, "%" PRId32 " processors online, %" PRId32
 		" processors configured\n",
