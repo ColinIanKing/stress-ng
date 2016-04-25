@@ -184,7 +184,7 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
 		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
-			iov[i].iov_base = data;
+			iov[i].iov_base = (void *)data;
 			iov[i].iov_len = (size_t)sz;
 
 			buf += sz;
@@ -228,7 +228,7 @@ static ssize_t stress_hdd_read(const int fd, uint8_t *buf, size_t count)
 		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
-			iov[i].iov_base = data;
+			iov[i].iov_base = (void *)data;
 			iov[i].iov_len = (size_t)sz;
 
 			buf += sz;
