@@ -67,7 +67,7 @@ int SECTION(stress_icache_caller) stress_icache(
 
 	(void)instance;
 
-	if (mprotect((uint8_t *)addr, 4096, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
+	if (mprotect((void *)addr, 4096, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		pr_err(stderr, "%s: PROT_WRITE mprotect failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -94,7 +94,7 @@ int SECTION(stress_icache_caller) stress_icache(
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-	if (mprotect((uint8_t *)addr, 4096, PROT_READ | PROT_EXEC) < 0) {
+	if (mprotect((void *)addr, 4096, PROT_READ | PROT_EXEC) < 0) {
 		pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
