@@ -80,12 +80,12 @@ static int mlock_shim(const void *addr, size_t len)
 	}
 
 	/* Just do mlock */
-	return mlock(addr, len);
+	return mlock((void *)addr, len);
 }
 #else
 static inline int mlock_shim(const void *addr, size_t len)
 {
-	return mlock(addr, len);
+	return mlock((void *)addr, len);
 }
 #endif
 
@@ -167,12 +167,12 @@ again:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 
-				mappings[n] = mmap(NULL, page_size * 3,
+				mappings[n] = (uint8_t *)mmap(NULL, page_size * 3,
 					PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
-				ret = mlock_shim(mappings[n] + page_size, page_size);
+				ret = mlock_shim((void *)(mappings[n] + page_size), page_size);
 				if (ret < 0) {
 					if (errno == EAGAIN)
 						continue;
@@ -199,7 +199,7 @@ again:
 
 				addr ^= mlocked;
 				if (mlocked)
-					(void)munlock((uint8_t *)addr + page_size, page_size);
+					(void)munlock((void *)((uint8_t *)addr + page_size), page_size);
 				munmap((void *)addr, page_size * 3);
 			}
 #if !defined(__gnu_hurd__)
@@ -213,7 +213,7 @@ again:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 
-				mappings[n] = mmap(NULL, page_size,
+				mappings[n] = (uint8_t *)mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
@@ -223,7 +223,7 @@ again:
 			(void)munlockall();
 #endif
 			for (i = 0; i < n;  i++)
-				munmap(mappings[i], page_size);
+				munmap((void *)mappings[i], page_size);
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
 
