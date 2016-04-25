@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_SOCKET_FD)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -40,7 +44,6 @@
 #include <arpa/inet.h>
 #include <sys/un.h>
 
-#include "stress-ng.h"
 
 #define MSG_ID			'M'
 #define MAX_FDS			(65536)
@@ -329,3 +332,5 @@ again:
 		return stress_socket_server(counter, instance, max_ops, name, pid, ppid, max_fd);
 	}
 }
+
+#endif
