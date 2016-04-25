@@ -172,8 +172,10 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
 {
 	ssize_t ret;
 
+#if !defined(__sun__)
 	if (opt_hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
+#endif
 
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
@@ -214,8 +216,10 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
  */
 static ssize_t stress_hdd_read(const int fd, uint8_t *buf, size_t count)
 {
+#if !defined(__sun__)
 	if (opt_hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
+#endif
 
 	if (opt_hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
