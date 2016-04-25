@@ -2175,6 +2175,7 @@ extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 
 /* Misc helper funcs */
+extern void log_system_mem_info(void);
 extern char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
 extern int32_t stress_get_processors_online(void);

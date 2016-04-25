@@ -184,6 +184,7 @@ again:
 				instance);
 			/* If we got kill by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",

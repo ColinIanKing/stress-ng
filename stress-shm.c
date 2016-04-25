@@ -332,6 +332,7 @@ fork_again:
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGKILL)) {
+					log_system_mem_info();
 					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
 						name, instance);
