@@ -129,7 +129,7 @@ again:
 				ptr = sbrk((intptr_t)page_size);
 			}
 			if (ptr == (void *)-1) {
-				if (errno == ENOMEM) {
+				if ((errno == ENOMEM) || (errno == EAGAIN)) {
 					nomems++;
 					if (brk(start_ptr) < 0) {
 						pr_err(stderr, "%s: brk(%p) failed: errno=%d (%s)\n",
