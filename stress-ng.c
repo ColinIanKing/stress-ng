@@ -3233,7 +3233,7 @@ next_opt:
 			}
 		}
 	}
-#if defined(STRESS_PTHREAD)
+#if defined(STRESS_PTHREAD) && defined(RLIMIT_NPROC)
 	{
 		id = stressor_id_find(STRESS_PTHREAD);
 		struct rlimit limit;
@@ -3244,7 +3244,7 @@ next_opt:
 		}
 	}
 #endif
-#if defined(STRESS_SLEEP)
+#if defined(STRESS_SLEEP) && defined(RLIMIT_NPROC)
 	{
 		id = stressor_id_find(STRESS_SLEEP);
 		struct rlimit limit;
