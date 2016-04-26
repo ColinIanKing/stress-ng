@@ -58,7 +58,7 @@ int stress_sigsuspend(
 
 	(void)instance;
 
-	v_counters = counters = mmap(NULL, counters_size,
+	v_counters = counters = (uint64_t *)mmap(NULL, counters_size,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
@@ -108,7 +108,7 @@ reap:
 		(void)kill(pid[i], SIGKILL);
 		(void)waitpid(pid[i], &status, 0);
 	}
-	(void)munmap(counters, counters_size);
+	(void)munmap((void *)counters, counters_size);
 
 	return EXIT_SUCCESS;
 }
