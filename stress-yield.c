@@ -85,7 +85,7 @@ int stress_yield(
 	memset(pids, 0, yielders_sz);
 
 	counters_sz = yielders * sizeof(uint64_t);
-	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
+	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		int rc = exit_status(errno);
@@ -136,7 +136,7 @@ int stress_yield(
 			*counter += counters[i];
 		}
 	}
-	(void)munmap(counters, counters_sz);
+	(void)munmap((void *)counters, counters_sz);
 
 	return EXIT_SUCCESS;
 }
