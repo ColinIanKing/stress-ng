@@ -1960,8 +1960,10 @@ again:
 			if (!keep || (buf == NULL)) {
 				if (!opt_do_run)
 					return EXIT_SUCCESS;
-				buf = mmap(NULL, buf_sz, PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS | opt_vm_flags, -1, 0);
+				buf = (uint8_t *)mmap(NULL, buf_sz,
+					PROT_READ | PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS |
+					opt_vm_flags, -1, 0);
 				if (buf == MAP_FAILED) {
 					buf = NULL;
 					no_mem_retries++;
@@ -1985,12 +1987,12 @@ again:
 
 			if (!keep) {
 				(void)madvise_random(buf, buf_sz);
-				(void)munmap(buf, buf_sz);
+				(void)munmap((void *)buf, buf_sz);
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 		if (keep && buf != NULL)
-			(void)munmap(buf, buf_sz);
+			(void)munmap((void *)buf, buf_sz);
 	}
 	*counter >>= VM_BOGO_SHIFT;
 
