@@ -1104,8 +1104,10 @@ typedef enum {
 #define STRESS_SOCKET_FD __STRESS_SOCKET_FD
 #endif
 	STRESS_SOCKET_PAIR,
+#if defined(__linux__)
 	__STRESS_SPAWN,
 #define STRESS_SPAWN __STRESS_SPAWN
+#endif
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
 	__STRESS_SPLICE,
 #define STRESS_SPLICE __STRESS_SPLICE

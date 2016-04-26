@@ -364,7 +364,9 @@ static const stress_t stressors[] = {
 	STRESSOR(socket_fd, SOCKET_FD, CLASS_NETWORK | CLASS_OS),
 #endif
 	STRESSOR(socket_pair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
+#if defined(STRESS_SPAWN)
 	STRESSOR(spawn, SPAWN, CLASS_SCHEDULER | CLASS_OS),
+#endif
 #if defined(STRESS_SPLICE)
 	STRESSOR(splice, SPLICE, CLASS_PIPE_IO | CLASS_OS),
 #endif
@@ -905,8 +907,10 @@ static const struct option long_options[] = {
 #endif
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
+#if defined(STRESS_SPAWN)
 	{ "spawn",	1,	0,	OPT_SPAWN },
 	{ "spawn-ops",	1,	0,	OPT_SPAWN_OPS },
+#endif
 #if defined(STRESS_SPLICE)
 	{ "splice",	1,	0,	OPT_SPLICE },
 	{ "splice-bytes",1,	0,	OPT_SPLICE_BYTES },
@@ -1520,9 +1524,11 @@ static const help_t help_stressors[] = {
 #endif
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop after N socket pair bogo operations" },
+#if defined(STRESS_SPAWN)
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
-#if defined(STRESS_SPLICE)
 	{ NULL,		"spawn-ops N",		"stop after N spawn bogo operations" },
+#endif
+#if defined(STRESS_SPLICE)
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },
 	{ NULL,		"splice-ops N",		"stop after N bogo splice operations" },
 	{ NULL,		"splice-bytes N",	"number of bytes to transfer per splice call" },
