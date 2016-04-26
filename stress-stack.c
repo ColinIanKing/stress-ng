@@ -33,6 +33,9 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#if defined(__sun__)
+#include <alloca.h>
+#endif
 
 #include "stress-ng.h"
 
