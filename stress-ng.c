@@ -47,6 +47,9 @@
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
 #endif
+#if defined(__sun__)
+#include <alloca.h>
+#endif
 
 #include "stress-ng.h"
 
