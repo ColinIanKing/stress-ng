@@ -36,6 +36,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
+#if defined(__sun__)
+#include <alloca.h>
+#endif
 
 /*
  *  stress on sched_yield()
