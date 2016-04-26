@@ -260,7 +260,8 @@ redo:
 
 		if (!opt_do_run)
 			break;
-		buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
+		buf = (uint8_t *)mmap(NULL, sz,
+			PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #ifdef MAP_POPULATE
@@ -273,7 +274,7 @@ redo:
 		}
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			(void)munmap(buf, sz);
+			(void)munmap((void *)buf, sz);
 			/* Try again */
 			continue;
 		}
@@ -281,7 +282,7 @@ redo:
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
 #if !defined(__gnu_hurd__)
-			(void)msync(buf, sz, ms_flags);
+			(void)msync((void *)buf, sz, ms_flags);
 #endif
 		}
 		(void)madvise_random(buf, sz);
@@ -311,7 +312,7 @@ redo:
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(name, mappings[page], page_size);
-					(void)munmap(mappings[page], page_size);
+					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
 				}
@@ -319,7 +320,7 @@ redo:
 					goto cleanup;
 			}
 		}
-		(void)munmap(buf, sz);
+		(void)munmap((void *)buf, sz);
 #ifdef MAP_FIXED
 		/*
 		 *  Step #2, map them back in random order
@@ -336,7 +337,8 @@ redo:
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
-					mappings[page] = mmap(mappings[page], page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
+					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
+						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
@@ -353,7 +355,7 @@ redo:
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
 #if !defined(__gnu_hurd__)
-							(void)msync(mappings[page], page_size, ms_flags);
+							(void)msync((void *)mappings[page], page_size, ms_flags);
 #endif
 						}
 					}
@@ -373,7 +375,7 @@ cleanup:
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(name, mappings[n], page_size);
-				(void)munmap(mappings[n], page_size);
+				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
 		(*counter)++;
