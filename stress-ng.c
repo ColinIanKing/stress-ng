@@ -3263,7 +3263,8 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
-	shared = mmap(NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == MAP_FAILED) {
 		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
@@ -3281,7 +3282,7 @@ next_opt:
 	shared->mem_cache_level = mem_cache_level;
 	shared->mem_cache_ways = mem_cache_ways;
 	if (stress_cache_alloc("cache allocate") < 0) {
-		(void)munmap(shared, len);
+		(void)munmap((void *)shared, len);
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
