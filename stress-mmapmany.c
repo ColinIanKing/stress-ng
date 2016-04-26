@@ -116,20 +116,21 @@ again:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 
-				mappings[n] = mmap(NULL, page_size * 3,
+				mappings[n] = (uint8_t *)mmap(NULL,
+					page_size * 3,
 					PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
-				if (munmap(mappings[n] + page_size, page_size) < 0)
+				if (munmap((void *)(mappings[n] + page_size), page_size) < 0)
 					break;
 				(*counter)++;
 			}
 
 			for (i = 0; i < n;  i++) {
-				munmap(mappings[i], page_size);
-				munmap(mappings[i] + page_size, page_size);
-				munmap(mappings[i] + page_size + page_size, page_size);
+				munmap((void *)mappings[i], page_size);
+				munmap((void *)(mappings[i] + page_size), page_size);
+				munmap((void *)(mappings[i] + page_size + page_size), page_size);
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 	}
