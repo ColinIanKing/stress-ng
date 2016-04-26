@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #if defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)
 #include <sched.h>
 #endif
@@ -67,8 +68,9 @@ int stress_cache(
 	cpu_set_t mask;
 	uint32_t cpu = 0;
 	const uint32_t cpus = stress_get_processors_configured();
-	int pinned = false;
+	cpu_set_t proc_mask;
 #endif
+	bool pinned = false;
 	uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = shared->mem_cache;
@@ -77,6 +79,18 @@ int stress_cache(
 	if (instance == 0)
 		pr_dbg(stderr, "%s: using cache buffer size of %" PRIu64 "K\n",
 			name, mem_cache_size / 1024);
+
+	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
+		pinned = true;
+	else
+		if (!CPU_COUNT(&proc_mask))
+			pinned = true;
+
+	if (pinned) {
+		pr_inf(stderr, "%s: can't get sched affinity, pinning to CPU %d "
+			"(instance %" PRIu32 "\n",
+			name, instance, sched_getcpu());
+	}
 
 	do {
 		uint64_t i = mwc64() % mem_cache_size;
@@ -136,15 +150,17 @@ int stress_cache(
 
 			cpu = (int32_t)current;
 		} else {
-			cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
-				(mwc32() >> 4) : cpu + 1;
-			cpu %= cpus;
+			do {
+				cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
+					(mwc32() >> 4) : cpu + 1;
+				cpu %= cpus;
+			} while (!(CPU_ISSET(cpu, &proc_mask)));
 		}
 
 		if (!(opt_flags & OPT_FLAGS_CACHE_NOAFF) || !pinned) {
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
-			sched_setaffinity(0, sizeof(mask), &mask);
+			(void)sched_setaffinity(0, sizeof(mask), &mask);
 
 			if ((opt_flags & OPT_FLAGS_CACHE_NOAFF)) {
 				/* Don't continually set the affinity */

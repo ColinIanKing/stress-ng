@@ -53,7 +53,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_AFFINITY)
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
 #include <sched.h>
 #endif
 
@@ -1934,7 +1934,7 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 	if (opt_flags & OPT_FLAGS_IGNITE_CPU)
 		ignite_cpu_start();
 
-#if defined(STRESS_AFFINITY)
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
 	/*
 	 *  On systems that support changing CPU affinity
 	 *  we keep on moving processed between processors
@@ -1942,6 +1942,7 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 	 *  try to thrash the system when in aggressive mode
 	 */
 	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
+		cpu_set_t proc_mask;
 		unsigned long int cpu = 0;
 		const uint32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
 		const useconds_t usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
@@ -1949,14 +1950,24 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 		while (opt_do_wait) {
 			const int32_t cpus = stress_get_processors_configured();
 
+			/* If we can't get the mask, don't do affinity twiddling */
+			if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
+				goto do_wait;
+			if (!CPU_COUNT(&proc_mask))	/* Highly unlikely */
+				goto do_wait;
+
 			for (i = 0; i < STRESS_MAX; i++) {
 				int j;
 
 				for (j = 0; j < procs[i].started_procs; j++) {
 					const pid_t pid = procs[i].pids[j];
 					if (pid) {
-						int32_t cpu_num = mwc32() % cpus;
 						cpu_set_t mask;
+						int32_t cpu_num;
+
+						do {
+							cpu_num = mwc32() % cpus;
+						} while (!(CPU_ISSET(cpu_num, &proc_mask)));
 
 						CPU_ZERO(&mask);
 						CPU_SET(cpu_num, &mask);

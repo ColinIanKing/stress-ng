@@ -39,6 +39,9 @@
 #if defined(__sun__)
 #include <alloca.h>
 #endif
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#include <sched.h>
+#endif
 
 /*
  *  stress on sched_yield()
@@ -56,8 +59,28 @@ int stress_yield(
 	int32_t cpus = stress_get_processors_configured();
 	size_t instances = stressor_instances(STRESS_YIELD);
 	size_t yielders = 2;
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
+	cpu_set_t mask;
+#endif
 	pid_t *pids;
 	size_t i;
+
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
+	/*
+	 *  If the process is limited to a subset of cores
+	 *  then make sure we do not create too many yielders
+	 */
+	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
+		pr_inf(stderr, "%s: can't get sched affinity, defaulting to %"
+			PRId32 " yielder%s (instance %" PRIu32 ")\n",
+			name, cpus, (cpus == 1) ? "" : "s", instance);
+	} else {
+		if (CPU_COUNT(&mask) < cpus)
+			cpus = CPU_COUNT(&mask);
+		pr_inf(stderr, "%s: limiting to %" PRId32 " yielder%s (instance %"
+			PRIu32 ")\n", name, cpus, (cpus == 1) ? "" : "s", instance);
+	}
+#endif
 
 	/*
 	 *  Ensure we always have at least 2 yielders per
