@@ -267,11 +267,11 @@ int stress_stream(
 
 	rc = EXIT_SUCCESS;
 
-	(void)munmap(c, sz);
+	(void)munmap((void *)c, sz);
 err_c:
-	(void)munmap(b, sz);
+	(void)munmap((void *)b, sz);
 err_b:
-	(void)munmap(a, sz);
+	(void)munmap((void *)a, sz);
 err_a:
 
 	return rc;
