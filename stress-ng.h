@@ -647,7 +647,7 @@ typedef struct {
 #define HOT
 #endif
 
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
 #define MLOCKED __attribute__((__section__("mlocked")))
 #define MLOCKED_SECTION 1
 #else
