@@ -2221,7 +2221,7 @@ static inline int exit_status(const int err)
  */
 static inline void *align_stack(void *stack_top)
 {
-	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0);
+	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 
 }
 
