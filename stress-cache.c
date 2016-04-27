@@ -69,8 +69,8 @@ int stress_cache(
 	uint32_t cpu = 0;
 	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t proc_mask;
-#endif
 	bool pinned = false;
+#endif
 	uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = shared->mem_cache;
