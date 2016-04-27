@@ -86,13 +86,13 @@ int stress_cache(
 	else
 		if (!CPU_COUNT(&proc_mask))
 			pinned = true;
-#endif
 
 	if (pinned) {
 		pr_inf(stderr, "%s: can't get sched affinity, pinning to CPU %d "
-			"(instance %" PRIu32 "\n",
-			name, instance, sched_getcpu());
+			"(instance %" PRIu32 ")\n",
+			name, sched_getcpu(), pinned);
 	}
+#endif
 
 	do {
 		uint64_t i = mwc64() % mem_cache_size;
