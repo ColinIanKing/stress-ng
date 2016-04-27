@@ -80,11 +80,13 @@ int stress_cache(
 		pr_dbg(stderr, "%s: using cache buffer size of %" PRIu64 "K\n",
 			name, mem_cache_size / 1024);
 
+#if defined(__linux__)
 	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
 		pinned = true;
 	else
 		if (!CPU_COUNT(&proc_mask))
 			pinned = true;
+#endif
 
 	if (pinned) {
 		pr_inf(stderr, "%s: can't get sched affinity, pinning to CPU %d "
