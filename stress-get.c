@@ -223,7 +223,7 @@ int stress_get(
 			check_do_run();
 		}
 
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GLIBC(2,13,0)
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			struct rlimit rlim[2];
 
