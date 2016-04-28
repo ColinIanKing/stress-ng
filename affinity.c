@@ -26,6 +26,8 @@
 
 #include "stress-ng.h"
 
+static const char *option = "taskset";
+
 #if defined(__linux__)
 
 #include <sched.h>
@@ -33,7 +35,6 @@
 #include <stdint.h>
 #include <errno.h>
 
-static const char *option = "taskset";
 
 static void check_cpu_affinity_range(
 	const int32_t max_cpus,
@@ -102,9 +103,11 @@ int set_cpu_affinity(char *const arg)
 }
 
 #else
-int set_cpu_affinity(const char *arg)
+int set_cpu_affinity(char *const arg)
 {
-	fprintf(stdterr, "%s: setting CPU affinity not supported\n", option);
+	(void)arg;
+
+	fprintf(stderr, "%s: setting CPU affinity not supported\n", option);
 	exit(EXIT_FAILURE);
 }
 #endif
