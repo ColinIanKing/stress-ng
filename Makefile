@@ -123,6 +123,7 @@ STRESS_SRC = \
 	stress-remap-file-pages.c \
 	stress-rename.c \
 	stress-rlimit.c \
+	stress-rtc.c \
 	stress-seek.c \
 	stress-seccomp.c \
 	stress-sem.c \

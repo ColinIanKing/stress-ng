@@ -329,6 +329,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_RLIMIT)
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 #endif
+#if defined(STRESS_RTC)
+	STRESSOR(rtc, RTC, CLASS_OS),
+#endif
 #if defined(STRESS_SECCOMP)
 	STRESSOR(seccomp, SECCOMP, CLASS_OS),
 #endif
@@ -835,6 +838,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_RLIMIT)
 	{ "rlimit",	1,	0,	OPT_RLIMIT },
 	{ "rlimit-ops",	1,	0,	OPT_RLIMIT_OPS },
+#endif
+#if defined(STRESS_RTC)
+	{ "rtc",	1,	0,	OPT_RTC },
+	{ "rtc-ops",	1,	0,	OPT_RTC_OPS },
 #endif
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
@@ -1461,6 +1468,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_RLIMIT)
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
 	{ NULL,		"rlimit-ops N",		"stop after N rlimit bogo operations" },
+#endif
+#if defined(STRESS_RTC)
+	{ NULL,		"rtc N",		"start N workers that exercise the RTC interfaces" },
+	{ NULL,		"rtc-ops N",		"stop after N RTC bogo operations" },
 #endif
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop after N seek bogo operations" },

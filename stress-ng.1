@@ -1742,6 +1742,14 @@ SIGXCPU and SIGXFSZ signals.
 .B \-\-rlimit\-ops N
 stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
 .TP
+.B \-\-rtc N
+start N workers that exercise the real time clock (RTC) interfaces via /dev/rtc
+and /sys/class/rtc/rtc0. No destructive writes (modifications) are performed on
+the RTC. This is a Linux only stressor.
+.TP
+.B \-\-rtc\-ops N
+stop after N bogo RTC interface accesses.
+.TP
 .B \-\-seccomp N
 start N workers that exercise Secure Computing system call filtering. Each
 worker creates child processes that write a short message to /dev/null and then
