@@ -176,6 +176,7 @@ STRESS_SRC = \
 # Stress core
 #
 CORE_SRC = \
+	affinity.c \
 	cache.c \
 	helper.c \
 	ignite-cpu.c \

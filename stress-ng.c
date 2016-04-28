@@ -941,12 +941,13 @@ static const struct option long_options[] = {
 	{ "sysfs-ops",1,	0,	OPT_SYSFS_OPS },
 #endif
 	{ "syslog",	0,	0,	OPT_SYSLOG },
-	{ "timeout",	1,	0,	OPT_TIMEOUT },
+	{ "taskset",	1,	0,	OPT_TASKSET },
 #if defined(STRESS_TEE)
 	{ "tee",	1,	0,	OPT_TEE },
 	{ "tee-ops",	1,	0,	OPT_TEE_OPS },
 #endif
 	{ "temp-path",	1,	0,	OPT_TEMP_PATH },
+	{ "timeout",	1,	0,	OPT_TIMEOUT },
 #if defined(STRESS_TIMER)
 	{ "timer",	1,	0,	OPT_TIMER },
 	{ "timer-ops",	1,	0,	OPT_TIMER_OPS },
@@ -1095,6 +1096,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"syslog",		"log messages to the syslog" },
+	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
 	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 	{ NULL,		"timer-slack",		"enable timer slack mode" },
@@ -2928,6 +2930,10 @@ next_opt:
 #endif
 		case OPT_SYSLOG:
 			opt_flags |= OPT_FLAGS_SYSLOG;
+			break;
+		case OPT_TASKSET:
+			if (set_cpu_affinity(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_TEMP_PATH:
 			if (stress_set_temp_path(optarg) < 0)

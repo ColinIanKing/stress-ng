@@ -1828,6 +1828,8 @@ typedef enum {
 	OPT_TEE_OPS,
 #endif
 
+	OPT_TASKSET,
+
 	OPT_TEMP_PATH,
 
 	OPT_THERMAL_ZONES,
@@ -2175,6 +2177,7 @@ extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
+extern WARN_UNUSED int set_cpu_affinity(char *const arg);
 
 /* Misc helper funcs */
 extern void log_system_mem_info(void);

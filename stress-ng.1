@@ -244,6 +244,12 @@ Use the \-\-timeout option to specify the duration to run each stressor.
 .B \-\-syslog
 log output (except for verbose \-v messages) to the syslog.
 .TP
+.B \-\-taskset list
+set CPU affinity based on the list of CPUs provided; stress-ng is bound to
+just use these CPUs (Linux only). The CPUs to be used are specified by a
+comma separated list of CPU (0 to N-1). One can specify a range of CPUs
+using '-', for example: \-\-taskset 0,2-3,6,7-11
+.TP
 .B \-\-temp\-path path
 specify a path for stress\-ng temporary directories and temporary files;
 the default path is the current working directory.  This path must have
@@ -2622,7 +2628,8 @@ File bug reports at:
 .BR sched_setaffinity (2),
 .BR stress (1),
 .BR splice (2),
-.BR tsearch (3)
+.BR tsearch (3),
+.BR taskset(1)
 .SH AUTHOR
 stress\-ng was written by Colin King <colin.king@canonical.com> and
 is a clean room re-implementation and extension of the original
