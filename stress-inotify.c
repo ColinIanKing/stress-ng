@@ -113,7 +113,7 @@ retry:
 		ssize_t len, i = 0;
 		struct timeval tv;
 		fd_set rfds;
-		int err;
+		int err, nbytes;
 
 		/* We give inotify TIME_OUT seconds to report back */
 		tv.tv_sec = TIME_OUT;
@@ -138,6 +138,21 @@ retry:
 redo:
 		if (!opt_do_run)
 			break;
+		/*
+		 *  Exercise FIOREAD to get inotify code coverage up
+		 */
+		if (ioctl(fd, FIONREAD, &nbytes) < 0) {
+			if (opt_flags & OPT_FLAGS_VERIFY) {
+				pr_fail(stderr, "%s: data is ready, but ioctl FIONREAD failed\n", name);
+				break;
+			}
+		}
+		if (nbytes <= 0) {
+			pr_fail(stderr, "%s: data is ready, but ioctl FIONREAD "
+				"reported %d bytes available\n", name, nbytes);
+			break;
+		}
+
 		len = read(fd, buffer, sizeof(buffer));
 
 		if ((len <= 0) || (len > (ssize_t)sizeof(buffer))) {
