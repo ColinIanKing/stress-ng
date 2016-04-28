@@ -148,6 +148,22 @@ static inline int stress_rtc_sys(const char *name)
 	return rc;
 }
 
+static inline int stress_rtc_proc(const char *name)
+{
+	int ret;
+	char buf[4096];
+	static char *path = "/proc/driver/rtc";
+
+	ret = system_read(path, buf, sizeof(buf));
+	if (ret < 0) {
+		if (ret != -ENOENT) {
+			pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
+			name, path, -ret, strerror(ret));
+		}
+	}
+	return ret;
+}
+
 /*
  *  stress_rtc
  *	stress some Linux RTC ioctls and /sys/class/rtc interface
@@ -169,6 +185,9 @@ int stress_rtc(
 				break;
 		}
 		ret = stress_rtc_sys(name);
+		if (ret < 0)
+			break;
+		ret = stress_rtc_proc(name);
 		if (ret < 0)
 			break;
 		(*counter)++;
