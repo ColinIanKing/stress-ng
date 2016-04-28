@@ -213,10 +213,55 @@ int stress_procfs(
 
 	do {
 		stress_proc_dir("/proc/self", true, 0);
-		if (!opt_do_run)
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
+
+
+		stress_proc_dir("/proc/sys", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/sysvipc", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/fs", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/bus", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/irq", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/scsi", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/tty", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/driver", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
 		stress_proc_dir("/proc", false, 0);
 		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
