@@ -71,10 +71,10 @@ static inline void aio_linux_fill_buffer(
 }
 
 /*
- *  stress_aio_linux
+ *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
-int stress_aio_linux(
+int stress_aiol(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

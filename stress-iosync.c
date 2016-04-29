@@ -40,7 +40,7 @@
  *  stress on sync()
  *	stress system by IO sync calls
  */
-int stress_iosync(
+int stress_io(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

@@ -94,10 +94,10 @@ static int remap_order(
 }
 
 /*
- *  stress_remap_file_pages
+ *  stress_remap
  *	stress page remapping
  */
-int stress_remap_file_pages(
+int stress_remap(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

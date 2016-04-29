@@ -235,10 +235,10 @@ reap:
 }
 
 /*
- *  stress_shm_posix()
+ *  stress_shm()
  *	stress SYSTEM V shared memory
  */
-int stress_shm_posix(
+int stress_shm(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

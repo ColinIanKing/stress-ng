@@ -383,10 +383,10 @@ die:
 }
 
 /*
- *  stress_socket
+ *  stress_sock
  *	stress by heavy socket I/O
  */
-int stress_socket(
+int stress_sock(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

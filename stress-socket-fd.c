@@ -304,10 +304,10 @@ die:
 }
 
 /*
- *  stress_socket_fd
+ *  stress_sockfd
  *	stress socket fd passing
  */
-int stress_socket_fd(
+int stress_sockfd(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,

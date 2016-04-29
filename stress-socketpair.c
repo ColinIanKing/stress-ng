@@ -85,10 +85,10 @@ static void socket_pair_close(
 }
 
 /*
- *  stress_socket_pair
+ *  stress_sockpair
  *	stress by heavy socket_pair I/O
  */
-int stress_socket_pair(
+int stress_sockpair(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
