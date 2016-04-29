@@ -137,8 +137,21 @@ int stress_key(
 				break;
 #endif
 
+#if defined(KEYCTL_CHOWN)
+			(void)sys_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);
+			(void)sys_keyctl(KEYCTL_CHOWN, keys[i], -1, getgid());
+#endif
+
+#if defined(KEYCTL_SETPERM)
+			(void)sys_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
+#endif
+
 #if defined(KEYCTL_CLEAR)
 			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
+#endif
+#if defined(KEYCTL_REVOKE)
+			if (mwc32() & 1)
+				(void)sys_keyctl(KEYCTL_REVOKE, keys[i]);
 #endif
 #if defined(KEYCTL_INVALIDATE)
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
