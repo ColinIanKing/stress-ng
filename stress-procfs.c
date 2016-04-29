@@ -258,6 +258,21 @@ int stress_procfs(
 		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
 
+		stress_proc_dir("/proc/tty", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/self", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
+		stress_proc_dir("/proc/thread_self", true, 0);
+		(*counter)++;
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
+			break;
+
 		stress_proc_dir("/proc", false, 0);
 		(*counter)++;
 		if (!opt_do_run || (max_ops && *counter >= max_ops))
