@@ -393,6 +393,14 @@ extern void pr_openlog(const char *filename);
 #endif
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 
+#define MIN_MSYNC_BYTES		(1 * MB)	/* MUST NOT BE page size or less! */
+#if UINTPTR_MAX == MAX_32
+#define MAX_MSYNC_BYTES		(MAX_32)
+#else
+#define MAX_MSYNC_BYTES		(4 * GB)
+#endif
+#define DEFAULT_MSYNC_BYTES	(256 * MB)
+
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
@@ -994,6 +1002,10 @@ typedef enum {
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,0,0)
 	__STRESS_MSG,
 #define STRESS_MSG __STRESS_MSG
+#endif
+#if !defined(__gnu_hurd__)
+	__STRESS_MSYNC,
+#define STRESS_MSYNC __STRESS_MSYNC
 #endif
 #if defined(HAVE_LIB_RT) && defined(__linux__)
 	__STRESS_MQ,
@@ -1603,6 +1615,12 @@ typedef enum {
 
 	OPT_MSG,
 	OPT_MSG_OPS,
+
+#if defined(STRESS_MSYNC)
+	OPT_MSYNC,
+	OPT_MSYNC_BYTES,
+	OPT_MSYNC_OPS,
+#endif
 
 #if defined(STRESS_MQ)
 	OPT_MQ,
@@ -2317,8 +2335,9 @@ extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *optarg);
 extern void stress_set_mergesort_size(const void *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
-extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
+extern void stress_set_mremap_bytes(const char *optarg);
+extern void stress_set_msync_bytes(const char *optarg);
 extern void stress_set_pipe_data_size(const char *optarg);
 extern void stress_set_pipe_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
@@ -2437,6 +2456,7 @@ STRESS(stress_mmapfork);
 STRESS(stress_mmapmany);
 STRESS(stress_mremap);
 STRESS(stress_msg);
+STRESS(stress_msync);
 STRESS(stress_mq);
 STRESS(stress_nice);
 STRESS(stress_noop);

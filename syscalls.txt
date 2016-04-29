@@ -163,7 +163,7 @@ msgctl				msg
 msgget				msg
 msgrcv				msg
 msgsnd				msg
-msync				mmap
+msync				mmap, msync
 munlock				mlock
 munlockall			mlock
 munmap				mmap, mremap

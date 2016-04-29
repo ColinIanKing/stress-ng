@@ -286,6 +286,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_MSG)
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 #endif
+#if defined(STRESS_MSYNC)
+	STRESSOR(msync, MSYNC, CLASS_VM | CLASS_OS),
+#endif
 #if defined(STRESS_MQ)
 	STRESSOR(mq, MQ, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -758,6 +761,11 @@ static const struct option long_options[] = {
 #if defined(STRESS_MSG)
 	{ "msg",	1,	0,	OPT_MSG },
 	{ "msg-ops",	1,	0,	OPT_MSG_OPS },
+#endif
+#if defined(STRESS_MSYNC)
+	{ "msync",	1,	0,	OPT_MSYNC },
+	{ "msync-ops",	1,	0,	OPT_MSYNC_OPS },
+	{ "msync-bytes",1,	0,	OPT_MSYNC_BYTES },
 #endif
 #if defined(STRESS_MQ)
 	{ "mq",		1,	0,	OPT_MQ },
@@ -1398,6 +1406,11 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_MSG)
 	{ NULL,		"msg N",		"start N workers stressing System V messages" },
 	{ NULL,		"msg-ops N",		"stop msg workers after N bogo messages" },
+#endif
+#if defined(STRESS_MSYNC)
+	{ NULL,		"msync N",		"start N workers syncing mmap'd data with msync" },
+	{ NULL,		"msync-ops N",		"stop msync workers after N bogo msyncs" },
+	{ NULL,		"msync-bytes N",	"size of file and memory mapped region to msync" },
 #endif
 #if defined(STRESS_MQ)
 	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
@@ -2793,6 +2806,11 @@ next_opt:
 #if defined(STRESS_MREMAP)
 		case OPT_MREMAP_BYTES:
 			stress_set_mremap_bytes(optarg);
+			break;
+#endif
+#if defined(STRESS_MSYNC)
+		case OPT_MSYNC_BYTES:
+			stress_set_msync_bytes(optarg);
 			break;
 #endif
 #if defined(STRESS_MQ)

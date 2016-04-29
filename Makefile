@@ -103,6 +103,7 @@ STRESS_SRC = \
 	stress-mmapmany.c \
 	stress-mremap.c \
 	stress-msg.c \
+	stress-msync.c \
 	stress-mq.c \
 	stress-nice.c \
 	stress-noop.c \

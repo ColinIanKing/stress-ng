@@ -1560,6 +1560,19 @@ messages using System V message IPC.
 .B \-\-msg\-ops N
 stop after N bogo message send operations completed.
 .TP
+.B \-\-msync N
+start N stressors that msync data from a file backed memory mapping from
+memory back to the file and msync modified data from the file back to the
+mapped memory. This exercises the msync(2) MS_SYNC and MS_INVALIDATE sync
+operations.
+.TP
+.B \-\-msync\-ops N
+stop after N msync bogo operations completed.
+.TP
+.B \-\-msync\-bytes N
+allocate N bytes for the memory mapped file, the default is 256MB. One
+can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
+.TP
 .B \-\-mq N
 start N sender and receiver processes that continually send and receive
 messages using POSIX message queues. (Linux only).
