@@ -113,7 +113,6 @@ static alg_hash_info_t algo_hash_info[] = {
 	{ "hash",	"tgr128",	TGR128_DIGEST_SIZE,	false },
 	{ "hash",	"tgr160",	TGR160_DIGEST_SIZE,	false },
 	{ "hash",	"tgr192",	TGR192_DIGEST_SIZE,	false },
-	{ NULL,		NULL,		0,			false },
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
@@ -129,7 +128,6 @@ static alg_cipher_info_t algo_cipher_info[] = {
 	{ "skcipher",	"lrw(cast6)",	CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
 	{ "skcipher",	"lrw(camellia)",CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
 	{ "skcipher",	"salsa20",	SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
-	{ NULL,		NULL,		0,		0, 	false },
 };
 
 int stress_af_alg_hash(
@@ -138,10 +136,10 @@ int stress_af_alg_hash(
 	const char *name,
 	const int sockfd)
 {
-	int i;
+	size_t i;
 	bool bind_ok = false;
 
-	for (i = 0; algo_hash_info[i].type; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(algo_hash_info); i++) {
 		int fd;
 		ssize_t j;
 		const ssize_t digest_size = algo_hash_info[i].digest_size;
@@ -208,10 +206,10 @@ int stress_af_alg_cipher(
 	const char *name,
 	const int sockfd)
 {
-	int i;
+	size_t i;
 	bool bind_ok = false;
 
-	for (i = 0; algo_cipher_info[i].type; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(algo_cipher_info); i++) {
 		int fd;
 		ssize_t j;
 		struct sockaddr_alg sa;
