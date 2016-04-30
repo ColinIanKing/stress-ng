@@ -127,7 +127,7 @@ int stress_xattr(
 		/* Determine how large a buffer we required... */
 		sz = flistxattr(fd, NULL, 0);
 		if (sz < 0) {
-			pr_fail_err(name, "fremovexattr");
+			pr_fail_err(name, "flistxattr");
 			goto out_close;
 		}
 		buffer = malloc(sz);
@@ -137,7 +137,7 @@ int stress_xattr(
 			free(buffer);
 
 			if (sz < 0) {
-				pr_fail_err(name, "fremovexattr");
+				pr_fail_err(name, "flistxattr");
 				goto out_close;
 			}
 		}
