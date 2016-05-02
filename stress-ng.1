@@ -1078,7 +1078,11 @@ system calls. (Linux only).
 stop after N handle bogo operations.
 .TP
 .B \-d N, \-\-hdd N
-start N workers continually writing, reading and removing temporary files.
+start N workers continually writing, reading and removing temporary files. The
+default mode is to stress test sequential writes and reads.  With
+the \-\-\aggressive option enabled without any \-\-hdd\-opts options the
+hdd stressor will work through all the \-\-hdd\-opt options one by one to
+cover a range of I/O options.
 .TP
 .B \-\-hdd\-bytes N
 write N bytes for each hdd process, the default is 1 GB. One can specify the

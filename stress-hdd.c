@@ -74,6 +74,7 @@ static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
 static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
 static bool set_hdd_bytes = false;
 static bool set_hdd_write_size = false;
+static bool opts_set = false;
 static int opt_hdd_flags = 0;
 static int opt_hdd_oflags = 0;
 
@@ -145,7 +146,6 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "syncfs",	HDD_OPT_SYNCFS, 0, 0, 0 },
 #endif
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
-	{ NULL, 0, 0, 0, 0 }
 };
 
 void stress_set_hdd_bytes(const char *optarg)
@@ -248,11 +248,13 @@ int stress_hdd_opts(char *opts)
 {
 	char *str, *token;
 
+	opts_set = false;
+
 	for (str = opts; (token = strtok(str, ",")) != NULL; str = NULL) {
-		int i;
+		size_t i;
 		bool opt_ok = false;
 
-		for (i = 0; hdd_opts[i].opt; i++) {
+		for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 			if (!strcmp(token, hdd_opts[i].opt)) {
 				int exclude = opt_hdd_flags & hdd_opts[i].exclude;
 				if (exclude) {
@@ -273,11 +275,12 @@ int stress_hdd_opts(char *opts)
 				opt_hdd_flags  |= hdd_opts[i].flag;
 				opt_hdd_oflags |= hdd_opts[i].oflag;
 				opt_ok = true;
+				opts_set = true;
 			}
 		}
 		if (!opt_ok) {
 			fprintf(stderr, "hdd-opt option '%s' not known, options are:", token);
-			for (i = 0; hdd_opts[i].opt; i++)
+			for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++)
 				fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", hdd_opts[i].opt);
 			fprintf(stderr, "\n");
@@ -297,12 +300,12 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
     defined(POSIX_FADV_DONTNEED)) && !defined(__gnu_hurd__)
-	int i;
+	size_t i;
 
 	if (!(flags & HDD_OPT_FADV_MASK))
 		return 0;
 
-	for (i = 0; hdd_opts[i].opt; i++) {
+	for (i = 0; i < sizeof(hdd_opts); i++) {
 		if (hdd_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
 				pr_fail_err(name, "posix_fadvise");
@@ -334,6 +337,7 @@ int stress_hdd(
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC | opt_hdd_oflags;
 	int fadvise_flags = opt_hdd_flags & HDD_OPT_FADV_MASK;
+	size_t opt_index = 0;
 
 	if (!set_hdd_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -408,6 +412,21 @@ int stress_hdd(
 		int fd;
 		struct stat statbuf;
 		uint64_t hdd_read_size;
+
+		/*
+		 * aggressive option with no other option enables
+		 * the "work through all the options" mode
+		 */
+		if (!opts_set && (opt_flags & OPT_FLAGS_AGGRESSIVE)) {
+			opt_index = (opt_index + 1) % SIZEOF_ARRAY(hdd_opts);
+
+			opt_hdd_flags  = hdd_opts[opt_index].flag;
+			opt_hdd_oflags = hdd_opts[opt_index].oflag;
+			if ((opt_hdd_flags & HDD_OPT_WR_MASK) == 0)
+				opt_hdd_flags |= HDD_OPT_WR_SEQ;
+			if ((opt_hdd_flags & HDD_OPT_RD_MASK) == 0)
+				opt_hdd_flags |= HDD_OPT_RD_SEQ;
+		}
 
 		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
