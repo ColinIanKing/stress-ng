@@ -35,6 +35,14 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(__linux__)
+#include <linux/random.h>
+#include <sys/ioctl.h>
+#endif
+
+#if defined(__linux__) && defined(RNDGETENTCNT)
+#define DEV_RANDOM
+#endif
 
 /*
  *  stress_urandom
@@ -46,31 +54,70 @@ int stress_urandom(
 	const uint64_t max_ops,
 	const char *name)
 {
-	int fd;
+	int fd_urnd, rc = EXIT_FAILURE;
+#if defined(DEV_RANDOM)
+	int fd_rnd;
+#endif
 
 	(void)instance;
 
-	if ((fd = open("/dev/urandom", O_RDONLY)) < 0) {
+	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
 		pr_fail_err(name, "open");
 		return EXIT_FAILURE;
 	}
+#if defined(DEV_RANDOM)
+	if ((fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK)) < 0) {
+		pr_fail_err(name, "open");
+		(void)close(fd_urnd);
+		return EXIT_FAILURE;
+	}
+#endif
 
 	do {
 		char buffer[8192];
 		ssize_t ret;
+#if defined(DEV_RANDOM)
+		unsigned long val;
+#endif
 
-		ret = read(fd, buffer, sizeof(buffer));
+		ret = read(fd_urnd, buffer, sizeof(buffer));
 		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				continue;
-			pr_fail_err(name, "read");
-			(void)close(fd);
-			return EXIT_FAILURE;
+			if ((errno != EAGAIN) && (errno != EINTR)) {
+				pr_fail_err(name, "read");
+				goto err;
+			}
 		}
 		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	(void)close(fd);
 
-	return EXIT_SUCCESS;
+#if defined(DEV_RANDOM)
+		/*
+		 * Fetch entropy pool count, not considered fatal 
+		 * this fails, just skip this part of the stressor
+		 */
+		if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
+			continue;
+		/* Try to avoid emptying entropy pool */
+		if (val < 128)
+			continue;
+
+		ret = read(fd_rnd, buffer, 1);
+		if (ret < 0) {
+			if ((errno != EAGAIN) && (errno != EINTR)) {
+				pr_fail_err(name, "read");
+				goto err;
+			}
+		}
+#endif
+		(*counter)++;
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	rc = EXIT_SUCCESS;
+err:
+	(void)close(fd_urnd);
+#if defined(DEV_RANDOM)
+	(void)close(fd_rnd);
+#endif
+
+	return rc;
 }
 #endif
