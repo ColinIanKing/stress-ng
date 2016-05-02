@@ -364,7 +364,6 @@ int stress_af_alg(
 	int retries = MAX_AF_ALG_RETRIES;
 
 	(void)instance;
-	(void)name;
 
 	for (;;) {
 		sockfd = socket(AF_ALG, SOCK_SEQPACKET, 0);
