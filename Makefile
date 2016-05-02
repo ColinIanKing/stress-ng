@@ -155,6 +155,7 @@ STRESS_SRC = \
 	stress-tee.c \
 	stress-timer.c \
 	stress-timerfd.c \
+	stress-tlb-shootdown.c \
 	stress-tsc.c \
 	stress-tsearch.c \
 	stress-udp.c \

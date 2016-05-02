@@ -400,6 +400,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_TIMERFD)
 	STRESSOR(timerfd, TIMERFD, CLASS_INTERRUPT | CLASS_OS),
 #endif
+#if defined(STRESS_TLB_SHOOTDOWN)
+	STRESSOR(tlb_shootdown, TLB_SHOOTDOWN, CLASS_OS | CLASS_MEMORY),
+#endif
 #if defined(STRESS_TSC)
 	STRESSOR(tsc, TSC, CLASS_CPU),
 #endif
@@ -984,6 +987,10 @@ static const struct option long_options[] = {
 #endif
 #if defined(PRCTL_TIMER_SLACK)
 	{ "timer-slack",1,	0,	OPT_TIMER_SLACK },
+#endif
+#if defined(STRESS_TLB_SHOOTDOWN)
+	{ "tlb-shootdown",1,	0,	OPT_TLB_SHOOTDOWN },
+	{ "tlb-shootdown-ops",1,0,	OPT_TLB_SHOOTDOWN_OPS },
 #endif
 #if defined(STRESS_TSC)
 	{ "tsc",	1,	0,	OPT_TSC },
@@ -1609,6 +1616,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"timerfd-ops N",	"stop after N timerfd bogo events" },
 	{ NULL,		"timerfd-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timerfd-rand",		"enable random timerfd frequency" },
+#endif
+#if defined(STRESS_TLB_SHOOTDOWN)
+	{ NULL,		"tlb-shootdown N",	"start N wrokers that force TLB shootdowns" },
+	{ NULL,		"tlb-shootdown-opts N",	"stop after N TLB shootdown bogo ops" },
 #endif
 #if defined(STRESS_TSC)
 	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },

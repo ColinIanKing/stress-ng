@@ -1158,6 +1158,10 @@ typedef enum {
 	__STRESS_TIMERFD,
 #define STRESS_TIMERFD __STRESS_TIMERFD
 #endif
+#if defined(__linux__)
+	__STRESS_TLB_SHOOTDOWN,
+#define STRESS_TLB_SHOOTDOWN __STRESS_TLB_SHOOTDOWN
+#endif
 #if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 	__STRESS_TSC,
 #define STRESS_TSC __STRESS_TSC
@@ -1888,6 +1892,11 @@ typedef enum {
 #endif
 	OPT_TIMES,
 
+#if defined(STRESS_TLB_SHOOTDOWN)
+	OPT_TLB_SHOOTDOWN,
+	OPT_TLB_SHOOTDOWN_OPS,
+#endif
+
 #if defined(STRESS_TSC)
 	OPT_TSC,
 	OPT_TSC_OPS,
@@ -2518,6 +2527,7 @@ STRESS(stress_sysfs);
 STRESS(stress_tee);
 STRESS(stress_timer);
 STRESS(stress_timerfd);
+STRESS(stress_tlb_shootdown);
 STRESS(stress_tsc);
 STRESS(stress_tsearch);
 STRESS(stress_udp);

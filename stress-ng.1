@@ -2158,6 +2158,16 @@ select a timerfd frequency based around the timer frequency +/- 12.5% random
 jitter. This tries to force more variability in the timer interval to make the
 scheduling less predictable.
 .TP
+.B \-\-tlb\-shootdown N
+start N workers that force Translation Lookaside Buffer (TLB) shootdowns.
+This is achieved by creating upto 16 child processes that all share a
+region of memory and these processes are shared amongst the available
+CPUs.  The processes adjust the page mapping settings causing TLBs to
+be force flushed on the other processors, causing the TLB shootdowns.
+.TP
+.B \-\-tlb\-shootdown\-ops N
+stop after N bogo TLB shootdown operations are completed.
+.TP
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop
 iteration (bogo operation). Available only on Intel x86 platforms.
