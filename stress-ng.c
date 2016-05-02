@@ -210,6 +210,9 @@ static const stress_t stressors[] = {
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fp_error, FP_ERROR, CLASS_CPU),
 	STRESSOR(fstat, FSTAT, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_FULL)
+	STRESSOR(full, FULL, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
+#endif
 #if defined(STRESS_FUTEX)
 	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -610,6 +613,10 @@ static const struct option long_options[] = {
 	{ "fstat",	1,	0,	OPT_FSTAT },
 	{ "fstat-ops",	1,	0,	OPT_FSTAT_OPS },
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
+#if defined(STRESS_FULL)
+	{ "full",	1,	0,	OPT_FULL },
+	{ "full-ops",	1,	0,	OPT_FULL_OPS },
+#endif
 #if defined(STRESS_FUTEX)
 	{ "futex",	1,	0,	OPT_FUTEX },
 	{ "futex-ops",	1,	0,	OPT_FUTEX_OPS },
@@ -1267,6 +1274,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"fstat N",		"start N workers exercising fstat on files" },
 	{ NULL,		"fstat-ops N",		"stop after N fstat bogo operations" },
 	{ NULL,		"fstat-dir path",	"fstat files in the specified directory" },
+#if defined(STRESS_FULL)
+	{ NULL,		"full N",		"start N workers exercising /dev/full" },
+	{ NULL,		"full-ops N",		"stop after N /dev/full bogo I/O operations" },
+#endif
 #if defined(STRESS_FUTEX)
 	{ NULL,		"futex N",		"start N workers exercising a fast mutex" },
 	{ NULL,		"futex-ops N",		"stop after N fast mutex bogo operations" },

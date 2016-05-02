@@ -902,6 +902,10 @@ typedef enum {
 	STRESS_FORK,
 	STRESS_FP_ERROR,
 	STRESS_FSTAT,
+#if defined(__linux__)
+	__STRESS_FULL,
+#define STRESS_FULL __STRESS_FULL
+#endif
 #if defined(__linux__) && defined(__NR_futex)
 	__STRESS_FUTEX,
 #define STRESS_FUTEX __STRESS_FUTEX
@@ -1434,6 +1438,11 @@ typedef enum {
 	OPT_FSTAT,
 	OPT_FSTAT_OPS,
 	OPT_FSTAT_DIR,
+
+#if defined(STRESS_FULL)
+	OPT_FULL,
+	OPT_FULL_OPS,
+#endif
 
 	OPT_FUTEX,
 	OPT_FUTEX_OPS,
@@ -2420,6 +2429,7 @@ STRESS(stress_flock);
 STRESS(stress_fork);
 STRESS(stress_fp_error);
 STRESS(stress_fstat);
+STRESS(stress_full);
 STRESS(stress_futex);
 STRESS(stress_get);
 STRESS(stress_getrandom);

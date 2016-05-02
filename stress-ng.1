@@ -1043,6 +1043,15 @@ stop fstat stress workers after N bogo fstat operations.
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
 .TP
+.B \-\-full N
+start N workers that exercise /dev/full.  This attempts to write to
+the device (which should always get error ENOSPC), to read from the device
+(which should always return a buffer of zeros) and to seek randomly on the
+device (which should always succeed).  (Linux only).
+.TP
+.B \-\-full\-ops N
+stop the stress full workers after N bogo I/O operations.
+.TP
 .B \-\-futex N
 start N workers that rapidly exercise the futex system call. Each worker has
 two processes, a futex waiter and a futex waker. The waiter waits with a very
