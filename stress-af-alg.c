@@ -81,14 +81,12 @@
 /* See https://lwn.net/Articles/410833/ */
 
 typedef struct {
-	const char *type;
 	const char *name;
 	const ssize_t digest_size;
 	bool  bind_fail;
 } alg_hash_info_t;
 
 typedef struct {
-	const char *type;
 	const char *name;
 	const ssize_t block_size;
 	const ssize_t key_size;
@@ -96,38 +94,38 @@ typedef struct {
 } alg_cipher_info_t;
 
 static alg_hash_info_t algo_hash_info[] = {
-	{ "hash",	"sha1",		SHA1_DIGEST_SIZE,	false },
-	{ "hash",	"sha224",	SHA224_DIGEST_SIZE,	false },
-	{ "hash",	"sha256",	SHA256_DIGEST_SIZE,	false },
-	{ "hash",	"sha384",	SHA384_DIGEST_SIZE,	false },
-	{ "hash",	"sha512",	SHA512_DIGEST_SIZE,	false },
-	{ "hash",	"md4",		MD4_DIGEST_SIZE,	false },
-	{ "hash",	"md5",		MD5_DIGEST_SIZE,	false },
-	{ "hash",	"rmd128",	RMD128_DIGEST_SIZE,	false },
-	{ "hash",	"rmd160",	RMD160_DIGEST_SIZE,	false },
-	{ "hash",	"rmd256",	RMD256_DIGEST_SIZE,	false },
-	{ "hash",	"rmd320",	RMD320_DIGEST_SIZE,	false },
-	{ "hash",	"wp256",	WP256_DIGEST_SIZE,	false },
-	{ "hash",	"wp384",	WP384_DIGEST_SIZE,	false },
-	{ "hash",	"wp512",	WP512_DIGEST_SIZE,	false },
-	{ "hash",	"tgr128",	TGR128_DIGEST_SIZE,	false },
-	{ "hash",	"tgr160",	TGR160_DIGEST_SIZE,	false },
-	{ "hash",	"tgr192",	TGR192_DIGEST_SIZE,	false },
+	{ "sha1",	SHA1_DIGEST_SIZE,	false },
+	{ "sha224",	SHA224_DIGEST_SIZE,	false },
+	{ "sha256",	SHA256_DIGEST_SIZE,	false },
+	{ "sha384",	SHA384_DIGEST_SIZE,	false },
+	{ "sha512",	SHA512_DIGEST_SIZE,	false },
+	{ "md4",	MD4_DIGEST_SIZE,	false },
+	{ "md5",	MD5_DIGEST_SIZE,	false },
+	{ "rmd128",	RMD128_DIGEST_SIZE,	false },
+	{ "rmd160",	RMD160_DIGEST_SIZE,	false },
+	{ "rmd256",	RMD256_DIGEST_SIZE,	false },
+	{ "rmd320",	RMD320_DIGEST_SIZE,	false },
+	{ "wp256",	WP256_DIGEST_SIZE,	false },
+	{ "wp384",	WP384_DIGEST_SIZE,	false },
+	{ "wp512",	WP512_DIGEST_SIZE,	false },
+	{ "tgr128",	TGR128_DIGEST_SIZE,	false },
+	{ "tgr160",	TGR160_DIGEST_SIZE,	false },
+	{ "tgr192",	TGR192_DIGEST_SIZE,	false },
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
-	{ "skcipher",	"cbc(aes)",	AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"lrw(aes)",	AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"ofb(aes)",	AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"xts(cast6)",	CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"xts(camellia)",CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"lrw(cast6)",	CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"lrw(camellia)",CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "skcipher",	"salsa20",	SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
+	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
+	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
+	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
+	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
+	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
+	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
+	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
 };
 
 int stress_af_alg_hash(
@@ -151,8 +149,8 @@ int stress_af_alg_hash(
 
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		memcpy(sa.salg_type, algo_hash_info[i].type, sizeof(sa.salg_type));
-		memcpy(sa.salg_name, algo_hash_info[i].name, sizeof(sa.salg_name));
+		strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
+		strncpy((char *)sa.salg_name, algo_hash_info[i].name, sizeof(sa.salg_name));
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
@@ -224,8 +222,8 @@ int stress_af_alg_cipher(
 
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		memcpy(sa.salg_type, algo_cipher_info[i].type, sizeof(sa.salg_type));
-		memcpy(sa.salg_name, algo_cipher_info[i].name, sizeof(sa.salg_name));
+		strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
+		strncpy((char *)sa.salg_name, algo_cipher_info[i].name, sizeof(sa.salg_name));
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
