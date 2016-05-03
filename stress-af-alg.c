@@ -93,6 +93,11 @@ typedef struct {
 	bool  bind_fail;
 } alg_cipher_info_t;
 
+typedef struct {
+	const char *name;
+	bool bind_fail;
+} alg_rng_info_t;
+
 static alg_hash_info_t algo_hash_info[] = {
 	{ "sha1",	SHA1_DIGEST_SIZE,	false },
 	{ "sha224",	SHA224_DIGEST_SIZE,	false },
@@ -110,7 +115,7 @@ static alg_hash_info_t algo_hash_info[] = {
 	{ "wp512",	WP512_DIGEST_SIZE,	false },
 	{ "tgr128",	TGR128_DIGEST_SIZE,	false },
 	{ "tgr160",	TGR160_DIGEST_SIZE,	false },
-	{ "tgr192",	TGR192_DIGEST_SIZE,	false },
+	{ "tgr192",	TGR192_DIGEST_SIZE,	false }
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
@@ -125,7 +130,11 @@ static alg_cipher_info_t algo_cipher_info[] = {
 	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
 	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
 	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
+	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false }
+};
+
+static alg_rng_info_t algo_rng_info[] = {
+	{ "jitterentropy_rng",		false }
 };
 
 int stress_af_alg_hash(
@@ -201,6 +210,7 @@ int stress_af_alg_hash(
 
 int stress_af_alg_cipher(
 	uint64_t *const counter,
+	const uint64_t max_ops,
 	const char *name,
 	const int sockfd)
 {
@@ -339,10 +349,76 @@ int stress_af_alg_cipher(
 
 		(void)close(fd);
 		(*counter)++;
+		if (max_ops && (*counter >= max_ops))
+			return EXIT_SUCCESS;
 	}
 	if (!bind_ok) {
 		errno = ENOENT;
 		pr_fail_err(name, "bind to all hash types");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+int stress_af_alg_rng(
+	uint64_t *const counter,
+	const uint64_t max_ops,
+	const char *name,
+	const int sockfd)
+{
+	size_t i;
+	bool bind_ok = false;
+
+	for (i = 0; i < SIZEOF_ARRAY(algo_rng_info); i++) {
+		int fd;
+		ssize_t j;
+		struct sockaddr_alg sa;
+
+		if (algo_rng_info[i].bind_fail)
+			continue;
+
+		memset(&sa, 0, sizeof(sa));
+		sa.salg_family = AF_ALG;
+		strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
+		strncpy((char *)sa.salg_name, algo_rng_info[i].name, sizeof(sa.salg_name));
+
+		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+			/* Perhaps the rng algo does not exist with this kernel */
+			if (errno == ENOENT) {
+				algo_rng_info[i].bind_fail = true;
+				continue;
+			}
+			pr_fail_err(name, "bind");
+			return EXIT_FAILURE;
+		}
+		bind_ok = true;
+
+		fd = accept(sockfd, NULL, 0);
+		if (fd < 0) {
+			pr_fail_err(name, "accept");
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+
+		for (j = 0; j < 16; j++) {
+			char output[16];
+
+			if (read(fd, output, sizeof(output)) < 0) {
+				pr_fail_err(name, "read");
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
+			(*counter)++;
+			if (max_ops && (*counter >= max_ops)) {
+				(void)close(fd);
+				return EXIT_SUCCESS;
+			}
+		}
+		(void)close(fd);
+	}
+	if (!bind_ok) {
+		errno = ENOENT;
+		pr_fail_err(name, "bind to all rngion types");
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -386,7 +462,10 @@ int stress_af_alg(
 		rc = stress_af_alg_hash(counter, max_ops, name, sockfd);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_cipher(counter, name, sockfd);
+		rc = stress_af_alg_cipher(counter, max_ops, name, sockfd);
+		if (rc == EXIT_FAILURE)
+			goto tidy;
+		rc = stress_af_alg_rng(counter, max_ops, name, sockfd);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
