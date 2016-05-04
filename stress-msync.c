@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MSYNC)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,8 +39,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "stress-ng.h"
 
 static size_t opt_msync_bytes = DEFAULT_MSYNC_BYTES;
 static bool set_msync_bytes = false;
@@ -249,3 +251,5 @@ err:
 			name, sigbus_count);
 	return rc;
 }
+
+#endif
