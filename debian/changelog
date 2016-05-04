@@ -1,3 +1,71 @@
+stress-ng (0.06.00-1) unstable; urgency=medium
+
+  * Makefile: new major version and codename
+  * stress-msync: cast off_t to intmax_t to print with %jd format specifier
+  * debian/control: update Standards Version to 3.9.8
+  * manual: update date
+  * stress-msync: add in conditional STRESS_MSYNC build check
+  * stress-af-alg: add simple rng to the mix
+  * stress-af-alg: remove redundant type field info
+  * manual: rephrase the --seq description
+  * manual: clean up the SEE ALSO section
+  * Add TLB shootdown stressor
+  * stress-af-alg: remove (void)name
+  * Add /dev/full stressor
+  * stress-urandom: where possible also read data from /dev/random
+  * Manual: update af-alg skciper section.
+  * stress-hdd: work through all the --hdd-opts if --maximize is enabled
+  * stress-xattr: fix error messages, they were reporting wrong syscall
+  * stress-af-alg: use array size so we don't need NULL sentinels
+  * stress-af-alg: Add skcipher stessing
+  * stress-procfs: add /proc/tty, /proc/self, /proc/thread_self
+  * stress-key: Add some more keyctl calls
+  * Rename stressor names to match their command line name
+  * Add msync stressor
+  * Fix non-Linux build for set_cpu_affinity
+  * stress-rtc: also read /proc/driver/rtc
+  * Add RTC stressor
+  * stress-get: use prlimit only with glibc >= 2.13.0
+  * stress-procfs: add more /proc directory traversal
+  * stress-inotify: add ioctl FIONREAD to peek at available data on fd
+  * Add the CPU affinity option '--taskset'
+  * stress-cache: make pinned a linux only variable
+  * stress-cache: fix pinned message, swap cpu and instance around
+  * stress-cache: fix failure to build on GNU/HURD
+  * Update contributions authors in manual
+  * Ensure processes are kept to the CPU affinity set
+  * taskset -c 4-7 stress-ng --cache 4 --stream 4 --yield 4
+  * Update README with other OS build notes
+  * stress-spawn: make this a Linux only test
+  * Disable MLOCKED sections for now on SunOS, we get linker issues
+  * stress-ng: correct casts of void *
+  * stress-ng: include alloca.h for SunOS
+  * stress-ng: cater for systems that don't support RLIMIT_NPROC
+  * mincore: cater for SunOS mincore API difference
+  * stress-yield: correct casts of void *
+  * stress-yield: include alloca.h for SunOS
+  * stress-vm: correct casts of void *
+  * stress-stream: correct casts of void *
+  * stress-str: include strings.h for SunOS builds for index() prototype
+  * stress-stack: include alloca.h for SunOS
+  * stress-sigsuspend: correct casts of void * and uint64_t *
+  * stress-mmapmany: correct casts of void * and uint8_t *
+  * stress-mmap: correct casts of void * and uint8_t *
+  * Fix alignment mask to ensure stacks are 16 byte aligned (LP: #1573117)
+  * stress-mlock: correct casts of void * and uint8_t *
+  * stress-icache: cast addr to (void *) in mprotect calls
+  * mounts: SunOS requires *BSD style build arrangements
+  * stress-hdd: cast data to (void *) to silence warning
+  * stress-hdd: don't use futimes for Solaris UNIX
+  * Add logging to syslog of free memory info post-OOM
+  * Add system and memory syslog logging
+  * stress-brk: catch EAGAIN errors on sbrk/brk
+  * Remove debug log test message
+  * stress-socket-fd: only build stressor if STRESS_SOCK_FD defined
+  * Add logging of who and how stress-ng was invoked to syslog
+
+ -- Colin King <colin.king@canonical.com>  Wed, 4 May 2016 09:57:59 +0100
+
 stress-ng (0.05.25-1) unstable; urgency=medium
 
   * Makefile: bump version
