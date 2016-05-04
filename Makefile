@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.05.25
+VERSION=0.06.00
 #
-# Codename "dastardly determined distressor"
+# Codename "pathological process pounder"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
