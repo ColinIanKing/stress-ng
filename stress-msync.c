@@ -34,6 +34,7 @@
 #include <string.h>
 #include <setjmp.h>
 #include <signal.h>
+#include <inttypes.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -180,15 +181,15 @@ int stress_msync(
 		ret = msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_SYNC on "
-				"offset %zd failed, errno=%d (%s)",
-				name, offset, errno, strerror(errno));
+				"offset %jd failed, errno=%d (%s)",
+				name, (intmax_t)offset, errno, strerror(errno));
 			goto do_invalidate;
 		}
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
 			pr_err(stderr, "%s: cannot seet to offset %jd, "
 				"errno=%d (%s)\n",
-				name, offset, errno, strerror(errno));
+				name, (intmax_t)offset, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
@@ -215,7 +216,7 @@ do_invalidate:
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
 			pr_err(stderr, "%s: cannot seet to offset %jd, errno=%d (%s)\n",
-				name, offset, errno, strerror(errno));
+				name, (intmax_t)offset, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
@@ -228,8 +229,8 @@ do_invalidate:
 		ret = msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_INVALIDATE on "
-				"offset %zd failed, errno=%d (%s)",
-				name, offset, errno, strerror(errno));
+				"offset %jd failed, errno=%d (%s)",
+				name, (intmax_t)offset, errno, strerror(errno));
 			goto do_next;
 		}
 		if (stress_page_check(buf + offset, val, sizeof(data)) < 0) {
