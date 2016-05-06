@@ -247,7 +247,10 @@ int stress_af_alg_cipher(
 		bind_ok = true;
 
 		stress_strnrnd(key, sizeof(key));
-		setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key));
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
+			pr_fail_err(name, "setsockopt");
+			return EXIT_FAILURE;
+		}
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
