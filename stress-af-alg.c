@@ -403,7 +403,7 @@ int stress_af_alg_rng(
 		for (j = 0; j < 16; j++) {
 			char output[16];
 
-			if (read(fd, output, sizeof(output)) < 0) {
+			if (read(fd, output, sizeof(output)) != sizeof(output)) {
 				pr_fail_err(name, "read");
 				(void)close(fd);
 				return EXIT_FAILURE;
