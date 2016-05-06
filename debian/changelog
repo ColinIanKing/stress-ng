@@ -1,3 +1,20 @@
+stress-ng (0.06.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-af-alg: avoid any unterminated strings (unlikely)
+  * debian/control: add libcap-dev to Build-Depends
+  * stress-hdd: should use SIZEOF_ARRAY instead of sizeof
+  * stress-full: don't close fd before trying a read
+  * stress-af-alg: ensure the rng read size is correct
+  * stress-af-alg: fix more -ve fd closes
+  * stress-af-alg: don't close fd that is -ve
+  * stress-tlb-shootdown: fix incorrect comparison on ENOMEM
+  * stress-af-alg: check for errors on setsockopt
+  * stress-full: try read test rather than skip if write fails
+  * stress-full: clear buffer before we write
+
+ -- Colin King <colin.king@canonical.com>  Fri, 6 May 2016 22:58:01 +0100
+
 stress-ng (0.06.00-1) unstable; urgency=medium
 
   * Makefile: new major version and codename
