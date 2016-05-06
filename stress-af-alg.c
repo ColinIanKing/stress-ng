@@ -159,7 +159,7 @@ int stress_af_alg_hash(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_hash_info[i].name, sizeof(sa.salg_name));
+		strncpy((char *)sa.salg_name, algo_hash_info[i].name, sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
@@ -232,7 +232,7 @@ int stress_af_alg_cipher(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_cipher_info[i].name, sizeof(sa.salg_name));
+		strncpy((char *)sa.salg_name, algo_cipher_info[i].name, sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
@@ -381,7 +381,7 @@ int stress_af_alg_rng(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_rng_info[i].name, sizeof(sa.salg_name));
+		strncpy((char *)sa.salg_name, algo_rng_info[i].name, sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the rng algo does not exist with this kernel */
