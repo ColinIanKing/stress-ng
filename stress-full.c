@@ -82,10 +82,8 @@ int stress_full(
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if ((errno == EAGAIN) || (errno == EINTR)) {
-			(void)close(fd);
+		if ((errno == EAGAIN) || (errno == EINTR))
 			goto try_read;
-		}
 		if (errno != ENOSPC) {
 			pr_fail_err(name, "write");
 			(void)close(fd);
