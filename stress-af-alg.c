@@ -175,7 +175,6 @@ int stress_af_alg_hash(
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
 			pr_fail_err(name, "accept");
-			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 
@@ -398,7 +397,6 @@ int stress_af_alg_rng(
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
 			pr_fail_err(name, "accept");
-			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 
