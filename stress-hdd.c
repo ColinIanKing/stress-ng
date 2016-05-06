@@ -305,7 +305,7 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
 	if (!(flags & HDD_OPT_FADV_MASK))
 		return 0;
 
-	for (i = 0; i < sizeof(hdd_opts); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 		if (hdd_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
 				pr_fail_err(name, "posix_fadvise");
