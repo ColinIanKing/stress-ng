@@ -1237,6 +1237,13 @@ This can be used in conjunction with the \-\-hdd options.
 .B \-\-io\-ops N
 stop io stress workers after N bogo operations.
 .TP
+.B \-\-ioprio N
+start N workers that exercise the ioprio_get(2) and ioprio_set(2) system calls
+(Linux only).
+.TP
+.B \-\-ioprio\-ops N
+stop after N io priority bogo operations.
+.TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for

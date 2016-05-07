@@ -110,8 +110,8 @@ io_submit			aiol
 ioctl				[ need privilege, ignore for now ]
 ioperm				ditto
 iopl				ditto
-ioprio_get
-ioprio_set
+ioprio_get			ioprio
+ioprio_set			ioprio
 ipc				used by msg* glibc wrappers
 kcmp				kcmp
 kexec_file_load			[ need privilege, ignore for now ]

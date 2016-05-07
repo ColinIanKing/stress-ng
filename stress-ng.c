@@ -235,6 +235,9 @@ static const stress_t stressors[] = {
 	STRESSOR(icache, ICACHE, CLASS_CPU_CACHE),
 #endif
 	STRESSOR(io, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_IOPRIO)
+	STRESSOR(ioprio, IOPRIO, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 #if defined(STRESS_INOTIFY)
 	STRESSOR(inotify, INOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 #endif
@@ -666,6 +669,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_IONICE)
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
+#endif
+#if defined(STRESS_IOPRIO)
+	{ "ioprio",	1,	0,	OPT_IOPRIO },
+	{ "ioprio-ops",	1,	0,	OPT_IOPRIO_OPS },
 #endif
 	{ "itimer",	1,	0,	OPT_ITIMER },
 	{ "itimer-ops",	1,	0,	OPT_ITIMER_OPS },
@@ -1329,6 +1336,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_IONICE)
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
+#endif
+#if defined(STRESS_IOPRIO)
+	{ NULL,		"ioprio N",		"start N workers exercising set/get iopriority" },
+	{ NULL,		"ioprio-ops N",		"stop after N io bogo iopriority operations" },
 #endif
 	{ NULL,		"itimer N",		"start N workers exercising interval timers" },
 	{ NULL,		"itimer-ops N",		"stop after N interval timer bogo operations" },

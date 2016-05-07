@@ -596,7 +596,20 @@ extern void pr_openlog(const char *filename);
 #endif
 
 #if defined(__linux__)
-#define STRESS_IOPRIO
+/*
+ *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
+ *  for these at present. Also refer to Documentation/block/ioprio.txt
+ *  in the Linux kernel source.
+ */
+#define IOPRIO_CLASS_RT         (1)
+#define IOPRIO_CLASS_BE         (2)
+#define IOPRIO_CLASS_IDLE       (3)
+
+#define IOPRIO_WHO_PROCESS      (1)
+#define IOPRIO_WHO_PGRP         (2)
+#define IOPRIO_WHO_USER         (3)
+
+#define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
 #endif
 
 #if defined(__GNUC__) && defined(__linux__)
@@ -937,6 +950,10 @@ typedef enum {
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	__STRESS_INOTIFY,
 #define STRESS_INOTIFY __STRESS_INOTIFY
+#endif
+#if defined(__linux__) && defined(__NR_ioprio_set) && defined(__NR_ioprio_get)
+	__STRESS_IOPRIO,
+#define STRESS_IOPRIO __STRESS_IOPRIO
 #endif
 	STRESS_IOSYNC,
 	STRESS_ITIMER,
@@ -1497,6 +1514,11 @@ typedef enum {
 #if defined(STRESS_IONICE)
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
+#endif
+
+#if defined(STRESS_IOPRIO)
+	OPT_IOPRIO,
+	OPT_IOPRIO_OPS,
 #endif
 
 	OPT_IOSYNC_OPS,
@@ -2076,6 +2098,11 @@ extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
 extern pid_t pgrp;			/* proceess group leader */
 
+/* syscall shims not provided by glibc */
+extern int sys_ioprio_set(int which, int who, int ioprio);
+extern int sys_ioprio_get(int which, int who);
+
+
 /*
  *  externs to force gcc to stash computed values and hence
  *  to stop the optimiser optimising code away to zero. The
@@ -2450,6 +2477,7 @@ STRESS(stress_hsearch);
 STRESS(stress_icache);
 STRESS(stress_inotify);
 STRESS(stress_io);
+STRESS(stress_ioprio);
 STRESS(stress_itimer);
 STRESS(stress_kcmp);
 STRESS(stress_key);

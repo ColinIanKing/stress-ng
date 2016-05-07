@@ -30,27 +30,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#if defined(STRESS_IOPRIO)
-
+#if defined(__linux__)
 #include <sys/syscall.h>
-
-/*
- *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
- *  for these at present. Also refer to Documentation/block/ioprio.txt
- *  in the Linux kernel source.
- */
-#define IOPRIO_CLASS_RT 	(1)
-#define IOPRIO_CLASS_BE		(2)
-#define IOPRIO_CLASS_IDLE	(3)
-
-#define IOPRIO_WHO_PROCESS	(1)
-#define IOPRIO_WHO_PGRP		(2)
-#define IOPRIO_WHO_USER		(3)
-
-#define IOPRIO_PRIO_VALUE(class, data)	(((class) << 13) | data)
 #endif
-
 
 /*
  *  get_opt_ionice_class()
@@ -90,16 +72,42 @@ int32_t get_opt_ionice_class(const char *const str)
 	exit(EXIT_FAILURE);
 }
 
-#if defined(STRESS_IOPRIO)
 /*
- *  ioprio_set()
+ *  sys_ioprio_set()
  *	ioprio_set system call
  */
-static int ioprio_set(const int which, const int who, const int ioprio)
+int sys_ioprio_set(int which, int who, int ioprio)
 {
-        return syscall(SYS_ioprio_set, which, who, ioprio);
+#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_set)
+        return syscall(__NR_ioprio_set, which, who, ioprio);
+#else
+	(void)which;
+	(void)who;
+	(void)ioprio;
+
+	errno = ENOSYS;
+	return -1;
+#endif
 }
 
+/*
+ *  sys_ioprio_get()
+ *	ioprio_get system call
+ */
+int sys_ioprio_get(int which, int who)
+{
+#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_get)
+        return syscall(__NR_ioprio_get, which, who);
+#else
+	(void)which;
+	(void)who;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_set)
 /*
  *  set_iopriority()
  *	check ioprio settings and set
@@ -130,7 +138,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 		fprintf(stderr, "Unknown priority class: %d\n", class);
 		exit(EXIT_FAILURE);
 	}
-	rc = ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
+	rc = sys_ioprio_set(IOPRIO_WHO_PROCESS, 0, IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
 		fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
 			errno, strerror(errno));

@@ -78,6 +78,7 @@ STRESS_SRC = \
 	stress-hsearch.c \
 	stress-icache.c \
 	stress-inotify.c \
+	stress-ioprio.c \
 	stress-iosync.c \
 	stress-itimer.c \
 	stress-kcmp.c \
