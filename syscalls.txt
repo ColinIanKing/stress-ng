@@ -192,7 +192,7 @@ process_vm_writev		vm_rw
 pselect6
 ptrace				ptrace
 pwrite				readahead, aio
-pwritev
+pwritev				ioprio
 quotactl			quota
 read				pipe, zero, ..
 readahead			readahead
@@ -202,8 +202,8 @@ readlinkat
 readv				hdd
 reboot				[ need privilege, ignore for now ]
 recv				sock
-recvfrom
-recvmsg
+recvfrom			udp
+recvmsg				socket-fd
 recvmmsg
 remap_file_pages		remap
 removexattr
@@ -246,7 +246,7 @@ send				sock
 sendfile			sendfile
 sendmmsg			sock
 sendmsg				sock
-sendto
+sendto				udp
 set_mempolicy			numa
 set_robust_list
 set_thread_area
