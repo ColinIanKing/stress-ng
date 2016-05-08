@@ -32,7 +32,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/uio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
+#define MAX_IOV		(4)
+#define BUF_SIZE	(32)
 
 /*
  *  stress set/get io priorities
@@ -47,42 +53,71 @@ int stress_ioprio(
 	const pid_t pid = getpid();
 	const uid_t uid = getuid();
 	const pid_t pgrp = getpgrp();
+	int fd, rc = EXIT_FAILURE;
+	char filename[PATH_MAX];
 
-	(void)instance;
+	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		return rc;
+
+	(void)stress_temp_filename(filename, sizeof(filename),
+		name, pid, instance, mwc32());
+	        (void)umask(0077);
+	(void)umask(0077);
+	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
+		rc = exit_status(errno);
+		pr_fail_err(name, "open");
+		goto cleanup_dir;
+        }
+	(void)unlink(filename);
 
 	do {
 		int i;
+		struct iovec iov[MAX_IOV];
+		char buffer[MAX_IOV][BUF_SIZE];
 
 		if (sys_ioprio_get(IOPRIO_WHO_PROCESS, pid) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
 				"errno = %d (%s)\n",
 				name, pid, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto cleanup_file;
 		}
 		if (sys_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
 				"errno = %d (%s)\n",
 				name, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto cleanup_file;
 		}
 		if (sys_ioprio_get(IOPRIO_WHO_PGRP, pgrp) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
 				"errno = %d (%s)\n",
 				name, pgrp, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto cleanup_file;
 		}
 		if (sys_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, 0), "
 				"errno = %d (%s)\n",
 				name, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto cleanup_file;
 		}
 		if (sys_ioprio_get(IOPRIO_WHO_USER, uid) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_USR, %d), "
 				"errno = %d (%s)\n",
 				name, uid, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto cleanup_file;
 		}
+
+		for (i = 0; i < MAX_IOV; i++) {
+			memset(buffer[i], mwc8(), BUF_SIZE);
+			iov[i].iov_base = buffer[i];
+			iov[i].iov_len = BUF_SIZE;
+		}
+
+		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+			pr_fail_err(name, "pwritev");
+			goto cleanup_file;
+		}
+		(void)fsync(fd);
+
 		if (sys_ioprio_set(IOPRIO_WHO_PROCESS, pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
 			if (errno != EPERM) {
@@ -91,9 +126,16 @@ int stress_ioprio(
 					"(IOPRIO_CLASS_IDLE, 0)), "
 					"errno = %d (%s)\n",
 					name, pid, errno, strerror(errno));
-				return EXIT_FAILURE;
+				goto cleanup_file;
 			}
 		}
+
+		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+			pr_fail_err(name, "pwritev");
+			goto cleanup_file;
+		}
+		(void)fsync(fd);
+
 		for (i = 0; i < 8; i++) {
 			if (sys_ioprio_set(IOPRIO_WHO_PROCESS, pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, i)) < 0) {
@@ -103,9 +145,14 @@ int stress_ioprio(
 						"(IOPRIO_CLASS_BE, %d)), "
 						"errno = %d (%s)\n",
 						name, pid, i, errno, strerror(errno));
-					return EXIT_FAILURE;
+					goto cleanup_file;
 				}
 			}
+			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+				pr_fail_err(name, "pwritev");
+				goto cleanup_file;
+			}
+			(void)fsync(fd);
 		}
 		for (i = 0; i < 8; i++) {
 			if (sys_ioprio_set(IOPRIO_WHO_PROCESS, pid,
@@ -116,14 +163,26 @@ int stress_ioprio(
 						"(IOPRIO_CLASS_RT, %d)), "
 						"errno = %d (%s)\n",
 						name, pid, i, errno, strerror(errno));
-					return EXIT_FAILURE;
+					goto cleanup_file;
 				}
 			}
+			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+				pr_fail_err(name, "pwritev");
+				goto cleanup_file;
+			}
+			(void)fsync(fd);
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-	return EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
+
+cleanup_file:
+	(void)close(fd);
+cleanup_dir:
+	(void)stress_temp_dir_rm(name, pid, instance);
+
+	return rc;
 }
 
 #endif
