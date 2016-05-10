@@ -112,6 +112,7 @@ STRESS_SRC = \
 	stress-null.c \
 	stress-numa.c \
 	stress-oom-pipe.c \
+	stress-opcode.c \
 	stress-open.c \
 	stress-personality.c \
 	stress-pipe.c \

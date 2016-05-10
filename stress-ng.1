@@ -1645,6 +1645,15 @@ many large pipe buffer allocations.
 .B \-\-oom\-pipe\-ops N
 stop after N bogo pipe expand/shrink operations.
 .TP
+.B \-\-opcode N
+start N workers that fork off children that execute randomly generated
+executable code.  This will generate issues such as illegal instructions,
+bus errors, segmentation faults, traps, floating point errors that are
+handled gracefully by the stressor.
+.TP
+.B \-\-opcode\-ops N
+stop after N attempts to executate illegal code.
+.TP
 .B \-o N, \-\-open N
 start N workers that perform open(2) and then close(2) operations on
 /dev/zero. The maximum opens at one time is system defined, so the test will

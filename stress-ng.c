@@ -306,6 +306,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_OOM_PIPE)
 	STRESSOR(oom_pipe, OOM_PIPE, CLASS_MEMORY | CLASS_OS),
 #endif
+#if defined(STRESS_OPCODE)
+	STRESSOR(opcode, OPCODE, CLASS_CPU | CLASS_OS),
+#endif
 	STRESSOR(open, OPEN, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_PERSONALITY)
 	STRESSOR(personality, PERSONALITY, CLASS_OS),
@@ -801,6 +804,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_OOM_PIPE)
 	{ "oom-pipe",	1,	0,	OPT_OOM_PIPE },
 	{ "oom-pipe-ops",1,	0,	OPT_OOM_PIPE_OPS },
+#endif
+#if defined(STRESS_OPCODE)
+	{ "opcode",	1,	0,	OPT_OPCODE },
+	{ "opcode-ops",	1,	0,	OPT_OPCODE_OPS },
 #endif
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
@@ -1457,6 +1464,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_OOM_PIPE)
 	{ NULL,		"oom-pipe N",		"start N workers exercising large pipes" },
 	{ NULL,		"oom-pipe-ops N",	"stop after N oom-pipe bogo operations" },
+#endif
+#if defined(STRESS_OPCODE)
+	{ NULL,		"opcode N",		"start N workers exercising random opcodes" },
+	{ NULL,		"opcode-ops N",		"stop after N opcode bogo operations" },
 #endif
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop after N open/close bogo operations" },
