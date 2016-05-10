@@ -38,7 +38,8 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 
-#define PAGES	(16)
+#define PAGES		(16)
+#define TRACK_SIGCOUNT	(0)
 
 typedef void (*opfunc_t)(void);
 
@@ -83,14 +84,18 @@ static int sigs[] = {
 #define MAX_SIGS	(256)
 #endif
 
+#if TRACK_SIGCOUNT
 static uint64_t *sig_count;
+#endif
 
 static void MLOCKED stress_badhandler(int dummy)
 {
 	(void)dummy;
 
+#if TRACK_SIGCOUNT
 	if (dummy < MAX_SIGS)
 		sig_count[dummy]++;
+#endif
 	
 	_exit(1);
 }
@@ -108,16 +113,20 @@ int stress_opcode(
 	const size_t page_size = stress_get_pagesize();
 	int rc = EXIT_FAILURE;
 	size_t i;
+#if TRACK_SIGCOUNT
 	const size_t sig_count_size = MAX_SIGS * sizeof(uint64_t);
+#endif
 
 	(void)instance;
 
+#if TRACK_SIGCOUNT
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
                 pr_fail_dbg(name, "mmap");
                 return EXIT_NO_RESOURCE;
 	}
+#endif
 
 	do {
 		pid_t pid;
@@ -205,7 +214,7 @@ again:
 
 	rc = EXIT_SUCCESS;
 
-#if 0
+#if TRACK_SIGCOUNT
 	for (i = 0; i < MAX_SIGS; i++) {
 		if (sig_count[i]) {
 			pr_dbg(stderr, "%s: %-25.25s: %" PRIu64 "\n",
@@ -214,7 +223,9 @@ again:
 	}
 #endif
 err:
+#if TRACK_SIGCOUNT
 	(void)munmap(sig_count, sig_count_size);
+#endif
 	return rc;
 }
 
