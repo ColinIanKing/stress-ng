@@ -75,7 +75,6 @@ static int sigs[] = {
 #endif
 };
 
-
 #if defined(NSIG)
 #define MAX_SIGS	(NSIG)
 #elif defined(_NSIG)
@@ -139,13 +138,17 @@ again:
 		if (pid == 0) {
 			struct itimerval it;
 			uint8_t *opcodes, *ops_begin, *ops_end, *ops;
-			opfunc_t f;
+
+			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
+				if (stress_sighandler(name, sigs[i], stress_badhandler, NULL) < 0)
+				_exit(EXIT_FAILURE);
+			}
 
 			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
                 		pr_fail_dbg(name, "mmap");
-                		exit(EXIT_NO_RESOURCE);
+				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
 			memset(opcodes, 0x00, page_size * PAGES);
@@ -153,17 +156,16 @@ again:
 			ops_begin = opcodes + page_size;
 			ops_end = opcodes + (page_size * (PAGES - 1));
 
-			mprotect(opcodes, page_size, PROT_NONE);
-			mprotect(ops_end, page_size, PROT_NONE);
-			mprotect(ops_begin, page_size, PROT_WRITE);
+			(void)mprotect(opcodes, page_size, PROT_NONE);
+			(void)mprotect(ops_end, page_size, PROT_NONE);
+			(void)mprotect(ops_begin, page_size, PROT_WRITE);
 			for (ops = ops_begin; ops < ops_end; ops++) {
 				*ops = mwc32();
 			}
-			mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
+			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
 #if defined(__GNUC__)
 			__clear_cache((char *)ops_begin, (char *)ops_end);
 #endif
-			
 			setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
@@ -175,15 +177,12 @@ again:
 			it.it_interval.tv_usec = 10000;
 			it.it_value.tv_sec = 0;
 			it.it_value.tv_usec = 10000;
-			setitimer(ITIMER_REAL, &it, NULL);
-
-			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-				if (stress_sighandler(name, sigs[i], stress_badhandler, NULL) < 0)
-					goto err;
+			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
+				pr_fail_dbg(name, "setitimer");
+				_exit(EXIT_NO_RESOURCE);
 			}
 
-			f = (opfunc_t)(ops_begin + mwc8());
-			f();
+			((void (*)(void))(ops_begin + mwc8()))();
 
 			(void)munmap(opcodes, page_size * PAGES);
 			_exit(0);
