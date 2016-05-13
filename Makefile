@@ -148,6 +148,7 @@ STRESS_SRC = \
 	stress-spawn.c \
 	stress-splice.c \
 	stress-stack.c \
+	stress-stackmmap.c \
 	stress-str.c \
 	stress-stream.c \
 	stress-switch.c \

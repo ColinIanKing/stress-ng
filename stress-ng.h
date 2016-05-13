@@ -1154,6 +1154,10 @@ typedef enum {
 #define STRESS_SPLICE __STRESS_SPLICE
 #endif
 	STRESS_STACK,
+#if defined(__linux__)
+	__STRESS_STACKMMAP,
+#define STRESS_STACKMMAP __STRESS_STACKMMAP
+#endif
 	STRESS_STR,
 	STRESS_STREAM,
 	STRESS_SWITCH,
@@ -1867,6 +1871,11 @@ typedef enum {
 	OPT_STACK_OPS,
 	OPT_STACK_FILL,
 
+#if defined(STRESS_STACKMMAP)
+	OPT_STACKMMAP,
+	OPT_STACKMMAP_OPS,
+#endif
+
 	OPT_STR,
 	OPT_STR_OPS,
 	OPT_STR_METHOD,
@@ -2555,6 +2564,7 @@ STRESS(stress_sockpair);
 STRESS(stress_spawn);
 STRESS(stress_splice);
 STRESS(stress_stack);
+STRESS(stress_stackmmap);
 STRESS(stress_str);
 STRESS(stress_stream);
 STRESS(stress_switch);

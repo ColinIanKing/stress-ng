@@ -2027,6 +2027,15 @@ which forces physical pages to be allocated and hence is more aggressive.
 .B \-\-stack\-ops N
 stop stack stress workers after N bogo stack overflows.
 .TP
+.B \-\-stackmmap N
+start N workers that use a 2MB stack that is memory mapped onto a temporary
+file. A recursive function works down the stack and flushes dirty stack pages
+back to the memory mapped file using msync(2) until the end of the stack is
+reached (stack overflow). This exercises dirty page and stack exception handling.
+.TP
+.B \-\-stackmmap\-ops N
+stop workers after N stack overflows have occurred.
+.TP
 .B \-\-str N
 start N workers that exercise various libc string functions on random strings.
 .TP

@@ -386,6 +386,9 @@ static const stress_t stressors[] = {
 	STRESSOR(splice, SPLICE, CLASS_PIPE_IO | CLASS_OS),
 #endif
 	STRESSOR(stack, STACK, CLASS_VM | CLASS_MEMORY),
+#if defined(STRESS_STACKMMAP)
+	STRESSOR(stackmmap, STACKMMAP, CLASS_VM | CLASS_MEMORY),
+#endif
 	STRESSOR(str, STR, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(stream, STREAM, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
@@ -958,6 +961,10 @@ static const struct option long_options[] = {
 	{ "stack",	1,	0,	OPT_STACK},
 	{ "stack-fill",	0,	0,	OPT_STACK_FILL },
 	{ "stack-ops",	1,	0,	OPT_STACK_OPS },
+#if defined(STRESS_STACKMMAP)
+	{ "stackmmap",	1,	0,	OPT_STACKMMAP },
+	{ "stackmmap-ops",1,	0,	OPT_STACKMMAP_OPS },
+#endif
 	{ "str",	1,	0,	OPT_STR },
 	{ "str-ops",	1,	0,	OPT_STR_OPS },
 	{ "str-method",	1,	0,	OPT_STR_METHOD },
@@ -1602,6 +1609,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"stack N",		"start N workers generating stack overflows" },
 	{ NULL,		"stack-ops N",		"stop after N bogo stack overflows" },
 	{ NULL,		"stack-fill",		"fill stack, touches all new pages " },
+#if defined(STRESS_STACKMMAP)
+	{ NULL,		"stackmmap N",		"start N workers exercising a filebacked stack" },
+	{ NULL,		"stackmmap-ops N",	"stop after N bogo stackmmap operations" },
+#endif
 	{ NULL,		"str N",		"start N workers exercising lib C string functions" },
 	{ NULL,		"str-method func",	"specify the string function to stress" },
 	{ NULL,		"str-ops N",		"stop after N bogo string operations" },
