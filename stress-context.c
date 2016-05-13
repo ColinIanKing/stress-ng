@@ -94,9 +94,9 @@ int stress_context(
 	const uint64_t max_ops,
 	const char *name)
 {
-	char stack_thread1[STACK_SIZE],
-	     stack_thread2[STACK_SIZE],
-	     stack_thread3[STACK_SIZE];
+	char stack_thread1[STACK_SIZE] ALIGN64,
+	     stack_thread2[STACK_SIZE] ALIGN64,
+	     stack_thread3[STACK_SIZE] ALIGN64;
 
 	(void)instance;
 
