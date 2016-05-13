@@ -63,7 +63,7 @@ int stress_stack(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint8_t stack[SIGSTKSZ];
+	uint8_t stack[SIGSTKSZ] ALIGN64;
 	stack_t ss;
 	pid_t pid;
 
