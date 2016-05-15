@@ -1,3 +1,21 @@
+stress-ng (0.06.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile + stress-vecmath: add more smarts to detect gcc build failures
+  * stress-af-alg: don't fatally fail on bind on AF_ALG
+  * stress-af-alg: fix up error messages
+  * Add stackmmap stressor
+  * stress-stack: ensure signal handling stack is aligned
+  * stress-context: ensure stack is aligned to 64 byte boundaries
+  * stress-opcode: disable signal count tracking
+  * stress-opcode: clean up code a little
+  * Add opcode stressor
+  * update syscalls.txt
+  * stress-ioprio: perform some io writes to exercise i/o priorities
+  * Add ioprio stressor
+
+ -- Colin King <colin.king@canonical.com>  Sun, 15 May 2016 17:36:11 +0100
+
 stress-ng (0.06.01-1) unstable; urgency=medium
 
   * Makefile: bump version
