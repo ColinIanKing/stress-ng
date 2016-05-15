@@ -123,8 +123,8 @@ int stress_opcode(
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-                pr_fail_dbg(name, "mmap");
-                return EXIT_NO_RESOURCE;
+		pr_fail_dbg(name, "mmap");
+		return EXIT_NO_RESOURCE;
 	}
 #endif
 
@@ -156,7 +156,7 @@ again:
 			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
-                		pr_fail_dbg(name, "mmap");
+				pr_fail_dbg(name, "mmap");
 				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
@@ -179,7 +179,7 @@ again:
 			stress_parent_died_alarm();
 
 			/*
-			 * Force abort if the opcodes magically 
+			 * Force abort if the opcodes magically
 			 * do an infinite loop
 			 */
 			it.it_interval.tv_sec = 0;
