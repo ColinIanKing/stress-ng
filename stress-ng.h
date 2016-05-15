@@ -1211,7 +1211,7 @@ typedef enum {
 #define STRESS_USERFAULTFD __STRESS_USERFAULTFD
 #endif
 	STRESS_UTIME,
-#if defined(STRESS_VECTOR)
+#if defined(HAVE_VECMATH)
 	__STRESS_VECMATH,
 #define STRESS_VECMATH __STRESS_VECMATH
 #endif

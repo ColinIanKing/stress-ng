@@ -219,7 +219,8 @@ LIB_AIO = -laio
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
-	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0
+	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
+	 HAVE_VECMATH=0
 
 #
 # Do build time config only if cmd is "make" and no goals given
@@ -318,6 +319,13 @@ ifndef $(HAVE_SYS_CAP_H)
 HAVE_SYS_CAP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sys_cap_h)
 ifeq ($(HAVE_SYS_CAP_H),1)
 	CFLAGS += -DHAVE_SYS_CAP_H
+endif
+endif
+
+ifndef $(HAVE_VECMATH)
+HAVE_VECMATH = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_vecmath)
+ifeq ($(HAVE_VECMATH),1)
+	CFLAGS += -DHAVE_VECMATH
 endif
 endif
 endif
@@ -506,6 +514,19 @@ have_sys_cap_h:
 	@rm -f test-cap
 
 #
+#  check if we can build vecmath related code
+#
+have_vecmath: stress-vecmath.c
+	@$(CC) $(CPPFLAGS) -DHAVE_VECMATH -c -o stress-vecmath-test.o stress-vecmath.c 2> /dev/null || true
+	@if [ -e stress-vecmath-test.o ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf stress-vecmath-test.o
+
+
+#
 #  extract the PER_* personality enums
 #
 personality.h:
@@ -532,6 +553,11 @@ stress-str.o: stress-str.c
 stress-wcstr.o: stress-wcstr.c
 	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+
+stress-vecmath.o: stress-vecmath.c
+	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	touch stress-ng.c
 
 $(OBJS): stress-ng.h Makefile
 
