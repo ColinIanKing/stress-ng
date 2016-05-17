@@ -90,8 +90,9 @@ int stress_nice(
 				setpriority(PRIO_PROCESS, pid, i);
 				if (!errno) {
 					double start = time_now();
+					double delay = 0.05 + (double)mwc16() / 327680.0;
 
-					while (time_now() - start < 0.1)
+					while (time_now() - start < delay)
 						;
 					(*counter)++;
 				}
