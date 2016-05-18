@@ -45,13 +45,15 @@ static int stress_capget_pid(
 {
 	int ret;
 	struct __user_cap_header_struct uch;
-	struct __user_cap_data_struct ucd;
+	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
+
+	memset(&uch, 0, sizeof uch);
+	memset(ucd, 0, sizeof ucd);
 
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = pid;
 
-	memset(&ucd, 0, sizeof ucd);
-	ret = capget(&uch, &ucd);
+	ret = capget(&uch, ucd);
 	if (ret < 0) {
 		if (((errno == ESRCH) && exists) ||
 		    (errno != ESRCH)) {
