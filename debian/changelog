@@ -1,3 +1,12 @@
+stress-ng (0.06.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: remove gcc coverage build flags
+    - these were accidentally added in the previous release and not
+      removed
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 May 2016 19:16:45 +0100
+
 stress-ng (0.06.03-1) unstable; urgency=medium
 
   * Makefile: bump version
