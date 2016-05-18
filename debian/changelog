@@ -1,3 +1,12 @@
+stress-ng (0.06.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-cap: cap data needs _LINUX_CAPABILITY_U32S_3 elements in size
+  * stress-nice: add some randomness to the delay to unsync nicenesses
+  * stress-opcode: remove white spaces
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 May 2016 15:06:34 +0100
+
 stress-ng (0.06.02-1) unstable; urgency=medium
 
   * Makefile: bump version
