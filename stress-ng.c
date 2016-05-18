@@ -2350,9 +2350,9 @@ static void metrics_dump(
 {
 	int32_t i;
 
-	pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+	pr_inf(stdout, "%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
 		"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
-	pr_inf(stdout, "%-12s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+	pr_inf(stdout, "%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
 		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
 	pr_yaml(yaml, "metrics:\n");
 
@@ -2385,7 +2385,7 @@ static void metrics_dump(
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
 
-		pr_inf(stdout, "%-12s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
+		pr_inf(stdout, "%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
 			munged,			/* stress test name */
 			c_total,		/* op count */
 			r_total,	 	/* average real (wall) clock time */
