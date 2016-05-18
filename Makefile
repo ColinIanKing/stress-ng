@@ -16,12 +16,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.06.02
+VERSION=0.06.03
 #
 # Codename "pathological process pounder"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -fprofile-arcs -ftest-coverage
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
