@@ -21,7 +21,7 @@ VERSION=0.06.03
 # Codename "pathological process pounder"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -fprofile-arcs -ftest-coverage
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
