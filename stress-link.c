@@ -98,6 +98,7 @@ static int stress_link_generic(
 
 		for (i = 0; i < n; i++) {
 			char newpath[PATH_MAX];
+			struct stat stbuf;
 
 			(void)stress_temp_filename(newpath, sizeof(newpath),
 				name, pid, instance, i);
@@ -122,6 +123,10 @@ static int stress_link_generic(
 						if (strncmp(oldpath, buf, ret))
 							pr_fail_err(name, "readlink path error");
 				}
+			}
+			if (lstat(newpath, &stbuf) < 0) {
+				rc = exit_status(errno);
+				pr_fail_err(name, "lstat");
 			}
 
 			if (!opt_do_run ||
