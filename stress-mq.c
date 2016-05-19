@@ -63,6 +63,11 @@ void stress_set_mq_size(const char *optarg)
                 MIN_MQ_SIZE, MAX_MQ_SIZE);
 }
 
+static void stress_mq_notify_func(union sigval s)
+{
+	(void)s;
+}
+
 /*
  *  stress_mq
  *	stress POSIX message queues
@@ -140,7 +145,12 @@ again:
 	} else if (pid == 0) {
 		time_t time_start;
 		struct timespec abs_timeout;
+		struct sigevent sigev;
 		bool do_timedreceive;
+
+		sigev.sigev_notify = SIGEV_THREAD;
+		sigev.sigev_notify_function = stress_mq_notify_func;
+		sigev.sigev_notify_attributes = NULL;
 
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
@@ -159,6 +169,9 @@ again:
 
 			for (i = 0; ; i++) {
 				msg_t msg;
+
+				if (!(i & 1023))
+					mq_notify(mq, &sigev);
 
 				/*
 				 * toggle between timedreceive and receive

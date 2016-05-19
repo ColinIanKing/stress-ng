@@ -150,7 +150,7 @@ mmap				bigheap, mmap
 mmap2
 mprotect			mmap
 mq_getsetattr			mq
-mq_notify
+mq_notify			mq
 mq_open				mq
 mq_send				mq
 mq_timedreceive			mq
