@@ -1357,6 +1357,13 @@ stop the lsearch workers after N bogo lsearch operations are completed.
 specify the size (number of 32 bit integers) in the array to lsearch. Size can
 be from 1K to 4M.
 .TP
+.B \-\-madvise N
+start N workers that apply random madvise(2) advise settings on pages of
+a 4MB file backed shared memory mapping.
+.TP
+.B \-\-madvice\-ops N
+stop madvise stressors after N bogo madvise operations.
+.TP
 .B \-\-malloc N
 start N workers continuously calling malloc(3), calloc(3), realloc(3) and
 free(3). By default, up to 65536 allocations can be active at any point, but

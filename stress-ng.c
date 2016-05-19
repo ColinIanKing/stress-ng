@@ -264,6 +264,9 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(longjmp, LONGJMP, CLASS_CPU),
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+#if defined(STRESS_MADVISE)
+	STRESSOR(madvise, MADVISE, CLASS_VM | CLASS_OS),
+#endif
 	STRESSOR(malloc, MALLOC, CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS),
 	STRESSOR(matrix, MATRIX, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_CPU),
 #if defined(STRESS_MEMBARRIER)
@@ -721,6 +724,10 @@ static const struct option long_options[] = {
 	{ "lsearch",	1,	0,	OPT_LSEARCH },
 	{ "lsearch-ops",1,	0,	OPT_LSEARCH_OPS },
 	{ "lsearch-size",1,	0,	OPT_LSEARCH_SIZE },
+#if defined(STRESS_MADVISE)
+	{ "madvise",	1,	0,	OPT_MADVISE },
+	{ "madvise-ops",1,	0,	OPT_MADVISE_OPS },
+#endif
 	{ "malloc",	1,	0,	OPT_MALLOC },
 	{ "malloc-bytes",1,	0,	OPT_MALLOC_BYTES },
 	{ "malloc-max",	1,	0,	OPT_MALLOC_MAX },
@@ -1392,6 +1399,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"lsearch N",		"start N workers that exercise a linear search" },
 	{ NULL,		"lsearch-ops N",	"stop after N linear search bogo operations" },
 	{ NULL,		"lsearch-size N",	"number of 32 bit integers to lsearch" },
+#if defined(STRESS_MADVISE)
+	{ NULL,		"madvise N",		"start N workers exercising madvise on memory" },
+	{ NULL,		"madvise-ops N",	"stop after N bogo madvise operations" },
+#endif
 	{ NULL,		"malloc N",		"start N workers exercising malloc/realloc/free" },
 	{ NULL,		"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,		"malloc-max N",		"keep up to N allocations at a time" },

@@ -130,7 +130,7 @@ lremovexattr
 lseek				hdd, lockf, mmap, seek
 lsetxattr
 lstat				fstat
-madvise				mmap, vm
+madvise				mmap, vm, madvise
 mbind				numa
 membarrier			membarrier
 memfd_create			memfd

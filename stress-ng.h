@@ -986,6 +986,10 @@ typedef enum {
 #endif
 	STRESS_LONGJMP,
 	STRESS_LSEARCH,
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
+	__STRESS_MADVISE,
+#define STRESS_MADVISE __STRESS_MADVISE
+#endif
 	STRESS_MALLOC,
 	STRESS_MATRIX,
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_membarrier)
@@ -1582,6 +1586,11 @@ typedef enum {
 	OPT_LSEARCH,
 	OPT_LSEARCH_OPS,
 	OPT_LSEARCH_SIZE,
+
+#if defined(STRESS_MADVISE)
+	OPT_MADVISE,
+	OPT_MADVISE_OPS,
+#endif
 
 	OPT_MALLOC,
 	OPT_MALLOC_OPS,
@@ -2507,6 +2516,7 @@ STRESS(stress_lockbus);
 STRESS(stress_lockf);
 STRESS(stress_longjmp);
 STRESS(stress_lsearch);
+STRESS(stress_madvise);
 STRESS(stress_malloc);
 STRESS(stress_matrix);
 STRESS(stress_membarrier);
