@@ -154,7 +154,7 @@ mq_notify			mq
 mq_open				mq
 mq_send				mq
 mq_timedreceive			mq
-mq_timedsend
+mq_timedsend			mq
 mq_unlink			mq
 mq_receive			mq
 mq_close			mq
