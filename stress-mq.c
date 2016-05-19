@@ -84,6 +84,9 @@ int stress_mq(
 	FILE *fp;
 	struct mq_attr attr;
 	char mq_name[64];
+	bool do_timed;
+	time_t time_start;
+	struct timespec abs_timeout;
 
 	if (!set_mq_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -135,6 +138,16 @@ int stress_mq(
 	pr_dbg(stderr, "POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);
 
+	if (time(&time_start) == ((time_t)-1)) {
+		do_timed = false;
+		pr_fail_dbg(name, "mq_timed send and receive skipped, can't get time");
+	} else {
+		do_timed = true;
+		abs_timeout.tv_sec = time_start + opt_timeout + 1;
+		abs_timeout.tv_nsec = 0;
+	}
+
+
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -143,10 +156,7 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		time_t time_start;
-		struct timespec abs_timeout;
 		struct sigevent sigev;
-		bool do_timedreceive;
 
 		sigev.sigev_notify = SIGEV_THREAD;
 		sigev.sigev_notify_function = stress_mq_notify_func;
@@ -155,20 +165,13 @@ again:
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		if (time(&time_start) == ((time_t)-1)) {
-			do_timedreceive = false;
-			pr_fail_dbg(name, "mq_timedreceive skipped");
-		} else {
-			do_timedreceive = true;
-			abs_timeout.tv_sec = time_start + opt_timeout + 1;
-			abs_timeout.tv_nsec = 0;
-		}
-
 		while (opt_do_run) {
-			uint64_t i;
+			uint64_t i = 0;
 
-			for (i = 0; ; i++) {
+			for (;;) {
 				msg_t msg;
+				int ret;
+				const uint64_t timed = (i & 1);
 
 				if (!(i & 1023))
 					mq_notify(mq, &sigev);
@@ -176,16 +179,14 @@ again:
 				/*
 				 * toggle between timedreceive and receive
 				 */
-				if (do_timedreceive && !(i & 1)) {
-					if (mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout) < 0) {
-						pr_fail_dbg(name, "mq_timedreceive");
-						break;
-					}
-				} else {
-					if (mq_receive(mq, (char *)&msg, sizeof(msg), NULL) < 0) {
-						pr_fail_dbg(name, "mq_receive");
-						break;
-					}
+				if (do_timed && (timed))
+					ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout);
+				else
+					ret = mq_receive(mq, (char *)&msg, sizeof(msg), NULL);
+
+				if (ret < 0) {
+					pr_fail_dbg(name, timed ? "mq_timedreceive" : "mq_receive");
+					break;
 				}
 				if (msg.stop)
 					break;
@@ -197,10 +198,12 @@ again:
 							name, i, msg.value);
 					}
 				}
+				i++;
 			}
 			exit(EXIT_SUCCESS);
 		}
 	} else {
+		uint64_t i = 0;
 		int status;
 		int attr_count = 0;
 		msg_t msg;
@@ -209,6 +212,9 @@ again:
 		setpgid(pid, pgrp);
 
 		do {
+			int ret;
+			const uint64_t timed = (i & 1);
+
 			memset(&msg, 0, sizeof(msg));
 			msg.value = (*counter);
 			msg.stop = false;
@@ -219,11 +225,20 @@ again:
 					pr_fail_dbg(name, "mq_getattr");
 			}
 
-			if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
+			/*
+			 * toggle between timedsend and send
+			 */
+			if (do_timed && (timed))
+				ret = mq_timedsend(mq, (char *)&msg, sizeof(msg), 1, &abs_timeout);
+			else
+				ret = mq_send(mq, (char *)&msg, sizeof(msg), 1);
+
+			if (ret < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, "mq_send");
+					pr_fail_dbg(name, timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
+			i++;
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
