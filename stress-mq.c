@@ -158,6 +158,7 @@ again:
 	} else if (pid == 0) {
 		struct sigevent sigev;
 
+		memset(&sigev, 0, sizeof sigev);
 		sigev.sigev_notify = SIGEV_THREAD;
 		sigev.sigev_notify_function = stress_mq_notify_func;
 		sigev.sigev_notify_attributes = NULL;
