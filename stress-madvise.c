@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MADVISE)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,8 +39,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "stress-ng.h"
 
 #define NO_MEM_RETRIES_MAX	(256)
 
@@ -230,3 +232,5 @@ int stress_madvise(
 			name, sigbus_count);
 	return EXIT_SUCCESS;
 }
+
+#endif
