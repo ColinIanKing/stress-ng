@@ -47,6 +47,9 @@ int stress_dup(
 	int fds[STRESS_FD_MAX];
 	const size_t max_fd = stress_get_file_limit();
 	size_t i;
+#if defined(__linux__)
+	bool do_dup3 = true;
+#endif
 
 	(void)instance;
 
@@ -61,7 +64,23 @@ int stress_dup(
 			fds[i] = dup(fds[0]);
 			if (fds[i] < 0)
 				break;
+#if defined(__linux__)
+			if (do_dup3 && (mwc32() & 1)) {
+				int fd;
+
+				fd = dup3(fds[0], fds[i], O_CLOEXEC);
+				/* No dup3 support? then fallback to dup2 */
+				if ((fd < 0) && (errno == ENOSYS)) {
+					fd = dup2(fds[0], fds[i]);
+					do_dup3 = false;
+				}
+				fds[i] = fd;
+			} else {
+				fds[i] = dup2(fds[0], fds[i]);
+			}
+#else
 			fds[i] = dup2(fds[0], fds[i]);
+#endif
 			if (fds[i] < 0)
 				break;
 			if (!opt_do_run)

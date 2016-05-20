@@ -26,7 +26,7 @@ connect				sock
 creat				chmod
 dup				dup
 dup2				dup
-dup3
+dup3				dup
 endmntent			sysinfo
 epoll_create
 epoll_create1			epoll
