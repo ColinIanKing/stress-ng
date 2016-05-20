@@ -290,6 +290,30 @@ static int stress_shm_sysv_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+#if defined(IPC_STAT)
+			{
+				struct shmid_ds ds;
+
+				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
+					pr_fail_dbg(name, "shmctl IPC_STAT");
+			}
+#endif
+#if defined(IPC_INFO)
+			{
+				struct shminfo s;
+
+				if (shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0)
+					pr_fail_dbg(name, "semctl IPC_INFO");
+			}
+#endif
+#if defined(SHM_INFO)
+			{
+				struct shm_info s;
+
+				if (shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0)
+					pr_fail_dbg(name, "semctl SHM_INFO");
+			}
+#endif
 			(*counter)++;
 		}
 reap:
