@@ -558,7 +558,7 @@ stress-wcstr.o: stress-wcstr.c
 stress-vecmath.o: stress-vecmath.c
 	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-	touch stress-ng.c
+	@touch stress-ng.c
 
 $(OBJS): stress-ng.h Makefile
 
