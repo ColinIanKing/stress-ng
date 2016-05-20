@@ -177,7 +177,7 @@ pause				kcmp
 perf_event_open			--perf option
 personality			personality
 pipe				pipe, switch, etc
-pipe2
+pipe2				pipe
 pivot_root			[ need privilege, ignore for now ]
 poll				poll
 posix_fallocate			fallocate
