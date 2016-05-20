@@ -64,6 +64,18 @@ static key_serial_t sys_add_key(
 		description, payload, plen, keyring);
 }
 
+#if defined(__NR_request_key)
+static key_serial_t sys_request_key(
+	const char *type,
+	const char *description,
+	const char *callout_info,
+	key_serial_t keyring)
+{
+	return (key_serial_t)syscall(__NR_request_key,
+		type, description, callout_info, keyring);
+}
+#endif
+
 /*
  *  stress_key
  *	stress key operations
@@ -136,6 +148,17 @@ int stress_key(
 			if (!opt_do_run)
 				break;
 #endif
+
+#if defined(__NR_request_key)
+			snprintf(description, sizeof(description),
+				"stress-ng-key-%u-%" PRIu32
+				"-%zu", ppid, instance, i);
+			if (sys_request_key("user", description, NULL,
+				KEY_SPEC_PROCESS_KEYRING) < 0) {
+				pr_fail_err(name, "request_key");
+			}
+#endif
+
 
 #if defined(KEYCTL_CHOWN)
 			(void)sys_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);

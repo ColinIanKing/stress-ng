@@ -209,7 +209,7 @@ remap_file_pages		remap
 removexattr
 rename				rename
 renameat
-request_key
+request_key			key
 restart_syscall			[ ignore this ]
 rmdir				dir
 rt_sigaction
