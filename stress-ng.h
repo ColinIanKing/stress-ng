@@ -858,6 +858,7 @@ typedef enum {
 #endif
 	STRESS_CHDIR,
 	STRESS_CHMOD,
+	STRESS_CHOWN,
 #if defined(HAVE_LIB_RT) && _POSIX_C_SOURCE >= 199309L
 	__STRESS_CLOCK,
 #define STRESS_CLOCK __STRESS_CLOCK
@@ -1367,6 +1368,9 @@ typedef enum {
 
 	OPT_CHMOD,
 	OPT_CHMOD_OPS,
+
+	OPT_CHOWN,
+	OPT_CHOWN_OPS,
 
 #if defined(STRESS_CLOCK)
 	OPT_CLOCK,
@@ -2468,6 +2472,7 @@ STRESS(stress_cache);
 STRESS(stress_cap);
 STRESS(stress_chdir);
 STRESS(stress_chmod);
+STRESS(stress_chown);
 STRESS(stress_clock);
 STRESS(stress_clone);
 STRESS(stress_context);

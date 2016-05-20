@@ -164,6 +164,7 @@ static const stress_t stressors[] = {
 #endif
 	STRESSOR(chdir, CHDIR, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(chmod, CHMOD, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(chown, CHOWN, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_CLOCK)
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 #endif
@@ -540,6 +541,8 @@ static const struct option long_options[] = {
 	{ "chdir-ops",	1,	0, 	OPT_CHDIR_OPS },
 	{ "chmod",	1,	0, 	OPT_CHMOD },
 	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
+	{ "chown",	1,	0, 	OPT_CHOWN},
+	{ "chown-ops",	1,	0,	OPT_CHOWN_OPS },
 	{ "class",	1,	0,	OPT_CLASS },
 #if defined(STRESS_CLOCK)
 	{ "clock",	1,	0,	OPT_CLOCK },
@@ -1224,6 +1227,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
+	{ NULL,		"chown N",		"start N workers thrashing chown file ownership" },
+	{ NULL,		"chown-ops N",		"stop chown workers after N bogo operations" },
 #if defined(STRESS_CLOCK)
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },

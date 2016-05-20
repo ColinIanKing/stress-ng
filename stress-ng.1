@@ -466,6 +466,13 @@ single file.  The stressor will work through all the combination of mode bits.
 .B \-\-chmod\-ops N
 stop after N chmod bogo operations.
 .TP
+.B \-\-chown N
+start N workers that exercise chown(2) on the same file. The greater the
+value for N then the more contention on the single file.
+.TP
+.B \-\-chown\-ops N
+stop the chown workers after N bogo chown(2) operations.
+.TP
 .B \-\-clock N
 start N workers exercising clocks and POSIX timers. For all known clock types
 this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2).

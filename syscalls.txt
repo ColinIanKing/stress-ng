@@ -13,7 +13,7 @@ capget				cap
 capset				[ need privilege, ignore for now ]
 chdir				chdir
 chmod				chmod
-chown
+chown				chown
 chroot
 clock_adjtime
 clock_getres			clock
@@ -47,7 +47,7 @@ fanotify_mark			[ need privilege, ignore for now ]
 fchdir
 fchmod				chmod
 fchmodat
-fchown
+fchown				chown
 fchownat
 fcntl				open, lockf, fcntl
 fdatasync			hdd
