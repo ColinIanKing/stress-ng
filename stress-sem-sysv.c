@@ -119,6 +119,8 @@ static void semaphore_sysv_thrash(
 	const uint64_t max_ops,
 	uint64_t *counter)
 {
+	const int sem_id = shared->sem_sysv.sem_id;
+
 	do {
 		int i;
 		struct timespec timeout;
@@ -140,7 +142,7 @@ static void semaphore_sysv_thrash(
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
-			if (semtimedop(shared->sem_sysv.sem_id, &semwait, 1, &timeout) < 0) {
+			if (semtimedop(sem_id, &semwait, 1, &timeout) < 0) {
 				if (errno == EAGAIN) {
 					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
 						errno, strerror(errno));
@@ -151,7 +153,7 @@ static void semaphore_sysv_thrash(
 				break;
 			}
 			(*counter)++;
-			if (semop(shared->sem_sysv.sem_id, &semsignal, 1) < 0) {
+			if (semop(sem_id, &semsignal, 1) < 0) {
 				if (errno != EINTR)
 					pr_fail_dbg(name, "semop signal");
 				break;
@@ -160,6 +162,62 @@ timed_out:
 			if (!opt_do_run)
 				break;
 		}
+#if defined(IPC_STAT)
+		{
+			struct semid_ds ds;
+			semun_t s;
+
+			s.buf = &ds;
+			if (semctl(sem_id, 0, IPC_STAT, &s) < 0)
+				pr_fail_dbg(name, "semctl IPC_STAT");
+		}
+#endif
+#if defined(SEM_STAT)
+		{
+			struct semid_ds ds;
+			semun_t s;
+
+			s.buf = &ds;
+			if (semctl(sem_id, 0, SEM_STAT, &s) < 0)
+				pr_fail_dbg(name, "semctl SEM_STAT");
+		}
+#endif
+#if defined(IPC_INFO)
+		{
+			struct seminfo si;
+			semun_t s;
+
+			s.__buf = &si;
+			if (semctl(sem_id, 0, IPC_INFO, &s) < 0)
+				pr_fail_dbg(name, "semctl IPC_INFO");
+		}
+#endif
+#if defined(SEM_INFO)
+		{
+			struct seminfo si;
+			semun_t s;
+
+			s.__buf = &si;
+			if (semctl(sem_id, 0, SEM_INFO, &s) < 0)
+				pr_fail_dbg(name, "semctl SEM_INFO");
+		}
+#endif
+#if defined(GETVAL)
+		if (semctl(sem_id, 0, GETVAL) < 0)
+			pr_fail_dbg(name, "semctl GETVAL");
+#endif
+#if defined(GETPID)
+		if (semctl(sem_id, 0, GETPID) < 0)
+			pr_fail_dbg(name, "semctl GETPID");
+#endif
+#if defined(GETNCNT)
+		if (semctl(sem_id, 0, GETNCNT) < 0)
+			pr_fail_dbg(name, "semctl GETNCNT");
+#endif
+#if defined(GEZCNT)
+		if (semctl(sem_id, 0, GETZCNT) < 0)
+			pr_fail_dbg(name, "semctl GETZCNT");
+#endif
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 }
 
