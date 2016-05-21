@@ -508,7 +508,7 @@ typedef struct {
 } perf_scale_t;
 
 static perf_scale_t perf_scale[] = {
-	{ THOUSAND,		1.0,		"sec" },
+	{ THOUSAND,		1.0,		"/sec" },
 	{ 100 * THOUSAND,	THOUSAND,	"K/sec" },
 	{ 100 * MILLION,	MILLION,	"M/sec" },
 	{ 100 * BILLION,	BILLION,	"B/sec" },
