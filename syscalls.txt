@@ -237,7 +237,7 @@ select				poll
 semctl				sem-sysv
 semget				sem-sysv
 semop				sem-sysv
-semtimedop
+semtimedop			sem
 sem_destroy			sem
 sem_init			sem
 sem_post			sem
