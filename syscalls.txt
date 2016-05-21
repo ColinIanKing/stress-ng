@@ -10,7 +10,7 @@ alarm				generic run duration timers
 bind				sock
 brk				bigheap, brk
 capget				cap
-capset				[ need privilege, ignore for now ]
+capset				cap
 chdir				chdir
 chmod				chmod
 chown				chown

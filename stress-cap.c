@@ -37,9 +37,10 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-static int stress_capget_pid(
+static int stress_capgetset_pid(
 	const char *name,
 	const pid_t pid,
+	const bool do_set,
 	uint64_t *counter,
 	const bool exists)
 {
@@ -61,6 +62,18 @@ static int stress_capget_pid(
 				name, pid, errno, strerror(errno));
 		}
 	}
+
+	if (do_set) {
+		ret = capset(&uch, ucd);
+		if (ret < 0) {
+			if (((errno == ESRCH) && exists) ||
+			    (errno != ESRCH)) {
+				pr_fail(stderr, "%s: capget on pid %d failed: errno=%d (%s)\n",
+					name, pid, errno, strerror(errno));
+			}
+		}
+	}
+
 	(*counter)++;
 
 	return ret;
@@ -84,13 +97,13 @@ int stress_cap(
 	do {
 		DIR *dir;
 
-		stress_capget_pid(name, 1, counter, true);
+		stress_capgetset_pid(name, 1, false, counter, true);
 		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
-		stress_capget_pid(name, pid, counter, true);
+		stress_capgetset_pid(name, pid, true, counter, true);
 		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
-		stress_capget_pid(name, ppid, counter, false);
+		stress_capgetset_pid(name, ppid, false, counter, false);
 		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
 
@@ -105,7 +118,7 @@ int stress_cap(
 					continue;
 				if (sscanf(d->d_name, "%u", &p) != 1)
 					continue;
-				stress_capget_pid(name, p, counter, false);
+				stress_capgetset_pid(name, p, false, counter, false);
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
 			}
