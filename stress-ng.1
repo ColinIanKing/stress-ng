@@ -1742,6 +1742,13 @@ ptrace(2).
 .B \-\-ptrace\-ops N
 stop ptracer workers after N bogo system calls are traced.
 .TP
+.B \-\-pty N
+start N workers that repeatedly attempt to open 65536 pseudoterminals and
+perform various pty ioctls upon the ptys before closing them.
+.TP
+.B \-\-pty\-ops N
+stop pty workers after N pty bogo operations.
+.TP
 .B \-Q, \-\-qsort N
 start N workers that sort 32 bit integers using qsort.
 .TP

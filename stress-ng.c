@@ -328,6 +328,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_PTRACE)
 	STRESSOR(ptrace, PTRACE, CLASS_OS),
 #endif
+#if defined(STRESS_PTY)
+	STRESSOR(pty, PTY, CLASS_OS),
+#endif
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_QUOTA)
 	STRESSOR(quota, QUOTA, CLASS_OS),
@@ -855,6 +858,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_PTRACE)
 	{ "ptrace",	1,	0,	OPT_PTRACE },
 	{ "ptrace-ops",1,	0,	OPT_PTRACE_OPS },
+#endif
+#if defined(STRESS_PTY)
+	{ "pty",	1,	0,	OPT_PTY },
+	{ "pty-ops",	1,	0,	OPT_PTY_OPS },
 #endif
 	{ "qsort",	1,	0,	OPT_QSORT },
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
@@ -1518,6 +1525,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_PTRACE)
 	{ NULL,		"ptrace N",		"start N workers that trace a child using ptrace" },
 	{ NULL,		"ptrace-ops N",		"stop ptrace workers after N system calls are traced" },
+#endif
+#if defined(STRESS_PTY)
+	{ NULL,		"pty N",		"start N workers that exercise pseudoterminals" },
+	{ NULL,		"pty-ops N",		"stop pty workers after N pty bogo operations" },
 #endif
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop after N qsort bogo operations" },

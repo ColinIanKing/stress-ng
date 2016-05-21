@@ -1075,6 +1075,10 @@ typedef enum {
 	__STRESS_PTRACE,
 #define STRESS_PTRACE __STRESS_PTRACE
 #endif
+#if defined(__linux__)
+	__STRESS_PTY,
+#define STRESS_PTY __STRESS_PTY
+#endif
 	STRESS_QSORT,
 #if defined(__linux__) && (		\
     defined(Q_GETQUOTA) ||		\
@@ -1744,6 +1748,11 @@ typedef enum {
 
 	OPT_PTRACE,
 	OPT_PTRACE_OPS,
+
+#if defined(STRESS_PTY)
+	OPT_PTY,
+	OPT_PTY_OPS,
+#endif
 
 	OPT_QSORT,
 	OPT_QSORT_OPS,
@@ -2551,6 +2560,7 @@ STRESS(stress_poll);
 STRESS(stress_procfs);
 STRESS(stress_pthread);
 STRESS(stress_ptrace);
+STRESS(stress_pty);
 STRESS(stress_qsort);
 STRESS(stress_quota);
 STRESS(stress_rdrand);

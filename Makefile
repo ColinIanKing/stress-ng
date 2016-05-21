@@ -122,6 +122,7 @@ STRESS_SRC = \
 	stress-procfs.c \
 	stress-pthread.c \
 	stress-ptrace.c \
+	stress-pty.c \
 	stress-quota.c \
 	stress-qsort.c \
 	stress-rdrand.c \
