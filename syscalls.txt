@@ -107,7 +107,7 @@ io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
 io_submit			aiol
-ioctl				[ need privilege, ignore for now ]
+ioctl				pty, fiemap, rtc, urandom, userfaultfd
 ioperm				ditto
 iopl				ditto
 ioprio_get			ioprio
