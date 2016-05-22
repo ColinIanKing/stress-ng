@@ -174,7 +174,7 @@ nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
 openat				io
-pause				kcmp
+pause				kcmp, wait
 perf_event_open			--perf option
 personality			personality
 pipe				pipe, switch, etc
