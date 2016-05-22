@@ -24,15 +24,41 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#if defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)
+#if defined(__linux__)
+#include <sys/syscall.h>
+#ifndef ICACHE
+#define	ICACHE	(1 << 0)
+#endif
+#ifndef DCACHE
+#define DCACHE	(1 << 1)
+#endif
+#if defined(_POSIX_PRIORITY_SCHEDULING)
 #include <sched.h>
 #endif
+#endif
 
-#include "stress-ng.h"
+#if defined(__linux__) && defined(__NR_cacheflush)
+static inline int sys_cacheflush(char *addr, int nbytes, int cache)
+{
+	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
+}
+#else
+static inline int sys_cacheflush(char *addr, int nbytes, int cache)
+{
+	(void)addr;
+	(void)nbytes;
+	(void)cache;
+
+	errno = ENOSYS;
+	return -1;
+}
+#endif
 
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
@@ -171,6 +197,8 @@ int stress_cache(
 
 		}
 #endif
+		sys_cacheflush((char *)stress_cache, 8192, ICACHE);
+		sys_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 

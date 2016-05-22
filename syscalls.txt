@@ -9,6 +9,7 @@ adjtimex			get (modes = 0 only)
 alarm				generic run duration timers
 bind				sock
 brk				bigheap, brk
+cacheflush			cache
 capget				cap
 capset				cap
 chdir				chdir
