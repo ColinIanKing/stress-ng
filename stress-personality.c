@@ -59,7 +59,8 @@ int stress_personality(
 		pr_inf(stderr, "%s: no personalities to stress test\n", name);
 		return EXIT_FAILURE;
 	}
-	pr_dbg(stderr, "%s: exercising %zu personalities\n", name, n);
+	if (instance == 0)
+		pr_dbg(stderr, "%s: exercising %zu personalities\n", name, n);
 
 	do {
 		size_t i, fails = 0;
