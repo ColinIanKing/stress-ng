@@ -108,21 +108,34 @@ static inline int handle_page_fault(
 	uint8_t *data_end,
 	size_t page_size)
 {
-	struct uffdio_copy copy;
-
 	if ((addr < data_start) || (addr >= data_end)) {
 		pr_fail_err(name, "userfaultfd page fault address out of range");
 		return -1;
 	}
-	copy.copy = 0;
-	copy.mode = 0;
-	copy.dst = (unsigned long)addr;
-	copy.src = (unsigned long)zero_page;
-	copy.len = page_size;
 
-	if (ioctl(fd, UFFDIO_COPY, &copy) < 0) {
-		pr_fail_err(name, "userfaultfd page fault copy ioctl failed");
-		return -1;
+	if (mwc32() & 1) {
+		struct uffdio_copy copy;
+
+		copy.copy = 0;
+		copy.mode = 0;
+		copy.dst = (unsigned long)addr;
+		copy.src = (unsigned long)zero_page;
+		copy.len = page_size;
+
+		if (ioctl(fd, UFFDIO_COPY, &copy) < 0) {
+			pr_fail_err(name, "userfaultfd page fault copy ioctl failed");
+			return -1;
+		}
+	} else {
+		struct uffdio_zeropage zeropage;
+
+		zeropage.range.start = (unsigned long)addr;
+		zeropage.range.len = page_size;
+		zeropage.mode = 0;
+		if (ioctl(fd, UFFDIO_ZEROPAGE, &zeropage) < 0) {
+			pr_fail_err(name, "userfaultfd page fault zeropage ioctl failed");
+			return -1;
+		}
 	}
 	return 0;
 }
@@ -143,6 +156,7 @@ int stress_userfaultfd(
 	void *zero_page = NULL;
 	int fd, status, rc = EXIT_SUCCESS;
 	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
+	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
 	pid_t pid;
 	struct uffdio_api api;
 	struct uffdio_register reg;
@@ -222,6 +236,13 @@ int stress_userfaultfd(
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
+	/* OK, so do we have zeropage supported? */
+	if ((reg.ioctls & uffdio_zeropage) != uffdio_zeropage) {
+		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
+			name);
+		rc = EXIT_FAILURE;
+		goto unmap_data;
+	}
 
 	/* Set up context for child */
 	c.name = name;
@@ -268,7 +289,7 @@ int stress_userfaultfd(
 		}
 		/* We only expect a write fault */
 		if (!(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WRITE)) {
-			pr_fail_err(name, "userfaultfd msg not write pahge fault event");
+			pr_fail_err(name, "userfaultfd msg not write page fault event");
 			continue;
 		}
 		/* Go handle the page fault */
