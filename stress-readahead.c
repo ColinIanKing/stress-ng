@@ -125,9 +125,7 @@ int stress_readahead(
 	}
 	(void)unlink(filename);
 
-#if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
-    defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
-    defined(POSIX_FADV_DONTNEED)) && !defined(__gnu_hurd__)
+#if defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, opt_readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
 		pr_fail_err(name, "posix_fadvise");
 		goto close_finish;
