@@ -1891,6 +1891,8 @@ static void MLOCKED stress_sigint_handler(int dummy)
 	opt_sigint = true;
 	opt_do_run = false;
 	opt_do_wait = false;
+
+	kill(-getpid(), SIGALRM);
 }
 
 static void MLOCKED stress_sigalrm_child_handler(int dummy)
@@ -1912,6 +1914,8 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 static int stress_sethandler(const char *stress, const bool child)
 {
 	if (stress_sighandler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
+		return -1;
+	if (stress_sighandler(stress, SIGHUP, stress_sigint_handler, NULL) < 0)
 		return -1;
 
 	if (stress_sighandler(stress, SIGALRM,
