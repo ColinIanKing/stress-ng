@@ -143,6 +143,18 @@ re_read:
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
 			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", name);
 		}
+#if defined(SEEK_END)
+		if (lseek(fd, 0, SEEK_END) < 0) {
+			if (errno != EINVAL)
+				pr_fail_err(name, "lseek SEEK_END");
+		}
+#endif
+#if defined(SEEK_CUR)
+		if (lseek(fd, 0, SEEK_CUR) < 0) {
+			if (errno != EINVAL)
+				pr_fail_err(name, "lseek SEEK_CUR");
+		}
+#endif
 #if defined(SEEK_HOLE)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
