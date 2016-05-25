@@ -32,6 +32,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <inttypes.h>
 #include <libgen.h>
@@ -39,6 +40,7 @@
 #include <time.h>
 #include <math.h>
 #include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if defined(__linux__)
@@ -177,6 +179,25 @@ void stress_get_memlimits(
 	fclose(fp);
 #endif
 }
+
+/*
+ *  stress_set_nonblock()
+ *	try to make fd non-blocking
+ */
+int stress_set_nonblock(const int fd)
+{
+	int flags;
+#if defined(O_NONBLOCK)
+
+	if ((flags = fcntl(fd, F_GETFL, 0)) < 0)
+		flags = 0;
+	return fcntl(fd, F_SETFL, O_NONBLOCK | flags);
+#else
+	flags = 1;
+	return ioctl(fd, FIOBIO, &flags);
+#endif
+}
+
 
 /*
  *  stress_get_load_avg()
