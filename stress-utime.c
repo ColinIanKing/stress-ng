@@ -68,6 +68,9 @@ int stress_utime(
 
 	do {
 		struct timeval times[2], *t;
+#if defined(__linux__)
+		struct timespec ts;
+#endif
 
 		if (gettimeofday(&times[0], NULL) < 0) {
 			t = NULL;
@@ -82,6 +85,22 @@ int stress_utime(
 		}
 #if defined(__linux__)
 		if (futimens(fd, NULL) < 0) {
+			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		}
+
+		ts.tv_sec = UTIME_NOW;
+		ts.tv_nsec = UTIME_NOW;
+		if (futimens(fd, &ts) < 0) {
+			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+				name, errno, strerror(errno));
+			break;
+		}
+
+		ts.tv_sec = UTIME_OMIT;
+		ts.tv_nsec = UTIME_OMIT;
+		if (futimens(fd, &ts) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));
 			break;
