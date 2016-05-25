@@ -32,7 +32,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <poll.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
@@ -161,6 +164,7 @@ int stress_userfaultfd(
 	struct uffdio_api api;
 	struct uffdio_register reg;
 	context_t c;
+	bool do_poll = true;
 
 	/* Child clone stack */
 	static uint8_t stack[STACK_SIZE];
@@ -199,6 +203,9 @@ int stress_userfaultfd(
 			name, errno, strerror(errno));
 		goto unmap_data;
 	}
+
+	if (stress_set_nonblock(fd) < 0)
+		do_poll = false;
 
 	/* API sanity check */
 	memset(&api, 0, sizeof(api));
@@ -269,11 +276,47 @@ int stress_userfaultfd(
 	do {
 		struct uffd_msg msg;
 		ssize_t ret;
-	
+
 		/* check we should break out before we block on the read */
 		if (!opt_do_run)
 			break;
 
+		/*
+		 * polled wait exercises userfaultfd_poll
+		 * in the kernel, but only works if fd is NONBLOCKing
+		 */
+		if (do_poll) {
+			struct pollfd fds[1];
+
+			memset(fds, 0, sizeof fds);
+			fds[0].fd = fd;
+			fds[0].events = POLLIN;
+			/* wait for 1 second max */
+
+			ret = poll(fds, 1, 1000);
+			if (ret == 0)
+				continue;	/* timed out, redo the poll */
+			if (ret < 0) {
+				if (errno == EINTR)
+					continue;
+				if (errno != ENOMEM) {
+					pr_fail_err(name, "poll userfaultfd");
+					if (!opt_do_run)
+						break;
+				}
+				/*
+				 *  poll ran out of free space for internal
+				 *  fd tables, so give up and block on the
+				 *  read anyway
+				 */
+				goto do_read;
+			}
+			/* No data, re-poll */
+			if (!(fds[0].revents & POLLIN))
+				continue;
+		}
+
+do_read:
 		if ((ret = read(fd, &msg, sizeof(msg))) < 0) {
 			if (errno == EINTR)
 				continue;
