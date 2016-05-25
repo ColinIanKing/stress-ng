@@ -33,6 +33,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
+#if defined(__linux__)
+#include <sys/syscall.h>
+#endif
 
 #include "stress-ng.h"
 
@@ -48,6 +51,14 @@ static void check_return(const int ret, const char *name, const char *cmd)
 			name, cmd, errno, strerror(errno));
 	}
 }
+
+#if defined(__linux__)
+static inline int sys_gettid(void)
+{
+        return syscall(SYS_gettid);
+}
+#endif
+
 
 /*
  *  do_fcntl()
@@ -148,7 +159,19 @@ static int do_fcntl(const int fd, const char *name)
 		owner.type = F_OWNER_PID;
 		owner.pid = getpid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(ret, name, "F_SETOWN_EX");
+		check_return(ret, name, "F_SETOWN_EX, F_OWNER_PID");
+
+		owner.type = F_OWNER_PGRP;
+		owner.pid = getpgrp();
+		ret = fcntl(fd, F_SETOWN_EX, &owner);
+		check_return(ret, name, "F_SETOWN_EX, F_OWNER_PGRP");
+
+#if defined(__linux__)
+		owner.type = F_OWNER_TID;
+		owner.pid = sys_gettid();
+		ret = fcntl(fd, F_SETOWN_EX, &owner);
+		check_return(ret, name, "F_SETOWN_EX, F_OWNER_TID");
+#endif
 	}
 #endif
 
@@ -159,7 +182,17 @@ static int do_fcntl(const int fd, const char *name)
 
 		owner.type = F_OWNER_PID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(ret, name, "F_GETOWN_EX");
+		check_return(ret, name, "F_GETOWN_EX, F_OWNER_PID");
+
+		owner.type = F_OWNER_PGRP;
+		ret = fcntl(fd, F_GETOWN_EX, &owner);
+		check_return(ret, name, "F_GETOWN_EX, F_OWNER_PGRP");
+
+#if defined(__linux__)
+		owner.type = F_OWNER_TID;
+		ret = fcntl(fd, F_GETOWN_EX, &owner);
+		check_return(ret, name, "F_GETOWN_EX, F_OWNER_TID");
+#endif
 	}
 #endif
 
@@ -182,6 +215,24 @@ static int do_fcntl(const int fd, const char *name)
 
 		ret = fcntl(fd, F_GETSIG);
 		check_return(ret, name, "F_GETSIG");
+	}
+#endif
+
+#if defined(F_GETOWNER_UIDS)
+	{
+		int ret;
+
+		ret = fcntl(fd, F_GETOWNER_UIDS);
+		check_return(ret, name, "F_GETOWNER_UIDS");
+	}
+#endif
+
+#if defined(F_GETLEASE)
+	{
+		int ret;
+
+		ret = fcntl(fd, F_GETLEASE);
+		check_return(ret, name, "F_GETLEASE");
 	}
 #endif
 	return 0;
