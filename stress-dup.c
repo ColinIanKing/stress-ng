@@ -61,6 +61,8 @@ int stress_dup(
 
 	do {
 		for (i = 1; i < max_fd; i++) {
+			int tmp;
+
 			fds[i] = dup(fds[0]);
 			if (fds[i] < 0)
 				break;
@@ -83,6 +85,14 @@ int stress_dup(
 #endif
 			if (fds[i] < 0)
 				break;
+
+			/* dup2 on the same fd should be a no-op */
+			tmp = dup2(fds[i], fds[i]);
+			if (tmp != fds[i]) {
+				pr_fail_err(name, "dup2 with same fds");
+				break;
+			}
+
 			if (!opt_do_run)
 				break;
 			(*counter)++;
