@@ -31,6 +31,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 
 #include "stress-ng.h"
 
@@ -45,6 +46,7 @@ int stress_zero(
 	const char *name)
 {
 	int fd;
+	const size_t page_size = stress_get_pagesize();
 
 	(void)instance;
 
@@ -54,8 +56,9 @@ int stress_zero(
 	}
 
 	do {
-		char buffer[4096];
+		char buffer[page_size];
 		ssize_t ret;
+		int32_t *ptr;
 
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
@@ -65,6 +68,28 @@ int stress_zero(
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
+
+		/*
+		 *  check if we can mmap /dev/zero
+		 */
+		ptr = mmap(NULL, page_size, PROT_READ, MAP_SHARED | MAP_ANONYMOUS,
+			fd, page_size * mwc16());
+		if (ptr == MAP_FAILED) {
+			if (errno == ENOMEM)
+				continue;
+			pr_fail_err(name, "mmap /dev/zero");
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+		/* Quick sanity check if first 32 bits are zero */
+		if (*ptr != 0) {
+			pr_fail_err(name, "mmap'd /dev/zero not null");
+			(void)munmap(ptr, page_size);
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+		(void)munmap(ptr, page_size);
+
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	(void)close(fd);
