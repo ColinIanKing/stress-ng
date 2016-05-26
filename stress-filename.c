@@ -71,7 +71,7 @@ int stress_filename_opts(const char *opt)
 
 	for (i = 0; filename_opts[i].opt_text; i++) {
 		if (!strcmp(opt, filename_opts[i].opt_text)) {
-			filename_opt = i;
+			filename_opt = filename_opts[i].opt;
 			return 0;
 		}
 	}
