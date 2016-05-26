@@ -99,6 +99,9 @@ static inline int pipe_memchk(char *buf, char val, const size_t sz)
  */
 static void pipe_change_size(const char *name, const int fd)
 {
+#if defined(F_GETPIPE_SZ)
+	ssize_t sz;
+#endif
 	if (!opt_pipe_size)
 		return;
 
@@ -111,6 +114,19 @@ static void pipe_change_size(const char *name, const int fd)
 			"default pipe size, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 	}
+#if defined(F_GETPIPE_SZ)
+	/* Sanity check size */
+	if ((sz = fcntl(fd, F_GETPIPE_SZ)) < 0) {
+		pr_err(stderr, "%s: cannot get pipe size, errno=%d (%s)\n",
+			name, errno, strerror(errno));
+	} else {
+		if ((size_t)sz != opt_pipe_size) {
+			pr_err(stderr, "%s: cannot set desired pipe size, "
+				"pipe size=%zd, errno=%d (%s)\n",
+				name, sz, errno, strerror(errno));
+		}
+	}
+#endif
 }
 #endif
 
