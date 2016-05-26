@@ -55,7 +55,10 @@ static const char *interfaces[] = {
 
 static inline int stress_rtc_dev(const char *name)
 {
+#if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
+    defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
 	struct rtc_time rtc_tm;
+#endif
 	int fd, ret = 0;
 	static bool do_dev = true;
 
@@ -111,7 +114,10 @@ static inline int stress_rtc_dev(const char *name)
 	}
 #endif
 
+#if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
+    defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
 err:
+#endif
 	(void)close(fd);
 
 	return ret;
