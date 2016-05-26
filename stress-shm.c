@@ -173,15 +173,24 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 			addrs[i] = addr;
-			(void)close(shm_fd);
 
-			if (!opt_do_run)
+			if (!opt_do_run) {
+				(void)close(shm_fd);
 				goto reap;
+			}
 			(void)mincore_touch_pages(addr, sz);
 
-			if (!opt_do_run)
+			if (!opt_do_run) {
+				(void)close(shm_fd);
 				goto reap;
+			}
 			(void)madvise_random(addr, sz);
+			(void)fsync(shm_fd);
+
+			/* Expand and shrink the mapping */
+			(void)posix_fallocate(shm_fd, 0, sz + page_size);
+			(void)posix_fallocate(shm_fd, 0, sz);
+			(void)close(shm_fd);
 
 			if (!opt_do_run)
 				goto reap;
