@@ -48,16 +48,6 @@ static inline int sys_cacheflush(char *addr, int nbytes, int cache)
 {
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 }
-#else
-static inline int sys_cacheflush(char *addr, int nbytes, int cache)
-{
-	(void)addr;
-	(void)nbytes;
-	(void)cache;
-
-	errno = ENOSYS;
-	return -1;
-}
 #endif
 
 /* The compiler optimises out the unused cache flush and mfence calls */
@@ -197,7 +187,7 @@ int stress_cache(
 
 		}
 #endif
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_cacheflush)
 		sys_cacheflush((char *)stress_cache, 8192, ICACHE);
 		sys_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
 #endif
