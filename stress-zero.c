@@ -58,7 +58,9 @@ int stress_zero(
 	do {
 		char buffer[page_size];
 		ssize_t ret;
+#if defined(__linux__)
 		int32_t *ptr;
+#endif
 
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
