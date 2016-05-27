@@ -1,3 +1,59 @@
+stress-ng (0.06.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmap: ensure we don't leak fd, cleanup on exit
+  * fast-test-all: don't run exec test
+  * stress-mremap: catch SEGV and OOM restarts
+  * stress-mmap: catch SEGV and OOM restarts
+  * fast-test-all: exclude pty
+  * Revert "stress-mremap: add random MAP_FIXED option to mremap"
+  * stress-zero: #if def around ptr declarion for non-Linux systems
+  * stress-zero: only perform /dev/zero mmapping on Linux
+  * stress-cacheflush: remove sys_cacheflush for non linux systems
+  * stress-shm-sysv: SHM_INFO and IPC_INFO are linux only
+  * stress-cache: only call cacheflush on Linux systems
+  * stress-filename: filename option should be from the .opt field
+  * stress-rtc: fix some overly pedantic warnings from cppcheck
+  * stress-shm: sync, expand and shrink shm region, extra stress
+  * stress-open: use different forms of open flag combinations
+  * stress-zero: mmap /dev/zero and check if the contents is zero
+  * stress-pipe: sanity check pipe size setting
+  * stress-dup: add dup2 on same fd exerciser
+  * stress-fcntl: add some more fcntl commands
+  * stress-seek: add SEEK_CUR, SEEK_END seek options
+  * stress-utime: exercise UTIME_NOW and UTIME_OMIT settings
+  * stress-userfaultfd: add poll to add some more kernel coverage
+  * Add stress_set_nonblock to set fd to non-blocking I/O
+  * stress-userfaultfd: add in zeropage handling
+  * stress-mremap: add random MAP_FIXED option to mremap
+  * stress-readahead: remove redundant if defined() checks on fadvise
+  * Add SIGHUP trapping and send SIGALRM to all processes on death
+  * stress-personality: only print number of personalities in instance 0
+  * syscalls: update pause information
+  * stress-cache: use cacheflush() on systems that provide this syscall
+  * syscalls: update ioctl entry
+  * perf: add "per" / marking for per second
+  * Add pty stressor
+  * Add semtimedop to syscalls, it is present in stress-sem-sysv.c
+  * stress-cap: add capset call for current stressor process
+  * stress-shm-sysv: add some additional exercising of shmctl commands
+  * stress-sem-sysv: exercise more of the semctl commands
+  * Add trivial chown stressor
+  * stress-dup: use dup3() on linux if it is available
+  * Makefile: vecmath: make the file touch silent
+  * stress-key: add request_key system call
+  * syscalls: update pipe2 entry, this is now being exercised by stress-pipe
+  * stress-mq: memset sigev to zero
+  * stress-madvise: only build in if STRESS_MADVISE defined
+  * Add madvise stressor
+  * syscalls: add mq_timedsend to mq
+  * stress-mq: use timed and non-timed versions of send/receive
+  * stress-mq: add mq_notify calls every 1024 iterations
+  * stress-link: lstat the link
+  * Widen metrics dump stressor name field to 13 chars
+
+ -- Colin King <colin.king@canonical.com>  Fri, 27 May 2016 11:37:09 +0100
+
 stress-ng (0.06.04-1) unstable; urgency=medium
 
   * Makefile: bump version
