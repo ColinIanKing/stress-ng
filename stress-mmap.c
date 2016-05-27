@@ -28,11 +28,11 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <setjmp.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -42,8 +42,6 @@
 
 static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
 static bool set_mmap_bytes = false;
-static sigjmp_buf jmp_env;
-static uint64_t sigbus_count;
 
 /* Misc randomly chosen mmap flags */
 static int mmap_flags[] = {
@@ -143,107 +141,21 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 	}
 }
 
-/*
- *  stress_sigbus_handler()
- *     SIGBUS handler
- */
-static void MLOCKED stress_sigbus_handler(int dummy)
-{
-	(void)dummy;
-
-	sigbus_count++;
-
-	siglongjmp(jmp_env, 1); /* bounce back */
-}
-
-/*
- *  stress_mmap()
- *	stress mmap
- */
-int stress_mmap(
+static void stress_mmap_child(
 	uint64_t *const counter,
-	const uint32_t instance,
 	const uint64_t max_ops,
-	const char *name)
+	const char *name,
+	const int fd,
+	int *flags,
+	const size_t page_size,
+	const size_t sz,
+	const size_t pages4k)
 {
-	uint8_t *buf = NULL;
-	const size_t page_size = stress_get_pagesize();
-	size_t sz, pages4k;
+	int no_mem_retries = 0;
 #if !defined(__gnu_hurd__)
 	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
 		MS_ASYNC : MS_SYNC;
 #endif
-	const pid_t pid = getpid();
-	int ret, fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
-	int no_mem_retries = 0;
-	char filename[PATH_MAX];
-
-#ifdef MAP_POPULATE
-	flags |= MAP_POPULATE;
-#endif
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret) {
-		pr_fail_err(name, "sigsetjmp");
-		return EXIT_FAILURE;
-	}
-	if (stress_sighandler(name, SIGBUS, stress_sigbus_handler, NULL) < 0)
-		return EXIT_FAILURE;
-
-	if (!set_mmap_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mmap_bytes = MAX_MMAP_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mmap_bytes = MIN_MMAP_BYTES;
-	}
-	sz = opt_mmap_bytes & ~(page_size - 1);
-	pages4k = sz / page_size;
-
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
-
-	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
-		ssize_t ret, rc;
-		char ch = '\0';
-
-		rc = stress_temp_dir_mk(name, pid, instance);
-		if (rc < 0)
-			return exit_status(-rc);
-
-		(void)stress_temp_filename(filename, sizeof(filename),
-			name, pid, instance, mwc32());
-
-		(void)umask(0077);
-		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-			rc = exit_status(errno);
-			pr_fail_err(name, "open");
-			(void)unlink(filename);
-			(void)stress_temp_dir_rm(name, pid, instance);
-
-			return rc;
-		}
-		(void)unlink(filename);
-		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek");
-			(void)close(fd);
-			(void)stress_temp_dir_rm(name, pid, instance);
-
-			return EXIT_FAILURE;
-		}
-redo:
-		ret = write(fd, &ch, sizeof(ch));
-		if (ret != sizeof(ch)) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo;
-			rc = exit_status(errno);
-			pr_fail_err(name, "write");
-			(void)close(fd);
-			(void)stress_temp_dir_rm(name, pid, instance);
-
-			return rc;
-		}
-		flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
-		flags |= MAP_SHARED;
-	}
 
 	do {
 		uint8_t mapped[pages4k];
@@ -251,6 +163,7 @@ redo:
 		size_t n;
 		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
 		const int rnd_flag = mmap_flags[rnd];
+		uint8_t *buf = NULL;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
@@ -261,24 +174,17 @@ redo:
 		if (!opt_do_run)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
-			PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
+			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #ifdef MAP_POPULATE
-			flags &= ~MAP_POPULATE;
+			*flags &= ~MAP_POPULATE;
 #endif
 			no_mem_retries++;
 			if (no_mem_retries > 1)
 				usleep(100000);
 			continue;	/* Try again */
 		}
-		ret = sigsetjmp(jmp_env, 1);
-		if (ret) {
-			(void)munmap((void *)buf, sz);
-			/* Try again */
-			continue;
-		}
-
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
 #if !defined(__gnu_hurd__)
@@ -338,7 +244,7 @@ redo:
 					 * track of failed mappings too
 					 */
 					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
-						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
+						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | *flags, fd, offset);
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
@@ -380,13 +286,158 @@ cleanup:
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+}
+
+/*
+ *  stress_mmap()
+ *	stress mmap
+ */
+int stress_mmap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	const size_t page_size = stress_get_pagesize();
+	size_t sz, pages4k;
+	const pid_t mypid = getpid();
+	pid_t pid;
+	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	uint32_t ooms = 0, segvs = 0, buserrs = 0;
+	char filename[PATH_MAX];
+
+#ifdef MAP_POPULATE
+	flags |= MAP_POPULATE;
+#endif
+	if (!set_mmap_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_mmap_bytes = MAX_MMAP_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_mmap_bytes = MIN_MMAP_BYTES;
+	}
+	sz = opt_mmap_bytes & ~(page_size - 1);
+	pages4k = sz / page_size;
+
+	/* Make sure this is killable by OOM killer */
+	set_oom_adjustment(name, true);
+
+	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+		ssize_t ret, rc;
+		char ch = '\0';
+
+		rc = stress_temp_dir_mk(name, mypid, instance);
+		if (rc < 0)
+			return exit_status(-rc);
+
+		(void)stress_temp_filename(filename, sizeof(filename),
+			name, mypid, instance, mwc32());
+
+		(void)umask(0077);
+		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+			rc = exit_status(errno);
+			pr_fail_err(name, "open");
+			(void)unlink(filename);
+			(void)stress_temp_dir_rm(name, mypid, instance);
+
+			return rc;
+		}
+		(void)unlink(filename);
+		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
+			pr_fail_err(name, "lseek");
+			(void)close(fd);
+			(void)stress_temp_dir_rm(name, mypid, instance);
+
+			return EXIT_FAILURE;
+		}
+redo:
+		ret = write(fd, &ch, sizeof(ch));
+		if (ret != sizeof(ch)) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo;
+			rc = exit_status(errno);
+			pr_fail_err(name, "write");
+			(void)close(fd);
+			(void)stress_temp_dir_rm(name, mypid, instance);
+
+			return rc;
+		}
+		flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
+		flags |= MAP_SHARED;
+	}
+
+again:
+	if (!opt_do_run)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+
+		setpgid(pid, pgrp);
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			/* If we got killed by sigbus, re-start */
+			if (WTERMSIG(status) == SIGBUS) {
+				/* Happens frequently, so be silent */
+				buserrs++;
+				goto again;
+			}
+
+			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n",
+					name, instance);
+				ooms++;
+				goto again;
+			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg(stderr, "%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					name, instance);
+				segvs++;
+				goto again;
+			}
+		}
+	} else if (pid == 0) {
+		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
+
+		stress_mmap_child(counter, max_ops, name, fd, &flags, page_size, sz, pages4k);
+	}
+
 
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)stress_temp_dir_rm(name, mypid, instance);
 	}
-	if (sigbus_count)
-		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",
-			name, sigbus_count);
+	if (ooms + segvs + buserrs > 0)
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", SEGV restarts: %" PRIu32
+			", SIGBUS signals: %" PRIu32 "\n",
+			name, ooms, segvs, buserrs);
+
 	return EXIT_SUCCESS;
 }
