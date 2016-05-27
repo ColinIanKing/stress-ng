@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -135,46 +136,27 @@ static void stress_mremap_set(
 	}
 }
 
-/*
- *  stress_mremap()
- *	stress mmap
- */
-int stress_mremap(
+static int stress_mremap_child(
 	uint64_t *const counter,
-	const uint32_t instance,
 	const uint64_t max_ops,
-	const char *name)
+	const char *name,
+	const size_t sz,
+	size_t new_sz,
+	const size_t page_size,
+	int *flags)
 {
-	uint8_t *buf = NULL;
-	const size_t page_size = stress_get_pagesize();
-	size_t sz, new_sz, old_sz;
-	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-
-	(void)instance;
-#ifdef MAP_POPULATE
-	flags |= MAP_POPULATE;
-#endif
-	if (!set_mremap_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mremap_bytes = MAX_MREMAP_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mremap_bytes = MIN_MREMAP_BYTES;
-	}
-	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
-
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
-
 	do {
+		uint8_t *buf = NULL;
+		size_t old_sz;
 
 		if (!opt_do_run)
 			break;
 
-		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, *flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #ifdef MAP_POPULATE
-			flags &= ~MAP_POPULATE;
+			*flags &= ~MAP_POPULATE;
 #endif
 			continue;	/* Try again */
 		}
@@ -231,6 +213,115 @@ int stress_mremap(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_mremap()
+ *	stress mmap
+ */
+int stress_mremap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	const size_t page_size = stress_get_pagesize();
+	size_t sz, new_sz;
+	int rc = EXIT_SUCCESS, flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	pid_t pid;
+	uint32_t ooms = 0, segvs = 0, buserrs = 0;
+
+	(void)instance;
+#ifdef MAP_POPULATE
+	flags |= MAP_POPULATE;
+#endif
+	if (!set_mremap_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_mremap_bytes = MAX_MREMAP_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_mremap_bytes = MIN_MREMAP_BYTES;
+	}
+	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
+
+	/* Make sure this is killable by OOM killer */
+	set_oom_adjustment(name, true);
+
+again:
+	if (!opt_do_run)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
+
+		setpgid(pid, pgrp);
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			/* If we got killed by sigbus, re-start */
+			if (WTERMSIG(status) == SIGBUS) {
+				/* Happens frequently, so be silent */
+				buserrs++;
+				goto again;
+			}
+
+			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, restarting again "
+					"(instance %d)\n",
+					name, instance);
+				ooms++;
+				goto again;
+			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg(stderr, "%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					name, instance);
+				segvs++;
+				goto again;
+			}
+		} else {
+			rc = WEXITSTATUS(status);
+		}
+	} else if (pid == 0) {
+		int rc;
+
+		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(name, true);
+
+		rc = stress_mremap_child(counter, max_ops, name, sz,
+			new_sz, page_size, &flags);
+		exit(rc);
+	}
+
+	if (ooms + segvs + buserrs > 0)
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+			", SEGV restarts: %" PRIu32
+			", SIGBUS signals: %" PRIu32 "\n",
+			name, ooms, segvs, buserrs);
+
+	return rc;
 }
 
 #endif
