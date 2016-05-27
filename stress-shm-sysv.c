@@ -298,7 +298,7 @@ static int stress_shm_sysv_child(
 					pr_fail_dbg(name, "shmctl IPC_STAT");
 			}
 #endif
-#if defined(IPC_INFO)
+#if defined(__linux__) && defined(IPC_INFO)
 			{
 				struct shminfo s;
 
@@ -306,7 +306,7 @@ static int stress_shm_sysv_child(
 					pr_fail_dbg(name, "semctl IPC_INFO");
 			}
 #endif
-#if defined(SHM_INFO)
+#if defined(__linux__) && defined(SHM_INFO)
 			{
 				struct shm_info s;
 
