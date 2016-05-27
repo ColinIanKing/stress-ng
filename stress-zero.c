@@ -69,6 +69,7 @@ int stress_zero(
 			return EXIT_FAILURE;
 		}
 
+#if defined(__linux__)
 		/*
 		 *  check if we can mmap /dev/zero
 		 */
@@ -89,6 +90,7 @@ int stress_zero(
 			return EXIT_FAILURE;
 		}
 		(void)munmap(ptr, page_size);
+#endif
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
