@@ -62,28 +62,17 @@ static int try_remap(
 	const size_t new_sz)
 {
 	uint8_t *newbuf;
-	int retry, flags = 0;
-	size_t page_mask = ~(stress_get_pagesize() - 1);
+	int retry;
 #if defined(MREMAP_MAYMOVE)
-	const int maymove = MREMAP_MAYMOVE;
+	int flags = MREMAP_MAYMOVE;
 #else
-	const int maymove = 0;
-#endif
-
-#if defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
-	flags = maymove | (mwc32() & MREMAP_FIXED);
-#else
-	flags = maymove;
+	int flags = 0;
 #endif
 
 	for (retry = 0; retry < 100; retry++) {
 		if (!opt_do_run)
 			return 0;
-#if defined(MREMAP_FIXED)
-		newbuf = mremap(*buf, old_sz, new_sz, flags, (void *)(mwc32() & page_mask));
-#else
 		newbuf = mremap(*buf, old_sz, new_sz, flags);
-#endif
 		if (newbuf != MAP_FAILED) {
 			*buf = newbuf;
 			return 0;
@@ -93,20 +82,8 @@ static int try_remap(
 		case ENOMEM:
 		case EAGAIN:
 			continue;
-		case EINVAL:
-#if defined(MREMAP_FIXED)
-			/*
-			 * Earlier kernels may not support this or we
-			 * chose a bad random address, so just fall
-			 * back to non fixed remapping
-			 */
-			if (flags & MREMAP_FIXED) {
-				flags &= ~MREMAP_FIXED;
-				continue;
-			}
-#endif
-			break;
 		case EFAULT:
+		case EINVAL:
 		default:
 			break;
 		}
