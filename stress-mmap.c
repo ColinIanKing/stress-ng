@@ -367,7 +367,7 @@ redo:
 
 again:
 	if (!opt_do_run)
-		return EXIT_SUCCESS;
+		goto cleanup;
 	pid = fork();
 	if (pid < 0) {
 		if (errno == EAGAIN)
@@ -428,7 +428,7 @@ again:
 		stress_mmap_child(counter, max_ops, name, fd, &flags, page_size, sz, pages4k);
 	}
 
-
+cleanup:
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
 		(void)stress_temp_dir_rm(name, mypid, instance);
