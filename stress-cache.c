@@ -197,8 +197,10 @@ int stress_cache(
 
 		}
 #endif
+#if defined(__linux__)
 		sys_cacheflush((char *)stress_cache, 8192, ICACHE);
 		sys_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
+#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
