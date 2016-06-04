@@ -60,35 +60,37 @@ int stress_dup(
 	}
 
 	do {
-		for (i = 1; i < max_fd; i++) {
+		size_t n;
+
+		for (n = 1; n < max_fd; n++) {
 			int tmp;
 
-			fds[i] = dup(fds[0]);
-			if (fds[i] < 0)
+			fds[n] = dup(fds[0]);
+			if (fds[n] < 0)
 				break;
 #if defined(__linux__)
 			if (do_dup3 && (mwc32() & 1)) {
 				int fd;
 
-				fd = dup3(fds[0], fds[i], O_CLOEXEC);
+				fd = dup3(fds[0], fds[n], O_CLOEXEC);
 				/* No dup3 support? then fallback to dup2 */
 				if ((fd < 0) && (errno == ENOSYS)) {
-					fd = dup2(fds[0], fds[i]);
+					fd = dup2(fds[0], fds[n]);
 					do_dup3 = false;
 				}
-				fds[i] = fd;
+				fds[n] = fd;
 			} else {
-				fds[i] = dup2(fds[0], fds[i]);
+				fds[n] = dup2(fds[0], fds[n]);
 			}
 #else
-			fds[i] = dup2(fds[0], fds[i]);
+			fds[n] = dup2(fds[0], fds[n]);
 #endif
-			if (fds[i] < 0)
+			if (fds[n] < 0)
 				break;
 
 			/* dup2 on the same fd should be a no-op */
-			tmp = dup2(fds[i], fds[i]);
-			if (tmp != fds[i]) {
+			tmp = dup2(fds[n], fds[n]);
+			if (tmp != fds[n]) {
 				pr_fail_err(name, "dup2 with same fds");
 				break;
 			}
@@ -97,7 +99,7 @@ int stress_dup(
 				break;
 			(*counter)++;
 		}
-		for (i = 1; i < max_fd; i++) {
+		for (i = 1; i < n; i++) {
 			if (fds[i] < 0)
 				break;
 			if (!opt_do_run)
