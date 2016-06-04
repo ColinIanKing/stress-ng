@@ -117,13 +117,22 @@ static const int priorities[] = {
 #endif
 };
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_gettid)
 static inline int sys_gettid(void)
 {
         return syscall(SYS_gettid);
 }
 #endif
 
+#if defined(__linux__) && defined(__NR_getcpu)
+static long sys_getcpu(
+        unsigned *cpu,
+        unsigned *node,
+        void *tcache)
+{
+	return syscall(__NR_getcpu, cpu, node, tcache);
+}
+#endif
 
 /*
  *  stress on get*() calls
@@ -264,9 +273,20 @@ int stress_get(
 		check_do_run();
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_getttid)
 		(void)sys_gettid();
 		check_do_run();
+#endif
+
+#if defined(__linux__) && defined(__NR_getcpu)
+		{
+			unsigned cpu, node;
+
+			(void)sys_getcpu(&cpu, &node, NULL);
+			(void)sys_getcpu(NULL, &node, NULL);
+			(void)sys_getcpu(&cpu, NULL, NULL);
+			(void)sys_getcpu(NULL, NULL, NULL);
+		}
 #endif
 
 		t = time(NULL);
