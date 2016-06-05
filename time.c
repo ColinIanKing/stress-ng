@@ -43,7 +43,9 @@ double time_now(void)
 {
 	struct timeval now;
 
-	gettimeofday(&now, NULL);
+	if (gettimeofday(&now, NULL) < 0)
+		return -1.0;
+
 	return timeval_to_double(&now);
 }
 
