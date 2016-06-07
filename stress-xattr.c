@@ -71,16 +71,16 @@ int stress_xattr(
 	do {
 		int i, j;
 		int ret;
-		char name[32];
+		char attrname[32];
 		char value[32];
 		ssize_t sz;
 		char *buffer;
 
 		for (i = 0; i < 4096; i++) {
-			snprintf(name, sizeof(name), "user.var_%d", i);
-			snprintf(value, sizeof(value), "orig-value-%i", i);
+			snprintf(attrname, sizeof(attrname), "user.var_%d", i);
+			snprintf(value, sizeof(value), "orig-value-%d", i);
 
-			ret = fsetxattr(fd, name, value, strlen(value), XATTR_CREATE);
+			ret = fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if (errno == ENOTSUP) {
 					pr_inf(stderr, "%s stressor will be "
@@ -94,10 +94,10 @@ int stress_xattr(
 			}
 		}
 		for (j = 0; j < i; j++) {
-			snprintf(name, sizeof(name), "user.var_%d", j);
-			snprintf(value, sizeof(value), "value-%i", j);
+			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
+			snprintf(value, sizeof(value), "value-%d", j);
 
-			ret = fsetxattr(fd, name, value, strlen(value),
+			ret = fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
@@ -109,10 +109,10 @@ int stress_xattr(
 		for (j = 0; j < i; j++) {
 			char tmp[sizeof(value)];
 
-			snprintf(name, sizeof(name), "user.var_%d", j);
-			snprintf(value, sizeof(value), "value-%i", j);
+			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
+			snprintf(value, sizeof(value), "value-%d", j);
 
-			ret = fgetxattr(fd, name, tmp, sizeof(tmp));
+			ret = fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err(name, "fgetxattr");
 				goto out_close;
@@ -142,9 +142,9 @@ int stress_xattr(
 			}
 		}
 		for (j = 0; j < i; j++) {
-			snprintf(name, sizeof(name), "user.var_%d", j);
+			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			
-			ret = fremovexattr(fd, name);
+			ret = fremovexattr(fd, attrname);
 			if (ret < 0) {
 				pr_fail_err(name, "fremovexattr");
 				goto out_close;
