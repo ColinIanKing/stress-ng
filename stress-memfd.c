@@ -98,7 +98,7 @@ static void stress_memfd_allocs(
 				}
 			}
 		}
-	
+
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 			if (fds[i] >= 0) {
 				ssize_t ret;
@@ -128,6 +128,40 @@ static void stress_memfd_allocs(
 				mincore_touch_pages(maps[i], size);
 			}
 		}
+
+		for (i = 0; i < MAX_MEM_FDS; i++) {
+#if defined(SEEK_SET)
+			if (lseek(fds[i], (off_t)size >> 1, SEEK_SET) < 0) {
+				pr_fail(stderr, "%s: lseek SEEK_SET on memfd failed: "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+			}
+#endif
+#if defined(SEEK_CUR)
+			if (lseek(fds[i], (off_t)0, SEEK_CUR) < 0) {
+				pr_fail(stderr, "%s: lseek SEEK_CUR on memfd failed: "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+			}
+#endif
+#if defined(SEEK_END)
+			if (lseek(fds[i], (off_t)0, SEEK_END) < 0) {
+				pr_fail(stderr, "%s: lseek SEEK_END on memfd failed: "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+			}
+#endif
+#if defined(SEEK_HOLE)
+			if (lseek(fds[i], (off_t)0, SEEK_HOLE) < 0) {
+				pr_fail(stderr, "%s: lseek SEEK_HOLE on memfd failed: "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+			}
+#endif
+#if defined(SEEK_DATA)
+			if (lseek(fds[i], (off_t)0, SEEK_DATA) < 0) {
+				pr_fail(stderr, "%s: lseek SEEK_DATA on memfd failed: "
+					"errno=%d (%s)\n", name, errno, strerror(errno));
+			}
+#endif
+		}
+	
 clean:
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 			if (maps[i] != MAP_FAILED)
