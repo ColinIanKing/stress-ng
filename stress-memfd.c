@@ -67,7 +67,8 @@ static void stress_memfd_allocs(
 	int fds[MAX_MEM_FDS];
 	void *maps[MAX_MEM_FDS];
 	size_t i;
-	const size_t size = stress_get_pagesize() * MEM_PAGES;
+	const size_t page_size = stress_get_pagesize();
+	const size_t size = page_size * MEM_PAGES;
 	const pid_t pid = getpid();
 
 	do {
@@ -102,6 +103,7 @@ static void stress_memfd_allocs(
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 			if (fds[i] >= 0) {
 				ssize_t ret;
+				size_t whence;
 
 				if (!opt_do_run)
 					break;
@@ -127,6 +129,16 @@ static void stress_memfd_allocs(
 					fds[i], 0);
 				mincore_touch_pages(maps[i], size);
 				madvise_random(maps[i], size);
+
+#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
+				/*
+				 *  ..and punch a hole
+				 */
+				whence = page_size * (mwc32() % MEM_PAGES);
+				ret = fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
+					FALLOC_FL_KEEP_SIZE, whence, page_size);
+				(void)ret;
+#endif
 			}
 		}
 
