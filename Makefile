@@ -550,6 +550,10 @@ stress-cpu.o: stress-cpu.c
 	fi
 	@rm -f test-decimal.c test-decimal.o
 
+perf.o: perf.c perf-event.c
+	@gcc -E perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | awk {'print "#define _SNG_" $$1 " (1)"'} > perf-event.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
 stress-str.o: stress-str.c
 	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
@@ -576,7 +580,7 @@ dist:
 		test-apparmor.c test-libbsd.c test-libz.c \
 		test-libcrypt.c test-librt.c test-libpthread.c \
 		test-libaio.c test-cap.c usr.bin.pulseaudio.eg \
-		stress-ng-$(VERSION)
+		perf-event.c stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
@@ -585,6 +589,7 @@ clean:
 	rm -f stress-ng-$(VERSION).tar.gz
 	rm -f test-decimal.c
 	rm -f personality.h
+	rm -f perf-event.h
 
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}

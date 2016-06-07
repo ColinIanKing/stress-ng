@@ -25,6 +25,7 @@
 #define _GNU_SOURCE
 
 #include "stress-ng.h"
+#include "perf-event.h"
 
 #if defined(STRESS_PERF_STATS)
 /* perf enabled systems */
@@ -77,6 +78,8 @@ typedef struct {
 	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, \
 	  PERF_COUNT_ ## config, label }
 
+#define STRESS_GOT(x) _SNG_PERF_COUNT_ ## x
+
 #define UNRESOLVED				(~0UL)
 #define PERF_COUNT_TP_SYSCALLS_ENTER		UNRESOLVED
 #define PERF_COUNT_TP_SYSCALLS_EXIT		UNRESOLVED
@@ -106,25 +109,54 @@ typedef struct {
 #define PERF_COUNT_TP_WRITEBACK_DIRTY_PAGE	UNRESOLVED
 
 
-
 /* perf counters to be read */
 static perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
+#if STRESS_GOT(HW_CPU_CYCLES)
 	PERF_INFO(HARDWARE, HW_CPU_CYCLES,		"CPU Cycles"),
+#endif
+#if STRESS_GOT(HW_INSTRUCTIONS)
 	PERF_INFO(HARDWARE, HW_INSTRUCTIONS,		"Instructions"),
+#endif
+#if STRESS_GOT(HW_CACHE_REFERENCES)
 	PERF_INFO(HARDWARE, HW_CACHE_REFERENCES,	"Cache References"),
+#endif
+#if STRESS_GOT(HW_CACHE_MISSES)
 	PERF_INFO(HARDWARE, HW_CACHE_MISSES,		"Cache Misses"),
+#endif
+#if STRESS_GOT(HW_STALLED_CYCLES_FRONTEND)
 	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_FRONTEND,	"Stalled Cycles Frontend"),
+#endif
+#if STRESS_GOT(HW_STALLED_CYCLES_BACKEND)
 	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_BACKEND,	"Stalled Cycles Backend"),
+#endif
+#if STRESS_GOT(HW_BRANCH_INSTRUCTIONS)
 	PERF_INFO(HARDWARE, HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
+#endif
+#if STRESS_GOT(HW_BRANCH_MISSES)
 	PERF_INFO(HARDWARE, HW_BRANCH_MISSES,		"Branch Misses"),
+#endif
+#if STRESS_GOT(HW_BUS_CYCLES)
 	PERF_INFO(HARDWARE, HW_BUS_CYCLES,		"Bus Cycles"),
+#endif
+#if STRESS_GOT(HW_REF_CPU_CYCLES)
 	PERF_INFO(HARDWARE, HW_REF_CPU_CYCLES,		"Total Cycles"),
+#endif
 
+#if STRESS_GOT(SW_PAGE_FAULTS_MIN)
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MIN,		"Page Faults Minor"),
+#endif
+#if STRESS_GOT(SW_PAGE_FAULTS_MAJ)
 	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MAJ,		"Page Faults Major"),
+#endif
+#if STRESS_GOT(SW_CONTEXT_SWITCHES)
 	PERF_INFO(SOFTWARE, SW_CONTEXT_SWITCHES,	"Context Switches"),
+#endif
+#if STRESS_GOT(SW_CPU_MIGRATIONS)
 	PERF_INFO(SOFTWARE, SW_CPU_MIGRATIONS,		"CPU Migrations"),
+#endif
+#if STRESS_GOT(SW_ALIGNMENT_FAULTS)
 	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
+#endif
 
 	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_USER,	"Page Faults User"),
 	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_KERNEL,	"Page Faults Kernel"),
@@ -151,6 +183,7 @@ static perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
 	PERF_INFO(TRACEPOINT, TP_SOFTIRQ_EXIT,		"Soft IRQ Exit"),
 	PERF_INFO(TRACEPOINT, TP_WRITEBACK_DIRTY_INODE,	"Writeback Dirty Inode"),
 	PERF_INFO(TRACEPOINT, TP_WRITEBACK_DIRTY_PAGE,	"Writeback Dirty Page"),
+
 	{ 0, 0, 0, NULL }
 };
 
