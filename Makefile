@@ -131,8 +131,9 @@ STRESS_SRC = \
 	stress-rename.c \
 	stress-rlimit.c \
 	stress-rtc.c \
-	stress-seek.c \
+	stress-seal.c \
 	stress-seccomp.c \
+	stress-seek.c \
 	stress-sem.c \
 	stress-sem-sysv.c \
 	stress-sendfile.c \

@@ -351,6 +351,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_RTC)
 	STRESSOR(rtc, RTC, CLASS_OS),
 #endif
+#if defined(STRESS_SEAL)
+	STRESSOR(seal, SEAL, CLASS_OS),
+#endif
 #if defined(STRESS_SECCOMP)
 	STRESSOR(seccomp, SECCOMP, CLASS_OS),
 #endif
@@ -897,6 +900,10 @@ static const struct option long_options[] = {
 #endif
 	{ "sched",	1,	0,	OPT_SCHED },
 	{ "sched-prio",	1,	0,	OPT_SCHED_PRIO },
+#if defined(STRESS_SEAL)
+	{ "seal",	1,	0,	OPT_SEAL },
+	{ "seal-ops",	1,	0,	OPT_SEAL_OPS },
+#endif
 #if defined(STRESS_SECCOMP)
 	{ "seccomp",	1,	0,	OPT_SECCOMP },
 	{ "seccomp-ops",1,	0,	OPT_SECCOMP_OPS },
@@ -1559,6 +1566,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_RTC)
 	{ NULL,		"rtc N",		"start N workers that exercise the RTC interfaces" },
 	{ NULL,		"rtc-ops N",		"stop after N RTC bogo operations" },
+#endif
+#if defined(STRESS_SEAL)
+	{ NULL,		"seal N",		"start N workers performing fcntl SEAL commands" },
+	{ NULL,		"seal-ops N",		"stop after N SEAL bogo operations" },
 #endif
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop after N seek bogo operations" },

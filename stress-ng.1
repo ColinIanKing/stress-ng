@@ -1815,6 +1815,15 @@ the RTC. This is a Linux only stressor.
 .B \-\-rtc\-ops N
 stop after N bogo RTC interface accesses.
 .TP
+.B \-\-seal N
+start N workers that exercise the fcntl(2) SEAL commands on a small anonymous
+file created using memfd_create(2).  After each SEAL command is issued the
+stessor also sanity checks if the seal operation has sealed the file correctly.
+(Linux only).
+.TP
+.B \-\-seal\-ops N
+stop after N bogo seal operations.
+.TP
 .B \-\-seccomp N
 start N workers that exercise Secure Computing system call filtering. Each
 worker creates child processes that write a short message to /dev/null and then

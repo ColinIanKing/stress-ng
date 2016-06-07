@@ -1110,6 +1110,10 @@ typedef enum {
 	__STRESS_RTC,
 #define STRESS_RTC __STRESS_RTC
 #endif
+#if defined(__linux__) && defined(__NR_memfd_create)
+	__STRESS_SEAL,
+#define STRESS_SEAL __STRESS_SEAL
+#endif
 #if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
 	__STRESS_SECCOMP,
 #define STRESS_SECCOMP __STRESS_SECCOMP
@@ -1791,6 +1795,11 @@ typedef enum {
 
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
+
+#if defined(STRESS_SEAL)
+	OPT_SEAL,
+	OPT_SEAL_OPS,
+#endif
 
 #if defined(STRESS_SECCOMP)
 	OPT_SECCOMP,
@@ -2570,13 +2579,14 @@ STRESS(stress_remap);
 STRESS(stress_rename);
 STRESS(stress_rlimit);
 STRESS(stress_rtc);
+STRESS(stress_seal);
 STRESS(stress_seccomp);
 STRESS(stress_seek);
 STRESS(stress_sem);
 STRESS(stress_sem_sysv);
+STRESS(stress_sendfile);
 STRESS(stress_shm);
 STRESS(stress_shm_sysv);
-STRESS(stress_sendfile);
 STRESS(stress_sigfd);
 STRESS(stress_sigfpe);
 STRESS(stress_sigpending);
