@@ -51,6 +51,35 @@ void stress_set_mremap_bytes(const char *optarg)
 		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
 }
 
+#if defined(MREMAP_FIXED)
+/*
+ *  rand_mremap_addr()
+ *	try and find a random unmapped region of memory
+ */
+static inline void *rand_mremap_addr(const size_t sz, int flags)
+{
+	void *addr;
+
+	flags &= ~(MREMAP_FIXED | MAP_SHARED | MAP_POPULATE);
+	flags |= (MAP_PRIVATE | MAP_ANONYMOUS);
+
+	addr = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
+	if (addr == MAP_FAILED)
+		return NULL;
+
+	munmap(addr, sz);
+
+	/*
+	 * At this point, we know that we can remap to this addr
+	 * in this process if we don't do any memory mappings between
+	 * the munmap above and the remapping
+	 */
+
+	return addr;
+}
+#endif
+
+
 
 /*
  *  try_remap()
@@ -63,17 +92,34 @@ static int try_remap(
 	const size_t new_sz)
 {
 	uint8_t *newbuf;
-	int retry;
+	int retry, flags = 0;
 #if defined(MREMAP_MAYMOVE)
-	int flags = MREMAP_MAYMOVE;
+	const int maymove = MREMAP_MAYMOVE;
 #else
-	int flags = 0;
+	const int maymove = 0;
+#endif
+
+#if defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
+	flags = maymove | (mwc32() & MREMAP_FIXED);
+#else
+	flags = maymove;
 #endif
 
 	for (retry = 0; retry < 100; retry++) {
+#if defined(MREMAP_FIXED)
+		void *addr = rand_mremap_addr(new_sz, flags);
+#endif
 		if (!opt_do_run)
 			return 0;
+#if defined(MREMAP_FIXED)
+		if (addr) {
+			newbuf = mremap(*buf, old_sz, new_sz, flags, addr);
+		} else {
+			newbuf = mremap(*buf, old_sz, new_sz, flags & ~MREMAP_FIXED);
+		}
+#else
 		newbuf = mremap(*buf, old_sz, new_sz, flags);
+#endif
 		if (newbuf != MAP_FAILED) {
 			*buf = newbuf;
 			return 0;
@@ -83,8 +129,20 @@ static int try_remap(
 		case ENOMEM:
 		case EAGAIN:
 			continue;
-		case EFAULT:
 		case EINVAL:
+#if defined(MREMAP_FIXED)
+			/*
+			 * Earlier kernels may not support this or we
+			 * chose a bad random address, so just fall
+			 * back to non fixed remapping
+			 */
+			if (flags & MREMAP_FIXED) {
+				flags &= ~MREMAP_FIXED;
+				continue;
+			}
+#endif
+			break;
+		case EFAULT:
 		default:
 			break;
 		}
