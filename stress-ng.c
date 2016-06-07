@@ -1571,6 +1571,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"seal N",		"start N workers performing fcntl SEAL commands" },
 	{ NULL,		"seal-ops N",		"stop after N SEAL bogo operations" },
 #endif
+#if defined(STRESS_SECCOMP)
+	{ NULL,		"seccomp N",		"start N workers performing seccomp call filtering" },
+	{ NULL,		"seccomp-ops N",	"stop after N seccomp bogo operations" },
+#endif
 	{ NULL,		"seek N",		"start N workers performing random seek r/w IO" },
 	{ NULL,		"seek-ops N",		"stop after N seek bogo operations" },
 #if defined(OPT_SEEK_PUNCH)
