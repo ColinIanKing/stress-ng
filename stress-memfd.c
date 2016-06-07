@@ -126,6 +126,7 @@ static void stress_memfd_allocs(
 					MAP_FILE | MAP_SHARED | MAP_POPULATE,
 					fds[i], 0);
 				mincore_touch_pages(maps[i], size);
+				madvise_random(maps[i], size);
 			}
 		}
 
