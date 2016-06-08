@@ -2693,6 +2693,10 @@ stress\-ng \-\-sequential 4 \-\-class vm \-\-exclude bigheap,brk,stack
 .IP
 run 4 instances of the VM stressors one after each other, excluding the
 bigheap, brk and stack stressors
+.LP
+stress\-ng \-\-taskset 0,2-3 \-\-cpu 3
+.IP
+run 3 instances of the CPU stressor and pin them to CPUs 0, 2 and 3.
 .SH EXIT STATUS
 .TS
 cBw(10) lBx
