@@ -1478,7 +1478,11 @@ start N workers that create 256 allocations of 1024 pages using memfd_create(2)
 and ftruncate(2) for allocation and mmap(2) to map the allocation into the
 process address space.  (Linux only).
 .TP
-.B \-\-memfd-ops N
+.B \-\-memfd\-bytes N
+allocate N bytes per memfd stress worker, the default is 256MB. One can specify
+the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m
+.TP
+.B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
 .TP
 .B -\-mergesort N

@@ -39,9 +39,20 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 
 #define MAX_MEM_FDS 	(256)
-#define MEM_PAGES	(1024)
+
+static size_t opt_memfd_bytes = DEFAULT_MEMFD_BYTES;
+static bool set_memfd_bytes;
+
+void stress_set_memfd_bytes(const char *optarg)
+{
+	set_memfd_bytes = true;
+	opt_memfd_bytes = (size_t)get_uint64_byte(optarg);
+	check_range("memfd-bytes", opt_memfd_bytes,
+		MIN_MEMFD_BYTES, MAX_MEMFD_BYTES);
+}
 
 /*
  *  Ugly hack until glibc defines this
@@ -68,8 +79,12 @@ static void stress_memfd_allocs(
 	void *maps[MAX_MEM_FDS];
 	size_t i;
 	const size_t page_size = stress_get_pagesize();
-	const size_t size = page_size * MEM_PAGES;
+	const size_t min_size = 2 * page_size;
+	size_t size = opt_memfd_bytes / MAX_MEM_FDS;
 	const pid_t pid = getpid();
+
+	if (size < min_size)
+		size = min_size;
 
 	do {
 		for (i = 0; i < MAX_MEM_FDS; i++) {
@@ -134,7 +149,7 @@ static void stress_memfd_allocs(
 				/*
 				 *  ..and punch a hole
 				 */
-				whence = page_size * (mwc32() % MEM_PAGES);
+				whence = (mwc32() % size) & ~(page_size - 1);
 				ret = fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
 					FALLOC_FL_KEEP_SIZE, whence, page_size);
 				(void)ret;
@@ -144,7 +159,7 @@ static void stress_memfd_allocs(
 
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 #if defined(SEEK_SET)
-			if (lseek(fds[i], (off_t)size >> 1, SEEK_SET) < 0) {
+			if (lseek(fds[i], (off_t)size>> 1, SEEK_SET) < 0) {
 				pr_fail(stderr, "%s: lseek SEEK_SET on memfd failed: "
 					"errno=%d (%s)\n", name, errno, strerror(errno));
 			}
@@ -199,6 +214,13 @@ int stress_memfd(
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
+
+	if (!set_memfd_bytes) {
+		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+			opt_memfd_bytes = MAX_MEMFD_BYTES;
+		if (opt_flags & OPT_FLAGS_MINIMIZE)
+			opt_memfd_bytes = MIN_MEMFD_BYTES;
+	}
 
 again:
 	if (!opt_do_run)

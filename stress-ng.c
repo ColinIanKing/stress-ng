@@ -760,6 +760,7 @@ static const struct option long_options[] = {
 #if defined(STRESS_MEMFD)
 	{ "memfd",	1,	0,	OPT_MEMFD },
 	{ "memfd-ops",	1,	0,	OPT_MEMFD_OPS },
+	{ "memfd-bytes",1,	0,	OPT_MEMFD_BYTES },
 #endif
 #if defined(STRESS_MERGESORT)
 	{ "mergesort",	1,	0,	OPT_MERGESORT },
@@ -1441,6 +1442,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"memcpy-ops N",		"stop after N memcpy bogo operations" },
 #if defined(STRESS_MEMFD)
 	{ NULL,		"memfd N",		"start N workers allocating memory with memfd_create" },
+	{ NULL,		"memfd-bytes N",	"allocate N bytes for each stress iteration" },
 	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
 #endif
 #if defined(STRESS_MERGESORT)
@@ -2872,6 +2874,9 @@ next_opt:
 			break;
 		case OPT_MAXIMIZE:
 			opt_flags |= OPT_FLAGS_MAXIMIZE;
+			break;
+		case OPT_MEMFD_BYTES:
+			stress_set_memfd_bytes(optarg);
 			break;
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;

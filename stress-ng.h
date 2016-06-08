@@ -373,6 +373,15 @@ extern void pr_openlog(const char *filename);
 #define MAX_MATRIX_SIZE		(4096)
 #define DEFAULT_MATRIX_SIZE	(256)
 
+#define MIN_MEMFD_BYTES		(2 * MB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_MEMFD_BYTES		(MAX_32)
+#else
+#define MAX_MEMFD_BYTES		(4 * GB)
+#endif
+#define DEFAULT_MEMFD_BYTES	(256 * MB)
+
+
 #define MIN_MERGESORT_SIZE	(1 * KB)
 #define MAX_MERGESORT_SIZE	(4 * MB)
 #define DEFAULT_MERGESORT_SIZE	(256 * KB)
@@ -1630,6 +1639,7 @@ typedef enum {
 #if defined(STRESS_MEMFD)
 	OPT_MEMFD,
 	OPT_MEMFD_OPS,
+	OPT_MEMFD_BYTES,
 #endif
 
 #if defined(STRESS_MERGESORT)
@@ -2428,6 +2438,7 @@ extern void stress_set_malloc_max(const char *optarg);
 extern void stress_set_malloc_threshold(const char *optarg);
 extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *optarg);
+extern void stress_set_memfd_bytes(const char *optarg);
 extern void stress_set_mergesort_size(const void *optarg);
 extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
