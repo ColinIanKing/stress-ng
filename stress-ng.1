@@ -2033,6 +2033,10 @@ by default, messages are sent using send(2). This option allows one to specify
 the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
 sendmmsg is only available for Linux systems that support this system call.
 .TP
+.B \-\-sock\-type [ stream | seqpacket ]
+specify the socket type to use. The default type is stream. seqpacket currently
+only works for the unix socket domain.
+.TP
 .B \-\-sockfd N
 start N workers that pass file descriptors over a UNIX domain socket using the
 CMSG(3) ancillary data mechanism. For each worker, pair of client/server

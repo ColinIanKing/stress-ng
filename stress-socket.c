@@ -72,9 +72,15 @@ typedef struct {
 	int	   opt;
 } socket_opts_t;
 
+typedef struct {
+	const char *typename;
+	int	   type;
+} socket_type_t;
+
 static int opt_socket_domain = AF_INET;
 static int opt_socket_port = DEFAULT_SOCKET_PORT;
 static int opt_socket_opts = SOCKET_OPT_SEND;
+static int opt_socket_type = SOCK_STREAM;
 
 static const socket_opts_t socket_opts[] = {
 	{ "send",	SOCKET_OPT_SEND },
@@ -85,9 +91,19 @@ static const socket_opts_t socket_opts[] = {
 	{ NULL,		0 }
 };
 
+static const socket_type_t socket_type[] = {
+#if defined(SOCK_STREAM)
+	{ "stream",	SOCK_STREAM  },
+#endif
+#if defined(SOCK_SEQPACKET)
+	{ "seqpacket",	SOCK_SEQPACKET },
+#endif
+	{ NULL,		0 }
+};
+
 /*
  *  stress_set_socket_opts()
- *	parse --send-opts
+ *	parse --sock-opts
  */
 int stress_set_socket_opts(const char *optarg)
 {
@@ -100,9 +116,32 @@ int stress_set_socket_opts(const char *optarg)
 		}
 	}
 	fprintf(stderr, "sock-opts option '%s' not known, options are:", optarg);
-	for (i = 0; socket_opts[i].opt; i++) {
+	for (i = 0; socket_opts[i].optname; i++) {
 		fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", socket_opts[i].optname);
+	}
+	fprintf(stderr, "\n");
+	return -1;
+}
+
+/*
+ *  stress_set_socket_type()
+ *	parse --sock-type
+ */
+int stress_set_socket_type(const char *optarg)
+{
+	int i;
+
+	for (i = 0; socket_type[i].typename; i++) {
+		if (!strcmp(optarg, socket_type[i].typename)) {
+			opt_socket_type = socket_type[i].type;
+			return 0;
+		}
+	}
+	fprintf(stderr, "sock-type option '%s' not known, options are:", optarg);
+	for (i = 0; socket_type[i].typename; i++) {
+		fprintf(stderr, "%s %s",
+			i == 0 ? "" : ",", socket_type[i].typename);
 	}
 	fprintf(stderr, "\n");
 	return -1;
@@ -155,7 +194,7 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
-		if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
 			pr_fail_dbg(name, "socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
@@ -240,7 +279,7 @@ static int stress_socket_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if ((fd = socket(opt_socket_domain, SOCK_STREAM, 0)) < 0) {
+	if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg(name, "socket");
 		goto die;
