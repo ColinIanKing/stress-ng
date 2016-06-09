@@ -235,6 +235,149 @@ static int do_fcntl(const int fd, const char *name)
 		check_return(ret, name, "F_GETLEASE");
 	}
 #endif
+
+#if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
+    defined(F_WRLCK) && defined(F_UNLCK)
+	{
+		struct flock f;
+		int ret;
+		const off_t len = (mwc16() + 1) & 0x7fff;
+		const off_t start = mwc16() & 0x7fff;
+
+		if (ftruncate(fd, 65536) < 0) {
+			pr_fail(stderr, "%s: ftruncate failed, "
+				"errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			goto lock_abort;
+		}
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = getpid();
+
+		ret = fcntl(fd, F_GETLK, &f);
+		check_return(ret, name, "F_GETLK");
+
+		if (f.l_type != F_UNLCK) {
+			pr_fail(stderr, "%s: fcntl F_GETLK failed, "
+				"expecting l_type to return F_UNLCK\n",
+				name);
+			goto lock_abort;
+		}
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = getpid();
+
+		ret = fcntl(fd, F_SETLK, &f);
+		check_return(ret, name, "F_SETLK (F_WRLCK)");
+
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = getpid();
+
+		ret = fcntl(fd, F_SETLK, &f);
+		check_return(ret, name, "F_SETLK (F_UNLCK)");
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = getpid();
+
+		ret = fcntl(fd, F_SETLKW, &f);
+		check_return(ret, name, "F_SETLKW (F_WRLCK)");
+
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = getpid();
+
+		ret = fcntl(fd, F_SETLK, &f);
+		check_return(ret, name, "F_SETLK (F_UNLCK)");
+
+lock_abort:	{ /* Nowt */ }
+	}
+#endif
+
+#if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
+    defined(F_WRLCK) && defined(F_UNLCK)
+	{
+		struct flock f;
+		int ret;
+		const off_t len = (mwc16() + 1) & 0x7fff;
+		const off_t start = mwc16() & 0x7fff;
+
+		if (ftruncate(fd, 65536) < 0) {
+			pr_fail(stderr, "%s: ftruncate failed, "
+				"errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			goto ofd_lock_abort;
+		}
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = 0;
+
+		ret = fcntl(fd, F_OFD_GETLK, &f);
+		check_return(ret, name, "F_GETLK");
+
+		if (f.l_type != F_UNLCK) {
+			pr_fail(stderr, "%s: fcntl F_OFD_GETLK failed, "
+				"expecting l_type to return F_UNLCK\n",
+				name);
+			goto ofd_lock_abort;
+		}
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = 0;
+
+		ret = fcntl(fd, F_OFD_SETLK, &f);
+		check_return(ret, name, "F_OFD_SETLK (F_WRLCK)");
+
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = 0;
+
+		ret = fcntl(fd, F_OFD_SETLK, &f);
+		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = 0;
+
+		ret = fcntl(fd, F_OFD_SETLKW, &f);
+		check_return(ret, name, "F_OFD_SETLKW (F_WRLCK)");
+
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_SET;
+		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = 0;
+
+		ret = fcntl(fd, F_OFD_SETLK, &f);
+		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
+
+ofd_lock_abort:	{ /* Nowt */ }
+	}
+#endif
+
 	return 0;
 }
 
