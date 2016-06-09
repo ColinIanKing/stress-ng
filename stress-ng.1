@@ -954,7 +954,8 @@ stop the page fault workers after N bogo page fault operations.
 start N workers that perform fcntl(2) calls with various commands.  The
 exercised commands (if available) are: F_DUPFD, F_DUPFD_CLOEXEC, F_GETFD,
 F_SETFD, F_GETFL, F_SETFL, F_GETOWN, F_SETOWN, F_GETOWN_EX, F_SETOWN_EX,
-F_GETSIG and F_SETSIG.
+F_GETSIG, F_SETSIG, F_GETLK, F_SETLK, F_SETLKW, F_OFD_GETLK, F_OFD_SETLK
+and F_OFD_SETLKW.
 .TP
 .B \-\-fcntl\-ops N
 stop the fcntl workers after N bogo fcntl operations.
