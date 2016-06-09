@@ -999,6 +999,11 @@ typedef enum {
 	__STRESS_LOCKF,
 #define STRESS_LOCKF __STRESS_LOCKF
 #endif
+#if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
+    defined(F_WRLCK) && defined(F_UNLCK)
+	__STRESS_LOCKOFD,
+#define STRESS_LOCKOFD __STRESS_LOCKOFD
+#endif
 	STRESS_LONGJMP,
 	STRESS_LSEARCH,
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
@@ -1606,6 +1611,11 @@ typedef enum {
 	OPT_LOCKF,
 	OPT_LOCKF_OPS,
 	OPT_LOCKF_NONBLOCK,
+#endif
+
+#if defined(STRESS_LOCKOFD)
+	OPT_LOCKOFD,
+	OPT_LOCKOFD_OPS,
 #endif
 
 	OPT_LOG_BRIEF,
@@ -2560,6 +2570,7 @@ STRESS(stress_link);
 STRESS(stress_lockbus);
 STRESS(stress_locka);
 STRESS(stress_lockf);
+STRESS(stress_lockofd);
 STRESS(stress_longjmp);
 STRESS(stress_lsearch);
 STRESS(stress_madvise);

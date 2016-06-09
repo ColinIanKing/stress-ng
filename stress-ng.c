@@ -266,6 +266,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_LOCKF)
 	STRESSOR(lockf, LOCKF, CLASS_FILESYSTEM | CLASS_OS),
 #endif
+#if defined(STRESS_LOCKOFD)
+	STRESSOR(lockofd, LOCKOFD, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 	STRESSOR(longjmp, LONGJMP, CLASS_CPU),
 	STRESSOR(lsearch, LSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 #if defined(STRESS_MADVISE)
@@ -724,7 +727,7 @@ static const struct option long_options[] = {
 	{ "lockbus",	1,	0,	OPT_LOCKBUS },
 	{ "lockbus-ops",1,	0,	OPT_LOCKBUS_OPS },
 #endif
-#if defined(STRESS_LOCKF)
+#if defined(STRESS_LOCKA)
 	{ "locka",	1,	0,	OPT_LOCKA },
 	{ "locka-ops",	1,	0,	OPT_LOCKA_OPS },
 #endif
@@ -732,6 +735,10 @@ static const struct option long_options[] = {
 	{ "lockf",	1,	0,	OPT_LOCKF },
 	{ "lockf-ops",	1,	0,	OPT_LOCKF_OPS },
 	{ "lockf-nonblock", 0,	0,	OPT_LOCKF_NONBLOCK },
+#endif
+#if defined(STRESS_LOCKOFD)
+	{ "lockofd",	1,	0,	OPT_LOCKOFD },
+	{ "lockofd-ops",1,	0,	OPT_LOCKOFD_OPS },
 #endif
 	{ "log-brief",	0,	0,	OPT_LOG_BRIEF },
 	{ "log-file",	1,	0,	OPT_LOG_FILE },
@@ -1424,6 +1431,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },
 	{ NULL,		"lockf-ops N",		"stop after N lockf bogo operations" },
 	{ NULL,		"lockf-nonblock",	"don't block if lock cannot be obtained, re-try" },
+#endif
+#if defined(STRESS_LOCKOFD)
+	{ NULL,		"lockofd N",		"start N workers locking with open file description locks" },
+	{ NULL,		"lockofd-ops N",	"stop after N lockofd bogo operations" },
 #endif
 	{ NULL,		"longjmp N",		"start N workers exercising setjmp/longjmp" },
 	{ NULL,		"longjmp-ops N",	"stop after N longjmp bogo operations" },

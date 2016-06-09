@@ -92,6 +92,7 @@ STRESS_SRC = \
 	stress-lockbus.c \
 	stress-locka.c \
 	stress-lockf.c \
+	stress-lockofd.c \
 	stress-longjmp.c \
 	stress-madvise.c \
 	stress-malloc.c \
