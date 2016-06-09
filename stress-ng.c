@@ -260,6 +260,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_LOCKBUS)
 	STRESSOR(lockbus, LOCKBUS, CLASS_CPU_CACHE | CLASS_MEMORY),
 #endif
+#if defined(STRESS_LOCKA)
+	STRESSOR(locka, LOCKA, CLASS_FILESYSTEM | CLASS_OS),
+#endif
 #if defined(STRESS_LOCKF)
 	STRESSOR(lockf, LOCKF, CLASS_FILESYSTEM | CLASS_OS),
 #endif
@@ -720,6 +723,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_LOCKBUS)
 	{ "lockbus",	1,	0,	OPT_LOCKBUS },
 	{ "lockbus-ops",1,	0,	OPT_LOCKBUS_OPS },
+#endif
+#if defined(STRESS_LOCKF)
+	{ "locka",	1,	0,	OPT_LOCKA },
+	{ "locka-ops",	1,	0,	OPT_LOCKA_OPS },
 #endif
 #if defined(STRESS_LOCKF)
 	{ "lockf",	1,	0,	OPT_LOCKF },
@@ -1408,6 +1415,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_LOCKBUS)
 	{ NULL,		"lockbus N",		"start N workers locking a memory increment" },
 	{ NULL,		"lockbus-ops N",	"stop after N lockbus bogo operations" },
+#endif
+#if defined(STRESS_LOCKA)
+	{ NULL,		"locka N",		"start N workers locking a single file via advisory locks" },
+	{ NULL,		"locka-ops N",		"stop after N locka bogo operations" },
 #endif
 #if defined(STRESS_LOCKF)
 	{ NULL,		"lockf N",		"start N workers locking a single file via lockf" },

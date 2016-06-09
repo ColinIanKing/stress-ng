@@ -1328,12 +1328,22 @@ cacheline misses and stalling of CPUs.
 .B \-\-lockbus-ops N
 stop lockbus workers after N bogo operations.
 .TP
+.B \-\-locka N
+start N workers that randomly lock and unlock regions of a file using the
+POSIX advisory locking mechanism (see fcntl(2), F_SETLK, F_GETLK). Each
+worker creates a 1024 KB file and attempts to hold a maximum of 1024
+concurrent locks with a child process that also tries to hold 1024
+concurrent locks. Old locks are unlocked in a first-in, first-out basis.
+.TP
+.B \-\-locka\-ops N
+stop locka workers after N bogo locka operations.
+.TP
 .B \-\-lockf N
 start N workers that randomly lock and unlock regions of a file using the
-POSIX lockf(3) locking mechanism. Each worker creates a 64K file and attempts
-to hold a maximum of 1024 concurrent locks with a child process that also
-tries to hold 1024 concurrent locks. Old locks are unlocked in a first-in,
-first-out basis.
+POSIX lockf(3) locking mechanism. Each worker creates a 64 KB file and
+attempts to hold a maximum of 1024 concurrent locks with a child process
+that also tries to hold 1024 concurrent locks. Old locks are unlocked in
+a first-in, first-out basis.
 .TP
 .B \-\-lockf\-ops N
 stop lockf workers after N bogo lockf operations.

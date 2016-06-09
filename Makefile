@@ -90,6 +90,7 @@ STRESS_SRC = \
 	stress-lsearch.c \
 	stress-link.c \
 	stress-lockbus.c \
+	stress-locka.c \
 	stress-lockf.c \
 	stress-longjmp.c \
 	stress-madvise.c \
