@@ -1,3 +1,35 @@
+stress-ng (0.06.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-shm-sysv: don't msync on GNU HURD, it is not implemented
+  * stress-shm: don't msync on GNU HURD, it is not implemented
+  * stress-ng: build in OPT_MEMFD_BYTES case if STRESS_MEMFD defined
+  * manual: fcntl: add in missing locking commands
+  * stress-socket: add --sock-type socket type option
+  * Add Linux open file description locks stressor
+  * Add POSIX advisory locking stressor
+  * stress-fcntl: add more locking fcntl commands
+  * man page: add --taskset example
+  * stress-memfd: add better termination exit points, don't fail on EXNIO
+  * stress-memfd: add a --memfd-bytes size specifier option
+  * perf + Makefile: Add some smarts to detect available perf enums
+  * stress-shm: msync the shm region
+  * stress-shm-sysv: msync the shm region
+  * stress-memfd: add hole punching to memory
+  * stress-mremap: add MAP_FIXED remappings
+  * stress-memfd: add random madvise to add some more page stress
+  * stress-memfd: add seeks to memfd stressor
+  * stress-xattr: rename name to attrname to stop shadowing on name
+  * Update README stress test count
+  * Add in missing seccomp from the --help info
+  * Add a fcntl SEAL command stressor
+  * README: update number of tests
+  * time_now: return -1.0 for failed time fetch
+  * stress-get: add getcpu system call
+  * stress-dup: only close fd's that are open
+
+ -- Colin King <colin.king@canonical.com>  Fri, 10 Jun 2016 12:36:33 +0100
+
 stress-ng (0.06.05-1) unstable; urgency=medium
 
   * Makefile: bump version
