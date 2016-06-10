@@ -185,7 +185,9 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 			(void)madvise_random(addr, sz);
+#if !defined(__gnu_hurd__)
 			(void)msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
+#endif
 			(void)fsync(shm_fd);
 
 			/* Expand and shrink the mapping */
