@@ -2899,9 +2899,11 @@ next_opt:
 		case OPT_MAXIMIZE:
 			opt_flags |= OPT_FLAGS_MAXIMIZE;
 			break;
+#if defined(STRESS_MEMFD)
 		case OPT_MEMFD_BYTES:
 			stress_set_memfd_bytes(optarg);
 			break;
+#endif
 		case OPT_METRICS:
 			opt_flags |= OPT_FLAGS_METRICS;
 			break;
