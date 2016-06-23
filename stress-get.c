@@ -273,7 +273,7 @@ int stress_get(
 		check_do_run();
 #endif
 
-#if defined(__linux__) && defined(__NR_getttid)
+#if defined(__linux__) && defined(__NR_gettid)
 		(void)sys_gettid();
 		check_do_run();
 #endif
