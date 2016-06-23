@@ -2221,17 +2221,16 @@ static inline void clflush(volatile void *ptr)
         asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
 
-static inline void mfence(void)
-{
-	asm volatile("mfence" : : : "memory");
-}
-
 #else
 
 #define clflush(ptr)	do { } while (0) /* No-op */
-#define mfence()	do { } while (0) /* No-op */
 
 #endif
+
+static inline void mfence(void)
+{
+	__sync_synchronize();
+}
 
 /*
  *  mwc_seed()
