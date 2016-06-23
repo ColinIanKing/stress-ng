@@ -50,6 +50,11 @@ typedef int64_t vint64_t __attribute__ ((vector_size (16)));
 	a <<= 1;	\
 	b >>= 1;	\
 	b += c;		\
+	a %= 23;	\
+	c /= 3;		\
+	b = b ^ c;	\
+	c = b ^ c;	\
+	b = b ^ c;	\
 
 /*
  *  stress_vecmath()
@@ -112,9 +117,30 @@ int HOT OPTIMIZE3 stress_vecmath(
 			OPS(a16, b16, c16, s16);
 			OPS(a32, b32, c32, s32);
 			OPS(a64, b64, c64, s64);
+
 			OPS(a32, b32, c32, s32);
 			OPS(a16, b16, c16, s16);
 			OPS(a8, b8, c8, s8);
+			OPS(a64, b64, c64, s64);
+
+			OPS(a8, b8, c8, s8);
+			OPS(a8, b8, c8, s8);
+			OPS(a8, b8, c8, s8);
+			OPS(a8, b8, c8, s8);
+
+			OPS(a16, b16, c16, s16);
+			OPS(a16, b16, c16, s16);
+			OPS(a16, b16, c16, s16);
+			OPS(a16, b16, c16, s16);
+
+			OPS(a32, b32, c32, s32);
+			OPS(a32, b32, c32, s32);
+			OPS(a32, b32, c32, s32);
+			OPS(a32, b32, c32, s32);
+
+			OPS(a64, b64, c64, s64);
+			OPS(a64, b64, c64, s64);
+			OPS(a64, b64, c64, s64);
 			OPS(a64, b64, c64, s64);
 		}
 		(*counter)++;
