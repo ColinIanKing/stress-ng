@@ -127,7 +127,8 @@ int stress_sync_file(
 
 	do {
 		off64_t i, offset;
-		const size_t mode = mwc32() % SIZEOF_ARRAY(sync_modes);
+		const size_t mode_index = mwc32() % SIZEOF_ARRAY(sync_modes);
+		const int mode = sync_modes[mode_index];
 
 		if (stress_sync_allocate(name, fd) < 0)
 			break;
