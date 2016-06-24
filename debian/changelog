@@ -1,3 +1,16 @@
+stress-ng (0.06.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-msg: add in IPC_INFO, MSG_INFO, MSG_STAT msgctl calls
+  * stress-vecmath: add more ops to make vecmath more demanding
+  * stress-sync-file: sync on mode rather than on the sync_modes index
+  * stress-opcode: use __builtin___clear_cache to avoid clang warning
+  * stress-get: fix typo on syscall name
+  * replace mfence with __sync_synchronize builtin
+  * stress-bigheap: remove redundant call to stress_get_pagesize
+
+ -- Colin King <colin.king@canonical.com>  Fri, 24 Jun 2016 09:56:23 +0100
+
 stress-ng (0.06.06-1) unstable; urgency=medium
 
   * Makefile: bump version
