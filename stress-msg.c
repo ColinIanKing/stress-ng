@@ -50,6 +50,34 @@ typedef struct {
 	char msg[MAX_SIZE];
 } msg_t;
 
+static int stress_msg_getstats(const char *name, const int msgq_id)
+{
+	struct msqid_ds buf;
+#if defined(__linux__)
+	struct msginfo info;
+#endif
+
+	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
+		pr_fail(stderr, "%s: msgctl: IPC_STAT failed: %d (%s)\n",
+			name, errno, strerror(errno));
+		return -errno;
+	}
+#if defined(__linux__)
+	if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
+		pr_fail(stderr, "%s: msgctl: IPC_STAT failed: %d (%s)\n",
+			name, errno, strerror(errno));
+		return -errno;
+	}
+	if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
+		pr_fail(stderr, "%s: msgctl: IPC_STAT failed: %d (%s)\n",
+			name, errno, strerror(errno));
+		return -errno;
+	}
+#endif
+
+	return 0;
+}
+
 /*
  *  stress_msg
  *	stress by message queues
@@ -120,6 +148,9 @@ again:
 					pr_fail_dbg(name, "msgsnd");
 				break;
 			}
+			if ((i & 0x1f) == 0)
+				if (stress_msg_getstats(name, msgq_id) < 0)
+					break;
 			i++;
 			(*counter)++;
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
