@@ -124,7 +124,7 @@ static void MLOCKED epoll_timer_handler(int sig)
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 
-		timer_settime(epoll_timerid, 0, &timer, NULL);
+		(void)timer_settime(epoll_timerid, 0, &timer, NULL);
 	}
 }
 
