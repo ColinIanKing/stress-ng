@@ -37,11 +37,19 @@
 #include <sys/mman.h>
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
-#define CHUNK_SIZE	(64)
+#define CHUNK_SIZE	(64 * 4)
 
-#define LOCK_AND_INC(ptr, inc) 						\
-        asm volatile("lock addb %1,%0" : "+m" (*ptr) : "ir" (inc));	\
+#if defined(__GNUC__) && NEED_GNUC(4,7,0)
+#define LOCK_AND_INC(ptr, inc)					       \
+	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);		       \
 	ptr++;
+
+#else
+#define LOCK_AND_INC(ptr, inc)					       \
+        asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));    \
+	ptr++;
+
+#endif
 
 #define LOCK_AND_INCx8(ptr, inc)	\
 	LOCK_AND_INC(ptr, inc)		\
@@ -63,7 +71,7 @@ int stress_lockbus(
         const uint64_t max_ops,
         const char *name)
 {
-	uint8_t *buffer;
+	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
 
 	(void)instance;
@@ -79,8 +87,8 @@ int stress_lockbus(
 	}
 
 	do {
-		uint8_t *ptr = buffer + (mwc32() % (BUFFER_SIZE - CHUNK_SIZE));
-		const uint8_t inc = 1;
+		uint32_t *ptr = buffer + ((mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
+		const uint32_t inc = 1;
 
 		LOCK_AND_INCx8(ptr, inc);
 		LOCK_AND_INCx8(ptr, inc);
