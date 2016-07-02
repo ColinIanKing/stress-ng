@@ -577,6 +577,16 @@ extern void pr_openlog(const char *filename);
 #define STRESS_X86	1
 #endif
 
+#if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||     \
+    defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||    \
+    defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) ||  \
+    defined(__ARM_ARCH_6M__) ||  defined(__ARM_ARCH_7__) ||    \
+    defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) ||    \
+    defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__) ||   \
+    defined(__ARM_ARCH_8A__) || defined(__aarch64__)
+#define STRESS_ARM      1
+#endif
+
 #if NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
 #endif
@@ -985,7 +995,8 @@ typedef enum {
 #define STRESS_LEASE __STRESS_LEASE
 #endif
 	STRESS_LINK,
-#if (defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86) && defined(__linux__)
+#if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
+    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
 	__STRESS_LOCKBUS,
 #define STRESS_LOCKBUS __STRESS_LOCKBUS
 #endif
