@@ -186,6 +186,7 @@ ppoll
 prctl				process name setting
 pread				readahead
 preadv
+preadv2
 prlimit				get
 /proc				proc
 process_vm_readv		vm_rw
@@ -194,6 +195,7 @@ pselect6
 ptrace				ptrace
 pwrite				readahead, aio
 pwritev				ioprio
+pwritev2
 quotactl			quota
 read				pipe, zero, ..
 readahead			readahead
