@@ -212,6 +212,7 @@ remap_file_pages		remap
 removexattr
 rename				rename
 renameat
+renameat2
 request_key			key
 restart_syscall			[ ignore this ]
 rmdir				dir
