@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <errno.h>
 #include <sys/mman.h>
 
@@ -34,20 +35,19 @@
 
 #if defined(STRESS_ICACHE)
 
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define SECTION(s) __attribute__((__section__(# s)))
-#define ALIGNED(a) __attribute__((aligned(a)))
-#endif
+// 4096 bytes should be enough for below proto type function
+#define FUNC_SIZE 4096
 
-/*
- *  stress_icache_func()
- *	page aligned in its own section so we can change the
- * 	code mapping and make it modifyable to force I-cache
- *	refreshes by modifying the code
- */
-static void SECTION(stress_icache_callee) ALIGNED(4096) stress_icache_func(void)
+uint8_t *stress_icache_func;
+
+uint8_t stress_icache_proto_func_0(void)
 {
-	return;
+	return 0;
+}
+
+uint8_t stress_icache_proto_func_1(void)
+{
+	return 1;
 }
 
 /*
@@ -57,48 +57,54 @@ static void SECTION(stress_icache_callee) ALIGNED(4096) stress_icache_func(void)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int SECTION(stress_icache_caller) stress_icache(
+int stress_icache(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name)
 {
-	volatile uint8_t *addr = (uint8_t *)stress_icache_func;
-
 	(void)instance;
 
-	if (mprotect((void *)addr, 4096, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
+	uint32_t pagesize = getpagesize();
+
+	uint8_t *ptr = malloc(FUNC_SIZE + pagesize + 1);
+	if (NULL == ptr) {
+		return EXIT_FAILURE;
+	}
+
+	//Align the address on a page boundary
+	stress_icache_func = (uint8_t *)(((uint64_t)ptr + pagesize - 1) & ~(pagesize - 1));
+
+	if (mprotect((void *)stress_icache_func, FUNC_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
 		pr_err(stderr, "%s: PROT_WRITE mprotect failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
-	do {
-		register uint8_t val;
-		register int i = 1024;
+	void* func_array[2] = {stress_icache_proto_func_0, stress_icache_proto_func_1};
 
-		while (--i) {
-			/*
-			 *   Modifying executable code on x86 will
-			 *   call a I-cache reload when we execute
-			 *   the modfied ops.
-			 */
-			val = *addr;
-			*addr ^= ~0;
-			*addr = val;
-			stress_icache_func();
-#if defined(__GNUC__)
-			__clear_cache((char *)addr, (char *)addr + 64);
-#endif
+	do {
+		uint8_t val;
+
+		memcpy(stress_icache_func, func_array[*counter & 0x1], FUNC_SIZE);
+
+		__clear_cache((uint8_t*)stress_icache_func, (uint8_t*)stress_icache_func + FUNC_SIZE);
+
+		val = ((uint8_t (*)())stress_icache_func)();
+		if(val != (uint8_t)(*counter & 0x1)) {
+			return EXIT_FAILURE;
 		}
+
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-	if (mprotect((void *)addr, 4096, PROT_READ | PROT_EXEC) < 0) {
+	if (mprotect((void *)stress_icache_func, FUNC_SIZE, PROT_READ | PROT_EXEC) < 0) {
 		pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+
+	free(ptr);
 
 	return EXIT_SUCCESS;
 }

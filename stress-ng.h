@@ -963,7 +963,7 @@ typedef enum {
 #define STRESS_HEAPSORT __STRESS_HEAPSORT
 #endif
 	STRESS_HSEARCH,
-#if defined(STRESS_X86) && defined(__GNUC__) && NEED_GNUC(4,6,0)
+#if (defined(STRESS_X86) || defined(STRESS_ARM)) && defined(__GNUC__)
 	__STRESS_ICACHE,
 #define STRESS_ICACHE __STRESS_ICACHE
 #endif
