@@ -79,17 +79,29 @@ int SECTION(stress_icache_caller) stress_icache(
 
 		while (--i) {
 			/*
-			 *   Modifying executable code on x86 will
-			 *   call a I-cache reload when we execute
-			 *   the modfied ops.
+			 *  Modifying executable code on x86 will
+			 *  call a I-cache reload when we execute
+			 *  the modfied ops.
 			 */
 			val = *addr;
 			*addr ^= ~0;
-			*addr = val;
-			stress_icache_func();
-#if defined(__GNUC__)
+
+			/*
+			 * ARM CPUs need us to clear the I$ between
+			 * each modification of the object code.
+			 *
+			 * We may need to do the same for other processors
+			 * as the default code assumes smart x86 style
+			 * I$ behaviour.
+			 */
+#if defined(__GNUC__) && defined(STRESS_ARM)
 			__clear_cache((char *)addr, (char *)addr + 64);
 #endif
+			*addr = val;
+#if defined(__GNUC__) && defined(STRESS_ARM)
+			__clear_cache((char *)addr, (char *)addr + 64);
+#endif
+			stress_icache_func();
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
