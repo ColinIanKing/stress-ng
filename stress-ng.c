@@ -152,6 +152,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_APPARMOR)
 	STRESSOR(apparmor, APPARMOR, CLASS_OS | CLASS_SECURITY),
 #endif
+#if defined(STRESS_ATOMIC)
+	STRESSOR(atomic, ATOMIC, CLASS_CPU | CLASS_MEMORY),
+#endif
 	STRESSOR(bigheap, BIGHEAP, CLASS_OS | CLASS_VM),
 #if defined(STRESS_BIND_MOUNT)
 	STRESSOR(bind_mount, BIND_MOUNT, CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL),
@@ -522,6 +525,10 @@ static const struct option long_options[] = {
 #if defined(STRESS_APPARMOR)
 	{ "apparmor",	1,	0,	OPT_APPARMOR },
 	{ "apparmor-ops",1,	0,	OPT_APPARMOR_OPS },
+#endif
+#if defined(STRESS_ATOMIC)
+	{ "atomic",	1,	0,	OPT_ATOMIC },
+	{ "atomic-ops",	1,	0,	OPT_ATOMIC_OPS },
 #endif
 	{ "backoff",	1,	0,	OPT_BACKOFF },
 	{ "bigheap",	1,	0,	OPT_BIGHEAP },
@@ -1228,6 +1235,10 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_APPARMOR)
 	{ NULL,		"apparmor",		"start N workers exercising AppArmor interfaces" },
 	{ NULL,		"apparmor-ops",		"stop after N bogo AppArmor worker bogo operations" },
+#endif
+#if defined(STRESS_ATOMIC)
+	{ NULL,		"atomic",		"start N workers exercising GCC atomic operations" },
+	{ NULL,		"atomic-ops",		"stop after N bogo atomic bogo operations" },
 #endif
 	{ "B N",	"bigheap N",		"start N workers that grow the heap using calloc()" },
 	{ NULL,		"bigheap-ops N",	"stop after N bogo bigheap operations" },

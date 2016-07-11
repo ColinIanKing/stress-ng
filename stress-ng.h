@@ -803,6 +803,12 @@ typedef struct {
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	struct {
+		uint64_t val64;
+		uint32_t val32;
+		uint16_t val16;
+		uint8_t	 val8;
+	} atomic;					/* Shared atomic temp vars */
+	struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
@@ -862,6 +868,10 @@ typedef enum {
 #if defined(__linux__) && defined(HAVE_APPARMOR)
 	__STRESS_APPARMOR,
 #define STRESS_APPARMOR __STRESS_APPARMOR
+#endif
+#if defined(__GNUC__) && NEED_GNUC(4,7,4)
+	__STRESS_ATOMIC,
+#define STRESS_ATOMIC __STRESS_ATOMIC
 #endif
 	STRESS_BRK,
 	STRESS_BSEARCH,
@@ -1370,6 +1380,11 @@ typedef enum {
 #if defined(STRESS_APPARMOR)
 	OPT_APPARMOR,
 	OPT_APPARMOR_OPS,
+#endif
+
+#if defined(STRESS_ATOMIC)
+	OPT_ATOMIC,
+	OPT_ATOMIC_OPS,
 #endif
 
 	OPT_BRK,
@@ -2527,6 +2542,7 @@ STRESS(stress_af_alg);
 STRESS(stress_aio);
 STRESS(stress_aiol);
 STRESS(stress_apparmor);
+STRESS(stress_atomic);
 STRESS(stress_bigheap);
 STRESS(stress_bind_mount);
 STRESS(stress_brk);
