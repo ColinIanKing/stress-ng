@@ -56,7 +56,8 @@ static inline bool stress_syscall_wait(
 			return true;
 		}
 		if (waitpid(pid, &status, 0) < 0) {
-			pr_fail_dbg(name, "waitpid");
+			if (errno != EINTR)
+				pr_fail_dbg(name, "waitpid");
 			return true;
 		}
 
@@ -124,8 +125,11 @@ int stress_ptrace(
 		setpgid(pid, pgrp);
 
 		if (waitpid(pid, &status, 0) < 0) {
-			pr_fail_dbg(name, "waitpid");
-			return EXIT_FAILURE;
+			if (errno != EINTR) {
+				pr_fail_dbg(name, "waitpid");
+				return EXIT_FAILURE;
+			}
+			return EXIT_SUCCESS;
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
