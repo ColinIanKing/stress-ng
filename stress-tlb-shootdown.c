@@ -72,12 +72,6 @@ int stress_tlb_shootdown(
 			return EXIT_FAILURE;
 		}
 		cpus = CPU_COUNT(&proc_mask);
-		if (cpus < 2) {
-			pr_fail(stderr, "%s: requires 2 or more CPUs to "
-				"be effective, only have %d available\n",
-				name, (int)CPU_COUNT(&proc_mask));
-			return EXIT_NO_RESOURCE;
-		}
 		tlb_procs = STRESS_MAXIMUM(cpus, MAX_TLB_PROCS);
 
 		for (;;) {
@@ -146,7 +140,6 @@ int stress_tlb_shootdown(
 		(void)munmap(mem, mmap_size);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
 
 	return EXIT_SUCCESS;
 }
