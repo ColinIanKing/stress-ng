@@ -134,7 +134,9 @@ int stress_copy_file(
 
 		ret =  sys_copy_file_range(fd_in, &off_in, fd_out, &off_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
+			if ((errno == EAGAIN) ||
+			    (errno == EINTR) ||
+			    (errno == ENOSPC))
 				continue;
 			pr_fail_err(name, "copy_file_range");
 			goto tidy_out;
