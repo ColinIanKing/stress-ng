@@ -1,3 +1,21 @@
+stress-ng (0.06.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-ptrace: EINTR is not a failure on waitpid
+  * stress-tlb-shootdown: remove case where < 2 CPUs abort the test
+  * Add GCC atomic ops stressor
+  * stress-copy-file-range: handle ENOSPC as non-fatal
+  * stress-icache: call __clear_cache() between code modifications.
+  * Enable icache stressor for arm
+  * Add renameat2 to syscalls
+  * Add preadv2/prwritev2 to syscalls
+  * stress-lockbus: use GCC builtin __atomic_add_fetch to test lock bus
+  * stress-epoll: void return on timer_settime
+  * Manual: update contributors, add Zhiyi Sun
+
+ -- Colin King <colin.king@canonical.com>  Tue, 12 Jul 2016 08:26:59 +0100
+
 stress-ng (0.06.07-1) unstable; urgency=medium
 
   * Makefile: bump version
