@@ -542,13 +542,13 @@ have_vecmath: stress-vecmath.c
 #  check if we can build atomic related code
 #
 have_atomic: stress-atomic.c
-	@$(CC) $(CPPFLAGS) -DHAVE_ATOMIC -c -o stress-atomic-test.o stress-atomic.c 2> /dev/null || true
-	@if [ -e stress-atomic-test.o ]; then \
+	@$(CC) $(CPPFLAGS) -DTEST_ATOMIC_BUILD -DHAVE_ATOMIC stress-atomic.c -o stress-atomic-test 2> /dev/null || true
+	@if [ -e stress-atomic-test ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
 	fi
-	@rm -rf stress-atomic-test.o
+	@rm -rf stress-atomic-test
 
 #
 #  extract the PER_* personality enums

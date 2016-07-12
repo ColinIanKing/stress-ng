@@ -24,10 +24,6 @@
  */
 #define _GNU_SOURCE
 
-#include "stress-ng.h"
-
-#if defined(STRESS_ATOMIC)
-
 #include <stdint.h>
 #include <inttypes.h>
 
@@ -101,6 +97,33 @@
 }
 
 
+#if defined(TEST_ATOMIC_BUILD)
+static inline uint64_t mwc64(void)
+{
+	return 0;
+}
+
+int main(void)
+{
+	uint64_t val64;
+	uint32_t val32;
+	uint16_t val16;
+	uint8_t  val8;
+
+	DO_ATOMIC_OPS(uint64_t, &val64);
+	DO_ATOMIC_OPS(uint32_t, &val32);
+	DO_ATOMIC_OPS(uint16_t, &val16);
+	DO_ATOMIC_OPS(uint8_t, &val8);
+
+	return 0;
+}
+
+#else
+
+#include "stress-ng.h"
+
+#if defined(STRESS_ATOMIC)
+
 /*
  *  stress_atomic()
  *      stress gcc atomic memory ops
@@ -124,5 +147,6 @@ int stress_atomic(
 
 	return EXIT_SUCCESS;
 }
+#endif
 
 #endif
