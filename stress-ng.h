@@ -869,7 +869,7 @@ typedef enum {
 	__STRESS_APPARMOR,
 #define STRESS_APPARMOR __STRESS_APPARMOR
 #endif
-#if defined(__GNUC__) && NEED_GNUC(4,7,4)
+#if defined(HAVE_ATOMIC)
 	__STRESS_ATOMIC,
 #define STRESS_ATOMIC __STRESS_ATOMIC
 #endif

@@ -227,7 +227,7 @@ LIB_AIO = -laio
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
-	 HAVE_VECMATH=0
+	 HAVE_VECMATH=0 HAVE_ATOMIC=0
 
 #
 # Do build time config only if cmd is "make" and no goals given
@@ -335,9 +335,15 @@ ifeq ($(HAVE_VECMATH),1)
 	CFLAGS += -DHAVE_VECMATH
 endif
 endif
+
+ifndef $(HAVE_ATOMIC)
+HAVE_ATOMIC = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_atomic)
+ifeq ($(HAVE_ATOMIC),1)
+	CFLAGS += -DHAVE_ATOMIC
+endif
 endif
 
-
+endif
 
 .SUFFIXES: .c .o
 
@@ -532,6 +538,17 @@ have_vecmath: stress-vecmath.c
 	fi
 	@rm -rf stress-vecmath-test.o
 
+#
+#  check if we can build atomic related code
+#
+have_atomic: stress-atomic.c
+	@$(CC) $(CPPFLAGS) -DHAVE_ATOMIC -c -o stress-atomic-test.o stress-atomic.c 2> /dev/null || true
+	@if [ -e stress-atomic-test.o ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf stress-atomic-test.o
 
 #
 #  extract the PER_* personality enums
