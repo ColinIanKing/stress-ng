@@ -1,3 +1,12 @@
+stress-ng (0.06.10-1) unstable; urgency=medium
+
+  * Makefile: bump version again
+  * stress-atomic + build: the autodetect smarts did not work, fix them
+    - need to check that the linker also provides all the atomic built-ins
+      too.
+
+ -- Colin King <colin.king@canonical.com>  Tue, 12 Jul 2016 17:29:46 +0100
+
 stress-ng (0.06.09-1) unstable; urgency=medium
 
   * Makefile: bump version
