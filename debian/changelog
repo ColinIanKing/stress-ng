@@ -1,3 +1,12 @@
+stress-ng (0.06.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-atomic: don't make tmp volatile, fixes clang warnings
+  * Add smarts to Makefile to detect if atomic GCC functions are supported
+    - fixes FTBFS issues on mips, mipsel, powerpc, m68k, powerpcspe, sh4
+
+ -- Colin King <colin.king@canonical.com>  Tue, 12 Jul 2016 10:52:18 +0100
+
 stress-ng (0.06.08-1) unstable; urgency=medium
 
   * Makefile: bump version
