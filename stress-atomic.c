@@ -33,7 +33,7 @@
 
 #define DO_ATOMIC_OPS(type, var)			\
 {							\
-	volatile type tmp = mwc64();			\
+	type tmp = mwc64();				\
 							\
 	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
 	__atomic_load(var, &tmp, __ATOMIC_RELAXED);	\
