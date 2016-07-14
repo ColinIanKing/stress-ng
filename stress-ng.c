@@ -1257,7 +1257,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cache-ops N",		"stop after N cache bogo operations" },
 	{ NULL,		"cache-prefetch",	"prefetch on memory reads/writes" },
 	{ NULL,		"cache-flush",		"flush cache after every memory write (x86 only)" },
-	{ NULL,		"cache-fence",		"serialize stores (x86 only)" },
+	{ NULL,		"cache-fence",		"serialize stores" },
 	{ NULL,		"cache-level N",	"only exercise specified cache" },
 	{ NULL,		"cache-ways N",		"only fill specified number of cache ways" },
 #if defined(STRESS_CAP)
