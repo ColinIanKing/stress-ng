@@ -1,3 +1,14 @@
+stress-ng (0.06.11-1) unstable; urgency=medium
+
+  * Makefile; bump version
+  * fast-test-all: don't run seccomp, it may not pass on some kernels
+  * stress-fault: handle segfaults that occur on some BSD kernels
+  * stress-icache: only madvice if MADV_NOHUGEPAGE is defined
+  * stress-icache: don't assume that read/write/exec protection is allowed
+  * Update cache-mfence helper. It supports ARM now.
+
+ -- Colin King <colin.king@canonical.com>  Thu, 14 Jul 2016 10:11:12 +0100
+
 stress-ng (0.06.10-1) unstable; urgency=medium
 
   * Makefile: bump version again
