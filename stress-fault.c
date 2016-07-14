@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
+#include <setjmp.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -36,6 +37,21 @@
 #include <sys/resource.h>
 
 #include "stress-ng.h"
+
+static sigjmp_buf jmp_env;
+static volatile bool do_jmp = true;
+
+/*
+ *  stress_segvhandler()
+ *	SEGV handler
+ */
+static void MLOCKED stress_segvhandler(int dummy)
+{
+	(void)dummy;
+
+	if (do_jmp)
+		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
 
 /*
  *  stress_fault()
@@ -49,7 +65,7 @@ int stress_fault(
 {
 	struct rusage usage;
 	char filename[PATH_MAX];
-	int ret, i = 0;
+	int ret, i;
 	const pid_t pid = getpid();
 
 	ret = stress_temp_dir_mk(name, pid, instance);
@@ -60,9 +76,21 @@ int stress_fault(
 		name, pid, instance, mwc32());
 	(void)umask(0077);
 
+	i = 0;
+
+	if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
+		return EXIT_FAILURE;
+
 	do {
 		char *ptr;
 		int fd;
+
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret) {
+			do_jmp = false;
+			pr_err(stderr, "%s: unexpected segmentation fault\n", name);
+			break;
+		}
 
 		fd = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
@@ -102,6 +130,14 @@ redo:
 			}
 		}
 #endif
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret) {
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				do_jmp = false;
+			if (fd != -1)
+				(void)close(fd);
+			goto next;
+		}
 
 		/*
 		 * Removing file here causes major fault when we touch
@@ -113,6 +149,7 @@ redo:
 		ptr = mmap(NULL, 1, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
 		(void)close(fd);
+		fd = -1;
 
 		if (ptr == MAP_FAILED) {
 			pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
@@ -128,6 +165,7 @@ redo:
 			break;
 		}
 
+next:
 		/* Remove file on-non major fault case */
 		if (!(i & 1))
 			(void)unlink(filename);
