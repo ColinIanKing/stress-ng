@@ -76,11 +76,13 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			name, page_size, SIZE);
 		return EXIT_NO_RESOURCE;
 	}
+#if defined(MADV_NOHUGEPAGE)
 	if (madvise((void *)addr, SIZE, MADV_NOHUGEPAGE) < 0) {
 		pr_inf(stderr, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
 			name, addr, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+#endif
 
 	do {
 		register uint8_t val;
