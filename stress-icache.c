@@ -34,6 +34,8 @@
 
 #if defined(STRESS_ICACHE)
 
+#define SIZE	(4096)
+
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)
 #define SECTION(s) __attribute__((__section__(# s)))
 #define ALIGNED(a) __attribute__((aligned(a)))
@@ -45,10 +47,11 @@
  * 	code mapping and make it modifyable to force I-cache
  *	refreshes by modifying the code
  */
-static void SECTION(stress_icache_callee) ALIGNED(4096) stress_icache_func(void)
+static void SECTION(stress_icache_callee) ALIGNED(SIZE) stress_icache_func(void)
 {
 	return;
 }
+
 
 /*
  *  stress_icache()
@@ -57,20 +60,26 @@ static void SECTION(stress_icache_callee) ALIGNED(4096) stress_icache_func(void)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int SECTION(stress_icache_caller) stress_icache(
+int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name)
 {
 	volatile uint8_t *addr = (uint8_t *)stress_icache_func;
+	const size_t page_size = stress_get_pagesize();
 
 	(void)instance;
 
-	if (mprotect((void *)addr, 4096, PROT_READ | PROT_WRITE | PROT_EXEC) < 0) {
-		pr_err(stderr, "%s: PROT_WRITE mprotect failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
-		return EXIT_FAILURE;
+	if (page_size != SIZE) {
+		pr_inf(stderr, "%s: page size %zu is not %u, cannot test\n",
+			name, page_size, SIZE);
+		return EXIT_NO_RESOURCE;
+	}
+	if (madvise((void *)addr, SIZE, MADV_NOHUGEPAGE) < 0) {
+		pr_inf(stderr, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
+			name, addr, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
 	}
 
 	do {
@@ -78,6 +87,17 @@ int SECTION(stress_icache_caller) stress_icache(
 		register int i = 1024;
 
 		while (--i) {
+			/*
+			 *  Change protection to make page modifyable. It may be that
+			 *  some architectures don't allow this, so don't bail out on
+			 *  a EXIT_FAILURE; this is a not necessarily a fault in the
+			 *  the stressor, just an arch resource protection issue.
+			 */
+			if (mprotect((void *)addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
+				pr_inf(stderr, "%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
+					name, addr, errno, strerror(errno));
+				return EXIT_NO_RESOURCE;
+			}
 			/*
 			 *  Modifying executable code on x86 will
 			 *  call a I-cache reload when we execute
@@ -101,16 +121,20 @@ int SECTION(stress_icache_caller) stress_icache(
 #if defined(__GNUC__) && defined(STRESS_ARM)
 			__clear_cache((char *)addr, (char *)addr + 64);
 #endif
+			/*
+			 *  Set back to a text segment READ/EXEC page attributes, this
+			 *  really should not fail.
+			 */
+			if (mprotect((void *)addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
+				pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
+					name, errno, strerror(errno));
+				return EXIT_FAILURE;
+			}
+
 			stress_icache_func();
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-
-	if (mprotect((void *)addr, 4096, PROT_READ | PROT_EXEC) < 0) {
-		pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
 
 	return EXIT_SUCCESS;
 }
