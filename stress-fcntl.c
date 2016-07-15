@@ -260,12 +260,14 @@ static int do_fcntl(const int fd, const char *name)
 		ret = fcntl(fd, F_GETLK, &f);
 		check_return(ret, name, "F_GETLK");
 
+#if 0
 		if (f.l_type != F_UNLCK) {
 			pr_fail(stderr, "%s: fcntl F_GETLK failed, "
 				"expecting l_type to return F_UNLCK\n",
 				name);
 			goto lock_abort;
 		}
+#endif
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
