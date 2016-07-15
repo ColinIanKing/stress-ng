@@ -1,3 +1,17 @@
+stress-ng (0.06.12-1) unstable; urgency=medium
+
+  * Makefile: bump version once more
+  * Update manual page date since we've touched the manual
+  * stress-seal: don't abort fatally if memfd_create is not available.
+  * fast-test-all: cater for non-fatal test exit status
+  * Add oom-pipe to fast-test-all exclusion list
+  * Manual: clarify that return code 3 could refer to missing system call
+  * stress-fcntl: handle EAGAIN lock requests more robustly
+  * stress-fcntl: don't check initial GETLK status
+  * stress-icache: don't fail if advice fails on EINVAL
+
+ -- Colin King <colin.king@canonical.com>  Fri, 15 Jul 2016 15:24:56 +0100
+
 stress-ng (0.06.11-1) unstable; urgency=medium
 
   * Makefile; bump version
