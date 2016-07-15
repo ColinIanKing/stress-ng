@@ -78,9 +78,15 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 	}
 #if defined(MADV_NOHUGEPAGE)
 	if (madvise((void *)addr, SIZE, MADV_NOHUGEPAGE) < 0) {
-		pr_inf(stderr, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
-			name, addr, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		/*
+		 * We may get EINVAL on kernels that don't support this
+		 * so don't treat that as non-fatal as this is just advistory
+		 */
+		if (errno != EINVAL) {
+			pr_inf(stderr, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
+				name, addr, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		}
 	}
 #endif
 
