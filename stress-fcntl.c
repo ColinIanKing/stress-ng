@@ -155,7 +155,7 @@ static int do_fcntl(const int fd, const char *name)
 	{
 		int ret;
 		struct f_owner_ex owner;
-	
+
 		owner.type = F_OWNER_PID;
 		owner.pid = getpid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
@@ -276,6 +276,8 @@ static int do_fcntl(const int fd, const char *name)
 		f.l_pid = getpid();
 
 		ret = fcntl(fd, F_SETLK, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto lock_abort;
 		check_return(ret, name, "F_SETLK (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
@@ -285,6 +287,9 @@ static int do_fcntl(const int fd, const char *name)
 		f.l_pid = getpid();
 
 		ret = fcntl(fd, F_SETLK, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto lock_abort;
+
 		check_return(ret, name, "F_SETLK (F_UNLCK)");
 
 		f.l_type = F_WRLCK;
@@ -294,6 +299,8 @@ static int do_fcntl(const int fd, const char *name)
 		f.l_pid = getpid();
 
 		ret = fcntl(fd, F_SETLKW, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto lock_abort;
 		check_return(ret, name, "F_SETLKW (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
@@ -333,12 +340,14 @@ lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_OFD_GETLK, &f);
 		check_return(ret, name, "F_GETLK");
 
+#if 0
 		if (f.l_type != F_UNLCK) {
 			pr_fail(stderr, "%s: fcntl F_OFD_GETLK failed, "
 				"expecting l_type to return F_UNLCK\n",
 				name);
 			goto ofd_lock_abort;
 		}
+#endif
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
@@ -347,6 +356,8 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto ofd_lock_abort;
 		check_return(ret, name, "F_OFD_SETLK (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
@@ -356,6 +367,8 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto ofd_lock_abort;
 		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
 
 		f.l_type = F_WRLCK;
@@ -365,6 +378,8 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLKW, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto ofd_lock_abort;
 		check_return(ret, name, "F_OFD_SETLKW (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
@@ -374,6 +389,8 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_SETLK, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto ofd_lock_abort;
 		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
 
 ofd_lock_abort:	{ /* Nowt */ }
