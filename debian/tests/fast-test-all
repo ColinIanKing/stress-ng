@@ -1,5 +1,4 @@
 #!/bin/bash 
-set -e
 
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
@@ -25,23 +24,37 @@ not_exclude()
 
 p=0
 f=0
+sk=0
 for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
 	then
 		stress-ng -v -t 1 --${s} 4 2>&1
-		if [ $? -ne 0 ]
-		then
-			echo "$s FAILED"
-			f=$((f + 1))
-		else
-			echo "$s PASSED"
+		ret=$?
+		
+		case $ret in
+		0)	echo "$s PASSED"
 			p=$((p + 1))
-		fi
+			;;
+		1)	echo "$s SKIPPED (test framework out of resources)"
+			sk=$((sk + 1))
+			;;
+		2)	echo "$s FAILED"
+			f=$((f + 1))
+			rc=1
+			;;
+		3)	echo "$s SKIPPED (out of resources or missing syscall)"
+			sk=$((sk + 1))
+			;;
+		*)	echo "$s SKIPPED (unknown error return $ret)"
+			sk=$((sk + 1))
+			;;
+		esac
 	fi
 done
 
 echo "$p PASSED"
 echo "$f FAILED"
+echo "$sk SKIPPED"
 
 exit $rc
