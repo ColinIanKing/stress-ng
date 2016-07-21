@@ -589,8 +589,9 @@ int stress_cache_alloc(const char *name)
 #else
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache details\n", name);
+		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
+			pr_inf(stderr, "%s: using built-in defaults as unable to "
+				"determine cache details\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
@@ -598,16 +599,18 @@ int stress_cache_alloc(const char *name)
 	max_cache_level = get_max_cache_level(cpu_caches);
 
 	if (shared->mem_cache_level > max_cache_level) {
-		pr_dbg(stderr, "%s: reducing cache level from L%d (too high) "
-			"to L%d\n", name,
-			shared->mem_cache_level, max_cache_level);
+		if (warn_once(WARN_ONCE_CACHE_REDUCED))
+			pr_dbg(stderr, "%s: reducing cache level from L%d (too high) "
+				"to L%d\n", name,
+				shared->mem_cache_level, max_cache_level);
 		shared->mem_cache_level = max_cache_level;
 	}
 
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
 	if (!cache) {
-		pr_inf(stderr, "%s: using built-in defaults as no suitable "
-			"cache found\n", name);
+		if (warn_once(WARN_ONCE_CACHE_NONE))
+			pr_inf(stderr, "%s: using built-in defaults as no suitable "
+				"cache found\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
@@ -616,6 +619,7 @@ int stress_cache_alloc(const char *name)
 		uint64_t way_size;
 
 		if (shared->mem_cache_ways > cache->ways) {
+			if (warn_once(WARN_ONCE_CACHE_WAY))
 			pr_inf(stderr, "%s: cache way value too high - "
 				"defaulting to %d (the maximum)\n",
 				name, cache->ways);
@@ -632,8 +636,9 @@ int stress_cache_alloc(const char *name)
 	}
 
 	if (!shared->mem_cache_size) {
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
-			"determine cache size\n", name);
+		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
+			pr_inf(stderr, "%s: using built-in defaults as unable to "
+				"determine cache size\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
 init_done:
@@ -645,8 +650,9 @@ init_done:
 			name);
 		return -1;
 	}
-	pr_inf(stderr, "%s: default cache size: %" PRIu64 "K\n",
-		name, shared->mem_cache_size / 1024);
+	if (warn_once(WARN_ONCE_CACHE_SIZE))
+		pr_inf(stderr, "%s: default cache size: %" PRIu64 "K\n",
+			name, shared->mem_cache_size / 1024);
 
 	return 0;
 }

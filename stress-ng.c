@@ -3474,6 +3474,9 @@ next_opt:
 #if defined(STRESS_PERF_STATS)
 	pthread_spin_init(&shared->perf.lock, 0);
 #endif
+#if defined(HAVE_LIB_PTHREAD)
+        pthread_spin_init(&shared->warn_once.lock, 0);
+#endif
 
 	/*
 	 *  Allocate shared cache memory

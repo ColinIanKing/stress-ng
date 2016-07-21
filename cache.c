@@ -463,12 +463,14 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		 * Not an error since some platforms don't provide cache
 		 * details * via /sys (ARM).
 		 */
-		pr_dbg(stderr, "%s does not exist\n", glob_path);
+		if (warn_once(WARN_ONCE_NO_CACHE))
+			pr_dbg(stderr, "%s does not exist\n", glob_path);
 		return ret;
 	}
 
 	if (ret2 != S_IFDIR) {
-		pr_err(stderr, "file %s is not a directory\n", glob_path);
+		if (warn_once(WARN_ONCE_NO_CACHE))
+			pr_err(stderr, "file %s is not a directory\n", glob_path);
 		return ret;
 	}
 
@@ -476,8 +478,9 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
 
 	if (ret2 != 0) {
-		pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
-			glob_path, ret);
+		if (warn_once(WARN_ONCE_NO_CACHE))
+			pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
+				glob_path, ret);
 		return ret;
 	}
 
@@ -485,7 +488,8 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	cpu->cache_count = globbuf.gl_pathc;
 
 	if (!cpu->cache_count) {
-		pr_err(stderr, "no CPU caches found\n");
+		if (warn_once(WARN_ONCE_NO_CACHE))
+			pr_err(stderr, "no CPU caches found\n");
 		goto err;
 	}
 

@@ -193,6 +193,13 @@ typedef unsigned long int __kernel_ulong_t;
 	 OPT_FLAGS_STACK_FILL | OPT_FLAGS_CACHE_PREFETCH | \
 	 OPT_FLAGS_AGGRESSIVE | OPT_FLAGS_IGNITE_CPU)
 
+#define WARN_ONCE_NO_CACHE	0x00000001	/* No /sys/../cpu0/cache */
+#define WARN_ONCE_CACHE_DEFAULT	0x00000002	/* default cache size */
+#define WARN_ONCE_CACHE_NONE	0x00000004	/* no cache info */
+#define WARN_ONCE_CACHE_WAY	0x00000008	/* cache way too high */
+#define WARN_ONCE_CACHE_SIZE	0x00000010	/* cache size info */
+#define WARN_ONCE_CACHE_REDUCED	0x00000020	/* reduced cache */
+
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -801,6 +808,13 @@ typedef struct {
 	uint64_t mem_cache_size;			/* Bytes */
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
 	uint32_t mem_cache_ways;			/* cache ways size */
+	struct {
+		uint32_t	flags;			/* flag bits */
+#if defined(HAVE_LIB_PTHREAD)
+		pthread_spinlock_t lock;		/* protection lock */
+#endif
+	} warn_once;
+	uint32_t warn_once_flags;			/* Warn once flags */
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	struct {
 		uint64_t val64;
@@ -2407,6 +2421,24 @@ static inline void *align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 
+}
+
+/*
+ *  Check if flag is set, and set flag
+ */
+static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
+{
+	uint32_t tmp;
+
+#if defined(HAVE_LIB_PTHREAD)
+	pthread_spin_lock(&shared->warn_once.lock);
+#endif
+	tmp = !(shared->warn_once.flags & flag);
+	shared->warn_once.flags |= flag;
+#if defined(HAVE_LIB_PTHREAD)
+	pthread_spin_unlock(&shared->warn_once.lock);
+#endif
+	return tmp;
 }
 
 /* Memory tweaking */
