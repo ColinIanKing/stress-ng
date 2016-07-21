@@ -574,10 +574,6 @@ perf.o: perf.c perf-event.c
 	@gcc -E perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | awk {'print "#define _SNG_" $$1 " (1)"'} > perf-event.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-str.o: stress-str.c
-	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-
 stress-wcstr.o: stress-wcstr.c
 	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
