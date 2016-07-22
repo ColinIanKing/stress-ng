@@ -565,7 +565,7 @@ int stress_str(
 		stress_strnrnd(str1, sizeof(str1));
 		stress_strnrnd(str2, sizeof(str2));
 
-		(void)func(name, libc_func, str1, sizeof(str1), str2, sizeof(str2));
+		(void)func(libc_func, name, str1, sizeof(str1), str2, sizeof(str2));
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	return EXIT_SUCCESS;
