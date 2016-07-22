@@ -36,6 +36,7 @@
  *  the wide string stress test has different classes of stressors
  */
 typedef void (*stress_wcs_func)(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -45,6 +46,7 @@ typedef void (*stress_wcs_func)(
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
 	const stress_wcs_func	func;	/* the stressor function */
+	const void		*libc_func;
 } stress_wcs_stressor_info_t;
 
 static const stress_wcs_stressor_info_t *opt_wcs_stressor;
@@ -84,6 +86,7 @@ static inline void wcschk(
  *	stress on wcscasecmp
  */
 static void stress_wcscasecmp(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -91,22 +94,23 @@ static void stress_wcscasecmp(
 	const size_t len2)
 {
 	register size_t i;
+	int (*__wcscasecmp)(const wchar_t *s1, const wchar_t *s2) = libc_func;
 
 	(void)len2;
 
 	for (i = 1; i < len1; i++) {
-		WCSCHK(name, 0 == wcscasecmp(str1, str1));
-		WCSCHK(name, 0 == wcscasecmp(str2, str2));
+		WCSCHK(name, 0 == __wcscasecmp(str1, str1));
+		WCSCHK(name, 0 == __wcscasecmp(str2, str2));
 
-		WCSCHK(name, 0 != wcscasecmp(str2, str1));
-		WCSCHK(name, 0 != wcscasecmp(str1, str2));
+		WCSCHK(name, 0 != __wcscasecmp(str2, str1));
+		WCSCHK(name, 0 != __wcscasecmp(str1, str2));
 
-		WCSCHK(name, 0 != wcscasecmp(str1 + i, str1));
-		WCSCHK(name, 0 != wcscasecmp(str1, str1 + i));
-		WCSCHK(name, 0 == wcscasecmp(str1 + i, str1 + i));
+		WCSCHK(name, 0 != __wcscasecmp(str1 + i, str1));
+		WCSCHK(name, 0 != __wcscasecmp(str1, str1 + i));
+		WCSCHK(name, 0 == __wcscasecmp(str1 + i, str1 + i));
 
-		WCSCHK(name, 0 != wcscasecmp(str1 + i, str2));
-		WCSCHK(name, 0 != wcscasecmp(str2, str1 + i));
+		WCSCHK(name, 0 != __wcscasecmp(str1 + i, str2));
+		WCSCHK(name, 0 != __wcscasecmp(str2, str1 + i));
 	}
 }
 
@@ -115,6 +119,7 @@ static void stress_wcscasecmp(
  *	stress on wcsncasecmp
  */
 static void stress_wcsncasecmp(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -122,22 +127,23 @@ static void stress_wcsncasecmp(
 	const size_t len2)
 {
 	register size_t i;
+	int (*__wcsncasecmp)(const wchar_t *s1, const wchar_t *s2, size_t n) = libc_func;
 
 	(void)len2;
 
 	for (i = 1; i < len1; i++) {
-		WCSCHK(name, 0 == wcsncasecmp(str1, str1, len1));
-		WCSCHK(name, 0 == wcsncasecmp(str2, str2, len2));
+		WCSCHK(name, 0 == __wcsncasecmp(str1, str1, len1));
+		WCSCHK(name, 0 == __wcsncasecmp(str2, str2, len2));
 
-		WCSCHK(name, 0 != wcsncasecmp(str2, str1, len2));
-		WCSCHK(name, 0 != wcsncasecmp(str1, str2, len1));
+		WCSCHK(name, 0 != __wcsncasecmp(str2, str1, len2));
+		WCSCHK(name, 0 != __wcsncasecmp(str1, str2, len1));
 
-		WCSCHK(name, 0 != wcsncasecmp(str1 + i, str1, len1));
-		WCSCHK(name, 0 != wcsncasecmp(str1, str1 + i, len1));
-		WCSCHK(name, 0 == wcsncasecmp(str1 + i, str1 + i, len1));
+		WCSCHK(name, 0 != __wcsncasecmp(str1 + i, str1, len1));
+		WCSCHK(name, 0 != __wcsncasecmp(str1, str1 + i, len1));
+		WCSCHK(name, 0 == __wcsncasecmp(str1 + i, str1 + i, len1));
 
-		WCSCHK(name, 0 != wcsncasecmp(str1 + i, str2, len1));
-		WCSCHK(name, 0 != wcsncasecmp(str2, str1 + i, len2));
+		WCSCHK(name, 0 != __wcsncasecmp(str1 + i, str2, len1));
+		WCSCHK(name, 0 != __wcsncasecmp(str2, str1 + i, len2));
 	}
 }
 
@@ -146,6 +152,7 @@ static void stress_wcsncasecmp(
  *	stress on wcscpy
  */
 static void stress_wcscpy(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -153,11 +160,12 @@ static void stress_wcscpy(
 	const size_t len2)
 {
 	register size_t i;
+	wchar_t * (*__wcscpy)(wchar_t *dest, const wchar_t *src) = libc_func;
 	wchar_t buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
-		WCSCHK(name, buf == wcscpy(buf, str1));
-		WCSCHK(name, buf == wcscpy(buf, str2));
+		WCSCHK(name, buf == __wcscpy(buf, str1));
+		WCSCHK(name, buf == __wcscpy(buf, str2));
 	}
 }
 
@@ -166,6 +174,7 @@ static void stress_wcscpy(
  *	stress on wcscat
  */
 static void stress_wcscat(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -173,20 +182,21 @@ static void stress_wcscat(
 	const size_t len2)
 {
 	register size_t i;
+	wchar_t * (*__wcscat)(wchar_t *dest, const wchar_t *src) = libc_func;
 	wchar_t buf[len1 + len2 + 1];
 
 
 	for (i = 0; i < len1 - 1; i++) {
 		*buf = L'\0';
-		WCSCHK(name, buf == wcscat(buf, str1));
+		WCSCHK(name, buf == __wcscat(buf, str1));
 		*buf = L'\0';
-		WCSCHK(name, buf == wcscat(buf, str2));
+		WCSCHK(name, buf == __wcscat(buf, str2));
 		*buf = L'\0';
-		WCSCHK(name, buf == wcscat(buf, str1));
-		WCSCHK(name, buf == wcscat(buf, str2));
+		WCSCHK(name, buf == __wcscat(buf, str1));
+		WCSCHK(name, buf == __wcscat(buf, str2));
 		*buf = L'\0';
-		WCSCHK(name, buf == wcscat(buf, str2));
-		WCSCHK(name, buf == wcscat(buf, str1));
+		WCSCHK(name, buf == __wcscat(buf, str2));
+		WCSCHK(name, buf == __wcscat(buf, str1));
 	}
 }
 
@@ -195,6 +205,7 @@ static void stress_wcscat(
  *	stress on wcsncat
  */
 static void stress_wcsncat(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -202,20 +213,21 @@ static void stress_wcsncat(
 	const size_t len2)
 {
 	register size_t i;
+	wchar_t * (*__wcsncat)(wchar_t *dest, const wchar_t *src, size_t n) = libc_func;
 	wchar_t buf[len1 + len2 + 1];
 
 
 	for (i = 0; i < len1 - 1; i++) {
 		*buf = '\0';
-		WCSCHK(name, buf == wcsncat(buf, str1, len1));
+		WCSCHK(name, buf == __wcsncat(buf, str1, len1));
 		*buf = '\0';
-		WCSCHK(name, buf == wcsncat(buf, str2, len2));
+		WCSCHK(name, buf == __wcsncat(buf, str2, len2));
 		*buf = '\0';
-		WCSCHK(name, buf == wcsncat(buf, str1, len1));
-		WCSCHK(name, buf == wcsncat(buf, str2, len1 + len2));
+		WCSCHK(name, buf == __wcsncat(buf, str1, len1));
+		WCSCHK(name, buf == __wcsncat(buf, str2, len1 + len2));
 		*buf = '\0';
-		WCSCHK(name, buf == wcsncat(buf, str2, i));
-		WCSCHK(name, buf == wcsncat(buf, str1, i));
+		WCSCHK(name, buf == __wcsncat(buf, str2, i));
+		WCSCHK(name, buf == __wcsncat(buf, str1, i));
 	}
 }
 
@@ -224,6 +236,7 @@ static void stress_wcsncat(
  *	stress on wcschr
  */
 static void stress_wcschr(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -231,15 +244,16 @@ static void stress_wcschr(
 	const size_t len2)
 {
 	register size_t i;
+	wchar_t * (*__wcschr)(const wchar_t *wcs, wchar_t wc) = libc_func;
 
 	(void)len2;
 
 	for (i = 0; i < len1 - 1; i++) {
-		WCSCHK(name, NULL == wcschr(str1, '_'));
-		WCSCHK(name, NULL != wcschr(str1, str1[0]));
+		WCSCHK(name, NULL == __wcschr(str1, '_'));
+		WCSCHK(name, NULL != __wcschr(str1, str1[0]));
 
-		WCSCHK(name, NULL == wcschr(str2, '_'));
-		WCSCHK(name, NULL != wcschr(str2, str2[0]));
+		WCSCHK(name, NULL == __wcschr(str2, '_'));
+		WCSCHK(name, NULL != __wcschr(str2, str2[0]));
 	}
 }
 
@@ -248,6 +262,7 @@ static void stress_wcschr(
  *	stress on wcsrchr
  */
 static void stress_wcsrchr(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -255,15 +270,16 @@ static void stress_wcsrchr(
 	const size_t len2)
 {
 	register size_t i;
+	wchar_t * (*__wcsrchr)(const wchar_t *wcs, wchar_t wc) = libc_func;
 
 	(void)len2;
 
 	for (i = 0; i < len1 - 1; i++) {
-		WCSCHK(name, NULL == wcsrchr(str1, '_'));
-		WCSCHK(name, NULL != wcsrchr(str1, str1[0]));
+		WCSCHK(name, NULL == __wcsrchr(str1, '_'));
+		WCSCHK(name, NULL != __wcsrchr(str1, str1[0]));
 
-		WCSCHK(name, NULL == wcsrchr(str2, '_'));
-		WCSCHK(name, NULL != wcsrchr(str2, str2[0]));
+		WCSCHK(name, NULL == __wcsrchr(str2, '_'));
+		WCSCHK(name, NULL != __wcsrchr(str2, str2[0]));
 	}
 }
 
@@ -272,6 +288,7 @@ static void stress_wcsrchr(
  *	stress on wcscmp
  */
 static void stress_wcscmp(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -279,22 +296,23 @@ static void stress_wcscmp(
 	const size_t len2)
 {
 	register size_t i;
+	int * (*__wcscmp)(const wchar_t *s1, const wchar_t *s2) = libc_func;
 
 	(void)len2;
 
 	for (i = 1; i < len1; i++) {
-		WCSCHK(name, 0 == wcscmp(str1, str1));
-		WCSCHK(name, 0 == wcscmp(str2, str2));
+		WCSCHK(name, 0 == __wcscmp(str1, str1));
+		WCSCHK(name, 0 == __wcscmp(str2, str2));
 
-		WCSCHK(name, 0 != wcscmp(str2, str1));
-		WCSCHK(name, 0 != wcscmp(str1, str2));
+		WCSCHK(name, 0 != __wcscmp(str2, str1));
+		WCSCHK(name, 0 != __wcscmp(str1, str2));
 
-		WCSCHK(name, 0 != wcscmp(str1 + i, str1));
-		WCSCHK(name, 0 != wcscmp(str1, str1 + i));
-		WCSCHK(name, 0 == wcscmp(str1 + i, str1 + i));
+		WCSCHK(name, 0 != __wcscmp(str1 + i, str1));
+		WCSCHK(name, 0 != __wcscmp(str1, str1 + i));
+		WCSCHK(name, 0 == __wcscmp(str1 + i, str1 + i));
 
-		WCSCHK(name, 0 != wcscmp(str1 + i, str2));
-		WCSCHK(name, 0 != wcscmp(str2, str1 + i));
+		WCSCHK(name, 0 != __wcscmp(str1 + i, str2));
+		WCSCHK(name, 0 != __wcscmp(str2, str1 + i));
 	}
 }
 
@@ -303,6 +321,7 @@ static void stress_wcscmp(
  *	stress on wcsncmp
  */
 static void stress_wcsncmp(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -310,20 +329,21 @@ static void stress_wcsncmp(
 	const size_t len2)
 {
 	register size_t i;
+	int (*__wcsncmp)(const wchar_t *s1, const wchar_t *s2, size_t n) = libc_func;
 
 	for (i = 1; i < len1; i++) {
-		WCSCHK(name, 0 == wcsncmp(str1, str1, len1));
-		WCSCHK(name, 0 == wcsncmp(str2, str2, len2));
+		WCSCHK(name, 0 == __wcsncmp(str1, str1, len1));
+		WCSCHK(name, 0 == __wcsncmp(str2, str2, len2));
 
-		WCSCHK(name, 0 != wcsncmp(str2, str1, len2));
-		WCSCHK(name, 0 != wcsncmp(str1, str2, len1));
+		WCSCHK(name, 0 != __wcsncmp(str2, str1, len2));
+		WCSCHK(name, 0 != __wcsncmp(str1, str2, len1));
 
-		WCSCHK(name, 0 != wcsncmp(str1 + i, str1, len1));
-		WCSCHK(name, 0 != wcsncmp(str1, str1 + i, len1));
-		WCSCHK(name, 0 == wcsncmp(str1 + i, str1 + i, len1));
+		WCSCHK(name, 0 != __wcsncmp(str1 + i, str1, len1));
+		WCSCHK(name, 0 != __wcsncmp(str1, str1 + i, len1));
+		WCSCHK(name, 0 == __wcsncmp(str1 + i, str1 + i, len1));
 
-		WCSCHK(name, 0 != wcsncmp(str1 + i, str2, len2));
-		WCSCHK(name, 0 != wcsncmp(str2, str1 + i, len2));
+		WCSCHK(name, 0 != __wcsncmp(str1 + i, str2, len2));
+		WCSCHK(name, 0 != __wcsncmp(str2, str1 + i, len2));
 	}
 }
 
@@ -332,6 +352,7 @@ static void stress_wcsncmp(
  *	stress on wcslen
  */
 static void stress_wcslen(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -339,15 +360,16 @@ static void stress_wcslen(
 	const size_t len2)
 {
 	register size_t i;
+	size_t (*__wcslen)(const wchar_t *s) = libc_func;
 
 	for (i = 0; i < len1 - 1; i++) {
-		WCSCHK(name, len1 - 1 == wcslen(str1));
-		WCSCHK(name, len1 - 1 - i == wcslen(str1 + i));
+		WCSCHK(name, len1 - 1 == __wcslen(str1));
+		WCSCHK(name, len1 - 1 - i == __wcslen(str1 + i));
 	}
 
 	for (i = 0; i < len2 - 1; i++) {
-		WCSCHK(name, len2 - 1 == wcslen(str2));
-		WCSCHK(name, len2 - 1 - i == wcslen(str2 + i));
+		WCSCHK(name, len2 - 1 == __wcslen(str2));
+		WCSCHK(name, len2 - 1 - i == __wcslen(str2 + i));
 	}
 }
 
@@ -356,6 +378,7 @@ static void stress_wcslen(
  *	stress on wcscoll
  */
 static void stress_wcscoll(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -363,22 +386,23 @@ static void stress_wcscoll(
 	const size_t len2)
 {
 	register size_t i;
+	int (*__wcscoll)(const wchar_t *ws1, const wchar_t *ws2) = libc_func;
 
 	(void)len2;
 
 	for (i = 1; i < len1; i++) {
-		WCSCHK(name, 0 == wcscoll(str1, str1));
-		WCSCHK(name, 0 == wcscoll(str2, str2));
+		WCSCHK(name, 0 == __wcscoll(str1, str1));
+		WCSCHK(name, 0 == __wcscoll(str2, str2));
 
-		WCSCHK(name, 0 != wcscoll(str2, str1));
-		WCSCHK(name, 0 != wcscoll(str1, str2));
+		WCSCHK(name, 0 != __wcscoll(str2, str1));
+		WCSCHK(name, 0 != __wcscoll(str1, str2));
 
-		WCSCHK(name, 0 != wcscoll(str1 + i, str1));
-		WCSCHK(name, 0 != wcscoll(str1, str1 + i));
-		WCSCHK(name, 0 == wcscoll(str1 + i, str1 + i));
+		WCSCHK(name, 0 != __wcscoll(str1 + i, str1));
+		WCSCHK(name, 0 != __wcscoll(str1, str1 + i));
+		WCSCHK(name, 0 == __wcscoll(str1 + i, str1 + i));
 
-		WCSCHK(name, 0 != wcscoll(str1 + i, str2));
-		WCSCHK(name, 0 != wcscoll(str2, str1 + i));
+		WCSCHK(name, 0 != __wcscoll(str1 + i, str2));
+		WCSCHK(name, 0 != __wcscoll(str2, str1 + i));
 	}
 }
 
@@ -387,6 +411,7 @@ static void stress_wcscoll(
  *	stress on wcsxfrm
  */
 static void stress_wcsxfrm(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -394,19 +419,20 @@ static void stress_wcsxfrm(
 	const size_t len2)
 {
 	register size_t i;
+	size_t (*__wcsxfrm)(wchar_t* destination, const wchar_t* source, size_t num) = libc_func;
 	wchar_t buf[len1 + len2];
 
 	for (i = 0; i < len1 - 1; i++) {
 		*buf = '\0';
-		WCSCHK(name, 0 != wcsxfrm(buf, str1, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str1, sizeof(buf)));
 		*buf = '\0';
-		WCSCHK(name, 0 != wcsxfrm(buf, str2, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str2, sizeof(buf)));
 		*buf = '\0';
-		WCSCHK(name, 0 != wcsxfrm(buf, str1, sizeof(buf)));
-		WCSCHK(name, 0 != wcsxfrm(buf, str2, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str1, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str2, sizeof(buf)));
 		*buf = '\0';
-		WCSCHK(name, 0 != wcsxfrm(buf, str2, sizeof(buf)));
-		WCSCHK(name, 0 != wcsxfrm(buf, str1, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str2, sizeof(buf)));
+		WCSCHK(name, 0 != __wcsxfrm(buf, str1, sizeof(buf)));
 	}
 }
 
@@ -416,6 +442,7 @@ static void stress_wcsxfrm(
  *	iterate over all wcs stressors
  */
 static void stress_wcs_all(
+	const void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -424,7 +451,10 @@ static void stress_wcs_all(
 {
 	static int i = 1;	/* Skip over stress_wcs_all */
 
-	wcs_methods[i++].func(name, str1, len1, str2, len2);
+	(void)libc_func;
+
+	wcs_methods[i].func(wcs_methods[i].libc_func, name, str1, len1, str2, len2);
+	i++;
 	if (!wcs_methods[i].func)
 		i = 1;
 }
@@ -433,21 +463,21 @@ static void stress_wcs_all(
  * Table of wcs stress methods
  */
 static const stress_wcs_stressor_info_t wcs_methods[] = {
-	{ "all",		stress_wcs_all },	/* Special "all" test */
+	{ "all",		stress_wcs_all,		NULL },	/* Special "all" test */
 
-	{ "wcscasecmp",		stress_wcscasecmp },
-	{ "wcscat",		stress_wcscat },
-	{ "wcschr",		stress_wcschr },
-	{ "wcscmp",		stress_wcscmp },
-	{ "wcscpy",		stress_wcscpy },
-	{ "wcslen",		stress_wcslen },
-	{ "wcsncasecmp",	stress_wcsncasecmp },
-	{ "wcsncat",		stress_wcsncat },
-	{ "wcsncmp",		stress_wcsncmp },
-	{ "wcsrchr",		stress_wcsrchr },
-	{ "wcscoll",		stress_wcscoll },
-	{ "wcsxfrm",		stress_wcsxfrm },
-	{ NULL,			NULL }
+	{ "wcscasecmp",		stress_wcscasecmp,	wcscasecmp },
+	{ "wcscat",		stress_wcscat,		wcscat },
+	{ "wcschr",		stress_wcschr,		wcschr },
+	{ "wcscmp",		stress_wcscmp,		wcscmp },
+	{ "wcscpy",		stress_wcscpy,		wcscpy },
+	{ "wcslen",		stress_wcslen,		wcslen },
+	{ "wcsncasecmp",	stress_wcsncasecmp,	wcsncasecmp },
+	{ "wcsncat",		stress_wcsncat,		wcsncat },
+	{ "wcsncmp",		stress_wcsncmp,		wcsncmp },
+	{ "wcsrchr",		stress_wcsrchr,		wcschr },
+	{ "wcscoll",		stress_wcscoll,		wcscoll },
+	{ "wcsxfrm",		stress_wcsxfrm,		wcsxfrm },
+	{ NULL,			NULL,			NULL }
 };
 
 /*
@@ -486,6 +516,7 @@ int stress_wcs(
 	const char *name)
 {
 	stress_wcs_func func = opt_wcs_stressor->func;
+	const void *libc_func = opt_wcs_stressor->libc_func;
 
 	(void)instance;
 
@@ -495,7 +526,7 @@ int stress_wcs(
 		stress_wcs_fill(str1, STR1LEN);
 		stress_wcs_fill(str2, STR2LEN);
 
-		(void)func(name, str1, STR1LEN, str2, STR2LEN);
+		(void)func(libc_func, name, str1, STR1LEN, str2, STR2LEN);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	return EXIT_SUCCESS;
