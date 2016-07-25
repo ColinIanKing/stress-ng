@@ -87,14 +87,21 @@ static struct sock_filter filter[] = {
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
 };
 
+static struct sock_filter filter_random[64];
+
 static struct sock_fprog prog_allow_write = {
 	.len = (unsigned short)SIZEOF_ARRAY(filter_allow_write),
-	.filter = filter_allow_write,
+	.filter = filter_allow_write
 };
 
 static struct sock_fprog prog = {
 	.len = (unsigned short)SIZEOF_ARRAY(filter),
 	.filter = filter
+};
+
+static struct sock_fprog prog_random = {
+	.len = (unsigned short)SIZEOF_ARRAY(filter_random),
+	.filter = filter_random
 };
 
 #if defined(__NR_seccomp)
@@ -111,7 +118,8 @@ static int sys_seccomp(unsigned int operation, unsigned int flags, void *args)
  */
 static inline int stress_seccomp_set_filter(
 	const char *name,
-	const bool allow_write)
+	const bool allow_write,
+	bool do_random)
 {
 #if defined(__NR_seccomp)
 	static bool use_seccomp = true;
@@ -122,8 +130,17 @@ static inline int stress_seccomp_set_filter(
 	 *  filter that allows writes or the filter
 	 *  that does not allow writes
 	 */
+	size_t i;
 	struct sock_fprog *p = allow_write ?
-		&prog_allow_write : &prog;
+		&prog_allow_write :
+			do_random ? &prog_random : &prog;
+
+	if (do_random) {
+		for (i = 0; i < SIZEOF_ARRAY(filter_random); i++) {
+			struct sock_filter bpf_stmt = BPF_STMT(mwc32(), SECCOMP_RET_KILL);
+			filter_random[i] = bpf_stmt;
+		}
+	}
 
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
 		pr_fail(stderr, "%s: prctl PR_SET_NEW_PRIVS failed: %d (%s)\n",
@@ -135,10 +152,16 @@ static inline int stress_seccomp_set_filter(
 	 *  Try using the newer seccomp syscall first
 	 */
 	if (use_seccomp) {
+redo_seccomp:
 		if (sys_seccomp(SECCOMP_SET_MODE_FILTER, 0, p) == 0)
 			return 0;
 
 		if (errno != ENOSYS) {
+			if (do_random) {
+				do_random = false;
+				p = &prog;
+				goto redo_seccomp;
+			}
 			pr_fail(stderr, "%s: seccomp SECCOMP_SET_MODE_FILTER "
 				"failed: %d (%s)\n",
 				name, errno, strerror(errno));
@@ -148,7 +171,13 @@ static inline int stress_seccomp_set_filter(
 	}
 #endif
 
+redo_prctl:
 	if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, p) < 0) {
+		if (do_random) {
+			do_random = false;
+			p = &prog;
+			goto redo_prctl;
+		}
 		pr_fail(stderr, "%s: prctl PR_SET_SECCOMP failed: %d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
@@ -171,7 +200,8 @@ int stress_seccomp(
 
 	do {
 		pid_t pid;
-		int allow_write = (mwc32() % 50) != 0;
+		const bool allow_write = (mwc32() % 50) != 0;
+		const bool do_random = (mwc32() % 20) != 0;
 
 		pid = fork();
 		if (pid == -1) {
@@ -188,7 +218,7 @@ int stress_seccomp(
 			 */
 			int fd, rc = EXIT_SUCCESS;
 
-			if (stress_seccomp_set_filter(name, allow_write) < 0)
+			if (stress_seccomp_set_filter(name, allow_write, do_random) < 0)
 				_exit(EXIT_FAILURE);
 			if ((fd = open("/dev/null", O_WRONLY)) < 0) {
 				pr_err(stderr, "%s: open failed on /dev/null, "
