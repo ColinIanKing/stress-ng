@@ -78,9 +78,10 @@ void ignite_cpu_start(void)
 		size_t len;
 
 		settings[i].ignore = true;
-		ret = system_read(settings[i].path, buf, sizeof(buf));
+		ret = system_read(settings[i].path, buf, sizeof(buf) - 1);
 		if (ret < 0)
 			continue;
+		buf[ret] = '\0';
 		len = strlen(buf);
 		if (len == 0)
 			continue;
