@@ -1,3 +1,19 @@
+stress-ng (0.06.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add snapcraft into make dist
+  * ignite-cpu: ensure buffer is null terminated before calling strlen
+  * stress-affinity: only check CPU move if sched_getaffinity succeeds
+  * Add snapcraft packaging
+  * stress-seccomp: inject some random BPF op codes
+  * force indirect libc calls to enforce calls to libc wide str functions
+  * stress-str: fix incorrect order on args in call to stress funcs
+  * stress-str: force indirect libc calls to enforce calls to libc str functions
+  * ensure cache info is only printed once
+  * Manual: fix typo: build -> built
+
+ -- Colin King <colin.king@canonical.com>  Tue, 16 Aug 2016 11:38:12 +0100
+
 stress-ng (0.06.12-1) unstable; urgency=medium
 
   * Makefile: bump version once more
