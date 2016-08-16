@@ -74,11 +74,13 @@ int stress_affinity(
 			/* Now get and check */
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
-			sched_getaffinity(0, sizeof(mask), &mask);
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
-			    (!CPU_ISSET(cpu, &mask)))
-				pr_fail(stderr, "%s: failed to move to CPU %" PRIu32 "\n",
-					name, cpu);
+			if (sched_getaffinity(0, sizeof(mask), &mask) == 0) {
+				if ((opt_flags & OPT_FLAGS_VERIFY) &&
+				    (!CPU_ISSET(cpu, &mask)))
+					pr_fail(stderr, "%s: failed to move "
+						"to CPU %" PRIu32 "\n",
+						name, cpu);
+			}
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
