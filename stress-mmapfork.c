@@ -36,8 +36,34 @@
 #include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <setjmp.h>
 
-#define MAX_PIDS	(32)
+#define MAX_PIDS		(32)
+
+#define _EXIT_FAILURE			(0x01)
+#define _EXIT_SEGV_MMAP			(0x02)
+#define _EXIT_SEGV_MADV_WILLNEED	(0x04)
+#define _EXIT_SEGV_MADV_DONTNEED	(0x08)
+#define _EXIT_SEGV_MEMSET		(0x10)
+#define _EXIT_SEGV_MUNMAP		(0x20)
+#define _EXIT_MASK	(_EXIT_SEGV_MMAP | \
+			 _EXIT_SEGV_MADV_WILLNEED | \
+			 _EXIT_SEGV_MADV_DONTNEED | \
+			 _EXIT_SEGV_MEMSET | \
+			 _EXIT_SEGV_MUNMAP)
+
+static volatile int segv_ret;
+
+/*
+ *  stress_segvhandler()
+ *      SEGV handler
+ */
+static void MLOCKED stress_segvhandler(int dummy)
+{
+	(void)dummy;
+
+	_exit(segv_ret);
+}
 
 /*
  *  stress_mmapfork()
@@ -52,7 +78,9 @@ int stress_mmapfork(
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;
 	void *ptr;
+	uint64_t segv_count = 0;
 	int32_t instances;
+	int8_t segv_reasons = 0;
 
 	(void)instance;
 
@@ -82,20 +110,32 @@ retry:			if (!opt_do_run)
 				setpgid(0, pgrp);
 				stress_parent_died_alarm();
 
+				if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
+					_exit(_EXIT_FAILURE);
+
 				if (sysinfo(&info) < 0) {
 					pr_fail_err(name, "sysinfo");
-					_exit(0);
+					_exit(_EXIT_FAILURE);
 				}
+
 				len = ((size_t)info.freeram / (instances * MAX_PIDS)) / 2;
+				segv_ret = _EXIT_SEGV_MMAP;
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
+					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
 					madvise(ptr, len, MADV_WILLNEED);
+
+					segv_ret = _EXIT_SEGV_MEMSET;
 					memset(ptr, 0, len);
+
+					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
 					madvise(ptr, len, MADV_DONTNEED);
+
+					segv_ret = _EXIT_SEGV_MUNMAP;
 					munmap(ptr, len);
 				}
-				_exit(0);
+				_exit(EXIT_SUCCESS);
 			}
 			setpgid(pids[n], pgrp);
 		}
@@ -104,13 +144,43 @@ reap:
 			int status;
 
 			if (waitpid(pids[i], &status, 0) < 0) {
-				if (errno != EINTR)
+				if (errno != EINTR) {
 					pr_err(stderr, "%s: waitpid errno=%d (%s)\n",
 						name, errno, strerror(errno));
+				}
+			} else {
+				if (WIFEXITED(status)) {
+					int masked = WEXITSTATUS(status) & _EXIT_MASK;
+
+					if (masked) {
+						segv_count++;
+						segv_reasons |= masked;
+					}
+				}
 			}
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	if (segv_count) {
+		char buffer[1024];
+
+		*buffer = '\0';
+
+		if (segv_reasons & _EXIT_SEGV_MMAP)
+			strncat(buffer, " mmap", sizeof(buffer));
+		if (segv_reasons & _EXIT_SEGV_MADV_WILLNEED)
+			strncat(buffer, " madvise-WILLNEED", sizeof(buffer));
+		if (segv_reasons & _EXIT_SEGV_MADV_DONTNEED)
+			strncat(buffer, " madvise-DONTNEED", sizeof(buffer));
+		if (segv_reasons & _EXIT_SEGV_MEMSET)
+			strncat(buffer, " memset", sizeof(buffer));
+		if (segv_reasons & _EXIT_SEGV_MUNMAP)
+			strncat(buffer, " munmap", sizeof(buffer));
+
+                pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
+			name, segv_count, buffer);
+	}
 
 	return EXIT_SUCCESS;
 }
