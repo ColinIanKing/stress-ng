@@ -1,3 +1,10 @@
+stress-ng (0.06.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmapfork: add more feedback on segv faults (LP: #1614099)
+
+ -- Colin King <colin.king@canonical.com>  Wed, 17 Aug 2016 14:28:18 +0100
+
 stress-ng (0.06.13-1) unstable; urgency=medium
 
   * Makefile: bump version
