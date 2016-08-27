@@ -83,65 +83,63 @@
 typedef struct {
 	const char *name;
 	const ssize_t digest_size;
-	bool  bind_fail;
 } alg_hash_info_t;
 
 typedef struct {
 	const char *name;
 	const ssize_t block_size;
 	const ssize_t key_size;
-	bool  bind_fail;
 } alg_cipher_info_t;
 
 typedef struct {
 	const char *name;
-	bool bind_fail;
 } alg_rng_info_t;
 
 static alg_hash_info_t algo_hash_info[] = {
-	{ "sha1",	SHA1_DIGEST_SIZE,	false },
-	{ "sha224",	SHA224_DIGEST_SIZE,	false },
-	{ "sha256",	SHA256_DIGEST_SIZE,	false },
-	{ "sha384",	SHA384_DIGEST_SIZE,	false },
-	{ "sha512",	SHA512_DIGEST_SIZE,	false },
-	{ "md4",	MD4_DIGEST_SIZE,	false },
-	{ "md5",	MD5_DIGEST_SIZE,	false },
-	{ "rmd128",	RMD128_DIGEST_SIZE,	false },
-	{ "rmd160",	RMD160_DIGEST_SIZE,	false },
-	{ "rmd256",	RMD256_DIGEST_SIZE,	false },
-	{ "rmd320",	RMD320_DIGEST_SIZE,	false },
-	{ "wp256",	WP256_DIGEST_SIZE,	false },
-	{ "wp384",	WP384_DIGEST_SIZE,	false },
-	{ "wp512",	WP512_DIGEST_SIZE,	false },
-	{ "tgr128",	TGR128_DIGEST_SIZE,	false },
-	{ "tgr160",	TGR160_DIGEST_SIZE,	false },
-	{ "tgr192",	TGR192_DIGEST_SIZE,	false }
+	{ "sha1",	SHA1_DIGEST_SIZE },
+	{ "sha224",	SHA224_DIGEST_SIZE },
+	{ "sha256",	SHA256_DIGEST_SIZE },
+	{ "sha384",	SHA384_DIGEST_SIZE },
+	{ "sha512",	SHA512_DIGEST_SIZE },
+	{ "md4",	MD4_DIGEST_SIZE	},
+	{ "md5",	MD5_DIGEST_SIZE	},
+	{ "rmd128",	RMD128_DIGEST_SIZE },
+	{ "rmd160",	RMD160_DIGEST_SIZE },
+	{ "rmd256",	RMD256_DIGEST_SIZE },
+	{ "rmd320",	RMD320_DIGEST_SIZE },
+	{ "wp256",	WP256_DIGEST_SIZE },
+	{ "wp384",	WP384_DIGEST_SIZE },
+	{ "wp512",	WP512_DIGEST_SIZE },
+	{ "tgr128",	TGR128_DIGEST_SIZE },
+	{ "tgr160",	TGR160_DIGEST_SIZE },
+	{ "tgr192",	TGR192_DIGEST_SIZE }
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
-	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false }
+	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
+	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
+	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
+	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE },
+	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE },
+	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE },
+	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE },
+	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE },
+	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE },
+	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE },
+	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE },
+	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE },
 };
 
 static alg_rng_info_t algo_rng_info[] = {
-	{ "jitterentropy_rng",		false }
+	{ "jitterentropy_rng" }
 };
 
 int stress_af_alg_hash(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
-	const int sockfd)
+	const int sockfd,
+	uint64_t *hashfails)
 {
 	size_t i;
 	bool bind_ok = false;
@@ -153,9 +151,6 @@ int stress_af_alg_hash(
 		char input[DATA_LEN], digest[digest_size];
 		struct sockaddr_alg sa;
 
-		if (algo_hash_info[i].bind_fail)
-			continue;
-
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
@@ -163,10 +158,8 @@ int stress_af_alg_hash(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
-			if (errno == ENOENT) {
-				algo_hash_info[i].bind_fail = true;
+			if (errno == ENOENT)
 				continue;
-			}
 			pr_fail_err(name, "bind");
 			return EXIT_FAILURE;
 		}
@@ -199,11 +192,9 @@ int stress_af_alg_hash(
 		}
 		(void)close(fd);
 	}
-	if (!bind_ok) {
-		errno = ENOENT;
-		pr_dbg(stderr, "%s: bind to all hash types", name);
-		return EXIT_NO_RESOURCE;
-	}
+	if (!bind_ok)
+		(*hashfails)++;
+
 	return EXIT_SUCCESS;
 }
 
@@ -211,7 +202,8 @@ int stress_af_alg_cipher(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
-	const int sockfd)
+	const int sockfd,
+	uint64_t *cipherfails)
 {
 	size_t i;
 	bool bind_ok = false;
@@ -226,9 +218,6 @@ int stress_af_alg_cipher(
 		char key[key_size];
 		char input[DATA_LEN], output[DATA_LEN];
 
-		if (algo_cipher_info[i].bind_fail)
-			continue;
-
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
@@ -236,10 +225,8 @@ int stress_af_alg_cipher(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
-			if (errno == ENOENT) {
-				algo_cipher_info[i].bind_fail = true;
+			if (errno == ENOENT)
 				continue;
-			}
 			pr_fail_err(name, "bind");
 			return EXIT_FAILURE;
 		}
@@ -353,11 +340,9 @@ int stress_af_alg_cipher(
 		if (max_ops && (*counter >= max_ops))
 			return EXIT_SUCCESS;
 	}
-	if (!bind_ok) {
-		errno = ENOENT;
-		pr_dbg(stderr, "%s: bind to all cipher types", name);
-		return EXIT_NO_RESOURCE;
-	}
+	if (!bind_ok)
+		(*cipherfails)++;
+
 	return EXIT_SUCCESS;
 }
 
@@ -365,7 +350,8 @@ int stress_af_alg_rng(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
-	const int sockfd)
+	const int sockfd,
+	uint64_t *rngfails)
 {
 	size_t i;
 	bool bind_ok = false;
@@ -375,9 +361,6 @@ int stress_af_alg_rng(
 		ssize_t j;
 		struct sockaddr_alg sa;
 
-		if (algo_rng_info[i].bind_fail)
-			continue;
-
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
@@ -385,10 +368,8 @@ int stress_af_alg_rng(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the rng algo does not exist with this kernel */
-			if (errno == ENOENT) {
-				algo_rng_info[i].bind_fail = true;
+			if (errno == ENOENT)
 				continue;
-			}
 			pr_fail_err(name, "bind");
 			return EXIT_FAILURE;
 		}
@@ -416,11 +397,9 @@ int stress_af_alg_rng(
 		}
 		(void)close(fd);
 	}
-	if (!bind_ok) {
-		errno = ENOENT;
-		pr_dbg(stderr, "%s: bind to all rng types", name);
-		return EXIT_NO_RESOURCE;
-	}
+	if (!bind_ok)
+		(*rngfails)++;
+
 	return EXIT_SUCCESS;
 }
 
@@ -436,6 +415,7 @@ int stress_af_alg(
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
+	uint64_t hashfails = 0, cipherfails = 0, rngfails = 0;
 
 	(void)instance;
 
@@ -459,17 +439,22 @@ int stress_af_alg(
 	}
 
 	do {
-		rc = stress_af_alg_hash(counter, max_ops, name, sockfd);
+		rc = stress_af_alg_hash(counter, max_ops, name, sockfd, &hashfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_cipher(counter, max_ops, name, sockfd);
+		rc = stress_af_alg_cipher(counter, max_ops, name, sockfd, &cipherfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_rng(counter, max_ops, name, sockfd);
+		rc = stress_af_alg_rng(counter, max_ops, name, sockfd, &rngfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
+	if (hashfails | cipherfails | rngfails)
+		pr_dbg(stderr, "%s: bind failed with ENOENT on all hashes (%"
+			PRIu64 " times), ciphers (%" PRIu64 " times), "
+			"prngs (%" PRIu64 " times\n",
+			name, hashfails, cipherfails, rngfails);
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(sockfd);
