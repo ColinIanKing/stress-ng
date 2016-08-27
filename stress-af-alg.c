@@ -201,7 +201,7 @@ int stress_af_alg_hash(
 	}
 	if (!bind_ok) {
 		errno = ENOENT;
-		pr_fail_err(name, "bind to all hash types");
+		pr_dbg(stderr, "%s: bind to all hash types", name);
 		return EXIT_NO_RESOURCE;
 	}
 	return EXIT_SUCCESS;
@@ -355,7 +355,7 @@ int stress_af_alg_cipher(
 	}
 	if (!bind_ok) {
 		errno = ENOENT;
-		pr_fail_err(name, "bind to all cipher types");
+		pr_dbg(stderr, "%s: bind to all cipher types", name);
 		return EXIT_NO_RESOURCE;
 	}
 	return EXIT_SUCCESS;
@@ -418,7 +418,7 @@ int stress_af_alg_rng(
 	}
 	if (!bind_ok) {
 		errno = ENOENT;
-		pr_fail_err(name, "bind to all rng types");
+		pr_dbg(stderr, "%s: bind to all rng types", name);
 		return EXIT_NO_RESOURCE;
 	}
 	return EXIT_SUCCESS;
