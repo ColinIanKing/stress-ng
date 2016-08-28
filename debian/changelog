@@ -1,3 +1,12 @@
+stress-ng (0.06.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-af-alg: account for number of ENOENT crypto bind failures
+  * stress-af-alg: don't report bind on ENOENT as a failure (LP: #1617788)
+    - retry is performed, failures are accounted for in debug verbose -v mode
+
+ -- Colin King <colin.king@canonical.com>  Sun, 28 Aug 2016 19:02:11 +0100
+
 stress-ng (0.06.14-1) unstable; urgency=medium
 
   * Makefile: bump version
