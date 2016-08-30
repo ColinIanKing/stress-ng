@@ -246,6 +246,10 @@ ifeq ($(HAVE_APPARMOR),1)
 endif
 endif
 
+ifeq ($(shell uname -s),SunOS)
+	LDFLAGS += -lsocket -lnsl
+endif
+
 ifndef $(HAVE_KEYUTILS_H)
 HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_keyutils_h)
 ifeq ($(HAVE_KEYUTILS_H),1)
