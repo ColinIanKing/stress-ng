@@ -122,7 +122,6 @@ int stress_madvise(
 	const uint64_t max_ops,
 	const char *name)
 {
-	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
 	size_t sz = 4 *  MB;
 	const pid_t pid = getpid();
@@ -173,6 +172,8 @@ int stress_madvise(
 	}
 
 	do {
+		uint8_t *buf;
+
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
 				name);
