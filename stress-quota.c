@@ -103,41 +103,41 @@ static int do_quotactl(
 static int do_quotas(const dev_info_t *dev, const char *name)
 {
 	int tested = 0, failed = 0, enosys = 0;
-	int errno;
+	int err;
 #if defined(Q_GETQUOTA)
 	if (opt_do_run) {
 		struct dqblk dqblk;
 
-		errno = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
+		err = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
-		if (errno == EPERM)
-			return errno;
+		if (err == EPERM)
+			return err;
 	}
 #endif
 #if defined(Q_GETFMT)
 	if (opt_do_run) {
 		uint32_t format;
 
-		errno = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
+		err = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
-		if (errno == EPERM)
-			return errno;
+		if (err == EPERM)
+			return err;
 	}
 #endif
 #if defined(Q_GETINFO)
 	if (opt_do_run) {
 		struct dqinfo dqinfo;
 
-		errno = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
+		err = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
-		if (errno == EPERM)
-			return errno;
+		if (err == EPERM)
+			return err;
 	}
 #endif
 #if defined(Q_GETSTATS)
@@ -145,26 +145,26 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	if (opt_do_run) {
 		struct dqstats dqstats;
 
-		errno = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
+		err = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
-		if (errno == EPERM)
-			return errno;
+		if (err == EPERM)
+			return err;
 	}
 #endif
 #if defined(Q_SYNC)
 	if (opt_do_run) {
-		errno = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
+		err = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
 			&tested, &failed, &enosys,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
-		if (errno == EPERM)
-			return errno;
+		if (err == EPERM)
+			return err;
 	}
 #endif
 	if (tested == 0) {
-		errno = pr_err(stderr, "%s: quotactl() failed, quota commands "
+		err = pr_err(stderr, "%s: quotactl() failed, quota commands "
 			"not available\n", name);
 		return -1;
 	}
