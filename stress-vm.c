@@ -955,7 +955,7 @@ static size_t stress_vm_flip(
 {
 	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz, bit = 0b00000011;
+	uint8_t *buf_end = buf + sz, bit = 0x03;
 	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0, i;
 
