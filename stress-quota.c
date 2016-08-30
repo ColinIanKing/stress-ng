@@ -103,12 +103,10 @@ static int do_quotactl(
 static int do_quotas(const dev_info_t *dev, const char *name)
 {
 	int tested = 0, failed = 0, enosys = 0;
-	int err;
 #if defined(Q_GETQUOTA)
 	if (opt_do_run) {
 		struct dqblk dqblk;
-
-		err = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
+		int err = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
@@ -119,8 +117,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #if defined(Q_GETFMT)
 	if (opt_do_run) {
 		uint32_t format;
-
-		err = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
+		int err = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
@@ -131,8 +128,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #if defined(Q_GETINFO)
 	if (opt_do_run) {
 		struct dqinfo dqinfo;
-
-		err = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
+		int err = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
@@ -144,8 +140,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	/* Obsolete in recent kernels */
 	if (opt_do_run) {
 		struct dqstats dqstats;
-
-		err = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
+		int err = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
@@ -155,7 +150,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #endif
 #if defined(Q_SYNC)
 	if (opt_do_run) {
-		err = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
+		int err = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
 			&tested, &failed, &enosys,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
