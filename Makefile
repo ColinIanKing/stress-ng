@@ -21,7 +21,7 @@ VERSION=0.06.15
 # Codename "pathological process pounder"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
