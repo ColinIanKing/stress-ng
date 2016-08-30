@@ -40,6 +40,10 @@
 #define MAX_MOUNT_IDS	(1024)
 #define FILENAME	"/dev/zero"
 
+/* Stringification macros */
+#define XSTR(s)	STR(s)
+#define STR(s) #s
+
 typedef struct {
 	char	*mount_path;
 	int	mount_id;
@@ -66,7 +70,7 @@ int get_mount_info(const char *name)
 	}
 
 	for (;;) {
-		char mount_path[PATH_MAX];
+		char mount_path[PATH_MAX + 1];
 		char *line = NULL;
 		size_t line_len = 0;
 
@@ -74,7 +78,7 @@ int get_mount_info(const char *name)
 		if (nread == -1)
 			break;
 
-		nread = sscanf(line, "%12d %*d %*s %*s %s",
+		nread = sscanf(line, "%12d %*d %*s %*s %" XSTR(PATH_MAX) "s",
 			&mount_info[mounts].mount_id,
 			mount_path);
 		if (nread != 2)
