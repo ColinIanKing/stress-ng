@@ -119,13 +119,13 @@ int stress_clock(
 	do {
 		size_t i;
 		struct timespec t;
-		int ret;
 
 		/*
 		 *  Exercise clock_getres and clock_gettime for each clock
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
-			ret = clock_getres(clocks[i].id, &t);
+			int ret = clock_getres(clocks[i].id, &t);
+
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail(stderr, "%s: clock_getres failed for "
 				"timer '%s', errno=%d (%s)\n",
