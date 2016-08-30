@@ -2270,7 +2270,15 @@ static inline void clflush(volatile void *ptr)
 
 static inline void mfence(void)
 {
+#if NEED_GNUC(4, 2, 0) 
 	__sync_synchronize();
+#else
+#if defined(STRESS_X86)
+	asm volatile("mfence" : : : "memory");
+#else
+	/* Other arches not yet implemented for older GCC flavours */
+#endif
+#endif
 }
 
 /*
