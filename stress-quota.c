@@ -164,7 +164,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	}
 #endif
 	if (tested == 0) {
-		err = pr_err(stderr, "%s: quotactl() failed, quota commands "
+		pr_err(stderr, "%s: quotactl() failed, quota commands "
 			"not available\n", name);
 		return -1;
 	}
