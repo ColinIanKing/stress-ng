@@ -100,7 +100,7 @@ redo:
 static void *stress_sys_read_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ];
+	uint8_t stack[SIGSTKSZ] = { 0 };
         stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 
