@@ -70,11 +70,12 @@ static int do_quotactl(
 	int id,
 	caddr_t addr)
 {
-	static int failed_mask = 0;
 	int ret = quotactl(cmd, special, id, addr);
 
 	(*tested)++;
 	if (ret < 0) {
+		static int failed_mask = 0;
+
 		if (errno == EPERM) {
 			pr_inf(stderr, "%s: need CAP_SYS_ADMIN capability to "
 				"run quota stressor, aborting stress test\n",
