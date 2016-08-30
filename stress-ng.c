@@ -3392,7 +3392,7 @@ next_opt:
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (!procs[i].exclude)
 				procs[i].num_procs = opt_class ?
-					(stressors[i].class & opt_class ?
+					((stressors[i].class & opt_class) ?
 						opt_all : 0) : opt_all;
 			total_procs += procs[i].num_procs;
 			if (max_procs < procs[i].num_procs)
@@ -3515,7 +3515,7 @@ next_opt:
 				procs[j].num_procs = 0;
 			if (!procs[i].exclude) {
 				procs[i].num_procs = opt_class ?
-					(stressors[i].class & opt_class ?
+					((stressors[i].class & opt_class) ?
 						opt_sequential : 0) : opt_sequential;
 				if (procs[i].num_procs)
 					stress_run(opt_sequential, opt_sequential,
