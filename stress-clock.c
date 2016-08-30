@@ -142,6 +142,7 @@ int stress_clock(
 		 *  Exercise clock_nanosleep for each clock
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(clocks_nanosleep); i++) {
+			int ret;
 			t.tv_sec = 0;
 			t.tv_nsec = 0;
 			/*
@@ -166,6 +167,7 @@ int stress_clock(
 			struct itimerspec its;
 			struct sigevent sevp;
 			int64_t loops = 1000000;
+			int ret;
 
 			memset(&sevp, 0, sizeof(sevp));
 			sevp.sigev_notify = SIGEV_NONE;
