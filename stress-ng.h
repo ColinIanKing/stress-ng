@@ -34,7 +34,9 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include <semaphore.h>
+#if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
+#endif
 #include <signal.h>
 #include <sys/time.h>
 #include <sys/times.h>
