@@ -187,7 +187,7 @@ static void stress_mmap_child(
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 			(void)msync((void *)buf, sz, ms_flags);
 #endif
 		}
@@ -260,7 +260,7 @@ static void stress_mmap_child(
 								"not contain expected data\n", name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 							(void)msync((void *)mappings[page], page_size, ms_flags);
 #endif
 						}
