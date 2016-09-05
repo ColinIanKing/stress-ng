@@ -172,11 +172,19 @@ int stress_wait(
 	}
 
 	do {
+#if defined(WCONINUED)
 		(void)waitpid(pid_r, &status, WCONTINUED);
+#else
+		(void)waitpid(pid_r, &status, 0);
+#endif
 		if (!opt_do_run)
 			break;
+#if defined(WIFCONINUED)
 		if (WIFCONTINUED(status))
 			(*counter)++;
+#else
+		(*counter)++;
+#endif
 
 #if _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
     _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || \
@@ -184,11 +192,19 @@ int stress_wait(
 		{
 			siginfo_t info;
 
+#if defined(WCONINUED)
 			(void)waitid(P_PID, pid_r, &info, WCONTINUED);
+#else
+			(void)waitid(P_PID, pid_r, &info, 0);
+#endif
 			if (!opt_do_run)
 				break;
+#if defined(WIFCONINUED)
 			if (WIFCONTINUED(status))
 				(*counter)++;
+#else
+			(*counter)++;
+#endif
 		}
 #endif
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
