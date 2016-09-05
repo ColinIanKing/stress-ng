@@ -75,7 +75,7 @@ static const char *get_sched_name(const int32_t sched)
 #endif
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-     !defined(__OpenBSD__)
+     !defined(__OpenBSD__) && !defined(__minix__)
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
