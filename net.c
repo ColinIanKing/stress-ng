@@ -133,6 +133,9 @@ void stress_set_sockaddr(
 #ifdef AF_INET6
 	case AF_INET6: {
 		static struct sockaddr_in6 addr;
+#if defined(__minix__)
+		static const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
+#endif
 
 		memset(&addr, 0, sizeof(addr));
 		addr.sin6_family = domain;
