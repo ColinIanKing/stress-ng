@@ -1086,7 +1086,7 @@ typedef enum {
 	__STRESS_MSG,
 #define STRESS_MSG __STRESS_MSG
 #endif
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 	__STRESS_MSYNC,
 #define STRESS_MSYNC __STRESS_MSYNC
 #endif
