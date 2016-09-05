@@ -67,6 +67,7 @@ int stress_stack(
 	stack_t ss;
 	pid_t pid;
 
+#if !defined(__minix__)
 	/*
 	 *  We need to create an alternative signal
 	 *  stack so when a segfault occurs we use
@@ -82,6 +83,7 @@ int stress_stack(
 		pr_fail_err(name, "sigaltstack");
 		return EXIT_FAILURE;
 	}
+#endif
 
 again:
 	pid = fork();
