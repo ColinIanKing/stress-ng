@@ -91,7 +91,7 @@ retry:
 
 		if (flock(fd, LOCK_EX) < 0)
 			continue;
-#if defined(_POSIX_PRIORITY_SCHEDULING)
+#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
 		sched_yield();
 #endif
 		(void)flock(fd, LOCK_UN);
