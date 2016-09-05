@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_MLOCK)
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,8 +38,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
-
-#include "stress-ng.h"
 
 #define MLOCK_MAX	(256*1024)
 
@@ -231,3 +233,5 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
