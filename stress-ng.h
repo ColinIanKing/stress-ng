@@ -1307,7 +1307,7 @@ typedef enum {
 	__STRESS_XATTR,
 #define STRESS_XATTR __STRESS_XATTR
 #endif
-#if defined(_POSIX_PRIORITY_SCHEDULING)
+#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
 	__STRESS_YIELD,
 #define STRESS_YIELD __STRESS_YIELD
 #endif
