@@ -37,9 +37,9 @@
  */
 int mincore_touch_pages(void *buf, const size_t buf_len)
 {
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || \
-    defined(__NetBSD__) || defined(__sun__) || defined(__minix__)
+    defined(__NetBSD__) || defined(__sun__)
 	char *vec;
 #else
 	unsigned char *vec;
