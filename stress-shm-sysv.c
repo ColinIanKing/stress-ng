@@ -277,7 +277,7 @@ static int stress_shm_sysv_child(
 			if (!opt_do_run)
 				goto reap;
 			(void)mincore_touch_pages(addr, sz);
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 			(void)msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 #endif
 
