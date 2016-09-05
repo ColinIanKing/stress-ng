@@ -126,6 +126,7 @@ static void stress_mmap_set(
  */
 static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 {
+#if !defined(__minix__)
 	if (opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
@@ -139,6 +140,11 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
 			pr_fail(stderr, "%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
 	}
+#else
+	(void)name;
+	(void)addr;
+	(void)len;
+#endif
 }
 
 static void stress_mmap_child(
