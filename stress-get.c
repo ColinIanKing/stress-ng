@@ -198,8 +198,10 @@ int stress_get(
 		check_do_run();
 #endif
 
+#if !defined(__minix__)
 		(void)getpgid(mypid);
 		check_do_run();
+#endif
 
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
