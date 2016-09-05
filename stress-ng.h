@@ -1068,7 +1068,7 @@ typedef enum {
 #define STRESS_MINCORE __STRESS_MINCORE
 #endif
 	STRESS_MKNOD,
-#if defined(_POSIX_MEMLOCK_RANGE)
+#if defined(_POSIX_MEMLOCK_RANGE) && !defined(__minix__)
 	__STRESS_MLOCK,
 #define STRESS_MLOCK __STRESS_MLOCK
 #endif
