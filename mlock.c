@@ -36,6 +36,7 @@
  */
 int stress_mlock_region(const void *addr_start, const void *addr_end)
 {
+#if !defined(__minix__)
 	const size_t page_size = stress_get_pagesize();
 	const void *m_addr_start =
 		(void *)((ptrdiff_t)addr_start & ~(page_size - 1));
@@ -45,4 +46,10 @@ int stress_mlock_region(const void *addr_start, const void *addr_end)
 	const size_t len = (ptrdiff_t)m_addr_end - (ptrdiff_t)m_addr_start;
 
 	return mlock(m_addr_start, len);
+#else
+	(void)addr_start;
+	(void)addr_end;
+
+	return 0;
+#endif
 }
