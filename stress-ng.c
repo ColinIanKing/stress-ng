@@ -293,7 +293,9 @@ static const stress_t stressors[] = {
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 #endif
 	STRESSOR(mknod, MKNOD, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_MLOCK)
 	STRESSOR(mlock, MLOCK, CLASS_VM | CLASS_OS),
+#endif
 	STRESSOR(mmap, MMAP, CLASS_VM | CLASS_OS),
 #if defined(STRESS_MMAPFORK)
 	STRESSOR(mmapfork, MMAPFORK, CLASS_SCHEDULER | CLASS_VM | CLASS_OS),
