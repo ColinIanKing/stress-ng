@@ -60,6 +60,10 @@
 #define powl	pow
 #endif
 
+#if defined(__minix__)
+#define cabsl	cabs
+#endif
+
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
