@@ -33,7 +33,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include <pthread.h>
 
 #define CACHE_STRIDE_SHIFT	(6)
 
