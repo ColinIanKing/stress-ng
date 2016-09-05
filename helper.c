@@ -265,6 +265,11 @@ int stress_process_dumpable(const bool dumpable)
 {
 	char path[PATH_MAX];
 	int fd, rc = 0;
+#if defined(RLIMIT_CORE)
+	struct rlimit lim = { 0, 0 };
+
+	(void)setrlimit(RLIMIT_CORE, &lim);
+#endif
 
 #if defined(__linux__) && defined(PR_SET_DUMPABLE)
 	(void)prctl(PR_SET_DUMPABLE,
