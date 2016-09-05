@@ -193,8 +193,10 @@ int stress_get(
 				name, errno, strerror(errno));
 		check_do_run();
 
+#if !defined(__minix__)
 		(void)getpgrp();
 		check_do_run();
+#endif
 
 		(void)getpgid(mypid);
 		check_do_run();
