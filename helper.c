@@ -93,17 +93,19 @@ size_t stress_get_pagesize(void)
  */
 int32_t stress_get_processors_online(void)
 {
-	static uint32_t processors_online = 0;
+	static int32_t processors_online = 0;
 
 	if (processors_online > 0)
 		return processors_online;
 
 #ifdef _SC_NPROCESSORS_ONLN
-	processors_online = (uint32_t)sysconf(_SC_NPROCESSORS_ONLN);
-	return processors_online;
+	processors_online = (int32_t)sysconf(_SC_NPROCESSORS_ONLN);
+	if (processors_online < 0)
+		processors_online = 1;
 #else
-	return -1;
+	processors_online = 1;
 #endif
+	return processors_online;
 }
 
 /*
@@ -112,17 +114,19 @@ int32_t stress_get_processors_online(void)
  */
 int32_t stress_get_processors_configured(void)
 {
-	static uint32_t processors_configured = 0;
+	static int32_t processors_configured = 0;
 
 	if (processors_configured > 0)
 		return processors_configured;
 
 #ifdef _SC_NPROCESSORS_CONF
-	processors_configured = sysconf(_SC_NPROCESSORS_CONF);
-	return processors_configured;
+	processors_configured = (int32_t)sysconf(_SC_NPROCESSORS_CONF);
+	if (processors_configured < 0)
+		processors_configured = stress_get_processors_online();
 #else
-	return -1;
+	processors_configured = 1;
 #endif
+	return processors_configured;
 }
 
 /*
