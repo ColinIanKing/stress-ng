@@ -61,7 +61,6 @@ int stress_ioprio(
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
-	        (void)umask(0077);
 	(void)umask(0077);
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
