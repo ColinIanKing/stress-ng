@@ -629,9 +629,9 @@ int stress_cache_alloc(const char *name)
 
 		if (shared->mem_cache_ways > cache->ways) {
 			if (warn_once(WARN_ONCE_CACHE_WAY))
-			pr_inf(stderr, "%s: cache way value too high - "
-				"defaulting to %d (the maximum)\n",
-				name, cache->ways);
+				pr_inf(stderr, "%s: cache way value too high - "
+					"defaulting to %d (the maximum)\n",
+					name, cache->ways);
 			shared->mem_cache_ways = cache->ways;
 		}
 
