@@ -200,7 +200,7 @@ static void epoll_recv_data(const int fd)
 		n = recv(fd, buf, sizeof(buf), 0);
 		if (n == -1) {
 			if (errno != EAGAIN)
-			(void)close(fd);
+				(void)close(fd);
 			break;
 		} else if (n == 0) {
 			(void)close(fd);
