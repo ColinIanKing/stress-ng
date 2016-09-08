@@ -36,7 +36,9 @@
 
 #define STACK_SIZE	(16384)
 
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 uint8_t stack_sig[SIGSTKSZ] ALIGN64;	/* ensure we have a sig stack */
+#endif
 
 static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
 static uint64_t __counter, __max_ops;
@@ -96,13 +98,16 @@ int stress_context(
 	const uint64_t max_ops,
 	const char *name)
 {
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 	stack_t ss;
+#endif
 	char stack_thread1[STACK_SIZE] ALIGN64,
 	     stack_thread2[STACK_SIZE] ALIGN64,
 	     stack_thread3[STACK_SIZE] ALIGN64;
 
 	(void)instance;
 
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 	/*
          *  We should use an alterative stack, for
          *  Linux we probably should use SS_AUTODISARM
@@ -120,6 +125,7 @@ int stress_context(
                 pr_fail_err(name, "sigaltstack");
                 return EXIT_FAILURE;
         }
+#endif
 	__counter = 0;
 	__max_ops = max_ops * 1000;
 
