@@ -76,7 +76,7 @@ int stress_tlb_shootdown(
 
 		for (;;) {
 			mem = mmap(NULL, mmap_size, PROT_WRITE | PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 			if ((void *)mem == MAP_FAILED) {
 				if ((errno == EAGAIN) || (errno == ENOMEM)) {
 					if (--retry < 0)
