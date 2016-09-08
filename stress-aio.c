@@ -221,7 +221,8 @@ int stress_aio(
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
-		ret = issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i, aio_write);
+		ret = issue_aio_request(name, fd, (off_t)i * BUFFER_SZ,
+			&io_reqs[i], i, aio_write);
 		if (ret < 0)
 			goto cancel;
 		if (ret > 0) {
@@ -243,7 +244,8 @@ int stress_aio(
 			case 0:
 				/* Succeeded or cancelled, so redo another */
 				(*counter)++;
-				if (issue_aio_request(name, fd, (off_t)i * BUFFER_SZ, &io_reqs[i], i,
+				if (issue_aio_request(name, fd,
+					(off_t)i * BUFFER_SZ, &io_reqs[i], i,
 					(mwc32() & 0x8) ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
@@ -251,7 +253,8 @@ int stress_aio(
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail_errno(name, "aio_error", io_reqs[i].status);
+				pr_fail_errno(name, "aio_error",
+					io_reqs[i].status);
 				goto cancel;
 			}
 		}
@@ -269,7 +272,8 @@ cancel:
 	}
 	(void)close(fd);
 finish:
-	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals caught (instance %d)\n",
+	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
+		"caught (instance %d)\n",
 		name, total, instance);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;

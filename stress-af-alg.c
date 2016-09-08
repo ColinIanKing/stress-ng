@@ -154,7 +154,8 @@ int stress_af_alg_hash(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_hash_info[i].name, sizeof(sa.salg_name) - 1);
+		strncpy((char *)sa.salg_name, algo_hash_info[i].name,
+			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
@@ -221,7 +222,8 @@ int stress_af_alg_cipher(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_cipher_info[i].name, sizeof(sa.salg_name) - 1);
+		strncpy((char *)sa.salg_name, algo_cipher_info[i].name,
+			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
@@ -248,7 +250,8 @@ int stress_af_alg_cipher(
 			__u32 *u32ptr;
 			struct msghdr msg;
 			struct cmsghdr *cmsg;
-			char cbuf[CMSG_SPACE(sizeof(__u32)) + CMSG_SPACE(4) + CMSG_SPACE(iv_size)];
+			char cbuf[CMSG_SPACE(sizeof(__u32)) +
+				CMSG_SPACE(4) + CMSG_SPACE(iv_size)];
 			struct af_alg_iv *iv;	/* Initialisation Vector */
 			struct iovec iov;
 
@@ -328,8 +331,9 @@ int stress_af_alg_cipher(
 				return EXIT_FAILURE;
 			} else {
 				if (memcmp(input, output, sizeof(input))) {
-					pr_err(stderr, "%s: decrypted data different from "
-						"original data using %s\n",
+					pr_err(stderr, "%s: decrypted data "
+						"different from original data "
+						"using %s\n",
 						name,  algo_hash_info[i].name);
 				}
 			}
@@ -364,10 +368,11 @@ int stress_af_alg_rng(
 		memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_rng_info[i].name, sizeof(sa.salg_name) - 1);
+		strncpy((char *)sa.salg_name, algo_rng_info[i].name,
+			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-			/* Perhaps the rng algo does not exist with this kernel */
+			/* Perhaps the rng does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
 			pr_fail_err(name, "bind");
@@ -439,13 +444,16 @@ int stress_af_alg(
 	}
 
 	do {
-		rc = stress_af_alg_hash(counter, max_ops, name, sockfd, &hashfails);
+		rc = stress_af_alg_hash(counter, max_ops,
+			name, sockfd, &hashfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_cipher(counter, max_ops, name, sockfd, &cipherfails);
+		rc = stress_af_alg_cipher(counter, max_ops,
+			name, sockfd, &cipherfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_rng(counter, max_ops, name, sockfd, &rngfails);
+		rc = stress_af_alg_rng(counter, max_ops,
+			name, sockfd, &rngfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

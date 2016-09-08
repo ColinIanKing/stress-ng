@@ -96,7 +96,8 @@ redo:
 				goto done;
 			/* We need chdir to cwd to always succeed */
 			if (chdir(cwd) < 0) {
-				if (errno == ENOMEM)	/* Maybe low memory, force retry */
+				/* Maybe low memory, force retry */
+				if (errno == ENOMEM)
 					goto redo;
 				pr_fail_err(name, "chdir");
 				goto abort;
@@ -111,7 +112,8 @@ abort:
 		pr_fail_err(name, "chdir");
 
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n", name, DEFAULT_DIRS);
+	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
+		name, DEFAULT_DIRS);
 
 	for (i = 0; (i < DEFAULT_DIRS) && paths[i] ; i++) {
 		(void)rmdir(paths[i]);

@@ -42,7 +42,8 @@ static void check_cpu_affinity_range(
 {
 	if ((cpu < 0) || ((max_cpus != -1) && (cpu >= max_cpus))) {
 		fprintf(stderr, "%s: invalid range, %" PRId32 " is not allowed, "
-			"allowed range: 0 to %" PRId32 "\n", option, cpu, max_cpus - 1);
+			"allowed range: 0 to %" PRId32 "\n", option,
+			cpu, max_cpus - 1);
 		exit(EXIT_FAILURE);
 	}
 }

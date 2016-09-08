@@ -646,8 +646,8 @@ int stress_cache_alloc(const char *name)
 
 	if (!shared->mem_cache_size) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
-			pr_inf(stderr, "%s: using built-in defaults as unable to "
-				"determine cache size\n", name);
+			pr_inf(stderr, "%s: using built-in defaults as "
+				"unable to determine cache size\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
 init_done:

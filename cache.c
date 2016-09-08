@@ -470,11 +470,13 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	if (ret2 != S_IFDIR) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err(stderr, "file %s is not a directory\n", glob_path);
+			pr_err(stderr, "file %s is not a directory\n",
+				glob_path);
 		return ret;
 	}
 
-	strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX, sizeof(glob_path) - len - 1);
+	strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
+		sizeof(glob_path) - len - 1);
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
 
 	if (ret2 != 0) {

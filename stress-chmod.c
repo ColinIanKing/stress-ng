@@ -170,7 +170,9 @@ int stress_chmod(
 
 			(void)usleep(100000);
 			if (++retries >= 100) {
-				pr_err(stderr, "%s: chmod: file %s took %d retries to open and gave up(instance %" PRIu32 ")\n",
+				pr_err(stderr, "%s: chmod: file %s took %d "
+					"retries to open and gave up "
+					"(instance %" PRIu32 ")\n",
 					name, filename, retries, instance);
 				goto tidy;
 			}

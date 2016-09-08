@@ -44,7 +44,8 @@
 
 #define APPARMOR_BUF_SZ	(4096)
 
-typedef int (*apparmor_func)(const char *name, const uint64_t max_ops, uint64_t *counter);
+typedef int (*apparmor_func)(const char *name,
+			     const uint64_t max_ops, uint64_t *counter);
 
 #if defined(STRESS_APPARMOR)
 static volatile bool apparmor_run = true;
@@ -101,7 +102,8 @@ int stress_apparmor_supported(void)
 
 	return 0;
 #else
-	pr_inf(stderr, "apparmor was not built in, missing apparmor development headers\n");
+	pr_inf(stderr, "apparmor was not built in, missing apparmor "
+		"development headers\n");
 	return -1;
 #endif
 }
@@ -226,7 +228,8 @@ again:
 	if (pid == 0) {
 		int ret;
 
-		if (stress_sighandler(name, SIGALRM, stress_apparmor_handler, NULL) < 0)
+		if (stress_sighandler(name, SIGALRM,
+				stress_apparmor_handler, NULL) < 0)
 			exit(EXIT_FAILURE);
 		setpgid(0, pgrp);
 		stress_parent_died_alarm();
@@ -302,14 +305,15 @@ static int apparmor_stress_kernel_interface(
 		int ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
-				"errno=%d (%s)\n", name, errno, strerror(errno));
+				"errno=%d (%s)\n", name,
+				errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
 
 		/*
-		 *  Loading a policy may fail if another stressor has already loaded
-		 *  the same policy, so we may get EEXIST
+		 *  Loading a policy may fail if another stressor has
+		 *  already loaded the same policy, so we may get EEXIST
 		 */
 		ret = aa_kernel_interface_load_policy(kern_if,
 			apparmor_data, apparmor_data_len);
@@ -322,8 +326,9 @@ static int apparmor_stress_kernel_interface(
 		}
 
 		/*
-		 *  Replacing should always be atomic and not fail when competing against
-		 *  other stressors if I understand the interface correctly.
+		 *  Replacing should always be atomic and not fail when
+		 *  competing against other stressors if I understand the
+		 *  interface correctly.
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
 			apparmor_data, apparmor_data_len);
@@ -331,7 +336,8 @@ static int apparmor_stress_kernel_interface(
 			aa_kernel_interface_unref(kern_if);
 
 			pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
-				"errno=%d (%s)\n", name, errno, strerror(errno));
+				"errno=%d (%s)\n", name, errno,
+				strerror(errno));
 			rc = EXIT_FAILURE;
 		}
 
@@ -339,11 +345,13 @@ static int apparmor_stress_kernel_interface(
 		 *  Removal may fail if another stressor has already removed the
 		 *  policy, so we may get ENOENT
 		 */
-		ret = aa_kernel_interface_remove_policy(kern_if, "/usr/bin/pulseaudio-eg");
+		ret = aa_kernel_interface_remove_policy(kern_if,
+			"/usr/bin/pulseaudio-eg");
 		if (ret < 0) {
 			if (errno != ENOENT) {
 				pr_fail(stderr, "%s: aa_kernel_interface_remove_policy() failed, "
-					"errno=%d (%s)\n", name, errno, strerror(errno));
+					"errno=%d (%s)\n", name, errno,
+					strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 		}
@@ -542,25 +550,32 @@ static int apparmor_stress_corruption(
 			apparmor_corrupt_set_seq(copy, apparmor_data_len);
 			break;
 		case 3:
-			apparmor_corrupt_flip_bits_random(copy, apparmor_data_len);
+			apparmor_corrupt_flip_bits_random(copy,
+				apparmor_data_len);
 			break;
 		case 4:
-			apparmor_corrupt_flip_byte_random(copy, apparmor_data_len);
+			apparmor_corrupt_flip_byte_random(copy,
+				apparmor_data_len);
 			break;
 		case 5:
-			apparmor_corrupt_clr_bits_random(copy, apparmor_data_len);
+			apparmor_corrupt_clr_bits_random(copy,
+				apparmor_data_len);
 			break;
 		case 6:
-			apparmor_corrupt_set_bits_random(copy, apparmor_data_len);
+			apparmor_corrupt_set_bits_random(copy,
+				apparmor_data_len);
 			break;
 		case 7:
-			apparmor_corrupt_clr_byte_random(copy, apparmor_data_len);
+			apparmor_corrupt_clr_byte_random(copy,
+				apparmor_data_len);
 			break;
 		case 8:
-			apparmor_corrupt_set_byte_random(copy, apparmor_data_len);
+			apparmor_corrupt_set_byte_random(copy,
+				apparmor_data_len);
 			break;
 		case 9:
-			apparmor_corrupt_flip_bits_random_burst(copy, apparmor_data_len);
+			apparmor_corrupt_flip_bits_random_burst(copy,
+				apparmor_data_len);
 			break;
 		default:
 			/* Should not happen */
@@ -570,24 +585,28 @@ static int apparmor_stress_corruption(
 		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
-				"errno=%d (%s)\n", name, errno, strerror(errno));
+				"errno=%d (%s)\n", name, errno,
+				strerror(errno));
 			return EXIT_FAILURE;
 		}
 		/*
 		 *  Expect EPROTO failures
 		 */
-		ret = aa_kernel_interface_replace_policy(kern_if, copy, apparmor_data_len);
+		ret = aa_kernel_interface_replace_policy(kern_if,
+			copy, apparmor_data_len);
 		if (ret < 0) {
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT)) {
 				pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
-					"errno=%d (%s)\n", name, errno, strerror(errno));
+					"errno=%d (%s)\n", name, errno,
+					strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 		}
 		aa_kernel_interface_unref(kern_if);
 		(*counter)++;
-	} while (opt_do_run && apparmor_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && apparmor_run &&
+		 (!max_ops || *counter < max_ops));
 
 	return rc;
 }
