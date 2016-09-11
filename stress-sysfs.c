@@ -48,16 +48,20 @@ static sigset_t set;
 typedef struct ctxt {
 	const char *name;
 	const char *path;
+	char *badbuf;
 } ctxt_t;
 
 /*
  *  stress_sys_read()
  *	read a proc file
  */
-static inline void stress_sys_read(const char *name, const char *path)
+static inline void stress_sys_read(
+	const char *name,
+	const char *path,
+	char *badbuf)
 {
 	int fd;
-	ssize_t i = 0;
+	ssize_t i = 0, ret;
 	char buffer[SYS_BUF_SZ];
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
@@ -67,7 +71,7 @@ static inline void stress_sys_read(const char *name, const char *path)
 	 *  Multiple randomly sized reads
 	 */
 	while (i < (4096 * SYS_BUF_SZ)) {
-		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
+		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
 redo:
 		if (!opt_do_run)
 			break;
@@ -90,6 +94,31 @@ redo:
 			"could be opened, errno=%d (%s)\n",
 			name, path, errno, strerror(errno));
 	}
+
+	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+		return;
+	/*
+	 *  Zero sized reads
+	 */
+redo_zero:
+	ret = read(fd, buffer, 0);
+	if (ret < 0) {
+		if ((errno == EAGAIN) || (errno == EINTR))
+			goto redo_zero;
+	}
+
+	/*
+	 *  Bad read buffer
+	 */
+	if (badbuf) {
+redo_badbuf:
+		ret = read(fd, badbuf, SYS_BUF_SZ);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo_badbuf;
+		}
+	}
+	(void)close(fd);
 }
 
 /*
@@ -124,7 +153,7 @@ static void *stress_sys_read_thread(void *ctxt_ptr)
 		return &nowt;
 	}
 	while (keep_running && opt_do_run)
-		stress_sys_read(ctxt->name, ctxt->path);
+		stress_sys_read(ctxt->name, ctxt->path, ctxt->badbuf);
 
 	return &nowt;
 }
@@ -145,6 +174,11 @@ static void stress_sys_read_threads(const char *name, const char *path)
 
 	memset(ret, 0, sizeof(ret));
 
+	ctxt.badbuf = mmap(NULL, SYS_BUF_SZ, PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ctxt.badbuf == MAP_FAILED)
+		ctxt.badbuf = NULL;
+
 	keep_running = true;
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
@@ -154,7 +188,7 @@ static void stress_sys_read_threads(const char *name, const char *path)
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)
 			break;
-		stress_sys_read(name, path);
+		stress_sys_read(name, path, ctxt.badbuf);
 	}
 	keep_running = false;
 
@@ -162,6 +196,9 @@ static void stress_sys_read_threads(const char *name, const char *path)
 		if (ret[i] == 0)
 			pthread_join(pthreads[i], NULL);
 	}
+
+	if (ctxt.badbuf)
+		munmap(ctxt.badbuf, SYS_BUF_SZ);
 }
 
 /*
