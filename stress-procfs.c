@@ -42,6 +42,11 @@
 #define PROC_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)
 
+typedef struct ctxt {
+	const char *path;
+	char *badbuf;
+} ctxt_t;
+
 static volatile bool keep_running;
 static sigset_t set;
 
@@ -49,10 +54,10 @@ static sigset_t set;
  *  stress_proc_read()
  *	read a proc file
  */
-static inline void stress_proc_read(const char *path)
+static inline void stress_proc_read(const char *path, char *badbuf)
 {
 	int fd;
-	ssize_t i = 0;
+	ssize_t ret, i = 0;
 	char buffer[PROC_BUF_SZ];
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
@@ -61,7 +66,7 @@ static inline void stress_proc_read(const char *path)
 	 *  Multiple randomly sized reads
 	 */
 	while (i < (4096 * PROC_BUF_SZ)) {
-		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
+		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
 redo:
 		if (!opt_do_run)
 			break;
@@ -76,6 +81,29 @@ redo:
 		i += sz;
 	}
 	(void)close(fd);
+
+	/*
+	 *  Zero sized reads
+	 */
+redo_zero:
+	ret = read(fd, buffer, 0);
+	if (ret < 0) {
+		if ((errno == EAGAIN) || (errno == EINTR))
+			goto redo_zero;
+	}
+
+	/*
+	 *  Bad read buffer
+	 */
+	if (badbuf) {
+redo_badbuf:
+		ret = read(fd, badbuf, PROC_BUF_SZ);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto redo_badbuf;
+		}
+	}
+	(void)close(fd);
 }
 
 /*
@@ -83,11 +111,12 @@ redo:
  *	keep exercising a procfs entry until
  *	controlling thread triggers an exit
  */
-static void *stress_proc_read_thread(void *ctxt)
+static void *stress_proc_read_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ];
         stack_t ss;
+	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -109,7 +138,7 @@ static void *stress_proc_read_thread(void *ctxt)
 		return &nowt;
 	}
 	while (keep_running && opt_do_run)
-		stress_proc_read((char *)ctxt);
+		stress_proc_read(ctxt->path, ctxt->badbuf);
 
 	return &nowt;
 }
@@ -123,6 +152,13 @@ static void stress_proc_read_threads(char *path)
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
 	int ret[MAX_READ_THREADS];
+	ctxt_t ctxt;
+
+	ctxt.path = path;
+        ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ctxt.badbuf == MAP_FAILED)
+		ctxt.badbuf = NULL;
 
 	memset(ret, 0, sizeof(ret));
 
@@ -130,12 +166,12 @@ static void stress_proc_read_threads(char *path)
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_proc_read_thread, path);
+				stress_proc_read_thread, &ctxt);
 	}
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)
 			break;
-		stress_proc_read(path);
+		stress_proc_read(path, ctxt.badbuf);
 	}
 	keep_running = false;
 
@@ -143,6 +179,9 @@ static void stress_proc_read_threads(char *path)
 		if (ret[i] == 0)
 			pthread_join(pthreads[i], NULL);
 	}
+
+	if (ctxt.badbuf)
+		munmap(ctxt.badbuf, PROC_BUF_SZ);
 }
 
 /*
