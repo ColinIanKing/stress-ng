@@ -82,6 +82,8 @@ redo:
 	}
 	(void)close(fd);
 
+	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+		return;
 	/*
 	 *  Zero sized reads
 	 */
