@@ -85,15 +85,24 @@ redo:
 			break;
 		i += sz;
 	}
-	(void)close(fd);
 
-	/* file should be R_OK if we've just opened it */
-	if ((access(path, R_OK) < 0) &&
-	    (opt_flags & OPT_FLAGS_VERIFY)) {
-		pr_fail(stderr, "%s: R_OK access failed on %s which "
-			"could be opened, errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+	/* file stat should be OK if we've just opened it */
+	if (opt_flags & OPT_FLAGS_VERIFY) {
+		struct stat buf;
+
+		if (fstat(fd, &buf) < 0) {
+			pr_fail(stderr, "%s: stat failed on %s: "
+				"errno=%d (%s)\n",
+				name, path, errno, strerror(errno));
+		} else {
+			if ((buf.st_mode & S_IROTH) == 0) {
+				pr_fail(stderr, "%s: read access failed on %s which "
+					"could be opened, errno=%d (%s)\n",
+				name, path, errno, strerror(errno));
+			}
+		}
 	}
+	(void)close(fd);
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 		return;
