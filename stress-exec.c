@@ -105,11 +105,13 @@ int stress_exec(
 				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-					pr_fail(stderr, "%s: child open on /dev/null failed\n", name);
+					pr_fail(stderr, "%s: child open on "
+						"/dev/null failed\n", name);
 					_exit(EXIT_FAILURE);
 				}
 				if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-					pr_fail(stderr, "%s: child open on /dev/zero failed\n", name);
+					pr_fail(stderr, "%s: child open on "
+						"/dev/zero failed\n", name);
 					(void)close(fd_out);
 					_exit(EXIT_FAILURE);
 				}

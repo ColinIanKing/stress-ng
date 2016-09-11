@@ -114,7 +114,8 @@ int stress_filename_probe(
 					"for allowed filename characters, "
 					"errno = %d (%s)\n",
 					name, errno, strerror(errno));
-				pr_inf(stderr, "%s: perhaps retry and use --filename-opts posix\n", name);
+				pr_inf(stderr, "%s: perhaps retry and use "
+					"--filename-opts posix\n", name);
 				*chars_allowed = 0;
 				return -errno;
 			}
@@ -281,11 +282,13 @@ int stress_filename (
 	}
 
 	if (instance == 0)
-		pr_dbg(stdout, "%s: filesystem allows %zu unique characters in a filename\n",
+		pr_dbg(stdout, "%s: filesystem allows %zu unique "
+			"characters in a filename\n",
 			name, chars_allowed);
 
 	if (chars_allowed == 0) {
-		pr_fail(stderr, "%s: cannot determine allowed characters in a filename\n", name);
+		pr_fail(stderr, "%s: cannot determine allowed characters "
+			"in a filename\n", name);
 		goto tidy_dir;
 	}
 

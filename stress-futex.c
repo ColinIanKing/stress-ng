@@ -107,7 +107,8 @@ again:
 			ret = futex_wake(futex, 1);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
-					pr_fail(stderr, "%s: futex wake failed: errno=%d (%s)\n",
+					pr_fail(stderr, "%s: futex wake "
+						"failed: errno=%d (%s)\n",
 						name, errno, strerror(errno));
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
@@ -116,7 +117,8 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
-		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n", name, *timeout);
+		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n",
+			name, *timeout);
 	} else {
 		uint64_t threshold = THRESHOLD;
 
@@ -138,7 +140,9 @@ again:
 			if ((ret < 0) && (errno == ETIMEDOUT)) {
 				(*timeout)++;
 				if (*timeout > threshold) {
-					/* Backoff for a short while and start again */
+					/*
+					 * Backoff for a short while and						 * start again
+					 */
 					usleep(250000);
 					threshold += THRESHOLD;
 				}

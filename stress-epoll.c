@@ -296,7 +296,8 @@ static int epoll_client(
 		int fd, saved_errno;
 		int retries = 0;
 		int ret = -1;
-		int port = opt_epoll_port + port_counter + (max_servers * instance);
+		int port = opt_epoll_port + port_counter +
+				(max_servers * instance);
 		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
@@ -354,8 +355,8 @@ retry:
 			case EINTR:
 				connect_timeouts++;
 				break;
-			case ECONNREFUSED:	/* No servers yet running */
-			case ENOENT:		/* unix domain not yet created */
+			case ECONNREFUSED: /* No servers yet running */
+			case ENOENT:	   /* unix domain not yet created */
 				break;
 			default:
 				pr_dbg(stderr, "%s: connect failed: %d (%s)\n",
@@ -363,7 +364,7 @@ retry:
 				break;
 			}
 			(void)close(fd);
-			usleep(100000);		/* Twiddle fingers for a moment */
+			usleep(100000);	/* Twiddle fingers for a moment */
 
 			retries++;
 			if (retries > 1000) {
@@ -395,8 +396,9 @@ retry:
 	}
 #endif
 	if (connect_timeouts)
-		pr_dbg(stderr, "%s: %" PRIu64 " x 0.25 second connect timeouts, "
-			"connection table full (instance %" PRIu32 ")\n",
+		pr_dbg(stderr, "%s: %" PRIu64 " x 0.25 second "
+			"connect timeouts, connection table full "
+			"(instance %" PRIu32 ")\n",
 			name, connect_timeouts, instance);
 	return EXIT_SUCCESS;
 }
@@ -429,7 +431,8 @@ static void epoll_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
+			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 		pr_fail_err(name, "setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
@@ -463,7 +466,8 @@ static void epoll_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if ((events = calloc(MAX_EPOLL_EVENTS, sizeof(struct epoll_event))) == NULL) {
+	if ((events = calloc(MAX_EPOLL_EVENTS,
+				sizeof(struct epoll_event))) == NULL) {
 		pr_fail_err(name, "epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
@@ -571,7 +575,8 @@ int stress_epoll(
 	 */
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(epoll_server, i, counter, instance, max_ops, name, ppid);
+		pids[i] = epoll_spawn(epoll_server, i,
+				counter, instance, max_ops, name, ppid);
 		if (pids[i] < 0) {
 			pr_fail_dbg(name, "fork");
 			goto reap;

@@ -131,8 +131,8 @@ void stress_fifo_reader(const char *name, const char *fifoname)
 		}
 		if ((val < lastval) &&
 		    ((~val & wrap_mask) && (lastval & wrap_mask))) {
-			pr_err(stderr, "%s: fifo read did not get expected value\n",
-				name);
+			pr_err(stderr, "%s: fifo read did not get "
+				"expected value\n", name);
 			break;
 		}
 	}

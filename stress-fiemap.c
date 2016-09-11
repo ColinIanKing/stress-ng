@@ -146,7 +146,8 @@ void stress_fiemap_ioctl(
 			(fiemap->fm_mapped_extents);
 
 		/* Resize fiemap to allow us to read in the extents */
-		tmp = (struct fiemap *)realloc(fiemap, sizeof(struct fiemap) + extents_size);
+		tmp = (struct fiemap *)realloc(fiemap,
+			sizeof(struct fiemap) + extents_size);
 		if (!tmp) {
 			pr_fail_err(name, "FS_IOC_FIEMAP ioctl()");
 			free(fiemap);

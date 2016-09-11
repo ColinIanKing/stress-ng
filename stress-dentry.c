@@ -184,7 +184,8 @@ int stress_dentry(
 			stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
 
-			if ((fd = open(path, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+			if ((fd = open(path, O_CREAT | O_RDWR,
+					S_IRUSR | S_IWUSR)) < 0) {
 				if (errno != ENOSPC)
 					pr_fail_err(name, "open");
 				n = i;
@@ -206,7 +207,8 @@ int stress_dentry(
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n", name, opt_dentries);
+	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n",
+		name, opt_dentries);
 	stress_dentry_unlink(name, instance, opt_dentries);
 	(void)stress_temp_dir_rm(name, pid, instance);
 

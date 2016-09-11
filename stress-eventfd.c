@@ -90,7 +90,8 @@ again:
 					goto exit_child;
 				ret = read(fd1, &val, sizeof(val));
 				if (ret < 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					if ((errno == EAGAIN) ||
+					    (errno == EINTR))
 						continue;
 					pr_fail_dbg(name, "child read");
 					goto exit_child;
@@ -108,7 +109,8 @@ again:
 					goto exit_child;
 				ret = write(fd2, &val, sizeof(val));
 				if (ret < 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					if ((errno == EAGAIN) ||
+					    (errno == EINTR))
 						continue;
 					pr_fail_dbg(name, "child write");
 					goto exit_child;
@@ -137,7 +139,8 @@ exit_child:
 
 				ret = write(fd1, &val, sizeof(val));
 				if (ret < 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					if ((errno == EAGAIN) ||
+					    (errno == EINTR))
 						continue;
 					pr_fail_dbg(name, "parent write");
 					goto exit_parent;
@@ -155,7 +158,8 @@ exit_child:
 
 				ret = read(fd2, &val, sizeof(val));
 				if (ret < 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					if ((errno == EAGAIN) ||
+					    (errno == EINTR))
 						continue;
 					pr_fail_dbg(name, "parent read");
 					goto exit_parent;

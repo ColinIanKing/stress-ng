@@ -88,7 +88,8 @@ int stress_fault(
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
 			do_jmp = false;
-			pr_err(stderr, "%s: unexpected segmentation fault\n", name);
+			pr_err(stderr, "%s: unexpected segmentation fault\n",
+				name);
 			break;
 		}
 
@@ -107,7 +108,8 @@ int stress_fault(
 				continue;	/* Try again */
 			}
 			(void)close(fd);
-			pr_err(stderr, "%s: posix_fallocate failed: errno=%d (%s)\n",
+			pr_err(stderr, "%s: posix_fallocate failed: "
+				"errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
@@ -116,7 +118,8 @@ int stress_fault(
 			char buffer[1];
 
 redo:
-			if (opt_do_run && (write(fd, buffer, sizeof(buffer)) < 0)) {
+			if (opt_do_run &&
+			    (write(fd, buffer, sizeof(buffer)) < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo;
 				if (errno == ENOSPC) {
@@ -124,7 +127,8 @@ redo:
 					continue;
 				}
 				(void)close(fd);
-				pr_err(stderr, "%s: write failed: errno=%d (%s)\n",
+				pr_err(stderr, "%s: write failed: "
+					"errno=%d (%s)\n",
 					name, errno, strerror(errno));
 				break;
 			}
