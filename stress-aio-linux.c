@@ -49,7 +49,7 @@ void stress_set_aio_linux_requests(const char *optarg)
 	uint32_t aio_linux_requests;
 
 	set_aio_linux_requests = true;
-	aio_linux_requests = get_unsigned_long(optarg);
+	aio_linux_requests = get_uint32(optarg);
 	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
 	opt_aio_linux_requests = aio_linux_requests;

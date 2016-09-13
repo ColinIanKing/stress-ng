@@ -95,15 +95,15 @@ static void ensure_positive(const char *const str)
 }
 
 /*
- *  get_unsigned_long()
- *	string to unsigned long
+ *  get_uint32()
+ *	string to uint32_t
  */
-unsigned long get_unsigned_long(const char *const str)
+uint32_t get_uint32(const char *const str)
 {
-	unsigned long val;
+	uint32_t val;
 
 	ensure_positive(str);
-	if (sscanf(str, "%lu" , &val) != 1) {
+	if (sscanf(str, "%12" SCNu32, &val) != 1) {
 		fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
@@ -112,7 +112,7 @@ unsigned long get_unsigned_long(const char *const str)
 
 /*
  *  get_int32()
- *	string to int
+ *	string to int32_t
  */
 int32_t get_int32(const char *const str)
 {

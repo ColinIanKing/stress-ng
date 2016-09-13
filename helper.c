@@ -294,7 +294,7 @@ int stress_process_dumpable(const bool dumpable)
 void stress_set_timer_slack_ns(const char *optarg)
 {
 #if defined(__linux__) && defined(PRCTL_TIMER_SLACK)
-	timer_slack = get_unsigned_long(optarg);
+	timer_slack = get_uint32(optarg);
 #else
 	(void)optarg;
 #endif
