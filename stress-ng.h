@@ -84,7 +84,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_CONCAT(a, b) a ## b
 #define STRESS_CONCAT_EXPAND(a, b) STRESS_CONCAT(a, b)
 #define STRESS_ASSERT(expr) \
-	enum { STRESS_CONCAT_EXPAND(STRESS_ASSERT_AT_LINE_, __LINE__) = 1 / !!(expr) };
+	enum { STRESS_CONCAT_EXPAND(STRESS_ASSERT_AT_LINE_, __LINE__) = \
+		1 / !!(expr) };
 
 #define STRESS_MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 #define STRESS_MAXIMUM(a,b) (((a) > (b)) ? (a) : (b))
@@ -569,9 +570,12 @@ extern void pr_openlog(const char *filename);
 #define STRESS_CPU_DITHER_Y	(768)
 
 #define STRESS_NBITS(a)		(sizeof(a[0]) * 8)
-#define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & (1 << (i & (STRESS_NBITS(a)-1))))
-#define STRESS_CLRBIT(a, i)	(a[i / STRESS_NBITS(a)] &= ~(1 << (i & (STRESS_NBITS(a)-1))))
-#define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= (1 << (i & (STRESS_NBITS(a)-1))))
+#define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & \
+				 (1 << (i & (STRESS_NBITS(a)-1))))
+#define STRESS_CLRBIT(a, i)	(a[i / STRESS_NBITS(a)] &= \
+				 ~(1 << (i & (STRESS_NBITS(a)-1))))
+#define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= \
+				 (1 << (i & (STRESS_NBITS(a)-1))))
 
 #define SIEVE_SIZE 		(10000000)
 
@@ -582,7 +586,8 @@ extern void pr_openlog(const char *filename);
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
-#if defined(__x86_64__) || defined(__x86_64) || defined(__i386__) || defined(__i386)
+#if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__i386__) || defined(__i386)
 #define STRESS_X86	1
 #endif
 
@@ -596,6 +601,7 @@ extern void pr_openlog(const char *filename);
 #define STRESS_ARM      1
 #endif
 
+/* gcc 4.7 and later support vector ops */
 #if NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
 #endif
@@ -611,6 +617,7 @@ extern void pr_openlog(const char *filename);
 #define RESTRICT
 #endif
 
+/*Specific compilers have __uint128_t type support */
 #if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
 #define STRESS_INT128	1
 #endif
@@ -640,10 +647,12 @@ extern void pr_openlog(const char *filename);
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
 #endif
 
+/* malloc mallopt() allocation parameter support */
 #if defined(__GNUC__) && defined(__linux__)
 #define STRESS_MALLOPT
 #endif
 
+/* -O3 attribute support */
 #if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
 #define OPTIMIZE3 __attribute__((optimize("-O3")))
 #else
@@ -660,6 +669,7 @@ extern void pr_openlog(const char *filename);
 #define FORCE_DO_NOTHING() while (0)
 #endif
 
+/* prctl(2) timer slack support */
 #if defined(__linux__) && \
     defined(PR_SET_TIMERSLACK) && \
     defined(PR_GET_TIMERSLACK)
@@ -2247,12 +2257,15 @@ static inline void double_put(const double a)
 }
 
 /* Filenames and directories */
-extern int stress_temp_filename(char *path, const size_t len, const char *name,
-	const pid_t pid, const uint32_t instance, const uint64_t magic);
-extern int stress_temp_dir(char *path, const size_t len, const char *name,
-	const pid_t pid, const uint32_t instance);
-extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid, const uint32_t instance);
-extern int stress_temp_dir_rm(const char *name, const pid_t pid, const uint32_t instance);
+extern int stress_temp_filename(char *path, const size_t len,
+	const char *name, const pid_t pid, const uint32_t instance,
+	const uint64_t magic);
+extern int stress_temp_dir(char *path, const size_t len,
+	const char *name, const pid_t pid, const uint32_t instance);
+extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid,
+	const uint32_t instance);
+extern int stress_temp_dir_rm(const char *name, const pid_t pid,
+	const uint32_t instance);
 extern void stress_cwd_readwriteable(void);
 
 extern const char *stress_strsignal(const int signum);
@@ -2331,7 +2344,7 @@ extern void mwc_reseed(void);
  *  timeval_to_double()
  *      convert timeval to seconds as a double
  */
-static inline double timeval_to_double(const struct timeval *tv)
+static inline WARN_UNUSED double timeval_to_double(const struct timeval *tv)
 {
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
@@ -2367,13 +2380,13 @@ extern void set_proc_name(const char *name);
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 
 /* Argument parsing and range checking */
-extern WARN_UNUSED int32_t get_opt_sched(const char *const str);
-extern WARN_UNUSED int32_t get_opt_ionice_class(const char *const str);
-extern WARN_UNUSED unsigned long get_unsigned_long(const char *const str);
-extern WARN_UNUSED int32_t get_int32(const char *const str);
+extern WARN_UNUSED int32_t  get_opt_sched(const char *const str);
+extern WARN_UNUSED int32_t  get_opt_ionice_class(const char *const str);
+extern WARN_UNUSED uint32_t get_uint32(const char *const str);
+extern WARN_UNUSED int32_t  get_int32(const char *const str);
 extern WARN_UNUSED uint64_t get_uint64(const char *const str);
-extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str, const scale_t scales[],
-	const char *const msg);
+extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str,
+	const scale_t scales[], const char *const msg);
 extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);
 extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
 extern void check_value(const char *const msg, const int val);
@@ -2383,12 +2396,12 @@ extern WARN_UNUSED int set_cpu_affinity(char *const arg);
 
 /* Misc helper funcs */
 extern void log_system_mem_info(void);
-extern char *munge_underscore(char *str);
+extern WARN_UNUSED char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
-extern int32_t stress_get_processors_online(void);
-extern int32_t stress_get_processors_configured(void);
-extern int32_t stress_get_ticks_per_second(void);
-extern ssize_t stress_get_stack_direction(const void *val1);
+extern WARN_UNUSED int32_t stress_get_processors_online(void);
+extern WARN_UNUSED int32_t stress_get_processors_configured(void);
+extern WARN_UNUSED int32_t stress_get_ticks_per_second(void);
+extern WARN_UNUSED ssize_t stress_get_stack_direction(const void *val1);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5, double *min15);
 extern void set_max_limits(void);
@@ -2427,7 +2440,7 @@ static inline int exit_status(const int err)
  *	align to nearest 16 bytes for aarch64 et al,
  *	assumes we have enough slop to do this
  */
-static inline void *align_stack(void *stack_top)
+static inline WARN_UNUSED void *align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 
@@ -2511,7 +2524,7 @@ extern int  stress_set_epoll_domain(const char *optarg);
 extern void stress_set_exec_max(const char *optarg);
 extern void stress_set_fallocate_bytes(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
-extern int stress_filename_opts(const char *opt);
+extern int  stress_filename_opts(const char *opt);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);
