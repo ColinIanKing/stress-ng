@@ -337,7 +337,7 @@ retry:
 		}
 
 		stress_set_sockaddr(name, instance, ppid,
-			opt_epoll_domain, port, &addr, &addr_len);
+			opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 		errno = 0;
 		ret = connect(fd, addr, addr_len);
@@ -439,7 +439,7 @@ static void epoll_server(
 	}
 
 	stress_set_sockaddr(name, instance, ppid,
-		opt_epoll_domain, port, &addr, &addr_len);
+		opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 	if (bind(sfd, addr, addr_len) < 0) {
 		pr_fail_err(name, "bind");

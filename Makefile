@@ -134,6 +134,7 @@ STRESS_SRC = \
 	stress-rename.c \
 	stress-rlimit.c \
 	stress-rtc.c \
+	stress-sctp.c \
 	stress-seal.c \
 	stress-seccomp.c \
 	stress-seek.c \
@@ -223,11 +224,12 @@ LIB_CRYPT := -lcrypt
 LIB_RT := -lrt
 LIB_PTHREAD := -lpthread
 LIB_AIO = -laio
+LIB_SCTP = -lsctp
 
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
-	 HAVE_VECMATH=0 HAVE_ATOMIC=0
+	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0
 
 #
 # Do build time config only if cmd is "make" and no goals given
@@ -301,6 +303,14 @@ HAVE_LIB_PTHREAD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_pth
 ifeq ($(HAVE_LIB_PTHREAD),1)
 	CFLAGS += -DHAVE_LIB_PTHREAD
 	LDFLAGS += $(LIB_PTHREAD)
+endif
+endif
+
+ifndef $(HAVE_LIB_SCTP)
+HAVE_LIB_SCTP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_sctp)
+ifeq ($(HAVE_LIB_SCTP),1)
+	CFLAGS += -DHAVE_LIB_SCTP
+	LDFLAGS += $(LIB_SCTP)
 endif
 endif
 
@@ -463,6 +473,19 @@ have_lib_pthread:
 		echo 0 ;\
 	fi
 	@rm -f test-libpthread
+
+#
+#  check if we can build against libsctp
+#
+have_lib_sctp:
+	@$(CC) $(CPPFLAGS) test-libsctp.c $(LIB_SCTP) -o test-libsctp 2> /dev/null || true
+	@if [ -e test-libsctp ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-libsctp
+
 
 #
 #  check if compiler supports floating point decimal format

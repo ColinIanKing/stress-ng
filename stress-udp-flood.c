@@ -87,7 +87,8 @@ int stress_udp_flood(
 		return EXIT_FAILURE;
 	}
 	stress_set_sockaddr(name, instance, pid,
-		opt_udp_flood_domain, port, &addr, &addr_len);
+		opt_udp_flood_domain, port,
+		&addr, &addr_len, NET_ADDR_ANY);
 
 	do {
 		char buf[sz];

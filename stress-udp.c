@@ -151,7 +151,8 @@ again:
 				exit(EXIT_FAILURE);
 			}
 			stress_set_sockaddr(name, instance, ppid,
-				opt_udp_domain, opt_udp_port, &addr, &len);
+				opt_udp_domain, opt_udp_port,
+				&addr, &len, NET_ADDR_ANY);
 #if defined(OPT_UDP_LITE)
 			if (proto == IPPROTO_UDPLITE) {
 				val = 8;	/* Just the 8 byte header */
@@ -212,7 +213,8 @@ again:
 			goto die;
 		}
 		stress_set_sockaddr(name, instance, ppid,
-			opt_udp_domain, opt_udp_port, &addr, &addr_len);
+			opt_udp_domain, opt_udp_port,
+			&addr, &addr_len, NET_ADDR_ANY);
 #if defined(OPT_UDP_LITE)
 		if (proto == IPPROTO_UDPLITE) {
 			val = 8;	/* Just the 8 byte header */

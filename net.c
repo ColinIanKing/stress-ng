@@ -114,7 +114,8 @@ void stress_set_sockaddr(
 	const int domain,
 	const int port,
 	struct sockaddr **sockaddr,
-	socklen_t *len)
+	socklen_t *len,
+	int net_addr)
 {
 	switch (domain) {
 #ifdef AF_INET
@@ -123,7 +124,15 @@ void stress_set_sockaddr(
 
 		memset(&addr, 0, sizeof(addr));
 		addr.sin_family = domain;
-		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+		switch (net_addr) {
+		case NET_ADDR_LOOPBACK:
+			addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+			break;
+		case NET_ADDR_ANY:
+		default:
+			addr.sin_addr.s_addr = htonl(INADDR_ANY);
+			break;
+		}
 		addr.sin_port = htons(port + instance);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
@@ -135,11 +144,19 @@ void stress_set_sockaddr(
 		static struct sockaddr_in6 addr;
 #if defined(__minix__)
 		static const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
+		static const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
-
 		memset(&addr, 0, sizeof(addr));
 		addr.sin6_family = domain;
-		addr.sin6_addr = in6addr_any;
+		switch (net_addr) {
+		case NET_ADDR_LOOPBACK:
+			addr.sin6_addr = in6addr_loopback;
+			break;
+		case NET_ADDR_ANY:
+		default:
+			addr.sin6_addr = in6addr_any;
+			break;
+		}
 		addr.sin6_port = htons(port + instance);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);

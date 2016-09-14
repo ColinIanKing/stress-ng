@@ -432,6 +432,10 @@ extern void pr_openlog(const char *filename);
 #define MAX_READAHEAD_BYTES	(256ULL * GB)
 #define DEFAULT_READAHEAD_BYTES	(1 * GB)
 
+#define MIN_SCTP_PORT		(1024)
+#define MAX_SCTP_PORT		(65535)
+#define DEFAULT_SCTP_PORT	(9000)
+
 #define MIN_SENDFILE_SIZE	(1 * KB)
 #define MAX_SENDFILE_SIZE	(1 * GB)
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
@@ -1177,6 +1181,10 @@ typedef enum {
 	__STRESS_RTC,
 #define STRESS_RTC __STRESS_RTC
 #endif
+#if defined(HAVE_LIB_SCTP)
+	__STRESS_SCTP,
+#define STRESS_SCTP __STRESS_SCTP
+#endif
 #if defined(__linux__) && defined(__NR_memfd_create)
 	__STRESS_SEAL,
 #define STRESS_SEAL __STRESS_SEAL
@@ -1879,6 +1887,12 @@ typedef enum {
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
 
+#if defined(STRESS_SCTP)
+	OPT_SCTP,
+	OPT_SCTP_OPS,
+	OPT_SCTP_PORT,
+#endif
+
 #if defined(STRESS_SEAL)
 	OPT_SEAL,
 	OPT_SEAL_OPS,
@@ -2482,12 +2496,16 @@ extern void tz_dump(FILE *fp, const shared_t *shared, const stress_t stressors[]
 #endif
 
 /* Network helpers */
+
+#define NET_ADDR_ANY		(0)
+#define NET_ADDR_LOOPBACK	(1)
+
 extern void stress_set_net_port(const char *optname, const char *optarg,
 	const int min_port, const int max_port, int *port);
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask, const char *name, const char *domain_name, int *domain);
 extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len);
+	struct sockaddr **sockaddr, socklen_t *len, int net_addr);
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 extern void stress_semaphore_posix_init(void);
@@ -2552,6 +2570,7 @@ extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern int  stress_rdrand_supported(void);
 extern void stress_set_readahead_bytes(const char *optarg);
+extern void stress_set_sctp_port(const char *optarg);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
 extern void stress_set_semaphore_posix_procs(const char *optarg);
@@ -2696,6 +2715,7 @@ STRESS(stress_remap);
 STRESS(stress_rename);
 STRESS(stress_rlimit);
 STRESS(stress_rtc);
+STRESS(stress_sctp);
 STRESS(stress_seal);
 STRESS(stress_seccomp);
 STRESS(stress_seek);

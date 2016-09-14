@@ -173,7 +173,7 @@ retry:
 
 		stress_set_sockaddr(name, instance, ppid,
 			AF_UNIX, opt_socket_fd_port,
-			&addr, &addr_len);
+			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
 			usleep(10000);
@@ -256,7 +256,8 @@ static int stress_socket_server(
 	}
 
 	stress_set_sockaddr(name, instance, ppid,
-		AF_UNIX, opt_socket_fd_port, &addr, &addr_len);
+		AF_UNIX, opt_socket_fd_port,
+		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg(name, "bind");
