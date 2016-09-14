@@ -930,6 +930,7 @@ static const struct option long_options[] = {
 #if defined(STRESS_SCTP)
 	{ "sctp",	1,	0,	OPT_SCTP },
 	{ "sctp-ops",	1,	0,	OPT_SCTP_OPS },
+	{ "sctp-domain",1,	0,	OPT_SCTP_DOMAIN },
 	{ "sctp-port",	1,	0,	OPT_SCTP_PORT },
 #endif
 #if defined(STRESS_SEAL)
@@ -1616,6 +1617,7 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_SCTP)
 	{ NULL,		"sctp N",		"start N workers performing SCTP send/receives " },
 	{ NULL,		"sctp-ops N",		"stop after N SCTP bogo operations" },
+	{ NULL,		"sctp-domain D",	"specify sctp domain, default is ipv4" },
 	{ NULL,		"sctp-port P",		"use SCTP ports P to P + number of workers - 1" },
 #endif
 #if defined(STRESS_SEAL)
@@ -3035,6 +3037,10 @@ next_opt:
 #if defined(STRESS_SCTP)
 		case OPT_SCTP_PORT:
 			stress_set_sctp_port(optarg);
+			break;
+		case OPT_SCTP_DOMAIN:
+			if (stress_set_sctp_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 #endif
 #if defined(OPT_SEEK_PUNCH)

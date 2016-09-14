@@ -1849,6 +1849,23 @@ the RTC. This is a Linux only stressor.
 .B \-\-rtc\-ops N
 stop after N bogo RTC interface accesses.
 .TP
+.B \-\-sctp N
+start N workers that perform network sctp stress activity using the Stream
+Control Transmission Protocol (SCTP).  This involves client/server processes
+performing rapid connect, send/receives and disconnects on the local host.
+.TP
+.B \-\-sctp\-domain D
+specify the domain to use, the default is ipv4. Currently ipv4 and ipv6
+are supported.
+.TP
+.B \-\-sctp\-ops N
+stop sctp workers after N bogo operations.
+.TP
+.B \-\-sctp\-port P
+start at sctp port P. For N sctp worker processes, ports P to (P * 4) - 1
+are used for ipv4, ipv6 domains and ports P to P - 1 are used for the unix
+domain.
+.TP
 .B \-\-seal N
 start N workers that exercise the fcntl(2) SEAL commands on a small anonymous
 file created using memfd_create(2).  After each SEAL command is issued the

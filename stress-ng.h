@@ -1890,6 +1890,7 @@ typedef enum {
 #if defined(STRESS_SCTP)
 	OPT_SCTP,
 	OPT_SCTP_OPS,
+	OPT_SCTP_DOMAIN,
 	OPT_SCTP_PORT,
 #endif
 
@@ -2570,6 +2571,7 @@ extern void stress_set_pthread_max(const char *optarg);
 extern void stress_set_qsort_size(const void *optarg);
 extern int  stress_rdrand_supported(void);
 extern void stress_set_readahead_bytes(const char *optarg);
+extern int  stress_set_sctp_domain(const char *optarg);
 extern void stress_set_sctp_port(const char *optarg);
 extern void stress_set_seek_size(const char *optarg);
 extern void stress_set_sendfile_size(const char *optarg);
