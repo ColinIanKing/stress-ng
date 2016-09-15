@@ -36,7 +36,7 @@
 #include "stress-ng.h"
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-    !defined(__OpenBSD__)
+    !defined(__OpenBSD__) && !defined(__minix__)
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
