@@ -33,6 +33,14 @@ static void *sctp_funcs[] = {
 	(void *)sctp_recvmsg,
 };
 
+#if !defined(SOL_SCTP)
+#error no SOL_SCTP
+#endif
+
+#if !defined(IPPROTO_SCTP)
+#error no IPPROTO_SCTP
+#endif
+
 int main(void)
 {
 	return 0;
