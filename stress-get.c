@@ -158,7 +158,9 @@ int stress_get(
 		struct utsname utsbuf;
 		struct timex timexbuf;
 #endif
+#if !defined(__minix__)
 		const pid_t mypid = getpid();
+#endif
 		int ret;
 		size_t i;
 		struct timeval tv;
