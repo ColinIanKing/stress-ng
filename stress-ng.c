@@ -3316,6 +3316,8 @@ next_opt:
 		procs[id].exclude = true;
 	}
 #endif
+	(void)id;
+
 	/*
 	 *  Disable pathological stressors if user has not explicitly
 	 *  request them to be used. Let's play safe.
