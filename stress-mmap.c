@@ -158,7 +158,7 @@ static void stress_mmap_child(
 	const size_t pages4k)
 {
 	int no_mem_retries = 0;
-#if !defined(__gnu_hurd__)
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
 		MS_ASYNC : MS_SYNC;
 #endif
