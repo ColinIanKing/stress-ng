@@ -280,7 +280,7 @@ int stress_sysfs(
 
 	(void)instance;
 
-	if (geteuid() == 0) {
+	if ((instance == 0) && (geteuid() == 0)) {
 		pr_inf(stderr, "%s: running as root, just traversing /sys "
 			"and not reading files.\n", name);
 		sys_read = false;
