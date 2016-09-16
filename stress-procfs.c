@@ -132,6 +132,7 @@ static void *stress_proc_read_thread(void *ctxt_ptr)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
+	memset(stack, 0, sizeof(stack));
 	ss.ss_sp = (void *)stack;
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
