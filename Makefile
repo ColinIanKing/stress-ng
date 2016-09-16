@@ -622,8 +622,9 @@ dist:
 		COPYING syscalls.txt mascot README README.Android \
 		test-apparmor.c test-libbsd.c test-libz.c \
 		test-libcrypt.c test-librt.c test-libpthread.c \
-		test-libaio.c test-cap.c usr.bin.pulseaudio.eg \
-		perf-event.c snapcraft stress-ng-$(VERSION)
+		test-libaio.c test-cap.c test-libsctp.c \
+		usr.bin.pulseaudio.eg perf-event.c snapcraft \
+		stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
