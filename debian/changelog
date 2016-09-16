@@ -1,3 +1,78 @@
+stress-ng (0.06.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add test-libsctp.c to make dist rule
+  * test-libcrypt: fix cppcheck warning
+  * Debian/control: add libgcrypt11-dev
+  * stress-procfs: clear stack before use
+  * manual: update date
+  * stress-sysfs: only report an info message on instance 0
+  * test-libsctp: add some checks for required macros
+  * sched: fix build warning when building with clang on minix
+  * sched: fix build warning when building with clang on minix
+  * stress-stack: fix build warning when building with clang on minix
+  * stress-mmap: fix build warning when building with clang on minix
+  * stress-get: fix build warning with clang on minix
+  * stress-sctp: add in missing --sctp-domain option, update manual
+  * Update net helper to add addresses, add new SCTP stressor
+  * Some minor cleanups to main stress-ng header, nothing major
+  * rename get_unsigned_long to get_uint32
+  * Some more 80 column source line width fixes
+  * stress-sysfs: use fstat rather than access on path
+  * stress-procfs: forgot to re-open closed file
+  * stress-procfs: add some illegal read calls to try to break procfs
+  * stress-sysfs: add some illegal read calls to try to break sysfs
+  * Make snapcraft confinement devmode
+  * Minor formatting changes to ensure 80 column wide source
+  * stress-tlb-shootdown: fix indentation
+  * stress-context: don't build with sigaltstack if minix or hurd
+  * stress-context: add use of sigaltstack and SS_AUTODISARM
+  * helper: fix indentation
+  * stress-opcode: fix indentation
+  * stress-ioprio: remove duplicate and badly indented umask() call
+  * stress-epoll: fix indentation on if statement
+  * helper: set core size to zero if possible with setrlimit
+  * helper: force number of cpus to be 1 if sysconf not available
+  * net: declare missing in6addr_any for minix
+  * stress-mmap: make mprotect a no-op for minix
+  * stress-mmap: don't use msync for minix
+  * stress-shm-sysv: don't use msync for minix
+  * stress-stack: don't use sigaltstack for minix
+  * sched: make this a no-op for minix
+  * mlock: make this a no-op for minix
+  * don't enable STRESS_MSYNC for minix
+  * don't enable STRESS_YIELD for minix
+  * stress-flock: don't yield if minix
+  * mincore: make this a no-op for minix
+  * madvise: this is a no-op for minix
+  * stress-mlock: don't build for minix
+  * stress-cpu: minix does not support cabsl, use cabs instead
+  * stress-hdd: don't do madvise for minix
+  * stress-get: minix does not have getpgrp()
+  * stress-ng.h: don't build in mlock stressor if minix
+  * forgot to guard MLOCK stressor with STRESS_MLOCK check
+  * stress-get: minix does not have getpgid()
+  * mounts: fix build issues for minix
+  * mincore: fix build warning on minix
+  * stress-ng.h: only include <pthread.h> if it is available
+  * stress-wait: cater for systems that lack WCONTINUED
+  * stress-sigsuspend: remove <pthread.h> header inclusion, not required
+  * stress-quota: make err local to each code block
+  * stress-quota: remove redundant err assignment
+  * stress-quota: rename local errno so we don't alias global errno
+  * stress-quota: fix cppcheck style warning
+  * stress-madvise: fix cppcheck style warning
+  * stress-clock: fix cppcheck style warning
+  * stress-sysfs: fix cppcheck style warning, initialize stack
+  * stress-ng: clarify precedence of & and ?, fixes cppcheck style warnings
+  * stress-handle: ensure scanf %s field is limited to avoid overruns
+  * Fix SunOS builds, add socket and nsl library link flags
+  * Use mfence instead of __sync_synchronize for gcc pre 4.2 on x86
+  * Makefile: explicitly specify C standard using --std=gnu99
+  * stress-vm: don't use binary constants, gcc may not support these
+
+ -- Colin King <colin.king@canonical.com>  Fri, 16 Sep 2016 16:15:48 +0100
+
 stress-ng (0.06.15-1) unstable; urgency=medium
 
   * Makefile: bump version
