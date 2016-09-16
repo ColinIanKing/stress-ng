@@ -41,5 +41,7 @@ int main(void)
 #else
 	crypted = crypt(passwd, salt);
 #endif
+	(void)crypted;
+
 	return 0;
 }
