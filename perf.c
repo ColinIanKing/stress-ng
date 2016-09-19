@@ -685,8 +685,29 @@ void perf_stat_dump(
 		}
 		pr_yaml(yaml, "\n");
 	}
-	if (no_perf_stats)
-		pr_inf(stdout, "perf counters are not available "
-			"on this device\n");
+	if (no_perf_stats) {
+		if (geteuid() != 0) {
+			char buffer[64];
+			int ret;
+			bool paranoid = false;
+			int level = 0;
+			static char *path = "/proc/sys/kernel/perf_event_paranoid";
+
+			ret = system_read(path, buffer, sizeof(buffer) - 1);
+			if (ret > 0) {
+				if (sscanf(buffer, "%5d", &level) == 1)
+					paranoid = true;
+			}
+			if (paranoid & (level > 1)) {
+				pr_inf(stdout, "Cannot read perf counters, "
+					"do not have CAP_SYS_ADMIN capability "
+					"or %s is set too high (%d)\n",
+					path, level);
+			}
+		} else {
+			pr_inf(stdout, "perf counters are not available "
+				"on this device\n");
+		}
+	}
 }
 #endif
