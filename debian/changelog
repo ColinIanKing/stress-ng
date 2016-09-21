@@ -1,3 +1,13 @@
+stress-ng (0.06.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Update manual to explain the caveats with --perf
+  * perf: detect when perf counters can't be used (LP: #1626009)
+    - add better explanation on how to enable --perf as
+      an unprivileged user
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Sep 2016 10:25:17 +0100
+
 stress-ng (0.06.16-1) unstable; urgency=medium
 
   * Makefile: bump version
