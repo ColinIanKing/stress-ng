@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <setjmp.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
@@ -65,6 +66,9 @@ typedef struct {
 #endif
 } info_t;
 
+static pid_t pids[RESOURCE_FORKS];
+static sigjmp_buf jmp_env;
+
 static inline int sys_memfd_create(const char *name, unsigned int flags)
 {
 #if defined(__NR_memfd_create)
@@ -101,30 +105,53 @@ static void waste_resources(const size_t page_size)
 		char name[32];
 #endif
 
-		info[i].m_sbrk = sbrk(page_size * mwc8());
-		info[i].m_alloca = alloca(page_size * mwc8());
-		info[i].m_mmap_size = page_size * mwc8();
+		info[i].m_sbrk = sbrk(page_size);
+		if (!opt_do_run)
+			break;
+		info[i].m_alloca = alloca(page_size);
+		if (!opt_do_run)
+			break;
+		info[i].m_mmap_size = page_size;
 		info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
 			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-		if (info[i].m_mmap != MAP_FAILED)
+		if (!opt_do_run)
+			break;
+		if (info[i].m_mmap != MAP_FAILED) {
 			mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
+			if (!opt_do_run)
+				break;
+		}
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
+		if (!opt_do_run)
+			break;
 		info[i].fd_open = open("/dev/null", O_RDONLY);
+		if (!opt_do_run)
+			break;
 #if defined(__NR_eventfd)
 		info[i].fd_ev = eventfd(0, 0);
+		if (!opt_do_run)
+			break;
 #endif
 #if defined(__NR_memfd_create)
 		snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
 		info[i].fd_memfd = sys_memfd_create(name, 0);
+		if (!opt_do_run)
+			break;
 #endif
 		info[i].fd_sock = socket(
 			domains[mwc32() % SIZEOF_ARRAY(domains)],
 			types[mwc32() % SIZEOF_ARRAY(types)], 0);
+		if (!opt_do_run)
+			break;
 #if defined(__NR_userfaultfd)
 		info[i].fd_uf = sys_userfaultfd(0);
+		if (!opt_do_run)
+			break;
 #endif
 #if defined(O_TMPFILE)
 		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+		if (!opt_do_run)
+			break;
 		if (info[i].fd_tmp != -1) {
 			size_t sz = page_size * mwc32();
 
@@ -177,6 +204,31 @@ static void waste_resources(const size_t page_size)
 	}
 }
 
+static void MLOCKED kill_children(void)
+{
+	size_t i;
+
+	for (i = 0; i < RESOURCE_FORKS; i++) {
+		if (pids[i])
+			kill(pids[i], SIGKILL);
+	}
+
+	for (i = 0; i < RESOURCE_FORKS; i++) {
+		if (pids[i]) {
+			int status;
+
+			(void)waitpid(pids[i], &status, 0);
+		}
+	}
+}
+
+static void MLOCKED stress_alrmhandler(int dummy)
+{
+	(void)dummy;
+
+	siglongjmp(jmp_env, 1);
+}
+
 /*
  *  stress_resources()
  *	stress by forking and exiting
@@ -187,37 +239,45 @@ int stress_resources(
 	const uint64_t max_ops,
 	const char *name)
 {
-	pid_t pids[RESOURCE_FORKS];
 	const size_t page_size = stress_get_pagesize();
+	int ret;
 
 	(void)instance;
 
+	if (stress_sighandler(name, SIGALRM, stress_alrmhandler, NULL) < 0)
+		return EXIT_FAILURE;
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		kill_children();
+		return EXIT_SUCCESS;
+	}
+
 	do {
-		unsigned int i, n;
+		unsigned int i;
 
 		memset(pids, 0, sizeof(pids));
-		for (n = 0; n < RESOURCE_FORKS; n++) {
+		for (i = 0; i < RESOURCE_FORKS; i++) {
 			pid_t pid = fork();
 
 			if (pid == 0) {
+				ret = sigsetjmp(jmp_env, 1);
+				if (ret)
+					_exit(0);
 				set_oom_adjustment(name, true);
 				waste_resources(page_size);
 				_exit(0);
 			}
 			if (pid > -1)
-				setpgid(pids[n], pgrp);
-			pids[n] = pid;
-			if (!opt_do_run)
-				break;
-		}
-		for (i = 0; i < n; i++) {
-			if (pids[i] > 0) {
-				int status;
-				/* Parent, wait for child */
-				(void)waitpid(pids[i], &status, 0);
-				(*counter)++;
+				setpgid(pids[i], pgrp);
+			pids[i] = pid;
+
+			if (!opt_do_run) {
+				kill_children();
+				return EXIT_SUCCESS;
 			}
 		}
+		kill_children();
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
