@@ -1173,6 +1173,7 @@ typedef enum {
 #define STRESS_REMAP_FILE_PAGES __STRESS_REMAP_FILE_PAGES
 #endif
 	STRESS_RENAME,
+	STRESS_RESOURCES,
 #if defined(__linux__)
 	__STRESS_RLIMIT,
 #define STRESS_RLIMIT __STRESS_RLIMIT
@@ -1873,6 +1874,9 @@ typedef enum {
 #endif
 
 	OPT_RENAME_OPS,
+
+	OPT_RESOURCES,
+	OPT_RESOURCES_OPS,
 
 #if defined(STRESS_RLIMIT)
 	OPT_RLIMIT,
@@ -2715,6 +2719,7 @@ STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_remap);
 STRESS(stress_rename);
+STRESS(stress_resources);
 STRESS(stress_rlimit);
 STRESS(stress_rtc);
 STRESS(stress_sctp);

@@ -132,6 +132,7 @@ STRESS_SRC = \
 	stress-readahead.c \
 	stress-remap-file-pages.c \
 	stress-rename.c \
+	stress-resources.c \
 	stress-rlimit.c \
 	stress-rtc.c \
 	stress-sctp.c \

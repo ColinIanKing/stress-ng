@@ -1837,6 +1837,15 @@ start N workers that each create a file and then repeatedly rename it.
 .B \-\-rename\-ops N
 stop rename stress workers after N bogo rename operations.
 .TP
+.B \-\-resources N
+start N workers that consume various system resources. Each worker will spawn
+1024 child processes that iterate 1024 times consuming shared memory, heap,
+stack, temporary files and various file descriptors (eventfds, memoryfds,
+ userfaultfds, pipes and sockets).
+.TP
+.B \-\-resources\-ops N
+stop after N resource child forks.
+.TP
 .B \-\-rlimit N
 start N workers that exceed CPU and file size resource imits, generating
 SIGXCPU and SIGXFSZ signals.

@@ -355,6 +355,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_REMAP_FILE_PAGES)
 	STRESSOR(remap, REMAP_FILE_PAGES, CLASS_MEMORY | CLASS_OS),
 #endif
+	STRESSOR(resources, RESOURCES, CLASS_MEMORY | CLASS_OS),
 	STRESSOR(rename, RENAME, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_RLIMIT)
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
@@ -917,6 +918,8 @@ static const struct option long_options[] = {
 #endif
 	{ "rename",	1,	0,	OPT_RENAME },
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
+	{ "resources",	1,	0,	OPT_RESOURCES },
+	{ "resources-ops",1,	0,	OPT_RESOURCES_OPS },
 #if defined(STRESS_RLIMIT)
 	{ "rlimit",	1,	0,	OPT_RLIMIT },
 	{ "rlimit-ops",	1,	0,	OPT_RLIMIT_OPS },
@@ -1606,6 +1609,8 @@ static const help_t help_stressors[] = {
 #endif
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop after N rename bogo operations" },
+	{ NULL,		"resources N",		"start N workers consuming system resources" },
+	{ NULL,		"resrouces-ops N",	"stop after N resource bogo operations" },
 #if defined(STRESS_RLIMIT)
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
 	{ NULL,		"rlimit-ops N",		"stop after N rlimit bogo operations" },
