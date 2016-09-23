@@ -100,26 +100,33 @@ static void waste_resources(const size_t page_size)
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	info_t info[MAX_LOOPS];
 
+	memset(&info, 0, sizeof(info));
+
 	for (i = 0; opt_do_run && (i < MAX_LOOPS); i++) {
 #if defined(__NR_memfd_create)
 		char name[32];
 #endif
-
-		info[i].m_sbrk = sbrk(page_size);
-		if (!opt_do_run)
-			break;
-		info[i].m_alloca = alloca(page_size);
-		if (!opt_do_run)
-			break;
-		info[i].m_mmap_size = page_size;
-		info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
-			PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-		if (!opt_do_run)
-			break;
-		if (info[i].m_mmap != MAP_FAILED) {
-			mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
+		if (!(mwc32() & 0xf)) {
+			info[i].m_sbrk = sbrk(page_size);
 			if (!opt_do_run)
 				break;
+		}
+		if (!(mwc32() & 0xf)) {
+			info[i].m_alloca = alloca(page_size);
+			if (!opt_do_run)
+				break;
+		}
+		if (!(mwc32() & 0xf)) {
+			info[i].m_mmap_size = page_size;
+			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
+				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+			if (!opt_do_run)
+				break;
+			if (info[i].m_mmap != MAP_FAILED) {
+				mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
+				if (!opt_do_run)
+					break;
+			}
 		}
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
 		if (!opt_do_run)
@@ -175,7 +182,7 @@ static void waste_resources(const size_t page_size)
 	}
 
 	for (i = 0; opt_do_run && (i < MAX_LOOPS); i++) {
-		if (info[i].m_mmap != MAP_FAILED)
+		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED))
 			(void)munmap(info[i].m_mmap, info[i].m_mmap_size);
 		if (info[i].pipe_ret != -1) {
 			(void)close(info[i].fd_pipe[0]);
