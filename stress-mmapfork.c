@@ -168,15 +168,15 @@ reap:
 		*buffer = '\0';
 
 		if (segv_reasons & _EXIT_SEGV_MMAP)
-			strncat(buffer, " mmap", sizeof(buffer));
+			strncat(buffer, " mmap", sizeof(buffer) - 1);
 		if (segv_reasons & _EXIT_SEGV_MADV_WILLNEED)
-			strncat(buffer, " madvise-WILLNEED", sizeof(buffer));
+			strncat(buffer, " madvise-WILLNEED", sizeof(buffer) - 1);
 		if (segv_reasons & _EXIT_SEGV_MADV_DONTNEED)
-			strncat(buffer, " madvise-DONTNEED", sizeof(buffer));
+			strncat(buffer, " madvise-DONTNEED", sizeof(buffer) - 1);
 		if (segv_reasons & _EXIT_SEGV_MEMSET)
-			strncat(buffer, " memset", sizeof(buffer));
+			strncat(buffer, " memset", sizeof(buffer) - 1);
 		if (segv_reasons & _EXIT_SEGV_MUNMAP)
-			strncat(buffer, " munmap", sizeof(buffer));
+			strncat(buffer, " munmap", sizeof(buffer) - 1);
 
                 pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
 			name, segv_count, buffer);
