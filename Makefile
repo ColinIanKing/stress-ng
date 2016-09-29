@@ -22,6 +22,7 @@ VERSION=0.06.17
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
+LDFLAGS += -lc
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
