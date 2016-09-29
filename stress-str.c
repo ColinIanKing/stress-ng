@@ -24,10 +24,14 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
-#include "stress-ng.h"
+#if defined(HAVE_LIB_BSD)
+#include <bsd/string.h>
+#endif
 
 /*
  *  the STR stress test has different classes of string stressors
@@ -184,6 +188,31 @@ static void stress_rindex(
 	}
 }
 
+#if defined(HAVE_LIB_BSD)
+/*
+ *  stress_strlcpy()
+ *	stress on strlcpy
+ */
+static void stress_strlcpy(
+	const void *libc_func,
+	const char *name,
+	char *str1,
+	const size_t len1,
+	char *str2,
+	const size_t len2)
+{
+	register size_t i;
+	char * (*__strlcpy)(char *dest, const char *src, size_t len) = libc_func;
+
+	char buf[len1 + len2 + 1];
+	size_t len = len1 + len2;
+
+	for (i = 0; i < len1 - 1; i++) {
+		STRCHK(name, buf == __strlcpy(buf, str1, len));
+		STRCHK(name, buf == __strlcpy(buf, str2, len));
+	}
+}
+#else
 /*
  *  stress_strcpy()
  *	stress on strcpy
@@ -199,14 +228,49 @@ static void stress_strcpy(
 	register size_t i;
 	char * (*__strcpy)(char *dest, const char *src) = libc_func;
 
-	char buf[len1 + len2];
+	char buf[len1 + len2 + 1];
 
 	for (i = 0; i < len1 - 1; i++) {
 		STRCHK(name, buf == __strcpy(buf, str1));
 		STRCHK(name, buf == __strcpy(buf, str2));
 	}
 }
+#endif
 
+
+#if defined(HAVE_LIB_BSD)
+/*
+ *  stress_strlcat()
+ *	stress on strlcat
+ */
+static void stress_strlcat(
+	const void *libc_func,
+	const char *name,
+	char *str1,
+	const size_t len1,
+	char *str2,
+	const size_t len2)
+{
+	register size_t i;
+	char * (*__strlcat)(char *dest, const char *src, size_t len) = libc_func;
+
+	char buf[len1 + len2 + 1];
+	const size_t len = len1 + len2;
+
+	for (i = 0; i < len1 - 1; i++) {
+		*buf = '\0';
+		STRCHK(name, buf == __strlcat(buf, str1, len));
+		*buf = '\0';
+		STRCHK(name, buf == __strlcat(buf, str2, len));
+		*buf = '\0';
+		STRCHK(name, buf == __strlcat(buf, str1, len));
+		STRCHK(name, buf == __strlcat(buf, str2, len));
+		*buf = '\0';
+		STRCHK(name, buf == __strlcat(buf, str2, len));
+		STRCHK(name, buf == __strlcat(buf, str1, len));
+	}
+}
+#else
 /*
  *  stress_strcat()
  *	stress on strcat
@@ -237,6 +301,7 @@ static void stress_strcat(
 		STRCHK(name, buf == __strcat(buf, str1));
 	}
 }
+#endif
 
 /*
  *  stress_strncat()
@@ -505,11 +570,19 @@ static const stress_str_stressor_info_t str_methods[] = {
 	{ "index",		stress_index,		index },
 	{ "rindex",		stress_rindex,		rindex  },
 	{ "strcasecmp",		stress_strcasecmp,	strcasecmp },
+#if defined(HAVE_LIB_BSD)
+	{ "strlcat",		stress_strlcat,		strlcat },
+#else
 	{ "strcat",		stress_strcat,		strcat },
+#endif
 	{ "strchr",		stress_strchr,		strchr },
 	{ "strcoll",		stress_strcoll,		strcoll },
 	{ "strcmp",		stress_strcmp,		strcmp },
+#if defined(HAVE_LIB_BSD)
+	{ "strlcpy",		stress_strlcpy,		strlcpy },
+#else
 	{ "strcpy",		stress_strcpy,		strcpy },
+#endif
 	{ "strlen",		stress_strlen,		strlen },
 	{ "strncasecmp",	stress_strncasecmp,	strncasecmp },
 	{ "strncat",		stress_strncat,		strncat },
