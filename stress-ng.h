@@ -184,6 +184,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_CACHE_NOAFF	0x0400000000000ULL	/* disable CPU affinity */
 #define OPT_FLAGS_IGNITE_CPU	0x0800000000000ULL	/* --cpu-ignite */
 #define OPT_FLAGS_PATHOLOGICAL	0x1000000000000ULL	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	0x2000000000000ULL	/* --no-rand-seed */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -1788,6 +1789,7 @@ typedef enum {
 	OPT_NICE_OPS,
 
 	OPT_NO_MADVISE,
+	OPT_NO_RAND_SEED,
 
 	OPT_NULL,
 	OPT_NULL_OPS,

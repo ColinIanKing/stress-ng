@@ -199,6 +199,12 @@ from version 0.02.26 stress\-ng automatically calls madvise(2) with random
 advise options before each mmap and munmap to stress the the vm subsystem a
 little harder. The \-\-no\-advise option turns this default off.
 .TP
+.B \-\-no\-rand\-seed
+Do not seed the stress-ng psuedo-random number generator with a quasi random
+start seed, but instead seed it with constant values. This forces tests to
+run each time using the same start conditions which can be useful when one
+requires reproduceable stress tests.
+.TP
 .B \-\-page\-in
 touch allocated pages that are not in core, forcing them to be paged back in.
 This is a useful option to force all the allocated pages to be paged in when

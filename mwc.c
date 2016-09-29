@@ -44,16 +44,22 @@ mwc_t __mwc = {
  */
 void mwc_reseed(void)
 {
-	struct timeval tv;
-	int i, n;
+	if (opt_flags & OPT_FLAGS_NO_RAND_SEED) {
+		__mwc.w = MWC_SEED_W;
+		__mwc.z = MWC_SEED_Z;
+	} else {
+		struct timeval tv;
+		int i, n;
 
-	__mwc.z = 0;
-	if (gettimeofday(&tv, NULL) == 0)
-		__mwc.z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-	__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
-	__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+		__mwc.z = 0;
+		if (gettimeofday(&tv, NULL) == 0)
+			__mwc.z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+		__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
+		__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 
-	n = (int)__mwc.z % 1733;
-	for (i = 0; i < n; i++)
-		(void)mwc32();
+		n = (int)__mwc.z % 1733;
+		for (i = 0; i < n; i++) {
+			(void)mwc32();
+		}
+	}
 }

@@ -842,6 +842,7 @@ static const struct option long_options[] = {
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
+	{ "no-rand-seed", 0,	0,	OPT_NO_RAND_SEED },
 	{ "null",	1,	0,	OPT_NULL },
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 #if defined(STRESS_NUMA)
@@ -1194,6 +1195,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"minimize",		"enable minimal stress options" },
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
+	{ NULL,		"no-rand-seed",		"seed random numbers with the same constant" },
 #if defined(STRESS_PAGE_IN)
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 #endif
@@ -2986,6 +2988,9 @@ next_opt:
 		case OPT_NO_MADVISE:
 			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
+		case OPT_NO_RAND_SEED:
+			opt_flags |= OPT_FLAGS_NO_RAND_SEED;
+
 #if defined(STRESS_PAGE_IN)
 		case OPT_PAGE_IN:
 			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
