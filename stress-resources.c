@@ -69,27 +69,19 @@ typedef struct {
 static pid_t pids[RESOURCE_FORKS];
 static sigjmp_buf jmp_env;
 
+#if defined(__NR_memfd_create)
 static inline int sys_memfd_create(const char *name, unsigned int flags)
 {
-#if defined(__NR_memfd_create)
 	return syscall(__NR_memfd_create, name, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
 }
+#endif
 
+#if defined(__NR_userfaultfd)
 static inline int sys_userfaultfd(int flags)
 {
-#if defined(__NR_userfaultfd)
         return syscall(__NR_userfaultfd, flags);
-#else
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
-#endif
 }
+#endif
 
 static void waste_resources(const size_t page_size)
 {
@@ -172,7 +164,7 @@ static void waste_resources(const size_t page_size)
 				f.l_whence = SEEK_SET;
 				f.l_start = 0;
 				f.l_len = sz;
-				f.l_pid = getpid();
+				f.l_pid = pid;
 
 				(void)fcntl(info[i].fd_tmp, F_SETLK, &f);
 			}
