@@ -24,10 +24,18 @@
 
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include "stress-ng.h"
+#if defined(HAVE_LIB_BSD)
+#include <bsd/wchar.h>
+#define HAVE_WCSLCAT
+#define HAVE_WCSLCPY
+#elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
+#define HAVE_WCSLCAT
+#define HAVE_WCSLCPY
+#endif
 
 #define STR1LEN 256
 #define STR2LEN 128
@@ -147,6 +155,30 @@ static void stress_wcsncasecmp(
 	}
 }
 
+#if defined(HAVE_WCSLCPY)
+/*
+ *  stress_wcslcpy()
+ *	stress on wcslcpy
+ */
+static void stress_wcslcpy(
+	const void *libc_func,
+	const char *name,
+	wchar_t *str1,
+	const size_t len1,
+	wchar_t *str2,
+	const size_t len2)
+{
+	register size_t i;
+	wchar_t * (*__wcscpy)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
+	wchar_t buf[len1 + len2 + 1];
+	const size_t len = len1 + len2;
+
+	for (i = 0; i < len1 - 1; i++) {
+		WCSCHK(name, buf == __wcscpy(buf, str1, len));
+		WCSCHK(name, buf == __wcscpy(buf, str2, len));
+	}
+}
+#else
 /*
  *  stress_wcscpy()
  *	stress on wcscpy
@@ -161,14 +193,47 @@ static void stress_wcscpy(
 {
 	register size_t i;
 	wchar_t * (*__wcscpy)(wchar_t *dest, const wchar_t *src) = libc_func;
-	wchar_t buf[len1 + len2];
+	wchar_t buf[len1 + len2 + 1];
 
 	for (i = 0; i < len1 - 1; i++) {
 		WCSCHK(name, buf == __wcscpy(buf, str1));
 		WCSCHK(name, buf == __wcscpy(buf, str2));
 	}
 }
+#endif
 
+#if defined(HAVE_WCSLCAT)
+/*
+ *  stress_wcslcat()
+ *	stress on wcslcat
+ */
+static void stress_wcslcat(
+	const void *libc_func,
+	const char *name,
+	wchar_t *str1,
+	const size_t len1,
+	wchar_t *str2,
+	const size_t len2)
+{
+	register size_t i;
+	wchar_t * (*__wcscat)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
+	wchar_t buf[len1 + len2 + 1];
+	size_t len = len1 + len2;
+
+	for (i = 0; i < len1 - 1; i++) {
+		*buf = L'\0';
+		WCSCHK(name, buf == __wcscat(buf, str1, len));
+		*buf = L'\0';
+		WCSCHK(name, buf == __wcscat(buf, str2, len));
+		*buf = L'\0';
+		WCSCHK(name, buf == __wcscat(buf, str1, len));
+		WCSCHK(name, buf == __wcscat(buf, str2, len));
+		*buf = L'\0';
+		WCSCHK(name, buf == __wcscat(buf, str2, len));
+		WCSCHK(name, buf == __wcscat(buf, str1, len));
+	}
+}
+#else
 /*
  *  stress_wcscat()
  *	stress on wcscat
@@ -199,6 +264,7 @@ static void stress_wcscat(
 		WCSCHK(name, buf == __wcscat(buf, str1));
 	}
 }
+#endif
 
 /*
  *  stress_wcsncat()
@@ -466,10 +532,18 @@ static const stress_wcs_stressor_info_t wcs_methods[] = {
 	{ "all",		stress_wcs_all,		NULL },	/* Special "all" test */
 
 	{ "wcscasecmp",		stress_wcscasecmp,	wcscasecmp },
+#if defined(HAVE_WCSLCAT)
+	{ "wcslcat",		stress_wcslcat,		wcslcat },
+#else
 	{ "wcscat",		stress_wcscat,		wcscat },
+#endif
 	{ "wcschr",		stress_wcschr,		wcschr },
 	{ "wcscmp",		stress_wcscmp,		wcscmp },
+#if defined(HAVE_WCSLCPY)
+	{ "wcslcpy",		stress_wcslcpy,		wcslcpy },
+#else
 	{ "wcscpy",		stress_wcscpy,		wcscpy },
+#endif
 	{ "wcslen",		stress_wcslen,		wcslen },
 	{ "wcsncasecmp",	stress_wcsncasecmp,	wcsncasecmp },
 	{ "wcsncat",		stress_wcsncat,		wcsncat },
