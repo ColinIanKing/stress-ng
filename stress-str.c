@@ -31,6 +31,11 @@
 #include <strings.h>
 #if defined(HAVE_LIB_BSD)
 #include <bsd/string.h>
+#define HAVE_STRLCPY
+#define HAVE_STRLCAT
+#elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
+#define HAVE_STRLCPY
+#define HAVE_STRLCAT
 #endif
 
 /*
@@ -188,7 +193,7 @@ static void stress_rindex(
 	}
 }
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_STRLCPY)
 /*
  *  stress_strlcpy()
  *	stress on strlcpy
@@ -238,7 +243,7 @@ static void stress_strcpy(
 #endif
 
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_STRLCAT)
 /*
  *  stress_strlcat()
  *	stress on strlcat
@@ -570,7 +575,7 @@ static const stress_str_stressor_info_t str_methods[] = {
 	{ "index",		stress_index,		index },
 	{ "rindex",		stress_rindex,		rindex  },
 	{ "strcasecmp",		stress_strcasecmp,	strcasecmp },
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_STRLCAT)
 	{ "strlcat",		stress_strlcat,		strlcat },
 #else
 	{ "strcat",		stress_strcat,		strcat },
@@ -578,7 +583,7 @@ static const stress_str_stressor_info_t str_methods[] = {
 	{ "strchr",		stress_strchr,		strchr },
 	{ "strcoll",		stress_strcoll,		strcoll },
 	{ "strcmp",		stress_strcmp,		strcmp },
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_STRLCPY)
 	{ "strlcpy",		stress_strlcpy,		strlcpy },
 #else
 	{ "strcpy",		stress_strcpy,		strcpy },
