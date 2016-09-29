@@ -86,7 +86,9 @@ static inline int sys_userfaultfd(int flags)
 static void waste_resources(const size_t page_size)
 {
 	size_t i;
+#if defined(__NR_memfd_create) && defined(O_TMPFILE)
 	const pid_t pid = getpid();
+#endif
 
 	static int domains[] = { AF_INET, AF_INET6 };
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
