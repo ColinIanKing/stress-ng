@@ -72,15 +72,11 @@ static inline void stress_sys_read(
 	 */
 	while (i < (4096 * SYS_BUF_SZ)) {
 		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-redo:
 		if (!opt_do_run)
 			break;
 		ret = read(fd, buffer, sz);
-		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo;
+		if (ret < 0)
 			break;
-		}
 		if (ret < sz)
 			break;
 		i += sz;
@@ -109,24 +105,19 @@ redo:
 	/*
 	 *  Zero sized reads
 	 */
-redo_zero:
 	ret = read(fd, buffer, 0);
-	if (ret < 0) {
-		if ((errno == EAGAIN) || (errno == EINTR))
-			goto redo_zero;
-	}
+	if (ret < 0)
+		goto err;
 
 	/*
 	 *  Bad read buffer
 	 */
 	if (badbuf) {
-redo_badbuf:
 		ret = read(fd, badbuf, SYS_BUF_SZ);
-		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo_badbuf;
-		}
+		if (ret < 0)
+			goto err;
 	}
+err:
 	(void)close(fd);
 }
 
