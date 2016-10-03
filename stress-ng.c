@@ -1612,7 +1612,7 @@ static const help_t help_stressors[] = {
 	{ "R",		"rename N",		"start N workers exercising file renames" },
 	{ NULL,		"rename-ops N",		"stop after N rename bogo operations" },
 	{ NULL,		"resources N",		"start N workers consuming system resources" },
-	{ NULL,		"resrouces-ops N",	"stop after N resource bogo operations" },
+	{ NULL,		"resources-ops N",	"stop after N resource bogo operations" },
 #if defined(STRESS_RLIMIT)
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
 	{ NULL,		"rlimit-ops N",		"stop after N rlimit bogo operations" },
