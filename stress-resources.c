@@ -37,6 +37,9 @@
 #if defined(__NR_eventfd)
 #include <sys/eventfd.h>
 #endif
+#if defined(__sun__)
+#include <alloca.h>
+#endif
 
 #include "stress-ng.h"
 
