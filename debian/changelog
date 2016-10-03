@@ -1,3 +1,26 @@
+stress-ng (0.06.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-resources: include alloca.h for __sun__ arch
+  * stress-ng: add missing break from switch on OPT_NO_RAND_SEED case
+  * stress-procfs/sysfs: abort rather than re-doing reads on read errors
+  * Add --no-rand-seed option to force reproduceable test start conditions
+  * stress-wcstr: use safe strlcat and strlcpy BSD* systems
+  * stress-str: use safe strlcat and strlcpy on *BSD systems
+  * stress-str: use safe strlcat and strlcpy if we have BSD string library
+  * Makefile: explicitly add -lc flags, stops a warning on FreeBSD builds
+  * stress-resources: pid variable declared only on specific builds
+  * stress-resources: don't build in syscall shims if we don't use them
+  * stress-mmapfork: set max strncat size appropriately
+  * Remove old deprecated --vm-stride from man page
+  * stress-resources: chew up less memory
+  * Remove resources stressor from fast test all
+  * stress-resources: add setpgid call
+  * stress-resources: try harder to terminate on SIGALRM
+  * Add resource stressor
+
+ -- Colin King <colin.king@canonical.com>  Mon, 3 Oct 2016 13:29:23 +0100
+
 stress-ng (0.06.17-1) unstable; urgency=medium
 
   * Makefile: bump version
