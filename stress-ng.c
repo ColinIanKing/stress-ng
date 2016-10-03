@@ -2990,6 +2990,7 @@ next_opt:
 			break;
 		case OPT_NO_RAND_SEED:
 			opt_flags |= OPT_FLAGS_NO_RAND_SEED;
+			break;
 
 #if defined(STRESS_PAGE_IN)
 		case OPT_PAGE_IN:
