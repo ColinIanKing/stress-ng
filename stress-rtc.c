@@ -137,11 +137,14 @@ static inline int stress_rtc_sys(const char *name)
 		snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
 		ret = system_read(path, buf, sizeof(buf));
 		if (ret < 0) {
-			if (ret == -ENOENT) {
+			if (ret == -EINTR) {
+				rc = ret;
+				break;
+			} else if (ret == -ENOENT) {
 				enoents++;
 			} else {
 				pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
-					name, path, -ret, strerror(ret));
+					name, path, -ret, strerror(-ret));
 				rc = ret;
 			}
 		}
@@ -162,9 +165,9 @@ static inline int stress_rtc_proc(const char *name)
 
 	ret = system_read(path, buf, sizeof(buf));
 	if (ret < 0) {
-		if (ret != -ENOENT) {
+		if ((ret != -ENOENT) && (ret != -EINTR)) {
 			pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
-			name, path, -ret, strerror(ret));
+			name, path, -ret, strerror(-ret));
 		}
 	}
 	return ret;
