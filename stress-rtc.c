@@ -28,6 +28,8 @@
 
 #if defined(STRESS_RTC)
 
+#define IOCTL_BUG_WORKAROUND	(1)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -57,10 +59,21 @@ static inline int stress_rtc_dev(const char *name)
 {
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
+#if defined(IOCTL_BUG_WORKAROUND)
+	char pad1[64];
+#endif
 	struct rtc_time rtc_tm;
+#if defined(IOCTL_BUG_WORKAROUND)
+	char pad2[64];
+#endif
 #endif
 	int fd, ret = 0;
 	static bool do_dev = true;
+
+#if defined(IOCTL_BUG_WORKAROUND)
+	memset(pad1, 0, sizeof(pad1));
+	memset(pad2, 0, sizeof(pad2));
+#endif
 
 	if (!do_dev)
 		return -EACCES;
