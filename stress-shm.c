@@ -316,7 +316,7 @@ fork_again:
 				 *  Blocking read on child shm ID info
 				 *  pipe.  We break out if pipe breaks
 				 *  on child death, or child tells us
-				 *  off its demise.
+				 *  about its demise.
 				 */
 				n = read(pipefds[0], &msg, sizeof(msg));
 				if (n <= 0) {
