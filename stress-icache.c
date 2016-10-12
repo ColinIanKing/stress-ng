@@ -68,6 +68,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 {
 	volatile uint8_t *addr = (uint8_t *)stress_icache_func;
 	const size_t page_size = stress_get_pagesize();
+	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 
 	(void)instance;
 
@@ -101,7 +102,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 *  a EXIT_FAILURE; this is a not necessarily a fault in the
 			 *  the stressor, just an arch resource protection issue.
 			 */
-			if (mprotect((void *)addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
+			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
 				pr_inf(stderr, "%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
 					name, addr, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
@@ -133,7 +134,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 *  Set back to a text segment READ/EXEC page attributes, this
 			 *  really should not fail.
 			 */
-			if (mprotect((void *)addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
+			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
 				pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 				return EXIT_FAILURE;
