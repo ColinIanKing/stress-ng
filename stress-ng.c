@@ -57,6 +57,11 @@
 #include <sched.h>
 #endif
 
+typedef struct {
+	const stress_id str_id;
+	int (*func_supported)();
+} unsupported_t;
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
@@ -69,11 +74,27 @@ volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 pid_t pgrp;					/* proceess group leader */
 
-
 /* Scheduler options */
 
 const char *app_name = "stress-ng";		/* Name of application */
 shared_t *shared;				/* shared memory */
+
+/*
+ *  stressors to be run-time checked to see if they are supported
+ *  on the platform.
+ */
+static const unsupported_t unsupported[] = {
+#if defined(STRESS_RDRAND)
+	{ STRESS_RDRAND,	stress_rdrand_supported },
+#endif
+#if defined(STRESS_TSC)
+	{ STRESS_TSC,		stress_tsc_supported },
+#endif
+#if defined(STRESS_APPARMOR)
+	{ STRESS_APPARMOR,	stress_apparmor_supported },
+#endif
+	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported }
+};
 
 /*
  *  Attempt to catch a range of signals so
@@ -2652,6 +2673,25 @@ void log_system_info(void)
 #endif
 }
 
+/*
+ *  exclude_unsupported()
+ *	tag stressor proc count to be excluded
+ */
+static inline void exclude_unsupported(void)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(unsupported); i++) {
+		int32_t id = stressor_id_find(unsupported[i].str_id);
+
+		if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
+		    (unsupported[i].func_supported() < 0)) {
+			procs[id].num_procs = 0;
+			procs[id].exclude = true;
+		}
+	}
+}
+
 int main(int argc, char **argv)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -3308,36 +3348,8 @@ next_opt:
 		fprintf(stderr, "maximize and minimize cannot be used together\n");
 		exit(EXIT_FAILURE);
 	}
-#if defined(STRESS_RDRAND)
-	id = stressor_id_find(STRESS_RDRAND);
-	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_rdrand_supported() < 0)) {
-		procs[id].num_procs = 0;
-		procs[id].exclude = true;
-	}
-#endif
-#if defined(STRESS_TSC)
-	id = stressor_id_find(STRESS_TSC);
-	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_tsc_supported() < 0)) {
-		procs[id].num_procs = 0;
-		procs[id].exclude = true;
-	}
-#endif
-#if defined(STRESS_APPARMOR)
-	id = stressor_id_find(STRESS_APPARMOR);
-	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_apparmor_supported() < 0)) {
-		procs[id].num_procs = 0;
-		procs[id].exclude = true;
-	}
-#endif
-	id = stressor_id_find(STRESS_ICMP_FLOOD);
-	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
-	    (stress_icmp_flood_supported() < 0)) {
-		procs[id].num_procs = 0;
-		procs[id].exclude = true;
-	}
+
+	exclude_unsupported();
 
 	/*
 	 *  Disable pathological stressors if user has not explicitly
