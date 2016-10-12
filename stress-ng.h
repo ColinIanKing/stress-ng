@@ -1009,6 +1009,7 @@ typedef enum {
 	__STRESS_ICACHE,
 #define STRESS_ICACHE __STRESS_ICACHE
 #endif
+	STRESS_ICMP_FLOOD,
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	__STRESS_INOTIFY,
 #define STRESS_INOTIFY __STRESS_INOTIFY
@@ -1609,6 +1610,9 @@ typedef enum {
 
 	OPT_ICACHE,
 	OPT_ICACHE_OPS,
+
+	OPT_ICMP_FLOOD,
+	OPT_ICMP_FLOOD_OPS,
 
 	OPT_IGNITE_CPU,
 
@@ -2557,6 +2561,7 @@ extern int  stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *optarg);
 extern void stress_set_heapsort_size(const void *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
+extern int  stress_icmp_flood_supported(void);
 extern void stress_set_itimer_freq(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
@@ -2668,6 +2673,7 @@ STRESS(stress_hdd);
 STRESS(stress_heapsort);
 STRESS(stress_hsearch);
 STRESS(stress_icache);
+STRESS(stress_icmp_flood);
 STRESS(stress_inotify);
 STRESS(stress_io);
 STRESS(stress_ioprio);

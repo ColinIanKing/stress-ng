@@ -80,6 +80,7 @@ STRESS_SRC = \
 	stress-heapsort.c \
 	stress-hsearch.c \
 	stress-icache.c \
+	stress-icmp-flood.c \
 	stress-inotify.c \
 	stress-ioprio.c \
 	stress-iosync.c \

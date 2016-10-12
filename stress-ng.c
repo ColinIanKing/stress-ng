@@ -238,6 +238,7 @@ static const stress_t stressors[] = {
 #if defined(STRESS_ICACHE)
 	STRESSOR(icache, ICACHE, CLASS_CPU_CACHE),
 #endif
+	STRESSOR(icmp_flood, ICMP_FLOOD, CLASS_OS | CLASS_NETWORK),
 	STRESSOR(io, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_IOPRIO)
 	STRESSOR(ioprio, IOPRIO, CLASS_FILESYSTEM | CLASS_OS),
@@ -696,6 +697,8 @@ static const struct option long_options[] = {
 	{ "icache",	1,	0,	OPT_ICACHE },
 	{ "icache-ops",	1,	0,	OPT_ICACHE_OPS },
 #endif
+	{ "icmp-flood",	1,	0,	OPT_ICMP_FLOOD },
+	{ "icmp-flood-ops",1,	0,	OPT_ICMP_FLOOD_OPS },
 	{ "ignite-cpu",	0,	0, 	OPT_IGNITE_CPU },
 #if defined(STRESS_INOTIFY)
 	{ "inotify",	1,	0,	OPT_INOTIFY },
@@ -1410,6 +1413,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"icache N",		"start N CPU instruction cache thrashing workers" },
 	{ NULL,		"icache-ops N",		"stop after N icache bogo operations" },
 #endif
+	{ NULL,		"icmp-flood N",		"start N ICMP packet flood workers" },
+	{ NULL,		"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
 #if defined(STRESS_INOTIFY)
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
@@ -3327,7 +3332,12 @@ next_opt:
 		procs[id].exclude = true;
 	}
 #endif
-	(void)id;
+	id = stressor_id_find(STRESS_ICMP_FLOOD);
+	if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
+	    (stress_icmp_flood_supported() < 0)) {
+		procs[id].num_procs = 0;
+		procs[id].exclude = true;
+	}
 
 	/*
 	 *  Disable pathological stressors if user has not explicitly

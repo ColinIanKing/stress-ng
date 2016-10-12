@@ -1248,6 +1248,13 @@ only verified and enabled for Intel x86 CPUs.
 .B \-\-icache\-ops N
 stop the icache workers after N bogo icache operations are completed.
 .TP
+.B \-\-icmp\-flood N
+start N workers that flood localhost with randonly sized ICMP ping packets.
+This option can only be run as root.
+.TP
+.B \-\-icmp\-flood\-ops N
+stop icmp flood workers after N ICMP ping packets have been sent.
+.TP
 .B \-\-inotify N
 start N workers performing file system activities such as making/deleting
 files/directories, moving files, etc. to stress exercise the various inotify
