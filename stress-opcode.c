@@ -148,6 +148,9 @@ again:
 			struct itimerval it;
 			uint8_t *opcodes, *ops_begin, *ops_end, *ops;
 
+			/* We don't want bad ops clobbering this region */
+			stress_unmap_shared();
+
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
 				if (stress_sighandler(name, sigs[i], stress_badhandler, NULL) < 0)
 					_exit(EXIT_FAILURE);

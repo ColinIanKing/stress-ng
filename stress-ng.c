@@ -2674,6 +2674,15 @@ void log_system_info(void)
 }
 
 /*
+ *  stress_unmap_shared()
+ *	unmap shared region
+ */
+void stress_unmap_shared(void)
+{
+	(void)munmap(shared, shared->length);
+}
+
+/*
  *  exclude_unsupported()
  *	tag stressor proc count to be excluded
  */
@@ -3532,6 +3541,7 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 	memset(shared, 0, len);
+	shared->length = len;
 #if defined(STRESS_PERF_STATS)
 	pthread_spin_init(&shared->perf.lock, 0);
 #endif
@@ -3625,7 +3635,7 @@ next_opt:
 #if defined(STRESS_SEMAPHORE_SYSV)
 	stress_semaphore_sysv_destroy();
 #endif
-	(void)munmap(shared, len);
+	stress_unmap_shared();
 	closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");

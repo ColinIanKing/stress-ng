@@ -821,6 +821,7 @@ typedef struct {
 
 /* Shared memory segment */
 typedef struct {
+	size_t length;					/* Size of segment */
 	uint8_t	*mem_cache;				/* Shared memory cache */
 	uint64_t mem_cache_size;			/* Bytes */
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
@@ -2420,6 +2421,7 @@ extern void check_range(const char *const opt, const uint64_t val,
 extern WARN_UNUSED int set_cpu_affinity(char *const arg);
 
 /* Misc helper funcs */
+extern void stress_unmap_shared(void);
 extern void log_system_mem_info(void);
 extern WARN_UNUSED char *munge_underscore(char *str);
 extern size_t stress_get_pagesize(void);
