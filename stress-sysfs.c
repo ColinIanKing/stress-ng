@@ -52,10 +52,10 @@ typedef struct ctxt {
 } ctxt_t;
 
 /*
- *  stress_sys_read()
+ *  stress_sys_rw()
  *	read a proc file
  */
-static inline void stress_sys_read(
+static inline void stress_sys_rw(
 	const char *name,
 	const char *path,
 	char *badbuf)
@@ -119,14 +119,23 @@ static inline void stress_sys_read(
 	}
 err:
 	(void)close(fd);
+
+	/*
+	 *  Zero sized writes
+	 */
+	if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+		return;
+	ret = write(fd, buffer, 0);
+	(void)ret;
+	(void)close(fd);
 }
 
 /*
- *  stress_sys_read_thread
+ *  stress_sys_rw_thread
  *	keep exercising a sysfs entry until
  *	controlling thread triggers an exit
  */
-static void *stress_sys_read_thread(void *ctxt_ptr)
+static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ] = { 0 };
@@ -153,7 +162,7 @@ static void *stress_sys_read_thread(void *ctxt_ptr)
 		return &nowt;
 	}
 	while (keep_running && opt_do_run)
-		stress_sys_read(ctxt->name, ctxt->path, ctxt->badbuf);
+		stress_sys_rw(ctxt->name, ctxt->path, ctxt->badbuf);
 
 	return &nowt;
 }
@@ -162,7 +171,7 @@ static void *stress_sys_read_thread(void *ctxt_ptr)
  *  stress_proc_sys_threads()
  *	create a bunch of threads to thrash read a sys entry
  */
-static void stress_sys_read_threads(const char *name, const char *path)
+static void stress_sys_rw_threads(const char *name, const char *path)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
@@ -183,12 +192,12 @@ static void stress_sys_read_threads(const char *name, const char *path)
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_sys_read_thread, &ctxt);
+				stress_sys_rw_thread, &ctxt);
 	}
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)
 			break;
-		stress_sys_read(name, path, ctxt.badbuf);
+		stress_sys_rw(name, path, ctxt.badbuf);
 	}
 	keep_running = false;
 
@@ -210,7 +219,7 @@ static void stress_sys_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	bool sys_read)
+	bool sys_rw)
 {
 	DIR *dp;
 	struct dirent *d;
@@ -240,14 +249,14 @@ static void stress_sys_dir(
 				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
 				stress_sys_dir(name, filename, recurse,
-					depth + 1, sys_read);
+					depth + 1, sys_rw);
 			}
 			break;
 		case DT_REG:
-			if (sys_read) {
+			if (sys_rw) {
 				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_read_threads(name, filename);
+				stress_sys_rw_threads(name, filename);
 			}
 			break;
 		default:
@@ -267,18 +276,20 @@ int stress_sysfs(
 	const uint64_t max_ops,
 	const char *name)
 {
-	bool sys_read = true;
+	bool sys_rw = true;
 
 	(void)instance;
 
-	if ((instance == 0) && (geteuid() == 0)) {
-		pr_inf(stderr, "%s: running as root, just traversing /sys "
-			"and not reading files.\n", name);
-		sys_read = false;
+	if (geteuid() == 0) {
+		if (instance == 0) {
+			pr_inf(stderr, "%s: running as root, just traversing /sys "
+				"and not read/writing to /sys files.\n", name);
+		}
+		sys_rw = false;
 	}
 
 	do {
-		stress_sys_dir(name, "/sys", true, 0, sys_read);
+		stress_sys_dir(name, "/sys", true, 0, sys_rw);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
