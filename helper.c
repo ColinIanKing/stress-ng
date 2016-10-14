@@ -81,7 +81,7 @@ size_t stress_get_pagesize(void)
         sz = sysconf(_SC_PAGESIZE);
 	page_size = (sz <= 0) ? PAGE_4K : (size_t)sz;
 #else
-        page_size = PAGE_4K;
+	page_size = PAGE_4K;
 #endif
 
 	return page_size;
