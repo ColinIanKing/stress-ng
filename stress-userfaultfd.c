@@ -73,12 +73,29 @@ void stress_set_userfaultfd_bytes(const char *optarg)
 }
 
 /*
+ *  stress_child_alarm_handler()
+ *	SIGALRM handler to terminate child immediately
+ */
+static void MLOCKED stress_child_alarm_handler(int dummy)
+{
+        (void)dummy;
+
+	_exit(0);
+}
+
+
+/*
  *  stress_userfaultfd_child()
  *	generate page faults for parent to handle
  */
 static int stress_userfaultfd_child(void *arg)
 {
 	context_t *c = (context_t *)arg;
+
+	setpgid(0, pgrp);
+	stress_parent_died_alarm();
+	if (stress_sighandler(c->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	do {
 		uint8_t *ptr, *end = c->data + c->sz;
@@ -92,7 +109,6 @@ static int stress_userfaultfd_child(void *arg)
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;
-
 	} while (opt_do_run && (!c->max_ops || *c->counter < c->max_ops));
 
 	return 0;
@@ -144,10 +160,12 @@ static inline int handle_page_fault(
 }
 
 /*
- *  stress_userfaultfd()
- *	stress userfaultfd
+ *  stress_userfaultfd_oomable()
+ *	stress userfaultfd system call, this
+ *	is an OOM-able child process that the
+ *	parent can restart
  */
-int stress_userfaultfd(
+static int stress_userfaultfd_oomable(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
@@ -185,13 +203,13 @@ int stress_userfaultfd(
 	if (posix_memalign(&zero_page, page_size, page_size)) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: zero page allocation failed\n", name);
-		return rc;
+		return EXIT_NO_RESOURCE;
 	}
 
 	data = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		rc = exit_status(errno);
+		rc = EXIT_NO_RESOURCE;
 		pr_err(stderr, "%s: mmap failed\n", name);
 		goto free_zeropage;
 	}
@@ -360,6 +378,64 @@ unmap_data:
 free_zeropage:
 	free(zero_page);
 
+	return rc;
+}
+
+/*
+ *  stress_userfaultfd()
+ *	stress userfaultfd
+ */
+int stress_userfaultfd(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	pid_t pid;
+	int rc = EXIT_FAILURE;
+
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			return EXIT_NO_RESOURCE;
+		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			name, errno, strerror(errno));
+	} else if (pid > 0) {
+		/* Parent */
+		int status, ret;
+
+		setpgid(pid, pgrp);
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
+			/* If we got killed by OOM killer, report this */
+			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
+				pr_dbg(stderr, "%s: assuming killed by OOM "
+					"killer, aborting "
+					"(instance %d)\n",
+					name, instance);
+				return EXIT_NO_RESOURCE;
+			}
+			return EXIT_FAILURE;
+		}
+		rc = WEXITSTATUS(status);
+	} else if (pid == 0) {
+		/* Child */
+		setpgid(0, pgrp);
+		stress_parent_died_alarm();
+
+		_exit(stress_userfaultfd_oomable(counter, instance, max_ops, name));
+	}
 	return rc;
 }
 
