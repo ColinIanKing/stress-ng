@@ -1010,7 +1010,10 @@ typedef enum {
 	__STRESS_ICACHE,
 #define STRESS_ICACHE __STRESS_ICACHE
 #endif
-	STRESS_ICMP_FLOOD,
+#if defined(__linux__)
+	__STRESS_ICMP_FLOOD,
+#define STRESS_ICMP_FLOOD __STRESS_ICMP_FLOOD
+#endif
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	__STRESS_INOTIFY,
 #define STRESS_INOTIFY __STRESS_INOTIFY
@@ -1612,8 +1615,10 @@ typedef enum {
 	OPT_ICACHE,
 	OPT_ICACHE_OPS,
 
+#if defined(STRESS_ICMP_FLOOD)
 	OPT_ICMP_FLOOD,
 	OPT_ICMP_FLOOD_OPS,
+#endif
 
 	OPT_IGNITE_CPU,
 

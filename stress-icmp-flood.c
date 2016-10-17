@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_ICMP_FLOOD)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -40,7 +44,6 @@
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 
-#include "stress-ng.h"
 
 #define MAX_PAYLOAD_SIZE	(1000)
 
@@ -163,3 +166,5 @@ err_socket:
 err:
 	return rc;
 }
+
+#endif
