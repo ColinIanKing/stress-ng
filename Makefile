@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.06.18
+VERSION=0.07.00
 #
 # Codename "pathological process pounder"
 #
