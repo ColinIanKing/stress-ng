@@ -1,3 +1,27 @@
+stress-ng (0.07.00-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Make ICMP flood stressor conditional build on OS basis
+  * debian/rules: add hardening flags
+  * helper: fix white space indentation (spaces replaced by tab)
+  * stress-ng: bracket pid number on abort early message
+  * stress-userfaultfd: catch OOMs and report these as no resource issues
+  * stress-timer: make stress_timer_set static
+  * stress-sysfs: add zero byte writes to sysfs files
+  * stress-procfs: add zero byte writes to procfs files
+  * stress-icache: ensure we mprotect on page aligned boundary
+  * stress-opcode: unmap the shared region so we don't clobber it
+  * stress-ng: generalise the run-time unsupported stressor checks
+  * Add ICMP flood stressor
+  * stress-shm*: minor change to comment
+  * stress-rtc: fix ioctl() issues, use rtc_wkalrm for wake alarm ioctls
+  * stress-rtc: add padding around rtc_tm to workaround an ioctl bug
+  * stress-oom-pipe: fix pipe fd offset bug, causing writes to fd 0 on ppc64el
+  * stress-ng: fix spelling of resrouces -> resources
+  * stress-rtc: handle return code correctly and -EINTR aborts
+
+ -- Colin King <colin.king@canonical.com>  Mon, 17 Oct 2016 09:44:02 +0100
+
 stress-ng (0.06.18-1) unstable; urgency=medium
 
   * Makefile: bump version
