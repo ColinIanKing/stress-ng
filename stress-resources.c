@@ -89,7 +89,7 @@ static inline int sys_userfaultfd(int flags)
 static void waste_resources(const size_t page_size)
 {
 	size_t i;
-#if defined(__NR_memfd_create) && defined(O_TMPFILE)
+#if defined(__NR_memfd_create) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
 
