@@ -67,6 +67,12 @@ typedef struct {
 	void (*func_limited)(uint64_t max);
 } proc_limited_t;
 
+typedef struct {
+	const stress_id str_id;
+	const uint64_t opt_flag;
+	void (*func)(void);
+} proc_helper_t;
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
@@ -116,6 +122,31 @@ static const proc_limited_t proc_limited[] = {
 #endif
 };
 #endif
+
+/*
+ *  stressors that have explicit init requirements
+ */
+static const proc_helper_t proc_init[] = {
+#if defined(STRESS_SEMAPHORE_POSIX)
+	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_init },
+#endif
+#if defined(STRESS_SEMAPHORE_SYSV)
+	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_init }
+#endif
+};
+
+/*
+ *  stressors that have explicit destroy requirements
+ */
+static const proc_helper_t proc_destroy[] = {
+#if defined(STRESS_SEMAPHORE_POSIX)
+	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_destroy },
+#endif
+#if defined(STRESS_SEMAPHORE_SYSV)
+	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_destroy }
+#endif
+};
+
 
 /*
  *  Attempt to catch a range of signals so
@@ -2750,7 +2781,7 @@ static inline void exclude_unsupported(void)
  *  set_proc_limits()
  *	set maximum number of processes for specific stressors
  */
-void set_proc_limits(void)
+static void set_proc_limits(void)
 {
 	size_t i;
 
@@ -2764,6 +2795,22 @@ void set_proc_limits(void)
 
 			proc_limited->func_limited(max);
 		}
+	}
+}
+
+/*
+ *  proc_helper()
+ *	perform init/destroy on stressor helper funcs
+ */
+static void proc_helper(const proc_helper_t *helpers, const size_t n)
+{
+	size_t i;
+
+	for (i = 0; i < n; i++) {
+		int32_t id = stressor_id_find(helpers[i].str_id);
+
+		if (procs[id].num_procs || (opt_flags & helpers[i].opt_flag))
+			helpers[i].func();
 	}
 }
 
@@ -2829,7 +2876,6 @@ int main(int argc, char **argv)
 	FILE *yaml = NULL;			/* YAML output file */
 	char *logfile = NULL;			/* log filename */
 	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
-	int32_t id;				/* stressor id */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
 	int32_t opt_sched = UNDEFINED;		/* sched policy */
 	int32_t opt_sched_priority = UNDEFINED;	/* sched priority */
@@ -3616,16 +3662,8 @@ next_opt:
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		tz_init(&shared->tz_info);
 #endif
-#if defined(STRESS_SEMAPHORE_POSIX)
-	id = stressor_id_find(STRESS_SEMAPHORE_POSIX);
-	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
-		stress_semaphore_posix_init();
-#endif
-#if defined(STRESS_SEMAPHORE_SYSV)
-	id = stressor_id_find(STRESS_SEMAPHORE_SYSV);
-	if (procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL))
-		stress_semaphore_sysv_init();
-#endif
+
+	proc_helper(proc_init, SIZEOF_ARRAY(proc_init));
 
 	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		/*
@@ -3681,12 +3719,7 @@ next_opt:
 		times_dump(yaml, ticks_per_sec, duration);
 	free_procs();
 
-#if defined(STRESS_SEMAPHORE_POSIX)
-	stress_semaphore_posix_destroy();
-#endif
-#if defined(STRESS_SEMAPHORE_SYSV)
-	stress_semaphore_sysv_destroy();
-#endif
+	proc_helper(proc_destroy, SIZEOF_ARRAY(proc_destroy));
 	stress_unmap_shared();
 	closelog();
 	if (yaml) {
