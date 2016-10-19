@@ -2735,6 +2735,31 @@ static inline void exclude_pathological(void)
 	}
 }
 
+static inline void set_random_stressors(const int32_t opt_random)
+{
+	if (opt_flags & OPT_FLAGS_RANDOM) {
+		int32_t n = opt_random;
+
+		if (opt_flags & OPT_FLAGS_SET) {
+			fprintf(stderr, "Cannot specify random option with "
+				"other stress processes selected\n");
+			exit(EXIT_FAILURE);
+		}
+		/* create n randomly chosen stressors */
+		while (n > 0) {
+			int32_t rnd = mwc32() % ((opt_random >> 5) + 2);
+			int32_t i = mwc32() % STRESS_MAX;
+
+			if (!procs[i].exclude) {
+				if (rnd > n)
+					rnd = n;
+				procs[i].num_procs += rnd;
+				n -= rnd;
+			}
+		}
+	}
+}
+
 
 int main(int argc, char **argv)
 {
@@ -3395,28 +3420,7 @@ next_opt:
 
 	exclude_unsupported();
 	exclude_pathological();
-
-	if (opt_flags & OPT_FLAGS_RANDOM) {
-		int32_t n = opt_random;
-
-		if (opt_flags & OPT_FLAGS_SET) {
-			fprintf(stderr, "Cannot specify random option with "
-				"other stress processes selected\n");
-			exit(EXIT_FAILURE);
-		}
-		/* create n randomly chosen stressors */
-		while (n > 0) {
-			int32_t rnd = mwc32() % ((opt_random >> 5) + 2);
-			int32_t i = mwc32() % STRESS_MAX;
-
-			if (!procs[i].exclude) {
-				if (rnd > n)
-					rnd = n;
-				procs[i].num_procs += rnd;
-				n -= rnd;
-			}
-		}
-	}
+	set_random_stressors(opt_random);
 
 #if defined(STRESS_PERF_STATS)
 	if (opt_flags & OPT_FLAGS_PERF_STATS)
