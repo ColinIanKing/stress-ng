@@ -62,6 +62,11 @@ typedef struct {
 	int (*func_supported)();
 } unsupported_t;
 
+typedef struct {
+	const stress_id str_id;
+	void (*func_limited)(uint64_t max);
+} proc_limited_t;
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
@@ -97,6 +102,20 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported }
 #endif
 };
+
+/*
+ *  stressors to be limited to a maximum process threshold
+ */
+#if defined(RLIMIT_NPROC)
+static const proc_limited_t proc_limited[] = {
+#if defined(STRESS_PTHREAD)
+	{ STRESS_PTHREAD,	stress_adjust_pthread_max },
+#endif
+#if defined(STRESS_SLEEP)
+	{ STRESS_SLEEP,		stress_adjust_sleep_max }
+#endif
+};
+#endif
 
 /*
  *  Attempt to catch a range of signals so
@@ -2710,6 +2729,27 @@ static inline void exclude_unsupported(void)
 }
 
 /*
+ *  set_proc_limits()
+ *	set maximum number of processes for specific stressors
+ */
+void set_proc_limits(void)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(proc_limited); i++) {
+		int32_t id = stressor_id_find(proc_limited[i].str_id);
+		struct rlimit limit;
+
+		if (procs[id].num_procs &&
+		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
+			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
+
+			proc_limited->func_limited(max);
+		}
+	}
+}
+
+/*
  *  exclude_pathological()
  *	Disable pathological stressors if user has not explicitly
  *	request them to be used. Let's play safe.
@@ -3527,28 +3567,9 @@ next_opt:
 			}
 		}
 	}
-#if defined(STRESS_PTHREAD) && defined(RLIMIT_NPROC)
-	{
-		id = stressor_id_find(STRESS_PTHREAD);
-		struct rlimit limit;
-		if (procs[id].num_procs &&
-		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
-			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
-			stress_adjust_pthread_max(max);
-		}
-	}
-#endif
-#if defined(STRESS_SLEEP) && defined(RLIMIT_NPROC)
-	{
-		id = stressor_id_find(STRESS_SLEEP);
-		struct rlimit limit;
-		if (procs[id].num_procs &&
-		    (getrlimit(RLIMIT_NPROC, &limit) == 0)) {
-			uint64_t max = (uint64_t)limit.rlim_cur / procs[id].num_procs;
-			stress_adjust_sleep_max(max);
-		}
-	}
-#endif
+
+	set_proc_limits();
+
 	if (show_hogs(opt_class) < 0) {
 		free_procs();
 		exit(EXIT_FAILURE);
