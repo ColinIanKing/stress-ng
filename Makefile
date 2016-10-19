@@ -213,6 +213,7 @@ CORE_SRC = \
 	sched.c \
 	thermal-zone.c \
 	time.c \
+	thrash.c \
 	stress-ng.c
 
 SRC = $(STRESS_SRC) $(CORE_SRC)

@@ -1162,6 +1162,9 @@ static const struct option long_options[] = {
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
 	{ "tsearch-ops",1,	0,	OPT_TSEARCH_OPS },
 	{ "tsearch-size",1,	0,	OPT_TSEARCH_SIZE },
+#if defined(STRESS_THRASH)
+	{ "thrash",	0,	0,	OPT_THRASH },
+#endif
 	{ "times",	0,	0,	OPT_TIMES },
 #if defined(STRESS_THERMAL_ZONES)
 	{ "tz",		0,	0,	OPT_THERMAL_ZONES },
@@ -1291,6 +1294,9 @@ static const help_t help_generic[] = {
 	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
 	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
+#if defined(STRESS_THRASH)
+	{ NULL,		"thrash",		"force all pages in causing swap thrashing" },
+#endif
 	{ "t N",	"timeout N",		"timeout after N seconds" },
 	{ NULL,		"timer-slack",		"enable timer slack mode" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
@@ -3366,6 +3372,11 @@ next_opt:
 			if (set_cpu_affinity(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+#if defined(STRESS_THRASH)
+		case OPT_THRASH:
+			opt_flags |= OPT_FLAGS_THRASH;
+			break;
+#endif
 		case OPT_TEMP_PATH:
 			if (stress_set_temp_path(optarg) < 0)
 				exit(EXIT_FAILURE);
@@ -3664,6 +3675,8 @@ next_opt:
 #endif
 
 	proc_helper(proc_init, SIZEOF_ARRAY(proc_init));
+	if (opt_flags & OPT_FLAGS_THRASH)
+		thrash_start();
 
 	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		/*
@@ -3692,6 +3705,10 @@ next_opt:
 			opt_backoff, opt_ionice_class, opt_ionice_level,
 			shared->stats, &duration, &success, &resource_success);
 	}
+
+	if (opt_flags & OPT_FLAGS_THRASH)
+		thrash_stop();
+
 	pr_inf(stdout, "%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));

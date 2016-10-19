@@ -185,6 +185,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_IGNITE_CPU	0x0800000000000ULL	/* --cpu-ignite */
 #define OPT_FLAGS_PATHOLOGICAL	0x1000000000000ULL	/* --pathological */
 #define OPT_FLAGS_NO_RAND_SEED	0x2000000000000ULL	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	0x4000000000000ULL	/* --thrash */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -594,6 +595,10 @@ extern void pr_openlog(const char *filename);
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__i386__) || defined(__i386)
 #define STRESS_X86	1
+#endif
+
+#if defined(__linux__)
+#define STRESS_THRASH
 #endif
 
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||     \
@@ -2059,6 +2064,9 @@ typedef enum {
 	OPT_TEMP_PATH,
 
 	OPT_THERMAL_ZONES,
+#if defined(STRESS_THRASH)
+	OPT_THRASH,
+#endif
 
 #if defined(PRCTL_TIMER_SLACK)
 	OPT_TIMER_SLACK,
@@ -2539,6 +2547,9 @@ extern uint16_t get_max_cache_level(const cpus_t *cpus);
 extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level);
 extern void free_cpu_caches(cpus_t *cpus);
 #endif
+
+extern int  thrash_start(void);
+extern void thrash_stop(void);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(uint64_t max);
