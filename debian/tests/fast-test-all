@@ -37,7 +37,7 @@ do
 		0)	echo "$s PASSED"
 			p=$((p + 1))
 			;;
-		1)	echo "$s SKIPPED (test framework out of resources)"
+		1)	echo "$s SKIPPED (test framework out of resources or test should not be run)"
 			sk=$((sk + 1))
 			;;
 		2)	echo "$s FAILED"
