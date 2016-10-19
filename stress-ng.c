@@ -2709,6 +2709,33 @@ static inline void exclude_unsupported(void)
 	}
 }
 
+/*
+ *  exclude_pathological()
+ *	Disable pathological stressors if user has not explicitly
+ *	request them to be used. Let's play safe.
+ */
+static inline void exclude_pathological(void)
+{
+	size_t i;
+
+	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
+		for (i = 0; i < STRESS_MAX; i++) {
+			if (stressors[i].class & CLASS_PATHOLOGICAL) {
+				if (procs[i].num_procs > 0) {
+					pr_inf(stderr, "disabled '%s' as it "
+						"may hang the machine "
+						"(enable it with the "
+						"--pathological option)\n",
+						munge_underscore((char *)stressors[i].name));
+				}
+				procs[i].num_procs = 0;
+				procs[i].exclude = true;
+			}
+		}
+	}
+}
+
+
 int main(int argc, char **argv)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -3367,24 +3394,7 @@ next_opt:
 	}
 
 	exclude_unsupported();
-
-	/*
-	 *  Disable pathological stressors if user has not explicitly
-	 *  request them to be used. Let's play safe.
-	 */
-	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
-		for (i = 0; i < STRESS_MAX; i++) {
-			if (stressors[i].class & CLASS_PATHOLOGICAL) {
-				if (procs[i].num_procs > 0) {
-					pr_inf(stderr, "disabled '%s' (enable it "
-						"with --pathological option)\n",
-						munge_underscore((char *)stressors[i].name));
-				}
-				procs[i].num_procs = 0;
-				procs[i].exclude = true;
-			}
-		}
-	}
+	exclude_pathological();
 
 	if (opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
