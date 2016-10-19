@@ -3607,7 +3607,7 @@ next_opt:
 	shared->mem_cache_level = mem_cache_level;
 	shared->mem_cache_ways = mem_cache_ways;
 	if (stress_cache_alloc("cache allocate") < 0) {
-		(void)munmap((void *)shared, len);
+		stress_unmap_shared();
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
