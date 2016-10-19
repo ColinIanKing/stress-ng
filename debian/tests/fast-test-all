@@ -1,5 +1,6 @@
 #!/bin/sh
 
+STRESS_NG=stress-ng
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
 #
@@ -7,7 +8,7 @@ EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapm
 #
 # Get built-in stressor names
 #
-STRESSORS=$(stress-ng --help | grep "\-ops " | awk '{print $1}' | sed 's/--//' | sed 's/-ops//g')
+STRESSORS=$(${STRESS_NG} --help | grep "\-ops " | awk '{print $1}' | sed 's/--//' | sed 's/-ops//g')
 rc=0
 
 not_exclude()
@@ -29,7 +30,7 @@ for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
 	then
-		stress-ng -v -t 1 --${s} 4 2>&1
+		${STRESS_NG} -v -t 1 --${s} 4 2>&1
 		ret=$?
 		
 		case $ret in
