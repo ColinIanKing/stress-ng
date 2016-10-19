@@ -2701,6 +2701,24 @@ void log_system_info(void)
 }
 
 /*
+ *  stress_map_shared()
+ *	mmap shared region
+ */
+static inline void stress_map_shared(const size_t len)
+{
+	shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANON, -1, 0);
+	if (shared == MAP_FAILED) {
+		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
+			errno, strerror(errno));
+		free_procs();
+		exit(EXIT_FAILURE);
+	}
+	memset(shared, 0, len);
+	shared->length = len;
+}
+
+/*
  *  stress_unmap_shared()
  *	unmap shared region
  */
@@ -3575,16 +3593,7 @@ next_opt:
 		exit(EXIT_FAILURE);
 	}
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
-	shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANON, -1, 0);
-	if (shared == MAP_FAILED) {
-		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
-			errno, strerror(errno));
-		free_procs();
-		exit(EXIT_FAILURE);
-	}
-	memset(shared, 0, len);
-	shared->length = len;
+	stress_map_shared(len);
 #if defined(STRESS_PERF_STATS)
 	pthread_spin_init(&shared->perf.lock, 0);
 #endif
