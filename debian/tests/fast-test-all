@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/sh
 
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
@@ -14,7 +14,7 @@ not_exclude()
 {
 	for x in $2
 	do
-		if [ $x == $1 ]
+		if [ "$x" = "$1" ]
 		then
 			return 1
 		fi
