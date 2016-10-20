@@ -93,6 +93,7 @@ int stress_icmp_flood(
 	const int set_on = 1;
 	const unsigned long addr = inet_addr("127.0.0.1");
 	struct sockaddr_in servaddr;
+	uint64_t sendto_fails = 0;
 
 	(void)instance;
 
@@ -153,11 +154,15 @@ int stress_icmp_flood(
 
 		if ((sendto(fd, pkt, pkt_len, 0,
 			   (struct sockaddr*)&servaddr, sizeof(servaddr))) < 1) {
-			pr_fail_err(name, "sendto");
-			goto err_socket;
+			sendto_fails++;
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+	pr_dbg(stderr, "%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
+		name,
+		100.0 * (float)(*counter - sendto_fails) / *counter,
+		*counter);
 
 	rc = EXIT_SUCCESS;
 
