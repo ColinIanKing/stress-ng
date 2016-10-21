@@ -131,12 +131,12 @@ int stress_rmap(
 
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        if (counters == MAP_FAILED) {
-                pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-                        name, errno, strerror(errno));
-                exit(EXIT_FAILURE);
-        }
-        memset(counters, 0, counters_sz);
+	if (counters == MAP_FAILED) {
+		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+			name, errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	memset(counters, 0, counters_sz);
 	memset(pids, 0, sizeof(pids));
 	memset(mappings, 0, sizeof(mappings));
 
@@ -213,9 +213,9 @@ int stress_rmap(
 	 */
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
-                for (i = 0; i < CHILD_MAX; i++)
-                        *counter += counters[i];
-        } while (opt_do_run && (!max_ops || *counter < max_ops));
+		for (i = 0; i < CHILD_MAX; i++)
+			*counter += counters[i];
+	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 cleanup:
 	/*
