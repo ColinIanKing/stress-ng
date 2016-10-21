@@ -1873,6 +1873,17 @@ SIGXCPU and SIGXFSZ signals.
 .B \-\-rlimit\-ops N
 stop after N bogo resource limited SIGXCPU and SIGXFSZ signals have been caught.
 .TP
+.B \-\-rmap N
+start N workers that exercise the VM reverse-mapping. This creates 16 processes
+per worker that write/read multiple file-backed memory mappings. There are 64
+lots of 4 page mappings made onto the file, with each mapping overlapping the
+previous by 3 pages and at least 1 page of non-mapped memory between each
+of the mappings. Data is synchronously msync'd to the file 1 in every
+256 iterations in a random manner.
+.TP
+.B \-\-rmap\-ops N
+stop after N bogo rmap memory writes/reads.
+.TP
 .B \-\-rtc N
 start N workers that exercise the real time clock (RTC) interfaces via /dev/rtc
 and /sys/class/rtc/rtc0. No destructive writes (modifications) are performed on
