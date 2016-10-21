@@ -112,7 +112,7 @@ int stress_apparmor_supported(void)
 #if defined(STRESS_APPARMOR)
 /*
  *  stress_apparmor_handler()
- *      lease signal handler
+ *      signal handler
  */
 static void MLOCKED stress_apparmor_handler(int dummy)
 {
