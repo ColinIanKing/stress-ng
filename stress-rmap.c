@@ -38,7 +38,6 @@
 
 #include "stress-ng.h"
 
-#define NO_MEM_RETRIES_MAX	(256)
 #define CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
 #define MAPPING_PAGES		(16)
