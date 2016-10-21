@@ -204,7 +204,7 @@ int stress_rmap(
 			stress_rmap_child(&counters[i], max_ops / CHILD_MAX,
 				page_size, mappings);
 		} else {
-			//setpgid(pids[i], pgrp);
+			setpgid(pids[i], pgrp);
 		}
 	}
 
