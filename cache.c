@@ -57,6 +57,18 @@ static const char *get_cache_name(cache_type_t type)
 	__attribute__((unused));
 
 /**
+ *
+ * cache_get_cpu()
+ *
+ **/
+static inline unsigned int cache_get_cpu(const cpus_t *cpus)
+{
+	const unsigned int cpu = stress_get_cpu();
+
+	return (cpu >= cpus->count) ? 0 : cpu;
+}
+
+/**
  * file_exists()
  * @path: file to check.
  * Determine if specified file exists.
@@ -374,13 +386,9 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
 		return 0;
 	}
 
-	/* 
-	 * FIXME: should really determine current CPU index using
-	 * sched_getcpu(3) rather than just taking the first cpu.
-	 */
-	cpu = &cpus->cpus[0];
+	cpu = &cpus->cpus[cache_get_cpu(cpus)];
 
-	for (i=0; i < cpu->cache_count; i++) {
+	for (i = 0; i < cpu->cache_count; i++) {
 		cpu_cache_t *cache;
 
 		cache = &cpu->caches[i];
@@ -413,10 +421,7 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 		return NULL;
 	}
 
-	/* FIXME: should really determine current CPU index using
-	 * sched_getcpu(3) rather than just taking the first cpu.
-	 */
-	cpu = &cpus->cpus[0];
+	cpu = &cpus->cpus[cache_get_cpu(cpus)];
 
 	return get_cache_by_cpu(cpu, cache_level);
 }
