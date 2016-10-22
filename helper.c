@@ -49,6 +49,9 @@
 #include <sys/prctl.h>
 #endif
 #include <sys/resource.h>
+#if defined(__linux__)
+#include <sched.h>
+#endif
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
@@ -826,4 +829,20 @@ int stress_sigrestore(
 		return -1;
 	}
 	return 0;
+}
+
+/*
+ *  stress_get_cpu()
+ *	get cpu number that process is currently on
+ */
+unsigned int stress_get_cpu(void)
+{
+#if defined(__linux__)
+	int cpu;
+
+	cpu = sched_getcpu();
+	return (unsigned int)((cpu < 0) ? 0 : cpu);
+#else
+	return 0;
+#endif
 }
