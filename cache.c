@@ -597,6 +597,7 @@ cpus_t * get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			len = strlen(results[i]);
+			strncpy(path, results[i], len);
 			MK_PATH(path, len, "/online");
 
 			contents = get_string_from_file(path);
