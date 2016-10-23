@@ -1113,6 +1113,7 @@ static const struct option long_options[] = {
 	{ "str",	1,	0,	OPT_STR },
 	{ "str-ops",	1,	0,	OPT_STR_OPS },
 	{ "str-method",	1,	0,	OPT_STR_METHOD },
+	{ "stressors",	0,	0,	OPT_STRESSORS },
 	{ "stream",	1,	0,	OPT_STREAM },
 	{ "stream-ops",	1,	0,	OPT_STREAM_OPS },
 	{ "stream-l3-size" ,1,	0,	OPT_STREAM_L3_SIZE },
@@ -1259,7 +1260,7 @@ static const struct option long_options[] = {
 	{ "zombie",	1,	0,	OPT_ZOMBIE },
 	{ "zombie-ops",	1,	0,	OPT_ZOMBIE_OPS },
 	{ "zombie-max",	1,	0,	OPT_ZOMBIE_MAX },
-	{ NULL,		0, 	0, 	0 }
+	{ NULL,		0,	0,	0 }
 };
 
 /*
@@ -1294,6 +1295,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ NULL,		"stressors",		"show available stress tests" },
 	{ NULL,		"syslog",		"log messages to the syslog" },
 	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
 	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
@@ -1957,7 +1959,7 @@ static inline int32_t stressor_id_find(const stress_id id)
 			break;
 	}
 
-	return i;       /* End of array is a special "NULL" entry */
+	return i;	/* End of array is a special "NULL" entry */
 }
 
 /*
@@ -1983,7 +1985,7 @@ static inline int32_t stressor_name_find(const char *name)
 			break;
 	}
 
-	return i;       /* End of array is a special "NULL" entry */
+	return i;	/* End of array is a special "NULL" entry */
 }
 
 
@@ -2123,6 +2125,14 @@ static void usage_help(const help_t help_info[])
 	}
 }
 
+static void show_stressors(void)
+{
+	size_t i;
+
+	for (i = 0; stressors[i].name; i++)
+		printf("%s%s", i ? " " : "", stressors[i].name);
+	putchar('\n');
+}
 
 /*
  *  usage()
@@ -3365,6 +3375,9 @@ next_opt:
 		case OPT_STREAM_L3_SIZE:
 			stress_set_stream_L3_size(optarg);
 			break;
+		case OPT_STRESSORS:
+			show_stressors();
+			exit(EXIT_SUCCESS);
 #if defined(STRESS_SYNC_FILE)
 		case OPT_SYNC_FILE_BYTES:
 			stress_set_sync_file_bytes(optarg);
