@@ -54,7 +54,6 @@ static int pagein_proc(const pid_t pid)
 	char buffer[4096];
 	int fdmem;
 	FILE *fpmap;
-	off_t begin, end;
 	const size_t page_size = stress_get_pagesize();
 	size_t pages = 0;
 	int traced = 0;
@@ -76,15 +75,16 @@ static int pagein_proc(const pid_t pid)
 	 */
 	while (fgets(buffer, sizeof(buffer), fpmap)) {
 		off_t off;
+		uintmax_t begin, end;
 		uint8_t byte;
-		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64, &begin, &end) != 2)
+		if (sscanf(buffer, "%jx-%jx", &begin, &end) != 2)
 			continue;
 
 		if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) < 0)
 			break;
 		(void)waitpid(pid, NULL, 0);
 		traced++;
-		for (off = begin; off < end; off += page_size, pages++) {
+		for (off = (off_t)begin; off < (off_t)end; off += page_size, pages++) {
 			if (lseek(fdmem, off, SEEK_SET) == (off_t)-1)
 				continue;
 			if (read(fdmem, &byte, sizeof(byte)) == sizeof(byte)) {
