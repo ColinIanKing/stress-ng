@@ -38,7 +38,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
-#include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -80,9 +79,6 @@ static int pagein_proc(const pid_t pid)
 		if (sscanf(buffer, "%jx-%jx", &begin, &end) != 2)
 			continue;
 
-		if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) < 0)
-			break;
-		(void)waitpid(pid, NULL, 0);
 		traced++;
 		for (off = (off_t)begin; off < (off_t)end; off += page_size, pages++) {
 			if (lseek(fdmem, off, SEEK_SET) == (off_t)-1)
@@ -91,7 +87,6 @@ static int pagein_proc(const pid_t pid)
 				;
 			}
 		}
-		(void)ptrace(PTRACE_DETACH, pid, NULL, NULL);
 	}
 
 	(void)fclose(fpmap);
