@@ -71,7 +71,6 @@ static int pagein_proc(const pid_t pid)
 		return -errno;
 	}
 
-	printf("tracing...\n");
 	/*
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
@@ -97,8 +96,6 @@ static int pagein_proc(const pid_t pid)
 
 	(void)fclose(fpmap);
 	(void)close(fdmem);
-
-	printf("%d traced\n", traced);
 
 	return 0;
 }
