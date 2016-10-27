@@ -122,7 +122,7 @@ void ignite_cpu_start(void)
 		return;
 	} else if (pid == 0) {
 		/* Child */
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		for (;;) {
@@ -137,7 +137,7 @@ void ignite_cpu_start(void)
 		}
 	} else {
 		/* Parent */
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 	}
 }
 

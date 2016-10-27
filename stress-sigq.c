@@ -66,7 +66,7 @@ again:
 	} else if (pid == 0) {
 		sigset_t mask;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		sigemptyset(&mask);

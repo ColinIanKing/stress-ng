@@ -91,7 +91,7 @@ retry:			if (!opt_do_run)
 			}
 			if (pids[n] == 0) {
 				/* Child */
-				setpgid(0, pgrp);
+				(void)setpgid(0, pgrp);
 				stress_parent_died_alarm();
 
 #if defined(CLONE_FS)
@@ -132,7 +132,7 @@ retry:			if (!opt_do_run)
 #endif
 				_exit(0);
 			}
-			setpgid(pids[n], pgrp);
+			(void)setpgid(pids[n], pgrp);
 		}
 reap:
 		for (i = 0; i < n; i++) {

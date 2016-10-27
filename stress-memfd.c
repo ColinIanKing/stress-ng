@@ -245,7 +245,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
@@ -280,7 +280,7 @@ again:
 			goto again;
 		}
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(name, true);

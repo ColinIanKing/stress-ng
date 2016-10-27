@@ -119,7 +119,7 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		socket_pair_close(socket_pair_fds, max, 1);
@@ -156,7 +156,7 @@ abort:
 		uint8_t buf[SOCKET_PAIR_BUF];
 		int val = 0, status;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {

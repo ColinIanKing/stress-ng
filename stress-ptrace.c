@@ -89,7 +89,7 @@ int stress_ptrace(
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		/*
@@ -122,7 +122,7 @@ int stress_ptrace(
 		/* Parent to do the tracing */
 		int status;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {

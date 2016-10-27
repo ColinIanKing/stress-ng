@@ -93,7 +93,7 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		do {
@@ -112,7 +112,7 @@ again:
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 		exit(EXIT_SUCCESS);
 	}
-	setpgid(pid, pgrp);
+	(void)setpgid(pid, pgrp);
 	return pid;
 }
 

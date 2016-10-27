@@ -166,7 +166,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		stress_parent_died_alarm();
 
 		/* Patent, wait for child */
@@ -197,7 +197,7 @@ again:
 		int fds[max_pipes * 2], *fd, i, pipes_open = 0;
 		const bool aggressive = (opt_flags & OPT_FLAGS_AGGRESSIVE);
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		set_oom_adjustment(name, true);
 
 		for (i = 0; i < max_pipes * 2; i++)

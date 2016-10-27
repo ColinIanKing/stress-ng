@@ -92,7 +92,7 @@ again:
 	} else if (pid == 0) {
 		char buf[buf_size];
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		(void)close(pipefds[1]);
@@ -119,7 +119,7 @@ again:
 		int status;
 
 		/* Parent */
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		(void)close(pipefds[0]);
 
 		memset(buf, '_', buf_size);

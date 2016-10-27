@@ -133,7 +133,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
@@ -164,7 +164,7 @@ again:
 		void *addr[opt_malloc_max];
 		size_t j;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		memset(addr, 0, sizeof(addr));
 
 		/* Make sure this is killable by OOM killer */

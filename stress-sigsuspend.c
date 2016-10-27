@@ -78,7 +78,7 @@ again:
 			pr_fail_dbg(name, "fork");
 			goto reap;
 		} else if (pid[n] == 0) {
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			while (opt_do_run) {
@@ -87,7 +87,7 @@ again:
 			}
 			_exit(0);
 		}
-		setpgid(pid[n], pgrp);
+		(void)setpgid(pid[n], pgrp);
 	}
 
 	/* Parent */

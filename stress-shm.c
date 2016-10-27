@@ -302,7 +302,7 @@ fork_again:
 			int status;
 			char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
 
-			setpgid(pid, pgrp);
+			(void)setpgid(pid, pgrp);
 			(void)close(pipefds[1]);
 
 			memset(shm_names, 0, sizeof(shm_names));
@@ -367,7 +367,7 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);

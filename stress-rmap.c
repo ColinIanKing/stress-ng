@@ -195,7 +195,7 @@ int stress_rmap(
 			    stress_rmap_handler, NULL) < 0)
 				exit(EXIT_FAILURE);
 
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			/* Make sure this is killable by OOM killer */
@@ -203,7 +203,7 @@ int stress_rmap(
 			stress_rmap_child(&counters[i], max_ops / CHILD_MAX,
 				page_size, mappings);
 		} else {
-			setpgid(pids[i], pgrp);
+			(void)setpgid(pids[i], pgrp);
 		}
 	}
 

@@ -132,7 +132,7 @@ again:
 		/* Child, client */
 		struct sockaddr *addr = NULL;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		do {
@@ -201,7 +201,7 @@ again:
 		socklen_t addr_len = 0;
 		struct sockaddr *addr = NULL;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 
 		if (stress_sighandler(name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
 			rc = EXIT_FAILURE;

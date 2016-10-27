@@ -377,7 +377,7 @@ int stress_zlib(
 			name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		(void)close(fds[1]);

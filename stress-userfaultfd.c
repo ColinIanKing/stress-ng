@@ -92,7 +92,7 @@ static int stress_userfaultfd_child(void *arg)
 {
 	context_t *c = (context_t *)arg;
 
-	setpgid(0, pgrp);
+	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
 	if (stress_sighandler(c->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -404,7 +404,7 @@ int stress_userfaultfd(
 		/* Parent */
 		int status, ret;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -431,7 +431,7 @@ int stress_userfaultfd(
 		rc = WEXITSTATUS(status);
 	} else if (pid == 0) {
 		/* Child */
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		_exit(stress_userfaultfd_oomable(counter, instance, max_ops, name));

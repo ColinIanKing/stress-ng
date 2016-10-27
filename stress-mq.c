@@ -163,7 +163,7 @@ again:
 		sigev.sigev_notify_function = stress_mq_notify_func;
 		sigev.sigev_notify_attributes = NULL;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		while (opt_do_run) {
@@ -210,7 +210,7 @@ again:
 		msg_t msg;
 
 		/* Parent */
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 
 		do {
 			int ret;

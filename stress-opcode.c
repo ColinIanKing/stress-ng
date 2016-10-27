@@ -178,7 +178,7 @@ again:
 #if defined(__GNUC__)
 			__builtin___clear_cache((char *)ops_begin, (char *)ops_end);
 #endif
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			/*

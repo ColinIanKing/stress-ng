@@ -2408,7 +2408,7 @@ again:
 					goto wait_for_procs;
 				case 0:
 					/* Child */
-					setpgid(0, pgrp);
+					(void)setpgid(0, pgrp);
 					free_procs();
 					if (stress_sethandler(name, true) < 0)
 						exit(EXIT_FAILURE);
@@ -2466,7 +2466,7 @@ again:
 					exit(rc);
 				default:
 					if (pid > -1) {
-						setpgid(pid, pgrp);
+						(void)setpgid(pid, pgrp);
 						procs[i].pids[j] = pid;
 						procs[i].started_procs++;
 					}

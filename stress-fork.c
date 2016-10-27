@@ -96,7 +96,7 @@ int stress_fork_fn(
 				_exit(0);
 			}
 			if (pid > -1)
-				setpgid(pids[i], pgrp);
+				(void)setpgid(pids[i], pgrp);
 			pids[i] = pid;
 			if (!opt_do_run)
 				break;

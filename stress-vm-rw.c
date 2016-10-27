@@ -76,7 +76,7 @@ int stress_vm_child(void *arg)
 	int ret = EXIT_SUCCESS;
 	addr_msg_t msg_rd, msg_wr;
 
-	setpgid(0, pgrp);
+	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
 
 	/* Close unwanted ends */
@@ -162,7 +162,7 @@ int stress_vm_parent(context_t *ctxt)
 	uint8_t *localbuf;
 	addr_msg_t msg_rd, msg_wr;
 
-	setpgid(ctxt->pid, pgrp);
+	(void)setpgid(ctxt->pid, pgrp);
 
 	localbuf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);

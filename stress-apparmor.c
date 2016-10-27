@@ -231,13 +231,13 @@ again:
 		if (stress_sighandler(name, SIGALRM,
 				stress_apparmor_handler, NULL) < 0)
 			exit(EXIT_FAILURE);
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		ret = func(name, max_ops, counter);
 		exit(ret);
 	}
-	setpgid(pid, pgrp);
+	(void)setpgid(pid, pgrp);
 	return pid;
 }
 

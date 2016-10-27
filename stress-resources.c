@@ -265,7 +265,7 @@ int stress_resources(
 			pid_t pid = fork();
 
 			if (pid == 0) {
-				setpgid(0, pgrp);
+				(void)setpgid(0, pgrp);
 				ret = sigsetjmp(jmp_env, 1);
 				if (ret)
 					_exit(0);
@@ -274,7 +274,7 @@ int stress_resources(
 				_exit(0);
 			}
 			if (pid > -1)
-				setpgid(pids[i], pgrp);
+				(void)setpgid(pids[i], pgrp);
 			pids[i] = pid;
 
 			if (!opt_do_run) {

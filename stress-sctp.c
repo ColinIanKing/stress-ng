@@ -94,7 +94,7 @@ static void stress_sctp_client(
 {
 	struct sockaddr *addr;
 
-	setpgid(0, pgrp);
+	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
 
 	do {
@@ -200,7 +200,7 @@ static int stress_sctp_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
-	setpgid(pid, pgrp);
+	(void)setpgid(pid, pgrp);
 
 	if (stress_sighandler(name, SIGALRM, handle_sctp_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;

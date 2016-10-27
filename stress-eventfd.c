@@ -78,7 +78,7 @@ again:
 		(void)close(fd2);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		while (opt_do_run) {

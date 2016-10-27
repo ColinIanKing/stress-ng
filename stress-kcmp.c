@@ -140,7 +140,7 @@ again:
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		/* Child */
@@ -154,7 +154,7 @@ again:
 		/* Parent */
 		int fd2, status, pid2;
 
-		setpgid(pid1, pgrp);
+		(void)setpgid(pid1, pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
 			pr_fail_err(name, "open");

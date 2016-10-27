@@ -1919,7 +1919,7 @@ again:
 		int status, ret;
 
 		/* Parent, wait for child */
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -1945,7 +1945,7 @@ again:
 	} else if (pid == 0) {
 		int no_mem_retries = 0;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */

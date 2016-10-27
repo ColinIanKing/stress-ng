@@ -417,7 +417,7 @@ fork_again:
 			/* Parent */
 			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
 
-			setpgid(pid, pgrp);
+			(void)setpgid(pid, pgrp);
 			set_oom_adjustment(name, false);
 			(void)close(pipefds[1]);
 
@@ -478,7 +478,7 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			/*

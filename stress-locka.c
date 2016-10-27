@@ -298,7 +298,7 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		if (stress_locka_contention(name, fd, counter, max_ops) < 0)
@@ -306,7 +306,7 @@ again:
 		stress_locka_info_free();
 		exit(EXIT_SUCCESS);
 	}
-	setpgid(cpid, pgrp);
+	(void)setpgid(cpid, pgrp);
 
 	if (stress_locka_contention(name, fd, counter, max_ops) == 0)
 		ret = EXIT_SUCCESS;

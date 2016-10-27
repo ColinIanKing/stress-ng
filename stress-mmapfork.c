@@ -107,7 +107,7 @@ retry:			if (!opt_do_run)
 			}
 			if (pids[n] == 0) {
 				/* Child */
-				setpgid(0, pgrp);
+				(void)setpgid(0, pgrp);
 				stress_parent_died_alarm();
 
 				if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
@@ -137,7 +137,7 @@ retry:			if (!opt_do_run)
 				}
 				_exit(EXIT_SUCCESS);
 			}
-			setpgid(pids[n], pgrp);
+			(void)setpgid(pids[n], pgrp);
 		}
 reap:
 		for (i = 0; i < n; i++) {

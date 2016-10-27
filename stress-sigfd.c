@@ -73,7 +73,7 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		while (opt_do_run) {
@@ -92,7 +92,7 @@ again:
 		/* Parent */
 		int status;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		do {
 			int ret;
 			struct signalfd_siginfo fdsi;

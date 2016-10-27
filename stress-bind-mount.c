@@ -52,7 +52,7 @@ int stress_bind_mount_child(void *arg)
 {
 	context_t *context = (context_t *)arg;
 
-	setpgid(0, pgrp);
+	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
 
 	do {

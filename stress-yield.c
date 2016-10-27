@@ -126,7 +126,7 @@ int stress_yield(
 				", yielder %zd): errno=%d (%s)\n",
 				name, instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
-			setpgid(0, pgrp);
+			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
 			do {

@@ -115,7 +115,7 @@ again:
 	else if (pid == 0) {
 		/* Child writer */
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		for (i = 0; i < MAX_PIPES; i++)
@@ -147,7 +147,7 @@ abort:
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 
 		FD_ZERO(&rfds);
 		for (i = 0; i < MAX_PIPES; i++) {

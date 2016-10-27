@@ -101,7 +101,7 @@ int stress_exec(
 			if (pids[i] == 0) {
 				int ret, fd_out, fd_in;
 
-				setpgid(0, pgrp);
+				(void)setpgid(0, pgrp);
 				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
@@ -127,7 +127,7 @@ int stress_exec(
 				_exit(ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 			}
 			if (pids[i] > -1)
-				setpgid(pids[i], pgrp);
+				(void)setpgid(pids[i], pgrp);
 			if (!opt_do_run)
 				break;
 		}

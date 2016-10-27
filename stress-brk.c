@@ -64,7 +64,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		setpgid(pid, pgrp);
+		(void)setpgid(pid, pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -103,7 +103,7 @@ again:
 		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 		int i = 0;
 
-		setpgid(0, pgrp);
+		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
