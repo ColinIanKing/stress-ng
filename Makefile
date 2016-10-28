@@ -56,6 +56,7 @@ STRESS_SRC = \
 	stress-daemon.c \
 	stress-dentry.c \
 	stress-dir.c \
+	stress-dnotify.c \
 	stress-dup.c \
 	stress-epoll.c \
 	stress-eventfd.c \

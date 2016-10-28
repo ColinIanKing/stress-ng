@@ -909,6 +909,14 @@ start N workers that create and remove directories using mkdir and rmdir.
 .B \-\-dir\-ops N
 stop directory thrash workers after N bogo directory operations.
 .TP
+.B \-\-dnotify N
+start N workers performing file system activities such as making/deleting
+files/directories, renaming files, etc. to stress exercise the various dnotify
+events (Linux only).
+.TP
+.B \-\-dnotify\-ops N
+stop inotify stress workers after N dnotify bogo operations.
+.TP
 .B \-\-dup N
 start N workers that perform dup(2) and then close(2) operations on /dev/zero.
 The maximum opens at one time is system defined, so the test will run up to

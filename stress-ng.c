@@ -263,6 +263,9 @@ static const stress_t stressors[] = {
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(dir, DIR, CLASS_FILESYSTEM | CLASS_OS),
+#if defined(STRESS_DNOTIFY)
+	STRESSOR(dnotify, DNOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
+#endif
 	STRESSOR(dup, DUP, CLASS_FILESYSTEM | CLASS_OS),
 #if defined(STRESS_EPOLL)
 	STRESSOR(epoll, EPOLL, CLASS_NETWORK | CLASS_OS),
@@ -686,6 +689,10 @@ static const struct option long_options[] = {
 	{ "dir",	1,	0,	OPT_DIR },
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
+#if defined(STRESS_DNOTIFY)
+	{ "dnotify",	1,	0,	OPT_DNOTIFY },
+	{ "dnotify-ops",1,	0,	OPT_DNOTIFY_OPS },
+#endif
 	{ "dup",	1,	0,	OPT_DUP },
 	{ "dup-ops",	1,	0,	OPT_DUP_OPS },
 #if defined(STRESS_EPOLL)
@@ -1416,6 +1423,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
 	{ NULL,		"dir N",		"start N directory thrashing stressors" },
 	{ NULL,		"dir-ops N",		"stop after N directory bogo operations" },
+#if defined(STRESS_DNOTIFY)
+	{ NULL,		"dnotify N",		"start N workers exercising dnotify events" },
+	{ NULL,		"dnotify-ops N",	"stop dnotify workers after N bogo operations" },
+#endif
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
 	{ NULL,		"dup-ops N",		"stop after N dup/close bogo operations" },
 #if defined(STRESS_EPOLL)

@@ -953,6 +953,10 @@ typedef enum {
 	STRESS_DAEMON,
 	STRESS_DENTRY,
 	STRESS_DIR,
+#if defined(__linux__)
+	__STRESS_DNOTIFY,
+#define STRESS_DNOTIFY __STRESS_DNOTIFY
+#endif
 	STRESS_DUP,
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 	__STRESS_EPOLL,
@@ -1519,6 +1523,11 @@ typedef enum {
 
 	OPT_DIR,
 	OPT_DIR_OPS,
+
+#if defined(STRESS_DNOTIFY)
+	OPT_DNOTIFY,
+	OPT_DNOTIFY_OPS,
+#endif
 
 	OPT_DUP,
 	OPT_DUP_OPS,
@@ -2674,6 +2683,7 @@ STRESS(stress_crypt);
 STRESS(stress_daemon);
 STRESS(stress_dentry);
 STRESS(stress_dir);
+STRESS(stress_dnotify);
 STRESS(stress_dup);
 STRESS(stress_epoll);
 STRESS(stress_eventfd);
