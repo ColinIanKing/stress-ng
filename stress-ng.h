@@ -1193,7 +1193,7 @@ typedef enum {
 	__STRESS_RLIMIT,
 #define STRESS_RLIMIT __STRESS_RLIMIT
 #endif
-#if !defined(__minix__)
+#if !defined(__minix__) && !defined(__OpenBSD__)
 	__STRESS_RMAP,
 #define STRESS_RMAP __STRESS_RMAP
 #endif
