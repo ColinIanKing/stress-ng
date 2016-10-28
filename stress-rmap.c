@@ -130,7 +130,7 @@ int stress_rmap(
 	uint64_t *counters;
 	char filename[PATH_MAX];
 
-	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
+	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
@@ -157,7 +157,7 @@ int stress_rmap(
 		pr_fail_err(name, "open");
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm(name, mypid, instance);
-		(void)munmap(counters, counters_sz);
+		(void)munmap((void *)counters, counters_sz);
 
 		return rc;
 	}
@@ -167,7 +167,7 @@ int stress_rmap(
 		pr_fail_err(name, "posix_fallocate");
 		(void)close(fd);
 		(void)stress_temp_dir_rm(name, mypid, instance);
-		(void)munmap(counters, counters_sz);
+		(void)munmap((void *)counters, counters_sz);
 
 		return EXIT_FAILURE;
 	}
@@ -240,7 +240,7 @@ cleanup:
 		}
 	}
 
-	(void)munmap(counters, counters_sz);
+	(void)munmap((void *)counters, counters_sz);
 	(void)close(fd);
 	(void)stress_temp_dir_rm(name, mypid, instance);
 
