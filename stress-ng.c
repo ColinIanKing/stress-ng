@@ -2147,7 +2147,8 @@ static void show_stressors(void)
 	size_t i;
 
 	for (i = 0; stressors[i].name; i++)
-		printf("%s%s", i ? " " : "", stressors[i].name);
+		printf("%s%s", i ? " " : "",
+			munge_underscore(stressors[i].name));
 	putchar('\n');
 }
 
