@@ -38,7 +38,7 @@
 
 #include "stress-ng.h"
 
-#define CHILD_MAX		(16)
+#define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
 #define MAPPING_PAGES		(16)
 
@@ -117,12 +117,12 @@ int stress_rmap(
 	const size_t page_size = stress_get_pagesize();
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
 	const size_t counters_sz =
-		(page_size + sizeof(uint64_t) * CHILD_MAX) & ~(page_size - 1);
+		(page_size + sizeof(uint64_t) * RMAP_CHILD_MAX) & ~(page_size - 1);
 	const pid_t mypid = getpid();
 	int fd = -1;
 	size_t i;
 	ssize_t rc;
-	pid_t pids[CHILD_MAX];
+	pid_t pids[RMAP_CHILD_MAX];
 	uint8_t *mappings[MAPPINGS_MAX];
 	uint8_t *paddings[MAPPINGS_MAX];
 	uint64_t *counters;
@@ -184,7 +184,7 @@ int stress_rmap(
 	/*
 	 *  Spawn of children workers
 	 */
-	for (i = 0; i < CHILD_MAX; i++) {
+	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
@@ -200,7 +200,7 @@ int stress_rmap(
 
 			/* Make sure this is killable by OOM killer */
 			set_oom_adjustment(name, true);
-			stress_rmap_child(&counters[i], max_ops / CHILD_MAX,
+			stress_rmap_child(&counters[i], max_ops / RMAP_CHILD_MAX,
 				page_size, mappings);
 		} else {
 			(void)setpgid(pids[i], pgrp);
@@ -212,7 +212,7 @@ int stress_rmap(
 	 */
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
-		for (i = 0; i < CHILD_MAX; i++)
+		for (i = 0; i < RMAP_CHILD_MAX; i++)
 			*counter += counters[i];
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
@@ -220,7 +220,7 @@ cleanup:
 	/*
 	 *  Kill and wait for children
 	 */
-	for (i = 0; i < CHILD_MAX; i++) {
+	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		int status, ret;
 
 		if (pids[i] <= 0)
