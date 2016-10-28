@@ -2793,7 +2793,7 @@ static inline void stress_map_shared(const size_t len)
  */
 void stress_unmap_shared(void)
 {
-	(void)munmap(shared, shared->length);
+	(void)munmap((void *)shared, shared->length);
 }
 
 /*
@@ -2821,6 +2821,7 @@ static inline void exclude_unsupported(void)
  */
 static void set_proc_limits(void)
 {
+#if defined(RLIMIT_NPROC)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(proc_limited); i++) {
@@ -2834,6 +2835,7 @@ static void set_proc_limits(void)
 			proc_limited->func_limited(max);
 		}
 	}
+#endif
 }
 
 /*
