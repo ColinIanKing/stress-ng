@@ -1,3 +1,44 @@
+stress-ng (0.07.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * manual: update date
+  * stress-ng: fix build issues for Solaris
+  * stress-rmap: fix warnings with gcc 3.4.3
+  * stress-rmap: Don't build for OpenBSD, it does not support posix_fallocate
+  * stress-rmap: don't build for Minix
+  * stress-rmap: rename macro CHILD_MAX to RMAP_CHILD_MAX
+  * Add dnotify stressor
+  * stress-*: voidify calls to setpgid
+  * thrash: remove ptrace waits, not really required
+  * thrash: use more standand %jx to scan in memory sizes
+  * thrash: remove debug messages
+  * manual: fix missing escape on - in --metrics-brief
+  * Add --stressors option to show available stressors
+  * cache: ensure path is set correctly for CPUs > 0
+  * cache: fix FIXMEs on determining the CPU number a process is running on
+  * Add stress_get_cpu() helper to fetch CPU number process is running on
+  * manual: fix typo --stack-full should be --stack-fill
+  * stress-rmap: remove redundant NO_MEM_RETRIES_MAX
+  * stress-apparmor: another fix to signal handler comment
+  * stress-rmap: uncomment setpgid call
+  * stress-rmap: replace white spaces with tab
+  * Add rmap stressor
+  * stress-apparmor: fix comment
+  * stress-icmp-flood: just count number of sendto failures
+  * Add --thrash option.  Don't use it unless you are crazy.
+  * debian tests: expand the SKIPPED notes on the test script
+  * debian test: use STRESS_NG var for stress-ng
+  * debian test: Use sh and make use POSIX string compare
+  * Add proc helper to help with init/destroy stressor helpers
+  * call stress_unmap_shared if share cache region allocation fails
+  * Add stress_map_shared helper to mmap stress-ng shared region
+  * generalise max proc limiting
+  * Factor out random stressor setting into helper function
+  * Factor out pathological stressor disabling into helper function
+  * stress-resources: declare pid if O_TMPFILE is also defined
+
+ -- Colin King <colin.king@canonical.com>  Fri, 28 Oct 2016 11:49:41 +0100
+
 stress-ng (0.07.00-1) unstable; urgency=medium
 
   * Makefile: bump version
