@@ -1193,7 +1193,10 @@ typedef enum {
 	__STRESS_RLIMIT,
 #define STRESS_RLIMIT __STRESS_RLIMIT
 #endif
-	STRESS_RMAP,
+#if !defined(__minix__)
+	__STRESS_RMAP,
+#define STRESS_RMAP __STRESS_RMAP
+#endif
 #if defined(__linux__)
 	__STRESS_RTC,
 #define STRESS_RTC __STRESS_RTC
@@ -1910,8 +1913,10 @@ typedef enum {
 	OPT_RLIMIT_OPS,
 #endif
 
+#if defined(STRESS_RMAP)
 	OPT_RMAP,
 	OPT_RMAP_OPS,
+#endif
 
 #if defined(STRESS_RTC)
 	OPT_RTC,

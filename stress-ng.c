@@ -439,7 +439,9 @@ static const stress_t stressors[] = {
 #if defined(STRESS_RLIMIT)
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 #endif
+#if defined(STRESS_RMAP)
 	STRESSOR(rmap, RMAP, CLASS_OS | CLASS_MEMORY),
+#endif
 #if defined(STRESS_RTC)
 	STRESSOR(rtc, RTC, CLASS_OS),
 #endif
@@ -1013,8 +1015,10 @@ static const struct option long_options[] = {
 	{ "rlimit",	1,	0,	OPT_RLIMIT },
 	{ "rlimit-ops",	1,	0,	OPT_RLIMIT_OPS },
 #endif
+#if defined(STRESS_RMAP)
 	{ "rmap",	1,	0,	OPT_RMAP },
 	{ "rmap-ops",	1,	0,	OPT_RMAP_OPS },
+#endif
 #if defined(STRESS_RTC)
 	{ "rtc",	1,	0,	OPT_RTC },
 	{ "rtc-ops",	1,	0,	OPT_RTC_OPS },
@@ -1723,8 +1727,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"rlimit N",		"start N workers that exceed rlimits" },
 	{ NULL,		"rlimit-ops N",		"stop after N rlimit bogo operations" },
 #endif
+#if defined(STRESS_RMAP)
 	{ NULL,		"rmap N",		"start N workers that stress reverse mappings" },
 	{ NULL,		"rmap-ops N",		"stop after N rmap bogo operations" },
+#endif
 #if defined(STRESS_RTC)
 	{ NULL,		"rtc N",		"start N workers that exercise the RTC interfaces" },
 	{ NULL,		"rtc-ops N",		"stop after N RTC bogo operations" },

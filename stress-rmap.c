@@ -24,6 +24,10 @@
  */
 #define _GNU_SOURCE
 
+#include "stress-ng.h"
+
+#if defined(STRESS_RMAP)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,8 +39,6 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#include "stress-ng.h"
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
@@ -251,3 +253,5 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
+
+#endif
