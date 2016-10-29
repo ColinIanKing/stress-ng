@@ -75,10 +75,10 @@ void check_range(
  */
 static void ensure_positive(const char *const str)
 {
-	char *ptr;
+	const char *ptr;
 	bool negative = false;
 
-	for (ptr = (char *)str; *ptr; ptr++) {
+	for (ptr = str; *ptr; ptr++) {
 		if (*ptr == '-') {
 			negative = true;
 			continue;
