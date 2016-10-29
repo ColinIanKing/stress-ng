@@ -357,7 +357,7 @@ ssize_t stress_get_stack_direction(const void *val1)
 {
 	uint8_t val2;
 
-	return ((uint8_t *)val1 - &val2) > 0 ? 1 : -1;
+	return ((const uint8_t *)val1 - &val2) > 0 ? 1 : -1;
 }
 
 /*
