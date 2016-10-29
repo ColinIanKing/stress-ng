@@ -155,7 +155,7 @@ static clone_t *stress_clone_new(void)
  *	reap a clone and remove a clone from head of list, put it onto
  *	the free clone list
  */
-void stress_clone_head_remove(void)
+static void stress_clone_head_remove(void)
 {
 	if (clones.head) {
 		int status;
@@ -182,7 +182,7 @@ void stress_clone_head_remove(void)
  *  stress_clone_free()
  *	free the clones off the clone free lists
  */
-void stress_clone_free(void)
+static void stress_clone_free(void)
 {
 	while (clones.head) {
 		clone_t *next = clones.head->next;
