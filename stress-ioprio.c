@@ -52,7 +52,6 @@ int stress_ioprio(
 {
 	const pid_t pid = getpid();
 	const uid_t uid = getuid();
-	const pid_t pgrp = getpgrp();
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
