@@ -52,8 +52,8 @@ void stress_set_tsearch_size(const char *optarg)
  */
 static int cmp(const void *p1, const void *p2)
 {
-	int32_t *i1 = (int32_t *)p1;
-	int32_t *i2 = (int32_t *)p2;
+	const int32_t *i1 = (const int32_t *)p1;
+	const int32_t *i2 = (const int32_t *)p2;
 
 	if (*i1 > *i2)
 		return 1;
