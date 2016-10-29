@@ -55,7 +55,7 @@ static inline bool stress_double_same(const double d1, const double d2)
 		return true;
 	if (isinf(d1) && isinf(d2))
 		return true;
-	return d1 == d2;
+	return (d1 - d2) < 0.0000001;
 }
 
 static void stress_fp_check(
