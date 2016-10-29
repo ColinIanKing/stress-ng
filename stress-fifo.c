@@ -79,7 +79,7 @@ static pid_t fifo_spawn(
  *  stress_fifo_readers()
  *	read fifo
  */
-void stress_fifo_reader(const char *name, const char *fifoname)
+static void stress_fifo_reader(const char *name, const char *fifoname)
 {
 	int fd;
 	uint64_t val, lastval = 0;
@@ -154,7 +154,7 @@ int stress_fifo(
 	int fd;
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
-	int ret = EXIT_FAILURE;
+	int rc = EXIT_FAILURE;
 	const pid_t pid = getpid();
 
 	if (!set_fifo_readers) {
@@ -164,16 +164,16 @@ int stress_fifo(
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
-	ret = stress_temp_dir_mk(name, pid, instance);
-	if (ret < 0)
-		return exit_status(-ret);
+	rc = stress_temp_dir_mk(name, pid, instance);
+	if (rc < 0)
+		return exit_status(-rc);
 
 	(void)stress_temp_filename(fifoname, sizeof(fifoname),
                 name, pid, instance, mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
-		ret = exit_status(errno);
+		rc = exit_status(errno);
 		pr_err(stderr, "%s: mkfifo failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		goto tidy;
@@ -185,14 +185,14 @@ int stress_fifo(
 		if (pids[i] < 0)
 			goto reap;
 		if (!opt_do_run) {
-			ret = EXIT_SUCCESS;
+			rc = EXIT_SUCCESS;
 			goto reap;
 		}
 	}
 
 	fd = open(fifoname, O_WRONLY);
 	if (fd < 0) {
-		ret = exit_status(fd);
+		rc = exit_status(fd);
 		pr_err(stderr, "%s: fifo write open failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		goto reap;
@@ -216,7 +216,7 @@ int stress_fifo(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	(void)close(fd);
-	ret = EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
 reap:
 	for (i = 0; i < opt_fifo_readers; i++) {
 		if (pids[i] > 0) {
@@ -230,5 +230,5 @@ tidy:
 	(void)unlink(fifoname);
 	(void)stress_temp_dir_rm(name, pid, instance);
 
-	return ret;
+	return rc;
 }
