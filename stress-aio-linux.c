@@ -121,7 +121,6 @@ int stress_aiol(
 		struct io_event events[opt_aio_linux_requests];
 		uint8_t buffers[opt_aio_linux_requests][BUFFER_SZ];
 		uint32_t i;
-		int ret;
 		long n;
 
 		for (i = 0; i < opt_aio_linux_requests; i++)
