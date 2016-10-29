@@ -2592,6 +2592,7 @@ extern void stress_set_exec_max(const char *optarg);
 extern void stress_set_fallocate_bytes(const char *optarg);
 extern void stress_set_fifo_readers(const char *optarg);
 extern int  stress_filename_opts(const char *opt);
+extern void stress_set_fiemap_size(const char *optarg);
 extern void stress_set_fork_max(const char *optarg);
 extern void stress_set_fstat_dir(const char *optarg);
 extern void stress_set_hdd_bytes(const char *optarg);

@@ -60,7 +60,7 @@ void stress_set_fiemap_size(const char *optarg)
  *	in data in random places to try and maximize
  *	extents in the file
  */
-int stress_fiemap_writer(
+static int stress_fiemap_writer(
 	const char *name,
 	const int fd,
 	uint64_t *counters,
@@ -117,7 +117,7 @@ tidy:
  *  stress_fiemap_ioctl()
  *	exercise the FIEMAP ioctl
  */
-void stress_fiemap_ioctl(
+static void stress_fiemap_ioctl(
 	const char *name,
 	int fd,
 	uint64_t *const counter,
