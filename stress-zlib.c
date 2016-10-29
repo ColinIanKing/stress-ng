@@ -201,7 +201,7 @@ static const stress_rand_data_func rand_data_funcs[] = {
  *  stress_zlib_err()
  *	turn a zlib error to something human readable
  */
-const char *stress_zlib_err(const int zlib_err)
+static const char *stress_zlib_err(const int zlib_err)
 {
 	static char buf[1024];
 
@@ -232,7 +232,7 @@ const char *stress_zlib_err(const int zlib_err)
  *	inflate compressed data out of the read
  *	end of a pipe fd
  */
-int stress_zlib_inflate(const char *name, const int fd)
+static int stress_zlib_inflate(const char *name, const int fd)
 {
 	int ret;
 	z_stream stream_inf;
@@ -278,7 +278,7 @@ int stress_zlib_inflate(const char *name, const int fd)
  *	compress random data and write it down the
  *	write end of a pipe fd
  */
-int stress_zlib_deflate(
+static int stress_zlib_deflate(
 	const char *name,
 	const int fd,
 	const uint32_t instance,
