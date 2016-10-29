@@ -2190,7 +2190,7 @@ static const char *opt_name(const int opt_val)
  *		count = 0 -> number of CPUs in system
  *		count < 9 -> number of CPUs online
  */
-void stress_get_processors(int32_t *count)
+static void stress_get_processors(int32_t *count)
 {
 	if (*count == 0)
 		*count = stress_get_processors_configured();
@@ -2696,7 +2696,7 @@ static void times_dump(
  *  log_args()
  *	dump to syslog argv[]
  */
-void log_args(int argc, char **argv)
+static void log_args(int argc, char **argv)
 {
 	int i;
 	size_t len, arglen[argc];
@@ -2753,7 +2753,7 @@ void log_system_mem_info(void)
  *  log_system_info()
  *	dump system info
  */
-void log_system_info(void)
+static void log_system_info(void)
 {
 #if defined(__linux__)
 	struct utsname buf;
