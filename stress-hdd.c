@@ -334,7 +334,8 @@ int stress_hdd(
 	uint8_t *buf = NULL;
 	uint64_t i, min_size, remainder;
 	const pid_t pid = getpid();
-	int ret, rc = EXIT_FAILURE;
+	int rc = EXIT_FAILURE;
+	ssize_t ret;
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC | opt_hdd_oflags;
 	int fadvise_flags = opt_hdd_flags & HDD_OPT_FADV_MASK;
@@ -456,7 +457,6 @@ int stress_hdd(
 				off_t offset = (i == 0) ?
 					opt_hdd_bytes :
 					(mwc64() % opt_hdd_bytes) & ~511;
-				ssize_t ret;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err(name, "lseek");
@@ -489,7 +489,6 @@ rnd_wr_retry:
 		/* Sequential Write */
 		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
-				ssize_t ret;
 				size_t j;
 seq_wr_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
@@ -534,7 +533,6 @@ seq_wr_retry:
 				goto finish;
 			}
 			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
-				ssize_t ret;
 seq_rd_retry:
 				if (!opt_do_run || (max_ops && *counter >= max_ops))
 					break;
@@ -585,7 +583,6 @@ seq_rd_retry:
 			uint64_t baddata = 0;
 
 			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
-				ssize_t ret;
 				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
