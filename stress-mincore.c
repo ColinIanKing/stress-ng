@@ -52,7 +52,7 @@ int stress_mincore(
 	const uint64_t max_ops,
 	const char *name)
 {
-	volatile uint8_t *addr = 0;
+	uint8_t *addr = 0;
 	const size_t page_size = stress_get_pagesize();
 	const ptrdiff_t mask = ~(page_size - 1);
 
