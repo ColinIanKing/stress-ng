@@ -640,7 +640,7 @@ void perf_stat_dump(
 		if (!got_data)
 			continue;
 
-		munged = munge_underscore((char *)stressors[i].name);
+		munged = munge_underscore(stressors[i].name);
 		pr_inf(stdout, "%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);
