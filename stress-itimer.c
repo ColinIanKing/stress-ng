@@ -54,7 +54,7 @@ void stress_set_itimer_freq(const char *optarg)
  *  stress_itimer_set()
  *	set timer, ensure it is never zero
  */
-void stress_itimer_set(struct itimerval *timer)
+static void stress_itimer_set(struct itimerval *timer)
 {
 	double rate;
 
