@@ -40,7 +40,7 @@
  *  stress_cpu_online_set()
  *	set a specified CPUs online or offline
  */
-int stress_cpu_online_set(
+static int stress_cpu_online_set(
 	const char *name,
 	const int32_t cpu,
 	const int setting)
