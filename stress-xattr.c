@@ -70,7 +70,6 @@ int stress_xattr(
 
 	do {
 		int i, j;
-		int ret;
 		char attrname[32];
 		char value[32];
 		ssize_t sz;
