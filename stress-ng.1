@@ -2128,6 +2128,10 @@ the CMSG data and immediately closes the files.
 .B \-\-sockfd\-ops N
 stop sockfd stress workers after N bogo operations.
 .TP
+.B \-\-sockfd\-port P
+start at socket port P. For N socket worker processes, ports P to P - 1 are
+used.
+.TP
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair
 of client/server processes performing randomly sized socket I/O operations.

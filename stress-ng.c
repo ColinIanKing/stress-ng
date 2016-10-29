@@ -1102,6 +1102,7 @@ static const struct option long_options[] = {
 #if defined(STRESS_SOCKET_FD)
 	{ "sockfd",	1,	0,	OPT_SOCKET_FD },
 	{ "sockfd-ops",1,	0,	OPT_SOCKET_FD_OPS },
+	{ "sockfd-port",1,	0,	OPT_SOCKET_FD_PORT },
 #endif
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
@@ -1811,6 +1812,7 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_SOCKET_FD)
 	{ NULL,		"sockfd N",		"start N workers sending file descriptors over sockets" },
 	{ NULL,		"sockfd-ops N",		"stop after N sockfd bogo operations" },
+	{ NULL,		"sockfd-port P",	"use socket fd ports P to P + number of workers - 1" },
 #endif
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop after N socket pair bogo operations" },
@@ -3380,6 +3382,11 @@ next_opt:
 			if (stress_set_socket_type(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+#if defined(STRESS_SOCKET_FD)
+		case OPT_SOCKET_FD_PORT:
+			stress_set_socket_fd_port(optarg);
+			break;
+#endif
 #if defined(STRESS_SPLICE)
 		case OPT_SPLICE_BYTES:
 			stress_set_splice_bytes(optarg);

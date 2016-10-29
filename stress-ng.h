@@ -2020,6 +2020,7 @@ typedef enum {
 #if defined(STRESS_SOCKET_FD)
 	OPT_SOCKET_FD,
 	OPT_SOCKET_FD_OPS,
+	OPT_SOCKET_FD_PORT,
 #endif
 
 	OPT_SOCKET_PAIR,
@@ -2636,6 +2637,7 @@ extern int  stress_set_socket_domain(const char *name);
 extern int  stress_set_socket_opts(const char *optarg);
 extern int  stress_set_socket_type(const char *optarg);
 extern void stress_set_socket_port(const char *optarg);
+extern void stress_set_socket_fd_port(const char *optarg);
 extern void stress_set_splice_bytes(const char *optarg);
 extern int  stress_set_str_method(const char *name);
 extern void stress_set_stream_L3_size(const char *optarg);
