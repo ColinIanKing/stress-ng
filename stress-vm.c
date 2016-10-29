@@ -704,7 +704,7 @@ static size_t stress_vm_swap(
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
 	uint64_t w1, z1, c = *counter;
 	uint8_t *buf_end = buf + sz;
-	volatile uint8_t *ptr;
+	uint8_t *ptr;
 	size_t bit_errors = 0, i;
 	size_t *swaps;
 
@@ -731,9 +731,9 @@ static size_t stress_vm_swap(
 	for (i = 0, ptr = buf; ptr < buf_end; ptr += chunk_sz, i++) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = buf + offset,
-			*src = ptr,
-			*src_end = src + chunk_sz;
+		volatile uint8_t *dst = buf + offset;
+		volatile uint8_t *src = (volatile uint8_t *)ptr;
+		volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			uint8_t tmp = *src;
@@ -750,9 +750,9 @@ static size_t stress_vm_swap(
 	for (i = chunks - 1, ptr = buf_end - chunk_sz; ptr >= buf; ptr -= chunk_sz, i--) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = buf + offset,
-			*src = ptr,
-			*src_end = src + chunk_sz;
+		volatile uint8_t *dst = buf + offset;
+		volatile uint8_t *src = (volatile uint8_t *)ptr;
+		volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			uint8_t tmp = *src;
@@ -771,7 +771,8 @@ static size_t stress_vm_swap(
 
 	mwc_seed(w1, z1);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
-		volatile uint8_t *p = ptr, *p_end = ptr + chunk_sz;
+		volatile uint8_t *p = (volatile uint8_t *)ptr;
+		volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
 		uint8_t val = mwc8();
 
 		while (p < p_end) {
