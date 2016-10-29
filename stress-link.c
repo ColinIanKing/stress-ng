@@ -110,17 +110,17 @@ static int stress_link_generic(
 			}
 			if (symlink) {
 				char buf[PATH_MAX];
-				ssize_t ret;
+				ssize_t rret;
 
-				ret = readlink(newpath, buf, sizeof(buf));
-				if (ret < 0) {
+				rret = readlink(newpath, buf, sizeof(buf));
+				if (rret < 0) {
 					rc = exit_status(errno);
 					pr_fail_err(name, "readlink");
 				} else {
-					if ((size_t)ret != oldpathlen)
+					if ((size_t)rret != oldpathlen)
 						pr_fail_err(name, "readlink length error");
 					else
-						if (strncmp(oldpath, buf, ret))
+						if (strncmp(oldpath, buf, rret))
 							pr_fail_err(name, "readlink path error");
 				}
 			}
