@@ -115,7 +115,10 @@ static void stress_dentry_unlink(
 	case ORDER_REVERSE:
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
-			uint64_t j = (n - 1) - i, gray_code = (j >> 1) ^ j;
+			uint64_t gray_code;
+
+			j = (n - 1) - i;
+			gray_code = (j >> 1) ^ j;
 
 			stress_temp_filename(path, sizeof(path),
 				name, pid, instance, gray_code);
