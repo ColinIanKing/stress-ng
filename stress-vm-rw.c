@@ -93,7 +93,7 @@ static int stress_vm_child(void *arg)
 
 	while (opt_do_run) {
 		uint8_t *ptr, *end = buf + ctxt->sz;
-		int ret;
+		int rwret;
 
 		memset(&msg_wr, 0, sizeof(msg_wr));
 		msg_wr.addr = buf;
@@ -101,8 +101,8 @@ static int stress_vm_child(void *arg)
 
 		/* Send address of buffer to parent */
 redo_wr1:
-		ret = write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr));
-		if (ret < 0) {
+		rwret = write(ctxt->pipe_wr[1], &msg_wr, sizeof(msg_wr));
+		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno != EBADF)
@@ -111,16 +111,16 @@ redo_wr1:
 		}
 redo_rd1:
 		/* Wait for parent to populate data */
-		ret = read(ctxt->pipe_rd[0], &msg_rd, sizeof(msg_rd));
-		if (ret < 0) {
+		rwret = read(ctxt->pipe_rd[0], &msg_rd, sizeof(msg_rd));
+		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd1;
 			pr_fail_dbg(ctxt->name, "read");
 			break;
 		}
-		if (ret == 0)
+		if (rwret == 0)
 			break;
-		if (ret != sizeof(msg_rd)) {
+		if (rwret != sizeof(msg_rd)) {
 			pr_fail_dbg(ctxt->name, "read");
 			break;
 		}
