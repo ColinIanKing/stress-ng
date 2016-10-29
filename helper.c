@@ -332,14 +332,14 @@ void set_proc_name(const char *name)
  *  munge_underscore()
  *	turn '_' to '-' in strings
  */
-char *munge_underscore(char *str)
+char *munge_underscore(const char *str)
 {
 	static char munged[128];
 	char *src, *dst;
 	size_t str_len = strlen(str);
 	ssize_t len = STRESS_MINIMUM(str_len, sizeof(munged) - 1);
 
-	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
+	for (src = (char *)str, dst = munged; *src && (dst - munged) < len; src++)
 		*dst++ = (*src == '_' ? '-' : *src);
 
 	*dst = '\0';

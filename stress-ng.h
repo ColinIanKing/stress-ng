@@ -2456,7 +2456,7 @@ extern WARN_UNUSED int set_cpu_affinity(char *const arg);
 /* Misc helper funcs */
 extern void stress_unmap_shared(void);
 extern void log_system_mem_info(void);
-extern WARN_UNUSED char *munge_underscore(char *str);
+extern WARN_UNUSED char *munge_underscore(const char *str);
 extern size_t stress_get_pagesize(void);
 extern WARN_UNUSED int32_t stress_get_processors_online(void);
 extern WARN_UNUSED int32_t stress_get_processors_configured(void);
