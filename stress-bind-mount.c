@@ -48,7 +48,7 @@ typedef struct {
  *	aggressively perform bind mounts, this can force out of memory
  *	situations
  */
-int stress_bind_mount_child(void *arg)
+static int stress_bind_mount_child(void *arg)
 {
 	context_t *context = (context_t *)arg;
 
