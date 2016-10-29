@@ -1989,14 +1989,14 @@ static inline int32_t stressor_name_find(const char *name)
 	char *tmp, *munged_name;
 	size_t len;
 
-	tmp = munge_underscore((char *)name);
+	tmp = munge_underscore(name);
 	len = strlen(tmp) + 1;
 
 	munged_name = alloca(len);
 	strncpy(munged_name, tmp, len);
 
 	for (i = 0; stressors[i].name; i++) {
-		const char *munged_stressor_name = munge_underscore((char *)stressors[i].name);
+		const char *munged_stressor_name = munge_underscore(stressors[i].name);
 
 		if (!strcmp(munged_stressor_name, munged_name))
 			break;
@@ -2438,7 +2438,7 @@ again:
 					(void)alarm(opt_timeout);
 					mwc_reseed();
 					snprintf(name, sizeof(name), "%s-%s", app_name,
-						munge_underscore((char *)stressors[i].name));
+						munge_underscore(stressors[i].name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
 					set_iopriority(opt_ionice_class, opt_ionice_level);
@@ -2547,7 +2547,7 @@ static int show_hogs(const uint32_t opt_class)
 
 			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
 				previous ? "," : "", n,
-				munge_underscore((char *)stressors[i].name));
+				munge_underscore(stressors[i].name));
 			previous = true;
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);
@@ -2590,7 +2590,7 @@ static void metrics_dump(
 		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 		double   r_total = 0.0;
 		int32_t  j, n = (i * max_procs);
-		char *munged = munge_underscore((char *)stressors[i].name);
+		char *munged = munge_underscore(stressors[i].name);
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 
 		for (j = 0; j < procs[i].started_procs; j++, n++) {
@@ -2872,7 +2872,7 @@ static inline void exclude_pathological(void)
 						"may hang the machine "
 						"(enable it with the "
 						"--pathological option)\n",
-						munge_underscore((char *)stressors[i].name));
+						munge_underscore(stressors[i].name));
 				}
 				procs[i].num_procs = 0;
 				procs[i].exclude = true;

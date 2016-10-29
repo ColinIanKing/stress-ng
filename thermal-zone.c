@@ -189,7 +189,7 @@ void tz_dump(
 
 			if (total) {
 				double temp = ((double)total / count) / 1000.0;
-				char *munged = munge_underscore((char *)stressors[i].name);
+				char *munged = munge_underscore(stressors[i].name);
 
 				if (!dumped_heading) {
 					dumped_heading = true;
