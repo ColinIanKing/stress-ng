@@ -2394,7 +2394,6 @@ static inline uint8_t mwc8(void)
 	return mwc32() & 0xff;
 }
 
-extern void mwc_seed(const uint32_t w, const uint32_t z);
 extern void mwc_reseed(void);
 
 /* Time handling */
