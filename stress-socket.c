@@ -309,7 +309,7 @@ static int stress_sctp_server(
 		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			size_t i, j;
-			struct sockaddr addr;
+			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
 			struct msghdr msg;
@@ -321,8 +321,8 @@ static int stress_sctp_server(
 #if defined(SOCKET_NODELAY)
 			int one = 1;
 #endif
-			len = sizeof(addr);
-			if (getsockname(fd, &addr, &len) < 0) {
+			len = sizeof(saddr);
+			if (getsockname(fd, &saddr, &len) < 0) {
 				pr_fail_dbg(name, "getsockname");
 				(void)close(sfd);
 				break;
@@ -396,7 +396,7 @@ static int stress_sctp_server(
 				(void)close(sfd);
 				goto die_close;
 			}
-			if (getpeername(sfd, &addr, &len) < 0) {
+			if (getpeername(sfd, &saddr, &len) < 0) {
 				pr_fail_dbg(name, "getpeername");
 			}
 			(void)close(sfd);
