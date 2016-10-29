@@ -73,8 +73,8 @@ void stress_set_heapsort_size(const void *optarg)
  */
 static int stress_heapsort_cmp_1(const void *p1, const void *p2)
 {
-	int32_t *i1 = (int32_t *)p1;
-	int32_t *i2 = (int32_t *)p2;
+	const int32_t *i1 = (const int32_t *)p1;
+	const int32_t *i2 = (const int32_t *)p2;
 
 	if (*i1 > *i2)
 		return 1;
@@ -99,8 +99,8 @@ static int stress_heapsort_cmp_2(const void *p1, const void *p2)
  */
 static int stress_heapsort_cmp_3(const void *p1, const void *p2)
 {
-	int8_t *i1 = (int8_t *)p1;
-	int8_t *i2 = (int8_t *)p2;
+	const int8_t *i1 = (const int8_t *)p1;
+	const int8_t *i2 = (const int8_t *)p2;
 
 	/* Force re-ordering on 8 bit value */
 	return *i1 - *i2;
