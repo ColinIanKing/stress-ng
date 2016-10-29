@@ -320,7 +320,7 @@ static int inotify_attrib_helper(
 	return 0;
 }
 
-void inotify_attrib_file(const char *name, const char *path)
+static void inotify_attrib_file(const char *name, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -521,7 +521,7 @@ static int inotify_move_self_helper(
 	const char *oldpath,
 	const void *private)
 {
-	char *newpath = (char*)private;
+	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
@@ -551,7 +551,7 @@ static int inotify_moved_to_helper(
 	const char *newpath,
 	const void *private)
 {
-	char *oldpath = (char*)private;
+	const char *oldpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
@@ -585,7 +585,7 @@ static int inotify_moved_from_helper(
 	const char *oldpath,
 	const void *private)
 {
-	char *newpath = (char*)private;
+	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
@@ -622,7 +622,7 @@ static int inotify_close_write_helper(
 	(void)name;
 	(void)path;
 
-	(void)close(*(int *)fdptr);
+	(void)close(*(const int *)fdptr);
 	return 0;
 }
 
@@ -655,7 +655,7 @@ static int inotify_close_nowrite_helper(
 	(void)name;
 	(void)path;
 
-	(void)close(*(int *)fdptr);
+	(void)close(*(const int *)fdptr);
 	return 0;
 }
 
