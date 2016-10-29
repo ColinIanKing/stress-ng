@@ -68,7 +68,7 @@ void stress_set_vm_rw_bytes(const char *optarg)
 		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
 }
 
-int stress_vm_child(void *arg)
+static int stress_vm_child(void *arg)
 {
 	context_t *ctxt = (context_t *)arg;
 
@@ -154,7 +154,7 @@ cleanup:
 	return ret;
 }
 
-int stress_vm_parent(context_t *ctxt)
+static int stress_vm_parent(context_t *ctxt)
 {
 	/* Parent */
 	int status;
