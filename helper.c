@@ -578,9 +578,9 @@ void pr_yaml_runinfo(FILE *yaml)
 	}
 #endif
 	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_pagesize());
-	pr_yaml(yaml, "      cpus: %ld\n", stress_get_processors_configured());
-	pr_yaml(yaml, "      cpus-online: %ld\n", stress_get_processors_online());
-	pr_yaml(yaml, "      ticks-per-second: %ld\n", stress_get_ticks_per_second());
+	pr_yaml(yaml, "      cpus: %" PRId32 "\n", stress_get_processors_configured());
+	pr_yaml(yaml, "      cpus-online: %" PRId32 "\n", stress_get_processors_online());
+	pr_yaml(yaml, "      ticks-per-second: %" PRId32 "\n", stress_get_ticks_per_second());
 	pr_yaml(yaml, "\n");
 }
 
