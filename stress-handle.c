@@ -51,7 +51,7 @@ typedef struct {
 
 static mount_info_t mount_info[MAX_MOUNT_IDS];
 
-void free_mount_info(const int mounts)
+static void free_mount_info(const int mounts)
 {
 	int i;
 
@@ -59,7 +59,7 @@ void free_mount_info(const int mounts)
 		free(mount_info[i].mount_path);
 }
 
-int get_mount_info(const char *name)
+static int get_mount_info(const char *name)
 {
 	FILE *fp;
 	int mounts = 0;
