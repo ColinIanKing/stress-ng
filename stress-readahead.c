@@ -52,7 +52,7 @@ void stress_set_readahead_bytes(const char *optarg)
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
 
-int do_readahead(
+static int do_readahead(
 	const char *name,
 	const int fd,
 	off_t *offsets,
@@ -134,7 +134,7 @@ int stress_readahead(
 
 	/* Sequential Write */
 	for (i = 0; i < opt_readahead_bytes; i += BUF_SIZE) {
-		ssize_t ret;
+		ssize_t pret;
 		size_t j;
 		off_t o = i / BUF_SIZE;
 seq_wr_retry:
@@ -148,8 +148,8 @@ seq_wr_retry:
 		for (j = 0; j < BUF_SIZE; j++)
 			buf[j] = (o + j) & 0xff;
 
-		ret = pwrite(fd, buf, BUF_SIZE, i);
-		if (ret <= 0) {
+		pret = pwrite(fd, buf, BUF_SIZE, i);
+		if (pret <= 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto seq_wr_retry;
 			if (errno == ENOSPC)
