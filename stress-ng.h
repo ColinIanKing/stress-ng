@@ -1566,6 +1566,7 @@ typedef enum {
 #if defined(STRESS_FIEMAP)
 	OPT_FIEMAP,
 	OPT_FIEMAP_OPS,
+	OPT_FIEMAP_BYTES,
 #endif
 
 	OPT_FIFO,

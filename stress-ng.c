@@ -725,6 +725,7 @@ static const struct option long_options[] = {
 #if defined(STRESS_FIEMAP)
 	{ "fiemap",	1,	0,	OPT_FIEMAP },
 	{ "fiemap-ops",	1,	0,	OPT_FIEMAP_OPS },
+	{ "fiemap-bytes",1,	0,	OPT_FIEMAP_BYTES },
 #endif
 	{ "fifo",	1,	0,	OPT_FIFO },
 	{ "fifo-ops",	1,	0,	OPT_FIFO_OPS },
@@ -1459,6 +1460,7 @@ static const help_t help_stressors[] = {
 #if defined(STRESS_FIEMAP)
 	{ NULL,		"fiemap N",		"start N workers exercising the FIEMAP ioctl" },
 	{ NULL,		"fiemap-ops N",		"stop after N FIEMAP ioctl bogo operations" },
+	{ NULL,		"fiemap-bytes N",	"specify size of file to fiemap" },
 #endif
 	{ NULL,		"fifo N",		"start N workers exercising fifo I/O" },
 	{ NULL,		"fifo-ops N",		"stop after N fifo bogo operations" },
@@ -3102,6 +3104,11 @@ next_opt:
 #if defined(STRESS_FALLOCATE)
 		case OPT_FALLOCATE_BYTES:
 			stress_set_fallocate_bytes(optarg);
+			break;
+#endif
+#if defined(STRESS_FIEMAP)
+		case OPT_FIEMAP_BYTES:
+			stress_set_fiemap_size(optarg);
 			break;
 #endif
 		case OPT_FIFO_READERS:
