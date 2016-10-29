@@ -43,7 +43,7 @@
 /*
  *  unshare with some error checking
  */
-void sys_unshare(const char *name, int flags, const char *flags_name)
+static void sys_unshare(const char *name, int flags, const char *flags_name)
 {
 	int rc;
 #if NEED_GLIBC(2,14,0)
