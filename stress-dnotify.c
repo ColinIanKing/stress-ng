@@ -196,7 +196,7 @@ static int dnotify_attrib_helper(
 	return 0;
 }
 
-void dnotify_attrib_file(const char *name, const char *path)
+static void dnotify_attrib_file(const char *name, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -345,7 +345,7 @@ static int dnotify_rename_helper(
 	const char *oldpath,
 	const void *private)
 {
-	char *newpath = (char*)private;
+	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
