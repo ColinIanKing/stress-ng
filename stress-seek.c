@@ -102,7 +102,7 @@ int stress_seek(
 	do {
 		off_t offset;
 		uint8_t tmp[512];
-		ssize_t ret;
+		ssize_t rwret;
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
@@ -112,8 +112,8 @@ int stress_seek(
 re_write:
 		if (!opt_do_run)
 			break;
-		ret = write(fd, buf, sizeof(buf));
-		if (ret <= 0) {
+		rwret = write(fd, buf, sizeof(buf));
+		if (rwret <= 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
@@ -130,8 +130,8 @@ re_write:
 re_read:
 		if (!opt_do_run)
 			break;
-		ret = read(fd, tmp, sizeof(tmp));
-		if (ret <= 0) {
+		rwret = read(fd, tmp, sizeof(tmp));
+		if (rwret <= 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
@@ -139,7 +139,7 @@ re_read:
 				goto close_finish;
 			}
 		}
-		if ((ret != sizeof(tmp)) &&
+		if ((rwret != sizeof(tmp)) &&
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
 			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", name);
 		}
