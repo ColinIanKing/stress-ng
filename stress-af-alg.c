@@ -134,7 +134,7 @@ static alg_rng_info_t algo_rng_info[] = {
 	{ "jitterentropy_rng" }
 };
 
-int stress_af_alg_hash(
+static int stress_af_alg_hash(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
@@ -199,7 +199,7 @@ int stress_af_alg_hash(
 	return EXIT_SUCCESS;
 }
 
-int stress_af_alg_cipher(
+static int stress_af_alg_cipher(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
@@ -350,7 +350,7 @@ int stress_af_alg_cipher(
 	return EXIT_SUCCESS;
 }
 
-int stress_af_alg_rng(
+static int stress_af_alg_rng(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name,
