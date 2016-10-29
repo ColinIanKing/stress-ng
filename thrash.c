@@ -45,7 +45,7 @@
 #include <dirent.h>
 #include <ctype.h>
 
-static pid_t pid;
+static pid_t thrash_pid;
 
 static int pagein_proc(const pid_t pid)
 {
@@ -123,16 +123,16 @@ int thrash_start(void)
 		pr_inf(stderr, "not running as root, ignoring --thrash option\n");
 		return -1;
 	}
-	if (pid) {
+	if (thrash_pid) {
 		pr_err(stderr, "thrash background process already started\n");
 		return -1;
 	}
-	pid = fork();
-	if (pid < 0) {
+	thrash_pid = fork();
+	if (thrash_pid < 0) {
 		pr_err(stderr, "thrash background process failed to fork: %d (%s)\n",
 			errno, strerror(errno));
 		return -1;
-	} else if (pid == 0) {
+	} else if (thrash_pid == 0) {
 		while (opt_do_run) {
 			pagein_all_procs();
 			sleep(1);
@@ -146,13 +146,13 @@ void thrash_stop(void)
 {
 	int status;
 
-	if (!pid)
+	if (!thrash_pid)
 		return;
 
-	(void)kill(pid, SIGKILL);
-	(void)waitpid(pid, &status, 0);
+	(void)kill(thrash_pid, SIGKILL);
+	(void)waitpid(thrash_pid, &status, 0);
 
-	pid = 0;
+	thrash_pid = 0;
 }
 
 #else
