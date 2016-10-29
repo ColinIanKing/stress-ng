@@ -360,8 +360,6 @@ again:
 			rc = WEXITSTATUS(status);
 		}
 	} else if (pid == 0) {
-		int rc;
-
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
