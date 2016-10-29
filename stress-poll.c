@@ -88,7 +88,7 @@ int stress_poll(
 	int pipefds[MAX_PIPES][2];
 	int i;
 	pid_t pid;
-	int ret = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 
 	(void)instance;
 
@@ -109,7 +109,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg(name, "fork");
-		ret = EXIT_FAILURE;
+		rc = EXIT_FAILURE;
 		goto tidy;
 	}
 	else if (pid == 0) {
@@ -225,5 +225,5 @@ tidy:
 		(void)close(pipefds[i][1]);
 	}
 
-	return ret;
+	return rc;
 }
