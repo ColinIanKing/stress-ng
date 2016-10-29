@@ -204,18 +204,18 @@ again:
 			fds[i] = -1;
 
 		for (i = 0; i < max_pipes; i++) {
-			int *fd = fds + (2 * i);
-			if (pipe(fd) < 0) {
-				fd[0] = -1;
-				fd[1] = -1;
+			int *pfd = fds + (2 * i);
+			if (pipe(pfd) < 0) {
+				pfd[0] = -1;
+				pfd[1] = -1;
 			} else {
-				if (fcntl(fd[0], F_SETFL, O_NONBLOCK) < 0) {
+				if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
 					pr_fail(stderr, "%s: fcntl O_NONBLOCK failed, "
 						"errno = %d (%s)\n",
 						name, errno, strerror(errno));
 					goto clean;
 				}
-				if (fcntl(fd[1], F_SETFL, O_NONBLOCK) < 0) {
+				if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
 					pr_fail(stderr, "%s: fcntl O_NONBLOCK failed, "
 						"errno = %d (%s)\n",
 						name, errno, strerror(errno));
