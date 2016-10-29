@@ -87,7 +87,7 @@ int stress_filename_opts(const char *opt)
  *  stress_filename_probe()
  *	determine allowed filename chars by probing
  */
-int stress_filename_probe(
+static int stress_filename_probe(
 	const char *name,
 	char *filename,
 	char *ptr,
@@ -135,7 +135,7 @@ int stress_filename_probe(
  *  stress_filename_ext()
  *	determine allowed for ext* filesystems
  */
-void stress_filename_ext(size_t *chars_allowed)
+static void stress_filename_ext(size_t *chars_allowed)
 {
 	size_t i, j;
 
@@ -152,7 +152,7 @@ void stress_filename_ext(size_t *chars_allowed)
  *  stress_filename_generate()
  *	generate a filename of length sz_max
  */
-void stress_filename_generate(
+static void stress_filename_generate(
 	char *filename,
 	const size_t sz_max,
 	const char ch)
@@ -173,7 +173,7 @@ void stress_filename_generate(
  *	generate a filename of length sz_max with
  *	random selection from possible char set
  */
-void stress_filename_generate_random(
+static void stress_filename_generate_random(
 	char *filename,
 	const size_t sz_max,
 	const size_t chars_allowed)
@@ -195,7 +195,7 @@ void stress_filename_generate_random(
  *	should_pass = true - create must pass
  *	should_pass = false - expect it to fail (name too long)
  */
-void stress_filename_test(
+static void stress_filename_test(
 	const char *name,
 	const char *filename,
 	const size_t sz_max,
