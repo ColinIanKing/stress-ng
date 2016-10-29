@@ -85,7 +85,7 @@ static zombie_t *stress_zombie_new(void)
  *	reap a zombie and remove a zombie from head of list, put it onto
  *	the free zombie list
  */
-void stress_zombie_head_remove(void)
+static void stress_zombie_head_remove(void)
 {
 	if (zombies.head) {
 		int status;
@@ -113,7 +113,7 @@ void stress_zombie_head_remove(void)
  *  stress_zombie_free()
  *	free the zombies off the zombie free lists
  */
-void stress_zombie_free(void)
+static void stress_zombie_free(void)
 {
 	while (zombies.head) {
 		zombie_t *next = zombies.head->next;
