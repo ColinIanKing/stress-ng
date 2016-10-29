@@ -118,7 +118,7 @@ int stress_cap(
 
 				if (!isdigit(d->d_name[0]))
 					continue;
-				if (sscanf(d->d_name, "%u", &p) != 1)
+				if (sscanf(d->d_name, "%d", &p) != 1)
 					continue;
 				stress_capgetset_pid(name, p, false,
 					counter, false);
