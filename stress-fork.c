@@ -71,7 +71,7 @@ void stress_set_vfork_max(const char *optarg)
  *	stress by forking and exiting using
  *	fork function fork_fn (fork or vfork)
  */
-int stress_fork_fn(
+static int stress_fork_fn(
 	uint64_t *const counter,
 	const uint32_t instance,
 	const uint64_t max_ops,
