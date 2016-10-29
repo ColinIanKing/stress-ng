@@ -220,8 +220,6 @@ again:
 			msg.value = (*counter);
 			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {
-				struct mq_attr attr;
-
 				if (mq_getattr(mq, &attr) < 0)
 					pr_fail_dbg(name, "mq_getattr");
 			}
