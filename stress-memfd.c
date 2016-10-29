@@ -93,10 +93,10 @@ static void stress_memfd_allocs(
 		}
 
 		for (i = 0; i < MAX_MEM_FDS; i++) {
-			char name[PATH_MAX];
+			char filename[PATH_MAX];
 
-			snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
-			fds[i] = sys_memfd_create(name, 0);
+			snprintf(filename, sizeof(filename), "memfd-%u-%zu", pid, i);
+			fds[i] = sys_memfd_create(filename, 0);
 			if (fds[i] < 0) {
 				switch (errno) {
 				case EMFILE:
