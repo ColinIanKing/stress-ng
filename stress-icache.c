@@ -66,7 +66,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 	const uint64_t max_ops,
 	const char *name)
 {
-	volatile uint8_t *addr = (uint8_t *)stress_icache_func;
+	uint8_t *addr = (uint8_t *)stress_icache_func;
 	const size_t page_size = stress_get_pagesize();
 	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 
@@ -96,6 +96,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 		register int i = 1024;
 
 		while (--i) {
+			volatile uint8_t *vaddr = (volatile uint8_t *)addr;
 			/*
 			 *  Change protection to make page modifyable. It may be that
 			 *  some architectures don't allow this, so don't bail out on
@@ -104,7 +105,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 */
 			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
 				pr_inf(stderr, "%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
-					name, addr, errno, strerror(errno));
+					name, vaddr, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}
 			/*
@@ -112,8 +113,8 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 *  call a I-cache reload when we execute
 			 *  the modfied ops.
 			 */
-			val = *addr;
-			*addr ^= ~0;
+			val = *vaddr;
+			*vaddr ^= ~0;
 
 			/*
 			 * ARM CPUs need us to clear the I$ between
@@ -126,7 +127,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 #if defined(__GNUC__) && defined(STRESS_ARM)
 			__clear_cache((char *)addr, (char *)addr + 64);
 #endif
-			*addr = val;
+			*vaddr = val;
 #if defined(__GNUC__) && defined(STRESS_ARM)
 			__clear_cache((char *)addr, (char *)addr + 64);
 #endif
