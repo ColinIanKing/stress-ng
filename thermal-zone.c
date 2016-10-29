@@ -157,7 +157,6 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
  */
 void tz_dump(
 	FILE *yaml,
-	const shared_t *shared,
 	const stress_t stressors[],
 	const proc_info_t procs[STRESS_MAX],
 	const int32_t max_procs)

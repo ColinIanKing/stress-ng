@@ -2537,7 +2537,7 @@ extern WARN_UNUSED int mount_get(char *mnts[], const int max);
 extern int tz_init(tz_info_t **tz_info_list);
 extern void tz_free(tz_info_t **tz_info_list);
 extern int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
-extern void tz_dump(FILE *fp, const shared_t *shared, const stress_t stressors[],
+extern void tz_dump(FILE *fp, const stress_t stressors[],
 	const proc_info_t procs[STRESS_MAX], const int32_t max_procs);
 #endif
 

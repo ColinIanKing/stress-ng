@@ -3766,7 +3766,7 @@ next_opt:
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 	if (opt_flags & OPT_FLAGS_THERMAL_ZONES) {
-		tz_dump(yaml, shared, stressors, procs, max_procs);
+		tz_dump(yaml, stressors, procs, max_procs);
 		tz_free(&shared->tz_info);
 	}
 #endif
