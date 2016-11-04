@@ -181,7 +181,6 @@ int stress_aio(
 	uint64_t total = 0;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
-	size_t io_req_sz;
 
 	if (!set_aio_requests) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -189,17 +188,17 @@ int stress_aio(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_requests = MIN_AIO_REQUESTS;
 	}
-	io_req_sz = (size_t)opt_aio_requests * sizeof(io_req_t);
 
-	if ((io_reqs = alloca(io_req_sz)) == NULL) {
+	if ((io_reqs = calloc(opt_aio_requests, sizeof(io_req_t))) == NULL) {
 		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
 		return EXIT_NO_RESOURCE;
 	}
-	memset(io_reqs, 0, io_req_sz);
 
 	ret = stress_temp_dir_mk(name, pid, instance);
-	if (ret < 0)
+	if (ret < 0) {
+		free(io_reqs);
 		return exit_status(-ret);
+	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
@@ -272,6 +271,8 @@ cancel:
 	}
 	(void)close(fd);
 finish:
+	free(io_reqs);
+
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
 		"caught (instance %d)\n",
 		name, total, instance);
