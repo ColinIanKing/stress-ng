@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_RMAP)
+#if !defined(__minix__) && !defined(__OpenBSD__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,28 +75,38 @@ static void stress_rmap_child(
 
 	do {
 		ssize_t i;
+#if !defined(__gnu_hurd__)
 		const int sync_flag = mwc8() ? MS_ASYNC : MS_SYNC;
+#endif
 
 		switch (mwc32() & 3) {
 		case 0: for (i = 0; opt_do_run && (i < MAPPINGS_MAX); i++) {
 				memset(mappings[i], mwc8(), sz);
+#if !defined(__gnu_hurd__)
 				msync(mappings[i], sz, sync_flag);
+#endif
 			}
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; opt_do_run && (i >= 0); i--) {
 				memset(mappings[i], mwc8(), sz);
+#if !defined(__gnu_hurd__)
 				msync(mappings[i], sz, sync_flag);
+#endif
 			}
 			break;
 		case 2: for (i = 0; opt_do_run && (i < MAPPINGS_MAX); i++) {
 				size_t j = mwc32() % MAPPINGS_MAX;
 				memset(mappings[j], mwc8(), sz);
+#if !defined(__gnu_hurd__)
 				msync(mappings[j], sz, sync_flag);
+#endif
 			}
 			break;
 		case 3: for (i = 0; opt_do_run && (i < MAPPINGS_MAX - 1); i++) {
 				memcpy(mappings[i], mappings[i + 1], sz);
+#if !defined(__gnu_hurd__)
 				msync(mappings[i], sz, sync_flag);
+#endif
 			}
 			break;
 		}
@@ -253,5 +263,13 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_rmap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SOCKET_FD)
+#if defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,9 +44,10 @@
 #include <arpa/inet.h>
 #include <sys/un.h>
 
-
 #define MSG_ID			'M'
 #define MAX_FDS			(65536)
+
+#endif
 
 static int opt_socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 
@@ -60,6 +61,8 @@ void stress_set_socket_fd_port(const char *optarg)
 		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
 		&opt_socket_fd_port);
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_socket_fd_send()
@@ -333,5 +336,13 @@ again:
 		return stress_socket_server(counter, instance, max_ops, name, pid, ppid, max_fd);
 	}
 }
-
+#else
+int stress_sockfd(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

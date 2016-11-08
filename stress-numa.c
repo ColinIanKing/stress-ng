@@ -26,7 +26,12 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_NUMA)
+#if defined(__linux__) &&		\
+    defined(__NR_get_mempolicy) &&	\
+    defined(__NR_mbind) &&		\
+    defined(__NR_migrate_pages) &&	\
+    defined(__NR_move_pages) &&		\
+    defined(__NR_set_mempolicy)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -380,5 +385,14 @@ numa_free:
 	stress_numa_free_nodes(n);
 
 	return rc;
+}
+#else
+int stress_numa(
+        uint64_t *const counter,
+        const uint32_t instance,
+        const uint64_t max_ops,
+        const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

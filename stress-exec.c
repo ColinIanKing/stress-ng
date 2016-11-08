@@ -33,7 +33,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_EXEC)
 
 static uint64_t opt_exec_max = DEFAULT_EXECS;
 static bool set_exec_max = false;
@@ -49,6 +48,8 @@ void stress_set_exec_max(const char *optarg)
 	check_range("exec-max", opt_exec_max,
 		MIN_EXECS, MAX_EXECS);
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_exec()
@@ -158,5 +159,13 @@ int stress_exec(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_exec(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

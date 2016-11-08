@@ -156,11 +156,14 @@ int stress_open(
 	const char *name)
 {
 	int fds[STRESS_FD_MAX];
-	const size_t max_fd = stress_get_file_limit();
+	size_t max_fd = stress_get_file_limit();
 	size_t i;
 
 	(void)instance;
 	(void)name;
+
+	if (max_fd > SIZEOF_ARRAY(fds))
+		max_fd = SIZEOF_ARRAY(fds);
 
 	do {
 		for (i = 0; i < max_fd; i++) {

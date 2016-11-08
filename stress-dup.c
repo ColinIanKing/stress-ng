@@ -45,13 +45,16 @@ int stress_dup(
 	const char *name)
 {
 	int fds[STRESS_FD_MAX];
-	const size_t max_fd = stress_get_file_limit();
+	size_t max_fd = stress_get_file_limit();
 	size_t i;
 #if defined(__linux__)
 	bool do_dup3 = true;
 #endif
 
 	(void)instance;
+
+	if (max_fd > SIZEOF_ARRAY(fds))
+		max_fd =  SIZEOF_ARRAY(fds);
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {

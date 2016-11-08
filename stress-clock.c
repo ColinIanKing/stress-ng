@@ -34,7 +34,7 @@
 #include <signal.h>
 #include <errno.h>
 
-#if defined(STRESS_CLOCK)
+#if defined(HAVE_LIB_RT) && (_POSIX_C_SOURCE >= 199309L)
 
 typedef struct {
 	int	id;		/* Clock ID */
@@ -223,5 +223,13 @@ timer_delete:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_clock(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

@@ -76,6 +76,7 @@ typedef unsigned long int __kernel_ulong_t;
 
 #define EXIT_NOT_SUCCESS	(2)
 #define EXIT_NO_RESOURCE	(3)
+#define EXIT_NOT_IMPLEMENTED	(4)
 
 /*
  * STRESS_ASSERT(test)
@@ -657,11 +658,6 @@ extern void pr_openlog(const char *filename);
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
 #endif
 
-/* malloc mallopt() allocation parameter support */
-#if defined(__GNUC__) && defined(__linux__)
-#define STRESS_MALLOPT
-#endif
-
 /* -O3 attribute support */
 #if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
 #define OPTIMIZE3 __attribute__((optimize("-O3")))
@@ -881,479 +877,166 @@ typedef struct {
 /* Stress tests */
 typedef enum {
 	STRESS_START = -1,
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
-	__STRESS_AFFINITY,
-#define STRESS_AFFINITY __STRESS_AFFINITY
-#endif
-#if defined(__linux__) && defined(AF_ALG)
-	__STRESS_AF_ALG,
-#define STRESS_AF_ALG __STRESS_AF_ALG
-#endif
-#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
-	__STRESS_AIO,
-#define STRESS_AIO __STRESS_AIO
-#endif
-#if defined(__linux__) &&		\
-    defined(HAVE_LIB_AIO) &&		\
-    defined(__NR_io_setup) &&		\
-    defined(__NR_io_destroy) &&		\
-    defined(__NR_io_submit) && 		\
-    defined(__NR_io_getevents)
-	__STRESS_AIO_LINUX,
-#define STRESS_AIO_LINUX __STRESS_AIO_LINUX
-#endif
-#if defined(__linux__) && defined(HAVE_APPARMOR)
-	__STRESS_APPARMOR,
-#define STRESS_APPARMOR __STRESS_APPARMOR
-#endif
-#if defined(HAVE_ATOMIC)
-	__STRESS_ATOMIC,
-#define STRESS_ATOMIC __STRESS_ATOMIC
-#endif
+	STRESS_AFFINITY,
+	STRESS_AF_ALG,
+	STRESS_AIO,
+	STRESS_AIO_LINUX,
+	STRESS_APPARMOR,
+	STRESS_ATOMIC,
 	STRESS_BRK,
 	STRESS_BSEARCH,
 	STRESS_BIGHEAP,
-#if defined(__linux__) && defined(MS_BIND) && defined(MS_REC)
-	__STRESS_BIND_MOUNT,
-#define STRESS_BIND_MOUNT __STRESS_BIND_MOUNT
-#endif
+	STRESS_BIND_MOUNT,
 	STRESS_CACHE,
-#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
-	__STRESS_CAP,
-#define STRESS_CAP __STRESS_CAP
-#endif
+	STRESS_CAP,
 	STRESS_CHDIR,
 	STRESS_CHMOD,
 	STRESS_CHOWN,
-#if defined(HAVE_LIB_RT) && _POSIX_C_SOURCE >= 199309L
-	__STRESS_CLOCK,
-#define STRESS_CLOCK __STRESS_CLOCK
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,14,0)
-	__STRESS_CLONE,
-#define STRESS_CLONE __STRESS_CLONE
-#endif
-#if !defined(__OpenBSD__)
-	__STRESS_CONTEXT,
-#define STRESS_CONTEXT __STRESS_CONTEXT
-#endif
-#if defined(__linux__) && (__NR_copy_file_range)
-	__STRESS_COPY_FILE,
-#define STRESS_COPY_FILE __STRESS_COPY_FILE
-#endif
+	STRESS_CLOCK,
+	STRESS_CLONE,
+	STRESS_CONTEXT,
+	STRESS_COPY_FILE,
 	STRESS_CPU,
-#if defined(__linux__)
-	__STRESS_CPU_ONLINE,
-#define STRESS_CPU_ONLINE __STRESS_CPU_ONLINE
-#endif
-#if defined(HAVE_LIB_CRYPT)
-	__STRESS_CRYPT,
-#define STRESS_CRYPT __STRESS_CRYPT
-#endif
+	STRESS_CPU_ONLINE,
+	STRESS_CRYPT,
 	STRESS_DAEMON,
 	STRESS_DENTRY,
 	STRESS_DIR,
-#if defined(__linux__)
-	__STRESS_DNOTIFY,
-#define STRESS_DNOTIFY __STRESS_DNOTIFY
-#endif
+	STRESS_DNOTIFY,
 	STRESS_DUP,
-#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
-	__STRESS_EPOLL,
-#define STRESS_EPOLL __STRESS_EPOLL
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,8,0)
-	__STRESS_EVENTFD,
-#define STRESS_EVENTFD __STRESS_EVENTFD
-#endif
-#if defined(__linux__)
-	__STRESS_EXEC,
-#define STRESS_EXEC __STRESS_EXEC
-#endif
-#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
-	__STRESS_FALLOCATE,
-#define STRESS_FALLOCATE __STRESS_FALLOCATE
-#endif
+	STRESS_EPOLL,
+	STRESS_EVENTFD,
+	STRESS_EXEC,
+	STRESS_FALLOCATE,
 	STRESS_FAULT,
 	STRESS_FCNTL,
-#if defined(__linux__) && defined(FS_IOC_FIEMAP)
-	__STRESS_FIEMAP,
-#define STRESS_FIEMAP __STRESS_FIEMAP
-#endif
+	STRESS_FIEMAP,
 	STRESS_FIFO,
 	STRESS_FILENAME,
 	STRESS_FLOCK,
 	STRESS_FORK,
 	STRESS_FP_ERROR,
 	STRESS_FSTAT,
-#if defined(__linux__)
-	__STRESS_FULL,
-#define STRESS_FULL __STRESS_FULL
-#endif
-#if defined(__linux__) && defined(__NR_futex)
-	__STRESS_FUTEX,
-#define STRESS_FUTEX __STRESS_FUTEX
-#endif
+	STRESS_FULL,
+	STRESS_FUTEX,
 	STRESS_GET,
-#if defined(__linux__) && defined(__NR_getrandom)
-	__STRESS_GETRANDOM,
-#define STRESS_GETRANDOM __STRESS_GETRANDOM
-#endif
-#if defined(__linux__) && defined(__NR_getdents64)
-	__STRESS_GETDENT,
-#define STRESS_GETDENT __STRESS_GETDENT
-#endif
-#if defined(__linux__) && defined(__NR_name_to_handle_at) && \
-    defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
-	__STRESS_HANDLE,
-#define STRESS_HANDLE __STRESS_HANDLE
-#endif
+	STRESS_GETRANDOM,
+	STRESS_GETDENT,
+	STRESS_HANDLE,
 	STRESS_HDD,
-#if defined(HAVE_LIB_BSD)
-	__STRESS_HEAPSORT,
-#define STRESS_HEAPSORT __STRESS_HEAPSORT
-#endif
+	STRESS_HEAPSORT,
 	STRESS_HSEARCH,
-#if (defined(STRESS_X86) || defined(STRESS_ARM)) && \
-    defined(__GNUC__) && NEED_GNUC(4,6,0)
-	__STRESS_ICACHE,
-#define STRESS_ICACHE __STRESS_ICACHE
-#endif
-#if defined(__linux__)
-	__STRESS_ICMP_FLOOD,
-#define STRESS_ICMP_FLOOD __STRESS_ICMP_FLOOD
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
-	__STRESS_INOTIFY,
-#define STRESS_INOTIFY __STRESS_INOTIFY
-#endif
-#if defined(__linux__) && defined(__NR_ioprio_set) && defined(__NR_ioprio_get)
-	__STRESS_IOPRIO,
-#define STRESS_IOPRIO __STRESS_IOPRIO
-#endif
+	STRESS_ICACHE,
+	STRESS_ICMP_FLOOD,
+	STRESS_INOTIFY,
+	STRESS_IOPRIO,
 	STRESS_IOSYNC,
 	STRESS_ITIMER,
-#if defined(__linux__) && defined(__NR_kcmp)
-	__STRESS_KCMP,
-#define STRESS_KCMP __STRESS_KCMP
-#endif
-#if defined(HAVE_KEYUTILS_H) && defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
-	__STRESS_KEY,
-#define STRESS_KEY __STRESS_KEY
-#endif
+	STRESS_KCMP,
+	STRESS_KEY,
 	STRESS_KILL,
-#if defined(__linux__) && defined(__NR_syslog)
-	__STRESS_KLOG,
-#define STRESS_KLOG __STRESS_KLOG
-#endif
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
-	__STRESS_LEASE,
-#define STRESS_LEASE __STRESS_LEASE
-#endif
+	STRESS_KLOG,
+	STRESS_LEASE,
 	STRESS_LINK,
-#if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
-    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
-	__STRESS_LOCKBUS,
-#define STRESS_LOCKBUS __STRESS_LOCKBUS
-#endif
-#if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
-	__STRESS_LOCKA,
-#define STRESS_LOCKA __STRESS_LOCKA
-#endif
-#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
-	__STRESS_LOCKF,
-#define STRESS_LOCKF __STRESS_LOCKF
-#endif
-#if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
-	__STRESS_LOCKOFD,
-#define STRESS_LOCKOFD __STRESS_LOCKOFD
-#endif
+	STRESS_LOCKBUS,
+	STRESS_LOCKA,
+	STRESS_LOCKF,
+	STRESS_LOCKOFD,
 	STRESS_LONGJMP,
 	STRESS_LSEARCH,
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
-	__STRESS_MADVISE,
-#define STRESS_MADVISE __STRESS_MADVISE
-#endif
+	STRESS_MADVISE,
 	STRESS_MALLOC,
 	STRESS_MATRIX,
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_membarrier)
-	__STRESS_MEMBARRIER,
-#define STRESS_MEMBARRIER __STRESS_MEMBARRIER
-#endif
+	STRESS_MEMBARRIER,
 	STRESS_MEMCPY,
-#if defined(__linux__) && defined(__NR_memfd_create)
-	__STRESS_MEMFD,
-#define STRESS_MEMFD __STRESS_MEMFD
-#endif
-#if defined(HAVE_LIB_BSD)
-	__STRESS_MERGESORT,
-#define STRESS_MERGESORT __STRESS_MERGESORT
-#endif
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
-	__STRESS_MINCORE,
-#define STRESS_MINCORE __STRESS_MINCORE
-#endif
+	STRESS_MEMFD,
+	STRESS_MERGESORT,
+	STRESS_MINCORE,
 	STRESS_MKNOD,
-#if defined(_POSIX_MEMLOCK_RANGE) && !defined(__minix__)
-	__STRESS_MLOCK,
-#define STRESS_MLOCK __STRESS_MLOCK
-#endif
+	STRESS_MLOCK,
 	STRESS_MMAP,
-#if defined(__linux__)
-	__STRESS_MMAPFORK,
-#define STRESS_MMAPFORK	__STRESS_MMAPFORK
-#endif
+	STRESS_MMAPFORK,
 	STRESS_MMAPMANY,
-#if defined(__linux__) && NEED_GLIBC(2,4,0)
-	__STRESS_MREMAP,
-#define STRESS_MREMAP __STRESS_MREMAP
-#endif
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,0,0)
-	__STRESS_MSG,
-#define STRESS_MSG __STRESS_MSG
-#endif
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-	__STRESS_MSYNC,
-#define STRESS_MSYNC __STRESS_MSYNC
-#endif
-#if defined(HAVE_LIB_RT) && defined(__linux__)
-	__STRESS_MQ,
-#define STRESS_MQ __STRESS_MQ
-#endif
+	STRESS_MREMAP,
+	STRESS_MSG,
+	STRESS_MSYNC,
+	STRESS_MQ,
 	STRESS_NICE,
 	STRESS_NULL,
-#if defined(__linux__) &&		\
-    defined(__NR_get_mempolicy) &&	\
-    defined(__NR_mbind) &&		\
-    defined(__NR_migrate_pages) &&	\
-    defined(__NR_move_pages) &&		\
-    defined(__NR_set_mempolicy)
-	__STRESS_NUMA,
-#define STRESS_NUMA __STRESS_NUMA
-#endif
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
-	__STRESS_OOM_PIPE,
-#define STRESS_OOM_PIPE __STRESS_OOM_PIPE
-#endif
-#if defined(__linux__)
-	__STRESS_OPCODE,
-#define STRESS_OPCODE __STRESS_OPCODE
-#endif
+	STRESS_NUMA,
+	STRESS_OOM_PIPE,
+	STRESS_OPCODE,
 	STRESS_OPEN,
-#if defined(__linux__)
-	__STRESS_PERSONALITY,
-#define STRESS_PERSONALITY __STRESS_PERSONALITY
-#endif
+	STRESS_PERSONALITY,
 	STRESS_PIPE,
 	STRESS_POLL,
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-	__STRESS_PROCFS,
-#define STRESS_PROCFS __STRESS_PROCFS
-#endif
-#if defined(HAVE_LIB_PTHREAD)
-	__STRESS_PTHREAD,
-#define STRESS_PTHREAD __STRESS_PTHREAD
-#endif
-#if defined(__linux__)
-	__STRESS_PTRACE,
-#define STRESS_PTRACE __STRESS_PTRACE
-#endif
-#if defined(__linux__)
-	__STRESS_PTY,
-#define STRESS_PTY __STRESS_PTY
-#endif
+	STRESS_PROCFS,
+	STRESS_PTHREAD,
+	STRESS_PTRACE,
+	STRESS_PTY,
 	STRESS_QSORT,
-#if defined(__linux__) && (		\
-    defined(Q_GETQUOTA) ||		\
-    defined(Q_GETFMT) ||		\
-    defined(Q_GETINFO) ||		\
-    defined(Q_GETSTATS) ||		\
-    defined(Q_SYNC))
-	__STRESS_QUOTA,
-#define STRESS_QUOTA __STRESS_QUOTA
-#endif
-#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
-	__STRESS_RDRAND,
-#define STRESS_RDRAND __STRESS_RDRAND
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
-	__STRESS_READAHEAD,
-#define STRESS_READAHEAD __STRESS_READAHEAD
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,3,0) && defined(__NR_remap_file_pages)
-	__STRESS_REMAP_FILE_PAGES,
-#define STRESS_REMAP_FILE_PAGES __STRESS_REMAP_FILE_PAGES
-#endif
+	STRESS_QUOTA,
+	STRESS_RDRAND,
+	STRESS_READAHEAD,
+	STRESS_REMAP_FILE_PAGES,
 	STRESS_RENAME,
 	STRESS_RESOURCES,
-#if defined(__linux__)
-	__STRESS_RLIMIT,
-#define STRESS_RLIMIT __STRESS_RLIMIT
-#endif
-#if !defined(__minix__) && !defined(__OpenBSD__)
-	__STRESS_RMAP,
-#define STRESS_RMAP __STRESS_RMAP
-#endif
-#if defined(__linux__)
-	__STRESS_RTC,
-#define STRESS_RTC __STRESS_RTC
-#endif
-#if defined(HAVE_LIB_SCTP)
-	__STRESS_SCTP,
-#define STRESS_SCTP __STRESS_SCTP
-#endif
-#if defined(__linux__) && defined(__NR_memfd_create)
-	__STRESS_SEAL,
-#define STRESS_SEAL __STRESS_SEAL
-#endif
-#if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
-	__STRESS_SECCOMP,
-#define STRESS_SECCOMP __STRESS_SECCOMP
-#endif
+	STRESS_RLIMIT,
+	STRESS_RMAP,
+	STRESS_RTC,
+	STRESS_SCTP,
+	STRESS_SEAL,
+	STRESS_SECCOMP,
 	STRESS_SEEK,
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-	__STRESS_SEMAPHORE_POSIX,
-#define STRESS_SEMAPHORE_POSIX __STRESS_SEMAPHORE_POSIX
-#endif
-#if defined(__linux__)
-	__STRESS_SEMAPHORE_SYSV,
-#define STRESS_SEMAPHORE_SYSV __STRESS_SEMAPHORE_SYSV
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,1,0)
-	__STRESS_SENDFILE,
-#define STRESS_SENDFILE __STRESS_SENDFILE
-#endif
-#if defined(HAVE_LIB_RT)
-	__STRESS_SHM_POSIX,
-#define STRESS_SHM_POSIX __STRESS_SHM_POSIX
-#endif
+	STRESS_SEMAPHORE_POSIX,
+	STRESS_SEMAPHORE_SYSV,
+	STRESS_SENDFILE,
+	STRESS_SHM_POSIX,
 	STRESS_SHM_SYSV,
-#if defined(__linux__) && NEED_GLIBC(2,8,0)
-	__STRESS_SIGFD,
-#define STRESS_SIGFD __STRESS_SIGFD
-#endif
+	STRESS_SIGFD,
 	STRESS_SIGFPE,
 	STRESS_SIGPENDING,
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-	__STRESS_SIGQUEUE,
-#define STRESS_SIGQUEUE __STRESS_SIGQUEUE
-#endif
+	STRESS_SIGQUEUE,
 	STRESS_SIGSEGV,
 	STRESS_SIGSUSPEND,
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-	__STRESS_SLEEP,
-#define STRESS_SLEEP __STRESS_SLEEP
-#endif
+	STRESS_SLEEP,
 	STRESS_SOCKET,
-#if defined(__linux__)
-	__STRESS_SOCKET_FD,
-#define STRESS_SOCKET_FD __STRESS_SOCKET_FD
-#endif
+	STRESS_SOCKET_FD,
 	STRESS_SOCKET_PAIR,
-#if defined(__linux__)
-	__STRESS_SPAWN,
-#define STRESS_SPAWN __STRESS_SPAWN
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
-	__STRESS_SPLICE,
-#define STRESS_SPLICE __STRESS_SPLICE
-#endif
+	STRESS_SPAWN,
+	STRESS_SPLICE,
 	STRESS_STACK,
-#if defined(__linux__)
-	__STRESS_STACKMMAP,
-#define STRESS_STACKMMAP __STRESS_STACKMMAP
-#endif
+	STRESS_STACKMMAP,
 	STRESS_STR,
 	STRESS_STREAM,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
-#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
-	__STRESS_SYNC_FILE,
-#define STRESS_SYNC_FILE __STRESS_SYNC_FILE
-#endif
+	STRESS_SYNC_FILE,
 	STRESS_SYSINFO,
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-	__STRESS_SYSFS,
-#define STRESS_SYSFS __STRESS_SYSFS
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
-	__STRESS_TEE,
-#define STRESS_TEE __STRESS_TEE
-#endif
-#if defined(HAVE_LIB_RT) && defined(__linux__)
-	__STRESS_TIMER,
-#define STRESS_TIMER __STRESS_TIMER
-#endif
-#if defined(__linux__)
-	__STRESS_TIMERFD,
-#define STRESS_TIMERFD __STRESS_TIMERFD
-#endif
-#if defined(__linux__)
-	__STRESS_TLB_SHOOTDOWN,
-#define STRESS_TLB_SHOOTDOWN __STRESS_TLB_SHOOTDOWN
-#endif
-#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
-	__STRESS_TSC,
-#define STRESS_TSC __STRESS_TSC
-#endif
+	STRESS_SYSFS,
+	STRESS_TEE,
+	STRESS_TIMER,
+	STRESS_TIMERFD,
+	STRESS_TLB_SHOOTDOWN,
+	STRESS_TSC,
 	STRESS_TSEARCH,
 	STRESS_UDP,
-#if defined(AF_PACKET)
-	__STRESS_UDP_FLOOD,
-#define STRESS_UDP_FLOOD __STRESS_UDP_FLOOD
-#endif
-#if defined(__linux__) && defined(__NR_unshare)
-	__STRESS_UNSHARE,
-#define STRESS_UNSHARE __STRESS_UNSHARE
-#endif
-#if defined(__linux__) || defined(__gnu_hurd__)
-	__STRESS_URANDOM,
-#define STRESS_URANDOM __STRESS_URANDOM
-#endif
-#if defined(__linux__) &&		\
-    defined(__NR_userfaultfd)
-	__STRESS_USERFAULTFD,
-#define STRESS_USERFAULTFD __STRESS_USERFAULTFD
-#endif
+	STRESS_UDP_FLOOD,
+	STRESS_UNSHARE,
+	STRESS_URANDOM,
+	STRESS_USERFAULTFD,
 	STRESS_UTIME,
-#if defined(HAVE_VECMATH)
-	__STRESS_VECMATH,
-#define STRESS_VECMATH __STRESS_VECMATH
-#endif
-	__STRESS_VFORK,
-#define STRESS_VFORK __STRESS_VFORK
+	STRESS_VECMATH,
+	STRESS_VFORK,
 	STRESS_VM,
-#if defined(__linux__) && \
-    defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev) && \
-    NEED_GLIBC(2,15,0)
-	__STRESS_VM_RW,
-#define STRESS_VM_RW __STRESS_VM_RW
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
-	__STRESS_VM_SPLICE,
-#define STRESS_VM_SPLICE __STRESS_VM_SPLICE
-#endif
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
-	__STRESS_WAIT,
-#define STRESS_WAIT __STRESS_WAIT
-#endif
+	STRESS_VM_RW,
+	STRESS_VM_SPLICE,
+	STRESS_WAIT,
 	STRESS_WCS,
-#if defined(__linux__) && defined(HAVE_XATTR_H)
-	__STRESS_XATTR,
-#define STRESS_XATTR __STRESS_XATTR
-#endif
-#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
-	__STRESS_YIELD,
-#define STRESS_YIELD __STRESS_YIELD
-#endif
+	STRESS_XATTR,
+	STRESS_YIELD,
 	STRESS_ZERO,
-#if defined(HAVE_LIB_Z)
-	__STRESS_ZLIB,
-#define STRESS_ZLIB __STRESS_ZLIB
-#endif
+	STRESS_ZLIB,
 	STRESS_ZOMBIE,
 	/* STRESS_MAX must be last one */
 	STRESS_MAX
@@ -1371,9 +1054,7 @@ typedef enum {
 	OPT_HDD = 'd',
 	OPT_DENTRY = 'D',
 	OPT_FORK = 'f',
-#if defined(STRESS_FALLOCATE)
 	OPT_FALLOCATE = 'F',
-#endif
 	OPT_IOSYNC = 'i',
 	OPT_HELP = 'h',
 	OPT_KEEP_NAME = 'k',
@@ -1390,12 +1071,8 @@ typedef enum {
 	OPT_SWITCH = 's',
 	OPT_SOCKET = 'S',
 	OPT_TIMEOUT = 't',
-#if defined(STRESS_TIMER)
 	OPT_TIMER = 'T',
-#endif
-#if defined(STRESS_URANDOM)
 	OPT_URANDOM = 'u',
-#endif
 	OPT_VERBOSE = 'v',
 	OPT_VERSION = 'V',
 	OPT_YIELD = 'y',
@@ -1406,40 +1083,28 @@ typedef enum {
 
 	OPT_LONG_OPS_START = 0x7f,
 
-#if defined(STRESS_AFFINITY)
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
 	OPT_AFFINITY_RAND,
-#endif
 
-#if defined(STRESS_AF_ALG)
 	OPT_AF_ALG,
 	OPT_AF_ALG_OPS,
-#endif
 
 	OPT_AGGRESSIVE,
 
-#if defined(STRESS_AIO)
 	OPT_AIO,
 	OPT_AIO_OPS,
 	OPT_AIO_REQUESTS,
-#endif
 
-#if defined(STRESS_AIO_LINUX)
 	OPT_AIO_LINUX,
 	OPT_AIO_LINUX_OPS,
 	OPT_AIO_LINUX_REQUESTS,
-#endif
 
-#if defined(STRESS_APPARMOR)
 	OPT_APPARMOR,
 	OPT_APPARMOR_OPS,
-#endif
 
-#if defined(STRESS_ATOMIC)
 	OPT_ATOMIC,
 	OPT_ATOMIC_OPS,
-#endif
 
 	OPT_BRK,
 	OPT_BRK_OPS,
@@ -1452,10 +1117,8 @@ typedef enum {
 	OPT_BIGHEAP_OPS,
 	OPT_BIGHEAP_GROWTH,
 
-#if defined(STRESS_BIND_MOUNT)
 	OPT_BIND_MOUNT,
 	OPT_BIND_MOUNT_OPS,
-#endif
 
 	OPT_CLASS,
 	OPT_CACHE_OPS,
@@ -1466,10 +1129,8 @@ typedef enum {
 	OPT_CACHE_WAYS,
 	OPT_CACHE_NO_AFFINITY,
 
-#if defined(STRESS_CAP)
 	OPT_CAP,
 	OPT_CAP_OPS,
-#endif
 
 	OPT_CHDIR,
 	OPT_CHDIR_OPS,
@@ -1480,42 +1141,29 @@ typedef enum {
 	OPT_CHOWN,
 	OPT_CHOWN_OPS,
 
-#if defined(STRESS_CLOCK)
 	OPT_CLOCK,
 	OPT_CLOCK_OPS,
-#endif
 
-#if defined(STRESS_CLONE)
 	OPT_CLONE,
 	OPT_CLONE_OPS,
 	OPT_CLONE_MAX,
-#endif
 
-#if defined(STRESS_CONTEXT)
 	OPT_CONTEXT,
 	OPT_CONTEXT_OPS,
-#endif
 
-#if defined(STRESS_COPY_FILE)
 	OPT_COPY_FILE,
 	OPT_COPY_FILE_OPS,
 	OPT_COPY_FILE_BYTES,
-#endif
 
 	OPT_CPU_OPS,
 	OPT_CPU_METHOD,
 	OPT_CPU_LOAD_SLICE,
 
-#if defined(STRESS_CPU_ONLINE)
 	OPT_CPU_ONLINE,
 	OPT_CPU_ONLINE_OPS,
-#endif
 
-
-#if defined(STRESS_CRYPT)
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
-#endif
 
 	OPT_DAEMON,
 	OPT_DAEMON_OPS,
@@ -1527,47 +1175,36 @@ typedef enum {
 	OPT_DIR,
 	OPT_DIR_OPS,
 
-#if defined(STRESS_DNOTIFY)
 	OPT_DNOTIFY,
 	OPT_DNOTIFY_OPS,
-#endif
 
 	OPT_DUP,
 	OPT_DUP_OPS,
 
-#if defined(STRESS_EPOLL)
 	OPT_EPOLL,
 	OPT_EPOLL_OPS,
 	OPT_EPOLL_PORT,
 	OPT_EPOLL_DOMAIN,
-#endif
 
-#if defined(STRESS_EVENTFD)
 	OPT_EVENTFD,
 	OPT_EVENTFD_OPS,
-#endif
 
-#if defined(STRESS_EXEC)
 	OPT_EXEC,
 	OPT_EXEC_OPS,
 	OPT_EXEC_MAX,
-#endif
 
-#if defined(STRESS_FALLOCATE)
 	OPT_FALLOCATE_OPS,
 	OPT_FALLOCATE_BYTES,
-#endif
+
 	OPT_FAULT,
 	OPT_FAULT_OPS,
 
 	OPT_FCNTL,
 	OPT_FCNTL_OPS,
 
-#if defined(STRESS_FIEMAP)
 	OPT_FIEMAP,
 	OPT_FIEMAP_OPS,
 	OPT_FIEMAP_BYTES,
-#endif
 
 	OPT_FIFO,
 	OPT_FIFO_OPS,
@@ -1590,10 +1227,8 @@ typedef enum {
 	OPT_FSTAT_OPS,
 	OPT_FSTAT_DIR,
 
-#if defined(STRESS_FULL)
 	OPT_FULL,
 	OPT_FULL_OPS,
-#endif
 
 	OPT_FUTEX,
 	OPT_FUTEX_OPS,
@@ -1601,31 +1236,23 @@ typedef enum {
 	OPT_GET,
 	OPT_GET_OPS,
 
-#if defined(STRESS_GETRANDOM)
 	OPT_GETRANDOM,
 	OPT_GETRANDOM_OPS,
-#endif
 
-#if defined(STRESS_GETDENT)
 	OPT_GETDENT,
 	OPT_GETDENT_OPS,
-#endif
 
-#if defined(STRESS_HANDLE)
 	OPT_HANDLE,
 	OPT_HANDLE_OPS,
-#endif
 
 	OPT_HDD_BYTES,
 	OPT_HDD_WRITE_SIZE,
 	OPT_HDD_OPS,
 	OPT_HDD_OPTS,
 
-#if defined(STRESS_HEAPSORT)
 	OPT_HEAPSORT,
 	OPT_HEAPSORT_OPS,
 	OPT_HEAPSORT_INTEGERS,
-#endif
 
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
@@ -1634,27 +1261,19 @@ typedef enum {
 	OPT_ICACHE,
 	OPT_ICACHE_OPS,
 
-#if defined(STRESS_ICMP_FLOOD)
 	OPT_ICMP_FLOOD,
 	OPT_ICMP_FLOOD_OPS,
-#endif
 
 	OPT_IGNITE_CPU,
 
-#if defined(STRESS_INOTIFY)
 	OPT_INOTIFY,
 	OPT_INOTIFY_OPS,
-#endif
 
-#if defined(STRESS_IONICE)
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
-#endif
 
-#if defined(STRESS_IOPRIO)
 	OPT_IOPRIO,
 	OPT_IOPRIO_OPS,
-#endif
 
 	OPT_IOSYNC_OPS,
 
@@ -1662,53 +1281,37 @@ typedef enum {
 	OPT_ITIMER_OPS,
 	OPT_ITIMER_FREQ,
 
-#if defined(STRESS_KCMP)
 	OPT_KCMP,
 	OPT_KCMP_OPS,
-#endif
 
-#if defined(STRESS_KEY)
 	OPT_KEY,
 	OPT_KEY_OPS,
-#endif
 
 	OPT_KILL,
 	OPT_KILL_OPS,
 
-#if defined(STRESS_KLOG)
 	OPT_KLOG,
 	OPT_KLOG_OPS,
-#endif
 
-#if defined(STRESS_LEASE)
 	OPT_LEASE,
 	OPT_LEASE_OPS,
 	OPT_LEASE_BREAKERS,
-#endif
 
 	OPT_LINK,
 	OPT_LINK_OPS,
 
-#if defined(STRESS_LOCKBUS)
 	OPT_LOCKBUS,
 	OPT_LOCKBUS_OPS,
-#endif
 
-#if defined(STRESS_LOCKA)
 	OPT_LOCKA,
 	OPT_LOCKA_OPS,
-#endif
 
-#if defined(STRESS_LOCKF)
 	OPT_LOCKF,
 	OPT_LOCKF_OPS,
 	OPT_LOCKF_NONBLOCK,
-#endif
 
-#if defined(STRESS_LOCKOFD)
 	OPT_LOCKOFD,
 	OPT_LOCKOFD_OPS,
-#endif
 
 	OPT_LOG_BRIEF,
 	OPT_LOG_FILE,
@@ -1720,18 +1323,14 @@ typedef enum {
 	OPT_LSEARCH_OPS,
 	OPT_LSEARCH_SIZE,
 
-#if defined(STRESS_MADVISE)
 	OPT_MADVISE,
 	OPT_MADVISE_OPS,
-#endif
 
 	OPT_MALLOC,
 	OPT_MALLOC_OPS,
 	OPT_MALLOC_BYTES,
 	OPT_MALLOC_MAX,
-#if defined(STRESS_MALLOPT)
 	OPT_MALLOC_THRESHOLD,
-#endif
 
 	OPT_MATRIX,
 	OPT_MATRIX_OPS,
@@ -1740,43 +1339,33 @@ typedef enum {
 
 	OPT_MAXIMIZE,
 
-#if defined(STRESS_MEMBARRIER)
 	OPT_MEMBARRIER,
 	OPT_MEMBARRIER_OPS,
-#endif
 
 	OPT_MEMCPY,
 	OPT_MEMCPY_OPS,
 
-#if defined(STRESS_MEMFD)
 	OPT_MEMFD,
 	OPT_MEMFD_OPS,
 	OPT_MEMFD_BYTES,
-#endif
 
-#if defined(STRESS_MERGESORT)
 	OPT_MERGESORT,
 	OPT_MERGESORT_OPS,
 	OPT_MERGESORT_INTEGERS,
-#endif
 
 	OPT_METRICS_BRIEF,
 
-#if defined(STRESS_MINCORE)
 	OPT_MINCORE,
 	OPT_MINCORE_OPS,
 	OPT_MINCORE_RAND,
-#endif
 
 	OPT_MKNOD,
 	OPT_MKNOD_OPS,
 
 	OPT_MINIMIZE,
 
-#if defined(STRESS_MLOCK)
 	OPT_MLOCK,
 	OPT_MLOCK_OPS,
-#endif
 
 	OPT_MMAP,
 	OPT_MMAP_OPS,
@@ -1785,34 +1374,26 @@ typedef enum {
 	OPT_MMAP_ASYNC,
 	OPT_MMAP_MPROTECT,
 
-#if defined(__linux__)
 	OPT_MMAPFORK,
 	OPT_MMAPFORK_OPS,
-#endif
 
 	OPT_MMAPMANY,
 	OPT_MMAPMANY_OPS,
 
-#if defined(STRESS_MREMAP)
 	OPT_MREMAP,
 	OPT_MREMAP_OPS,
 	OPT_MREMAP_BYTES,
-#endif
 
 	OPT_MSG,
 	OPT_MSG_OPS,
 
-#if defined(STRESS_MSYNC)
 	OPT_MSYNC,
 	OPT_MSYNC_BYTES,
 	OPT_MSYNC_OPS,
-#endif
 
-#if defined(STRESS_MQ)
 	OPT_MQ,
 	OPT_MQ_OPS,
 	OPT_MQ_SIZE,
-#endif
 
 	OPT_NICE,
 	OPT_NICE_OPS,
@@ -1823,63 +1404,43 @@ typedef enum {
 	OPT_NULL,
 	OPT_NULL_OPS,
 
-#if defined(STRESS_NUMA)
 	OPT_NUMA,
 	OPT_NUMA_OPS,
-#endif
 
-#if defined(STRESS_OOM_PIPE)
 	OPT_OOM_PIPE,
 	OPT_OOM_PIPE_OPS,
-#endif
 
-#if defined(STRESS_OPCODE)
 	OPT_OPCODE,
 	OPT_OPCODE_OPS,
-#endif
 
 	OPT_OPEN_OPS,
 
-#if defined(STRESS_PAGE_IN)
 	OPT_PAGE_IN,
-#endif
 	OPT_PATHOLOGICAL,
 
-#if defined(STRESS_PERF_STATS)
 	OPT_PERF_STATS,
-#endif
 
-#if defined(STRESS_PERSONALITY)
 	OPT_PERSONALITY,
 	OPT_PERSONALITY_OPS,
-#endif
 
 	OPT_PIPE_OPS,
-#if defined(F_SETPIPE_SZ)
 	OPT_PIPE_SIZE,
-#endif
 	OPT_PIPE_DATA_SIZE,
 
 	OPT_POLL_OPS,
 
-#if defined(STRESS_PROCFS)
 	OPT_PROCFS,
 	OPT_PROCFS_OPS,
-#endif
 
-#if defined(STRESS_PTHREAD)
 	OPT_PTHREAD,
 	OPT_PTHREAD_OPS,
 	OPT_PTHREAD_MAX,
-#endif
 
 	OPT_PTRACE,
 	OPT_PTRACE_OPS,
 
-#if defined(STRESS_PTY)
 	OPT_PTY,
 	OPT_PTY_OPS,
-#endif
 
 	OPT_QSORT,
 	OPT_QSORT_OPS,
@@ -1888,93 +1449,65 @@ typedef enum {
 	OPT_QUOTA,
 	OPT_QUOTA_OPS,
 
-#if defined(STRESS_RDRAND)
 	OPT_RDRAND,
 	OPT_RDRAND_OPS,
-#endif
 
-#if defined(STRESS_READAHEAD)
 	OPT_READAHEAD,
 	OPT_READAHEAD_OPS,
 	OPT_READAHEAD_BYTES,
-#endif
 
-#if defined(STRESS_REMAP_FILE_PAGES)
 	OPT_REMAP_FILE_PAGES,
 	OPT_REMAP_FILE_PAGES_OPS,
-#endif
 
 	OPT_RENAME_OPS,
 
 	OPT_RESOURCES,
 	OPT_RESOURCES_OPS,
 
-#if defined(STRESS_RLIMIT)
 	OPT_RLIMIT,
 	OPT_RLIMIT_OPS,
-#endif
 
-#if defined(STRESS_RMAP)
 	OPT_RMAP,
 	OPT_RMAP_OPS,
-#endif
 
-#if defined(STRESS_RTC)
 	OPT_RTC,
 	OPT_RTC_OPS,
-#endif
 
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
 
-#if defined(STRESS_SCTP)
 	OPT_SCTP,
 	OPT_SCTP_OPS,
 	OPT_SCTP_DOMAIN,
 	OPT_SCTP_PORT,
-#endif
 
-#if defined(STRESS_SEAL)
 	OPT_SEAL,
 	OPT_SEAL_OPS,
-#endif
 
-#if defined(STRESS_SECCOMP)
 	OPT_SECCOMP,
 	OPT_SECCOMP_OPS,
-#endif
 
 	OPT_SEEK,
 	OPT_SEEK_OPS,
-#if defined(FALLOC_FL_PUNCH_HOLE) && \
-    defined(FALLOC_FL_KEEP_SIZE)
-	__OPT_SEEK_PUNCH,
-#define	OPT_SEEK_PUNCH __OPT_SEEK_PUNCH
-#endif
+	OPT_SEEK_PUNCH,
 	OPT_SEEK_SIZE,
 
-#if defined(STRESS_SENDFILE)
 	OPT_SENDFILE,
 	OPT_SENDFILE_OPS,
 	OPT_SENDFILE_SIZE,
-#endif
 
 	OPT_SEMAPHORE_POSIX,
 	OPT_SEMAPHORE_POSIX_OPS,
 	OPT_SEMAPHORE_POSIX_PROCS,
 
-#if defined(STRESS_SEMAPHORE_SYSV)
 	OPT_SEMAPHORE_SYSV,
 	OPT_SEMAPHORE_SYSV_OPS,
 	OPT_SEMAPHORE_SYSV_PROCS,
-#endif
 
-#if defined(STRESS_SHM_POSIX)
 	OPT_SHM_POSIX,
 	OPT_SHM_POSIX_OPS,
 	OPT_SHM_POSIX_BYTES,
 	OPT_SHM_POSIX_OBJECTS,
-#endif
 
 	OPT_SHM_SYSV,
 	OPT_SHM_SYSV_OPS,
@@ -1983,10 +1516,8 @@ typedef enum {
 
 	OPT_SEQUENTIAL,
 
-#if defined(STRESS_SIGFD)
 	OPT_SIGFD,
 	OPT_SIGFD_OPS,
-#endif
 
 	OPT_SIGFPE,
 	OPT_SIGFPE_OPS,
@@ -1994,10 +1525,8 @@ typedef enum {
 	OPT_SIGPENDING,
 	OPT_SIGPENDING_OPS,
 
-#if defined(STRESS_SIGQUEUE)
 	OPT_SIGQUEUE,
 	OPT_SIGQUEUE_OPS,
-#endif
 
 	OPT_SIGSEGV,
 	OPT_SIGSEGV_OPS,
@@ -2005,11 +1534,9 @@ typedef enum {
 	OPT_SIGSUSPEND,
 	OPT_SIGSUSPEND_OPS,
 
-#if defined(STRESS_SLEEP)
 	OPT_SLEEP,
 	OPT_SLEEP_OPS,
 	OPT_SLEEP_MAX,
-#endif
 
 	OPT_SOCKET_OPS,
 	OPT_SOCKET_DOMAIN,
@@ -2018,11 +1545,9 @@ typedef enum {
 	OPT_SOCKET_PORT,
 	OPT_SOCKET_TYPE,
 
-#if defined(STRESS_SOCKET_FD)
 	OPT_SOCKET_FD,
 	OPT_SOCKET_FD_OPS,
 	OPT_SOCKET_FD_PORT,
-#endif
 
 	OPT_SOCKET_PAIR,
 	OPT_SOCKET_PAIR_OPS,
@@ -2032,20 +1557,16 @@ typedef enum {
 	OPT_SPAWN,
 	OPT_SPAWN_OPS,
 
-#if defined(STRESS_SPLICE)
 	OPT_SPLICE,
 	OPT_SPLICE_OPS,
 	OPT_SPLICE_BYTES,
-#endif
 
 	OPT_STACK,
 	OPT_STACK_OPS,
 	OPT_STACK_FILL,
 
-#if defined(STRESS_STACKMMAP)
 	OPT_STACKMMAP,
 	OPT_STACKMMAP_OPS,
-#endif
 
 	OPT_STR,
 	OPT_STR_OPS,
@@ -2060,63 +1581,47 @@ typedef enum {
 	OPT_SYMLINK,
 	OPT_SYMLINK_OPS,
 
-#if defined(STRESS_SYNC_FILE)
 	OPT_SYNC_FILE,
 	OPT_SYNC_FILE_OPS,
 	OPT_SYNC_FILE_BYTES,
-#endif
 
 	OPT_SYSINFO,
 	OPT_SYSINFO_OPS,
 
-#if defined(STRESS_SYSFS)
 	OPT_SYSFS,
 	OPT_SYSFS_OPS,
-#endif
 
 	OPT_SYSLOG,
 
-#if defined(STRESS_TEE)
 	OPT_TEE,
 	OPT_TEE_OPS,
-#endif
 
 	OPT_TASKSET,
 
 	OPT_TEMP_PATH,
 
 	OPT_THERMAL_ZONES,
-#if defined(STRESS_THRASH)
+
 	OPT_THRASH,
-#endif
 
-#if defined(PRCTL_TIMER_SLACK)
 	OPT_TIMER_SLACK,
-#endif
 
-#if defined(STRESS_TIMER)
 	OPT_TIMER_OPS,
 	OPT_TIMER_FREQ,
 	OPT_TIMER_RAND,
-#endif
 
-#if defined(STRESS_TIMERFD)
 	OPT_TIMERFD,
 	OPT_TIMERFD_OPS,
 	OPT_TIMERFD_FREQ,
 	OPT_TIMERFD_RAND,
-#endif
+
 	OPT_TIMES,
 
-#if defined(STRESS_TLB_SHOOTDOWN)
 	OPT_TLB_SHOOTDOWN,
 	OPT_TLB_SHOOTDOWN_OPS,
-#endif
 
-#if defined(STRESS_TSC)
 	OPT_TSC,
 	OPT_TSC_OPS,
-#endif
 
 	OPT_TSEARCH,
 	OPT_TSEARCH_OPS,
@@ -2126,98 +1631,67 @@ typedef enum {
 	OPT_UDP_OPS,
 	OPT_UDP_PORT,
 	OPT_UDP_DOMAIN,
-#if defined(IPPROTO_UDPLITE)
-	__OPT_UDP_LITE,
-#define OPT_UDP_LITE __OPT_UDP_LITE
-#endif
+	OPT_UDP_LITE,
 
-#if defined(STRESS_UDP_FLOOD)
 	OPT_UDP_FLOOD,
 	OPT_UDP_FLOOD_OPS,
 	OPT_UDP_FLOOD_DOMAIN,
-#endif
 
-#if defined(STRESS_UNSHARE)
 	OPT_UNSHARE,
 	OPT_UNSHARE_OPS,
-#endif
 
-#if defined(STRESS_URANDOM)
 	OPT_URANDOM_OPS,
-#endif
 
-#if defined(STRESS_USERFAULTFD)
 	OPT_USERFAULTFD,
 	OPT_USERFAULTFD_OPS,
 	OPT_USERFAULTFD_BYTES,
-#endif
 
 	OPT_UTIME,
 	OPT_UTIME_OPS,
 	OPT_UTIME_FSYNC,
 
-#if defined(STRESS_VECMATH)
 	OPT_VECMATH,
 	OPT_VECMATH_OPS,
-#endif
 
 	OPT_VERIFY,
 
-#if defined(STRESS_VFORK)
 	OPT_VFORK,
 	OPT_VFORK_OPS,
 	OPT_VFORK_MAX,
-#endif
 
 	OPT_VM_BYTES,
 	OPT_VM_HANG,
 	OPT_VM_KEEP,
-#ifdef MAP_POPULATE
 	OPT_VM_MMAP_POPULATE,
-#endif
-#ifdef MAP_LOCKED
 	OPT_VM_MMAP_LOCKED,
-#endif
 	OPT_VM_OPS,
 	OPT_VM_METHOD,
 
-#if defined(STRESS_VM_RW)
 	OPT_VM_RW,
 	OPT_VM_RW_OPS,
 	OPT_VM_RW_BYTES,
-#endif
 
-#if defined(STRESS_VM_SPLICE)
 	OPT_VM_SPLICE,
 	OPT_VM_SPLICE_OPS,
 	OPT_VM_SPLICE_BYTES,
-#endif
 
-#if defined(STRESS_WAIT)
 	OPT_WAIT,
 	OPT_WAIT_OPS,
-#endif
 
 	OPT_WCS,
 	OPT_WCS_OPS,
 	OPT_WCS_METHOD,
 
-#if defined(STRESS_XATTR)
 	OPT_XATTR,
 	OPT_XATTR_OPS,
-#endif
 
-#if defined(STRESS_YIELD)
 	OPT_YIELD_OPS,
-#endif
 
 	OPT_ZERO,
 	OPT_ZERO_OPS,
 
-#if defined(STRESS_ZLIB)
 	OPT_ZLIB,
 	OPT_ZLIB_OPS,
-#endif
 
 	OPT_ZOMBIE,
 	OPT_ZOMBIE_OPS,
@@ -2485,6 +1959,7 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
+extern WARN_UNUSED int stress_not_implemented(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
 
 /*
  *  Indicate a stress test failed because of limited resources

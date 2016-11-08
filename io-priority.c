@@ -78,7 +78,7 @@ int32_t get_opt_ionice_class(const char *const str)
  */
 int sys_ioprio_set(int which, int who, int ioprio)
 {
-#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_set)
+#if defined(__linux__) && defined(__NR_ioprio_set)
         return syscall(__NR_ioprio_set, which, who, ioprio);
 #else
 	(void)which;
@@ -96,7 +96,7 @@ int sys_ioprio_set(int which, int who, int ioprio)
  */
 int sys_ioprio_get(int which, int who)
 {
-#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_get)
+#if defined(__linux__) && defined(__NR_ioprio_get)
         return syscall(__NR_ioprio_get, which, who);
 #else
 	(void)which;
@@ -107,7 +107,7 @@ int sys_ioprio_get(int which, int who)
 #endif
 }
 
-#if defined(STRESS_IOPRIO) && defined(__NR_ioprio_set)
+#if defined(__linux__) && defined(__NR_ioprio_set)
 /*
  *  set_iopriority()
  *	check ioprio settings and set

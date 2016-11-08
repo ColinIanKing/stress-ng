@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SCTP)
+#if defined(HAVE_LIB_SCTP)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -57,6 +57,8 @@
 #define LOCALTIME_STREAM        0
 #endif
 
+#endif
+
 static int opt_sctp_domain = AF_INET;
 static int opt_sctp_port = DEFAULT_SCTP_PORT;
 
@@ -80,6 +82,8 @@ int stress_set_sctp_domain(const char *name)
 	return stress_set_net_domain(DOMAIN_ALL, "sctp-domain",
 				     name, &opt_sctp_domain);
 }
+
+#if defined(HAVE_LIB_SCTP)
 
 /*
  *  stress_sctp_client()
@@ -313,5 +317,13 @@ again:
 		return stress_sctp_server(counter, instance, max_ops, name, pid, ppid);
 	}
 }
-
+#else
+int stress_sctp(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

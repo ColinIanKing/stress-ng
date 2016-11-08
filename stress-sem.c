@@ -26,18 +26,20 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SEMAPHORE_POSIX)
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
+
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 #include <semaphore.h>
 #include <signal.h>
 #include <time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#endif
 
 static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_posix_procs = false;
@@ -49,6 +51,8 @@ void stress_set_semaphore_posix_procs(const char *optarg)
 	check_range("sem-procs", opt_semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }
+
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 /*
  *  stress_semaphore_posix_init()
@@ -206,5 +210,21 @@ reap:
 
 	return EXIT_SUCCESS;
 }
+#else
+void stress_semaphore_posix_init(void)
+{
+}
 
+void stress_semaphore_posix_destroy(void)
+{
+}
+
+int stress_sem(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

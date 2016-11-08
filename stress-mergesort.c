@@ -26,20 +26,36 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MERGESORT)
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#if defined(HAVE_LIB_BSD)
 #include <setjmp.h>
 #include <signal.h>
 #include <bsd/stdlib.h>
 
-static uint64_t opt_mergesort_size = DEFAULT_MERGESORT_SIZE;
-static bool set_mergesort_size = false;
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+#endif
+
+static uint64_t opt_mergesort_size = DEFAULT_MERGESORT_SIZE;
+static bool set_mergesort_size = false;
+
+/*
+ *  stress_set_mergesort_size()
+ *	set mergesort size
+ */
+void stress_set_mergesort_size(const void *optarg)
+{
+	set_mergesort_size = true;
+	opt_mergesort_size = get_uint64_byte(optarg);
+	check_range("mergesort-size", opt_mergesort_size,
+		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
+}
+
+#if defined(HAVE_LIB_BSD)
 
 /*
  *  stress_mergesort_handler()
@@ -53,18 +69,6 @@ static void MLOCKED stress_mergesort_handler(int dummy)
 		do_jmp = false;
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
-}
-
-/*
- *  stress_set_mergesort_size()
- *	set mergesort size
- */
-void stress_set_mergesort_size(const void *optarg)
-{
-	set_mergesort_size = true;
-	opt_mergesort_size = get_uint64_byte(optarg);
-	check_range("mergesort-size", opt_mergesort_size,
-		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
 }
 
 /*
@@ -212,5 +216,13 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_mergesort(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

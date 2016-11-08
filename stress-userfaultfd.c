@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_USERFAULTFD)
+#if defined(__linux__) && defined(__NR_userfaultfd)
 
 #include <stddef.h>
 #include <stdio.h>
@@ -56,13 +56,10 @@ typedef struct {
 	pid_t parent;
 } context_t;
 
+#endif
+
 static size_t opt_userfaultfd_bytes = DEFAULT_MMAP_BYTES;
 static bool set_userfaultfd_bytes = false;
-
-static int sys_userfaultfd(int flags)
-{
-	return syscall(__NR_userfaultfd, flags);
-}
 
 void stress_set_userfaultfd_bytes(const char *optarg)
 {
@@ -70,6 +67,13 @@ void stress_set_userfaultfd_bytes(const char *optarg)
 	opt_userfaultfd_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("userfaultfd-bytes", opt_userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+}
+
+#if defined(__linux__) && defined(__NR_userfaultfd)
+
+static int sys_userfaultfd(int flags)
+{
+	return syscall(__NR_userfaultfd, flags);
 }
 
 /*
@@ -438,5 +442,13 @@ int stress_userfaultfd(
 	}
 	return rc;
 }
-
+#else
+int stress_userfaultfd(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

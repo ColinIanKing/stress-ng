@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_AIO)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,12 +39,7 @@
 #include <aio.h>
 #include <fcntl.h>
 
-
 #define BUFFER_SZ	(16)
-
-static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
-static bool set_aio_requests = false;
-static volatile bool do_accounting = true;
 
 /* per request async I/O data */
 typedef struct {
@@ -54,6 +49,12 @@ typedef struct {
 	uint8_t		buffer[BUFFER_SZ];	/* Associated read/write buffer */
 	volatile uint64_t count;		/* Signal handled count */
 } io_req_t;
+
+static volatile bool do_accounting = true;
+#endif
+
+static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
+static bool set_aio_requests = false;
 
 void stress_set_aio_requests(const char *optarg)
 {
@@ -66,6 +67,7 @@ void stress_set_aio_requests(const char *optarg)
 	opt_aio_requests = (int)aio_requests;
 }
 
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
 /*
  *  aio_fill_buffer()
  *	fill buffer with some known pattern
@@ -279,5 +281,13 @@ finish:
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }
-
+#else
+int stress_aio(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

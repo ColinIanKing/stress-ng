@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_CLONE)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -36,9 +34,6 @@
 #include <sys/wait.h>
 
 #define CLONE_STACK_SIZE	(16*1024)
-
-static uint64_t opt_clone_max = DEFAULT_ZOMBIES;
-static bool set_clone_max = false;
 
 typedef struct clone {
 	pid_t	pid;
@@ -52,6 +47,12 @@ typedef struct {
 	clone_t *free;		/* List of free'd clones */
 	uint64_t length;	/* Length of list */
 } clone_list_t;
+
+
+static uint64_t opt_clone_max = DEFAULT_ZOMBIES;
+static bool set_clone_max = false;
+
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
 
 static clone_list_t clones;
 
@@ -118,7 +119,21 @@ static const int unshare_flags[] = {
 	CLONE_SYSVSEM,
 #endif
 };
+#endif
 
+/*
+ *  stress_set_clone_max()
+ *	set maximum number of clones allowed
+ */
+void stress_set_clone_max(const char *optarg)
+{
+	set_clone_max = true;
+	opt_clone_max = get_uint64_byte(optarg);
+	check_range("clone-max", opt_clone_max,
+		MIN_ZOMBIES, MAX_ZOMBIES);
+}
+
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
 
 /*
  *  stress_clone_new()
@@ -196,18 +211,6 @@ static void stress_clone_free(void)
 		free(clones.free);
 		clones.free = next;
 	}
-}
-
-/*
- *  stress_set_clone_max()
- *	set maximum number of clones allowed
- */
-void stress_set_clone_max(const char *optarg)
-{
-	set_clone_max = true;
-	opt_clone_max = get_uint64_byte(optarg);
-	check_range("clone-max", opt_clone_max,
-		MIN_ZOMBIES, MAX_ZOMBIES);
 }
 
 /*
@@ -292,5 +295,13 @@ int stress_clone(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_clone(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

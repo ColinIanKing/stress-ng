@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SENDFILE)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,8 +35,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(__linux__) && NEED_GLIBC(2,1,0)
 #include <sys/sendfile.h>
-
+#endif
 
 static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 static bool set_sendfile_size = false;
@@ -49,6 +49,8 @@ void stress_set_sendfile_size(const char *optarg)
 	check_range("sendfile-size", opt_sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
 }
+
+#if defined(__linux__) && NEED_GLIBC(2,1,0)
 
 /*
  *  stress_sendfile
@@ -120,5 +122,14 @@ dir_out:
 	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return rc;
+}
+#else
+int stress_sendfile(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

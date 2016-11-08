@@ -26,7 +26,8 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_LOCKBUS)
+#if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
+    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
 
 #include <stdio.h>
 #include <stdint.h>
@@ -106,5 +107,13 @@ int stress_lockbus(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_lockbus(
+        uint64_t *const counter,
+        const uint32_t instance,
+        const uint64_t max_ops,
+        const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

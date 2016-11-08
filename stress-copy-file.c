@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_COPY_FILE)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -38,6 +36,16 @@
 
 static uint64_t opt_copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 static bool set_copy_file_bytes;
+
+void stress_set_copy_file_bytes(const char *optarg)
+{
+	set_copy_file_bytes = true;
+	opt_copy_file_bytes =  get_uint64_byte(optarg);
+	check_range("copy-file-bytes", opt_copy_file_bytes,
+		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
+}
+
+#if defined(__linux__) && (__NR_copy_file_range)
 
 static int sys_copy_file_range(
 	int fd_in,
@@ -61,15 +69,6 @@ static int sys_copy_file_range(
 	errno = ENOSYS;
 	return -1;
 #endif
-}
-
-
-void stress_set_copy_file_bytes(const char *optarg)
-{
-	set_copy_file_bytes = true;
-	opt_copy_file_bytes =  get_uint64_byte(optarg);
-	check_range("copy-file-bytes", opt_copy_file_bytes,
-		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
 }
 
 /*
@@ -155,5 +154,13 @@ tidy_dir:
 
 	return rc;
 }
-
+#else
+int stress_copy_file(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

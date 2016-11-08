@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_BIND_MOUNT)
+#if defined(__linux__) && defined(MS_BIND) && defined(MS_REC)
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -117,6 +117,15 @@ int stress_bind_mount(
 	(void)waitpid(pid, &status, 0);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_bind_mount(
+        uint64_t *const counter,
+        const uint32_t instance,
+        const uint64_t max_ops,
+        const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 
 #endif

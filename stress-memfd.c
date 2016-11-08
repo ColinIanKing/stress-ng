@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MEMFD)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -53,6 +51,8 @@ void stress_set_memfd_bytes(const char *optarg)
 	check_range("memfd-bytes", opt_memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEMFD_BYTES);
 }
+
+#if defined(__linux__) && defined(__NR_memfd_create)
 
 /*
  *  Ugly hack until glibc defines this
@@ -296,5 +296,13 @@ again:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_memfd(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

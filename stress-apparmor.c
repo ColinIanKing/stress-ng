@@ -26,6 +26,8 @@
 
 #include "stress-ng.h"
 
+#if defined(__linux__) && defined(HAVE_APPARMOR)
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -38,22 +40,18 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#if defined(STRESS_APPARMOR)
 #include <sys/apparmor.h>
-#endif
 
 #define APPARMOR_BUF_SZ	(4096)
 
 typedef int (*apparmor_func)(const char *name,
 			     const uint64_t max_ops, uint64_t *counter);
 
-#if defined(STRESS_APPARMOR)
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
 
 extern char apparmor_data[];
 extern const size_t apparmor_data_len;
-#endif
 
 /*
  *  stress_apparmor_supported()
@@ -61,7 +59,6 @@ extern const size_t apparmor_data_len;
  */
 int stress_apparmor_supported(void)
 {
-#if defined(STRESS_APPARMOR)
 	int fd;
 	char path[PATH_MAX];
 
@@ -101,15 +98,9 @@ int stress_apparmor_supported(void)
 	(void)close(fd);
 
 	return 0;
-#else
-	pr_inf(stderr, "apparmor was not built in, missing apparmor "
-		"development headers\n");
-	return -1;
-#endif
 }
 
 
-#if defined(STRESS_APPARMOR)
 /*
  *  stress_apparmor_handler()
  *      signal handler
@@ -674,5 +665,22 @@ int stress_apparmor(
 	munmap(counters, counters_sz);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_apparmor_supported(void)
+{
+	pr_inf(stderr, "apparmor stressor will be skipped, "
+		"AppArmor is not available\n");
+	return -1;
+}
+
+int stress_apparmor(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+
 }
 #endif

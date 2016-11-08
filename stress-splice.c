@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SPLICE)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -46,6 +44,8 @@ void stress_set_splice_bytes(const char *optarg)
 	check_range("splice-bytes", opt_splice_bytes,
 		MIN_SPLICE_BYTES, MAX_SPLICE_BYTES);
 }
+
+#if defined(__linux__) && NEED_GLIBC(2,5,0)
 
 /*
  *  stress_splice
@@ -111,5 +111,13 @@ int stress_splice(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_splice(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

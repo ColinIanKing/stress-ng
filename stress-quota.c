@@ -26,7 +26,12 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_QUOTA)
+#if defined(__linux__) && (	\
+    defined(Q_GETQUOTA) ||	\
+    defined(Q_GETFMT) ||	\
+    defined(Q_GETINFO) ||	\
+    defined(Q_GETSTATS) ||	\
+    defined(Q_SYNC))
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -284,5 +289,13 @@ tidy:
 	mount_free(mnts, n_mounts);
 	return rc;
 }
-
+#else
+int stress_quota(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

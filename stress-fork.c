@@ -35,10 +35,8 @@
 
 static uint64_t opt_fork_max = DEFAULT_FORKS;
 static bool set_fork_max = false;
-#if defined(STRESS_VFORK)
 static uint64_t opt_vfork_max = DEFAULT_VFORKS;
 static bool set_vfork_max = false;
-#endif
 
 /*
  *  stress_set_fork_max()
@@ -52,7 +50,6 @@ void stress_set_fork_max(const char *optarg)
 		MIN_FORKS, MAX_FORKS);
 }
 
-#if defined(STRESS_VFORK)
 /*
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
@@ -64,7 +61,6 @@ void stress_set_vfork_max(const char *optarg)
 	check_range("vfork-max", opt_vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 }
-#endif
 
 /*
  *  stress_fork_fn()
@@ -142,7 +138,6 @@ int stress_fork(
 }
 
 
-#if defined(STRESS_VFORK)
 /*
  *  stress_vfork()
  *	stress by vforking and exiting
@@ -163,4 +158,3 @@ int stress_vfork(
 	return stress_fork_fn(counter, instance, max_ops,
 		name, vfork, opt_vfork_max);
 }
-#endif

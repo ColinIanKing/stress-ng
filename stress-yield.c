@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_YIELD)
+#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
 
 #include <stdlib.h>
 #include <string.h>
@@ -162,5 +162,14 @@ int stress_yield(
 	(void)munmap((void *)counters, counters_sz);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_yield(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

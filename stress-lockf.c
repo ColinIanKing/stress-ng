@@ -26,7 +26,8 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_LOCKF)
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+     (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -314,5 +315,13 @@ tidy:
 
 	return ret;
 }
-
+#else
+int stress_lockf(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

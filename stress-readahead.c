@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_READAHEAD)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -51,6 +49,8 @@ void stress_set_readahead_bytes(const char *optarg)
 	check_range("hdd-bytes", opt_readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
+
+#if defined(__linux__) && NEED_GLIBC(2,3,0)
 
 static int do_readahead(
 	const char *name,
@@ -226,5 +226,13 @@ finish:
 
 	return rc;
 }
-
+#else
+int stress_readahead(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

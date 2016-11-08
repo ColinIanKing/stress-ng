@@ -28,7 +28,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_INOTIFY)
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
 
 #include <stdio.h>
 #include <stdint.h>
@@ -724,5 +724,13 @@ int stress_inotify(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_inotify(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

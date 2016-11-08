@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_STACKMMAP)
+#if defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -185,5 +185,13 @@ tidy_dir:
 
 	return rc;
 }
-
+#else
+int stress_stackmmap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

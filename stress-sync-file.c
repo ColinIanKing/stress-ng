@@ -26,21 +26,16 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SYNC_FILE)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <inttypes.h>
 #include <fcntl.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static off_t opt_sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
-static bool set_sync_file_bytes = false;
-
+#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
 static const int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE,
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE | SYNC_FILE_RANGE_WAIT_AFTER,
@@ -49,6 +44,10 @@ static const int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_AFTER,
 	0	/* No-op */
 };
+#endif
+
+static off_t opt_sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
+static bool set_sync_file_bytes = false;
 
 void stress_set_sync_file_bytes(const char *optarg)
 {
@@ -57,6 +56,8 @@ void stress_set_sync_file_bytes(const char *optarg)
 	check_range("sync_file-bytes", opt_sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 }
+
+#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
 
 /*
  *  shrink and re-allocate the file to be sync'd
@@ -170,5 +171,14 @@ int stress_sync_file(
 	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_sync_file(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

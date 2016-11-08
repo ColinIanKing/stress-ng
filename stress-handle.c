@@ -26,7 +26,8 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_HANDLE)
+#if defined(__linux__) && defined(__NR_name_to_handle_at) && \
+    defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -183,5 +184,14 @@ int stress_handle(
 	free_mount_info(mounts);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_handle(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

@@ -26,18 +26,26 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_AIO_LINUX)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+
+#if defined(__linux__) &&	\
+    defined(HAVE_LIB_AIO) &&	\
+    defined(__NR_io_setup) &&	\
+    defined(__NR_io_destroy) &&	\
+    defined(__NR_io_submit) &&	\
+    defined(__NR_io_getevents)
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libaio.h>
+
+#endif
 
 #define BUFFER_SZ	(4096)
 
@@ -54,6 +62,13 @@ void stress_set_aio_linux_requests(const char *optarg)
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
 	opt_aio_linux_requests = aio_linux_requests;
 }
+
+#if defined(__linux__) &&	\
+    defined(HAVE_LIB_AIO) &&	\
+    defined(__NR_io_setup) &&	\
+    defined(__NR_io_destroy) &&	\
+    defined(__NR_io_submit) &&	\
+    defined(__NR_io_getevents)
 
 /*
  *  aio_linux_fill_buffer()
@@ -178,5 +193,13 @@ finish:
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }
-
+#else
+int stress_aiol(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

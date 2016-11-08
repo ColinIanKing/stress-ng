@@ -47,7 +47,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_UDP_FLOOD)
 
 static int opt_udp_flood_domain = AF_INET;
 
@@ -59,6 +58,8 @@ int stress_set_udp_flood_domain(const char *name)
 {
 	return stress_set_net_domain(DOMAIN_INET_ALL, "udp-flood-domain", name, &opt_udp_flood_domain);
 }
+
+#if defined(AF_PACKET)
 
 /*
  *  stress_udp_flood
@@ -108,5 +109,13 @@ int stress_udp_flood(
 
 	return rc;
 }
-
+#else
+int stress_udp_flood(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

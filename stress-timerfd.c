@@ -26,20 +26,23 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_TIMERFD)
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <signal.h>
+
+#if defined(__linux__)
 #include <time.h>
 #include <sys/timerfd.h>
 
 static volatile uint64_t timerfd_counter = 0;
 static int timerfd;
+static double rate_ns;
+#endif
+
 static uint64_t opt_timerfd_freq = DEFAULT_TIMERFD_FREQ;
 static bool set_timerfd_freq = false;
-static double rate_ns;
 
 /*
  *  stress_set_timerfd_freq()
@@ -52,6 +55,8 @@ void stress_set_timerfd_freq(const char *optarg)
 	check_range("timerfd-freq", opt_timerfd_freq,
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_timerfd_set()
@@ -161,5 +166,14 @@ int stress_timerfd(
 	(void)close(timerfd);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_timerfd(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

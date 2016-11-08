@@ -26,21 +26,22 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_TIMER)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <signal.h>
 #include <time.h>
 
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 static volatile uint64_t timer_counter = 0;
 static timer_t timerid;
-static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 static uint64_t overruns = 0;
-static bool set_timer_freq = false;
 static double rate_ns;
 static double start;
+#endif
+
+static bool set_timer_freq = false;
+static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
 
 /*
  *  stress_set_timer_freq()
@@ -53,6 +54,8 @@ void stress_set_timer_freq(const char *optarg)
 	check_range("timer-freq", opt_timer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 }
+
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 
 /*
  *  stress_timer_set()
@@ -177,5 +180,14 @@ int stress_timer(
 		name, overruns, instance);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_timer(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

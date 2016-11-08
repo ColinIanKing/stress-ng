@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_OOM_PIPE)
+#if defined(__linux__) && defined(F_SETPIPE_SZ)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -292,5 +292,13 @@ int stress_oom_pipe(
 		counter, instance, max_ops, name,
 		max_pipe_size, max_pipes);
 }
-
+#else
+int stress_oom_pipe(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

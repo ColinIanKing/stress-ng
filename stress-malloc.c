@@ -37,7 +37,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#if defined(STRESS_MALLOPT)
+#if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
 #endif
 
@@ -47,10 +47,8 @@ static bool set_malloc_bytes = false;
 static size_t opt_malloc_max = DEFAULT_MALLOC_MAX;
 static bool set_malloc_max = false;
 
-#if defined(STRESS_MALLOPT)
 static int opt_malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 static bool set_malloc_threshold = false;
-#endif
 
 void stress_set_malloc_bytes(const char *optarg)
 {
@@ -68,7 +66,6 @@ void stress_set_malloc_max(const char *optarg)
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
 }
 
-#if defined(STRESS_MALLOPT)
 void stress_set_malloc_threshold(const char *optarg)
 {
 	set_malloc_threshold = true;
@@ -76,7 +73,6 @@ void stress_set_malloc_threshold(const char *optarg)
 	check_range("malloc-threshold", opt_malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
 }
-#endif
 
 /*
  *  stress_alloc_size()
@@ -118,7 +114,7 @@ int stress_malloc(
 			opt_malloc_max = MIN_MALLOC_MAX;
 	}
 
-#if defined(STRESS_MALLOPT)
+#if defined(__GNUC__) && defined(__linux__)
 	if (set_malloc_threshold)
 		mallopt(M_MMAP_THRESHOLD, opt_malloc_threshold);
 #endif

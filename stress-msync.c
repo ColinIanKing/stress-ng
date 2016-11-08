@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MSYNC)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,10 +40,13 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-static size_t opt_msync_bytes = DEFAULT_MSYNC_BYTES;
-static bool set_msync_bytes = false;
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
+#endif
+
+static size_t opt_msync_bytes = DEFAULT_MSYNC_BYTES;
+static bool set_msync_bytes = false;
 
 void stress_set_msync_bytes(const char *optarg)
 {
@@ -54,6 +56,7 @@ void stress_set_msync_bytes(const char *optarg)
 		MIN_MSYNC_BYTES, MAX_MSYNC_BYTES);
 }
 
+#if !defined(__gnu_hurd__) && !defined(__minix__)
 /*
  *  stress_page_check()
  *	check if mmap'd data is sane
@@ -252,5 +255,13 @@ err:
 			name, sigbus_count);
 	return rc;
 }
-
+#else
+int stress_msync(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

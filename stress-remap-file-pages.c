@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_REMAP_FILE_PAGES)
+#if defined(__linux__) && NEED_GLIBC(2,3,0) && defined(__NR_remap_file_pages)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -169,5 +169,13 @@ int stress_remap(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_remap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

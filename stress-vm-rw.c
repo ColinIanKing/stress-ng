@@ -26,13 +26,17 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_VM_RW)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <signal.h>
+
+#if defined(__linux__) &&		\
+    defined(__NR_process_vm_readv) &&	\
+    defined(__NR_process_vm_writev) &&	\
+    NEED_GLIBC(2,15,0)
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/mman.h>
@@ -57,6 +61,8 @@ typedef struct {
 	uint8_t val;	/* Value to check */
 } addr_msg_t;
 
+#endif
+
 static size_t opt_vm_rw_bytes = DEFAULT_VM_RW_BYTES;
 static bool set_vm_rw_bytes = false;
 
@@ -67,6 +73,11 @@ void stress_set_vm_rw_bytes(const char *optarg)
 	check_range("vm-rw-bytes", opt_vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
 }
+
+#if defined(__linux__) &&		\
+    defined(__NR_process_vm_readv) &&	\
+    defined(__NR_process_vm_writev) &&	\
+    NEED_GLIBC(2,15,0)
 
 static int stress_vm_child(void *arg)
 {
@@ -329,5 +340,13 @@ int stress_vm_rw(
 	}
 	return stress_vm_parent(&ctxt);
 }
-
+#else
+int stress_vm_rw(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

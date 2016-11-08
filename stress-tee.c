@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_TEE)
+#if defined(__linux__) && NEED_GLIBC(2,5,0)
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -209,5 +209,14 @@ tidy_child1:
 	(void)close(fd);
 
 	return ret;
+}
+#else
+int stress_tee(
+        uint64_t *const counter,
+        const uint32_t instance,
+        const uint64_t max_ops,
+        const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_IOPRIO)
+#if defined(__linux__) && defined(__NR_ioprio_set) && defined(__NR_ioprio_get)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -182,5 +182,13 @@ cleanup_dir:
 
 	return rc;
 }
-
+#else
+int stress_ioprio(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

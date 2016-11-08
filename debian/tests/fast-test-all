@@ -47,6 +47,9 @@ do
 		3)	echo "$s SKIPPED (out of resources or missing syscall)"
 			sk=$((sk + 1))
 			;;
+		4)	echo "$s SKIPPED (stressor not implemented on this machine)"
+			sk=$((sk + 1))
+			;;
 		*)	echo "$s SKIPPED (unknown error return $ret)"
 			sk=$((sk + 1))
 			;;

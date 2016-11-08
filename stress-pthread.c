@@ -26,17 +26,17 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_PTHREAD)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <pthread.h>
 #include <errno.h>
 #include <signal.h>
+#if defined(HAVE_LIB_PTHREAD)
+#include <pthread.h>
+
 #if defined(__linux__)
 /* For get_robust_list on Linux: */
 #include <syscall.h>
@@ -46,13 +46,16 @@
 #endif
 #endif
 
-static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
-static bool set_pthread_max = false;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool thread_terminate;
 static uint64_t pthread_count;
 static sigset_t set;
+
+#endif
+
+static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
+static bool set_pthread_max = false;
 
 void stress_set_pthread_max(const char *optarg)
 {
@@ -71,6 +74,8 @@ void stress_adjust_pthread_max(uint64_t max)
 			opt_pthread_max);
 	}
 }
+
+#if defined(HAVE_LIB_PTHREAD)
 
 #if defined(__linux__) && defined(__NR_get_robust_list)
 static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
@@ -284,5 +289,13 @@ reap:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_pthread(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

@@ -26,11 +26,12 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_LEASE)
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 #include <setjmp.h>
 #include <string.h>
 #include <unistd.h>
@@ -44,6 +45,8 @@
 #endif
 
 static uint64_t lease_sigio;
+#endif
+
 static uint64_t opt_lease_breakers = DEFAULT_LEASE_BREAKERS;
 static bool set_lease_breakers = false;
 
@@ -54,6 +57,8 @@ void stress_set_lease_breakers(const char *optarg)
 	check_range("lease-breakers", opt_lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
 }
+
+#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 
 /*
  *  stress_lease_handler()
@@ -205,5 +210,13 @@ reap:
 
 	return ret;
 }
-
+#else
+int stress_lease(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

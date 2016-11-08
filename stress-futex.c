@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_FUTEX)
+#if defined(__linux__) && defined(__NR_futex)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,5 +159,13 @@ again:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_futex(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

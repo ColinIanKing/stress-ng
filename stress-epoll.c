@@ -26,7 +26,8 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_EPOLL)
+#define MAX_EPOLL_EVENTS 	(1024)
+#define MAX_SERVERS		(4)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <signal.h>
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 #include <time.h>
 #include <unistd.h>
 #include <errno.h>
@@ -55,14 +57,6 @@
 #include <sched.h>
 #endif
 
-#define MAX_EPOLL_EVENTS 	(1024)
-#define MAX_SERVERS		(4)
-
-static int opt_epoll_domain = AF_UNIX;
-static int opt_epoll_port = DEFAULT_EPOLL_PORT;
-static int max_servers = 1;
-static timer_t epoll_timerid;
-
 typedef void (epoll_func_t)(
 	const int child,
 	uint64_t *const counter,
@@ -70,6 +64,14 @@ typedef void (epoll_func_t)(
 	const uint64_t max_ops,
 	const char *name,
 	const pid_t ppid);
+
+static timer_t epoll_timerid;
+
+#endif
+
+static int max_servers = 1;
+static int opt_epoll_domain = AF_UNIX;
+static int opt_epoll_port = DEFAULT_EPOLL_PORT;
 
 /*
  *  stress_set_epoll_port()
@@ -106,6 +108,8 @@ int stress_set_epoll_domain(const char *name)
 
 	return ret;
 }
+
+#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 
 /*
  * epoll_timer_handler()
@@ -598,5 +602,13 @@ reap:
 
 	return rc;
 }
-
+#else
+int stress_epoll(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

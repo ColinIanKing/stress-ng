@@ -26,8 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MREMAP)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -50,6 +48,8 @@ void stress_set_mremap_bytes(const char *optarg)
 	check_range("mmap-bytes", opt_mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
 }
+
+#if defined(__linux__) && NEED_GLIBC(2,4,0)
 
 #if defined(MREMAP_FIXED)
 /*
@@ -379,5 +379,13 @@ again:
 
 	return rc;
 }
-
+#else
+int stress_mremap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

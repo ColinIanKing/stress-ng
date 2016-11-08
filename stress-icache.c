@@ -32,7 +32,8 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_ICACHE)
+#if (defined(STRESS_X86) || defined(STRESS_ARM)) && \
+    defined(__GNUC__) && NEED_GNUC(4,6,0)
 
 #define SIZE	(4096)
 
@@ -147,5 +148,14 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_icache(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

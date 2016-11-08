@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MADVISE)
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -233,5 +233,13 @@ int stress_madvise(
 			name, sigbus_count);
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_madvise(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

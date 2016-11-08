@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SECCOMP)
+#if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
 
 #include <stdio.h>
 #include <stddef.h>
@@ -275,5 +275,13 @@ int stress_seccomp(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_seccomp(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

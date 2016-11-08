@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SEMAPHORE_SYSV)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,13 +34,12 @@
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
+
+#if defined(__linux__)
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
-
-static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
-static bool set_semaphore_sysv_procs = false;
 
 typedef union _semun {
 	int              val;	/* Value for SETVAL */
@@ -49,6 +47,10 @@ typedef union _semun {
 	unsigned short  *array;	/* Array for GETALL, SETALL */
 	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */
 } semun_t;
+#endif
+
+static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
+static bool set_semaphore_sysv_procs = false;
 
 void stress_set_semaphore_sysv_procs(const char *optarg)
 {
@@ -57,6 +59,8 @@ void stress_set_semaphore_sysv_procs(const char *optarg)
 	check_range("sem-procs", opt_semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_semaphore_sysv_init()
@@ -301,5 +305,21 @@ reap:
 
 	return EXIT_SUCCESS;
 }
+#else
+void stress_semaphore_sysv_init(void)
+{
+}
 
+void stress_semaphore_sysv_destroy(void)
+{
+}
+
+int stress_sem_sysv(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

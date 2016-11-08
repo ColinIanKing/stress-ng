@@ -26,15 +26,12 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_FALLOCATE)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <inttypes.h>
 #include <fcntl.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -48,6 +45,8 @@ void stress_set_fallocate_bytes(const char *optarg)
 	check_range("fallocate-bytes", opt_fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 }
+
+#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
 
 #if defined(__linux__)
 static const int modes[] = {
@@ -184,5 +183,14 @@ int stress_fallocate(
 	(void)stress_temp_dir_rm(name, pid, instance);
 
 	return EXIT_SUCCESS;
+}
+#else
+int stress_fallocate(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

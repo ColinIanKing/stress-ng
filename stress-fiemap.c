@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_FIEMAP)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,11 +36,13 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-
+#if defined(__linux__) && defined(FS_IOC_FIEMAP)
 #include <linux/fs.h>
 #include <linux/fiemap.h>
+#endif
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
+
 
 static uint64_t opt_fiemap_size = DEFAULT_FIEMAP_SIZE;
 static bool set_fiemap_size = false;
@@ -53,6 +54,8 @@ void stress_set_fiemap_size(const char *optarg)
 	check_range("fiemap-size", opt_fiemap_size,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
 }
+
+#if defined(__linux__) && defined(FS_IOC_FIEMAP)
 
 /*
  *  stress_fiemap_writer()
@@ -271,5 +274,13 @@ clean:
 	(void)stress_temp_dir_rm(name, mypid, instance);
 	return rc;
 }
-
+#else
+int stress_fiemap(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

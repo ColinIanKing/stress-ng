@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_SLEEP)
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,10 +40,12 @@
 #include <signal.h>
 #include <time.h>
 
-static uint64_t opt_sleep_max = DEFAULT_SLEEP;
-static bool set_sleep_max = false;
 static bool thread_terminate;
 static sigset_t set;
+#endif
+
+static uint64_t opt_sleep_max = DEFAULT_SLEEP;
+static bool set_sleep_max = false;
 
 void stress_set_sleep_max(const char *optarg)
 {
@@ -62,6 +64,8 @@ void stress_adjust_sleep_max(uint64_t max)
 			opt_sleep_max);
 	}
 }
+
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 /*
  *  stress_pthread_func()
@@ -217,5 +221,13 @@ tidy:
 
 	return ret;
 }
-
+#else
+int stress_sleep(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

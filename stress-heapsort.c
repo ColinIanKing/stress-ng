@@ -26,20 +26,37 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_HEAPSORT)
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
+#if defined(HAVE_LIB_BSD)
 #include <setjmp.h>
 #include <signal.h>
 #include <bsd/stdlib.h>
 
-static uint64_t opt_heapsort_size = DEFAULT_HEAPSORT_SIZE;
-static bool set_heapsort_size = false;
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
+
+#endif
+
+static uint64_t opt_heapsort_size = DEFAULT_HEAPSORT_SIZE;
+static bool set_heapsort_size = false;
+
+/*
+ *  stress_set_heapsort_size()
+ *	set heapsort size
+ */
+void stress_set_heapsort_size(const void *optarg)
+{
+	set_heapsort_size = true;
+	opt_heapsort_size = get_uint64_byte(optarg);
+	check_range("heapsort-size", opt_heapsort_size,
+		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
+}
+
+#if defined(HAVE_LIB_BSD)
 
 /*
  *  stress_heapsort_handler()
@@ -53,18 +70,6 @@ static void MLOCKED stress_heapsort_handler(int dummy)
 		do_jmp = false;
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
-}
-
-/*
- *  stress_set_heapsort_size()
- *	set heapsort size
- */
-void stress_set_heapsort_size(const void *optarg)
-{
-	set_heapsort_size = true;
-	opt_heapsort_size = get_uint64_byte(optarg);
-	check_range("heapsort-size", opt_heapsort_size,
-		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
 }
 
 /*
@@ -212,5 +217,13 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_heapsort(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_ICMP_FLOOD)
+#if defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -171,5 +171,20 @@ err_socket:
 err:
 	return rc;
 }
+#else
 
+int stress_icmp_flood_supported(void)
+{
+	pr_inf(stderr, "icmp flood stressor will be skipped, not supported on this machine\n");
+	return -1;
+}
+
+int stress_icmp_flood(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

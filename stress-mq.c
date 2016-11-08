@@ -26,7 +26,6 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_MQ)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,6 +36,8 @@
 #include <signal.h>
 #include <limits.h>
 #include <errno.h>
+
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -48,6 +49,7 @@ typedef struct {
 	uint64_t	value;
 	bool		stop;
 } msg_t;
+#endif
 
 static int opt_mq_size = DEFAULT_MQ_SIZE;
 static bool set_mq_size = false;
@@ -62,6 +64,8 @@ void stress_set_mq_size(const char *optarg)
         check_range("mq-size", sz,
                 MIN_MQ_SIZE, MAX_MQ_SIZE);
 }
+
+#if defined(HAVE_LIB_RT) && defined(__linux__)
 
 static void stress_mq_notify_func(union sigval s)
 {
@@ -257,5 +261,13 @@ again:
 	}
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_mq(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

@@ -26,7 +26,7 @@
 
 #include "stress-ng.h"
 
-#if defined(STRESS_RLIMIT)
+#if defined(__linux__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,5 +125,13 @@ int stress_rlimit(
 
 	return EXIT_SUCCESS;
 }
-
+#else
+int stress_rlimit(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	return stress_not_implemented(counter, instance, max_ops, name);
+}
 #endif

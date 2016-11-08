@@ -33,7 +33,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#if defined(STRESS_TSC)
+#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 
 static bool tsc_supported = false;
 
@@ -166,11 +166,6 @@ int stress_tsc(
         const uint64_t max_ops,
         const char *name)
 {
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
-
-	return EXIT_SUCCESS;
+	return stress_not_implemented(counter, instance, max_ops, name);
 }
 #endif

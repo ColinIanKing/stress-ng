@@ -99,14 +99,14 @@ int stress_udp(
 {
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 	int proto = (opt_flags & OPT_FLAGS_UDP_LITE) ?
 		IPPROTO_UDPLITE : IPPROTO_UDP;
 #else
 	int proto = 0;
 #endif
 
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 	if ((proto == IPPROTO_UDPLITE) &&
 	    (opt_udp_domain == AF_UNIX)) {
 		proto = 0;
@@ -140,7 +140,7 @@ again:
 			socklen_t len;
 			int fd;
 			int j = 0;
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 			int val;
 #endif
 
@@ -153,7 +153,7 @@ again:
 			stress_set_sockaddr(name, instance, ppid,
 				opt_udp_domain, opt_udp_port,
 				&addr, &len, NET_ADDR_ANY);
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 			if (proto == IPPROTO_UDPLITE) {
 				val = 8;	/* Just the 8 byte header */
 				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
@@ -195,7 +195,7 @@ again:
 		char buf[UDP_BUF];
 		int fd, status;
 		int so_reuseaddr = 1;
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 		int val;
 #endif
 		socklen_t addr_len = 0;
@@ -215,7 +215,7 @@ again:
 		stress_set_sockaddr(name, instance, ppid,
 			opt_udp_domain, opt_udp_port,
 			&addr, &addr_len, NET_ADDR_ANY);
-#if defined(OPT_UDP_LITE)
+#if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
 			val = 8;	/* Just the 8 byte header */
 			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
