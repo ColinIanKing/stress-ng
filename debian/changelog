@@ -1,3 +1,73 @@
+stress-ng (0.07.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: Add exit status 4 EXIT_NOT_IMPLEMENTED to documentation
+  * Treewide: remove messy #if defined() build checks
+  * Allocate io_reqs on heap rather than alloca
+  * Makefile: re-format PEDANTIC CFLAGS
+  * stress-fiemap: fix up --fiemap-bytes option
+  * stress-sock-fd: add --sockfd-port option
+  * Add PEDANTIC build flags for extra checking
+  * stress-icache: fix volatile cast warning
+  * stress-vm: fix volatile cast warning
+  * stress-socket: fix shadowing on addr
+  * stress-mincore: addr does not need to be volatile
+  * stress-ng, thermal_zone, remove shared param, it is global
+  * parse-opts: fix char * cast warnings
+  * perf: remove (char *) cast
+  * helper: fix warnings
+  * use gnu printf style attributes to pr_yaml
+  * helper: cast pointer to const to fix warning
+  * stress-poll: fix shadowing on ret, rename one to rc
+  * Fix various bad castings for munge_underscore
+  * stress-oom-pipe: fix shadowing on fd, rename to pfd to avoid confusion
+  * stress-mq: remove shadowing variable attr
+  * stress-hdd: remove duplicate declarations of ret; make it a ssize_t
+  * stress-ng: make helper functions static
+  * thrash: rename pid to thrash_pid
+  * stress-zombie: make helper functions static
+  * stress-zlib: make helper functions static
+  * stress-xattr: remove redundant shadowing variable ret
+  * stress-mremap: fix shadowing on rc, remove rc
+  * stress-link: fix shadowing on ret
+  * stress-rw-vm: fix shadowing of ret
+  * stress-vm-rw: make helper functions static
+  * stress-unshare: make helper function static
+  * stress-tsearch: constify pointers
+  * stress-socket-fd: make helper function static
+  * stress-seek: fix shadowing on ret
+  * stress-readahead: make helper function static, fix shadowing on ret
+  * stress-qsort: constify pointers
+  * stress-mlock: constify addr pointer cast
+  * stress-mergesort: constify pointers
+  * stress-memfd: fix shadowing of variable name
+  * stress-fork: make helper function static
+  * stress-lsearch: constify pointer casts
+  * stress-itimer: make helper function static
+  * stress-iopri: remove local pgrp that shadows global
+  * stress-inotify: make helper func static, fix some const casts
+  * stress-heapsort: fix constify warnings
+  * stress-handle: make helper functions static
+  * stress-fp-error: fix float comparison
+  * stress-fifo: make helper function static, fix ret shadowing
+  * stress-filename: make helper functions static
+  * stress-fiemap: make helper functions static
+  * stress-dnotify: make dnotify_attrib_file static, fix newpath const
+  * stress-dentry: fix shadowing of variable j
+  * stress-bsearch: correctly constify casts on i1, i2
+  * stress-bind-mount: make stress_bind_mount_child static
+  * stress-cpu-online: make stress_cpu_online_set static
+  * stress-clone: make stress_clone* helper functions static
+  * stress-bsearch: constify i1 and i2
+  * stress-aio-linux: remove duplicate and shadowing variable ret
+  * stress-af-alg: make helper functions static
+  * Remove redundant re-declaration of mwc_seed
+  * stress-cap: sscanf on pid_t should be %d
+  * Make munge_underscore arg const char *
+  * Mungify _ to - in stressor names in --stressors option
+
+ -- Colin King <colin.king@canonical.com>  Tue, 8 Nov 2016 15:58:11 +0000
+
 stress-ng (0.07.01-1) unstable; urgency=medium
 
   * Makefile: bump version
