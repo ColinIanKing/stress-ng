@@ -52,6 +52,7 @@ int stress_ioprio(
 {
 	const pid_t pid = getpid();
 	const uid_t uid = getuid();
+	const pid_t grp = getpgrp();
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
@@ -85,7 +86,7 @@ int stress_ioprio(
 				name, errno, strerror(errno));
 			goto cleanup_file;
 		}
-		if (sys_ioprio_get(IOPRIO_WHO_PGRP, pgrp) < 0) {
+		if (sys_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
 				"errno = %d (%s)\n",
 				name, pgrp, errno, strerror(errno));
