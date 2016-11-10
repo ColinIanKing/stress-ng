@@ -112,8 +112,21 @@ int stress_aiol(
 		return EXIT_FAILURE;
 	}
 	if (io_setup(opt_aio_linux_requests, &ctx) < 0) {
-		pr_fail_err(name, "io_setup");
-		return EXIT_FAILURE;
+		if ((errno == EAGAIN) || (errno == EACCES)) {
+			pr_err(stderr, "%s: io_setup failed, ran out of "
+				"available events, consider increasing "
+				"/proc/sys/fs/aio-max-nr, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		} else if (errno == ENOMEM) {
+			pr_err(stderr, "%s: io_setup failed, ran out of "
+				"memory, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		} else {
+			pr_fail_err(name, "io_setup");
+			return EXIT_FAILURE;
+		}
 	}
 	ret = stress_temp_dir_mk(name, pid, instance);
 	if (ret < 0)
