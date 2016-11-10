@@ -36,6 +36,11 @@ static const char *option = "taskset";
 #include <errno.h>
 
 
+/*
+ * check_cpu_affinity_range()
+ * @max_cpus: maximum cpus allowed, 0..N-1
+ * @cpu: cpu number to check
+ */
 static void check_cpu_affinity_range(
 	const int32_t max_cpus,
 	const int32_t cpu)
@@ -48,6 +53,12 @@ static void check_cpu_affinity_range(
 	}
 }
 
+/*
+ * get_cpu()
+ * @str: parse string containing decimal CPU number
+ *
+ * Returns: cpu number, or exits the program on invalid number in str
+ */
 static int get_cpu(char *const str)
 {
 	int val;
@@ -59,6 +70,12 @@ static int get_cpu(char *const str)
 	return val;
 }
 
+/*
+ * set_cpu_affinity()
+ * @arg: list of CPUs to set affinity to, comma separated
+ *
+ * Returns: 0 - OK
+ */
 int set_cpu_affinity(char *const arg)
 {
 	cpu_set_t set;
