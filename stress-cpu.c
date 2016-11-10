@@ -189,7 +189,7 @@ static void HOT OPTIMIZE3 stress_cpu_bitops(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		{
-			uint32_t r, v, s = (sizeof(v) * 8) - 1;
+			register uint32_t r, v, s = (sizeof(v) * 8) - 1;
 
 			/* Reverse bits */
 			r = v = i;
@@ -202,7 +202,8 @@ static void HOT OPTIMIZE3 stress_cpu_bitops(const char *name)
 		}
 		{
 			/* parity check */
-			uint32_t v = i;
+			register uint32_t v = i;
+
 			v ^= v >> 16;
 			v ^= v >> 8;
 			v ^= v >> 4;
@@ -211,14 +212,16 @@ static void HOT OPTIMIZE3 stress_cpu_bitops(const char *name)
 		}
 		{
 			/* Brian Kernighan count bits */
-			uint32_t j, v = i;
+			register uint32_t j, v = i;
+
 			for (j = 0; v; j++)
 				v &= v - 1;
 			i_sum += j;
 		}
 		{
 			/* round up to nearest highest power of 2 */
-			uint32_t v = i - 1;
+			register uint32_t v = i - 1;
+
 			v |= v >> 1;
 			v |= v >> 2;
 			v |= v >> 4;
@@ -544,7 +547,7 @@ static void stress_cpu_hash_generic(
  */
 static uint32_t HOT OPTIMIZE3 jenkin(const uint8_t *data, const size_t len)
 {
-	uint8_t i;
+	register uint8_t i;
 	register uint32_t h = 0;
 
 	for (i = 0; i < len; i++) {
@@ -586,10 +589,11 @@ static void stress_cpu_jenkin(const char *name)
  */
 static uint32_t HOT OPTIMIZE3 pjw(const char *str)
 {
-	uint32_t h = 0;
+	register uint32_t h = 0;
 
 	while (*str) {
-		uint32_t g;
+		register uint32_t g;
+
 		h = (h << 4) + (*str);
 		if (0 != (g = h & 0xf0000000)) {
 			h = h ^ (g >> 24);
@@ -615,8 +619,8 @@ static void stress_cpu_pjw(const char *name)
  */
 static uint32_t HOT OPTIMIZE3 djb2a(const char *str)
 {
-	uint32_t hash = 5381;
-	int c;
+	register uint32_t hash = 5381;
+	register int c;
 
 	while ((c = *str++)) {
 		/* (hash * 33) ^ c */
@@ -640,9 +644,9 @@ static void stress_cpu_djb2a(const char *name)
  */
 static uint32_t HOT OPTIMIZE3 fnv1a(const char *str)
 {
-	uint32_t hash = 5381;
+	register uint32_t hash = 5381;
 	const uint32_t fnv_prime = 16777619; /* 2^24 + 2^9 + 0x93 */
-	int c;
+	register int c;
 
 	while ((c = *str++)) {
 		hash ^= c;
@@ -667,8 +671,8 @@ static void HOT stress_cpu_fnv1a(const char *name)
  */
 static uint32_t OPTIMIZE3 sdbm(const char *str)
 {
-	uint32_t hash = 0;
-	int c;
+	register uint32_t hash = 0;
+	register int c;
 
 	while ((c = *str++))
 		hash = c + (hash << 6) + (hash << 16) - hash;
@@ -1062,7 +1066,7 @@ static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
 
 	/* Do a 1000 colours starting from the rgb seed */
 	for (i = 0; i < 1000; i++) {
-		float y,u,v;
+		float y, u, v;
 
 		/* RGB to CCIR 601 YUV */
 		y = (0.299f * r) + (0.587f * g) + (0.114f * b);
@@ -1314,7 +1318,7 @@ static uint16_t HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 	 *  we are assuming the top bit is always set.
 	 */
 	const uint16_t polynomial = 0x8408;
-	uint16_t crc = ~0;
+	register uint16_t crc = ~0;
 
 	if (!n)
 		return 0;
@@ -1483,7 +1487,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
  */
 static inline HOT OPTIMIZE3 bool is_prime(uint32_t n)
 {
-	uint32_t i, max;
+	register uint32_t i, max;
 
 	if (n <= 3)
 		return n >= 2;
@@ -1520,8 +1524,8 @@ static void stress_cpu_prime(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_gray(const char *name)
 {
-	uint32_t i;
-	uint64_t sum = 0;
+	register uint32_t i;
+	register uint64_t sum = 0;
 
 	for (i = 0; i < 0x10000; i++) {
 		register uint32_t gray_code;
@@ -1816,7 +1820,7 @@ static void stress_cpu_parity(const char *name)
 	size_t i;
 
 	for (i = 0; i < 1000; i++, val++) {
-		uint32_t v, parity, p;
+		register uint32_t v, parity, p;
 		uint8_t *ptr;
 
 		/*
