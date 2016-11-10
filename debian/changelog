@@ -1,3 +1,10 @@
+stress-ng (0.07.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-ioprio: use current pgrp and not global pgrp (LP: #1640631)
+
+ -- Colin King <colin.king@canonical.com>  Thu, 10 Nov 2016 00:00:01 +0000
+
 stress-ng (0.07.02-1) unstable; urgency=medium
 
   * Makefile: bump version
