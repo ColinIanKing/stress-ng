@@ -107,11 +107,11 @@ int stress_fallocate(
 	(void)unlink(filename);
 
 	do {
-		(void)posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
+		ret = posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
 		if (!opt_do_run)
 			break;
 		(void)fsync(fd);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if ((ret == 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
