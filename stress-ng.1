@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "October 28, 2016"
+.TH STRESS-NG 1 "November 11, 2016"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2843,6 +2843,10 @@ stress tool by Amos Waterland <apw@rossby.metr.ou.edu>. Thanks also for
 contributions from Christian Ehrhardt, James Hunt, Jim Rowan,
 Tim Gardner, Luca Pizzamiglio and Zhiyi Sun.
 .SH NOTES
+Sending a SIGALRM, SIGINT or SIGHUP to stress-ng causes it to 
+terminate all the stressor processes and ensures temporary files and
+shared memory segments are removed cleanly.
+.PP
 Note that the stress\-ng cpu, io, vm and hdd tests are different
 implementations of the original stress
 tests and hence may produce different stress characteristics.
