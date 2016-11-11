@@ -1469,6 +1469,41 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 	opt_do_wait = false;
 }
 
+#if defined(SIGUSR2)
+/*
+ *  stress_stats_handler()
+ *	dump current system stats
+ */
+static void MLOCKED stress_stats_handler(int dummy)
+{
+	static char buffer[80];
+	char *ptr = buffer;
+	int ret;
+	double min1, min5, min15;
+	size_t shmall, freemem, totalmem;
+
+	(void)dummy;
+
+	*ptr = '\0';
+
+	if (stress_get_load_avg(&min1, &min5, &min15) == 0) {
+		ret = snprintf(ptr, sizeof(buffer),
+			"Load Avg: %.2f %.2f %.2f, ",
+			min1, min5, min15);
+		if (ret > 0)
+			ptr += ret;
+	}
+	stress_get_memlimits(&shmall, &freemem, &totalmem);
+
+	snprintf(ptr, buffer - ptr,
+		"MemFree: %zu MB, MemTotal: %zu MB",
+		freemem / (size_t)MB, totalmem / (size_t)MB);
+	/* Really shouldn't do this in a signal handler */
+	fprintf(stdout, "%s\n", buffer);
+	fflush(stdout);
+}
+#endif
+
 /*
  *  stress_set_handler()
  *	set signal handler to catch SIGINT, SIGALRM, SIGHUP
@@ -1479,7 +1514,12 @@ static int stress_set_handler(const char *stress, const bool child)
 		return -1;
 	if (stress_sighandler(stress, SIGHUP, stress_sigint_handler, NULL) < 0)
 		return -1;
-
+#if defined(SIGUSR2)
+	if (!child) {
+		if (stress_sighandler(stress, SIGUSR2, stress_stats_handler, NULL) < 0)
+			return -1;
+	}
+#endif
 	if (stress_sighandler(stress, SIGALRM,
 	    child ?  stress_sigalrm_child_handler :
 		     stress_sigalrm_parent_handler, NULL) < 0)

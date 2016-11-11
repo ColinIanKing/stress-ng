@@ -2847,6 +2847,9 @@ Sending a SIGALRM, SIGINT or SIGHUP to stress-ng causes it to
 terminate all the stressor processes and ensures temporary files and
 shared memory segments are removed cleanly.
 .PP
+Sending a SIGUSR2 to stress-ng will dump out the current load average
+and memory statistics.
+.PP
 Note that the stress\-ng cpu, io, vm and hdd tests are different
 implementations of the original stress
 tests and hence may produce different stress characteristics.
