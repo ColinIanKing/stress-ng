@@ -1471,7 +1471,7 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 
 /*
  *  stress_sethandler()
- *	set signal handler to catch SIGINT and SIGALRM
+ *	set signal handler to catch SIGINT, SIGALRM, SIGHUP
  */
 static int stress_sethandler(const char *stress, const bool child)
 {
