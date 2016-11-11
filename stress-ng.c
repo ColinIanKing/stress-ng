@@ -1470,10 +1470,10 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 }
 
 /*
- *  stress_sethandler()
+ *  stress_set_handler()
  *	set signal handler to catch SIGINT, SIGALRM, SIGHUP
  */
-static int stress_sethandler(const char *stress, const bool child)
+static int stress_set_handler(const char *stress, const bool child)
 {
 	if (stress_sighandler(stress, SIGINT, stress_sigint_handler, NULL) < 0)
 		return -1;
@@ -1802,7 +1802,7 @@ again:
 					/* Child */
 					(void)setpgid(0, pgrp);
 					free_procs();
-					if (stress_sethandler(name, true) < 0)
+					if (stress_set_handler(name, true) < 0)
 						exit(EXIT_FAILURE);
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
@@ -1874,7 +1874,7 @@ again:
 			}
 		}
 	}
-	(void)stress_sethandler("stress-ng", false);
+	(void)stress_set_handler("stress-ng", false);
 	(void)alarm(opt_timeout);
 
 abort:
