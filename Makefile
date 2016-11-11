@@ -556,7 +556,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 	echo "};" >> apparmor-data.c
 	echo "const size_t apparmor_data_len = sizeof(apparmor_data);" >> apparmor-data.c
 	$(CC) -c apparmor-data.c -o apparmor-data.o
-	@rm -rf apparmor-data.c apparmor-data.o
+	@rm -rf apparmor-data.c
 
 #
 #  check if we have sys/capability.h
