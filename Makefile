@@ -556,7 +556,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 	echo "};" >> apparmor-data.c
 	echo "const size_t apparmor_data_len = sizeof(apparmor_data);" >> apparmor-data.c
 	$(CC) -c apparmor-data.c -o apparmor-data.o
-	@rm -rf apparmor-data.c
+	@rm -rf apparmor-data.c apparmor-data.o
 
 #
 #  check if we have sys/capability.h
@@ -651,6 +651,7 @@ clean:
 	rm -f test-decimal.c
 	rm -f personality.h
 	rm -f perf-event.h
+	rm -f *.o
 
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}
