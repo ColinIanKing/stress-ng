@@ -1,3 +1,20 @@
+stress-ng (0.07.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add SIGUSR2 load average and memory stats information
+  * Makefile: don't remove apparmor-data.o
+  * Rename stress_sethandler to stress_set_handler
+  * Manual: add notes on how to properly terminate stress-ng
+  * Add SIGHUP to comment about terminating stress-ng
+  * Makefile: clean up objects and apparmor-data.o
+  * affinity: add some comments to functions
+  * stress-cpu: add some optimisation hints
+  * stress-cpu: add some more precision to constants
+  * stress-fallocate: verify file size if posix_fallocate succeeded
+  * stress-aio-linux: check for io_setup resource failures (LP: #1640547)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 11 Nov 2016 12:42:12 +0000
+
 stress-ng (0.07.03-1) unstable; urgency=medium
 
   * Makefile: bump version
