@@ -42,6 +42,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <linux/userfaultfd.h>
+#include <sched.h>
 
 #define STACK_SIZE	(64 * 1024)
 

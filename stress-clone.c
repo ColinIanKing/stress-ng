@@ -32,6 +32,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
+#include <sched.h>
+#endif
 
 #define CLONE_STACK_SIZE	(16*1024)
 
@@ -47,7 +50,6 @@ typedef struct {
 	clone_t *free;		/* List of free'd clones */
 	uint64_t length;	/* Length of list */
 } clone_list_t;
-
 
 static uint64_t opt_clone_max = DEFAULT_ZOMBIES;
 static bool set_clone_max = false;

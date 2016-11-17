@@ -42,6 +42,7 @@
 #include <sys/mman.h>
 #include <sys/uio.h>
 #include <errno.h>
+#include <sched.h>
 
 #define STACK_SIZE	(64 * 1024)
 

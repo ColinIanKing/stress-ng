@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/mount.h>
+#include <sched.h>
 
 #define CLONE_STACK_SIZE	(64*1024)
 
