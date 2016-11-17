@@ -177,6 +177,7 @@ int stress_aiol(
 		}
 		ret = io_submit(ctx, (long)opt_aio_linux_requests, cbs);
 		if (ret < 0) {
+			errno =- ret;
 			if (errno == EAGAIN)
 				continue;
 			pr_fail_err(name, "io_submit");
@@ -200,6 +201,7 @@ int stress_aiol(
 
 			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
+				errno =- ret;
 				if ((errno == EINTR) && (opt_do_run))
 					continue;
 				pr_fail_err(name, "io_getevents");
