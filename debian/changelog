@@ -1,3 +1,14 @@
+stress-ng (0.07.05-1) unstable; urgency=medium
+
+  * Makefile: bump version and update codename
+  * stress-fstat: fix resource leak on dp on error exit path
+  * stress-fstat: forcibly abort any system call on SIGALRM
+  * stress-aio-linux: use return as errno rather than errno
+  * stress-aio-linux: use return as errno rather than errno
+  * Need to #include <sched.h> when using clone(2)
+
+ -- Colin King <colin.king@canonical.com>  Thu, 17 Nov 2016 22:55:21 +0000
+
 stress-ng (0.07.04-1) unstable; urgency=medium
 
   * Makefile: bump version
