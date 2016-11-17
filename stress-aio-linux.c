@@ -111,7 +111,13 @@ int stress_aiol(
 		pr_err(stderr, "%s: iol_requests out of range", name);
 		return EXIT_FAILURE;
 	}
-	if (io_setup(opt_aio_linux_requests, &ctx) < 0) {
+	ret = io_setup(opt_aio_linux_requests, &ctx);
+	if (ret < 0) {
+		/*
+		 *  The libaio interface returns -errno in the
+		 *  return value, so set errno accordingly
+		 */
+		errno = -ret;
 		if ((errno == EAGAIN) || (errno == EACCES)) {
 			pr_err(stderr, "%s: io_setup failed, ran out of "
 				"available events, consider increasing "
@@ -121,6 +127,12 @@ int stress_aiol(
 		} else if (errno == ENOMEM) {
 			pr_err(stderr, "%s: io_setup failed, ran out of "
 				"memory, errno=%d (%s)\n",
+				name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		} else if (errno == ENOSYS) {
+			pr_err(stderr, "%s: io_setup failed, no io_setup "
+				"system call with this kernel, "
+				"errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		} else {
