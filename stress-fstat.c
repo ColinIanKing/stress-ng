@@ -35,10 +35,12 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <setjmp.h>
 
 #include "stress-ng.h"
 
 static const char *opt_fstat_dir = "/dev";
+static sigjmp_buf buf;
 
 void stress_set_fstat_dir(const char *optarg)
 {
@@ -48,6 +50,18 @@ void stress_set_fstat_dir(const char *optarg)
 static const char *blacklist[] = {
 	"/dev/watchdog"
 };
+
+/*
+ *  handle_fstat_sigalrm()
+ *      catch SIGALRM
+ */
+static void MLOCKED handle_fstat_sigalrm(int dummy)
+{
+	(void)dummy;
+	opt_do_run = false;
+
+	siglongjmp(buf, 1);
+}
 
 /*
  *  do_not_stat()
@@ -82,12 +96,20 @@ int stress_fstat(
 	} dir_info_t;
 
 	DIR *dp;
-	dir_info_t *dir_info = NULL, *di;
+	dir_info_t *di;
+	static dir_info_t *dir_info;
 	struct dirent *d;
 	int ret = EXIT_FAILURE;
 	bool stat_some;
 
 	(void)instance;
+
+	if (stress_sighandler(name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
+		return EXIT_FAILURE;
+	if (setjmp(buf) != 0) {
+		ret = EXIT_SUCCESS;
+		goto free_cache;
+	}
 
 	if ((dp = opendir(opt_fstat_dir)) == NULL) {
 		pr_err(stderr, "%s: opendir on %s failed: errno=%d: (%s)\n",
@@ -98,6 +120,11 @@ int stress_fstat(
 	/* Cache all the directory entries */
 	while ((d = readdir(dp)) != NULL) {
 		char path[PATH_MAX];
+
+		if (!opt_do_run) {
+			ret = EXIT_SUCCESS;
+			goto free_cache;
+		}
 
 		snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
 		if (do_not_stat(path))
@@ -123,7 +150,7 @@ int stress_fstat(
 	do {
 		stat_some = false;
 
-		for (di = dir_info; di; di = di->next) {
+		for (di = dir_info; opt_do_run && di; di = di->next) {
 			int fd;
 			struct stat buf;
 
