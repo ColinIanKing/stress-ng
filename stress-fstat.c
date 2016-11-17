@@ -123,6 +123,7 @@ int stress_fstat(
 
 		if (!opt_do_run) {
 			ret = EXIT_SUCCESS;
+			(void)closedir(dp);
 			goto free_cache;
 		}
 
