@@ -60,7 +60,7 @@ int stress_schedpolicy(
 	const char *name)
 {
 	int policy = 0;
-	const pid_t pid = getpid();
+	const pid_t mypid = getpid();
 
 	if (SIZEOF_ARRAY(policies) == 0) {
 		if (instance == 0) {
@@ -72,11 +72,13 @@ int stress_schedpolicy(
 	}
 
 	do {
-		struct sched_param param;
+		struct sched_param param, new_param;
 		int ret = 0;
 		int max_prio, min_prio, rng_prio;
 		int new_policy = policies[policy];
+		const pid_t pid = (mwc32() & 1) ? 0 : mypid;
 		const char *new_policy_name = get_sched_name(new_policy);
+		bool set_ok = false;
 
 		switch (new_policy) {
 #if defined(SCHED_IDLE)
@@ -117,7 +119,8 @@ int stress_schedpolicy(
 					min_prio, max_prio);
 				break;
 			}
-			param.sched_priority = (mwc32() % (rng_prio)) + min_prio;
+			param.sched_priority = (mwc32() % (rng_prio)) +
+						min_prio;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
 		default:
@@ -126,7 +129,8 @@ int stress_schedpolicy(
 		}
 		if (ret < 0) {
 			if (errno != EPERM) {
-				pr_err(stderr, "%s: sched_setscheduler failed: errno=%d (%s) "
+				pr_fail(stderr, "%s: sched_setscheduler "
+					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
 					name, errno, strerror(errno),
 					new_policy_name);
@@ -134,14 +138,42 @@ int stress_schedpolicy(
 		} else {
 			ret = sched_getscheduler(pid);
 			if (ret < 0) {
-				pr_err(stderr, "%s: sched_getscheduler failed: errno=%d (%s)\n",
+				pr_fail(stderr, "%s: sched_getscheduler "
+					"failed: errno=%d (%s)\n",
 					name, errno, strerror(errno));
 			} else if (ret != policies[policy]) {
-				pr_err(stderr, "%s: sched_getscheduler failed: pid %d has "
-					"policy %d (%s) but function returned %d instead\n",
-					name, pid, new_policy, new_policy_name, ret);
+				pr_fail(stderr, "%s: sched_getscheduler "
+					"failed: pid %d has policy %d (%s) "
+					"but function returned %d instead\n",
+					name, pid, new_policy,
+					new_policy_name, ret);
+			} else {
+				set_ok = true;
 			}
 		}
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+		ret = sched_getparam(pid, &new_param);
+		if (ret < 0) {
+			pr_fail(stderr, "%s: sched_getparam failed: "
+				"errno=%d (%s)\n",
+				name, errno, strerror(errno));
+		} else if (set_ok &&
+			   (param.sched_priority != new_param.sched_priority)) {
+			pr_fail(stderr, "%s: sched_getparam failed, set "
+				"sched_priority %d is not the same as "
+				"the fetched sched_priority %d\n",
+				name, param.sched_priority,
+				new_param.sched_priority);
+		}
+
+		ret = sched_setparam(pid, &new_param);
+		if (ret < 0) {
+			pr_fail(stderr, "%s: sched_setparam failed: "
+				"errno=%d (%s)\n",
+				name, errno, strerror(errno));
+		}
+#endif
+
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		sched_yield();
 #endif
