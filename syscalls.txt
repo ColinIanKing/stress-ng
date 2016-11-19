@@ -24,6 +24,7 @@ clock_settime			[ need privilege, ignore for now ]
 clone				clone
 close				dentry
 connect				sock
+copy_file_range			copy_file
 creat				chmod
 dup				dup
 dup2				dup
@@ -38,6 +39,7 @@ epoll_wait			epoll
 eventfd				eventfd
 eventfd2
 execve				exec
+execveat
 exit				fork
 exit_group
 faccessat
@@ -85,12 +87,11 @@ getpgrp				get
 getpid				get
 getppid				get
 getpriority			get
-getrandom			getrandom
 getpwd				get
+getrandom			getrandom
 getresgid			get
 getresuid			get
-getrlimit			get
-getrlimit			nice
+getrlimit			get, nice
 getrusage			get
 getsid				get
 getsockname			sock
@@ -115,6 +116,7 @@ ioprio_get			ioprio
 ioprio_set			ioprio
 ipc				used by msg* glibc wrappers
 kcmp				kcmp
+kern_features			[ Sparc64 only ]
 kexec_file_load			[ need privilege, ignore for now ]
 kexec_load			[ need privilege, ignore for now ]
 keyctl				key
@@ -141,14 +143,15 @@ mkdir				dir
 mkdirat
 mknod				mknod
 mknodat
+mkstemp				hdd
 mlock				mlock
 mlock2				mlock
 mlockall			mlock
-mkstemp				hdd
-mount				[ need privilege, ignore for now ]
-move_pages			numa
 mmap				bigheap, mmap
 mmap2
+modify_ldt
+mount				[ need privilege, ignore for now ]
+move_pages			numa
 mprotect			mmap
 mq_getsetattr			mq
 mq_notify			mq
@@ -257,7 +260,7 @@ set_thread_area
 set_tid_address
 setdomainname			[ need privilege, ignore for now ]
 setfsgid
-setfssuid
+setfsuid
 setgid
 setgroups
 sethostname
@@ -286,14 +289,14 @@ sigaction			sigfpe
 sigaltstack			pthread, stack
 signal				[ Avoid  its  use: use sigaction(2) instead ]
 signalfd			sigfd
+siglongjmp			sigfpe
 sigpending			sigpending
 sigprocmask			pthread, sigfd
-sigreturn			[ ignore ]
-siglongjmp			sigfpe
 sigqueue			sigq
+sigreturn			[ ignore ]
 sigsetjmp			sigfpe
-sigwaitinfo			sigfpe
 sigsuspend			sigsuspend
+sigwaitinfo			sigfpe
 socket				sock	
 socketcall			[ implicit ]
 socketpair			sockpair
@@ -334,6 +337,7 @@ uname				get
 unlink				dentry, hdd, unlink
 unlinkat
 unshare				clone, unshare
+uselib
 userfaultfd			userfaultfd
 ustat				[ deprecated ]
 utime				utime
