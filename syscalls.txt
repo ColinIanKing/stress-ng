@@ -224,17 +224,17 @@ rt_sigreturn
 rt_sigsuspend
 rt_sigtimedwait
 rt_tgsigqueueinfo
-sched_get_priority_max		sched
-sched_get_priority_min		sched
+sched_get_priority_max		sched, schedpolicy
+sched_get_priority_min		sched, schedpolicy
 sched_getaffinity		affinity
-sched_getattr
-sched_getparam
-sched_getscheduler
-sched_get_rr_interval
+sched_getattr			schedpolicy
+sched_getparam			schedpolicy
+sched_getscheduler		schedpolicy
+sched_get_rr_interval		schedpolicy
 sched_setaffinity		affinity
-sched_setattr
-sched_setparam
-sched_setscheduler		sched
+sched_setattr			schedpolicy
+sched_setparam			schedpolicy
+sched_setscheduler		sched, schedpolicy
 sched_yield			yield
 seccomp				seccomp (prctl)
 select				poll
