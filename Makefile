@@ -151,6 +151,7 @@ STRESS_SRC = \
 	stress-rmap.c \
 	stress-rtc.c \
 	stress-sctp.c \
+	stress-schedpolicy.c \
 	stress-seal.c \
 	stress-seccomp.c \
 	stress-seek.c \

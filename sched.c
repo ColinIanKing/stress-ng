@@ -41,7 +41,7 @@
  *  get_sched_name()
  *	convert sched class to human readable string
  */
-static const char *get_sched_name(const int32_t sched)
+const char *get_sched_name(const int sched)
 {
 	switch (sched) {
 #if defined(SCHED_IDLE)
@@ -80,7 +80,7 @@ static const char *get_sched_name(const int32_t sched)
  *  set_sched()
  * 	are sched settings valid, if so, set them
  */
-void set_sched(const int32_t sched, const int32_t sched_priority)
+void set_sched(const int sched, const int32_t sched_priority)
 {
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
 	int min, max;

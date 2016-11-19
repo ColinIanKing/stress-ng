@@ -984,6 +984,7 @@ typedef enum {
 	STRESS_RLIMIT,
 	STRESS_RMAP,
 	STRESS_RTC,
+	STRESS_SCHEDPOLICY,
 	STRESS_SCTP,
 	STRESS_SEAL,
 	STRESS_SECCOMP,
@@ -1476,6 +1477,9 @@ typedef enum {
 	OPT_SCHED,
 	OPT_SCHED_PRIO,
 
+	OPT_SCHEDPOLICY,
+	OPT_SCHEDPOLICY_OPS,
+
 	OPT_SCTP,
 	OPT_SCTP_OPS,
 	OPT_SCTP_DOMAIN,
@@ -1906,7 +1910,8 @@ extern const char *duration_to_str(const double duration);
 
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
-extern void set_sched(const int32_t sched, const int32_t sched_priority);
+extern void set_sched(const int32_t sched, const int sched_priority);
+extern const char *get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
 extern void set_proc_name(const char *name);
 
@@ -2249,6 +2254,7 @@ STRESS(stress_resources);
 STRESS(stress_rlimit);
 STRESS(stress_rmap);
 STRESS(stress_rtc);
+STRESS(stress_schedpolicy);
 STRESS(stress_sctp);
 STRESS(stress_seal);
 STRESS(stress_seccomp);
