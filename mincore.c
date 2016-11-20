@@ -32,8 +32,8 @@
 #include "stress-ng.h"
 
 /*
- * madvise_random()
- *	apply random madvise setting to a memory region
+ * madvise_touch_pages()
+ *	touch a range of pages
  */
 int mincore_touch_pages(void *buf, const size_t buf_len)
 {
@@ -57,9 +57,20 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 		return -1;
 
 	vec = calloc(vec_len, 1);
-	if (!vec)
-		return -1;
+	if (!vec) {
+		/*
+		 *  Less optimial way, touch all pages
+		 */
+		for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
+			(*buffer)++;
+		for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
+			(*buffer)--;
+		return 0;
+	}
 
+	/*
+	 *  Find range of pages that are not in memory
+	 */
 	if (mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
 		return -1;
