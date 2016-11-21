@@ -538,7 +538,7 @@ static const struct option long_options[] = {
 	{ "kill",	1,	0,	OPT_KILL },
 	{ "kill-ops",	1,	0,	OPT_KILL_OPS },
 	{ "klog",	1,	0,	OPT_KLOG },
-	{" klog-ops",	1,	0,	OPT_KLOG_OPS },
+	{ "klog-ops",	1,	0,	OPT_KLOG_OPS },
 	{ "lease",	1,	0,	OPT_LEASE },
 	{ "lease-ops",	1,	0,	OPT_LEASE_OPS },
 	{ "lease-breakers",1,	0,	OPT_LEASE_BREAKERS },
