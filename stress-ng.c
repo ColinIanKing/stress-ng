@@ -1363,13 +1363,10 @@ static inline int32_t stressor_id_find(const stress_id id)
 static inline int32_t stressor_name_find(const char *name)
 {
 	int32_t i;
-	char *tmp, *munged_name;
-	size_t len;
+	const char *tmp = munge_underscore(name);
+	const size_t len = strlen(tmp) + 1;
+	char munged_name[len];
 
-	tmp = munge_underscore(name);
-	len = strlen(tmp) + 1;
-
-	munged_name = alloca(len);
 	strncpy(munged_name, tmp, len);
 
 	for (i = 0; stressors[i].name; i++) {
