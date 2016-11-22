@@ -2278,9 +2278,9 @@ static void proc_helper(const proc_helper_t *helpers, const size_t n)
  */
 static inline void exclude_pathological(void)
 {
-	size_t i;
-
 	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
+		size_t i;
+
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (stressors[i].class & CLASS_PATHOLOGICAL) {
 				if (procs[i].num_procs > 0) {
