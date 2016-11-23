@@ -281,6 +281,7 @@ int stress_resources(
 				kill_children();
 				return EXIT_SUCCESS;
 			}
+			(*counter)++;
 		}
 		kill_children();
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
