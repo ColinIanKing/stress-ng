@@ -106,7 +106,7 @@ int stress_fstat(
 
 	if (stress_sighandler(name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
-	if (setjmp(buf) != 0) {
+	if (sigsetjmp(buf, 0) != 0) {
 		ret = EXIT_SUCCESS;
 		goto free_cache;
 	}
