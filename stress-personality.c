@@ -95,6 +95,7 @@ int stress_personality(
 				"to be set\n", name, fails);
 			break;
 		}
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
