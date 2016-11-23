@@ -52,6 +52,7 @@ typedef struct {
 static int stress_bind_mount_child(void *arg)
 {
 	context_t *context = (context_t *)arg;
+	uint64_t *counter = context->counter;
 
 	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
@@ -66,8 +67,9 @@ static int stress_bind_mount_child(void *arg)
 	`	 *  just to make the kernel work harder
 		 */
 		(void)umount("/");
+		(*counter)++;
 	} while (opt_do_run &&
-		 (!context->max_ops || *(context->counter) < context->max_ops));
+		 (!context->max_ops || *counter < context->max_ops));
 
 	return 0;
 }
@@ -109,7 +111,7 @@ int stress_bind_mount(
 
 	do {
 		/* Twiddle thumbs */
-		sleep(1);
+		(void)usleep(10000);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	(void)kill(pid, SIGKILL);
