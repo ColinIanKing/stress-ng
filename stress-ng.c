@@ -1897,6 +1897,7 @@ again:
 #if defined(STRESS_THERMAL_ZONES)
 					tz_free(&shared->tz_info);
 #endif
+					stress_cache_free();
 					exit(rc);
 				default:
 					if (pid > -1) {
@@ -3126,6 +3127,7 @@ next_opt:
 	free_procs();
 
 	proc_helper(proc_destroy, SIZEOF_ARRAY(proc_destroy));
+	stress_cache_free();
 	stress_unmap_shared();
 	closelog();
 	if (yaml) {
