@@ -26,8 +26,11 @@
 #ifndef __STRESS_NG_H__
 #define __STRESS_NG_H__
 
+#define _GNU_SOURCE
+
 #include <stdint.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
@@ -38,6 +41,7 @@
 #include <pthread.h>
 #endif
 #include <signal.h>
+#include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/types.h>
