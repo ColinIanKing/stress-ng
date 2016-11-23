@@ -93,6 +93,8 @@ int stress_apparmor_supported(void)
 				"errno=%d (%s)\n", errno, strerror(errno));
 			break;
 		}
+		free(apparmor_path);
+		apparmor_path = NULL;
 		return -1;
 	}
 	(void)close(fd);
@@ -226,6 +228,7 @@ again:
 		stress_parent_died_alarm();
 
 		ret = func(name, max_ops, counter);
+		free(apparmor_path);
 		exit(ret);
 	}
 	(void)setpgid(pid, pgrp);
@@ -663,6 +666,9 @@ int stress_apparmor(
 		}
 	}
 	munmap(counters, counters_sz);
+
+	free(apparmor_path);
+	apparmor_path = NULL;
 
 	return EXIT_SUCCESS;
 }
