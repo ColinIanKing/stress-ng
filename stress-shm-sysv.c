@@ -246,8 +246,7 @@ static int stress_shm_sysv_child(
 			}
 			if (shm_id < 0) {
 				ok = false;
-				pr_fail(stderr, "%s: shmget failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "shmget");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -265,8 +264,7 @@ static int stress_shm_sysv_child(
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
-				pr_fail(stderr, "%s: shmat failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "shmat");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -323,15 +321,13 @@ reap:
 		for (i = 0; i < opt_shm_sysv_segments; i++) {
 			if (addrs[i]) {
 				if (shmdt(addrs[i]) < 0) {
-					pr_fail(stderr, "%s: shmdt failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "shmdt");
 				}
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
 					if (errno != EIDRM)
-						pr_fail(stderr, "%s: shmctl failed: errno=%d (%s)\n",
-							name, errno, strerror(errno));
+						pr_fail_err(name, "shmctl");
 				}
 			}
 

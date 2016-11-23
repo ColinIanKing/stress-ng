@@ -179,9 +179,7 @@ int stress_schedpolicy(
 		} else {
 			ret = sched_getscheduler(pid);
 			if (ret < 0) {
-				pr_fail(stderr, "%s: sched_getscheduler "
-					"failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "sched_getscheduler");
 			} else if (ret != policies[policy]) {
 				pr_fail(stderr, "%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
@@ -195,9 +193,7 @@ int stress_schedpolicy(
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		ret = sched_getparam(pid, &new_param);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: sched_getparam failed: "
-				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "sched_getparam failed");
 		} else if (set_ok &&
 			   (param.sched_priority != new_param.sched_priority)) {
 			pr_fail(stderr, "%s: sched_getparam failed, set "
@@ -209,9 +205,7 @@ int stress_schedpolicy(
 
 		ret = sched_setparam(pid, &new_param);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: sched_setparam failed: "
-				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "sched_setparam");
 		}
 #endif
 
@@ -226,9 +220,7 @@ int stress_schedpolicy(
 		ret = sys_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail(stderr, "%s: sched_getattr failed: "
-					"errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "sched_getattr");
 			}
 		}
 
@@ -236,9 +228,7 @@ int stress_schedpolicy(
 		ret = sys_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail(stderr, "%s: sched_getattr failed: "
-					"errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "sched_getattr");
 			}
 		}
 #endif

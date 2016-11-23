@@ -210,15 +210,11 @@ again:
 				pfd[1] = -1;
 			} else {
 				if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail(stderr, "%s: fcntl O_NONBLOCK failed, "
-						"errno = %d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "fcntl O_NONBLOCK");
 					goto clean;
 				}
 				if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail(stderr, "%s: fcntl O_NONBLOCK failed, "
-						"errno = %d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "fcntl O_NONBLOCK");
 					goto clean;
 				}
 				pipes_open++;

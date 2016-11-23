@@ -245,9 +245,7 @@ static int do_fcntl(const int fd, const char *name)
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail(stderr, "%s: ftruncate failed, "
-				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "ftruncate");
 			goto lock_abort;
 		}
 
@@ -262,9 +260,7 @@ static int do_fcntl(const int fd, const char *name)
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail(stderr, "%s: fcntl F_GETLK failed, "
-				"expecting l_type to return F_UNLCK\n",
-				name);
+			pr_fail_err(name, "fcntl F_GETLK");
 			goto lock_abort;
 		}
 #endif
@@ -325,9 +321,7 @@ lock_abort:	{ /* Nowt */ }
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail(stderr, "%s: ftruncate failed, "
-				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "ftruncate");
 			goto ofd_lock_abort;
 		}
 
@@ -342,9 +336,7 @@ lock_abort:	{ /* Nowt */ }
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail(stderr, "%s: fcntl F_OFD_GETLK failed, "
-				"expecting l_type to return F_UNLCK\n",
-				name);
+			pr_fail_err(name, "fcntl F_OFD_GETLK");
 			goto ofd_lock_abort;
 		}
 #endif

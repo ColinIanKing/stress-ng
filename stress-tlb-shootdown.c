@@ -66,9 +66,7 @@ int stress_tlb_shootdown(
 		const int32_t max_cpus = stress_get_processors_configured();
 
 		if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0) {
-			pr_fail(stderr, "%s: could not get CPU affinity: "
-				"errno=%d, (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "could not get CPU affinity");
 			return EXIT_FAILURE;
 		}
 		cpus = CPU_COUNT(&proc_mask);
@@ -82,9 +80,7 @@ int stress_tlb_shootdown(
 					if (--retry < 0)
 						return EXIT_NO_RESOURCE;
 				} else {
-					pr_fail(stderr, "%s: mmap failed: "
-						"errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "mmap");
 				}
 			} else {
 				break;

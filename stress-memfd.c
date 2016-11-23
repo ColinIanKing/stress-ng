@@ -132,8 +132,7 @@ static void stress_memfd_allocs(
 					case EINTR:
 						break;
 					default:
-						pr_fail(stderr, "%s: ftruncate failed, errno=%d (%s)\n",
-                                        		name, errno, strerror(errno));
+						pr_fail_err(name, "ftruncate");
 						break;
 					}
 				}
@@ -165,36 +164,31 @@ static void stress_memfd_allocs(
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size>> 1, SEEK_SET) < 0) {
 				if (errno != ENXIO)
-					pr_fail(stderr, "%s: lseek SEEK_SET on memfd failed: "
-						"errno=%d (%s)\n", name, errno, strerror(errno));
+					pr_fail_err(name, "lseek SEEK_SET on memfd");
 			}
 #endif
 #if defined(SEEK_CUR)
 			if (lseek(fds[i], (off_t)0, SEEK_CUR) < 0) {
 				if (errno != ENXIO)
-					pr_fail(stderr, "%s: lseek SEEK_CUR on memfd failed: "
-						"errno=%d (%s)\n", name, errno, strerror(errno));
+					pr_fail_err(name, "lseek SEEK_CUR on memfd");
 			}
 #endif
 #if defined(SEEK_END)
 			if (lseek(fds[i], (off_t)0, SEEK_END) < 0) {
 				if (errno != ENXIO)
-					pr_fail(stderr, "%s: lseek SEEK_END on memfd failed: "
-						"errno=%d (%s)\n", name, errno, strerror(errno));
+					pr_fail_err(name, "lseek SEEK_END on memfd");
 			}
 #endif
 #if defined(SEEK_HOLE)
 			if (lseek(fds[i], (off_t)0, SEEK_HOLE) < 0) {
 				if (errno != ENXIO)
-					pr_fail(stderr, "%s: lseek SEEK_HOLE on memfd failed: "
-						"errno=%d (%s)\n", name, errno, strerror(errno));
+					pr_fail_err(name, "lseek SEEK_HOLE on memfd");
 			}
 #endif
 #if defined(SEEK_DATA)
 			if (lseek(fds[i], (off_t)0, SEEK_DATA) < 0) {
 				if (errno != ENXIO)
-					pr_fail(stderr, "%s: lseek SEEK_DATA on memfd failed: "
-						"errno=%d (%s)\n", name, errno, strerror(errno));
+					pr_fail_err(name, "lseek SEEK_DATA on memfd");
 			}
 #endif
 			if (!opt_do_run)

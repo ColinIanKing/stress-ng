@@ -134,8 +134,7 @@ int stress_yield(
 
 				ret = sched_yield();
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-					pr_fail(stderr, "%s: sched_yield failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "sched_yield");
 				counters[i]++;
 			} while (opt_do_run && (!max_ops_per_yielder || *counter < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);

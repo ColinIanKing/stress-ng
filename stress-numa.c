@@ -280,8 +280,7 @@ int stress_numa(
 		ret = sys_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: get_mempolicy: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "get_mempolicy");
 		}
 		if (!opt_do_run)
 			break;
@@ -290,8 +289,7 @@ int stress_numa(
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = sys_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: set_mempolicy: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "set_mempolicy");
 		}
 		memset(buf, 0xff, MMAP_SZ);
 		if (!opt_do_run)
@@ -313,8 +311,7 @@ int stress_numa(
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			if (errno != EIO)
-				pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "mbind");
 		} else {
 			memset(buf, 0xaa, MMAP_SZ);
 		}
@@ -330,8 +327,7 @@ int stress_numa(
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
 			if (errno != EIO)
-				pr_fail(stderr, "%s: mbind: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "mbind");
 		} else {
 			memset(buf, 0x5c, MMAP_SZ);
 		}
@@ -350,8 +346,7 @@ int stress_numa(
 		ret = sys_migrate_pages(mypid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: migrate_pages: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "migrate_pages");
 		}
 		if (!opt_do_run)
 			break;
@@ -369,8 +364,7 @@ int stress_numa(
 			ret = sys_move_pages(mypid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
-				pr_fail(stderr, "%s: move_pages: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "move_pages");
 			}
 			memset(buf, j, MMAP_SZ);
 			if (!opt_do_run)

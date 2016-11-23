@@ -171,8 +171,7 @@ abort:
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail(stderr, "%s: poll failed with error: %d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "poll");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
@@ -192,8 +191,7 @@ abort:
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail(stderr, "%s: select failed with error: %d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "select");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {

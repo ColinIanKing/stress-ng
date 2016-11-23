@@ -198,8 +198,7 @@ int stress_msync(
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail(stderr, "%s: read failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "read");
 			goto do_invalidate;
 		}
 		if (stress_page_check(data, val, sizeof(data)) < 0) {
@@ -225,8 +224,7 @@ do_invalidate:
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail(stderr, "%s: read failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "read");
 			goto do_next;
 		}
 		ret = msync(buf + offset, page_size, MS_INVALIDATE);

@@ -84,8 +84,7 @@ static int remap_order(
 		ret = remap_file_pages(data + (i * stride), page_size,
 			0, order[i], 0);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: remap_file_pages: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "remap_file_pages");
 			return -1;
 		}
 	}

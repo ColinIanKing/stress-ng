@@ -87,9 +87,7 @@ static inline void stress_sys_rw(
 		struct stat buf;
 
 		if (fstat(fd, &buf) < 0) {
-			pr_fail(stderr, "%s: stat failed on %s: "
-				"errno=%d (%s)\n",
-				name, path, errno, strerror(errno));
+			pr_fail_err(name, "stat");
 		} else {
 			if ((buf.st_mode & S_IROTH) == 0) {
 				pr_fail(stderr, "%s: read access failed on %s which "

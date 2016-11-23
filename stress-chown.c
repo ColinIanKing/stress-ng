@@ -194,8 +194,7 @@ int stress_chown(
 
 		ret = do_fchown(fd, cap_chown, uid, gid);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: fchown: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "fchown");
 		}
 		ret = do_chown(filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -207,8 +206,7 @@ int stress_chown(
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			pr_fail(stderr, "%s: chown: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "chown");
 		}
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

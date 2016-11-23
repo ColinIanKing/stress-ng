@@ -145,8 +145,7 @@ static int stress_shm_posix_child(
 				S_IRUSR | S_IWUSR);
 			if (shm_fd < 0) {
 				ok = false;
-				pr_fail(stderr, "%s: shm_open failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "shm_open");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -167,8 +166,7 @@ static int stress_shm_posix_child(
 				MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
-				pr_fail(stderr, "%s: mmap failed, giving up: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "mmap");
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -215,9 +213,7 @@ reap:
 				(void)munmap(addrs[i], sz);
 			if (*shm_name) {
 				if (shm_unlink(shm_name) < 0) {
-					pr_fail(stderr, "%s: shm_unlink "
-						"failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "shm_unlink");
 				}
 			}
 

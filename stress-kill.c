@@ -55,14 +55,12 @@ int stress_kill(
 
 		ret = kill(pid, SIGUSR1);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "kill");
 
 		/* Zero signal can be used to see if process exists */
 		ret = kill(pid, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "kill");
 
 		/*
 		 * Zero signal can be used to see if process exists,
@@ -71,8 +69,7 @@ int stress_kill(
 		 */
 		ret = kill(-1, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail(stderr, "%s: kill failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "kill");
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

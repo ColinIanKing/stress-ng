@@ -81,18 +81,15 @@ static void dnotify_exercise(
 	int fd, i = 0;
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
-		pr_fail(stderr, "%s: open failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+		pr_fail_err(name, "open");
 		return;
 	}
 	if (fcntl(fd, F_SETSIG, SIGRTMIN + 1) < 0) {
-		pr_fail(stderr, "%s: fcntl F_SETSIG failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+		pr_fail_err(name, "fcntl F_SETSIG");
 		goto cleanup;
 	}
 	if (fcntl(fd, F_NOTIFY, flags) < 0) {
-		pr_fail(stderr, "%s: fcntl F_NOTIFY failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+		pr_fail_err(name, "fcntl F_NOTIFY");
 		goto cleanup;
 	}
 

@@ -173,8 +173,7 @@ int stress_get(
 
 		ptr = getcwd(path, sizeof path);
 		if (verify && !ptr)
-			pr_fail(stderr, "%s: getcwd failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "getcwd");
 		check_do_run();
 
 		(void)getgid();
@@ -191,8 +190,7 @@ int stress_get(
 
 		ret = getgroups(GIDS_MAX, gids);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: getgroups failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "getgroups");
 		check_do_run();
 
 #if !defined(__minix__)
@@ -209,22 +207,19 @@ int stress_get(
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
 			if (verify && errno && (ret < 0))
-				pr_fail(stderr, "%s: getpriority failed, errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "getpriority");
 			check_do_run();
 		}
 
 #if defined(__linux__)
 		ret = getresgid(&rgid, &egid, &sgid);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: getresgid failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "getresgid");
 		check_do_run();
 
 		ret = getresuid(&ruid, &euid, &suid);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: getresuid failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "getresuid");
 		check_do_run();
 #endif
 
@@ -274,8 +269,7 @@ int stress_get(
 #if _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
 		ret = getsid(mypid);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: getsid failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "getsid");
 		check_do_run();
 #endif
 
@@ -297,31 +291,26 @@ int stress_get(
 
 		t = time(NULL);
 		if (verify && (t == (time_t)-1))
-			pr_fail(stderr, "%s: time failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "time");
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: gettimeval failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "gettimeval");
 #if defined(__linux__)
 		ret = uname(&utsbuf);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: uname failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "uname");
 #endif
 
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: adjtimex failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "adjtimex");
 #endif
 		ret = adjtime(NULL, &tv);
 		if (verify && (ret < 0))
-			pr_fail(stderr, "%s: adjtime failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "adjtime");
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

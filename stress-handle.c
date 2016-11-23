@@ -129,8 +129,7 @@ int stress_handle(
 		fhp->handle_bytes = 0;
 		if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
 		    (errno != EOVERFLOW)) {
-			pr_fail(stderr, "%s: name_to_handle_at: failed to get file handle size: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "name_to_handle_at: failed to get file handle size");
 			free(fhp);
 			break;
 		}
@@ -141,8 +140,7 @@ int stress_handle(
 		}
 		fhp = tmp;
 		if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
-			pr_fail(stderr, "%s: name_to_handle_at: failed to get file handle: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "name_to_handle_at: failed to get file handle");
 			free(fhp);
 			break;
 		}
