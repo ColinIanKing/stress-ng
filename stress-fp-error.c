@@ -150,6 +150,7 @@ int stress_fp_error(
 
 		if (fegetround() == -1)
 			pr_fail(stderr, "%s: fegetround() returned -1\n", name);
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
