@@ -2884,11 +2884,13 @@ next_opt:
 		exit(EXIT_FAILURE);
 	if ((opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
-		fprintf(stderr, "cannot invoke --sequential and --all options together\n");
+		fprintf(stderr, "cannot invoke --sequential and --all "
+			"options together\n");
 		exit(EXIT_FAILURE);
 	}
 	if (opt_class && !(opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
-		fprintf(stderr, "class option is only used with --sequential or --all options\n");
+		fprintf(stderr, "class option is only used with "
+			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
 	if (logfile) 
@@ -2940,13 +2942,15 @@ next_opt:
 
 	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		if (total_procs) {
-			pr_err(stderr, "sequential option cannot be specified with other stressors enabled\n");
+			pr_err(stderr, "sequential option cannot be specified "
+				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = 60;
-			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+			pr_inf(stdout, "defaulting to a %" PRIu64
+				" second run per stressor\n", opt_timeout);
 		}
 
 		/* Sequential mode has no bogo ops threshold */
@@ -2962,13 +2966,15 @@ next_opt:
 		max_procs = opt_sequential;
 	} else if (opt_flags & OPT_FLAGS_ALL) {
 		if (total_procs) {
-			pr_err(stderr, "the all option cannot be specified with other stressors enabled\n");
+			pr_err(stderr, "the all option cannot be specified "
+				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = DEFAULT_TIMEOUT;
-			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+			pr_inf(stdout, "defaulting to a %" PRIu64
+				" second run per stressor\n", opt_timeout);
 		}
 
 		for (i = 0; i < STRESS_MAX; i++) {
@@ -2996,7 +3002,8 @@ next_opt:
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = DEFAULT_TIMEOUT;
-			pr_inf(stdout, "defaulting to a %" PRIu64 " second run per stressor\n", opt_timeout);
+			pr_inf(stdout, "defaulting to a %" PRIu64
+				" second run per stressor\n", opt_timeout);
 		}
 
 		/* Share bogo ops between processes equally */
@@ -3067,9 +3074,15 @@ next_opt:
 					((stressors[i].class & opt_class) ?
 						opt_sequential : 0) : opt_sequential;
 				if (procs[i].num_procs)
-					stress_run(opt_sequential, opt_sequential,
-						opt_backoff, opt_ionice_class, opt_ionice_level,
-						shared->stats, &duration, &success, &resource_success);
+					stress_run(opt_sequential,
+						opt_sequential,
+						opt_backoff,
+						opt_ionice_class,
+						opt_ionice_level,
+						shared->stats,
+						&duration,
+						&success,
+						&resource_success);
 			}
 		}
 	} else {
@@ -3090,7 +3103,8 @@ next_opt:
 	if (yamlfile) {
 		yaml = fopen(yamlfile, "w");
 		if (!yaml)
-			pr_err(stdout, "Cannot output YAML data to %s\n", yamlfile);
+			pr_err(stdout, "Cannot output YAML data to %s\n",
+				yamlfile);
 
 		pr_yaml(yaml, "---\n");
 		pr_yaml_runinfo(yaml);
