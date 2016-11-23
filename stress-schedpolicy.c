@@ -238,6 +238,7 @@ int stress_schedpolicy(
 #endif
 		policy++;
 		policy %= SIZEOF_ARRAY(policies);
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
