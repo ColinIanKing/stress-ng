@@ -76,12 +76,15 @@ static int get_mount_info(const char *name)
 		size_t line_len = 0;
 
 		ssize_t nread = getline(&line, &line_len, fp);
-		if (nread == -1)
-			break;
+		if (nread == -1) {
+			free(line);
+			break;	
+		}
 
 		nread = sscanf(line, "%12d %*d %*s %*s %" XSTR(PATH_MAX) "s",
 			&mount_info[mounts].mount_id,
 			mount_path);
+		free(line);
 		if (nread != 2)
 			continue;
 
@@ -177,6 +180,7 @@ int stress_handle(
 		}
 		(void)close(mount_fd);
 		free(fhp);
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	free_mount_info(mounts);
