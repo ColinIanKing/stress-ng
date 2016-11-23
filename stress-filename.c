@@ -341,6 +341,8 @@ int stress_filename (
 		sz++;
 		if (sz > sz_max)
 			sz = 1;
+
+		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
