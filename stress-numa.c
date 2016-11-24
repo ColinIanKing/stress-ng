@@ -55,96 +55,6 @@ typedef struct node {
 } node_t;
 
 /*
- *  Rather than have all the libnuma overhead, just
- *  perform NUMA operations via the system call
- *  interfaces.
- */
-static int sys_get_mempolicy(
-	int *mode, unsigned long *nodemask,
-	unsigned long maxnode, unsigned long addr,
-	unsigned long flags)
-{
-#if defined(__NR_get_mempolicy)
-	return syscall(__NR_get_mempolicy,
-		mode, nodemask, maxnode, addr, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static int sys_set_mempolicy(
-	int mode,
-	unsigned long *nodemask,
-	unsigned long maxnode)
-{
-#if defined(__NR_set_mempolicy)
-	return syscall(__NR_set_mempolicy,
-		mode, nodemask, maxnode);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static long sys_mbind(
-	void *addr, unsigned long len,
-	int mode, const unsigned long *nodemask,
-	unsigned long maxnode, unsigned flags)
-{
-#if defined(__NR_mbind)
-	return syscall(__NR_mbind,
-		addr, len, mode, nodemask, maxnode, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static long sys_migrate_pages(
-	int pid, unsigned long maxnode,
-	const unsigned long *old_nodes,
-	const unsigned long *new_nodes)
-{
-#if defined(__NR_migrate_pages)
-	return syscall(__NR_migrate_pages,
-		pid, maxnode, old_nodes, new_nodes);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-static long sys_move_pages(
-	int pid, unsigned long count,
-	void **pages, const int *nodes,
-	int *status, int flags)
-{
-#if defined(__NR_move_pages)
-	return syscall(__NR_move_pages,
-		pid, count, pages, nodes,
-		status, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-/* Added to kernel 2.6.19 for x86_64 and i386 */
-static long sys_getcpu(
-	unsigned *cpu,
-	unsigned *node,
-	void *tcache)
-{
-#if defined(__NR_getcpu)
-	return syscall(__NR_getcpu, cpu, node, tcache);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-/*
  *  stress_numa_free_nodes()
  *	free circular list of node info
  */
@@ -262,7 +172,7 @@ int stress_numa(
 		/*
 		 *  Fetch memory policy
 		 */
-		ret = sys_get_mempolicy(&mode, node_mask, max_nodes,
+		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
 			pr_fail_err(name, "get_mempolicy");
@@ -272,7 +182,7 @@ int stress_numa(
 
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
+		ret = shim_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
 		if (ret < 0) {
 			pr_fail_err(name, "set_mempolicy");
 		}
@@ -284,7 +194,7 @@ int stress_numa(
 		 *  Fetch CPU and node, we just waste some cycled
 		 *  doing this for stress reasons only
 		 */
-		(void)sys_getcpu(&cpu, &curr_node, NULL);
+		(void)shim_getcpu(&cpu, &curr_node, NULL);
 
 		/*
 		 *  mbind the buffer, first try MPOL_STRICT which
@@ -292,7 +202,7 @@ int stress_numa(
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			if (errno != EIO)
@@ -308,7 +218,7 @@ int stress_numa(
 		 */
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
 			if (errno != EIO)
@@ -328,7 +238,7 @@ int stress_numa(
 		memset(old_node_mask, 0xff, sizeof(old_node_mask));
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = sys_migrate_pages(mypid, max_nodes,
+		ret = shim_migrate_pages(mypid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail_err(name, "migrate_pages");
@@ -346,7 +256,7 @@ int stress_numa(
 				dest_nodes[i] = n_tmp->node_id;
 			}
 			memset(status, 0, sizeof(status));
-			ret = sys_move_pages(mypid, num_pages, pages,
+			ret = shim_move_pages(mypid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				pr_fail_err(name, "move_pages");

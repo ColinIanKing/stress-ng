@@ -226,3 +226,114 @@ int shim_memfd_create(const char *name, unsigned int flags)
 	return -1;
 #endif
 }
+
+
+int shim_get_mempolicy(
+	int *mode,
+	unsigned long *nodemask,
+	unsigned long maxnode,
+	unsigned long addr,
+	unsigned long flags)
+{
+#if defined(__NR_get_mempolicy)
+	return syscall(__NR_get_mempolicy,
+		mode, nodemask, maxnode, addr, flags);
+#else
+	(void)mode;
+	(void)nodemask;
+	(void)maxnode;
+	(void)addr;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_set_mempolicy(
+	int mode,
+	unsigned long *nodemask,
+	unsigned long maxnode)
+{
+#if defined(__NR_set_mempolicy)
+	return syscall(__NR_set_mempolicy,
+		mode, nodemask, maxnode);
+#else
+	(void)mode;
+	(void)nodemask;
+	(void)maxnode;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+long shim_mbind(
+	void *addr,
+	unsigned long len,
+	int mode,
+	const unsigned long *nodemask,
+	unsigned long maxnode,
+	unsigned flags)
+{
+#if defined(__NR_mbind)
+	return syscall(__NR_mbind,
+		addr, len, mode, nodemask, maxnode, flags);
+#else
+	(void)addr;
+	(void)len;
+	(void)mode;
+	(void)nodemask;
+	(void)maxnode;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+long shim_migrate_pages(
+	int pid,
+	unsigned long maxnode,
+	const unsigned long *old_nodes,
+	const unsigned long *new_nodes)
+{
+#if defined(__NR_migrate_pages)
+	return syscall(__NR_migrate_pages,
+		pid, maxnode, old_nodes, new_nodes);
+#else
+	(void)pid;
+	(void)maxnode;
+	(void)old_nodes;
+	(void)new_nodes;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+long shim_move_pages(
+	int pid,
+	unsigned long count,
+	void **pages,
+	const int *nodes,
+	int *status,
+	int flags)
+{
+#if defined(__NR_move_pages)
+	return syscall(__NR_move_pages,
+		pid, count, pages, nodes,
+		status, flags);
+#else
+	(void)pid;
+	(void)count;
+	(void)pages;
+	(void)nodes;
+	(void)status;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+

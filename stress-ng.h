@@ -2175,6 +2175,17 @@ extern long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2);
 extern int shim_syslog(int type, char *bufp, int len);
 extern int shim_membarrier(int cmd, int flags);
 extern int shim_memfd_create(const char *name, unsigned int flags);
+extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
+	unsigned long maxnode, unsigned long addr, unsigned long flags);
+extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
+	unsigned long maxnode);
+extern long shim_mbind(void *addr, unsigned long len,
+	int mode, const unsigned long *nodemask,
+	unsigned long maxnode, unsigned flags);
+extern long shim_migrate_pages(int pid, unsigned long maxnode,
+	const unsigned long *old_nodes, const unsigned long *new_nodes);
+extern long shim_move_pages(int pid, unsigned long count,
+	void **pages, const int *nodes, int *status, int flags);
 
 struct linux_dirent {
 	unsigned long  d_ino;     	/* Inode number */
