@@ -81,3 +81,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	return posix_fallocate(fd, offset, len);
 #endif
 }
+
+int shim_gettid(void)
+{
+#if defined(__linux__) && defined(__NR_gettid)
+        return syscall(__NR_gettid);
+#else
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+

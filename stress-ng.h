@@ -2167,6 +2167,7 @@ extern int shim_cacheflush(char *addr, int nbytes, int cache) ;
 extern ssize_t shim_copy_file_range(int fd_in, loff_t *off_in,
         int fd_out, loff_t *off_out, size_t len, unsigned int flags);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
+extern int shim_gettid(void);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\

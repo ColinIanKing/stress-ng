@@ -37,14 +37,6 @@ static void check_return(const int ret, const char *name, const char *cmd)
 	}
 }
 
-#if defined(__linux__)
-static inline int sys_gettid(void)
-{
-        return syscall(SYS_gettid);
-}
-#endif
-
-
 /*
  *  do_fcntl()
  */
@@ -153,7 +145,7 @@ static int do_fcntl(const int fd, const char *name)
 
 #if defined(__linux__)
 		owner.type = F_OWNER_TID;
-		owner.pid = sys_gettid();
+		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		check_return(ret, name, "F_SETOWN_EX, F_OWNER_TID");
 #endif
