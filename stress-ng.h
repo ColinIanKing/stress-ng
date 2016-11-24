@@ -64,6 +64,9 @@
 #if defined (__GLIBC__)
 #include <features.h>
 #endif
+#if defined(__sun__)
+#include <alloca.h>
+#endif
 
 #if defined (__linux__)
 /*
