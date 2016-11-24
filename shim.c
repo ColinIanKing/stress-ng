@@ -32,3 +32,17 @@ int shim_sched_yield(void)
 	return 0;
 #endif
 }
+
+int shim_cacheflush(char *addr, int nbytes, int cache)
+{
+#if defined(__linux__) && defined(__NR_cacheflush)
+        return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
+#else
+	(void)addr;
+	(void)nbytes;
+	(void)cache;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}

@@ -33,13 +33,6 @@
 #endif
 #endif
 
-#if defined(__linux__) && defined(__NR_cacheflush)
-static inline int sys_cacheflush(char *addr, int nbytes, int cache)
-{
-	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
-}
-#endif
-
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
@@ -177,10 +170,8 @@ int stress_cache(
 
 		}
 #endif
-#if defined(__linux__) && defined(__NR_cacheflush)
-		sys_cacheflush((char *)stress_cache, 8192, ICACHE);
-		sys_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
-#endif
+		shim_cacheflush((char *)stress_cache, 8192, ICACHE);
+		shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
