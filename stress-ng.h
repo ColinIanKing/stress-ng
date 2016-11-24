@@ -2163,6 +2163,9 @@ extern void stress_set_zombie_max(const char *optarg);
  *  that have a layer of OS abstraction
  */
 extern int shim_sched_yield(void);
+extern int shim_cacheflush(char *addr, int nbytes, int cache) ;
+extern ssize_t shim_copy_file_range(int fd_in, loff_t *off_in,
+        int fd_out, loff_t *off_out, size_t len, unsigned int flags);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\

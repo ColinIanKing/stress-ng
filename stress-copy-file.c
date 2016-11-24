@@ -37,30 +37,6 @@ void stress_set_copy_file_bytes(const char *optarg)
 
 #if defined(__linux__) && (__NR_copy_file_range)
 
-static int sys_copy_file_range(
-	int fd_in,
-	loff_t *off_in,
-	int fd_out,
-	loff_t *off_out,
-	size_t len,
-	unsigned int flags)
-{
-#if defined(__NR_copy_file_range)
-	return syscall(__NR_copy_file_range,
-		fd_in, off_in, fd_out, off_out, len, flags);
-#else
-	(void)fd_in;
-	(void)off_in;
-	(void)fd_out;
-	(void)off_out;
-	(void)len;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
 /*
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
@@ -121,7 +97,8 @@ int stress_copy_file(
 		off_in = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 
-		ret =  sys_copy_file_range(fd_in, &off_in, fd_out, &off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		ret =  shim_copy_file_range(fd_in, &off_in, fd_out,
+			&off_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (ret < 0) {
 			if ((errno == EAGAIN) ||
 			    (errno == EINTR) ||
