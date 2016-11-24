@@ -214,3 +214,15 @@ int shim_membarrier(int cmd, int flags)
 #endif
 }
 
+int shim_memfd_create(const char *name, unsigned int flags)
+{
+#if defined(__NR_memfd_create)
+	return syscall(__NR_memfd_create, name, flags);
+#else
+	(void)name;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}

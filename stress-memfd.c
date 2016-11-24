@@ -40,19 +40,6 @@ void stress_set_memfd_bytes(const char *optarg)
 #if defined(__linux__) && defined(__NR_memfd_create)
 
 /*
- *  Ugly hack until glibc defines this
- */
-static inline int sys_memfd_create(const char *name, unsigned int flags)
-{
-#if defined(__NR_memfd_create)
-	return syscall(__NR_memfd_create, name, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-/*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
 static void stress_memfd_allocs(
@@ -81,7 +68,7 @@ static void stress_memfd_allocs(
 			char filename[PATH_MAX];
 
 			snprintf(filename, sizeof(filename), "memfd-%u-%zu", pid, i);
-			fds[i] = sys_memfd_create(filename, 0);
+			fds[i] = shim_memfd_create(filename, 0);
 			if (fds[i] < 0) {
 				switch (errno) {
 				case EMFILE:
