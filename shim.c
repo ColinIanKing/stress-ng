@@ -146,3 +146,16 @@ int shim_getdents64(
 #endif
 }
 
+int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
+{
+#if defined(__NR_getrandom)
+	return syscall(__NR_getrandom, buff, buflen, flags);
+#else
+	(void)buff;
+	(void)buflen;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}

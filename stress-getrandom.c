@@ -27,19 +27,6 @@
 #if defined(__linux__) && defined(__NR_getrandom)
 
 /*
- *  getrandom() syscall
- */
-static inline int sys_getrandom(void *buff, size_t buflen, unsigned int flags)
-{
-#if defined(__NR_getrandom)
-	return syscall(__NR_getrandom, buff, buflen, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-/*
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
@@ -55,7 +42,7 @@ int stress_getrandom(
 		char buffer[8192];
 		ssize_t ret;
 
-		ret = sys_getrandom(buffer, sizeof(buffer), 0);
+		ret = shim_getrandom(buffer, sizeof(buffer), 0);
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
