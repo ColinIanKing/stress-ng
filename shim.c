@@ -114,7 +114,7 @@ int shim_getdents(
 	struct linux_dirent *dirp,
 	unsigned int count)
 {
-#if defined(__NR_getdents)
+#if defined(__linux__) && defined(__NR_getdents)
         return syscall(__NR_getdents, fd, dirp, count);
 #else
 	(void)fd;
@@ -126,15 +126,12 @@ int shim_getdents(
 #endif
 }
 
-/*
- *  getdents64 syscall
- */
 int shim_getdents64(
 	unsigned int fd,
 	struct linux_dirent64 *dirp,
 	unsigned int count)
 {
-#if defined(__NR_getdents64)
+#if defined(__linux__) && defined(__NR_getdents64)
         return syscall(__NR_getdents64, fd, dirp, count);
 #else
 	(void)fd;
@@ -148,7 +145,7 @@ int shim_getdents64(
 
 int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
-#if defined(__NR_getrandom)
+#if defined(__linux__) && defined(__NR_getrandom)
 	return syscall(__NR_getrandom, buff, buflen, flags);
 #else
 	(void)buff;
@@ -172,7 +169,7 @@ void shim_clear_cache(char* begin, char *end)
 
 long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 {
-#if defined(__NR_kcmp)
+#if defined(__linux__) && defined(__NR_kcmp)
 	errno = 0;
 	return syscall(__NR_kcmp, pid1, pid2, type, fd1, fd2);
 #else
@@ -189,7 +186,7 @@ long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 
 int shim_syslog(int type, char *bufp, int len)
 {
-#if defined(__NR_syslog)
+#if defined(__linux__) && defined(__NR_syslog)
         return syscall(__NR_syslog, type, bufp, len);
 #else
 	(void)type;
@@ -203,7 +200,7 @@ int shim_syslog(int type, char *bufp, int len)
 
 int shim_membarrier(int cmd, int flags)
 {
-#if defined(__NR_membarrier)
+#if defined(__linux__) && defined(__NR_membarrier)
         return syscall(__NR_membarrier, cmd, flags);
 #else
 	(void)cmd;
@@ -216,7 +213,7 @@ int shim_membarrier(int cmd, int flags)
 
 int shim_memfd_create(const char *name, unsigned int flags)
 {
-#if defined(__NR_memfd_create)
+#if defined(__linux__) && defined(__NR_memfd_create)
 	return syscall(__NR_memfd_create, name, flags);
 #else
 	(void)name;
@@ -227,7 +224,6 @@ int shim_memfd_create(const char *name, unsigned int flags)
 #endif
 }
 
-
 int shim_get_mempolicy(
 	int *mode,
 	unsigned long *nodemask,
@@ -235,7 +231,7 @@ int shim_get_mempolicy(
 	unsigned long addr,
 	unsigned long flags)
 {
-#if defined(__NR_get_mempolicy)
+#if defined(__linux__) && defined(__NR_get_mempolicy)
 	return syscall(__NR_get_mempolicy,
 		mode, nodemask, maxnode, addr, flags);
 #else
@@ -255,7 +251,7 @@ int shim_set_mempolicy(
 	unsigned long *nodemask,
 	unsigned long maxnode)
 {
-#if defined(__NR_set_mempolicy)
+#if defined(__linux__) && defined(__NR_set_mempolicy)
 	return syscall(__NR_set_mempolicy,
 		mode, nodemask, maxnode);
 #else
@@ -276,7 +272,7 @@ long shim_mbind(
 	unsigned long maxnode,
 	unsigned flags)
 {
-#if defined(__NR_mbind)
+#if defined(__linux__) && defined(__NR_mbind)
 	return syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
 #else
@@ -298,7 +294,7 @@ long shim_migrate_pages(
 	const unsigned long *old_nodes,
 	const unsigned long *new_nodes)
 {
-#if defined(__NR_migrate_pages)
+#if defined(__linux__) && defined(__NR_migrate_pages)
 	return syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
 #else
@@ -320,7 +316,7 @@ long shim_move_pages(
 	int *status,
 	int flags)
 {
-#if defined(__NR_move_pages)
+#if defined(__linux__) && defined(__NR_move_pages)
 	return syscall(__NR_move_pages,
 		pid, count, pages, nodes,
 		status, flags);
@@ -336,4 +332,3 @@ long shim_move_pages(
 	return -1;
 #endif
 }
-
