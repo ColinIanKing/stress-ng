@@ -22,21 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && NEED_GLIBC(2,8,0)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/eventfd.h>
 
 /*

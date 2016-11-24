@@ -22,24 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
      (_XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/file.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <signal.h>
 
 #define LOCK_FILE_SIZE	(64 * 1024)
 #define LOCK_SIZE	(8)

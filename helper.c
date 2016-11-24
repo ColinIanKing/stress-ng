@@ -22,35 +22,14 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <inttypes.h>
 #include <libgen.h>
-#include <signal.h>
-#include <time.h>
 #include <math.h>
-#include <signal.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #if defined(__linux__)
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
 #include <sys/prctl.h>
-#endif
-#include <sys/resource.h>
-#if defined(__linux__)
-#include <sched.h>
 #endif
 #if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 #include <sys/utsname.h>

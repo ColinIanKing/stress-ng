@@ -21,12 +21,7 @@
  * functionality.
  *
  */
-
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <wchar.h>
 #if defined(HAVE_LIB_BSD)
 #include <bsd/wchar.h>

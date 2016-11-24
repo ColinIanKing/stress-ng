@@ -22,20 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <signal.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-
 #include "stress-ng.h"
 
 #define NO_MEM_RETRIES_MAX	(256)

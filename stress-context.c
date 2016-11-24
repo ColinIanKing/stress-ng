@@ -22,16 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if !defined(__OpenBSD__)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <ucontext.h>
 
 #define STACK_SIZE	(16384)

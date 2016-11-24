@@ -22,27 +22,13 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <fcntl.h>
 #if defined(__linux__) && defined(FS_IOC_FIEMAP)
 #include <linux/fs.h>
 #include <linux/fiemap.h>
 #endif
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
-
 
 static uint64_t opt_fiemap_size = DEFAULT_FIEMAP_SIZE;
 static bool set_fiemap_size = false;

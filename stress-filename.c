@@ -22,19 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
-#include <fcntl.h>
-#include <errno.h>
-
 #include "stress-ng.h"
+#include <sys/statvfs.h>
 
 #define	STRESS_FILENAME_PROBE	(0)	/* Default */
 #define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */

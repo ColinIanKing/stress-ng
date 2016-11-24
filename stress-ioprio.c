@@ -22,20 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_ioprio_set) && defined(__NR_ioprio_get)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
 #include <sys/uio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #define MAX_IOV		(4)
 #define BUF_SIZE	(32)

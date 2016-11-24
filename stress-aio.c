@@ -22,22 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <aio.h>
-#include <fcntl.h>
 
 #define BUFFER_SZ	(16)
 

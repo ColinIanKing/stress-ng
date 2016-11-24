@@ -22,21 +22,14 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 #include "perf-event.h"
 
 #if defined(STRESS_PERF_STATS)
 /* perf enabled systems */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <locale.h>
-#include <pthread.h>
-#include <ctype.h>
+#include <linux/perf_event.h>
 
 #define THOUSAND	(1000.0)
 #define MILLION		(THOUSAND * THOUSAND)
@@ -45,10 +38,6 @@
 #define QUADRILLION	(THOUSAND * TRILLION)
 #define QUINTILLION	(THOUSAND * QUADRILLION)
 
-
-#include <sys/ioctl.h>
-#include <sys/syscall.h>
-#include <linux/perf_event.h>
 
 /* used for table of perf events to gather */
 typedef struct {

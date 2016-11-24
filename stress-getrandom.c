@@ -22,15 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_getrandom)
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
 
 /*
  *  getrandom() syscall

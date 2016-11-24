@@ -22,27 +22,15 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
 
 #if defined(__linux__)
 #define SOCKET_NODELAY
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <unistd.h>
-#include <errno.h>
-
 #if defined(SOCKET_NODELAY)
 #include <netinet/tcp.h>
 #endif
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #ifdef AF_INET6
@@ -51,11 +39,6 @@
 #ifdef AF_UNIX
 #include <sys/un.h>
 #endif
-#if defined(__linux__)
-#include <sys/syscall.h>
-#endif
-
-#include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_sendmmsg) && NEED_GLIBC(2,14,0)
 #define HAVE_SENDMMSG

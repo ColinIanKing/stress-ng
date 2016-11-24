@@ -22,28 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <limits.h>
-#include <errno.h>
-
 #if defined(HAVE_LIB_RT) && defined(__linux__)
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <fcntl.h>
 #include <mqueue.h>
-#include <time.h>
 
 typedef struct {
 	uint64_t	value;

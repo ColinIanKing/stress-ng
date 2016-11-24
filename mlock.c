@@ -22,11 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stddef.h>
-#include <sys/mman.h>
-
 #include "stress-ng.h"
 
 /*

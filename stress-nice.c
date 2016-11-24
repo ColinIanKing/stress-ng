@@ -22,22 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <sched.h>
-#include <errno.h>
-#include <time.h>
-#include <signal.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
 #include "stress-ng.h"
-
 
 /*
  *  stress on sched_nice()

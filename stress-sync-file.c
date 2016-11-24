@@ -22,18 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 #if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
 static const int sync_modes[] = {

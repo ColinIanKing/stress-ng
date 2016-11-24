@@ -22,8 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && (	\
@@ -33,16 +31,7 @@
     defined(Q_GETSTATS) ||	\
     defined(Q_SYNC))
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/quota.h>
-#include <errno.h>
-#include <signal.h>
 
 #define MAX_DEVS	(128)
 

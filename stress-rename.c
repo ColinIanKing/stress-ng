@@ -22,17 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <inttypes.h>
-#include <limits.h>
-#include <unistd.h>
-#include <errno.h>
-
 #include "stress-ng.h"
 
 /*

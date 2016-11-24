@@ -22,17 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <time.h>
-#include <signal.h>
-#include <errno.h>
 
 #if defined(HAVE_LIB_RT) && (_POSIX_C_SOURCE >= 199309L)
 

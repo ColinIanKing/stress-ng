@@ -22,19 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_KEYUTILS_H) && defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
 #include <keyutils.h>
-#include <stdarg.h>
 
 #define MAX_KEYS 	(256)
 

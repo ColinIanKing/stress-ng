@@ -22,17 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-    !defined(__OpenBSD__)
-#include <sched.h>
-#endif
-
 #include "stress-ng.h"
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \

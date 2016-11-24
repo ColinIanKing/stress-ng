@@ -22,24 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
 #if defined(__linux__)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
-
-#include <sys/types.h>
 #include <sys/ptrace.h>
-#include <sys/wait.h>
 
 /*
  *  main syscall ptrace loop

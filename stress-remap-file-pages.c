@@ -22,19 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0) && defined(__NR_remap_file_pages)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/mman.h>
 
 #define N_PAGES		(512)
 

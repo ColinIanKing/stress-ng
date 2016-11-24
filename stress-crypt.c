@@ -22,17 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-#define _XOPEN_SOURCE	600
-
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_CRYPT)
+#undef _XOPEN_SOURCE
+#define _XOPEN_SOURCE	600
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
+#if defined(HAVE_LIB_CRYPT)
 #if defined (__linux__)
 #include <crypt.h>
 #endif

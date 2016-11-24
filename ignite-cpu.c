@@ -22,17 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-
 #include "stress-ng.h"
 
 typedef struct {

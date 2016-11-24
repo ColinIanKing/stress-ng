@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_membarrier)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <signal.h>
 
 #define MAX_MEMBARRIER_THREADS	(4)
 

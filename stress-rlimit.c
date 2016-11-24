@@ -22,22 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <setjmp.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;

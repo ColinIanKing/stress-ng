@@ -22,20 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(HAVE_SYS_CAP_H)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <ctype.h>
 #include <sys/capability.h>
-#include <sys/types.h>
-#include <dirent.h>
 
 static int stress_capgetset_pid(
 	const char *name,

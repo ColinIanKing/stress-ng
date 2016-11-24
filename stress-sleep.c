@@ -22,23 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/select.h>
-#include <pthread.h>
-#include <errno.h>
-#include <signal.h>
-#include <time.h>
 
 static bool thread_terminate;
 static sigset_t set;

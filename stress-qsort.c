@@ -22,15 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <setjmp.h>
-#include <signal.h>
-
 #include "stress-ng.h"
 
 static uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;

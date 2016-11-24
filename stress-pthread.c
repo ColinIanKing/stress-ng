@@ -22,27 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <signal.h>
 #if defined(HAVE_LIB_PTHREAD)
-#include <pthread.h>
-
 #if defined(__linux__)
-/* For get_robust_list on Linux: */
-#include <syscall.h>
 #if defined(__NR_get_robust_list)
 #include <linux/futex.h>
-#include <sys/types.h>
 #endif
 #endif
 

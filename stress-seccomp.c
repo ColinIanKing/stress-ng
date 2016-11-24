@@ -22,24 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
 
-#include <stdio.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
 #include <sys/prctl.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/syscall.h>
-
 #include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>

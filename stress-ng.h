@@ -28,6 +28,7 @@
 
 #define _GNU_SOURCE
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -36,11 +37,20 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <ctype.h>
+#include <dirent.h>
+#include <limits.h>
+#include <setjmp.h>
 #include <semaphore.h>
+#include <sched.h>
+#if defined(__GNUC__) && defined(__linux__)
+#include <malloc.h>
+#endif
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
 #include <signal.h>
+#include <sys/file.h>
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/times.h>
@@ -49,6 +59,7 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <sys/resource.h>
 #if defined (__linux__)
 #include <sys/mount.h>
 #include <sys/syscall.h>
@@ -120,7 +131,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define NEED_GNUC(major, minor, patchlevel) 	(0)
 #endif
 
-#define _GNU_SOURCE
 /* GNU HURD */
 #ifndef PATH_MAX
 #define PATH_MAX 		(4096)		/* Some systems don't define this */

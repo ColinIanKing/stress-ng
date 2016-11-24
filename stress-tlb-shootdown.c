@@ -22,25 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-#include <sched.h>
-
 #define MAX_TLB_PROCS	(4)
 #define MMAP_PAGES	(512)
-
 
 /*
  *  stress_tlb_shootdown()

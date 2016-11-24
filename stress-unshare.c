@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_unshare)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sched.h>
-#include <sys/wait.h>
-#include <sys/syscall.h>
 
 #define MAX_PIDS	(32)
 

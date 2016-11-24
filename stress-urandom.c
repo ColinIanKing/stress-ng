@@ -22,22 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) || defined(__gnu_hurd__)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #if defined(__linux__)
 #include <linux/random.h>
-#include <sys/ioctl.h>
 #endif
 
 #if defined(__linux__) && defined(RNDGETENTCNT)

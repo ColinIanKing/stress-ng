@@ -22,20 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
     (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
-
-#include <stdio.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
-#include <sys/mman.h>
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
 #define CHUNK_SIZE	(64 * 4)

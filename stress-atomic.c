@@ -22,10 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdint.h>
-#include <inttypes.h>
+#include "stress-ng.h"
 
 #define DO_ATOMIC_OPS(type, var)			\
 {							\
@@ -98,10 +95,11 @@
 
 
 #if defined(TEST_ATOMIC_BUILD)
-static inline uint64_t mwc64(void)
-{
-	return 0;
-}
+
+mwc_t __mwc = {
+        MWC_SEED_W,
+        MWC_SEED_Z
+};
 
 int main(void)
 {
@@ -119,9 +117,6 @@ int main(void)
 }
 
 #else
-
-#include "stress-ng.h"
-
 #if defined(HAVE_ATOMIC)
 
 /*

@@ -22,17 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-#if defined(__linux__)
-#include <sys/syscall.h>
-#endif
 
 /*
  *  get_opt_ionice_class()

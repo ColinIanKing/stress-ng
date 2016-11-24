@@ -22,15 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <signal.h>
-#include <time.h>
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)
 static volatile uint64_t timer_counter = 0;

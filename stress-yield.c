@@ -22,26 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
-
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sched.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
-#if defined(__sun__)
-#include <alloca.h>
-#endif
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
-#include <sched.h>
-#endif
 
 /*
  *  stress on sched_yield()

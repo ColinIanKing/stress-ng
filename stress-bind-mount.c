@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(MS_BIND) && defined(MS_REC)
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/mount.h>
-#include <sched.h>
 
 #define CLONE_STACK_SIZE	(64*1024)
 

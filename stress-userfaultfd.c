@@ -22,27 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_userfaultfd)
 
-#include <stddef.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <poll.h>
-#include <sys/syscall.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <linux/userfaultfd.h>
-#include <sched.h>
 
 #define STACK_SIZE	(64 * 1024)
 

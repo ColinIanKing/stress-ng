@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sched.h>
-
 
 /*
  *  stress on sched_affinity()

@@ -22,26 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_futex)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <time.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <errno.h>
-#include <signal.h>
 #include <linux/futex.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/syscall.h>
 
 #define THRESHOLD	(100000)
 

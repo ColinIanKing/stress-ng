@@ -22,17 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 static uint64_t opt_copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 static bool set_copy_file_bytes;

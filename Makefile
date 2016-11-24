@@ -21,7 +21,7 @@ VERSION=0.07.05
 # Codename "systematic stress inducer"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99 
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
 # Pedantic flags

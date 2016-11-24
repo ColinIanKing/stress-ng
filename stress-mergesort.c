@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #if defined(HAVE_LIB_BSD)
-#include <setjmp.h>
-#include <signal.h>
 #include <bsd/stdlib.h>
 
 static volatile bool do_jmp = true;

@@ -22,19 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/wait.h>
 
 static void MLOCKED stress_sigqhandler(int dummy)
 {

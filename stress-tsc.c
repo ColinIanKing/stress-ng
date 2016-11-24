@@ -22,16 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
 
 #if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
 

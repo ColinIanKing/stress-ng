@@ -22,24 +22,14 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 #if defined(__linux__)
-#include <sys/syscall.h>
 #ifndef ICACHE
 #define	ICACHE	(1 << 0)
 #endif
 #ifndef DCACHE
 #define DCACHE	(1 << 1)
-#endif
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-#include <sched.h>
 #endif
 #endif
 

@@ -22,24 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_SCTP)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <unistd.h>
-#include <errno.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
 #include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <arpa/inet.h>
@@ -48,9 +34,6 @@
 #endif
 #ifdef AF_UNIX
 #include <sys/un.h>
-#endif
-#if defined(__linux__)
-#include <sys/syscall.h>
 #endif
 
 #if !defined(LOCALTIME_STREAM)

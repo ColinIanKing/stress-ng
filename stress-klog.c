@@ -22,16 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_syslog)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
 
 #define SYSLOG_ACTION_CLOSE		(0)
 #define SYSLOG_ACTION_OPEN		(1)

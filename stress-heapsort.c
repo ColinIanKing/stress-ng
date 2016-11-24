@@ -22,23 +22,13 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #if defined(HAVE_LIB_BSD)
-#include <setjmp.h>
-#include <signal.h>
 #include <bsd/stdlib.h>
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
-
 #endif
 
 static uint64_t opt_heapsort_size = DEFAULT_HEAPSORT_SIZE;

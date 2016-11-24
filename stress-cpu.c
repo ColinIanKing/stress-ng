@@ -22,16 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
+#include "stress-ng.h"
 #include <math.h>
 #include <complex.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include "stress-ng.h"
 
 #define GAMMA 	(0.57721566490153286060651209008240243104215933593992L)
 #define OMEGA	(0.56714329040978387299996866221035554975381578718651L)

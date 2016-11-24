@@ -22,15 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/mman.h>
-
 #include "stress-ng.h"
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)

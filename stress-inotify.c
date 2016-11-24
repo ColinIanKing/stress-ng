@@ -24,28 +24,12 @@
  * stress-inotify.c is derived from the eCryptfs inotify tests
  * that I authored in 2012.
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <inttypes.h>
-#include <string.h>
-#include <unistd.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/select.h>
 #include <sys/inotify.h>
-
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)
 #define FILE_FLAGS	(S_IRUSR | S_IWUSR)

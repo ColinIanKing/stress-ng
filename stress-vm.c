@@ -22,24 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <signal.h>
-#include <errno.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
 #include "stress-ng.h"
 
 #define VM_BOGO_SHIFT		(12)
 #define VM_ROWHAMMER_LOOPS	(1000000)
 
 #define NO_MEM_RETRIES_MAX	(100)
-
 
 /*
  *  the VM stress test has diffent methods of vm stressor

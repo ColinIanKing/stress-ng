@@ -22,15 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <signal.h>
-#include <time.h>
 
 static volatile uint64_t itimer_counter = 0;
 static uint64_t opt_itimer_freq = DEFAULT_TIMER_FREQ;

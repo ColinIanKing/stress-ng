@@ -22,27 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#define MAX_EPOLL_EVENTS 	(1024)
-#define MAX_SERVERS		(4)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include <signal.h>
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
-#include <time.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/epoll.h>
-#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #ifdef AF_INET6
@@ -51,11 +33,10 @@
 #ifdef AF_UNIX
 #include <sys/un.h>
 #endif
-#include <fcntl.h>
 #include <netdb.h>
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-#include <sched.h>
-#endif
+
+#define MAX_EPOLL_EVENTS 	(1024)
+#define MAX_SERVERS		(4)
 
 typedef void (epoll_func_t)(
 	const int child,

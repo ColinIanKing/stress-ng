@@ -20,17 +20,7 @@
 
 #if defined(__linux__)
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <glob.h>
-#include <limits.h>
-#include <errno.h>
-#include <sched.h>
 
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"

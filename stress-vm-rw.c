@@ -22,27 +22,14 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <signal.h>
 
 #if defined(__linux__) &&		\
     defined(__NR_process_vm_readv) &&	\
     defined(__NR_process_vm_writev) &&	\
     NEED_GLIBC(2,15,0)
 
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
 #include <sys/uio.h>
-#include <errno.h>
-#include <sched.h>
 
 #define STACK_SIZE	(64 * 1024)
 

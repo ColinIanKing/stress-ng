@@ -22,16 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <syslog.h>
-
 #include "stress-ng.h"
+#include <syslog.h>
 
 static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;

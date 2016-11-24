@@ -22,18 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <string.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 #include "stress-ng.h"
 
 #if defined(STRESS_THERMAL_ZONES)

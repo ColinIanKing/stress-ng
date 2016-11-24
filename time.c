@@ -22,11 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <sys/time.h>
-
 #include "stress-ng.h"
 
 #define SECONDS_IN_MINUTE	(60.0)
@@ -34,7 +29,6 @@
 #define SECONDS_IN_DAY		(24.0 * SECONDS_IN_HOUR)
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
-
 /*
  *  time_now()
  *	time in seconds as a double

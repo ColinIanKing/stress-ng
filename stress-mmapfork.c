@@ -22,21 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sched.h>
-#include <sys/mman.h>
 #include <sys/sysinfo.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <setjmp.h>
 
 #define MAX_PIDS		(32)
 

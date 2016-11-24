@@ -22,22 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(_POSIX_MEMLOCK_RANGE) && !defined(__minix__)
-
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <signal.h>
 
 #define MLOCK_MAX	(256*1024)
 

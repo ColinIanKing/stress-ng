@@ -22,16 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <setjmp.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-
 #include "stress-ng.h"
 
 static sigjmp_buf jmp_env;

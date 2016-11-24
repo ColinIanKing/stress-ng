@@ -22,20 +22,13 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
 #if defined(__linux__)
 #include <sys/sysinfo.h>
 #include <sys/statfs.h>
 #endif
 #include <sys/statvfs.h>
-#include <sys/times.h>
 
 #define check_do_run()		\
 	if (!opt_do_run)	\

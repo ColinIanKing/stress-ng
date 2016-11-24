@@ -22,14 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <search.h>
-
 #include "stress-ng.h"
+#include <search.h>
 
 static uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
 static bool set_hsearch_size = false;

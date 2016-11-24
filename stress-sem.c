@@ -22,23 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <errno.h>
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 #include <semaphore.h>
-#include <signal.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #endif
 
 static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;

@@ -22,20 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
 #include "stress-ng.h"
 
 static uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;

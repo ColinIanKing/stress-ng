@@ -22,22 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <sys/select.h>
-#include <errno.h>
-#include <fcntl.h>
-
 #include "stress-ng.h"
+#include <sys/select.h>
 
 static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 static bool set_fifo_readers = false;

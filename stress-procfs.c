@@ -22,22 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include <signal.h>
 
 #define PROC_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)

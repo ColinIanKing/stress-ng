@@ -22,14 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
+#include "stress-ng.h"
 #include <math.h>
 #include <complex.h>
-#include <sys/time.h>
-#include "stress-ng.h"
 
 typedef float	matrix_type_t;
 

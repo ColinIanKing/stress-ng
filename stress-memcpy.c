@@ -22,12 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "stress-ng.h"
 
 static uint8_t buffer[STR_SHARED_SIZE] ALIGN64;

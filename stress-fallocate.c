@@ -22,18 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 static bool set_fallocate_bytes = false;

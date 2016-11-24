@@ -22,27 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
-#include <setjmp.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-#include <sched.h>
-#endif
 
 static uint64_t lease_sigio;
 #endif

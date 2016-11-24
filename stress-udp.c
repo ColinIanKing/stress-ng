@@ -22,20 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include <signal.h>
-#include <unistd.h>
-#include <errno.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #ifdef AF_INET6
@@ -44,8 +32,6 @@
 #ifdef AF_UNIX
 #include <sys/un.h>
 #endif
-
-#include "stress-ng.h"
 
 /* See bugs section of udplite(7) */
 #if !defined(SOL_UDPLITE)

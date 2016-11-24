@@ -21,25 +21,10 @@
  * <apw@rossby.metr.ou.edu> but has more stress tests and more
  * functionality.
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <inttypes.h>
-#include <string.h>
-#include <unistd.h>
-#include <limits.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/select.h>
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)

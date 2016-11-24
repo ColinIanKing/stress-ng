@@ -22,19 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <fcntl.h>
-
 #include "stress-ng.h"
+#include <sys/uio.h>
 
 #define BUF_ALIGNMENT		(4096)
 #define HDD_IO_VEC_MAX		(16)		/* Must be power of 2 */
@@ -142,7 +131,7 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
-#if defined(_GNU_SOURCE) && NEED_GLIBC(2,14,0) && defined(__linux__)
+#if NEED_GLIBC(2,14,0) && defined(__linux__)
 	{ "syncfs",	HDD_OPT_SYNCFS, 0, 0, 0 },
 #endif
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
@@ -202,7 +191,7 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
 	if (opt_hdd_flags & HDD_OPT_FDATASYNC)
 		(void)fdatasync(fd);
 #endif
-#if defined(_GNU_SOURCE) && NEED_GLIBC(2,14,0) && defined(__linux__)
+#if NEED_GLIBC(2,14,0) && defined(__linux__)
 	if (opt_hdd_flags & HDD_OPT_SYNCFS)
 		(void)syncfs(fd);
 #endif

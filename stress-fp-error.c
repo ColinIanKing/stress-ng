@@ -22,19 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "stress-ng.h"
 #include <math.h>
 #include <float.h>
-#include <errno.h>
 #include <fenv.h>
-#include <limits.h>
-
-#include "stress-ng.h"
 
 #define SET_VOLATILE(d, val)	\
 do {				\

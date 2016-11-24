@@ -22,14 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <errno.h>
-#include <sys/mman.h>
-
 #include "stress-ng.h"
 
 #if (defined(STRESS_X86) || defined(STRESS_ARM)) && \

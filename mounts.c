@@ -22,16 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
 
-#include <stdlib.h>
-#include <string.h>
 #if !defined(__FreeBSD__) && !defined(__OpenBSD__) && \
     !defined(__NetBSD__) && !defined(__sun__) && !defined(__minix__)
 #include <mntent.h>
 #endif
-
-#include "stress-ng.h"
 
 /*
  *  mount_add()

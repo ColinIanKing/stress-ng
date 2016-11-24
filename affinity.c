@@ -22,8 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 static const char *option = "taskset";

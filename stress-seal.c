@@ -22,22 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_memfd_create)
-
-#include <unistd.h>
-#include <fcntl.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/syscall.h>
 
 #ifndef F_ADD_SEALS
 #define F_ADD_SEALS		(1024 + 9)

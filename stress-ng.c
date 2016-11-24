@@ -22,39 +22,15 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <fcntl.h>
 #include <getopt.h>
-#include <errno.h>
 #include <semaphore.h>
 #include <syslog.h>
 
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/times.h>
-#include <sys/wait.h>
-#include <sys/resource.h>
 #if defined(__linux__)
 #include <sys/utsname.h>
 #include <sys/sysinfo.h>
-#endif
-#if defined(__sun__)
-#include <alloca.h>
-#endif
-
-#include "stress-ng.h"
-
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
-#include <sched.h>
 #endif
 
 typedef struct {

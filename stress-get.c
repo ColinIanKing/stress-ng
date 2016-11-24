@@ -22,25 +22,15 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
+
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #if defined(__linux__)
-#include <sys/syscall.h>
 #include <sys/utsname.h>
 #include <sys/timex.h>
 #endif
-#include <time.h>
-
-#include "stress-ng.h"
 
 #define check_do_run()		\
 	if (!opt_do_run)	\

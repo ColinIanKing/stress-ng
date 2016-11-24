@@ -22,18 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <signal.h>
-
 #if defined(__linux__)
-#include <time.h>
 #include <sys/timerfd.h>
 
 static volatile uint64_t timerfd_counter = 0;

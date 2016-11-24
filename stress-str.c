@@ -22,12 +22,8 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <strings.h>
 #if defined(HAVE_LIB_BSD)
 #include <bsd/string.h>

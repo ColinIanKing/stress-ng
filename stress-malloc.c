@@ -22,24 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <signal.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#if defined(__GNUC__) && defined(__linux__)
-#include <malloc.h>
-#endif
 
 static size_t opt_malloc_bytes = DEFAULT_MALLOC_BYTES;
 static bool set_malloc_bytes = false;

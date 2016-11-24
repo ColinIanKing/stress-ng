@@ -22,24 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
+#include "stress-ng.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <signal.h>
-
-#include "stress-ng.h"
 
 #define KEY_GET_RETRIES		(40)
 

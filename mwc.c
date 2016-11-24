@@ -22,15 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdint.h>
-#include <unistd.h>
-
-#include <sys/time.h>
-#include <sys/types.h>
-
 #include "stress-ng.h"
 
 mwc_t __mwc = {

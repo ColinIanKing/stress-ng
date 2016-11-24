@@ -22,28 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(STRESS_THRASH)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <string.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <errno.h>
-#include <dirent.h>
-#include <ctype.h>
 
 static pid_t thrash_pid;
 

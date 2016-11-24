@@ -22,21 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_name_to_handle_at) && \
     defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/resource.h>
 
 #define MAX_MOUNT_IDS	(1024)
 #define FILENAME	"/dev/zero"

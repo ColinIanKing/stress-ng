@@ -22,24 +22,11 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(HAVE_APPARMOR)
 
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <dirent.h>
-
 #include <sys/select.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/wait.h>
 #include <sys/apparmor.h>
 
 #define APPARMOR_BUF_SZ	(4096)

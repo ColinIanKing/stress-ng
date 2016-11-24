@@ -22,23 +22,7 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
-
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <setjmp.h>
-#include <signal.h>
-#include <inttypes.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 static sigjmp_buf jmp_env;

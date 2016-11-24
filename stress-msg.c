@@ -22,25 +22,12 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,0,0)
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <signal.h>
-#include <limits.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#include <sys/stat.h>
 
 #define MAX_SIZE	(8)
 #define MSG_STOP	"STOPMSG"

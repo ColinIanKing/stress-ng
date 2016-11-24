@@ -22,26 +22,10 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <setjmp.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/mman.h>
-#include <sys/syscall.h>
-#include <sys/socket.h>
+#include "stress-ng.h"
 #if defined(__NR_eventfd)
 #include <sys/eventfd.h>
 #endif
-#if defined(__sun__)
-#include <alloca.h>
-#endif
-
-#include "stress-ng.h"
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)

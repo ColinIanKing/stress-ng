@@ -22,8 +22,6 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(__linux__) &&		\
@@ -32,19 +30,6 @@
     defined(__NR_migrate_pages) &&	\
     defined(__NR_move_pages) &&		\
     defined(__NR_set_mempolicy)
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <string.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/syscall.h>
 
 #define NUMA_LONG_BITS		(sizeof(unsigned long) * 8)
 

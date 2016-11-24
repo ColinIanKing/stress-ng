@@ -22,16 +22,9 @@
  * functionality.
  *
  */
-#define _GNU_SOURCE
-
 #include "stress-ng.h"
 
 #if defined(HAVE_VECMATH)
-
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t vint16_t __attribute__ ((vector_size (16)));
