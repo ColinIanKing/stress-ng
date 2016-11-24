@@ -117,13 +117,9 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 * as the default code assumes smart x86 style
 			 * I$ behaviour.
 			 */
-#if defined(__GNUC__) && defined(STRESS_ARM)
-			__clear_cache((char *)addr, (char *)addr + 64);
-#endif
+			shim_clear_cache((char *)addr, (char *)addr + 64);
 			*vaddr = val;
-#if defined(__GNUC__) && defined(STRESS_ARM)
-			__clear_cache((char *)addr, (char *)addr + 64);
-#endif
+			shim_clear_cache((char *)addr, (char *)addr + 64);
 			/*
 			 *  Set back to a text segment READ/EXEC page attributes, this
 			 *  really should not fail.

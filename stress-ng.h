@@ -2170,6 +2170,7 @@ extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_gettid(void);
 extern long shim_getcpu(unsigned *cpu, unsigned *node, void *tcache);
 extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
+extern void shim_clear_cache(char* begin, char *end);
 
 struct linux_dirent {
 	unsigned long  d_ino;     	/* Inode number */
