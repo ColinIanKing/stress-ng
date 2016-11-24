@@ -91,13 +91,6 @@ static struct sock_fprog prog_random = {
 	.filter = filter_random
 };
 
-#if defined(__NR_seccomp)
-static int sys_seccomp(unsigned int operation, unsigned int flags, void *args)
-{
-	return (int)syscall(__NR_seccomp, operation, flags, args);
-}
-#endif
-
 /*
  *  stress_seccomp_set_filter()
  *	set up a seccomp filter, allow writes
@@ -139,7 +132,7 @@ static inline int stress_seccomp_set_filter(
 	 */
 	if (use_seccomp) {
 redo_seccomp:
-		if (sys_seccomp(SECCOMP_SET_MODE_FILTER, 0, p) == 0)
+		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, p) == 0)
 			return 0;
 
 		if (errno != ENOSYS) {

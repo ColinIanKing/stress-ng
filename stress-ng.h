@@ -2187,6 +2187,7 @@ extern long shim_migrate_pages(int pid, unsigned long maxnode,
 extern long shim_move_pages(int pid, unsigned long count,
 	void **pages, const int *nodes, int *status, int flags);
 extern int shim_userfaultfd(int flags);
+extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 
 struct linux_dirent {
 	unsigned long  d_ino;     	/* Inode number */

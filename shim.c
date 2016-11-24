@@ -339,8 +339,24 @@ int shim_userfaultfd(int flags)
         return syscall(__NR_userfaultfd, flags);
 #else
 	(void)flags;
+
 	errno = ENOSYS;
 	return -1;
 #endif
 }
+
+int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
+{
+#if defined(__linux__) && defined(__NR_seccomp)
+        return (int)syscall(__NR_seccomp, operation, flags, args);
+#else
+	(void)operation;
+	(void)flags;
+	(void)args;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
 
