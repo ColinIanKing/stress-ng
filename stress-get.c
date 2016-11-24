@@ -107,13 +107,6 @@ static const int priorities[] = {
 #endif
 };
 
-#if defined(__linux__) && defined(__NR_gettid)
-static inline int sys_gettid(void)
-{
-        return syscall(SYS_gettid);
-}
-#endif
-
 #if defined(__linux__) && defined(__NR_getcpu)
 static long sys_getcpu(
         unsigned *cpu,
@@ -263,10 +256,8 @@ int stress_get(
 		check_do_run();
 #endif
 
-#if defined(__linux__) && defined(__NR_gettid)
-		(void)sys_gettid();
+		(void)shim_gettid();
 		check_do_run();
-#endif
 
 #if defined(__linux__) && defined(__NR_getcpu)
 		{
