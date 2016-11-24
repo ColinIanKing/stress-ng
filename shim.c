@@ -359,4 +359,18 @@ int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 #endif
 }
 
+int shim_unshare(int flags)
+{
+#if defined(__linux__) && defined(__NR_unshare)
+#if NEED_GLIBC(2,14,0)
+	return unshare(flags);
+#else
+	return syscall(__NR_unshare, flags);
+#endif
+#else
+	(void)flags;
 
+	errno = ENOSYS;
+	return -1;
+#endif
+}

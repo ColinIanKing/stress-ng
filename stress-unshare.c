@@ -29,19 +29,15 @@
 #define MAX_PIDS	(32)
 
 #define UNSHARE(flags)	\
-	sys_unshare(name, flags, #flags);
+	check_unshare(name, flags, #flags);
 
 /*
  *  unshare with some error checking
  */
-static void sys_unshare(const char *name, int flags, const char *flags_name)
+static void check_unshare(const char *name, int flags, const char *flags_name)
 {
 	int rc;
-#if NEED_GLIBC(2,14,0)
-	rc = unshare(flags);
-#else
-	rc = syscall(__NR_unshare, flags);
-#endif
+	rc = shim_unshare(flags);
 	if ((rc < 0) && (errno != EPERM) && (errno != EINVAL)) {
 		pr_fail(stderr, "%s: unshare(%s) failed, "
 			"errno=%d (%s)\n", name, flags_name,
