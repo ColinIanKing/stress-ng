@@ -70,7 +70,7 @@ static int stress_sync_allocate(const char *name, const int fd)
 		return -errno;
 	}
 
-	ret = fallocate(fd, 0, (off_t)0, opt_sync_file_bytes);
+	ret = shim_fallocate(fd, 0, (off_t)0, opt_sync_file_bytes);
 	if (ret < 0) {
 		pr_err(stderr, "%s: fallocate failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));

@@ -138,7 +138,6 @@ int stress_fallocate(
 			ftrunc_errs++;
 		(void)fsync(fd);
 
-#if defined(__linux__)
 		if (SIZEOF_ARRAY(modes) > 1) {
 			/*
 			 *  non-portable Linux fallocate()
@@ -153,7 +152,7 @@ int stress_fallocate(
 				off_t offset = (mwc64() % opt_fallocate_bytes) & ~0xfff;
 				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
-				(void)fallocate(fd, modes[j], offset, 64 * KB);
+				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!opt_do_run)
 					break;
 				(void)fsync(fd);
@@ -162,7 +161,6 @@ int stress_fallocate(
 				ftrunc_errs++;
 			(void)fsync(fd);
 		}
-#endif
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 	if (ftrunc_errs)

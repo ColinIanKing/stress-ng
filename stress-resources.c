@@ -143,7 +143,7 @@ static void waste_resources(const size_t page_size)
 		if (info[i].fd_tmp != -1) {
 			size_t sz = page_size * mwc32();
 
-			fallocate(info[i].fd_tmp, 0, 0, sz);
+			(void)shim_fallocate(info[i].fd_tmp, 0, 0, sz);
 #if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 			{

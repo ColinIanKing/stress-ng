@@ -86,7 +86,7 @@ static int stress_fiemap_writer(
 			continue;
 
 		offset = mwc64() % len;
-		if (fallocate(fd, FALLOC_FL_PUNCH_HOLE |
+		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;

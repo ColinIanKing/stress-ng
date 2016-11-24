@@ -136,7 +136,7 @@ static void stress_memfd_allocs(
 				 *  ..and punch a hole
 				 */
 				whence = (mwc32() % size) & ~(page_size - 1);
-				ret = fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
+				ret = shim_fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
 					FALLOC_FL_KEEP_SIZE, whence, page_size);
 				(void)ret;
 #endif

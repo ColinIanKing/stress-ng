@@ -70,3 +70,14 @@ ssize_t shim_copy_file_range(
 	return -1;
 #endif
 }
+
+int shim_fallocate(int fd, int mode, off_t offset, off_t len)
+{
+#if defined(__linux__) && defined(__NR_fallocate)
+	return fallocate(fd, mode, offset, len);
+#else
+	(void)mode;
+
+	return posix_fallocate(fd, offset, len);
+#endif
+}
