@@ -36,16 +36,6 @@ enum membarrier_cmd {
 	MEMBARRIER_CMD_SHARED = (1 << 0),
 };
 
-static int sys_membarrier(int cmd, int flags)
-{
-#if defined(__NR_membarrier)
-	return syscall(__NR_membarrier, cmd, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
 static void *stress_membarrier_thread(void *ctxt)
 {
 	static void *nowt = NULL;
@@ -75,7 +65,7 @@ static void *stress_membarrier_thread(void *ctxt)
 		return &nowt;
 	}
 	while (keep_running && opt_do_run) {
-		if (sys_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
+		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
 			pr_fail_err(name, "membarrier");
 			break;
 		}
@@ -101,7 +91,7 @@ int stress_membarrier(
 
 	(void)instance;
 
-	ret = sys_membarrier(MEMBARRIER_CMD_QUERY, 0);
+	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
 		pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
 			name, errno, strerror(errno));
@@ -124,7 +114,7 @@ int stress_membarrier(
 	}
 
 	do {
-		ret = sys_membarrier(MEMBARRIER_CMD_SHARED, 0);
+		ret = shim_membarrier(MEMBARRIER_CMD_SHARED, 0);
 		if (ret < 0) {
 			pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));

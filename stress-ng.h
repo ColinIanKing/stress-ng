@@ -2173,6 +2173,7 @@ extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern void shim_clear_cache(char* begin, char *end);
 extern long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2);
 extern int shim_syslog(int type, char *bufp, int len);
+extern int shim_membarrier(int cmd, int flags);
 
 struct linux_dirent {
 	unsigned long  d_ino;     	/* Inode number */

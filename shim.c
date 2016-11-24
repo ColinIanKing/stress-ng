@@ -199,4 +199,18 @@ int shim_syslog(int type, char *bufp, int len)
 	errno = ENOSYS;
 	return -1;
 #endif
-}    
+}
+
+int shim_membarrier(int cmd, int flags)
+{
+#if defined(__NR_membarrier)
+        return syscall(__NR_membarrier, cmd, flags);
+#else
+	(void)cmd;
+	(void)flags;
+
+        errno = ENOSYS;
+        return -1;
+#endif
+}
+
