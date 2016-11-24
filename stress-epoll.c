@@ -23,6 +23,10 @@
  *
  */
 #include "stress-ng.h"
+
+#define MAX_EPOLL_EVENTS 	(1024)
+#define MAX_SERVERS		(4)
+
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 #include <sys/epoll.h>
 #include <netinet/in.h>
@@ -34,9 +38,6 @@
 #include <sys/un.h>
 #endif
 #include <netdb.h>
-
-#define MAX_EPOLL_EVENTS 	(1024)
-#define MAX_SERVERS		(4)
 
 typedef void (epoll_func_t)(
 	const int child,
