@@ -92,3 +92,19 @@ int shim_gettid(void)
 #endif
 }
 
+long shim_getcpu(
+	unsigned *cpu,
+	unsigned *node,
+	void *tcache)
+{
+#if defined(__linux__) && defined(__NR_getcpu)
+        return syscall(__NR_getcpu, cpu, node, tcache);
+#else
+	(void)cpu;
+	(void)node;
+	(void)tcache;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}

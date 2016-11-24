@@ -107,16 +107,6 @@ static const int priorities[] = {
 #endif
 };
 
-#if defined(__linux__) && defined(__NR_getcpu)
-static long sys_getcpu(
-        unsigned *cpu,
-        unsigned *node,
-        void *tcache)
-{
-	return syscall(__NR_getcpu, cpu, node, tcache);
-}
-#endif
-
 /*
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
@@ -135,6 +125,7 @@ int stress_get(
 		char path[PATH_MAX];
 		char *ptr;
 		gid_t gids[GIDS_MAX];
+		unsigned cpu, node;
 #if defined(__linux__)
 		gid_t rgid, egid, sgid;
 		uid_t ruid, euid, suid;
@@ -259,16 +250,11 @@ int stress_get(
 		(void)shim_gettid();
 		check_do_run();
 
-#if defined(__linux__) && defined(__NR_getcpu)
-		{
-			unsigned cpu, node;
-
-			(void)sys_getcpu(&cpu, &node, NULL);
-			(void)sys_getcpu(NULL, &node, NULL);
-			(void)sys_getcpu(&cpu, NULL, NULL);
-			(void)sys_getcpu(NULL, NULL, NULL);
-		}
-#endif
+		(void)shim_getcpu(&cpu, &node, NULL);
+		(void)shim_getcpu(NULL, &node, NULL);
+		(void)shim_getcpu(&cpu, NULL, NULL);
+		(void)shim_getcpu(NULL, NULL, NULL);
+		check_do_run();
 
 		t = time(NULL);
 		if (verify && (t == (time_t)-1))
