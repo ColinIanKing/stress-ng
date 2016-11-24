@@ -38,6 +38,7 @@ for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
 	then
+		echo "$s at $(date)"
 		${STRESS_NG} -v -t 1 --${s} 4 2>&1
 		ret=$?
 		
