@@ -332,3 +332,15 @@ long shim_move_pages(
 	return -1;
 #endif
 }
+
+int shim_userfaultfd(int flags)
+{
+#if defined(__linux__) && defined(__NR_useefaultfd)
+        return syscall(__NR_userfaultfd, flags);
+#else
+	(void)flags;
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+

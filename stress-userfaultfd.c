@@ -57,11 +57,6 @@ void stress_set_userfaultfd_bytes(const char *optarg)
 
 #if defined(__linux__) && defined(__NR_userfaultfd)
 
-static int sys_userfaultfd(int flags)
-{
-	return syscall(__NR_userfaultfd, flags);
-}
-
 /*
  *  stress_child_alarm_handler()
  *	SIGALRM handler to terminate child immediately
@@ -205,7 +200,7 @@ static int stress_userfaultfd_oomable(
 	}
 
 	/* Get userfault fd */
-	if ((fd = sys_userfaultfd(0)) < 0) {
+	if ((fd = shim_userfaultfd(0)) < 0) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: userfaultfd failed, errno = %d (%s)\n",
 			name, errno, strerror(errno));

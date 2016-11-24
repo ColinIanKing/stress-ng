@@ -56,20 +56,6 @@ typedef struct {
 static pid_t pids[RESOURCE_FORKS];
 static sigjmp_buf jmp_env;
 
-#if defined(__NR_memfd_create)
-static inline int sys_memfd_create(const char *name, unsigned int flags)
-{
-	return syscall(__NR_memfd_create, name, flags);
-}
-#endif
-
-#if defined(__NR_userfaultfd)
-static inline int sys_userfaultfd(int flags)
-{
-        return syscall(__NR_userfaultfd, flags);
-}
-#endif
-
 static void waste_resources(const size_t page_size)
 {
 	size_t i;
@@ -122,7 +108,7 @@ static void waste_resources(const size_t page_size)
 #endif
 #if defined(__NR_memfd_create)
 		snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
-		info[i].fd_memfd = sys_memfd_create(name, 0);
+		info[i].fd_memfd = shim_memfd_create(name, 0);
 		if (!opt_do_run)
 			break;
 #endif
@@ -132,7 +118,7 @@ static void waste_resources(const size_t page_size)
 		if (!opt_do_run)
 			break;
 #if defined(__NR_userfaultfd)
-		info[i].fd_uf = sys_userfaultfd(0);
+		info[i].fd_uf = shim_userfaultfd(0);
 		if (!opt_do_run)
 			break;
 #endif
