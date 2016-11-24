@@ -186,3 +186,17 @@ long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 	return -1;
 #endif
 }
+
+int shim_syslog(int type, char *bufp, int len)
+{
+#if defined(__NR_syslog)
+        return syscall(__NR_syslog, type, bufp, len);
+#else
+	(void)type;
+	(void)bufp;
+	(void)len;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}    

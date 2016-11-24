@@ -39,15 +39,6 @@
 #define SYSLOG_ACTION_SIZE_BUFFER	(10)
 
 /*
- *  sys_syslog()
- * 	wrapper for syslog system call
- */
-static inline int sys_syslog(int type, char *bufp, int len)
-{
-	return syscall(__NR_syslog, type, bufp, len);
-}
-
-/*
  *  stress_klog
  *	stress kernel logging interface
  */
@@ -62,7 +53,7 @@ int stress_klog(
 
 	(void)instance;
 
-	len  = sys_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+	len  = shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
 		if (!instance)
 			pr_err(stderr, "%s: cannot determine syslog buffer "
@@ -89,7 +80,7 @@ int stress_klog(
 	do {
 		int ret, buflen = (mwc32() % len) + 1;
 
-		ret = sys_syslog(SYSLOG_ACTION_READ_ALL, buffer, buflen);
+		ret = shim_syslog(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
 			pr_fail_err(name, "syslog ACTION_READ_ALL");
 		if (ret > buflen)
@@ -97,16 +88,16 @@ int stress_klog(
 				"data than was requested.\n", name);
 
 		/* open, no-op, ignore failure */
-		(void)sys_syslog(SYSLOG_ACTION_OPEN, NULL, 0);
+		(void)shim_syslog(SYSLOG_ACTION_OPEN, NULL, 0);
 
 		/* close, no-op, ignore failure */
-		(void)sys_syslog(SYSLOG_ACTION_CLOSE, NULL, 0);
+		(void)shim_syslog(SYSLOG_ACTION_CLOSE, NULL, 0);
 
 		/* get unread size, ignore failure */
-		(void)sys_syslog(SYSLOG_ACTION_SIZE_UNREAD, NULL, 0);
+		(void)shim_syslog(SYSLOG_ACTION_SIZE_UNREAD, NULL, 0);
 
 		/* get size of kernel buffer, ignore return */
-		(void)sys_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+		(void)shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
