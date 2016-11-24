@@ -108,3 +108,41 @@ long shim_getcpu(
 	return -1;
 #endif
 }
+
+int shim_getdents(
+	unsigned int fd,
+	struct linux_dirent *dirp,
+	unsigned int count)
+{
+#if defined(__NR_getdents)
+        return syscall(__NR_getdents, fd, dirp, count);
+#else
+	(void)fd;
+	(void)dirp;
+	(void)count;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *  getdents64 syscall
+ */
+int shim_getdents64(
+	unsigned int fd,
+	struct linux_dirent64 *dirp,
+	unsigned int count)
+{
+#if defined(__NR_getdents64)
+        return syscall(__NR_getdents64, fd, dirp, count);
+#else
+	(void)fd;
+	(void)dirp;
+	(void)count;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+

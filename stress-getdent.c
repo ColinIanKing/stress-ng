@@ -28,21 +28,6 @@
 
 #define BUF_SIZE	(256 * 1024)
 
-struct linux_dirent {
-	unsigned long  d_ino;     	/* Inode number */
-	unsigned long  d_off;     	/* Offset to next linux_dirent */
-	unsigned short d_reclen;  	/* Length of this linux_dirent */
-	char           d_name[];  	/* Filename (null-terminated) */
-};
-
-struct linux_dirent64 {
-	ino64_t        d_ino;		/* 64-bit inode number */
-	off64_t        d_off;		/* 64-bit offset to next structure */
-	unsigned short d_reclen;	/* Size of this dirent */
-	unsigned char  d_type;		/* File type */
-	char           d_name[];	/* Filename (null-terminated) */
-};
-
 typedef int (getdents_func)(
 	const char *name, const char *path,
 	const bool recurse, const int depth,
@@ -97,46 +82,6 @@ static inline int stress_getdents_rand(
 	return ret;
 }
 
-/*
- *  getdents syscall
- */
-static inline int sys_getdents(
-	unsigned int fd,
-	struct linux_dirent *dirp,
-	unsigned int count)
-{
-#if defined(__NR_getdents)
-        return syscall(__NR_getdents, fd, dirp, count);
-#else
-	(void)fd;
-	(void)dirp;
-	(void)count;
-
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-/*
- *  getdents64 syscall
- */
-static inline int sys_getdents64(
-	unsigned int fd,
-	struct linux_dirent64 *dirp,
-	unsigned int count)
-{
-#if defined(__NR_getdents64)
-        return syscall(__NR_getdents64, fd, dirp, count);
-#else
-	(void)fd;
-	(void)dirp;
-	(void)count;
-
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
 #if defined(__NR_getdents)
 /*
  *  stress_getdents_dir()
@@ -171,7 +116,7 @@ static int stress_getdents_dir(
 		int nread;
 		char *ptr = buf;
 
-		nread = sys_getdents(fd, (struct linux_dirent *)buf, buf_sz);
+		nread = shim_getdents(fd, (struct linux_dirent *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -245,7 +190,7 @@ static int stress_getdents64_dir(
 		int nread;
 		char *ptr = buf;
 
-		nread = sys_getdents64(fd, (struct linux_dirent64 *)buf, buf_sz);
+		nread = shim_getdents64(fd, (struct linux_dirent64 *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
