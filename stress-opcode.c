@@ -163,9 +163,7 @@ again:
 				*ops = mwc32();
 			}
 			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
-#if defined(__GNUC__)
-			__builtin___clear_cache((char *)ops_begin, (char *)ops_end);
-#endif
+			shim_clear_cache((char *)ops_begin, (char *)ops_end);
 			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
 
