@@ -225,9 +225,7 @@ int stress_schedpolicy(
 		}
 #endif
 
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-		sched_yield();
-#endif
+		(void)shim_sched_yield();
 		policy++;
 		policy %= SIZEOF_ARRAY(policies);
 		(*counter)++;

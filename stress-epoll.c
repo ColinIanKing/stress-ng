@@ -369,9 +369,7 @@ retry:
 			break;
 		}
 		(void)close(fd);
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-		sched_yield();
-#endif
+		(void)shim_sched_yield();
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 

@@ -2158,6 +2158,12 @@ extern void stress_set_vm_rw_bytes(const char *optarg);
 extern void stress_set_vm_splice_bytes(const char *optarg);
 extern void stress_set_zombie_max(const char *optarg);
 
+/*
+ *  shim'd abstracted system or library calls
+ *  that have a layer of OS abstraction
+ */
+extern int shim_sched_yield(void);
+
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\
         const uint64_t max_ops, const char *name)

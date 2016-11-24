@@ -76,9 +76,7 @@ retry:
 
 		if (flock(fd, LOCK_EX) < 0)
 			continue;
-#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
-		sched_yield();
-#endif
+		(void)shim_sched_yield();
 		(void)flock(fd, LOCK_UN);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));

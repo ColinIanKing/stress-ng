@@ -115,7 +115,7 @@ int stress_yield(
 			do {
 				int ret;
 
-				ret = sched_yield();
+				ret = shim_sched_yield();
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 					pr_fail_err(name, "sched_yield");
 				counters[i]++;

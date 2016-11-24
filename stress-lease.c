@@ -163,9 +163,7 @@ int stress_lease(
 			}
 		}
 		(*counter)++;
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-		(void)sched_yield();
-#endif
+		(void)shim_sched_yield();
 		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
 			pr_err(stderr, "%s: fcntl failed: errno=%d: (%s)\n",
 				name, errno, strerror(errno));

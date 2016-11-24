@@ -58,9 +58,7 @@ int stress_affinity(
 			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32
 				", errno=%d (%s)\n",
 				name, cpu, errno, strerror(errno));
-#if defined(_POSIX_PRIORITY_SCHEDULING)
-			sched_yield();
-#endif
+			(void)shim_sched_yield();
 		} else {
 			/* Now get and check */
 			CPU_ZERO(&mask);
