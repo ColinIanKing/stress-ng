@@ -38,29 +38,9 @@ enum {
         KCMP_TYPES,
 };
 
-/*
- *  sys_kcmp()
- *	kcmp syscall
- */
-static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
-{
-#if defined(__NR_kcmp)
-	errno = 0;
-	return syscall(__NR_kcmp, pid1, pid2, type, fd1, fd2);
-#else
-	(void)pid1;
-	(void)pid2;
-	(void)type;
-	(void)fd1;
-	(void)fd2;
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
 #define KCMP(pid1, pid2, type, idx1, idx2)		\
 {							\
-	int rc = sys_kcmp(pid1, pid2, type, idx1, idx2);\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);\
 							\
 	if (rc < 0) {	 				\
 		if (errno == EPERM) {			\
@@ -75,7 +55,7 @@ static inline long sys_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)	\
 {							\
-	int rc = sys_kcmp(pid1, pid2, type, idx1, idx2);\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);\
 							\
 	if (rc != res) {				\
 		if (rc < 0) {				\
