@@ -83,8 +83,7 @@ int stress_fault(
 		if (fd < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Try again */
-			pr_err(stderr, "%s: open failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "open");
 			break;
 		}
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -94,9 +93,7 @@ int stress_fault(
 				continue;	/* Try again */
 			}
 			(void)close(fd);
-			pr_err(stderr, "%s: posix_fallocate failed: "
-				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "posix_fallocate");
 			break;
 		}
 #else
@@ -113,9 +110,7 @@ redo:
 					continue;
 				}
 				(void)close(fd);
-				pr_err(stderr, "%s: write failed: "
-					"errno=%d (%s)\n",
-					name, errno, strerror(errno));
+				pr_fail_err(name, "write");
 				break;
 			}
 		}

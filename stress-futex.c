@@ -92,9 +92,7 @@ again:
 			ret = futex_wake(futex, 1);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
-					pr_fail(stderr, "%s: futex wake "
-						"failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "futex wake");
 			}
 		} while (opt_do_run && (!max_ops || *counter < max_ops));
 
@@ -133,9 +131,7 @@ again:
 				}
 			} else {
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail(stderr, "%s: futex wait "
-						"failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+					pr_fail_err(name, "futex wait");
 				}
 				(*counter)++;
 			}

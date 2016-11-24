@@ -76,8 +76,7 @@ static void *stress_membarrier_thread(void *ctxt)
 	}
 	while (keep_running && opt_do_run) {
 		if (sys_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "membarrier");
 			break;
 		}
 	}

@@ -97,8 +97,7 @@ again:
 
 		start_ptr = sbrk(0);
 		if (start_ptr == (void *) -1) {
-			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+			pr_fail_err(name, "sbrk(0)");
 			exit(EXIT_FAILURE);
 		}
 
