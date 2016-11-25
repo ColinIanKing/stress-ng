@@ -417,7 +417,7 @@ int shim_mlock2(const void *addr, size_t len, int flags)
         return (int)syscall(__NR_mlock2, addr, len, flags);
 #else
 	(void)addr;
-	(void)size;
+	(void)len;
 	(void)flags;
 
 	errno = ENOSYS;
