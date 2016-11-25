@@ -27,21 +27,6 @@
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
      !defined(__OpenBSD__) && !defined(__minix__)
 
-#if defined(__linux__) && \
-    defined(__NR_sched_getattr) && \
-    defined(__NR_sched_setattr)
-struct __sched_attr {
-	uint32_t size;
-	uint32_t sched_policy;
-	uint64_t sched_flags;
-	int32_t  sched_nice;
-	uint32_t sched_priority;
-	uint64_t sched_runtime;
-	uint64_t sched_deadline;
-	uint64_t sched_period;
-};
-#endif
-
 static const int policies[] = {
 #if defined(SCHED_IDLE)
         SCHED_IDLE,
@@ -59,27 +44,6 @@ static const int policies[] = {
         SCHED_BATCH,
 #endif
 };
-
-#if defined(__linux__) && \
-    defined(__NR_sched_getattr) && \
-    defined(__NR_sched_setattr)
-static inline int sys_sched_getattr(
-	pid_t pid,
-	struct __sched_attr *attr,
-	unsigned int size,
-	unsigned int flags)
-{
-	return syscall(__NR_sched_getattr, pid, attr, size, flags);
-}
-
-static inline int sys_sched_setattr(
-	pid_t pid,
-	struct __sched_attr *attr,
-	unsigned int flags)
-{
-	return syscall(__NR_sched_setattr, pid, attr, flags);
-}
-#endif
 
 int stress_schedpolicy(
 	uint64_t *const counter,
@@ -103,7 +67,7 @@ int stress_schedpolicy(
 #if defined(__linux__) && \
     defined(__NR_sched_getattr) && \
     defined(__NR_sched_setattr)
-		struct __sched_attr attr;
+		struct shim_sched_attr attr;
 #endif
 		struct sched_param param, new_param;
 		int ret = 0;
@@ -209,7 +173,7 @@ int stress_schedpolicy(
 		 */
 		memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
-		ret = sys_sched_getattr(pid, &attr, sizeof(attr), 0);
+		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
 				pr_fail_err(name, "sched_getattr");
@@ -217,7 +181,7 @@ int stress_schedpolicy(
 		}
 
 		attr.size = sizeof(attr);
-		ret = sys_sched_setattr(pid, &attr, 0);
+		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
 				pr_fail_err(name, "sched_getattr");

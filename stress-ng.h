@@ -2172,6 +2172,17 @@ struct shim_linux_dirent64 {
 	char           d_name[];	/* Filename (null-terminated) */
 };
 
+struct shim_sched_attr {
+	uint32_t size;
+	uint32_t sched_policy;
+	uint64_t sched_flags;
+	int32_t  sched_nice;
+	uint32_t sched_priority;
+	uint64_t sched_runtime;
+	uint64_t sched_deadline;
+	uint64_t sched_period;
+};
+
 extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
 extern int shim_sched_yield(void);
@@ -2201,8 +2212,14 @@ extern long shim_move_pages(int pid, unsigned long count,
 extern int shim_userfaultfd(int flags);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern int shim_unshare(int flags);
-extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp, unsigned int count);
-extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp, unsigned int count);
+extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
+	unsigned int count);
+extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp,
+	unsigned int count);
+extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
+	unsigned int size, unsigned int flags);
+extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
+	unsigned int flags);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\

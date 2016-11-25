@@ -374,3 +374,38 @@ int shim_unshare(int flags)
 	return -1;
 #endif
 }
+
+int shim_sched_getattr(
+	pid_t pid,
+	struct shim_sched_attr *attr,
+	unsigned int size,
+	unsigned int flags)
+{
+#if defined(__linux__) && defined(__NR_sched_getattr) 
+	return syscall(__NR_sched_getattr, pid, attr, size, flags);
+#else
+	(void)pid;
+	(void)attr;
+	(void)size;
+	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_sched_setattr(
+	pid_t pid,
+	struct shim_sched_attr *attr,
+	unsigned int flags)
+{
+#if defined(__linux__) && defined(__NR_sched_setattr) 
+	return syscall(__NR_sched_setattr, pid, attr, flags);
+#else
+	(void)pid;
+	(void)attr;
+	(void)flags;
+	errno = ENOSYS;
+	return -1;
+#endif
+}
