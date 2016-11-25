@@ -75,10 +75,18 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 {
 #if defined(__linux__) && defined(__NR_fallocate)
 	return fallocate(fd, mode, offset, len);
-#else
+#elif _POSIX_C_SOURCE >= 200112L
 	(void)mode;
 
 	return posix_fallocate(fd, offset, len);
+#else
+	(void)fd;
+	(void)mode;
+	(void)offset;
+	(void)len;
+
+	errno = -ENOSYS;
+	return -1;
 #endif
 }
 
