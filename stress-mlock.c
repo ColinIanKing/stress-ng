@@ -34,11 +34,6 @@
 #define MLOCK_ONFAULT 1
 #endif
 
-static int sys_mlock2(const void *addr, size_t len, int flags)
-{
-        return (int)syscall(__NR_mlock2, addr, len, flags);
-}
-
 /*
  *  mlock_shim()
  *	if mlock2 is available, randonly exerise this
@@ -57,7 +52,7 @@ static int mlock_shim(const void *addr, size_t len)
 				0 : MLOCK_ONFAULT;
 			int ret;
 
-			ret = sys_mlock2(addr, len, flags);
+			ret = shim_mlock2(addr, len, flags);
 			if (!ret)
 				return 0;
 			if (errno != ENOSYS)

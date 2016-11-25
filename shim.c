@@ -381,7 +381,7 @@ int shim_sched_getattr(
 	unsigned int size,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_sched_getattr) 
+#if defined(__linux__) && defined(__NR_sched_getattr)
 	return syscall(__NR_sched_getattr, pid, attr, size, flags);
 #else
 	(void)pid;
@@ -399,12 +399,27 @@ int shim_sched_setattr(
 	struct shim_sched_attr *attr,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_sched_setattr) 
+#if defined(__linux__) && defined(__NR_sched_setattr)
 	return syscall(__NR_sched_setattr, pid, attr, flags);
 #else
 	(void)pid;
 	(void)attr;
 	(void)flags;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_mlock2(const void *addr, size_t len, int flags)
+{
+#if defined(__linux__) && defined(__NR_mlock2)
+        return (int)syscall(__NR_mlock2, addr, len, flags);
+#else
+	(void)addr;
+	(void)size;
+	(void)flags;
+
 	errno = ENOSYS;
 	return -1;
 #endif
