@@ -130,7 +130,7 @@ int stress_xattr(
 		}
 		for (j = 0; j < i; j++) {
 			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
-			
+
 			ret = fremovexattr(fd, attrname);
 			if (ret < 0) {
 				pr_fail_err(name, "fremovexattr");

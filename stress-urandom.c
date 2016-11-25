@@ -81,7 +81,7 @@ int stress_urandom(
 
 #if defined(DEV_RANDOM)
 		/*
-		 * Fetch entropy pool count, not considered fatal 
+		 * Fetch entropy pool count, not considered fatal
 		 * this fails, just skip this part of the stressor
 		 */
 		if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)

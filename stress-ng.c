@@ -2870,7 +2870,7 @@ next_opt:
 			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
-	if (logfile) 
+	if (logfile)
 		pr_openlog(logfile);
 	openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);

@@ -165,7 +165,7 @@ seq_wr_retry:
 
 		if (do_readahead(name, fd, offsets, readahead_bytes) < 0)
 			goto close_finish;
-				
+
 		for (i = 0; i < MAX_OFFSETS; i++) {
 rnd_rd_retry:
 			if (!opt_do_run || (max_ops && *counter >= max_ops))

@@ -84,7 +84,6 @@ static void MLOCKED stress_badhandler(int dummy)
 	if (dummy < MAX_SIGS)
 		sig_count[dummy]++;
 #endif
-	
 	_exit(1);
 }
 

@@ -166,7 +166,6 @@ static void stress_memfd_allocs(
 			if (!opt_do_run)
 				goto clean;
 		}
-	
 clean:
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 			if (maps[i] != MAP_FAILED)

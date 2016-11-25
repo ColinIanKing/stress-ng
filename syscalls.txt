@@ -275,7 +275,7 @@ setresuid
 setreuid
 setrlimit			limit, rlimit
 setsid
-setsockopt			sock	
+setsockopt			sock
 settimeofday			[ need privilege, ignore for now ]
 setuid
 setxattr
@@ -297,7 +297,7 @@ sigreturn			[ ignore ]
 sigsetjmp			sigfpe
 sigsuspend			sigsuspend
 sigwaitinfo			sigfpe
-socket				sock	
+socket				sock
 socketcall			[ implicit ]
 socketpair			sockpair
 splice				splice

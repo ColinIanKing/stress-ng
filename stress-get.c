@@ -225,7 +225,6 @@ int stress_get(
 					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						name, mypid, i, errno, strerror(errno));
 			}
-		
 			check_do_run();
 		}
 #endif

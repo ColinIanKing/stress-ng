@@ -74,7 +74,7 @@ void ignite_cpu_start(void)
 		len = strlen(buf);
 		if (len == 0)
 			continue;
-	
+
 		settings[i].default_setting_len =
 			strlen(settings[i].default_setting);
 		/* If we can't update the setting, skip it */

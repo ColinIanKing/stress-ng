@@ -68,7 +68,7 @@ static int stress_fiemap_writer(
 
 	do {
 		uint64_t offset;
-		size_t i;	
+		size_t i;
 		counter = 0;
 
 		offset = (mwc64() % len) & ~0x1fff;

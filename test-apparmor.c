@@ -45,7 +45,7 @@ int main(void)
 	ret = aa_kernel_interface_replace_policy(kern_if, NULL, 0);
 	if (ret < 0)
 		return ret;
-	
+
 	ret = aa_kernel_interface_remove_policy(kern_if, "dummy");
 	if (ret < 0)
 		return ret;

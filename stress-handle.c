@@ -67,7 +67,7 @@ static int get_mount_info(const char *name)
 		ssize_t nread = getline(&line, &line_len, fp);
 		if (nread == -1) {
 			free(line);
-			break;	
+			break;
 		}
 
 		nread = sscanf(line, "%12d %*d %*s %*s %" XSTR(PATH_MAX) "s",

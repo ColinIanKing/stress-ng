@@ -33,7 +33,7 @@
  *  	Documentation/rtc.txt
  */
 static const char *interfaces[] = {
-	"date",	
+	"date",
 	"hctosys",
 	"max_user_freq",
 	"name",

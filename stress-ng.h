@@ -782,7 +782,6 @@ enum {
 	STRESS_PERF_TP_SOFTIRQ_EXIT,
 	STRESS_PERF_TP_WRITEBACK_DIRTY_INODE,
 	STRESS_PERF_TP_WRITEBACK_DIRTY_PAGE,
-	
 	STRESS_PERF_MAX
 };
 
@@ -1836,7 +1835,7 @@ static inline void clflush(volatile void *ptr)
 
 static inline void mfence(void)
 {
-#if NEED_GNUC(4, 2, 0) 
+#if NEED_GNUC(4, 2, 0)
 	__sync_synchronize();
 #else
 #if defined(STRESS_X86)

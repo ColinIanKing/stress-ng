@@ -27,9 +27,9 @@
  *   https://www.cs.virginia.edu/stream/FTP/Code/stream.c
  *
  * This is loosely based on a variant of the STREAM benchmark code,
- * so DO NOT submit results based on this as it is intended to 
+ * so DO NOT submit results based on this as it is intended to
  * stress memory and compute and NOT intended for STREAM accurate
- * tuned or non-tuned benchmarking whatsoever.  I believe this 
+ * tuned or non-tuned benchmarking whatsoever.  I believe this
  * conforms to section 3a, 3b of the original License.
  *
  */
