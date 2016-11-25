@@ -141,7 +141,7 @@ int stress_fallocate(
 			 *  non-portable Linux fallocate()
 			 */
 			int i;
-			(void)fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
+			(void)shim_fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
 			if (!opt_do_run)
 				break;
 			(void)fsync(fd);
