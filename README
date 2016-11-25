@@ -34,6 +34,6 @@ To build on MINIX, gmake and clang are required:
 	CC=clang gmake
 
 To build on SunOS, one requires GCC and GNU make, build using:
-	CC=gcc CLFAGS=-std=gnu99 LDFLAGS=-lsocket gmake
+	CC=gcc gmake
 
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
