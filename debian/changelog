@@ -1,3 +1,72 @@
+stress-ng (0.07.06-1) unstable; urgency=medium
+
+  * update build rules for Solaris
+  * add MINIX notes to README
+  * shim: add check for posix_fallocate (fixes minix build error)
+  * abstract loff_t as it is not available on *BSD systems
+  * fix *BSD systems that don't support ino64_t and off64_t types
+  * stress-fallocate: use shim_fallocate wrapper
+  * shim: fix non-Linux build failure on shim_mlock2
+  * stress-fallocate: remove __linux__ only constraints on modes
+  * cache: make DCACHE and ICACHE #defines kernel gemeric
+  * remove white space and tabs at end of lines
+  * shim: add mlock2 system call to shim
+  * shim: add sched_getattr and sched_setattr shims
+  * shim: prefix linux_dirent* structs with shim_
+  * stress-seal: use shim for memfd_create
+  * stress-ng: minor re-ordering of structs and shim functions
+  * shim: rename sys_ioprio_* to shim_ioprio_*
+  * shim: add unshare system call to shim
+  * shim: add seccomp system call to shim
+  * shim: add userfaultfd system call to shim
+  * shim: add some more __linux__ checks
+  * stress-opcode: use shim_clear_cache
+  * shim: add NUMA specific system calls to shim
+  * shim: add memfd_create system call to shim
+  * shim: add membarrier system call to shim
+  * shim: add syslog system call to shim
+  * shim: add kcmp system call to shim
+  * shim: add __clear_cache GNUC cache clearing helper to shim
+  * shim: add getramdom system call to shim
+  * shim: add getdents and getdents64 system calls to shim
+  * shim: add getcpu system call to shim
+  * stress-get: use shim_gettid
+  * shim: add gettid system call to shim
+  * shim: add fallocate system call to shim
+  * shim: add copy_file_range system call to shim
+  * shim: add cacheflush system call to shim
+  * add shim abstraction layer for sched_yield()
+  * fast-test-all: add some feedback on when a test is being run
+  * use pr_fail_err on some more error messages
+  * fast-test-all: allow for STRESS_NG to specify stress-ng
+  * stress-epoll: fix build for GNU/HURD
+  * move all common #includes into stress-ng.h
+  * stress-ng.h: Add alloc.h include for sun arch
+  * stress-ng.h: include some more common headers and define _GNU_SOURCE
+  * stress-schedpolicy: fix broken counter, it was never being incremented
+  * stress-resources: fix broken counter, it was never being incremented
+  * stress-personality: fix broken counter, it was never being incremented
+  * stress-fp-error: fix broken counter, it was never being incremented
+  * fix broken counter, it was never being incremented
+  * stress-bind-mount: fix broken counter, it was never being incremented
+  * stress-handle: fix memory leak on line and also bump counter
+  * stress-apparmor: free apparmor_path to fix minor memory leak
+  * ensure cache region is free before termination
+  * stress-fstat: use sigsetjmp instead of sigjmp
+  * wrap some overly wide lines
+  * use pr_fail_err() instead of pr_fail where appropriate
+  * reduce scope of iterator variable i
+  * remove alloca in stressor_name_find
+  * remove space prefixed on klog-ops option
+  * mincore: touch pages even when mincore fails
+  * update syscalls.txt
+  * stress-schedpolicy: add sched_setattr/sched_getattr calls for Linux
+  * stress-schedpolicy: add more sched syscalls, clean up code
+  * add schedpolicy stressor
+  * stress-ng.h: change macro param name in STRESS macro
+
+ -- Colin King <colin.king@canonical.com>  Fri, 25 Nov 2016 10:43:11 +0000
+
 stress-ng (0.07.05-1) unstable; urgency=medium
 
   * Makefile: bump version and update codename
