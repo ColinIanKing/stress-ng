@@ -24,13 +24,11 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
 #ifndef ICACHE
 #define	ICACHE	(1 << 0)
 #endif
 #ifndef DCACHE
 #define DCACHE	(1 << 1)
-#endif
 #endif
 
 /* The compiler optimises out the unused cache flush and mfence calls */
