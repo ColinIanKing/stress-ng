@@ -1787,11 +1787,6 @@ extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
 extern pid_t pgrp;			/* proceess group leader */
 
-/* syscall shims not provided by glibc */
-extern int sys_ioprio_set(int which, int who, int ioprio);
-extern int sys_ioprio_get(int which, int who);
-
-
 /*
  *  externs to force gcc to stash computed values and hence
  *  to stop the optimiser optimising code away to zero. The
@@ -2162,6 +2157,8 @@ extern void stress_set_zombie_max(const char *optarg);
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction
  */
+extern int shim_ioprio_set(int which, int who, int ioprio);
+extern int shim_ioprio_get(int which, int who);
 extern int shim_sched_yield(void);
 extern int shim_cacheflush(char *addr, int nbytes, int cache) ;
 extern ssize_t shim_copy_file_range(int fd_in, loff_t *off_in,

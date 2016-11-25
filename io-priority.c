@@ -63,10 +63,10 @@ int32_t get_opt_ionice_class(const char *const str)
 }
 
 /*
- *  sys_ioprio_set()
+ *  shim_ioprio_set()
  *	ioprio_set system call
  */
-int sys_ioprio_set(int which, int who, int ioprio)
+int shim_ioprio_set(int which, int who, int ioprio)
 {
 #if defined(__linux__) && defined(__NR_ioprio_set)
         return syscall(__NR_ioprio_set, which, who, ioprio);
@@ -81,10 +81,10 @@ int sys_ioprio_set(int which, int who, int ioprio)
 }
 
 /*
- *  sys_ioprio_get()
+ *  shim_ioprio_get()
  *	ioprio_get system call
  */
-int sys_ioprio_get(int which, int who)
+int shim_ioprio_get(int which, int who)
 {
 #if defined(__linux__) && defined(__NR_ioprio_get)
         return syscall(__NR_ioprio_get, which, who);
@@ -128,7 +128,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 		fprintf(stderr, "Unknown priority class: %d\n", class);
 		exit(EXIT_FAILURE);
 	}
-	rc = sys_ioprio_set(IOPRIO_WHO_PROCESS, 0,
+	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
 		IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
 		fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
