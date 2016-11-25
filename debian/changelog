@@ -1,3 +1,11 @@
+stress-ng (0.07.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * fast-test-all: don't run spawn test for testing
+  * fast-test-all: remove check for existence of stress-ng
+
+ -- Colin King <colin.king@canonical.com>  Fri, 25 Nov 2016 19:55:33 +0000
+
 stress-ng (0.07.06-1) unstable; urgency=medium
 
   * update build rules for Solaris
