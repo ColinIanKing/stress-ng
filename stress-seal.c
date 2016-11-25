@@ -47,17 +47,6 @@
 
 #define MFD_ALLOW_SEALING	0x0002
 
-static inline int sys_memfd_create(const char *name, unsigned int flags)
-{
-#if defined(__NR_memfd_create)
-	return syscall(__NR_memfd_create, name, flags);
-#else
-	errno = ENOSYS;
-	return -1;
-#endif
-}
-
-
 /*
  *  stress_seal
  *	stress file sealing
@@ -82,7 +71,7 @@ int stress_seal(
 		snprintf(filename, sizeof(filename), "%s-%d-%" PRIu32 "-%" PRIu32,
 			name, pid, instance, mwc32());
 
-		fd = sys_memfd_create(filename, MFD_ALLOW_SEALING);
+		fd = shim_memfd_create(filename, MFD_ALLOW_SEALING);
 		if (fd < 0) {
 			if (errno == ENOSYS) {
 				pr_inf(stderr, "%s: aborting, unimplemented "
