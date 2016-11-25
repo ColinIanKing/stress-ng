@@ -3,11 +3,6 @@
 if [ -z $STRESS_NG ]; then
 	STRESS_NG=stress-ng
 fi
-if [ ! -x ${STRESS_NG} ]; then
-	echo "No such executable ${STRESS_NG}"
-	echo "FAILED"
-	exit 1
-fi
 
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
