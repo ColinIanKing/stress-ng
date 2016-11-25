@@ -116,7 +116,7 @@ static int stress_getdents_dir(
 		int nread;
 		char *ptr = buf;
 
-		nread = shim_getdents(fd, (struct linux_dirent *)buf, buf_sz);
+		nread = shim_getdents(fd, (struct shim_linux_dirent *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -130,7 +130,7 @@ static int stress_getdents_dir(
 			continue;
 
 		while (ptr < buf + nread) {
-			struct linux_dirent *d = (struct linux_dirent *)ptr;
+			struct shim_linux_dirent *d = (struct shim_linux_dirent *)ptr;
 			unsigned char d_type = *(ptr + d->d_reclen - 1);
 
 			if (d_type == DT_DIR &&
@@ -190,7 +190,7 @@ static int stress_getdents64_dir(
 		int nread;
 		char *ptr = buf;
 
-		nread = shim_getdents64(fd, (struct linux_dirent64 *)buf, buf_sz);
+		nread = shim_getdents64(fd, (struct shim_linux_dirent64 *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -204,7 +204,7 @@ static int stress_getdents64_dir(
 			continue;
 
 		while (ptr < buf + nread) {
-			struct linux_dirent64 *d = (struct linux_dirent64 *)ptr;
+			struct shim_linux_dirent64 *d = (struct shim_linux_dirent64 *)ptr;
 
 			if (d->d_type == DT_DIR &&
 			    strcmp(d->d_name, ".") &&

@@ -111,7 +111,7 @@ long shim_getcpu(
 
 int shim_getdents(
 	unsigned int fd,
-	struct linux_dirent *dirp,
+	struct shim_linux_dirent *dirp,
 	unsigned int count)
 {
 #if defined(__linux__) && defined(__NR_getdents)
@@ -128,7 +128,7 @@ int shim_getdents(
 
 int shim_getdents64(
 	unsigned int fd,
-	struct linux_dirent64 *dirp,
+	struct shim_linux_dirent64 *dirp,
 	unsigned int count)
 {
 #if defined(__linux__) && defined(__NR_getdents64)

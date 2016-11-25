@@ -2157,14 +2157,14 @@ extern void stress_set_zombie_max(const char *optarg);
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction
  */
-struct linux_dirent {
+struct shim_linux_dirent {
 	unsigned long  d_ino;     	/* Inode number */
 	unsigned long  d_off;     	/* Offset to next linux_dirent */
 	unsigned short d_reclen;  	/* Length of this linux_dirent */
 	char           d_name[];  	/* Filename (null-terminated) */
 };
 
-struct linux_dirent64 {
+struct shim_linux_dirent64 {
 	ino64_t        d_ino;		/* 64-bit inode number */
 	off64_t        d_off;		/* 64-bit offset to next structure */
 	unsigned short d_reclen;	/* Size of this dirent */
@@ -2201,8 +2201,8 @@ extern long shim_move_pages(int pid, unsigned long count,
 extern int shim_userfaultfd(int flags);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern int shim_unshare(int flags);
-extern int shim_getdents(unsigned int fd, struct linux_dirent *dirp, unsigned int count);
-extern int shim_getdents64(unsigned int fd, struct linux_dirent64 *dirp, unsigned int count);
+extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp, unsigned int count);
+extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp, unsigned int count);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\
