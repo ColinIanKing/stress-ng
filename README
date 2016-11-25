@@ -30,6 +30,9 @@ To build, the following libraries are required:
 
 To build on BSD systems, one requires GNU make
 
+To build on MINIX, gmake and clang are required:
+	CC=clang gmake
+
 To build on SunOS, one requires GCC and GNU make, build using:
 	CC=gcc CLFAGS=-std=gnu99 LDFLAGS=-lsocket gmake
 
