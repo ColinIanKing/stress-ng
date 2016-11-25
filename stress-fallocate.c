@@ -37,7 +37,6 @@ void stress_set_fallocate_bytes(const char *optarg)
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
 
-#if defined(__linux__)
 static const int modes[] = {
 	0,
 #if defined(FALLOC_FL_KEEP_SIZE)
@@ -56,7 +55,6 @@ static const int modes[] = {
 	FALLOC_FL_INSERT_RANGE,
 #endif
 };
-#endif
 
 /*
  *  stress_fallocate
