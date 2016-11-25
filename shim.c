@@ -49,9 +49,9 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 
 ssize_t shim_copy_file_range(
 	int fd_in,
-	loff_t *off_in,
+	shim_loff_t *off_in,
 	int fd_out,
-	loff_t *off_out,
+	shim_loff_t *off_out,
 	size_t len,
 	unsigned int flags)
 {
