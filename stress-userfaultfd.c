@@ -160,7 +160,7 @@ static int stress_userfaultfd_oomable(
 	size_t sz;
 	uint8_t *data;
 	void *zero_page = NULL;
-	int fd, status, rc = EXIT_SUCCESS;
+	int fd = -1, status, rc = EXIT_SUCCESS;
 	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
 	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
 	pid_t pid;
