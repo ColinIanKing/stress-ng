@@ -28,12 +28,6 @@ static const char *option = "taskset";
 
 #if defined(__linux__)
 
-#include <sched.h>
-#include <string.h>
-#include <stdint.h>
-#include <errno.h>
-
-
 /*
  * check_cpu_affinity_range()
  * @max_cpus: maximum cpus allowed, 0..N-1
