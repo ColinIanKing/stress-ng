@@ -43,7 +43,6 @@ static const domain_t domains[] = {
 	{ "ipv4",	AF_INET,	DOMAIN_INET },
 	{ "ipv6",	AF_INET6,	DOMAIN_INET6 },
 	{ "unix",	AF_UNIX,	DOMAIN_UNIX },
-	{ NULL,		-1, ~0 }
 };
 
 /*
@@ -74,7 +73,7 @@ int stress_set_net_domain(
 {
 	size_t i;
 
-	for (i = 0; domains[i].name; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(domains); i++) {
 		if ((domain_mask & domains[i].domain_flags) &&
 		    !strcmp(domain_name, domains[i].name)) {
 			*domain = domains[i].domain;
@@ -82,7 +81,7 @@ int stress_set_net_domain(
 		}
 	}
 	fprintf(stderr, "%s: domain must be one of:", name);
-	for (i = 0; domains[i].name; i++)
+	for (i = 0; i < SIZEOF_ARRAY(domains); i++)
 		if (domain_mask & domains[i].domain_flags)
 			fprintf(stderr, " %s", domains[i].name);
 	fprintf(stderr, "\n");
