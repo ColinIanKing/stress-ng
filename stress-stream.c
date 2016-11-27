@@ -128,7 +128,7 @@ static inline uint64_t stream_L3_size(
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
-	cpus_t *cpu_caches = NULL;
+	cpus_t *cpu_caches;
 	cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
 
