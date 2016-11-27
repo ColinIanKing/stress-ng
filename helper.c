@@ -574,13 +574,14 @@ void pr_yaml_runinfo(FILE *yaml)
 int stress_cache_alloc(const char *name)
 {
 #if defined(__linux__)
-	cpus_t *cpu_caches = NULL;
+	cpus_t *cpu_caches;
 	cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0;
 #endif
 
 #if !defined(__linux__)
 	shared->mem_cache_size = MEM_CACHE_SIZE;
+	cpu_caches = NULL;
 #else
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
