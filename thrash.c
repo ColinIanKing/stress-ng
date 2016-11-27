@@ -36,7 +36,6 @@ static int pagein_proc(const pid_t pid)
 	FILE *fpmap;
 	const size_t page_size = stress_get_pagesize();
 	size_t pages = 0;
-	int traced = 0;
 
 	snprintf(path, sizeof(path), "/proc/%d/mem", pid);
 	fdmem = open(path, O_RDONLY);
@@ -60,7 +59,6 @@ static int pagein_proc(const pid_t pid)
 		if (sscanf(buffer, "%jx-%jx", &begin, &end) != 2)
 			continue;
 
-		traced++;
 		for (off = (off_t)begin; off < (off_t)end; off += page_size, pages++) {
 			if (lseek(fdmem, off, SEEK_SET) == (off_t)-1)
 				continue;
