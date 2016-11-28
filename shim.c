@@ -343,7 +343,7 @@ long shim_move_pages(
 
 int shim_userfaultfd(int flags)
 {
-#if defined(__linux__) && defined(__NR_useefaultfd)
+#if defined(__linux__) && defined(__NR_userfaultfd)
         return syscall(__NR_userfaultfd, flags);
 #else
 	(void)flags;
