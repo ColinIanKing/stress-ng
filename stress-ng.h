@@ -137,7 +137,7 @@ typedef unsigned long int __kernel_ulong_t;
 #endif
 
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
-#define STRESS_PROCS_MAX	(1024)		/* Max number of processes per stressor */
+#define STRESS_PROCS_MAX	(4096)		/* Max number of processes per stressor */
 
 #define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
