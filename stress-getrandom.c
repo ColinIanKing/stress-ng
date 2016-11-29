@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_getrandom)
+#if defined(__OpenBSD__) || \
+    (defined(__linux__) && defined(__NR_getrandom))
 
 /*
  *  stress_getrandom
@@ -39,7 +40,11 @@ int stress_getrandom(
 	(void)instance;
 
 	do {
+#if defined(__OpenBSD__)
+		char buffer[256];
+#else
 		char buffer[8192];
+#endif
 		ssize_t ret;
 
 		ret = shim_getrandom(buffer, sizeof(buffer), 0);
