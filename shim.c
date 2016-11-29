@@ -71,6 +71,12 @@ ssize_t shim_copy_file_range(
 #endif
 }
 
+/*
+ * shim_fallocate()
+ *	shim wrapper for fallocate system call
+ *	- falls back to posix_fallocate w/o mode
+ * 	- falls back to direct writes
+ */
 int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 {
 #if defined(__linux__) && defined(__NR_fallocate)
@@ -80,13 +86,32 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 
 	return posix_fallocate(fd, offset, len);
 #else
-	(void)fd;
-	(void)mode;
-	(void)offset;
-	(void)len;
+	const off_t buf_sz = 4096;
+	off_t n;
+	char buffer[buf_sz];
 
-	errno = -ENOSYS;
-	return -1;
+	(void)mode;
+
+	n = lseek(fd, offset, SEEK_SET);
+	if (n == (off_t)-1)
+		return -1;
+
+	memset(buffer, 0, buf_sz);
+	n = len;
+
+	while (opt_do_run && (n > 0)) {
+		ssize_t ret;
+		size_t count = (size_t)STRESS_MINIMUM(n, buf_sz);
+
+		ret = write(fd, buffer, count);
+		if (ret >= 0) {
+			n -= ret;
+		} else {
+			return -1;
+		}
+	}
+
+	return 0;
 #endif
 }
 
