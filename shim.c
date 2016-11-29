@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  Various shim abstraction wrappers around systems calls and
+ *  GCC helper functions that may not be supported by some
+ *  kernels or versions of different C libraries.
+ */
+
 int shim_sched_yield(void)
 {
 #if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
