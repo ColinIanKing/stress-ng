@@ -36,7 +36,7 @@ do
 		echo "$s at $(date)"
 		${STRESS_NG} -v -t 1 --${s} 4 2>&1
 		ret=$?
-		
+
 		case $ret in
 		0)	echo "$s PASSED"
 			p=$((p + 1))
