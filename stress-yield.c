@@ -87,7 +87,11 @@ int stress_yield(
 
 	max_ops_per_yielder = max_ops / yielders;
 	yielders_sz = yielders * sizeof(pid_t);
-	pids = alloca(yielders_sz);
+	pids = calloc(yielders, sizeof(pid_t));
+	if (!pids) {
+		pr_err(stderr, "%s: calloc failed\n", name);
+		return EXIT_NO_RESOURCE;
+	}
 	memset(pids, 0, yielders_sz);
 
 	counters_sz = yielders * sizeof(uint64_t);
@@ -98,6 +102,7 @@ int stress_yield(
 
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
+		free(pids);
 		return rc;
 	}
 	memset(counters, 0, counters_sz);
@@ -142,6 +147,7 @@ int stress_yield(
 		}
 	}
 	(void)munmap((void *)counters, counters_sz);
+	free(pids);
 
 	return EXIT_SUCCESS;
 }
