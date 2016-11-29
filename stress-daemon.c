@@ -24,14 +24,23 @@
  */
 #include "stress-ng.h"
 
+static MLOCKED void handle_daemon_sigalrm(int dummy)
+{
+	(void)dummy;
+
+	opt_do_run = false;
+}
+
 /*
  *  daemons()
  *	fork off a child and let the parent die
  */
-static void daemons(const int fd)
+static void daemons(const char *name, const int fd)
 {
 	int fds[3];
 
+	if (stress_sighandler(name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+		goto err;
 	if (setsid() < 0)
 		goto err;
 	(void)close(0);
@@ -45,30 +54,36 @@ static void daemons(const int fd)
 	if ((fds[2] = dup(0)) < 0)
 		goto err1;
 
-	for (;;) {
+	while (opt_do_run) {
 		pid_t pid;
 
 		pid = fork();
 		if (pid < 0) {
-			goto err;
+			goto tidy;
 		} else if (pid == 0) {
 			/* Child */
 			char buf[1] = { 0xff };
 			ssize_t sz;
 			if (chdir("/") < 0)
-				goto err;
+				goto err2;
 			(void)umask(0);
 			sz = write(fd, buf, sizeof(buf));
 			if (sz != sizeof(buf))
-				goto err;
+				goto err2;
 
 		} else {
 			/* Parent, will be reaped by init */
-			return;
+			break;
 		}
 	}
 
+tidy:
 	(void)close(fds[2]);
+	(void)close(fds[1]);
+	(void)close(fds[0]);
+	return;
+
+err2:	(void)close(fds[2]);
 err1:	(void)close(fds[1]);
 err0: 	(void)close(fds[0]);
 err:	(void)close(fd);
@@ -89,6 +104,9 @@ int stress_daemon(
 
 	(void)instance;
 
+	if (stress_sighandler(name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+		return EXIT_FAILURE;
+
 	if (pipe(fds) < 0) {
 		pr_fail_dbg(name, "pipe");
 		return EXIT_FAILURE;
@@ -102,7 +120,7 @@ int stress_daemon(
 	} else if (pid == 0) {
 		/* Children */
 		(void)close(fds[0]);
-		daemons(fds[1]);
+		daemons(name, fds[1]);
 		(void)close(fds[1]);
 	} else {
 		/* Parent */
