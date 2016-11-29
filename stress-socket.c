@@ -323,8 +323,8 @@ static int stress_sctp_server(
 					pr_inf(stderr, "%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
 						name, errno, strerror(errno));
-						opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
-					}
+					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
+				}
 			}
 #endif
 			memset(buf, 'A' + (*counter % 26), sizeof(buf));
