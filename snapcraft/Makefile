@@ -11,7 +11,7 @@ set_version:
 	cat snapcraft.yaml | sed 's/version: .*/version: $(V)/' > snapcraft-tmp.yaml
 	mv snapcraft-tmp.yaml snapcraft.yaml
 
-get_icon: 
+get_icon:
 	@if [ ! -e setup/gui/icon.svg ]; \
 	then \
 		echo copying icon.svg; \
