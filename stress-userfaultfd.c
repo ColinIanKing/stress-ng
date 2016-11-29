@@ -186,7 +186,6 @@ static int stress_userfaultfd_oomable(
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		rc = exit_status(errno);
 		pr_err(stderr, "%s: zero page allocation failed\n", name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -362,7 +361,6 @@ unmap_data:
 	(void)munmap(data, sz);
 free_zeropage:
 	free(zero_page);
-
 	return rc;
 }
 
