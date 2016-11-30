@@ -172,7 +172,7 @@ static int stress_userfaultfd_oomable(
 	/* Child clone stack */
 	static uint8_t stack[STACK_SIZE];
         const ssize_t stack_offset =
-                stress_get_stack_direction(&fd) * (STACK_SIZE - 64);
+                stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
 	(void)instance;

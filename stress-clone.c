@@ -232,7 +232,7 @@ int stress_clone(
 {
 	uint64_t max_clones = 0;
 	const ssize_t stack_offset =
-		stress_get_stack_direction(&max_clones) *
+		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 
 	(void)instance;

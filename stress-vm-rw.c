@@ -288,7 +288,7 @@ int stress_vm_rw(
 	context_t ctxt;
 	uint8_t stack[64*1024];
 	const ssize_t stack_offset =
-		stress_get_stack_direction(&ctxt) * (STACK_SIZE - 64);
+		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
 	(void)instance;

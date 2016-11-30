@@ -78,7 +78,7 @@ int stress_bind_mount(
 	int pid = 0, status;
 	context_t context;
 	const ssize_t stack_offset =
-		stress_get_stack_direction(&pid) *
+		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 	char stack[CLONE_STACK_SIZE];
 	char *stack_top = stack + stack_offset;

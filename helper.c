@@ -330,16 +330,30 @@ char *munge_underscore(const char *str)
 	return munged;
 }
 
+ssize_t __stress_get_stack_direction(const uint8_t *val1)
+{
+	const uint8_t val2;
+	const ssize_t diff = &val2 - (const uint8_t *)val1;
+
+	return (diff > 0) - (diff < 0);
+}
+
 /*
  *  stress_get_stack_direction()
  *      determine which way the stack goes, up / down
  *	just pass in any var on the stack before calling
+ *	return:
+ *		 1 - stack goes down (conventional)
+ *		 0 - error
+ *	  	-1 - stack goes up (unconventional)
  */
-ssize_t stress_get_stack_direction(const void *val1)
+ssize_t stress_get_stack_direction(void)
 {
-	uint8_t val2;
+	uint8_t val1;
+	uint8_t waste[64];
 
-	return ((const uint8_t *)val1 - &val2) > 0 ? 1 : -1;
+	waste[(sizeof waste) - 1] = 0;
+	return __stress_get_stack_direction(&val1);
 }
 
 /*
