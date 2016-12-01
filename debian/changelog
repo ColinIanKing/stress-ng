@@ -1,3 +1,36 @@
+stress-ng (0.07.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * add NOCLOBBER macro and make some variables noclobberable
+  * stress-aio-linux: clean up clang warnings
+  * remove need to pass an argument to stress_get_stack_direction
+  * add smatchify script to make dist rule
+  * add smatchify static analysis script
+  * stress-userfaultfd: remove unnecessary exit_status call
+  * stress-socket: fix inconsistent indenting
+  * fast-test-all: remove tailing tabs
+  * snapcraft Makefile: remove trailing whitespace
+  * stress-daemon: clean up fd closing and add SIGALRM handler
+  * make daemon stressor a little more responsive to SIGALRMs
+  * make snapcraft confinement strict
+  * getrandom: add support for systems that support getentropy(2)
+  * shim: add comment about shim functions
+  * helper: remove caches = NULL for non-linux systems to fix build error
+  * shim: fall back to allocation via writes on fallocate
+  * stress-yield: remove need to use alloca, use calloc instead
+  * manual: add Luis to contributors list and sort names alphabetically
+  * shim: fix userfaultfd failures due to a typo
+  * increase STRESS_PROCS_MAX to 4096 for higher load on large iron
+  * stress-userfaultfd: work around static analysis false positive on fd
+  * stress-stream: avoid re-assignment of cpu_caches on linux case
+  * trash: remove traced, it is serving no purpose
+  * helper: don't re-assign cpu_caches on __linux__ build
+  * net: iterate to the size of domains rather than using sentinel
+  * affinity: remove #includes as these are included in stress-ng.h
+  * stress-oom: add in missing space between ooms and =
+
+ -- Colin King <colin.king@canonical.com>  Thu, 1 Dec 2016 11:45:11 +0000
+
 stress-ng (0.07.07-1) unstable; urgency=medium
 
   * Makefile: bump version
