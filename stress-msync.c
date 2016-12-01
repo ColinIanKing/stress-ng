@@ -85,8 +85,9 @@ int stress_msync(
 	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
 	const size_t min_size = 2 * page_size;
-	size_t sz = min_size;
-	ssize_t ret, rc = EXIT_SUCCESS;
+	NOCLOBBER size_t sz;
+	ssize_t ret;
+	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
 
 	const pid_t pid = getpid();
 	int fd = -1;

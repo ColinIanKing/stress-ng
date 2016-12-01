@@ -84,7 +84,7 @@ int stress_fstat(
 	dir_info_t *di;
 	static dir_info_t *dir_info;
 	struct dirent *d;
-	int ret = EXIT_FAILURE;
+	NOCLOBBER int ret = EXIT_FAILURE;
 	bool stat_some;
 
 	(void)instance;

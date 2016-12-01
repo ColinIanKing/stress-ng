@@ -111,8 +111,9 @@ int stress_madvise(
 	const size_t page_size = stress_get_pagesize();
 	size_t sz = 4 *  MB;
 	const pid_t pid = getpid();
-	int ret, fd = -1, flags = MAP_SHARED;
-	int no_mem_retries = 0;
+	int ret, fd = -1;
+	NOCLOBBER int flags = MAP_SHARED;
+	NOCLOBBER int no_mem_retries = 0;
 	char filename[PATH_MAX];
 	char page[page_size];
 	size_t n;

@@ -645,6 +645,15 @@ extern void pr_openlog(const char *filename);
 #define RESTRICT
 #endif
 
+/*
+ * making local static fixes globbering warnings on older gcc versions
+ */
+#if defined(__GNUC__) || defined(__clang__)
+#define NOCLOBBER	static
+#else
+#define NOCLOBBER
+#endif
+
 /*Specific compilers have __uint128_t type support */
 #if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
 #define STRESS_INT128	1

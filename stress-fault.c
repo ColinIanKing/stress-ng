@@ -51,7 +51,8 @@ int stress_fault(
 {
 	struct rusage usage;
 	char filename[PATH_MAX];
-	int ret, i;
+	int ret;
+	NOCLOBBER int i;
 	const pid_t pid = getpid();
 
 	ret = stress_temp_dir_mk(name, pid, instance);
