@@ -140,6 +140,9 @@ int stress_fstat(
 			int fd;
 			struct stat buf;
 
+			if (!opt_do_run || (max_ops && *counter >= max_ops))
+				goto aborted;
+
 			if (di->ignore)
 				continue;
 
@@ -170,11 +173,10 @@ int stress_fstat(
 			stat_some = true;
 
 			(*counter)++;
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
-				break;
 		}
 	} while (stat_some && opt_do_run && (!max_ops || *counter < max_ops));
 
+aborted:
 	ret = EXIT_SUCCESS;
 free_cache:
 	/* Free cache */
