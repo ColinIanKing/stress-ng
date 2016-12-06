@@ -33,7 +33,12 @@ CFLAGS += -Wabi -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar
 endif
 
-LDFLAGS += -lc
+#
+# Static flags, only to be used when using GCC
+#
+ifeq ($(STATIC),1)
+LDFLAGS += -static
+endif
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
@@ -387,7 +392,7 @@ endif
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
 
 #
 #  check if we can build against AppArmor

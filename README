@@ -36,4 +36,8 @@ To build on MINIX, gmake and clang are required:
 To build on SunOS, one requires GCC and GNU make, build using:
 	CC=gcc gmake
 
+To build a static image, use:
+	STATIC=1 make
+
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
+

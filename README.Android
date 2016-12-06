@@ -34,7 +34,8 @@ Shared Variables:
 == Build ==
 #Make
  export CC=${CROSS_COMPILE}
- make ARCH=arm
+ STATIC=1 make ARCH=arm
 
 
 M.Srikanth Kumar, Jul 14, 2015
+Colin Ian King,   Dec  6, 2016 (updated, static linking)
