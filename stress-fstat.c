@@ -166,12 +166,14 @@ int stress_fstat(
 			}
 
 			if ((fstat(fd, &buf) < 0) &&
-			    (errno != ENOMEM))
+			    (errno != ENOMEM)) {
 				di->ignore = true;
+				(void)close(fd);
+				continue;
+			}
+
 			(void)close(fd);
-
 			stat_some = true;
-
 			(*counter)++;
 		}
 	} while (stat_some && opt_do_run && (!max_ops || *counter < max_ops));
