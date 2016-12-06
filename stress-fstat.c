@@ -86,6 +86,7 @@ int stress_fstat(
 	struct dirent *d;
 	NOCLOBBER int ret = EXIT_FAILURE;
 	bool stat_some;
+	const uid_t euid = geteuid();
 
 	(void)instance;
 
@@ -159,20 +160,27 @@ int stress_fstat(
 			if (di->noaccess)
 				continue;
 
-			fd = open(di->path, O_RDONLY | O_NONBLOCK);
-			if (fd < 0) {
-				di->noaccess = true;
-				continue;
-			}
+			/*
+			 *  Opening /dev files such as /dev/urandom
+			 *  may block when running as root, so
+			 *  avoid this.
+			 */
+			if (!euid) {
+				fd = open(di->path, O_RDONLY | O_NONBLOCK);
+				if (fd < 0) {
+					di->noaccess = true;
+					continue;
+				}
 
-			if ((fstat(fd, &buf) < 0) &&
-			    (errno != ENOMEM)) {
-				di->ignore = true;
+				if ((fstat(fd, &buf) < 0) &&
+				    (errno != ENOMEM)) {
+					di->ignore = true;
+					(void)close(fd);
+					continue;
+				}
+
 				(void)close(fd);
-				continue;
 			}
-
-			(void)close(fd);
 			stat_some = true;
 			(*counter)++;
 		}
