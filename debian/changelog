@@ -1,3 +1,15 @@
+stress-ng (0.07.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * helper: fix cppcheck warning by initialising val1
+  * stress-fstat: don't open /dev files to stat them when running as root
+  * stress-fstat: don't bump counter if fstat fails
+  * stress-fstat: perform end of test check earlier than later
+  * stress-sync_file: use sync_file_range2() where required
+  * allow for static building, using STATIC=1 make
+
+ -- Colin King <colin.king@canonical.com>  Tue, 6 Dec 2016 21:41:22 +0000
+
 stress-ng (0.07.08-1) unstable; urgency=medium
 
   * Makefile: bump version
