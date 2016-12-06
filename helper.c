@@ -349,7 +349,7 @@ ssize_t __stress_get_stack_direction(const uint8_t *val1)
  */
 ssize_t stress_get_stack_direction(void)
 {
-	uint8_t val1;
+	uint8_t val1 = 0;
 	uint8_t waste[64];
 
 	waste[(sizeof waste) - 1] = 0;
