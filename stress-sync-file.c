@@ -24,7 +24,13 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
+#if defined(__linux__) && \
+    (defined(__NR_sync_file_range) || defined(__NR_sync_file_range2)) && \
+    NEED_GLIBC(2,10,0)
+#define HAVE_SYNC_FILE_RANGE
+#endif
+
+#if defined(HAVE_SYNC_FILE_RANGE)
 static const int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE,
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE | SYNC_FILE_RANGE_WAIT_AFTER,
@@ -46,7 +52,37 @@ void stress_set_sync_file_bytes(const char *optarg)
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 }
 
-#if defined(__linux__) && defined(__NR_sync_file_range) && NEED_GLIBC(2,10,0)
+#if defined(HAVE_SYNC_FILE_RANGE)
+
+static inline int shim_sync_file_range(
+	int fd,
+	off64_t offset,
+	off64_t nbytes,
+	unsigned int flags)
+{
+#if defined(__NR_sync_file_range)
+	return syscall(__NR_sync_file_range, fd, offset, nbytes, flags);
+#elif defined(__NR_sync_file_range2)
+	/*
+	 * from sync_file_range(2):
+	 * "Some architectures (e.g., PowerPC, ARM) need  64-bit  arguments  to  be
+         * aligned  in  a  suitable pair of registers.  On such architectures, the
+         * call signature of sync_file_range() shown in the SYNOPSIS would force a
+         * register  to  be wasted as padding between the fd and offset arguments.
+         * (See syscall(2) for details.)  Therefore, these architectures define  a
+         * different system call that orders the arguments suitably"
+	 */
+	return syscall(__NR_sync_file_range2, fd, flags, offset, nbytes);
+#else
+	(void)fd;
+	(void)offset;
+	(void)nbytes;
+	(void)flags;
+
+	error = -ENOSYS;
+	return -1;
+#endif
+}
 
 /*
  *  shrink and re-allocate the file to be sync'd
@@ -124,7 +160,7 @@ int stress_sync_file(
 			break;
 		for (offset = 0; offset < (off64_t)opt_sync_file_bytes; ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
-			ret = sync_file_range(fd, offset, sz, mode);
+			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0)
 				pr_fail_err(name, "sync_file_range (forward)");
 			offset += sz;
@@ -137,7 +173,7 @@ int stress_sync_file(
 		for (offset = 0; offset < (off64_t)opt_sync_file_bytes; ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 
-			ret = sync_file_range(fd, opt_sync_file_bytes - offset, sz, mode);
+			ret = shim_sync_file_range(fd, opt_sync_file_bytes - offset, sz, mode);
 			if (ret < 0)
 				pr_fail_err(name, "sync_file_range (reverse)");
 			offset += sz;
@@ -149,7 +185,7 @@ int stress_sync_file(
 			break;
 		for (i = 0; i < (off64_t)(opt_sync_file_bytes / (128 * KB)); i++) {
 			offset = (mwc64() % opt_sync_file_bytes) & ~((128 * KB) - 1);
-			ret = sync_file_range(fd, offset, 128 * KB, mode);
+			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0)
 				pr_fail_err(name, "sync_file_range (random)");
 		}
