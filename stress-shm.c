@@ -174,8 +174,8 @@ static int stress_shm_posix_child(
 			(void)fsync(shm_fd);
 
 			/* Expand and shrink the mapping */
-			(void)posix_fallocate(shm_fd, 0, sz + page_size);
-			(void)posix_fallocate(shm_fd, 0, sz);
+			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
+			(void)shim_fallocate(shm_fd, 0, 0, sz);
 			(void)close(shm_fd);
 
 			if (!opt_do_run)
