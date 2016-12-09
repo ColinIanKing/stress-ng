@@ -73,7 +73,7 @@ static void runner(
 {
 	(void)pid;
 
-	pr_dbg(stderr, "%s: wait: runner started [%d]\n", name, getpid());
+	pr_dbg(stderr, "%s: wait: runner started [%d]\n", name, (int)getpid());
 
 	do {
 		(void)pause();
@@ -96,7 +96,7 @@ static void killer(
 	double start = time_now();
 	uint64_t last_counter = *counter;
 
-	pr_dbg(stderr, "%s: wait: killer started [%d]\n", name, getpid());
+	pr_dbg(stderr, "%s: wait: killer started [%d]\n", name, (int)getpid());
 
 	do {
 		(void)kill(pid, SIGSTOP);
@@ -144,7 +144,7 @@ int stress_wait(
 	(void)instance;
 
 	pr_dbg(stderr, "%s: waiter started [%d]\n",
-		name, getpid());
+		name, (int)getpid());
 
 	pid_r = spawn(name, runner, 0, counter, max_ops);
 	if (pid_r < 0) {
