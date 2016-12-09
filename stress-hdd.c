@@ -321,6 +321,7 @@ int stress_hdd(
 	const char *name)
 {
 	uint8_t *buf = NULL;
+	uint8_t *alloc_buf;
 	uint64_t i, min_size, remainder;
 	const pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
@@ -387,13 +388,30 @@ int stress_hdd(
 	if ((opt_hdd_flags & HDD_OPT_RD_MASK) == 0)
 		opt_hdd_flags |= HDD_OPT_RD_SEQ;
 
-	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
-	if (ret || !buf) {
+#if defined(__sun__)
+	{
+		/* Work around lack of posix_memalign */
+		uintptr_t uintptr;
+
+		alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
+		if (!alloc_buf) {
+			pr_err(stderr, "%s: cannot allocate buffer\n", name);
+			(void)stress_temp_dir_rm(name, pid, instance);
+			return rc;
+		}
+		uintptr = (uintptr_t)(alloc_buf + BUF_ALIGNMENT) & ~(BUF_ALIGNMENT - 1);
+		buf = (uint8_t *)uintptr;
+	}
+#else
+	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
+	if (ret || !alloc_buf) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", name);
 		(void)stress_temp_dir_rm(name, pid, instance);
 		return rc;
 	}
+	buf = alloc_buf;
+#endif
 
 	stress_strnrnd((char *)buf, opt_hdd_write_size);
 
@@ -626,7 +644,7 @@ rnd_rd_retry:
 
 	rc = EXIT_SUCCESS;
 finish:
-	free(buf);
+	free(alloc_buf);
 	(void)stress_temp_dir_rm(name, pid, instance);
 	return rc;
 }
