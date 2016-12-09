@@ -104,7 +104,7 @@ int stress_membarrier(
 	}
 
 	sigfillset(&set);
-	memset(pthread_ret, 0, sizeof(ret));
+	memset(pthread_ret, 0, sizeof(pthread_ret));
 	keep_running = true;
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
