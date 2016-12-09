@@ -22,14 +22,23 @@
  *
  */
 #include "stress-ng.h"
+
 #include <wchar.h>
 #if defined(HAVE_LIB_BSD)
 #include <bsd/wchar.h>
 #define HAVE_WCSLCAT
 #define HAVE_WCSLCPY
+#define HAVE_WCSNCASECMP
 #elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
 #define HAVE_WCSLCAT
 #define HAVE_WCSLCPY
+#define HAVE_WCSNCASECMP
+#endif
+
+/* Ugh, a Sun gcc exception to the rule */
+#if defined(__sun__)
+#undef HAVE_WCSNCASECMP
+#undef HAVE_WCSCASECMP
 #endif
 
 #define STR1LEN 256
@@ -84,6 +93,7 @@ static inline void wcschk(
 	wcschk(name, test, STR(test))
 
 
+#if defined(HAVE_WCSCASECMP)
 /*
  *  stress_wcscasecmp()
  *	stress on wcscasecmp
@@ -116,7 +126,9 @@ static void stress_wcscasecmp(
 		WCSCHK(name, 0 != __wcscasecmp(str2, str1 + i));
 	}
 }
+#endif
 
+#if defined(HAVE_WCSNCASECMP)
 /*
  *  stress_wcsncasecmp()
  *	stress on wcsncasecmp
@@ -149,6 +161,7 @@ static void stress_wcsncasecmp(
 		WCSCHK(name, 0 != __wcsncasecmp(str2, str1 + i, len2));
 	}
 }
+#endif
 
 #if defined(HAVE_WCSLCPY)
 /*
@@ -526,7 +539,9 @@ static void stress_wcs_all(
 static const stress_wcs_stressor_info_t wcs_methods[] = {
 	{ "all",		stress_wcs_all,		NULL },	/* Special "all" test */
 
+#if defined(WCSCASECMP)
 	{ "wcscasecmp",		stress_wcscasecmp,	wcscasecmp },
+#endif
 #if defined(HAVE_WCSLCAT)
 	{ "wcslcat",		stress_wcslcat,		wcslcat },
 #else
@@ -540,7 +555,9 @@ static const stress_wcs_stressor_info_t wcs_methods[] = {
 	{ "wcscpy",		stress_wcscpy,		wcscpy },
 #endif
 	{ "wcslen",		stress_wcslen,		wcslen },
+#if defined(HAVE_WCSNCASECMP)
 	{ "wcsncasecmp",	stress_wcsncasecmp,	wcsncasecmp },
+#endif
 	{ "wcsncat",		stress_wcsncat,		wcsncat },
 	{ "wcsncmp",		stress_wcsncmp,		wcsncmp },
 	{ "wcsrchr",		stress_wcsrchr,		wcschr },
