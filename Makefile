@@ -399,8 +399,8 @@ stress-ng: $(OBJS)
 #
 have_apparmor:
 	@$(CC) $(CPPFLAGS) test-apparmor.c $(LIB_APPARMOR) -o test-apparmor 2> /dev/null || true
-	@if [ -e test-apparmor ]; then \
-		if [ -x $(APPARMOR_PARSER) ]; then \
+	@if [ -f test-apparmor ]; then \
+		if [ -x "$(APPARMOR_PARSER)" ]; then \
 			echo 1 ;\
 		else \
 			echo 0 ;\
@@ -417,7 +417,7 @@ have_keyutils_h:
 	@echo "#include <sys/types.h>" > test-key.c
 	@echo "#include <keyutils.h>" >> test-key.c
 	@$(CC) $(CPPFLAGS) -c -o test-key.o test-key.c 2> /dev/null || true
-	@if [ -e test-key.o ]; then \
+	@if [ -f test-key.o ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -431,7 +431,7 @@ have_xattr_h:
 	@echo "#include <sys/types.h>" > test-xattr.c
 	@echo "#include <attr/xattr.h>" >> test-xattr.c
 	@$(CC) $(CPPFLAGS) -c -o test-xattr.o test-xattr.c 2> /dev/null || true
-	@if [ -e test-xattr.o ]; then \
+	@if [ -f test-xattr.o ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -443,7 +443,7 @@ have_xattr_h:
 #
 have_lib_bsd:
 	@$(CC) $(CPPFLAGS) test-libbsd.c $(LIB_BSD) -o test-libbsd 2> /dev/null || true
-	@if [ -e test-libbsd ]; then \
+	@if [ -f test-libbsd ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -455,7 +455,7 @@ have_lib_bsd:
 #
 have_lib_z:
 	@$(CC) $(CPPFLAGS) test-libz.c $(LIB_Z) -o test-libz 2> /dev/null || true
-	@if [ -e test-libz ]; then \
+	@if [ -f test-libz ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -467,7 +467,7 @@ have_lib_z:
 #
 have_lib_crypt:
 	@$(CC) $(CPPFLAGS) test-libcrypt.c $(LIB_CRYPT) -o test-libcrypt 2> /dev/null || true
-	@if [ -e test-libcrypt ]; then \
+	@if [ -f test-libcrypt ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -479,7 +479,7 @@ have_lib_crypt:
 #
 have_lib_rt:
 	@$(CC) $(CPPFLAGS) test-librt.c $(LIB_RT) -o test-librt 2> /dev/null || true
-	@if [ -e test-librt ]; then \
+	@if [ -f test-librt ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -491,7 +491,7 @@ have_lib_rt:
 #
 have_lib_pthread:
 	@$(CC) $(CPPFLAGS) test-libpthread.c $(LIB_PTHREAD) -o test-libpthread 2> /dev/null || true
-	@if [ -e test-libpthread ]; then \
+	@if [ -f test-libpthread ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -503,7 +503,7 @@ have_lib_pthread:
 #
 have_lib_sctp:
 	@$(CC) $(CPPFLAGS) test-libsctp.c $(LIB_SCTP) -o test-libsctp 2> /dev/null || true
-	@if [ -e test-libsctp ]; then \
+	@if [ -f test-libsctp ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -517,7 +517,7 @@ have_lib_sctp:
 have_float_decimal:
 	@echo "_Decimal32 x;" > test-decimal.c
 	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
-	@if [ -e test-decimal.o ]; then \
+	@if [ -f test-decimal.o ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -530,7 +530,7 @@ have_float_decimal:
 have_seccomp_h:
 	@echo "#include <linux/seccomp.h>" > test-seccomp.c
 	@$(CC) $(CPPFLAGS) -c -o test-seccomp.o test-seccomp.c 2> /dev/null || true
-	@if [ -e test-seccomp.o ]; then \
+	@if [ -f test-seccomp.o ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -542,7 +542,7 @@ have_seccomp_h:
 #
 have_lib_aio:
 	@$(CC) $(CPPFLAGS) test-libaio.c $(LIB_AIO) -o test-libaio 2> /dev/null || true
-	@if [ -e test-libaio ]; then \
+	@if [ -f test-libaio ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -570,7 +570,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 #
 have_sys_cap_h:
 	@$(CC) $(CPPFLAGS) test-cap.c -o test-cap 2> /dev/null || true
-	@if [ -e test-cap ]; then \
+	@if [ -f test-cap ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -582,7 +582,7 @@ have_sys_cap_h:
 #
 have_vecmath: stress-vecmath.c
 	@$(CC) $(CPPFLAGS) -DHAVE_VECMATH -c -o stress-vecmath-test.o stress-vecmath.c 2> /dev/null || true
-	@if [ -e stress-vecmath-test.o ]; then \
+	@if [ -f stress-vecmath-test.o ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -594,7 +594,7 @@ have_vecmath: stress-vecmath.c
 #
 have_atomic: stress-atomic.c
 	@$(CC) $(CPPFLAGS) -DTEST_ATOMIC_BUILD -DHAVE_ATOMIC stress-atomic.c -o stress-atomic-test 2> /dev/null || true
-	@if [ -e stress-atomic-test ]; then \
+	@if [ -f stress-atomic-test ]; then \
 		echo 1 ;\
 	else \
 		echo 0 ;\
@@ -605,7 +605,7 @@ have_atomic: stress-atomic.c
 #  extract the PER_* personality enums
 #
 personality.h:
-	@$(CPP) personality.c | grep -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	@$(CPP) personality.c | grep -f "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 
 stress-personality.c: personality.h
@@ -614,7 +614,7 @@ stress-cpu.o: stress-cpu.c
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
 	@echo "_Decimal32 x;" > test-decimal.c
 	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
-	@if [ -e test-decimal.o ]; then \
+	@if [ -f test-decimal.o ]; then \
 		$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< ;\
 	else \
 		$(CC) $(CFLAGS) -c -o $@ $< ;\
