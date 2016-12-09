@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__minix__) && !defined(__OpenBSD__)
+#if !defined(__minix__) && !defined(__OpenBSD__) && !defined(__sun__)
 
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
