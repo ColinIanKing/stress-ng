@@ -28,6 +28,11 @@
 
 #define _GNU_SOURCE
 
+/* Some Solaris tool chains only define __sun */
+#if defined(__sun) && !defined(__sun__)
+#define __sun__
+#endif
+
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
