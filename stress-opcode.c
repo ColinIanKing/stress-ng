@@ -76,13 +76,13 @@ static int sigs[] = {
 static uint64_t *sig_count;
 #endif
 
-static void MLOCKED stress_badhandler(int dummy)
+static void MLOCKED stress_badhandler(int signum)
 {
-	(void)dummy;
-
 #if TRACK_SIGCOUNT
-	if (dummy < MAX_SIGS)
-		sig_count[dummy]++;
+	if (signum < MAX_SIGS)
+		sig_count[signum]++;
+#else
+	(void)signum;
 #endif
 	_exit(1);
 }
