@@ -55,6 +55,7 @@
 #include <pthread.h>
 #endif
 #include <signal.h>
+#include <time.h>
 #include <sys/file.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -80,7 +81,7 @@
 #if defined (__GLIBC__)
 #include <features.h>
 #endif
-#if defined(__sun__)
+#if defined (__sun__)
 #include <alloca.h>
 #endif
 
@@ -2248,6 +2249,7 @@ extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
 extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int flags);
 extern int shim_mlock2(const void *addr, size_t len, int flags);
+extern int shim_usleep(uint64_t usec);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\

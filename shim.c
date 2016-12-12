@@ -467,3 +467,27 @@ int shim_mlock2(const void *addr, size_t len, int flags)
 	return -1;
 #endif
 }
+
+/*
+ *  shim_usleep()
+ *	usleep is now deprecated, so
+ *	emulate it with nanosleep
+ */
+int shim_usleep(uint64_t usec)
+{
+        struct timespec t, trem;
+
+        t.tv_sec = usec / 1000000;
+        t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
+
+	for (;;) {
+		if (nanosleep(&t, &trem) < 0) {
+			if (errno == EINTR) {
+				t = trem;
+				continue;
+			}
+		}
+		break;
+	}
+	return -errno;
+}
