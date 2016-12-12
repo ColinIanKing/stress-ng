@@ -43,22 +43,22 @@ int stress_personality(
 	const uint64_t max_ops,
 	const char *name)
 {
-	const size_t n = SIZEOF_ARRAY(personalities);
+	const ssize_t n = SIZEOF_ARRAY(personalities);
 	bool failed[n];
 
 	(void)instance;
-
-	memset(failed, 0, sizeof(failed));
 
 	if (n == 0) {
 		pr_inf(stderr, "%s: no personalities to stress test\n", name);
 		return EXIT_FAILURE;
 	}
+	memset(failed, 0, sizeof(failed));
+
 	if (instance == 0)
 		pr_dbg(stderr, "%s: exercising %zu personalities\n", name, n);
 
 	do {
-		size_t i, fails = 0;
+		ssize_t i, fails = 0;
 
 		for (i = 0; i < n; i++) {
 			unsigned long p = personalities[i];
