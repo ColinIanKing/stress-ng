@@ -165,7 +165,7 @@ retry:
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
-			usleep(10000);
+			(void)shim_usleep(10000);
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */

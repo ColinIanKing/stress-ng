@@ -90,7 +90,7 @@ retry:			if (!opt_do_run)
 			if (pids[n] < 0) {
 				/* Out of resources for fork, re-do, ugh */
 				if (errno == EAGAIN) {
-					usleep(10000);
+					(void)shim_usleep(10000);
 					goto retry;
 				}
 				break;

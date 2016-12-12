@@ -174,7 +174,7 @@ static void stress_mmap_child(
 #endif
 			no_mem_retries++;
 			if (no_mem_retries > 1)
-				usleep(100000);
+				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {

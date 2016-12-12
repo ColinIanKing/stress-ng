@@ -85,7 +85,7 @@ static void dnotify_exercise(
 	/* Wait for up to 1 second for event */
 	while ((i < 1000) && (dnotify_fd == -1)) {
 		i++;
-		usleep(1000);
+		(void)shim_usleep(1000);
 	}
 
 	if (dnotify_fd != fd) {

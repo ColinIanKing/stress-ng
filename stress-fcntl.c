@@ -406,7 +406,7 @@ int stress_fcntl(
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == EPERM) || (errno == EACCES) ||
 			    (errno == ENOMEM) || (errno == ENOSPC)) {
-				(void)usleep(100000);
+				(void)shim_usleep(100000);
 				continue;
 			}
 			pr_fail_err(name, "open");

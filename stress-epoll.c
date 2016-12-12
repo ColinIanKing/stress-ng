@@ -350,7 +350,7 @@ retry:
 				break;
 			}
 			(void)close(fd);
-			usleep(100000);	/* Twiddle fingers for a moment */
+			(void)shim_usleep(100000);	/* Twiddle fingers for a moment */
 
 			retries++;
 			if (retries > 1000) {

@@ -1956,7 +1956,7 @@ again:
 				if (buf == MAP_FAILED) {
 					buf = NULL;
 					no_mem_retries++;
-					usleep(100000);
+					(void)shim_usleep(100000);
 					continue;	/* Try again */
 				}
 				(void)madvise_random(buf, buf_sz);

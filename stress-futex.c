@@ -126,7 +126,7 @@ again:
 					/*
 					 * Backoff for a short while and						 * start again
 					 */
-					usleep(250000);
+					(void)shim_usleep(250000);
 					threshold += THRESHOLD;
 				}
 			} else {

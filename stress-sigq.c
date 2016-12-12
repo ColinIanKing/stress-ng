@@ -88,7 +88,7 @@ again:
 		memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		sigqueue(pid, SIGUSR1, s);
-		usleep(250);
+		(void)shim_usleep(250);
 		/* And ensure child is really dead */
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

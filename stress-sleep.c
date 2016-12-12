@@ -102,15 +102,15 @@ static void *stress_pthread_func(void *ctxt)
 		tv.tv_nsec = 100;
 		if (nanosleep(&tv, NULL) < 0)
 			break;
-		if (usleep(1) < 0)
+		if (shim_usleep(1) < 0)
 			break;
-		if (usleep(10) < 0)
+		if (shim_usleep(10) < 0)
 			break;
-		if (usleep(100) < 0)
+		if (shim_usleep(100) < 0)
 			break;
-		if (usleep(1000) < 0)
+		if (shim_usleep(1000) < 0)
 			break;
-		if (usleep(10000) < 0)
+		if (shim_usleep(10000) < 0)
 			break;
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
@@ -182,7 +182,7 @@ int stress_sleep(
 
 	do {
 		c = 0;
-		usleep(10000);
+		(void)shim_usleep(10000);
 		for (i = 0; i < n; i++)
 			c += counters[i];
 	}  while (ok && opt_do_run && (!max_ops || c < max_ops));

@@ -178,7 +178,7 @@ int stress_madvise(
 #endif
 			no_mem_retries++;
 			if (no_mem_retries > 1)
-				usleep(100000);
+				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
 		ret = sigsetjmp(jmp_env, 1);

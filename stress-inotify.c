@@ -74,7 +74,7 @@ retry:
 			 * iteration, in which case we've run out of resources
 			 * temporarily, so sleep a short while and retry.
 			 */
-			usleep(10000);
+			(void)shim_usleep(10000);
 			goto retry;
 		}
 		/* Nope, give up */

@@ -1677,7 +1677,7 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 					}
 				}
 			}
-			usleep(usec_sleep);
+			(void)shim_usleep(usec_sleep);
 			cpu++;
 		}
 	}
@@ -1809,7 +1809,7 @@ again:
 				switch (pid) {
 				case -1:
 					if (errno == EAGAIN) {
-						usleep(100000);
+						(void)shim_usleep(100000);
 						goto again;
 					}
 					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
@@ -1845,7 +1845,7 @@ again:
 					if (opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_open(&stats[n].sp);
 #endif
-					(void)usleep(opt_backoff * n_procs);
+					(void)shim_usleep(opt_backoff * n_procs);
 #if defined(STRESS_PERF_STATS)
 					if (opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats[n].sp);

@@ -432,7 +432,7 @@ int stress_af_alg(
 		 * cipher modules which can be racy or
 		 * take some time
 		 */
-		usleep(200000);
+		(void)shim_usleep(200000);
 	}
 
 	do {

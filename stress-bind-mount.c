@@ -102,7 +102,7 @@ int stress_bind_mount(
 
 	do {
 		/* Twiddle thumbs */
-		(void)usleep(10000);
+		(void)shim_usleep(10000);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	(void)kill(pid, SIGKILL);

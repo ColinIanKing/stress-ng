@@ -276,7 +276,7 @@ int stress_sem_sysv(
 	}
 	/* Wait for termination */
 	while (opt_do_run && (!max_ops || *counter < max_ops))
-		usleep(100000);
+		(void)shim_usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)

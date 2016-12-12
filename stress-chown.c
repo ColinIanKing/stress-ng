@@ -162,7 +162,7 @@ int stress_chown(
 			if ((fd = open(filename, O_RDWR, S_IRUSR | S_IWUSR)) > - 1)
 				break;
 
-			(void)usleep(100000);
+			(void)shim_usleep(100000);
 			if (++retries >= 100) {
 				pr_err(stderr, "%s: chown: file %s took %d "
 					"retries to open and gave up "

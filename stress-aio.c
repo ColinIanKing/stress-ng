@@ -222,7 +222,7 @@ int stress_aio(
 	}
 
 	do {
-		usleep(250000); /* wait until a signal occurs */
+		(void)shim_usleep(250000); /* wait until a signal occurs */
 
 		for (i = 0; opt_do_run && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
