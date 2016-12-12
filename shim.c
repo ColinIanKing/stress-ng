@@ -475,20 +475,27 @@ int shim_mlock2(const void *addr, size_t len, int flags)
  */
 int shim_usleep(uint64_t usec)
 {
+#if _POSIX_C_SOURCE >= 199309L
         struct timespec t, trem;
 
         t.tv_sec = usec / 1000000;
         t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
 
 	for (;;) {
+		errno = 0;
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
 				if (opt_do_run)
 					continue;
+			} else {
+				return -1;
 			}
 		}
 		break;
 	}
-	return -errno;
+	return 0;
+#else
+	return usleep((useconds_t)usec);
+#endif
 }
