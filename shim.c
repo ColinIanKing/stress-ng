@@ -484,7 +484,8 @@ int shim_usleep(uint64_t usec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				continue;
+				if (opt_do_run)
+					continue;
 			}
 		}
 		break;
