@@ -55,6 +55,17 @@ static void MLOCKED stress_segvhandler(int dummy)
 	_exit(segv_ret);
 }
 
+static void __strncat(char *dst, char *src, size_t *n)
+{
+	size_t ln = strlen(src);
+
+	if (*n <= ln)
+		return;
+	
+	strncat(dst, src, *n);
+	*n -= ln;
+}
+
 /*
  *  stress_mmapfork()
  *	stress mappings + fork VM subystem
@@ -154,19 +165,20 @@ reap:
 
 	if (segv_count) {
 		char buffer[1024];
+		size_t n = sizeof(buffer) - 1;
 
 		*buffer = '\0';
 
 		if (segv_reasons & _EXIT_SEGV_MMAP)
-			strncat(buffer, " mmap", sizeof(buffer) - 1);
+			__strncat(buffer, " mmap", &n);
 		if (segv_reasons & _EXIT_SEGV_MADV_WILLNEED)
-			strncat(buffer, " madvise-WILLNEED", sizeof(buffer) - 1);
+			__strncat(buffer, " madvise-WILLNEED", &n);
 		if (segv_reasons & _EXIT_SEGV_MADV_DONTNEED)
-			strncat(buffer, " madvise-DONTNEED", sizeof(buffer) - 1);
+			__strncat(buffer, " madvise-DONTNEED", &n);
 		if (segv_reasons & _EXIT_SEGV_MEMSET)
-			strncat(buffer, " memset", sizeof(buffer) - 1);
+			__strncat(buffer, " memset", &n);
 		if (segv_reasons & _EXIT_SEGV_MUNMAP)
-			strncat(buffer, " munmap", sizeof(buffer) - 1);
+			__strncat(buffer, " munmap", &n);
 
                 pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
 			name, segv_count, buffer);
