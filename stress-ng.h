@@ -2250,6 +2250,7 @@ extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int flags);
 extern int shim_mlock2(const void *addr, size_t len, int flags);
 extern int shim_usleep(uint64_t usec);
+extern char *shim_getlogin(void);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\
