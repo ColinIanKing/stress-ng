@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include <pwd.h>
 
 /*
  *  Various shim abstraction wrappers around systems calls and
@@ -499,3 +500,31 @@ int shim_usleep(uint64_t usec)
 	return usleep((useconds_t)usec);
 #endif
 }
+
+/*
+ *  shim_getlogin
+ *	a more secure abstracted version of getlogin
+ *
+ * According to flawfinder:
+ * "It's often easy to fool getlogin. Sometimes it does not work at all,
+ * because some program messed up the utmp file. Often, it gives only the
+ * first 8 characters of the login name. The user currently logged in on the
+ * controlling tty of our program need not be the user who started it. Avoid
+ * getlogin() for security-related purposes (CWE-807). Use getpwuid(geteuid())
+ * and extract the desired information instead."
+ */
+char *shim_getlogin(void)
+{
+	static char pw_name[256];
+	struct passwd *pw;
+
+	pw = getpwuid(geteuid());
+	if (!pw)
+		return NULL;
+
+	strncpy(pw_name, pw->pw_name, sizeof(pw_name));
+	pw_name[sizeof(pw_name) - 1 ] = '\0';
+
+	return pw_name;
+}
+

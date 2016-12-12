@@ -538,7 +538,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	time_t t;
 	struct tm *tm = NULL;
 	char hostname[128];
-	char *user = getlogin();
+	char *user = shim_getlogin();
 
 	pr_yaml(yaml, "system-info:\n");
 	if (time(&t) != ((time_t)-1))
