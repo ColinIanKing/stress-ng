@@ -99,11 +99,12 @@ static int stress_link_generic(
 				char buf[PATH_MAX];
 				ssize_t rret;
 
-				rret = readlink(newpath, buf, sizeof(buf));
+				rret = readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
 					pr_fail_err(name, "readlink");
 				} else {
+					newpath[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
 						pr_fail_err(name, "readlink length error");
 					else
