@@ -1,3 +1,27 @@
+stress-ng (0.07.10-1) unstable; urgency=medium
+
+  * add copyright boiler plate on fast-test-all
+  * stress-personality: move memset to avoid  memset 0 sized array
+  * forgot to add shim_getlogin to stress-ng.h
+  * shim: add more secure version of getlogin
+  * stress-mmapfork: fix typo on buffer sizeof
+  * stress-link: ensure buffer returned from readlink is terminated with zero
+  * shim_usleep: use nanosleep if it is available, fallback to older usleep
+  * stressors: use shim_usleep instead of deprecated usleep
+  * shim: abort early from shim_usleep if opt_do_run is false
+  * add usleep shim
+  * stress-opcode: rename signal handler dummy arg to signum
+  * stress-membarrier: memset pthread_ret with correct size
+  * stress-shm: use shim_fallocate rather than posix_fallocate
+  * stress-hdd: workaround lack of posix_memalign on sun
+  * stress-rmap: sun builds may not have posix_fallocate, so don't build it
+  * stress-wait: work around long int pid_t warnings on Sun systems
+  * stress-wcstr: sun wide char support has some wcs funcs missing
+  * stress-flock: disable this stressor for sun machines
+  * makefile: use -f instead of -e for Solaris versions of test
+
+ -- Colin King <colin.king@canonical.com>  Tue, 13 Dec 2016 19:43:11 +0000
+
 stress-ng (0.07.09-1) unstable; urgency=medium
 
   * Makefile: bump version
