@@ -605,7 +605,7 @@ have_atomic: stress-atomic.c
 #  extract the PER_* personality enums
 #
 personality.h:
-	@$(CPP) personality.c | grep -f "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	@$(CPP) personality.c | grep -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 
 stress-personality.c: personality.h
