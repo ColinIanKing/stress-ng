@@ -36,14 +36,16 @@ enum membarrier_cmd {
 	MEMBARRIER_CMD_SHARED = (1 << 0),
 };
 
-static void *stress_membarrier_thread(void *ctxt)
+typedef struct {
+	const char *name;
+} ctxt_t;
+
+static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ];
 	stack_t ss;
-	char *name = (char *)ctxt;
-
-	(void)ctxt;
+	const ctxt_t *ctxt = (ctxt_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -66,7 +68,7 @@ static void *stress_membarrier_thread(void *ctxt)
 	}
 	while (keep_running && opt_do_run) {
 		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_fail_err(name, "membarrier");
+			pr_fail_err(ctxt->name, "membarrier");
 			break;
 		}
 	}
@@ -88,6 +90,7 @@ int stress_membarrier(
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
 	size_t i;
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
+	ctxt_t ctxt = { name };
 
 	(void)instance;
 
@@ -110,7 +113,7 @@ int stress_membarrier(
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		pthread_ret[i] =
 			pthread_create(&pthreads[i], NULL,
-				stress_membarrier_thread, (void *)name);
+				stress_membarrier_thread, (void *)&ctxt);
 	}
 
 	do {
