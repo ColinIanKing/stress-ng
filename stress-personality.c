@@ -50,7 +50,7 @@ int stress_personality(
 
 	if (n == 0) {
 		pr_inf(stderr, "%s: no personalities to stress test\n", name);
-		return EXIT_FAILURE;
+		return EXIT_NOT_IMPLEMENTED;
 	}
 	memset(failed, 0, sizeof(failed));
 
