@@ -69,7 +69,7 @@ int stress_schedpolicy(
     defined(__NR_sched_setattr)
 		struct shim_sched_attr attr;
 #endif
-		struct sched_param param, new_param;
+		struct sched_param param;
 		int ret = 0;
 		int max_prio, min_prio, rng_prio;
 		int new_policy = policies[policy];
@@ -150,7 +150,7 @@ int stress_schedpolicy(
 		if (ret < 0)
 			pr_fail_err(name, "sched_getparam failed");
 
-		ret = sched_setparam(pid, &new_param);
+		ret = sched_setparam(pid, &param);
 		if (ret < 0)
 			pr_fail_err(name, "sched_setparam");
 #endif
