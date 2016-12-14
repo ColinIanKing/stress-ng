@@ -640,6 +640,13 @@ extern void pr_openlog(const char *filename);
 #define STRESS_VECTOR	1
 #endif
 
+/* gcc 7.0 and later support __attribute__((fallthrough)); */
+#if NEED_GNUC(7,0,0)
+#define CASE_FALLTHROUGH	__attribute__((fallthrough))
+#else
+#define CASE_FALLTHROUGH
+#endif
+
 /* NetBSD does not define MAP_ANONYMOUS */
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON

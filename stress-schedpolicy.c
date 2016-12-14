@@ -100,6 +100,7 @@ int stress_schedpolicy(
 				(void)ret;
 			}
 #endif
+			CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_FIFO)
 		case SCHED_FIFO:
