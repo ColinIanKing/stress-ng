@@ -113,7 +113,7 @@ int thrash_start(void)
 		return -1;
 	} else if (thrash_pid == 0) {
 #if defined(SCHED_RR)
-		set_sched(SCHED_RR, UNDEFINED);
+		set_sched(SCHED_RR, 10);
 #endif
 		while (opt_do_run) {
 			pagein_all_procs();
