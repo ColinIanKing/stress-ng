@@ -169,7 +169,7 @@ static void stress_mmap_child(
 			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 			*flags &= ~MAP_POPULATE;
 #endif
 			no_mem_retries++;
@@ -219,7 +219,7 @@ static void stress_mmap_child(
 			}
 		}
 		(void)munmap((void *)buf, sz);
-#ifdef MAP_FIXED
+#if defined(MAP_FIXED)
 		/*
 		 *  Step #2, map them back in random order
 		 */
@@ -298,7 +298,7 @@ int stress_mmap(
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
 	char filename[PATH_MAX];
 
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
 	if (!set_mmap_bytes) {

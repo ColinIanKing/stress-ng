@@ -54,7 +54,7 @@ static const char *stress_temp_path = ".";
  */
 size_t stress_get_pagesize(void)
 {
-#ifdef _SC_PAGESIZE
+#if defined(_SC_PAGESIZE)
 	long sz;
 #endif
 	static size_t page_size = 0;
@@ -62,7 +62,7 @@ size_t stress_get_pagesize(void)
 	if (page_size > 0)
 		return page_size;
 
-#ifdef _SC_PAGESIZE
+#if defined(_SC_PAGESIZE)
         sz = sysconf(_SC_PAGESIZE);
 	page_size = (sz <= 0) ? PAGE_4K : (size_t)sz;
 #else
@@ -83,7 +83,7 @@ int32_t stress_get_processors_online(void)
 	if (processors_online > 0)
 		return processors_online;
 
-#ifdef _SC_NPROCESSORS_ONLN
+#if defined(_SC_NPROCESSORS_ONLN)
 	processors_online = (int32_t)sysconf(_SC_NPROCESSORS_ONLN);
 	if (processors_online < 0)
 		processors_online = 1;
@@ -104,7 +104,7 @@ int32_t stress_get_processors_configured(void)
 	if (processors_configured > 0)
 		return processors_configured;
 
-#ifdef _SC_NPROCESSORS_CONF
+#if defined(_SC_NPROCESSORS_CONF)
 	processors_configured = (int32_t)sysconf(_SC_NPROCESSORS_CONF);
 	if (processors_configured < 0)
 		processors_configured = stress_get_processors_online();
@@ -125,7 +125,7 @@ int32_t stress_get_ticks_per_second(void)
 	if (ticks_per_second > 0)
 		return ticks_per_second;
 
-#ifdef _SC_CLK_TCK
+#if defined(_SC_CLK_TCK)
 	ticks_per_second = sysconf(_SC_CLK_TCK);
 	return ticks_per_second;
 #else

@@ -31,10 +31,10 @@
 #include <sys/epoll.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef AF_INET6
+#if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 #include <sys/un.h>
 #endif
 #include <netdb.h>
@@ -373,7 +373,7 @@ retry:
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	if (addr && (opt_epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
@@ -508,7 +508,7 @@ die_close:
 	if (sfd != -1)
 		(void)close(sfd);
 die:
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	if (addr && (opt_epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);

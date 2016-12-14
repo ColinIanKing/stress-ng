@@ -29,10 +29,10 @@
 #include <netinet/in.h>
 #include <netinet/sctp.h>
 #include <arpa/inet.h>
-#ifdef AF_INET6
+#if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 #include <sys/un.h>
 #endif
 
@@ -145,7 +145,7 @@ retry:
 		(void)close(fd);
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	if (opt_sctp_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
@@ -256,7 +256,7 @@ static int stress_sctp_server(
 die_close:
 	(void)close(fd);
 die:
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	if (opt_sctp_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);

@@ -34,35 +34,35 @@ typedef struct {
 #define CLOCK_INFO(x)	{ x, #x }
 
 static const clock_info_t clocks[] = {
-#ifdef CLOCK_REALTIME
+#if defined(CLOCK_REALTIME)
 	CLOCK_INFO(CLOCK_REALTIME),
 #endif
-#ifdef CLOCK_REALTIME_COARSE
+#if defined(CLOCK_REALTIME_COARSE)
 	CLOCK_INFO(CLOCK_REALTIME_COARSE),
 #endif
-#ifdef CLOCK_MONOTONIC
+#if defined(CLOCK_MONOTONIC)
 	CLOCK_INFO(CLOCK_MONOTONIC),
 #endif
-#ifdef CLOCK_MONOTONIC_RAW
+#if defined(CLOCK_MONOTONIC_RAW)
 	CLOCK_INFO(CLOCK_MONOTONIC_RAW),
 #endif
-#ifdef CLOCK_BOOTTIME
+#if defined(CLOCK_BOOTTIME)
 	CLOCK_INFO(CLOCK_BOOTTIME),
 #endif
-#ifdef CLOCK_PROCESS_CPUTIME_ID
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
 	CLOCK_INFO(CLOCK_PROCESS_CPUTIME_ID),
 #endif
-#ifdef CLOCK_THREAD_CPUTIME_ID
+#if defined(CLOCK_THREAD_CPUTIME_ID)
 	CLOCK_INFO(CLOCK_THREAD_CPUTIME_ID)
 #endif
 };
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
 static const int clocks_nanosleep[] = {
-#ifdef CLOCK_REALTIME
+#if defined(CLOCK_REALTIME)
 	CLOCK_REALTIME,
 #endif
-#ifdef CLOCK_MONOTONIC
+#if defined(CLOCK_MONOTONIC)
 	CLOCK_MONOTONIC
 #endif
 };
@@ -70,10 +70,10 @@ static const int clocks_nanosleep[] = {
 
 #if _POSIX_C_SOURCE >= 199309L && defined(__linux__)
 static const int timers[] = {
-#ifdef CLOCK_REALTIME
+#if defined(CLOCK_REALTIME)
 	CLOCK_REALTIME,
 #endif
-#ifdef CLOCK_MONOTONIC
+#if defined(CLOCK_MONOTONIC)
 	CLOCK_MONOTONIC
 #endif
 };

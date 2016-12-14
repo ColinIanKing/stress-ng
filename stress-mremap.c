@@ -198,7 +198,7 @@ static int stress_mremap_child(
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, *flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 			*flags &= ~MAP_POPULATE;
 #endif
 			continue;	/* Try again */
@@ -275,7 +275,7 @@ int stress_mremap(
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
 
 	(void)instance;
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
 	if (!set_mremap_bytes) {

@@ -25,40 +25,40 @@
 #include "stress-ng.h"
 
 static const mode_t modes[] = {
-#ifdef S_ISUID
+#if defined(S_ISUID)
 	S_ISUID,
 #endif
-#ifdef S_ISGID
+#if defined(S_ISGID)
 	S_ISGID,
 #endif
-#ifdef S_ISVTX
+#if defined(S_ISVTX)
 	S_ISVTX,
 #endif
-#ifdef S_IRUSR
+#if defined(S_IRUSR)
 	S_IRUSR,
 #endif
-#ifdef S_IWUSR
+#if defined(S_IWUSR)
 	S_IWUSR,
 #endif
-#ifdef S_IXUSR
+#if defined(S_IXUSR)
 	S_IXUSR,
 #endif
-#ifdef S_IRGRP
+#if defined(S_IRGRP)
 	S_IRGRP,
 #endif
-#ifdef S_IWGRP
+#if defined(S_IWGRP)
 	S_IWGRP,
 #endif
-#ifdef S_IXGRP
+#if defined(S_IXGRP)
 	S_IXGRP,
 #endif
-#ifdef S_IROTH
+#if defined(S_IROTH)
 	S_IROTH,
 #endif
-#ifdef S_IWOTH
+#if defined(S_IWOTH)
 	S_IWOTH,
 #endif
-#ifdef S_IXOTH
+#if defined( S_IXOTH)
 	S_IXOTH,
 #endif
 	0
@@ -68,7 +68,7 @@ static const mode_t modes[] = {
  *  BSD systems can return EFTYPE which we can ignore
  *  as a "known" error on invalid chmod mode bits
  */
-#ifdef EFTYPE
+#if defined(EFTYPE)
 #define CHECK(x) if ((x) && (errno != EFTYPE)) return -1
 #else
 #define CHECK(x) if (x) return -1

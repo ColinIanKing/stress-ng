@@ -39,7 +39,7 @@ int stress_nice(
 	(void)instance;
 	(void)name;
 
-#ifdef RLIMIT_NICE
+#if defined(RLIMIT_NICE)
 	{
 		struct rlimit rlim;
 

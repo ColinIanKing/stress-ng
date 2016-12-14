@@ -26,16 +26,16 @@
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 static const int madvise_options[] = {
-#ifdef MADV_NORMAL
+#if defined(MADV_NORMAL)
 	MADV_NORMAL,
 #endif
-#ifdef MADV_RANDOM
+#if defined(MADV_RANDOM)
 	MADV_RANDOM,
 #endif
-#ifdef MADV_SEQUENTIAL
+#if defined(MADV_SEQUENTIAL)
 	MADV_SEQUENTIAL,
 #endif
-#ifdef MADV_WILLNEED
+#if defined(MADV_WILLNEED)
 	MADV_WILLNEED,
 #endif
 /*
@@ -44,32 +44,32 @@ static const int madvise_options[] = {
  *  trips checksum errors when we check that
  *  the pages are sane.
  *
-#ifdef MADV_DONTNEED
+#if defined(MADV_DONTNEED)
 	MADV_DONTNEED,
 #endif
 */
-#ifdef MADV_DONTFORK
+#if defined(MADV_DONTFORK)
 	MADV_DONTFORK,
 #endif
-#ifdef MADV_DOFORK
+#if defined(MADV_DOFORK)
 	MADV_DOFORK,
 #endif
-#ifdef MADV_MERGEABLE
+#if defined(MADV_MERGEABLE)
 	MADV_MERGEABLE,
 #endif
-#ifdef MADV_UNMERGEABLE
+#if defined(MADV_UNMERGEABLE)
 	MADV_UNMERGEABLE,
 #endif
-#ifdef MADV_HUGEPAGE
+#if defined(MADV_HUGEPAGE)
 	MADV_HUGEPAGE,
 #endif
-#ifdef MADV_NOHUGEPAGE
+#if defined(MADV_NOHUGEPAGE)
 	MADV_NOHUGEPAGE,
 #endif
-#ifdef MADV_DONTDUMP
+#if defined(MADV_DONTDUMP)
 	MADV_DONTDUMP,
 #endif
-#ifdef MADV_DODUMP
+#if defined(MADV_DODUMP)
 	MADV_DODUMP,
 #endif
 /*
@@ -78,7 +78,7 @@ static const int madvise_options[] = {
  *  trips checksum errors when we check that
  *  the pages are sane.
  *
-#ifdef MADV_FREE
+#if defined(MADV_FREE)
 	MADV_FREE
 #endif
 */

@@ -25,49 +25,49 @@
 #include "stress-ng.h"
 
 static const int limits[] = {
-#ifdef RLIMIT_AS
+#if defined(RLIMIT_AS)
 	RLIMIT_AS,
 #endif
-#ifdef RLIMIT_CPU
+#if defined(RLIMIT_CPU)
 	RLIMIT_CPU,
 #endif
-#ifdef RLIMIT_DATA
+#if defined(RLIMIT_DATA)
 	RLIMIT_DATA,
 #endif
-#ifdef RLIMIT_FSIZE
+#if defined(RLIMIT_FSIZE)
 	RLIMIT_FSIZE,
 #endif
-#ifdef RLIMIT_LOCKS
+#if defined(RLIMIT_LOCKS)
 	RLIMIT_LOCKS,
 #endif
-#ifdef RLIMIT_MEMLOCK
+#if defined(RLIMIT_MEMLOCK)
 	RLIMIT_MEMLOCK,
 #endif
-#ifdef RLIMIT_MSGQUEUE
+#if defined(RLIMIT_MSGQUEUE)
 	RLIMIT_MSGQUEUE,
 #endif
-#ifdef RLIMIT_NICE
+#if defined(RLIMIT_NICE)
 	RLIMIT_NICE,
 #endif
-#ifdef RLIMIT_NOFILE
+#if defined(RLIMIT_NOFILE)
 	RLIMIT_NOFILE,
 #endif
-#ifdef RLIMIT_NPROC
+#if defined(RLIMIT_NPROC)
 	RLIMIT_NPROC,
 #endif
-#ifdef RLIMIT_RSS
+#if defined(RLIMIT_RSS)
 	RLIMIT_RSS,
 #endif
-#ifdef RLIMIT_RTPRIO
+#if defined(RLIMIT_RTPRIO)
 	RLIMIT_RTPRIO,
 #endif
-#ifdef RLIMIT_RTTIME
+#if defined(RLIMIT_RTTIME)
 	RLIMIT_RTTIME,
 #endif
-#ifdef RLIMIT_SIGPENDING
+#if defined(RLIMIT_SIGPENDING)
 	RLIMIT_SIGPENDING,
 #endif
-#ifdef RLIMIT_STACK
+#if defined(RLIMIT_STACK)
 	RLIMIT_STACK
 #endif
 };

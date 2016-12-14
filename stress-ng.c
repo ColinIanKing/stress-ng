@@ -111,44 +111,44 @@ static const proc_helper_t proc_destroy[] = {
  */
 static const int signals[] = {
 	/* POSIX.1-1990 */
-#ifdef SIGHUP
+#if defined(SIGHUP)
 	SIGHUP,
 #endif
-#ifdef SIGINT
+#if defined(SIGINT)
 	SIGINT,
 #endif
-#ifdef SIGQUIT
+#if defined(SIGQUIT)
 	SIGQUIT,
 #endif
-#ifdef SIGABRT
+#if defined(SIGABRT)
 	SIGABRT,
 #endif
-#ifdef SIGFPE
+#if defined(SIGFPE)
 	SIGFPE,
 #endif
-#ifdef SIGTERM
+#if defined(SIGTERM)
 	SIGTERM,
 #endif
-#ifdef SIGXCPU
+#if defined(SIGXCPU)
 	SIGXCPU,
 #endif
-#ifdef SIGXFSZ
+#if defined(SIGXFSZ)
 	SIGXFSZ,
 #endif
 	/* Linux various */
-#ifdef SIGIOT
+#if defined(SIGIOT)
 	SIGIOT,
 #endif
-#ifdef SIGSTKFLT
+#if defined(SIGSTKFLT)
 	SIGSTKFLT,
 #endif
-#ifdef SIGPWR
+#if defined(SIGPWR)
 	SIGPWR,
 #endif
-#ifdef SIGINFO
+#if defined(SIGINFO)
 	SIGINFO,
 #endif
-#ifdef SIGVTALRM
+#if defined(SIGVTALRM)
 	SIGVTALRM,
 #endif
 	-1,

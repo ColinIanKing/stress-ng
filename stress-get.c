@@ -39,70 +39,70 @@
 #define GIDS_MAX 	(1024)
 
 static const int rusages[] = {
-#ifdef RUSAGE_SELF
+#if defined(RUSAGE_SELF)
 	RUSAGE_SELF,
 #endif
-#ifdef RUSAGE_CHILDREN
+#if defined(RUSAGE_CHILDREN)
 	RUSAGE_CHILDREN,
 #endif
-#ifdef RUSAGE_THREAD
+#if defined(RUSAGE_THREAD)
 	RUSAGE_THREAD
 #endif
 };
 
 static const int rlimits[] = {
-#ifdef RLIMIT_AS
+#if defined(RLIMIT_AS)
 	RLIMIT_AS,
 #endif
-#ifdef RLIMIT_CORE
+#if defined(RLIMIT_CORE)
 	RLIMIT_CORE,
 #endif
-#ifdef RLIMIT_CPU
+#if defined(RLIMIT_CPU)
 	RLIMIT_CPU,
 #endif
-#ifdef RLIMIT_DATA
+#if defined(RLIMIT_DATA)
 	RLIMIT_DATA,
 #endif
-#ifdef RLIMIT_FSIZE
+#if defined(RLIMIT_FSIZE)
 	RLIMIT_FSIZE,
 #endif
-#ifdef RLIMIT_MEMLOCK
+#if defined(RLIMIT_MEMLOCK)
 	RLIMIT_MEMLOCK,
 #endif
-#ifdef RLIMIT_MSGQUEUE
+#if defined(RLIMIT_MSGQUEUE)
 	RLIMIT_MSGQUEUE,
 #endif
-#ifdef RLIMIT_NICE
+#if defined(RLIMIT_NICE)
 	RLIMIT_NICE,
 #endif
-#ifdef RLIMIT_NOFILE
+#if defined(RLIMIT_NOFILE)
 	RLIMIT_NOFILE,
 #endif
-#ifdef RLIMIT_RSS
+#if defined(RLIMIT_RSS)
 	RLIMIT_RSS,
 #endif
-#ifdef RLIMIT_RTPRIO
+#if defined(RLIMIT_RTPRIO)
 	RLIMIT_RTPRIO,
 #endif
-#ifdef RLIMIT_RTTIME
+#if defined(RLIMIT_RTTIME)
 	RLIMIT_RTTIME,
 #endif
-#ifdef RLIMIT_SIGPENDING
+#if defined(RLIMIT_SIGPENDING)
 	RLIMIT_SIGPENDING,
 #endif
-#ifdef RLIMIT_STACK
+#if defined(RLIMIT_STACK)
 	RLIMIT_STACK
 #endif
 };
 
 static const int priorities[] = {
-#ifdef PRIO_PROCESS
+#if defined(PRIO_PROCESS)
 	PRIO_PROCESS,
 #endif
-#ifdef PRIO_PGRP
+#if defined(PRIO_PGRP)
 	PRIO_PGRP,
 #endif
-#ifdef PRIO_USER
+#if defined(PRIO_USER)
 	PRIO_USER
 #endif
 };

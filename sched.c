@@ -143,49 +143,49 @@ void set_sched(const int32_t sched, const int32_t sched_priority)
  */
 int32_t get_opt_sched(const char *const str)
 {
-#ifdef SCHED_OTHER
+#if defined(SCHED_OTHER)
 	if (!strcmp("other", str))
 		return SCHED_OTHER;
 #endif
-#ifdef SCHED_BATCH
+#if defined(SCHED_BATCH)
 	if (!strcmp("batch", str))
 		return SCHED_BATCH;
 #endif
-#ifdef SCHED_IDLE
+#if defined(SCHED_IDLE)
 	if (!strcmp("idle", str))
 		return SCHED_IDLE;
 #endif
-#ifdef SCHED_FIFO
+#if defined(SCHED_FIFO)
 	if (!strcmp("fifo", str))
 		return SCHED_FIFO;
 #endif
-#ifdef SCHED_RR
+#if defined(SCHED_RR)
 	if (!strcmp("rr", str))
 		return SCHED_RR;
 #endif
-#ifdef SCHED_DEADLINE
+#if defined(SCHED_DEADLINE)
 	if (!strcmp("deadline", str))
 		return SCHED_DEADLINE;
 #endif
 	if (strcmp("which", str))
 		fprintf(stderr, "Invalid sched option: %s\n", str);
 	fprintf(stderr, "Available scheduler options are:"
-#ifdef SCHED_OTHER
+#if defined(SCHED_OTHER)
 		" other"
 #endif
-#ifdef SCHED_BATCH
+#if defined(SCHED_BATCH)
 		" batch"
 #endif
-#ifdef SCHED_DEADLINE
+#if defined(SCHED_DEADLINE)
 		" deadline"
 #endif
-#ifdef SCHED_IDLE
+#if defined(SCHED_IDLE)
 		" idle"
 #endif
-#ifdef SCHED_FIFO
+#if defined(SCHED_FIFO)
 		" fifo"
 #endif
-#ifdef SCHED_FIFO
+#if defined(SCHED_FIFO)
 		" rr"
 #endif
 		"\n");

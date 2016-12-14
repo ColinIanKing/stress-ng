@@ -26,10 +26,10 @@
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef AF_INET6
+#if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 #include <sys/un.h>
 #endif
 
@@ -103,7 +103,7 @@ void stress_set_sockaddr(
 	int net_addr)
 {
 	switch (domain) {
-#ifdef AF_INET
+#if defined(AF_INET)
 	case AF_INET: {
 		static struct sockaddr_in addr;
 
@@ -124,7 +124,7 @@ void stress_set_sockaddr(
 		break;
 	}
 #endif
-#ifdef AF_INET6
+#if defined(AF_INET6)
 	case AF_INET6: {
 		static struct sockaddr_in6 addr;
 #if defined(__minix__)
@@ -148,7 +148,7 @@ void stress_set_sockaddr(
 		break;
 	}
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	case AF_UNIX: {
 		static struct sockaddr_un addr;
 
@@ -178,7 +178,7 @@ void HOT stress_set_sockaddr_port(
 	struct sockaddr *sockaddr)
 {
 	switch (domain) {
-#ifdef AF_INET
+#if defined(AF_INET)
 	case AF_INET: {
 		struct sockaddr_in *addr = (struct sockaddr_in *)sockaddr;
 
@@ -186,14 +186,14 @@ void HOT stress_set_sockaddr_port(
 		break;
 	}
 #endif
-#ifdef AF_INET6
+#if defined(AF_INET6)
 	case AF_INET6: {
 		struct sockaddr_in6 *addr = (struct sockaddr_in6 *)sockaddr;
 		addr->sin6_port = htons(port);
 		break;
 	}
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 	case AF_UNIX:
 		break;
 #endif

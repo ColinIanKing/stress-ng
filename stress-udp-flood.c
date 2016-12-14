@@ -26,10 +26,10 @@
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#ifdef AF_INET6
+#if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#ifdef AF_UNIX
+#if defined(AF_UNIX)
 #include <sys/un.h>
 #endif
 

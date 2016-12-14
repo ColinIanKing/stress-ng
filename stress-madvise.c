@@ -32,55 +32,55 @@ static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 
 static const int madvise_options[] = {
-#ifdef MADV_NORMAL
+#if defined(MADV_NORMAL)
 	MADV_NORMAL,
 #endif
-#ifdef MADV_RANDOM
+#if defined(MADV_RANDOM)
 	MADV_RANDOM,
 #endif
-#ifdef MADV_SEQUENTIAL
+#if defined(MADV_SEQUENTIAL)
 	MADV_SEQUENTIAL,
 #endif
-#ifdef MADV_WILLNEED
+#if defined(MADV_WILLNEED)
 	MADV_WILLNEED,
 #endif
-#ifdef MADV_DONTNEED
+#if defined(MADV_DONTNEED)
 	MADV_DONTNEED,
 #endif
-#ifdef MADV_REMOVE
+#if defined(MADV_REMOVE)
 	MADV_REMOVE,
 #endif
-#ifdef MADV_DONTFORK
+#if defined(MADV_DONTFORK)
 	MADV_DONTFORK,
 #endif
-#ifdef MADV_DOFORK
+#if defined(MADV_DOFORK)
 	MADV_DOFORK,
 #endif
-#ifdef MADV_HWPOISON
+#if defined(MADV_HWPOISON)
 	MADV_HWPOISON,
 #endif
-#ifdef MADV_MERGEABLE
+#if defined(MADV_MERGEABLE)
 	MADV_MERGEABLE,
 #endif
-#ifdef MADV_UNMERGEABLE
+#if defined(MADV_UNMERGEABLE)
 	MADV_UNMERGEABLE,
 #endif
-#ifdef MADV_SOFT_OFFLINE
+#if defined(MADV_SOFT_OFFLINE)
 	MADV_SOFT_OFFLINE,
 #endif
-#ifdef MADV_HUGEPAGE
+#if defined(MADV_HUGEPAGE)
 	MADV_HUGEPAGE,
 #endif
-#ifdef MADV_NOHUGEPAGE
+#if defined(MADV_NOHUGEPAGE)
 	MADV_NOHUGEPAGE,
 #endif
-#ifdef MADV_DONTDUMP
+#if defined(MADV_DONTDUMP)
 	MADV_DONTDUMP,
 #endif
-#ifdef MADV_DODUMP
+#if defined(MADV_DODUMP)
 	MADV_DODUMP,
 #endif
-#ifdef MADV_FREE
+#if defined(MADV_FREE)
 	MADV_FREE
 #endif
 };
@@ -118,7 +118,7 @@ int stress_madvise(
 	char page[page_size];
 	size_t n;
 
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
 	ret = sigsetjmp(jmp_env, 1);
@@ -173,7 +173,7 @@ int stress_madvise(
 			PROT_READ | PROT_WRITE, flags, fd, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
-#ifdef MAP_POPULATE
+#if defined(MAP_POPULATE)
 			flags &= ~MAP_POPULATE;
 #endif
 			no_mem_retries++;
