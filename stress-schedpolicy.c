@@ -141,7 +141,7 @@ int stress_schedpolicy(
 				pr_fail(stderr, "%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
 					"but function returned %d instead\n",
-					name, pid, new_policy,
+					name, (int)pid, new_policy,
 					new_policy_name, ret);
 			} else {
 				set_ok = true;

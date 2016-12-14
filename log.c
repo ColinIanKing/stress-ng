@@ -105,8 +105,8 @@ int pr_msg(
 		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
-			int n = snprintf(buf, sizeof(buf), "%s [%i] ",
-				type, getpid());
+			int n = snprintf(buf, sizeof(buf), "%s [%d] ",
+				type, (int)getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			fprintf(fp, "%s: %s", app_name, buf);
 		}

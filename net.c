@@ -156,7 +156,7 @@ void stress_set_sockaddr(
 		addr.sun_family = AF_UNIX;
 		snprintf(addr.sun_path, sizeof(addr.sun_path),
 			"/tmp/stress-ng-%d-%" PRIu32,
-			ppid, instance);
+			(int)ppid, instance);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
 		break;

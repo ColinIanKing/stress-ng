@@ -122,8 +122,8 @@ static int stress_shm_posix_child(
 				goto reap;
 
 			snprintf(shm_name, SHM_NAME_LEN,
-				"/stress-ng-%u-%" PRIx64 "-%" PRIx32,
-					pid, id, mwc32());
+				"/stress-ng-%d-%" PRIx64 "-%" PRIx32,
+					(int)pid, id, mwc32());
 
 			shm_fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
 				S_IRUSR | S_IWUSR);

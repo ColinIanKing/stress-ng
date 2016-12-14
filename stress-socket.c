@@ -418,7 +418,7 @@ int stress_sock(
 	pid_t pid, ppid = getppid();
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-		name, getpid(), opt_socket_port + instance);
+		name, (int)getpid(), opt_socket_port + instance);
 
 again:
 	pid = fork();

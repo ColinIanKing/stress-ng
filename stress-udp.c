@@ -105,7 +105,7 @@ int stress_udp(
 #endif
 
 	pr_dbg(stderr, "%s: process [%d] using udp port %d\n",
-		name, getpid(), opt_udp_port + instance);
+		name, (int)getpid(), opt_udp_port + instance);
 
 again:
 	pid = fork();

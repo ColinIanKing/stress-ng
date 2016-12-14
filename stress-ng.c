@@ -1837,7 +1837,7 @@ again:
 					set_proc_name(name);
 
 					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
-						name, getpid(), j);
+						name, (int)getpid(), j);
 
 					n = (i * max_procs) + j;
 					stats[n].start = stats[n].finish = time_now();
@@ -1869,7 +1869,7 @@ again:
 							errno, strerror(errno));
 					}
 					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
-						name, getpid(), j);
+						name, (int)getpid(), j);
 #if defined(STRESS_THERMAL_ZONES)
 					tz_free(&shared->tz_info);
 #endif
