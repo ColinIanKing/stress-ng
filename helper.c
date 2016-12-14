@@ -398,12 +398,12 @@ int stress_temp_filename(
         const uint32_t instance,
         const uint64_t magic)
 {
-	return snprintf(path, len, "%s/tmp-%s-%i-%"
-		PRIu32 "/%s-%i-%"
+	return snprintf(path, len, "%s/tmp-%s-%d-%"
+		PRIu32 "/%s-%d-%"
                 PRIu32 "-%" PRIu64,
 		stress_temp_path,
-                name, pid, instance,
-		name, pid, instance, magic);
+                name, (int)pid, instance,
+		name, (int)pid, instance, magic);
 }
 
 /*
@@ -417,8 +417,8 @@ int stress_temp_dir(
         const pid_t pid,
         const uint32_t instance)
 {
-	return snprintf(path, len, "%s/tmp-%s-%i-%" PRIu32,
-		stress_temp_path, name, pid, instance);
+	return snprintf(path, len, "%s/tmp-%s-%d-%" PRIu32,
+		stress_temp_path, name, (int)pid, instance);
 }
 
 /*
