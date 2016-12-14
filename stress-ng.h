@@ -758,7 +758,9 @@ typedef struct {
 #define MLOCKED
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_perf_event_open)
+#if defined(HAVE_LIB_PTHREAD) && \
+    defined(__linux__) && \
+    defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
 enum {
@@ -816,7 +818,7 @@ typedef struct {
 /* per stressor perf info */
 typedef struct {
 	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
-	int		perf_opened;		/* count of opened counters */
+	int		perf_opened;	/* count of opened counters */
 } stress_perf_t;
 #endif
 
@@ -1877,7 +1879,6 @@ static inline void mwc_seed(const uint32_t w, const uint32_t z)
 	__mwc.w = w;
 	__mwc.z = z;
 }
-
 
 /*
  *  mwc32()
