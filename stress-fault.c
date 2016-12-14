@@ -136,6 +136,7 @@ redo:
 			MAP_SHARED, fd, 0);
 		(void)close(fd);
 		fd = -1;
+		(void)fd;
 
 		if (ptr == MAP_FAILED) {
 			pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
