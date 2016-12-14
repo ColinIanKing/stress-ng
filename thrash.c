@@ -112,6 +112,9 @@ int thrash_start(void)
 			errno, strerror(errno));
 		return -1;
 	} else if (thrash_pid == 0) {
+#if defined(SCHED_RR)
+		set_sched(SCHED_RR, UNDEFINED);
+#endif
 		while (opt_do_run) {
 			pagein_all_procs();
 			sleep(1);
