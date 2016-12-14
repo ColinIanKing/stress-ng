@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 static const char *opt_fstat_dir = "/dev";
-static sigjmp_buf buf;
+static sigjmp_buf jmpbuf;
 
 void stress_set_fstat_dir(const char *optarg)
 {
@@ -45,7 +45,7 @@ static void MLOCKED handle_fstat_sigalrm(int dummy)
 	(void)dummy;
 	opt_do_run = false;
 
-	siglongjmp(buf, 1);
+	siglongjmp(jmpbuf, 1);
 }
 
 /*
@@ -92,7 +92,7 @@ int stress_fstat(
 
 	if (stress_sighandler(name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
-	if (sigsetjmp(buf, 0) != 0) {
+	if (sigsetjmp(jmpbuf, 0) != 0) {
 		ret = EXIT_SUCCESS;
 		goto free_cache;
 	}
