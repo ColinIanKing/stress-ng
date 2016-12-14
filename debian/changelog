@@ -1,3 +1,26 @@
+stress-ng (0.07.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * thrash: bump the priority to 10
+  * thrash: use RR scheduler if possible on linux
+  * stress-sctp: don't unlink on an address that is NULL
+  * stress-schedpolicy: the set/get param was a bit unsound, fix it
+  * stress-fault: silence a clang warning
+  * stress-membarrier: pass thread arg as a ctxt_t * type
+  * helper: make __stress_get_stack_direction static
+  * stress-fstat: rename jump buffer to jmpbuf to avoid name shadowing
+  * mlock: fix warning with older pre gcc 4.4 on solaris
+  * helper: fix some more print pid_t warnings
+  * fix warnings on printing pid_t type
+  * stress-cpu: only use gcc optimise attribute on gcc 4.4 or higher
+  * small cleanups to stress-ng.h
+  * stress-personality: return EXIT_NOT_IMPLEMENTED if no personalities exist
+  * replace #ifdef with #if defined() as the default idiom
+  * makefile: use grep -e instead of grep -f
+  * add support macro for gcc-7 switch statement case fallthrough
+
+ -- Colin King <colin.king@canonical.com>  Wed, 14 Dec 2016 18:15:14 +0000
+
 stress-ng (0.07.10-1) unstable; urgency=medium
 
   * add copyright boiler plate on fast-test-all
