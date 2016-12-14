@@ -75,7 +75,6 @@ int stress_schedpolicy(
 		int new_policy = policies[policy];
 		const pid_t pid = (mwc32() & 1) ? 0 : mypid;
 		const char *new_policy_name = get_sched_name(new_policy);
-		bool set_ok = false;
 
 		switch (new_policy) {
 #if defined(SCHED_IDLE)
@@ -143,27 +142,17 @@ int stress_schedpolicy(
 					"but function returned %d instead\n",
 					name, (int)pid, new_policy,
 					new_policy_name, ret);
-			} else {
-				set_ok = true;
 			}
 		}
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-		ret = sched_getparam(pid, &new_param);
-		if (ret < 0) {
+		memset(&param, 0, sizeof param);
+		ret = sched_getparam(pid, &param);
+		if (ret < 0)
 			pr_fail_err(name, "sched_getparam failed");
-		} else if (set_ok &&
-			   (param.sched_priority != new_param.sched_priority)) {
-			pr_fail(stderr, "%s: sched_getparam failed, set "
-				"sched_priority %d is not the same as "
-				"the fetched sched_priority %d\n",
-				name, param.sched_priority,
-				new_param.sched_priority);
-		}
 
 		ret = sched_setparam(pid, &new_param);
-		if (ret < 0) {
+		if (ret < 0)
 			pr_fail_err(name, "sched_setparam");
-		}
 #endif
 
 #if defined(__linux__) && \
