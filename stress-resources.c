@@ -51,10 +51,29 @@ typedef struct {
 #if defined(O_TMPFILE)
 	int fd_tmp;
 #endif
+#if defined(HAVE_LIB_PTHREAD)
+	pthread_t pthread;
+	int pthread_ret;
+#endif
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
 static sigjmp_buf jmp_env;
+
+#if defined(HAVE_LIB_PTHREAD)
+/*
+ *  stress_pthread_func()
+ *	pthread that exits immediately
+ */
+static void *stress_pthread_func(void *ctxt)
+{
+	static void *nowt;
+
+	(void)ctxt;
+	sleep(1);
+	return &nowt;
+}
+#endif
 
 static void waste_resources(const size_t page_size)
 {
@@ -146,6 +165,13 @@ static void waste_resources(const size_t page_size)
 		}
 #endif
 #endif
+
+#if defined(HAVE_LIB_PTHREAD)
+		if (!i)
+			info[i].pthread_ret =
+				pthread_create(&info[i].pthread, NULL,
+					stress_pthread_func, NULL);
+#endif
 	}
 
 	for (i = 0; opt_do_run && (i < MAX_LOOPS); i++) {
@@ -174,6 +200,10 @@ static void waste_resources(const size_t page_size)
 #if defined(O_TMPFILE)
 		if (info[i].fd_tmp != -1)
 			(void)close(info[i].fd_tmp);
+#endif
+#if defined(HAVE_LIB_PTHREAD)
+		if ((!i) && (!info[i].pthread_ret))
+			(void)pthread_join(info[i].pthread, NULL);
 #endif
 	}
 }
