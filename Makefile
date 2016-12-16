@@ -70,6 +70,7 @@ STRESS_SRC = \
 	stress-cpu-online.c \
 	stress-crypt.c \
 	stress-daemon.c \
+	stress-dccp.c \
 	stress-dentry.c \
 	stress-dir.c \
 	stress-dnotify.c \

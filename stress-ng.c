@@ -188,6 +188,7 @@ static const stress_t stressors[] = {
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(cpu_online, CPU_ONLINE, CLASS_CPU | CLASS_OS),
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
+	STRESSOR(dccp, DCCP, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(dir, DIR, CLASS_FILESYSTEM | CLASS_OS),
@@ -419,6 +420,11 @@ static const struct option long_options[] = {
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "daemon",	1,	0,	OPT_DAEMON },
 	{ "daemon-ops",	1,	0,	OPT_DAEMON_OPS },
+	{ "dccp",	1,	0,	OPT_DCCP },
+	{ "dccp-domain",1,	0,	OPT_DCCP_DOMAIN },
+	{ "dccp-ops",	1,	0,	OPT_DCCP_OPS },
+	{ "dccp-opts",	1,	0,	OPT_DCCP_OPTS },
+	{ "dccp-port",	1,	0,	OPT_DCCP_PORT },
 	{ "dentry",	1,	0,	OPT_DENTRY },
 	{ "dentry-ops",	1,	0,	OPT_DENTRY_OPS },
 	{ "dentries",	1,	0,	OPT_DENTRIES },
@@ -944,6 +950,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"crypt-ops N",		"stop after N bogo crypt operations" },
 	{ NULL,		"daemon N",		"start N workers creating multiple daemons" },
 	{ NULL,		"daemon-ops N",		"stop when N daemons have been created" },
+	{ NULL,		"dccp N",		"start N workers exercising network DCCP I/O" },
+	{ NULL,		"dccp-domain D",	"specify DCCP domain, default is ipv4" },
+	{ NULL,		"dccp-ops N",		"stop after N DCCP  bogo operations" },
+	{ NULL,		"dccp-opts option",	"DCCP data send options [send|sendmsg|sendmmsg]" },
+	{ NULL,		"dccp-port P",		"use DCCP ports P to P + number of workers - 1" },
 	{ "D N",	"dentry N",		"start N dentry thrashing stressors" },
 	{ NULL,		"dentry-ops N",		"stop after N dentry bogo operations" },
 	{ NULL,		"dentry-order O",	"specify unlink order (reverse, forward, stride)" },
@@ -2455,6 +2466,17 @@ next_opt:
 			break;
 		case OPT_DRY_RUN:
 			opt_flags |= OPT_FLAGS_DRY_RUN;
+			break;
+		case OPT_DCCP_DOMAIN:
+			if (stress_set_dccp_domain(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_DCCP_OPTS:
+			if (stress_set_dccp_opts(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_DCCP_PORT:
+			stress_set_dccp_port(optarg);
 			break;
 		case OPT_DENTRIES:
 			stress_set_dentries(optarg);

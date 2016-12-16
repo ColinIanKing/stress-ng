@@ -883,6 +883,28 @@ artificially mimics very heavy daemon system stress.
 .B \-\-daemon\-ops N
 stop daemon workers after N daemons have been created.
 .TP
+.B \-\-dccp N
+start N workers that send and receive data using the Datagram Congestion
+Control Protocol (DCCP) (RFC4340). This involves a pair of client/server
+processes performing rapid connect, send and receives and disconnects on
+the local host.
+.TP
+.B \-\-dccp\-domain D
+specify the domain to use, the default is ipv4. Currently ipv4 and ipv6
+are supported.
+.TP
+.B \-\-dccp\-port P
+start DCCP at port P. For N dccp worker processes, ports P to P - 1 are
+used.
+.TP
+.B \-\-dccp\-ops N
+stop dccp stress workers after N bogo operations.
+.TP
+.B \-\-dccp\-opts [ send | sendmsg | sendmmsg ]
+by default, messages are sent using send(2). This option allows one to specify
+the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
+sendmmsg is only available for Linux systems that support this system call.
+.TP
 .B \-D N, \-\-dentry N
 start N workers that create and remove directory entries.  This should create
 file system meta data activity. The directory entry names are suffixed by a

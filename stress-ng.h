@@ -145,6 +145,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(4096)		/* Max number of processes per stressor */
 
+#define DCCP_BUF		(1024)		/* DCCP I/O buffer size */
 #define SOCKET_BUF		(8192)		/* Socket I/O buffer size */
 #define UDP_BUF			(1024)		/* UDP I/O buffer size */
 #define SOCKET_PAIR_BUF		(64)		/* Socket pair I/O buffer size */
@@ -312,6 +313,10 @@ extern void pr_openlog(const char *filename);
 #define MAX_COPY_FILE_BYTES	(256ULL * GB)
 #define DEFAULT_COPY_FILE_BYTES	(256 * MB)
 #define DEFAULT_COPY_FILE_SIZE  (2 * MB)
+
+#define MIN_DCCP_PORT		(1024)
+#define MAX_DCCP_PORT		(65535)
+#define DEFAULT_DCCP_PORT	(10000)
 
 #define MIN_DENTRIES		(1)
 #define MAX_DENTRIES		(1000000)
@@ -940,6 +945,7 @@ typedef enum {
 	STRESS_CPU_ONLINE,
 	STRESS_CRYPT,
 	STRESS_DAEMON,
+	STRESS_DCCP,
 	STRESS_DENTRY,
 	STRESS_DIR,
 	STRESS_DNOTIFY,
@@ -1208,6 +1214,12 @@ typedef enum {
 
 	OPT_DAEMON,
 	OPT_DAEMON_OPS,
+
+	OPT_DCCP,
+	OPT_DCCP_DOMAIN,
+	OPT_DCCP_OPS,
+	OPT_DCCP_OPTS,
+	OPT_DCCP_PORT,
 
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
@@ -2100,6 +2112,9 @@ extern void stress_set_copy_file_bytes(const char *optarg);
 extern void stress_set_cpu_load(const char *optarg);
 extern void stress_set_cpu_load_slice(const char *optarg);
 extern int  stress_set_cpu_method(const char *name);
+extern int  stress_set_dccp_domain(const char *name);
+extern int  stress_set_dccp_opts(const char *optarg);
+extern void stress_set_dccp_port(const char *optarg);
 extern void stress_set_dentries(const char *optarg);
 extern int  stress_set_dentry_order(const char *optarg);
 extern void stress_set_epoll_port(const char *optarg);
@@ -2288,6 +2303,7 @@ STRESS(stress_cpu);
 STRESS(stress_cpu_online);
 STRESS(stress_crypt);
 STRESS(stress_daemon);
+STRESS(stress_dccp);
 STRESS(stress_dentry);
 STRESS(stress_dir);
 STRESS(stress_dnotify);
