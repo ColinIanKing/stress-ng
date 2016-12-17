@@ -75,7 +75,9 @@ static void *stress_pthread_func(void *ctxt)
 }
 #endif
 
-static void waste_resources(const size_t page_size)
+static void waste_resources(
+	const size_t page_size,
+	const size_t pipe_size)
 {
 	size_t i;
 #if defined(__NR_memfd_create) || defined(O_TMPFILE)
@@ -115,6 +117,12 @@ static void waste_resources(const size_t page_size)
 			}
 		}
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
+#if defined(__linux__) && defined(F_SETPIPE_SZ)
+		if (info[i].pipe_ret == 0) {
+			(void)fcntl(info[i].fd_pipe[0], F_SETPIPE_SZ, pipe_size);
+			(void)fcntl(info[i].fd_pipe[1], F_SETPIPE_SZ, pipe_size);
+		}
+#endif
 		if (!opt_do_run)
 			break;
 		info[i].fd_open = open("/dev/null", O_RDONLY);
@@ -244,6 +252,7 @@ int stress_resources(
 	const char *name)
 {
 	const size_t page_size = stress_get_pagesize();
+	const size_t pipe_size = stress_probe_max_pipe_size();
 	int ret;
 
 	(void)instance;
@@ -270,7 +279,7 @@ int stress_resources(
 				if (ret)
 					_exit(0);
 				set_oom_adjustment(name, true);
-				waste_resources(page_size);
+				waste_resources(page_size, pipe_size);
 				_exit(0);
 			}
 			if (pid > -1)
