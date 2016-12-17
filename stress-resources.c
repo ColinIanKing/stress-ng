@@ -23,8 +23,12 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__NR_eventfd)
+#if defined(__linux__) && defined(__NR_eventfd)
 #include <sys/eventfd.h>
+#endif
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+#include <sys/select.h>
+#include <sys/inotify.h>
 #endif
 
 #define RESOURCE_FORKS 	(1024)
@@ -38,13 +42,13 @@ typedef struct {
 	int fd_pipe[2];
 	int pipe_ret;
 	int fd_open;
+	int fd_sock;
 #if defined(__NR_eventfd)
 	int fd_ev;
 #endif
 #if defined(__NR_memfd_create)
 	int fd_memfd;
 #endif
-	int fd_sock;
 #if defined(__NR_userfaultfd)
 	int fd_uf;
 #endif
@@ -54,6 +58,10 @@ typedef struct {
 #if defined(HAVE_LIB_PTHREAD)
 	pthread_t pthread;
 	int pthread_ret;
+#endif
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+	int fd_inotify;
+	int wd_inotify;
 #endif
 } info_t;
 
@@ -173,6 +181,20 @@ static void waste_resources(
 		}
 #endif
 #endif
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+		info[i].fd_inotify = inotify_init();
+		if (info[i].fd_inotify > -1) {
+			info[i].wd_inotify = inotify_add_watch(
+				info[i].fd_inotify, ".",
+				IN_ACCESS | IN_MODIFY | IN_ATTRIB |
+				IN_CLOSE_WRITE | IN_OPEN | IN_MOVED_FROM |
+				IN_MOVED_TO | IN_CREATE | IN_DELETE |
+				IN_DELETE_SELF | IN_MOVE_SELF);
+		} else {
+			info[i].fd_inotify = -1;
+			info[i].wd_inotify = -1;
+		}
+#endif
 
 #if defined(HAVE_LIB_PTHREAD)
 		if (!i)
@@ -212,6 +234,12 @@ static void waste_resources(
 #if defined(HAVE_LIB_PTHREAD)
 		if ((!i) && (!info[i].pthread_ret))
 			(void)pthread_join(info[i].pthread, NULL);
+#endif
+#if defined(__linux__) && NEED_GLIBC(2,9,0)
+		if (info[i].wd_inotify != -1)
+			(void)inotify_rm_watch(info[i].fd_inotify, info[i].wd_inotify);
+		if (info[i].fd_inotify != -1)
+			(void)close(info[i].fd_inotify);
 #endif
 	}
 }
