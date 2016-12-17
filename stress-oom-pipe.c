@@ -29,68 +29,6 @@
 static int page_size;
 
 /*
- *  check_max_pipe_size()
- *	check if the given pipe size is allowed
- */
-static int check_max_pipe_size(const int sz)
-{
-	int fds[2];
-
-	if (sz < page_size)
-		return -1;
-
-	if (pipe(fds) < 0)
-		return -1;
-
-	if (fcntl(fds[0], F_SETPIPE_SZ, sz) < 0)
-		return -1;
-
-	(void)close(fds[0]);
-	(void)close(fds[1]);
-	return 0;
-}
-
-/*
- *  probe_max_pipe_size()
- *	determine the maximim allowed pipe size
- */
-static int probe_max_pipe_size(void)
-{
-	int i, ret, prev_sz, sz, min, max;
-	char buf[64];
-
-	/*
-	 *  Try and find maximum pipe size directly
-	 */
-	ret = system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
-	if (ret > 0) {
-		if (sscanf(buf, "%d", &sz) == 1)
-			if (!check_max_pipe_size(sz))
-				return sz;
-	}
-
-	/*
-	 *  Need to find size by binary chop probing
-	 */
-	min = page_size;
-	max = INT_MAX;
-	prev_sz = 0;
-	for (i = 0; i < 64; i++) {
-		sz = min + (max - min) / 2;
-		if (prev_sz == sz)
-			return sz;
-		prev_sz = sz;
-		if (check_max_pipe_size(sz) == 0) {
-			min = sz;
-		} else {
-			max = sz;
-		}
-	}
-
-	return sz;
-}
-
-/*
  *  pipe_empty()
  *	read data from read end of pipe
  */
@@ -112,9 +50,9 @@ static void pipe_empty(const int fd, const int max)
  *  pipe_fill()
  *	write data to fill write end of pipe
  */
-static void pipe_fill(const int fd, const int max)
+static void pipe_fill(const int fd, const size_t max)
 {
-	int i;
+	size_t i;
 	char buffer[page_size];
 
 	memset(buffer, 'X', sizeof(buffer));
@@ -137,7 +75,7 @@ static int stress_oom_pipe_expander(
 	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name,
-	const int max_pipe_size,
+	const size_t max_pipe_size,
 	const int max_pipes)
 {
 	pid_t pid;
@@ -217,7 +155,7 @@ again:
 		do {
 			/* Set to maximum size */
 			for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
-				int max_size = max_pipe_size;
+				size_t max_size = max_pipe_size;
 
 				if ((fd[0] < 0) || (fd[1] < 0))
 					continue;
@@ -266,10 +204,10 @@ int stress_oom_pipe(
 {
 	const size_t max_fd = stress_get_file_limit();
 	const size_t max_pipes = max_fd / 2;
-	int max_pipe_size;
+	size_t max_pipe_size;
 
 	page_size = stress_get_pagesize();
-	max_pipe_size = probe_max_pipe_size() & ~(page_size - 1);
+	max_pipe_size = stress_probe_max_pipe_size() & ~(page_size - 1);
 
 	return stress_oom_pipe_expander(
 		counter, instance, max_ops, name,
