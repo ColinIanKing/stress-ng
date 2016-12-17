@@ -30,6 +30,10 @@
 #include <sys/select.h>
 #include <sys/inotify.h>
 #endif
+#if defined(__linux__)
+#include <termio.h>
+#include <termios.h>
+#endif
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
@@ -62,6 +66,10 @@ typedef struct {
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	int fd_inotify;
 	int wd_inotify;
+#endif
+#if defined(__linux__)
+	int pty_master;
+	int pty_slave;
 #endif
 } info_t;
 
@@ -195,6 +203,18 @@ static void waste_resources(
 			info[i].wd_inotify = -1;
 		}
 #endif
+#if defined(__linux__)
+		{
+			char *slavename;
+
+			info[i].pty_master = open("/dev/ptmx", O_RDWR);
+			info[i].pty_slave = -1;
+			if (info[i].pty_master >= 0) {
+				slavename = ptsname(info[i].pty_master);
+				info[i].pty_slave = open(slavename, O_RDWR);
+			}
+		}
+#endif
 
 #if defined(HAVE_LIB_PTHREAD)
 		if (!i)
@@ -240,6 +260,12 @@ static void waste_resources(
 			(void)inotify_rm_watch(info[i].fd_inotify, info[i].wd_inotify);
 		if (info[i].fd_inotify != -1)
 			(void)close(info[i].fd_inotify);
+#endif
+#if defined(__linux__)
+		if (info[i].pty_slave != -1)
+			(void)close(info[i].pty_slave);
+		if (info[i].pty_master != -1)
+			(void)close(info[i].pty_master);
 #endif
 	}
 }
