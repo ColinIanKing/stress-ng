@@ -2011,6 +2011,7 @@ extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
 extern WARN_UNUSED int stress_not_implemented(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
+extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 
 /*
  *  Indicate a stress test failed because of limited resources

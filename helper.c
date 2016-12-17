@@ -872,3 +872,85 @@ int stress_not_implemented(
 		name);
 	return EXIT_NOT_IMPLEMENTED;
 }
+
+#if defined(__linux__) && defined(F_SETPIPE_SZ)
+/*
+ *  stress_check_max_pipe_size()
+ *	check if the given pipe size is allowed
+ */
+static inline size_t stress_check_max_pipe_size(
+	const size_t sz,
+	const size_t page_size)
+{
+	int fds[2];
+
+	if (sz < page_size)
+		return -1;
+
+	if (pipe(fds) < 0)
+		return -1;
+
+	if (fcntl(fds[0], F_SETPIPE_SZ, sz) < 0)
+		return -1;
+
+	(void)close(fds[0]);
+	(void)close(fds[1]);
+	return 0;
+}
+#endif
+
+/*
+ *  stress_probe_max_pipe_size()
+ *	determine the maximim allowed pipe size
+ */
+size_t stress_probe_max_pipe_size(void)
+{
+	static size_t max_pipe_size;
+	size_t page_size;
+
+#if defined(__linux__) && defined(F_SETPIPE_SZ)
+	size_t i, ret, prev_sz, sz, min, max;
+	char buf[64];
+#endif
+	/* Already determined? returned cached size */
+	if (max_pipe_size)
+		return max_pipe_size;
+
+#if defined(__linux__) && defined(F_SETPIPE_SZ)
+	page_size = stress_get_pagesize();
+
+	/*
+	 *  Try and find maximum pipe size directly
+	 */
+	ret = system_read("/proc/sys/fs/pipe-max-size", buf, sizeof(buf));
+	if (ret > 0) {
+		if (sscanf(buf, "%zd", &sz) == 1)
+			if (!stress_check_max_pipe_size(sz, page_size))
+				goto ret;
+	}
+
+	/*
+	 *  Need to find size by binary chop probing
+	 */
+	min = page_size;
+	max = INT_MAX;
+	prev_sz = 0;
+	for (i = 0; i < 64; i++) {
+		sz = min + (max - min) / 2;
+		if (prev_sz == sz)
+			return sz;
+		prev_sz = sz;
+		if (stress_check_max_pipe_size(sz, page_size) == 0) {
+			min = sz;
+		} else {
+			max = sz;
+		}
+	}
+ret:
+	max_pipe_size = sz;
+#else
+	max_page_size = stress_get_pagesize();
+
+#endif
+	return max_pipe_size;
+}
