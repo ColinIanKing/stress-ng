@@ -138,6 +138,8 @@ static void waste_resources(
 			(void)fcntl(info[i].fd_pipe[0], F_SETPIPE_SZ, pipe_size);
 			(void)fcntl(info[i].fd_pipe[1], F_SETPIPE_SZ, pipe_size);
 		}
+#else
+		(void)pipe_size;
 #endif
 		if (!opt_do_run)
 			break;
