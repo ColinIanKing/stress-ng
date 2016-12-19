@@ -1,3 +1,25 @@
+stress-ng (0.07.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-udp: minix fails on setsockopt SO_REUSEADDR, so ignore it
+  * stress-get: don't use NULL delta, just pass a zero delta timeval struct
+  * stress-fifo: catch EINTR as non-fatal error on open
+  * stress-resources: fix warning message on unused parameter 'pipe_size'
+  * debian/tests: remove dccp from fast-test-all
+  * helper: fix build issues on non-linux targets
+  * update date in the manual
+  * stress-resources: add pty resource suckage
+  * stress-resources: add inotify resource suckage
+  * stress-resources: try to expande pipe to maximum allowed size
+  * stress-oom-pipe: use stress_probe_max_pipe_size helper
+  * helper: add stress_probe_max_pipe_size to fine max pipe size
+  * Add Datagram Congestion Control Protocol dccp stressor
+  * stress-resources: add single pthread as another resource hogger
+  * ensure -v output is no wider than 80 chars to avoid line wrap on std tty
+  * stress-schedpolicy: set policy with param, remove unused new_param
+
+ -- Colin King <colin.king@canonical.com>  Mon, 19 Dec 2016 14:33:23 +0000
+
 stress-ng (0.07.11-1) unstable; urgency=medium
 
   * Makefile: bump version
