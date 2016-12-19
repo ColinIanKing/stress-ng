@@ -137,7 +137,7 @@ int stress_get(
 #endif
 		int ret;
 		size_t i;
-		struct timeval tv;
+		struct timeval delta, tv;
 		time_t t;
 
 		check_do_run();
@@ -274,7 +274,8 @@ int stress_get(
 		if (verify && (ret < 0))
 			pr_fail_err(name, "adjtimex");
 #endif
-		ret = adjtime(NULL, &tv);
+		memset(&delta, 0, sizeof(delta));
+		ret = adjtime(&delta, &tv);
 		if (verify && (ret < 0))
 			pr_fail_err(name, "adjtime");
 
