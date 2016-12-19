@@ -178,9 +178,14 @@ int stress_fifo(
 
 	fd = open(fifoname, O_WRONLY);
 	if (fd < 0) {
-		rc = exit_status(fd);
-		pr_err(stderr, "%s: fifo write open failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+		if (errno == EINTR) {
+			rc = 0;
+		} else {
+			rc = exit_status(fd);
+			pr_err(stderr, "%s: fifo write open failed: "
+				"errno=%d (%s)\n",
+				name, errno, strerror(errno));
+		}
 		goto reap;
 	}
 
