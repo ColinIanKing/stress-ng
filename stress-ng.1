@@ -1474,7 +1474,7 @@ and GBytes using the suffix b, k, m or g.  Large allocation sizes cause the
 memory allocator to use mmap(2) rather than expanding the heap using brk(2).
 .TP
 .B \-\-malloc\-max N
-maximum number of active allocations allowed. Allocations are chosen at ramdom
+maximum number of active allocations allowed. Allocations are chosen at random
 and placed in an allocation slot. Because about 50%/50% split between
 allocation and freeing, typically half of the allocation slots are in use at
 any one time.
