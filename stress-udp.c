@@ -216,11 +216,13 @@ again:
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
+#if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			pr_fail_dbg(name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
+#endif
 
 		do {
 			socklen_t len = addr_len;
