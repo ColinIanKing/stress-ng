@@ -906,11 +906,11 @@ static inline size_t stress_check_max_pipe_size(
 size_t stress_probe_max_pipe_size(void)
 {
 	static size_t max_pipe_size;
-	size_t page_size;
 
 #if defined(__linux__) && defined(F_SETPIPE_SZ)
 	size_t i, ret, prev_sz, sz, min, max;
 	char buf[64];
+	size_t page_size;
 #endif
 	/* Already determined? returned cached size */
 	if (max_pipe_size)
@@ -949,7 +949,7 @@ size_t stress_probe_max_pipe_size(void)
 ret:
 	max_pipe_size = sz;
 #else
-	max_page_size = stress_get_pagesize();
+	max_pipe_size = stress_get_pagesize();
 
 #endif
 	return max_pipe_size;
