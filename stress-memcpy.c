@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-static uint8_t buffer[STR_SHARED_SIZE] ALIGN64;
+#define ALIGN_SIZE	(64)
+
+static uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
 
 /*
  *  stress_memcpy()
@@ -37,16 +39,17 @@ int stress_memcpy(
 	const char *name)
 {
 	uint8_t *str_shared = shared->str_shared;
+	uint8_t *aligned_buf = align_address(buffer, ALIGN_SIZE);
 
 	(void)instance;
 	(void)name;
 
 	do {
-		memcpy(buffer, str_shared, STR_SHARED_SIZE);
-		memcpy(str_shared, buffer, STR_SHARED_SIZE);
-		memmove(buffer, buffer + 64, STR_SHARED_SIZE - 64);
-		memmove(buffer + 64, buffer, STR_SHARED_SIZE - 64);
-		memmove(buffer + 1, buffer, STR_SHARED_SIZE - 1);
+		memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
+		memcpy(str_shared, aligned_buf, STR_SHARED_SIZE);
+		memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+		memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+		memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
