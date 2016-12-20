@@ -2263,6 +2263,9 @@ int stress_cpu(
 			do {
 				(void)func(name);
 				t2 = time_now();
+				if (!opt_do_run)
+					break;
+				(*counter)++;
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
@@ -2271,6 +2274,9 @@ int stress_cpu(
 			do {
 				(void)func(name);
 				t2 = time_now();
+				if (!opt_do_run)
+					break;
+				(*counter)++;
 			} while (t2 < slice_end);
 		}
 		t = t2 - t1;
