@@ -389,19 +389,14 @@ int stress_hdd(
 		opt_hdd_flags |= HDD_OPT_RD_SEQ;
 
 #if defined(__sun__)
-	{
-		/* Work around lack of posix_memalign */
-		uintptr_t uintptr;
-
-		alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
-		if (!alloc_buf) {
-			pr_err(stderr, "%s: cannot allocate buffer\n", name);
-			(void)stress_temp_dir_rm(name, pid, instance);
-			return rc;
-		}
-		uintptr = (uintptr_t)(alloc_buf + BUF_ALIGNMENT) & ~(BUF_ALIGNMENT - 1);
-		buf = (uint8_t *)uintptr;
+	/* Work around lack of posix_memalign */
+	alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
+	if (!alloc_buf) {
+		pr_err(stderr, "%s: cannot allocate buffer\n", name);
+		(void)stress_temp_dir_rm(name, pid, instance);
+		return rc;
 	}
+	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
 #else
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
 	if (ret || !alloc_buf) {
