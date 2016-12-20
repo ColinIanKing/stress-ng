@@ -31,7 +31,7 @@
 #define STACK_SIZE	(16384)
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
-uint8_t stack_sig[SIGSTKSZ] ALIGN64;	/* ensure we have a sig stack */
+uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];	/* ensure we have a sig stack */
 #endif
 
 static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
@@ -74,7 +74,7 @@ static int stress_context_init(
 			name, errno, strerror(errno));
 		return -1;
 	}
-	uctx->uc_stack.ss_sp = stack;
+	uctx->uc_stack.ss_sp = (void *)stack;
 	uctx->uc_stack.ss_size = stack_size;
 	uctx->uc_link = link;
 	makecontext(uctx, func, 0);
@@ -95,9 +95,9 @@ int stress_context(
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	stack_t ss;
 #endif
-	char stack_thread1[STACK_SIZE] ALIGN64,
-	     stack_thread2[STACK_SIZE] ALIGN64,
-	     stack_thread3[STACK_SIZE] ALIGN64;
+	char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
+	     stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
+	     stack_thread3[STACK_SIZE + STACK_ALIGNMENT];
 
 	(void)instance;
 
@@ -108,7 +108,7 @@ int stress_context(
 	 *  if it is available
          */
 	memset(stack_sig, 0, sizeof(stack_sig));
-	ss.ss_sp = (void *)stack_sig;
+	ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
 #if defined SS_AUTODISARM
 	ss.ss_flags = SS_AUTODISARM;
@@ -125,16 +125,19 @@ int stress_context(
 
 	/* Create 3 micro threads */
 	if (stress_context_init(name, thread1, &uctx_main,
-				&uctx_thread1, stack_thread1,
-				sizeof(stack_thread1)) < 0)
+				&uctx_thread1,
+				align_address(stack_thread1, STACK_ALIGNMENT),
+				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 	if (stress_context_init(name, thread2, &uctx_main,
-				&uctx_thread2, stack_thread2,
-				sizeof(stack_thread2)) < 0)
+				&uctx_thread2,
+				align_address(stack_thread2, STACK_ALIGNMENT),
+				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 	if (stress_context_init(name, thread3, &uctx_main,
-				&uctx_thread3, stack_thread3,
-				sizeof(stack_thread3)) < 0)
+				&uctx_thread3,
+				align_address(stack_thread3, STACK_ALIGNMENT),
+				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 
 	/* And start.. */

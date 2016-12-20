@@ -77,7 +77,7 @@ int stress_stackmmap(
         stack_t ss;
 	struct sigaction new_action;
 	char filename[PATH_MAX];
-	uint8_t stack_sig[SIGSTKSZ] ALIGN64;	/* ensure we have a sig stack */
+	uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];	/* ensure we have a sig stack */
 
 	page_size = stress_get_pagesize();
 	page_mask = ~(page_size - 1);
@@ -103,7 +103,7 @@ int stress_stackmmap(
 	 *  mmap'd stack
 	 */
         memset(stack_sig, 0, sizeof(stack_sig));
-        ss.ss_sp = (void *)stack_sig;
+        ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
         ss.ss_size = SIGSTKSZ;
         ss.ss_flags = 0;
         if (sigaltstack(&ss, NULL) < 0) {

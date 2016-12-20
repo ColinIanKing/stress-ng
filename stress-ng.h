@@ -284,6 +284,8 @@ extern void pr_openlog(const char *filename);
 #define PAGE_4K_SHIFT		(12)
 #define PAGE_4K			(1 << PAGE_4K_SHIFT)
 
+#define STACK_ALIGNMENT		(64)	/* thread stacks align to 64 bytes */
+
 #define MIN_OPS			(1ULL)
 #define MAX_OPS			(100000000ULL)
 #define MAX_32			(0xffffffffUL)

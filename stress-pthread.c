@@ -74,7 +74,7 @@ static inline long sys_get_robust_list(int pid, struct robust_list_head **head_p
  */
 static void *stress_pthread_func(void *ctxt)
 {
-	uint8_t stack[SIGSTKSZ];
+	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	static void *nowt = NULL;
 	int ret;
@@ -97,7 +97,7 @@ static void *stress_pthread_func(void *ctxt)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	ss.ss_sp = (void *)stack;
+	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {

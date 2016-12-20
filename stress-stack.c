@@ -49,7 +49,7 @@ int stress_stack(
 	const char *name)
 {
 #if !defined(__minix__)
-	uint8_t stack[SIGSTKSZ] ALIGN64;
+	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 #endif
 	pid_t pid;
@@ -63,7 +63,7 @@ int stress_stack(
 	 *  stack
 	 */
 	memset(stack, 0, sizeof(stack));
-	ss.ss_sp = (void *)stack;
+	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {

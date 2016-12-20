@@ -114,7 +114,7 @@ err:
 static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ];
+	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
         stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 
@@ -131,7 +131,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 *  so this is probably just totally unncessary.
 	 */
 	memset(stack, 0, sizeof(stack));
-	ss.ss_sp = (void *)stack;
+	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {

@@ -43,7 +43,7 @@ typedef struct {
 static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ];
+	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	const ctxt_t *ctxt = (ctxt_t *)arg;
 
@@ -59,7 +59,7 @@ static void *stress_membarrier_thread(void *arg)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	ss.ss_sp = (void *)stack;
+	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
