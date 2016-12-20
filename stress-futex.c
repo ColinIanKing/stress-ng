@@ -52,7 +52,7 @@ static inline int futex_wait(
 }
 
 /*
- *  stress_fuxex()
+ *  stress_futex()
  *	stress system by futex calls. The intention is not to
  * 	efficiently use futex, but to stress the futex system call
  *	by rapidly calling it on wait and wakes
