@@ -54,8 +54,9 @@ int stress_sysinfo(
 		pr_err(stderr, "%s: failed to get mount points\n", name);
 		return EXIT_FAILURE;
 	}
-	pr_dbg(stderr, "%s: found %d mount points\n",
-		name, n_mounts);
+	if (instance == 0)
+		pr_dbg(stderr, "%s: found %d mount points\n",
+			name, n_mounts);
 
 	do {
 		struct tms tms_buf;
