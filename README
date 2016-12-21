@@ -25,8 +25,21 @@ Linux systems to make the stressors unkillable in low memory situations, so use
 this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
-To build, the following libraries are required:
-	libattr1-dev, libkeyutils-dev, libbsd-dev
+To build, the following libraries will ensure a fully functional stress-ng
+build:
+
+  * libaio-dev
+  * libapparmor-dev
+  * libattr1-dev
+  * libbsd-dev
+  * libcap-dev
+  * libgcrypt11-dev
+  * libkeyutils-dev
+  * libsctp-dev
+  * zlib1g-dev
+
+NOTE: the build will try to detect build depedencies and will build an image with
+functionality disabled if the support libraries are not installed.
 
 To build on BSD systems, one requires GNU make
 
