@@ -73,6 +73,7 @@ STRESS_SRC = \
 	stress-dccp.c \
 	stress-dentry.c \
 	stress-dir.c \
+	stress-dirdeep.c \
 	stress-dnotify.c \
 	stress-dup.c \
 	stress-epoll.c \

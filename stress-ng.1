@@ -931,6 +931,13 @@ start N workers that create and remove directories using mkdir and rmdir.
 .B \-\-dir\-ops N
 stop directory thrash workers after N bogo directory operations.
 .TP
+.B \-\-dirdeep N
+start N workers that create multiple levels of directories to a maximum
+depth as limited by PATH_MAX or ENAMETOOLONG (which ever occurs first).
+.TP
+.B \-\-dirdeep\-ops N
+stop directory depth workers after N bogo directory operations.
+.TP
 .B \-\-dnotify N
 start N workers performing file system activities such as making/deleting
 files/directories, renaming files, etc. to stress exercise the various dnotify
