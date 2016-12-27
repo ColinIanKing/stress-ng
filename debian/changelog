@@ -1,3 +1,27 @@
+stress-ng (0.07.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: rename check rule to fast-check-all
+  * manual: update date
+  * stress-udp: fix build warning on minix
+  * stress-mmap: fix build issue with ms_flags on GNU/HURD and minix
+  * add a make check rule to run debian/tests/fast-test-all
+  * stress-pthread: add error checking on cond, mutex and spinlock init
+  * add shim abstraction to msync, use this on various stressors
+  * stress-pthread: check for init failures and use a spinlock on counter
+  * add new dirdeep max depth directory stressor
+  * README: Update info on libraries required for a full build
+  * stress-cpu: fix missing bogo ops counter increment
+  * enforce 64 byte alignment to buffer
+  * stress-futex: fix typo in comment
+  * ensure stacks are aligned to 64 byte boundaries
+  * stress-hdd: use new align_address helper
+  * helper: add align_address helper to align a address to power of 2 boundary
+  * stress-sysinfo: only dump out info on number of mount points on instance 0
+  * trivial typo in man page
+
+ -- Colin King <colin.king@canonical.com>  Tue, 27 Dec 2016 19:40:19 +0000
+
 stress-ng (0.07.12-1) unstable; urgency=medium
 
   * Makefile: bump version
