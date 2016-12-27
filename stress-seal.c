@@ -145,7 +145,7 @@ int stress_seal(
 			(void)close(fd);
 			goto err;
 		}
-		(void)msync(ptr, page_size, MS_SYNC);
+		(void)shim_msync(ptr, page_size, MS_SYNC);
 		(void)munmap(ptr, sz);
 
 		/*

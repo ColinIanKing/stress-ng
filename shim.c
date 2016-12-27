@@ -528,3 +528,16 @@ char *shim_getlogin(void)
 	return pw_name;
 }
 
+
+int shim_msync(void *addr, size_t length, int flags)
+{
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	return msync(addr, length, flags);
+#else
+	(void)addr;
+	(void)length;
+	(void)flags;
+
+	return 0;
+#endif
+}

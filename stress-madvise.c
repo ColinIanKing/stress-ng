@@ -198,7 +198,7 @@ int stress_madvise(
 			const int advise = madvise_options[idx];
 
 			(void)madvise(buf + n, page_size, advise);
-			(void)msync(buf + n, page_size, MS_ASYNC);
+			(void)shim_msync(buf + n, page_size, MS_ASYNC);
 		}
 		for (n = 0; n < sz; n += page_size) {
 			size_t m = (mwc64() % sz) & ~(page_size - 1);
@@ -206,7 +206,7 @@ int stress_madvise(
 			const int advise = madvise_options[idx];
 
 			(void)madvise(buf + m, page_size, advise);
-			(void)msync(buf + m, page_size, MS_ASYNC);
+			(void)shim_msync(buf + m, page_size, MS_ASYNC);
 		}
 		(void)munmap((void *)buf, sz);
 		(*counter)++;

@@ -166,7 +166,7 @@ int stress_msync(
 		val = mwc8();
 
 		memset(buf + offset, val, page_size);
-		ret = msync(buf + offset, page_size, MS_SYNC);
+		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_SYNC on "
 				"offset %jd failed, errno=%d (%s)",
@@ -212,7 +212,7 @@ do_invalidate:
 			pr_fail_err(name, "read");
 			goto do_next;
 		}
-		ret = msync(buf + offset, page_size, MS_INVALIDATE);
+		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_INVALIDATE on "
 				"offset %jd failed, errno=%d (%s)",

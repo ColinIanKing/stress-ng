@@ -179,9 +179,7 @@ static void stress_mmap_child(
 		}
 		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-			(void)msync((void *)buf, sz, ms_flags);
-#endif
+			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
