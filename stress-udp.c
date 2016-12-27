@@ -180,7 +180,9 @@ again:
 
 		char buf[UDP_BUF];
 		int fd, status;
+#if !defined(__minix__)
 		int so_reuseaddr = 1;
+#endif
 #if defined(IPPROTO_UDPLITE)
 		int val;
 #endif
