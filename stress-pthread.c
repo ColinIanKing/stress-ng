@@ -30,7 +30,7 @@
 #endif
 #endif
 
-static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+static pthread_cond_t cond;
 static pthread_mutex_t mutex;
 static pthread_spinlock_t spinlock;
 static bool thread_terminate;
@@ -170,6 +170,7 @@ int stress_pthread(
 	pthread_t pthreads[MAX_PTHREAD];
 	bool ok = true;
 	uint64_t limited = 0, attempted = 0;
+	int ret;
 
 	if (!set_pthread_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -178,13 +179,25 @@ int stress_pthread(
 			opt_pthread_max = MIN_PTHREAD;
 	}
 
-	pthread_spin_init(&spinlock, 0);
-	pthread_mutex_init(&mutex, NULL);
+	ret = pthread_cond_init(&cond, NULL);
+	if (ret) {
+		pr_fail_errno(name, "pthread_cond_init", ret);
+		return EXIT_FAILURE;
+	}
+	ret = pthread_spin_init(&spinlock, 0);
+	if (ret) {
+		pr_fail_errno(name, "pthread_spin_init", ret);
+		return EXIT_FAILURE;
+	}
+	ret = pthread_mutex_init(&mutex, NULL);
+	if (ret) {
+		pr_fail_errno(name, "pthread_mutx_init", ret);
+		return EXIT_FAILURE;
+	}
 
 	sigfillset(&set);
 	do {
 		uint64_t i, j;
-		int ret;
 
 		thread_terminate = false;
 		pthread_count = 0;
