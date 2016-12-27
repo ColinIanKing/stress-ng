@@ -662,7 +662,7 @@ clean:
 	rm -f perf-event.h
 	rm -f *.o
 
-check: stress-ng
+fast-test-all: stress-ng
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
 
 install: stress-ng stress-ng.1.gz
