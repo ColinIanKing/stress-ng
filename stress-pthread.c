@@ -31,7 +31,8 @@
 #endif
 
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t mutex;
+static pthread_spinlock_t spinlock;
 static bool thread_terminate;
 static uint64_t pthread_count;
 static sigset_t set;
@@ -120,15 +121,15 @@ static void *stress_pthread_func(void *ctxt)
 	/*
 	 *  Bump count of running threads
 	 */
-	ret = pthread_mutex_lock(&mutex);
+	ret = pthread_spin_lock(&spinlock);
 	if (ret) {
-		pr_fail_errno("pthread", "mutex lock", ret);
+		pr_fail_errno("pthread", "spinlock lock", ret);
 		goto die;
 	}
 	pthread_count++;
-	ret = pthread_mutex_unlock(&mutex);
+	ret = pthread_spin_unlock(&spinlock);
 	if (ret) {
-		pr_fail_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno("pthread", "spin unlock", ret);
 		goto die;
 	}
 
@@ -176,6 +177,9 @@ int stress_pthread(
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_pthread_max = MIN_PTHREAD;
 	}
+
+	pthread_spin_init(&spinlock, 0);
+	pthread_mutex_init(&mutex, NULL);
 
 	sigfillset(&set);
 	do {
@@ -270,6 +274,7 @@ reap:
 
 	(void)pthread_cond_destroy(&cond);
 	(void)pthread_mutex_destroy(&mutex);
+	(void)pthread_spin_destroy(&spinlock);
 
 	return EXIT_SUCCESS;
 }
