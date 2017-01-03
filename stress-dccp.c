@@ -144,11 +144,14 @@ retry:
 			opt_dccp_domain, opt_dccp_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
+			int err = errno;
+
 			(void)close(fd);
 			(void)shim_usleep(10000);
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
+				errno = err;
 				pr_fail_dbg(name, "connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
