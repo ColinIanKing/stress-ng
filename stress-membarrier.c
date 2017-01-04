@@ -67,8 +67,18 @@ static void *stress_membarrier_thread(void *arg)
 		return &nowt;
 	}
 	while (keep_running && opt_do_run) {
+		int ret;
+
+		ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
+		if (ret < 0) {
+			pr_fail_err(ctxt->name, "membarrier CMD QUERY");
+			break;
+		}
+		/* CMD SHARED not availble; skip it */
+		if (!(ret & MEMBARRIER_CMD_SHARED))
+			continue;
 		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_fail_err(ctxt->name, "membarrier");
+			pr_fail_err(ctxt->name, "membarrier CMD SHARED");
 			break;
 		}
 	}
