@@ -118,6 +118,7 @@ int stress_get(
 	const char *name)
 {
 	const bool verify = (opt_flags & OPT_FLAGS_VERIFY);
+	const bool is_root = (geteuid() == 0);
 
 	(void)instance;
 
@@ -135,7 +136,7 @@ int stress_get(
 #if !defined(__minix__)
 		const pid_t mypid = getpid();
 #endif
-		int ret;
+		int ret, n, fs_index;
 		size_t i;
 		struct timeval delta, tv;
 		time_t t;
@@ -271,13 +272,33 @@ int stress_get(
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
-		if (verify && (ret < 0))
+		if (is_root && verify && (ret < 0))
 			pr_fail_err(name, "adjtimex");
 #endif
 		memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
-		if (verify && (ret < 0))
+		if (is_root && verify && (ret < 0))
 			pr_fail_err(name, "adjtime");
+
+		/* Get number of file system types */
+		n = shim_sysfs(3);
+		for (fs_index = 0; fs_index < n; fs_index++) {
+			char buf[4096];
+
+			ret = shim_sysfs(2, fs_index, buf);
+			if (!ret) {
+				ret = shim_sysfs(1, buf);
+				if (verify && (ret != fs_index)) {
+					pr_fail(stderr, "%s: sysfs(1, %s) failed, errno=%d (%s)\n",
+						name, buf, errno, strerror(errno));
+				}
+			} else {
+				if (verify) {
+					pr_fail(stderr, "%s: sysfs(2, %d, buf) failed, errno=%d (%s)\n",
+						name, fs_index, errno, strerror(errno));
+				}
+			}
+		}
 
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
