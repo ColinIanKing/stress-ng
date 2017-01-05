@@ -2283,6 +2283,7 @@ extern int shim_mlock2(const void *addr, size_t len, int flags);
 extern int shim_usleep(uint64_t usec);
 extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);
+extern int shim_sysfs(int option, ...);
 
 #define STRESS(func)							\
 extern int func(uint64_t *const counter, const uint32_t instance,	\

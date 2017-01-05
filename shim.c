@@ -541,3 +541,44 @@ int shim_msync(void *addr, size_t length, int flags)
 	return 0;
 #endif
 }
+
+int shim_sysfs(int option, ...)
+{
+
+#if defined(__linux__) && defined(__NR_sysfs)
+	int ret;
+	va_list ap;
+	char *fsname;
+	unsigned int fs_index;
+	char *buf;
+
+	va_start(ap, option);
+
+	switch (option) {
+	case 1:
+		fsname = va_arg(ap, char *);
+		ret = syscall(__NR_sysfs, option, fsname);
+		break;
+	case 2:
+		fs_index = va_arg(ap, unsigned int);
+		buf = va_arg(ap, char *);
+		ret = syscall(__NR_sysfs, option, fs_index, buf);
+		break;
+	case 3:
+		ret = syscall(__NR_sysfs, option);
+		break;
+	default:
+		ret = -1;
+		errno = EINVAL;
+	}
+
+	va_end(ap);
+
+	return ret;
+#else
+	(void)option;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
