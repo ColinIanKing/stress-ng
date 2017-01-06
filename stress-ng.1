@@ -1135,7 +1135,11 @@ Linux specific stress option.
 stop futex workers after N bogo successful futex wait operations.
 .TP
 .B \-\-get N
-start N workers that call all the get*(2) system calls.
+start N workers that call system calls that fetch data from the kernel,
+currently these are: getpid, getppid, getcwd, getgid, getegid, getuid,
+getgroups, getpgrp, getpgid, getpriority, getresgid, getresuid, getrlimit,
+prlimit, getrusage, getsid, gettid, getcpu, gettimeofday, uname, adjtimex,
+sysfs.  Some of these system calls are OS specific.
 .TP
 .B \-\-get\-ops N
 stop get workers after N bogo get operations.
