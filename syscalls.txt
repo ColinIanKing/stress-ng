@@ -45,8 +45,8 @@ exit_group
 faccessat
 fadvise				readahead
 fallocate			fallocate
-fanotify_init			[ need privilege, ignore for now ]
-fanotify_mark			[ need privilege, ignore for now ]
+fanotify_init			fanotify
+fanotify_mark			fanotify
 fchdir
 fchmod				chmod
 fchmodat
@@ -313,7 +313,7 @@ sync				io
 sync_file_range			sync-file
 sync_file_range2		[ potentially dangerous to data ]
 syncfs				hdd, io
-sysfs				[ obsolete ]
+sysfs				get
 sysinfo				sysinfo
 syslog				klog
 tee				tee

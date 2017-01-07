@@ -86,6 +86,7 @@ STRESS_SRC = \
 	stress-fifo.c \
 	stress-filename.c \
 	stress-flock.c \
+	stress-fanotify.c \
 	stress-fork.c \
 	stress-fp-error.c \
 	stress-fstat.c \

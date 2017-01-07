@@ -71,10 +71,11 @@ shared_t *shared;				/* shared memory */
  *  on the platform.
  */
 static const unsupported_t unsupported[] = {
-	{ STRESS_RDRAND,	stress_rdrand_supported },
-	{ STRESS_TSC,		stress_tsc_supported },
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
-	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported }
+	{ STRESS_FANOTIFY,	stress_fanotify_supported },
+	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
+	{ STRESS_RDRAND,	stress_rdrand_supported },
+	{ STRESS_TSC,		stress_tsc_supported }
 };
 
 /*
@@ -205,6 +206,7 @@ static const stress_t stressors[] = {
 	STRESSOR(fifo, FIFO, CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER),
 	STRESSOR(filename, FILENAME, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(flock, FLOCK, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(fanotify, FANOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fork, FORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(fp_error, FP_ERROR, CLASS_CPU),
 	STRESSOR(fstat, FSTAT, CLASS_FILESYSTEM | CLASS_OS),
@@ -467,6 +469,8 @@ static const struct option long_options[] = {
 	{ "filename-opts",1,	0,	OPT_FILENAME_OPTS },
 	{ "flock",	1,	0,	OPT_FLOCK },
 	{ "flock-ops",	1,	0,	OPT_FLOCK_OPS },
+	{ "fanotify",	1,	0,	OPT_FANOTIFY },
+	{ "fanotify-ops",1,	0,	OPT_FANOTIFY_OPS },
 	{ "fork",	1,	0,	OPT_FORK },
 	{ "fork-ops",	1,	0,	OPT_FORK_OPS },
 	{ "fork-max",	1,	0,	OPT_FORK_MAX },
@@ -982,6 +986,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,		"fallocate-ops N",	"stop after N fallocate bogo operations" },
 	{ NULL,		"fallocate-bytes N",	"specify size of file to allocate" },
+	{ NULL,		"fanotify N",		"start N workers exercising fanotify events" },
+	{ NULL,		"fanotify-ops N",	"stop fanotify workers after N bogo operations" },
 	{ NULL,		"fault N",		"start N workers producing page faults" },
 	{ NULL,		"fault-ops N",		"stop after N page fault bogo operations" },
 	{ NULL,		"fiemap N",		"start N workers exercising the FIEMAP ioctl" },

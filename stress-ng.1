@@ -1009,6 +1009,15 @@ Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .B \-\-fallocate\-ops N
 stop fallocate stress workers after N bogo fallocate operations.
 .TP
+.B \-\-fanotify N
+start N workers performing file system activities such as creating, opening,
+writing, reading and unlinking files to exercise the fanotify event monitoring
+interface (Linux only).  Each stressor runs a child process to generate file
+events and a parent process to read file events using fanotify.
+.TP
+.B \-\-fanotify-ops N
+stop fanotify stress workers after N bogo fanotify events.
+.TP
 .B \-\-fault N
 start N workers that generates minor and major page faults.
 .TP
