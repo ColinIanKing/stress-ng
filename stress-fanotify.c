@@ -40,6 +40,8 @@ typedef struct {
 	uint64_t	modify;
 } fanotify_account_t;
 
+#endif
+
 /*
  *  stress_fanotify_supported()
  *      check if we can run this as root
@@ -54,6 +56,7 @@ int stress_fanotify_supported(void)
 	return 0;
 }
 
+#if defined(__linux__)
 /*
  *  fanotify_event_init()
  *	initialize fanotify
