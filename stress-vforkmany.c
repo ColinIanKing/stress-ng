@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+#define STACK_SIZE      (16384)
+
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ]; /* ensure we have a sig stack */
+static stack_t ss;
+#endif
+
 /*
  *  stress_vforkmany()
  *	stress by vfork'ing as many processes as possible.
@@ -45,6 +52,26 @@ int stress_vforkmany(
 
 	(void)instance;
 	(void)name;
+
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	/*
+         *  We should use an alterative stack, for
+         *  Linux we probably should use SS_AUTODISARM
+	 *  if it is available
+         */
+	memset(stack_sig, 0, sizeof(stack_sig));
+	ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
+	ss.ss_size = SIGSTKSZ;
+#if defined SS_AUTODISARM
+	ss.ss_flags = SS_AUTODISARM;
+#else
+	ss.ss_flags = 0;
+#endif
+        if (sigaltstack(&ss, NULL) < 0) {
+                pr_fail_err(name, "sigaltstack");
+                return EXIT_FAILURE;
+        }
+#endif
 
 	start = time_now();
 	mypid = getpid();
@@ -68,7 +95,10 @@ again:
 		if ((time_now() - start) > (double)opt_timeout)
 			opt_do_run = false;
 
-		pid = vfork();
+		if (getpid() == mypid)
+			pid = fork();
+		else
+			pid = vfork();
 		if (pid < 0) {
 			/* failed, only exit of not the top parent */
 			if (getpid() != mypid)
@@ -77,7 +107,9 @@ again:
 			/* child, parent is blocked, spawn new child */
 			(void)setpgid(0, pgrp);
 			(*counter)++;
-			goto again;
+			if (!max_ops || *counter < max_ops)
+				goto again;
+			_exit(0);
 		}
 		/* parent, wait for child, and exit if not top parent */
 		(void)waitpid(pid, &status, 0);
