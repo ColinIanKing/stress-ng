@@ -119,6 +119,8 @@ int stress_itimer(
 	sigaddset(&mask, SIGINT);
 	sigprocmask(SIG_SETMASK, &mask, NULL);
 
+	start = time_now();
+
 	if (!set_itimer_freq) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_itimer_freq = MAX_ITIMER_FREQ;
