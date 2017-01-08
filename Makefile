@@ -21,7 +21,7 @@ VERSION=0.07.13
 # Codename "systematic stress inducer"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99 -g
 
 #
 # Pedantic flags
@@ -201,6 +201,7 @@ STRESS_SRC = \
 	stress-userfaultfd.c \
 	stress-utime.c \
 	stress-vecmath.c \
+	stress-vforkmany.c \
 	stress-vm.c \
 	stress-vm-rw.c \
 	stress-vm-splice.c \

@@ -1079,6 +1079,7 @@ typedef enum {
 	STRESS_UTIME,
 	STRESS_VECMATH,
 	STRESS_VFORK,
+	STRESS_VFORKMANY,
 	STRESS_VM,
 	STRESS_VM_RW,
 	STRESS_VM_SPLICE,
@@ -1724,6 +1725,9 @@ typedef enum {
 	OPT_VFORK,
 	OPT_VFORK_OPS,
 	OPT_VFORK_MAX,
+
+	OPT_VFORKMANY,
+	OPT_VFORKMANY_OPS,
 
 	OPT_VM_BYTES,
 	OPT_VM_HANG,
@@ -2451,6 +2455,7 @@ STRESS(stress_userfaultfd);
 STRESS(stress_utime);
 STRESS(stress_vecmath);
 STRESS(stress_vfork);
+STRESS(stress_vforkmany);
 STRESS(stress_vm);
 STRESS(stress_vm_rw);
 STRESS(stress_vm_splice);
