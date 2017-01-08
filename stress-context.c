@@ -31,7 +31,7 @@
 #define STACK_SIZE	(16384)
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
-uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];	/* ensure we have a sig stack */
+static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];	/* ensure we have a sig stack */
 #endif
 
 static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
