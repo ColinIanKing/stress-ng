@@ -120,8 +120,20 @@ int stress_hsearch(
 	ret = EXIT_SUCCESS;
 
 free_all:
+	/*
+	 * The sematics to hdestroy are rather varied from
+	 * system to system.  OpenBSD will free the keys,
+	 * where as NetBSD provides traditional functionaly
+	 * that does not free them, plus hdestroy1 where
+	 * one can provide a free'ing callback.  Linux 
+	 * currently does not destroy them.  It's a mess,
+	 * so for now, don't free them and just let it
+	 * leak, the exit() will clean up the heap for us
+	 */
+	/*
 	for (i = 0; i < max; i++)
 		free(keys[i]);
+	*/
 	free(keys);
 free_hash:
 	hdestroy();
