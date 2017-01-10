@@ -33,7 +33,6 @@
  */
 void set_oom_adjustment(const char *name, const bool killable)
 {
-	char path[PATH_MAX];
 	int fd;
 	bool high_priv;
 
@@ -42,8 +41,7 @@ void set_oom_adjustment(const char *name, const bool killable)
 	/*
 	 *  Try modern oom interface
 	 */
-	snprintf(path, sizeof(path), "/proc/%d/oom_score_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
+	if ((fd = open("/proc/self/oom_score_adj", O_WRONLY)) >= 0) {
 		char *str;
 		ssize_t n;
 
@@ -66,8 +64,7 @@ redo_wr1:
 	/*
 	 *  Fall back to old oom interface
 	 */
-	snprintf(path, sizeof(path), "/proc/%d/oom_adj", getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
+	if ((fd = open("/proc/self/oom_adj", O_WRONLY)) >= 0) {
 		char *str;
 		ssize_t n;
 
