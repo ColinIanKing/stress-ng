@@ -77,7 +77,7 @@ static void socket_pair_close(
  *	this stressor needs to be oom-able in the parent
  *	and child cases
  */
-int stress_sockpair_oomable(
+static int stress_sockpair_oomable(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const char *name)
