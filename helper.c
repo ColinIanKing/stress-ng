@@ -248,7 +248,6 @@ void stress_parent_died_alarm(void)
  */
 int stress_process_dumpable(const bool dumpable)
 {
-	char path[PATH_MAX];
 	int fd, rc = 0;
 #if defined(RLIMIT_CORE)
 	struct rlimit lim = { 0, 0 };
@@ -260,8 +259,7 @@ int stress_process_dumpable(const bool dumpable)
 	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
-	snprintf(path, sizeof(path), "/proc/%d/coredump_filter", (int)getpid());
-	if ((fd = open(path, O_WRONLY)) >= 0) {
+	if ((fd = open("/proc/self/coredump_filter", O_WRONLY)) >= 0) {
 		char const *str =
 			dumpable ? "0x33" : "0x00";
 
