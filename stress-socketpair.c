@@ -73,19 +73,17 @@ static void socket_pair_close(
 }
 
 /*
- *  stress_sockpair
- *	stress by heavy socket_pair I/O
+ *  stress_sockpair_oomable()
+ *	this stressor needs to be oom-able in the parent
+ *	and child cases
  */
-int stress_sockpair(
+int stress_sockpair_oomable(
 	uint64_t *const counter,
-	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name)
 {
 	pid_t pid;
 	int socket_pair_fds[MAX_SOCKET_PAIRS][2], i, max;
-
-	(void)instance;
 
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
@@ -107,6 +105,7 @@ again:
 		pr_fail_dbg(name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		set_oom_adjustment(name, true);
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
@@ -173,6 +172,72 @@ abort:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
+	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_sockpair
+ *	stress by heavy socket_pair I/O
+ */
+int stress_sockpair(
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
+{
+	pid_t pid;
+	uint32_t restarts = 0;
+
+	(void)instance;
+again:
+	pid = fork();
+	if (pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
+	} else if (pid > 0) {
+		int status, ret;
+
+		/* Parent, wait for child */
+		(void)setpgid(pid, pgrp);
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+				name, stress_strsignal(WTERMSIG(status)),
+				instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
+				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)\n",
+					name, instance);
+				restarts++;
+				goto again;
+			}
+		}
+	 } else if (pid == 0) {
+		/* Child, lets do some sockpair stressing... */
+		int ret;
+
+		(void)setpgid(0, pgrp);
+		stress_parent_died_alarm();
+		set_oom_adjustment(name, true);
+
+		ret = stress_sockpair_oomable(counter, max_ops, name);
+
+		exit(ret);
+	}
+
+	if (restarts > 0) {
+		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
+			name, restarts);
 	}
 	return EXIT_SUCCESS;
 }
