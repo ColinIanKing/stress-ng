@@ -255,7 +255,14 @@ int stress_process_dumpable(const bool dumpable)
 	(void)setrlimit(RLIMIT_CORE, &lim);
 #endif
 
-#if defined(__linux__) && defined(PR_SET_DUMPABLE)
+	/*
+	 *  changing PR_SET_DUMPABLE also affects the
+	 *  oom adjust capability, so for now, we disable
+	 *  this as I'd rather have a oom'able process when
+ 	 *  memory gets contrained. Don't enable this
+	 *  unless one checks that processes able oomable!
+	 */
+#if 0 && defined(__linux__) && defined(PR_SET_DUMPABLE)
 	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
