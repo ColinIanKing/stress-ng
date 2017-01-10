@@ -1,3 +1,31 @@
+stress-ng (0.07.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-socketpair: make stress_sockpair_oomable static
+  * stress-socketpair: detect an oom-killed stressor
+  * helper: don't use prctl PR_SET_DUMPABLE, it disables oom adjustment
+    and hence we can easily overcommit when running as root (LP: #1654971)
+  * out-of-memory: use /proc/self/... rather than /proc/$mypid/...
+  * helper: use /proc/self/... rather than /proc/$mypid/...
+  * stress-hsearch: don't free keys, some don't free them in hdelete
+  * stress-vforkmany: use sighandler alternative stack
+  * stress-context: make stack_sig static
+  * Makefile: remove -g flag
+  * stress-itimer: initialise start time
+  * Add new --vforkmany stressor
+  * stress-fanotify: ensure stress_fanotify_supported is built
+  * Add fanotify stressor
+  * Expand --get option in manual
+  * stress-get: don't verify on adjtimex if not root, add sysfs calls
+  * Add sysfs(2) shim wrapper
+  * stress-membarrier: also exercise CMD QUERY
+  * stress-dccp: report correct errno from connect failure
+  * Makefile: update copyright year
+  * update copyright year
+
+ -- Colin King <colin.king@canonical.com>  Tue, 10 Jan 2017 15:32:10 +0000
+
 stress-ng (0.07.13-1) unstable; urgency=medium
 
   * Makefile: bump version
