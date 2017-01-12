@@ -38,7 +38,7 @@ static void MLOCKED stress_rlimit_handler(int dummy)
 	(void)dummy;
 
 	if (do_jmp)
-		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+		siglongjmp(jmp_env, 1);
 }
 
 /*
@@ -56,11 +56,13 @@ int stress_rlimit(
 	int fd;
 	char filename[PATH_MAX];
 	const pid_t pid = getpid();
+	const double start = time_now();
 
 	if (stress_sighandler(name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 		return EXIT_FAILURE;
 	if (stress_sighandler(name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
 		return EXIT_FAILURE;
+
 	(void)umask(0077);
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
@@ -87,20 +89,23 @@ int stress_rlimit(
 		int ret;
 
 		ret = sigsetjmp(jmp_env, 1);
-		/*
-		 * We return here if we generate an rlimit signal, so
-		 * first check if we need to terminate
-		 */
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+
+		/* Check for timer overrun */
+		if ((time_now() - start) > (double)opt_timeout)
+			break;
+		/* Check for counter limit reached */
+		if (max_ops && *counter >= max_ops)
 			break;
 
-		if (ret) {
-			(*counter)++;	/* SIGSEGV/SIGILL occurred */
-		} else {
+		if (ret == 0) {
 			/* Trigger an rlimit signal */
 			if (ftruncate(fd, 2) < 0) {
-				/* Ignore */
+				/* Ignore error */
 			}
+		} else if (ret == 1) {
+			(*counter)++;	/* SIGSEGV/SIGILL occurred */
+		} else {
+			break;		/* Something went wrong! */
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
