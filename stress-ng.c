@@ -73,7 +73,8 @@ shared_t *shared;				/* shared memory */
 static const unsupported_t unsupported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
-	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
+	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },	
+	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
 };
@@ -254,6 +255,7 @@ static const stress_t stressors[] = {
 	STRESSOR(msg, MSG, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(msync, MSYNC, CLASS_VM | CLASS_OS),
 	STRESSOR(mq, MQ, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(netlink_proc, NETLINK_PROC, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(null, NULL, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(numa, NUMA, CLASS_CPU | CLASS_MEMORY | CLASS_OS),
@@ -605,6 +607,8 @@ static const struct option long_options[] = {
 	{ "mq",		1,	0,	OPT_MQ },
 	{ "mq-ops",	1,	0,	OPT_MQ_OPS },
 	{ "mq-size",	1,	0,	OPT_MQ_SIZE },
+	{ "netlink-proc",1,	0,	OPT_NETLINK_PROC },
+	{ "netlink-proc-ops",1,	0,	OPT_NETLINK_PROC_OPS },
 	{ "nice",	1,	0,	OPT_NICE },
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
@@ -1127,6 +1131,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"mq N",			"start N workers passing messages using POSIX messages" },
 	{ NULL,		"mq-ops N",		"stop mq workers after N bogo messages" },
 	{ NULL,		"mq-size N",		"specify the size of the POSIX message queue" },
+	{ NULL,		"netlink-proc N",	"start N workers exercising netlink process events" },
+	{ NULL,		"netlink-proc-ops N",	"stop netlink-proc workers after N bogo events" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop after N nice bogo operations" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },

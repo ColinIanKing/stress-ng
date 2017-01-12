@@ -1011,6 +1011,7 @@ typedef enum {
 	STRESS_MSG,
 	STRESS_MSYNC,
 	STRESS_MQ,
+	STRESS_NETLINK_PROC,
 	STRESS_NICE,
 	STRESS_NULL,
 	STRESS_NUMA,
@@ -1458,6 +1459,9 @@ typedef enum {
 	OPT_MQ,
 	OPT_MQ_OPS,
 	OPT_MQ_SIZE,
+
+	OPT_NETLINK_PROC,
+	OPT_NETLINK_PROC_OPS,
 
 	OPT_NICE,
 	OPT_NICE_OPS,
@@ -2163,6 +2167,7 @@ extern void stress_set_mmap_bytes(const char *optarg);
 extern void stress_set_mq_size(const char *optarg);
 extern void stress_set_mremap_bytes(const char *optarg);
 extern void stress_set_msync_bytes(const char *optarg);
+extern int  stress_netlink_proc_supported(void);
 extern void stress_set_pipe_data_size(const char *optarg);
 extern void stress_set_pipe_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
@@ -2386,6 +2391,7 @@ STRESS(stress_mremap);
 STRESS(stress_msg);
 STRESS(stress_msync);
 STRESS(stress_mq);
+STRESS(stress_netlink_proc);
 STRESS(stress_nice);
 STRESS(stress_noop);
 STRESS(stress_null);

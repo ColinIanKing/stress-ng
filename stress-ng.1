@@ -1732,6 +1732,14 @@ Linux systems this is the maximum allowed size for normal users. If the given
 size is greater than the allowed message queue size then a warning is issued
 and the maximum allowed size is used instead.
 .TP
+.B \-\-netlink\-proc N
+start N workers that spawn child processes and monitor fork/exec/exit
+process events via the proc netlink connector. Each event received is counted
+as a bogo op. This stressor can only be run on Linux and with root privilege.
+.TP
+.B \-\-netlink\-proc\-ops N
+stop the proc netlink connector stressors after N bogo ops.
+.TP
 .B \-\-nice N
 start N cpu consuming workers that exercise the available nice levels. Each
 iteration forks off a child process that runs through the all the nice levels

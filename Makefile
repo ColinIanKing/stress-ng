@@ -134,6 +134,7 @@ STRESS_SRC = \
 	stress-msg.c \
 	stress-msync.c \
 	stress-mq.c \
+	stress-netlink-proc.c \
 	stress-nice.c \
 	stress-noop.c \
 	stress-null.c \
