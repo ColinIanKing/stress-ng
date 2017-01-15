@@ -57,7 +57,7 @@ int stress_ioprio(
 		rc = exit_status(errno);
 		pr_fail_err(name, "open");
 		goto cleanup_dir;
-        }
+	}
 	(void)unlink(filename);
 
 	do {

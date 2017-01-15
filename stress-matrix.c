@@ -52,9 +52,9 @@ void stress_set_matrix_size(const char *optarg)
 	uint64_t size;
 
 	set_matrix_size = true;
-        size = get_uint64_byte(optarg);
-        check_range("matrix-size", size,
-                MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
+	size = get_uint64_byte(optarg);
+	check_range("matrix-size", size,
+		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
 	opt_matrix_size = (size_t)size;
 }
 

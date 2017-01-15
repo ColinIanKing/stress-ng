@@ -124,7 +124,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-        stack_t ss;
+	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 
 	/*

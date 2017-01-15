@@ -123,10 +123,10 @@ static int stress_numa_get_nodes(node_t **node_ptr)
  *	stress the Linux NUMA interfaces
  */
 int stress_numa(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	long numa_nodes;
 	unsigned long max_nodes, nbits, lbits = 8 * sizeof(unsigned long);
@@ -277,10 +277,10 @@ numa_free:
 }
 #else
 int stress_numa(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

@@ -91,8 +91,8 @@ int stress_mlock(
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
-                pr_fail_dbg(name, "malloc");
-                return EXIT_NO_RESOURCE;
+		pr_fail_dbg(name, "malloc");
+		return EXIT_NO_RESOURCE;
 	}
 again:
 	pid = fork();

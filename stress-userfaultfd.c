@@ -63,7 +63,7 @@ void stress_set_userfaultfd_bytes(const char *optarg)
  */
 static void MLOCKED stress_child_alarm_handler(int dummy)
 {
-        (void)dummy;
+	(void)dummy;
 
 	_exit(0);
 }
@@ -171,8 +171,8 @@ static int stress_userfaultfd_oomable(
 
 	/* Child clone stack */
 	static uint8_t stack[STACK_SIZE];
-        const ssize_t stack_offset =
-                stress_get_stack_direction() * (STACK_SIZE - 64);
+	const ssize_t stack_offset =
+		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
 	(void)instance;

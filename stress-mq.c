@@ -43,8 +43,7 @@ void stress_set_mq_size(const char *optarg)
 	set_mq_size = true;
 	sz = get_uint64_byte(optarg);
 	opt_mq_size = (int)sz;
-        check_range("mq-size", sz,
-                MIN_MQ_SIZE, MAX_MQ_SIZE);
+	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
 }
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)

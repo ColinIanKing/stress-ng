@@ -55,10 +55,10 @@ int stress_vforkmany(
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	/*
-         *  We should use an alterative stack, for
-         *  Linux we probably should use SS_AUTODISARM
+	 *  We should use an alterative stack, for
+	 *  Linux we probably should use SS_AUTODISARM
 	 *  if it is available
-         */
+	 */
 	memset(stack_sig, 0, sizeof(stack_sig));
 	ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
 	ss.ss_size = SIGSTKSZ;
@@ -67,10 +67,10 @@ int stress_vforkmany(
 #else
 	ss.ss_flags = 0;
 #endif
-        if (sigaltstack(&ss, NULL) < 0) {
-                pr_fail_err(name, "sigaltstack");
-                return EXIT_FAILURE;
-        }
+	if (sigaltstack(&ss, NULL) < 0) {
+		pr_fail_err(name, "sigaltstack");
+		return EXIT_FAILURE;
+	}
 #endif
 
 	start = time_now();

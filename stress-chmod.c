@@ -135,7 +135,7 @@ int stress_chmod(
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
 	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
-        if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
+	if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
 			pr_fail_err(name, "mkdir");

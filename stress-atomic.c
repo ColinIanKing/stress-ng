@@ -97,8 +97,8 @@
 #if defined(TEST_ATOMIC_BUILD)
 
 mwc_t __mwc = {
-        MWC_SEED_W,
-        MWC_SEED_Z
+	MWC_SEED_W,
+	MWC_SEED_Z
 };
 
 int main(void)
@@ -124,10 +124,10 @@ int main(void)
  *      stress gcc atomic memory ops
  */
 int stress_atomic(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	(void)instance;
 	(void)name;
@@ -144,10 +144,10 @@ int stress_atomic(
 }
 #else
 int stress_atomic(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

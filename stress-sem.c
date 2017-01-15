@@ -69,7 +69,7 @@ void stress_semaphore_posix_init(void)
  */
 void stress_semaphore_posix_destroy(void)
 {
-        if (shared->sem_posix.init) {
+	if (shared->sem_posix.init) {
 		if (sem_destroy(&shared->sem_posix.sem) < 0) {
 			pr_err(stderr, "semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
@@ -191,7 +191,7 @@ reap:
 		if (pids[i] > 0) {
 			int status;
 
-                        (void)waitpid(pids[i], &status, 0);
+			(void)waitpid(pids[i], &status, 0);
 		}
 	}
 

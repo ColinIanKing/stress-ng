@@ -1850,14 +1850,14 @@ static const stress_vm_stressor_info_t vm_methods[] = {
  */
 int stress_set_vm_method(const char *name)
 {
-        stress_vm_stressor_info_t const *info;
+	stress_vm_stressor_info_t const *info;
 
-        for (info = vm_methods; info->func; info++) {
-                if (!strcmp(info->name, name)) {
+	for (info = vm_methods; info->func; info++) {
+		if (!strcmp(info->name, name)) {
 			opt_vm_stressor = info;
 			return 0;
 		}
-        }
+	}
 
 	fprintf(stderr, "vm-method must be one of:");
 	for (info = vm_methods; info->func; info++) {

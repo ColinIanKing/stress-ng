@@ -74,7 +74,7 @@ int stress_stackmmap(
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	const pid_t pid = getpid();
-        stack_t ss;
+	stack_t ss;
 	struct sigaction new_action;
 	char filename[PATH_MAX];
 	uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];	/* ensure we have a sig stack */
@@ -102,11 +102,11 @@ int stress_stackmmap(
 	 *  to handle segfaults on an overrun
 	 *  mmap'd stack
 	 */
-        memset(stack_sig, 0, sizeof(stack_sig));
-        ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
-        ss.ss_size = SIGSTKSZ;
-        ss.ss_flags = 0;
-        if (sigaltstack(&ss, NULL) < 0) {
+	memset(stack_sig, 0, sizeof(stack_sig));
+	ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
+	ss.ss_size = SIGSTKSZ;
+	ss.ss_flags = 0;
+	if (sigaltstack(&ss, NULL) < 0) {
 		pr_fail_err(name, "sigaltstack");
 		return EXIT_FAILURE;
 	}

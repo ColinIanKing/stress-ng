@@ -87,7 +87,7 @@ static int pagein_all_procs(void)
 		pid_t pid;
 
 		if (isdigit(d->d_name[0]) &&
-                    sscanf(d->d_name, "%d", &pid) == 1) {
+		    sscanf(d->d_name, "%d", &pid) == 1) {
 			pagein_proc(pid);
 		}
 	}

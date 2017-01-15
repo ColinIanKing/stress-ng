@@ -61,7 +61,7 @@ static void __strncat(char *dst, char *src, size_t *n)
 
 	if (*n <= ln)
 		return;
-	
+
 	strncat(dst, src, *n);
 	*n -= ln;
 }
@@ -180,7 +180,7 @@ reap:
 		if (segv_reasons & _EXIT_SEGV_MUNMAP)
 			__strncat(buffer, " munmap", &n);
 
-                pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
+		pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
 			name, segv_count, buffer);
 	}
 

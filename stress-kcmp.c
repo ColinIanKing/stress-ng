@@ -28,14 +28,14 @@
 
 /* Urgh, should be from linux/kcmp.h */
 enum {
-        KCMP_FILE,
-        KCMP_VM,
-        KCMP_FILES,
-        KCMP_FS,
-        KCMP_SIGHAND,
-        KCMP_IO,
-        KCMP_SYSVSEM,
-        KCMP_TYPES,
+	KCMP_FILE,
+	KCMP_VM,
+	KCMP_FILES,
+	KCMP_FS,
+	KCMP_SIGHAND,
+	KCMP_IO,
+	KCMP_SYSVSEM,
+	KCMP_TYPES,
 };
 
 #define KCMP(pid1, pid2, type, idx1, idx2)		\

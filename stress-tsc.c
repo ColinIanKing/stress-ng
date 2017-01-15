@@ -64,9 +64,9 @@ int stress_tsc_supported(void)
 static inline void rdtsc(void)
 {
 #if STRESS_TSC_SERIALIZED
-        asm volatile("cpuid\nrdtsc\n" : : : "%edx", "%eax");
+	asm volatile("cpuid\nrdtsc\n" : : : "%edx", "%eax");
 #else
-        asm volatile("rdtsc\n" : : : "%edx", "%eax");
+	asm volatile("rdtsc\n" : : : "%edx", "%eax");
 #endif
 }
 
@@ -114,10 +114,10 @@ static inline void rdtsc(void)
  *      stress Intel tsc instruction
  */
 int stress_tsc(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	(void)instance;
 	(void)name;
@@ -152,10 +152,10 @@ int stress_tsc_supported(void)
  *      no-op for non-intel
  */
 int stress_tsc(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

@@ -35,9 +35,9 @@ static bool set_hsearch_size = false;
 void stress_set_hsearch_size(const char *optarg)
 {
 	set_hsearch_size = true;
-        opt_hsearch_size = get_uint64_byte(optarg);
-        check_range("hsearch-size", opt_hsearch_size,
-                MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+	opt_hsearch_size = get_uint64_byte(optarg);
+	check_range("hsearch-size", opt_hsearch_size,
+		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 }
 
 /*
@@ -125,7 +125,7 @@ free_all:
 	 * system to system.  OpenBSD will free the keys,
 	 * where as NetBSD provides traditional functionaly
 	 * that does not free them, plus hdestroy1 where
-	 * one can provide a free'ing callback.  Linux 
+	 * one can provide a free'ing callback.  Linux
 	 * currently does not destroy them.  It's a mess,
 	 * so for now, don't free them and just let it
 	 * leak, the exit() will clean up the heap for us

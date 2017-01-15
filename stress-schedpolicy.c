@@ -29,19 +29,19 @@
 
 static const int policies[] = {
 #if defined(SCHED_IDLE)
-        SCHED_IDLE,
+	SCHED_IDLE,
 #endif
 #if defined(SCHED_FIFO)
-        SCHED_FIFO,
+	SCHED_FIFO,
 #endif
 #if defined(SCHED_RR)
-        SCHED_RR,
+	SCHED_RR,
 #endif
 #if defined(SCHED_OTHER)
-        SCHED_OTHER,
+	SCHED_OTHER,
 #endif
 #if defined(SCHED_BATCH)
-        SCHED_BATCH,
+	SCHED_BATCH,
 #endif
 };
 

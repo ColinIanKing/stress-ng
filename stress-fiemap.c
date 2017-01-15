@@ -168,19 +168,19 @@ static inline pid_t stress_fiemap_spawn(
 	uint64_t *const counter,
 	const uint64_t max_ops)
 {
-        pid_t pid;
+	pid_t pid;
 
-        pid = fork();
-        if (pid < 0)
-                return -1;
-        if (pid == 0) {
-                (void)setpgid(0, pgrp);
-                stress_parent_died_alarm();
+	pid = fork();
+	if (pid < 0)
+		return -1;
+	if (pid == 0) {
+		(void)setpgid(0, pgrp);
+		stress_parent_died_alarm();
 		stress_fiemap_ioctl(name, fd, counter, max_ops);
-                exit(EXIT_SUCCESS);
-        }
-        (void)setpgid(pid, pgrp);
-        return pid;
+		exit(EXIT_SUCCESS);
+	}
+	(void)setpgid(pid, pgrp);
+	return pid;
 }
 
 

@@ -74,9 +74,9 @@ int stress_set_dentry_order(const char *optarg)
 
 	fprintf(stderr, "dentry-order must be one of:");
 	for (dr = dentry_removals; dr->name; dr++) {
-                fprintf(stderr, " %s", dr->name);
-        }
-        fprintf(stderr, "\n");
+		fprintf(stderr, " %s", dr->name);
+	}
+	fprintf(stderr, "\n");
 
 	return -1;
 }

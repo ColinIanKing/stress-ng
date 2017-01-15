@@ -37,7 +37,7 @@ static pid_t stress_tee_spawn(
 	void (*func)(int fds[2]),
 	int fds[2])
 {
-        pid_t pid;
+	pid_t pid;
 
 	if (pipe(fds) < 0) {
 		pr_err(stderr, "%s: pipe failed: %d (%s)\n",
@@ -46,8 +46,8 @@ static pid_t stress_tee_spawn(
 	}
 
 again:
-        pid = fork();
-        if (pid < 0) {
+	pid = fork();
+	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 
@@ -55,17 +55,17 @@ again:
 		(void)close(fds[1]);
 		pr_err(stderr, "%s: fork failed: %d (%s)\n",
 			name, errno, strerror(errno));
-                return -1;
-        }
-        if (pid == 0) {
+		return -1;
+	}
+	if (pid == 0) {
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-                func(fds);
-                exit(EXIT_SUCCESS);
-        }
+		func(fds);
+		exit(EXIT_SUCCESS);
+	}
 	(void)setpgid(pid, pgrp);
-        return pid;
+	return pid;
 }
 
 /*
@@ -117,10 +117,10 @@ static void stress_tee_pipe_read(int fds[2])
  *	stress the Linux tee syscall
  */
 int stress_tee(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];
@@ -198,10 +198,10 @@ tidy_child1:
 }
 #else
 int stress_tee(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

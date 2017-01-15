@@ -68,20 +68,20 @@ int stress_sendfile(
 	if (ret < 0)
 		return exit_status(-ret);
 
-        (void)umask(0077);
+	(void)umask(0077);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		name, pid, instance, mwc32());
 
-        if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-                pr_fail_err(name, "open");
+		pr_fail_err(name, "open");
 		goto dir_out;
-        }
+	}
 	ret = posix_fallocate(fdin, (off_t)0, (off_t)sz);
 	if (ret < 0) {
 		rc = exit_status(errno);
-                pr_fail_err(name, "open");
+		pr_fail_err(name, "open");
 		goto dir_out;
 	}
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {

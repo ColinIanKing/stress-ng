@@ -115,7 +115,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-        stack_t ss;
+	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 
 	/*
@@ -157,7 +157,7 @@ static void stress_proc_rw_threads(char *path, const bool proc_write)
 
 	ctxt.path = path;
 	ctxt.proc_write = proc_write;
-        ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
+	ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ctxt.badbuf == MAP_FAILED)
 		ctxt.badbuf = NULL;
@@ -256,7 +256,7 @@ int stress_procfs(
 	sigfillset(&set);
 
 	if (geteuid() == 0)
-                proc_write = false;
+		proc_write = false;
 
 	do {
 		stress_proc_dir("/proc/self", true, 0, proc_write);

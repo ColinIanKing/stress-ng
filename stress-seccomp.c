@@ -38,7 +38,7 @@
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
 static struct sock_filter filter_allow_write[] = {
-        BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
 #endif
@@ -58,7 +58,7 @@ static struct sock_filter filter_allow_write[] = {
 };
 
 static struct sock_filter filter[] = {
-        BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
 #endif

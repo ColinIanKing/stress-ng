@@ -63,7 +63,7 @@ size_t stress_get_pagesize(void)
 		return page_size;
 
 #if defined(_SC_PAGESIZE)
-        sz = sysconf(_SC_PAGESIZE);
+	sz = sysconf(_SC_PAGESIZE);
 	page_size = (sz <= 0) ? PAGE_4K : (size_t)sz;
 #else
 	page_size = PAGE_4K;
@@ -259,7 +259,7 @@ int stress_process_dumpable(const bool dumpable)
 	 *  changing PR_SET_DUMPABLE also affects the
 	 *  oom adjust capability, so for now, we disable
 	 *  this as I'd rather have a oom'able process when
- 	 *  memory gets contrained. Don't enable this
+	 *  memory gets contrained. Don't enable this
 	 *  unless one checks that processes able oomable!
 	 */
 #if 0 && defined(__linux__) && defined(PR_SET_DUMPABLE)
@@ -396,18 +396,18 @@ int stress_set_temp_path(char *path)
  *      construct a temp filename
  */
 int stress_temp_filename(
-        char *path,
-        const size_t len,
-        const char *name,
-        const pid_t pid,
-        const uint32_t instance,
-        const uint64_t magic)
+	char *path,
+	const size_t len,
+	const char *name,
+	const pid_t pid,
+	const uint32_t instance,
+	const uint64_t magic)
 {
 	return snprintf(path, len, "%s/tmp-%s-%d-%"
 		PRIu32 "/%s-%d-%"
-                PRIu32 "-%" PRIu64,
+		PRIu32 "-%" PRIu64,
 		stress_temp_path,
-                name, (int)pid, instance,
+		name, (int)pid, instance,
 		name, (int)pid, instance, magic);
 }
 
@@ -417,10 +417,10 @@ int stress_temp_filename(
  */
 int stress_temp_dir(
 	char *path,
-        const size_t len,
+	const size_t len,
 	const char *name,
-        const pid_t pid,
-        const uint32_t instance)
+	const pid_t pid,
+	const uint32_t instance)
 {
 	return snprintf(path, len, "%s/tmp-%s-%d-%" PRIu32,
 		stress_temp_path, name, (int)pid, instance);
@@ -432,8 +432,8 @@ int stress_temp_dir(
  */
 int stress_temp_dir_mk(
 	const char *name,
-        const pid_t pid,
-        const uint32_t instance)
+	const pid_t pid,
+	const uint32_t instance)
 {
 	int ret;
 	char tmp[PATH_MAX];
@@ -454,8 +454,8 @@ int stress_temp_dir_mk(
  */
 int stress_temp_dir_rm(
 	const char *name,
-        const pid_t pid,
-        const uint32_t instance)
+	const pid_t pid,
+	const uint32_t instance)
 {
 	int ret;
 	char tmp[PATH_MAX + 1];
@@ -736,17 +736,17 @@ int system_read(
  */
 static inline bool stress_is_prime64(uint64_t n)
 {
-        register uint64_t i, max;
+	register uint64_t i, max;
 
-        if (n <= 3)
-                return n >= 2;
-        if ((n % 2 == 0) || (n % 3 == 0))
-                return false;
-        max = sqrt(n) + 1;
-        for (i = 5; i < max; i+= 6)
-                if ((n % i == 0) || (n % (i + 2) == 0))
-                        return false;
-        return true;
+	if (n <= 3)
+		return n >= 2;
+	if ((n % 2 == 0) || (n % 3 == 0))
+		return false;
+	max = sqrt(n) + 1;
+	for (i = 5; i < max; i+= 6)
+		if ((n % i == 0) || (n % (i + 2) == 0))
+			return false;
+	return true;
 }
 
 /*
@@ -855,10 +855,10 @@ unsigned int stress_get_cpu(void)
  *	on a particular arch or kernel
  */
 int stress_not_implemented(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	(void)counter;
 	(void)instance;

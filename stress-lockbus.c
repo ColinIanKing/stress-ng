@@ -37,7 +37,7 @@
 
 #else
 #define LOCK_AND_INC(ptr, inc)					       \
-        asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));    \
+	asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));    \
 	ptr++;
 
 #endif
@@ -57,10 +57,10 @@
  *      stress memory with lock and increment
  */
 int stress_lockbus(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
@@ -99,10 +99,10 @@ int stress_lockbus(
 }
 #else
 int stress_lockbus(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	onst uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

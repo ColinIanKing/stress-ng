@@ -70,10 +70,10 @@ static int stress_bind_mount_child(void *arg)
  *      stress bind mounting
  */
 int stress_bind_mount(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	int pid = 0, status;
 	context_t context;
@@ -112,10 +112,10 @@ int stress_bind_mount(
 }
 #else
 int stress_bind_mount(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

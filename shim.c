@@ -43,7 +43,7 @@ int shim_sched_yield(void)
 int shim_cacheflush(char *addr, int nbytes, int cache)
 {
 #if defined(__linux__) && defined(__NR_cacheflush)
-        return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
+	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
 	(void)addr;
 	(void)nbytes;
@@ -125,7 +125,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 int shim_gettid(void)
 {
 #if defined(__linux__) && defined(__NR_gettid)
-        return syscall(__NR_gettid);
+	return syscall(__NR_gettid);
 #else
 	errno = -ENOSYS;
 	return -1;
@@ -138,7 +138,7 @@ long shim_getcpu(
 	void *tcache)
 {
 #if defined(__linux__) && defined(__NR_getcpu)
-        return syscall(__NR_getcpu, cpu, node, tcache);
+	return syscall(__NR_getcpu, cpu, node, tcache);
 #else
 	(void)cpu;
 	(void)node;
@@ -155,7 +155,7 @@ int shim_getdents(
 	unsigned int count)
 {
 #if defined(__linux__) && defined(__NR_getdents)
-        return syscall(__NR_getdents, fd, dirp, count);
+	return syscall(__NR_getdents, fd, dirp, count);
 #else
 	(void)fd;
 	(void)dirp;
@@ -172,7 +172,7 @@ int shim_getdents64(
 	unsigned int count)
 {
 #if defined(__linux__) && defined(__NR_getdents64)
-        return syscall(__NR_getdents64, fd, dirp, count);
+	return syscall(__NR_getdents64, fd, dirp, count);
 #else
 	(void)fd;
 	(void)dirp;
@@ -231,7 +231,7 @@ long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 int shim_syslog(int type, char *bufp, int len)
 {
 #if defined(__linux__) && defined(__NR_syslog)
-        return syscall(__NR_syslog, type, bufp, len);
+	return syscall(__NR_syslog, type, bufp, len);
 #else
 	(void)type;
 	(void)bufp;
@@ -245,13 +245,13 @@ int shim_syslog(int type, char *bufp, int len)
 int shim_membarrier(int cmd, int flags)
 {
 #if defined(__linux__) && defined(__NR_membarrier)
-        return syscall(__NR_membarrier, cmd, flags);
+	return syscall(__NR_membarrier, cmd, flags);
 #else
 	(void)cmd;
 	(void)flags;
 
-        errno = ENOSYS;
-        return -1;
+	errno = ENOSYS;
+	return -1;
 #endif
 }
 
@@ -380,7 +380,7 @@ long shim_move_pages(
 int shim_userfaultfd(int flags)
 {
 #if defined(__linux__) && defined(__NR_userfaultfd)
-        return syscall(__NR_userfaultfd, flags);
+	return syscall(__NR_userfaultfd, flags);
 #else
 	(void)flags;
 
@@ -392,7 +392,7 @@ int shim_userfaultfd(int flags)
 int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 {
 #if defined(__linux__) && defined(__NR_seccomp)
-        return (int)syscall(__NR_seccomp, operation, flags, args);
+	return (int)syscall(__NR_seccomp, operation, flags, args);
 #else
 	(void)operation;
 	(void)flags;
@@ -458,7 +458,7 @@ int shim_sched_setattr(
 int shim_mlock2(const void *addr, size_t len, int flags)
 {
 #if defined(__linux__) && defined(__NR_mlock2)
-        return (int)syscall(__NR_mlock2, addr, len, flags);
+	return (int)syscall(__NR_mlock2, addr, len, flags);
 #else
 	(void)addr;
 	(void)len;
@@ -477,10 +477,10 @@ int shim_mlock2(const void *addr, size_t len, int flags)
 int shim_usleep(uint64_t usec)
 {
 #if _POSIX_C_SOURCE >= 199309L
-        struct timespec t, trem;
+	struct timespec t, trem;
 
-        t.tv_sec = usec / 1000000;
-        t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
+	t.tv_sec = usec / 1000000;
+	t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
 
 	for (;;) {
 		errno = 0;

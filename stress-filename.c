@@ -225,7 +225,7 @@ int stress_filename (
 	size_t i, chars_allowed = 0, sz;
 
 	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
-        if (mkdir(dirname, S_IRWXU) < 0) {
+	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err(name, "mkdir");
 			return EXIT_FAILURE;

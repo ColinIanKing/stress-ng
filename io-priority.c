@@ -69,7 +69,7 @@ int32_t get_opt_ionice_class(const char *const str)
 int shim_ioprio_set(int which, int who, int ioprio)
 {
 #if defined(__linux__) && defined(__NR_ioprio_set)
-        return syscall(__NR_ioprio_set, which, who, ioprio);
+	return syscall(__NR_ioprio_set, which, who, ioprio);
 #else
 	(void)which;
 	(void)who;
@@ -87,7 +87,7 @@ int shim_ioprio_set(int which, int who, int ioprio)
 int shim_ioprio_get(int which, int who)
 {
 #if defined(__linux__) && defined(__NR_ioprio_get)
-        return syscall(__NR_ioprio_get, which, who);
+	return syscall(__NR_ioprio_get, which, who);
 #else
 	(void)which;
 	(void)who;

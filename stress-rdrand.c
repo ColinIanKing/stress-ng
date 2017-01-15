@@ -64,13 +64,13 @@ int stress_rdrand_supported(void)
  */
 static inline uint64_t rdrand64(void)
 {
-        uint64_t        ret;
+	uint64_t        ret;
 
-        asm volatile("1:;\n\
-        rdrand %0;\n\
-        jnc 1b;\n":"=r"(ret));
+	asm volatile("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
 
-        return ret;
+	return ret;
 }
 
 /*
@@ -117,10 +117,10 @@ static inline uint64_t rdrand64(void)
  *      stress Intel rdrand instruction
  */
 int stress_rdrand(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
@@ -164,10 +164,10 @@ int stress_rdrand_supported(void)
  *      no-op for non-intel
  */
 int stress_rdrand(
-        uint64_t *const counter,
-        const uint32_t instance,
-        const uint64_t max_ops,
-        const char *name)
+	uint64_t *const counter,
+	const uint32_t instance,
+	const uint64_t max_ops,
+	const char *name)
 {
 	return stress_not_implemented(counter, instance, max_ops, name);
 }

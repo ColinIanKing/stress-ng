@@ -73,7 +73,7 @@ shared_t *shared;				/* shared memory */
 static const unsupported_t unsupported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
-	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },	
+	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
@@ -3058,7 +3058,7 @@ next_opt:
 	pthread_spin_init(&shared->perf.lock, 0);
 #endif
 #if defined(HAVE_LIB_PTHREAD)
-        pthread_spin_init(&shared->warn_once.lock, 0);
+	pthread_spin_init(&shared->warn_once.lock, 0);
 #endif
 
 	/*

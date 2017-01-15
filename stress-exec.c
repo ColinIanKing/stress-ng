@@ -68,7 +68,7 @@ int stress_exec(
 	if (geteuid() == 0) {
 		pr_inf(stderr, "%s: running as root, won't run test.\n", name);
 		return EXIT_FAILURE;
-        }
+	}
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng

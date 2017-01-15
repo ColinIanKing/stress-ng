@@ -35,7 +35,7 @@ smatch_install_dependencies()
 
 	for d in ${DEPENDENCIES}
 	do
-		if [ "$(dpkg -l | grep $d)" == "" ]; then	
+		if [ "$(dpkg -l | grep $d)" == "" ]; then
 			install="$install $d"
 		fi
 	done
