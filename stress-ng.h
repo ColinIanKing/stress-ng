@@ -424,7 +424,6 @@ extern void pr_openlog(const char *filename);
 #endif
 #define DEFAULT_MEMFD_BYTES	(256 * MB)
 
-
 #define MIN_MERGESORT_SIZE	(1 * KB)
 #define MAX_MERGESORT_SIZE	(4 * MB)
 #define DEFAULT_MERGESORT_SIZE	(256 * KB)
@@ -535,7 +534,6 @@ extern void pr_openlog(const char *filename);
 #endif
 #define DEFAULT_SYNC_FILE_BYTES	(1 * GB)
 
-
 #define MIN_TSEARCH_SIZE	(1 * KB)
 #define MAX_TSEARCH_SIZE	(4 * MB)
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
@@ -606,6 +604,7 @@ extern void pr_openlog(const char *filename);
 #define STRESS_CPU_DITHER_X	(1024)
 #define STRESS_CPU_DITHER_Y	(768)
 
+/* Generic bit setting on an array macros */
 #define STRESS_NBITS(a)		(sizeof(a[0]) * 8)
 #define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & \
 				 (1 << (i & (STRESS_NBITS(a)-1))))
@@ -623,15 +622,17 @@ extern void pr_openlog(const char *filename);
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
+#if defined(__linux__)
+#define STRESS_THRASH
+#endif
+
+/* Arch specific, x86 */
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__i386__) || defined(__i386)
 #define STRESS_X86	1
 #endif
 
-#if defined(__linux__)
-#define STRESS_THRASH
-#endif
-
+/* Arch specific, ARM */
 #if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||     \
     defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||    \
     defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) ||  \
@@ -865,7 +866,6 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 } proc_stats_t;
-
 
 /* Shared memory segment */
 typedef struct {
@@ -1782,6 +1782,7 @@ typedef struct {
 	const uint32_t class;		/* class of stress test */
 } stress_t;
 
+/* Per process information */
 typedef struct {
 	pid_t	*pids;			/* process id */
 	int32_t started_procs;		/* count of started processes */
@@ -1790,12 +1791,14 @@ typedef struct {
 	bool	exclude;		/* true if excluded */
 } proc_info_t;
 
+/* Scale lookup mapping, suffix -> scale by */
 typedef struct {
 	const char	ch;		/* Scaling suffix */
 	const uint64_t	scale;		/* Amount to scale by */
 } scale_t;
 
 #if defined(__linux__)
+/* Cache types */
 typedef enum cache_type {
 	CACHE_TYPE_UNKNOWN = 0,
 	CACHE_TYPE_DATA,
@@ -1803,6 +1806,7 @@ typedef enum cache_type {
 	CACHE_TYPE_UNIFIED,
 } cache_type_t;
 
+/* CPU cache information */
 typedef struct cpu_cache {
 	uint16_t           level;
 	cache_type_t       type;
@@ -1850,11 +1854,19 @@ extern uint64_t uint64_zero(void);
 static volatile uint64_t uint64_val;
 static volatile double   double_val;
 
+/*
+ *  uint64_put()
+ *	stash a uint64_t value
+ */
 static inline void uint64_put(const uint64_t a)
 {
 	uint64_val = a;
 }
 
+/*
+ *  double_put()
+ *	stash a double value
+ */
 static inline void double_put(const double a)
 {
 	double_val = a;
@@ -1875,18 +1887,22 @@ extern void stress_cwd_readwriteable(void);
 extern const char *stress_strsignal(const int signum);
 
 #if defined(STRESS_X86)
-
+/*
+ *  clflush()
+ *	flush a cache line
+ */
 static inline void clflush(volatile void *ptr)
 {
         asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
-
 #else
-
 #define clflush(ptr)	do { } while (0) /* No-op */
-
 #endif
 
+/*
+ *  mfence()
+ *	serializing memory fence
+ */
 static inline void mfence(void)
 {
 #if NEED_GNUC(4, 2, 0)
@@ -1923,16 +1939,28 @@ static inline uint32_t mwc32(void)
 	return (__mwc.z << 16) + __mwc.w;
 }
 
+/*
+ *  mwc64()
+ *	get a 64 bit pseudo random number
+ */
 static inline uint64_t mwc64(void)
 {
 	return (((uint64_t)mwc32()) << 32) | mwc32();
 }
 
+/*
+ *  mwc16()
+ *	get a 16 bit pseudo random number
+ */
 static inline uint16_t mwc16(void)
 {
 	return mwc32() & 0xffff;
 }
 
+/*
+ *  mwc8()
+ *	get an 8 bit pseudo random number
+ */
 static inline uint8_t mwc8(void)
 {
 	return mwc32() & 0xff;
@@ -2051,7 +2079,6 @@ static inline int exit_status(const int err)
 static inline WARN_UNUSED void *align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
-
 }
 
 /*
