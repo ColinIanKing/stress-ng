@@ -75,7 +75,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		(*counter)++;
-		if (!opt_do_run || (!max_ops || *counter >= max_ops))
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
 
 		(void)stress_temp_filename(newname, PATH_MAX,
@@ -90,7 +90,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		(*counter)++;
-		if (!opt_do_run || (!max_ops || *counter >= max_ops))
+		if (!opt_do_run || (max_ops && *counter >= max_ops))
 			break;
 	}
 
