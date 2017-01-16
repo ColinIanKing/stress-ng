@@ -59,7 +59,7 @@ uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool opt_do_run = true;		/* false to exit stressor */
 volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
-pid_t pgrp;					/* proceess group leader */
+pid_t pgrp;					/* process group leader */
 
 /* Scheduler options */
 
@@ -104,7 +104,6 @@ static const proc_helper_t proc_destroy[] = {
 	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_destroy },
 	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_destroy }
 };
-
 
 /*
  *  Attempt to catch a range of signals so
@@ -157,14 +156,14 @@ static const int signals[] = {
 };
 
 #define STRESSOR(lower_name, upper_name, class)	\
-	{					\
-		stress_ ## lower_name,		\
-		STRESS_ ## upper_name,		\
-		OPT_ ## upper_name,		\
-		OPT_ ## upper_name  ## _OPS,	\
-		# lower_name,			\
-		class				\
-	}
+{						\
+	stress_ ## lower_name,			\
+	STRESS_ ## upper_name,			\
+	OPT_ ## upper_name,			\
+	OPT_ ## upper_name  ## _OPS,		\
+	# lower_name,				\
+	class					\
+}
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
@@ -1565,7 +1564,11 @@ static void usage_help(const help_t help_info[])
 	}
 }
 
-static void show_stressors(void)
+/*
+ *  show_stressors()
+ *	show stressor names
+ */
+static inline void show_stressors(void)
 {
 	size_t i;
 
