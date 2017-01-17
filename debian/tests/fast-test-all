@@ -28,7 +28,7 @@ EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapm
 #
 # Get built-in stressor names
 #
-STRESSORS=$(${STRESS_NG} --help | grep "\-ops " | awk '{print $1}' | sed 's/--//' | sed 's/-ops//g')
+STRESSORS=$(${STRESS_NG} --stressors)
 rc=0
 
 not_exclude()
