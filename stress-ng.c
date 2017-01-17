@@ -1281,7 +1281,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"timerfd-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
 	{ NULL,		"timerfd-rand",		"enable random timerfd frequency" },
 	{ NULL,		"tlb-shootdown N",	"start N wrokers that force TLB shootdowns" },
-	{ NULL,		"tlb-shootdown-opts N",	"stop after N TLB shootdown bogo ops" },
+	{ NULL,		"tlb-shootdown-ops N",	"stop after N TLB shootdown bogo ops" },
 	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },
 	{ NULL,		"tsc-ops N",		"stop after N TSC bogo operations" },
 	{ NULL,		"tsearch N",		"start N workers that exercise a tree search" },
