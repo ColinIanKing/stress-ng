@@ -100,7 +100,7 @@ int stress_lockbus(
 #else
 int stress_lockbus(
 	uint64_t *const counter,
-	onst uint32_t instance,
+	const uint32_t instance,
 	const uint64_t max_ops,
 	const char *name)
 {
