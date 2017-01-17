@@ -1,3 +1,24 @@
+stress-ng (0.07.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * fast-test-all: use --stressors to get the list of stressors
+  * stress-ng: fix typo in tlb-shootdown-ops option
+  * stress-ng: correct the alphabetical order of stressor names
+  * fast-test-all: sync before running next test
+  * mounts: cater for *BSD mount info fetching
+  * stress-netlink-proc.c: fix build issue on non-Linux systems
+  * Fix build issue introduced in commit 39025068b1fe1c2a72220
+  * stress-ng.h: remove double line spacing, add some comments
+  * Manual: update contributors list
+  * stress-rename: fix incorrect end of test logic
+  * stress-ng: minor cleanup of spacing, some inlining and comments
+  * Remove white space and replace ^ . with \t
+  * Forgot to add in stress-netlink-proc.c
+  * Add netlink-proc stressor
+  * stress-rlimit: force checking of run time in case we miss SIGALRM
+
+ -- Colin King <colin.king@canonical.com>  Tue, 17 Jan 2017 13:43:22 +0000
+
 stress-ng (0.07.14-1) unstable; urgency=medium
 
   * Makefile: bump version
