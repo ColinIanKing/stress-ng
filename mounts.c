@@ -24,8 +24,11 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && \
-    !defined(__NetBSD__) && !defined(__sun__) && !defined(__minix__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#include <sys/param.h>
+#include <sys/ucred.h>
+#include <sys/mount.h>
+#elif defined(__linux__)
 #include <mntent.h>
 #endif
 
@@ -69,19 +72,26 @@ void mount_free(char *mnts[], const int n)
  *	populate mnts with up to max mount points
  *	from /etc/mtab
  */
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
-    defined(__NetBSD__) || defined(__sun__) || defined(__minix__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 int mount_get(char *mnts[], const int max)
 {
-	int n = 0;
-
-	mount_add(mnts, max, &n, "/");
-	mount_add(mnts, max, &n, "/dev");
-	mount_add(mnts, max, &n, "/tmp");
-
-	return n;
-}
+	int i, n = 0, ret;
+#if defined(__NetBSD__)
+	struct statvfs *statbufs;
 #else
+	struct statfs *statbufs;
+#endif
+
+	ret = getmntinfo(&statbufs, 0);
+	if (ret > max)
+		ret = max;
+
+	for (i = 0; i < ret; i++) {
+		mount_add(mnts, max, &n, statbufs[i].f_mntonname);
+	}
+	return ret;
+}
+#elif defined(__linux__)
 int mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
@@ -98,6 +108,17 @@ int mount_get(char *mnts[], const int max)
 		mount_add(mnts, max, &n, mount->mnt_dir);
 
 	(void)endmntent(mounts);
+	return n;
+}
+#else
+int mount_get(char *mnts[], const int max)
+{
+	int n = 0;
+
+	mount_add(mnts, max, &n, "/");
+	mount_add(mnts, max, &n, "/dev");
+	mount_add(mnts, max, &n, "/tmp");
+
 	return n;
 }
 #endif
