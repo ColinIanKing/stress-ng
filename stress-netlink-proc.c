@@ -228,6 +228,20 @@ int stress_netlink_proc(
 	return EXIT_SUCCESS;
 }
 #else
+/*
+ *  stress_netlink_proc_supported()
+ *	check if we can run this stressor
+ */
+int stress_netlink_proc_supported(void)
+{
+	if (geteuid() != 0) {
+		pr_inf(stderr, "netlink-proc stressor will be skipped, "
+			"as it is not supported by this operating system\n");
+		return -1;
+	}
+	return 0;
+}
+
 int stress_netlink_proc(
 	uint64_t *const counter,
 	const uint32_t instance,
