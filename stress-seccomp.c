@@ -42,6 +42,9 @@ static struct sock_filter filter_allow_write[] = {
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
 #endif
+#if defined(__NR_openat)
+	ALLOW_SYSCALL(openat),
+#endif
 #if defined(__NR_write)
 	ALLOW_SYSCALL(write),
 #endif
@@ -61,6 +64,9 @@ static struct sock_filter filter[] = {
 	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
 	ALLOW_SYSCALL(open),
+#endif
+#if defined(__NR_openat)
+	ALLOW_SYSCALL(openat),
 #endif
 #if defined(__NR_close)
 	ALLOW_SYSCALL(close),
