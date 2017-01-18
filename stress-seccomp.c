@@ -229,18 +229,20 @@ int stress_seccomp(
 				}
 				/* ..exited OK but we expected SIGSYS death? */
 				if (WIFEXITED(status) && !allow_write) {
-					pr_fail_err(name,
-						"expecting SIGSYS seccomp trap "
+					pr_fail(stderr,
+						"%s: expecting SIGSYS seccomp trap "
 						"but got a successful exit which "
-						"was not expected");
+						"was not expected\n",
+						name);
 				}
 				/* ..exited with a SIGSYS but we expexted OK exit? */
 				if (WIFSIGNALED(status) && allow_write) {
 					if (WTERMSIG(status) == SIGSYS) {
-						pr_fail_err(name,
-							"expecting a successful exit "
+						pr_fail(stderr,
+							"%s: expecting a successful exit "
 							"but got a seccomp SIGSYS "
-							"which was not expected");
+							"which was not expected\n",
+							name);
 					}
 				}
 			}
