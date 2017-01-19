@@ -43,8 +43,8 @@ typedef void (*stress_str_func)(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2);
-
+	const size_t len2,
+	bool *failed);
 
 typedef struct {
 	const char 		*name;	/* human readable form of stressor */
@@ -58,17 +58,20 @@ static const stress_str_stressor_info_t str_methods[];
 static inline void strchk(
 	const char *name,
 	const int ok,
-	const char *msg)
+	const char *msg,
+	bool *failed)
 {
-	if ((opt_flags & OPT_FLAGS_VERIFY) && (!ok))
+	if ((opt_flags & OPT_FLAGS_VERIFY) && (!ok)) {
 		pr_fail(stderr, "%s: %s did not return expected result\n",
 			name, msg);
+		*failed = true;
+	}
 }
 
 #define STR(x)	# x
 
-#define STRCHK(name, test)	\
-	strchk(name, test, STR(test))
+#define STRCHK(name, test, failed)	\
+	strchk(name, test, STR(test), failed)
 
 
 /*
@@ -81,26 +84,27 @@ static void stress_strcasecmp(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	int (*__strcasecmp)(const char *s1, const char *s2) = libc_func;
 
 	(void)len2;
 
-	for (i = 1; i < len1; i++) {
-		STRCHK(name, 0 == __strcasecmp(str1, str1));
-		STRCHK(name, 0 == __strcasecmp(str2, str2));
+	for (i = 1; opt_do_run && (i < len1); i++) {
+		STRCHK(name, 0 == __strcasecmp(str1, str1), failed);
+		STRCHK(name, 0 == __strcasecmp(str2, str2), failed);
 
-		STRCHK(name, 0 != __strcasecmp(str2, str1));
-		STRCHK(name, 0 != __strcasecmp(str1, str2));
+		STRCHK(name, 0 != __strcasecmp(str2, str1), failed);
+		STRCHK(name, 0 != __strcasecmp(str1, str2), failed);
 
-		STRCHK(name, 0 != __strcasecmp(str1 + i, str1));
-		STRCHK(name, 0 != __strcasecmp(str1, str1 + i));
-		STRCHK(name, 0 == __strcasecmp(str1 + i, str1 + i));
+		STRCHK(name, 0 != __strcasecmp(str1 + i, str1), failed);
+		STRCHK(name, 0 != __strcasecmp(str1, str1 + i), failed);
+		STRCHK(name, 0 == __strcasecmp(str1 + i, str1 + i), failed);
 
-		STRCHK(name, 0 != __strcasecmp(str1 + i, str2));
-		STRCHK(name, 0 != __strcasecmp(str2, str1 + i));
+		STRCHK(name, 0 != __strcasecmp(str1 + i, str2), failed);
+		STRCHK(name, 0 != __strcasecmp(str2, str1 + i), failed);
 	}
 }
 
@@ -114,26 +118,27 @@ static void stress_strncasecmp(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	int (*__strncasecmp)(const char *s1, const char *s2, size_t n) = libc_func;
 
 	(void)len2;
 
-	for (i = 1; i < len1; i++) {
-		STRCHK(name, 0 == __strncasecmp(str1, str1, len1));
-		STRCHK(name, 0 == __strncasecmp(str2, str2, len2));
+	for (i = 1; opt_do_run && (i < len1); i++) {
+		STRCHK(name, 0 == __strncasecmp(str1, str1, len1), failed);
+		STRCHK(name, 0 == __strncasecmp(str2, str2, len2), failed);
 
-		STRCHK(name, 0 != __strncasecmp(str2, str1, len2));
-		STRCHK(name, 0 != __strncasecmp(str1, str2, len1));
+		STRCHK(name, 0 != __strncasecmp(str2, str1, len2), failed);
+		STRCHK(name, 0 != __strncasecmp(str1, str2, len1), failed);
 
-		STRCHK(name, 0 != __strncasecmp(str1 + i, str1, len1));
-		STRCHK(name, 0 != __strncasecmp(str1, str1 + i, len1));
-		STRCHK(name, 0 == __strncasecmp(str1 + i, str1 + i, len1));
+		STRCHK(name, 0 != __strncasecmp(str1 + i, str1, len1), failed);
+		STRCHK(name, 0 != __strncasecmp(str1, str1 + i, len1), failed);
+		STRCHK(name, 0 == __strncasecmp(str1 + i, str1 + i, len1), failed);
 
-		STRCHK(name, 0 != __strncasecmp(str1 + i, str2, len1));
-		STRCHK(name, 0 != __strncasecmp(str2, str1 + i, len2));
+		STRCHK(name, 0 != __strncasecmp(str1 + i, str2, len1), failed);
+		STRCHK(name, 0 != __strncasecmp(str2, str1 + i, len2), failed);
 	}
 }
 
@@ -147,19 +152,20 @@ static void stress_index(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__index)(const char *s, int c) = libc_func;
 
 	(void)len2;
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, NULL == __index(str1, '_'));
-		STRCHK(name, NULL != __index(str1, str1[0]));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, NULL == __index(str1, '_'), failed);
+		STRCHK(name, NULL != __index(str1, str1[0]), failed);
 
-		STRCHK(name, NULL == __index(str2, '_'));
-		STRCHK(name, NULL != __index(str2, str2[0]));
+		STRCHK(name, NULL == __index(str2, '_'), failed);
+		STRCHK(name, NULL != __index(str2, str2[0]), failed);
 	}
 }
 
@@ -173,19 +179,20 @@ static void stress_rindex(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__rindex)(const char *s, int c) = libc_func;
 
 	(void)len2;
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, NULL == __rindex(str1, '_'));
-		STRCHK(name, NULL != __rindex(str1, str1[0]));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, NULL == __rindex(str1, '_'), failed);
+		STRCHK(name, NULL != __rindex(str1, str1[0]), failed);
 
-		STRCHK(name, NULL == __rindex(str2, '_'));
-		STRCHK(name, NULL != __rindex(str2, str2[0]));
+		STRCHK(name, NULL == __rindex(str2, '_'), failed);
+		STRCHK(name, NULL != __rindex(str2, str2[0]), failed);
 	}
 }
 
@@ -200,7 +207,8 @@ static void stress_strlcpy(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strlcpy)(char *dest, const char *src, size_t len) = libc_func;
@@ -208,9 +216,9 @@ static void stress_strlcpy(
 	char buf[len1 + len2 + 1];
 	size_t len = len1 + len2;
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, buf == __strlcpy(buf, str1, len));
-		STRCHK(name, buf == __strlcpy(buf, str2, len));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, buf == __strlcpy(buf, str1, len), failed);
+		STRCHK(name, buf == __strlcpy(buf, str2, len), failed);
 	}
 }
 #else
@@ -224,16 +232,17 @@ static void stress_strcpy(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strcpy)(char *dest, const char *src) = libc_func;
 
 	char buf[len1 + len2 + 1];
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, buf == __strcpy(buf, str1));
-		STRCHK(name, buf == __strcpy(buf, str2));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, buf == __strcpy(buf, str1), failed);
+		STRCHK(name, buf == __strcpy(buf, str2), failed);
 	}
 }
 #endif
@@ -250,7 +259,8 @@ static void stress_strlcat(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strlcat)(char *dest, const char *src, size_t len) = libc_func;
@@ -258,17 +268,17 @@ static void stress_strlcat(
 	char buf[len1 + len2 + 1];
 	const size_t len = len1 + len2;
 
-	for (i = 0; i < len1 - 1; i++) {
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str1, len));
+		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str2, len));
+		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str1, len));
-		STRCHK(name, buf == __strlcat(buf, str2, len));
+		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
+		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str2, len));
-		STRCHK(name, buf == __strlcat(buf, str1, len));
+		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
+		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
 	}
 }
 #else
@@ -282,24 +292,25 @@ static void stress_strcat(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strcat)(char *dest, const char *src) = libc_func;
 
 	char buf[len1 + len2 + 1];
 
-	for (i = 0; i < len1 - 1; i++) {
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = '\0';
-		STRCHK(name, buf == __strcat(buf, str1));
+		STRCHK(name, buf == __strcat(buf, str1), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strcat(buf, str2));
+		STRCHK(name, buf == __strcat(buf, str2), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strcat(buf, str1));
-		STRCHK(name, buf == __strcat(buf, str2));
+		STRCHK(name, buf == __strcat(buf, str1), failed);
+		STRCHK(name, buf == __strcat(buf, str2), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strcat(buf, str2));
-		STRCHK(name, buf == __strcat(buf, str1));
+		STRCHK(name, buf == __strcat(buf, str2), failed);
+		STRCHK(name, buf == __strcat(buf, str1), failed);
 	}
 }
 #endif
@@ -314,23 +325,24 @@ static void stress_strncat(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strncat)(char *dest, const char *src, size_t n) = libc_func;
 	char buf[len1 + len2 + 1];
 
-	for (i = 0; i < len1 - 1; i++) {
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = '\0';
-		STRCHK(name, buf == __strncat(buf, str1, len1));
+		STRCHK(name, buf == __strncat(buf, str1, len1), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strncat(buf, str2, len2));
+		STRCHK(name, buf == __strncat(buf, str2, len2), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strncat(buf, str1, len1));
-		STRCHK(name, buf == __strncat(buf, str2, len1 + len2));
+		STRCHK(name, buf == __strncat(buf, str1, len1), failed);
+		STRCHK(name, buf == __strncat(buf, str2, len1 + len2), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strncat(buf, str2, i));
-		STRCHK(name, buf == __strncat(buf, str1, i));
+		STRCHK(name, buf == __strncat(buf, str2, i), failed);
+		STRCHK(name, buf == __strncat(buf, str1, i), failed);
 	}
 }
 
@@ -344,19 +356,20 @@ static void stress_strchr(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strchr)(const char *s, int c) = libc_func;
 
 	(void)len2;
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, NULL == __strchr(str1, '_'));
-		STRCHK(name, NULL != __strchr(str1, str1[0]));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, NULL == __strchr(str1, '_'), failed);
+		STRCHK(name, NULL != __strchr(str1, str1[0]), failed);
 
-		STRCHK(name, NULL == __strchr(str2, '_'));
-		STRCHK(name, NULL != __strchr(str2, str2[0]));
+		STRCHK(name, NULL == __strchr(str2, '_'), failed);
+		STRCHK(name, NULL != __strchr(str2, str2[0]), failed);
 	}
 }
 
@@ -370,19 +383,20 @@ static void stress_strrchr(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char * (*__strrchr)(const char *s, int c) = libc_func;
 
 	(void)len2;
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, NULL == __strrchr(str1, '_'));
-		STRCHK(name, NULL != __strrchr(str1, str1[0]));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, NULL == __strrchr(str1, '_'), failed);
+		STRCHK(name, NULL != __strrchr(str1, str1[0]), failed);
 
-		STRCHK(name, NULL == __strrchr(str2, '_'));
-		STRCHK(name, NULL != __strrchr(str2, str2[0]));
+		STRCHK(name, NULL == __strrchr(str2, '_'), failed);
+		STRCHK(name, NULL != __strrchr(str2, str2[0]), failed);
 	}
 }
 
@@ -396,26 +410,27 @@ static void stress_strcmp(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	int (*__strcmp)(const char *s1, const char *s2) = libc_func;
 
 	(void)len2;
 
-	for (i = 1; i < len1; i++) {
-		STRCHK(name, 0 == __strcmp(str1, str1));
-		STRCHK(name, 0 == __strcmp(str2, str2));
+	for (i = 1; opt_do_run && (i < len1); i++) {
+		STRCHK(name, 0 == __strcmp(str1, str1), failed);
+		STRCHK(name, 0 == __strcmp(str2, str2), failed);
 
-		STRCHK(name, 0 != __strcmp(str2, str1));
-		STRCHK(name, 0 != __strcmp(str1, str2));
+		STRCHK(name, 0 != __strcmp(str2, str1), failed);
+		STRCHK(name, 0 != __strcmp(str1, str2), failed);
 
-		STRCHK(name, 0 != __strcmp(str1 + i, str1));
-		STRCHK(name, 0 != __strcmp(str1, str1 + i));
-		STRCHK(name, 0 == __strcmp(str1 + i, str1 + i));
+		STRCHK(name, 0 != __strcmp(str1 + i, str1), failed);
+		STRCHK(name, 0 != __strcmp(str1, str1 + i), failed);
+		STRCHK(name, 0 == __strcmp(str1 + i, str1 + i), failed);
 
-		STRCHK(name, 0 != __strcmp(str1 + i, str2));
-		STRCHK(name, 0 != __strcmp(str2, str1 + i));
+		STRCHK(name, 0 != __strcmp(str1 + i, str2), failed);
+		STRCHK(name, 0 != __strcmp(str2, str1 + i), failed);
 	}
 }
 
@@ -429,24 +444,25 @@ static void stress_strncmp(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	int (*__strncmp)(const char *s1, const char *s2, size_t n) = libc_func;
 
-	for (i = 1; i < len1; i++) {
-		STRCHK(name, 0 == __strncmp(str1, str1, len1));
-		STRCHK(name, 0 == __strncmp(str2, str2, len2));
+	for (i = 1; opt_do_run && (i < len1); i++) {
+		STRCHK(name, 0 == __strncmp(str1, str1, len1), failed);
+		STRCHK(name, 0 == __strncmp(str2, str2, len2), failed);
 
-		STRCHK(name, 0 != __strncmp(str2, str1, len2));
-		STRCHK(name, 0 != __strncmp(str1, str2, len1));
+		STRCHK(name, 0 != __strncmp(str2, str1, len2), failed);
+		STRCHK(name, 0 != __strncmp(str1, str2, len1), failed);
 
-		STRCHK(name, 0 != __strncmp(str1 + i, str1, len1));
-		STRCHK(name, 0 != __strncmp(str1, str1 + i, len1));
-		STRCHK(name, 0 == __strncmp(str1 + i, str1 + i, len1));
+		STRCHK(name, 0 != __strncmp(str1 + i, str1, len1), failed);
+		STRCHK(name, 0 != __strncmp(str1, str1 + i, len1), failed);
+		STRCHK(name, 0 == __strncmp(str1 + i, str1 + i, len1), failed);
 
-		STRCHK(name, 0 != __strncmp(str1 + i, str2, len2));
-		STRCHK(name, 0 != __strncmp(str2, str1 + i, len2));
+		STRCHK(name, 0 != __strncmp(str1 + i, str2, len2), failed);
+		STRCHK(name, 0 != __strncmp(str2, str1 + i, len2), failed);
 	}
 }
 /*
@@ -459,26 +475,27 @@ static void stress_strcoll(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	int (*__strcoll)(const char *s1, const char *s2) = libc_func;
 
 	(void)len2;
 
-	for (i = 1; i < len1; i++) {
-		STRCHK(name, 0 == __strcoll(str1, str1));
-		STRCHK(name, 0 == __strcoll(str2, str2));
+	for (i = 1; opt_do_run && (i < len1); i++) {
+		STRCHK(name, 0 == __strcoll(str1, str1), failed);
+		STRCHK(name, 0 == __strcoll(str2, str2), failed);
 
-		STRCHK(name, 0 != __strcoll(str2, str1));
-		STRCHK(name, 0 != __strcoll(str1, str2));
+		STRCHK(name, 0 != __strcoll(str2, str1), failed);
+		STRCHK(name, 0 != __strcoll(str1, str2), failed);
 
-		STRCHK(name, 0 != __strcoll(str1 + i, str1));
-		STRCHK(name, 0 != __strcoll(str1, str1 + i));
-		STRCHK(name, 0 == __strcoll(str1 + i, str1 + i));
+		STRCHK(name, 0 != __strcoll(str1 + i, str1), failed);
+		STRCHK(name, 0 != __strcoll(str1, str1 + i), failed);
+		STRCHK(name, 0 == __strcoll(str1 + i, str1 + i), failed);
 
-		STRCHK(name, 0 != __strcoll(str1 + i, str2));
-		STRCHK(name, 0 != __strcoll(str2, str1 + i));
+		STRCHK(name, 0 != __strcoll(str1 + i, str2), failed);
+		STRCHK(name, 0 != __strcoll(str2, str1 + i), failed);
 	}
 }
 
@@ -492,20 +509,21 @@ static void stress_strlen(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	size_t (*__strlen)(const char *s) = libc_func;
 
 
-	for (i = 0; i < len1 - 1; i++) {
-		STRCHK(name, len1 - 1 == __strlen(str1));
-		STRCHK(name, len1 - 1 - i == __strlen(str1 + i));
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
+		STRCHK(name, len1 - 1 == __strlen(str1), failed);
+		STRCHK(name, len1 - 1 - i == __strlen(str1 + i), failed);
 	}
 
-	for (i = 0; i < len2 - 1; i++) {
-		STRCHK(name, len2 - 1 == __strlen(str2));
-		STRCHK(name, len2 - 1 - i == __strlen(str2 + i));
+	for (i = 0; opt_do_run && (i < len2 - 1); i++) {
+		STRCHK(name, len2 - 1 == __strlen(str2), failed);
+		STRCHK(name, len2 - 1 - i == __strlen(str2 + i), failed);
 	}
 }
 
@@ -519,23 +537,24 @@ static void stress_strxfrm(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	register size_t i;
 	char buf[len1 + len2];
 	size_t (*__strxfrm)(char *dest, const char *src, size_t n) = libc_func;
 
-	for (i = 0; i < len1 - 1; i++) {
+	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = '\0';
-		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)));
+		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)), failed);
 		*buf = '\0';
-		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)));
+		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)), failed);
 		*buf = '\0';
-		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)));
-		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)));
+		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)), failed);
+		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)), failed);
 		*buf = '\0';
-		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)));
-		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)));
+		STRCHK(name, 0 != __strxfrm(buf, str2, sizeof(buf)), failed);
+		STRCHK(name, 0 != __strxfrm(buf, str1, sizeof(buf)), failed);
 	}
 }
 
@@ -550,13 +569,14 @@ static void stress_str_all(
 	char *str1,
 	const size_t len1,
 	char *str2,
-	const size_t len2)
+	const size_t len2,
+	bool *failed)
 {
 	static int i = 1;	/* Skip over stress_str_all */
 
 	(void)libc_func;
 
-	str_methods[i].func(str_methods[i].libc_func, name, str1, len1, str2, len2);
+	str_methods[i].func(str_methods[i].libc_func, name, str1, len1, str2, len2, failed);
 	i++;
 	if (!str_methods[i].func)
 		i = 1;
@@ -602,7 +622,7 @@ int stress_set_str_method(const char *name)
 	stress_str_stressor_info_t const *info = str_methods;
 
 
-	for (info = str_methods; info->func; info++) {
+	for (info = str_methods; opt_do_run && info->func; info++) {
 		if (!strcmp(info->name, name)) {
 			opt_str_stressor = info;
 			return 0;
@@ -630,6 +650,7 @@ int stress_str(
 {
 	stress_str_func func = opt_str_stressor->func;
 	const void *libc_func = opt_str_stressor->libc_func;
+	bool failed = false;
 
 	(void)instance;
 
@@ -639,8 +660,9 @@ int stress_str(
 		stress_strnrnd(str1, sizeof(str1));
 		stress_strnrnd(str2, sizeof(str2));
 
-		(void)func(libc_func, name, str1, sizeof(str1), str2, sizeof(str2));
+		(void)func(libc_func, name, str1, sizeof(str1), str2, sizeof(str2), &failed);
 		(*counter)++;
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	return EXIT_SUCCESS;
+
+	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
