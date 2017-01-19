@@ -355,7 +355,7 @@ int stress_hdd(
 	/* Ensure I/O size is not too small */
 	if (opt_hdd_write_size < min_size) {
 		opt_hdd_write_size = min_size;
-		pr_inf(stderr, "%s: increasing read/write size to %"
+		pr_inf(stdout, "%s: increasing read/write size to %"
 			PRIu64 " bytes\n", name, opt_hdd_write_size);
 	}
 
@@ -363,7 +363,7 @@ int stress_hdd(
 	remainder = opt_hdd_write_size % HDD_IO_VEC_MAX;
 	if ((opt_hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
 		opt_hdd_write_size += HDD_IO_VEC_MAX - remainder;
-		pr_inf(stderr, "%s: increasing read/write size to %"
+		pr_inf(stdout, "%s: increasing read/write size to %"
 			PRIu64 " bytes in iovec mode\n",
 			name, opt_hdd_write_size);
 	}
@@ -371,7 +371,7 @@ int stress_hdd(
 	/* Ensure complete file size is not less than the I/O size */
 	if (opt_hdd_bytes < opt_hdd_write_size) {
 		opt_hdd_bytes = opt_hdd_write_size;
-		pr_inf(stderr, "%s: increasing file size to write size of %"
+		pr_inf(stdout, "%s: increasing file size to write size of %"
 			PRIu64 " bytes\n",
 			name, opt_hdd_bytes);
 	}

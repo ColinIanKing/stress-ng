@@ -81,7 +81,7 @@ void stress_semaphore_sysv_init(void)
 	}
 
 	if (opt_sequential) {
-		pr_inf(stderr, "semaphore init (System V) failed: errno=%d: "
+		pr_inf(stdout, "semaphore init (System V) failed: errno=%d: "
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
@@ -135,7 +135,7 @@ static void semaphore_sysv_thrash(
 
 			if (semtimedop(sem_id, &semwait, 1, &timeout) < 0) {
 				if (errno == EAGAIN) {
-					pr_inf(stderr, "Semaphore timed out: errno=%d (%s)\n",
+					pr_inf(stdout, "Semaphore timed out: errno=%d (%s)\n",
 						errno, strerror(errno));
 					goto timed_out;
 				}

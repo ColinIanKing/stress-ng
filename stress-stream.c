@@ -135,26 +135,26 @@ static inline uint64_t stream_L3_size(
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (!instance)
-			pr_inf(stderr, "%s: using built-in defaults as unable to "
+			pr_inf(stdout, "%s: using built-in defaults as unable to "
 				"determine cache details\n", name);
 		return cache_size;
 	}
 	max_cache_level = get_max_cache_level(cpu_caches);
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!instance))
-		pr_inf(stderr, "%s: no L3 cache, using L%" PRIu16 " size instead\n",
+		pr_inf(stdout, "%s: no L3 cache, using L%" PRIu16 " size instead\n",
 			name, max_cache_level);
 
 	cache = get_cpu_cache(cpu_caches, max_cache_level);
 	if (!cache) {
 		if (!instance)
-			pr_inf(stderr, "%s: using built-in defaults as no suitable "
+			pr_inf(stdout, "%s: using built-in defaults as no suitable "
 				"cache found\n", name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->size) {
 		if (!instance)
-			pr_inf(stderr, "%s: using built-in defaults as unable to "
+			pr_inf(stdout, "%s: using built-in defaults as unable to "
 				"determine cache size\n", name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
@@ -164,7 +164,7 @@ static inline uint64_t stream_L3_size(
 	free_cpu_caches(cpu_caches);
 #else
 	if (!instance)
-		pr_inf(stderr, "%s: using built-in defaults as unable to "
+		pr_inf(stdout, "%s: using built-in defaults as unable to "
 			"determine cache details\n", name);
 #endif
 	return cache_size;
@@ -196,16 +196,16 @@ int stress_stream(
 	}
 
 	if (instance == 0) {
-		pr_inf(stderr, "%s: stressor loosely based on a variant of the "
+		pr_inf(stdout, "%s: stressor loosely based on a variant of the "
 			"STREAM benchmark code\n", name);
-		pr_inf(stderr, "%s: do NOT submit any of these results "
+		pr_inf(stdout, "%s: do NOT submit any of these results "
 			"to the STREAM benchmark results\n", name);
 		if (guess) {
-			pr_inf(stderr, "%s: cannot determine CPU L3 cache size, "
+			pr_inf(stdout, "%s: cannot determine CPU L3 cache size, "
 				"defaulting to %" PRIu64 "K\n",
 				name, L3 / 1024);
 		} else {
-			pr_inf(stderr, "%s: Using CPU cache size of %" PRIu64 "K\n",
+			pr_inf(stdout, "%s: Using CPU cache size of %" PRIu64 "K\n",
 				name, L3 / 1024);
 		}
 	}
@@ -250,12 +250,12 @@ int stress_stream(
 	if (dt >= 4.5) {
 		mb_rate = mb / (dt);
 		fp_rate = fp / (dt);
-		pr_inf(stderr, "%s: memory rate: %.2f MB/sec, %.2f Mflop/sec"
+		pr_inf(stdout, "%s: memory rate: %.2f MB/sec, %.2f Mflop/sec"
 			" (instance %" PRIu32 ")\n",
 			name, mb_rate, fp_rate, instance);
 	} else {
 		if (instance == 0)
-			pr_inf(stderr, "%s: run too short to determine memory rate\n", name);
+			pr_inf(stdout, "%s: run too short to determine memory rate\n", name);
 	}
 
 	rc = EXIT_SUCCESS;

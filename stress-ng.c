@@ -2297,7 +2297,7 @@ static inline void exclude_pathological(void)
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (stressors[i].class & CLASS_PATHOLOGICAL) {
 				if (procs[i].num_procs > 0) {
-					pr_inf(stderr, "disabled '%s' as it "
+					pr_inf(stdout, "disabled '%s' as it "
 						"may hang the machine "
 						"(enable it with the "
 						"--pathological option)\n",

@@ -71,7 +71,7 @@ static int do_quotactl(
 		static int failed_mask = 0;
 
 		if (errno == EPERM) {
-			pr_inf(stderr, "%s: need CAP_SYS_ADMIN capability to "
+			pr_inf(stdout, "%s: need CAP_SYS_ADMIN capability to "
 				"run quota stressor, aborting stress test\n",
 				name);
 			return errno;

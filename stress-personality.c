@@ -49,7 +49,7 @@ int stress_personality(
 	(void)instance;
 
 	if (n == 0) {
-		pr_inf(stderr, "%s: no personalities to stress test\n", name);
+		pr_inf(stdout, "%s: no personalities to stress test\n", name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 	memset(failed, 0, sizeof(failed));

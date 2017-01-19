@@ -128,7 +128,7 @@ int stress_readahead(
 		off_t o = i / BUF_SIZE;
 seq_wr_retry:
 		if (!opt_do_run) {
-			pr_inf(stderr, "%s: test expired during test setup "
+			pr_inf(stdout, "%s: test expired during test setup "
 				"(writing of data file)\n", name);
 			rc = EXIT_SUCCESS;
 			goto close_finish;

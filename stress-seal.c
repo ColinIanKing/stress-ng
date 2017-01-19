@@ -74,7 +74,7 @@ int stress_seal(
 		fd = shim_memfd_create(filename, MFD_ALLOW_SEALING);
 		if (fd < 0) {
 			if (errno == ENOSYS) {
-				pr_inf(stderr, "%s: aborting, unimplemented "
+				pr_inf(stdout, "%s: aborting, unimplemented "
 					"system call memfd_created\n", name);
 				return EXIT_NO_RESOURCE;
 			}

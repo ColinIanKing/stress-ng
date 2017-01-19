@@ -66,7 +66,7 @@ int stress_exec(
 	 *  executable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf(stderr, "%s: running as root, won't run test.\n", name);
+		pr_inf(stdout, "%s: running as root, won't run test.\n", name);
 		return EXIT_FAILURE;
 	}
 

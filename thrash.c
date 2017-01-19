@@ -99,7 +99,7 @@ static int pagein_all_procs(void)
 int thrash_start(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stderr, "not running as root, ignoring --thrash option\n");
+		pr_inf(stdout, "not running as root, ignoring --thrash option\n");
 		return -1;
 	}
 	if (thrash_pid) {

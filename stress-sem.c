@@ -54,7 +54,7 @@ void stress_semaphore_posix_init(void)
 	}
 
 	if (opt_sequential) {
-		pr_inf(stderr, "semaphore init (POSIX) failed: errno=%d: "
+		pr_inf(stdout, "semaphore init (POSIX) failed: errno=%d: "
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {

@@ -49,7 +49,7 @@ typedef struct {
 int stress_fanotify_supported(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stderr, "fanotify stressor will be skipped, "
+		pr_inf(stdout, "fanotify stressor will be skipped, "
 			"need to be running as root for this stressor\n");
 		return -1;
 	}

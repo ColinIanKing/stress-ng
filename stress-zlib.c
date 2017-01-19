@@ -333,7 +333,7 @@ static int stress_zlib_deflate(
 		} while (do_run && stream_def.avail_out == 0);
 	} while (do_run);
 
-	pr_inf(stderr, "%s: instance %" PRIu32 ": compression ratio: %5.2f%%\n",
+	pr_inf(stdout, "%s: instance %" PRIu32 ": compression ratio: %5.2f%%\n",
 		name, instance, 100.0 * (double)bytes_out / (double)bytes_in);
 
 	(void)deflateEnd(&stream_def);

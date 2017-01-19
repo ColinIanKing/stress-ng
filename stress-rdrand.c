@@ -43,14 +43,14 @@ int stress_rdrand_supported(void)
 	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
 	      (memcmp(&edx, "ineI", 4) == 0) &&
 	      (memcmp(&ecx, "ntel", 4) == 0))) {
-		pr_inf(stderr, "rdrand stressor will be skipped, "
+		pr_inf(stdout, "rdrand stressor will be skipped, "
 			"not a recognised Intel CPU.\n");
 		return -1;
 	}
 	/* ..and supports rdrand? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
-		pr_inf(stderr, "rdrand stressor will be skipped, CPU "
+		pr_inf(stdout, "rdrand stressor will be skipped, CPU "
 			"does not support the rdrand instruction.\n");
 		return -1;
 	}
@@ -154,7 +154,7 @@ int stress_rdrand(
  */
 int stress_rdrand_supported(void)
 {
-	pr_inf(stderr, "rdrand stressor will be skipped, CPU does not "
+	pr_inf(stdout, "rdrand stressor will be skipped, CPU does not "
 		"support the rdrand instruction.\n");
 	return -1;
 }

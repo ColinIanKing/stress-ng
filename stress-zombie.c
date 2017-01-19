@@ -184,7 +184,7 @@ int stress_zombie(
 		}
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
-	pr_inf(stderr, "%s: created a maximum of %" PRIu64 " zombies\n",
+	pr_inf(stdout, "%s: created a maximum of %" PRIu64 " zombies\n",
 		name, max_zombies);
 
 	/* And reap */
