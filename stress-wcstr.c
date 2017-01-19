@@ -186,13 +186,15 @@ static void stress_wcslcpy(
 	bool *failed)
 {
 	register size_t i;
-	wchar_t * (*__wcscpy)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
+	size_t (*__wcslcpy)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
 	wchar_t buf[len1 + len2 + 1];
-	const size_t len = len1 + len2;
+	const size_t buf_len = sizeof(buf);
+	const size_t str1_len = wcslen(str1);
+	const size_t str2_len = wcslen(str2);
 
 	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
-		WCSCHK(name, buf == __wcscpy(buf, str1, len), failed);
-		WCSCHK(name, buf == __wcscpy(buf, str2, len), failed);
+		WCSCHK(name, str1_len == __wcslcpy(buf, str1, buf_len), failed);
+		WCSCHK(name, str2_len == __wcslcpy(buf, str2, buf_len), failed);
 	}
 }
 #else
@@ -235,21 +237,24 @@ static void stress_wcslcat(
 	bool *failed)
 {
 	register size_t i;
-	wchar_t * (*__wcscat)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
+	size_t (*__wcslcat)(wchar_t *dest, const wchar_t *src, size_t len) = libc_func;
 	wchar_t buf[len1 + len2 + 1];
-	size_t len = len1 + len2;
+	const size_t buf_len = sizeof(buf);
+	const size_t str1_len = wcslen(str1);
+	const size_t str2_len = wcslen(str2);
+	const size_t str_len = str1_len + str2_len;
 
 	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = L'\0';
-		WCSCHK(name, buf == __wcscat(buf, str1, len), failed);
+		WCSCHK(name, str1_len == __wcslcat(buf, str1, buf_len), failed);
 		*buf = L'\0';
-		WCSCHK(name, buf == __wcscat(buf, str2, len), failed);
+		WCSCHK(name, str2_len == __wcslcat(buf, str2, buf_len), failed);
 		*buf = L'\0';
-		WCSCHK(name, buf == __wcscat(buf, str1, len), failed);
-		WCSCHK(name, buf == __wcscat(buf, str2, len), failed);
+		WCSCHK(name, str1_len == __wcslcat(buf, str1, buf_len), failed);
+		WCSCHK(name, str_len  == __wcslcat(buf, str2, buf_len), failed);
 		*buf = L'\0';
-		WCSCHK(name, buf == __wcscat(buf, str2, len), failed);
-		WCSCHK(name, buf == __wcscat(buf, str1, len), failed);
+		WCSCHK(name, str2_len == __wcslcat(buf, str2, buf_len), failed);
+		WCSCHK(name, str_len  == __wcslcat(buf, str1, buf_len), failed);
 	}
 }
 #else
@@ -269,7 +274,6 @@ static void stress_wcscat(
 	register size_t i;
 	wchar_t * (*__wcscat)(wchar_t *dest, const wchar_t *src) = libc_func;
 	wchar_t buf[len1 + len2 + 1];
-
 
 	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = L'\0';
