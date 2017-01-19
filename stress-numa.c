@@ -31,7 +31,8 @@
     defined(__NR_move_pages) &&		\
     defined(__NR_set_mempolicy)
 
-#define NUMA_LONG_BITS		(sizeof(unsigned long) * 8)
+#define BITS_PER_BYTE		(8)
+#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
 
 #define MPOL_DEFAULT		(0)
 #define MPOL_PREFERRED		(1)
@@ -53,6 +54,34 @@ typedef struct node {
 	uint32_t	node_id;
 	struct node	*next;
 } node_t;
+
+/*
+ *  stress_numa_get_max_nodes()
+ *	probe for maximum number of nodes
+ */
+static unsigned long stress_numa_get_max_nodes(void)
+{
+	unsigned long sz = BITS_PER_BYTE, *mask = NULL;
+
+	do {
+		int mode = 0;
+		unsigned long *newmask = realloc(mask, sz / BITS_PER_BYTE);
+
+		if (!newmask)
+			break;
+		mask = newmask;
+		if (shim_get_mempolicy(&mode, mask, sz, 0, 0) == 0)
+			goto done;
+		sz <<= 1;
+	} while (sz < 0x100000 && errno == EINVAL);
+
+	/* Failed */
+	sz = 0;
+done:
+	free(mask);
+
+	return sz;
+}
 
 /*
  *  stress_numa_free_nodes()
@@ -129,12 +158,13 @@ int stress_numa(
 	const char *name)
 {
 	long numa_nodes;
-	unsigned long max_nodes, nbits, lbits = 8 * sizeof(unsigned long);
-	uint8_t *buf;
-	const pid_t mypid = getpid();
+	unsigned long max_nodes;
+	const unsigned long lbits = NUMA_LONG_BITS;
 	const unsigned long page_sz = stress_get_pagesize();
 	const unsigned long num_pages = MMAP_SZ / page_sz;
+	uint8_t *buf;
 	node_t *n;
+	const pid_t mypid = getpid();
 	int rc = EXIT_FAILURE;
 
 	(void)instance;
@@ -146,8 +176,13 @@ int stress_numa(
 		rc = EXIT_SUCCESS;
 		goto numa_free;
 	}
-	nbits = (numa_nodes + lbits - 1) / lbits;
-	max_nodes = nbits * lbits;
+	max_nodes = stress_numa_get_max_nodes();
+	if (max_nodes == 0) {
+		pr_inf(stderr, "%s: cannot determine maximum number "
+			"of NUMA nodes, aborting test.\n", name);
+		rc = EXIT_SUCCESS;
+		goto numa_free;
+	}
 
 	/*
 	 *  We need a buffer to migrate around NUMA nodes
