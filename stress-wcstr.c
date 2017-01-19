@@ -208,7 +208,7 @@ static void stress_wcscpy(
 	wchar_t *str1,
 	const size_t len1,
 	wchar_t *str2,
-	const size_t len2
+	const size_t len2,
 	bool *failed)
 {
 	register size_t i;
