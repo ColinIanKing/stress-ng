@@ -172,15 +172,14 @@ int stress_numa(
 	numa_nodes = stress_numa_get_nodes(&n);
 	if (numa_nodes <= 1) {
 		pr_inf(stderr, "%s: multiple NUMA nodes not found, "
-			"aborting test.\n", name);
+			"aborting test\n", name);
 		rc = EXIT_SUCCESS;
 		goto numa_free;
 	}
 	max_nodes = stress_numa_get_max_nodes();
 	if (max_nodes == 0) {
-		pr_inf(stderr, "%s: cannot determine maximum number "
-			"of NUMA nodes, aborting test.\n", name);
-		rc = EXIT_SUCCESS;
+		pr_fail(stderr, "%s: cannot determine maximum number "
+			"of NUMA nodes\n", name);
 		goto numa_free;
 	}
 
@@ -211,6 +210,7 @@ int stress_numa(
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
 			pr_fail_err(name, "get_mempolicy");
+			goto err;
 		}
 		if (!opt_do_run)
 			break;
@@ -220,6 +220,7 @@ int stress_numa(
 		ret = shim_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
 		if (ret < 0) {
 			pr_fail_err(name, "set_mempolicy");
+			goto err;
 		}
 		memset(buf, 0xff, MMAP_SZ);
 		if (!opt_do_run)
@@ -240,8 +241,10 @@ int stress_numa(
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
-			if (errno != EIO)
+			if (errno != EIO) {
 				pr_fail_err(name, "mbind");
+				goto err;
+			}
 		} else {
 			memset(buf, 0xaa, MMAP_SZ);
 		}
@@ -256,8 +259,10 @@ int stress_numa(
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
-			if (errno != EIO)
+			if (errno != EIO) {
 				pr_fail_err(name, "mbind");
+				goto err;
+			}
 		} else {
 			memset(buf, 0x5c, MMAP_SZ);
 		}
@@ -277,6 +282,7 @@ int stress_numa(
 			old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail_err(name, "migrate_pages");
+			goto err;
 		}
 		if (!opt_do_run)
 			break;
@@ -295,6 +301,7 @@ int stress_numa(
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				pr_fail_err(name, "move_pages");
+				goto err;
 			}
 			memset(buf, j, MMAP_SZ);
 			if (!opt_do_run)
@@ -304,6 +311,7 @@ int stress_numa(
 	} while (opt_do_run && (!max_ops || *counter < max_ops));
 
 	rc = EXIT_SUCCESS;
+err:
 	munmap(buf, MMAP_SZ);
 numa_free:
 	stress_numa_free_nodes(n);
