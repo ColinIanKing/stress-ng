@@ -211,14 +211,16 @@ static void stress_strlcpy(
 	bool *failed)
 {
 	register size_t i;
-	char * (*__strlcpy)(char *dest, const char *src, size_t len) = libc_func;
+	size_t (*__strlcpy)(char *dest, const char *src, size_t len) = libc_func;
 
 	char buf[len1 + len2 + 1];
-	size_t len = len1 + len2;
+	const size_t buf_len = sizeof(buf);
+	const size_t str_len1 = strlen(str1);
+	const size_t str_len2 = strlen(str2);
 
 	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
-		STRCHK(name, buf == __strlcpy(buf, str1, len), failed);
-		STRCHK(name, buf == __strlcpy(buf, str2, len), failed);
+		STRCHK(name, str_len1 == __strlcpy(buf, str1, buf_len), failed);
+		STRCHK(name, str_len2 == __strlcpy(buf, str2, buf_len), failed);
 	}
 }
 #else
@@ -263,22 +265,25 @@ static void stress_strlcat(
 	bool *failed)
 {
 	register size_t i;
-	char * (*__strlcat)(char *dest, const char *src, size_t len) = libc_func;
+	size_t (*__strlcat)(char *dest, const char *src, size_t len) = libc_func;
 
 	char buf[len1 + len2 + 1];
-	const size_t len = len1 + len2;
+	const size_t buf_len = sizeof(buf);
+	const size_t str_len1 = strlen(str1);
+	const size_t str_len2 = strlen(str2);
+	const size_t str_len = str_len1 + str_len2;
 
 	for (i = 0; opt_do_run && (i < len1 - 1); i++) {
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
+		STRCHK(name, str_len1 == __strlcat(buf, str1, buf_len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
+		STRCHK(name, str_len2 == __strlcat(buf, str2, buf_len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
-		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
+		STRCHK(name, str_len1 == __strlcat(buf, str1, buf_len), failed);
+		STRCHK(name, str_len  == __strlcat(buf, str2, buf_len), failed);
 		*buf = '\0';
-		STRCHK(name, buf == __strlcat(buf, str2, len), failed);
-		STRCHK(name, buf == __strlcat(buf, str1, len), failed);
+		STRCHK(name, str_len2 == __strlcat(buf, str2, buf_len), failed);
+		STRCHK(name, str_len  == __strlcat(buf, str1, buf_len), failed);
 	}
 }
 #else
