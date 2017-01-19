@@ -167,11 +167,9 @@ int stress_numa(
 	const pid_t mypid = getpid();
 	int rc = EXIT_FAILURE;
 
-	(void)instance;
-
 	numa_nodes = stress_numa_get_nodes(&n);
 	if (numa_nodes <= 1) {
-		pr_inf(stderr, "%s: multiple NUMA nodes not found, "
+		pr_inf(stdout, "%s: multiple NUMA nodes not found, "
 			"aborting test\n", name);
 		rc = EXIT_SUCCESS;
 		goto numa_free;
@@ -181,6 +179,10 @@ int stress_numa(
 		pr_fail(stderr, "%s: cannot determine maximum number "
 			"of NUMA nodes\n", name);
 		goto numa_free;
+	}
+	if (!instance) {
+		pr_inf(stdout, "%s: system has %lu of a maximum %lu NUMA nodes\n",
+			name, numa_nodes, max_nodes);
 	}
 
 	/*
