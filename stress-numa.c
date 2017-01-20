@@ -38,6 +38,7 @@
 #define MPOL_PREFERRED		(1)
 #define MPOL_BIND		(2)
 #define MPOL_INTERLEAVE		(3)
+#define MPOL_LOCAL		(4)
 
 #define MPOL_F_NODE		(1 << 0)
 #define MPOL_F_ADDR		(1 << 1)
@@ -47,7 +48,6 @@
 #define MPOL_MF_MOVE		(1 << 1)
 #define MPOL_MF_MOVE_ALL	(1 << 2)
 
-#define SYS_NODE_PATH	"/sys/devices/system/node"
 #define MMAP_SZ			(4 * MB)
 
 typedef struct node {
@@ -103,46 +103,87 @@ static void stress_numa_free_nodes(node_t *nodes)
 }
 
 /*
- *  stress_numa_get_nodes(void)
- *	collect number of nodes, add them to a
+ *  hex_to_int()
+ *	convert ASCII hex digit to integer
+ */
+static inline int hex_to_int(const char ch)
+{
+	if (ch >= '0' && ch <= '9')
+		return ch - '0';
+	if (ch >= 'a' && ch <= 'f')
+		return ch - 'a' + 10;
+	if (ch >= 'A' && ch <= 'F')
+		return ch - 'F' + 10;
+	return -1;
+}
+
+/*
+ *  stress_numa_get_mem_nodes(void)
+ *	collect number of NUMA memory nodes, add them to a
  *	circular linked list
  */
-static int stress_numa_get_nodes(node_t **node_ptr)
+static int stress_numa_get_mem_nodes(node_t **node_ptr)
 {
-	DIR *dir;
-	struct dirent *entry;
-	unsigned long n = 0;
+	FILE *fp;
+	unsigned long n = 0, node_id = 0;
 	node_t *tail = NULL;
 	*node_ptr = NULL;
+	char buffer[8192], *str = NULL, *ptr;
 
-	dir = opendir(SYS_NODE_PATH);
-	if (!dir)
+	fp = fopen("/proc/self/status", "r");
+	if (!fp)
 		return -1;
 
-	while ((entry = readdir(dir)) != NULL) {
-		uint32_t node_id;
-		node_t *node;
-
-		if (strncmp(entry->d_name, "node", 4))
-			continue;
-		if (!isdigit(entry->d_name[4]))
-			continue;
-		if (sscanf(&entry->d_name[4], "%u10", &node_id) != 1)
-			continue;
-
-		node = calloc(1, sizeof(*node));
-		if (!node) {
+	while (fgets(buffer, sizeof(buffer), fp)) {
+		if (!strncmp(buffer, "Mems_allowed:", 13)) {
+			str = buffer + 13;
 			break;
 		}
-		node->node_id = node_id;
-		node->next = *node_ptr;
-		*node_ptr = node;
-		if (!tail)
-			tail = node;
-		tail->next = node;
-		n++;
 	}
-	(void)closedir(dir);
+	(void)fclose(fp);
+
+	if (!str)
+		return -1;
+
+	ptr = buffer + strlen(buffer) - 2;
+
+	/*
+	 *  Parse hex digits into NUMA node ids, these
+	 *  are listed with least significant node last
+	 *  so we need to scan backwards from the end of
+	 *  the string back to the start.
+	 */
+	while (*ptr != ' ' && (ptr > str)) {
+		int val, i;
+
+		/* Skip commas */
+		if (*ptr == ',') {
+			ptr--;
+			continue;
+		}
+
+		val = hex_to_int(*ptr);
+		if (val < 0)
+			return -1;
+
+		/* Each hex digit represent 4 memory nodes */
+		for (i = 0; i < 4; i++) {
+			if (val & (1 << i)) {
+				node_t *node = calloc(1, sizeof(*node));
+				if (!node)
+					return -1;
+				node->node_id = node_id;
+				node->next = *node_ptr;
+				*node_ptr = node;
+				if (!tail)
+					tail = node;
+				tail->next = node;
+				n++;
+			}
+			node_id++;
+		}
+		ptr--;
+	}
 
 	return n;
 }
@@ -167,8 +208,8 @@ int stress_numa(
 	const pid_t mypid = getpid();
 	int rc = EXIT_FAILURE;
 
-	numa_nodes = stress_numa_get_nodes(&n);
-	if (numa_nodes <= 1) {
+	numa_nodes = stress_numa_get_mem_nodes(&n);
+	if (numa_nodes < 1) {
 		pr_inf(stdout, "%s: multiple NUMA nodes not found, "
 			"aborting test\n", name);
 		rc = EXIT_SUCCESS;
@@ -181,7 +222,7 @@ int stress_numa(
 		goto numa_free;
 	}
 	if (!instance) {
-		pr_inf(stdout, "%s: system has %lu of a maximum %lu NUMA nodes\n",
+		pr_inf(stdout, "%s: system has %lu of a maximum %lu memory NUMA nodes\n",
 			name, numa_nodes, max_nodes);
 	}
 
@@ -217,9 +258,7 @@ int stress_numa(
 		if (!opt_do_run)
 			break;
 
-		memset(node_mask, 0, sizeof(node_mask));
-		STRESS_SETBIT(node_mask, n->node_id);
-		ret = shim_set_mempolicy(MPOL_PREFERRED, node_mask, max_nodes);
+		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
 		if (ret < 0) {
 			pr_fail_err(name, "set_mempolicy");
 			goto err;
