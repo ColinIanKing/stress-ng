@@ -210,16 +210,16 @@ int stress_numa(
 
 	numa_nodes = stress_numa_get_mem_nodes(&n);
 	if (numa_nodes < 1) {
-		pr_inf(stdout, "%s: multiple NUMA nodes not found, "
+		pr_inf(stdout, "%s: no NUMA nodes not found, "
 			"aborting test\n", name);
-		rc = EXIT_SUCCESS;
+		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	max_nodes = stress_numa_get_max_nodes();
 	if (max_nodes == 0) {
-		pr_fail(stderr, "%s: cannot determine maximum number "
+		pr_inf(stderr, "%s: cannot determine maximum number "
 			"of NUMA nodes, aborting test\n", name);
-		rc = EXIT_SUCCESS;
+		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	if (!instance) {
