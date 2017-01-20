@@ -218,7 +218,8 @@ int stress_numa(
 	max_nodes = stress_numa_get_max_nodes();
 	if (max_nodes == 0) {
 		pr_fail(stderr, "%s: cannot determine maximum number "
-			"of NUMA nodes\n", name);
+			"of NUMA nodes, aborting test\n", name);
+		rc = EXIT_SUCCESS;
 		goto numa_free;
 	}
 	if (!instance) {
