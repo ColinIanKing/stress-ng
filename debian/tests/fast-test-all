@@ -24,7 +24,7 @@ fi
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
 #
-EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapmany userfaultfd getrandom aio aiol tsc membarrier bind-mount sockpair remap pty exec seccomp oom-pipe resources spawn dccp"
+EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapmany userfaultfd getrandom aio aiol tsc membarrier bind-mount sockpair remap pty exec seccomp oom-pipe resources spawn dccp vforkmany"
 #
 # Get built-in stressor names
 #
@@ -52,7 +52,7 @@ do
 	then
 		echo "$s at $(date)"
 		sync
-		${STRESS_NG} -v -t 1 --${s} 4 2>&1
+		${STRESS_NG} -v -t 1 --${s} 4 --verify 2>&1
 		ret=$?
 
 		case $ret in
