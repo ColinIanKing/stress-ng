@@ -1,3 +1,25 @@
+stress-ng (0.07.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * fast-test-all: remove vforkmany, this can be aborted by the OS
+  * stress-numa: abort when no NUMA nodes found with EXIT_NO_RESOURCE
+  * stress-numa: make determining number of nodes non-fatal
+  * stress-numa: correctly deduce number of available NUMA memory
+    nodes (LP: #1656419)
+  * stress-*: make all pr_inf info messages write to stdout and not stderr
+  * stress-numa: add some info about number of NUMA nodes found
+  * stress-numa: add in better error failure abort and error return
+  * stress-numa: probe for maximum number of NUMA nodes
+  * stress-wcstr: fix build error for stress_wcscpy
+  * stress-wcs: fix wcslcpy and wcslcat test cases
+  * stress-wcs: improve failure detection, bail out early if tests fail
+  * stress-str: fix strlcpy and strlcat test cases
+  * stress-str: improve failure detection, bail out early if tests fail
+  * stress-seccomp: add openat to system calls to fix failure on aarch64
+  * stress-seccomp: use pr_fail for seccomp errors
+
+ -- Colin King <colin.king@canonical.com>  Fri, 20 Jan 2017 19:44:11 +0000
+
 stress-ng (0.07.15-1) unstable; urgency=medium
 
   * Makefile: bump version
