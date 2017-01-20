@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.07.15
+VERSION=0.07.16
 #
 # Codename "systematic stress inducer"
 #
