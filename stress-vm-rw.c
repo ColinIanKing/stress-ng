@@ -307,24 +307,27 @@ int stress_vm_rw(
 
 	if (pipe(ctxt.pipe_wr) < 0) {
 		pr_fail_dbg(name, "pipe");
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 	if (pipe(ctxt.pipe_rd) < 0) {
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
 		pr_fail_dbg(name, "pipe");
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
+again:
 	ctxt.pid = clone(stress_vm_child, align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
+		if (opt_do_run && (errno == EAGAIN))
+			goto again;
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
 		(void)close(ctxt.pipe_rd[0]);
 		(void)close(ctxt.pipe_rd[1]);
 		pr_fail_dbg(name, "clone");
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 	return stress_vm_parent(&ctxt);
 }
