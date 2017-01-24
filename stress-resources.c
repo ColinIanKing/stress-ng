@@ -207,12 +207,11 @@ static void waste_resources(
 #endif
 #if defined(__linux__)
 		{
-			char *slavename;
 
 			info[i].pty_master = open("/dev/ptmx", O_RDWR);
 			info[i].pty_slave = -1;
 			if (info[i].pty_master >= 0) {
-				slavename = ptsname(info[i].pty_master);
+				const char *slavename = ptsname(info[i].pty_master);
 				info[i].pty_slave = open(slavename, O_RDWR);
 			}
 		}
