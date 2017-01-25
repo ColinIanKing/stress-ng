@@ -257,6 +257,7 @@ static int stress_af_alg_cipher(
 			cmsg = CMSG_FIRSTHDR(&msg);
 			/* Keep static analysis happy */
 			if (!cmsg) {
+				(void)close(fd);
 				pr_fail_err(name, "null cmsg");
 				return EXIT_FAILURE;
 			}
