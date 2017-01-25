@@ -229,6 +229,7 @@ CORE_SRC = \
 	madvise.c \
 	mincore.c \
 	mlock.c \
+	mmap.c \
 	mounts.c \
 	mwc.c \
 	net.c \

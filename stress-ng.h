@@ -2063,6 +2063,8 @@ extern int stress_sigrestore(const char *name, const int signum, struct sigactio
 extern WARN_UNUSED int stress_not_implemented(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *align_address(const void *addr, const size_t alignment);
+extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
+extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 
 /*
  *  Indicate a stress test failed because of limited resources
