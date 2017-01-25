@@ -49,53 +49,6 @@ static int mmap_flags[] = {
 };
 
 /*
- *  stress_tmpfs_check()
- *	check if mmap'd data is sane
- */
-static int stress_tmpfs_check(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			if (*ptr++ != val++)
-				return -1;
-		val++;
-	}
-	return 0;
-}
-
-/*
- *  stress_tmpfs_set()
- *	set a chunk of memory, will enforce
- *	pages are in memory
- */
-static void stress_tmpfs_set(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			*ptr++ = val++;
-		val++;
-	}
-}
-
-/*
  *  stress_tmpfs_open()
  *	attempts to find a writeable tmpfs file system and opens
  *	a tmpfs temp file. The file is unlinked so the final close
@@ -227,9 +180,9 @@ static void stress_tmpfs_child(
 			mappings[n] = buf + (n * page_size);
 
 		/* Ensure we can write to the mapped pages */
-		stress_tmpfs_set(buf, sz, page_size);
+		mmap_set(buf, sz, page_size);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_tmpfs_check(buf, sz, page_size) < 0)
+			if (mmap_check(buf, sz, page_size) < 0)
 				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", name, sz);
 		}
@@ -280,8 +233,8 @@ static void stress_tmpfs_child(
 						(void)madvise_random(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						stress_tmpfs_set(mappings[page], page_size, page_size);
-						if (stress_tmpfs_check(mappings[page], page_size, page_size) < 0)
+						mmap_set(mappings[page], page_size, page_size);
+						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {

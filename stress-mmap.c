@@ -65,48 +65,6 @@ void stress_set_mmap_bytes(const char *optarg)
 }
 
 /*
- *  stress_mmap_check()
- *	check if mmap'd data is sane
- */
-static int stress_mmap_check(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			if (*ptr++ != val++)
-				return -1;
-		val++;
-	}
-	return 0;
-}
-
-static void stress_mmap_set(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			*ptr++ = val++;
-		val++;
-	}
-}
-
-/*
  *  stress_mmap_mprotect()
  *	cycle through page settings on a region of mmap'd memory
  */
@@ -187,9 +145,9 @@ static void stress_mmap_child(
 			mappings[n] = buf + (n * page_size);
 
 		/* Ensure we can write to the mapped pages */
-		stress_mmap_set(buf, sz, page_size);
+		mmap_set(buf, sz, page_size);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
-			if (stress_mmap_check(buf, sz, page_size) < 0)
+			if (mmap_check(buf, sz, page_size) < 0)
 				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", name, sz);
 		}
@@ -242,8 +200,8 @@ static void stress_mmap_child(
 						stress_mmap_mprotect(name, mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						stress_mmap_set(mappings[page], page_size, page_size);
-						if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
+						mmap_set(mappings[page], page_size, page_size);
+						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {

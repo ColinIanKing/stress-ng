@@ -137,48 +137,6 @@ static int try_remap(
 	return -1;
 }
 
-/*
- *  stress_mremap_check()
- *	check if mmap'd data is sane
- */
-static int stress_mremap_check(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			if (*ptr++ != val++)
-				return -1;
-		val++;
-	}
-	return 0;
-}
-
-static void stress_mremap_set(
-	uint8_t *buf,
-	const size_t sz,
-	const size_t page_size)
-{
-	size_t i, j;
-	uint8_t val = 0;
-	uint8_t *ptr = buf;
-
-	for (i = 0; i < sz; i += page_size) {
-		if (!opt_do_run)
-			break;
-		for (j = 0; j < page_size; j++)
-			*ptr++ = val++;
-		val++;
-	}
-}
-
 static int stress_mremap_child(
 	uint64_t *const counter,
 	const uint64_t max_ops,
@@ -208,8 +166,8 @@ static int stress_mremap_child(
 
 		/* Ensure we can write to the mapped pages */
 		if (opt_flags & OPT_FLAGS_VERIFY) {
-			stress_mremap_set(buf, new_sz, page_size);
-			if (stress_mremap_check(buf, sz, page_size) < 0) {
+			mmap_set(buf, new_sz, page_size);
+			if (mmap_check(buf, sz, page_size) < 0) {
 				pr_fail(stderr, "%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					name, sz);
@@ -227,7 +185,7 @@ static int stress_mremap_child(
 			}
 			(void)madvise_random(buf, new_sz);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
-				if (stress_mremap_check(buf, new_sz, page_size) < 0) {
+				if (mmap_check(buf, new_sz, page_size) < 0) {
 					pr_fail(stderr, "%s: mremap'd region "
 						"of %zu bytes does "
 						"not contain expected data\n",
