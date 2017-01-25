@@ -324,7 +324,6 @@ int stress_tmpfs(
 	const size_t page_size = stress_get_pagesize();
 	off_t sz;
 	size_t pages4k;
-	const pid_t mypid = getpid();
 	pid_t pid;
 	int fd, flags = MAP_SHARED;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
