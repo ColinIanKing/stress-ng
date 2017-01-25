@@ -255,6 +255,11 @@ static int stress_af_alg_cipher(
 
 			/* Chosen operation - ENCRYPT */
 			cmsg = CMSG_FIRSTHDR(&msg);
+			/* Keep static analysis happy */
+			if (!cmsg) {
+				pr_fail_err(name, "null cmsg");
+				return EXIT_FAILURE;
+			}
 			cmsg->cmsg_level = SOL_ALG;
 			cmsg->cmsg_type = ALG_SET_OP;
 			cmsg->cmsg_len = CMSG_LEN(4);
