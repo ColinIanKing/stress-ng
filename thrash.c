@@ -58,6 +58,15 @@ static int pagein_proc(const pid_t pid)
 		uint8_t byte;
 		if (sscanf(buffer, "%jx-%jx", &begin, &end) != 2)
 			continue;
+		/* Ignore bad range */
+		if (begin >= end)
+			continue;
+		/* Skip huge ranges more than 2GB */
+		if (end - begin > 0x80000000UL)
+			continue;
+		/* Skip bad start */
+		if (end == 0)
+			continue;
 
 		for (off = (off_t)begin; off < (off_t)end; off += page_size, pages++) {
 			if (lseek(fdmem, off, SEEK_SET) == (off_t)-1)
