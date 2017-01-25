@@ -1070,6 +1070,7 @@ typedef enum {
 	STRESS_TIMER,
 	STRESS_TIMERFD,
 	STRESS_TLB_SHOOTDOWN,
+	STRESS_TMPFS,
 	STRESS_TSC,
 	STRESS_TSEARCH,
 	STRESS_UDP,
@@ -1690,6 +1691,9 @@ typedef enum {
 
 	OPT_TLB_SHOOTDOWN,
 	OPT_TLB_SHOOTDOWN_OPS,
+
+	OPT_TMPFS,
+	OPT_TMPFS_OPS,
 
 	OPT_TSC,
 	OPT_TSC_OPS,
@@ -2478,6 +2482,7 @@ STRESS(stress_tee);
 STRESS(stress_timer);
 STRESS(stress_timerfd);
 STRESS(stress_tlb_shootdown);
+STRESS(stress_tmpfs);
 STRESS(stress_tsc);
 STRESS(stress_tsearch);
 STRESS(stress_udp);

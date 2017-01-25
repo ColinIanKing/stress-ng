@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "January 10, 2017"
+.TH STRESS-NG 1 "January 25, 2017"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2394,6 +2394,13 @@ be force flushed on the other processors, causing the TLB shootdowns.
 .TP
 .B \-\-tlb\-shootdown\-ops N
 stop after N bogo TLB shootdown operations are completed.
+.TP
+.B \-\-tmpfs N
+start N workers that create a temporary file on an available tmpfs
+file system and perform various file based mmap operations upon it.
+.TP
+.B \-\-tmpfs\-ops N
+stop tmpfs stressors after N bogo mmap operations.
 .TP
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop
