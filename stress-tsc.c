@@ -146,6 +146,6 @@ int stress_tsc_supported(void)
  */
 int stress_tsc(args_t *args)
 {
-	return stress_not_implemented(args)
+	return stress_not_implemented(args);
 }
 #endif
