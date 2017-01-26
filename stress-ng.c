@@ -1894,9 +1894,11 @@ again:
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
 						args_t args = {
 							&stats[n].counter,
-							j,
+							name,
 							procs[i].bogo_ops,
-							name
+							j,
+							getpid(),
+							getppid()
 						};
 
 						rc = stressors[i].stress_func(&args);

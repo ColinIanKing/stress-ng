@@ -731,10 +731,12 @@ extern void pr_openlog(const char *filename);
 
 /* stressor args */
 typedef struct {
-	uint64_t *const counter;
-	const uint32_t instance;
-	const uint64_t max_ops;
-	const char *name;
+	uint64_t *const counter;	/* stressor counter */
+	const char *name;		/* stressor name */
+	const uint64_t max_ops;		/* max number of bogo ops */
+	const uint32_t instance;	/* stressor instance # */
+	pid_t pid;			/* stressor pid */
+	pid_t ppid;			/* stressor ppid */
 } args_t;
 
 static inline void inc_counter(args_t *args)

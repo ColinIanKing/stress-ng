@@ -232,9 +232,11 @@ int stress_fiemap(args_t *args)
 
 		args_t new_args = {
 			&counters[i],
-			args->instance,
+			args->name,
 			proc_max_ops,
-			args->name
+			args->instance,
+			args->pid,
+			args->ppid
 		};
 
 		pids[i] = stress_fiemap_spawn(&new_args, fd);
