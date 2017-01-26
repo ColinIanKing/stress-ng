@@ -77,11 +77,7 @@ static void MLOCKED handle_udp_sigalrm(int dummy)
  *  stress_udp
  *	stress by heavy udp ops
  */
-int stress_udp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_udp(args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
@@ -96,23 +92,23 @@ int stress_udp(
 	if ((proto == IPPROTO_UDPLITE) &&
 	    (opt_udp_domain == AF_UNIX)) {
 		proto = 0;
-		if (instance == 0) {
+		if (args->instance == 0) {
 			pr_inf(stdout, "%s: disabling UDP-Lite as it is not "
 				"available for UNIX domain UDP\n",
-				name);
+				args->name);
 		}
 	}
 #endif
 
 	pr_dbg(stderr, "%s: process [%d] using udp port %d\n",
-		name, (int)getpid(), opt_udp_port + instance);
+		args->name, (int)getpid(), opt_udp_port + args->instance);
 
 again:
 	pid = fork();
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -131,19 +127,19 @@ again:
 #endif
 
 			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
-				pr_fail_dbg(name, "socket");
+				pr_fail_dbg(args->name, "socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
-			stress_set_sockaddr(name, instance, ppid,
+			stress_set_sockaddr(args->name, args->instance, ppid,
 				opt_udp_domain, opt_udp_port,
 				&addr, &len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 			if (proto == IPPROTO_UDPLITE) {
 				val = 8;	/* Just the 8 byte header */
 				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
-					pr_fail_dbg(name, "setsockopt");
+					pr_fail_dbg(args->name, "setsockopt");
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
 					exit(EXIT_FAILURE);
@@ -158,13 +154,13 @@ again:
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_fail_dbg(name, "sendto");
+							pr_fail_dbg(args->name, "sendto");
 						break;
 					}
 				}
-			} while (opt_do_run && (!max_ops || *counter < max_ops));
+			} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 			(void)close(fd);
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 #if defined(AF_UNIX)
 		if ((opt_udp_domain == AF_UNIX) && addr) {
@@ -191,36 +187,36 @@ again:
 
 		(void)setpgid(pid, pgrp);
 
-		if (stress_sighandler(name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
+		if (stress_sighandler(args->name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
-			pr_fail_dbg(name, "socket");
+			pr_fail_dbg(args->name, "socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		stress_set_sockaddr(name, instance, ppid,
+		stress_set_sockaddr(args->name, args->instance, ppid,
 			opt_udp_domain, opt_udp_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
 			val = 8;	/* Just the 8 byte header */
 			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
-				pr_fail_dbg(name, "setsockopt");
+				pr_fail_dbg(args->name, "setsockopt");
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
 		}
 #endif
 		if (bind(fd, addr, addr_len) < 0) {
-			pr_fail_dbg(name, "bind");
+			pr_fail_dbg(args->name, "bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 #if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_fail_dbg(name, "setsockopt");
+			pr_fail_dbg(args->name, "setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -233,11 +229,11 @@ again:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, "recvfrom");
+					pr_fail_dbg(args->name, "recvfrom");
 				break;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 die_close:
 		(void)close(fd);

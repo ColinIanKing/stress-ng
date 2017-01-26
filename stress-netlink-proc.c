@@ -53,7 +53,7 @@ int stress_netlink_proc_supported(void)
  *   monitor()
  *	monitor system activity
  */
-static int monitor(const int sock, uint64_t *const counter)
+static int monitor(args_t *args, const int sock)
 {
 	struct nlmsghdr *nlmsghdr;
 
@@ -106,7 +106,7 @@ static int monitor(const int sock, uint64_t *const counter)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0)
 		case PROC_EVENT_COMM:
 #endif
-			(*counter)++;
+			inc_counter(args);
 			break;
 		default:
 			break;
@@ -155,11 +155,7 @@ static void spawn_several(const char *name, int n, int max)
  *  stress_netlink_proc()
  *	stress netlink proc events
  */
-int stress_netlink_proc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_netlink_proc(args_t *args)
 {
 	int sock = -1;
 	struct sockaddr_nl addr;
@@ -168,16 +164,14 @@ int stress_netlink_proc(
 	struct cn_msg cn_msg;
 	enum proc_cn_mcast_op op;
 
-	(void)instance;
-
 	if ((sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
 			pr_err(stderr, "%s: kernel does not support netlink, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 		pr_fail(stderr, "%s: socket failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -188,7 +182,7 @@ int stress_netlink_proc(
 
 	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		pr_err(stderr, "%s: bind failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
@@ -213,16 +207,16 @@ int stress_netlink_proc(
 
 	if (writev(sock, iov, 3) < 0) {
 		pr_err(stderr, "%s: writev failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
 
 	do {
-		spawn_several(name, 0, 5);
-		if (monitor(sock, counter) < 0)
+		spawn_several(args->name, 0, 5);
+		if (monitor(args, sock) < 0)
 			break;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(sock);
 
@@ -243,12 +237,8 @@ int stress_netlink_proc_supported(void)
 	return 0;
 }
 
-int stress_netlink_proc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_netlink_proc(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -373,11 +373,7 @@ ofd_lock_abort:	{ /* Nowt */ }
  *  stress_fcntl
  *	stress various fcntl calls
  */
-int stress_fcntl(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fcntl(args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
@@ -386,15 +382,15 @@ int stress_fcntl(
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
-	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return exit_status(errno);
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, ppid, 0, 0);
+		args->name, ppid, 0, 0);
 
 	do {
 		errno = 0;
@@ -409,7 +405,7 @@ int stress_fcntl(
 				(void)shim_usleep(100000);
 				continue;
 			}
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			goto tidy;
 		}
 		break;
@@ -418,14 +414,14 @@ int stress_fcntl(
 	if (retries >= 100) {
 		pr_err(stderr, "%s: chmod: file %s took %d "
 			"retries to create (instance %" PRIu32 ")\n",
-			name, filename, retries, instance);
+			args->name, filename, retries, args->instance);
 		goto tidy;
 	}
 
 	do {
-		do_fcntl(fd, name);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		do_fcntl(fd, args->name);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 tidy:

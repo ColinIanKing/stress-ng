@@ -31,14 +31,8 @@
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
-int stress_getrandom(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_getrandom(args_t *args)
 {
-	(void)instance;
-
 	do {
 #if defined(__OpenBSD__)
 		char buffer[256];
@@ -51,21 +45,17 @@ int stress_getrandom(
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
-			pr_fail_err(name, "getrandom");
+			pr_fail_err(args->name, "getrandom");
 			return EXIT_FAILURE;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_getrandom(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_getrandom(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

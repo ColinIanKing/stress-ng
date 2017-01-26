@@ -67,11 +67,7 @@ static bool do_not_stat(const char *filename)
  *  stress_fstat()
  *	stress system with fstat
  */
-int stress_fstat(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fstat(args_t *args)
 {
 	typedef struct dir_info {
 		char	*path;
@@ -88,9 +84,7 @@ int stress_fstat(
 	bool stat_some;
 	const uid_t euid = geteuid();
 
-	(void)instance;
-
-	if (stress_sighandler(name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
 	if (sigsetjmp(jmpbuf, 0) != 0) {
 		ret = EXIT_SUCCESS;
@@ -99,7 +93,7 @@ int stress_fstat(
 
 	if ((dp = opendir(opt_fstat_dir)) == NULL) {
 		pr_err(stderr, "%s: opendir on %s failed: errno=%d: (%s)\n",
-			name, opt_fstat_dir, errno, strerror(errno));
+			args->name, opt_fstat_dir, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -117,12 +111,12 @@ int stress_fstat(
 		if (do_not_stat(path))
 			continue;
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
-			pr_err(stderr, "%s: out of memory\n", name);
+			pr_err(stderr, "%s: out of memory\n", args->name);
 			(void)closedir(dp);
 			goto free_cache;
 		}
 		if ((di->path = strdup(path)) == NULL) {
-			pr_err(stderr, "%s: out of memory\n", name);
+			pr_err(stderr, "%s: out of memory\n", args->name);
 			free(di);
 			(void)closedir(dp);
 			goto free_cache;
@@ -141,7 +135,7 @@ int stress_fstat(
 			int fd;
 			struct stat buf;
 
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				goto aborted;
 
 			if (di->ignore)
@@ -182,9 +176,9 @@ int stress_fstat(
 				(void)close(fd);
 			}
 			stat_some = true;
-			(*counter)++;
+			inc_counter(args);
 		}
-	} while (stat_some && opt_do_run && (!max_ops || *counter < max_ops));
+	} while (stat_some && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 aborted:
 	ret = EXIT_SUCCESS;

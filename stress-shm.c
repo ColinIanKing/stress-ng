@@ -88,10 +88,8 @@ static int stress_shm_posix_check(
  *	be reaped cleanly if this process gets prematurely killed.
  */
 static int stress_shm_posix_child(
+	args_t *args,
 	const int fd,
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
 	size_t sz)
 {
 	void *addrs[MAX_SHM_POSIX_OBJECTS];
@@ -108,7 +106,7 @@ static int stress_shm_posix_child(
 	memset(shm_names, 0, sizeof(shm_names));
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
 	do {
 		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
@@ -129,7 +127,7 @@ static int stress_shm_posix_child(
 				S_IRUSR | S_IWUSR);
 			if (shm_fd < 0) {
 				ok = false;
-				pr_fail_err(name, "shm_open");
+				pr_fail_err(args->name, "shm_open");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -140,7 +138,7 @@ static int stress_shm_posix_child(
 			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -150,7 +148,7 @@ static int stress_shm_posix_child(
 				MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
-				pr_fail_err(name, "mmap");
+				pr_fail_err(args->name, "mmap");
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -180,12 +178,12 @@ static int stress_shm_posix_child(
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
-				pr_fail(stderr, "%s: memory check failed\n", name);
+				pr_fail(stderr, "%s: memory check failed\n", args->name);
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
 			id++;
-			(*counter)++;
+			inc_counter(args);
 		}
 reap:
 		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
@@ -195,7 +193,7 @@ reap:
 				(void)munmap(addrs[i], sz);
 			if (*shm_name) {
 				if (shm_unlink(shm_name) < 0) {
-					pr_fail_err(name, "shm_unlink");
+					pr_fail_err(args->name, "shm_unlink");
 				}
 			}
 
@@ -205,20 +203,20 @@ reap:
 			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_dbg(stderr, "%s: write failed: errno=%d: (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				ok = false;
 			}
 			addrs[i] = NULL;
 			*shm_name = '\0';
 		}
-	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
+	} while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/* Inform parent of end of run */
 	msg.index = -1;
 	strncpy(msg.shm_name, "", SHM_NAME_LEN);
 	if (write(fd, &msg, sizeof(msg)) < 0) {
 		pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
 
@@ -229,11 +227,7 @@ reap:
  *  stress_shm()
  *	stress SYSTEM V shared memory
  */
-int stress_shm(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_shm(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t orig_sz, sz;
@@ -260,7 +254,7 @@ int stress_shm(
 
 	while (opt_do_run && retry) {
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg(name, "pipe");
+			pr_fail_dbg(args->name, "pipe");
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -270,7 +264,7 @@ fork_again:
 			if (errno == EAGAIN)
 				goto fork_again;
 			pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);
 
@@ -302,10 +296,10 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg(name, "read");
+						pr_fail_dbg(args->name, "read");
 						break;
 					}
-					pr_fail_dbg(name, "zero byte read");
+					pr_fail_dbg(args->name, "zero byte read");
 					break;
 				}
 				if ((msg.index < 0) ||
@@ -326,7 +320,7 @@ fork_again:
 					log_system_mem_info();
 					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
-						name, instance);
+						args->name, args->instance);
 					restarts++;
 				}
 			}
@@ -350,28 +344,23 @@ fork_again:
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);
-			rc = stress_shm_posix_child(pipefds[1], counter,
-				max_ops, name, sz);
+			rc = stress_shm_posix_child(args, pipefds[1], sz);
 			(void)close(pipefds[1]);
 			_exit(rc);
 		}
 	}
 	if (orig_sz != sz)
 		pr_dbg(stderr, "%s: reduced shared memory size from "
-			"%zu to %zu bytes\n", name, orig_sz, sz);
+			"%zu to %zu bytes\n", args->name, orig_sz, sz);
 	if (restarts) {
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
-			name, restarts);
+			args->name, restarts);
 	}
 	return rc;
 }
 #else
-int stress_shm(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_shm(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

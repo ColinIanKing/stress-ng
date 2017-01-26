@@ -42,38 +42,32 @@
  *  stress_klog
  *	stress kernel logging interface
  */
-int stress_klog(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_klog(args_t *args)
 {
 	char *buffer;
 	ssize_t len;
 
-	(void)instance;
-
 	len  = shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
-		if (!instance)
+		if (!args->instance)
 			pr_err(stderr, "%s: cannot determine syslog buffer "
 				"size: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	if (len == 0) {
-		if (!instance)
-			pr_err(stderr, "%s: zero sized syslog buffer, aborting.\n", name);
+		if (!args->instance)
+			pr_err(stderr, "%s: zero sized syslog buffer, aborting.\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (len > (ssize_t)(4 * MB)) {
-		if (!instance)
-			pr_inf(stdout, "%s: truncating syslog buffer to 4MB\n", name);
+		if (!args->instance)
+			pr_inf(stdout, "%s: truncating syslog buffer to 4MB\n", args->name);
 		len  = 4 * MB;
 	}
 	buffer = malloc((size_t)len);
 	if (!buffer) {
-		pr_err(stderr, "%s: cannot allocate syslog buffer\n", name);
+		pr_err(stderr, "%s: cannot allocate syslog buffer\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -82,10 +76,10 @@ int stress_klog(
 
 		ret = shim_syslog(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
-			pr_fail_err(name, "syslog ACTION_READ_ALL");
+			pr_fail_err(args->name, "syslog ACTION_READ_ALL");
 		if (ret > buflen)
 			pr_fail(stderr, "%s: syslog ACTION_READ_ALL returned more "
-				"data than was requested.\n", name);
+				"data than was requested.\n", args->name);
 
 		/* open, no-op, ignore failure */
 		(void)shim_syslog(SYSLOG_ACTION_OPEN, NULL, 0);
@@ -99,19 +93,15 @@ int stress_klog(
 		/* get size of kernel buffer, ignore return */
 		(void)shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	free(buffer);
 	return EXIT_SUCCESS;
 }
 #else
-int stress_klog(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_klog(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

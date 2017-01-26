@@ -77,7 +77,7 @@ int stress_filename_opts(const char *opt)
  *	determine allowed filename chars by probing
  */
 static int stress_filename_probe(
-	const char *name,
+	args_t *args,
 	char *filename,
 	char *ptr,
 	size_t *chars_allowed)
@@ -102,9 +102,9 @@ static int stress_filename_probe(
 				pr_err(stderr, "%s: creat() failed when probing "
 					"for allowed filename characters, "
 					"errno = %d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				pr_inf(stdout, "%s: perhaps retry and use "
-					"--filename-opts posix\n", name);
+					"--filename-opts posix\n", args->name);
 				*chars_allowed = 0;
 				return -errno;
 			}
@@ -185,7 +185,7 @@ static void stress_filename_generate_random(
  *	should_pass = false - expect it to fail (name too long)
  */
 static void stress_filename_test(
-	const char *name,
+	args_t *args,
 	const char *filename,
 	const size_t sz_max,
 	const bool should_pass)
@@ -198,7 +198,7 @@ static void stress_filename_test(
 
 		pr_fail(stderr, "%s: open failed on file of length "
 			"%zu bytes, errno=%d (%s)\n",
-			name, sz_max, errno, strerror(errno));
+			args->name, sz_max, errno, strerror(errno));
 	} else {
 		(void)close(fd);
 		(void)unlink(filename);
@@ -209,11 +209,7 @@ static void stress_filename_test(
  *  stress_filename()
  *	stress filename sizes etc
  */
-int stress_filename (
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_filename (args_t *args)
 {
 	const pid_t pid = getpid();
 	int ret, rc = EXIT_FAILURE;
@@ -224,21 +220,21 @@ int stress_filename (
 	struct statvfs buf;
 	size_t i, chars_allowed = 0, sz;
 
-	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (statvfs(dirname, &buf) < 0) {
-		pr_fail_err(name, "statvfs");
+		pr_fail_err(args->name, "statvfs");
 		goto tidy_dir;
 	}
-	if (instance == 0)
+	if (args->instance == 0)
 		pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",
-			name, (long unsigned) buf.f_namemax);
+			args->name, (long unsigned) buf.f_namemax);
 
 	strncpy(filename, dirname, sizeof(filename) - 1);
 	ptr = filename + strlen(dirname);
@@ -248,7 +244,7 @@ int stress_filename (
 	sz_max = (size_t)buf.f_namemax;
 
 	if (sz_left >= PATH_MAX) {
-		pr_fail(stderr, "%s: max file name larger than PATH_MAX\n", name);
+		pr_fail(stderr, "%s: max file name larger than PATH_MAX\n", args->name);
 		goto tidy_dir;
 	}
 
@@ -262,7 +258,7 @@ int stress_filename (
 		break;
 	case STRESS_FILENAME_PROBE:
 	default:
-		ret = stress_filename_probe(name, filename, ptr, &chars_allowed);
+		ret = stress_filename_probe(args, filename, ptr, &chars_allowed);
 		if (ret < 0) {
 			rc = exit_status(-ret);
 			goto tidy_dir;
@@ -270,14 +266,14 @@ int stress_filename (
 		break;
 	}
 
-	if (instance == 0)
+	if (args->instance == 0)
 		pr_dbg(stdout, "%s: filesystem allows %zu unique "
 			"characters in a filename\n",
-			name, chars_allowed);
+			args->name, chars_allowed);
 
 	if (chars_allowed == 0) {
 		pr_fail(stderr, "%s: cannot determine allowed characters "
-			"in a filename\n", name);
+			"in a filename\n", args->name);
 		goto tidy_dir;
 	}
 
@@ -293,46 +289,46 @@ int stress_filename (
 
 		/* Should succeed */
 		stress_filename_generate(ptr, 1, ch);
-		stress_filename_test(name, filename, 1, true);
+		stress_filename_test(args, filename, 1, true);
 		stress_filename_generate_random(ptr, 1, chars_allowed);
-		stress_filename_test(name, filename, 1, true);
+		stress_filename_test(args, filename, 1, true);
 
 		/* Should succeed */
 		stress_filename_generate(ptr, sz_max, ch);
-		stress_filename_test(name, filename, sz_max, true);
+		stress_filename_test(args, filename, sz_max, true);
 		stress_filename_generate_random(ptr, sz_max, chars_allowed);
-		stress_filename_test(name, filename, sz_max, true);
+		stress_filename_test(args, filename, sz_max, true);
 
 		/* Should succeed */
 		stress_filename_generate(ptr, sz_max - 1, ch);
-		stress_filename_test(name, filename, sz_max - 1, true);
+		stress_filename_test(args, filename, sz_max - 1, true);
 		stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
-		stress_filename_test(name, filename, sz_max - 1, true);
+		stress_filename_test(args, filename, sz_max - 1, true);
 
 		/* Should fail */
 		stress_filename_generate(ptr, sz_max + 1, ch);
-		stress_filename_test(name, filename, sz_max + 1, false);
+		stress_filename_test(args, filename, sz_max + 1, false);
 		stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
-		stress_filename_test(name, filename, sz_max + 1, false);
+		stress_filename_test(args, filename, sz_max + 1, false);
 
 		/* Should succeed */
 		stress_filename_generate(ptr, sz, ch);
-		stress_filename_test(name, filename, sz, true);
+		stress_filename_test(args, filename, sz, true);
 		stress_filename_generate_random(ptr, sz, chars_allowed);
-		stress_filename_test(name, filename, sz, true);
+		stress_filename_test(args, filename, sz, true);
 
 		/* Should succeed */
 		stress_filename_generate(ptr, rnd_sz, ch);
-		stress_filename_test(name, filename, rnd_sz, true);
+		stress_filename_test(args, filename, rnd_sz, true);
 		stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
-		stress_filename_test(name, filename, rnd_sz, true);
+		stress_filename_test(args, filename, rnd_sz, true);
 
 		sz++;
 		if (sz > sz_max)
 			sz = 1;
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 

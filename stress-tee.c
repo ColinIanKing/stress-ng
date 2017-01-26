@@ -33,7 +33,7 @@
  *	spawn off tee I/O processes
  */
 static pid_t stress_tee_spawn(
-	const char *name,
+	args_t *args,
 	void (*func)(int fds[2]),
 	int fds[2])
 {
@@ -41,7 +41,7 @@ static pid_t stress_tee_spawn(
 
 	if (pipe(fds) < 0) {
 		pr_err(stderr, "%s: pipe failed: %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 
@@ -54,7 +54,7 @@ again:
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		pr_err(stderr, "%s: fork failed: %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	if (pid == 0) {
@@ -116,34 +116,28 @@ static void stress_tee_pipe_read(int fds[2])
  *  stress_tee()
  *	stress the Linux tee syscall
  */
-int stress_tee(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tee(args_t *args)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];
 	pid_t pids[2];
 	int ret = EXIT_FAILURE, status;
 
-	(void)instance;
-
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
 		pr_err(stderr, "%s: open /dev/null failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
-	pids[0] = stress_tee_spawn(name, stress_tee_pipe_write, pipe_in);
+	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
 	if (pids[0] < 0) {
 		close(fd);
 		return EXIT_FAILURE;
 	}
 	(void)close(pipe_in[1]);
 
-	pids[1] = stress_tee_spawn(name, stress_tee_pipe_read, pipe_out);
+	pids[1] = stress_tee_spawn(args, stress_tee_pipe_read, pipe_out);
 	if (pids[0] < 0)
 		goto tidy_child1;
 	(void)close(pipe_out[0]);
@@ -158,7 +152,7 @@ int stress_tee(
 			if (errno == EINTR)
 				break;
 			pr_err(stderr, "%s: tee failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			goto tidy_child2;
 		} else {
 			if (len == 0)
@@ -172,13 +166,13 @@ int stress_tee(
 				break;
 			if (slen < 0) {
 				pr_err(stderr, "%s: splice failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				goto tidy_child2;
 			}
 			len -= slen;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	ret = EXIT_SUCCESS;
 
@@ -197,12 +191,8 @@ tidy_child1:
 	return ret;
 }
 #else
-int stress_tee(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tee(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

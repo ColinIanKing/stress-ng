@@ -89,28 +89,28 @@ static inline int shim_sync_file_range(
  *  shrink and re-allocate the file to be sync'd
  *
  */
-static int stress_sync_allocate(const char *name, const int fd)
+static int stress_sync_allocate(args_t *args, const int fd)
 {
 	int ret;
 
 	ret = ftruncate(fd, 0);
 	if (ret < 0) {
 		pr_err(stderr, "%s: ftruncate failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -errno;
 	}
 
 	ret = fdatasync(fd);
 	if (ret < 0) {
 		pr_err(stderr, "%s: fdatasync failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -errno;
 	}
 
 	ret = shim_fallocate(fd, 0, (off_t)0, opt_sync_file_bytes);
 	if (ret < 0) {
 		pr_err(stderr, "%s: fallocate failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -errno;
 	}
 	return 0;
@@ -120,11 +120,7 @@ static int stress_sync_allocate(const char *name, const int fd)
  *  stress_sync_file
  *	stress the sync_file_range system call
  */
-int stress_sync_file(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sync_file(args_t *args)
 {
 	const pid_t pid = getpid();
 	int fd, ret;
@@ -137,17 +133,17 @@ int stress_sync_file(
 			opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_fail_err(args->name, "open");
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 	(void)unlink(filename);
@@ -157,54 +153,50 @@ int stress_sync_file(
 		const size_t mode_index = mwc32() % SIZEOF_ARRAY(sync_modes);
 		const int mode = sync_modes[mode_index];
 
-		if (stress_sync_allocate(name, fd) < 0)
+		if (stress_sync_allocate(args, fd) < 0)
 			break;
 		for (offset = 0; offset < (off64_t)opt_sync_file_bytes; ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0)
-				pr_fail_err(name, "sync_file_range (forward)");
+				pr_fail_err(args->name, "sync_file_range (forward)");
 			offset += sz;
 		}
 		if (!opt_do_run)
 			break;
 
-		if (stress_sync_allocate(name, fd) < 0)
+		if (stress_sync_allocate(args, fd) < 0)
 			break;
 		for (offset = 0; offset < (off64_t)opt_sync_file_bytes; ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 
 			ret = shim_sync_file_range(fd, opt_sync_file_bytes - offset, sz, mode);
 			if (ret < 0)
-				pr_fail_err(name, "sync_file_range (reverse)");
+				pr_fail_err(args->name, "sync_file_range (reverse)");
 			offset += sz;
 		}
 		if (!opt_do_run)
 			break;
 
-		if (stress_sync_allocate(name, fd) < 0)
+		if (stress_sync_allocate(args, fd) < 0)
 			break;
 		for (i = 0; i < (off64_t)(opt_sync_file_bytes / (128 * KB)); i++) {
 			offset = (mwc64() % opt_sync_file_bytes) & ~((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0)
-				pr_fail_err(name, "sync_file_range (random)");
+				pr_fail_err(args->name, "sync_file_range (random)");
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sync_file(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sync_file(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

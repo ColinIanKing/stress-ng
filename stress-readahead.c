@@ -42,7 +42,7 @@ void stress_set_readahead_bytes(const char *optarg)
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 
 static int do_readahead(
-	const char *name,
+	args_t *args,
 	const int fd,
 	off_t *offsets,
 	const uint64_t readahead_bytes)
@@ -52,7 +52,7 @@ static int do_readahead(
 	for (i = 0; i < MAX_OFFSETS; i++) {
 		offsets[i] = (mwc64() % (readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
-			pr_fail_err(name, "ftruncate");
+			pr_fail_err(args->name, "ftruncate");
 			return -1;
 		}
 	}
@@ -63,11 +63,7 @@ static int do_readahead(
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
-int stress_readahead(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_readahead(args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint64_t readahead_bytes, i;
@@ -87,36 +83,36 @@ int stress_readahead(
 			opt_readahead_bytes = MIN_HDD_BYTES;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
 		return EXIT_FAILURE;
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
 		rc = exit_status(errno);
-		pr_err(stderr, "%s: cannot allocate buffer\n", name);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return rc;
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto finish;
 	}
 	if (ftruncate(fd, (off_t)0) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "ftruncate");
+		pr_fail_err(args->name, "ftruncate");
 		goto close_finish;
 	}
 	(void)unlink(filename);
 
 #if defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, opt_readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
-		pr_fail_err(name, "posix_fadvise");
+		pr_fail_err(args->name, "posix_fadvise");
 		goto close_finish;
 	}
 #endif
@@ -129,7 +125,7 @@ int stress_readahead(
 seq_wr_retry:
 		if (!opt_do_run) {
 			pr_inf(stdout, "%s: test expired during test setup "
-				"(writing of data file)\n", name);
+				"(writing of data file)\n", args->name);
 			rc = EXIT_SUCCESS;
 			goto close_finish;
 		}
@@ -144,7 +140,7 @@ seq_wr_retry:
 			if (errno == ENOSPC)
 				break;
 			if (errno) {
-				pr_fail_err(name, "pwrite");
+				pr_fail_err(args->name, "pwrite");
 				goto close_finish;
 			}
 			continue;
@@ -152,7 +148,7 @@ seq_wr_retry:
 	}
 
 	if (fstat(fd, &statbuf) < 0) {
-		pr_fail_err(name, "fstat");
+		pr_fail_err(args->name, "fstat");
 		goto close_finish;
 	}
 
@@ -163,19 +159,19 @@ seq_wr_retry:
 	do {
 		off_t offsets[MAX_OFFSETS];
 
-		if (do_readahead(name, fd, offsets, readahead_bytes) < 0)
+		if (do_readahead(args, fd, offsets, readahead_bytes) < 0)
 			goto close_finish;
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
 rnd_rd_retry:
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 			ret = pread(fd, buf, BUF_SIZE, offsets[i]);
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_fail_err(name, "read");
+					pr_fail_err(args->name, "read");
 					goto close_finish;
 				}
 				continue;
@@ -198,30 +194,26 @@ rnd_rd_retry:
 						(intmax_t)offsets[i] + BUF_SIZE - 1);
 				}
 			}
-			(*counter)++;
+			inc_counter(args);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 close_finish:
 	(void)close(fd);
 finish:
 	free(buf);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	if (misreads)
 		pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",
-			name, misreads);
+			args->name, misreads);
 
 	return rc;
 }
 #else
-int stress_readahead(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_readahead(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -127,7 +127,7 @@ static void stress_locka_info_free(void)
  *  stress_locka_unlock()
  *	pop oldest lock record off list and unlock it
  */
-static int stress_locka_unlock(const char *name, const int fd)
+static int stress_locka_unlock(args_t *args, const int fd)
 {
 	struct flock f;
 
@@ -144,7 +144,7 @@ static int stress_locka_unlock(const char *name, const int fd)
 	stress_locka_info_head_remove();
 
 	if (fcntl(fd, F_SETLK, &f) < 0) {
-		pr_fail_err(name, "F_SETLK");
+		pr_fail_err(args->name, "F_SETLK");
 		return -1;
 	}
 	return 0;
@@ -155,10 +155,8 @@ static int stress_locka_unlock(const char *name, const int fd)
  *	hammer advisory lock/unlock to create some file lock contention
  */
 static int stress_locka_contention(
-	const char *name,
-	const int fd,
-	uint64_t *const counter,
-	const uint64_t max_ops)
+	args_t *args,
+	const int fd)
 {
 	mwc_reseed();
 	pid_t pid = getpid();
@@ -171,7 +169,7 @@ static int stress_locka_contention(
 		struct flock f;
 
 		if (locka_infos.length >= LOCK_MAX)
-			if (stress_locka_unlock(name, fd) < 0)
+			if (stress_locka_unlock(args, fd) < 0)
 				return -1;
 
 		len  = (mwc16() + 1) & 0xfff;
@@ -191,15 +189,15 @@ static int stress_locka_contention(
 
 		locka_info = stress_locka_info_new();
 		if (!locka_info) {
-			pr_fail_err(name, "calloc");
+			pr_fail_err(args->name, "calloc");
 			return -1;
 		}
 		locka_info->offset = offset;
 		locka_info->len = len;
 		locka_info->pid = pid;
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return 0;
 }
@@ -208,11 +206,7 @@ static int stress_locka_contention(
  *  stress_locka
  *	stress file locking via advisory locking
  */
-int stress_locka(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_locka(args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t pid = getpid(), cpid = -1;
@@ -228,11 +222,11 @@ int stress_locka(
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return ret;
 		}
 	}
@@ -243,17 +237,17 @@ int stress_locka(
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)rmdir(dirname);
 		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err(name, "lseek");
+		pr_fail_err(args->name, "lseek");
 		goto tidy;
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
@@ -267,7 +261,7 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			ret = exit_status(errno);
-			pr_fail_err(name, "write");
+			pr_fail_err(args->name, "write");
 			goto tidy;
 		}
 	}
@@ -281,21 +275,21 @@ again:
 		}
 		if (errno == EAGAIN)
 			goto again;
-		pr_fail_err(name, "fork");
+		pr_fail_err(args->name, "fork");
 		goto tidy;
 	}
 	if (cpid == 0) {
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		if (stress_locka_contention(name, fd, counter, max_ops) < 0)
+		if (stress_locka_contention(args, fd) < 0)
 			exit(EXIT_FAILURE);
 		stress_locka_info_free();
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(cpid, pgrp);
 
-	if (stress_locka_contention(name, fd, counter, max_ops) == 0)
+	if (stress_locka_contention(args, fd) == 0)
 		ret = EXIT_SUCCESS;
 tidy:
 	if (cpid > 0) {
@@ -313,12 +307,8 @@ tidy:
 	return ret;
 }
 #else
-int stress_locka(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_locka(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

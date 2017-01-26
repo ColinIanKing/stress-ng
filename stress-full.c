@@ -41,14 +41,8 @@ static const whences_t whences[] = {
  *  stress_full
  *	stress /dev/full
  */
-int stress_full(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_full(args_t *args)
 {
-	(void)instance;
-
 	do {
 		ssize_t ret;
 		int fd, w;
@@ -57,7 +51,7 @@ int stress_full(
 		char buffer[4096];
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			return EXIT_FAILURE;
 		}
 
@@ -69,14 +63,14 @@ int stress_full(
 		if (ret != -1) {
 			pr_fail(stderr, "%s: write to /dev/null should fail "
 				"with errno ENOSPC but it didn't\n",
-				name);
+				args->name);
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto try_read;
 		if (errno != ENOSPC) {
-			pr_fail_err(name, "write");
+			pr_fail_err(args->name, "write");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -87,7 +81,7 @@ int stress_full(
 try_read:
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
-			pr_fail_err(name, "read");
+			pr_fail_err(args->name, "read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -95,7 +89,7 @@ try_read:
 			if (buffer[i] != 0) {
 				pr_fail(stderr, "%s: buffer does not "
 					"contain all zeros\n",
-					name);
+					args->name);
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
@@ -109,23 +103,19 @@ try_read:
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: lseek(fd, %jd, %s)\n",
-				name, (intmax_t)offset, whences[w].name);
+				args->name, (intmax_t)offset, whences[w].name);
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		(void)close(fd);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_full(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_full(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

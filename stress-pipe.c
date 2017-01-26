@@ -85,7 +85,7 @@ static inline int pipe_memchk(char *buf, char val, const size_t sz)
  *  pipe_change_size()
  *	see if we can change the pipe size
  */
-static void pipe_change_size(const char *name, const int fd)
+static void pipe_change_size(args_t *args, const int fd)
 {
 #if defined(F_GETPIPE_SZ)
 	ssize_t sz;
@@ -100,18 +100,18 @@ static void pipe_change_size(const char *name, const int fd)
 	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {
 		pr_err(stderr, "%s: cannot set pipe size, keeping "
 			"default pipe size, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 #if defined(F_GETPIPE_SZ)
 	/* Sanity check size */
 	if ((sz = fcntl(fd, F_GETPIPE_SZ)) < 0) {
 		pr_err(stderr, "%s: cannot get pipe size, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else {
 		if ((size_t)sz != opt_pipe_size) {
 			pr_err(stderr, "%s: cannot set desired pipe size, "
 				"pipe size=%zd, errno=%d (%s)\n",
-				name, sz, errno, strerror(errno));
+				args->name, sz, errno, strerror(errno));
 		}
 	}
 #endif
@@ -123,32 +123,26 @@ static void pipe_change_size(const char *name, const int fd)
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-int stress_pipe(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_pipe(args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];
 
-	(void)instance;
-
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg(name, "pipe2");
+		pr_fail_dbg(args->name, "pipe2");
 		return EXIT_FAILURE;
 	}
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg(name, "pipe");
+		pr_fail_dbg(args->name, "pipe");
 		return EXIT_FAILURE;
 	}
 #endif
 
 #if defined(F_SETPIPE_SZ)
-	pipe_change_size(name, pipefds[0]);
-	pipe_change_size(name, pipefds[1]);
+	pipe_change_size(args, pipefds[0]);
+	pipe_change_size(args, pipefds[1]);
 #endif
 
 again:
@@ -158,7 +152,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		int val = 0;
@@ -176,10 +170,10 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(name, "read");
+					pr_fail_dbg(args->name, "read");
 					break;
 				}
-				pr_fail_dbg(name, "zero byte read");
+				pr_fail_dbg(args->name, "zero byte read");
 				break;
 			}
 			if (!strcmp(buf, PIPE_STOP))
@@ -187,7 +181,7 @@ again:
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    pipe_memchk(buf, val++, (size_t)n)) {
 				pr_fail(stderr, "%s: pipe read error detected, "
-					"failed to read expected data\n", name);
+					"failed to read expected data\n", args->name);
 			}
 		}
 		(void)close(pipefds[0]);
@@ -209,18 +203,18 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(name, "write");
+					pr_fail_dbg(args->name, "write");
 					break;
 				}
 				continue;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		strncpy(buf, PIPE_STOP, opt_pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
-				pr_fail_dbg(name, "termination write");
+				pr_fail_dbg(args->name, "termination write");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

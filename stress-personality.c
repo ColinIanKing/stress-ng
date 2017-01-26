@@ -37,25 +37,19 @@ static const unsigned long personalities[] = {
  *  stress_personality()
  *	stress system by rapid open/close calls
  */
-int stress_personality(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_personality(args_t *args)
 {
 	const ssize_t n = SIZEOF_ARRAY(personalities);
 	bool failed[n];
 
-	(void)instance;
-
 	if (n == 0) {
-		pr_inf(stdout, "%s: no personalities to stress test\n", name);
+		pr_inf(stdout, "%s: no personalities to stress test\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 	memset(failed, 0, sizeof(failed));
 
-	if (instance == 0)
-		pr_dbg(stderr, "%s: exercising %zu personalities\n", name, n);
+	if (args->instance == 0)
+		pr_dbg(stderr, "%s: exercising %zu personalities\n", args->name, n);
 
 	do {
 		ssize_t i, fails = 0;
@@ -81,26 +75,22 @@ int stress_personality(
 			    (ret & 0xff) != (p & 0xff)) {
 				pr_fail(stderr, "%s: fetched personality does "
 					"not match set personality 0x%lu\n",
-					name, p);
+					args->name, p);
 			}
 		}
 		if (fails == n) {
 			pr_fail(stderr, "%s: all %zu personalities failed "
-				"to be set\n", name, fails);
+				"to be set\n", args->name, fails);
 			break;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_personality(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_personality(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

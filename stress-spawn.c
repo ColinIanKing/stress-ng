@@ -32,11 +32,7 @@
  *  stress_spawn()
  *	stress by forking and spawn'ing
  */
-int stress_spawn(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_spawn(args_t *args)
 {
 	char path[PATH_MAX + 1];
 	ssize_t len;
@@ -44,15 +40,13 @@ int stress_spawn(
 	static char *argv_new[] = { NULL, "--exec-exit", NULL };
 	static char *env_new[] = { NULL };
 
-	(void)instance;
-
 	/*
 	 *  Don't want to run this when running as root as
 	 *  this could allow somebody to try and run another
 	 *  spawnutable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf(stdout, "%s: running as root, won't run test.\n", name);
+		pr_inf(stdout, "%s: running as root, won't run test.\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -61,7 +55,7 @@ int stress_spawn(
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
-		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", name);
+		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
@@ -74,34 +68,30 @@ int stress_spawn(
 		spawn_calls++;
 		ret = posix_spawn(&pid, path, NULL, NULL, argv_new, env_new);
 		if (ret < 0) {
-			pr_fail_err(name, "posix_spawn()");
+			pr_fail_err(args->name, "posix_spawn()");
 			spawn_fails++;
 		} else {
 			int status;
 			/* Parent, wait for child */
 
 			(void)waitpid(pid, &status, 0);
-			(*counter)++;
+			inc_counter(args);
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				spawn_fails++;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if ((spawn_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail(stderr, "%s: %" PRIu64 " spawns failed (%.2f%%)\n",
-			name, spawn_fails,
+			args->name, spawn_fails,
 			(double)spawn_fails * 100.0 / (double)(spawn_calls));
 	}
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_spawn(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_spawn(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

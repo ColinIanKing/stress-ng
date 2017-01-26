@@ -28,17 +28,11 @@
  *  stress on sched_kill()
  *	stress system by rapid kills
  */
-int stress_kill(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_kill(args_t *args)
 {
 	const pid_t pid = getpid();
 
-	(void)instance;
-
-	if (stress_sighandler(name, SIGUSR1, SIG_IGN, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
 
 	do {
@@ -46,12 +40,12 @@ int stress_kill(
 
 		ret = kill(pid, SIGUSR1);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(name, "kill");
+			pr_fail_err(args->name, "kill");
 
 		/* Zero signal can be used to see if process exists */
 		ret = kill(pid, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(name, "kill");
+			pr_fail_err(args->name, "kill");
 
 		/*
 		 * Zero signal can be used to see if process exists,
@@ -60,10 +54,10 @@ int stress_kill(
 		 */
 		ret = kill(-1, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(name, "kill");
+			pr_fail_err(args->name, "kill");
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

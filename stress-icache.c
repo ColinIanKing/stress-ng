@@ -53,21 +53,15 @@ static void SECTION(stress_icache_callee) ALIGNED(SIZE) stress_icache_func(void)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 {
 	uint8_t *addr = (uint8_t *)stress_icache_func;
 	const size_t page_size = stress_get_pagesize();
 	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 
-	(void)instance;
-
 	if (page_size != SIZE) {
 		pr_inf(stdout, "%s: page size %zu is not %u, cannot test\n",
-			name, page_size, SIZE);
+			args->name, page_size, SIZE);
 		return EXIT_NO_RESOURCE;
 	}
 #if defined(MADV_NOHUGEPAGE)
@@ -78,7 +72,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 		 */
 		if (errno != EINVAL) {
 			pr_inf(stdout, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
-				name, addr, errno, strerror(errno));
+				args->name, addr, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 	}
@@ -98,7 +92,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 */
 			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
 				pr_inf(stdout, "%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
-					name, vaddr, errno, strerror(errno));
+					args->name, vaddr, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}
 			/*
@@ -126,24 +120,20 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(
 			 */
 			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
 				pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
 
 			stress_icache_func();
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_icache(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_icache(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args)
 }
 #endif

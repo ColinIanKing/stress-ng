@@ -28,19 +28,13 @@
  *  stress_null
  *	stress writing to /dev/null
  */
-int stress_null(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_null(args_t *args)
 {
 	int fd;
 	char buffer[4096];
 
-	(void)instance;
-
 	if ((fd = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -53,14 +47,14 @@ int stress_null(
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_fail_err(name, "write");
+				pr_fail_err(args->name, "write");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			continue;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	(void)close(fd);
 
 	return EXIT_SUCCESS;

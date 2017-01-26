@@ -28,16 +28,9 @@
  *  stress_noop()
  *	stress that does nowt
  */
-int stress_noop(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_noop(args_t *args)
 {
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-	(void)name;
+	(void)args;
 
 	return EXIT_SUCCESS;
 }

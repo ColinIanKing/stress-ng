@@ -43,11 +43,7 @@ void stress_set_bigheap_growth(const char *optarg)
  *  stress_bigheap()
  *	stress heap allocation
  */
-int stress_bigheap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_bigheap(args_t *args)
 {
 	void *ptr = NULL, *last_ptr = NULL;
 	const size_t page_size = stress_get_pagesize();
@@ -71,7 +67,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -81,21 +77,21 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -104,7 +100,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -114,7 +110,7 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		do {
 			void *old_ptr = ptr;
@@ -134,8 +130,8 @@ again:
 			if (ptr == NULL) {
 				pr_dbg(stderr, "%s: out of memory at %" PRIu64
 					" MB (instance %d)\n",
-					name, (uint64_t)(4096ULL * size) >> 20,
-					instance);
+					args->name, (uint64_t)(4096ULL * size) >> 20,
+					args->instance);
 				free(old_ptr);
 				size = 0;
 				nomems++;
@@ -171,14 +167,14 @@ again:
 						if (*tmp != (uint8_t)i)
 							pr_fail(stderr, "%s: byte at location %p was 0x%" PRIx8
 								" instead of 0x%" PRIx8 "\n",
-								name, u8ptr, *tmp, (uint8_t)i);
+								args->name, u8ptr, *tmp, (uint8_t)i);
 					}
 				}
 				last_ptr = ptr;
 				last_ptr_end = u8ptr;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 abort:
 		free(ptr);
 	}
@@ -186,7 +182,7 @@ abort:
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, ooms, segvs, nomems);
+			args->name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }

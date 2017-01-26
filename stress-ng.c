@@ -1891,8 +1891,16 @@ again:
 					if (opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats[n].sp);
 #endif
-					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN))
-						rc = stressors[i].stress_func(&stats[n].counter, j, procs[i].bogo_ops, name);
+					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
+						args_t args = {
+							&stats[n].counter,
+							j,
+							procs[i].bogo_ops,
+							name
+						};
+
+						rc = stressors[i].stress_func(&args);
+					}
 #if defined(STRESS_PERF_STATS)
 					if (opt_flags & OPT_FLAGS_PERF_STATS) {
 						(void)perf_disable(&stats[n].sp);

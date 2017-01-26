@@ -41,18 +41,12 @@ static void MLOCKED stress_fpehandler(int dummy)
  *  stress_sigfpe
  *	stress by generating floating point errors
  */
-int stress_sigfpe(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigfpe(args_t *args)
 {
-	(void)instance;
-
 	for (;;) {
 		int ret;
 
-		if (stress_sighandler(name, SIGFPE, stress_fpehandler, NULL) < 0)
+		if (stress_sighandler(args->name, SIGFPE, stress_fpehandler, NULL) < 0)
 			return EXIT_FAILURE;
 
 		ret = sigsetjmp(jmp_env, 1);
@@ -60,11 +54,11 @@ int stress_sigfpe(
 		 * We return here if we get SIGFPE, so
 		 * first check if we need to terminate
 		 */
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		if (ret)
-			(*counter)++;	/* SIGFPE occurred */
+			inc_counter(args);	/* SIGFPE occurred */
 		else
 			uint64_put(1 / uint64_zero());	/* force division by zero */
 	}

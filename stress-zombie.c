@@ -136,15 +136,9 @@ void stress_set_zombie_max(const char *optarg)
  *  stress_zombie()
  *	stress by zombieing and exiting
  */
-int stress_zombie(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_zombie(args_t *args)
 {
 	uint64_t max_zombies = 0;
-
-	(void)instance;
 
 	if (!set_zombie_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -178,14 +172,14 @@ int stress_zombie(
 
 			if (max_zombies < zombies.length)
 				max_zombies = zombies.length;
-			(*counter)++;
+			inc_counter(args);
 		} else {
 			stress_zombie_head_remove();
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	pr_inf(stdout, "%s: created a maximum of %" PRIu64 " zombies\n",
-		name, max_zombies);
+		args->name, max_zombies);
 
 	/* And reap */
 	while (zombies.head) {

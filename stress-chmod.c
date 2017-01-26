@@ -120,11 +120,7 @@ static int do_chmod(
  *  stress_chmod
  *	stress chmod
  */
-int stress_chmod(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_chmod(args_t *args)
 {
 	const pid_t ppid = getppid();
 	int i, fd = -1, rc = EXIT_FAILURE, retries = 0;
@@ -134,21 +130,21 @@ int stress_chmod(
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
-	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
 	if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return rc;
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, ppid, 0, 0);
+		args->name, ppid, 0, 0);
 
-	if (instance == 0) {
+	if (args->instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err(name, "creat");
+			pr_fail_err(args->name, "creat");
 			goto tidy;
 		}
 	} else {
@@ -162,7 +158,7 @@ int stress_chmod(
 				pr_err(stderr, "%s: chmod: file %s took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")\n",
-					name, filename, retries, instance);
+					args->name, filename, retries, args->instance);
 				goto tidy;
 			}
 			/* Timed out, then give up */
@@ -182,7 +178,7 @@ int stress_chmod(
 		for (i = 0; modes[i]; i++) {
 			mask |= modes[i];
 			if (do_fchmod(fd, i, mask, all_mask) < 0) {
-				pr_fail_err(name, "fchmod");
+				pr_fail_err(args->name, "fchmod");
 			}
 			if (do_chmod(filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
@@ -193,11 +189,11 @@ int stress_chmod(
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
-				pr_fail_err(name, "chmod");
+				pr_fail_err(args->name, "chmod");
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 tidy:

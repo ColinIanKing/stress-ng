@@ -53,7 +53,7 @@ typedef struct {
  *	do a quotactl command
  */
 static int do_quotactl(
-	const char *name,
+	args_t *args,
 	const int flag,
 	const char *cmdname,
 	int *tested,
@@ -73,14 +73,14 @@ static int do_quotactl(
 		if (errno == EPERM) {
 			pr_inf(stdout, "%s: need CAP_SYS_ADMIN capability to "
 				"run quota stressor, aborting stress test\n",
-				name);
+				args->name);
 			return errno;
 		}
 		if ((failed_mask & flag) == 0) {
 			/* Just issue the warning once, reduce log spamming */
 			failed_mask |= flag;
 			pr_fail(stderr, "%s: quotactl command %s failed: errno=%d (%s)\n",
-				name, cmdname, errno, strerror(errno));
+				args->name, cmdname, errno, strerror(errno));
 		}
 		if (errno == ENOSYS)
 			(*enosys)++;
@@ -94,13 +94,13 @@ static int do_quotactl(
  *  do_quotas()
  *	do quotactl commands
  */
-static int do_quotas(const dev_info_t *dev, const char *name)
+static int do_quotas(args_t *args, const dev_info_t *dev)
 {
 	int tested = 0, failed = 0, enosys = 0;
 #if defined(Q_GETQUOTA)
 	if (opt_do_run) {
 		struct dqblk dqblk;
-		int err = do_quotactl(name, DO_Q_GETQUOTA, "Q_GETQUOTA",
+		int err = do_quotactl(args, DO_Q_GETQUOTA, "Q_GETQUOTA",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
@@ -111,7 +111,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #if defined(Q_GETFMT)
 	if (opt_do_run) {
 		uint32_t format;
-		int err = do_quotactl(name, DO_Q_GETFMT, "Q_GETFMT",
+		int err = do_quotactl(args, DO_Q_GETFMT, "Q_GETFMT",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
@@ -122,7 +122,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #if defined(Q_GETINFO)
 	if (opt_do_run) {
 		struct dqinfo dqinfo;
-		int err = do_quotactl(name, DO_Q_GETINFO, "Q_GETINFO",
+		int err = do_quotactl(args, DO_Q_GETINFO, "Q_GETINFO",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
@@ -134,7 +134,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 	/* Obsolete in recent kernels */
 	if (opt_do_run) {
 		struct dqstats dqstats;
-		int err = do_quotactl(name, DO_Q_GETSTATS, "Q_GETSTATS",
+		int err = do_quotactl(args, DO_Q_GETSTATS, "Q_GETSTATS",
 			&tested, &failed, &enosys,
 			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
@@ -144,7 +144,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #endif
 #if defined(Q_SYNC)
 	if (opt_do_run) {
-		int err = do_quotactl(name, DO_Q_SYNC, "Q_SYNC",
+		int err = do_quotactl(args, DO_Q_SYNC, "Q_SYNC",
 			&tested, &failed, &enosys,
 			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
@@ -154,18 +154,18 @@ static int do_quotas(const dev_info_t *dev, const char *name)
 #endif
 	if (tested == 0) {
 		pr_err(stderr, "%s: quotactl() failed, quota commands "
-			"not available\n", name);
+			"not available\n", args->name);
 		return -1;
 	}
 	if (tested == enosys) {
 		pr_err(stderr, "%s: quotactl() failed, not available "
-			"on this kernel\n", name);
+			"on this kernel\n", args->name);
 		return -1;
 	}
 	if (tested == failed) {
 		pr_err(stderr, "%s: quotactl() failed, all quota commands "
 			"failed (maybe privilege issues, use -v "
-			"to see why)\n", name);
+			"to see why)\n", args->name);
 		return -1;
 	}
 	return 0;
@@ -175,11 +175,7 @@ static int do_quotas(const dev_info_t *dev, const char *name)
  *  stress_quota
  *	stress various quota options
  */
-int stress_quota(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_quota(args_t *args)
 {
 	int i, n_mounts, n_devs = 0;
 	int rc = EXIT_FAILURE;
@@ -189,8 +185,6 @@ int stress_quota(
 	struct dirent *d;
 	struct stat buf;
 
-	(void)instance;
-
 	memset(mnts, 0, sizeof(mnts));
 	memset(devs, 0, sizeof(devs));
 
@@ -199,7 +193,7 @@ int stress_quota(
 	dir = opendir("/dev/");
 	if (!dir) {
 		pr_err(stderr, "%s: opendir on /dev failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return rc;
 	}
 
@@ -226,7 +220,7 @@ int stress_quota(
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
 					pr_err(stderr, "%s: out of memory\n",
-						name);
+						args->name);
 					closedir(dir);
 					goto tidy;
 				}
@@ -256,18 +250,18 @@ int stress_quota(
 
 	if (!n_devs) {
 		pr_err(stderr, "%s: cannot find any candidate block "
-			"devices with quota enabled\n", name);
+			"devices with quota enabled\n", args->name);
 	} else {
 		do {
 			for (i = 0; opt_do_run && (i < n_devs); i++) {
-				int ret = do_quotas(&devs[i], name);
+				int ret = do_quotas(args, &devs[i]);
 				if (ret == EPERM)
 					rc = EXIT_SUCCESS;
 				if (ret)
 					goto tidy;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 	rc = EXIT_SUCCESS;
 
@@ -279,12 +273,8 @@ tidy:
 	return rc;
 }
 #else
-int stress_quota(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_quota(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

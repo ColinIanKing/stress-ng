@@ -34,9 +34,7 @@
 #define STACK_SIZE	(64 * 1024)
 
 typedef struct {
-	const char *name;
-	uint64_t *counter;
-	uint64_t max_ops;
+	args_t *args;
 	size_t page_size;
 	size_t sz;
 	pid_t pid;
@@ -70,6 +68,7 @@ void stress_set_vm_rw_bytes(const char *optarg)
 static int stress_vm_child(void *arg)
 {
 	context_t *ctxt = (context_t *)arg;
+	args_t *args = ctxt->args;
 
 	uint8_t *buf;
 	int ret = EXIT_SUCCESS;
@@ -86,7 +85,7 @@ static int stress_vm_child(void *arg)
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		ret = exit_status(errno);
-		pr_fail_dbg(ctxt->name, "mmap");
+		pr_fail_dbg(args->name, "mmap");
 		goto cleanup;
 	}
 
@@ -105,7 +104,7 @@ redo_wr1:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno != EBADF)
-				pr_fail_dbg(ctxt->name, "write");
+				pr_fail_dbg(args->name, "write");
 			break;
 		}
 redo_rd1:
@@ -114,13 +113,13 @@ redo_rd1:
 		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd1;
-			pr_fail_dbg(ctxt->name, "read");
+			pr_fail_dbg(args->name, "read");
 			break;
 		}
 		if (rwret == 0)
 			break;
 		if (rwret != sizeof(msg_rd)) {
-			pr_fail_dbg(ctxt->name, "read");
+			pr_fail_dbg(args->name, "read");
 			break;
 		}
 
@@ -129,7 +128,7 @@ redo_rd1:
 			for (ptr = buf; ptr < end; ptr += ctxt->page_size) {
 				if (*ptr != msg_rd.val) {
 					pr_fail(stderr, "%s: memory at %p: %d vs %d\n",
-						ctxt->name, ptr, *ptr, msg_rd.val);
+						args->name, ptr, *ptr, msg_rd.val);
 					goto cleanup;
 				}
 				*ptr = 0;
@@ -144,7 +143,7 @@ cleanup:
 		if (errno != EBADF)
 			pr_dbg(stderr, "%s: failed to write termination message "
 				"over pipe: errno=%d (%s)\n",
-				ctxt->name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 	}
 
 	(void)close(ctxt->pipe_wr[1]);
@@ -160,6 +159,7 @@ static int stress_vm_parent(context_t *ctxt)
 	uint8_t val = 0;
 	uint8_t *localbuf;
 	addr_msg_t msg_rd, msg_wr;
+	args_t *args = ctxt->args;
 
 	(void)setpgid(ctxt->pid, pgrp);
 
@@ -170,7 +170,7 @@ static int stress_vm_parent(context_t *ctxt)
 		(void)close(ctxt->pipe_wr[1]);
 		(void)close(ctxt->pipe_rd[0]);
 		(void)close(ctxt->pipe_rd[1]);
-		pr_fail_dbg(ctxt->name, "mmap");
+		pr_fail_dbg(args->name, "mmap");
 		return EXIT_FAILURE;
 	}
 
@@ -191,13 +191,13 @@ redo_rd2:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd2;
-			pr_fail_dbg(ctxt->name, "read");
+			pr_fail_dbg(args->name, "read");
 			break;
 		}
 		if (ret == 0)
 			break;
 		if (ret != sizeof(msg_rd)) {
-			pr_fail_dbg(ctxt->name, "read");
+			pr_fail_dbg(args->name, "read");
 			break;
 		}
 		/* Child telling us it's terminating? */
@@ -210,7 +210,7 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg(ctxt->name, "process_vm_readv");
+			pr_fail_dbg(args->name, "process_vm_readv");
 			break;
 		}
 
@@ -219,7 +219,7 @@ redo_rd2:
 			for (ptr = localbuf; ptr < end; ptr += ctxt->page_size) {
 				if (*ptr) {
 					pr_fail(stderr, "%s: memory at %p: %d vs %d\n",
-						ctxt->name, ptr, *ptr, msg_rd.val);
+						args->name, ptr, *ptr, msg_rd.val);
 					goto fail;
 				}
 				*ptr = 0;
@@ -236,7 +236,7 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg(ctxt->name, "process_vm_writev");
+			pr_fail_dbg(args->name, "process_vm_writev");
 			break;
 		}
 		msg_wr.val = val;
@@ -250,11 +250,11 @@ redo_wr2:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno != EBADF)
-				pr_fail_dbg(ctxt->name, "write");
+				pr_fail_dbg(args->name, "write");
 			break;
 		}
-		(*ctxt->counter)++;
-	} while (opt_do_run && (!ctxt->max_ops || *ctxt->counter < ctxt->max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 fail:
 	/* Tell child we're done */
 	msg_wr.addr = NULL;
@@ -264,7 +264,7 @@ fail:
 			pr_dbg(stderr, "%s: failed to write "
 				"termination message "
 				"over pipe: errno=%d (%s)\n",
-				ctxt->name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 	}
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
@@ -279,11 +279,7 @@ fail:
  *  stress_vm_rw
  *	stress vm_read_v/vm_write_v
  */
-int stress_vm_rw(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vm_rw(args_t *args)
 {
 	context_t ctxt;
 	uint8_t stack[64*1024];
@@ -291,28 +287,24 @@ int stress_vm_rw(
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
-	(void)instance;
-
 	if (!set_vm_rw_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_vm_rw_bytes = MAX_VM_RW_BYTES;
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
-	ctxt.name = name;
+	ctxt.args = args;
 	ctxt.page_size = stress_get_pagesize();
 	ctxt.sz = opt_vm_rw_bytes & ~(ctxt.page_size - 1);
-	ctxt.counter = counter;
-	ctxt.max_ops = max_ops;
 
 	if (pipe(ctxt.pipe_wr) < 0) {
-		pr_fail_dbg(name, "pipe");
+		pr_fail_dbg(args->name, "pipe");
 		return EXIT_NO_RESOURCE;
 	}
 	if (pipe(ctxt.pipe_rd) < 0) {
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
-		pr_fail_dbg(name, "pipe");
+		pr_fail_dbg(args->name, "pipe");
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -326,18 +318,14 @@ again:
 		(void)close(ctxt.pipe_wr[1]);
 		(void)close(ctxt.pipe_rd[0]);
 		(void)close(ctxt.pipe_rd[1]);
-		pr_fail_dbg(name, "clone");
+		pr_fail_dbg(args->name, "clone");
 		return EXIT_NO_RESOURCE;
 	}
 	return stress_vm_parent(&ctxt);
 }
 #else
-int stress_vm_rw(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vm_rw(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

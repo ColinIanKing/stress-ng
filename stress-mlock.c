@@ -78,11 +78,7 @@ static inline int mlock_shim(const void *addr, size_t len)
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
  */
-int stress_mlock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mlock(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
@@ -91,7 +87,7 @@ int stress_mlock(
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_NO_RESOURCE;
 	}
 again:
@@ -100,7 +96,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -112,20 +108,21 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
-					"(instance %d)\n", name, instance);
+					"(instance %d)\n", args->name,
+					args->instance);
 				goto again;
 			}
 			/* If we got killed by sigsegv, re-start */
@@ -133,7 +130,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				goto again;
 			}
 		}
@@ -143,12 +140,12 @@ again:
 		(void)setpgid(0, pgrp);
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		do {
 			for (n = 0; opt_do_run && (n < max); n++) {
 				int ret;
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				mappings[n] = (uint8_t *)mmap(NULL, page_size * 3,
@@ -162,7 +159,7 @@ again:
 						continue;
 					if (errno == ENOMEM)
 						break;
-					pr_fail_err(name, "mlock");
+					pr_fail_err(args->name, "mlock");
 					break;
 				} else {
 					/*
@@ -173,7 +170,7 @@ again:
 				 	 */
 					mappings[n] = (uint8_t *)
 						((ptrdiff_t)mappings[n] | 1);
-					(*counter)++;
+					inc_counter(args);
 				}
 			}
 
@@ -194,7 +191,7 @@ again:
 #endif
 #endif
 			for (n = 0; opt_do_run && (n < max); n++) {
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				mappings[n] = (uint8_t *)mmap(NULL, page_size,
@@ -208,7 +205,7 @@ again:
 #endif
 			for (i = 0; i < n;  i++)
 				munmap((void *)mappings[i], page_size);
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 
 	free(mappings);
@@ -216,12 +213,8 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mlock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mlock(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -70,11 +70,7 @@ static void __strncat(char *dst, char *src, size_t *n)
  *  stress_mmapfork()
  *	stress mappings + fork VM subystem
  */
-int stress_mmapfork(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mmapfork(args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;
@@ -82,8 +78,6 @@ int stress_mmapfork(
 	uint64_t segv_count = 0;
 	int32_t instances;
 	int8_t segv_reasons = 0;
-
-	(void)instance;
 
 	if ((instances = stressor_instances(STRESS_MMAPFORK)) < 1)
 		instances = stress_get_processors_configured();
@@ -111,11 +105,11 @@ retry:			if (!opt_do_run)
 				(void)setpgid(0, pgrp);
 				stress_parent_died_alarm();
 
-				if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
+				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 					_exit(_EXIT_FAILURE);
 
 				if (sysinfo(&info) < 0) {
-					pr_fail_err(name, "sysinfo");
+					pr_fail_err(args->name, "sysinfo");
 					_exit(_EXIT_FAILURE);
 				}
 
@@ -147,7 +141,7 @@ reap:
 			if (waitpid(pids[i], &status, 0) < 0) {
 				if (errno != EINTR) {
 					pr_err(stderr, "%s: waitpid errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 				}
 			} else {
 				if (WIFEXITED(status)) {
@@ -160,8 +154,8 @@ reap:
 				}
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if (segv_count) {
 		char buffer[1024];
@@ -181,18 +175,14 @@ reap:
 			__strncat(buffer, " munmap", &n);
 
 		pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
-			name, segv_count, buffer);
+			args->name, segv_count, buffer);
 	}
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mmapfork(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mmapfork(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

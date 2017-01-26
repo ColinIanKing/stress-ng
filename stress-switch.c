@@ -30,27 +30,21 @@
  *  stress_switch
  *	stress by heavy context switching
  */
-int stress_switch(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_switch(args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];
 	size_t buf_size;
 
-	(void)instance;
-
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg(name, "pipe2");
+		pr_fail_dbg(args->name, "pipe2");
 		return EXIT_FAILURE;
 	}
 	buf_size = 1;
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg(name, "pipe");
+		pr_fail_dbg(args->name, "pipe");
 		return EXIT_FAILURE;
 	}
 	buf_size = stress_get_pagesize();
@@ -60,12 +54,12 @@ int stress_switch(
 	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {
 		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
 			"errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 	if (fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0) {
 		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
 			"errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 #endif
 
@@ -76,7 +70,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		char buf[buf_size];
@@ -93,7 +87,7 @@ again:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg(name, "read");
+				pr_fail_dbg(args->name, "read");
 				break;
 			}
 			if (ret == 0)
@@ -121,17 +115,17 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(name, "write");
+					pr_fail_dbg(args->name, "write");
 					break;
 				}
 				continue;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_fail_dbg(name, "termination write");
+			pr_fail_dbg(args->name, "termination write");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}

@@ -49,13 +49,13 @@ static void free_mount_info(const int mounts)
 		free(mount_info[i].mount_path);
 }
 
-static int get_mount_info(const char *name)
+static int get_mount_info(args_t *args)
 {
 	FILE *fp;
 	int mounts = 0;
 
 	if ((fp = fopen("/proc/self/mountinfo", "r")) == NULL) {
-		pr_dbg(stderr, "%s: cannot open /proc/self/mountinfo\n", name);
+		pr_dbg(stderr, "%s: cannot open /proc/self/mountinfo\n", args->name);
 		return -1;
 	}
 
@@ -79,7 +79,7 @@ static int get_mount_info(const char *name)
 
 		mount_info[mounts].mount_path = strdup(mount_path);
 		if (mount_info[mounts].mount_path == NULL) {
-			pr_dbg(stderr, "%s: cannot allocate mountinfo mount path\n", name);
+			pr_dbg(stderr, "%s: cannot allocate mountinfo mount path\n", args->name);
 			free_mount_info(mounts);
 			mounts = -1;
 			break;
@@ -96,18 +96,12 @@ static int get_mount_info(const char *name)
  *	stress system by rapid open/close calls via
  *	name_to_handle_at and open_by_handle_at
  */
-int stress_handle(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_handle(args_t *args)
 {
 	int mounts;
 
-	(void)instance;
-
-	if ((mounts = get_mount_info(name)) < 0) {
-		pr_fail(stderr, "%s: failed to parse /proc/self/mountinfo\n", name);
+	if ((mounts = get_mount_info(args)) < 0) {
+		pr_fail(stderr, "%s: failed to parse /proc/self/mountinfo\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -121,7 +115,7 @@ int stress_handle(
 		fhp->handle_bytes = 0;
 		if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
 		    (errno != EOVERFLOW)) {
-			pr_fail_err(name, "name_to_handle_at: failed to get file handle size");
+			pr_fail_err(args->name, "name_to_handle_at: failed to get file handle size");
 			free(fhp);
 			break;
 		}
@@ -132,7 +126,7 @@ int stress_handle(
 		}
 		fhp = tmp;
 		if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
-			pr_fail_err(name, "name_to_handle_at: failed to get file handle");
+			pr_fail_err(args->name, "name_to_handle_at: failed to get file handle");
 			free(fhp);
 			break;
 		}
@@ -145,13 +139,13 @@ int stress_handle(
 			}
 		}
 		if (mount_fd == -2) {
-			pr_fail(stderr, "%s: cannot find mount id %d\n", name, mount_id);
+			pr_fail(stderr, "%s: cannot find mount id %d\n", args->name, mount_id);
 			free(fhp);
 			break;
 		}
 		if (mount_fd < 0) {
 			pr_fail(stderr, "%s: failed to open mount path '%s': errno=%d (%s)\n",
-				name, mount_info[i].mount_path, errno, strerror(errno));
+				args->name, mount_info[i].mount_path, errno, strerror(errno));
 			free(fhp);
 			break;
 		}
@@ -159,7 +153,7 @@ int stress_handle(
 			/* We don't abort if EPERM occurs, that's not a test failure */
 			if (errno != EPERM) {
 				pr_fail(stderr, "%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				(void)close(mount_fd);
 				free(fhp);
 				break;
@@ -169,20 +163,16 @@ int stress_handle(
 		}
 		(void)close(mount_fd);
 		free(fhp);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	free_mount_info(mounts);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_handle(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_handle(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -61,16 +61,10 @@ static int cmp(const void *p1, const void *p2)
  *  stress_tsearch()
  *	stress tsearch
  */
-int stress_tsearch(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tsearch(args_t *args)
 {
 	int32_t *data;
 	size_t i, n;
-
-	(void)instance;
 
 	if (!set_tsearch_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -81,7 +75,7 @@ int stress_tsearch(
 	n = (size_t)opt_tsearch_size;
 
 	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_FAILURE;
 	}
 
@@ -95,7 +89,7 @@ int stress_tsearch(
 				size_t j;
 
 				pr_err(stderr, "%s: cannot allocate new "
-					"tree node\n", name);
+					"tree node\n", args->name);
 				for (j = 0; j < i; j++)
 					tdelete(&data[j], &root, cmp);
 				goto abort;
@@ -110,7 +104,7 @@ int stress_tsearch(
 				if (result == NULL)
 					pr_fail(stderr, "%s: element %zu "
 						"could not be found\n",
-						name, i);
+						args->name, i);
 				else {
 					int32_t *val;
 					val = *result;
@@ -118,7 +112,7 @@ int stress_tsearch(
 						pr_fail(stderr, "%s: element "
 							"%zu found %" PRIu32
 							", expecting %" PRIu32 "\n",
-							name, i, *val, data[i]);
+							args->name, i, *val, data[i]);
 				}
 			}
 		}
@@ -129,10 +123,10 @@ int stress_tsearch(
 			result = tdelete(&data[i], &root, cmp);
 			if ((opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
 				pr_fail(stderr, "%s: element %zu could not "
-					"be found\n", name, i);
+					"be found\n", args->name, i);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	free(data);

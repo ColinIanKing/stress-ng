@@ -60,11 +60,7 @@ static const int modes[] = {
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
-int stress_fallocate(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fallocate(args_t *args)
 {
 	const pid_t pid = getpid();
 	int fd, ret;
@@ -78,17 +74,17 @@ int stress_fallocate(
 			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_fail_err(args->name, "open");
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 	(void)unlink(filename);
@@ -102,12 +98,12 @@ int stress_fallocate(
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail(stderr, "%s: fstat on file failed", name);
+				pr_fail(stderr, "%s: fstat on file failed", args->name);
 			else if (buf.st_size != opt_fallocate_bytes)
 				pr_fail(stderr, "%s: file size %jd does not "
 					"match size the expected file "
 					"size of %jd\n",
-					name, (intmax_t)buf.st_size,
+					args->name, (intmax_t)buf.st_size,
 					(intmax_t)opt_fallocate_bytes);
 		}
 
@@ -121,12 +117,12 @@ int stress_fallocate(
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail(stderr, "%s: fstat on file failed", name);
+				pr_fail(stderr, "%s: fstat on file failed", args->name);
 			else if (buf.st_size != (off_t)0)
 				pr_fail(stderr, "%s: file size %jd does not "
 					"match size the expected file size "
 					"of 0\n",
-					name, (intmax_t)buf.st_size);
+					args->name, (intmax_t)buf.st_size);
 		}
 
 		if (ftruncate(fd, opt_fallocate_bytes) < 0)
@@ -159,23 +155,19 @@ int stress_fallocate(
 				ftrunc_errs++;
 			(void)fsync(fd);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	if (ftrunc_errs)
 		pr_dbg(stderr, "%s: %" PRIu64
-			" ftruncate errors occurred.\n", name, ftrunc_errs);
+			" ftruncate errors occurred.\n", args->name, ftrunc_errs);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_fallocate(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fallocate(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

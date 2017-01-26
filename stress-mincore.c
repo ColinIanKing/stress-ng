@@ -32,17 +32,11 @@
  *  stress_mincore()
  *	stress mincore system call
  */
-int stress_mincore(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mincore(args_t *args)
 {
 	uint8_t *addr = 0;
 	const size_t page_size = stress_get_pagesize();
 	const ptrdiff_t mask = ~(page_size - 1);
-
-	(void)instance;
 
 	do {
 		int i;
@@ -68,7 +62,8 @@ redo:
 					/* fall through */
 				default:
 					pr_fail(stderr, "%s: mincore on address %p error: %d %s\n ",
-						name, addr, errno, strerror(errno));
+						args->name, addr, errno,
+						strerror(errno));
 					return EXIT_FAILURE;
 				}
 			}
@@ -78,18 +73,14 @@ redo:
 			else
 				addr += page_size;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mincore(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mincore(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

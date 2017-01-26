@@ -43,11 +43,7 @@ static void MLOCKED stress_segvhandler(int dummy)
  *  stress_fault()
  *	stress min and max page faulting
  */
-int stress_fault(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fault(args_t *args)
 {
 	struct rusage usage;
 	char filename[PATH_MAX];
@@ -55,17 +51,17 @@ int stress_fault(
 	NOCLOBBER int i;
 	const pid_t pid = getpid();
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 
 	i = 0;
 
-	if (stress_sighandler(name, SIGSEGV, stress_segvhandler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	do {
@@ -76,7 +72,7 @@ int stress_fault(
 		if (ret) {
 			do_jmp = false;
 			pr_err(stderr, "%s: unexpected segmentation fault\n",
-				name);
+				args->name);
 			break;
 		}
 
@@ -84,7 +80,7 @@ int stress_fault(
 		if (fd < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Try again */
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			break;
 		}
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -94,7 +90,7 @@ int stress_fault(
 				continue;	/* Try again */
 			}
 			(void)close(fd);
-			pr_fail_err(name, "posix_fallocate");
+			pr_fail_err(args->name, "posix_fallocate");
 			break;
 		}
 #else
@@ -111,14 +107,14 @@ redo:
 					continue;
 				}
 				(void)close(fd);
-				pr_fail_err(name, "write");
+				pr_fail_err(args->name, "write");
 				break;
 			}
 		}
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				do_jmp = false;
 			if (fd != -1)
 				(void)close(fd);
@@ -140,7 +136,7 @@ redo:
 
 		if (ptr == MAP_FAILED) {
 			pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 
 		}
@@ -148,7 +144,7 @@ redo:
 
 		if (munmap(ptr, 1) < 0) {
 			pr_err(stderr, "%s: munmap failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 
@@ -158,15 +154,15 @@ next:
 			(void)unlink(filename);
 
 		i++;
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	/* Clean up, most times this is redundant */
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg(stderr, "%s: page faults: minor: %lu, major: %lu\n",
-			name, usage.ru_minflt, usage.ru_majflt);
+			args->name, usage.ru_minflt, usage.ru_majflt);
 	}
 
 	return EXIT_SUCCESS;

@@ -222,7 +222,7 @@ static const char *stress_zlib_err(const int zlib_err)
  *	inflate compressed data out of the read
  *	end of a pipe fd
  */
-static int stress_zlib_inflate(const char *name, const int fd)
+static int stress_zlib_inflate(args_t *args, const int fd)
 {
 	int ret;
 	z_stream stream_inf;
@@ -234,7 +234,7 @@ static int stress_zlib_inflate(const char *name, const int fd)
 	ret = inflateInit(&stream_inf);
 	if (ret != Z_OK) {
 		pr_fail(stderr, "%s: zlib inflateInit error: %s\n",
-			name, stress_zlib_err(ret));
+			args->name, stress_zlib_err(ret));
 		return EXIT_FAILURE;
 	}
 
@@ -269,11 +269,8 @@ static int stress_zlib_inflate(const char *name, const int fd)
  *	write end of a pipe fd
  */
 static int stress_zlib_deflate(
-	const char *name,
-	const int fd,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	uint64_t *counter)
+	args_t *args,
+	const int fd)
 {
 	int ret;
 	bool do_run;
@@ -287,7 +284,7 @@ static int stress_zlib_deflate(
 	ret = deflateInit(&stream_def, Z_BEST_COMPRESSION);
 	if (ret != Z_OK) {
 		pr_fail(stderr, "%s: zlib deflateInit error: %s\n",
-			name, stress_zlib_err(ret));
+			args->name, stress_zlib_err(ret));
 		return EXIT_FAILURE;
 	}
 
@@ -298,7 +295,7 @@ static int stress_zlib_deflate(
 		stream_def.avail_in = DATA_SIZE;
 		stream_def.next_in = (unsigned char *)in;
 
-		do_run = opt_do_run && (!max_ops || *counter < max_ops);
+		do_run = opt_do_run && (!args->max_ops || *args->counter < args->max_ops);
 
 		bytes_in += DATA_SIZE;
 
@@ -313,7 +310,7 @@ static int stress_zlib_deflate(
 
 			if ((rc != Z_OK) && (rc != Z_STREAM_END)) {
 				pr_fail(stderr, "%s: zlib deflate error: %s\n",
-					name, stress_zlib_err(rc));
+					args->name, stress_zlib_err(rc));
 				do_run = false;
 				ret = EXIT_FAILURE;
 				break;
@@ -324,17 +321,17 @@ static int stress_zlib_deflate(
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					ret = EXIT_FAILURE;
 					pr_fail(stderr, "%s: write error: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 				}
 				do_run = false;
 				break;
 			}
-			(*counter)++;
+			inc_counter(args);
 		} while (do_run && stream_def.avail_out == 0);
 	} while (do_run);
 
 	pr_inf(stdout, "%s: instance %" PRIu32 ": compression ratio: %5.2f%%\n",
-		name, instance, 100.0 * (double)bytes_out / (double)bytes_in);
+		args->name, args->instance, 100.0 * (double)bytes_out / (double)bytes_in);
 
 	(void)deflateEnd(&stream_def);
 	return ret;
@@ -344,18 +341,14 @@ static int stress_zlib_deflate(
  *  stress_zlib()
  *	stress cpu with compression and decompression
  */
-int stress_zlib(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_zlib(args_t *args)
 {
 	int ret, fds[2], status;
 	pid_t pid;
 
 	if (pipe(fds) < 0) {
 		pr_err(stderr, "%s: pipe failed, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -364,20 +357,20 @@ int stress_zlib(
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		pr_err(stderr, "%s: fork failed, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
 		(void)close(fds[1]);
-		ret = stress_zlib_inflate(name, fds[0]);
+		ret = stress_zlib_inflate(args, fds[0]);
 		(void)close(fds[0]);
 
 		exit(ret);
 	} else {
 		(void)close(fds[0]);
-		ret = stress_zlib_deflate(name, fds[1], instance, max_ops, counter);
+		ret = stress_zlib_deflate(args, fds[1]);
 		(void)close(fds[1]);
 	}
 	(void)kill(pid, SIGKILL);
@@ -386,12 +379,8 @@ int stress_zlib(
 	return ret;
 }
 #else
-int stress_zlib(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_zlib(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -105,18 +105,12 @@ static int stress_heapsort_cmp_3(const void *p1, const void *p2)
  *  stress_heapsort()
  *	stress heapsort
  */
-int stress_heapsort(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_heapsort(args_t *args)
 {
 	int32_t *data, *ptr;
 	size_t n, i;
 	struct sigaction old_action;
 	int ret;
-
-	(void)instance;
 
 	if (!set_heapsort_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -127,11 +121,11 @@ int stress_heapsort(
 	n = (size_t)opt_heapsort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(name, SIGALRM, stress_heapsort_handler, &old_action) < 0) {
+	if (stress_sighandler(args->name, SIGALRM, stress_heapsort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
 	}
@@ -141,7 +135,7 @@ int stress_heapsort(
 		/*
 		 * We return here if SIGALRM jmp'd back
 		 */
-		(void)stress_sigrestore(name, SIGALRM, &old_action);
+		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 		goto tidy;
 	}
 
@@ -157,7 +151,7 @@ int stress_heapsort(
 				if (*ptr > *(ptr+1)) {
 					pr_fail(stderr, "%s: sort error "
 						"detected, incorrect ordering "
-						"found\n", name);
+						"found\n", args->name);
 					break;
 				}
 			}
@@ -172,7 +166,7 @@ int stress_heapsort(
 				if (*ptr < *(ptr+1)) {
 					pr_fail(stderr, "%s: reverse sort "
 						"error detected, incorrect "
-						"ordering found\n", name);
+						"ordering found\n", args->name);
 					break;
 				}
 			}
@@ -189,7 +183,7 @@ int stress_heapsort(
 				if (*ptr < *(ptr+1)) {
 					pr_fail(stderr, "%s: reverse sort "
 						"error detected, incorrect "
-						"ordering found\n", name);
+						"ordering found\n", args->name);
 					break;
 				}
 			}
@@ -197,23 +191,19 @@ int stress_heapsort(
 		if (!opt_do_run)
 			break;
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	do_jmp = false;
-	(void)stress_sigrestore(name, SIGALRM, &old_action);
+	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
 	free(data);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_heapsort(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_heapsort(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

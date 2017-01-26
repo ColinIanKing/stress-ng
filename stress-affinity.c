@@ -30,13 +30,9 @@
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
-int stress_affinity(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_affinity(args_t *args)
 {
-	uint32_t cpu = instance;
+	uint32_t cpu = args->instance;
 	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t mask;
 
@@ -57,7 +53,7 @@ int stress_affinity(
 			}
 			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32
 				", errno=%d (%s)\n",
-				name, cpu, errno, strerror(errno));
+				args->name, cpu, errno, strerror(errno));
 			(void)shim_sched_yield();
 		} else {
 			/* Now get and check */
@@ -68,21 +64,17 @@ int stress_affinity(
 				    (!CPU_ISSET(cpu, &mask)))
 					pr_fail(stderr, "%s: failed to move "
 						"to CPU %" PRIu32 "\n",
-						name, cpu);
+						args->name, cpu);
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_affinity(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_affinity(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

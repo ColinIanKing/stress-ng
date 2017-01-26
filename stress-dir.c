@@ -29,10 +29,9 @@
  *	remove all dentries
  */
 static void stress_dir_tidy(
+	args_t *args,
 	const uint64_t n,
-	const char *name,
-	const pid_t pid,
-	const uint64_t instance)
+	const pid_t pid)
 {
 	uint64_t i;
 
@@ -41,7 +40,7 @@ static void stress_dir_tidy(
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			name, pid, instance, gray_code);
+			args->name, pid, args->instance, gray_code);
 		(void)rmdir(path);
 	}
 }
@@ -50,16 +49,12 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
-int stress_dir(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dir(args_t *args)
 {
 	const pid_t pid = getpid();
 	int ret;
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -71,33 +66,33 @@ int stress_dir(
 			uint64_t gray_code = (i >> 1) ^ i;
 
 			(void)stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
-					pr_fail_err(name, "mkdir");
+					pr_fail_err(args->name, "mkdir");
 					n = i;
 					break;
 				}
 			}
 
 			if (!opt_do_run ||
-			    (max_ops && *counter >= max_ops))
+			    (args->max_ops && *args->counter >= args->max_ops))
 				goto abort;
 
-			(*counter)++;
+			inc_counter(args);
 		}
-		stress_dir_tidy(n, name, pid, instance);
+		stress_dir_tidy(args, n, pid);
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
-		name, DEFAULT_DIRS);
-	stress_dir_tidy(DEFAULT_DIRS, name, pid, instance);
-	(void)stress_temp_dir_rm(name, pid, instance);
+		args->name, DEFAULT_DIRS);
+	stress_dir_tidy(args, DEFAULT_DIRS, pid);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return ret;
 }

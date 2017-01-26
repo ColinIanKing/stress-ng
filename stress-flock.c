@@ -30,11 +30,7 @@
  *  stress_flock
  *	stress file locking
  */
-int stress_flock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_flock(args_t *args)
 {
 	int fd;
 	pid_t ppid = getppid();
@@ -45,10 +41,10 @@ int stress_flock(
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), name, ppid, instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return exit_status(errno);
 		}
 	}
@@ -59,7 +55,7 @@ int stress_flock(
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, ppid, 0, 0);
+		args->name, ppid, 0, 0);
 retry:
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		int rc = exit_status(errno);
@@ -69,7 +65,7 @@ retry:
 			goto retry;
 		}
 		/* Not sure why this fails.. report and abort */
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)rmdir(dirname);
 		return rc;
 	}
@@ -80,8 +76,8 @@ retry:
 			continue;
 		(void)shim_sched_yield();
 		(void)flock(fd, LOCK_UN);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
 	(void)unlink(filename);
@@ -92,12 +88,8 @@ retry:
 
 #else
 
-int stress_flock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_flock(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

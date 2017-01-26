@@ -44,17 +44,11 @@ void stress_set_hsearch_size(const char *optarg)
  *  stress_hsearch()
  *	stress hsearch
  */
-int stress_hsearch(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_hsearch(args_t *args)
 {
 	size_t i, max;
 	int ret = EXIT_FAILURE;
 	char **keys;
-
-	(void)instance;
 
 	if (!set_hsearch_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -67,12 +61,12 @@ int stress_hsearch(
 
 	/* Make hash table with 25% slack */
 	if (!hcreate(max + (max / 4))) {
-		pr_fail_err(name, "hcreate");
+		pr_fail_err(args->name, "hcreate");
 		return EXIT_FAILURE;
 	}
 
 	if ((keys = calloc(max, sizeof(char *))) == NULL) {
-		pr_err(stderr, "%s: cannot allocate keys\n", name);
+		pr_err(stderr, "%s: cannot allocate keys\n", args->name);
 		goto free_hash;
 	}
 
@@ -84,7 +78,7 @@ int stress_hsearch(
 		snprintf(buffer, sizeof(buffer), "%zu", i);
 		keys[i] = strdup(buffer);
 		if (!keys[i]) {
-			pr_err(stderr, "%s: cannot allocate key\n", name);
+			pr_err(stderr, "%s: cannot allocate key\n", args->name);
 			goto free_all;
 		}
 
@@ -92,7 +86,7 @@ int stress_hsearch(
 		e.data = (void *)i;
 
 		if (hsearch(e, ENTER) == NULL) {
-			pr_err(stderr, "%s: cannot allocate new hash item\n", name);
+			pr_err(stderr, "%s: cannot allocate new hash item\n", args->name);
 			goto free_all;
 		}
 	}
@@ -106,16 +100,16 @@ int stress_hsearch(
 			ep = hsearch(e, FIND);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ep == NULL) {
-					pr_fail(stderr, "%s: cannot find key %s\n", name, keys[i]);
+					pr_fail(stderr, "%s: cannot find key %s\n", args->name, keys[i]);
 				} else {
 					if (i != (size_t)ep->data) {
-						pr_fail(stderr, "%s: hash returned incorrect data %zd\n", name, i);
+						pr_fail(stderr, "%s: hash returned incorrect data %zd\n", args->name, i);
 					}
 				}
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	ret = EXIT_SUCCESS;
 

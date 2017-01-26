@@ -57,14 +57,10 @@ static inline int futex_wait(
  * 	efficiently use futex, but to stress the futex system call
  *	by rapidly calling it on wait and wakes
  */
-int stress_futex(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_futex(args_t *args)
 {
-	uint64_t *timeout = &shared->futex.timeout[instance];
-	uint32_t *futex = &shared->futex.futex[instance];
+	uint64_t *timeout = &shared->futex.timeout[args->instance];
+	uint32_t *futex = &shared->futex.futex[args->instance];
 	pid_t pid;
 
 again:
@@ -73,7 +69,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 	if (pid > 0) {
 		int status;
@@ -92,16 +88,16 @@ again:
 			ret = futex_wake(futex, 1);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
-					pr_fail_err(name, "futex wake");
+					pr_fail_err(args->name, "futex wake");
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		/* Kill waiter process */
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n",
-			name, *timeout);
+			args->name, *timeout);
 	} else {
 		uint64_t threshold = THRESHOLD;
 
@@ -131,22 +127,18 @@ again:
 				}
 			} else {
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail_err(name, "futex wait");
+					pr_fail_err(args->name, "futex wait");
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_futex(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_futex(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -41,18 +41,12 @@ void stress_set_vm_splice_bytes(const char *optarg)
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-int stress_vm_splice(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vm_splice(args_t *args)
 {
 	int fd, fds[2];
 	uint8_t *buf;
 	const size_t page_size = stress_get_pagesize();
 	size_t sz;
-
-	(void)instance;
 
 	if (!set_vm_splice_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -67,13 +61,13 @@ int stress_vm_splice(
 	if (buf == MAP_FAILED) {
 		int rc = exit_status(errno);
 
-		pr_fail_dbg(name, "mmap");
+		pr_fail_dbg(args->name, "mmap");
 		return rc;
 	}
 
 	if (pipe(fds) < 0) {
 		(void)munmap(buf, sz);
-		pr_fail_err(name, "pipe");
+		pr_fail_err(args->name, "pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -81,7 +75,7 @@ int stress_vm_splice(
 		(void)munmap(buf, sz);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -101,8 +95,8 @@ int stress_vm_splice(
 		if (ret < 0)
 			break;
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)munmap(buf, sz);
 	(void)close(fd);
@@ -112,12 +106,8 @@ int stress_vm_splice(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_vm_splice(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vm_splice(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

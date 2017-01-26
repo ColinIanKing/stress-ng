@@ -43,7 +43,7 @@ static const char *interfaces[] = {
 	"offset"
 };
 
-static inline int stress_rtc_dev(const char *name)
+static inline int stress_rtc_dev(args_t *args)
 {
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
@@ -65,7 +65,7 @@ static inline int stress_rtc_dev(const char *name)
 #if defined(RTC_RD_TIME)
 	if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(name, "ioctl RTC_RD_TIME");
+			pr_fail_err(args->name, "ioctl RTC_RD_TIME");
 			ret = -errno;
 			goto err;
 		}
@@ -75,7 +75,7 @@ static inline int stress_rtc_dev(const char *name)
 #if defined(RTC_ALM_READ)
 	if (ioctl(fd, RTC_ALM_READ, &alarm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(name, "ioctl RTC_ALRM_READ");
+			pr_fail_err(args->name, "ioctl RTC_ALRM_READ");
 			ret = -errno;
 			goto err;
 		}
@@ -85,7 +85,7 @@ static inline int stress_rtc_dev(const char *name)
 #if defined(RTC_WKALM_RD)
 	if (ioctl(fd, RTC_WKALM_RD, &alarm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(name, "ioctl RTC_WKALRM_RD");
+			pr_fail_err(args->name, "ioctl RTC_WKALRM_RD");
 			ret = -errno;
 			goto err;
 		}
@@ -95,7 +95,7 @@ static inline int stress_rtc_dev(const char *name)
 #if defined(RTC_IRQP_READ)
 	if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(name, "ioctl RTC_IRQP_READ");
+			pr_fail_err(args->name, "ioctl RTC_IRQP_READ");
 			ret = -errno;
 			goto err;
 		}
@@ -111,7 +111,7 @@ err:
 	return ret;
 }
 
-static inline int stress_rtc_sys(const char *name)
+static inline int stress_rtc_sys(args_t *args)
 {
 	size_t i;
 	int rc = 0;
@@ -132,20 +132,20 @@ static inline int stress_rtc_sys(const char *name)
 				enoents++;
 			} else {
 				pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
-					name, path, -ret, strerror(-ret));
+					args->name, path, -ret, strerror(-ret));
 				rc = ret;
 			}
 		}
 	}
 	if (enoents == SIZEOF_ARRAY(interfaces)) {
-		pr_fail(stderr, "%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", name);
+		pr_fail(stderr, "%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", args->name);
 		rc = -ENOENT;
 	}
 
 	return rc;
 }
 
-static inline int stress_rtc_proc(const char *name)
+static inline int stress_rtc_proc(args_t *args)
 {
 	int ret;
 	char buf[4096];
@@ -155,7 +155,7 @@ static inline int stress_rtc_proc(const char *name)
 	if (ret < 0) {
 		if ((ret != -ENOENT) && (ret != -EINTR)) {
 			pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
-			name, path, -ret, strerror(-ret));
+			args->name, path, -ret, strerror(-ret));
 		}
 	}
 	return ret;
@@ -165,40 +165,30 @@ static inline int stress_rtc_proc(const char *name)
  *  stress_rtc
  *	stress some Linux RTC ioctls and /sys/class/rtc interface
  */
-int stress_rtc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rtc(args_t *args)
 {
-	(void)instance;
-
 	do {
 		int ret;
 
-		ret = stress_rtc_dev(name);
+		ret = stress_rtc_dev(args);
 		if (ret < 0) {
 			if ((ret != -EACCES) && (ret != -EBUSY))
 				break;
 		}
-		ret = stress_rtc_sys(name);
+		ret = stress_rtc_sys(args);
 		if (ret < 0)
 			break;
-		ret = stress_rtc_proc(name);
+		ret = stress_rtc_proc(args);
 		if (ret < 0)
 			break;
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rtc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rtc(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

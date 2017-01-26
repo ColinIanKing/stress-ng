@@ -256,38 +256,28 @@ static void stress_sys_dir(
  *  stress_sysfs
  *	stress reading all of /sys
  */
-int stress_sysfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sysfs(args_t *args)
 {
 	bool sys_rw = true;
 
-	(void)instance;
-
 	if (geteuid() == 0) {
-		if (instance == 0) {
+		if (args->instance == 0) {
 			pr_inf(stdout, "%s: running as root, just traversing /sys "
-				"and not read/writing to /sys files.\n", name);
+				"and not read/writing to /sys files.\n", args->name);
 		}
 		sys_rw = false;
 	}
 
 	do {
-		stress_sys_dir(name, "/sys", true, 0, sys_rw);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		stress_sys_dir(args->name, "/sys", true, 0, sys_rw);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sysfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sysfs(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

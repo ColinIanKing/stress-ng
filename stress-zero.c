@@ -28,19 +28,13 @@
  *  stress_zero
  *	stress reading of /dev/zero
  */
-int stress_zero(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_zero(args_t *args)
 {
 	int fd;
 	const size_t page_size = stress_get_pagesize();
 
-	(void)instance;
-
 	if ((fd = open("/dev/zero", O_RDONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -55,7 +49,7 @@ int stress_zero(
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail_err(name, "read");
+			pr_fail_err(args->name, "read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -69,22 +63,21 @@ int stress_zero(
 		if (ptr == MAP_FAILED) {
 			if (errno == ENOMEM)
 				continue;
-			pr_fail_err(name, "mmap /dev/zero");
+			pr_fail_err(args->name, "mmap /dev/zero");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		/* Quick sanity check if first 32 bits are zero */
 		if (*ptr != 0) {
-			pr_fail_err(name, "mmap'd /dev/zero not null");
+			pr_fail_err(args->name, "mmap'd /dev/zero not null");
 			(void)munmap(ptr, page_size);
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		(void)munmap(ptr, page_size);
 #endif
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	(void)close(fd);
 
 	return EXIT_SUCCESS;

@@ -28,11 +28,7 @@
  *  stress_dup()
  *	stress system by rapid dup/close calls
  */
-int stress_dup(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dup(args_t *args)
 {
 	int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
@@ -41,14 +37,12 @@ int stress_dup(
 	bool do_dup3 = true;
 #endif
 
-	(void)instance;
-
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd =  SIZEOF_ARRAY(fds);
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
-		pr_fail_dbg(name, "open on /dev/zero");
+		pr_fail_dbg(args->name, "open on /dev/zero");
 		return EXIT_FAILURE;
 	}
 
@@ -84,13 +78,13 @@ int stress_dup(
 			/* dup2 on the same fd should be a no-op */
 			tmp = dup2(fds[n], fds[n]);
 			if (tmp != fds[n]) {
-				pr_fail_err(name, "dup2 with same fds");
+				pr_fail_err(args->name, "dup2 with same fds");
 				break;
 			}
 
 			if (!opt_do_run)
 				break;
-			(*counter)++;
+			inc_counter(args);
 		}
 		for (i = 1; i < n; i++) {
 			if (fds[i] < 0)
@@ -99,7 +93,7 @@ int stress_dup(
 				break;
 			(void)close(fds[i]);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	(void)close(fds[0]);
 
 	return EXIT_SUCCESS;

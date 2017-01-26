@@ -159,11 +159,7 @@ static int issue_aio_request(
  *  stress_aio
  *	stress asynchronous I/O
  */
-int stress_aio(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_aio(args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
 	io_req_t *io_reqs;
@@ -181,23 +177,23 @@ int stress_aio(
 	}
 
 	if ((io_reqs = calloc(opt_aio_requests, sizeof(io_req_t))) == NULL) {
-		pr_err(stderr, "%s: cannot allocate io request structures\n", name);
+		pr_err(stderr, "%s: cannot allocate io request structures\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0) {
 		free(io_reqs);
 		return exit_status(-ret);
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -206,12 +202,12 @@ int stress_aio(
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
 	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)
-		pr_fail_err(name, "sigaction");
+		pr_fail_err(args->name, "sigaction");
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
 		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
-		ret = issue_aio_request(name, fd, (off_t)i * BUFFER_SZ,
+		ret = issue_aio_request(args->name, fd, (off_t)i * BUFFER_SZ,
 			&io_reqs[i], i, aio_write);
 		if (ret < 0)
 			goto cancel;
@@ -233,8 +229,8 @@ int stress_aio(
 			case ECANCELED:
 			case 0:
 				/* Succeeded or cancelled, so redo another */
-				(*counter)++;
-				if (issue_aio_request(name, fd,
+				inc_counter(args);
+				if (issue_aio_request(args->name, fd,
 					(off_t)i * BUFFER_SZ, &io_reqs[i], i,
 					(mwc32() & 0x8) ? aio_read : aio_write) < 0)
 					goto cancel;
@@ -243,12 +239,12 @@ int stress_aio(
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail_errno(name, "aio_error",
+				pr_fail_errno(args->name, "aio_error",
 					io_reqs[i].status);
 				goto cancel;
 			}
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 
@@ -257,7 +253,7 @@ cancel:
 	do_accounting = false;
 	/* Cancel pending AIO requests */
 	for (i = 0; i < opt_aio_requests; i++) {
-		aio_issue_cancel(name, &io_reqs[i]);
+		aio_issue_cancel(args->name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
 	(void)close(fd);
@@ -266,17 +262,13 @@ finish:
 
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
 		"caught (instance %d)\n",
-		name, total, instance);
-	(void)stress_temp_dir_rm(name, pid, instance);
+		args->name, total, args->instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 	return rc;
 }
 #else
-int stress_aio(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_aio(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

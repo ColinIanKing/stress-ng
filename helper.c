@@ -854,27 +854,19 @@ unsigned int stress_get_cpu(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_not_implemented(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_not_implemented(args_t *args)
 {
-	(void)counter;
-	(void)instance;
-	(void)max_ops;
-
 #if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
 		pr_inf(stdout, "%s: this stressor is not implemented on this system: %s %s %s\n",
-			name, buf.machine, buf.sysname, buf.release);
+			args->name, buf.machine, buf.sysname, buf.release);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 #endif
 	pr_inf(stdout, "%s: this stressor is not implemented on this system\n",
-		name);
+		args->name);
 	return EXIT_NOT_IMPLEMENTED;
 }
 

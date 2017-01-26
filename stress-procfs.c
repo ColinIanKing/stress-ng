@@ -242,16 +242,9 @@ static void stress_proc_dir(
  *  stress_procfs
  *	stress reading all of /proc
  */
-int stress_procfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_procfs(args_t *args)
 {
 	bool proc_write = true;
-
-	(void)instance;
-	(void)name;
 
 	sigfillset(&set);
 
@@ -260,81 +253,76 @@ int stress_procfs(
 
 	do {
 		stress_proc_dir("/proc/self", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-
 		stress_proc_dir("/proc/sys", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/sysvipc", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/fs", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/bus", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/irq", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/scsi", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/tty", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/driver", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/tty", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/self", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc/thread_self", true, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		stress_proc_dir("/proc", false, 0, proc_write);
-		(*counter)++;
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		inc_counter(args);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_procfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_procfs(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -31,7 +31,7 @@
  *	set a specified CPUs online or offline
  */
 static int stress_cpu_online_set(
-	const char *name,
+	args_t *args,
 	const int32_t cpu,
 	const int setting)
 {
@@ -44,7 +44,7 @@ static int stress_cpu_online_set(
 		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
 	fd = open(filename, O_WRONLY);
 	if (fd < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -56,7 +56,7 @@ static int stress_cpu_online_set(
 
 	if (ret != 3) {
 		if ((errno != EAGAIN) && (errno != EINTR)) {
-			pr_fail_err(name, "write");
+			pr_fail_err(args->name, "write");
 			rc = EXIT_FAILURE;
 		}
 	}
@@ -68,35 +68,29 @@ static int stress_cpu_online_set(
  *  stress_cpu_online
  *	stress twiddling CPUs online/offline
  */
-int stress_cpu_online(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cpu_online(args_t *args)
 {
 	const int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
 
-	(void)instance;
-
 	if (geteuid() != 0) {
-		if (instance == 0)
+		if (args->instance == 0)
 			pr_inf(stdout, "%s: need root privilege to run "
-				"this stressor\n", name);
+				"this stressor\n", args->name);
 		/* Not strictly a test failure */
 		return EXIT_SUCCESS;
 	}
 
 	if ((cpus < 1) || (cpus > 65536)) {
-		pr_inf(stdout, "%s: too few or too many CPUs (found %" PRId32 ")\n", name, cpus);
+		pr_inf(stdout, "%s: too few or too many CPUs (found %" PRId32 ")\n", args->name, cpus);
 		return EXIT_FAILURE;
 	}
 
 	cpu_online = calloc(cpus, sizeof(bool));
 	if (!cpu_online) {
-		pr_err(stderr, "%s: out of memory\n", name);
+		pr_err(stderr, "%s: out of memory\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -117,7 +111,7 @@ int stress_cpu_online(
 		}
 	}
 	if (cpu_online_count == 0) {
-		pr_inf(stdout, "%s: no CPUs can be set online/offline\n", name);
+		pr_inf(stdout, "%s: no CPUs can be set online/offline\n", args->name);
 		free(cpu_online);
 		return EXIT_FAILURE;
 	}
@@ -128,35 +122,30 @@ int stress_cpu_online(
 	do {
 		unsigned long cpu = mwc32() % cpus;
 		if (cpu_online[cpu]) {
-			rc = stress_cpu_online_set(name, cpu, 0);
+			rc = stress_cpu_online_set(args, cpu, 0);
 			if (rc != EXIT_SUCCESS)
 				break;
-			rc = stress_cpu_online_set(name, cpu, 1);
+			rc = stress_cpu_online_set(args, cpu, 1);
 			if (rc != EXIT_SUCCESS)
 				break;
-			(*counter)++;
+			inc_counter(args);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/*
 	 *  Force CPUs all back online
 	 */
 	for (i = 0; i < cpus; i++) {
 		if (cpu_online[i])
-			(void)stress_cpu_online_set(name, i, 1);
+			(void)stress_cpu_online_set(args, i, 1);
 	}
 	free(cpu_online);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_cpu_online(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cpu_online(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
-
+	return stress_not_implemented(args);
 }
 #endif

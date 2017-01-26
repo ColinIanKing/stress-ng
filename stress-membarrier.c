@@ -36,16 +36,12 @@ enum membarrier_cmd {
 	MEMBARRIER_CMD_SHARED = (1 << 0),
 };
 
-typedef struct {
-	const char *name;
-} ctxt_t;
-
 static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
-	const ctxt_t *ctxt = (ctxt_t *)arg;
+	const args_t *args = (args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -71,14 +67,14 @@ static void *stress_membarrier_thread(void *arg)
 
 		ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 		if (ret < 0) {
-			pr_fail_err(ctxt->name, "membarrier CMD QUERY");
+			pr_fail_err(args->name, "membarrier CMD QUERY");
 			break;
 		}
 		/* CMD SHARED not availble; skip it */
 		if (!(ret & MEMBARRIER_CMD_SHARED))
 			continue;
 		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_fail_err(ctxt->name, "membarrier CMD SHARED");
+			pr_fail_err(args->name, "membarrier CMD SHARED");
 			break;
 		}
 	}
@@ -90,29 +86,22 @@ static void *stress_membarrier_thread(void *arg)
  *  stress on membarrier()
  *	stress system by IO sync calls
  */
-int stress_membarrier(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_membarrier(args_t *args)
 {
 	int ret;
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
 	size_t i;
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
-	ctxt_t ctxt = { name };
-
-	(void)instance;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
 		pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (!(ret & MEMBARRIER_CMD_SHARED)) {
 		pr_inf(stdout, "%s: membarrier MEMBARRIER_CMD_SHARED "
-			"not supported\n", name);
+			"not supported\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -123,17 +112,17 @@ int stress_membarrier(
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		pthread_ret[i] =
 			pthread_create(&pthreads[i], NULL,
-				stress_membarrier_thread, (void *)&ctxt);
+				stress_membarrier_thread, (void *)args);
 	}
 
 	do {
 		ret = shim_membarrier(MEMBARRIER_CMD_SHARED, 0);
 		if (ret < 0) {
 			pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	keep_running = false;
 
@@ -144,12 +133,8 @@ int stress_membarrier(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_membarrier(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_membarrier(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

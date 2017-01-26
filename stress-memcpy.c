@@ -32,17 +32,10 @@ static uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
  *  stress_memcpy()
  *	stress memory copies
  */
-int stress_memcpy(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_memcpy(args_t *args)
 {
 	uint8_t *str_shared = shared->str_shared;
 	uint8_t *aligned_buf = align_address(buffer, ALIGN_SIZE);
-
-	(void)instance;
-	(void)name;
 
 	do {
 		memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
@@ -50,8 +43,8 @@ int stress_memcpy(
 		memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
 		memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
 		memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

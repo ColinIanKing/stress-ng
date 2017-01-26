@@ -28,17 +28,10 @@
  *  stress_jmp()
  *	stress system by setjmp/longjmp calls
  */
-int stress_longjmp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_longjmp(args_t *args)
 {
 	int ret;
 	static jmp_buf buf;
-
-	(void)instance;
-	(void)name;
 
 	ret = setjmp(buf);
 
@@ -47,11 +40,11 @@ int stress_longjmp(
 
 		c++;
 		if (c >= 1000) {
-			(*counter)++;
+			inc_counter(args);
 			c = 0;
 		}
 	}
-	if (opt_do_run && (!max_ops || *counter < max_ops))
+	if (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
 		longjmp(buf, 1);
 
 	return EXIT_SUCCESS;

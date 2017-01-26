@@ -35,11 +35,11 @@ static MLOCKED void handle_daemon_sigalrm(int dummy)
  *  daemons()
  *	fork off a child and let the parent die
  */
-static void daemons(const char *name, const int fd)
+static void daemons(args_t *args, const int fd)
 {
 	int fds[3];
 
-	if (stress_sighandler(name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
 		goto err;
 	if (setsid() < 0)
 		goto err;
@@ -93,34 +93,28 @@ err:	(void)close(fd);
  *  stress_daemon()
  *	stress by multiple daemonizing forks
  */
-int stress_daemon(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_daemon(args_t *args)
 {
 	int fds[2];
 	pid_t pid;
 
-	(void)instance;
-
-	if (stress_sighandler(name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {
-		pr_fail_dbg(name, "pipe");
+		pr_fail_dbg(args->name, "pipe");
 		return EXIT_FAILURE;
 	}
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Children */
 		(void)close(fds[0]);
-		daemons(name, fds[1]);
+		daemons(args, fds[1]);
 		(void)close(fds[1]);
 	} else {
 		/* Parent */
@@ -139,8 +133,8 @@ int stress_daemon(
 				}
 				break;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 
 	return EXIT_SUCCESS;

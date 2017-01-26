@@ -59,15 +59,10 @@ void stress_set_vfork_max(const char *optarg)
  *	fork function fork_fn (fork or vfork)
  */
 static int stress_fork_fn(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	pid_t (*fork_fn)(void),
 	const uint64_t fork_max)
 {
-	(void)instance;
-
 	pid_t pids[MAX_FORKS];
 
 	do {
@@ -93,16 +88,16 @@ static int stress_fork_fn(
 				int status;
 				/* Parent, wait for child */
 				(void)waitpid(pids[i], &status, 0);
-				(*counter)++;
+				inc_counter(args);
 			}
 		}
 
 		for (i = 0; i < fork_max; i++) {
 			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: fork failed\n", name);
+				pr_fail(stderr, "%s: fork failed\n", args->name);
 			}
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
@@ -111,11 +106,7 @@ static int stress_fork_fn(
  *  stress_fork()
  *	stress by forking and exiting
  */
-int stress_fork(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fork(args_t *args)
 {
 	if (!set_fork_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -124,8 +115,7 @@ int stress_fork(
 			opt_fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(counter, instance, max_ops,
-		name, fork, opt_fork_max);
+	return stress_fork_fn(args, fork, opt_fork_max);
 }
 
 
@@ -133,11 +123,7 @@ int stress_fork(
  *  stress_vfork()
  *	stress by vforking and exiting
  */
-int stress_vfork(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vfork(args_t *args)
 {
 	if (!set_vfork_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -146,6 +132,5 @@ int stress_vfork(
 			opt_vfork_max = MIN_VFORKS;
 	}
 
-	return stress_fork_fn(counter, instance, max_ops,
-		name, vfork, opt_vfork_max);
+	return stress_fork_fn(args, vfork, opt_vfork_max);
 }

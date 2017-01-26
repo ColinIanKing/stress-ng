@@ -123,33 +123,22 @@ int main(void)
  *  stress_atomic()
  *      stress gcc atomic memory ops
  */
-int stress_atomic(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_atomic(args_t *args)
 {
-	(void)instance;
-	(void)name;
-
 	do {
 		DO_ATOMIC_OPS(uint64_t, &shared->atomic.val64);
 		DO_ATOMIC_OPS(uint32_t, &shared->atomic.val32);
 		DO_ATOMIC_OPS(uint16_t, &shared->atomic.val16);
 		DO_ATOMIC_OPS(uint8_t, &shared->atomic.val8);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_atomic(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_atomic(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args)
 }
 #endif
 #endif

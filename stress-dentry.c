@@ -86,8 +86,7 @@ int stress_set_dentry_order(const char *optarg)
  *	remove all dentries
  */
 static void stress_dentry_unlink(
-	const char *name,
-	const uint32_t instance,
+	args_t *args,
 	const uint64_t n)
 {
 	uint64_t i, j;
@@ -108,7 +107,7 @@ static void stress_dentry_unlink(
 			gray_code = (j >> 1) ^ j;
 
 			stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -120,7 +119,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (k >> 1) ^ k;
 
 			stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -131,7 +130,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (i >> 1) ^ i;
 
 			stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -143,11 +142,7 @@ static void stress_dentry_unlink(
  *  stress_dentry
  *	stress dentries
  */
-int stress_dentry(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dentry(args_t *args)
 {
 	const pid_t pid = getpid();
 	int ret;
@@ -159,7 +154,7 @@ int stress_dentry(
 			opt_dentries = MIN_DENTRIES;
 	}
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -172,35 +167,35 @@ int stress_dentry(
 			int fd;
 
 			stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
 				if (errno != ENOSPC)
-					pr_fail_err(name, "open");
+					pr_fail_err(args->name, "open");
 				n = i;
 				break;
 			}
 			(void)close(fd);
 
 			if (!opt_do_run ||
-			    (max_ops && *counter >= max_ops))
+			    (args->max_ops && *args->counter >= args->max_ops))
 				goto abort;
 
-			(*counter)++;
+			inc_counter(args);
 		}
-		stress_dentry_unlink(name, instance, n);
+		stress_dentry_unlink(args, n);
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n",
-		name, opt_dentries);
-	stress_dentry_unlink(name, instance, opt_dentries);
-	(void)stress_temp_dir_rm(name, pid, instance);
+		args->name, opt_dentries);
+	stress_dentry_unlink(args, opt_dentries);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

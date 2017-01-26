@@ -224,18 +224,12 @@ static int clone_func(void *arg)
  *  stress_clone()
  *	stress by cloning and exiting
  */
-int stress_clone(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_clone(args_t *args)
 {
 	uint64_t max_clones = 0;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
-
-	(void)instance;
 
 	if (!set_clone_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -267,14 +261,14 @@ int stress_clone(
 
 			if (max_clones < clones.length)
 				max_clones = clones.length;
-			(*counter)++;
+			inc_counter(args);
 		} else {
 			stress_clone_head_remove();
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	pr_inf(stdout, "%s: created a maximum of %" PRIu64 " clones\n",
-		name, max_clones);
+		args->name, max_clones);
 
 	/* And reap */
 	while (clones.head) {
@@ -286,12 +280,8 @@ int stress_clone(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clone(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_clone(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

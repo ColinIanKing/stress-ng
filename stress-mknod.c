@@ -41,10 +41,9 @@ static const int modes[] = {
  *	remove all files
  */
 static void stress_mknod_tidy(
+	args_t *args,
 	const uint64_t n,
-	const char *name,
-	const pid_t pid,
-	const uint64_t instance)
+	const pid_t pid)
 {
 	uint64_t i;
 
@@ -53,7 +52,7 @@ static void stress_mknod_tidy(
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			name, pid, instance, gray_code);
+			args->name, pid, args->instance, gray_code);
 		(void)unlink(path);
 	}
 }
@@ -62,11 +61,7 @@ static void stress_mknod_tidy(
  *  stress_mknod
  *	stress mknod creates
  */
-int stress_mknod(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mknod(args_t *args)
 {
 	const pid_t pid = getpid();
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
@@ -74,10 +69,10 @@ int stress_mknod(
 
 	if (num_nodes == 0) {
 		pr_err(stderr, "%s: aborting, no valid mknod modes.\n",
-			name);
+			args->name);
 		return EXIT_FAILURE;
 	}
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -90,32 +85,32 @@ int stress_mknod(
 			int mode = modes[mwc32() % num_nodes];
 
 			(void)stress_temp_filename(path, sizeof(path),
-				name, pid, instance, gray_code);
+				args->name, pid, args->instance, gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if ((errno == ENOSPC) || (errno == ENOMEM))
 					continue;	/* Try again */
-				pr_fail_err(name, "mknod");
+				pr_fail_err(args->name, "mknod");
 				n = i;
 				break;
 			}
 
 			if (!opt_do_run ||
-			    (max_ops && *counter >= max_ops))
+			    (args->max_ops && *args->counter >= args->max_ops))
 				goto abort;
 
-			(*counter)++;
+			inc_counter(args);
 		}
-		stress_mknod_tidy(n, name, pid, instance);
+		stress_mknod_tidy(args, n, pid);
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32 " nodes\n", name, DEFAULT_DIRS);
-	stress_mknod_tidy(DEFAULT_DIRS, name, pid, instance);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	pr_tidy(stderr, "%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
+	stress_mknod_tidy(args, DEFAULT_DIRS, pid);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

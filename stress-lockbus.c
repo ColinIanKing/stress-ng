@@ -56,16 +56,10 @@
  *  stress_lockbus()
  *      stress memory with lock and increment
  */
-int stress_lockbus(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lockbus(args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
-
-	(void)instance;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -73,7 +67,7 @@ int stress_lockbus(
 	buffer = mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (buffer == MAP_FAILED) {
 		int rc = exit_status(errno);
-		pr_err(stderr, "%s: mmap failed\n", name);
+		pr_err(stderr, "%s: mmap failed\n", args->name);
 		return rc;
 	}
 
@@ -90,20 +84,16 @@ int stress_lockbus(
 		LOCK_AND_INCx8(ptr, inc);
 		LOCK_AND_INCx8(ptr, inc);
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)munmap(buffer, BUFFER_SIZE);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_lockbus(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lockbus(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

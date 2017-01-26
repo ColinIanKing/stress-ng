@@ -367,11 +367,7 @@ static const dnotify_stress_t dnotify_stressors[] = {
  *  stress_dnotify()
  *	stress dnotify
  */
-int stress_dnotify(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dnotify(args_t *args)
 {
 	char dirname[PATH_MAX];
 	int ret, i;
@@ -383,30 +379,26 @@ int stress_dnotify(
 	act.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGRTMIN + 1, &act, NULL) < 0) {
 		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
-	ret = stress_temp_dir_mk(name, pid, instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
 		for (i = 0; opt_do_run && dnotify_stressors[i].func; i++)
-			dnotify_stressors[i].func(name, dirname);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
-	(void)stress_temp_dir_rm(name, pid, instance);
+			dnotify_stressors[i].func(args->name, dirname);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_dnotify(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dnotify(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

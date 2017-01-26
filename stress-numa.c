@@ -192,11 +192,7 @@ static int stress_numa_get_mem_nodes(node_t **node_ptr)
  *  stress_numa()
  *	stress the Linux NUMA interfaces
  */
-int stress_numa(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_numa(args_t *args)
 {
 	long numa_nodes;
 	unsigned long max_nodes;
@@ -211,20 +207,20 @@ int stress_numa(
 	numa_nodes = stress_numa_get_mem_nodes(&n);
 	if (numa_nodes < 1) {
 		pr_inf(stdout, "%s: no NUMA nodes not found, "
-			"aborting test\n", name);
+			"aborting test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	max_nodes = stress_numa_get_max_nodes();
 	if (max_nodes == 0) {
 		pr_inf(stderr, "%s: cannot determine maximum number "
-			"of NUMA nodes, aborting test\n", name);
+			"of NUMA nodes, aborting test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
-	if (!instance) {
+	if (!args->instance) {
 		pr_inf(stdout, "%s: system has %lu of a maximum %lu memory NUMA nodes\n",
-			name, numa_nodes, max_nodes);
+			args->name, numa_nodes, max_nodes);
 	}
 
 	/*
@@ -235,7 +231,7 @@ int stress_numa(
 	if (buf == MAP_FAILED) {
 		rc = exit_status(errno);
 		pr_fail(stderr, "%s: mmap'd region of %zu bytes failed",
-			name, (size_t)MMAP_SZ);
+			args->name, (size_t)MMAP_SZ);
 		goto numa_free;
 	}
 
@@ -253,7 +249,7 @@ int stress_numa(
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
-			pr_fail_err(name, "get_mempolicy");
+			pr_fail_err(args->name, "get_mempolicy");
 			goto err;
 		}
 		if (!opt_do_run)
@@ -261,7 +257,7 @@ int stress_numa(
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
 		if (ret < 0) {
-			pr_fail_err(name, "set_mempolicy");
+			pr_fail_err(args->name, "set_mempolicy");
 			goto err;
 		}
 		memset(buf, 0xff, MMAP_SZ);
@@ -284,7 +280,7 @@ int stress_numa(
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			if (errno != EIO) {
-				pr_fail_err(name, "mbind");
+				pr_fail_err(args->name, "mbind");
 				goto err;
 			}
 		} else {
@@ -302,7 +298,7 @@ int stress_numa(
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
 			if (errno != EIO) {
-				pr_fail_err(name, "mbind");
+				pr_fail_err(args->name, "mbind");
 				goto err;
 			}
 		} else {
@@ -323,7 +319,7 @@ int stress_numa(
 		ret = shim_migrate_pages(mypid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
-			pr_fail_err(name, "migrate_pages");
+			pr_fail_err(args->name, "migrate_pages");
 			goto err;
 		}
 		if (!opt_do_run)
@@ -342,15 +338,15 @@ int stress_numa(
 			ret = shim_move_pages(mypid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
-				pr_fail_err(name, "move_pages");
+				pr_fail_err(args->name, "move_pages");
 				goto err;
 			}
 			memset(buf, j, MMAP_SZ);
 			if (!opt_do_run)
 				break;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 err:
@@ -361,12 +357,8 @@ numa_free:
 	return rc;
 }
 #else
-int stress_numa(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_numa(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

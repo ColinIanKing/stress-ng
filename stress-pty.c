@@ -41,15 +41,9 @@ typedef struct {
  *  stress_pty
  *	stress pyt handling
  */
-int stress_pty(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_pty(args_t *args)
 {
 	int rc = EXIT_FAILURE;
-
-	(void)instance;
 
 	do {
 		size_t i, n;
@@ -62,25 +56,25 @@ int stress_pty(
 			ptys[n].master = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].master < 0) {
 				if (errno != ENOSPC)
-					pr_fail_err(name, "open /dev/ptmx");
+					pr_fail_err(args->name, "open /dev/ptmx");
 				goto clean;
 			}
 			ptys[n].slavename = ptsname(ptys[n].master);
 			if (!ptys[n].slavename) {
-				pr_fail_err(name, "ptsname");
+				pr_fail_err(args->name, "ptsname");
 				goto clean;
 			}
 			if (grantpt(ptys[n].master) < 0) {
-				pr_fail_err(name, "grantpt");
+				pr_fail_err(args->name, "grantpt");
 				goto clean;
 			}
 			if (unlockpt(ptys[n].master) < 0) {
-				pr_fail_err(name, "unlockpt");
+				pr_fail_err(args->name, "unlockpt");
 				goto clean;
 			}
 			ptys[n].slave = open(ptys[n].slavename, O_RDWR);
 			if (ptys[n].slave < 0) {
-				pr_fail_err(name, "open slave pty");
+				pr_fail_err(args->name, "open slave pty");
 				goto clean;
 			}
 			if (!opt_do_run)
@@ -97,63 +91,63 @@ int stress_pty(
 
 #if defined(TCGETS)
 			if (ioctl(ptys[i].slave, TCGETS, &ios) < 0)
-				pr_fail_err(name, "ioctl TCGETS on slave pty");
+				pr_fail_err(args->name, "ioctl TCGETS on slave pty");
 #endif
 #if defined(TCSETS)
 			if (ioctl(ptys[i].slave, TCSETS, &ios) < 0)
-				pr_fail_err(name, "ioctl TCSETS on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETS on slave pty");
 #endif
 #if defined(TCSETSW)
 			if (ioctl(ptys[i].slave, TCSETSW, &ios) < 0)
-				pr_fail_err(name, "ioctl TCSETSW on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETSW on slave pty");
 #endif
 #if defined(TCSETSF)
 			if (ioctl(ptys[i].slave, TCSETSF, &ios) < 0)
-				pr_fail_err(name, "ioctl TCSETSF on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETSF on slave pty");
 #endif
 #if defined(TCGETA)
 			if (ioctl(ptys[i].slave, TCGETA, &io) < 0)
-				pr_fail_err(name, "ioctl TCGETA on slave pty");
+				pr_fail_err(args->name, "ioctl TCGETA on slave pty");
 #endif
 #if defined(TCSETA)
 			if (ioctl(ptys[i].slave, TCSETA, &io) < 0)
-				pr_fail_err(name, "ioctl TCSETA on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETA on slave pty");
 #endif
 #if defined(TCSETAW)
 			if (ioctl(ptys[i].slave, TCSETAW, &io) < 0)
-				pr_fail_err(name, "ioctl TCSETAW on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETAW on slave pty");
 #endif
 #if defined(TCSETAF)
 			if (ioctl(ptys[i].slave, TCSETAF, &io) < 0)
-				pr_fail_err(name, "ioctl TCSETAF on slave pty");
+				pr_fail_err(args->name, "ioctl TCSETAF on slave pty");
 #endif
 #if defined(TIOCGLCKTRMIOS)
 			if (ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0)
-				pr_fail_err(name, "ioctl TIOCGLCKTRMIOS on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCGLCKTRMIOS on slave pty");
 #endif
 #if defined(TIOCGLCKTRMIOS)
 			if (ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0)
-				pr_fail_err(name, "ioctl TIOCGLCKTRMIOS on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCGLCKTRMIOS on slave pty");
 #endif
 #if defined(TIOCGWINSZ)
 			if (ioctl(ptys[i].slave, TIOCGWINSZ, &ws) < 0)
-				pr_fail_err(name, "ioctl TIOCGWINSZ on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCGWINSZ on slave pty");
 #endif
 #if defined(TIOCSWINSZ)
 			if (ioctl(ptys[i].slave, TIOCSWINSZ, &ws) < 0)
-				pr_fail_err(name, "ioctl TIOCSWINSZ on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCSWINSZ on slave pty");
 #endif
 #if defined(FIONREAD)
 			if (ioctl(ptys[i].slave, FIONREAD, &arg) < 0)
-				pr_fail_err(name, "ioctl FIONREAD on slave pty");
+				pr_fail_err(args->name, "ioctl FIONREAD on slave pty");
 #endif
 #if defined(TIOCINQ)
 			if (ioctl(ptys[i].slave, TIOCINQ, &arg) < 0)
-				pr_fail_err(name, "ioctl TIOCINQ on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCINQ on slave pty");
 #endif
 #if defined(TIOCOUTQ)
 			if (ioctl(ptys[i].slave, TIOCOUTQ, &arg) < 0)
-				pr_fail_err(name, "ioctl TIOCOUTQ on slave pty");
+				pr_fail_err(args->name, "ioctl TIOCOUTQ on slave pty");
 #endif
 
 			if (!opt_do_run)
@@ -168,20 +162,16 @@ clean:
 				(void)close(ptys[i].slave);
 			(void)close(ptys[i].master);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 
 	return rc;
 }
 #else
-int stress_pty(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_pty(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

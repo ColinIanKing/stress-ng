@@ -91,11 +91,7 @@ static void MLOCKED stress_badhandler(int signum)
  *  stress_opcode
  *	stress with random opcodes
  */
-int stress_opcode(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_opcode(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	int rc = EXIT_FAILURE;
@@ -104,13 +100,11 @@ int stress_opcode(
 	const size_t sig_count_size = MAX_SIGS * sizeof(uint64_t);
 #endif
 
-	(void)instance;
-
 #if TRACK_SIGCOUNT
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail_dbg(name, "mmap");
+		pr_fail_dbg(args->name, "mmap");
 		return EXIT_NO_RESOURCE;
 	}
 #endif
@@ -127,7 +121,7 @@ again:
 			if (errno == EAGAIN)
 				goto again;
 
-			pr_fail_dbg(name, "fork");
+			pr_fail_dbg(args->name, "fork");
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
@@ -139,14 +133,14 @@ again:
 			stress_unmap_shared();
 
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-				if (stress_sighandler(name, sigs[i], stress_badhandler, NULL) < 0)
+				if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
 					_exit(EXIT_FAILURE);
 			}
 
 			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
-				pr_fail_dbg(name, "mmap");
+				pr_fail_dbg(args->name, "mmap");
 				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
@@ -175,7 +169,7 @@ again:
 			it.it_value.tv_sec = 0;
 			it.it_value.tv_usec = 10000;
 			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-				pr_fail_dbg(name, "setitimer");
+				pr_fail_dbg(args->name, "setitimer");
 				_exit(EXIT_NO_RESOURCE);
 			}
 
@@ -191,14 +185,14 @@ again:
 			if (ret < 0) {
 				if (errno != EINTR)
 					pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
 				(void)waitpid(pid, &status, 0);
 			}
-			(*counter)++;
+			inc_counter(args);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 
@@ -206,7 +200,7 @@ again:
 	for (i = 0; i < MAX_SIGS; i++) {
 		if (sig_count[i]) {
 			pr_dbg(stderr, "%s: %-25.25s: %" PRIu64 "\n",
-				name, strsignal(i), sig_count[i]);
+				args->name, strsignal(i), sig_count[i]);
 		}
 	}
 #endif
@@ -217,12 +211,8 @@ err:
 	return rc;
 }
 #else
-int stress_opcode(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_opcode(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

@@ -74,11 +74,7 @@ static inline size_t stress_alloc_size(void)
  *	stress malloc by performing a mix of
  *	allocation and frees
  */
-int stress_malloc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_malloc(args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
@@ -108,7 +104,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -120,21 +116,21 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				restarts++;
 				goto again;
 			}
@@ -147,7 +143,7 @@ again:
 		memset(addr, 0, sizeof(addr));
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		do {
 			unsigned int rnd = mwc32();
@@ -170,7 +166,7 @@ again:
 				if (action) {
 					free(addr[i]);
 					addr[i] = NULL;
-					(*counter)++;
+					inc_counter(args);
 				} else {
 					void *tmp;
 					size_t len = stress_alloc_size();
@@ -179,7 +175,7 @@ again:
 					if (tmp) {
 						addr[i] = tmp;
 						(void)mincore_touch_pages(addr[i], len);
-						(*counter)++;
+						inc_counter(args);
 					}
 				}
 			} else {
@@ -195,12 +191,12 @@ again:
 						addr[i] = malloc(len);
 					}
 					if (addr[i]) {
-						(*counter)++;
+						inc_counter(args);
 						(void)mincore_touch_pages(addr[i], len);
 					}
 				}
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 abort:
 		for (j = 0; j < opt_malloc_max; j++) {
 			free(addr[j]);
@@ -209,7 +205,7 @@ abort:
 	if (restarts + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, restarts, nomems);
+			args->name, restarts, nomems);
 
 	return EXIT_SUCCESS;
 }

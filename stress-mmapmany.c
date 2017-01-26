@@ -30,11 +30,7 @@
  *  stress_mmapmany()
  *	stress mmap with many pages being mapped
  */
-int stress_mmapmany(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mmapmany(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
@@ -43,11 +39,11 @@ int stress_mmapmany(
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
 	if (max < 1) {
-		pr_fail_dbg(name, "sysconf(_SC_MAPPED_FILES)");
+		pr_fail_dbg(args->name, "sysconf(_SC_MAPPED_FILES)");
 		return EXIT_NO_RESOURCE;
 	}
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_NO_RESOURCE;
 	}
 again:
@@ -56,7 +52,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -67,19 +63,20 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
-					"(instance %d)\n", name, instance);
+					"(instance %d)\n", args->name,
+					args->instance);
 				goto again;
 			}
 			/* If we got killed by sigsegv, re-start */
@@ -87,7 +84,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				goto again;
 			}
 		}
@@ -98,11 +95,11 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		do {
 			for (n = 0; opt_do_run && (n < max); n++) {
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				mappings[n] = (uint8_t *)mmap(NULL,
@@ -113,7 +110,7 @@ again:
 					break;
 				if (munmap((void *)(mappings[n] + page_size), page_size) < 0)
 					break;
-				(*counter)++;
+				inc_counter(args);
 			}
 
 			for (i = 0; i < n;  i++) {
@@ -121,7 +118,7 @@ again:
 				munmap((void *)(mappings[i] + page_size), page_size);
 				munmap((void *)(mappings[i] + page_size + page_size), page_size);
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 
 	free(mappings);

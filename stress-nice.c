@@ -28,16 +28,9 @@
  *  stress on sched_nice()
  *	stress system by sched_nice
  */
-int stress_nice(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_nice(args_t *args)
 {
 	int max_prio, min_prio;
-
-	(void)instance;
-	(void)name;
 
 #if defined(RLIMIT_NICE)
 	{
@@ -79,7 +72,7 @@ int stress_nice(
 
 					while (time_now() - start < delay)
 						;
-					(*counter)++;
+					inc_counter(args);
 				}
 			}
 			_exit(0);
@@ -95,7 +88,7 @@ int stress_nice(
 				(void)kill(pid, SIGKILL);
 			}
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

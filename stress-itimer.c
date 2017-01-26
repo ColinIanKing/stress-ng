@@ -104,16 +104,10 @@ cancel:
  *  stress_itimer
  *	stress itimer
  */
-int stress_itimer(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_itimer(args_t *args)
 {
 	struct itimerval timer;
 	sigset_t mask;
-
-	(void)instance;
 
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGINT);
@@ -129,12 +123,12 @@ int stress_itimer(
 	}
 	rate_us = opt_itimer_freq ? 1000000 / opt_itimer_freq : 1000000;
 
-	if (stress_sighandler(name, SIGPROF, stress_itimer_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
-		pr_fail_err(name, "setitimer");
+		pr_fail_err(args->name, "setitimer");
 		return EXIT_FAILURE;
 	}
 
@@ -142,8 +136,8 @@ int stress_itimer(
 		struct itimerval t;
 		getitimer(ITIMER_PROF, &t);
 
-		*counter = itimer_counter;
-	} while (opt_do_run && (!max_ops || itimer_counter < max_ops));
+		*args->counter = itimer_counter;
+	} while (opt_do_run && (!args->max_ops || itimer_counter < args->max_ops));
 
 	memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

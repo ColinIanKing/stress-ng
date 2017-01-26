@@ -30,11 +30,7 @@
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
-int stress_yield(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_yield(args_t *args)
 {
 	uint64_t *counters;
 	uint64_t max_ops_per_yielder;
@@ -56,12 +52,12 @@ int stress_yield(
 	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
 		pr_inf(stdout, "%s: can't get sched affinity, defaulting to %"
 			PRId32 " yielder%s (instance %" PRIu32 ")\n",
-			name, cpus, (cpus == 1) ? "" : "s", instance);
+			args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	} else {
 		if (CPU_COUNT(&mask) < cpus)
 			cpus = CPU_COUNT(&mask);
-		pr_inf(stdout, "%s: limiting to %" PRId32 " yielder%s (instance %"
-			PRIu32 ")\n", name, cpus, (cpus == 1) ? "" : "s", instance);
+		pr_inf(stdout, "%s: limiting to %" PRId32 " yielder%s (args->instance %"
+			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	}
 #endif
 
@@ -78,18 +74,18 @@ int stress_yield(
 		yielders = cpus / instances;
 		if (yielders < 1)
 			yielders = 1;
-		if (!instance) {
+		if (!args->instance) {
 			int32_t residual = cpus - (yielders * instances);
 			if (residual > 0)
 				yielders += residual;
 		}
 	}
 
-	max_ops_per_yielder = max_ops / yielders;
+	max_ops_per_yielder = args->max_ops / yielders;
 	yielders_sz = yielders * sizeof(pid_t);
 	pids = calloc(yielders, sizeof(pid_t));
 	if (!pids) {
-		pr_err(stderr, "%s: calloc failed\n", name);
+		pr_err(stderr, "%s: calloc failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	memset(pids, 0, yielders_sz);
@@ -101,7 +97,7 @@ int stress_yield(
 		int rc = exit_status(errno);
 
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		free(pids);
 		return rc;
 	}
@@ -112,7 +108,7 @@ int stress_yield(
 		if (pids[i] < 0) {
 			pr_dbg(stderr, "%s: fork failed (instance %" PRIu32
 				", yielder %zd): errno=%d (%s)\n",
-				name, instance, i, errno, strerror(errno));
+				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
 			(void)setpgid(0, pgrp);
 			stress_parent_died_alarm();
@@ -122,19 +118,19 @@ int stress_yield(
 
 				ret = shim_sched_yield();
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-					pr_fail_err(name, "sched_yield");
+					pr_fail_err(args->name, "sched_yield");
 				counters[i]++;
-			} while (opt_do_run && (!max_ops_per_yielder || *counter < max_ops_per_yielder));
+			} while (opt_do_run && (!max_ops_per_yielder || *args->counter < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	do {
-		*counter = 0;
+		*args->counter = 0;
 		pause();
 		for (i = 0; i < yielders; i++)
-			*counter += counters[i];
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+			*args->counter += counters[i];
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/* Parent, wait for children */
 	for (i = 0; i < yielders; i++) {
@@ -143,7 +139,7 @@ int stress_yield(
 
 			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
-			*counter += counters[i];
+			*args->counter += counters[i];
 		}
 	}
 	(void)munmap((void *)counters, counters_sz);
@@ -152,12 +148,8 @@ int stress_yield(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_yield(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_yield(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

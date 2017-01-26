@@ -105,10 +105,7 @@ void stress_semaphore_sysv_destroy(void)
  *  semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static void semaphore_sysv_thrash(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static void semaphore_sysv_thrash(args_t *args)
 {
 	const int sem_id = shared->sem_sysv.sem_id;
 
@@ -117,7 +114,7 @@ static void semaphore_sysv_thrash(
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail_dbg(name, "clock_gettime");
+			pr_fail_dbg(args->name, "clock_gettime");
 			return;
 		}
 		timeout.tv_sec++;
@@ -140,13 +137,13 @@ static void semaphore_sysv_thrash(
 					goto timed_out;
 				}
 				if (errno != EINTR)
-					pr_fail_dbg(name, "semop wait");
+					pr_fail_dbg(args->name, "semop wait");
 				break;
 			}
-			(*counter)++;
+			inc_counter(args);
 			if (semop(sem_id, &semsignal, 1) < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, "semop signal");
+					pr_fail_dbg(args->name, "semop signal");
 				break;
 			}
 timed_out:
@@ -160,7 +157,7 @@ timed_out:
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, IPC_STAT, &s) < 0)
-				pr_fail_dbg(name, "semctl IPC_STAT");
+				pr_fail_dbg(args->name, "semctl IPC_STAT");
 		}
 #endif
 #if defined(SEM_STAT)
@@ -170,7 +167,7 @@ timed_out:
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, SEM_STAT, &s) < 0)
-				pr_fail_dbg(name, "semctl SEM_STAT");
+				pr_fail_dbg(args->name, "semctl SEM_STAT");
 		}
 #endif
 #if defined(IPC_INFO)
@@ -180,7 +177,7 @@ timed_out:
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, IPC_INFO, &s) < 0)
-				pr_fail_dbg(name, "semctl IPC_INFO");
+				pr_fail_dbg(args->name, "semctl IPC_INFO");
 		}
 #endif
 #if defined(SEM_INFO)
@@ -190,36 +187,33 @@ timed_out:
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, SEM_INFO, &s) < 0)
-				pr_fail_dbg(name, "semctl SEM_INFO");
+				pr_fail_dbg(args->name, "semctl SEM_INFO");
 		}
 #endif
 #if defined(GETVAL)
 		if (semctl(sem_id, 0, GETVAL) < 0)
-			pr_fail_dbg(name, "semctl GETVAL");
+			pr_fail_dbg(args->name, "semctl GETVAL");
 #endif
 #if defined(GETPID)
 		if (semctl(sem_id, 0, GETPID) < 0)
-			pr_fail_dbg(name, "semctl GETPID");
+			pr_fail_dbg(args->name, "semctl GETPID");
 #endif
 #if defined(GETNCNT)
 		if (semctl(sem_id, 0, GETNCNT) < 0)
-			pr_fail_dbg(name, "semctl GETNCNT");
+			pr_fail_dbg(args->name, "semctl GETNCNT");
 #endif
 #if defined(GEZCNT)
 		if (semctl(sem_id, 0, GETZCNT) < 0)
-			pr_fail_dbg(name, "semctl GETZCNT");
+			pr_fail_dbg(args->name, "semctl GETZCNT");
 #endif
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 }
 
 /*
  *  semaphore_sysv_spawn()
  *	spawn a process
  */
-static pid_t semaphore_sysv_spawn(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static pid_t semaphore_sysv_spawn(args_t *args)
 {
 	pid_t pid;
 
@@ -234,7 +228,7 @@ again:
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		semaphore_sysv_thrash(name, max_ops, counter);
+		semaphore_sysv_thrash(args);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -245,16 +239,10 @@ again:
  *  stress_sem_sysv()
  *	stress system by sem ops
  */
-int stress_sem_sysv(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sem_sysv(args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
-
-	(void)instance;
 
 	if (!set_semaphore_sysv_procs) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -264,18 +252,18 @@ int stress_sem_sysv(
 	}
 
 	if (!shared->sem_sysv.init) {
-		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
+		pr_err(stderr, "%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
 
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
-		pids[i] = semaphore_sysv_spawn(name, max_ops, counter);
+		pids[i] = semaphore_sysv_spawn(args);
 		if (!opt_do_run || pids[i] < 0)
 			goto reap;
 	}
 	/* Wait for termination */
-	while (opt_do_run && (!max_ops || *counter < max_ops))
+	while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
 		(void)shim_usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
@@ -301,12 +289,8 @@ void stress_semaphore_sysv_destroy(void)
 {
 }
 
-int stress_sem_sysv(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sem_sysv(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

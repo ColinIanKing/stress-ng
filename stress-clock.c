@@ -98,14 +98,8 @@ static char *stress_clock_name(int id)
  *  stress_clock()
  *	stress system by rapid clocking system calls
  */
-int stress_clock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_clock(args_t *args)
 {
-	(void)instance;
-
 	do {
 		size_t i;
 		struct timespec t;
@@ -119,12 +113,12 @@ int stress_clock(
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail(stderr, "%s: clock_getres failed for "
 				"timer '%s', errno=%d (%s)\n",
-				name, clocks[i].name, errno, strerror(errno));
+				args->name, clocks[i].name, errno, strerror(errno));
 			ret = clock_gettime(clocks[i].id, &t);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail(stderr, "%s: clock_gettime failed for "
 				"timer '%s', errno=%d (%s)\n",
-				name, clocks[i].name, errno, strerror(errno));
+				args->name, clocks[i].name, errno, strerror(errno));
 		}
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
@@ -142,7 +136,7 @@ int stress_clock(
 			ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail(stderr, "%s: clock_nanosleep failed for timer '%s', "
-					"errno=%d (%s)\n", name,
+					"errno=%d (%s)\n", args->name,
 					stress_clock_name(clocks_nanosleep[i]),
 					errno, strerror(errno));
 		}
@@ -164,7 +158,7 @@ int stress_clock(
 			ret = timer_create(timers[i], &sevp, &timer_id);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail(stderr, "%s: timer_create failed for timer '%s', "
-					"errno=%d (%s)\n", name,
+					"errno=%d (%s)\n", args->name,
 					stress_clock_name(timers[i]),
 					errno, strerror(errno));
 				continue;
@@ -179,7 +173,7 @@ int stress_clock(
 			ret = timer_settime(timer_id, 0, &its, NULL);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail(stderr, "%s: timer_settime failed for timer '%s', "
-					"errno=%d (%s)\n", name,
+					"errno=%d (%s)\n", args->name,
 					stress_clock_name(timers[i]),
 					errno, strerror(errno));
 				goto timer_delete;
@@ -189,7 +183,7 @@ int stress_clock(
 				ret = timer_gettime(timer_id, &its);
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 					pr_fail(stderr, "%s: timer_gettime failed for timer '%s', "
-						"errno=%d (%s)\n", name,
+						"errno=%d (%s)\n", args->name,
 						stress_clock_name(timers[i]),
 						errno, strerror(errno));
 					goto timer_delete;
@@ -201,25 +195,21 @@ timer_delete:
 			ret = timer_delete(timer_id);
 			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail(stderr, "%s: timer_delete failed for timer '%s', "
-					"errno=%d (%s)\n", name,
+					"errno=%d (%s)\n", args->name,
 					stress_clock_name(timers[i]),
 					errno, strerror(errno));
 				break;
 			}
 		}
 #endif
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_clock(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

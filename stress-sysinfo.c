@@ -38,25 +38,19 @@
  *  stress on system information
  *	stress system by rapid fetches of system information
  */
-int stress_sysinfo(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sysinfo(args_t *args)
 {
 	int n_mounts;
 	char *mnts[128];
 
-	(void)instance;
-
 	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n_mounts < 0) {
-		pr_err(stderr, "%s: failed to get mount points\n", name);
+		pr_err(stderr, "%s: failed to get mount points\n", args->name);
 		return EXIT_FAILURE;
 	}
-	if (instance == 0)
+	if (args->instance == 0)
 		pr_dbg(stderr, "%s: found %d mount points\n",
-			name, n_mounts);
+			args->name, n_mounts);
 
 	do {
 		struct tms tms_buf;
@@ -71,7 +65,7 @@ int stress_sysinfo(
 #if defined(__linux__)
 		ret = sysinfo(&sysinfo_buf);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err(name, "sysinfo");
+			 pr_fail_err(args->name, "sysinfo");
 		}
 		check_do_run();
 
@@ -97,7 +91,7 @@ int stress_sysinfo(
 				    errno != EACCES) {
 					pr_fail(stderr, "%s: statfs on %s "
 						"failed: errno=%d (%s)\n",
-						name, mnts[i], errno,
+						args->name, mnts[i], errno,
 						strerror(errno));
 				}
 			}
@@ -116,7 +110,7 @@ int stress_sysinfo(
 				    errno != EACCES) {
 					pr_fail(stderr, "%s: fstatfs on %s "
 						"failed: errno=%d (%s)\n",
-						name, mnts[i], errno,
+						args->name, mnts[i], errno,
 						strerror(errno));
 				}
 			}
@@ -138,7 +132,7 @@ int stress_sysinfo(
 				    errno != EACCES) {
 					pr_fail(stderr, "%s: statvfs on %s "
 						"failed: errno=%d (%s)\n",
-						name, mnts[i], errno,
+						args->name, mnts[i], errno,
 						strerror(errno));
 				}
 			}
@@ -147,10 +141,10 @@ int stress_sysinfo(
 		check_do_run();
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err(name, "times");
+			 pr_fail_err(args->name, "times");
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	mount_free(mnts, n_mounts);
 

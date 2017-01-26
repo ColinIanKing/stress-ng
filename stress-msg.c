@@ -37,7 +37,7 @@ typedef struct {
 	char msg[MAX_SIZE];
 } msg_t;
 
-static int stress_msg_getstats(const char *name, const int msgq_id)
+static int stress_msg_getstats(args_t *args, const int msgq_id)
 {
 	struct msqid_ds buf;
 #if defined(__linux__)
@@ -45,16 +45,16 @@ static int stress_msg_getstats(const char *name, const int msgq_id)
 #endif
 
 	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
-		pr_fail_err(name, "msgctl: IPC_STAT");
+		pr_fail_err(args->name, "msgctl: IPC_STAT");
 		return -errno;
 	}
 #if defined(__linux__)
 	if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err(name, "msgctl: IPC_INFO");
+		pr_fail_err(args->name, "msgctl: IPC_INFO");
 		return -errno;
 	}
 	if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err(name, "msgctl: MSG_INFO");
+		pr_fail_err(args->name, "msgctl: MSG_INFO");
 		return -errno;
 	}
 #endif
@@ -66,20 +66,14 @@ static int stress_msg_getstats(const char *name, const int msgq_id)
  *  stress_msg
  *	stress by message queues
  */
-int stress_msg(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_msg(args_t *args)
 {
 	pid_t pid;
 	int msgq_id;
 
-	(void)instance;
-
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
-		pr_fail_dbg(name, "msgget");
+		pr_fail_dbg(args->name, "msgget");
 		return exit_status(errno);
 	}
 	pr_dbg(stderr, "System V message queue created, id: %d\n", msgq_id);
@@ -89,7 +83,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -102,7 +96,7 @@ again:
 			for (i = 0; ; i++) {
 				uint64_t v;
 				if (msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0) < 0) {
-					pr_fail_dbg(name, "msgrcv");
+					pr_fail_dbg(args->name, "msgrcv");
 					break;
 				}
 				if (!strcmp(msg.msg, MSG_STOP))
@@ -111,7 +105,7 @@ again:
 					memcpy(&v, msg.msg, sizeof(v));
 					if (v != i)
 						pr_fail(stderr, "%s: msgrcv: expected msg containing 0x%" PRIx64
-							" but received 0x%" PRIx64 " instead\n", name, i, v);
+							" but received 0x%" PRIx64 " instead\n", args->name, i, v);
 				}
 			}
 			exit(EXIT_SUCCESS);
@@ -129,36 +123,32 @@ again:
 			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, "msgsnd");
+					pr_fail_dbg(args->name, "msgsnd");
 				break;
 			}
 			if ((i & 0x1f) == 0)
-				if (stress_msg_getstats(name, msgq_id) < 0)
+				if (stress_msg_getstats(args, msgq_id) < 0)
 					break;
 			i++;
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
-			pr_fail_dbg(name, "termination msgsnd");
+			pr_fail_dbg(args->name, "termination msgsnd");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
-			pr_fail_dbg(name, "msgctl");
+			pr_fail_dbg(args->name, "msgctl");
 		else
 			pr_dbg(stderr, "System V message queue deleted, id: %d\n", msgq_id);
 	}
 	return EXIT_SUCCESS;
 }
 #else
-int stress_msg(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_msg(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

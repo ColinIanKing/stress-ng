@@ -30,11 +30,7 @@
  *  stress_sigsuspend
  *	stress sigsuspend
  */
-int stress_sigsuspend(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigsuspend(args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
@@ -45,13 +41,11 @@ int stress_sigsuspend(
 	const size_t counters_size =
 		(sizeof(uint64_t) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
 
-	(void)instance;
-
 	v_counters = counters = (uint64_t *)mmap(NULL, counters_size,
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail_dbg(name, "mmap");
+		pr_fail_dbg(args->name, "mmap");
 		return EXIT_FAILURE;
 	}
 	memset(counters, 0, counters_size);
@@ -65,7 +59,7 @@ again:
 		if (pid[n] < 0) {
 			if (opt_do_run && (errno == EAGAIN))
 				goto again;
-			pr_fail_dbg(name, "fork");
+			pr_fail_dbg(args->name, "fork");
 			goto reap;
 		} else if (pid[n] == 0) {
 			(void)setpgid(0, pgrp);
@@ -87,9 +81,9 @@ again:
 			c += v_counters[i << CACHE_STRIDE_SHIFT];
 			kill(pid[i], SIGUSR1);
 		}
-	} while (opt_do_run && (!max_ops || c < max_ops));
+	} while (opt_do_run && (!args->max_ops || c < args->max_ops));
 
-	*counter = c;
+	*args->counter = c;
 
 reap:
 	for (i = 0; i < n; i++) {

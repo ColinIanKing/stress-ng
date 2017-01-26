@@ -103,7 +103,7 @@ static struct sock_fprog prog_random = {
  * 	if allow_write is true.
  */
 static inline int stress_seccomp_set_filter(
-	const char *name,
+	args_t *args,
 	const bool allow_write,
 	bool do_random)
 {
@@ -129,7 +129,7 @@ static inline int stress_seccomp_set_filter(
 	}
 
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
-		pr_fail_err(name, "prctl PR_SET_NEW_PRIVS");
+		pr_fail_err(args->name, "prctl PR_SET_NEW_PRIVS");
 		return -1;
 	}
 #if defined(__NR_seccomp)
@@ -147,7 +147,7 @@ redo_seccomp:
 				p = &prog;
 				goto redo_seccomp;
 			}
-			pr_fail_err(name, "seccomp SECCOMP_SET_MODE_FILTER");
+			pr_fail_err(args->name, "seccomp SECCOMP_SET_MODE_FILTER");
 			return -1;
 		}
 		use_seccomp = false;
@@ -161,7 +161,7 @@ redo_prctl:
 			p = &prog;
 			goto redo_prctl;
 		}
-		pr_fail_err(name, "prctl PR_SET_SECCOMP");
+		pr_fail_err(args->name, "prctl PR_SET_SECCOMP");
 		return -1;
 	}
 	return 0;
@@ -172,14 +172,8 @@ redo_prctl:
  *  stress_seccomp()
  *	stress seccomp
  */
-int stress_seccomp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_seccomp(args_t *args)
 {
-	(void)instance;
-
 	do {
 		pid_t pid;
 		const bool allow_write = (mwc32() % 50) != 0;
@@ -187,7 +181,7 @@ int stress_seccomp(
 
 		pid = fork();
 		if (pid == -1) {
-			pr_fail_err(name, "fork");
+			pr_fail_err(args->name, "fork");
 			break;
 		}
 		if (pid == 0) {
@@ -199,18 +193,18 @@ int stress_seccomp(
 			 */
 			int fd, rc = EXIT_SUCCESS;
 
-			if (stress_seccomp_set_filter(name, allow_write, do_random) < 0)
+			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)
 				_exit(EXIT_FAILURE);
 			if ((fd = open("/dev/null", O_WRONLY)) < 0) {
 				pr_err(stderr, "%s: open failed on /dev/null, "
 					"errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				_exit(EXIT_FAILURE);
 			}
 			if (write(fd, "TEST\n", 5) < 0) {
 				pr_err(stderr, "%s: write to /dev/null failed, "
 					"errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 			(void)close(fd);
@@ -223,14 +217,14 @@ int stress_seccomp(
 			if (waitpid(pid, &status, 0) < 0) {
 				if (errno != EINTR)
 					pr_dbg(stderr, "%s: waitpid failed, errno = %d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 			} else {
 				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&
 				    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
 					pr_fail(stderr,
 						"%s: aborting because of unexpected "
-						"failure in child process\n", name);
+						"failure in child process\n", args->name);
 					return EXIT_FAILURE;
 				}
 				/* ..exited OK but we expected SIGSYS death? */
@@ -239,7 +233,7 @@ int stress_seccomp(
 						"%s: expecting SIGSYS seccomp trap "
 						"but got a successful exit which "
 						"was not expected\n",
-						name);
+						args->name);
 				}
 				/* ..exited with a SIGSYS but we expexted OK exit? */
 				if (WIFSIGNALED(status) && allow_write) {
@@ -248,23 +242,19 @@ int stress_seccomp(
 							"%s: expecting a successful exit "
 							"but got a seccomp SIGSYS "
 							"which was not expected\n",
-							name);
+							args->name);
 					}
 				}
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_seccomp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_seccomp(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

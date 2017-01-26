@@ -72,11 +72,7 @@ static key_serial_t sys_request_key(
  *  stress_key
  *	stress key operations
  */
-int stress_key(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_key(args_t *args)
 {
 	key_serial_t keys[MAX_KEYS];
 	pid_t ppid = getppid();
@@ -90,7 +86,7 @@ int stress_key(
 		for (n = 0; n < MAX_KEYS; n++) {
 			snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, instance, n);
+				"-%zu", ppid, args->instance, n);
 			snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 
@@ -99,12 +95,12 @@ int stress_key(
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
 				if ((errno != ENOMEM) && (errno != EDQUOT))
-					pr_fail_err(name, "add_key");
+					pr_fail_err(args->name, "add_key");
 				break;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0)
-				pr_fail_err(name, "keyctl KEYCTL_SET_TIMEOUT");
+				pr_fail_err(args->name, "keyctl KEYCTL_SET_TIMEOUT");
 #endif
 		}
 
@@ -112,10 +108,10 @@ int stress_key(
 		for (i = 0; i < n; i++) {
 			snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, instance, i);
+				"-%zu", ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
-				pr_fail_err(name, "keyctl KEYCTL_DESCRIBE");
+				pr_fail_err(args->name, "keyctl KEYCTL_DESCRIBE");
 			if (!opt_do_run)
 				break;
 #endif
@@ -126,7 +122,7 @@ int stress_key(
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0) {
 				if ((errno != ENOMEM) && (errno != EDQUOT))
-					pr_fail_err(name, "keyctl KEYCTL_UPDATE");
+					pr_fail_err(args->name, "keyctl KEYCTL_UPDATE");
 			}
 			if (!opt_do_run)
 				break;
@@ -136,7 +132,7 @@ int stress_key(
 			memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
-				pr_fail_err(name, "keyctl KEYCTL_READ");
+				pr_fail_err(args->name, "keyctl KEYCTL_READ");
 			if (!opt_do_run)
 				break;
 #endif
@@ -144,10 +140,10 @@ int stress_key(
 #if defined(__NR_request_key)
 			snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, instance, i);
+				"-%zu", ppid, args->instance, i);
 			if (sys_request_key("user", description, NULL,
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
-				pr_fail_err(name, "request_key");
+				pr_fail_err(args->name, "request_key");
 			}
 #endif
 
@@ -171,7 +167,7 @@ int stress_key(
 #if defined(KEYCTL_INVALIDATE)
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
-			(*counter)++;
+			inc_counter(args);
 		}
 		/* If we hit too many errors and bailed out early, clean up */
 		while (i < n) {
@@ -183,17 +179,13 @@ int stress_key(
 #endif
 			i++;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_key(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_key(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

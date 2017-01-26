@@ -31,19 +31,19 @@
  *  main syscall ptrace loop
  */
 static inline bool stress_syscall_wait(
-	const char *name,
+	args_t *args,
 	const pid_t pid)
 {
 	while (opt_do_run) {
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
-			pr_fail_dbg(name, "ptrace");
+			pr_fail_dbg(args->name, "ptrace");
 			return true;
 		}
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR)
-				pr_fail_dbg(name, "waitpid");
+				pr_fail_dbg(args->name, "waitpid");
 			return true;
 		}
 
@@ -60,19 +60,13 @@ static inline bool stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-int stress_ptrace(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_ptrace(args_t *args)
 {
 	pid_t pid;
 
-	(void)instance;
-
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -85,7 +79,7 @@ int stress_ptrace(
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
 			pr_fail(stderr, "%s: ptrace child being traced "
-				"already, aborting\n", name);
+				"already, aborting\n", args->name);
 			_exit(0);
 		}
 		/* Wait for parent to start tracing me */
@@ -112,14 +106,14 @@ int stress_ptrace(
 
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {
-				pr_fail_dbg(name, "waitpid");
+				pr_fail_dbg(args->name, "waitpid");
 				return EXIT_FAILURE;
 			}
 			return EXIT_SUCCESS;
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
-			pr_fail_dbg(name, "ptrace");
+			pr_fail_dbg(args->name, "ptrace");
 			return EXIT_FAILURE;
 		}
 
@@ -131,25 +125,21 @@ int stress_ptrace(
 			 *  care which is which, we just care about counting
 			 *  them
 			 */
-			if (stress_syscall_wait(name, pid))
+			if (stress_syscall_wait(args, pid))
 				break;
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		/* Terminate child */
 		(void)kill(pid, SIGKILL);
 		if (waitpid(pid, &status, 0) < 0)
-			pr_fail_dbg(name, "waitpid");
+			pr_fail_dbg(args->name, "waitpid");
 	}
 	return EXIT_SUCCESS;
 }
 #else
-int stress_ptrace(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_ptrace(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

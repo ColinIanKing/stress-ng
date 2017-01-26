@@ -300,19 +300,13 @@ static void MLOCKED stress_alrmhandler(int dummy)
  *  stress_resources()
  *	stress by forking and exiting
  */
-int stress_resources(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_resources(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	int ret;
 
-	(void)instance;
-
-	if (stress_sighandler(name, SIGALRM, stress_alrmhandler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, stress_alrmhandler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	ret = sigsetjmp(jmp_env, 1);
@@ -333,7 +327,7 @@ int stress_resources(
 				ret = sigsetjmp(jmp_env, 1);
 				if (ret)
 					_exit(0);
-				set_oom_adjustment(name, true);
+				set_oom_adjustment(args->name, true);
 				waste_resources(page_size, pipe_size);
 				_exit(0);
 			}
@@ -345,10 +339,10 @@ int stress_resources(
 				kill_children();
 				return EXIT_SUCCESS;
 			}
-			(*counter)++;
+			inc_counter(args);
 		}
 		kill_children();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

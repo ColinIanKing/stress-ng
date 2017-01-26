@@ -373,18 +373,11 @@ int stress_set_matrix_method(const char *name)
  *  stress_matrix()
  *	stress CPU by doing floating point math ops
  */
-int stress_matrix(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_matrix(args_t *args)
 {
 	stress_matrix_func func = opt_matrix_stressor->func;
 	size_t n;
 	const matrix_type_t v = 1 / (matrix_type_t)((uint32_t)~0);
-
-	(void)instance;
-	(void)name;
 
 	if (!set_matrix_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -415,8 +408,8 @@ int stress_matrix(
 		 */
 		do {
 			(void)func(n, a, b, r);
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 
 	return EXIT_SUCCESS;

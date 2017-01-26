@@ -69,16 +69,10 @@ static int cmp(const void *p1, const void *p2)
  *  stress_bsearch()
  *	stress bsearch
  */
-int stress_bsearch(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_bsearch(args_t *args)
 {
 	int32_t *data, *ptr, prev = 0;
 	size_t n, n8, i;
-
-	(void)instance;
 
 	if (!set_bsearch_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -91,7 +85,7 @@ int stress_bsearch(
 
 	/* allocate in multiples of 8 */
 	if ((data = calloc(n8, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -119,16 +113,16 @@ int stress_bsearch(
 					pr_fail(stderr,
 						"%s: element %zu could "
 						"not be found\n",
-						name, i);
+						args->name, i);
 				else if (*result != *ptr)
 					pr_fail(stderr, "%s: element %zu "
 						"found %" PRIu32
 						", expecting %" PRIu32 "\n",
-						name, i, *result, *ptr);
+						args->name, i, *result, *ptr);
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	free(data);
 	return EXIT_SUCCESS;

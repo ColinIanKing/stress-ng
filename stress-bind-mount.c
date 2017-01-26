@@ -28,13 +28,6 @@
 
 #define CLONE_STACK_SIZE	(64*1024)
 
-/* Context for clone */
-typedef struct {
-	uint64_t max_ops;
-	uint64_t *counter;
-	const char *name;
-} context_t;
-
 /*
  *  stress_bind_mount_child()
  *	aggressively perform bind mounts, this can force out of memory
@@ -42,15 +35,15 @@ typedef struct {
  */
 static int stress_bind_mount_child(void *arg)
 {
-	context_t *context = (context_t *)arg;
-	uint64_t *counter = context->counter;
+	args_t *args = (args_t *)arg;
+	uint64_t *counter = args->counter;
 
 	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
 
 	do {
 		if (mount("/", "/", "", MS_BIND | MS_REC, 0) < 0) {
-			pr_fail_err(context->name, "mount");
+			pr_fail_err(args->name, "mount");
 			break;
 		}
 		/*
@@ -58,9 +51,9 @@ static int stress_bind_mount_child(void *arg)
 	`	 *  just to make the kernel work harder
 		 */
 		(void)umount("/");
-		(*counter)++;
+		inc_counter(args);
 	} while (opt_do_run &&
-		 (!context->max_ops || *counter < context->max_ops));
+		 (!args->max_ops || *counter < args->max_ops));
 
 	return 0;
 }
@@ -69,41 +62,30 @@ static int stress_bind_mount_child(void *arg)
  *  stress_bind_mount()
  *      stress bind mounting
  */
-int stress_bind_mount(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_bind_mount(args_t *args)
 {
 	int pid = 0, status;
-	context_t context;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 	char stack[CLONE_STACK_SIZE];
 	char *stack_top = stack + stack_offset;
 
-	(void)instance;
-
-	context.name = name;
-	context.max_ops = max_ops;
-	context.counter = counter;
-
 	pid = clone(stress_bind_mount_child,
 		align_stack(stack_top),
 		CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM,
-		&context, 0);
+		args, 0);
 	if (pid < 0) {
 		int rc = exit_status(errno);
 
-		pr_fail_err(name, "clone");
+		pr_fail_err(args->name, "clone");
 		return rc;
 	}
 
 	do {
 		/* Twiddle thumbs */
 		(void)shim_usleep(10000);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)kill(pid, SIGKILL);
 	(void)waitpid(pid, &status, 0);
@@ -111,13 +93,8 @@ int stress_bind_mount(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_bind_mount(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_bind_mount(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
-
 #endif

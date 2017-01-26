@@ -116,11 +116,7 @@ static int fanotify_event_init(const char *name)
  *  stress_fanotify()
  *	stress fanotify
  */
-int stress_fanotify(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fanotify(args_t *args)
 {
 	char dirname[PATH_MAX], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
@@ -130,16 +126,16 @@ int stress_fanotify(
 
 	memset(&acct, 0, sizeof(acct));
 
-	stress_temp_dir(dirname, sizeof(dirname), name, mypid, instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, mypid, args->instance);
 	snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");
-	ret = stress_temp_dir_mk(name, mypid, instance);
+	ret = stress_temp_dir_mk(args->name, mypid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	pid = fork();
 	if (pid < 0) {
 		pr_err(stderr, "%s: fork failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
 	} else if (pid == 0) {
@@ -153,7 +149,7 @@ int stress_fanotify(
 			/* Force FAN_CLOSE_NOWRITE */
 			fd = creat(filename, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(name, "creat");
+				pr_fail_err(args->name, "creat");
 				kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -162,7 +158,7 @@ int stress_fanotify(
 			/* Force FAN_CLOSE_WRITE */
 			fd = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(name, "open O_WRONLY");
+				pr_fail_err(args->name, "open O_WRONLY");
 				kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -173,7 +169,7 @@ int stress_fanotify(
 			/* Force FAN_ACCESS */
 			fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(name, "open O_RDONLY");
+				pr_fail_err(args->name, "open O_RDONLY");
 				kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -183,7 +179,7 @@ int stress_fanotify(
 
 			/* Force remove */
 			(void)unlink(filename);
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		_exit(EXIT_SUCCESS);
 	} else {
@@ -192,12 +188,12 @@ int stress_fanotify(
 		ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
 		if (ret != 0 || buffer == NULL) {
 			pr_err(stderr, "%s: posix_memalign: cannot allocate 4K "
-				"aligned buffer\n", name);
+				"aligned buffer\n", args->name);
 			rc = EXIT_NO_RESOURCE;
 			goto tidy;
 		}
 
-		fan_fd = fanotify_event_init(name);
+		fan_fd = fanotify_event_init(args->name);
 		if (fan_fd < 0) {
 			free(buffer);
 			rc = EXIT_FAILURE;
@@ -214,7 +210,7 @@ int stress_fanotify(
 			if (ret == -1) {
 				if (errno == EINTR)
 					continue;
-				pr_fail_err(name, "select");
+				pr_fail_err(args->name, "select");
 				continue;
 			}
 			if (ret == 0)
@@ -239,13 +235,13 @@ int stress_fanotify(
 						if (metadata->mask & FAN_MODIFY)
 							acct.modify++;
 
-						(*counter)++;
+						inc_counter(args);
 						(void)close(metadata->fd);
 					}
 					metadata = FAN_EVENT_NEXT(metadata, len);
 				}
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		free(buffer);
 		(void)close(fan_fd);
@@ -255,7 +251,7 @@ int stress_fanotify(
 			"%" PRIu64 " close nowrite, "
 			"%" PRIu64 " access, "
 			"%" PRIu64 " modify\n",
-			name,
+			args->name,
 			acct.open,
 			acct.close_write,
 			acct.close_nowrite,
@@ -270,17 +266,13 @@ tidy:
 		(void)waitpid(pid, &status, 0);
 	}
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(name, mypid, instance);
+	(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 
 	return rc;
 }
 #else
-int stress_fanotify(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fanotify(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

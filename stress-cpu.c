@@ -2202,25 +2202,19 @@ int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-int stress_cpu(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cpu(args_t *args)
 {
 	double bias;
 	stress_cpu_func func = opt_cpu_stressor->func;
-
-	(void)instance;
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
 	if (opt_cpu_load == 100) {
 		do {
-			(void)func(name);
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			(void)func(args->name);
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 		return EXIT_SUCCESS;
 	}
 
@@ -2250,32 +2244,32 @@ int stress_cpu(
 			int j;
 
 			for (j = 0; j < -opt_cpu_load_slice; j++) {
-				(void)func(name);
+				(void)func(args->name);
 				if (!opt_do_run)
 					break;
-				(*counter)++;
+				inc_counter(args);
 			}
 			t2 = time_now();
 		} else if (opt_cpu_load_slice == 0) {
 			/* == 0, random time slices */
 			double slice_end = t1 + (((double)mwc16()) / 131072.0);
 			do {
-				(void)func(name);
+				(void)func(args->name);
 				t2 = time_now();
 				if (!opt_do_run)
 					break;
-				(*counter)++;
+				inc_counter(args);
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
 			double slice_end = t1 +
 				((double)opt_cpu_load_slice / 1000.0);
 			do {
-				(void)func(name);
+				(void)func(args->name);
 				t2 = time_now();
 				if (!opt_do_run)
 					break;
-				(*counter)++;
+				inc_counter(args);
 			} while (t2 < slice_end);
 		}
 		t = t2 - t1;
@@ -2290,7 +2284,7 @@ int stress_cpu(
 		t3 = time_now();
 		/* Bias takes account of the time to do the delay */
 		bias = (t3 - t2) - delay;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

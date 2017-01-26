@@ -81,17 +81,14 @@ void stress_semaphore_posix_destroy(void)
  *  semaphore_posix_thrash()
  *	exercise the semaphore
  */
-static void semaphore_posix_thrash(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static void semaphore_posix_thrash(args_t *args)
 {
 	do {
 		int i;
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail_dbg(name, "clock_gettime");
+			pr_fail_dbg(args->name, "clock_gettime");
 			return;
 		}
 		timeout.tv_sec++;
@@ -101,29 +98,26 @@ static void semaphore_posix_thrash(
 				if (errno == ETIMEDOUT)
 					goto timed_out;
 				if (errno != EINTR)
-					pr_fail_dbg(name, "sem_wait");
+					pr_fail_dbg(args->name, "sem_wait");
 				break;
 			}
-			(*counter)++;
+			inc_counter(args);
 			if (sem_post(&shared->sem_posix.sem) < 0) {
-				pr_fail_dbg(name, "sem_post");
+				pr_fail_dbg(args->name, "sem_post");
 				break;
 			}
 timed_out:
 			if (!opt_do_run)
 				break;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 }
 
 /*
  *  semaphore_posix_spawn()
  *	spawn a process
  */
-static pid_t semaphore_posix_spawn(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static pid_t semaphore_posix_spawn(args_t *args)
 {
 	pid_t pid;
 
@@ -138,7 +132,7 @@ again:
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		semaphore_posix_thrash(name, max_ops, counter);
+		semaphore_posix_thrash(args);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -149,16 +143,10 @@ again:
  *  stress_sem()
  *	stress system by POSIX sem ops
  */
-int stress_sem(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sem(args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
-
-	(void)instance;
 
 	if (!set_semaphore_posix_procs) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -168,19 +156,19 @@ int stress_sem(
 	}
 
 	if (!shared->sem_posix.init) {
-		pr_err(stderr, "%s: aborting, semaphore not initialised\n", name);
+		pr_err(stderr, "%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
 
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
-		pids[i] = semaphore_posix_spawn(name, max_ops, counter);
+		pids[i] = semaphore_posix_spawn(args);
 		if (!opt_do_run || pids[i] < 0)
 			goto reap;
 	}
 
 	/* Wait for termination */
-	while (opt_do_run && (!max_ops || *counter < max_ops))
+	while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
 		(void)shim_usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
@@ -206,12 +194,8 @@ void stress_semaphore_posix_destroy(void)
 {
 }
 
-int stress_sem(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sem(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

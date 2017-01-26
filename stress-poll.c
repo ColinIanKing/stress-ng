@@ -33,7 +33,7 @@
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static int pipe_read(const char *name, const int fd, const int n)
+static int pipe_read(args_t *args, const int fd, const int n)
 {
 	char buf[POLL_BUF];
 	ssize_t ret;
@@ -46,7 +46,7 @@ redo:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			pr_fail(stderr, "%s: pipe read error detected\n", name);
+			pr_fail(stderr, "%s: pipe read error detected\n", args->name);
 			return ret;
 		}
 		if (ret > 0) {
@@ -56,7 +56,7 @@ redo:
 				if (buf[i] != '0' + n) {
 					pr_fail(stderr, "%s: pipe read error, "
 						"expecting different data on "
-						"pipe\n", name);
+						"pipe\n", args->name);
 					return ret;
 				}
 			}
@@ -69,22 +69,16 @@ redo:
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-int stress_poll(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_poll(args_t *args)
 {
 	int pipefds[MAX_PIPES][2];
 	int i;
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
 
-	(void)instance;
-
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipe(pipefds[i]) < 0) {
-			pr_fail_dbg(name, "pipe");
+			pr_fail_dbg(args->name, "pipe");
 			while (--i >= 0) {
 				(void)close(pipefds[i][0]);
 				(void)close(pipefds[i][1]);
@@ -98,7 +92,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		rc = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -122,10 +116,10 @@ again:
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg(name, "write");
+				pr_fail_dbg(args->name, "write");
 				goto abort;
 			}
-		 } while (opt_do_run && (!max_ops || *counter < max_ops));
+		 } while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 abort:
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][1]);
@@ -154,26 +148,26 @@ abort:
 			struct timeval tv;
 			int ret;
 
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 
 			/* First, stress out poll */
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err(name, "poll");
+				pr_fail_err(args->name, "poll");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
 					if (fds[i].revents == POLLIN) {
-						if (pipe_read(name, fds[i].fd, i) < 0)
+						if (pipe_read(args, fds[i].fd, i) < 0)
 							break;
 					}
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
 
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 			/* Second, stress out select */
 			tv.tv_sec = 0;
@@ -181,19 +175,19 @@ abort:
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err(name, "select");
+				pr_fail_err(args->name, "select");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
 					if (FD_ISSET(pipefds[i][0], &rfds)) {
-						if (pipe_read(name, pipefds[i][0], i) < 0)
+						if (pipe_read(args, pipefds[i][0], i) < 0)
 							break;
 					}
 					FD_SET(pipefds[i][0], &rfds);
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 			/*
 			 * Third, stress zero sleep, this is like
@@ -201,7 +195,7 @@ abort:
 			 */
 			(void)sleep(0);
 
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

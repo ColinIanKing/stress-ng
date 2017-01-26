@@ -125,20 +125,20 @@ static void stress_lockf_info_free(void)
  *  stress_lockf_unlock()
  *	pop oldest lock record off list and unlock it
  */
-static int stress_lockf_unlock(const char *name, const int fd)
+static int stress_lockf_unlock(args_t *args, const int fd)
 {
 	/* Pop one off list */
 	if (!lockf_infos.head)
 		return 0;
 
 	if (lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0) {
-		pr_fail_err(name, "lseek");
+		pr_fail_err(args->name, "lseek");
 		return -1;
 	}
 	stress_lockf_info_head_remove();
 
 	if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
-		pr_fail_err(name, "lockf unlock");
+		pr_fail_err(args->name, "lockf unlock");
 		return -1;
 	}
 	return 0;
@@ -149,10 +149,8 @@ static int stress_lockf_unlock(const char *name, const int fd)
  *	hammer lock/unlock to create some file lock contention
  */
 static int stress_lockf_contention(
-	const char *name,
-	const int fd,
-	uint64_t *const counter,
-	const uint64_t max_ops)
+	args_t *args,
+	const int fd)
 {
 	const int lockf_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
 		F_TLOCK : F_LOCK;
@@ -165,17 +163,17 @@ static int stress_lockf_contention(
 		lockf_info_t *lockf_info;
 
 		if (lockf_infos.length >= LOCK_MAX)
-			if (stress_lockf_unlock(name, fd) < 0)
+			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 
 		offset = mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek");
+			pr_fail_err(args->name, "lseek");
 			return -1;
 		}
 		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
 		if (rc < 0) {
-			if (stress_lockf_unlock(name, fd) < 0)
+			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 			continue;
 		}
@@ -183,12 +181,12 @@ static int stress_lockf_contention(
 
 		lockf_info = stress_lockf_info_new();
 		if (!lockf_info) {
-			pr_fail_err(name, "calloc");
+			pr_fail_err(args->name, "calloc");
 			return -1;
 		}
 		lockf_info->offset = offset;
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return 0;
 }
@@ -197,11 +195,7 @@ static int stress_lockf_contention(
  *  stress_lockf
  *	stress file locking via lockf()
  */
-int stress_lockf(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lockf(args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t pid = getpid(), cpid = -1;
@@ -217,11 +211,11 @@ int stress_lockf(
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), name, pid, instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return ret;
 		}
 	}
@@ -232,17 +226,17 @@ int stress_lockf(
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)rmdir(dirname);
 		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err(name, "lseek");
+		pr_fail_err(args->name, "lseek");
 		goto tidy;
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
@@ -256,7 +250,7 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			ret = exit_status(errno);
-			pr_fail_err(name, "write");
+			pr_fail_err(args->name, "write");
 			goto tidy;
 		}
 	}
@@ -270,21 +264,21 @@ again:
 		}
 		if (errno == EAGAIN)
 			goto again;
-		pr_fail_err(name, "fork");
+		pr_fail_err(args->name, "fork");
 		goto tidy;
 	}
 	if (cpid == 0) {
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		if (stress_lockf_contention(name, fd, counter, max_ops) < 0)
+		if (stress_lockf_contention(args, fd) < 0)
 			exit(EXIT_FAILURE);
 		stress_lockf_info_free();
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(cpid, pgrp);
 
-	if (stress_lockf_contention(name, fd, counter, max_ops) == 0)
+	if (stress_lockf_contention(args, fd) == 0)
 		ret = EXIT_SUCCESS;
 tidy:
 	if (cpid > 0) {
@@ -302,12 +296,8 @@ tidy:
 	return ret;
 }
 #else
-int stress_lockf(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lockf(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

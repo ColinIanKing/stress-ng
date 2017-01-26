@@ -28,11 +28,7 @@
  *  stress_brk()
  *	stress brk and sbrk
  */
-int stress_brk(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_brk(args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
@@ -46,7 +42,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -56,21 +52,21 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -79,7 +75,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -93,11 +89,11 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		start_ptr = sbrk(0);
 		if (start_ptr == (void *) -1) {
-			pr_fail_err(name, "sbrk(0)");
+			pr_fail_err(args->name, "sbrk(0)");
 			exit(EXIT_FAILURE);
 		}
 
@@ -119,13 +115,13 @@ again:
 					nomems++;
 					if (brk(start_ptr) < 0) {
 						pr_err(stderr, "%s: brk(%p) failed: errno=%d (%s)\n",
-							name, start_ptr, errno,
+							args->name, start_ptr, errno,
 							strerror(errno));
 						exit(EXIT_FAILURE);
 					}
 				} else {
 					pr_err(stderr, "%s: sbrk(%d) failed: errno=%d (%s)\n",
-						name, (int)page_size, errno,
+						args->name, (int)page_size, errno,
 						strerror(errno));
 					exit(EXIT_FAILURE);
 				}
@@ -134,14 +130,14 @@ again:
 				if (touch)
 					*(ptr - 1) = 0;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 	if (ooms + segvs + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, ooms, segvs, nomems);
+			args->name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }

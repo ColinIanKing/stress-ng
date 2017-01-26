@@ -102,11 +102,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
  *  stress_madvise()
  *	stress madvise
  */
-int stress_madvise(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_madvise(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz = 4 *  MB;
@@ -123,32 +119,32 @@ int stress_madvise(
 #endif
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_fail_err(name, "sigsetjmp");
+		pr_fail_err(args->name, "sigsetjmp");
 		return EXIT_FAILURE;
 	}
-	if (stress_sighandler(name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	sz &= ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
 	memset(page, 0xa5, page_size);
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 
@@ -163,7 +159,7 @@ int stress_madvise(
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
-				name);
+				args->name);
 			break;
 		}
 
@@ -209,24 +205,20 @@ int stress_madvise(
 			(void)shim_msync(buf + m, page_size, MS_ASYNC);
 		}
 		(void)munmap((void *)buf, sz);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",
-			name, sigbus_count);
+			args->name, sigbus_count);
 	return EXIT_SUCCESS;
 }
 #else
-int stress_madvise(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_madvise(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

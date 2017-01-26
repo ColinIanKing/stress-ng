@@ -32,26 +32,22 @@
  *  stress_xattr
  *	stress the xattr operations
  */
-int stress_xattr(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_xattr(args_t *args)
 {
 	pid_t pid = getpid();
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto out;
 	}
 	(void)unlink(filename);
@@ -72,11 +68,11 @@ int stress_xattr(
 				if (errno == ENOTSUP) {
 					pr_inf(stdout, "%s stressor will be "
 						"skipped, filesystem does not "
-						"support xattr.\n", name);
+						"support xattr.\n", args->name);
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err(name, "fsetxattr");
+				pr_fail_err(args->name, "fsetxattr");
 				goto out_close;
 			}
 		}
@@ -89,7 +85,7 @@ int stress_xattr(
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err(name, "fsetxattr");
+				pr_fail_err(args->name, "fsetxattr");
 				goto out_close;
 			}
 		}
@@ -101,20 +97,20 @@ int stress_xattr(
 
 			ret = fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_fail_err(name, "fgetxattr");
+				pr_fail_err(args->name, "fgetxattr");
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
 				pr_fail(stderr, "%s: fgetxattr values "
 					"different %.*s vs %.*s\n",
-					name, ret, value, ret, tmp);
+					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
 		}
 		/* Determine how large a buffer we required... */
 		sz = flistxattr(fd, NULL, 0);
 		if (sz < 0) {
-			pr_fail_err(name, "flistxattr");
+			pr_fail_err(args->name, "flistxattr");
 			goto out_close;
 		}
 		buffer = malloc(sz);
@@ -124,7 +120,7 @@ int stress_xattr(
 			free(buffer);
 
 			if (sz < 0) {
-				pr_fail_err(name, "flistxattr");
+				pr_fail_err(args->name, "flistxattr");
 				goto out_close;
 			}
 		}
@@ -133,27 +129,23 @@ int stress_xattr(
 
 			ret = fremovexattr(fd, attrname);
 			if (ret < 0) {
-				pr_fail_err(name, "fremovexattr");
+				pr_fail_err(args->name, "fremovexattr");
 				goto out_close;
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 out_close:
 	(void)close(fd);
 out:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 	return rc;
 }
 #else
-int stress_xattr(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_xattr(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

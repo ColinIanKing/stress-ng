@@ -647,17 +647,11 @@ int stress_set_str_method(const char *name)
  *  stress_str()
  *	stress CPU by doing various string operations
  */
-int stress_str(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_str(args_t *args)
 {
 	stress_str_func func = opt_str_stressor->func;
 	const void *libc_func = opt_str_stressor->libc_func;
 	bool failed = false;
-
-	(void)instance;
 
 	do {
 		char str1[256], str2[128];
@@ -665,9 +659,9 @@ int stress_str(
 		stress_strnrnd(str1, sizeof(str1));
 		stress_strnrnd(str2, sizeof(str2));
 
-		(void)func(libc_func, name, str1, sizeof(str1), str2, sizeof(str2), &failed);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		(void)func(libc_func, args->name, str1, sizeof(str1), str2, sizeof(str2), &failed);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

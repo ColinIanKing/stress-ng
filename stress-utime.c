@@ -29,27 +29,23 @@
  *  stress_utime()
  *	stress system by setting file utime
  */
-int stress_utime(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_utime(args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;
 	const pid_t pid = getpid();
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(name, pid, instance);
+			args->name, errno, strerror(errno));
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 
@@ -67,13 +63,13 @@ int stress_utime(
 		}
 		if (utimes(filename, t) < 0) {
 			pr_dbg(stderr, "%s: utimes failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 #if defined(__linux__)
 		if (futimens(fd, NULL) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 
@@ -81,7 +77,7 @@ int stress_utime(
 		ts.tv_nsec = UTIME_NOW;
 		if (futimens(fd, &ts) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 
@@ -89,24 +85,24 @@ int stress_utime(
 		ts.tv_nsec = UTIME_OMIT;
 		if (futimens(fd, &ts) < 0) {
 			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 #endif
 		if (utime(filename, NULL) < 0) {
 			pr_dbg(stderr, "%s: utime failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			break;
 		}
 		/* forces metadata writeback */
 		if (opt_flags & OPT_FLAGS_UTIME_FSYNC)
 			(void)fsync(fd);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

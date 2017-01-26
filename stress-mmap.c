@@ -92,9 +92,7 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 }
 
 static void stress_mmap_child(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const int fd,
 	int *flags,
 	const size_t page_size,
@@ -115,7 +113,7 @@ static void stress_mmap_child(
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
-				name);
+				args->name);
 			break;
 		}
 
@@ -139,7 +137,7 @@ static void stress_mmap_child(
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
-		stress_mmap_mprotect(name, buf, sz);
+		stress_mmap_mprotect(args->name, buf, sz);
 		memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -149,7 +147,7 @@ static void stress_mmap_child(
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (mmap_check(buf, sz, page_size) < 0)
 				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
-					"not contain expected data\n", name, sz);
+					"not contain expected data\n", args->name, sz);
 		}
 
 		/*
@@ -163,7 +161,7 @@ static void stress_mmap_child(
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
-					stress_mmap_mprotect(name, mappings[page], page_size);
+					stress_mmap_mprotect(args->name, mappings[page], page_size);
 					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
@@ -197,13 +195,13 @@ static void stress_mmap_child(
 					} else {
 						(void)mincore_touch_pages(mappings[page], page_size);
 						(void)madvise_random(mappings[page], page_size);
-						stress_mmap_mprotect(name, mappings[page], page_size);
+						stress_mmap_mprotect(args->name, mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						mmap_set(mappings[page], page_size, page_size);
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
-								"not contain expected data\n", name, page_size);
+								"not contain expected data\n", args->name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
 #if !defined(__gnu_hurd__) && !defined(__minix__)
@@ -226,23 +224,19 @@ cleanup:
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
-				stress_mmap_mprotect(name, mappings[n], page_size);
+				stress_mmap_mprotect(args->name, mappings[n], page_size);
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 }
 
 /*
  *  stress_mmap()
  *	stress mmap
  */
-int stress_mmap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mmap(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz, pages4k;
@@ -265,33 +259,33 @@ int stress_mmap(
 	pages4k = sz / page_size;
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		ssize_t ret, rc;
 		char ch = '\0';
 
-		rc = stress_temp_dir_mk(name, mypid, instance);
+		rc = stress_temp_dir_mk(args->name, mypid, args->instance);
 		if (rc < 0)
 			return exit_status(-rc);
 
 		(void)stress_temp_filename(filename, sizeof(filename),
-			name, mypid, instance, mwc32());
+			args->name, mypid, args->instance, mwc32());
 
 		(void)umask(0077);
 		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			(void)unlink(filename);
-			(void)stress_temp_dir_rm(name, mypid, instance);
+			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 
 			return rc;
 		}
 		(void)unlink(filename);
 		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek");
+			pr_fail_err(args->name, "lseek");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(name, mypid, instance);
+			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 
 			return EXIT_FAILURE;
 		}
@@ -301,9 +295,9 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			rc = exit_status(errno);
-			pr_fail_err(name, "write");
+			pr_fail_err(args->name, "write");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(name, mypid, instance);
+			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 
 			return rc;
 		}
@@ -319,7 +313,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -329,7 +323,7 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
@@ -342,15 +336,15 @@ again:
 			}
 
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -359,7 +353,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -369,21 +363,21 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
-		stress_mmap_child(counter, max_ops, name, fd, &flags, page_size, sz, pages4k);
+		stress_mmap_child(args, fd, &flags, page_size, sz, pages4k);
 	}
 
 cleanup:
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm(name, mypid, instance);
+		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 	}
 	if (ooms + segvs + buserrs > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", SIGBUS signals: %" PRIu32 "\n",
-			name, ooms, segvs, buserrs);
+			args->name, ooms, segvs, buserrs);
 
 	return EXIT_SUCCESS;
 }

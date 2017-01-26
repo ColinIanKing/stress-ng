@@ -45,11 +45,7 @@ static void MLOCKED stress_rlimit_handler(int dummy)
  *  stress_rlimit
  *	stress by generating rlimit signals
  */
-int stress_rlimit(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rlimit(args_t *args)
 {
 	struct rlimit limit;
 	struct sigaction old_action_xcpu, old_action_xfsz;
@@ -58,19 +54,19 @@ int stress_rlimit(
 	const pid_t pid = getpid();
 	const double start = time_now();
 
-	if (stress_sighandler(name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
+	if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 		return EXIT_FAILURE;
-	if (stress_sighandler(name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
+	if (stress_sighandler(args->name, SIGXFSZ, stress_rlimit_handler, &old_action_xfsz) < 0)
 		return EXIT_FAILURE;
 
 	(void)umask(0077);
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+		args->name, pid, args->instance, mwc32());
+	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail_err(name, "creat");
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_fail_err(args->name, "creat");
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return EXIT_FAILURE;
 	}
 	(void)unlink(filename);
@@ -94,7 +90,7 @@ int stress_rlimit(
 		if ((time_now() - start) > (double)opt_timeout)
 			break;
 		/* Check for counter limit reached */
-		if (max_ops && *counter >= max_ops)
+		if (args->max_ops && *args->counter >= args->max_ops)
 			break;
 
 		if (ret == 0) {
@@ -103,27 +99,23 @@ int stress_rlimit(
 				/* Ignore error */
 			}
 		} else if (ret == 1) {
-			(*counter)++;	/* SIGSEGV/SIGILL occurred */
+			inc_counter(args);	/* SIGSEGV/SIGILL occurred */
 		} else {
 			break;		/* Something went wrong! */
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	do_jmp = false;
-	(void)stress_sigrestore(name, SIGXCPU, &old_action_xcpu);
-	(void)stress_sigrestore(name, SIGXFSZ, &old_action_xfsz);
+	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
+	(void)stress_sigrestore(args->name, SIGXFSZ, &old_action_xfsz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rlimit(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rlimit(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

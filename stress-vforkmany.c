@@ -40,18 +40,11 @@ static stack_t ss;
  *	careful not to overrite shared variables across
  *	all the processes.
  */
-int stress_vforkmany(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vforkmany(args_t *args)
 {
 	static int status;
 	static pid_t mypid;
 	static double start;
-
-	(void)instance;
-	(void)name;
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	/*
@@ -68,7 +61,7 @@ int stress_vforkmany(
 	ss.ss_flags = 0;
 #endif
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(name, "sigaltstack");
+		pr_fail_err(args->name, "sigaltstack");
 		return EXIT_FAILURE;
 	}
 #endif
@@ -106,8 +99,8 @@ again:
 		} else if (pid == 0) {
 			/* child, parent is blocked, spawn new child */
 			(void)setpgid(0, pgrp);
-			(*counter)++;
-			if (!max_ops || *counter < max_ops)
+			inc_counter(args);
+			if (!args->max_ops || *args->counter < args->max_ops)
 				goto again;
 			_exit(0);
 		}
@@ -115,7 +108,7 @@ again:
 		(void)waitpid(pid, &status, 0);
 		if (getpid() != mypid)
 			_exit(0);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

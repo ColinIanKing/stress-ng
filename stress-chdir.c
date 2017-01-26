@@ -28,11 +28,7 @@
  *  stress_chdir
  *	stress chdir calls
  */
-int stress_chdir(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_chdir(args_t *args)
 {
 	const pid_t pid = getpid();
 	uint64_t i;
@@ -43,11 +39,11 @@ int stress_chdir(
 	memset(paths, 0, sizeof(paths));
 
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
-		pr_fail_err(name, "getcwd");
+		pr_fail_err(args->name, "getcwd");
 		return ret;
 	}
 
-	rc = stress_temp_dir_mk(name, pid, instance);
+	rc = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
@@ -56,14 +52,14 @@ int stress_chdir(
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			name, pid, instance, gray_code);
+			args->name, pid, args->instance, gray_code);
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
 			ret = exit_status(errno);
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			goto abort;
 		}
 		if (!opt_do_run)
@@ -72,43 +68,43 @@ int stress_chdir(
 
 	do {
 		for (i = 0; i < DEFAULT_DIRS; i++) {
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				goto done;
 			if (chdir(paths[i]) < 0) {
 				if (errno != ENOMEM) {
-					pr_fail_err(name, "chdir");
+					pr_fail_err(args->name, "chdir");
 					goto abort;
 				}
 			}
 redo:
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				goto done;
 			/* We need chdir to cwd to always succeed */
 			if (chdir(cwd) < 0) {
 				/* Maybe low memory, force retry */
 				if (errno == ENOMEM)
 					goto redo;
-				pr_fail_err(name, "chdir");
+				pr_fail_err(args->name, "chdir");
 				goto abort;
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 done:
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
-		pr_fail_err(name, "chdir");
+		pr_fail_err(args->name, "chdir");
 
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
-		name, DEFAULT_DIRS);
+		args->name, DEFAULT_DIRS);
 
 	for (i = 0; (i < DEFAULT_DIRS) && paths[i] ; i++) {
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return ret;
 }

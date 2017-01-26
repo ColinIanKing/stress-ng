@@ -33,17 +33,11 @@
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
  */
-int stress_tlb_shootdown(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tlb_shootdown(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	pid_t pids[MAX_TLB_PROCS];
-
-	(void)instance;
 
 	do {
 		uint8_t *mem, *ptr;
@@ -53,7 +47,7 @@ int stress_tlb_shootdown(
 		const int32_t max_cpus = stress_get_processors_configured();
 
 		if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0) {
-			pr_fail_err(name, "could not get CPU affinity");
+			pr_fail_err(args->name, "could not get CPU affinity");
 			return EXIT_FAILURE;
 		}
 		cpus = CPU_COUNT(&proc_mask);
@@ -67,7 +61,7 @@ int stress_tlb_shootdown(
 					if (--retry < 0)
 						return EXIT_NO_RESOURCE;
 				} else {
-					pr_fail_err(name, "mmap");
+					pr_fail_err(args->name, "mmap");
 				}
 			} else {
 				break;
@@ -121,18 +115,14 @@ int stress_tlb_shootdown(
 			}
 		}
 		(void)munmap(mem, mmap_size);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tlb_shootdown(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tlb_shootdown(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

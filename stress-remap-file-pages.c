@@ -35,7 +35,7 @@ typedef uint16_t mapdata_t;
  *	check page order
  */
 static void check_order(
-	const char *name,
+	args_t *args,
 	const size_t stride,
 	const mapdata_t *data,
 	const size_t *order,
@@ -52,7 +52,7 @@ static void check_order(
 	}
 	if (failed)
 		pr_fail(stderr, "%s: remap %s order pages failed\n",
-			name, ordering);
+			args->name, ordering);
 }
 
 /*
@@ -60,7 +60,7 @@ static void check_order(
  *	remap based on given order
  */
 static int remap_order(
-	const char *name,
+	args_t *args,
 	const size_t stride,
 	mapdata_t *data,
 	const size_t *order,
@@ -74,7 +74,7 @@ static int remap_order(
 		ret = remap_file_pages(data + (i * stride), page_size,
 			0, order[i], 0);
 		if (ret < 0) {
-			pr_fail_err(name, "remap_file_pages");
+			pr_fail_err(args->name, "remap_file_pages");
 			return -1;
 		}
 	}
@@ -86,11 +86,7 @@ static int remap_order(
  *  stress_remap
  *	stress page remapping
  */
-int stress_remap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_remap(args_t *args)
 {
 	mapdata_t *data;
 	const size_t page_size = stress_get_pagesize();
@@ -98,13 +94,11 @@ int stress_remap(
 	const size_t stride = page_size / sizeof(*data);
 	size_t i;
 
-	(void)instance;
-
 	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -118,9 +112,9 @@ int stress_remap(
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = N_PAGES - 1 - i;
 
-		if (remap_order(name, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size) < 0)
 			break;
-		check_order(name, stride, data, order, "reverse");
+		check_order(args, stride, data, order, "reverse");
 
 		/* random order pages */
 		for (i = 0; i < N_PAGES; i++)
@@ -133,38 +127,34 @@ int stress_remap(
 			order[j] = tmp;
 		}
 
-		if (remap_order(name, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size) < 0)
 			break;
-		check_order(name, stride, data, order, "random");
+		check_order(args, stride, data, order, "random");
 
 		/* all mapped to 1 page */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = 0;
-		if (remap_order(name, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size) < 0)
 			break;
-		check_order(name, stride, data, order, "all-to-1");
+		check_order(args, stride, data, order, "all-to-1");
 
 		/* reorder pages back again */
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
-		if (remap_order(name, stride, data, order, page_size) < 0)
+		if (remap_order(args, stride, data, order, page_size) < 0)
 			break;
-		check_order(name, stride, data, order, "forward");
+		check_order(args, stride, data, order, "forward");
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	munmap(data, data_size);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_remap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_remap(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

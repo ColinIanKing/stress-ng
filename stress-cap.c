@@ -29,10 +29,9 @@
 #include <sys/capability.h>
 
 static int stress_capgetset_pid(
-	const char *name,
+	args_t *args,
 	const pid_t pid,
 	const bool do_set,
-	uint64_t *counter,
 	const bool exists)
 {
 	int ret;
@@ -51,7 +50,7 @@ static int stress_capgetset_pid(
 		    (errno != ESRCH)) {
 			pr_fail(stderr, "%s: capget on pid %d failed: "
 				"errno=%d (%s)\n",
-				name, pid, errno, strerror(errno));
+				args->name, pid, errno, strerror(errno));
 		}
 	}
 
@@ -62,12 +61,12 @@ static int stress_capgetset_pid(
 			    (errno != ESRCH)) {
 				pr_fail(stderr, "%s: capget on pid %d failed: "
 					"errno=%d (%s)\n",
-					name, pid, errno, strerror(errno));
+					args->name, pid, errno, strerror(errno));
 			}
 		}
 	}
 
-	(*counter)++;
+	inc_counter(args);
 
 	return ret;
 }
@@ -76,28 +75,22 @@ static int stress_capgetset_pid(
  *  stress_cap
  *	stress capabilities (trivial)
  */
-int stress_cap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cap(args_t *args)
 {
 	const pid_t pid = getpid();
 	const pid_t ppid = getppid();
 
-	(void)instance;
-
 	do {
 		DIR *dir;
 
-		stress_capgetset_pid(name, 1, false, counter, true);
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		stress_capgetset_pid(args, 1, false, true);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
-		stress_capgetset_pid(name, pid, true, counter, true);
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		stress_capgetset_pid(args, pid, true, true);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
-		stress_capgetset_pid(name, ppid, false, counter, false);
-		if (!opt_do_run || (max_ops && *counter >= max_ops))
+		stress_capgetset_pid(args, ppid, false, false);
+		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
 		dir = opendir("/proc");
@@ -111,24 +104,19 @@ int stress_cap(
 					continue;
 				if (sscanf(d->d_name, "%d", &p) != 1)
 					continue;
-				stress_capgetset_pid(name, p, false,
-					counter, false);
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				stress_capgetset_pid(args, p, false, false);
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 			}
 			(void)closedir(dir);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_cap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cap(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

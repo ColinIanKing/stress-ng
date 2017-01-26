@@ -50,18 +50,14 @@ int stress_set_udp_flood_domain(const char *name)
  *  stress_udp_flood
  *	UDP flood
  */
-int stress_udp_flood(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_udp_flood(args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	pid_t pid = getpid();
 	int port = 1024;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	const size_t sz_max = 23 + instance;
+	const size_t sz_max = 23 + args->instance;
 	size_t sz = 1;
 
 	static const char data[64] =
@@ -69,10 +65,10 @@ int stress_udp_flood(
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
 	if ((fd = socket(opt_udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
-		pr_fail_dbg(name, "socket");
+		pr_fail_dbg(args->name, "socket");
 		return EXIT_FAILURE;
 	}
-	stress_set_sockaddr(name, instance, pid,
+	stress_set_sockaddr(args->name, args->instance, pid,
 		opt_udp_flood_domain, port,
 		&addr, &addr_len, NET_ADDR_ANY);
 
@@ -83,24 +79,20 @@ int stress_udp_flood(
 
 		memset(buf, data[j++ & 63], sz);
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
-			(*counter)++;
+			inc_counter(args);
 		if (++port > 65535)
 			port = 1024;
 		if (++sz > sz_max)
 			sz = 1;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
 
 	return rc;
 }
 #else
-int stress_udp_flood(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_udp_flood(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

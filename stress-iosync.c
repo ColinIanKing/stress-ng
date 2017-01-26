@@ -28,19 +28,10 @@
  *  stress on sync()
  *	stress system by IO sync calls
  */
-int stress_io(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_io(args_t *args)
 {
 #if defined(__linux__)
 	int fd;
-#endif
-
-	(void)instance;
-#if !(defined(__linux__) && NEED_GLIBC(2,14,0))
-	(void)name;
 #endif
 
 #if defined(__linux__)
@@ -51,10 +42,10 @@ int stress_io(
 		sync();
 #if defined(__linux__) && NEED_GLIBC(2,14,0)
 		if ((fd != -1) && (syncfs(fd) < 0))
-			pr_fail_err(name, "syncfs");
+			pr_fail_err(args->name, "syncfs");
 #endif
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 #if defined(__linux__)
 	if (fd != -1)

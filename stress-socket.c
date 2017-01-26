@@ -156,10 +156,7 @@ int stress_set_socket_domain(const char *name)
  *	client reader
  */
 static void stress_sctp_client(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const pid_t ppid)
 {
 	struct sockaddr *addr;
@@ -178,13 +175,13 @@ retry:
 			exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
-			pr_fail_dbg(name, "socket");
+			pr_fail_dbg(args->name, "socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
 
-		stress_set_sockaddr(name, instance, ppid,
+		stress_set_sockaddr(args->name, args->instance, ppid,
 			opt_socket_domain, opt_socket_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
@@ -193,7 +190,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg(name, "connect");
+				pr_fail_dbg(args->name, "connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
@@ -206,13 +203,13 @@ retry:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, "recv");
+					pr_fail_dbg(args->name, "recv");
 				break;
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 #if defined(AF_UNIX)
 	if (opt_socket_domain == AF_UNIX) {
@@ -241,10 +238,7 @@ static void MLOCKED handle_socket_sigalrm(int dummy)
  *	server writer
  */
 static int stress_sctp_server(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const pid_t pid,
 	const pid_t ppid)
 {
@@ -258,32 +252,32 @@ static int stress_sctp_server(
 
 	(void)setpgid(pid, pgrp);
 
-	if (stress_sighandler(name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
+	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "socket");
+		pr_fail_dbg(args->name, "socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg(name, "setsockopt");
+		pr_fail_dbg(args->name, "setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 
-	stress_set_sockaddr(name, instance, ppid,
+	stress_set_sockaddr(args->name, args->instance, ppid,
 		opt_socket_domain, opt_socket_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "bind");
+		pr_fail_dbg(args->name, "bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg(name, "listen");
+		pr_fail_dbg(args->name, "listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -306,13 +300,13 @@ static int stress_sctp_server(
 #endif
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
-				pr_fail_dbg(name, "getsockname");
+				pr_fail_dbg(args->name, "getsockname");
 				(void)close(sfd);
 				break;
 			}
 			len = sizeof(sndbuf);
 			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-				pr_fail_dbg(name, "getsockopt");
+				pr_fail_dbg(args->name, "getsockopt");
 				(void)close(sfd);
 				break;
 			}
@@ -322,19 +316,19 @@ static int stress_sctp_server(
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
 					pr_inf(stdout, "%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
 				}
 			}
 #endif
-			memset(buf, 'A' + (*counter % 26), sizeof(buf));
+			memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 			switch (opt_socket_opts) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_fail_dbg(name, "send");
+							pr_fail_dbg(args->name, "send");
 						break;
 					} else
 						msgs++;
@@ -350,7 +344,7 @@ static int stress_sctp_server(
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
 					if (errno != EINTR)
-						pr_fail_dbg(name, "sendmsg");
+						pr_fail_dbg(args->name, "sendmsg");
 				} else
 					msgs += j;
 				break;
@@ -368,24 +362,24 @@ static int stress_sctp_server(
 				}
 				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
 					if (errno != EINTR)
-						pr_fail_dbg(name, "sendmmsg");
+						pr_fail_dbg(args->name, "sendmmsg");
 				} else
 					msgs += (MSGVEC_SIZE * j);
 				break;
 #endif
 			default:
 				/* Should never happen */
-				pr_err(stderr, "%s: bad option %d\n", name, opt_socket_opts);
+				pr_err(stderr, "%s: bad option %d\n", args->name, opt_socket_opts);
 				(void)close(sfd);
 				goto die_close;
 			}
 			if (getpeername(sfd, &saddr, &len) < 0) {
-				pr_fail_dbg(name, "getpeername");
+				pr_fail_dbg(args->name, "getpeername");
 			}
 			(void)close(sfd);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 die_close:
 	(void)close(fd);
@@ -400,7 +394,7 @@ die:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
-	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", name, msgs);
+	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	return rc;
 }
@@ -409,28 +403,24 @@ die:
  *  stress_sock
  *	stress by heavy socket I/O
  */
-int stress_sock(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sock(args_t *args)
 {
 	pid_t pid, ppid = getppid();
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-		name, (int)getpid(), opt_socket_port + instance);
+		args->name, (int)getpid(), opt_socket_port + args->instance);
 
 again:
 	pid = fork();
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(counter, instance, max_ops, name, ppid);
+		stress_sctp_client(args, ppid);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_sctp_server(counter, instance, max_ops, name, pid, ppid);
+		return stress_sctp_server(args, pid, ppid);
 	}
 }

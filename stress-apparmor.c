@@ -605,11 +605,7 @@ static const apparmor_func apparmor_funcs[] = {
  *  stress_apparmor()
  *	stress AppArmor
  */
-int stress_apparmor(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_apparmor(args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	const size_t counters_sz = n * sizeof(uint64_t);
@@ -617,31 +613,29 @@ int stress_apparmor(
 	size_t i;
 	uint64_t *counters, tmp_counter = 0, ops;
 
-	(void)instance;
-
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	memset(counters, 0, counters_sz);
 
-	if ((max_ops > 0) && (max_ops < n))
+	if ((args->max_ops > 0) && (args->max_ops < n))
 		ops = n;
 	else
-		ops = max_ops / n;
+		ops = args->max_ops / n;
 
 	for (i = 0; i < n; i++) {
-		pids[i] = apparmor_spawn(name, ops,
+		pids[i] = apparmor_spawn(args->name, ops,
 			&counters[i], apparmor_funcs[i]);
 	}
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
 		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];
-	} while (opt_do_run && (!max_ops || tmp_counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || tmp_counter < args->max_ops));
 
 	for (i = 0; i < n; i++) {
 		int status;
@@ -649,7 +643,7 @@ int stress_apparmor(
 		if (pids[i] >= 0) {
 			(void)kill(pids[i], SIGALRM);
 			(void)waitpid(pids[i], &status, 0);
-			*counter += counters[i];
+			*(args->counter) += counters[i];
 		}
 	}
 	munmap(counters, counters_sz);
@@ -667,13 +661,9 @@ int stress_apparmor_supported(void)
 	return -1;
 }
 
-int stress_apparmor(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_apparmor(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 
 }
 #endif

@@ -76,11 +76,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
  *  stress_msync()
  *	stress msync
  */
-int stress_msync(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_msync(args_t *args)
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
@@ -95,10 +91,10 @@ int stress_msync(
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_fail_err(name, "sigsetjmp");
+		pr_fail_err(args->name, "sigsetjmp");
 		return EXIT_FAILURE;
 	}
-	if (stress_sighandler(name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	if (!set_msync_bytes) {
@@ -112,21 +108,21 @@ int stress_msync(
 		sz = min_size;
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
-	rc = stress_temp_dir_mk(name, pid, instance);
+	rc = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 		return rc;
 	}
@@ -134,9 +130,9 @@ int stress_msync(
 
 	if (ftruncate(fd, sz) < 0) {
 		pr_err(stderr, "%s: ftruncate failed, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 		return EXIT_FAILURE;
 	}
@@ -145,7 +141,7 @@ int stress_msync(
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
 		pr_err(stderr, "%s: failed to mmap memory, errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto err;
 	}
@@ -170,25 +166,27 @@ int stress_msync(
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_SYNC on "
 				"offset %jd failed, errno=%d (%s)",
-				name, (intmax_t)offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno,
+				strerror(errno));
 			goto do_invalidate;
 		}
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
 			pr_err(stderr, "%s: cannot seet to offset %jd, "
 				"errno=%d (%s)\n",
-				name, (intmax_t)offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno,
+				strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail_err(name, "read");
+			pr_fail_err(args->name, "read");
 			goto do_invalidate;
 		}
 		if (stress_page_check(data, val, sizeof(data)) < 0) {
 			pr_fail(stderr, "%s: msync'd data in file different "
-				"to data in memory\n", name);
+				"to data in memory\n", args->name);
 		}
 
 do_invalidate:
@@ -203,48 +201,45 @@ do_invalidate:
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
 			pr_err(stderr, "%s: cannot seet to offset %jd, errno=%d (%s)\n",
-				name, (intmax_t)offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno,
+				strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail_err(name, "read");
+			pr_fail_err(args->name, "read");
 			goto do_next;
 		}
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail(stderr, "%s: msync MS_INVALIDATE on "
 				"offset %jd failed, errno=%d (%s)",
-				name, (intmax_t)offset, errno, strerror(errno));
+				args->name, (intmax_t)offset, errno,
+				strerror(errno));
 			goto do_next;
 		}
 		if (stress_page_check(buf + offset, val, sizeof(data)) < 0) {
 			pr_fail(stderr, "%s: msync'd data in memory "
-				"different to data in file\n", name);
+				"different to data in file\n", args->name);
 		}
 do_next:
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)munmap((void *)buf, sz);
 err:
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",
-			name, sigbus_count);
+			args->name, sigbus_count);
 	return rc;
 }
 #else
-int stress_msync(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_msync(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

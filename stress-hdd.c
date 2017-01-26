@@ -284,7 +284,7 @@ int stress_hdd_opts(char *opts)
  *  stress_hdd_advise()
  *	set posix_fadvise options
  */
-static int stress_hdd_advise(const char *name, const int fd, const int flags)
+static int stress_hdd_advise(args_t *args, const int fd, const int flags)
 {
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
@@ -298,7 +298,7 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
 	for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 		if (hdd_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
-				pr_fail_err(name, "posix_fadvise");
+				pr_fail_err(args->name, "posix_fadvise");
 				return -1;
 			}
 		}
@@ -314,11 +314,7 @@ static int stress_hdd_advise(const char *name, const int fd, const int flags)
  *  stress_hdd
  *	stress I/O via writes
  */
-int stress_hdd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_hdd(args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint8_t *alloc_buf;
@@ -356,7 +352,7 @@ int stress_hdd(
 	if (opt_hdd_write_size < min_size) {
 		opt_hdd_write_size = min_size;
 		pr_inf(stdout, "%s: increasing read/write size to %"
-			PRIu64 " bytes\n", name, opt_hdd_write_size);
+			PRIu64 " bytes\n", args->name, opt_hdd_write_size);
 	}
 
 	/* Ensure we get same sized iovec I/O sizes */
@@ -365,7 +361,7 @@ int stress_hdd(
 		opt_hdd_write_size += HDD_IO_VEC_MAX - remainder;
 		pr_inf(stdout, "%s: increasing read/write size to %"
 			PRIu64 " bytes in iovec mode\n",
-			name, opt_hdd_write_size);
+			args->name, opt_hdd_write_size);
 	}
 
 	/* Ensure complete file size is not less than the I/O size */
@@ -373,11 +369,11 @@ int stress_hdd(
 		opt_hdd_bytes = opt_hdd_write_size;
 		pr_inf(stdout, "%s: increasing file size to write size of %"
 			PRIu64 " bytes\n",
-			name, opt_hdd_bytes);
+			args->name, opt_hdd_bytes);
 	}
 
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -392,8 +388,8 @@ int stress_hdd(
 	/* Work around lack of posix_memalign */
 	alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
-		pr_err(stderr, "%s: cannot allocate buffer\n", name);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return rc;
 	}
 	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
@@ -401,8 +397,8 @@ int stress_hdd(
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
 	if (ret || !alloc_buf) {
 		rc = exit_status(errno);
-		pr_err(stderr, "%s: cannot allocate buffer\n", name);
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return rc;
 	}
 	buf = alloc_buf;
@@ -411,7 +407,7 @@ int stress_hdd(
 	stress_strnrnd((char *)buf, opt_hdd_write_size);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	do {
 		int fd;
 		struct stat statbuf;
@@ -436,17 +432,17 @@ int stress_hdd(
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			goto finish;
 		}
 		if (ftruncate(fd, (off_t)0) < 0) {
-			pr_fail_err(name, "ftruncate");
+			pr_fail_err(args->name, "ftruncate");
 			(void)close(fd);
 			goto finish;
 		}
 		(void)unlink(filename);
 
-		if (stress_hdd_advise(name, fd, fadvise_flags) < 0) {
+		if (stress_hdd_advise(args, fd, fadvise_flags) < 0) {
 			(void)close(fd);
 			goto finish;
 		}
@@ -461,12 +457,12 @@ int stress_hdd(
 					(mwc64() % opt_hdd_bytes) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_fail_err(name, "lseek");
+					pr_fail_err(args->name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
 rnd_wr_retry:
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				for (j = 0; j < opt_hdd_write_size; j++)
@@ -479,13 +475,13 @@ rnd_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail_err(name, "write");
+						pr_fail_err(args->name, "write");
 						(void)close(fd);
 						goto finish;
 					}
 					continue;
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
 		}
 		/* Sequential Write */
@@ -493,7 +489,7 @@ rnd_wr_retry:
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				size_t j;
 seq_wr_retry:
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				for (j = 0; j < opt_hdd_write_size; j += 512)
@@ -505,18 +501,18 @@ seq_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail_err(name, "write");
+						pr_fail_err(args->name, "write");
 						(void)close(fd);
 						goto finish;
 					}
 					continue;
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
 		}
 
 		if (fstat(fd, &statbuf) < 0) {
-			pr_fail_err(name, "fstat");
+			pr_fail_err(args->name, "fstat");
 			(void)close(fd);
 			continue;
 		}
@@ -530,13 +526,13 @@ seq_wr_retry:
 			uint64_t baddata = 0;
 
 			if (lseek(fd, 0, SEEK_SET) < 0) {
-				pr_fail_err(name, "lseek");
+				pr_fail_err(args->name, "lseek");
 				(void)close(fd);
 				goto finish;
 			}
 			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
 seq_rd_retry:
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 
 				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
@@ -544,7 +540,7 @@ seq_rd_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
 					if (errno) {
-						pr_fail_err(name, "read");
+						pr_fail_err(args->name, "read");
 						(void)close(fd);
 						goto finish;
 					}
@@ -569,15 +565,15 @@ seq_rd_retry:
 						}
 					}
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
 			if (misreads)
 				pr_dbg(stderr, "%s: %" PRIu64
 					" incomplete sequential reads\n",
-					name, misreads);
+					args->name, misreads);
 			if (baddata)
 				pr_fail(stderr, "%s: incorrect data found %"
-					PRIu64 " times\n", name, baddata);
+					PRIu64 " times\n", args->name, baddata);
 		}
 		/* Random Read */
 		if (opt_hdd_flags & HDD_OPT_RD_RND) {
@@ -588,19 +584,19 @@ seq_rd_retry:
 				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_fail_err(name, "lseek");
+					pr_fail_err(args->name, "lseek");
 					(void)close(fd);
 					goto finish;
 				}
 rnd_rd_retry:
-				if (!opt_do_run || (max_ops && *counter >= max_ops))
+				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 					break;
 				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
 					if (errno) {
-						pr_fail_err(name, "read");
+						pr_fail_err(args->name, "read");
 						(void)close(fd);
 						goto finish;
 					}
@@ -625,21 +621,20 @@ rnd_rd_retry:
 						}
 					}
 				}
-
-				(*counter)++;
+				inc_counter(args);
 			}
 			if (misreads)
 				pr_dbg(stderr, "%s: %" PRIu64
 					" incomplete random reads\n",
-					name, misreads);
+					args->name, misreads);
 		}
 		(void)close(fd);
 
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 finish:
 	free(alloc_buf);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 	return rc;
 }

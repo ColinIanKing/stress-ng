@@ -73,7 +73,7 @@ static inline long sys_get_robust_list(int pid, struct robust_list_head **head_p
  *  stress_pthread_func()
  *	pthread that exits immediately
  */
-static void *stress_pthread_func(void *ctxt)
+static void *stress_pthread_func(void *arg)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
@@ -83,8 +83,7 @@ static void *stress_pthread_func(void *ctxt)
 	struct robust_list_head *head_ptr;
 	size_t len_ptr;
 #endif
-
-	(void)ctxt;
+	args_t *args = (args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -102,7 +101,7 @@ static void *stress_pthread_func(void *ctxt)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("pthread", "sigaltstack");
+		pr_fail_err(args->name, "sigaltstack");
 		goto die;
 	}
 
@@ -112,7 +111,7 @@ static void *stress_pthread_func(void *ctxt)
 	 */
 	if (sys_get_robust_list(0, &head_ptr, &len_ptr) < 0) {
 		if (errno != ENOSYS) {
-			pr_fail_err("pthread", "get_robust_list");
+			pr_fail_err(args->name, "get_robust_list");
 			goto die;
 		}
 	}
@@ -123,13 +122,13 @@ static void *stress_pthread_func(void *ctxt)
 	 */
 	ret = pthread_spin_lock(&spinlock);
 	if (ret) {
-		pr_fail_errno("pthread", "spinlock lock", ret);
+		pr_fail_errno(args->name, "spinlock lock", ret);
 		goto die;
 	}
 	pthread_count++;
 	ret = pthread_spin_unlock(&spinlock);
 	if (ret) {
-		pr_fail_errno("pthread", "spin unlock", ret);
+		pr_fail_errno(args->name, "spin unlock", ret);
 		goto die;
 	}
 
@@ -139,20 +138,20 @@ static void *stress_pthread_func(void *ctxt)
 	 */
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
-		pr_fail_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno(args->name, "mutex unlock", ret);
 		goto die;
 	}
 	while (!thread_terminate) {
 		ret = pthread_cond_wait(&cond, &mutex);
 		if (ret) {
-			pr_fail_errno("pthread",
+			pr_fail_errno(args->name,
 				"pthread condition wait", ret);
 			break;
 		}
 	}
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret)
-		pr_fail_errno("pthread", "mutex unlock", ret);
+		pr_fail_errno(args->name, "mutex unlock", ret);
 die:
 	return &nowt;
 }
@@ -161,11 +160,7 @@ die:
  *  stress_pthread()
  *	stress by creating pthreads
  */
-int stress_pthread(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_pthread(args_t *args)
 {
 	pthread_t pthreads[MAX_PTHREAD];
 	bool ok = true;
@@ -181,17 +176,17 @@ int stress_pthread(
 
 	ret = pthread_cond_init(&cond, NULL);
 	if (ret) {
-		pr_fail_errno(name, "pthread_cond_init", ret);
+		pr_fail_errno(args->name, "pthread_cond_init", ret);
 		return EXIT_FAILURE;
 	}
 	ret = pthread_spin_init(&spinlock, 0);
 	if (ret) {
-		pr_fail_errno(name, "pthread_spin_init", ret);
+		pr_fail_errno(args->name, "pthread_spin_init", ret);
 		return EXIT_FAILURE;
 	}
 	ret = pthread_mutex_init(&mutex, NULL);
 	if (ret) {
-		pr_fail_errno(name, "pthread_mutx_init", ret);
+		pr_fail_errno(args->name, "pthread_mutx_init", ret);
 		return EXIT_FAILURE;
 	}
 
@@ -202,9 +197,9 @@ int stress_pthread(
 		thread_terminate = false;
 		pthread_count = 0;
 
-		for (i = 0; (i < opt_pthread_max) && (!max_ops || *counter < max_ops); i++) {
+		for (i = 0; (i < opt_pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
 			ret = pthread_create(&pthreads[i], NULL,
-				stress_pthread_func, NULL);
+				stress_pthread_func, args);
 			if (ret) {
 				/* Out of resources, don't try any more */
 				if (ret == EAGAIN) {
@@ -212,11 +207,11 @@ int stress_pthread(
 					break;
 				}
 				/* Something really unexpected */
-				pr_fail_errno(name, "pthread create", ret);
+				pr_fail_errno(args->name, "pthread create", ret);
 				ok = false;
 				break;
 			}
-			(*counter)++;
+			inc_counter(args);
 			if (!opt_do_run)
 				break;
 		}
@@ -231,14 +226,14 @@ int stress_pthread(
 
 			ret = pthread_mutex_lock(&mutex);
 			if (ret) {
-				pr_fail_errno(name, "mutex lock", ret);
+				pr_fail_errno(args->name, "mutex lock", ret);
 				ok = false;
 				goto reap;
 			}
 			all_running = (pthread_count == i);
 			ret = pthread_mutex_unlock(&mutex);
 			if (ret) {
-				pr_fail_errno(name, "mutex unlock", ret);
+				pr_fail_errno(args->name, "mutex unlock", ret);
 				ok = false;
 				goto reap;
 			}
@@ -249,40 +244,40 @@ int stress_pthread(
 
 		ret = pthread_mutex_lock(&mutex);
 		if (ret) {
-			pr_fail_errno(name, "mutex lock", ret);
+			pr_fail_errno(args->name, "mutex lock", ret);
 			ok = false;
 			goto reap;
 		}
 		thread_terminate = true;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
-			pr_fail_errno(name,
+			pr_fail_errno(args->name,
 				"pthread condition broadcast", ret);
 			ok = false;
 			/* fall through and unlock */
 		}
 		ret = pthread_mutex_unlock(&mutex);
 		if (ret) {
-			pr_fail_errno(name, "mutex unlock", ret);
+			pr_fail_errno(args->name, "mutex unlock", ret);
 			ok = false;
 		}
 reap:
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j], NULL);
 			if (ret) {
-				pr_fail_errno(name, "pthread join", ret);
+				pr_fail_errno(args->name, "pthread join", ret);
 				ok = false;
 			}
 		}
-	} while (ok && opt_do_run && (!max_ops || *counter < max_ops));
+	} while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if (limited) {
 		pr_inf(stdout, "%s: %.2f%% of iterations could not reach "
 			"requested %" PRIu64 " threads (instance %"
 			PRIu32 ")\n",
-			name,
+			args->name,
 			100.0 * (double)limited / (double)attempted,
-			opt_pthread_max, instance);
+			opt_pthread_max, args->instance);
 	}
 
 	(void)pthread_cond_destroy(&cond);
@@ -292,12 +287,8 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_pthread(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_pthread(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

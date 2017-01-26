@@ -62,7 +62,7 @@ static void thread3(void)
 }
 
 static int stress_context_init(
-	const char *name,
+	args_t *args,
 	void (*func)(void),
 	ucontext_t *link,
 	ucontext_t *uctx,
@@ -71,7 +71,7 @@ static int stress_context_init(
 {
 	if (getcontext(uctx) < 0) {
 		pr_err(stderr, "%s: getcontext failed: %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	uctx->uc_stack.ss_sp = (void *)stack;
@@ -86,11 +86,7 @@ static int stress_context_init(
  *  stress_context()
  *	stress that exercises CPU context save/restore
  */
-int stress_context(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_context(args_t *args)
 {
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	stack_t ss;
@@ -98,8 +94,6 @@ int stress_context(
 	char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
 	     stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
 	     stack_thread3[STACK_SIZE + STACK_ALIGNMENT];
-
-	(void)instance;
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	/*
@@ -116,25 +110,25 @@ int stress_context(
 	ss.ss_flags = 0;
 #endif
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(name, "sigaltstack");
+		pr_fail_err(args->name, "sigaltstack");
 		return EXIT_FAILURE;
 	}
 #endif
 	__counter = 0;
-	__max_ops = max_ops * 1000;
+	__max_ops = args->max_ops * 1000;
 
 	/* Create 3 micro threads */
-	if (stress_context_init(name, thread1, &uctx_main,
+	if (stress_context_init(args, thread1, &uctx_main,
 				&uctx_thread1,
 				align_address(stack_thread1, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
-	if (stress_context_init(name, thread2, &uctx_main,
+	if (stress_context_init(args, thread2, &uctx_main,
 				&uctx_thread2,
 				align_address(stack_thread2, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
-	if (stress_context_init(name, thread3, &uctx_main,
+	if (stress_context_init(args, thread3, &uctx_main,
 				&uctx_thread3,
 				align_address(stack_thread3, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
@@ -143,21 +137,17 @@ int stress_context(
 	/* And start.. */
 	if (swapcontext(&uctx_main, &uctx_thread1) < 0) {
 		pr_err(stderr, "%s: swapcontext failed: %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
-	*counter = __counter / 1000;
+	*args->counter = __counter / 1000;
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_context(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_context(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

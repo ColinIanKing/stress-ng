@@ -29,18 +29,18 @@
 #define MAX_PIDS	(32)
 
 #define UNSHARE(flags)	\
-	check_unshare(name, flags, #flags);
+	check_unshare(args, flags, #flags);
 
 /*
  *  unshare with some error checking
  */
-static void check_unshare(const char *name, int flags, const char *flags_name)
+static void check_unshare(args_t *args, int flags, const char *flags_name)
 {
 	int rc;
 	rc = shim_unshare(flags);
 	if ((rc < 0) && (errno != EPERM) && (errno != EINVAL)) {
 		pr_fail(stderr, "%s: unshare(%s) failed, "
-			"errno=%d (%s)\n", name, flags_name,
+			"errno=%d (%s)\n", args->name, flags_name,
 			errno, strerror(errno));
 	}
 }
@@ -49,15 +49,9 @@ static void check_unshare(const char *name, int flags, const char *flags_name)
  *  stress_unshare()
  *	stress resource unsharing
  */
-int stress_unshare(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_unshare(args_t *args)
 {
 	pid_t pids[MAX_PIDS];
-
-	(void)instance;
 
 	do {
 		size_t i, n;
@@ -128,21 +122,17 @@ reap:
 			if (waitpid(pids[i], &status, 0) < 0) {
 				if (errno != EINTR)
 					pr_err(stderr, "%s: waitpid errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_unshare(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_unshare(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

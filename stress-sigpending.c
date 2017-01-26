@@ -37,36 +37,30 @@ static void MLOCKED stress_usr1_handler(int dummy)
  *  stress_sigpending
  *	stress sigpending system call
  */
-int stress_sigpending(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigpending(args_t *args)
 {
 	sigset_t sigset;
 	const pid_t mypid = getpid();
 
-	(void)instance;
-
-	if (stress_sighandler(name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	do {
 		sigemptyset(&sigset);
 		sigaddset(&sigset, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &sigset, NULL) < 0) {
-			pr_fail_err(name, "sigprocmask");
+			pr_fail_err(args->name, "sigprocmask");
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(mypid, SIGUSR1);
 		if (sigpending(&sigset) < 0) {
-			pr_fail_err(name, "sigpending");
+			pr_fail_err(args->name, "sigpending");
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
 		if (!sigismember(&sigset, SIGUSR1)) {
-			pr_fail_err(name, "sigismember");
+			pr_fail_err(args->name, "sigismember");
 			continue;
 		}
 
@@ -76,16 +70,16 @@ int stress_sigpending(
 
 		/* And it is no longer pending */
 		if (sigpending(&sigset) < 0) {
-			pr_fail_err(name, "sigpending");
+			pr_fail_err(args->name, "sigpending");
 			continue;
 		}
 		if (sigismember(&sigset, SIGUSR1)) {
-			pr_fail_err(name, "sigismember");
+			pr_fail_err(args->name, "sigismember");
 			continue;
 		}
-		/* Success! */
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

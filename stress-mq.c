@@ -57,11 +57,7 @@ static void stress_mq_notify_func(union sigval s)
  *  stress_mq
  *	stress POSIX message queues
  */
-int stress_mq(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mq(args_t *args)
 {
 	pid_t pid = getpid();
 	mqd_t mq = -1;
@@ -82,7 +78,7 @@ int stress_mq(
 	sz = opt_mq_size;
 
 	snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
-		name, pid, instance);
+		args->name, pid, args->instance);
 	if ((fp = fopen("/proc/sys/fs/mqueue/msg_default", "r")) != NULL) {
 		if (fscanf(fp, "%20d", &max_sz) != 1)
 			max_sz = MAX_MQ_SIZE;
@@ -112,20 +108,20 @@ int stress_mq(
 		sz--;
 	}
 	if (mq < 0) {
-		pr_fail_dbg(name, "mq_open");
+		pr_fail_dbg(args->name, "mq_open");
 		return EXIT_FAILURE;
 	}
 	if (sz < opt_mq_size) {
 		pr_inf(stdout, "%s: POSIX message queue requested "
 			"size %d messages, maximum of %d allowed\n",
-			name, opt_mq_size, sz);
+			args->name, opt_mq_size, sz);
 	}
 	pr_dbg(stderr, "POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);
 
 	if (time(&time_start) == ((time_t)-1)) {
 		do_timed = false;
-		pr_fail_dbg(name, "mq_timed send and receive skipped, can't get time");
+		pr_fail_dbg(args->name, "mq_timed send and receive skipped, can't get time");
 	} else {
 		do_timed = true;
 		abs_timeout.tv_sec = time_start + opt_timeout + 1;
@@ -138,7 +134,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		struct sigevent sigev;
@@ -171,7 +167,7 @@ again:
 					ret = mq_receive(mq, (char *)&msg, sizeof(msg), NULL);
 
 				if (ret < 0) {
-					pr_fail_dbg(name, timed ? "mq_timedreceive" : "mq_receive");
+					pr_fail_dbg(args->name, timed ? "mq_timedreceive" : "mq_receive");
 					break;
 				}
 				if (msg.stop)
@@ -181,7 +177,7 @@ again:
 						pr_fail(stderr, "%s: mq_receive: expected message "
 							"containing 0x%" PRIx64
 							" but received 0x%" PRIx64 " instead\n",
-							name, i, msg.value);
+							args->name, i, msg.value);
 					}
 				}
 				i++;
@@ -202,11 +198,11 @@ again:
 			const uint64_t timed = (i & 1);
 
 			memset(&msg, 0, sizeof(msg));
-			msg.value = (*counter);
+			msg.value = (*args->counter);
 			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {
 				if (mq_getattr(mq, &attr) < 0)
-					pr_fail_dbg(name, "mq_getattr");
+					pr_fail_dbg(args->name, "mq_getattr");
 			}
 
 			/*
@@ -219,36 +215,32 @@ again:
 
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(name, timed ? "mq_timedsend" : "mq_send");
+					pr_fail_dbg(args->name, timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
 			i++;
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-		msg.value = (*counter);
+		msg.value = (*args->counter);
 		msg.stop = true;
 
 		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
-			pr_fail_dbg(name, "termination mq_send");
+			pr_fail_dbg(args->name, "termination mq_send");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)
-			pr_fail_dbg(name, "mq_close");
+			pr_fail_dbg(args->name, "mq_close");
 		if (mq_unlink(mq_name) < 0)
-			pr_fail_dbg(name, "mq_unlink");
+			pr_fail_dbg(args->name, "mq_unlink");
 	}
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mq(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mq(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

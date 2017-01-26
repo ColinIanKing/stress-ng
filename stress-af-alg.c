@@ -127,9 +127,7 @@ static alg_rng_info_t algo_rng_info[] = {
 };
 
 static int stress_af_alg_hash(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const int sockfd,
 	uint64_t *hashfails)
 {
@@ -153,14 +151,14 @@ static int stress_af_alg_hash(
 			/* Perhaps the hash does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(name, "bind");
+			pr_fail_err(args->name, "bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(name, "accept");
+			pr_fail_err(args->name, "accept");
 			return EXIT_FAILURE;
 		}
 
@@ -168,17 +166,17 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
-				pr_fail_err(name, "send");
+				pr_fail_err(args->name, "send");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (recv(fd, digest, digest_size, MSG_WAITALL) != digest_size) {
-				pr_fail_err(name, "recv");
+				pr_fail_err(args->name, "recv");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
-			(*counter)++;
-			if (max_ops && (*counter >= max_ops)) {
+			inc_counter(args);
+			if (args->max_ops && (*args->counter >= args->max_ops)) {
 				(void)close(fd);
 				return EXIT_SUCCESS;
 			}
@@ -192,9 +190,7 @@ static int stress_af_alg_hash(
 }
 
 static int stress_af_alg_cipher(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const int sockfd,
 	uint64_t *cipherfails)
 {
@@ -221,20 +217,20 @@ static int stress_af_alg_cipher(
 			/* Perhaps the cipher does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(name, "bind");
+			pr_fail_err(args->name, "bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		stress_strnrnd(key, sizeof(key));
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
-			pr_fail_err(name, "setsockopt");
+			pr_fail_err(args->name, "setsockopt");
 			return EXIT_FAILURE;
 		}
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(name, "accept");
+			pr_fail_err(args->name, "accept");
 			return EXIT_FAILURE;
 		}
 
@@ -258,7 +254,7 @@ static int stress_af_alg_cipher(
 			/* Keep static analysis happy */
 			if (!cmsg) {
 				(void)close(fd);
-				pr_fail_err(name, "null cmsg");
+				pr_fail_err(args->name, "null cmsg");
 				return EXIT_FAILURE;
 			}
 			cmsg->cmsg_level = SOL_ALG;
@@ -286,12 +282,12 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail_err(name, "sendmsg");
+				pr_fail_err(args->name, "sendmsg");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
@@ -319,12 +315,12 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail_err(name, "sendmsg");
+				pr_fail_err(args->name, "sendmsg");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			} else {
@@ -332,14 +328,14 @@ static int stress_af_alg_cipher(
 					pr_err(stderr, "%s: decrypted data "
 						"different from original data "
 						"using %s\n",
-						name,  algo_hash_info[i].name);
+						args->name,  algo_hash_info[i].name);
 				}
 			}
 		}
 
 		(void)close(fd);
-		(*counter)++;
-		if (max_ops && (*counter >= max_ops))
+		inc_counter(args);
+		if (args->max_ops && (*args->counter >= args->max_ops))
 			return EXIT_SUCCESS;
 	}
 	if (!bind_ok)
@@ -349,9 +345,7 @@ static int stress_af_alg_cipher(
 }
 
 static int stress_af_alg_rng(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const int sockfd,
 	uint64_t *rngfails)
 {
@@ -373,14 +367,14 @@ static int stress_af_alg_rng(
 			/* Perhaps the rng does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(name, "bind");
+			pr_fail_err(args->name, "bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(name, "accept");
+			pr_fail_err(args->name, "accept");
 			return EXIT_FAILURE;
 		}
 
@@ -388,12 +382,12 @@ static int stress_af_alg_rng(
 			char output[16];
 
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
-			(*counter)++;
-			if (max_ops && (*counter >= max_ops)) {
+			inc_counter(args);
+			if (args->max_ops && (*args->counter >= args->max_ops)) {
 				(void)close(fd);
 				return EXIT_SUCCESS;
 			}
@@ -410,17 +404,11 @@ static int stress_af_alg_rng(
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */
-int stress_af_alg(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_af_alg(args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
 	uint64_t hashfails = 0, cipherfails = 0, rngfails = 0;
-
-	(void)instance;
 
 	for (;;) {
 		sockfd = socket(AF_ALG, SOCK_SEQPACKET, 0);
@@ -429,7 +417,7 @@ int stress_af_alg(
 
 		retries--;
 		if ((!opt_do_run) || (retries < 0) || (errno != EAFNOSUPPORT)) {
-			pr_fail_err(name, "socket");
+			pr_fail_err(args->name, "socket");
 			return rc;
 		}
 		/*
@@ -442,25 +430,22 @@ int stress_af_alg(
 	}
 
 	do {
-		rc = stress_af_alg_hash(counter, max_ops,
-			name, sockfd, &hashfails);
+		rc = stress_af_alg_hash(args, sockfd, &hashfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_cipher(counter, max_ops,
-			name, sockfd, &cipherfails);
+		rc = stress_af_alg_cipher(args, sockfd, &cipherfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-		rc = stress_af_alg_rng(counter, max_ops,
-			name, sockfd, &rngfails);
+		rc = stress_af_alg_rng(args, sockfd, &rngfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if (hashfails | cipherfails | rngfails)
 		pr_dbg(stderr, "%s: bind failed with ENOENT on all hashes (%"
 			PRIu64 " times), ciphers (%" PRIu64 " times), "
 			"prngs (%" PRIu64 " times\n",
-			name, hashfails, cipherfails, rngfails);
+			args->name, hashfails, cipherfails, rngfails);
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(sockfd);
@@ -468,12 +453,8 @@ tidy:
 	return rc;
 }
 #else
-int stress_af_alg(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_af_alg(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

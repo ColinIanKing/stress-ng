@@ -29,10 +29,9 @@
  *	remove all links
  */
 static void stress_link_unlink(
+	args_t *args,
 	const uint64_t n,
-	const char *name,
-	const pid_t pid,
-	const uint32_t instance)
+	const pid_t pid)
 {
 	uint64_t i;
 
@@ -40,7 +39,7 @@ static void stress_link_unlink(
 		char path[PATH_MAX];
 
 		(void)stress_temp_filename(path, sizeof(path),
-			name, pid, instance, i);
+			args->name, pid, args->instance, i);
 		(void)unlink(path);
 	}
 	sync();
@@ -51,10 +50,7 @@ static void stress_link_unlink(
  *	stress links, generic case
  */
 static int stress_link_generic(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname,
 	bool symlink)
@@ -64,15 +60,15 @@ static int stress_link_generic(
 	char oldpath[PATH_MAX];
 	size_t oldpathlen;
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename(oldpath, sizeof(oldpath),
-		name, pid, instance, ~0);
+		args->name, pid, args->instance, ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(name, "open");
-		(void)stress_temp_dir_rm(name, pid, instance);
+		pr_fail_err(args->name, "open");
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 	(void)close(fd);
@@ -88,10 +84,10 @@ static int stress_link_generic(
 			struct stat stbuf;
 
 			(void)stress_temp_filename(newpath, sizeof(newpath),
-				name, pid, instance, i);
+				args->name, pid, args->instance, i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				rc = exit_status(errno);
-				pr_fail_err(name, funcname);
+				pr_fail_err(args->name, funcname);
 				n = i;
 				break;
 			}
@@ -102,36 +98,36 @@ static int stress_link_generic(
 				rret = readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
-					pr_fail_err(name, "readlink");
+					pr_fail_err(args->name, "readlink");
 				} else {
 					newpath[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
-						pr_fail_err(name, "readlink length error");
+						pr_fail_err(args->name, "readlink length error");
 					else
 						if (strncmp(oldpath, buf, rret))
-							pr_fail_err(name, "readlink path error");
+							pr_fail_err(args->name, "readlink path error");
 				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
 				rc = exit_status(errno);
-				pr_fail_err(name, "lstat");
+				pr_fail_err(args->name, "lstat");
 			}
 
 			if (!opt_do_run ||
-			    (max_ops && *counter >= max_ops))
+			    (args->max_ops && *args->counter >= args->max_ops))
 				goto abort;
 
-			(*counter)++;
+			inc_counter(args);
 		}
-		stress_link_unlink(n, name, pid, instance);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		stress_link_unlink(args, n, pid);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", name, DEFAULT_LINKS);
-	stress_link_unlink(DEFAULT_LINKS, name, pid, instance);
+	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
+	stress_link_unlink(args, DEFAULT_LINKS, pid);
 	(void)unlink(oldpath);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }
@@ -140,26 +136,16 @@ abort:
  *  stress_link
  *	stress hard links
  */
-int stress_link(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_link(args_t *args)
 {
-	return stress_link_generic(counter, instance,
-		max_ops, name, link, "link", false);
+	return stress_link_generic(args, link, "link", false);
 }
 
 /*
  *  stress_symlink
  *	stress symbolic links
  */
-int stress_symlink(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_symlink(args_t *args)
 {
-	return stress_link_generic(counter, instance,
-		max_ops, name, symlink, "symlink", true);
+	return stress_link_generic(args, symlink, "symlink", true);
 }

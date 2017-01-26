@@ -55,11 +55,7 @@
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */
-int stress_cache(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_cache(args_t *args)
 {
 #if defined(__linux__)
 	cpu_set_t mask;
@@ -73,9 +69,9 @@ int stress_cache(
 	uint8_t *const mem_cache = shared->mem_cache;
 	const uint64_t mem_cache_size = shared->mem_cache_size;
 
-	if (instance == 0)
+	if (args->instance == 0)
 		pr_dbg(stderr, "%s: using cache buffer size of %" PRIu64 "K\n",
-			name, mem_cache_size / 1024);
+			args->name, mem_cache_size / 1024);
 
 #if defined(__linux__)
 	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
@@ -87,7 +83,7 @@ int stress_cache(
 	if (pinned) {
 		pr_inf(stdout, "%s: can't get sched affinity, pinning to "
 			"CPU %d (instance %" PRIu32 ")\n",
-			name, sched_getcpu(), pinned);
+			args->name, sched_getcpu(), pinned);
 	}
 #endif
 
@@ -170,9 +166,9 @@ int stress_cache(
 #endif
 		shim_cacheflush((char *)stress_cache, 8192, ICACHE);
 		shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-	pr_dbg(stderr, "%s: total [%" PRIu32 "]\n", name, total);
+	pr_dbg(stderr, "%s: total [%" PRIu32 "]\n", args->name, total);
 	return ret;
 }

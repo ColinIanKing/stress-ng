@@ -120,11 +120,7 @@ restore:
  *  stress_chown
  *	stress chown
  */
-int stress_chown(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_chown(args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
@@ -139,21 +135,21 @@ int stress_chown(
 	/*
 	 *  Allow for multiple workers to chown the *same* file
 	 */
-	stress_temp_dir(dirname, sizeof(dirname), name, ppid, 0);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
 	if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
-			pr_fail_err(name, "mkdir");
+			pr_fail_err(args->name, "mkdir");
 			return rc;
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, ppid, 0, 0);
+		args->name, ppid, 0, 0);
 
-	if (instance == 0) {
+	if (args->instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err(name, "creat");
+			pr_fail_err(args->name, "creat");
 			goto tidy;
 		}
 	} else {
@@ -167,7 +163,7 @@ int stress_chown(
 				pr_err(stderr, "%s: chown: file %s took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")\n",
-					name, filename, retries, instance);
+					args->name, filename, retries, args->instance);
 				goto tidy;
 			}
 			/* Timed out, then give up */
@@ -183,7 +179,7 @@ int stress_chown(
 
 		ret = do_fchown(fd, cap_chown, uid, gid);
 		if (ret < 0) {
-			pr_fail_err(name, "fchown");
+			pr_fail_err(args->name, "fchown");
 		}
 		ret = do_chown(filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -195,10 +191,10 @@ int stress_chown(
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			pr_fail_err(name, "chown");
+			pr_fail_err(args->name, "chown");
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 tidy:

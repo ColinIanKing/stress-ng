@@ -139,13 +139,9 @@ die:
  *  stress_sleep()
  *	stress by many sleeping threads
  */
-int stress_sleep(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sleep(args_t *args)
 {
-	uint64_t i, n, c, limited = 0;
+	uint64_t i, n, limited = 0;
 	uint64_t  counters[MAX_SLEEP];
 	pthread_t pthreads[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
@@ -171,7 +167,7 @@ int stress_sleep(
 				break;
 			}
 			/* Something really unexpected */
-			pr_fail_errno(name, "pthread create", ret);
+			pr_fail_errno(args->name, "pthread create", ret);
 			ret = EXIT_NO_RESOURCE;
 			goto tidy;
 		}
@@ -181,13 +177,12 @@ int stress_sleep(
 	}
 
 	do {
-		c = 0;
+		*args->counter = 0;
 		(void)shim_usleep(10000);
 		for (i = 0; i < n; i++)
-			c += counters[i];
-	}  while (ok && opt_do_run && (!max_ops || c < max_ops));
+			*args->counter += counters[i];
+	}  while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-	*counter = c;
 
 	ret = EXIT_SUCCESS;
 tidy:
@@ -202,20 +197,16 @@ tidy:
 		pr_inf(stdout, "%s: %.2f%% of iterations could not reach "
 			"requested %" PRIu64 " threads (instance %"
 			PRIu32 ")\n",
-			name,
+			args->name,
 			100.0 * (double)limited / (double)opt_sleep_max,
-			opt_sleep_max, instance);
+			opt_sleep_max, args->instance);
 	}
 
 	return ret;
 }
 #else
-int stress_sleep(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sleep(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

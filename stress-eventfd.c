@@ -32,27 +32,21 @@
  *  stress_eventfd
  *	stress eventfd read/writes
  */
-int stress_eventfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_eventfd(args_t *args)
 {
 	pid_t pid;
 	int fd1, fd2, rc;
 
-	(void)instance;
-
 	fd1 = eventfd(0, 0);
 	if (fd1 < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "eventfd");
+		pr_fail_dbg(args->name, "eventfd");
 		return rc;
 	}
 	fd2 = eventfd(0, 0);
 	if (fd2 < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "eventfd");
+		pr_fail_dbg(args->name, "eventfd");
 		(void)close(fd1);
 		return rc;
 	}
@@ -62,7 +56,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		(void)close(fd1);
 		(void)close(fd2);
 		return EXIT_FAILURE;
@@ -82,11 +76,11 @@ again:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg(name, "child read");
+					pr_fail_dbg(args->name, "child read");
 					goto exit_child;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg(name, "child short read");
+					pr_fail_dbg(args->name, "child short read");
 					goto exit_child;
 				}
 				break;
@@ -101,11 +95,11 @@ again:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg(name, "child write");
+					pr_fail_dbg(args->name, "child write");
 					goto exit_child;
 				}
 				if (ret  < (ssize_t)sizeof(val)) {
-					pr_fail_dbg(name, "child short write");
+					pr_fail_dbg(args->name, "child short write");
 					goto exit_child;
 				}
 				break;
@@ -131,11 +125,11 @@ exit_child:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg(name, "parent write");
+					pr_fail_dbg(args->name, "parent write");
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg(name, "parent short write");
+					pr_fail_dbg(args->name, "parent short write");
 					goto exit_parent;
 				}
 				break;
@@ -150,17 +144,17 @@ exit_child:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg(name, "parent read");
+					pr_fail_dbg(args->name, "parent read");
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg(name, "parent short read");
+					pr_fail_dbg(args->name, "parent short read");
 					goto exit_parent;
 				}
 				break;
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 exit_parent:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
@@ -170,12 +164,8 @@ exit_parent:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_eventfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_eventfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

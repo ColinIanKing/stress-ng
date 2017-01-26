@@ -55,7 +55,7 @@ static int mmap_flags[] = {
  *	will enforce and automatic space reap if the child process
  *	exits prematurely.
  */
-static int stress_tmpfs_open(const char *name, uint32_t instance, off_t *len)
+static int stress_tmpfs_open(args_t *args, off_t *len)
 {
 	pid_t pid;
 	uint32_t rnd = mwc32();
@@ -89,7 +89,7 @@ static int stress_tmpfs_open(const char *name, uint32_t instance, off_t *len)
 
 		/* We have a candidate, try to create a tmpfs file */
 		snprintf(path, sizeof(path), "%s/%s-%d-%" PRIu32 "-%" PRIu32,
-			mnts[i], name, pid, instance, rnd);
+			mnts[i], args->name, pid, args->instance, rnd);
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (fd >= 0) {
 			int rc;
@@ -128,9 +128,7 @@ static int stress_tmpfs_open(const char *name, uint32_t instance, off_t *len)
 }
 
 static void stress_tmpfs_child(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const int fd,
 	int *flags,
 	const size_t page_size,
@@ -151,7 +149,7 @@ static void stress_tmpfs_child(
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
-				name);
+				args->name);
 			break;
 		}
 
@@ -184,7 +182,7 @@ static void stress_tmpfs_child(
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (mmap_check(buf, sz, page_size) < 0)
 				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
-					"not contain expected data\n", name, sz);
+					"not contain expected data\n", args->name, sz);
 		}
 
 		/*
@@ -236,7 +234,7 @@ static void stress_tmpfs_child(
 						mmap_set(mappings[page], page_size, page_size);
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
-								"not contain expected data\n", name, page_size);
+								"not contain expected data\n", args->name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
@@ -260,19 +258,15 @@ cleanup:
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 }
 
 /*
  *  stress_tmpfs()
  *	stress tmpfs
  */
-int stress_tmpfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tmpfs(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	off_t sz;
@@ -284,16 +278,16 @@ int stress_tmpfs(
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
-	fd = stress_tmpfs_open(name, instance, &sz);
+	fd = stress_tmpfs_open(args, &sz);
 	if (fd < 0) {
 		pr_err(stderr, "%s: cannot find writeable free space on a "
-			"tmpfs filesystem\n", name);
+			"tmpfs filesystem\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	pages4k = (size_t)sz / page_size;
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
 again:
 	if (!opt_do_run)
@@ -303,7 +297,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -313,7 +307,7 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
@@ -326,15 +320,15 @@ again:
 			}
 
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -343,7 +337,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -353,9 +347,9 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
-		stress_tmpfs_child(counter, max_ops, name, fd, &flags, page_size, sz, pages4k);
+		stress_tmpfs_child(args, fd, &flags, page_size, sz, pages4k);
 	}
 
 cleanup:
@@ -364,17 +358,13 @@ cleanup:
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", SIGBUS signals: %" PRIu32 "\n",
-			name, ooms, segvs, buserrs);
+			args->name, ooms, segvs, buserrs);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tmpfs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tmpfs(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

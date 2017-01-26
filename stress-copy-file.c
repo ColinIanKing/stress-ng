@@ -41,11 +41,7 @@ void stress_set_copy_file_bytes(const char *optarg)
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
  */
-int stress_copy_file(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_copy_file(args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
 	char filename[PATH_MAX], tmp[PATH_MAX];
@@ -61,31 +57,31 @@ int stress_copy_file(
 	if (opt_copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
 		opt_copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
 		goto tidy_dir;
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
 	if (ftruncate(fd_in, opt_copy_file_bytes) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "ftruncate");
+		pr_fail_err(args->name, "ftruncate");
 		goto tidy_in;
 	}
 	if (fsync(fd_in) < 0) {
-		pr_fail_err(name, "fsync");
+		pr_fail_err(args->name, "fsync");
 		goto tidy_in;
 	}
 
 	snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto tidy_in;
 	}
 	(void)unlink(tmp);
@@ -104,12 +100,12 @@ int stress_copy_file(
 			    (errno == EINTR) ||
 			    (errno == ENOSPC))
 				continue;
-			pr_fail_err(name, "copy_file_range");
+			pr_fail_err(args->name, "copy_file_range");
 			goto tidy_out;
 		}
 		(void)fsync(fd_out);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	rc = EXIT_SUCCESS;
 
 tidy_out:
@@ -117,17 +113,13 @@ tidy_out:
 tidy_in:
 	(void)close(fd_in);
 tidy_dir:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }
 #else
-int stress_copy_file(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_copy_file(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

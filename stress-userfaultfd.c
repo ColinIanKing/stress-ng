@@ -33,10 +33,8 @@
 
 /* Context for clone */
 typedef struct {
+	args_t *args;
 	uint8_t *data;
-	const char *name;
-	uint64_t *counter;
-	uint64_t max_ops;
 	size_t page_size;
 	size_t sz;
 	pid_t parent;
@@ -68,7 +66,6 @@ static void MLOCKED stress_child_alarm_handler(int dummy)
 	_exit(0);
 }
 
-
 /*
  *  stress_userfaultfd_child()
  *	generate page faults for parent to handle
@@ -76,10 +73,11 @@ static void MLOCKED stress_child_alarm_handler(int dummy)
 static int stress_userfaultfd_child(void *arg)
 {
 	context_t *c = (context_t *)arg;
+	args_t *args = c->args;
 
 	(void)setpgid(0, pgrp);
 	stress_parent_died_alarm();
-	if (stress_sighandler(c->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	do {
@@ -87,14 +85,14 @@ static int stress_userfaultfd_child(void *arg)
 
 		/* hint we don't need these pages */
 		if (madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
-			pr_fail_err(c->name, "userfaultfd madvise failed");
+			pr_fail_err(args->name, "userfaultfd madvise failed");
 			(void)kill(c->parent, SIGALRM);
 			return -1;
 		}
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;
-	} while (opt_do_run && (!c->max_ops || *c->counter < c->max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return 0;
 }
@@ -150,11 +148,7 @@ static inline int handle_page_fault(
  *	is an OOM-able child process that the
  *	parent can restart
  */
-static int stress_userfaultfd_oomable(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+static int stress_userfaultfd_oomable(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz;
@@ -175,8 +169,6 @@ static int stress_userfaultfd_oomable(
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
-	(void)instance;
-
 	if (!set_userfaultfd_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_userfaultfd_bytes = MAX_MMAP_BYTES;
@@ -186,7 +178,7 @@ static int stress_userfaultfd_oomable(
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		pr_err(stderr, "%s: zero page allocation failed\n", name);
+		pr_err(stderr, "%s: zero page allocation failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -194,7 +186,7 @@ static int stress_userfaultfd_oomable(
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
-		pr_err(stderr, "%s: mmap failed\n", name);
+		pr_err(stderr, "%s: mmap failed\n", args->name);
 		goto free_zeropage;
 	}
 
@@ -202,7 +194,7 @@ static int stress_userfaultfd_oomable(
 	if ((fd = shim_userfaultfd(0)) < 0) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: userfaultfd failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		goto unmap_data;
 	}
 
@@ -215,13 +207,13 @@ static int stress_userfaultfd_oomable(
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
 		pr_err(stderr, "%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	if (api.api != UFFD_API) {
 		pr_err(stderr, "%s: ioctl UFFDIO_API API check failed\n",
-			name);
+			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
@@ -233,7 +225,7 @@ static int stress_userfaultfd_oomable(
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
 	if (ioctl(fd, UFFDIO_REGISTER, &reg) < 0) {
 		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
@@ -241,25 +233,23 @@ static int stress_userfaultfd_oomable(
 	/* OK, so do we have copy supported? */
 	if ((reg.ioctls & uffdio_copy) != uffdio_copy) {
 		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_COPY\n",
-			name);
+			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	/* OK, so do we have zeropage supported? */
 	if ((reg.ioctls & uffdio_zeropage) != uffdio_zeropage) {
 		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
-			name);
+			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 
 	/* Set up context for child */
-	c.name = name;
+	c.args = args;
 	c.data = data;
 	c.sz = sz;
-	c.max_ops = max_ops;
 	c.page_size = page_size;
-	c.counter = counter;
 	c.parent = getpid();
 
 	/*
@@ -270,7 +260,7 @@ static int stress_userfaultfd_oomable(
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
 		pr_err(stderr, "%s: fork failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		goto unreg;
 	}
 
@@ -302,7 +292,7 @@ static int stress_userfaultfd_oomable(
 				if (errno == EINTR)
 					continue;
 				if (errno != ENOMEM) {
-					pr_fail_err(name, "poll userfaultfd");
+					pr_fail_err(args->name, "poll userfaultfd");
 					if (!opt_do_run)
 						break;
 				}
@@ -322,38 +312,38 @@ do_read:
 		if ((ret = read(fd, &msg, sizeof(msg))) < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err(name, "read userfaultfd");
+			pr_fail_err(args->name, "read userfaultfd");
 			if (!opt_do_run)
 				break;
 			continue;
 		}
 		/* We only expect a page fault event */
 		if (msg.event != UFFD_EVENT_PAGEFAULT) {
-			pr_fail_err(name, "userfaultfd msg not pagefault event");
+			pr_fail_err(args->name, "userfaultfd msg not pagefault event");
 			continue;
 		}
 		/* We only expect a write fault */
 		if (!(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WRITE)) {
-			pr_fail_err(name, "userfaultfd msg not write page fault event");
+			pr_fail_err(args->name, "userfaultfd msg not write page fault event");
 			continue;
 		}
 		/* Go handle the page fault */
-		if (handle_page_fault(name, fd, (uint8_t *)(ptrdiff_t)msg.arg.pagefault.address,
+		if (handle_page_fault(args->name, fd, (uint8_t *)(ptrdiff_t)msg.arg.pagefault.address,
 				zero_page, data, data + sz, page_size) < 0)
 			break;
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/* Run it over, zap child */
 	(void)kill(pid, SIGKILL);
 	if (waitpid(pid, &status, 0) < 0) {
 		pr_dbg(stderr, "%s: waitpid failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 unreg:
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {
 		pr_err(stderr, "%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
@@ -368,11 +358,7 @@ free_zeropage:
  *  stress_userfaultfd()
  *	stress userfaultfd
  */
-int stress_userfaultfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_userfaultfd(args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_FAILURE;
@@ -382,7 +368,7 @@ int stress_userfaultfd(
 		if (errno == EAGAIN)
 			return EXIT_NO_RESOURCE;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		/* Parent */
 		int status, ret;
@@ -392,21 +378,21 @@ int stress_userfaultfd(
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, report this */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, aborting "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				return EXIT_NO_RESOURCE;
 			}
 			return EXIT_FAILURE;
@@ -417,17 +403,13 @@ int stress_userfaultfd(
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		_exit(stress_userfaultfd_oomable(counter, instance, max_ops, name));
+		_exit(stress_userfaultfd_oomable(args));
 	}
 	return rc;
 }
 #else
-int stress_userfaultfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_userfaultfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

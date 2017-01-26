@@ -116,11 +116,7 @@ static inline uint64_t rdrand64(void)
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
-int stress_rdrand(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rdrand(args_t *args)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
@@ -128,19 +124,21 @@ int stress_rdrand(
 		time_start = time_now();
 		do {
 			RDRAND64x32();
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		duration = time_now() - time_start;
-		billion_bits = ((double)*counter * 64.0 * 32.0) / 1000000000.0;
+		billion_bits = ((double)*args->counter * 64.0 * 32.0) / 1000000000.0;
 
 		pr_dbg(stderr, "%s: %.3f billion random bits read "
 			"(instance %" PRIu32")\n",
-			name, billion_bits, instance);
+			args->name, billion_bits, args->instance);
 		if (duration > 0.0) {
 			pr_dbg(stderr, "%s: %.3f billion random bits per "
 				"second (instance %" PRIu32")\n",
-				name, (double)billion_bits / duration, instance);
+				args->name,
+				(double)billion_bits / duration,
+				args->instance);
 		}
 	}
 	return EXIT_SUCCESS;
@@ -163,12 +161,8 @@ int stress_rdrand_supported(void)
  *  stress_rdrand()
  *      no-op for non-intel
  */
-int stress_rdrand(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rdrand(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

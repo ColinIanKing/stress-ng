@@ -35,15 +35,11 @@ static void MLOCKED stress_sigqhandler(int dummy)
  *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-int stress_sigq(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigq(args_t *args)
 {
 	pid_t pid;
 
-	if (stress_sighandler(name, SIGUSR1, stress_sigqhandler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGUSR1, stress_sigqhandler, NULL) < 0)
 		return EXIT_FAILURE;
 
 again:
@@ -51,7 +47,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		sigset_t mask;
@@ -68,9 +64,9 @@ again:
 			if (info.si_value.sival_int)
 				break;
 		}
-		pr_dbg(stderr, "%s: child got termination notice\n", name);
+		pr_dbg(stderr, "%s: child got termination notice\n", args->name);
 		pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
-			name, getpid(), instance);
+			args->name, getpid(), args->instance);
 		_exit(0);
 	} else {
 		/* Parent */
@@ -81,10 +77,10 @@ again:
 			memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			sigqueue(pid, SIGUSR1, s);
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-		pr_dbg(stderr, "%s: parent sent termination notice\n", name);
+		pr_dbg(stderr, "%s: parent sent termination notice\n", args->name);
 		memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		sigqueue(pid, SIGUSR1, s);
@@ -97,12 +93,8 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sigq(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigq(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

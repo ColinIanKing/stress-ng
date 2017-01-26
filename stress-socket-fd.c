@@ -132,10 +132,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *	client reader
  */
 static void stress_socket_client(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const pid_t ppid,
 	const size_t max_fd)
 {
@@ -154,13 +151,13 @@ retry:
 			exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg(name, "socket");
+			pr_fail_dbg(args->name, "socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
 
-		stress_set_sockaddr(name, instance, ppid,
+		stress_set_sockaddr(args->name, args->instance, ppid,
 			AF_UNIX, opt_socket_fd_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
@@ -169,7 +166,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg(name, "connect");
+				pr_fail_dbg(args->name, "connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
@@ -186,7 +183,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 	(void)unlink(addr_un->sun_path);
@@ -210,10 +207,7 @@ static void MLOCKED handle_socket_sigalrm(int dummy)
  *	server writer
  */
 static int stress_socket_server(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const size_t max_fd)
@@ -228,32 +222,32 @@ static int stress_socket_server(
 
 	(void)setpgid(pid, pgrp);
 
-	if (stress_sighandler(name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
+	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "socket");
+		pr_fail_dbg(args->name, "socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg(name, "setsockopt");
+		pr_fail_dbg(args->name, "setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 
-	stress_set_sockaddr(name, instance, ppid,
+	stress_set_sockaddr(args->name, args->instance, ppid,
 		AF_UNIX, opt_socket_fd_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(name, "bind");
+		pr_fail_dbg(args->name, "bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg(name, "listen");
+		pr_fail_dbg(args->name, "listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -273,8 +267,8 @@ static int stress_socket_server(
 			}
 			(void)close(sfd);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 die_close:
 	(void)close(fd);
@@ -288,7 +282,7 @@ die:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
-	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", name, msgs);
+	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	return rc;
 }
@@ -297,38 +291,30 @@ die:
  *  stress_sockfd
  *	stress socket fd passing
  */
-int stress_sockfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sockfd(args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	const size_t max_fd = stress_get_file_limit();
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-		name, getpid(), opt_socket_fd_port + instance);
+		args->name, getpid(), opt_socket_fd_port + args->instance);
 again:
 	pid = fork();
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_socket_client(counter, instance, max_ops, name, ppid, max_fd);
+		stress_socket_client(args, ppid, max_fd);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_socket_server(counter, instance, max_ops, name, pid, ppid, max_fd);
+		return stress_socket_server(args, pid, ppid, max_fd);
 	}
 }
 #else
-int stress_sockfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sockfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

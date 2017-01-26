@@ -41,11 +41,7 @@ void stress_set_splice_bytes(const char *optarg)
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-int stress_splice(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_splice(args_t *args)
 {
 	int fd_in, fd_out, fds[2];
 
@@ -56,24 +52,22 @@ int stress_splice(
 			opt_splice_bytes = MIN_SPLICE_BYTES;
 	}
 
-	(void)instance;
-
 	if (pipe(fds) < 0) {
-		pr_fail_err(name, "pipe");
+		pr_fail_err(args->name, "pipe");
 		return EXIT_FAILURE;
 	}
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 		(void)close(fd_in);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -92,8 +86,8 @@ int stress_splice(
 		if (ret < 0)
 			break;
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	(void)close(fd_out);
 	(void)close(fd_in);
 	(void)close(fds[0]);
@@ -102,12 +96,8 @@ int stress_splice(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_splice(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_splice(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

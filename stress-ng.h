@@ -729,9 +729,21 @@ extern void pr_openlog(const char *filename);
 #define PRCTL_TIMER_SLACK
 #endif
 
+/* stressor args */
+typedef struct {
+	uint64_t *const counter;
+	const uint32_t instance;
+	const uint64_t max_ops;
+	const char *name;
+} args_t;
+
+static inline void inc_counter(args_t *args)
+{
+	(*(args->counter))++;
+}
+
 /* stress process prototype */
-typedef int (*stress_func)(uint64_t *const counter, const uint32_t instance,
-		    const uint64_t max_ops, const char *name);
+typedef int (*stress_func)(args_t *args);
 
 /* Help information for options */
 typedef struct {
@@ -2060,7 +2072,7 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
-extern WARN_UNUSED int stress_not_implemented(uint64_t *const counter, const uint32_t instance, const uint64_t max_ops, const char *name);
+extern WARN_UNUSED int stress_not_implemented(args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *align_address(const void *addr, const size_t alignment);
 extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
@@ -2332,9 +2344,7 @@ extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_sysfs(int option, ...);
 
-#define STRESS(func)							\
-extern int func(uint64_t *const counter, const uint32_t instance,	\
-        const uint64_t max_ops, const char *name)
+#define STRESS(func) extern int func(args_t *args);
 
 /* Stressors */
 STRESS(stress_affinity);

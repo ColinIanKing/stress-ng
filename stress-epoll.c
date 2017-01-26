@@ -40,11 +40,8 @@
 #include <netdb.h>
 
 typedef void (epoll_func_t)(
+	args_t *args,
 	const int child,
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
 	const pid_t ppid);
 
 static timer_t epoll_timerid;
@@ -131,12 +128,9 @@ static MLOCKED void handle_socket_sigalrm(int dummy)
  *	spawn a process
  */
 static pid_t epoll_spawn(
+	args_t *args,
 	epoll_func_t func,
 	const int child,
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
 	const pid_t ppid)
 {
 	pid_t pid;
@@ -151,7 +145,7 @@ again:
 	if (pid == 0) {
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
-		func(child, counter, instance, max_ops, name, ppid);
+		func(args, child, ppid);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -262,10 +256,7 @@ static int epoll_notification(
  *	send a relatively short message
  */
 static int epoll_client(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const pid_t ppid)
 {
 	int port_counter = 0;
@@ -274,7 +265,7 @@ static int epoll_client(
 	struct itimerspec timer;
 	struct sockaddr *addr = NULL;
 
-	if (stress_sighandler(name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
 		return -1;
 
 	do {
@@ -283,7 +274,7 @@ static int epoll_client(
 		int retries = 0;
 		int ret = -1;
 		int port = opt_epoll_port + port_counter +
-				(max_servers * instance);
+				(max_servers * args->instance);
 		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
@@ -293,7 +284,7 @@ retry:
 			break;
 
 		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg(name, "socket");
+			pr_fail_dbg(args->name, "socket");
 			return -1;
 		}
 
@@ -301,7 +292,7 @@ retry:
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
 		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
-			pr_fail_err(name, "timer_create");
+			pr_fail_err(args->name, "timer_create");
 			(void)close(fd);
 			return -1;
 		}
@@ -317,12 +308,12 @@ retry:
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
-			pr_fail_err(name, "timer_settime");
+			pr_fail_err(args->name, "timer_settime");
 			(void)close(fd);
 			return -1;
 		}
 
-		stress_set_sockaddr(name, instance, ppid,
+		stress_set_sockaddr(args->name, args->instance, ppid,
 			opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 		errno = 0;
@@ -331,7 +322,7 @@ retry:
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
-			pr_fail_err(name, "timer_delete");
+			pr_fail_err(args->name, "timer_delete");
 			(void)close(fd);
 			return -1;
 		}
@@ -346,7 +337,7 @@ retry:
 				break;
 			default:
 				pr_dbg(stderr, "%s: connect failed: %d (%s)\n",
-					name, saved_errno, strerror(saved_errno));
+					args->name, saved_errno, strerror(saved_errno));
 				break;
 			}
 			(void)close(fd);
@@ -356,22 +347,22 @@ retry:
 			if (retries > 1000) {
 				/* Sigh, give up.. */
 				errno = saved_errno;
-				pr_fail_dbg(name, "too many connects");
+				pr_fail_dbg(args->name, "too many connects");
 				return -1;
 			}
 			goto retry;
 		}
 
-		memset(buf, 'A' + (*counter % 26), sizeof(buf));
+		memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
-			pr_fail_dbg(name, "send");
+			pr_fail_dbg(args->name, "send");
 			break;
 		}
 		(void)close(fd);
 		(void)shim_sched_yield();
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 #if defined(AF_UNIX)
 	if (addr && (opt_epoll_domain == AF_UNIX)) {
@@ -383,7 +374,7 @@ retry:
 		pr_dbg(stderr, "%s: %" PRIu64 " x 0.25 second "
 			"connect timeouts, connection table full "
 			"(instance %" PRIu32 ")\n",
-			name, connect_timeouts, instance);
+			args->name, connect_timeouts, args->instance);
 	return EXIT_SUCCESS;
 }
 
@@ -392,67 +383,64 @@ retry:
  *	wait on connections and read data
  */
 static void epoll_server(
+	args_t *args,
 	const int child,
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
 	const pid_t ppid)
 {
 	int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
-	int port = opt_epoll_port + child + (max_servers * instance);
+	int port = opt_epoll_port + child + (max_servers * args->instance);
 	struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 
-	if (stress_sighandler(name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
+	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if ((sfd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-		pr_fail_err(name, "socket");
+		pr_fail_err(args->name, "socket");
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_err(name, "setsockopt");
+		pr_fail_err(args->name, "setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 
-	stress_set_sockaddr(name, instance, ppid,
+	stress_set_sockaddr(args->name, args->instance, ppid,
 		opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 	if (bind(sfd, addr, addr_len) < 0) {
-		pr_fail_err(name, "bind");
+		pr_fail_err(args->name, "bind");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_set_fd_nonblock(sfd) < 0) {
-		pr_fail_err(name, "setting socket to non-blocking");
+		pr_fail_err(args->name, "setting socket to non-blocking");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (listen(sfd, SOMAXCONN) < 0) {
-		pr_fail_err(name, "listen");
+		pr_fail_err(args->name, "listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((efd = epoll_create1(0)) < 0) {
-		pr_fail_err(name, "epoll_create1");
+		pr_fail_err(args->name, "epoll_create1");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_ctl_add(efd, sfd) < 0) {
-		pr_fail_err(name, "epoll ctl add");
+		pr_fail_err(args->name, "epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((events = calloc(MAX_EPOLL_EVENTS,
 				sizeof(struct epoll_event))) == NULL) {
-		pr_fail_err(name, "epoll ctl add");
+		pr_fail_err(args->name, "epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -470,7 +458,7 @@ static void epoll_server(
 		n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		if (n < 0) {
 			if (errno != EINTR) {
-				pr_fail_err(name, "epoll_wait");
+				pr_fail_err(args->name, "epoll_wait");
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
@@ -491,7 +479,7 @@ static void epoll_server(
 				 *  The listening socket has notification(s)
 				 *  pending, so handle incoming connections
 				 */
-				if (epoll_notification(name, efd, sfd) < 0)
+				if (epoll_notification(args->name, efd, sfd) < 0)
 					break;
 			} else {
 				/*
@@ -500,7 +488,7 @@ static void epoll_server(
 				epoll_recv_data(events[i].data.fd);
 			}
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 die_close:
 	if (efd != -1)
@@ -523,24 +511,20 @@ die:
  *  stress_epoll
  *	stress by heavy socket I/O
  */
-int stress_epoll(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_epoll(args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;
 
 	if (max_servers == 1) {
 		pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-			name, getpid(),
-			opt_epoll_port + instance);
+			args->name, getpid(),
+			opt_epoll_port + args->instance);
 	} else {
 		pr_dbg(stderr, "%s: process [%d] using socket ports %d..%d\n",
-			name, getpid(),
-			opt_epoll_port + (max_servers * instance),
-			opt_epoll_port + (max_servers * (instance + 1)) - 1);
+			args->name, getpid(),
+			opt_epoll_port + (max_servers * args->instance),
+			opt_epoll_port + (max_servers * (args->instance + 1)) - 1);
 	}
 
 	/*
@@ -559,15 +543,14 @@ int stress_epoll(
 	 */
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(epoll_server, i,
-				counter, instance, max_ops, name, ppid);
+		pids[i] = epoll_spawn(args, epoll_server, i, ppid);
 		if (pids[i] < 0) {
-			pr_fail_dbg(name, "fork");
+			pr_fail_dbg(args->name, "fork");
 			goto reap;
 		}
 	}
 
-	epoll_client(counter, instance, max_ops, name, ppid);
+	epoll_client(args, ppid);
 reap:
 	for (i = 0; i < max_servers; i++) {
 		int status;
@@ -575,7 +558,7 @@ reap:
 		if (pids[i] > 0) {
 			(void)kill(pids[i], SIGKILL);
 			if (waitpid(pids[i], &status, 0) < 0) {
-				pr_fail_dbg(name, "waitpid");
+				pr_fail_dbg(args->name, "waitpid");
 			}
 		}
 	}
@@ -583,12 +566,8 @@ reap:
 	return rc;
 }
 #else
-int stress_epoll(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_epoll(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

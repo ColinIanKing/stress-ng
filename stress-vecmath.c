@@ -53,15 +53,8 @@ typedef int64_t vint64_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-int HOT OPTIMIZE3 stress_vecmath(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int HOT OPTIMIZE3 stress_vecmath(args_t *args)
 {
-	(void)instance;
-	(void)name;
-
 	vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -136,8 +129,8 @@ int HOT OPTIMIZE3 stress_vecmath(
 			OPS(a64, b64, c64, s64);
 			OPS(a64, b64, c64, s64);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/* Forces the compiler to actually compute the terms */
 	uint64_put(a8[0] + a8[1] + a8[2] + a8[3] +
@@ -155,12 +148,8 @@ int HOT OPTIMIZE3 stress_vecmath(
 	return EXIT_SUCCESS;
 }
 #else
-int stress_vecmath(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vecmath(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

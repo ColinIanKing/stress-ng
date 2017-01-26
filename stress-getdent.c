@@ -29,9 +29,10 @@
 #define BUF_SIZE	(256 * 1024)
 
 typedef int (getdents_func)(
-	const char *name, const char *path,
-	const bool recurse, const int depth,
-	uint64_t *counter, uint64_t max_ops,
+	args_t *args,
+	const char *path,
+	const bool recurse,
+	const int depth,
 	const size_t page_size);
 
 #if defined(__NR_getdents)
@@ -51,12 +52,10 @@ static getdents_func * getdents_funcs[] = {
 };
 
 static inline int stress_getdents_rand(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
-	uint64_t *counter,
-	uint64_t max_ops,
 	const size_t page_size)
 {
 	int ret = -ENOSYS;
@@ -67,7 +66,7 @@ static inline int stress_getdents_rand(
 		getdents_func *func = getdents_funcs[j];
 
 		if (func) {
-			ret = func(name, path, recurse, depth, counter, max_ops, page_size);
+			ret = func(args, path, recurse, depth, page_size);
 			if (ret == -ENOSYS)
 				getdents_funcs[j] = NULL;
 			else
@@ -77,7 +76,7 @@ static inline int stress_getdents_rand(
 		j = j % n;
 	}
 	pr_fail(stderr, "%s: getdents: errno=%d (%s)\n",
-		name, -ret, strerror(-ret));
+		args->name, -ret, strerror(-ret));
 
 	return ret;
 }
@@ -88,19 +87,17 @@ static inline int stress_getdents_rand(
  *	read directory via the old 32 bit interface
  */
 static int stress_getdents_dir(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
-	uint64_t *counter,
-	uint64_t max_ops,
 	const size_t page_size)
 {
 	int fd, rc = 0;
 	char *buf;
 	size_t buf_sz;
 
-	if (!opt_do_run || (max_ops && *counter >= max_ops))
+	if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -124,7 +121,7 @@ static int stress_getdents_dir(
 		if (nread == 0)
 			break;
 
-		(*counter)++;
+		inc_counter(args);
 
 		if (!recurse || depth < 1)
 			continue;
@@ -139,14 +136,13 @@ static int stress_getdents_dir(
 				char newpath[PATH_MAX];
 
 				snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
-				rc = stress_getdents_rand(name, newpath, recurse, depth - 1,
-					counter, max_ops, page_size);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
 				if (rc < 0)
 					goto exit_free;
 			}
 			ptr += d->d_reclen;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 exit_free:
 	free(buf);
 exit_close:
@@ -162,19 +158,17 @@ exit_close:
  *	read directory via the 64 bit interface
  */
 static int stress_getdents64_dir(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
-	uint64_t *counter,
-	uint64_t max_ops,
 	const size_t page_size)
 {
 	int fd, rc = 0;
 	char *buf;
 	size_t buf_sz;
 
-	if (!opt_do_run || (max_ops && *counter >= max_ops))
+	if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -198,7 +192,7 @@ static int stress_getdents64_dir(
 		if (nread == 0)
 			break;
 
-		(*counter)++;
+		inc_counter(args);
 
 		if (!recurse || depth < 1)
 			continue;
@@ -212,14 +206,13 @@ static int stress_getdents64_dir(
 				char newpath[PATH_MAX];
 
 				snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
-				rc = stress_getdents_rand(name, newpath, recurse, depth - 1,
-					counter, max_ops, page_size);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
 				if (rc < 0)
 					goto exit_free;
 			}
 			ptr += d->d_reclen;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 exit_free:
 	free(buf);
 exit_close:
@@ -233,46 +226,35 @@ exit_close:
  *  stress_getdent
  *	stress reading directories
  */
-int stress_getdent(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_getdent(args_t *args)
 {
-	(void)instance;
-	(void)name;
-
 	size_t page_size = stress_get_pagesize();
 
 	do {
 		int ret;
 
-		ret = stress_getdents_rand(name, "/proc", true, 8, counter, max_ops, page_size);
+		ret = stress_getdents_rand(args, "/proc", true, 8, page_size);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(name, "/dev", true, 1, counter, max_ops, page_size);
+		ret = stress_getdents_rand(args, "/dev", true, 1, page_size);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(name, "/tmp", true, 4, counter, max_ops, page_size);
+		ret = stress_getdents_rand(args, "/tmp", true, 4, page_size);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(name, "/sys", true, 8, counter, max_ops, page_size);
+		ret = stress_getdents_rand(args, "/sys", true, 8, page_size);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(name, "/run", true, 2, counter, max_ops, page_size);
+		ret = stress_getdents_rand(args, "/run", true, 2, page_size);
 		if (ret == -ENOSYS)
 			break;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_getdent(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_getdent(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

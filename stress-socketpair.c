@@ -77,10 +77,7 @@ static void socket_pair_close(
  *	this stressor needs to be oom-able in the parent
  *	and child cases
  */
-static int stress_sockpair_oomable(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name)
+static int stress_sockpair_oomable(args_t *args)
 {
 	pid_t pid;
 	int socket_pair_fds[MAX_SOCKET_PAIRS][2], i, max;
@@ -91,7 +88,7 @@ static int stress_sockpair_oomable(
 	}
 
 	if (max == 0) {
-		pr_fail_dbg(name, "socket_pair");
+		pr_fail_dbg(args->name, "socket_pair");
 		return EXIT_FAILURE;
 	}
 
@@ -102,10 +99,10 @@ again:
 			goto again;
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
@@ -124,7 +121,7 @@ again:
 					if (errno == EMFILE) /* Occurs on socket shutdown */
 						goto abort;
 					if (errno) {
-						pr_fail_dbg(name, "read");
+						pr_fail_dbg(args->name, "read");
 						break;
 					}
 					continue;
@@ -132,7 +129,7 @@ again:
 				if ((opt_flags & OPT_FLAGS_VERIFY) &&
 				    socket_pair_memchk(buf, (size_t)n)) {
 					pr_fail(stderr, "%s: socket_pair read error detected, "
-						"failed to read expected data\n", name);
+						"failed to read expected data\n", args->name);
 				}
 			}
 		}
@@ -156,18 +153,18 @@ abort:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg(name, "write");
+						pr_fail_dbg(args->name, "write");
 						break;
 					}
 					continue;
 				}
-				(*counter)++;
+				inc_counter(args);
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
-				pr_fail_dbg(name, "socket shutdown");
+				pr_fail_dbg(args->name, "socket shutdown");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
@@ -180,16 +177,11 @@ abort:
  *  stress_sockpair
  *	stress by heavy socket_pair I/O
  */
-int stress_sockpair(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sockpair(args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0;
 
-	(void)instance;
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -204,20 +196,20 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				restarts++;
 				goto again;
 			}
@@ -228,16 +220,16 @@ again:
 
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
-		ret = stress_sockpair_oomable(counter, max_ops, name);
+		ret = stress_sockpair_oomable(args);
 
 		exit(ret);
 	}
 
 	if (restarts > 0) {
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
-			name, restarts);
+			args->name, restarts);
 	}
 	return EXIT_SUCCESS;
 }

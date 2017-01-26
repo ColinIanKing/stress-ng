@@ -114,11 +114,7 @@ cancel:
  *  stress_timer
  *	stress timers
  */
-int stress_timer(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_timer(args_t *args)
 {
 	struct sigevent sev;
 	struct itimerspec timer;
@@ -138,20 +134,20 @@ int stress_timer(
 	}
 	rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
 
-	if (stress_sighandler(name, SIGRTMIN, stress_timer_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	sev.sigev_notify = SIGEV_SIGNAL;
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_fail_err(name, "timer_create");
+		pr_fail_err(args->name, "timer_create");
 		return EXIT_FAILURE;
 	}
 
 	stress_timer_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_fail_err(name, "timer_settime");
+		pr_fail_err(args->name, "timer_settime");
 		return EXIT_FAILURE;
 	}
 
@@ -161,25 +157,21 @@ int stress_timer(
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
-		*counter = timer_counter;
-	} while (opt_do_run && (!max_ops || timer_counter < max_ops));
+		*args->counter = timer_counter;
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if (timer_delete(timerid) < 0) {
-		pr_fail_err(name, "timer_delete");
+		pr_fail_err(args->name, "timer_delete");
 		return EXIT_FAILURE;
 	}
 	pr_dbg(stderr, "%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
-		name, overruns, instance);
+		args->name, overruns, args->instance);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_timer(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_timer(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

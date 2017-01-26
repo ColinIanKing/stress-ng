@@ -104,7 +104,7 @@ static void stress_stream_init_data(
 		data[i] = (double)mwc32() / (double)mwc64();
 }
 
-static inline void *stress_stream_mmap(const char *name, uint64_t sz)
+static inline void *stress_stream_mmap(args_t *args, uint64_t sz)
 {
 	void *ptr;
 
@@ -116,15 +116,13 @@ static inline void *stress_stream_mmap(const char *name, uint64_t sz)
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
 		pr_err(stderr, "%s: cannot allocate %" PRIu64 " bytes\n",
-			name, sz);
+			args->name, sz);
 		ptr = MAP_FAILED;
 	}
 	return ptr;
 }
 
-static inline uint64_t stream_L3_size(
-	const char *name,
-	const uint32_t instance)
+static inline uint64_t stream_L3_size(args_t *args)
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
@@ -134,28 +132,28 @@ static inline uint64_t stream_L3_size(
 
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
-		if (!instance)
+		if (!args->instance)
 			pr_inf(stdout, "%s: using built-in defaults as unable to "
-				"determine cache details\n", name);
+				"determine cache details\n", args->name);
 		return cache_size;
 	}
 	max_cache_level = get_max_cache_level(cpu_caches);
-	if ((max_cache_level > 0) && (max_cache_level < 3) && (!instance))
+	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
 		pr_inf(stdout, "%s: no L3 cache, using L%" PRIu16 " size instead\n",
-			name, max_cache_level);
+			args->name, max_cache_level);
 
 	cache = get_cpu_cache(cpu_caches, max_cache_level);
 	if (!cache) {
-		if (!instance)
+		if (!args->instance)
 			pr_inf(stdout, "%s: using built-in defaults as no suitable "
-				"cache found\n", name);
+				"cache found\n", args->name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->size) {
-		if (!instance)
+		if (!args->instance)
 			pr_inf(stdout, "%s: using built-in defaults as unable to "
-				"determine cache size\n", name);
+				"determine cache size\n", args->name);
 		free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
@@ -163,9 +161,9 @@ static inline uint64_t stream_L3_size(
 
 	free_cpu_caches(cpu_caches);
 #else
-	if (!instance)
+	if (!args->instance)
 		pr_inf(stdout, "%s: using built-in defaults as unable to "
-			"determine cache details\n", name);
+			"determine cache details\n", args->name);
 #endif
 	return cache_size;
 }
@@ -174,11 +172,7 @@ static inline uint64_t stream_L3_size(
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
  */
-int stress_stream(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_stream(args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	double *a, *b, *c;
@@ -187,7 +181,7 @@ int stress_stream(
 	uint64_t L3, sz, n;
 	bool guess = false;
 
-	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(name, instance);
+	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(args);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {
@@ -195,18 +189,18 @@ int stress_stream(
 		L3 = stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
 	}
 
-	if (instance == 0) {
+	if (args->instance == 0) {
 		pr_inf(stdout, "%s: stressor loosely based on a variant of the "
-			"STREAM benchmark code\n", name);
+			"STREAM benchmark code\n", args->name);
 		pr_inf(stdout, "%s: do NOT submit any of these results "
-			"to the STREAM benchmark results\n", name);
+			"to the STREAM benchmark results\n", args->name);
 		if (guess) {
 			pr_inf(stdout, "%s: cannot determine CPU L3 cache size, "
 				"defaulting to %" PRIu64 "K\n",
-				name, L3 / 1024);
+				args->name, L3 / 1024);
 		} else {
 			pr_inf(stdout, "%s: Using CPU cache size of %" PRIu64 "K\n",
-				name, L3 / 1024);
+				args->name, L3 / 1024);
 		}
 	}
 
@@ -220,13 +214,13 @@ int stress_stream(
 	sz = (L3 * 4);
 	n = sz / sizeof(double);
 
-	a = stress_stream_mmap(name, sz);
+	a = stress_stream_mmap(args, sz);
 	if (a == MAP_FAILED)
 		goto err_a;
-	b = stress_stream_mmap(name, sz);
+	b = stress_stream_mmap(args, sz);
 	if (b == MAP_FAILED)
 		goto err_b;
-	c = stress_stream_mmap(name, sz);
+	c = stress_stream_mmap(args, sz);
 	if (c == MAP_FAILED)
 		goto err_c;
 
@@ -240,22 +234,22 @@ int stress_stream(
 		stress_stream_scale(b, c, q, n);
 		stress_stream_add(c, b, a, n);
 		stress_stream_triad(a, b, c, q, n);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	t2 = time_now();
 
-	mb = ((double)((*counter) * 10) * (double)sz) / (double)MB;
-	fp = ((double)((*counter) * 4) * (double)sz) / (double)MB;
+	mb = ((double)((*args->counter) * 10) * (double)sz) / (double)MB;
+	fp = ((double)((*args->counter) * 4) * (double)sz) / (double)MB;
 	dt = t2 - t1;
 	if (dt >= 4.5) {
 		mb_rate = mb / (dt);
 		fp_rate = fp / (dt);
 		pr_inf(stdout, "%s: memory rate: %.2f MB/sec, %.2f Mflop/sec"
-			" (instance %" PRIu32 ")\n",
-			name, mb_rate, fp_rate, instance);
+			" (args->instance %" PRIu32 ")\n",
+			args->name, mb_rate, fp_rate, args->instance);
 	} else {
-		if (instance == 0)
-			pr_inf(stdout, "%s: run too short to determine memory rate\n", name);
+		if (args->instance == 0)
+			pr_inf(stdout, "%s: run too short to determine memory rate\n", args->name);
 	}
 
 	rc = EXIT_SUCCESS;

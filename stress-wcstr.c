@@ -619,17 +619,11 @@ int stress_set_wcs_method(const char *name)
  *  stress_wcs()
  *	stress CPU by doing wide character string ops
  */
-int stress_wcs(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_wcs(args_t *args)
 {
 	stress_wcs_func func = opt_wcs_stressor->func;
 	const void *libc_func = opt_wcs_stressor->libc_func;
 	bool failed = false;
-
-	(void)instance;
 
 	do {
 		wchar_t str1[STR1LEN], str2[STR2LEN];
@@ -637,9 +631,9 @@ int stress_wcs(
 		stress_wcs_fill(str1, STR1LEN);
 		stress_wcs_fill(str2, STR2LEN);
 
-		(void)func(libc_func, name, str1, STR1LEN, str2, STR2LEN, &failed);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		(void)func(libc_func, args->name, str1, STR1LEN, str2, STR2LEN, &failed);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

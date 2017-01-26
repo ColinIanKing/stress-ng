@@ -42,11 +42,7 @@ static void MLOCKED stress_segvhandler(int dummy)
  *  stress_stack
  *	stress by forcing stack overflows
  */
-int stress_stack(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_stack(args_t *args)
 {
 #if !defined(__minix__)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
@@ -67,7 +63,7 @@ int stress_stack(
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(name, "sigaltstack");
+		pr_fail_err(args->name, "sigaltstack");
 		return EXIT_FAILURE;
 	}
 #endif
@@ -78,7 +74,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -88,20 +84,20 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
-					"(instance %d)\n", name, instance);
+					"(instance %d)\n", args->name, args->instance);
 				goto again;
 			}
 		}
@@ -113,18 +109,18 @@ again:
 
 		if (start_ptr == (void *) -1) {
 			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			exit(EXIT_FAILURE);
 		}
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		for (;;) {
 			struct sigaction new_action;
 			int ret;
 
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 
 			memset(&new_action, 0, sizeof new_action);
@@ -133,11 +129,11 @@ again:
 			new_action.sa_flags = SA_ONSTACK;
 
 			if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-				pr_fail_err(name, "sigaction");
+				pr_fail_err(args->name, "sigaction");
 				return EXIT_FAILURE;
 			}
 			if (sigaction(SIGBUS, &new_action, NULL) < 0) {
-				pr_fail_err(name, "sigaction");
+				pr_fail_err(args->name, "sigaction");
 				return EXIT_FAILURE;
 			}
 			ret = sigsetjmp(jmp_env, 1);
@@ -145,12 +141,12 @@ again:
 			 * We return here if we segfault, so
 			 * first check if we need to terminate
 			 */
-			if (!opt_do_run || (max_ops && *counter >= max_ops))
+			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 				break;
 
 			if (ret) {
 				/* We end up here after handling the fault */
-				(*counter)++;
+				inc_counter(args);
 			} else {
 				/* Expand the stack and cause a fault */
 				char *last_ptr = 0;

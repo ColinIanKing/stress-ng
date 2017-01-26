@@ -65,11 +65,7 @@ static void stress_stackmmap_push_msync(void)
  *  stress_stackmmap
  *	stress a file memory map'd stack
  */
-int stress_stackmmap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_stackmmap(args_t *args)
 {
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
@@ -93,7 +89,7 @@ int stress_stackmmap(
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
 	if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-		pr_fail_err(name, "sigaction");
+		pr_fail_err(args->name, "sigaction");
 		return EXIT_FAILURE;
 	}
 
@@ -107,31 +103,31 @@ int stress_stackmmap(
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(name, "sigaltstack");
+		pr_fail_err(args->name, "sigaltstack");
 		return EXIT_FAILURE;
 	}
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	/* Create file back'd mmaping for the stack */
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_fail_err(name, "mmap'd stack file open");
+		pr_fail_err(args->name, "mmap'd stack file open");
 		goto tidy_dir;
 	}
 	(void)unlink(filename);
 	if (ftruncate(fd, MMAPSTACK_SIZE) < 0) {
-		pr_fail_err(name, "ftruncate");
+		pr_fail_err(args->name, "ftruncate");
 		(void)close(fd);
 		goto tidy_dir;
 	}
 	stack_mmap = mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
-		pr_fail_err(name, "mmap");
+		pr_fail_err(args->name, "mmap");
 		(void)close(fd);
 		goto tidy_dir;
 	}
@@ -139,12 +135,12 @@ int stress_stackmmap(
 
 	if (madvise(stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
 		pr_dbg(stderr, "%s: madvise failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	}
 
 	memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
-		pr_fail_err(name, "getcontext");
+		pr_fail_err(args->name, "getcontext");
 		goto tidy_mmap;
 	}
 	c_test.uc_stack.ss_sp = stack_mmap;
@@ -161,25 +157,21 @@ int stress_stackmmap(
 		ret = sigsetjmp(jmp_env, 1);
 		if (!ret)
 			swapcontext(&c_main, &c_test);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 
 tidy_mmap:
 	munmap(stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }
 #else
-int stress_stackmmap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_stackmmap(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

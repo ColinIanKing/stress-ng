@@ -69,11 +69,7 @@ static inline uint32_t checksum(uint16_t *ptr, size_t n)
  *  stress_icmp_flood
  *	stress local host with ICMP flood
  */
-int stress_icmp_flood(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_icmp_flood(args_t *args)
 {
 	int fd, rc = EXIT_FAILURE;
 	const int set_on = 1;
@@ -81,21 +77,19 @@ int stress_icmp_flood(
 	struct sockaddr_in servaddr;
 	uint64_t sendto_fails = 0;
 
-	(void)instance;
-
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
-		pr_fail_err(name, "socket");
+		pr_fail_err(args->name, "socket");
 		goto err;
 	}
 	if (setsockopt(fd, IPPROTO_IP, IP_HDRINCL,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err(name, "setsockopt IP_HDRINCL");
+		pr_fail_err(args->name, "setsockopt IP_HDRINCL");
 		goto err_socket;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err(name, "setsockopt SO_BROADCAST");
+		pr_fail_err(args->name, "setsockopt SO_BROADCAST");
 		goto err_socket;
 	}
 
@@ -132,7 +126,7 @@ int stress_icmp_flood(
 		/*
 		 * Generating random data is expensive so do it every 64 packets
 		 */
-		if ((*counter & 0x3f) == 0)
+		if ((*args->counter & 0x3f) == 0)
 			stress_strnrnd(pkt + sizeof(struct iphdr) +
 				sizeof(struct icmphdr), payload_len);
 		icmp_hdr->checksum = checksum((uint16_t *)icmp_hdr,
@@ -142,13 +136,13 @@ int stress_icmp_flood(
 			   (struct sockaddr*)&servaddr, sizeof(servaddr))) < 1) {
 			sendto_fails++;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	pr_dbg(stderr, "%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
-		name,
-		100.0 * (float)(*counter - sendto_fails) / *counter,
-		*counter);
+		args->name,
+		100.0 * (float)(*args->counter - sendto_fails) / *args->counter,
+		*args->counter);
 
 	rc = EXIT_SUCCESS;
 
@@ -165,12 +159,8 @@ int stress_icmp_flood_supported(void)
 	return -1;
 }
 
-int stress_icmp_flood(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_icmp_flood(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

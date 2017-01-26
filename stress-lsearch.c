@@ -54,16 +54,10 @@ static int cmp(const void *p1, const void *p2)
  *  stress_lsearch()
  *	stress lsearch
  */
-int stress_lsearch(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lsearch(args_t *args)
 {
 	int32_t *data, *root;
 	size_t i, max;
-
-	(void)instance;
 
 	if (!set_lsearch_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -74,12 +68,12 @@ int stress_lsearch(
 	max = (size_t)opt_lsearch_size;
 
 	if ((data = calloc(max, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_FAILURE;
 	}
 	if ((root = calloc(max, sizeof(int32_t))) == NULL) {
 		free(data);
-		pr_fail_dbg(name, "malloc");
+		pr_fail_dbg(args->name, "malloc");
 		return EXIT_FAILURE;
 	}
 
@@ -98,14 +92,14 @@ int stress_lsearch(
 			result = lfind(&data[i], root, &n, sizeof(int32_t), cmp);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail(stderr, "%s: element %zu could not be found\n", name, i);
+					pr_fail(stderr, "%s: element %zu could not be found\n", args->name, i);
 				else if (*result != data[i])
 					pr_fail(stderr, "%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
-					name, i, *result, data[i]);
+					args->name, i, *result, data[i]);
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	free(root);
 	free(data);

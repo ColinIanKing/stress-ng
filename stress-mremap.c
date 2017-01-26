@@ -72,7 +72,7 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
  *	try and remap old size to new size
  */
 static int try_remap(
-	const char *name,
+	args_t *args,
 	uint8_t **buf,
 	const size_t old_sz,
 	const size_t new_sz)
@@ -133,14 +133,12 @@ static int try_remap(
 			break;
 		}
 	}
-	pr_fail_err(name, "mremap");
+	pr_fail_err(args->name, "mremap");
 	return -1;
 }
 
 static int stress_mremap_child(
-	uint64_t *const counter,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const size_t sz,
 	size_t new_sz,
 	const size_t page_size,
@@ -170,7 +168,7 @@ static int stress_mremap_child(
 			if (mmap_check(buf, sz, page_size) < 0) {
 				pr_fail(stderr, "%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
-					name, sz);
+					args->name, sz);
 				munmap(buf, new_sz);
 				return EXIT_FAILURE;
 			}
@@ -179,7 +177,7 @@ static int stress_mremap_child(
 		old_sz = new_sz;
 		new_sz >>= 1;
 		while (new_sz > page_size) {
-			if (try_remap(name, &buf, old_sz, new_sz) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
 				munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
@@ -189,7 +187,7 @@ static int stress_mremap_child(
 					pr_fail(stderr, "%s: mremap'd region "
 						"of %zu bytes does "
 						"not contain expected data\n",
-						name, sz);
+						args->name, sz);
 					munmap(buf, new_sz);
 					return EXIT_FAILURE;
 				}
@@ -200,7 +198,7 @@ static int stress_mremap_child(
 
 		new_sz <<= 1;
 		while (new_sz < opt_mremap_bytes) {
-			if (try_remap(name, &buf, old_sz, new_sz) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
 				munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
@@ -210,8 +208,8 @@ static int stress_mremap_child(
 		}
 		(void)munmap(buf, old_sz);
 
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
@@ -220,11 +218,7 @@ static int stress_mremap_child(
  *  stress_mremap()
  *	stress mmap
  */
-int stress_mremap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mremap(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz, new_sz;
@@ -232,7 +226,6 @@ int stress_mremap(
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
 
-	(void)instance;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
@@ -245,7 +238,7 @@ int stress_mremap(
 	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
 again:
 	if (!opt_do_run)
@@ -255,7 +248,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -265,7 +258,7 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
@@ -278,15 +271,15 @@ again:
 			}
 
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -295,7 +288,7 @@ again:
 				pr_dbg(stderr, "%s: killed by SIGSEGV, "
 					"restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -307,9 +300,9 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
-		rc = stress_mremap_child(counter, max_ops, name, sz,
+		rc = stress_mremap_child(args, sz,
 			new_sz, page_size, &flags);
 		exit(rc);
 	}
@@ -318,17 +311,13 @@ again:
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", SIGBUS signals: %" PRIu32 "\n",
-			name, ooms, segvs, buserrs);
+			args->name, ooms, segvs, buserrs);
 
 	return rc;
 }
 #else
-int stress_mremap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_mremap(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

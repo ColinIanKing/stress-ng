@@ -50,7 +50,7 @@ static inline bool stress_double_same(const double d1, const double d2)
 }
 
 static void stress_fp_check(
-	const char *name,
+	args_t *args,
 	const char *expr,
 	const double val,
 	const double val_wanted,
@@ -65,7 +65,7 @@ static void stress_fp_check(
 	pr_fail(stderr, "%s: %s return was %f (expected %f), "
 		"errno=%d (expected %d), "
 		"excepts=%d (expected %d)\n",
-		name, expr,
+		args->name, expr,
 		val, val_wanted,
 		errno, errno_wanted,
 		fetestexcept(excepts_wanted), excepts_wanted);
@@ -75,39 +75,33 @@ static void stress_fp_check(
  *  stress_fp_error()
  *	stress floating point error handling
  */
-int stress_fp_error(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fp_error(args_t *args)
 {
-	(void)instance;
-
 	do {
 		volatile double d1, d2;
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "log(-1.0)", log(-1.0), NAN,
+		stress_fp_check(args, "log(-1.0)", log(-1.0), NAN,
 			EDOM, FE_INVALID);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "log(0.0)", log(0.0), -HUGE_VAL,
+		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
 			ERANGE, FE_DIVBYZERO);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "log2(-1.0)", log2(-1.0), NAN,
+		stress_fp_check(args, "log2(-1.0)", log2(-1.0), NAN,
 			EDOM, FE_INVALID);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "log2(0.0)", log2(0.0), -HUGE_VAL,
+		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
 			ERANGE, FE_DIVBYZERO);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "sqrt(-1.0)", sqrt(-1.0), NAN,
+		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
 			EDOM, FE_INVALID);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "sqrt(-1.0)", sqrt(-1.0), NAN,
+		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
 			EDOM, FE_INVALID);
 
 		/*
@@ -117,7 +111,7 @@ int stress_fp_error(
 		stress_fp_clear_error();
 		SET_VOLATILE(d1, 1.0);
 		SET_VOLATILE(d2, M_PI);
-		stress_fp_check(name, "1.0 / M_PI", d1 / d2, d1 / d2,
+		stress_fp_check(args, "1.0 / M_PI", d1 / d2, d1 / d2,
 			0, FE_INEXACT);
 
 		/*
@@ -127,22 +121,22 @@ int stress_fp_error(
 		stress_fp_clear_error();
 		SET_VOLATILE(d1, DBL_MAX);
 		SET_VOLATILE(d2, DBL_MAX / 2.0);
-		stress_fp_check(name, "DBL_MAX + DBL_MAX / 2.0",
+		stress_fp_check(args, "DBL_MAX + DBL_MAX / 2.0",
 			DBL_MAX + DBL_MAX / 2.0, INFINITY,
 			0, FE_OVERFLOW | FE_INEXACT);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "exp(-1000000.0)", exp(-1000000.0), 0.0,
+		stress_fp_check(args, "exp(-1000000.0)", exp(-1000000.0), 0.0,
 			ERANGE, FE_UNDERFLOW);
 
 		stress_fp_clear_error();
-		stress_fp_check(name, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
+		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
 			ERANGE, FE_OVERFLOW);
 
 		if (fegetround() == -1)
-			pr_fail(stderr, "%s: fegetround() returned -1\n", name);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+			pr_fail(stderr, "%s: fegetround() returned -1\n", args->name);
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

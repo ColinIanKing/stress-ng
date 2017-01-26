@@ -52,11 +52,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress deep recursive directory mkdir and rmdir
  */
-int stress_dirdeep(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_dirdeep(args_t *args)
 {
 	const pid_t pid = getpid();
 	int ret = EXIT_SUCCESS;
@@ -64,7 +60,7 @@ int stress_dirdeep(
 	char path[PATH_MAX * 4];
 	char rootpath[PATH_MAX];
 
-	(void)stress_temp_dir(rootpath, sizeof(rootpath), name, pid, instance);
+	(void)stress_temp_dir(rootpath, sizeof(rootpath), args->name, pid, args->instance);
 	rootpathlen = strlen(rootpath);
 
 	do {
@@ -84,12 +80,12 @@ int stress_dirdeep(
 				if ((errno != ENOSPC) && (errno != ENOMEM) &&
 				    (errno != ENAMETOOLONG) && (errno != EDQUOT) &&
 				    (errno != EMLINK))
-					pr_fail_err(name, "mkdir");
+					pr_fail_err(args->name, "mkdir");
 				break;
 			}
 
 			if (!opt_do_run ||
-			    (max_ops && *counter >= max_ops))
+			    (args->max_ops && *args->counter >= args->max_ops))
 				goto abort;
 
 			snprintf(tmp, sizeof(tmp), "/%1" PRIu32, mwc32() % 10);
@@ -99,18 +95,18 @@ int stress_dirdeep(
 			strncat(path, tmp, sizeof(path) - len);
 			len += 2;
 
-			(*counter)++;
+			inc_counter(args);
 		}
 
 		stress_dir_tidy(rootpath, path);
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing directories\n", name);
+	pr_tidy(stderr, "%s: removing directories\n", args->name);
 	stress_dir_tidy(rootpath, path);
 
 	return ret;

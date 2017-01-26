@@ -45,11 +45,7 @@ void stress_set_exec_max(const char *optarg)
  *  stress_exec()
  *	stress by forking and exec'ing
  */
-int stress_exec(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_exec(args_t *args)
 {
 	pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
@@ -58,15 +54,13 @@ int stress_exec(
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
 	char *env_new[] = { NULL };
 
-	(void)instance;
-
 	/*
 	 *  Don't want to run this when running as root as
 	 *  this could allow somebody to try and run another
 	 *  executable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf(stdout, "%s: running as root, won't run test.\n", name);
+		pr_inf(stdout, "%s: running as root, won't run test.\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -75,7 +69,7 @@ int stress_exec(
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
-		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", name);
+		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
@@ -97,12 +91,12 @@ int stress_exec(
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 					pr_fail(stderr, "%s: child open on "
-						"/dev/null failed\n", name);
+						"/dev/null failed\n", args->name);
 					_exit(EXIT_FAILURE);
 				}
 				if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 					pr_fail(stderr, "%s: child open on "
-						"/dev/zero failed\n", name);
+						"/dev/zero failed\n", args->name);
 					(void)close(fd_out);
 					_exit(EXIT_FAILURE);
 				}
@@ -128,7 +122,7 @@ int stress_exec(
 				/* Parent, wait for child */
 				(void)waitpid(pids[i], &status, 0);
 				exec_calls++;
-				(*counter)++;
+				inc_counter(args);
 				if (WEXITSTATUS(status) != EXIT_SUCCESS)
 					exec_fails++;
 			}
@@ -136,26 +130,22 @@ int stress_exec(
 
 		for (i = 0; i < opt_exec_max; i++) {
 			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: fork failed\n", name);
+				pr_fail(stderr, "%s: fork failed\n", args->name);
 			}
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if ((exec_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail(stderr, "%s: %" PRIu64 " execs failed (%.2f%%)\n",
-			name, exec_fails,
+			args->name, exec_fails,
 			(double)exec_fails * 100.0 / (double)(exec_calls));
 	}
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_exec(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_exec(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

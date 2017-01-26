@@ -71,10 +71,7 @@ static void pipe_fill(const int fd, const size_t max)
  *
  */
 static int stress_oom_pipe_expander(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name,
+	args_t *args,
 	const size_t max_pipe_size,
 	const int max_pipes)
 {
@@ -86,7 +83,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid > 0) {
 		int status, ret;
@@ -99,21 +96,21 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid() errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got kill by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				goto again;
 			}
 		}
@@ -123,7 +120,7 @@ again:
 		const bool aggressive = (opt_flags & OPT_FLAGS_AGGRESSIVE);
 
 		(void)setpgid(0, pgrp);
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		for (i = 0; i < max_pipes * 2; i++)
 			fds[i] = -1;
@@ -135,11 +132,11 @@ again:
 				pfd[1] = -1;
 			} else {
 				if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err(name, "fcntl O_NONBLOCK");
+					pr_fail_err(args->name, "fcntl O_NONBLOCK");
 					goto clean;
 				}
 				if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err(name, "fcntl O_NONBLOCK");
+					pr_fail_err(args->name, "fcntl O_NONBLOCK");
 					goto clean;
 				}
 				pipes_open++;
@@ -148,7 +145,7 @@ again:
 
 		if (!pipes_open) {
 			pr_dbg(stderr, "%s: failed to open any pipes, aborted\n",
-				name);
+				args->name);
 			exit(EXIT_NO_RESOURCE);
 		}
 
@@ -177,8 +174,8 @@ again:
 				if (!aggressive)
 					pipe_empty(fd[0], page_size);
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		/* And close the pipes */
 clean:
@@ -196,11 +193,7 @@ clean:
  *  stress_oom_pipe
  *	stress pipe memory allocation
  */
-int stress_oom_pipe(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_oom_pipe(args_t *args)
 {
 	const size_t max_fd = stress_get_file_limit();
 	const size_t max_pipes = max_fd / 2;
@@ -209,17 +202,11 @@ int stress_oom_pipe(
 	page_size = stress_get_pagesize();
 	max_pipe_size = stress_probe_max_pipe_size() & ~(page_size - 1);
 
-	return stress_oom_pipe_expander(
-		counter, instance, max_ops, name,
-		max_pipe_size, max_pipes);
+	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes);
 }
 #else
-int stress_oom_pipe(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_oom_pipe(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

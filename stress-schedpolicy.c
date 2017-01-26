@@ -45,20 +45,16 @@ static const int policies[] = {
 #endif
 };
 
-int stress_schedpolicy(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_schedpolicy(args_t *args)
 {
 	int policy = 0;
 	const pid_t mypid = getpid();
 
 	if (SIZEOF_ARRAY(policies) == 0) {
-		if (instance == 0) {
+		if (args->instance == 0) {
 			pr_inf(stdout, "%s: no scheduling policies "
 				"available, skipping test\n",
-				name);
+				args->name);
 		}
 		return EXIT_NOT_IMPLEMENTED;
 	}
@@ -111,7 +107,7 @@ int stress_schedpolicy(
 				pr_err(stderr, "%s: invalid min/max priority "
 					"range for scheduling policy %s "
 					"(min=%d, max=%d)\n",
-					name,
+					args->name,
 					new_policy_name,
 					min_prio, max_prio);
 				break;
@@ -129,18 +125,18 @@ int stress_schedpolicy(
 				pr_fail(stderr, "%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
-					name, errno, strerror(errno),
+					args->name, errno, strerror(errno),
 					new_policy_name);
 			}
 		} else {
 			ret = sched_getscheduler(pid);
 			if (ret < 0) {
-				pr_fail_err(name, "sched_getscheduler");
+				pr_fail_err(args->name, "sched_getscheduler");
 			} else if (ret != policies[policy]) {
 				pr_fail(stderr, "%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
 					"but function returned %d instead\n",
-					name, (int)pid, new_policy,
+					args->name, (int)pid, new_policy,
 					new_policy_name, ret);
 			}
 		}
@@ -148,11 +144,11 @@ int stress_schedpolicy(
 		memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if (ret < 0)
-			pr_fail_err(name, "sched_getparam failed");
+			pr_fail_err(args->name, "sched_getparam failed");
 
 		ret = sched_setparam(pid, &param);
 		if (ret < 0)
-			pr_fail_err(name, "sched_setparam");
+			pr_fail_err(args->name, "sched_setparam");
 #endif
 
 #if defined(__linux__) && \
@@ -166,7 +162,7 @@ int stress_schedpolicy(
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err(name, "sched_getattr");
+				pr_fail_err(args->name, "sched_getattr");
 			}
 		}
 
@@ -174,7 +170,7 @@ int stress_schedpolicy(
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err(name, "sched_getattr");
+				pr_fail_err(args->name, "sched_getattr");
 			}
 		}
 #endif
@@ -182,18 +178,14 @@ int stress_schedpolicy(
 		(void)shim_sched_yield();
 		policy++;
 		policy %= SIZEOF_ARRAY(policies);
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_schedpolicy(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_schedpolicy(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

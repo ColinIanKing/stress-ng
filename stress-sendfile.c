@@ -45,11 +45,7 @@ void stress_set_sendfile_size(const char *optarg)
  *  stress_sendfile
  *	stress reading of a temp file and writing to /dev/null via sendfile
  */
-int stress_sendfile(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sendfile(args_t *args)
 {
 	char filename[PATH_MAX];
 	int fdin, fdout, ret, rc = EXIT_SUCCESS;
@@ -64,28 +60,28 @@ int stress_sendfile(
 	}
 	sz = (size_t)opt_sendfile_size;
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)umask(0077);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto dir_out;
 	}
 	ret = posix_fallocate(fdin, (off_t)0, (off_t)sz);
 	if (ret < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto dir_out;
 	}
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		rc = EXIT_FAILURE;
 		goto close_in;
 	}
@@ -95,12 +91,12 @@ int stress_sendfile(
 		if (sendfile(fdout, fdin, &offset, sz) < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err(name, "sendfile");
+			pr_fail_err(args->name, "sendfile");
 			rc = EXIT_FAILURE;
 			goto close_out;
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 close_out:
 	(void)close(fdout);
@@ -108,17 +104,13 @@ close_in:
 	(void)close(fdin);
 	(void)unlink(filename);
 dir_out:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }
 #else
-int stress_sendfile(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sendfile(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

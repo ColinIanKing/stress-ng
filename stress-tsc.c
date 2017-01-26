@@ -113,23 +113,16 @@ static inline void rdtsc(void)
  *  stress_tsc()
  *      stress Intel tsc instruction
  */
-int stress_tsc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tsc(args_t *args)
 {
-	(void)instance;
-	(void)name;
-
 	if (tsc_supported) {
 		do {
 			TSCx32();
 			TSCx32();
 			TSCx32();
 			TSCx32();
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	}
 	return EXIT_SUCCESS;
 }
@@ -151,12 +144,8 @@ int stress_tsc_supported(void)
  *  stress_tsc()
  *      no-op for non-intel
  */
-int stress_tsc(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_tsc(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args)
 }
 #endif

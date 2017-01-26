@@ -33,12 +33,9 @@
  *	spawn a process
  */
 static pid_t spawn(
-	const char *name,
-	void (*func)(const char *name, const pid_t pid,
-		uint64_t *counter, const uint64_t max_ops),
-	pid_t pid_arg,
-	uint64_t *counter,
-	uint64_t max_ops)
+	args_t *args,
+	void (*func)(args_t *args, const pid_t pid),
+	pid_t pid_arg)
 {
 	pid_t pid;
 
@@ -53,7 +50,7 @@ again:
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		func(name, pid_arg, counter, max_ops);
+		func(args, pid_arg);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -66,18 +63,16 @@ again:
  *	stopped and continued by the killer process
  */
 static void runner(
-	const char *name,
-	const pid_t pid,
-	uint64_t *counter,
-	const uint64_t max_ops)
+	args_t *args,
+	const pid_t pid)
 {
 	(void)pid;
 
-	pr_dbg(stderr, "%s: wait: runner started [%d]\n", name, (int)getpid());
+	pr_dbg(stderr, "%s: wait: runner started [%d]\n", args->name, (int)getpid());
 
 	do {
 		(void)pause();
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	kill(getppid(), SIGALRM);
 	exit(EXIT_SUCCESS);
@@ -88,15 +83,13 @@ static void runner(
  *	this continually stops and continues the runner process
  */
 static void killer(
-	const char *name,
-	const pid_t pid,
-	uint64_t *counter,
-	const uint64_t max_ops)
+	args_t *args,
+	const pid_t pid)
 {
 	double start = time_now();
-	uint64_t last_counter = *counter;
+	uint64_t last_counter = *args->counter;
 
-	pr_dbg(stderr, "%s: wait: killer started [%d]\n", name, (int)getpid());
+	pr_dbg(stderr, "%s: wait: killer started [%d]\n", args->name, (int)getpid());
 
 	do {
 		(void)kill(pid, SIGSTOP);
@@ -109,17 +102,17 @@ static void killer(
 		 *  so we don't get stuck in the parent
 		 *  waiter indefintely.
 		 */
-		if (last_counter == *counter) {
+		if (last_counter == *args->counter) {
 			if (time_now() - start > ABORT_TIMEOUT) {
 				pr_dbg(stderr, "%s: waits were blocked, "
-					"aborting\n", name);
+					"aborting\n", args->name);
 				break;
 			}
 		} else {
 			start = time_now();
-			last_counter = *counter;
+			last_counter = *args->counter;
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	/* forcefully kill runner, wait is in parent */
 	(void)kill(pid, SIGKILL);
@@ -132,29 +125,23 @@ static void killer(
  *  stress_wait
  *	stress wait*() family of calls
  */
-int stress_wait(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_wait(args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k;
 
-	(void)instance;
-
 	pr_dbg(stderr, "%s: waiter started [%d]\n",
-		name, (int)getpid());
+		args->name, (int)getpid());
 
-	pid_r = spawn(name, runner, 0, counter, max_ops);
+	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		exit(EXIT_FAILURE);
 	}
 
-	pid_k = spawn(name, killer, pid_r, counter, max_ops);
+	pid_k = spawn(args, killer, pid_r);
 	if (pid_k < 0) {
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		ret = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -169,9 +156,9 @@ int stress_wait(
 			break;
 #if defined(WIFCONINUED)
 		if (WIFCONTINUED(status))
-			(*counter)++;
+			inc_counter(args);
 #else
-		(*counter)++;
+		inc_counter(args);
 #endif
 
 #if _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
@@ -189,13 +176,13 @@ int stress_wait(
 				break;
 #if defined(WIFCONINUED)
 			if (WIFCONTINUED(status))
-				(*counter)++;
+				inc_counter(args);
 #else
-			(*counter)++;
+			inc_counter(args);
 #endif
 		}
 #endif
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)kill(pid_k, SIGKILL);
 	(void)waitpid(pid_k, &status, 0);
@@ -206,12 +193,8 @@ tidy:
 	return ret;
 }
 #else
-int stress_wait(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_wait(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

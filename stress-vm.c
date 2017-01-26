@@ -1873,11 +1873,7 @@ int stress_set_vm_method(const char *name)
  *  stress_vm()
  *	stress virtual memory
  */
-int stress_vm(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_vm(args_t *args)
 {
 	uint32_t restarts = 0, nomems = 0;
 	uint8_t *buf = NULL;
@@ -1903,7 +1899,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -1913,20 +1909,20 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)),
-				instance);
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				restarts++;
 				goto again;
 			}
@@ -1938,12 +1934,12 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
 		do {
 			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 				pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
-					name);
+					args->name);
 				break;
 			}
 			if (!keep || (buf == NULL)) {
@@ -1964,7 +1960,7 @@ again:
 
 			no_mem_retries = 0;
 			(void)mincore_touch_pages(buf, buf_sz);
-			(void)func(buf, buf_sz, counter, max_ops << VM_BOGO_SHIFT);
+			(void)func(buf, buf_sz, args->counter, args->max_ops << VM_BOGO_SHIFT);
 
 			if (opt_vm_hang == 0) {
 				for (;;) {
@@ -1978,17 +1974,17 @@ again:
 				(void)madvise_random(buf, buf_sz);
 				(void)munmap((void *)buf, buf_sz);
 			}
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		if (keep && buf != NULL)
 			(void)munmap((void *)buf, buf_sz);
 	}
-	*counter >>= VM_BOGO_SHIFT;
+	*args->counter >>= VM_BOGO_SHIFT;
 
 	if (restarts + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, restarts, nomems);
+			args->name, restarts, nomems);
 
 	return EXIT_SUCCESS;
 }

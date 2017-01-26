@@ -38,26 +38,20 @@
  *  stress_urandom
  *	stress reading of /dev/urandom
  */
-int stress_urandom(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_urandom(args_t *args)
 {
 	int fd_urnd, rc = EXIT_FAILURE;
 #if defined(DEV_RANDOM)
 	int fd_rnd;
 #endif
 
-	(void)instance;
-
 	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 #if defined(DEV_RANDOM)
 	if ((fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)close(fd_urnd);
 		return EXIT_FAILURE;
 	}
@@ -73,11 +67,11 @@ int stress_urandom(
 		ret = read(fd_urnd, buffer, sizeof(buffer));
 		if (ret < 0) {
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				goto err;
 			}
 		}
-		(*counter)++;
+		inc_counter(args);
 
 #if defined(DEV_RANDOM)
 		/*
@@ -93,13 +87,13 @@ int stress_urandom(
 		ret = read(fd_rnd, buffer, 1);
 		if (ret < 0) {
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				goto err;
 			}
 		}
 #endif
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 err:
@@ -111,12 +105,8 @@ err:
 	return rc;
 }
 #else
-int stress_urandom(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_urandom(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

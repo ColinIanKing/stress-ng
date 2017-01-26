@@ -37,7 +37,7 @@
  *	crypt a password with given seed and id
  */
 static int stress_crypt_id(
-	const char *name,
+	args_t *args,
 	const char id,
 	const char *method,
 	const char *passwd,
@@ -54,7 +54,7 @@ static int stress_crypt_id(
 	crypted = crypt(passwd, salt);
 #endif
 	if (!crypted) {
-		pr_fail(stderr, "%s: cannot encrypt with %s", name, method);
+		pr_fail(stderr, "%s: cannot encrypt with %s", args->name, method);
 		return -1;
 	}
 	return 0;
@@ -64,14 +64,8 @@ static int stress_crypt_id(
  *  stress_crypt()
  *	stress libc crypt
  */
-int stress_crypt(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_crypt(args_t *args)
 {
-	(void)instance;
-
 	do {
 		static const char seedchars[] =
 			"./0123456789ABCDEFGHIJKLMNOPQRST"
@@ -90,27 +84,22 @@ int stress_crypt(
 			passwd[i] = seedchars[mwc32() % sizeof(seedchars)];
 		passwd[i] = '\0';
 
-		if (stress_crypt_id(name, '1', "MD5", passwd, salt) < 0)
+		if (stress_crypt_id(args, '1', "MD5", passwd, salt) < 0)
 			break;
 #if NEED_GLIBC(2,7,0)
-		if (stress_crypt_id(name, '5', "SHA-256", passwd, salt) < 0)
+		if (stress_crypt_id(args, '5', "SHA-256", passwd, salt) < 0)
 			break;
-		if (stress_crypt_id(name, '6', "SHA-512", passwd, salt) < 0)
+		if (stress_crypt_id(args, '6', "SHA-512", passwd, salt) < 0)
 			break;
 #endif
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_crypt(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_crypt(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

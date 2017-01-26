@@ -80,15 +80,9 @@ static void stress_timerfd_set(struct itimerspec *timer)
  *  stress_timerfd
  *	stress timerfd
  */
-int stress_timerfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_timerfd(args_t *args)
 {
 	struct itimerspec timer;
-
-	(void)instance;
 
 	if (!set_timerfd_freq) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -100,13 +94,13 @@ int stress_timerfd(
 
 	timerfd = timerfd_create(CLOCK_REALTIME, 0);
 	if (timerfd < 0) {
-		pr_fail_err(name, "timerfd_create");
+		pr_fail_err(args->name, "timerfd_create");
 		(void)close(timerfd);
 		return EXIT_FAILURE;
 	}
 	stress_timerfd_set(&timer);
 	if (timerfd_settime(timerfd, 0, &timer, NULL) < 0) {
-		pr_fail_err(name, "timer_settime");
+		pr_fail_err(args->name, "timer_settime");
 		(void)close(timerfd);
 		return EXIT_FAILURE;
 	}
@@ -129,7 +123,7 @@ int stress_timerfd(
 		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err(name, "select");
+			pr_fail_err(args->name, "select");
 			break;
 		}
 		if (ret < 1)
@@ -137,34 +131,30 @@ int stress_timerfd(
 
 		ret = read(timerfd, &exp, sizeof exp);
 		if (ret < 0) {
-			pr_fail_err(name, "timerfd read");
+			pr_fail_err(args->name, "timerfd read");
 			break;
 		}
 		if (timerfd_gettime(timerfd, &value) < 0) {
-			pr_fail_err(name, "timerfd_gettime");
+			pr_fail_err(args->name, "timerfd_gettime");
 			break;
 		}
 		if (opt_flags & OPT_FLAGS_TIMERFD_RAND) {
 			stress_timerfd_set(&timer);
 			if (timerfd_settime(timerfd, 0, &timer, NULL) < 0) {
-				pr_fail_err(name, "timer_settime");
+				pr_fail_err(args->name, "timer_settime");
 				break;
 			}
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || timerfd_counter < max_ops));
+		*args->counter = timerfd_counter;
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(timerfd);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_timerfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_timerfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

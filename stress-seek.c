@@ -39,11 +39,7 @@ void stress_set_seek_size(const char *optarg)
  *  stress_seek
  *	stress I/O via random seeks and read/writes
  */
-int stress_seek(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_seek(args_t *args)
 {
 	uint64_t len;
 	const pid_t pid = getpid();
@@ -62,30 +58,30 @@ int stress_seek(
 	}
 	len = opt_seek_size - sizeof(buf);
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	stress_strnrnd((char *)buf, sizeof(buf));
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto finish;
 	}
 	(void)unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "lseek");
+		pr_fail_err(args->name, "lseek");
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "write");
+		pr_fail_err(args->name, "write");
 		goto close_finish;
 	}
 
@@ -96,7 +92,7 @@ int stress_seek(
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek");
+			pr_fail_err(args->name, "lseek");
 			goto close_finish;
 		}
 re_write:
@@ -107,14 +103,14 @@ re_write:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
-				pr_fail_err(name, "write");
+				pr_fail_err(args->name, "write");
 				goto close_finish;
 			}
 		}
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err(name, "lseek SEEK_SET");
+			pr_fail_err(args->name, "lseek SEEK_SET");
 			goto close_finish;
 		}
 re_read:
@@ -125,36 +121,36 @@ re_read:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
-				pr_fail_err(name, "read");
+				pr_fail_err(args->name, "read");
 				goto close_finish;
 			}
 		}
 		if ((rwret != sizeof(tmp)) &&
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
-			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", name);
+			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", args->name);
 		}
 #if defined(SEEK_END)
 		if (lseek(fd, 0, SEEK_END) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(name, "lseek SEEK_END");
+				pr_fail_err(args->name, "lseek SEEK_END");
 		}
 #endif
 #if defined(SEEK_CUR)
 		if (lseek(fd, 0, SEEK_CUR) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(name, "lseek SEEK_CUR");
+				pr_fail_err(args->name, "lseek SEEK_CUR");
 		}
 #endif
 #if defined(SEEK_HOLE)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(name, "lseek SEEK_HOLE");
+				pr_fail_err(args->name, "lseek SEEK_HOLE");
 		}
 #endif
 #if defined(SEEK_DATA)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(name, "lseek SEEK_DATA");
+				pr_fail_err(args->name, "lseek SEEK_DATA");
 		}
 #endif
 
@@ -169,13 +165,13 @@ re_read:
 				punch_hole = false;
 		}
 #endif
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 close_finish:
 	(void)close(fd);
 finish:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 	return rc;
 }

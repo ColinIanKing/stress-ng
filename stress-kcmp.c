@@ -38,51 +38,47 @@ enum {
 	KCMP_TYPES,
 };
 
-#define KCMP(pid1, pid2, type, idx1, idx2)		\
-{							\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);\
-							\
-	if (rc < 0) {	 				\
-		if (errno == EPERM) {			\
-			pr_inf(stdout, capfail, name);	\
-			break;				\
-		}					\
-		pr_fail_err(name, "kcmp: " # type);	\
-	}						\
-	if (!opt_do_run)				\
-		break;					\
+#define KCMP(pid1, pid2, type, idx1, idx2)			\
+{								\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);	\
+								\
+	if (rc < 0) {	 					\
+		if (errno == EPERM) {				\
+			pr_inf(stdout, capfail, args->name);	\
+			break;					\
+		}						\
+		pr_fail_err(args->name, "kcmp: " # type);	\
+	}							\
+	if (!opt_do_run)					\
+		break;						\
 }
 
-#define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)	\
-{							\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);\
-							\
-	if (rc != res) {				\
-		if (rc < 0) {				\
-			if (errno == EPERM) {		\
-				pr_inf(stdout, capfail, name); \
-				break;			\
-			}				\
-			pr_fail_err(name, "kcmp: " # type);\
-		} else {				\
-			pr_fail(stderr, "%s: kcmp " # type \
-			" returned %d, expected: %d\n",	\
-			name, rc, ret);			\
-		}					\
-	}						\
-	if (!opt_do_run)				\
-		break;					\
+#define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)		\
+{								\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);	\
+								\
+	if (rc != res) {					\
+		if (rc < 0) {					\
+			if (errno == EPERM) {			\
+				pr_inf(stdout, capfail, args->name); \
+				break;				\
+			}					\
+			pr_fail_err(args->name, "kcmp: " # type);\
+		} else {					\
+			pr_fail(stderr, "%s: kcmp " # type	\
+			" returned %d, expected: %d\n",		\
+			args->name, rc, ret);			\
+		}						\
+	}							\
+	if (!opt_do_run)					\
+		break;						\
 }
 
 /*
  *  stress_kcmp
  *	stress sys_kcmp
  */
-int stress_kcmp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_kcmp(args_t *args)
 {
 	pid_t pid1;
 	int fd1;
@@ -92,10 +88,8 @@ int stress_kcmp(
 		"%s: need CAP_SYS_PTRACE capability to run kcmp stressor, "
 		"aborting stress test\n";
 
-	(void)instance;
-
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		return EXIT_FAILURE;
 	}
 
@@ -105,7 +99,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
@@ -126,7 +120,7 @@ again:
 		(void)setpgid(pid1, pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
-			pr_fail_err(name, "open");
+			pr_fail_err(args->name, "open");
 			ret = EXIT_FAILURE;
 			goto reap;
 		}
@@ -172,8 +166,8 @@ again:
 				KCMP_VERIFY(pid1, pid1, KCMP_VM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid2, KCMP_SYSVSEM, 0, 0, 0);
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
@@ -184,12 +178,8 @@ reap:
 	return ret;
 }
 #else
-int stress_kcmp(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_kcmp(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

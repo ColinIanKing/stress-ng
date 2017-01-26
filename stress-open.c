@@ -139,18 +139,11 @@ static open_func_t open_funcs[] = {
  *  stress_open()
  *	stress system by rapid open/close calls
  */
-int stress_open(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_open(args_t *args)
 {
 	int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
 	size_t i;
-
-	(void)instance;
-	(void)name;
 
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd = SIZEOF_ARRAY(fds);
@@ -165,7 +158,7 @@ int stress_open(
 				break;
 			if (!opt_do_run)
 				break;
-			(*counter)++;
+			inc_counter(args);
 		}
 		for (i = 0; i < max_fd; i++) {
 			if (fds[i] < 0)
@@ -174,7 +167,7 @@ int stress_open(
 				break;
 			(void)close(fds[i]);
 		}
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

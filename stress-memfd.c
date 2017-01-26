@@ -42,10 +42,7 @@ void stress_set_memfd_bytes(const char *optarg)
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static void stress_memfd_allocs(
-	const char *name,
-	uint64_t *const counter,
-	const uint64_t max_ops)
+static void stress_memfd_allocs(args_t *args)
 {
 	int fds[MAX_MEM_FDS];
 	void *maps[MAX_MEM_FDS];
@@ -80,7 +77,7 @@ static void stress_memfd_allocs(
 				case EFAULT:
 				default:
 					pr_err(stderr, "%s: memfd_create failed: errno=%d (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 					opt_do_run = false;
 					goto clean;
 				}
@@ -104,7 +101,7 @@ static void stress_memfd_allocs(
 					case EINTR:
 						break;
 					default:
-						pr_fail_err(name, "ftruncate");
+						pr_fail_err(args->name, "ftruncate");
 						break;
 					}
 				}
@@ -136,31 +133,31 @@ static void stress_memfd_allocs(
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size>> 1, SEEK_SET) < 0) {
 				if (errno != ENXIO)
-					pr_fail_err(name, "lseek SEEK_SET on memfd");
+					pr_fail_err(args->name, "lseek SEEK_SET on memfd");
 			}
 #endif
 #if defined(SEEK_CUR)
 			if (lseek(fds[i], (off_t)0, SEEK_CUR) < 0) {
 				if (errno != ENXIO)
-					pr_fail_err(name, "lseek SEEK_CUR on memfd");
+					pr_fail_err(args->name, "lseek SEEK_CUR on memfd");
 			}
 #endif
 #if defined(SEEK_END)
 			if (lseek(fds[i], (off_t)0, SEEK_END) < 0) {
 				if (errno != ENXIO)
-					pr_fail_err(name, "lseek SEEK_END on memfd");
+					pr_fail_err(args->name, "lseek SEEK_END on memfd");
 			}
 #endif
 #if defined(SEEK_HOLE)
 			if (lseek(fds[i], (off_t)0, SEEK_HOLE) < 0) {
 				if (errno != ENXIO)
-					pr_fail_err(name, "lseek SEEK_HOLE on memfd");
+					pr_fail_err(args->name, "lseek SEEK_HOLE on memfd");
 			}
 #endif
 #if defined(SEEK_DATA)
 			if (lseek(fds[i], (off_t)0, SEEK_DATA) < 0) {
 				if (errno != ENXIO)
-					pr_fail_err(name, "lseek SEEK_DATA on memfd");
+					pr_fail_err(args->name, "lseek SEEK_DATA on memfd");
 			}
 #endif
 			if (!opt_do_run)
@@ -173,8 +170,8 @@ clean:
 			if (fds[i] >= 0)
 				(void)close(fds[i]);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 }
 
 
@@ -182,11 +179,7 @@ clean:
  *  stress_memfd()
  *	stress memfd
  */
-int stress_memfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_memfd(args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
@@ -206,7 +199,7 @@ again:
 		if (errno == EAGAIN)
 			goto again;
 		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
@@ -218,20 +211,20 @@ again:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
-				name, stress_strsignal(WTERMSIG(status)), instance);
+				args->name, stress_strsignal(WTERMSIG(status)), args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if ((WTERMSIG(status) == SIGKILL) ||
 			    (WTERMSIG(status) == SIGSEGV)) {
 				log_system_mem_info();
 				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
-					name, instance);
+					args->name, args->instance);
 				ooms++;
 				goto again;
 			}
@@ -240,7 +233,7 @@ again:
 			pr_dbg(stderr, "%s: killed by SIGSEGV, "
 				"restarting again "
 				"(instance %d)\n",
-				name, instance);
+				args->name, args->instance);
 			segvs++;
 			goto again;
 		}
@@ -248,26 +241,22 @@ again:
 		(void)setpgid(0, pgrp);
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(name, true);
+		set_oom_adjustment(args->name, true);
 
-		stress_memfd_allocs(name, counter, max_ops);
+		stress_memfd_allocs(args);
 	}
 
 	if (ooms + segvs + nomems > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
 			", SEGV restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
-			name, ooms, segvs, nomems);
+			args->name, ooms, segvs, nomems);
 
 	return EXIT_SUCCESS;
 }
 #else
-int stress_memfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_memfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

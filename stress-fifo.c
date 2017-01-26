@@ -130,11 +130,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
  *  stress_fifo
  *	stress by heavy fifo I/O
  */
-int stress_fifo(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_fifo(args_t *args)
 {
 	pid_t pids[MAX_FIFO_READERS];
 	int fd;
@@ -150,24 +146,24 @@ int stress_fifo(
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
-	rc = stress_temp_dir_mk(name, pid, instance);
+	rc = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(fifoname, sizeof(fifoname),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: mkfifo failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		goto tidy;
 	}
 
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_fifo_readers; i++) {
-		pids[i] = fifo_spawn(stress_fifo_reader, name, fifoname);
+		pids[i] = fifo_spawn(stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
 		if (!opt_do_run) {
@@ -184,7 +180,7 @@ int stress_fifo(
 			rc = exit_status(fd);
 			pr_err(stderr, "%s: fifo write open failed: "
 				"errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 		}
 		goto reap;
 	}
@@ -197,14 +193,14 @@ int stress_fifo(
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_fail_dbg(name, "write");
+				pr_fail_dbg(args->name, "write");
 				break;
 			}
 			continue;
 		}
 		val++;
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
 	rc = EXIT_SUCCESS;
@@ -219,7 +215,7 @@ reap:
 	}
 tidy:
 	(void)unlink(fifoname);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }

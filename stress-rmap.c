@@ -96,11 +96,7 @@ static void stress_rmap_child(
  *  stress_rmap()
  *	stress mmap
  */
-int stress_rmap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rmap(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
@@ -120,7 +116,7 @@ int stress_rmap(
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
-			name, errno, strerror(errno));
+			args->name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	memset(counters, 0, counters_sz);
@@ -128,21 +124,21 @@ int stress_rmap(
 	memset(mappings, 0, sizeof(mappings));
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(name, true);
+	set_oom_adjustment(args->name, true);
 
-	rc = stress_temp_dir_mk(name, mypid, instance);
+	rc = stress_temp_dir_mk(args->name, mypid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, mypid, instance, mwc32());
+		args->name, mypid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(name, mypid, instance);
+		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 		(void)munmap((void *)counters, counters_sz);
 
 		return rc;
@@ -150,9 +146,9 @@ int stress_rmap(
 	(void)unlink(filename);
 
 	if (posix_fallocate(fd, 0, sz) < 0) {
-		pr_fail_err(name, "posix_fallocate");
+		pr_fail_err(args->name, "posix_fallocate");
 		(void)close(fd);
-		(void)stress_temp_dir_rm(name, mypid, instance);
+		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 		(void)munmap((void *)counters, counters_sz);
 
 		return EXIT_FAILURE;
@@ -176,10 +172,10 @@ int stress_rmap(
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			goto cleanup;
 		} else if (pids[i] == 0) {
-			if (stress_sighandler(name, SIGALRM,
+			if (stress_sighandler(args->name, SIGALRM,
 			    stress_rmap_handler, NULL) < 0)
 				exit(EXIT_FAILURE);
 
@@ -187,8 +183,8 @@ int stress_rmap(
 			stress_parent_died_alarm();
 
 			/* Make sure this is killable by OOM killer */
-			set_oom_adjustment(name, true);
-			stress_rmap_child(&counters[i], max_ops / RMAP_CHILD_MAX,
+			set_oom_adjustment(args->name, true);
+			stress_rmap_child(&counters[i], args->max_ops / RMAP_CHILD_MAX,
 				page_size, mappings);
 		} else {
 			(void)setpgid(pids[i], pgrp);
@@ -201,8 +197,8 @@ int stress_rmap(
 	do {
 		(void)select(0, NULL, NULL, NULL, NULL);
 		for (i = 0; i < RMAP_CHILD_MAX; i++)
-			*counter += counters[i];
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+			*args->counter += counters[i];
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 cleanup:
 	/*
@@ -219,7 +215,7 @@ cleanup:
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 			(void)kill(pids[i], SIGTERM);
 			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
@@ -228,7 +224,7 @@ cleanup:
 
 	(void)munmap((void *)counters, counters_sz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(name, mypid, instance);
+	(void)stress_temp_dir_rm(args->name, mypid, args->instance);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
@@ -240,12 +236,8 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rmap(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_rmap(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

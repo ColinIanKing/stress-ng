@@ -111,16 +111,10 @@ static const int priorities[] = {
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
  */
-int stress_get(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_get(args_t *args)
 {
 	const bool verify = (opt_flags & OPT_FLAGS_VERIFY);
 	const bool is_root = (geteuid() == 0);
-
-	(void)instance;
 
 	do {
 		char path[PATH_MAX];
@@ -148,7 +142,7 @@ int stress_get(
 
 		ptr = getcwd(path, sizeof path);
 		if (verify && !ptr)
-			pr_fail_err(name, "getcwd");
+			pr_fail_err(args->name, "getcwd");
 		check_do_run();
 
 		(void)getgid();
@@ -165,7 +159,7 @@ int stress_get(
 
 		ret = getgroups(GIDS_MAX, gids);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "getgroups");
+			pr_fail_err(args->name, "getgroups");
 		check_do_run();
 
 #if !defined(__minix__)
@@ -182,19 +176,19 @@ int stress_get(
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
 			if (verify && errno && (ret < 0))
-				pr_fail_err(name, "getpriority");
+				pr_fail_err(args->name, "getpriority");
 			check_do_run();
 		}
 
 #if defined(__linux__)
 		ret = getresgid(&rgid, &egid, &sgid);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "getresgid");
+			pr_fail_err(args->name, "getresgid");
 		check_do_run();
 
 		ret = getresuid(&ruid, &euid, &suid);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "getresuid");
+			pr_fail_err(args->name, "getresuid");
 		check_do_run();
 #endif
 
@@ -204,7 +198,7 @@ int stress_get(
 			ret = getrlimit(rlimits[i], &rlim);
 			if (verify && (ret < 0))
 				pr_fail(stderr, "%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
-					name, i, errno, strerror(errno));
+					args->name, i, errno, strerror(errno));
 			check_do_run();
 		}
 
@@ -215,16 +209,16 @@ int stress_get(
 			ret = prlimit(mypid, rlimits[i], NULL, &rlim[0]);
 			if (verify && (ret < 0))
 				pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-					name, mypid, i, errno, strerror(errno));
+					args->name, mypid, i, errno, strerror(errno));
 			if (!ret) {
 				prlimit(mypid, rlimits[i], &rlim[0], NULL);
 				if (verify && (ret < 0))
 					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-						name, mypid, i, errno, strerror(errno));
+						args->name, mypid, i, errno, strerror(errno));
 				prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
 				if (verify && (ret < 0))
 					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-						name, mypid, i, errno, strerror(errno));
+						args->name, mypid, i, errno, strerror(errno));
 			}
 			check_do_run();
 		}
@@ -236,14 +230,14 @@ int stress_get(
 			ret = getrusage(rusages[i], &usage);
 			if (verify && (ret < 0))
 				pr_fail(stderr, "%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
-					name, i, errno, strerror(errno));
+					args->name, i, errno, strerror(errno));
 			check_do_run();
 		}
 
 #if _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
 		ret = getsid(mypid);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "getsid");
+			pr_fail_err(args->name, "getsid");
 		check_do_run();
 #endif
 
@@ -258,27 +252,27 @@ int stress_get(
 
 		t = time(NULL);
 		if (verify && (t == (time_t)-1))
-			pr_fail_err(name, "time");
+			pr_fail_err(args->name, "time");
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "gettimeval");
+			pr_fail_err(args->name, "gettimeval");
 #if defined(__linux__)
 		ret = uname(&utsbuf);
 		if (verify && (ret < 0))
-			pr_fail_err(name, "uname");
+			pr_fail_err(args->name, "uname");
 #endif
 
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
 		if (is_root && verify && (ret < 0))
-			pr_fail_err(name, "adjtimex");
+			pr_fail_err(args->name, "adjtimex");
 #endif
 		memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (is_root && verify && (ret < 0))
-			pr_fail_err(name, "adjtime");
+			pr_fail_err(args->name, "adjtime");
 
 		/* Get number of file system types */
 		n = shim_sysfs(3);
@@ -290,18 +284,17 @@ int stress_get(
 				ret = shim_sysfs(1, buf);
 				if (verify && (ret != fs_index)) {
 					pr_fail(stderr, "%s: sysfs(1, %s) failed, errno=%d (%s)\n",
-						name, buf, errno, strerror(errno));
+						args->name, buf, errno, strerror(errno));
 				}
 			} else {
 				if (verify) {
 					pr_fail(stderr, "%s: sysfs(2, %d, buf) failed, errno=%d (%s)\n",
-						name, fs_index, errno, strerror(errno));
+						args->name, fs_index, errno, strerror(errno));
 				}
 			}
 		}
-
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	return EXIT_SUCCESS;
 }

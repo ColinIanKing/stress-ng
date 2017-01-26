@@ -32,27 +32,21 @@
  *  stress_sigfd
  *	stress signalfd reads
  */
-int stress_sigfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigfd(args_t *args)
 {
 	pid_t pid, ppid = getpid();
 	int sfd;
 	sigset_t mask;
 
-	(void)instance;
-
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
-		pr_fail_dbg(name, "sigprocmask");
+		pr_fail_dbg(args->name, "sigprocmask");
 		return EXIT_FAILURE;
 	}
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
-		pr_fail_dbg(name, "signalfd");
+		pr_fail_dbg(args->name, "signalfd");
 		return EXIT_FAILURE;
 	}
 
@@ -61,7 +55,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(name, "fork");
+		pr_fail_dbg(args->name, "fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -93,7 +87,7 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(name, "signalfd read");
+					pr_fail_dbg(args->name, "signalfd read");
 					(void)close(sfd);
 					_exit(EXIT_FAILURE);
 				}
@@ -104,12 +98,12 @@ again:
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {
 					pr_fail(stderr, "%s: unexpected signal %d",
-						name, fdsi.ssi_signo);
+						args->name, fdsi.ssi_signo);
 					break;
 				}
 			}
-			(*counter)++;
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+			inc_counter(args);
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 		/* terminal child */
 		(void)kill(pid, SIGKILL);
@@ -118,12 +112,8 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sigfd(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_sigfd(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

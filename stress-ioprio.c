@@ -35,11 +35,7 @@
  *  stress set/get io priorities
  *	stress system by rapid io priority changes
  */
-int stress_ioprio(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_ioprio(args_t *args)
 {
 	const pid_t pid = getpid();
 	const uid_t uid = getuid();
@@ -47,15 +43,15 @@ int stress_ioprio(
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
-	if (stress_temp_dir_mk(name, pid, instance) < 0)
+	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
 		return rc;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(name, "open");
+		pr_fail_err(args->name, "open");
 		goto cleanup_dir;
 	}
 	(void)unlink(filename);
@@ -68,31 +64,31 @@ int stress_ioprio(
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, pid) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
 				"errno = %d (%s)\n",
-				name, pid, errno, strerror(errno));
+				args->name, pid, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
 				"errno = %d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
 				"errno = %d (%s)\n",
-				name, pgrp, errno, strerror(errno));
+				args->name, pgrp, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, 0), "
 				"errno = %d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_USER, uid) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_USR, %d), "
 				"errno = %d (%s)\n",
-				name, uid, errno, strerror(errno));
+				args->name, uid, errno, strerror(errno));
 			goto cleanup_file;
 		}
 
@@ -103,7 +99,7 @@ int stress_ioprio(
 		}
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-			pr_fail_err(name, "pwritev");
+			pr_fail_err(args->name, "pwritev");
 			goto cleanup_file;
 		}
 		(void)fsync(fd);
@@ -115,13 +111,13 @@ int stress_ioprio(
 					"IOPRIO_WHO_PROCESS, %d, "
 					"(IOPRIO_CLASS_IDLE, 0)), "
 					"errno = %d (%s)\n",
-					name, pid, errno, strerror(errno));
+					args->name, pid, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-			pr_fail_err(name, "pwritev");
+			pr_fail_err(args->name, "pwritev");
 			goto cleanup_file;
 		}
 		(void)fsync(fd);
@@ -134,12 +130,12 @@ int stress_ioprio(
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_BE, %d)), "
 						"errno = %d (%s)\n",
-						name, pid, i, errno, strerror(errno));
+						args->name, pid, i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-				pr_fail_err(name, "pwritev");
+				pr_fail_err(args->name, "pwritev");
 				goto cleanup_file;
 			}
 			(void)fsync(fd);
@@ -152,35 +148,31 @@ int stress_ioprio(
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_RT, %d)), "
 						"errno = %d (%s)\n",
-						name, pid, i, errno, strerror(errno));
+						args->name, pid, i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-				pr_fail_err(name, "pwritev");
+				pr_fail_err(args->name, "pwritev");
 				goto cleanup_file;
 			}
 			(void)fsync(fd);
 		}
-		(*counter)++;
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+		inc_counter(args);
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	rc = EXIT_SUCCESS;
 
 cleanup_file:
 	(void)close(fd);
 cleanup_dir:
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
 	return rc;
 }
 #else
-int stress_ioprio(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_ioprio(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif

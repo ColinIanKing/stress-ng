@@ -59,9 +59,7 @@ static void MLOCKED stress_lease_handler(int dummy)
  */
 static pid_t stress_lease_spawn(
 	const char *filename,
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+	args_t *args)
 {
 	pid_t pid;
 
@@ -91,12 +89,12 @@ again:
 			if (fd < 0) {
 				if (errno != EWOULDBLOCK && errno != EACCES) {
 					pr_dbg(stderr, "%s: open failed (child): errno=%d: (%s)\n",
-						name, errno, strerror(errno));
+						args->name, errno, strerror(errno));
 				}
 				continue;
 			}
 			(void)close(fd);
-		} while (opt_do_run && (!max_ops || *counter < max_ops));
+		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -107,11 +105,7 @@ again:
  *  stress_lease
  *	stress by fcntl lease activity
  */
-int stress_lease(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lease(args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd, status;
@@ -121,29 +115,29 @@ int stress_lease(
 
 	memset(l_pids, 0, sizeof(l_pids));
 
-	if (stress_sighandler(name, SIGIO, stress_lease_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	ret = stress_temp_dir_mk(name, pid, instance);
+	ret = stress_temp_dir_mk(args->name, pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename(filename, PATH_MAX,
-		name, pid, instance, mwc32());
+		args->name, pid, args->instance, mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
-			name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(name, pid, instance);
+			args->name, errno, strerror(errno));
+		(void)stress_temp_dir_rm(args->name, pid, args->instance);
 		return ret;
 	}
 	(void)close(fd);
 
 	for (i = 0; i < opt_lease_breakers; i++) {
-		l_pids[i] = stress_lease_spawn(filename, name, max_ops, counter);
+		l_pids[i] = stress_lease_spawn(filename, args);
 		if (l_pids[i] < 0) {
-			pr_err(stderr, "%s: failed to start all the lease breaker processes\n", name);
+			pr_err(stderr, "%s: failed to start all the lease breaker processes\n", args->name);
 			goto reap;
 		}
 	}
@@ -153,7 +147,7 @@ int stress_lease(
 		if (fd < 0) {
 			ret = exit_status(errno);
 			pr_err(stderr, "%s: open failed (parent): errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
@@ -162,16 +156,16 @@ int stress_lease(
 				goto reap;
 			}
 		}
-		(*counter)++;
+		inc_counter(args);
 		(void)shim_sched_yield();
 		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
 			pr_err(stderr, "%s: fcntl failed: errno=%d: (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			break;
 		}
 		(void)close(fd);
-	} while (opt_do_run && (!max_ops || *counter < max_ops));
+	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	ret = EXIT_SUCCESS;
 
@@ -184,19 +178,15 @@ reap:
 	}
 
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(name, pid, instance);
+	(void)stress_temp_dir_rm(args->name, pid, args->instance);
 
-	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", name, lease_sigio);
+	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 
 	return ret;
 }
 #else
-int stress_lease(
-	uint64_t *const counter,
-	const uint32_t instance,
-	const uint64_t max_ops,
-	const char *name)
+int stress_lease(args_t *args)
 {
-	return stress_not_implemented(counter, instance, max_ops, name);
+	return stress_not_implemented(args);
 }
 #endif
