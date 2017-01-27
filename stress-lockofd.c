@@ -219,7 +219,7 @@ int stress_lockofd(args_t *args)
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
+	(void)stress_temp_dir_args(args, dirname, sizeof(dirname));
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);

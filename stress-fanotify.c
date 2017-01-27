@@ -124,7 +124,7 @@ int stress_fanotify(args_t *args)
 
 	memset(&acct, 0, sizeof(acct));
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
+	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

@@ -688,7 +688,7 @@ int stress_inotify(args_t *args)
 	char dirname[PATH_MAX];
 	int ret, i;
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
+	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);

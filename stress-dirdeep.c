@@ -59,7 +59,7 @@ int stress_dirdeep(args_t *args)
 	char path[PATH_MAX * 4];
 	char rootpath[PATH_MAX];
 
-	(void)stress_temp_dir(rootpath, sizeof(rootpath), args->name, args->pid, args->instance);
+	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	rootpathlen = strlen(rootpath);
 
 	do {

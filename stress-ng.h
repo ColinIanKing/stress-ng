@@ -1896,6 +1896,7 @@ extern int stress_temp_filename(char *path, const size_t len,
 	const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance);
+extern int stress_temp_dir_args(args_t *args, char *path, const size_t len);
 extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid,
 	const uint32_t instance);
 extern WARN_UNUSED int stress_temp_dir_mk_args(args_t *args);

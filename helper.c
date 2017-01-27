@@ -427,6 +427,19 @@ int stress_temp_dir(
 }
 
 /*
+ *  stress_temp_dir_args()
+ *	create a temporary directory name using info from args
+ */
+int stress_temp_dir_args(
+	args_t *args,
+	char *path,
+	const size_t len)
+{
+	return stress_temp_dir(path, len,
+		args->name, args->pid, args->instance);
+}
+
+/*
  *   stress_temp_dir_mk()
  *	create a temporary directory
  */
