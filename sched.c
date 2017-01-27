@@ -100,7 +100,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 				param.sched_priority = max;
 			else
 				param.sched_priority = (max - min) / 2;
-			pr_inf(stdout, "priority not given, defaulting to %d\n",
+			pr_inf("priority not given, defaulting to %d\n",
 				param.sched_priority);
 		}
 		if ((param.sched_priority < min) ||
@@ -117,7 +117,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 	default:
 		param.sched_priority = 0;
 		if (sched_priority != UNDEFINED)
-			pr_inf(stdout, "ignoring priority level for "
+			pr_inf("ignoring priority level for "
 			"scheduler class '%s'\n", name);
 		pr_dbg(stderr, "setting scheduler class '%s'\n", name);
 		break;

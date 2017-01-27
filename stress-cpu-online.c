@@ -77,14 +77,14 @@ int stress_cpu_online(args_t *args)
 
 	if (geteuid() != 0) {
 		if (args->instance == 0)
-			pr_inf(stdout, "%s: need root privilege to run "
+			pr_inf("%s: need root privilege to run "
 				"this stressor\n", args->name);
 		/* Not strictly a test failure */
 		return EXIT_SUCCESS;
 	}
 
 	if ((cpus < 1) || (cpus > 65536)) {
-		pr_inf(stdout, "%s: too few or too many CPUs (found %" PRId32 ")\n", args->name, cpus);
+		pr_inf("%s: too few or too many CPUs (found %" PRId32 ")\n", args->name, cpus);
 		return EXIT_FAILURE;
 	}
 
@@ -111,7 +111,7 @@ int stress_cpu_online(args_t *args)
 		}
 	}
 	if (cpu_online_count == 0) {
-		pr_inf(stdout, "%s: no CPUs can be set online/offline\n", args->name);
+		pr_inf("%s: no CPUs can be set online/offline\n", args->name);
 		free(cpu_online);
 		return EXIT_FAILURE;
 	}

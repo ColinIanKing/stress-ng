@@ -54,7 +54,7 @@ void stress_adjust_sleep_max(uint64_t max)
 {
 	if (opt_sleep_max > max) {
 		opt_sleep_max = max;
-		pr_inf(stdout, "re-adjusting maximum threads to "
+		pr_inf("re-adjusting maximum threads to "
 			"soft limit f %" PRIu64 "\n",
 			opt_sleep_max);
 	}
@@ -201,7 +201,7 @@ tidy:
 	}
 
 	if (limited) {
-		pr_inf(stdout, "%s: %.2f%% of iterations could not reach "
+		pr_inf("%s: %.2f%% of iterations could not reach "
 			"requested %" PRIu64 " threads (instance %"
 			PRIu32 ")\n",
 			args->name,

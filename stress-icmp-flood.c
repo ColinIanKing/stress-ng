@@ -40,7 +40,7 @@
 int stress_icmp_flood_supported(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stdout, "icmp flood stressor will be skipped, "
+		pr_inf("icmp flood stressor will be skipped, "
 			"need to be running as root for this stressor\n");
 		return -1;
 	}
@@ -155,7 +155,7 @@ err:
 
 int stress_icmp_flood_supported(void)
 {
-	pr_inf(stdout, "icmp flood stressor will be skipped, not supported on this machine\n");
+	pr_inf("icmp flood stressor will be skipped, not supported on this machine\n");
 	return -1;
 }
 

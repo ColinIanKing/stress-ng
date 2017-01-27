@@ -46,7 +46,7 @@ int stress_spawn(args_t *args)
 	 *  spawnutable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf(stdout, "%s: running as root, won't run test.\n", args->name);
+		pr_inf("%s: running as root, won't run test.\n", args->name);
 		return EXIT_FAILURE;
 	}
 

@@ -62,7 +62,7 @@ int stress_klog(args_t *args)
 	}
 	if (len > (ssize_t)(4 * MB)) {
 		if (!args->instance)
-			pr_inf(stdout, "%s: truncating syslog buffer to 4MB\n", args->name);
+			pr_inf("%s: truncating syslog buffer to 4MB\n", args->name);
 		len  = 4 * MB;
 	}
 	buffer = malloc((size_t)len);

@@ -2006,7 +2006,7 @@ static int show_hogs(const uint32_t opt_class)
 			len += buffer_len;
 		}
 	}
-	pr_inf(stdout, "dispatching hogs:%s\n", str ? str : "");
+	pr_inf("dispatching hogs:%s\n", str ? str : "");
 	free(str);
 	fflush(stdout);
 
@@ -2024,9 +2024,9 @@ static void metrics_dump(
 {
 	int32_t i;
 
-	pr_inf(stdout, "%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
 		"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
-	pr_inf(stdout, "%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
+	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
 		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
 	pr_yaml(yaml, "metrics:\n");
 
@@ -2059,7 +2059,7 @@ static void metrics_dump(
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
 
-		pr_inf(stdout, "%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
+		pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
 			munged,			/* stress test name */
 			c_total,		/* op count */
 			r_total,	 	/* average real (wall) clock time */
@@ -2108,15 +2108,15 @@ static void times_dump(
 	s_pc = (total_cpu_time > 0.0) ? 100.0 * s_time / total_cpu_time : 0.0;
 	t_pc = (total_cpu_time > 0.0) ? 100.0 * t_time / total_cpu_time : 0.0;
 
-	pr_inf(stdout, "for a %.2fs run time:\n", duration);
-	pr_inf(stdout, "  %8.2fs available CPU time\n",
+	pr_inf("for a %.2fs run time:\n", duration);
+	pr_inf("  %8.2fs available CPU time\n",
 		total_cpu_time);
-	pr_inf(stdout, "  %8.2fs user time   (%6.2f%%)\n", u_time, u_pc);
-	pr_inf(stdout, "  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
-	pr_inf(stdout, "  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
+	pr_inf("  %8.2fs user time   (%6.2f%%)\n", u_time, u_pc);
+	pr_inf("  %8.2fs system time (%6.2f%%)\n", s_time, s_pc);
+	pr_inf("  %8.2fs total time  (%6.2f%%)\n", t_time, t_pc);
 
 	if (!rc) {
-		pr_inf(stdout, "load average: %.2f %.2f %.2f\n",
+		pr_inf("load average: %.2f %.2f %.2f\n",
 			min1, min5, min15);
 	}
 
@@ -2312,7 +2312,7 @@ static inline void exclude_pathological(void)
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (stressors[i].class & CLASS_PATHOLOGICAL) {
 				if (procs[i].num_procs > 0) {
-					pr_inf(stdout, "disabled '%s' as it "
+					pr_inf("disabled '%s' as it "
 						"may hang the machine "
 						"(enable it with the "
 						"--pathological option)\n",
@@ -2988,7 +2988,7 @@ next_opt:
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = 60;
-			pr_inf(stdout, "defaulting to a %" PRIu64
+			pr_inf("defaulting to a %" PRIu64
 				" second run per stressor\n", opt_timeout);
 		}
 
@@ -3012,7 +3012,7 @@ next_opt:
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = DEFAULT_TIMEOUT;
-			pr_inf(stdout, "defaulting to a %" PRIu64
+			pr_inf("defaulting to a %" PRIu64
 				" second run per stressor\n", opt_timeout);
 		}
 
@@ -3041,7 +3041,7 @@ next_opt:
 		}
 		if (opt_timeout == 0) {
 			opt_timeout = DEFAULT_TIMEOUT;
-			pr_inf(stdout, "defaulting to a %" PRIu64
+			pr_inf("defaulting to a %" PRIu64
 				" second run per stressor\n", opt_timeout);
 		}
 
@@ -3136,7 +3136,7 @@ next_opt:
 	if (opt_flags & OPT_FLAGS_THRASH)
 		thrash_stop();
 
-	pr_inf(stdout, "%s run completed in %.2fs%s\n",
+	pr_inf("%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));
 	if (yamlfile) {

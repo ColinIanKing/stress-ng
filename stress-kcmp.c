@@ -44,7 +44,7 @@ enum {
 								\
 	if (rc < 0) {	 					\
 		if (errno == EPERM) {				\
-			pr_inf(stdout, capfail, args->name);	\
+			pr_inf(capfail, args->name);		\
 			break;					\
 		}						\
 		pr_fail_err("kcmp: " # type);			\
@@ -60,7 +60,7 @@ enum {
 	if (rc != res) {					\
 		if (rc < 0) {					\
 			if (errno == EPERM) {			\
-				pr_inf(stdout, capfail, args->name); \
+				pr_inf(capfail, args->name); 	\
 				break;				\
 			}					\
 			pr_fail_err("kcmp: " # type);		\

@@ -100,7 +100,7 @@ int stress_membarrier(args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (!(ret & MEMBARRIER_CMD_SHARED)) {
-		pr_inf(stdout, "%s: membarrier MEMBARRIER_CMD_SHARED "
+		pr_inf("%s: membarrier MEMBARRIER_CMD_SHARED "
 			"not supported\n", args->name);
 		return EXIT_FAILURE;
 	}

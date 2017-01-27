@@ -43,14 +43,14 @@ int stress_tsc_supported(void)
 	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
 	      (memcmp(&edx, "ineI", 4) == 0) &&
 	      (memcmp(&ecx, "ntel", 4) == 0))) {
-		pr_inf(stdout, "tsc stressor will be skipped, "
+		pr_inf("tsc stressor will be skipped, "
 			"not a recognised Intel CPU.\n");
 		return -1;
 	}
 	/* ..and supports tsc? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(edx & 0x10)) {
-		pr_inf(stdout, "tsc stressor will be skipped, CPU "
+		pr_inf("tsc stressor will be skipped, CPU "
 			"does not support the rdtsc instruction.\n");
 		return -1;
 	}
@@ -135,7 +135,7 @@ int stress_tsc(args_t *args)
  */
 int stress_tsc_supported(void)
 {
-	pr_inf(stdout, "tsc stressor will be skipped, CPU does not "
+	pr_inf("tsc stressor will be skipped, CPU does not "
 		"support the tsc instruction.\n");
 	return -1;
 }

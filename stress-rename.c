@@ -44,7 +44,7 @@ int stress_rename(args_t *args)
 		return EXIT_FAILURE;
 	}
 restart:
-	(void)stress_temp_filename(oldname, sizeof(oldname),
+	(void)stress_temp_filename(oldname, PATH_MAX,
 		args->name, args->pid, inst1, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
@@ -58,7 +58,7 @@ restart:
 	(void)fclose(fp);
 
 	for (;;) {
-		(void)stress_temp_filename(newname, sizeof(newname),
+		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);
@@ -73,7 +73,7 @@ restart:
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		(void)stress_temp_filename(newname, sizeof(newname),
+		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst1, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);

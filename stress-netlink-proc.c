@@ -42,7 +42,7 @@
 int stress_netlink_proc_supported(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stdout, "netlink-proc stressor will be skipped, "
+		pr_inf("netlink-proc stressor will be skipped, "
 			"need to be running as root for this stressor\n");
 		return -1;
 	}
@@ -230,7 +230,7 @@ int stress_netlink_proc(args_t *args)
 int stress_netlink_proc_supported(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stdout, "netlink-proc stressor will be skipped, "
+		pr_inf("netlink-proc stressor will be skipped, "
 			"as it is not supported by this operating system\n");
 		return -1;
 	}

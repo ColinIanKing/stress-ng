@@ -211,7 +211,7 @@ int stress_madvise(args_t *args)
 	(void)stress_temp_dir_rm_args(args);
 
 	if (sigbus_count)
-		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",
+		pr_inf("%s: caught %" PRIu64 " SIGBUS signals\n",
 			args->name, sigbus_count);
 	return EXIT_SUCCESS;
 }

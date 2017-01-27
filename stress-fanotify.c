@@ -49,7 +49,7 @@ typedef struct {
 int stress_fanotify_supported(void)
 {
 	if (geteuid() != 0) {
-		pr_inf(stdout, "fanotify stressor will be skipped, "
+		pr_inf("fanotify stressor will be skipped, "
 			"need to be running as root for this stressor\n");
 		return -1;
 	}
@@ -243,7 +243,7 @@ int stress_fanotify(args_t *args)
 
 		free(buffer);
 		(void)close(fan_fd);
-		pr_inf(stdout, "%s: "
+		pr_inf("%s: "
 			"%" PRIu64 " open, "
 			"%" PRIu64 " close write, "
 			"%" PRIu64 " close nowrite, "

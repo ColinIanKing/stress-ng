@@ -81,7 +81,7 @@ int stress_cache(args_t *args)
 			pinned = true;
 
 	if (pinned) {
-		pr_inf(stdout, "%s: can't get sched affinity, pinning to "
+		pr_inf("%s: can't get sched affinity, pinning to "
 			"CPU %d (instance %" PRIu32 ")\n",
 			args->name, sched_getcpu(), pinned);
 	}

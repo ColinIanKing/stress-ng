@@ -51,12 +51,12 @@ int stress_apparmor_supported(void)
 
 	/* Initial sanity checks for AppArmor */
 	if (!aa_is_enabled()) {
-		pr_inf(stdout, "apparmor stressor will be skipped, "
+		pr_inf("apparmor stressor will be skipped, "
 			"AppArmor is not enabled\n");
 		return -1;
 	}
 	if (aa_find_mountpoint(&apparmor_path) < 0) {
-		pr_inf(stdout, "apparmor stressor will be skipped, "
+		pr_inf("apparmor stressor will be skipped, "
 			"cannot get AppArmor path, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
@@ -66,16 +66,16 @@ int stress_apparmor_supported(void)
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		switch (errno) {
 		case EACCES:
-			pr_inf(stdout, "apparmor stressor will be skipped, "
+			pr_inf("apparmor stressor will be skipped, "
 				"stress-ng needs to be run with root "
 				"privilege to access AppArmor /sys files.\n");
 			break;
 		case ENOENT:
-			pr_inf(stdout, "apparmor stressor will be skipped, "
+			pr_inf("apparmor stressor will be skipped, "
 				"AppArmor /sys files do not exist\n");
 			break;
 		default:
-			pr_inf(stdout, "apparmor stressor will be skipped, "
+			pr_inf("apparmor stressor will be skipped, "
 				"cannot access AppArmor /sys files: "
 				"errno=%d (%s)\n", errno, strerror(errno));
 			break;
@@ -656,7 +656,7 @@ int stress_apparmor(args_t *args)
 #else
 int stress_apparmor_supported(void)
 {
-	pr_inf(stdout, "apparmor stressor will be skipped, "
+	pr_inf("apparmor stressor will be skipped, "
 		"AppArmor is not available\n");
 	return -1;
 }

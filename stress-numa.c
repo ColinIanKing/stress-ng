@@ -205,20 +205,20 @@ int stress_numa(args_t *args)
 
 	numa_nodes = stress_numa_get_mem_nodes(&n);
 	if (numa_nodes < 1) {
-		pr_inf(stdout, "%s: no NUMA nodes not found, "
+		pr_inf("%s: no NUMA nodes not found, "
 			"aborting test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	max_nodes = stress_numa_get_max_nodes();
 	if (max_nodes == 0) {
-		pr_inf(stderr, "%s: cannot determine maximum number "
+		pr_inf("%s: cannot determine maximum number "
 			"of NUMA nodes, aborting test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	if (!args->instance) {
-		pr_inf(stdout, "%s: system has %lu of a maximum %lu memory NUMA nodes\n",
+		pr_inf("%s: system has %lu of a maximum %lu memory NUMA nodes\n",
 			args->name, numa_nodes, max_nodes);
 	}
 

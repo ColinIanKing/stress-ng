@@ -263,7 +263,7 @@ int stress_sysfs(args_t *args)
 
 	if (geteuid() == 0) {
 		if (args->instance == 0) {
-			pr_inf(stdout, "%s: running as root, just traversing /sys "
+			pr_inf("%s: running as root, just traversing /sys "
 				"and not read/writing to /sys files.\n", args->name);
 		}
 		sys_rw = false;

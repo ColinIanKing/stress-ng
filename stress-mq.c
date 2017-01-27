@@ -112,7 +112,7 @@ int stress_mq(args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (sz < opt_mq_size) {
-		pr_inf(stdout, "%s: POSIX message queue requested "
+		pr_inf("%s: POSIX message queue requested "
 			"size %d messages, maximum of %d allowed\n",
 			args->name, opt_mq_size, sz);
 	}

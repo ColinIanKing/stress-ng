@@ -180,11 +180,11 @@ void tz_dump(
 
 				if (!dumped_heading) {
 					dumped_heading = true;
-					pr_inf(stdout, "%s:\n", munged);
+					pr_inf("%s:\n", munged);
 					pr_yaml(yaml, "    - stressor: %s\n",
 					munged);
 				}
-				pr_inf(stdout, "%20s %7.2f °C\n",
+				pr_inf("%20s %7.2f °C\n",
 					tz_info->type, temp);
 				pr_yaml(yaml, "      %s: %7.2f\n",
 					tz_info->type, temp);
@@ -196,7 +196,7 @@ void tz_dump(
 	}
 
 	if (no_tz_stats)
-		pr_inf(stdout, "thermal zone temperatures not available\n");
+		pr_inf("thermal zone temperatures not available\n");
 }
 
 #endif

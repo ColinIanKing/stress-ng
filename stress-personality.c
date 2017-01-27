@@ -43,7 +43,7 @@ int stress_personality(args_t *args)
 	bool failed[n];
 
 	if (n == 0) {
-		pr_inf(stdout, "%s: no personalities to stress test\n", args->name);
+		pr_inf("%s: no personalities to stress test\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 	memset(failed, 0, sizeof(failed));

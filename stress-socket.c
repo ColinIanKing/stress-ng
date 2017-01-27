@@ -314,7 +314,7 @@ static int stress_sctp_server(
 #if defined(SOCKET_NODELAY)
 			if (opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-					pr_inf(stdout, "%s: setsockopt TCP_NODELAY "
+					pr_inf("%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;

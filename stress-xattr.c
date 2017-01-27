@@ -64,7 +64,7 @@ int stress_xattr(args_t *args)
 			ret = fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if (errno == ENOTSUP) {
-					pr_inf(stdout, "%s stressor will be "
+					pr_inf("%s stressor will be "
 						"skipped, filesystem does not "
 						"support xattr.\n", args->name);
 				}

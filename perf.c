@@ -630,7 +630,7 @@ void perf_stat_dump(
 			continue;
 
 		munged = munge_underscore(stressors[i].name);
-		pr_inf(stdout, "%s:\n", munged);
+		pr_inf("%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
@@ -661,7 +661,7 @@ void perf_stat_dump(
 						" (%5.2f%%)",
 						100.0 * (double)ct / (double)total_branches);
 
-				pr_inf(stdout, "%'26" PRIu64 " %-23s %s%s\n",
+				pr_inf("%'26" PRIu64 " %-23s %s%s\n",
 					ct, l, perf_stat_scale(ct, duration),
 					extra);
 
@@ -688,13 +688,13 @@ void perf_stat_dump(
 					paranoid = true;
 			}
 			if (paranoid & (level > 1)) {
-				pr_inf(stdout, "Cannot read perf counters, "
+				pr_inf("Cannot read perf counters, "
 					"do not have CAP_SYS_ADMIN capability "
 					"or %s is set too high (%d)\n",
 					path, level);
 			}
 		} else {
-			pr_inf(stdout, "perf counters are not available "
+			pr_inf("perf counters are not available "
 				"on this device\n");
 		}
 	}

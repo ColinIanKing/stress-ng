@@ -60,7 +60,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 
 	if (page_size != SIZE) {
-		pr_inf(stdout, "%s: page size %zu is not %u, cannot test\n",
+		pr_inf("%s: page size %zu is not %u, cannot test\n",
 			args->name, page_size, SIZE);
 		return EXIT_NO_RESOURCE;
 	}
@@ -71,7 +71,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 		 * so don't treat that as non-fatal as this is just advistory
 		 */
 		if (errno != EINVAL) {
-			pr_inf(stdout, "%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
+			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
 				args->name, addr, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
@@ -91,7 +91,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 			 *  the stressor, just an arch resource protection issue.
 			 */
 			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
-				pr_inf(stdout, "%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
+				pr_inf("%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
 					args->name, vaddr, errno, strerror(errno));
 				return EXIT_NO_RESOURCE;
 			}

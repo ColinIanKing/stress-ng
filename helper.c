@@ -531,7 +531,7 @@ void stress_cwd_readwriteable(void)
 		return;
 	}
 	if (access(path, R_OK | W_OK)) {
-		pr_inf(stdout, "Working directory %s is not read/writeable, "
+		pr_inf("Working directory %s is not read/writeable, "
 			"some I/O tests may fail\n", path);
 		return;
 	}
@@ -652,7 +652,7 @@ int stress_cache_alloc(const char *name)
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
-			pr_inf(stdout, "%s: using built-in defaults as unable to "
+			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache details\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
@@ -671,7 +671,7 @@ int stress_cache_alloc(const char *name)
 	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
 	if (!cache) {
 		if (warn_once(WARN_ONCE_CACHE_NONE))
-			pr_inf(stdout, "%s: using built-in defaults as no suitable "
+			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
@@ -682,7 +682,7 @@ int stress_cache_alloc(const char *name)
 
 		if (shared->mem_cache_ways > cache->ways) {
 			if (warn_once(WARN_ONCE_CACHE_WAY))
-				pr_inf(stdout, "%s: cache way value too high - "
+				pr_inf("%s: cache way value too high - "
 					"defaulting to %d (the maximum)\n",
 					name, cache->ways);
 			shared->mem_cache_ways = cache->ways;
@@ -699,7 +699,7 @@ int stress_cache_alloc(const char *name)
 
 	if (!shared->mem_cache_size) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
-			pr_inf(stdout, "%s: using built-in defaults as "
+			pr_inf("%s: using built-in defaults as "
 				"unable to determine cache size\n", name);
 		shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
@@ -713,7 +713,7 @@ init_done:
 		return -1;
 	}
 	if (warn_once(WARN_ONCE_CACHE_SIZE))
-		pr_inf(stdout, "%s: default cache size: %" PRIu64 "K\n",
+		pr_inf("%s: default cache size: %" PRIu64 "K\n",
 			name, shared->mem_cache_size / 1024);
 
 	return 0;
@@ -908,12 +908,12 @@ int stress_not_implemented(args_t *args)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
-		pr_inf(stdout, "%s: this stressor is not implemented on this system: %s %s %s\n",
+		pr_inf("%s: this stressor is not implemented on this system: %s %s %s\n",
 			args->name, buf.machine, buf.sysname, buf.release);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 #endif
-	pr_inf(stdout, "%s: this stressor is not implemented on this system\n",
+	pr_inf("%s: this stressor is not implemented on this system\n",
 		args->name);
 	return EXIT_NOT_IMPLEMENTED;
 }

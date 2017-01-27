@@ -103,7 +103,7 @@ static int stress_filename_probe(
 					"for allowed filename characters, "
 					"errno = %d (%s)\n",
 					args->name, errno, strerror(errno));
-				pr_inf(stdout, "%s: perhaps retry and use "
+				pr_inf("%s: perhaps retry and use "
 					"--filename-opts posix\n", args->name);
 				*chars_allowed = 0;
 				return -errno;
