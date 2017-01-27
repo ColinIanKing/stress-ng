@@ -50,8 +50,8 @@ static void stress_mknod_tidy(
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		(void)stress_temp_filename(path, sizeof(path),
-			args->name, args->pid, args->instance, gray_code);
+		(void)stress_temp_filename_args(args,
+			path, sizeof(path), gray_code);
 		(void)unlink(path);
 	}
 }
@@ -82,8 +82,8 @@ int stress_mknod(args_t *args)
 			uint64_t gray_code = (i >> 1) ^ i;
 			int mode = modes[mwc32() % num_nodes];
 
-			(void)stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			(void)stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if ((errno == ENOSPC) || (errno == ENOMEM))
 					continue;	/* Try again */

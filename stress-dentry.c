@@ -105,8 +105,8 @@ static void stress_dentry_unlink(
 			j = (n - 1) - i;
 			gray_code = (j >> 1) ^ j;
 
-			stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -117,8 +117,8 @@ static void stress_dentry_unlink(
 			uint64_t k = j % n;
 			uint64_t gray_code = (k >> 1) ^ k;
 
-			stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -128,8 +128,8 @@ static void stress_dentry_unlink(
 			char path[PATH_MAX];
 			uint64_t gray_code = (i >> 1) ^ i;
 
-			stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -164,8 +164,8 @@ int stress_dentry(args_t *args)
 			uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
-			stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {

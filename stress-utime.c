@@ -38,8 +38,8 @@ int stress_utime(args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",

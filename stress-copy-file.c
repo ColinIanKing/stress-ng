@@ -58,8 +58,8 @@ int stress_copy_file(args_t *args)
 
 	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		goto tidy_dir;
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+			filename, sizeof(filename), mwc32());
 	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);

@@ -1894,6 +1894,8 @@ static inline void double_put(const double a)
 extern int stress_temp_filename(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance,
 	const uint64_t magic);
+extern int stress_temp_filename_args(args_t *args, char *path,
+	const size_t len, const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance);
 extern int stress_temp_dir_args(args_t *args, char *path, const size_t len);

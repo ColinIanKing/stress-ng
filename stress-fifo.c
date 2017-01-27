@@ -149,8 +149,8 @@ int stress_fifo(args_t *args)
 	if (rc < 0)
 		return exit_status(-rc);
 
-	(void)stress_temp_filename(fifoname, sizeof(fifoname),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		fifoname, sizeof(fifoname), mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {

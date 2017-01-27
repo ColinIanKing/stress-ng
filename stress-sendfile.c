@@ -65,8 +65,8 @@ int stress_sendfile(args_t *args)
 
 	(void)umask(0077);
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);

@@ -38,8 +38,8 @@ static void stress_dir_tidy(
 		char path[PATH_MAX];
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		(void)stress_temp_filename(path, sizeof(path),
-			args->name, args->pid, args->instance, gray_code);
+		(void)stress_temp_filename_args(args,
+			path, sizeof(path), gray_code);
 		(void)rmdir(path);
 	}
 }
@@ -63,8 +63,8 @@ int stress_dir(args_t *args)
 			char path[PATH_MAX];
 			uint64_t gray_code = (i >> 1) ^ i;
 
-			(void)stress_temp_filename(path, sizeof(path),
-				args->name, args->pid, args->instance, gray_code);
+			(void)stress_temp_filename_args(args,
+				path, sizeof(path), gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
 					pr_fail_err(args->name, "mkdir");

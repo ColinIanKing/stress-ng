@@ -50,8 +50,8 @@ int stress_chdir(args_t *args)
 	for (i = 0; i < DEFAULT_DIRS; i++) {
 		uint64_t gray_code = (i >> 1) ^ i;
 
-		(void)stress_temp_filename(path, sizeof(path),
-			args->name, args->pid, args->instance, gray_code);
+		(void)stress_temp_filename_args(args,
+			path, sizeof(path), gray_code);
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;

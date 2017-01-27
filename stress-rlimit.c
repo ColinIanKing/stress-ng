@@ -59,8 +59,8 @@ int stress_rlimit(args_t *args)
 		return EXIT_FAILURE;
 
 	(void)umask(0077);
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {

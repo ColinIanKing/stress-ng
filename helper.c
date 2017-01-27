@@ -412,6 +412,21 @@ int stress_temp_filename(
 }
 
 /*
+ *  stress_temp_filename_args()
+ *      construct a temp filename using info from args
+ */
+int stress_temp_filename_args(
+	args_t *args,
+	char *path,
+	const size_t len,
+	const uint64_t magic)
+{
+	return stress_temp_filename(path, len, args->name,
+		args->pid, args->instance, magic);
+}
+
+
+/*
  *  stress_temp_dir()
  *	create a temporary directory name
  */

@@ -405,8 +405,8 @@ int stress_hdd(args_t *args)
 
 	stress_strnrnd((char *)buf, opt_hdd_write_size);
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 	do {
 		int fd;
 		struct stat statbuf;

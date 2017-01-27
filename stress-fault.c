@@ -54,8 +54,8 @@ int stress_fault(args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 	(void)umask(0077);
 
 	i = 0;

@@ -120,8 +120,8 @@ int stress_lease(args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
-	(void)stress_temp_filename(filename, PATH_MAX,
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

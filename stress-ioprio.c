@@ -45,8 +45,8 @@ int stress_ioprio(args_t *args)
 	if (stress_temp_dir_mk_args(args) < 0)
 		return rc;
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, args->pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);

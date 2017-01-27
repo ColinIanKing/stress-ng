@@ -37,8 +37,8 @@ static void stress_link_unlink(
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 
-		(void)stress_temp_filename(path, sizeof(path),
-			args->name, args->pid, args->instance, i);
+		(void)stress_temp_filename_args(args,
+			path, sizeof(path), i);
 		(void)unlink(path);
 	}
 	sync();
@@ -61,8 +61,7 @@ static int stress_link_generic(
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
-	(void)stress_temp_filename(oldpath, sizeof(oldpath),
-		args->name, args->pid, args->instance, ~0);
+	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
@@ -81,8 +80,8 @@ static int stress_link_generic(
 			char newpath[PATH_MAX];
 			struct stat stbuf;
 
-			(void)stress_temp_filename(newpath, sizeof(newpath),
-				args->name, args->pid, args->instance, i);
+			(void)stress_temp_filename_args(args,
+				newpath, sizeof(newpath), i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				rc = exit_status(errno);
 				pr_fail_err(args->name, funcname);

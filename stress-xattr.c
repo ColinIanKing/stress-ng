@@ -34,7 +34,6 @@
  */
 int stress_xattr(args_t *args)
 {
-	pid_t pid = getpid();
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
@@ -42,8 +41,7 @@ int stress_xattr(args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+	(void)stress_temp_filename_args(args, filename, sizeof(filename), mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
