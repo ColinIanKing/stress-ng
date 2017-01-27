@@ -128,7 +128,7 @@ again:
 				}
 				if ((opt_flags & OPT_FLAGS_VERIFY) &&
 				    socket_pair_memchk(buf, (size_t)n)) {
-					pr_fail(stderr, "%s: socket_pair read error detected, "
+					pr_fail("%s: socket_pair read error detected, "
 						"failed to read expected data\n", args->name);
 				}
 			}

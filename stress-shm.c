@@ -178,7 +178,7 @@ static int stress_shm_posix_child(
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
-				pr_fail(stderr, "%s: memory check failed\n", args->name);
+				pr_fail("%s: memory check failed\n", args->name);
 				rc = EXIT_FAILURE;
 				goto reap;
 			}

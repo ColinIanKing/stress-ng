@@ -165,7 +165,7 @@ again:
 						if (!opt_do_run)
 							goto abort;
 						if (*tmp != (uint8_t)i)
-							pr_fail(stderr, "%s: byte at location %p was 0x%" PRIx8
+							pr_fail("%s: byte at location %p was 0x%" PRIx8
 								" instead of 0x%" PRIx8 "\n",
 								args->name, u8ptr, *tmp, (uint8_t)i);
 					}

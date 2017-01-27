@@ -197,7 +197,7 @@ int stress_get(args_t *args)
 
 			ret = getrlimit(rlimits[i], &rlim);
 			if (verify && (ret < 0))
-				pr_fail(stderr, "%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
+				pr_fail("%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
 			check_do_run();
 		}
@@ -208,16 +208,16 @@ int stress_get(args_t *args)
 
 			ret = prlimit(mypid, rlimits[i], NULL, &rlim[0]);
 			if (verify && (ret < 0))
-				pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+				pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 					args->name, mypid, i, errno, strerror(errno));
 			if (!ret) {
 				prlimit(mypid, rlimits[i], &rlim[0], NULL);
 				if (verify && (ret < 0))
-					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
 				prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
 				if (verify && (ret < 0))
-					pr_fail(stderr, "%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
+					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
 			}
 			check_do_run();
@@ -229,7 +229,7 @@ int stress_get(args_t *args)
 
 			ret = getrusage(rusages[i], &usage);
 			if (verify && (ret < 0))
-				pr_fail(stderr, "%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
+				pr_fail("%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
 			check_do_run();
 		}
@@ -283,12 +283,12 @@ int stress_get(args_t *args)
 			if (!ret) {
 				ret = shim_sysfs(1, buf);
 				if (verify && (ret != fs_index)) {
-					pr_fail(stderr, "%s: sysfs(1, %s) failed, errno=%d (%s)\n",
+					pr_fail("%s: sysfs(1, %s) failed, errno=%d (%s)\n",
 						args->name, buf, errno, strerror(errno));
 				}
 			} else {
 				if (verify) {
-					pr_fail(stderr, "%s: sysfs(2, %d, buf) failed, errno=%d (%s)\n",
+					pr_fail("%s: sysfs(2, %d, buf) failed, errno=%d (%s)\n",
 						args->name, fs_index, errno, strerror(errno));
 				}
 			}

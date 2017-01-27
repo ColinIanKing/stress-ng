@@ -99,7 +99,7 @@ int stress_xattr(args_t *args)
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
-				pr_fail(stderr, "%s: fgetxattr values "
+				pr_fail("%s: fgetxattr values "
 					"different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;

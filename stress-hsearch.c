@@ -100,10 +100,10 @@ int stress_hsearch(args_t *args)
 			ep = hsearch(e, FIND);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ep == NULL) {
-					pr_fail(stderr, "%s: cannot find key %s\n", args->name, keys[i]);
+					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
 				} else {
 					if (i != (size_t)ep->data) {
-						pr_fail(stderr, "%s: hash returned incorrect data %zd\n", args->name, i);
+						pr_fail("%s: hash returned incorrect data %zd\n", args->name, i);
 					}
 				}
 			}

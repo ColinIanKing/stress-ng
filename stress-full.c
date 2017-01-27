@@ -61,7 +61,7 @@ int stress_full(args_t *args)
 		memset(buffer, 0, sizeof(buffer));
 		ret = write(fd, buffer, sizeof(buffer));
 		if (ret != -1) {
-			pr_fail(stderr, "%s: write to /dev/null should fail "
+			pr_fail("%s: write to /dev/null should fail "
 				"with errno ENOSPC but it didn't\n",
 				args->name);
 			(void)close(fd);
@@ -87,7 +87,7 @@ try_read:
 		}
 		for (i = 0; i < ret; i++) {
 			if (buffer[i] != 0) {
-				pr_fail(stderr, "%s: buffer does not "
+				pr_fail("%s: buffer does not "
 					"contain all zeros\n",
 					args->name);
 				(void)close(fd);
@@ -102,7 +102,7 @@ try_read:
 		offset = (off_t)mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: lseek(fd, %jd, %s)\n",
+			pr_fail("%s: lseek(fd, %jd, %s)\n",
 				args->name, (intmax_t)offset, whences[w].name);
 			(void)close(fd);
 			return EXIT_FAILURE;

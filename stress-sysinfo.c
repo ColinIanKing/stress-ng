@@ -89,7 +89,7 @@ int stress_sysinfo(args_t *args)
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
-					pr_fail(stderr, "%s: statfs on %s "
+					pr_fail("%s: statfs on %s "
 						"failed: errno=%d (%s)\n",
 						args->name, mnts[i], errno,
 						strerror(errno));
@@ -108,7 +108,7 @@ int stress_sysinfo(args_t *args)
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
-					pr_fail(stderr, "%s: fstatfs on %s "
+					pr_fail("%s: fstatfs on %s "
 						"failed: errno=%d (%s)\n",
 						args->name, mnts[i], errno,
 						strerror(errno));
@@ -130,7 +130,7 @@ int stress_sysinfo(args_t *args)
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
-					pr_fail(stderr, "%s: statvfs on %s "
+					pr_fail("%s: statvfs on %s "
 						"failed: errno=%d (%s)\n",
 						args->name, mnts[i], errno,
 						strerror(errno));

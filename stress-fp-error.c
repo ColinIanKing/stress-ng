@@ -62,7 +62,7 @@ static void stress_fp_check(
 	    (errno == errno_wanted))
 		return;
 
-	pr_fail(stderr, "%s: %s return was %f (expected %f), "
+	pr_fail("%s: %s return was %f (expected %f), "
 		"errno=%d (expected %d), "
 		"excepts=%d (expected %d)\n",
 		args->name, expr,
@@ -134,7 +134,7 @@ int stress_fp_error(args_t *args)
 			ERANGE, FE_OVERFLOW);
 
 		if (fegetround() == -1)
-			pr_fail(stderr, "%s: fegetround() returned -1\n", args->name);
+			pr_fail("%s: fegetround() returned -1\n", args->name);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 

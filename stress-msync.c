@@ -163,7 +163,7 @@ int stress_msync(args_t *args)
 		memset(buf + offset, val, page_size);
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: msync MS_SYNC on "
+			pr_fail("%s: msync MS_SYNC on "
 				"offset %jd failed, errno=%d (%s)",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
@@ -184,7 +184,7 @@ int stress_msync(args_t *args)
 			goto do_invalidate;
 		}
 		if (stress_page_check(data, val, sizeof(data)) < 0) {
-			pr_fail(stderr, "%s: msync'd data in file different "
+			pr_fail("%s: msync'd data in file different "
 				"to data in memory\n", args->name);
 		}
 
@@ -212,14 +212,14 @@ do_invalidate:
 		}
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: msync MS_INVALIDATE on "
+			pr_fail("%s: msync MS_INVALIDATE on "
 				"offset %jd failed, errno=%d (%s)",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_next;
 		}
 		if (stress_page_check(buf + offset, val, sizeof(data)) < 0) {
-			pr_fail(stderr, "%s: msync'd data in memory "
+			pr_fail("%s: msync'd data in memory "
 				"different to data in file\n", args->name);
 		}
 do_next:

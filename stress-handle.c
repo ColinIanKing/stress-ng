@@ -101,7 +101,7 @@ int stress_handle(args_t *args)
 	int mounts;
 
 	if ((mounts = get_mount_info(args)) < 0) {
-		pr_fail(stderr, "%s: failed to parse /proc/self/mountinfo\n", args->name);
+		pr_fail("%s: failed to parse /proc/self/mountinfo\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -139,12 +139,12 @@ int stress_handle(args_t *args)
 			}
 		}
 		if (mount_fd == -2) {
-			pr_fail(stderr, "%s: cannot find mount id %d\n", args->name, mount_id);
+			pr_fail("%s: cannot find mount id %d\n", args->name, mount_id);
 			free(fhp);
 			break;
 		}
 		if (mount_fd < 0) {
-			pr_fail(stderr, "%s: failed to open mount path '%s': errno=%d (%s)\n",
+			pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
 				args->name, mount_info[i].mount_path, errno, strerror(errno));
 			free(fhp);
 			break;
@@ -152,7 +152,7 @@ int stress_handle(args_t *args)
 		if ((fd = open_by_handle_at(mount_fd, fhp, O_RDONLY)) < 0) {
 			/* We don't abort if EPERM occurs, that's not a test failure */
 			if (errno != EPERM) {
-				pr_fail(stderr, "%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
+				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)close(mount_fd);
 				free(fhp);

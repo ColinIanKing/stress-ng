@@ -75,7 +75,7 @@ static inline int stress_getdents_rand(
 		j++;
 		j = j % n;
 	}
-	pr_fail(stderr, "%s: getdents: errno=%d (%s)\n",
+	pr_fail("%s: getdents: errno=%d (%s)\n",
 		args->name, -ret, strerror(-ret));
 
 	return ret;

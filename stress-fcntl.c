@@ -31,7 +31,7 @@
 static void check_return(args_t *args, const int ret, const char *cmd)
 {
 	if (ret < 0) {
-		pr_fail(stderr, "%s: name: fcntl %s failed: "
+		pr_fail("%s: name: fcntl %s failed: "
 			"errno=%d (%s)\n",
 			args->name, cmd, errno, strerror(errno));
 	}

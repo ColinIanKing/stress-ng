@@ -78,7 +78,7 @@ retry:
 			goto retry;
 		}
 		/* Nope, give up */
-		pr_fail(stderr, "%s: inotify_init failed: errno=%d (%s) after %" PRIu32 " calls\n",
+		pr_fail("%s: inotify_init failed: errno=%d (%s) after %" PRIu32 " calls\n",
 			args->name, errno, strerror(errno), n);
 		return;
 	}
@@ -114,7 +114,7 @@ retry:
 			break;
 		} else if (err == 0) {
 			if (opt_flags & OPT_FLAGS_VERIFY)
-				pr_fail(stderr, "%s: timed waiting for event flags 0x%x\n", args->name, flags);
+				pr_fail("%s: timed waiting for event flags 0x%x\n", args->name, flags);
 			break;
 		}
 
@@ -126,12 +126,12 @@ redo:
 		 */
 		if (ioctl(fd, FIONREAD, &nbytes) < 0) {
 			if (opt_flags & OPT_FLAGS_VERIFY) {
-				pr_fail(stderr, "%s: data is ready, but ioctl FIONREAD failed\n", args->name);
+				pr_fail("%s: data is ready, but ioctl FIONREAD failed\n", args->name);
 				break;
 			}
 		}
 		if (nbytes <= 0) {
-			pr_fail(stderr, "%s: data is ready, but ioctl FIONREAD "
+			pr_fail("%s: data is ready, but ioctl FIONREAD "
 				"reported %d bytes available\n", args->name, nbytes);
 			break;
 		}

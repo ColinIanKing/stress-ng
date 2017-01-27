@@ -126,7 +126,7 @@ re_read:
 		}
 		if ((rwret != sizeof(tmp)) &&
 		    (opt_flags & OPT_FLAGS_VERIFY)) {
-			pr_fail(stderr, "%s: incorrect read size, expecting 512 bytes", args->name);
+			pr_fail("%s: incorrect read size, expecting 512 bytes", args->name);
 		}
 #if defined(SEEK_END)
 		if (lseek(fd, 0, SEEK_END) < 0) {

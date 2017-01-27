@@ -571,7 +571,7 @@ seq_rd_retry:
 					" incomplete sequential reads\n",
 					args->name, misreads);
 			if (baddata)
-				pr_fail(stderr, "%s: incorrect data found %"
+				pr_fail("%s: incorrect data found %"
 					PRIu64 " times\n", args->name, baddata);
 		}
 		/* Random Read */

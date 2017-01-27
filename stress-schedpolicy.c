@@ -121,7 +121,7 @@ int stress_schedpolicy(args_t *args)
 		}
 		if (ret < 0) {
 			if (errno != EPERM) {
-				pr_fail(stderr, "%s: sched_setscheduler "
+				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
 					args->name, errno, strerror(errno),
@@ -132,7 +132,7 @@ int stress_schedpolicy(args_t *args)
 			if (ret < 0) {
 				pr_fail_err("sched_getscheduler");
 			} else if (ret != policies[policy]) {
-				pr_fail(stderr, "%s: sched_getscheduler "
+				pr_fail("%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
 					"but function returned %d instead\n",
 					args->name, (int)pid, new_policy,

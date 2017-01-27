@@ -54,7 +54,7 @@ static int stress_crypt_id(
 	crypted = crypt(passwd, salt);
 #endif
 	if (!crypted) {
-		pr_fail(stderr, "%s: cannot encrypt with %s", args->name, method);
+		pr_fail("%s: cannot encrypt with %s", args->name, method);
 		return -1;
 	}
 	return 0;

@@ -78,7 +78,7 @@ int stress_ptrace(args_t *args)
 		 * as this makes life way too complex
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
-			pr_fail(stderr, "%s: ptrace child being traced "
+			pr_fail("%s: ptrace child being traced "
 				"already, aborting\n", args->name);
 			_exit(0);
 		}

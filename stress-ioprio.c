@@ -61,31 +61,31 @@ int stress_ioprio(args_t *args)
 		char buffer[MAX_IOV][BUF_SIZE];
 
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, args->pid) < 0) {
-			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
+			pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
 				"errno = %d (%s)\n",
 				args->name, args->pid, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
-			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
+			pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
 				"errno = %d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
-			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
+			pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
 				"errno = %d (%s)\n",
 				args->name, pgrp, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
-			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PGRP, 0), "
+			pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, 0), "
 				"errno = %d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_USER, uid) < 0) {
-			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_USR, %d), "
+			pr_fail("%s: ioprio_get(OPRIO_WHO_USR, %d), "
 				"errno = %d (%s)\n",
 				args->name, uid, errno, strerror(errno));
 			goto cleanup_file;
@@ -106,7 +106,7 @@ int stress_ioprio(args_t *args)
 		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
 			if (errno != EPERM) {
-				pr_fail(stderr, "%s: ioprio_set("
+				pr_fail("%s: ioprio_set("
 					"IOPRIO_WHO_PROCESS, %d, "
 					"(IOPRIO_CLASS_IDLE, 0)), "
 					"errno = %d (%s)\n",
@@ -125,7 +125,7 @@ int stress_ioprio(args_t *args)
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, i)) < 0) {
 				if (errno != EPERM) {
-					pr_fail(stderr, "%s: ioprio_set("
+					pr_fail("%s: ioprio_set("
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_BE, %d)), "
 						"errno = %d (%s)\n",
@@ -143,7 +143,7 @@ int stress_ioprio(args_t *args)
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_RT, i)) < 0) {
 				if (errno != EPERM) {
-					pr_fail(stderr, "%s: ioprio_set("
+					pr_fail("%s: ioprio_set("
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_RT, %d)), "
 						"errno = %d (%s)\n",

@@ -196,7 +196,7 @@ static void stress_filename_test(
 		if ((!should_pass) && (errno == ENAMETOOLONG))
 			return;
 
-		pr_fail(stderr, "%s: open failed on file of length "
+		pr_fail("%s: open failed on file of length "
 			"%zu bytes, errno=%d (%s)\n",
 			args->name, sz_max, errno, strerror(errno));
 	} else {
@@ -243,7 +243,7 @@ int stress_filename (args_t *args)
 	sz_max = (size_t)buf.f_namemax;
 
 	if (sz_left >= PATH_MAX) {
-		pr_fail(stderr, "%s: max file name larger than PATH_MAX\n", args->name);
+		pr_fail("%s: max file name larger than PATH_MAX\n", args->name);
 		goto tidy_dir;
 	}
 
@@ -271,7 +271,7 @@ int stress_filename (args_t *args)
 			args->name, chars_allowed);
 
 	if (chars_allowed == 0) {
-		pr_fail(stderr, "%s: cannot determine allowed characters "
+		pr_fail("%s: cannot determine allowed characters "
 			"in a filename\n", args->name);
 		goto tidy_dir;
 	}

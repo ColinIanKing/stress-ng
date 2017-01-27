@@ -166,7 +166,7 @@ static int stress_mremap_child(
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			mmap_set(buf, new_sz, page_size);
 			if (mmap_check(buf, sz, page_size) < 0) {
-				pr_fail(stderr, "%s: mmap'd region of %zu "
+				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					args->name, sz);
 				munmap(buf, new_sz);
@@ -184,7 +184,7 @@ static int stress_mremap_child(
 			(void)madvise_random(buf, new_sz);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (mmap_check(buf, new_sz, page_size) < 0) {
-					pr_fail(stderr, "%s: mremap'd region "
+					pr_fail("%s: mremap'd region "
 						"of %zu bytes does "
 						"not contain expected data\n",
 						args->name, sz);

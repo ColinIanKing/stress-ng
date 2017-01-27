@@ -229,7 +229,7 @@ int stress_numa(args_t *args)
 		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (buf == MAP_FAILED) {
 		rc = exit_status(errno);
-		pr_fail(stderr, "%s: mmap'd region of %zu bytes failed",
+		pr_fail("%s: mmap'd region of %zu bytes failed",
 			args->name, (size_t)MMAP_SZ);
 		goto numa_free;
 	}

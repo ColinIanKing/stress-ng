@@ -39,7 +39,7 @@ static void check_unshare(args_t *args, int flags, const char *flags_name)
 	int rc;
 	rc = shim_unshare(flags);
 	if ((rc < 0) && (errno != EPERM) && (errno != EINVAL)) {
-		pr_fail(stderr, "%s: unshare(%s) failed, "
+		pr_fail("%s: unshare(%s) failed, "
 			"errno=%d (%s)\n", args->name, flags_name,
 			errno, strerror(errno));
 	}

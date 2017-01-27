@@ -170,7 +170,7 @@ int stress_netlink_proc(args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail(stderr, "%s: socket failed: errno=%d (%s)\n",
+		pr_fail("%s: socket failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

@@ -285,7 +285,7 @@ static int apparmor_stress_kernel_interface(
 	do {
 		int ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
+			pr_fail("%s: aa_kernel_interface_new() failed, "
 				"errno=%d (%s)\n", name,
 				errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -300,7 +300,7 @@ static int apparmor_stress_kernel_interface(
 			apparmor_data, apparmor_data_len);
 		if (ret < 0) {
 			if (errno != EEXIST) {
-				pr_fail(stderr, "%s: aa_kernel_interface_load_policy() failed, "
+				pr_fail("%s: aa_kernel_interface_load_policy() failed, "
 					"errno=%d (%s)\n", name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
@@ -316,7 +316,7 @@ static int apparmor_stress_kernel_interface(
 		if (ret < 0) {
 			aa_kernel_interface_unref(kern_if);
 
-			pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
+			pr_fail("%s: aa_kernel_interface_replace_policy() failed, "
 				"errno=%d (%s)\n", name, errno,
 				strerror(errno));
 			rc = EXIT_FAILURE;
@@ -330,7 +330,7 @@ static int apparmor_stress_kernel_interface(
 			"/usr/bin/pulseaudio-eg");
 		if (ret < 0) {
 			if (errno != ENOENT) {
-				pr_fail(stderr, "%s: aa_kernel_interface_remove_policy() failed, "
+				pr_fail("%s: aa_kernel_interface_remove_policy() failed, "
 					"errno=%d (%s)\n", name, errno,
 					strerror(errno));
 				rc = EXIT_FAILURE;
@@ -565,7 +565,7 @@ static int apparmor_stress_corruption(
 
 		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
-			pr_fail(stderr, "%s: aa_kernel_interface_new() failed, "
+			pr_fail("%s: aa_kernel_interface_new() failed, "
 				"errno=%d (%s)\n", name, errno,
 				strerror(errno));
 			return EXIT_FAILURE;
@@ -578,7 +578,7 @@ static int apparmor_stress_corruption(
 		if (ret < 0) {
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT)) {
-				pr_fail(stderr, "%s: aa_kernel_interface_replace_policy() failed, "
+				pr_fail("%s: aa_kernel_interface_replace_policy() failed, "
 					"errno=%d (%s)\n", name, errno,
 					strerror(errno));
 				rc = EXIT_FAILURE;

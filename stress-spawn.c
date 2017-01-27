@@ -55,7 +55,7 @@ int stress_spawn(args_t *args)
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
-		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", args->name);
+		pr_fail("%s: readlink on /proc/self/exe failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
@@ -82,7 +82,7 @@ int stress_spawn(args_t *args)
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if ((spawn_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-		pr_fail(stderr, "%s: %" PRIu64 " spawns failed (%.2f%%)\n",
+		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",
 			args->name, spawn_fails,
 			(double)spawn_fails * 100.0 / (double)(spawn_calls));
 	}

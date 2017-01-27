@@ -92,9 +92,9 @@ int stress_lsearch(args_t *args)
 			result = lfind(&data[i], root, &n, sizeof(int32_t), cmp);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail(stderr, "%s: element %zu could not be found\n", args->name, i);
+					pr_fail("%s: element %zu could not be found\n", args->name, i);
 				else if (*result != data[i])
-					pr_fail(stderr, "%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
+					pr_fail("%s: element %zu found %" PRIu32 ", expecting %" PRIu32 "\n",
 					args->name, i, *result, data[i]);
 			}
 		}

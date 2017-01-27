@@ -74,15 +74,15 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 	if (opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
-			pr_fail(stderr, "%s: mprotect set to PROT_NONE failed\n", name);
+			pr_fail("%s: mprotect set to PROT_NONE failed\n", name);
 		if (mprotect(addr, len, PROT_READ) < 0)
-			pr_fail(stderr, "%s: mprotect set to PROT_READ failed\n", name);
+			pr_fail("%s: mprotect set to PROT_READ failed\n", name);
 		if (mprotect(addr, len, PROT_WRITE) < 0)
-			pr_fail(stderr, "%s: mprotect set to PROT_WRITE failed\n", name);
+			pr_fail("%s: mprotect set to PROT_WRITE failed\n", name);
 		if (mprotect(addr, len, PROT_EXEC) < 0)
-			pr_fail(stderr, "%s: mprotect set to PROT_EXEC failed\n", name);
+			pr_fail("%s: mprotect set to PROT_EXEC failed\n", name);
 		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
-			pr_fail(stderr, "%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
+			pr_fail("%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
 	}
 #else
 	(void)name;
@@ -146,7 +146,7 @@ static void stress_mmap_child(
 		mmap_set(buf, sz, page_size);
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			if (mmap_check(buf, sz, page_size) < 0)
-				pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
+				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
 		}
 
@@ -200,7 +200,7 @@ static void stress_mmap_child(
 						/* Ensure we can write to the mapped page */
 						mmap_set(mappings[page], page_size, page_size);
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
-							pr_fail(stderr, "%s: mmap'd region of %zu bytes does "
+							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);

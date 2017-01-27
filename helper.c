@@ -470,7 +470,7 @@ int stress_temp_dir_mk(
 	ret = mkdir(tmp, S_IRWXU);
 	if (ret < 0) {
 		ret = -errno;
-		pr_fail(stderr, "%s: mkdir failed, errno=%d (%s)\n",
+		pr_fail("%s: mkdir failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 	}
 
@@ -502,7 +502,7 @@ int stress_temp_dir_rm(
 	ret = rmdir(tmp);
 	if (ret < 0) {
 		ret = -errno;
-		pr_fail(stderr, "%s: rmdir failed, errno=%d (%s)\n",
+		pr_fail("%s: rmdir failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 	}
 
@@ -857,7 +857,7 @@ int stress_sighandler(
 	new_action.sa_flags = 0;
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {
-		pr_fail(stderr, "%s: sigaction %s: errno=%d (%s)\n",
+		pr_fail("%s: sigaction %s: errno=%d (%s)\n",
 			name, stress_strsignal(signum), errno, strerror(errno));
 		return -1;
 	}
@@ -874,7 +874,7 @@ int stress_sigrestore(
 	struct sigaction *orig_action)
 {
 	if (sigaction(signum, orig_action, NULL) < 0) {
-		pr_fail(stderr, "%s: sigaction %s restore: errno=%d (%s)\n",
+		pr_fail("%s: sigaction %s restore: errno=%d (%s)\n",
 			name, stress_strsignal(signum), errno, strerror(errno));
 		return -1;
 	}

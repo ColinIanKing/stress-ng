@@ -222,15 +222,13 @@ int stress_seccomp(args_t *args)
 				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&
 				    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
-					pr_fail(stderr,
-						"%s: aborting because of unexpected "
+					pr_fail("%s: aborting because of unexpected "
 						"failure in child process\n", args->name);
 					return EXIT_FAILURE;
 				}
 				/* ..exited OK but we expected SIGSYS death? */
 				if (WIFEXITED(status) && !allow_write) {
-					pr_fail(stderr,
-						"%s: expecting SIGSYS seccomp trap "
+					pr_fail("%s: expecting SIGSYS seccomp trap "
 						"but got a successful exit which "
 						"was not expected\n",
 						args->name);
@@ -238,8 +236,7 @@ int stress_seccomp(args_t *args)
 				/* ..exited with a SIGSYS but we expexted OK exit? */
 				if (WIFSIGNALED(status) && allow_write) {
 					if (WTERMSIG(status) == SIGSYS) {
-						pr_fail(stderr,
-							"%s: expecting a successful exit "
+						pr_fail("%s: expecting a successful exit "
 							"but got a seccomp SIGSYS "
 							"which was not expected\n",
 							args->name);

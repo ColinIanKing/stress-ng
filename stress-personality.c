@@ -73,13 +73,13 @@ int stress_personality(args_t *args)
 			ret = personality(~0UL);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret & 0xff) != (p & 0xff)) {
-				pr_fail(stderr, "%s: fetched personality does "
+				pr_fail("%s: fetched personality does "
 					"not match set personality 0x%lu\n",
 					args->name, p);
 			}
 		}
 		if (fails == n) {
-			pr_fail(stderr, "%s: all %zu personalities failed "
+			pr_fail("%s: all %zu personalities failed "
 				"to be set\n", args->name, fails);
 			break;
 		}

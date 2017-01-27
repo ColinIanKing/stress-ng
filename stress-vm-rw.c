@@ -127,7 +127,7 @@ redo_rd1:
 			/* Check memory altered by parent is sane */
 			for (ptr = buf; ptr < end; ptr += ctxt->page_size) {
 				if (*ptr != msg_rd.val) {
-					pr_fail(stderr, "%s: memory at %p: %d vs %d\n",
+					pr_fail("%s: memory at %p: %d vs %d\n",
 						args->name, ptr, *ptr, msg_rd.val);
 					goto cleanup;
 				}
@@ -218,7 +218,7 @@ redo_rd2:
 			/* Check data is sane */
 			for (ptr = localbuf; ptr < end; ptr += ctxt->page_size) {
 				if (*ptr) {
-					pr_fail(stderr, "%s: memory at %p: %d vs %d\n",
+					pr_fail("%s: memory at %p: %d vs %d\n",
 						args->name, ptr, *ptr, msg_rd.val);
 					goto fail;
 				}

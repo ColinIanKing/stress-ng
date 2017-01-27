@@ -46,7 +46,7 @@ redo:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			pr_fail(stderr, "%s: pipe read error detected\n", args->name);
+			pr_fail("%s: pipe read error detected\n", args->name);
 			return ret;
 		}
 		if (ret > 0) {
@@ -54,7 +54,7 @@ redo:
 
 			for (i = 0; i < ret; i++) {
 				if (buf[i] != '0' + n) {
-					pr_fail(stderr, "%s: pipe read error, "
+					pr_fail("%s: pipe read error, "
 						"expecting different data on "
 						"pipe\n", args->name);
 					return ret;

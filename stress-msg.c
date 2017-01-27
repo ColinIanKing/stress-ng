@@ -104,7 +104,7 @@ again:
 				if (opt_flags & OPT_FLAGS_VERIFY) {
 					memcpy(&v, msg.msg, sizeof(v));
 					if (v != i)
-						pr_fail(stderr, "%s: msgrcv: expected msg containing 0x%" PRIx64
+						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx64
 							" but received 0x%" PRIx64 " instead\n", args->name, i, v);
 				}
 			}

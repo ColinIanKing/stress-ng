@@ -65,7 +65,7 @@ enum {
 			}					\
 			pr_fail_err("kcmp: " # type);		\
 		} else {					\
-			pr_fail(stderr, "%s: kcmp " # type	\
+			pr_fail( "%s: kcmp " # type		\
 			" returned %d, expected: %d\n",		\
 			args->name, rc, ret);			\
 		}						\

@@ -131,14 +131,14 @@ static inline int stress_rtc_sys(args_t *args)
 			} else if (ret == -ENOENT) {
 				enoents++;
 			} else {
-				pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
+				pr_fail("%s: read of %s failed: errno=%d (%s)\n",
 					args->name, path, -ret, strerror(-ret));
 				rc = ret;
 			}
 		}
 	}
 	if (enoents == SIZEOF_ARRAY(interfaces)) {
-		pr_fail(stderr, "%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", args->name);
+		pr_fail("%s: no RTC interfaces found for /sys/class/rtc/rtc0\n", args->name);
 		rc = -ENOENT;
 	}
 
@@ -154,7 +154,7 @@ static inline int stress_rtc_proc(args_t *args)
 	ret = system_read(path, buf, sizeof(buf));
 	if (ret < 0) {
 		if ((ret != -ENOENT) && (ret != -EINTR)) {
-			pr_fail(stderr, "%s: read of %s failed: errno=%d (%s)\n",
+			pr_fail("%s: read of %s failed: errno=%d (%s)\n",
 			args->name, path, -ret, strerror(-ret));
 		}
 	}

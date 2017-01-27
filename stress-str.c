@@ -62,7 +62,7 @@ static inline void strchk(
 	bool *failed)
 {
 	if ((opt_flags & OPT_FLAGS_VERIFY) && (!ok)) {
-		pr_fail(stderr, "%s: %s did not return expected result\n",
+		pr_fail("%s: %s did not return expected result\n",
 			name, msg);
 		*failed = true;
 	}

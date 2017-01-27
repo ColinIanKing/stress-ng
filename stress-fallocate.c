@@ -97,9 +97,9 @@ int stress_fallocate(args_t *args)
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail(stderr, "%s: fstat on file failed", args->name);
+				pr_fail("%s: fstat on file failed", args->name);
 			else if (buf.st_size != opt_fallocate_bytes)
-				pr_fail(stderr, "%s: file size %jd does not "
+				pr_fail("%s: file size %jd does not "
 					"match size the expected file "
 					"size of %jd\n",
 					args->name, (intmax_t)buf.st_size,
@@ -116,9 +116,9 @@ int stress_fallocate(args_t *args)
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail(stderr, "%s: fstat on file failed", args->name);
+				pr_fail("%s: fstat on file failed", args->name);
 			else if (buf.st_size != (off_t)0)
-				pr_fail(stderr, "%s: file size %jd does not "
+				pr_fail("%s: file size %jd does not "
 					"match size the expected file size "
 					"of 0\n",
 					args->name, (intmax_t)buf.st_size);

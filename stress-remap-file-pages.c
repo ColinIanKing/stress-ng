@@ -51,7 +51,7 @@ static void check_order(
 		}
 	}
 	if (failed)
-		pr_fail(stderr, "%s: remap %s order pages failed\n",
+		pr_fail("%s: remap %s order pages failed\n",
 			args->name, ordering);
 }
 

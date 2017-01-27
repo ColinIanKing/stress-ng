@@ -174,7 +174,7 @@ again:
 					break;
 				if (opt_flags & OPT_FLAGS_VERIFY) {
 					if (msg.value != i) {
-						pr_fail(stderr, "%s: mq_receive: expected message "
+						pr_fail("%s: mq_receive: expected message "
 							"containing 0x%" PRIx64
 							" but received 0x%" PRIx64 " instead\n",
 							args->name, i, msg.value);

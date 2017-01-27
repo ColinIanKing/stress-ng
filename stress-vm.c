@@ -170,7 +170,7 @@ static void stress_vm_check(const char *name, const size_t bit_errors)
 		pr_dbg("%s: detected %zu memory error%s\n",
 			name, bit_errors, bit_errors == 1 ? "" : "s");
 #else
-		pr_fail(stderr, "%s: detected %zu memory error%s\n",
+		pr_fail("%s: detected %zu memory error%s\n",
 			name, bit_errors, bit_errors == 1 ? "" : "s");
 #endif
 }
@@ -701,7 +701,7 @@ static size_t stress_vm_swap(
 	w1 = mwc64();
 
 	if ((swaps = calloc(chunks, sizeof(size_t))) == NULL) {
-		pr_fail(stderr, "stress-vm: calloc failed on vm_swap\n");
+		pr_fail("stress-vm: calloc failed on vm_swap\n");
 		return 0;
 	}
 

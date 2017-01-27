@@ -69,7 +69,7 @@ int stress_exec(args_t *args)
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
-		pr_fail(stderr, "%s: readlink on /proc/self/exe failed\n", args->name);
+		pr_fail("%s: readlink on /proc/self/exe failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
@@ -90,12 +90,12 @@ int stress_exec(args_t *args)
 				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-					pr_fail(stderr, "%s: child open on "
+					pr_fail("%s: child open on "
 						"/dev/null failed\n", args->name);
 					_exit(EXIT_FAILURE);
 				}
 				if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-					pr_fail(stderr, "%s: child open on "
+					pr_fail("%s: child open on "
 						"/dev/zero failed\n", args->name);
 					(void)close(fd_out);
 					_exit(EXIT_FAILURE);
@@ -130,13 +130,13 @@ int stress_exec(args_t *args)
 
 		for (i = 0; i < opt_exec_max; i++) {
 			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: fork failed\n", args->name);
+				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if ((exec_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-		pr_fail(stderr, "%s: %" PRIu64 " execs failed (%.2f%%)\n",
+		pr_fail("%s: %" PRIu64 " execs failed (%.2f%%)\n",
 			args->name, exec_fails,
 			(double)exec_fails * 100.0 / (double)(exec_calls));
 	}

@@ -51,7 +51,7 @@ int stress_affinity(args_t *args)
 				 */
 				continue;
 			}
-			pr_fail(stderr, "%s: failed to move to CPU %" PRIu32
+			pr_fail("%s: failed to move to CPU %" PRIu32
 				", errno=%d (%s)\n",
 				args->name, cpu, errno, strerror(errno));
 			(void)shim_sched_yield();
@@ -62,7 +62,7 @@ int stress_affinity(args_t *args)
 			if (sched_getaffinity(0, sizeof(mask), &mask) == 0) {
 				if ((opt_flags & OPT_FLAGS_VERIFY) &&
 				    (!CPU_ISSET(cpu, &mask)))
-					pr_fail(stderr, "%s: failed to move "
+					pr_fail("%s: failed to move "
 						"to CPU %" PRIu32 "\n",
 						args->name, cpu);
 			}

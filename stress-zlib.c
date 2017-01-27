@@ -233,7 +233,7 @@ static int stress_zlib_inflate(args_t *args, const int fd)
 
 	ret = inflateInit(&stream_inf);
 	if (ret != Z_OK) {
-		pr_fail(stderr, "%s: zlib inflateInit error: %s\n",
+		pr_fail("%s: zlib inflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
 		return EXIT_FAILURE;
 	}
@@ -283,7 +283,7 @@ static int stress_zlib_deflate(
 
 	ret = deflateInit(&stream_def, Z_BEST_COMPRESSION);
 	if (ret != Z_OK) {
-		pr_fail(stderr, "%s: zlib deflateInit error: %s\n",
+		pr_fail("%s: zlib deflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
 		return EXIT_FAILURE;
 	}
@@ -309,7 +309,7 @@ static int stress_zlib_deflate(
 			rc = deflate(&stream_def, flush);
 
 			if ((rc != Z_OK) && (rc != Z_STREAM_END)) {
-				pr_fail(stderr, "%s: zlib deflate error: %s\n",
+				pr_fail("%s: zlib deflate error: %s\n",
 					args->name, stress_zlib_err(rc));
 				do_run = false;
 				ret = EXIT_FAILURE;
@@ -320,7 +320,7 @@ static int stress_zlib_deflate(
 			if (write(fd, out, def_size) != def_size) {
 				if ((errno != EINTR) && (errno != EPIPE)) {
 					ret = EXIT_FAILURE;
-					pr_fail(stderr, "%s: write error: errno=%d (%s)\n",
+					pr_fail("%s: write error: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 				do_run = false;

@@ -110,12 +110,11 @@ int stress_bsearch(args_t *args)
 			result = bsearch(ptr, data, n, sizeof(*ptr), cmp);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail(stderr,
-						"%s: element %zu could "
+					pr_fail("%s: element %zu could "
 						"not be found\n",
 						args->name, i);
 				else if (*result != *ptr)
-					pr_fail(stderr, "%s: element %zu "
+					pr_fail("%s: element %zu "
 						"found %" PRIu32
 						", expecting %" PRIu32 "\n",
 						args->name, i, *result, *ptr);

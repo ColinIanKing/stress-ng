@@ -89,7 +89,7 @@ static void dnotify_exercise(
 	}
 
 	if (dnotify_fd != fd) {
-		pr_fail(stderr, "%s: did not get expected dnotify "
+		pr_fail("%s: did not get expected dnotify "
 			"file descriptor\n", args->name);
 	}
 

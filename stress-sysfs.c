@@ -77,7 +77,7 @@ static inline void stress_sys_rw(
 			pr_fail_err("stat");
 		} else {
 			if ((buf.st_mode & S_IROTH) == 0) {
-				pr_fail(stderr, "%s: read access failed on %s which "
+				pr_fail("%s: read access failed on %s which "
 					"could be opened, errno=%d (%s)\n",
 				args->name, path, errno, strerror(errno));
 			}

@@ -94,7 +94,7 @@ static int stress_fork_fn(
 
 		for (i = 0; i < fork_max; i++) {
 			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail(stderr, "%s: fork failed\n", args->name);
+				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));

@@ -79,7 +79,7 @@ static int do_quotactl(
 		if ((failed_mask & flag) == 0) {
 			/* Just issue the warning once, reduce log spamming */
 			failed_mask |= flag;
-			pr_fail(stderr, "%s: quotactl command %s failed: errno=%d (%s)\n",
+			pr_fail("%s: quotactl command %s failed: errno=%d (%s)\n",
 				args->name, cmdname, errno, strerror(errno));
 		}
 		if (errno == ENOSYS)
