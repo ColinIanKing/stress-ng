@@ -198,7 +198,7 @@ static int stress_lockf_contention(
 int stress_lockf(args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
-	pid_t pid = getpid(), cpid = -1;
+	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char dirname[PATH_MAX];
 	char buffer[4096];
@@ -211,7 +211,7 @@ int stress_lockf(args_t *args)
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
@@ -226,7 +226,7 @@ int stress_lockf(args_t *args)
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);

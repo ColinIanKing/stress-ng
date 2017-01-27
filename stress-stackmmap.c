@@ -69,7 +69,6 @@ int stress_stackmmap(args_t *args)
 {
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
-	const pid_t pid = getpid();
 	stack_t ss;
 	struct sigaction new_action;
 	char filename[PATH_MAX];
@@ -107,10 +106,10 @@ int stress_stackmmap(args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
+	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	/* Create file back'd mmaping for the stack */
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
@@ -165,7 +164,7 @@ int stress_stackmmap(args_t *args)
 tidy_mmap:
 	munmap(stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

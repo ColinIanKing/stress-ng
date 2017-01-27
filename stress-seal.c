@@ -56,7 +56,6 @@ int stress_seal(args_t *args)
 	int fd, ret;
 	int rc = EXIT_FAILURE;
 	const size_t page_size = stress_get_pagesize();
-	const pid_t pid = getpid();
 	char filename[PATH_MAX];
 
 	do {
@@ -65,7 +64,7 @@ int stress_seal(args_t *args)
 		char buf[page_size];
 
 		snprintf(filename, sizeof(filename), "%s-%d-%" PRIu32 "-%" PRIu32,
-			args->name, pid, args->instance, mwc32());
+			args->name, args->pid, args->instance, mwc32());
 
 		fd = shim_memfd_create(filename, MFD_ALLOW_SEALING);
 		if (fd < 0) {

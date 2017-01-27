@@ -53,7 +53,6 @@ int stress_set_udp_flood_domain(const char *name)
 int stress_udp_flood(args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
-	pid_t pid = getpid();
 	int port = 1024;
 	struct sockaddr *addr;
 	socklen_t addr_len;
@@ -68,7 +67,7 @@ int stress_udp_flood(args_t *args)
 		pr_fail_dbg(args->name, "socket");
 		return EXIT_FAILURE;
 	}
-	stress_set_sockaddr(args->name, args->instance, pid,
+	stress_set_sockaddr(args->name, args->instance, args->pid,
 		opt_udp_flood_domain, port,
 		&addr, &addr_len, NET_ADDR_ANY);
 

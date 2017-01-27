@@ -30,7 +30,6 @@
  */
 int stress_chdir(args_t *args)
 {
-	const pid_t pid = getpid();
 	uint64_t i;
 	char path[PATH_MAX], cwd[PATH_MAX];
 	int rc, ret = EXIT_FAILURE;
@@ -43,7 +42,7 @@ int stress_chdir(args_t *args)
 		return ret;
 	}
 
-	rc = stress_temp_dir_mk(args->name, pid, args->instance);
+	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
@@ -52,7 +51,7 @@ int stress_chdir(args_t *args)
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			args->name, pid, args->instance, gray_code);
+			args->name, args->pid, args->instance, gray_code);
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;
@@ -104,7 +103,7 @@ abort:
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return ret;
 }

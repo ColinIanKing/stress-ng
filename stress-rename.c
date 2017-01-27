@@ -34,33 +34,32 @@ int stress_rename(args_t *args)
 	char *oldname = name1, *newname = name2, *tmpname;
 	FILE *fp;
 	uint64_t i = 0;
-	const pid_t pid = getpid();
 	const uint32_t inst1 = args->instance * 2;
 	const uint32_t inst2 = inst1 + 1;
 
-	if (stress_temp_dir_mk(args->name, pid, inst1) < 0)
+	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
-	if (stress_temp_dir_mk(args->name, pid, inst2) < 0) {
-		(void)stress_temp_dir_rm(args->name, pid, inst1);
+	if (stress_temp_dir_mk(args->name, args->pid, inst2) < 0) {
+		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 		return EXIT_FAILURE;
 	}
 restart:
 	(void)stress_temp_filename(oldname, PATH_MAX,
-		args->name, pid, inst1, i++);
+		args->name, args->pid, inst1, i++);
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		int rc = exit_status(errno);
 		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(args->name, pid, inst1);
-		(void)stress_temp_dir_rm(args->name, pid, inst2);
+		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
+		(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 		return rc;
 	}
 	(void)fclose(fp);
 
 	for (;;) {
 		(void)stress_temp_filename(newname, PATH_MAX,
-			args->name, pid, inst2, i++);
+			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);
 			(void)unlink(newname);
@@ -75,7 +74,7 @@ restart:
 			break;
 
 		(void)stress_temp_filename(newname, PATH_MAX,
-			args->name, pid, inst1, i++);
+			args->name, args->pid, inst1, i++);
 		if (rename(oldname, newname) < 0) {
 			(void)unlink(oldname);
 			(void)unlink(newname);
@@ -92,8 +91,8 @@ restart:
 
 	(void)unlink(oldname);
 	(void)unlink(newname);
-	(void)stress_temp_dir_rm(args->name, pid, inst1);
-	(void)stress_temp_dir_rm(args->name, pid, inst2);
+	(void)stress_temp_dir_rm(args->name, args->pid, inst1);
+	(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 
 	return EXIT_SUCCESS;
 }

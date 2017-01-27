@@ -518,11 +518,11 @@ int stress_epoll(args_t *args)
 
 	if (max_servers == 1) {
 		pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-			args->name, getpid(),
+			args->name, args->pid,
 			opt_epoll_port + args->instance);
 	} else {
 		pr_dbg(stderr, "%s: process [%d] using socket ports %d..%d\n",
-			args->name, getpid(),
+			args->name, args->pid,
 			opt_epoll_port + (max_servers * args->instance),
 			opt_epoll_port + (max_servers * (args->instance + 1)) - 1);
 	}

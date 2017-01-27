@@ -49,14 +49,13 @@ int stress_fault(args_t *args)
 	char filename[PATH_MAX];
 	int ret;
 	NOCLOBBER int i;
-	const pid_t pid = getpid();
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	(void)umask(0077);
 
 	i = 0;
@@ -158,7 +157,7 @@ next:
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	/* Clean up, most times this is redundant */
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg(stderr, "%s: page faults: minor: %lu, major: %lu\n",

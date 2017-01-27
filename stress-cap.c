@@ -77,19 +77,16 @@ static int stress_capgetset_pid(
  */
 int stress_cap(args_t *args)
 {
-	const pid_t pid = getpid();
-	const pid_t ppid = getppid();
-
 	do {
 		DIR *dir;
 
 		stress_capgetset_pid(args, 1, false, true);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
-		stress_capgetset_pid(args, pid, true, true);
+		stress_capgetset_pid(args, args->pid, true, true);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
-		stress_capgetset_pid(args, ppid, false, false);
+		stress_capgetset_pid(args, args->ppid, false, false);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 

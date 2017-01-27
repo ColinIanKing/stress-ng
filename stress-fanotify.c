@@ -120,15 +120,13 @@ int stress_fanotify(args_t *args)
 {
 	char dirname[PATH_MAX], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
-	const pid_t mypid = getpid();
-	const pid_t ppid = getppid();
 	fanotify_account_t acct;
 
 	memset(&acct, 0, sizeof(acct));
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, mypid, args->instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
 	snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");
-	ret = stress_temp_dir_mk(args->name, mypid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -150,7 +148,7 @@ int stress_fanotify(args_t *args)
 			fd = creat(filename, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err(args->name, "creat");
-				kill(ppid, SIGALRM);
+				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			(void)close(fd);
@@ -159,7 +157,7 @@ int stress_fanotify(args_t *args)
 			fd = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err(args->name, "open O_WRONLY");
-				kill(ppid, SIGALRM);
+				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			n = write(fd, "foo", 3);
@@ -170,7 +168,7 @@ int stress_fanotify(args_t *args)
 			fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err(args->name, "open O_RDONLY");
-				kill(ppid, SIGALRM);
+				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			n = read(fd, buffer, sizeof(buffer));
@@ -266,7 +264,7 @@ tidy:
 		(void)waitpid(pid, &status, 0);
 	}
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

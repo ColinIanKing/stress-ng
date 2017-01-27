@@ -167,7 +167,6 @@ int stress_aio(args_t *args)
 	int i;
 	uint64_t total = 0;
 	char filename[PATH_MAX];
-	const pid_t pid = getpid();
 
 	if (!set_aio_requests) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -181,14 +180,14 @@ int stress_aio(args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0) {
 		free(io_reqs);
 		return exit_status(-ret);
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
@@ -263,7 +262,7 @@ finish:
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
 		"caught (instance %d)\n",
 		args->name, total, args->instance);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	return rc;
 }
 #else

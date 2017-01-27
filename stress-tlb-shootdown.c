@@ -94,7 +94,7 @@ int stress_tlb_shootdown(args_t *args)
 
 				CPU_ZERO(&mask);
 				CPU_SET(cpu % max_cpus, &mask);
-				(void)sched_setaffinity(getpid(), sizeof(mask), &mask);
+				(void)sched_setaffinity(args->pid, sizeof(mask), &mask);
 
 				for (ptr = mem; ptr < mem + mmap_size; ptr += page_size) {
 					/* Force tlb shoot down on page */

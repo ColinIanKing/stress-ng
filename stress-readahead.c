@@ -69,7 +69,6 @@ int stress_readahead(args_t *args)
 	uint64_t readahead_bytes, i;
 	uint64_t misreads = 0;
 	uint64_t baddata = 0;
-	const pid_t pid = getpid();
 	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC;
@@ -83,19 +82,19 @@ int stress_readahead(args_t *args)
 			opt_readahead_bytes = MIN_HDD_BYTES;
 	}
 
-	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
+	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		return EXIT_FAILURE;
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return rc;
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
@@ -203,7 +202,7 @@ close_finish:
 	(void)close(fd);
 finish:
 	free(buf);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	if (misreads)
 		pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",

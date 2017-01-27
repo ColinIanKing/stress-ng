@@ -37,17 +37,16 @@
  */
 int stress_ioprio(args_t *args)
 {
-	const pid_t pid = getpid();
 	const uid_t uid = getuid();
 	const pid_t grp = getpgrp();
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
-	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
+	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		return rc;
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -61,10 +60,10 @@ int stress_ioprio(args_t *args)
 		struct iovec iov[MAX_IOV];
 		char buffer[MAX_IOV][BUF_SIZE];
 
-		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, pid) < 0) {
+		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, args->pid) < 0) {
 			pr_fail(stderr, "%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
 				"errno = %d (%s)\n",
-				args->name, pid, errno, strerror(errno));
+				args->name, args->pid, errno, strerror(errno));
 			goto cleanup_file;
 		}
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
@@ -104,14 +103,14 @@ int stress_ioprio(args_t *args)
 		}
 		(void)fsync(fd);
 
-		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, pid,
+		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
 			if (errno != EPERM) {
 				pr_fail(stderr, "%s: ioprio_set("
 					"IOPRIO_WHO_PROCESS, %d, "
 					"(IOPRIO_CLASS_IDLE, 0)), "
 					"errno = %d (%s)\n",
-					args->name, pid, errno, strerror(errno));
+					args->name, args->pid, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -123,14 +122,14 @@ int stress_ioprio(args_t *args)
 		(void)fsync(fd);
 
 		for (i = 0; i < 8; i++) {
-			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, pid,
+			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, i)) < 0) {
 				if (errno != EPERM) {
 					pr_fail(stderr, "%s: ioprio_set("
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_BE, %d)), "
 						"errno = %d (%s)\n",
-						args->name, pid, i, errno, strerror(errno));
+						args->name, args->pid, i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
@@ -141,14 +140,14 @@ int stress_ioprio(args_t *args)
 			(void)fsync(fd);
 		}
 		for (i = 0; i < 8; i++) {
-			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, pid,
+			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_RT, i)) < 0) {
 				if (errno != EPERM) {
 					pr_fail(stderr, "%s: ioprio_set("
 						"IOPRIO_WHO_PROCESS, %d, "
 						"(IOPRIO_CLASS_RT, %d)), "
 						"errno = %d (%s)\n",
-						args->name, pid, i, errno, strerror(errno));
+						args->name, args->pid, i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
@@ -166,7 +165,7 @@ int stress_ioprio(args_t *args)
 cleanup_file:
 	(void)close(fd);
 cleanup_dir:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

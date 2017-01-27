@@ -81,7 +81,6 @@ int stress_aiol(args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
-	const pid_t pid = getpid();
 	io_context_t ctx = 0;
 
 	if (!set_aio_linux_requests) {
@@ -124,12 +123,12 @@ int stress_aiol(args_t *args)
 			return EXIT_FAILURE;
 		}
 	}
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
@@ -201,7 +200,7 @@ int stress_aiol(args_t *args)
 	(void)close(fd);
 finish:
 	(void)io_destroy(ctx);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	return rc;
 }
 #else

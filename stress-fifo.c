@@ -137,7 +137,6 @@ int stress_fifo(args_t *args)
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
 	int rc = EXIT_FAILURE;
-	const pid_t pid = getpid();
 
 	if (!set_fifo_readers) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -146,12 +145,12 @@ int stress_fifo(args_t *args)
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
-	rc = stress_temp_dir_mk(args->name, pid, args->instance);
+	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(fifoname, sizeof(fifoname),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
@@ -215,7 +214,7 @@ reap:
 	}
 tidy:
 	(void)unlink(fifoname);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

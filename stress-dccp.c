@@ -358,7 +358,7 @@ int stress_dccp(args_t *args)
 	pid_t pid, ppid = getppid();
 
 	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
-		args->name, (int)getpid(), opt_dccp_port + args->instance);
+		args->name, (int)args->pid, opt_dccp_port + args->instance);
 
 again:
 	pid = fork();

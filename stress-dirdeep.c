@@ -54,13 +54,12 @@ static void stress_dir_tidy(
  */
 int stress_dirdeep(args_t *args)
 {
-	const pid_t pid = getpid();
 	int ret = EXIT_SUCCESS;
 	size_t rootpathlen;
 	char path[PATH_MAX * 4];
 	char rootpath[PATH_MAX];
 
-	(void)stress_temp_dir(rootpath, sizeof(rootpath), args->name, pid, args->instance);
+	(void)stress_temp_dir(rootpath, sizeof(rootpath), args->name, args->pid, args->instance);
 	rootpathlen = strlen(rootpath);
 
 	do {

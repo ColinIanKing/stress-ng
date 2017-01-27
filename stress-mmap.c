@@ -240,7 +240,6 @@ int stress_mmap(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz, pages4k;
-	const pid_t mypid = getpid();
 	pid_t pid;
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
@@ -265,19 +264,19 @@ int stress_mmap(args_t *args)
 		ssize_t ret, rc;
 		char ch = '\0';
 
-		rc = stress_temp_dir_mk(args->name, mypid, args->instance);
+		rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
 		if (rc < 0)
 			return exit_status(-rc);
 
 		(void)stress_temp_filename(filename, sizeof(filename),
-			args->name, mypid, args->instance, mwc32());
+			args->name, args->pid, args->instance, mwc32());
 
 		(void)umask(0077);
 		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
 			pr_fail_err(args->name, "open");
 			(void)unlink(filename);
-			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 			return rc;
 		}
@@ -285,7 +284,7 @@ int stress_mmap(args_t *args)
 		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
 			pr_fail_err(args->name, "lseek");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 			return EXIT_FAILURE;
 		}
@@ -297,7 +296,7 @@ redo:
 			rc = exit_status(errno);
 			pr_fail_err(args->name, "write");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 			return rc;
 		}
@@ -371,7 +370,7 @@ again:
 cleanup:
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	}
 	if (ooms + segvs + buserrs > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32

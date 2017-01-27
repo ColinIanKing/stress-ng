@@ -40,7 +40,6 @@ static void MLOCKED stress_usr1_handler(int dummy)
 int stress_sigpending(args_t *args)
 {
 	sigset_t sigset;
-	const pid_t mypid = getpid();
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -53,7 +52,7 @@ int stress_sigpending(args_t *args)
 			return EXIT_FAILURE;
 		}
 
-		(void)kill(mypid, SIGUSR1);
+		(void)kill(args->pid, SIGUSR1);
 		if (sigpending(&sigset) < 0) {
 			pr_fail_err(args->name, "sigpending");
 			continue;

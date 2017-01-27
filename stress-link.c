@@ -30,8 +30,7 @@
  */
 static void stress_link_unlink(
 	args_t *args,
-	const uint64_t n,
-	const pid_t pid)
+	const uint64_t n)
 {
 	uint64_t i;
 
@@ -39,7 +38,7 @@ static void stress_link_unlink(
 		char path[PATH_MAX];
 
 		(void)stress_temp_filename(path, sizeof(path),
-			args->name, pid, args->instance, i);
+			args->name, args->pid, args->instance, i);
 		(void)unlink(path);
 	}
 	sync();
@@ -55,20 +54,19 @@ static int stress_link_generic(
 	const char *funcname,
 	bool symlink)
 {
-	const pid_t pid = getpid();
 	int rc, ret, fd;
 	char oldpath[PATH_MAX];
 	size_t oldpathlen;
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename(oldpath, sizeof(oldpath),
-		args->name, pid, args->instance, ~0);
+		args->name, args->pid, args->instance, ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return ret;
 	}
 	(void)close(fd);
@@ -84,7 +82,7 @@ static int stress_link_generic(
 			struct stat stbuf;
 
 			(void)stress_temp_filename(newpath, sizeof(newpath),
-				args->name, pid, args->instance, i);
+				args->name, args->pid, args->instance, i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				rc = exit_status(errno);
 				pr_fail_err(args->name, funcname);
@@ -119,15 +117,15 @@ static int stress_link_generic(
 
 			inc_counter(args);
 		}
-		stress_link_unlink(args, n, pid);
+		stress_link_unlink(args, n);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
-	stress_link_unlink(args, DEFAULT_LINKS, pid);
+	stress_link_unlink(args, DEFAULT_LINKS);
 	(void)unlink(oldpath);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

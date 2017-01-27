@@ -45,7 +45,6 @@ int stress_copy_file(args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
 	char filename[PATH_MAX], tmp[PATH_MAX];
-	pid_t pid = getpid();
 
 	if (!set_copy_file_bytes) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -57,10 +56,10 @@ int stress_copy_file(args_t *args)
 	if (opt_copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
 		opt_copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
 
-	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
+	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		goto tidy_dir;
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -113,7 +112,7 @@ tidy_out:
 tidy_in:
 	(void)close(fd_in);
 tidy_dir:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

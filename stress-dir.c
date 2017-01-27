@@ -30,8 +30,7 @@
  */
 static void stress_dir_tidy(
 	args_t *args,
-	const uint64_t n,
-	const pid_t pid)
+	const uint64_t n)
 {
 	uint64_t i;
 
@@ -40,7 +39,7 @@ static void stress_dir_tidy(
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			args->name, pid, args->instance, gray_code);
+			args->name, args->pid, args->instance, gray_code);
 		(void)rmdir(path);
 	}
 }
@@ -51,10 +50,9 @@ static void stress_dir_tidy(
  */
 int stress_dir(args_t *args)
 {
-	const pid_t pid = getpid();
 	int ret;
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -66,7 +64,7 @@ int stress_dir(args_t *args)
 			uint64_t gray_code = (i >> 1) ^ i;
 
 			(void)stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
 					pr_fail_err(args->name, "mkdir");
@@ -81,7 +79,7 @@ int stress_dir(args_t *args)
 
 			inc_counter(args);
 		}
-		stress_dir_tidy(args, n, pid);
+		stress_dir_tidy(args, n);
 		if (!opt_do_run)
 			break;
 		sync();
@@ -91,8 +89,8 @@ abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
 		args->name, DEFAULT_DIRS);
-	stress_dir_tidy(args, DEFAULT_DIRS, pid);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	stress_dir_tidy(args, DEFAULT_DIRS);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return ret;
 }

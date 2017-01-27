@@ -159,7 +159,6 @@ static int stress_locka_contention(
 	const int fd)
 {
 	mwc_reseed();
-	pid_t pid = getpid();
 
 	do {
 		off_t offset;
@@ -179,7 +178,7 @@ static int stress_locka_contention(
 		f.l_whence = SEEK_SET;
 		f.l_start = offset;
 		f.l_len = len;
-		f.l_pid = pid;
+		f.l_pid = args->pid;
 
 		rc = fcntl(fd, F_GETLK, &f);
 		if (rc < 0)
@@ -194,7 +193,7 @@ static int stress_locka_contention(
 		}
 		locka_info->offset = offset;
 		locka_info->len = len;
-		locka_info->pid = pid;
+		locka_info->pid = args->pid;
 
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
@@ -209,7 +208,7 @@ static int stress_locka_contention(
 int stress_locka(args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
-	pid_t pid = getpid(), cpid = -1;
+	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char dirname[PATH_MAX];
 	char buffer[4096];
@@ -222,7 +221,7 @@ int stress_locka(args_t *args)
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
+	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
@@ -237,7 +236,7 @@ int stress_locka(args_t *args)
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);

@@ -48,7 +48,6 @@ static const int policies[] = {
 int stress_schedpolicy(args_t *args)
 {
 	int policy = 0;
-	const pid_t mypid = getpid();
 
 	if (SIZEOF_ARRAY(policies) == 0) {
 		if (args->instance == 0) {
@@ -69,7 +68,7 @@ int stress_schedpolicy(args_t *args)
 		int ret = 0;
 		int max_prio, min_prio, rng_prio;
 		int new_policy = policies[policy];
-		const pid_t pid = (mwc32() & 1) ? 0 : mypid;
+		const pid_t pid = (mwc32() & 1) ? 0 : args->pid;
 		const char *new_policy_name = get_sched_name(new_policy);
 
 		switch (new_policy) {

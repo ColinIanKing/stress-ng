@@ -102,7 +102,6 @@ int stress_rmap(args_t *args)
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
 	const size_t counters_sz =
 		(page_size + sizeof(uint64_t) * RMAP_CHILD_MAX) & ~(page_size - 1);
-	const pid_t mypid = getpid();
 	int fd = -1;
 	size_t i;
 	ssize_t rc;
@@ -126,19 +125,19 @@ int stress_rmap(args_t *args)
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	rc = stress_temp_dir_mk(args->name, mypid, args->instance);
+	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, mypid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		(void)munmap((void *)counters, counters_sz);
 
 		return rc;
@@ -148,7 +147,7 @@ int stress_rmap(args_t *args)
 	if (posix_fallocate(fd, 0, sz) < 0) {
 		pr_fail_err(args->name, "posix_fallocate");
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		(void)munmap((void *)counters, counters_sz);
 
 		return EXIT_FAILURE;
@@ -224,7 +223,7 @@ cleanup:
 
 	(void)munmap((void *)counters, counters_sz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)

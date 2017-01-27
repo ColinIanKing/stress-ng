@@ -34,7 +34,7 @@
  */
 int stress_sigfd(args_t *args)
 {
-	pid_t pid, ppid = getpid();
+	pid_t pid, ppid = args->pid;
 	int sfd;
 	sigset_t mask;
 

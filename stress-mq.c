@@ -59,7 +59,7 @@ static void stress_mq_notify_func(union sigval s)
  */
 int stress_mq(args_t *args)
 {
-	pid_t pid = getpid();
+	pid_t pid;
 	mqd_t mq = -1;
 	int sz, max_sz;
 	FILE *fp;
@@ -78,7 +78,7 @@ int stress_mq(args_t *args)
 	sz = opt_mq_size;
 
 	snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
-		args->name, pid, args->instance);
+		args->name, args->pid, args->instance);
 	if ((fp = fopen("/proc/sys/fs/mqueue/msg_default", "r")) != NULL) {
 		if (fscanf(fp, "%20d", &max_sz) != 1)
 			max_sz = MAX_MQ_SIZE;

@@ -33,19 +33,18 @@ int stress_utime(args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;
-	const pid_t pid = getpid();
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return ret;
 	}
 
@@ -102,7 +101,7 @@ int stress_utime(args_t *args)
 
 	(void)close(fd);
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

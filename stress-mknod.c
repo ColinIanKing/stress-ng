@@ -42,8 +42,7 @@ static const int modes[] = {
  */
 static void stress_mknod_tidy(
 	args_t *args,
-	const uint64_t n,
-	const pid_t pid)
+	const uint64_t n)
 {
 	uint64_t i;
 
@@ -52,7 +51,7 @@ static void stress_mknod_tidy(
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename(path, sizeof(path),
-			args->name, pid, args->instance, gray_code);
+			args->name, args->pid, args->instance, gray_code);
 		(void)unlink(path);
 	}
 }
@@ -63,7 +62,6 @@ static void stress_mknod_tidy(
  */
 int stress_mknod(args_t *args)
 {
-	const pid_t pid = getpid();
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;
 
@@ -72,7 +70,7 @@ int stress_mknod(args_t *args)
 			args->name);
 		return EXIT_FAILURE;
 	}
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -85,7 +83,7 @@ int stress_mknod(args_t *args)
 			int mode = modes[mwc32() % num_nodes];
 
 			(void)stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if ((errno == ENOSPC) || (errno == ENOMEM))
 					continue;	/* Try again */
@@ -100,7 +98,7 @@ int stress_mknod(args_t *args)
 
 			inc_counter(args);
 		}
-		stress_mknod_tidy(args, n, pid);
+		stress_mknod_tidy(args, n);
 		if (!opt_do_run)
 			break;
 		sync();
@@ -109,8 +107,8 @@ int stress_mknod(args_t *args)
 abort:
 	/* force unlink of all files */
 	pr_tidy(stderr, "%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
-	stress_mknod_tidy(args, DEFAULT_DIRS, pid);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	stress_mknod_tidy(args, DEFAULT_DIRS);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

@@ -28,26 +28,26 @@
  *  check_return()
  *	sanity check fcntl() return for errors
  */
-static void check_return(const int ret, const char *name, const char *cmd)
+static void check_return(args_t *args, const int ret, const char *cmd)
 {
 	if (ret < 0) {
 		pr_fail(stderr, "%s: name: fcntl %s failed: "
 			"errno=%d (%s)\n",
-			name, cmd, errno, strerror(errno));
+			args->name, cmd, errno, strerror(errno));
 	}
 }
 
 /*
  *  do_fcntl()
  */
-static int do_fcntl(const int fd, const char *name)
+static int do_fcntl(args_t *args, const int fd)
 {
 #if defined(F_DUPFD)
 	{
 		int ret;
 
 		ret = fcntl(fd, F_DUPFD, mwc8());
-		check_return(ret, name, "F_DUPFD");
+		check_return(args, ret, "F_DUPFD");
 		if (ret > -1)
 			(void)close(ret);
 	}
@@ -58,7 +58,7 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_DUPFD_CLOEXEC, mwc8());
-		check_return(ret, name, "F_DUPFD_CLOEXEC");
+		check_return(args, ret, "F_DUPFD_CLOEXEC");
 		if (ret > -1)
 			(void)close(ret);
 	}
@@ -69,7 +69,7 @@ static int do_fcntl(const int fd, const char *name)
 		int old_flags;
 
 		old_flags = fcntl(fd, F_GETFD);
-		check_return(old_flags, name, "F_GETFD");
+		check_return(args, old_flags, "F_GETFD");
 
 #if defined(F_SETFD) && defined(O_CLOEXEC)
 		if (old_flags > -1) {
@@ -77,11 +77,11 @@ static int do_fcntl(const int fd, const char *name)
 
 			new_flags = old_flags |= O_CLOEXEC;
 			ret = fcntl(fd, F_SETFD, new_flags);
-			check_return(ret, name, "F_SETFD");
+			check_return(args, ret, "F_SETFD");
 
 			new_flags &= ~O_CLOEXEC;
 			ret = fcntl(fd, F_SETFD, new_flags);
-			check_return(ret, name, "F_SETFD");
+			check_return(args, ret, "F_SETFD");
 		}
 #endif
 	}
@@ -92,7 +92,7 @@ static int do_fcntl(const int fd, const char *name)
 		int old_flags;
 
 		old_flags = fcntl(fd, F_GETFL);
-		check_return(old_flags, name, "F_GETFL");
+		check_return(args, old_flags, "F_GETFL");
 
 #if defined(F_SETFL) && defined(O_APPEND)
 		if (old_flags > -1) {
@@ -100,11 +100,11 @@ static int do_fcntl(const int fd, const char *name)
 
 			new_flags = old_flags |= O_APPEND;
 			ret = fcntl(fd, F_SETFL, new_flags);
-			check_return(ret, name, "F_SETFL");
+			check_return(args, ret, "F_SETFL");
 
 			new_flags &= ~O_APPEND;
 			ret = fcntl(fd, F_SETFL, new_flags);
-			check_return(ret, name, "F_SETFL");
+			check_return(args, ret, "F_SETFL");
 		}
 #endif
 	}
@@ -114,8 +114,8 @@ static int do_fcntl(const int fd, const char *name)
 	{
 		int ret;
 
-		ret = fcntl(fd, F_SETOWN, getpid());
-		check_return(ret, name, "F_SETOWN");
+		ret = fcntl(fd, F_SETOWN, args->pid);
+		check_return(args, ret, "F_SETOWN");
 	}
 #endif
 
@@ -124,7 +124,7 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_GETOWN);
-		check_return(ret, name, "F_GETOWN");
+		check_return(args, ret, "F_GETOWN");
 	}
 #endif
 
@@ -134,20 +134,20 @@ static int do_fcntl(const int fd, const char *name)
 		struct f_owner_ex owner;
 
 		owner.type = F_OWNER_PID;
-		owner.pid = getpid();
+		owner.pid = args->pid;
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(ret, name, "F_SETOWN_EX, F_OWNER_PID");
+		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PID");
 
 		owner.type = F_OWNER_PGRP;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(ret, name, "F_SETOWN_EX, F_OWNER_PGRP");
+		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PGRP");
 
 #if defined(__linux__)
 		owner.type = F_OWNER_TID;
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(ret, name, "F_SETOWN_EX, F_OWNER_TID");
+		check_return(args, ret, "F_SETOWN_EX, F_OWNER_TID");
 #endif
 	}
 #endif
@@ -159,16 +159,16 @@ static int do_fcntl(const int fd, const char *name)
 
 		owner.type = F_OWNER_PID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(ret, name, "F_GETOWN_EX, F_OWNER_PID");
+		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PID");
 
 		owner.type = F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(ret, name, "F_GETOWN_EX, F_OWNER_PGRP");
+		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PGRP");
 
 #if defined(__linux__)
 		owner.type = F_OWNER_TID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(ret, name, "F_GETOWN_EX, F_OWNER_TID");
+		check_return(args, ret, "F_GETOWN_EX, F_OWNER_TID");
 #endif
 	}
 #endif
@@ -178,11 +178,11 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_SETSIG, SIGKILL);
-		check_return(ret, name, "F_SETSIG");
+		check_return(args, ret, "F_SETSIG");
 		ret = fcntl(fd, F_SETSIG, 0);
-		check_return(ret, name, "F_SETSIG");
+		check_return(args, ret, "F_SETSIG");
 		ret = fcntl(fd, F_SETSIG, SIGIO);
-		check_return(ret, name, "F_SETSIG");
+		check_return(args, ret, "F_SETSIG");
 	}
 #endif
 
@@ -191,7 +191,7 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_GETSIG);
-		check_return(ret, name, "F_GETSIG");
+		check_return(args, ret, "F_GETSIG");
 	}
 #endif
 
@@ -200,7 +200,7 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_GETOWNER_UIDS);
-		check_return(ret, name, "F_GETOWNER_UIDS");
+		check_return(args, ret, "F_GETOWNER_UIDS");
 	}
 #endif
 
@@ -209,7 +209,7 @@ static int do_fcntl(const int fd, const char *name)
 		int ret;
 
 		ret = fcntl(fd, F_GETLEASE);
-		check_return(ret, name, "F_GETLEASE");
+		check_return(args, ret, "F_GETLEASE");
 	}
 #endif
 
@@ -222,7 +222,7 @@ static int do_fcntl(const int fd, const char *name)
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err(name, "ftruncate");
+			pr_fail_err(args->name, "ftruncate");
 			goto lock_abort;
 		}
 
@@ -230,14 +230,14 @@ static int do_fcntl(const int fd, const char *name)
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
 		f.l_len = len;
-		f.l_pid = getpid();
+		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_GETLK, &f);
-		check_return(ret, name, "F_GETLK");
+		check_return(args, ret, "F_GETLK");
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail_err(name, "fcntl F_GETLK");
+			pr_fail_err(args->name, "fcntl F_GETLK");
 			goto lock_abort;
 		}
 #endif
@@ -246,44 +246,44 @@ static int do_fcntl(const int fd, const char *name)
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
 		f.l_len = len;
-		f.l_pid = getpid();
+		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLK, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto lock_abort;
-		check_return(ret, name, "F_SETLK (F_WRLCK)");
+		check_return(args, ret, "F_SETLK (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
 		f.l_len = len;
-		f.l_pid = getpid();
+		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLK, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto lock_abort;
 
-		check_return(ret, name, "F_SETLK (F_UNLCK)");
+		check_return(args, ret, "F_SETLK (F_UNLCK)");
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
 		f.l_len = len;
-		f.l_pid = getpid();
+		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLKW, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto lock_abort;
-		check_return(ret, name, "F_SETLKW (F_WRLCK)");
+		check_return(args, ret, "F_SETLKW (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
 		f.l_len = len;
-		f.l_pid = getpid();
+		f.l_pid = args->pid;
 
 		ret = fcntl(fd, F_SETLK, &f);
-		check_return(ret, name, "F_SETLK (F_UNLCK)");
+		check_return(args, ret, "F_SETLK (F_UNLCK)");
 
 lock_abort:	{ /* Nowt */ }
 	}
@@ -298,7 +298,7 @@ lock_abort:	{ /* Nowt */ }
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err(name, "ftruncate");
+			pr_fail_err(args->name, "ftruncate");
 			goto ofd_lock_abort;
 		}
 
@@ -309,11 +309,11 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_GETLK, &f);
-		check_return(ret, name, "F_GETLK");
+		check_return(args, ret, "F_GETLK");
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail_err(name, "fcntl F_OFD_GETLK");
+			pr_fail_err(args->name, "fcntl F_OFD_GETLK");
 			goto ofd_lock_abort;
 		}
 #endif
@@ -327,7 +327,7 @@ lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_OFD_SETLK, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto ofd_lock_abort;
-		check_return(ret, name, "F_OFD_SETLK (F_WRLCK)");
+		check_return(args, ret, "F_OFD_SETLK (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
@@ -338,7 +338,7 @@ lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_OFD_SETLK, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto ofd_lock_abort;
-		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
+		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)");
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
@@ -349,7 +349,7 @@ lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_OFD_SETLKW, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto ofd_lock_abort;
-		check_return(ret, name, "F_OFD_SETLKW (F_WRLCK)");
+		check_return(args, ret, "F_OFD_SETLKW (F_WRLCK)");
 
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
@@ -360,7 +360,7 @@ lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_OFD_SETLK, &f);
 		if ((ret < 0) && (errno == EAGAIN))
 			goto ofd_lock_abort;
-		check_return(ret, name, "F_OFD_SETLK (F_UNLCK)");
+		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)");
 
 ofd_lock_abort:	{ /* Nowt */ }
 	}
@@ -419,7 +419,7 @@ int stress_fcntl(args_t *args)
 	}
 
 	do {
-		do_fcntl(fd, args->name);
+		do_fcntl(args, fd);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 

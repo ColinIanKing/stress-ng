@@ -50,7 +50,6 @@ static void stress_memfd_allocs(args_t *args)
 	const size_t page_size = stress_get_pagesize();
 	const size_t min_size = 2 * page_size;
 	size_t size = opt_memfd_bytes / MAX_MEM_FDS;
-	const pid_t pid = getpid();
 
 	if (size < min_size)
 		size = min_size;
@@ -64,7 +63,7 @@ static void stress_memfd_allocs(args_t *args)
 		for (i = 0; i < MAX_MEM_FDS; i++) {
 			char filename[PATH_MAX];
 
-			snprintf(filename, sizeof(filename), "memfd-%u-%zu", pid, i);
+			snprintf(filename, sizeof(filename), "memfd-%u-%zu", args->pid, i);
 			fds[i] = shim_memfd_create(filename, 0);
 			if (fds[i] < 0) {
 				switch (errno) {

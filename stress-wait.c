@@ -131,7 +131,7 @@ int stress_wait(args_t *args)
 	pid_t pid_r, pid_k;
 
 	pr_dbg(stderr, "%s: waiter started [%d]\n",
-		args->name, (int)getpid());
+		args->name, (int)args->pid);
 
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {

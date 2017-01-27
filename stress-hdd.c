@@ -319,7 +319,6 @@ int stress_hdd(args_t *args)
 	uint8_t *buf = NULL;
 	uint8_t *alloc_buf;
 	uint64_t i, min_size, remainder;
-	const pid_t pid = getpid();
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
 	char filename[PATH_MAX];
@@ -373,7 +372,7 @@ int stress_hdd(args_t *args)
 	}
 
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -389,7 +388,7 @@ int stress_hdd(args_t *args)
 	alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return rc;
 	}
 	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
@@ -398,7 +397,7 @@ int stress_hdd(args_t *args)
 	if (ret || !alloc_buf) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return rc;
 	}
 	buf = alloc_buf;
@@ -407,7 +406,7 @@ int stress_hdd(args_t *args)
 	stress_strnrnd((char *)buf, opt_hdd_write_size);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	do {
 		int fd;
 		struct stat statbuf;
@@ -635,6 +634,6 @@ rnd_rd_retry:
 	rc = EXIT_SUCCESS;
 finish:
 	free(alloc_buf);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	return rc;
 }

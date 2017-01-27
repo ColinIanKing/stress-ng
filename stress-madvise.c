@@ -106,7 +106,6 @@ int stress_madvise(args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz = 4 *  MB;
-	const pid_t pid = getpid();
 	int ret, fd = -1;
 	NOCLOBBER int flags = MAP_SHARED;
 	NOCLOBBER int no_mem_retries = 0;
@@ -132,19 +131,19 @@ int stress_madvise(args_t *args)
 
 	memset(page, 0xa5, page_size);
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return ret;
 	}
 
@@ -209,7 +208,7 @@ int stress_madvise(args_t *args)
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",

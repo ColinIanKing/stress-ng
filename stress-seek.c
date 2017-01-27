@@ -42,7 +42,6 @@ void stress_set_seek_size(const char *optarg)
 int stress_seek(args_t *args)
 {
 	uint64_t len;
-	const pid_t pid = getpid();
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	uint8_t buf[512];
@@ -58,14 +57,14 @@ int stress_seek(args_t *args)
 	}
 	len = opt_seek_size - sizeof(buf);
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	stress_strnrnd((char *)buf, sizeof(buf));
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -172,6 +171,6 @@ re_read:
 close_finish:
 	(void)close(fd);
 finish:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	return rc;
 }

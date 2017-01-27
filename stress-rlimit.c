@@ -51,7 +51,6 @@ int stress_rlimit(args_t *args)
 	struct sigaction old_action_xcpu, old_action_xfsz;
 	int fd;
 	char filename[PATH_MAX];
-	const pid_t pid = getpid();
 	const double start = time_now();
 
 	if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
@@ -61,12 +60,12 @@ int stress_rlimit(args_t *args)
 
 	(void)umask(0077);
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
-	if (stress_temp_dir_mk(args->name, pid, args->instance) < 0)
+		args->name, args->pid, args->instance, mwc32());
+	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err(args->name, "creat");
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return EXIT_FAILURE;
 	}
 	(void)unlink(filename);
@@ -109,7 +108,7 @@ int stress_rlimit(args_t *args)
 	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
 	(void)stress_sigrestore(args->name, SIGXFSZ, &old_action_xfsz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

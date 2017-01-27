@@ -183,7 +183,7 @@ static inline pid_t stress_fiemap_spawn(
  */
 int stress_fiemap(args_t *args)
 {
-	pid_t pids[MAX_FIEMAP_PROCS], mypid;
+	pid_t pids[MAX_FIEMAP_PROCS];
 	int ret, fd, rc = EXIT_FAILURE, status;
 	char filename[PATH_MAX];
 	size_t i;
@@ -209,15 +209,14 @@ int stress_fiemap(args_t *args)
 	}
 	memset(counters, 0, counters_sz);
 
-	mypid = getpid();
-	ret = stress_temp_dir_mk(args->name, mypid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0) {
 		rc = exit_status(-ret);
 		goto clean;
 	}
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, mypid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -255,7 +254,7 @@ fail:
 	(void)close(fd);
 clean:
 	(void)munmap(counters, counters_sz);
-	(void)stress_temp_dir_rm(args->name, mypid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 	return rc;
 }
 #else

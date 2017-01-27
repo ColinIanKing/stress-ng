@@ -371,7 +371,6 @@ int stress_dnotify(args_t *args)
 {
 	char dirname[PATH_MAX];
 	int ret, i;
-	const pid_t pid = getpid();
 	struct sigaction act;
 
 	act.sa_sigaction = dnotify_handler;
@@ -383,8 +382,8 @@ int stress_dnotify(args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
@@ -392,7 +391,7 @@ int stress_dnotify(args_t *args)
 			dnotify_stressors[i].func(args->name, dirname);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

@@ -90,7 +90,6 @@ static void stress_dentry_unlink(
 	const uint64_t n)
 {
 	uint64_t i, j;
-	const pid_t pid = getpid();
 	uint64_t prime;
 	dentry_order_t ord;
 
@@ -107,7 +106,7 @@ static void stress_dentry_unlink(
 			gray_code = (j >> 1) ^ j;
 
 			stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -119,7 +118,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (k >> 1) ^ k;
 
 			stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -130,7 +129,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (i >> 1) ^ i;
 
 			stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 			(void)unlink(path);
 		}
 		break;
@@ -144,7 +143,6 @@ static void stress_dentry_unlink(
  */
 int stress_dentry(args_t *args)
 {
-	const pid_t pid = getpid();
 	int ret;
 
 	if (!set_dentries) {
@@ -154,7 +152,7 @@ int stress_dentry(args_t *args)
 			opt_dentries = MIN_DENTRIES;
 	}
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
@@ -167,7 +165,7 @@ int stress_dentry(args_t *args)
 			int fd;
 
 			stress_temp_filename(path, sizeof(path),
-				args->name, pid, args->instance, gray_code);
+				args->name, args->pid, args->instance, gray_code);
 
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
@@ -195,7 +193,7 @@ abort:
 	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n",
 		args->name, opt_dentries);
 	stress_dentry_unlink(args, opt_dentries);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return EXIT_SUCCESS;
 }

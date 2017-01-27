@@ -211,7 +211,6 @@ static void stress_filename_test(
  */
 int stress_filename (args_t *args)
 {
-	const pid_t pid = getpid();
 	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
 	char dirname[PATH_MAX];
@@ -220,7 +219,7 @@ int stress_filename (args_t *args)
 	struct statvfs buf;
 	size_t i, chars_allowed = 0, sz;
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, pid, args->instance);
+	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err(args->name, "mkdir");

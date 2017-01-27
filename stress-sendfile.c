@@ -50,7 +50,6 @@ int stress_sendfile(args_t *args)
 	char filename[PATH_MAX];
 	int fdin, fdout, ret, rc = EXIT_SUCCESS;
 	size_t sz;
-	const pid_t pid = getpid();
 
 	if (!set_sendfile_size) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -60,14 +59,14 @@ int stress_sendfile(args_t *args)
 	}
 	sz = (size_t)opt_sendfile_size;
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	(void)umask(0077);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -104,7 +103,7 @@ close_in:
 	(void)close(fdin);
 	(void)unlink(filename);
 dir_out:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	return rc;
 }

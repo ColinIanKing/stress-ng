@@ -201,7 +201,6 @@ int stress_numa(args_t *args)
 	const unsigned long num_pages = MMAP_SZ / page_sz;
 	uint8_t *buf;
 	node_t *n;
-	const pid_t mypid = getpid();
 	int rc = EXIT_FAILURE;
 
 	numa_nodes = stress_numa_get_mem_nodes(&n);
@@ -316,7 +315,7 @@ int stress_numa(args_t *args)
 		memset(old_node_mask, 0xff, sizeof(old_node_mask));
 		memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = shim_migrate_pages(mypid, max_nodes,
+		ret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
 			pr_fail_err(args->name, "migrate_pages");
@@ -335,7 +334,7 @@ int stress_numa(args_t *args)
 				dest_nodes[i] = n_tmp->node_id;
 			}
 			memset(status, 0, sizeof(status));
-			ret = shim_move_pages(mypid, num_pages, pages,
+			ret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				pr_fail_err(args->name, "move_pages");

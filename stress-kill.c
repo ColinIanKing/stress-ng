@@ -30,20 +30,18 @@
  */
 int stress_kill(args_t *args)
 {
-	const pid_t pid = getpid();
-
 	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
 
 	do {
 		int ret;
 
-		ret = kill(pid, SIGUSR1);
+		ret = kill(args->pid, SIGUSR1);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail_err(args->name, "kill");
 
 		/* Zero signal can be used to see if process exists */
-		ret = kill(pid, 0);
+		ret = kill(args->pid, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail_err(args->name, "kill");
 

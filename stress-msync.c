@@ -85,7 +85,6 @@ int stress_msync(args_t *args)
 	ssize_t ret;
 	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
 
-	const pid_t pid = getpid();
 	int fd = -1;
 	char filename[PATH_MAX];
 
@@ -110,19 +109,19 @@ int stress_msync(args_t *args)
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	rc = stress_temp_dir_mk(args->name, pid, args->instance);
+	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (rc < 0)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 		return rc;
 	}
@@ -132,7 +131,7 @@ int stress_msync(args_t *args)
 		pr_err(stderr, "%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 		return EXIT_FAILURE;
 	}
@@ -230,7 +229,7 @@ do_next:
 	(void)munmap((void *)buf, sz);
 err:
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",

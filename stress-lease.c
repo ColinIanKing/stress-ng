@@ -110,7 +110,6 @@ int stress_lease(args_t *args)
 	char filename[PATH_MAX];
 	int ret, fd, status;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
-	pid_t pid = getpid();
 	uint64_t i;
 
 	memset(l_pids, 0, sizeof(l_pids));
@@ -118,18 +117,18 @@ int stress_lease(args_t *args)
 	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename(filename, PATH_MAX,
-		args->name, pid, args->instance, mwc32());
+		args->name, args->pid, args->instance, mwc32());
 
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(args->name, pid, args->instance);
+		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 		return ret;
 	}
 	(void)close(fd);
@@ -178,7 +177,7 @@ reap:
 	}
 
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
 
 	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 
