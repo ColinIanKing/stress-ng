@@ -119,7 +119,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 			 *  really should not fail.
 			 */
 			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
-				pr_err(stderr, "%s: mprotect failed: errno=%d (%s)\n",
+				pr_err("%s: mprotect failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}

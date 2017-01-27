@@ -128,7 +128,7 @@ int stress_msync(args_t *args)
 	(void)unlink(filename);
 
 	if (ftruncate(fd, sz) < 0) {
-		pr_err(stderr, "%s: ftruncate failed, errno=%d (%s)\n",
+		pr_err("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
@@ -139,7 +139,7 @@ int stress_msync(args_t *args)
 	buf = (uint8_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
-		pr_err(stderr, "%s: failed to mmap memory, errno=%d (%s)\n",
+		pr_err("%s: failed to mmap memory, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto err;
@@ -171,7 +171,7 @@ int stress_msync(args_t *args)
 		}
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_err(stderr, "%s: cannot seet to offset %jd, "
+			pr_err("%s: cannot seet to offset %jd, "
 				"errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
@@ -199,7 +199,7 @@ do_invalidate:
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_err(stderr, "%s: cannot seet to offset %jd, errno=%d (%s)\n",
+			pr_err("%s: cannot seet to offset %jd, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			rc = EXIT_NO_RESOURCE;

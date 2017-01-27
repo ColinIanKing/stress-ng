@@ -103,7 +103,7 @@ int stress_schedpolicy(args_t *args)
 			max_prio = sched_get_priority_max(policy);
 			rng_prio = max_prio - min_prio;
 			if (rng_prio == 0) {
-				pr_err(stderr, "%s: invalid min/max priority "
+				pr_err("%s: invalid min/max priority "
 					"range for scheduling policy %s "
 					"(min=%d, max=%d)\n",
 					args->name,

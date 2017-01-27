@@ -708,7 +708,7 @@ init_done:
 #endif
 	shared->mem_cache = calloc(shared->mem_cache_size, 1);
 	if (!shared->mem_cache) {
-		pr_err(stderr, "%s: failed to allocate shared cache buffer\n",
+		pr_err("%s: failed to allocate shared cache buffer\n",
 			name);
 		return -1;
 	}

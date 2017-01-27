@@ -68,7 +68,7 @@ static int fanotify_event_init(const char *name)
 	struct mntent* mount;
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
-		pr_err(stderr, "%s: cannot initialize fanotify, errno=%d (%s)\n",
+		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
 	}
@@ -76,7 +76,7 @@ static int fanotify_event_init(const char *name)
 	/* No paths given, do all mount points */
 	if ((mounts = setmntent("/proc/self/mounts", "r")) == NULL) {
 		(void)close(fan_fd);
-		pr_err(stderr, "%s: setmntent cannot get mount points from "
+		pr_err("%s: setmntent cannot get mount points from "
 			"/proc/self/mounts, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
@@ -97,14 +97,14 @@ static int fanotify_event_init(const char *name)
 
 	if (endmntent(mounts) < 0) {
 		(void)close(fan_fd);
-		pr_err(stderr, "%s: endmntent failed, errno=%d (%s)\n",
+		pr_err("%s: endmntent failed, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
 	}
 
 	/* This really should not happen, / is always mounted */
 	if (!count) {
-		pr_err(stderr, "%s: no mount points could be monitored\n",
+		pr_err("%s: no mount points could be monitored\n",
 			name);
 		(void)close(fan_fd);
 		return -1;
@@ -132,7 +132,7 @@ int stress_fanotify(args_t *args)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_err(stderr, "%s: fork failed: errno=%d (%s)\n",
+		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;
@@ -185,7 +185,7 @@ int stress_fanotify(args_t *args)
 
 		ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
 		if (ret != 0 || buffer == NULL) {
-			pr_err(stderr, "%s: posix_memalign: cannot allocate 4K "
+			pr_err("%s: posix_memalign: cannot allocate 4K "
 				"aligned buffer\n", args->name);
 			rc = EXIT_NO_RESOURCE;
 			goto tidy;

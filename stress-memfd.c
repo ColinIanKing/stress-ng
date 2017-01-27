@@ -75,7 +75,7 @@ static void stress_memfd_allocs(args_t *args)
 				case ENOSYS:
 				case EFAULT:
 				default:
-					pr_err(stderr, "%s: memfd_create failed: errno=%d (%s)\n",
+					pr_err("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					opt_do_run = false;
 					goto clean;
@@ -197,7 +197,7 @@ again:
 	if (pid < 0) {
 		if (errno == EAGAIN)
 			goto again;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;

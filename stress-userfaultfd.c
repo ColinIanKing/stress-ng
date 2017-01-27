@@ -178,7 +178,7 @@ static int stress_userfaultfd_oomable(args_t *args)
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
-		pr_err(stderr, "%s: zero page allocation failed\n", args->name);
+		pr_err("%s: zero page allocation failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -186,14 +186,14 @@ static int stress_userfaultfd_oomable(args_t *args)
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		rc = EXIT_NO_RESOURCE;
-		pr_err(stderr, "%s: mmap failed\n", args->name);
+		pr_err("%s: mmap failed\n", args->name);
 		goto free_zeropage;
 	}
 
 	/* Get userfault fd */
 	if ((fd = shim_userfaultfd(0)) < 0) {
 		rc = exit_status(errno);
-		pr_err(stderr, "%s: userfaultfd failed, errno = %d (%s)\n",
+		pr_err("%s: userfaultfd failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto unmap_data;
 	}
@@ -206,13 +206,13 @@ static int stress_userfaultfd_oomable(args_t *args)
 	api.api = UFFD_API;
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
-		pr_err(stderr, "%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
+		pr_err("%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	if (api.api != UFFD_API) {
-		pr_err(stderr, "%s: ioctl UFFDIO_API API check failed\n",
+		pr_err("%s: ioctl UFFDIO_API API check failed\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -224,7 +224,7 @@ static int stress_userfaultfd_oomable(args_t *args)
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
 	if (ioctl(fd, UFFDIO_REGISTER, &reg) < 0) {
-		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
+		pr_err("%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -232,14 +232,14 @@ static int stress_userfaultfd_oomable(args_t *args)
 
 	/* OK, so do we have copy supported? */
 	if ((reg.ioctls & uffdio_copy) != uffdio_copy) {
-		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_COPY\n",
+		pr_err("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_COPY\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	/* OK, so do we have zeropage supported? */
 	if ((reg.ioctls & uffdio_zeropage) != uffdio_zeropage) {
-		pr_err(stderr, "%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
+		pr_err("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -259,7 +259,7 @@ static int stress_userfaultfd_oomable(args_t *args)
 	pid = clone(stress_userfaultfd_child, align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
-		pr_err(stderr, "%s: fork failed, errno = %d (%s)\n",
+		pr_err("%s: fork failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto unreg;
 	}
@@ -342,7 +342,7 @@ do_read:
 	}
 unreg:
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {
-		pr_err(stderr, "%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
+		pr_err("%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -367,7 +367,7 @@ int stress_userfaultfd(args_t *args)
 	if (pid < 0) {
 		if (errno == EAGAIN)
 			return EXIT_NO_RESOURCE;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		/* Parent */

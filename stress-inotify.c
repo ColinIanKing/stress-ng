@@ -109,7 +109,7 @@ retry:
 		err = select(fd + 1, &rfds, NULL, NULL, &tv);
 		if (err == -1) {
 			if (errno != EINTR)
-				pr_err(stderr, "%s: select error: errno=%d (%s)\n",
+				pr_err("%s: select error: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			break;
 		} else if (err == 0) {
@@ -168,7 +168,7 @@ redo:
 cleanup:
 	(void)inotify_rm_watch(fd, wd);
 	if (close(fd) < 0) {
-		pr_err(stderr, "%s: close error: errno=%d (%s)\n",
+		pr_err("%s: close error: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 }
@@ -180,7 +180,7 @@ cleanup:
 static int rm_file(args_t *args, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
-		pr_err(stderr, "%s: cannot remove file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -215,7 +215,7 @@ static int rm_dir(args_t *args, const char *path)
 	}
 	ret = rmdir(path);
 	if (ret < 0 && errno != ENOENT)
-		pr_err(stderr, "%s: cannot remove directory %s: errno=%d (%s)\n",
+		pr_err("%s: cannot remove directory %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 	return ret;
 }
@@ -227,7 +227,7 @@ static int rm_dir(args_t *args, const char *path)
 static int mk_dir(args_t *args, const char *path)
 {
 	if (mkdir(path, DIR_FLAGS) < 0) {
-		pr_err(stderr, "%s: cannot mkdir %s: errno=%d (%s)\n",
+		pr_err("%s: cannot mkdir %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -260,7 +260,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 
 	(void)rm_file(args, filename);
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
@@ -271,7 +271,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 		int ret;
 
 		if ((ret = write(fd, buffer, n)) < 0) {
-			pr_err(stderr, "%s: error writing to file %s: errno=%d (%s)\n",
+			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
@@ -280,7 +280,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 	}
 
 	if (close(fd) < 0) {
-		pr_err(stderr, "%s: cannot close file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot close file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
@@ -295,7 +295,7 @@ static int inotify_attrib_helper(
 {
 	(void)dummy;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
-		pr_err(stderr, "%s: cannot chmod file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot chmod file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -326,7 +326,7 @@ static int inotify_access_helper(
 
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
-		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -336,7 +336,7 @@ do_access:
 	if (opt_do_run && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
-		pr_err(stderr, "%s: cannot read file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
@@ -369,7 +369,7 @@ static int inotify_modify_helper(
 	if (mk_file(args, path, 4096) < 0)
 		return -1;
 	if ((fd = open(path, O_RDWR)) < 0) {
-		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 		goto remove;
@@ -378,7 +378,7 @@ do_modify:
 	if (opt_do_run && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
-		pr_err(stderr, "%s: cannot write to file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
@@ -405,7 +405,7 @@ static int inotify_creat_helper(
 	(void)dummy;
 	int fd;
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -432,7 +432,7 @@ static int inotify_open_helper(
 
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
-		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -506,7 +506,7 @@ static int inotify_move_self_helper(
 	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+		pr_err("%s: cannot rename %s to %s: errno=%d (%s)\n",
 			args->name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
@@ -536,7 +536,7 @@ static int inotify_moved_to_helper(
 	const char *oldpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+		pr_err("%s: cannot rename %s to %s: errno=%d (%s)\n",
 			args->name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
@@ -570,7 +570,7 @@ static int inotify_moved_from_helper(
 	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+		pr_err("%s: cannot rename %s to %s: errno=%d (%s)\n",
 			args->name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
@@ -618,7 +618,7 @@ static void inotify_close_write_file(args_t *args, const char *path)
 		return;
 
 	if ((fd = open(filepath, O_RDWR)) < 0) {
-		pr_err(stderr, "%s: cannot re-open %s: errno=%d (%s)\n",
+		pr_err("%s: cannot re-open %s: errno=%d (%s)\n",
 			args->name, filepath, errno, strerror(errno));
 		return;
 	}
@@ -651,7 +651,7 @@ static void inotify_close_nowrite_file(args_t *args, const char *path)
 		return;
 
 	if ((fd = open(filepath, O_RDONLY)) < 0) {
-		pr_err(stderr, "%s: cannot re-open %s: errno=%d (%s)\n",
+		pr_err("%s: cannot re-open %s: errno=%d (%s)\n",
 			args->name, filepath, errno, strerror(errno));
 		(void)rm_file(args, filepath);
 		return;

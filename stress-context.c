@@ -70,7 +70,7 @@ static int stress_context_init(
 	const size_t stack_size)
 {
 	if (getcontext(uctx) < 0) {
-		pr_err(stderr, "%s: getcontext failed: %d (%s)\n",
+		pr_err("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -136,7 +136,7 @@ int stress_context(args_t *args)
 
 	/* And start.. */
 	if (swapcontext(&uctx_main, &uctx_thread1) < 0) {
-		pr_err(stderr, "%s: swapcontext failed: %d (%s)\n",
+		pr_err("%s: swapcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

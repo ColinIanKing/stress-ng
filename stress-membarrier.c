@@ -95,7 +95,7 @@ int stress_membarrier(args_t *args)
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
-		pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
+		pr_err("%s: membarrier failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -118,7 +118,7 @@ int stress_membarrier(args_t *args)
 	do {
 		ret = shim_membarrier(MEMBARRIER_CMD_SHARED, 0);
 		if (ret < 0) {
-			pr_err(stderr, "%s: membarrier failed: errno=%d: (%s)\n",
+			pr_err("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 		inc_counter(args);

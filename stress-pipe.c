@@ -98,18 +98,18 @@ static void pipe_change_size(args_t *args, const int fd)
 		return;
 #endif
 	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {
-		pr_err(stderr, "%s: cannot set pipe size, keeping "
+		pr_err("%s: cannot set pipe size, keeping "
 			"default pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 #if defined(F_GETPIPE_SZ)
 	/* Sanity check size */
 	if ((sz = fcntl(fd, F_GETPIPE_SZ)) < 0) {
-		pr_err(stderr, "%s: cannot get pipe size, errno=%d (%s)\n",
+		pr_err("%s: cannot get pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	} else {
 		if ((size_t)sz != opt_pipe_size) {
-			pr_err(stderr, "%s: cannot set desired pipe size, "
+			pr_err("%s: cannot set desired pipe size, "
 				"pipe size=%zd, errno=%d (%s)\n",
 				args->name, sz, errno, strerror(errno));
 		}

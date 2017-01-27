@@ -157,7 +157,7 @@ int stress_madvise(args_t *args)
 		uint8_t *buf;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
+			pr_err("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
 		}

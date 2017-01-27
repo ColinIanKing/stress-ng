@@ -41,7 +41,7 @@ again:
 	if (pid < 0) {
 		if (errno == EAGAIN)
 			goto again;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
@@ -114,13 +114,13 @@ again:
 				if ((errno == ENOMEM) || (errno == EAGAIN)) {
 					nomems++;
 					if (brk(start_ptr) < 0) {
-						pr_err(stderr, "%s: brk(%p) failed: errno=%d (%s)\n",
+						pr_err("%s: brk(%p) failed: errno=%d (%s)\n",
 							args->name, start_ptr, errno,
 							strerror(errno));
 						exit(EXIT_FAILURE);
 					}
 				} else {
-					pr_err(stderr, "%s: sbrk(%d) failed: errno=%d (%s)\n",
+					pr_err("%s: sbrk(%d) failed: errno=%d (%s)\n",
 						args->name, (int)page_size, errno,
 						strerror(errno));
 					exit(EXIT_FAILURE);

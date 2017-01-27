@@ -153,17 +153,17 @@ static int do_quotas(args_t *args, const dev_info_t *dev)
 	}
 #endif
 	if (tested == 0) {
-		pr_err(stderr, "%s: quotactl() failed, quota commands "
+		pr_err("%s: quotactl() failed, quota commands "
 			"not available\n", args->name);
 		return -1;
 	}
 	if (tested == enosys) {
-		pr_err(stderr, "%s: quotactl() failed, not available "
+		pr_err("%s: quotactl() failed, not available "
 			"on this kernel\n", args->name);
 		return -1;
 	}
 	if (tested == failed) {
-		pr_err(stderr, "%s: quotactl() failed, all quota commands "
+		pr_err("%s: quotactl() failed, all quota commands "
 			"failed (maybe privilege issues, use -v "
 			"to see why)\n", args->name);
 		return -1;
@@ -192,7 +192,7 @@ int stress_quota(args_t *args)
 
 	dir = opendir("/dev/");
 	if (!dir) {
-		pr_err(stderr, "%s: opendir on /dev failed: errno=%d: (%s)\n",
+		pr_err("%s: opendir on /dev failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return rc;
 	}
@@ -219,7 +219,7 @@ int stress_quota(args_t *args)
 				devs[i].name = strdup(path);
 				devs[i].mount = mnts[i];
 				if (!devs[i].name) {
-					pr_err(stderr, "%s: out of memory\n",
+					pr_err("%s: out of memory\n",
 						args->name);
 					closedir(dir);
 					goto tidy;
@@ -249,7 +249,7 @@ int stress_quota(args_t *args)
 		memset(&devs[i], 0, sizeof(devs[i]));
 
 	if (!n_devs) {
-		pr_err(stderr, "%s: cannot find any candidate block "
+		pr_err("%s: cannot find any candidate block "
 			"devices with quota enabled\n", args->name);
 	} else {
 		do {

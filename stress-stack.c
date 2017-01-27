@@ -73,7 +73,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
@@ -108,7 +108,7 @@ again:
 		stress_parent_died_alarm();
 
 		if (start_ptr == (void *) -1) {
-			pr_err(stderr, "%s: sbrk(0) failed: errno=%d (%s)\n",
+			pr_err("%s: sbrk(0) failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			exit(EXIT_FAILURE);
 		}

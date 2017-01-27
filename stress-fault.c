@@ -70,7 +70,7 @@ int stress_fault(args_t *args)
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
 			do_jmp = false;
-			pr_err(stderr, "%s: unexpected segmentation fault\n",
+			pr_err("%s: unexpected segmentation fault\n",
 				args->name);
 			break;
 		}
@@ -134,7 +134,7 @@ redo:
 		(void)fd;
 
 		if (ptr == MAP_FAILED) {
-			pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+			pr_err("%s: mmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 
@@ -142,7 +142,7 @@ redo:
 		*ptr = 0;	/* Cause the page fault */
 
 		if (munmap(ptr, 1) < 0) {
-			pr_err(stderr, "%s: munmap failed: errno=%d (%s)\n",
+			pr_err("%s: munmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

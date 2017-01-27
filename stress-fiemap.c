@@ -113,7 +113,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(struct fiemap));
 		if (!fiemap) {
-			pr_err(stderr, "Out of memory allocating fiemap\n");
+			pr_err("Out of memory allocating fiemap\n");
 			break;
 		}
 		fiemap->fm_length = ~0;
@@ -203,7 +203,7 @@ int stress_fiemap(args_t *args)
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

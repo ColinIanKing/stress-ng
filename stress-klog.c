@@ -50,14 +50,14 @@ int stress_klog(args_t *args)
 	len  = shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
 		if (!args->instance)
-			pr_err(stderr, "%s: cannot determine syslog buffer "
+			pr_err("%s: cannot determine syslog buffer "
 				"size: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	if (len == 0) {
 		if (!args->instance)
-			pr_err(stderr, "%s: zero sized syslog buffer, aborting.\n", args->name);
+			pr_err("%s: zero sized syslog buffer, aborting.\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (len > (ssize_t)(4 * MB)) {
@@ -67,7 +67,7 @@ int stress_klog(args_t *args)
 	}
 	buffer = malloc((size_t)len);
 	if (!buffer) {
-		pr_err(stderr, "%s: cannot allocate syslog buffer\n", args->name);
+		pr_err("%s: cannot allocate syslog buffer\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

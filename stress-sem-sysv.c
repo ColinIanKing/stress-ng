@@ -85,7 +85,7 @@ void stress_semaphore_sysv_init(void)
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
-		pr_err(stderr, "semaphore init (System V) failed: errno=%d: "
+		pr_err("semaphore init (System V) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -252,7 +252,7 @@ int stress_sem_sysv(args_t *args)
 	}
 
 	if (!shared->sem_sysv.init) {
-		pr_err(stderr, "%s: aborting, semaphore not initialised\n", args->name);
+		pr_err("%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
 

@@ -140,7 +140,7 @@ reap:
 
 			if (waitpid(pids[i], &status, 0) < 0) {
 				if (errno != EINTR) {
-					pr_err(stderr, "%s: waitpid errno=%d (%s)\n",
+					pr_err("%s: waitpid errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 			} else {

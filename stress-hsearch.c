@@ -66,7 +66,7 @@ int stress_hsearch(args_t *args)
 	}
 
 	if ((keys = calloc(max, sizeof(char *))) == NULL) {
-		pr_err(stderr, "%s: cannot allocate keys\n", args->name);
+		pr_err("%s: cannot allocate keys\n", args->name);
 		goto free_hash;
 	}
 
@@ -78,7 +78,7 @@ int stress_hsearch(args_t *args)
 		snprintf(buffer, sizeof(buffer), "%zu", i);
 		keys[i] = strdup(buffer);
 		if (!keys[i]) {
-			pr_err(stderr, "%s: cannot allocate key\n", args->name);
+			pr_err("%s: cannot allocate key\n", args->name);
 			goto free_all;
 		}
 
@@ -86,7 +86,7 @@ int stress_hsearch(args_t *args)
 		e.data = (void *)i;
 
 		if (hsearch(e, ENTER) == NULL) {
-			pr_err(stderr, "%s: cannot allocate new hash item\n", args->name);
+			pr_err("%s: cannot allocate new hash item\n", args->name);
 			goto free_all;
 		}
 	}

@@ -73,7 +73,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_err(stderr, "%s: fifo read open failed: errno=%d (%s)\n",
+		pr_err("%s: fifo read open failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return;
 	}
@@ -93,31 +93,31 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err(stderr, "%s: select failed: errno=%d (%s)\n",
+			pr_err("%s: select failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		} else if (ret == 0) {
-			pr_err(stderr, "%s: read timeout!\n", name);
+			pr_err("%s: read timeout!\n", name);
 			break;
 		}
 		sz = read(fd, &val, sizeof(val));
 		if (sz < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err(stderr, "%s: fifo read failed: errno=%d (%s)\n",
+			pr_err("%s: fifo read failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
 		if (sz == 0)
 			break;
 		if (sz != sizeof(val)) {
-			pr_err(stderr, "%s: fifo read did not get uint64\n",
+			pr_err("%s: fifo read did not get uint64\n",
 				name);
 			break;
 		}
 		if ((val < lastval) &&
 		    ((~val & wrap_mask) && (lastval & wrap_mask))) {
-			pr_err(stderr, "%s: fifo read did not get "
+			pr_err("%s: fifo read did not get "
 				"expected value\n", name);
 			break;
 		}
@@ -155,7 +155,7 @@ int stress_fifo(args_t *args)
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = exit_status(errno);
-		pr_err(stderr, "%s: mkfifo failed: errno=%d (%s)\n",
+		pr_err("%s: mkfifo failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
@@ -177,7 +177,7 @@ int stress_fifo(args_t *args)
 			rc = 0;
 		} else {
 			rc = exit_status(fd);
-			pr_err(stderr, "%s: fifo write open failed: "
+			pr_err("%s: fifo write open failed: "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}

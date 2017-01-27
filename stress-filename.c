@@ -99,7 +99,7 @@ static int stress_filename_probe(
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			/* We only expect EINVAL on bad filenames */
 			if (errno != EINVAL) {
-				pr_err(stderr, "%s: creat() failed when probing "
+				pr_err("%s: creat() failed when probing "
 					"for allowed filename characters, "
 					"errno = %d (%s)\n",
 					args->name, errno, strerror(errno));

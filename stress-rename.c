@@ -49,7 +49,7 @@ restart:
 
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		int rc = exit_status(errno);
-		pr_err(stderr, "%s: fopen failed: errno=%d: (%s)\n",
+		pr_err("%s: fopen failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 		(void)stress_temp_dir_rm(args->name, args->pid, inst2);

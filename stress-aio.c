@@ -110,7 +110,7 @@ static void aio_issue_cancel(const char *name, io_req_t *io_req)
 			name, io_req->request);
 		break;
 	default:
-		pr_err(stderr, "%s: %d error: %d %s\n",
+		pr_err("%s: %d error: %d %s\n",
 			name, io_req->request,
 			errno, strerror(errno));
 	}
@@ -146,7 +146,7 @@ static int issue_aio_request(
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err(stderr, "%s: failed to issue aio request: %d (%s)\n",
+			pr_err("%s: failed to issue aio request: %d (%s)\n",
 				name, errno, strerror(errno));
 		}
 		return ret;
@@ -176,7 +176,7 @@ int stress_aio(args_t *args)
 	}
 
 	if ((io_reqs = calloc(opt_aio_requests, sizeof(io_req_t))) == NULL) {
-		pr_err(stderr, "%s: cannot allocate io request structures\n", args->name);
+		pr_err("%s: cannot allocate io request structures\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

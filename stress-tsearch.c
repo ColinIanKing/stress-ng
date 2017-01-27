@@ -88,7 +88,7 @@ int stress_tsearch(args_t *args)
 			if (tsearch(&data[i], &root, cmp) == NULL) {
 				size_t j;
 
-				pr_err(stderr, "%s: cannot allocate new "
+				pr_err("%s: cannot allocate new "
 					"tree node\n", args->name);
 				for (j = 0; j < i; j++)
 					tdelete(&data[j], &root, cmp);

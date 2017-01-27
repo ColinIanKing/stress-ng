@@ -1757,14 +1757,14 @@ redo:
 					case EXIT_SUCCESS:
 						break;
 					case EXIT_NO_RESOURCE:
-						pr_err(stderr, "process [%d] (stress-ng-%s) aborted early, out of system resources\n",
+						pr_err("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
 							ret, stressors[i].name);
 						*resource_success = false;
 						break;
 					case EXIT_NOT_IMPLEMENTED:
 						break;
 					default:
-						pr_err(stderr, "process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
+						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
 							ret, stressors[i].name, WEXITSTATUS(status));
 						*success = false;
 						break;
@@ -1853,7 +1853,7 @@ again:
 						(void)shim_usleep(100000);
 						goto again;
 					}
-					pr_err(stderr, "Cannot fork: errno=%d (%s)\n",
+					pr_err("Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
 					kill_procs(SIGALRM);
 					goto wait_for_procs;
@@ -1996,7 +1996,7 @@ static int show_hogs(const uint32_t opt_class)
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);
 				if (!newstr) {
-					pr_err(stderr, "Cannot allocate temporary buffer\n");
+					pr_err("Cannot allocate temporary buffer\n");
 					free(str);
 					return -1;
 				}
@@ -2095,7 +2095,7 @@ static void times_dump(
 	int rc;
 
 	if (times(&buf) == (clock_t)-1) {
-		pr_err(stderr, "cannot get run time information: errno=%d (%s)\n",
+		pr_err("cannot get run time information: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return;
 	}
@@ -2223,7 +2223,7 @@ static inline void stress_map_shared(const size_t len)
 	shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
 	if (shared == MAP_FAILED) {
-		pr_err(stderr, "Cannot mmap to shared memory region: errno=%d (%s)\n",
+		pr_err("Cannot mmap to shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
 		free_procs();
 		exit(EXIT_FAILURE);
@@ -2389,13 +2389,13 @@ int main(int argc, char **argv)
 	pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
-		pr_err(stderr, "sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
+		pr_err("sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	ticks_per_sec = stress_get_ticks_per_second();
 	if (ticks_per_sec < 0) {
-		pr_err(stderr, "sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
+		pr_err("sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -2981,7 +2981,7 @@ next_opt:
 
 	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		if (total_procs) {
-			pr_err(stderr, "sequential option cannot be specified "
+			pr_err("sequential option cannot be specified "
 				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
@@ -2997,7 +2997,7 @@ next_opt:
 			procs[i].bogo_ops = 0;
 			procs[i].pids = calloc(opt_sequential, sizeof(pid_t));
 			if (!procs[i].pids) {
-				pr_err(stderr, "cannot allocate pid list\n");
+				pr_err("cannot allocate pid list\n");
 				free_procs();
 				exit(EXIT_FAILURE);
 			}
@@ -3005,7 +3005,7 @@ next_opt:
 		max_procs = opt_sequential;
 	} else if (opt_flags & OPT_FLAGS_ALL) {
 		if (total_procs) {
-			pr_err(stderr, "the all option cannot be specified "
+			pr_err("the all option cannot be specified "
 				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
@@ -3027,7 +3027,7 @@ next_opt:
 			if (procs[i].num_procs) {
 				procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
 				if (!procs[i].pids) {
-					pr_err(stderr, "cannot allocate pid list\n");
+					pr_err("cannot allocate pid list\n");
 					free_procs();
 					exit(EXIT_FAILURE);
 				}
@@ -3035,7 +3035,7 @@ next_opt:
 		}
 	} else {
 		if (!total_procs) {
-			pr_err(stderr, "No stress workers\n");
+			pr_err("No stress workers\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
@@ -3056,7 +3056,7 @@ next_opt:
 			if (procs[i].num_procs) {
 				procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
 				if (!procs[i].pids) {
-					pr_err(stderr, "cannot allocate pid list\n");
+					pr_err("cannot allocate pid list\n");
 					free_procs();
 					exit(EXIT_FAILURE);
 				}
@@ -3142,7 +3142,7 @@ next_opt:
 	if (yamlfile) {
 		yaml = fopen(yamlfile, "w");
 		if (!yaml)
-			pr_err(stdout, "Cannot output YAML data to %s\n",
+			pr_err("Cannot output YAML data to %s\n",
 				yamlfile);
 
 		pr_yaml(yaml, "---\n");

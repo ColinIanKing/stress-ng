@@ -369,7 +369,7 @@ static int stress_sctp_server(
 #endif
 			default:
 				/* Should never happen */
-				pr_err(stderr, "%s: bad option %d\n", args->name, opt_socket_opts);
+				pr_err("%s: bad option %d\n", args->name, opt_socket_opts);
 				(void)close(sfd);
 				goto die_close;
 			}

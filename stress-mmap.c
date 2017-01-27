@@ -112,7 +112,7 @@ static void stress_mmap_child(
 		uint8_t *buf = NULL;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_err(stderr, "%s: gave up trying to mmap, no available memory\n",
+			pr_err("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
 		}
@@ -311,7 +311,7 @@ again:
 	if (pid < 0) {
 		if (errno == EAGAIN)
 			goto again;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;

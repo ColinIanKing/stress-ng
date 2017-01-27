@@ -68,7 +68,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 	if (pid > 0) {

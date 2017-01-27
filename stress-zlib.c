@@ -347,7 +347,7 @@ int stress_zlib(args_t *args)
 	pid_t pid;
 
 	if (pipe(fds) < 0) {
-		pr_err(stderr, "%s: pipe failed, errno=%d (%s)\n",
+		pr_err("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -356,7 +356,7 @@ int stress_zlib(args_t *args)
 	if (pid < 0) {
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_err(stderr, "%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {

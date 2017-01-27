@@ -192,7 +192,7 @@ static uint64_t size_to_bytes(const char *str)
 		multiplier = (1024 * 1024);
 		break;
 	default:
-		pr_err(stderr, "unable to convert string to bytes: %s\n", str);
+		pr_err("unable to convert string to bytes: %s\n", str);
 		bytes = 0;
 		goto out;
 	}
@@ -465,7 +465,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	if (ret2 != S_IFDIR) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err(stderr, "file %s is not a directory\n",
+			pr_err("file %s is not a directory\n",
 				glob_path);
 		return ret;
 	}
@@ -476,7 +476,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	if (ret2 != 0) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
+			pr_err("glob on regex \"%s\" failed: %d\n",
 				glob_path, ret);
 		return ret;
 	}
@@ -486,7 +486,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	if (!cpu->cache_count) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err(stderr, "no CPU caches found\n");
+			pr_err("no CPU caches found\n");
 		goto err;
 	}
 
@@ -494,7 +494,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	if (!cpu->caches) {
 		size_t cache_bytes = cpu->cache_count * sizeof(cpu_cache_t);
 
-		pr_err(stderr, "failed to allocate %zu bytes for cpu caches\n",
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			cache_bytes);
 		goto err;
 	}
@@ -537,19 +537,19 @@ cpus_t * get_all_cpu_cache_details(void)
 
 	ret = file_exists(SYS_CPU_PREFIX);
 	if (!ret) {
-		pr_err(stderr, "%s does not exist\n", SYS_CPU_PREFIX);
+		pr_err("%s does not exist\n", SYS_CPU_PREFIX);
 		return NULL;
 	}
 
 	if (ret != S_IFDIR) {
-		pr_err(stderr, "file %s is not a directory\n", SYS_CPU_PREFIX);
+		pr_err("file %s is not a directory\n", SYS_CPU_PREFIX);
 		return NULL;
 	}
 
 	ret = glob(GLOB_PATTERN, GLOB_ONLYDIR, NULL, &globbuf);
 
 	if (ret != 0) {
-		pr_err(stderr, "glob on regex \"%s\" failed: %d\n",
+		pr_err("glob on regex \"%s\" failed: %d\n",
 			GLOB_PATTERN, ret);
 		return NULL;
 	}
@@ -559,7 +559,7 @@ cpus_t * get_all_cpu_cache_details(void)
 
 	if (!cpu_count) {
 		/* Maybe we should check this? */
-		pr_err(stderr, "no CPUs found - is /sys mounted?\n");
+		pr_err("no CPUs found - is /sys mounted?\n");
 		goto out;
 	}
 

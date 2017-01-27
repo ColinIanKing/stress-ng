@@ -166,7 +166,7 @@ int stress_netlink_proc(args_t *args)
 
 	if ((sock = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_CONNECTOR)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
-			pr_err(stderr, "%s: kernel does not support netlink, errno=%d (%s)\n",
+			pr_err("%s: kernel does not support netlink, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
@@ -181,7 +181,7 @@ int stress_netlink_proc(args_t *args)
 	addr.nl_groups = CN_IDX_PROC;
 
 	if (bind(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		pr_err(stderr, "%s: bind failed: errno=%d (%s)\n",
+		pr_err("%s: bind failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
@@ -206,7 +206,7 @@ int stress_netlink_proc(args_t *args)
 	iov[2].iov_len = sizeof(op);
 
 	if (writev(sock, iov, 3) < 0) {
-		pr_err(stderr, "%s: writev failed: errno=%d (%s)\n",
+		pr_err("%s: writev failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;

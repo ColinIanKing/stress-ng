@@ -112,12 +112,12 @@ int thrash_start(void)
 		return -1;
 	}
 	if (thrash_pid) {
-		pr_err(stderr, "thrash background process already started\n");
+		pr_err("thrash background process already started\n");
 		return -1;
 	}
 	thrash_pid = fork();
 	if (thrash_pid < 0) {
-		pr_err(stderr, "thrash background process failed to fork: %d (%s)\n",
+		pr_err("thrash background process failed to fork: %d (%s)\n",
 			errno, strerror(errno));
 		return -1;
 	} else if (thrash_pid == 0) {

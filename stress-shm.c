@@ -137,7 +137,7 @@ static int stress_shm_posix_child(
 			shm_name[SHM_NAME_LEN - 1] = '\0';
 			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
-				pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+				pr_err("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
@@ -215,7 +215,7 @@ reap:
 	msg.index = -1;
 	strncpy(msg.shm_name, "", SHM_NAME_LEN);
 	if (write(fd, &msg, sizeof(msg)) < 0) {
-		pr_err(stderr, "%s: write failed: errno=%d: (%s)\n",
+		pr_err("%s: write failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
@@ -263,7 +263,7 @@ fork_again:
 			/* Can't fork, retry? */
 			if (errno == EAGAIN)
 				goto fork_again;
-			pr_err(stderr, "%s: fork failed: errno=%d: (%s)\n",
+			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);
 			(void)close(pipefds[1]);

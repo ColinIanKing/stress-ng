@@ -325,7 +325,7 @@ static int stress_af_alg_cipher(
 				return EXIT_FAILURE;
 			} else {
 				if (memcmp(input, output, sizeof(input))) {
-					pr_err(stderr, "%s: decrypted data "
+					pr_err("%s: decrypted data "
 						"different from original data "
 						"using %s\n",
 						args->name,  algo_hash_info[i].name);

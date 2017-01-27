@@ -90,7 +90,7 @@ int stress_cpu_online(args_t *args)
 
 	cpu_online = calloc(cpus, sizeof(bool));
 	if (!cpu_online) {
-		pr_err(stderr, "%s: out of memory\n", args->name);
+		pr_err("%s: out of memory\n", args->name);
 		return EXIT_FAILURE;
 	}
 

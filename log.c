@@ -69,7 +69,7 @@ void pr_openlog(const char *filename)
 
 	log_file = fopen(filename, "w");
 	if (!log_file) {
-		pr_err(stderr, "Cannot open log file %s\n", filename);
+		pr_err("Cannot open log file %s\n", filename);
 		return;
 	}
 	atexit(pr_closelog);

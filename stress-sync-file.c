@@ -95,21 +95,21 @@ static int stress_sync_allocate(args_t *args, const int fd)
 
 	ret = ftruncate(fd, 0);
 	if (ret < 0) {
-		pr_err(stderr, "%s: ftruncate failed: errno=%d (%s)\n",
+		pr_err("%s: ftruncate failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
 	}
 
 	ret = fdatasync(fd);
 	if (ret < 0) {
-		pr_err(stderr, "%s: fdatasync failed: errno=%d (%s)\n",
+		pr_err("%s: fdatasync failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
 	}
 
 	ret = shim_fallocate(fd, 0, (off_t)0, opt_sync_file_bytes);
 	if (ret < 0) {
-		pr_err(stderr, "%s: fallocate failed: errno=%d (%s)\n",
+		pr_err("%s: fallocate failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
 	}

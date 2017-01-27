@@ -53,7 +53,7 @@ int tz_init(tz_info_t **tz_info_list)
 			break;
 
 		if ((tz_info = calloc(1, sizeof(*tz_info))) == NULL) {
-			pr_err(stderr, "Cannot allocate thermal information.\n");
+			pr_err("Cannot allocate thermal information.\n");
 			closedir(dir);
 			return -1;
 		}

@@ -104,7 +104,7 @@ int set_cpu_affinity(char *const arg)
 			CPU_SET(i, &set);
 	}
 	if (sched_setaffinity(getpid(), sizeof(set), &set) < 0) {
-		pr_err(stderr, "%s: cannot set CPU affinity, errno=%d (%s)\n",
+		pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
 			option, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}

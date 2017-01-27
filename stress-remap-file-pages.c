@@ -97,7 +97,7 @@ int stress_remap(args_t *args)
 	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

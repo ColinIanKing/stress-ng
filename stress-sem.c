@@ -58,7 +58,7 @@ void stress_semaphore_posix_init(void)
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
-		pr_err(stderr, "semaphore init (POSIX) failed: errno=%d: "
+		pr_err("semaphore init (POSIX) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 	}
 }
@@ -71,7 +71,7 @@ void stress_semaphore_posix_destroy(void)
 {
 	if (shared->sem_posix.init) {
 		if (sem_destroy(&shared->sem_posix.sem) < 0) {
-			pr_err(stderr, "semaphore destroy failed: errno=%d (%s)\n",
+			pr_err("semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}
 	}
@@ -156,7 +156,7 @@ int stress_sem(args_t *args)
 	}
 
 	if (!shared->sem_posix.init) {
-		pr_err(stderr, "%s: aborting, semaphore not initialised\n", args->name);
+		pr_err("%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
 

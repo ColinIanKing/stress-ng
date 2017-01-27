@@ -85,7 +85,7 @@ int stress_yield(args_t *args)
 	yielders_sz = yielders * sizeof(pid_t);
 	pids = calloc(yielders, sizeof(pid_t));
 	if (!pids) {
-		pr_err(stderr, "%s: calloc failed\n", args->name);
+		pr_err("%s: calloc failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	memset(pids, 0, yielders_sz);
@@ -96,7 +96,7 @@ int stress_yield(args_t *args)
 	if (counters == MAP_FAILED) {
 		int rc = exit_status(errno);
 
-		pr_err(stderr, "%s: mmap failed: errno=%d (%s)\n",
+		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		free(pids);
 		return rc;

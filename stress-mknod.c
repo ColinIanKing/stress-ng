@@ -66,7 +66,7 @@ int stress_mknod(args_t *args)
 	int ret;
 
 	if (num_nodes == 0) {
-		pr_err(stderr, "%s: aborting, no valid mknod modes.\n",
+		pr_err("%s: aborting, no valid mknod modes.\n",
 			args->name);
 		return EXIT_FAILURE;
 	}

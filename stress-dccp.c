@@ -319,7 +319,7 @@ again:
 #endif
 			default:
 				/* Should never happen */
-				pr_err(stderr, "%s: bad option %d\n", args->name, opt_dccp_opts);
+				pr_err("%s: bad option %d\n", args->name, opt_dccp_opts);
 				(void)close(sfd);
 				goto die_close;
 			}

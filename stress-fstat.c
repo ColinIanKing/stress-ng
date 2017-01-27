@@ -92,7 +92,7 @@ int stress_fstat(args_t *args)
 	}
 
 	if ((dp = opendir(opt_fstat_dir)) == NULL) {
-		pr_err(stderr, "%s: opendir on %s failed: errno=%d: (%s)\n",
+		pr_err("%s: opendir on %s failed: errno=%d: (%s)\n",
 			args->name, opt_fstat_dir, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -111,12 +111,12 @@ int stress_fstat(args_t *args)
 		if (do_not_stat(path))
 			continue;
 		if ((di = calloc(1, sizeof(*di))) == NULL) {
-			pr_err(stderr, "%s: out of memory\n", args->name);
+			pr_err("%s: out of memory\n", args->name);
 			(void)closedir(dp);
 			goto free_cache;
 		}
 		if ((di->path = strdup(path)) == NULL) {
-			pr_err(stderr, "%s: out of memory\n", args->name);
+			pr_err("%s: out of memory\n", args->name);
 			free(di);
 			(void)closedir(dp);
 			goto free_cache;

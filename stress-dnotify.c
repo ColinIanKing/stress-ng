@@ -105,7 +105,7 @@ cleanup:
 static int rm_file(args_t *args, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
-		pr_err(stderr, "%s: cannot remove file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -137,7 +137,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 	char buffer[BUF_SIZE];
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
@@ -148,7 +148,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 		int ret;
 
 		if ((ret = write(fd, buffer, n)) < 0) {
-			pr_err(stderr, "%s: error writing to file %s: errno=%d (%s)\n",
+			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
@@ -157,7 +157,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 	}
 
 	if (close(fd) < 0) {
-		pr_err(stderr, "%s: cannot close file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot close file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
@@ -171,7 +171,7 @@ static int dnotify_attrib_helper(
 {
 	(void)dummy;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
-		pr_err(stderr, "%s: cannot chmod file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot chmod file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -202,7 +202,7 @@ static int dnotify_access_helper(
 
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
-		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -212,7 +212,7 @@ do_access:
 	if (opt_do_run && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
-		pr_err(stderr, "%s: cannot read file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
@@ -245,7 +245,7 @@ static int dnotify_modify_helper(
 	if (mk_file(args, path, 4096) < 0)
 		return -1;
 	if ((fd = open(path, O_RDWR)) < 0) {
-		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 		goto remove;
@@ -254,7 +254,7 @@ do_modify:
 	if (opt_do_run && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
-		pr_err(stderr, "%s: cannot write to file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
@@ -281,7 +281,7 @@ static int dnotify_creat_helper(
 	(void)dummy;
 	int fd;
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
-		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
+		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
 	}
@@ -330,7 +330,7 @@ static int dnotify_rename_helper(
 	const char *newpath = (const char *)private;
 
 	if (rename(oldpath, newpath) < 0) {
-		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
+		pr_err("%s: cannot rename %s to %s: errno=%d (%s)\n",
 			args->name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
@@ -377,7 +377,7 @@ int stress_dnotify(args_t *args)
 	sigemptyset(&act.sa_mask);
 	act.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGRTMIN + 1, &act, NULL) < 0) {
-		pr_err(stderr, "%s: sigaction failed: errno=%d (%s)\n",
+		pr_err("%s: sigaction failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

@@ -126,7 +126,7 @@ int stress_lease(args_t *args)
 	fd = creat(filename, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		ret = exit_status(errno);
-		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
+		pr_err("%s: creat failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
@@ -136,7 +136,7 @@ int stress_lease(args_t *args)
 	for (i = 0; i < opt_lease_breakers; i++) {
 		l_pids[i] = stress_lease_spawn(filename, args);
 		if (l_pids[i] < 0) {
-			pr_err(stderr, "%s: failed to start all the lease breaker processes\n", args->name);
+			pr_err("%s: failed to start all the lease breaker processes\n", args->name);
 			goto reap;
 		}
 	}
@@ -145,7 +145,7 @@ int stress_lease(args_t *args)
 		fd = open(filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			ret = exit_status(errno);
-			pr_err(stderr, "%s: open failed (parent): errno=%d: (%s)\n",
+			pr_err("%s: open failed (parent): errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			goto reap;
 		}
@@ -158,7 +158,7 @@ int stress_lease(args_t *args)
 		inc_counter(args);
 		(void)shim_sched_yield();
 		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-			pr_err(stderr, "%s: fcntl failed: errno=%d: (%s)\n",
+			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			break;

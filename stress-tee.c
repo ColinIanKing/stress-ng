@@ -40,7 +40,7 @@ static pid_t stress_tee_spawn(
 	pid_t pid;
 
 	if (pipe(fds) < 0) {
-		pr_err(stderr, "%s: pipe failed: %d (%s)\n",
+		pr_err("%s: pipe failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -53,7 +53,7 @@ again:
 
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_err(stderr, "%s: fork failed: %d (%s)\n",
+		pr_err("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -125,7 +125,7 @@ int stress_tee(args_t *args)
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
-		pr_err(stderr, "%s: open /dev/null failed: errno=%d (%s)\n",
+		pr_err("%s: open /dev/null failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -151,7 +151,7 @@ int stress_tee(args_t *args)
 				continue;
 			if (errno == EINTR)
 				break;
-			pr_err(stderr, "%s: tee failed: errno=%d (%s)\n",
+			pr_err("%s: tee failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_child2;
 		} else {
@@ -165,7 +165,7 @@ int stress_tee(args_t *args)
 			if (errno == EINTR)
 				break;
 			if (slen < 0) {
-				pr_err(stderr, "%s: splice failed: errno=%d (%s)\n",
+				pr_err("%s: splice failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto tidy_child2;
 			}

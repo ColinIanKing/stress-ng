@@ -268,7 +268,7 @@ extern void pr_openlog(const char *filename);
 
 #define pr_dbg(fmt, args...)		pr_msg(stderr, PR_DEBUG, fmt, ## args)
 #define pr_inf(fmt, args...)		pr_msg(stdout, PR_INFO, fmt, ## args)
-#define pr_err(fp, fmt, args...)	pr_msg(fp, PR_ERROR, fmt, ## args)
+#define pr_err(fmt, args...)		pr_msg(stderr, PR_ERROR, fmt, ## args)
 #define pr_fail(fp, fmt, args...)	pr_msg(fp, PR_FAIL, fmt, ## args)
 #define pr_tidy(fmt, args...)		pr_msg(stderr, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
 

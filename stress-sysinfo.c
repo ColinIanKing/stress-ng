@@ -45,7 +45,7 @@ int stress_sysinfo(args_t *args)
 
 	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n_mounts < 0) {
-		pr_err(stderr, "%s: failed to get mount points\n", args->name);
+		pr_err("%s: failed to get mount points\n", args->name);
 		return EXIT_FAILURE;
 	}
 	if (args->instance == 0)
