@@ -157,3 +157,62 @@ void pr_msg_fail(
 		name, what, err, strerror(err));
 }
 
+void pr_dbg(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, PR_DEBUG, fmt, ap);
+	va_end(ap);
+}
+
+void pr_inf(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, PR_INFO, fmt, ap);
+	va_end(ap);
+}
+
+void pr_err(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, PR_ERROR, fmt, ap);
+	va_end(ap);
+}
+
+void pr_fail(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, PR_FAIL, fmt, ap);
+	va_end(ap);
+}
+
+void pr_tidy(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
+	va_end(ap);
+}
+
+void pr_fail_err__(args_t *args, const char *msg)
+{
+	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
+}
+
+void pr_fail_errno__(args_t *args, const char *msg, int err)
+{
+	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
+}
+
+void pr_fail_dbg__(args_t *args, const char *msg)
+{
+	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
+}

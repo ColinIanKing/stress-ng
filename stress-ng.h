@@ -258,6 +258,16 @@ typedef unsigned long int __kernel_ulong_t;
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
+/* stressor args */
+typedef struct {
+	uint64_t *const counter;	/* stressor counter */
+	const char *name;		/* stressor name */
+	const uint64_t max_ops;		/* max number of bogo ops */
+	const uint32_t instance;	/* stressor instance # */
+	pid_t pid;			/* stressor pid */
+	pid_t ppid;			/* stressor ppid */
+} args_t;
+
 /* Logging helpers */
 extern int pr_msg(FILE *fp, const uint64_t flag,
 	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
@@ -266,16 +276,19 @@ extern int pr_yaml(FILE *fp, const char *const fmt, ...) __attribute__((format(p
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
 
-#define pr_dbg(fmt, args...)		pr_msg(stderr, PR_DEBUG, fmt, ## args)
-#define pr_inf(fmt, args...)		pr_msg(stdout, PR_INFO, fmt, ## args)
-#define pr_err(fmt, args...)		pr_msg(stderr, PR_ERROR, fmt, ## args)
-#define pr_fail(fmt, args...)		pr_msg(stderr, PR_FAIL, fmt, ## args)
-#define pr_tidy(fmt, args...)		pr_msg(stderr, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ## args)
+extern void pr_dbg(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern void pr_inf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern void pr_err(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern void pr_fail(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern void pr_tidy(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
-#define pr_fail_err(what)		pr_msg_fail(PR_FAIL | PR_ERROR, args->name, what, errno)
-#define pr_fail_errno(what, e)		pr_msg_fail(PR_FAIL | PR_ERROR, args->name, what, e)
-#define pr_fail_dbg(what)		pr_msg_fail(PR_DEBUG, args->name, what, errno)
+extern void pr_fail_err__(args_t *args, const char *msg);
+extern void pr_fail_errno__(args_t *args, const char *msg, int err);
+extern void pr_fail_dbg__(args_t *args, const char *msg);
 
+#define pr_fail_err(msg)		pr_fail_err__(args, msg)
+#define pr_fail_errno(msg, err)		pr_fail_errno__(args, msg, err)
+#define pr_fail_dbg(msg)		pr_fail_dbg__(args, msg)
 
 /* Memory size constants */
 #define KB			(1024ULL)
@@ -728,16 +741,6 @@ extern void pr_openlog(const char *filename);
     defined(PR_GET_TIMERSLACK)
 #define PRCTL_TIMER_SLACK
 #endif
-
-/* stressor args */
-typedef struct {
-	uint64_t *const counter;	/* stressor counter */
-	const char *name;		/* stressor name */
-	const uint64_t max_ops;		/* max number of bogo ops */
-	const uint32_t instance;	/* stressor instance # */
-	pid_t pid;			/* stressor pid */
-	pid_t ppid;			/* stressor ppid */
-} args_t;
 
 static inline void inc_counter(args_t *args)
 {
