@@ -134,6 +134,6 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 #else
 int stress_icache(args_t *args)
 {
-	return stress_not_implemented(args)
+	return stress_not_implemented(args);
 }
 #endif
