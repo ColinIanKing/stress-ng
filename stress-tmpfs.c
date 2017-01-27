@@ -57,7 +57,6 @@ static int mmap_flags[] = {
  */
 static int stress_tmpfs_open(args_t *args, off_t *len)
 {
-	pid_t pid;
 	uint32_t rnd = mwc32();
 	char path[PATH_MAX];
 	char *mnts[MAX_MOUNTS];
@@ -89,7 +88,7 @@ static int stress_tmpfs_open(args_t *args, off_t *len)
 
 		/* We have a candidate, try to create a tmpfs file */
 		snprintf(path, sizeof(path), "%s/%s-%d-%" PRIu32 "-%" PRIu32,
-			mnts[i], args->name, pid, args->instance, rnd);
+			mnts[i], args->name, args->pid, args->instance, rnd);
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (fd >= 0) {
 			int rc;
