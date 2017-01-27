@@ -89,7 +89,7 @@ int stress_readahead(args_t *args)
 	if (ret || !buf) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
 
@@ -202,7 +202,7 @@ close_finish:
 	(void)close(fd);
 finish:
 	free(buf);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	if (misreads)
 		pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",

@@ -164,7 +164,7 @@ int stress_stackmmap(args_t *args)
 tidy_mmap:
 	munmap(stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

@@ -391,7 +391,7 @@ int stress_dnotify(args_t *args)
 			dnotify_stressors[i].func(args->name, dirname);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

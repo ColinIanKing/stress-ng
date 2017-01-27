@@ -142,7 +142,7 @@ int stress_sync_file(args_t *args)
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)unlink(filename);
@@ -189,7 +189,7 @@ int stress_sync_file(args_t *args)
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

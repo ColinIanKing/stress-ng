@@ -254,7 +254,7 @@ fail:
 	(void)close(fd);
 clean:
 	(void)munmap(counters, counters_sz);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
 #else

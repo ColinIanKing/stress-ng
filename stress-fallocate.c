@@ -83,7 +83,7 @@ int stress_fallocate(args_t *args)
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)unlink(filename);
@@ -160,7 +160,7 @@ int stress_fallocate(args_t *args)
 		pr_dbg(stderr, "%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

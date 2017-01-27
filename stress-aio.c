@@ -262,7 +262,7 @@ finish:
 	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
 		"caught (instance %d)\n",
 		args->name, total, args->instance);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
 #else

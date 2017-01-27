@@ -103,7 +103,7 @@ close_in:
 	(void)close(fdin);
 	(void)unlink(filename);
 dir_out:
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

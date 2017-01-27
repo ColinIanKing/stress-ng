@@ -388,7 +388,7 @@ int stress_hdd(args_t *args)
 	alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
 	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
@@ -397,7 +397,7 @@ int stress_hdd(args_t *args)
 	if (ret || !alloc_buf) {
 		rc = exit_status(errno);
 		pr_err(stderr, "%s: cannot allocate buffer\n", args->name);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
 	buf = alloc_buf;
@@ -634,6 +634,6 @@ rnd_rd_retry:
 	rc = EXIT_SUCCESS;
 finish:
 	free(alloc_buf);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }

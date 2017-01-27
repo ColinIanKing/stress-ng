@@ -44,7 +44,7 @@ int stress_utime(args_t *args)
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: open failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 
@@ -101,7 +101,7 @@ int stress_utime(args_t *args)
 
 	(void)close(fd);
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

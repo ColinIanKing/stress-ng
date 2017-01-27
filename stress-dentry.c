@@ -193,7 +193,7 @@ abort:
 	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n",
 		args->name, opt_dentries);
 	stress_dentry_unlink(args, opt_dentries);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

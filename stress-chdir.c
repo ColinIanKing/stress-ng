@@ -103,7 +103,7 @@ abort:
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return ret;
 }

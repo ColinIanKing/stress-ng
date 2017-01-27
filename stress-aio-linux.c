@@ -200,7 +200,7 @@ int stress_aiol(args_t *args)
 	(void)close(fd);
 finish:
 	(void)io_destroy(ctx);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
 #else

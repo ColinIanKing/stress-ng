@@ -90,7 +90,7 @@ abort:
 	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
 		args->name, DEFAULT_DIRS);
 	stress_dir_tidy(args, DEFAULT_DIRS);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return ret;
 }

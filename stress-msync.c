@@ -121,7 +121,7 @@ int stress_msync(args_t *args)
 		rc = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 
 		return rc;
 	}
@@ -131,7 +131,7 @@ int stress_msync(args_t *args)
 		pr_err(stderr, "%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 
 		return EXIT_FAILURE;
 	}
@@ -229,7 +229,7 @@ do_next:
 	(void)munmap((void *)buf, sz);
 err:
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",

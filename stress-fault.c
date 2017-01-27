@@ -157,7 +157,7 @@ next:
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	/* Clean up, most times this is redundant */
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg(stderr, "%s: page faults: minor: %lu, major: %lu\n",

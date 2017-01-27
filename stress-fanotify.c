@@ -264,7 +264,7 @@ tidy:
 		(void)waitpid(pid, &status, 0);
 	}
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

@@ -137,7 +137,7 @@ int stress_rmap(args_t *args)
 		rc = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
 
 		return rc;
@@ -147,7 +147,7 @@ int stress_rmap(args_t *args)
 	if (posix_fallocate(fd, 0, sz) < 0) {
 		pr_fail_err(args->name, "posix_fallocate");
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
 
 		return EXIT_FAILURE;
@@ -223,7 +223,7 @@ cleanup:
 
 	(void)munmap((void *)counters, counters_sz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)

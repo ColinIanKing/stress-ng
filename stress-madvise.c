@@ -143,7 +143,7 @@ int stress_madvise(args_t *args)
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
 		(void)unlink(filename);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 
@@ -208,7 +208,7 @@ int stress_madvise(args_t *args)
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	if (sigbus_count)
 		pr_inf(stdout, "%s: caught %" PRIu64 " SIGBUS signals\n",

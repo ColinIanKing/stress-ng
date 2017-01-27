@@ -480,6 +480,15 @@ int stress_temp_dir_rm(
 }
 
 /*
+ *  stress_temp_dir_rm_args()
+ *	remove a temporary directory using info from args
+ */
+int stress_temp_dir_rm_args(args_t *args)
+{
+	return stress_temp_dir_rm(args->name, args->pid, args->instance);
+}
+
+/*
  *  stress_cwd_readwriteable()
  *	check if cwd is read/writeable
  */

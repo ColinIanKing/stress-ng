@@ -65,7 +65,7 @@ int stress_rlimit(args_t *args)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err(args->name, "creat");
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
 	(void)unlink(filename);
@@ -108,7 +108,7 @@ int stress_rlimit(args_t *args)
 	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
 	(void)stress_sigrestore(args->name, SIGXFSZ, &old_action_xfsz);
 	(void)close(fd);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }

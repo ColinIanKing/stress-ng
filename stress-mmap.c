@@ -276,7 +276,7 @@ int stress_mmap(args_t *args)
 			rc = exit_status(errno);
 			pr_fail_err(args->name, "open");
 			(void)unlink(filename);
-			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+			(void)stress_temp_dir_rm_args(args);
 
 			return rc;
 		}
@@ -284,7 +284,7 @@ int stress_mmap(args_t *args)
 		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
 			pr_fail_err(args->name, "lseek");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+			(void)stress_temp_dir_rm_args(args);
 
 			return EXIT_FAILURE;
 		}
@@ -296,7 +296,7 @@ redo:
 			rc = exit_status(errno);
 			pr_fail_err(args->name, "write");
 			(void)close(fd);
-			(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+			(void)stress_temp_dir_rm_args(args);
 
 			return rc;
 		}
@@ -370,7 +370,7 @@ again:
 cleanup:
 	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 	}
 	if (ooms + segvs + buserrs > 0)
 		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32

@@ -66,7 +66,7 @@ static int stress_link_generic(
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err(args->name, "open");
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)close(fd);
@@ -125,7 +125,7 @@ abort:
 	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
 	stress_link_unlink(args, DEFAULT_LINKS);
 	(void)unlink(oldpath);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

@@ -112,7 +112,7 @@ tidy_out:
 tidy_in:
 	(void)close(fd_in);
 tidy_dir:
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

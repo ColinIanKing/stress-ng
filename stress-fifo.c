@@ -214,7 +214,7 @@ reap:
 	}
 tidy:
 	(void)unlink(fifoname);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

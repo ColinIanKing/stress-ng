@@ -165,7 +165,7 @@ int stress_ioprio(args_t *args)
 cleanup_file:
 	(void)close(fd);
 cleanup_dir:
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
 }

@@ -140,7 +140,7 @@ int stress_xattr(args_t *args)
 out_close:
 	(void)close(fd);
 out:
-	(void)stress_temp_dir_rm(args->name, pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
 #else

@@ -128,7 +128,7 @@ int stress_lease(args_t *args)
 		ret = exit_status(errno);
 		pr_err(stderr, "%s: creat failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 	(void)close(fd);
@@ -177,7 +177,7 @@ reap:
 	}
 
 	(void)unlink(filename);
-	(void)stress_temp_dir_rm(args->name, args->pid, args->instance);
+	(void)stress_temp_dir_rm_args(args);
 
 	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 
