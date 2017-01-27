@@ -409,7 +409,7 @@ int stress_matrix(args_t *args)
 		do {
 			(void)func(n, a, b, r);
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 	}
 
 	return EXIT_SUCCESS;

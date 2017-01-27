@@ -130,7 +130,7 @@ int HOT OPTIMIZE3 stress_vecmath(args_t *args)
 			OPS(a64, b64, c64, s64);
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	/* Forces the compiler to actually compute the terms */
 	uint64_put(a8[0] + a8[1] + a8[2] + a8[3] +

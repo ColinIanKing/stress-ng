@@ -633,7 +633,7 @@ int stress_wcs(args_t *args)
 
 		(void)func(libc_func, args->name, str1, STR1LEN, str2, STR2LEN, &failed);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

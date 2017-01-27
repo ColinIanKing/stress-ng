@@ -163,7 +163,7 @@ clean:
 			(void)close(ptys[i].master);
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 

@@ -137,7 +137,7 @@ int stress_itimer(args_t *args)
 		getitimer(ITIMER_PROF, &t);
 
 		*args->counter = itimer_counter;
-	} while (opt_do_run && (!args->max_ops || itimer_counter < args->max_ops));
+	} while (keep_stressing());
 
 	memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

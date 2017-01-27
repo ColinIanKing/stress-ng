@@ -58,7 +58,7 @@ int stress_sigsegv(args_t *args)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		if (ret)

@@ -44,7 +44,7 @@ int stress_memcpy(args_t *args)
 		memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
 		memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

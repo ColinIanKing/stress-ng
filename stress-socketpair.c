@@ -160,7 +160,7 @@ abort:
 				}
 				inc_counter(args);
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)

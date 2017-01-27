@@ -224,7 +224,7 @@ do_invalidate:
 		}
 do_next:
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)munmap((void *)buf, sz);
 err:

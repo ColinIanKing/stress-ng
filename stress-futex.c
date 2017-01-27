@@ -90,7 +90,7 @@ again:
 				if (ret < 0)
 					pr_fail_err("futex wake");
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		/* Kill waiter process */
 		(void)kill(pid, SIGKILL);
@@ -131,7 +131,7 @@ again:
 				}
 				inc_counter(args);
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 	}
 
 	return EXIT_SUCCESS;

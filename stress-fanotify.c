@@ -177,7 +177,7 @@ int stress_fanotify(args_t *args)
 
 			/* Force remove */
 			(void)unlink(filename);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		_exit(EXIT_SUCCESS);
 	} else {
@@ -239,7 +239,7 @@ int stress_fanotify(args_t *args)
 					metadata = FAN_EVENT_NEXT(metadata, len);
 				}
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		free(buffer);
 		(void)close(fan_fd);

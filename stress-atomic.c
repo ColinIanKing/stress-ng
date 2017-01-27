@@ -131,7 +131,7 @@ int stress_atomic(args_t *args)
 		DO_ATOMIC_OPS(uint16_t, &shared->atomic.val16);
 		DO_ATOMIC_OPS(uint8_t, &shared->atomic.val8);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

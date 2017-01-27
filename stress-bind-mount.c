@@ -85,7 +85,7 @@ int stress_bind_mount(args_t *args)
 	do {
 		/* Twiddle thumbs */
 		(void)shim_usleep(10000);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)kill(pid, SIGKILL);
 	(void)waitpid(pid, &status, 0);

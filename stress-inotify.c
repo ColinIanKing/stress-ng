@@ -696,7 +696,7 @@ int stress_inotify(args_t *args)
 		for (i = 0; opt_do_run && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(args, dirname);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

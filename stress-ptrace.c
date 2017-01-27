@@ -128,7 +128,7 @@ int stress_ptrace(args_t *args)
 			if (stress_syscall_wait(args, pid))
 				break;
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		/* Terminate child */
 		(void)kill(pid, SIGKILL);

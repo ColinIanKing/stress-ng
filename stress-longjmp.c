@@ -44,7 +44,7 @@ int stress_longjmp(args_t *args)
 			c = 0;
 		}
 	}
-	if (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
+	if (keep_stressing())
 		longjmp(buf, 1);
 
 	return EXIT_SUCCESS;

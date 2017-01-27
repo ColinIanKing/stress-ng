@@ -146,7 +146,7 @@ int stress_remap(args_t *args)
 		check_order(args, stride, data, order, "forward");
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	munmap(data, data_size);
 

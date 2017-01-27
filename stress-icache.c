@@ -127,7 +127,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 			stress_icache_func();
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

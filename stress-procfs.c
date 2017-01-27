@@ -258,69 +258,67 @@ int stress_procfs(args_t *args)
 	do {
 		stress_proc_dir(args, "/proc/self", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/sys", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/sysvipc", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/fs", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/bus", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/irq", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/scsi", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/driver", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/self", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc/thread_self", true, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		stress_proc_dir(args,"/proc", false, 0, proc_write);
 		inc_counter(args);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
-			break;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

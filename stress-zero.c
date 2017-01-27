@@ -77,7 +77,7 @@ int stress_zero(args_t *args)
 		(void)munmap(ptr, page_size);
 #endif
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	(void)close(fd);
 
 	return EXIT_SUCCESS;

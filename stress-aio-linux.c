@@ -194,7 +194,7 @@ int stress_aiol(args_t *args)
 			}
 		} while ((n > 0) && opt_do_run);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 	(void)close(fd);

@@ -85,7 +85,7 @@ int stress_lockbus(args_t *args)
 		LOCK_AND_INCx8(ptr, inc);
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)munmap(buffer, BUFFER_SIZE);
 

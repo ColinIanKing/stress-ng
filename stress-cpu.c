@@ -2214,7 +2214,7 @@ int stress_cpu(args_t *args)
 		do {
 			(void)func(args->name);
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 		return EXIT_SUCCESS;
 	}
 
@@ -2284,7 +2284,7 @@ int stress_cpu(args_t *args)
 		t3 = time_now();
 		/* Bias takes account of the time to do the delay */
 		bias = (t3 - t2) - delay;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

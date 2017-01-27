@@ -175,7 +175,7 @@ again:
 					pipe_empty(fd[0], page_size);
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		/* And close the pipes */
 clean:

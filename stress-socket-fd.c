@@ -183,7 +183,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 	(void)unlink(addr_un->sun_path);
@@ -268,7 +268,7 @@ static int stress_socket_server(
 			(void)close(sfd);
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 die_close:
 	(void)close(fd);

@@ -1011,3 +1011,13 @@ void *align_address(const void *addr, const size_t alignment)
 
 	return (void *)uintptr;
 }
+
+/*
+ *  keep_stressing()
+ *	returns true if we can keep on running a stressor
+ */
+bool __keep_stressing(const args_t *args)
+{
+	return (opt_do_run &&
+	        (!args->max_ops || *args->counter < args->max_ops));
+}

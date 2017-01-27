@@ -81,13 +81,13 @@ int stress_cap(args_t *args)
 		DIR *dir;
 
 		stress_capgetset_pid(args, 1, false, true);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 		stress_capgetset_pid(args, args->pid, true, true);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 		stress_capgetset_pid(args, args->ppid, false, false);
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		dir = opendir("/proc");
@@ -102,12 +102,12 @@ int stress_cap(args_t *args)
 				if (sscanf(d->d_name, "%d", &p) != 1)
 					continue;
 				stress_capgetset_pid(args, p, false, false);
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 			}
 			(void)closedir(dir);
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

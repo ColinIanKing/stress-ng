@@ -110,7 +110,7 @@ timed_out:
 			if (!opt_do_run)
 				break;
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 }
 
 /*
@@ -168,7 +168,7 @@ int stress_sem(args_t *args)
 	}
 
 	/* Wait for termination */
-	while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
+	while (keep_stressing())
 		(void)shim_usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {

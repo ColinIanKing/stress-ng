@@ -83,7 +83,7 @@ int stress_udp_flood(args_t *args)
 			port = 1024;
 		if (++sz > sz_max)
 			sz = 1;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(fd);
 

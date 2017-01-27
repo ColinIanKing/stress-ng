@@ -196,7 +196,7 @@ again:
 					}
 				}
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 abort:
 		for (j = 0; j < opt_malloc_max; j++) {
 			free(addr[j]);

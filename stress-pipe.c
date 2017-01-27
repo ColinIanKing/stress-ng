@@ -209,7 +209,7 @@ again:
 				continue;
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		strncpy(buf, PIPE_STOP, opt_pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {

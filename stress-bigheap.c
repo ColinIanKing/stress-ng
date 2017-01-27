@@ -174,7 +174,7 @@ again:
 				last_ptr_end = u8ptr;
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 abort:
 		free(ptr);
 	}

@@ -362,7 +362,7 @@ retry:
 		(void)close(fd);
 		(void)shim_sched_yield();
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 #if defined(AF_UNIX)
 	if (addr && (opt_epoll_domain == AF_UNIX)) {
@@ -488,7 +488,7 @@ static void epoll_server(
 				epoll_recv_data(events[i].data.fd);
 			}
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 die_close:
 	if (efd != -1)

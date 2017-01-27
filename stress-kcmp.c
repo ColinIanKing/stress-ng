@@ -167,7 +167,7 @@ again:
 				KCMP_VERIFY(pid1, pid2, KCMP_SYSVSEM, 0, 0, 0);
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);

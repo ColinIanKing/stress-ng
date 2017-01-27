@@ -158,9 +158,9 @@ again:
 						break;
 					}
 				}
-			} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+			} while (keep_stressing());
 			(void)close(fd);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 #if defined(AF_UNIX)
 		if ((opt_udp_domain == AF_UNIX) && addr) {
@@ -233,7 +233,7 @@ again:
 				break;
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 die_close:
 		(void)close(fd);

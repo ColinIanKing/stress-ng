@@ -163,7 +163,7 @@ seq_wr_retry:
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
 rnd_rd_retry:
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 			ret = pread(fd, buf, BUF_SIZE, offsets[i]);
 			if (ret <= 0) {
@@ -195,7 +195,7 @@ rnd_rd_retry:
 			}
 			inc_counter(args);
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 close_finish:

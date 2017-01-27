@@ -113,7 +113,7 @@ redo:
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				do_jmp = false;
 			if (fd != -1)
 				(void)close(fd);
@@ -154,7 +154,7 @@ next:
 
 		i++;
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	/* Clean up, most times this is redundant */
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);

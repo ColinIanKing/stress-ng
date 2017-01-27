@@ -254,7 +254,7 @@ redo_wr2:
 			break;
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 fail:
 	/* Tell child we're done */
 	msg_wr.addr = NULL;

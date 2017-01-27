@@ -83,8 +83,7 @@ int stress_dirdeep(args_t *args)
 				break;
 			}
 
-			if (!opt_do_run ||
-			    (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto abort;
 
 			snprintf(tmp, sizeof(tmp), "/%1" PRIu32, mwc32() % 10);
@@ -101,7 +100,7 @@ int stress_dirdeep(args_t *args)
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 abort:
 	/* force unlink of all files */

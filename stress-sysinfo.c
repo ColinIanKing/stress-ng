@@ -144,7 +144,7 @@ int stress_sysinfo(args_t *args)
 			 pr_fail_err("times");
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	mount_free(mnts, n_mounts);
 

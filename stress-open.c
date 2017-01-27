@@ -167,7 +167,7 @@ int stress_open(args_t *args)
 				break;
 			(void)close(fds[i]);
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

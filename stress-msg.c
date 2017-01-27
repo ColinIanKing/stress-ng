@@ -131,7 +131,7 @@ again:
 					break;
 			i++;
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)

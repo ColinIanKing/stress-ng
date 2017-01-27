@@ -130,7 +130,7 @@ int stress_yield(args_t *args)
 		pause();
 		for (i = 0; i < yielders; i++)
 			*args->counter += counters[i];
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	/* Parent, wait for children */
 	for (i = 0; i < yielders; i++) {

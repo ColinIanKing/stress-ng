@@ -243,7 +243,7 @@ int stress_aio(args_t *args)
 				goto cancel;
 			}
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 

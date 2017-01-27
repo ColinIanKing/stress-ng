@@ -94,7 +94,7 @@ int stress_klog(args_t *args)
 		(void)shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	free(buffer);
 	return EXIT_SUCCESS;

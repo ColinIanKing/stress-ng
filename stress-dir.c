@@ -73,8 +73,7 @@ int stress_dir(args_t *args)
 				}
 			}
 
-			if (!opt_do_run ||
-			    (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto abort;
 
 			inc_counter(args);
@@ -83,7 +82,7 @@ int stress_dir(args_t *args)
 		if (!opt_do_run)
 			break;
 		sync();
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 abort:
 	/* force unlink of all files */

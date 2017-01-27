@@ -88,7 +88,7 @@ int stress_nice(args_t *args)
 				(void)kill(pid, SIGKILL);
 			}
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

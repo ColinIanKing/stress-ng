@@ -167,7 +167,7 @@ int stress_cache(args_t *args)
 		shim_cacheflush((char *)stress_cache, 8192, ICACHE);
 		shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	pr_dbg("%s: total [%" PRIu32 "]\n", args->name, total);
 	return ret;

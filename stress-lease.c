@@ -94,7 +94,7 @@ again:
 				continue;
 			}
 			(void)close(fd);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, pgrp);
@@ -164,7 +164,7 @@ int stress_lease(args_t *args)
 			break;
 		}
 		(void)close(fd);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	ret = EXIT_SUCCESS;
 

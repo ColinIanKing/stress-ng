@@ -439,7 +439,7 @@ int stress_af_alg(args_t *args)
 		rc = stress_af_alg_rng(args, sockfd, &rngfails);
 		if (rc == EXIT_FAILURE)
 			goto tidy;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	if (hashfails | cipherfails | rngfails)
 		pr_dbg("%s: bind failed with ENOENT on all hashes (%"

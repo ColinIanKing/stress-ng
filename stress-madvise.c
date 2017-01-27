@@ -205,7 +205,7 @@ int stress_madvise(args_t *args)
 		}
 		(void)munmap((void *)buf, sz);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);

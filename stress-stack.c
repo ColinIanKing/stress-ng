@@ -120,7 +120,7 @@ again:
 			struct sigaction new_action;
 			int ret;
 
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 
 			memset(&new_action, 0, sizeof new_action);
@@ -141,7 +141,7 @@ again:
 			 * We return here if we segfault, so
 			 * first check if we need to terminate
 			 */
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 
 			if (ret) {

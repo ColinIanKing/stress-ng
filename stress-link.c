@@ -110,14 +110,13 @@ static int stress_link_generic(
 				pr_fail_err("lstat");
 			}
 
-			if (!opt_do_run ||
-			    (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto abort;
 
 			inc_counter(args);
 		}
 		stress_link_unlink(args, n);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 abort:
 	/* force unlink of all files */

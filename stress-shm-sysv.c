@@ -325,7 +325,7 @@ reap:
 			shm_ids[i] = -1;
 			keys[i] = 0;
 		}
-	} while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (ok && keep_stressing());
 
 	/* Inform parent of end of run */
 	msg.index = -1;

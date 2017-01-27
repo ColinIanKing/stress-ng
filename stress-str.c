@@ -661,7 +661,7 @@ int stress_str(args_t *args)
 
 		(void)func(libc_func, args->name, str1, sizeof(str1), str2, sizeof(str2), &failed);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

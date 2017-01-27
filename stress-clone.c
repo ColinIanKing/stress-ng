@@ -265,7 +265,7 @@ int stress_clone(args_t *args)
 		} else {
 			stress_clone_head_remove();
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
 		args->name, max_clones);

@@ -188,7 +188,7 @@ int stress_sleep(args_t *args)
 		(void)shim_usleep(10000);
 		for (i = 0; i < n; i++)
 			*args->counter += ctxts[i].counter;
-	}  while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	}  while (ok && keep_stressing());
 
 
 	ret = EXIT_SUCCESS;

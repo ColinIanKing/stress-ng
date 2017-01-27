@@ -87,7 +87,7 @@ int stress_splice(args_t *args)
 			break;
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	(void)close(fd_out);
 	(void)close(fd_in);
 	(void)close(fds[0]);

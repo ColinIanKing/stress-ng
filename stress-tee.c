@@ -172,7 +172,7 @@ int stress_tee(args_t *args)
 			len -= slen;
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	ret = EXIT_SUCCESS;
 

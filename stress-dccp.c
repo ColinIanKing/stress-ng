@@ -165,10 +165,10 @@ retry:
 					pr_fail_dbg("recv");
 				break;
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 #if defined(AF_UNIX)
 	if (opt_dccp_domain == AF_UNIX) {
@@ -329,7 +329,7 @@ again:
 			(void)close(sfd);
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 die_close:
 	(void)close(fd);

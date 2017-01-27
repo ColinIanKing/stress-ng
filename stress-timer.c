@@ -158,7 +158,7 @@ int stress_timer(args_t *args)
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
 		*args->counter = timer_counter;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail_err("timer_delete");

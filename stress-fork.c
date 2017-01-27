@@ -97,7 +97,7 @@ static int stress_fork_fn(
 				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

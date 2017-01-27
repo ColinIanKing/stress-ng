@@ -146,7 +146,7 @@ int stress_timerfd(args_t *args)
 			}
 		}
 		*args->counter = timerfd_counter;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(timerfd);
 

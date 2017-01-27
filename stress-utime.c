@@ -97,7 +97,7 @@ int stress_utime(args_t *args)
 		if (opt_flags & OPT_FLAGS_UTIME_FSYNC)
 			(void)fsync(fd);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(fd);
 	(void)unlink(filename);

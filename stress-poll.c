@@ -119,7 +119,7 @@ again:
 				pr_fail_dbg("write");
 				goto abort;
 			}
-		 } while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		 } while (keep_stressing());
 abort:
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][1]);
@@ -148,7 +148,7 @@ abort:
 			struct timeval tv;
 			int ret;
 
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 
 			/* First, stress out poll */
@@ -167,7 +167,7 @@ abort:
 				inc_counter(args);
 			}
 
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 			/* Second, stress out select */
 			tv.tv_sec = 0;
@@ -187,15 +187,14 @@ abort:
 				}
 				inc_counter(args);
 			}
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				break;
 			/*
 			 * Third, stress zero sleep, this is like
 			 * a select zero timeout
 			 */
 			(void)sleep(0);
-
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

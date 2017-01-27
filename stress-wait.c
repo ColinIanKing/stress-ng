@@ -72,7 +72,7 @@ static void runner(
 
 	do {
 		(void)pause();
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	kill(getppid(), SIGALRM);
 	exit(EXIT_SUCCESS);
@@ -112,7 +112,7 @@ static void killer(
 			start = time_now();
 			last_counter = *args->counter;
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	/* forcefully kill runner, wait is in parent */
 	(void)kill(pid, SIGKILL);

@@ -342,7 +342,7 @@ int stress_resources(args_t *args)
 			inc_counter(args);
 		}
 		kill_children();
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

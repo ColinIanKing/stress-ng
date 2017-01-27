@@ -93,7 +93,7 @@ int stress_dup(args_t *args)
 				break;
 			(void)close(fds[i]);
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	(void)close(fds[0]);
 
 	return EXIT_SUCCESS;

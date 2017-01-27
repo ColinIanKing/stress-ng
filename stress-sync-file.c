@@ -186,7 +186,7 @@ int stress_sync_file(args_t *args)
 				pr_fail_err("sync_file_range (random)");
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);

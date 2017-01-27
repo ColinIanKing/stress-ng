@@ -45,7 +45,7 @@ int stress_io(args_t *args)
 			pr_fail_err("syncfs");
 #endif
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 #if defined(__linux__)
 	if (fd != -1)

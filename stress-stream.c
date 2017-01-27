@@ -235,7 +235,7 @@ int stress_stream(args_t *args)
 		stress_stream_add(c, b, a, n);
 		stress_stream_triad(a, b, c, q, n);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	t2 = time_now();
 
 	mb = ((double)((*args->counter) * 10) * (double)sz) / (double)MB;

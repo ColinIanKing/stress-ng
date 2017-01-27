@@ -186,7 +186,7 @@ static int stress_lockf_contention(
 		}
 		lockf_info->offset = offset;
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return 0;
 }

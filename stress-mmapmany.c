@@ -99,7 +99,7 @@ again:
 
 		do {
 			for (n = 0; opt_do_run && (n < max); n++) {
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 
 				mappings[n] = (uint8_t *)mmap(NULL,
@@ -118,7 +118,7 @@ again:
 				munmap((void *)(mappings[i] + page_size), page_size);
 				munmap((void *)(mappings[i] + page_size + page_size), page_size);
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 	}
 
 	free(mappings);

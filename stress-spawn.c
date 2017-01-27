@@ -79,7 +79,7 @@ int stress_spawn(args_t *args)
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				spawn_fails++;
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	if ((spawn_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",

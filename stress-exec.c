@@ -133,7 +133,7 @@ int stress_exec(args_t *args)
 				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	if ((exec_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " execs failed (%.2f%%)\n",

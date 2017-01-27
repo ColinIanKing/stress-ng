@@ -155,7 +155,7 @@ int stress_fallocate(args_t *args)
 			(void)fsync(fd);
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	if (ftrunc_errs)
 		pr_dbg("%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);

@@ -157,7 +157,7 @@ int stress_stackmmap(args_t *args)
 		if (!ret)
 			swapcontext(&c_main, &c_test);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 

@@ -155,7 +155,7 @@ reap:
 			}
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	if (segv_count) {
 		char buffer[1024];

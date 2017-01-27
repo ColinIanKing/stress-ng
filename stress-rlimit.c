@@ -102,7 +102,7 @@ int stress_rlimit(args_t *args)
 		} else {
 			break;		/* Something went wrong! */
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);

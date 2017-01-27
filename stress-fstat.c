@@ -135,7 +135,7 @@ int stress_fstat(args_t *args)
 			int fd;
 			struct stat buf;
 
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto aborted;
 
 			if (di->ignore)
@@ -178,7 +178,7 @@ int stress_fstat(args_t *args)
 			stat_some = true;
 			inc_counter(args);
 		}
-	} while (stat_some && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (stat_some && keep_stressing());
 
 aborted:
 	ret = EXIT_SUCCESS;

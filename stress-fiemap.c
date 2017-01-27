@@ -93,7 +93,7 @@ static int stress_fiemap_writer(
 #endif
 		for (i = 0; i < MAX_FIEMAP_PROCS; i++)
 			counter += counters[i];
-	} while (opt_do_run && (!args->max_ops || counter < args->max_ops));
+	} while (keep_stressing());
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(fd);
@@ -150,7 +150,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
 		}
 		free(fiemap);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 }
 
 /*

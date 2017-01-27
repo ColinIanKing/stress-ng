@@ -92,7 +92,7 @@ static int stress_userfaultfd_child(void *arg)
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return 0;
 }
@@ -332,7 +332,7 @@ do_read:
 				zero_page, data, data + sz, page_size) < 0)
 			break;
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	/* Run it over, zap child */
 	(void)kill(pid, SIGKILL);

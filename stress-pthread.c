@@ -267,7 +267,7 @@ reap:
 				ok = false;
 			}
 		}
-	} while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (ok && keep_stressing());
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "

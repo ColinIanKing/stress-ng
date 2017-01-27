@@ -216,7 +216,7 @@ int stress_netlink_proc(args_t *args)
 		spawn_several(args->name, 0, 5);
 		if (monitor(args, sock) < 0)
 			break;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(sock);
 

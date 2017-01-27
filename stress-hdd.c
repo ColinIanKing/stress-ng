@@ -461,7 +461,7 @@ int stress_hdd(args_t *args)
 					goto finish;
 				}
 rnd_wr_retry:
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 
 				for (j = 0; j < opt_hdd_write_size; j++)
@@ -488,7 +488,7 @@ rnd_wr_retry:
 			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
 				size_t j;
 seq_wr_retry:
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 
 				for (j = 0; j < opt_hdd_write_size; j += 512)
@@ -531,7 +531,7 @@ seq_wr_retry:
 			}
 			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
 seq_rd_retry:
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 
 				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
@@ -588,7 +588,7 @@ seq_rd_retry:
 					goto finish;
 				}
 rnd_rd_retry:
-				if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+				if (!keep_stressing())
 					break;
 				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
 				if (ret <= 0) {
@@ -629,7 +629,7 @@ rnd_rd_retry:
 		}
 		(void)close(fd);
 
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 finish:

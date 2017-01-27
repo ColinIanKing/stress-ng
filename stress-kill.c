@@ -55,7 +55,7 @@ int stress_kill(args_t *args)
 			pr_fail_err("kill");
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

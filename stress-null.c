@@ -54,7 +54,7 @@ int stress_null(args_t *args)
 			continue;
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 	(void)close(fd);
 
 	return EXIT_SUCCESS;

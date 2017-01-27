@@ -194,7 +194,7 @@ static int stress_lockofd_contention(
 		lockofd_info->len = len;
 
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return 0;
 }

@@ -295,7 +295,7 @@ static int stress_zlib_deflate(
 		stream_def.avail_in = DATA_SIZE;
 		stream_def.next_in = (unsigned char *)in;
 
-		do_run = opt_do_run && (!args->max_ops || *args->counter < args->max_ops);
+		do_run = keep_stressing();
 
 		bytes_in += DATA_SIZE;
 

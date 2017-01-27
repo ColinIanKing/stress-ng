@@ -108,7 +108,7 @@ again:
 		(void)waitpid(pid, &status, 0);
 		if (getpid() != mypid)
 			_exit(0);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

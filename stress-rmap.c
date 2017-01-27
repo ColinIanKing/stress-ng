@@ -197,7 +197,7 @@ int stress_rmap(args_t *args)
 		(void)select(0, NULL, NULL, NULL, NULL);
 		for (i = 0; i < RMAP_CHILD_MAX; i++)
 			*args->counter += counters[i];
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 cleanup:
 	/*

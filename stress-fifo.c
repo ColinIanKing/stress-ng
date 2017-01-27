@@ -199,7 +199,7 @@ int stress_fifo(args_t *args)
 		}
 		val++;
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	(void)close(fd);
 	rc = EXIT_SUCCESS;

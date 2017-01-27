@@ -154,7 +154,7 @@ exit_child:
 				break;
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 exit_parent:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

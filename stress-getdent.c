@@ -97,7 +97,7 @@ static int stress_getdents_dir(
 	char *buf;
 	size_t buf_sz;
 
-	if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+	if (!keep_stressing())
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -142,7 +142,7 @@ static int stress_getdents_dir(
 			}
 			ptr += d->d_reclen;
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 exit_free:
 	free(buf);
 exit_close:
@@ -168,7 +168,7 @@ static int stress_getdents64_dir(
 	char *buf;
 	size_t buf_sz;
 
-	if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+	if (!keep_stressing())
 		return 0;
 
 	fd = open(path, O_RDONLY | O_DIRECTORY);
@@ -212,7 +212,7 @@ static int stress_getdents64_dir(
 			}
 			ptr += d->d_reclen;
 		}
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 exit_free:
 	free(buf);
 exit_close:
@@ -248,7 +248,7 @@ int stress_getdent(args_t *args)
 		ret = stress_getdents_rand(args, "/run", true, 2, page_size);
 		if (ret == -ENOSYS)
 			break;
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

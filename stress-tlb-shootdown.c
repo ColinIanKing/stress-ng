@@ -116,7 +116,7 @@ int stress_tlb_shootdown(args_t *args)
 		}
 		(void)munmap(mem, mmap_size);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

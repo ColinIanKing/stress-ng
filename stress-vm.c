@@ -1974,7 +1974,7 @@ again:
 				(void)madvise_random(buf, buf_sz);
 				(void)munmap((void *)buf, buf_sz);
 			}
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		if (keep && buf != NULL)
 			(void)munmap((void *)buf, buf_sz);

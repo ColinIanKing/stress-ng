@@ -67,7 +67,7 @@ int stress_chdir(args_t *args)
 
 	do {
 		for (i = 0; i < DEFAULT_DIRS; i++) {
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto done;
 			if (chdir(paths[i]) < 0) {
 				if (errno != ENOMEM) {
@@ -76,7 +76,7 @@ int stress_chdir(args_t *args)
 				}
 			}
 redo:
-			if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+			if (!keep_stressing())
 				goto done;
 			/* We need chdir to cwd to always succeed */
 			if (chdir(cwd) < 0) {
@@ -88,7 +88,7 @@ redo:
 			}
 		}
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 done:
 	ret = EXIT_SUCCESS;
 abort:

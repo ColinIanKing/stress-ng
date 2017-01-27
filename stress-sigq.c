@@ -78,7 +78,7 @@ again:
 			s.sival_int = 0;
 			sigqueue(pid, SIGUSR1, s);
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		pr_dbg("%s: parent sent termination notice\n", args->name);
 		memset(&s, 0, sizeof(s));

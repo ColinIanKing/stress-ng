@@ -164,7 +164,7 @@ int stress_handle(args_t *args)
 		(void)close(mount_fd);
 		free(fhp);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	free_mount_info(mounts);
 

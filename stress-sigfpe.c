@@ -54,7 +54,7 @@ int stress_sigfpe(args_t *args)
 		 * We return here if we get SIGFPE, so
 		 * first check if we need to terminate
 		 */
-		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
+		if (!keep_stressing())
 			break;
 
 		if (ret)

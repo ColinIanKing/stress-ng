@@ -81,7 +81,7 @@ again:
 			c += v_counters[i << CACHE_STRIDE_SHIFT];
 			kill(pid[i], SIGUSR1);
 		}
-	} while (opt_do_run && (!args->max_ops || c < args->max_ops));
+	} while (keep_stressing());
 
 	*args->counter = c;
 

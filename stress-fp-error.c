@@ -136,7 +136,7 @@ int stress_fp_error(args_t *args)
 		if (fegetround() == -1)
 			pr_fail("%s: fegetround() returned -1\n", args->name);
 		inc_counter(args);
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }

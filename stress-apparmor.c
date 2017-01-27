@@ -635,7 +635,7 @@ int stress_apparmor(args_t *args)
 		(void)select(0, NULL, NULL, NULL, NULL);
 		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];
-	} while (opt_do_run && (!args->max_ops || tmp_counter < args->max_ops));
+	} while (keep_stressing());
 
 	for (i = 0; i < n; i++) {
 		int status;

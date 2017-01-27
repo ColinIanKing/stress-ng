@@ -125,7 +125,7 @@ int stress_rdrand(args_t *args)
 		do {
 			RDRAND64x32();
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 
 		duration = time_now() - time_start;
 		billion_bits = ((double)*args->counter * 64.0 * 32.0) / 1000000000.0;

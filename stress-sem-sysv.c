@@ -206,7 +206,7 @@ timed_out:
 		if (semctl(sem_id, 0, GETZCNT) < 0)
 			pr_fail_dbg("semctl GETZCNT");
 #endif
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing());
 }
 
 /*
@@ -263,7 +263,7 @@ int stress_sem_sysv(args_t *args)
 			goto reap;
 	}
 	/* Wait for termination */
-	while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops))
+	while (keep_stressing())
 		(void)shim_usleep(100000);
 reap:
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {

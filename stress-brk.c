@@ -131,7 +131,7 @@ again:
 					*(ptr - 1) = 0;
 			}
 			inc_counter(args);
-		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+		} while (keep_stressing());
 	}
 	if (ooms + segvs + nomems > 0)
 		pr_dbg("%s: OOM restarts: %" PRIu32

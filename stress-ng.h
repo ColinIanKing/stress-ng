@@ -742,6 +742,13 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define PRCTL_TIMER_SLACK
 #endif
 
+/*
+ *  checks to see if we should keep in running the stressors
+ */
+extern bool __keep_stressing(const args_t *args);
+
+#define keep_stressing()	__keep_stressing(args)
+
 static inline void inc_counter(args_t *args)
 {
 	(*(args->counter))++;
