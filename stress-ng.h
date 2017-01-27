@@ -282,9 +282,9 @@ extern void pr_err(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 extern void pr_fail(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 extern void pr_tidy(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
-extern void pr_fail_err__(args_t *args, const char *msg);
-extern void pr_fail_errno__(args_t *args, const char *msg, int err);
-extern void pr_fail_dbg__(args_t *args, const char *msg);
+extern void pr_fail_err__(const args_t *args, const char *msg);
+extern void pr_fail_errno__(const args_t *args, const char *msg, int err);
+extern void pr_fail_dbg__(const args_t *args, const char *msg);
 
 #define pr_fail_err(msg)		pr_fail_err__(args, msg)
 #define pr_fail_errno(msg, err)		pr_fail_errno__(args, msg, err)

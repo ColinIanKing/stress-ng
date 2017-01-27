@@ -202,17 +202,17 @@ void pr_tidy(const char *fmt, ...)
 	va_end(ap);
 }
 
-void pr_fail_err__(args_t *args, const char *msg)
+void pr_fail_err__(const args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
 }
 
-void pr_fail_errno__(args_t *args, const char *msg, int err)
+void pr_fail_errno__(const args_t *args, const char *msg, int err)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
 }
 
-void pr_fail_dbg__(args_t *args, const char *msg)
+void pr_fail_dbg__(const args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
 }
