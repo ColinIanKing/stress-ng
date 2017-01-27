@@ -139,7 +139,7 @@ int stress_icmp_flood(args_t *args)
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-	pr_dbg(stderr, "%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
+	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,
 		100.0 * (float)(*args->counter - sendto_fails) / *args->counter,
 		*args->counter);

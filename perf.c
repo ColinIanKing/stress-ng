@@ -329,7 +329,7 @@ int perf_open(stress_perf_t *sp)
 	if (!sp->perf_opened) {
 		pthread_spin_lock(&shared->perf.lock);
 		if (!shared->perf.no_perf) {
-			pr_dbg(stderr, "perf_event_open failed, no "
+			pr_dbg("perf_event_open failed, no "
 				"perf events [%u]\n", getpid());
 			shared->perf.no_perf = true;
 		}

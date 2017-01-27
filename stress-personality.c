@@ -49,7 +49,7 @@ int stress_personality(args_t *args)
 	memset(failed, 0, sizeof(failed));
 
 	if (args->instance == 0)
-		pr_dbg(stderr, "%s: exercising %zu personalities\n", args->name, n);
+		pr_dbg("%s: exercising %zu personalities\n", args->name, n);
 
 	do {
 		ssize_t i, fails = 0;

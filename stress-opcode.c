@@ -184,7 +184,7 @@ again:
 			ret = waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
@@ -199,7 +199,7 @@ again:
 #if TRACK_SIGCOUNT
 	for (i = 0; i < MAX_SIGS; i++) {
 		if (sig_count[i]) {
-			pr_dbg(stderr, "%s: %-25.25s: %" PRIu64 "\n",
+			pr_dbg("%s: %-25.25s: %" PRIu64 "\n",
 				args->name, strsignal(i), sig_count[i]);
 		}
 	}

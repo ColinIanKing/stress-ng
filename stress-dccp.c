@@ -344,7 +344,7 @@ die:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
-	pr_dbg(stderr, "%s: %" PRIu64 " messages sent\n", args->name, msgs);
+	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	return rc;
 }
@@ -357,7 +357,7 @@ int stress_dccp(args_t *args)
 {
 	pid_t pid, ppid = getppid();
 
-	pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
+	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, opt_dccp_port + args->instance);
 
 again:

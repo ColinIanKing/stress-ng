@@ -130,11 +130,11 @@ int stress_rdrand(args_t *args)
 		duration = time_now() - time_start;
 		billion_bits = ((double)*args->counter * 64.0 * 32.0) / 1000000000.0;
 
-		pr_dbg(stderr, "%s: %.3f billion random bits read "
+		pr_dbg("%s: %.3f billion random bits read "
 			"(instance %" PRIu32")\n",
 			args->name, billion_bits, args->instance);
 		if (duration > 0.0) {
-			pr_dbg(stderr, "%s: %.3f billion random bits per "
+			pr_dbg("%s: %.3f billion random bits per "
 				"second (instance %" PRIu32")\n",
 				args->name,
 				(double)billion_bits / duration,

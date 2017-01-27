@@ -96,7 +96,7 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
-		pr_dbg(stderr, "%s: futex timeouts: %" PRIu64 "\n",
+		pr_dbg("%s: futex timeouts: %" PRIu64 "\n",
 			args->name, *timeout);
 	} else {
 		uint64_t threshold = THRESHOLD;

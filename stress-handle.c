@@ -55,7 +55,7 @@ static int get_mount_info(args_t *args)
 	int mounts = 0;
 
 	if ((fp = fopen("/proc/self/mountinfo", "r")) == NULL) {
-		pr_dbg(stderr, "%s: cannot open /proc/self/mountinfo\n", args->name);
+		pr_dbg("%s: cannot open /proc/self/mountinfo\n", args->name);
 		return -1;
 	}
 
@@ -79,7 +79,7 @@ static int get_mount_info(args_t *args)
 
 		mount_info[mounts].mount_path = strdup(mount_path);
 		if (mount_info[mounts].mount_path == NULL) {
-			pr_dbg(stderr, "%s: cannot allocate mountinfo mount path\n", args->name);
+			pr_dbg("%s: cannot allocate mountinfo mount path\n", args->name);
 			free_mount_info(mounts);
 			mounts = -1;
 			break;

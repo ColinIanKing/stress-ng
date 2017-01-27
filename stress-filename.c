@@ -232,7 +232,7 @@ int stress_filename (args_t *args)
 		goto tidy_dir;
 	}
 	if (args->instance == 0)
-		pr_dbg(stderr, "%s: maximum file size: %lu bytes\n",
+		pr_dbg("%s: maximum file size: %lu bytes\n",
 			args->name, (long unsigned) buf.f_namemax);
 
 	strncpy(filename, dirname, sizeof(filename) - 1);
@@ -266,7 +266,7 @@ int stress_filename (args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg(stdout, "%s: filesystem allows %zu unique "
+		pr_dbg("%s: filesystem allows %zu unique "
 			"characters in a filename\n",
 			args->name, chars_allowed);
 

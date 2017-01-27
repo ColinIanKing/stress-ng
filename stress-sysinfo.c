@@ -49,7 +49,7 @@ int stress_sysinfo(args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (args->instance == 0)
-		pr_dbg(stderr, "%s: found %d mount points\n",
+		pr_dbg("%s: found %d mount points\n",
 			args->name, n_mounts);
 
 	do {

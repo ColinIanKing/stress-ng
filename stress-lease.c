@@ -88,7 +88,7 @@ again:
 			fd = open(filename, O_NONBLOCK | O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				if (errno != EWOULDBLOCK && errno != EACCES) {
-					pr_dbg(stderr, "%s: open failed (child): errno=%d: (%s)\n",
+					pr_dbg("%s: open failed (child): errno=%d: (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 				continue;
@@ -179,7 +179,7 @@ reap:
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
-	pr_dbg(stderr, "%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
+	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
 
 	return ret;
 }

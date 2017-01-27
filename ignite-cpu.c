@@ -82,7 +82,7 @@ void ignite_cpu_start(void)
 			settings[i].default_setting,
 			settings[i].default_setting_len);
 		if (ret < 0) {
-			pr_dbg(stderr, "ignite-cpu: cannot set %s to %s, "
+			pr_dbg("ignite-cpu: cannot set %s to %s, "
 				"errno=%d (%s)\n",
 				settings[i].path, settings[i].default_setting,
 				-ret, strerror(-ret));
@@ -106,7 +106,7 @@ void ignite_cpu_start(void)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_dbg(stderr, "failed to start ignite cpu daemon, "
+		pr_dbg("failed to start ignite cpu daemon, "
 			"errno=%d (%s)\n", errno, strerror(errno));
 		return;
 	} else if (pid == 0) {

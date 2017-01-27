@@ -442,7 +442,7 @@ int stress_af_alg(args_t *args)
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 	if (hashfails | cipherfails | rngfails)
-		pr_dbg(stderr, "%s: bind failed with ENOENT on all hashes (%"
+		pr_dbg("%s: bind failed with ENOENT on all hashes (%"
 			PRIu64 " times), ciphers (%" PRIu64 " times), "
 			"prngs (%" PRIu64 " times\n",
 			args->name, hashfails, cipherfails, rngfails);

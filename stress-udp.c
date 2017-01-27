@@ -100,7 +100,7 @@ int stress_udp(args_t *args)
 	}
 #endif
 
-	pr_dbg(stderr, "%s: process [%d] using udp port %d\n",
+	pr_dbg("%s: process [%d] using udp port %d\n",
 		args->name, (int)args->pid, opt_udp_port + args->instance);
 
 again:

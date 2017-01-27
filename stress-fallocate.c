@@ -157,7 +157,7 @@ int stress_fallocate(args_t *args)
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	if (ftrunc_errs)
-		pr_dbg(stderr, "%s: %" PRIu64
+		pr_dbg("%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);

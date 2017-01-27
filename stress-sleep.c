@@ -197,7 +197,7 @@ tidy:
 	for (i = 0; i < n; i++) {
 		ret = pthread_join(ctxts[i].pthread, NULL);
 		if (ret)
-			pr_dbg(stderr, "pthread join, ret=%d\b", ret);
+			pr_dbg("pthread join, ret=%d\b", ret);
 	}
 
 	if (limited) {

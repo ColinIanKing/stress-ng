@@ -160,7 +160,7 @@ next:
 	(void)stress_temp_dir_rm_args(args);
 
 	if (!getrusage(RUSAGE_SELF, &usage)) {
-		pr_dbg(stderr, "%s: page faults: minor: %lu, major: %lu\n",
+		pr_dbg("%s: page faults: minor: %lu, major: %lu\n",
 			args->name, usage.ru_minflt, usage.ru_majflt);
 	}
 

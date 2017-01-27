@@ -106,7 +106,7 @@ int stress_yield(args_t *args)
 	for (i = 0; opt_do_run && (i < yielders); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
-			pr_dbg(stderr, "%s: fork failed (instance %" PRIu32
+			pr_dbg("%s: fork failed (instance %" PRIu32
 				", yielder %zd): errno=%d (%s)\n",
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {

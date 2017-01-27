@@ -61,13 +61,13 @@ int stress_utime(args_t *args)
 			t = times;
 		}
 		if (utimes(filename, t) < 0) {
-			pr_dbg(stderr, "%s: utimes failed: errno=%d: (%s)\n",
+			pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 #if defined(__linux__)
 		if (futimens(fd, NULL) < 0) {
-			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -75,7 +75,7 @@ int stress_utime(args_t *args)
 		ts.tv_sec = UTIME_NOW;
 		ts.tv_nsec = UTIME_NOW;
 		if (futimens(fd, &ts) < 0) {
-			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -83,13 +83,13 @@ int stress_utime(args_t *args)
 		ts.tv_sec = UTIME_OMIT;
 		ts.tv_nsec = UTIME_OMIT;
 		if (futimens(fd, &ts) < 0) {
-			pr_dbg(stderr, "%s: futimens failed: errno=%d: (%s)\n",
+			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 #endif
 		if (utime(filename, NULL) < 0) {
-			pr_dbg(stderr, "%s: utime failed: errno=%d: (%s)\n",
+			pr_dbg("%s: utime failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

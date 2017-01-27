@@ -133,7 +133,7 @@ int stress_stackmmap(args_t *args)
 	(void)close(fd);
 
 	if (madvise(stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
-		pr_dbg(stderr, "%s: madvise failed: errno=%d (%s)\n",
+		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 

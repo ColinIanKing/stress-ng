@@ -174,7 +174,7 @@ reap:
 		if (segv_reasons & _EXIT_SEGV_MUNMAP)
 			__strncat(buffer, " munmap", &n);
 
-		pr_dbg(stderr, "%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
+		pr_dbg("%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
 			args->name, segv_count, buffer);
 	}
 

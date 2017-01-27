@@ -52,12 +52,12 @@ int stress_switch(args_t *args)
 
 #if defined(F_SETPIPE_SZ)
 	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {
-		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
+		pr_dbg("%s: could not force pipe size to 1 page, "
 			"errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 	if (fcntl(pipefds[1], F_SETPIPE_SZ, buf_size) < 0) {
-		pr_dbg(stderr, "%s: could not force pipe size to 1 page, "
+		pr_dbg("%s: could not force pipe size to 1 page, "
 			"errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 	}

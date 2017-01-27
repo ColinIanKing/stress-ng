@@ -213,7 +213,7 @@ cleanup:
 		ret = waitpid(pids[i], &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pids[i], SIGTERM);
 			(void)kill(pids[i], SIGKILL);

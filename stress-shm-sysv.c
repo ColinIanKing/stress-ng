@@ -317,7 +317,7 @@ reap:
 			msg.index = i;
 			msg.shm_id = -1;
 			if (write(fd, &msg, sizeof(msg)) < 0) {
-				pr_dbg(stderr, "%s: write failed: errno=%d: (%s)\n",
+				pr_dbg("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				ok = false;
 			}
@@ -432,7 +432,7 @@ fork_again:
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGBUS)) {
 					log_system_mem_info();
-					pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
 						args->name, args->instance);
 					restarts++;
@@ -460,7 +460,7 @@ fork_again:
 			 * doubles the OOM score
 			 */
 			if (nice(5) < 0)
-				pr_dbg(stderr, "%s: nice of child failed, "
+				pr_dbg("%s: nice of child failed, "
 					"(instance %d)\n", args->name, args->instance);
 
 			(void)close(pipefds[0]);
@@ -470,10 +470,10 @@ fork_again:
 		}
 	}
 	if (orig_sz != sz)
-		pr_dbg(stderr, "%s: reduced shared memory size from "
+		pr_dbg("%s: reduced shared memory size from "
 			"%zu to %zu bytes\n", args->name, orig_sz, sz);
 	if (restarts) {
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32 "\n",
+		pr_dbg("%s: OOM restarts: %" PRIu32 "\n",
 			args->name, restarts);
 	}
 	return rc;

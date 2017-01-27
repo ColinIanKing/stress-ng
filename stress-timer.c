@@ -164,7 +164,7 @@ int stress_timer(args_t *args)
 		pr_fail_err("timer_delete");
 		return EXIT_FAILURE;
 	}
-	pr_dbg(stderr, "%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
+	pr_dbg("%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
 		args->name, overruns, args->instance);
 
 	return EXIT_SUCCESS;

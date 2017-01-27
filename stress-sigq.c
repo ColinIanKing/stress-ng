@@ -64,8 +64,8 @@ again:
 			if (info.si_value.sival_int)
 				break;
 		}
-		pr_dbg(stderr, "%s: child got termination notice\n", args->name);
-		pr_dbg(stderr, "%s: exited on pid [%d] (instance %" PRIu32 ")\n",
+		pr_dbg("%s: child got termination notice\n", args->name);
+		pr_dbg("%s: exited on pid [%d] (instance %" PRIu32 ")\n",
 			args->name, getpid(), args->instance);
 		_exit(0);
 	} else {
@@ -80,7 +80,7 @@ again:
 			inc_counter(args);
 		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-		pr_dbg(stderr, "%s: parent sent termination notice\n", args->name);
+		pr_dbg("%s: parent sent termination notice\n", args->name);
 		memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		sigqueue(pid, SIGUSR1, s);

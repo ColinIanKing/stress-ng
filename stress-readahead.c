@@ -205,7 +205,7 @@ finish:
 	(void)stress_temp_dir_rm_args(args);
 
 	if (misreads)
-		pr_dbg(stderr, "%s: %" PRIu64 " incomplete random reads\n",
+		pr_dbg("%s: %" PRIu64 " incomplete random reads\n",
 			args->name, misreads);
 
 	return rc;

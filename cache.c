@@ -70,7 +70,7 @@ static int file_exists(const char *path)
 	struct stat st;
 
 	if (!path) {
-		pr_dbg(stderr, "%s: empty path specified\n", __func__);
+		pr_dbg("%s: empty path specified\n", __func__);
 		return 0;
 	}
 
@@ -96,7 +96,7 @@ static char *get_contents(const char *path)
 	size_t        size;
 
 	if (!path) {
-		pr_dbg(stderr, "%s: empty path specified\n", __func__);
+		pr_dbg("%s: empty path specified\n", __func__);
 		return NULL;
 	}
 
@@ -170,13 +170,13 @@ static uint64_t size_to_bytes(const char *str)
 	char               *s;
 
 	if (!str) {
-		pr_dbg(stderr, "%s: empty string specified\n", __func__);
+		pr_dbg("%s: empty string specified\n", __func__);
 		return 0;
 	}
 
 	ret = sscanf(str, "%lu%ms", &value, &s);
 	if (ret != 2 || !s) {
-		pr_dbg(stderr, "%s: failed to parse suffix from \"%s\"\n",
+		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
 			__func__, str);
 		return 0;
 	}
@@ -215,7 +215,7 @@ static cache_type_t get_cache_type(const char *name)
 	const struct generic_map *p;
 
 	if (!name) {
-		pr_dbg(stderr, "%s: no cache type specified\n", __func__);
+		pr_dbg("%s: no cache type specified\n", __func__);
 		goto out;
 	}
 
@@ -263,12 +263,12 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	int      ret = EXIT_FAILURE;
 
 	if (!cache) {
-		pr_dbg(stderr, "%s: invalid cache specified\n", __func__);
+		pr_dbg("%s: invalid cache specified\n", __func__);
 		goto out;
 	}
 
 	if (!index_path) {
-		pr_dbg(stderr, "%s: invalid index specified\n", __func__);
+		pr_dbg("%s: invalid index specified\n", __func__);
 		goto out;
 	}
 
@@ -372,7 +372,7 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
 	uint16_t  max = 0;
 
 	if (!cpus) {
-		pr_dbg(stderr, "%s: invalid cpus parameter\n", __func__);
+		pr_dbg("%s: invalid cpus parameter\n", __func__);
 		return 0;
 	}
 
@@ -401,12 +401,12 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 	cpu_t *cpu;
 
 	if (!cpus) {
-		pr_dbg(stderr, "%s: invalid cpus parameter\n", __func__);
+		pr_dbg("%s: invalid cpus parameter\n", __func__);
 		return NULL;
 	}
 
 	if (!cache_level) {
-		pr_dbg(stderr, "%s: invalid cache_level: %d\n",
+		pr_dbg("%s: invalid cache_level: %d\n",
 			__func__, cache_level);
 		return NULL;
 	}
@@ -436,12 +436,12 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	memset(&globbuf, 0, sizeof(globbuf));
 	if (!cpu) {
-		pr_dbg(stderr, "%s: invalid cpu parameter\n", __func__);
+		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return ret;
 	}
 
 	if (!cpu_path) {
-		pr_dbg(stderr, "%s: invalid cpu path parameter\n", __func__);
+		pr_dbg("%s: invalid cpu path parameter\n", __func__);
 		return ret;
 	}
 
@@ -459,7 +459,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		 * details * via /sys (ARM).
 		 */
 		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_dbg(stderr, "%s does not exist\n", glob_path);
+			pr_dbg("%s does not exist\n", glob_path);
 		return ret;
 	}
 

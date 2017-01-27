@@ -106,7 +106,7 @@ static void aio_issue_cancel(const char *name, io_req_t *io_req)
 	case AIO_ALLDONE:
 		break;
 	case AIO_NOTCANCELED:
-		pr_dbg(stderr, "%s: async I/O request %d not cancelled\n",
+		pr_dbg("%s: async I/O request %d not cancelled\n",
 			name, io_req->request);
 		break;
 	default:
@@ -259,7 +259,7 @@ cancel:
 finish:
 	free(io_reqs);
 
-	pr_dbg(stderr, "%s: total of %" PRIu64 " async I/O signals "
+	pr_dbg("%s: total of %" PRIu64 " async I/O signals "
 		"caught (instance %d)\n",
 		args->name, total, args->instance);
 	(void)stress_temp_dir_rm_args(args);

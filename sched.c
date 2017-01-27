@@ -110,7 +110,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 				min, max);
 			exit(EXIT_FAILURE);
 		}
-		pr_dbg(stderr, "setting scheduler class '%s', priority %d\n",
+		pr_dbg("setting scheduler class '%s', priority %d\n",
 			name, param.sched_priority);
 		break;
 #endif
@@ -119,7 +119,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 		if (sched_priority != UNDEFINED)
 			pr_inf("ignoring priority level for "
 			"scheduler class '%s'\n", name);
-		pr_dbg(stderr, "setting scheduler class '%s'\n", name);
+		pr_dbg("setting scheduler class '%s'\n", name);
 		break;
 	}
 	rc = sched_setscheduler(getpid(), sched, &param);

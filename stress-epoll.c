@@ -336,7 +336,7 @@ retry:
 			case ENOENT:	   /* unix domain not yet created */
 				break;
 			default:
-				pr_dbg(stderr, "%s: connect failed: %d (%s)\n",
+				pr_dbg("%s: connect failed: %d (%s)\n",
 					args->name, saved_errno, strerror(saved_errno));
 				break;
 			}
@@ -371,7 +371,7 @@ retry:
 	}
 #endif
 	if (connect_timeouts)
-		pr_dbg(stderr, "%s: %" PRIu64 " x 0.25 second "
+		pr_dbg("%s: %" PRIu64 " x 0.25 second "
 			"connect timeouts, connection table full "
 			"(instance %" PRIu32 ")\n",
 			args->name, connect_timeouts, args->instance);
@@ -517,11 +517,11 @@ int stress_epoll(args_t *args)
 	int i, rc = EXIT_SUCCESS;
 
 	if (max_servers == 1) {
-		pr_dbg(stderr, "%s: process [%d] using socket port %d\n",
+		pr_dbg("%s: process [%d] using socket port %d\n",
 			args->name, args->pid,
 			opt_epoll_port + args->instance);
 	} else {
-		pr_dbg(stderr, "%s: process [%d] using socket ports %d..%d\n",
+		pr_dbg("%s: process [%d] using socket ports %d..%d\n",
 			args->name, args->pid,
 			opt_epoll_port + (max_servers * args->instance),
 			opt_epoll_port + (max_servers * (args->instance + 1)) - 1);

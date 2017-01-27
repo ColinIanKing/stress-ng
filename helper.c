@@ -527,7 +527,7 @@ void stress_cwd_readwriteable(void)
 	char path[PATH_MAX];
 
 	if (getcwd(path, sizeof(path)) == NULL) {
-		pr_dbg(stderr, "Cannot determine current working directory\n");
+		pr_dbg("Cannot determine current working directory\n");
 		return;
 	}
 	if (access(path, R_OK | W_OK)) {
@@ -662,7 +662,7 @@ int stress_cache_alloc(const char *name)
 
 	if (shared->mem_cache_level > max_cache_level) {
 		if (warn_once(WARN_ONCE_CACHE_REDUCED))
-			pr_dbg(stderr, "%s: reducing cache level from L%d (too high) "
+			pr_dbg("%s: reducing cache level from L%d (too high) "
 				"to L%d\n", name,
 				shared->mem_cache_level, max_cache_level);
 		shared->mem_cache_level = max_cache_level;

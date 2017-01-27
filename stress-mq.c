@@ -116,7 +116,7 @@ int stress_mq(args_t *args)
 			"size %d messages, maximum of %d allowed\n",
 			args->name, opt_mq_size, sz);
 	}
-	pr_dbg(stderr, "POSIX message queue %s with %lu messages\n",
+	pr_dbg("POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);
 
 	if (time(&time_start) == ((time_t)-1)) {

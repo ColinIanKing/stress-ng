@@ -70,7 +70,7 @@ int stress_cache(args_t *args)
 	const uint64_t mem_cache_size = shared->mem_cache_size;
 
 	if (args->instance == 0)
-		pr_dbg(stderr, "%s: using cache buffer size of %" PRIu64 "K\n",
+		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, mem_cache_size / 1024);
 
 #if defined(__linux__)
@@ -169,6 +169,6 @@ int stress_cache(args_t *args)
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
-	pr_dbg(stderr, "%s: total [%" PRIu32 "]\n", args->name, total);
+	pr_dbg("%s: total [%" PRIu32 "]\n", args->name, total);
 	return ret;
 }

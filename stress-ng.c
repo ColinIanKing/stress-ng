@@ -1741,14 +1741,14 @@ redo:
 #if NEED_GLIBC(2,1,0)
 						const char *signame = strsignal(WTERMSIG(status));
 
-						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal: %d (%s)\n",
+						pr_dbg("process %d (stress-ng-%s) terminated on signal: %d (%s)\n",
 							ret, stressors[i].name, WTERMSIG(status), signame);
 #else
-						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal: %d\n",
+						pr_dbg("process %d (stress-ng-%s) terminated on signal: %d\n",
 							ret, stressors[i].name, WTERMSIG(status));
 #endif
 #else
-						pr_dbg(stderr, "process %d (stress-ng-%s) terminated on signal\n",
+						pr_dbg("process %d (stress-ng-%s) terminated on signal\n",
 							ret, stressors[i].name);
 #endif
 						*success = false;
@@ -1770,7 +1770,7 @@ redo:
 						break;
 					}
 					proc_finished(&procs[i].pids[j]);
-					pr_dbg(stderr, "process [%d] terminated\n", ret);
+					pr_dbg("process [%d] terminated\n", ret);
 				} else if (ret == -1) {
 					/* Somebody interrupted the wait */
 					if (errno == EINTR)
@@ -1832,7 +1832,7 @@ static void MLOCKED stress_run(
 
 	opt_do_wait = true;
 	time_start = time_now();
-	pr_dbg(stderr, "starting stressors\n");
+	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (time_now() - time_start > opt_timeout)
@@ -1877,7 +1877,7 @@ again:
 					set_iopriority(opt_ionice_class, opt_ionice_level);
 					set_proc_name(name);
 
-					pr_dbg(stderr, "%s: started [%d] (instance %" PRIu32 ")\n",
+					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
 
 					n = (i * max_procs) + j;
@@ -1916,10 +1916,10 @@ again:
 
 					stats[n].finish = time_now();
 					if (times(&stats[n].tms) == (clock_t)-1) {
-						pr_dbg(stderr, "times failed: errno=%d (%s)\n",
+						pr_dbg("times failed: errno=%d (%s)\n",
 							errno, strerror(errno));
 					}
-					pr_dbg(stderr, "%s: exited [%d] (instance %" PRIu32 ")\n",
+					pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
 #if defined(STRESS_THERMAL_ZONES)
 					tz_free(&shared->tz_info);
@@ -1935,7 +1935,7 @@ again:
 
 					/* Forced early abort during startup? */
 					if (!opt_do_run) {
-						pr_dbg(stderr, "abort signal during startup, cleaning up\n");
+						pr_dbg("abort signal during startup, cleaning up\n");
 						kill_procs(SIGALRM);
 						goto wait_for_procs;
 					}
@@ -1948,7 +1948,7 @@ again:
 	(void)alarm(opt_timeout);
 
 abort:
-	pr_dbg(stderr, "%d stressor%s spawned\n", n_procs,
+	pr_dbg("%d stressor%s spawned\n", n_procs,
 		n_procs == 1 ? "" : "s");
 
 wait_for_procs:
@@ -2939,7 +2939,7 @@ next_opt:
 	log_system_info();
 	log_system_mem_info();
 
-	pr_dbg(stderr, "%" PRId32 " processors online, %" PRId32
+	pr_dbg("%" PRId32 " processors online, %" PRId32
 		" processors configured\n",
 		stress_get_processors_online(),
 		stress_get_processors_configured());

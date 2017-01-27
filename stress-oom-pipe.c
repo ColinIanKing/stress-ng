@@ -95,19 +95,19 @@ again:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg(stderr, "%s: waitpid() errno=%d (%s)\n",
+				pr_dbg("%s: waitpid() errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
-			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+			pr_dbg( "%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
 			/* If we got kill by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
-				pr_dbg(stderr, "%s: assuming killed by OOM "
+				pr_dbg("%s: assuming killed by OOM "
 					"killer, restarting again "
 					"(instance %d)\n",
 					args->name, args->instance);
@@ -144,7 +144,7 @@ again:
 		}
 
 		if (!pipes_open) {
-			pr_dbg(stderr, "%s: failed to open any pipes, aborted\n",
+			pr_dbg("%s: failed to open any pipes, aborted\n",
 				args->name);
 			exit(EXIT_NO_RESOURCE);
 		}

@@ -266,7 +266,7 @@ extern int pr_yaml(FILE *fp, const char *const fmt, ...) __attribute__((format(p
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
 
-#define pr_dbg(fp, fmt, args...)	pr_msg(fp, PR_DEBUG, fmt, ## args)
+#define pr_dbg(fmt, args...)		pr_msg(stderr, PR_DEBUG, fmt, ## args)
 #define pr_inf(fmt, args...)		pr_msg(stdout, PR_INFO, fmt, ## args)
 #define pr_err(fp, fmt, args...)	pr_msg(fp, PR_ERROR, fmt, ## args)
 #define pr_fail(fp, fmt, args...)	pr_msg(fp, PR_FAIL, fmt, ## args)

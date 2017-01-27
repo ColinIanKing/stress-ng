@@ -127,7 +127,7 @@ int stress_daemon(args_t *args)
 			if (n < 0) {
 				(void)close(fds[0]);
 				if (errno != EINTR) {
-					pr_dbg(stderr, "read failed: "
+					pr_dbg("read failed: "
 						"errno=%d (%s)\n",
 						errno, strerror(errno));
 				}

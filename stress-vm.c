@@ -167,7 +167,7 @@ static void stress_vm_check(const char *name, const size_t bit_errors)
 {
 	if (bit_errors && (opt_flags & OPT_FLAGS_VERIFY))
 #if INJECT_BIT_ERRORS
-		pr_dbg(stderr, "%s: detected %zu memory error%s\n",
+		pr_dbg("%s: detected %zu memory error%s\n",
 			name, bit_errors, bit_errors == 1 ? "" : "s");
 #else
 		pr_fail(stderr, "%s: detected %zu memory error%s\n",
@@ -1742,7 +1742,7 @@ static size_t stress_vm_rowhammer(
 	(void)max_ops;
 
 	if (!n) {
-		pr_dbg(stderr, "rowhammer: zero uint32_t integers could "
+		pr_dbg("rowhammer: zero uint32_t integers could "
 			"be hammered, aborting\n");
 		return 0;
 	}
@@ -1782,7 +1782,7 @@ static size_t stress_vm_rowhammer(
 			errors++;
 	if (errors) {
 		bit_errors += errors;
-		pr_dbg(stderr, "rowhammer: %zu errors on addresses "
+		pr_dbg("rowhammer: %zu errors on addresses "
 			"%p and %p\n", errors, addr0, addr1);
 	}
 	(*counter) += VM_ROWHAMMER_LOOPS;
@@ -1908,19 +1908,19 @@ again:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
-				pr_dbg(stderr, "%s: waitpid(): errno=%d (%s)\n",
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
-			pr_dbg(stderr, "%s: child died: %s (instance %d)\n",
+			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
 				log_system_mem_info();
-				pr_dbg(stderr, "%s: assuming killed by OOM killer, "
+				pr_dbg("%s: assuming killed by OOM killer, "
 					"restarting again (instance %d)\n",
 					args->name, args->instance);
 				restarts++;
@@ -1982,7 +1982,7 @@ again:
 	*args->counter >>= VM_BOGO_SHIFT;
 
 	if (restarts + nomems > 0)
-		pr_dbg(stderr, "%s: OOM restarts: %" PRIu32
+		pr_dbg("%s: OOM restarts: %" PRIu32
 			", out of memory restarts: %" PRIu32 ".\n",
 			args->name, restarts, nomems);
 

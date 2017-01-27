@@ -567,7 +567,7 @@ seq_rd_retry:
 				inc_counter(args);
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64
+				pr_dbg("%s: %" PRIu64
 					" incomplete sequential reads\n",
 					args->name, misreads);
 			if (baddata)
@@ -623,7 +623,7 @@ rnd_rd_retry:
 				inc_counter(args);
 			}
 			if (misreads)
-				pr_dbg(stderr, "%s: %" PRIu64
+				pr_dbg("%s: %" PRIu64
 					" incomplete random reads\n",
 					args->name, misreads);
 		}
