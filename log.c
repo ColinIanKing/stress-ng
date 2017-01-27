@@ -83,12 +83,11 @@ void pr_openlog(const char *filename)
 int pr_msg(
 	FILE *fp,
 	const uint64_t flag,
-	const char *const fmt, ...)
+	const char *const fmt,
+	va_list ap)
 {
-	va_list ap;
 	int ret = 0;
 
-	va_start(ap, fmt);
 	if ((flag & PR_FAIL) || (opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
@@ -118,7 +117,7 @@ int pr_msg(
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
 					opt_do_run = false;
-					pr_msg(fp, PR_INFO, "%d failures "
+					fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);
 					fflush(fp);
@@ -138,9 +137,16 @@ int pr_msg(
 			syslog(LOG_INFO, "%s", buf);
 		}
 	}
-	va_end(ap);
-
 	return ret;
+}
+
+static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg(stderr, flag, fmt, ap);
+	va_end(ap);
 }
 
 /*
@@ -153,7 +159,7 @@ void pr_msg_fail(
 	const char *what,
 	const int err)
 {
-	pr_msg(stderr, flag, "%s: %s failed, errno=%d (%s)\n",
+	__pr_msg_fail(flag, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
 

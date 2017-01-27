@@ -270,7 +270,7 @@ typedef struct {
 
 /* Logging helpers */
 extern int pr_msg(FILE *fp, const uint64_t flag,
-	const char *const fmt, ...) __attribute__((format(printf, 3, 4)));
+	const char *const fmt, va_list va);
 extern void pr_msg_fail(const uint64_t flag, const char *name, const char *what, const int err);
 extern int pr_yaml(FILE *fp, const char *const fmt, ...) __attribute__((format(printf, 2, 3)));
 extern void pr_yaml_runinfo(FILE *fp);
