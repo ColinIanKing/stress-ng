@@ -57,7 +57,7 @@ int stress_seek(args_t *args)
 	}
 	len = opt_seek_size - sizeof(buf);
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

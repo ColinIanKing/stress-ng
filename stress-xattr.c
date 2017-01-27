@@ -38,7 +38,7 @@ int stress_xattr(args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
-	ret = stress_temp_dir_mk(args->name, pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

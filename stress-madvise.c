@@ -131,7 +131,7 @@ int stress_madvise(args_t *args)
 
 	memset(page, 0xa5, page_size);
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

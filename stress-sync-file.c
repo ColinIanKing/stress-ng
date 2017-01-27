@@ -132,7 +132,7 @@ int stress_sync_file(args_t *args)
 			opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

@@ -123,7 +123,7 @@ int stress_aiol(args_t *args)
 			return EXIT_FAILURE;
 		}
 	}
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

@@ -145,7 +145,7 @@ int stress_fifo(args_t *args)
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
-	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
 		return exit_status(-rc);
 

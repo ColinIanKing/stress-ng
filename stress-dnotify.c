@@ -383,7 +383,7 @@ int stress_dnotify(args_t *args)
 	}
 
 	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 	do {

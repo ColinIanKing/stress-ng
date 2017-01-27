@@ -73,7 +73,7 @@ int stress_fallocate(args_t *args)
 			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

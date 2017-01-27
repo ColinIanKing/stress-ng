@@ -42,7 +42,7 @@ int stress_ioprio(args_t *args)
 	int fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 
-	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
+	if (stress_temp_dir_mk_args(args) < 0)
 		return rc;
 
 	(void)stress_temp_filename(filename, sizeof(filename),

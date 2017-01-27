@@ -264,7 +264,7 @@ int stress_mmap(args_t *args)
 		ssize_t ret, rc;
 		char ch = '\0';
 
-		rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
+		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0)
 			return exit_status(-rc);
 

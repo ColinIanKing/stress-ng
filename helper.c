@@ -449,6 +449,15 @@ int stress_temp_dir_mk(
 }
 
 /*
+ *   stress_temp_dir_mk_args()
+ *	create a temporary director using info from args
+ */
+int stress_temp_dir_mk_args(args_t *args)
+{
+	return stress_temp_dir_mk(args->name, args->pid, args->instance);
+}
+
+/*
  *  stress_temp_dir_rm()
  *	remove a temporary directory
  */

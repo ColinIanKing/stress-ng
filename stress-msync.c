@@ -109,7 +109,7 @@ int stress_msync(args_t *args)
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	rc = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
 		return exit_status(-rc);
 

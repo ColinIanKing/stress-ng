@@ -209,7 +209,7 @@ int stress_fiemap(args_t *args)
 	}
 	memset(counters, 0, counters_sz);
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = exit_status(-ret);
 		goto clean;

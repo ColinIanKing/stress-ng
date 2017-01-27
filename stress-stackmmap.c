@@ -106,7 +106,7 @@ int stress_stackmmap(args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
+	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, args->pid, args->instance, mwc32());

@@ -82,7 +82,7 @@ int stress_readahead(args_t *args)
 			opt_readahead_bytes = MIN_HDD_BYTES;
 	}
 
-	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
+	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);

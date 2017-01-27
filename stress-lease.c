@@ -117,7 +117,7 @@ int stress_lease(args_t *args)
 	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename(filename, PATH_MAX,

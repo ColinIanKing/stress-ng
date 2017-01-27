@@ -34,7 +34,7 @@ int stress_utime(args_t *args)
 	char filename[PATH_MAX];
 	int ret, fd;
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 

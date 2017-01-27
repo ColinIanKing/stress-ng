@@ -180,7 +180,7 @@ int stress_aio(args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_temp_dir_mk(args->name, args->pid, args->instance);
+	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		free(io_reqs);
 		return exit_status(-ret);
