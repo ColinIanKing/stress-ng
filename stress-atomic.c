@@ -138,7 +138,7 @@ int stress_atomic(args_t *args)
 #else
 int stress_atomic(args_t *args)
 {
-	return stress_not_implemented(args)
+	return stress_not_implemented(args);
 }
 #endif
 #endif
