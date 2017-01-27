@@ -64,7 +64,7 @@ static int stress_link_generic(
 	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
@@ -84,7 +84,7 @@ static int stress_link_generic(
 				newpath, sizeof(newpath), i);
 			if (linkfunc(oldpath, newpath) < 0) {
 				rc = exit_status(errno);
-				pr_fail_err(args->name, funcname);
+				pr_fail_err(funcname);
 				n = i;
 				break;
 			}
@@ -95,19 +95,19 @@ static int stress_link_generic(
 				rret = readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
-					pr_fail_err(args->name, "readlink");
+					pr_fail_err("readlink");
 				} else {
 					newpath[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
-						pr_fail_err(args->name, "readlink length error");
+						pr_fail_err("readlink length error");
 					else
 						if (strncmp(oldpath, buf, rret))
-							pr_fail_err(args->name, "readlink path error");
+							pr_fail_err("readlink path error");
 				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
 				rc = exit_status(errno);
-				pr_fail_err(args->name, "lstat");
+				pr_fail_err("lstat");
 			}
 
 			if (!opt_do_run ||

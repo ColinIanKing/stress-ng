@@ -47,7 +47,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		sigset_t mask;

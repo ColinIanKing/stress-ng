@@ -34,7 +34,7 @@ int stress_zero(args_t *args)
 	const size_t page_size = stress_get_pagesize();
 
 	if ((fd = open("/dev/zero", O_RDONLY)) < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open /dev/zero");
 		return EXIT_FAILURE;
 	}
 
@@ -49,7 +49,7 @@ int stress_zero(args_t *args)
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail_err(args->name, "read");
+			pr_fail_err("read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -63,13 +63,13 @@ int stress_zero(args_t *args)
 		if (ptr == MAP_FAILED) {
 			if (errno == ENOMEM)
 				continue;
-			pr_fail_err(args->name, "mmap /dev/zero");
+			pr_fail_err("mmap /dev/zero");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		/* Quick sanity check if first 32 bits are zero */
 		if (*ptr != 0) {
-			pr_fail_err(args->name, "mmap'd /dev/zero not null");
+			pr_fail_err("mmap'd /dev/zero not null");
 			(void)munmap(ptr, page_size);
 			(void)close(fd);
 			return EXIT_FAILURE;

@@ -39,11 +39,11 @@ int stress_mmapmany(args_t *args)
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
 	if (max < 1) {
-		pr_fail_dbg(args->name, "sysconf(_SC_MAPPED_FILES)");
+		pr_fail_dbg("sysconf(_SC_MAPPED_FILES)");
 		return EXIT_NO_RESOURCE;
 	}
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
+		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
 again:

@@ -68,7 +68,7 @@ int stress_spawn(args_t *args)
 		spawn_calls++;
 		ret = posix_spawn(&pid, path, NULL, NULL, argv_new, env_new);
 		if (ret < 0) {
-			pr_fail_err(args->name, "posix_spawn()");
+			pr_fail_err("posix_spawn()");
 			spawn_fails++;
 		} else {
 			int status;

@@ -79,17 +79,17 @@ int stress_icmp_flood(args_t *args)
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
-		pr_fail_err(args->name, "socket");
+		pr_fail_err("socket");
 		goto err;
 	}
 	if (setsockopt(fd, IPPROTO_IP, IP_HDRINCL,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err(args->name, "setsockopt IP_HDRINCL");
+		pr_fail_err("setsockopt IP_HDRINCL");
 		goto err_socket;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err(args->name, "setsockopt SO_BROADCAST");
+		pr_fail_err("setsockopt SO_BROADCAST");
 		goto err_socket;
 	}
 

@@ -212,7 +212,7 @@ static int epoll_ctl_add(const int efd, const int fd)
  *	fd's to epoll event list
  */
 static int epoll_notification(
-	const char *name,
+	args_t *args,
 	const int efd,
 	const int sfd)
 {
@@ -230,19 +230,19 @@ static int epoll_notification(
 				/* out of file descriptors! */
 				return 0;
 			}
-			pr_fail_err(name, "accept");
+			pr_fail_err("accept");
 			return -1;
 		}
 		/*
 		 *  Add non-blocking fd to epoll event list
 		 */
 		if (epoll_set_fd_nonblock(fd) < 0) {
-			pr_fail_err(name, "setting socket to non-blocking");
+			pr_fail_err("setting socket to non-blocking");
 			(void)close(fd);
 			return -1;
 		}
 		if (epoll_ctl_add(efd, fd) < 0) {
-			pr_fail_err(name, "epoll ctl add");
+			pr_fail_err("epoll ctl add");
 			(void)close(fd);
 			return -1;
 		}
@@ -284,7 +284,7 @@ retry:
 			break;
 
 		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg(args->name, "socket");
+			pr_fail_dbg("socket");
 			return -1;
 		}
 
@@ -292,7 +292,7 @@ retry:
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
 		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
-			pr_fail_err(args->name, "timer_create");
+			pr_fail_err("timer_create");
 			(void)close(fd);
 			return -1;
 		}
@@ -308,7 +308,7 @@ retry:
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
-			pr_fail_err(args->name, "timer_settime");
+			pr_fail_err("timer_settime");
 			(void)close(fd);
 			return -1;
 		}
@@ -322,7 +322,7 @@ retry:
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
-			pr_fail_err(args->name, "timer_delete");
+			pr_fail_err("timer_delete");
 			(void)close(fd);
 			return -1;
 		}
@@ -347,7 +347,7 @@ retry:
 			if (retries > 1000) {
 				/* Sigh, give up.. */
 				errno = saved_errno;
-				pr_fail_dbg(args->name, "too many connects");
+				pr_fail_dbg("too many connects");
 				return -1;
 			}
 			goto retry;
@@ -356,7 +356,7 @@ retry:
 		memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
-			pr_fail_dbg(args->name, "send");
+			pr_fail_dbg("send");
 			break;
 		}
 		(void)close(fd);
@@ -399,13 +399,13 @@ static void epoll_server(
 		goto die;
 	}
 	if ((sfd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
-		pr_fail_err(args->name, "socket");
+		pr_fail_err("socket");
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_err(args->name, "setsockopt");
+		pr_fail_err("setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -414,33 +414,33 @@ static void epoll_server(
 		opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 	if (bind(sfd, addr, addr_len) < 0) {
-		pr_fail_err(args->name, "bind");
+		pr_fail_err("bind");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_set_fd_nonblock(sfd) < 0) {
-		pr_fail_err(args->name, "setting socket to non-blocking");
+		pr_fail_err("setting socket to non-blocking");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (listen(sfd, SOMAXCONN) < 0) {
-		pr_fail_err(args->name, "listen");
+		pr_fail_err("listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((efd = epoll_create1(0)) < 0) {
-		pr_fail_err(args->name, "epoll_create1");
+		pr_fail_err("epoll_create1");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_ctl_add(efd, sfd) < 0) {
-		pr_fail_err(args->name, "epoll ctl add");
+		pr_fail_err("epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((events = calloc(MAX_EPOLL_EVENTS,
 				sizeof(struct epoll_event))) == NULL) {
-		pr_fail_err(args->name, "epoll ctl add");
+		pr_fail_err("epoll ctl add");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -458,7 +458,7 @@ static void epoll_server(
 		n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		if (n < 0) {
 			if (errno != EINTR) {
-				pr_fail_err(args->name, "epoll_wait");
+				pr_fail_err("epoll_wait");
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
@@ -479,7 +479,7 @@ static void epoll_server(
 				 *  The listening socket has notification(s)
 				 *  pending, so handle incoming connections
 				 */
-				if (epoll_notification(args->name, efd, sfd) < 0)
+				if (epoll_notification(args, efd, sfd) < 0)
 					break;
 			} else {
 				/*
@@ -545,7 +545,7 @@ int stress_epoll(args_t *args)
 	for (i = 0; i < max_servers; i++) {
 		pids[i] = epoll_spawn(args, epoll_server, i, ppid);
 		if (pids[i] < 0) {
-			pr_fail_dbg(args->name, "fork");
+			pr_fail_dbg("fork");
 			goto reap;
 		}
 	}
@@ -558,7 +558,7 @@ reap:
 		if (pids[i] > 0) {
 			(void)kill(pids[i], SIGKILL);
 			if (waitpid(pids[i], &status, 0) < 0) {
-				pr_fail_dbg(args->name, "waitpid");
+				pr_fail_dbg("waitpid");
 			}
 		}
 	}

@@ -470,7 +470,8 @@ int stress_temp_dir_mk(
 	ret = mkdir(tmp, S_IRWXU);
 	if (ret < 0) {
 		ret = -errno;
-		pr_fail_err(name, "mkdir");
+		pr_fail(stderr, "%s: mkdir failed, errno=%d (%s)\n",
+			name, errno, strerror(errno));
 	}
 
 	return ret;
@@ -501,7 +502,8 @@ int stress_temp_dir_rm(
 	ret = rmdir(tmp);
 	if (ret < 0) {
 		ret = -errno;
-		pr_fail_err(name, "rmdir");
+		pr_fail(stderr, "%s: rmdir failed, errno=%d (%s)\n",
+			name, errno, strerror(errno));
 	}
 
 	return ret;

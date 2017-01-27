@@ -65,7 +65,7 @@ static inline int stress_rtc_dev(args_t *args)
 #if defined(RTC_RD_TIME)
 	if (ioctl(fd, RTC_RD_TIME, &rtc_tm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(args->name, "ioctl RTC_RD_TIME");
+			pr_fail_err("ioctl RTC_RD_TIME");
 			ret = -errno;
 			goto err;
 		}
@@ -75,7 +75,7 @@ static inline int stress_rtc_dev(args_t *args)
 #if defined(RTC_ALM_READ)
 	if (ioctl(fd, RTC_ALM_READ, &alarm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(args->name, "ioctl RTC_ALRM_READ");
+			pr_fail_err("ioctl RTC_ALRM_READ");
 			ret = -errno;
 			goto err;
 		}
@@ -85,7 +85,7 @@ static inline int stress_rtc_dev(args_t *args)
 #if defined(RTC_WKALM_RD)
 	if (ioctl(fd, RTC_WKALM_RD, &alarm) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(args->name, "ioctl RTC_WKALRM_RD");
+			pr_fail_err("ioctl RTC_WKALRM_RD");
 			ret = -errno;
 			goto err;
 		}
@@ -95,7 +95,7 @@ static inline int stress_rtc_dev(args_t *args)
 #if defined(RTC_IRQP_READ)
 	if (ioctl(fd, RTC_IRQP_READ, &tmp) < 0) {
 		if (errno != ENOTTY) {
-			pr_fail_err(args->name, "ioctl RTC_IRQP_READ");
+			pr_fail_err("ioctl RTC_IRQP_READ");
 			ret = -errno;
 			goto err;
 		}

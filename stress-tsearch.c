@@ -74,9 +74,9 @@ int stress_tsearch(args_t *args)
 	}
 	n = (size_t)opt_tsearch_size;
 
-	if ((data = malloc(sizeof(int32_t) * n)) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
-		return EXIT_FAILURE;
+	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
+		pr_fail_dbg("calloc");
+		return EXIT_NO_RESOURCE;
 	}
 
 	do {

@@ -142,7 +142,7 @@ int stress_get(args_t *args)
 
 		ptr = getcwd(path, sizeof path);
 		if (verify && !ptr)
-			pr_fail_err(args->name, "getcwd");
+			pr_fail_err("getcwd");
 		check_do_run();
 
 		(void)getgid();
@@ -159,7 +159,7 @@ int stress_get(args_t *args)
 
 		ret = getgroups(GIDS_MAX, gids);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "getgroups");
+			pr_fail_err("getgroups");
 		check_do_run();
 
 #if !defined(__minix__)
@@ -176,19 +176,19 @@ int stress_get(args_t *args)
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
 			if (verify && errno && (ret < 0))
-				pr_fail_err(args->name, "getpriority");
+				pr_fail_err("getpriority");
 			check_do_run();
 		}
 
 #if defined(__linux__)
 		ret = getresgid(&rgid, &egid, &sgid);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "getresgid");
+			pr_fail_err("getresgid");
 		check_do_run();
 
 		ret = getresuid(&ruid, &euid, &suid);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "getresuid");
+			pr_fail_err("getresuid");
 		check_do_run();
 #endif
 
@@ -237,7 +237,7 @@ int stress_get(args_t *args)
 #if _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
 		ret = getsid(mypid);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "getsid");
+			pr_fail_err("getsid");
 		check_do_run();
 #endif
 
@@ -252,27 +252,27 @@ int stress_get(args_t *args)
 
 		t = time(NULL);
 		if (verify && (t == (time_t)-1))
-			pr_fail_err(args->name, "time");
+			pr_fail_err("time");
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "gettimeval");
+			pr_fail_err("gettimeval");
 #if defined(__linux__)
 		ret = uname(&utsbuf);
 		if (verify && (ret < 0))
-			pr_fail_err(args->name, "uname");
+			pr_fail_err("uname");
 #endif
 
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
 		if (is_root && verify && (ret < 0))
-			pr_fail_err(args->name, "adjtimex");
+			pr_fail_err("adjtimex");
 #endif
 		memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (is_root && verify && (ret < 0))
-			pr_fail_err(args->name, "adjtime");
+			pr_fail_err("adjtime");
 
 		/* Get number of file system types */
 		n = shim_sysfs(3);

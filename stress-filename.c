@@ -222,13 +222,13 @@ int stress_filename (args_t *args)
 	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err(args->name, "mkdir");
+			pr_fail_err("mkdir");
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (statvfs(dirname, &buf) < 0) {
-		pr_fail_err(args->name, "statvfs");
+		pr_fail_err("statvfs");
 		goto tidy_dir;
 	}
 	if (args->instance == 0)

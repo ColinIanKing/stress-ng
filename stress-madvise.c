@@ -118,7 +118,7 @@ int stress_madvise(args_t *args)
 #endif
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_fail_err(args->name, "sigsetjmp");
+		pr_fail_err("sigsetjmp");
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
@@ -141,7 +141,7 @@ int stress_madvise(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		return ret;

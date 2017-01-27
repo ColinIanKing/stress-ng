@@ -170,7 +170,7 @@ int stress_dentry(args_t *args)
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
 				if (errno != ENOSPC)
-					pr_fail_err(args->name, "open");
+					pr_fail_err("open");
 				n = i;
 				break;
 			}

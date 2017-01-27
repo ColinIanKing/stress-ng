@@ -151,14 +151,14 @@ static int stress_af_alg_hash(
 			/* Perhaps the hash does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(args->name, "bind");
+			pr_fail_err("bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(args->name, "accept");
+			pr_fail_err("accept");
 			return EXIT_FAILURE;
 		}
 
@@ -166,12 +166,12 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
-				pr_fail_err(args->name, "send");
+				pr_fail_err("send");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (recv(fd, digest, digest_size, MSG_WAITALL) != digest_size) {
-				pr_fail_err(args->name, "recv");
+				pr_fail_err("recv");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
@@ -217,20 +217,20 @@ static int stress_af_alg_cipher(
 			/* Perhaps the cipher does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(args->name, "bind");
+			pr_fail_err("bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		stress_strnrnd(key, sizeof(key));
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
-			pr_fail_err(args->name, "setsockopt");
+			pr_fail_err("setsockopt");
 			return EXIT_FAILURE;
 		}
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(args->name, "accept");
+			pr_fail_err("accept");
 			return EXIT_FAILURE;
 		}
 
@@ -254,7 +254,7 @@ static int stress_af_alg_cipher(
 			/* Keep static analysis happy */
 			if (!cmsg) {
 				(void)close(fd);
-				pr_fail_err(args->name, "null cmsg");
+				pr_fail_err("null cmsg");
 				return EXIT_FAILURE;
 			}
 			cmsg->cmsg_level = SOL_ALG;
@@ -282,12 +282,12 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail_err(args->name, "sendmsg");
+				pr_fail_err("sendmsg");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
@@ -315,12 +315,12 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail_err(args->name, "sendmsg");
+				pr_fail_err("sendmsg");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			} else {
@@ -367,14 +367,14 @@ static int stress_af_alg_rng(
 			/* Perhaps the rng does not exist with this kernel */
 			if (errno == ENOENT)
 				continue;
-			pr_fail_err(args->name, "bind");
+			pr_fail_err("bind");
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
-			pr_fail_err(args->name, "accept");
+			pr_fail_err("accept");
 			return EXIT_FAILURE;
 		}
 
@@ -382,7 +382,7 @@ static int stress_af_alg_rng(
 			char output[16];
 
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
@@ -417,7 +417,7 @@ int stress_af_alg(args_t *args)
 
 		retries--;
 		if ((!opt_do_run) || (retries < 0) || (errno != EAFNOSUPPORT)) {
-			pr_fail_err(args->name, "socket");
+			pr_fail_err("socket");
 			return rc;
 		}
 		/*

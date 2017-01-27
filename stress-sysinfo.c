@@ -65,7 +65,7 @@ int stress_sysinfo(args_t *args)
 #if defined(__linux__)
 		ret = sysinfo(&sysinfo_buf);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err(args->name, "sysinfo");
+			 pr_fail_err("sysinfo");
 		}
 		check_do_run();
 
@@ -141,7 +141,7 @@ int stress_sysinfo(args_t *args)
 		check_do_run();
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err(args->name, "times");
+			 pr_fail_err("times");
 		}
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));

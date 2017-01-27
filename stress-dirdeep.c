@@ -79,7 +79,7 @@ int stress_dirdeep(args_t *args)
 				if ((errno != ENOSPC) && (errno != ENOMEM) &&
 				    (errno != ENAMETOOLONG) && (errno != EDQUOT) &&
 				    (errno != EMLINK))
-					pr_fail_err(args->name, "mkdir");
+					pr_fail_err("mkdir");
 				break;
 			}
 

@@ -130,7 +130,7 @@ int stress_schedpolicy(args_t *args)
 		} else {
 			ret = sched_getscheduler(pid);
 			if (ret < 0) {
-				pr_fail_err(args->name, "sched_getscheduler");
+				pr_fail_err("sched_getscheduler");
 			} else if (ret != policies[policy]) {
 				pr_fail(stderr, "%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
@@ -143,11 +143,11 @@ int stress_schedpolicy(args_t *args)
 		memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if (ret < 0)
-			pr_fail_err(args->name, "sched_getparam failed");
+			pr_fail_err("sched_getparam failed");
 
 		ret = sched_setparam(pid, &param);
 		if (ret < 0)
-			pr_fail_err(args->name, "sched_setparam");
+			pr_fail_err("sched_setparam");
 #endif
 
 #if defined(__linux__) && \
@@ -161,7 +161,7 @@ int stress_schedpolicy(args_t *args)
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err(args->name, "sched_getattr");
+				pr_fail_err("sched_getattr");
 			}
 		}
 
@@ -169,7 +169,7 @@ int stress_schedpolicy(args_t *args)
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err(args->name, "sched_getattr");
+				pr_fail_err("sched_getattr");
 			}
 		}
 #endif

@@ -93,7 +93,7 @@ again:
 
 		start_ptr = sbrk(0);
 		if (start_ptr == (void *) -1) {
-			pr_fail_err(args->name, "sbrk(0)");
+			pr_fail_err("sbrk(0)");
 			exit(EXIT_FAILURE);
 		}
 

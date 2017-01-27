@@ -68,13 +68,13 @@ int stress_lsearch(args_t *args)
 	max = (size_t)opt_lsearch_size;
 
 	if ((data = calloc(max, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
-		return EXIT_FAILURE;
+		pr_fail_dbg("malloc");
+		return EXIT_NO_RESOURCE;
 	}
 	if ((root = calloc(max, sizeof(int32_t))) == NULL) {
 		free(data);
-		pr_fail_dbg(args->name, "malloc");
-		return EXIT_FAILURE;
+		pr_fail_dbg("malloc");
+		return EXIT_NO_RESOURCE;
 	}
 
 	do {

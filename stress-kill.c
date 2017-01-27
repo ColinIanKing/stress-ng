@@ -38,12 +38,12 @@ int stress_kill(args_t *args)
 
 		ret = kill(args->pid, SIGUSR1);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(args->name, "kill");
+			pr_fail_err("kill");
 
 		/* Zero signal can be used to see if process exists */
 		ret = kill(args->pid, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(args->name, "kill");
+			pr_fail_err("kill");
 
 		/*
 		 * Zero signal can be used to see if process exists,
@@ -52,7 +52,7 @@ int stress_kill(args_t *args)
 		 */
 		ret = kill(-1, 0);
 		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail_err(args->name, "kill");
+			pr_fail_err("kill");
 
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));

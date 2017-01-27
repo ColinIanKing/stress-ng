@@ -42,8 +42,8 @@ static void dnotify_handler(int sig, siginfo_t *si, void *data)
 	dnotify_fd = si->si_fd;
 }
 
-typedef int (*dnotify_helper)(const char *name, const char *path, const void *private);
-typedef void (*dnotify_func)(const char *name, const char *path);
+typedef int (*dnotify_helper)(args_t *args, const char *path, const void *private);
+typedef void (*dnotify_func)(args_t *args, const char *path);
 
 typedef struct {
 	const dnotify_func func;
@@ -56,7 +56,7 @@ typedef struct {
  *	required dnotify event flags 'flags'.
  */
 static void dnotify_exercise(
-	const char *name,	/* Stressor name */
+	args_t *args,		/* Stressor args */
 	const char *filename,	/* Filename in test */
 	const char *watchname,	/* File or directory to watch using dnotify */
 	const dnotify_helper func,	/* Helper func */
@@ -66,20 +66,20 @@ static void dnotify_exercise(
 	int fd, i = 0;
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
-		pr_fail_err(name, "open");
+		pr_fail_err("open");
 		return;
 	}
 	if (fcntl(fd, F_SETSIG, SIGRTMIN + 1) < 0) {
-		pr_fail_err(name, "fcntl F_SETSIG");
+		pr_fail_err("fcntl F_SETSIG");
 		goto cleanup;
 	}
 	if (fcntl(fd, F_NOTIFY, flags) < 0) {
-		pr_fail_err(name, "fcntl F_NOTIFY");
+		pr_fail_err("fcntl F_NOTIFY");
 		goto cleanup;
 	}
 
 	dnotify_fd = -1;
-	if (func(name, filename, private) < 0)
+	if (func(args, filename, private) < 0)
 		goto cleanup;
 
 	/* Wait for up to 1 second for event */
@@ -90,7 +90,7 @@ static void dnotify_exercise(
 
 	if (dnotify_fd != fd) {
 		pr_fail(stderr, "%s: did not get expected dnotify "
-			"file descriptor\n", name);
+			"file descriptor\n", args->name);
 	}
 
 cleanup:
@@ -102,11 +102,11 @@ cleanup:
  *  rm_file()
  *	remove a file
  */
-static int rm_file(const char *name, const char *path)
+static int rm_file(args_t *args, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
 		pr_err(stderr, "%s: cannot remove file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -129,7 +129,7 @@ static inline void mk_filename(
  *  mk_file()
  *	create file of length len bytes
  */
-static int mk_file(const char *name, const char *filename, const size_t len)
+static int mk_file(args_t *args, const char *filename, const size_t len)
 {
 	int fd;
 	size_t sz = len;
@@ -138,7 +138,7 @@ static int mk_file(const char *name, const char *filename, const size_t len)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
 		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
-			name, filename, errno, strerror(errno));
+			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
 
@@ -149,7 +149,7 @@ static int mk_file(const char *name, const char *filename, const size_t len)
 
 		if ((ret = write(fd, buffer, n)) < 0) {
 			pr_err(stderr, "%s: error writing to file %s: errno=%d (%s)\n",
-				name, filename, errno, strerror(errno));
+				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
 		}
@@ -158,41 +158,41 @@ static int mk_file(const char *name, const char *filename, const size_t len)
 
 	if (close(fd) < 0) {
 		pr_err(stderr, "%s: cannot close file %s: errno=%d (%s)\n",
-			name, filename, errno, strerror(errno));
+			args->name, filename, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
 static int dnotify_attrib_helper(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const void *dummy)
 {
 	(void)dummy;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
 		pr_err(stderr, "%s: cannot chmod file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
-static void dnotify_attrib_file(const char *name, const char *path)
+static void dnotify_attrib_file(args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
-	if (mk_file(name, filepath, 4096) < 0)
+	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
-	dnotify_exercise(name, filepath, path,
+	dnotify_exercise(args, filepath, path,
 		dnotify_attrib_helper, DN_ATTRIB, NULL);
-	(void)rm_file(name, filepath);
+	(void)rm_file(args, filepath);
 }
 
 static int dnotify_access_helper(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -203,7 +203,7 @@ static int dnotify_access_helper(
 	(void)dummy;
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		return -1;
 	}
 
@@ -213,28 +213,28 @@ do_access:
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err(stderr, "%s: cannot read file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
 	(void)close(fd);
 	return rc;
 }
 
-static void dnotify_access_file(const char *name, const char *path)
+static void dnotify_access_file(args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
-	if (mk_file(name, filepath, 4096) < 0)
+	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
-	dnotify_exercise(name, filepath, path,
+	dnotify_exercise(args, filepath, path,
 		dnotify_access_helper, DN_ACCESS, NULL);
-	(void)rm_file(name, filepath);
+	(void)rm_file(args, filepath);
 }
 
 static int dnotify_modify_helper(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -242,11 +242,11 @@ static int dnotify_modify_helper(
 	char buffer[1] = { 0 };
 
 	(void)dummy;
-	if (mk_file(name, path, 4096) < 0)
+	if (mk_file(args, path, 4096) < 0)
 		return -1;
 	if ((fd = open(path, O_RDWR)) < 0) {
 		pr_err(stderr, "%s: cannot open file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		rc = -1;
 		goto remove;
 	}
@@ -255,26 +255,26 @@ do_modify:
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err(stderr, "%s: cannot write to file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		rc = -1;
 	}
 	(void)close(fd);
 remove:
-	(void)rm_file(name, path);
+	(void)rm_file(args, path);
 	return rc;
 }
 
-static void dnotify_modify_file(const char *name, const char *path)
+static void dnotify_modify_file(args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
-	dnotify_exercise(name, filepath, path,
+	dnotify_exercise(args, filepath, path,
 		dnotify_modify_helper, DN_MODIFY, NULL);
 }
 
 static int dnotify_creat_helper(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -282,48 +282,48 @@ static int dnotify_creat_helper(
 	int fd;
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
 		pr_err(stderr, "%s: cannot create file %s: errno=%d (%s)\n",
-			name, path, errno, strerror(errno));
+			args->name, path, errno, strerror(errno));
 		return -1;
 	}
 	(void)close(fd);
 	return 0;
 }
 
-static void dnotify_creat_file(const char *name, const char *path)
+static void dnotify_creat_file(args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
-	dnotify_exercise(name, filepath, path,
+	dnotify_exercise(args, filepath, path,
 		dnotify_creat_helper, DN_CREATE, NULL);
-	(void)rm_file(name, filepath);
+	(void)rm_file(args, filepath);
 }
 
 static int dnotify_delete_helper(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const void *dummy)
 {
 	(void)dummy;
 
-	return rm_file(name, path);
+	return rm_file(args, path);
 }
 
-static void dnotify_delete_file(const char *name, const char *path)
+static void dnotify_delete_file(args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
-	if (mk_file(name, filepath, 4096) < 0)
+	if (mk_file(args, filepath, 4096) < 0)
 		return;
-	dnotify_exercise(name, filepath, path,
+	dnotify_exercise(args, filepath, path,
 		dnotify_delete_helper, DN_DELETE, NULL);
 	/* We remove (again) it just in case the test failed */
-	(void)rm_file(name, filepath);
+	(void)rm_file(args, filepath);
 }
 
 static int dnotify_rename_helper(
-	const char *name,
+	args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -331,26 +331,26 @@ static int dnotify_rename_helper(
 
 	if (rename(oldpath, newpath) < 0) {
 		pr_err(stderr, "%s: cannot rename %s to %s: errno=%d (%s)\n",
-			name, oldpath, newpath, errno, strerror(errno));
+			args->name, oldpath, newpath, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
 }
 
-static void dnotify_rename_file(const char *name, const char *path)
+static void dnotify_rename_file(args_t *args, const char *path)
 {
 	char oldfile[PATH_MAX], newfile[PATH_MAX];
 
 	mk_filename(oldfile, PATH_MAX, path, "dnotify_file");
 	mk_filename(newfile, PATH_MAX, path, "dnotify_file_renamed");
 
-	if (mk_file(name, oldfile, 4096) < 0)
+	if (mk_file(args, oldfile, 4096) < 0)
 		return;
 
-	dnotify_exercise(name, oldfile, path,
+	dnotify_exercise(args, oldfile, path,
 		dnotify_rename_helper, DN_RENAME, newfile);
-	(void)rm_file(name, oldfile);	/* In case rename failed */
-	(void)rm_file(name, newfile);
+	(void)rm_file(args, oldfile);	/* In case rename failed */
+	(void)rm_file(args, newfile);
 }
 
 static const dnotify_stress_t dnotify_stressors[] = {
@@ -388,7 +388,7 @@ int stress_dnotify(args_t *args)
 		return exit_status(-ret);
 	do {
 		for (i = 0; opt_do_run && dnotify_stressors[i].func; i++)
-			dnotify_stressors[i].func(args->name, dirname);
+			dnotify_stressors[i].func(args, dirname);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 	(void)stress_temp_dir_rm_args(args);

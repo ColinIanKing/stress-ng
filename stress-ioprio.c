@@ -50,7 +50,7 @@ int stress_ioprio(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto cleanup_dir;
 	}
 	(void)unlink(filename);
@@ -98,7 +98,7 @@ int stress_ioprio(args_t *args)
 		}
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-			pr_fail_err(args->name, "pwritev");
+			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
 		(void)fsync(fd);
@@ -116,7 +116,7 @@ int stress_ioprio(args_t *args)
 		}
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-			pr_fail_err(args->name, "pwritev");
+			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
 		(void)fsync(fd);
@@ -134,7 +134,7 @@ int stress_ioprio(args_t *args)
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-				pr_fail_err(args->name, "pwritev");
+				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}
 			(void)fsync(fd);
@@ -152,7 +152,7 @@ int stress_ioprio(args_t *args)
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
-				pr_fail_err(args->name, "pwritev");
+				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}
 			(void)fsync(fd);

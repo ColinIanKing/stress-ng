@@ -114,7 +114,7 @@ int stress_qsort(args_t *args)
 	n = (size_t)opt_qsort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
+		pr_fail_dbg("calloc");
 		return EXIT_NO_RESOURCE;
 	}
 

@@ -135,7 +135,7 @@ int stress_rmap(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
@@ -145,7 +145,7 @@ int stress_rmap(args_t *args)
 	(void)unlink(filename);
 
 	if (posix_fallocate(fd, 0, sz) < 0) {
-		pr_fail_err(args->name, "posix_fallocate");
+		pr_fail_err("posix_fallocate");
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);

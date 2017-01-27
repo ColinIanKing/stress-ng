@@ -61,7 +61,7 @@ int stress_hsearch(args_t *args)
 
 	/* Make hash table with 25% slack */
 	if (!hcreate(max + (max / 4))) {
-		pr_fail_err(args->name, "hcreate");
+		pr_fail_err("hcreate");
 		return EXIT_FAILURE;
 	}
 

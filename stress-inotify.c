@@ -85,7 +85,7 @@ retry:
 
 	if ((wd = inotify_add_watch(fd, watchname, flags)) < 0) {
 		(void)close(fd);
-		pr_fail_err(args->name, "inotify_add_watch");
+		pr_fail_err("inotify_add_watch");
 		return;
 	}
 
@@ -142,7 +142,7 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			if (errno) {
-				pr_fail_err(args->name, "error reading inotify");
+				pr_fail_err("error reading inotify");
 				break;
 			}
 		}

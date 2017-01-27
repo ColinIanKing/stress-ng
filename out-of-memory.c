@@ -56,7 +56,7 @@ redo_wr1:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno)
-				pr_fail_dbg(name, "can't set oom_score_adj");
+				pr_dbg(stderr, "%s: can't set oom_score_adj\n", name);
 		}
 		(void)close(fd);
 		return;
@@ -79,7 +79,7 @@ redo_wr2:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno)
-				pr_fail_dbg(name, "can't set oom_adj");
+				pr_dbg(stderr, "%s: can't set oom_adj\n", name);
 		}
 		(void)close(fd);
 	}

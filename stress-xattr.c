@@ -45,7 +45,7 @@ int stress_xattr(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto out;
 	}
 	(void)unlink(filename);
@@ -70,7 +70,7 @@ int stress_xattr(args_t *args)
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err(args->name, "fsetxattr");
+				pr_fail_err("fsetxattr");
 				goto out_close;
 			}
 		}
@@ -83,7 +83,7 @@ int stress_xattr(args_t *args)
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err(args->name, "fsetxattr");
+				pr_fail_err("fsetxattr");
 				goto out_close;
 			}
 		}
@@ -95,7 +95,7 @@ int stress_xattr(args_t *args)
 
 			ret = fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_fail_err(args->name, "fgetxattr");
+				pr_fail_err("fgetxattr");
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
@@ -108,7 +108,7 @@ int stress_xattr(args_t *args)
 		/* Determine how large a buffer we required... */
 		sz = flistxattr(fd, NULL, 0);
 		if (sz < 0) {
-			pr_fail_err(args->name, "flistxattr");
+			pr_fail_err("flistxattr");
 			goto out_close;
 		}
 		buffer = malloc(sz);
@@ -118,7 +118,7 @@ int stress_xattr(args_t *args)
 			free(buffer);
 
 			if (sz < 0) {
-				pr_fail_err(args->name, "flistxattr");
+				pr_fail_err("flistxattr");
 				goto out_close;
 			}
 		}
@@ -127,7 +127,7 @@ int stress_xattr(args_t *args)
 
 			ret = fremovexattr(fd, attrname);
 			if (ret < 0) {
-				pr_fail_err(args->name, "fremovexattr");
+				pr_fail_err("fremovexattr");
 				goto out_close;
 			}
 		}

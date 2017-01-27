@@ -129,7 +129,7 @@ static inline int stress_seccomp_set_filter(
 	}
 
 	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
-		pr_fail_err(args->name, "prctl PR_SET_NEW_PRIVS");
+		pr_fail_err("prctl PR_SET_NEW_PRIVS");
 		return -1;
 	}
 #if defined(__NR_seccomp)
@@ -147,7 +147,7 @@ redo_seccomp:
 				p = &prog;
 				goto redo_seccomp;
 			}
-			pr_fail_err(args->name, "seccomp SECCOMP_SET_MODE_FILTER");
+			pr_fail_err("seccomp SECCOMP_SET_MODE_FILTER");
 			return -1;
 		}
 		use_seccomp = false;
@@ -161,7 +161,7 @@ redo_prctl:
 			p = &prog;
 			goto redo_prctl;
 		}
-		pr_fail_err(args->name, "prctl PR_SET_SECCOMP");
+		pr_fail_err("prctl PR_SET_SECCOMP");
 		return -1;
 	}
 	return 0;
@@ -181,7 +181,7 @@ int stress_seccomp(args_t *args)
 
 		pid = fork();
 		if (pid == -1) {
-			pr_fail_err(args->name, "fork");
+			pr_fail_err("fork");
 			break;
 		}
 		if (pid == 0) {

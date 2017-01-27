@@ -134,7 +134,7 @@ int stress_chmod(args_t *args)
 	if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
-			pr_fail_err(args->name, "mkdir");
+			pr_fail_err("mkdir");
 			return rc;
 		}
 	}
@@ -144,7 +144,7 @@ int stress_chmod(args_t *args)
 	if (args->instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err(args->name, "creat");
+			pr_fail_err("creat");
 			goto tidy;
 		}
 	} else {
@@ -178,7 +178,7 @@ int stress_chmod(args_t *args)
 		for (i = 0; modes[i]; i++) {
 			mask |= modes[i];
 			if (do_fchmod(fd, i, mask, all_mask) < 0) {
-				pr_fail_err(args->name, "fchmod");
+				pr_fail_err("fchmod");
 			}
 			if (do_chmod(filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
@@ -189,7 +189,7 @@ int stress_chmod(args_t *args)
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
-				pr_fail_err(args->name, "chmod");
+				pr_fail_err("chmod");
 			}
 		}
 		inc_counter(args);

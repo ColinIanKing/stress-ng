@@ -175,7 +175,7 @@ retry:
 			exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
-			pr_fail_dbg(args->name, "socket");
+			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
@@ -190,7 +190,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg(args->name, "connect");
+				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
@@ -203,7 +203,7 @@ retry:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, "recv");
+					pr_fail_dbg("recv");
 				break;
 			}
 		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
@@ -258,12 +258,12 @@ static int stress_sctp_server(
 	}
 	if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "socket");
+		pr_fail_dbg("socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg(args->name, "setsockopt");
+		pr_fail_dbg("setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -273,11 +273,11 @@ static int stress_sctp_server(
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "bind");
+		pr_fail_dbg("bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg(args->name, "listen");
+		pr_fail_dbg("listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -300,13 +300,13 @@ static int stress_sctp_server(
 #endif
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
-				pr_fail_dbg(args->name, "getsockname");
+				pr_fail_dbg("getsockname");
 				(void)close(sfd);
 				break;
 			}
 			len = sizeof(sndbuf);
 			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-				pr_fail_dbg(args->name, "getsockopt");
+				pr_fail_dbg("getsockopt");
 				(void)close(sfd);
 				break;
 			}
@@ -328,7 +328,7 @@ static int stress_sctp_server(
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_fail_dbg(args->name, "send");
+							pr_fail_dbg("send");
 						break;
 					} else
 						msgs++;
@@ -344,7 +344,7 @@ static int stress_sctp_server(
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
 					if (errno != EINTR)
-						pr_fail_dbg(args->name, "sendmsg");
+						pr_fail_dbg("sendmsg");
 				} else
 					msgs += j;
 				break;
@@ -362,7 +362,7 @@ static int stress_sctp_server(
 				}
 				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
 					if (errno != EINTR)
-						pr_fail_dbg(args->name, "sendmmsg");
+						pr_fail_dbg("sendmmsg");
 				} else
 					msgs += (MSGVEC_SIZE * j);
 				break;
@@ -374,7 +374,7 @@ static int stress_sctp_server(
 				goto die_close;
 			}
 			if (getpeername(sfd, &saddr, &len) < 0) {
-				pr_fail_dbg(args->name, "getpeername");
+				pr_fail_dbg("getpeername");
 			}
 			(void)close(sfd);
 		}
@@ -415,7 +415,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sctp_client(args, ppid);

@@ -192,7 +192,7 @@ int stress_aio(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -201,7 +201,7 @@ int stress_aio(args_t *args)
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
 	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)
-		pr_fail_err(args->name, "sigaction");
+		pr_fail_err("sigaction");
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
@@ -238,7 +238,7 @@ int stress_aio(args_t *args)
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail_errno(args->name, "aio_error",
+				pr_fail_errno("aio_error",
 					io_reqs[i].status);
 				goto cancel;
 			}

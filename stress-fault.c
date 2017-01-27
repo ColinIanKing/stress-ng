@@ -79,7 +79,7 @@ int stress_fault(args_t *args)
 		if (fd < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Try again */
-			pr_fail_err(args->name, "open");
+			pr_fail_err("open");
 			break;
 		}
 #if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
@@ -89,7 +89,7 @@ int stress_fault(args_t *args)
 				continue;	/* Try again */
 			}
 			(void)close(fd);
-			pr_fail_err(args->name, "posix_fallocate");
+			pr_fail_err("posix_fallocate");
 			break;
 		}
 #else
@@ -106,7 +106,7 @@ redo:
 					continue;
 				}
 				(void)close(fd);
-				pr_fail_err(args->name, "write");
+				pr_fail_err("write");
 				break;
 			}
 		}

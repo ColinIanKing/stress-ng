@@ -78,7 +78,7 @@ int stress_poll(args_t *args)
 
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipe(pipefds[i]) < 0) {
-			pr_fail_dbg(args->name, "pipe");
+			pr_fail_dbg("pipe");
 			while (--i >= 0) {
 				(void)close(pipefds[i][0]);
 				(void)close(pipefds[i][1]);
@@ -92,7 +92,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		rc = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -116,7 +116,7 @@ again:
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg(args->name, "write");
+				pr_fail_dbg("write");
 				goto abort;
 			}
 		 } while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
@@ -155,7 +155,7 @@ abort:
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err(args->name, "poll");
+				pr_fail_err("poll");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
@@ -175,7 +175,7 @@ abort:
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err(args->name, "select");
+				pr_fail_err("select");
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {

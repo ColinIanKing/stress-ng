@@ -38,13 +38,13 @@ int stress_switch(args_t *args)
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg(args->name, "pipe2");
+		pr_fail_dbg("pipe2");
 		return EXIT_FAILURE;
 	}
 	buf_size = 1;
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg(args->name, "pipe");
+		pr_fail_dbg("pipe");
 		return EXIT_FAILURE;
 	}
 	buf_size = stress_get_pagesize();
@@ -70,7 +70,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		char buf[buf_size];
@@ -87,7 +87,7 @@ again:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg(args->name, "read");
+				pr_fail_dbg("read");
 				break;
 			}
 			if (ret == 0)
@@ -115,7 +115,7 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(args->name, "write");
+					pr_fail_dbg("write");
 					break;
 				}
 				continue;
@@ -125,7 +125,7 @@ again:
 
 		memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_fail_dbg(args->name, "termination write");
+			pr_fail_dbg("termination write");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}

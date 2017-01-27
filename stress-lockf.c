@@ -132,13 +132,13 @@ static int stress_lockf_unlock(args_t *args, const int fd)
 		return 0;
 
 	if (lseek(fd, lockf_infos.head->offset, SEEK_SET) < 0) {
-		pr_fail_err(args->name, "lseek");
+		pr_fail_err("lseek");
 		return -1;
 	}
 	stress_lockf_info_head_remove();
 
 	if (lockf(fd, F_ULOCK, LOCK_SIZE) < 0) {
-		pr_fail_err(args->name, "lockf unlock");
+		pr_fail_err("lockf unlock");
 		return -1;
 	}
 	return 0;
@@ -168,7 +168,7 @@ static int stress_lockf_contention(
 
 		offset = mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
-			pr_fail_err(args->name, "lseek");
+			pr_fail_err("lseek");
 			return -1;
 		}
 		rc = lockf(fd, lockf_cmd, LOCK_SIZE);
@@ -181,7 +181,7 @@ static int stress_lockf_contention(
 
 		lockf_info = stress_lockf_info_new();
 		if (!lockf_info) {
-			pr_fail_err(args->name, "calloc");
+			pr_fail_err("calloc");
 			return -1;
 		}
 		lockf_info->offset = offset;
@@ -215,7 +215,7 @@ int stress_lockf(args_t *args)
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
-			pr_fail_err(args->name, "mkdir");
+			pr_fail_err("mkdir");
 			return ret;
 		}
 	}
@@ -230,13 +230,13 @@ int stress_lockf(args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)rmdir(dirname);
 		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err(args->name, "lseek");
+		pr_fail_err("lseek");
 		goto tidy;
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
@@ -250,7 +250,7 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			ret = exit_status(errno);
-			pr_fail_err(args->name, "write");
+			pr_fail_err("write");
 			goto tidy;
 		}
 	}
@@ -264,7 +264,7 @@ again:
 		}
 		if (errno == EAGAIN)
 			goto again;
-		pr_fail_err(args->name, "fork");
+		pr_fail_err("fork");
 		goto tidy;
 	}
 	if (cpid == 0) {

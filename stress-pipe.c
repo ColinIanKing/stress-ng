@@ -130,12 +130,12 @@ int stress_pipe(args_t *args)
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg(args->name, "pipe2");
+		pr_fail_dbg("pipe2");
 		return EXIT_FAILURE;
 	}
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg(args->name, "pipe");
+		pr_fail_dbg("pipe");
 		return EXIT_FAILURE;
 	}
 #endif
@@ -152,7 +152,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		int val = 0;
@@ -170,10 +170,10 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(args->name, "read");
+					pr_fail_dbg("read");
 					break;
 				}
-				pr_fail_dbg(args->name, "zero byte read");
+				pr_fail_dbg("zero byte read");
 				break;
 			}
 			if (!strcmp(buf, PIPE_STOP))
@@ -203,7 +203,7 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(args->name, "write");
+					pr_fail_dbg("write");
 					break;
 				}
 				continue;
@@ -214,7 +214,7 @@ again:
 		strncpy(buf, PIPE_STOP, opt_pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
-				pr_fail_dbg(args->name, "termination write");
+				pr_fail_dbg("termination write");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

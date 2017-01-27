@@ -88,7 +88,7 @@ static int stress_sockpair_oomable(args_t *args)
 	}
 
 	if (max == 0) {
-		pr_fail_dbg(args->name, "socket_pair");
+		pr_fail_dbg("socket_pair");
 		return EXIT_FAILURE;
 	}
 
@@ -99,7 +99,7 @@ again:
 			goto again;
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		set_oom_adjustment(args->name, true);
@@ -121,7 +121,7 @@ again:
 					if (errno == EMFILE) /* Occurs on socket shutdown */
 						goto abort;
 					if (errno) {
-						pr_fail_dbg(args->name, "read");
+						pr_fail_dbg("read");
 						break;
 					}
 					continue;
@@ -153,7 +153,7 @@ abort:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg(args->name, "write");
+						pr_fail_dbg("write");
 						break;
 					}
 					continue;
@@ -164,7 +164,7 @@ abort:
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
-				pr_fail_dbg(args->name, "socket shutdown");
+				pr_fail_dbg("socket shutdown");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);

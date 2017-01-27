@@ -108,7 +108,7 @@ int stress_mq(args_t *args)
 		sz--;
 	}
 	if (mq < 0) {
-		pr_fail_dbg(args->name, "mq_open");
+		pr_fail_dbg("mq_open");
 		return EXIT_FAILURE;
 	}
 	if (sz < opt_mq_size) {
@@ -121,7 +121,7 @@ int stress_mq(args_t *args)
 
 	if (time(&time_start) == ((time_t)-1)) {
 		do_timed = false;
-		pr_fail_dbg(args->name, "mq_timed send and receive skipped, can't get time");
+		pr_fail_dbg("mq_timed send and receive skipped, can't get time");
 	} else {
 		do_timed = true;
 		abs_timeout.tv_sec = time_start + opt_timeout + 1;
@@ -134,7 +134,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		struct sigevent sigev;
@@ -167,7 +167,7 @@ again:
 					ret = mq_receive(mq, (char *)&msg, sizeof(msg), NULL);
 
 				if (ret < 0) {
-					pr_fail_dbg(args->name, timed ? "mq_timedreceive" : "mq_receive");
+					pr_fail_dbg(timed ? "mq_timedreceive" : "mq_receive");
 					break;
 				}
 				if (msg.stop)
@@ -202,7 +202,7 @@ again:
 			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {
 				if (mq_getattr(mq, &attr) < 0)
-					pr_fail_dbg(args->name, "mq_getattr");
+					pr_fail_dbg("mq_getattr");
 			}
 
 			/*
@@ -215,7 +215,7 @@ again:
 
 			if (ret < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, timed ? "mq_timedsend" : "mq_send");
+					pr_fail_dbg(timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
 			i++;
@@ -226,15 +226,15 @@ again:
 		msg.stop = true;
 
 		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
-			pr_fail_dbg(args->name, "termination mq_send");
+			pr_fail_dbg("termination mq_send");
 		}
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)
-			pr_fail_dbg(args->name, "mq_close");
+			pr_fail_dbg("mq_close");
 		if (mq_unlink(mq_name) < 0)
-			pr_fail_dbg(args->name, "mq_unlink");
+			pr_fail_dbg("mq_unlink");
 	}
 	return EXIT_SUCCESS;
 }

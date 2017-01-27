@@ -47,7 +47,7 @@ enum {
 			pr_inf(stdout, capfail, args->name);	\
 			break;					\
 		}						\
-		pr_fail_err(args->name, "kcmp: " # type);	\
+		pr_fail_err("kcmp: " # type);			\
 	}							\
 	if (!opt_do_run)					\
 		break;						\
@@ -63,7 +63,7 @@ enum {
 				pr_inf(stdout, capfail, args->name); \
 				break;				\
 			}					\
-			pr_fail_err(args->name, "kcmp: " # type);\
+			pr_fail_err("kcmp: " # type);		\
 		} else {					\
 			pr_fail(stderr, "%s: kcmp " # type	\
 			" returned %d, expected: %d\n",		\
@@ -89,7 +89,7 @@ int stress_kcmp(args_t *args)
 		"aborting stress test\n";
 
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 
@@ -99,7 +99,7 @@ again:
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
 
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
@@ -120,7 +120,7 @@ again:
 		(void)setpgid(pid1, pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
-			pr_fail_err(args->name, "open");
+			pr_fail_err("open");
 			ret = EXIT_FAILURE;
 			goto reap;
 		}

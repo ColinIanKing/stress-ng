@@ -128,7 +128,7 @@ int stress_itimer(args_t *args)
 
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
-		pr_fail_err(args->name, "setitimer");
+		pr_fail_err("setitimer");
 		return EXIT_FAILURE;
 	}
 

@@ -43,7 +43,7 @@ static int stress_bind_mount_child(void *arg)
 
 	do {
 		if (mount("/", "/", "", MS_BIND | MS_REC, 0) < 0) {
-			pr_fail_err(args->name, "mount");
+			pr_fail_err("mount");
 			break;
 		}
 		/*
@@ -78,7 +78,7 @@ int stress_bind_mount(args_t *args)
 	if (pid < 0) {
 		int rc = exit_status(errno);
 
-		pr_fail_err(args->name, "clone");
+		pr_fail_err("clone");
 		return rc;
 	}
 

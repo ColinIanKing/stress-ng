@@ -63,7 +63,7 @@ int stress_stack(args_t *args)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(args->name, "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return EXIT_FAILURE;
 	}
 #endif
@@ -129,11 +129,11 @@ again:
 			new_action.sa_flags = SA_ONSTACK;
 
 			if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-				pr_fail_err(args->name, "sigaction");
+				pr_fail_err("sigaction");
 				return EXIT_FAILURE;
 			}
 			if (sigaction(SIGBUS, &new_action, NULL) < 0) {
-				pr_fail_err(args->name, "sigaction");
+				pr_fail_err("sigaction");
 				return EXIT_FAILURE;
 			}
 			ret = sigsetjmp(jmp_env, 1);

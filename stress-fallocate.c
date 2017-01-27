@@ -82,7 +82,7 @@ int stress_fallocate(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}

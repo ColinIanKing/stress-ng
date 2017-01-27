@@ -46,12 +46,12 @@ int stress_urandom(args_t *args)
 #endif
 
 	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 #if defined(DEV_RANDOM)
 	if ((fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK)) < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)close(fd_urnd);
 		return EXIT_FAILURE;
 	}
@@ -67,7 +67,7 @@ int stress_urandom(args_t *args)
 		ret = read(fd_urnd, buffer, sizeof(buffer));
 		if (ret < 0) {
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				goto err;
 			}
 		}
@@ -87,7 +87,7 @@ int stress_urandom(args_t *args)
 		ret = read(fd_rnd, buffer, 1);
 		if (ret < 0) {
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				goto err;
 			}
 		}

@@ -147,7 +147,7 @@ int stress_fanotify(args_t *args)
 			/* Force FAN_CLOSE_NOWRITE */
 			fd = creat(filename, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(args->name, "creat");
+				pr_fail_err("creat");
 				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -156,7 +156,7 @@ int stress_fanotify(args_t *args)
 			/* Force FAN_CLOSE_WRITE */
 			fd = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(args->name, "open O_WRONLY");
+				pr_fail_err("open O_WRONLY");
 				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -167,7 +167,7 @@ int stress_fanotify(args_t *args)
 			/* Force FAN_ACCESS */
 			fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err(args->name, "open O_RDONLY");
+				pr_fail_err("open O_RDONLY");
 				kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -208,7 +208,7 @@ int stress_fanotify(args_t *args)
 			if (ret == -1) {
 				if (errno == EINTR)
 					continue;
-				pr_fail_err(args->name, "select");
+				pr_fail_err("select");
 				continue;
 			}
 			if (ret == 0)

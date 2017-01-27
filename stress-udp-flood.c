@@ -64,7 +64,7 @@ int stress_udp_flood(args_t *args)
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
 	if ((fd = socket(opt_udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
-		pr_fail_dbg(args->name, "socket");
+		pr_fail_dbg("socket");
 		return EXIT_FAILURE;
 	}
 	stress_set_sockaddr(args->name, args->instance, args->pid,

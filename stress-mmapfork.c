@@ -109,7 +109,7 @@ retry:			if (!opt_do_run)
 					_exit(_EXIT_FAILURE);
 
 				if (sysinfo(&info) < 0) {
-					pr_fail_err(args->name, "sysinfo");
+					pr_fail_err("sysinfo");
 					_exit(_EXIT_FAILURE);
 				}
 

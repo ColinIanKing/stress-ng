@@ -85,7 +85,7 @@ static int stress_vm_child(void *arg)
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		ret = exit_status(errno);
-		pr_fail_dbg(args->name, "mmap");
+		pr_fail_dbg("mmap");
 		goto cleanup;
 	}
 
@@ -104,7 +104,7 @@ redo_wr1:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno != EBADF)
-				pr_fail_dbg(args->name, "write");
+				pr_fail_dbg("write");
 			break;
 		}
 redo_rd1:
@@ -113,13 +113,13 @@ redo_rd1:
 		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd1;
-			pr_fail_dbg(args->name, "read");
+			pr_fail_dbg("read");
 			break;
 		}
 		if (rwret == 0)
 			break;
 		if (rwret != sizeof(msg_rd)) {
-			pr_fail_dbg(args->name, "read");
+			pr_fail_dbg("read");
 			break;
 		}
 
@@ -170,7 +170,7 @@ static int stress_vm_parent(context_t *ctxt)
 		(void)close(ctxt->pipe_wr[1]);
 		(void)close(ctxt->pipe_rd[0]);
 		(void)close(ctxt->pipe_rd[1]);
-		pr_fail_dbg(args->name, "mmap");
+		pr_fail_dbg("mmap");
 		return EXIT_FAILURE;
 	}
 
@@ -191,13 +191,13 @@ redo_rd2:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd2;
-			pr_fail_dbg(args->name, "read");
+			pr_fail_dbg("read");
 			break;
 		}
 		if (ret == 0)
 			break;
 		if (ret != sizeof(msg_rd)) {
-			pr_fail_dbg(args->name, "read");
+			pr_fail_dbg("read");
 			break;
 		}
 		/* Child telling us it's terminating? */
@@ -210,7 +210,7 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg(args->name, "process_vm_readv");
+			pr_fail_dbg("process_vm_readv");
 			break;
 		}
 
@@ -236,7 +236,7 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg(args->name, "process_vm_writev");
+			pr_fail_dbg("process_vm_writev");
 			break;
 		}
 		msg_wr.val = val;
@@ -250,7 +250,7 @@ redo_wr2:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno != EBADF)
-				pr_fail_dbg(args->name, "write");
+				pr_fail_dbg("write");
 			break;
 		}
 		inc_counter(args);
@@ -298,13 +298,13 @@ int stress_vm_rw(args_t *args)
 	ctxt.sz = opt_vm_rw_bytes & ~(ctxt.page_size - 1);
 
 	if (pipe(ctxt.pipe_wr) < 0) {
-		pr_fail_dbg(args->name, "pipe");
+		pr_fail_dbg("pipe");
 		return EXIT_NO_RESOURCE;
 	}
 	if (pipe(ctxt.pipe_rd) < 0) {
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
-		pr_fail_dbg(args->name, "pipe");
+		pr_fail_dbg("pipe");
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -318,7 +318,7 @@ again:
 		(void)close(ctxt.pipe_wr[1]);
 		(void)close(ctxt.pipe_rd[0]);
 		(void)close(ctxt.pipe_rd[1]);
-		pr_fail_dbg(args->name, "clone");
+		pr_fail_dbg("clone");
 		return EXIT_NO_RESOURCE;
 	}
 	return stress_vm_parent(&ctxt);

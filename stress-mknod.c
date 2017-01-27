@@ -87,7 +87,7 @@ int stress_mknod(args_t *args)
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if ((errno == ENOSPC) || (errno == ENOMEM))
 					continue;	/* Try again */
-				pr_fail_err(args->name, "mknod");
+				pr_fail_err("mknod");
 				n = i;
 				break;
 			}

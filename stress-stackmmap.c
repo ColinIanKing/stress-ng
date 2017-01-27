@@ -88,7 +88,7 @@ int stress_stackmmap(args_t *args)
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
 	if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-		pr_fail_err(args->name, "sigaction");
+		pr_fail_err("sigaction");
 		return EXIT_FAILURE;
 	}
 
@@ -102,7 +102,7 @@ int stress_stackmmap(args_t *args)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(args->name, "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return EXIT_FAILURE;
 	}
 
@@ -114,19 +114,19 @@ int stress_stackmmap(args_t *args)
 	/* Create file back'd mmaping for the stack */
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_fail_err(args->name, "mmap'd stack file open");
+		pr_fail_err("mmap'd stack file open");
 		goto tidy_dir;
 	}
 	(void)unlink(filename);
 	if (ftruncate(fd, MMAPSTACK_SIZE) < 0) {
-		pr_fail_err(args->name, "ftruncate");
+		pr_fail_err("ftruncate");
 		(void)close(fd);
 		goto tidy_dir;
 	}
 	stack_mmap = mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
-		pr_fail_err(args->name, "mmap");
+		pr_fail_err("mmap");
 		(void)close(fd);
 		goto tidy_dir;
 	}
@@ -139,7 +139,7 @@ int stress_stackmmap(args_t *args)
 
 	memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
-		pr_fail_err(args->name, "getcontext");
+		pr_fail_err("getcontext");
 		goto tidy_mmap;
 	}
 	c_test.uc_stack.ss_sp = stack_mmap;

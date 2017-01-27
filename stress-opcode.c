@@ -104,7 +104,7 @@ int stress_opcode(args_t *args)
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail_dbg(args->name, "mmap");
+		pr_fail_dbg("mmap");
 		return EXIT_NO_RESOURCE;
 	}
 #endif
@@ -121,7 +121,7 @@ again:
 			if (errno == EAGAIN)
 				goto again;
 
-			pr_fail_dbg(args->name, "fork");
+			pr_fail_dbg("fork");
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
@@ -140,7 +140,7 @@ again:
 			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
-				pr_fail_dbg(args->name, "mmap");
+				pr_fail_dbg("mmap");
 				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
@@ -169,7 +169,7 @@ again:
 			it.it_value.tv_sec = 0;
 			it.it_value.tv_usec = 10000;
 			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-				pr_fail_dbg(args->name, "setitimer");
+				pr_fail_dbg("setitimer");
 				_exit(EXIT_NO_RESOURCE);
 			}
 

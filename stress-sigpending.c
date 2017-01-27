@@ -48,18 +48,18 @@ int stress_sigpending(args_t *args)
 		sigemptyset(&sigset);
 		sigaddset(&sigset, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &sigset, NULL) < 0) {
-			pr_fail_err(args->name, "sigprocmask");
+			pr_fail_err("sigprocmask");
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(args->pid, SIGUSR1);
 		if (sigpending(&sigset) < 0) {
-			pr_fail_err(args->name, "sigpending");
+			pr_fail_err("sigpending");
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
 		if (!sigismember(&sigset, SIGUSR1)) {
-			pr_fail_err(args->name, "sigismember");
+			pr_fail_err("sigismember");
 			continue;
 		}
 
@@ -69,11 +69,11 @@ int stress_sigpending(args_t *args)
 
 		/* And it is no longer pending */
 		if (sigpending(&sigset) < 0) {
-			pr_fail_err(args->name, "sigpending");
+			pr_fail_err("sigpending");
 			continue;
 		}
 		if (sigismember(&sigset, SIGUSR1)) {
-			pr_fail_err(args->name, "sigismember");
+			pr_fail_err("sigismember");
 			continue;
 		}
 

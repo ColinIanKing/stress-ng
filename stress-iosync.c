@@ -42,7 +42,7 @@ int stress_io(args_t *args)
 		sync();
 #if defined(__linux__) && NEED_GLIBC(2,14,0)
 		if ((fd != -1) && (syncfs(fd) < 0))
-			pr_fail_err(args->name, "syncfs");
+			pr_fail_err("syncfs");
 #endif
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));

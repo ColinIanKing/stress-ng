@@ -192,7 +192,7 @@ int stress_fifo(args_t *args)
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_fail_dbg(args->name, "write");
+				pr_fail_dbg("write");
 				break;
 			}
 			continue;

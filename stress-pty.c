@@ -56,25 +56,25 @@ int stress_pty(args_t *args)
 			ptys[n].master = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].master < 0) {
 				if (errno != ENOSPC)
-					pr_fail_err(args->name, "open /dev/ptmx");
+					pr_fail_err("open /dev/ptmx");
 				goto clean;
 			}
 			ptys[n].slavename = ptsname(ptys[n].master);
 			if (!ptys[n].slavename) {
-				pr_fail_err(args->name, "ptsname");
+				pr_fail_err("ptsname");
 				goto clean;
 			}
 			if (grantpt(ptys[n].master) < 0) {
-				pr_fail_err(args->name, "grantpt");
+				pr_fail_err("grantpt");
 				goto clean;
 			}
 			if (unlockpt(ptys[n].master) < 0) {
-				pr_fail_err(args->name, "unlockpt");
+				pr_fail_err("unlockpt");
 				goto clean;
 			}
 			ptys[n].slave = open(ptys[n].slavename, O_RDWR);
 			if (ptys[n].slave < 0) {
-				pr_fail_err(args->name, "open slave pty");
+				pr_fail_err("open slave pty");
 				goto clean;
 			}
 			if (!opt_do_run)
@@ -91,63 +91,63 @@ int stress_pty(args_t *args)
 
 #if defined(TCGETS)
 			if (ioctl(ptys[i].slave, TCGETS, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TCGETS on slave pty");
+				pr_fail_err("ioctl TCGETS on slave pty");
 #endif
 #if defined(TCSETS)
 			if (ioctl(ptys[i].slave, TCSETS, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TCSETS on slave pty");
+				pr_fail_err("ioctl TCSETS on slave pty");
 #endif
 #if defined(TCSETSW)
 			if (ioctl(ptys[i].slave, TCSETSW, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TCSETSW on slave pty");
+				pr_fail_err("ioctl TCSETSW on slave pty");
 #endif
 #if defined(TCSETSF)
 			if (ioctl(ptys[i].slave, TCSETSF, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TCSETSF on slave pty");
+				pr_fail_err("ioctl TCSETSF on slave pty");
 #endif
 #if defined(TCGETA)
 			if (ioctl(ptys[i].slave, TCGETA, &io) < 0)
-				pr_fail_err(args->name, "ioctl TCGETA on slave pty");
+				pr_fail_err("ioctl TCGETA on slave pty");
 #endif
 #if defined(TCSETA)
 			if (ioctl(ptys[i].slave, TCSETA, &io) < 0)
-				pr_fail_err(args->name, "ioctl TCSETA on slave pty");
+				pr_fail_err("ioctl TCSETA on slave pty");
 #endif
 #if defined(TCSETAW)
 			if (ioctl(ptys[i].slave, TCSETAW, &io) < 0)
-				pr_fail_err(args->name, "ioctl TCSETAW on slave pty");
+				pr_fail_err("ioctl TCSETAW on slave pty");
 #endif
 #if defined(TCSETAF)
 			if (ioctl(ptys[i].slave, TCSETAF, &io) < 0)
-				pr_fail_err(args->name, "ioctl TCSETAF on slave pty");
+				pr_fail_err("ioctl TCSETAF on slave pty");
 #endif
 #if defined(TIOCGLCKTRMIOS)
 			if (ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TIOCGLCKTRMIOS on slave pty");
+				pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
 #endif
 #if defined(TIOCGLCKTRMIOS)
 			if (ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0)
-				pr_fail_err(args->name, "ioctl TIOCGLCKTRMIOS on slave pty");
+				pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
 #endif
 #if defined(TIOCGWINSZ)
 			if (ioctl(ptys[i].slave, TIOCGWINSZ, &ws) < 0)
-				pr_fail_err(args->name, "ioctl TIOCGWINSZ on slave pty");
+				pr_fail_err("ioctl TIOCGWINSZ on slave pty");
 #endif
 #if defined(TIOCSWINSZ)
 			if (ioctl(ptys[i].slave, TIOCSWINSZ, &ws) < 0)
-				pr_fail_err(args->name, "ioctl TIOCSWINSZ on slave pty");
+				pr_fail_err("ioctl TIOCSWINSZ on slave pty");
 #endif
 #if defined(FIONREAD)
 			if (ioctl(ptys[i].slave, FIONREAD, &arg) < 0)
-				pr_fail_err(args->name, "ioctl FIONREAD on slave pty");
+				pr_fail_err("ioctl FIONREAD on slave pty");
 #endif
 #if defined(TIOCINQ)
 			if (ioctl(ptys[i].slave, TIOCINQ, &arg) < 0)
-				pr_fail_err(args->name, "ioctl TIOCINQ on slave pty");
+				pr_fail_err("ioctl TIOCINQ on slave pty");
 #endif
 #if defined(TIOCOUTQ)
 			if (ioctl(ptys[i].slave, TIOCOUTQ, &arg) < 0)
-				pr_fail_err(args->name, "ioctl TIOCOUTQ on slave pty");
+				pr_fail_err("ioctl TIOCOUTQ on slave pty");
 #endif
 
 			if (!opt_do_run)

@@ -110,7 +110,7 @@ int stress_context(args_t *args)
 	ss.ss_flags = 0;
 #endif
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err(args->name, "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return EXIT_FAILURE;
 	}
 #endif

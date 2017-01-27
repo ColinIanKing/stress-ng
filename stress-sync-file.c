@@ -141,7 +141,7 @@ int stress_sync_file(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
@@ -158,7 +158,7 @@ int stress_sync_file(args_t *args)
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0)
-				pr_fail_err(args->name, "sync_file_range (forward)");
+				pr_fail_err("sync_file_range (forward)");
 			offset += sz;
 		}
 		if (!opt_do_run)
@@ -171,7 +171,7 @@ int stress_sync_file(args_t *args)
 
 			ret = shim_sync_file_range(fd, opt_sync_file_bytes - offset, sz, mode);
 			if (ret < 0)
-				pr_fail_err(args->name, "sync_file_range (reverse)");
+				pr_fail_err("sync_file_range (reverse)");
 			offset += sz;
 		}
 		if (!opt_do_run)
@@ -183,7 +183,7 @@ int stress_sync_file(args_t *args)
 			offset = (mwc64() % opt_sync_file_bytes) & ~((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0)
-				pr_fail_err(args->name, "sync_file_range (random)");
+				pr_fail_err("sync_file_range (random)");
 		}
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));

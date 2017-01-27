@@ -76,7 +76,7 @@ int stress_klog(args_t *args)
 
 		ret = shim_syslog(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
-			pr_fail_err(args->name, "syslog ACTION_READ_ALL");
+			pr_fail_err("syslog ACTION_READ_ALL");
 		if (ret > buflen)
 			pr_fail(stderr, "%s: syslog ACTION_READ_ALL returned more "
 				"data than was requested.\n", args->name);

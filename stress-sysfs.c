@@ -33,7 +33,7 @@ static volatile bool keep_running;
 static sigset_t set;
 
 typedef struct ctxt {
-	const char *name;
+	args_t *args;
 	const char *path;
 	char *badbuf;
 } ctxt_t;
@@ -43,7 +43,7 @@ typedef struct ctxt {
  *	read a proc file
  */
 static inline void stress_sys_rw(
-	const char *name,
+	args_t *args,
 	const char *path,
 	char *badbuf)
 {
@@ -74,12 +74,12 @@ static inline void stress_sys_rw(
 		struct stat buf;
 
 		if (fstat(fd, &buf) < 0) {
-			pr_fail_err(name, "stat");
+			pr_fail_err("stat");
 		} else {
 			if ((buf.st_mode & S_IROTH) == 0) {
 				pr_fail(stderr, "%s: read access failed on %s which "
 					"could be opened, errno=%d (%s)\n",
-				name, path, errno, strerror(errno));
+				args->name, path, errno, strerror(errno));
 			}
 		}
 	}
@@ -126,6 +126,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
+	args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -144,11 +145,11 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("pthread", "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
 	while (keep_running && opt_do_run)
-		stress_sys_rw(ctxt->name, ctxt->path, ctxt->badbuf);
+		stress_sys_rw(args, ctxt->path, ctxt->badbuf);
 
 	return &nowt;
 }
@@ -157,14 +158,14 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
  *  stress_proc_sys_threads()
  *	create a bunch of threads to thrash read a sys entry
  */
-static void stress_sys_rw_threads(const char *name, const char *path)
+static void stress_sys_rw_threads(args_t *args, const char *path)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
 	int ret[MAX_READ_THREADS];
 	ctxt_t ctxt;
 
-	ctxt.name = name;
+	ctxt.args = args;
 	ctxt.path = path;
 
 	memset(ret, 0, sizeof(ret));
@@ -183,7 +184,7 @@ static void stress_sys_rw_threads(const char *name, const char *path)
 	for (i = 0; i < 8; i++) {
 		if (!opt_do_run)
 			break;
-		stress_sys_rw(name, path, ctxt.badbuf);
+		stress_sys_rw(args, path, ctxt.badbuf);
 	}
 	keep_running = false;
 
@@ -201,7 +202,7 @@ static void stress_sys_rw_threads(const char *name, const char *path)
  *	read directory
  */
 static void stress_sys_dir(
-	const char *name,
+	args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -234,7 +235,7 @@ static void stress_sys_dir(
 			if (recurse) {
 				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_dir(name, filename, recurse,
+				stress_sys_dir(args, filename, recurse,
 					depth + 1, sys_rw);
 			}
 			break;
@@ -242,7 +243,7 @@ static void stress_sys_dir(
 			if (sys_rw) {
 				snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
-				stress_sys_rw_threads(name, filename);
+				stress_sys_rw_threads(args, filename);
 			}
 			break;
 		default:
@@ -269,7 +270,7 @@ int stress_sysfs(args_t *args)
 	}
 
 	do {
-		stress_sys_dir(args->name, "/sys", true, 0, sys_rw);
+		stress_sys_dir(args, "/sys", true, 0, sys_rw);
 		inc_counter(args);
 	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 

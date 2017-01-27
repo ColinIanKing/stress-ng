@@ -53,21 +53,21 @@ int stress_splice(args_t *args)
 	}
 
 	if (pipe(fds) < 0) {
-		pr_fail_err(args->name, "pipe");
+		pr_fail_err("pipe");
 		return EXIT_FAILURE;
 	}
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 		(void)close(fd_in);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 

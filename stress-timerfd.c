@@ -94,13 +94,13 @@ int stress_timerfd(args_t *args)
 
 	timerfd = timerfd_create(CLOCK_REALTIME, 0);
 	if (timerfd < 0) {
-		pr_fail_err(args->name, "timerfd_create");
+		pr_fail_err("timerfd_create");
 		(void)close(timerfd);
 		return EXIT_FAILURE;
 	}
 	stress_timerfd_set(&timer);
 	if (timerfd_settime(timerfd, 0, &timer, NULL) < 0) {
-		pr_fail_err(args->name, "timer_settime");
+		pr_fail_err("timer_settime");
 		(void)close(timerfd);
 		return EXIT_FAILURE;
 	}
@@ -123,7 +123,7 @@ int stress_timerfd(args_t *args)
 		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err(args->name, "select");
+			pr_fail_err("select");
 			break;
 		}
 		if (ret < 1)
@@ -131,17 +131,17 @@ int stress_timerfd(args_t *args)
 
 		ret = read(timerfd, &exp, sizeof exp);
 		if (ret < 0) {
-			pr_fail_err(args->name, "timerfd read");
+			pr_fail_err("timerfd read");
 			break;
 		}
 		if (timerfd_gettime(timerfd, &value) < 0) {
-			pr_fail_err(args->name, "timerfd_gettime");
+			pr_fail_err("timerfd_gettime");
 			break;
 		}
 		if (opt_flags & OPT_FLAGS_TIMERFD_RAND) {
 			stress_timerfd_set(&timer);
 			if (timerfd_settime(timerfd, 0, &timer, NULL) < 0) {
-				pr_fail_err(args->name, "timer_settime");
+				pr_fail_err("timer_settime");
 				break;
 			}
 		}

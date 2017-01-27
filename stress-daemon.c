@@ -102,12 +102,12 @@ int stress_daemon(args_t *args)
 		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {
-		pr_fail_dbg(args->name, "pipe");
+		pr_fail_dbg("pipe");
 		return EXIT_FAILURE;
 	}
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		return EXIT_FAILURE;

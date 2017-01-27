@@ -127,7 +127,7 @@ static int stress_shm_posix_child(
 				S_IRUSR | S_IWUSR);
 			if (shm_fd < 0) {
 				ok = false;
-				pr_fail_err(args->name, "shm_open");
+				pr_fail_err("shm_open");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -148,7 +148,7 @@ static int stress_shm_posix_child(
 				MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
-				pr_fail_err(args->name, "mmap");
+				pr_fail_err("mmap");
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -193,7 +193,7 @@ reap:
 				(void)munmap(addrs[i], sz);
 			if (*shm_name) {
 				if (shm_unlink(shm_name) < 0) {
-					pr_fail_err(args->name, "shm_unlink");
+					pr_fail_err("shm_unlink");
 				}
 			}
 
@@ -254,7 +254,7 @@ int stress_shm(args_t *args)
 
 	while (opt_do_run && retry) {
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg(args->name, "pipe");
+			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -296,10 +296,10 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg(args->name, "read");
+						pr_fail_dbg("read");
 						break;
 					}
-					pr_fail_dbg(args->name, "zero byte read");
+					pr_fail_dbg("zero byte read");
 					break;
 				}
 				if ((msg.index < 0) ||

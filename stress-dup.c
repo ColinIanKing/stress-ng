@@ -42,7 +42,7 @@ int stress_dup(args_t *args)
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
-		pr_fail_dbg(args->name, "open on /dev/zero");
+		pr_fail_dbg("open on /dev/zero");
 		return EXIT_FAILURE;
 	}
 
@@ -78,7 +78,7 @@ int stress_dup(args_t *args)
 			/* dup2 on the same fd should be a no-op */
 			tmp = dup2(fds[n], fds[n]);
 			if (tmp != fds[n]) {
-				pr_fail_err(args->name, "dup2 with same fds");
+				pr_fail_err("dup2 with same fds");
 				break;
 			}
 

@@ -59,7 +59,7 @@ static void *stress_membarrier_thread(void *arg)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("pthread", "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
 	while (keep_running && opt_do_run) {
@@ -67,14 +67,14 @@ static void *stress_membarrier_thread(void *arg)
 
 		ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 		if (ret < 0) {
-			pr_fail_err(args->name, "membarrier CMD QUERY");
+			pr_fail_err("membarrier CMD QUERY");
 			break;
 		}
 		/* CMD SHARED not availble; skip it */
 		if (!(ret & MEMBARRIER_CMD_SHARED))
 			continue;
 		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_fail_err(args->name, "membarrier CMD SHARED");
+			pr_fail_err("membarrier CMD SHARED");
 			break;
 		}
 	}

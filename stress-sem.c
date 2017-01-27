@@ -88,7 +88,7 @@ static void semaphore_posix_thrash(args_t *args)
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail_dbg(args->name, "clock_gettime");
+			pr_fail_dbg("clock_gettime");
 			return;
 		}
 		timeout.tv_sec++;
@@ -98,12 +98,12 @@ static void semaphore_posix_thrash(args_t *args)
 				if (errno == ETIMEDOUT)
 					goto timed_out;
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, "sem_wait");
+					pr_fail_dbg("sem_wait");
 				break;
 			}
 			inc_counter(args);
 			if (sem_post(&shared->sem_posix.sem) < 0) {
-				pr_fail_dbg(args->name, "sem_post");
+				pr_fail_dbg("sem_post");
 				break;
 			}
 timed_out:

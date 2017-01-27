@@ -222,7 +222,7 @@ static int do_fcntl(args_t *args, const int fd)
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err(args->name, "ftruncate");
+			pr_fail_err("ftruncate");
 			goto lock_abort;
 		}
 
@@ -237,7 +237,7 @@ static int do_fcntl(args_t *args, const int fd)
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail_err(args->name, "fcntl F_GETLK");
+			pr_fail_err("fcntl F_GETLK");
 			goto lock_abort;
 		}
 #endif
@@ -298,7 +298,7 @@ lock_abort:	{ /* Nowt */ }
 		const off_t start = mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err(args->name, "ftruncate");
+			pr_fail_err("ftruncate");
 			goto ofd_lock_abort;
 		}
 
@@ -313,7 +313,7 @@ lock_abort:	{ /* Nowt */ }
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail_err(args->name, "fcntl F_OFD_GETLK");
+			pr_fail_err("fcntl F_OFD_GETLK");
 			goto ofd_lock_abort;
 		}
 #endif
@@ -385,7 +385,7 @@ int stress_fcntl(args_t *args)
 	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
 	if (mkdir(dirname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err(args->name, "mkdir");
+			pr_fail_err("mkdir");
 			return exit_status(errno);
 		}
 	}
@@ -405,7 +405,7 @@ int stress_fcntl(args_t *args)
 				(void)shim_usleep(100000);
 				continue;
 			}
-			pr_fail_err(args->name, "open");
+			pr_fail_err("open");
 			goto tidy;
 		}
 		break;

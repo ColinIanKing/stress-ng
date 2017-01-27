@@ -230,7 +230,7 @@ static int stress_shm_sysv_child(
 			}
 			if (shm_id < 0) {
 				ok = false;
-				pr_fail_err(args->name, "shmget");
+				pr_fail_err("shmget");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -248,7 +248,7 @@ static int stress_shm_sysv_child(
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
-				pr_fail_err(args->name, "shmat");
+				pr_fail_err("shmat");
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -278,7 +278,7 @@ static int stress_shm_sysv_child(
 				struct shmid_ds ds;
 
 				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
-					pr_fail_dbg(args->name, "shmctl IPC_STAT");
+					pr_fail_dbg("shmctl IPC_STAT");
 			}
 #endif
 #if defined(__linux__) && defined(IPC_INFO)
@@ -286,7 +286,7 @@ static int stress_shm_sysv_child(
 				struct shminfo s;
 
 				if (shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0)
-					pr_fail_dbg(args->name, "semctl IPC_INFO");
+					pr_fail_dbg("semctl IPC_INFO");
 			}
 #endif
 #if defined(__linux__) && defined(SHM_INFO)
@@ -294,7 +294,7 @@ static int stress_shm_sysv_child(
 				struct shm_info s;
 
 				if (shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0)
-					pr_fail_dbg(args->name, "semctl SHM_INFO");
+					pr_fail_dbg("semctl SHM_INFO");
 			}
 #endif
 			inc_counter(args);
@@ -303,13 +303,13 @@ reap:
 		for (i = 0; i < opt_shm_sysv_segments; i++) {
 			if (addrs[i]) {
 				if (shmdt(addrs[i]) < 0) {
-					pr_fail_err(args->name, "shmdt");
+					pr_fail_err("shmdt");
 				}
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
 					if (errno != EIDRM)
-						pr_fail_err(args->name, "shmctl");
+						pr_fail_err("shmctl");
 				}
 			}
 
@@ -371,7 +371,7 @@ int stress_shm_sysv(args_t *args)
 
 	while (opt_do_run && retry) {
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg(args->name, "pipe");
+			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -413,10 +413,10 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg(args->name, "read");
+						pr_fail_dbg("read");
 						break;
 					}
-					pr_fail_dbg(args->name, "zero byte read");
+					pr_fail_dbg("zero byte read");
 					break;
 				}
 				if ((msg.index < 0) ||

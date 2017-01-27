@@ -133,7 +133,7 @@ static int try_remap(
 			break;
 		}
 	}
-	pr_fail_err(args->name, "mremap");
+	pr_fail_err("mremap");
 	return -1;
 }
 

@@ -68,19 +68,19 @@ int stress_seek(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto finish;
 	}
 	(void)unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "lseek");
+		pr_fail_err("lseek");
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "write");
+		pr_fail_err("write");
 		goto close_finish;
 	}
 
@@ -91,7 +91,7 @@ int stress_seek(args_t *args)
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err(args->name, "lseek");
+			pr_fail_err("lseek");
 			goto close_finish;
 		}
 re_write:
@@ -102,14 +102,14 @@ re_write:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
-				pr_fail_err(args->name, "write");
+				pr_fail_err("write");
 				goto close_finish;
 			}
 		}
 
 		offset = mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err(args->name, "lseek SEEK_SET");
+			pr_fail_err("lseek SEEK_SET");
 			goto close_finish;
 		}
 re_read:
@@ -120,7 +120,7 @@ re_read:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
-				pr_fail_err(args->name, "read");
+				pr_fail_err("read");
 				goto close_finish;
 			}
 		}
@@ -131,25 +131,25 @@ re_read:
 #if defined(SEEK_END)
 		if (lseek(fd, 0, SEEK_END) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(args->name, "lseek SEEK_END");
+				pr_fail_err("lseek SEEK_END");
 		}
 #endif
 #if defined(SEEK_CUR)
 		if (lseek(fd, 0, SEEK_CUR) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(args->name, "lseek SEEK_CUR");
+				pr_fail_err("lseek SEEK_CUR");
 		}
 #endif
 #if defined(SEEK_HOLE)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(args->name, "lseek SEEK_HOLE");
+				pr_fail_err("lseek SEEK_HOLE");
 		}
 #endif
 #if defined(SEEK_DATA)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err(args->name, "lseek SEEK_DATA");
+				pr_fail_err("lseek SEEK_DATA");
 		}
 #endif
 

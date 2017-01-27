@@ -132,11 +132,11 @@ again:
 				pfd[1] = -1;
 			} else {
 				if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err(args->name, "fcntl O_NONBLOCK");
+					pr_fail_err("fcntl O_NONBLOCK");
 					goto clean;
 				}
 				if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err(args->name, "fcntl O_NONBLOCK");
+					pr_fail_err("fcntl O_NONBLOCK");
 					goto clean;
 				}
 				pipes_open++;

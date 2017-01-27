@@ -63,24 +63,24 @@ int stress_copy_file(args_t *args)
 	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
 	if (ftruncate(fd_in, opt_copy_file_bytes) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "ftruncate");
+		pr_fail_err("ftruncate");
 		goto tidy_in;
 	}
 	if (fsync(fd_in) < 0) {
-		pr_fail_err(args->name, "fsync");
+		pr_fail_err("fsync");
 		goto tidy_in;
 	}
 
 	snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto tidy_in;
 	}
 	(void)unlink(tmp);
@@ -99,7 +99,7 @@ int stress_copy_file(args_t *args)
 			    (errno == EINTR) ||
 			    (errno == ENOSPC))
 				continue;
-			pr_fail_err(args->name, "copy_file_range");
+			pr_fail_err("copy_file_range");
 			goto tidy_out;
 		}
 		(void)fsync(fd_out);

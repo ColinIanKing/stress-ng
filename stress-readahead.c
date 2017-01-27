@@ -52,7 +52,7 @@ static int do_readahead(
 	for (i = 0; i < MAX_OFFSETS; i++) {
 		offsets[i] = (mwc64() % (readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
-			pr_fail_err(args->name, "ftruncate");
+			pr_fail_err("ftruncate");
 			return -1;
 		}
 	}
@@ -99,19 +99,19 @@ int stress_readahead(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto finish;
 	}
 	if (ftruncate(fd, (off_t)0) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "ftruncate");
+		pr_fail_err("ftruncate");
 		goto close_finish;
 	}
 	(void)unlink(filename);
 
 #if defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, opt_readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
-		pr_fail_err(args->name, "posix_fadvise");
+		pr_fail_err("posix_fadvise");
 		goto close_finish;
 	}
 #endif
@@ -139,7 +139,7 @@ seq_wr_retry:
 			if (errno == ENOSPC)
 				break;
 			if (errno) {
-				pr_fail_err(args->name, "pwrite");
+				pr_fail_err("pwrite");
 				goto close_finish;
 			}
 			continue;
@@ -147,7 +147,7 @@ seq_wr_retry:
 	}
 
 	if (fstat(fd, &statbuf) < 0) {
-		pr_fail_err(args->name, "fstat");
+		pr_fail_err("fstat");
 		goto close_finish;
 	}
 
@@ -170,7 +170,7 @@ rnd_rd_retry:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_fail_err(args->name, "read");
+					pr_fail_err("read");
 					goto close_finish;
 				}
 				continue;

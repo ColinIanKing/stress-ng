@@ -118,7 +118,7 @@ int stress_yield(args_t *args)
 
 				ret = shim_sched_yield();
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
-					pr_fail_err(args->name, "sched_yield");
+					pr_fail_err("sched_yield");
 				counters[i]++;
 			} while (opt_do_run && (!max_ops_per_yielder || *args->counter < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);

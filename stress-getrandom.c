@@ -45,7 +45,7 @@ int stress_getrandom(args_t *args)
 		if (ret < 0) {
 			if (errno == EAGAIN)
 				continue;
-			pr_fail_err(args->name, "getrandom");
+			pr_fail_err("getrandom");
 			return EXIT_FAILURE;
 		}
 		inc_counter(args);

@@ -121,8 +121,8 @@ int stress_mergesort(args_t *args)
 	n = (size_t)opt_mergesort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
-		return EXIT_FAILURE;
+		pr_fail_dbg("malloc");
+		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {

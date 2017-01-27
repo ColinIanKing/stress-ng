@@ -45,16 +45,16 @@ static int stress_msg_getstats(args_t *args, const int msgq_id)
 #endif
 
 	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
-		pr_fail_err(args->name, "msgctl: IPC_STAT");
+		pr_fail_err("msgctl: IPC_STAT");
 		return -errno;
 	}
 #if defined(__linux__)
 	if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err(args->name, "msgctl: IPC_INFO");
+		pr_fail_err("msgctl: IPC_INFO");
 		return -errno;
 	}
 	if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err(args->name, "msgctl: MSG_INFO");
+		pr_fail_err("msgctl: MSG_INFO");
 		return -errno;
 	}
 #endif
@@ -73,7 +73,7 @@ int stress_msg(args_t *args)
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
-		pr_fail_dbg(args->name, "msgget");
+		pr_fail_dbg("msgget");
 		return exit_status(errno);
 	}
 	pr_dbg(stderr, "System V message queue created, id: %d\n", msgq_id);
@@ -83,7 +83,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -96,7 +96,7 @@ again:
 			for (i = 0; ; i++) {
 				uint64_t v;
 				if (msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0) < 0) {
-					pr_fail_dbg(args->name, "msgrcv");
+					pr_fail_dbg("msgrcv");
 					break;
 				}
 				if (!strcmp(msg.msg, MSG_STOP))
@@ -123,7 +123,7 @@ again:
 			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, "msgsnd");
+					pr_fail_dbg("msgsnd");
 				break;
 			}
 			if ((i & 0x1f) == 0)
@@ -135,12 +135,12 @@ again:
 
 		strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
-			pr_fail_dbg(args->name, "termination msgsnd");
+			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
-			pr_fail_dbg(args->name, "msgctl");
+			pr_fail_dbg("msgctl");
 		else
 			pr_dbg(stderr, "System V message queue deleted, id: %d\n", msgq_id);
 	}

@@ -47,7 +47,7 @@ int stress_tlb_shootdown(args_t *args)
 		const int32_t max_cpus = stress_get_processors_configured();
 
 		if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0) {
-			pr_fail_err(args->name, "could not get CPU affinity");
+			pr_fail_err("could not get CPU affinity");
 			return EXIT_FAILURE;
 		}
 		cpus = CPU_COUNT(&proc_mask);
@@ -61,7 +61,7 @@ int stress_tlb_shootdown(args_t *args)
 					if (--retry < 0)
 						return EXIT_NO_RESOURCE;
 				} else {
-					pr_fail_err(args->name, "mmap");
+					pr_fail_err("mmap");
 				}
 			} else {
 				break;

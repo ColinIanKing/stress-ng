@@ -30,6 +30,7 @@
 #define MAX_READ_THREADS	(4)
 
 typedef struct ctxt {
+	args_t *args;
 	const char *path;
 	char *badbuf;
 	bool proc_write;
@@ -117,6 +118,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
+	args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -135,7 +137,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("pthread", "sigaltstack");
+		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
 	while (keep_running && opt_do_run)
@@ -148,13 +150,14 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
  *  stress_proc_rw_threads()
  *	create a bunch of threads to thrash read a proc entry
  */
-static void stress_proc_rw_threads(char *path, const bool proc_write)
+static void stress_proc_rw_threads(args_t *args, char *path, const bool proc_write)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
 	int ret[MAX_READ_THREADS];
 	ctxt_t ctxt;
 
+	ctxt.args = args;
 	ctxt.path = path;
 	ctxt.proc_write = proc_write;
 	ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
@@ -191,6 +194,7 @@ static void stress_proc_rw_threads(char *path, const bool proc_write)
  *	read directory
  */
 static void stress_proc_dir(
+	args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -223,13 +227,13 @@ static void stress_proc_dir(
 			if (recurse) {
 				snprintf(name, sizeof(name),
 					"%s/%s", path, d->d_name);
-				stress_proc_dir(name, recurse, depth + 1, proc_write);
+				stress_proc_dir(args, name, recurse, depth + 1, proc_write);
 			}
 			break;
 		case DT_REG:
 			snprintf(name, sizeof(name),
 				"%s/%s", path, d->d_name);
-			stress_proc_rw_threads(name, proc_write);
+			stress_proc_rw_threads(args, name, proc_write);
 			break;
 		default:
 			break;
@@ -252,67 +256,67 @@ int stress_procfs(args_t *args)
 		proc_write = false;
 
 	do {
-		stress_proc_dir("/proc/self", true, 0, proc_write);
+		stress_proc_dir(args, "/proc/self", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/sys", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/sys", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/sysvipc", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/sysvipc", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/fs", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/fs", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/bus", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/bus", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/irq", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/irq", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/scsi", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/scsi", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/tty", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/driver", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/driver", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/tty", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/self", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/self", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc/thread_self", true, 0, proc_write);
+		stress_proc_dir(args,"/proc/thread_self", true, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;
 
-		stress_proc_dir("/proc", false, 0, proc_write);
+		stress_proc_dir(args,"/proc", false, 0, proc_write);
 		inc_counter(args);
 		if (!opt_do_run || (args->max_ops && *args->counter >= args->max_ops))
 			break;

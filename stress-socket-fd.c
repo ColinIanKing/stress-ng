@@ -151,7 +151,7 @@ retry:
 			exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg(args->name, "socket");
+			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
@@ -166,7 +166,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg(args->name, "connect");
+				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
@@ -228,12 +228,12 @@ static int stress_socket_server(
 	}
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "socket");
+		pr_fail_dbg("socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg(args->name, "setsockopt");
+		pr_fail_dbg("setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -243,11 +243,11 @@ static int stress_socket_server(
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "bind");
+		pr_fail_dbg("bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg(args->name, "listen");
+		pr_fail_dbg("listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -303,7 +303,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_socket_client(args, ppid, max_fd);

@@ -51,7 +51,7 @@ int stress_full(args_t *args)
 		char buffer[4096];
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
-			pr_fail_err(args->name, "open");
+			pr_fail_err("open");
 			return EXIT_FAILURE;
 		}
 
@@ -70,7 +70,7 @@ int stress_full(args_t *args)
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto try_read;
 		if (errno != ENOSPC) {
-			pr_fail_err(args->name, "write");
+			pr_fail_err("write");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -81,7 +81,7 @@ int stress_full(args_t *args)
 try_read:
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
-			pr_fail_err(args->name, "read");
+			pr_fail_err("read");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}

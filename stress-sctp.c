@@ -93,7 +93,7 @@ retry:
 			exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(opt_sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
-			pr_fail_dbg(args->name, "socket");
+			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
@@ -108,7 +108,7 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg(args->name, "connect");
+				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
@@ -119,7 +119,7 @@ retry:
 		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
 			sizeof(events)) < 0) {
 			(void)close(fd);
-			pr_fail_dbg(args->name, "setsockopt");
+			pr_fail_dbg("setsockopt");
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
@@ -134,7 +134,7 @@ retry:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, "recv");
+					pr_fail_dbg("recv");
 				break;
 			}
 		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
@@ -189,12 +189,12 @@ static int stress_sctp_server(
 	}
 	if ((fd = socket(opt_sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "socket");
+		pr_fail_dbg("socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg(args->name, "setsockopt");
+		pr_fail_dbg("setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -203,11 +203,11 @@ static int stress_sctp_server(
 		opt_sctp_domain, opt_sctp_port, &addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg(args->name, "bind");
+		pr_fail_dbg("bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg(args->name, "listen");
+		pr_fail_dbg("listen");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -237,7 +237,7 @@ static int stress_sctp_server(
 						LOCALTIME_STREAM, 0, 0);
 				if (ret < 0) {
 					if (errno != EINTR)
-						pr_fail_dbg(args->name, "send");
+						pr_fail_dbg("send");
 					break;
 				} else
 					msgs++;
@@ -281,7 +281,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sctp_client(args, ppid);

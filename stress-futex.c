@@ -88,7 +88,7 @@ again:
 			ret = futex_wake(futex, 1);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
-					pr_fail_err(args->name, "futex wake");
+					pr_fail_err("futex wake");
 			}
 		} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
@@ -127,7 +127,7 @@ again:
 				}
 			} else {
 				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail_err(args->name, "futex wait");
+					pr_fail_err("futex wait");
 				}
 				inc_counter(args);
 			}

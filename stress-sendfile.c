@@ -70,17 +70,17 @@ int stress_sendfile(args_t *args)
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto dir_out;
 	}
 	ret = posix_fallocate(fdin, (off_t)0, (off_t)sz);
 	if (ret < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto dir_out;
 	}
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		rc = EXIT_FAILURE;
 		goto close_in;
 	}
@@ -90,7 +90,7 @@ int stress_sendfile(args_t *args)
 		if (sendfile(fdout, fdin, &offset, sz) < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err(args->name, "sendfile");
+			pr_fail_err("sendfile");
 			rc = EXIT_FAILURE;
 			goto close_out;
 		}

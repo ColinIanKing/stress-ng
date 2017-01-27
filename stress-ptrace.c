@@ -38,12 +38,12 @@ static inline bool stress_syscall_wait(
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
-			pr_fail_dbg(args->name, "ptrace");
+			pr_fail_dbg("ptrace");
 			return true;
 		}
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR)
-				pr_fail_dbg(args->name, "waitpid");
+				pr_fail_dbg("waitpid");
 			return true;
 		}
 
@@ -66,7 +66,7 @@ int stress_ptrace(args_t *args)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -106,14 +106,14 @@ int stress_ptrace(args_t *args)
 
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {
-				pr_fail_dbg(args->name, "waitpid");
+				pr_fail_dbg("waitpid");
 				return EXIT_FAILURE;
 			}
 			return EXIT_SUCCESS;
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
-			pr_fail_dbg(args->name, "ptrace");
+			pr_fail_dbg("ptrace");
 			return EXIT_FAILURE;
 		}
 
@@ -133,7 +133,7 @@ int stress_ptrace(args_t *args)
 		/* Terminate child */
 		(void)kill(pid, SIGKILL);
 		if (waitpid(pid, &status, 0) < 0)
-			pr_fail_dbg(args->name, "waitpid");
+			pr_fail_dbg("waitpid");
 	}
 	return EXIT_SUCCESS;
 }

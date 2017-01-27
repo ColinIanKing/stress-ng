@@ -108,7 +108,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -127,7 +127,7 @@ again:
 #endif
 
 			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
-				pr_fail_dbg(args->name, "socket");
+				pr_fail_dbg("socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
@@ -139,7 +139,7 @@ again:
 			if (proto == IPPROTO_UDPLITE) {
 				val = 8;	/* Just the 8 byte header */
 				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
-					pr_fail_dbg(args->name, "setsockopt");
+					pr_fail_dbg("setsockopt");
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
 					exit(EXIT_FAILURE);
@@ -154,7 +154,7 @@ again:
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
 						if (errno != EINTR)
-							pr_fail_dbg(args->name, "sendto");
+							pr_fail_dbg("sendto");
 						break;
 					}
 				}
@@ -192,7 +192,7 @@ again:
 			goto die;
 		}
 		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
-			pr_fail_dbg(args->name, "socket");
+			pr_fail_dbg("socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
@@ -203,20 +203,20 @@ again:
 		if (proto == IPPROTO_UDPLITE) {
 			val = 8;	/* Just the 8 byte header */
 			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
-				pr_fail_dbg(args->name, "setsockopt");
+				pr_fail_dbg("setsockopt");
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
 		}
 #endif
 		if (bind(fd, addr, addr_len) < 0) {
-			pr_fail_dbg(args->name, "bind");
+			pr_fail_dbg("bind");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 #if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_fail_dbg(args->name, "setsockopt");
+			pr_fail_dbg("setsockopt");
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -229,7 +229,7 @@ again:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg(args->name, "recvfrom");
+					pr_fail_dbg("recvfrom");
 				break;
 			}
 			inc_counter(args);

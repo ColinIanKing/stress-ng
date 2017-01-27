@@ -41,12 +41,12 @@ int stress_sigfd(args_t *args)
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
-		pr_fail_dbg(args->name, "sigprocmask");
+		pr_fail_dbg("sigprocmask");
 		return EXIT_FAILURE;
 	}
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
-		pr_fail_dbg(args->name, "signalfd");
+		pr_fail_dbg("signalfd");
 		return EXIT_FAILURE;
 	}
 
@@ -55,7 +55,7 @@ again:
 	if (pid < 0) {
 		if (opt_do_run && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, pgrp);
@@ -87,7 +87,7 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg(args->name, "signalfd read");
+					pr_fail_dbg("signalfd read");
 					(void)close(sfd);
 					_exit(EXIT_FAILURE);
 				}

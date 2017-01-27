@@ -75,7 +75,7 @@ static int stress_fiemap_writer(
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err(args->name, "write");
+				pr_fail_err("write");
 				goto tidy;
 			}
 		}
@@ -120,7 +120,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
 
 		/* Find out how many extents there are */
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
-			pr_fail_err(args->name, "FS_IOC_FIEMAP ioctl()");
+			pr_fail_err("FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
@@ -133,7 +133,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
 		tmp = (struct fiemap *)realloc(fiemap,
 			sizeof(struct fiemap) + extents_size);
 		if (!tmp) {
-			pr_fail_err(args->name, "FS_IOC_FIEMAP ioctl()");
+			pr_fail_err("FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
@@ -144,7 +144,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
 		fiemap->fm_mapped_extents = 0;
 
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
-			pr_fail_err(args->name, "FS_IOC_FIEMAP ioctl()");
+			pr_fail_err("FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
 		}
@@ -220,7 +220,7 @@ int stress_fiemap(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto clean;
 	}
 	(void)unlink(filename);

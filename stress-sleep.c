@@ -28,12 +28,19 @@
 
 #include <sys/select.h>
 
+typedef struct {
+	args_t *args;
+	uint64_t counter;
+	pthread_t pthread;
+} ctxt_t;
+
 static bool thread_terminate;
 static sigset_t set;
 #endif
 
 static uint64_t opt_sleep_max = DEFAULT_SLEEP;
 static bool set_sleep_max = false;
+
 
 void stress_set_sleep_max(const char *optarg)
 {
@@ -59,12 +66,13 @@ void stress_adjust_sleep_max(uint64_t max)
  *  stress_pthread_func()
  *	pthread that performs different ranges of sleeps
  */
-static void *stress_pthread_func(void *ctxt)
+static void *stress_pthread_func(void *c)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	static void *nowt = NULL;
-	uint64_t *counter = (uint64_t *)ctxt;
+	ctxt_t *ctxt = (ctxt_t *)c;
+	args_t *args = (args_t *)ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -82,7 +90,7 @@ static void *stress_pthread_func(void *ctxt)
 	ss.ss_size = SIGSTKSZ;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("pthread", "sigaltstack");
+		pr_fail_err("sigaltstack");
 		goto die;
 	}
 
@@ -129,7 +137,7 @@ static void *stress_pthread_func(void *ctxt)
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
 
-		(*counter)++;
+		ctxt->counter++;
 	}
 die:
 	return &nowt;
@@ -142,8 +150,7 @@ die:
 int stress_sleep(args_t *args)
 {
 	uint64_t i, n, limited = 0;
-	uint64_t  counters[MAX_SLEEP];
-	pthread_t pthreads[MAX_SLEEP];
+	ctxt_t    ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 	bool ok = true;
 
@@ -153,13 +160,13 @@ int stress_sleep(args_t *args)
 		if (opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_sleep_max = MIN_SLEEP;
 	}
-	memset(pthreads, 0, sizeof(pthreads));
-	memset(counters, 0, sizeof(counters));
+	memset(ctxts, 0, sizeof(ctxts));
 	sigfillset(&set);
 
 	for (n = 0; n < opt_sleep_max;  n++) {
-		ret = pthread_create(&pthreads[n], NULL,
-			stress_pthread_func, &counters[n]);
+		ctxts[n].args = args;
+		ret = pthread_create(&ctxts[n].pthread, NULL,
+			stress_pthread_func, &ctxts[n]);
 		if (ret) {
 			/* Out of resources, don't try any more */
 			if (ret == EAGAIN) {
@@ -167,7 +174,7 @@ int stress_sleep(args_t *args)
 				break;
 			}
 			/* Something really unexpected */
-			pr_fail_errno(args->name, "pthread create", ret);
+			pr_fail_errno("pthread create", ret);
 			ret = EXIT_NO_RESOURCE;
 			goto tidy;
 		}
@@ -180,7 +187,7 @@ int stress_sleep(args_t *args)
 		*args->counter = 0;
 		(void)shim_usleep(10000);
 		for (i = 0; i < n; i++)
-			*args->counter += counters[i];
+			*args->counter += ctxts[i].counter;
 	}  while (ok && opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
 
 
@@ -188,9 +195,9 @@ int stress_sleep(args_t *args)
 tidy:
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
-		ret = pthread_join(pthreads[i], NULL);
+		ret = pthread_join(ctxts[i].pthread, NULL);
 		if (ret)
-			pr_dbg(stderr, "pthread join, ret=%d", ret);
+			pr_dbg(stderr, "pthread join, ret=%d\b", ret);
 	}
 
 	if (limited) {

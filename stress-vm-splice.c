@@ -61,13 +61,13 @@ int stress_vm_splice(args_t *args)
 	if (buf == MAP_FAILED) {
 		int rc = exit_status(errno);
 
-		pr_fail_dbg(args->name, "mmap");
+		pr_fail_dbg("mmap");
 		return rc;
 	}
 
 	if (pipe(fds) < 0) {
 		(void)munmap(buf, sz);
-		pr_fail_err(args->name, "pipe");
+		pr_fail_err("pipe");
 		return EXIT_FAILURE;
 	}
 
@@ -75,7 +75,7 @@ int stress_vm_splice(args_t *args)
 		(void)munmap(buf, sz);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 

@@ -64,7 +64,7 @@ int stress_rlimit(args_t *args)
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail_err(args->name, "creat");
+		pr_fail_err("creat");
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}

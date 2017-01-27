@@ -119,7 +119,7 @@ int stress_aiol(args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		} else {
-			pr_fail_err(args->name, "io_setup");
+			pr_fail_err("io_setup");
 			return EXIT_FAILURE;
 		}
 	}
@@ -133,7 +133,7 @@ int stress_aiol(args_t *args)
 	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -163,7 +163,7 @@ int stress_aiol(args_t *args)
 			errno = -ret;
 			if (errno == EAGAIN)
 				continue;
-			pr_fail_err(args->name, "io_submit");
+			pr_fail_err("io_submit");
 			break;
 		}
 
@@ -187,7 +187,7 @@ int stress_aiol(args_t *args)
 				errno = -ret;
 				if ((errno == EINTR) && (opt_do_run))
 					continue;
-				pr_fail_err(args->name, "io_getevents");
+				pr_fail_err("io_getevents");
 				break;
 			} else {
 				n -= ret;

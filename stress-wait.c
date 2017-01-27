@@ -135,13 +135,13 @@ int stress_wait(args_t *args)
 
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		exit(EXIT_FAILURE);
 	}
 
 	pid_k = spawn(args, killer, pid_r);
 	if (pid_k < 0) {
-		pr_fail_dbg(args->name, "fork");
+		pr_fail_dbg("fork");
 		ret = EXIT_FAILURE;
 		goto tidy;
 	}

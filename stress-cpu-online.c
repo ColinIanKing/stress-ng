@@ -44,7 +44,7 @@ static int stress_cpu_online_set(
 		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
 	fd = open(filename, O_WRONLY);
 	if (fd < 0) {
-		pr_fail_err(args->name, "open");
+		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 
@@ -56,7 +56,7 @@ static int stress_cpu_online_set(
 
 	if (ret != 3) {
 		if ((errno != EAGAIN) && (errno != EINTR)) {
-			pr_fail_err(args->name, "write");
+			pr_fail_err("write");
 			rc = EXIT_FAILURE;
 		}
 	}

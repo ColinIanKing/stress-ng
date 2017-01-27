@@ -248,7 +248,7 @@ int stress_numa(args_t *args)
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
-			pr_fail_err(args->name, "get_mempolicy");
+			pr_fail_err("get_mempolicy");
 			goto err;
 		}
 		if (!opt_do_run)
@@ -256,7 +256,7 @@ int stress_numa(args_t *args)
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
 		if (ret < 0) {
-			pr_fail_err(args->name, "set_mempolicy");
+			pr_fail_err("set_mempolicy");
 			goto err;
 		}
 		memset(buf, 0xff, MMAP_SZ);
@@ -279,7 +279,7 @@ int stress_numa(args_t *args)
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			if (errno != EIO) {
-				pr_fail_err(args->name, "mbind");
+				pr_fail_err("mbind");
 				goto err;
 			}
 		} else {
@@ -297,7 +297,7 @@ int stress_numa(args_t *args)
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
 			if (errno != EIO) {
-				pr_fail_err(args->name, "mbind");
+				pr_fail_err("mbind");
 				goto err;
 			}
 		} else {
@@ -318,7 +318,7 @@ int stress_numa(args_t *args)
 		ret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
-			pr_fail_err(args->name, "migrate_pages");
+			pr_fail_err("migrate_pages");
 			goto err;
 		}
 		if (!opt_do_run)
@@ -337,7 +337,7 @@ int stress_numa(args_t *args)
 			ret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
-				pr_fail_err(args->name, "move_pages");
+				pr_fail_err("move_pages");
 				goto err;
 			}
 			memset(buf, j, MMAP_SZ);

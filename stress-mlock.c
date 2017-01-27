@@ -87,7 +87,7 @@ int stress_mlock(args_t *args)
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
 	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
-		pr_fail_dbg(args->name, "malloc");
+		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
 again:
@@ -159,7 +159,7 @@ again:
 						continue;
 					if (errno == ENOMEM)
 						break;
-					pr_fail_err(args->name, "mlock");
+					pr_fail_err("mlock");
 					break;
 				} else {
 					/*
