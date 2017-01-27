@@ -87,7 +87,7 @@ int stress_dir(args_t *args)
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
+	pr_tidy("%s: removing %" PRIu32 " directories\n",
 		args->name, DEFAULT_DIRS);
 	stress_dir_tidy(args, DEFAULT_DIRS);
 	(void)stress_temp_dir_rm_args(args);

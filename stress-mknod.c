@@ -106,7 +106,7 @@ int stress_mknod(args_t *args)
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
+	pr_tidy("%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
 	stress_mknod_tidy(args, DEFAULT_DIRS);
 	(void)stress_temp_dir_rm_args(args);
 

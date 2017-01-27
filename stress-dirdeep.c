@@ -105,7 +105,7 @@ int stress_dirdeep(args_t *args)
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing directories\n", args->name);
+	pr_tidy("%s: removing directories\n", args->name);
 	stress_dir_tidy(rootpath, path);
 
 	return ret;

@@ -96,7 +96,7 @@ abort:
 		pr_fail_err("chdir");
 
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32 " directories\n",
+	pr_tidy("%s: removing %" PRIu32 " directories\n",
 		args->name, DEFAULT_DIRS);
 
 	for (i = 0; (i < DEFAULT_DIRS) && paths[i] ; i++) {

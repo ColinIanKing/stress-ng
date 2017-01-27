@@ -190,7 +190,7 @@ int stress_dentry(args_t *args)
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu64 " entries\n",
+	pr_tidy("%s: removing %" PRIu64 " entries\n",
 		args->name, opt_dentries);
 	stress_dentry_unlink(args, opt_dentries);
 	(void)stress_temp_dir_rm_args(args);

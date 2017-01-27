@@ -121,7 +121,7 @@ static int stress_link_generic(
 
 abort:
 	/* force unlink of all files */
-	pr_tidy(stderr, "%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
+	pr_tidy("%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
 	stress_link_unlink(args, DEFAULT_LINKS);
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);
