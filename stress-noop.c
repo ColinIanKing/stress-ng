@@ -30,7 +30,9 @@
  */
 int stress_noop(const args_t *args)
 {
-	(void)args;
+	do {
+		inc_counter(args);
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }
