@@ -86,7 +86,7 @@ int stress_set_dentry_order(const char *optarg)
  *	remove all dentries
  */
 static void stress_dentry_unlink(
-	args_t *args,
+	const args_t *args,
 	const uint64_t n)
 {
 	uint64_t i, j;
@@ -141,7 +141,7 @@ static void stress_dentry_unlink(
  *  stress_dentry
  *	stress dentries
  */
-int stress_dentry(args_t *args)
+int stress_dentry(const args_t *args)
 {
 	int ret;
 

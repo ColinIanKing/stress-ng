@@ -32,7 +32,7 @@
  *  stress_mincore()
  *	stress mincore system call
  */
-int stress_mincore(args_t *args)
+int stress_mincore(const args_t *args)
 {
 	uint8_t *addr = 0;
 	const size_t page_size = stress_get_pagesize();
@@ -79,7 +79,7 @@ redo:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mincore(args_t *args)
+int stress_mincore(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

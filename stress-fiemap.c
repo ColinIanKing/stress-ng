@@ -50,7 +50,7 @@ void stress_set_fiemap_size(const char *optarg)
  *	extents in the file
  */
 static int stress_fiemap_writer(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	uint64_t *counters)
 {
@@ -105,7 +105,7 @@ tidy:
  *  stress_fiemap_ioctl()
  *	exercise the FIEMAP ioctl
  */
-static void stress_fiemap_ioctl(args_t *args, int fd)
+static void stress_fiemap_ioctl(const args_t *args, int fd)
 {
 	do {
 		struct fiemap *fiemap, *tmp;
@@ -158,7 +158,7 @@ static void stress_fiemap_ioctl(args_t *args, int fd)
  *	helper to spawn off fiemap stressor
  */
 static inline pid_t stress_fiemap_spawn(
-	args_t *args,
+	const args_t *args,
 	const int fd)
 {
 	pid_t pid;
@@ -181,7 +181,7 @@ static inline pid_t stress_fiemap_spawn(
  *  stress_fiemap
  *	stress fiemap IOCTL
  */
-int stress_fiemap(args_t *args)
+int stress_fiemap(const args_t *args)
 {
 	pid_t pids[MAX_FIEMAP_PROCS];
 	int ret, fd, rc = EXIT_FAILURE, status;
@@ -229,7 +229,7 @@ int stress_fiemap(args_t *args)
 		uint64_t proc_max_ops = ops_per_proc +
 			((i == 0) ? ops_remaining : 0);
 
-		args_t new_args = {
+		const args_t new_args = {
 			&counters[i],
 			args->name,
 			proc_max_ops,
@@ -258,7 +258,7 @@ clean:
 	return rc;
 }
 #else
-int stress_fiemap(args_t *args)
+int stress_fiemap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

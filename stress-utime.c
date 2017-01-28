@@ -29,7 +29,7 @@
  *  stress_utime()
  *	stress system by setting file utime
  */
-int stress_utime(args_t *args)
+int stress_utime(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;

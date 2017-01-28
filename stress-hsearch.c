@@ -44,7 +44,7 @@ void stress_set_hsearch_size(const char *optarg)
  *  stress_hsearch()
  *	stress hsearch
  */
-int stress_hsearch(args_t *args)
+int stress_hsearch(const args_t *args)
 {
 	size_t i, max;
 	int ret = EXIT_FAILURE;

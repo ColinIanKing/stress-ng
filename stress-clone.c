@@ -224,7 +224,7 @@ static int clone_func(void *arg)
  *  stress_clone()
  *	stress by cloning and exiting
  */
-int stress_clone(args_t *args)
+int stress_clone(const args_t *args)
 {
 	uint64_t max_clones = 0;
 	const ssize_t stack_offset =
@@ -280,7 +280,7 @@ int stress_clone(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clone(args_t *args)
+int stress_clone(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

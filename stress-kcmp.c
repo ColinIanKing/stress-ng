@@ -78,7 +78,7 @@ enum {
  *  stress_kcmp
  *	stress sys_kcmp
  */
-int stress_kcmp(args_t *args)
+int stress_kcmp(const args_t *args)
 {
 	pid_t pid1;
 	int fd1;
@@ -178,7 +178,7 @@ reap:
 	return ret;
 }
 #else
-int stress_kcmp(args_t *args)
+int stress_kcmp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

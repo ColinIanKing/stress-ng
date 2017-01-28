@@ -77,7 +77,7 @@ static void MLOCKED handle_udp_sigalrm(int dummy)
  *  stress_udp
  *	stress by heavy udp ops
  */
-int stress_udp(args_t *args)
+int stress_udp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;

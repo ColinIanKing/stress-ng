@@ -67,7 +67,7 @@ static bool do_not_stat(const char *filename)
  *  stress_fstat()
  *	stress system with fstat
  */
-int stress_fstat(args_t *args)
+int stress_fstat(const args_t *args)
 {
 	typedef struct dir_info {
 		char	*path;

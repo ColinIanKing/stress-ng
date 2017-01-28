@@ -37,7 +37,7 @@ static void MLOCKED stress_usr1_handler(int dummy)
  *  stress_sigpending
  *	stress sigpending system call
  */
-int stress_sigpending(args_t *args)
+int stress_sigpending(const args_t *args)
 {
 	sigset_t sigset;
 

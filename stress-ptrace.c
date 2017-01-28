@@ -31,7 +31,7 @@
  *  main syscall ptrace loop
  */
 static inline bool stress_syscall_wait(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid)
 {
 	while (opt_do_run) {
@@ -60,7 +60,7 @@ static inline bool stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-int stress_ptrace(args_t *args)
+int stress_ptrace(const args_t *args)
 {
 	pid_t pid;
 
@@ -138,7 +138,7 @@ int stress_ptrace(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_ptrace(args_t *args)
+int stress_ptrace(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -30,7 +30,7 @@
  *  stress_switch
  *	stress by heavy context switching
  */
-int stress_switch(args_t *args)
+int stress_switch(const args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];

@@ -416,7 +416,7 @@ int stress_temp_filename(
  *      construct a temp filename using info from args
  */
 int stress_temp_filename_args(
-	args_t *args,
+	const args_t *args,
 	char *path,
 	const size_t len,
 	const uint64_t magic)
@@ -446,7 +446,7 @@ int stress_temp_dir(
  *	create a temporary directory name using info from args
  */
 int stress_temp_dir_args(
-	args_t *args,
+	const args_t *args,
 	char *path,
 	const size_t len)
 {
@@ -481,7 +481,7 @@ int stress_temp_dir_mk(
  *   stress_temp_dir_mk_args()
  *	create a temporary director using info from args
  */
-int stress_temp_dir_mk_args(args_t *args)
+int stress_temp_dir_mk_args(const args_t *args)
 {
 	return stress_temp_dir_mk(args->name, args->pid, args->instance);
 }
@@ -513,7 +513,7 @@ int stress_temp_dir_rm(
  *  stress_temp_dir_rm_args()
  *	remove a temporary directory using info from args
  */
-int stress_temp_dir_rm_args(args_t *args)
+int stress_temp_dir_rm_args(const args_t *args)
 {
 	return stress_temp_dir_rm(args->name, args->pid, args->instance);
 }
@@ -902,7 +902,7 @@ unsigned int stress_get_cpu(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_not_implemented(args_t *args)
+int stress_not_implemented(const args_t *args)
 {
 #if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 	struct utsname buf;

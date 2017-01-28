@@ -83,7 +83,7 @@ static void *stress_pthread_func(void *arg)
 	struct robust_list_head *head_ptr;
 	size_t len_ptr;
 #endif
-	args_t *args = (args_t *)arg;
+	const args_t *args = (args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -159,7 +159,7 @@ die:
  *  stress_pthread()
  *	stress by creating pthreads
  */
-int stress_pthread(args_t *args)
+int stress_pthread(const args_t *args)
 {
 	pthread_t pthreads[MAX_PTHREAD];
 	bool ok = true;
@@ -198,7 +198,7 @@ int stress_pthread(args_t *args)
 
 		for (i = 0; (i < opt_pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
 			ret = pthread_create(&pthreads[i], NULL,
-				stress_pthread_func, args);
+				stress_pthread_func, (void *)args);
 			if (ret) {
 				/* Out of resources, don't try any more */
 				if (ret == EAGAIN) {
@@ -285,7 +285,7 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_pthread(args_t *args)
+int stress_pthread(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

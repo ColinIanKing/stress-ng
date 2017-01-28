@@ -45,7 +45,7 @@ static const int policies[] = {
 #endif
 };
 
-int stress_schedpolicy(args_t *args)
+int stress_schedpolicy(const args_t *args)
 {
 	int policy = 0;
 
@@ -183,7 +183,7 @@ int stress_schedpolicy(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_schedpolicy(args_t *args)
+int stress_schedpolicy(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

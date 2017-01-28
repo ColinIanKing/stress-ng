@@ -33,7 +33,7 @@
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static int pipe_read(args_t *args, const int fd, const int n)
+static int pipe_read(const args_t *args, const int fd, const int n)
 {
 	char buf[POLL_BUF];
 	ssize_t ret;
@@ -69,7 +69,7 @@ redo:
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-int stress_poll(args_t *args)
+int stress_poll(const args_t *args)
 {
 	int pipefds[MAX_PIPES][2];
 	int i;

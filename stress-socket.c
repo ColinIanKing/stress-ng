@@ -156,7 +156,7 @@ int stress_set_socket_domain(const char *name)
  *	client reader
  */
 static void stress_sctp_client(
-	args_t *args,
+	const args_t *args,
 	const pid_t ppid)
 {
 	struct sockaddr *addr;
@@ -238,7 +238,7 @@ static void MLOCKED handle_socket_sigalrm(int dummy)
  *	server writer
  */
 static int stress_sctp_server(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid)
 {
@@ -403,7 +403,7 @@ die:
  *  stress_sock
  *	stress by heavy socket I/O
  */
-int stress_sock(args_t *args)
+int stress_sock(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 

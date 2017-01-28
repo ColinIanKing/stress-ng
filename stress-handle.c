@@ -49,7 +49,7 @@ static void free_mount_info(const int mounts)
 		free(mount_info[i].mount_path);
 }
 
-static int get_mount_info(args_t *args)
+static int get_mount_info(const args_t *args)
 {
 	FILE *fp;
 	int mounts = 0;
@@ -96,7 +96,7 @@ static int get_mount_info(args_t *args)
  *	stress system by rapid open/close calls via
  *	name_to_handle_at and open_by_handle_at
  */
-int stress_handle(args_t *args)
+int stress_handle(const args_t *args)
 {
 	int mounts;
 
@@ -171,7 +171,7 @@ int stress_handle(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_handle(args_t *args)
+int stress_handle(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

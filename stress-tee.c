@@ -33,7 +33,7 @@
  *	spawn off tee I/O processes
  */
 static pid_t stress_tee_spawn(
-	args_t *args,
+	const args_t *args,
 	void (*func)(int fds[2]),
 	int fds[2])
 {
@@ -116,7 +116,7 @@ static void stress_tee_pipe_read(int fds[2])
  *  stress_tee()
  *	stress the Linux tee syscall
  */
-int stress_tee(args_t *args)
+int stress_tee(const args_t *args)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];
@@ -191,7 +191,7 @@ tidy_child1:
 	return ret;
 }
 #else
-int stress_tee(args_t *args)
+int stress_tee(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -284,7 +284,7 @@ int stress_hdd_opts(char *opts)
  *  stress_hdd_advise()
  *	set posix_fadvise options
  */
-static int stress_hdd_advise(args_t *args, const int fd, const int flags)
+static int stress_hdd_advise(const args_t *args, const int fd, const int flags)
 {
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
@@ -314,7 +314,7 @@ static int stress_hdd_advise(args_t *args, const int fd, const int flags)
  *  stress_hdd
  *	stress I/O via writes
  */
-int stress_hdd(args_t *args)
+int stress_hdd(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint8_t *alloc_buf;

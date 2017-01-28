@@ -41,7 +41,7 @@ void stress_set_splice_bytes(const char *optarg)
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-int stress_splice(args_t *args)
+int stress_splice(const args_t *args)
 {
 	int fd_in, fd_out, fds[2];
 
@@ -96,7 +96,7 @@ int stress_splice(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_splice(args_t *args)
+int stress_splice(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

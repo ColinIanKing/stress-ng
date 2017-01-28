@@ -50,7 +50,7 @@ static inline bool stress_double_same(const double d1, const double d2)
 }
 
 static void stress_fp_check(
-	args_t *args,
+	const args_t *args,
 	const char *expr,
 	const double val,
 	const double val_wanted,
@@ -75,7 +75,7 @@ static void stress_fp_check(
  *  stress_fp_error()
  *	stress floating point error handling
  */
-int stress_fp_error(args_t *args)
+int stress_fp_error(const args_t *args)
 {
 	do {
 		volatile double d1, d2;

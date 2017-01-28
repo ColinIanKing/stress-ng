@@ -70,7 +70,7 @@ static void __strncat(char *dst, char *src, size_t *n)
  *  stress_mmapfork()
  *	stress mappings + fork VM subystem
  */
-int stress_mmapfork(args_t *args)
+int stress_mmapfork(const args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;
@@ -181,7 +181,7 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mmapfork(args_t *args)
+int stress_mmapfork(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

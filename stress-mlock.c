@@ -78,7 +78,7 @@ static inline int mlock_shim(const void *addr, size_t len)
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
  */
-int stress_mlock(args_t *args)
+int stress_mlock(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	pid_t pid;
@@ -213,7 +213,7 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mlock(args_t *args)
+int stress_mlock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -77,7 +77,7 @@ static inline void aio_linux_fill_buffer(
  *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
-int stress_aiol(args_t *args)
+int stress_aiol(const args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -204,7 +204,7 @@ finish:
 	return rc;
 }
 #else
-int stress_aiol(args_t *args)
+int stress_aiol(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

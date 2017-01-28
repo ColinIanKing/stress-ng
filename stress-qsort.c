@@ -98,7 +98,7 @@ static int stress_qsort_cmp_3(const void *p1, const void *p2)
  *  stress_qsort()
  *	stress qsort
  */
-int stress_qsort(args_t *args)
+int stress_qsort(const args_t *args)
 {
 	int32_t *data, *ptr;
 	size_t n, i;

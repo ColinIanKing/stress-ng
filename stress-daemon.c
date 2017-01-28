@@ -35,7 +35,7 @@ static MLOCKED void handle_daemon_sigalrm(int dummy)
  *  daemons()
  *	fork off a child and let the parent die
  */
-static void daemons(args_t *args, const int fd)
+static void daemons(const args_t *args, const int fd)
 {
 	int fds[3];
 
@@ -93,7 +93,7 @@ err:	(void)close(fd);
  *  stress_daemon()
  *	stress by multiple daemonizing forks
  */
-int stress_daemon(args_t *args)
+int stress_daemon(const args_t *args)
 {
 	int fds[2];
 	pid_t pid;

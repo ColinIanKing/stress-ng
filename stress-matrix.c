@@ -373,7 +373,7 @@ int stress_set_matrix_method(const char *name)
  *  stress_matrix()
  *	stress CPU by doing floating point math ops
  */
-int stress_matrix(args_t *args)
+int stress_matrix(const args_t *args)
 {
 	stress_matrix_func func = opt_matrix_stressor->func;
 	size_t n;

@@ -62,7 +62,7 @@ static void thread3(void)
 }
 
 static int stress_context_init(
-	args_t *args,
+	const args_t *args,
 	void (*func)(void),
 	ucontext_t *link,
 	ucontext_t *uctx,
@@ -86,7 +86,7 @@ static int stress_context_init(
  *  stress_context()
  *	stress that exercises CPU context save/restore
  */
-int stress_context(args_t *args)
+int stress_context(const args_t *args)
 {
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	stack_t ss;
@@ -146,7 +146,7 @@ int stress_context(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_context(args_t *args)
+int stress_context(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

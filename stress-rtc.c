@@ -43,7 +43,7 @@ static const char *interfaces[] = {
 	"offset"
 };
 
-static inline int stress_rtc_dev(args_t *args)
+static inline int stress_rtc_dev(const args_t *args)
 {
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
@@ -111,7 +111,7 @@ err:
 	return ret;
 }
 
-static inline int stress_rtc_sys(args_t *args)
+static inline int stress_rtc_sys(const args_t *args)
 {
 	size_t i;
 	int rc = 0;
@@ -145,7 +145,7 @@ static inline int stress_rtc_sys(args_t *args)
 	return rc;
 }
 
-static inline int stress_rtc_proc(args_t *args)
+static inline int stress_rtc_proc(const args_t *args)
 {
 	int ret;
 	char buf[4096];
@@ -165,7 +165,7 @@ static inline int stress_rtc_proc(args_t *args)
  *  stress_rtc
  *	stress some Linux RTC ioctls and /sys/class/rtc interface
  */
-int stress_rtc(args_t *args)
+int stress_rtc(const args_t *args)
 {
 	do {
 		int ret;
@@ -187,7 +187,7 @@ int stress_rtc(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rtc(args_t *args)
+int stress_rtc(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

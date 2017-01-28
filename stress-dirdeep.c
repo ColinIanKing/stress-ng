@@ -52,7 +52,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress deep recursive directory mkdir and rmdir
  */
-int stress_dirdeep(args_t *args)
+int stress_dirdeep(const args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 	size_t rootpathlen;

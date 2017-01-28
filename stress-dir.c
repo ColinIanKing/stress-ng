@@ -29,7 +29,7 @@
  *	remove all dentries
  */
 static void stress_dir_tidy(
-	args_t *args,
+	const args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -48,7 +48,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
-int stress_dir(args_t *args)
+int stress_dir(const args_t *args)
 {
 	int ret;
 

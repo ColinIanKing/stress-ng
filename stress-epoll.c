@@ -40,7 +40,7 @@
 #include <netdb.h>
 
 typedef void (epoll_func_t)(
-	args_t *args,
+	const args_t *args,
 	const int child,
 	const pid_t ppid);
 
@@ -128,7 +128,7 @@ static MLOCKED void handle_socket_sigalrm(int dummy)
  *	spawn a process
  */
 static pid_t epoll_spawn(
-	args_t *args,
+	const args_t *args,
 	epoll_func_t func,
 	const int child,
 	const pid_t ppid)
@@ -212,7 +212,7 @@ static int epoll_ctl_add(const int efd, const int fd)
  *	fd's to epoll event list
  */
 static int epoll_notification(
-	args_t *args,
+	const args_t *args,
 	const int efd,
 	const int sfd)
 {
@@ -256,7 +256,7 @@ static int epoll_notification(
  *	send a relatively short message
  */
 static int epoll_client(
-	args_t *args,
+	const args_t *args,
 	const pid_t ppid)
 {
 	int port_counter = 0;
@@ -383,7 +383,7 @@ retry:
  *	wait on connections and read data
  */
 static void epoll_server(
-	args_t *args,
+	const args_t *args,
 	const int child,
 	const pid_t ppid)
 {
@@ -511,7 +511,7 @@ die:
  *  stress_epoll
  *	stress by heavy socket I/O
  */
-int stress_epoll(args_t *args)
+int stress_epoll(const args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;
@@ -566,7 +566,7 @@ reap:
 	return rc;
 }
 #else
-int stress_epoll(args_t *args)
+int stress_epoll(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

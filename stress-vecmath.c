@@ -53,7 +53,7 @@ typedef int64_t vint64_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-int HOT OPTIMIZE3 stress_vecmath(args_t *args)
+int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
 {
 	vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -148,7 +148,7 @@ int HOT OPTIMIZE3 stress_vecmath(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_vecmath(args_t *args)
+int stress_vecmath(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

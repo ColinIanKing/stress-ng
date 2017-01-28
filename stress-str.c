@@ -647,7 +647,7 @@ int stress_set_str_method(const char *name)
  *  stress_str()
  *	stress CPU by doing various string operations
  */
-int stress_str(args_t *args)
+int stress_str(const args_t *args)
 {
 	stress_str_func func = opt_str_stressor->func;
 	const void *libc_func = opt_str_stressor->libc_func;

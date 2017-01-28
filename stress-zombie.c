@@ -136,7 +136,7 @@ void stress_set_zombie_max(const char *optarg)
  *  stress_zombie()
  *	stress by zombieing and exiting
  */
-int stress_zombie(args_t *args)
+int stress_zombie(const args_t *args)
 {
 	uint64_t max_zombies = 0;
 

@@ -28,7 +28,7 @@
  *  stress_chdir
  *	stress chdir calls
  */
-int stress_chdir(args_t *args)
+int stress_chdir(const args_t *args)
 {
 	uint64_t i;
 	char path[PATH_MAX], cwd[PATH_MAX];

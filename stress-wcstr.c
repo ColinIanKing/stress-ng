@@ -619,7 +619,7 @@ int stress_set_wcs_method(const char *name)
  *  stress_wcs()
  *	stress CPU by doing wide character string ops
  */
-int stress_wcs(args_t *args)
+int stress_wcs(const args_t *args)
 {
 	stress_wcs_func func = opt_wcs_stressor->func;
 	const void *libc_func = opt_wcs_stressor->libc_func;

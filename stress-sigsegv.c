@@ -41,7 +41,7 @@ static void MLOCKED stress_segvhandler(int dummy)
  *  stress_sigsegv
  *	stress by generating segmentation faults
  */
-int stress_sigsegv(args_t *args)
+int stress_sigsegv(const args_t *args)
 {
 	uint8_t *ptr = NULL;
 

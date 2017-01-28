@@ -45,7 +45,7 @@ static void MLOCKED stress_rlimit_handler(int dummy)
  *  stress_rlimit
  *	stress by generating rlimit signals
  */
-int stress_rlimit(args_t *args)
+int stress_rlimit(const args_t *args)
 {
 	struct rlimit limit;
 	struct sigaction old_action_xcpu, old_action_xfsz;
@@ -113,7 +113,7 @@ int stress_rlimit(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rlimit(args_t *args)
+int stress_rlimit(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

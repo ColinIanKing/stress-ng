@@ -103,7 +103,7 @@ static struct sock_fprog prog_random = {
  * 	if allow_write is true.
  */
 static inline int stress_seccomp_set_filter(
-	args_t *args,
+	const args_t *args,
 	const bool allow_write,
 	bool do_random)
 {
@@ -172,7 +172,7 @@ redo_prctl:
  *  stress_seccomp()
  *	stress seccomp
  */
-int stress_seccomp(args_t *args)
+int stress_seccomp(const args_t *args)
 {
 	do {
 		pid_t pid;
@@ -250,7 +250,7 @@ int stress_seccomp(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_seccomp(args_t *args)
+int stress_seccomp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

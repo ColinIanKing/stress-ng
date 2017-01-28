@@ -33,8 +33,8 @@
  *	spawn a process
  */
 static pid_t spawn(
-	args_t *args,
-	void (*func)(args_t *args, const pid_t pid),
+	const args_t *args,
+	void (*func)(const args_t *args, const pid_t pid),
 	pid_t pid_arg)
 {
 	pid_t pid;
@@ -63,7 +63,7 @@ again:
  *	stopped and continued by the killer process
  */
 static void runner(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid)
 {
 	(void)pid;
@@ -83,7 +83,7 @@ static void runner(
  *	this continually stops and continues the runner process
  */
 static void killer(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid)
 {
 	double start = time_now();
@@ -125,7 +125,7 @@ static void killer(
  *  stress_wait
  *	stress wait*() family of calls
  */
-int stress_wait(args_t *args)
+int stress_wait(const args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k;
@@ -193,7 +193,7 @@ tidy:
 	return ret;
 }
 #else
-int stress_wait(args_t *args)
+int stress_wait(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

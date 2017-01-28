@@ -31,7 +31,7 @@
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
-int stress_getrandom(args_t *args)
+int stress_getrandom(const args_t *args)
 {
 	do {
 #if defined(__OpenBSD__)
@@ -54,7 +54,7 @@ int stress_getrandom(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_getrandom(args_t *args)
+int stress_getrandom(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

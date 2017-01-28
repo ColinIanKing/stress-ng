@@ -34,7 +34,7 @@
 /*
  *  unshare with some error checking
  */
-static void check_unshare(args_t *args, int flags, const char *flags_name)
+static void check_unshare(const args_t *args, int flags, const char *flags_name)
 {
 	int rc;
 	rc = shim_unshare(flags);
@@ -49,7 +49,7 @@ static void check_unshare(args_t *args, int flags, const char *flags_name)
  *  stress_unshare()
  *	stress resource unsharing
  */
-int stress_unshare(args_t *args)
+int stress_unshare(const args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 
@@ -131,7 +131,7 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_unshare(args_t *args)
+int stress_unshare(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

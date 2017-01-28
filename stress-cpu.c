@@ -2202,7 +2202,7 @@ int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-int stress_cpu(args_t *args)
+int stress_cpu(const args_t *args)
 {
 	double bias;
 	stress_cpu_func func = opt_cpu_stressor->func;

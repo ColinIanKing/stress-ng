@@ -29,7 +29,7 @@
  *	remove all links
  */
 static void stress_link_unlink(
-	args_t *args,
+	const args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -49,7 +49,7 @@ static void stress_link_unlink(
  *	stress links, generic case
  */
 static int stress_link_generic(
-	args_t *args,
+	const args_t *args,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname,
 	bool symlink)
@@ -132,7 +132,7 @@ abort:
  *  stress_link
  *	stress hard links
  */
-int stress_link(args_t *args)
+int stress_link(const args_t *args)
 {
 	return stress_link_generic(args, link, "link", false);
 }
@@ -141,7 +141,7 @@ int stress_link(args_t *args)
  *  stress_symlink
  *	stress symbolic links
  */
-int stress_symlink(args_t *args)
+int stress_symlink(const args_t *args)
 {
 	return stress_link_generic(args, symlink, "symlink", true);
 }

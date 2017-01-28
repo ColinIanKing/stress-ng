@@ -114,7 +114,7 @@ cancel:
  *  stress_timer
  *	stress timers
  */
-int stress_timer(args_t *args)
+int stress_timer(const args_t *args)
 {
 	struct sigevent sev;
 	struct itimerspec timer;
@@ -170,7 +170,7 @@ int stress_timer(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_timer(args_t *args)
+int stress_timer(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

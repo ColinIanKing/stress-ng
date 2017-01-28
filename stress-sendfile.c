@@ -45,7 +45,7 @@ void stress_set_sendfile_size(const char *optarg)
  *  stress_sendfile
  *	stress reading of a temp file and writing to /dev/null via sendfile
  */
-int stress_sendfile(args_t *args)
+int stress_sendfile(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int fdin, fdout, ret, rc = EXIT_SUCCESS;
@@ -108,7 +108,7 @@ dir_out:
 	return rc;
 }
 #else
-int stress_sendfile(args_t *args)
+int stress_sendfile(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

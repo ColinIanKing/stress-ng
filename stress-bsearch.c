@@ -69,7 +69,7 @@ static int cmp(const void *p1, const void *p2)
  *  stress_bsearch()
  *	stress bsearch
  */
-int stress_bsearch(args_t *args)
+int stress_bsearch(const args_t *args)
 {
 	int32_t *data, *ptr, prev = 0;
 	size_t n, n8, i;

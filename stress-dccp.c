@@ -112,7 +112,7 @@ int stress_set_dccp_domain(const char *name)
  *	client reader
  */
 static void stress_dccp_client(
-	args_t *args,
+	const args_t *args,
 	const pid_t ppid)
 {
 	struct sockaddr *addr;
@@ -197,7 +197,7 @@ static void MLOCKED handle_dccp_sigalrm(int dummy)
  *	server writer
  */
 static int stress_dccp_server(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid)
 {
@@ -353,7 +353,7 @@ die:
  *  stress_dccp
  *	stress by heavy dccp  I/O
  */
-int stress_dccp(args_t *args)
+int stress_dccp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 
@@ -377,7 +377,7 @@ again:
 
 #else
 
-int stress_dccp(args_t *args)
+int stress_dccp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

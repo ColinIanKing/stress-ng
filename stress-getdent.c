@@ -29,7 +29,7 @@
 #define BUF_SIZE	(256 * 1024)
 
 typedef int (getdents_func)(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -52,7 +52,7 @@ static getdents_func * getdents_funcs[] = {
 };
 
 static inline int stress_getdents_rand(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -87,7 +87,7 @@ static inline int stress_getdents_rand(
  *	read directory via the old 32 bit interface
  */
 static int stress_getdents_dir(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -158,7 +158,7 @@ exit_close:
  *	read directory via the 64 bit interface
  */
 static int stress_getdents64_dir(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -226,7 +226,7 @@ exit_close:
  *  stress_getdent
  *	stress reading directories
  */
-int stress_getdent(args_t *args)
+int stress_getdent(const args_t *args)
 {
 	size_t page_size = stress_get_pagesize();
 
@@ -253,7 +253,7 @@ int stress_getdent(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_getdent(args_t *args)
+int stress_getdent(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

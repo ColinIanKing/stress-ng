@@ -126,7 +126,7 @@ static void stress_lockofd_info_free(void)
  *  stress_lockofd_unlock()
  *	pop oldest lock record off list and unlock it
  */
-static int stress_lockofd_unlock(args_t *args, const int fd)
+static int stress_lockofd_unlock(const args_t *args, const int fd)
 {
 	struct flock f;
 
@@ -154,7 +154,7 @@ static int stress_lockofd_unlock(args_t *args, const int fd)
  *	hammer advisory lock/unlock to create some file lock contention
  */
 static int stress_lockofd_contention(
-	args_t *args,
+	const args_t *args,
 	const int fd)
 {
 	mwc_reseed();
@@ -203,7 +203,7 @@ static int stress_lockofd_contention(
  *  stress_lockofd
  *	stress file locking via advisory locking
  */
-int stress_lockofd(args_t *args)
+int stress_lockofd(const args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t cpid = -1;
@@ -304,7 +304,7 @@ tidy:
 	return ret;
 }
 #else
-int stress_lockofd(args_t *args)
+int stress_lockofd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

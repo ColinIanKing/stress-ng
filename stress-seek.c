@@ -39,7 +39,7 @@ void stress_set_seek_size(const char *optarg)
  *  stress_seek
  *	stress I/O via random seeks and read/writes
  */
-int stress_seek(args_t *args)
+int stress_seek(const args_t *args)
 {
 	uint64_t len;
 	int ret, fd, rc = EXIT_FAILURE;

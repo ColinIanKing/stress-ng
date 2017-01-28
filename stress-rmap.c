@@ -96,7 +96,7 @@ static void stress_rmap_child(
  *  stress_rmap()
  *	stress mmap
  */
-int stress_rmap(args_t *args)
+int stress_rmap(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
@@ -235,7 +235,7 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rmap(args_t *args)
+int stress_rmap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

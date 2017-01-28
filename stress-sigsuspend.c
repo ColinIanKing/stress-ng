@@ -30,7 +30,7 @@
  *  stress_sigsuspend
  *	stress sigsuspend
  */
-int stress_sigsuspend(args_t *args)
+int stress_sigsuspend(const args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;

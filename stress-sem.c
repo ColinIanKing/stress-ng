@@ -81,7 +81,7 @@ void stress_semaphore_posix_destroy(void)
  *  semaphore_posix_thrash()
  *	exercise the semaphore
  */
-static void semaphore_posix_thrash(args_t *args)
+static void semaphore_posix_thrash(const args_t *args)
 {
 	do {
 		int i;
@@ -117,7 +117,7 @@ timed_out:
  *  semaphore_posix_spawn()
  *	spawn a process
  */
-static pid_t semaphore_posix_spawn(args_t *args)
+static pid_t semaphore_posix_spawn(const args_t *args)
 {
 	pid_t pid;
 
@@ -143,7 +143,7 @@ again:
  *  stress_sem()
  *	stress system by POSIX sem ops
  */
-int stress_sem(args_t *args)
+int stress_sem(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
@@ -194,7 +194,7 @@ void stress_semaphore_posix_destroy(void)
 {
 }
 
-int stress_sem(args_t *args)
+int stress_sem(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -35,7 +35,7 @@
  */
 static int stress_bind_mount_child(void *arg)
 {
-	args_t *args = (args_t *)arg;
+	const args_t *args = (args_t *)arg;
 	uint64_t *counter = args->counter;
 
 	(void)setpgid(0, pgrp);
@@ -62,7 +62,7 @@ static int stress_bind_mount_child(void *arg)
  *  stress_bind_mount()
  *      stress bind mounting
  */
-int stress_bind_mount(args_t *args)
+int stress_bind_mount(const args_t *args)
 {
 	int pid = 0, status;
 	const ssize_t stack_offset =
@@ -74,7 +74,7 @@ int stress_bind_mount(args_t *args)
 	pid = clone(stress_bind_mount_child,
 		align_stack(stack_top),
 		CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM,
-		args, 0);
+		(void *)args, 0);
 	if (pid < 0) {
 		int rc = exit_status(errno);
 
@@ -93,7 +93,7 @@ int stress_bind_mount(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_bind_mount(args_t *args)
+int stress_bind_mount(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

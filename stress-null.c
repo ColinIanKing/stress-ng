@@ -28,7 +28,7 @@
  *  stress_null
  *	stress writing to /dev/null
  */
-int stress_null(args_t *args)
+int stress_null(const args_t *args)
 {
 	int fd;
 	char buffer[4096];

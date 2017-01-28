@@ -1873,7 +1873,7 @@ int stress_set_vm_method(const char *name)
  *  stress_vm()
  *	stress virtual memory
  */
-int stress_vm(args_t *args)
+int stress_vm(const args_t *args)
 {
 	uint32_t restarts = 0, nomems = 0;
 	uint8_t *buf = NULL;

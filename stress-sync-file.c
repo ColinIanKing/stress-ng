@@ -89,7 +89,7 @@ static inline int shim_sync_file_range(
  *  shrink and re-allocate the file to be sync'd
  *
  */
-static int stress_sync_allocate(args_t *args, const int fd)
+static int stress_sync_allocate(const args_t *args, const int fd)
 {
 	int ret;
 
@@ -120,7 +120,7 @@ static int stress_sync_allocate(args_t *args, const int fd)
  *  stress_sync_file
  *	stress the sync_file_range system call
  */
-int stress_sync_file(args_t *args)
+int stress_sync_file(const args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
@@ -194,7 +194,7 @@ int stress_sync_file(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sync_file(args_t *args)
+int stress_sync_file(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

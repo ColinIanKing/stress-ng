@@ -28,7 +28,7 @@
  *  stress_rename()
  *	stress system by renames
  */
-int stress_rename(args_t *args)
+int stress_rename(const args_t *args)
 {
 	char name1[PATH_MAX], name2[PATH_MAX];
 	char *oldname = name1, *newname = name2, *tmpname;

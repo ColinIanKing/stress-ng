@@ -41,7 +41,7 @@ static void MLOCKED stress_fpehandler(int dummy)
  *  stress_sigfpe
  *	stress by generating floating point errors
  */
-int stress_sigfpe(args_t *args)
+int stress_sigfpe(const args_t *args)
 {
 	for (;;) {
 		int ret;

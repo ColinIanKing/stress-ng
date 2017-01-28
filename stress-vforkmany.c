@@ -40,7 +40,7 @@ static stack_t ss;
  *	careful not to overrite shared variables across
  *	all the processes.
  */
-int stress_vforkmany(args_t *args)
+int stress_vforkmany(const args_t *args)
 {
 	static int status;
 	static pid_t mypid;

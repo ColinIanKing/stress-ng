@@ -127,7 +127,7 @@ static alg_rng_info_t algo_rng_info[] = {
 };
 
 static int stress_af_alg_hash(
-	args_t *args,
+	const args_t *args,
 	const int sockfd,
 	uint64_t *hashfails)
 {
@@ -190,7 +190,7 @@ static int stress_af_alg_hash(
 }
 
 static int stress_af_alg_cipher(
-	args_t *args,
+	const args_t *args,
 	const int sockfd,
 	uint64_t *cipherfails)
 {
@@ -345,7 +345,7 @@ static int stress_af_alg_cipher(
 }
 
 static int stress_af_alg_rng(
-	args_t *args,
+	const args_t *args,
 	const int sockfd,
 	uint64_t *rngfails)
 {
@@ -404,7 +404,7 @@ static int stress_af_alg_rng(
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */
-int stress_af_alg(args_t *args)
+int stress_af_alg(const args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
@@ -453,7 +453,7 @@ tidy:
 	return rc;
 }
 #else
-int stress_af_alg(args_t *args)
+int stress_af_alg(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

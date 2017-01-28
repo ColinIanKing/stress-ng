@@ -42,7 +42,7 @@ void stress_set_memfd_bytes(const char *optarg)
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static void stress_memfd_allocs(args_t *args)
+static void stress_memfd_allocs(const args_t *args)
 {
 	int fds[MAX_MEM_FDS];
 	void *maps[MAX_MEM_FDS];
@@ -178,7 +178,7 @@ clean:
  *  stress_memfd()
  *	stress memfd
  */
-int stress_memfd(args_t *args)
+int stress_memfd(const args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
@@ -254,7 +254,7 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_memfd(args_t *args)
+int stress_memfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

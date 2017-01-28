@@ -73,7 +73,7 @@ int stress_set_sctp_domain(const char *name)
  *	client reader
  */
 static void stress_sctp_client(
-	args_t *args,
+	const args_t *args,
 	const pid_t ppid)
 {
 	struct sockaddr *addr;
@@ -169,7 +169,7 @@ static void MLOCKED handle_sctp_sigalrm(int dummy)
  *	server writer
  */
 static int stress_sctp_server(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid)
 {
@@ -269,7 +269,7 @@ die:
  *  stress_sctp
  *	stress SCTP by heavy SCTP network I/O
  */
-int stress_sctp(args_t *args)
+int stress_sctp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 
@@ -291,7 +291,7 @@ again:
 	}
 }
 #else
-int stress_sctp(args_t *args)
+int stress_sctp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

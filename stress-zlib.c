@@ -222,7 +222,7 @@ static const char *stress_zlib_err(const int zlib_err)
  *	inflate compressed data out of the read
  *	end of a pipe fd
  */
-static int stress_zlib_inflate(args_t *args, const int fd)
+static int stress_zlib_inflate(const args_t *args, const int fd)
 {
 	int ret;
 	z_stream stream_inf;
@@ -269,7 +269,7 @@ static int stress_zlib_inflate(args_t *args, const int fd)
  *	write end of a pipe fd
  */
 static int stress_zlib_deflate(
-	args_t *args,
+	const args_t *args,
 	const int fd)
 {
 	int ret;
@@ -341,7 +341,7 @@ static int stress_zlib_deflate(
  *  stress_zlib()
  *	stress cpu with compression and decompression
  */
-int stress_zlib(args_t *args)
+int stress_zlib(const args_t *args)
 {
 	int ret, fds[2], status;
 	pid_t pid;
@@ -379,7 +379,7 @@ int stress_zlib(args_t *args)
 	return ret;
 }
 #else
-int stress_zlib(args_t *args)
+int stress_zlib(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -1892,7 +1892,7 @@ again:
 						(void)perf_enable(&stats[n].sp);
 #endif
 					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
-						args_t args = {
+						const args_t args = {
 							&stats[n].counter,
 							name,
 							procs[i].bogo_ops,

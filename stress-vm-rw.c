@@ -34,7 +34,7 @@
 #define STACK_SIZE	(64 * 1024)
 
 typedef struct {
-	args_t *args;
+	const args_t *args;
 	size_t page_size;
 	size_t sz;
 	pid_t pid;
@@ -68,7 +68,7 @@ void stress_set_vm_rw_bytes(const char *optarg)
 static int stress_vm_child(void *arg)
 {
 	context_t *ctxt = (context_t *)arg;
-	args_t *args = ctxt->args;
+	const args_t *args = ctxt->args;
 
 	uint8_t *buf;
 	int ret = EXIT_SUCCESS;
@@ -159,7 +159,7 @@ static int stress_vm_parent(context_t *ctxt)
 	uint8_t val = 0;
 	uint8_t *localbuf;
 	addr_msg_t msg_rd, msg_wr;
-	args_t *args = ctxt->args;
+	const args_t *args = ctxt->args;
 
 	(void)setpgid(ctxt->pid, pgrp);
 
@@ -279,7 +279,7 @@ fail:
  *  stress_vm_rw
  *	stress vm_read_v/vm_write_v
  */
-int stress_vm_rw(args_t *args)
+int stress_vm_rw(const args_t *args)
 {
 	context_t ctxt;
 	uint8_t stack[64*1024];
@@ -324,7 +324,7 @@ again:
 	return stress_vm_parent(&ctxt);
 }
 #else
-int stress_vm_rw(args_t *args)
+int stress_vm_rw(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

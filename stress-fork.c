@@ -59,7 +59,7 @@ void stress_set_vfork_max(const char *optarg)
  *	fork function fork_fn (fork or vfork)
  */
 static int stress_fork_fn(
-	args_t *args,
+	const args_t *args,
 	pid_t (*fork_fn)(void),
 	const uint64_t fork_max)
 {
@@ -106,7 +106,7 @@ static int stress_fork_fn(
  *  stress_fork()
  *	stress by forking and exiting
  */
-int stress_fork(args_t *args)
+int stress_fork(const args_t *args)
 {
 	if (!set_fork_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -123,7 +123,7 @@ int stress_fork(args_t *args)
  *  stress_vfork()
  *	stress by vforking and exiting
  */
-int stress_vfork(args_t *args)
+int stress_vfork(const args_t *args)
 {
 	if (!set_vfork_max) {
 		if (opt_flags & OPT_FLAGS_MAXIMIZE)

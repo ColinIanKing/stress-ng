@@ -38,7 +38,7 @@
  *  stress_urandom
  *	stress reading of /dev/urandom
  */
-int stress_urandom(args_t *args)
+int stress_urandom(const args_t *args)
 {
 	int fd_urnd, rc = EXIT_FAILURE;
 #if defined(DEV_RANDOM)
@@ -105,7 +105,7 @@ err:
 	return rc;
 }
 #else
-int stress_urandom(args_t *args)
+int stress_urandom(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

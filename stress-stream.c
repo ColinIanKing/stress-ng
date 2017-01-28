@@ -104,7 +104,7 @@ static void stress_stream_init_data(
 		data[i] = (double)mwc32() / (double)mwc64();
 }
 
-static inline void *stress_stream_mmap(args_t *args, uint64_t sz)
+static inline void *stress_stream_mmap(const args_t *args, uint64_t sz)
 {
 	void *ptr;
 
@@ -122,7 +122,7 @@ static inline void *stress_stream_mmap(args_t *args, uint64_t sz)
 	return ptr;
 }
 
-static inline uint64_t stream_L3_size(args_t *args)
+static inline uint64_t stream_L3_size(const args_t *args)
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
@@ -172,7 +172,7 @@ static inline uint64_t stream_L3_size(args_t *args)
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
  */
-int stress_stream(args_t *args)
+int stress_stream(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	double *a, *b, *c;

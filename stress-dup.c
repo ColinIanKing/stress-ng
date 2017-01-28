@@ -28,7 +28,7 @@
  *  stress_dup()
  *	stress system by rapid dup/close calls
  */
-int stress_dup(args_t *args)
+int stress_dup(const args_t *args)
 {
 	int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();

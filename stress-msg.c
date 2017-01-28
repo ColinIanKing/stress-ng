@@ -37,7 +37,7 @@ typedef struct {
 	char msg[MAX_SIZE];
 } msg_t;
 
-static int stress_msg_getstats(args_t *args, const int msgq_id)
+static int stress_msg_getstats(const args_t *args, const int msgq_id)
 {
 	struct msqid_ds buf;
 #if defined(__linux__)
@@ -66,7 +66,7 @@ static int stress_msg_getstats(args_t *args, const int msgq_id)
  *  stress_msg
  *	stress by message queues
  */
-int stress_msg(args_t *args)
+int stress_msg(const args_t *args)
 {
 	pid_t pid;
 	int msgq_id;
@@ -147,7 +147,7 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_msg(args_t *args)
+int stress_msg(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

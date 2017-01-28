@@ -28,7 +28,7 @@
  *  stress_jmp()
  *	stress system by setjmp/longjmp calls
  */
-int stress_longjmp(args_t *args)
+int stress_longjmp(const args_t *args)
 {
 	int ret;
 	static jmp_buf buf;

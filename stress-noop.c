@@ -28,7 +28,7 @@
  *  stress_noop()
  *	stress that does nowt
  */
-int stress_noop(args_t *args)
+int stress_noop(const args_t *args)
 {
 	(void)args;
 

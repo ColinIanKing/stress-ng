@@ -50,7 +50,7 @@ int stress_set_udp_flood_domain(const char *name)
  *  stress_udp_flood
  *	UDP flood
  */
-int stress_udp_flood(args_t *args)
+int stress_udp_flood(const args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	int port = 1024;
@@ -90,7 +90,7 @@ int stress_udp_flood(args_t *args)
 	return rc;
 }
 #else
-int stress_udp_flood(args_t *args)
+int stress_udp_flood(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

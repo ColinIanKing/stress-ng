@@ -37,8 +37,8 @@
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*inotify_helper)(args_t *args, const char *path, const void *private);
-typedef void (*inotify_func)(args_t *args, const char *path);
+typedef int (*inotify_helper)(const args_t *args, const char *path, const void *private);
+typedef void (*inotify_func)(const args_t *args, const char *path);
 
 typedef struct {
 	const inotify_func func;
@@ -51,7 +51,7 @@ typedef struct {
  *	required inotify event flags 'flags'.
  */
 static void inotify_exercise(
-	args_t *args,		/* Stressor args */
+	const args_t *args,	/* Stressor args */
 	const char *filename,	/* Filename in test */
 	const char *watchname,	/* File or directory to watch using inotify */
 	const char *matchname,	/* Filename we expect inotify event to report */
@@ -177,7 +177,7 @@ cleanup:
  *  rm_file()
  *	remove a file
  */
-static int rm_file(args_t *args, const char *path)
+static int rm_file(const args_t *args, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
@@ -191,7 +191,7 @@ static int rm_file(args_t *args, const char *path)
  *  rm_dir()
  *	clean files in directory and directory
  */
-static int rm_dir(args_t *args, const char *path)
+static int rm_dir(const args_t *args, const char *path)
 {
 	DIR *dp;
 	int ret;
@@ -224,7 +224,7 @@ static int rm_dir(args_t *args, const char *path)
  *  mk_dir()
  *	make a directory
  */
-static int mk_dir(args_t *args, const char *path)
+static int mk_dir(const args_t *args, const char *path)
 {
 	if (mkdir(path, DIR_FLAGS) < 0) {
 		pr_err("%s: cannot mkdir %s: errno=%d (%s)\n",
@@ -251,7 +251,7 @@ static inline void mk_filename(
  *  mk_file()
  *	create file of length len bytes
  */
-static int mk_file(args_t *args, const char *filename, const size_t len)
+static int mk_file(const args_t *args, const char *filename, const size_t len)
 {
 	int fd;
 	size_t sz = len;
@@ -289,7 +289,7 @@ static int mk_file(args_t *args, const char *filename, const size_t len)
 
 
 static int inotify_attrib_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -302,7 +302,7 @@ static int inotify_attrib_helper(
 	return 0;
 }
 
-static void inotify_attrib_file(args_t *args, const char *path)
+static void inotify_attrib_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -316,7 +316,7 @@ static void inotify_attrib_file(args_t *args, const char *path)
 }
 
 static int inotify_access_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -344,7 +344,7 @@ do_access:
 	return rc;
 }
 
-static void inotify_access_file(args_t *args, const char *path)
+static void inotify_access_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -358,7 +358,7 @@ static void inotify_access_file(args_t *args, const char *path)
 }
 
 static int inotify_modify_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -388,7 +388,7 @@ remove:
 	return rc;
 }
 
-static void inotify_modify_file(args_t *args, const char *path)
+static void inotify_modify_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -398,7 +398,7 @@ static void inotify_modify_file(args_t *args, const char *path)
 }
 
 static int inotify_creat_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -413,7 +413,7 @@ static int inotify_creat_helper(
 	return 0;
 }
 
-static void inotify_creat_file(args_t *args, const char *path)
+static void inotify_creat_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -424,7 +424,7 @@ static void inotify_creat_file(args_t *args, const char *path)
 }
 
 static int inotify_open_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -440,7 +440,7 @@ static int inotify_open_helper(
 	return 0;
 }
 
-static void inotify_open_file(args_t *args, const char *path)
+static void inotify_open_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -453,7 +453,7 @@ static void inotify_open_file(args_t *args, const char *path)
 }
 
 static int inotify_delete_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -462,7 +462,7 @@ static int inotify_delete_helper(
 	return rm_file(args, path);
 }
 
-static void inotify_delete_file(args_t *args, const char *path)
+static void inotify_delete_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -476,7 +476,7 @@ static void inotify_delete_file(args_t *args, const char *path)
 }
 
 static int inotify_delete_self_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *dummy)
 {
@@ -485,7 +485,7 @@ static int inotify_delete_self_helper(
 	return rm_dir(args, path);
 }
 
-static void inotify_delete_self(args_t *args, const char *path)
+static void inotify_delete_self(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -499,7 +499,7 @@ static void inotify_delete_self(args_t *args, const char *path)
 }
 
 static int inotify_move_self_helper(
-	args_t *args,
+	const args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -513,7 +513,7 @@ static int inotify_move_self_helper(
 	return 0;
 }
 
-static void inotify_move_self(args_t *args, const char *path)
+static void inotify_move_self(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX], newpath[PATH_MAX];
 
@@ -529,7 +529,7 @@ static void inotify_move_self(args_t *args, const char *path)
 }
 
 static int inotify_moved_to_helper(
-	args_t *args,
+	const args_t *args,
 	const char *newpath,
 	const void *private)
 {
@@ -543,7 +543,7 @@ static int inotify_moved_to_helper(
 	return 0;
 }
 
-static void inotify_moved_to(args_t *args, const char *path)
+static void inotify_moved_to(const args_t *args, const char *path)
 {
 	char olddir[PATH_MAX], oldfile[PATH_MAX], newfile[PATH_MAX];
 
@@ -563,7 +563,7 @@ static void inotify_moved_to(args_t *args, const char *path)
 }
 
 static int inotify_moved_from_helper(
-	args_t *args,
+	const args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -577,7 +577,7 @@ static int inotify_moved_from_helper(
 	return 0;
 }
 
-static void inotify_moved_from(args_t *args, const char *path)
+static void inotify_moved_from(const args_t *args, const char *path)
 {
 	char oldfile[PATH_MAX], newdir[PATH_MAX], newfile[PATH_MAX];
 
@@ -597,7 +597,7 @@ static void inotify_moved_from(args_t *args, const char *path)
 }
 
 static int inotify_close_write_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *fdptr)
 {
@@ -608,7 +608,7 @@ static int inotify_close_write_helper(
 	return 0;
 }
 
-static void inotify_close_write_file(args_t *args, const char *path)
+static void inotify_close_write_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 	int fd;
@@ -630,7 +630,7 @@ static void inotify_close_write_file(args_t *args, const char *path)
 }
 
 static int inotify_close_nowrite_helper(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const void *fdptr)
 {
@@ -641,7 +641,7 @@ static int inotify_close_nowrite_helper(
 	return 0;
 }
 
-static void inotify_close_nowrite_file(args_t *args, const char *path)
+static void inotify_close_nowrite_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 	int fd;
@@ -683,7 +683,7 @@ static const inotify_stress_t inotify_stressors[] = {
  *  stress_inotify()
  *	stress inotify
  */
-int stress_inotify(args_t *args)
+int stress_inotify(const args_t *args)
 {
 	char dirname[PATH_MAX];
 	int ret, i;
@@ -702,7 +702,7 @@ int stress_inotify(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_inotify(args_t *args)
+int stress_inotify(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

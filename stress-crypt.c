@@ -37,7 +37,7 @@
  *	crypt a password with given seed and id
  */
 static int stress_crypt_id(
-	args_t *args,
+	const args_t *args,
 	const char id,
 	const char *method,
 	const char *passwd,
@@ -64,7 +64,7 @@ static int stress_crypt_id(
  *  stress_crypt()
  *	stress libc crypt
  */
-int stress_crypt(args_t *args)
+int stress_crypt(const args_t *args)
 {
 	do {
 		static const char seedchars[] =
@@ -98,7 +98,7 @@ int stress_crypt(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_crypt(args_t *args)
+int stress_crypt(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

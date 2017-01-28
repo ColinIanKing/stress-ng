@@ -76,7 +76,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
  *  stress_msync()
  *	stress msync
  */
-int stress_msync(args_t *args)
+int stress_msync(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = stress_get_pagesize();
@@ -237,7 +237,7 @@ err:
 	return rc;
 }
 #else
-int stress_msync(args_t *args)
+int stress_msync(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

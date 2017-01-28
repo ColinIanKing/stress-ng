@@ -113,7 +113,7 @@ static inline void rdtsc(void)
  *  stress_tsc()
  *      stress Intel tsc instruction
  */
-int stress_tsc(args_t *args)
+int stress_tsc(const args_t *args)
 {
 	if (tsc_supported) {
 		do {
@@ -144,7 +144,7 @@ int stress_tsc_supported(void)
  *  stress_tsc()
  *      no-op for non-intel
  */
-int stress_tsc(args_t *args)
+int stress_tsc(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

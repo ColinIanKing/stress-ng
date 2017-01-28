@@ -33,7 +33,7 @@ static volatile bool keep_running;
 static sigset_t set;
 
 typedef struct ctxt {
-	args_t *args;
+	const args_t *args;
 	const char *path;
 	char *badbuf;
 } ctxt_t;
@@ -43,7 +43,7 @@ typedef struct ctxt {
  *	read a proc file
  */
 static inline void stress_sys_rw(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	char *badbuf)
 {
@@ -126,7 +126,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
-	args_t *args = ctxt->args;
+	const args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -158,7 +158,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
  *  stress_proc_sys_threads()
  *	create a bunch of threads to thrash read a sys entry
  */
-static void stress_sys_rw_threads(args_t *args, const char *path)
+static void stress_sys_rw_threads(const args_t *args, const char *path)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
@@ -202,7 +202,7 @@ static void stress_sys_rw_threads(args_t *args, const char *path)
  *	read directory
  */
 static void stress_sys_dir(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -257,7 +257,7 @@ static void stress_sys_dir(
  *  stress_sysfs
  *	stress reading all of /sys
  */
-int stress_sysfs(args_t *args)
+int stress_sysfs(const args_t *args)
 {
 	bool sys_rw = true;
 
@@ -277,7 +277,7 @@ int stress_sysfs(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sysfs(args_t *args)
+int stress_sysfs(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

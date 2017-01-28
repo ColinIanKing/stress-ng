@@ -754,13 +754,13 @@ extern bool __keep_stressing(const args_t *args);
 #define keep_stressing()	__keep_stressing(args)
 
 /* increment the stessor bogo ops counter */
-static inline void inc_counter(args_t *args)
+static inline void inc_counter(const args_t *args)
 {
 	(*(args->counter))++;
 }
 
 /* stress process prototype */
-typedef int (*stress_func)(args_t *args);
+typedef int (*stress_func)(const args_t *args);
 
 /* Help information for options */
 typedef struct {
@@ -1908,17 +1908,17 @@ static inline void double_put(const double a)
 extern int stress_temp_filename(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance,
 	const uint64_t magic);
-extern int stress_temp_filename_args(args_t *args, char *path,
+extern int stress_temp_filename_args(const args_t *args, char *path,
 	const size_t len, const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance);
-extern int stress_temp_dir_args(args_t *args, char *path, const size_t len);
+extern int stress_temp_dir_args(const args_t *args, char *path, const size_t len);
 extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern WARN_UNUSED int stress_temp_dir_mk_args(args_t *args);
+extern WARN_UNUSED int stress_temp_dir_mk_args(const args_t *args);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern int stress_temp_dir_rm_args(args_t *args);
+extern int stress_temp_dir_rm_args(const args_t *args);
 extern void stress_cwd_readwriteable(void);
 
 extern const char *stress_strsignal(const int signum);
@@ -2093,7 +2093,7 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
-extern WARN_UNUSED int stress_not_implemented(args_t *args);
+extern WARN_UNUSED int stress_not_implemented(const args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *align_address(const void *addr, const size_t alignment);
 extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
@@ -2367,7 +2367,7 @@ extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_sysfs(int option, ...);
 
-#define STRESS(func) extern int func(args_t *args);
+#define STRESS(func) extern int func(const args_t *args);
 
 /* Stressors */
 STRESS(stress_affinity);

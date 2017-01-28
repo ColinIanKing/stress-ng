@@ -53,7 +53,7 @@ static void SECTION(stress_icache_callee) ALIGNED(SIZE) stress_icache_func(void)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
+int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(const args_t *args)
 {
 	uint8_t *addr = (uint8_t *)stress_icache_func;
 	const size_t page_size = stress_get_pagesize();
@@ -132,7 +132,7 @@ int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_icache(args_t *args)
+int stress_icache(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

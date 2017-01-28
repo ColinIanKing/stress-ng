@@ -28,7 +28,7 @@
  *  stress_zero
  *	stress reading of /dev/zero
  */
-int stress_zero(args_t *args)
+int stress_zero(const args_t *args)
 {
 	int fd;
 	const size_t page_size = stress_get_pagesize();

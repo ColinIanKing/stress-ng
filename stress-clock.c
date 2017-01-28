@@ -98,7 +98,7 @@ static char *stress_clock_name(int id)
  *  stress_clock()
  *	stress system by rapid clocking system calls
  */
-int stress_clock(args_t *args)
+int stress_clock(const args_t *args)
 {
 	do {
 		size_t i;

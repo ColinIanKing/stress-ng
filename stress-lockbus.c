@@ -56,7 +56,7 @@
  *  stress_lockbus()
  *      stress memory with lock and increment
  */
-int stress_lockbus(args_t *args)
+int stress_lockbus(const args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
@@ -92,7 +92,7 @@ int stress_lockbus(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_lockbus(args_t *args)
+int stress_lockbus(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

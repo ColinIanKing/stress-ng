@@ -116,7 +116,7 @@ static int fanotify_event_init(const char *name)
  *  stress_fanotify()
  *	stress fanotify
  */
-int stress_fanotify(args_t *args)
+int stress_fanotify(const args_t *args)
 {
 	char dirname[PATH_MAX], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
@@ -269,7 +269,7 @@ tidy:
 	return rc;
 }
 #else
-int stress_fanotify(args_t *args)
+int stress_fanotify(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

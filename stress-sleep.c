@@ -29,7 +29,7 @@
 #include <sys/select.h>
 
 typedef struct {
-	args_t *args;
+	const args_t *args;
 	uint64_t counter;
 	pthread_t pthread;
 } ctxt_t;
@@ -72,7 +72,7 @@ static void *stress_pthread_func(void *c)
 	stack_t ss;
 	static void *nowt = NULL;
 	ctxt_t *ctxt = (ctxt_t *)c;
-	args_t *args = (args_t *)ctxt->args;
+	const args_t *args = (args_t *)ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -147,7 +147,7 @@ die:
  *  stress_sleep()
  *	stress by many sleeping threads
  */
-int stress_sleep(args_t *args)
+int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	ctxt_t    ctxts[MAX_SLEEP];
@@ -212,7 +212,7 @@ tidy:
 	return ret;
 }
 #else
-int stress_sleep(args_t *args)
+int stress_sleep(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

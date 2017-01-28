@@ -41,7 +41,7 @@ static const int modes[] = {
  *	remove all files
  */
 static void stress_mknod_tidy(
-	args_t *args,
+	const args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -60,7 +60,7 @@ static void stress_mknod_tidy(
  *  stress_mknod
  *	stress mknod creates
  */
-int stress_mknod(args_t *args)
+int stress_mknod(const args_t *args)
 {
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;

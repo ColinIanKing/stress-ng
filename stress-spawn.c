@@ -32,7 +32,7 @@
  *  stress_spawn()
  *	stress by forking and spawn'ing
  */
-int stress_spawn(args_t *args)
+int stress_spawn(const args_t *args)
 {
 	char path[PATH_MAX + 1];
 	ssize_t len;
@@ -90,7 +90,7 @@ int stress_spawn(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_spawn(args_t *args)
+int stress_spawn(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

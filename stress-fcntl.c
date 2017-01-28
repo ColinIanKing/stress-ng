@@ -28,7 +28,7 @@
  *  check_return()
  *	sanity check fcntl() return for errors
  */
-static void check_return(args_t *args, const int ret, const char *cmd)
+static void check_return(const args_t *args, const int ret, const char *cmd)
 {
 	if (ret < 0) {
 		pr_fail("%s: fcntl %s failed: "
@@ -40,7 +40,7 @@ static void check_return(args_t *args, const int ret, const char *cmd)
 /*
  *  do_fcntl()
  */
-static int do_fcntl(args_t *args, const int fd)
+static int do_fcntl(const args_t *args, const int fd)
 {
 #if defined(F_DUPFD)
 	{
@@ -373,7 +373,7 @@ ofd_lock_abort:	{ /* Nowt */ }
  *  stress_fcntl
  *	stress various fcntl calls
  */
-int stress_fcntl(args_t *args)
+int stress_fcntl(const args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;

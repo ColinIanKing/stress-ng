@@ -128,7 +128,7 @@ static MLOCKED void handle_shm_sysv_sigalrm(int dummy)
  *	be reaped cleanly if this process gets prematurely killed.
  */
 static int stress_shm_sysv_child(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	const size_t max_sz,
 	const size_t page_size)
@@ -343,7 +343,7 @@ reap:
  *  stress_shm_sysv()
  *	stress SYSTEM V shared memory
  */
-int stress_shm_sysv(args_t *args)
+int stress_shm_sysv(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t orig_sz, sz;

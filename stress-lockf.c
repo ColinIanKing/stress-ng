@@ -125,7 +125,7 @@ static void stress_lockf_info_free(void)
  *  stress_lockf_unlock()
  *	pop oldest lock record off list and unlock it
  */
-static int stress_lockf_unlock(args_t *args, const int fd)
+static int stress_lockf_unlock(const args_t *args, const int fd)
 {
 	/* Pop one off list */
 	if (!lockf_infos.head)
@@ -149,7 +149,7 @@ static int stress_lockf_unlock(args_t *args, const int fd)
  *	hammer lock/unlock to create some file lock contention
  */
 static int stress_lockf_contention(
-	args_t *args,
+	const args_t *args,
 	const int fd)
 {
 	const int lockf_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
@@ -195,7 +195,7 @@ static int stress_lockf_contention(
  *  stress_lockf
  *	stress file locking via lockf()
  */
-int stress_lockf(args_t *args)
+int stress_lockf(const args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t cpid = -1;
@@ -296,7 +296,7 @@ tidy:
 	return ret;
 }
 #else
-int stress_lockf(args_t *args)
+int stress_lockf(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

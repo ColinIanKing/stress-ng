@@ -30,7 +30,7 @@
  *  stress_flock
  *	stress file locking
  */
-int stress_flock(args_t *args)
+int stress_flock(const args_t *args)
 {
 	int fd;
 	pid_t ppid = getppid();
@@ -88,7 +88,7 @@ retry:
 
 #else
 
-int stress_flock(args_t *args)
+int stress_flock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

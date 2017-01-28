@@ -58,8 +58,8 @@ static void MLOCKED stress_lease_handler(int dummy)
  *	spawn a process
  */
 static pid_t stress_lease_spawn(
-	const char *filename,
-	args_t *args)
+	const args_t *args,
+	const char *filename)
 {
 	pid_t pid;
 
@@ -105,7 +105,7 @@ again:
  *  stress_lease
  *	stress by fcntl lease activity
  */
-int stress_lease(args_t *args)
+int stress_lease(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd, status;
@@ -134,7 +134,7 @@ int stress_lease(args_t *args)
 	(void)close(fd);
 
 	for (i = 0; i < opt_lease_breakers; i++) {
-		l_pids[i] = stress_lease_spawn(filename, args);
+		l_pids[i] = stress_lease_spawn(args, filename);
 		if (l_pids[i] < 0) {
 			pr_err("%s: failed to start all the lease breaker processes\n", args->name);
 			goto reap;
@@ -184,7 +184,7 @@ reap:
 	return ret;
 }
 #else
-int stress_lease(args_t *args)
+int stress_lease(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

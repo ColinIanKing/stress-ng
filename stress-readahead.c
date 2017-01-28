@@ -42,7 +42,7 @@ void stress_set_readahead_bytes(const char *optarg)
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 
 static int do_readahead(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	off_t *offsets,
 	const uint64_t readahead_bytes)
@@ -63,7 +63,7 @@ static int do_readahead(
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
-int stress_readahead(args_t *args)
+int stress_readahead(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint64_t readahead_bytes, i;
@@ -211,7 +211,7 @@ finish:
 	return rc;
 }
 #else
-int stress_readahead(args_t *args)
+int stress_readahead(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

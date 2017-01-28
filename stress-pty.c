@@ -41,7 +41,7 @@ typedef struct {
  *  stress_pty
  *	stress pyt handling
  */
-int stress_pty(args_t *args)
+int stress_pty(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 
@@ -170,7 +170,7 @@ clean:
 	return rc;
 }
 #else
-int stress_pty(args_t *args)
+int stress_pty(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

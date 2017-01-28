@@ -30,7 +30,7 @@
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
-int stress_affinity(args_t *args)
+int stress_affinity(const args_t *args)
 {
 	uint32_t cpu = args->instance;
 	const uint32_t cpus = stress_get_processors_configured();

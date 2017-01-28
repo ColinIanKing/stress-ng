@@ -30,7 +30,7 @@
 #define MAX_READ_THREADS	(4)
 
 typedef struct ctxt {
-	args_t *args;
+	const args_t *args;
 	const char *path;
 	char *badbuf;
 	bool proc_write;
@@ -118,7 +118,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
-	args_t *args = ctxt->args;
+	const args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -150,7 +150,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
  *  stress_proc_rw_threads()
  *	create a bunch of threads to thrash read a proc entry
  */
-static void stress_proc_rw_threads(args_t *args, char *path, const bool proc_write)
+static void stress_proc_rw_threads(const args_t *args, char *path, const bool proc_write)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
@@ -194,7 +194,7 @@ static void stress_proc_rw_threads(args_t *args, char *path, const bool proc_wri
  *	read directory
  */
 static void stress_proc_dir(
-	args_t *args,
+	const args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -246,7 +246,7 @@ static void stress_proc_dir(
  *  stress_procfs
  *	stress reading all of /proc
  */
-int stress_procfs(args_t *args)
+int stress_procfs(const args_t *args)
 {
 	bool proc_write = true;
 
@@ -323,7 +323,7 @@ int stress_procfs(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_procfs(args_t *args)
+int stress_procfs(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -55,7 +55,7 @@ static int mmap_flags[] = {
  *	will enforce and automatic space reap if the child process
  *	exits prematurely.
  */
-static int stress_tmpfs_open(args_t *args, off_t *len)
+static int stress_tmpfs_open(const args_t *args, off_t *len)
 {
 	uint32_t rnd = mwc32();
 	char path[PATH_MAX];
@@ -127,7 +127,7 @@ static int stress_tmpfs_open(args_t *args, off_t *len)
 }
 
 static void stress_tmpfs_child(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	int *flags,
 	const size_t page_size,
@@ -265,7 +265,7 @@ cleanup:
  *  stress_tmpfs()
  *	stress tmpfs
  */
-int stress_tmpfs(args_t *args)
+int stress_tmpfs(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	off_t sz;
@@ -362,7 +362,7 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tmpfs(args_t *args)
+int stress_tmpfs(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -605,7 +605,7 @@ static const apparmor_func apparmor_funcs[] = {
  *  stress_apparmor()
  *	stress AppArmor
  */
-int stress_apparmor(args_t *args)
+int stress_apparmor(const args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	const size_t counters_sz = n * sizeof(uint64_t);
@@ -661,7 +661,7 @@ int stress_apparmor_supported(void)
 	return -1;
 }
 
-int stress_apparmor(args_t *args)
+int stress_apparmor(const args_t *args)
 {
 	return stress_not_implemented(args);
 

@@ -32,7 +32,7 @@
  *  stress_xattr
  *	stress the xattr operations
  */
-int stress_xattr(args_t *args)
+int stress_xattr(const args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -142,7 +142,7 @@ out:
 	return rc;
 }
 #else
-int stress_xattr(args_t *args)
+int stress_xattr(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

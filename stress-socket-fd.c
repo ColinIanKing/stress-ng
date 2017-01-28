@@ -132,7 +132,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *	client reader
  */
 static void stress_socket_client(
-	args_t *args,
+	const args_t *args,
 	const pid_t ppid,
 	const size_t max_fd)
 {
@@ -207,7 +207,7 @@ static void MLOCKED handle_socket_sigalrm(int dummy)
  *	server writer
  */
 static int stress_socket_server(
-	args_t *args,
+	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const size_t max_fd)
@@ -291,7 +291,7 @@ die:
  *  stress_sockfd
  *	stress socket fd passing
  */
-int stress_sockfd(args_t *args)
+int stress_sockfd(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	const size_t max_fd = stress_get_file_limit();
@@ -313,7 +313,7 @@ again:
 	}
 }
 #else
-int stress_sockfd(args_t *args)
+int stress_sockfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

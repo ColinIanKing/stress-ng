@@ -116,7 +116,7 @@ static inline uint64_t rdrand64(void)
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
-int stress_rdrand(args_t *args)
+int stress_rdrand(const args_t *args)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
@@ -161,7 +161,7 @@ int stress_rdrand_supported(void)
  *  stress_rdrand()
  *      no-op for non-intel
  */
-int stress_rdrand(args_t *args)
+int stress_rdrand(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

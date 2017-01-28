@@ -28,7 +28,7 @@
  *  stress on sync()
  *	stress system by IO sync calls
  */
-int stress_io(args_t *args)
+int stress_io(const args_t *args)
 {
 #if defined(__linux__)
 	int fd;

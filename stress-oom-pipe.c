@@ -71,7 +71,7 @@ static void pipe_fill(const int fd, const size_t max)
  *
  */
 static int stress_oom_pipe_expander(
-	args_t *args,
+	const args_t *args,
 	const size_t max_pipe_size,
 	const int max_pipes)
 {
@@ -193,7 +193,7 @@ clean:
  *  stress_oom_pipe
  *	stress pipe memory allocation
  */
-int stress_oom_pipe(args_t *args)
+int stress_oom_pipe(const args_t *args)
 {
 	const size_t max_fd = stress_get_file_limit();
 	const size_t max_pipes = max_fd / 2;
@@ -205,7 +205,7 @@ int stress_oom_pipe(args_t *args)
 	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes);
 }
 #else
-int stress_oom_pipe(args_t *args)
+int stress_oom_pipe(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

@@ -41,7 +41,7 @@ static const whences_t whences[] = {
  *  stress_full
  *	stress /dev/full
  */
-int stress_full(args_t *args)
+int stress_full(const args_t *args)
 {
 	do {
 		ssize_t ret;
@@ -114,7 +114,7 @@ try_read:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_full(args_t *args)
+int stress_full(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

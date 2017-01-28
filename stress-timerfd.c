@@ -80,7 +80,7 @@ static void stress_timerfd_set(struct itimerspec *timer)
  *  stress_timerfd
  *	stress timerfd
  */
-int stress_timerfd(args_t *args)
+int stress_timerfd(const args_t *args)
 {
 	struct itimerspec timer;
 
@@ -153,7 +153,7 @@ int stress_timerfd(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_timerfd(args_t *args)
+int stress_timerfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

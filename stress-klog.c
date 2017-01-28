@@ -42,7 +42,7 @@
  *  stress_klog
  *	stress kernel logging interface
  */
-int stress_klog(args_t *args)
+int stress_klog(const args_t *args)
 {
 	char *buffer;
 	ssize_t len;
@@ -100,7 +100,7 @@ int stress_klog(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_klog(args_t *args)
+int stress_klog(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

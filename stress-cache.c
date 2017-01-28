@@ -55,7 +55,7 @@
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */
-int stress_cache(args_t *args)
+int stress_cache(const args_t *args)
 {
 #if defined(__linux__)
 	cpu_set_t mask;

@@ -28,7 +28,7 @@
  *  stress on sched_kill()
  *	stress system by rapid kills
  */
-int stress_kill(args_t *args)
+int stress_kill(const args_t *args)
 {
 	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;

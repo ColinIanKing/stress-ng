@@ -88,7 +88,7 @@ static int stress_shm_posix_check(
  *	be reaped cleanly if this process gets prematurely killed.
  */
 static int stress_shm_posix_child(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	size_t sz)
 {
@@ -227,7 +227,7 @@ reap:
  *  stress_shm()
  *	stress SYSTEM V shared memory
  */
-int stress_shm(args_t *args)
+int stress_shm(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t orig_sz, sz;
@@ -359,7 +359,7 @@ fork_again:
 	return rc;
 }
 #else
-int stress_shm(args_t *args)
+int stress_shm(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

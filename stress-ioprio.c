@@ -35,7 +35,7 @@
  *  stress set/get io priorities
  *	stress system by rapid io priority changes
  */
-int stress_ioprio(args_t *args)
+int stress_ioprio(const args_t *args)
 {
 	const uid_t uid = getuid();
 	const pid_t grp = getpgrp();
@@ -170,7 +170,7 @@ cleanup_dir:
 	return rc;
 }
 #else
-int stress_ioprio(args_t *args)
+int stress_ioprio(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

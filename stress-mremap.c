@@ -72,7 +72,7 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
  *	try and remap old size to new size
  */
 static int try_remap(
-	args_t *args,
+	const args_t *args,
 	uint8_t **buf,
 	const size_t old_sz,
 	const size_t new_sz)
@@ -138,7 +138,7 @@ static int try_remap(
 }
 
 static int stress_mremap_child(
-	args_t *args,
+	const args_t *args,
 	const size_t sz,
 	size_t new_sz,
 	const size_t page_size,
@@ -218,7 +218,7 @@ static int stress_mremap_child(
  *  stress_mremap()
  *	stress mmap
  */
-int stress_mremap(args_t *args)
+int stress_mremap(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz, new_sz;
@@ -316,7 +316,7 @@ again:
 	return rc;
 }
 #else
-int stress_mremap(args_t *args)
+int stress_mremap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

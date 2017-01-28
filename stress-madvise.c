@@ -102,7 +102,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
  *  stress_madvise()
  *	stress madvise
  */
-int stress_madvise(args_t *args)
+int stress_madvise(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz = 4 *  MB;
@@ -216,7 +216,7 @@ int stress_madvise(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_madvise(args_t *args)
+int stress_madvise(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

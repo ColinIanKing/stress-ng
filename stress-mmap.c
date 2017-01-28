@@ -92,7 +92,7 @@ static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 }
 
 static void stress_mmap_child(
-	args_t *args,
+	const args_t *args,
 	const int fd,
 	int *flags,
 	const size_t page_size,
@@ -236,7 +236,7 @@ cleanup:
  *  stress_mmap()
  *	stress mmap
  */
-int stress_mmap(args_t *args)
+int stress_mmap(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t sz, pages4k;

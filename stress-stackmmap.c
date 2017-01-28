@@ -65,7 +65,7 @@ static void stress_stackmmap_push_msync(void)
  *  stress_stackmmap
  *	stress a file memory map'd stack
  */
-int stress_stackmmap(args_t *args)
+int stress_stackmmap(const args_t *args)
 {
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
@@ -169,7 +169,7 @@ tidy_dir:
 	return rc;
 }
 #else
-int stress_stackmmap(args_t *args)
+int stress_stackmmap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

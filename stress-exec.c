@@ -45,7 +45,7 @@ void stress_set_exec_max(const char *optarg)
  *  stress_exec()
  *	stress by forking and exec'ing
  */
-int stress_exec(args_t *args)
+int stress_exec(const args_t *args)
 {
 	pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
@@ -144,7 +144,7 @@ int stress_exec(args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_exec(args_t *args)
+int stress_exec(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

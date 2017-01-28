@@ -42,7 +42,7 @@ static void MLOCKED stress_segvhandler(int dummy)
  *  stress_stack
  *	stress by forcing stack overflows
  */
-int stress_stack(args_t *args)
+int stress_stack(const args_t *args)
 {
 #if !defined(__minix__)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];

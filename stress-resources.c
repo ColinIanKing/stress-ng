@@ -300,7 +300,7 @@ static void MLOCKED stress_alrmhandler(int dummy)
  *  stress_resources()
  *	stress by forking and exiting
  */
-int stress_resources(args_t *args)
+int stress_resources(const args_t *args)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t pipe_size = stress_probe_max_pipe_size();

@@ -74,7 +74,7 @@ static inline size_t stress_alloc_size(void)
  *	stress malloc by performing a mix of
  *	allocation and frees
  */
-int stress_malloc(args_t *args)
+int stress_malloc(const args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
