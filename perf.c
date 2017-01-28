@@ -31,13 +31,12 @@
 #include <locale.h>
 #include <linux/perf_event.h>
 
-#define THOUSAND	(1000.0)
-#define MILLION		(THOUSAND * THOUSAND)
-#define BILLION		(THOUSAND * MILLION)
-#define TRILLION	(THOUSAND * BILLION)
-#define QUADRILLION	(THOUSAND * TRILLION)
-#define QUINTILLION	(THOUSAND * QUADRILLION)
-
+#define THOUSAND	(1.0E3)
+#define MILLION		(1.0E6)
+#define BILLION		(1.0E9)
+#define TRILLION	(1.0E12)
+#define QUADRILLION	(1.0E15)
+#define QUINTILLION	(1.0E18)
 
 /* used for table of perf events to gather */
 typedef struct {
