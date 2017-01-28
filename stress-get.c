@@ -211,11 +211,11 @@ int stress_get(args_t *args)
 				pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 					args->name, mypid, i, errno, strerror(errno));
 			if (!ret) {
-				prlimit(mypid, rlimits[i], &rlim[0], NULL);
+				ret = prlimit(mypid, rlimits[i], &rlim[0], NULL);
 				if (verify && (ret < 0))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
-				prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
+				ret = prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
 				if (verify && (ret < 0))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
