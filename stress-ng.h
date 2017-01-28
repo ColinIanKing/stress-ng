@@ -720,6 +720,15 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
 #endif
 
+/* optimisation on branching */
+#if defined(__GNUC__)
+#define LIKELY(x)	__builtin_expect((x),1)
+#define UNLIKELY(x)	__builtin_expect((x),0)
+#else
+#define LIKELY(x)	(x)
+#define UNLIKELY(x)	(x)
+#endif
+
 /* -O3 attribute support */
 #if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
 #define OPTIMIZE3 __attribute__((optimize("-O3")))
