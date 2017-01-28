@@ -47,6 +47,7 @@ typedef struct {
 	int pipe_ret;
 	int fd_open;
 	int fd_sock;
+	int fd_socketpair[2];
 #if defined(__NR_eventfd)
 	int fd_ev;
 #endif
@@ -162,6 +163,13 @@ static void waste_resources(
 			types[mwc32() % SIZEOF_ARRAY(types)], 0);
 		if (!opt_do_run)
 			break;
+
+		if (socketpair(AF_UNIX, SOCK_STREAM, 0,
+			info[i].fd_socketpair) < 0) {
+			info[i].fd_socketpair[0] = -1;
+			info[i].fd_socketpair[1] = -1;
+		}
+
 #if defined(__NR_userfaultfd)
 		info[i].fd_uf = shim_userfaultfd(0);
 		if (!opt_do_run)
@@ -244,6 +252,10 @@ static void waste_resources(
 #endif
 		if (info[i].fd_sock != -1)
 			(void)close(info[i].fd_sock);
+		if (info[i].fd_socketpair[0] != -1)
+			(void)close(info[i].fd_socketpair[0]);
+		if (info[i].fd_socketpair[1] != -1)
+			(void)close(info[i].fd_socketpair[1]);
 #if defined(__NR_userfaultfd)
 		if (info[i].fd_uf != -1)
 			(void)close(info[i].fd_uf);
