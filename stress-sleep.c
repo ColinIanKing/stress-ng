@@ -72,7 +72,7 @@ static void *stress_pthread_func(void *c)
 	stack_t ss;
 	static void *nowt = NULL;
 	ctxt_t *ctxt = (ctxt_t *)c;
-	const args_t *args = (args_t *)ctxt->args;
+	const args_t *args = (const args_t *)ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
