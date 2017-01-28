@@ -1852,11 +1852,6 @@ typedef struct cpu_cache {
 	uint32_t           ways;	/* cache ways */
 } cpu_cache_t;
 
-struct generic_map {
-	const char   *name;		/* cache type name */
-	uint32_t      value;		/* cache type ID */
-};
-
 typedef struct cpu {
 	uint32_t       num;		/* CPU # number */
 	bool           online;		/* CPU online when true */

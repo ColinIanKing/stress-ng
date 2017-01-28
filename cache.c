@@ -20,6 +20,11 @@
 
 #if defined(__linux__)
 
+typedef struct {
+	const char   *name;		/* cache type name */
+	uint32_t      value;		/* cache type ID */
+} generic_map_t;
+
 #include <glob.h>
 
 #if defined(__linux__)
@@ -36,7 +41,7 @@
 	memset((path) + len, '\0', sizeof(path) - len);	\
 	strncpy((path) + len, element, strlen(element))
 
-static const struct generic_map cache_type_map[] = {
+static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
 	{"unified"     , CACHE_TYPE_UNIFIED},
@@ -212,7 +217,7 @@ out:
  */
 static cache_type_t get_cache_type(const char *name)
 {
-	const struct generic_map *p;
+	const generic_map_t *p;
 
 	if (!name) {
 		pr_dbg("%s: no cache type specified\n", __func__);
@@ -237,7 +242,7 @@ out:
  */
 static const char * get_cache_name(cache_type_t type)
 {
-	const struct generic_map *p;
+	const generic_map_t *p;
 
 	for (p = cache_type_map; p && p->name; p++) {
 		if (p->value == type)
