@@ -673,6 +673,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
+/* restrict keyword */
 #if defined(__GNUC__) || defined(__clang__)
 #define RESTRICT __restrict
 #else
@@ -688,11 +689,12 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define NOCLOBBER
 #endif
 
-/*Specific compilers have __uint128_t type support */
+/* Specific compilers have __uint128_t type support */
 #if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
 #define STRESS_INT128	1
 #endif
 
+/* Linux supports ionice */
 #if defined(__linux__)
 #define STRESS_IONICE
 #endif
@@ -725,10 +727,12 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define OPTIMIZE3
 #endif
 
+/* warn unused attribute */
 #if defined(__GNUC__)
 #define WARN_UNUSED __attribute__((warn_unused_result))
 #endif
 
+/* waste some cycles */
 #if defined(__GNUC__) || defined(__clang__)
 #define FORCE_DO_NOTHING() __asm__ __volatile__("")
 #else
@@ -749,6 +753,7 @@ extern bool __keep_stressing(const args_t *args);
 
 #define keep_stressing()	__keep_stressing(args)
 
+/* increment the stessor bogo ops counter */
 static inline void inc_counter(args_t *args)
 {
 	(*(args->counter))++;
@@ -777,12 +782,14 @@ typedef struct {
 #define ALIGN64
 #endif
 
+/* GCC hot attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)
 #define HOT __attribute__ ((hot))
 #else
 #define HOT
 #endif
 
+/* GCC mlocked section attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
 #define MLOCKED __attribute__((__section__("mlocked")))
 #define MLOCKED_SECTION 1
@@ -790,6 +797,7 @@ typedef struct {
 #define MLOCKED
 #endif
 
+/* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) && \
     defined(__linux__) && \
     defined(__NR_perf_event_open)
@@ -854,6 +862,7 @@ typedef struct {
 } stress_perf_t;
 #endif
 
+/* linux thermal zones */
 #if defined(__linux__)
 #define	STRESS_THERMAL_ZONES	 (1)
 #define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
@@ -862,10 +871,10 @@ typedef struct {
 #if defined(STRESS_THERMAL_ZONES)
 /* per stressor thermal zone info */
 typedef struct tz_info {
-	char	*path;
-	char 	*type;
-	size_t	index;
-	struct tz_info *next;
+	char	*path;			/* thermal zone path */
+	char 	*type;			/* thermal zone type */
+	size_t	index;			/* thermal zone # index */
+	struct tz_info *next;		/* next thermal zone in list */
 } tz_info_t;
 
 typedef struct {
@@ -1828,36 +1837,36 @@ typedef struct {
 #if defined(__linux__)
 /* Cache types */
 typedef enum cache_type {
-	CACHE_TYPE_UNKNOWN = 0,
-	CACHE_TYPE_DATA,
-	CACHE_TYPE_INSTRUCTION,
-	CACHE_TYPE_UNIFIED,
+	CACHE_TYPE_UNKNOWN = 0,		/* Unknown type */
+	CACHE_TYPE_DATA,		/* D$ */
+	CACHE_TYPE_INSTRUCTION,		/* I$ */
+	CACHE_TYPE_UNIFIED,		/* D$ + I$ */
 } cache_type_t;
 
 /* CPU cache information */
 typedef struct cpu_cache {
-	uint16_t           level;
-	cache_type_t       type;
-	uint64_t           size;      /* bytes */
-	uint32_t           line_size; /* bytes */
-	uint32_t           ways;
+	uint16_t           level;	/* cache level, L1, L2 etc */
+	cache_type_t       type;	/* cache type */
+	uint64_t           size;      	/* cache size in bytes */
+	uint32_t           line_size;	/* cache line size in bytes */
+	uint32_t           ways;	/* cache ways */
 } cpu_cache_t;
 
 struct generic_map {
-	const char   *name;
-	uint32_t      value;
+	const char   *name;		/* cache type name */
+	uint32_t      value;		/* cache type ID */
 };
 
 typedef struct cpu {
-	uint32_t       num;
-	bool           online;
-	uint32_t       cache_count;
-	cpu_cache_t   *caches;
+	uint32_t       num;		/* CPU # number */
+	bool           online;		/* CPU online when true */
+	uint32_t       cache_count;	/* CPU cache #  */
+	cpu_cache_t   *caches;		/* CPU cache data */
 } cpu_t;
 
 typedef struct cpus {
-	uint32_t   count;
-	cpu_t     *cpus;
+	uint32_t   count;		/* CPU count */
+	cpu_t     *cpus;		/* CPU data */
 } cpus_t;
 #endif
 
@@ -2178,6 +2187,7 @@ extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level
 extern void free_cpu_caches(cpus_t *cpus);
 #endif
 
+/* CPU thrashing start/stop helpers */
 extern int  thrash_start(void);
 extern void thrash_stop(void);
 
@@ -2301,21 +2311,22 @@ struct shim_linux_dirent64 {
 	char		d_name[];	/* Filename (null-terminated) */
 };
 
+/* sched_getattr attributes */
 struct shim_sched_attr {
-	uint32_t size;
-	uint32_t sched_policy;
-	uint64_t sched_flags;
-	int32_t  sched_nice;
-	uint32_t sched_priority;
-	uint64_t sched_runtime;
-	uint64_t sched_deadline;
-	uint64_t sched_period;
+	uint32_t size;			/* size of struct */
+	uint32_t sched_policy;		/* policy, SCHED_* */
+	uint64_t sched_flags;		/* scheduling flags */
+	int32_t  sched_nice;		/* nice value SCHED_OTHER, SCHED_BATCH */
+	uint32_t sched_priority;	/* priority SCHED_FIFO, SCHED_RR */
+	uint64_t sched_runtime;		/* runtime SCHED_DEADLINE, ns */
+	uint64_t sched_deadline;	/* deadline time, ns */
+	uint64_t sched_period;		/* period, ns */
 };
 
 #if defined(__linux__)
-typedef	loff_t		shim_loff_t;
+typedef	loff_t		shim_loff_t;	/* loff_t shim for linux */
 #else
-typedef uint64_t	shim_loff_t;
+typedef uint64_t	shim_loff_t;	/* loff_t for any other OS */
 #endif
 
 extern int shim_ioprio_set(int which, int who, int ioprio);
