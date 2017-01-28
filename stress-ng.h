@@ -1978,7 +1978,7 @@ static inline void mwc_seed(const uint32_t w, const uint32_t z)
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-static inline uint32_t mwc32(void)
+static inline HOT OPTIMIZE3 uint32_t mwc32(void)
 {
 	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
 	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
@@ -1989,7 +1989,7 @@ static inline uint32_t mwc32(void)
  *  mwc64()
  *	get a 64 bit pseudo random number
  */
-static inline uint64_t mwc64(void)
+static inline HOT OPTIMIZE3 uint64_t mwc64(void)
 {
 	return (((uint64_t)mwc32()) << 32) | mwc32();
 }
@@ -1998,7 +1998,7 @@ static inline uint64_t mwc64(void)
  *  mwc16()
  *	get a 16 bit pseudo random number
  */
-static inline uint16_t mwc16(void)
+static inline HOT OPTIMIZE3 uint16_t mwc16(void)
 {
 	return mwc32() & 0xffff;
 }
@@ -2007,7 +2007,7 @@ static inline uint16_t mwc16(void)
  *  mwc8()
  *	get an 8 bit pseudo random number
  */
-static inline uint8_t mwc8(void)
+static inline HOT OPTIMIZE3 uint8_t mwc8(void)
 {
 	return mwc32() & 0xff;
 }
