@@ -378,7 +378,7 @@ uint64_t uint64_zero(void)
  *	set temporary file path, default
  *	is . - current dir
  */
-int stress_set_temp_path(char *path)
+int stress_set_temp_path(const char *path)
 {
 	stress_temp_path = path;
 
@@ -782,7 +782,7 @@ int system_read(
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-static inline bool stress_is_prime64(uint64_t n)
+static inline bool stress_is_prime64(const uint64_t n)
 {
 	register uint64_t i, max;
 

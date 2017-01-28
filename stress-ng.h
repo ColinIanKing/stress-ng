@@ -2078,7 +2078,7 @@ extern void stress_parent_died_alarm(void);
 extern int stress_process_dumpable(const bool dumpable);
 extern void stress_set_timer_slack_ns(const char *optarg);
 extern void stress_set_timer_slack(void);
-extern WARN_UNUSED int stress_set_temp_path(char *path);
+extern WARN_UNUSED int stress_set_temp_path(const char *path);
 extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
