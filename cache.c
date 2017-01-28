@@ -21,8 +21,8 @@
 #if defined(__linux__)
 
 typedef struct {
-	const char   *name;		/* cache type name */
-	uint32_t      value;		/* cache type ID */
+	const char	*name;		/* cache type name */
+	const uint32_t	value;		/* cache type ID */
 } generic_map_t;
 
 #include <glob.h>
@@ -240,7 +240,7 @@ out:
  *
  * Returns: read-only string representation, or NULL on error.
  */
-static const char * get_cache_name(cache_type_t type)
+static const char * get_cache_name(const cache_type_t type)
 {
 	const generic_map_t *p;
 
@@ -640,4 +640,4 @@ void free_cpu_caches(cpus_t *cpus)
 	free(cpus);
 }
 
-#endif /* __linux__ */
+#endif
