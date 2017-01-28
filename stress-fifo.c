@@ -27,6 +27,7 @@
 
 static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 static bool set_fifo_readers = false;
+static const uint64_t wrap_mask = 0xffff000000000000ULL;
 
 void stress_set_fifo_readers(const char *optarg)
 {
@@ -69,7 +70,6 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 {
 	int fd;
 	uint64_t val, lastval = 0;
-	uint64_t wrap_mask = 0xffff000000000000ULL;
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
@@ -121,6 +121,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 				"expected value\n", name);
 			break;
 		}
+		lastval = val;
 	}
 	(void)close(fd);
 }
@@ -198,6 +199,7 @@ int stress_fifo(args_t *args)
 			continue;
 		}
 		val++;
+		val &= ~wrap_mask;
 		inc_counter(args);
 	} while (keep_stressing());
 
