@@ -1016,8 +1016,8 @@ void *align_address(const void *addr, const size_t alignment)
  *  keep_stressing()
  *	returns true if we can keep on running a stressor
  */
-bool __keep_stressing(const args_t *args)
+bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 {
-	return (opt_do_run &&
-	        (!args->max_ops || *args->counter < args->max_ops));
+	return (LIKELY(opt_do_run) &&
+	        LIKELY(!args->max_ops || (*args->counter < args->max_ops)));
 }
