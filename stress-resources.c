@@ -42,6 +42,7 @@
 #define MAX_LOOPS	(1024)
 
 typedef struct {
+	void *m_malloc;
 	void *m_sbrk;
 	void *m_alloca;
 	void *m_mmap;
@@ -122,6 +123,11 @@ static void waste_resources(
 #if defined(__NR_memfd_create)
 		char name[32];
 #endif
+		if (!(mwc32() & 0xf)) {
+			info[i].m_malloc = calloc(1, page_size);
+			if (!opt_do_run)
+				break;
+		}
 		if (!(mwc32() & 0xf)) {
 			info[i].m_sbrk = sbrk(page_size);
 			if (!opt_do_run)
@@ -259,6 +265,8 @@ static void waste_resources(
 	}
 
 	for (i = 0; opt_do_run && (i < MAX_LOOPS); i++) {
+		if (info[i].m_malloc)
+			free(info[i].m_malloc);
 		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED))
 			(void)munmap(info[i].m_mmap, info[i].m_mmap_size);
 		if (info[i].pipe_ret != -1) {
