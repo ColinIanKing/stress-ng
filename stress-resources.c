@@ -72,6 +72,10 @@ typedef struct {
 	int pty_master;
 	int pty_slave;
 #endif
+#if defined(HAVE_LIB_RT) && defined(__linux__)
+	bool timerok;
+	timer_t timerid;
+#endif
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
@@ -215,7 +219,6 @@ static void waste_resources(
 #endif
 #if defined(__linux__)
 		{
-
 			info[i].pty_master = open("/dev/ptmx", O_RDWR);
 			info[i].pty_slave = -1;
 			if (info[i].pty_master >= 0) {
@@ -230,6 +233,18 @@ static void waste_resources(
 			info[i].pthread_ret =
 				pthread_create(&info[i].pthread, NULL,
 					stress_pthread_func, NULL);
+#endif
+
+#if defined(HAVE_LIB_RT) && defined(__linux__)
+		if (!i) {
+			struct sigevent sevp;
+
+			sevp.sigev_notify = SIGEV_NONE;
+			sevp.sigev_signo = SIGUNUSED;
+			sevp.sigev_value.sival_ptr = &info[i].timerid;
+			info[i].timerok =
+				(timer_create(CLOCK_REALTIME, &sevp, &info[i].timerid) == 0);
+		}
 #endif
 	}
 
@@ -256,24 +271,35 @@ static void waste_resources(
 			(void)close(info[i].fd_socketpair[0]);
 		if (info[i].fd_socketpair[1] != -1)
 			(void)close(info[i].fd_socketpair[1]);
+
 #if defined(__NR_userfaultfd)
 		if (info[i].fd_uf != -1)
 			(void)close(info[i].fd_uf);
 #endif
+
 #if defined(O_TMPFILE)
 		if (info[i].fd_tmp != -1)
 			(void)close(info[i].fd_tmp);
 #endif
+
 #if defined(HAVE_LIB_PTHREAD)
 		if ((!i) && (!info[i].pthread_ret))
 			(void)pthread_join(info[i].pthread, NULL);
 #endif
+
+#if defined(HAVE_LIB_RT) && defined(__linux__)
+		if ((!i) && (info[i].timerok)) {
+			(void)timer_delete(info[i].timerid);
+		}
+#endif
+
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 		if (info[i].wd_inotify != -1)
 			(void)inotify_rm_watch(info[i].fd_inotify, info[i].wd_inotify);
 		if (info[i].fd_inotify != -1)
 			(void)close(info[i].fd_inotify);
 #endif
+
 #if defined(__linux__)
 		if (info[i].pty_slave != -1)
 			(void)close(info[i].pty_slave);
