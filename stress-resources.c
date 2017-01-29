@@ -34,6 +34,9 @@
 #include <termio.h>
 #include <termios.h>
 #endif
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#include <semaphore.h>
+#endif
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
@@ -75,6 +78,10 @@ typedef struct {
 #if defined(HAVE_LIB_RT) && defined(__linux__)
 	bool timerok;
 	timer_t timerid;
+#endif
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+	bool semok;
+	sem_t sem;
 #endif
 } info_t;
 
@@ -246,6 +253,9 @@ static void waste_resources(
 				(timer_create(CLOCK_REALTIME, &sevp, &info[i].timerid) == 0);
 		}
 #endif
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
+#endif
 	}
 
 	for (i = 0; opt_do_run && (i < MAX_LOOPS); i++) {
@@ -305,6 +315,10 @@ static void waste_resources(
 			(void)close(info[i].pty_slave);
 		if (info[i].pty_master != -1)
 			(void)close(info[i].pty_master);
+#endif
+#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+		if (info[i].semok)
+			(void)sem_destroy(&info[i].sem);
 #endif
 	}
 }
