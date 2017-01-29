@@ -35,7 +35,7 @@
 
 typedef struct {
 	const stress_id str_id;
-	int (*func_supported)();
+	int (*func_supported)(void);
 } unsupported_t;
 
 typedef struct {
