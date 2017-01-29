@@ -24,40 +24,59 @@
  */
 #include "stress-ng.h"
 
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
+    defined(__NetBSD__) || defined(__sun__)
+#define MINCORE_CHAR	char
+#else
+#define MINCORE_CHAR	unsigned char
+#endif
+
 /*
- * madvise_touch_pages()
- *	touch a range of pages
+ * mincore_touch_pages_slow()
+ *	touch pages, even when they are resident
+ */
+static void mincore_touch_pages_slow(
+	void *buf,
+	const size_t n_pages,
+	const size_t page_size)
+{
+	size_t i;
+	volatile char *buffer;
+
+	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
+		(*buffer)++;
+	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
+		(*buffer)--;
+}
+
+/*
+ * mincore_touch_pages()
+ *	touch a range of pages, ensure they are all in memory
  */
 int mincore_touch_pages(void *buf, const size_t buf_len)
 {
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
-    defined(__NetBSD__) || defined(__sun__)
-	char *vec;
-#else
-	unsigned char *vec;
-#endif
-	volatile char *buffer;
-	size_t vec_len, i;
 	const size_t page_size = stress_get_pagesize();
+	const size_t n_pages = buf_len / page_size;
+
+#if defined(__gnu_hurd__) && !defined(__minix__)
+	/* systems that don't have mincore */
+	mincore_touch_pages_slow(buf, n_pages, page_size);
+	return 0;
+#else
+	/* systems that support mincore */
+	MINCORE_CHAR *vec;
+	volatile char *buffer;
+	size_t i;
 	uintptr_t uintptr = (uintptr_t)buf & (page_size - 1);
 
 	if (!(opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
-
-	vec_len = buf_len / page_size;
-	if (vec_len < 1)
+	if (n_pages < 1)
 		return -1;
 
-	vec = calloc(vec_len, 1);
+	vec = calloc(n_pages, 1);
 	if (!vec) {
-		/*
-		 *  Less optimial way, touch all pages
-		 */
-		for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
-			(*buffer)++;
-		for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
-			(*buffer)--;
+		mincore_touch_pages_slow(buf, n_pages, page_size);
 		return 0;
 	}
 
@@ -66,22 +85,21 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	 */
 	if (mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
-		return -1;
+
+		mincore_touch_pages_slow(buf, n_pages, page_size);
+		return 0;
 	}
 
 	/* If page is not resident in memory, touch it */
-	for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
+	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
 		if (!(vec[i] & 1))
 			(*buffer)++;
 
 	/* And restore contents */
-	for (buffer = buf, i = 0; i < vec_len; i++, buffer += page_size)
+	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
 		if (!(vec[i] & 1))
 			(*buffer)--;
 	free(vec);
-#else
-	(void)buf;
-	(void)buf_len;
-#endif
 	return 0;
+#endif
 }
