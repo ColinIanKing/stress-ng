@@ -208,7 +208,7 @@ timer_delete:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clock(args_t *args)
+int stress_clock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
