@@ -113,7 +113,7 @@ static void HOT stress_cpu_sqrt(const char *name)
 		    (uint64_t)rint(r) != rnd) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 	}
@@ -733,7 +733,7 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
 					"IDCT[%d][%d] was %d, expecting 255\n",
 					name, i, j, (int)idct[i][j]);
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				return;
 		}
 	}
@@ -2245,7 +2245,7 @@ int stress_cpu(const args_t *args)
 
 			for (j = 0; j < -opt_cpu_load_slice; j++) {
 				(void)func(args->name);
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 				inc_counter(args);
 			}
@@ -2256,7 +2256,7 @@ int stress_cpu(const args_t *args)
 			do {
 				(void)func(args->name);
 				t2 = time_now();
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);
@@ -2267,7 +2267,7 @@ int stress_cpu(const args_t *args)
 			do {
 				(void)func(args->name);
 				t2 = time_now();
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);

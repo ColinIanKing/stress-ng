@@ -167,7 +167,7 @@ int stress_chown(const args_t *args)
 				goto tidy;
 			}
 			/* Timed out, then give up */
-			if (!opt_do_run) {
+			if (!keep_stressing_flag) {
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}

@@ -99,7 +99,7 @@ static void MLOCKED epoll_timer_handler(int sig)
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
-	if (!opt_do_run) {
+	if (!keep_stressing_flag) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_sec = 0;
@@ -119,7 +119,7 @@ static void MLOCKED epoll_timer_handler(int sig)
 static MLOCKED void handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
-	opt_do_run = false;
+	keep_stressing_flag = false;
 }
 
 
@@ -138,7 +138,7 @@ static pid_t epoll_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -173,7 +173,7 @@ static int epoll_set_fd_nonblock(const int fd)
  */
 static void epoll_recv_data(const int fd)
 {
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		char buf[8192];
 		ssize_t n;
 
@@ -280,7 +280,7 @@ static int epoll_client(
 		/* Cycle through the servers */
 		port_counter = (port_counter + 1) % max_servers;
 retry:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
@@ -453,7 +453,7 @@ static void epoll_server(
 
 		/*
 		 * Wait for 100ms for an event, allowing us to
-		 * to break out if opt_do_run has been changed
+		 * to break out if keep_stressing_flag has been changed
 		 */
 		n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		if (n < 0) {

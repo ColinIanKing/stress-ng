@@ -117,7 +117,7 @@ int stress_timerfd(const args_t *args)
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 500000;
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		ret = select(timerfd + 1, &rdfs, NULL, NULL, &timeout);
 		if (ret < 0) {

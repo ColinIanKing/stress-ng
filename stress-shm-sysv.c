@@ -117,7 +117,7 @@ static MLOCKED void handle_shm_sysv_sigalrm(int dummy)
 {
 	(void)dummy;
 
-	opt_do_run = false;
+	keep_stressing_flag = false;
 }
 
 /*
@@ -177,7 +177,7 @@ static int stress_shm_sysv_child(
 				sz = shmall;
 			if ((freemem > page_size) && sz > freemem)
 				sz = freemem;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
@@ -193,7 +193,7 @@ static int stress_shm_sysv_child(
 				do {
 					size_t j;
 
-					if (!opt_do_run)
+					if (!keep_stressing_flag)
 						goto reap;
 
 					/* Get a unique random key */
@@ -204,7 +204,7 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
-					if (!opt_do_run)
+					if (!keep_stressing_flag)
 						goto reap;
 
 				} while (!unique);
@@ -256,16 +256,16 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 			(void)mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 			(void)madvise_random(addr, sz);
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -369,7 +369,7 @@ int stress_shm_sysv(const args_t *args)
 	}
 	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
 
-	while (opt_do_run && retry) {
+	while (keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
@@ -398,7 +398,7 @@ fork_again:
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
 				shm_ids[i] = -1;
 
-			while (opt_do_run) {
+			while (keep_stressing_flag) {
 				shm_msg_t 	msg;
 				ssize_t n;
 

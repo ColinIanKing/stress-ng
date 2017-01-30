@@ -43,7 +43,7 @@ static const char *blacklist[] = {
 static void MLOCKED handle_fstat_sigalrm(int dummy)
 {
 	(void)dummy;
-	opt_do_run = false;
+	keep_stressing_flag = false;
 
 	siglongjmp(jmpbuf, 1);
 }
@@ -101,7 +101,7 @@ int stress_fstat(const args_t *args)
 	while ((d = readdir(dp)) != NULL) {
 		char path[PATH_MAX];
 
-		if (!opt_do_run) {
+		if (!keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			(void)closedir(dp);
 			goto free_cache;
@@ -131,7 +131,7 @@ int stress_fstat(const args_t *args)
 	do {
 		stat_some = false;
 
-		for (di = dir_info; opt_do_run && di; di = di->next) {
+		for (di = dir_info; keep_stressing_flag && di; di = di->next) {
 			int fd;
 			struct stat buf;
 

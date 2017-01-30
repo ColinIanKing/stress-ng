@@ -113,7 +113,7 @@ int stress_exec(const args_t *args)
 			}
 			if (pids[i] > -1)
 				(void)setpgid(pids[i], pgrp);
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 		for (i = 0; i < opt_exec_max; i++) {

@@ -31,7 +31,7 @@
 #include <sys/statvfs.h>
 
 #define check_do_run()		\
-	if (!opt_do_run)	\
+	if (!keep_stressing_flag)	\
 		break;		\
 
 /*

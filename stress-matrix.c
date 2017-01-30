@@ -79,7 +79,7 @@ static void OPTIMIZE3 stress_matrix_prod(
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * b[k][j];
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				return;
 		}
 	}
@@ -103,7 +103,7 @@ static void OPTIMIZE3 stress_matrix_add(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] + b[i][j];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -126,7 +126,7 @@ static void OPTIMIZE3 stress_matrix_sub(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] - b[i][j];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -151,7 +151,7 @@ static void OPTIMIZE3 stress_matrix_trans(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[j][i];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -177,7 +177,7 @@ static void OPTIMIZE3 stress_matrix_mult(
 		for (j = 0; j < n; j++) {
 			r[i][j] = v * a[i][j];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -203,7 +203,7 @@ static void OPTIMIZE3 stress_matrix_div(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] / v;
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -227,7 +227,7 @@ static void OPTIMIZE3 stress_matrix_hadamard(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] * b[i][j];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -254,7 +254,7 @@ static void OPTIMIZE3 stress_matrix_frobenius(
 		for (j = 0; j < n; j++) {
 			sum += a[i][j] * b[i][j];
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 	double_put(sum);
@@ -280,7 +280,7 @@ static void OPTIMIZE3 stress_matrix_copy(
 		for (j = 0; j < n; j++)
 			r[i][j] = a[i][j];
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }
@@ -303,7 +303,7 @@ static void OPTIMIZE3 stress_matrix_mean(
 		for (j = 0; j < n; j++)
 			r[i][j] = (a[i][j] + b[i][j]) / 2.0;
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return;
 	}
 }

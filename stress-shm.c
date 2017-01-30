@@ -116,7 +116,7 @@ static int stress_shm_posix_child(
 
 			shm_name[0] = '\0';
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 
 			snprintf(shm_name, SHM_NAME_LEN,
@@ -155,13 +155,13 @@ static int stress_shm_posix_child(
 			}
 			addrs[i] = addr;
 
-			if (!opt_do_run) {
+			if (!keep_stressing_flag) {
 				(void)close(shm_fd);
 				goto reap;
 			}
 			(void)mincore_touch_pages(addr, sz);
 
-			if (!opt_do_run) {
+			if (!keep_stressing_flag) {
 				(void)close(shm_fd);
 				goto reap;
 			}
@@ -174,7 +174,7 @@ static int stress_shm_posix_child(
 			(void)shim_fallocate(shm_fd, 0, 0, sz);
 			(void)close(shm_fd);
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -252,7 +252,7 @@ int stress_shm(const args_t *args)
 	}
 	orig_sz = sz = opt_shm_posix_bytes & ~(page_size - 1);
 
-	while (opt_do_run && retry) {
+	while (keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
@@ -280,7 +280,7 @@ fork_again:
 
 			memset(shm_names, 0, sizeof(shm_names));
 
-			while (opt_do_run) {
+			while (keep_stressing_flag) {
 				ssize_t n;
 				shm_msg_t 	msg;
 				char *shm_name;

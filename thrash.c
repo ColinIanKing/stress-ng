@@ -124,7 +124,7 @@ int thrash_start(void)
 #if defined(SCHED_RR)
 		set_sched(SCHED_RR, 10);
 #endif
-		while (opt_do_run) {
+		while (keep_stressing_flag) {
 			pagein_all_procs();
 			sleep(1);
 		}

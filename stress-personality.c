@@ -58,7 +58,7 @@ int stress_personality(const args_t *args)
 			unsigned long p = personalities[i];
 			int ret;
 
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 			if (failed[i]) {
 				fails++;

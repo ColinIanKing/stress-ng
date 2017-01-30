@@ -226,7 +226,7 @@ static size_t stress_vm_moving_inversion(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -242,7 +242,7 @@ static size_t stress_vm_moving_inversion(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -266,7 +266,7 @@ static size_t stress_vm_moving_inversion(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	mwc_seed(w, z);
@@ -274,7 +274,7 @@ static size_t stress_vm_moving_inversion(
 		uint64_t val = mwc64();
 		if (*--ptr != ~val)
 			bit_errors++;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -312,7 +312,7 @@ static size_t stress_vm_modulo_x(
 	for (i = 0; i < stride; i++) {
 		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
 			*ptr = pattern;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 		}
 		for (ptr = buf; ptr < buf_end; ptr += stride) {
@@ -322,7 +322,7 @@ static size_t stress_vm_modulo_x(
 				if (max_ops && c >= max_ops)
 					goto abort;
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 			ptr++;
 			for (j = i + 1; j < stride && ptr < buf_end; j++) {
@@ -331,7 +331,7 @@ static size_t stress_vm_modulo_x(
 				if (max_ops && c >= max_ops)
 					goto abort;
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 		}
 		inject_random_bit_errors(buf, sz);
@@ -339,7 +339,7 @@ static size_t stress_vm_modulo_x(
 		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
 			if (*ptr != pattern)
 				bit_errors++;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				return bit_errors;
 		}
 	}
@@ -379,7 +379,7 @@ static size_t stress_vm_walking_one_data(
 		c++;
 		if (max_ops && c >= max_ops)
 			break;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 	stress_vm_check("walking one (data)", bit_errors);
@@ -416,7 +416,7 @@ static size_t stress_vm_walking_zero_data(
 		c++;
 		if (max_ops && c >= max_ops)
 			break;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 	stress_vm_check("walking zero (data)", bit_errors);
@@ -466,7 +466,7 @@ static size_t stress_vm_walking_one_addr(
 		c++;
 		if (max_ops && c >= max_ops)
 			break;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 	stress_vm_check("walking one (address)", bit_errors);
@@ -520,7 +520,7 @@ static size_t stress_vm_walking_zero_addr(
 		c++;
 		if (max_ops && c >= max_ops)
 			break;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 	stress_vm_check("walking zero (address)", bit_errors);
@@ -548,7 +548,7 @@ static size_t stress_vm_gray(
 	uint64_t c = *counter;
 
 	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return 0;
 		*ptr = (v >> 1) ^ v;
 		c++;
@@ -559,7 +559,7 @@ static size_t stress_vm_gray(
 	inject_random_bit_errors(buf, sz);
 
 	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		if (*ptr != ((v >> 1) ^ v))
 			bit_errors++;
@@ -731,7 +731,7 @@ static size_t stress_vm_swap(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	/* Reverse swaps */
@@ -750,7 +750,7 @@ static size_t stress_vm_swap(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -768,7 +768,7 @@ static size_t stress_vm_swap(
 				bit_errors++;
 			p++;
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -815,7 +815,7 @@ static size_t stress_vm_rand_set(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -834,7 +834,7 @@ static size_t stress_vm_rand_set(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -882,7 +882,7 @@ static size_t stress_vm_ror(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -899,7 +899,7 @@ static size_t stress_vm_ror(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -919,7 +919,7 @@ static size_t stress_vm_ror(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -974,7 +974,7 @@ static size_t stress_vm_flip(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -993,7 +993,7 @@ static size_t stress_vm_flip(
 			c++;
 			if (max_ops && c >= max_ops)
 				goto abort;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 		}
 		(void)mincore_touch_pages(buf, sz);
@@ -1020,7 +1020,7 @@ static size_t stress_vm_flip(
 		bit_errors += (*(ptr + 6) != val);
 		ROR8(val);
 		bit_errors += (*(ptr + 7) != val);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 
@@ -1064,7 +1064,7 @@ static size_t stress_vm_zero_one(
 		bit_errors += stress_vm_count_bits(*(ptr + 6));
 		bit_errors += stress_vm_count_bits(*(ptr + 7));
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -1083,7 +1083,7 @@ static size_t stress_vm_zero_one(
 		bit_errors += stress_vm_count_bits(~*(ptr + 6));
 		bit_errors += stress_vm_count_bits(~*(ptr + 7));
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -1142,7 +1142,7 @@ static size_t stress_vm_galpat_zero(
 		bits_set += stress_vm_count_bits(*(ptr + 6));
 		bits_set += stress_vm_count_bits(*(ptr + 7));
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 
@@ -1203,7 +1203,7 @@ static size_t stress_vm_galpat_one(
 		bits_set += stress_vm_count_bits(~(*(ptr + 5)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 6)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 7)));
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 
@@ -1250,7 +1250,7 @@ static size_t stress_vm_inc_nybble(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -1266,7 +1266,7 @@ static size_t stress_vm_inc_nybble(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1281,7 +1281,7 @@ static size_t stress_vm_inc_nybble(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 
@@ -1326,7 +1326,7 @@ static size_t stress_vm_rand_sum(
 		c++;
 		if (max_ops && c >= max_ops)
 			goto abort;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 	}
 
@@ -1343,7 +1343,7 @@ static size_t stress_vm_rand_sum(
 		bit_errors += stress_vm_count_bits(*(ptr + 5) ^ mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 6) ^ mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 7) ^ mwc64());
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -1392,7 +1392,7 @@ static size_t stress_vm_prime_zero(
 			c++;
 			if (max_ops && c >= max_ops)
 				goto abort;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 		}
 	}
@@ -1449,7 +1449,7 @@ static size_t stress_vm_prime_one(
 			c++;
 			if (max_ops && c >= max_ops)
 				goto abort;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 		}
 	}
@@ -1458,7 +1458,7 @@ static size_t stress_vm_prime_one(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += 8 - stress_vm_count_bits(buf[i]);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -1501,7 +1501,7 @@ static size_t stress_vm_prime_gray_zero(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] &= ((i >> 1) ^ i);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 		c++;
 		if (max_ops && c >= max_ops)
@@ -1514,7 +1514,7 @@ static size_t stress_vm_prime_gray_zero(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] &= ~((i >> 1) ^ i);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 		c++;
 		if (max_ops && c >= max_ops)
@@ -1525,7 +1525,7 @@ static size_t stress_vm_prime_gray_zero(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += stress_vm_count_bits(buf[i]);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -1568,7 +1568,7 @@ static size_t stress_vm_prime_gray_one(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] |= ((i >> 1) ^ i);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 		c++;
 		if (max_ops && c >= max_ops)
@@ -1582,7 +1582,7 @@ static size_t stress_vm_prime_gray_one(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] |= ~((i >> 1) ^ i);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto abort;
 		c++;
 		if (max_ops && c >= max_ops)
@@ -1593,7 +1593,7 @@ static size_t stress_vm_prime_gray_one(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += 8 - stress_vm_count_bits(buf[i]);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 	}
 abort:
@@ -1655,7 +1655,7 @@ static size_t stress_vm_write64(
 		*ptr++ = v;
 		*ptr++ = v;
 		i++;
-		if (!opt_do_run || (max_ops && i >= max_ops))
+		if (!keep_stressing_flag || (max_ops && i >= max_ops))
 			break;
 	}
 	*counter += i;
@@ -1715,7 +1715,7 @@ static size_t stress_vm_read64(
 		(void)*(ptr++);
 
 		i++;
-		if (!opt_do_run || (max_ops && i >= max_ops))
+		if (!keep_stressing_flag || (max_ops && i >= max_ops))
 			break;
 	}
 	*counter += i;
@@ -1892,7 +1892,7 @@ int stress_vm(const args_t *args)
 	buf_sz = opt_vm_bytes & ~(page_size - 1);
 
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -1943,7 +1943,7 @@ again:
 				break;
 			}
 			if (!keep || (buf == NULL)) {
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					return EXIT_SUCCESS;
 				buf = (uint8_t *)mmap(NULL, buf_sz,
 					PROT_READ | PROT_WRITE,

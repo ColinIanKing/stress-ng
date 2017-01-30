@@ -60,7 +60,7 @@ int stress_bigheap(const args_t *args)
 			opt_bigheap_growth = MIN_BIGHEAP_GROWTH;
 	}
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -123,7 +123,7 @@ again:
 			 * some time and we should bail out before
 			 * exerting any more memory pressure
 			 */
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 
 			ptr = realloc(old_ptr, size);
@@ -155,14 +155,14 @@ again:
 				}
 
 				for (i = 0; i < n; i+= stride, u8ptr += stride) {
-					if (!opt_do_run)
+					if (!keep_stressing_flag)
 						goto abort;
 					*u8ptr = (uint8_t)i;
 				}
 
 				if (opt_flags & OPT_FLAGS_VERIFY) {
 					for (i = 0; i < n; i+= stride, tmp += stride) {
-						if (!opt_do_run)
+						if (!keep_stressing_flag)
 							goto abort;
 						if (*tmp != (uint8_t)i)
 							pr_fail("%s: byte at location %p was 0x%" PRIx8

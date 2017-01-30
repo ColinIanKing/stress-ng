@@ -56,7 +56,7 @@ static inline void stress_proc_rw(const char *path, char *badbuf, const bool pro
 	 */
 	while (i < (4096 * PROC_BUF_SZ)) {
 		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0)
@@ -140,7 +140,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
-	while (keep_running && opt_do_run)
+	while (keep_running && keep_stressing_flag)
 		stress_proc_rw(ctxt->path, ctxt->badbuf, ctxt->proc_write);
 
 	return &nowt;
@@ -174,7 +174,7 @@ static void stress_proc_rw_threads(const args_t *args, char *path, const bool pr
 				stress_proc_rw_thread, &ctxt);
 	}
 	for (i = 0; i < 8; i++) {
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		stress_proc_rw(path, ctxt.badbuf, proc_write);
 	}
@@ -203,7 +203,7 @@ static void stress_proc_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
@@ -217,7 +217,7 @@ static void stress_proc_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))

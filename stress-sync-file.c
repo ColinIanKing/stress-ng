@@ -161,7 +161,7 @@ int stress_sync_file(const args_t *args)
 				pr_fail_err("sync_file_range (forward)");
 			offset += sz;
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		if (stress_sync_allocate(args, fd) < 0)
@@ -174,7 +174,7 @@ int stress_sync_file(const args_t *args)
 				pr_fail_err("sync_file_range (reverse)");
 			offset += sz;
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		if (stress_sync_allocate(args, fd) < 0)

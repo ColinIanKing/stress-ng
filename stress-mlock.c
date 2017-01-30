@@ -93,7 +93,7 @@ int stress_mlock(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -143,7 +143,7 @@ again:
 		set_oom_adjustment(args->name, true);
 
 		do {
-			for (n = 0; opt_do_run && (n < max); n++) {
+			for (n = 0; keep_stressing_flag && (n < max); n++) {
 				int ret;
 				if (!keep_stressing())
 					break;
@@ -190,7 +190,7 @@ again:
 			(void)mlockall(MCL_ONFAULT);
 #endif
 #endif
-			for (n = 0; opt_do_run && (n < max); n++) {
+			for (n = 0; keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
 					break;
 

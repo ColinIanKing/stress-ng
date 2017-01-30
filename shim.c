@@ -106,7 +106,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	memset(buffer, 0, buf_sz);
 	n = len;
 
-	while (opt_do_run && (n > 0)) {
+	while (keep_stressing_flag && (n > 0)) {
 		ssize_t ret;
 		size_t count = (size_t)STRESS_MINIMUM(n, buf_sz);
 
@@ -487,7 +487,7 @@ int shim_usleep(uint64_t usec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				if (opt_do_run)
+				if (keep_stressing_flag)
 					continue;
 			} else {
 				return -1;

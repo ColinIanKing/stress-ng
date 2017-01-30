@@ -39,7 +39,7 @@ static int pipe_read(const args_t *args, const int fd, const int n)
 	ssize_t ret;
 
 redo:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return -1;
 	ret = read(fd, buf, sizeof(buf));
 	if (opt_flags & OPT_FLAGS_VERIFY) {
@@ -90,7 +90,7 @@ int stress_poll(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		rc = EXIT_FAILURE;

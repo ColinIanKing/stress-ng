@@ -80,7 +80,7 @@ static int stress_oom_pipe_expander(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

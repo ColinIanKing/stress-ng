@@ -48,7 +48,7 @@ static pid_t stress_tee_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 
 		(void)close(fds[0]);
@@ -79,7 +79,7 @@ static void stress_tee_pipe_write(int fds[2])
 	(void)close(fds[0]);
 
 	memset(buffer, 0, sizeof(buffer));
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		ssize_t ret;
 
 		ret = write(fds[1], buffer, sizeof(buffer));
@@ -101,7 +101,7 @@ static void stress_tee_pipe_read(int fds[2])
 
 	(void)close(fds[1]);
 
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		ssize_t ret;
 
 		ret = read(fds[0], buffer, sizeof(buffer));

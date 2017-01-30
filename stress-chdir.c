@@ -61,7 +61,7 @@ int stress_chdir(const args_t *args)
 			pr_fail_err("mkdir");
 			goto abort;
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			goto done;
 	}
 

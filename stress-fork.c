@@ -80,7 +80,7 @@ static int stress_fork_fn(
 			if (pid > -1)
 				(void)setpgid(pids[i], pgrp);
 			pids[i] = pid;
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 		for (i = 0; i < fork_max; i++) {

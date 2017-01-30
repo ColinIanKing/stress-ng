@@ -156,7 +156,7 @@ int stress_mergesort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
@@ -171,7 +171,7 @@ int stress_mergesort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
 		mergesort(data, n * 4, sizeof(uint8_t), stress_mergesort_cmp_3);
@@ -188,7 +188,7 @@ int stress_mergesort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		inc_counter(args);

@@ -185,14 +185,14 @@ int stress_aiol(const args_t *args)
 			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
 				errno = -ret;
-				if ((errno == EINTR) && (opt_do_run))
+				if ((errno == EINTR) && (keep_stressing_flag))
 					continue;
 				pr_fail_err("io_getevents");
 				break;
 			} else {
 				n -= ret;
 			}
-		} while ((n > 0) && opt_do_run);
+		} while ((n > 0) && keep_stressing_flag);
 		inc_counter(args);
 	} while (keep_stressing());
 

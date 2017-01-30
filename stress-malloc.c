@@ -101,7 +101,7 @@ int stress_malloc(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -158,7 +158,7 @@ again:
 			 * some time and we should bail out before
 			 * exerting any more memory pressure
 			 */
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto abort;
 
 			if (addr[i]) {

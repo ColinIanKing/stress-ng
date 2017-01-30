@@ -80,7 +80,7 @@ static int monitor(const args_t *args, const int sock)
 		struct cn_msg *cn_msg;
 		struct proc_event *proc_ev;
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return 0;
 
 		if ((nlmsghdr->nlmsg_type == NLMSG_ERROR) ||

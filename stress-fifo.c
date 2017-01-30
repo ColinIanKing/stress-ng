@@ -77,7 +77,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 			name, errno, strerror(errno));
 		return;
 	}
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		ssize_t sz;
 		int ret;
 		struct timeval timeout;
@@ -166,7 +166,7 @@ int stress_fifo(const args_t *args)
 		pids[i] = fifo_spawn(stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
-		if (!opt_do_run) {
+		if (!keep_stressing_flag) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}

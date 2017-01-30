@@ -71,7 +71,7 @@ int stress_stack(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -165,7 +165,7 @@ again:
 					/* Force gcc to actually do the alloca */
 					uint64_put((uint64_t)(last_ptr - ptr));
 					last_ptr = ptr;
-				} while (opt_do_run);
+				} while (keep_stressing_flag);
 			}
 		}
 	}

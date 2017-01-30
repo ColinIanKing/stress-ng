@@ -42,7 +42,7 @@ static pid_t spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -152,7 +152,7 @@ int stress_wait(const args_t *args)
 #else
 		(void)waitpid(pid_r, &status, 0);
 #endif
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 #if defined(WIFCONINUED)
 		if (WIFCONTINUED(status))
@@ -172,7 +172,7 @@ int stress_wait(const args_t *args)
 #else
 			(void)waitid(P_PID, pid_r, &info, 0);
 #endif
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 #if defined(WIFCONINUED)
 			if (WIFCONTINUED(status))
@@ -182,7 +182,7 @@ int stress_wait(const args_t *args)
 #endif
 		}
 #endif
-	} while (opt_do_run && (!args->max_ops || *args->counter < args->max_ops));
+	} while (keep_stressing_flag && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)kill(pid_k, SIGKILL);
 	(void)waitpid(pid_k, &status, 0);

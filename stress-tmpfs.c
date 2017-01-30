@@ -152,7 +152,7 @@ static void stress_tmpfs_child(
 			break;
 		}
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
@@ -199,7 +199,7 @@ static void stress_tmpfs_child(
 					n--;
 					break;
 				}
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					goto cleanup;
 			}
 		}
@@ -242,7 +242,7 @@ static void stress_tmpfs_child(
 					n--;
 					break;
 				}
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					goto cleanup;
 			}
 		}
@@ -289,7 +289,7 @@ int stress_tmpfs(const args_t *args)
 	set_oom_adjustment(args->name, true);
 
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		goto cleanup;
 	pid = fork();
 	if (pid < 0) {

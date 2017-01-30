@@ -249,7 +249,7 @@ int stress_lockofd(const args_t *args)
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-		if (!opt_do_run) {
+		if (!keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -266,7 +266,7 @@ redo:
 again:
 	cpid = fork();
 	if (cpid < 0) {
-		if (!opt_do_run) {
+		if (!keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}

@@ -116,7 +116,7 @@ int pr_msg(
 			if (abort_fails >= ABORT_FAILURES) {
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
-					opt_do_run = false;
+					keep_stressing_flag = false;
 					fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);

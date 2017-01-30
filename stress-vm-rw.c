@@ -89,7 +89,7 @@ static int stress_vm_child(void *arg)
 		goto cleanup;
 	}
 
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		uint8_t *ptr, *end = buf + ctxt->sz;
 		int rwret;
 
@@ -185,7 +185,7 @@ static int stress_vm_parent(context_t *ctxt)
 
 		/* Wait for address of child's buffer */
 redo_rd2:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		ret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
 		if (ret < 0) {
@@ -242,7 +242,7 @@ redo_rd2:
 		msg_wr.val = val;
 		val++;
 redo_wr2:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		/* Inform child that memory has been changed */
 		ret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
@@ -312,7 +312,7 @@ again:
 	ctxt.pid = clone(stress_vm_child, align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);

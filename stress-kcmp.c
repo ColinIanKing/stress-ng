@@ -49,7 +49,7 @@ enum {
 		}						\
 		pr_fail_err("kcmp: " # type);			\
 	}							\
-	if (!opt_do_run)					\
+	if (!keep_stressing_flag)					\
 		break;						\
 }
 
@@ -70,7 +70,7 @@ enum {
 			args->name, rc, ret);			\
 		}						\
 	}							\
-	if (!opt_do_run)					\
+	if (!keep_stressing_flag)					\
 		break;						\
 }
 
@@ -96,7 +96,7 @@ int stress_kcmp(const args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 
 		pr_fail_dbg("fork");
@@ -107,7 +107,7 @@ again:
 		stress_parent_died_alarm();
 
 		/* Child */
-		while (opt_do_run)
+		while (keep_stressing_flag)
 			pause();
 
 		/* will never get here */

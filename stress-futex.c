@@ -66,7 +66,7 @@ int stress_futex(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -83,7 +83,7 @@ again:
 			 * Break early in case wake gets stuck
 			 * (which it shouldn't)
 			 */
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 			ret = futex_wake(futex, 1);
 			if (opt_flags & OPT_FLAGS_VERIFY) {
@@ -110,7 +110,7 @@ again:
 			int ret;
 
 			/* Break early before potential long wait */
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 
 			ret = futex_wait(futex, 0, &t);

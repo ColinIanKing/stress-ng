@@ -182,7 +182,7 @@ int stress_dentry(const args_t *args)
 			inc_counter(args);
 		}
 		stress_dentry_unlink(args, n);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		sync();
 	} while (keep_stressing());

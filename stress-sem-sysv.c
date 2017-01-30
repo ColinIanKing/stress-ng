@@ -147,7 +147,7 @@ static void semaphore_sysv_thrash(const args_t *args)
 				break;
 			}
 timed_out:
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 #if defined(IPC_STAT)
@@ -220,7 +220,7 @@ static pid_t semaphore_sysv_spawn(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -259,7 +259,7 @@ int stress_sem_sysv(const args_t *args)
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
-		if (!opt_do_run || pids[i] < 0)
+		if (!keep_stressing_flag || pids[i] < 0)
 			goto reap;
 	}
 	/* Wait for termination */

@@ -28,7 +28,7 @@ static MLOCKED void handle_daemon_sigalrm(int dummy)
 {
 	(void)dummy;
 
-	opt_do_run = false;
+	keep_stressing_flag = false;
 }
 
 /*
@@ -54,7 +54,7 @@ static void daemons(const args_t *args, const int fd)
 	if ((fds[2] = dup(0)) < 0)
 		goto err1;
 
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		pid_t pid;
 
 		pid = fork();

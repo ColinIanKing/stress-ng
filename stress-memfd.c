@@ -77,11 +77,11 @@ static void stress_memfd_allocs(const args_t *args)
 				default:
 					pr_err("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					opt_do_run = false;
+					keep_stressing_flag = false;
 					goto clean;
 				}
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto clean;
 		}
 
@@ -90,7 +90,7 @@ static void stress_memfd_allocs(const args_t *args)
 				ssize_t ret;
 				size_t whence;
 
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 
 				/* Allocate space */
@@ -124,7 +124,7 @@ static void stress_memfd_allocs(const args_t *args)
 				(void)ret;
 #endif
 			}
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto clean;
 		}
 
@@ -159,7 +159,7 @@ static void stress_memfd_allocs(const args_t *args)
 					pr_fail_err("lseek SEEK_DATA on memfd");
 			}
 #endif
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				goto clean;
 		}
 clean:
@@ -191,7 +191,7 @@ int stress_memfd(const args_t *args)
 	}
 
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {

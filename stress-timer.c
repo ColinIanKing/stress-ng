@@ -95,7 +95,7 @@ static void MLOCKED stress_timer_handler(int sig)
 	if ((timer_counter & 65535) == 0)
 		if ((time_now() - start) > (double)opt_timeout)
 			goto cancel;
-	if (opt_do_run) {
+	if (keep_stressing_flag) {
 		int ret = timer_getoverrun(timerid);
 		if (ret > 0)
 			overruns += ret;
@@ -104,7 +104,7 @@ static void MLOCKED stress_timer_handler(int sig)
 	}
 
 cancel:
-	opt_do_run = false;
+	keep_stressing_flag = false;
 	/* Cancel timer if we detect no more runs */
 	memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);

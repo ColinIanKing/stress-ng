@@ -81,7 +81,7 @@ int stress_msg(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
@@ -89,7 +89,7 @@ again:
 		(void)setpgid(0, pgrp);
 		stress_parent_died_alarm();
 
-		while (opt_do_run) {
+		while (keep_stressing_flag) {
 			msg_t msg;
 			uint64_t i;
 

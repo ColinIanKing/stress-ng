@@ -119,7 +119,7 @@ static void stress_apparmor_read(const char *path)
 	while (apparmor_run && (i < (4096 * APPARMOR_BUF_SZ))) {
 		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
 redo:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0) {
@@ -146,7 +146,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
@@ -160,7 +160,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))
@@ -201,7 +201,7 @@ static pid_t apparmor_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -339,7 +339,7 @@ static int apparmor_stress_kernel_interface(
 		aa_kernel_interface_unref(kern_if);
 
 		(*counter)++;
-	} while (opt_do_run && apparmor_run && (!max_ops || *counter < max_ops));
+	} while (keep_stressing_flag && apparmor_run && (!max_ops || *counter < max_ops));
 
 	return rc;
 }
@@ -586,7 +586,7 @@ static int apparmor_stress_corruption(
 		}
 		aa_kernel_interface_unref(kern_if);
 		(*counter)++;
-	} while (opt_do_run && apparmor_run &&
+	} while (keep_stressing_flag && apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 
 	return rc;

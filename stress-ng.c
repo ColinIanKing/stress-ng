@@ -56,7 +56,7 @@ int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
 int32_t opt_all = 0;				/* Number of concurrent workers */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
-volatile bool opt_do_run = true;		/* false to exit stressor */
+volatile bool keep_stressing_flag = true;		/* false to exit stressor */
 volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
 volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
 pid_t pgrp;					/* process group leader */
@@ -1466,7 +1466,7 @@ static void MLOCKED stress_sigint_handler(int dummy)
 {
 	(void)dummy;
 	opt_sigint = true;
-	opt_do_run = false;
+	keep_stressing_flag = false;
 	opt_do_wait = false;
 
 	kill(-getpid(), SIGALRM);
@@ -1475,7 +1475,7 @@ static void MLOCKED stress_sigint_handler(int dummy)
 static void MLOCKED stress_sigalrm_child_handler(int dummy)
 {
 	(void)dummy;
-	opt_do_run = false;
+	keep_stressing_flag = false;
 }
 
 static void MLOCKED stress_sigalrm_parent_handler(int dummy)
@@ -1795,7 +1795,7 @@ static void MLOCKED handle_sigint(int dummy)
 {
 	(void)dummy;
 
-	opt_do_run = false;
+	keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 }
 
@@ -1844,7 +1844,7 @@ static void MLOCKED stress_run(
 				pid_t pid;
 				char name[64];
 again:
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 				pid = fork();
 				switch (pid) {
@@ -1891,7 +1891,7 @@ again:
 					if (opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats[n].sp);
 #endif
-					if (opt_do_run && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
+					if (keep_stressing_flag && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
 							&stats[n].counter,
 							name,
@@ -1934,7 +1934,7 @@ again:
 					}
 
 					/* Forced early abort during startup? */
-					if (!opt_do_run) {
+					if (!keep_stressing_flag) {
 						pr_dbg("abort signal during startup, cleaning up\n");
 						kill_procs(SIGALRM);
 						goto wait_for_procs;
@@ -3103,10 +3103,10 @@ next_opt:
 		/*
 		 *  Step through each stressor one by one
 		 */
-		for (i = 0; opt_do_run && i < STRESS_MAX; i++) {
+		for (i = 0; keep_stressing_flag && i < STRESS_MAX; i++) {
 			int32_t j;
 
-			for (j = 0; opt_do_run && j < STRESS_MAX; j++)
+			for (j = 0; keep_stressing_flag && j < STRESS_MAX; j++)
 				procs[j].num_procs = 0;
 			if (!procs[i].exclude) {
 				procs[i].num_procs = opt_class ?

@@ -35,7 +35,7 @@ int stress_brk(const args_t *args)
 	const size_t page_size = stress_get_pagesize();
 
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {

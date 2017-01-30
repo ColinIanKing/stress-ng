@@ -59,7 +59,7 @@ static inline void stress_sys_rw(
 	 */
 	while (i < (4096 * SYS_BUF_SZ)) {
 		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0)
@@ -148,7 +148,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
-	while (keep_running && opt_do_run)
+	while (keep_running && keep_stressing_flag)
 		stress_sys_rw(args, ctxt->path, ctxt->badbuf);
 
 	return &nowt;
@@ -182,7 +182,7 @@ static void stress_sys_rw_threads(const args_t *args, const char *path)
 				stress_sys_rw_thread, &ctxt);
 	}
 	for (i = 0; i < 8; i++) {
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		stress_sys_rw(args, path, ctxt.badbuf);
 	}
@@ -211,7 +211,7 @@ static void stress_sys_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
@@ -225,7 +225,7 @@ static void stress_sys_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char filename[PATH_MAX];
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))

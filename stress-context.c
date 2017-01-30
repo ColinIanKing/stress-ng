@@ -42,7 +42,7 @@ static void thread1(void)
 	do {
 		__counter++;
 		swapcontext(&uctx_thread1, &uctx_thread2);
-	} while (opt_do_run && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 
 static void thread2(void)
@@ -50,7 +50,7 @@ static void thread2(void)
 	do {
 		__counter++;
 		swapcontext(&uctx_thread2, &uctx_thread3);
-	} while (opt_do_run && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 
 static void thread3(void)
@@ -58,7 +58,7 @@ static void thread3(void)
 	do {
 		__counter++;
 		swapcontext(&uctx_thread3, &uctx_thread1);
-	} while (opt_do_run && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 
 static int stress_context_init(

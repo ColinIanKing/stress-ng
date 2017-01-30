@@ -41,7 +41,7 @@ int stress_mincore(const args_t *args)
 	do {
 		int i;
 
-		for (i = 0; (i < 100) && opt_do_run; i++) {
+		for (i = 0; (i < 100) && keep_stressing_flag; i++) {
 			int ret, redo = 0;
 			unsigned char vec[1];
 

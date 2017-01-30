@@ -88,13 +88,13 @@ static void stress_itimer_handler(int sig)
 	if ((itimer_counter & 65535) == 0)
 		if ((time_now() - start) > (double)opt_timeout)
 			goto cancel;
-	if (opt_do_run) {
+	if (keep_stressing_flag) {
 		stress_itimer_set(&timer);
 		return;
 	}
 
 cancel:
-	opt_do_run = false;
+	keep_stressing_flag = false;
 	/* Cancel timer if we detect no more runs */
 	memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

@@ -73,7 +73,7 @@ static pid_t stress_lease_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -150,7 +150,7 @@ int stress_lease(const args_t *args)
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
-			if (!opt_do_run) {
+			if (!keep_stressing_flag) {
 				(void)close(fd);
 				goto reap;
 			}

@@ -81,12 +81,12 @@ int stress_lsearch(const args_t *args)
 		size_t n = 0;
 
 		/* Step #1, populate with data */
-		for (i = 0; opt_do_run && i < max; i++) {
+		for (i = 0; keep_stressing_flag && i < max; i++) {
 			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
 			(void)lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
 		}
 		/* Step #2, find */
-		for (i = 0; opt_do_run && i < n; i++) {
+		for (i = 0; keep_stressing_flag && i < n; i++) {
 			int32_t *result;
 
 			result = lfind(&data[i], root, &n, sizeof(int32_t), cmp);

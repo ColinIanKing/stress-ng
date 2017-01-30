@@ -1018,6 +1018,6 @@ void *align_address(const void *addr, const size_t alignment)
  */
 bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 {
-	return (LIKELY(opt_do_run) &&
+	return (LIKELY(keep_stressing_flag) &&
 	        LIKELY(!args->max_ops || (*args->counter < args->max_ops)));
 }

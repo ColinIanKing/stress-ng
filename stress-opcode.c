@@ -114,7 +114,7 @@ int stress_opcode(const args_t *args)
 
 		mwc32();
 again:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		pid = fork();
 		if (pid < 0) {

@@ -149,7 +149,7 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
@@ -164,7 +164,7 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
 		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
@@ -181,7 +181,7 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		inc_counter(args);

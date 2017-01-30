@@ -156,7 +156,7 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
@@ -171,7 +171,7 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
 		heapsort(data, n * 4, sizeof(uint8_t), stress_heapsort_cmp_3);
@@ -188,7 +188,7 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		inc_counter(args);

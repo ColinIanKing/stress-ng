@@ -33,7 +33,7 @@
 #endif
 
 #define check_do_run()		\
-	if (!opt_do_run)	\
+	if (!keep_stressing_flag)	\
 		break;		\
 
 #define GIDS_MAX 	(1024)

@@ -270,7 +270,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		ssize_t ret;
 
 		/* check we should break out before we block on the read */
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		/*
@@ -293,7 +293,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 					continue;
 				if (errno != ENOMEM) {
 					pr_fail_err("poll userfaultfd");
-					if (!opt_do_run)
+					if (!keep_stressing_flag)
 						break;
 				}
 				/*
@@ -313,7 +313,7 @@ do_read:
 			if (errno == EINTR)
 				continue;
 			pr_fail_err("read userfaultfd");
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 			continue;
 		}

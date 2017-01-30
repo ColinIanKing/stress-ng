@@ -45,7 +45,7 @@
 			mfence();					\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
-		if (!opt_do_run)					\
+		if (!keep_stressing_flag)					\
 			break;						\
 	}
 
@@ -130,7 +130,7 @@ int stress_cache(const args_t *args)
 				total += mem_cache[i] +
 					mem_cache[(mem_cache_size - 1) - i];
 				i = (i + 32769) % mem_cache_size;
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 			}
 		}

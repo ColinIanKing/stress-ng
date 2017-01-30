@@ -70,7 +70,7 @@ int stress_set_udp_domain(const char *name)
 static void MLOCKED handle_udp_sigalrm(int dummy)
 {
 	(void)dummy;
-	opt_do_run = false;
+	keep_stressing_flag = false;
 }
 
 /*
@@ -106,7 +106,7 @@ int stress_udp(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;

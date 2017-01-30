@@ -95,7 +95,7 @@ int stress_seek(const args_t *args)
 			goto close_finish;
 		}
 re_write:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		rwret = write(fd, buf, sizeof(buf));
 		if (rwret <= 0) {
@@ -113,7 +113,7 @@ re_write:
 			goto close_finish;
 		}
 re_read:
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		rwret = read(fd, tmp, sizeof(tmp));
 		if (rwret <= 0) {

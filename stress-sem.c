@@ -107,7 +107,7 @@ static void semaphore_posix_thrash(const args_t *args)
 				break;
 			}
 timed_out:
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 	} while (keep_stressing());
@@ -124,7 +124,7 @@ static pid_t semaphore_posix_spawn(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (opt_do_run && (errno == EAGAIN))
+		if (keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -163,7 +163,7 @@ int stress_sem(const args_t *args)
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
 		pids[i] = semaphore_posix_spawn(args);
-		if (!opt_do_run || pids[i] < 0)
+		if (!keep_stressing_flag || pids[i] < 0)
 			goto reap;
 	}
 

@@ -189,7 +189,7 @@ int stress_clock(const args_t *args)
 					goto timer_delete;
 				}
 				loops--;
-			} while ((loops > 0) && opt_do_run && (its.it_value.tv_nsec != 0));
+			} while ((loops > 0) && keep_stressing_flag && (its.it_value.tv_nsec != 0));
 
 timer_delete:
 			ret = timer_delete(timer_id);

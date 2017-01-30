@@ -57,7 +57,7 @@ static void stress_stackmmap_push_msync(void)
 		(void)shim_msync(addr, page_size, mwc8() >= 128 ? MS_SYNC : MS_ASYNC);
 		laddr = addr;
 	}
-	if (opt_do_run)
+	if (keep_stressing_flag)
 		stress_stackmmap_push_msync();
 }
 

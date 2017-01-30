@@ -79,7 +79,7 @@ int stress_dir(const args_t *args)
 			inc_counter(args);
 		}
 		stress_dir_tidy(args, n);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		sync();
 	} while (keep_stressing());

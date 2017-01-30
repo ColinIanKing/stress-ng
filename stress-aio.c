@@ -128,7 +128,7 @@ static int issue_aio_request(
 	const int request,
 	int (*aio_func)(struct aiocb *aiocbp) )
 {
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		int ret;
 
 		io_req->request = request;
@@ -219,7 +219,7 @@ int stress_aio(const args_t *args)
 	do {
 		(void)shim_usleep(250000); /* wait until a signal occurs */
 
-		for (i = 0; opt_do_run && (i < opt_aio_requests); i++) {
+		for (i = 0; keep_stressing_flag && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 

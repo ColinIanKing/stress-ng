@@ -209,7 +209,7 @@ static int dnotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (opt_do_run && (read(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -251,7 +251,7 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (opt_do_run && (write(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
@@ -387,7 +387,7 @@ int stress_dnotify(const args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
-		for (i = 0; opt_do_run && dnotify_stressors[i].func; i++)
+		for (i = 0; keep_stressing_flag && dnotify_stressors[i].func; i++)
 			dnotify_stressors[i].func(args, dirname);
 		inc_counter(args);
 	} while (keep_stressing());

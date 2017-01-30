@@ -211,7 +211,7 @@ int stress_pthread(const args_t *args)
 				break;
 			}
 			inc_counter(args);
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 		}
 		attempted++;

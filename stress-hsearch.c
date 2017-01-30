@@ -92,7 +92,7 @@ int stress_hsearch(const args_t *args)
 	}
 
 	do {
-		for (i = 0; opt_do_run && i < max; i++) {
+		for (i = 0; keep_stressing_flag && i < max; i++) {
 			ENTRY e, *ep;
 
 			e.key = keys[i];

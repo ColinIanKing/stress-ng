@@ -34,7 +34,7 @@ static inline bool stress_syscall_wait(
 	const args_t *args,
 	const pid_t pid)
 {
-	while (opt_do_run) {
+	while (keep_stressing_flag) {
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
@@ -88,7 +88,7 @@ int stress_ptrace(const args_t *args)
 		/*
 		 *  A simple mix of system calls
 		 */
-		while (opt_do_run) {
+		while (keep_stressing_flag) {
 			(void)getppid();
 			(void)getgid();
 			(void)getegid();

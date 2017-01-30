@@ -95,7 +95,7 @@ static int try_remap(
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz, flags);
 #endif
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			return 0;
 #if defined(MREMAP_FIXED)
 		if (addr) {
@@ -148,7 +148,7 @@ static int stress_mremap_child(
 		uint8_t *buf = NULL;
 		size_t old_sz;
 
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, *flags, -1, 0);
@@ -241,7 +241,7 @@ int stress_mremap(const args_t *args)
 	set_oom_adjustment(args->name, true);
 
 again:
-	if (!opt_do_run)
+	if (!keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {

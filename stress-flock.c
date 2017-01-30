@@ -60,7 +60,7 @@ retry:
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		int rc = exit_status(errno);
 
-		if ((errno == ENOENT) && opt_do_run) {
+		if ((errno == ENOENT) && keep_stressing_flag) {
 			/* Race, sometimes we need to retry */
 			goto retry;
 		}

@@ -86,7 +86,7 @@ again:
 		 * of the loop if we've run out of run time
 		 */
 		if ((time_now() - start) > (double)opt_timeout)
-			opt_do_run = false;
+			keep_stressing_flag = false;
 
 		if (getpid() == mypid)
 			pid = fork();

@@ -90,7 +90,7 @@ int stress_fallocate(const args_t *args)
 
 	do {
 		ret = posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		(void)fsync(fd);
 		if ((ret == 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
@@ -108,7 +108,7 @@ int stress_fallocate(const args_t *args)
 
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		if (!opt_do_run)
+		if (!keep_stressing_flag)
 			break;
 		(void)fsync(fd);
 
@@ -137,7 +137,7 @@ int stress_fallocate(const args_t *args)
 			 */
 			int i;
 			(void)shim_fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
-			if (!opt_do_run)
+			if (!keep_stressing_flag)
 				break;
 			(void)fsync(fd);
 
@@ -146,7 +146,7 @@ int stress_fallocate(const args_t *args)
 				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
-				if (!opt_do_run)
+				if (!keep_stressing_flag)
 					break;
 				(void)fsync(fd);
 			}
