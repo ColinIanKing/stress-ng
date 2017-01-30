@@ -39,7 +39,7 @@ static bool enabled;
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
 
-settings_t settings[] = {
+static settings_t settings[] = {
 #if defined(__linux__) && defined(STRESS_X86)
 	/* x86 Intel P-State maximizing settings */
 	SETTING("/sys/devices/system/cpu/intel_pstate/max_perf_pct", "100"),
