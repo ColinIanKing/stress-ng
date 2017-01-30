@@ -73,7 +73,7 @@ int stress_affinity(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_affinity(args_t *args)
+int stress_affinity(const args_t *args)
 {
 	return stress_not_implemented(args);
 }

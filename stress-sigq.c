@@ -93,7 +93,7 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sigq(args_t *args)
+int stress_sigq(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
