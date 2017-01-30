@@ -53,11 +53,11 @@ static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
 int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
-int32_t opt_all = 0;				/* Number of concurrent workers */
+static int32_t opt_all = 0;			/* Number of concurrent workers */
 uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool keep_stressing_flag = true;	/* false to exit stressor */
-volatile bool wait_flag = true;			/* false to exit run waiter loop */
+static volatile bool wait_flag = true;		/* false to exit run waiter loop */
 volatile bool caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t pgrp;					/* process group leader */
 
