@@ -204,7 +204,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, opt_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
+	(void)pr_msg(stderr, caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 

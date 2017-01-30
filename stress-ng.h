@@ -1880,8 +1880,8 @@ extern shared_t *shared;		/* shared memory */
 extern uint64_t	opt_timeout;		/* timeout in seconds */
 extern uint64_t	opt_flags;		/* option flags */
 extern int32_t opt_sequential;		/* Number of sequential iterations */
-extern volatile bool keep_stressing_flag;	/* false to exit stressor */
-extern volatile bool opt_sigint;	/* true if stopped by SIGINT */
+extern volatile bool keep_stressing_flag; /* false to exit stressor */
+extern volatile bool caught_sigint;	/* true if stopped by SIGINT */
 extern mwc_t __mwc;			/* internal mwc random state */
 extern pid_t pgrp;			/* proceess group leader */
 

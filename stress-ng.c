@@ -58,7 +58,7 @@ uint64_t opt_timeout = 0;			/* timeout in seconds */
 uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool keep_stressing_flag = true;		/* false to exit stressor */
 volatile bool opt_do_wait = true;		/* false to exit run waiter loop */
-volatile bool opt_sigint = false;		/* true if stopped by SIGINT */
+volatile bool caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t pgrp;					/* process group leader */
 
 /* Scheduler options */
@@ -1465,7 +1465,7 @@ static int stress_exclude(char *const opt_exclude)
 static void MLOCKED stress_sigint_handler(int dummy)
 {
 	(void)dummy;
-	opt_sigint = true;
+	caught_sigint = true;
 	keep_stressing_flag = false;
 	opt_do_wait = false;
 
