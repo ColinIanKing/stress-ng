@@ -202,21 +202,21 @@ int stress_get(const args_t *args)
 			check_do_run();
 		}
 
-#if defined(__linux__) && NEED_GLIBC(2,13,0)
+#if defined(__linux__) && NEED_GLIBC(2,13,0) && defined(EOVERFLOW)
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			struct rlimit rlim[2];
 
 			ret = prlimit(mypid, rlimits[i], NULL, &rlim[0]);
-			if (verify && (ret < 0))
+			if (verify && (ret < 0) && (errno != EOVERFLOW))
 				pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 					args->name, mypid, i, errno, strerror(errno));
 			if (!ret) {
 				ret = prlimit(mypid, rlimits[i], &rlim[0], NULL);
-				if (verify && (ret < 0))
+				if (verify && (ret < 0) && (errno != EOVERFLOW))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
 				ret = prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
-				if (verify && (ret < 0))
+				if (verify && (ret < 0) && (errno != EOVERFLOW))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
 			}
