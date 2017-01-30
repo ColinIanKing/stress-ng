@@ -70,7 +70,7 @@ static void *stress_membarrier_thread(void *arg)
 			pr_fail_err("membarrier CMD QUERY");
 			break;
 		}
-		/* CMD SHARED not availble; skip it */
+		/* CMD SHARED not available; skip it */
 		if (!(ret & MEMBARRIER_CMD_SHARED))
 			continue;
 		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {

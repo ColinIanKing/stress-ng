@@ -929,7 +929,7 @@ stress-ng (0.05.21-1) unstable; urgency=medium
   * Add page remapping stressor
   * stress-pthread: Add get_robust_list call
   * stress-sysinfo: exercise fstatfs()
-  * Move wcs options to correct postion in manual
+  * Move wcs options to correct position in manual
   * Add the sync-file stressor
   * Add fp-error stressor
   * syscalls.txt: update some missing syscalls and some re-ordering
@@ -2069,7 +2069,7 @@ stress-ng (0.03.19-1) unstable; urgency=medium
 
   * Makefile: bump version
   * stress-sem: fix spelling mistake in comment: destory -> destroy
-  * Manual: fix spelling mistake: successfull -> sucessful
+  * Manual: fix spelling mistake: successfull -> successful
   * Manual: fix typo: summaries -> summarise
   * Manual: vecmath: Replace x with \(mu multiply sign for correct formatting
   * Manual: Fix udp port description, add the default base port being used.
@@ -2279,7 +2279,7 @@ stress-ng (0.03.13-1) unstable; urgency=medium
   * Add check for BSD invalid chmod mode bits error
   * Fix printing of stressor names, some names too long and _ -> - conversion
   * stress-cache: put { } braces around cflush and mfence
-  * stress-mq: intialise mq to -1 to avoid gcc warning (false positive)
+  * stress-mq: initialise mq to -1 to avoid gcc warning (false positive)
   * Add full read checks in stress-hdd read stressor loops
   * stress-hdd: remove debug cruft
   * Forgot to escape some - hyphens in manual
