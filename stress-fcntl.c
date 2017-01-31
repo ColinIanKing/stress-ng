@@ -310,7 +310,7 @@ lock_abort:	{ /* Nowt */ }
 
 		ret = fcntl(fd, F_OFD_GETLK, &f);
 
-		check_return(args, ret, "F_GETLK");
+		check_return(args, ret, "F_OFD_GETLK (F_WRLCK)");
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
