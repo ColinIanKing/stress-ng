@@ -1,3 +1,86 @@
+stress-ng (0.07.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * fast-test-all: add more feedback on failed or skipped tests at
+    end of test
+  * stress-tlb-shootdown: ensure we have a sensible number of child
+    processes
+  * stress-fcntl: disabled F_DUPFD_* stressors for minix
+  * stress-fcntl: ensure we are not dup'ing onto an already open fd
+  * stress-fcntl: only use flock64 for linux
+  * stress-fcntl: fix F_OFD_GETLK error message
+  * stress-fcntl: use flock64 for locking fcntl calls
+  * stress-get: treat EOVERFLOW on prlimit as not a fatal error
+  * mincore: fix incorrect inverted logic to test for minix
+  * fix build warning with missing const on BSD builds
+  * fix build warnings with missing const on GNU/HURD builds
+  * Make opt_all and wait_flag static, they do not need to be global
+  * Fix up some spelling mistakes
+  * ignite-cpu: make settings static
+  * rename opt_do_wait to wait_flag as a more appropriate name
+  * rename opt_sigint to caught_sigint
+  * Replace opt_do_run with keep_stressing_flag
+  * mincore: ensure we touch pages even when calloc or mincore fail
+  * stress-ng: func_supported should be a void arg
+  * stress-resouces: add calloc resource suckage
+  * stress-resources: add posix semaphore resource suckage
+  * stress-resources: add timer resource suckage
+  * stress-resources: add socketpair to resource suckage
+  * Optimize mwc64/32/16/8 functions
+  * stress-noop: add loop and inc to show minimal stressor example
+  * Optimize __keep_running helper
+  * Add LIKELY/UNLIKELY macros
+  * time.c: add another constification
+  * helper, stress-ng.h: add a couple more constifications
+  * cache: more constifications, remove comment from #endif
+  * perf: use scientific notation to define double constants
+  * stress-sleep: constify cast
+  * constify args_t *args parameters
+  * cache.c, stress-ng.h: move generic_map to cache.c, make it a typedef
+  * stress-ng.h: add some more comments to various fields
+  * stress-fifo: fix wrap around detection
+  * stress-get: need to assign ret before checking it
+  * stress-fcntl: remove "name: " prefix in error message
+  * stress-icache: add missing ; to fix *BSD build
+  * stress-tmpfs: use args->pid instead of getpid on pid
+  * stress-hdd: fix build issue on GNU/HURD
+  * stress-atomic: fix missing ;
+  * use a new helper keep_stressing() to check if we should keep on running
+  * Fix up pr_msg va_args, requires a shim
+  * log: make args const
+  * make pr_* macros into shim functions, shrinks the build size
+  * pr_fail always writes to stderr, so remove the need to specify the
+    stream
+  * pr_err always writes to stderr, so remove the need to specify the
+    stream
+  * pr_tidy always writes to stderr, so remove the need to specify the
+    stream
+  * pr_dbg always writes to stderr, so remove the need to specify the
+    stream
+  * pr_inf always writes to stdout, so remove the need to specify the
+    stream
+  * Remove need to pass name in pr_fail_err, pr_fail_errno, pr_fail_dbg
+  * Add stress_temp_filename_args helper
+  * Add stress_temp_dir_args helper
+  * Add stress_temp_dir_rm_args helper to rmdir given stressor args
+  * Add stress_temp_dir_mk_args helper to mkdir given stressor args
+  * Use arg->pid and arg->ppid rather than getpid() and getppid
+  * stress-tsc: fix missing typo
+  * Add pid, ppid and re-order args to pack more efficiently in args_t
+  * Pass args to stressors via a args_t struct
+  * Use the new mmap_check/set helper funcs
+  * Add mmap set/check helpers
+  * thrash: perform some sanity checks on mmap ranges
+  * stress-tmpfs: remove unnecessary mypid variable
+  * Add a tmpfs file/mmap stressor
+  * stress-af-alg: fix fd leak, add close on error exit path
+  * stress-af-alg: check for null ptr on cmsg to keep clang scan happy
+  * stress-resources: reduce scopeof slavename, make it const char *
+  * stress-netlink-proc: reduce scope of newname
+  * stress-vm-rw: return EXIT_NO_RESOURCE on resource failure
+
+ -- Colin King <colin.king@canonical.com>  Tue, 31 Jan 2017 13:57:12 +0000
+
 stress-ng (0.07.16-1) unstable; urgency=medium
 
   * Makefile: bump version
