@@ -70,7 +70,7 @@ static void check_return(const args_t *args, const int ret, const char *cmd)
  */
 static int do_fcntl(const args_t *args, const int fd)
 {
-#if defined(F_DUPFD)
+#if defined(F_DUPFD) && !defined(__minix__)
 	{
 		int ret, fd2 = fd_get();
 
@@ -83,7 +83,7 @@ static int do_fcntl(const args_t *args, const int fd)
 	}
 #endif
 
-#if defined(F_DUPFD_CLOEXEC)
+#if defined(F_DUPFD_CLOEXEC) && !defined(__minix__)
 	{
 		int ret, fd2 = fd_get();
 
