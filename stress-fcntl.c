@@ -216,7 +216,11 @@ static int do_fcntl(const args_t *args, const int fd)
 #if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 	{
+#if defined (__linux__)
 		struct flock64 f;
+#else
+		struct flock f;
+#endif
 		int ret;
 		const off_t len = (mwc16() + 1) & 0x7fff;
 		const off_t start = mwc16() & 0x7fff;
@@ -292,7 +296,11 @@ lock_abort:	{ /* Nowt */ }
 #if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 	{
+#if defined (__linux__)
 		struct flock64 f;
+#else
+		struct flock f;
+#endif
 		int ret;
 		const off_t len = (mwc16() + 1) & 0x7fff;
 		const off_t start = mwc16() & 0x7fff;
