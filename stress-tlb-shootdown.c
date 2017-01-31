@@ -26,7 +26,8 @@
 
 #if defined(__linux__)
 
-#define MAX_TLB_PROCS	(4)
+#define MAX_TLB_PROCS	(8)
+#define MIN_TLB_PROCS	(2)
 #define MMAP_PAGES	(512)
 
 /*
@@ -43,15 +44,19 @@ int stress_tlb_shootdown(const args_t *args)
 		uint8_t *mem, *ptr;
 		int retry = 128;
 		cpu_set_t proc_mask;
-		int32_t cpus, tlb_procs, i;
+		int32_t tlb_procs, i;
 		const int32_t max_cpus = stress_get_processors_configured();
 
 		if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0) {
 			pr_fail_err("could not get CPU affinity");
 			return EXIT_FAILURE;
 		}
-		cpus = CPU_COUNT(&proc_mask);
-		tlb_procs = STRESS_MAXIMUM(cpus, MAX_TLB_PROCS);
+
+		tlb_procs = max_cpus;
+		if (tlb_procs > MAX_TLB_PROCS)
+			tlb_procs = MAX_TLB_PROCS;
+		if (tlb_procs < MIN_TLB_PROCS)
+			tlb_procs = MIN_TLB_PROCS;
 
 		for (;;) {
 			mem = mmap(NULL, mmap_size, PROT_WRITE | PROT_READ,
