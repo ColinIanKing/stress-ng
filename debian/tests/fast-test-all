@@ -46,6 +46,8 @@ not_exclude()
 p=0
 f=0
 sk=0
+failed=""
+skipped=""
 for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
@@ -61,26 +63,39 @@ do
 			;;
 		1)	echo "$s SKIPPED (test framework out of resources or test should not be run)"
 			sk=$((sk + 1))
+			skipped="$skipped $s"
 			;;
 		2)	echo "$s FAILED"
 			f=$((f + 1))
+			failed="$failed $s"
 			rc=1
 			;;
 		3)	echo "$s SKIPPED (out of resources or missing syscall)"
 			sk=$((sk + 1))
+			skipped="$skipped $s"
 			;;
 		4)	echo "$s SKIPPED (stressor not implemented on this machine)"
 			sk=$((sk + 1))
+			skipped="$skipped $s"
 			;;
 		*)	echo "$s SKIPPED (unknown error return $ret)"
 			sk=$((sk + 1))
+			skipped="$skipped $s"
 			;;
 		esac
 	fi
 done
 
 echo "$p PASSED"
-echo "$f FAILED"
-echo "$sk SKIPPED"
+if [ $f -eq 0 ]; then
+	echo "$f FAILED"
+else
+	echo "$f FAILED,$failed"
+fi
+if [ $sk -eq 0 ]; then
+	echo "$sk SKIPPED"
+else
+	echo "$sk SKIPPED,$skipped"
+fi
 
 exit $rc
