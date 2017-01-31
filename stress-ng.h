@@ -1882,7 +1882,6 @@ extern uint64_t	opt_flags;		/* option flags */
 extern int32_t opt_sequential;		/* Number of sequential iterations */
 extern volatile bool keep_stressing_flag; /* false to exit stressor */
 extern volatile bool caught_sigint;	/* true if stopped by SIGINT */
-extern mwc_t __mwc;			/* internal mwc random state */
 extern pid_t pgrp;			/* proceess group leader */
 
 /*
@@ -1962,56 +1961,12 @@ static inline void mfence(void)
 #endif
 }
 
-/*
- *  mwc_seed()
- *      set mwc seeds
- */
-static inline void mwc_seed(const uint32_t w, const uint32_t z)
-{
-	__mwc.w = w;
-	__mwc.z = z;
-}
-
-/*
- *  mwc32()
- *      Multiply-with-carry random numbers
- *      fast pseudo random number generator, see
- *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
- */
-static inline HOT OPTIMIZE3 uint32_t mwc32(void)
-{
-	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
-	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
-	return (__mwc.z << 16) + __mwc.w;
-}
-
-/*
- *  mwc64()
- *	get a 64 bit pseudo random number
- */
-static inline HOT OPTIMIZE3 uint64_t mwc64(void)
-{
-	return (((uint64_t)mwc32()) << 32) | mwc32();
-}
-
-/*
- *  mwc16()
- *	get a 16 bit pseudo random number
- */
-static inline HOT OPTIMIZE3 uint16_t mwc16(void)
-{
-	return mwc32() & 0xffff;
-}
-
-/*
- *  mwc8()
- *	get an 8 bit pseudo random number
- */
-static inline HOT OPTIMIZE3 uint8_t mwc8(void)
-{
-	return mwc32() & 0xff;
-}
-
+/* Fast random numbers */
+extern uint32_t mwc32(void);
+extern uint64_t mwc64(void);
+extern uint16_t mwc16(void);
+extern uint8_t mwc8(void);
+extern void mwc_seed(const uint32_t w, const uint32_t z);
 extern void mwc_reseed(void);
 
 /* Time handling */

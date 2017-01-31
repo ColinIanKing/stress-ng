@@ -54,3 +54,53 @@ void mwc_reseed(void)
 		}
 	}
 }
+
+/*
+ *  mwc_seed()
+ *      set mwc seeds
+ */
+void mwc_seed(const uint32_t w, const uint32_t z)
+{
+	__mwc.w = w;
+	__mwc.z = z;
+}
+
+/*
+ *  mwc32()
+ *      Multiply-with-carry random numbers
+ *      fast pseudo random number generator, see
+ *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
+ */
+HOT OPTIMIZE3 uint32_t mwc32(void)
+{
+	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
+	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
+	return (__mwc.z << 16) + __mwc.w;
+}
+
+/*
+ *  mwc64()
+ *	get a 64 bit pseudo random number
+ */
+HOT OPTIMIZE3 uint64_t mwc64(void)
+{
+	return (((uint64_t)mwc32()) << 32) | mwc32();
+}
+
+/*
+ *  mwc16()
+ *	get a 16 bit pseudo random number
+ */
+HOT OPTIMIZE3 uint16_t mwc16(void)
+{
+	return mwc32() & 0xffff;
+}
+
+/*
+ *  mwc8()
+ *	get an 8 bit pseudo random number
+ */
+HOT OPTIMIZE3 uint8_t mwc8(void)
+{
+	return mwc32() & 0xff;
+}
