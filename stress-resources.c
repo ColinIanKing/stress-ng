@@ -248,7 +248,7 @@ static void waste_resources(
 					stress_pthread_func, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
 		if (!i) {
 			struct sigevent sevp;
 
@@ -305,7 +305,7 @@ static void waste_resources(
 			(void)pthread_join(info[i].pthread, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
 		if ((!i) && (info[i].timerok)) {
 			(void)timer_delete(info[i].timerid);
 		}
