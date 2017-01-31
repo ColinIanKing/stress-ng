@@ -76,7 +76,7 @@ typedef struct {
 	int pty_master;
 	int pty_slave;
 #endif
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
 	bool timerok;
 	timer_t timerid;
 #endif
