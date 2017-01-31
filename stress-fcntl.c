@@ -216,7 +216,7 @@ static int do_fcntl(const args_t *args, const int fd)
 #if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 	{
-		struct flock f;
+		struct flock64 f;
 		int ret;
 		const off_t len = (mwc16() + 1) & 0x7fff;
 		const off_t start = mwc16() & 0x7fff;
@@ -292,7 +292,7 @@ lock_abort:	{ /* Nowt */ }
 #if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 	{
-		struct flock f;
+		struct flock64 f;
 		int ret;
 		const off_t len = (mwc16() + 1) & 0x7fff;
 		const off_t start = mwc16() & 0x7fff;
@@ -309,14 +309,8 @@ lock_abort:	{ /* Nowt */ }
 		f.l_pid = 0;
 
 		ret = fcntl(fd, F_OFD_GETLK, &f);
-		check_return(args, ret, "F_GETLK");
 
-#if 0
-		if (f.l_type != F_UNLCK) {
-			pr_fail_err("fcntl F_OFD_GETLK");
-			goto ofd_lock_abort;
-		}
-#endif
+		check_return(args, ret, "F_GETLK");
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
