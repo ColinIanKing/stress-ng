@@ -56,7 +56,7 @@ int stress_yield(const args_t *args)
 	} else {
 		if (CPU_COUNT(&mask) < cpus)
 			cpus = CPU_COUNT(&mask);
-		pr_inf("%s: limiting to %" PRId32 " yielder%s (args->instance %"
+		pr_inf("%s: limiting to %" PRId32 " yielder%s (instance %"
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	}
 #endif
