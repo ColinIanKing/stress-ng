@@ -1,3 +1,13 @@
+stress-ng (0.07.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-resources: don't build in timer data if SIGUNUSED is not defined
+  * mwc: move inlined functions back into mwc.c
+  * stress-resources: don't build timer code of SIGUNUSED is not defined,
+    fixes builds on mips, mips64el, alpha, sparc64
+
+ -- Colin King <colin.king@canonical.com>  Wed, 1 Feb 2017 07:03:54 +0000
+
 stress-ng (0.07.17-1) unstable; urgency=medium
 
   * Makefile: bump version
