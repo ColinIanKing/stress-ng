@@ -122,7 +122,7 @@ again:
 						goto abort;
 					if (errno) {
 						pr_fail_dbg("read");
-						break;
+						goto abort;
 					}
 					continue;
 				}
