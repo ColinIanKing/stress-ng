@@ -213,7 +213,7 @@ do_invalidate:
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_INVALIDATE on "
-				"offset %jd failed, errno=%d (%s)",
+				"offset %jd failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_next;
