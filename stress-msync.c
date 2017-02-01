@@ -164,7 +164,7 @@ int stress_msync(const args_t *args)
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_SYNC on "
-				"offset %jd failed, errno=%d (%s)",
+				"offset %jd failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno,
 				strerror(errno));
 			goto do_invalidate;
