@@ -659,8 +659,12 @@ dist:
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
+pdf:
+	man -t ./stress-ng.1 | ps2pdf - > stress-ng.pdf
+
+
 clean:
-	rm -f stress-ng $(OBJS) stress-ng.1.gz
+	rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
 	rm -f stress-ng-$(VERSION).tar.gz
 	rm -f test-decimal.c
 	rm -f personality.h
