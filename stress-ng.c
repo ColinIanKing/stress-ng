@@ -70,6 +70,7 @@ shared_t *shared;				/* shared memory */
  */
 static const unsupported_t unsupported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
+	{ STRESS_CHROOT,	stress_chroot_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
@@ -180,6 +181,7 @@ static const stress_t stressors[] = {
 	STRESSOR(chdir, CHDIR, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(chmod, CHMOD, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(chown, CHOWN, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(chroot, CHROOT, CLASS_OS),
 	STRESSOR(clock, CLOCK, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(clone, CLONE, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(context, CONTEXT, CLASS_MEMORY | CLASS_CPU),
@@ -402,6 +404,8 @@ static const struct option long_options[] = {
 	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
 	{ "chown",	1,	0, 	OPT_CHOWN},
 	{ "chown-ops",	1,	0,	OPT_CHOWN_OPS },
+	{ "chroot",	1,	0, 	OPT_CHROOT},
+	{ "chroot-ops",	1,	0,	OPT_CHROOT_OPS },
 	{ "class",	1,	0,	OPT_CLASS },
 	{ "clock",	1,	0,	OPT_CLOCK },
 	{ "clock-ops",	1,	0,	OPT_CLOCK_OPS },
@@ -943,6 +947,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
 	{ NULL,		"chown N",		"start N workers thrashing chown file ownership" },
 	{ NULL,		"chown-ops N",		"stop chown workers after N bogo operations" },
+	{ NULL,		"chroot N",		"start N workers thrashing chroot" },
+	{ NULL,		"chroot-ops N",		"stop chhroot workers after N bogo operations" },
 	{ NULL,		"clock N",		"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,		"clock-ops N",		"stop clock workers after N bogo operations" },
 	{ NULL,		"clone N",		"start N workers that rapidly create and reap clones" },

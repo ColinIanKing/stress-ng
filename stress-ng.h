@@ -981,6 +981,7 @@ typedef enum {
 	STRESS_CHDIR,
 	STRESS_CHMOD,
 	STRESS_CHOWN,
+	STRESS_CHROOT,
 	STRESS_CLOCK,
 	STRESS_CLONE,
 	STRESS_CONTEXT,
@@ -1236,6 +1237,9 @@ typedef enum {
 
 	OPT_CHOWN,
 	OPT_CHOWN_OPS,
+
+	OPT_CHROOT,
+	OPT_CHROOT_OPS,
 
 	OPT_CLOCK,
 	OPT_CLOCK_OPS,
@@ -2158,6 +2162,7 @@ extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_aio_linux_requests(const char *optarg);
 extern void stress_set_bigheap_growth(const char *optarg);
 extern void stress_set_bsearch_size(const char *optarg);
+extern int  stress_chroot_supported(void);
 extern void stress_set_clone_max(const char *optarg);
 extern void stress_set_copy_file_bytes(const char *optarg);
 extern void stress_set_cpu_load(const char *optarg);
@@ -2349,6 +2354,7 @@ STRESS(stress_cap);
 STRESS(stress_chdir);
 STRESS(stress_chmod);
 STRESS(stress_chown);
+STRESS(stress_chroot);
 STRESS(stress_clock);
 STRESS(stress_clone);
 STRESS(stress_context);

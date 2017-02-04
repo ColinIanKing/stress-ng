@@ -501,6 +501,13 @@ value for N then the more contention on the single file.
 .B \-\-chown\-ops N
 stop the chown workers after N bogo chown(2) operations.
 .TP
+.B \-\-chroot N
+start N workers that exercise chroot(2) on various valid and invalid
+chroot paths. (Linux only).
+.TP
+.B \-\-chroot\-ops N
+stop the chroot workers after N bogo chroot(2) operations.
+.TP
 .B \-\-clock N
 start N workers exercising clocks and POSIX timers. For all known clock types
 this will exercise clock_getres(2), clock_gettime(2) and clock_nanosleep(2).

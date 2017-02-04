@@ -15,7 +15,7 @@ capset				cap
 chdir				chdir
 chmod				chmod
 chown				chown
-chroot
+chroot				chroot
 clock_adjtime
 clock_getres			clock
 clock_gettime			clock
