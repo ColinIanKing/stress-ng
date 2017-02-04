@@ -226,6 +226,8 @@ retry:
 
 			ret = waitpid(pid, &status, 0);
 			if (ret < 0) {
+				if (errno == EINTR)
+					break;
 				pr_fail_err("waitpid waiting on chroot child");
 				goto tidy_all;
 			}
@@ -244,7 +246,6 @@ tidy_all:
 tidy_dir:
 	(void)rmdir(path);
 tidy_ret:
-
 	return ret;
 }
 
