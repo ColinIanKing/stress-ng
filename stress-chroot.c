@@ -250,6 +250,17 @@ tidy_ret:
 }
 
 #else
+
+/*
+ *  stress_chroot_supported()
+ *      check if we can run this as root
+ */
+int stress_chroot_supported(void)
+{
+	pr_inf("chroot stressor is not supported on this system\n");
+	return -1;
+}
+
 int stress_chroot(const args_t *args)
 {
         return stress_not_implemented(args);
