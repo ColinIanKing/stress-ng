@@ -1,3 +1,27 @@
+stress-ng (0.07.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-iomix: don't use fdatasync on non-linux systems
+  * stress-chroot: make this unsupported for non-Linux systems
+  * stress-iomix: use shim_msync instread of msync for portability reasons
+  * stress-iomix: only use fadvise on linux
+  * stress-iomix: only use MAP_POPULATE on systems that provide this flag
+  * stress-iomix: only use FALLOC_FL_ZERO_RANGE on systems where it is available
+  * Correctly default iomix size to 1GB
+  * Move page_size to args struct, remove need for stress_get_pagesize calls
+  * Add a new iomix mixed I/O stressor
+  * stress-chroot: EINTR should not flag up as an error
+  * Add a chroot stressor
+  * Makefile: add pdf manual making rule
+  * stress-socketpair: abort on read failure
+  * stress-yield: remove args-> from instacne message text
+  * stress-msync: add another missing \n
+  * stress-sync-file: abort early on sync failures
+  * stress-msync: add missing \n on error message
+
+ -- Colin King <colin.king@canonical.com>  Wed, 8 Feb 2017 13:47:31 +0000
+
 stress-ng (0.07.18-1) unstable; urgency=medium
 
   * Makefile: bump version
