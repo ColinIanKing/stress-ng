@@ -521,7 +521,11 @@ int stress_iomix(const args_t *args)
 	}
 	(void)unlink(filename);
 
+#if defined(FALLOC_FL_ZERO_RANGE)
 	ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, opt_iomix_bytes);
+#else
+	ret = shim_fallocate(fd, 0, 0, opt_iomix_bytes);
+#endif
 	if (ret < 0) {
 		pr_fail_err("fallocate");
 		(void)stress_temp_dir_rm_args(args);
