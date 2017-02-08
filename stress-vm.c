@@ -1880,7 +1880,7 @@ int stress_vm(const args_t *args)
 	pid_t pid;
 	const bool keep = (opt_flags & OPT_FLAGS_VM_KEEP);
 	const stress_vm_func func = opt_vm_stressor->func;
-        const size_t page_size = stress_get_pagesize();
+        const size_t page_size = args->page_size;
 	size_t buf_sz;
 
 	if (!set_vm_bytes) {

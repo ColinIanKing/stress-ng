@@ -45,7 +45,7 @@ int stress_vm_splice(const args_t *args)
 {
 	int fd, fds[2];
 	uint8_t *buf;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t sz;
 
 	if (!set_vm_splice_bytes) {

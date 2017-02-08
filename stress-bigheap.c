@@ -46,7 +46,7 @@ void stress_set_bigheap_growth(const char *optarg)
 int stress_bigheap(const args_t *args)
 {
 	void *ptr = NULL, *last_ptr = NULL;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t stride = page_size;
 	size_t size = 0;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;

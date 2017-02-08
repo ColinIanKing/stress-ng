@@ -93,7 +93,7 @@ static void MLOCKED stress_badhandler(int signum)
  */
 int stress_opcode(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	int rc = EXIT_FAILURE;
 	size_t i;
 #if TRACK_SIGCOUNT

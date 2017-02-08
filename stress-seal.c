@@ -55,7 +55,7 @@ int stress_seal(const args_t *args)
 {
 	int fd, ret;
 	int rc = EXIT_FAILURE;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];
 
 	do {

@@ -362,7 +362,7 @@ static void MLOCKED stress_alrmhandler(int dummy)
  */
 int stress_resources(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	int ret;
 

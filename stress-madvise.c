@@ -104,7 +104,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
  */
 int stress_madvise(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t sz = 4 *  MB;
 	int ret, fd = -1;
 	NOCLOBBER int flags = MAP_SHARED;

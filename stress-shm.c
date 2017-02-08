@@ -100,7 +100,7 @@ static int stress_shm_posix_child(
 	bool ok = true;
 	pid_t pid = getpid();
 	uint64_t id = 0;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 
 	memset(addrs, 0, sizeof(addrs));
 	memset(shm_names, 0, sizeof(shm_names));
@@ -229,7 +229,7 @@ reap:
  */
 int stress_shm(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;
 	int pipefds[2];
 	int rc = EXIT_SUCCESS;

@@ -220,7 +220,7 @@ static int stress_mremap_child(
  */
 int stress_mremap(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t sz, new_sz;
 	int rc = EXIT_SUCCESS, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	pid_t pid;

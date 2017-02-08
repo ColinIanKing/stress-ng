@@ -47,7 +47,7 @@ static void stress_memfd_allocs(const args_t *args)
 	int fds[MAX_MEM_FDS];
 	void *maps[MAX_MEM_FDS];
 	size_t i;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
 	size_t size = opt_memfd_bytes / MAX_MEM_FDS;
 

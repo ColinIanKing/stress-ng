@@ -332,7 +332,7 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
 {
 	void *mmaps[128];
 	size_t i;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
@@ -485,7 +485,7 @@ int stress_iomix(const args_t *args)
 	int fd, ret;
 	char filename[PATH_MAX];
 	uint64_t *counters;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t counters_sz = sizeof(uint64_t) * SIZEOF_ARRAY(iomix_funcs);
 	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
 	size_t i;
@@ -540,7 +540,8 @@ int stress_iomix(const args_t *args)
 			args->max_ops,
 			args->instance,
 			args->pid,
-			args->ppid
+			args->ppid,
+			args->page_size
 		};
 
 		pids[i] = fork();

@@ -89,7 +89,7 @@ static int remap_order(
 int stress_remap(const args_t *args)
 {
 	mapdata_t *data;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t data_size = N_PAGES * page_size;
 	const size_t stride = page_size / sizeof(*data);
 	size_t i;

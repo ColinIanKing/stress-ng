@@ -197,7 +197,7 @@ int stress_numa(const args_t *args)
 	long numa_nodes;
 	unsigned long max_nodes;
 	const unsigned long lbits = NUMA_LONG_BITS;
-	const unsigned long page_sz = stress_get_pagesize();
+	const unsigned long page_sz = args->page_size;
 	const unsigned long num_pages = MMAP_SZ / page_sz;
 	uint8_t *buf;
 	node_t *n;

@@ -79,7 +79,7 @@ static void MLOCKED stress_sigbus_handler(int dummy)
 int stress_msync(const args_t *args)
 {
 	uint8_t *buf = NULL;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
 	NOCLOBBER size_t sz;
 	ssize_t ret;

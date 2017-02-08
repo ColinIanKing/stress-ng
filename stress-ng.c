@@ -1909,7 +1909,8 @@ again:
 							procs[i].bogo_ops,
 							j,
 							getpid(),
-							getppid()
+							getppid(),
+							stress_get_pagesize(),
 						};
 
 						rc = stressors[i].stress_func(&args);

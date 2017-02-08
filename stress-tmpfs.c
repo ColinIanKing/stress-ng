@@ -267,7 +267,7 @@ cleanup:
  */
 int stress_tmpfs(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	off_t sz;
 	size_t pages4k;
 	pid_t pid;

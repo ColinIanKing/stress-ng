@@ -228,7 +228,7 @@ exit_close:
  */
 int stress_getdent(const args_t *args)
 {
-	size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 
 	do {
 		int ret;

@@ -345,7 +345,7 @@ reap:
  */
 int stress_shm_sysv(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;
 	int pipefds[2];
 	int rc = EXIT_SUCCESS;

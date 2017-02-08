@@ -32,7 +32,7 @@ int stress_brk(const args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 
 again:
 	if (!keep_stressing_flag)

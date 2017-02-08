@@ -56,7 +56,7 @@ static void SECTION(stress_icache_callee) ALIGNED(SIZE) stress_icache_func(void)
 int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(const args_t *args)
 {
 	uint8_t *addr = (uint8_t *)stress_icache_func;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 
 	if (page_size != SIZE) {

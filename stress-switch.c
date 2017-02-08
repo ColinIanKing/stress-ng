@@ -47,7 +47,7 @@ int stress_switch(const args_t *args)
 		pr_fail_dbg("pipe");
 		return EXIT_FAILURE;
 	}
-	buf_size = stress_get_pagesize();
+	buf_size = args->page_size;
 #endif
 
 #if defined(F_SETPIPE_SZ)

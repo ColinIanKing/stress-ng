@@ -36,7 +36,7 @@
  */
 int stress_tlb_shootdown(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	pid_t pids[MAX_TLB_PROCS];
 

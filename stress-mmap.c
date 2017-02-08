@@ -95,10 +95,10 @@ static void stress_mmap_child(
 	const args_t *args,
 	const int fd,
 	int *flags,
-	const size_t page_size,
 	const size_t sz,
 	const size_t pages4k)
 {
+	const size_t page_size = args->page_size;
 	int no_mem_retries = 0;
 	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
 		MS_ASYNC : MS_SYNC;
@@ -238,7 +238,7 @@ cleanup:
  */
 int stress_mmap(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t sz, pages4k;
 	pid_t pid;
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -364,7 +364,7 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		stress_mmap_child(args, fd, &flags, page_size, sz, pages4k);
+		stress_mmap_child(args, fd, &flags, sz, pages4k);
 	}
 
 cleanup:

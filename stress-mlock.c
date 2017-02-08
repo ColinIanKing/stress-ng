@@ -80,7 +80,7 @@ static inline int mlock_shim(const void *addr, size_t len)
  */
 int stress_mlock(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	pid_t pid;
 	size_t max = sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;

@@ -94,7 +94,7 @@ static void pipe_change_size(const args_t *args, const int fd)
 		return;
 
 #if !(defined(__linux__) && NEED_GLIBC(2,9,0))
-	if (opt_pipe_size < stress_get_pagesize())
+	if (opt_pipe_size < args->page_size)
 		return;
 #endif
 	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {

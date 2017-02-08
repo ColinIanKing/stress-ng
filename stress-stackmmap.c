@@ -74,7 +74,7 @@ int stress_stackmmap(const args_t *args)
 	char filename[PATH_MAX];
 	uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];	/* ensure we have a sig stack */
 
-	page_size = stress_get_pagesize();
+	page_size = args->page_size;
 	page_mask = ~(page_size - 1);
 
 	/*

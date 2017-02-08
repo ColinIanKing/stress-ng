@@ -199,7 +199,7 @@ int stress_oom_pipe(const args_t *args)
 	const size_t max_pipes = max_fd / 2;
 	size_t max_pipe_size;
 
-	page_size = stress_get_pagesize();
+	page_size = args->page_size;
 	max_pipe_size = stress_probe_max_pipe_size() & ~(page_size - 1);
 
 	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes);

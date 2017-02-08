@@ -31,7 +31,7 @@
 int stress_zero(const args_t *args)
 {
 	int fd;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 
 	if ((fd = open("/dev/zero", O_RDONLY)) < 0) {
 		pr_fail_err("open /dev/zero");

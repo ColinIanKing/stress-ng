@@ -35,7 +35,7 @@
 int stress_mincore(const args_t *args)
 {
 	uint8_t *addr = 0;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	const ptrdiff_t mask = ~(page_size - 1);
 
 	do {

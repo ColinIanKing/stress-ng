@@ -235,7 +235,8 @@ int stress_fiemap(const args_t *args)
 			proc_max_ops,
 			args->instance,
 			args->pid,
-			args->ppid
+			args->ppid,
+			args->page_size
 		};
 
 		pids[i] = stress_fiemap_spawn(&new_args, fd);

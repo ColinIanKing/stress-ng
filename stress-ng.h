@@ -266,6 +266,7 @@ typedef struct {
 	const uint32_t instance;	/* stressor instance # */
 	pid_t pid;			/* stressor pid */
 	pid_t ppid;			/* stressor ppid */
+	size_t page_size;		/* page size */
 } args_t;
 
 /* Logging helpers */

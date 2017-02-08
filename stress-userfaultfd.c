@@ -150,7 +150,7 @@ static inline int handle_page_fault(
  */
 static int stress_userfaultfd_oomable(const args_t *args)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = args->page_size;
 	size_t sz;
 	uint8_t *data;
 	void *zero_page = NULL;

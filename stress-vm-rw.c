@@ -35,7 +35,6 @@
 
 typedef struct {
 	const args_t *args;
-	size_t page_size;
 	size_t sz;
 	pid_t pid;
 	int pipe_wr[2];
@@ -125,7 +124,7 @@ redo_rd1:
 
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			/* Check memory altered by parent is sane */
-			for (ptr = buf; ptr < end; ptr += ctxt->page_size) {
+			for (ptr = buf; ptr < end; ptr += args->page_size) {
 				if (*ptr != msg_rd.val) {
 					pr_fail("%s: memory at %p: %d vs %d\n",
 						args->name, ptr, *ptr, msg_rd.val);
@@ -216,7 +215,7 @@ redo_rd2:
 
 		if (opt_flags & OPT_FLAGS_VERIFY) {
 			/* Check data is sane */
-			for (ptr = localbuf; ptr < end; ptr += ctxt->page_size) {
+			for (ptr = localbuf; ptr < end; ptr += args->page_size) {
 				if (*ptr) {
 					pr_fail("%s: memory at %p: %d vs %d\n",
 						args->name, ptr, *ptr, msg_rd.val);
@@ -225,7 +224,7 @@ redo_rd2:
 				*ptr = 0;
 			}
 			/* Set memory */
-			for (ptr = localbuf; ptr < end; ptr += ctxt->page_size)
+			for (ptr = localbuf; ptr < end; ptr += args->page_size)
 				*ptr = val;
 		}
 
@@ -294,8 +293,7 @@ int stress_vm_rw(const args_t *args)
 			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
 	ctxt.args = args;
-	ctxt.page_size = stress_get_pagesize();
-	ctxt.sz = opt_vm_rw_bytes & ~(ctxt.page_size - 1);
+	ctxt.sz = opt_vm_rw_bytes & ~(args->page_size - 1);
 
 	if (pipe(ctxt.pipe_wr) < 0) {
 		pr_fail_dbg("pipe");
