@@ -359,7 +359,7 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
 			if (mmaps[i] != MAP_FAILED) {
 				memcpy(buffer, mmaps[i], page_size);
 				stress_strnrnd(mmaps[i], page_size);
-				(void)msync(mmaps[i], page_size,
+				(void)shim_msync(mmaps[i], page_size,
 					(mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 			}
 		}
