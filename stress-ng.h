@@ -393,6 +393,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_HEAPSORT_SIZE	(4 * MB)
 #define DEFAULT_HEAPSORT_SIZE	(256 * KB)
 
+#define MIN_IOMIX_BYTES		(1 * MB)
+#define MAX_IOMIX_BYTES		(256ULL * GB)
+#define DEFAULT_IOMIX_BYTES	(4 * GB)
+
 #define MIN_VFORKS		(1)
 #define MAX_VFORKS		(16000)
 #define DEFAULT_VFORKS		(1)
@@ -1022,6 +1026,7 @@ typedef enum {
 	STRESS_ICACHE,
 	STRESS_ICMP_FLOOD,
 	STRESS_INOTIFY,
+	STRESS_IOMIX,
 	STRESS_IOPRIO,
 	STRESS_IOSYNC,
 	STRESS_ITIMER,
@@ -1380,6 +1385,10 @@ typedef enum {
 
 	OPT_INOTIFY,
 	OPT_INOTIFY_OPS,
+
+	OPT_IOMIX,
+	OPT_IOMIX_BYTES,
+	OPT_IOMIX_OPS,
 
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
@@ -2190,6 +2199,7 @@ extern void stress_set_heapsort_size(const void *optarg);
 extern void stress_set_hsearch_size(const char *optarg);
 extern int  stress_icmp_flood_supported(void);
 extern void stress_set_itimer_freq(const char *optarg);
+extern void stress_set_iomix_bytes(const char *optarg);
 extern void stress_set_lease_breakers(const char *optarg);
 extern void stress_set_lsearch_size(const char *optarg);
 extern void stress_set_malloc_bytes(const char *optarg);
@@ -2396,6 +2406,7 @@ STRESS(stress_icache);
 STRESS(stress_icmp_flood);
 STRESS(stress_inotify);
 STRESS(stress_io);
+STRESS(stress_iomix);
 STRESS(stress_ioprio);
 STRESS(stress_itimer);
 STRESS(stress_kcmp);

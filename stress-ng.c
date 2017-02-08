@@ -223,6 +223,7 @@ static const stress_t stressors[] = {
 	STRESSOR(icmp_flood, ICMP_FLOOD, CLASS_OS | CLASS_NETWORK),
 	STRESSOR(inotify, INOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(io, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(iomix, IOMIX, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(ioprio, IOPRIO, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(itimer, ITIMER, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(kcmp, KCMP, CLASS_OS),
@@ -517,6 +518,9 @@ static const struct option long_options[] = {
 	{ "inotify-ops",1,	0,	OPT_INOTIFY_OPS },
 	{ "io",		1,	0,	OPT_IOSYNC },
 	{ "io-ops",	1,	0,	OPT_IOSYNC_OPS },
+	{ "iomix",	1,	0,	OPT_IOMIX },
+	{ "iomix-bytes",1,	0,	OPT_IOMIX_BYTES },
+	{ "iomix-ops",	1,	0,	OPT_IOMIX_OPS },
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
 	{ "ioprio",	1,	0,	OPT_IOPRIO },
@@ -1054,7 +1058,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
 	{ NULL,		"inotify-ops N",	"stop inotify workers after N bogo operations" },
 	{ "i N",	"io N",			"start N workers spinning on sync()" },
-	{ NULL,		"io-ops N",		"stop after N io bogo operations" },
+	{ NULL,		"io-ops N",		"stop sync I/O after N io bogo operations" },
+	{ NULL,		"iomix N",		"start N workers that have a mix of I/O operations" },
+	{ NULL,		"iomix-bytes N",	"write N bytes per iomix worker (default is 1GB)" },
+	{ NULL,		"iomix-ops N",		"stop iomix workers after N iomix bogo operations" },
 	{ NULL,		"ionice-class C",	"specify ionice class (idle, besteffort, realtime)" },
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 	{ NULL,		"ioprio N",		"start N workers exercising set/get iopriority" },
@@ -2582,6 +2589,9 @@ next_opt:
 			break;
 		case OPT_IGNITE_CPU:
 			opt_flags |= OPT_FLAGS_IGNITE_CPU;
+			break;
+		case OPT_IOMIX_BYTES:
+			stress_set_iomix_bytes(optarg);
 			break;
 		case OPT_IONICE_CLASS:
 			opt_ionice_class = get_opt_ionice_class(optarg);

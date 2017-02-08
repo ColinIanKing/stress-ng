@@ -103,6 +103,7 @@ STRESS_SRC = \
 	stress-icache.c \
 	stress-icmp-flood.c \
 	stress-inotify.c \
+	stress-iomix.c \
 	stress-ioprio.c \
 	stress-iosync.c \
 	stress-itimer.c \
