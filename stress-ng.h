@@ -396,7 +396,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 
 #define MIN_IOMIX_BYTES		(1 * MB)
 #define MAX_IOMIX_BYTES		(256ULL * GB)
-#define DEFAULT_IOMIX_BYTES	(4 * GB)
+#define DEFAULT_IOMIX_BYTES	(1 * GB)
 
 #define MIN_VFORKS		(1)
 #define MAX_VFORKS		(16000)
