@@ -333,16 +333,17 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
 	void *mmaps[128];
 	size_t i;
 	const size_t page_size = args->page_size;
+	int flags = MAP_SHARED | MAP_ANONYMOUS;
+
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			off_t posn = (mwc64() % opt_iomix_bytes) & ~(page_size - 1);
 			mmaps[i] = mmap(NULL, page_size,
-					PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS | 
-#if defined(MAP_POPULATE)
-					MAP_POPULATE, fd, posn);
-#endif
+					PROT_READ | PROT_WRITE, flags, fd, posn);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			char buffer[page_size];
