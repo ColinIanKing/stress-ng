@@ -295,6 +295,7 @@ static void stress_iomix_sync(const args_t *args, const int fd)
 		if (!keep_stressing())
 			break;
 
+#if defined(__linux__)
 		fdatasync(fd);
 		inc_counter(args);
 		if (!keep_stressing())
@@ -304,6 +305,7 @@ static void stress_iomix_sync(const args_t *args, const int fd)
 		(void)select(0, NULL, NULL, NULL, &tv);
 		if (!keep_stressing())
 			break;
+#endif
 #if defined(__linux__)
 		(void)sync_file_range(fd, mwc64() % opt_iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
 		inc_counter(args);
