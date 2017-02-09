@@ -27,7 +27,10 @@
 #if (defined(STRESS_X86) || defined(STRESS_ARM)) && \
     defined(__GNUC__) && NEED_GNUC(4,6,0)
 
-#define SIZE	(4096)
+#define SIZE_1K		(1024)
+#define SIZE_4K		(4 * SIZE_1K)
+#define SIZE_16K	(16 * SIZE_1K)
+#define SIZE_64K	(64 * SIZE_1K)
 
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)
 #define SECTION(s) __attribute__((__section__(# s)))
@@ -35,101 +38,153 @@
 #endif
 
 /*
- *  stress_icache_func()
- *	page aligned in its own section so we can change the
- * 	code mapping and make it modifyable to force I-cache
- *	refreshes by modifying the code
+ *  STRESS_ICACHE_FUNC()
+ *	generates a simple function that is page aligned in its own
+ *	section so we can change the code mapping and make it
+ *	modifyable to force I-cache refreshes by modifying the code
  */
-static void SECTION(stress_icache_callee) ALIGNED(SIZE) stress_icache_func(void)
-{
-	return;
-}
+#define STRESS_ICACHE_FUNC(func_name, page_sz)				\
+static void SECTION(stress_icache_callee) ALIGNED(page_sz)		\
+func_name(void)								\
+{									\
+	return;								\
+}									\
 
 
 /*
- *  stress_icache()
- *	stress instruction cache load misses
+ *  STRESS_ICACHE()
+ *	macro to generate functions that stress instruction cache
+ *	load misses
  *
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int SECTION(stress_icache_caller) ALIGNED(SIZE) stress_icache(const args_t *args)
-{
-	uint8_t *addr = (uint8_t *)stress_icache_func;
-	const size_t page_size = args->page_size;
-	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
+#define STRESS_ICACHE(func_name, page_sz, icache_func)			\
+static int SECTION(stress_icache_caller) ALIGNED(page_sz) 		\
+func_name(const args_t *args)						\
+{									\
+	uint8_t *addr = (uint8_t *)icache_func;				\
+	const size_t ps = args->page_size;				\
+	const void *page_addr = (void *)((uintptr_t)addr & ~(ps - 1));	\
+									\
+	if (icache_madvise(args, addr, page_sz) < 0)			\
+		return EXIT_NO_RESOURCE;				\
+									\
+	do {								\
+		register uint8_t val;					\
+		register int i = 1024;					\
+									\
+		while (--i) {						\
+			volatile uint8_t *vaddr =			\
+				(volatile uint8_t *)addr;		\
+			/*						\
+			 *  Change protection to make page modifyable.  \
+			 *  It may be that some architectures don't 	\
+			 *  allow this, so don't bail out on an		\
+			 *  EXIT_FAILURE; this is a not necessarily a 	\
+			 *  fault in the the stressor, just an arch 	\
+			 *  resource protection issue.			\
+			 */						\
+			if (mprotect((void *)page_addr, page_sz,	\
+			    PROT_READ | PROT_WRITE) < 0) {		\
+				pr_inf("%s: PROT_WRITE mprotect failed "\
+					"on text page %p: errno=%d "	\
+					"(%s)\n", args->name, vaddr, 	\
+					errno, strerror(errno));	\
+				return EXIT_NO_RESOURCE;		\
+			}						\
+			/*						\
+			 *  Modifying executable code on x86 will	\
+			 *  call a I-cache reload when we execute	\
+			 *  the modfied ops.				\
+			 */						\
+			val = *vaddr;					\
+			*vaddr ^= ~0;					\
+			/*						\
+			 * ARM CPUs need us to clear the I$ between	\
+			 * each modification of the object code.	\
+			 *						\
+			 * We may need to do the same for other CPUs	\
+			 * as the default code assumes smart x86 style	\
+			 * I$ behaviour.				\
+			 */						\
+			shim_clear_cache((char *)addr, (char *)addr + 64);\
+			*vaddr = val;					\
+			shim_clear_cache((char *)addr, (char *)addr + 64);\
+			/*						\
+			 *  Set back to a text segment READ/EXEC page	\
+			 *  attributes, this really should not fail.	\
+			 */						\
+			if (mprotect((void *)page_addr, page_sz,	\
+			    PROT_READ | PROT_EXEC) < 0) {		\
+				pr_err("%s: mprotect failed: errno=%d " \
+					"(%s)\n", args->name, errno,	\
+					strerror(errno));		\
+				return EXIT_FAILURE;			\
+			}						\
+			icache_func();					\
+		}							\
+		inc_counter(args);					\
+	} while (keep_stressing());					\
+									\
+	return EXIT_SUCCESS;						\
+}
 
-	if (page_size != SIZE) {
-		pr_inf("%s: page size %zu is not %u, cannot test\n",
-			args->name, page_size, SIZE);
-		return EXIT_NO_RESOURCE;
-	}
+static inline int icache_madvise(const args_t *args, void *addr, size_t size)
+{
 #if defined(MADV_NOHUGEPAGE)
-	if (madvise((void *)addr, SIZE, MADV_NOHUGEPAGE) < 0) {
+	if (madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
 		/*
 		 * We may get EINVAL on kernels that don't support this
 		 * so don't treat that as non-fatal as this is just advistory
 		 */
 		if (errno != EINVAL) {
-			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text page %p: errno=%d (%s)\n",
+			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text "
+				"page %p: errno=%d (%s)\n",
 				args->name, addr, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
+			return -1;
 		}
 	}
 #endif
+	return 0;
+}
 
-	do {
-		register uint8_t val;
-		register int i = 1024;
+STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
+STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
+STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
-		while (--i) {
-			volatile uint8_t *vaddr = (volatile uint8_t *)addr;
-			/*
-			 *  Change protection to make page modifyable. It may be that
-			 *  some architectures don't allow this, so don't bail out on
-			 *  a EXIT_FAILURE; this is a not necessarily a fault in the
-			 *  the stressor, just an arch resource protection issue.
-			 */
-			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_WRITE) < 0) {
-				pr_inf("%s: PROT_WRITE mprotect failed on text page %p: errno=%d (%s)\n",
-					args->name, vaddr, errno, strerror(errno));
-				return EXIT_NO_RESOURCE;
-			}
-			/*
-			 *  Modifying executable code on x86 will
-			 *  call a I-cache reload when we execute
-			 *  the modfied ops.
-			 */
-			val = *vaddr;
-			*vaddr ^= ~0;
+STRESS_ICACHE(stress_icache_64K, SIZE_64K, stress_icache_func_64K)
+STRESS_ICACHE(stress_icache_16K, SIZE_16K, stress_icache_func_16K)
+STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
 
-			/*
-			 * ARM CPUs need us to clear the I$ between
-			 * each modification of the object code.
-			 *
-			 * We may need to do the same for other processors
-			 * as the default code assumes smart x86 style
-			 * I$ behaviour.
-			 */
-			shim_clear_cache((char *)addr, (char *)addr + 64);
-			*vaddr = val;
-			shim_clear_cache((char *)addr, (char *)addr + 64);
-			/*
-			 *  Set back to a text segment READ/EXEC page attributes, this
-			 *  really should not fail.
-			 */
-			if (mprotect((void *)page_addr, SIZE, PROT_READ | PROT_EXEC) < 0) {
-				pr_err("%s: mprotect failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				return EXIT_FAILURE;
-			}
+/*
+ *  stress_icache()
+ *	entry point for stress instruction cache load misses
+ *
+ *	I-cache load misses can be observed using:
+ *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
+ */
+int stress_icache(const args_t *args)
+{
+        int ret;
 
-			stress_icache_func();
-		}
-		inc_counter(args);
-	} while (keep_stressing());
-
-	return EXIT_SUCCESS;
+	switch (args->page_size) {
+	case SIZE_4K:
+		ret = stress_icache_4K(args);
+		break;
+	case SIZE_16K:
+		ret = stress_icache_16K(args);
+		break;
+	case SIZE_64K:
+		ret = stress_icache_64K(args);
+		break;
+	default:
+		pr_inf("%s: page size %zu is not %u or %u or %u, cannot test\n",
+			args->name, args->page_size,
+			SIZE_4K, SIZE_16K, SIZE_64K);
+		ret = EXIT_NO_RESOURCE;
+	}
+        return ret;
 }
 #else
 int stress_icache(const args_t *args)
