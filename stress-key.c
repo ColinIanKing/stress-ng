@@ -76,9 +76,10 @@ int stress_key(const args_t *args)
 {
 	key_serial_t keys[MAX_KEYS];
 	pid_t ppid = getppid();
+	bool timeout_supported = true;
 
 	do {
-		size_t i, n = 0;
+		size_t i = 0, n = 0;
 		char description[64];
 		char payload[64];
 
@@ -96,11 +97,21 @@ int stress_key(const args_t *args)
 			if (keys[n] < 0) {
 				if ((errno != ENOMEM) && (errno != EDQUOT))
 					pr_fail_err("add_key");
-				break;
+				goto tidy;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
-			if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0)
-				pr_fail_err("keyctl KEYCTL_SET_TIMEOUT");
+			if (timeout_supported) {
+				if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0) {
+					/* Some platforms don't support this */
+					if (errno == ENOSYS) {
+						timeout_supported = false;
+					} else {
+						pr_fail_err("keyctl KEYCTL_SET_TIMEOUT");
+					}
+				}
+			}
+			if (!keep_stressing_flag)
+				goto tidy;
 #endif
 		}
 
@@ -113,7 +124,7 @@ int stress_key(const args_t *args)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				pr_fail_err("keyctl KEYCTL_DESCRIBE");
 			if (!keep_stressing_flag)
-				break;
+				goto tidy;
 #endif
 
 			snprintf(payload, sizeof(payload),
@@ -125,7 +136,7 @@ int stress_key(const args_t *args)
 					pr_fail_err("keyctl KEYCTL_UPDATE");
 			}
 			if (!keep_stressing_flag)
-				break;
+				goto tidy;
 #endif
 
 #if defined(KEYCTL_READ)
@@ -134,7 +145,7 @@ int stress_key(const args_t *args)
 			    payload, sizeof(payload)) < 0)
 				pr_fail_err("keyctl KEYCTL_READ");
 			if (!keep_stressing_flag)
-				break;
+				goto tidy;
 #endif
 
 #if defined(__NR_request_key)
@@ -145,6 +156,8 @@ int stress_key(const args_t *args)
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
 				pr_fail_err("request_key");
 			}
+			if (!keep_stressing_flag)
+				goto tidy;
 #endif
 
 
@@ -169,14 +182,17 @@ int stress_key(const args_t *args)
 #endif
 			inc_counter(args);
 		}
+tidy:
 		/* If we hit too many errors and bailed out early, clean up */
 		while (i < n) {
+			if (keys[i] >= 0) {
 #if defined(KEYCTL_CLEAR)
-			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
+				(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
 #endif
 #if defined(KEYCTL_INVALIDATE)
-			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+				(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
+			}
 			i++;
 		}
 	} while (keep_stressing());
