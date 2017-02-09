@@ -541,10 +541,8 @@ int stress_iomix(const args_t *args)
 #endif
 	if (ret < 0) {
 		pr_fail_err("fallocate");
-		(void)stress_temp_dir_rm_args(args);
 		ret = EXIT_FAILURE;
 		goto tidy;
-		
 	}
 
 	memset(pids, 0, sizeof(pids));
