@@ -48,6 +48,9 @@ f=0
 sk=0
 failed=""
 skipped=""
+echo ""
+uname -a
+echo ""
 for s in ${STRESSORS}
 do
 	if not_exclude $s "$EXCLUDE"
