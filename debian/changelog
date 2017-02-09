@@ -1,3 +1,12 @@
+stress-ng (0.07.20-1) unstable; urgency=medium
+
+  * fast-test-all: print system information
+  * stress-key: handle ENOSYS on KEYCTL_SET_TIMEOUT and bail out early
+  * stress-iomix: remove redundant directory removal on fallocate failure
+  * shim: add emulation for failed fallocate(2)
+
+ -- Colin King <colin.king@canonical.com>  Thu, 9 Feb 2017 11:08:01 +0000
+
 stress-ng (0.07.19-1) unstable; urgency=medium
 
   * Makefile: bump version
