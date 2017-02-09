@@ -79,25 +79,14 @@ ssize_t shim_copy_file_range(
 }
 
 /*
- * shim_fallocate()
- *	shim wrapper for fallocate system call
- *	- falls back to posix_fallocate w/o mode
- * 	- falls back to direct writes
+ * shim_emulate_fallocate()
+ *	emulate fallocate (very slow!)
  */
-int shim_fallocate(int fd, int mode, off_t offset, off_t len)
+static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 {
-#if defined(__linux__) && defined(__NR_fallocate)
-	return fallocate(fd, mode, offset, len);
-#elif _POSIX_C_SOURCE >= 200112L
-	(void)mode;
-
-	return posix_fallocate(fd, offset, len);
-#else
-	const off_t buf_sz = 4096;
-	off_t n;
+	const off_t buf_sz = 65536;
 	char buffer[buf_sz];
-
-	(void)mode;
+	off_t n;
 
 	n = lseek(fd, offset, SEEK_SET);
 	if (n == (off_t)-1)
@@ -117,8 +106,36 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 			return -1;
 		}
 	}
-
 	return 0;
+}
+
+/*
+ * shim_fallocate()
+ *	shim wrapper for fallocate system call
+ *	- falls back to posix_fallocate w/o mode
+ * 	- falls back to direct writes
+ */
+int shim_fallocate(int fd, int mode, off_t offset, off_t len)
+{
+#if defined(__linux__) && defined(__NR_fallocate)
+	int ret;
+
+	ret = fallocate(fd, mode, offset, len);
+	/* mode not supported? try with zero mode (dirty hack) */
+	if ((ret < 0) && (errno == EOPNOTSUPP)) {
+		ret = fallocate(fd, 0, offset, len);
+		/* fallocate failed, try emulation mode */
+		if ((ret < 0) && (errno == EOPNOTSUPP)) {
+			ret = shim_emulate_fallocate(fd, offset, len);
+		}
+	}
+	return ret;
+#elif _POSIX_C_SOURCE >= 200112L
+	(void)mode;
+
+	return posix_fallocate(fd, offset, len);
+#else
+	return shim_emulate_fallocate(fd, offset, len);
 #endif
 }
 
