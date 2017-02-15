@@ -257,6 +257,7 @@ static const stress_t stressors[] = {
 	STRESSOR(msync, MSYNC, CLASS_VM | CLASS_OS),
 	STRESSOR(netlink_proc, NETLINK_PROC, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(nice, NICE, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(nop, NOP, CLASS_CPU),
 	STRESSOR(null, NULL, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(numa, NUMA, CLASS_CPU | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(oom_pipe, OOM_PIPE, CLASS_MEMORY | CLASS_OS),
@@ -336,7 +337,7 @@ static const stress_t stressors[] = {
 	STRESSOR(zero, ZERO, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(zlib, ZLIB, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(zombie, ZOMBIE, CLASS_SCHEDULER | CLASS_OS),
-	{ stress_noop, STRESS_MAX, 0, 0, NULL, 0 }
+	{ NULL, STRESS_MAX, 0, 0, NULL, 0 }
 };
 
 STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
@@ -619,6 +620,8 @@ static const struct option long_options[] = {
 	{ "nice-ops",	1,	0,	OPT_NICE_OPS },
 	{ "no-madvise",	0,	0,	OPT_NO_MADVISE },
 	{ "no-rand-seed", 0,	0,	OPT_NO_RAND_SEED },
+	{ "nop",	1,	0,	OPT_NOP },
+	{ "nop-ops",	1,	0,	OPT_NOP_OPS },
 	{ "null",	1,	0,	OPT_NULL },
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "numa",	1,	0,	OPT_NUMA },
@@ -1148,6 +1151,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"netlink-proc-ops N",	"stop netlink-proc workers after N bogo events" },
 	{ NULL,		"nice N",		"start N workers that randomly re-adjust nice levels" },
 	{ NULL,		"nice-ops N",		"stop after N nice bogo operations" },
+	{ NULL,		"nop N",		"start N workers that burn cycles with no-ops" },
+	{ NULL,		"nop-ops N",		"stop after N nop bogo no-op operations" },
 	{ NULL,		"null N",		"start N workers writing to /dev/null" },
 	{ NULL,		"null-ops N",		"stop after N /dev/null bogo write operations" },
 	{ NULL,		"numa N",		"start N workers stressing NUMA interfaces" },

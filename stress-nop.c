@@ -24,15 +24,35 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_ASM_NOP)
+
+#define NOP	__asm__ __volatile__("nop;")
+#define NOP8	NOP;  NOP;  NOP;  NOP;  NOP;  NOP;  NOP;  NOP;
+#define NOP64	NOP8; NOP8; NOP8; NOP8; NOP8; NOP8; NOP8; NOP8;
+
 /*
- *  stress_noop()
- *	stress that does nowt
+ *  stress_nop()
+ *	stress that does lots of not a lot
  */
-int stress_noop(const args_t *args)
+int stress_nop(const args_t *args)
 {
 	do {
+		register int i = 256;
+
+		while (i--) {
+			NOP64
+			NOP64
+			NOP64
+			NOP64
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }
+#else
+int stress_nop(const args_t *args)
+{
+	return stress_not_implemented(args);
+}
+#endif

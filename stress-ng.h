@@ -1062,6 +1062,7 @@ typedef enum {
 	STRESS_MQ,
 	STRESS_NETLINK_PROC,
 	STRESS_NICE,
+	STRESS_NOP,
 	STRESS_NULL,
 	STRESS_NUMA,
 	STRESS_OOM_PIPE,
@@ -1525,6 +1526,9 @@ typedef enum {
 
 	OPT_NO_MADVISE,
 	OPT_NO_RAND_SEED,
+
+	OPT_NOP,
+	OPT_NOP_OPS,
 
 	OPT_NULL,
 	OPT_NULL_OPS,
@@ -2441,7 +2445,7 @@ STRESS(stress_msync);
 STRESS(stress_mq);
 STRESS(stress_netlink_proc);
 STRESS(stress_nice);
-STRESS(stress_noop);
+STRESS(stress_nop);
 STRESS(stress_null);
 STRESS(stress_numa);
 STRESS(stress_oom_pipe);

@@ -138,7 +138,7 @@ STRESS_SRC = \
 	stress-mq.c \
 	stress-netlink-proc.c \
 	stress-nice.c \
-	stress-noop.c \
+	stress-nop.c \
 	stress-null.c \
 	stress-numa.c \
 	stress-oom-pipe.c \
@@ -262,7 +262,7 @@ LIB_SCTP = -lsctp
 HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
-	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0
+	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0
 
 #
 # Do build time config only if cmd is "make" and no goals given
@@ -387,6 +387,13 @@ ifndef $(HAVE_ATOMIC)
 HAVE_ATOMIC = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_atomic)
 ifeq ($(HAVE_ATOMIC),1)
 	CFLAGS += -DHAVE_ATOMIC
+endif
+endif
+
+ifndef $(HAVE_ASM_NOP)
+HAVE_ASM_NOP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_asm_nop)
+ifeq ($(HAVE_ASM_NOP),1)
+	CFLAGS += -DHAVE_ASM_NOP
 endif
 endif
 
@@ -557,6 +564,19 @@ have_lib_aio:
 		echo 0 ;\
 	fi
 	@rm -f test-libaio
+
+#
+#  check if we can use assembler nop instruction
+#
+have_asm_nop:
+	@$(CC) $(CPPFLAGS) test-asm-nop.c -o test-asm-nop 2> /dev/null || true
+	@if [ -f test-asm-nop ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-asm-nop
+
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
