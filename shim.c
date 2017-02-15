@@ -140,6 +140,8 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		ret = shim_emulate_fallocate(fd, offset, len);
 	return ret;
 #else
+	(void)mode;
+
 	return shim_emulate_fallocate(fd, offset, len);
 #endif
 }
