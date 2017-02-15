@@ -83,6 +83,7 @@
 #endif
 #if defined (__sun__)
 #include <alloca.h>
+#include <strings.h>
 #endif
 
 #if defined (__linux__)
