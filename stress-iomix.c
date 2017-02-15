@@ -504,7 +504,7 @@ int stress_iomix(const args_t *args)
 	size_t i;
 	int pids[SIZEOF_ARRAY(iomix_funcs)];
 
-	counters = mmap(NULL, sz, PROT_WRITE | PROT_WRITE,
+	counters = (void *)mmap(NULL, sz, PROT_WRITE | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_fail_dbg("mmap");
@@ -593,7 +593,7 @@ tidy:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 unmap:
-	(void)munmap(counters, sz);
+	(void)munmap((void *)counters, sz);
 
 	return ret;
 }
