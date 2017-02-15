@@ -131,9 +131,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	}
 	return ret;
 #elif _POSIX_C_SOURCE >= 200112L
+	int ret;
+
 	(void)mode;
 
-	return posix_fallocate(fd, offset, len);
+	ret = posix_fallocate(fd, offset, len);
+	if ((ret < 0) && (errno == ENOSYS))
+		ret = shim_emulate_fallocate(fd, offset, len);
+	return ret;
 #else
 	return shim_emulate_fallocate(fd, offset, len);
 #endif
