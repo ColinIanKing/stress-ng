@@ -145,6 +145,9 @@ static inline int icache_madvise(const args_t *args, void *addr, size_t size)
 			return -1;
 		}
 	}
+#else
+	(void)args;
+	(void)size;
 #endif
 	return 0;
 }
