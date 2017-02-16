@@ -585,12 +585,12 @@ have_asm_nop:
 apparmor-data.o: usr.bin.pulseaudio.eg
 	$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
 	echo "#include <stddef.h>" > apparmor-data.c
-	echo "char apparmor_data[]= { " >> apparmor-data.c
+	echo "char g_apparmor_data[]= { " >> apparmor-data.c
 	od -tx1 -An -v < apparmor-data.bin | \
 		sed 's/[0-9a-f][0-9a-f]/0x&,/g' | \
 		sed '$$ s/.$$//' >> apparmor-data.c
 	echo "};" >> apparmor-data.c
-	echo "const size_t apparmor_data_len = sizeof(apparmor_data);" >> apparmor-data.c
+	echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
 	$(CC) -c apparmor-data.c -o apparmor-data.o
 	@rm -rf apparmor-data.c
 

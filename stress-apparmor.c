@@ -37,8 +37,8 @@ typedef int (*apparmor_func)(const char *name,
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
 
-extern char apparmor_data[];
-extern const size_t apparmor_data_len;
+extern char g_apparmor_data[];
+extern const size_t g_apparmor_data_len;
 
 /*
  *  stress_apparmor_supported()
@@ -297,7 +297,7 @@ static int apparmor_stress_kernel_interface(
 		 *  already loaded the same policy, so we may get EEXIST
 		 */
 		ret = aa_kernel_interface_load_policy(kern_if,
-			apparmor_data, apparmor_data_len);
+			g_apparmor_data, g_apparmor_data_len);
 		if (ret < 0) {
 			if (errno != EEXIST) {
 				pr_fail("%s: aa_kernel_interface_load_policy() failed, "
@@ -312,7 +312,7 @@ static int apparmor_stress_kernel_interface(
 		 *  interface correctly.
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
-			apparmor_data, apparmor_data_len);
+			g_apparmor_data, g_apparmor_data_len);
 		if (ret < 0) {
 			aa_kernel_interface_unref(kern_if);
 
@@ -504,7 +504,7 @@ static int apparmor_stress_corruption(
 	const uint64_t max_ops,
 	uint64_t *counter)
 {
-	char copy[apparmor_data_len];
+	char copy[g_apparmor_data_len];
 
 	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
@@ -516,47 +516,47 @@ static int apparmor_stress_corruption(
 	do {
 		int ret;
 
-		memcpy(copy, apparmor_data, apparmor_data_len);
+		memcpy(copy, g_apparmor_data, g_apparmor_data_len);
 		/*
 		 *  Apply various corruption methods
 		 */
 		switch ((*counter) % 10) {
 		case 0:
-			apparmor_corrupt_flip_seq(copy, apparmor_data_len);
+			apparmor_corrupt_flip_seq(copy, g_apparmor_data_len);
 			break;
 		case 1:
-			apparmor_corrupt_clr_seq(copy, apparmor_data_len);
+			apparmor_corrupt_clr_seq(copy, g_apparmor_data_len);
 			break;
 		case 2:
-			apparmor_corrupt_set_seq(copy, apparmor_data_len);
+			apparmor_corrupt_set_seq(copy, g_apparmor_data_len);
 			break;
 		case 3:
 			apparmor_corrupt_flip_bits_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 4:
 			apparmor_corrupt_flip_byte_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 5:
 			apparmor_corrupt_clr_bits_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 6:
 			apparmor_corrupt_set_bits_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 7:
 			apparmor_corrupt_clr_byte_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 8:
 			apparmor_corrupt_set_byte_random(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		case 9:
 			apparmor_corrupt_flip_bits_random_burst(copy,
-				apparmor_data_len);
+				g_apparmor_data_len);
 			break;
 		default:
 			/* Should not happen */
@@ -574,7 +574,7 @@ static int apparmor_stress_corruption(
 		 *  Expect EPROTO failures
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
-			copy, apparmor_data_len);
+			copy, g_apparmor_data_len);
 		if (ret < 0) {
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT)) {
