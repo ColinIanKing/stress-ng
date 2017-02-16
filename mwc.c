@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-mwc_t __mwc = {
+static mwc_t __mwc = {
 	MWC_SEED_W,
 	MWC_SEED_Z
 };
