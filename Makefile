@@ -265,9 +265,21 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0
 
 #
-# Do build time config only if cmd is "make" and no goals given
+#  Load in current config; use 'make clean' to clear this
 #
-ifeq ($(MAKECMDGOALS),)
+include config
+
+CFLAGS += $(CONFIG_CFLAGS)
+LDFLAGS += $(CONFIG_LDFLAGS)
+OBJS += $(CONFIG_OBJS)
+
+HAVE_VARS := $(foreach h,$(HAVE_NOT), $(firstword $(subst =, ,$h)))
+
+#
+#  Determine the system build config
+#
+ifndef HAVE_CONFIG
+HAVE_CONFIG=1
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
 # defined so we don't call ourselves over and over
@@ -275,128 +287,127 @@ ifeq ($(MAKECMDGOALS),)
 ifndef $(HAVE_APPARMOR)
 HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
-	OBJS += apparmor-data.o
-	CFLAGS += -DHAVE_APPARMOR
-	LDFLAGS += $(LIB_APPARMOR)
+	CONFIG_OBJS += apparmor-data.o
+	CONFIG_CFLAGS += -DHAVE_APPARMOR
+	CONFIG_LDFLAGS += $(LIB_APPARMOR)
 endif
 endif
 
 ifeq ($(shell uname -s),SunOS)
-	LDFLAGS += -lsocket -lnsl
+	CONFIG_LDFLAGS += -lsocket -lnsl
 endif
 
 ifndef $(HAVE_KEYUTILS_H)
 HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_keyutils_h)
 ifeq ($(HAVE_KEYUTILS_H),1)
-	CFLAGS += -DHAVE_KEYUTILS_H
+	CONFIG_CFLAGS += -DHAVE_KEYUTILS_H
 endif
 endif
 
 ifndef $(HAVE_XATTR_H)
 HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_xattr_h)
 ifeq ($(HAVE_XATTR_H),1)
-	CFLAGS += -DHAVE_XATTR_H
+	CONFIG_CFLAGS += -DHAVE_XATTR_H
 endif
 endif
 
 ifndef $(HAVE_LIB_BSD)
 HAVE_LIB_BSD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_bsd)
 ifeq ($(HAVE_LIB_BSD),1)
-	CFLAGS += -DHAVE_LIB_BSD
-	LDFLAGS += $(LIB_BSD)
+	CONFIG_CFLAGS += -DHAVE_LIB_BSD
+	CONFIG_LDFLAGS += $(LIB_BSD)
 endif
 endif
 
 ifndef $(HAVE_LIB_Z)
 HAVE_LIB_Z = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_z)
 ifeq ($(HAVE_LIB_Z),1)
-	CFLAGS += -DHAVE_LIB_Z
-	LDFLAGS += $(LIB_Z)
+	CONFIG_CFLAGS += -DHAVE_LIB_Z
+	CONFIG_LDFLAGS += $(LIB_Z)
 endif
 endif
 
 ifndef $(HAVE_LIB_CRYPT)
 HAVE_LIB_CRYPT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_crypt)
 ifeq ($(HAVE_LIB_CRYPT),1)
-	CFLAGS += -DHAVE_LIB_CRYPT
-	LDFLAGS += $(LIB_CRYPT)
+	CONFIG_CFLAGS += -DHAVE_LIB_CRYPT
+	CONFIG_LDFLAGS += $(LIB_CRYPT)
 endif
 endif
 
 ifndef $(HAVE_LIB_RT)
 HAVE_LIB_RT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_rt)
 ifeq ($(HAVE_LIB_RT),1)
-	CFLAGS += -DHAVE_LIB_RT
-	LDFLAGS += $(LIB_RT)
+	CONFIG_CFLAGS += -DHAVE_LIB_RT
+	CONFIG_LDFLAGS += $(LIB_RT)
 endif
 endif
 
 ifndef $(HAVE_LIB_PTHREAD)
 HAVE_LIB_PTHREAD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_pthread)
 ifeq ($(HAVE_LIB_PTHREAD),1)
-	CFLAGS += -DHAVE_LIB_PTHREAD
-	LDFLAGS += $(LIB_PTHREAD)
+	CONFIG_CFLAGS += -DHAVE_LIB_PTHREAD
+	CONFIG_LDFLAGS += $(LIB_PTHREAD)
 endif
 endif
 
 ifndef $(HAVE_LIB_SCTP)
 HAVE_LIB_SCTP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_sctp)
 ifeq ($(HAVE_LIB_SCTP),1)
-	CFLAGS += -DHAVE_LIB_SCTP
-	LDFLAGS += $(LIB_SCTP)
+	CONFIG_CFLAGS += -DHAVE_LIB_SCTP
+	CONFIG_LDFLAGS += $(LIB_SCTP)
 endif
 endif
 
 ifndef $(HAVE_FLOAT_DECIMAL)
 HAVE_FLOAT_DECIMAL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_float_decimal)
 ifeq ($(HAVE_FLOAT_DECIMAL),1)
-	CFLAGS += -DHAVE_FLOAT_DECIMAL
+	CONFIG_CFLAGS += -DHAVE_FLOAT_DECIMAL
 endif
 endif
 
 ifndef $(HAVE_SECCOMP_H)
 HAVE_SECCOMP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_seccomp_h)
 ifeq ($(HAVE_SECCOMP_H),1)
-	CFLAGS += -DHAVE_SECCOMP_H
+	CONFIG_CFLAGS += -DHAVE_SECCOMP_H
 endif
 endif
 
 ifndef $(HAVE_LIB_AIO)
 HAVE_LIB_AIO = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_aio)
 ifeq ($(HAVE_LIB_AIO),1)
-	CFLAGS += -DHAVE_LIB_AIO
-	LDFLAGS += $(LIB_AIO)
+	CONFIG_CFLAGS += -DHAVE_LIB_AIO
+	CONFIG_LDFLAGS += $(LIB_AIO)
 endif
 endif
 
 ifndef $(HAVE_SYS_CAP_H)
 HAVE_SYS_CAP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sys_cap_h)
 ifeq ($(HAVE_SYS_CAP_H),1)
-	CFLAGS += -DHAVE_SYS_CAP_H
+	CONFIG_CFLAGS += -DHAVE_SYS_CAP_H
 endif
 endif
 
 ifndef $(HAVE_VECMATH)
 HAVE_VECMATH = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_vecmath)
 ifeq ($(HAVE_VECMATH),1)
-	CFLAGS += -DHAVE_VECMATH
+	CONFIG_CFLAGS += -DHAVE_VECMATH
 endif
 endif
 
 ifndef $(HAVE_ATOMIC)
 HAVE_ATOMIC = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_atomic)
 ifeq ($(HAVE_ATOMIC),1)
-	CFLAGS += -DHAVE_ATOMIC
+	CONFIG_CFLAGS += -DHAVE_ATOMIC
 endif
 endif
 
 ifndef $(HAVE_ASM_NOP)
 HAVE_ASM_NOP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_asm_nop)
 ifeq ($(HAVE_ASM_NOP),1)
-	CFLAGS += -DHAVE_ASM_NOP
+	CONFIG_CFLAGS += -DHAVE_ASM_NOP
 endif
 endif
-
 endif
 
 .SUFFIXES: .c .o
@@ -407,8 +418,19 @@ endif
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-ng: $(OBJS)
+stress-ng: save_config $(OBJS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
+
+#
+#  save configuration
+#
+save_config:
+	@echo $(foreach h,$(HAVE_VARS),$h=$($(h))) | tr ' ' '\n' > config
+	@echo CONFIG_CFLAGS=$(CONFIG_CFLAGS) >> config
+	@echo CONFIG_LDFLAGS=$(CONFIG_LDFLAGS) >> config
+	@echo CONFIG_OBJS=$(CONFIG_OBJS) >> config
+	@echo HAVE_CONFIG=1 >> config
+
 
 #
 #  check if we can build against AppArmor
@@ -686,12 +708,13 @@ pdf:
 
 
 clean:
-	rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
-	rm -f stress-ng-$(VERSION).tar.gz
-	rm -f test-decimal.c
-	rm -f personality.h
-	rm -f perf-event.h
-	rm -f *.o
+	@rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
+	@rm -f stress-ng-$(VERSION).tar.gz
+	@rm -f test-decimal.c
+	@rm -f personality.h
+	@rm -f perf-event.h
+	@rm -f *.o
+	@:> config
 
 fast-test-all: stress-ng
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
