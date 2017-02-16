@@ -57,21 +57,21 @@ int stress_sigsuspend(const args_t *args)
 again:
 		pid[n] = fork();
 		if (pid[n] < 0) {
-			if (keep_stressing_flag && (errno == EAGAIN))
+			if (g_keep_stressing_flag && (errno == EAGAIN))
 				goto again;
 			pr_fail_dbg("fork");
 			goto reap;
 		} else if (pid[n] == 0) {
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
-			while (keep_stressing_flag) {
+			while (g_keep_stressing_flag) {
 				sigsuspend(&mask);
 				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}
 			_exit(0);
 		}
-		(void)setpgid(pid[n], pgrp);
+		(void)setpgid(pid[n], g_pgrp);
 	}
 
 	/* Parent */

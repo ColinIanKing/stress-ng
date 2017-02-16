@@ -73,7 +73,7 @@ static int stress_vm_child(void *arg)
 	int ret = EXIT_SUCCESS;
 	addr_msg_t msg_rd, msg_wr;
 
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	/* Close unwanted ends */
@@ -88,7 +88,7 @@ static int stress_vm_child(void *arg)
 		goto cleanup;
 	}
 
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		uint8_t *ptr, *end = buf + ctxt->sz;
 		int rwret;
 
@@ -122,7 +122,7 @@ redo_rd1:
 			break;
 		}
 
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			/* Check memory altered by parent is sane */
 			for (ptr = buf; ptr < end; ptr += args->page_size) {
 				if (*ptr != msg_rd.val) {
@@ -160,7 +160,7 @@ static int stress_vm_parent(context_t *ctxt)
 	addr_msg_t msg_rd, msg_wr;
 	const args_t *args = ctxt->args;
 
-	(void)setpgid(ctxt->pid, pgrp);
+	(void)setpgid(ctxt->pid, g_pgrp);
 
 	localbuf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -184,7 +184,7 @@ static int stress_vm_parent(context_t *ctxt)
 
 		/* Wait for address of child's buffer */
 redo_rd2:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		ret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
 		if (ret < 0) {
@@ -213,7 +213,7 @@ redo_rd2:
 			break;
 		}
 
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			/* Check data is sane */
 			for (ptr = localbuf; ptr < end; ptr += args->page_size) {
 				if (*ptr) {
@@ -241,7 +241,7 @@ redo_rd2:
 		msg_wr.val = val;
 		val++;
 redo_wr2:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		/* Inform child that memory has been changed */
 		ret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
@@ -287,9 +287,9 @@ int stress_vm_rw(const args_t *args)
 	uint8_t *stack_top = stack + stack_offset;
 
 	if (!set_vm_rw_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_vm_rw_bytes = MAX_VM_RW_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
 	ctxt.args = args;
@@ -310,7 +310,7 @@ again:
 	ctxt.pid = clone(stress_vm_child, align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);

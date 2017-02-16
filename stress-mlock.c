@@ -93,14 +93,14 @@ int stress_mlock(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
@@ -137,13 +137,13 @@ again:
 	} else if (pid == 0) {
 		size_t i, n;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
 		do {
-			for (n = 0; keep_stressing_flag && (n < max); n++) {
+			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				int ret;
 				if (!keep_stressing())
 					break;
@@ -190,7 +190,7 @@ again:
 			(void)mlockall(MCL_ONFAULT);
 #endif
 #endif
-			for (n = 0; keep_stressing_flag && (n < max); n++) {
+			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
 					break;
 

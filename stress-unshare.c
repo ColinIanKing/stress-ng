@@ -58,7 +58,7 @@ int stress_unshare(const args_t *args)
 
 		memset(pids, 0, sizeof(pids));
 		for (n = 0; n < MAX_PIDS; n++) {
-retry:			if (!keep_stressing_flag)
+retry:			if (!g_keep_stressing_flag)
 				goto reap;
 
 			pids[n] = fork();
@@ -72,7 +72,7 @@ retry:			if (!keep_stressing_flag)
 			}
 			if (pids[n] == 0) {
 				/* Child */
-				(void)setpgid(0, pgrp);
+				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 
 #if defined(CLONE_FS)
@@ -113,7 +113,7 @@ retry:			if (!keep_stressing_flag)
 #endif
 				_exit(0);
 			}
-			(void)setpgid(pids[n], pgrp);
+			(void)setpgid(pids[n], g_pgrp);
 		}
 reap:
 		for (i = 0; i < n; i++) {

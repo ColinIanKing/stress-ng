@@ -70,9 +70,9 @@ int stress_mq(const args_t *args)
 	struct timespec abs_timeout;
 
 	if (!set_mq_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_mq_size = MAX_MQ_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_mq_size = MIN_MQ_SIZE;
 	}
 	sz = opt_mq_size;
@@ -124,7 +124,7 @@ int stress_mq(const args_t *args)
 		pr_fail_dbg("mq_timed send and receive skipped, can't get time");
 	} else {
 		do_timed = true;
-		abs_timeout.tv_sec = time_start + opt_timeout + 1;
+		abs_timeout.tv_sec = time_start + g_opt_timeout + 1;
 		abs_timeout.tv_nsec = 0;
 	}
 
@@ -132,7 +132,7 @@ int stress_mq(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
@@ -144,10 +144,10 @@ again:
 		sigev.sigev_notify_function = stress_mq_notify_func;
 		sigev.sigev_notify_attributes = NULL;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			uint64_t i = 0;
 
 			for (;;) {
@@ -172,7 +172,7 @@ again:
 				}
 				if (msg.stop)
 					break;
-				if (opt_flags & OPT_FLAGS_VERIFY) {
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					if (msg.value != i) {
 						pr_fail("%s: mq_receive: expected message "
 							"containing 0x%" PRIx64
@@ -191,7 +191,7 @@ again:
 		msg_t msg;
 
 		/* Parent */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		do {
 			int ret;

@@ -213,7 +213,7 @@ retry:
 		if (pid < 0) {
 			goto retry;
 		} if (pid == 0) {
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			set_oom_adjustment(args->name, true);
 
 			ret = test_chroot_test_funcs[i](args);

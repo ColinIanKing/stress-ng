@@ -59,14 +59,14 @@ static inline int futex_wait(
  */
 int stress_futex(const args_t *args)
 {
-	uint64_t *timeout = &shared->futex.timeout[args->instance];
-	uint32_t *futex = &shared->futex.futex[args->instance];
+	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
+	uint32_t *futex = &g_shared->futex.futex[args->instance];
 	pid_t pid;
 
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -74,7 +74,7 @@ again:
 	if (pid > 0) {
 		int status;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		do {
 			int ret;
@@ -83,10 +83,10 @@ again:
 			 * Break early in case wake gets stuck
 			 * (which it shouldn't)
 			 */
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			ret = futex_wake(futex, 1);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
 					pr_fail_err("futex wake");
 			}
@@ -101,7 +101,7 @@ again:
 	} else {
 		uint64_t threshold = THRESHOLD;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		do {
@@ -110,7 +110,7 @@ again:
 			int ret;
 
 			/* Break early before potential long wait */
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 
 			ret = futex_wait(futex, 0, &t);
@@ -126,7 +126,7 @@ again:
 					threshold += THRESHOLD;
 				}
 			} else {
-				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					pr_fail_err("futex wait");
 				}
 				inc_counter(args);

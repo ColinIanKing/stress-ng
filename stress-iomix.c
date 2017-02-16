@@ -512,9 +512,9 @@ int stress_iomix(const args_t *args)
 	}
 
 	if (!set_iomix_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_iomix_bytes = MAX_FALLOCATE_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_iomix_bytes = MIN_FALLOCATE_BYTES;
 	}
 

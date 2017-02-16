@@ -70,7 +70,7 @@ int stress_set_udp_domain(const char *name)
 static void MLOCKED handle_udp_sigalrm(int dummy)
 {
 	(void)dummy;
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 /*
@@ -82,7 +82,7 @@ int stress_udp(const args_t *args)
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
 #if defined(IPPROTO_UDPLITE)
-	int proto = (opt_flags & OPT_FLAGS_UDP_LITE) ?
+	int proto = (g_opt_flags & OPT_FLAGS_UDP_LITE) ?
 		IPPROTO_UDPLITE : IPPROTO_UDP;
 #else
 	int proto = 0;
@@ -106,7 +106,7 @@ int stress_udp(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
@@ -114,7 +114,7 @@ again:
 		/* Child, client */
 		struct sockaddr *addr = NULL;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		do {
@@ -185,7 +185,7 @@ again:
 		socklen_t addr_len = 0;
 		struct sockaddr *addr = NULL;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		if (stress_sighandler(args->name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
 			rc = EXIT_FAILURE;

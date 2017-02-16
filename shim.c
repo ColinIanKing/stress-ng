@@ -95,7 +95,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	memset(buffer, 0, buf_sz);
 	n = len;
 
-	while (keep_stressing_flag && (n > 0)) {
+	while (g_keep_stressing_flag && (n > 0)) {
 		ssize_t ret;
 		size_t count = (size_t)STRESS_MINIMUM(n, buf_sz);
 
@@ -511,7 +511,7 @@ int shim_usleep(uint64_t usec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				if (keep_stressing_flag)
+				if (g_keep_stressing_flag)
 					continue;
 			} else {
 				return -1;

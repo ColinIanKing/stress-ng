@@ -69,7 +69,7 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	size_t i;
 	uintptr_t uintptr = (uintptr_t)buf & (page_size - 1);
 
-	if (!(opt_flags & OPT_FLAGS_MMAP_MINCORE))
+	if (!(g_opt_flags & OPT_FLAGS_MMAP_MINCORE))
 		return 0;
 	if (n_pages < 1)
 		return -1;

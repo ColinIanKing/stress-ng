@@ -249,7 +249,7 @@ int stress_lockofd(const args_t *args)
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -266,7 +266,7 @@ redo:
 again:
 	cpid = fork();
 	if (cpid < 0) {
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -276,7 +276,7 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		if (stress_lockofd_contention(args, fd) < 0)
@@ -284,7 +284,7 @@ again:
 		stress_lockofd_info_free();
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(cpid, pgrp);
+	(void)setpgid(cpid, g_pgrp);
 
 	if (stress_lockofd_contention(args, fd) == 0)
 		ret = EXIT_SUCCESS;

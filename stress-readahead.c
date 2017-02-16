@@ -76,9 +76,9 @@ int stress_readahead(const args_t *args)
 	struct stat statbuf;
 
 	if (!set_readahead_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_readahead_bytes = MAX_HDD_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_readahead_bytes = MIN_HDD_BYTES;
 	}
 
@@ -122,7 +122,7 @@ int stress_readahead(const args_t *args)
 		size_t j;
 		off_t o = i / BUF_SIZE;
 seq_wr_retry:
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			pr_inf("%s: test expired during test setup "
 				"(writing of data file)\n", args->name);
 			rc = EXIT_SUCCESS;
@@ -178,7 +178,7 @@ rnd_rd_retry:
 			if (ret != BUF_SIZE)
 				misreads++;
 
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				size_t j;
 				off_t o = offsets[i] / BUF_SIZE;
 

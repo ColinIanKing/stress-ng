@@ -161,7 +161,7 @@ static void stress_sctp_client(
 {
 	struct sockaddr *addr;
 
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	do {
@@ -170,7 +170,7 @@ static void stress_sctp_client(
 		int retries = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
@@ -230,7 +230,7 @@ retry:
 static void MLOCKED handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 /*
@@ -250,7 +250,7 @@ static int stress_sctp_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
@@ -312,12 +312,12 @@ static int stress_sctp_server(
 			}
 
 #if defined(SOCKET_NODELAY)
-			if (opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
+			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
 					pr_inf("%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
+					g_opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
 				}
 			}
 #endif
@@ -413,7 +413,7 @@ int stress_sock(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;

@@ -155,9 +155,9 @@ int stress_sleep(const args_t *args)
 	bool ok = true;
 
 	if (!set_sleep_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_sleep_max = MAX_SLEEP;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_sleep_max = MIN_SLEEP;
 	}
 	memset(ctxts, 0, sizeof(ctxts));
@@ -179,7 +179,7 @@ int stress_sleep(const args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			goto tidy;
 	}
 

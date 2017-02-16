@@ -97,7 +97,7 @@ int stress_dirdeep(const args_t *args)
 		}
 
 		stress_dir_tidy(rootpath, path);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		sync();
 	} while (keep_stressing());

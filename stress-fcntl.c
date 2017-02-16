@@ -443,7 +443,7 @@ int stress_fcntl(const args_t *args)
 			goto tidy;
 		}
 		break;
-	} while (keep_stressing_flag && ++retries < 100);
+	} while (g_keep_stressing_flag && ++retries < 100);
 
 	if (retries >= 100) {
 		pr_err("%s: chmod: file %s took %d "

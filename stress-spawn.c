@@ -81,7 +81,7 @@ int stress_spawn(const args_t *args)
 		}
 	} while (keep_stressing());
 
-	if ((spawn_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+	if ((spawn_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " spawns failed (%.2f%%)\n",
 			args->name, spawn_fails,
 			(double)spawn_fails * 100.0 / (double)(spawn_calls));

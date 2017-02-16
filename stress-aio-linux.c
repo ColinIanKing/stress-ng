@@ -84,9 +84,9 @@ int stress_aiol(const args_t *args)
 	io_context_t ctx = 0;
 
 	if (!set_aio_linux_requests) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_aio_linux_requests = MAX_AIO_REQUESTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_linux_requests = MIN_AIO_REQUESTS;
 	}
 	if ((opt_aio_linux_requests < MIN_AIO_REQUESTS) ||
@@ -185,14 +185,14 @@ int stress_aiol(const args_t *args)
 			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
 				errno = -ret;
-				if ((errno == EINTR) && (keep_stressing_flag))
+				if ((errno == EINTR) && (g_keep_stressing_flag))
 					continue;
 				pr_fail_err("io_getevents");
 				break;
 			} else {
 				n -= ret;
 			}
-		} while ((n > 0) && keep_stressing_flag);
+		} while ((n > 0) && g_keep_stressing_flag);
 		inc_counter(args);
 	} while (keep_stressing());
 

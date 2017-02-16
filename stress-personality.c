@@ -58,7 +58,7 @@ int stress_personality(const args_t *args)
 			unsigned long p = personalities[i];
 			int ret;
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			if (failed[i]) {
 				fails++;
@@ -71,7 +71,7 @@ int stress_personality(const args_t *args)
 				continue;
 			}
 			ret = personality(~0UL);
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret & 0xff) != (p & 0xff)) {
 				pr_fail("%s: fetched personality does "
 					"not match set personality 0x%lu\n",

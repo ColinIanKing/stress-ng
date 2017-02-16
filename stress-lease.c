@@ -64,21 +64,21 @@ static pid_t stress_lease_spawn(
 	pid_t pid;
 
 	if (!set_lease_breakers) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_lease_breakers = MAX_LEASE_BREAKERS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_lease_breakers = MIN_LEASE_BREAKERS;
 	}
 
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		do {
@@ -97,7 +97,7 @@ again:
 		} while (keep_stressing());
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -150,7 +150,7 @@ int stress_lease(const args_t *args)
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
-			if (!keep_stressing_flag) {
+			if (!g_keep_stressing_flag) {
 				(void)close(fd);
 				goto reap;
 			}

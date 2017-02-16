@@ -97,9 +97,9 @@ int stress_msync(const args_t *args)
 		return EXIT_FAILURE;
 
 	if (!set_msync_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_msync_bytes = MAX_MSYNC_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_msync_bytes = MIN_MSYNC_BYTES;
 	}
 	sz = opt_msync_bytes & ~(page_size - 1);

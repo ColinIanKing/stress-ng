@@ -141,9 +141,9 @@ int stress_zombie(const args_t *args)
 	uint64_t max_zombies = 0;
 
 	if (!set_zombie_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_zombie_max = MAX_ZOMBIES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_zombie_max = MIN_ZOMBIES;
 	}
 
@@ -157,7 +157,7 @@ int stress_zombie(const args_t *args)
 
 			zombie->pid = fork();
 			if (zombie->pid == 0) {
-				(void)setpgid(0, pgrp);
+				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 
 				stress_zombie_free();
@@ -168,7 +168,7 @@ int stress_zombie(const args_t *args)
 				stress_zombie_head_remove();
 				continue;
 			}
-			(void)setpgid(zombie->pid, pgrp);
+			(void)setpgid(zombie->pid, g_pgrp);
 
 			if (max_zombies < zombies.length)
 				max_zombies = zombies.length;

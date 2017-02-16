@@ -128,7 +128,7 @@ static int issue_aio_request(
 	const int request,
 	int (*aio_func)(struct aiocb *aiocbp) )
 {
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		int ret;
 
 		io_req->request = request;
@@ -169,9 +169,9 @@ int stress_aio(const args_t *args)
 	char filename[PATH_MAX];
 
 	if (!set_aio_requests) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_aio_requests = MAX_AIO_REQUESTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_aio_requests = MIN_AIO_REQUESTS;
 	}
 
@@ -219,7 +219,7 @@ int stress_aio(const args_t *args)
 	do {
 		(void)shim_usleep(250000); /* wait until a signal occurs */
 
-		for (i = 0; keep_stressing_flag && (i < opt_aio_requests); i++) {
+		for (i = 0; g_keep_stressing_flag && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 

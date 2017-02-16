@@ -95,7 +95,7 @@ static int try_remap(
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz, flags);
 #endif
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			return 0;
 #if defined(MREMAP_FIXED)
 		if (addr) {
@@ -148,7 +148,7 @@ static int stress_mremap_child(
 		uint8_t *buf = NULL;
 		size_t old_sz;
 
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, *flags, -1, 0);
@@ -163,7 +163,7 @@ static int stress_mremap_child(
 		(void)mincore_touch_pages(buf, opt_mremap_bytes);
 
 		/* Ensure we can write to the mapped pages */
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			mmap_set(buf, new_sz, page_size);
 			if (mmap_check(buf, sz, page_size) < 0) {
 				pr_fail("%s: mmap'd region of %zu "
@@ -182,7 +182,7 @@ static int stress_mremap_child(
 				return EXIT_FAILURE;
 			}
 			(void)madvise_random(buf, new_sz);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (mmap_check(buf, new_sz, page_size) < 0) {
 					pr_fail("%s: mremap'd region "
 						"of %zu bytes does "
@@ -230,9 +230,9 @@ int stress_mremap(const args_t *args)
 	flags |= MAP_POPULATE;
 #endif
 	if (!set_mremap_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_mremap_bytes = MAX_MREMAP_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_mremap_bytes = MIN_MREMAP_BYTES;
 	}
 	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
@@ -241,7 +241,7 @@ int stress_mremap(const args_t *args)
 	set_oom_adjustment(args->name, true);
 
 again:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -252,7 +252,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -296,7 +296,7 @@ again:
 			rc = WEXITSTATUS(status);
 		}
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */

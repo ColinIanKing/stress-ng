@@ -162,7 +162,7 @@ int stress_madvise(const args_t *args)
 			break;
 		}
 
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, flags, fd, 0);

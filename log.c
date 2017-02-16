@@ -88,7 +88,7 @@ int pr_msg(
 {
 	int ret = 0;
 
-	if ((flag & PR_FAIL) || (opt_flags & flag)) {
+	if ((flag & PR_FAIL) || (g_opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
 
@@ -101,13 +101,13 @@ int pr_msg(
 		if (flag & PR_FAIL)
 			type = "fail: ";
 
-		if (opt_flags & OPT_FLAGS_LOG_BRIEF) {
+		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
 			int n = snprintf(buf, sizeof(buf), "%s [%d] ",
 				type, (int)getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
-			fprintf(fp, "%s: %s", app_name, buf);
+			fprintf(fp, "%s: %s", g_app_name, buf);
 		}
 		fflush(fp);
 
@@ -116,7 +116,7 @@ int pr_msg(
 			if (abort_fails >= ABORT_FAILURES) {
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
-					keep_stressing_flag = false;
+					g_keep_stressing_flag = false;
 					fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);
@@ -127,12 +127,12 @@ int pr_msg(
 
 		/* Log messages to log file if --log-file specified */
 		if (log_file) {
-			fprintf(log_file, "%s: %s", app_name, buf);
+			fprintf(log_file, "%s: %s", g_app_name, buf);
 			fflush(log_file);
 		}
 
 		/* Log messages if syslog requested, don't log DEBUG */
-		if ((opt_flags & OPT_FLAGS_SYSLOG) &&
+		if ((g_opt_flags & OPT_FLAGS_SYSLOG) &&
 		    (!(flag & PR_DEBUG))) {
 			syslog(LOG_INFO, "%s", buf);
 		}
@@ -204,7 +204,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
+	(void)pr_msg(stderr, g_caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 

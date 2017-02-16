@@ -52,17 +52,18 @@ typedef struct {
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
-int32_t opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
 static int32_t opt_all = 0;			/* Number of concurrent workers */
-uint64_t opt_timeout = 0;			/* timeout in seconds */
-uint64_t opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
-volatile bool keep_stressing_flag = true;	/* false to exit stressor */
 static volatile bool wait_flag = true;		/* false to exit run waiter loop */
-volatile bool caught_sigint = false;		/* true if stopped by SIGINT */
-pid_t pgrp;					/* process group leader */
 
-const char *app_name = "stress-ng";		/* Name of application */
-shared_t *shared;				/* shared memory */
+/* Globals */
+int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential workers */
+uint64_t g_opt_timeout = 0;			/* timeout in seconds */
+uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
+volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
+volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
+pid_t g_pgrp;					/* process group leader */
+const char *g_app_name = "stress-ng";		/* Name of application */
+shared_t *g_shared;				/* shared memory */
 
 /*
  *  stressors to be run-time checked to see if they are supported
@@ -1481,8 +1482,8 @@ static int stress_exclude(char *const opt_exclude)
 static void MLOCKED stress_sigint_handler(int dummy)
 {
 	(void)dummy;
-	caught_sigint = true;
-	keep_stressing_flag = false;
+	g_caught_sigint = true;
+	g_keep_stressing_flag = false;
 	wait_flag = false;
 
 	kill(-getpid(), SIGALRM);
@@ -1491,7 +1492,7 @@ static void MLOCKED stress_sigint_handler(int dummy)
 static void MLOCKED stress_sigalrm_child_handler(int dummy)
 {
 	(void)dummy;
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 static void MLOCKED stress_sigalrm_parent_handler(int dummy)
@@ -1564,7 +1565,7 @@ static int stress_set_handler(const char *stress, const bool child)
  */
 static void version(void)
 {
-	printf("%s, version " VERSION "\n", app_name);
+	printf("%s, version " VERSION "\n", g_app_name);
 }
 
 /*
@@ -1606,13 +1607,13 @@ static inline void show_stressors(void)
 static void usage(void)
 {
 	version();
-	printf("\nUsage: %s [OPTION [ARG]]\n", app_name);
+	printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
 	printf("\nGeneral control options:\n");
 	usage_help(help_generic);
 	printf("\nStressor specific options:\n");
 	usage_help(help_stressors);
 	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
-	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", app_name);
+	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", g_app_name);
 	exit(EXIT_SUCCESS);
 }
 
@@ -1669,7 +1670,7 @@ static void kill_procs(const int sig)
 	if (count > 5)
 		signum = SIGKILL;
 
-	killpg(pgrp, sig);
+	killpg(g_pgrp, sig);
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;
@@ -1689,7 +1690,7 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 {
 	int i;
 
-	if (opt_flags & OPT_FLAGS_IGNITE_CPU)
+	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		ignite_cpu_start();
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
@@ -1699,7 +1700,7 @@ static void MLOCKED wait_procs(bool *success, bool *resource_success)
 	 *  to impact on memory locality (e.g. NUMA) to
 	 *  try to thrash the system when in aggressive mode
 	 */
-	if (opt_flags & OPT_FLAGS_AGGRESSIVE) {
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		cpu_set_t proc_mask;
 		unsigned long int cpu = 0;
 		const uint32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
@@ -1798,7 +1799,7 @@ redo:
 			}
 		}
 	}
-	if (opt_flags & OPT_FLAGS_IGNITE_CPU)
+	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		ignite_cpu_stop();
 }
 
@@ -1811,7 +1812,7 @@ static void MLOCKED handle_sigint(int dummy)
 {
 	(void)dummy;
 
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 }
 
@@ -1851,7 +1852,7 @@ static void MLOCKED stress_run(
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (i = 0; i < STRESS_MAX; i++) {
-			if (time_now() - time_start > opt_timeout)
+			if (time_now() - time_start > g_opt_timeout)
 				goto abort;
 
 			j = procs[i].started_procs;
@@ -1860,7 +1861,7 @@ static void MLOCKED stress_run(
 				pid_t pid;
 				char name[64];
 again:
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					break;
 				pid = fork();
 				switch (pid) {
@@ -1875,18 +1876,18 @@ again:
 					goto wait_for_procs;
 				case 0:
 					/* Child */
-					(void)setpgid(0, pgrp);
+					(void)setpgid(0, g_pgrp);
 					free_procs();
 					if (stress_set_handler(name, true) < 0)
 						exit(EXIT_FAILURE);
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
-					if (opt_flags & OPT_FLAGS_TIMER_SLACK)
+					if (g_opt_flags & OPT_FLAGS_TIMER_SLACK)
 						stress_set_timer_slack();
 
-					(void)alarm(opt_timeout);
+					(void)alarm(g_opt_timeout);
 					mwc_reseed();
-					snprintf(name, sizeof(name), "%s-%s", app_name,
+					snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						munge_underscore(stressors[i].name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
@@ -1899,15 +1900,15 @@ again:
 					n = (i * max_procs) + j;
 					stats[n].start = stats[n].finish = time_now();
 #if defined(STRESS_PERF_STATS)
-					if (opt_flags & OPT_FLAGS_PERF_STATS)
+					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_open(&stats[n].sp);
 #endif
 					(void)shim_usleep(opt_backoff * n_procs);
 #if defined(STRESS_PERF_STATS)
-					if (opt_flags & OPT_FLAGS_PERF_STATS)
+					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats[n].sp);
 #endif
-					if (keep_stressing_flag && !(opt_flags & OPT_FLAGS_DRY_RUN)) {
+					if (g_keep_stressing_flag && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
 							&stats[n].counter,
 							name,
@@ -1921,14 +1922,14 @@ again:
 						rc = stressors[i].stress_func(&args);
 					}
 #if defined(STRESS_PERF_STATS)
-					if (opt_flags & OPT_FLAGS_PERF_STATS) {
+					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
 						(void)perf_disable(&stats[n].sp);
 						(void)perf_close(&stats[n].sp);
 					}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
-					if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
-						(void)tz_get_temperatures(&shared->tz_info, &stats[n].tz);
+					if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
+						(void)tz_get_temperatures(&g_shared->tz_info, &stats[n].tz);
 #endif
 
 					stats[n].finish = time_now();
@@ -1939,19 +1940,19 @@ again:
 					pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
 #if defined(STRESS_THERMAL_ZONES)
-					tz_free(&shared->tz_info);
+					tz_free(&g_shared->tz_info);
 #endif
 					stress_cache_free();
 					exit(rc);
 				default:
 					if (pid > -1) {
-						(void)setpgid(pid, pgrp);
+						(void)setpgid(pid, g_pgrp);
 						procs[i].pids[j] = pid;
 						procs[i].started_procs++;
 					}
 
 					/* Forced early abort during startup? */
-					if (!keep_stressing_flag) {
+					if (!g_keep_stressing_flag) {
 						pr_dbg("abort signal during startup, cleaning up\n");
 						kill_procs(SIGALRM);
 						goto wait_for_procs;
@@ -1962,7 +1963,7 @@ again:
 		}
 	}
 	(void)stress_set_handler("stress-ng", false);
-	(void)alarm(opt_timeout);
+	(void)alarm(g_opt_timeout);
 
 abort:
 	pr_dbg("%d stressor%s spawned\n", n_procs,
@@ -1993,11 +1994,11 @@ static int show_hogs(const uint32_t opt_class)
 		if (procs[i].exclude) {
 			n = 0;
 		} else {
-			if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
+			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 				if (opt_class) {
-					n = (stressors[i].class & opt_class) ?  opt_sequential : 0;
+					n = (stressors[i].class & opt_class) ?  g_opt_sequential : 0;
 				} else {
-					n = opt_sequential;
+					n = g_opt_sequential;
 				}
 			} else {
 				n = procs[i].num_procs;
@@ -2055,12 +2056,13 @@ static void metrics_dump(
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 
 		for (j = 0; j < procs[i].started_procs; j++, n++) {
-			c_total += shared->stats[n].counter;
-			u_total += shared->stats[n].tms.tms_utime +
-				   shared->stats[n].tms.tms_cutime;
-			s_total += shared->stats[n].tms.tms_stime +
-				   shared->stats[n].tms.tms_cstime;
-			r_total += shared->stats[n].finish - shared->stats[n].start;
+			c_total += g_shared->stats[n].counter;
+			u_total += g_shared->stats[n].tms.tms_utime +
+				   g_shared->stats[n].tms.tms_cutime;
+			s_total += g_shared->stats[n].tms.tms_stime +
+				   g_shared->stats[n].tms.tms_cstime;
+			r_total += g_shared->stats[n].finish -
+				   g_shared->stats[n].start;
 		}
 		/* Total usr + sys time of all procs */
 		us_total = u_total + s_total;
@@ -2068,7 +2070,7 @@ static void metrics_dump(
 		r_total = procs[i].started_procs ?
 			r_total / (double)procs[i].started_procs : 0.0;
 
-		if ((opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
+		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
 			continue;
 
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
@@ -2237,16 +2239,16 @@ static void log_system_info(void)
  */
 static inline void stress_map_shared(const size_t len)
 {
-	shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
+	g_shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
-	if (shared == MAP_FAILED) {
+	if (g_shared == MAP_FAILED) {
 		pr_err("Cannot mmap to shared memory region: errno=%d (%s)\n",
 			errno, strerror(errno));
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-	memset(shared, 0, len);
-	shared->length = len;
+	memset(g_shared, 0, len);
+	g_shared->length = len;
 }
 
 /*
@@ -2255,7 +2257,7 @@ static inline void stress_map_shared(const size_t len)
  */
 void stress_unmap_shared(void)
 {
-	(void)munmap((void *)shared, shared->length);
+	(void)munmap((void *)g_shared, g_shared->length);
 }
 
 /*
@@ -2269,7 +2271,7 @@ static inline void exclude_unsupported(void)
 	for (i = 0; i < SIZEOF_ARRAY(unsupported); i++) {
 		int32_t id = stressor_id_find(unsupported[i].str_id);
 
-		if ((procs[id].num_procs || (opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
+		if ((procs[id].num_procs || (g_opt_flags & OPT_FLAGS_SEQUENTIAL)) &&
 		    (unsupported[i].func_supported() < 0)) {
 			procs[id].num_procs = 0;
 			procs[id].exclude = true;
@@ -2311,7 +2313,7 @@ static void proc_helper(const proc_helper_t *helpers, const size_t n)
 	for (i = 0; i < n; i++) {
 		int32_t id = stressor_id_find(helpers[i].str_id);
 
-		if (procs[id].num_procs || (opt_flags & helpers[i].opt_flag))
+		if (procs[id].num_procs || (g_opt_flags & helpers[i].opt_flag))
 			helpers[i].func();
 	}
 }
@@ -2323,7 +2325,7 @@ static void proc_helper(const proc_helper_t *helpers, const size_t n)
  */
 static inline void exclude_pathological(void)
 {
-	if (!(opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
+	if (!(g_opt_flags & OPT_FLAGS_PATHOLOGICAL)) {
 		size_t i;
 
 		for (i = 0; i < STRESS_MAX; i++) {
@@ -2344,10 +2346,10 @@ static inline void exclude_pathological(void)
 
 static inline void set_random_stressors(const int32_t opt_random)
 {
-	if (opt_flags & OPT_FLAGS_RANDOM) {
+	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 
-		if (opt_flags & OPT_FLAGS_SET) {
+		if (g_opt_flags & OPT_FLAGS_SET) {
 			fprintf(stderr, "Cannot specify random option with "
 				"other stress processes selected\n");
 			exit(EXIT_FAILURE);
@@ -2403,7 +2405,7 @@ int main(int argc, char **argv)
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
 
-	pgrp = getpid();
+	g_pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
 		pr_err("sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
@@ -2429,7 +2431,7 @@ next_opt:
 			if (stressors[s_id].short_getopt == c) {
 				const char *name = opt_name(c);
 
-				opt_flags |= OPT_FLAGS_SET;
+				g_opt_flags |= OPT_FLAGS_SET;
 				procs[s_id].num_procs = get_int32(optarg);
 				stress_get_processors(&procs[s_id].num_procs);
 				check_value(name, procs[s_id].num_procs);
@@ -2452,16 +2454,16 @@ next_opt:
 			stress_set_aio_linux_requests(optarg);
 			break;
 		case OPT_ALL:
-			opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
+			g_opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
 			opt_all = get_int32(optarg);
 			stress_get_processors(&opt_all);
 			check_value("all", opt_all);
 			break;
 		case OPT_AFFINITY_RAND:
-			opt_flags |= OPT_FLAGS_AFFINITY_RAND;
+			g_opt_flags |= OPT_FLAGS_AFFINITY_RAND;
 			break;
 		case OPT_AGGRESSIVE:
-			opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
+			g_opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
 			break;
 		case OPT_BACKOFF:
 			opt_backoff = get_uint64(optarg);
@@ -2470,19 +2472,19 @@ next_opt:
 			stress_set_bigheap_growth(optarg);
 			break;
 		case OPT_BRK_NOTOUCH:
-			opt_flags |= OPT_FLAGS_BRK_NOTOUCH;
+			g_opt_flags |= OPT_FLAGS_BRK_NOTOUCH;
 			break;
 		case OPT_BSEARCH_SIZE:
 			stress_set_bsearch_size(optarg);
 			break;
 		case OPT_CACHE_PREFETCH:
-			opt_flags |= OPT_FLAGS_CACHE_PREFETCH;
+			g_opt_flags |= OPT_FLAGS_CACHE_PREFETCH;
 			break;
 		case OPT_CACHE_FLUSH:
-			opt_flags |= OPT_FLAGS_CACHE_FLUSH;
+			g_opt_flags |= OPT_FLAGS_CACHE_FLUSH;
 			break;
 		case OPT_CACHE_FENCE:
-			opt_flags |= OPT_FLAGS_CACHE_FENCE;
+			g_opt_flags |= OPT_FLAGS_CACHE_FENCE;
 			break;
 		case OPT_CACHE_LEVEL:
 			mem_cache_level = atoi(optarg);
@@ -2493,7 +2495,7 @@ next_opt:
 				mem_cache_level = DEFAULT_CACHE_LEVEL;
 			break;
 		case OPT_CACHE_NO_AFFINITY:
-			opt_flags |= OPT_FLAGS_CACHE_NOAFF;
+			g_opt_flags |= OPT_FLAGS_CACHE_NOAFF;
 			break;
 		case OPT_CACHE_WAYS:
 			mem_cache_ways = atoi(optarg);
@@ -2522,7 +2524,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_DRY_RUN:
-			opt_flags |= OPT_FLAGS_DRY_RUN;
+			g_opt_flags |= OPT_FLAGS_DRY_RUN;
 			break;
 		case OPT_DCCP_DOMAIN:
 			if (stress_set_dccp_domain(optarg) < 0)
@@ -2594,7 +2596,7 @@ next_opt:
 			stress_set_hsearch_size(optarg);
 			break;
 		case OPT_IGNITE_CPU:
-			opt_flags |= OPT_FLAGS_IGNITE_CPU;
+			g_opt_flags |= OPT_FLAGS_IGNITE_CPU;
 			break;
 		case OPT_IOMIX_BYTES:
 			stress_set_iomix_bytes(optarg);
@@ -2609,16 +2611,16 @@ next_opt:
 			stress_set_itimer_freq(optarg);
 			break;
 		case OPT_KEEP_NAME:
-			opt_flags |= OPT_FLAGS_KEEP_NAME;
+			g_opt_flags |= OPT_FLAGS_KEEP_NAME;
 			break;
 		case OPT_LEASE_BREAKERS:
 			stress_set_lease_breakers(optarg);
 			break;
 		case OPT_LOCKF_NONBLOCK:
-			opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
+			g_opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
 			break;
 		case OPT_LOG_BRIEF:
-			opt_flags |= OPT_FLAGS_LOG_BRIEF;
+			g_opt_flags |= OPT_FLAGS_LOG_BRIEF;
 			break;
 		case OPT_LOG_FILE:
 			logfile = optarg;
@@ -2643,37 +2645,37 @@ next_opt:
 			stress_set_matrix_size(optarg);
 			break;
 		case OPT_MAXIMIZE:
-			opt_flags |= OPT_FLAGS_MAXIMIZE;
+			g_opt_flags |= OPT_FLAGS_MAXIMIZE;
 			break;
 		case OPT_MEMFD_BYTES:
 			stress_set_memfd_bytes(optarg);
 			break;
 		case OPT_METRICS:
-			opt_flags |= OPT_FLAGS_METRICS;
+			g_opt_flags |= OPT_FLAGS_METRICS;
 			break;
 		case OPT_METRICS_BRIEF:
-			opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
+			g_opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
 			break;
 		case OPT_MERGESORT_INTEGERS:
 			stress_set_mergesort_size(optarg);
 			break;
 		case OPT_MINCORE_RAND:
-			opt_flags |= OPT_FLAGS_MINCORE_RAND;
+			g_opt_flags |= OPT_FLAGS_MINCORE_RAND;
 			break;
 		case OPT_MINIMIZE:
-			opt_flags |= OPT_FLAGS_MINIMIZE;
+			g_opt_flags |= OPT_FLAGS_MINIMIZE;
 			break;
 		case OPT_MMAP_ASYNC:
-			opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
+			g_opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
 			break;
 		case OPT_MMAP_BYTES:
 			stress_set_mmap_bytes(optarg);
 			break;
 		case OPT_MMAP_FILE:
-			opt_flags |= OPT_FLAGS_MMAP_FILE;
+			g_opt_flags |= OPT_FLAGS_MMAP_FILE;
 			break;
 		case OPT_MMAP_MPROTECT:
-			opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
+			g_opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
 			break;
 		case OPT_MREMAP_BYTES:
 			stress_set_mremap_bytes(optarg);
@@ -2685,20 +2687,20 @@ next_opt:
 			stress_set_mq_size(optarg);
 			break;
 		case OPT_NO_MADVISE:
-			opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
+			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
 			break;
 		case OPT_NO_RAND_SEED:
-			opt_flags |= OPT_FLAGS_NO_RAND_SEED;
+			g_opt_flags |= OPT_FLAGS_NO_RAND_SEED;
 			break;
 		case OPT_PAGE_IN:
-			opt_flags |= OPT_FLAGS_MMAP_MINCORE;
+			g_opt_flags |= OPT_FLAGS_MMAP_MINCORE;
 			break;
 		case OPT_PATHOLOGICAL:
-			opt_flags |= OPT_FLAGS_PATHOLOGICAL;
+			g_opt_flags |= OPT_FLAGS_PATHOLOGICAL;
 			break;
 #if defined(STRESS_PERF_STATS)
 		case OPT_PERF_STATS:
-			opt_flags |= OPT_FLAGS_PERF_STATS;
+			g_opt_flags |= OPT_FLAGS_PERF_STATS;
 			break;
 #endif
 		case OPT_PIPE_DATA_SIZE:
@@ -2716,14 +2718,14 @@ next_opt:
 			stress_set_qsort_size(optarg);
 			break;
 		case OPT_QUERY:
-			printf("Try '%s --help' for more information.\n", app_name);
+			printf("Try '%s --help' for more information.\n", g_app_name);
 			exit(EXIT_FAILURE);
 			break;
 		case OPT_QUIET:
-			opt_flags &= ~(PR_ALL);
+			g_opt_flags &= ~(PR_ALL);
 			break;
 		case OPT_RANDOM:
-			opt_flags |= OPT_FLAGS_RANDOM;
+			g_opt_flags |= OPT_FLAGS_RANDOM;
 			opt_random = get_int32(optarg);
 			stress_get_processors(&opt_random);
 			check_value("random", opt_random);
@@ -2745,7 +2747,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_SEEK_PUNCH:
-			opt_flags |= OPT_FLAGS_SEEK_PUNCH;
+			g_opt_flags |= OPT_FLAGS_SEEK_PUNCH;
 			break;
 		case OPT_SEEK_SIZE:
 			stress_set_seek_size(optarg);
@@ -2760,10 +2762,10 @@ next_opt:
 			stress_set_sendfile_size(optarg);
 			break;
 		case OPT_SEQUENTIAL:
-			opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			opt_sequential = get_int32(optarg);
-			stress_get_processors(&opt_sequential);
-			check_range("sequential", opt_sequential,
+			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
+			g_opt_sequential = get_int32(optarg);
+			stress_get_processors(&g_opt_sequential);
+			check_range("sequential", g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_SHM_POSIX_BYTES:
@@ -2786,7 +2788,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_SOCKET_NODELAY:
-			opt_flags |= OPT_FLAGS_SOCKET_NODELAY;
+			g_opt_flags |= OPT_FLAGS_SOCKET_NODELAY;
 			break;
 		case OPT_SOCKET_OPTS:
 			if (stress_set_socket_opts(optarg) < 0)
@@ -2806,7 +2808,7 @@ next_opt:
 			stress_set_splice_bytes(optarg);
 			break;
 		case OPT_STACK_FILL:
-			opt_flags |= OPT_FLAGS_STACK_FILL;
+			g_opt_flags |= OPT_FLAGS_STACK_FILL;
 			break;
 		case OPT_STR_METHOD:
 			if (stress_set_str_method(optarg) < 0)
@@ -2822,46 +2824,46 @@ next_opt:
 			stress_set_sync_file_bytes(optarg);
 			break;
 		case OPT_SYSLOG:
-			opt_flags |= OPT_FLAGS_SYSLOG;
+			g_opt_flags |= OPT_FLAGS_SYSLOG;
 			break;
 		case OPT_TASKSET:
 			if (set_cpu_affinity(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_THRASH:
-			opt_flags |= OPT_FLAGS_THRASH;
+			g_opt_flags |= OPT_FLAGS_THRASH;
 			break;
 		case OPT_TEMP_PATH:
 			if (stress_set_temp_path(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_TIMEOUT:
-			opt_timeout = get_uint64_time(optarg);
+			g_opt_timeout = get_uint64_time(optarg);
 			break;
 		case OPT_TIMER_FREQ:
 			stress_set_timer_freq(optarg);
 			break;
 		case OPT_TIMER_RAND:
-			opt_flags |= OPT_FLAGS_TIMER_RAND;
+			g_opt_flags |= OPT_FLAGS_TIMER_RAND;
 			break;
 		case OPT_TIMERFD_FREQ:
 			stress_set_timerfd_freq(optarg);
 			break;
 		case OPT_TIMERFD_RAND:
-			opt_flags |= OPT_FLAGS_TIMERFD_RAND;
+			g_opt_flags |= OPT_FLAGS_TIMERFD_RAND;
 			break;
 		case OPT_TIMER_SLACK:
-			opt_flags |= OPT_FLAGS_TIMER_SLACK;
+			g_opt_flags |= OPT_FLAGS_TIMER_SLACK;
 			stress_set_timer_slack_ns(optarg);
 			break;
 		case OPT_TIMES:
-			opt_flags |= OPT_FLAGS_TIMES;
+			g_opt_flags |= OPT_FLAGS_TIMES;
 			break;
 		case OPT_TSEARCH_SIZE:
 			stress_set_tsearch_size(optarg);
 			break;
 		case OPT_THERMAL_ZONES:
-			opt_flags |= OPT_FLAGS_THERMAL_ZONES;
+			g_opt_flags |= OPT_FLAGS_THERMAL_ZONES;
 			break;
 		case OPT_UDP_DOMAIN:
 			if (stress_set_udp_domain(optarg) < 0)
@@ -2871,7 +2873,7 @@ next_opt:
 			stress_set_udp_port(optarg);
 			break;
 		case OPT_UDP_LITE:
-			opt_flags |= OPT_FLAGS_UDP_LITE;
+			g_opt_flags |= OPT_FLAGS_UDP_LITE;
 			break;
 		case OPT_UDP_FLOOD_DOMAIN:
 			if (stress_set_udp_flood_domain(optarg) < 0)
@@ -2881,16 +2883,16 @@ next_opt:
 			stress_set_userfaultfd_bytes(optarg);
 			break;
 		case OPT_UTIME_FSYNC:
-			opt_flags |= OPT_FLAGS_UTIME_FSYNC;
+			g_opt_flags |= OPT_FLAGS_UTIME_FSYNC;
 			break;
 		case OPT_VERBOSE:
-			opt_flags |= PR_ALL;
+			g_opt_flags |= PR_ALL;
 			break;
 		case OPT_VFORK_MAX:
 			stress_set_vfork_max(optarg);
 			break;
 		case OPT_VERIFY:
-			opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
+			g_opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
 			break;
 		case OPT_VERSION:
 			version();
@@ -2902,7 +2904,7 @@ next_opt:
 			stress_set_vm_hang(optarg);
 			break;
 		case OPT_VM_KEEP:
-			opt_flags |= OPT_FLAGS_VM_KEEP;
+			g_opt_flags |= OPT_FLAGS_VM_KEEP;
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)
@@ -2941,13 +2943,13 @@ next_opt:
 	}
 	if (stress_exclude(opt_exclude) < 0)
 		exit(EXIT_FAILURE);
-	if ((opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
+	if ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
 		fprintf(stderr, "cannot invoke --sequential and --all "
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
-	if (opt_class && !(opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
+	if (opt_class && !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
@@ -2964,7 +2966,7 @@ next_opt:
 		stress_get_processors_online(),
 		stress_get_processors_configured());
 
-	if ((opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
+	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
 		fprintf(stderr, "maximize and minimize cannot be used together\n");
 		exit(EXIT_FAILURE);
 	}
@@ -2974,7 +2976,7 @@ next_opt:
 	set_random_stressors(opt_random);
 
 #if defined(STRESS_PERF_STATS)
-	if (opt_flags & OPT_FLAGS_PERF_STATS)
+	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_init();
 #endif
 	stress_process_dumpable(false);
@@ -2999,41 +3001,41 @@ next_opt:
 	for (i = 0; i < STRESS_MAX; i++)
 		total_procs += procs[i].num_procs;
 
-	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
+	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		if (total_procs) {
 			pr_err("sequential option cannot be specified "
 				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
-		if (opt_timeout == 0) {
-			opt_timeout = 60;
+		if (g_opt_timeout == 0) {
+			g_opt_timeout = 60;
 			pr_inf("defaulting to a %" PRIu64
-				" second run per stressor\n", opt_timeout);
+				" second run per stressor\n", g_opt_timeout);
 		}
 
 		/* Sequential mode has no bogo ops threshold */
 		for (i = 0; i < STRESS_MAX; i++) {
 			procs[i].bogo_ops = 0;
-			procs[i].pids = calloc(opt_sequential, sizeof(pid_t));
+			procs[i].pids = calloc(g_opt_sequential, sizeof(pid_t));
 			if (!procs[i].pids) {
 				pr_err("cannot allocate pid list\n");
 				free_procs();
 				exit(EXIT_FAILURE);
 			}
 		}
-		max_procs = opt_sequential;
-	} else if (opt_flags & OPT_FLAGS_ALL) {
+		max_procs = g_opt_sequential;
+	} else if (g_opt_flags & OPT_FLAGS_ALL) {
 		if (total_procs) {
 			pr_err("the all option cannot be specified "
 				"with other stressors enabled\n");
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
-		if (opt_timeout == 0) {
-			opt_timeout = DEFAULT_TIMEOUT;
+		if (g_opt_timeout == 0) {
+			g_opt_timeout = DEFAULT_TIMEOUT;
 			pr_inf("defaulting to a %" PRIu64
-				" second run per stressor\n", opt_timeout);
+				" second run per stressor\n", g_opt_timeout);
 		}
 
 		for (i = 0; i < STRESS_MAX; i++) {
@@ -3059,10 +3061,10 @@ next_opt:
 			free_procs();
 			exit(EXIT_FAILURE);
 		}
-		if (opt_timeout == 0) {
-			opt_timeout = DEFAULT_TIMEOUT;
+		if (g_opt_timeout == 0) {
+			g_opt_timeout = DEFAULT_TIMEOUT;
 			pr_inf("defaulting to a %" PRIu64
-				" second run per stressor\n", opt_timeout);
+				" second run per stressor\n", g_opt_timeout);
 		}
 
 		/* Share bogo ops between processes equally */
@@ -3093,17 +3095,17 @@ next_opt:
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * STRESS_MAX * max_procs);
 	stress_map_shared(len);
 #if defined(STRESS_PERF_STATS)
-	pthread_spin_init(&shared->perf.lock, 0);
+	pthread_spin_init(&g_shared->perf.lock, 0);
 #endif
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_init(&shared->warn_once.lock, 0);
+	pthread_spin_init(&g_shared->warn_once.lock, 0);
 #endif
 
 	/*
 	 *  Allocate shared cache memory
 	 */
-	shared->mem_cache_level = mem_cache_level;
-	shared->mem_cache_ways = mem_cache_ways;
+	g_shared->mem_cache_level = mem_cache_level;
+	g_shared->mem_cache_ways = mem_cache_ways;
 	if (stress_cache_alloc("cache allocate") < 0) {
 		stress_unmap_shared();
 		free_procs();
@@ -3111,34 +3113,34 @@ next_opt:
 	}
 
 #if defined(STRESS_THERMAL_ZONES)
-	if (opt_flags & OPT_FLAGS_THERMAL_ZONES)
-		tz_init(&shared->tz_info);
+	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
+		tz_init(&g_shared->tz_info);
 #endif
 
 	proc_helper(proc_init, SIZEOF_ARRAY(proc_init));
-	if (opt_flags & OPT_FLAGS_THRASH)
+	if (g_opt_flags & OPT_FLAGS_THRASH)
 		thrash_start();
 
-	if (opt_flags & OPT_FLAGS_SEQUENTIAL) {
+	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		/*
 		 *  Step through each stressor one by one
 		 */
-		for (i = 0; keep_stressing_flag && i < STRESS_MAX; i++) {
+		for (i = 0; g_keep_stressing_flag && i < STRESS_MAX; i++) {
 			int32_t j;
 
-			for (j = 0; keep_stressing_flag && j < STRESS_MAX; j++)
+			for (j = 0; g_keep_stressing_flag && j < STRESS_MAX; j++)
 				procs[j].num_procs = 0;
 			if (!procs[i].exclude) {
 				procs[i].num_procs = opt_class ?
 					((stressors[i].class & opt_class) ?
-						opt_sequential : 0) : opt_sequential;
+						g_opt_sequential : 0) : g_opt_sequential;
 				if (procs[i].num_procs)
-					stress_run(opt_sequential,
-						opt_sequential,
+					stress_run(g_opt_sequential,
+						g_opt_sequential,
 						opt_backoff,
 						opt_ionice_class,
 						opt_ionice_level,
-						shared->stats,
+						g_shared->stats,
 						&duration,
 						&success,
 						&resource_success);
@@ -3150,10 +3152,10 @@ next_opt:
 		 */
 		stress_run(total_procs, max_procs,
 			opt_backoff, opt_ionice_class, opt_ionice_level,
-			shared->stats, &duration, &success, &resource_success);
+			g_shared->stats, &duration, &success, &resource_success);
 	}
 
-	if (opt_flags & OPT_FLAGS_THRASH)
+	if (g_opt_flags & OPT_FLAGS_THRASH)
 		thrash_stop();
 
 	pr_inf("%s run completed in %.2fs%s\n",
@@ -3168,19 +3170,19 @@ next_opt:
 		pr_yaml(yaml, "---\n");
 		pr_yaml_runinfo(yaml);
 	}
-	if (opt_flags & OPT_FLAGS_METRICS)
+	if (g_opt_flags & OPT_FLAGS_METRICS)
 		metrics_dump(yaml, max_procs, ticks_per_sec);
 #if defined(STRESS_PERF_STATS)
-	if (opt_flags & OPT_FLAGS_PERF_STATS)
+	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_stat_dump(yaml, stressors, procs, max_procs, duration);
 #endif
 #if defined(STRESS_THERMAL_ZONES)
-	if (opt_flags & OPT_FLAGS_THERMAL_ZONES) {
+	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES) {
 		tz_dump(yaml, stressors, procs, max_procs);
-		tz_free(&shared->tz_info);
+		tz_free(&g_shared->tz_info);
 	}
 #endif
-	if (opt_flags & OPT_FLAGS_TIMES)
+	if (g_opt_flags & OPT_FLAGS_TIMES)
 		times_dump(yaml, ticks_per_sec, duration);
 	free_procs();
 

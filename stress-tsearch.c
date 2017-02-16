@@ -67,9 +67,9 @@ int stress_tsearch(const args_t *args)
 	size_t i, n;
 
 	if (!set_tsearch_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_tsearch_size = MAX_TSEARCH_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_tsearch_size = MIN_TSEARCH_SIZE;
 	}
 	n = (size_t)opt_tsearch_size;
@@ -96,11 +96,11 @@ int stress_tsearch(const args_t *args)
 			}
 		}
 		/* Step #2, find */
-		for (i = 0; keep_stressing_flag && i < n; i++) {
+		for (i = 0; g_keep_stressing_flag && i < n; i++) {
 			void **result;
 
 			result = tfind(&data[i], &root, cmp);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu "
 						"could not be found\n",
@@ -121,7 +121,7 @@ int stress_tsearch(const args_t *args)
 			void **result;
 
 			result = tdelete(&data[i], &root, cmp);
-			if ((opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
 				pr_fail("%s: element %zu could not "
 					"be found\n", args->name, i);
 		}

@@ -1893,15 +1893,15 @@ typedef struct cpus {
 } cpus_t;
 #endif
 
-/* Various option settings and flags */
-extern const char *app_name;		/* Name of application */
-extern shared_t *shared;		/* shared memory */
-extern uint64_t	opt_timeout;		/* timeout in seconds */
-extern uint64_t	opt_flags;		/* option flags */
-extern int32_t opt_sequential;		/* Number of sequential iterations */
-extern volatile bool keep_stressing_flag; /* false to exit stressor */
-extern volatile bool caught_sigint;	/* true if stopped by SIGINT */
-extern pid_t pgrp;			/* proceess group leader */
+/* Various global option settings and flags */
+extern const char *g_app_name;		/* Name of application */
+extern shared_t *g_shared;		/* shared memory */
+extern uint64_t	g_opt_timeout;		/* timeout in seconds */
+extern uint64_t	g_opt_flags;		/* option flags */
+extern int32_t g_opt_sequential;	/* Number of sequential iterations */
+extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
+extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
+extern pid_t g_pgrp;			/* proceess group leader */
 
 /*
  *  externs to force gcc to stash computed values and hence
@@ -2111,12 +2111,12 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 	uint32_t tmp;
 
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_lock(&shared->warn_once.lock);
+	pthread_spin_lock(&g_shared->warn_once.lock);
 #endif
-	tmp = !(shared->warn_once.flags & flag);
-	shared->warn_once.flags |= flag;
+	tmp = !(g_shared->warn_once.flags & flag);
+	g_shared->warn_once.flags |= flag;
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_unlock(&shared->warn_once.lock);
+	pthread_spin_unlock(&g_shared->warn_once.lock);
 #endif
 	return tmp;
 }

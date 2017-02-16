@@ -41,11 +41,11 @@ int stress_mincore(const args_t *args)
 	do {
 		int i;
 
-		for (i = 0; (i < 100) && keep_stressing_flag; i++) {
+		for (i = 0; (i < 100) && g_keep_stressing_flag; i++) {
 			int ret, redo = 0;
 			unsigned char vec[1];
 
-			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
+			if (g_opt_flags & OPT_FLAGS_MINCORE_RAND)
 				if (addr < (uint8_t *)page_size)
 					addr = (uint8_t *)((ptrdiff_t)(mwc64() & mask));
 redo:
@@ -67,7 +67,7 @@ redo:
 					return EXIT_FAILURE;
 				}
 			}
-			if (opt_flags & OPT_FLAGS_MINCORE_RAND)
+			if (g_opt_flags & OPT_FLAGS_MINCORE_RAND)
 				addr = (uint8_t *)(ptrdiff_t)
 					(((ptrdiff_t)addr >> 1) & mask);
 			else

@@ -81,15 +81,15 @@ int stress_msg(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			msg_t msg;
 			uint64_t i;
 
@@ -101,7 +101,7 @@ again:
 				}
 				if (!strcmp(msg.msg, MSG_STOP))
 					break;
-				if (opt_flags & OPT_FLAGS_VERIFY) {
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					memcpy(&v, msg.msg, sizeof(v));
 					if (v != i)
 						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx64
@@ -116,7 +116,7 @@ again:
 		int status;
 
 		/* Parent */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		do {
 			memcpy(msg.msg, &i, sizeof(i));

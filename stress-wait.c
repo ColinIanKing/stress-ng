@@ -42,18 +42,18 @@ static pid_t spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		func(args, pid_arg);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -152,7 +152,7 @@ int stress_wait(const args_t *args)
 #else
 		(void)waitpid(pid_r, &status, 0);
 #endif
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 #if defined(WIFCONINUED)
 		if (WIFCONTINUED(status))
@@ -172,7 +172,7 @@ int stress_wait(const args_t *args)
 #else
 			(void)waitid(P_PID, pid_r, &info, 0);
 #endif
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 #if defined(WIFCONINUED)
 			if (WIFCONTINUED(status))
@@ -182,7 +182,7 @@ int stress_wait(const args_t *args)
 #endif
 		}
 #endif
-	} while (keep_stressing_flag && (!args->max_ops || *args->counter < args->max_ops));
+	} while (g_keep_stressing_flag && (!args->max_ops || *args->counter < args->max_ops));
 
 	(void)kill(pid_k, SIGKILL);
 	(void)waitpid(pid_k, &status, 0);

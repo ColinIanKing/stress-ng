@@ -37,12 +37,12 @@ int stress_kill(const args_t *args)
 		int ret;
 
 		ret = kill(args->pid, SIGUSR1);
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail_err("kill");
 
 		/* Zero signal can be used to see if process exists */
 		ret = kill(args->pid, 0);
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail_err("kill");
 
 		/*
@@ -51,7 +51,7 @@ int stress_kill(const args_t *args)
 		 * permission to send to
 		 */
 		ret = kill(-1, 0);
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail_err("kill");
 
 		inc_counter(args);

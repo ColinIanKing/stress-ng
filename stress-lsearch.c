@@ -60,9 +60,9 @@ int stress_lsearch(const args_t *args)
 	size_t i, max;
 
 	if (!set_lsearch_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_lsearch_size = MAX_LSEARCH_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_lsearch_size = MIN_LSEARCH_SIZE;
 	}
 	max = (size_t)opt_lsearch_size;
@@ -81,16 +81,16 @@ int stress_lsearch(const args_t *args)
 		size_t n = 0;
 
 		/* Step #1, populate with data */
-		for (i = 0; keep_stressing_flag && i < max; i++) {
+		for (i = 0; g_keep_stressing_flag && i < max; i++) {
 			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
 			(void)lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
 		}
 		/* Step #2, find */
-		for (i = 0; keep_stressing_flag && i < n; i++) {
+		for (i = 0; g_keep_stressing_flag && i < n; i++) {
 			int32_t *result;
 
 			result = lfind(&data[i], root, &n, sizeof(int32_t), cmp);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n", args->name, i);
 				else if (*result != data[i])

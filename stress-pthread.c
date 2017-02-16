@@ -167,9 +167,9 @@ int stress_pthread(const args_t *args)
 	int ret;
 
 	if (!set_pthread_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_pthread_max = MAX_PTHREAD;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_pthread_max = MIN_PTHREAD;
 	}
 
@@ -211,7 +211,7 @@ int stress_pthread(const args_t *args)
 				break;
 			}
 			inc_counter(args);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		attempted++;

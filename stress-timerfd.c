@@ -57,7 +57,7 @@ static void stress_timerfd_set(struct itimerspec *timer)
 {
 	double rate;
 
-	if (opt_flags & OPT_FLAGS_TIMERFD_RAND) {
+	if (g_opt_flags & OPT_FLAGS_TIMERFD_RAND) {
 		/* Mix in some random variation */
 		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
@@ -85,9 +85,9 @@ int stress_timerfd(const args_t *args)
 	struct itimerspec timer;
 
 	if (!set_timerfd_freq) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_timerfd_freq = MAX_TIMERFD_FREQ;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_timerfd_freq = MIN_TIMERFD_FREQ;
 	}
 	rate_ns = opt_timerfd_freq ? 1000000000 / opt_timerfd_freq : 1000000000;
@@ -117,7 +117,7 @@ int stress_timerfd(const args_t *args)
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 500000;
 
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		ret = select(timerfd + 1, &rdfs, NULL, NULL, &timeout);
 		if (ret < 0) {
@@ -138,7 +138,7 @@ int stress_timerfd(const args_t *args)
 			pr_fail_err("timerfd_gettime");
 			break;
 		}
-		if (opt_flags & OPT_FLAGS_TIMERFD_RAND) {
+		if (g_opt_flags & OPT_FLAGS_TIMERFD_RAND) {
 			stress_timerfd_set(&timer);
 			if (timerfd_settime(timerfd, 0, &timer, NULL) < 0) {
 				pr_fail_err("timer_settime");

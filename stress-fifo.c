@@ -53,12 +53,12 @@ static pid_t fifo_spawn(
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		func(name, fifoname);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -77,7 +77,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 			name, errno, strerror(errno));
 		return;
 	}
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		ssize_t sz;
 		int ret;
 		struct timeval timeout;
@@ -140,9 +140,9 @@ int stress_fifo(const args_t *args)
 	int rc = EXIT_FAILURE;
 
 	if (!set_fifo_readers) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_fifo_readers = MAX_FIFO_READERS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_fifo_readers = MIN_FIFO_READERS;
 	}
 
@@ -166,7 +166,7 @@ int stress_fifo(const args_t *args)
 		pids[i] = fifo_spawn(stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}

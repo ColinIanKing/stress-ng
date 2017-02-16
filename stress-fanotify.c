@@ -219,7 +219,7 @@ int stress_fanotify(const args_t *args)
 				metadata = (struct fanotify_event_metadata *)buffer;
 
 				while (FAN_EVENT_OK(metadata, len)) {
-					if (!keep_stressing_flag)
+					if (!g_keep_stressing_flag)
 						break;
 					if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
 						if (metadata->mask & FAN_OPEN)

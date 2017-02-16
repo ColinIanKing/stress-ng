@@ -119,34 +119,34 @@ static void waste_resources(
 
 	memset(&info, 0, sizeof(info));
 
-	for (i = 0; keep_stressing_flag && (i < MAX_LOOPS); i++) {
+	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
 #if defined(__NR_memfd_create)
 		char name[32];
 #endif
 		if (!(mwc32() & 0xf)) {
 			info[i].m_malloc = calloc(1, page_size);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		if (!(mwc32() & 0xf)) {
 			info[i].m_sbrk = sbrk(page_size);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		if (!(mwc32() & 0xf)) {
 			info[i].m_alloca = alloca(page_size);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		if (!(mwc32() & 0xf)) {
 			info[i].m_mmap_size = page_size;
 			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			if (info[i].m_mmap != MAP_FAILED) {
 				mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					break;
 			}
 		}
@@ -159,26 +159,26 @@ static void waste_resources(
 #else
 		(void)pipe_size;
 #endif
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		info[i].fd_open = open("/dev/null", O_RDONLY);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 #if defined(__NR_eventfd)
 		info[i].fd_ev = eventfd(0, 0);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 #endif
 #if defined(__NR_memfd_create)
 		snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 #endif
 		info[i].fd_sock = socket(
 			domains[mwc32() % SIZEOF_ARRAY(domains)],
 			types[mwc32() % SIZEOF_ARRAY(types)], 0);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0,
@@ -189,12 +189,12 @@ static void waste_resources(
 
 #if defined(__NR_userfaultfd)
 		info[i].fd_uf = shim_userfaultfd(0);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 #endif
 #if defined(O_TMPFILE)
 		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		if (info[i].fd_tmp != -1) {
 			size_t sz = page_size * mwc32();
@@ -264,7 +264,7 @@ static void waste_resources(
 #endif
 	}
 
-	for (i = 0; keep_stressing_flag && (i < MAX_LOOPS); i++) {
+	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
 		if (info[i].m_malloc)
 			free(info[i].m_malloc);
 		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED))
@@ -383,7 +383,7 @@ int stress_resources(const args_t *args)
 			pid_t pid = fork();
 
 			if (pid == 0) {
-				(void)setpgid(0, pgrp);
+				(void)setpgid(0, g_pgrp);
 				ret = sigsetjmp(jmp_env, 1);
 				if (ret)
 					_exit(0);
@@ -392,10 +392,10 @@ int stress_resources(const args_t *args)
 				_exit(0);
 			}
 			if (pid > -1)
-				(void)setpgid(pids[i], pgrp);
+				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
 
-			if (!keep_stressing_flag) {
+			if (!g_keep_stressing_flag) {
 				kill_children();
 				return EXIT_SUCCESS;
 			}

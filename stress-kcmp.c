@@ -49,7 +49,7 @@ enum {
 		}						\
 		pr_fail_err("kcmp: " # type);			\
 	}							\
-	if (!keep_stressing_flag)					\
+	if (!g_keep_stressing_flag)				\
 		break;						\
 }
 
@@ -70,7 +70,7 @@ enum {
 			args->name, rc, ret);			\
 		}						\
 	}							\
-	if (!keep_stressing_flag)					\
+	if (!g_keep_stressing_flag)				\
 		break;						\
 }
 
@@ -96,18 +96,18 @@ int stress_kcmp(const args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 
 		pr_fail_dbg("fork");
 		(void)close(fd1);
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Child */
-		while (keep_stressing_flag)
+		while (g_keep_stressing_flag)
 			pause();
 
 		/* will never get here */
@@ -117,7 +117,7 @@ again:
 		/* Parent */
 		int fd2, status, pid2;
 
-		(void)setpgid(pid1, pgrp);
+		(void)setpgid(pid1, g_pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
 			pr_fail_err("open");
@@ -156,7 +156,7 @@ again:
 			KCMP(pid2, pid2, KCMP_VM, 0, 0);
 
 			/* Same simple checks */
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				KCMP_VERIFY(pid1, pid1, KCMP_FILE, fd1, fd1, 0);
 				KCMP_VERIFY(pid1, pid1, KCMP_FILES, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid1, KCMP_FS, 0, 0, 0);

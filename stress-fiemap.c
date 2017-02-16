@@ -167,12 +167,12 @@ static inline pid_t stress_fiemap_spawn(
 	if (pid < 0)
 		return -1;
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_fiemap_ioctl(args, fd);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -193,9 +193,9 @@ int stress_fiemap(const args_t *args)
 	uint64_t ops_remaining = args->max_ops % MAX_FIEMAP_PROCS;
 
 	if (!set_fiemap_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_fiemap_size = MAX_SEEK_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_fiemap_size = MIN_SEEK_SIZE;
 	}
 

@@ -30,9 +30,9 @@
 #endif
 #include <sys/statvfs.h>
 
-#define check_do_run()		\
-	if (!keep_stressing_flag)	\
-		break;		\
+#define check_do_run()			\
+	if (!g_keep_stressing_flag)	\
+		break;			\
 
 /*
  *  stress on system information
@@ -64,7 +64,7 @@ int stress_sysinfo(const args_t *args)
 
 #if defined(__linux__)
 		ret = sysinfo(&sysinfo_buf);
-		if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail_err("sysinfo");
 		}
 		check_do_run();
@@ -85,7 +85,7 @@ int stress_sysinfo(const args_t *args)
 				mnts[i] = NULL;
 				continue;
 			}
-			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
@@ -104,7 +104,7 @@ int stress_sysinfo(const args_t *args)
 			(void)close(fd);
 			if ((ret < 0) && (errno == ENOENT))
 				continue;
-			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
@@ -126,7 +126,7 @@ int stress_sysinfo(const args_t *args)
 				continue;
 
 			ret = statvfs(mnts[i], &statvfs_buf);
-			if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				if (errno != ENOSYS &&
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
@@ -140,7 +140,7 @@ int stress_sysinfo(const args_t *args)
 
 		check_do_run();
 		clk = times(&tms_buf);
-		if ((clk == (clock_t)-1) && (opt_flags & OPT_FLAGS_VERIFY)) {
+		if ((clk == (clock_t)-1) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail_err("times");
 		}
 		inc_counter(args);

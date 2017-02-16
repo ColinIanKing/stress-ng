@@ -416,7 +416,7 @@ int stress_af_alg(const args_t *args)
 			break;
 
 		retries--;
-		if ((!keep_stressing_flag) || (retries < 0) || (errno != EAFNOSUPPORT)) {
+		if ((!g_keep_stressing_flag) || (retries < 0) || (errno != EAFNOSUPPORT)) {
 			pr_fail_err("socket");
 			return rc;
 		}

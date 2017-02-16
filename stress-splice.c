@@ -46,9 +46,9 @@ int stress_splice(const args_t *args)
 	int fd_in, fd_out, fds[2];
 
 	if (!set_splice_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_splice_bytes = MAX_SPLICE_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_splice_bytes = MIN_SPLICE_BYTES;
 	}
 

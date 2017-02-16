@@ -95,7 +95,7 @@ static int stress_sockpair_oomable(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
@@ -103,15 +103,15 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		set_oom_adjustment(args->name, true);
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		socket_pair_close(socket_pair_fds, max, 1);
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			uint8_t buf[SOCKET_PAIR_BUF];
 			ssize_t n;
 
-			for (i = 0; keep_stressing_flag && (i < max); i++) {
+			for (i = 0; g_keep_stressing_flag && (i < max); i++) {
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -126,7 +126,7 @@ again:
 					}
 					continue;
 				}
-				if ((opt_flags & OPT_FLAGS_VERIFY) &&
+				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 				    socket_pair_memchk(buf, (size_t)n)) {
 					pr_fail("%s: socket_pair read error detected, "
 						"failed to read expected data\n", args->name);
@@ -140,11 +140,11 @@ abort:
 		uint8_t buf[SOCKET_PAIR_BUF];
 		int val = 0, status;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {
-			for (i = 0; keep_stressing_flag && (i < max); i++) {
+			for (i = 0; g_keep_stressing_flag && (i < max); i++) {
 				ssize_t ret;
 
 				socket_pair_memset(buf, val++, sizeof(buf));
@@ -185,13 +185,13 @@ int stress_sockpair(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 	} else if (pid > 0) {
 		int status, ret;
 
 		/* Parent, wait for child */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -218,7 +218,7 @@ again:
 		/* Child, lets do some sockpair stressing... */
 		int ret;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		set_oom_adjustment(args->name, true);
 

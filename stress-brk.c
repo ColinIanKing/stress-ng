@@ -35,7 +35,7 @@ int stress_brk(const args_t *args)
 	const size_t page_size = args->page_size;
 
 again:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -46,7 +46,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -82,10 +82,10 @@ again:
 		}
 	} else if (pid == 0) {
 		uint8_t *start_ptr;
-		bool touch = !(opt_flags & OPT_FLAGS_BRK_NOTOUCH);
+		bool touch = !(g_opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 		int i = 0;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */

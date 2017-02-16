@@ -49,9 +49,9 @@ int stress_vm_splice(const args_t *args)
 	size_t sz;
 
 	if (!set_vm_splice_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_vm_splice_bytes = MAX_VM_SPLICE_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vm_splice_bytes = MIN_VM_SPLICE_BYTES;
 	}
 	sz = opt_vm_splice_bytes & ~(page_size - 1);

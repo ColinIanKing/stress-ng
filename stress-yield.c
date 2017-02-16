@@ -103,24 +103,24 @@ int stress_yield(const args_t *args)
 	}
 	memset(counters, 0, counters_sz);
 
-	for (i = 0; keep_stressing_flag && (i < yielders); i++) {
+	for (i = 0; g_keep_stressing_flag && (i < yielders); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
 				", yielder %zd): errno=%d (%s)\n",
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			do {
 				int ret;
 
 				ret = shim_sched_yield();
-				if ((ret < 0) && (opt_flags & OPT_FLAGS_VERIFY))
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 					pr_fail_err("sched_yield");
 				counters[i]++;
-			} while (keep_stressing_flag && (!max_ops_per_yielder || *args->counter < max_ops_per_yielder));
+			} while (g_keep_stressing_flag && (!max_ops_per_yielder || *args->counter < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);
 		}
 	}

@@ -59,7 +59,7 @@ int stress_nice(const args_t *args)
 			int i;
 
 			/* Child */
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			pid = getpid();
@@ -80,7 +80,7 @@ int stress_nice(const args_t *args)
 		if (pid > 0) {
 			int status;
 
-			(void)setpgid(pid, pgrp);
+			(void)setpgid(pid, g_pgrp);
 
 			/* Parent, wait for child */
 			if (waitpid(pid, &status, 0) < 0) {

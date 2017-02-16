@@ -47,9 +47,9 @@ int stress_copy_file(const args_t *args)
 	char filename[PATH_MAX], tmp[PATH_MAX];
 
 	if (!set_copy_file_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_copy_file_bytes = MAX_HDD_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_copy_file_bytes = MIN_HDD_BYTES;
 	}
 

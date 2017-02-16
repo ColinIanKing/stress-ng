@@ -35,7 +35,7 @@ mwc_t __mwc = {
  */
 void mwc_reseed(void)
 {
-	if (opt_flags & OPT_FLAGS_NO_RAND_SEED) {
+	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
 		__mwc.w = MWC_SEED_W;
 		__mwc.z = MWC_SEED_Z;
 	} else {

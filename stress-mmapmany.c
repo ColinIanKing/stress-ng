@@ -49,14 +49,14 @@ int stress_mmapmany(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
@@ -91,14 +91,14 @@ again:
 	} else if (pid == 0) {
 		ssize_t i, n;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
 		do {
-			for (n = 0; keep_stressing_flag && (n < max); n++) {
+			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
 					break;
 

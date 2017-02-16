@@ -48,12 +48,12 @@ void stress_set_semaphore_posix_procs(const char *optarg)
 void stress_semaphore_posix_init(void)
 {
 	/* create a mutex */
-	if (sem_init(&shared->sem_posix.sem, 1, 1) >= 0) {
-		shared->sem_posix.init = true;
+	if (sem_init(&g_shared->sem_posix.sem, 1, 1) >= 0) {
+		g_shared->sem_posix.init = true;
 		return;
 	}
 
-	if (opt_sequential) {
+	if (g_opt_sequential) {
 		pr_inf("semaphore init (POSIX) failed: errno=%d: "
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
@@ -69,8 +69,8 @@ void stress_semaphore_posix_init(void)
  */
 void stress_semaphore_posix_destroy(void)
 {
-	if (shared->sem_posix.init) {
-		if (sem_destroy(&shared->sem_posix.sem) < 0) {
+	if (g_shared->sem_posix.init) {
+		if (sem_destroy(&g_shared->sem_posix.sem) < 0) {
 			pr_err("semaphore destroy failed: errno=%d (%s)\n",
 				errno, strerror(errno));
 		}
@@ -94,7 +94,7 @@ static void semaphore_posix_thrash(const args_t *args)
 		timeout.tv_sec++;
 
 		for (i = 0; i < 1000; i++) {
-			if (sem_timedwait(&shared->sem_posix.sem, &timeout) < 0) {
+			if (sem_timedwait(&g_shared->sem_posix.sem, &timeout) < 0) {
 				if (errno == ETIMEDOUT)
 					goto timed_out;
 				if (errno != EINTR)
@@ -102,12 +102,12 @@ static void semaphore_posix_thrash(const args_t *args)
 				break;
 			}
 			inc_counter(args);
-			if (sem_post(&shared->sem_posix.sem) < 0) {
+			if (sem_post(&g_shared->sem_posix.sem) < 0) {
 				pr_fail_dbg("sem_post");
 				break;
 			}
 timed_out:
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 	} while (keep_stressing());
@@ -124,18 +124,18 @@ static pid_t semaphore_posix_spawn(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		semaphore_posix_thrash(args);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -149,13 +149,13 @@ int stress_sem(const args_t *args)
 	uint64_t i;
 
 	if (!set_semaphore_posix_procs) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	if (!shared->sem_posix.init) {
+	if (!g_shared->sem_posix.init) {
 		pr_err("%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
@@ -163,7 +163,7 @@ int stress_sem(const args_t *args)
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_posix_procs; i++) {
 		pids[i] = semaphore_posix_spawn(args);
-		if (!keep_stressing_flag || pids[i] < 0)
+		if (!g_keep_stressing_flag || pids[i] < 0)
 			goto reap;
 	}
 

@@ -67,9 +67,9 @@ int stress_fallocate(const args_t *args)
 	uint64_t ftrunc_errs = 0;
 
 	if (!set_fallocate_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_fallocate_bytes = MAX_FALLOCATE_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
@@ -90,10 +90,10 @@ int stress_fallocate(const args_t *args)
 
 	do {
 		ret = posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		(void)fsync(fd);
-		if ((ret == 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
@@ -108,11 +108,11 @@ int stress_fallocate(const args_t *args)
 
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		(void)fsync(fd);
 
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
@@ -137,7 +137,7 @@ int stress_fallocate(const args_t *args)
 			 */
 			int i;
 			(void)shim_fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			(void)fsync(fd);
 
@@ -146,7 +146,7 @@ int stress_fallocate(const args_t *args)
 				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					break;
 				(void)fsync(fd);
 			}

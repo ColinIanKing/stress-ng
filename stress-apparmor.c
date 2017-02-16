@@ -119,7 +119,7 @@ static void stress_apparmor_read(const char *path)
 	while (apparmor_run && (i < (4096 * APPARMOR_BUF_SZ))) {
 		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
 redo:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0) {
@@ -146,7 +146,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
@@ -160,7 +160,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))
@@ -201,7 +201,7 @@ static pid_t apparmor_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -211,14 +211,14 @@ again:
 		if (stress_sighandler(name, SIGALRM,
 				stress_apparmor_handler, NULL) < 0)
 			exit(EXIT_FAILURE);
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		ret = func(name, max_ops, counter);
 		free(apparmor_path);
 		exit(ret);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -339,7 +339,7 @@ static int apparmor_stress_kernel_interface(
 		aa_kernel_interface_unref(kern_if);
 
 		(*counter)++;
-	} while (keep_stressing_flag && apparmor_run && (!max_ops || *counter < max_ops));
+	} while (g_keep_stressing_flag && apparmor_run && (!max_ops || *counter < max_ops));
 
 	return rc;
 }
@@ -586,7 +586,7 @@ static int apparmor_stress_corruption(
 		}
 		aa_kernel_interface_unref(kern_if);
 		(*counter)++;
-	} while (keep_stressing_flag && apparmor_run &&
+	} while (g_keep_stressing_flag && apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 
 	return rc;

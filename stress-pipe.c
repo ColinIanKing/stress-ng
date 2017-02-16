@@ -148,7 +148,7 @@ int stress_pipe(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
@@ -157,11 +157,11 @@ again:
 	} else if (pid == 0) {
 		int val = 0;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		(void)close(pipefds[1]);
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			char buf[opt_pipe_data_size];
 			ssize_t n;
 
@@ -178,7 +178,7 @@ again:
 			}
 			if (!strcmp(buf, PIPE_STOP))
 				break;
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    pipe_memchk(buf, val++, (size_t)n)) {
 				pr_fail("%s: pipe read error detected, "
 					"failed to read expected data\n", args->name);
@@ -191,7 +191,7 @@ again:
 		int val = 0, status;
 
 		/* Parent */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
 		do {

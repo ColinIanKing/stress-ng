@@ -116,7 +116,7 @@ static int stress_shm_posix_child(
 
 			shm_name[0] = '\0';
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 
 			snprintf(shm_name, SHM_NAME_LEN,
@@ -155,13 +155,13 @@ static int stress_shm_posix_child(
 			}
 			addrs[i] = addr;
 
-			if (!keep_stressing_flag) {
+			if (!g_keep_stressing_flag) {
 				(void)close(shm_fd);
 				goto reap;
 			}
 			(void)mincore_touch_pages(addr, sz);
 
-			if (!keep_stressing_flag) {
+			if (!g_keep_stressing_flag) {
 				(void)close(shm_fd);
 				goto reap;
 			}
@@ -174,7 +174,7 @@ static int stress_shm_posix_child(
 			(void)shim_fallocate(shm_fd, 0, 0, sz);
 			(void)close(shm_fd);
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -239,20 +239,20 @@ int stress_shm(const args_t *args)
 	uint32_t restarts = 0;
 
 	if (!set_shm_posix_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_posix_bytes = MAX_SHM_POSIX_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	}
 	if (!set_shm_posix_objects) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_posix_objects = MAX_SHM_POSIX_OBJECTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_posix_objects = MIN_SHM_POSIX_OBJECTS;
 	}
 	orig_sz = sz = opt_shm_posix_bytes & ~(page_size - 1);
 
-	while (keep_stressing_flag && retry) {
+	while (g_keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
@@ -275,12 +275,12 @@ fork_again:
 			int status;
 			char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
 
-			(void)setpgid(pid, pgrp);
+			(void)setpgid(pid, g_pgrp);
 			(void)close(pipefds[1]);
 
 			memset(shm_names, 0, sizeof(shm_names));
 
-			while (keep_stressing_flag) {
+			while (g_keep_stressing_flag) {
 				ssize_t n;
 				shm_msg_t 	msg;
 				char *shm_name;
@@ -340,7 +340,7 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);

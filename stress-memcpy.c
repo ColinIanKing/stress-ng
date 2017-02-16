@@ -34,7 +34,7 @@ static uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
  */
 int stress_memcpy(const args_t *args)
 {
-	uint8_t *str_shared = shared->str_shared;
+	uint8_t *str_shared = g_shared->str_shared;
 	uint8_t *aligned_buf = align_address(buffer, ALIGN_SIZE);
 
 	do {

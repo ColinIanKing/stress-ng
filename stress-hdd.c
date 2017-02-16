@@ -327,16 +327,16 @@ int stress_hdd(const args_t *args)
 	size_t opt_index = 0;
 
 	if (!set_hdd_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_hdd_bytes = MAX_HDD_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_hdd_bytes = MIN_HDD_BYTES;
 	}
 
 	if (!set_hdd_write_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_hdd_write_size = MAX_HDD_WRITE_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_hdd_write_size = MIN_HDD_WRITE_SIZE;
 	}
 
@@ -416,7 +416,7 @@ int stress_hdd(const args_t *args)
 		 * aggressive option with no other option enables
 		 * the "work through all the options" mode
 		 */
-		if (!opts_set && (opt_flags & OPT_FLAGS_AGGRESSIVE)) {
+		if (!opts_set && (g_opt_flags & OPT_FLAGS_AGGRESSIVE)) {
 			opt_index = (opt_index + 1) % SIZEOF_ARRAY(hdd_opts);
 
 			opt_hdd_flags  = hdd_opts[opt_index].flag;
@@ -548,7 +548,7 @@ seq_rd_retry:
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
-				if (opt_flags & OPT_FLAGS_VERIFY) {
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					size_t j;
 
 					for (j = 0; j < opt_hdd_write_size; j += 512) {
@@ -604,7 +604,7 @@ rnd_rd_retry:
 				if (ret != (ssize_t)opt_hdd_write_size)
 					misreads++;
 
-				if (opt_flags & OPT_FLAGS_VERIFY) {
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					size_t j;
 
 					for (j = 0; j < opt_hdd_write_size; j += 512) {

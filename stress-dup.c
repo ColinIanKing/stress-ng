@@ -82,14 +82,14 @@ int stress_dup(const args_t *args)
 				break;
 			}
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			inc_counter(args);
 		}
 		for (i = 1; i < n; i++) {
 			if (fds[i] < 0)
 				break;
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			(void)close(fds[i]);
 		}

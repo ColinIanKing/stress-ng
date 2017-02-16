@@ -94,7 +94,7 @@ int stress_utime(const args_t *args)
 			break;
 		}
 		/* forces metadata writeback */
-		if (opt_flags & OPT_FLAGS_UTIME_FSYNC)
+		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
 			(void)fsync(fd);
 		inc_counter(args);
 	} while (keep_stressing());

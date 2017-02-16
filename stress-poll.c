@@ -39,10 +39,10 @@ static int pipe_read(const args_t *args, const int fd, const int n)
 	ssize_t ret;
 
 redo:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return -1;
 	ret = read(fd, buf, sizeof(buf));
-	if (opt_flags & OPT_FLAGS_VERIFY) {
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
@@ -90,7 +90,7 @@ int stress_poll(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		rc = EXIT_FAILURE;
@@ -99,7 +99,7 @@ again:
 	else if (pid == 0) {
 		/* Child writer */
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		for (i = 0; i < MAX_PIPES; i++)
@@ -131,7 +131,7 @@ abort:
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		FD_ZERO(&rfds);
 		for (i = 0; i < MAX_PIPES; i++) {
@@ -153,7 +153,7 @@ abort:
 
 			/* First, stress out poll */
 			ret = poll(fds, MAX_PIPES, 1);
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail_err("poll");
 			}
@@ -173,7 +173,7 @@ abort:
 			tv.tv_sec = 0;
 			tv.tv_usec = 20000;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
-			if ((opt_flags & OPT_FLAGS_VERIFY) &&
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail_err("select");
 			}

@@ -54,13 +54,13 @@ int stress_bigheap(const args_t *args)
 	uint8_t *last_ptr_end = NULL;
 
 	if (!set_bigheap_growth) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_bigheap_growth = MAX_BIGHEAP_GROWTH;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_bigheap_growth = MIN_BIGHEAP_GROWTH;
 	}
 again:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -71,7 +71,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -106,7 +106,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
@@ -123,7 +123,7 @@ again:
 			 * some time and we should bail out before
 			 * exerting any more memory pressure
 			 */
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto abort;
 
 			ptr = realloc(old_ptr, size);
@@ -155,14 +155,14 @@ again:
 				}
 
 				for (i = 0; i < n; i+= stride, u8ptr += stride) {
-					if (!keep_stressing_flag)
+					if (!g_keep_stressing_flag)
 						goto abort;
 					*u8ptr = (uint8_t)i;
 				}
 
-				if (opt_flags & OPT_FLAGS_VERIFY) {
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					for (i = 0; i < n; i+= stride, tmp += stride) {
-						if (!keep_stressing_flag)
+						if (!g_keep_stressing_flag)
 							goto abort;
 						if (*tmp != (uint8_t)i)
 							pr_fail("%s: byte at location %p was 0x%" PRIx8

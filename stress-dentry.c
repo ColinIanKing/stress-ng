@@ -146,9 +146,9 @@ int stress_dentry(const args_t *args)
 	int ret;
 
 	if (!set_dentries) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_dentries = MAX_DENTRIES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_dentries = MIN_DENTRIES;
 	}
 
@@ -182,7 +182,7 @@ int stress_dentry(const args_t *args)
 			inc_counter(args);
 		}
 		stress_dentry_unlink(args, n);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		sync();
 	} while (keep_stressing());

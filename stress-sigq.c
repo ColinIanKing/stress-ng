@@ -45,20 +45,20 @@ int stress_sigq(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		sigset_t mask;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		sigemptyset(&mask);
 		sigaddset(&mask, SIGUSR1);
 
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			siginfo_t info;
 			sigwaitinfo(&mask, &info);
 			if (info.si_value.sival_int)

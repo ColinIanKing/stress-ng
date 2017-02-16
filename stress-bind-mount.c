@@ -38,7 +38,7 @@ static int stress_bind_mount_child(void *arg)
 	const args_t *args = (args_t *)arg;
 	uint64_t *counter = args->counter;
 
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	do {
@@ -52,7 +52,7 @@ static int stress_bind_mount_child(void *arg)
 		 */
 		(void)umount("/");
 		inc_counter(args);
-	} while (keep_stressing_flag &&
+	} while (g_keep_stressing_flag &&
 		 (!args->max_ops || *counter < args->max_ops));
 
 	return 0;

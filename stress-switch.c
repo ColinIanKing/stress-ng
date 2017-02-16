@@ -66,7 +66,7 @@ int stress_switch(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
@@ -75,12 +75,12 @@ again:
 	} else if (pid == 0) {
 		char buf[buf_size];
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		(void)close(pipefds[1]);
 
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			ssize_t ret;
 
 			ret = read(pipefds[0], buf, sizeof(buf));
@@ -102,7 +102,7 @@ again:
 		int status;
 
 		/* Parent */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
 		memset(buf, '_', buf_size);

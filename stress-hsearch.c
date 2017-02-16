@@ -51,9 +51,9 @@ int stress_hsearch(const args_t *args)
 	char **keys;
 
 	if (!set_hsearch_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_hsearch_size = MAX_HSEARCH_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_hsearch_size = MIN_HSEARCH_SIZE;
 	}
 
@@ -92,13 +92,13 @@ int stress_hsearch(const args_t *args)
 	}
 
 	do {
-		for (i = 0; keep_stressing_flag && i < max; i++) {
+		for (i = 0; g_keep_stressing_flag && i < max; i++) {
 			ENTRY e, *ep;
 
 			e.key = keys[i];
 			e.data = NULL;	/* Keep Coverity quiet */
 			ep = hsearch(e, FIND);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (ep == NULL) {
 					pr_fail("%s: cannot find key %s\n", args->name, keys[i]);
 				} else {

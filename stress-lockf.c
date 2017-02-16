@@ -152,7 +152,7 @@ static int stress_lockf_contention(
 	const args_t *args,
 	const int fd)
 {
-	const int lockf_cmd = (opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
+	const int lockf_cmd = (g_opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
 		F_TLOCK : F_LOCK;
 
 	mwc_reseed();
@@ -241,7 +241,7 @@ int stress_lockf(const args_t *args)
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
 redo:
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -258,7 +258,7 @@ redo:
 again:
 	cpid = fork();
 	if (cpid < 0) {
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
@@ -268,7 +268,7 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		if (stress_lockf_contention(args, fd) < 0)
@@ -276,7 +276,7 @@ again:
 		stress_lockf_info_free();
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(cpid, pgrp);
+	(void)setpgid(cpid, g_pgrp);
 
 	if (stress_lockf_contention(args, fd) == 0)
 		ret = EXIT_SUCCESS;

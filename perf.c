@@ -296,7 +296,7 @@ int perf_open(stress_perf_t *sp)
 
 	if (!sp)
 		return -1;
-	if (shared->perf.no_perf)
+	if (g_shared->perf.no_perf)
 		return -1;
 
 	memset(sp, 0, sizeof(stress_perf_t));
@@ -326,13 +326,13 @@ int perf_open(stress_perf_t *sp)
 		}
 	}
 	if (!sp->perf_opened) {
-		pthread_spin_lock(&shared->perf.lock);
-		if (!shared->perf.no_perf) {
+		pthread_spin_lock(&g_shared->perf.lock);
+		if (!g_shared->perf.no_perf) {
 			pr_dbg("perf_event_open failed, no "
 				"perf events [%u]\n", getpid());
-			shared->perf.no_perf = true;
+			g_shared->perf.no_perf = true;
 		}
-		pthread_spin_unlock(&shared->perf.lock);
+		pthread_spin_unlock(&g_shared->perf.lock);
 		return -1;
 	}
 
@@ -598,7 +598,7 @@ void perf_stat_dump(
 		/* Sum totals across all instances of the stressor */
 		for (p = 0; p < STRESS_PERF_MAX; p++) {
 			int32_t j, n = (i * max_procs);
-			stress_perf_t *sp = &shared->stats[n].sp;
+			stress_perf_t *sp = &g_shared->stats[n].sp;
 
 			if (!perf_stat_succeeded(sp))
 				continue;

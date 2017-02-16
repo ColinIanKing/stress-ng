@@ -45,7 +45,7 @@
 			mfence();					\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
-		if (!keep_stressing_flag)					\
+		if (!g_keep_stressing_flag)				\
 			break;						\
 	}
 
@@ -66,8 +66,8 @@ int stress_cache(const args_t *args)
 #endif
 	uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
-	uint8_t *const mem_cache = shared->mem_cache;
-	const uint64_t mem_cache_size = shared->mem_cache_size;
+	uint8_t *const mem_cache = g_shared->mem_cache;
+	const uint64_t mem_cache_size = g_shared->mem_cache_size;
 
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
@@ -93,7 +93,7 @@ int stress_cache(const args_t *args)
 		register uint64_t j;
 
 		if ((r >> 13) & 1) {
-			switch (opt_flags & OPT_FLAGS_CACHE_MASK) {
+			switch (g_opt_flags & OPT_FLAGS_CACHE_MASK) {
 			case OPT_FLAGS_CACHE_FLUSH:
 				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH);
 				break;
@@ -130,12 +130,12 @@ int stress_cache(const args_t *args)
 				total += mem_cache[i] +
 					mem_cache[(mem_cache_size - 1) - i];
 				i = (i + 32769) % mem_cache_size;
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					break;
 			}
 		}
 #if defined(__linux__)
-		if ((opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
+		if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
 			int current;
 
 			/* Pin to the current CPU */
@@ -146,18 +146,18 @@ int stress_cache(const args_t *args)
 			cpu = (int32_t)current;
 		} else {
 			do {
-				cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
+				cpu = (g_opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
 					(mwc32() >> 4) : cpu + 1;
 				cpu %= cpus;
 			} while (!(CPU_ISSET(cpu, &proc_mask)));
 		}
 
-		if (!(opt_flags & OPT_FLAGS_CACHE_NOAFF) || !pinned) {
+		if (!(g_opt_flags & OPT_FLAGS_CACHE_NOAFF) || !pinned) {
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
 			(void)sched_setaffinity(0, sizeof(mask), &mask);
 
-			if ((opt_flags & OPT_FLAGS_CACHE_NOAFF)) {
+			if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF)) {
 				/* Don't continually set the affinity */
 				pinned = true;
 			}

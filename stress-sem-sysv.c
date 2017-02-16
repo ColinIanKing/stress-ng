@@ -58,29 +58,29 @@ void stress_semaphore_sysv_init(void)
 	int count = 0;
 
 	while (count < 100) {
-		shared->sem_sysv.key_id = (key_t)mwc16();
-		shared->sem_sysv.sem_id =
-			semget(shared->sem_sysv.key_id, 1,
+		g_shared->sem_sysv.key_id = (key_t)mwc16();
+		g_shared->sem_sysv.sem_id =
+			semget(g_shared->sem_sysv.key_id, 1,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
-		if (shared->sem_sysv.sem_id >= 0)
+		if (g_shared->sem_sysv.sem_id >= 0)
 			break;
 
 		count++;
 	}
 
-	if (shared->sem_sysv.sem_id >= 0) {
+	if (g_shared->sem_sysv.sem_id >= 0) {
 		semun_t arg;
 
 		arg.val = 1;
-		if (semctl(shared->sem_sysv.sem_id, 0, SETVAL, arg) == 0) {
-			shared->sem_sysv.init = true;
+		if (semctl(g_shared->sem_sysv.sem_id, 0, SETVAL, arg) == 0) {
+			g_shared->sem_sysv.init = true;
 			return;
 		}
 		/* Clean up */
-		(void)semctl(shared->sem_sysv.sem_id, 0, IPC_RMID);
+		(void)semctl(g_shared->sem_sysv.sem_id, 0, IPC_RMID);
 	}
 
-	if (opt_sequential) {
+	if (g_opt_sequential) {
 		pr_inf("semaphore init (System V) failed: errno=%d: "
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
@@ -97,8 +97,8 @@ void stress_semaphore_sysv_init(void)
  */
 void stress_semaphore_sysv_destroy(void)
 {
-	if (shared->sem_sysv.init)
-		(void)semctl(shared->sem_sysv.sem_id, 0, IPC_RMID);
+	if (g_shared->sem_sysv.init)
+		(void)semctl(g_shared->sem_sysv.sem_id, 0, IPC_RMID);
 }
 
 /*
@@ -107,7 +107,7 @@ void stress_semaphore_sysv_destroy(void)
  */
 static void semaphore_sysv_thrash(const args_t *args)
 {
-	const int sem_id = shared->sem_sysv.sem_id;
+	const int sem_id = g_shared->sem_sysv.sem_id;
 
 	do {
 		int i;
@@ -147,7 +147,7 @@ static void semaphore_sysv_thrash(const args_t *args)
 				break;
 			}
 timed_out:
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 #if defined(IPC_STAT)
@@ -220,18 +220,18 @@ static pid_t semaphore_sysv_spawn(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		semaphore_sysv_thrash(args);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -245,13 +245,13 @@ int stress_sem_sysv(const args_t *args)
 	uint64_t i;
 
 	if (!set_semaphore_sysv_procs) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	if (!shared->sem_sysv.init) {
+	if (!g_shared->sem_sysv.init) {
 		pr_err("%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
@@ -259,7 +259,7 @@ int stress_sem_sysv(const args_t *args)
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
-		if (!keep_stressing_flag || pids[i] < 0)
+		if (!g_keep_stressing_flag || pids[i] < 0)
 			goto reap;
 	}
 	/* Wait for termination */

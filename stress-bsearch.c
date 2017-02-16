@@ -75,9 +75,9 @@ int stress_bsearch(const args_t *args)
 	size_t n, n8, i;
 
 	if (!set_bsearch_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_bsearch_size = MAX_BSEARCH_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_bsearch_size = MIN_BSEARCH_SIZE;
 	}
 	n = (size_t)opt_bsearch_size;
@@ -108,7 +108,7 @@ int stress_bsearch(const args_t *args)
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
 			result = bsearch(ptr, data, n, sizeof(*ptr), cmp);
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could "
 						"not be found\n",

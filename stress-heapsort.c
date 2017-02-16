@@ -113,9 +113,9 @@ int stress_heapsort(const args_t *args)
 	int ret;
 
 	if (!set_heapsort_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_heapsort_size = MAX_HEAPSORT_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_heapsort_size = MIN_HEAPSORT_SIZE;
 	}
 	n = (size_t)opt_heapsort_size;
@@ -146,7 +146,7 @@ int stress_heapsort(const args_t *args)
 	do {
 		/* Sort "random" data */
 		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_1);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr+1)) {
 					pr_fail("%s: sort error "
@@ -156,12 +156,12 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
 		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
 					pr_fail("%s: reverse sort "
@@ -171,14 +171,14 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
 		heapsort(data, n * 4, sizeof(uint8_t), stress_heapsort_cmp_3);
 
 		/* Reverse sort this again */
 		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
 					pr_fail("%s: reverse sort "
@@ -188,7 +188,7 @@ int stress_heapsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		inc_counter(args);

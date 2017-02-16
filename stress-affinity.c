@@ -37,7 +37,7 @@ int stress_affinity(const args_t *args)
 	cpu_set_t mask;
 
 	do {
-		cpu = (opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
+		cpu = (g_opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
 			(mwc32() >> 4) : cpu + 1;
 		cpu %= cpus;
 		CPU_ZERO(&mask);
@@ -60,7 +60,7 @@ int stress_affinity(const args_t *args)
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
 			if (sched_getaffinity(0, sizeof(mask), &mask) == 0) {
-				if ((opt_flags & OPT_FLAGS_VERIFY) &&
+				if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 				    (!CPU_ISSET(cpu, &mask)))
 					pr_fail("%s: failed to move "
 						"to CPU %" PRIu32 "\n",

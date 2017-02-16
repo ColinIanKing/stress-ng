@@ -80,16 +80,16 @@ int stress_malloc(const args_t *args)
 	uint32_t restarts = 0, nomems = 0;
 
 	if (!set_malloc_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_malloc_bytes = MAX_MALLOC_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_malloc_bytes = MIN_MALLOC_BYTES;
 	}
 
 	if (!set_malloc_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_malloc_max = MAX_MALLOC_MAX;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_malloc_max = MIN_MALLOC_MAX;
 	}
 
@@ -101,14 +101,14 @@ int stress_malloc(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
@@ -139,7 +139,7 @@ again:
 		void *addr[opt_malloc_max];
 		size_t j;
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		memset(addr, 0, sizeof(addr));
 
 		/* Make sure this is killable by OOM killer */
@@ -158,7 +158,7 @@ again:
 			 * some time and we should bail out before
 			 * exerting any more memory pressure
 			 */
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto abort;
 
 			if (addr[i]) {

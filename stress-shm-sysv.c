@@ -117,7 +117,7 @@ static MLOCKED void handle_shm_sysv_sigalrm(int dummy)
 {
 	(void)dummy;
 
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 /*
@@ -177,7 +177,7 @@ static int stress_shm_sysv_child(
 				sz = shmall;
 			if ((freemem > page_size) && sz > freemem)
 				sz = freemem;
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
@@ -193,7 +193,7 @@ static int stress_shm_sysv_child(
 				do {
 					size_t j;
 
-					if (!keep_stressing_flag)
+					if (!g_keep_stressing_flag)
 						goto reap;
 
 					/* Get a unique random key */
@@ -204,7 +204,7 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
-					if (!keep_stressing_flag)
+					if (!g_keep_stressing_flag)
 						goto reap;
 
 				} while (!unique);
@@ -256,16 +256,16 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 			(void)mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 			(void)madvise_random(addr, sz);
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto reap;
 			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -355,21 +355,21 @@ int stress_shm_sysv(const args_t *args)
 	uint32_t restarts = 0;
 
 	if (!set_shm_sysv_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
 	}
 
 	if (!set_shm_sysv_segments) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
 	}
 	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
 
-	while (keep_stressing_flag && retry) {
+	while (g_keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
@@ -391,14 +391,14 @@ fork_again:
 			/* Parent */
 			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
 
-			(void)setpgid(pid, pgrp);
+			(void)setpgid(pid, g_pgrp);
 			set_oom_adjustment(args->name, false);
 			(void)close(pipefds[1]);
 
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
 				shm_ids[i] = -1;
 
-			while (keep_stressing_flag) {
+			while (g_keep_stressing_flag) {
 				shm_msg_t 	msg;
 				ssize_t n;
 
@@ -452,7 +452,7 @@ fork_again:
 			}
 		} else if (pid == 0) {
 			/* Child, stress memory */
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			/*

@@ -53,15 +53,15 @@ int stress_sigfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			union sigval s;
 			int ret;
 
@@ -77,7 +77,7 @@ again:
 		/* Parent */
 		int status;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		do {
 			int ret;
 			struct signalfd_siginfo fdsi;
@@ -95,7 +95,7 @@ again:
 			}
 			if (ret == 0)
 				break;
-			if (opt_flags & OPT_FLAGS_VERIFY) {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {
 					pr_fail("%s: unexpected signal %d",
 						args->name, fdsi.ssi_signo);

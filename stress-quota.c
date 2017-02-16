@@ -98,7 +98,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
 {
 	int tested = 0, failed = 0, enosys = 0;
 #if defined(Q_GETQUOTA)
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		struct dqblk dqblk;
 		int err = do_quotactl(args, DO_Q_GETQUOTA, "Q_GETQUOTA",
 			&tested, &failed, &enosys,
@@ -109,7 +109,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
 	}
 #endif
 #if defined(Q_GETFMT)
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		uint32_t format;
 		int err = do_quotactl(args, DO_Q_GETFMT, "Q_GETFMT",
 			&tested, &failed, &enosys,
@@ -120,7 +120,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
 	}
 #endif
 #if defined(Q_GETINFO)
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		struct dqinfo dqinfo;
 		int err = do_quotactl(args, DO_Q_GETINFO, "Q_GETINFO",
 			&tested, &failed, &enosys,
@@ -132,7 +132,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
 #endif
 #if defined(Q_GETSTATS)
 	/* Obsolete in recent kernels */
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		struct dqstats dqstats;
 		int err = do_quotactl(args, DO_Q_GETSTATS, "Q_GETSTATS",
 			&tested, &failed, &enosys,
@@ -143,7 +143,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
 	}
 #endif
 #if defined(Q_SYNC)
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		int err = do_quotactl(args, DO_Q_SYNC, "Q_SYNC",
 			&tested, &failed, &enosys,
 			QCMD(Q_SYNC, USRQUOTA),
@@ -253,7 +253,7 @@ int stress_quota(const args_t *args)
 			"devices with quota enabled\n", args->name);
 	} else {
 		do {
-			for (i = 0; keep_stressing_flag && (i < n_devs); i++) {
+			for (i = 0; g_keep_stressing_flag && (i < n_devs); i++) {
 				int ret = do_quotas(args, &devs[i]);
 				if (ret == EPERM)
 					rc = EXIT_SUCCESS;

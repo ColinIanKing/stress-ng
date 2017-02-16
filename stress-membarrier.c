@@ -62,7 +62,7 @@ static void *stress_membarrier_thread(void *arg)
 		pr_fail_err("sigaltstack");
 		return &nowt;
 	}
-	while (keep_running && keep_stressing_flag) {
+	while (keep_running && g_keep_stressing_flag) {
 		int ret;
 
 		ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);

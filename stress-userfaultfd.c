@@ -75,7 +75,7 @@ static int stress_userfaultfd_child(void *arg)
 	context_t *c = (context_t *)arg;
 	const args_t *args = c->args;
 
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -170,9 +170,9 @@ static int stress_userfaultfd_oomable(const args_t *args)
 	uint8_t *stack_top = stack + stack_offset;
 
 	if (!set_userfaultfd_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_userfaultfd_bytes = MAX_MMAP_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_userfaultfd_bytes = MIN_MMAP_BYTES;
 	}
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
@@ -270,7 +270,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		ssize_t ret;
 
 		/* check we should break out before we block on the read */
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/*
@@ -293,7 +293,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 					continue;
 				if (errno != ENOMEM) {
 					pr_fail_err("poll userfaultfd");
-					if (!keep_stressing_flag)
+					if (!g_keep_stressing_flag)
 						break;
 				}
 				/*
@@ -313,7 +313,7 @@ do_read:
 			if (errno == EINTR)
 				continue;
 			pr_fail_err("read userfaultfd");
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 			continue;
 		}
@@ -373,7 +373,7 @@ int stress_userfaultfd(const args_t *args)
 		/* Parent */
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -400,7 +400,7 @@ int stress_userfaultfd(const args_t *args)
 		rc = WEXITSTATUS(status);
 	} else if (pid == 0) {
 		/* Child */
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		_exit(stress_userfaultfd_oomable(args));

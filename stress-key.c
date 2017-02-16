@@ -110,7 +110,7 @@ int stress_key(const args_t *args)
 					}
 				}
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto tidy;
 #endif
 		}
@@ -123,7 +123,7 @@ int stress_key(const args_t *args)
 #if defined(KEYCTL_DESCRIBE)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				pr_fail_err("keyctl KEYCTL_DESCRIBE");
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto tidy;
 #endif
 
@@ -135,7 +135,7 @@ int stress_key(const args_t *args)
 				if ((errno != ENOMEM) && (errno != EDQUOT))
 					pr_fail_err("keyctl KEYCTL_UPDATE");
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto tidy;
 #endif
 
@@ -144,7 +144,7 @@ int stress_key(const args_t *args)
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
 				pr_fail_err("keyctl KEYCTL_READ");
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto tidy;
 #endif
 
@@ -156,7 +156,7 @@ int stress_key(const args_t *args)
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
 				pr_fail_err("request_key");
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto tidy;
 #endif
 

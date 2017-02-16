@@ -232,9 +232,9 @@ int stress_clone(const args_t *args)
 		(CLONE_STACK_SIZE - 64);
 
 	if (!set_clone_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_clone_max = MAX_ZOMBIES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_clone_max = MIN_ZOMBIES;
 	}
 

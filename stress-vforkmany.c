@@ -68,7 +68,7 @@ int stress_vforkmany(const args_t *args)
 
 	start = time_now();
 	mypid = getpid();
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 
 	do {
 		/*
@@ -85,8 +85,8 @@ again:
 		 * instead poll the run time and break out
 		 * of the loop if we've run out of run time
 		 */
-		if ((time_now() - start) > (double)opt_timeout)
-			keep_stressing_flag = false;
+		if ((time_now() - start) > (double)g_opt_timeout)
+			g_keep_stressing_flag = false;
 
 		if (getpid() == mypid)
 			pid = fork();
@@ -98,7 +98,7 @@ again:
 				_exit(0);
 		} else if (pid == 0) {
 			/* child, parent is blocked, spawn new child */
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			inc_counter(args);
 			if (!args->max_ops || *args->counter < args->max_ops)
 				goto again;

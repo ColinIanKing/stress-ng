@@ -99,7 +99,7 @@ static void MLOCKED epoll_timer_handler(int sig)
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
-	if (!keep_stressing_flag) {
+	if (!g_keep_stressing_flag) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_sec = 0;
@@ -119,7 +119,7 @@ static void MLOCKED epoll_timer_handler(int sig)
 static MLOCKED void handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 
@@ -138,17 +138,17 @@ static pid_t epoll_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		func(args, child, ppid);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -173,7 +173,7 @@ static int epoll_set_fd_nonblock(const int fd)
  */
 static void epoll_recv_data(const int fd)
 {
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		char buf[8192];
 		ssize_t n;
 
@@ -280,7 +280,7 @@ static int epoll_client(
 		/* Cycle through the servers */
 		port_counter = (port_counter + 1) % max_servers;
 retry:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {

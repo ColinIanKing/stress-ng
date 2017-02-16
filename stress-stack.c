@@ -71,7 +71,7 @@ int stress_stack(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -79,7 +79,7 @@ again:
 		int status, ret;
 
 		/* Parent, wait for child */
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
@@ -104,7 +104,7 @@ again:
 	} else if (pid == 0) {
 		char *start_ptr = sbrk(0);
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		if (start_ptr == (void *) -1) {
@@ -157,7 +157,7 @@ again:
 					 * need this else gcc optimises out
 					 * the alloca()
 					 */
-					if (opt_flags & OPT_STACK_FILL)
+					if (g_opt_flags & OPT_STACK_FILL)
 						memset(ptr, 0, 256 * KB);
 					else
 						*ptr = 0;
@@ -165,7 +165,7 @@ again:
 					/* Force gcc to actually do the alloca */
 					uint64_put((uint64_t)(last_ptr - ptr));
 					last_ptr = ptr;
-				} while (keep_stressing_flag);
+				} while (g_keep_stressing_flag);
 			}
 		}
 	}

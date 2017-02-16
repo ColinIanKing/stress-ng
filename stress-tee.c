@@ -48,7 +48,7 @@ static pid_t stress_tee_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 
 		(void)close(fds[0]);
@@ -58,13 +58,13 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		func(fds);
 		exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 
@@ -79,7 +79,7 @@ static void stress_tee_pipe_write(int fds[2])
 	(void)close(fds[0]);
 
 	memset(buffer, 0, sizeof(buffer));
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		ssize_t ret;
 
 		ret = write(fds[1], buffer, sizeof(buffer));
@@ -101,7 +101,7 @@ static void stress_tee_pipe_read(int fds[2])
 
 	(void)close(fds[1]);
 
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		ssize_t ret;
 
 		ret = read(fds[0], buffer, sizeof(buffer));

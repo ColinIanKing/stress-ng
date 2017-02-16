@@ -57,7 +57,7 @@ static void stress_timer_set(struct itimerspec *timer)
 {
 	double rate;
 
-	if (opt_flags & OPT_FLAGS_TIMER_RAND) {
+	if (g_opt_flags & OPT_FLAGS_TIMER_RAND) {
 		/* Mix in some random variation */
 		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
@@ -93,9 +93,9 @@ static void MLOCKED stress_timer_handler(int sig)
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
 	if ((timer_counter & 65535) == 0)
-		if ((time_now() - start) > (double)opt_timeout)
+		if ((time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
-	if (keep_stressing_flag) {
+	if (g_keep_stressing_flag) {
 		int ret = timer_getoverrun(timerid);
 		if (ret > 0)
 			overruns += ret;
@@ -104,7 +104,7 @@ static void MLOCKED stress_timer_handler(int sig)
 	}
 
 cancel:
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 	/* Cancel timer if we detect no more runs */
 	memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
@@ -127,9 +127,9 @@ int stress_timer(const args_t *args)
 	start = time_now();
 
 	if (!set_timer_freq) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_timer_freq = MAX_TIMER_FREQ;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_timer_freq = MIN_TIMER_FREQ;
 	}
 	rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;

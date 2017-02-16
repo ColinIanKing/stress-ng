@@ -78,9 +78,9 @@ static int stress_fork_fn(
 				_exit(0);
 			}
 			if (pid > -1)
-				(void)setpgid(pids[i], pgrp);
+				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		for (i = 0; i < fork_max; i++) {
@@ -93,7 +93,7 @@ static int stress_fork_fn(
 		}
 
 		for (i = 0; i < fork_max; i++) {
-			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
@@ -109,9 +109,9 @@ static int stress_fork_fn(
 int stress_fork(const args_t *args)
 {
 	if (!set_fork_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_fork_max = MAX_FORKS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_fork_max = MIN_FORKS;
 	}
 
@@ -126,9 +126,9 @@ int stress_fork(const args_t *args)
 int stress_vfork(const args_t *args)
 {
 	if (!set_vfork_max) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_vfork_max = MAX_VFORKS;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vfork_max = MIN_VFORKS;
 	}
 

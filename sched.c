@@ -96,7 +96,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 		param.sched_priority = sched_priority;
 
 		if (param.sched_priority == UNDEFINED) {
-			if (opt_flags & OPT_FLAGS_AGGRESSIVE)
+			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 				param.sched_priority = max;
 			else
 				param.sched_priority = (max - min) / 2;

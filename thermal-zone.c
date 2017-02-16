@@ -161,12 +161,12 @@ void tz_dump(
 		uint32_t count = 0;
 		bool dumped_heading = false;
 
-		for (tz_info = shared->tz_info; tz_info; tz_info = tz_info->next) {
+		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
 			for (j = 0; j < procs[i].started_procs; j++) {
 				uint64_t temp;
 				int32_t n = (i * max_procs) + j;
 
-				temp = shared->stats[n].tz.tz_stat[tz_info->index].temperature;
+				temp = g_shared->stats[n].tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp > 250000)
 					temp = 0;

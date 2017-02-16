@@ -64,30 +64,30 @@ static void stress_rmap_child(
 		const int sync_flag = mwc8() ? MS_ASYNC : MS_SYNC;
 
 		switch (mwc32() & 3) {
-		case 0: for (i = 0; keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
+		case 0: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
 				memset(mappings[i], mwc8(), sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
-		case 1: for (i = MAPPINGS_MAX - 1; keep_stressing_flag && (i >= 0); i--) {
+		case 1: for (i = MAPPINGS_MAX - 1; g_keep_stressing_flag && (i >= 0); i--) {
 				memset(mappings[i], mwc8(), sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
-		case 2: for (i = 0; keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
+		case 2: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
 				size_t j = mwc32() % MAPPINGS_MAX;
 				memset(mappings[j], mwc8(), sz);
 				shim_msync(mappings[j], sz, sync_flag);
 			}
 			break;
-		case 3: for (i = 0; keep_stressing_flag && (i < MAPPINGS_MAX - 1); i++) {
+		case 3: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX - 1); i++) {
 				memcpy(mappings[i], mappings[i + 1], sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
 		}
 		(*counter)++;
-	} while (keep_stressing_flag && (!max_ops || *counter < max_ops));
+	} while (g_keep_stressing_flag && (!max_ops || *counter < max_ops));
 
 	exit(0);
 }
@@ -178,7 +178,7 @@ int stress_rmap(const args_t *args)
 			    stress_rmap_handler, NULL) < 0)
 				exit(EXIT_FAILURE);
 
-			(void)setpgid(0, pgrp);
+			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			/* Make sure this is killable by OOM killer */
@@ -186,7 +186,7 @@ int stress_rmap(const args_t *args)
 			stress_rmap_child(&counters[i], args->max_ops / RMAP_CHILD_MAX,
 				page_size, mappings);
 		} else {
-			(void)setpgid(pids[i], pgrp);
+			(void)setpgid(pids[i], g_pgrp);
 		}
 	}
 

@@ -52,9 +52,9 @@ int stress_sendfile(const args_t *args)
 	size_t sz;
 
 	if (!set_sendfile_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_sendfile_size = MAX_SENDFILE_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_sendfile_size = MIN_SENDFILE_SIZE;
 	}
 	sz = (size_t)opt_sendfile_size;

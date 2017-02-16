@@ -80,7 +80,7 @@ static int stress_oom_pipe_expander(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -88,7 +88,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Patent, wait for child */
@@ -117,9 +117,9 @@ again:
 	} else if (pid == 0) {
 		/* Child */
 		int fds[max_pipes * 2], *fd, i, pipes_open = 0;
-		const bool aggressive = (opt_flags & OPT_FLAGS_AGGRESSIVE);
+		const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		set_oom_adjustment(args->name, true);
 
 		for (i = 0; i < max_pipes * 2; i++)

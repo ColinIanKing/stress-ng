@@ -77,7 +77,7 @@ int stress_pty(const args_t *args)
 				pr_fail_err("open slave pty");
 				goto clean;
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 		/*
@@ -150,7 +150,7 @@ int stress_pty(const args_t *args)
 				pr_fail_err("ioctl TIOCOUTQ on slave pty");
 #endif
 
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 clean:

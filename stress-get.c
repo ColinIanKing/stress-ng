@@ -33,7 +33,7 @@
 #endif
 
 #define check_do_run()		\
-	if (!keep_stressing_flag)	\
+	if (!g_keep_stressing_flag)	\
 		break;		\
 
 #define GIDS_MAX 	(1024)
@@ -113,7 +113,7 @@ static const int priorities[] = {
  */
 int stress_get(const args_t *args)
 {
-	const bool verify = (opt_flags & OPT_FLAGS_VERIFY);
+	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool is_root = (geteuid() == 0);
 
 	do {

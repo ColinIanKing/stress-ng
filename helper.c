@@ -308,7 +308,7 @@ void stress_set_timer_slack(void)
 void set_proc_name(const char *name)
 {
 #if defined(__linux__) && defined(PR_SET_NAME)
-	if (!(opt_flags & OPT_FLAGS_KEEP_NAME))
+	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME))
 		(void)prctl(PR_SET_NAME, name);
 #else
 	(void)name;	/* No-op */
@@ -647,74 +647,74 @@ int stress_cache_alloc(const char *name)
 #endif
 
 #if !defined(__linux__)
-	shared->mem_cache_size = MEM_CACHE_SIZE;
+	g_shared->mem_cache_size = MEM_CACHE_SIZE;
 #else
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache details\n", name);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
 
 	max_cache_level = get_max_cache_level(cpu_caches);
 
-	if (shared->mem_cache_level > max_cache_level) {
+	if (g_shared->mem_cache_level > max_cache_level) {
 		if (warn_once(WARN_ONCE_CACHE_REDUCED))
 			pr_dbg("%s: reducing cache level from L%d (too high) "
 				"to L%d\n", name,
-				shared->mem_cache_level, max_cache_level);
-		shared->mem_cache_level = max_cache_level;
+				g_shared->mem_cache_level, max_cache_level);
+		g_shared->mem_cache_level = max_cache_level;
 	}
 
-	cache = get_cpu_cache(cpu_caches, shared->mem_cache_level);
+	cache = get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
 	if (!cache) {
 		if (warn_once(WARN_ONCE_CACHE_NONE))
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
 
-	if (shared->mem_cache_ways > 0) {
+	if (g_shared->mem_cache_ways > 0) {
 		uint64_t way_size;
 
-		if (shared->mem_cache_ways > cache->ways) {
+		if (g_shared->mem_cache_ways > cache->ways) {
 			if (warn_once(WARN_ONCE_CACHE_WAY))
 				pr_inf("%s: cache way value too high - "
 					"defaulting to %d (the maximum)\n",
 					name, cache->ways);
-			shared->mem_cache_ways = cache->ways;
+			g_shared->mem_cache_ways = cache->ways;
 		}
 
 		way_size = cache->size / cache->ways;
 
 		/* only fill the specified number of cache ways */
-		shared->mem_cache_size = way_size * shared->mem_cache_ways;
+		g_shared->mem_cache_size = way_size * g_shared->mem_cache_ways;
 	} else {
 		/* fill the entire cache */
-		shared->mem_cache_size = cache->size;
+		g_shared->mem_cache_size = cache->size;
 	}
 
-	if (!shared->mem_cache_size) {
+	if (!g_shared->mem_cache_size) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_inf("%s: using built-in defaults as "
 				"unable to determine cache size\n", name);
-		shared->mem_cache_size = MEM_CACHE_SIZE;
+		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
 init_done:
 	free_cpu_caches(cpu_caches);
 #endif
-	shared->mem_cache = calloc(shared->mem_cache_size, 1);
-	if (!shared->mem_cache) {
+	g_shared->mem_cache = calloc(g_shared->mem_cache_size, 1);
+	if (!g_shared->mem_cache) {
 		pr_err("%s: failed to allocate shared cache buffer\n",
 			name);
 		return -1;
 	}
 	if (warn_once(WARN_ONCE_CACHE_SIZE))
 		pr_inf("%s: default cache size: %" PRIu64 "K\n",
-			name, shared->mem_cache_size / 1024);
+			name, g_shared->mem_cache_size / 1024);
 
 	return 0;
 }
@@ -725,7 +725,7 @@ init_done:
  */
 void stress_cache_free(void)
 {
-	free(shared->mem_cache);
+	free(g_shared->mem_cache);
 }
 
 /*
@@ -1018,6 +1018,6 @@ void *align_address(const void *addr, const size_t alignment)
  */
 bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 {
-	return (LIKELY(keep_stressing_flag) &&
+	return (LIKELY(g_keep_stressing_flag) &&
 	        LIKELY(!args->max_ops || (*args->counter < args->max_ops)));
 }

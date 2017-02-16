@@ -50,9 +50,9 @@ int stress_seek(const args_t *args)
 #endif
 
 	if (!set_seek_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_seek_size = MAX_SEEK_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_seek_size = MIN_SEEK_SIZE;
 	}
 	len = opt_seek_size - sizeof(buf);
@@ -95,7 +95,7 @@ int stress_seek(const args_t *args)
 			goto close_finish;
 		}
 re_write:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		rwret = write(fd, buf, sizeof(buf));
 		if (rwret <= 0) {
@@ -113,7 +113,7 @@ re_write:
 			goto close_finish;
 		}
 re_read:
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		rwret = read(fd, tmp, sizeof(tmp));
 		if (rwret <= 0) {
@@ -125,7 +125,7 @@ re_read:
 			}
 		}
 		if ((rwret != sizeof(tmp)) &&
-		    (opt_flags & OPT_FLAGS_VERIFY)) {
+		    (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			pr_fail("%s: incorrect read size, expecting 512 bytes", args->name);
 		}
 #if defined(SEEK_END)

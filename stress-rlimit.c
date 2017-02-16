@@ -86,7 +86,7 @@ int stress_rlimit(const args_t *args)
 		ret = sigsetjmp(jmp_env, 1);
 
 		/* Check for timer overrun */
-		if ((time_now() - start) > (double)opt_timeout)
+		if ((time_now() - start) > (double)g_opt_timeout)
 			break;
 		/* Check for counter limit reached */
 		if (args->max_ops && *args->counter >= args->max_ops)

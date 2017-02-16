@@ -86,7 +86,7 @@ int stress_exec(const args_t *args)
 			if (pids[i] == 0) {
 				int ret, fd_out, fd_in;
 
-				(void)setpgid(0, pgrp);
+				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
@@ -112,8 +112,8 @@ int stress_exec(const args_t *args)
 				_exit(ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 			}
 			if (pids[i] > -1)
-				(void)setpgid(pids[i], pgrp);
-			if (!keep_stressing_flag)
+				(void)setpgid(pids[i], g_pgrp);
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		for (i = 0; i < opt_exec_max; i++) {
@@ -129,13 +129,13 @@ int stress_exec(const args_t *args)
 		}
 
 		for (i = 0; i < opt_exec_max; i++) {
-			if ((pids[i] < 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail("%s: fork failed\n", args->name);
 			}
 		}
 	} while (keep_stressing());
 
-	if ((exec_fails > 0) && (opt_flags & OPT_FLAGS_VERIFY)) {
+	if ((exec_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " execs failed (%.2f%%)\n",
 			args->name, exec_fails,
 			(double)exec_fails * 100.0 / (double)(exec_calls));

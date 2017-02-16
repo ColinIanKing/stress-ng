@@ -106,9 +106,9 @@ int stress_qsort(const args_t *args)
 	int ret;
 
 	if (!set_qsort_size) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_qsort_size = MAX_QSORT_SIZE;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_qsort_size = MIN_QSORT_SIZE;
 	}
 	n = (size_t)opt_qsort_size;
@@ -139,7 +139,7 @@ int stress_qsort(const args_t *args)
 	do {
 		/* Sort "random" data */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr+1)) {
 					pr_fail("%s: sort error "
@@ -149,12 +149,12 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
 					pr_fail("%s: reverse sort "
@@ -164,14 +164,14 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
 		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
 
 		/* Reverse sort this again */
 		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
 					pr_fail("%s: reverse sort "
@@ -181,7 +181,7 @@ int stress_qsort(const args_t *args)
 				}
 			}
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		inc_counter(args);

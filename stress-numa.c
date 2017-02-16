@@ -251,7 +251,7 @@ int stress_numa(const args_t *args)
 			pr_fail_err("get_mempolicy");
 			goto err;
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
@@ -260,7 +260,7 @@ int stress_numa(const args_t *args)
 			goto err;
 		}
 		memset(buf, 0xff, MMAP_SZ);
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/*
@@ -285,7 +285,7 @@ int stress_numa(const args_t *args)
 		} else {
 			memset(buf, 0xaa, MMAP_SZ);
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/*
@@ -303,7 +303,7 @@ int stress_numa(const args_t *args)
 		} else {
 			memset(buf, 0x5c, MMAP_SZ);
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		/* Move to next node */
@@ -321,7 +321,7 @@ int stress_numa(const args_t *args)
 			pr_fail_err("migrate_pages");
 			goto err;
 		}
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 
 		n_tmp = n;
@@ -341,7 +341,7 @@ int stress_numa(const args_t *args)
 				goto err;
 			}
 			memset(buf, j, MMAP_SZ);
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				break;
 		}
 		inc_counter(args);

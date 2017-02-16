@@ -71,7 +71,7 @@ void stress_set_mmap_bytes(const char *optarg)
 static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 {
 #if !defined(__minix__)
-	if (opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
+	if (g_opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
 			pr_fail("%s: mprotect set to PROT_NONE failed\n", name);
@@ -100,7 +100,7 @@ static void stress_mmap_child(
 {
 	const size_t page_size = args->page_size;
 	int no_mem_retries = 0;
-	const int ms_flags = (opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
+	const int ms_flags = (g_opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
 		MS_ASYNC : MS_SYNC;
 
 	do {
@@ -117,7 +117,7 @@ static void stress_mmap_child(
 			break;
 		}
 
-		if (!keep_stressing_flag)
+		if (!g_keep_stressing_flag)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
@@ -131,7 +131,7 @@ static void stress_mmap_child(
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
-		if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 			memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
@@ -144,7 +144,7 @@ static void stress_mmap_child(
 
 		/* Ensure we can write to the mapped pages */
 		mmap_set(buf, sz, page_size);
-		if (opt_flags & OPT_FLAGS_VERIFY) {
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			if (mmap_check(buf, sz, page_size) < 0)
 				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
@@ -166,7 +166,7 @@ static void stress_mmap_child(
 					n--;
 					break;
 				}
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					goto cleanup;
 			}
 		}
@@ -180,7 +180,7 @@ static void stress_mmap_child(
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (!mapped[page]) {
-					off_t offset = (opt_flags & OPT_FLAGS_MMAP_FILE) ?
+					off_t offset = (g_opt_flags & OPT_FLAGS_MMAP_FILE) ?
 							page * page_size : 0;
 					/*
 					 * Attempt to map them back into the original address, this
@@ -202,7 +202,7 @@ static void stress_mmap_child(
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
-						if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 							memset(mappings[page], n, page_size);
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 							(void)msync((void *)mappings[page], page_size, ms_flags);
@@ -212,7 +212,7 @@ static void stress_mmap_child(
 					n--;
 					break;
 				}
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					goto cleanup;
 			}
 		}
@@ -249,9 +249,9 @@ int stress_mmap(const args_t *args)
 	flags |= MAP_POPULATE;
 #endif
 	if (!set_mmap_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_mmap_bytes = MAX_MMAP_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_mmap_bytes = MIN_MMAP_BYTES;
 	}
 	sz = opt_mmap_bytes & ~(page_size - 1);
@@ -260,7 +260,7 @@ int stress_mmap(const args_t *args)
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+	if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 		ssize_t ret, rc;
 		char ch = '\0';
 
@@ -305,7 +305,7 @@ redo:
 	}
 
 again:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		goto cleanup;
 	pid = fork();
 	if (pid < 0) {
@@ -316,7 +316,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -358,7 +358,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
@@ -368,7 +368,7 @@ again:
 	}
 
 cleanup:
-	if (opt_flags & OPT_FLAGS_MMAP_FILE) {
+	if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 	}

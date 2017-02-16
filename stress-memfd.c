@@ -77,11 +77,11 @@ static void stress_memfd_allocs(const args_t *args)
 				default:
 					pr_err("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					keep_stressing_flag = false;
+					g_keep_stressing_flag = false;
 					goto clean;
 				}
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 
@@ -90,7 +90,7 @@ static void stress_memfd_allocs(const args_t *args)
 				ssize_t ret;
 				size_t whence;
 
-				if (!keep_stressing_flag)
+				if (!g_keep_stressing_flag)
 					break;
 
 				/* Allocate space */
@@ -124,7 +124,7 @@ static void stress_memfd_allocs(const args_t *args)
 				(void)ret;
 #endif
 			}
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 
@@ -159,7 +159,7 @@ static void stress_memfd_allocs(const args_t *args)
 					pr_fail_err("lseek SEEK_DATA on memfd");
 			}
 #endif
-			if (!keep_stressing_flag)
+			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 clean:
@@ -184,14 +184,14 @@ int stress_memfd(const args_t *args)
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
 
 	if (!set_memfd_bytes) {
-		if (opt_flags & OPT_FLAGS_MAXIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_memfd_bytes = MAX_MEMFD_BYTES;
-		if (opt_flags & OPT_FLAGS_MINIMIZE)
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_memfd_bytes = MIN_MEMFD_BYTES;
 	}
 
 again:
-	if (!keep_stressing_flag)
+	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -202,7 +202,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Parent, wait for child */
@@ -237,7 +237,7 @@ again:
 			goto again;
 		}
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);

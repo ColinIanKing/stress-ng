@@ -34,7 +34,7 @@ static inline bool stress_syscall_wait(
 	const args_t *args,
 	const pid_t pid)
 {
-	while (keep_stressing_flag) {
+	while (g_keep_stressing_flag) {
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
@@ -69,7 +69,7 @@ int stress_ptrace(const args_t *args)
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, pgrp);
+		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/*
@@ -88,7 +88,7 @@ int stress_ptrace(const args_t *args)
 		/*
 		 *  A simple mix of system calls
 		 */
-		while (keep_stressing_flag) {
+		while (g_keep_stressing_flag) {
 			(void)getppid();
 			(void)getgid();
 			(void)getegid();
@@ -102,7 +102,7 @@ int stress_ptrace(const args_t *args)
 		/* Parent to do the tracing */
 		int status;
 
-		(void)setpgid(pid, pgrp);
+		(void)setpgid(pid, g_pgrp);
 
 		if (waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {

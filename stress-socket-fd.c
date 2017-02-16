@@ -138,7 +138,7 @@ static void stress_socket_client(
 {
 	struct sockaddr *addr;
 
-	(void)setpgid(0, pgrp);
+	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	do {
@@ -146,7 +146,7 @@ static void stress_socket_client(
 		size_t i;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag) {
+		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
@@ -199,7 +199,7 @@ retry:
 static void MLOCKED handle_socket_sigalrm(int dummy)
 {
 	(void)dummy;
-	keep_stressing_flag = false;
+	g_keep_stressing_flag = false;
 }
 
 /*
@@ -220,7 +220,7 @@ static int stress_socket_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
-	(void)setpgid(pid, pgrp);
+	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
 		rc = EXIT_FAILURE;
@@ -301,7 +301,7 @@ int stress_sockfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
