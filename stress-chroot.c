@@ -51,7 +51,7 @@ int stress_chroot_supported(void)
  *  do_chroot()
  *	helper to do a chroot followed by chdir
  */
-void do_chroot(
+static void do_chroot(
 	const char *path,
 	int *ret1, int *ret2,
 	int *errno1, int *errno2)
@@ -68,7 +68,7 @@ void do_chroot(
 	*errno2 = errno;
 }
 
-int stress_chroot_test1(const args_t *args)
+static int stress_chroot_test1(const args_t *args)
 {
 	char cwd[PATH_MAX];
 	int ret1, ret2, errno1, errno2;
@@ -95,7 +95,7 @@ int stress_chroot_test1(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-int stress_chroot_test2(const args_t *args)
+static int stress_chroot_test2(const args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -114,7 +114,7 @@ int stress_chroot_test2(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-int stress_chroot_test3(const args_t *args)
+static int stress_chroot_test3(const args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -133,7 +133,7 @@ int stress_chroot_test3(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-int stress_chroot_test4(const args_t *args)
+static int stress_chroot_test4(const args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -152,7 +152,7 @@ int stress_chroot_test4(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-int stress_chroot_test5(const args_t *args)
+static int stress_chroot_test5(const args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
