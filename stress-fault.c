@@ -97,7 +97,7 @@ int stress_fault(const args_t *args)
 			char buffer[1];
 
 redo:
-			if (keep_stressing_flag &&
+			if (g_keep_stressing_flag &&
 			    (write(fd, buffer, sizeof(buffer)) < 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto redo;
