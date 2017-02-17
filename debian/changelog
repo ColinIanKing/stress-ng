@@ -1,3 +1,25 @@
+stress-ng (0.07.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add test-asm-nop.c to dist rule
+  * Makefile: add config to dist rule
+  * stress-fault: fix build on BSD, missing g_ prefix on keep_stressing_flag
+  * Makefile: save and re-load configuration
+  * stress-apparmor: prefix global data with g_
+  * mwc: make __mwc static, it's not referred to globally nowadays
+  * Prefix all globals with g_ to indicate they are in global scope
+  * stress-chroot: make functions static
+  * stress-iomix: fix build warnings with gcc 3.4.3
+  * stress-ng.h: include strings.h for sun builds for rindex
+  * shim: fix build warning on FreeBSD
+  * stress-icache: forgot to add addr voidification
+  * shim: handle ENOSYS on posix_fallocate by using emulated fallocate
+  * stress-icache: fix warning when madvise does is not being used
+  * Add no-op nop cycle waster stressor
+  * stress-icache: cater for 4K, 16K and 64K page sizes and alignments
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Feb 2017 14:58:11 +0000
+
 stress-ng (0.07.20-1) unstable; urgency=medium
 
   * fast-test-all: print system information
