@@ -698,8 +698,8 @@ dist:
 		test-apparmor.c test-libbsd.c test-libz.c \
 		test-libcrypt.c test-librt.c test-libpthread.c \
 		test-libaio.c test-cap.c test-libsctp.c \
-		usr.bin.pulseaudio.eg perf-event.c snapcraft \
-		smatchify.sh config stress-ng-$(VERSION)
+		test-asm-nop.c usr.bin.pulseaudio.eg perf-event.c \
+		snapcraft smatchify.sh config stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
