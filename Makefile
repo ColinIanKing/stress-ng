@@ -699,7 +699,7 @@ dist:
 		test-libcrypt.c test-librt.c test-libpthread.c \
 		test-libaio.c test-cap.c test-libsctp.c \
 		usr.bin.pulseaudio.eg perf-event.c snapcraft \
-		smatchify.sh stress-ng-$(VERSION)
+		smatchify.sh config stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
