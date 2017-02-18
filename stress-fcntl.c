@@ -41,10 +41,10 @@ static inline bool fd_available(const int fd)
  */
 static int fd_get(void)
 {
-	int i, fd;
+	int i;
 
 	for (i = 0; i < 256; i++) {
-		fd = mwc32() & 1023;
+		int fd = mwc32() & 1023;
 
 		if (fd_available(fd))
 			return fd;
