@@ -120,7 +120,8 @@ again:
 				(*timeout)++;
 				if (*timeout > threshold) {
 					/*
-					 * Backoff for a short while and						 * start again
+					 * Backoff for a short while
+					 * and start again
 					 */
 					(void)shim_usleep(250000);
 					threshold += THRESHOLD;
