@@ -3067,10 +3067,10 @@ next_opt:
 				" second run per stressor\n", g_opt_timeout);
 		}
 
-		/* Share bogo ops between processes equally */
+		/* Share bogo ops between processes equally, rounding up if nonzero bogo_ops */
 		for (i = 0; i < STRESS_MAX; i++) {
 			procs[i].bogo_ops = procs[i].num_procs ?
-				procs[i].bogo_ops / procs[i].num_procs : 0;
+				(procs[i].bogo_ops + (procs[i].num_procs - 1)) / procs[i].num_procs : 0;
 			procs[i].pids = NULL;
 
 			if (max_procs < procs[i].num_procs)
