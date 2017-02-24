@@ -913,6 +913,7 @@ typedef struct {
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_t tz;			/* thermal zones */
 #endif
+	bool run_ok;			/* true if stressor exited OK */
 } proc_stats_t;
 
 /* Shared memory segment */

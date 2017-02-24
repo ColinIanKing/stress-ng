@@ -1920,6 +1920,7 @@ again:
 						};
 
 						rc = stressors[i].stress_func(&args);
+						stats[n].run_ok = (rc == EXIT_SUCCESS);
 					}
 #if defined(STRESS_PERF_STATS)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
@@ -2054,8 +2055,10 @@ static void metrics_dump(
 		int32_t  j, n = (i * max_procs);
 		char *munged = munge_underscore(stressors[i].name);
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
+		bool run_ok = false;
 
 		for (j = 0; j < procs[i].started_procs; j++, n++) {
+			run_ok  |= g_shared->stats[n].run_ok;
 			c_total += g_shared->stats[n].counter;
 			u_total += g_shared->stats[n].tms.tms_utime +
 				   g_shared->stats[n].tms.tms_cutime;
@@ -2070,7 +2073,7 @@ static void metrics_dump(
 		r_total = procs[i].started_procs ?
 			r_total / (double)procs[i].started_procs : 0.0;
 
-		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0))
+		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0) && (!run_ok))
 			continue;
 
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
