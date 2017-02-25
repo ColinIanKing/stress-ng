@@ -171,10 +171,13 @@ uint64_t get_uint64_scale(
 uint64_t get_uint64_byte(const char *const str)
 {
 	static const scale_t scales[] = {
-		{ 'b', 	1 },
-		{ 'k',  1 << 10 },
-		{ 'm',  1 << 20 },
-		{ 'g',  1 << 30 },
+		{ 'b', 	1ULL },		/* bytes */
+		{ 'k',  1ULL << 10 },	/* kilobytes */
+		{ 'm',  1ULL << 20 },	/* megabytes */
+		{ 'g',  1ULL << 30 },	/* gigabytes */
+		{ 't',  1ULL << 40 },	/* terabytes */
+		{ 'p',  1ULL << 50 },	/* petabytes */
+		{ 'e',  1ULL << 60 },	/* exabytes */
 		{ 0,    0 },
 	};
 
@@ -188,11 +191,12 @@ uint64_t get_uint64_byte(const char *const str)
 uint64_t get_uint64_time(const char *const str)
 {
 	static const scale_t scales[] = {
-		{ 's', 	1 },
-		{ 'm',  60 },
-		{ 'h',  3600 },
-		{ 'd',  24 * 3600 },
-		{ 'y',  365 * 24 * 3600 },
+		{ 's', 	1ULL },			/* seconds */
+		{ 'm',  60ULL },		/* minutes */
+		{ 'h',  3600ULL },		/* hours */
+		{ 'd',  24ULL * 3600 },		/* days */
+		{ 'w',  24ULL * 3600 * 7 },	/* weeks */
+		{ 'y',  31556926ULL },		/* years (equinoctial) */
 	};
 
 	return get_uint64_scale(str, scales, "time");
