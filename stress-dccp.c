@@ -205,7 +205,7 @@ static int stress_dccp_server(
 	int fd, status;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
-	struct sockaddr *addr;
+	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
@@ -335,7 +335,7 @@ die_close:
 	(void)close(fd);
 die:
 #if defined(AF_UNIX)
-	if (opt_dccp_domain == AF_UNIX) {
+	if (addr && (opt_dccp_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
