@@ -108,7 +108,6 @@ static void stress_iomix_wr_rnd_bursts(const args_t *args, const int fd)
 				pr_fail("write");
 				return;
 			}
-			posn += rc;
 			inc_counter(args);
 			if (!keep_stressing())
 				return;
@@ -229,7 +228,6 @@ static void stress_iomix_rd_rnd_bursts(const args_t *args, const int fd)
 				pr_fail("read");
 				return;
 			}
-			posn += rc;
 			inc_counter(args);
 			if (!keep_stressing())
 				return;
