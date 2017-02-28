@@ -88,6 +88,7 @@ again:
 		if ((time_now() - start) > (double)g_opt_timeout)
 			g_keep_stressing_flag = false;
 
+		inc_counter(args);
 		if (getpid() == mypid)
 			pid = fork();
 		else
@@ -98,7 +99,6 @@ again:
 				_exit(0);
 		} else if (pid == 0) {
 			/* child, parent is blocked, spawn new child */
-			inc_counter(args);
 			if (!args->max_ops || *args->counter < args->max_ops)
 				goto again;
 			_exit(0);
