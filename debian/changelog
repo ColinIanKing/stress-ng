@@ -1,3 +1,22 @@
+stress-ng (0.07.22-1) unstable; urgency=medium
+
+  * Makefile: update version
+  * stress-vforkmany: move counter increment to pre-vfork stage
+  * stress-vforkmany: don't call setpgid in a vfork child
+  * stress-socket: unlink AF_UNIX path only if addr is not NULL
+  * stress-dccp: unlink AF_UNIX path only if addr is not NULL
+  * stress-iomix: remove redundant increments of posn
+  * stress-iomix: ENOSPC on fallocate is a EXIT_NO_RESOURCE error
+  * Update conversion tables, bytes and times
+  * Emit metrics even when counter is zero if test has been successfully run
+  * stress-futex: fix a broken comment
+  * stress-ng: fix rounding error in bogo ops-calculation
+  * stress-iomix: force page to be read even on high optimization levels
+  * stress-iomix: fix mmap flags, should be PROT_READ | PROT_WRITE
+  * stress-fcntl: reduce scope on variable fd
+
+ -- Colin King <colin.king@canonical.com>  Tue, 28 Feb 2017 17:59:58 +0000
+
 stress-ng (0.07.21-1) unstable; urgency=medium
 
   * Makefile: bump version
