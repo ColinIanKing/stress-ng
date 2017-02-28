@@ -98,7 +98,6 @@ again:
 				_exit(0);
 		} else if (pid == 0) {
 			/* child, parent is blocked, spawn new child */
-			(void)setpgid(0, g_pgrp);
 			inc_counter(args);
 			if (!args->max_ops || *args->counter < args->max_ops)
 				goto again;
