@@ -546,8 +546,12 @@ int stress_iomix(const args_t *args)
 	ret = shim_fallocate(fd, 0, 0, opt_iomix_bytes);
 #endif
 	if (ret < 0) {
-		pr_fail_err("fallocate");
-		ret = EXIT_FAILURE;
+		if (errno == ENOSPC) {
+			ret = EXIT_NO_RESOURCE;
+		} else {
+			ret = EXIT_FAILURE;
+			pr_fail_err("fallocate");
+		}
 		goto tidy;
 	}
 
