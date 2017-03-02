@@ -1421,6 +1421,17 @@ int stressor_instances(const stress_id id)
 	return procs[i].num_procs;
 }
 
+static uint32_t get_class_id(char *const str)
+{
+	size_t i;
+
+	for (i = 0; classes[i].class; i++) {
+		if (!strcmp(classes[i].name, str))
+			return classes[i].class;
+	}
+	return 0;
+}
+
 
 /*
  *  get_class()
@@ -1432,21 +1443,32 @@ static uint32_t get_class(char *const class_str)
 	uint32_t class = 0;
 
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
-		int i;
-		uint32_t cl = 0;
-
-		for (i = 0; classes[i].class; i++) {
-			if (!strcmp(classes[i].name, token)) {
-				cl = classes[i].class;
-				break;
-			}
-		}
+		size_t i;
+		uint32_t cl = get_class_id(token);
 		if (!cl) {
+			size_t len = strlen(token);
+
+			if ((len > 1) && (token[len - 1] == '?')) {
+				size_t j;
+
+				token[len - 1] = '\0';
+
+				cl = get_class_id(token);
+				if (cl) {
+					printf("class '%s' stressors:", token);
+					for (j = 0; stressors[j].name; j++) {
+						if (stressors[j].class & cl)
+							printf(" %s", stressors[j].name);
+					}
+					printf("\n");
+					return 0;
+				}
+			}
 			fprintf(stderr, "Unknown class: '%s', available classes:", token);
 			for (i = 0; classes[i].class; i++)
 				fprintf(stderr, " %s", classes[i].name);
-			fprintf(stderr, "\n");
-			return 0;
+			fprintf(stderr, "\n\n");
+
 		}
 		class |= cl;
 	}
