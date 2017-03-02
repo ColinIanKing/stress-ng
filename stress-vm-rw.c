@@ -54,7 +54,9 @@ static bool set_vm_rw_bytes = false;
 void stress_set_vm_rw_bytes(const char *optarg)
 {
 	set_vm_rw_bytes = true;
-	opt_vm_rw_bytes = (size_t)get_uint64_byte(optarg);
+	opt_vm_rw_bytes = (size_t)
+		get_uint64_byte_memory(optarg,
+			stressor_instances(STRESS_VM_RW));
 	check_range("vm-rw-bytes", opt_vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
 }

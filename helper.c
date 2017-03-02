@@ -34,6 +34,7 @@
 #if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
 #include <sys/utsname.h>
 #endif
+#include <sys/statvfs.h>
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
@@ -167,6 +168,59 @@ void stress_get_memlimits(
 	}
 	fclose(fp);
 #endif
+}
+
+/*
+ *  stress_get_phys_mem_size()
+ *	get size of physical memory still available, 0 if failed
+ */
+uint64_t stress_get_phys_mem_size(void)
+{
+#if defined(_SC_PHYS_PAGES)
+	uint64_t phys_pages = 0;
+	const size_t page_size = stress_get_pagesize();
+	const uint64_t max_pages = ~0ULL / page_size;
+
+	phys_pages = sysconf(_SC_AVPHYS_PAGES);
+	/* Avoid overflow */
+	if (phys_pages > max_pages)
+		phys_pages = max_pages;
+	return phys_pages * page_size;
+#else
+	return 0ULL;
+#endif
+}
+
+/*
+ *  stress_get_filesystem_size()
+ *	get size of free space still available on the
+ *	file system where stress temporary path is located,
+ *	return 0 if failed
+ */
+uint64_t stress_get_filesystem_size(void)
+{
+	int rc;
+	struct statvfs buf;
+	fsblkcnt_t blocks, max_blocks;
+
+	if (!stress_temp_path)
+		return 0;
+
+	rc = statvfs(stress_temp_path, &buf);
+	if (rc < 0)
+		return 0;
+
+	max_blocks = (~(fsblkcnt_t)0) / buf.f_bsize;
+	blocks = buf.f_bavail;
+
+	if (blocks > max_blocks)
+		blocks = max_blocks;
+
+	printf("stress_get_filesystem_size: %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",
+		(uint64_t)buf.f_bsize, (uint64_t)blocks,
+		(uint64_t)buf.f_bsize * blocks);
+
+	return (uint64_t)buf.f_bsize * blocks;
 }
 
 /*

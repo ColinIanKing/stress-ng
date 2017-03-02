@@ -140,7 +140,9 @@ static const hdd_opts_t hdd_opts[] = {
 void stress_set_hdd_bytes(const char *optarg)
 {
 	set_hdd_bytes = true;
-	opt_hdd_bytes =  get_uint64_byte(optarg);
+	opt_hdd_bytes =
+		get_uint64_byte_filesystem(optarg,
+			stressor_instances(STRESS_HDD));
 	check_range("hdd-bytes", opt_hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }

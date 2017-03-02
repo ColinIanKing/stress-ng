@@ -557,8 +557,9 @@ size. Data is sync'd to the filesystem after each copy_file_range(2) call.
 stop after N copy_file_range() calls.
 .TP
 .B \-\-copy\-file\-bytes N
-copy file size, the default is 256 MB. One can specify the size in units of
-Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+copy file size, the default is 256 MB. One can specify the size as % of free
+space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
+the suffix b, k, m or g.
 .TP
 .B \-c N, \-\-cpu N
 start N workers exercising the CPU by sequentially working through all the
@@ -1019,8 +1020,9 @@ free space, fallocate will produce an ENOSPC error which is ignored by this
 stressor.
 .TP
 .B \-\-fallocate\-bytes N
-allocated file size, the default is 1 GB. One can specify the size in units of
-Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+allocated file size, the default is 1 GB. One can specify the size as % of free 
+space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
+the suffix b, k, m or g.
 .TP
 .B \-\-fallocate\-ops N
 stop fallocate stress workers after N bogo fallocate operations.
@@ -1060,9 +1062,9 @@ stop after N fiemap bogo operations.
 .TP
 .B \-\-fiemap\-bytes N
 specify the size of the fiemap'd file in bytes.  One can specify the size
-in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
-Larger files will contain more extents, causing more stress when gathering
-extent information.
+as % of free space on the file system or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.  Larger files will contain more
+extents, causing more stress when gathering extent information.
 .TP
 .B \-\-fifo N
 start N workers that exercise a named pipe by transmitting 64 bit integers.
@@ -1199,7 +1201,8 @@ cover a range of I/O options.
 .TP
 .B \-\-hdd\-bytes N
 write N bytes for each hdd process, the default is 1 GB. One can specify the
-size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+size as % of free space on the file system or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-hdd\-opts list
 specify various stress test options as a comma separated list. Options are as
@@ -1354,8 +1357,8 @@ file and perform different I/O operations on the same file.
 .TP
 .B \-\-iomix\-bytes N
 write N bytes for each iomix worker process, the default is 1 GB. One can
-specify the size in units of Bytes, KBytes, MBytes and GBytes using the
-suffix b, k, m or g.
+specify the size as % of free space on the file system or in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-iomix\-ops N
 stop iomix stress workers after N bogo iomix I/O operations.
@@ -1519,9 +1522,10 @@ re-started if it is killed by the out of mememory (OOM) killer.
 .TP
 .B \-\-malloc\-bytes N
 maximum per allocation/reallocation size. Allocations are randomly selected
-from 1 to N bytes. One can specify the size in units of Bytes, KBytes, MBytes
-and GBytes using the suffix b, k, m or g.  Large allocation sizes cause the
-memory allocator to use mmap(2) rather than expanding the heap using brk(2).
+from 1 to N bytes. One can specify the size as % of total available memory
+or in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or
+g.  Large allocation sizes cause the memory allocator to use mmap(2) rather
+than expanding the heap using brk(2).
 .TP
 .B \-\-malloc\-max N
 maximum number of active allocations allowed. Allocations are chosen at random
@@ -1616,7 +1620,8 @@ process address space.  (Linux only).
 .TP
 .B \-\-memfd\-bytes N
 allocate N bytes per memfd stress worker, the default is 256MB. One can specify
-the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m
+the size in as % of total available memory or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
@@ -1682,8 +1687,8 @@ see \-\-mmap\-file.
 .TP
 .B \-\-mmap\-bytes N
 allocate N bytes per mmap stress worker, the default is 256MB. One can specify
-the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m
-or g.
+the size as % of total available memory or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mmap\-file
 enable file based memory mapping and by default use synchronous msync'ing on
@@ -1747,7 +1752,8 @@ stop after N msync bogo operations completed.
 .TP
 .B \-\-msync\-bytes N
 allocate N bytes for the memory mapped file, the default is 256MB. One
-can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
+can specify the size as % of total available memory or in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-mq N
 start N sender and receiver processes that continually send and receive
@@ -1937,7 +1943,8 @@ and reads are batched into 16 readaheads and then 16 reads.
 .TP
 .B \-\-readahead\-bytes N
 set the size of readahead file, the default is 1 GB. One can specify the size
-in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+as % of free space on the file system or in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-readahead\-ops N
 stop readahead stress workers after N bogo read operations.
@@ -2105,8 +2112,8 @@ complete.
 .TP
 .B \-\-shm\-bytes N
 specify the size of the POSIX shared memory objects to be created. One can
-specify the size in units of Bytes, KBytes, MBytes and GBytes using the
-suffix b, k, m or g.
+specify the size as % of total available memory or in units of Bytes, KBytes,
+MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-shm\-objs N
 specify the number of shared memory objects to be created.
@@ -2121,8 +2128,8 @@ stop after N shared memory create and destroy bogo operations are complete.
 .TP
 .B \-\-shm\-sysv\-bytes N
 specify the size of the shared memory segment to be created. One can specify
-the size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m
-or g.
+the size as % of total available memory or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-shm\-sysv\-segs N
 specify the number of shared memory segments to be created.
@@ -2253,7 +2260,8 @@ stop after N bogo splice operations.
 .TP
 .B \-\-splice-bytes N
 transfer N bytes per splice call, the default is 64K. One can specify the size
-in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
 .TP
 .B \-\-stack N
 start N workers that rapidly cause and catch stack overflows by use of
@@ -2356,8 +2364,9 @@ SYNC_FILE_RANGE_WRITE and SYNC_FILE_RANGE_WAIT_AFTER flag bits.
 stop sync\-file workers after N bogo sync operations.
 .TP
 .B \-\-sync\-file\-bytes N
-specify the size of the file to be sync'd. One can specify the size in units
-of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+specify the size of the file to be sync'd. One can specify the size as % of free 
+space on the file system in units of Bytes, KBytes, MBytes and GBytes using the
+suffix b, k, m or g.
 .TP
 .B \-\-sysinfo N
 start N workers that continually read system and process specific information.
@@ -2518,8 +2527,8 @@ stop userfaultfd stress workers after N page faults.
 .TP
 .B \-\-userfaultfd-bytes N
 mmap N bytes per userfaultfd worker to page fault on, the default is 16MB
-One can specify the size in units of Bytes, KBytes, MBytes and GBytes using
-the suffix b, k, m or g.
+One can specify the size as % of total available memory or in units of Bytes,
+KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-utime N
 start N workers updating file timestamps. This is mainly CPU bound when the
@@ -2571,8 +2580,9 @@ killer on Linux systems if not enough physical memory and swap is not
 available.
 .TP
 .B \-\-vm\-bytes N
-mmap N bytes per vm worker, the default is 256MB. One can specify the size in
-units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+mmap N bytes per vm worker, the default is 256MB. One can specify the size 
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-ops N
 stop vm workers after N bogo operations.
@@ -2765,7 +2775,8 @@ stop vm\-rw workers after N memory read/writes.
 .TP
 .B \-\-vm\-rw\-bytes N
 mmap N bytes per vm\-rw worker, the default is 16MB. One can specify the size
-in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
 .TP
 .B \-\-vm\-splice N
 move data from memory to /dev/null through a pipe without any copying between
@@ -2777,7 +2788,8 @@ stop after N bogo vm\-splice operations.
 .TP
 .B \-\-vm\-splice-bytes N
 transfer N bytes per vmsplice call, the default is 64K. One can specify the
-size in units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
+size as % of total available memory or in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-wait N
 start N workers that spawn off two children; one spins in a pause(2) loop, the
@@ -2849,10 +2861,21 @@ system limit is less than N.
 .LP
 .SH EXAMPLES
 .LP
+stress\-ng \-\-vm 8 \-\-vm\-bytes 80% -t 1h
+.IP
+run 8 virtual memory stressors that combined use 80% of the available memory
+for 1 hour. Thus each stressor uses 10% of the available memory.
+.LP
 stress\-ng \-\-cpu 4 \-\-io 2 \-\-vm 1 \-\-vm\-bytes 1G \-\-timeout 60s
 .IP
 runs for 60 seconds with 4 cpu stressors, 2 io stressors and 1 vm stressor
 using 1GB of virtual memory.
+.LP
+stress-\ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m
+.IP
+runs 2 instances of the mixed I/O stressors using a total of 10% of the
+available file system space for 10 minutes. Each stressor will use 5% of the
+available file system space.
 .LP
 stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .IP

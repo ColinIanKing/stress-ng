@@ -30,7 +30,9 @@ static bool set_mremap_bytes = false;
 void stress_set_mremap_bytes(const char *optarg)
 {
 	set_mremap_bytes = true;
-	opt_mremap_bytes = (size_t)get_uint64_byte(optarg);
+	opt_mremap_bytes = (size_t)
+		get_uint64_byte_memory(optarg,
+			stressor_instances(STRESS_MREMAP));
 	check_range("mmap-bytes", opt_mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
 }

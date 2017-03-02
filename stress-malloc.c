@@ -36,7 +36,9 @@ static bool set_malloc_threshold = false;
 void stress_set_malloc_bytes(const char *optarg)
 {
 	set_malloc_bytes = true;
-	opt_malloc_bytes = (size_t)get_uint64_byte(optarg);
+	opt_malloc_bytes = (size_t)
+		get_uint64_byte_memory(optarg,
+			stressor_instances(STRESS_MALLOC));
 	check_range("malloc-bytes", opt_malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
 }

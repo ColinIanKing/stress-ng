@@ -34,7 +34,9 @@ static bool set_readahead_bytes = false;
 void stress_set_readahead_bytes(const char *optarg)
 {
 	set_readahead_bytes = true;
-	opt_readahead_bytes =  get_uint64_byte(optarg);
+	opt_readahead_bytes =
+		get_uint64_byte_filesystem(optarg,
+			stressor_instances(STRESS_READAHEAD));
 	check_range("hdd-bytes", opt_readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }

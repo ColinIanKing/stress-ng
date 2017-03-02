@@ -185,6 +185,80 @@ uint64_t get_uint64_byte(const char *const str)
 }
 
 /*
+ *  get_uint64_byte_memory()
+ *	get memory size from string. If it contains %
+ *	at the end, then covert it into the available
+ *	physical memory scaled by that percentage divided
+ *	by the number of stressor instances
+ */
+uint64_t get_uint64_byte_memory(
+	const char *const str,
+	const uint32_t instances)
+{
+	size_t len = strlen(str);
+
+	/* Convert to % of memory over N instances */
+	if ((len > 1) && (str[len - 1] == '%')) {
+		uint64_t phys_mem = stress_get_phys_mem_size();
+		double val;
+
+		/* Should NEVER happen */
+		if (instances < 1) {
+			fprintf(stderr, "Invalid number of instances\n");
+			exit(EXIT_FAILURE);
+		}
+		if (sscanf(str, "%lf", &val) != 1) {
+			fprintf(stderr, "Invalid percentage %s\n", str);
+			exit(EXIT_FAILURE);
+		}
+		if (phys_mem == 0) {
+			fprintf(stderr, "Cannot determine physical memory size\n");
+			exit(EXIT_FAILURE);
+		}
+		return (uint64_t)((double)(phys_mem * val) / (100.0 * instances));
+        }
+	return get_uint64_byte(str);
+}
+
+/*
+ *  get_uint64_byte_filesystem()
+ *	get file size from string. If it contains %
+ *	at the end, then covert it into the available
+ *	file system space scaled by that percentage divided
+ *	by the number of stressor instances
+ */
+uint64_t get_uint64_byte_filesystem(
+	const char *const str,
+	const uint32_t instances)
+{
+	size_t len = strlen(str);
+
+	/* Convert to % of available filesystem space over N instances */
+	if ((len > 1) && (str[len - 1] == '%')) {
+		uint64_t bytes = stress_get_filesystem_size();
+		double val;
+
+		/* Should NEVER happen */
+		if (instances < 1) {
+			fprintf(stderr, "Invalid number of instances\n");
+			exit(EXIT_FAILURE);
+		}
+		if (sscanf(str, "%lf", &val) != 1) {
+			fprintf(stderr, "Invalid percentage %s\n", str);
+			exit(EXIT_FAILURE);
+		}
+		if (bytes == 0) {
+			fprintf(stderr, "Cannot determine available space on file system\n");
+			exit(EXIT_FAILURE);
+		}
+		printf("BYTES: %" PRIu64 "\n",
+			(uint64_t)((double)(bytes * val) / (100.0 * instances)));
+		return (uint64_t)((double)(bytes * val) / (100.0 * instances));
+        }
+	return get_uint64_byte(str);
+}
+
+/*
  *  get_uint64_time()
  *	time in seconds, minutes, hours, days or years
  */

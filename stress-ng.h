@@ -2040,6 +2040,10 @@ extern WARN_UNUSED uint64_t get_uint64(const char *const str);
 extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str,
 	const scale_t scales[], const char *const msg);
 extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);
+extern WARN_UNUSED uint64_t get_uint64_byte_memory(const char *const str,
+	const uint32_t instances);
+extern WARN_UNUSED uint64_t get_uint64_byte_filesystem(const char *const str,
+	const uint32_t instances);
 extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
@@ -2082,6 +2086,8 @@ extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *align_address(const void *addr, const size_t alignment);
 extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
+extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
+extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 
 /*
  *  Indicate a stress test failed because of limited resources

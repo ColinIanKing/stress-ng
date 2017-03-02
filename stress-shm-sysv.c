@@ -79,7 +79,9 @@ void stress_set_shm_sysv_bytes(const char *optarg)
 void stress_set_shm_sysv_segments(const char *optarg)
 {
 	opt_shm_sysv_segments = true;
-	opt_shm_sysv_segments = (size_t)get_uint64_byte(optarg);
+	opt_shm_sysv_segments = (size_t)
+		get_uint64_byte_memory(optarg,
+			stressor_instances(STRESS_SHM_SYSV));
 	check_range("shm-sysv-segments", opt_shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
 }
