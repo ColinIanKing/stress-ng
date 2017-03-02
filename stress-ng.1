@@ -577,6 +577,9 @@ actual load may be different from the desired load.  Note that the number of
 bogo CPU operations may not be linearly scaled with the load as some systems
 employ CPU frequency scaling and so heavier loads produce an increased CPU
 frequency and greater CPU bogo operations.
+
+Note: This option only applies to the \-\-cpu stressor option and not to
+all of the cpu class of stressors.
 .TP
 .B \-\-cpu\-load\-slice S
 note \- this option is only useful when \-\-cpu\-load is less than 100%. The
@@ -592,6 +595,9 @@ smoother scheduling.  Setting \-\-cpu\-load as a relatively low value and
 busy cycles and exercise different CPU frequencies.  The thermal range of
 the CPU is also cycled, so this is a good mechanism to exercise the scheduler,
 frequency scaling and passive/active thermal cooling mechanisms.
+
+Note: This option only applies to the \-\-cpu stressor option and not to
+all of the cpu class of stressors.
 .TP
 .B \-\-cpu\-method method
 specify a cpu stress method. By default, all the stress methods are exercised
