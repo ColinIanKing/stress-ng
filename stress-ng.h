@@ -693,6 +693,12 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define NORETURN
 #endif
 
+#if NEED_GNUC(3,4,0)	/* or possibly earier */
+#define ALWAYS_INLINE		__attribute__ ((always_inline))
+#else
+#define ALWAYS_INLINE
+#endif
+
 /* NetBSD does not define MAP_ANONYMOUS */
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON
@@ -788,7 +794,7 @@ extern bool __keep_stressing(const args_t *args);
 #define keep_stressing()	__keep_stressing(args)
 
 /* increment the stessor bogo ops counter */
-static inline void inc_counter(const args_t *args)
+static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 {
 	(*(args->counter))++;
 }
@@ -1937,7 +1943,7 @@ static volatile double   double_val;
  *  uint64_put()
  *	stash a uint64_t value
  */
-static inline void uint64_put(const uint64_t a)
+static inline void ALWAYS_INLINE uint64_put(const uint64_t a)
 {
 	uint64_val = a;
 }
@@ -1946,7 +1952,7 @@ static inline void uint64_put(const uint64_t a)
  *  double_put()
  *	stash a double value
  */
-static inline void double_put(const double a)
+static inline void ALWAYS_INLINE double_put(const double a)
 {
 	double_val = a;
 }
@@ -1975,7 +1981,7 @@ extern const char *stress_strsignal(const int signum);
  *  clflush()
  *	flush a cache line
  */
-static inline void clflush(volatile void *ptr)
+static inline void ALWAYS_INLINE clflush(volatile void *ptr)
 {
         asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
@@ -1987,7 +1993,7 @@ static inline void clflush(volatile void *ptr)
  *  mfence()
  *	serializing memory fence
  */
-static inline void mfence(void)
+static inline void ALWAYS_INLINE mfence(void)
 {
 #if NEED_GNUC(4, 2, 0)
 	__sync_synchronize();
@@ -2116,7 +2122,7 @@ extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
  *  rather than a failure of the tests during execution.
  *  err is the errno of the failure.
  */
-static inline int exit_status(const int err)
+static inline int ALWAYS_INLINE exit_status(const int err)
 {
 	return ((err == ENOMEM) || (err == ENOSPC)) ?
 		EXIT_NO_RESOURCE : EXIT_FAILURE;
@@ -2127,7 +2133,7 @@ static inline int exit_status(const int err)
  *	align to nearest 16 bytes for aarch64 et al,
  *	assumes we have enough slop to do this
  */
-static inline WARN_UNUSED void *align_stack(void *stack_top)
+static inline WARN_UNUSED ALWAYS_INLINE void *align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }
