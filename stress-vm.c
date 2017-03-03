@@ -24,6 +24,11 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  For testing, set this to 1 to simulate random memory errors
+ */
+#define INJECT_BIT_ERRORS	(0)
+
 #define VM_BOGO_SHIFT		(12)
 #define VM_ROWHAMMER_LOOPS	(1000000)
 
@@ -69,11 +74,6 @@ void stress_set_vm_flags(const int flag)
 {
 	opt_vm_flags |= flag;
 }
-
-/*
- *  For testing, set this to 1 to simulate random memory errors
- */
-#define INJECT_BIT_ERRORS	(0)
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
 {						\
@@ -1877,13 +1877,15 @@ int stress_set_vm_method(const char *name)
  */
 int stress_vm(const args_t *args)
 {
+	uint64_t *bit_error_count = NULL;
 	uint32_t restarts = 0, nomems = 0;
 	uint8_t *buf = NULL;
 	pid_t pid;
 	const bool keep = (g_opt_flags & OPT_FLAGS_VM_KEEP);
 	const stress_vm_func func = opt_vm_stressor->func;
         const size_t page_size = args->page_size;
-	size_t buf_sz;
+	size_t buf_sz, retries;
+	int err = 0, ret = EXIT_SUCCESS;
 
 	if (!set_vm_bytes) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -1893,9 +1895,31 @@ int stress_vm(const args_t *args)
 	}
 	buf_sz = opt_vm_bytes & ~(page_size - 1);
 
+	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {
+		bit_error_count = (uint64_t *)
+			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		err = errno;
+		if (bit_error_count != MAP_FAILED)
+			break;
+		(void)shim_usleep(100);
+	}
+
+	/* Cannot allocate a single page for bit error counter */
+	if (bit_error_count == MAP_FAILED) {
+		if (g_keep_stressing_flag) {
+			pr_err("%s: could not mmap bit error counter: "
+				"retry count=%zu, errno=%d (%s)\n",
+				args->name, retries, err, strerror(err));
+		}
+		return EXIT_NO_RESOURCE;
+	}
+
+	*bit_error_count = 0ULL;
+
 again:
 	if (!g_keep_stressing_flag)
-		return EXIT_SUCCESS;
+		goto clean_up;
 	pid = fork();
 	if (pid < 0) {
 		if (errno == EAGAIN)
@@ -1962,7 +1986,8 @@ again:
 
 			no_mem_retries = 0;
 			(void)mincore_touch_pages(buf, buf_sz);
-			(void)func(buf, buf_sz, args->counter, args->max_ops << VM_BOGO_SHIFT);
+			*bit_error_count += func(buf, buf_sz, args->counter,
+						args->max_ops << VM_BOGO_SHIFT);
 
 			if (opt_vm_hang == 0) {
 				for (;;) {
@@ -1981,6 +2006,16 @@ again:
 		if (keep && buf != NULL)
 			(void)munmap((void *)buf, buf_sz);
 	}
+clean_up:
+	(void)shim_msync(bit_error_count, page_size, MS_SYNC);
+	if (*bit_error_count > 0) {
+		pr_fail("%s: detected %" PRIu64 " bit errors while "
+			"stressing memory\n",
+			args->name, *bit_error_count);
+		ret = EXIT_FAILURE;
+	}
+	(void)munmap(bit_error_count, page_size);
+
 	*args->counter >>= VM_BOGO_SHIFT;
 
 	if (restarts + nomems > 0)
@@ -1988,5 +2023,5 @@ again:
 			", out of memory restarts: %" PRIu32 ".\n",
 			args->name, restarts, nomems);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
