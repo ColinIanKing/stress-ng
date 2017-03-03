@@ -270,6 +270,84 @@ typedef struct {
 	size_t page_size;		/* page size */
 } args_t;
 
+/* gcc 4.7 and later support vector ops */
+#if defined(__GNUC__) && NEED_GNUC(4,7,0)
+#define STRESS_VECTOR	1
+#endif
+
+/* gcc 7.0 and later support __attribute__((fallthrough)); */
+#if defined(__GNUC__) && NEED_GNUC(7,0,0)
+#define CASE_FALLTHROUGH	__attribute__((fallthrough))
+#else
+#define CASE_FALLTHROUGH
+#endif
+
+#if defined(__GNUC__) && NEED_GNUC(2,5,0)
+#define NORETURN 		__attribute__ ((noreturn))
+#else
+#define NORETURN
+#endif
+
+#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earier */
+#define ALWAYS_INLINE		__attribute__ ((always_inline))
+#else
+#define ALWAYS_INLINE
+#endif
+
+/* -O3 attribute support */
+#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#define OPTIMIZE3 __attribute__((optimize("-O3")))
+#else
+#define OPTIMIZE3
+#endif
+
+/* warn unused attribute */
+#if defined(__GNUC__) && NEED_GNUC(4,2,0)
+#define WARN_UNUSED __attribute__((warn_unused_result))
+#else
+#define WARN_UNUSED
+#endif
+
+/* NetBSD does not define MAP_ANONYMOUS */
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
+/* Force aligment to nearest cache line */
+#if defined(__GNUC__) &&  NEED_GNUC(3,3,0)
+#define ALIGN64	__attribute__ ((aligned(64)))
+#else
+#define ALIGN64
+#endif
+
+/* GCC hot attribute */
+#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#define HOT __attribute__ ((hot))
+#else
+#define HOT
+#endif
+
+/* GCC mlocked section attribute */
+#if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
+#define MLOCKED __attribute__((__section__("mlocked")))
+#define MLOCKED_SECTION 1
+#else
+#define MLOCKED
+#endif
+
+#if defined(__GNUC__) && NEED_GNUC(3,2,0)
+#define FORMAT(func, a, b)	__attribute__((format(func, a, b)))
+#else
+#define FORMAT(func, a, b)
+#endif
+
+/* restrict keyword */
+#if defined(__GNUC__) || defined(__clang__)
+#define RESTRICT __restrict
+#else
+#define RESTRICT
+#endif
+
 /* Logging helpers */
 extern int pr_msg(FILE *fp, const uint64_t flag,
 	const char *const fmt, va_list va);
@@ -278,11 +356,11 @@ extern int pr_yaml(FILE *fp, const char *const fmt, ...) __attribute__((format(p
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
 
-extern void pr_dbg(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-extern void pr_inf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-extern void pr_err(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-extern void pr_fail(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
-extern void pr_tidy(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+extern void pr_dbg(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
+extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 extern void pr_fail_err__(const args_t *args, const char *msg);
 extern void pr_fail_errno__(const args_t *args, const char *msg, int err);
@@ -675,42 +753,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define STRESS_ARM      1
 #endif
 
-/* gcc 4.7 and later support vector ops */
-#if NEED_GNUC(4,7,0)
-#define STRESS_VECTOR	1
-#endif
-
-/* gcc 7.0 and later support __attribute__((fallthrough)); */
-#if NEED_GNUC(7,0,0)
-#define CASE_FALLTHROUGH	__attribute__((fallthrough))
-#else
-#define CASE_FALLTHROUGH
-#endif
-
-#if NEED_GNUC(2,5,0)
-#define NORETURN 		__attribute__ ((noreturn))
-#else
-#define NORETURN
-#endif
-
-#if NEED_GNUC(3,4,0)	/* or possibly earier */
-#define ALWAYS_INLINE		__attribute__ ((always_inline))
-#else
-#define ALWAYS_INLINE
-#endif
-
-/* NetBSD does not define MAP_ANONYMOUS */
-#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
-#define MAP_ANONYMOUS MAP_ANON
-#endif
-
-/* restrict keyword */
-#if defined(__GNUC__) || defined(__clang__)
-#define RESTRICT __restrict
-#else
-#define RESTRICT
-#endif
-
 /*
  * making local static fixes globbering warnings on older gcc versions
  */
@@ -760,18 +802,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define UNLIKELY(x)	(x)
 #endif
 
-/* -O3 attribute support */
-#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
-#define OPTIMIZE3 __attribute__((optimize("-O3")))
-#else
-#define OPTIMIZE3
-#endif
-
-/* warn unused attribute */
-#if defined(__GNUC__)
-#define WARN_UNUSED __attribute__((warn_unused_result))
-#endif
-
 /* waste some cycles */
 #if defined(__GNUC__) || defined(__clang__)
 #define FORCE_DO_NOTHING() __asm__ __volatile__("")
@@ -815,27 +845,6 @@ typedef struct {
 	uint32_t z;
 } mwc_t;
 
-/* Force aligment to nearest cache line */
-#if defined(__GNUC__)
-#define ALIGN64	__attribute__ ((aligned(64)))
-#else
-#define ALIGN64
-#endif
-
-/* GCC hot attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define HOT __attribute__ ((hot))
-#else
-#define HOT
-#endif
-
-/* GCC mlocked section attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
-#define MLOCKED __attribute__((__section__("mlocked")))
-#define MLOCKED_SECTION 1
-#else
-#define MLOCKED
-#endif
 
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) && \
