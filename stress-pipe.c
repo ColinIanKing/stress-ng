@@ -39,7 +39,7 @@ static size_t opt_pipe_data_size = 512;
 void stress_set_pipe_size(const char *optarg)
 {
 	opt_pipe_size = (size_t)get_uint64_byte(optarg);
-	check_range("pipe-size", opt_pipe_size, 4, 1024 * 1024);
+	check_range_bytes("pipe-size", opt_pipe_size, 4, 1024 * 1024);
 }
 #endif
 
@@ -50,7 +50,7 @@ void stress_set_pipe_size(const char *optarg)
 void stress_set_pipe_data_size(const char *optarg)
 {
 	opt_pipe_data_size = (size_t)get_uint64_byte(optarg);
-	check_range("pipe-data_size", opt_pipe_data_size,
+	check_range_bytes("pipe-data_size", opt_pipe_data_size,
 		4, stress_get_pagesize());
 }
 

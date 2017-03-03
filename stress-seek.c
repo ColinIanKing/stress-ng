@@ -31,7 +31,7 @@ void stress_set_seek_size(const char *optarg)
 {
 	set_seek_size = true;
 	opt_seek_size = get_uint64_byte(optarg);
-	check_range("seek-size", opt_seek_size,
+	check_range_bytes("seek-size", opt_seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
 }
 

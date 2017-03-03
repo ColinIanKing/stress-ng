@@ -39,6 +39,7 @@ void check_value(
 	}
 }
 
+
 /*
  *  check_range()
  *	Sanity check val against a lo - hi range
@@ -56,6 +57,30 @@ void check_range(
 		exit(EXIT_FAILURE);
 	}
 }
+
+/*
+ *  check_range()
+ *	Sanity check val against a lo - hi range
+ */
+void check_range_bytes(
+	const char *const opt,
+	const uint64_t val,
+	const uint64_t lo,
+	const uint64_t hi)
+{
+	if ((val < lo) || (val > hi)) {
+		char strval[32], strlo[32], strhi[32];
+
+		fprintf(stderr, "Value %sB is out of range for %s,"
+			" allowed: %sB .. %sB\n",
+			stress_uint64_to_str(strval, sizeof(strval), val),
+			opt,
+			stress_uint64_to_str(strlo, sizeof(strlo), lo),
+			stress_uint64_to_str(strhi, sizeof(strhi), hi));
+		exit(EXIT_FAILURE);
+	}
+}
+
 
 /*
  *  ensure_positive()

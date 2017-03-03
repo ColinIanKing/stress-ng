@@ -33,7 +33,7 @@ void stress_set_copy_file_bytes(const char *optarg)
 	opt_copy_file_bytes =
 		get_uint64_byte_filesystem(optarg,
 			stressor_instances(STRESS_COPY_FILE));
-	check_range("copy-file-bytes", opt_copy_file_bytes,
+	check_range_bytes("copy-file-bytes", opt_copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
 }
 

@@ -33,7 +33,7 @@ void stress_set_vm_splice_bytes(const char *optarg)
 	opt_vm_splice_bytes = (size_t)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_VM_SPLICE));
-	check_range("vm-splice-bytes", opt_vm_splice_bytes,
+	check_range_bytes("vm-splice-bytes", opt_vm_splice_bytes,
 		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
 }
 

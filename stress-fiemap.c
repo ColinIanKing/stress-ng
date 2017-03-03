@@ -39,7 +39,7 @@ void stress_set_fiemap_size(const char *optarg)
 	opt_fiemap_size =
 		get_uint64_byte_filesystem(optarg,
 			stressor_instances(STRESS_FIEMAP));
-	check_range("fiemap-size", opt_fiemap_size,
+	check_range_bytes("fiemap-size", opt_fiemap_size,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
 }
 

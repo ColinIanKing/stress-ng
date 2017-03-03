@@ -1075,3 +1075,41 @@ bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 	return (LIKELY(g_keep_stressing_flag) &&
 	        LIKELY(!args->max_ops || (*args->counter < args->max_ops)));
 }
+
+/*
+ *  stress_uint64_to_str()
+ *	turn 64 bit size to human readable string
+ */
+char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
+{
+	typedef struct {
+		uint64_t size;
+		char *suffix;
+	} size_info_t;
+
+	static const size_info_t size_info[] = {
+		{ EB, "E" },
+		{ PB, "P" },
+		{ TB, "T" },
+		{ GB, "G" },
+		{ MB, "M" },
+		{ KB, "K" },
+	};
+	size_t i;
+	char *suffix = "";
+	uint64_t scale = 1;
+
+	for (i = 0; i < SIZEOF_ARRAY(size_info); i++) {
+		uint64_t scaled = val / size_info[i].size;
+
+		if ((scaled >= 1) && (scaled < 1024)) {
+			suffix = size_info[i].suffix;
+			scale = size_info[i].size;
+			break;
+		}
+	}
+
+	snprintf(str, len, "%.1f%s", (double)val / scale, suffix);
+
+	return str;
+}

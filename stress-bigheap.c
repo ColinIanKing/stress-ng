@@ -35,7 +35,7 @@ void stress_set_bigheap_growth(const char *optarg)
 {
 	set_bigheap_growth = true;
 	opt_bigheap_growth = get_uint64_byte(optarg);
-	check_range("bigheap-growth", opt_bigheap_growth,
+	check_range_bytes("bigheap-growth", opt_bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
 }
 

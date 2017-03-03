@@ -293,9 +293,13 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define pr_fail_dbg(msg)		pr_fail_dbg__(args, msg)
 
 /* Memory size constants */
-#define KB			(1024ULL)
-#define	MB			(KB * KB)
-#define GB			(KB * KB * KB)
+#define KB			(1ULL << 10)
+#define	MB			(1ULL << 20)
+#define GB			(1ULL << 30)
+#define TB			(1ULL << 40)
+#define PB			(1ULL << 50)
+#define EB			(1ULL << 60)
+
 #define PAGE_4K_SHIFT		(12)
 #define PAGE_4K			(1 << PAGE_4K_SHIFT)
 
@@ -2057,6 +2061,8 @@ extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
 extern void check_value(const char *const msg, const int val);
 extern void check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
+extern void check_range_bytes(const char *const opt, const uint64_t val,
+	const uint64_t lo, const uint64_t hi);
 extern WARN_UNUSED int set_cpu_affinity(char *const arg);
 
 /* Misc helper funcs */
@@ -2097,6 +2103,7 @@ extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
+extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 
 /*
  *  Indicate a stress test failed because of limited resources

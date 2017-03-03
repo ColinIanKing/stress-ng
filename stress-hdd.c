@@ -143,7 +143,7 @@ void stress_set_hdd_bytes(const char *optarg)
 	opt_hdd_bytes =
 		get_uint64_byte_filesystem(optarg,
 			stressor_instances(STRESS_HDD));
-	check_range("hdd-bytes", opt_hdd_bytes,
+	check_range_bytes("hdd-bytes", opt_hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
 
@@ -151,7 +151,7 @@ void stress_set_hdd_write_size(const char *optarg)
 {
 	set_hdd_write_size = true;
 	opt_hdd_write_size = get_uint64_byte(optarg);
-	check_range("hdd-write-size", opt_hdd_write_size,
+	check_range_bytes("hdd-write-size", opt_hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 }
 

@@ -35,7 +35,7 @@ void stress_set_memfd_bytes(const char *optarg)
 	opt_memfd_bytes = (size_t)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_MEMFD));
-	check_range("memfd-bytes", opt_memfd_bytes,
+	check_range_bytes("memfd-bytes", opt_memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
 }
 

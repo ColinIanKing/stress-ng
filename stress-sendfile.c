@@ -35,7 +35,7 @@ void stress_set_sendfile_size(const char *optarg)
 {
 	set_sendfile_size = true;
 	opt_sendfile_size = get_uint64_byte(optarg);
-	check_range("sendfile-size", opt_sendfile_size,
+	check_range_bytes("sendfile-size", opt_sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
 }
 

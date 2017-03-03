@@ -42,7 +42,7 @@ void stress_set_stream_L3_size(const char *optarg)
 {
 	set_stream_L3_size = true;
 	opt_stream_L3_size = get_uint64_byte(optarg);
-	check_range("stream-L3-size", opt_stream_L3_size,
+	check_range_bytes("stream-L3-size", opt_stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
 }
 

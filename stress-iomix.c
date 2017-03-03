@@ -35,7 +35,7 @@ void stress_set_iomix_bytes(const char *optarg)
 	opt_iomix_bytes = (off_t)
 		get_uint64_byte_filesystem(optarg,
 			stressor_instances(STRESS_IOMIX));
-	check_range("iomix-bytes", opt_iomix_bytes,
+	check_range_bytes("iomix-bytes", opt_iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
 }
 

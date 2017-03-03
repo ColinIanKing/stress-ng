@@ -33,7 +33,7 @@ void stress_set_splice_bytes(const char *optarg)
 	opt_splice_bytes = (size_t)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_SPLICE));
-	check_range("splice-bytes", opt_splice_bytes,
+	check_range_bytes("splice-bytes", opt_splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
 }
 

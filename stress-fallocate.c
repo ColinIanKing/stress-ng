@@ -33,7 +33,7 @@ void stress_set_fallocate_bytes(const char *optarg)
 	opt_fallocate_bytes = (off_t)
 		get_uint64_byte_filesystem(optarg,
 			stressor_instances(STRESS_FALLOCATE));
-	check_range("fallocate-bytes", opt_fallocate_bytes,
+	check_range_bytes("fallocate-bytes", opt_fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 }
 
