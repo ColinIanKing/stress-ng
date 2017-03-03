@@ -40,7 +40,7 @@ void stress_set_malloc_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_MALLOC));
 	check_range("malloc-bytes", opt_malloc_bytes,
-		MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
+		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
 }
 
 void stress_set_malloc_max(const char *optarg)

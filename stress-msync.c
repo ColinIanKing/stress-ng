@@ -39,7 +39,7 @@ void stress_set_msync_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_MSYNC));
 	check_range("mmap-bytes", opt_msync_bytes,
-		MIN_MSYNC_BYTES, MAX_MSYNC_BYTES);
+		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
 }
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)

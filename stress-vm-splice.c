@@ -34,7 +34,7 @@ void stress_set_vm_splice_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_VM_SPLICE));
 	check_range("vm-splice-bytes", opt_vm_splice_bytes,
-		MIN_VM_SPLICE_BYTES, MAX_VM_SPLICE_BYTES);
+		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,5,0)

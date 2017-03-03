@@ -73,7 +73,7 @@ void stress_set_shm_sysv_bytes(const char *optarg)
 	set_shm_sysv_bytes = true;
 	opt_shm_sysv_bytes = (size_t)get_uint64_byte(optarg);
 	check_range("shm-sysv-bytes", opt_shm_sysv_bytes,
-		MIN_SHM_SYSV_BYTES, MAX_SHM_SYSV_BYTES);
+		MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT);
 }
 
 void stress_set_shm_sysv_segments(const char *optarg)

@@ -58,7 +58,7 @@ void stress_set_vm_rw_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_VM_RW));
 	check_range("vm-rw-bytes", opt_vm_rw_bytes,
-		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
+		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
 }
 
 #if defined(__linux__) &&		\

@@ -62,7 +62,7 @@ void stress_set_vm_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_VM));
 	check_range("vm-bytes", opt_vm_bytes,
-		MIN_VM_BYTES, MAX_VM_BYTES);
+		MIN_VM_BYTES, MAX_MEM_LIMIT);
 }
 
 void stress_set_vm_flags(const int flag)

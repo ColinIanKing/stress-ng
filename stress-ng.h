@@ -304,6 +304,15 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MIN_OPS			(1ULL)
 #define MAX_OPS			(100000000ULL)
 #define MAX_32			(0xffffffffUL)
+#define MAX_48			(0xffffffffffffULL)
+#define MAX_64			(0xffffffffffffffffULL)
+
+/* Maximum memory limits, 256TB for 64 bit is good enough for 2017 */
+#if UINTPTR_MAX == MAX_32
+#define MAX_MEM_LIMIT		MAX_32
+#else
+#define MAX_MEM_LIMIT		MAX_48
+#endif
 
 /* Stressor defaults */
 #define MIN_AIO_REQUESTS	(1)

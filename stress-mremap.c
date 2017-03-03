@@ -34,7 +34,7 @@ void stress_set_mremap_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_MREMAP));
 	check_range("mmap-bytes", opt_mremap_bytes,
-		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
+		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,4,0)

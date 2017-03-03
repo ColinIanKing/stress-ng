@@ -43,7 +43,7 @@ void stress_set_shm_posix_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_SHM_POSIX));
 	check_range("shm-bytes", opt_shm_posix_bytes,
-		MIN_SHM_POSIX_BYTES, MAX_SHM_POSIX_BYTES);
+		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
 }
 
 void stress_set_shm_posix_objects(const char *optarg)
@@ -51,7 +51,7 @@ void stress_set_shm_posix_objects(const char *optarg)
 	set_shm_posix_objects = true;
 	opt_shm_posix_objects = (size_t)get_uint64_byte(optarg);
 	check_range("shm-segments", opt_shm_posix_objects,
-		MIN_SHM_POSIX_OBJECTS, MAX_SHM_POSIX_OBJECTS);
+		MIN_SHM_POSIX_OBJECTS, MAX_48);
 }
 
 #if defined(HAVE_LIB_RT)

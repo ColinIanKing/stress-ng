@@ -52,7 +52,7 @@ void stress_set_userfaultfd_bytes(const char *optarg)
 		get_uint64_byte_memory(optarg,
 			stressor_instances(STRESS_USERFAULTFD));
 	check_range("userfaultfd-bytes", opt_userfaultfd_bytes,
-		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
+		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
 }
 
 #if defined(__linux__) && defined(__NR_userfaultfd)
