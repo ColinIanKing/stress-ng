@@ -687,6 +687,12 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define CASE_FALLTHROUGH
 #endif
 
+#if NEED_GNUC(2,5,0)
+#define NORETURN 		__attribute__ ((noreturn))
+#else
+#define NORETURN
+#endif
+
 /* NetBSD does not define MAP_ANONYMOUS */
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON

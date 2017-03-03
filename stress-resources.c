@@ -104,7 +104,7 @@ static void *stress_pthread_func(void *ctxt)
 }
 #endif
 
-static void waste_resources(
+static void NORETURN waste_resources(
 	const size_t page_size,
 	const size_t pipe_size)
 {
@@ -329,6 +329,7 @@ static void waste_resources(
 			(void)sem_destroy(&info[i].sem);
 #endif
 	}
+	_exit(0);
 }
 
 static void MLOCKED kill_children(void)
@@ -389,7 +390,7 @@ int stress_resources(const args_t *args)
 					_exit(0);
 				set_oom_adjustment(args->name, true);
 				waste_resources(page_size, pipe_size);
-				_exit(0);
+				_exit(0); /* should never get here */
 			}
 			if (pid > -1)
 				(void)setpgid(pids[i], g_pgrp);
