@@ -138,10 +138,39 @@ typedef unsigned long int __kernel_ulong_t;
 #define NEED_GNUC(major, minor, patchlevel) 	(0)
 #endif
 
+/* NetBSD does not define MAP_ANONYMOUS */
+#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#define MAP_ANONYMOUS MAP_ANON
+#endif
+
 /* GNU HURD */
 #ifndef PATH_MAX
 #define PATH_MAX 		(4096)		/* Some systems don't define this */
 #endif
+
+/*
+ * making local static fixes globbering warnings on older gcc versions
+ */
+#if defined(__GNUC__) || defined(__clang__)
+#define NOCLOBBER	static
+#else
+#define NOCLOBBER
+#endif
+
+/* Specific compilers have __uint128_t type support */
+#if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
+#define STRESS_INT128	1
+#endif
+
+/* Linux supports ionice */
+#if defined(__linux__)
+#define STRESS_IONICE
+#endif
+
+#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
+#define STRESS_PAGE_IN
+#endif
+
 
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(4096)		/* Max number of processes per stressor */
@@ -154,64 +183,64 @@ typedef unsigned long int __kernel_ulong_t;
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
 
 /* debug output bitmasks */
-#define PR_ERROR		0x0000000000001ULL 	/* Print errors */
-#define PR_INFO			0x0000000000002ULL 	/* Print info */
-#define PR_DEBUG		0x0000000000004ULL 	/* Print debug */
-#define PR_FAIL			0x0000000000008ULL 	/* Print test failure message */
-#define PR_ALL			(PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
+#define PR_ERROR		 0x0000000000001ULL 	/* Print errors */
+#define PR_INFO			 0x0000000000002ULL 	/* Print info */
+#define PR_DEBUG		 0x0000000000004ULL 	/* Print debug */
+#define PR_FAIL			 0x0000000000008ULL 	/* Print test failure message */
+#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
-#define OPT_FLAGS_AFFINITY_RAND	0x0000000000010ULL	/* Change affinity randomly */
-#define OPT_FLAGS_DRY_RUN	0x0000000000020ULL	/* Don't actually run */
-#define OPT_FLAGS_METRICS	0x0000000000040ULL	/* Dump metrics at end */
-#define OPT_FLAGS_VM_KEEP	0x0000000000080ULL	/* Don't keep re-allocating */
-#define OPT_FLAGS_RANDOM	0x0000000000100ULL	/* Randomize */
-#define OPT_FLAGS_SET		0x0000000000200ULL	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	0x0000000000400ULL	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_UTIME_FSYNC	0x0000000000800ULL	/* fsync after utime modification */
-#define OPT_FLAGS_METRICS_BRIEF	0x0000000001000ULL	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	0x0000000002000ULL	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	0x0000000004000ULL	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	0x0000000008000ULL	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		0x0000000010000ULL	/* user/system time summary */
+#define OPT_FLAGS_AFFINITY_RAND	 0x0000000000010ULL	/* Change affinity randomly */
+#define OPT_FLAGS_DRY_RUN	 0x0000000000020ULL	/* Don't actually run */
+#define OPT_FLAGS_METRICS	 0x0000000000040ULL	/* Dump metrics at end */
+#define OPT_FLAGS_VM_KEEP	 0x0000000000080ULL	/* Don't keep re-allocating */
+#define OPT_FLAGS_RANDOM	 0x0000000000100ULL	/* Randomize */
+#define OPT_FLAGS_SET		 0x0000000000200ULL	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	 0x0000000000400ULL	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_UTIME_FSYNC	 0x0000000000800ULL	/* fsync after utime modification */
+#define OPT_FLAGS_METRICS_BRIEF	 0x0000000001000ULL	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	 0x0000000002000ULL	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 0x0000000004000ULL	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 0x0000000008000ULL	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		 0x0000000010000ULL	/* user/system time summary */
 #define OPT_FLAGS_CACHE_PREFETCH 0x0000000020000ULL 	/* cache prefetch */
-#define OPT_FLAGS_CACHE_FLUSH	0x0000000040000ULL	/* cache flush */
-#define OPT_FLAGS_CACHE_FENCE	0x0000000080000ULL	/* cache fence */
+#define OPT_FLAGS_CACHE_FLUSH	 0x0000000040000ULL	/* cache flush */
+#define OPT_FLAGS_CACHE_FENCE	 0x0000000080000ULL	/* cache fence */
 #define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | \
 				 OPT_FLAGS_CACHE_FENCE | \
 				 OPT_FLAGS_CACHE_PREFETCH)
-#define OPT_FLAGS_MMAP_FILE	0x0000000100000ULL	/* mmap onto a file */
-#define OPT_FLAGS_MMAP_ASYNC	0x0000000200000ULL	/* mmap file asynchronous I/O */
-#define OPT_FLAGS_MMAP_MPROTECT	0x0000000400000ULL	/* mmap mprotect enabled */
-#define OPT_FLAGS_LOCKF_NONBLK	0x0000000800000ULL	/* Non-blocking lockf */
-#define OPT_FLAGS_MINCORE_RAND	0x0000001000000ULL	/* mincore randomize */
-#define OPT_FLAGS_BRK_NOTOUCH	0x0000002000000ULL	/* brk, don't touch page */
-#define OPT_FLAGS_HDD_SYNC	0x0000004000000ULL	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	0x0000008000000ULL	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	0x0000010000000ULL	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	0x0000020000000ULL	/* HDD O_NOATIME */
-#define OPT_FLAGS_STACK_FILL	0x0000040000000ULL	/* Fill stack */
-#define OPT_FLAGS_MINIMIZE	0x0000080000000ULL	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	0x0000100000000ULL	/* Maximize */
-#define OPT_FLAGS_MINMAX_MASK	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
-#define OPT_FLAGS_SYSLOG	0x0000200000000ULL	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	0x0000400000000ULL	/* aggressive mode enabled */
-#define OPT_FLAGS_TIMER_RAND	0x0000800000000ULL	/* Enable random timer freq */
-#define OPT_FLAGS_TIMERFD_RAND	0x0001000000000ULL	/* Enable random timerfd freq */
-#define OPT_FLAGS_ALL		0x0002000000000ULL	/* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	0x0004000000000ULL	/* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	0x0008000000000ULL	/* --perf stats mode */
-#define OPT_FLAGS_LOG_BRIEF	0x0010000000000ULL	/* --log-brief */
-#define OPT_FLAGS_THERMAL_ZONES 0x0020000000000ULL	/* --tz thermal zones */
-#define OPT_FLAGS_TIMER_SLACK	0x0040000000000ULL	/* --timer-slack */
+#define OPT_FLAGS_MMAP_FILE	 0x0000000100000ULL	/* mmap onto a file */
+#define OPT_FLAGS_MMAP_ASYNC	 0x0000000200000ULL	/* mmap file asynchronous I/O */
+#define OPT_FLAGS_MMAP_MPROTECT	 0x0000000400000ULL	/* mmap mprotect enabled */
+#define OPT_FLAGS_LOCKF_NONBLK	 0x0000000800000ULL	/* Non-blocking lockf */
+#define OPT_FLAGS_MINCORE_RAND	 0x0000001000000ULL	/* mincore randomize */
+#define OPT_FLAGS_BRK_NOTOUCH	 0x0000002000000ULL	/* brk, don't touch page */
+#define OPT_FLAGS_HDD_SYNC	 0x0000004000000ULL	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	 0x0000008000000ULL	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	 0x0000010000000ULL	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	 0x0000020000000ULL	/* HDD O_NOATIME */
+#define OPT_FLAGS_STACK_FILL	 0x0000040000000ULL	/* Fill stack */
+#define OPT_FLAGS_MINIMIZE	 0x0000080000000ULL	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	 0x0000100000000ULL	/* Maximize */
+#define OPT_FLAGS_MINMAX_MASK	 (OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
+#define OPT_FLAGS_SYSLOG	 0x0000200000000ULL	/* log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	 0x0000400000000ULL	/* aggressive mode enabled */
+#define OPT_FLAGS_TIMER_RAND	 0x0000800000000ULL	/* Enable random timer freq */
+#define OPT_FLAGS_TIMERFD_RAND	 0x0001000000000ULL	/* Enable random timerfd freq */
+#define OPT_FLAGS_ALL		 0x0002000000000ULL	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	 0x0004000000000ULL	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	 0x0008000000000ULL	/* --perf stats mode */
+#define OPT_FLAGS_LOG_BRIEF	 0x0010000000000ULL	/* --log-brief */
+#define OPT_FLAGS_THERMAL_ZONES  0x0020000000000ULL	/* --tz thermal zones */
+#define OPT_FLAGS_TIMER_SLACK	 0x0040000000000ULL	/* --timer-slack */
 #define OPT_FLAGS_SOCKET_NODELAY 0x0080000000000ULL	/* --sock-nodelay */
-#define OPT_FLAGS_UDP_LITE	0x0100000000000ULL	/* --udp-lite */
-#define OPT_FLAGS_SEEK_PUNCH	0x0200000000000ULL	/* --seek-punch */
-#define OPT_FLAGS_CACHE_NOAFF	0x0400000000000ULL	/* disable CPU affinity */
-#define OPT_FLAGS_IGNITE_CPU	0x0800000000000ULL	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	0x1000000000000ULL	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	0x2000000000000ULL	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	0x4000000000000ULL	/* --thrash */
+#define OPT_FLAGS_UDP_LITE	 0x0100000000000ULL	/* --udp-lite */
+#define OPT_FLAGS_SEEK_PUNCH	 0x0200000000000ULL	/* --seek-punch */
+#define OPT_FLAGS_CACHE_NOAFF	 0x0400000000000ULL	/* disable CPU affinity */
+#define OPT_FLAGS_IGNITE_CPU	 0x0800000000000ULL	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 0x1000000000000ULL	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 0x2000000000000ULL	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 0x4000000000000ULL	/* --thrash */
 
 #define OPT_FLAGS_AGGRESSIVE_MASK \
 	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
@@ -277,66 +306,61 @@ typedef struct {
 
 /* gcc 7.0 and later support __attribute__((fallthrough)); */
 #if defined(__GNUC__) && NEED_GNUC(7,0,0)
-#define CASE_FALLTHROUGH	__attribute__((fallthrough))
+#define CASE_FALLTHROUGH __attribute__((fallthrough))
 #else
 #define CASE_FALLTHROUGH
 #endif
 
 #if defined(__GNUC__) && NEED_GNUC(2,5,0)
-#define NORETURN 		__attribute__ ((noreturn))
+#define NORETURN 	__attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
 #if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earier */
-#define ALWAYS_INLINE		__attribute__ ((always_inline))
+#define ALWAYS_INLINE	__attribute__ ((always_inline))
 #else
 #define ALWAYS_INLINE
 #endif
 
 /* -O3 attribute support */
 #if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
-#define OPTIMIZE3 __attribute__((optimize("-O3")))
+#define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3
 #endif
 
 /* warn unused attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,2,0)
-#define WARN_UNUSED __attribute__((warn_unused_result))
+#define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED
 #endif
 
-/* NetBSD does not define MAP_ANONYMOUS */
-#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
-#define MAP_ANONYMOUS MAP_ANON
-#endif
-
 /* Force aligment to nearest cache line */
 #if defined(__GNUC__) &&  NEED_GNUC(3,3,0)
-#define ALIGN64	__attribute__ ((aligned(64)))
+#define ALIGN64		__attribute__ ((aligned(64)))
 #else
 #define ALIGN64
 #endif
 
 /* GCC hot attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define HOT __attribute__ ((hot))
+#define HOT		__attribute__ ((hot))
 #else
 #define HOT
 #endif
 
 /* GCC mlocked section attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
-#define MLOCKED __attribute__((__section__("mlocked")))
+#define MLOCKED		__attribute__((__section__("mlocked")))
 #define MLOCKED_SECTION 1
 #else
 #define MLOCKED
 #endif
 
 #if defined(__GNUC__) && NEED_GNUC(3,2,0)
-#define FORMAT(func, a, b)	__attribute__((format(func, a, b)))
+#define FORMAT(func, a, b) __attribute__((format(func, a, b)))
 #else
 #define FORMAT(func, a, b)
 #endif
@@ -346,6 +370,22 @@ typedef struct {
 #define RESTRICT __restrict
 #else
 #define RESTRICT
+#endif
+
+/* optimisation on branching */
+#if defined(__GNUC__)
+#define LIKELY(x)	__builtin_expect((x),1)
+#define UNLIKELY(x)	__builtin_expect((x),0)
+#else
+#define LIKELY(x)	(x)
+#define UNLIKELY(x)	(x)
+#endif
+
+/* waste some cycles */
+#if defined(__GNUC__) || defined(__clang__)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("")
+#else
+#define FORCE_DO_NOTHING() while (0)
 #endif
 
 /* Logging helpers */
@@ -753,29 +793,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define STRESS_ARM      1
 #endif
 
-/*
- * making local static fixes globbering warnings on older gcc versions
- */
-#if defined(__GNUC__) || defined(__clang__)
-#define NOCLOBBER	static
-#else
-#define NOCLOBBER
-#endif
-
-/* Specific compilers have __uint128_t type support */
-#if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
-#define STRESS_INT128	1
-#endif
-
-/* Linux supports ionice */
-#if defined(__linux__)
-#define STRESS_IONICE
-#endif
-
-#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
-#define STRESS_PAGE_IN
-#endif
-
 #if defined(__linux__)
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
@@ -791,22 +808,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define IOPRIO_WHO_USER         (3)
 
 #define IOPRIO_PRIO_VALUE(class, data)  (((class) << 13) | data)
-#endif
-
-/* optimisation on branching */
-#if defined(__GNUC__)
-#define LIKELY(x)	__builtin_expect((x),1)
-#define UNLIKELY(x)	__builtin_expect((x),0)
-#else
-#define LIKELY(x)	(x)
-#define UNLIKELY(x)	(x)
-#endif
-
-/* waste some cycles */
-#if defined(__GNUC__) || defined(__clang__)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("")
-#else
-#define FORCE_DO_NOTHING() while (0)
 #endif
 
 /* prctl(2) timer slack support */
