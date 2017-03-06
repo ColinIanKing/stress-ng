@@ -170,13 +170,19 @@ void stress_get_memlimits(
 #endif
 }
 
+#if defined(_SC_AVPHYS_PAGES)
+#define STRESS_SC_PAGES	_SC_AVPHYS_PAGES
+#elif defined(_SC_PHYS_PAGES)
+#define STRESS_SC_PAGES	_SC_PHYS_PAGES
+#endif
+
 /*
  *  stress_get_phys_mem_size()
  *	get size of physical memory still available, 0 if failed
  */
 uint64_t stress_get_phys_mem_size(void)
 {
-#if defined(_SC_PHYS_PAGES)
+#if defined(STRESS_SC_PAGES)
 	uint64_t phys_pages = 0;
 	const size_t page_size = stress_get_pagesize();
 	const uint64_t max_pages = ~0ULL / page_size;
