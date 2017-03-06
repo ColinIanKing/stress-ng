@@ -1,3 +1,24 @@
+stress-ng (0.07.23-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fcntl: minix does not require fd_get
+  * helper: use STRESS_SC_PAGES as defined in previous commit
+  * helper: try to use avg available phys pages and then total phys pages
+  * stress-ng.h: Re-organise ordering and formatting of macros
+  * Clean up the GCC attribute macros
+  * Add ALWAYS_INLINE gcc macro, force inlining of some critical functions
+  * Add a NORETURN gcc attribute macro and flag waste_resources accordingly
+  * stress-vm: initialize bit_error_count as MAP_FAILED
+  * stress-vm: check for bit errors and report them rather than ignoring them
+  * stress-bigheap: ensure heap growth size is rounded to pagesize
+  * Add new helper to check sizes in bytes and print in human readable format
+  * Allow memory stressors to run with ridiculously large allocations
+  * Allow one to specify sizes of files or memory in % of total available.
+  * Manual: clarify --cpu-load and --cpu-slice options
+  * Print out stressors in a class when using --class <name>?
+
+ -- Colin King <colin.king@canonical.com>  Mon, 6 Mar 2017 15:02:01 +0000
+
 stress-ng (0.07.22-1) unstable; urgency=medium
 
   * Makefile: update version
