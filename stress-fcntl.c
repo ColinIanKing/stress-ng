@@ -35,6 +35,7 @@ static inline bool fd_available(const int fd)
 	return ((ret == -1) && (errno == EBADF));
 }
 
+#if !defined(__minix__)
 /*
  *  fd_get()
  *	find a free fd to dup onto
@@ -51,6 +52,7 @@ static int fd_get(void)
 	}
 	return -1;	/* unlikely */
 }
+#endif
 
 /*
  *  check_return()
