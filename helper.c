@@ -187,7 +187,7 @@ uint64_t stress_get_phys_mem_size(void)
 	const size_t page_size = stress_get_pagesize();
 	const uint64_t max_pages = ~0ULL / page_size;
 
-	phys_pages = sysconf(_SC_AVPHYS_PAGES);
+	phys_pages = sysconf(STRESS_SC_PAGES);
 	/* Avoid overflow */
 	if (phys_pages > max_pages)
 		phys_pages = max_pages;
