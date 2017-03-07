@@ -575,7 +575,7 @@ int stress_iomix(const args_t *args)
 		} else if (pids[i] == 0) {
 			/* Child */
 			iomix_funcs[i](&tmp_args, fd);
-			kill(args->pid, SIGALRM);
+			(void)kill(args->pid, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}

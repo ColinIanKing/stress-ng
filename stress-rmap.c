@@ -47,7 +47,7 @@ static void MLOCKED stress_rmap_handler(int dummy)
 {
 	(void)dummy;
 
-	kill(getppid(), SIGALRM);
+	(void)kill(getppid(), SIGALRM);
 	exit(0);
 }
 

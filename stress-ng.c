@@ -1508,7 +1508,7 @@ static void MLOCKED stress_sigint_handler(int dummy)
 	g_keep_stressing_flag = false;
 	wait_flag = false;
 
-	kill(-getpid(), SIGALRM);
+	(void)kill(-getpid(), SIGALRM);
 }
 
 static void MLOCKED stress_sigalrm_child_handler(int dummy)
@@ -1692,7 +1692,7 @@ static void kill_procs(const int sig)
 	if (count > 5)
 		signum = SIGKILL;
 
-	killpg(g_pgrp, sig);
+	(void)killpg(g_pgrp, sig);
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		int j;

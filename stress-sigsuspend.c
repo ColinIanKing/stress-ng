@@ -79,7 +79,7 @@ again:
 		c = 0;
 		for (i = 0; i < n; i++) {
 			c += v_counters[i << CACHE_STRIDE_SHIFT];
-			kill(pid[i], SIGUSR1);
+			(void)kill(pid[i], SIGUSR1);
 		}
 	} while (keep_stressing());
 

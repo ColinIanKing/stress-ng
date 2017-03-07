@@ -115,7 +115,7 @@ int stress_tlb_shootdown(const args_t *args)
 			if (pids[i] != -1) {
 				int status;
 
-				kill(pids[i], SIGKILL);
+				(void)kill(pids[i], SIGKILL);
 				(void)waitpid(pids[i], &status, 0);
 			}
 		}

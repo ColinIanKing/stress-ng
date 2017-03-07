@@ -74,7 +74,7 @@ static void runner(
 		(void)pause();
 	} while (keep_stressing());
 
-	kill(getppid(), SIGALRM);
+	(void)kill(getppid(), SIGALRM);
 	exit(EXIT_SUCCESS);
 }
 

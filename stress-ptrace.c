@@ -83,7 +83,7 @@ int stress_ptrace(const args_t *args)
 			_exit(0);
 		}
 		/* Wait for parent to start tracing me */
-		kill(getpid(), SIGSTOP);
+		(void)kill(getpid(), SIGSTOP);
 
 		/*
 		 *  A simple mix of system calls

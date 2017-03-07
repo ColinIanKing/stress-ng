@@ -148,7 +148,7 @@ int stress_fanotify(const args_t *args)
 			fd = creat(filename, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err("creat");
-				kill(args->ppid, SIGALRM);
+				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			(void)close(fd);
@@ -157,7 +157,7 @@ int stress_fanotify(const args_t *args)
 			fd = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err("open O_WRONLY");
-				kill(args->ppid, SIGALRM);
+				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			n = write(fd, "foo", 3);
@@ -168,7 +168,7 @@ int stress_fanotify(const args_t *args)
 			fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
 				pr_fail_err("open O_RDONLY");
-				kill(args->ppid, SIGALRM);
+				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			n = read(fd, buffer, sizeof(buffer));

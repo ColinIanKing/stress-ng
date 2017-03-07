@@ -338,7 +338,7 @@ static void MLOCKED kill_children(void)
 
 	for (i = 0; i < RESOURCE_FORKS; i++) {
 		if (pids[i])
-			kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGKILL);
 	}
 
 	for (i = 0; i < RESOURCE_FORKS; i++) {
