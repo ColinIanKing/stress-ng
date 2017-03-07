@@ -45,7 +45,7 @@ static int pagein_proc(const pid_t pid)
 	snprintf(path, sizeof(path), "/proc/%d/maps", pid);
 	fpmap = fopen(path, "r");
 	if (!fpmap) {
-		close(fdmem);
+		(void)close(fdmem);
 		return -errno;
 	}
 

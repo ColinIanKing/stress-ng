@@ -86,7 +86,7 @@ static int get_mount_info(const args_t *args)
 		}
 		mounts++;
 	}
-	fclose(fp);
+	(void)fclose(fp);
 	return mounts;
 }
 

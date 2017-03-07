@@ -227,10 +227,10 @@ static unsigned long perf_type_tracepoint_resolve_config(const int id)
 	if ((fp = fopen(path, "r")) == NULL)
 		return UNRESOLVED;
 	if (fscanf(fp, "%lu", &config) != 1) {
-		fclose(fp);
+		(void)fclose(fp);
 		return UNRESOLVED;
 	}
-	fclose(fp);
+	(void)fclose(fp);
 
 	return config;
 }

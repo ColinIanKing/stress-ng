@@ -54,7 +54,7 @@ int tz_init(tz_info_t **tz_info_list)
 
 		if ((tz_info = calloc(1, sizeof(*tz_info))) == NULL) {
 			pr_err("Cannot allocate thermal information.\n");
-			closedir(dir);
+			(void)closedir(dir);
 			return -1;
 		}
 		snprintf(path, sizeof(path),
@@ -64,7 +64,7 @@ int tz_init(tz_info_t **tz_info_list)
 		tz_info->path = strdup(entry->d_name);
 		if (!tz_info->path) {
 			free(tz_info);
-			closedir(dir);
+			(void)closedir(dir);
 			return -1;
 		}
 		tz_info->type = NULL;
@@ -80,7 +80,7 @@ int tz_init(tz_info_t **tz_info_list)
 		if (!tz_info->type) {
 			free(tz_info->path);
 			free(tz_info);
-			closedir(dir);
+			(void)closedir(dir);
 			return -1;
 		}
 		tz_info->index = i++;
@@ -88,7 +88,7 @@ int tz_init(tz_info_t **tz_info_list)
 		*tz_info_list = tz_info;
 	}
 
-	closedir(dir);
+	(void)closedir(dir);
 	return 0;
 }
 
@@ -133,7 +133,7 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 			     &tz->tz_stat[i].temperature) != 1) {
 				tz->tz_stat[i].temperature = 0;
 			}
-			fclose(fp);
+			(void)fclose(fp);
 		}
 	}
 	return 0;

@@ -3217,7 +3217,7 @@ next_opt:
 	closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
-		fclose(yaml);
+		(void)fclose(yaml);
 	}
 
 	if (!success)

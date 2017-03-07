@@ -132,7 +132,7 @@ int stress_tee(const args_t *args)
 
 	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
 	if (pids[0] < 0) {
-		close(fd);
+		(void)close(fd);
 		return EXIT_FAILURE;
 	}
 	(void)close(pipe_in[1]);

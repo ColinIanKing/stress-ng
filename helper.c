@@ -163,10 +163,10 @@ void stress_get_memlimits(
 		return;
 
 	if (fscanf(fp, "%zu", shmall) != 1) {
-		fclose(fp);
+		(void)fclose(fp);
 		return;
 	}
-	fclose(fp);
+	(void)fclose(fp);
 #endif
 }
 

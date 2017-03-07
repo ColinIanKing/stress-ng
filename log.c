@@ -53,7 +53,7 @@ int pr_yaml(FILE *fp, const char *const fmt, ...)
 static void pr_closelog(void)
 {
 	if (log_file) {
-		fclose(log_file);
+		(void)fclose(log_file);
 		log_file = NULL;
 	}
 }
