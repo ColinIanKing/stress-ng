@@ -28,9 +28,35 @@
 
 #include "zlib.h"
 
-#define DATA_SIZE 	(65536)		/* Must be a multiple of 8 bytes */
+#define DATA_SIZE_1K 	(KB)		/* Must be a multiple of 8 bytes */
+#define DATA_SIZE_4K 	(KB * 4)	/* Must be a multiple of 8 bytes */
+#define DATA_SIZE_16K 	(KB * 16)	/* Must be a multiple of 8 bytes */
+#define DATA_SIZE_64K 	(KB * 64)	/* Must be a multiple of 8 bytes */
+#define DATA_SIZE_128K 	(KB * 128)	/* Must be a multiple of 8 bytes */
 
-typedef void (*stress_rand_data_func)(uint32_t *data, const int size);
+#define DATA_SIZE DATA_SIZE_64K
+
+typedef void (*stress_zlib_rand_data_func)(uint32_t *data, const int size);
+
+typedef struct {
+	const char *name;			/* human readable form of random data generation selection */
+	const stress_zlib_rand_data_func func;	/* the random data generation function */
+} stress_zlib_rand_data_info_t;
+
+static const stress_zlib_rand_data_info_t *opt_zlib_rand_data_func;
+static const stress_zlib_rand_data_info_t zlib_rand_data_methods[];
+static volatile bool pipe_broken = false;
+
+/*
+ *  stress_sigpipe_handler()
+ *      SIGFPE handler
+ */
+static void MLOCKED stress_sigpipe_handler(int dummy)
+{
+	(void)dummy;
+
+	pipe_broken = true;
+}
 
 /*
  *  stress_rand_data_binary()
@@ -176,7 +202,20 @@ static void stress_rand_data_rarely_0(uint32_t *data, const int size)
 		*data = ~(1 << (mwc32() & 0x1f));
 }
 
-static const stress_rand_data_func rand_data_funcs[] = {
+/*
+ *  stress_fixed_data()
+ *	fill buffer with data that is 0x04030201
+ */
+static void stress_rand_data_fixed(uint32_t *data, const int size)
+{
+	const int n = size / sizeof(uint32_t);
+	register int i;
+
+	for (i = 0; i < n; i++, data++)
+		*data = 0x04030201;
+}
+
+static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_rarely_1,
 	stress_rand_data_rarely_0,
 	stress_rand_data_binary,
@@ -184,8 +223,62 @@ static const stress_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_01,
 	stress_rand_data_digits,
 	stress_rand_data_00_ff,
-	stress_rand_data_nybble
+	stress_rand_data_nybble,
+	stress_rand_data_fixed
 };
+
+/*
+ *  stress_zlib_random_test()
+ *	randomly select data generation function
+ */
+static HOT OPTIMIZE3 void stress_zlib_random_test(uint32_t *data, const int size)
+{
+	rand_data_funcs[mwc32() % SIZEOF_ARRAY(rand_data_funcs)](data, size);
+}
+
+
+/*
+ * Table of zlib data methods
+ */
+static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
+	{ "random",		stress_zlib_random_test },	/* Special "random" test */
+
+	{ "binary",		stress_rand_data_binary },
+	{ "text",		stress_rand_data_text },
+	{ "ascii01",	stress_rand_data_01 },
+	{ "asciidigits",	stress_rand_data_digits },
+	{ "00ff",	    stress_rand_data_00_ff },
+	{ "nybble",	    stress_rand_data_nybble },
+	{ "rarely1",	stress_rand_data_rarely_1 },
+	{ "rarely0",	stress_rand_data_rarely_0 },
+	{ "fixed",	    stress_rand_data_fixed },
+	{ NULL,			NULL }
+};
+
+
+/*
+ *  stress_set_zlib_method()
+ *	set the default zlib random data method
+ */
+int HOT OPTIMIZE3 stress_set_zlib_method(const char *name)
+{
+	stress_zlib_rand_data_info_t const *info = zlib_rand_data_methods;
+
+	for (info = zlib_rand_data_methods; info->func; info++) {
+		if (!strcmp(info->name, name)) {
+			opt_zlib_rand_data_func = info;
+			return 0;
+		}
+	}
+
+	fprintf(stderr, "zlib-method must be one of:");
+	for (info = zlib_rand_data_methods; info->func; info++) {
+		fprintf(stderr, " %s", info->name);
+	}
+	fprintf(stderr, "\n");
+
+	return -1;
+}
 
 /*
  *  stress_zlib_err()
@@ -222,43 +315,92 @@ static const char *stress_zlib_err(const int zlib_err)
  *	inflate compressed data out of the read
  *	end of a pipe fd
  */
-static int stress_zlib_inflate(const args_t *args, const int fd)
+static int stress_zlib_inflate(
+		const args_t *args,
+		const int fd,
+		const int xsum_fd)
 {
-	int ret;
+	int ret = EXIT_SUCCESS, err = 0;
 	z_stream stream_inf;
+	uint64_t xsum = 0, xsum_chars = 0;
+	unsigned char in[DATA_SIZE];
+	unsigned char out[DATA_SIZE];
 
 	stream_inf.zalloc = Z_NULL;
 	stream_inf.zfree = Z_NULL;
 	stream_inf.opaque = Z_NULL;
+	stream_inf.avail_in = 0;
+	stream_inf.next_in = Z_NULL;
 
 	ret = inflateInit(&stream_inf);
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib inflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
+		if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
+			pr_fail("%s: zlib inflate pipe write error: "
+				"errno=%d (%s)\n",
+				args->name, err, strerror(err));
+		}
 		return EXIT_FAILURE;
 	}
 
-	for (;;) {
+	do {
 		ssize_t sz;
-		unsigned char in[DATA_SIZE];
 
 		sz = read(fd, in, DATA_SIZE);
-		if (sz <= 0)
+		if (sz < 0) {
+			if ((errno != EINTR) && (errno != EPIPE)) {
+				pr_fail("%s: zlib inflate pipe read error: "
+					"errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)inflateEnd(&stream_inf);
+				return EXIT_FAILURE;
+			} else {
+				break;
+			}
+		}
+
+		if (sz == 0)
 			break;
+
 		stream_inf.avail_in = sz;
 		stream_inf.next_in = in;
 
 		do {
-			unsigned char out[DATA_SIZE];
-
 			stream_inf.avail_out = DATA_SIZE;
 			stream_inf.next_out = out;
 
 			ret = inflate(&stream_inf, Z_NO_FLUSH);
-		} while ((ret == Z_OK) && (stream_inf.avail_out == 0));
+			switch (ret) {
+			case Z_NEED_DICT:
+			case Z_DATA_ERROR:
+			case Z_MEM_ERROR:
+				(void)inflateEnd(&stream_inf);
+				return EXIT_FAILURE;
+			}
+
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				size_t i;
+
+				for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
+					xsum += (uint64_t)out[i];
+					xsum_chars++;
+				}
+			}
+		} while (stream_inf.avail_out == 0);
+	} while (ret != Z_STREAM_END);
+
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		pr_dbg("%s: inflate xsum value %ld, xsum_chars %ld\n",
+			args->name, xsum, xsum_chars);
 	}
 	(void)inflateEnd(&stream_inf);
 
+	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
+		pr_fail("%s: zlib inflate pipe write error: "
+			"errno=%d (%s)\n",
+			args->name, err, strerror(err));
+	}
 	return ((ret == Z_OK) || (ret == Z_STREAM_END)) ?
 		EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -269,13 +411,16 @@ static int stress_zlib_inflate(const args_t *args, const int fd)
  *	write end of a pipe fd
  */
 static int stress_zlib_deflate(
-	const args_t *args,
-	const int fd)
+		const args_t *args,
+		const int fd,
+		const int xsum_fd)
 {
-	int ret;
+	int ret = EXIT_SUCCESS, err = 0;
 	bool do_run;
 	z_stream stream_def;
-	uint64_t bytes_in = 0, bytes_out = 0;
+	uint64_t bytes_in = 0, bytes_out = 0, xsum = 0;
+	uint64_t xsum_chars = 0;
+	int flush = Z_FINISH;
 
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;
@@ -285,35 +430,51 @@ static int stress_zlib_deflate(
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib deflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
+		if (write(xsum_fd, &xsum, sizeof(xsum)) != sizeof(xsum)) {
+			if ((errno != EINTR) && (errno != EPIPE)) {
+				pr_fail("%s: zlib deflate pipe write error: "
+					"errno=%d (%s)\n",
+					args->name, err, strerror(err));
+			} else {
+				goto finish;
+			}
+		}
 		return EXIT_FAILURE;
 	}
 
 	do {
 		uint32_t in[DATA_SIZE / sizeof(uint32_t)];
+		unsigned char *xsum_in = (unsigned char *)in;
 
-		rand_data_funcs[mwc32() % SIZEOF_ARRAY(rand_data_funcs)](in, DATA_SIZE);
+		opt_zlib_rand_data_func->func(in, DATA_SIZE);
+
 		stream_def.avail_in = DATA_SIZE;
 		stream_def.next_in = (unsigned char *)in;
 
-		do_run = keep_stressing();
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			for (int i = 0; i < (int)(DATA_SIZE / sizeof(unsigned char)); i++) {
+				xsum += (uint64_t)xsum_in[i];
+				xsum_chars++;
+			}
+		}
 
+		do_run = keep_stressing();
+		flush = do_run ? Z_NO_FLUSH : Z_FINISH;
 		bytes_in += DATA_SIZE;
 
 		do {
 			unsigned char out[DATA_SIZE];
 			int def_size, rc;
-			int flush = do_run ? Z_NO_FLUSH : Z_FINISH;
 
 			stream_def.avail_out = DATA_SIZE;
 			stream_def.next_out = out;
 			rc = deflate(&stream_def, flush);
 
-			if ((rc != Z_OK) && (rc != Z_STREAM_END)) {
+			if (rc == Z_STREAM_ERROR) {
 				pr_fail("%s: zlib deflate error: %s\n",
 					args->name, stress_zlib_err(rc));
-				do_run = false;
-				ret = EXIT_FAILURE;
-				break;
+				(void)deflateEnd(&stream_def);
+				return EXIT_FAILURE;
 			}
 			def_size = DATA_SIZE - stream_def.avail_out;
 			bytes_out += def_size;
@@ -322,16 +483,32 @@ static int stress_zlib_deflate(
 					ret = EXIT_FAILURE;
 					pr_fail("%s: write error: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					(void)deflateEnd(&stream_def);
+					return EXIT_FAILURE;
+				} else {
+					(void)deflateEnd(&stream_def);
+					goto finish;
 				}
-				do_run = false;
-				break;
 			}
 			inc_counter(args);
-		} while (do_run && stream_def.avail_out == 0);
-	} while (do_run);
+		} while (stream_def.avail_out == 0);
+	} while (flush != Z_FINISH);
 
+finish:
 	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%%\n",
-		args->name, args->instance, 100.0 * (double)bytes_out / (double)bytes_in);
+		args->name, args->instance,
+		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0);
+
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		pr_dbg("%s: deflate xsum value %ld, xsum_chars %ld\n",
+			args->name, xsum, xsum_chars);
+	}
+
+	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0 ) {
+		pr_fail("%s: zlib deflate pipe write error: "
+			"errno=%d (%s)\n",
+			args->name, err, strerror(err));
+	}
 
 	(void)deflateEnd(&stream_def);
 	return ret;
@@ -343,8 +520,15 @@ static int stress_zlib_deflate(
  */
 int stress_zlib(const args_t *args)
 {
-	int ret, fds[2], status;
+	int ret = EXIT_SUCCESS, fds[2], deflate_xsum_fds[2], inflate_xsum_fds[2], status;
+	int err = 0;
 	pid_t pid;
+	uint64_t deflate_xsum = 0, inflate_xsum = 0;
+	ssize_t n;
+	bool good_xsum_reads = true;
+
+	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
@@ -352,10 +536,32 @@ int stress_zlib(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	if (pipe(deflate_xsum_fds) < 0) {
+		pr_err("%s: deflate xsum pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)close(fds[0]);
+		(void)close(fds[1]);
+		return EXIT_FAILURE;
+	}
+
+	if (pipe(inflate_xsum_fds) < 0) {
+		pr_err("%s: inflate xsum pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)close(fds[0]);
+		(void)close(fds[1]);
+		(void)close(deflate_xsum_fds[0]);
+		(void)close(deflate_xsum_fds[1]);
+		return EXIT_FAILURE;
+	}
+
 	pid = fork();
 	if (pid < 0) {
 		(void)close(fds[0]);
 		(void)close(fds[1]);
+		(void)close(deflate_xsum_fds[0]);
+		(void)close(deflate_xsum_fds[1]);
+		(void)close(inflate_xsum_fds[0]);
+		(void)close(inflate_xsum_fds[1]);
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -364,15 +570,49 @@ int stress_zlib(const args_t *args)
 		stress_parent_died_alarm();
 
 		(void)close(fds[1]);
-		ret = stress_zlib_inflate(args, fds[0]);
+		ret = stress_zlib_inflate(args, fds[0], inflate_xsum_fds[1]);
 		(void)close(fds[0]);
-
-		exit(ret);
+		_exit(ret);
 	} else {
 		(void)close(fds[0]);
-		ret = stress_zlib_deflate(args, fds[1]);
+		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1]);
 		(void)close(fds[1]);
 	}
+
+	n = read(deflate_xsum_fds[0], &deflate_xsum, sizeof(deflate_xsum));
+	if (n != sizeof(deflate_xsum)) {
+		good_xsum_reads = false;
+		if ((errno != EINTR) && (errno != EPIPE)) {
+			pr_fail("%s: zlib deflate xsum read pipe error: errno=%d (%s)\n",
+				args->name, err, strerror(err));
+		}
+	}
+	n = read(inflate_xsum_fds[0], &inflate_xsum, sizeof(inflate_xsum));
+	if (n != sizeof(inflate_xsum)) {
+		good_xsum_reads = false;
+		if ((errno != EINTR) && (errno != EPIPE)) {
+			pr_fail("%s: zlib inflate xsum read pipe error: errno=%d (%s)\n",
+				args->name, err, strerror(err));
+		}
+	}
+
+	if (pipe_broken || !good_xsum_reads) {
+		pr_inf("%s: cannot verify inflate/deflate checksums, "
+			"interrupted or broken pipe\n", args->name);
+	} else {
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (deflate_xsum != inflate_xsum)) {
+			pr_fail("%s: zlib xsum values do NOT match "
+				"deflate xsum %ld vs inflate xsum %ld\n",
+				args->name, deflate_xsum, inflate_xsum);
+			ret = EXIT_FAILURE;
+		}
+	}
+
+	(void)close(deflate_xsum_fds[0]);
+	(void)close(deflate_xsum_fds[1]);
+	(void)close(inflate_xsum_fds[0]);
+	(void)close(inflate_xsum_fds[1]);
+
 	(void)kill(pid, SIGKILL);
 	(void)waitpid(pid, &status, 0);
 
