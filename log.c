@@ -109,7 +109,7 @@ int pr_msg(
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			(void)fprintf(fp, "%s: %s", g_app_name, buf);
 		}
-		fflush(fp);
+		(void)fflush(fp);
 
 		if (flag & PR_FAIL) {
 			abort_fails++;
@@ -120,7 +120,7 @@ int pr_msg(
 					(void)fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);
-					fflush(fp);
+					(void)fflush(fp);
 				}
 			}
 		}
@@ -128,7 +128,7 @@ int pr_msg(
 		/* Log messages to log file if --log-file specified */
 		if (log_file) {
 			(void)fprintf(log_file, "%s: %s", g_app_name, buf);
-			fflush(log_file);
+			(void)fflush(log_file);
 		}
 
 		/* Log messages if syslog requested, don't log DEBUG */

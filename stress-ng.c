@@ -1554,7 +1554,7 @@ static void MLOCKED stress_stats_handler(int dummy)
 		freemem / (size_t)MB, totalmem / (size_t)MB);
 	/* Really shouldn't do this in a signal handler */
 	(void)fprintf(stdout, "%s\n", buffer);
-	fflush(stdout);
+	(void)fflush(stdout);
 }
 #endif
 
@@ -2049,7 +2049,7 @@ static int show_hogs(const uint32_t opt_class)
 	}
 	pr_inf("dispatching hogs:%s\n", str ? str : "");
 	free(str);
-	fflush(stdout);
+	(void)fflush(stdout);
 
 	return 0;
 }
