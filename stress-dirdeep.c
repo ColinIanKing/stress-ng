@@ -86,7 +86,7 @@ int stress_dirdeep(const args_t *args)
 			if (!keep_stressing())
 				goto abort;
 
-			snprintf(tmp, sizeof(tmp), "/%1" PRIu32, mwc32() % 10);
+			(void)snprintf(tmp, sizeof(tmp), "/%1" PRIu32, mwc32() % 10);
 			if (len + 2 >= sizeof(path))
 				break;
 

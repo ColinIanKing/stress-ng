@@ -1455,19 +1455,19 @@ static uint32_t get_class(char *const class_str)
 
 				cl = get_class_id(token);
 				if (cl) {
-					printf("class '%s' stressors:", token);
+					(void)printf("class '%s' stressors:", token);
 					for (j = 0; stressors[j].name; j++) {
 						if (stressors[j].class & cl)
-							printf(" %s", stressors[j].name);
+							(void)printf(" %s", stressors[j].name);
 					}
-					printf("\n");
+					(void)printf("\n");
 					return 0;
 				}
 			}
-			fprintf(stderr, "Unknown class: '%s', available classes:", token);
+			(void)fprintf(stderr, "Unknown class: '%s', available classes:", token);
 			for (i = 0; classes[i].class; i++)
-				fprintf(stderr, " %s", classes[i].name);
-			fprintf(stderr, "\n\n");
+				(void)fprintf(stderr, " %s", classes[i].name);
+			(void)fprintf(stderr, "\n\n");
 
 		}
 		class |= cl;
@@ -1489,7 +1489,7 @@ static int stress_exclude(char *const opt_exclude)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		uint32_t i = stressor_name_find(token);
 		if (!stressors[i].name) {
-			fprintf(stderr, "Unknown stressor: '%s', invalid exclude option\n", token);
+			(void)fprintf(stderr, "Unknown stressor: '%s', invalid exclude option\n", token);
 			return -1;
 		}
 		procs[i].exclude = true;
@@ -1549,11 +1549,11 @@ static void MLOCKED stress_stats_handler(int dummy)
 	}
 	stress_get_memlimits(&shmall, &freemem, &totalmem);
 
-	snprintf(ptr, buffer - ptr,
+	(void)snprintf(ptr, buffer - ptr,
 		"MemFree: %zu MB, MemTotal: %zu MB",
 		freemem / (size_t)MB, totalmem / (size_t)MB);
 	/* Really shouldn't do this in a signal handler */
-	fprintf(stdout, "%s\n", buffer);
+	(void)fprintf(stdout, "%s\n", buffer);
 	fflush(stdout);
 }
 #endif
@@ -1587,7 +1587,7 @@ static int stress_set_handler(const char *stress, const bool child)
  */
 static void version(void)
 {
-	printf("%s, version " VERSION "\n", g_app_name);
+	(void)printf("%s, version " VERSION "\n", g_app_name);
 }
 
 /*
@@ -1602,8 +1602,8 @@ static void usage_help(const help_t help_info[])
 		char opt_s[10] = "";
 
 		if (help_info[i].opt_s)
-			snprintf(opt_s, sizeof(opt_s), "-%s,", help_info[i].opt_s);
-		printf("%-6s--%-19s%s\n", opt_s,
+			(void)snprintf(opt_s, sizeof(opt_s), "-%s,", help_info[i].opt_s);
+		(void)printf("%-6s--%-19s%s\n", opt_s,
 			help_info[i].opt_l, help_info[i].description);
 	}
 }
@@ -1617,7 +1617,7 @@ static inline void show_stressors(void)
 	size_t i;
 
 	for (i = 0; stressors[i].name; i++)
-		printf("%s%s", i ? " " : "",
+		(void)printf("%s%s", i ? " " : "",
 			munge_underscore(stressors[i].name));
 	putchar('\n');
 }
@@ -1629,12 +1629,12 @@ static inline void show_stressors(void)
 static void usage(void)
 {
 	version();
-	printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
-	printf("\nGeneral control options:\n");
+	(void)printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
+	(void)printf("\nGeneral control options:\n");
 	usage_help(help_generic);
-	printf("\nStressor specific options:\n");
+	(void)printf("\nStressor specific options:\n");
 	usage_help(help_stressors);
-	printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
+	(void)printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
 	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", g_app_name);
 	exit(EXIT_SUCCESS);
 }
@@ -1909,7 +1909,7 @@ again:
 
 					(void)alarm(g_opt_timeout);
 					mwc_reseed();
-					snprintf(name, sizeof(name), "%s-%s", g_app_name,
+					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						munge_underscore(stressors[i].name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
@@ -2375,7 +2375,7 @@ static inline void set_random_stressors(const int32_t opt_random)
 		int32_t n = opt_random;
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
-			fprintf(stderr, "Cannot specify random option with "
+			(void)fprintf(stderr, "Cannot specify random option with "
 				"other stress processes selected\n");
 			exit(EXIT_FAILURE);
 		}
@@ -2743,7 +2743,7 @@ next_opt:
 			stress_set_qsort_size(optarg);
 			break;
 		case OPT_QUERY:
-			printf("Try '%s --help' for more information.\n", g_app_name);
+			(void)printf("Try '%s --help' for more information.\n", g_app_name);
 			exit(EXIT_FAILURE);
 			break;
 		case OPT_QUIET:
@@ -2962,7 +2962,7 @@ next_opt:
 			stress_set_zombie_max(optarg);
 			break;
 		default:
-			printf("Unknown option (%d)\n",c);
+			(void)printf("Unknown option (%d)\n",c);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -2970,12 +2970,12 @@ next_opt:
 		exit(EXIT_FAILURE);
 	if ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
-		fprintf(stderr, "cannot invoke --sequential and --all "
+		(void)fprintf(stderr, "cannot invoke --sequential and --all "
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
 	if (opt_class && !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
-		fprintf(stderr, "class option is only used with "
+		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
@@ -2992,7 +2992,7 @@ next_opt:
 		stress_get_processors_configured());
 
 	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
-		fprintf(stderr, "maximize and minimize cannot be used together\n");
+		(void)fprintf(stderr, "maximize and minimize cannot be used together\n");
 		exit(EXIT_FAILURE);
 	}
 

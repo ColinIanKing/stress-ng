@@ -107,7 +107,7 @@ int stress_fstat(const args_t *args)
 			goto free_cache;
 		}
 
-		snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
+		(void)snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
 		if (do_not_stat(path))
 			continue;
 		if ((di = calloc(1, sizeof(*di))) == NULL) {

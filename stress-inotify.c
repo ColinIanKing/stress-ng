@@ -207,7 +207,7 @@ static int rm_dir(const args_t *args, const char *path)
 			    !strcmp(d->d_name, ".."))
 				continue;
 
-			snprintf(filename, sizeof(filename), "%s/%s",
+			(void)snprintf(filename, sizeof(filename), "%s/%s",
 				path, d->d_name);
 			(void)rm_file(args, filename);
 		}
@@ -244,7 +244,7 @@ static inline void mk_filename(
 	const char *path,
 	const char *name)
 {
-	snprintf(filename, len, "%s/%s", path, name);
+	(void)snprintf(filename, len, "%s/%s", path, name);
 }
 
 /*

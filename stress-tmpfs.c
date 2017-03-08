@@ -87,7 +87,7 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 			continue;
 
 		/* We have a candidate, try to create a tmpfs file */
-		snprintf(path, sizeof(path), "%s/%s-%d-%" PRIu32 "-%" PRIu32,
+		(void)snprintf(path, sizeof(path), "%s/%s-%d-%" PRIu32 "-%" PRIu32,
 			mnts[i], args->name, args->pid, args->instance, rnd);
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (fd >= 0) {

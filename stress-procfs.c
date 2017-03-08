@@ -225,13 +225,13 @@ static void stress_proc_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
-				snprintf(name, sizeof(name),
+				(void)snprintf(name, sizeof(name),
 					"%s/%s", path, d->d_name);
 				stress_proc_dir(args, name, recurse, depth + 1, proc_write);
 			}
 			break;
 		case DT_REG:
-			snprintf(name, sizeof(name),
+			(void)snprintf(name, sizeof(name),
 				"%s/%s", path, d->d_name);
 			stress_proc_rw_threads(args, name, proc_write);
 			break;

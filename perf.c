@@ -222,7 +222,7 @@ static unsigned long perf_type_tracepoint_resolve_config(const int id)
 	if (not_found)
 		return UNRESOLVED;
 
-	snprintf(path, sizeof(path), "/sys/kernel/debug/tracing/events/%s/id",
+	(void)snprintf(path, sizeof(path), "/sys/kernel/debug/tracing/events/%s/id",
 		perf_tp_info[i].path);
 	if ((fp = fopen(path, "r")) == NULL)
 		return UNRESOLVED;
@@ -563,7 +563,7 @@ const char *perf_stat_scale(const uint64_t counter, const double duration)
 	}
 	scaled /= scale;
 
-	snprintf(buffer, sizeof(buffer), "%11.2f %-5s",
+	(void)snprintf(buffer, sizeof(buffer), "%11.2f %-5s",
 		scaled, suffix);
 
 	return buffer;
@@ -646,17 +646,17 @@ void perf_stat_dump(
 
 				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) &&
 				    (total_cpu_cycles > 0))
-					snprintf(extra, sizeof(extra),
+					(void)snprintf(extra, sizeof(extra),
 						" (%.3f instr. per cycle)",
 						(double)ct / (double)total_cpu_cycles);
 				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) &&
 				     (total_cache_refs > 0))
-					snprintf(extra, sizeof(extra),
+					(void)snprintf(extra, sizeof(extra),
 						" (%5.2f%%)",
 						100.0 * (double)ct / (double)total_cache_refs);
 				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) &&
 				    (total_branches > 0))
-					snprintf(extra, sizeof(extra),
+					(void)snprintf(extra, sizeof(extra),
 						" (%5.2f%%)",
 						100.0 * (double)ct / (double)total_branches);
 

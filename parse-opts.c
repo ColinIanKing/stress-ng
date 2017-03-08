@@ -33,7 +33,7 @@ void check_value(
 	const int val)
 {
 	if ((val < 0) || (val > STRESS_PROCS_MAX)) {
-		fprintf(stderr, "Number of %s workers must be between "
+		(void)fprintf(stderr, "Number of %s workers must be between "
 			"0 and %d\n", msg, STRESS_PROCS_MAX);
 		exit(EXIT_FAILURE);
 	}
@@ -51,7 +51,7 @@ void check_range(
 	const uint64_t hi)
 {
 	if ((val < lo) || (val > hi)) {
-		fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
+		(void)fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
 			" allowed: %" PRId64 " .. %" PRId64 "\n",
 			val, opt, lo, hi);
 		exit(EXIT_FAILURE);
@@ -71,7 +71,7 @@ void check_range_bytes(
 	if ((val < lo) || (val > hi)) {
 		char strval[32], strlo[32], strhi[32];
 
-		fprintf(stderr, "Value %sB is out of range for %s,"
+		(void)fprintf(stderr, "Value %sB is out of range for %s,"
 			" allowed: %sB .. %sB\n",
 			stress_uint64_to_str(strval, sizeof(strval), val),
 			opt,
@@ -101,7 +101,7 @@ static void ensure_positive(const char *const str)
 			if (!negative)
 				return;
 
-			fprintf(stderr, "Invalid negative number %s\n", str);
+			(void)fprintf(stderr, "Invalid negative number %s\n", str);
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -117,7 +117,7 @@ uint32_t get_uint32(const char *const str)
 
 	ensure_positive(str);
 	if (sscanf(str, "%12" SCNu32, &val) != 1) {
-		fprintf(stderr, "Invalid number %s\n", str);
+		(void)fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
 	return val;
@@ -132,7 +132,7 @@ int32_t get_int32(const char *const str)
 	int32_t val;
 
 	if (sscanf(str, "%12" SCNd32, &val) != 1) {
-		fprintf(stderr, "Invalid number %s\n", str);
+		(void)fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
 	return val;
@@ -148,7 +148,7 @@ uint64_t get_uint64(const char *const str)
 
 	ensure_positive(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
-		fprintf(stderr, "Invalid number %s\n", str);
+		(void)fprintf(stderr, "Invalid number %s\n", str);
 		exit(EXIT_FAILURE);
 	}
 	return val;
@@ -170,7 +170,7 @@ uint64_t get_uint64_scale(
 
 	val = get_uint64(str);
 	if (!len)  {
-		fprintf(stderr, "Value %s is an invalid size\n", str);
+		(void)fprintf(stderr, "Value %s is an invalid size\n", str);
 		exit(EXIT_FAILURE);
 	}
 	len--;
@@ -185,7 +185,7 @@ uint64_t get_uint64_scale(
 			return val * scales[i].scale;
 	}
 
-	printf("Illegal %s specifier %c\n", msg, str[len]);
+	(void)fprintf(stderr, "Illegal %s specifier %c\n", msg, str[len]);
 	exit(EXIT_FAILURE);
 }
 
@@ -229,15 +229,15 @@ uint64_t get_uint64_byte_memory(
 
 		/* Should NEVER happen */
 		if (instances < 1) {
-			fprintf(stderr, "Invalid number of instances\n");
+			(void)fprintf(stderr, "Invalid number of instances\n");
 			exit(EXIT_FAILURE);
 		}
 		if (sscanf(str, "%lf", &val) != 1) {
-			fprintf(stderr, "Invalid percentage %s\n", str);
+			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			exit(EXIT_FAILURE);
 		}
 		if (phys_mem == 0) {
-			fprintf(stderr, "Cannot determine physical memory size\n");
+			(void)fprintf(stderr, "Cannot determine physical memory size\n");
 			exit(EXIT_FAILURE);
 		}
 		return (uint64_t)((double)(phys_mem * val) / (100.0 * instances));
@@ -265,19 +265,17 @@ uint64_t get_uint64_byte_filesystem(
 
 		/* Should NEVER happen */
 		if (instances < 1) {
-			fprintf(stderr, "Invalid number of instances\n");
+			(void)fprintf(stderr, "Invalid number of instances\n");
 			exit(EXIT_FAILURE);
 		}
 		if (sscanf(str, "%lf", &val) != 1) {
-			fprintf(stderr, "Invalid percentage %s\n", str);
+			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			exit(EXIT_FAILURE);
 		}
 		if (bytes == 0) {
-			fprintf(stderr, "Cannot determine available space on file system\n");
+			(void)fprintf(stderr, "Cannot determine available space on file system\n");
 			exit(EXIT_FAILURE);
 		}
-		printf("BYTES: %" PRIu64 "\n",
-			(uint64_t)((double)(bytes * val) / (100.0 * instances)));
 		return (uint64_t)((double)(bytes * val) / (100.0 * instances));
         }
 	return get_uint64_byte(str);

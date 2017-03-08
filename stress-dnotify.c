@@ -122,7 +122,7 @@ static inline void mk_filename(
 	const char *path,
 	const char *name)
 {
-	snprintf(filename, len, "%s/%s", path, name);
+	(void)snprintf(filename, len, "%s/%s", path, name);
 }
 
 /*

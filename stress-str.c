@@ -634,11 +634,11 @@ int stress_set_str_method(const char *name)
 		}
 	}
 
-	fprintf(stderr, "str-method must be one of:");
+	(void)fprintf(stderr, "str-method must be one of:");
 	for (info = str_methods; info->func; info++) {
-		fprintf(stderr, " %s", info->name);
+		(void)fprintf(stderr, " %s", info->name);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }

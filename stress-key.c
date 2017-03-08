@@ -85,10 +85,10 @@ int stress_key(const args_t *args)
 
 		/* Add as many keys as we are allowed */
 		for (n = 0; n < MAX_KEYS; n++) {
-			snprintf(description, sizeof(description),
+			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, n);
-			snprintf(payload, sizeof(payload),
+			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 
 			keys[n] = sys_add_key("user", description,
@@ -117,7 +117,7 @@ int stress_key(const args_t *args)
 
 		/* And manipulate the keys */
 		for (i = 0; i < n; i++) {
-			snprintf(description, sizeof(description),
+			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
@@ -127,7 +127,7 @@ int stress_key(const args_t *args)
 				goto tidy;
 #endif
 
-			snprintf(payload, sizeof(payload),
+			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 #if defined(KEYCTL_UPDATE)
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
@@ -149,7 +149,7 @@ int stress_key(const args_t *args)
 #endif
 
 #if defined(__NR_request_key)
-			snprintf(description, sizeof(description),
+			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, i);
 			if (sys_request_key("user", description, NULL,

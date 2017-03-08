@@ -170,7 +170,7 @@ static void NORETURN waste_resources(
 			break;
 #endif
 #if defined(__NR_memfd_create)
-		snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
+		(void)snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
 		if (!g_keep_stressing_flag)
 			break;

@@ -63,7 +63,7 @@ int stress_seal(const args_t *args)
 		uint8_t *ptr;
 		char buf[page_size];
 
-		snprintf(filename, sizeof(filename), "%s-%d-%" PRIu32 "-%" PRIu32,
+		(void)snprintf(filename, sizeof(filename), "%s-%d-%" PRIu32 "-%" PRIu32,
 			args->name, args->pid, args->instance, mwc32());
 
 		fd = shim_memfd_create(filename, MFD_ALLOW_SEALING);

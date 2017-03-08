@@ -62,7 +62,7 @@ int stress_copy_file(const args_t *args)
 		goto tidy_dir;
 	(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), mwc32());
-	snprintf(tmp, sizeof(tmp), "%s-orig", filename);
+	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");
@@ -79,7 +79,7 @@ int stress_copy_file(const args_t *args)
 		goto tidy_in;
 	}
 
-	snprintf(tmp, sizeof(tmp), "%s-copy", filename);
+	(void)snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");

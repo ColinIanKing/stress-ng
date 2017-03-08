@@ -75,12 +75,12 @@ int stress_set_dccp_opts(const char *optarg)
 			return 0;
 		}
 	}
-	fprintf(stderr, "dccp-opts option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "dccp-opts option '%s' not known, options are:", optarg);
 	for (i = 0; dccp_opts[i].optname; i++) {
-		fprintf(stderr, "%s %s",
+		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", dccp_opts[i].optname);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 

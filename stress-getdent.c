@@ -135,7 +135,7 @@ static int stress_getdents_dir(
 			    strcmp(d->d_name, "..")) {
 				char newpath[PATH_MAX];
 
-				snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
+				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
 				if (rc < 0)
 					goto exit_free;
@@ -205,7 +205,7 @@ static int stress_getdents64_dir(
 			    strcmp(d->d_name, "..")) {
 				char newpath[PATH_MAX];
 
-				snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
+				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
 				if (rc < 0)
 					goto exit_free;

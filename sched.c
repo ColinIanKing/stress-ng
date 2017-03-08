@@ -105,7 +105,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 		}
 		if ((param.sched_priority < min) ||
 		    (param.sched_priority > max)) {
-			fprintf(stderr, "Scheduler priority level must be "
+			(void)fprintf(stderr, "Scheduler priority level must be "
 				"set between %d and %d\n",
 				min, max);
 			exit(EXIT_FAILURE);
@@ -124,7 +124,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 	}
 	rc = sched_setscheduler(getpid(), sched, &param);
 	if (rc < 0) {
-		fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
+		(void)fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -168,8 +168,8 @@ int32_t get_opt_sched(const char *const str)
 		return SCHED_DEADLINE;
 #endif
 	if (strcmp("which", str))
-		fprintf(stderr, "Invalid sched option: %s\n", str);
-	fprintf(stderr, "Available scheduler options are:"
+		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
+	(void)fprintf(stderr, "Available scheduler options are:"
 #if defined(SCHED_OTHER)
 		" other"
 #endif

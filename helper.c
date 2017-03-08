@@ -222,7 +222,7 @@ uint64_t stress_get_filesystem_size(void)
 	if (blocks > max_blocks)
 		blocks = max_blocks;
 
-	printf("stress_get_filesystem_size: %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",
+	(void)printf("stress_get_filesystem_size: %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",
 		(uint64_t)buf.f_bsize, (uint64_t)blocks,
 		(uint64_t)buf.f_bsize * blocks);
 
@@ -443,7 +443,7 @@ int stress_set_temp_path(const char *path)
 	stress_temp_path = path;
 
 	if (access(path, R_OK | W_OK) < 0) {
-		fprintf(stderr, "temp-path '%s' must be readable "
+		(void)fprintf(stderr, "temp-path '%s' must be readable "
 			"and writeable\n", path);
 		return -1;
 	}
@@ -614,10 +614,10 @@ const char *stress_strsignal(const int signum)
 		str = strsignal(signum);
 #endif
 	if (str) {
-		snprintf(buffer, sizeof(buffer), "signal %d (%s)",
+		(void)snprintf(buffer, sizeof(buffer), "signal %d (%s)",
 			signum, str);
 	} else {
-		snprintf(buffer, sizeof(buffer), "signal %d",
+		(void)snprintf(buffer, sizeof(buffer), "signal %d",
 			signum);
 	}
 	return buffer;
@@ -1115,7 +1115,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 		}
 	}
 
-	snprintf(str, len, "%.1f%s", (double)val / scale, suffix);
+	(void)snprintf(str, len, "%.1f%s", (double)val / scale, suffix);
 
 	return str;
 }

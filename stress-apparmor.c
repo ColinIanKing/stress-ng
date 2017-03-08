@@ -62,7 +62,7 @@ int stress_apparmor_supported(void)
 		return -1;
 	}
 	/* ..and see if profiles are accessible */
-	snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
+	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		switch (errno) {
 		case EACCES:
@@ -168,13 +168,13 @@ static void stress_apparmor_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
-				snprintf(name, sizeof(name),
+				(void)snprintf(name, sizeof(name),
 					"%s/%s", path, d->d_name);
 				stress_apparmor_dir(name, recurse, depth + 1);
 			}
 			break;
 		case DT_REG:
-			snprintf(name, sizeof(name),
+			(void)snprintf(name, sizeof(name),
 				"%s/%s", path, d->d_name);
 			stress_apparmor_read(name);
 			break;
@@ -235,7 +235,7 @@ static int apparmor_stress_profiles(
 	char path[PATH_MAX];
 
 	(void)name;
-	snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
+	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
 
 	do {
 		stress_apparmor_read(path);
@@ -257,7 +257,7 @@ static int apparmor_stress_features(
 	char path[PATH_MAX];
 
 	(void)name;
-	snprintf(path, sizeof(path), "%s/%s", apparmor_path, "features");
+	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "features");
 
 	do {
 		stress_apparmor_dir(path, true, 0);

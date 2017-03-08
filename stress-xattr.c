@@ -58,8 +58,8 @@ int stress_xattr(const args_t *args)
 		char *buffer;
 
 		for (i = 0; i < 4096; i++) {
-			snprintf(attrname, sizeof(attrname), "user.var_%d", i);
-			snprintf(value, sizeof(value), "orig-value-%d", i);
+			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
+			(void)snprintf(value, sizeof(value), "orig-value-%d", i);
 
 			ret = fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
@@ -75,8 +75,8 @@ int stress_xattr(const args_t *args)
 			}
 		}
 		for (j = 0; j < i; j++) {
-			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
-			snprintf(value, sizeof(value), "value-%d", j);
+			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
+			(void)snprintf(value, sizeof(value), "value-%d", j);
 
 			ret = fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
@@ -90,8 +90,8 @@ int stress_xattr(const args_t *args)
 		for (j = 0; j < i; j++) {
 			char tmp[sizeof(value)];
 
-			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
-			snprintf(value, sizeof(value), "value-%d", j);
+			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
+			(void)snprintf(value, sizeof(value), "value-%d", j);
 
 			ret = fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
@@ -123,7 +123,7 @@ int stress_xattr(const args_t *args)
 			}
 		}
 		for (j = 0; j < i; j++) {
-			snprintf(attrname, sizeof(attrname), "user.var_%d", j);
+			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
 			ret = fremovexattr(fd, attrname);
 			if (ret < 0) {

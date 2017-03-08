@@ -253,7 +253,7 @@ int stress_hdd_opts(char *opts)
 
 					for (j = 0; hdd_opts[j].opt; j++) {
 						if ((exclude & hdd_opts[j].flag) == exclude) {
-							fprintf(stderr,
+							(void)fprintf(stderr,
 								"hdd-opt option '%s' is not "
 								"compatible with option '%s'\n",
 								token,
@@ -270,11 +270,11 @@ int stress_hdd_opts(char *opts)
 			}
 		}
 		if (!opt_ok) {
-			fprintf(stderr, "hdd-opt option '%s' not known, options are:", token);
+			(void)fprintf(stderr, "hdd-opt option '%s' not known, options are:", token);
 			for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++)
-				fprintf(stderr, "%s %s",
+				(void)fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", hdd_opts[i].opt);
-			fprintf(stderr, "\n");
+			(void)fprintf(stderr, "\n");
 			return -1;
 		}
 	}

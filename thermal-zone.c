@@ -57,7 +57,7 @@ int tz_init(tz_info_t **tz_info_list)
 			(void)closedir(dir);
 			return -1;
 		}
-		snprintf(path, sizeof(path),
+		(void)snprintf(path, sizeof(path),
 			"/sys/class/thermal/%s/type",
 			entry->d_name);
 
@@ -123,7 +123,7 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 		FILE *fp;
 		size_t i = tz_info->index;
 
-		snprintf(path, sizeof(path),
+		(void)snprintf(path, sizeof(path),
 			"/sys/class/thermal/%s/temp",
 			tz_info->path);
 

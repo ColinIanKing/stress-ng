@@ -233,7 +233,7 @@ static void stress_sys_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
-				snprintf(filename, sizeof(filename),
+				(void)snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
 				stress_sys_dir(args, filename, recurse,
 					depth + 1, sys_rw);
@@ -241,7 +241,7 @@ static void stress_sys_dir(
 			break;
 		case DT_REG:
 			if (sys_rw) {
-				snprintf(filename, sizeof(filename),
+				(void)snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
 				stress_sys_rw_threads(args, filename);
 			}

@@ -64,11 +64,11 @@ int stress_filename_opts(const char *opt)
 			return 0;
 		}
 	}
-	fprintf(stderr, "filename-opt option '%s' not known, options are:", opt);
+	(void)fprintf(stderr, "filename-opt option '%s' not known, options are:", opt);
 	for (i = 0; filename_opts[i].opt_text; i++)
-		fprintf(stderr, "%s %s",
+		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", filename_opts[i].opt_text);
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 

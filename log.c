@@ -107,7 +107,7 @@ int pr_msg(
 			int n = snprintf(buf, sizeof(buf), "%s [%d] ",
 				type, (int)getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
-			fprintf(fp, "%s: %s", g_app_name, buf);
+			(void)fprintf(fp, "%s: %s", g_app_name, buf);
 		}
 		fflush(fp);
 
@@ -117,7 +117,7 @@ int pr_msg(
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
 					g_keep_stressing_flag = false;
-					fprintf(fp, "info: %d failures "
+					(void)fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);
 					fflush(fp);
@@ -127,7 +127,7 @@ int pr_msg(
 
 		/* Log messages to log file if --log-file specified */
 		if (log_file) {
-			fprintf(log_file, "%s: %s", g_app_name, buf);
+			(void)fprintf(log_file, "%s: %s", g_app_name, buf);
 			fflush(log_file);
 		}
 

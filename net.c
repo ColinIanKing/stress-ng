@@ -80,11 +80,11 @@ int stress_set_net_domain(
 			return 0;
 		}
 	}
-	fprintf(stderr, "%s: domain must be one of:", name);
+	(void)fprintf(stderr, "%s: domain must be one of:", name);
 	for (i = 0; i < SIZEOF_ARRAY(domains); i++)
 		if (domain_mask & domains[i].domain_flags)
-			fprintf(stderr, " %s", domains[i].name);
-	fprintf(stderr, "\n");
+			(void)fprintf(stderr, " %s", domains[i].name);
+	(void)fprintf(stderr, "\n");
 	*domain = 0;
 	return -1;
 }
@@ -154,7 +154,7 @@ void stress_set_sockaddr(
 
 		memset(&addr, 0, sizeof(addr));
 		addr.sun_family = AF_UNIX;
-		snprintf(addr.sun_path, sizeof(addr.sun_path),
+		(void)snprintf(addr.sun_path, sizeof(addr.sun_path),
 			"/tmp/stress-ng-%d-%" PRIu32,
 			(int)ppid, instance);
 		*sockaddr = (struct sockaddr *)&addr;

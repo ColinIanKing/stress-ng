@@ -37,12 +37,12 @@ static int pagein_proc(const pid_t pid)
 	const size_t page_size = stress_get_pagesize();
 	size_t pages = 0;
 
-	snprintf(path, sizeof(path), "/proc/%d/mem", pid);
+	(void)snprintf(path, sizeof(path), "/proc/%d/mem", pid);
 	fdmem = open(path, O_RDONLY);
 	if (fdmem < 0)
 		return -errno;
 
-	snprintf(path, sizeof(path), "/proc/%d/maps", pid);
+	(void)snprintf(path, sizeof(path), "/proc/%d/maps", pid);
 	fpmap = fopen(path, "r");
 	if (!fpmap) {
 		(void)close(fdmem);

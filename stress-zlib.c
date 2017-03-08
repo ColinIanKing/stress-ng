@@ -199,7 +199,7 @@ static const char *stress_zlib_err(const int zlib_err)
 	case Z_OK:
 		return "no error";
 	case Z_ERRNO:
-		snprintf(buf, sizeof(buf), "system error, errno=%d (%s)\n",
+		(void)snprintf(buf, sizeof(buf), "system error, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return buf;
 	case Z_STREAM_ERROR:
@@ -211,7 +211,7 @@ static const char *stress_zlib_err(const int zlib_err)
 	case Z_VERSION_ERROR:
 		return "zlib version mismatch";
 	default:
-		snprintf(buf, sizeof(buf), "unknown zlib error %d\n", zlib_err);
+		(void)snprintf(buf, sizeof(buf), "unknown zlib error %d\n", zlib_err);
 		return buf;
 	}
 }

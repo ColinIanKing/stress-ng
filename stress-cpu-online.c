@@ -40,7 +40,7 @@ static int stress_cpu_online_set(
 	ssize_t ret;
 	int fd, rc = EXIT_SUCCESS;
 
-	snprintf(filename, sizeof(filename),
+	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
 	fd = open(filename, O_WRONLY);
 	if (fd < 0) {
@@ -102,7 +102,7 @@ int stress_cpu_online(const args_t *args)
 		char filename[PATH_MAX];
 		int ret;
 
-		snprintf(filename, sizeof(filename),
+		(void)snprintf(filename, sizeof(filename),
 			"/sys/devices/system/cpu/cpu%" PRId32 "/online", i);
 		ret = access(filename, O_RDWR);
 		if (ret == 0) {

@@ -606,11 +606,11 @@ int stress_set_wcs_method(const char *name)
 		}
 	}
 
-	fprintf(stderr, "wcs-method must be one of:");
+	(void)fprintf(stderr, "wcs-method must be one of:");
 	for (wcsfunction = wcs_methods; wcsfunction->func; wcsfunction++) {
-		fprintf(stderr, " %s", wcsfunction->name);
+		(void)fprintf(stderr, " %s", wcsfunction->name);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }

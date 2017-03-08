@@ -122,7 +122,7 @@ static inline int stress_rtc_sys(const args_t *args)
 		char buf[4096];
 		int ret;
 
-		snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
+		(void)snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
 		ret = system_read(path, buf, sizeof(buf));
 		if (ret < 0) {
 			if (ret == -EINTR) {

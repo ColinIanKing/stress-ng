@@ -128,7 +128,7 @@ static void spawn_several(const char *name, int n, int max)
 	if (pid == 0) {
 		char newname[128];
 
-		snprintf(newname, sizeof(newname), "stress-ng-%d", n);
+		(void)snprintf(newname, sizeof(newname), "stress-ng-%d", n);
 		set_proc_name(newname);
 
 		if (n >= max) {

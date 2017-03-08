@@ -207,7 +207,7 @@ int stress_quota(const args_t *args)
 	while ((d = readdir(dir)) != NULL) {
 		char path[PATH_MAX];
 
-		snprintf(path, sizeof(path), "/dev/%s", d->d_name);
+		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
 		if (lstat(path, &buf) < 0)
 			continue;
 		if ((buf.st_mode & S_IFBLK) == 0)

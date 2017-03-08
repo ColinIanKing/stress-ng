@@ -98,12 +98,12 @@ int stress_set_socket_opts(const char *optarg)
 			return 0;
 		}
 	}
-	fprintf(stderr, "sock-opts option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "sock-opts option '%s' not known, options are:", optarg);
 	for (i = 0; socket_opts[i].optname; i++) {
-		fprintf(stderr, "%s %s",
+		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", socket_opts[i].optname);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 
@@ -121,12 +121,12 @@ int stress_set_socket_type(const char *optarg)
 			return 0;
 		}
 	}
-	fprintf(stderr, "sock-type option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "sock-type option '%s' not known, options are:", optarg);
 	for (i = 0; socket_type[i].typename; i++) {
-		fprintf(stderr, "%s %s",
+		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", socket_type[i].typename);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 

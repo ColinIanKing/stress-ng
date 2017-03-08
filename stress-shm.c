@@ -121,7 +121,7 @@ static int stress_shm_posix_child(
 			if (!g_keep_stressing_flag)
 				goto reap;
 
-			snprintf(shm_name, SHM_NAME_LEN,
+			(void)snprintf(shm_name, SHM_NAME_LEN,
 				"/stress-ng-%d-%" PRIx64 "-%" PRIx32,
 					(int)pid, id, mwc32());
 

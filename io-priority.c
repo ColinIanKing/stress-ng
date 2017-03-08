@@ -45,19 +45,19 @@ int32_t get_opt_ionice_class(const char *const str)
 		return IOPRIO_CLASS_RT;
 #endif
 	if (strcmp("which", str))
-		fprintf(stderr, "Invalid ionice-class option: %s\n", str);
+		(void)fprintf(stderr, "Invalid ionice-class option: %s\n", str);
 
-	fprintf(stderr, "Available options are:");
+	(void)fprintf(stderr, "Available options are:");
 #if defined(IOPRIO_CLASS_IDLE)
-	fprintf(stderr, " idle");
+	(void)fprintf(stderr, " idle");
 #endif
 #if defined(IOPRIO_CLASS_BE)
-	fprintf(stderr, " besteffort be");
+	(void)fprintf(stderr, " besteffort be");
 #endif
 #if defined(IOPRIO_CLASS_RT)
-	fprintf(stderr, " realtime rt");
+	(void)fprintf(stderr, " realtime rt");
 #endif
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 
 	exit(EXIT_FAILURE);
 }
@@ -112,7 +112,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 	case IOPRIO_CLASS_RT:
 	case IOPRIO_CLASS_BE:
 		if (level < 0 || level > 7) {
-			fprintf(stderr, "Priority levels range from 0 "
+			(void)fprintf(stderr, "Priority levels range from 0 "
 				"(max) to 7 (min)\n");
 			exit(EXIT_FAILURE);
 		}
@@ -120,18 +120,18 @@ void set_iopriority(const int32_t class, const int32_t level)
 	case IOPRIO_CLASS_IDLE:
 		if ((level != UNDEFINED) &&
 		    (level != 0))
-			fprintf(stderr, "Cannot set priority level "
+			(void)fprintf(stderr, "Cannot set priority level "
 				"with idle, defaulting to 0\n");
 		data = 0;
 		break;
 	default:
-		fprintf(stderr, "Unknown priority class: %d\n", class);
+		(void)fprintf(stderr, "Unknown priority class: %d\n", class);
 		exit(EXIT_FAILURE);
 	}
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
 		IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
-		fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
+		(void)fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
