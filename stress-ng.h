@@ -1867,6 +1867,7 @@ typedef enum {
 
 	OPT_ZLIB,
 	OPT_ZLIB_OPS,
+	OPT_ZLIB_METHOD,
 
 	OPT_ZOMBIE,
 	OPT_ZOMBIE_OPS,
@@ -2307,6 +2308,7 @@ extern void stress_set_vm_hang(const char *optarg);
 extern int  stress_set_vm_method(const char *name);
 extern void stress_set_vm_rw_bytes(const char *optarg);
 extern void stress_set_vm_splice_bytes(const char *optarg);
+extern int  stress_set_zlib_method(const char *name);
 extern void stress_set_zombie_max(const char *optarg);
 
 /*

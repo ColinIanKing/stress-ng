@@ -855,6 +855,7 @@ static const struct option long_options[] = {
 	{ "zero-ops",	1,	0,	OPT_ZERO_OPS },
 	{ "zlib",	1,	0,	OPT_ZLIB },
 	{ "zlib-ops",	1,	0,	OPT_ZLIB_OPS },
+	{ "zlib-method",1,	0,	OPT_ZLIB_METHOD },
 	{ "zombie",	1,	0,	OPT_ZOMBIE },
 	{ "zombie-ops",	1,	0,	OPT_ZOMBIE_OPS },
 	{ "zombie-max",	1,	0,	OPT_ZOMBIE_MAX },
@@ -1364,6 +1365,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
 	{ NULL,		"zlib N",		"start N workers compressing data with zlib" },
 	{ NULL,		"zlib-ops N",		"stop after N zlib bogo compression operations" },
+	{ NULL,		"zlib-method m",	"specify stress zlib random data generation method" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
 	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
@@ -2429,6 +2431,7 @@ int main(int argc, char **argv)
 	(void)stress_set_wcs_method("all");
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
+	(void)stress_set_zlib_method("random");
 
 	g_pgrp = getpid();
 
@@ -2957,6 +2960,10 @@ next_opt:
 			break;
 		case OPT_YAML:
 			yamlfile = optarg;
+			break;
+		case OPT_ZLIB_METHOD:
+			if (stress_set_zlib_method(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_ZOMBIE_MAX:
 			stress_set_zombie_max(optarg);
