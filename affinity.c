@@ -38,7 +38,7 @@ static void check_cpu_affinity_range(
 	const int32_t cpu)
 {
 	if ((cpu < 0) || ((max_cpus != -1) && (cpu >= max_cpus))) {
-		fprintf(stderr, "%s: invalid range, %" PRId32 " is not allowed, "
+		(void)fprintf(stderr, "%s: invalid range, %" PRId32 " is not allowed, "
 			"allowed range: 0 to %" PRId32 "\n", option,
 			cpu, max_cpus - 1);
 		exit(EXIT_FAILURE);
@@ -56,7 +56,7 @@ static int get_cpu(char *const str)
 	int val;
 
 	if (sscanf(str, "%d", &val) != 1) {
-		fprintf(stderr, "%s: invalid number '%s'\n", option, str);
+		(void)fprintf(stderr, "%s: invalid number '%s'\n", option, str);
 		exit(EXIT_FAILURE);
 	}
 	return val;
@@ -86,12 +86,12 @@ int set_cpu_affinity(char *const arg)
 			if (*ptr)
 				hi = get_cpu(ptr);
 			else {
-				fprintf(stderr, "%s: expecting number following "
+				(void)fprintf(stderr, "%s: expecting number following "
 					"'-' in '%s'\n", option, token);
 				exit(EXIT_FAILURE);
 			}
 			if (hi <= lo) {
-				fprintf(stderr, "%s: invalid range in '%s' "
+				(void)fprintf(stderr, "%s: invalid range in '%s' "
 					"(end value must be larger than "
 					"start value\n", option, token);
 				exit(EXIT_FAILURE);
@@ -117,7 +117,7 @@ int set_cpu_affinity(char *const arg)
 {
 	(void)arg;
 
-	fprintf(stderr, "%s: setting CPU affinity not supported\n", option);
+	(void)fprintf(stderr, "%s: setting CPU affinity not supported\n", option);
 	exit(EXIT_FAILURE);
 }
 #endif
