@@ -931,7 +931,11 @@ int stress_sighandler(
 		memset(stack, 0, sizeof(stack));
 		ss.ss_sp = (uint8_t *)align_address(stack_top, STACK_ALIGNMENT);
 		ss.ss_size = SIGSTKSZ;
+#if defined(SA_ONSTACK)
+		ss.ss_flags = SA_ONSTACK;
+#else
 		ss.ss_flags = 0;
+#endif
 		if (sigaltstack(&ss, NULL) < 0) {
 			pr_fail("%s: sigaltstack %s: errno=%d (%s)\n",
 				name, stress_strsignal(signum),
