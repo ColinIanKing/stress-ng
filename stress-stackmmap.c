@@ -48,7 +48,7 @@ static void stress_segvhandler(int dummy)
  *  force msync on the map'd region if page boundary
  *  has changed
  */
-static void stress_stackmmap_push_msync(void)
+static void NORETURN stress_stackmmap_push_msync(void)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
 	static void *laddr;
@@ -59,6 +59,12 @@ static void stress_stackmmap_push_msync(void)
 	}
 	if (g_keep_stressing_flag)
 		stress_stackmmap_push_msync();
+	else {
+		/* Swap back to the main loop and terminate */
+		swapcontext(&c_test, &c_main);
+	}
+	/* Should *never* get here */
+	_exit(EXIT_FAILURE);
 }
 
 /*
@@ -154,8 +160,17 @@ int stress_stackmmap(const args_t *args)
 	 */
 	do {
 		ret = sigsetjmp(jmp_env, 1);
-		if (!ret)
+		if (!ret) {
 			swapcontext(&c_main, &c_test);
+			/*
+			 *  we end up here when stress_stackmmap_push_msync
+			 *  performs a swapcontext back to this point when
+			 *  we have reached the end of the run when
+			 *  g_keep_stressing_flag is flipped to false on
+			 *  a SIGALRM timeout.
+			 */
+			break;
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
