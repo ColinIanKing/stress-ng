@@ -909,8 +909,9 @@ int stress_sighandler(
 	void (*handler)(int),
 	struct sigaction *orig_action)
 {
-	static bool set_altstack = false;
 	struct sigaction new_action;
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	static bool set_altstack = false;
 
 	/*
 	 *  Signal handlers should really be using an alternative
@@ -939,6 +940,7 @@ int stress_sighandler(
 		}
 		set_altstack = true;
 	}
+#endif
 
 	memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
