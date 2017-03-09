@@ -124,7 +124,6 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
 	const args_t *args = ctxt->args;
 
@@ -133,7 +132,6 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	 *  handle these
 	 */
 	sigprocmask(SIG_BLOCK, &set, NULL);
-	memset(stack, 0, sizeof(stack));
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -141,13 +139,10 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	memset(stack, 0, sizeof(stack));
+	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
-	}
+
 	while (keep_running && g_keep_stressing_flag)
 		stress_sys_rw(args, ctxt->path, ctxt->badbuf);
 

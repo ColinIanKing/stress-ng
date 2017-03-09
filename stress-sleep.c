@@ -69,10 +69,8 @@ void stress_adjust_sleep_max(uint64_t max)
 static void *stress_pthread_func(void *c)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	stack_t ss;
 	static void *nowt = NULL;
 	ctxt_t *ctxt = (ctxt_t *)c;
-	const args_t *args = (const args_t *)ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -86,13 +84,9 @@ static void *stress_pthread_func(void *c)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	memset(stack, 0, sizeof(stack));
+	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
-	}
 
 	while (!thread_terminate) {
 		struct timespec tv;

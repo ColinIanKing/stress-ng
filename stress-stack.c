@@ -44,13 +44,9 @@ static void MLOCKED stress_segvhandler(int dummy)
  */
 int stress_stack(const args_t *args)
 {
-#if !defined(__minix__)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	stack_t ss;
-#endif
 	pid_t pid;
 
-#if !defined(__minix__)
 	/*
 	 *  We need to create an alternative signal
 	 *  stack so when a segfault occurs we use
@@ -59,14 +55,8 @@ int stress_stack(const args_t *args)
 	 *  stack
 	 */
 	memset(stack, 0, sizeof(stack));
-	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
-	}
-#endif
 
 again:
 	pid = fork();

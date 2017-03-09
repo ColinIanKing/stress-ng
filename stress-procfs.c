@@ -116,9 +116,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	stack_t ss;
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
-	const args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -133,13 +131,9 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 *  so this is probably just totally unncessary.
 	 */
 	memset(stack, 0, sizeof(stack));
-	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
-	}
+
 	while (keep_running && g_keep_stressing_flag)
 		stress_proc_rw(ctxt->path, ctxt->badbuf, ctxt->proc_write);
 

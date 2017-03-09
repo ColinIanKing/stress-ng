@@ -26,10 +26,6 @@
 
 #define STACK_SIZE      (16384)
 
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ]; /* ensure we have a sig stack */
-static stack_t ss;
-#endif
 
 /*
  *  stress_vforkmany()
@@ -45,26 +41,12 @@ int stress_vforkmany(const args_t *args)
 	static int status;
 	static pid_t mypid;
 	static double start;
+	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
 
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-	/*
-	 *  We should use an alterative stack, for
-	 *  Linux we probably should use SS_AUTODISARM
-	 *  if it is available
-	 */
+	/* We should use an alterative signal stack */
 	memset(stack_sig, 0, sizeof(stack_sig));
-	ss.ss_sp = (void *)align_address(stack_sig, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-#if defined SS_AUTODISARM
-	ss.ss_flags = SS_AUTODISARM;
-#else
-	ss.ss_flags = 0;
-#endif
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
-	}
-#endif
 
 	start = time_now();
 	mypid = getpid();

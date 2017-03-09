@@ -40,7 +40,6 @@ static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	stack_t ss;
 	const args_t *args = (args_t *)arg;
 
 	/*
@@ -55,13 +54,10 @@ static void *stress_membarrier_thread(void *arg)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	ss.ss_sp = (void *)align_address(stack, STACK_ALIGNMENT);
-	ss.ss_size = SIGSTKSZ;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
-		pr_fail_err("sigaltstack");
+	memset(stack, 0, sizeof(stack));
+	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
-	}
+
 	while (keep_running && g_keep_stressing_flag) {
 		int ret;
 

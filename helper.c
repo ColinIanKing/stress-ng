@@ -900,6 +900,37 @@ size_t stress_get_file_limit(void)
 }
 
 /*
+ *  stress_sigaltstack()
+ *	attempt to set up an alternative signal stack
+ *	  stack - must be at least 4K
+ *	  size  - size of stack (- STACK_ALIGNMENT)
+ */
+int stress_sigaltstack(const void *stack, const size_t size)
+{
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	stack_t ss;
+	const ssize_t stack_offset =
+		stress_get_stack_direction() * (size - 64);
+	const uint8_t *stack_top = (uint8_t *)stack + stack_offset;
+
+	if (size < (KB * 4)) {
+		pr_err("sigaltstack stack size %lu must be more than 4K\n",
+			size);
+		return -1;
+	}
+	ss.ss_sp = (uint8_t *)align_address(stack_top, STACK_ALIGNMENT);
+	ss.ss_size = size;
+	ss.ss_flags = 0;
+	if (sigaltstack(&ss, NULL) < 0) {
+		pr_fail("sigaltstack failed: errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+#endif
+	return 0;
+}
+
+/*
  *  stress_sighandler()
  *	set signal handler in generic way
  */
@@ -922,22 +953,10 @@ int stress_sighandler(
 	 *  call to stress_sighandler.
 	 */
 	if (!set_altstack) {
-		stack_t ss;
 		static uint8_t MLOCKED stack[SIGSTKSZ + STACK_ALIGNMENT];
-		const ssize_t stack_offset =
-			stress_get_stack_direction() * (SIGSTKSZ - 64);
-		const uint8_t *stack_top = stack + stack_offset;
 
-		memset(stack, 0, sizeof(stack));
-		ss.ss_sp = (uint8_t *)align_address(stack_top, STACK_ALIGNMENT);
-		ss.ss_size = SIGSTKSZ;
-		ss.ss_flags = 0;
-		if (sigaltstack(&ss, NULL) < 0) {
-			pr_fail("%s: sigaltstack %s: errno=%d (%s)\n",
-				name, stress_strsignal(signum),
-				errno, strerror(errno));
+		if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 			return -1;
-		}
 		set_altstack = true;
 	}
 #endif
