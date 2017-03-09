@@ -96,10 +96,14 @@
 
 #if defined(TEST_ATOMIC_BUILD)
 
-mwc_t __mwc = {
-	MWC_SEED_W,
-	MWC_SEED_Z
-};
+uint64_t mwc64(void)
+{
+	static uint64_t v = 0xdeadbeef;
+
+	v = (v >> 1) ^ (v << 63);
+
+	return v;
+}
 
 int main(void)
 {
@@ -126,10 +130,10 @@ int main(void)
 int stress_atomic(const args_t *args)
 {
 	do {
-		DO_ATOMIC_OPS(uint64_t, &shared->atomic.val64);
-		DO_ATOMIC_OPS(uint32_t, &shared->atomic.val32);
-		DO_ATOMIC_OPS(uint16_t, &shared->atomic.val16);
-		DO_ATOMIC_OPS(uint8_t, &shared->atomic.val8);
+		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
+		DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
+		DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
+		DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
 		inc_counter(args);
 	} while (keep_stressing());
 
