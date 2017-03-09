@@ -909,7 +909,36 @@ int stress_sighandler(
 	void (*handler)(int),
 	struct sigaction *orig_action)
 {
+	static bool set_altstack = false;
 	struct sigaction new_action;
+
+	/*
+	 *  Signal handlers should really be using an alternative
+	 *  signal stack to be totally safe.  For any new instance we
+	 *  should set this alternative signal stack before setting
+	 *  up any signal handler. We only need to do this once
+	 *  per process instance, so just do it on the first
+	 *  call to stress_sighandler.
+	 */
+	if (!set_altstack) {
+		stack_t ss;
+		static uint8_t MLOCKED stack[SIGSTKSZ + STACK_ALIGNMENT];
+		const ssize_t stack_offset =
+			stress_get_stack_direction() * (SIGSTKSZ - 64);
+		const uint8_t *stack_top = stack + stack_offset;
+
+		memset(stack, 0, sizeof(stack));
+		ss.ss_sp = (uint8_t *)align_address(stack_top, STACK_ALIGNMENT);
+		ss.ss_size = SIGSTKSZ;
+		ss.ss_flags = 0;
+		if (sigaltstack(&ss, NULL) < 0) {
+			pr_fail("%s: sigaltstack %s: errno=%d (%s)\n",
+				name, stress_strsignal(signum),
+				errno, strerror(errno));
+			return -1;
+		}
+		set_altstack = true;
+	}
 
 	memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
