@@ -28,7 +28,7 @@
 
 #include <ucontext.h>
 
-#define MMAPSTACK_SIZE		(2 * MB)
+#define MMAPSTACK_SIZE		(256 * KB)
 
 static ucontext_t c_main, c_test;
 static sigjmp_buf jmp_env;
@@ -48,23 +48,33 @@ static void stress_segvhandler(int dummy)
  *  force msync on the map'd region if page boundary
  *  has changed
  */
-static void NORETURN stress_stackmmap_push_msync(void)
+static void stress_stackmmap_push_msync(void)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
 	static void *laddr;
 
 	if (addr != laddr) {
-		(void)shim_msync(addr, page_size, mwc8() >= 128 ? MS_SYNC : MS_ASYNC);
+		(void)shim_msync(addr, page_size, mwc8() & 1 ? MS_ASYNC : MS_SYNC);
 		laddr = addr;
 	}
 	if (g_keep_stressing_flag)
 		stress_stackmmap_push_msync();
-	else {
-		/* Swap back to the main loop and terminate */
-		swapcontext(&c_test, &c_main);
-	}
-	/* Should *never* get here */
-	_exit(EXIT_FAILURE);
+}
+
+/*
+ *  start the push here
+ */
+static void stress_stackmmap_push_start(void)
+{
+	int ret;
+
+	ret = sigsetjmp(jmp_env, 1);
+
+	/* If we hit a segfault on the stack then swap back context */
+	if (!ret)
+		stress_stackmmap_push_msync();
+
+	swapcontext(&c_test, &c_main);
 }
 
 /*
@@ -73,7 +83,7 @@ static void NORETURN stress_stackmmap_push_msync(void)
  */
 int stress_stackmmap(const args_t *args)
 {
-	int fd, ret;
+	int fd;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	struct sigaction new_action;
 	char filename[PATH_MAX];
@@ -136,6 +146,7 @@ int stress_stackmmap(const args_t *args)
 		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
+	memset(stack_mmap, 0, MMAPSTACK_SIZE);
 
 	memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
@@ -145,7 +156,6 @@ int stress_stackmmap(const args_t *args)
 	c_test.uc_stack.ss_sp = stack_mmap;
 	c_test.uc_stack.ss_size = MMAPSTACK_SIZE;
 	c_test.uc_link = &c_main;
-	makecontext(&c_test, stress_stackmmap_push_msync, 0);
 
 	/*
 	 *  set jmp handler to jmp back into the loop on a full
@@ -153,18 +163,8 @@ int stress_stackmmap(const args_t *args)
 	 *  new context using the new mmap'd stack
 	 */
 	do {
-		ret = sigsetjmp(jmp_env, 1);
-		if (!ret) {
-			swapcontext(&c_main, &c_test);
-			/*
-			 *  we end up here when stress_stackmmap_push_msync
-			 *  performs a swapcontext back to this point when
-			 *  we have reached the end of the run when
-			 *  g_keep_stressing_flag is flipped to false on
-			 *  a SIGALRM timeout.
-			 */
-			break;
-		}
+		makecontext(&c_test, stress_stackmmap_push_start, 0);
+		swapcontext(&c_main, &c_test);
 		inc_counter(args);
 	} while (keep_stressing());
 
@@ -174,7 +174,6 @@ tidy_mmap:
 	munmap(stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
-
 	return rc;
 }
 #else
