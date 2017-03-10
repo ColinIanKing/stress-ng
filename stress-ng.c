@@ -2431,7 +2431,9 @@ int main(int argc, char **argv)
 	(void)stress_set_wcs_method("all");
 	(void)stress_set_matrix_method("all");
 	(void)stress_set_vm_method("all");
+#if defined(HAVE_LIB_Z)
 	(void)stress_set_zlib_method("random");
+#endif
 
 	g_pgrp = getpid();
 
@@ -2962,8 +2964,10 @@ next_opt:
 			yamlfile = optarg;
 			break;
 		case OPT_ZLIB_METHOD:
+#if defined(HAVE_LIB_Z)
 			if (stress_set_zlib_method(optarg) < 0)
 				exit(EXIT_FAILURE);
+#endif
 			break;
 		case OPT_ZOMBIE_MAX:
 			stress_set_zombie_max(optarg);
