@@ -241,18 +241,18 @@ static HOT OPTIMIZE3 void stress_zlib_random_test(uint32_t *data, const int size
  * Table of zlib data methods
  */
 static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
-	{ "random",		stress_zlib_random_test },	/* Special "random" test */
+	{ "random",	stress_zlib_random_test }, /* Special "random" test */
 
-	{ "binary",		stress_rand_data_binary },
-	{ "text",		stress_rand_data_text },
+	{ "binary",	stress_rand_data_binary },
+	{ "text",	stress_rand_data_text },
 	{ "ascii01",	stress_rand_data_01 },
-	{ "asciidigits",	stress_rand_data_digits },
-	{ "00ff",	    stress_rand_data_00_ff },
-	{ "nybble",	    stress_rand_data_nybble },
+	{ "asciidigits",stress_rand_data_digits },
+	{ "00ff",	stress_rand_data_00_ff },
+	{ "nybble",	stress_rand_data_nybble },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
-	{ "fixed",	    stress_rand_data_fixed },
-	{ NULL,			NULL }
+	{ "fixed",	stress_rand_data_fixed },
+	{ NULL,		NULL }
 };
 
 
