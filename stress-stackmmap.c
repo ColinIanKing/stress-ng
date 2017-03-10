@@ -87,7 +87,9 @@ int stress_stackmmap(const args_t *args)
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	struct sigaction new_action;
 	char filename[PATH_MAX];
-	uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];	/* ensure we have a sig stack */
+
+	/* stack for SEGV handler must not be on the stack */
+	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT]; 
 
 	page_size = args->page_size;
 	page_mask = ~(page_size - 1);
