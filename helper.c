@@ -964,7 +964,7 @@ int stress_sighandler(
 	memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
 	sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = 0;
+	new_action.sa_flags = SA_ONSTACK;
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {
 		pr_fail("%s: sigaction %s: errno=%d (%s)\n",
