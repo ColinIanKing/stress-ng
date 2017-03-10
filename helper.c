@@ -909,16 +909,13 @@ int stress_sigaltstack(const void *stack, const size_t size)
 {
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	stack_t ss;
-	const ssize_t stack_offset =
-		stress_get_stack_direction() * (size - 64);
-	const uint8_t *stack_top = (uint8_t *)stack + stack_offset;
 
 	if (size < (KB * 4)) {
 		pr_err("sigaltstack stack size %lu must be more than 4K\n",
 			size);
 		return -1;
 	}
-	ss.ss_sp = (uint8_t *)align_address(stack_top, STACK_ALIGNMENT);
+	ss.ss_sp = align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = size;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
