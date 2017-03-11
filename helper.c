@@ -907,7 +907,10 @@ size_t stress_get_file_limit(void)
  */
 int stress_sigaltstack(const void *stack, const size_t size)
 {
-#if !defined(__gnu_hurd__) && !defined(__minix__)
+#if defined(__minix__)
+	(void)stack;
+	(void)size;
+#else
 	stack_t ss;
 
 	if (size < (KB * 4)) {
