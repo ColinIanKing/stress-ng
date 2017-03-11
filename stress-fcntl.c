@@ -24,6 +24,7 @@
  */
 #include "stress-ng.h"
 
+#if !defined(__minix__)
 /*
  *  fd_available()
  *	return true if a fd is not being used
@@ -35,7 +36,6 @@ static inline bool fd_available(const int fd)
 	return ((ret == -1) && (errno == EBADF));
 }
 
-#if !defined(__minix__)
 /*
  *  fd_get()
  *	find a free fd to dup onto
