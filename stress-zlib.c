@@ -391,7 +391,8 @@ static int stress_zlib_inflate(
 	} while (ret != Z_STREAM_END);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg("%s: inflate xsum value %ld, xsum_chars %ld\n",
+		pr_dbg("%s: inflate xsum value %" PRIu64
+			", xsum_chars %" PRIu64 "\n",
 			args->name, xsum, xsum_chars);
 	}
 	(void)inflateEnd(&stream_inf);
@@ -500,7 +501,8 @@ finish:
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg("%s: deflate xsum value %ld, xsum_chars %ld\n",
+		pr_dbg("%s: deflate xsum value %" PRIu64
+			", xsum_chars %" PRIu64 "\n",
 			args->name, xsum, xsum_chars);
 	}
 
@@ -602,7 +604,8 @@ int stress_zlib(const args_t *args)
 	} else {
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (deflate_xsum != inflate_xsum)) {
 			pr_fail("%s: zlib xsum values do NOT match "
-				"deflate xsum %ld vs inflate xsum %ld\n",
+				"deflate xsum %" PRIu64
+				" vs inflate xsum %" PRIu64 "\n",
 				args->name, deflate_xsum, inflate_xsum);
 			ret = EXIT_FAILURE;
 		}
