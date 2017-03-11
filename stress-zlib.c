@@ -481,7 +481,6 @@ static int stress_zlib_deflate(
 			bytes_out += def_size;
 			if (write(fd, out, def_size) != def_size) {
 				if ((errno != EINTR) && (errno != EPIPE)) {
-					ret = EXIT_FAILURE;
 					pr_fail("%s: write error: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)deflateEnd(&stream_def);
