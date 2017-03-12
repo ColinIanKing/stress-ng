@@ -68,7 +68,7 @@ int stress_zero(const args_t *args)
 		/*
 		 *  check if we can mmap /dev/zero
 		 */
-		ptr = mmap(NULL, page_size, PROT_READ, MAP_SHARED | MAP_ANONYMOUS,
+		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
 			fd, page_size * mwc16());
 		if (ptr == MAP_FAILED) {
 			if (errno == ENOMEM)
