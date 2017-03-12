@@ -71,7 +71,6 @@ retry:
 	}
 
 	do {
-
 		if (flock(fd, LOCK_EX) < 0)
 			continue;
 		(void)shim_sched_yield();
