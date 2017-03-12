@@ -33,7 +33,7 @@ int stress_zero(const args_t *args)
 	int fd;
 	const size_t page_size = args->page_size;
 
-	if ((fd = open("/dev/zero", O_RDONLY)) < 0) {
+	if ((fd = open("/dev/zero", O_RDWR)) < 0) {
 		pr_fail_err("open /dev/zero");
 		return EXIT_FAILURE;
 	}
@@ -50,6 +50,16 @@ int stress_zero(const args_t *args)
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_fail_err("read");
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+
+		/* One can also write to /dev/zero w/o failure */
+		ret = write(fd, buffer, sizeof(buffer));
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_fail_err("write");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
