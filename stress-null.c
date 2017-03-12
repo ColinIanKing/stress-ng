@@ -33,7 +33,7 @@ int stress_null(const args_t *args)
 	int fd;
 	char buffer[4096];
 
-	if ((fd = open("/dev/null", O_WRONLY)) < 0) {
+	if ((fd = open("/dev/null", O_RDWR)) < 0) {
 		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
@@ -41,6 +41,10 @@ int stress_null(const args_t *args)
 	memset(buffer, 0xff, sizeof(buffer));
 	do {
 		ssize_t ret;
+#if defined(__linux__)
+		void *ptr;
+		const size_t page_size = args->page_size;
+#endif
 
 		ret = write(fd, buffer, sizeof(buffer));
 		if (ret <= 0) {
@@ -53,6 +57,17 @@ int stress_null(const args_t *args)
 			}
 			continue;
 		}
+
+#if defined(__linux__)
+		ptr = mmap(NULL, page_size, PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, fd, mwc64() & ~(page_size - 1));
+		if (ptr != MAP_FAILED) {
+			memset(ptr, mwc8(), page_size);
+			shim_msync(ptr, page_size, MS_SYNC);
+			(void)munmap(ptr, page_size);
+		}
+#endif
+
 		inc_counter(args);
 	} while (keep_stressing());
 	(void)close(fd);
