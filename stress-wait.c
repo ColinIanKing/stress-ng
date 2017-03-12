@@ -100,7 +100,7 @@ static void killer(
 		 *  so the counter is not being updated.
 		 *  If it is blocked for too long bail out
 		 *  so we don't get stuck in the parent
-		 *  waiter indefintely.
+		 *  waiter indefinitely.
 		 */
 		if (last_counter == *args->counter) {
 			if (time_now() - start > ABORT_TIMEOUT) {
