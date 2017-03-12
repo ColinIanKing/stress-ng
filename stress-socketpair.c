@@ -69,7 +69,6 @@ static void socket_pair_close(
 
 	for (i = 0; i < max; i++)
 		(void)close(fds[i][which]);
-
 }
 
 /*
