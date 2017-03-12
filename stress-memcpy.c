@@ -26,7 +26,9 @@
 
 #define ALIGN_SIZE	(64)
 
-static uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
+typedef struct {
+	uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
+} buffer_t;
 
 /*
  *  stress_memcpy()
@@ -34,14 +36,18 @@ static uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
  */
 int stress_memcpy(const args_t *args)
 {
+	static buffer_t b;
+	buffer_t *b_str = (buffer_t *)g_shared->str_shared;
 	uint8_t *str_shared = g_shared->str_shared;
-	uint8_t *aligned_buf = align_address(buffer, ALIGN_SIZE);
+	uint8_t *aligned_buf = align_address(b.buffer, ALIGN_SIZE);
 
 	do {
 		memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
 		memcpy(str_shared, aligned_buf, STR_SHARED_SIZE);
 		memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+		*b_str = b;
 		memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+		b = *b_str;
 		memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
 		inc_counter(args);
 	} while (keep_stressing());
