@@ -30,6 +30,7 @@
 static const char *opt_fstat_dir = "/dev";
 static sigjmp_buf jmpbuf;
 static volatile bool keep_running;
+static sigset_t set;
 
 /* paths we should never stat */
 static const char *blacklist[] = {
@@ -123,7 +124,6 @@ static void stress_fstat_helper(const ctxt_t *ctxt)
 static void *stress_fstat_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
-	static sigset_t set;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const ctxt_t *ctxt = (const ctxt_t *)ctxt_ptr;
 
@@ -251,6 +251,7 @@ int stress_fstat(const args_t *args)
 	}
 	(void)closedir(dp);
 
+	sigfillset(&set);
 	do {
 		stat_some = false;
 
