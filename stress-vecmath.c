@@ -30,6 +30,11 @@ typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t vint32_t __attribute__ ((vector_size (16)));
 typedef int64_t vint64_t __attribute__ ((vector_size (16)));
+#if defined(STRESS_INT128)
+typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
+#endif
+
+#define INT128(hi, lo)	(((__uint128_t)hi << 64) | (__uint128_t)lo)
 
 #define OPS(a, b, c, s)	\
 	a += b;		\
@@ -95,6 +100,17 @@ int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
 	vint64_t s64 = {
 		0x0000000000000001ULL, 0x0000000000000002ULL };
 
+#if defined(STRESS_INT128)
+	vint128_t a128 = {
+		INT128(0x0000000000000000ULL, 0x0000000000000000ULL) };
+	vint128_t b128 = {
+		INT128(0x0123456789abcdefULL, 0x0f1e2d3c4b5a6979ULL) };
+	vint128_t c128 = {
+		INT128(0x0102030201020302ULL, 0x0302010203020102ULL) };
+	vint128_t s128 = {
+		INT128(0x0000000000000001ULL, 0x0000000000000002ULL) };
+#endif
+
 	do {
 		int i;
 		for (i = 1000; i; i--) {
@@ -103,9 +119,15 @@ int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
 			OPS(a16, b16, c16, s16);
 			OPS(a32, b32, c32, s32);
 			OPS(a64, b64, c64, s64);
+#if defined(STRESS_INT128)
+			OPS(a128, b128, c128, s128);
+#endif
 
 			OPS(a32, b32, c32, s32);
 			OPS(a16, b16, c16, s16);
+#if defined(STRESS_INT128)
+			OPS(a128, b128, c128, s128);
+#endif
 			OPS(a8, b8, c8, s8);
 			OPS(a64, b64, c64, s64);
 
@@ -128,6 +150,12 @@ int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
 			OPS(a64, b64, c64, s64);
 			OPS(a64, b64, c64, s64);
 			OPS(a64, b64, c64, s64);
+#if defined(STRESS_INT128)
+			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128);
+#endif
 		}
 		inc_counter(args);
 	} while (keep_stressing());
@@ -144,6 +172,10 @@ int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
 	uint64_put(a32[0] + a32[1] + a32[2] + a32[3]);
 
 	uint64_put(a64[0] + a64[1]);
+
+#if defined(STRESS_INT128)
+	uint64_put((a128[0] >> 64) || (a128[0] & 0xffffffffffffULL));
+#endif
 
 	return EXIT_SUCCESS;
 }
