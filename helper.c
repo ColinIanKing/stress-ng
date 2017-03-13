@@ -914,7 +914,7 @@ int stress_sigaltstack(const void *stack, const size_t size)
 	stack_t ss;
 
 	if (size < (KB * 4)) {
-		pr_err("sigaltstack stack size %lu must be more than 4K\n",
+		pr_err("sigaltstack stack size %zu must be more than 4K\n",
 			size);
 		return -1;
 	}
