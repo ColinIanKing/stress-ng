@@ -28,7 +28,6 @@
 #define FSTAT_LOOPS		(16)
 
 static const char *opt_fstat_dir = "/dev";
-static sigjmp_buf jmpbuf;
 static volatile bool keep_running;
 static sigset_t set;
 
@@ -65,8 +64,8 @@ static void MLOCKED handle_fstat_sigalrm(int dummy)
 {
 	(void)dummy;
 
+	keep_running = false;
 	g_keep_stressing_flag = false;
-	siglongjmp(jmpbuf, 1);
 }
 
 /*
@@ -209,10 +208,6 @@ int stress_fstat(const args_t *args)
 
 	if (stress_sighandler(args->name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
-	if (sigsetjmp(jmpbuf, 0) != 0) {
-		ret = EXIT_SUCCESS;
-		goto free_cache;
-	}
 
 	if ((dp = opendir(opt_fstat_dir)) == NULL) {
 		pr_err("%s: opendir on %s failed: errno=%d: (%s)\n",
