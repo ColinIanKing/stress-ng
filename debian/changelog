@@ -1,3 +1,45 @@
+stress-ng (0.07.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fstat: remove siglongjmp, bad idea in threads
+  * stress-fstat: forgot to sigfillset on set
+  * helper: use correct format specifier to print size_t variable
+  * syscalls: add statx entry to table
+  * stress-fstat: run multiple threads on fstat for more stress
+  * stress-wait: fix spelling mistake in comment
+  * stress-socketpair: remove empty line
+  * stress-null: add mmap'ing and msync writes to /dev/null
+  * stress-memcpy: add in structure copying
+  * stress-flock: remove empty line
+  * stress-zero: privately mmap to /dev/zero rather than shared map
+  * stress-zero: add write to /dev/zero as this is also allowed
+  * stress-zlib: remove redundant assignment to ret
+  * stress-zlib: use PRIu64 format specifiers for uint64_t types
+  * stress-fcntl: fix build warning on minix
+  * helper: sigaltstack is available for GNU/HURD
+  * helper: fix random segfaults because of setting stack start incorrectly
+  * stress-zlib: clean up some tabbing/whitespace alignments in table
+  * stress-ng: don't use stress_set_zlib_method if zlib is not available
+  * helper: set sa_flags to SA_ONSTACK to fix stackmmap segfault
+  * stress-stackmmap: ensure signal handler stack is not on the stack
+  * stress-stackmmap: fix random segfaulting
+  * stress-atomic: fix build of this stressor
+  * Add a stress_sigaltstack alt stack helper and use helper
+  * Revert "helper: ensure ss_flags are set to SA_ONSTACK"
+  * helper: ensure ss_flags are set to SA_ONSTACK
+  * helper: GNU/HURD and Minix don't support sigaltstack, so ignore this
+  * stress_sighandler: ensure signal handlers use alternative signal stack
+  * stress-stackmmap: jump back to main loop via swapcontext
+  * Forgot to check in modifications to stress-ng.[ch] for the zlib changes
+  * stress-zlib: add check sum sanity checking and --zlib-method
+  * affinity: voidify returns from printf family of calls
+  * voidify returns from fflush
+  * voidify returns from printf family of calls
+  * voidify return from kill()
+  * voidify return from close, fclose and closedir
+
+ -- Colin King <colin.king@canonical.com>  Mon, 13 Mar 2017 11:42:12 +0000
+
 stress-ng (0.07.23-1) unstable; urgency=medium
 
   * Makefile: bump version
