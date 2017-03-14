@@ -26,7 +26,9 @@
 
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
 
-#define NO_MEM_RETRIES_MAX	(256)
+#define NUM_MEM_RETRIES_MAX	(256)
+#define NUM_POISON_MAX		(2)
+#define NUM_SOFT_OFFLINE_MAX	(2)
 
 static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
@@ -56,9 +58,6 @@ static const int madvise_options[] = {
 #if defined(MADV_DOFORK)
 	MADV_DOFORK,
 #endif
-#if defined(MADV_HWPOISON)
-	MADV_HWPOISON,
-#endif
 #if defined(MADV_MERGEABLE)
 	MADV_MERGEABLE,
 #endif
@@ -81,7 +80,10 @@ static const int madvise_options[] = {
 	MADV_DODUMP,
 #endif
 #if defined(MADV_FREE)
-	MADV_FREE
+	MADV_FREE,
+#endif
+#if defined(MADV_HWPOISON)
+	MADV_HWPOISON
 #endif
 };
 
@@ -99,6 +101,51 @@ static void MLOCKED stress_sigbus_handler(int dummy)
 }
 
 /*
+ *  stress_random_advise()
+ *	get a random advise option
+ */
+static int stress_random_advise(const args_t *args)
+{
+	const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
+	const int advise = madvise_options[idx];
+#if defined(MADV_NORMAL)
+	const int madv_normal = MADV_NORMAL;
+#else
+	const int madv_normal = 0;
+#endif
+
+#if defined(MADV_HWPOISON)
+	if (advise == MADV_HWPOISON) {
+		static int poison_count;
+
+		/*
+		 * Try for another madvise option if
+		 * we've poisoned too many pages.
+		 * We really need to use this sparingly
+		 * else we run out of free memory
+		 */
+		if ((args->instance > 0) ||
+		    (poison_count >= NUM_POISON_MAX))
+			return madv_normal;
+		poison_count++;
+	}
+#endif
+
+#if defined(MADV_SOFT_OFFLINE)
+	if (advise == MADV_SOFT_OFFLINE) {
+		static int soft_offline_count;
+
+		/* ..and minimize number of soft offline pages */
+		if ((soft_offline_count >= NUM_SOFT_OFFLINE_MAX) ||
+		    (poison_count >= NUM_POISON_MAX))
+			return madv_normal;
+		soft_offline_count++;
+	}
+#endif
+	return advise;
+}
+
+/*
  *  stress_madvise()
  *	stress madvise
  */
@@ -108,7 +155,7 @@ int stress_madvise(const args_t *args)
 	size_t sz = 4 *  MB;
 	int ret, fd = -1;
 	NOCLOBBER int flags = MAP_SHARED;
-	NOCLOBBER int no_mem_retries = 0;
+	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
 	char page[page_size];
 	size_t n;
@@ -156,7 +203,7 @@ int stress_madvise(const args_t *args)
 	do {
 		uint8_t *buf;
 
-		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+		if (num_mem_retries >= NUM_MEM_RETRIES_MAX) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
@@ -171,8 +218,8 @@ int stress_madvise(const args_t *args)
 #if defined(MAP_POPULATE)
 			flags &= ~MAP_POPULATE;
 #endif
-			no_mem_retries++;
-			if (no_mem_retries > 1)
+			num_mem_retries++;
+			if (num_mem_retries > 1)
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
@@ -189,16 +236,14 @@ int stress_madvise(const args_t *args)
 		(void)mincore_touch_pages(buf, sz);
 
 		for (n = 0; n < sz; n += page_size) {
-			const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
-			const int advise = madvise_options[idx];
+			const int advise = stress_random_advise(args);
 
 			(void)madvise(buf + n, page_size, advise);
 			(void)shim_msync(buf + n, page_size, MS_ASYNC);
 		}
 		for (n = 0; n < sz; n += page_size) {
 			size_t m = (mwc64() % sz) & ~(page_size - 1);
-			const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
-			const int advise = madvise_options[idx];
+			const int advise = stress_random_advise(args);
 
 			(void)madvise(buf + m, page_size, advise);
 			(void)shim_msync(buf + m, page_size, MS_ASYNC);
