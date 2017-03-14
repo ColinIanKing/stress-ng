@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "February 8, 2017"
+.TH STRESS-NG 1 "March 7, 2017"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2843,6 +2843,49 @@ cache and memory.
 .B \-\-zlib\-ops N
 stop after N bogo compression operations, each bogo compression operation
 is a compression of 64K of random data at the highest compression level.
+.TP
+.B \-\-zlib\-method method
+specify the type of random data to send to the zlib library.  By default, 
+the data stream is created from a random selection of the different data
+generation processes.  However one can specify just one method to be used if required.
+Available zlib data generation methods are described as follows:
+.TS
+expand;
+lB2 lBw(\n[SZ]n)
+l l.
+Method	Description
+random	T{
+segments of the data stream are created by randomly calling the different data generation 
+methods.
+T}
+binary	T{
+32 bit random numbers
+T}
+text	T{
+random ASCII text
+T}
+ascii01	T{
+randomly distributed ASCII 0 and 1 characters
+T}
+asciidigits	T{
+randomly distributed ASCII digits in the range of 0 and 9 
+T}
+00ff	T{
+randomly distributed 0x00 and 0xFF values
+T}
+nybble	T{
+randomly distributed bytes in the range of 0x00 to 0x0f
+T}
+rarely1	T{
+data that has a single 1 in every 32 bits, randomly located
+T}
+rarely0	T{
+data that has a single 0 in every 32 bits, randomly located
+T}
+fixed	T{
+data stream is repeated 0x04030201 
+T}
+.TE
 .TP
 .B \-\-zombie N
 start N workers that create zombie processes. This will rapidly try to create
