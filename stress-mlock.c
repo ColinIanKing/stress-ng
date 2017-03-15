@@ -69,7 +69,7 @@ static int mlock_shim(const void *addr, size_t len)
 #else
 static inline int mlock_shim(const void *addr, size_t len)
 {
-	return mlock((void *)addr, len);
+	return mlock((const void *)addr, len);
 }
 #endif
 
