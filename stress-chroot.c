@@ -28,7 +28,7 @@
 
 typedef int (*stress_chroot_test_func)(const args_t *args);
 
-static char path[PATH_MAX];
+static char temppath[PATH_MAX];
 static char longpath[PATH_MAX + 32];
 static char badpath[PATH_MAX];
 static char filename[PATH_MAX];
@@ -73,11 +73,11 @@ static int stress_chroot_test1(const args_t *args)
 	char cwd[PATH_MAX];
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(path, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(temppath, &ret1, &ret2, &errno1, &errno2);
 
 	if (ret1 < 0) {
 		pr_fail("%s: chroot(\"%s\"), errno=%d (%s)\n",
-			args->name, path, errno1, strerror(errno1));
+			args->name, temppath, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
 	if (ret2 < 0) {
@@ -104,7 +104,7 @@ static int stress_chroot_test2(const args_t *args)
 	if ((ret1 >= 0) || (errno1 != EFAULT))  {
 		pr_fail("%s: chroot(\"%s\"), expected EFAULT"
 			", got instead errno=%d (%s)\n",
-			args->name, path, errno1, strerror(errno1));
+			args->name, temppath, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
 	if (ret2 < 0) {
@@ -191,9 +191,9 @@ int stress_chroot(const args_t *args)
 
 	stress_strnrnd(longpath, sizeof(longpath));
 	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
-	(void)stress_temp_dir_args(args, path, sizeof(path));
+	(void)stress_temp_dir_args(args, temppath, sizeof(temppath));
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), mwc32());
-	if (mkdir(path, S_IRWXU) < 0) {
+	if (mkdir(temppath, S_IRWXU) < 0) {
 		pr_fail_err("mkdir");
 		goto tidy_ret;
 	}
@@ -244,7 +244,7 @@ retry:
 tidy_all:
 	(void)unlink(filename);
 tidy_dir:
-	(void)rmdir(path);
+	(void)rmdir(temppath);
 tidy_ret:
 	return ret;
 }
