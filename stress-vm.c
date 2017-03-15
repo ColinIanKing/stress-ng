@@ -1927,12 +1927,12 @@ again:
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
-		int status, ret;
+		int status, waitret;
 
 		/* Parent, wait for child */
 		(void)setpgid(pid, g_pgrp);
-		ret = waitpid(pid, &status, 0);
-		if (ret < 0) {
+		waitret = waitpid(pid, &status, 0);
+		if (waitret < 0) {
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
