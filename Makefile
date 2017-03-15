@@ -267,7 +267,7 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 #
 #  Load in current config; use 'make clean' to clear this
 #
-include config
+-include config
 
 CFLAGS += $(CONFIG_CFLAGS)
 LDFLAGS += $(CONFIG_LDFLAGS)
@@ -284,30 +284,17 @@ HAVE_CONFIG=1
 # A bit recursive, 2nd time around HAVE_APPARMOR is
 # defined so we don't call ourselves over and over
 #
+ifeq ($(shell uname -s),SunOS)
+	CONFIG_LDFLAGS += -lsocket -lnsl
+endif
+
 ifndef $(HAVE_APPARMOR)
 HAVE_APPARMOR = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_apparmor)
 ifeq ($(HAVE_APPARMOR),1)
 	CONFIG_OBJS += apparmor-data.o
 	CONFIG_CFLAGS += -DHAVE_APPARMOR
 	CONFIG_LDFLAGS += $(LIB_APPARMOR)
-endif
-endif
-
-ifeq ($(shell uname -s),SunOS)
-	CONFIG_LDFLAGS += -lsocket -lnsl
-endif
-
-ifndef $(HAVE_KEYUTILS_H)
-HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_keyutils_h)
-ifeq ($(HAVE_KEYUTILS_H),1)
-	CONFIG_CFLAGS += -DHAVE_KEYUTILS_H
-endif
-endif
-
-ifndef $(HAVE_XATTR_H)
-HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_xattr_h)
-ifeq ($(HAVE_XATTR_H),1)
-	CONFIG_CFLAGS += -DHAVE_XATTR_H
+$(info autoconfig: got $(LIB_APPARMOR))
 endif
 endif
 
@@ -316,6 +303,7 @@ HAVE_LIB_BSD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_bsd)
 ifeq ($(HAVE_LIB_BSD),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_BSD
 	CONFIG_LDFLAGS += $(LIB_BSD)
+$(info autoconfig: got $(LIB_BSD))
 endif
 endif
 
@@ -324,6 +312,7 @@ HAVE_LIB_Z = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_z)
 ifeq ($(HAVE_LIB_Z),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_Z
 	CONFIG_LDFLAGS += $(LIB_Z)
+$(info autoconfig: got $(LIB_Z))
 endif
 endif
 
@@ -332,6 +321,7 @@ HAVE_LIB_CRYPT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_crypt
 ifeq ($(HAVE_LIB_CRYPT),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_CRYPT
 	CONFIG_LDFLAGS += $(LIB_CRYPT)
+$(info autoconfig: got $(LIB_CRYPT))
 endif
 endif
 
@@ -340,6 +330,7 @@ HAVE_LIB_RT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_rt)
 ifeq ($(HAVE_LIB_RT),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_RT
 	CONFIG_LDFLAGS += $(LIB_RT)
+$(info autoconfig: got $(LIB_RT))
 endif
 endif
 
@@ -348,6 +339,7 @@ HAVE_LIB_PTHREAD = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_pth
 ifeq ($(HAVE_LIB_PTHREAD),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_PTHREAD
 	CONFIG_LDFLAGS += $(LIB_PTHREAD)
+$(info autoconfig: got $(LIB_PTHREAD))
 endif
 endif
 
@@ -356,20 +348,7 @@ HAVE_LIB_SCTP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_sctp)
 ifeq ($(HAVE_LIB_SCTP),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_SCTP
 	CONFIG_LDFLAGS += $(LIB_SCTP)
-endif
-endif
-
-ifndef $(HAVE_FLOAT_DECIMAL)
-HAVE_FLOAT_DECIMAL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_float_decimal)
-ifeq ($(HAVE_FLOAT_DECIMAL),1)
-	CONFIG_CFLAGS += -DHAVE_FLOAT_DECIMAL
-endif
-endif
-
-ifndef $(HAVE_SECCOMP_H)
-HAVE_SECCOMP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_seccomp_h)
-ifeq ($(HAVE_SECCOMP_H),1)
-	CONFIG_CFLAGS += -DHAVE_SECCOMP_H
+$(info autoconfig: got $(LIB_SCTP))
 endif
 endif
 
@@ -378,6 +357,31 @@ HAVE_LIB_AIO = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_lib_aio)
 ifeq ($(HAVE_LIB_AIO),1)
 	CONFIG_CFLAGS += -DHAVE_LIB_AIO
 	CONFIG_LDFLAGS += $(LIB_AIO)
+$(info autoconfig: got $(LIB_AIO))
+endif
+endif
+
+ifndef $(HAVE_KEYUTILS_H)
+HAVE_KEYUTILS_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_keyutils_h)
+ifeq ($(HAVE_KEYUTILS_H),1)
+	CONFIG_CFLAGS += -DHAVE_KEYUTILS_H
+$(info autoconfig: got keyutils.h)
+endif
+endif
+
+ifndef $(HAVE_XATTR_H)
+HAVE_XATTR_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_xattr_h)
+ifeq ($(HAVE_XATTR_H),1)
+	CONFIG_CFLAGS += -DHAVE_XATTR_H
+$(info autoconfig: got attr/xattr.h)
+endif
+endif
+
+ifndef $(HAVE_SECCOMP_H)
+HAVE_SECCOMP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_seccomp_h)
+ifeq ($(HAVE_SECCOMP_H),1)
+	CONFIG_CFLAGS += -DHAVE_SECCOMP_H
+$(info autoconfig: got linux/seccomp.h)
 endif
 endif
 
@@ -385,6 +389,15 @@ ifndef $(HAVE_SYS_CAP_H)
 HAVE_SYS_CAP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sys_cap_h)
 ifeq ($(HAVE_SYS_CAP_H),1)
 	CONFIG_CFLAGS += -DHAVE_SYS_CAP_H
+$(info autoconfig: got sys/capability.h)
+endif
+endif
+
+ifndef $(HAVE_FLOAT_DECIMAL)
+HAVE_FLOAT_DECIMAL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_float_decimal)
+ifeq ($(HAVE_FLOAT_DECIMAL),1)
+	CONFIG_CFLAGS += -DHAVE_FLOAT_DECIMAL
+$(info autoconfig: got float decimal support)
 endif
 endif
 
@@ -392,6 +405,7 @@ ifndef $(HAVE_VECMATH)
 HAVE_VECMATH = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_vecmath)
 ifeq ($(HAVE_VECMATH),1)
 	CONFIG_CFLAGS += -DHAVE_VECMATH
+$(info autoconfig: got vector math support)
 endif
 endif
 
@@ -399,6 +413,7 @@ ifndef $(HAVE_ATOMIC)
 HAVE_ATOMIC = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_atomic)
 ifeq ($(HAVE_ATOMIC),1)
 	CONFIG_CFLAGS += -DHAVE_ATOMIC
+$(info autoconfig: got atomic support)
 endif
 endif
 
@@ -406,8 +421,10 @@ ifndef $(HAVE_ASM_NOP)
 HAVE_ASM_NOP = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_asm_nop)
 ifeq ($(HAVE_ASM_NOP),1)
 	CONFIG_CFLAGS += -DHAVE_ASM_NOP
+$(info autoconfig: got nop assembler instruction)
 endif
 endif
+
 endif
 
 .SUFFIXES: .c .o
