@@ -222,10 +222,10 @@ retry:
 			exit(ret);
 		} else {
 			/* Parent */
-			int status, ret;
+			int status, waitret;
 
-			ret = waitpid(pid, &status, 0);
-			if (ret < 0) {
+			waitret = waitpid(pid, &status, 0);
+			if (waitret < 0) {
 				if (errno == EINTR)
 					break;
 				pr_fail_err("waitpid waiting on chroot child");
