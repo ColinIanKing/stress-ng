@@ -424,7 +424,9 @@ stress-ng: save_config $(OBJS)
 #
 #  save configuration
 #
+.PHONY: save_config
 save_config:
+	echo "Updating config"
 	@echo $(foreach h,$(HAVE_VARS),$h=$($(h))) | tr ' ' '\n' > config
 	@echo CONFIG_CFLAGS=$(CONFIG_CFLAGS) >> config
 	@echo CONFIG_LDFLAGS=$(CONFIG_LDFLAGS) >> config
@@ -435,6 +437,7 @@ save_config:
 #
 #  check if we can build against AppArmor
 #
+.PHONY: have_apparmor
 have_apparmor:
 	@$(CC) $(CPPFLAGS) test-apparmor.c $(LIB_APPARMOR) -o test-apparmor 2> /dev/null || true
 	@if [ -f test-apparmor ]; then \
@@ -451,6 +454,7 @@ have_apparmor:
 #
 #  check if we have keyutils.h
 #
+.PHONY: have_keyutils_h
 have_keyutils_h:
 	@echo "#include <sys/types.h>" > test-key.c
 	@echo "#include <keyutils.h>" >> test-key.c
@@ -465,6 +469,7 @@ have_keyutils_h:
 #
 #  check if we have xattr.h
 #
+.PHONY: have_xattr_h
 have_xattr_h:
 	@echo "#include <sys/types.h>" > test-xattr.c
 	@echo "#include <attr/xattr.h>" >> test-xattr.c
@@ -479,6 +484,7 @@ have_xattr_h:
 #
 #  check if we can build against libbsd
 #
+.PHONY: have_lib_bsd
 have_lib_bsd:
 	@$(CC) $(CPPFLAGS) test-libbsd.c $(LIB_BSD) -o test-libbsd 2> /dev/null || true
 	@if [ -f test-libbsd ]; then \
@@ -491,6 +497,7 @@ have_lib_bsd:
 #
 #  check if we can build against libz
 #
+.PHONY: have_lib_z
 have_lib_z:
 	@$(CC) $(CPPFLAGS) test-libz.c $(LIB_Z) -o test-libz 2> /dev/null || true
 	@if [ -f test-libz ]; then \
@@ -503,6 +510,7 @@ have_lib_z:
 #
 #  check if we can build against libcrypt
 #
+.PHONY: have_lib_crypt
 have_lib_crypt:
 	@$(CC) $(CPPFLAGS) test-libcrypt.c $(LIB_CRYPT) -o test-libcrypt 2> /dev/null || true
 	@if [ -f test-libcrypt ]; then \
@@ -515,6 +523,7 @@ have_lib_crypt:
 #
 #  check if we can build against librt
 #
+.PHONY: have_lib_rt
 have_lib_rt:
 	@$(CC) $(CPPFLAGS) test-librt.c $(LIB_RT) -o test-librt 2> /dev/null || true
 	@if [ -f test-librt ]; then \
@@ -527,6 +536,7 @@ have_lib_rt:
 #
 #  check if we can build against libpthread
 #
+.PHONY: have_lib_pthread
 have_lib_pthread:
 	@$(CC) $(CPPFLAGS) test-libpthread.c $(LIB_PTHREAD) -o test-libpthread 2> /dev/null || true
 	@if [ -f test-libpthread ]; then \
@@ -539,6 +549,7 @@ have_lib_pthread:
 #
 #  check if we can build against libsctp
 #
+.PHONY: have_lib_sctp
 have_lib_sctp:
 	@$(CC) $(CPPFLAGS) test-libsctp.c $(LIB_SCTP) -o test-libsctp 2> /dev/null || true
 	@if [ -f test-libsctp ]; then \
@@ -552,6 +563,7 @@ have_lib_sctp:
 #
 #  check if compiler supports floating point decimal format
 #
+.PHONY: have_float_decimal
 have_float_decimal:
 	@echo "_Decimal32 x;" > test-decimal.c
 	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
@@ -565,6 +577,7 @@ have_float_decimal:
 #
 #  check if we have seccomp.h
 #
+.PHONY: have_seccomp_h
 have_seccomp_h:
 	@echo "#include <linux/seccomp.h>" > test-seccomp.c
 	@$(CC) $(CPPFLAGS) -c -o test-seccomp.o test-seccomp.c 2> /dev/null || true
@@ -578,6 +591,7 @@ have_seccomp_h:
 #
 #  check if we can build against libaio
 #
+.PHONY: have_lib_aio
 have_lib_aio:
 	@$(CC) $(CPPFLAGS) test-libaio.c $(LIB_AIO) -o test-libaio 2> /dev/null || true
 	@if [ -f test-libaio ]; then \
@@ -590,6 +604,7 @@ have_lib_aio:
 #
 #  check if we can use assembler nop instruction
 #
+.PHONY: have_asm_nop
 have_asm_nop:
 	@$(CC) $(CPPFLAGS) test-asm-nop.c -o test-asm-nop 2> /dev/null || true
 	@if [ -f test-asm-nop ]; then \
@@ -690,6 +705,7 @@ $(OBJS): stress-ng.h Makefile
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@
 
+.PHONY: dist
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
@@ -703,10 +719,12 @@ dist:
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
+.PHONY: pdf
 pdf:
 	man -t ./stress-ng.1 | ps2pdf - > stress-ng.pdf
 
 
+.PHONY: clean
 clean:
 	@rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
 	@rm -f stress-ng-$(VERSION).tar.gz
@@ -716,9 +734,11 @@ clean:
 	@rm -f *.o
 	@:> config
 
+.PHONY: fast-test-all
 fast-test-all: stress-ng
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
 
+.PHONY: install
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}
 	cp stress-ng ${DESTDIR}${BINDIR}
