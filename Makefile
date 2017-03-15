@@ -275,10 +275,17 @@ OBJS += $(CONFIG_OBJS)
 
 HAVE_VARS := $(foreach h,$(HAVE_NOT), $(firstword $(subst =, ,$h)))
 
+ifeq "$(MAKECMDGOALS)" ""
+NEED_CONFIG=1
+else ifeq "$(findstring $(MAKECMDGOALS),clean dist install)" ""
+NEED_CONFIG=1
+endif
+
 #
 #  Determine the system build config
 #
 ifndef HAVE_CONFIG
+ifdef NEED_CONFIG
 HAVE_CONFIG=1
 #
 # A bit recursive, 2nd time around HAVE_APPARMOR is
@@ -426,6 +433,8 @@ endif
 endif
 
 endif
+endif
+
 
 .SUFFIXES: .c .o
 
@@ -436,6 +445,7 @@ endif
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: save_config $(OBJS)
+	$(info $(NEED_CONFIG))
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
 
 #
