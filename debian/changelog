@@ -1,3 +1,28 @@
+stress-ng (0.07.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * helper: avoid calling sched_cpu on ppc64le
+  * Makefile: remove NOTPARALLEL, it's not helpful
+  * fast-test-all: remove xattr as it can break some file systems
+  * Makefile: don't autoconfig if we are making dist clean or install
+  * stress-mlock: add in const to void when calling mlock
+  * stress-icache: unconstify page_addr to clean up build warnings
+  * stress-vm: rename ret to waitret to fix variable shadowing
+  * stress-chroot: rename ret to waitret to fix variable shadowing
+  * stress-chroot: rename static path to temppath
+  * Makefile: display config steps and don't break if config is not available
+  * Add NOPARALLEL to config rules
+  * Makefile: Add .PHONY to rules
+  * manual: forgot to add the manual from the zlib changes
+  * stress-madvise: avoid overuse of MADV_HWPOISON (LP: #1672387)
+  * vecmath: use gcc __int128_t types if they are available
+  * Makefile: remove -g flag from default build
+  * README: update number of stressors and examples on how to build
+  * manual: update contributors list
+  * manual: fix escape around - for a stress-ng iomix example
+
+ -- Colin King <colin.king@canonical.com>  Thu, 16 Mar 2017 10:57:11 +0000
+
 stress-ng (0.07.24-1) unstable; urgency=medium
 
   * Makefile: bump version
