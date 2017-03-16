@@ -3226,6 +3226,7 @@ next_opt:
 	stress_cache_free();
 	stress_unmap_shared();
 	closelog();
+	pr_closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
 		(void)fclose(yaml);

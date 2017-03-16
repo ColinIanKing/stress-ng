@@ -395,6 +395,7 @@ extern void pr_msg_fail(const uint64_t flag, const char *name, const char *what,
 extern int pr_yaml(FILE *fp, const char *const fmt, ...) __attribute__((format(printf, 2, 3)));
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
+extern void pr_closelog(void);
 
 extern void pr_dbg(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);

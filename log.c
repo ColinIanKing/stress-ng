@@ -48,11 +48,12 @@ int pr_yaml(FILE *fp, const char *const fmt, ...)
 
 /*
  *  pr_closelog()
- *	log closing, performed via exit()
+ *	log closing
  */
-static void pr_closelog(void)
+void pr_closelog(void)
 {
 	if (log_file) {
+		(void)fflush(log_file);
 		(void)fclose(log_file);
 		log_file = NULL;
 	}
@@ -72,7 +73,6 @@ void pr_openlog(const char *filename)
 		pr_err("Cannot open log file %s\n", filename);
 		return;
 	}
-	atexit(pr_closelog);
 }
 
 
