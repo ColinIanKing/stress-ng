@@ -997,7 +997,7 @@ int stress_sigrestore(
  */
 unsigned int stress_get_cpu(void)
 {
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__PPC64__)
 	int cpu;
 
 	cpu = sched_getcpu();
