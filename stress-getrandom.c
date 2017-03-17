@@ -43,7 +43,7 @@ int stress_getrandom(const args_t *args)
 
 		ret = shim_getrandom(buffer, sizeof(buffer), 0);
 		if (ret < 0) {
-			if (errno == EAGAIN)
+			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_fail_err("getrandom");
 			return EXIT_FAILURE;
