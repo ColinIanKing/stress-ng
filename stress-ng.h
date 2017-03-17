@@ -794,6 +794,11 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define STRESS_ARM      1
 #endif
 
+/* Arch specific, IBM S390 */
+#if defined(__s390__)
+#define STRESS_S390
+#endif
+
 #if defined(__linux__)
 /*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
