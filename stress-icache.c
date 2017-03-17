@@ -37,6 +37,11 @@
 #define ALIGNED(a) __attribute__((aligned(a)))
 #endif
 
+/* older ARMEL GCC does not support 64K alignment */
+#if (defined(__GNUC__) && NEED_GNUC(5,4,0)) || !defined(__ARMEL__)
+#define ALIGNED_64K_SUPPORTED
+#endif
+
 /*
  *  STRESS_ICACHE_FUNC()
  *	generates a simple function that is page aligned in its own
@@ -153,11 +158,15 @@ static inline int icache_madvise(const args_t *args, void *addr, size_t size)
 	return 0;
 }
 
+#if defined(ALIGNED_64K_SUPPORTED)
 STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
+#endif
 STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
 STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
+#if defined(ALIGNED_64K_SUPPORTED)
 STRESS_ICACHE(stress_icache_64K, SIZE_64K, stress_icache_func_64K)
+#endif
 STRESS_ICACHE(stress_icache_16K, SIZE_16K, stress_icache_func_16K)
 STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
 
@@ -179,13 +188,21 @@ int stress_icache(const args_t *args)
 	case SIZE_16K:
 		ret = stress_icache_16K(args);
 		break;
+#if defined(ALIGNED_64K_SUPPORTED)
 	case SIZE_64K:
 		ret = stress_icache_64K(args);
 		break;
+#endif
 	default:
+#if defined(ALIGNED_64K_SUPPORTED)
 		pr_inf("%s: page size %zu is not %u or %u or %u, cannot test\n",
 			args->name, args->page_size,
 			SIZE_4K, SIZE_16K, SIZE_64K);
+#else
+		pr_inf("%s: page size %zu is not %u or %u, cannot test\n",
+			args->name, args->page_size,
+			SIZE_4K, SIZE_16K);
+#endif
 		ret = EXIT_NO_RESOURCE;
 	}
         return ret;
