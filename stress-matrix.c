@@ -33,9 +33,9 @@ typedef float	matrix_type_t;
  */
 typedef void (*stress_matrix_func)(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n]);
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n]);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -64,9 +64,9 @@ void stress_set_matrix_size(const char *optarg)
  */
 static void OPTIMIZE3 stress_matrix_prod(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	size_t i;
 
@@ -91,9 +91,9 @@ static void OPTIMIZE3 stress_matrix_prod(
  */
 static void OPTIMIZE3 stress_matrix_add(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -114,9 +114,9 @@ static void OPTIMIZE3 stress_matrix_add(
  */
 static void OPTIMIZE3 stress_matrix_sub(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -137,9 +137,9 @@ static void OPTIMIZE3 stress_matrix_sub(
  */
 static void OPTIMIZE3 stress_matrix_trans(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],	/* Ignored */
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],	/* Ignored */
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -162,9 +162,9 @@ static void OPTIMIZE3 stress_matrix_trans(
  */
 static void OPTIMIZE3 stress_matrix_mult(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -188,9 +188,9 @@ static void OPTIMIZE3 stress_matrix_mult(
  */
 static void OPTIMIZE3 stress_matrix_div(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -215,9 +215,9 @@ static void OPTIMIZE3 stress_matrix_div(
  */
 static void OPTIMIZE3 stress_matrix_hadamard(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -239,9 +239,9 @@ static void OPTIMIZE3 stress_matrix_hadamard(
  */
 static void OPTIMIZE3 stress_matrix_frobenius(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 	matrix_type_t sum = 0.0;
@@ -266,9 +266,9 @@ static void OPTIMIZE3 stress_matrix_frobenius(
  */
 static void OPTIMIZE3 stress_matrix_copy(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -291,9 +291,9 @@ static void OPTIMIZE3 stress_matrix_copy(
  */
 static void OPTIMIZE3 stress_matrix_mean(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -315,9 +315,9 @@ static void OPTIMIZE3 stress_matrix_mean(
  */
 static void OPTIMIZE3 stress_matrix_all(
 	const size_t n,
-	matrix_type_t a[n][n],
-	matrix_type_t b[n][n],
-	matrix_type_t r[n][n])
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
