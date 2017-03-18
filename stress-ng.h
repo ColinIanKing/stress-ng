@@ -383,9 +383,13 @@ typedef struct {
 
 /* waste some cycles */
 #if defined(__GNUC__) || defined(__clang__)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("")
+#  if defined(HAVE_ASM_NOP)
+#    define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
+#  else
+#    define FORCE_DO_NOTHING() __asm__ __volatile__("")
+#  endif
 #else
-#define FORCE_DO_NOTHING() while (0)
+#  define FORCE_DO_NOTHING() while (0)
 #endif
 
 /* Logging helpers */
