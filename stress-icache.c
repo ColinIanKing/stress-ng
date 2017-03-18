@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 #if (defined(STRESS_X86) || defined(STRESS_ARM) || \
-     defined(STRESS_S390)) && \
+     defined(STRESS_S390) || defined(STRESS_PPC64)) && \
      defined(__GNUC__) && NEED_GNUC(4,6,0)
 
 #define SIZE_1K		(1024)
