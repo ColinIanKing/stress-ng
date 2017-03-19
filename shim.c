@@ -568,7 +568,6 @@ int shim_msync(void *addr, size_t length, int flags)
 
 int shim_sysfs(int option, ...)
 {
-
 #if defined(__linux__) && defined(__NR_sysfs)
 	int ret;
 	va_list ap;
@@ -603,6 +602,18 @@ int shim_sysfs(int option, ...)
 	(void)option;
 
 	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_madvise(void *addr, size_t length, int advice)
+{
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
+	return madvise(addr, length, advice);
+#elif (_POSIX_C_SOURCE >= 200112L)
+	return posix_madvise(addr, length, advise);
+#else
+	errno = ENOSYS
 	return -1;
 #endif
 }
