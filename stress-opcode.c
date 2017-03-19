@@ -31,7 +31,7 @@
 
 typedef void (*opfunc_t)(void);
 
-static int sigs[] = {
+static const int sigs[] = {
 #if defined(SIGILL)
 	SIGILL,
 #endif
