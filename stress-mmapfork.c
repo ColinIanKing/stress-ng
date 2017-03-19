@@ -119,13 +119,13 @@ retry:			if (!g_keep_stressing_flag)
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
 					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
-					madvise(ptr, len, MADV_WILLNEED);
+					(void)shim_madvise(ptr, len, MADV_WILLNEED);
 
 					segv_ret = _EXIT_SEGV_MEMSET;
 					memset(ptr, 0, len);
 
 					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
-					madvise(ptr, len, MADV_DONTNEED);
+					(void)shim_madvise(ptr, len, MADV_DONTNEED);
 
 					segv_ret = _EXIT_SEGV_MUNMAP;
 					munmap(ptr, len);

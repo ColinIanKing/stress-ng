@@ -139,7 +139,7 @@ func_name(const args_t *args)						\
 static inline int icache_madvise(const args_t *args, void *addr, size_t size)
 {
 #if defined(MADV_NOHUGEPAGE)
-	if (madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
+	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
 		/*
 		 * We may get EINVAL on kernels that don't support this
 		 * so don't treat that as non-fatal as this is just advistory

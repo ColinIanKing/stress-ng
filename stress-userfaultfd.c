@@ -86,7 +86,7 @@ static int stress_userfaultfd_child(void *arg)
 		uint8_t *ptr, *end = c->data + c->sz;
 
 		/* hint we don't need these pages */
-		if (madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
+		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
 			pr_fail_err("userfaultfd madvise failed");
 			(void)kill(c->parent, SIGALRM);
 			return -1;

@@ -238,14 +238,14 @@ int stress_madvise(const args_t *args)
 		for (n = 0; n < sz; n += page_size) {
 			const int advise = stress_random_advise(args);
 
-			(void)madvise(buf + n, page_size, advise);
+			(void)shim_madvise(buf + n, page_size, advise);
 			(void)shim_msync(buf + n, page_size, MS_ASYNC);
 		}
 		for (n = 0; n < sz; n += page_size) {
 			size_t m = (mwc64() % sz) & ~(page_size - 1);
 			const int advise = stress_random_advise(args);
 
-			(void)madvise(buf + m, page_size, advise);
+			(void)shim_madvise(buf + m, page_size, advise);
 			(void)shim_msync(buf + m, page_size, MS_ASYNC);
 		}
 		(void)munmap((void *)buf, sz);
