@@ -28,6 +28,10 @@
 
 static pid_t thrash_pid;
 
+/*
+ *  pagein_proc()
+ *	force pages into memory for a given process
+ */
 static int pagein_proc(const pid_t pid)
 {
 	char path[PATH_MAX];
@@ -83,6 +87,10 @@ static int pagein_proc(const pid_t pid)
 	return 0;
 }
 
+/*
+ *  pagein_all_procs()
+ *	force pages into memory for all processes
+ */
 static int pagein_all_procs(void)
 {
 	DIR *dp;
@@ -105,6 +113,10 @@ static int pagein_all_procs(void)
 	return 0;
 }
 
+/*
+ *  thrash_start()
+ *	start paging in thrash process
+ */
 int thrash_start(void)
 {
 	if (geteuid() != 0) {
@@ -133,6 +145,10 @@ int thrash_start(void)
 	return 0;
 }
 
+/*
+ *  thrash_stop()
+ *	stop paging in thrash process
+ */
 void thrash_stop(void)
 {
 	int status;
