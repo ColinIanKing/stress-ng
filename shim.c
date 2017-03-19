@@ -31,6 +31,10 @@
  *  kernels or versions of different C libraries.
  */
 
+/*
+ *  shim_sched_yield()
+ *  	wrapper for sched_yield(2) - yield the processor
+ */
 int shim_sched_yield(void)
 {
 #if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
@@ -40,6 +44,11 @@ int shim_sched_yield(void)
 #endif
 }
 
+/*
+ *  shim_cacheflush()
+ *	wrapper for cacheflush(2), flush contents of
+ *	instruction and/or data cache
+ */
 int shim_cacheflush(char *addr, int nbytes, int cache)
 {
 #if defined(__linux__) && defined(__NR_cacheflush)
@@ -54,6 +63,11 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 #endif
 }
 
+/*
+ * shim_copy_file_range()
+ *	wrapper for copy_file_range(2), copy range of data
+ *	from one file to another
+ */
 ssize_t shim_copy_file_range(
 	int fd_in,
 	shim_loff_t *off_in,
@@ -146,6 +160,10 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 #endif
 }
 
+/*
+ *  shim_gettid()
+ *	wrapper for gettid(2), get thread identification
+ */
 int shim_gettid(void)
 {
 #if defined(__linux__) && defined(__NR_gettid)
@@ -156,6 +174,11 @@ int shim_gettid(void)
 #endif
 }
 
+/*
+ *  shim_getcpu()
+ *	wrapper for getcpu(2) - get CPU and NUMA node of
+ *	calling thread
+ */
 long shim_getcpu(
 	unsigned *cpu,
 	unsigned *node,
@@ -173,6 +196,10 @@ long shim_getcpu(
 #endif
 }
 
+/*
+ *  shim_getdents()
+ *	wrapper for getdents(2) - get directory entries
+ */
 int shim_getdents(
 	unsigned int fd,
 	struct shim_linux_dirent *dirp,
@@ -190,6 +217,10 @@ int shim_getdents(
 #endif
 }
 
+/*
+ *  shim_getdent6s()
+ *	wrapper for getdents64(2) - get directory entries
+ */
 int shim_getdents64(
 	unsigned int fd,
 	struct shim_linux_dirent64 *dirp,
@@ -207,6 +238,10 @@ int shim_getdents64(
 #endif
 }
 
+/*
+ *  shim_getrandom()
+ *	wrapper for Linux getrandom(2) and BSD getentropy(2)
+ */
 int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
 #if defined(__linux__) && defined(__NR_getrandom)
@@ -225,6 +260,10 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 #endif
 }
 
+/*
+ *  shim_clear_cache()
+ *	wrapper for ARM GNUC clear cache intrinsic
+ */
 void shim_clear_cache(char* begin, char *end)
 {
 #if defined(__GNUC__) && defined(STRESS_ARM)
@@ -235,6 +274,11 @@ void shim_clear_cache(char* begin, char *end)
 #endif
 }
 
+/*
+ *  shim_kcmp()
+ *	wrapper for Linux kcmp(2) - compre two processes to
+ *	see if they share a kernel resource.
+ */
 long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 {
 #if defined(__linux__) && defined(__NR_kcmp)
@@ -252,6 +296,10 @@ long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
 #endif
 }
 
+/*
+ *  shim_syslog()
+ *	wrapper for syslog(2) (NOT syslog(3))
+ */
 int shim_syslog(int type, char *bufp, int len)
 {
 #if defined(__linux__) && defined(__NR_syslog)
@@ -266,6 +314,10 @@ int shim_syslog(int type, char *bufp, int len)
 #endif
 }
 
+/*
+ *  shim_membarrier()
+ *	wrapper for membarrier(2) - issue memory barriers
+ */
 int shim_membarrier(int cmd, int flags)
 {
 #if defined(__linux__) && defined(__NR_membarrier)
@@ -279,6 +331,10 @@ int shim_membarrier(int cmd, int flags)
 #endif
 }
 
+/*
+ *  shim_memfd_create()
+ *	wrapper for memfd_create(2)
+ */
 int shim_memfd_create(const char *name, unsigned int flags)
 {
 #if defined(__linux__) && defined(__NR_memfd_create)
@@ -292,6 +348,10 @@ int shim_memfd_create(const char *name, unsigned int flags)
 #endif
 }
 
+/*
+ *  shim_get_mempolicy()
+ *	wrapper for get_mempolicy(2) - get NUMA memory policy
+ */
 int shim_get_mempolicy(
 	int *mode,
 	unsigned long *nodemask,
@@ -314,6 +374,10 @@ int shim_get_mempolicy(
 #endif
 }
 
+/*
+ *  shim_set_mempolicy()
+ *	wrapper for set_mempolicy(2) - set NUMA memory policy
+ */
 int shim_set_mempolicy(
 	int mode,
 	unsigned long *nodemask,
@@ -332,6 +396,10 @@ int shim_set_mempolicy(
 #endif
 }
 
+/*
+ *  shim_mbind()
+ *	wrapper for mbind(2) - set memory policy for a memory range
+ */
 long shim_mbind(
 	void *addr,
 	unsigned long len,
@@ -356,6 +424,10 @@ long shim_mbind(
 #endif
 }
 
+/*
+ *  shim_migrate_pages()
+ *	wrapper for migrate_pages(2) - move all pages in a process to other nodes
+ */
 long shim_migrate_pages(
 	int pid,
 	unsigned long maxnode,
@@ -376,6 +448,10 @@ long shim_migrate_pages(
 #endif
 }
 
+/*
+ *  shim_move_pages()
+ *	wrapper for move_pages(2) - move pages in a process to other nodes
+ */
 long shim_move_pages(
 	int pid,
 	unsigned long count,
@@ -401,6 +477,10 @@ long shim_move_pages(
 #endif
 }
 
+/*
+ *  shim_userfaultfd()
+ *	wrapper for userfaultfd(2)
+ */
 int shim_userfaultfd(int flags)
 {
 #if defined(__linux__) && defined(__NR_userfaultfd)
@@ -413,6 +493,10 @@ int shim_userfaultfd(int flags)
 #endif
 }
 
+/*
+ *  shim_seccomp()
+ *	wrapper for seccomp(2) - operate on Secure Computing state of process
+ */
 int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 {
 #if defined(__linux__) && defined(__NR_seccomp)
@@ -427,6 +511,10 @@ int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 #endif
 }
 
+/*
+ *  shim_unshare()
+ *	wrapper for unshare(2)
+ */
 int shim_unshare(int flags)
 {
 #if defined(__linux__) && defined(__NR_unshare)
@@ -443,6 +531,10 @@ int shim_unshare(int flags)
 #endif
 }
 
+/*
+ *  shim_shed_getattr()
+ *	wrapper for shed_getattr(2)
+ */
 int shim_sched_getattr(
 	pid_t pid,
 	struct shim_sched_attr *attr,
@@ -462,6 +554,10 @@ int shim_sched_getattr(
 #endif
 }
 
+/*
+ *  shim_shed_setattr()
+ *	wrapper for shed_setattr(2)
+ */
 int shim_sched_setattr(
 	pid_t pid,
 	struct shim_sched_attr *attr,
@@ -479,6 +575,10 @@ int shim_sched_setattr(
 #endif
 }
 
+/*
+ *  shim_mlock2()
+ *	wrapper for mlock2(2) - lock memory
+ */
 int shim_mlock2(const void *addr, size_t len, int flags)
 {
 #if defined(__linux__) && defined(__NR_mlock2)
@@ -552,7 +652,10 @@ char *shim_getlogin(void)
 	return pw_name;
 }
 
-
+/*
+ *  shim_msync()
+ *	wrapper for msync(2) - synchronize a file with a memory map
+ */
 int shim_msync(void *addr, size_t length, int flags)
 {
 #if !defined(__gnu_hurd__) && !defined(__minix__)
@@ -566,6 +669,10 @@ int shim_msync(void *addr, size_t length, int flags)
 #endif
 }
 
+/*
+ *  shim_sysfs()
+ *	wrapper for sysfs(2) - get filesystem type information
+ */
 int shim_sysfs(int option, ...)
 {
 #if defined(__linux__) && defined(__NR_sysfs)
@@ -606,6 +713,10 @@ int shim_sysfs(int option, ...)
 #endif
 }
 
+/*
+ *  shim_madvise()
+ *	wrapper for madvise(2) - get filesystem type information
+ */
 int shim_madvise(void *addr, size_t length, int advice)
 {
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
@@ -650,6 +761,10 @@ int shim_madvise(void *addr, size_t length, int advice)
 #endif
 }
 
+/*
+ *  shim_mincore()
+ *	wrapper for mincore(2) -  determine whether pages are resident in memory
+ */
 int shim_mincore(void *addr, size_t length, unsigned char *vec)
 {
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
