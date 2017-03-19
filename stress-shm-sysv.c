@@ -49,7 +49,7 @@ static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 static bool set_shm_sysv_bytes = false;
 static bool set_shm_sysv_segments = false;
 
-static int shm_flags[] = {
+static const int shm_flags[] = {
 #if defined(SHM_HUGETLB)
 	SHM_HUGETLB,
 #endif
