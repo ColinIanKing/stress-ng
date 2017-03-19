@@ -87,7 +87,7 @@ typedef struct {
 	const char *name;
 } alg_rng_info_t;
 
-static alg_hash_info_t algo_hash_info[] = {
+static const alg_hash_info_t algo_hash_info[] = {
 	{ "sha1",	SHA1_DIGEST_SIZE },
 	{ "sha224",	SHA224_DIGEST_SIZE },
 	{ "sha256",	SHA256_DIGEST_SIZE },
@@ -107,7 +107,7 @@ static alg_hash_info_t algo_hash_info[] = {
 	{ "tgr192",	TGR192_DIGEST_SIZE }
 };
 
-static alg_cipher_info_t algo_cipher_info[] = {
+static const alg_cipher_info_t algo_cipher_info[] = {
 	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
 	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
 	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
@@ -122,7 +122,7 @@ static alg_cipher_info_t algo_cipher_info[] = {
 	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE },
 };
 
-static alg_rng_info_t algo_rng_info[] = {
+static const alg_rng_info_t algo_rng_info[] = {
 	{ "jitterentropy_rng" }
 };
 
