@@ -320,7 +320,7 @@ static int stress_zlib_inflate(
 		const int fd,
 		const int xsum_fd)
 {
-	int ret = EXIT_SUCCESS, err = 0;
+	int ret, err = 0;
 	z_stream stream_inf;
 	uint64_t xsum = 0, xsum_chars = 0;
 	unsigned char in[DATA_SIZE];
@@ -416,7 +416,7 @@ static int stress_zlib_deflate(
 		const int fd,
 		const int xsum_fd)
 {
-	int ret = EXIT_SUCCESS, err = 0;
+	int ret, err = 0;
 	bool do_run;
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0, xsum = 0;
