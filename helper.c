@@ -773,7 +773,7 @@ init_done:
 		return -1;
 	}
 	if (warn_once(WARN_ONCE_CACHE_SIZE))
-		pr_inf("%s: default cache size: %" PRIu64 "K\n",
+		pr_dbg("%s: default cache size: %" PRIu64 "K\n",
 			name, g_shared->mem_cache_size / 1024);
 
 	return 0;
