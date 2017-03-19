@@ -33,9 +33,9 @@
  *	aggressively perform bind mounts, this can force out of memory
  *	situations
  */
-static int stress_bind_mount_child(void *arg)
+static int stress_bind_mount_child(void *parg)
 {
-	const args_t *args = (args_t *)arg;
+	const args_t *args = ((pthread_args_t *)parg)->args;
 	uint64_t *counter = args->counter;
 
 	(void)setpgid(0, g_pgrp);
@@ -70,11 +70,12 @@ int stress_bind_mount(const args_t *args)
 		(CLONE_STACK_SIZE - 64);
 	char stack[CLONE_STACK_SIZE];
 	char *stack_top = stack + stack_offset;
+	pthread_args_t pargs = { args };
 
 	pid = clone(stress_bind_mount_child,
 		align_stack(stack_top),
 		CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM,
-		(void *)args, 0);
+		(void *)&pargs, 0);
 	if (pid < 0) {
 		int rc = exit_status(errno);
 
