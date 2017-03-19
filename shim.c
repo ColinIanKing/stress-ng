@@ -611,7 +611,39 @@ int shim_madvise(void *addr, size_t length, int advice)
 #if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
 	return madvise(addr, length, advice);
 #elif (_POSIX_C_SOURCE >= 200112L)
-	return posix_madvise(addr, length, advise);
+	int posix_advice;
+
+	switch (advice) {
+#if defined(POSIX_MADV_NORMAL) && defined(MADV_NORMAL)
+	case MADV_NORMAL:
+		posix_advice = POSIX_MADV_NORMAL;
+		break;
+#endif
+#if defined(POSIX_MADV_SEQUENTIAL) && defined(MADV_SEQUENTIAL)
+	case MADV_SEQUENTIAL:
+		posix_advice = POSIX_MADV_SEQUENTIAL;
+		break;
+#endif
+#if defined(POSIX_MADV_RANDOM) && defined(MADV_RANDOM)
+	case MADV_RANDOM:
+		posix_advice = POSIX_MADV_RANDOM;
+		break;
+#endif
+#if defined(POSIX_MADV_WILLNEED) && defined(MADV_WILLNEED)
+	case MADV_WILLNEED:
+		posix_advice = POSIX_MADV_WILLNEED;
+		break;
+#endif
+#if defined(POSIX_MADV_DONTNEED) && defined(MADV_DONTNEED)
+	case MADV_DONTNEED:
+		posix_advice = POSIX_MADV_DONTNEED;
+		break;
+#endif
+	default:
+		posix_advice = POSIX_MADV_NORMAL;
+		break;
+	}
+	return posix_madvise(addr, length, posix_advice);
 #else
 	errno = ENOSYS
 	return -1;
