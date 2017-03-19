@@ -32,7 +32,7 @@
 #define TMPFS_MAGIC		0x01021994
 
 /* Misc randomly chosen mmap flags */
-static int mmap_flags[] = {
+static const int mmap_flags[] = {
 #if defined(MAP_HUGE_2MB) && defined(MAP_HUGETLB)
 	MAP_HUGE_2MB | MAP_HUGETLB,
 #endif
