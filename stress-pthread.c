@@ -73,7 +73,7 @@ static inline long sys_get_robust_list(int pid, struct robust_list_head **head_p
  *  stress_pthread_func()
  *	pthread that exits immediately
  */
-static void *stress_pthread_func(void *arg)
+static void *stress_pthread_func(void *parg)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
@@ -82,7 +82,7 @@ static void *stress_pthread_func(void *arg)
 	struct robust_list_head *head_ptr;
 	size_t len_ptr;
 #endif
-	const args_t *args = (args_t *)arg;
+	const args_t *args = ((pthread_args_t *)parg)->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -160,6 +160,7 @@ int stress_pthread(const args_t *args)
 	bool ok = true;
 	uint64_t limited = 0, attempted = 0;
 	int ret;
+	pthread_args_t pargs = { args };
 
 	if (!set_pthread_max) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -193,7 +194,7 @@ int stress_pthread(const args_t *args)
 
 		for (i = 0; (i < opt_pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
 			ret = pthread_create(&pthreads[i], NULL,
-				stress_pthread_func, (void *)args);
+				stress_pthread_func, (void *)&pargs);
 			if (ret) {
 				/* Out of resources, don't try any more */
 				if (ret == EAGAIN) {

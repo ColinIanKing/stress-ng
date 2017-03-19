@@ -36,11 +36,11 @@ enum membarrier_cmd {
 	MEMBARRIER_CMD_SHARED = (1 << 0),
 };
 
-static void *stress_membarrier_thread(void *arg)
+static void *stress_membarrier_thread(void *parg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const args_t *args = (args_t *)arg;
+	const args_t *args = ((pthread_args_t *)parg)->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -88,6 +88,7 @@ int stress_membarrier(const args_t *args)
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
 	size_t i;
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
+	pthread_args_t pargs = { args };
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
@@ -108,7 +109,7 @@ int stress_membarrier(const args_t *args)
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		pthread_ret[i] =
 			pthread_create(&pthreads[i], NULL,
-				stress_membarrier_thread, (void *)args);
+				stress_membarrier_thread, (void *)&pargs);
 	}
 
 	do {

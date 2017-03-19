@@ -299,6 +299,11 @@ typedef struct {
 	size_t page_size;		/* page size */
 } args_t;
 
+/* pthread wrapped args_t */
+typedef struct {
+	const args_t *args;
+} pthread_args_t;
+
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) && NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
