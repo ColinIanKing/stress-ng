@@ -80,29 +80,41 @@ int stress_fp_error(const args_t *args)
 	do {
 		volatile double d1, d2;
 
+#if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(-1.0)", log(-1.0), NAN,
 			EDOM, FE_INVALID);
+#endif
 
+#if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
 			ERANGE, FE_DIVBYZERO);
+#endif
 
+#if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(-1.0)", log2(-1.0), NAN,
 			EDOM, FE_INVALID);
+#endif
 
+#if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
 			ERANGE, FE_DIVBYZERO);
+#endif
 
+#if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
 			EDOM, FE_INVALID);
+#endif
 
+#if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
 			EDOM, FE_INVALID);
+#endif
 
 		/*
 		 * Use volatiles to force compiler to generate code
@@ -125,13 +137,17 @@ int stress_fp_error(const args_t *args)
 			DBL_MAX + DBL_MAX / 2.0, INFINITY,
 			0, FE_OVERFLOW | FE_INEXACT);
 
+#if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(-1000000.0)", exp(-1000000.0), 0.0,
 			ERANGE, FE_UNDERFLOW);
+#endif
 
+#if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
 			ERANGE, FE_OVERFLOW);
+#endif
 
 		if (fegetround() == -1)
 			pr_fail("%s: fegetround() returned -1\n", args->name);
