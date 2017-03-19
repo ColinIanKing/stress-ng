@@ -2415,6 +2415,7 @@ extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_sysfs(int option, ...);
 extern int shim_madvise(void *addr, size_t length, int advice);
+extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
 
 #define STRESS(func) extern int func(const args_t *args);
 

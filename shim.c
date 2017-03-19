@@ -649,3 +649,18 @@ int shim_madvise(void *addr, size_t length, int advice)
 	return -1;
 #endif
 }
+
+int shim_mincore(void *addr, size_t length, unsigned char *vec)
+{
+#if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
+    defined(__NetBSD__) || defined(__sun__)
+	return mincore(addr, length, (char *)vec);
+#else
+	return mincore(addr, length, vec);
+#endif
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
