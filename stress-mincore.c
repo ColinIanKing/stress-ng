@@ -50,7 +50,7 @@ int stress_mincore(const args_t *args)
 					addr = (uint8_t *)((ptrdiff_t)(mwc64() & mask));
 redo:
 			errno = 0;
-			ret = mincore((void *)addr, page_size, vec);
+			ret = shim_mincore((void *)addr, page_size, vec);
 			if (ret < 0) {
 				switch (errno) {
 				case ENOMEM:

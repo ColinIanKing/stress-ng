@@ -24,13 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || \
-    defined(__NetBSD__) || defined(__sun__)
-#define MINCORE_CHAR	char
-#else
-#define MINCORE_CHAR	unsigned char
-#endif
-
 /*
  * mincore_touch_pages_slow()
  *	touch pages, even when they are resident
@@ -64,7 +57,7 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	return 0;
 #else
 	/* systems that support mincore */
-	MINCORE_CHAR *vec;
+	unsigned char *vec;
 	volatile char *buffer;
 	size_t i;
 	uintptr_t uintptr = (uintptr_t)buf & (page_size - 1);
@@ -83,7 +76,7 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	/*
 	 *  Find range of pages that are not in memory
 	 */
-	if (mincore((void *)uintptr, buf_len, vec) < 0) {
+	if (shim_mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
 
 		mincore_touch_pages_slow(buf, n_pages, page_size);
