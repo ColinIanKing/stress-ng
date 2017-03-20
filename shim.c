@@ -756,7 +756,11 @@ int shim_madvise(void *addr, size_t length, int advice)
 	}
 	return posix_madvise(addr, length, posix_advice);
 #else
-	errno = ENOSYS
+	(void)addr;
+	(void)length;
+	(void)advice;
+
+	errno = ENOSYS;
 	return -1;
 #endif
 }
@@ -775,6 +779,10 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 	return mincore(addr, length, vec);
 #endif
 #else
+	(void)addr;
+	(void)length;
+	(void)vec;
+
 	errno = ENOSYS;
 	return -1;
 #endif
