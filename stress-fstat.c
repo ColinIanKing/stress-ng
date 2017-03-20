@@ -115,7 +115,7 @@ static void stress_fstat_helper(const ctxt_t *ctxt)
 	}
 }
 
-
+#if defined(HAVE_LIB_PTHREAD)
 /*
  *  stress_fstat_thread
  *	keep exercising a file until
@@ -155,6 +155,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 
 	return &nowt;
 }
+#endif
 
 /*
  *  stress_fstat_threads()
@@ -163,23 +164,26 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_t euid)
 {
 	size_t i;
+#if defined(HAVE_LIB_PTHREAD)
 	pthread_t pthreads[MAX_FSTAT_THREADS];
 	int ret[MAX_FSTAT_THREADS];
+#endif
 	ctxt_t ctxt = {
 		.args 	= args,
 		.si 	= si,
 		.euid	= euid
 	};
 
+	keep_running = true;
+#if defined(HAVE_LIB_PTHREAD)
 	memset(ret, 0, sizeof(ret));
 	memset(pthreads, 0, sizeof(pthreads));
-
-	keep_running = true;
 
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_fstat_thread, &ctxt);
 	}
+#endif
 	for (i = 0; i < FSTAT_LOOPS; i++) {
 		if (!g_keep_stressing_flag)
 			break;
@@ -187,10 +191,12 @@ static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_
 	}
 	keep_running = false;
 
+#if defined(HAVE_LIB_PTHREAD)
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		if (ret[i] == 0)
 			pthread_join(pthreads[i], NULL);
 	}
+#endif
 }
 
 /*
