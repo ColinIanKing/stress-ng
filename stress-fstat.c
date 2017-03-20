@@ -85,7 +85,6 @@ static bool do_not_stat(const char *filename)
 
 static void stress_fstat_helper(const ctxt_t *ctxt)
 {
-	int fd;
 	struct stat buf;
 	stat_info_t *si = ctxt->si;
 
@@ -103,6 +102,8 @@ static void stress_fstat_helper(const ctxt_t *ctxt)
 	 *  avoid this.
 	 */
 	if ((si->access) && (ctxt->euid)) {
+		int fd;
+
 		fd = open(si->path, O_RDONLY | O_NONBLOCK);
 		if (fd < 0) {
 			si->access = false;
