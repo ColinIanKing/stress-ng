@@ -26,7 +26,6 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 #
 # Pedantic flags
 #
-PEDANTIC=1
 ifeq ($(PEDANTIC),1)
 CFLAGS += -Wabi -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
