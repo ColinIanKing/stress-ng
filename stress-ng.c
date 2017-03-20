@@ -1445,18 +1445,18 @@ static uint32_t get_class(char *const class_str)
 	uint32_t class = 0;
 
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
-		size_t i;
 		uint32_t cl = get_class_id(token);
 		if (!cl) {
+			size_t i;
 			size_t len = strlen(token);
 
 			if ((len > 1) && (token[len - 1] == '?')) {
-				size_t j;
-
 				token[len - 1] = '\0';
 
 				cl = get_class_id(token);
 				if (cl) {
+					size_t j;
+
 					(void)printf("class '%s' stressors:", token);
 					for (j = 0; stressors[j].name; j++) {
 						if (stressors[j].class & cl)
