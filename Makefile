@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.07.25
+VERSION=0.07.26
 #
 # Codename "systematic stress inducer"
 #
@@ -26,6 +26,7 @@ CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 #
 # Pedantic flags
 #
+PEDANTIC=1
 ifeq ($(PEDANTIC),1)
 CFLAGS += -Wabi -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
