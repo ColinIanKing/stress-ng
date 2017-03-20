@@ -32,8 +32,12 @@ int stress_zero(const args_t *args)
 {
 	int fd;
 	const size_t page_size = args->page_size;
-
-	if ((fd = open("/dev/zero", O_RDWR)) < 0) {
+#if defined(__minix__)
+	const int flags = O_RDONLY;
+#else
+	const int flags = O_RDWR;
+#endif
+	if ((fd = open("/dev/zero", flags)) < 0) {
 		pr_fail_err("open /dev/zero");
 		return EXIT_FAILURE;
 	}
@@ -54,6 +58,7 @@ int stress_zero(const args_t *args)
 			return EXIT_FAILURE;
 		}
 
+#if !defined(__minix__)
 		/* One can also write to /dev/zero w/o failure */
 		ret = write(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
@@ -63,6 +68,7 @@ int stress_zero(const args_t *args)
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
+#endif
 
 #if defined(__linux__)
 		/*
