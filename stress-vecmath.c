@@ -58,7 +58,7 @@ typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-int HOT OPTIMIZE3 stress_vecmath(const args_t *args)
+int HOT stress_vecmath(const args_t *args)
 {
 	vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
