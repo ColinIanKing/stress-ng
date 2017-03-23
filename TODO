@@ -1,0 +1,8 @@
+List of TODO items:
+
+1. acls?
+2. add options to control number of default directories in
+   chdir and other such hard coded defaults
+3. add new statx syscall stressor
+
+
