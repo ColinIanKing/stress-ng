@@ -2215,7 +2215,7 @@ extern void stress_set_net_port(const char *optname, const char *optarg,
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask, const char *name, const char *domain_name, int *domain);
 extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	const pid_t ppid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len, int net_addr);
+	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 extern void stress_semaphore_posix_init(void);
