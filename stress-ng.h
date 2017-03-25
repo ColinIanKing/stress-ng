@@ -2237,8 +2237,8 @@ extern int  thrash_start(void);
 extern void thrash_stop(void);
 
 /* Used to set options for specific stressors */
-extern void stress_adjust_pthread_max(uint64_t max);
-extern void stress_adjust_sleep_max(uint64_t max);
+extern void stress_adjust_pthread_max(const uint64_t max);
+extern void stress_adjust_sleep_max(const uint64_t max);
 extern int  stress_apparmor_supported(void);
 extern void stress_set_aio_requests(const char *optarg);
 extern void stress_set_aio_linux_requests(const char *optarg);
@@ -2290,7 +2290,7 @@ extern int  stress_netlink_proc_supported(void);
 extern void stress_set_pipe_data_size(const char *optarg);
 extern void stress_set_pipe_size(const char *optarg);
 extern void stress_set_pthread_max(const char *optarg);
-extern void stress_set_qsort_size(const void *optarg);
+extern void stress_set_qsort_size(const char *optarg);
 extern int  stress_rdrand_supported(void);
 extern void stress_set_readahead_bytes(const char *optarg);
 extern int  stress_set_sctp_domain(const char *optarg);

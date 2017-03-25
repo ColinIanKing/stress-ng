@@ -50,7 +50,7 @@ void stress_set_sleep_max(const char *optarg)
 		MIN_SLEEP, MAX_SLEEP);
 }
 
-void stress_adjust_sleep_max(uint64_t max)
+void stress_adjust_sleep_max(const uint64_t max)
 {
 	if (opt_sleep_max > max) {
 		opt_sleep_max = max;
