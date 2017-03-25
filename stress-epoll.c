@@ -56,9 +56,9 @@ static int opt_epoll_port = DEFAULT_EPOLL_PORT;
  *  stress_set_epoll_port()
  *	set the default port base
  */
-void stress_set_epoll_port(const char *optarg)
+void stress_set_epoll_port(const char *opt)
 {
-	stress_set_net_port("epoll-port", optarg,
+	stress_set_net_port("epoll-port", opt,
 		MIN_EPOLL_PORT,
 		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
 		&opt_epoll_port);

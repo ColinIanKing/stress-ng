@@ -42,10 +42,10 @@ static sigset_t set;
 static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
 static bool set_pthread_max = false;
 
-void stress_set_pthread_max(const char *optarg)
+void stress_set_pthread_max(const char *opt)
 {
 	set_pthread_max = true;
-	opt_pthread_max = get_uint64_byte(optarg);
+	opt_pthread_max = get_uint64_byte(opt);
 	check_range("pthread-max", opt_pthread_max,
 		MIN_PTHREAD, MAX_PTHREAD);
 }

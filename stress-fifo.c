@@ -29,10 +29,10 @@ static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
 static bool set_fifo_readers = false;
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 
-void stress_set_fifo_readers(const char *optarg)
+void stress_set_fifo_readers(const char *opt)
 {
 	set_fifo_readers = true;
-	opt_fifo_readers = get_uint64(optarg);
+	opt_fifo_readers = get_uint64(opt);
 	check_range("fifo-readers", opt_fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
 }

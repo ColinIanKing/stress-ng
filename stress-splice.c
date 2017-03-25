@@ -27,11 +27,11 @@
 static size_t opt_splice_bytes = DEFAULT_SPLICE_BYTES;
 static bool set_splice_bytes = false;
 
-void stress_set_splice_bytes(const char *optarg)
+void stress_set_splice_bytes(const char *opt)
 {
 	set_splice_bytes = true;
 	opt_splice_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_SPLICE));
 	check_range_bytes("splice-bytes", opt_splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);

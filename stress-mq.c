@@ -36,12 +36,12 @@ typedef struct {
 static int opt_mq_size = DEFAULT_MQ_SIZE;
 static bool set_mq_size = false;
 
-void stress_set_mq_size(const char *optarg)
+void stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
 
 	set_mq_size = true;
-	sz = get_uint64_byte(optarg);
+	sz = get_uint64_byte(opt);
 	opt_mq_size = (int)sz;
 	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
 }

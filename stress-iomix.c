@@ -29,11 +29,11 @@ typedef void (*stress_iomix_func)(const args_t *args, const int fd);
 static off_t opt_iomix_bytes = DEFAULT_IOMIX_BYTES;
 static bool set_iomix_bytes = false;
 
-void stress_set_iomix_bytes(const char *optarg)
+void stress_set_iomix_bytes(const char *opt)
 {
 	set_iomix_bytes = true;
 	opt_iomix_bytes = (off_t)
-		get_uint64_byte_filesystem(optarg,
+		get_uint64_byte_filesystem(opt,
 			stressor_instances(STRESS_IOMIX));
 	check_range_bytes("iomix-bytes", opt_iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);

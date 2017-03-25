@@ -31,10 +31,10 @@
 static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_posix_procs = false;
 
-void stress_set_semaphore_posix_procs(const char *optarg)
+void stress_set_semaphore_posix_procs(const char *opt)
 {
 	set_semaphore_posix_procs = true;
-	opt_semaphore_posix_procs = get_uint64_byte(optarg);
+	opt_semaphore_posix_procs = get_uint64_byte(opt);
 	check_range("sem-procs", opt_semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }

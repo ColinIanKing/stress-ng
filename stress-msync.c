@@ -32,11 +32,11 @@ static uint64_t sigbus_count;
 static size_t opt_msync_bytes = DEFAULT_MSYNC_BYTES;
 static bool set_msync_bytes = false;
 
-void stress_set_msync_bytes(const char *optarg)
+void stress_set_msync_bytes(const char *opt)
 {
 	set_msync_bytes = true;
 	opt_msync_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_MSYNC));
 	check_range_bytes("mmap-bytes", opt_msync_bytes,
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);

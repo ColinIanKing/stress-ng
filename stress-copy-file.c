@@ -27,11 +27,11 @@
 static uint64_t opt_copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 static bool set_copy_file_bytes;
 
-void stress_set_copy_file_bytes(const char *optarg)
+void stress_set_copy_file_bytes(const char *opt)
 {
 	set_copy_file_bytes = true;
 	opt_copy_file_bytes =
-		get_uint64_byte_filesystem(optarg,
+		get_uint64_byte_filesystem(opt,
 			stressor_instances(STRESS_COPY_FILE));
 	check_range_bytes("copy-file-bytes", opt_copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);

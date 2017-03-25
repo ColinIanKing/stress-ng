@@ -115,10 +115,10 @@ static const int unshare_flags[] = {
  *  stress_set_clone_max()
  *	set maximum number of clones allowed
  */
-void stress_set_clone_max(const char *optarg)
+void stress_set_clone_max(const char *opt)
 {
 	set_clone_max = true;
-	opt_clone_max = get_uint64_byte(optarg);
+	opt_clone_max = get_uint64_byte(opt);
 	check_range("clone-max", opt_clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
 }

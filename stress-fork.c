@@ -33,10 +33,10 @@ static bool set_vfork_max = false;
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
  */
-void stress_set_fork_max(const char *optarg)
+void stress_set_fork_max(const char *opt)
 {
 	set_fork_max = true;
-	opt_fork_max = get_uint64_byte(optarg);
+	opt_fork_max = get_uint64_byte(opt);
 	check_range("fork-max", opt_fork_max,
 		MIN_FORKS, MAX_FORKS);
 }
@@ -45,10 +45,10 @@ void stress_set_fork_max(const char *optarg)
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
  */
-void stress_set_vfork_max(const char *optarg)
+void stress_set_vfork_max(const char *opt)
 {
 	set_vfork_max = true;
-	opt_vfork_max = get_uint64_byte(optarg);
+	opt_vfork_max = get_uint64_byte(opt);
 	check_range("vfork-max", opt_vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 }

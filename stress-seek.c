@@ -27,10 +27,10 @@
 static uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
 static bool set_seek_size = false;
 
-void stress_set_seek_size(const char *optarg)
+void stress_set_seek_size(const char *opt)
 {
 	set_seek_size = true;
-	opt_seek_size = get_uint64_byte(optarg);
+	opt_seek_size = get_uint64_byte(opt);
 	check_range_bytes("seek-size", opt_seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
 }

@@ -124,10 +124,10 @@ static void stress_zombie_free(void)
  *  stress_set_zombie_max()
  *	set maximum number of zombies allowed
  */
-void stress_set_zombie_max(const char *optarg)
+void stress_set_zombie_max(const char *opt)
 {
 	set_zombie_max = true;
-	opt_zombie_max = get_uint64_byte(optarg);
+	opt_zombie_max = get_uint64_byte(opt);
 	check_range("zombie-max", opt_zombie_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
 }

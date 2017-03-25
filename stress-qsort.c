@@ -47,10 +47,10 @@ static void MLOCKED stress_qsort_handler(int dummy)
  *  stress_set_qsort_size()
  *	set qsort size
  */
-void stress_set_qsort_size(const char *optarg)
+void stress_set_qsort_size(const char *opt)
 {
 	set_qsort_size = true;
-	opt_qsort_size = get_uint64_byte(optarg);
+	opt_qsort_size = get_uint64_byte(opt);
 	check_range("qsort-size", opt_qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 }

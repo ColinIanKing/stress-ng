@@ -33,11 +33,11 @@
 static uint64_t opt_fiemap_size = DEFAULT_FIEMAP_SIZE;
 static bool set_fiemap_size = false;
 
-void stress_set_fiemap_size(const char *optarg)
+void stress_set_fiemap_size(const char *opt)
 {
 	set_fiemap_size = true;
 	opt_fiemap_size =
-		get_uint64_byte_filesystem(optarg,
+		get_uint64_byte_filesystem(opt,
 			stressor_instances(STRESS_FIEMAP));
 	check_range_bytes("fiemap-size", opt_fiemap_size,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);

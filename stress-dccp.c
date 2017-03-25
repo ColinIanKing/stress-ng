@@ -65,17 +65,17 @@ static const dccp_opts_t dccp_opts[] = {
  *  stress_set_dccp_opts()
  *	parse --dccp-opts
  */
-int stress_set_dccp_opts(const char *optarg)
+int stress_set_dccp_opts(const char *opt)
 {
 	int i;
 
 	for (i = 0; dccp_opts[i].optname; i++) {
-		if (!strcmp(optarg, dccp_opts[i].optname)) {
+		if (!strcmp(opt, dccp_opts[i].optname)) {
 			opt_dccp_opts = dccp_opts[i].opt;
 			return 0;
 		}
 	}
-	(void)fprintf(stderr, "dccp-opts option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "dccp-opts option '%s' not known, options are:", opt);
 	for (i = 0; dccp_opts[i].optname; i++) {
 		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", dccp_opts[i].optname);
@@ -88,9 +88,9 @@ int stress_set_dccp_opts(const char *optarg)
  *  stress_set_dccp_port()
  *	set port to use
  */
-void stress_set_dccp_port(const char *optarg)
+void stress_set_dccp_port(const char *opt)
 {
-	stress_set_net_port("dccp-port", optarg,
+	stress_set_net_port("dccp-port", opt,
 		MIN_DCCP_PORT, MAX_DCCP_PORT - STRESS_PROCS_MAX,
 		&opt_dccp_port);
 }

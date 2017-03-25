@@ -40,12 +40,12 @@
 static uint32_t opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 static bool set_aio_linux_requests = false;
 
-void stress_set_aio_linux_requests(const char *optarg)
+void stress_set_aio_linux_requests(const char *opt)
 {
 	uint32_t aio_linux_requests;
 
 	set_aio_linux_requests = true;
-	aio_linux_requests = get_uint32(optarg);
+	aio_linux_requests = get_uint32(opt);
 	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
 	opt_aio_linux_requests = aio_linux_requests;

@@ -44,11 +44,11 @@ static const int sync_modes[] = {
 static off_t opt_sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 static bool set_sync_file_bytes = false;
 
-void stress_set_sync_file_bytes(const char *optarg)
+void stress_set_sync_file_bytes(const char *opt)
 {
 	set_sync_file_bytes = true;
 	opt_sync_file_bytes = (off_t)
-		get_uint64_byte_filesystem(optarg,
+		get_uint64_byte_filesystem(opt,
 			stressor_instances(STRESS_SYNC_FILE));
 	check_range_bytes("sync_file-bytes", opt_sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);

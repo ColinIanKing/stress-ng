@@ -39,10 +39,10 @@ static bool set_timerfd_freq = false;
  *  stress_set_timerfd_freq()
  *	set timer frequency from given option
  */
-void stress_set_timerfd_freq(const char *optarg)
+void stress_set_timerfd_freq(const char *opt)
 {
 	set_timerfd_freq = true;
-	opt_timerfd_freq = get_uint64(optarg);
+	opt_timerfd_freq = get_uint64(opt);
 	check_range("timerfd-freq", opt_timerfd_freq,
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
 }

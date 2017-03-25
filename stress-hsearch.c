@@ -32,10 +32,10 @@ static bool set_hsearch_size = false;
  *  stress_set_hsearch_size()
  *      set hsearch size from given option string
  */
-void stress_set_hsearch_size(const char *optarg)
+void stress_set_hsearch_size(const char *opt)
 {
 	set_hsearch_size = true;
-	opt_hsearch_size = get_uint64_byte(optarg);
+	opt_hsearch_size = get_uint64_byte(opt);
 	check_range("hsearch-size", opt_hsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 }

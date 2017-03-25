@@ -31,10 +31,10 @@ static bool set_bigheap_growth = false;
  *  stress_set_bigheap_growth()
  *  	Set bigheap growth from given opt arg string
  */
-void stress_set_bigheap_growth(const char *optarg)
+void stress_set_bigheap_growth(const char *opt)
 {
 	set_bigheap_growth = true;
-	opt_bigheap_growth = get_uint64_byte(optarg);
+	opt_bigheap_growth = get_uint64_byte(opt);
 	check_range_bytes("bigheap-growth", opt_bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
 }

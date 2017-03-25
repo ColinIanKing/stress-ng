@@ -32,10 +32,10 @@ static uint64_t lease_sigio;
 static uint64_t opt_lease_breakers = DEFAULT_LEASE_BREAKERS;
 static bool set_lease_breakers = false;
 
-void stress_set_lease_breakers(const char *optarg)
+void stress_set_lease_breakers(const char *opt)
 {
 	set_lease_breakers = true;
-	opt_lease_breakers = get_uint64(optarg);
+	opt_lease_breakers = get_uint64(opt);
 	check_range("lease-breakers", opt_lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
 }

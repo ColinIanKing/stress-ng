@@ -42,10 +42,10 @@ static uint64_t opt_sleep_max = DEFAULT_SLEEP;
 static bool set_sleep_max = false;
 
 
-void stress_set_sleep_max(const char *optarg)
+void stress_set_sleep_max(const char *opt)
 {
 	set_sleep_max = true;
-	opt_sleep_max = get_uint64_byte(optarg);
+	opt_sleep_max = get_uint64_byte(opt);
 	check_range("sleep-max", opt_sleep_max,
 		MIN_SLEEP, MAX_SLEEP);
 }

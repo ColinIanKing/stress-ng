@@ -38,10 +38,10 @@ static bool set_mergesort_size = false;
  *  stress_set_mergesort_size()
  *	set mergesort size
  */
-void stress_set_mergesort_size(const void *optarg)
+void stress_set_mergesort_size(const void *opt)
 {
 	set_mergesort_size = true;
-	opt_mergesort_size = get_uint64_byte(optarg);
+	opt_mergesort_size = get_uint64_byte(opt);
 	check_range("mergesort-size", opt_mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
 }

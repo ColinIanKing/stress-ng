@@ -51,11 +51,11 @@ typedef struct {
 static size_t opt_vm_rw_bytes = DEFAULT_VM_RW_BYTES;
 static bool set_vm_rw_bytes = false;
 
-void stress_set_vm_rw_bytes(const char *optarg)
+void stress_set_vm_rw_bytes(const char *opt)
 {
 	set_vm_rw_bytes = true;
 	opt_vm_rw_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_VM_RW));
 	check_range_bytes("vm-rw-bytes", opt_vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);

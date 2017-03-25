@@ -51,9 +51,9 @@ typedef struct ctxt {
 	const uid_t	euid;		/* euid of process */
 } ctxt_t;
 
-void stress_set_fstat_dir(const char *optarg)
+void stress_set_fstat_dir(const char *opt)
 {
-	opt_fstat_dir = optarg;
+	opt_fstat_dir = opt;
 }
 
 /*

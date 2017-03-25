@@ -47,12 +47,12 @@ static const stress_matrix_stressor_info_t matrix_methods[];
 static size_t opt_matrix_size = 128;
 static bool set_matrix_size = false;
 
-void stress_set_matrix_size(const char *optarg)
+void stress_set_matrix_size(const char *opt)
 {
 	uint64_t size;
 
 	set_matrix_size = true;
-	size = get_uint64_byte(optarg);
+	size = get_uint64_byte(opt);
 	check_range("matrix-size", size,
 		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
 	opt_matrix_size = (size_t)size;

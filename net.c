@@ -51,12 +51,12 @@ static const domain_t domains[] = {
  */
 void stress_set_net_port(
 	const char *optname,
-	const char *optarg,
+	const char *opt,
 	const int min_port,
 	const int max_port,
 	int *port)
 {
-	*port = get_uint64(optarg);
+	*port = get_uint64(opt);
 	check_range(optname, *port,
 		min_port, max_port - STRESS_PROCS_MAX);
 }

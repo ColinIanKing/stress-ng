@@ -29,11 +29,11 @@
 static size_t opt_memfd_bytes = DEFAULT_MEMFD_BYTES;
 static bool set_memfd_bytes;
 
-void stress_set_memfd_bytes(const char *optarg)
+void stress_set_memfd_bytes(const char *opt)
 {
 	set_memfd_bytes = true;
 	opt_memfd_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_MEMFD));
 	check_range_bytes("memfd-bytes", opt_memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);

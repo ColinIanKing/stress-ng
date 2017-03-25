@@ -31,10 +31,10 @@
 static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
 static bool set_sendfile_size = false;
 
-void stress_set_sendfile_size(const char *optarg)
+void stress_set_sendfile_size(const char *opt)
 {
 	set_sendfile_size = true;
-	opt_sendfile_size = get_uint64_byte(optarg);
+	opt_sendfile_size = get_uint64_byte(opt);
 	check_range_bytes("sendfile-size", opt_sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
 }

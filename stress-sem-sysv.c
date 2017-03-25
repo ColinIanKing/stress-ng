@@ -39,10 +39,10 @@ typedef union _semun {
 static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 static bool set_semaphore_sysv_procs = false;
 
-void stress_set_semaphore_sysv_procs(const char *optarg)
+void stress_set_semaphore_sysv_procs(const char *opt)
 {
 	set_semaphore_sysv_procs = true;
-	opt_semaphore_sysv_procs = get_uint64_byte(optarg);
+	opt_semaphore_sysv_procs = get_uint64_byte(opt);
 	check_range("sem-procs", opt_semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 }

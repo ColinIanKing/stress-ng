@@ -88,17 +88,17 @@ static const socket_type_t socket_type[] = {
  *  stress_set_socket_opts()
  *	parse --sock-opts
  */
-int stress_set_socket_opts(const char *optarg)
+int stress_set_socket_opts(const char *opt)
 {
 	int i;
 
 	for (i = 0; socket_opts[i].optname; i++) {
-		if (!strcmp(optarg, socket_opts[i].optname)) {
+		if (!strcmp(opt, socket_opts[i].optname)) {
 			opt_socket_opts = socket_opts[i].opt;
 			return 0;
 		}
 	}
-	(void)fprintf(stderr, "sock-opts option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "sock-opts option '%s' not known, options are:", opt);
 	for (i = 0; socket_opts[i].optname; i++) {
 		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", socket_opts[i].optname);
@@ -111,17 +111,17 @@ int stress_set_socket_opts(const char *optarg)
  *  stress_set_socket_type()
  *	parse --sock-type
  */
-int stress_set_socket_type(const char *optarg)
+int stress_set_socket_type(const char *opt)
 {
 	int i;
 
 	for (i = 0; socket_type[i].typename; i++) {
-		if (!strcmp(optarg, socket_type[i].typename)) {
+		if (!strcmp(opt, socket_type[i].typename)) {
 			opt_socket_type = socket_type[i].type;
 			return 0;
 		}
 	}
-	(void)fprintf(stderr, "sock-type option '%s' not known, options are:", optarg);
+	(void)fprintf(stderr, "sock-type option '%s' not known, options are:", opt);
 	for (i = 0; socket_type[i].typename; i++) {
 		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", socket_type[i].typename);
@@ -134,9 +134,9 @@ int stress_set_socket_type(const char *optarg)
  *  stress_set_socket_port()
  *	set port to use
  */
-void stress_set_socket_port(const char *optarg)
+void stress_set_socket_port(const char *opt)
 {
-	stress_set_net_port("sock-port", optarg,
+	stress_set_net_port("sock-port", opt,
 		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
 		&opt_socket_port);
 }

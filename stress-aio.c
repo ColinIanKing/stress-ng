@@ -45,12 +45,12 @@ static volatile bool do_accounting = true;
 static int opt_aio_requests = DEFAULT_AIO_REQUESTS;
 static bool set_aio_requests = false;
 
-void stress_set_aio_requests(const char *optarg)
+void stress_set_aio_requests(const char *opt)
 {
 	uint64_t aio_requests;
 
 	set_aio_requests = true;
-	aio_requests = get_uint64(optarg);
+	aio_requests = get_uint64(opt);
 	check_range("aio-requests", aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 	opt_aio_requests = (int)aio_requests;

@@ -36,20 +36,20 @@ static size_t opt_shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 static bool set_shm_posix_bytes = false;
 static bool set_shm_posix_objects = false;
 
-void stress_set_shm_posix_bytes(const char *optarg)
+void stress_set_shm_posix_bytes(const char *opt)
 {
 	set_shm_posix_bytes = true;
 	opt_shm_posix_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_SHM_POSIX));
 	check_range_bytes("shm-bytes", opt_shm_posix_bytes,
 		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
 }
 
-void stress_set_shm_posix_objects(const char *optarg)
+void stress_set_shm_posix_objects(const char *opt)
 {
 	set_shm_posix_objects = true;
-	opt_shm_posix_objects = (size_t)get_uint64_byte(optarg);
+	opt_shm_posix_objects = (size_t)get_uint64_byte(opt);
 	check_range("shm-segments", opt_shm_posix_objects,
 		MIN_SHM_POSIX_OBJECTS, MAX_48);
 }

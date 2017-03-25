@@ -33,28 +33,28 @@ static bool set_malloc_max = false;
 static int opt_malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 static bool set_malloc_threshold = false;
 
-void stress_set_malloc_bytes(const char *optarg)
+void stress_set_malloc_bytes(const char *opt)
 {
 	set_malloc_bytes = true;
 	opt_malloc_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_MALLOC));
 	check_range_bytes("malloc-bytes", opt_malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
 }
 
-void stress_set_malloc_max(const char *optarg)
+void stress_set_malloc_max(const char *opt)
 {
 	set_malloc_max = true;
-	opt_malloc_max = (size_t)get_uint64_byte(optarg);
+	opt_malloc_max = (size_t)get_uint64_byte(opt);
 	check_range("malloc-max", opt_malloc_max,
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
 }
 
-void stress_set_malloc_threshold(const char *optarg)
+void stress_set_malloc_threshold(const char *opt)
 {
 	set_malloc_threshold = true;
-	opt_malloc_threshold = (size_t)get_uint64_byte(optarg);
+	opt_malloc_threshold = (size_t)get_uint64_byte(opt);
 	check_range("malloc-threshold", opt_malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
 }

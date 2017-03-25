@@ -31,10 +31,10 @@ static bool set_bsearch_size = false;
  *  stress_set_bsearch_size()
  *	set bsearch size from given option string
  */
-void stress_set_bsearch_size(const char *optarg)
+void stress_set_bsearch_size(const char *opt)
 {
 	set_bsearch_size = true;
-	opt_bsearch_size = get_uint64_byte(optarg);
+	opt_bsearch_size = get_uint64_byte(opt);
 	check_range("bsearch-size", opt_bsearch_size,
 		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
 }

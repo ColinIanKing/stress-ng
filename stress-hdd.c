@@ -137,20 +137,20 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 };
 
-void stress_set_hdd_bytes(const char *optarg)
+void stress_set_hdd_bytes(const char *opt)
 {
 	set_hdd_bytes = true;
 	opt_hdd_bytes =
-		get_uint64_byte_filesystem(optarg,
+		get_uint64_byte_filesystem(opt,
 			stressor_instances(STRESS_HDD));
 	check_range_bytes("hdd-bytes", opt_hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
 
-void stress_set_hdd_write_size(const char *optarg)
+void stress_set_hdd_write_size(const char *opt)
 {
 	set_hdd_write_size = true;
-	opt_hdd_write_size = get_uint64_byte(optarg);
+	opt_hdd_write_size = get_uint64_byte(opt);
 	check_range_bytes("hdd-write-size", opt_hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 }

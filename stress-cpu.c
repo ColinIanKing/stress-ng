@@ -81,17 +81,17 @@ static const stress_cpu_stressor_info_t cpu_methods[];
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
-void stress_set_cpu_load(const char *optarg) {
-	opt_cpu_load = get_int32(optarg);
+void stress_set_cpu_load(const char *opt) {
+	opt_cpu_load = get_int32(opt);
 	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
 		(void)fprintf(stderr, "CPU load must in the range 0 to 100.\n");
 		exit(EXIT_FAILURE);
 	}
 }
 
-void stress_set_cpu_load_slice(const char *optarg)
+void stress_set_cpu_load_slice(const char *opt)
 {
-	opt_cpu_load_slice = get_int32(optarg);
+	opt_cpu_load_slice = get_int32(opt);
 	if ((opt_cpu_load < -5000) || (opt_cpu_load > 5000)) {
 		(void)fprintf(stderr, "CPU load must in the range -5000 to 5000.\n");
 		exit(EXIT_FAILURE);

@@ -33,10 +33,10 @@ static bool set_lsearch_size = false;
  *  stress_set_lsearch_size()
  *      set lsearch size from given option string
  */
-void stress_set_lsearch_size(const char *optarg)
+void stress_set_lsearch_size(const char *opt)
 {
 	set_lsearch_size = true;
-	opt_lsearch_size = get_uint64_byte(optarg);
+	opt_lsearch_size = get_uint64_byte(opt);
 	check_range("lsearch-size", opt_lsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 }

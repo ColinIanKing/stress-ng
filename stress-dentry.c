@@ -49,10 +49,10 @@ static dentry_order_t order = ORDER_RANDOM;
 static uint64_t opt_dentries = DEFAULT_DENTRIES;
 static bool set_dentries = false;
 
-void stress_set_dentries(const char *optarg)
+void stress_set_dentries(const char *opt)
 {
 	set_dentries = true;
-	opt_dentries = get_uint64(optarg);
+	opt_dentries = get_uint64(opt);
 	check_range("dentries", opt_dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
 }
@@ -61,12 +61,12 @@ void stress_set_dentries(const char *optarg)
  *  stress_set_dentry_order()
  *	set dentry ordering from give option
  */
-int stress_set_dentry_order(const char *optarg)
+int stress_set_dentry_order(const char *opt)
 {
 	const dentry_removal_t *dr;
 
 	for (dr = dentry_removals; dr->name; dr++) {
-		if (!strcmp(dr->name, optarg)) {
+		if (!strcmp(dr->name, opt)) {
 			order = dr->order;
 			return 0;
 		}

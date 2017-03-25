@@ -45,11 +45,11 @@ typedef struct {
 static size_t opt_userfaultfd_bytes = DEFAULT_MMAP_BYTES;
 static bool set_userfaultfd_bytes = false;
 
-void stress_set_userfaultfd_bytes(const char *optarg)
+void stress_set_userfaultfd_bytes(const char *opt)
 {
 	set_userfaultfd_bytes = true;
 	opt_userfaultfd_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_USERFAULTFD));
 	check_range_bytes("userfaultfd-bytes", opt_userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);

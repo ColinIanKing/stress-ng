@@ -41,9 +41,9 @@ static int opt_socket_fd_port = DEFAULT_SOCKET_FD_PORT;
  *  stress_set_socket_fd_port()
  *	set port to use
  */
-void stress_set_socket_fd_port(const char *optarg)
+void stress_set_socket_fd_port(const char *opt)
 {
-	stress_set_net_port("sockfd-port", optarg,
+	stress_set_net_port("sockfd-port", opt,
 		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
 		&opt_socket_fd_port);
 }

@@ -38,10 +38,10 @@ static bool set_heapsort_size = false;
  *  stress_set_heapsort_size()
  *	set heapsort size
  */
-void stress_set_heapsort_size(const void *optarg)
+void stress_set_heapsort_size(const void *opt)
 {
 	set_heapsort_size = true;
-	opt_heapsort_size = get_uint64_byte(optarg);
+	opt_heapsort_size = get_uint64_byte(opt);
 	check_range("heapsort-size", opt_heapsort_size,
 		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
 }

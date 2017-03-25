@@ -53,18 +53,18 @@ static int      opt_vm_flags = 0;                      /* VM mmap flags */
 static const stress_vm_stressor_info_t *opt_vm_stressor;
 static const stress_vm_stressor_info_t vm_methods[];
 
-void stress_set_vm_hang(const char *optarg)
+void stress_set_vm_hang(const char *opt)
 {
-	opt_vm_hang = get_uint64_byte(optarg);
+	opt_vm_hang = get_uint64_byte(opt);
 	check_range("vm-hang", opt_vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
 }
 
-void stress_set_vm_bytes(const char *optarg)
+void stress_set_vm_bytes(const char *opt)
 {
 	set_vm_bytes = true;
 	opt_vm_bytes = (size_t)
-		get_uint64_byte_memory(optarg,
+		get_uint64_byte_memory(opt,
 			stressor_instances(STRESS_VM));
 	check_range_bytes("vm-bytes", opt_vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);

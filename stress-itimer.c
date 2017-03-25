@@ -34,10 +34,10 @@ static double start;
  *  stress_set_itimer_freq()
  *	set itimer frequency from given option
  */
-void stress_set_itimer_freq(const char *optarg)
+void stress_set_itimer_freq(const char *opt)
 {
 	set_itimer_freq = true;
-	opt_itimer_freq = get_uint64(optarg);
+	opt_itimer_freq = get_uint64(opt);
 	check_range("itimer-freq", opt_itimer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 }

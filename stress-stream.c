@@ -38,10 +38,10 @@
 static uint64_t opt_stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 static bool     set_stream_L3_size = false;
 
-void stress_set_stream_L3_size(const char *optarg)
+void stress_set_stream_L3_size(const char *opt)
 {
 	set_stream_L3_size = true;
-	opt_stream_L3_size = get_uint64_byte(optarg);
+	opt_stream_L3_size = get_uint64_byte(opt);
 	check_range_bytes("stream-L3-size", opt_stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
 }

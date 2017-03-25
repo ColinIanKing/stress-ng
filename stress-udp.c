@@ -47,9 +47,9 @@
 static int opt_udp_domain = AF_INET;
 static int opt_udp_port = DEFAULT_SOCKET_PORT;
 
-void stress_set_udp_port(const char *optarg)
+void stress_set_udp_port(const char *opt)
 {
-	stress_set_net_port("udp-port", optarg,
+	stress_set_net_port("udp-port", opt,
 		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
 		&opt_udp_port);
 }

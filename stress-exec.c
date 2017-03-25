@@ -31,10 +31,10 @@ static bool set_exec_max = false;
  *  stress_set_exec_max()
  *	set maximum number of forks allowed
  */
-void stress_set_exec_max(const char *optarg)
+void stress_set_exec_max(const char *opt)
 {
 	set_exec_max = true;
-	opt_exec_max = get_uint64_byte(optarg);
+	opt_exec_max = get_uint64_byte(opt);
 	check_range("exec-max", opt_exec_max,
 		MIN_EXECS, MAX_EXECS);
 }

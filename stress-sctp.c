@@ -49,9 +49,9 @@ static int opt_sctp_port = DEFAULT_SCTP_PORT;
  *  stress_set_sctp_port()
  *	set port to use
  */
-void stress_set_sctp_port(const char *optarg)
+void stress_set_sctp_port(const char *opt)
 {
-	stress_set_net_port("sctp-port", optarg,
+	stress_set_net_port("sctp-port", opt,
 		MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX,
 		&opt_sctp_port);
 }
