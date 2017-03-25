@@ -49,6 +49,11 @@ typedef struct {
 	void (*func)(void);
 } proc_helper_t;
 
+typedef struct {
+	const char *setting;
+	int (*func)(const char *setting);
+} stressor_default_t;
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
@@ -103,6 +108,20 @@ static const proc_helper_t proc_init[] = {
 static const proc_helper_t proc_destroy[] = {
 	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_destroy },
 	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_destroy }
+};
+
+/*
+ *  stressor default settings
+ */
+static const stressor_default_t stressor_default[] = {
+	{ "all",	stress_set_cpu_method },
+	{ "all",	stress_set_str_method },
+	{ "all",	stress_set_wcs_method },
+	{ "all",	stress_set_matrix_method },
+	{ "all",	stress_set_vm_method },
+#if defined(HAVE_LIB_Z)
+	{ "random",	stress_set_zlib_method }
+#endif
 };
 
 /*
@@ -2346,6 +2365,20 @@ static void proc_helper(const proc_helper_t *helpers, const size_t n)
 }
 
 /*
+ *  stessor_set_defaults()
+ *	set up stressor default settings that can be overridden
+ *	by user later on
+ */
+static inline void stressor_set_defaults(void)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stressor_default); i++)
+		stressor_default[i].func(stressor_default[i].setting);
+}
+
+
+/*
  *  exclude_pathological()
  *	Disable pathological stressors if user has not explicitly
  *	request them to be used. Let's play safe.
@@ -2426,15 +2459,7 @@ int main(int argc, char **argv)
 	mwc_reseed();
 
 	(void)stress_get_pagesize();
-	(void)stress_set_cpu_method("all");
-	(void)stress_set_str_method("all");
-	(void)stress_set_wcs_method("all");
-	(void)stress_set_matrix_method("all");
-	(void)stress_set_vm_method("all");
-#if defined(HAVE_LIB_Z)
-	(void)stress_set_zlib_method("random");
-#endif
-
+	stressor_set_defaults();
 	g_pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
