@@ -417,7 +417,7 @@ static const struct option long_options[] = {
 	{ "cache-fence",0,	0,	OPT_CACHE_FENCE },
 	{ "cache-level",1,	0,	OPT_CACHE_LEVEL},
 	{ "cache-ways",1,	0,	OPT_CACHE_WAYS},
-	{ "cache-no-affinity",0,	0,	OPT_CACHE_NO_AFFINITY },
+	{ "cache-no-affinity",0,0,	OPT_CACHE_NO_AFFINITY },
 	{ "cap",	1,	0, 	OPT_CAP },
 	{ "cap-ops",	1,	0, 	OPT_CAP_OPS },
 	{ "chdir",	1,	0, 	OPT_CHDIR },
