@@ -1962,7 +1962,7 @@ static void stress_cpu_dither(const char *name)
 
 /*
  *  stress_cpu_union
- *	perform bit field operations on a packed union
+ *	perform bit field operations on a union
  */
 static void stress_cpu_union(const char *name)
 {
@@ -1996,7 +1996,7 @@ static void stress_cpu_union(const char *name)
 			uint32_t	b1:1;
 		} bits32;
 		uint32_t	u32:30;
-	} __attribute__ ((packed)) u_t;
+	} u_t;
 
 	static u_t u;
 	size_t i;
