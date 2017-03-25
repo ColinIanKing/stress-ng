@@ -1430,7 +1430,6 @@ static inline int32_t stressor_name_find(const char *name)
 	return i;	/* End of array is a special "NULL" entry */
 }
 
-
 /*
  *   stressor_instances()
  *	return the number of instances for a specific stress test
@@ -1698,7 +1697,6 @@ static inline void proc_finished(pid_t *pid)
 	*pid = 0;
 }
 
-
 /*
  *  kill_procs()
  * 	kill tasks using signal
@@ -1845,7 +1843,6 @@ redo:
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		ignite_cpu_stop();
 }
-
 
 /*
  *  handle_sigint()
@@ -2377,7 +2374,6 @@ static inline void stressor_set_defaults(void)
 		stressor_default[i].func(stressor_default[i].setting);
 }
 
-
 /*
  *  exclude_pathological()
  *	Disable pathological stressors if user has not explicitly
@@ -2428,7 +2424,6 @@ static inline void set_random_stressors(const int32_t opt_random)
 		}
 	}
 }
-
 
 int main(int argc, char **argv)
 {
