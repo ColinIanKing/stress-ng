@@ -215,7 +215,7 @@ int stress_fanotify(const args_t *args)
 				continue;
 
 			if ((len = read(fan_fd, (void *)buffer, BUFFER_SIZE)) > 0) {
-				const struct fanotify_event_metadata *metadata;
+				struct fanotify_event_metadata *metadata;
 				metadata = (struct fanotify_event_metadata *)buffer;
 
 				while (FAN_EVENT_OK(metadata, len)) {
