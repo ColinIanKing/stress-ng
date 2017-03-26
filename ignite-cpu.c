@@ -33,8 +33,8 @@ typedef struct {
 	bool ignore;			/* true to ignore using this */
 } settings_t;
 
-static pid_t pid;
-static bool enabled;
+static pid_t pid;			/* PID of ignite process */
+static bool enabled;			/* true if ignite process running */
 
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
