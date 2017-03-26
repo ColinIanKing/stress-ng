@@ -1431,7 +1431,7 @@ static inline int32_t stressor_name_find(const char *name)
 }
 
 /*
- *   stressor_instances()
+ *  stressor_instances()
  *	return the number of instances for a specific stress test
  */
 int stressor_instances(const stress_id id)
@@ -1441,6 +1441,10 @@ int stressor_instances(const stress_id id)
 	return procs[i].num_procs;
 }
 
+/*
+ *  get_class_id()
+ *	find the class id of a given class name
+ */
 static uint32_t get_class_id(char *const str)
 {
 	size_t i;
@@ -1451,7 +1455,6 @@ static uint32_t get_class_id(char *const str)
 	}
 	return 0;
 }
-
 
 /*
  *  get_class()
@@ -1519,7 +1522,8 @@ static int stress_exclude(char *const opt_exclude)
 }
 
 /*
- *  Catch signals and set flag to break out of stress loops
+ *  stress_sigint_handler()
+ *	catch signals and set flag to break out of stress loops
  */
 static void MLOCKED stress_sigint_handler(int dummy)
 {
@@ -1531,12 +1535,20 @@ static void MLOCKED stress_sigint_handler(int dummy)
 	(void)kill(-getpid(), SIGALRM);
 }
 
+/*
+ *  stress_sigalrm_child_handler()
+ *	handle signal in child process,  set flag to stop stressor
+ */
 static void MLOCKED stress_sigalrm_child_handler(int dummy)
 {
 	(void)dummy;
 	g_keep_stressing_flag = false;
 }
 
+/*
+ *  stress_sigalrm_parent_handler()
+ *	handle signal in parent process, don't block on waits
+ */
 static void MLOCKED stress_sigalrm_parent_handler(int dummy)
 {
 	(void)dummy;
@@ -1595,8 +1607,8 @@ static int stress_set_handler(const char *stress, const bool child)
 	}
 #endif
 	if (stress_sighandler(stress, SIGALRM,
-	    child ?  stress_sigalrm_child_handler :
-		     stress_sigalrm_parent_handler, NULL) < 0)
+	    child ? stress_sigalrm_child_handler :
+		    stress_sigalrm_parent_handler, NULL) < 0)
 		return -1;
 	return 0;
 }
@@ -2400,6 +2412,10 @@ static inline void exclude_pathological(void)
 	}
 }
 
+/*
+ *  set_random_stressors()
+ *	select stressors at random
+ */
 static inline void set_random_stressors(const int32_t opt_random)
 {
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
