@@ -395,6 +395,10 @@ char *munge_underscore(const char *str)
 	return munged;
 }
 
+/*
+ *  __stress_get_stack_direction()
+ *	helper to determine direction of stack
+ */
 static ssize_t __stress_get_stack_direction(const uint8_t *val1)
 {
 	const uint8_t val2;
@@ -484,7 +488,6 @@ int stress_temp_filename_args(
 	return stress_temp_filename(path, len, args->name,
 		args->pid, args->instance, magic);
 }
-
 
 /*
  *  stress_temp_dir()
