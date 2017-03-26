@@ -140,6 +140,10 @@ int pr_msg(
 	return ret;
 }
 
+/*
+ *  __pr_msg_fail()
+ *	wrapper helper for pr_msg_fail
+ */
 static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...)
 {
 	va_list ap;
@@ -163,6 +167,10 @@ void pr_msg_fail(
 		name, what, err, strerror(err));
 }
 
+/*
+ *  pr_dbg()
+ *	print debug messages
+ */
 void pr_dbg(const char *fmt, ...)
 {
 	va_list ap;
@@ -172,6 +180,10 @@ void pr_dbg(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_inf()
+ *	print info messages
+ */
 void pr_inf(const char *fmt, ...)
 {
 	va_list ap;
@@ -181,6 +193,10 @@ void pr_inf(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_err()
+ *	print error messages
+ */
 void pr_err(const char *fmt, ...)
 {
 	va_list ap;
@@ -190,6 +206,10 @@ void pr_err(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_fail()
+ *	print failure messages
+ */
 void pr_fail(const char *fmt, ...)
 {
 	va_list ap;
@@ -199,6 +219,10 @@ void pr_fail(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_tidy()
+ *	print tidy up error messages
+ */
 void pr_tidy(const char *fmt, ...)
 {
 	va_list ap;
@@ -208,16 +232,28 @@ void pr_tidy(const char *fmt, ...)
 	va_end(ap);
 }
 
+/*
+ *  pr_fail_err__()
+ *	helper for macro pr_fail_err to print error with errno
+ */
 void pr_fail_err__(const args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
 }
 
+/*
+ *  pr_fail_errno__()
+ *	helper for macro pr_fail_errno to print error with a given errno
+ */
 void pr_fail_errno__(const args_t *args, const char *msg, int err)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
 }
 
+/*
+ *  pr_fail_dbg__()
+ *	helper for macro pr_fail_dbg to print error
+ */
 void pr_fail_dbg__(const args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
