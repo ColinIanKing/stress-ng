@@ -46,7 +46,7 @@ void stress_set_memfd_bytes(const char *opt)
 
 /*
  *  stress_set_memfd_fds()
- *      set number of dir directories from given option string
+ *      set number of memfd file descriptors
  */
 void stress_set_memfd_fds(const char *opt)
 {
