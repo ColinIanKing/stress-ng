@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 static uint64_t opt_dir_dirs = DEFAULT_DIR_DIRS;
-static bool set_dir_dirs = false;
 
 /*
  *  stress_set_dir_dirs()
@@ -33,7 +32,6 @@ static bool set_dir_dirs = false;
  */
 void stress_set_dir_dirs(const char *opt)
 {
-	set_dir_dirs = true;
 	opt_dir_dirs = get_uint64_byte(opt);
 	check_range("dir-dirs", opt_dir_dirs,
 		MIN_DIR_DIRS, MAX_DIR_DIRS);

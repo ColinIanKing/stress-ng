@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 static uint64_t opt_chdir_dirs = DEFAULT_CHDIR_DIRS;
-static bool set_chdir_dirs = false;
 
 /*
  *  stress_set_chdir_dirs()
@@ -33,7 +32,6 @@ static bool set_chdir_dirs = false;
  */
 void stress_set_chdir_dirs(const char *opt)
 {
-	set_chdir_dirs = true;
 	opt_chdir_dirs = get_uint64_byte(opt);
 	check_range("chdir-dirs", opt_chdir_dirs,
 		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
