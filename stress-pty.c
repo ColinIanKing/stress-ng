@@ -35,6 +35,8 @@ typedef struct {
 	int slave;
 } pty_info_t;
 
+#endif
+
 static uint64_t opt_pty_max = DEFAULT_PTYS;
 
 /*
@@ -47,6 +49,8 @@ void stress_set_pty_max(const char *opt)
 	check_range("pty-max", opt_pty_max,
 		MIN_PTYS, MAX_PTYS);
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_pty
