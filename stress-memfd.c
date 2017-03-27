@@ -82,7 +82,7 @@ static void stress_memfd_allocs(const args_t *args)
 		for (i = 0; i < opt_memfd_fds; i++) {
 			char filename[PATH_MAX];
 
-			(void)snprintf(filename, sizeof(filename), "memfd-%u-%zu", args->pid, i);
+			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
 			fds[i] = shim_memfd_create(filename, 0);
 			if (fds[i] < 0) {
 				switch (errno) {
