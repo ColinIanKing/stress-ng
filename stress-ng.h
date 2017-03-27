@@ -463,6 +463,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_BSEARCH_SIZE	(4 * MB)
 #define DEFAULT_BSEARCH_SIZE	(64 * KB)
 
+#define MIN_CHDIR_DIRS		(64)
+#define MAX_CHDIR_DIRS		(65536)
+#define DEFAULT_CHDIR_DIRS	(8192)
+
 #define MIN_CLONES		(1)
 #define MAX_CLONES		(1000000)
 #define DEFAULT_CLONES		(8192)
@@ -1294,6 +1298,7 @@ typedef enum {
 	OPT_CAP_OPS,
 
 	OPT_CHDIR,
+	OPT_CHDIR_DIRS,
 	OPT_CHDIR_OPS,
 
 	OPT_CHMOD,
@@ -2244,6 +2249,7 @@ extern void stress_set_aio_requests(const char *opt);
 extern void stress_set_aio_linux_requests(const char *opt);
 extern void stress_set_bigheap_growth(const char *arg);
 extern void stress_set_bsearch_size(const char *opt);
+extern void stress_set_chdir_dirs(const char *opt);
 extern int  stress_chroot_supported(void);
 extern void stress_set_clone_max(const char *opt);
 extern void stress_set_copy_file_bytes(const char *opt);

@@ -422,6 +422,7 @@ static const struct option long_options[] = {
 	{ "cap-ops",	1,	0, 	OPT_CAP_OPS },
 	{ "chdir",	1,	0, 	OPT_CHDIR },
 	{ "chdir-ops",	1,	0, 	OPT_CHDIR_OPS },
+	{ "chdir-dirs",	1,	0,	OPT_CHDIR_DIRS },
 	{ "chmod",	1,	0, 	OPT_CHMOD },
 	{ "chmod-ops",	1,	0,	OPT_CHMOD_OPS },
 	{ "chown",	1,	0, 	OPT_CHOWN},
@@ -971,6 +972,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cap-ops N",		"stop cap workers after N bogo capget operations" },
 	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
+	{ NULL,		"chdir-dirs N",		"select number of directories to exercise chdir on" },
 	{ NULL,		"chmod N",		"start N workers thrashing chmod file mode bits " },
 	{ NULL,		"chmod-ops N",		"stop chmod workers after N bogo operations" },
 	{ NULL,		"chown N",		"start N workers thrashing chown file ownership" },
@@ -2567,6 +2569,9 @@ next_opt:
 			mem_cache_ways = atoi(optarg);
 			if (mem_cache_ways <= 0)
 				mem_cache_ways = 0;
+			break;
+		case OPT_CHDIR_DIRS:
+			stress_set_chdir_dirs(optarg);
 			break;
 		case OPT_CLASS:
 			opt_class = get_class(optarg);

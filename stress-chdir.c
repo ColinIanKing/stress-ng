@@ -24,6 +24,21 @@
  */
 #include "stress-ng.h"
 
+static uint64_t opt_chdir_dirs = DEFAULT_DIRS;
+static bool set_chdir_dirs = false;
+
+/*
+ *  stress_set_chdir_dirs()
+ *	set number of chdir directories from given option string
+ */
+void stress_set_chdir_dirs(const char *opt)
+{
+	set_chdir_dirs = true;
+	opt_chdir_dirs = get_uint64_byte(opt);
+	check_range("chdir-dirs", opt_chdir_dirs,
+		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
+}
+
 /*
  *  stress_chdir
  *	stress chdir calls
@@ -33,7 +48,7 @@ int stress_chdir(const args_t *args)
 	uint64_t i;
 	char path[PATH_MAX], cwd[PATH_MAX];
 	int rc, ret = EXIT_FAILURE;
-	char *paths[DEFAULT_DIRS];
+	char *paths[opt_chdir_dirs];
 
 	memset(paths, 0, sizeof(paths));
 
@@ -47,7 +62,7 @@ int stress_chdir(const args_t *args)
 		return exit_status(-rc);
 
 	/* Populate */
-	for (i = 0; i < DEFAULT_DIRS; i++) {
+	for (i = 0; i < opt_chdir_dirs; i++) {
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename_args(args,
@@ -66,7 +81,7 @@ int stress_chdir(const args_t *args)
 	}
 
 	do {
-		for (i = 0; i < DEFAULT_DIRS; i++) {
+		for (i = 0; i < opt_chdir_dirs; i++) {
 			if (!keep_stressing())
 				goto done;
 			if (chdir(paths[i]) < 0) {
@@ -96,10 +111,10 @@ abort:
 		pr_fail_err("chdir");
 
 	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu32 " directories\n",
-		args->name, DEFAULT_DIRS);
+	pr_tidy("%s: removing %" PRIu64 " directories\n",
+		args->name, opt_chdir_dirs);
 
-	for (i = 0; (i < DEFAULT_DIRS) && paths[i] ; i++) {
+	for (i = 0; (i < opt_chdir_dirs) && paths[i] ; i++) {
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}

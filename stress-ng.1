@@ -484,10 +484,14 @@ start N workers that read per process capabililties via calls to capget(2)
 stop after N cap bogo operations.
 .TP
 .B \-\-chdir N
-start N workers that change directory between 8192 directories using chdir(2).
+start N workers that change directory between directories using chdir(2).
 .TP
 .B \-\-chdir\-ops N
 stop after N chdir bogo operations.
+.TP
+.B \-\-chdir\-dirs N
+exercise chdir on N directories. The default is 8192 directories, this allows
+64 to 65536 directories to be used instead.
 .TP
 .B \-\-chmod N
 start N workers that change the file mode bits via chmod(2) and fchmod(2) on
