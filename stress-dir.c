@@ -35,7 +35,7 @@ void stress_set_dir_dirs(const char *opt)
 {
 	set_dir_dirs = true;
 	opt_dir_dirs = get_uint64_byte(opt);
-	check_range("chdir-dirs", opt_dir_dirs,
+	check_range("dir-dirs", opt_dir_dirs,
 		MIN_DIR_DIRS, MAX_DIR_DIRS);
 }
 
