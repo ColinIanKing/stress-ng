@@ -277,7 +277,7 @@ HAVE_VARS := $(foreach h,$(HAVE_NOT), $(firstword $(subst =, ,$h)))
 
 ifeq "$(MAKECMDGOALS)" ""
 NEED_CONFIG=1
-else ifeq "$(findstring $(MAKECMDGOALS),clean dist install)" ""
+else ifeq "$(findstring $(MAKECMDGOALS),clean dist install pdf)" ""
 NEED_CONFIG=1
 endif
 
