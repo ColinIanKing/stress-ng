@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_chdir_dirs = DEFAULT_DIRS;
+static uint64_t opt_chdir_dirs = DEFAULT_CHDIR_DIRS;
 static bool set_chdir_dirs = false;
 
 /*
