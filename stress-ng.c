@@ -462,6 +462,7 @@ static const struct option long_options[] = {
 	{ "dentry-order",1,	0,	OPT_DENTRY_ORDER },
 	{ "dir",	1,	0,	OPT_DIR },
 	{ "dir-ops",	1,	0,	OPT_DIR_OPS },
+	{ "dir-dirs",	1,	0,	OPT_DIR_DIRS },
 	{ "dirdeep",	1,	0,	OPT_DIRDEEP },
 	{ "dirdeep-ops",1,	0,	OPT_DIRDEEP_OPS },
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
@@ -1011,6 +1012,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"dentries N",		"create N dentries per iteration" },
 	{ NULL,		"dir N",		"start N directory thrashing stressors" },
 	{ NULL,		"dir-ops N",		"stop after N directory bogo operations" },
+	{ NULL,		"dir-dirs N",		"select number of directories to exercise dir on" },
 	{ NULL,		"dirdeep N",		"start N directory depth stressors" },
 	{ NULL,		"dirdeep-ops N",	"stop after N directory depth bogo operations" },
 	{ NULL,		"dnotify N",		"start N workers exercising dnotify events" },
@@ -2614,6 +2616,9 @@ next_opt:
 		case OPT_DENTRY_ORDER:
 			if (stress_set_dentry_order(optarg) < 0)
 				exit(EXIT_FAILURE);
+			break;
+		case OPT_DIR_DIRS:
+			stress_set_dir_dirs(optarg);
 			break;
 		case OPT_EPOLL_DOMAIN:
 			if (stress_set_epoll_domain(optarg) < 0)

@@ -484,6 +484,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_DENTRIES		(1000000)
 #define DEFAULT_DENTRIES	(2048)
 
+#define MIN_DIR_DIRS		(64)
+#define MAX_DIR_DIRS		(65536)
+#define DEFAULT_DIR_DIRS	(8192)
+
 #define MIN_EPOLL_PORT		(1024)
 #define MAX_EPOLL_PORT		(65535)
 #define DEFAULT_EPOLL_PORT	(6000)
@@ -1349,6 +1353,7 @@ typedef enum {
 
 	OPT_DIR,
 	OPT_DIR_OPS,
+	OPT_DIR_DIRS,
 
 	OPT_DIRDEEP,
 	OPT_DIRDEEP_OPS,
@@ -2261,6 +2266,7 @@ extern int  stress_set_dccp_opts(const char *opt);
 extern void stress_set_dccp_port(const char *opt);
 extern void stress_set_dentries(const char *opt);
 extern int  stress_set_dentry_order(const char *opt);
+extern void stress_set_dir_dirs(const char *opt);
 extern void stress_set_epoll_port(const char *opt);
 extern int  stress_set_epoll_domain(const char *opt);
 extern void stress_set_exec_max(const char *opt);

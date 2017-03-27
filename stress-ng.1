@@ -952,6 +952,10 @@ start N workers that create and remove directories using mkdir and rmdir.
 .B \-\-dir\-ops N
 stop directory thrash workers after N bogo directory operations.
 .TP
+.B \-\-dir\-dirs N
+exercise dir on N directories. The default is 8192 directories, this allows
+64 to 65536 directories to be used instead.
+.TP
 .B \-\-dirdeep N
 start N workers that create multiple levels of directories to a maximum
 depth as limited by PATH_MAX or ENAMETOOLONG (which ever occurs first).
