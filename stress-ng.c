@@ -677,6 +677,7 @@ static const struct option long_options[] = {
 	{ "ptrace-ops",1,	0,	OPT_PTRACE_OPS },
 	{ "pty",	1,	0,	OPT_PTY },
 	{ "pty-ops",	1,	0,	OPT_PTY_OPS },
+	{ "pty-max",	1,	0,	OPT_PTY_MAX },
 	{ "qsort",	1,	0,	OPT_QSORT },
 	{ "qsort-ops",	1,	0,	OPT_QSORT_OPS },
 	{ "qsort-size",	1,	0,	OPT_QSORT_INTEGERS },
@@ -1209,6 +1210,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"ptrace-ops N",		"stop ptrace workers after N system calls are traced" },
 	{ NULL,		"pty N",		"start N workers that exercise pseudoterminals" },
 	{ NULL,		"pty-ops N",		"stop pty workers after N pty bogo operations" },
+	{ NULL,		"pty-max N",		"attempt to open a maximum of N ptys" },
 	{ "Q",		"qsort N",		"start N workers qsorting 32 bit random integers" },
 	{ NULL,		"qsort-ops N",		"stop after N qsort bogo operations" },
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
@@ -2794,6 +2796,9 @@ next_opt:
 #endif
 		case OPT_PTHREAD_MAX:
 			stress_set_pthread_max(optarg);
+			break;
+		case OPT_PTY_MAX:
+			stress_set_pty_max(optarg);
 			break;
 		case OPT_QSORT_INTEGERS:
 			stress_set_qsort_size(optarg);

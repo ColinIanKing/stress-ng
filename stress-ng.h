@@ -628,6 +628,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
 
+#define MIN_PTYS		(8)
+#define MAX_PTYS		(65536)
+#define DEFAULT_PTYS		(65536)
+
 #define MIN_QSORT_SIZE		(1 * KB)
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
@@ -1642,6 +1646,7 @@ typedef enum {
 
 	OPT_PTY,
 	OPT_PTY_OPS,
+	OPT_PTY_MAX,
 
 	OPT_QSORT,
 	OPT_QSORT_OPS,
@@ -2308,6 +2313,7 @@ extern int  stress_netlink_proc_supported(void);
 extern void stress_set_pipe_data_size(const char *opt);
 extern void stress_set_pipe_size(const char *opt);
 extern void stress_set_pthread_max(const char *opt);
+extern void stress_set_pty_max(const char *opt);
 extern void stress_set_qsort_size(const char *opt);
 extern int  stress_rdrand_supported(void);
 extern void stress_set_readahead_bytes(const char *opt);

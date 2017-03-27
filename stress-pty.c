@@ -29,13 +29,24 @@
 #include <termio.h>
 #include <termios.h>
 
-#define MAX_PTYS	(65536)
-
 typedef struct {
 	char *slavename;
 	int master;
 	int slave;
 } pty_info_t;
+
+static uint64_t opt_pty_max = DEFAULT_PTYS;
+
+/*
+ *  stress_set_pty_max()
+ *	set ptr maximum
+ */
+void stress_set_pty_max(const char *opt)
+{
+	opt_pty_max = get_uint64_byte(opt);
+	check_range("pty-max", opt_pty_max,
+		MIN_PTYS, MAX_PTYS);
+}
 
 /*
  *  stress_pty
@@ -47,35 +58,39 @@ int stress_pty(const args_t *args)
 
 	do {
 		size_t i, n;
-		pty_info_t ptys[MAX_PTYS];
+		pty_info_t ptys[opt_pty_max];
 
 		memset(ptys, 0, sizeof ptys);
 
-		for (n = 0; n < MAX_PTYS; n++) {
+		for (n = 0; n < opt_pty_max; n++) {
 			ptys[n].slave = -1;
 			ptys[n].master = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].master < 0) {
-				if (errno != ENOSPC)
+				if ((errno != ENOSPC) && (errno != EMFILE)) {
 					pr_fail_err("open /dev/ptmx");
-				goto clean;
-			}
-			ptys[n].slavename = ptsname(ptys[n].master);
-			if (!ptys[n].slavename) {
-				pr_fail_err("ptsname");
-				goto clean;
-			}
-			if (grantpt(ptys[n].master) < 0) {
-				pr_fail_err("grantpt");
-				goto clean;
-			}
-			if (unlockpt(ptys[n].master) < 0) {
-				pr_fail_err("unlockpt");
-				goto clean;
-			}
-			ptys[n].slave = open(ptys[n].slavename, O_RDWR);
-			if (ptys[n].slave < 0) {
-				pr_fail_err("open slave pty");
-				goto clean;
+					goto clean;
+				}
+			} else {
+				ptys[n].slavename = ptsname(ptys[n].master);
+				if (!ptys[n].slavename) {
+					pr_fail_err("ptsname");
+					goto clean;
+				}
+				if (grantpt(ptys[n].master) < 0) {
+					pr_fail_err("grantpt");
+					goto clean;
+				}
+				if (unlockpt(ptys[n].master) < 0) {
+					pr_fail_err("unlockpt");
+					goto clean;
+				}
+				ptys[n].slave = open(ptys[n].slavename, O_RDWR);
+				if (ptys[n].slave < 0) {
+					if (errno != EMFILE) {
+						pr_fail_err("open slave pty");
+						goto clean;
+					}
+				}
 			}
 			if (!g_keep_stressing_flag)
 				goto clean;
@@ -89,6 +104,8 @@ int stress_pty(const args_t *args)
 			struct winsize ws;
 			int arg;
 
+			if ((ptys[i].master < 0) || (ptys[i].slave < 0))
+				continue;
 #if defined(TCGETS)
 			if (ioctl(ptys[i].slave, TCGETS, &ios) < 0)
 				pr_fail_err("ioctl TCGETS on slave pty");
@@ -160,7 +177,8 @@ clean:
 		for (i = 0; i < n; i++) {
 			if (ptys[i].slave != -1)
 				(void)close(ptys[i].slave);
-			(void)close(ptys[i].master);
+			if (ptys[i].master != -1)
+				(void)close(ptys[i].master);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
