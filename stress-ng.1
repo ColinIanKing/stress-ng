@@ -1622,7 +1622,7 @@ different alignments. This will exercise processor cache and system memory.
 stop memcpy stress workers after N bogo memcpy operations.
 .TP
 .B \-\-memfd N
-start N workers that create 256 allocations of 1024 pages using memfd_create(2)
+start N workers that create allocations of 1024 pages using memfd_create(2)
 and ftruncate(2) for allocation and mmap(2) to map the allocation into the
 process address space.  (Linux only).
 .TP
@@ -1630,6 +1630,10 @@ process address space.  (Linux only).
 allocate N bytes per memfd stress worker, the default is 256MB. One can specify
 the size in as % of total available memory or in units of Bytes, KBytes, MBytes
 and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-memfd\-fds N
+create N memfd file descriptors, the default is 256. One can select 8 to 4096
+memfd file descriptions with this option.
 .TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.

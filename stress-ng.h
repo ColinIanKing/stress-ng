@@ -592,6 +592,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 #define DEFAULT_MEMFD_BYTES	(256 * MB)
 
+#define MIN_MEMFD_FDS		(8)
+#define MAX_MEMFD_FDS		(4096)
+#define DEFAULT_MEMFD_FDS	(256)
+
 #define MIN_MERGESORT_SIZE	(1 * KB)
 #define MAX_MERGESORT_SIZE	(4 * MB)
 #define DEFAULT_MERGESORT_SIZE	(256 * KB)
@@ -1538,6 +1542,7 @@ typedef enum {
 	OPT_MEMFD,
 	OPT_MEMFD_OPS,
 	OPT_MEMFD_BYTES,
+	OPT_MEMFD_FDS,
 
 	OPT_MERGESORT,
 	OPT_MERGESORT_OPS,
@@ -2293,6 +2298,7 @@ extern void stress_set_malloc_threshold(const char *opt);
 extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *opt);
 extern void stress_set_memfd_bytes(const char *opt);
+extern void stress_set_memfd_fds(const char *opt);
 extern void stress_set_mergesort_size(const void *opt);
 extern void stress_set_mmap_bytes(const char *opt);
 extern void stress_set_mq_size(const char *opt);

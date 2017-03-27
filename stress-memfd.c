@@ -24,11 +24,16 @@
  */
 #include "stress-ng.h"
 
-#define MAX_MEM_FDS 	(256)
-
 static size_t opt_memfd_bytes = DEFAULT_MEMFD_BYTES;
 static bool set_memfd_bytes;
 
+static uint64_t opt_memfd_fds = DEFAULT_MEMFD_FDS;
+static bool set_memfd_fds = false;
+
+/*
+ *  stress_set_memfd_bytes
+ *	set max size of each memfd size
+ */
 void stress_set_memfd_bytes(const char *opt)
 {
 	set_memfd_bytes = true;
@@ -39,6 +44,18 @@ void stress_set_memfd_bytes(const char *opt)
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
 }
 
+/*
+ *  stress_set_memfd_fds()
+ *      set number of dir directories from given option string
+ */
+void stress_set_memfd_fds(const char *opt)
+{
+	set_memfd_fds = true;
+	opt_memfd_fds = get_uint64_byte(opt);
+	check_range("memfd-fds", opt_memfd_fds,
+		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
+}
+
 #if defined(__linux__) && defined(__NR_memfd_create)
 
 /*
@@ -46,23 +63,23 @@ void stress_set_memfd_bytes(const char *opt)
  */
 static void stress_memfd_allocs(const args_t *args)
 {
-	int fds[MAX_MEM_FDS];
-	void *maps[MAX_MEM_FDS];
-	size_t i;
+	int fds[opt_memfd_fds];
+	void *maps[opt_memfd_fds];
+	uint64_t i;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t size = opt_memfd_bytes / MAX_MEM_FDS;
+	size_t size = opt_memfd_bytes / opt_memfd_fds;
 
 	if (size < min_size)
 		size = min_size;
 
 	do {
-		for (i = 0; i < MAX_MEM_FDS; i++) {
+		for (i = 0; i < opt_memfd_fds; i++) {
 			fds[i] = -1;
 			maps[i] = MAP_FAILED;
 		}
 
-		for (i = 0; i < MAX_MEM_FDS; i++) {
+		for (i = 0; i < opt_memfd_fds; i++) {
 			char filename[PATH_MAX];
 
 			(void)snprintf(filename, sizeof(filename), "memfd-%u-%zu", args->pid, i);
@@ -87,50 +104,53 @@ static void stress_memfd_allocs(const args_t *args)
 				goto clean;
 		}
 
-		for (i = 0; i < MAX_MEM_FDS; i++) {
-			if (fds[i] >= 0) {
-				ssize_t ret;
-				size_t whence;
+		for (i = 0; i < opt_memfd_fds; i++) {
+			ssize_t ret;
+			size_t whence;
 
-				if (!g_keep_stressing_flag)
+			if (fds[i] < 0)
+				continue;
+
+			if (!g_keep_stressing_flag)
+				break;
+
+			/* Allocate space */
+			ret = ftruncate(fds[i], size);
+			if (ret < 0) {
+				switch (errno) {
+				case EINTR:
 					break;
-
-				/* Allocate space */
-				ret = ftruncate(fds[i], size);
-				if (ret < 0) {
-					switch (errno) {
-					case EINTR:
-						break;
-					default:
-						pr_fail_err("ftruncate");
-						break;
-					}
+				default:
+					pr_fail_err("ftruncate");
+					break;
 				}
-				/*
-				 * ..and map it in, using MAP_POPULATE
-				 * to force page it in
-				 */
-				maps[i] = mmap(NULL, size, PROT_WRITE,
-					MAP_FILE | MAP_SHARED | MAP_POPULATE,
-					fds[i], 0);
-				mincore_touch_pages(maps[i], size);
-				madvise_random(maps[i], size);
+			}
+			/*
+			 * ..and map it in, using MAP_POPULATE
+			 * to force page it in
+			 */
+			maps[i] = mmap(NULL, size, PROT_WRITE,
+				MAP_FILE | MAP_SHARED | MAP_POPULATE,
+				fds[i], 0);
+			mincore_touch_pages(maps[i], size);
+			madvise_random(maps[i], size);
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
-				/*
-				 *  ..and punch a hole
-				 */
-				whence = (mwc32() % size) & ~(page_size - 1);
-				ret = shim_fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
-					FALLOC_FL_KEEP_SIZE, whence, page_size);
-				(void)ret;
+			/*
+			 *  ..and punch a hole
+			 */
+			whence = (mwc32() % size) & ~(page_size - 1);
+			ret = shim_fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
+				FALLOC_FL_KEEP_SIZE, whence, page_size);
+			(void)ret;
 #endif
-			}
 			if (!g_keep_stressing_flag)
 				goto clean;
 		}
 
-		for (i = 0; i < MAX_MEM_FDS; i++) {
+		for (i = 0; i < opt_memfd_fds; i++) {
+			if (fds[i] < 0)
+				continue;
 #if defined(SEEK_SET)
 			if (lseek(fds[i], (off_t)size>> 1, SEEK_SET) < 0) {
 				if (errno != ENXIO)
@@ -165,7 +185,7 @@ static void stress_memfd_allocs(const args_t *args)
 				goto clean;
 		}
 clean:
-		for (i = 0; i < MAX_MEM_FDS; i++) {
+		for (i = 0; i < opt_memfd_fds; i++) {
 			if (maps[i] != MAP_FAILED)
 				(void)munmap(maps[i], size);
 			if (fds[i] >= 0)
