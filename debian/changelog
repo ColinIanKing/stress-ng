@@ -1,3 +1,42 @@
+stress-ng (0.07.27-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: Add TODO list to make dist rule
+  * manual: update date
+  * stress-pty: don't conditionally build out stress_set_pty_max
+  * Update TODO list
+  * stress-memfd: use correct printf format specifier for uint64_t type
+  * stress-chdir, stress-dir: remove unused static flags
+  * stress-socket-fd: remove unused macro MAX_FDS
+  * stress-memfd: fix comment
+  * stress-chdir: correct the chdir-dirs option name
+  * stress-chdir: set default to correct DEFAULT_CHDIR_DIRS
+  * Add missing control for 4 stressors: (LP: #1676419)
+  * - Add --pty-max option to specify max number of ptys to try to open
+  * - Add --memfd-fds option to specify the number of memory file descriptors
+  * - Add --dir-dirs option to specify number of directories to stress on
+  * - Add --chdir-dirs option to specify number of directories
+  * log: add some more comments
+  * ignite-cpu: add some more minor comments
+  * helper: add some more comments
+  * stress-ng: add some more comments
+  * stress-ng: remove some blank lines
+  * mlock: remove const from m_addr_start to fix clang warning
+  * stress-fanotify: remove const from metadata declaration
+  * stress-cpu: remove unnecessary packed attribute on a union
+  * rename optarg args to opt as these shadow the global oparg variable
+  * fix up incorrect args to various stressors
+  * net: make stress_set_sockaddr_port net_addr const
+  * Minor layout re-formatting of long_options table
+  * stress-ng: Set per stressor default settings using stressor_set_defaults
+  * Manual: update copyright year
+  * Add TODO list
+  * stress-chroot: fix typo, ENODIR -> ENOTDIR
+  * stress-vecmath: remove -O3 optimisation as this breaks gcc on ppc64el
+  * Remove PEDANTIC=1 from makefile
+
+ -- Colin King <colin.king@canonical.com>  Mon, 27 Mar 2017 13:49:11 +0000
+
 stress-ng (0.07.26-1) unstable; urgency=medium
 
   * Makefile: bump version
