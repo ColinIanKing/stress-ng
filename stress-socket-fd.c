@@ -31,7 +31,6 @@
 #include <sys/un.h>
 
 #define MSG_ID			'M'
-#define MAX_FDS			(65536)
 
 #endif
 
