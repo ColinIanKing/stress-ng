@@ -144,8 +144,8 @@ int stress_rmap(const args_t *args)
 	}
 	(void)unlink(filename);
 
-	if (posix_fallocate(fd, 0, sz) < 0) {
-		pr_fail_err("posix_fallocate");
+	if (shim_fallocate(fd, 0, 0, sz) < 0) {
+		pr_fail_err("fallocate");
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
