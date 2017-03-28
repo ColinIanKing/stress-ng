@@ -343,7 +343,7 @@ typedef struct {
 #endif
 
 /* Force aligment to nearest cache line */
-#if defined(__GNUC__) &&  NEED_GNUC(3,3,0)
+#if defined(HAVE_ALIGNED_64)
 #define ALIGN64		__attribute__ ((aligned(64)))
 #else
 #define ALIGN64
