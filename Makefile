@@ -667,6 +667,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 #
 #  check if we have sys/capability.h
 #
+.PHONY: have_sys_cap_h
 have_sys_cap_h:
 	@$(CC) $(CPPFLAGS) test-cap.c -o test-cap 2> /dev/null || true
 	@if [ -f test-cap ]; then \
@@ -679,6 +680,7 @@ have_sys_cap_h:
 #
 #  check if we can build vecmath related code
 #
+.PHONY: have_vecmath
 have_vecmath: stress-vecmath.c
 	@$(CC) $(CPPFLAGS) -DHAVE_VECMATH -c -o stress-vecmath-test.o stress-vecmath.c 2> /dev/null || true
 	@if [ -f stress-vecmath-test.o ]; then \
@@ -691,6 +693,7 @@ have_vecmath: stress-vecmath.c
 #
 #  check if we can build atomic related code
 #
+.PHONY: have_atomic
 have_atomic: stress-atomic.c
 	@$(CC) $(CPPFLAGS) -DTEST_ATOMIC_BUILD -DHAVE_ATOMIC stress-atomic.c -o stress-atomic-test 2> /dev/null || true
 	@if [ -f stress-atomic-test ]; then \
@@ -703,7 +706,7 @@ have_atomic: stress-atomic.c
 #
 #  check if we can build functions aligned to 64 byte boundaries
 #
-.PHONEY: have_aligned_64
+.PHONY: have_aligned_64
 have_aligned_64: test-aligned-64.c
 	@$(CC) $(CPPFLAGS) test-aligned-64.c -o test-aligned-64 2> /dev/null || true
 	@if [ -f test-aligned-64 ]; then \
