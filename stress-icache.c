@@ -154,13 +154,13 @@ static inline int icache_madvise(const args_t *args, void *addr, size_t size)
 	return 0;
 }
 
-#if defined(HAVE_ALIGNED_64)
+#if defined(HAVE_ALIGNED_64K)
 STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
 #endif
 STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
 STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
-#if defined(HAVE_ALIGNED_64)
+#if defined(HAVE_ALIGNED_64K)
 STRESS_ICACHE(stress_icache_64K, SIZE_64K, stress_icache_func_64K)
 #endif
 STRESS_ICACHE(stress_icache_16K, SIZE_16K, stress_icache_func_16K)
@@ -184,13 +184,13 @@ int stress_icache(const args_t *args)
 	case SIZE_16K:
 		ret = stress_icache_16K(args);
 		break;
-#if defined(HAVE_ALIGNED_64)
+#if defined(HAVE_ALIGNED_64K)
 	case SIZE_64K:
 		ret = stress_icache_64K(args);
 		break;
 #endif
 	default:
-#if defined(HAVE_ALIGNED_64)
+#if defined(HAVE_ALIGNED_64K)
 		pr_inf("%s: page size %zu is not %u or %u or %u, cannot test\n",
 			args->name, args->page_size,
 			SIZE_4K, SIZE_16K, SIZE_64K);
