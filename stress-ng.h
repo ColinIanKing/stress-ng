@@ -1217,7 +1217,7 @@ typedef enum {
 	STRESS_ZOMBIE,
 	/* STRESS_MAX must be last one */
 	STRESS_MAX
-} stress_id;
+} stress_id_t;
 
 /* Command line long options */
 typedef enum {
@@ -1917,7 +1917,7 @@ typedef enum {
 /* stress test metadata */
 typedef struct {
 	const stress_func_t stress_func;/* stress test function */
-	const stress_id id;		/* stress test ID */
+	const stress_id_t id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op op;		/* ops option */
 	const char *name;		/* name of stress test */
@@ -2076,7 +2076,7 @@ static inline WARN_UNUSED double timeval_to_double(const struct timeval *tv)
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
-extern int stressor_instances(const stress_id id);
+extern int stressor_instances(const stress_id_t id);
 
 #if defined(STRESS_PERF_STATS)
 /* Perf stats */

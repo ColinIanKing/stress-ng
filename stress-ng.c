@@ -34,17 +34,17 @@
 #endif
 
 typedef struct {
-	const stress_id str_id;
+	const stress_id_t str_id;
 	int (*func_supported)(void);
 } unsupported_t;
 
 typedef struct {
-	const stress_id str_id;
+	const stress_id_t str_id;
 	void (*func_limited)(uint64_t max);
 } proc_limited_t;
 
 typedef struct {
-	const stress_id str_id;
+	const stress_id_t str_id;
 	const uint64_t opt_flag;
 	void (*func)(void);
 } proc_helper_t;
@@ -1403,7 +1403,7 @@ static const help_t help_stressors[] = {
  *  stressor_id_find()
  *  	Find index into stressors by id
  */
-static inline int32_t stressor_id_find(const stress_id id)
+static inline int32_t stressor_id_find(const stress_id_t id)
 {
 	int32_t i;
 
@@ -1442,7 +1442,7 @@ static inline int32_t stressor_name_find(const char *name)
  *  stressor_instances()
  *	return the number of instances for a specific stress test
  */
-int stressor_instances(const stress_id id)
+int stressor_instances(const stress_id_t id)
 {
 	int32_t i = stressor_id_find(id);
 
@@ -2495,7 +2495,7 @@ int main(int argc, char **argv)
 
 	for (;;) {
 		int c, option_index;
-		stress_id s_id;
+		stress_id_t s_id;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1)
