@@ -206,9 +206,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_CACHE_PREFETCH 0x0000000020000ULL 	/* cache prefetch */
 #define OPT_FLAGS_CACHE_FLUSH	 0x0000000040000ULL	/* cache flush */
 #define OPT_FLAGS_CACHE_FENCE	 0x0000000080000ULL	/* cache fence */
-#define OPT_FLAGS_CACHE_MASK	(OPT_FLAGS_CACHE_FLUSH | \
-				 OPT_FLAGS_CACHE_FENCE | \
-				 OPT_FLAGS_CACHE_PREFETCH)
 #define OPT_FLAGS_MMAP_FILE	 0x0000000100000ULL	/* mmap onto a file */
 #define OPT_FLAGS_MMAP_ASYNC	 0x0000000200000ULL	/* mmap file asynchronous I/O */
 #define OPT_FLAGS_MMAP_MPROTECT	 0x0000000400000ULL	/* mmap mprotect enabled */
@@ -222,7 +219,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_STACK_FILL	 0x0000040000000ULL	/* Fill stack */
 #define OPT_FLAGS_MINIMIZE	 0x0000080000000ULL	/* Minimize */
 #define OPT_FLAGS_MAXIMIZE	 0x0000100000000ULL	/* Maximize */
-#define OPT_FLAGS_MINMAX_MASK	 (OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
 #define OPT_FLAGS_SYSLOG	 0x0000200000000ULL	/* log test progress to syslog */
 #define OPT_FLAGS_AGGRESSIVE	 0x0000400000000ULL	/* aggressive mode enabled */
 #define OPT_FLAGS_TIMER_RAND	 0x0000800000000ULL	/* Enable random timer freq */
@@ -242,16 +238,33 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_NO_RAND_SEED	 0x2000000000000ULL	/* --no-rand-seed */
 #define OPT_FLAGS_THRASH	 0x4000000000000ULL	/* --thrash */
 
-#define OPT_FLAGS_AGGRESSIVE_MASK \
-	(OPT_FLAGS_AFFINITY_RAND | OPT_FLAGS_UTIME_FSYNC | \
-	 OPT_FLAGS_MMAP_MADVISE | OPT_FLAGS_MMAP_MINCORE | \
-	 OPT_FLAGS_CACHE_FLUSH | OPT_FLAGS_CACHE_FENCE |   \
-	 OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC |      \
-	 OPT_FLAGS_MMAP_MPROTECT | OPT_FLAGS_LOCKF_NONBLK |\
-	 OPT_FLAGS_MINCORE_RAND | OPT_FLAGS_HDD_SYNC |     \
-	 OPT_FLAGS_HDD_DSYNC | OPT_FLAGS_HDD_DIRECT |      \
-	 OPT_FLAGS_STACK_FILL | OPT_FLAGS_CACHE_PREFETCH | \
-	 OPT_FLAGS_AGGRESSIVE | OPT_FLAGS_IGNITE_CPU)
+#define OPT_FLAGS_CACHE_MASK		\
+	(OPT_FLAGS_CACHE_FLUSH |	\
+	 OPT_FLAGS_CACHE_FENCE |	\
+	 OPT_FLAGS_CACHE_PREFETCH)
+
+#define OPT_FLAGS_MINMAX_MASK		\
+	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
+
+#define OPT_FLAGS_AGGRESSIVE_MASK 	\
+	(OPT_FLAGS_AFFINITY_RAND |	\
+	 OPT_FLAGS_UTIME_FSYNC |	\
+	 OPT_FLAGS_MMAP_MADVISE |	\
+	 OPT_FLAGS_MMAP_MINCORE |	\
+	 OPT_FLAGS_CACHE_FLUSH |	\
+	 OPT_FLAGS_CACHE_FENCE |	\
+	 OPT_FLAGS_MMAP_FILE |		\
+	 OPT_FLAGS_MMAP_ASYNC |		\
+	 OPT_FLAGS_MMAP_MPROTECT |	\
+	 OPT_FLAGS_LOCKF_NONBLK |	\
+	 OPT_FLAGS_MINCORE_RAND |	\
+	 OPT_FLAGS_HDD_SYNC |		\
+	 OPT_FLAGS_HDD_DSYNC |		\
+	 OPT_FLAGS_HDD_DIRECT |		\
+	 OPT_FLAGS_STACK_FILL |		\
+	 OPT_FLAGS_CACHE_PREFETCH |	\
+	 OPT_FLAGS_AGGRESSIVE |		\
+	 OPT_FLAGS_IGNITE_CPU)
 
 #define WARN_ONCE_NO_CACHE	0x00000001	/* No /sys/../cpu0/cache */
 #define WARN_ONCE_CACHE_DEFAULT	0x00000002	/* default cache size */
@@ -259,7 +272,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define WARN_ONCE_CACHE_WAY	0x00000008	/* cache way too high */
 #define WARN_ONCE_CACHE_SIZE	0x00000010	/* cache size info */
 #define WARN_ONCE_CACHE_REDUCED	0x00000020	/* reduced cache */
-
 
 /* Stressor classes */
 #define CLASS_CPU		0x00000001	/* CPU only */
@@ -804,18 +816,18 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 
 /* Arch specific, x86 */
 #if defined(__x86_64__) || defined(__x86_64) || \
-    defined(__i386__) || defined(__i386)
+    defined(__i386__)   || defined(__i386)
 #define STRESS_X86	1
 #endif
 
 /* Arch specific, ARM */
-#if defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) ||     \
-    defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) ||    \
-    defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) ||  \
-    defined(__ARM_ARCH_6M__) ||  defined(__ARM_ARCH_7__) ||    \
-    defined(__ARM_ARCH_7A__) || defined(__ARM_ARCH_7R__) ||    \
-    defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__) ||   \
-    defined(__ARM_ARCH_8A__) || defined(__aarch64__)
+#if defined(__ARM_ARCH_6__)   || defined(__ARM_ARCH_6J__)  || \
+    defined(__ARM_ARCH_6K__)  || defined(__ARM_ARCH_6Z__)  || \
+    defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) || \
+    defined(__ARM_ARCH_6M__)  ||  defined(__ARM_ARCH_7__)  || \
+    defined(__ARM_ARCH_7A__)  || defined(__ARM_ARCH_7R__)  || \
+    defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__) || \
+    defined(__ARM_ARCH_8A__)  || defined(__aarch64__)
 #define STRESS_ARM      1
 #endif
 
@@ -885,7 +897,7 @@ typedef struct {
 
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) && \
-    defined(__linux__) && \
+    defined(__linux__) &&	 \
     defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
 #define STRESS_PERF_INVALID	(~0ULL)
