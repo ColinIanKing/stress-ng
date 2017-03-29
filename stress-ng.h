@@ -1912,14 +1912,14 @@ typedef enum {
 	OPT_ZOMBIE,
 	OPT_ZOMBIE_OPS,
 	OPT_ZOMBIE_MAX,
-} stress_op;
+} stress_op_t;
 
 /* stress test metadata */
 typedef struct {
 	const stress_func_t stress_func;/* stress test function */
 	const stress_id_t id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
-	const stress_op op;		/* ops option */
+	const stress_op_t op;		/* ops option */
 	const char *name;		/* name of stress test */
 	const uint32_t class;		/* class of stress test */
 } stress_t;

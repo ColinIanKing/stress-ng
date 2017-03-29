@@ -2512,7 +2512,7 @@ next_opt:
 
 				goto next_opt;
 			}
-			if (stressors[s_id].op == (stress_op)c) {
+			if (stressors[s_id].op == (stress_op_t)c) {
 				procs[s_id].bogo_ops = get_uint64(optarg);
 				check_range(opt_name(c), procs[s_id].bogo_ops,
 					MIN_OPS, MAX_OPS);
