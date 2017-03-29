@@ -725,13 +725,15 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
 		}
 	}
 	/* Final output should be a 8x8 matrix of values 255 */
-	for (i = 0; i < sz; i++) {
-		for (j = 0; j < sz; j++) {
-			if (((int)idct[i][j] != 255) &&
-			    (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail("%s: IDCT error detected, "
-					"IDCT[%d][%d] was %d, expecting 255\n",
-					name, i, j, (int)idct[i][j]);
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		for (i = 0; i < sz; i++) {
+			for (j = 0; j < sz; j++) {
+				if ((int)idct[i][j] != 255) {
+					pr_fail("%s: IDCT error detected, "
+						"IDCT[%d][%d] was %d, "
+						"expecting 255\n",
+						name, i, j, (int)idct[i][j]);
+				}
 			}
 			if (!g_keep_stressing_flag)
 				return;
