@@ -867,7 +867,7 @@ static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 }
 
 /* stress process prototype */
-typedef int (*stress_func)(const args_t *args);
+typedef int (*stress_func_t)(const args_t *args);
 
 /* Help information for options */
 typedef struct {
@@ -1916,7 +1916,7 @@ typedef enum {
 
 /* stress test metadata */
 typedef struct {
-	const stress_func stress_func;	/* stress test function */
+	const stress_func_t stress_func;/* stress test function */
 	const stress_id id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op op;		/* ops option */
