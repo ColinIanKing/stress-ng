@@ -2446,6 +2446,8 @@ extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
 extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int flags);
 extern int shim_mlock2(const void *addr, size_t len, int flags);
+extern int shim_mlockall(int flags);
+extern int shim_munlockall(void);
 extern int shim_usleep(uint64_t usec);
 extern char *shim_getlogin(void);
 extern int shim_msync(void *addr, size_t length, int flags);

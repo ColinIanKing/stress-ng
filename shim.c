@@ -594,6 +594,34 @@ int shim_mlock2(const void *addr, size_t len, int flags)
 }
 
 /*
+ *  shim_mlockall()
+ * 	wrapper for mlockall() - lock all memmory
+ */
+int shim_mlockall(int flags)
+{
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	return mlockall(flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *  shim_munlockall()
+ * 	wrapper for munlockall() - unlock all memmory
+ */
+int shim_munlockall(void)
+{
+#if !defined(__gnu_hurd__) && !defined(__minix__)
+	return munlockall();
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/*
  *  shim_usleep()
  *	usleep is now deprecated, so
  *	emulate it with nanosleep
