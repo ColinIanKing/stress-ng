@@ -162,11 +162,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_INT128	1
 #endif
 
-/* Linux supports ionice */
-#if defined(__linux__)
-#define STRESS_IONICE
-#endif
-
 #if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
 #define STRESS_PAGE_IN
 #endif
