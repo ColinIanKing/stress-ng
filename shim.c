@@ -602,6 +602,8 @@ int shim_mlockall(int flags)
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 	return mlockall(flags);
 #else
+	(void)flags;
+
 	errno = ENOSYS;
 	return -1;
 #endif
