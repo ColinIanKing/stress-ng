@@ -93,7 +93,17 @@ HOT OPTIMIZE3 uint64_t mwc64(void)
  */
 HOT OPTIMIZE3 uint16_t mwc16(void)
 {
-	return mwc32() & 0xffff;
+	static uint32_t mwc_saved;
+	static uint32_t n;
+
+	if (n) {
+		n--;
+		mwc_saved >>= 16;
+	} else {
+		n = 1;
+		mwc_saved = mwc32();
+	}
+	return mwc_saved & 0xffff;
 }
 
 /*
@@ -102,5 +112,15 @@ HOT OPTIMIZE3 uint16_t mwc16(void)
  */
 HOT OPTIMIZE3 uint8_t mwc8(void)
 {
-	return mwc32() & 0xff;
+	static uint32_t mwc_saved;
+	static uint32_t n;
+
+	if (n) {
+		n--;
+		mwc_saved >>= 8;
+	} else {
+		n = 3;
+		mwc_saved = mwc32();
+	}
+	return mwc_saved & 0xff;
 }
