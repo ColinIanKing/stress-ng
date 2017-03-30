@@ -184,13 +184,13 @@ again:
 				munmap((void *)addr, page_size * 3);
 			}
 #if defined(MCL_CURRENT)
-			(void)mlockall(MCL_CURRENT);
+			(void)shim_mlockall(MCL_CURRENT);
 #endif
 #if defined(MCL_FUTURE)
-			(void)mlockall(MCL_FUTURE);
+			(void)shim_mlockall(MCL_FUTURE);
 #endif
 #if defined(MCL_ONFAULT)
-			(void)mlockall(MCL_ONFAULT);
+			(void)shim_mlockall(MCL_ONFAULT);
 #endif
 			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
