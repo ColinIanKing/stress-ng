@@ -1,3 +1,26 @@
+stress-ng (0.07.28-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * shim: voidify flags argument to shim_mlockall
+  * stress-mlock: forgot to use shim_mlockall rather than mlockall
+  * stress-mlock: use munlockall/mlockall shims, rename mlock_shim to do_mlock
+  * shim: add shims for mlockall and munlock all
+  * mwc: optimize 8 and 16 bit mwc functions (LP: #1677645)
+  * stress-ng.h: remove unused macro STRESS_IONICE
+  * Clean up some formatting of macros and long lines
+  * rename type stress_op to stress_op_t
+  * rename type stress_id  to stress_id_t
+  * stress-ng.h: rename type stress_func to stress_func_t
+  * stress-cpu: verify idct method more efficiently
+  * Add autoconfig test for 64 byte alignment too
+  * Fix test for 64K alignment (instead of 64 byte)
+  * Makefile: add missing .PHONY and correct spelling of .PHONEY
+  * Add autodetection for 64 byte alignment of functions (LP: #1676834)
+  * stress-rmap: use shim fallocated rather than posix_fallocate
+  * Makefile: no need to make configuration when making pdf
+
+ -- Colin King <colin.king@canonical.com>  Thu, 30 Mar 2017 17:26:17 +0100
+
 stress-ng (0.07.27-1) unstable; urgency=medium
 
   * Makefile: bump version
