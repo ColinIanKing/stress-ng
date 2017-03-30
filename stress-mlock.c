@@ -35,12 +35,12 @@
 #endif
 
 /*
- *  mlock_shim()
+ *  do_mlock()
  *	if mlock2 is available, randonly exerise this
  *	or mlock.  If not available, just fallback to
  *	mlock.  Also, pick random mlock2 flags
  */
-static int mlock_shim(const void *addr, size_t len)
+static int do_mlock(const void *addr, size_t len)
 {
 	static bool use_mlock2 = true;
 
@@ -67,7 +67,7 @@ static int mlock_shim(const void *addr, size_t len)
 	return mlock((const void *)addr, len);
 }
 #else
-static inline int mlock_shim(const void *addr, size_t len)
+static inline int do_mlock(const void *addr, size_t len)
 {
 	return mlock((const void *)addr, len);
 }
@@ -153,7 +153,7 @@ again:
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
-				ret = mlock_shim((void *)(mappings[n] + page_size), page_size);
+				ret = do_mlock((void *)(mappings[n] + page_size), page_size);
 				if (ret < 0) {
 					if (errno == EAGAIN)
 						continue;
@@ -183,12 +183,14 @@ again:
 					(void)munlock((void *)((uint8_t *)addr + page_size), page_size);
 				munmap((void *)addr, page_size * 3);
 			}
-#if !defined(__gnu_hurd__)
+#if defined(MCL_CURRENT)
 			(void)mlockall(MCL_CURRENT);
+#endif
+#if defined(MCL_FUTURE)
 			(void)mlockall(MCL_FUTURE);
+#endif
 #if defined(MCL_ONFAULT)
 			(void)mlockall(MCL_ONFAULT);
-#endif
 #endif
 			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
@@ -200,9 +202,8 @@ again:
 				if (mappings[n] == MAP_FAILED)
 					break;
 			}
-#if !defined(__gnu_hurd__)
-			(void)munlockall();
-#endif
+			(void)shim_munlockall();
+
 			for (i = 0; i < n;  i++)
 				munmap((void *)mappings[i], page_size);
 		} while (keep_stressing());
