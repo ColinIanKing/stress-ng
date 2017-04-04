@@ -232,6 +232,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_PATHOLOGICAL	 0x1000000000000ULL	/* --pathological */
 #define OPT_FLAGS_NO_RAND_SEED	 0x2000000000000ULL	/* --no-rand-seed */
 #define OPT_FLAGS_THRASH	 0x4000000000000ULL	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 0x8000000000000ULL	/* --oomable */
 
 #define OPT_FLAGS_CACHE_MASK		\
 	(OPT_FLAGS_CACHE_FLUSH |	\
@@ -1618,6 +1619,8 @@ typedef enum {
 
 	OPT_NUMA,
 	OPT_NUMA_OPS,
+
+	OPT_OOMABLE,
 
 	OPT_OOM_PIPE,
 	OPT_OOM_PIPE_OPS,

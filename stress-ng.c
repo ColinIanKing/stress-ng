@@ -649,6 +649,7 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "numa",	1,	0,	OPT_NUMA },
 	{ "numa-ops",	1,	0,	OPT_NUMA_OPS },
+	{ "oomable",	1,	0,	OPT_OOMABLE },
 	{ "oom-pipe",	1,	0,	OPT_OOM_PIPE },
 	{ "oom-pipe-ops",1,	0,	OPT_OOM_PIPE_OPS },
 	{ "opcode",	1,	0,	OPT_OPCODE },
@@ -2774,6 +2775,9 @@ next_opt:
 			break;
 		case OPT_NO_RAND_SEED:
 			g_opt_flags |= OPT_FLAGS_NO_RAND_SEED;
+			break;
+		case OPT_OOMABLE:
+			g_opt_flags |= OPT_FLAGS_OOMABLE;
 			break;
 		case OPT_PAGE_IN:
 			g_opt_flags |= OPT_FLAGS_MMAP_MINCORE;

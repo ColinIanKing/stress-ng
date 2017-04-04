@@ -118,12 +118,21 @@ again:
 				args->instance);
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM "
-					"killer, restarting again "
-					"(instance %d)\n", args->name,
-					args->instance);
-				goto again;
+				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, bailing out "
+						"(instance %d)\n",
+						args->name, args->instance);
+					_exit(0);
+				} else {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, restarting again "
+						"(instance %d)\n", args->name,
+						args->instance);
+					goto again;
+				}
 			}
 			/* If we got killed by sigsegv, re-start */
 			if (WTERMSIG(status) == SIGSEGV) {

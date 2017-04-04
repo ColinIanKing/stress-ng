@@ -208,6 +208,12 @@ start seed, but instead seed it with constant values. This forces tests to
 run each time using the same start conditions which can be useful when one
 requires reproduceable stress tests.
 .TP
+.B \-\-oomable
+Do not respawn a stressor if it gets killed by the Out-of-Memory (OOM) killer.
+The default behaviour is to restart a new instance of a stressor if the kernel
+OOM killer terminates the process. This option disables this default
+behaviour.
+.TP
 .B \-\-page\-in
 touch allocated pages that are not in core, forcing them to be paged back in.
 This is a useful option to force all the allocated pages to be paged in when
