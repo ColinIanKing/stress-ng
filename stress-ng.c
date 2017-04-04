@@ -649,7 +649,7 @@ static const struct option long_options[] = {
 	{ "null-ops",	1,	0,	OPT_NULL_OPS },
 	{ "numa",	1,	0,	OPT_NUMA },
 	{ "numa-ops",	1,	0,	OPT_NUMA_OPS },
-	{ "oomable",	1,	0,	OPT_OOMABLE },
+	{ "oomable",	0,	0,	OPT_OOMABLE },
 	{ "oom-pipe",	1,	0,	OPT_OOM_PIPE },
 	{ "oom-pipe-ops",1,	0,	OPT_OOM_PIPE_OPS },
 	{ "opcode",	1,	0,	OPT_OPCODE },
