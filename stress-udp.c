@@ -64,16 +64,6 @@ int stress_set_udp_domain(const char *name)
 }
 
 /*
- *  handle_udp_sigalrm()
- *	catch SIGALRM
- */
-static void MLOCKED handle_udp_sigalrm(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-/*
  *  stress_udp
  *	stress by heavy udp ops
  */
@@ -187,7 +177,7 @@ again:
 
 		(void)setpgid(pid, g_pgrp);
 
-		if (stress_sighandler(args->name, SIGALRM, handle_udp_sigalrm, NULL) < 0) {
+		if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 			rc = EXIT_FAILURE;
 			goto die;
 		}

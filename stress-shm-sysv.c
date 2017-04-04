@@ -110,18 +110,6 @@ static int stress_shm_sysv_check(
 	return 0;
 }
 
-
-/*
- *  handle_shm_sysv_sigalrm()
- *      catch SIGALRM, flag termination
- */
-static MLOCKED void handle_shm_sysv_sigalrm(int dummy)
-{
-	(void)dummy;
-
-	g_keep_stressing_flag = false;
-}
-
 /*
  *  stress_shm_sysv_child()
  * 	stress out the shm allocations. This can be killed by
@@ -145,7 +133,7 @@ static int stress_shm_sysv_child(
 	int mask = ~0;
 	int32_t instances;
 
-	if (stress_sighandler(args->name, SIGALRM, handle_shm_sysv_sigalrm, NULL) < 0)
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
 
 	memset(addrs, 0, sizeof(addrs));

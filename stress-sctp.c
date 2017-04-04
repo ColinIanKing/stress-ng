@@ -153,18 +153,6 @@ retry:
 }
 
 /*
- *  handle_sctp_sigalrm()
- *     catch SIGALRM
- *  stress_sctp_client()
- *     client reader
- */
-static void MLOCKED handle_sctp_sigalrm(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-/*
  *  stress_sctp_server()
  *	server writer
  */
@@ -183,7 +171,7 @@ static int stress_sctp_server(
 
 	(void)setpgid(pid, g_pgrp);
 
-	if (stress_sighandler(args->name, SIGALRM, handle_sctp_sigalrm, NULL) < 0) {
+	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

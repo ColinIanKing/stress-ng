@@ -24,13 +24,6 @@
  */
 #include "stress-ng.h"
 
-static MLOCKED void handle_daemon_sigalrm(int dummy)
-{
-	(void)dummy;
-
-	g_keep_stressing_flag = false;
-}
-
 /*
  *  daemons()
  *	fork off a child and let the parent die
@@ -39,7 +32,7 @@ static void daemons(const args_t *args, const int fd)
 {
 	int fds[3];
 
-	if (stress_sighandler(args->name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		goto err;
 	if (setsid() < 0)
 		goto err;
@@ -98,7 +91,7 @@ int stress_daemon(const args_t *args)
 	int fds[2];
 	pid_t pid;
 
-	if (stress_sighandler(args->name, SIGALRM, handle_daemon_sigalrm, NULL) < 0)
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {

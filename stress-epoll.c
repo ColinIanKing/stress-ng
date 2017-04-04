@@ -111,18 +111,6 @@ static void MLOCKED epoll_timer_handler(int sig)
 	}
 }
 
-
-/*
- *  handle_socket_sigalrm()
- *	catch SIGALRM
- */
-static MLOCKED void handle_socket_sigalrm(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-
 /*
  *  epoll_spawn()
  *	spawn a process
@@ -394,7 +382,7 @@ static void epoll_server(
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 
-	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

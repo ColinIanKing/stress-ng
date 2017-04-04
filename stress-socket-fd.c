@@ -192,16 +192,6 @@ retry:
 }
 
 /*
- *  handle_socket_sigalrm()
- *     catch SIGALRM
- */
-static void MLOCKED handle_socket_sigalrm(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-/*
  *  stress_socket_server()
  *	server writer
  */
@@ -221,7 +211,7 @@ static int stress_socket_server(
 
 	(void)setpgid(pid, g_pgrp);
 
-	if (stress_sighandler(args->name, SIGALRM, handle_socket_sigalrm, NULL) < 0) {
+	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}

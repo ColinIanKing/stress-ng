@@ -181,18 +181,6 @@ retry:
 }
 
 /*
- *  handle_dccp_sigalrm()
- *     catch SIGALRM
- *  stress_dccp_client()
- *     client reader
- */
-static void MLOCKED handle_dccp_sigalrm(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-/*
  *  stress_dccp_server()
  *	server writer
  */
@@ -211,7 +199,7 @@ static int stress_dccp_server(
 
 	(void)setpgid(pid, g_pgrp);
 
-	if (stress_sighandler(args->name, SIGALRM, handle_dccp_sigalrm, NULL) < 0) {
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
