@@ -978,6 +978,27 @@ int stress_sighandler(
 }
 
 /*
+ *  stress_handle_stop_stressing()
+ *	set flag to indicate to stressor to stop stressing
+ */
+static void stress_handle_stop_stressing(int dummy)
+{
+	(void)dummy;
+
+	g_keep_stressing_flag = false;
+}
+
+/*
+ *  stress_sig_stop_stressing()
+ *	install a handler that sets the global flag
+ *	to indicate to a stressor to stop stressing
+ */
+int stress_sig_stop_stressing(const char *name, const int sig)
+{
+	return stress_sighandler(name, sig, stress_handle_stop_stressing, NULL);
+}
+
+/*
  *  stress_sigrestore()
  *	restore a handler
  */
