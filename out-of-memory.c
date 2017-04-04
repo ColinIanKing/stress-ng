@@ -25,6 +25,15 @@
 #include "stress-ng.h"
 
 #if defined(__linux__)
+
+#define OOM_SCORE_ADJ_MIN	"-1000"
+#define OOM_SCORE_ADJ_MAX	"1000"
+
+#define OOM_ADJ_NO_OOM		"-17"
+#define OOM_ADJ_MIN		"-16"
+#define OOM_ADJ_MAX		"15"
+
+
 /*
  *  set_oom_adjustment()
  *	attempt to stop oom killer
@@ -50,9 +59,9 @@ void set_oom_adjustment(const char *name, const bool killable)
 		ssize_t n;
 
 		if (make_killable)
-			str = "1000";
+			str = OOM_SCORE_ADJ_MAX;
 		else
-			str = high_priv ? "-1000" : "0";
+			str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
 
 redo_wr1:
 		n = write(fd, str, strlen(str));
@@ -73,9 +82,9 @@ redo_wr1:
 		ssize_t n;
 
 		if (make_killable)
-			str = high_priv ? "-17" : "-16";
+			str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 		else
-			str = "15";
+			str = OOM_ADJ_MAX;
 
 redo_wr2:
 		n = write(fd, str, strlen(str));
