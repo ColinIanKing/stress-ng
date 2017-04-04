@@ -53,7 +53,6 @@ static int stress_cpu_online_set(
 	data[2] = '\0';
 
 	ret = write(fd, data, 3);
-
 	if (ret != 3) {
 		if ((errno != EAGAIN) && (errno != EINTR)) {
 			pr_fail_err("write");
@@ -84,7 +83,8 @@ int stress_cpu_online(const args_t *args)
 	}
 
 	if ((cpus < 1) || (cpus > 65536)) {
-		pr_inf("%s: too few or too many CPUs (found %" PRId32 ")\n", args->name, cpus);
+		pr_inf("%s: too few or too many CPUs (found %" PRId32 ")\n",
+			args->name, cpus);
 		return EXIT_FAILURE;
 	}
 
