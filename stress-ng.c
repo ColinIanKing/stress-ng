@@ -1545,16 +1545,6 @@ static void MLOCKED stress_sigint_handler(int dummy)
 }
 
 /*
- *  stress_sigalrm_child_handler()
- *	handle signal in child process,  set flag to stop stressor
- */
-static void MLOCKED stress_sigalrm_child_handler(int dummy)
-{
-	(void)dummy;
-	g_keep_stressing_flag = false;
-}
-
-/*
  *  stress_sigalrm_parent_handler()
  *	handle signal in parent process, don't block on waits
  */
@@ -1616,7 +1606,7 @@ static int stress_set_handler(const char *stress, const bool child)
 	}
 #endif
 	if (stress_sighandler(stress, SIGALRM,
-	    child ? stress_sigalrm_child_handler :
+	    child ? stress_handle_stop_stressing :
 		    stress_sigalrm_parent_handler, NULL) < 0)
 		return -1;
 	return 0;
