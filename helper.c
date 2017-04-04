@@ -981,7 +981,7 @@ int stress_sighandler(
  *  stress_handle_stop_stressing()
  *	set flag to indicate to stressor to stop stressing
  */
-static void stress_handle_stop_stressing(int dummy)
+void stress_handle_stop_stressing(int dummy)
 {
 	(void)dummy;
 

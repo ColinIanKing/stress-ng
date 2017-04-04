@@ -2169,6 +2169,7 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED int stress_sigaltstack(const void *stack, const size_t size);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, void (*handler)(int), struct sigaction *orig_action);
+extern void stress_handle_stop_stressing(int dummy);
 extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
 extern WARN_UNUSED int stress_not_implemented(const args_t *args);
