@@ -826,7 +826,7 @@ int system_read(
 	int fd;
 	ssize_t ret;
 
-	memset(buf, 0, buf_len);
+	(void)memset(buf, 0, buf_len);
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0)
@@ -964,9 +964,9 @@ int stress_sighandler(
 	}
 #endif
 
-	memset(&new_action, 0, sizeof new_action);
+	(void)memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
-	sigemptyset(&new_action.sa_mask);
+	(void)sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
 
 	if (sigaction(signum, &new_action, orig_action) < 0) {

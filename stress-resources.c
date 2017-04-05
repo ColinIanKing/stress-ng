@@ -99,7 +99,7 @@ static void *stress_pthread_func(void *ctxt)
 	static void *nowt;
 
 	(void)ctxt;
-	sleep(1);
+	(void)sleep(1);
 	return &nowt;
 }
 #endif
@@ -117,7 +117,7 @@ static void NORETURN waste_resources(
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	info_t info[MAX_LOOPS];
 
-	memset(&info, 0, sizeof(info));
+	(void)memset(&info, 0, sizeof(info));
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
 #if defined(__NR_memfd_create)
@@ -379,7 +379,7 @@ int stress_resources(const args_t *args)
 	do {
 		unsigned int i;
 
-		memset(pids, 0, sizeof(pids));
+		(void)memset(pids, 0, sizeof(pids));
 		for (i = 0; i < RESOURCE_FORKS; i++) {
 			pid_t pid = fork();
 

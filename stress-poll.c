@@ -111,7 +111,7 @@ again:
 
 			/* Write on a randomly chosen pipe */
 			i = (mwc32() >> 8) % MAX_PIPES;
-			memset(buf, '0' + i, sizeof(buf));
+			(void)memset(buf, '0' + i, sizeof(buf));
 			ret = write(pipefds[i][1], buf, sizeof(buf));
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))

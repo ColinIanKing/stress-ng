@@ -48,7 +48,7 @@ static int stress_crypt_id(
 #if defined (__linux__)
 	struct crypt_data data;
 
-	memset(&data, 0, sizeof(data));
+	(void)memset(&data, 0, sizeof(data));
 	crypted = crypt_r(passwd, salt, &data);
 #else
 	crypted = crypt(passwd, salt);

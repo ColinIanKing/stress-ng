@@ -140,7 +140,7 @@ again:
 				size_t i;
 
 				for (i = 16; i < sizeof(buf); i += 16, j++) {
-					memset(buf, 'A' + (j % 26), sizeof(buf));
+					(void)memset(buf, 'A' + (j % 26), sizeof(buf));
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
 						if (errno != EINTR)

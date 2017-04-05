@@ -1427,7 +1427,7 @@ static inline int32_t stressor_name_find(const char *name)
 	const size_t len = strlen(tmp) + 1;
 	char munged_name[len];
 
-	strncpy(munged_name, tmp, len);
+	(void)strncpy(munged_name, tmp, len);
 
 	for (i = 0; stressors[i].name; i++) {
 		const char *munged_stressor_name = munge_underscore(stressors[i].name);
@@ -1650,7 +1650,7 @@ static inline void show_stressors(void)
 	for (i = 0; stressors[i].name; i++)
 		(void)printf("%s%s", i ? " " : "",
 			munge_underscore(stressors[i].name));
-	putchar('\n');
+	(void)putchar('\n');
 }
 
 /*
@@ -2071,7 +2071,7 @@ static int show_hogs(const uint32_t opt_class)
 					return -1;
 				}
 				str = newstr;
-				strncpy(str + len, buffer, buffer_len + 1);
+				(void)strncpy(str + len, buffer, buffer_len + 1);
 			}
 			len += buffer_len;
 		}
@@ -2230,10 +2230,10 @@ static void log_args(int argc, char **argv)
 
 	for (len = 0, i = 0; i < argc; i++) {
 		if (i) {
-			strncat(buf + len, " ", 1);
+			(void)strncat(buf + len, " ", 1);
 			len++;
 		}
-		strncat(buf + len, argv[i], arglen[i]);
+		(void)strncat(buf + len, argv[i], arglen[i]);
 		len += arglen[i];
 	}
 	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
@@ -2301,7 +2301,7 @@ static inline void stress_map_shared(const size_t len)
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-	memset(g_shared, 0, len);
+	(void)memset(g_shared, 0, len);
 	g_shared->length = len;
 }
 
@@ -2465,7 +2465,7 @@ int main(int argc, char **argv)
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
 		exit(EXIT_SUCCESS);
 
-	memset(procs, 0, sizeof(procs));
+	(void)memset(procs, 0, sizeof(procs));
 	mwc_reseed();
 
 	(void)stress_get_pagesize();

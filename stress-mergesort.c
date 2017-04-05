@@ -145,14 +145,18 @@ int stress_mergesort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_1);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr+1)) {
-					pr_fail("%s: sort error "
-						"detected, incorrect ordering "
-						"found\n", args->name);
-					break;
+		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_1) < 0) {
+			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr > *(ptr+1)) {
+						pr_fail("%s: sort error "
+							"detected, incorrect ordering "
+							"found\n", args->name);
+						break;
+					}
 				}
 			}
 		}
@@ -160,24 +164,34 @@ int stress_mergesort(const args_t *args)
 			break;
 
 		/* Reverse sort */
-		mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr+1)) {
-					pr_fail("%s: reverse sort "
-						"error detected, incorrect "
-						"ordering found\n", args->name);
-					break;
+		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2) < 0) {
+			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
+                                args->name, errno, strerror(errno));
+		} else {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr < *(ptr+1)) {
+						pr_fail("%s: reverse sort "
+							"error detected, incorrect "
+							"ordering found\n", args->name);
+						break;
+					}
 				}
 			}
 		}
 		if (!g_keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
-		mergesort(data, n * 4, sizeof(uint8_t), stress_mergesort_cmp_3);
+		if (mergesort(data, n * 4, sizeof(uint8_t), stress_mergesort_cmp_3) < 0) {
+			pr_fail("%s: mergesort failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 
 		/* Reverse sort this again */
-		mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2);
+		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2) < 0) {
+			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {

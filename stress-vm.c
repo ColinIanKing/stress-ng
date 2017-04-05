@@ -446,7 +446,7 @@ static size_t stress_vm_walking_one_addr(
 	size_t tests = 0;
 	uint64_t c = *counter;
 
-	memset(buf, d1, sz);
+	(void)memset(buf, d1, sz);
 	for (ptr = buf; ptr < buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
@@ -502,7 +502,7 @@ static size_t stress_vm_walking_zero_addr(
 
 	sz_mask--;
 
-	memset(buf, d1, sz);
+	(void)memset(buf, d1, sz);
 	for (ptr = buf; ptr < buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
@@ -594,7 +594,7 @@ static size_t stress_vm_incdec(
 	uint64_t c = *counter;
 
 	val++;
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		*ptr += val;
@@ -647,7 +647,7 @@ static size_t stress_vm_prime_incdec(
 		return 0;
 #endif
 
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
@@ -714,7 +714,7 @@ static size_t stress_vm_swap(
 	mwc_seed(w1, z1);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
 		uint8_t val = mwc8();
-		memset((void *)ptr, val, chunk_sz);
+		(void)memset((void *)ptr, val, chunk_sz);
 	}
 
 	/* Forward swaps */
@@ -1051,7 +1051,7 @@ static size_t stress_vm_zero_one(
 
 	(void)max_ops;
 
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
@@ -1070,7 +1070,7 @@ static size_t stress_vm_zero_one(
 			goto abort;
 	}
 
-	memset(buf, 0xff, sz);
+	(void)memset(buf, 0xff, sz);
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
@@ -1113,7 +1113,7 @@ static size_t stress_vm_galpat_zero(
 	size_t bits_bad = sz / 4096;
 	uint64_t c = *counter;
 
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 
 	mwc_reseed();
 
@@ -1175,7 +1175,7 @@ static size_t stress_vm_galpat_one(
 	size_t bits_bad = sz / 4096;
 	uint64_t c = *counter;
 
-	memset(buf, 0xff, sz);
+	(void)memset(buf, 0xff, sz);
 
 	mwc_reseed();
 
@@ -1235,7 +1235,7 @@ static size_t stress_vm_inc_nybble(
 	size_t bit_errors = 0;
 	uint64_t c = *counter;
 
-	memset(buf, val, sz);
+	(void)memset(buf, val, sz);
 	INC_LO_NYBBLE(val);
 	INC_HI_NYBBLE(val);
 
@@ -1380,7 +1380,7 @@ static size_t stress_vm_prime_zero(
 		return 0;
 #endif
 
-	memset(buf, 0xff, sz);
+	(void)memset(buf, 0xff, sz);
 
 	for (j = 0; j < 8; j++) {
 		uint8_t mask = ~(1 << j);
@@ -1437,7 +1437,7 @@ static size_t stress_vm_prime_one(
 		return 0;
 #endif
 
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 
 	for (j = 0; j < 8; j++) {
 		uint8_t mask = 1 << j;
@@ -1494,7 +1494,7 @@ static size_t stress_vm_prime_gray_zero(
 		return 0;
 #endif
 
-	memset(buf, 0xff, sz);
+	(void)memset(buf, 0xff, sz);
 
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*
@@ -1561,7 +1561,7 @@ static size_t stress_vm_prime_gray_one(
 		return 0;
 #endif
 
-	memset(buf, 0x00, sz);
+	(void)memset(buf, 0x00, sz);
 
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*

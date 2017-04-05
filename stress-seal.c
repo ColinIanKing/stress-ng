@@ -132,7 +132,7 @@ int stress_seal(const args_t *args)
 			(void)close(fd);
 			goto err;
 		}
-		memset(ptr, 0xea, page_size);
+		(void)memset(ptr, 0xea, page_size);
 		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE);
 		if ((ret == 0) || ((ret < 0) && (errno != EBUSY))) {
 			pr_fail_err("fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY");
@@ -151,7 +151,7 @@ int stress_seal(const args_t *args)
 			(void)close(fd);
 			goto err;
 		}
-		memset(buf, 0xff, sizeof(buf));
+		(void)memset(buf, 0xff, sizeof(buf));
 		ret = write(fd, buf, sizeof(buf));
 		if ((ret == 0) || ((ret < 0) && (errno != EPERM))) {
 			pr_fail_err("write on sealed file did not fail with EPERM");

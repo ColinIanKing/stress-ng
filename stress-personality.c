@@ -46,7 +46,7 @@ int stress_personality(const args_t *args)
 		pr_inf("%s: no personalities to stress test\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
-	memset(failed, 0, sizeof(failed));
+	(void)memset(failed, 0, sizeof(failed));
 
 	if (args->instance == 0)
 		pr_dbg("%s: exercising %zu personalities\n", args->name, n);

@@ -65,7 +65,7 @@ int stress_nice(const args_t *args)
 			pid = getpid();
 			for (i = min_prio; i <= max_prio; i++) {
 				errno = 0;
-				setpriority(PRIO_PROCESS, pid, i);
+				(void)setpriority(PRIO_PROCESS, pid, i);
 				if (!errno) {
 					double start = time_now();
 					double delay = 0.05 + (double)mwc16() / 327680.0;

@@ -46,7 +46,7 @@ static void *stress_membarrier_thread(void *parg)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -54,7 +54,7 @@ static void *stress_membarrier_thread(void *parg)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	memset(stack, 0, sizeof(stack));
+	(void)memset(stack, 0, sizeof(stack));
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
@@ -102,8 +102,8 @@ int stress_membarrier(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	sigfillset(&set);
-	memset(pthread_ret, 0, sizeof(pthread_ret));
+	(void)sigfillset(&set);
+	(void)memset(pthread_ret, 0, sizeof(pthread_ret));
 	keep_running = true;
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {

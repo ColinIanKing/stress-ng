@@ -45,8 +45,8 @@ int stress_sigpending(const args_t *args)
 		return EXIT_FAILURE;
 
 	do {
-		sigemptyset(&sigset);
-		sigaddset(&sigset, SIGUSR1);
+		(void)sigemptyset(&sigset);
+		(void)sigaddset(&sigset, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &sigset, NULL) < 0) {
 			pr_fail_err("sigprocmask");
 			return EXIT_FAILURE;
@@ -64,8 +64,8 @@ int stress_sigpending(const args_t *args)
 		}
 
 		/* Unmask signal, signal is handled */
-		sigemptyset(&sigset);
-		sigprocmask(SIG_SETMASK, &sigset, NULL);
+		(void)sigemptyset(&sigset);
+		(void)sigprocmask(SIG_SETMASK, &sigset, NULL);
 
 		/* And it is no longer pending */
 		if (sigpending(&sigset) < 0) {

@@ -269,7 +269,7 @@ int stress_get(const args_t *args)
 		if (is_root && verify && (ret < 0))
 			pr_fail_err("adjtimex");
 #endif
-		memset(&delta, 0, sizeof(delta));
+		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (is_root && verify && (ret < 0))
 			pr_fail_err("adjtime");

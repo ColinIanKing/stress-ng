@@ -139,7 +139,7 @@ again:
 	} else if (pid == 0) {
 		struct sigevent sigev;
 
-		memset(&sigev, 0, sizeof sigev);
+		(void)memset(&sigev, 0, sizeof sigev);
 		sigev.sigev_notify = SIGEV_THREAD;
 		sigev.sigev_notify_function = stress_mq_notify_func;
 		sigev.sigev_notify_attributes = NULL;
@@ -197,7 +197,7 @@ again:
 			int ret;
 			const uint64_t timed = (i & 1);
 
-			memset(&msg, 0, sizeof(msg));
+			(void)memset(&msg, 0, sizeof(msg));
 			msg.value = (*args->counter);
 			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {

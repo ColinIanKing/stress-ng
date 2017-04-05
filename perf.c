@@ -299,7 +299,7 @@ int perf_open(stress_perf_t *sp)
 	if (g_shared->perf.no_perf)
 		return -1;
 
-	memset(sp, 0, sizeof(stress_perf_t));
+	(void)memset(sp, 0, sizeof(stress_perf_t));
 	sp->perf_opened = 0;
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
@@ -311,7 +311,7 @@ int perf_open(stress_perf_t *sp)
 		if (perf_info[i].config != UNRESOLVED) {
 			struct perf_event_attr attr;
 
-			memset(&attr, 0, sizeof(attr));
+			(void)memset(&attr, 0, sizeof(attr));
 			attr.type = perf_info[i].type;
 			attr.config = perf_info[i].config;
 			attr.disabled = 1;
@@ -423,7 +423,7 @@ int perf_close(stress_perf_t *sp)
 			continue;
 		}
 
-		memset(&data, 0, sizeof(data));
+		(void)memset(&data, 0, sizeof(data));
 		ret = read(fd, &data, sizeof(data));
 		if (ret != sizeof(data))
 			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
@@ -593,7 +593,7 @@ void perf_stat_dump(
 		bool got_data = false;
 		char *munged;
 
-		memset(counter_totals, 0, sizeof(counter_totals));
+		(void)memset(counter_totals, 0, sizeof(counter_totals));
 
 		/* Sum totals across all instances of the stressor */
 		for (p = 0; p < STRESS_PERF_MAX; p++) {

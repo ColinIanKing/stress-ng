@@ -55,7 +55,7 @@ static void pipe_fill(const int fd, const size_t max)
 	size_t i;
 	char buffer[page_size];
 
-	memset(buffer, 'X', sizeof(buffer));
+	(void)memset(buffer, 'X', sizeof(buffer));
 
 	for (i = 0; i < max; i += page_size) {
 		ssize_t ret;

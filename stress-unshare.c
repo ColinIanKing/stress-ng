@@ -56,7 +56,7 @@ int stress_unshare(const args_t *args)
 	do {
 		size_t i, n;
 
-		memset(pids, 0, sizeof(pids));
+		(void)memset(pids, 0, sizeof(pids));
 		for (n = 0; n < MAX_PIDS; n++) {
 retry:			if (!g_keep_stressing_flag)
 				goto reap;

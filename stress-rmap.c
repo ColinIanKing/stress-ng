@@ -65,23 +65,23 @@ static void stress_rmap_child(
 
 		switch (mwc32() & 3) {
 		case 0: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
-				memset(mappings[i], mwc8(), sz);
+				(void)memset(mappings[i], mwc8(), sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; g_keep_stressing_flag && (i >= 0); i--) {
-				memset(mappings[i], mwc8(), sz);
+				(void)memset(mappings[i], mwc8(), sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
 		case 2: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
 				size_t j = mwc32() % MAPPINGS_MAX;
-				memset(mappings[j], mwc8(), sz);
+				(void)memset(mappings[j], mwc8(), sz);
 				shim_msync(mappings[j], sz, sync_flag);
 			}
 			break;
 		case 3: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX - 1); i++) {
-				memcpy(mappings[i], mappings[i + 1], sz);
+				(void)memcpy(mappings[i], mappings[i + 1], sz);
 				shim_msync(mappings[i], sz, sync_flag);
 			}
 			break;
@@ -118,9 +118,9 @@ int stress_rmap(const args_t *args)
 			args->name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	memset(counters, 0, counters_sz);
-	memset(pids, 0, sizeof(pids));
-	memset(mappings, 0, sizeof(mappings));
+	(void)memset(counters, 0, counters_sz);
+	(void)memset(pids, 0, sizeof(pids));
+	(void)memset(mappings, 0, sizeof(mappings));
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -227,9 +227,9 @@ cleanup:
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
-			munmap(mappings[i], MAPPING_PAGES * page_size);
+			(void)munmap(mappings[i], MAPPING_PAGES * page_size);
 		if (paddings[i] != MAP_FAILED)
-			munmap(paddings[i], page_size);
+			(void)munmap(paddings[i], page_size);
 	}
 
 	return EXIT_SUCCESS;

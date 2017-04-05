@@ -197,7 +197,7 @@ int stress_aio(const args_t *args)
 	}
 	(void)unlink(filename);
 
-	sigemptyset(&sa.sa_mask);
+	(void)sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
 	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)

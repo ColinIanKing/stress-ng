@@ -153,7 +153,7 @@ int stress_clock(const args_t *args)
 			int64_t loops = 1000000;
 			int ret;
 
-			memset(&sevp, 0, sizeof(sevp));
+			(void)memset(&sevp, 0, sizeof(sevp));
 			sevp.sigev_notify = SIGEV_NONE;
 			ret = timer_create(timers[i], &sevp, &timer_id);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {

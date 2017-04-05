@@ -256,7 +256,7 @@ int stress_sem_sysv(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
 		if (!g_keep_stressing_flag || pids[i] < 0)

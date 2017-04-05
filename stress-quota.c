@@ -185,8 +185,8 @@ int stress_quota(const args_t *args)
 	struct dirent *d;
 	struct stat buf;
 
-	memset(mnts, 0, sizeof(mnts));
-	memset(devs, 0, sizeof(devs));
+	(void)memset(mnts, 0, sizeof(mnts));
+	(void)memset(devs, 0, sizeof(devs));
 
 	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
 
@@ -246,7 +246,7 @@ int stress_quota(const args_t *args)
 			free(devs[i].name);
 	}
 	for (i = n_devs; i < n_mounts; i++)
-		memset(&devs[i], 0, sizeof(devs[i]));
+		(void)memset(&devs[i], 0, sizeof(devs[i]));
 
 	if (!n_devs) {
 		pr_err("%s: cannot find any candidate block "

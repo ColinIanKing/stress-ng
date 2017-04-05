@@ -55,7 +55,7 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
 	if (addr == MAP_FAILED)
 		return NULL;
 
-	munmap(addr, sz);
+	(void)munmap(addr, sz);
 
 	/*
 	 * At this point, we know that we can remap to this addr
@@ -171,7 +171,7 @@ static int stress_mremap_child(
 				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					args->name, sz);
-				munmap(buf, new_sz);
+				(void)munmap(buf, new_sz);
 				return EXIT_FAILURE;
 			}
 		}
@@ -180,7 +180,7 @@ static int stress_mremap_child(
 		new_sz >>= 1;
 		while (new_sz > page_size) {
 			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
-				munmap(buf, old_sz);
+				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
 			(void)madvise_random(buf, new_sz);
@@ -190,7 +190,7 @@ static int stress_mremap_child(
 						"of %zu bytes does "
 						"not contain expected data\n",
 						args->name, sz);
-					munmap(buf, new_sz);
+					(void)munmap(buf, new_sz);
 					return EXIT_FAILURE;
 				}
 			}
@@ -201,7 +201,7 @@ static int stress_mremap_child(
 		new_sz <<= 1;
 		while (new_sz < opt_mremap_bytes) {
 			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
-				munmap(buf, old_sz);
+				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
 			(void)madvise_random(buf, new_sz);

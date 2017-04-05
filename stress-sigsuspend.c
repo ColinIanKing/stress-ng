@@ -48,10 +48,10 @@ int stress_sigsuspend(const args_t *args)
 		pr_fail_dbg("mmap");
 		return EXIT_FAILURE;
 	}
-	memset(counters, 0, counters_size);
+	(void)memset(counters, 0, counters_size);
 
-	sigfillset(&mask);
-	sigdelset(&mask, SIGUSR1);
+	(void)sigfillset(&mask);
+	(void)sigdelset(&mask, SIGUSR1);
 
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:

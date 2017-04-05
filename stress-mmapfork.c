@@ -62,7 +62,7 @@ static void __strncat(char *dst, char *src, size_t *n)
 	if (*n <= ln)
 		return;
 
-	strncat(dst, src, *n);
+	(void)strncat(dst, src, *n);
 	*n -= ln;
 }
 
@@ -85,7 +85,7 @@ int stress_mmapfork(const args_t *args)
 	do {
 		size_t i, n, len;
 
-		memset(pids, 0, sizeof(pids));
+		(void)memset(pids, 0, sizeof(pids));
 
 		for (n = 0; n < MAX_PIDS; n++) {
 retry:			if (!g_keep_stressing_flag)
@@ -122,13 +122,13 @@ retry:			if (!g_keep_stressing_flag)
 					(void)shim_madvise(ptr, len, MADV_WILLNEED);
 
 					segv_ret = _EXIT_SEGV_MEMSET;
-					memset(ptr, 0, len);
+					(void)memset(ptr, 0, len);
 
 					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
 					(void)shim_madvise(ptr, len, MADV_DONTNEED);
 
 					segv_ret = _EXIT_SEGV_MUNMAP;
-					munmap(ptr, len);
+					(void)munmap(ptr, len);
 				}
 				_exit(EXIT_SUCCESS);
 			}

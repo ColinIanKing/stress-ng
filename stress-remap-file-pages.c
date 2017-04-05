@@ -148,7 +148,7 @@ int stress_remap(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
-	munmap(data, data_size);
+	(void)munmap(data, data_size);
 
 	return EXIT_SUCCESS;
 }

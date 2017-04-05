@@ -78,7 +78,7 @@ int stress_exec(const args_t *args)
 	do {
 		unsigned int i;
 
-		memset(pids, 0, sizeof(pids));
+		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < opt_exec_max; i++) {
 			pids[i] = fork();
@@ -100,9 +100,9 @@ int stress_exec(const args_t *args)
 					(void)close(fd_out);
 					_exit(EXIT_FAILURE);
 				}
-				dup2(fd_out, STDOUT_FILENO);
-				dup2(fd_out, STDERR_FILENO);
-				dup2(fd_in, STDIN_FILENO);
+				(void)dup2(fd_out, STDOUT_FILENO);
+				(void)dup2(fd_out, STDERR_FILENO);
+				(void)dup2(fd_in, STDIN_FILENO);
 				(void)close(fd_out);
 				(void)close(fd_in);
 

@@ -141,7 +141,7 @@ static void stress_fiemap_ioctl(const args_t *args, int fd)
 		}
 		fiemap = tmp;
 
-		memset(fiemap->fm_extents, 0, extents_size);
+		(void)memset(fiemap->fm_extents, 0, extents_size);
 		fiemap->fm_extent_count = fiemap->fm_mapped_extents;
 		fiemap->fm_mapped_extents = 0;
 
@@ -209,7 +209,7 @@ int stress_fiemap(const args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	memset(counters, 0, counters_sz);
+	(void)memset(counters, 0, counters_sz);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {

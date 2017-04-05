@@ -134,13 +134,13 @@ static void stress_mmap_child(
 			continue;	/* Try again */
 		}
 		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
-			memset(buf, 0xff, sz);
+			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, opt_mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz);
-		memset(mapped, PAGE_MAPPED, sizeof(mapped));
+		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
 
@@ -205,7 +205,7 @@ static void stress_mmap_child(
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
-							memset(mappings[page], n, page_size);
+							(void)memset(mappings[page], n, page_size);
 #if !defined(__gnu_hurd__) && !defined(__minix__)
 							(void)msync((void *)mappings[page], page_size, ms_flags);
 #endif

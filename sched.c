@@ -78,7 +78,7 @@ void set_sched(const int sched, const int32_t sched_priority)
 	struct sched_param param;
 	const char *name = get_sched_name(sched);
 
-	memset(&param, 0, sizeof(param));
+	(void)memset(&param, 0, sizeof(param));
 
 	switch (sched) {
 	case UNDEFINED:	/* No preference, don't set */

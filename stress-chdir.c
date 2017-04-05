@@ -48,7 +48,7 @@ int stress_chdir(const args_t *args)
 	int rc, ret = EXIT_FAILURE;
 	char *paths[opt_chdir_dirs];
 
-	memset(paths, 0, sizeof(paths));
+	(void)memset(paths, 0, sizeof(paths));
 
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
 		pr_fail_err("getcwd");

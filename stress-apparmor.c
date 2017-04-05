@@ -516,7 +516,7 @@ static int apparmor_stress_corruption(
 	do {
 		int ret;
 
-		memcpy(copy, g_apparmor_data, g_apparmor_data_len);
+		(void)memcpy(copy, g_apparmor_data, g_apparmor_data_len);
 		/*
 		 *  Apply various corruption methods
 		 */
@@ -620,7 +620,7 @@ int stress_apparmor(const args_t *args)
 			args->name, errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	memset(counters, 0, counters_sz);
+	(void)memset(counters, 0, counters_sz);
 
 	if ((args->max_ops > 0) && (args->max_ops < n))
 		ops = n;
@@ -646,7 +646,7 @@ int stress_apparmor(const args_t *args)
 			*(args->counter) += counters[i];
 		}
 	}
-	munmap(counters, counters_sz);
+	(void)munmap(counters, counters_sz);
 
 	free(apparmor_path);
 	apparmor_path = NULL;

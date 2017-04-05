@@ -374,7 +374,7 @@ int stress_dnotify(const args_t *args)
 	struct sigaction act;
 
 	act.sa_sigaction = dnotify_handler;
-	sigemptyset(&act.sa_mask);
+	(void)sigemptyset(&act.sa_mask);
 	act.sa_flags = SA_SIGINFO;
 	if (sigaction(SIGRTMIN + 1, &act, NULL) < 0) {
 		pr_err("%s: sigaction failed: errno=%d (%s)\n",

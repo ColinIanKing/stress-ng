@@ -37,9 +37,9 @@ typedef struct {
 /*
  * append @element to array @path (which has len @len)
  */
-#define MK_PATH(path, len, element) 			\
-	memset((path) + len, '\0', sizeof(path) - len);	\
-	strncpy((path) + len, element, strlen(element))
+#define MK_PATH(path, len, element) 				\
+	(void)memset((path) + len, '\0', sizeof(path) - len);	\
+	(void)strncpy((path) + len, element, strlen(element))
 
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
@@ -278,7 +278,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	}
 
 	len = strlen(index_path);
-	strncpy(path, index_path, len);
+	(void)strncpy(path, index_path, len);
 
 	MK_PATH(path, len, "/type");
 	contents = get_string_from_file(path);
@@ -439,7 +439,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	int        ret = EXIT_FAILURE;
 	int        ret2;
 
-	memset(&globbuf, 0, sizeof(globbuf));
+	(void)memset(&globbuf, 0, sizeof(globbuf));
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return ret;
@@ -451,10 +451,10 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	}
 
 	len = strlen(cpu_path);
-	strncat(glob_path, cpu_path, len);
+	(void)strncat(glob_path, cpu_path, len);
 
 	len2 = strlen(SYS_CPU_CACHE_DIR);
-	strncat(glob_path, SYS_CPU_CACHE_DIR, len2);
+	(void)strncat(glob_path, SYS_CPU_CACHE_DIR, len2);
 	len += len2;
 
 	ret2 = file_exists(glob_path);
@@ -475,7 +475,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-	strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
+	(void)strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
 		sizeof(glob_path) - len - 1);
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
 
@@ -538,7 +538,7 @@ cpus_t * get_all_cpu_cache_details(void)
 	size_t     cpu_count;
 	size_t     len;
 
-	memset(&globbuf, 0, sizeof(globbuf));
+	(void)memset(&globbuf, 0, sizeof(globbuf));
 
 	ret = file_exists(SYS_CPU_PREFIX);
 	if (!ret) {
@@ -592,7 +592,7 @@ cpus_t * get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			len = strlen(results[i]);
-			strncpy(path, results[i], len);
+			(void)strncpy(path, results[i], len);
 			MK_PATH(path, len, "/online");
 
 			contents = get_string_from_file(path);

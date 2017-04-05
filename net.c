@@ -107,7 +107,7 @@ void stress_set_sockaddr(
 	case AF_INET: {
 		static struct sockaddr_in addr;
 
-		memset(&addr, 0, sizeof(addr));
+		(void)memset(&addr, 0, sizeof(addr));
 		addr.sin_family = domain;
 		switch (net_addr) {
 		case NET_ADDR_LOOPBACK:
@@ -131,7 +131,7 @@ void stress_set_sockaddr(
 		static const struct in6_addr in6addr_any = IN6ADDR_ANY_INIT;
 		static const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
-		memset(&addr, 0, sizeof(addr));
+		(void)memset(&addr, 0, sizeof(addr));
 		addr.sin6_family = domain;
 		switch (net_addr) {
 		case NET_ADDR_LOOPBACK:
@@ -152,7 +152,7 @@ void stress_set_sockaddr(
 	case AF_UNIX: {
 		static struct sockaddr_un addr;
 
-		memset(&addr, 0, sizeof(addr));
+		(void)memset(&addr, 0, sizeof(addr));
 		addr.sun_family = AF_UNIX;
 		(void)snprintf(addr.sun_path, sizeof(addr.sun_path),
 			"/tmp/stress-ng-%d-%" PRIu32,

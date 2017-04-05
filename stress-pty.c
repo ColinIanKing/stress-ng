@@ -64,7 +64,7 @@ int stress_pty(const args_t *args)
 		size_t i, n;
 		pty_info_t ptys[opt_pty_max];
 
-		memset(ptys, 0, sizeof ptys);
+		(void)memset(ptys, 0, sizeof ptys);
 
 		for (n = 0; n < opt_pty_max; n++) {
 			ptys[n].slave = -1;

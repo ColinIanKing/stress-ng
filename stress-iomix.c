@@ -147,7 +147,7 @@ static void stress_iomix_wr_seq_slow(const args_t *args, const int fd)
 				pr_fail("write");
 				return;
 			}
-			usleep(250000);
+			(void)usleep(250000);
 			posn += rc;
 			inc_counter(args);
 			if (!keep_stressing())
@@ -267,7 +267,7 @@ static void stress_iomix_rd_seq_slow(const args_t *args, const int fd)
 				pr_fail("read");
 				return;
 			}
-			usleep(333333);
+			(void)usleep(333333);
 			posn += rc;
 			inc_counter(args);
 			if (!keep_stressing())
@@ -285,7 +285,7 @@ static void stress_iomix_sync(const args_t *args, const int fd)
 	do {
 		struct timeval tv;
 
-		fsync(fd);
+		(void)fsync(fd);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
@@ -296,7 +296,7 @@ static void stress_iomix_sync(const args_t *args, const int fd)
 			break;
 
 #if defined(__linux__)
-		fdatasync(fd);
+		(void)fdatasync(fd);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
@@ -329,7 +329,7 @@ static void stress_iomix_bad_advise(const args_t *args, const int fd)
 		off_t posn = mwc64() % opt_iomix_bytes;
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
-		usleep(100000);
+		(void)usleep(100000);
 	} while (keep_stressing());
 }
 #endif
@@ -371,10 +371,10 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
 					(mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 			}
 		}
-		usleep(100000);
+		(void)usleep(100000);
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			if (mmaps[i] != MAP_FAILED)
-				munmap(mmaps[i], page_size);
+				(void)munmap(mmaps[i], page_size);
 		}
 	} while (keep_stressing());
 }
@@ -402,7 +402,7 @@ static void stress_iomix_wr_bytes(const args_t *args, const int fd)
 				pr_fail("write");
 				return;
 			}
-			usleep(1000);
+			(void)usleep(1000);
 			posn += rc;
 			inc_counter(args);
 			if (!keep_stressing())
@@ -435,7 +435,7 @@ static void stress_iomix_rd_bytes(const args_t *args, const int fd)
 				pr_fail("write");
 				return;
 			}
-			usleep(1000);
+			(void)usleep(1000);
 			posn--;
 			inc_counter(args);
 			if (!keep_stressing())
@@ -456,20 +456,20 @@ static void stress_iomix_drop_caches(const args_t *args, const int fd)
 	do {
 		sync();
 		if (system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
-			pause();
-		sleep(5);
+			(void)pause();
+		(void)sleep(5);
 		if (!keep_stressing())
 			return;
 		sync();
 		if (system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
-			pause();
-		sleep(5);
+			(void)pause();
+		(void)sleep(5);
 		if (!keep_stressing())
 			return;
 		sync();
 		if (system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
-			pause();
-		sleep(5);
+			(void)pause();
+		(void)sleep(5);
 	} while (keep_stressing());
 }
 #endif
@@ -555,8 +555,8 @@ int stress_iomix(const args_t *args)
 		goto tidy;
 	}
 
-	memset(pids, 0, sizeof(pids));
-	memset(counters, 0, sz);
+	(void)memset(pids, 0, sizeof(pids));
+	(void)memset(counters, 0, sz);
 
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 		const args_t tmp_args = {

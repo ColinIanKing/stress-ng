@@ -145,14 +145,18 @@ int stress_heapsort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_1);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr > *(ptr+1)) {
-					pr_fail("%s: sort error "
-						"detected, incorrect ordering "
-						"found\n", args->name);
-					break;
+		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_1) < 0) {
+			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr > *(ptr+1)) {
+						pr_fail("%s: sort error "
+							"detected, incorrect ordering "
+							"found\n", args->name);
+						break;
+					}
 				}
 			}
 		}
@@ -160,31 +164,42 @@ int stress_heapsort(const args_t *args)
 			break;
 
 		/* Reverse sort */
-		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr+1)) {
-					pr_fail("%s: reverse sort "
-						"error detected, incorrect "
-						"ordering found\n", args->name);
-					break;
+		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2) < 0) {
+			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr < *(ptr+1)) {
+						pr_fail("%s: reverse sort "
+							"error detected, incorrect "
+							"ordering found\n", args->name);
+						break;
+					}
 				}
 			}
 		}
 		if (!g_keep_stressing_flag)
 			break;
 		/* And re-order by byte compare */
-		heapsort(data, n * 4, sizeof(uint8_t), stress_heapsort_cmp_3);
+		if (heapsort(data, n * 4, sizeof(uint8_t), stress_heapsort_cmp_3) < 0) {
+			pr_fail("%s: heapsort failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 
 		/* Reverse sort this again */
-		heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2);
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
-				if (*ptr < *(ptr+1)) {
-					pr_fail("%s: reverse sort "
-						"error detected, incorrect "
-						"ordering found\n", args->name);
-					break;
+		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2) < 0) {
+			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else {
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
+					if (*ptr < *(ptr+1)) {
+						pr_fail("%s: reverse sort "
+							"error detected, incorrect "
+							"ordering found\n", args->name);
+						break;
+					}
 				}
 			}
 		}

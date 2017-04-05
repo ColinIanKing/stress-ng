@@ -309,7 +309,7 @@ static int stress_sctp_server(
 				}
 			}
 #endif
-			memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
+			(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 			switch (opt_socket_opts) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
@@ -327,7 +327,7 @@ static int stress_sctp_server(
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
-				memset(&msg, 0, sizeof(msg));
+				(void)memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
@@ -338,7 +338,7 @@ static int stress_sctp_server(
 				break;
 #if defined(HAVE_SENDMMSG)
 			case SOCKET_OPT_SENDMMSG:
-				memset(msgvec, 0, sizeof(msgvec));
+				(void)memset(msgvec, 0, sizeof(msgvec));
 				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;

@@ -136,8 +136,8 @@ static int stress_shm_sysv_child(
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
 
-	memset(addrs, 0, sizeof(addrs));
-	memset(keys, 0, sizeof(keys));
+	(void)memset(addrs, 0, sizeof(addrs));
+	(void)memset(keys, 0, sizeof(keys));
 	for (i = 0; i < MAX_SHM_SYSV_SEGMENTS; i++)
 		shm_ids[i] = -1;
 

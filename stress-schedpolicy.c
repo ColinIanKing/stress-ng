@@ -140,7 +140,7 @@ int stress_schedpolicy(const args_t *args)
 			}
 		}
 #if defined(_POSIX_PRIORITY_SCHEDULING)
-		memset(&param, 0, sizeof param);
+		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if (ret < 0)
 			pr_fail_err("sched_getparam failed");
@@ -156,7 +156,7 @@ int stress_schedpolicy(const args_t *args)
 		/*
 		 *  Nothing too clever here, just get and set for now
 		 */
-		memset(&attr, 0, sizeof(attr));
+		(void)memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {

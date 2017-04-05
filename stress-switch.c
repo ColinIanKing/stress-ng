@@ -105,7 +105,7 @@ again:
 		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
-		memset(buf, '_', buf_size);
+		(void)memset(buf, '_', buf_size);
 
 		do {
 			ssize_t ret;
@@ -123,7 +123,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		memset(buf, SWITCH_STOP, sizeof(buf));
+		(void)memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_fail_dbg("termination write");
 		(void)kill(pid, SIGKILL);

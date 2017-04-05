@@ -58,7 +58,7 @@ int stress_full(const args_t *args)
 		/*
 		 *  Writes should always return -ENOSPC
 		 */
-		memset(buffer, 0, sizeof(buffer));
+		(void)memset(buffer, 0, sizeof(buffer));
 		ret = write(fd, buffer, sizeof(buffer));
 		if (ret != -1) {
 			pr_fail("%s: write to /dev/null should fail "

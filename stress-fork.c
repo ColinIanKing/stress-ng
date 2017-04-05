@@ -68,7 +68,7 @@ static int stress_fork_fn(
 	do {
 		unsigned int i;
 
-		memset(pids, 0, sizeof(pids));
+		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < fork_max; i++) {
 			pid_t pid = fork_fn();

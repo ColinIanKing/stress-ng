@@ -94,7 +94,7 @@ static int stress_vm_child(void *arg)
 		uint8_t *ptr, *end = buf + ctxt->sz;
 		int rwret;
 
-		memset(&msg_wr, 0, sizeof(msg_wr));
+		(void)memset(&msg_wr, 0, sizeof(msg_wr));
 		msg_wr.addr = buf;
 		msg_wr.val = 0;
 

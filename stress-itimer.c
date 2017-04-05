@@ -96,7 +96,7 @@ static void stress_itimer_handler(int sig)
 cancel:
 	g_keep_stressing_flag = false;
 	/* Cancel timer if we detect no more runs */
-	memset(&timer, 0, sizeof(timer));
+	(void)memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
@@ -109,9 +109,9 @@ int stress_itimer(const args_t *args)
 	struct itimerval timer;
 	sigset_t mask;
 
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGINT);
-	sigprocmask(SIG_SETMASK, &mask, NULL);
+	(void)sigemptyset(&mask);
+	(void)sigaddset(&mask, SIGINT);
+	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	start = time_now();
 
@@ -134,12 +134,12 @@ int stress_itimer(const args_t *args)
 
 	do {
 		struct itimerval t;
-		getitimer(ITIMER_PROF, &t);
+		(void)getitimer(ITIMER_PROF, &t);
 
 		*args->counter = itimer_counter;
 	} while (keep_stressing());
 
-	memset(&timer, 0, sizeof(timer));
+	(void)memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 	return EXIT_SUCCESS;
 }

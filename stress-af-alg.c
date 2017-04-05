@@ -141,10 +141,10 @@ static int stress_af_alg_hash(
 		char input[DATA_LEN], digest[digest_size];
 		struct sockaddr_alg sa;
 
-		memset(&sa, 0, sizeof(sa));
+		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_hash_info[i].name,
+		(void)strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
+		(void)strncpy((char *)sa.salg_name, algo_hash_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -207,10 +207,10 @@ static int stress_af_alg_cipher(
 		char key[key_size];
 		char input[DATA_LEN], output[DATA_LEN];
 
-		memset(&sa, 0, sizeof(sa));
+		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_cipher_info[i].name,
+		(void)strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
+		(void)strncpy((char *)sa.salg_name, algo_cipher_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -243,8 +243,8 @@ static int stress_af_alg_cipher(
 			struct af_alg_iv *iv;	/* Initialisation Vector */
 			struct iovec iov;
 
-			memset(&msg, 0, sizeof(msg));
-			memset(cbuf, 0, sizeof(cbuf));
+			(void)memset(&msg, 0, sizeof(msg));
+			(void)memset(cbuf, 0, sizeof(cbuf));
 
 			msg.msg_control = cbuf;
 			msg.msg_controllen = sizeof(cbuf);
@@ -357,10 +357,10 @@ static int stress_af_alg_rng(
 		ssize_t j;
 		struct sockaddr_alg sa;
 
-		memset(&sa, 0, sizeof(sa));
+		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
-		strncpy((char *)sa.salg_name, algo_rng_info[i].name,
+		(void)strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
+		(void)strncpy((char *)sa.salg_name, algo_rng_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {

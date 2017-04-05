@@ -38,8 +38,8 @@ int stress_sigfd(const args_t *args)
 	int sfd;
 	sigset_t mask;
 
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGRTMIN);
+	(void)sigemptyset(&mask);
+	(void)sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
 		pr_fail_dbg("sigprocmask");
 		return EXIT_FAILURE;
@@ -65,7 +65,7 @@ again:
 			union sigval s;
 			int ret;
 
-			memset(&s, 0, sizeof(s));
+			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			ret = sigqueue(ppid, SIGRTMIN, s);
 			if (ret < 0)

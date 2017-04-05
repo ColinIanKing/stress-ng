@@ -38,8 +38,8 @@ static int stress_capgetset_pid(
 	struct __user_cap_header_struct uch;
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 
-	memset(&uch, 0, sizeof uch);
-	memset(ucd, 0, sizeof ucd);
+	(void)memset(&uch, 0, sizeof uch);
+	(void)memset(ucd, 0, sizeof ucd);
 
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = pid;

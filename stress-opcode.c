@@ -144,7 +144,7 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
-			memset(opcodes, 0x00, page_size * PAGES);
+			(void)memset(opcodes, 0x00, page_size * PAGES);
 
 			ops_begin = opcodes + page_size;
 			ops_end = opcodes + (page_size * (PAGES - 1));

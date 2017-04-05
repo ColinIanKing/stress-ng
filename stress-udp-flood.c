@@ -76,7 +76,7 @@ int stress_udp_flood(const args_t *args)
 
 		stress_set_sockaddr_port(opt_udp_flood_domain, port, addr);
 
-		memset(buf, data[j++ & 63], sz);
+		(void)memset(buf, data[j++ & 63], sz);
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
 			inc_counter(args);
 		if (++port > 65535)

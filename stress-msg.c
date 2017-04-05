@@ -102,7 +102,7 @@ again:
 				if (!strcmp(msg.msg, MSG_STOP))
 					break;
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					memcpy(&v, msg.msg, sizeof(v));
+					(void)memcpy(&v, msg.msg, sizeof(v));
 					if (v != i)
 						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx64
 							" but received 0x%" PRIx64 " instead\n", args->name, i, v);
@@ -119,7 +119,7 @@ again:
 		(void)setpgid(pid, g_pgrp);
 
 		do {
-			memcpy(msg.msg, &i, sizeof(i));
+			(void)memcpy(msg.msg, &i, sizeof(i));
 			msg.mtype = 1;
 			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
 				if (errno != EINTR)
@@ -133,7 +133,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
+		(void)strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
 			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);

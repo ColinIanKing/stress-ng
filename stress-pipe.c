@@ -211,7 +211,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		strncpy(buf, PIPE_STOP, opt_pipe_data_size);
+		(void)strncpy(buf, PIPE_STOP, opt_pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
 				pr_fail_dbg("termination write");

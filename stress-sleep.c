@@ -76,7 +76,7 @@ static void *stress_pthread_func(void *c)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -84,7 +84,7 @@ static void *stress_pthread_func(void *c)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	memset(stack, 0, sizeof(stack));
+	(void)memset(stack, 0, sizeof(stack));
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
@@ -154,8 +154,8 @@ int stress_sleep(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_sleep_max = MIN_SLEEP;
 	}
-	memset(ctxts, 0, sizeof(ctxts));
-	sigfillset(&set);
+	(void)memset(ctxts, 0, sizeof(ctxts));
+	(void)sigfillset(&set);
 
 	for (n = 0; n < opt_sleep_max;  n++) {
 		ctxts[n].args = args;

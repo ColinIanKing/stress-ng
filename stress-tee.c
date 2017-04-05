@@ -78,7 +78,7 @@ static void stress_tee_pipe_write(int fds[2])
 
 	(void)close(fds[0]);
 
-	memset(buffer, 0, sizeof(buffer));
+	(void)memset(buffer, 0, sizeof(buffer));
 	while (g_keep_stressing_flag) {
 		ssize_t ret;
 

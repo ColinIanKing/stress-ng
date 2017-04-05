@@ -259,7 +259,7 @@ int stress_numa(const args_t *args)
 			pr_fail_err("set_mempolicy");
 			goto err;
 		}
-		memset(buf, 0xff, MMAP_SZ);
+		(void)memset(buf, 0xff, MMAP_SZ);
 		if (!g_keep_stressing_flag)
 			break;
 
@@ -273,7 +273,7 @@ int stress_numa(const args_t *args)
 		 *  mbind the buffer, first try MPOL_STRICT which
 		 *  may fail with EIO
 		 */
-		memset(node_mask, 0, sizeof(node_mask));
+		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
@@ -283,7 +283,7 @@ int stress_numa(const args_t *args)
 				goto err;
 			}
 		} else {
-			memset(buf, 0xaa, MMAP_SZ);
+			(void)memset(buf, 0xaa, MMAP_SZ);
 		}
 		if (!g_keep_stressing_flag)
 			break;
@@ -291,7 +291,7 @@ int stress_numa(const args_t *args)
 		/*
 		 *  mbind the buffer, now try MPOL_DEFAULT
 		 */
-		memset(node_mask, 0, sizeof(node_mask));
+		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
@@ -301,7 +301,7 @@ int stress_numa(const args_t *args)
 				goto err;
 			}
 		} else {
-			memset(buf, 0x5c, MMAP_SZ);
+			(void)memset(buf, 0x5c, MMAP_SZ);
 		}
 		if (!g_keep_stressing_flag)
 			break;
@@ -312,8 +312,8 @@ int stress_numa(const args_t *args)
 		/*
 		 *  Migrate all this processes pages to the current new node
 		 */
-		memset(old_node_mask, 0xff, sizeof(old_node_mask));
-		memset(node_mask, 0, sizeof(node_mask));
+		(void)memset(old_node_mask, 0xff, sizeof(old_node_mask));
+		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
@@ -333,14 +333,14 @@ int stress_numa(const args_t *args)
 				pages[i] = ptr;
 				dest_nodes[i] = n_tmp->node_id;
 			}
-			memset(status, 0, sizeof(status));
+			(void)memset(status, 0, sizeof(status));
 			ret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				pr_fail_err("move_pages");
 				goto err;
 			}
-			memset(buf, j, MMAP_SZ);
+			(void)memset(buf, j, MMAP_SZ);
 			if (!g_keep_stressing_flag)
 				break;
 		}
@@ -349,7 +349,7 @@ int stress_numa(const args_t *args)
 
 	rc = EXIT_SUCCESS;
 err:
-	munmap(buf, MMAP_SZ);
+	(void)munmap(buf, MMAP_SZ);
 numa_free:
 	stress_numa_free_nodes(n);
 

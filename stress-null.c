@@ -38,7 +38,7 @@ int stress_null(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	memset(buffer, 0xff, sizeof(buffer));
+	(void)memset(buffer, 0xff, sizeof(buffer));
 	do {
 		ssize_t ret;
 #if defined(__linux__)
@@ -62,7 +62,7 @@ int stress_null(const args_t *args)
 		ptr = mmap(NULL, page_size, PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, fd, mwc64() & ~(page_size - 1));
 		if (ptr != MAP_FAILED) {
-			memset(ptr, mwc8(), page_size);
+			(void)memset(ptr, mwc8(), page_size);
 			shim_msync(ptr, page_size, MS_SYNC);
 			(void)munmap(ptr, page_size);
 		}

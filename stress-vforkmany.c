@@ -44,7 +44,7 @@ int stress_vforkmany(const args_t *args)
 	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
 
 	/* We should use an alterative signal stack */
-	memset(stack_sig, 0, sizeof(stack_sig));
+	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 

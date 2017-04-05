@@ -55,12 +55,13 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		sigemptyset(&mask);
-		sigaddset(&mask, SIGUSR1);
+		(void)sigemptyset(&mask);
+		(void)sigaddset(&mask, SIGUSR1);
 
 		while (g_keep_stressing_flag) {
 			siginfo_t info;
-			sigwaitinfo(&mask, &info);
+			if (sigwaitinfo(&mask, &info) < 0)
+				break;
 			if (info.si_value.sival_int)
 				break;
 		}
@@ -74,14 +75,14 @@ again:
 		int status;
 
 		do {
-			memset(&s, 0, sizeof(s));
+			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
-			sigqueue(pid, SIGUSR1, s);
+			(void)sigqueue(pid, SIGUSR1, s);
 			inc_counter(args);
 		} while (keep_stressing());
 
 		pr_dbg("%s: parent sent termination notice\n", args->name);
-		memset(&s, 0, sizeof(s));
+		(void)memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
 		sigqueue(pid, SIGUSR1, s);
 		(void)shim_usleep(250);

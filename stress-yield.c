@@ -88,7 +88,7 @@ int stress_yield(const args_t *args)
 		pr_err("%s: calloc failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	memset(pids, 0, yielders_sz);
+	(void)memset(pids, 0, yielders_sz);
 
 	counters_sz = yielders * sizeof(uint64_t);
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
@@ -101,7 +101,7 @@ int stress_yield(const args_t *args)
 		free(pids);
 		return rc;
 	}
-	memset(counters, 0, counters_sz);
+	(void)memset(counters, 0, counters_sz);
 
 	for (i = 0; g_keep_stressing_flag && (i < yielders); i++) {
 		pids[i] = fork();
@@ -127,7 +127,7 @@ int stress_yield(const args_t *args)
 
 	do {
 		*args->counter = 0;
-		pause();
+		(void)pause();
 		for (i = 0; i < yielders; i++)
 			*args->counter += counters[i];
 	} while (keep_stressing());

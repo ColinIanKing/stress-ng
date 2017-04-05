@@ -97,7 +97,7 @@ int stress_malloc(const args_t *args)
 
 #if defined(__GNUC__) && defined(__linux__)
 	if (set_malloc_threshold)
-		mallopt(M_MMAP_THRESHOLD, opt_malloc_threshold);
+		(void)mallopt(M_MMAP_THRESHOLD, opt_malloc_threshold);
 #endif
 
 again:

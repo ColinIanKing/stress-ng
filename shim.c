@@ -106,7 +106,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	if (n == (off_t)-1)
 		return -1;
 
-	memset(buffer, 0, buf_sz);
+	(void)memset(buffer, 0, buf_sz);
 	n = len;
 
 	while (g_keep_stressing_flag && (n > 0)) {

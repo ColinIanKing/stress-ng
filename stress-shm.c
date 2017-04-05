@@ -68,7 +68,7 @@ static int stress_shm_posix_check(
 	uint8_t *ptr, *end = buf + sz;
 	uint8_t val;
 
-	memset(buf, 0xa5, sz);
+	(void)memset(buf, 0xa5, sz);
 
 	for (val = 0, ptr = buf; ptr < end; ptr += page_size, val++) {
 		*ptr = val;
@@ -104,8 +104,8 @@ static int stress_shm_posix_child(
 	uint64_t id = 0;
 	const size_t page_size = args->page_size;
 
-	memset(addrs, 0, sizeof(addrs));
-	memset(shm_names, 0, sizeof(shm_names));
+	(void)memset(addrs, 0, sizeof(addrs));
+	(void)memset(shm_names, 0, sizeof(shm_names));
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -137,7 +137,7 @@ static int stress_shm_posix_child(
 			/* Inform parent of the new shm name */
 			msg.index = i;
 			shm_name[SHM_NAME_LEN - 1] = '\0';
-			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
+			(void)strncpy(msg.shm_name, shm_name, SHM_NAME_LEN);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_err("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
@@ -202,7 +202,7 @@ reap:
 			/* Inform parent shm ID is now free */
 			msg.index = i;
 			msg.shm_name[SHM_NAME_LEN - 1] = '\0';
-			strncpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
+			(void)strncpy(msg.shm_name, shm_name, SHM_NAME_LEN - 1);
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_dbg("%s: write failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
@@ -215,7 +215,7 @@ reap:
 
 	/* Inform parent of end of run */
 	msg.index = -1;
-	strncpy(msg.shm_name, "", SHM_NAME_LEN);
+	(void)strncpy(msg.shm_name, "", SHM_NAME_LEN);
 	if (write(fd, &msg, sizeof(msg)) < 0) {
 		pr_err("%s: write failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -280,7 +280,7 @@ fork_again:
 			(void)setpgid(pid, g_pgrp);
 			(void)close(pipefds[1]);
 
-			memset(shm_names, 0, sizeof(shm_names));
+			(void)memset(shm_names, 0, sizeof(shm_names));
 
 			while (g_keep_stressing_flag) {
 				ssize_t n;
@@ -312,7 +312,7 @@ fork_again:
 
 				shm_name = shm_names[msg.index];
 				shm_name[SHM_NAME_LEN - 1] = '\0';
-				strncpy(shm_name, msg.shm_name, SHM_NAME_LEN - 1);
+				(void)strncpy(shm_name, msg.shm_name, SHM_NAME_LEN - 1);
 			}
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);

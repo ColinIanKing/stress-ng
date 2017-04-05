@@ -114,7 +114,7 @@ retry:
 			}
 			goto retry;
 		}
-		memset( &events, 0, sizeof(events));
+		(void)memset( &events, 0, sizeof(events));
 		events.sctp_data_io_event = 1;
 		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
 			sizeof(events)) < 0) {
@@ -217,7 +217,7 @@ static int stress_sctp_server(
 			}
 #endif
 
-			memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
+			(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 
 			for (i = 16; i < sizeof(buf); i += 16) {
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,

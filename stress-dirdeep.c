@@ -65,7 +65,7 @@ int stress_dirdeep(const args_t *args)
 	do {
 		size_t len = 0;
 
-		strncpy(path, rootpath, sizeof(path));
+		(void)strncpy(path, rootpath, sizeof(path));
 		len = rootpathlen;
 
 		for (;;) {
@@ -90,7 +90,7 @@ int stress_dirdeep(const args_t *args)
 			if (len + 2 >= sizeof(path))
 				break;
 
-			strncat(path, tmp, sizeof(path) - len);
+			(void)strncat(path, tmp, sizeof(path) - len);
 			len += 2;
 
 			inc_counter(args);

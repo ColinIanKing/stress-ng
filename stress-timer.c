@@ -106,7 +106,7 @@ static void MLOCKED stress_timer_handler(int sig)
 cancel:
 	g_keep_stressing_flag = false;
 	/* Cancel timer if we detect no more runs */
-	memset(&timer, 0, sizeof(timer));
+	(void)memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);
 }
 
@@ -120,9 +120,9 @@ int stress_timer(const args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 
-	sigemptyset(&mask);
-	sigaddset(&mask, SIGINT);
-	sigprocmask(SIG_SETMASK, &mask, NULL);
+	(void)sigemptyset(&mask);
+	(void)sigaddset(&mask, SIGINT);
+	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	start = time_now();
 

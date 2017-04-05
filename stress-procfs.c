@@ -122,7 +122,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -130,7 +130,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	memset(stack, 0, sizeof(stack));
+	(void)memset(stack, 0, sizeof(stack));
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
@@ -159,7 +159,7 @@ static void stress_proc_rw_threads(const args_t *args, char *path, const bool pr
 	if (ctxt.badbuf == MAP_FAILED)
 		ctxt.badbuf = NULL;
 
-	memset(ret, 0, sizeof(ret));
+	(void)memset(ret, 0, sizeof(ret));
 
 	keep_running = true;
 
@@ -180,7 +180,7 @@ static void stress_proc_rw_threads(const args_t *args, char *path, const bool pr
 	}
 
 	if (ctxt.badbuf)
-		munmap(ctxt.badbuf, PROC_BUF_SZ);
+		(void)munmap(ctxt.badbuf, PROC_BUF_SZ);
 }
 
 /*
@@ -244,7 +244,7 @@ int stress_procfs(const args_t *args)
 {
 	bool proc_write = true;
 
-	sigfillset(&set);
+	(void)sigfillset(&set);
 
 	if (geteuid() == 0)
 		proc_write = false;

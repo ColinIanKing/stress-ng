@@ -37,7 +37,7 @@ int main(void)
 {
 	int data[64];
 
-	memset(data, 0, sizeof(data));
+	(void)memset(data, 0, sizeof(data));
 
 	heapsort(data, 64, sizeof(int), intcmp);
 	mergesort(data, 64, sizeof(int), intcmp);

@@ -162,7 +162,7 @@ int stress_msync(const args_t *args)
 		offset = (mwc64() % (sz - page_size)) & ~(page_size - 1);
 		val = mwc8();
 
-		memset(buf + offset, val, page_size);
+		(void)memset(buf + offset, val, page_size);
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
 		if (ret < 0) {
 			pr_fail("%s: msync MS_SYNC on "
@@ -197,7 +197,7 @@ do_invalidate:
 		offset = (mwc64() % (sz - page_size)) & ~(page_size - 1);
 		val = mwc8();
 
-		memset(buf + offset, val, page_size);
+		(void)memset(buf + offset, val, page_size);
 
 		ret = lseek(fd, offset, SEEK_SET);
 		if (ret == (off_t)-1) {

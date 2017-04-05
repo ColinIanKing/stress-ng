@@ -131,7 +131,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -139,7 +139,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 	 *  However, we block signals in this thread
 	 *  so this is probably just totally unncessary.
 	 */
-	memset(stack, 0, sizeof(stack));
+	(void)memset(stack, 0, sizeof(stack));
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
@@ -176,8 +176,8 @@ static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_
 
 	keep_running = true;
 #if defined(HAVE_LIB_PTHREAD)
-	memset(ret, 0, sizeof(ret));
-	memset(pthreads, 0, sizeof(pthreads));
+	(void)memset(ret, 0, sizeof(ret));
+	(void)memset(pthreads, 0, sizeof(pthreads));
 
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
@@ -253,7 +253,7 @@ int stress_fstat(const args_t *args)
 	}
 	(void)closedir(dp);
 
-	sigfillset(&set);
+	(void)sigfillset(&set);
 	do {
 		stat_some = false;
 

@@ -140,7 +140,7 @@ int stress_key(const args_t *args)
 #endif
 
 #if defined(KEYCTL_READ)
-			memset(payload, 0, sizeof(payload));
+			(void)memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0)
 				pr_fail_err("keyctl KEYCTL_READ");

@@ -66,11 +66,11 @@ static inline int stress_socket_fd_send(const int fd, const int fd_send)
 	iov.iov_base = msg_data;
 	iov.iov_len = 1;
 
-	memset(&msg, 0, sizeof(struct msghdr));
+	(void)memset(&msg, 0, sizeof(struct msghdr));
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	memset(ctrl, 0, sizeof(ctrl));
+	(void)memset(ctrl, 0, sizeof(ctrl));
 	msg.msg_control = ctrl;
 	msg.msg_controllen = sizeof(ctrl);
 
@@ -99,11 +99,11 @@ static inline int stress_socket_fd_recv(const int fd)
 	iov.iov_base = msg_data;
 	iov.iov_len = 1;
 
-	memset(&msg, 0, sizeof(struct msghdr));
+	(void)memset(&msg, 0, sizeof(struct msghdr));
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	memset(ctrl, 0, sizeof(ctrl));
+	(void)memset(ctrl, 0, sizeof(ctrl));
 	msg.msg_control = ctrl;
 	msg.msg_controllen = sizeof(ctrl);
 

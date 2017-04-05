@@ -204,7 +204,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		do_poll = false;
 
 	/* API sanity check */
-	memset(&api, 0, sizeof(api));
+	(void)memset(&api, 0, sizeof(api));
 	api.api = UFFD_API;
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
@@ -221,7 +221,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 	}
 
 	/* Register fault handling mode */
-	memset(&reg, 0, sizeof(reg));
+	(void)memset(&reg, 0, sizeof(reg));
 	reg.range.start = (unsigned long)data;
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
@@ -282,7 +282,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		if (do_poll) {
 			struct pollfd fds[1];
 
-			memset(fds, 0, sizeof fds);
+			(void)memset(fds, 0, sizeof fds);
 			fds[0].fd = fd;
 			fds[0].events = POLLIN;
 			/* wait for 1 second max */

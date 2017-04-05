@@ -101,9 +101,9 @@ int stress_stackmmap(const args_t *args)
 	 *  an alternative signal handling stack
 	 *  is required because we ran out of stack
 	 */
-	memset(&new_action, 0, sizeof new_action);
+	(void)memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = stress_segvhandler;
-	sigemptyset(&new_action.sa_mask);
+	(void)sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
 	if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
 		pr_fail_err("sigaction");
@@ -115,7 +115,7 @@ int stress_stackmmap(const args_t *args)
 	 *  to handle segfaults on an overrun
 	 *  mmap'd stack
 	 */
-	memset(stack_sig, 0, sizeof(stack_sig));
+	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
@@ -149,9 +149,9 @@ int stress_stackmmap(const args_t *args)
 		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
-	memset(stack_mmap, 0, MMAPSTACK_SIZE);
+	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
 
-	memset(&c_test, 0, sizeof(c_test));
+	(void)memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
 		pr_fail_err("getcontext");
 		goto tidy_mmap;
@@ -167,14 +167,14 @@ int stress_stackmmap(const args_t *args)
 	 */
 	do {
 		makecontext(&c_test, stress_stackmmap_push_start, 0);
-		swapcontext(&c_main, &c_test);
+		(void)swapcontext(&c_main, &c_test);
 		inc_counter(args);
 	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 
 tidy_mmap:
-	munmap(stack_mmap, MMAPSTACK_SIZE);
+	(void)munmap(stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;

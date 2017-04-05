@@ -54,7 +54,7 @@ int stress_stack(const args_t *args)
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
-	memset(stack, 0, sizeof(stack));
+	(void)memset(stack, 0, sizeof(stack));
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
@@ -113,9 +113,9 @@ again:
 			if (!keep_stressing())
 				break;
 
-			memset(&new_action, 0, sizeof new_action);
+			(void)memset(&new_action, 0, sizeof new_action);
 			new_action.sa_handler = stress_segvhandler;
-			sigemptyset(&new_action.sa_mask);
+			(void)sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = SA_ONSTACK;
 
 			if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
@@ -148,7 +148,7 @@ again:
 					 * the alloca()
 					 */
 					if (g_opt_flags & OPT_STACK_FILL)
-						memset(ptr, 0, 256 * KB);
+						(void)memset(ptr, 0, 256 * KB);
 					else
 						*ptr = 0;
 

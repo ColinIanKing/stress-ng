@@ -92,7 +92,7 @@ int stress_ioprio(const args_t *args)
 		}
 
 		for (i = 0; i < MAX_IOV; i++) {
-			memset(buffer[i], mwc8(), BUF_SIZE);
+			(void)memset(buffer[i], mwc8(), BUF_SIZE);
 			iov[i].iov_base = buffer[i];
 			iov[i].iov_len = BUF_SIZE;
 		}

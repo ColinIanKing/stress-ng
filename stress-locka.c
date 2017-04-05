@@ -215,7 +215,7 @@ int stress_locka(const args_t *args)
 	off_t offset;
 	ssize_t rc;
 
-	memset(buffer, 0, sizeof(buffer));
+	(void)memset(buffer, 0, sizeof(buffer));
 
 	/*
 	 *  There will be a race to create the directory

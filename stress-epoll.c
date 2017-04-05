@@ -185,7 +185,7 @@ static int epoll_ctl_add(const int efd, const int fd)
 {
 	struct epoll_event event;
 
-	memset(&event, 0, sizeof(event));
+	(void)memset(&event, 0, sizeof(event));
 	event.data.fd = fd;
 	event.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0)
@@ -341,7 +341,7 @@ retry:
 			goto retry;
 		}
 
-		memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
+		(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
 			pr_fail_dbg("send");
@@ -436,7 +436,7 @@ static void epoll_server(
 	do {
 		int n, i;
 
-		memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
+		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
 		errno = 0;
 
 		/*
@@ -529,7 +529,7 @@ int stress_epoll(const args_t *args)
 	 *  Typically, we are limited to ~500 connections per second
 	 *  on a default Linux configuration.
 	 */
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
 		pids[i] = epoll_spawn(args, epoll_server, i, ppid);
 		if (pids[i] < 0) {
