@@ -1,3 +1,20 @@
+stress-ng (0.07.29-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * mwc: flush cached 8 and 16 bit values on reseeds (LP: #1681503)
+  * voidify returns from various function calls
+  * out-of-memory: #define constants and use these
+  * Use the stress_handle_stop_stressing for child case
+  * extern stress_handle_stop_stressing as it is a useful generic handler
+  * Use new stress_sig_stop_stressing helper
+  * Add stress_sig_stop_stressing helper to flag up end of stressing
+  * stress-cpu-online: minor formatting clean-up of source
+  * oomable option does not have any args, fix that
+  * Add new --oomable option to stop OOM'd stressors from being restarted
+  * stress-rlimit: add more rlimit limits, fix CPU limits
+
+ -- Colin King <colin.king@canonical.com>  Tue, 11 Apr 2017 10:54:26 +0100
+
 stress-ng (0.07.28-1) unstable; urgency=medium
 
   * Makefile: bump version
