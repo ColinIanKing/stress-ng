@@ -36,31 +36,19 @@ static int stress_cpu_online_set(
 	const int setting)
 {
 	char filename[PATH_MAX];
-	char data[3];
+	char data[3] = { '0' + setting, '\n', 0 };
 	ssize_t ret;
-	int fd, rc = EXIT_SUCCESS;
 
 	(void)snprintf(filename, sizeof(filename),
 		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
-	fd = open(filename, O_WRONLY);
-	if (fd < 0) {
-		pr_fail_err("open");
+
+	ret = system_write(filename, data, sizeof data);
+	if ((ret < 0) &&
+	    ((ret != -EAGAIN) && (ret != -EINTR))) {
+		pr_fail_err("write");
 		return EXIT_FAILURE;
 	}
-
-	data[0] = '0' + setting;
-	data[1] = '\n';
-	data[2] = '\0';
-
-	ret = write(fd, data, 3);
-	if (ret != 3) {
-		if ((errno != EAGAIN) && (errno != EINTR)) {
-			pr_fail_err("write");
-			rc = EXIT_FAILURE;
-		}
-	}
-	(void)close(fd);
-	return rc;
+	return EXIT_SUCCESS;
 }
 
 /*
