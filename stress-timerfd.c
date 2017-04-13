@@ -90,7 +90,7 @@ int stress_timerfd(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_timerfd_freq = MIN_TIMERFD_FREQ;
 	}
-	rate_ns = opt_timerfd_freq ? 1000000000 / opt_timerfd_freq : 1000000000;
+	rate_ns = opt_timerfd_freq ? 1000000000.0 / opt_timerfd_freq : 1000000000.0;
 
 	timerfd = timerfd_create(CLOCK_REALTIME, 0);
 	if (timerfd < 0) {

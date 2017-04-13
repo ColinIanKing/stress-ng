@@ -132,7 +132,7 @@ int stress_timer(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_timer_freq = MIN_TIMER_FREQ;
 	}
-	rate_ns = opt_timer_freq ? 1000000000 / opt_timer_freq : 1000000000;
+	rate_ns = opt_timer_freq ? 1000000000.0 / opt_timer_freq : 1000000000.0;
 
 	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
