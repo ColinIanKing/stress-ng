@@ -847,7 +847,7 @@ stress_cpu_int(uint8_t, 8, \
 		d = d - (_type)sin(c);			\
 		a = a * (_type)cos(b);			\
 		b = b + (_type)cos(c);			\
-		c = (_type)sin(a) / (_type)2.344;	\
+		c = (_type)sin(a + b) / (_type)2.344;	\
 		b = d - (_type)1.0;			\
 	} while (0)
 
@@ -951,7 +951,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 		flt_a = flt_a * (_ftype)_cos(flt_b);		\
 		flt_b = flt_b + (_ftype)_cos(flt_c);		\
 		int_b &= (_c3);					\
-		flt_c = (_ftype)_sin(flt_a) / (_ftype)2.344;	\
+		flt_c = (_ftype)_sin(flt_a + flt_b) / (_ftype)2.344;	\
 		flt_b = flt_d - (_ftype)1.0;			\
 	} while (0)
 
