@@ -185,7 +185,8 @@ again:
 					ptr = sbrk(MAX_RLIMIT_DATA);
 					if (ptr) {
 						*ptr = 0;
-						sbrk(-MAX_RLIMIT_DATA);
+						ptr = sbrk(-MAX_RLIMIT_DATA);
+						(void)ptr;
 					}
 					break;
 				case 3:
