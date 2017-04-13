@@ -82,8 +82,11 @@ int stress_lsearch(const args_t *args)
 
 		/* Step #1, populate with data */
 		for (i = 0; g_keep_stressing_flag && i < max; i++) {
+			void *ptr;
+
 			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
-			(void)lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
+			ptr = lsearch(&data[i], root, &n, sizeof(int32_t), cmp);
+			(void)ptr;
 		}
 		/* Step #2, find */
 		for (i = 0; g_keep_stressing_flag && i < n; i++) {
