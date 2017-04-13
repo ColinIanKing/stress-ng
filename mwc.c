@@ -29,12 +29,12 @@ static mwc_t __mwc = {
 	MWC_SEED_Z
 };
 
-static uint8_t n8, n16;
+static uint8_t mwc_n8, mwc_n16;
 
 static inline void mwc_flush(void)
 {
-	n8 = 0;
-	n16 = 0;
+	mwc_n8 = 0;
+	mwc_n16 = 0;
 }
 
 /*
@@ -106,11 +106,11 @@ HOT OPTIMIZE3 uint16_t mwc16(void)
 {
 	static uint32_t mwc_saved;
 
-	if (n16) {
-		n16--;
+	if (mwc_n16) {
+		mwc_n16--;
 		mwc_saved >>= 16;
 	} else {
-		n16 = 1;
+		mwc_n16 = 1;
 		mwc_saved = mwc32();
 	}
 	return mwc_saved & 0xffff;
@@ -124,11 +124,11 @@ HOT OPTIMIZE3 uint8_t mwc8(void)
 {
 	static uint32_t mwc_saved;
 
-	if (n8) {
-		n8--;
+	if (mwc_n8) {
+		mwc_n8--;
 		mwc_saved >>= 8;
 	} else {
-		n8 = 3;
+		mwc_n8 = 3;
 		mwc_saved = mwc32();
 	}
 	return mwc_saved & 0xff;
