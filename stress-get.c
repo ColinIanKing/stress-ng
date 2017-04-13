@@ -134,10 +134,14 @@ int stress_get(const args_t *args)
 		size_t i;
 		struct timeval delta, tv;
 		time_t t;
+		pid_t pid;
+		gid_t gid;
+		uid_t uid;
 
 		check_do_run();
 
-		(void)getppid();
+		pid = getppid();
+		(void)pid;
 		check_do_run();
 
 		ptr = getcwd(path, sizeof path);
@@ -145,16 +149,20 @@ int stress_get(const args_t *args)
 			pr_fail_err("getcwd");
 		check_do_run();
 
-		(void)getgid();
+		gid = getgid();
+		(void)gid;
 		check_do_run();
 
-		(void)getegid();
+		gid = getegid();
+		(void)gid;
 		check_do_run();
 
-		(void)getuid();
+		uid = getuid();
+		(void)uid;
 		check_do_run();
 
-		(void)geteuid();
+		uid = geteuid();
+		(void)uid;
 		check_do_run();
 
 		ret = getgroups(GIDS_MAX, gids);
@@ -163,12 +171,14 @@ int stress_get(const args_t *args)
 		check_do_run();
 
 #if !defined(__minix__)
-		(void)getpgrp();
+		pid = getpgrp();
+		(void)pid;
 		check_do_run();
 #endif
 
 #if !defined(__minix__)
-		(void)getpgid(mypid);
+		pid = getpgid(mypid);
+		(void)pid;
 		check_do_run();
 #endif
 
