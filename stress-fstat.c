@@ -101,11 +101,13 @@ static void stress_fstat_helper(const ctxt_t *ctxt)
 	if ((lstat(si->path, &buf) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_LSTAT;
 	}
+#if defined(AT_EMPTY_PATH) && defined(AT_SYMLINK_NOFOLLOW)
 	/* Heavy weight statx */
 	if ((shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW,
 		SHIM_STATX_ALL, &bufx) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STATX;
 	}
+#endif
 	/*
 	 *  Opening /dev files such as /dev/urandom
 	 *  may block when running as root, so
