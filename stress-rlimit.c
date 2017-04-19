@@ -150,6 +150,7 @@ again:
 		do {
 			int ret, fds[MAX_RLIMIT_NOFILE];
 			uint8_t *ptr;
+			void *oldbrk;
 
 			for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
 				(void)setrlimit(limits[i].resource, &limits[i].new_limit);
@@ -182,11 +183,14 @@ again:
 					break;
 				case 2:
 					/* Trigger RLIMIT_DATA */
-					ptr = sbrk(MAX_RLIMIT_DATA);
-					if (ptr) {
-						*ptr = 0;
-						ptr = sbrk(-MAX_RLIMIT_DATA);
-						(void)ptr;
+					oldbrk = sbrk(0);
+					if (oldbrk != (void *)-1) {
+						ptr = sbrk(MAX_RLIMIT_DATA);
+						if (ptr != (void *)-1) {
+							int rc = brk(oldbrk);
+
+							(void)rc;
+						}
 					}
 					break;
 				case 3:
