@@ -45,22 +45,22 @@ typedef struct {
 
 static limits_t limits[] = {
 #if defined(RLIMIT_CPU)
-	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { }, false },
+	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { 0, 0 }, false },
 #endif
 #if defined(RLIMIT_FSIZE)
-	{ RLIMIT_FSIZE,	{ MAX_RLIMIT_FSIZE, MAX_RLIMIT_FSIZE }, { }, -1 },
+	{ RLIMIT_FSIZE,	{ MAX_RLIMIT_FSIZE, MAX_RLIMIT_FSIZE }, { 0, 0 }, -1 },
 #endif
 #if defined(RLIMIT_AS)
-	{ RLIMIT_AS,	{ MAX_RLIMIT_AS, MAX_RLIMIT_AS }, { }, -1 },
+	{ RLIMIT_AS,	{ MAX_RLIMIT_AS, MAX_RLIMIT_AS }, { 0, 0 }, -1 },
 #endif
 #if defined(RLIMIT_DATA)
-	{ RLIMIT_DATA,	{ MAX_RLIMIT_DATA, MAX_RLIMIT_DATA }, { }, -1 },
+	{ RLIMIT_DATA,	{ MAX_RLIMIT_DATA, MAX_RLIMIT_DATA }, { 0, 0 }, -1 },
 #endif
 #if defined(RLIMIT_STACK)
-	{ RLIMIT_STACK,	{ MAX_RLIMIT_STACK, MAX_RLIMIT_STACK }, { }, -1 },
+	{ RLIMIT_STACK,	{ MAX_RLIMIT_STACK, MAX_RLIMIT_STACK }, { 0, 0 }, -1 },
 #endif
 #if defined(RLIMIT_NOFILE)
-	{ RLIMIT_NOFILE,{ MAX_RLIMIT_NOFILE, MAX_RLIMIT_NOFILE }, { }, -1 },
+	{ RLIMIT_NOFILE,{ MAX_RLIMIT_NOFILE, MAX_RLIMIT_NOFILE }, { 0, 0 }, -1 },
 #endif
 };
 
