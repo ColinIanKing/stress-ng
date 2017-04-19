@@ -1,3 +1,25 @@
+stress-ng (0.07.30-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fstat: fix build warning on struct shim_statx bufx on BSD*
+  * stress-fstat: don't use statx if AT_SYMLINK_NOFOLLOW or
+      AT_EMPTY_PATH are not defined
+  * stress-rlimit: restore brk point without using
+      sbrk(-MAX_RLIMIT_DATA)
+  * stress-rlimit: fill in empty {} fields
+  * Add statx system call to shim and fstat stressor
+  * stress-ptrace: formally voidify return from various system calls
+  * stress-lsearch: formally voidify return from lsearch() call
+  * stress-cpu: ensure variable b and b_flt are not re-assigned
+  * stress-*timer: explicitly use float rather than integer constant
+  * STRESS_*BIT macros: cast 1 to desired type before shifting
+  * stress-rlimit: formally voidify return from sbrk() call
+  * stress-get: formally voidify returns from get*() calls
+  * stress-chroot: fix missing else in fork return state checks
+  * stress-cpu: use helper to write data to sysfs
+
+ -- Colin King <colin.king@canonical.com>  Thu, 20 Apr 2017 00:06:02 +0100
+
 stress-ng (0.07.29-1) unstable; urgency=medium
 
   * Makefile: bump version
