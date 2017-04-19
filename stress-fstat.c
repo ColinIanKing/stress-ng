@@ -36,10 +36,16 @@ static const char *blacklist[] = {
 	"/dev/watchdog"
 };
 
+#define IGNORE_STAT	0x0001
+#define IGNORE_LSTAT	0x0002
+#define IGNORE_STATX	0x0004
+#define IGNORE_FSTAT	0x0008
+#define IGNORE_ALL	0x000f
+
 /* stat path information */
 typedef struct stat_info {
 	char		*path;		/* path to stat */
-	bool		ignore;		/* true to ignore this path */
+	uint16_t	ignore;		/* true to ignore this path */
 	bool		access;		/* false if we can't access path */
 	struct stat_info *next;		/* next stat_info in list */
 } stat_info_t;
@@ -86,15 +92,19 @@ static bool do_not_stat(const char *filename)
 static void stress_fstat_helper(const ctxt_t *ctxt)
 {
 	struct stat buf;
+	struct shim_statx bufx;
 	stat_info_t *si = ctxt->si;
 
 	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
-		si->ignore = true;
-		return;
+		si->ignore |= IGNORE_STAT;
 	}
 	if ((lstat(si->path, &buf) < 0) && (errno != ENOMEM)) {
-		si->ignore = true;
-		return;
+		si->ignore |= IGNORE_LSTAT;
+	}
+	/* Heavy weight statx */
+	if ((shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW,
+		SHIM_STATX_ALL, &bufx) < 0) && (errno != ENOMEM)) {
+		si->ignore |= IGNORE_STATX;
 	}
 	/*
 	 *  Opening /dev files such as /dev/urandom
@@ -110,7 +120,7 @@ static void stress_fstat_helper(const ctxt_t *ctxt)
 			return;
 		}
 		if ((fstat(fd, &buf) < 0) && (errno != ENOMEM))
-			si->ignore = true;
+			si->ignore |= IGNORE_FSTAT;
 		(void)close(fd);
 	}
 }
@@ -246,7 +256,7 @@ int stress_fstat(const args_t *args)
 			(void)closedir(dp);
 			goto free_cache;
 		}
-		si->ignore = false;
+		si->ignore = 0;
 		si->access = true;
 		si->next = stat_info;
 		stat_info = si;
@@ -260,7 +270,7 @@ int stress_fstat(const args_t *args)
 		for (si = stat_info; g_keep_stressing_flag && si; si = si->next) {
 			if (!keep_stressing())
 				break;
-			if (si->ignore)
+			if (si->ignore == IGNORE_ALL)
 				continue;
 			stress_fstat_threads(args, si, euid);
 

@@ -817,3 +817,24 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 	return -1;
 #endif
 }
+
+ssize_t shim_statx(
+	int dfd,
+	const char *filename,
+	unsigned int flags,
+	unsigned int mask,
+	struct shim_statx *buffer)
+{
+#if defined(__linux__) && defined(__NR_statx)
+	return syscall(__NR_statx, dfd, filename, flags, mask, buffer);
+#else
+	(void)dfd;
+	(void)filename;
+	(void)flags;
+	(void)mask;
+	(void)buffer;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}

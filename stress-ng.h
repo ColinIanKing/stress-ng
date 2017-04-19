@@ -27,6 +27,7 @@
 #define __STRESS_NG_H__
 
 #define _GNU_SOURCE
+#define _ATFILE_SOURCE
 
 /* Some Solaris tool chains only define __sun */
 #if defined(__sun) && !defined(__sun__)
@@ -2413,6 +2414,53 @@ struct shim_sched_attr {
 	uint64_t sched_period;		/* period, ns */
 };
 
+/* shim'd STATX flags */
+#define SHIM_STATX_TYPE              0x00000001U
+#define SHIM_STATX_MODE              0x00000002U
+#define SHIM_STATX_NLINK             0x00000004U
+#define SHIM_STATX_UID               0x00000008U
+#define SHIM_STATX_GID               0x00000010U
+#define SHIM_STATX_ATIME             0x00000020U
+#define SHIM_STATX_MTIME             0x00000040U
+#define SHIM_STATX_CTIME             0x00000080U
+#define SHIM_STATX_INO               0x00000100U
+#define SHIM_STATX_SIZE              0x00000200U
+#define SHIM_STATX_BLOCKS            0x00000400U
+#define SHIM_STATX_BASIC_STATS       0x000007ffU
+#define SHIM_STATX_BTIME             0x00000800U
+#define SHIM_STATX_ALL               0x00000fffU
+
+struct statx_timestamp {
+        int64_t		tv_sec;
+        int32_t		tv_nsec;
+        int32_t		__reserved;
+};
+
+/* shim'd statx */
+struct shim_statx {
+        uint32_t   stx_mask;
+        uint32_t   stx_blksize;
+        uint64_t   stx_attributes;
+        uint32_t   stx_nlink;
+        uint32_t   stx_uid;
+        uint32_t   stx_gid;
+        uint16_t   stx_mode;
+        uint16_t   __spare0[1];
+        uint64_t   stx_ino;
+        uint64_t   stx_size;
+        uint64_t   stx_blocks;
+        uint64_t   __spare1[1];
+        struct statx_timestamp  stx_atime;
+        struct statx_timestamp  stx_btime;
+        struct statx_timestamp  stx_ctime;
+        struct statx_timestamp  stx_mtime;
+        uint32_t   stx_rdev_major;
+        uint32_t   stx_rdev_minor;
+        uint32_t   stx_dev_major;
+        uint32_t   stx_dev_minor;
+        uint64_t   __spare2[14];
+};
+
 #if defined(__linux__)
 typedef	loff_t		shim_loff_t;	/* loff_t shim for linux */
 #else
@@ -2465,6 +2513,8 @@ extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_sysfs(int option, ...);
 extern int shim_madvise(void *addr, size_t length, int advice);
 extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
+extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
+	unsigned int mask, struct shim_statx *buffer);
 
 #define STRESS(func) extern int func(const args_t *args);
 
