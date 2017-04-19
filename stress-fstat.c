@@ -92,7 +92,9 @@ static bool do_not_stat(const char *filename)
 static void stress_fstat_helper(const ctxt_t *ctxt)
 {
 	struct stat buf;
+#if defined(AT_EMPTY_PATH) && defined(AT_SYMLINK_NOFOLLOW)
 	struct shim_statx bufx;
+#endif
 	stat_info_t *si = ctxt->si;
 
 	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
