@@ -389,9 +389,9 @@ int stress_matrix(const args_t *args)
 
 	{
 		register size_t i;
-		matrix_type_t ALIGN64 a[n][n],
-			      ALIGN64 b[n][n],
-			      ALIGN64 r[n][n];
+		matrix_type_t ALIGN_CACHELINE a[n][n],
+			      ALIGN_CACHELINE b[n][n],
+			      ALIGN_CACHELINE r[n][n];
 		/*
 		 *  Initialise matrices
 		 */
