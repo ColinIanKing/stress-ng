@@ -54,10 +54,26 @@ typedef struct {
 	int (*func)(const char *setting);
 } stressor_default_t;
 
+/* arg parsing settings */
+typedef struct {
+	char *opt_yamlfile;		/* YAML filename */
+	char *opt_logfile;		/* log filename */
+	char *opt_exclude;		/* List of stressors to exclude */
+	int64_t opt_backoff;		/* child delay */
+	int32_t opt_all;		/* Number of concurrent workers */
+	int32_t opt_sched;		/* sched policy */
+	int32_t opt_sched_priority;	/* sched priority */
+	int32_t opt_ionice_class;	/* ionice class */
+	int32_t opt_ionice_level;	/* ionice level */
+	uint32_t opt_class;		/* Which kind of class is specified */
+	int32_t opt_random;
+	int opt_mem_cache_level;
+	int opt_mem_cache_ways;
+} main_opts_t;
+
 static proc_info_t procs[STRESS_MAX]; 		/* Per stressor process information */
 
 /* Various option settings and flags */
-static int32_t opt_all = 0;			/* Number of concurrent workers */
 static volatile bool wait_flag = true;		/* false to exit run waiter loop */
 
 /* Globals */
@@ -2440,50 +2456,8 @@ static inline void set_random_stressors(const int32_t opt_random)
 	}
 }
 
-int main(int argc, char **argv)
+static void parse_opts(int argc, char **argv, main_opts_t *opts)
 {
-	double duration = 0.0;			/* stressor run time in secs */
-	size_t len;
-	bool success = true, resource_success = true;
-	char *opt_exclude = NULL;		/* List of stressors to exclude */
-	char *yamlfile = NULL;			/* YAML filename */
-	FILE *yaml = NULL;			/* YAML output file */
-	char *logfile = NULL;			/* log filename */
-	int64_t opt_backoff = DEFAULT_BACKOFF;	/* child delay */
-	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
-	int32_t opt_sched = UNDEFINED;		/* sched policy */
-	int32_t opt_sched_priority = UNDEFINED;	/* sched priority */
-	int32_t opt_ionice_class = UNDEFINED;	/* ionice class */
-	int32_t opt_ionice_level = UNDEFINED;	/* ionice level */
-	uint32_t opt_class = 0;			/* Which kind of class is specified */
-	int32_t opt_random = 0, i;
-	int32_t total_procs = 0, max_procs = 0;
-	int mem_cache_level = DEFAULT_CACHE_LEVEL;
-	int mem_cache_ways = 0;
-
-	/* --exec stressor uses this to exec itself and then exit early */
-	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
-		exit(EXIT_SUCCESS);
-
-	(void)memset(procs, 0, sizeof(procs));
-	mwc_reseed();
-
-	(void)stress_get_pagesize();
-	stressor_set_defaults();
-	g_pgrp = getpid();
-
-	if (stress_get_processors_configured() < 0) {
-		pr_err("sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
-			errno, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-	ticks_per_sec = stress_get_ticks_per_second();
-	if (ticks_per_sec < 0) {
-		pr_err("sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
-			errno, strerror(errno));
-		exit(EXIT_FAILURE);
-	}
-
 	for (;;) {
 		int c, option_index;
 		stress_id_t s_id;
@@ -2520,9 +2494,9 @@ next_opt:
 			break;
 		case OPT_ALL:
 			g_opt_flags |= (OPT_FLAGS_SET | OPT_FLAGS_ALL);
-			opt_all = get_int32(optarg);
-			stress_get_processors(&opt_all);
-			check_value("all", opt_all);
+			opts->opt_all = get_int32(optarg);
+			stress_get_processors(&opts->opt_all);
+			check_value("all", opts->opt_all);
 			break;
 		case OPT_AFFINITY_RAND:
 			g_opt_flags |= OPT_FLAGS_AFFINITY_RAND;
@@ -2531,7 +2505,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
 			break;
 		case OPT_BACKOFF:
-			opt_backoff = get_uint64(optarg);
+			opts->opt_backoff = get_uint64(optarg);
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			stress_set_bigheap_growth(optarg);
@@ -2552,27 +2526,27 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_CACHE_FENCE;
 			break;
 		case OPT_CACHE_LEVEL:
-			mem_cache_level = atoi(optarg);
+			opts->opt_mem_cache_level = atoi(optarg);
 			/* Overly high values will be caught in the
 			 * caching code.
 			 */
-			if (mem_cache_level <= 0)
-				mem_cache_level = DEFAULT_CACHE_LEVEL;
+			if (opts->opt_mem_cache_level <= 0)
+				opts->opt_mem_cache_level = DEFAULT_CACHE_LEVEL;
 			break;
 		case OPT_CACHE_NO_AFFINITY:
 			g_opt_flags |= OPT_FLAGS_CACHE_NOAFF;
 			break;
 		case OPT_CACHE_WAYS:
-			mem_cache_ways = atoi(optarg);
-			if (mem_cache_ways <= 0)
-				mem_cache_ways = 0;
+			opts->opt_mem_cache_ways = atoi(optarg);
+			if (opts->opt_mem_cache_ways <= 0)
+				opts->opt_mem_cache_ways = 0;
 			break;
 		case OPT_CHDIR_DIRS:
 			stress_set_chdir_dirs(optarg);
 			break;
 		case OPT_CLASS:
-			opt_class = get_class(optarg);
-			if (!opt_class)
+			opts->opt_class = get_class(optarg);
+			if (!opts->opt_class)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_CLONE_MAX:
@@ -2623,7 +2597,7 @@ next_opt:
 			stress_set_epoll_port(optarg);
 			break;
 		case OPT_EXCLUDE:
-			opt_exclude = optarg;
+			opts->opt_exclude = optarg;
 			break;
 		case OPT_EXEC_MAX:
 			stress_set_exec_max(optarg);
@@ -2673,10 +2647,10 @@ next_opt:
 			stress_set_iomix_bytes(optarg);
 			break;
 		case OPT_IONICE_CLASS:
-			opt_ionice_class = get_opt_ionice_class(optarg);
+			opts->opt_ionice_class = get_opt_ionice_class(optarg);
 			break;
 		case OPT_IONICE_LEVEL:
-			opt_ionice_level = get_int32(optarg);
+			opts->opt_ionice_level = get_int32(optarg);
 			break;
 		case OPT_ITIMER_FREQ:
 			stress_set_itimer_freq(optarg);
@@ -2694,7 +2668,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_LOG_BRIEF;
 			break;
 		case OPT_LOG_FILE:
-			logfile = optarg;
+			opts->opt_logfile = optarg;
 			break;
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
@@ -2806,18 +2780,18 @@ next_opt:
 			break;
 		case OPT_RANDOM:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
-			opt_random = get_int32(optarg);
-			stress_get_processors(&opt_random);
-			check_value("random", opt_random);
+			opts->opt_random = get_int32(optarg);
+			stress_get_processors(&opts->opt_random);
+			check_value("random", opts->opt_random);
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
 			break;
 		case OPT_SCHED:
-			opt_sched = get_opt_sched(optarg);
+			opts->opt_sched = get_opt_sched(optarg);
 			break;
 		case OPT_SCHED_PRIO:
-			opt_sched_priority = get_int32(optarg);
+			opts->opt_sched_priority = get_int32(optarg);
 			break;
 		case OPT_SCTP_PORT:
 			stress_set_sctp_port(optarg);
@@ -3011,7 +2985,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_YAML:
-			yamlfile = optarg;
+			opts->opt_yamlfile = optarg;
 			break;
 		case OPT_ZLIB_METHOD:
 #if defined(HAVE_LIB_Z)
@@ -3027,7 +3001,60 @@ next_opt:
 			exit(EXIT_FAILURE);
 		}
 	}
-	if (stress_exclude(opt_exclude) < 0)
+}
+
+int main(int argc, char **argv)
+{
+	double duration = 0.0;			/* stressor run time in secs */
+	size_t len;
+	bool success = true, resource_success = true;
+	FILE *yaml = NULL;			/* YAML output file */
+	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
+	int32_t total_procs = 0, max_procs = 0;
+	int32_t i;
+
+	main_opts_t opts = {
+		.opt_yamlfile = NULL,
+		.opt_logfile = NULL,
+		.opt_exclude = NULL,
+		.opt_all = 0,
+		.opt_backoff = DEFAULT_BACKOFF,
+		.opt_sched = UNDEFINED,
+		.opt_sched_priority = UNDEFINED,
+		.opt_ionice_class = UNDEFINED,
+		.opt_ionice_level = UNDEFINED,
+		.opt_mem_cache_level = DEFAULT_CACHE_LEVEL,
+		.opt_mem_cache_ways = 0,
+		.opt_class = 0,
+		.opt_random = 0
+	};
+
+	/* --exec stressor uses this to exec itself and then exit early */
+	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
+		exit(EXIT_SUCCESS);
+
+	(void)memset(procs, 0, sizeof(procs));
+	mwc_reseed();
+
+	(void)stress_get_pagesize();
+	stressor_set_defaults();
+	g_pgrp = getpid();
+
+	if (stress_get_processors_configured() < 0) {
+		pr_err("sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+	ticks_per_sec = stress_get_ticks_per_second();
+	if (ticks_per_sec < 0) {
+		pr_err("sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
+			errno, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	parse_opts(argc, argv, &opts);
+
+	if (stress_exclude(opts.opt_exclude) < 0)
 		exit(EXIT_FAILURE);
 	if ((g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) ==
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
@@ -3035,13 +3062,13 @@ next_opt:
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
-	if (opt_class && !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
+	if (opts.opt_class && !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
 	}
-	if (logfile)
-		pr_openlog(logfile);
+	if (opts.opt_logfile)
+		pr_openlog(opts.opt_logfile);
 	openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);
 	log_system_info();
@@ -3059,7 +3086,7 @@ next_opt:
 
 	exclude_unsupported();
 	exclude_pathological();
-	set_random_stressors(opt_random);
+	set_random_stressors(opts.opt_random);
 
 #if defined(STRESS_PERF_STATS)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
@@ -3068,8 +3095,8 @@ next_opt:
 	stress_process_dumpable(false);
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
-	set_sched(opt_sched, opt_sched_priority);
-	set_iopriority(opt_ionice_class, opt_ionice_level);
+	set_sched(opts.opt_sched, opts.opt_sched_priority);
+	set_iopriority(opts.opt_ionice_class, opts.opt_ionice_level);
 
 #if defined(MLOCKED_SECTION)
 	{
@@ -3126,9 +3153,9 @@ next_opt:
 
 		for (i = 0; i < STRESS_MAX; i++) {
 			if (!procs[i].exclude)
-				procs[i].num_procs = opt_class ?
-					((stressors[i].class & opt_class) ?
-						opt_all : 0) : opt_all;
+				procs[i].num_procs = opts.opt_class ?
+					((stressors[i].class & opts.opt_class) ?
+						opts.opt_all : 0) : opts.opt_all;
 			total_procs += procs[i].num_procs;
 			if (max_procs < procs[i].num_procs)
 				max_procs = procs[i].num_procs;
@@ -3174,7 +3201,7 @@ next_opt:
 
 	set_proc_limits();
 
-	if (show_hogs(opt_class) < 0) {
+	if (show_hogs(opts.opt_class) < 0) {
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
@@ -3190,8 +3217,8 @@ next_opt:
 	/*
 	 *  Allocate shared cache memory
 	 */
-	g_shared->mem_cache_level = mem_cache_level;
-	g_shared->mem_cache_ways = mem_cache_ways;
+	g_shared->mem_cache_level = opts.opt_mem_cache_level;
+	g_shared->mem_cache_ways = opts.opt_mem_cache_ways;
 	if (stress_cache_alloc("cache allocate") < 0) {
 		stress_unmap_shared();
 		free_procs();
@@ -3217,15 +3244,15 @@ next_opt:
 			for (j = 0; g_keep_stressing_flag && j < STRESS_MAX; j++)
 				procs[j].num_procs = 0;
 			if (!procs[i].exclude) {
-				procs[i].num_procs = opt_class ?
-					((stressors[i].class & opt_class) ?
+				procs[i].num_procs = opts.opt_class ?
+					((stressors[i].class & opts.opt_class) ?
 						g_opt_sequential : 0) : g_opt_sequential;
 				if (procs[i].num_procs)
 					stress_run(g_opt_sequential,
 						g_opt_sequential,
-						opt_backoff,
-						opt_ionice_class,
-						opt_ionice_level,
+						opts.opt_backoff,
+						opts.opt_ionice_class,
+						opts.opt_ionice_level,
 						g_shared->stats,
 						&duration,
 						&success,
@@ -3237,7 +3264,7 @@ next_opt:
 		 *  Run all stressors in parallel
 		 */
 		stress_run(total_procs, max_procs,
-			opt_backoff, opt_ionice_class, opt_ionice_level,
+			opts.opt_backoff, opts.opt_ionice_class, opts.opt_ionice_level,
 			g_shared->stats, &duration, &success, &resource_success);
 	}
 
@@ -3247,11 +3274,11 @@ next_opt:
 	pr_inf("%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
 		duration, duration_to_str(duration));
-	if (yamlfile) {
-		yaml = fopen(yamlfile, "w");
+	if (opts.opt_yamlfile) {
+		yaml = fopen(opts.opt_yamlfile, "w");
 		if (!yaml)
 			pr_err("Cannot output YAML data to %s\n",
-				yamlfile);
+				opts.opt_yamlfile);
 
 		pr_yaml(yaml, "---\n");
 		pr_yaml_runinfo(yaml);
