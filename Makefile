@@ -226,6 +226,7 @@ CORE_SRC = \
 	helper.c \
 	ignite-cpu.c \
 	io-priority.c \
+	job.c \
 	limit.c \
 	log.c \
 	madvise.c \

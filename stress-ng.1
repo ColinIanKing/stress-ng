@@ -110,6 +110,43 @@ specify ionice level (only on Linux). For idle, 0 is the only possible
 option. For besteffort or realtime values 0 (highest priority) to 7 (lowest
 priority). See ionice(1) for more details.
 .TP
+.B \-\-job jobfile
+run stressors using a jobfile.  The jobfile is essentially a file containing
+stress-ng options (without the leading \-\-) with one option per line. Lines
+may have comments with comment text proceeded by the # character. A simple
+example is as follows:
+.PP
+.RS
+.nf
+run sequential   # run stressors sequentially
+verbose          # verbose output
+metrics-brief    # show metrics at end of run
+timeout 60s      # stop each stressor after 60 seconds
+#
+# vm stressor options:
+#
+vm 2             # 2 vm stressors
+vm-bytes 128M    # 128MB available memory
+vm-keep          # keep vm mapping
+vm-populate      # populate memory
+#
+# memcpy stressor options:
+#
+memcpy 5         # 5 memcpy stressors
+.fi
+.RE
+.RS
+.PP
+The job file introduces the run command that specifies how to run the
+stressors:
+.PP
+run sequential \- run stressors sequentially
+.br
+run parallel \- run stressors together in parallel
+.PP
+Note that 'run parallel' is the default.
+.RE
+.TP
 .B \-k, \-\-keep\-name
 by default, stress\-ng will attempt to change the name of the stress
 processes according to their functionality; this option disables this and
