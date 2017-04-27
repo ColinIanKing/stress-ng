@@ -42,6 +42,7 @@ endif
 
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
+JOBDIR=/usr/share/stress-ng/example-jobs
 
 #
 #  Stressors
@@ -809,7 +810,8 @@ dist:
 		test-libaio.c test-cap.c test-libsctp.c \
 		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
 		usr.bin.pulseaudio.eg perf-event.c \
-		snapcraft smatchify.sh config TODO stress-ng-$(VERSION)
+		snapcraft smatchify.sh config TODO example-jobs \
+		stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
@@ -838,3 +840,5 @@ install: stress-ng stress-ng.1.gz
 	cp stress-ng ${DESTDIR}${BINDIR}
 	mkdir -p ${DESTDIR}${MANDIR}
 	cp stress-ng.1.gz ${DESTDIR}${MANDIR}
+	mkdir -p ${DESTDIR}${JOBDIR}
+	cp -rp example-jobs/*.job ${DESTDIR}${JOBDIR}
