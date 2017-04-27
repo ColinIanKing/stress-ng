@@ -35,9 +35,7 @@ static bool set_msync_bytes = false;
 void stress_set_msync_bytes(const char *opt)
 {
 	set_msync_bytes = true;
-	opt_msync_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_MSYNC));
+	opt_msync_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mmap-bytes", opt_msync_bytes,
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
 }
@@ -104,6 +102,9 @@ int stress_msync(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_msync_bytes = MIN_MSYNC_BYTES;
 	}
+	opt_msync_bytes /= args->num_instances;
+	if (opt_msync_bytes < MIN_MSYNC_BYTES)
+		opt_msync_bytes = MIN_MSYNC_BYTES;
 	sz = opt_msync_bytes & ~(page_size - 1);
 	if (sz < min_size)
 		sz = min_size;

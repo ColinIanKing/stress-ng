@@ -1441,17 +1441,6 @@ static inline int32_t stressor_name_find(const char *name)
 }
 
 /*
- *  stressor_instances()
- *	return the number of instances for a specific stress test
- */
-int stressor_instances(const stress_id_t id)
-{
-	int32_t i = stressor_id_find(id);
-
-	return procs[i].num_procs;
-}
-
-/*
  *  get_class_id()
  *	find the class id of a given class name
  */
@@ -1981,6 +1970,7 @@ again:
 							name,
 							procs[i].bogo_ops,
 							j,
+							procs[i].num_procs,
 							getpid(),
 							getppid(),
 							stress_get_pagesize(),

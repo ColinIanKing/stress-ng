@@ -205,7 +205,9 @@ int stress_stream(const args_t *args)
 	}
 
 	/* ..and shared amongst all the STREAM stressor instances */
-	L3 /= stressor_instances(STRESS_STREAM);
+	L3 /= args->num_instances;
+	if (L3 < args->page_size)
+		L3 = args->page_size;
 
 	/*
 	 *  Each array must be at least 4 x the

@@ -30,9 +30,7 @@ static bool set_splice_bytes = false;
 void stress_set_splice_bytes(const char *opt)
 {
 	set_splice_bytes = true;
-	opt_splice_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_SPLICE));
+	opt_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("splice-bytes", opt_splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
 }
@@ -53,6 +51,9 @@ int stress_splice(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_splice_bytes = MIN_SPLICE_BYTES;
 	}
+	opt_splice_bytes /= args->num_instances;
+	if (opt_splice_bytes < MIN_SPLICE_BYTES)
+		opt_splice_bytes = MIN_SPLICE_BYTES;
 
 	if (pipe(fds) < 0) {
 		pr_fail_err("pipe");

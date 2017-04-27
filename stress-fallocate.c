@@ -30,9 +30,7 @@ static bool set_fallocate_bytes = false;
 void stress_set_fallocate_bytes(const char *opt)
 {
 	set_fallocate_bytes = true;
-	opt_fallocate_bytes = (off_t)
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_FALLOCATE));
+	opt_fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fallocate-bytes", opt_fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 }
@@ -75,6 +73,9 @@ int stress_fallocate(const args_t *args)
 			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
+	opt_fallocate_bytes /= args->num_instances;
+	if (opt_fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
+		opt_fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);

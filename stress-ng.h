@@ -303,6 +303,7 @@ typedef struct {
 	const char *name;		/* stressor name */
 	const uint64_t max_ops;		/* max number of bogo ops */
 	const uint32_t instance;	/* stressor instance # */
+	const uint32_t num_instances;	/* number of instances */
 	pid_t pid;			/* stressor pid */
 	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
@@ -2126,8 +2127,6 @@ static inline WARN_UNUSED double timeval_to_double(const struct timeval *tv)
 {
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
-
-extern int stressor_instances(const stress_id_t id);
 
 #if defined(STRESS_PERF_STATS)
 /* Perf stats */

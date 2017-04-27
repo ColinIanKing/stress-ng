@@ -30,9 +30,7 @@ static bool set_mremap_bytes = false;
 void stress_set_mremap_bytes(const char *opt)
 {
 	set_mremap_bytes = true;
-	opt_mremap_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_MREMAP));
+	opt_mremap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mmap-bytes", opt_mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
 }
@@ -237,6 +235,9 @@ int stress_mremap(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_mremap_bytes = MIN_MREMAP_BYTES;
 	}
+	opt_mremap_bytes /= args->num_instances;
+	if (opt_mremap_bytes < MIN_MREMAP_BYTES)
+		opt_mremap_bytes = MIN_MREMAP_BYTES;
 	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */

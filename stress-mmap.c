@@ -59,9 +59,7 @@ static const int mmap_flags[] = {
 void stress_set_mmap_bytes(const char *opt)
 {
 	set_mmap_bytes = true;
-	opt_mmap_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_MMAP));
+	opt_mmap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mmap-bytes", opt_mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
 }
@@ -256,6 +254,9 @@ int stress_mmap(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_mmap_bytes = MIN_MMAP_BYTES;
 	}
+	opt_mmap_bytes /= args->num_instances;
+	if (opt_mmap_bytes < MIN_MMAP_BYTES)
+		opt_mmap_bytes = MIN_MMAP_BYTES;
 	sz = opt_mmap_bytes & ~(page_size - 1);
 	pages4k = sz / page_size;
 

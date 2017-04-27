@@ -76,11 +76,7 @@ int stress_mmapfork(const args_t *args)
 	struct sysinfo info;
 	void *ptr;
 	uint64_t segv_count = 0;
-	int32_t instances;
 	int8_t segv_reasons = 0;
-
-	if ((instances = stressor_instances(STRESS_MMAPFORK)) < 1)
-		instances = stress_get_processors_configured();
 
 	do {
 		size_t i, n, len;
@@ -113,7 +109,7 @@ retry:			if (!g_keep_stressing_flag)
 					_exit(_EXIT_FAILURE);
 				}
 
-				len = ((size_t)info.freeram / (instances * MAX_PIDS)) / 2;
+				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
 				segv_ret = _EXIT_SEGV_MMAP;
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);

@@ -36,9 +36,7 @@ static bool set_fiemap_size = false;
 void stress_set_fiemap_size(const char *opt)
 {
 	set_fiemap_size = true;
-	opt_fiemap_size =
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_FIEMAP));
+	opt_fiemap_size = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fiemap-size", opt_fiemap_size,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
 }
@@ -200,6 +198,9 @@ int stress_fiemap(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_fiemap_size = MIN_SEEK_SIZE;
 	}
+	opt_fiemap_size /= args->num_instances;
+	if (opt_fiemap_size < MIN_FIEMAP_SIZE)
+		opt_fiemap_size = MIN_FIEMAP_SIZE;
 
 	/* We need some share memory for counter accounting */
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
@@ -236,6 +237,7 @@ int stress_fiemap(const args_t *args)
 			args->name,
 			proc_max_ops,
 			args->instance,
+			args->num_instances,
 			args->pid,
 			args->ppid,
 			args->page_size

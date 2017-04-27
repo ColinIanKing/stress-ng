@@ -36,7 +36,7 @@ int stress_yield(const args_t *args)
 	uint64_t max_ops_per_yielder;
 	size_t counters_sz, yielders_sz;
 	int32_t cpus = stress_get_processors_configured();
-	size_t instances = stressor_instances(STRESS_YIELD);
+	const size_t instances = args->num_instances;
 	size_t yielders = 2;
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 	cpu_set_t mask;
@@ -66,10 +66,6 @@ int stress_yield(const args_t *args)
 	 *  CPU available to force context switching on yields
 	 */
 	if (cpus > 0) {
-		if (!instances) {
-			/* Should not happen, but avoids division by zero */
-			instances = 1;
-		}
 		cpus *= 2;
 		yielders = cpus / instances;
 		if (yielders < 1)

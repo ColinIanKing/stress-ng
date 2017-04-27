@@ -47,9 +47,7 @@ static bool set_sync_file_bytes = false;
 void stress_set_sync_file_bytes(const char *opt)
 {
 	set_sync_file_bytes = true;
-	opt_sync_file_bytes = (off_t)
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_SYNC_FILE));
+	opt_sync_file_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("sync_file-bytes", opt_sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 }
@@ -133,6 +131,9 @@ int stress_sync_file(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
+	opt_sync_file_bytes /= args->num_instances;
+	if (opt_sync_file_bytes < MIN_SYNC_FILE_BYTES)
+		opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

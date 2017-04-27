@@ -30,9 +30,7 @@ static bool set_copy_file_bytes;
 void stress_set_copy_file_bytes(const char *opt)
 {
 	set_copy_file_bytes = true;
-	opt_copy_file_bytes =
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_COPY_FILE));
+	opt_copy_file_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("copy-file-bytes", opt_copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
 }
@@ -55,6 +53,9 @@ int stress_copy_file(const args_t *args)
 			opt_copy_file_bytes = MIN_HDD_BYTES;
 	}
 
+	opt_copy_file_bytes /= args->num_instances;
+	if (opt_copy_file_bytes < MIN_COPY_FILE_BYTES)
+		opt_copy_file_bytes = MIN_COPY_FILE_BYTES;
 	if (opt_copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
 		opt_copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
 

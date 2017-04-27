@@ -54,9 +54,7 @@ static bool set_vm_rw_bytes = false;
 void stress_set_vm_rw_bytes(const char *opt)
 {
 	set_vm_rw_bytes = true;
-	opt_vm_rw_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_VM_RW));
+	opt_vm_rw_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("vm-rw-bytes", opt_vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
 }
@@ -294,6 +292,9 @@ int stress_vm_rw(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
+	opt_vm_rw_bytes /= args->num_instances;
+	if (opt_vm_rw_bytes < MIN_VM_RW_BYTES)
+		opt_vm_rw_bytes = MIN_VM_RW_BYTES;
 	ctxt.args = args;
 	ctxt.sz = opt_vm_rw_bytes & ~(args->page_size - 1);
 

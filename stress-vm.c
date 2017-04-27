@@ -63,9 +63,7 @@ void stress_set_vm_hang(const char *opt)
 void stress_set_vm_bytes(const char *opt)
 {
 	set_vm_bytes = true;
-	opt_vm_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_VM));
+	opt_vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("vm-bytes", opt_vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);
 }
@@ -1893,6 +1891,9 @@ int stress_vm(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_vm_bytes = MIN_VM_BYTES;
 	}
+	opt_vm_bytes /= args->num_instances;
+	if (opt_vm_bytes < MIN_VM_BYTES)
+		opt_vm_bytes = MIN_VM_BYTES;
 	buf_sz = opt_vm_bytes & ~(page_size - 1);
 
 	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {

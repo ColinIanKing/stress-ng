@@ -79,9 +79,7 @@ void stress_set_shm_sysv_bytes(const char *opt)
 void stress_set_shm_sysv_segments(const char *opt)
 {
 	opt_shm_sysv_segments = true;
-	opt_shm_sysv_segments = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_SHM_SYSV));
+	opt_shm_sysv_segments = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range("shm-sysv-segments", opt_shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
 }
@@ -131,7 +129,7 @@ static int stress_shm_sysv_child(
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
-	int32_t instances;
+	int32_t instances = args->num_instances;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
@@ -144,8 +142,6 @@ static int stress_shm_sysv_child(
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	if ((instances = stressor_instances(STRESS_SHM_SYSV)) < 1)
-		instances = stress_get_processors_configured();
 	/* Should never happen, but be safe */
 	if (instances < 1)
 		instances = 1;
@@ -350,6 +346,9 @@ int stress_shm_sysv(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
 	}
+	opt_shm_sysv_segments /= args->num_instances;
+	if (opt_shm_sysv_segments < 1)
+		opt_shm_sysv_segments = 1;
 
 	if (!set_shm_sysv_segments) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

@@ -99,7 +99,7 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 			 * Don't use all the tmpfs, just 98% for all instance
 			 */
 			max_size = (max_size * 98) / 100;
-			max_size /= stressor_instances(STRESS_TMPFS);
+			max_size /= args->num_instances;
 
 			(void)unlink(path);
 			/*

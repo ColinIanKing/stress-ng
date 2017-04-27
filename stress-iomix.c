@@ -32,9 +32,7 @@ static bool set_iomix_bytes = false;
 void stress_set_iomix_bytes(const char *opt)
 {
 	set_iomix_bytes = true;
-	opt_iomix_bytes = (off_t)
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_IOMIX));
+	opt_iomix_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("iomix-bytes", opt_iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
 }
@@ -523,6 +521,9 @@ int stress_iomix(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_iomix_bytes = MIN_FALLOCATE_BYTES;
 	}
+	opt_iomix_bytes /= args->num_instances;
+	if (opt_iomix_bytes < (off_t)MIN_IOMIX_BYTES)
+		opt_iomix_bytes = (off_t)MIN_IOMIX_BYTES;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
@@ -564,6 +565,7 @@ int stress_iomix(const args_t *args)
 			args->name,
 			args->max_ops,
 			args->instance,
+			args->num_instances,
 			args->pid,
 			args->ppid,
 			args->page_size

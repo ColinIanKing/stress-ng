@@ -37,9 +37,7 @@ static bool set_memfd_fds = false;
 void stress_set_memfd_bytes(const char *opt)
 {
 	set_memfd_bytes = true;
-	opt_memfd_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_MEMFD));
+	opt_memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("memfd-bytes", opt_memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
 }
@@ -211,6 +209,9 @@ int stress_memfd(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_memfd_bytes = MIN_MEMFD_BYTES;
 	}
+	opt_memfd_bytes /= args->num_instances;
+	if (opt_memfd_bytes < MIN_MEMFD_BYTES)
+		opt_memfd_bytes = MIN_MEMFD_BYTES;
 
 again:
 	if (!g_keep_stressing_flag)

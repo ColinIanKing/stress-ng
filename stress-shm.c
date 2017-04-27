@@ -39,9 +39,7 @@ static bool set_shm_posix_objects = false;
 void stress_set_shm_posix_bytes(const char *opt)
 {
 	set_shm_posix_bytes = true;
-	opt_shm_posix_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_SHM_POSIX));
+	opt_shm_posix_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("shm-bytes", opt_shm_posix_bytes,
 		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
 }
@@ -246,6 +244,10 @@ int stress_shm(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	}
+	opt_shm_posix_bytes /= args->num_instances;
+	if (opt_shm_posix_bytes < MIN_SHM_POSIX_BYTES)
+		opt_shm_posix_bytes = MIN_SHM_POSIX_BYTES;
+
 	if (!set_shm_posix_objects) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_shm_posix_objects = MAX_SHM_POSIX_OBJECTS;

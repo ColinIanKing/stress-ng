@@ -48,9 +48,7 @@ static bool set_userfaultfd_bytes = false;
 void stress_set_userfaultfd_bytes(const char *opt)
 {
 	set_userfaultfd_bytes = true;
-	opt_userfaultfd_bytes = (size_t)
-		get_uint64_byte_memory(opt,
-			stressor_instances(STRESS_USERFAULTFD));
+	opt_userfaultfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("userfaultfd-bytes", opt_userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
 }
@@ -177,6 +175,9 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_userfaultfd_bytes = MIN_MMAP_BYTES;
 	}
+	opt_userfaultfd_bytes /= args->num_instances;
+	if (opt_userfaultfd_bytes < MIN_MMAP_BYTES)
+		opt_userfaultfd_bytes = MIN_MMAP_BYTES;
 	sz = opt_userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {

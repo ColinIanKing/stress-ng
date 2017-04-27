@@ -34,9 +34,7 @@ static bool set_readahead_bytes = false;
 void stress_set_readahead_bytes(const char *opt)
 {
 	set_readahead_bytes = true;
-	opt_readahead_bytes =
-		get_uint64_byte_filesystem(opt,
-			stressor_instances(STRESS_READAHEAD));
+	opt_readahead_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("hdd-bytes", opt_readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 }
@@ -83,6 +81,9 @@ int stress_readahead(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			opt_readahead_bytes = MIN_HDD_BYTES;
 	}
+	opt_readahead_bytes /= args->num_instances;
+	if (opt_readahead_bytes < MIN_HDD_BYTES)
+		opt_readahead_bytes = MIN_HDD_BYTES;
 
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
