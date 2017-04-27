@@ -1,0 +1,304 @@
+#
+# memory class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+
+#
+# bigheap stressor options:
+#   start N workers that grow their heaps by reallocating memory. If
+#   the  out of memory killer (OOM) on Linux kills the worker or the
+#   allocation fails then the allocating  process  starts  all  over
+#   again.   Note  that  the OOM adjustment for the worker is set so
+#   that the OOM killer will treat these workers as the first candi‐
+#   date processes to kill.
+#
+bigheap 0		# 0 means 1 stressor per CPU
+# bigheap-ops 1000000	# stop after 1000000 bogo ops
+# bigheap-growth 64K	# grow heap by 64K each loop iteration
+
+#
+# brk stressor options:
+#   start N workers that grow the data segment by one page at a time
+#   using  multiple  brk(2)  calls.  Each successfully allocated new
+#   page is touched to ensure it is resident in memory.  If  an  out
+#   of  memory  condition  occurs  then the test will reset the data
+#   segment to the point before it started and repeat the data  seg‐
+#   ment resizing over again.  The process adjusts the out of memory
+#   setting so that it may be killed by  the  out  of  memory  (OOM)
+#   killer  before  other  processes.   If  it  is killed by the OOM
+#   killer then it will be automatically re-started by a  monitoring
+#   parent process.
+#
+brk 0			# 0 means 1 stressor per CPU
+# brk-ops 1000000	# stop after 1000000 bogo ops
+# brk-notouch		# don't touch allocated pages
+
+#
+# madvise stressor options:
+#   start N workers that apply random madvise(2) advise settings  on
+#   pages of a 4MB file backed shared memory mapping.
+#
+madvise 0		# 0 means 1 stressor per CPU
+# madvise-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# malloc stressor options:
+#   start N workers continuously calling malloc(3), calloc(3), real‐
+#   loc(3)  and  free(3). By default, up to 65536 allocations can be
+#   active at any point, but this can be  altered  with  the  --mal‐
+#   loc-max option.  Allocation, reallocation and freeing are chosen
+#   at random; 50% of the time memory  is  allocation  (via  malloc,
+#   calloc  or  realloc) and 50% of the time allocations are free'd.
+#   Allocation sizes are also random, with  the  maximum  allocation
+#   size  controlled  by the --malloc-bytes option, the default size
+#   being 64K.  The worker is re-started if it is killed by the  out
+#   of mememory (OOM) killer.
+#
+malloc 0		# 0 means 1 stressor per CPU
+# malloc-bytes 64K	# maximum allocation chunk size
+# malloc-max 65536	# maximum number of allocations of chunks
+# malloc-ops 1000000	# stop after 1000000 bogo ops
+# malloc-thresh 1M	# use mmap when allocation exceeds this size
+
+#
+# mlock stressor options:
+#   start  N  workers that lock and unlock memory mapped pages using
+#   mlock(2), munlock(2), mlockall(2)  and  munlockall(2).  This  is
+#   achieved by the mapping of three contiguous pages and then lock‐
+#   ing the second page, hence  ensuring  non-contiguous  pages  are
+#   locked  . This is then repeated until the maximum allowed mlocks
+#   or a maximum of 262144 mappings are made.  Next, all future map‐
+#   pings  are  mlocked and the worker attempts to map 262144 pages,
+#   then all pages are munlocked and the pages are unmapped.
+#
+mlock 0			# 0 means 1 stressor per CPU
+# mlock-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mmap stressor options:
+#   start N workers  continuously  calling  mmap(2)/munmap(2).   The
+#   initial   mapping   is   a   large   chunk  (size  specified  by
+#   --mmap-bytes) followed  by  pseudo-random  4K  unmappings,  then
+#   pseudo-random  4K mappings, and then linear 4K unmappings.  Note
+#   that this can cause systems to trip the  kernel  OOM  killer  on
+#   Linux  systems  if  not  enough  physical memory and swap is not
+#   available.  The MAP_POPULATE option is used  to  populate  pages
+#   into memory on systems that support this.  By default, anonymous
+#   mappings are used, however,  the  --mmap-file  and  --mmap-async
+#   options allow one to perform file based mappings if desired.
+#
+mmap 0			# 0 means 1 stressor per CPU
+# mmap-ops 1000000	# stop after 1000000 bogo ops
+# mmap-async		# msync on each page when using file mmaps
+# mmap-bytes 256M	# allocate 256M per mmap stressor
+# mmap-file		# enable file based memory mapping
+# mmap-mprotect		# twiddle page protection settings
+
+#
+# mmapfork stressor options:
+#   start  N  workers that each fork off 32 child processes, each of
+#   which tries to allocate some of the free memory left in the sys‐
+#   tem  (and  trying  to  avoid any swapping).  The child processes
+#   then hint that the allocation will be needed with madvise(2) and
+#   then memset it to zero and hint that it is no longer needed with
+#   madvise before exiting.  This produces significant amounts of VM
+#   activity, a lot of cache misses and with minimal swapping.
+#
+mmapfork 0		# 0 means 1 stressor per CPU
+# mmapfork-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mmapmany stressor options:
+#   start  N workers that attempt to create the maximum allowed per-
+#   process memory mappings. This is achieved by mapping 3  contigu‐
+#   ous pages and then unmapping the middle page hence splitting the
+#   mapping into two.  This  is  then  repeated  until  the  maximum
+#   allowed mappings or a maximum of 262144 mappings are made.
+#
+mmapmany 0		# 0 means 1 stressor per CPU
+# mmapmany-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mremap stressor options:
+#   start N workers continuously calling mmap(2), mremap(2) and mun‐
+#   map(2).  The initial anonymous mapping is a  large  chunk  (size
+#   specified by --mremap-bytes) and then iteratively halved in size
+#   by remapping all the way down to a page size and then back up to
+#   the original size.  This worker is only available for Linux.
+#   
+mremap 0		# 0 means 1 stressor per CPU
+# mremap-ops 1000000	# stop after 1000000 bogo ops
+# mremap-bytes 256M	# allocate 256M per mremap stressor
+
+#
+# msync stressor options:
+#   start N stressors that msync data from a file backed memory map‐
+#   ping  from  memory back to the file and msync modified data from
+#   the file back to the mapped memory. This exercises the  msync(2)
+#   MS_SYNC and MS_INVALIDATE sync operations.
+#
+msync 0			# 0 means 1 stressor per CPU
+# msync-ops 1000000	# stop after 1000000 bogo ops
+# msync-bytes 256M	# allocate 256M per mremap stressor
+
+#
+# shm stressor options:
+#   start  N  workers  that  open and allocate shared memory objects
+#   using the POSIX shared memory interfaces.  By default, the  test
+#   will  repeatedly  create  and  destroy 32 shared memory objects,
+#   each of which is 8MB in size.
+#
+shm 0			# 0 means 1 stressor per CPU
+# shm-ops 1000000	# stop after 1000000 bogo ops
+# shm-bytes 8M		# size of each shared memory object
+# shm-objs 32		# number of shared memory objects created
+
+#
+# shm-sysv
+#   start N workers that allocate shared memory using the  System  V
+#   shared  memory  interface.  By default, the test will repeatedly
+#   create and destroy 8 shared memory segments, each  of  which  is
+#   8MB in size.
+#
+shm-sysv 0		# 0 means 1 stressor per CPU
+# shm-sysv-ops 1000000	# stop after 1000000 bogo ops
+# shm-sysv-bytes 8M	# size of each shared memory segments
+# shm-sysv-segs 32	# number of shared memory segments created
+
+#
+# stack stressor options:
+#   start N workers that rapidly cause and catch stack overflows  by
+#   use of alloca(3).
+#
+stack 0			# 0 means 1 stressor per CPU
+# stack-ops 1000000	# stop after 1000000 bogo ops
+# stack-fill		# zero stack to force pages in
+
+#
+# stackmmap stressor options:
+#   start N workers that use a 2MB stack that is memory mapped  onto
+#   a  temporary file. A recursive function works down the stack and
+#   flushes dirty stack pages back to the memory mapped  file  using
+#   msync(2) until the end of the stack is reached (stack overflow).
+#   This exercises dirty page and stack exception handling.
+#
+stackmmap 0		# 0 means 1 stressor per CPU
+# stackmmap-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# tmpfs stressor options:
+#   start N workers that create a temporary  file  on  an  available
+#   tmpfs file system and perform various file based mmap operations
+#   upon it.
+#
+tmpfs 0			# 0 means 1 stressor per CPU
+# tmpfs-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# userfaultfd stressor options:
+#   start  N  workers  that  generate  write  page faults on a small
+#   anonymously mapped memory region and handle these  faults  using
+#   the  user  space  fault  handling via the userfaultfd mechanism.
+#   This will generate a large quanity of major page faults and also
+#   context switches during the handling of the page faults.  (Linux
+#   only).
+#
+userfaultfd 0		# 0 means 1 stressor per CPU
+# userfaultfd-ops 1000000 # stop after 1000000 bogo ops
+# userfaultfd-bytes 16M	# size of memory mapped region to fault
+
+#
+# vm stressor options:
+#   start N workers continuously calling mmap(2)/munmap(2) and writ‐
+#   ing to the allocated memory. Note that this can cause systems to
+#   trip the kernel OOM killer on Linux systems if not enough physi‐
+#   cal memory and swap is not available.
+#
+vm 0			# 0 means 1 stressor per CPU
+# vm-ops 1000000	# stop after 1000000 bogo ops
+# vm-bytes 256M		# size of each vm mmapping
+# vm-hang 0		# sleep 0 seconds before unmapping
+# vm-keep		# don't keep unmapping and remapping
+# vm-locked		# lock pages into memory using MAP_LOCKED
+# vm-method all		# vm data exercising method; use all types
+# vm-populate		# populate (prefault) pages into memory
+
+#
+# vm-rw stressor options:
+#   start N workers that  transfer  memory  to/from  a  parent/child
+#   using process_vm_writev(2) and process_vm_readv(2). This is fea‐
+#   ture is only supported on Linux.  Memory transfers are only ver‐
+#   ified if the --verify option is enabled.
+#
+vm-rw 0			# 0 means 1 stressor per CPU
+# vm-rw-ops 1000000	# stop after 1000000 bogo ops
+# vm-rw-bytes 16M	# size of each mmap'd region per stressor
+
+#
+# vm-splice stressor options:
+#   move  data  from  memory to /dev/null through a pipe without any
+#   copying between kernel address  space  and  user  address  space
+#   using  vmsplice(2)  and  splice(2).   This is only available for
+#   Linux.
+#
+vm-splice 0		# 0 means 1 stressor per CPU
+# vm-splice-ops 0	# stop after 1000000 bogo ops
+# vm-splice-bytes 64K	# transfer 64K per vmsplice call
