@@ -1,0 +1,121 @@
+#
+# pipe class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# fifo stressor options:
+#   start  N  workers  that exercise a named pipe by transmitting 64
+#   bit integers.
+#
+fifo 0			# 0 means 1 stressor per CPU
+# fifo-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# pipe stressor options:
+#   start  N  workers  that  perform  large pipe writes and reads to
+#   exercise pipe I/O.  This exercises memory  write  and  reads  as
+#   well  as  context  switching.   Each worker has two processes, a
+#   reader and a writer.
+#
+pipe 0                  # 0 means 1 stressor per CPU
+# pipe-ops 1000000      # stop after 1000000 bogo ops
+# pipe-data-size 4K     # pipe data transfer size
+# pipe-size 512         # pipe size
+
+#
+# sendfile stressor options:
+#   start N workers that send an empty file to /dev/null. This oper‐
+#   ation spends nearly all the time in  the  kernel.   The  default
+#   sendfile size is 4MB.  The sendfile options are for Linux only.
+#
+sendfile 0		# 0 means 1 stressor per CPU
+# sendfile-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# splice stressor options:
+#   move data from /dev/zero to /dev/null through a pipe without any
+#   copying  between  kernel  address  space  and user address space
+#   using splice(2). This is only available for Linux.
+#
+splice 0		# 0 means 1 stressor per CPU
+# splice-ops 1000000	# stop after 1000000 bogo ops
+# splice-bytes 64K	# transfer 64K per splice call
+
+#
+# tee stressor options:
+#   move  data  from  a  writer  process to a reader process through
+#   pipes and  to  /dev/null  without  any  copying  between  kernel
+#   address  space and user address space using tee(2). This is only
+#   available for Linux.
+#
+tee 0			# 0 means 1 stressor per CPU
+# tee-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# vm-splice stressor options:
+#   move  data  from  memory to /dev/null through a pipe without any
+#   copying between kernel address  space  and  user  address  space
+#   using  vmsplice(2)  and  splice(2).   This is only available for
+#   Linux.
+#
+vm-splice 0		# 0 means 1 stressor per CPU
+# vm-splice-ops 0	# stop after 1000000 bogo ops
+# vm-splice-bytes 64K	# transfer 64K per vmsplice call
