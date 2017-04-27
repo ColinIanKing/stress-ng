@@ -1,0 +1,225 @@
+#
+# interrupt class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# aio stressor options:
+#   start  N  workers  that  issue  multiple  small asynchronous I/O
+#   writes and reads on a relatively small temporary file using  the
+#   POSIX  aio  interface.  This will just hit the file system cache
+#   and soak up a lot of user and kernel time in  issuing  and  han‐
+#   dling I/O requests.  By default, each worker process will handle
+#   16 concurrent I/O requests.
+#
+aio 0			# 0 means 1 stressor per CPU
+# aio-ops 1000000	# stop after 1000000 bogo ops
+# aio-requests 16	# I/O requests per aio operation
+
+#
+# aiol stressor options:
+#   start N workers that issue multiple 4K random  asynchronous  I/O
+#   writes  using  the  Linux  aio system calls io_setup(2), io_sub‐
+#   mit(2), io_getevents(2) and  io_destroy(2).   By  default,  each
+#   worker process will handle 16 concurrent I/O requests.
+#
+aiol 0			# 0 means 1 stressor per CPU
+# aiol-ops 1000000	# stop after 1000000 bogo ops
+# aiol-requests 16	# I/O requests per aio operation
+
+#
+# clock stressor options:
+#   start N workers exercising clocks  and  POSIX  timers.  For  all
+#   known clock types this will exercise clock_getres(2), clock_get‐
+#   time(2) and clock_nanosleep(2).  For all known  timers  it  will
+#   create  a  50000ns  timer  and  busy poll this until it expires.
+#   This stressor will cause frequent context switching.
+#
+clock 0			# 0 means 1 stressor per CPU
+# clock-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fault stressor options:
+#   start N workers that generates minor and major page faults.
+#
+fault 0			# 0 means 1 stressor per CPU
+# fault-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# itimer stressor options:
+#   start N workers that exercise the system interval  timers.  This
+#   sets  up  an ITIMER_PROF itimer that generates a SIGPROF signal.
+#   The default frequency for the itimer  is  1  MHz,  however,  the
+#   Linux kernel will set this to be no more that the jiffy setting,
+#   hence high frequency SIGPROF signals are not normally  possible.
+#   A busy loop spins on getitimer(2) calls to consume CPU and hence
+#   decrement the itimer based on amount of time spent  in  CPU  and
+#   system time.
+#
+itimer 0		# 0 means 1 stressor per CPU
+# itimer-ops 1000000	# stop after 1000000 bogo ops
+# itimer-freq 750	# 750 Hz timer clock
+
+#
+# kill stressor options:
+#   start N workers sending SIGUSR1 kill signals to a SIG_IGN signal
+#   handler. Most of the process time will end up in kernel space.
+#
+kill 0			# 0 means 1 stressor per CPU
+# kill-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# schedpolicy stressor options:
+#   start N workers that work set the worker  to  various  available
+#   scheduling policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE,
+#   SCHED_FIFO and SCHED_RR.  For the real time scheduling  policies
+#   a random sched priority is selected between the minimum and max‐
+#   imum scheduling prority settings.
+#
+schedpolicy 0		# 0 means 1 stressor per CPU
+# schedpolicy-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# sigfd stressor options:
+#   start  N  workers that generate SIGRT signals and are handled by
+#   reads by a child process using a file descriptor  set  up  using
+#   signalfd(2).   (Linux  only). This will generate a heavy context
+#   switch load when all CPUs are fully loaded.
+#   
+sigfd 0			# 0 means 1 stressor per CPU
+# sigfd-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# sigfpe stressor options:
+#   start N workers that  rapidly  cause  division  by  zero  SIGFPE
+#   faults.
+#
+sigfpe 0		# 0 means 1 stressor per CPU
+# sigfpe-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# sigpending stressor options:
+#   start  N workers that check if SIGUSR1 signals are pending. This
+#   stressor masks SIGUSR1, generates a SIGUSR1 signal and uses sig‐
+#   pending(2)  to see if the signal is pending. Then it unmasks the
+#   signal and checks if the signal is no longer pending.
+#
+sigpending 0		# 0 means 1 stressor per CPU
+# sigpending-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# sigq stressor options:
+#   start   N  workers  that  rapidly  send  SIGUSR1  signals  using
+#   sigqueue(3) to child processes that wait for the signal via sig‐
+#   waitinfo(2).
+#
+sigq 0			# 0 means 1 stressor per CPU
+# sigq-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# sigsegv stressor options:
+#   start  N  workers  that  rapidly  create  and catch segmentation
+#   faults.
+#
+sigsegv 0		# 0 means 1 stressor per CPU
+# sigsegv-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# sigsuspend stressor options:
+#   start N workers that each spawn off 4 child processes that  wait
+#   for  a  SIGUSR1  signal from the parent using sigsuspend(2). The
+#   parent sends SIGUSR1 signals to each child in rapid  succession.
+#   Each sigsuspend wakeup is counted as one bogo operation.
+#
+sigsuspend 0		# 0 means 1 stressor per CPU
+# sigsuspend-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# sleep stressor options:
+#   start  N  workers that spawn off multiple threads that each per‐
+#   form multiple sleeps of ranges 1us to 0.1s.  This creates multi‐
+#   ple context switches and timer interrupts.
+#
+sleep 0			# 0 means 1 stressor per CPU
+# sleep-ops 1000000	# stop after 1000000 bogo ops
+# sleep-max 1024	# start 1024 threads per sleep stressor
+
+#
+# timer stressor options:
+#   stop  timer  stress  workers  after  N  bogo timer events (Linux
+#   only).
+#
+timer 0			# 0 means 1 stressor per CPU
+# timer-ops 1000000	# stop after 1000000 bogo ops
+# timer-freq 8000	# 8000 Hz timer frequency
+# timer-rand		# enable some timer jitter
+
+#
+# timerfd stressor options:
+#   start N workers creating timerfd events at a default rate  of  1
+#   MHz  (Linux  only);  this  can  create a many thousands of timer
+#   clock events. Timer events are waited  for  on  the  timer  file
+#   descriptor  using  select(2) and then read and counted as a bogo
+#   timerfd op.
+#
+timerfd 0		# 0 means 1 stressor per CPU
+# timerfd-ops 1000000	# stop after 1000000 bogo ops
+# timerfd-freq 8000	# 8000 Hz timefd frequency
+# timerfd-rand		# enable some timer jitter
