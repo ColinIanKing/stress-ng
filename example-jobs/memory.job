@@ -49,12 +49,12 @@ metrics-brief
 verbose
 
 #
-# run each of the tests for 10 seconds
+# run each of the tests for 60 seconds
 #  stop stress test after N seconds. One can also specify the units
 #  of time in seconds, minutes, hours, days or years with the  suf‐
 #  fix s, m, h, d or y.
 #
-timeout 5s
+timeout 60s
 
 #
 # per stressor options start here
