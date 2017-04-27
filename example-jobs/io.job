@@ -1,0 +1,136 @@
+#
+# io class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# aio stressor options:
+#   start  N  workers  that  issue  multiple  small asynchronous I/O
+#   writes and reads on a relatively small temporary file using  the
+#   POSIX  aio  interface.  This will just hit the file system cache
+#   and soak up a lot of user and kernel time in  issuing  and  han‐
+#   dling I/O requests.  By default, each worker process will handle
+#   16 concurrent I/O requests.
+#
+aio 0			# 0 means 1 stressor per CPU
+# aio-ops 1000000	# stop after 1000000 bogo ops
+# aio-requests 16	# I/O requests per aio operation
+
+#
+# aiol stressor options:
+#   start N workers that issue multiple 4K random  asynchronous  I/O
+#   writes  using  the  Linux  aio system calls io_setup(2), io_sub‐
+#   mit(2), io_getevents(2) and  io_destroy(2).   By  default,  each
+#   worker process will handle 16 concurrent I/O requests.
+#
+aiol 0			# 0 means 1 stressor per CPU
+# aiol-ops 1000000	# stop after 1000000 bogo ops
+# aiol-requests 16	# I/O requests per aio operation
+
+#
+# hdd stressor options:
+#   start N workers continually writing, reading and removing tempo‐
+#   rary files. The default mode is to stress test sequential writes
+#   and  reads.   With  the  --ggressive  option enabled without any
+#   --hdd-opts options the hdd stressor will work  through  all  the
+#   --hdd-opt options one by one to cover a range of I/O options.
+#
+hdd 0			# 0 means 1 stressor per CPU
+# hdd-ops 1000000	# stop after 1000000 bogo ops
+# hdd-bytes 1G		# use a 1GB file
+# hdd-opts direct,dsync,fadv-normal,fadv-rnd,fsync,noatime,rd-rnd,wr-rnd,syncfs,utims
+			# various hdd options
+# hdd-write-size 4K	# write size
+
+#
+# readahead stressor options:
+#   start  N  workers  that  randomly  seeks  and  performs 512 byte
+#   read/write I/O operations on a file with readahead. The  default
+#   file  size  is  1  GB.  Readaheads and reads are batched into 16
+#   readaheads and then 16 reads.
+#
+readahead 0		# 0 means 1 stressor per CPU
+# readahead-ops 1000000	# stop after 1000000 bogo ops
+# readahead-bytes 1M	# readahead size
+
+#
+# seek stressor options:
+#   start  N  workers  that  randomly  seeks  and  performs 512 byte
+#   read/write I/O operations on a file. The default file size is 16
+#   GB.
+#
+seek 0			# 0 means 1 stressor per CPU
+# seek-ops 1000000	# stop after 1000000 bogo ops
+# seek-punch		# punch randomly located 8K holes into the file
+# seek-size 16GB	# file size
+
+#
+# sync-file stressor options:
+#   start N workers that perform a range of data syncs across a file
+#   using sync_file_range(2).  Three mixes of syncs  are  performed,
+#   from  start to the end of the file,  from end of the file to the
+#   start, and a random mix. A random selection of valid sync  types
+#   are     used,    covering    the    SYNC_FILE_RANGE_WAIT_BEFORE,
+#   SYNC_FILE_RANGE_WRITE and SYNC_FILE_RANGE_WAIT_AFTER flag bits.
+#
+sync-file 0		# 0 means 1 stressor per CPU
+# sync-file-ops 1000000	# stop after 1000000 bogo ops
+# sync-file-bytes 10%	# use 50% of the available file system
+
