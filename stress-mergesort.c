@@ -80,7 +80,7 @@ static int stress_mergesort_cmp_1(const void *p1, const void *p2)
 }
 
 /*
- *  stress_mergesort_cmp_1()
+ *  stress_mergesort_cmp_2()
  *	mergesort comparison - reverse sort on int32 values
  */
 static int stress_mergesort_cmp_2(const void *p1, const void *p2)
@@ -89,16 +89,16 @@ static int stress_mergesort_cmp_2(const void *p1, const void *p2)
 }
 
 /*
- *  stress_mergesort_cmp_1()
- *	mergesort comparison - sort on int8 values
+ *  stress_mergesort_cmp_3()
+ *	mergesort comparison - random sort(!)
  */
 static int stress_mergesort_cmp_3(const void *p1, const void *p2)
 {
-	const int8_t *i1 = (const int8_t *)p1;
-	const int8_t *i2 = (const int8_t *)p2;
+	(void)p1;
+	(void)p2;
+	int r = ((int)mwc8() % 3) - 1;
 
-	/* Force re-ordering on 8 bit value */
-	return *i1 - *i2;
+	return r;
 }
 
 /*
@@ -181,8 +181,8 @@ int stress_mergesort(const args_t *args)
 		}
 		if (!g_keep_stressing_flag)
 			break;
-		/* And re-order by byte compare */
-		if (mergesort(data, n * 4, sizeof(uint8_t), stress_mergesort_cmp_3) < 0) {
+		/* And re-order by random compare to remix the data */
+		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_3) < 0) {
 			pr_fail("%s: mergesort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
