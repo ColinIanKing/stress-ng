@@ -1,0 +1,179 @@
+#
+# pipe class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 10s
+
+#
+# per stressor options start here
+#
+
+#
+# fifo stressor options:
+#   start  N  workers  that exercise a named pipe by transmitting 64
+#   bit integers.
+#
+fifo 0			# 0 means 1 stressor per CPU
+# fifo-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# dccp stressor options:
+#   start  N  workers  that send and receive data using the Datagram
+#   Congestion Control Protocol (DCCP) (RFC4340).  This  involves  a
+#   pair  of  client/server processes performing rapid connect, send
+#   and receives and disconnects on the local host.
+#
+dccp 0			# 0 means 1 stressor per CPU
+# dccp-ops 1000000	# stop after 1000000 bogo ops
+# dccp-domain ipv6	# domains, ipv4 or ipv6	
+# dccp-port 12000	# port to use
+# dccp-opts send	# use send, sendmsg or sendmmsg to send data
+
+#
+# epoll stressor options:
+#   start  N  workers  that  perform  various  related socket stress
+#   activity using epoll_wait(2) to monitor and handle  new  connec‐
+#   tions.  This  involves  client/server processes performing rapid
+#   connect, send/receives and disconnects on the local host.  Using
+#   epoll  allows  a  large  number of connections to be efficiently
+#   handled, however, this can lead to the connection table  filling
+#   up  and  blocking further socket connections, hence impacting on
+#   the epoll bogo op stats.  For ipv4 and  ipv6  domains,  multiple
+#   servers are spawned on multiple ports. The epoll stressor is for
+#   Linux only.
+#
+epoll 0			# 0 means 1 stressor per CPU
+# epoll-ops 1000000	# stop after 1000000 bogo ops
+# epoll-domain ipv6	# domains, ipv4, ipv6 or unix
+# epoll-port 11000	# port to use
+
+#
+# icmp-flood stressor options:
+#   start N workers that flood localhost with  randonly  sized  ICMP
+#   ping packets.  This option can only be run as root.
+#
+icmp-flood 0		# 0 means 1 stressor per CPU
+# icmp-flood-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# sctp stressor options:
+#   start N workers that perform network sctp stress activity  using
+#   the  Stream Control Transmission Protocol (SCTP).  This involves
+#   client/server processes performing rapid connect,  send/receives
+#   and disconnects on the local host.
+#
+sctp 0			# 0 means 1 stressor per CPU
+# sctp-ops 1000000	# stop after 1000000 bogo ops
+# sctp-domain ipv6	# domains, ipv4 or ipv6
+# sctp-port 14000	# port to use
+
+#
+# sock stressor options:
+#   start N workers that perform  various  socket  stress  activity.
+#   This involves a pair of client/server processes performing rapid
+#   connect, send and receives and disconnects on the local host.
+#
+sock 0			# 0 means 1 stressor per CPU
+# sock-ops 1000000	# stop after 1000000 bogo ops
+# sock-domain ipv6	# domains, ipv4, ipv6 or unix
+# sock-nodelay		# disable TCP Nangle algorithm
+# sock-opts send	# use send, sendmsg or sendmmsg to send data
+# sock-port 15000	# port to use
+# sock-type stream	# use stream or seqpacket
+
+#
+# sockfd stressor options:
+#   start N workers that pass file descriptors over  a  UNIX  domain
+#   socket  using  the  CMSG(3)  ancillary  data mechanism. For each
+#   worker, pair of client/server processes are created, the  server
+#   opens  as  many  file  descriptors  on /dev/null as possible and
+#   passing these over the socket to a client that reads these  from
+#   the CMSG data and immediately closes the files.
+#
+sockfd 0		# 0 means 1 stressor per CPU
+# sockfd-ops 1000000	# stop after 1000000 bogo ops
+# sockfd-port 16000	# port to use
+
+#
+# sockpair stressor options:
+#   start N workers that perform socket pair I/O  read/writes.  This
+#   involves  a  pair of client/server processes performing randomly
+#   sized socket I/O operations.
+#
+sockpair 0		# 0 means 1 stressor per CPU
+# sockpair-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# udp stressor options:
+#   start N workers that transmit data using UDP.  This  involves  a
+#   pair  of  client/server processes performing rapid connect, send
+#   and receives and disconnects on the local host.
+#
+udp 0			# 0 means 1 stressor per CPU
+# udp-ops 1000000	# stop after 1000000 bogo ops
+# udp-domain ipv6	# domains, ipv4, ipv6 or unix
+# udp-lite		# use the UDP-Lite (RFC3828) protocol
+# udp-port 17000	# port to use
+
+#
+# udp-flood stressor options:
+#   start  N workers that attempt to flood the host with UDP packets
+#   to random ports. The IP address of the packets are currently not
+#   spoofed.   This  is  only  available  on  systems  that  support
+#   AF_PACKET.
+#
+udp-flood 0		# 0 means 1 stressor per CPU
+# udp-flood-ops 1000000 # stop after 1000000 bogo ops
+# udp-domain ipv6	# domains, ipv4 or ipv6
