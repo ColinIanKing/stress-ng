@@ -1,0 +1,271 @@
+#
+# cpu-cache class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# bsearch stressor options:
+#   start  N  workers  that  binary  search a sorted array of 32 bit
+#   integers using bsearch(3). By default, there are 65536  elements
+#   in the array.  This is a useful method to exercise random access
+#   of memory and processor cache.
+#
+bsearch 0		# 0 means 1 stressor per CPU
+# bsearch-ops 1000000	# stop after 1000000 bogo ops
+# bsearch-size 65536	# number of elements to bsearch on
+
+#
+# cache stressor options:
+#   start  N workers that perform random wide spread memory read and
+#   writes to thrash the CPU cache.  The code does not intelligently
+#   determine the CPU cache configuration and so it may be sub-opti‐
+#   mal in producing hit-miss read/write activity for  some  proces‐
+#   sors.
+#
+cache 0			# 0 means 1 stressor per CPU
+# cache-ops 1000000	# stop after 1000000 bogo ops
+# cache-fence		# force  write  serialization on each store
+# cache-flush		# force flush cache on each store
+# cache-level 1		# specify level of cache to exercise
+# cache-no-affinity	# do not change processor affinity
+# cache-ways 8		# specify the number of cache ways to exercise
+
+#
+# heapsort stressor options:
+#   start  N  workers  that sort 32 bit integers using the BSD heap‐
+#   sort.
+#
+heapsort 0		# 0 means 1 stressor per CPU
+# heapsort-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# hsearch stressor options:
+#   start  N  workers  that  search  a  80%  full  hash  table using
+#   hsearch(3). By default, there are 8192  elements  inserted  into
+#   the  hash  table.  This is a useful method to exercise access of
+#   memory and processor cache.
+#
+hsearch 0		# 0 means 1 stressor per CPU
+# hsearch-ops 1000000	# stop after 1000000 bogo ops
+# hsearch-size 8192	# number of hash entries to search on
+
+#
+# icache stressor options:
+#   start  N  workers  that  stress the instruction cache by forcing
+#   instruction cache reloads.  This is  achieved  by  modifying  an
+#   instruction cache line,  causing the processor to reload it when
+#   we call a function in inside it.  Currently  only  verified  and
+#   enabled for Intel x86 CPUs.
+#
+icache 0		# 0 means 1 stressor per CPU
+# icache-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# lockbus stressor options:
+#   start N workers that rapidly lock and increment 64 bytes of ran‐
+#   domly  chosen  memory  from a 16MB mmap'd region (Intel x86 CPUs
+#   only).  This will cause cacheline misses and stalling of CPUs
+#
+lockbus 0		# 0 means 1 stressor per CPU
+# lockbus-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# lsearch stressor options:
+#   start N workers that linear search a unsorted array  of  32  bit
+#   integers  using  lsearch(3). By default, there are 8192 elements
+#   in the array.  This is a useful method  to  exercise  sequential
+#   access of memory and processor cache.
+#
+lsearch 0		# 0 means 1 stressor per CPU
+# lsearch-ops 1000000	# stop after 1000000 bogo ops
+# lsearch-size 8192	# number of elements to lsearch on
+
+#
+# malloc stressor options:
+#   start N workers continuously calling malloc(3), calloc(3), real‐
+#   loc(3)  and  free(3). By default, up to 65536 allocations can be
+#   active at any point, but this can be  altered  with  the  --mal‐
+#   loc-max option.  Allocation, reallocation and freeing are chosen
+#   at random; 50% of the time memory  is  allocation  (via  malloc,
+#   calloc  or  realloc) and 50% of the time allocations are free'd.
+#   Allocation sizes are also random, with  the  maximum  allocation
+#   size  controlled  by the --malloc-bytes option, the default size
+#   being 64K.  The worker is re-started if it is killed by the  out
+#   of mememory (OOM) killer.
+#
+malloc 0                # 0 means 1 stressor per CPU
+# malloc-bytes 64K      # maximum allocation chunk size
+# malloc-max 65536      # maximum number of allocations of chunks
+# malloc-ops 1000000    # stop after 1000000 bogo ops
+# malloc-thresh 1M      # use mmap when allocation exceeds this size
+
+#
+# matrix stressor options:
+#   start N workers that perform various matrix operations on float‐
+#   ing  point values. By default, this will exercise all the matrix
+#   stress methods one by one.  One can specify  a  specific  matrix
+#   stress method with the --matrix-method option.
+#
+matrix 0		# 0 means 1 stressor per CPU
+# matrix-ops 1000000	# stop after 1000000 bogo ops
+# matrix-method all	# use all matrix stressor methods
+# matrix size 65536	# size of N x N matrix
+
+#
+# membarrier stressor options:
+#   start  N workers that exercise the membarrier system call (Linux
+#   only).
+#
+membarrier 0            # 0 means 1 stressor per CPU
+# membarrier-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# memcpy stressor options:
+#   start  N workers that copy 2MB of data from a shared region to a
+#   buffer using memcpy(3) and then move the data in the buffer with
+#   memmove(3)  with 3 different alignments. This will exercise pro‐
+#   cessor cache and system memory.
+#
+memcpy 0                # 0 means 1 stressor per CPU
+# memcpy-ops 1000000    # stop after 1000000 bogo ops
+
+#
+# mergesort stressor options:
+#   start  N  workers that sort 32 bit integers using the BSD merge‐
+#   sort.
+#
+mergesort 0		# 0 means 1 stressor per CPU
+# mergesort-ops 1000000 # stop after 1000000 bogo ops
+# mergesort-size 262144 # number of elements to mergesort
+#
+
+#
+# qsort stressor options:
+#   start N workers that sort 32 bit integers using qsort.
+#
+qsort 0			# 0 means 1 stressor per CPU
+# qsort-ops 1000000	# stop after 1000000 bogo ops
+# qsort-size 262144	# number of elements to qsort
+
+#
+# str stressor options:
+#   start N workers that exercise various libc string  functions  on
+#   random strings.
+#
+str 0			# 0 means 1 stressor per CPU
+# str-ops 1000000	# stop after 1000000 bogo ops
+# str-method all	# select all string methods
+
+#
+# stream stressor options:
+#   start N workers exercising a memory bandwidth  stressor  loosely
+#   based  on  the STREAM "Sustainable Memory Bandwidth in High Per‐
+#   formance Computers" benchmarking tool by John D. McCalpin, Ph.D.
+#   This  stressor  allocates  buffers that are at least 4 times the
+#   size  of the  CPU L2 cache and  continually  performs  rounds of
+#   computations on large  arrays of double precision floating point
+#   numbers.
+#
+stream 0		# 0 means 1 stressor per CPU
+# stream-ops 1000000	# stop after 1000000 bogo ops
+# stream-l3-size 4M	# CPU level 3 cache size
+
+#
+# tsearch stressor options:
+#   start N workers that insert, search and delete 32  bit  integers
+#   on  a  binary tree using tsearch(3), tfind(3) and tdelete(3). By
+#   default, there are 65536 randomized integers used in  the  tree.
+#   This  is a useful method to exercise random access of memory and
+#   processor cache.
+#
+tsearch 0		# 0 means 1 stressor per CPU
+# tsearch-ops 1000000	# stop after 1000000 bogo ops
+# tsearch-size 65536	# number of elements to tsearch on
+
+#
+# vecmath stressor options:
+#   start N workers that perform various unsigned integer math oper‐
+#   ations on various 128 bit vectors. A mix of vector  math  opera‐
+#   tions  are  performed on the following vectors: 16 × 8 bits, 8 ×
+#   16 bits, 4 × 32 bits, 2 × 64 bits. The metrics produced by  this
+#   mix  depend  on  the  processor architecture and the vector math
+#   optimisations produced by the compiler.
+vecmath 0		# 0 means 1 stressor per CPU
+# vecmath-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# wcs stressor options:
+#   start N workers that exercise various libc wide character string
+#   functions on random strings.
+#
+wcs 0			# 0 means 1 stressor per CPU
+# wcs-ops 1000000	# stop after 1000000 bogo ops
+# wcs-method all	# use all wide string functions
+
+#
+# zlib stressor option:
+#   start N workers compressing and decompressing random data  using
+#   zlib.  Each worker has two processes, one that compresses random
+#   data and pipes it to another process that decompresses the data.
+#   This stressor exercises CPU, cache and memory.
+#
+zlib 0			# 0 means 1 stressor per CPU
+# zlib-ops 1000000	# stop after 1000000 bogo ops
+# zlib-method random	# randomly select data generation methods
