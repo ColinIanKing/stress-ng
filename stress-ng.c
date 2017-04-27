@@ -363,12 +363,12 @@ STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
 
 /* Different stress classes */
 static const class_t classes[] = {
-	{ CLASS_CPU,		"cpu" },
 	{ CLASS_CPU_CACHE,	"cpu-cache" },
+	{ CLASS_CPU,		"cpu" },
 	{ CLASS_DEV,		"device" },
-	{ CLASS_IO,		"io" },
-	{ CLASS_INTERRUPT,	"interrupt" },
 	{ CLASS_FILESYSTEM,	"filesystem" },
+	{ CLASS_INTERRUPT,	"interrupt" },
+	{ CLASS_IO,		"io" },
 	{ CLASS_MEMORY,		"memory" },
 	{ CLASS_NETWORK,	"network" },
 	{ CLASS_OS,		"os" },
