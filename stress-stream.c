@@ -245,7 +245,7 @@ int stress_stream(const args_t *args)
 		mb_rate = mb / (dt);
 		fp_rate = fp / (dt);
 		pr_inf("%s: memory rate: %.2f MB/sec, %.2f Mflop/sec"
-			" (args->instance %" PRIu32 ")\n",
+			" (instance %" PRIu32 ")\n",
 			args->name, mb_rate, fp_rate, args->instance);
 	} else {
 		if (args->instance == 0)
