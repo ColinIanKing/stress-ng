@@ -1,0 +1,73 @@
+#
+# pipe class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# apparmor stressor options:
+#   start  N  workers  that  exercise  various parts of the AppArmor
+#   interface. Currently one needs root permission to run this  par‐
+#   ticular  test. This test is only available on Linux systems with
+#   AppArmor support.
+
+#
+apparmor 0		# 0 means 1 stressor per CPU
+# apparmor-ops 1000000	# stop after 1000000 bogo ops
+
