@@ -1491,7 +1491,7 @@ static uint32_t get_class(char *const class_str)
 					(void)printf("class '%s' stressors:", token);
 					for (j = 0; stressors[j].name; j++) {
 						if (stressors[j].class & cl)
-							(void)printf(" %s", stressors[j].name);
+							(void)printf(" %s", munge_underscore(stressors[j].name));
 					}
 					(void)printf("\n");
 					return 0;
