@@ -1,0 +1,426 @@
+#
+# filesystem class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+# bind-mount stressor options:
+#   start  N workers that repeatedly bind mount / to / inside a user
+#   namespace. This can consume resources rapidly,  forcing  out  of
+#   memory  situations.  Do not use this stressor unless you want to
+#   risk hanging your machine.
+#
+bind-mount 0		# 0 means 1 stressor per CPU
+# bind-mount-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# chdir stressor options:
+#   start N workers that change directory between directories  using
+#   chdir(2)
+#
+chdir 0			# 0 means 1 stressor per CPU
+# chdir-ops 1000000	# stop after 1000000 bogo ops
+# chdir-dirs 8192	# create 8192 directories
+
+#
+# chmod stressor options:
+#   start N workers that change the file mode bits via chmod(2)  and
+#   fchmod(2) on the same file. The greater the value for N then the
+#   more contention on the single  file.   The  stressor  will  work
+#   through all the combination of mode bits.
+#
+chmod 0			# 0 means 1 stressor per CPU
+# chmod-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# chown stressor options:
+#   start  N  workers  that  exercise chown(2) on the same file. The
+#   greater the value for N then the more contention on  the  single
+#   file.
+#
+chown 0			# 0 means 1 stressor per CPU
+# chown-ops 1000000	# stop after 1000000 bogo ops
+
+# copy-file stressor options:
+#   start   N   stressors   that   copy   a  file  using  the  Linux
+#   copy_file_range(2) system call. 2MB chunks of data  are  copyied
+#   from  random  locations  from  one file to random locations to a
+#   destination file.  By default, the files are  256  MB  in  size.
+#   Data  is  sync'd to the filesystem after each copy_file_range(2)
+#   call.
+#
+copy-file 0		# 0 means 1 stressor per CPU
+# copy-file-ops 1000000 # stop after 1000000 bogo ops
+# copy-file-bytes 256M	# size of the copy file (256MB)
+
+#
+# dentry stressor options:
+#   start  N workers that create and remove directory entries.  This
+#   should create file system  meta  data  activity.  The  directory
+#   entry names are suffixed by a gray-code encoded number to try to
+#   mix up the hashing of the namespace.
+#
+dentry 0		# 0 means 1 stressor per CPU
+# dentry-ops 1000000	# stop after 1000000 bogo ops
+# dentry-order forward	# forward order dentry unlinking,
+			# can be forward, reverse, stride or random
+# dentries 2048		# create 2048 dentries per stress iteration
+
+
+#
+# dir stressor options:
+#   start N workers that create and remove directories  using  mkdir
+#   and rmdir.
+#
+dir 0			# 0 means 1 stressor per CPU
+# dir-ops 1000000	# stop after 1000000 bogo ops
+# dir-dirs 8192		# exercise 8192 directories per stressor
+
+#
+# dirdeep stressor options:
+#   start N workers that create multiple levels of directories to  a
+#   maximum depth as limited by PATH_MAX or ENAMETOOLONG (which ever
+#   occurs first)
+#
+dirdeep 0		# 0 means 1 stressor per CPU
+# dirdeep-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# dnotify stressor options:
+#   start N workers performing file system activities such  as  mak‐
+#   ing/deleting  files/directories,  renaming files, etc. to stress
+#   exercise the various dnotify events (Linux only).
+#
+dnotify 0		# 0 means 1 stressor per CPU
+# dnotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# dup stressor options:
+#   start N workers that perform dup(2) and then close(2) operations
+#   on  /dev/zero.  The maximum opens at one time is system defined,
+#   so the test will run up to this  maximum,  or  65536  open  file
+#   descriptors, which ever comes first.
+#
+dup 0		# 0 means 1 stressor per CPU
+# dup-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# eventfd stressor options:
+#   start  N parent and child worker processes that read and write 8
+#   byte event messages  between  them  via  the  eventfd  mechanism
+#   (Linux only).
+#
+eventfd 0		# 0 means 1 stressor per CPU
+# eventfd-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fallocate stressor options:
+#   start N  workers  continually  fallocating  (preallocating  file
+#   space) and ftuncating (file truncating) temporary files.  If the
+#   file is larger than the free space, fallocate  will  produce  an
+#   ENOSPC error which is ignored by this stressor.
+#
+fallocate 0		# 0 means 1 stressor per CPU
+# fallocate-ops 1000000	# stop after 1000000 bogo ops
+# fallocate-bytes 1G	# allocated file size, 1GB
+#
+
+#
+# fanotify stressor options:
+#   start N workers performing file system activities such as creat‐
+#   ing, opening, writing, reading and unlinking files  to  exercise
+#   the  fanotify  event  monitoring  interface  (Linux only).  Each
+#   stressor runs a child process to generate file events and a par‐
+#   ent process to read file events using fanotify.
+#
+fanotify 0		# 0 means 1 stressor per CPU
+# fanotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fcntl stressor options:
+#   start  N  workers  that perform fcntl(2) calls with various com‐
+#   mands.  The exercised  commands  (if  available)  are:  F_DUPFD,
+#   F_DUPFD_CLOEXEC,  F_GETFD,  F_SETFD, F_GETFL, F_SETFL, F_GETOWN,
+#   F_SETOWN, F_GETOWN_EX, F_SETOWN_EX, F_GETSIG, F_SETSIG, F_GETLK,
+#   F_SETLK, F_SETLKW, F_OFD_GETLK, F_OFD_SETLK and F_OFD_SETLKW.
+#
+fcntl 0		# 0 means 1 stressor per CPU
+# fcntl-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fiemap stressor options:
+#   start  N  workers  that  each  create  a file with many randomly
+#   changing extents and has  4  child  processes  per  worker  that
+#   gather the extent information using the FS_IOC_FIEMAP ioctl(2).
+#
+fiemap 0		# 0 means 1 stressor per CPU
+# fiemap-ops 1000000	# stop after 1000000 bogo ops
+# fiemap-bytes 1G	# allocated file size, 1GB
+
+#
+# filename stressor options:
+#   start N workers that exercise file creation using various length
+#   filenames containing a range  of  allower  filename  characters.
+#   This  will  try  to see if it can exceed the file system allowed
+#   filename length  was  well  as  test  various  filename  lengths
+#   between 1 and the maximum allowed by the file system.
+#
+filename 0		# 0 means 1 stressor per CPU
+# filename-ops 1000000	# stop after 1000000 bogo ops
+# filename-opts probe	# probe for valid filename characters,
+			# can also use posix and ext
+#
+# flock stressor options:
+#   start N workers locking on a single file.
+#
+flock 0			# 0 means 1 stressor per CPU
+# flock-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fstat stressor options:
+#   start  N  workers  fstat'ing  files  in  a directory (default is
+#   /dev).
+#
+fstat 0			# 0 means 1 stressor per CPU
+# fstat-ops 1000000	# stop after 1000000 bogo ops
+# fstat-dir /path	# fstat on the directory named '/path'
+
+#
+# getdent stressor options:
+#   start  N workers that recursively read directories /proc, /dev/,
+#   /tmp, /sys and /run using getdents and getdents64 (Linux only)
+#
+getdent 0		# 0 means 1 stressor per CPU
+# getdent-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# handle stressor options:
+#   start N  workers  that  exercise  the  name_to_handle_at(2)  and
+#   open_by_handle_at(2) system calls. (Linux only).
+#
+handle 0		# 0 means 1 stressor per CPU
+# handle-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# inotify stressor options:
+#   start N workers performing file system activities such  as  mak‐
+#   ing/deleting  files/directories,  moving  files,  etc. to stress
+#   exercise the various inotify events (Linux only).
+#
+inotify 0		# 0 means 1 stressor per CPU
+# inotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# io stressor options:
+#   start N workers continuously calling sync(2)  to  commit  buffer
+#   cache  to  disk.  This can be used in conjunction with the --hdd
+#   options.
+#
+io 0			# 0 means 1 stressor per CPU
+# io-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# iomix stressor options:
+#   start N workers that perform a mix  of  sequential,  random  and
+#   memory  mapped  read/write operations as well as forced sync'ing
+#   and (if run as root) cache dropping.  Multiple  child  processes
+#   are spawned to all share a single file and perform different I/O
+#   operations on the same file.
+#
+iomix 0			# 0 means 1 stressor per CPU
+# iomix-ops 1000000	# stop after 1000000 bogo ops
+# iomix-bytes 1G	# iomix file size (1GB)
+
+#
+# ioprio stressor options:
+#   start   N   workers   that   exercise   the   ioprio_get(2)  and
+#   ioprio_set(2) system calls (Linux only).
+#
+ioprio 0		# 0 means 1 stressor per CPU
+# ioprio-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# lease stressor options:
+#   start  N  workers locking, unlocking and breaking leases via the
+#   fcntl(2) F_SETLEASE operation. The parent processes  continually
+#   lock and unlock a lease on a file while a user selectable number
+#   of child processes open the file with  a  non-blocking  open  to
+#   generate SIGIO lease breaking notifications to the parent.  This
+#   stressor is only available if F_SETLEASE,  F_WRLCK  and  F_UNLCK
+#   support is provided by fcntl(2).
+#
+lease 0			# 0 means 1 stressor per CPU
+# lease-ops 1000000	# stop after 1000000 bogo ops
+# lease-breakers 4	# start 4 lease breaker child processors
+			# per stressor
+#
+# link stressor options:
+#   start N workers creating and removing hardlinks.
+#
+link 0			# 0 means 1 stressor per CPU
+# link-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# locka stressor options:
+#   start N workers that randomly lock and unlock regions of a  file
+#   using  the  POSIX  advisory  locking  mechanism  (see  fcntl(2),
+#   F_SETLK, F_GETLK). Each  worker  creates  a  1024  KB  file  and
+#   attempts to hold a maximum of 1024 concurrent locks with a child
+#   process that also tries to hold 1024 concurrent locks. Old locks
+#   are unlocked in a first-in, first-out basis.
+#
+locka 0			# 0 means 1 stressor per CPU
+# locka-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# lockf stressor options:
+#   start  N workers that randomly lock and unlock regions of a file
+#   using the POSIX lockf(3) locking mechanism. Each worker  creates
+#   a  64  KB file and attempts to hold a maximum of 1024 concurrent
+#   locks with a child process that also tries to hold 1024  concur‐
+#   rent  locks.  Old  locks  are  unlocked in a first-in, first-out
+#   basis.
+#
+lockf 0			# 0 means 1 stressor per CPU
+# lockf-ops 1000000	# stop after 1000000 bogo ops
+# lockf-nonblock	# use non-blocking F_TLOCK and retry unlocks
+
+#
+# lockofd stressor options:
+#   start N workers that randomly lock and unlock regions of a  file
+#   using  the  Linux  open  file  description  locks (see fcntl(2),
+#   F_OFD_SETLK, F_OFD_GETLK).  Each worker creates a 1024  KB  file
+#   and  attempts  to hold a maximum of 1024 concurrent locks with a
+#   child process that also tries to hold 1024 concurrent locks. Old
+#   locks are unlocked in a first-in, first-out basis.
+#
+lockofd 0		# 0 means 1 stressor per CPU
+# lockofd-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mknod stressor options:
+#   start N workers that create and remove fifos,  empty  files  and
+#   named sockets using mknod and unlink.
+#
+mknod 0			# 0 means 1 stressor per CPU
+# mknod-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# open stressor options:
+#   start N workers that perform open(2) and  then  close(2)  opera‐
+#   tions  on  /dev/zero.  The  maximum  opens at one time is system
+#   defined, so the test will run up to this maximum, or 65536  open
+#   file descriptors, which ever comes first.
+#
+open 0			# 0 means 1 stressor per CPU
+# open-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# procfs stressor options:
+#   start  N workers that read files from /proc and recursively read
+#   files from /proc/self (Linux only).
+#
+procfs 0		# 0 means 1 stressor per CPU
+# procfs-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# rename stressor options:
+#   start N workers that each create  a  file  and  then  repeatedly
+#   rename it.
+#
+rename 0		# 0 means 1 stressor per CPU
+# rename-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# symlink stressor options:
+#   start N workers creating and removing symbolic links.
+#
+symlink 0		# 0 means 1 stressor per CPU
+# symlink-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# sync-file stressor options:
+#   start N workers that perform a range of data syncs across a file
+#   using sync_file_range(2).  Three mixes of syncs  are  performed,
+#   from  start to the end of the file,  from end of the file to the
+#   start, and a random mix. A random selection of valid sync  types
+#   are     used,    covering    the    SYNC_FILE_RANGE_WAIT_BEFORE,
+#   SYNC_FILE_RANGE_WRITE and SYNC_FILE_RANGE_WAIT_AFTER flag bits
+#
+sync-file 0		# 0 means 1 stressor per CPU
+# sync-file-ops 1000000	# stop after 1000000 bogo ops
+# sync-file-bytes 1G	# allocated file size, 1GB
+
+#
+# utime stressor options:
+#   start  N  workers  updating  file timestamps. This is mainly CPU
+#   bound when the default is used as the  system  flushes  metadata
+#   changes only periodically.
+#
+utime 0			# 0 means 1 stressor per CPU
+# utime-ops 1000000	# stop after 1000000 bogo ops
+# utime-fsync		# force flush metadata to disk
+
+#
+# xattr stressor options:
+#   start  N  workers  that  create,  update  and  delete batches of
+#   extended attributes on a file.
+#
+xattr 0			# 0 means 1 stressor per CPU
+# xattr-ops 1000000	# stop after 1000000 bogo ops
