@@ -683,6 +683,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MIN_SEQUENTIAL		(0)
 #define MAX_SEQUENTIAL		(1000000)
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
+#define DEFAULT_PARALLEL	(0)	/* Disabled */
 
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)
@@ -906,7 +907,6 @@ typedef struct {
 	char *opt_logfile;		/* log filename */
 	char *opt_exclude;		/* List of stressors to exclude */
 	int64_t opt_backoff;		/* child delay */
-	int32_t opt_all;		/* Number of concurrent workers */
 	int32_t opt_sched;		/* sched policy */
 	int32_t opt_sched_priority;	/* sched priority */
 	int32_t opt_ionice_class;	/* ionice class */
@@ -1985,7 +1985,6 @@ typedef struct proc_info {
 	int32_t started_procs;		/* count of started processes */
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
-	bool	exclude;		/* true if excluded */
 } proc_info_t;
 
 /* Scale lookup mapping, suffix -> scale by */
@@ -2030,7 +2029,8 @@ extern const char *g_app_name;		/* Name of application */
 extern shared_t *g_shared;		/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
-extern int32_t g_opt_sequential;	/* Number of sequential iterations */
+extern int32_t g_opt_sequential;	/* Number of sequential stressors */
+extern int32_t g_opt_parallel;		/* Number of parallel stressors */
 extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
 extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
