@@ -1774,6 +1774,19 @@ the maximum allowed mappings or a maximum of 262144 mappings are made.
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations.
 .TP
+.B \-\-mq N
+start N sender and receiver processes that continually send and receive
+messages using POSIX message queues. (Linux only).
+.TP
+.B \-\-mq\-ops N
+stop after N bogo POSIX message send operations completed.
+.TP
+.B \-\-mq\-size N
+specify size of POSIX message queue. The default size is 10 messages and most
+Linux systems this is the maximum allowed size for normal users. If the given
+size is greater than the allowed message queue size then a warning is issued
+and the maximum allowed size is used instead.
+.TP
 .B \-\-mremap N
 start N workers continuously calling mmap(2), mremap(2) and munmap(2).  The
 initial anonymous mapping is a large chunk (size specified by
@@ -1809,19 +1822,6 @@ stop after N msync bogo operations completed.
 allocate N bytes for the memory mapped file, the default is 256MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
-.TP
-.B \-\-mq N
-start N sender and receiver processes that continually send and receive
-messages using POSIX message queues. (Linux only).
-.TP
-.B \-\-mq\-ops N
-stop after N bogo POSIX message send operations completed.
-.TP
-.B \-\-mq\-size N
-specify size of POSIX message queue. The default size is 10 messages and most
-Linux systems this is the maximum allowed size for normal users. If the given
-size is greater than the allowed message queue size then a warning is issued
-and the maximum allowed size is used instead.
 .TP
 .B \-\-netlink\-proc N
 start N workers that spawn child processes and monitor fork/exec/exit
