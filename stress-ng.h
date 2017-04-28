@@ -1976,7 +1976,10 @@ typedef struct {
 } stress_t;
 
 /* Per process information */
-typedef struct {
+typedef struct proc_info {
+	struct proc_info *next;		/* next proc info struct in list */
+	struct proc_info *prev;		/* prev proc info struct in list */
+	const stress_t *stressor;	/* stressor */
 	pid_t	*pids;			/* process id */
 	proc_stats_t **stats;		/* process proc stats info */
 	int32_t started_procs;		/* count of started processes */
@@ -2140,8 +2143,7 @@ extern int perf_get_counter_by_id(const stress_perf_t *sp, int id, uint64_t *cou
 extern bool perf_stat_succeeded(const stress_perf_t *sp);
 extern const char *perf_get_label_by_index(const int i);
 extern const char *perf_stat_scale(const uint64_t counter, const double duration);
-extern void perf_stat_dump(FILE *yaml, const stress_t stressors[], const proc_info_t procs[STRESS_MAX],
-	const int32_t max_procs, const double duration);
+extern void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration);
 extern void perf_init(void);
 #endif
 
@@ -2278,8 +2280,7 @@ extern WARN_UNUSED int mount_get(char *mnts[], const int max);
 extern int tz_init(tz_info_t **tz_info_list);
 extern void tz_free(tz_info_t **tz_info_list);
 extern int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
-extern void tz_dump(FILE *fp, const stress_t stressors[],
-	const proc_info_t procs[STRESS_MAX], const int32_t max_procs);
+extern void tz_dump(FILE *yaml, proc_info_t *procs_head);
 #endif
 
 /* Network helpers */

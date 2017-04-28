@@ -143,18 +143,14 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
  *  tz_dump()
  *	dump thermal zone temperatures
  */
-void tz_dump(
-	FILE *yaml,
-	const stress_t stressors[],
-	const proc_info_t procs[STRESS_MAX],
-	const int32_t max_procs)
+void tz_dump(FILE *yaml, proc_info_t *procs_head)
 {
-	uint32_t i;
 	bool no_tz_stats = true;
+	proc_info_t *pi;
 
 	pr_yaml(yaml, "thermal-zones:\n");
 
-	for (i = 0; i < STRESS_MAX; i++) {
+	for (pi = procs_head; pi; pi = pi->next) {
 		tz_info_t *tz_info;
 		int32_t  j;
 		uint64_t total = 0;
@@ -162,11 +158,10 @@ void tz_dump(
 		bool dumped_heading = false;
 
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
-			for (j = 0; j < procs[i].started_procs; j++) {
+			for (j = 0; j < pi->started_procs; j++) {
 				uint64_t temp;
-				int32_t n = (i * max_procs) + j;
 
-				temp = g_shared->stats[n].tz.tz_stat[tz_info->index].temperature;
+				temp = pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp > 250000)
 					temp = 0;
@@ -176,7 +171,7 @@ void tz_dump(
 
 			if (total) {
 				double temp = ((double)total / count) / 1000.0;
-				char *munged = munge_underscore(stressors[i].name);
+				char *munged = munge_underscore(pi->stressor->name);
 
 				if (!dumped_heading) {
 					dumped_heading = true;
