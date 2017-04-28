@@ -36,11 +36,14 @@ static int intcmp(const void *p1, const void *p2)
 int main(void)
 {
 	int data[64];
+	int rc;
 
 	(void)memset(data, 0, sizeof(data));
 
-	heapsort(data, 64, sizeof(int), intcmp);
-	mergesort(data, 64, sizeof(int), intcmp);
+	rc = heapsort(data, 64, sizeof(int), intcmp);
+	(void)rc;
+	rc = mergesort(data, 64, sizeof(int), intcmp);
+	(void)rc;
 
 	return 0;
 }
