@@ -584,7 +584,8 @@ seq_rd_retry:
 			uint64_t baddata = 0;
 
 			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
-				off_t offset = (mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511;
+				off_t offset = (opt_hdd_bytes > opt_hdd_write_size) ?
+					(mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511 : 0;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err("lseek");
