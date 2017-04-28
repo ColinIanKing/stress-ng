@@ -1,0 +1,388 @@
+#
+# cpu class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# aggressive:
+#   enables more file, cache and memory aggressive options. This may
+#   slow tests down, increase latencies and  reduce  the  number  of
+#   bogo  ops as well as changing the balance of user time vs system
+#   time used depending on the type of stressor being used.
+#
+# aggressive
+
+#
+# ignite-cpu:
+#   alter kernel controls to try and maximize the CPU. This requires
+#   root  privilege  to alter various /sys interface controls.  Cur‐
+#   rently this only works for Intel P-State enabled x86 systems  on
+#   Linux.
+#
+# ignite-cpu
+
+#
+# keep-name:
+#   by  default,  stress-ng  will  attempt to change the name of the
+#   stress processes according to their functionality;  this  option
+#   disables  this and keeps the process names to be the name of the
+#   parent process, that is, stress-ng.
+#
+# keep-name
+
+#
+# metrics-brief:
+#   enable metrics and only output metrics that are non-zero.
+#
+metrics-brief
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 60s
+
+#
+# per stressor options start here
+#
+
+#
+# affinity stressor options:
+#   start  N  workers  that  rapidly  change  CPU  affinity (only on
+#   Linux). Rapidly switching CPU affinity can  contribute  to  poor
+#   cache behaviour.
+#
+affinity 0		# 0 means 1 stressor per CPU
+# affinity-ops 1000000	# stop after 1000000 bogo ops
+affinity-rand		# switch affinity randomly
+
+#
+# clone stressor options:
+#   start N workers that create  clones  (via  the  clone(2)  system
+#   call).  This will rapidly try to create a default of 8192 clones
+#   that immediately die and wait in a zombie state until  they  are
+#   reaped.   Once the maximum number of clones is reached (or clone
+#   fails because one has reached the maximum  allowed)  the  oldest
+#   clone  thread  is  reaped  and  a new clone is then created in a
+#   first-in first-out manner, and then repeated.   A  random  clone
+#   flag  is  selected  for  each clone to try to exercise different
+#   clone operarions.  The clone stressor is a Linux only option.
+#
+clone 0			# 0 means 1 stressor per CPU
+# clone-ops 1000000	# stop after 1000000 bogo ops
+# clone-max 8192	# create a total of 8192 clones 
+
+#
+# daemon stressor options:
+#   start  N workers that each create a daemon that dies immediately
+#   after creating another daemon and so on. This effectively  works
+#   through the process table with short lived processes that do not
+#   have a parent and are waited for by init.  This puts pressure on
+#   init  to  do  rapid child reaping.  The daemon processes perform
+#   the usual mix of calls to turn into  typical  UNIX  daemons,  so
+#   this artificially mimics very heavy daemon system stress.
+#
+daemon 0		# 0 means 1 stressor per CPU
+# daemon-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# dnotify stressor options:
+#   start N workers performing file system activities such  as  mak‐
+#   ing/deleting  files/directories,  renaming files, etc. to stress
+#   exercise the various dnotify events (Linux only).
+#
+dnotify 0		# 0 means 1 stressor per CPU
+# dnotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# eventfd stressor options:
+#   start  N parent and child worker processes that read and write 8
+#   byte event messages  between  them  via  the  eventfd  mechanism
+#   (Linux only).
+#
+eventfd 0		# 0 means 1 stressor per CPU
+# eventfd-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# exec stressor options:
+#   start N workers continually forking children that exec stress-ng
+#   and then exit almost immediately.
+#
+exec 0			# 0 means 1 stressor per CPU
+# exec-ops 1000000	# stop after 1000000 bogo ops
+# exec-max 1		# maximum number of fork/execs per stressor
+			# per iteration
+
+#
+# fanotify stressor options:
+#   start N workers performing file system activities such as creat‐
+#   ing, opening, writing, reading and unlinking files  to  exercise
+#   the  fanotify  event  monitoring  interface  (Linux only).  Each
+#   stressor runs a child process to generate file events and a par‐
+#   ent process to read file events using fanotify.
+#
+fanotify 0		# 0 means 1 stressor per CPU
+# fanotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fault stressor options:
+#   start N workers that generates minor and major page faults.
+#
+fault 0			# 0 means 1 stressor per CPU
+# fault-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# fifo stressor options:
+#   start  N  workers  that exercise a named pipe by transmitting 64
+#   bit integers.
+#
+fifo 0			# 0 means 1 stressor per CPU
+# fifo-ops 1000000	# stop after 1000000 bogo ops
+# fifo-readers 8	# create 8 fifo readers per stressor
+
+#
+# fork stressor options:
+#   start  N  workers  continually forking children that immediately
+#   exit.
+#
+fork 0			# 0 means 1 stressor per CPU
+# fork-ops 1000000	# stop after 1000000 bogo ops
+# fork-max 2		# create 2 child processes per iteration
+
+#
+# futex stressor options:
+#   start  N  workers  that  rapidly exercise the futex system call.
+#   Each worker has two processes, a futex waiter and a futex waker.
+#   The waiter waits with a very small timeout to stress the timeout
+#   and rapid polled futex waiting. This is a Linux specific  stress
+#   option.
+#
+futex 0			# 0 means 1 stressor per CPU
+# futex-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# inotify stressor options:
+#   start N workers performing file system activities such  as  mak‐
+#   ing/deleting  files/directories,  moving  files,  etc. to stress
+#   exercise the various inotify events (Linux only).
+#
+inotify 0		# 0 means 1 stressor per CPU
+# inotify-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# kill stressor options:
+#   start N workers sending SIGUSR1 kill signals to a SIG_IGN signal
+#   handler. Most of the process time will end up in kernel space.
+#
+kill 0			# 0 means 1 stressor per CPU
+# kill-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mmapfork stressor options:
+#   start  N  workers that each fork off 32 child processes, each of
+#   which tries to allocate some of the free memory left in the sys‐
+#   tem  (and  trying  to  avoid any swapping).  The child processes
+#   then hint that the allocation will be needed with madvise(2) and
+#   then memset it to zero and hint that it is no longer needed with
+#   madvise before exiting.  This produces significant amounts of VM
+#   activity, a lot of cache misses and with minimal swapping.
+#
+mmapfork 0		# 0 means 1 stressor per CPU
+# mmapfork-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# mq stressor options:
+#   start N sender and receiver processes that continually send  and
+#   receive messages using POSIX message queues. (Linux only)
+#
+mq 0			# 0 means 1 stressor per CPU
+# mq-ops 1000000	# stop after 1000000 bogo ops
+# mq-size 10		# 10 messages in message queue
+
+#
+# msg stressor options:
+#   start  N sender and receiver processes that continually send and
+#   receive messages using System V message IPC.
+#
+msg 0			# 0 means 1 stressor per CPU
+# msg-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# netlink-proc stressor options:
+#   start   N   workers  that  spawn  child  processes  and  monitor
+#   fork/exec/exit process events via the  proc  netlink  connector.
+#   Each  event  received is counted as a bogo op. This stressor can
+#   only be run on Linux and with root privilege.
+#
+netlink-proc 0		# 0 means 1 stressor per CPU
+# netlink-proc-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# nice stressor options:
+#   start N cpu consuming workers that exercise the  available  nice
+#   levels.  Each  iteration  forks  off  a  child process that runs
+#   through the all the nice levels running a busy loop for 0.1 sec‐
+#   onds per level and then exits.
+#
+nice  0			# 0 means 1 stressor per CPU
+# nice-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# poll stressor options:
+#   start  N  workers  that  perform  zero  timeout  polling via the
+#   poll(2), select(2) and sleep(3) calls. This  wastes  system  and
+#   user time doing nothing.
+#
+poll 0			# 0 means 1 stressor per CPU
+# poll-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# pthread stressor options:
+#   start N workers that iteratively creates and terminates multiple
+#   pthreads  (the  default  is  1024  pthreads per worker). In each
+#   iteration, each newly created pthread waits until the worker has
+#   created all the pthreads and then they all terminate together.
+#
+pthread 0		# 0 means 1 stressor per CPU
+# pthread-ops 1000000	# stop after 1000000 bogo ops
+# pthread-max 1024	# create 1024 pthreads per stressor
+
+#
+# schedpolicy stressor options:
+#   start N workers that work set the worker  to  various  available
+#   scheduling policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE,
+#   SCHED_FIFO and SCHED_RR.  For the real time scheduling  policies
+#   a random sched priority is selected between the minimum and max‐
+#   imum scheduling prority settings.
+#
+schedpolicy 0		# 0 means 1 stressor per CPU
+# schedpolicy-ops 1000000 # stop after 1000000 bogo ops
+
+#
+# sem stressor options:
+#   start N workers that perform POSIX semaphore wait and post oper‐
+#   ations. By default, a parent and  4  children  are  started  per
+#   worker  to  provide  some  contention  on  the  semaphore.  This
+#   stresses fast semaphore operations and  produces  rapid  context
+#   switching.
+#
+sem 0			# 0 means 1 stressor per CPU
+# sem-ops 1000000	# stop after 1000000 bogo ops
+# sem-procs 4		# start 4 processes per stressor exercising
+			# the semaphore
+#
+# sem-sysv stressor options:
+#   start N workers that perform System V semaphore  wait  and  post
+#   operations.  By default, a parent and 4 children are started per
+#   worker  to  provide  some  contention  on  the  semaphore.  This
+#   stresses  fast  semaphore  operations and produces rapid context
+#   switching.
+#
+sem-sysv  0		# 0 means 1 stressor per CPU
+# sem-sysv-ops 1000000	# stop after 1000000 bogo ops
+# sem-sysv-procs 4	# start 4 processes per stressor exercising
+
+#
+# sleep stressor options:
+#   start  N  workers that spawn off multiple threads that each per‐
+#   form multiple sleeps of ranges 1us to 0.1s.  This creates multi‐
+#   ple context switches and timer interrupts.
+#
+sleep 0			# 0 means 1 stressor per CPU
+# sleep-ops 1000000	# stop after 1000000 bogo ops
+# sleep-max 1024	# start 1034 threads per stressor
+
+#
+# spawn stressor options:
+#   start N workers continually spawn children using  posix_spawn(3)
+#   that  exec stress-ng and then exit almost immediately. Currently
+#   Linux only.
+#
+spawn 0			# 0 means 1 stressor per CPU
+# spawn-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# switch stressor options:
+#   start N workers that send messages via pipe to a child to  force
+#   context switching.
+#
+switch 0		# 0 means 1 stressor per CPU
+# switch-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# tee stressor options:
+#   move  data  from  a  writer  process to a reader process through
+#   pipes and  to  /dev/null  without  any  copying  between  kernel
+#   address  space and user address space using tee(2). This is only
+#   available for Linux.
+#
+tee 0			# 0 means 1 stressor per CPU
+# tee-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# vfork stressor options:
+#   start N workers continually vforking children  that  immediately
+#   exit.
+vfork 0			# 0 means 1 stressor per CPU
+# vfork-ops 1000000	# stop after 1000000 bogo ops
+# vfork-max 8		# create 8 processes per vfork iteration
+
+#
+# vforkmany stressor options:
+#   start  N  workers that spawn off a chain of vfork children until
+#   the process table  fills  up  and/or  vfork  fails.   vfork  can
+#   rapidly  create  child  processes  and the parent process has to
+#   wait until the child dies, so this stressor rapidly fills up the
+#   process table.
+#
+vforkmany 0		# 0 means 1 stressor per CPU
+# vforkmany-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# wait stressor options:
+#   start N workers that spawn off two  children;  one  spins  in  a
+#   pause(2)  loop,  the  other  continually stops and continues the
+#   first. The controlling process waits on the first  child  to  be
+#   resumed   by  the  delivery  of  SIGCONT  using  waitpid(2)  and
+#   waitid(2).
+#
+wait 0			# 0 means 1 stressor per CPU
+# wait-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# yield stressor options:
+#   start N workers that call sched_yield(2). This stressor  ensures
+#   that at least 2 child processes per CPU exercice shield_yield(2)
+#   no matter how many workers are specified, thus  always  ensuring
+#   rapid context switching.
+#
+yield 0			# 0 means 1 stressor per CPU
+# yield-ops 1000000	# stop after 1000000 bogo ops
+
+#
+# zombie stressor options:
+#   start  N workers that create zombie processes. This will rapidly
+#   try to create a default of 8192 child processes that immediately
+#   die  and wait in a zombie state until they are reaped.  Once the
+#   maximum number of processes is reached (or  fork  fails  because
+#   one has reached the maximum allowed number of children) the old‐
+#   est child is reaped and a new  process  is  then  created  in  a
+#   first-in first-out manner, and then repeated.
+#
+zombie 0		# 0 means 1 stressor per CPU
+# zombie-ops 1000000	# stop after 1000000 bogo ops
+# zombie-max 8192	# create 8192 processes per zombie iteration
