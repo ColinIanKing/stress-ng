@@ -132,8 +132,8 @@ int stress_sync_file(const args_t *args)
 			opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
 	opt_sync_file_bytes /= args->num_instances;
-	if (opt_sync_file_bytes < MIN_SYNC_FILE_BYTES)
-		opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
+	if (opt_sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES)
+		opt_sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
