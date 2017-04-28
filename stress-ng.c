@@ -1865,8 +1865,10 @@ static void free_procs(void)
 {
 	int32_t i;
 
-	for (i = 0; i < STRESS_MAX; i++)
+	for (i = 0; i < STRESS_MAX; i++) {
 		free(procs[i].pids);
+		free(procs[i].stats);
+	}
 }
 
 /*
@@ -1898,7 +1900,7 @@ static void MLOCKED stress_run(
 )
 {
 	double time_start, time_finish;
-	int32_t n_procs, i, j, n;
+	int32_t n_procs, i, j;
 	const int32_t total_procs = get_total_num_procs();
 
 	wait_flag = true;
@@ -1912,10 +1914,15 @@ static void MLOCKED stress_run(
 				continue;
 
 			j = procs[i].started_procs;
+
 			if (j < procs[i].num_procs) {
 				int rc = EXIT_SUCCESS;
 				pid_t pid;
 				char name[64];
+				int32_t n = (i * max_procs) + j;
+				proc_stats_t *const stats = &g_shared->stats[n];
+
+				procs[i].stats[j] = stats;
 again:
 				if (!g_keep_stressing_flag)
 					break;
@@ -1933,9 +1940,10 @@ again:
 				case 0:
 					/* Child */
 					(void)setpgid(0, g_pgrp);
-					free_procs();
-					if (stress_set_handler(name, true) < 0)
+					if (stress_set_handler(name, true) < 0) {
+						free_procs();
 						exit(EXIT_FAILURE);
+					}
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
 					if (g_opt_flags & OPT_FLAGS_TIMER_SLACK)
@@ -1953,20 +1961,19 @@ again:
 					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
 
-					n = (i * max_procs) + j;
-					g_shared->stats[n].start = g_shared->stats[n].finish = time_now();
+					stats->start = stats->finish = time_now();
 #if defined(STRESS_PERF_STATS)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)perf_open(&g_shared->stats[n].sp);
+						(void)perf_open(&stats->sp);
 #endif
 					(void)shim_usleep(opts->opt_backoff * n_procs);
 #if defined(STRESS_PERF_STATS)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)perf_enable(&g_shared->stats[n].sp);
+						(void)perf_enable(&stats->sp);
 #endif
 					if (g_keep_stressing_flag && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
-							&g_shared->stats[n].counter,
+							&stats->counter,
 							name,
 							procs[i].bogo_ops,
 							j,
@@ -1977,21 +1984,21 @@ again:
 						};
 
 						rc = stressors[i].stress_func(&args);
-						g_shared->stats[n].run_ok = (rc == EXIT_SUCCESS);
+						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
 #if defined(STRESS_PERF_STATS)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
-						(void)perf_disable(&g_shared->stats[n].sp);
-						(void)perf_close(&g_shared->stats[n].sp);
+						(void)perf_disable(&stats->sp);
+						(void)perf_close(&stats->sp);
 					}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 					if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-						(void)tz_get_temperatures(&g_shared->tz_info, &g_shared->stats[n].tz);
+						(void)tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 
-					g_shared->stats[n].finish = time_now();
-					if (times(&g_shared->stats[n].tms) == (clock_t)-1) {
+					stats->finish = time_now();
+					if (times(&stats->tms) == (clock_t)-1) {
 						pr_dbg("times failed: errno=%d (%s)\n",
 							errno, strerror(errno));
 					}
@@ -2000,6 +2007,7 @@ again:
 #if defined(STRESS_THERMAL_ZONES)
 					tz_free(&g_shared->tz_info);
 #endif
+					free_procs();
 					stress_cache_free();
 					exit(rc);
 				default:
@@ -2095,7 +2103,6 @@ static int show_hogs(const uint32_t opt_class)
  */
 static void metrics_dump(
 	FILE *yaml,
-	const int32_t max_procs,
 	const int32_t ticks_per_sec)
 {
 	int32_t i;
@@ -2109,20 +2116,21 @@ static void metrics_dump(
 	for (i = 0; i < STRESS_MAX; i++) {
 		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 		double   r_total = 0.0;
-		int32_t  j, n = (i * max_procs);
+		int32_t  j;
 		char *munged = munge_underscore(stressors[i].name);
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 		bool run_ok = false;
 
-		for (j = 0; j < procs[i].started_procs; j++, n++) {
-			run_ok  |= g_shared->stats[n].run_ok;
-			c_total += g_shared->stats[n].counter;
-			u_total += g_shared->stats[n].tms.tms_utime +
-				   g_shared->stats[n].tms.tms_cutime;
-			s_total += g_shared->stats[n].tms.tms_stime +
-				   g_shared->stats[n].tms.tms_cstime;
-			r_total += g_shared->stats[n].finish -
-				   g_shared->stats[n].start;
+		for (j = 0; j < procs[i].started_procs; j++) {
+			const proc_stats_t *const stats = procs[i].stats[j];
+			
+			run_ok  |= stats->run_ok;
+			c_total += stats->counter;
+			u_total += stats->tms.tms_utime +
+				   stats->tms.tms_cutime;
+			s_total += stats->tms.tms_stime +
+				   stats->tms.tms_cstime;
+			r_total += stats->finish - stats->start;
 		}
 		/* Total usr + sys time of all procs */
 		us_total = u_total + s_total;
@@ -3005,14 +3013,23 @@ next_opt:
 }
 
 /*
- *  alloc_proc_pids()
+ *  alloc_proc_resources()
  *	allocate array of pids based on n pids required
  */
-static void alloc_proc_pids(pid_t **pids, size_t n)
+static void alloc_proc_resources(pid_t **pids, proc_stats_t ***stats, size_t n)
 {
 	*pids = calloc(n, sizeof(pid_t));
 	if (!*pids) {
 		pr_err("cannot allocate pid list\n");
+		free_procs();
+		exit(EXIT_FAILURE);
+	}
+
+	*stats = calloc(n, sizeof(proc_stats_t *));
+	if (!*stats) {
+		pr_err("cannot allocate stats list\n");
+		free(*pids);
+		*pids = NULL;
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
@@ -3058,7 +3075,7 @@ static void sequential_mode_setup(main_opts_t *opts)
 		procs[i].num_procs = opts->opt_class ?
 			((stressors[i].class & opts->opt_class) ?
 				g_opt_sequential : 0) : g_opt_sequential;
-		alloc_proc_pids(&procs[i].pids, g_opt_sequential);
+		alloc_proc_resources(&procs[i].pids, &procs[i].stats, g_opt_sequential);
 	}
 }
 
@@ -3078,7 +3095,7 @@ static void sequential_job_mode_setup(void)
 
 	for (i = 0; i < STRESS_MAX; i++) {
 		if (procs[i].num_procs)
-			alloc_proc_pids(&procs[i].pids, procs[i].num_procs);
+			alloc_proc_resources(&procs[i].pids, &procs[i].stats, procs[i].num_procs);
 	}
 }
 
@@ -3107,7 +3124,7 @@ static void parallel_mode_all_setup(main_opts_t *opts)
 				((stressors[i].class & opts->opt_class) ?
 					opts->opt_all : 0) : opts->opt_all;
 		if (procs[i].num_procs)
-			alloc_proc_pids(&procs[i].pids, procs[i].num_procs);
+			alloc_proc_resources(&procs[i].pids, &procs[i].stats, procs[i].num_procs);
 	}
 }
 
@@ -3139,14 +3156,8 @@ static void parallel_mode_setup(void)
 			(procs[i].bogo_ops + (procs[i].num_procs - 1)) / procs[i].num_procs : 0;
 		procs[i].pids = NULL;
 
-		if (procs[i].num_procs) {
-			procs[i].pids = calloc(procs[i].num_procs, sizeof(pid_t));
-			if (!procs[i].pids) {
-				pr_err("cannot allocate pid list\n");
-				free_procs();
-				exit(EXIT_FAILURE);
-			}
-		}
+		if (procs[i].num_procs)
+			alloc_proc_resources(&procs[i].pids, &procs[i].stats, procs[i].num_procs);
 	}
 }
 
@@ -3395,7 +3406,7 @@ int main(int argc, char **argv)
 		pr_yaml_runinfo(yaml);
 	}
 	if (g_opt_flags & OPT_FLAGS_METRICS)
-		metrics_dump(yaml, max_procs, ticks_per_sec);
+		metrics_dump(yaml, ticks_per_sec);
 #if defined(STRESS_PERF_STATS)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_stat_dump(yaml, stressors, procs, max_procs, duration);
