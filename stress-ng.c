@@ -2639,7 +2639,6 @@ next_opt:
 			stress_set_hsearch_size(optarg);
 			break;
 		case OPT_IGNITE_CPU:
-			printf("GOT %d\n", OPT_IGNITE_CPU);
 			g_opt_flags |= OPT_FLAGS_IGNITE_CPU;
 			break;
 		case OPT_IOMIX_BYTES:
