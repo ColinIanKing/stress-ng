@@ -3247,7 +3247,7 @@ static void stress_setup_sequential(main_opts_t *opts)
 	for (pi = procs_head; pi; pi = pi->next) {
 		if (pi->stressor->class & opts->opt_class)
 			pi->num_procs = g_opt_sequential;
-		alloc_proc_resources(&pi->pids, &pi->stats, g_opt_sequential);
+		alloc_proc_resources(&pi->pids, &pi->stats, pi->num_procs);
 	}
 }
 
