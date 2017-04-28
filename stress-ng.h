@@ -1986,7 +1986,6 @@ typedef struct proc_info {
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 	bool	exclude;		/* true if excluded */
-	bool	not_runnable;		/* true if not runnable */
 } proc_info_t;
 
 /* Scale lookup mapping, suffix -> scale by */

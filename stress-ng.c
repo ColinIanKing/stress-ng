@@ -1931,10 +1931,8 @@ static uint32_t get_total_num_procs(void)
 	uint32_t total_num_procs = 0;
 	proc_info_t *pi;
 
-	for (pi = procs_head; pi; pi = pi->next) {
-		if (!pi->not_runnable)
-			total_num_procs += pi->num_procs;
-	}
+	for (pi = procs_head; pi; pi = pi->next)
+		total_num_procs += pi->num_procs;
 
 	return total_num_procs;
 }
@@ -1945,6 +1943,7 @@ static uint32_t get_total_num_procs(void)
  */
 static void MLOCKED stress_run(
 	main_opts_t *opts,
+	proc_info_t *procs_to_run,
 	double *duration,
 	bool *success,
 	bool *resource_success
@@ -1960,11 +1959,9 @@ static void MLOCKED stress_run(
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		proc_info_t *pi;
 
-		for (pi = procs_head; pi; pi = pi->next) {
+		for (pi = procs_to_run; pi; pi = pi->next) {
 			if (time_now() - time_start > g_opt_timeout)
 				goto abort;
-			if (pi->not_runnable)
-				continue;
 
 			j = pi->started_procs;
 
@@ -3275,27 +3272,23 @@ static inline void stress_run_sequential(
 {
 	proc_info_t *pi;
 
-	/* dirty hack, mark stressors as not runnable */
-	for (pi = procs_head; pi; pi = pi->next)
-		pi->not_runnable = true;
-
 	/*
 	 *  Step through each stressor one by one
 	 */
 	for (pi = procs_head; pi && g_keep_stressing_flag; pi = pi->next) {
+		proc_info_t pi_tmp;
+
 		if (pi->exclude)
 			continue;
 		if (!pi->num_procs)
 			continue;
 
-		/* dirty hack, flip to runnable */
-		pi->not_runnable = false;
-		stress_run(opts, duration, success, resource_success);
-		/* dirty hack, flip back */
-		pi->not_runnable = true;
+		pi_tmp = *pi;
+		pi_tmp.next = NULL;
+		pi_tmp.prev = NULL;
+
+		stress_run(opts, &pi_tmp, duration, success, resource_success);
 	}
-	for (pi = procs_head; pi; pi = pi->next)
-		pi->not_runnable = false;
 }
 
 /*
@@ -3311,7 +3304,7 @@ static inline void stress_run_parallel(
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(opts, duration, success, resource_success);
+	stress_run(opts, procs_head, duration, success, resource_success);
 }
 
 int main(int argc, char **argv)
