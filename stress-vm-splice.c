@@ -57,6 +57,8 @@ int stress_vm_splice(const args_t *args)
 	opt_vm_splice_bytes /= args->num_instances;
 	if (opt_vm_splice_bytes < MIN_VM_SPLICE_BYTES)
 		opt_vm_splice_bytes = MIN_VM_SPLICE_BYTES;
+	if (opt_vm_splice_bytes < page_size)
+		opt_vm_splice_bytes = page_size;
 	sz = opt_vm_splice_bytes & ~(page_size - 1);
 
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
