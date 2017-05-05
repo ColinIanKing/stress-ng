@@ -2032,14 +2032,14 @@ again:
 #endif
 					if (g_keep_stressing_flag && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
-							&stats->counter,
-							name,
-							pi->bogo_ops,
-							j,
-							pi->num_procs,
-							getpid(),
-							getppid(),
-							stress_get_pagesize(),
+							.counter = &stats->counter,
+							.name = name,
+							.max_ops = pi->bogo_ops,
+							.instance = j,
+							.num_instances = pi->num_procs,
+							.pid = getpid(),
+							.ppid = getppid(),
+							.page_size = stress_get_pagesize(),
 						};
 
 						rc = pi->stressor->stress_func(&args);

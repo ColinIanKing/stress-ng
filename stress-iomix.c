@@ -602,14 +602,14 @@ int stress_iomix(const args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 		const args_t tmp_args = {
-			&counters[i],
-			args->name,
-			args->max_ops,
-			args->instance,
-			args->num_instances,
-			args->pid,
-			args->ppid,
-			args->page_size
+			.counter = &counters[i],
+			.name = args->name,
+			.max_ops = args->max_ops,
+			.instance = args->instance,
+			.num_instances = args->num_instances,
+			.pid = args->pid,
+			.ppid = args->ppid,
+			.page_size = args->page_size
 		};
 
 		pids[i] = fork();

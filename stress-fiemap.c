@@ -234,14 +234,14 @@ int stress_fiemap(const args_t *args)
 			((i == 0) ? ops_remaining : 0);
 
 		const args_t new_args = {
-			&counters[i],
-			args->name,
-			proc_max_ops,
-			args->instance,
-			args->num_instances,
-			args->pid,
-			args->ppid,
-			args->page_size
+			.counter = &counters[i],
+			.name = args->name,
+			.max_ops = proc_max_ops,
+			.instance = args->instance,
+			.num_instances = args->num_instances,
+			.pid = args->pid,
+			.ppid = args->ppid,
+			.page_size = args->page_size
 		};
 
 		pids[i] = stress_fiemap_spawn(&new_args, fd);
