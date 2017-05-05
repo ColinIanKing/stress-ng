@@ -286,6 +286,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
+/* native setting types */
 typedef enum {
 	TYPE_ID_UNDEFINED,
 	TYPE_ID_UINT8,
@@ -308,6 +309,7 @@ typedef enum {
 	TYPE_ID_UINTPTR_T
 } type_id_t;
 
+/* settings for storing opt arg parsed data */
 typedef struct setting {
 	struct setting *next;		/* next setting in list */
 	char *name;			/* name of setting */
@@ -330,7 +332,7 @@ typedef struct setting {
 		off_t		off;
 		char *		str;
 		bool		boolean;
-		uintptr_t	uintptr;
+		uintptr_t	uintptr;/* for func pointers */
 	} u;
 } setting_t;
 
