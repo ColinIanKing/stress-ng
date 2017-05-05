@@ -59,6 +59,8 @@ int stress_bigheap(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			bigheap_growth = MIN_BIGHEAP_GROWTH;
 	}
+	if (bigheap_growth < page_size)
+		bigheap_growth = page_size;
 
 	/* Round growth size to nearest page size */
 	bigheap_growth &= ~(page_size - 1);

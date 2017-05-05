@@ -258,6 +258,8 @@ int stress_mmap(const args_t *args)
 	mmap_bytes /= args->num_instances;
 	if (mmap_bytes < MIN_MMAP_BYTES)
 		mmap_bytes = MIN_MMAP_BYTES;
+	if (mmap_bytes < page_size)
+		mmap_bytes = page_size;
 	sz = mmap_bytes & ~(page_size - 1);
 	pages4k = sz / page_size;
 

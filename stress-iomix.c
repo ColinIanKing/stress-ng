@@ -561,6 +561,8 @@ int stress_iomix(const args_t *args)
 	iomix_bytes /= args->num_instances;
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
+	if (iomix_bytes < (off_t)page_size)
+		iomix_bytes = page_size;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {

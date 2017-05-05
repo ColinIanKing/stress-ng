@@ -295,6 +295,8 @@ int stress_vm_rw(const args_t *args)
 	vm_rw_bytes /= args->num_instances;
 	if (vm_rw_bytes < MIN_VM_RW_BYTES)
 		vm_rw_bytes = MIN_VM_RW_BYTES;
+	if (vm_rw_bytes < args->page_size)
+		vm_rw_bytes = args->page_size;
 	ctxt.args = args;
 	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);
 

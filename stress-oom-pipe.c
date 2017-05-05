@@ -26,13 +26,11 @@
 
 #if defined(__linux__) && defined(F_SETPIPE_SZ)
 
-static int page_size;
-
 /*
  *  pipe_empty()
  *	read data from read end of pipe
  */
-static void pipe_empty(const int fd, const int max)
+static void pipe_empty(const int fd, const int max, const size_t page_size)
 {
 	int i;
 
@@ -50,7 +48,7 @@ static void pipe_empty(const int fd, const int max)
  *  pipe_fill()
  *	write data to fill write end of pipe
  */
-static void pipe_fill(const int fd, const size_t max)
+static void pipe_fill(const int fd, const size_t max, const size_t page_size)
 {
 	size_t i;
 	char buffer[page_size];
@@ -73,7 +71,8 @@ static void pipe_fill(const int fd, const size_t max)
 static int stress_oom_pipe_expander(
 	const args_t *args,
 	const size_t max_pipe_size,
-	const int max_pipes)
+	const int max_pipes,
+	const size_t page_size)
 {
 	pid_t pid;
 
@@ -160,9 +159,9 @@ again:
 					max_size = page_size;
 				if (fcntl(fd[1], F_SETPIPE_SZ, max_size) < 0)
 					max_size = page_size;
-				pipe_fill(fd[1], max_size);
+				pipe_fill(fd[1], max_size, page_size);
 				if (!aggressive)
-					pipe_empty(fd[0], max_size);
+					pipe_empty(fd[0], max_size, page_size);
 			}
 			/* Set to minimum size */
 			for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
@@ -170,9 +169,9 @@ again:
 					continue;
 				(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
 				(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
-				pipe_fill(fd[1], max_pipe_size);
+				pipe_fill(fd[1], max_pipe_size, page_size);
 				if (!aggressive)
-					pipe_empty(fd[0], page_size);
+					pipe_empty(fd[0], page_size, page_size);
 			}
 			inc_counter(args);
 		} while (keep_stressing());
@@ -197,12 +196,14 @@ int stress_oom_pipe(const args_t *args)
 {
 	const size_t max_fd = stress_get_file_limit();
 	const size_t max_pipes = max_fd / 2;
-	size_t max_pipe_size;
+	const size_t page_size = args->page_size;
+	size_t max_pipe_size = stress_probe_max_pipe_size();
 
-	page_size = args->page_size;
-	max_pipe_size = stress_probe_max_pipe_size() & ~(page_size - 1);
+	if (max_pipe_size < page_size)
+		max_pipe_size = page_size;
+	max_pipe_size &= ~(page_size - 1);
 
-	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes);
+	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes, page_size);
 }
 #else
 int stress_oom_pipe(const args_t *args)

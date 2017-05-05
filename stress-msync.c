@@ -105,6 +105,8 @@ int stress_msync(const args_t *args)
 	msync_bytes /= args->num_instances;
 	if (msync_bytes < MIN_MSYNC_BYTES)
 		msync_bytes = MIN_MSYNC_BYTES;
+	if (msync_bytes < page_size)
+		msync_bytes = page_size;
 	sz = msync_bytes & ~(page_size - 1);
 	if (sz < min_size)
 		sz = min_size;

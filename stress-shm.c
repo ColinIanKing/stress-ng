@@ -249,6 +249,8 @@ int stress_shm(const args_t *args)
 	shm_posix_bytes /= args->num_instances;
 	if (shm_posix_bytes < MIN_SHM_POSIX_BYTES)
 		shm_posix_bytes = MIN_SHM_POSIX_BYTES;
+	if (shm_posix_bytes < page_size)
+		shm_posix_bytes = page_size;
 
 	if (!get_setting("shm-objs", &shm_posix_objects)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
