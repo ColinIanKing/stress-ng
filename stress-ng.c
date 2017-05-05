@@ -58,11 +58,11 @@ typedef struct {
 static proc_info_t *procs_head, *procs_tail;
 
 /* Various option settings and flags */
-static volatile bool wait_flag = true;		/* false to exit run waiter loop */
+static volatile bool wait_flag = true;		/* false = exit run wait loop */
 
 /* Globals */
-int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* Number of sequential stressors */
-int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* Number of parallel stressors */
+int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
+int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 uint64_t g_opt_timeout = 0;			/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
@@ -1417,7 +1417,8 @@ static inline int32_t stressor_name_find(const char *name)
 	(void)strncpy(munged_name, tmp, len);
 
 	for (i = 0; stressors[i].name; i++) {
-		const char *munged_stressor_name = munge_underscore(stressors[i].name);
+		const char *munged_stressor_name =
+			munge_underscore(stressors[i].name);
 
 		if (!strcmp(munged_stressor_name, munged_name))
 			break;
@@ -1488,7 +1489,8 @@ static uint32_t get_class(char *const class_str)
 				if (cl) {
 					size_t j;
 
-					(void)printf("class '%s' stressors:", token);
+					(void)printf("class '%s' stressors:",
+						token);
 					for (j = 0; stressors[j].name; j++) {
 						if (stressors[j].class & cl)
 							(void)printf(" %s", munge_underscore(stressors[j].name));
@@ -1497,7 +1499,8 @@ static uint32_t get_class(char *const class_str)
 					return 0;
 				}
 			}
-			(void)fprintf(stderr, "Unknown class: '%s', available classes:", token);
+			(void)fprintf(stderr, "Unknown class: '%s', "
+				"available classes:", token);
 			for (i = 0; classes[i].class; i++)
 				(void)fprintf(stderr, " %s", classes[i].name);
 			(void)fprintf(stderr, "\n\n");
@@ -1525,7 +1528,8 @@ static int stress_exclude(char *const opt_exclude)
 		uint32_t i = stressor_name_find(token);
 
 		if (!stressors[i].name) {
-			(void)fprintf(stderr, "Unknown stressor: '%s', invalid exclude option\n", token);
+			(void)fprintf(stderr, "Unknown stressor: '%s', "
+				"invalid exclude option\n", token);
 			return -1;
 		}
 		id = stressors[i].id;
@@ -1612,8 +1616,10 @@ static int stress_set_handler(const char *stress, const bool child)
 		return -1;
 #if defined(SIGUSR2)
 	if (!child) {
-		if (stress_sighandler(stress, SIGUSR2, stress_stats_handler, NULL) < 0)
+		if (stress_sighandler(stress, SIGUSR2,
+			stress_stats_handler, NULL) < 0) {
 			return -1;
+		}
 	}
 #endif
 	if (stress_sighandler(stress, SIGALRM,
@@ -1644,7 +1650,8 @@ static void usage_help(const help_t help_info[])
 		char opt_s[10] = "";
 
 		if (help_info[i].opt_s)
-			(void)snprintf(opt_s, sizeof(opt_s), "-%s,", help_info[i].opt_s);
+			(void)snprintf(opt_s, sizeof(opt_s), "-%s,",
+					help_info[i].opt_s);
 		(void)printf("%-6s--%-19s%s\n", opt_s,
 			help_info[i].opt_l, help_info[i].description);
 	}
@@ -1676,8 +1683,10 @@ static void usage(void)
 	usage_help(help_generic);
 	(void)printf("\nStressor specific options:\n");
 	usage_help(help_stressors);
-	(void)printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s\n\n"
-	       "Note: Sizes can be suffixed with B,K,M,G and times with s,m,h,d,y\n", g_app_name);
+	(void)printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M "
+		"--fork 4 --timeout 10s\n\n"
+		"Note: Sizes can be suffixed with B,K,M,G and times with "
+		"s,m,h,d,y\n", g_app_name);
 	exit(EXIT_SUCCESS);
 }
 
@@ -1750,7 +1759,10 @@ static void kill_procs(const int sig)
  *  wait_procs()
  * 	wait for procs
  */
-static void MLOCKED wait_procs(proc_info_t *procs_list, bool *success, bool *resource_success)
+static void MLOCKED wait_procs(
+	proc_info_t *procs_list,
+	bool *success,
+	bool *resource_success)
 {
 	proc_info_t *pi;
 
@@ -1767,13 +1779,18 @@ static void MLOCKED wait_procs(proc_info_t *procs_list, bool *success, bool *res
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		cpu_set_t proc_mask;
 		unsigned long int cpu = 0;
-		const uint32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
-		const useconds_t usec_sleep = ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
+		const uint32_t ticks_per_sec =
+			stress_get_ticks_per_second() * 5;
+		const useconds_t usec_sleep =
+			ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
 
 		while (wait_flag) {
 			const int32_t cpus = stress_get_processors_configured();
 
-			/* If we can't get the mask, don't do affinity twiddling */
+			/*
+			 *  If we can't get the mask, then don't do
+			 *  any affinity twiddling
+			 */
 			if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
 				goto do_wait;
 			if (!CPU_COUNT(&proc_mask))	/* Highly unlikely */
@@ -2119,9 +2136,10 @@ static int show_stressors(void)
 		if (n) {
 			ssize_t buffer_len;
 
-			buffer_len = snprintf(buffer, sizeof(buffer), "%s %" PRId32 " %s",
-				previous ? "," : "", n,
-				munge_underscore(pi->stressor->name));
+			buffer_len = snprintf(buffer, sizeof(buffer),
+					"%s %" PRId32 " %s",
+					previous ? "," : "", n,
+					munge_underscore(pi->stressor->name));
 			previous = true;
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);
@@ -2154,9 +2172,11 @@ static void metrics_dump(
 	proc_info_t *pi;
 
 	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-		"stressor", "bogo ops", "real time", "usr time", "sys time", "bogo ops/s", "bogo ops/s");
+		"stressor", "bogo ops", "real time", "usr time",
+		"sys time", "bogo ops/s", "bogo ops/s");
 	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)", "(usr+sys time)");
+		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
+		"(usr+sys time)");
 	pr_yaml(yaml, "metrics:\n");
 
 	for (pi = procs_head; pi; pi = pi->next) {
@@ -2184,7 +2204,8 @@ static void metrics_dump(
 		r_total = pi->started_procs ?
 			r_total / (double)pi->started_procs : 0.0;
 
-		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) && (c_total == 0) && (!run_ok))
+		if ((g_opt_flags & OPT_FLAGS_METRICS_BRIEF) &&
+		    (c_total == 0) && (!run_ok))
 			continue;
 
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
@@ -2193,13 +2214,13 @@ static void metrics_dump(
 		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
 
 		pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
-			munged,			/* stress test name */
-			c_total,		/* op count */
-			r_total,	 	/* average real (wall) clock time */
-			u_time, 		/* actual user time */
-			s_time,			/* actual system time */
-			bogo_rate_r_time,	/* bogo ops on wall clock time */
-			bogo_rate);		/* bogo ops per second */
+			munged,		/* stress test name */
+			c_total,	/* op count */
+			r_total,	/* average real (wall) clock time */
+			u_time, 	/* actual user time */
+			s_time,		/* actual system time */
+			bogo_rate_r_time, /* bogo ops on wall clock time */
+			bogo_rate);	/* bogo ops per second */
 
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
@@ -2549,8 +2570,9 @@ static inline void set_random_stressors(const int32_t opt_random)
 		int32_t n_procs = get_num_procs();
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
-			(void)fprintf(stderr, "Cannot specify random option with "
-				"other stress processes selected\n");
+			(void)fprintf(stderr, "Cannot specify random "
+				"option with other stress processes "
+				"selected\n");
 			exit(EXIT_FAILURE);
 		}
 
@@ -2656,7 +2678,8 @@ next_opt:
 				proc_info_t *pi = find_proc_info(&stressors[i]);
 
 				pi->bogo_ops = get_uint64(optarg);
-				check_range(opt_name(c), pi->bogo_ops, MIN_OPS, MAX_OPS);
+				check_range(opt_name(c), pi->bogo_ops,
+					MIN_OPS, MAX_OPS);
 				goto next_opt;
 			}
 		}
@@ -3338,13 +3361,15 @@ int main(int argc, char **argv)
 	g_pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
-		pr_err("sysconf failed, number of cpus configured unknown: errno=%d: (%s)\n",
+		pr_err("sysconf failed, number of cpus configured "
+			"unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	ticks_per_sec = stress_get_ticks_per_second();
 	if (ticks_per_sec < 0) {
-		pr_err("sysconf failed, clock ticks per second unknown: errno=%d (%s)\n",
+		pr_err("sysconf failed, clock ticks per second "
+			"unknown: errno=%d (%s)\n",
 			errno, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
@@ -3362,7 +3387,8 @@ int main(int argc, char **argv)
 	 *  Sanity check minimize/maximize options
 	 */
 	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
-		(void)fprintf(stderr, "maximize and minimize cannot be used together\n");
+		(void)fprintf(stderr, "maximize and minimize cannot "
+			"be used together\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -3375,7 +3401,8 @@ int main(int argc, char **argv)
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
-	if (opts.opt_class && !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
+	if (opts.opt_class &&
+	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
 		exit(EXIT_FAILURE);
@@ -3530,9 +3557,11 @@ int main(int argc, char **argv)
 		thrash_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_run_sequential(&opts, &duration, &success, &resource_success);
+		stress_run_sequential(&opts, &duration,
+			&success, &resource_success);
 	} else {
-		stress_run_parallel(&opts, &duration, &success, &resource_success);
+		stress_run_parallel(&opts, &duration,
+			&success, &resource_success);
 	}
 
 	/* Stop thasher process */
