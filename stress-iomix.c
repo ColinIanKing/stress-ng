@@ -332,6 +332,8 @@ static void stress_iomix_sync(
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
+#else
+		(void)iomix_bytes;
 #endif
 	} while (keep_stressing());
 }
