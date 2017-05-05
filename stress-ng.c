@@ -1404,22 +1404,6 @@ static const help_t help_stressors[] = {
 };
 
 /*
- *  stressor_id_find()
- *  	Find index into stressors by id
- */
-static inline int32_t stressor_id_find(const stress_id_t id)
-{
-	int32_t i;
-
-	for (i = 0; stressors[i].name; i++) {
-		if (stressors[i].id == id)
-			break;
-	}
-
-	return i;	/* End of array is a special "NULL" entry */
-}
-
-/*
  *  stressor_name_find()
  *  	Find index into stressors by name
  */
