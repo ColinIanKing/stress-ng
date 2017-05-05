@@ -28,6 +28,8 @@
 #define RUN_SEQUENTIAL	(0x01)
 #define RUN_PARALLEL	(0x02)
 
+#define ISBLANK(ch)	isblank((int)(ch))
+
 /*
  *  chop()
  *	chop off end of line that matches char ch
@@ -124,14 +126,14 @@ int parse_jobfile(
 			continue;
 
 		/* skip leading blanks */
-		while (isblank(*ptr))
+		while (ISBLANK(*ptr))
 			ptr++;
 
 		while (argc < MAX_ARGS && *ptr) {
 			argv[argc++] = ptr;
 
 			/* eat up chars until eos or blank */
-			while (*ptr && !isblank(*ptr))
+			while (*ptr && !ISBLANK(*ptr))
 				ptr++;
 
 			if (!*ptr)
@@ -139,7 +141,7 @@ int parse_jobfile(
 			*ptr++ = '\0';
 
 			/* skip over blanks */
-			while (isblank(*ptr))
+			while (ISBLANK(*ptr))
 				ptr++;
 		}
 
