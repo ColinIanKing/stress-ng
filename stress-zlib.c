@@ -43,8 +43,7 @@ typedef struct {
 	const stress_zlib_rand_data_func func;	/* the random data generation function */
 } stress_zlib_rand_data_info_t;
 
-static const stress_zlib_rand_data_info_t *opt_zlib_rand_data_func;
-static const stress_zlib_rand_data_info_t zlib_rand_data_methods[];
+static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 
 /*
@@ -240,7 +239,7 @@ static HOT OPTIMIZE3 void stress_zlib_random_test(uint32_t *data, const int size
 /*
  * Table of zlib data methods
  */
-static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
+static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "random",	stress_zlib_random_test }, /* Special "random" test */
 
 	{ "binary",	stress_rand_data_binary },
@@ -255,18 +254,17 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ NULL,		NULL }
 };
 
-
 /*
  *  stress_set_zlib_method()
  *	set the default zlib random data method
  */
 int HOT OPTIMIZE3 stress_set_zlib_method(const char *name)
 {
-	stress_zlib_rand_data_info_t const *info = zlib_rand_data_methods;
+	stress_zlib_rand_data_info_t *info = zlib_rand_data_methods;
 
 	for (info = zlib_rand_data_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			opt_zlib_rand_data_func = info;
+			set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -422,6 +420,9 @@ static int stress_zlib_deflate(
 	uint64_t bytes_in = 0, bytes_out = 0, xsum = 0;
 	uint64_t xsum_chars = 0;
 	int flush = Z_FINISH;
+	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
+
+	(void)get_setting("zlib-method", &opt_zlib_rand_data_func);
 
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;

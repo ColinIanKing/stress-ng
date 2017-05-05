@@ -34,17 +34,18 @@
 
 #endif
 
-static int opt_socket_fd_port = DEFAULT_SOCKET_FD_PORT;
-
 /*
  *  stress_set_socket_fd_port()
  *	set port to use
  */
 void stress_set_socket_fd_port(const char *opt)
 {
+	int socket_fd_port;
+
 	stress_set_net_port("sockfd-port", opt,
 		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
-		&opt_socket_fd_port);
+		&socket_fd_port);
+	set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
 
 #if defined(__linux__)
@@ -133,7 +134,8 @@ static inline int stress_socket_fd_recv(const int fd)
 static void stress_socket_client(
 	const args_t *args,
 	const pid_t ppid,
-	const size_t max_fd)
+	const size_t max_fd,
+	const int socket_fd_port)
 {
 	struct sockaddr *addr;
 
@@ -157,7 +159,7 @@ retry:
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
-			AF_UNIX, opt_socket_fd_port,
+			AF_UNIX, socket_fd_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
@@ -199,7 +201,8 @@ static int stress_socket_server(
 	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
-	const size_t max_fd)
+	const size_t max_fd,
+	const int socket_fd_port)
 {
 	int fd, status;
 	int so_reuseaddr = 1;
@@ -228,7 +231,7 @@ static int stress_socket_server(
 	}
 
 	stress_set_sockaddr(args->name, args->instance, ppid,
-		AF_UNIX, opt_socket_fd_port,
+		AF_UNIX, socket_fd_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -284,9 +287,12 @@ int stress_sockfd(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	const size_t max_fd = stress_get_file_limit();
+	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
+
+	(void)get_setting("sockfd-port", &socket_fd_port);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, args->pid, opt_socket_fd_port + args->instance);
+		args->name, args->pid, socket_fd_port + args->instance);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -295,10 +301,10 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_socket_client(args, ppid, max_fd);
+		stress_socket_client(args, ppid, max_fd, socket_fd_port);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_socket_server(args, pid, ppid, max_fd);
+		return stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
 }
 #else

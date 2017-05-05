@@ -30,7 +30,7 @@
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
 
 typedef struct {
-	int opt;
+	uint8_t opt;
 	const char *opt_text;
 } filename_opts_t;
 
@@ -43,7 +43,6 @@ static const filename_opts_t filename_opts[] = {
 
 /* Allowed filename characters */
 static char allowed[256];
-static int filename_opt = STRESS_FILENAME_PROBE;
 
 /*
  * The Open Group Base Specifications Issue 7
@@ -60,11 +59,12 @@ int stress_filename_opts(const char *opt)
 
 	for (i = 0; filename_opts[i].opt_text; i++) {
 		if (!strcmp(opt, filename_opts[i].opt_text)) {
-			filename_opt = filename_opts[i].opt;
+			uint8_t filename_opt = filename_opts[i].opt;
+			set_setting("filename-opts", TYPE_ID_UINT8, &filename_opt);
 			return 0;
 		}
 	}
-	(void)fprintf(stderr, "filename-opt option '%s' not known, options are:", opt);
+	(void)fprintf(stderr, "filename-opts option '%s' not known, options are:", opt);
 	for (i = 0; filename_opts[i].opt_text; i++)
 		(void)fprintf(stderr, "%s %s",
 			i == 0 ? "" : ",", filename_opts[i].opt_text);
@@ -218,6 +218,9 @@ int stress_filename (const args_t *args)
 	char *ptr;
 	struct statvfs buf;
 	size_t i, chars_allowed = 0, sz;
+	uint8_t filename_opt = STRESS_FILENAME_PROBE;
+
+	(void)get_setting("filename-opts", &filename_opt);
 
 	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	if (mkdir(dirname, S_IRWXU) < 0) {

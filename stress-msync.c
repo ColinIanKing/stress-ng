@@ -29,15 +29,14 @@ static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
 
-static size_t opt_msync_bytes = DEFAULT_MSYNC_BYTES;
-static bool set_msync_bytes = false;
-
 void stress_set_msync_bytes(const char *opt)
 {
-	set_msync_bytes = true;
-	opt_msync_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("mmap-bytes", opt_msync_bytes,
+	size_t msync_bytes;
+
+	msync_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("msync-bytes", msync_bytes,
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
+	set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
 #if !defined(__gnu_hurd__) && !defined(__minix__)
@@ -81,6 +80,7 @@ int stress_msync(const args_t *args)
 	uint8_t *buf = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
+	size_t msync_bytes = DEFAULT_MSYNC_BYTES;
 	NOCLOBBER size_t sz;
 	ssize_t ret;
 	NOCLOBBER ssize_t rc = EXIT_SUCCESS;
@@ -96,16 +96,16 @@ int stress_msync(const args_t *args)
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (!set_msync_bytes) {
+	if (!get_setting("msync-bytes", &msync_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_msync_bytes = MAX_MSYNC_BYTES;
+			msync_bytes = MAX_MSYNC_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_msync_bytes = MIN_MSYNC_BYTES;
+			msync_bytes = MIN_MSYNC_BYTES;
 	}
-	opt_msync_bytes /= args->num_instances;
-	if (opt_msync_bytes < MIN_MSYNC_BYTES)
-		opt_msync_bytes = MIN_MSYNC_BYTES;
-	sz = opt_msync_bytes & ~(page_size - 1);
+	msync_bytes /= args->num_instances;
+	if (msync_bytes < MIN_MSYNC_BYTES)
+		msync_bytes = MIN_MSYNC_BYTES;
+	sz = msync_bytes & ~(page_size - 1);
 	if (sz < min_size)
 		sz = min_size;
 

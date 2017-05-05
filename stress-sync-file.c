@@ -41,15 +41,14 @@ static const int sync_modes[] = {
 };
 #endif
 
-static off_t opt_sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
-static bool set_sync_file_bytes = false;
-
 void stress_set_sync_file_bytes(const char *opt)
 {
-	set_sync_file_bytes = true;
-	opt_sync_file_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("sync_file-bytes", opt_sync_file_bytes,
+	off_t sync_file_bytes;
+
+	sync_file_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("sync_file-bytes", sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
+	set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
 }
 
 #if defined(HAVE_SYNC_FILE_RANGE)
@@ -89,7 +88,10 @@ static inline int shim_sync_file_range(
  *  shrink and re-allocate the file to be sync'd
  *
  */
-static int stress_sync_allocate(const args_t *args, const int fd)
+static int stress_sync_allocate(
+	const args_t *args,
+	const int fd,
+	const off_t sync_file_bytes)
 {
 	int ret;
 
@@ -107,7 +109,7 @@ static int stress_sync_allocate(const args_t *args, const int fd)
 		return -errno;
 	}
 
-	ret = shim_fallocate(fd, 0, (off_t)0, opt_sync_file_bytes);
+	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);
 	if (ret < 0) {
 		pr_err("%s: fallocate failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -123,17 +125,18 @@ static int stress_sync_allocate(const args_t *args, const int fd)
 int stress_sync_file(const args_t *args)
 {
 	int fd, ret;
+	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
 
-	if (!set_sync_file_bytes) {
+	if (!get_setting("sync_file-bytes", &sync_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_sync_file_bytes = MAX_SYNC_FILE_BYTES;
+			sync_file_bytes = MAX_SYNC_FILE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_sync_file_bytes = MIN_SYNC_FILE_BYTES;
+			sync_file_bytes = MIN_SYNC_FILE_BYTES;
 	}
-	opt_sync_file_bytes /= args->num_instances;
-	if (opt_sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES)
-		opt_sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
+	sync_file_bytes /= args->num_instances;
+	if (sync_file_bytes < (off_t)MIN_SYNC_FILE_BYTES)
+		sync_file_bytes = (off_t)MIN_SYNC_FILE_BYTES;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -155,10 +158,10 @@ int stress_sync_file(const args_t *args)
 		const size_t mode_index = mwc32() % SIZEOF_ARRAY(sync_modes);
 		const int mode = sync_modes[mode_index];
 
-		if (stress_sync_allocate(args, fd) < 0)
+		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
 			break;
 		for (offset = 0; g_keep_stressing_flag &&
-		     (offset < (off64_t)opt_sync_file_bytes); ) {
+		     (offset < (off64_t)sync_file_bytes); ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0) {
@@ -170,13 +173,13 @@ int stress_sync_file(const args_t *args)
 		if (!g_keep_stressing_flag)
 			break;
 
-		if (stress_sync_allocate(args, fd) < 0)
+		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
 			break;
 		for (offset = 0; g_keep_stressing_flag &&
-		     (offset < (off64_t)opt_sync_file_bytes); ) {
+		     (offset < (off64_t)sync_file_bytes); ) {
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 
-			ret = shim_sync_file_range(fd, opt_sync_file_bytes - offset, sz, mode);
+			ret = shim_sync_file_range(fd, sync_file_bytes - offset, sz, mode);
 			if (ret < 0) {
 				pr_fail_err("sync_file_range (reverse)");
 				break;
@@ -186,11 +189,11 @@ int stress_sync_file(const args_t *args)
 		if (!g_keep_stressing_flag)
 			break;
 
-		if (stress_sync_allocate(args, fd) < 0)
+		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
 			break;
 		for (i = 0; i < g_keep_stressing_flag &&
-		     ((off64_t)(opt_sync_file_bytes / (128 * KB))); i++) {
-			offset = (mwc64() % opt_sync_file_bytes) & ~((128 * KB) - 1);
+		     ((off64_t)(sync_file_bytes / (128 * KB))); i++) {
+			offset = (mwc64() % sync_file_bytes) & ~((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
 				break;

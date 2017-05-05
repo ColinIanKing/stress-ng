@@ -33,15 +33,19 @@
 #include <sys/un.h>
 #endif
 
-static int opt_udp_flood_domain = AF_INET;
-
 /*
  *  stress_set_udp_domain()
  *      set the udp domain option
  */
 int stress_set_udp_flood_domain(const char *name)
 {
-	return stress_set_net_domain(DOMAIN_INET_ALL, "udp-flood-domain", name, &opt_udp_flood_domain);
+	int ret, udp_flood_domain;
+
+	ret = stress_set_net_domain(DOMAIN_INET_ALL, "udp-flood-domain",
+		name, &udp_flood_domain);
+	set_setting("udp-flood-domain", TYPE_ID_INT, &udp_flood_domain);
+
+	return ret;
 }
 
 #if defined(AF_PACKET)
@@ -53,6 +57,7 @@ int stress_set_udp_flood_domain(const char *name)
 int stress_udp_flood(const args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
+	int udp_flood_domain = AF_INET;
 	int port = 1024;
 	struct sockaddr *addr;
 	socklen_t addr_len;
@@ -63,18 +68,20 @@ int stress_udp_flood(const args_t *args)
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
-	if ((fd = socket(opt_udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
+	(void)get_setting("udp-flood-domain", &udp_flood_domain);
+
+	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
 		pr_fail_dbg("socket");
 		return EXIT_FAILURE;
 	}
 	stress_set_sockaddr(args->name, args->instance, args->pid,
-		opt_udp_flood_domain, port,
+		udp_flood_domain, port,
 		&addr, &addr_len, NET_ADDR_ANY);
 
 	do {
 		char buf[sz];
 
-		stress_set_sockaddr_port(opt_udp_flood_domain, port, addr);
+		stress_set_sockaddr_port(udp_flood_domain, port, addr);
 
 		(void)memset(buf, data[j++ & 63], sz);
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)

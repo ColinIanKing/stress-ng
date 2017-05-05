@@ -60,41 +60,28 @@ typedef struct {
 	int	   type;
 } socket_type_t;
 
-static int opt_socket_domain = AF_INET;
-static int opt_socket_port = DEFAULT_SOCKET_PORT;
-static int opt_socket_opts = SOCKET_OPT_SEND;
-static int opt_socket_type = SOCK_STREAM;
-
-static const socket_opts_t socket_opts[] = {
-	{ "send",	SOCKET_OPT_SEND },
-	{ "sendmsg",	SOCKET_OPT_SENDMSG },
-#if defined(HAVE_SENDMMSG)
-	{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
-#endif
-	{ NULL,		0 }
-};
-
-static const socket_type_t socket_type[] = {
-#if defined(SOCK_STREAM)
-	{ "stream",	SOCK_STREAM  },
-#endif
-#if defined(SOCK_SEQPACKET)
-	{ "seqpacket",	SOCK_SEQPACKET },
-#endif
-	{ NULL,		0 }
-};
-
 /*
  *  stress_set_socket_opts()
  *	parse --sock-opts
  */
 int stress_set_socket_opts(const char *opt)
 {
+	static const socket_opts_t socket_opts[] = {
+		{ "send",	SOCKET_OPT_SEND },
+		{ "sendmsg",	SOCKET_OPT_SENDMSG },
+#if defined(HAVE_SENDMMSG)
+		{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
+#endif
+		{ NULL,		0 }
+	};
+
 	int i;
 
 	for (i = 0; socket_opts[i].optname; i++) {
 		if (!strcmp(opt, socket_opts[i].optname)) {
-			opt_socket_opts = socket_opts[i].opt;
+			int opts = socket_opts[i].opt;
+
+			set_setting("sock-opts", TYPE_ID_INT, &opts);
 			return 0;
 		}
 	}
@@ -113,11 +100,23 @@ int stress_set_socket_opts(const char *opt)
  */
 int stress_set_socket_type(const char *opt)
 {
+	static const socket_type_t socket_type[] = {
+#if defined(SOCK_STREAM)
+		{ "stream",	SOCK_STREAM  },
+#endif
+#if defined(SOCK_SEQPACKET)
+		{ "seqpacket",	SOCK_SEQPACKET },
+#endif
+		{ NULL,		0 }
+	};
+
 	int i;
 
 	for (i = 0; socket_type[i].typename; i++) {
 		if (!strcmp(opt, socket_type[i].typename)) {
-			opt_socket_type = socket_type[i].type;
+			int type = socket_type[i].type;
+
+			set_setting("sock-type", TYPE_ID_INT, &type);
 			return 0;
 		}
 	}
@@ -136,9 +135,12 @@ int stress_set_socket_type(const char *opt)
  */
 void stress_set_socket_port(const char *opt)
 {
+	int socket_port;
+
 	stress_set_net_port("sock-port", opt,
 		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
-		&opt_socket_port);
+		&socket_port);
+	set_setting("sock-port", TYPE_ID_INT, &socket_port);
 }
 
 /*
@@ -147,8 +149,13 @@ void stress_set_socket_port(const char *opt)
  */
 int stress_set_socket_domain(const char *name)
 {
-	return stress_set_net_domain(DOMAIN_ALL, "sock-domain",
-				     name, &opt_socket_domain);
+	int ret, socket_domain;
+
+	ret = stress_set_net_domain(DOMAIN_ALL, "sock-domain",
+				     name, &socket_domain);
+	set_setting("sock-domain", TYPE_ID_INT, &socket_domain);
+
+	return ret;
 }
 
 /*
@@ -157,7 +164,10 @@ int stress_set_socket_domain(const char *name)
  */
 static void stress_sctp_client(
 	const args_t *args,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int socket_type,
+	const int socket_port,
+	const int socket_domain)
 {
 	struct sockaddr *addr;
 
@@ -174,7 +184,7 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
-		if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
+		if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
@@ -182,7 +192,7 @@ retry:
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
-			opt_socket_domain, opt_socket_port,
+			socket_domain, socket_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
@@ -212,7 +222,7 @@ retry:
 	} while (keep_stressing());
 
 #if defined(AF_UNIX)
-	if (opt_socket_domain == AF_UNIX) {
+	if (socket_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -228,7 +238,11 @@ retry:
 static int stress_sctp_server(
 	const args_t *args,
 	const pid_t pid,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int socket_opts,
+	const int socket_type,
+	const int socket_port,
+	const int socket_domain)
 {
 	char buf[SOCKET_BUF];
 	int fd, status;
@@ -244,7 +258,7 @@ static int stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if ((fd = socket(opt_socket_domain, opt_socket_type, 0)) < 0) {
+	if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg("socket");
 		goto die;
@@ -257,7 +271,7 @@ static int stress_sctp_server(
 	}
 
 	stress_set_sockaddr(args->name, args->instance, ppid,
-		opt_socket_domain, opt_socket_port,
+		socket_domain, socket_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -310,7 +324,7 @@ static int stress_sctp_server(
 			}
 #endif
 			(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
-			switch (opt_socket_opts) {
+			switch (socket_opts) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
@@ -357,7 +371,7 @@ static int stress_sctp_server(
 #endif
 			default:
 				/* Should never happen */
-				pr_err("%s: bad option %d\n", args->name, opt_socket_opts);
+				pr_err("%s: bad option %d\n", args->name, socket_opts);
 				(void)close(sfd);
 				goto die_close;
 			}
@@ -373,7 +387,7 @@ die_close:
 	(void)close(fd);
 die:
 #if defined(AF_UNIX)
-	if (addr && (opt_socket_domain == AF_UNIX)) {
+	if (addr && (socket_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -394,9 +408,18 @@ die:
 int stress_sock(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
+	int socket_opts = SOCKET_OPT_SEND;
+	int socket_type = SOCK_STREAM;
+	int socket_port = DEFAULT_SOCKET_PORT;
+	int socket_domain = AF_INET;
+
+	(void)get_setting("sock-opts", &socket_opts);
+	(void)get_setting("sock-type", &socket_type);
+	(void)get_setting("sock-port", &socket_port);
+	(void)get_setting("sock-domain", &socket_domain);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, opt_socket_port + args->instance);
+		args->name, (int)args->pid, socket_port + args->instance);
 
 again:
 	pid = fork();
@@ -406,9 +429,11 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(args, ppid);
+		stress_sctp_client(args, ppid, socket_type,
+			socket_port, socket_domain);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_sctp_server(args, pid, ppid);
+		return stress_sctp_server(args, pid, ppid, socket_opts,
+			socket_type, socket_port, socket_domain);
 	}
 }

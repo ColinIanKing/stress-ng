@@ -48,15 +48,14 @@ typedef struct {
 
 #endif
 
-static size_t opt_vm_rw_bytes = DEFAULT_VM_RW_BYTES;
-static bool set_vm_rw_bytes = false;
-
 void stress_set_vm_rw_bytes(const char *opt)
 {
-	set_vm_rw_bytes = true;
-	opt_vm_rw_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("vm-rw-bytes", opt_vm_rw_bytes,
+	size_t vm_rw_bytes;
+
+	vm_rw_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("vm-rw-bytes", vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
+	set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);
 }
 
 #if defined(__linux__) &&		\
@@ -285,18 +284,19 @@ int stress_vm_rw(const args_t *args)
 	const ssize_t stack_offset =
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
+	size_t vm_rw_bytes = DEFAULT_VM_RW_BYTES;
 
-	if (!set_vm_rw_bytes) {
+	if (!get_setting("vm-rw-bytes", &vm_rw_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_vm_rw_bytes = MAX_VM_RW_BYTES;
+			vm_rw_bytes = MAX_VM_RW_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_vm_rw_bytes = MIN_VM_RW_BYTES;
+			vm_rw_bytes = MIN_VM_RW_BYTES;
 	}
-	opt_vm_rw_bytes /= args->num_instances;
-	if (opt_vm_rw_bytes < MIN_VM_RW_BYTES)
-		opt_vm_rw_bytes = MIN_VM_RW_BYTES;
+	vm_rw_bytes /= args->num_instances;
+	if (vm_rw_bytes < MIN_VM_RW_BYTES)
+		vm_rw_bytes = MIN_VM_RW_BYTES;
 	ctxt.args = args;
-	ctxt.sz = opt_vm_rw_bytes & ~(args->page_size - 1);
+	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);
 
 	if (pipe(ctxt.pipe_wr) < 0) {
 		pr_fail_dbg("pipe");

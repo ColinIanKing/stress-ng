@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_qsort_size = DEFAULT_QSORT_SIZE;
-static bool set_qsort_size = false;
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
@@ -49,10 +47,12 @@ static void MLOCKED stress_qsort_handler(int dummy)
  */
 void stress_set_qsort_size(const char *opt)
 {
-	set_qsort_size = true;
-	opt_qsort_size = get_uint64_byte(opt);
-	check_range("qsort-size", opt_qsort_size,
+	uint64_t qsort_size;
+
+	qsort_size = get_uint64_byte(opt);
+	check_range("qsort-size", qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
+	set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
 }
 
 /*
@@ -100,18 +100,19 @@ static int stress_qsort_cmp_3(const void *p1, const void *p2)
  */
 int stress_qsort(const args_t *args)
 {
+	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i;
 	struct sigaction old_action;
 	int ret;
 
-	if (!set_qsort_size) {
+	if (!get_setting("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_qsort_size = MAX_QSORT_SIZE;
+			qsort_size = MAX_QSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_qsort_size = MIN_QSORT_SIZE;
+			qsort_size = MIN_QSORT_SIZE;
 	}
-	n = (size_t)opt_qsort_size;
+	n = (size_t)qsort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg("calloc");

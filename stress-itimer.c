@@ -25,8 +25,6 @@
 #include "stress-ng.h"
 
 static volatile uint64_t itimer_counter = 0;
-static uint64_t opt_itimer_freq = DEFAULT_TIMER_FREQ;
-static bool set_itimer_freq = false;
 static double rate_us;
 static double start;
 
@@ -36,10 +34,12 @@ static double start;
  */
 void stress_set_itimer_freq(const char *opt)
 {
-	set_itimer_freq = true;
-	opt_itimer_freq = get_uint64(opt);
-	check_range("itimer-freq", opt_itimer_freq,
+	uint64_t itimer_freq;
+
+	itimer_freq = get_uint64(opt);
+	check_range("itimer-freq", itimer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
+	set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
 }
 
 /*
@@ -108,6 +108,7 @@ int stress_itimer(const args_t *args)
 {
 	struct itimerval timer;
 	sigset_t mask;
+	uint64_t itimer_freq = DEFAULT_TIMER_FREQ;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -115,13 +116,13 @@ int stress_itimer(const args_t *args)
 
 	start = time_now();
 
-	if (!set_itimer_freq) {
+	if (!get_setting("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_itimer_freq = MAX_ITIMER_FREQ;
+			itimer_freq = MAX_ITIMER_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_itimer_freq = MIN_ITIMER_FREQ;
+			itimer_freq = MIN_ITIMER_FREQ;
 	}
-	rate_us = opt_itimer_freq ? 1000000.0 / opt_itimer_freq : 1000000.0;
+	rate_us = itimer_freq ? 1000000.0 / itimer_freq : 1000000.0;
 
 	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;

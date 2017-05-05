@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
-static bool set_copy_file_bytes;
-
 void stress_set_copy_file_bytes(const char *opt)
 {
-	set_copy_file_bytes = true;
-	opt_copy_file_bytes = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("copy-file-bytes", opt_copy_file_bytes,
+	uint64_t copy_file_bytes;
+
+	copy_file_bytes = get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("copy-file-bytes", copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
+	set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
 }
 
 #if defined(__linux__) && (__NR_copy_file_range)
@@ -45,19 +44,20 @@ int stress_copy_file(const args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
 	char filename[PATH_MAX], tmp[PATH_MAX];
+	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 
-	if (!set_copy_file_bytes) {
+	if (!get_setting("copy-file-bytes", &copy_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_copy_file_bytes = MAX_HDD_BYTES;
+			copy_file_bytes = MAX_HDD_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_copy_file_bytes = MIN_HDD_BYTES;
+			copy_file_bytes = MIN_HDD_BYTES;
 	}
 
-	opt_copy_file_bytes /= args->num_instances;
-	if (opt_copy_file_bytes < MIN_COPY_FILE_BYTES)
-		opt_copy_file_bytes = MIN_COPY_FILE_BYTES;
-	if (opt_copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
-		opt_copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
+	copy_file_bytes /= args->num_instances;
+	if (copy_file_bytes < DEFAULT_COPY_FILE_SIZE)
+		copy_file_bytes = DEFAULT_COPY_FILE_SIZE * 2;
+	if (copy_file_bytes < MIN_COPY_FILE_BYTES)
+		copy_file_bytes = MIN_COPY_FILE_BYTES;
 
 	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		goto tidy_dir;
@@ -70,7 +70,7 @@ int stress_copy_file(const args_t *args)
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
-	if (ftruncate(fd_in, opt_copy_file_bytes) < 0) {
+	if (ftruncate(fd_in, copy_file_bytes) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("ftruncate");
 		goto tidy_in;
@@ -92,8 +92,8 @@ int stress_copy_file(const args_t *args)
 		ssize_t ret;
 		loff_t off_in, off_out;
 
-		off_in = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
-		off_out = mwc64() % (opt_copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off_in = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off_out = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 
 		ret =  shim_copy_file_range(fd_in, &off_in, fd_out,
 			&off_out, DEFAULT_COPY_FILE_SIZE, 0);

@@ -45,32 +45,37 @@ typedef struct {
 	const stress_vm_func func;
 } stress_vm_stressor_info_t;
 
-static uint64_t opt_vm_hang = DEFAULT_VM_HANG;
-static size_t   opt_vm_bytes = DEFAULT_VM_BYTES;
-static bool	set_vm_bytes = false;
-static int      opt_vm_flags = 0;                      /* VM mmap flags */
-
 static const stress_vm_stressor_info_t *opt_vm_stressor;
 static const stress_vm_stressor_info_t vm_methods[];
 
 void stress_set_vm_hang(const char *opt)
 {
-	opt_vm_hang = get_uint64_byte(opt);
-	check_range("vm-hang", opt_vm_hang,
+	uint64_t vm_hang;
+
+	vm_hang = get_uint64_byte(opt);
+	check_range("vm-hang", vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
+	set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
 }
 
 void stress_set_vm_bytes(const char *opt)
 {
-	set_vm_bytes = true;
-	opt_vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("vm-bytes", opt_vm_bytes,
+	size_t vm_bytes;
+
+	vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("vm-bytes", vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);
+	set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }
 
 void stress_set_vm_flags(const int flag)
 {
-	opt_vm_flags |= flag;
+	int vm_flags = 0;
+
+	get_setting("vm-flags", &vm_flags);
+	vm_flags |= flag;
+	set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
+
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
@@ -1876,7 +1881,9 @@ int stress_set_vm_method(const char *name)
 int stress_vm(const args_t *args)
 {
 	uint64_t *bit_error_count = MAP_FAILED;
+	uint64_t vm_hang = DEFAULT_VM_HANG;
 	uint32_t restarts = 0, nomems = 0;
+	size_t vm_bytes = DEFAULT_VM_BYTES;
 	uint8_t *buf = NULL;
 	pid_t pid;
 	const bool keep = (g_opt_flags & OPT_FLAGS_VM_KEEP);
@@ -1884,17 +1891,21 @@ int stress_vm(const args_t *args)
         const size_t page_size = args->page_size;
 	size_t buf_sz, retries;
 	int err = 0, ret = EXIT_SUCCESS;
+	int vm_flags = 0;                      /* VM mmap flags */
 
-	if (!set_vm_bytes) {
+	(void)get_setting("vm-hang", &vm_hang);
+	(void)get_setting("vm-flags", &vm_flags);
+
+	if (!get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_vm_bytes = MAX_VM_BYTES;
+			vm_bytes = MAX_VM_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_vm_bytes = MIN_VM_BYTES;
+			vm_bytes = MIN_VM_BYTES;
 	}
-	opt_vm_bytes /= args->num_instances;
-	if (opt_vm_bytes < MIN_VM_BYTES)
-		opt_vm_bytes = MIN_VM_BYTES;
-	buf_sz = opt_vm_bytes & ~(page_size - 1);
+	vm_bytes /= args->num_instances;
+	if (vm_bytes < MIN_VM_BYTES)
+		vm_bytes = MIN_VM_BYTES;
+	buf_sz = vm_bytes & ~(page_size - 1);
 
 	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {
 		bit_error_count = (uint64_t *)
@@ -1975,7 +1986,7 @@ again:
 				buf = (uint8_t *)mmap(NULL, buf_sz,
 					PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS |
-					opt_vm_flags, -1, 0);
+					vm_flags, -1, 0);
 				if (buf == MAP_FAILED) {
 					buf = NULL;
 					no_mem_retries++;
@@ -1990,12 +2001,12 @@ again:
 			*bit_error_count += func(buf, buf_sz, args->counter,
 						args->max_ops << VM_BOGO_SHIFT);
 
-			if (opt_vm_hang == 0) {
+			if (vm_hang == 0) {
 				for (;;) {
 					(void)sleep(3600);
 				}
-			} else if (opt_vm_hang != DEFAULT_VM_HANG) {
-				(void)sleep((int)opt_vm_hang);
+			} else if (vm_hang != DEFAULT_VM_HANG) {
+				(void)sleep((int)vm_hang);
 			}
 
 			if (!keep) {

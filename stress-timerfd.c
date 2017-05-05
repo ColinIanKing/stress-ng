@@ -32,19 +32,18 @@ static int timerfd;
 static double rate_ns;
 #endif
 
-static uint64_t opt_timerfd_freq = DEFAULT_TIMERFD_FREQ;
-static bool set_timerfd_freq = false;
-
 /*
  *  stress_set_timerfd_freq()
  *	set timer frequency from given option
  */
 void stress_set_timerfd_freq(const char *opt)
 {
-	set_timerfd_freq = true;
-	opt_timerfd_freq = get_uint64(opt);
-	check_range("timerfd-freq", opt_timerfd_freq,
+	uint64_t timerfd_freq;
+
+	timerfd_freq = get_uint64(opt);
+	check_range("timerfd-freq", timerfd_freq,
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
+	set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
 
 #if defined(__linux__)
@@ -83,14 +82,15 @@ static void stress_timerfd_set(struct itimerspec *timer)
 int stress_timerfd(const args_t *args)
 {
 	struct itimerspec timer;
+	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
 
-	if (!set_timerfd_freq) {
+	if (!get_setting("timerfd-freq", &timerfd_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_timerfd_freq = MAX_TIMERFD_FREQ;
+			timerfd_freq = MAX_TIMERFD_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_timerfd_freq = MIN_TIMERFD_FREQ;
+			timerfd_freq = MIN_TIMERFD_FREQ;
 	}
-	rate_ns = opt_timerfd_freq ? 1000000000.0 / opt_timerfd_freq : 1000000000.0;
+	rate_ns = timerfd_freq ? 1000000000.0 / timerfd_freq : 1000000000.0;
 
 	timerfd = timerfd_create(CLOCK_REALTIME, 0);
 	if (timerfd < 0) {

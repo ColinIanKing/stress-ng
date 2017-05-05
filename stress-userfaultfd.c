@@ -42,15 +42,14 @@ typedef struct {
 
 #endif
 
-static size_t opt_userfaultfd_bytes = DEFAULT_MMAP_BYTES;
-static bool set_userfaultfd_bytes = false;
-
 void stress_set_userfaultfd_bytes(const char *opt)
 {
-	set_userfaultfd_bytes = true;
-	opt_userfaultfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("userfaultfd-bytes", opt_userfaultfd_bytes,
+	size_t userfaultfd_bytes;
+
+	userfaultfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("userfaultfd-bytes", userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
+	set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
 #if defined(__linux__) && defined(__NR_userfaultfd)
@@ -148,7 +147,9 @@ static inline int handle_page_fault(
  *	is an OOM-able child process that the
  *	parent can restart
  */
-static int stress_userfaultfd_oomable(const args_t *args)
+static int stress_userfaultfd_oomable(
+	const args_t *args,
+	size_t userfaultfd_bytes)
 {
 	const size_t page_size = args->page_size;
 	size_t sz;
@@ -169,16 +170,7 @@ static int stress_userfaultfd_oomable(const args_t *args)
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 
-	if (!set_userfaultfd_bytes) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_userfaultfd_bytes = MAX_MMAP_BYTES;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_userfaultfd_bytes = MIN_MMAP_BYTES;
-	}
-	opt_userfaultfd_bytes /= args->num_instances;
-	if (opt_userfaultfd_bytes < MIN_MMAP_BYTES)
-		opt_userfaultfd_bytes = MIN_MMAP_BYTES;
-	sz = opt_userfaultfd_bytes & ~(page_size - 1);
+	sz = userfaultfd_bytes & ~(page_size - 1);
 
 	if (posix_memalign(&zero_page, page_size, page_size)) {
 		pr_err("%s: zero page allocation failed\n", args->name);
@@ -365,6 +357,19 @@ int stress_userfaultfd(const args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_FAILURE;
+	size_t userfaultfd_bytes = DEFAULT_MMAP_BYTES;
+
+	if (!get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			userfaultfd_bytes = MAX_MMAP_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			userfaultfd_bytes = MIN_MMAP_BYTES;
+	}
+	userfaultfd_bytes /= args->num_instances;
+	if (userfaultfd_bytes < MIN_MMAP_BYTES)
+		userfaultfd_bytes = MIN_MMAP_BYTES;
+	if (userfaultfd_bytes < args->page_size)
+		userfaultfd_bytes = args->page_size;
 
 	pid = fork();
 	if (pid < 0) {
@@ -406,7 +411,7 @@ int stress_userfaultfd(const args_t *args)
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		_exit(stress_userfaultfd_oomable(args));
+		_exit(stress_userfaultfd_oomable(args, userfaultfd_bytes));
 	}
 	return rc;
 }

@@ -24,10 +24,8 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_fork_max = DEFAULT_FORKS;
-static bool set_fork_max = false;
-static uint64_t opt_vfork_max = DEFAULT_VFORKS;
-static bool set_vfork_max = false;
+uint64_t opt_fork_max = DEFAULT_FORKS;
+uint64_t opt_vfork_max = DEFAULT_VFORKS;
 
 /*
  *  stress_set_fork_max()
@@ -35,10 +33,12 @@ static bool set_vfork_max = false;
  */
 void stress_set_fork_max(const char *opt)
 {
-	set_fork_max = true;
-	opt_fork_max = get_uint64_byte(opt);
-	check_range("fork-max", opt_fork_max,
+	uint64_t fork_max;
+
+	fork_max = get_uint64_byte(opt);
+	check_range("fork-max", fork_max,
 		MIN_FORKS, MAX_FORKS);
+	set_setting("fork-max", TYPE_ID_UINT64, &fork_max);
 }
 
 /*
@@ -47,10 +47,12 @@ void stress_set_fork_max(const char *opt)
  */
 void stress_set_vfork_max(const char *opt)
 {
-	set_vfork_max = true;
-	opt_vfork_max = get_uint64_byte(opt);
-	check_range("vfork-max", opt_vfork_max,
+	uint64_t vfork_max;
+
+	vfork_max = get_uint64_byte(opt);
+	check_range("vfork-max", vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
+	set_setting("vfork-max", TYPE_ID_UINT64, &vfork_max);
 }
 
 /*
@@ -108,14 +110,16 @@ static int stress_fork_fn(
  */
 int stress_fork(const args_t *args)
 {
-	if (!set_fork_max) {
+	uint64_t fork_max = DEFAULT_FORKS;
+
+	if (!get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_fork_max = MAX_FORKS;
+			fork_max = MAX_FORKS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_fork_max = MIN_FORKS;
+			fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(args, fork, opt_fork_max);
+	return stress_fork_fn(args, fork, fork_max);
 }
 
 
@@ -125,12 +129,14 @@ int stress_fork(const args_t *args)
  */
 int stress_vfork(const args_t *args)
 {
-	if (!set_vfork_max) {
+	uint64_t vfork_max = DEFAULT_VFORKS;
+
+	if (!get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_vfork_max = MAX_VFORKS;
+			vfork_max = MAX_VFORKS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_vfork_max = MIN_VFORKS;
+			vfork_max = MIN_VFORKS;
 	}
 
-	return stress_fork_fn(args, vfork, opt_vfork_max);
+	return stress_fork_fn(args, vfork, vfork_max);
 }

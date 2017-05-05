@@ -37,18 +37,14 @@
 
 #define BUFFER_SZ	(4096)
 
-static uint32_t opt_aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
-static bool set_aio_linux_requests = false;
-
 void stress_set_aio_linux_requests(const char *opt)
 {
-	uint32_t aio_linux_requests;
+	uint64_t aio_linux_requests;
 
-	set_aio_linux_requests = true;
 	aio_linux_requests = get_uint32(opt);
 	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	opt_aio_linux_requests = aio_linux_requests;
+	set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
 }
 
 #if defined(__linux__) &&	\
@@ -82,19 +78,20 @@ int stress_aiol(const args_t *args)
 	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	io_context_t ctx = 0;
+	uint64_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 
-	if (!set_aio_linux_requests) {
+	if (!get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_aio_linux_requests = MAX_AIO_REQUESTS;
+			aio_linux_requests = MAX_AIO_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_aio_linux_requests = MIN_AIO_REQUESTS;
+			aio_linux_requests = MIN_AIO_REQUESTS;
 	}
-	if ((opt_aio_linux_requests < MIN_AIO_REQUESTS) ||
-	    (opt_aio_linux_requests > MAX_AIO_REQUESTS)) {
+	if ((aio_linux_requests < MIN_AIO_REQUESTS) ||
+	    (aio_linux_requests > MAX_AIO_REQUESTS)) {
 		pr_err("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
 	}
-	ret = io_setup(opt_aio_linux_requests, &ctx);
+	ret = io_setup(aio_linux_requests, &ctx);
 	if (ret < 0) {
 		/*
 		 *  The libaio interface returns -errno in the
@@ -139,18 +136,18 @@ int stress_aiol(const args_t *args)
 	(void)unlink(filename);
 
 	do {
-		struct iocb cb[opt_aio_linux_requests];
-		struct iocb *cbs[opt_aio_linux_requests];
-		struct io_event events[opt_aio_linux_requests];
-		uint8_t buffers[opt_aio_linux_requests][BUFFER_SZ];
-		uint32_t i;
+		struct iocb cb[aio_linux_requests];
+		struct iocb *cbs[aio_linux_requests];
+		struct io_event events[aio_linux_requests];
+		uint8_t buffers[aio_linux_requests][BUFFER_SZ];
+		uint64_t i;
 		long n;
 
-		for (i = 0; i < opt_aio_linux_requests; i++)
+		for (i = 0; i < aio_linux_requests; i++)
 			aio_linux_fill_buffer(i, buffers[i], BUFFER_SZ);
 
 		memset(cb, 0, sizeof(cb));
-		for (i = 0; i < opt_aio_linux_requests; i++) {
+		for (i = 0; i < aio_linux_requests; i++) {
 			cb[i].aio_fildes = fd;
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
 			cb[i].u.c.buf = buffers[i];
@@ -158,7 +155,7 @@ int stress_aiol(const args_t *args)
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		ret = io_submit(ctx, (long)opt_aio_linux_requests, cbs);
+		ret = io_submit(ctx, (long)aio_linux_requests, cbs);
 		if (ret < 0) {
 			errno = -ret;
 			if (errno == EAGAIN)
@@ -167,7 +164,7 @@ int stress_aiol(const args_t *args)
 			break;
 		}
 
-		n = opt_aio_linux_requests;
+		n = aio_linux_requests;
 		do {
 			struct timespec timeout, *timeout_ptr;
 

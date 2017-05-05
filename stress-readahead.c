@@ -28,15 +28,14 @@
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
 
-static uint64_t opt_readahead_bytes = DEFAULT_READAHEAD_BYTES;
-static bool set_readahead_bytes = false;
-
 void stress_set_readahead_bytes(const char *opt)
 {
-	set_readahead_bytes = true;
-	opt_readahead_bytes = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("hdd-bytes", opt_readahead_bytes,
+	uint64_t readahead_bytes;
+
+	readahead_bytes = get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("readahead-bytes", readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
+	set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
@@ -45,12 +44,12 @@ static int do_readahead(
 	const args_t *args,
 	const int fd,
 	off_t *offsets,
-	const uint64_t readahead_bytes)
+	const uint64_t rounded_readahead_bytes)
 {
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (mwc64() % (readahead_bytes - BUF_SIZE)) & ~511;
+		offsets[i] = (mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail_err("ftruncate");
 			return -1;
@@ -66,7 +65,8 @@ static int do_readahead(
 int stress_readahead(const args_t *args)
 {
 	uint8_t *buf = NULL;
-	uint64_t readahead_bytes, i;
+	uint64_t rounded_readahead_bytes, i;
+	uint64_t readahead_bytes = DEFAULT_READAHEAD_BYTES;
 	uint64_t misreads = 0;
 	uint64_t baddata = 0;
 	int ret, rc = EXIT_FAILURE;
@@ -75,15 +75,15 @@ int stress_readahead(const args_t *args)
 	int fd;
 	struct stat statbuf;
 
-	if (!set_readahead_bytes) {
+	if (!get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_readahead_bytes = MAX_HDD_BYTES;
+			readahead_bytes = MAX_HDD_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_readahead_bytes = MIN_HDD_BYTES;
+			readahead_bytes = MIN_HDD_BYTES;
 	}
-	opt_readahead_bytes /= args->num_instances;
-	if (opt_readahead_bytes < MIN_HDD_BYTES)
-		opt_readahead_bytes = MIN_HDD_BYTES;
+	readahead_bytes /= args->num_instances;
+	if (readahead_bytes < MIN_HDD_BYTES)
+		readahead_bytes = MIN_HDD_BYTES;
 
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
@@ -113,14 +113,14 @@ int stress_readahead(const args_t *args)
 	(void)unlink(filename);
 
 #if defined(POSIX_FADV_DONTNEED)
-	if (posix_fadvise(fd, 0, opt_readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
+	if (posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
 		pr_fail_err("posix_fadvise");
 		goto close_finish;
 	}
 #endif
 
 	/* Sequential Write */
-	for (i = 0; i < opt_readahead_bytes; i += BUF_SIZE) {
+	for (i = 0; i < readahead_bytes; i += BUF_SIZE) {
 		ssize_t pret;
 		size_t j;
 		off_t o = i / BUF_SIZE;
@@ -155,13 +155,13 @@ seq_wr_retry:
 	}
 
 	/* Round to write size to get no partial reads */
-	readahead_bytes = (uint64_t)statbuf.st_size -
+	rounded_readahead_bytes = (uint64_t)statbuf.st_size -
 		(statbuf.st_size % BUF_SIZE);
 
 	do {
 		off_t offsets[MAX_OFFSETS];
 
-		if (do_readahead(args, fd, offsets, readahead_bytes) < 0)
+		if (do_readahead(args, fd, offsets, rounded_readahead_bytes) < 0)
 			goto close_finish;
 
 		for (i = 0; i < MAX_OFFSETS; i++) {

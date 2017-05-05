@@ -48,10 +48,6 @@ typedef struct {
 	int	   opt;
 } dccp_opts_t;
 
-static int opt_dccp_domain = AF_INET;
-static int opt_dccp_port = DEFAULT_DCCP_PORT;
-static int opt_dccp_opts = DCCP_OPT_SEND;
-
 static const dccp_opts_t dccp_opts[] = {
 	{ "send",	DCCP_OPT_SEND },
 	{ "sendmsg",	DCCP_OPT_SENDMSG },
@@ -71,7 +67,8 @@ int stress_set_dccp_opts(const char *opt)
 
 	for (i = 0; dccp_opts[i].optname; i++) {
 		if (!strcmp(opt, dccp_opts[i].optname)) {
-			opt_dccp_opts = dccp_opts[i].opt;
+			int dccp_opt = dccp_opts[i].opt;
+			set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
 			return 0;
 		}
 	}
@@ -90,9 +87,12 @@ int stress_set_dccp_opts(const char *opt)
  */
 void stress_set_dccp_port(const char *opt)
 {
+	int dccp_port;
+
 	stress_set_net_port("dccp-port", opt,
 		MIN_DCCP_PORT, MAX_DCCP_PORT - STRESS_PROCS_MAX,
-		&opt_dccp_port);
+		&dccp_port);
+	set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
 }
 
 /*
@@ -101,8 +101,12 @@ void stress_set_dccp_port(const char *opt)
  */
 int stress_set_dccp_domain(const char *name)
 {
-	return stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "dccp-domain",
-				     name, &opt_dccp_domain);
+	int ret, dccp_domain;
+
+	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6,
+				"dccp-domain", name, &dccp_domain);
+	set_setting("dccp-domain", TYPE_ID_INT, &dccp_domain);
+	return ret;
 }
 
 #if defined(SOCK_DCCP) && defined(IPPROTO_DCCP)
@@ -113,7 +117,9 @@ int stress_set_dccp_domain(const char *name)
  */
 static void stress_dccp_client(
 	const args_t *args,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int dccp_port,
+	const int dccp_domain)
 {
 	struct sockaddr *addr;
 
@@ -130,7 +136,7 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			exit(EXIT_FAILURE);
 		}
-		if ((fd = socket(opt_dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
+		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
@@ -138,7 +144,7 @@ retry:
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
-			opt_dccp_domain, opt_dccp_port,
+			dccp_domain, dccp_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			int err = errno;
@@ -171,7 +177,7 @@ retry:
 	} while (keep_stressing());
 
 #if defined(AF_UNIX)
-	if (opt_dccp_domain == AF_UNIX) {
+	if (dccp_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -187,7 +193,10 @@ retry:
 static int stress_dccp_server(
 	const args_t *args,
 	const pid_t pid,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int dccp_port,
+	const int dccp_domain,
+	const int dccp_opts)
 {
 	char buf[DCCP_BUF];
 	int fd, status;
@@ -203,7 +212,7 @@ static int stress_dccp_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if ((fd = socket(opt_dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
+	if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg("socket");
 		goto die;
@@ -216,7 +225,7 @@ static int stress_dccp_server(
 	}
 
 	stress_set_sockaddr(args->name, args->instance, ppid,
-		opt_dccp_domain, opt_dccp_port,
+		dccp_domain, dccp_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -256,7 +265,7 @@ static int stress_dccp_server(
 			}
 
 			(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
-			switch (opt_dccp_opts) {
+			switch (dccp_opts) {
 			case DCCP_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret;
@@ -307,7 +316,7 @@ again:
 #endif
 			default:
 				/* Should never happen */
-				pr_err("%s: bad option %d\n", args->name, opt_dccp_opts);
+				pr_err("%s: bad option %d\n", args->name, dccp_opts);
 				(void)close(sfd);
 				goto die_close;
 			}
@@ -323,7 +332,7 @@ die_close:
 	(void)close(fd);
 die:
 #if defined(AF_UNIX)
-	if (addr && (opt_dccp_domain == AF_UNIX)) {
+	if (addr && (dccp_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -344,9 +353,16 @@ die:
 int stress_dccp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
+	int dccp_port = DEFAULT_DCCP_PORT;
+	int dccp_domain = AF_INET;
+	int dccp_opts = DCCP_OPT_SEND;
+
+	(void)get_setting("dccp-port", &dccp_port);
+	(void)get_setting("dccp-domain", &dccp_domain);
+	(void)get_setting("dccp-opts", &dccp_opts);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, opt_dccp_port + args->instance);
+		args->name, (int)args->pid, dccp_port + args->instance);
 
 again:
 	pid = fork();
@@ -356,10 +372,11 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_dccp_client(args, ppid);
+		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
 		exit(EXIT_SUCCESS);
 	} else {
-		return stress_dccp_server(args, pid, ppid);
+		return stress_dccp_server(args, pid, ppid, dccp_port,
+			dccp_domain, dccp_opts);
 	}
 }
 

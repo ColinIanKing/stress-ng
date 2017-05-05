@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static size_t opt_splice_bytes = DEFAULT_SPLICE_BYTES;
-static bool set_splice_bytes = false;
-
 void stress_set_splice_bytes(const char *opt)
 {
-	set_splice_bytes = true;
-	opt_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("splice-bytes", opt_splice_bytes,
+	size_t splice_bytes;
+
+	splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("splice-bytes", splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
+	set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
@@ -44,16 +43,17 @@ void stress_set_splice_bytes(const char *opt)
 int stress_splice(const args_t *args)
 {
 	int fd_in, fd_out, fds[2];
+	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
 
-	if (!set_splice_bytes) {
+	if (!get_setting("splice-bytes", &splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_splice_bytes = MAX_SPLICE_BYTES;
+			splice_bytes = MAX_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_splice_bytes = MIN_SPLICE_BYTES;
+			splice_bytes = MIN_SPLICE_BYTES;
 	}
-	opt_splice_bytes /= args->num_instances;
-	if (opt_splice_bytes < MIN_SPLICE_BYTES)
-		opt_splice_bytes = MIN_SPLICE_BYTES;
+	splice_bytes /= args->num_instances;
+	if (splice_bytes < MIN_SPLICE_BYTES)
+		splice_bytes = MIN_SPLICE_BYTES;
 
 	if (pipe(fds) < 0) {
 		pr_fail_err("pipe");
@@ -80,12 +80,12 @@ int stress_splice(const args_t *args)
 		ssize_t bytes;
 
 		bytes = splice(fd_in, NULL, fds[1], NULL,
-				opt_splice_bytes, SPLICE_F_MOVE);
+				splice_bytes, SPLICE_F_MOVE);
 		if (bytes < 0)
 			break;
 
 		ret = splice(fds[0], NULL, fd_out, NULL,
-				opt_splice_bytes, SPLICE_F_MOVE);
+				splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 

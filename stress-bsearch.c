@@ -24,19 +24,18 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_bsearch_size = DEFAULT_BSEARCH_SIZE;
-static bool set_bsearch_size = false;
-
 /*
  *  stress_set_bsearch_size()
  *	set bsearch size from given option string
  */
 void stress_set_bsearch_size(const char *opt)
 {
-	set_bsearch_size = true;
-	opt_bsearch_size = get_uint64_byte(opt);
-	check_range("bsearch-size", opt_bsearch_size,
+	uint64_t bsearch_size;
+
+	bsearch_size = get_uint64_byte(opt);
+	check_range("bsearch-size", bsearch_size,
 		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
+	set_setting("bsearch-size", TYPE_ID_UINT64, &bsearch_size);
 }
 
 /*
@@ -73,14 +72,15 @@ int stress_bsearch(const args_t *args)
 {
 	int32_t *data, *ptr, prev = 0;
 	size_t n, n8, i;
+	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
 
-	if (!set_bsearch_size) {
+	if (!get_setting("bsearch-size", &bsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_bsearch_size = MAX_BSEARCH_SIZE;
+			bsearch_size = MAX_BSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_bsearch_size = MIN_BSEARCH_SIZE;
+			bsearch_size = MIN_BSEARCH_SIZE;
 	}
-	n = (size_t)opt_bsearch_size;
+	n = (size_t)bsearch_size;
 	n8 = (n + 7) & ~7;
 
 	/* allocate in multiples of 8 */

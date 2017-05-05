@@ -42,15 +42,15 @@
 typedef void (epoll_func_t)(
 	const args_t *args,
 	const int child,
-	const pid_t ppid);
+	const pid_t ppid,
+	const int epoll_port,
+	const int epoll_domain);
 
 static timer_t epoll_timerid;
 
 #endif
 
 static int max_servers = 1;
-static int opt_epoll_domain = AF_UNIX;
-static int opt_epoll_port = DEFAULT_EPOLL_PORT;
 
 /*
  *  stress_set_epoll_port()
@@ -58,10 +58,13 @@ static int opt_epoll_port = DEFAULT_EPOLL_PORT;
  */
 void stress_set_epoll_port(const char *opt)
 {
+	int epoll_port;
+
 	stress_set_net_port("epoll-port", opt,
 		MIN_EPOLL_PORT,
 		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
-		&opt_epoll_port);
+		&epoll_port);
+	set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
 }
 
 /*
@@ -70,12 +73,13 @@ void stress_set_epoll_port(const char *opt)
  */
 int stress_set_epoll_domain(const char *name)
 {
-	int ret;
+	int ret, epoll_domain;
 
 	ret = stress_set_net_domain(DOMAIN_ALL, "epoll-domain",
-		name, &opt_epoll_domain);
+		name, &epoll_domain);
+	set_setting("epoll-domain", TYPE_ID_INT, &epoll_domain);
 
-	switch (opt_epoll_domain) {
+	switch (epoll_domain) {
 	case AF_INET:
 	case AF_INET6:
 		max_servers = 4;
@@ -119,7 +123,9 @@ static pid_t epoll_spawn(
 	const args_t *args,
 	epoll_func_t func,
 	const int child,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int epoll_port,
+	const int epoll_domain)
 {
 	pid_t pid;
 
@@ -133,7 +139,7 @@ again:
 	if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		func(args, child, ppid);
+		func(args, child, ppid, epoll_port, epoll_domain);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -245,7 +251,9 @@ static int epoll_notification(
  */
 static int epoll_client(
 	const args_t *args,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int epoll_port,
+	const int epoll_domain)
 {
 	int port_counter = 0;
 	uint64_t connect_timeouts = 0;
@@ -261,7 +269,7 @@ static int epoll_client(
 		int fd, saved_errno;
 		int retries = 0;
 		int ret = -1;
-		int port = opt_epoll_port + port_counter +
+		int port = epoll_port + port_counter +
 				(max_servers * args->instance);
 		socklen_t addr_len = 0;
 
@@ -271,7 +279,7 @@ retry:
 		if (!g_keep_stressing_flag)
 			break;
 
-		if ((fd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
+		if ((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
 			pr_fail_dbg("socket");
 			return -1;
 		}
@@ -302,7 +310,7 @@ retry:
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
-			opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
+			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 		errno = 0;
 		ret = connect(fd, addr, addr_len);
@@ -353,7 +361,7 @@ retry:
 	} while (keep_stressing());
 
 #if defined(AF_UNIX)
-	if (addr && (opt_epoll_domain == AF_UNIX)) {
+	if (addr && (epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -373,11 +381,13 @@ retry:
 static void epoll_server(
 	const args_t *args,
 	const int child,
-	const pid_t ppid)
+	const pid_t ppid,
+	const int epoll_port,
+	const int epoll_domain)
 {
 	int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
-	int port = opt_epoll_port + child + (max_servers * args->instance);
+	int port = epoll_port + child + (max_servers * args->instance);
 	struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
@@ -386,7 +396,7 @@ static void epoll_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	if ((sfd = socket(opt_epoll_domain, SOCK_STREAM, 0)) < 0) {
+	if ((sfd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
 		pr_fail_err("socket");
 		rc = EXIT_FAILURE;
 		goto die;
@@ -399,7 +409,7 @@ static void epoll_server(
 	}
 
 	stress_set_sockaddr(args->name, args->instance, ppid,
-		opt_epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
+		epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 	if (bind(sfd, addr, addr_len) < 0) {
 		pr_fail_err("bind");
@@ -485,7 +495,7 @@ die_close:
 		(void)close(sfd);
 die:
 #if defined(AF_UNIX)
-	if (addr && (opt_epoll_domain == AF_UNIX)) {
+	if (addr && (epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 		(void)unlink(addr_un->sun_path);
 	}
@@ -503,16 +513,21 @@ int stress_epoll(const args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;
+	int epoll_port = DEFAULT_EPOLL_PORT;
+	int epoll_domain = AF_UNIX;
+
+	(void)get_setting("epoll-port", &epoll_port);
+	(void)get_setting("epoll-domain", &epoll_domain);
 
 	if (max_servers == 1) {
 		pr_dbg("%s: process [%d] using socket port %d\n",
 			args->name, args->pid,
-			opt_epoll_port + args->instance);
+			epoll_port + args->instance);
 	} else {
 		pr_dbg("%s: process [%d] using socket ports %d..%d\n",
 			args->name, args->pid,
-			opt_epoll_port + (max_servers * args->instance),
-			opt_epoll_port + (max_servers * (args->instance + 1)) - 1);
+			epoll_port + (max_servers * args->instance),
+			epoll_port + (max_servers * (args->instance + 1)) - 1);
 	}
 
 	/*
@@ -531,14 +546,14 @@ int stress_epoll(const args_t *args)
 	 */
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(args, epoll_server, i, ppid);
+		pids[i] = epoll_spawn(args, epoll_server, i, ppid, epoll_port, epoll_domain);
 		if (pids[i] < 0) {
 			pr_fail_dbg("fork");
 			goto reap;
 		}
 	}
 
-	epoll_client(args, ppid);
+	epoll_client(args, ppid, epoll_port, epoll_domain);
 reap:
 	for (i = 0; i < max_servers; i++) {
 		int status;

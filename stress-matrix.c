@@ -38,24 +38,21 @@ typedef void (*stress_matrix_func)(
 	matrix_type_t r[RESTRICT n][n]);
 
 typedef struct {
-	const char		*name;	/* human readable form of stressor */
+	const char			*name;	/* human readable form of stressor */
 	const stress_matrix_func	func;	/* the stressor function */
 } stress_matrix_stressor_info_t;
 
 static const stress_matrix_stressor_info_t *opt_matrix_stressor;
 static const stress_matrix_stressor_info_t matrix_methods[];
-static size_t opt_matrix_size = 128;
-static bool set_matrix_size = false;
 
 void stress_set_matrix_size(const char *opt)
 {
-	uint64_t size;
+	size_t matrix_size;
 
-	set_matrix_size = true;
-	size = get_uint64_byte(opt);
-	check_range("matrix-size", size,
+	matrix_size = get_uint64_byte(opt);
+	check_range("matrix-size", matrix_size,
 		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
-	opt_matrix_size = (size_t)size;
+	set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
 }
 
 /*
@@ -376,16 +373,16 @@ int stress_set_matrix_method(const char *name)
 int stress_matrix(const args_t *args)
 {
 	stress_matrix_func func = opt_matrix_stressor->func;
-	size_t n;
+	size_t n, matrix_size = 128;
 	const matrix_type_t v = 1 / (matrix_type_t)((uint32_t)~0);
 
-	if (!set_matrix_size) {
+	if (!get_setting("matrix-size", &matrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_matrix_size = MAX_MATRIX_SIZE;
+			matrix_size = MAX_MATRIX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_matrix_size = MIN_MATRIX_SIZE;
+			matrix_size = MIN_MATRIX_SIZE;
 	}
-	n = opt_matrix_size;
+	n = matrix_size;
 
 	{
 		register size_t i;

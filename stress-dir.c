@@ -24,17 +24,18 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_dir_dirs = DEFAULT_DIR_DIRS;
-
 /*
  *  stress_set_dir_dirs()
  *      set number of dir directories from given option string
  */
 void stress_set_dir_dirs(const char *opt)
 {
-	opt_dir_dirs = get_uint64_byte(opt);
-	check_range("dir-dirs", opt_dir_dirs,
+	uint64_t dir_dirs;
+
+	dir_dirs = get_uint64_byte(opt);
+	check_range("dir-dirs", dir_dirs,
 		MIN_DIR_DIRS, MAX_DIR_DIRS);
+	set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
 }
 
 /*
@@ -64,13 +65,16 @@ static void stress_dir_tidy(
 int stress_dir(const args_t *args)
 {
 	int ret;
+	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
+
+	(void)get_setting("dir-dirs", &dir_dirs);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	do {
-		uint64_t i, n = opt_dir_dirs;
+		uint64_t i, n = dir_dirs;
 
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
@@ -100,8 +104,8 @@ int stress_dir(const args_t *args)
 abort:
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " directories\n",
-		args->name, opt_dir_dirs);
-	stress_dir_tidy(args, opt_dir_dirs);
+		args->name, dir_dirs);
+	stress_dir_tidy(args, dir_dirs);
 	(void)stress_temp_dir_rm_args(args);
 
 	return ret;

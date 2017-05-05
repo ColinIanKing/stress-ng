@@ -59,14 +59,6 @@
 #define HDD_OPT_FDATASYNC	(0x00800000)
 #define HDD_OPT_SYNCFS		(0x01000000)
 
-static uint64_t opt_hdd_bytes = DEFAULT_HDD_BYTES;
-static uint64_t opt_hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-static bool set_hdd_bytes = false;
-static bool set_hdd_write_size = false;
-static bool opts_set = false;
-static int opt_hdd_flags = 0;
-static int opt_hdd_oflags = 0;
-
 typedef struct {
 	const char *opt;	/* User option */
 	int flag;		/* HDD_OPT_ flag */
@@ -139,38 +131,47 @@ static const hdd_opts_t hdd_opts[] = {
 
 void stress_set_hdd_bytes(const char *opt)
 {
-	set_hdd_bytes = true;
-	opt_hdd_bytes = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("hdd-bytes", opt_hdd_bytes,
+	uint64_t hdd_bytes;
+
+	hdd_bytes = get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("hdd-bytes", hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
+	set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
 }
 
 void stress_set_hdd_write_size(const char *opt)
 {
-	set_hdd_write_size = true;
-	opt_hdd_write_size = get_uint64_byte(opt);
-	check_range_bytes("hdd-write-size", opt_hdd_write_size,
+	uint64_t hdd_write_size;
+
+	hdd_write_size = get_uint64_byte(opt);
+	check_range_bytes("hdd-write-size", hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
+	set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
 }
 
 /*
  *  stress_hdd_write()
  *	write with writev or write depending on mode
  */
-static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
+static ssize_t stress_hdd_write(
+	const int fd,
+	uint8_t *buf,
+	size_t count,
+	const uint64_t hdd_write_size,
+	const int hdd_flags)
 {
 	ssize_t ret;
 
 #if !defined(__sun__)
-	if (opt_hdd_flags & HDD_OPT_UTIMES)
+	if (hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
 #endif
 
-	if (opt_hdd_flags & HDD_OPT_IOVEC) {
+	if (hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
 		uint8_t *data = buf;
-		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
+		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -184,15 +185,15 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
 	}
 
 #if _BSD_SOURCE || _XOPEN_SOURCE || _POSIX_C_SOURCE >= 200112L
-	if (opt_hdd_flags & HDD_OPT_FSYNC)
+	if (hdd_flags & HDD_OPT_FSYNC)
 		(void)fsync(fd);
 #endif
 #if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
-	if (opt_hdd_flags & HDD_OPT_FDATASYNC)
+	if (hdd_flags & HDD_OPT_FDATASYNC)
 		(void)fdatasync(fd);
 #endif
 #if NEED_GLIBC(2,14,0) && defined(__linux__)
-	if (opt_hdd_flags & HDD_OPT_SYNCFS)
+	if (hdd_flags & HDD_OPT_SYNCFS)
 		(void)syncfs(fd);
 #endif
 
@@ -203,18 +204,23 @@ static ssize_t stress_hdd_write(const int fd, uint8_t *buf, size_t count)
  *  stress_hdd_read()
  *	read with readv or read depending on mode
  */
-static ssize_t stress_hdd_read(const int fd, uint8_t *buf, size_t count)
+static ssize_t stress_hdd_read(
+	const int fd,
+	uint8_t *buf,
+	size_t count,
+	const uint64_t hdd_write_size,
+	const int hdd_flags)
 {
 #if !defined(__sun__)
-	if (opt_hdd_flags & HDD_OPT_UTIMES)
+	if (hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
 #endif
 
-	if (opt_hdd_flags & HDD_OPT_IOVEC) {
+	if (hdd_flags & HDD_OPT_IOVEC) {
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
 		uint8_t *data = buf;
-		const uint64_t sz = opt_hdd_write_size / HDD_IO_VEC_MAX;
+		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -236,8 +242,9 @@ static ssize_t stress_hdd_read(const int fd, uint8_t *buf, size_t count)
 int stress_hdd_opts(char *opts)
 {
 	char *str, *token;
-
-	opts_set = false;
+	int hdd_flags = 0;
+	int hdd_oflags = 0;
+	bool opts_set = false;
 
 	for (str = opts; (token = strtok(str, ",")) != NULL; str = NULL) {
 		size_t i;
@@ -245,7 +252,7 @@ int stress_hdd_opts(char *opts)
 
 		for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 			if (!strcmp(token, hdd_opts[i].opt)) {
-				int exclude = opt_hdd_flags & hdd_opts[i].exclude;
+				int exclude = hdd_flags & hdd_opts[i].exclude;
 				if (exclude) {
 					int j;
 
@@ -261,8 +268,8 @@ int stress_hdd_opts(char *opts)
 					}
 					return -1;
 				}
-				opt_hdd_flags  |= hdd_opts[i].flag;
-				opt_hdd_oflags |= hdd_opts[i].oflag;
+				hdd_flags  |= hdd_opts[i].flag;
+				hdd_oflags |= hdd_opts[i].oflag;
 				opt_ok = true;
 				opts_set = true;
 			}
@@ -276,6 +283,10 @@ int stress_hdd_opts(char *opts)
 			return -1;
 		}
 	}
+
+	set_setting("hdd-flags", TYPE_ID_INT, &hdd_flags);
+	set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
+	set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
 
 	return 0;
 }
@@ -322,57 +333,67 @@ int stress_hdd(const args_t *args)
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
 	char filename[PATH_MAX];
-	int flags = O_CREAT | O_RDWR | O_TRUNC | opt_hdd_oflags;
-	int fadvise_flags = opt_hdd_flags & HDD_OPT_FADV_MASK;
 	size_t opt_index = 0;
+	uint64_t hdd_bytes = DEFAULT_HDD_BYTES;
+	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
+	int hdd_flags, hdd_oflags;
+	int flags, fadvise_flags;
+	bool opts_set = false;
 
-	if (!set_hdd_bytes) {
+	(void)get_setting("hdd-flags", &hdd_flags);
+	(void)get_setting("hdd-oflags", &hdd_oflags);
+	(void)get_setting("hdd-opts-set", &opts_set);
+
+	flags = O_CREAT | O_RDWR | O_TRUNC | hdd_oflags;
+	fadvise_flags = hdd_flags & HDD_OPT_FADV_MASK;
+
+	if (!get_setting("hdd-bytes", &hdd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_hdd_bytes = MAX_HDD_BYTES;
+			hdd_bytes = MAX_HDD_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_hdd_bytes = MIN_HDD_BYTES;
+			hdd_bytes = MIN_HDD_BYTES;
 	}
 
-	opt_hdd_bytes /= args->num_instances;
-	if (opt_hdd_bytes < MIN_HDD_WRITE_SIZE)
-		opt_hdd_bytes = MIN_HDD_WRITE_SIZE;
+	hdd_bytes /= args->num_instances;
+	if (hdd_bytes < MIN_HDD_WRITE_SIZE)
+		hdd_bytes = MIN_HDD_WRITE_SIZE;
 
-	if (!set_hdd_write_size) {
+	if (!get_setting("hdd-write-size", &hdd_write_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_hdd_write_size = MAX_HDD_WRITE_SIZE;
+			hdd_write_size = MAX_HDD_WRITE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_hdd_write_size = MIN_HDD_WRITE_SIZE;
+			hdd_write_size = MIN_HDD_WRITE_SIZE;
 	}
 
-	if (opt_hdd_flags & HDD_OPT_O_DIRECT) {
-		min_size = (opt_hdd_flags & HDD_OPT_IOVEC) ?
+	if (hdd_flags & HDD_OPT_O_DIRECT) {
+		min_size = (hdd_flags & HDD_OPT_IOVEC) ?
 			HDD_IO_VEC_MAX * BUF_ALIGNMENT : MIN_HDD_WRITE_SIZE;
 	} else {
-		min_size = (opt_hdd_flags & HDD_OPT_IOVEC) ?
+		min_size = (hdd_flags & HDD_OPT_IOVEC) ?
 			HDD_IO_VEC_MAX * MIN_HDD_WRITE_SIZE : MIN_HDD_WRITE_SIZE;
 	}
 	/* Ensure I/O size is not too small */
-	if (opt_hdd_write_size < min_size) {
-		opt_hdd_write_size = min_size;
+	if (hdd_write_size < min_size) {
+		hdd_write_size = min_size;
 		pr_inf("%s: increasing read/write size to %"
-			PRIu64 " bytes\n", args->name, opt_hdd_write_size);
+			PRIu64 " bytes\n", args->name, hdd_write_size);
 	}
 
 	/* Ensure we get same sized iovec I/O sizes */
-	remainder = opt_hdd_write_size % HDD_IO_VEC_MAX;
-	if ((opt_hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
-		opt_hdd_write_size += HDD_IO_VEC_MAX - remainder;
+	remainder = hdd_write_size % HDD_IO_VEC_MAX;
+	if ((hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
+		hdd_write_size += HDD_IO_VEC_MAX - remainder;
 		pr_inf("%s: increasing read/write size to %"
 			PRIu64 " bytes in iovec mode\n",
-			args->name, opt_hdd_write_size);
+			args->name, hdd_write_size);
 	}
 
 	/* Ensure complete file size is not less than the I/O size */
-	if (opt_hdd_bytes < opt_hdd_write_size) {
-		opt_hdd_bytes = opt_hdd_write_size;
+	if (hdd_bytes < hdd_write_size) {
+		hdd_bytes = hdd_write_size;
 		pr_inf("%s: increasing file size to write size of %"
 			PRIu64 " bytes\n",
-			args->name, opt_hdd_bytes);
+			args->name, hdd_bytes);
 	}
 
 
@@ -381,15 +402,15 @@ int stress_hdd(const args_t *args)
 		return exit_status(-ret);
 
 	/* Must have some write option */
-	if ((opt_hdd_flags & HDD_OPT_WR_MASK) == 0)
-		opt_hdd_flags |= HDD_OPT_WR_SEQ;
+	if ((hdd_flags & HDD_OPT_WR_MASK) == 0)
+		hdd_flags |= HDD_OPT_WR_SEQ;
 	/* Must have some read option */
-	if ((opt_hdd_flags & HDD_OPT_RD_MASK) == 0)
-		opt_hdd_flags |= HDD_OPT_RD_SEQ;
+	if ((hdd_flags & HDD_OPT_RD_MASK) == 0)
+		hdd_flags |= HDD_OPT_RD_SEQ;
 
 #if defined(__sun__)
 	/* Work around lack of posix_memalign */
-	alloc_buf = malloc((size_t)opt_hdd_write_size + BUF_ALIGNMENT);
+	alloc_buf = malloc((size_t)hdd_write_size + BUF_ALIGNMENT);
 	if (!alloc_buf) {
 		pr_err("%s: cannot allocate buffer\n", args->name);
 		(void)stress_temp_dir_rm_args(args);
@@ -397,7 +418,7 @@ int stress_hdd(const args_t *args)
 	}
 	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
 #else
-	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)opt_hdd_write_size);
+	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)hdd_write_size);
 	if (ret || !alloc_buf) {
 		rc = exit_status(errno);
 		pr_err("%s: cannot allocate buffer\n", args->name);
@@ -407,7 +428,7 @@ int stress_hdd(const args_t *args)
 	buf = alloc_buf;
 #endif
 
-	stress_strnrnd((char *)buf, opt_hdd_write_size);
+	stress_strnrnd((char *)buf, hdd_write_size);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
@@ -423,12 +444,12 @@ int stress_hdd(const args_t *args)
 		if (!opts_set && (g_opt_flags & OPT_FLAGS_AGGRESSIVE)) {
 			opt_index = (opt_index + 1) % SIZEOF_ARRAY(hdd_opts);
 
-			opt_hdd_flags  = hdd_opts[opt_index].flag;
-			opt_hdd_oflags = hdd_opts[opt_index].oflag;
-			if ((opt_hdd_flags & HDD_OPT_WR_MASK) == 0)
-				opt_hdd_flags |= HDD_OPT_WR_SEQ;
-			if ((opt_hdd_flags & HDD_OPT_RD_MASK) == 0)
-				opt_hdd_flags |= HDD_OPT_RD_SEQ;
+			hdd_flags  = hdd_opts[opt_index].flag;
+			hdd_oflags = hdd_opts[opt_index].oflag;
+			if ((hdd_flags & HDD_OPT_WR_MASK) == 0)
+				hdd_flags |= HDD_OPT_WR_SEQ;
+			if ((hdd_flags & HDD_OPT_RD_MASK) == 0)
+				hdd_flags |= HDD_OPT_RD_SEQ;
 		}
 
 		(void)umask(0077);
@@ -451,13 +472,13 @@ int stress_hdd(const args_t *args)
 		}
 
 		/* Random Write */
-		if (opt_hdd_flags & HDD_OPT_WR_RND) {
-			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+		if (hdd_flags & HDD_OPT_WR_RND) {
+			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
 
 				off_t offset = (i == 0) ?
-					opt_hdd_bytes :
-					(mwc64() % opt_hdd_bytes) & ~511;
+					hdd_bytes :
+					(mwc64() % hdd_bytes) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err("lseek");
@@ -468,10 +489,11 @@ rnd_wr_retry:
 				if (!keep_stressing())
 					break;
 
-				for (j = 0; j < opt_hdd_write_size; j++)
+				for (j = 0; j < hdd_write_size; j++)
 					buf[j] = (offset + j) & 0xff;
 
-				ret = stress_hdd_write(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
+					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_wr_retry;
@@ -488,16 +510,17 @@ rnd_wr_retry:
 			}
 		}
 		/* Sequential Write */
-		if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
-			for (i = 0; i < opt_hdd_bytes; i += opt_hdd_write_size) {
+		if (hdd_flags & HDD_OPT_WR_SEQ) {
+			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
 seq_wr_retry:
 				if (!keep_stressing())
 					break;
 
-				for (j = 0; j < opt_hdd_write_size; j += 512)
+				for (j = 0; j < hdd_write_size; j += 512)
 					buf[j] = (i + j) & 0xff;
-				ret = stress_hdd_write(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
+					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_wr_retry;
@@ -521,10 +544,10 @@ seq_wr_retry:
 		}
 		/* Round to write size to get no partial reads */
 		hdd_read_size = (uint64_t)statbuf.st_size -
-			(statbuf.st_size % opt_hdd_write_size);
+			(statbuf.st_size % hdd_write_size);
 
 		/* Sequential Read */
-		if (opt_hdd_flags & HDD_OPT_RD_SEQ) {
+		if (hdd_flags & HDD_OPT_RD_SEQ) {
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
@@ -533,12 +556,13 @@ seq_wr_retry:
 				(void)close(fd);
 				goto finish;
 			}
-			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
+			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 seq_rd_retry:
 				if (!keep_stressing())
 					break;
 
-				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
+					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
@@ -549,15 +573,15 @@ seq_rd_retry:
 					}
 					continue;
 				}
-				if (ret != (ssize_t)opt_hdd_write_size)
+				if (ret != (ssize_t)hdd_write_size)
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					size_t j;
 
-					for (j = 0; j < opt_hdd_write_size; j += 512) {
+					for (j = 0; j < hdd_write_size; j += 512) {
 						uint8_t v = (i + j) & 0xff;
-						if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
+						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
 							if (buf[0] != v)
 								baddata++;
@@ -579,13 +603,13 @@ seq_rd_retry:
 					PRIu64 " times\n", args->name, baddata);
 		}
 		/* Random Read */
-		if (opt_hdd_flags & HDD_OPT_RD_RND) {
+		if (hdd_flags & HDD_OPT_RD_RND) {
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
-			for (i = 0; i < hdd_read_size; i += opt_hdd_write_size) {
-				off_t offset = (opt_hdd_bytes > opt_hdd_write_size) ?
-					(mwc64() % (opt_hdd_bytes - opt_hdd_write_size)) & ~511 : 0;
+			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
+				off_t offset = (hdd_bytes > hdd_write_size) ?
+					(mwc64() % (hdd_bytes - hdd_write_size)) & ~511 : 0;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err("lseek");
@@ -595,7 +619,8 @@ seq_rd_retry:
 rnd_rd_retry:
 				if (!keep_stressing())
 					break;
-				ret = stress_hdd_read(fd, buf, (size_t)opt_hdd_write_size);
+				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
+					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
@@ -606,15 +631,15 @@ rnd_rd_retry:
 					}
 					continue;
 				}
-				if (ret != (ssize_t)opt_hdd_write_size)
+				if (ret != (ssize_t)hdd_write_size)
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					size_t j;
 
-					for (j = 0; j < opt_hdd_write_size; j += 512) {
+					for (j = 0; j < hdd_write_size; j += 512) {
 						uint8_t v = (i + j) & 0xff;
-						if (opt_hdd_flags & HDD_OPT_WR_SEQ) {
+						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
 							if (buf[0] != v)
 								baddata++;

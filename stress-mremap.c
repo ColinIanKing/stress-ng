@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static size_t opt_mremap_bytes = DEFAULT_MREMAP_BYTES;
-static bool set_mremap_bytes = false;
-
 void stress_set_mremap_bytes(const char *opt)
 {
-	set_mremap_bytes = true;
-	opt_mremap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("mmap-bytes", opt_mremap_bytes,
+	size_t mremap_bytes;
+
+	mremap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("mremap-bytes", mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
+	set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,4,0)
@@ -142,6 +141,7 @@ static int stress_mremap_child(
 	const size_t sz,
 	size_t new_sz,
 	const size_t page_size,
+	const size_t mremap_bytes,
 	int *flags)
 {
 	do {
@@ -160,7 +160,7 @@ static int stress_mremap_child(
 			continue;	/* Try again */
 		}
 		(void)madvise_random(buf, new_sz);
-		(void)mincore_touch_pages(buf, opt_mremap_bytes);
+		(void)mincore_touch_pages(buf, mremap_bytes);
 
 		/* Ensure we can write to the mapped pages */
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -197,7 +197,7 @@ static int stress_mremap_child(
 		}
 
 		new_sz <<= 1;
-		while (new_sz < opt_mremap_bytes) {
+		while (new_sz < mremap_bytes) {
 			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
@@ -225,20 +225,23 @@ int stress_mremap(const args_t *args)
 	int rc = EXIT_SUCCESS, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
+	size_t mremap_bytes = DEFAULT_MREMAP_BYTES;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
-	if (!set_mremap_bytes) {
+	if (!get_setting("mremap-bytes", &mremap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mremap_bytes = MAX_MREMAP_BYTES;
+			mremap_bytes = MAX_MREMAP_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mremap_bytes = MIN_MREMAP_BYTES;
+			mremap_bytes = MIN_MREMAP_BYTES;
 	}
-	opt_mremap_bytes /= args->num_instances;
-	if (opt_mremap_bytes < MIN_MREMAP_BYTES)
-		opt_mremap_bytes = MIN_MREMAP_BYTES;
-	new_sz = sz = opt_mremap_bytes & ~(page_size - 1);
+	mremap_bytes /= args->num_instances;
+	if (mremap_bytes < MIN_MREMAP_BYTES)
+		mremap_bytes = MIN_MREMAP_BYTES;
+	if (mremap_bytes < page_size)
+		mremap_bytes= page_size;
+	new_sz = sz = mremap_bytes & ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -315,7 +318,7 @@ again:
 		set_oom_adjustment(args->name, true);
 
 		rc = stress_mremap_child(args, sz,
-			new_sz, page_size, &flags);
+			new_sz, page_size, mremap_bytes, &flags);
 		exit(rc);
 	}
 

@@ -24,19 +24,18 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
-static bool set_bigheap_growth = false;
-
 /*
  *  stress_set_bigheap_growth()
  *  	Set bigheap growth from given opt arg string
  */
 void stress_set_bigheap_growth(const char *opt)
 {
-	set_bigheap_growth = true;
-	opt_bigheap_growth = get_uint64_byte(opt);
-	check_range_bytes("bigheap-growth", opt_bigheap_growth,
+	uint64_t bigheap_growth;
+
+	bigheap_growth = get_uint64_byte(opt);
+	check_range_bytes("bigheap-growth", bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
+	set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }
 
 /*
@@ -52,16 +51,17 @@ int stress_bigheap(const args_t *args)
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
 	pid_t pid;
 	uint8_t *last_ptr_end = NULL;
+	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 
-	if (!set_bigheap_growth) {
+	if (!get_setting("bigheap-growth", &bigheap_growth)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_bigheap_growth = MAX_BIGHEAP_GROWTH;
+			bigheap_growth = MAX_BIGHEAP_GROWTH;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_bigheap_growth = MIN_BIGHEAP_GROWTH;
+			bigheap_growth = MIN_BIGHEAP_GROWTH;
 	}
 
 	/* Round growth size to nearest page size */
-	opt_bigheap_growth &= ~(page_size - 1);
+	bigheap_growth &= ~(page_size - 1);
 again:
 	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
@@ -126,7 +126,7 @@ again:
 
 		do {
 			void *old_ptr = ptr;
-			size += (size_t)opt_bigheap_growth;
+			size += (size_t)bigheap_growth;
 
 			/*
 			 * With many instances running it is wise to
@@ -153,7 +153,7 @@ again:
 
 				if (last_ptr == ptr) {
 					tmp = u8ptr = last_ptr_end;
-					n = (size_t)opt_bigheap_growth;
+					n = (size_t)bigheap_growth;
 				} else {
 					tmp = u8ptr = ptr;
 					n = size;

@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static size_t opt_vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
-static bool set_vm_splice_bytes = false;
-
 void stress_set_vm_splice_bytes(const char *opt)
 {
-	set_vm_splice_bytes = true;
-	opt_vm_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("vm-splice-bytes", opt_vm_splice_bytes,
+	size_t vm_splice_bytes;
+
+	vm_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("vm-splice-bytes", vm_splice_bytes,
 		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
+	set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,5,0)
@@ -46,20 +45,20 @@ int stress_vm_splice(const args_t *args)
 	int fd, fds[2];
 	uint8_t *buf;
 	const size_t page_size = args->page_size;
-	size_t sz;
+	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 
-	if (!set_vm_splice_bytes) {
+	if (!get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_vm_splice_bytes = MAX_VM_SPLICE_BYTES;
+			vm_splice_bytes = MAX_VM_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_vm_splice_bytes = MIN_VM_SPLICE_BYTES;
+			vm_splice_bytes = MIN_VM_SPLICE_BYTES;
 	}
-	opt_vm_splice_bytes /= args->num_instances;
-	if (opt_vm_splice_bytes < MIN_VM_SPLICE_BYTES)
-		opt_vm_splice_bytes = MIN_VM_SPLICE_BYTES;
-	if (opt_vm_splice_bytes < page_size)
-		opt_vm_splice_bytes = page_size;
-	sz = opt_vm_splice_bytes & ~(page_size - 1);
+	vm_splice_bytes /= args->num_instances;
+	if (vm_splice_bytes < MIN_VM_SPLICE_BYTES)
+		vm_splice_bytes = MIN_VM_SPLICE_BYTES;
+	if (vm_splice_bytes < page_size)
+		vm_splice_bytes = page_size;
+	sz = vm_splice_bytes & ~(page_size - 1);
 
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -96,7 +95,7 @@ int stress_vm_splice(const args_t *args)
 		if (bytes < 0)
 			break;
 		ret = splice(fds[0], NULL, fd, NULL,
-			opt_vm_splice_bytes, SPLICE_F_MOVE);
+			vm_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 

@@ -32,19 +32,18 @@ static double rate_ns;
 static double start;
 #endif
 
-static bool set_timer_freq = false;
-static uint64_t opt_timer_freq = DEFAULT_TIMER_FREQ;
-
 /*
  *  stress_set_timer_freq()
  *	set timer frequency from given option
  */
 void stress_set_timer_freq(const char *opt)
 {
-	set_timer_freq = true;
-	opt_timer_freq = get_uint64(opt);
-	check_range("timer-freq", opt_timer_freq,
+	uint64_t timer_freq;
+
+	timer_freq = get_uint64(opt);
+	check_range("timer-freq", timer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
+	set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);
 }
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)
@@ -119,6 +118,7 @@ int stress_timer(const args_t *args)
 	struct sigevent sev;
 	struct itimerspec timer;
 	sigset_t mask;
+	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -126,13 +126,13 @@ int stress_timer(const args_t *args)
 
 	start = time_now();
 
-	if (!set_timer_freq) {
+	if (!get_setting("timer-freq", &timer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_timer_freq = MAX_TIMER_FREQ;
+			timer_freq = MAX_TIMER_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_timer_freq = MIN_TIMER_FREQ;
+			timer_freq = MIN_TIMER_FREQ;
 	}
-	rate_ns = opt_timer_freq ? 1000000000.0 / opt_timer_freq : 1000000000.0;
+	rate_ns = timer_freq ? 1000000000.0 / timer_freq : 1000000000.0;
 
 	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;

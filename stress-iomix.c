@@ -24,24 +24,26 @@
  */
 #include "stress-ng.h"
 
-typedef void (*stress_iomix_func)(const args_t *args, const int fd);
-
-static off_t opt_iomix_bytes = DEFAULT_IOMIX_BYTES;
-static bool set_iomix_bytes = false;
+typedef void (*stress_iomix_func)(const args_t *args, const int fd, const off_t iomix_bytes);
 
 void stress_set_iomix_bytes(const char *opt)
 {
-	set_iomix_bytes = true;
-	opt_iomix_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("iomix-bytes", opt_iomix_bytes,
+	off_t iomix_bytes;
+
+	iomix_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("iomix-bytes", iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
+	set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
 }
 
 /*
  *  stress_iomix_wr_seq_bursts()
  *	bursty sequential writes
  */
-static void stress_iomix_wr_seq_bursts(const args_t *args, const int fd)
+static void stress_iomix_wr_seq_bursts(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		off_t ret, posn;
@@ -49,13 +51,13 @@ static void stress_iomix_wr_seq_bursts(const args_t *args, const int fd)
 		int i;
 		struct timeval tv;
 
-		posn = mwc64() % opt_iomix_bytes;
+		posn = mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
 			pr_fail("seek");
 			return;
 		}
-		for (i = 0; (i < n) && (posn < opt_iomix_bytes); i++) {
+		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
@@ -82,7 +84,10 @@ static void stress_iomix_wr_seq_bursts(const args_t *args, const int fd)
  *  stress_iomix_wr_rnd_bursts()
  *	bursty random writes
  */
-static void stress_iomix_wr_rnd_bursts(const args_t *args, const int fd)
+static void stress_iomix_wr_rnd_bursts(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		const int n = mwc8();
@@ -95,7 +100,7 @@ static void stress_iomix_wr_rnd_bursts(const args_t *args, const int fd)
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
 			off_t ret, posn;
 
-			posn = mwc64() % opt_iomix_bytes;
+			posn = mwc64() % iomix_bytes;
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
 				pr_fail("seek");
@@ -123,7 +128,10 @@ static void stress_iomix_wr_rnd_bursts(const args_t *args, const int fd)
  *  stress_iomix_wr_seq_slow()
  *	slow sequential writes
  */
-static void stress_iomix_wr_seq_slow(const args_t *args, const int fd)
+static void stress_iomix_wr_seq_slow(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		off_t ret, posn = 0;
@@ -133,7 +141,7 @@ static void stress_iomix_wr_seq_slow(const args_t *args, const int fd)
 			pr_fail("seek");
 			return;
 		}
-		while (posn < opt_iomix_bytes) {
+		while (posn < iomix_bytes) {
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
@@ -158,7 +166,10 @@ static void stress_iomix_wr_seq_slow(const args_t *args, const int fd)
  *  stress_iomix_rd_seq_bursts()
  *	bursty sequential reads
  */
-static void stress_iomix_rd_seq_bursts(const args_t *args, const int fd)
+static void stress_iomix_rd_seq_bursts(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		off_t ret, posn;
@@ -166,7 +177,7 @@ static void stress_iomix_rd_seq_bursts(const args_t *args, const int fd)
 		int i;
 		struct timeval tv;
 
-		posn = mwc64() % opt_iomix_bytes;
+		posn = mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
 			pr_fail("seek");
@@ -175,7 +186,7 @@ static void stress_iomix_rd_seq_bursts(const args_t *args, const int fd)
 #if defined(__linux__)
 		(void)posix_fadvise(fd, posn, 1024 * 1024, POSIX_FADV_SEQUENTIAL);
 #endif
-		for (i = 0; (i < n) && (posn < opt_iomix_bytes); i++) {
+		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
@@ -200,7 +211,10 @@ static void stress_iomix_rd_seq_bursts(const args_t *args, const int fd)
  *  stress_iomix_rd_rnd_bursts()
  *	bursty random reads
  */
-static void stress_iomix_rd_rnd_bursts(const args_t *args, const int fd)
+static void stress_iomix_rd_rnd_bursts(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		const int n = mwc8();
@@ -213,7 +227,7 @@ static void stress_iomix_rd_rnd_bursts(const args_t *args, const int fd)
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
 			off_t ret, posn;
 
-			posn = mwc64() % opt_iomix_bytes;
+			posn = mwc64() % iomix_bytes;
 #if defined(__linux__)
 			(void)posix_fadvise(fd, posn, len, POSIX_FADV_RANDOM);
 #endif
@@ -242,7 +256,10 @@ static void stress_iomix_rd_rnd_bursts(const args_t *args, const int fd)
  *  stress_iomix_rd_seq_slow()
  *	slow sequential reads
  */
-static void stress_iomix_rd_seq_slow(const args_t *args, const int fd)
+static void stress_iomix_rd_seq_slow(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		off_t ret, posn = 0;
@@ -252,7 +269,7 @@ static void stress_iomix_rd_seq_slow(const args_t *args, const int fd)
 			pr_fail("seek");
 			return;
 		}
-		while (posn < opt_iomix_bytes) {
+		while (posn < iomix_bytes) {
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
@@ -278,7 +295,10 @@ static void stress_iomix_rd_seq_slow(const args_t *args, const int fd)
  *  stress_iomix_sync()
  *	file syncs
  */
-static void stress_iomix_sync(const args_t *args, const int fd)
+static void stress_iomix_sync(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		struct timeval tv;
@@ -305,7 +325,7 @@ static void stress_iomix_sync(const args_t *args, const int fd)
 			break;
 #endif
 #if defined(__linux__)
-		(void)sync_file_range(fd, mwc64() % opt_iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
+		(void)sync_file_range(fd, mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
@@ -321,10 +341,13 @@ static void stress_iomix_sync(const args_t *args, const int fd)
  *  stress_iomix_bad_advise()
  *	bad fadvise hints
  */
-static void stress_iomix_bad_advise(const args_t *args, const int fd)
+static void stress_iomix_bad_advise(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
-		off_t posn = mwc64() % opt_iomix_bytes;
+		off_t posn = mwc64() % iomix_bytes;
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
 		(void)usleep(100000);
@@ -336,7 +359,10 @@ static void stress_iomix_bad_advise(const args_t *args, const int fd)
  *  stress_iomix_rd_wr_mmap()
  *	random memory mapped read/writes
  */
-static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
+static void stress_iomix_rd_wr_mmap(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	void *mmaps[128];
 	size_t i;
@@ -349,7 +375,7 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
-			off_t posn = (mwc64() % opt_iomix_bytes) & ~(page_size - 1);
+			off_t posn = (mwc64() % iomix_bytes) & ~(page_size - 1);
 			mmaps[i] = mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE, flags, fd, posn);
 		}
@@ -381,7 +407,10 @@ static void stress_iomix_rd_wr_mmap(const args_t *args, const int fd)
  *  stress_iomix_wr_bytes()
  *	lots of small 1 byte writes
  */
-static void stress_iomix_wr_bytes(const args_t *args, const int fd)
+static void stress_iomix_wr_bytes(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
 		off_t ret, posn = 0;
@@ -391,7 +420,7 @@ static void stress_iomix_wr_bytes(const args_t *args, const int fd)
 			pr_fail("seek");
 			return;
 		}
-		while (posn < opt_iomix_bytes) {
+		while (posn < iomix_bytes) {
 			char buffer[1] = { (mwc8() % 26) + 'A' };
 			ssize_t rc;
 
@@ -413,10 +442,13 @@ static void stress_iomix_wr_bytes(const args_t *args, const int fd)
  *  stress_iomix_rd_bytes()
  *	lots of small 1 byte reads
  */
-static void stress_iomix_rd_bytes(const args_t *args, const int fd)
+static void stress_iomix_rd_bytes(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	do {
-		off_t ret, posn = opt_iomix_bytes;
+		off_t ret, posn = iomix_bytes;
 
 		while (posn != 0) {
 			char buffer[1];
@@ -447,9 +479,13 @@ static void stress_iomix_rd_bytes(const args_t *args, const int fd)
  *  stress_iomix_drop_caches()
  *	occasional file cache dropping
  */
-static void stress_iomix_drop_caches(const args_t *args, const int fd)
+static void stress_iomix_drop_caches(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
 {
 	(void)fd;
+	(void)iomix_bytes;
 
 	do {
 		sync();
@@ -502,6 +538,7 @@ int stress_iomix(const args_t *args)
 	int fd, ret;
 	char filename[PATH_MAX];
 	uint64_t *counters;
+	off_t iomix_bytes = DEFAULT_IOMIX_BYTES;
 	const size_t page_size = args->page_size;
 	const size_t counters_sz = sizeof(uint64_t) * SIZEOF_ARRAY(iomix_funcs);
 	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
@@ -515,15 +552,15 @@ int stress_iomix(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (!set_iomix_bytes) {
+	if (!get_setting("iomix-bytes", &iomix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_iomix_bytes = MAX_FALLOCATE_BYTES;
+			iomix_bytes = MAX_FALLOCATE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_iomix_bytes = MIN_FALLOCATE_BYTES;
+			iomix_bytes = MIN_FALLOCATE_BYTES;
 	}
-	opt_iomix_bytes /= args->num_instances;
-	if (opt_iomix_bytes < (off_t)MIN_IOMIX_BYTES)
-		opt_iomix_bytes = (off_t)MIN_IOMIX_BYTES;
+	iomix_bytes /= args->num_instances;
+	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
+		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
@@ -542,9 +579,9 @@ int stress_iomix(const args_t *args)
 	(void)unlink(filename);
 
 #if defined(FALLOC_FL_ZERO_RANGE)
-	ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, opt_iomix_bytes);
+	ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, iomix_bytes);
 #else
-	ret = shim_fallocate(fd, 0, 0, opt_iomix_bytes);
+	ret = shim_fallocate(fd, 0, 0, iomix_bytes);
 #endif
 	if (ret < 0) {
 		if (errno == ENOSPC) {
@@ -576,7 +613,7 @@ int stress_iomix(const args_t *args)
 			goto reap;
 		} else if (pids[i] == 0) {
 			/* Child */
-			iomix_funcs[i](&tmp_args, fd);
+			iomix_funcs[i](&tmp_args, fd, iomix_bytes);
 			(void)kill(args->pid, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}

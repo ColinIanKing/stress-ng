@@ -44,14 +44,14 @@
 #define UDPLITE_RECV_CSCOV	(11)
 #endif
 
-static int opt_udp_domain = AF_INET;
-static int opt_udp_port = DEFAULT_SOCKET_PORT;
-
 void stress_set_udp_port(const char *opt)
 {
+	int udp_port;
+
 	stress_set_net_port("udp-port", opt,
 		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
-		&opt_udp_port);
+		&udp_port);
+	set_setting("udp-port", TYPE_ID_INT, &udp_port);
 }
 
 /*
@@ -60,7 +60,12 @@ void stress_set_udp_port(const char *opt)
  */
 int stress_set_udp_domain(const char *name)
 {
-	return stress_set_net_domain(DOMAIN_ALL, "udp-domain", name, &opt_udp_domain);
+	int ret, udp_domain;
+
+	ret = stress_set_net_domain(DOMAIN_ALL, "udp-domain", name, &udp_domain);
+	set_setting("udp-domain", TYPE_ID_INT, &udp_domain);
+
+	return ret;
 }
 
 /*
@@ -69,6 +74,8 @@ int stress_set_udp_domain(const char *name)
  */
 int stress_udp(const args_t *args)
 {
+	int udp_port = DEFAULT_SOCKET_PORT;
+	int udp_domain = AF_INET;
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
 #if defined(IPPROTO_UDPLITE)
@@ -78,9 +85,12 @@ int stress_udp(const args_t *args)
 	int proto = 0;
 #endif
 
+	(void)get_setting("udp-port", &udp_port);
+	(void)get_setting("udp-domain", &udp_domain);
+
 #if defined(IPPROTO_UDPLITE)
 	if ((proto == IPPROTO_UDPLITE) &&
-	    (opt_udp_domain == AF_UNIX)) {
+	    (udp_domain == AF_UNIX)) {
 		proto = 0;
 		if (args->instance == 0) {
 			pr_inf("%s: disabling UDP-Lite as it is not "
@@ -91,7 +101,7 @@ int stress_udp(const args_t *args)
 #endif
 
 	pr_dbg("%s: process [%d] using udp port %d\n",
-		args->name, (int)args->pid, opt_udp_port + args->instance);
+		args->name, (int)args->pid, udp_port + args->instance);
 
 again:
 	pid = fork();
@@ -116,14 +126,14 @@ again:
 			int val;
 #endif
 
-			if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
+			if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
 				pr_fail_dbg("socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				exit(EXIT_FAILURE);
 			}
 			stress_set_sockaddr(args->name, args->instance, ppid,
-				opt_udp_domain, opt_udp_port,
+				udp_domain, udp_port,
 				&addr, &len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 			if (proto == IPPROTO_UDPLITE) {
@@ -153,7 +163,7 @@ again:
 		} while (keep_stressing());
 
 #if defined(AF_UNIX)
-		if ((opt_udp_domain == AF_UNIX) && addr) {
+		if ((udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 			(void)unlink(addr_un->sun_path);
 		}
@@ -181,13 +191,13 @@ again:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		if ((fd = socket(opt_udp_domain, SOCK_DGRAM, proto)) < 0) {
+		if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
 			pr_fail_dbg("socket");
 			rc = EXIT_FAILURE;
 			goto die;
 		}
 		stress_set_sockaddr(args->name, args->instance, ppid,
-			opt_udp_domain, opt_udp_port,
+			udp_domain, udp_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
@@ -229,7 +239,7 @@ die_close:
 		(void)close(fd);
 die:
 #if defined(AF_UNIX)
-		if ((opt_udp_domain == AF_UNIX) && addr) {
+		if ((udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 			(void)unlink(addr_un->sun_path);
 		}

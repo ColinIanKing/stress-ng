@@ -31,19 +31,18 @@ static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
 
-static uint64_t opt_mergesort_size = DEFAULT_MERGESORT_SIZE;
-static bool set_mergesort_size = false;
-
 /*
  *  stress_set_mergesort_size()
  *	set mergesort size
  */
 void stress_set_mergesort_size(const void *opt)
 {
-	set_mergesort_size = true;
-	opt_mergesort_size = get_uint64_byte(opt);
-	check_range("mergesort-size", opt_mergesort_size,
+	uint64_t mergesort_size;
+
+	mergesort_size = get_uint64_byte(opt);
+	check_range("mergesort-size", mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
+	set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }
 
 #if defined(HAVE_LIB_BSD)
@@ -107,18 +106,19 @@ static int stress_mergesort_cmp_3(const void *p1, const void *p2)
  */
 int stress_mergesort(const args_t *args)
 {
+	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i;
 	struct sigaction old_action;
 	int ret;
 
-	if (!set_mergesort_size) {
+	if (!get_setting("mergesort-size", &mergesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mergesort_size = MAX_MERGESORT_SIZE;
+			mergesort_size = MAX_MERGESORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mergesort_size = MIN_MERGESORT_SIZE;
+			mergesort_size = MIN_MERGESORT_SIZE;
 	}
-	n = (size_t)opt_mergesort_size;
+	n = (size_t)mergesort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg("malloc");

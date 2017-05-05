@@ -30,15 +30,14 @@
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 
-static uint64_t opt_fiemap_size = DEFAULT_FIEMAP_SIZE;
-static bool set_fiemap_size = false;
-
-void stress_set_fiemap_size(const char *opt)
+void stress_set_fiemap_bytes(const char *opt)
 {
-	set_fiemap_size = true;
-	opt_fiemap_size = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("fiemap-size", opt_fiemap_size,
+	uint64_t fiemap_bytes;
+
+	fiemap_bytes = get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("fiemap-bytes", fiemap_bytes,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
+	set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
 #if defined(__linux__) && defined(FS_IOC_FIEMAP)
@@ -52,10 +51,11 @@ void stress_set_fiemap_size(const char *opt)
 static int stress_fiemap_writer(
 	const args_t *args,
 	const int fd,
+	const uint64_t fiemap_bytes,
 	uint64_t *counters)
 {
 	uint8_t buf[1];
-	uint64_t len = (off_t)opt_fiemap_size - sizeof(buf);
+	uint64_t len = (off_t)fiemap_bytes - sizeof(buf);
 	uint64_t counter;
 	int rc = EXIT_FAILURE;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
@@ -191,16 +191,17 @@ int stress_fiemap(const args_t *args)
 	uint64_t *counters;
 	uint64_t ops_per_proc = args->max_ops / MAX_FIEMAP_PROCS;
 	uint64_t ops_remaining = args->max_ops % MAX_FIEMAP_PROCS;
+	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 
-	if (!set_fiemap_size) {
+	if (!get_setting("fiemap-bytes", &fiemap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_fiemap_size = MAX_SEEK_SIZE;
+			fiemap_bytes = MAX_SEEK_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_fiemap_size = MIN_SEEK_SIZE;
+			fiemap_bytes = MIN_SEEK_SIZE;
 	}
-	opt_fiemap_size /= args->num_instances;
-	if (opt_fiemap_size < MIN_FIEMAP_SIZE)
-		opt_fiemap_size = MIN_FIEMAP_SIZE;
+	fiemap_bytes /= args->num_instances;
+	if (fiemap_bytes < MIN_FIEMAP_SIZE)
+		fiemap_bytes = MIN_FIEMAP_SIZE;
 
 	/* We need some share memory for counter accounting */
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
@@ -247,7 +248,7 @@ int stress_fiemap(const args_t *args)
 		if (pids[i] < 0)
 			goto fail;
 	}
-	rc = stress_fiemap_writer(args, fd, counters);
+	rc = stress_fiemap_writer(args, fd, fiemap_bytes, counters);
 
 	/* And reap stressors */
 	for (i = 0; i < MAX_FIEMAP_PROCS; i++) {

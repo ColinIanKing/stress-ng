@@ -26,9 +26,6 @@
 
 #define NO_MEM_RETRIES_MAX	(256)
 
-static size_t opt_mmap_bytes = DEFAULT_MMAP_BYTES;
-static bool set_mmap_bytes = false;
-
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
 #if defined(MAP_HUGE_2MB) && defined(MAP_HUGETLB)
@@ -58,10 +55,12 @@ static const int mmap_flags[] = {
 
 void stress_set_mmap_bytes(const char *opt)
 {
-	set_mmap_bytes = true;
-	opt_mmap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("mmap-bytes", opt_mmap_bytes,
+	size_t mmap_bytes;
+
+	mmap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("mmap-bytes", mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
+	set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
 }
 
 /*
@@ -96,7 +95,8 @@ static void stress_mmap_child(
 	const int fd,
 	int *flags,
 	const size_t sz,
-	const size_t pages4k)
+	const size_t pages4k,
+	const size_t mmap_bytes)
 {
 	const size_t page_size = args->page_size;
 	int no_mem_retries = 0;
@@ -136,7 +136,7 @@ static void stress_mmap_child(
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, opt_mmap_bytes);
+		(void)mincore_touch_pages(buf, mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz);
 		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
@@ -153,7 +153,7 @@ static void stress_mmap_child(
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
-		(void)mincore_touch_pages(buf, opt_mmap_bytes);
+		(void)mincore_touch_pages(buf, mmap_bytes);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
@@ -240,6 +240,7 @@ int stress_mmap(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t sz, pages4k;
+	size_t mmap_bytes = DEFAULT_MMAP_BYTES;
 	pid_t pid;
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
@@ -248,16 +249,16 @@ int stress_mmap(const args_t *args)
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
-	if (!set_mmap_bytes) {
+	if (!get_setting("mmap-bytes", &mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mmap_bytes = MAX_MMAP_BYTES;
+			mmap_bytes = MAX_MMAP_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mmap_bytes = MIN_MMAP_BYTES;
+			mmap_bytes = MIN_MMAP_BYTES;
 	}
-	opt_mmap_bytes /= args->num_instances;
-	if (opt_mmap_bytes < MIN_MMAP_BYTES)
-		opt_mmap_bytes = MIN_MMAP_BYTES;
-	sz = opt_mmap_bytes & ~(page_size - 1);
+	mmap_bytes /= args->num_instances;
+	if (mmap_bytes < MIN_MMAP_BYTES)
+		mmap_bytes = MIN_MMAP_BYTES;
+	sz = mmap_bytes & ~(page_size - 1);
 	pages4k = sz / page_size;
 
 	/* Make sure this is killable by OOM killer */
@@ -376,7 +377,7 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		stress_mmap_child(args, fd, &flags, sz, pages4k);
+		stress_mmap_child(args, fd, &flags, sz, pages4k, mmap_bytes);
 	}
 
 cleanup:

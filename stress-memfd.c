@@ -24,22 +24,18 @@
  */
 #include "stress-ng.h"
 
-static size_t opt_memfd_bytes = DEFAULT_MEMFD_BYTES;
-static bool set_memfd_bytes;
-
-static uint64_t opt_memfd_fds = DEFAULT_MEMFD_FDS;
-static bool set_memfd_fds = false;
-
 /*
  *  stress_set_memfd_bytes
  *	set max size of each memfd size
  */
 void stress_set_memfd_bytes(const char *opt)
 {
-	set_memfd_bytes = true;
-	opt_memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("memfd-bytes", opt_memfd_bytes,
+	size_t memfd_bytes;
+
+	memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("memfd-bytes", memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
+	set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
 }
 
 /*
@@ -48,10 +44,12 @@ void stress_set_memfd_bytes(const char *opt)
  */
 void stress_set_memfd_fds(const char *opt)
 {
-	set_memfd_fds = true;
-	opt_memfd_fds = get_uint64_byte(opt);
-	check_range("memfd-fds", opt_memfd_fds,
+	uint32_t memfd_fds;
+
+	memfd_fds = (uint32_t)get_uint64_byte(opt);
+	check_range("memfd-fds", memfd_fds,
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
+	set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
 
 #if defined(__linux__) && defined(__NR_memfd_create)
@@ -59,25 +57,28 @@ void stress_set_memfd_fds(const char *opt)
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static void stress_memfd_allocs(const args_t *args)
+static void stress_memfd_allocs(
+	const args_t *args,
+	const size_t memfd_bytes,
+	const uint32_t memfd_fds)
 {
-	int fds[opt_memfd_fds];
-	void *maps[opt_memfd_fds];
+	int fds[memfd_fds];
+	void *maps[memfd_fds];
 	uint64_t i;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t size = opt_memfd_bytes / opt_memfd_fds;
+	size_t size = memfd_bytes / memfd_fds;
 
 	if (size < min_size)
 		size = min_size;
 
 	do {
-		for (i = 0; i < opt_memfd_fds; i++) {
+		for (i = 0; i < memfd_fds; i++) {
 			fds[i] = -1;
 			maps[i] = MAP_FAILED;
 		}
 
-		for (i = 0; i < opt_memfd_fds; i++) {
+		for (i = 0; i < memfd_fds; i++) {
 			char filename[PATH_MAX];
 
 			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
@@ -102,7 +103,7 @@ static void stress_memfd_allocs(const args_t *args)
 				goto clean;
 		}
 
-		for (i = 0; i < opt_memfd_fds; i++) {
+		for (i = 0; i < memfd_fds; i++) {
 			ssize_t ret;
 			size_t whence;
 
@@ -146,7 +147,7 @@ static void stress_memfd_allocs(const args_t *args)
 				goto clean;
 		}
 
-		for (i = 0; i < opt_memfd_fds; i++) {
+		for (i = 0; i < memfd_fds; i++) {
 			if (fds[i] < 0)
 				continue;
 #if defined(SEEK_SET)
@@ -183,7 +184,7 @@ static void stress_memfd_allocs(const args_t *args)
 				goto clean;
 		}
 clean:
-		for (i = 0; i < opt_memfd_fds; i++) {
+		for (i = 0; i < memfd_fds; i++) {
 			if (maps[i] != MAP_FAILED)
 				(void)munmap(maps[i], size);
 			if (fds[i] >= 0)
@@ -200,18 +201,22 @@ clean:
  */
 int stress_memfd(const args_t *args)
 {
+	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	pid_t pid;
+	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
 
-	if (!set_memfd_bytes) {
+	if (!get_setting("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_memfd_bytes = MAX_MEMFD_BYTES;
+			memfd_bytes = MAX_MEMFD_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_memfd_bytes = MIN_MEMFD_BYTES;
+			memfd_bytes = MIN_MEMFD_BYTES;
 	}
-	opt_memfd_bytes /= args->num_instances;
-	if (opt_memfd_bytes < MIN_MEMFD_BYTES)
-		opt_memfd_bytes = MIN_MEMFD_BYTES;
+	memfd_bytes /= args->num_instances;
+	if (memfd_bytes < MIN_MEMFD_BYTES)
+		memfd_bytes = MIN_MEMFD_BYTES;
+
+	(void)get_setting("memfd-fds", &memfd_fds);
 
 again:
 	if (!g_keep_stressing_flag)
@@ -274,7 +279,7 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		stress_memfd_allocs(args);
+		stress_memfd_allocs(args, memfd_bytes, memfd_fds);
 	}
 
 	if (ooms + segvs + nomems > 0)

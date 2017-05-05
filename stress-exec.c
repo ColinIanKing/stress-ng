@@ -24,19 +24,18 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_exec_max = DEFAULT_EXECS;
-static bool set_exec_max = false;
-
 /*
  *  stress_set_exec_max()
  *	set maximum number of forks allowed
  */
 void stress_set_exec_max(const char *opt)
 {
-	set_exec_max = true;
-	opt_exec_max = get_uint64_byte(opt);
-	check_range("exec-max", opt_exec_max,
+	uint64_t exec_max;
+
+	exec_max = get_uint64_byte(opt);
+	check_range("exec-max", exec_max,
 		MIN_EXECS, MAX_EXECS);
+	set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
 
 #if defined(__linux__)
@@ -51,8 +50,11 @@ int stress_exec(const args_t *args)
 	char path[PATH_MAX + 1];
 	ssize_t len;
 	uint64_t exec_fails = 0, exec_calls = 0;
+	uint64_t exec_max = DEFAULT_EXECS;
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
 	char *env_new[] = { NULL };
+
+	(void)get_setting("exec-max", &exec_max);
 
 	/*
 	 *  Don't want to run this when running as root as
@@ -80,7 +82,7 @@ int stress_exec(const args_t *args)
 
 		(void)memset(pids, 0, sizeof(pids));
 
-		for (i = 0; i < opt_exec_max; i++) {
+		for (i = 0; i < exec_max; i++) {
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
@@ -116,7 +118,7 @@ int stress_exec(const args_t *args)
 			if (!g_keep_stressing_flag)
 				break;
 		}
-		for (i = 0; i < opt_exec_max; i++) {
+		for (i = 0; i < exec_max; i++) {
 			if (pids[i] > 0) {
 				int status;
 				/* Parent, wait for child */
@@ -128,7 +130,7 @@ int stress_exec(const args_t *args)
 			}
 		}
 
-		for (i = 0; i < opt_exec_max; i++) {
+		for (i = 0; i < exec_max; i++) {
 			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				pr_fail("%s: fork failed\n", args->name);
 			}

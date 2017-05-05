@@ -24,17 +24,15 @@
  */
 #include "stress-ng.h"
 
-typedef enum {
-	ORDER_FORWARD,
-	ORDER_REVERSE,
-	ORDER_STRIDE,
-	ORDER_RANDOM,
-	ORDER_NONE,
-} dentry_order_t;
+#define ORDER_FORWARD	0x00
+#define ORDER_REVERSE	0x01
+#define ORDER_STRIDE	0x02
+#define ORDER_RANDOM	0x03
+#define ORDER_NONE	0x04
 
 typedef struct {
 	const char *name;
-	const dentry_order_t order;
+	uint8_t denty_order;
 } dentry_removal_t;
 
 static const dentry_removal_t dentry_removals[] = {
@@ -45,16 +43,14 @@ static const dentry_removal_t dentry_removals[] = {
 	{ NULL,		ORDER_NONE },
 };
 
-static dentry_order_t order = ORDER_RANDOM;
-static uint64_t opt_dentries = DEFAULT_DENTRIES;
-static bool set_dentries = false;
-
 void stress_set_dentries(const char *opt)
 {
-	set_dentries = true;
-	opt_dentries = get_uint64(opt);
-	check_range("dentries", opt_dentries,
+	uint64_t dentries;
+
+	dentries = get_uint64(opt);
+	check_range("dentries", dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
+	set_setting("dentries", TYPE_ID_UINT64, &dentries);
 }
 
 /*
@@ -67,7 +63,10 @@ int stress_set_dentry_order(const char *opt)
 
 	for (dr = dentry_removals; dr->name; dr++) {
 		if (!strcmp(dr->name, opt)) {
-			order = dr->order;
+			uint8_t dentry_order = dr->denty_order;
+
+			set_setting("dentry-order",
+				TYPE_ID_UINT8, &dentry_order);
 			return 0;
 		}
 	}
@@ -87,14 +86,13 @@ int stress_set_dentry_order(const char *opt)
  */
 static void stress_dentry_unlink(
 	const args_t *args,
-	const uint64_t n)
+	const uint64_t n,
+	const uint8_t dentry_order)
 {
 	uint64_t i, j;
 	uint64_t prime;
-	dentry_order_t ord;
-
-	ord = (order == ORDER_RANDOM) ?
-		mwc32() % 3 : order;
+	const uint8_t ord = (dentry_order == ORDER_RANDOM) ?
+				mwc32() % 3 : dentry_order;
 
 	switch (ord) {
 	case ORDER_REVERSE:
@@ -144,20 +142,23 @@ static void stress_dentry_unlink(
 int stress_dentry(const args_t *args)
 {
 	int ret;
+	uint64_t dentries = DEFAULT_DENTRIES;
+	uint8_t dentry_order = ORDER_RANDOM;
 
-	if (!set_dentries) {
+	if (!get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_dentries = MAX_DENTRIES;
+			dentries = MAX_DENTRIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_dentries = MIN_DENTRIES;
+			dentries = MIN_DENTRIES;
 	}
+	(void)get_setting("dentry-order", &dentry_order);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 
 	do {
-		uint64_t i, n = opt_dentries;
+		uint64_t i, n = dentries;
 
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
@@ -181,7 +182,7 @@ int stress_dentry(const args_t *args)
 
 			inc_counter(args);
 		}
-		stress_dentry_unlink(args, n);
+		stress_dentry_unlink(args, n, dentry_order);
 		if (!g_keep_stressing_flag)
 			break;
 		sync();
@@ -190,8 +191,8 @@ int stress_dentry(const args_t *args)
 abort:
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " entries\n",
-		args->name, opt_dentries);
-	stress_dentry_unlink(args, opt_dentries);
+		args->name, dentries);
+	stress_dentry_unlink(args, dentries, dentry_order);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

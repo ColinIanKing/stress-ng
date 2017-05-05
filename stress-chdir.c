@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_chdir_dirs = DEFAULT_CHDIR_DIRS;
 
 /*
  *  stress_set_chdir_dirs()
@@ -32,9 +31,12 @@ static uint64_t opt_chdir_dirs = DEFAULT_CHDIR_DIRS;
  */
 void stress_set_chdir_dirs(const char *opt)
 {
-	opt_chdir_dirs = get_uint64_byte(opt);
-	check_range("chdir-dirs", opt_chdir_dirs,
+	uint64_t chdir_dirs;
+
+	chdir_dirs = get_uint64_byte(opt);
+	check_range("chdir-dirs", chdir_dirs,
 		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
+	set_setting("chdir-dirs", TYPE_ID_UINT64, &chdir_dirs);
 }
 
 /*
@@ -43,24 +45,31 @@ void stress_set_chdir_dirs(const char *opt)
  */
 int stress_chdir(const args_t *args)
 {
-	uint64_t i;
+	uint64_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
 	char path[PATH_MAX], cwd[PATH_MAX];
 	int rc, ret = EXIT_FAILURE;
-	char *paths[opt_chdir_dirs];
+	char **paths;
 
-	(void)memset(paths, 0, sizeof(paths));
+	(void)get_setting("chdir-dirs", &chdir_dirs);
+	paths = calloc(chdir_dirs, sizeof(*paths));
+	if (!paths) {
+		pr_err("%s: out of memory allocating paths\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
 		pr_fail_err("getcwd");
-		return ret;
+		goto err;
 	}
 
 	rc = stress_temp_dir_mk_args(args);
-	if (rc < 0)
-		return exit_status(-rc);
+	if (rc < 0) {
+		ret = exit_status(-rc);
+		goto err;
+	}
 
 	/* Populate */
-	for (i = 0; i < opt_chdir_dirs; i++) {
+	for (i = 0; i < chdir_dirs; i++) {
 		uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename_args(args,
@@ -79,7 +88,7 @@ int stress_chdir(const args_t *args)
 	}
 
 	do {
-		for (i = 0; i < opt_chdir_dirs; i++) {
+		for (i = 0; i < chdir_dirs; i++) {
 			if (!keep_stressing())
 				goto done;
 			if (chdir(paths[i]) < 0) {
@@ -110,13 +119,15 @@ abort:
 
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " directories\n",
-		args->name, opt_chdir_dirs);
+		args->name, chdir_dirs);
 
-	for (i = 0; (i < opt_chdir_dirs) && paths[i] ; i++) {
+	for (i = 0; (i < chdir_dirs) && paths[i] ; i++) {
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}
 	(void)stress_temp_dir_rm_args(args);
+err:
+	free(paths);
 
 	return ret;
 }

@@ -25,19 +25,18 @@
 #include "stress-ng.h"
 #include <search.h>
 
-static uint64_t opt_tsearch_size = DEFAULT_TSEARCH_SIZE;
-static bool set_tsearch_size = false;
-
 /*
  *  stress_set_tsearch_size()
  *      set tsearch size from given option string
  */
 void stress_set_tsearch_size(const char *opt)
 {
-	set_tsearch_size = true;
-	opt_tsearch_size = get_uint64_byte(opt);
-	check_range("tsearch-size", opt_tsearch_size,
+	uint64_t tsearch_size;
+
+	tsearch_size = get_uint64_byte(opt);
+	check_range("tsearch-size", tsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+	set_setting("tsearch-size", TYPE_ID_UINT64, &tsearch_size);
 }
 
 /*
@@ -63,16 +62,17 @@ static int cmp(const void *p1, const void *p2)
  */
 int stress_tsearch(const args_t *args)
 {
+	uint64_t tsearch_size = DEFAULT_TSEARCH_SIZE;
 	int32_t *data;
 	size_t i, n;
 
-	if (!set_tsearch_size) {
+	if (!get_setting("tsearch-size", &tsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_tsearch_size = MAX_TSEARCH_SIZE;
+			tsearch_size = MAX_TSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_tsearch_size = MIN_TSEARCH_SIZE;
+			tsearch_size = MIN_TSEARCH_SIZE;
 	}
-	n = (size_t)opt_tsearch_size;
+	n = (size_t)tsearch_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg("calloc");

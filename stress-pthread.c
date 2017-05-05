@@ -39,25 +39,21 @@ static sigset_t set;
 
 #endif
 
-static uint64_t opt_pthread_max = DEFAULT_PTHREAD;
-static bool set_pthread_max = false;
-
 void stress_set_pthread_max(const char *opt)
 {
-	set_pthread_max = true;
-	opt_pthread_max = get_uint64_byte(opt);
-	check_range("pthread-max", opt_pthread_max,
+	uint64_t pthread_max;
+
+	pthread_max = get_uint64_byte(opt);
+	check_range("pthread-max", pthread_max,
 		MIN_PTHREAD, MAX_PTHREAD);
+	set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
 
 void stress_adjust_pthread_max(const uint64_t max)
 {
-	if (opt_pthread_max > max) {
-		opt_pthread_max = max;
-		pr_inf("re-adjusting maximum threads to "
-			"soft limit of %" PRIu64 "\n",
-			opt_pthread_max);
-	}
+	uint64_t adj = max;
+
+	set_setting("pthread-max-adjustment", TYPE_ID_UINT64, &adj);
 }
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -158,15 +154,24 @@ int stress_pthread(const args_t *args)
 {
 	pthread_t pthreads[MAX_PTHREAD];
 	bool ok = true;
-	uint64_t limited = 0, attempted = 0;
+	uint64_t limited = 0, attempted = 0, max = 0;
+	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	pthread_args_t pargs = { args };
 
-	if (!set_pthread_max) {
+	if (!get_setting("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_pthread_max = MAX_PTHREAD;
+			pthread_max = MAX_PTHREAD;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_pthread_max = MIN_PTHREAD;
+			pthread_max = MIN_PTHREAD;
+	}
+	if (get_setting("pthread-max-adjustment", &max)) {
+		if (pthread_max > max) {
+			pthread_max = max;
+			pr_inf("re-adjusting maximum threads to "
+				"soft limit of %" PRIu64 "\n",
+				pthread_max);
+		}
 	}
 
 	ret = pthread_cond_init(&cond, NULL);
@@ -192,7 +197,7 @@ int stress_pthread(const args_t *args)
 		thread_terminate = false;
 		pthread_count = 0;
 
-		for (i = 0; (i < opt_pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
+		for (i = 0; (i < pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
 			ret = pthread_create(&pthreads[i], NULL,
 				stress_pthread_func, (void *)&pargs);
 			if (ret) {
@@ -271,7 +276,7 @@ reap:
 			PRIu32 ")\n",
 			args->name,
 			100.0 * (double)limited / (double)attempted,
-			opt_pthread_max, args->instance);
+			pthread_max, args->instance);
 	}
 
 	(void)pthread_cond_destroy(&cond);

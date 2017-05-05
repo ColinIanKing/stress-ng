@@ -2798,7 +2798,7 @@ next_opt:
 			stress_set_fallocate_bytes(optarg);
 			break;
 		case OPT_FIEMAP_BYTES:
-			stress_set_fiemap_size(optarg);
+			stress_set_fiemap_bytes(optarg);
 			break;
 		case OPT_FIFO_READERS:
 			stress_set_fifo_readers(optarg);

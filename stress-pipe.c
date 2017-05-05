@@ -24,11 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(F_SETPIPE_SZ)
-static size_t opt_pipe_size = 0;
-#endif
-static size_t opt_pipe_data_size = 512;
-
 #define PIPE_STOP	"PS!"
 
 #if defined(F_SETPIPE_SZ)
@@ -38,8 +33,11 @@ static size_t opt_pipe_data_size = 512;
  */
 void stress_set_pipe_size(const char *opt)
 {
-	opt_pipe_size = (size_t)get_uint64_byte(opt);
-	check_range_bytes("pipe-size", opt_pipe_size, 4, 1024 * 1024);
+	size_t pipe_size;
+
+	pipe_size = (size_t)get_uint64_byte(opt);
+	check_range_bytes("pipe-size", pipe_size, 4, 1024 * 1024);
+	set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
 #endif
 
@@ -49,9 +47,12 @@ void stress_set_pipe_size(const char *opt)
  */
 void stress_set_pipe_data_size(const char *opt)
 {
-	opt_pipe_data_size = (size_t)get_uint64_byte(opt);
-	check_range_bytes("pipe-data_size", opt_pipe_data_size,
+	size_t pipe_data_size;
+
+	pipe_data_size = (size_t)get_uint64_byte(opt);
+	check_range_bytes("pipe-data-size", pipe_data_size,
 		4, stress_get_pagesize());
+	set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
 }
 
 /*
@@ -85,19 +86,22 @@ static inline int pipe_memchk(char *buf, char val, const size_t sz)
  *  pipe_change_size()
  *	see if we can change the pipe size
  */
-static void pipe_change_size(const args_t *args, const int fd)
+static void pipe_change_size(
+	const args_t *args,
+	const int fd,
+	const size_t pipe_size)
 {
 #if defined(F_GETPIPE_SZ)
 	ssize_t sz;
 #endif
-	if (!opt_pipe_size)
+	if (!pipe_size)
 		return;
 
 #if !(defined(__linux__) && NEED_GLIBC(2,9,0))
-	if (opt_pipe_size < args->page_size)
+	if (pipe_size < args->page_size)
 		return;
 #endif
-	if (fcntl(fd, F_SETPIPE_SZ, opt_pipe_size) < 0) {
+	if (fcntl(fd, F_SETPIPE_SZ, pipe_size) < 0) {
 		pr_err("%s: cannot set pipe size, keeping "
 			"default pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -108,7 +112,7 @@ static void pipe_change_size(const args_t *args, const int fd)
 		pr_err("%s: cannot get pipe size, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	} else {
-		if ((size_t)sz != opt_pipe_size) {
+		if ((size_t)sz != pipe_size) {
 			pr_err("%s: cannot set desired pipe size, "
 				"pipe size=%zd, errno=%d (%s)\n",
 				args->name, sz, errno, strerror(errno));
@@ -127,6 +131,9 @@ int stress_pipe(const args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];
+	size_t pipe_data_size = 512;
+
+	(void)get_setting("pipe-data-size", &pipe_data_size);
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
@@ -141,8 +148,13 @@ int stress_pipe(const args_t *args)
 #endif
 
 #if defined(F_SETPIPE_SZ)
-	pipe_change_size(args, pipefds[0]);
-	pipe_change_size(args, pipefds[1]);
+	{
+		size_t pipe_size = 0;
+
+		(void)get_setting("pipe-size", &pipe_size);
+		pipe_change_size(args, pipefds[0], pipe_size);
+		pipe_change_size(args, pipefds[1], pipe_size);
+	}
 #endif
 
 again:
@@ -162,10 +174,10 @@ again:
 
 		(void)close(pipefds[1]);
 		while (g_keep_stressing_flag) {
-			char buf[opt_pipe_data_size];
+			char buf[pipe_data_size];
 			ssize_t n;
 
-			n = read(pipefds[0], buf, opt_pipe_data_size);
+			n = read(pipefds[0], buf, pipe_data_size);
 			if (n <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -187,7 +199,7 @@ again:
 		(void)close(pipefds[0]);
 		exit(EXIT_SUCCESS);
 	} else {
-		char buf[opt_pipe_data_size];
+		char buf[pipe_data_size];
 		int val = 0, status;
 
 		/* Parent */
@@ -197,8 +209,8 @@ again:
 		do {
 			ssize_t ret;
 
-			pipe_memset(buf, val++, opt_pipe_data_size);
-			ret = write(pipefds[1], buf, opt_pipe_data_size);
+			pipe_memset(buf, val++, pipe_data_size);
+			ret = write(pipefds[1], buf, pipe_data_size);
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -211,7 +223,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		(void)strncpy(buf, PIPE_STOP, opt_pipe_data_size);
+		(void)strncpy(buf, PIPE_STOP, pipe_data_size);
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
 				pr_fail_dbg("termination write");

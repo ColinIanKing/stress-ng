@@ -28,15 +28,14 @@
 #include <semaphore.h>
 #endif
 
-static uint64_t opt_semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
-static bool set_semaphore_posix_procs = false;
-
 void stress_set_semaphore_posix_procs(const char *opt)
 {
-	set_semaphore_posix_procs = true;
-	opt_semaphore_posix_procs = get_uint64_byte(opt);
-	check_range("sem-procs", opt_semaphore_posix_procs,
+	uint64_t semaphore_posix_procs;
+
+	semaphore_posix_procs = get_uint64_byte(opt);
+	check_range("sem-procs", semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+	set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
@@ -146,13 +145,14 @@ again:
 int stress_sem(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
+	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 	uint64_t i;
 
-	if (!set_semaphore_posix_procs) {
+	if (!get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
+			semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
+			semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
 	}
 
 	if (!g_shared->sem_posix.init) {
@@ -161,7 +161,7 @@ int stress_sem(const args_t *args)
 	}
 
 	memset(pids, 0, sizeof(pids));
-	for (i = 0; i < opt_semaphore_posix_procs; i++) {
+	for (i = 0; i < semaphore_posix_procs; i++) {
 		pids[i] = semaphore_posix_spawn(args);
 		if (!g_keep_stressing_flag || pids[i] < 0)
 			goto reap;
@@ -171,11 +171,11 @@ int stress_sem(const args_t *args)
 	while (keep_stressing())
 		(void)shim_usleep(100000);
 reap:
-	for (i = 0; i < opt_semaphore_posix_procs; i++) {
+	for (i = 0; i < semaphore_posix_procs; i++) {
 		if (pids[i] > 0)
 			(void)kill(pids[i], SIGKILL);
 	}
-	for (i = 0; i < opt_semaphore_posix_procs; i++) {
+	for (i = 0; i < semaphore_posix_procs; i++) {
 		if (pids[i] > 0) {
 			int status;
 

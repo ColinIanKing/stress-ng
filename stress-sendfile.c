@@ -28,15 +28,14 @@
 #include <sys/sendfile.h>
 #endif
 
-static int64_t opt_sendfile_size = DEFAULT_SENDFILE_SIZE;
-static bool set_sendfile_size = false;
-
 void stress_set_sendfile_size(const char *opt)
 {
-	set_sendfile_size = true;
-	opt_sendfile_size = get_uint64_byte(opt);
-	check_range_bytes("sendfile-size", opt_sendfile_size,
+	int64_t sendfile_size;
+
+	sendfile_size = get_uint64_byte(opt);
+	check_range_bytes("sendfile-size", sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
+	set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,1,0)
@@ -50,14 +49,15 @@ int stress_sendfile(const args_t *args)
 	char filename[PATH_MAX];
 	int fdin, fdout, ret, rc = EXIT_SUCCESS;
 	size_t sz;
+	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
 
-	if (!set_sendfile_size) {
+	if (!get_setting("sendfile-size", &sendfile_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_sendfile_size = MAX_SENDFILE_SIZE;
+			sendfile_size = MAX_SENDFILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_sendfile_size = MIN_SENDFILE_SIZE;
+			sendfile_size = MIN_SENDFILE_SIZE;
 	}
-	sz = (size_t)opt_sendfile_size;
+	sz = (size_t)sendfile_size;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

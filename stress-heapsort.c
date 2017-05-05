@@ -31,19 +31,18 @@ static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
 
-static uint64_t opt_heapsort_size = DEFAULT_HEAPSORT_SIZE;
-static bool set_heapsort_size = false;
-
 /*
  *  stress_set_heapsort_size()
  *	set heapsort size
  */
 void stress_set_heapsort_size(const void *opt)
 {
-	set_heapsort_size = true;
-	opt_heapsort_size = get_uint64_byte(opt);
-	check_range("heapsort-size", opt_heapsort_size,
+	uint64_t heapsort_size;
+
+	heapsort_size = get_uint64_byte(opt);
+	check_range("heapsort-size", heapsort_size,
 		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
+	set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
 }
 
 #if defined(HAVE_LIB_BSD)
@@ -107,18 +106,19 @@ static int stress_heapsort_cmp_3(const void *p1, const void *p2)
  */
 int stress_heapsort(const args_t *args)
 {
+	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data, *ptr;
 	size_t n, i;
 	struct sigaction old_action;
 	int ret;
 
-	if (!set_heapsort_size) {
+	if (!get_setting("heapsort-size", &heapsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_heapsort_size = MAX_HEAPSORT_SIZE;
+			heapsort_size = MAX_HEAPSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_heapsort_size = MIN_HEAPSORT_SIZE;
+			heapsort_size = MIN_HEAPSORT_SIZE;
 	}
-	n = (size_t)opt_heapsort_size;
+	n = (size_t)heapsort_size;
 
 	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg("malloc");

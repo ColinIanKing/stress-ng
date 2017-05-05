@@ -39,9 +39,6 @@ typedef struct {
 	uint64_t length;	/* Length of list */
 } clone_list_t;
 
-static uint64_t opt_clone_max = DEFAULT_ZOMBIES;
-static bool set_clone_max = false;
-
 #if defined(__linux__) && NEED_GLIBC(2,14,0)
 
 static clone_list_t clones;
@@ -117,10 +114,12 @@ static const int unshare_flags[] = {
  */
 void stress_set_clone_max(const char *opt)
 {
-	set_clone_max = true;
-	opt_clone_max = get_uint64_byte(opt);
-	check_range("clone-max", opt_clone_max,
+	uint64_t clone_max;
+
+	clone_max = get_uint64_byte(opt);
+	check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
+	set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,14,0)
@@ -227,19 +226,20 @@ static int clone_func(void *arg)
 int stress_clone(const args_t *args)
 {
 	uint64_t max_clones = 0;
+	uint64_t clone_max = DEFAULT_ZOMBIES;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 
-	if (!set_clone_max) {
+	if (!get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_clone_max = MAX_ZOMBIES;
+			clone_max = MAX_ZOMBIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_clone_max = MIN_ZOMBIES;
+			clone_max = MIN_ZOMBIES;
 	}
 
 	do {
-		if (clones.length < opt_clone_max) {
+		if (clones.length < clone_max) {
 			clone_t *clone_info;
 			char *stack_top;
 			int flag = flags[mwc32() % SIZEOF_ARRAY(flags)];

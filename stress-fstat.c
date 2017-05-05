@@ -27,7 +27,6 @@
 #define MAX_FSTAT_THREADS	(4)
 #define FSTAT_LOOPS		(16)
 
-static const char *opt_fstat_dir = "/dev";
 static volatile bool keep_running;
 static sigset_t set;
 
@@ -59,7 +58,7 @@ typedef struct ctxt {
 
 void stress_set_fstat_dir(const char *opt)
 {
-	opt_fstat_dir = opt;
+	set_setting("fstat-dir", TYPE_ID_STR, (void *)opt);
 }
 
 /*
@@ -226,13 +225,16 @@ int stress_fstat(const args_t *args)
 	bool stat_some;
 	const uid_t euid = geteuid();
 	DIR *dp;
+	char *fstat_dir = "/dev";
+
+	(void)get_setting("fstat-dir", &fstat_dir);
 
 	if (stress_sighandler(args->name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if ((dp = opendir(opt_fstat_dir)) == NULL) {
+	if ((dp = opendir(fstat_dir)) == NULL) {
 		pr_err("%s: opendir on %s failed: errno=%d: (%s)\n",
-			args->name, opt_fstat_dir, errno, strerror(errno));
+			args->name, fstat_dir, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -246,7 +248,7 @@ int stress_fstat(const args_t *args)
 			goto free_cache;
 		}
 
-		(void)snprintf(path, sizeof(path), "%s/%s", opt_fstat_dir, d->d_name);
+		(void)snprintf(path, sizeof(path), "%s/%s", fstat_dir, d->d_name);
 		if (do_not_stat(path))
 			continue;
 		if ((si = calloc(1, sizeof(*si))) == NULL) {

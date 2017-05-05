@@ -26,19 +26,18 @@
 
 #include <search.h>
 
-static uint64_t opt_lsearch_size = DEFAULT_LSEARCH_SIZE;
-static bool set_lsearch_size = false;
-
 /*
  *  stress_set_lsearch_size()
  *      set lsearch size from given option string
  */
 void stress_set_lsearch_size(const char *opt)
 {
-	set_lsearch_size = true;
-	opt_lsearch_size = get_uint64_byte(opt);
-	check_range("lsearch-size", opt_lsearch_size,
+	uint64_t lsearch_size;
+
+	lsearch_size = get_uint64_byte(opt);
+	check_range("lsearch-size", lsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+	set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
 }
 
 /*
@@ -58,14 +57,15 @@ int stress_lsearch(const args_t *args)
 {
 	int32_t *data, *root;
 	size_t i, max;
+	uint64_t lsearch_size = DEFAULT_LSEARCH_SIZE;
 
-	if (!set_lsearch_size) {
+	if (!get_setting("lsearch-size", &lsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_lsearch_size = MAX_LSEARCH_SIZE;
+			lsearch_size = MAX_LSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_lsearch_size = MIN_LSEARCH_SIZE;
+			lsearch_size = MIN_LSEARCH_SIZE;
 	}
-	max = (size_t)opt_lsearch_size;
+	max = (size_t)lsearch_size;
 
 	if ((data = calloc(max, sizeof(int32_t))) == NULL) {
 		pr_fail_dbg("malloc");

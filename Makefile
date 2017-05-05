@@ -241,6 +241,7 @@ CORE_SRC = \
 	parse-opts.c \
 	perf.c \
 	sched.c \
+	setting.c \
 	shim.c \
 	thermal-zone.c \
 	time.c \

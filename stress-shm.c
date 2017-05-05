@@ -31,25 +31,24 @@ typedef struct {
 	char	shm_name[SHM_NAME_LEN];
 } shm_msg_t;
 
-static size_t opt_shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
-static size_t opt_shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
-static bool set_shm_posix_bytes = false;
-static bool set_shm_posix_objects = false;
-
 void stress_set_shm_posix_bytes(const char *opt)
 {
-	set_shm_posix_bytes = true;
-	opt_shm_posix_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("shm-bytes", opt_shm_posix_bytes,
+	size_t shm_posix_bytes;
+
+	shm_posix_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("shm-bytes", shm_posix_bytes,
 		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
+	set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
 }
 
 void stress_set_shm_posix_objects(const char *opt)
 {
-	set_shm_posix_objects = true;
-	opt_shm_posix_objects = (size_t)get_uint64_byte(opt);
-	check_range("shm-segments", opt_shm_posix_objects,
+	size_t shm_posix_objects;
+
+	shm_posix_objects = (size_t)get_uint64(opt);
+	check_range("shm-objs", shm_posix_objects,
 		MIN_SHM_POSIX_OBJECTS, MAX_48);
+	set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
 }
 
 #if defined(HAVE_LIB_RT)
@@ -90,7 +89,8 @@ static int stress_shm_posix_check(
 static int stress_shm_posix_child(
 	const args_t *args,
 	const int fd,
-	size_t sz)
+	size_t sz,
+	size_t shm_posix_objects)
 {
 	void *addrs[MAX_SHM_POSIX_OBJECTS];
 	char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
@@ -109,7 +109,7 @@ static int stress_shm_posix_child(
 	set_oom_adjustment(args->name, true);
 
 	do {
-		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
+		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
 			int shm_fd;
 			void *addr;
 			char *shm_name = shm_names[i];
@@ -186,7 +186,7 @@ static int stress_shm_posix_child(
 			inc_counter(args);
 		}
 reap:
-		for (i = 0; ok && (i < (ssize_t)opt_shm_posix_objects); i++) {
+		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
 			char *shm_name = shm_names[i];
 
 			if (addrs[i])
@@ -237,24 +237,26 @@ int stress_shm(const args_t *args)
 	pid_t pid;
 	bool retry = true;
 	uint32_t restarts = 0;
+	size_t shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
+	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
-	if (!set_shm_posix_bytes) {
+	if (!get_setting("shm-bytes", &shm_posix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_posix_bytes = MAX_SHM_POSIX_BYTES;
+			shm_posix_bytes = MAX_SHM_POSIX_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_posix_bytes = MIN_SHM_POSIX_BYTES;
+			shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 	}
-	opt_shm_posix_bytes /= args->num_instances;
-	if (opt_shm_posix_bytes < MIN_SHM_POSIX_BYTES)
-		opt_shm_posix_bytes = MIN_SHM_POSIX_BYTES;
+	shm_posix_bytes /= args->num_instances;
+	if (shm_posix_bytes < MIN_SHM_POSIX_BYTES)
+		shm_posix_bytes = MIN_SHM_POSIX_BYTES;
 
-	if (!set_shm_posix_objects) {
+	if (!get_setting("shm-objs", &shm_posix_objects)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_posix_objects = MAX_SHM_POSIX_OBJECTS;
+			shm_posix_objects = MAX_SHM_POSIX_OBJECTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_posix_objects = MIN_SHM_POSIX_OBJECTS;
+			shm_posix_objects = MIN_SHM_POSIX_OBJECTS;
 	}
-	orig_sz = sz = opt_shm_posix_bytes & ~(page_size - 1);
+	orig_sz = sz = shm_posix_bytes & ~(page_size - 1);
 
 	while (g_keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
@@ -337,7 +339,7 @@ fork_again:
 			 *  has died, so we should be able to remove the
 			 *  shared memory segment.
 			 */
-			for (i = 0; i < (ssize_t)opt_shm_posix_objects; i++) {
+			for (i = 0; i < (ssize_t)shm_posix_objects; i++) {
 				char *shm_name = shm_names[i];
 				if (*shm_name)
 					(void)shm_unlink(shm_name);
@@ -348,7 +350,7 @@ fork_again:
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);
-			rc = stress_shm_posix_child(args, pipefds[1], sz);
+			rc = stress_shm_posix_child(args, pipefds[1], sz, shm_posix_objects);
 			(void)close(pipefds[1]);
 			_exit(rc);
 		}

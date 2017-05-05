@@ -25,19 +25,18 @@
 #include "stress-ng.h"
 #include <search.h>
 
-static uint64_t opt_hsearch_size = DEFAULT_HSEARCH_SIZE;
-static bool set_hsearch_size = false;
-
 /*
  *  stress_set_hsearch_size()
  *      set hsearch size from given option string
  */
 void stress_set_hsearch_size(const char *opt)
 {
-	set_hsearch_size = true;
-	opt_hsearch_size = get_uint64_byte(opt);
-	check_range("hsearch-size", opt_hsearch_size,
+	uint64_t hsearch_size;
+
+	hsearch_size = get_uint64_byte(opt);
+	check_range("hsearch-size", hsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+	set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
 }
 
 /*
@@ -46,18 +45,19 @@ void stress_set_hsearch_size(const char *opt)
  */
 int stress_hsearch(const args_t *args)
 {
+	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
 	size_t i, max;
 	int ret = EXIT_FAILURE;
 	char **keys;
 
-	if (!set_hsearch_size) {
+	if (!get_setting("hsearch-size", &hsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_hsearch_size = MAX_HSEARCH_SIZE;
+			hsearch_size = MAX_HSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_hsearch_size = MIN_HSEARCH_SIZE;
+			hsearch_size = MIN_HSEARCH_SIZE;
 	}
 
-	max = (size_t)opt_hsearch_size;
+	max = (size_t)hsearch_size;
 
 	/* Make hash table with 25% slack */
 	if (!hcreate(max + (max / 4))) {

@@ -25,16 +25,16 @@
 #include "stress-ng.h"
 #include <sys/select.h>
 
-static uint64_t opt_fifo_readers = DEFAULT_FIFO_READERS;
-static bool set_fifo_readers = false;
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 
 void stress_set_fifo_readers(const char *opt)
 {
-	set_fifo_readers = true;
-	opt_fifo_readers = get_uint64(opt);
-	check_range("fifo-readers", opt_fifo_readers,
+	uint64_t fifo_readers;
+
+	fifo_readers = get_uint64(opt);
+	check_range("fifo-readers", fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
+	set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
 /*
@@ -137,13 +137,14 @@ int stress_fifo(const args_t *args)
 	int fd;
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
+	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
 	int rc = EXIT_FAILURE;
 
-	if (!set_fifo_readers) {
+	if (!get_setting("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_fifo_readers = MAX_FIFO_READERS;
+			fifo_readers = MAX_FIFO_READERS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_fifo_readers = MIN_FIFO_READERS;
+			fifo_readers = MIN_FIFO_READERS;
 	}
 
 	rc = stress_temp_dir_mk_args(args);
@@ -162,7 +163,7 @@ int stress_fifo(const args_t *args)
 	}
 
 	memset(pids, 0, sizeof(pids));
-	for (i = 0; i < opt_fifo_readers; i++) {
+	for (i = 0; i < fifo_readers; i++) {
 		pids[i] = fifo_spawn(stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
@@ -206,7 +207,7 @@ int stress_fifo(const args_t *args)
 	(void)close(fd);
 	rc = EXIT_SUCCESS;
 reap:
-	for (i = 0; i < opt_fifo_readers; i++) {
+	for (i = 0; i < fifo_readers; i++) {
 		if (pids[i] > 0) {
 			int status;
 

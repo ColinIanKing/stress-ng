@@ -35,15 +35,14 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_stream_L3_size = DEFAULT_STREAM_L3_SIZE;
-static bool     set_stream_L3_size = false;
-
 void stress_set_stream_L3_size(const char *opt)
 {
-	set_stream_L3_size = true;
-	opt_stream_L3_size = get_uint64_byte(opt);
-	check_range_bytes("stream-L3-size", opt_stream_L3_size,
+	uint64_t stream_L3_size;
+
+	stream_L3_size = get_uint64_byte(opt);
+	check_range_bytes("stream-L3-size", stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
+	set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy(
@@ -122,7 +121,7 @@ static inline void *stress_stream_mmap(const args_t *args, uint64_t sz)
 	return ptr;
 }
 
-static inline uint64_t stream_L3_size(const args_t *args)
+static inline uint64_t get_stream_L3_size(const args_t *args)
 {
 	uint64_t cache_size = MEM_CACHE_SIZE;
 #if defined(__linux__)
@@ -179,9 +178,13 @@ int stress_stream(const args_t *args)
 	const double q = 3.0;
 	double mb_rate, mb, fp_rate, fp, t1, t2, dt;
 	uint64_t L3, sz, n;
+	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	bool guess = false;
 
-	L3 = (set_stream_L3_size) ? opt_stream_L3_size : stream_L3_size(args);
+	if (get_setting("stream-L3-size", &stream_L3_size))
+		L3 = stream_L3_size;
+	else
+		L3 = get_stream_L3_size(args);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {

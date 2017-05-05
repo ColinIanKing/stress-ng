@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_seek_size = DEFAULT_SEEK_SIZE;
-static bool set_seek_size = false;
-
 void stress_set_seek_size(const char *opt)
 {
-	set_seek_size = true;
-	opt_seek_size = get_uint64_byte(opt);
-	check_range_bytes("seek-size", opt_seek_size,
+	uint64_t seek_size;
+
+	seek_size = get_uint64_byte(opt);
+	check_range_bytes("seek-size", seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
+	set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
 }
 
 /*
@@ -42,6 +41,7 @@ void stress_set_seek_size(const char *opt)
 int stress_seek(const args_t *args)
 {
 	uint64_t len;
+	uint64_t seek_size = DEFAULT_SEEK_SIZE;
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	uint8_t buf[512];
@@ -49,13 +49,13 @@ int stress_seek(const args_t *args)
 	bool punch_hole = true;
 #endif
 
-	if (!set_seek_size) {
+	if (!get_setting("seek-size", &seek_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_seek_size = MAX_SEEK_SIZE;
+			seek_size = MAX_SEEK_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_seek_size = MIN_SEEK_SIZE;
+			seek_size = MIN_SEEK_SIZE;
 	}
-	len = opt_seek_size - sizeof(buf);
+	len = seek_size - sizeof(buf);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

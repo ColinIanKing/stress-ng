@@ -24,15 +24,14 @@
  */
 #include "stress-ng.h"
 
-static off_t opt_fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
-static bool set_fallocate_bytes = false;
-
 void stress_set_fallocate_bytes(const char *opt)
 {
-	set_fallocate_bytes = true;
-	opt_fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("fallocate-bytes", opt_fallocate_bytes,
+	off_t fallocate_bytes;
+
+	fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
+	check_range_bytes("fallocate-bytes", fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
+	set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
@@ -65,17 +64,18 @@ int stress_fallocate(const args_t *args)
 	int fd, ret;
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
+	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 
-	if (!set_fallocate_bytes) {
+	if (!get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_fallocate_bytes = MAX_FALLOCATE_BYTES;
+			fallocate_bytes = MAX_FALLOCATE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_fallocate_bytes = MIN_FALLOCATE_BYTES;
+			fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}
 
-	opt_fallocate_bytes /= args->num_instances;
-	if (opt_fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
-		opt_fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
+	fallocate_bytes /= args->num_instances;
+	if (fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
+		fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
@@ -92,7 +92,7 @@ int stress_fallocate(const args_t *args)
 	(void)unlink(filename);
 
 	do {
-		ret = posix_fallocate(fd, (off_t)0, opt_fallocate_bytes);
+		ret = posix_fallocate(fd, (off_t)0, fallocate_bytes);
 		if (!g_keep_stressing_flag)
 			break;
 		(void)fsync(fd);
@@ -101,12 +101,12 @@ int stress_fallocate(const args_t *args)
 
 			if (fstat(fd, &buf) < 0)
 				pr_fail("%s: fstat on file failed", args->name);
-			else if (buf.st_size != opt_fallocate_bytes)
+			else if (buf.st_size != fallocate_bytes)
 				pr_fail("%s: file size %jd does not "
 					"match size the expected file "
 					"size of %jd\n",
 					args->name, (intmax_t)buf.st_size,
-					(intmax_t)opt_fallocate_bytes);
+					(intmax_t)fallocate_bytes);
 		}
 
 		if (ftruncate(fd, 0) < 0)
@@ -127,7 +127,7 @@ int stress_fallocate(const args_t *args)
 					args->name, (intmax_t)buf.st_size);
 		}
 
-		if (ftruncate(fd, opt_fallocate_bytes) < 0)
+		if (ftruncate(fd, fallocate_bytes) < 0)
 			ftrunc_errs++;
 		(void)fsync(fd);
 		if (ftruncate(fd, 0) < 0)
@@ -139,13 +139,13 @@ int stress_fallocate(const args_t *args)
 			 *  non-portable Linux fallocate()
 			 */
 			int i;
-			(void)shim_fallocate(fd, 0, (off_t)0, opt_fallocate_bytes);
+			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 			if (!g_keep_stressing_flag)
 				break;
 			(void)fsync(fd);
 
 			for (i = 0; i < 64; i++) {
-				off_t offset = (mwc64() % opt_fallocate_bytes) & ~0xfff;
+				off_t offset = (mwc64() % fallocate_bytes) & ~0xfff;
 				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);

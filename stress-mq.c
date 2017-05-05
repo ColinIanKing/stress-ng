@@ -33,17 +33,15 @@ typedef struct {
 } msg_t;
 #endif
 
-static int opt_mq_size = DEFAULT_MQ_SIZE;
-static bool set_mq_size = false;
-
 void stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
+	int mq_size;
 
-	set_mq_size = true;
 	sz = get_uint64_byte(opt);
-	opt_mq_size = (int)sz;
 	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
+	mq_size = (int)sz;
+	set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)
@@ -61,7 +59,7 @@ int stress_mq(const args_t *args)
 {
 	pid_t pid;
 	mqd_t mq = -1;
-	int sz, max_sz;
+	int sz, max_sz, mq_size = DEFAULT_MQ_SIZE;
 	FILE *fp;
 	struct mq_attr attr;
 	char mq_name[64];
@@ -69,13 +67,13 @@ int stress_mq(const args_t *args)
 	time_t time_start;
 	struct timespec abs_timeout;
 
-	if (!set_mq_size) {
+	if (!get_setting("mq-size", &mq_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_mq_size = MAX_MQ_SIZE;
+			mq_size = MAX_MQ_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_mq_size = MIN_MQ_SIZE;
+			mq_size = MIN_MQ_SIZE;
 	}
-	sz = opt_mq_size;
+	sz = mq_size;
 
 	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
 		args->name, args->pid, args->instance);
@@ -111,10 +109,10 @@ int stress_mq(const args_t *args)
 		pr_fail_dbg("mq_open");
 		return EXIT_FAILURE;
 	}
-	if (sz < opt_mq_size) {
+	if (sz < mq_size) {
 		pr_inf("%s: POSIX message queue requested "
 			"size %d messages, maximum of %d allowed\n",
-			args->name, opt_mq_size, sz);
+			args->name, mq_size, sz);
 	}
 	pr_dbg("POSIX message queue %s with %lu messages\n",
 		mq_name, (unsigned long)attr.mq_maxmsg);

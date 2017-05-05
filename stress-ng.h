@@ -286,6 +286,54 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
+typedef enum {
+	TYPE_ID_UNDEFINED,
+	TYPE_ID_UINT8,
+	TYPE_ID_INT8,
+	TYPE_ID_UINT16,
+	TYPE_ID_INT16,
+	TYPE_ID_UINT32,
+	TYPE_ID_INT32,
+	TYPE_ID_UINT64,
+	TYPE_ID_INT64,
+	TYPE_ID_SIZE_T,
+	TYPE_ID_SSIZE_T,
+	TYPE_ID_UINT,
+	TYPE_ID_INT,
+	TYPE_ID_ULONG,
+	TYPE_ID_LONG,
+	TYPE_ID_OFF_T,
+	TYPE_ID_STR,
+	TYPE_ID_BOOL,
+	TYPE_ID_UINTPTR_T
+} type_id_t;
+
+typedef struct setting {
+	struct setting *next;		/* next setting in list */
+	char *name;			/* name of setting */
+	type_id_t	type_id;	/* setting type */
+	union {				/* setting value */
+		uint8_t		uint8;
+		int8_t		int8;
+		uint16_t	uint16;
+		int16_t		int16;
+		uint32_t	uint32;
+		int32_t		int32;
+		uint64_t	uint64;
+		int64_t		int64;
+		size_t		size;
+		ssize_t		ssize;
+		unsigned int	uint;
+		signed int	sint;
+		unsigned long	ulong;
+		signed long	slong;
+		off_t		off;
+		char *		str;
+		bool		boolean;
+		uintptr_t	uintptr;
+	} u;
+} setting_t;
+
 /* Network domains flags */
 #define DOMAIN_INET		0x00000001	/* AF_INET */
 #define DOMAIN_INET6		0x00000002	/* AF_INET6 */
@@ -2036,6 +2084,12 @@ extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
 
 /*
+ *  stressor option value handling
+ */
+extern void set_setting(char *name, type_id_t type_id, void *value);
+extern bool get_setting(char *name, void *value);
+
+/*
  *  externs to force gcc to stash computed values and hence
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
@@ -2340,7 +2394,7 @@ extern void stress_set_exec_max(const char *opt);
 extern void stress_set_fallocate_bytes(const char *opt);
 extern void stress_set_fifo_readers(const char *opt);
 extern int  stress_filename_opts(const char *opt);
-extern void stress_set_fiemap_size(const char *opt);
+extern void stress_set_fiemap_bytes(const char *opt);
 extern void stress_set_fork_max(const char *opt);
 extern int  stress_fanotify_supported(void);
 extern void stress_set_fstat_dir(const char *opt);

@@ -37,17 +37,18 @@ typedef struct {
 
 #endif
 
-static uint64_t opt_pty_max = DEFAULT_PTYS;
-
 /*
  *  stress_set_pty_max()
  *	set ptr maximum
  */
 void stress_set_pty_max(const char *opt)
 {
-	opt_pty_max = get_uint64_byte(opt);
-	check_range("pty-max", opt_pty_max,
+	uint64_t pty_max;
+
+	pty_max = get_uint64_byte(opt);
+	check_range("pty-max", pty_max,
 		MIN_PTYS, MAX_PTYS);
+	set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }
 
 #if defined(__linux__)
@@ -59,14 +60,17 @@ void stress_set_pty_max(const char *opt)
 int stress_pty(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
+	uint64_t pty_max = DEFAULT_PTYS;
+
+	(void)get_setting("pty-max", &pty_max);
 
 	do {
 		size_t i, n;
-		pty_info_t ptys[opt_pty_max];
+		pty_info_t ptys[pty_max];
 
 		(void)memset(ptys, 0, sizeof ptys);
 
-		for (n = 0; n < opt_pty_max; n++) {
+		for (n = 0; n < pty_max; n++) {
 			ptys[n].slave = -1;
 			ptys[n].master = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].master < 0) {

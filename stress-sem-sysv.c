@@ -36,15 +36,14 @@ typedef union _semun {
 } semun_t;
 #endif
 
-static uint64_t opt_semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
-static bool set_semaphore_sysv_procs = false;
-
 void stress_set_semaphore_sysv_procs(const char *opt)
 {
-	set_semaphore_sysv_procs = true;
-	opt_semaphore_sysv_procs = get_uint64_byte(opt);
-	check_range("sem-procs", opt_semaphore_sysv_procs,
+	uint64_t semaphore_sysv_procs;
+
+	semaphore_sysv_procs = get_uint64_byte(opt);
+	check_range("sem-sysv-procs", semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+	set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
 
 #if defined(__linux__)
@@ -243,12 +242,13 @@ int stress_sem_sysv(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
+	uint64_t semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 
-	if (!set_semaphore_sysv_procs) {
+	if (!get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
+			semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
+			semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
 	}
 
 	if (!g_shared->sem_sysv.init) {
@@ -257,7 +257,7 @@ int stress_sem_sysv(const args_t *args)
 	}
 
 	(void)memset(pids, 0, sizeof(pids));
-	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
+	for (i = 0; i < semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
 		if (!g_keep_stressing_flag || pids[i] < 0)
 			goto reap;
@@ -266,11 +266,11 @@ int stress_sem_sysv(const args_t *args)
 	while (keep_stressing())
 		(void)shim_usleep(100000);
 reap:
-	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
+	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
 			(void)kill(pids[i], SIGKILL);
 	}
-	for (i = 0; i < opt_semaphore_sysv_procs; i++) {
+	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0) {
 			int status;
 

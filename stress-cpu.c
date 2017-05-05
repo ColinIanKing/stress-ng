@@ -67,14 +67,6 @@ typedef struct {
 	const stress_cpu_func	func;	/* the stressor function */
 } stress_cpu_stressor_info_t;
 
-/*
- *  opt_cpu_load_slice:
- *	< 0   - number of iterations per busy slice
- *	= 0   - random duration between 0..0.5 seconds
- *	> 0   - milliseconds per busy slice
- */
-static int32_t opt_cpu_load_slice = -64;
-static int32_t opt_cpu_load = 100;
 static const stress_cpu_stressor_info_t *opt_cpu_stressor;
 static const stress_cpu_stressor_info_t cpu_methods[];
 
@@ -82,20 +74,29 @@ static const stress_cpu_stressor_info_t cpu_methods[];
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
 void stress_set_cpu_load(const char *opt) {
-	opt_cpu_load = get_int32(opt);
-	if ((opt_cpu_load < 0) || (opt_cpu_load > 100)) {
-		(void)fprintf(stderr, "CPU load must in the range 0 to 100.\n");
-		exit(EXIT_FAILURE);
-	}
+	int32_t cpu_load;
+
+	cpu_load = get_int32(opt);
+	check_range("cpu-load", cpu_load, 0, 100);
+	set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
 
+/*
+ *  _cpu_load_slice:
+ *	< 0   - number of iterations per busy slice
+ *	= 0   - random duration between 0..0.5 seconds
+ *	> 0   - milliseconds per busy slice
+ */
 void stress_set_cpu_load_slice(const char *opt)
 {
-	opt_cpu_load_slice = get_int32(opt);
-	if ((opt_cpu_load < -5000) || (opt_cpu_load > 5000)) {
-		(void)fprintf(stderr, "CPU load must in the range -5000 to 5000.\n");
+	int32_t cpu_load_slice;
+
+	cpu_load_slice = get_int32(opt);
+	if ((cpu_load_slice < -5000) || (cpu_load_slice > 5000)) {
+		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
 		exit(EXIT_FAILURE);
 	}
+	set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
 }
 
 /*
@@ -2208,11 +2209,16 @@ int stress_cpu(const args_t *args)
 {
 	double bias;
 	stress_cpu_func func = opt_cpu_stressor->func;
+	int32_t cpu_load = 100;
+	int32_t cpu_load_slice = -64;
+
+	(void)get_setting("cpu-load", &cpu_load);
+	(void)get_setting("cpu-load-slice", &cpu_load_slice);
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
 	 */
-	if (opt_cpu_load == 100) {
+	if (cpu_load == 100) {
 		do {
 			(void)func(args->name);
 			inc_counter(args);
@@ -2224,7 +2230,7 @@ int stress_cpu(const args_t *args)
 	 * It is unlikely, but somebody may request to do a zero
 	 * load stress test(!)
 	 */
-	if (opt_cpu_load == 0) {
+	if (cpu_load == 0) {
 		sleep((int)g_opt_timeout);
 		return EXIT_SUCCESS;
 	}
@@ -2241,18 +2247,18 @@ int stress_cpu(const args_t *args)
 		struct timeval tv;
 
 		t1 = time_now();
-		if (opt_cpu_load_slice < 0) {
+		if (cpu_load_slice < 0) {
 			/* < 0 specifies number of iterations to do per slice */
 			int j;
 
-			for (j = 0; j < -opt_cpu_load_slice; j++) {
+			for (j = 0; j < -cpu_load_slice; j++) {
 				(void)func(args->name);
 				if (!g_keep_stressing_flag)
 					break;
 				inc_counter(args);
 			}
 			t2 = time_now();
-		} else if (opt_cpu_load_slice == 0) {
+		} else if (cpu_load_slice == 0) {
 			/* == 0, random time slices */
 			double slice_end = t1 + (((double)mwc16()) / 131072.0);
 			do {
@@ -2265,7 +2271,7 @@ int stress_cpu(const args_t *args)
 		} else {
 			/* > 0, time slice in milliseconds */
 			double slice_end = t1 +
-				((double)opt_cpu_load_slice / 1000.0);
+				((double)cpu_load_slice / 1000.0);
 			do {
 				(void)func(args->name);
 				t2 = time_now();
@@ -2276,7 +2282,7 @@ int stress_cpu(const args_t *args)
 		}
 		t = t2 - t1;
 		/* Must not calculate this with zero % load */
-		delay = t * (((100.0 / (double) opt_cpu_load)) - 1.0);
+		delay = t * (((100.0 / (double)cpu_load)) - 1.0);
 		delay -= bias;
 
 		tv.tv_sec = delay;

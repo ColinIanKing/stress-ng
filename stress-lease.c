@@ -29,15 +29,14 @@
 static uint64_t lease_sigio;
 #endif
 
-static uint64_t opt_lease_breakers = DEFAULT_LEASE_BREAKERS;
-static bool set_lease_breakers = false;
-
 void stress_set_lease_breakers(const char *opt)
 {
-	set_lease_breakers = true;
-	opt_lease_breakers = get_uint64(opt);
-	check_range("lease-breakers", opt_lease_breakers,
+	uint64_t lease_breakers;
+
+	lease_breakers = get_uint64(opt);
+	check_range("lease-breakers", lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
+	set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
 }
 
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
@@ -62,13 +61,6 @@ static pid_t stress_lease_spawn(
 	const char *filename)
 {
 	pid_t pid;
-
-	if (!set_lease_breakers) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_lease_breakers = MAX_LEASE_BREAKERS;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_lease_breakers = MIN_LEASE_BREAKERS;
-	}
 
 again:
 	pid = fork();
@@ -110,7 +102,14 @@ int stress_lease(const args_t *args)
 	char filename[PATH_MAX];
 	int ret, fd, status;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
-	uint64_t i;
+	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
+
+	if (!get_setting("lease-breakers", &lease_breakers)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			lease_breakers = MAX_LEASE_BREAKERS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			lease_breakers = MIN_LEASE_BREAKERS;
+	}
 
 	memset(l_pids, 0, sizeof(l_pids));
 
@@ -133,7 +132,7 @@ int stress_lease(const args_t *args)
 	}
 	(void)close(fd);
 
-	for (i = 0; i < opt_lease_breakers; i++) {
+	for (i = 0; i < lease_breakers; i++) {
 		l_pids[i] = stress_lease_spawn(args, filename);
 		if (l_pids[i] < 0) {
 			pr_err("%s: failed to start all the lease breaker processes\n", args->name);
@@ -169,7 +168,7 @@ int stress_lease(const args_t *args)
 	ret = EXIT_SUCCESS;
 
 reap:
-	for (i = 0; i < opt_lease_breakers; i++) {
+	for (i = 0; i < lease_breakers; i++) {
 		if (l_pids[i]) {
 			(void)kill(l_pids[i], SIGKILL);
 			(void)waitpid(l_pids[i], &status, 0);

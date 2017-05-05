@@ -38,26 +38,22 @@ static bool thread_terminate;
 static sigset_t set;
 #endif
 
-static uint64_t opt_sleep_max = DEFAULT_SLEEP;
-static bool set_sleep_max = false;
-
-
 void stress_set_sleep_max(const char *opt)
 {
-	set_sleep_max = true;
-	opt_sleep_max = get_uint64_byte(opt);
-	check_range("sleep-max", opt_sleep_max,
+	uint64_t sleep_max;
+
+	sleep_max = get_uint64_byte(opt);
+	check_range("sleep-max", sleep_max,
 		MIN_SLEEP, MAX_SLEEP);
+	set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
 void stress_adjust_sleep_max(const uint64_t max)
 {
-	if (opt_sleep_max > max) {
-		opt_sleep_max = max;
-		pr_inf("re-adjusting maximum threads to "
-			"soft limit f %" PRIu64 "\n",
-			opt_sleep_max);
-	}
+	uint64_t sleep_max_adjustment = max;
+
+	set_setting("sleep-max-adjustment", TYPE_ID_UINT64,
+		&sleep_max_adjustment);
 }
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
@@ -144,20 +140,30 @@ die:
 int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
+	uint64_t sleep_max = DEFAULT_SLEEP, sleep_max_adjustment;
 	ctxt_t    ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 	bool ok = true;
 
-	if (!set_sleep_max) {
+	if (!get_setting("sleep-max", &sleep_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_sleep_max = MAX_SLEEP;
+			sleep_max = MAX_SLEEP;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_sleep_max = MIN_SLEEP;
+			sleep_max = MIN_SLEEP;
+	}
+
+	if (get_setting("sleep-max-adjustment", &sleep_max_adjustment)) {
+		if (sleep_max > sleep_max_adjustment) {
+			sleep_max = sleep_max_adjustment;
+			pr_inf("re-adjusting maximum threads to "
+				"soft limit f %" PRIu64 "\n",
+				sleep_max);
+		}
 	}
 	(void)memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
 
-	for (n = 0; n < opt_sleep_max;  n++) {
+	for (n = 0; n < sleep_max;  n++) {
 		ctxts[n].args = args;
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
@@ -199,8 +205,8 @@ tidy:
 			"requested %" PRIu64 " threads (instance %"
 			PRIu32 ")\n",
 			args->name,
-			100.0 * (double)limited / (double)opt_sleep_max,
-			opt_sleep_max, args->instance);
+			100.0 * (double)limited / (double)sleep_max,
+			sleep_max, args->instance);
 	}
 
 	return ret;

@@ -44,11 +44,6 @@ typedef struct {
 	int	shm_id;
 } shm_msg_t;
 
-static size_t opt_shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
-static size_t opt_shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
-static bool set_shm_sysv_bytes = false;
-static bool set_shm_sysv_segments = false;
-
 static const int shm_flags[] = {
 #if defined(SHM_HUGETLB)
 	SHM_HUGETLB,
@@ -70,18 +65,22 @@ static const int shm_flags[] = {
 
 void stress_set_shm_sysv_bytes(const char *opt)
 {
-	set_shm_sysv_bytes = true;
-	opt_shm_sysv_bytes = (size_t)get_uint64_byte(opt);
-	check_range_bytes("shm-sysv-bytes", opt_shm_sysv_bytes,
+	size_t shm_sysv_bytes;
+
+	shm_sysv_bytes = (size_t)get_uint64_byte(opt);
+	check_range_bytes("shm-sysv-bytes", shm_sysv_bytes,
 		MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT);
+	set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
 }
 
 void stress_set_shm_sysv_segments(const char *opt)
 {
-	opt_shm_sysv_segments = true;
-	opt_shm_sysv_segments = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range("shm-sysv-segments", opt_shm_sysv_segments,
+	size_t shm_sysv_segments;
+
+	shm_sysv_segments = (size_t)get_uint64(opt);
+	check_range("shm-sysv-segs", shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
+	set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
 }
 
 /*
@@ -119,7 +118,8 @@ static int stress_shm_sysv_child(
 	const args_t *args,
 	const int fd,
 	const size_t max_sz,
-	const size_t page_size)
+	const size_t page_size,
+	const size_t shm_sysv_segments)
 {
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
@@ -149,7 +149,7 @@ static int stress_shm_sysv_child(
 	do {
 		size_t sz = max_sz;
 
-		for (i = 0; i < opt_shm_sysv_segments; i++) {
+		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
 			void *addr;
 			key_t key;
@@ -286,7 +286,7 @@ static int stress_shm_sysv_child(
 			inc_counter(args);
 		}
 reap:
-		for (i = 0; i < opt_shm_sysv_segments; i++) {
+		for (i = 0; i < shm_sysv_segments; i++) {
 			if (addrs[i]) {
 				if (shmdt(addrs[i]) < 0) {
 					pr_fail_err("shmdt");
@@ -339,24 +339,29 @@ int stress_shm_sysv(const args_t *args)
 	pid_t pid;
 	bool retry = true;
 	uint32_t restarts = 0;
+	size_t shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
+	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
-	if (!set_shm_sysv_bytes) {
+	if (!get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
+			shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
+			shm_sysv_bytes = MIN_SHM_SYSV_BYTES;
 	}
-	opt_shm_sysv_segments /= args->num_instances;
-	if (opt_shm_sysv_segments < 1)
-		opt_shm_sysv_segments = 1;
+	if (shm_sysv_bytes < page_size)
+		shm_sysv_bytes = page_size;
 
-	if (!set_shm_sysv_segments) {
+	if (!get_setting("shm-sysv-segs", &shm_sysv_segments)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
+			shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
+			shm_sysv_segments = MIN_SHM_SYSV_SEGMENTS;
 	}
-	orig_sz = sz = opt_shm_sysv_bytes & ~(page_size - 1);
+	shm_sysv_segments /= args->num_instances;
+	if (shm_sysv_segments < 1)
+		shm_sysv_segments = 1;
+
+	orig_sz = sz = shm_sysv_bytes & ~(page_size - 1);
 
 	while (g_keep_stressing_flag && retry) {
 		if (pipe(pipefds) < 0) {
@@ -435,7 +440,7 @@ fork_again:
 			 *  has died, so we should be able to remove the
 			 *  shared memory segment.
 			 */
-			for (i = 0; i < (ssize_t)opt_shm_sysv_segments; i++) {
+			for (i = 0; i < (ssize_t)shm_sysv_segments; i++) {
 				if (shm_ids[i] != -1)
 					(void)shmctl(shm_ids[i], IPC_RMID, NULL);
 			}
@@ -453,7 +458,7 @@ fork_again:
 					"(instance %d)\n", args->name, args->instance);
 
 			(void)close(pipefds[0]);
-			rc = stress_shm_sysv_child(args, pipefds[1], sz, page_size);
+			rc = stress_shm_sysv_child(args, pipefds[1], sz, page_size, shm_sysv_segments);
 			(void)close(pipefds[1]);
 			_exit(rc);
 		}

@@ -24,37 +24,34 @@
  */
 #include "stress-ng.h"
 
-static size_t opt_malloc_bytes = DEFAULT_MALLOC_BYTES;
-static bool set_malloc_bytes = false;
-
-static size_t opt_malloc_max = DEFAULT_MALLOC_MAX;
-static bool set_malloc_max = false;
-
-static int opt_malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
-static bool set_malloc_threshold = false;
-
 void stress_set_malloc_bytes(const char *opt)
 {
-	set_malloc_bytes = true;
-	opt_malloc_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("malloc-bytes", opt_malloc_bytes,
+	size_t malloc_bytes;
+
+	malloc_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	check_range_bytes("malloc-bytes", malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
+	set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
 }
 
 void stress_set_malloc_max(const char *opt)
 {
-	set_malloc_max = true;
-	opt_malloc_max = (size_t)get_uint64_byte(opt);
-	check_range("malloc-max", opt_malloc_max,
+	size_t malloc_max;
+
+	malloc_max = (size_t)get_uint64_byte(opt);
+	check_range("malloc-max", malloc_max,
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
+	set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
 }
 
 void stress_set_malloc_threshold(const char *opt)
 {
-	set_malloc_threshold = true;
-	opt_malloc_threshold = (size_t)get_uint64_byte(opt);
-	check_range("malloc-threshold", opt_malloc_threshold,
+	size_t malloc_threshold;
+
+	malloc_threshold = (size_t)get_uint64_byte(opt);
+	check_range("malloc-threshold", malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
+	set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);
 }
 
 /*
@@ -62,9 +59,9 @@ void stress_set_malloc_threshold(const char *opt)
  *	get a new allocation size, ensuring
  *	it is never zero bytes.
  */
-static inline size_t stress_alloc_size(void)
+static inline size_t stress_alloc_size(const size_t malloc_bytes)
 {
-	size_t len = mwc64() % opt_malloc_bytes;
+	size_t len = mwc64() % malloc_bytes;
 
 	return len ? len : 1;
 }
@@ -78,28 +75,33 @@ int stress_malloc(const args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
+	size_t malloc_bytes = DEFAULT_MALLOC_BYTES;
+	size_t malloc_max = DEFAULT_MALLOC_MAX;
+#if defined(__GNUC__) && defined(__linux__)
+	size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
+#endif
 
-	if (!set_malloc_bytes) {
+	if (!get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_malloc_bytes = MAX_MALLOC_BYTES;
+			malloc_bytes = MAX_MALLOC_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_malloc_bytes = MIN_MALLOC_BYTES;
+			malloc_bytes = MIN_MALLOC_BYTES;
 	}
 
-	opt_malloc_bytes /= args->num_instances;
-	if (opt_malloc_bytes < MIN_MALLOC_BYTES)
-		opt_malloc_bytes = MIN_MALLOC_BYTES;
+	malloc_bytes /= args->num_instances;
+	if (malloc_bytes < MIN_MALLOC_BYTES)
+		malloc_bytes = MIN_MALLOC_BYTES;
 
-	if (!set_malloc_max) {
+	if (!get_setting("malloc-max", &malloc_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_malloc_max = MAX_MALLOC_MAX;
+			malloc_max = MAX_MALLOC_MAX;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_malloc_max = MIN_MALLOC_MAX;
+			malloc_max = MIN_MALLOC_MAX;
 	}
 
 #if defined(__GNUC__) && defined(__linux__)
-	if (set_malloc_threshold)
-		(void)mallopt(M_MMAP_THRESHOLD, opt_malloc_threshold);
+	if (get_setting("malloc-threshold", &malloc_threshold))
+		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
 
 again:
@@ -149,7 +151,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		void *addr[opt_malloc_max];
+		void *addr[malloc_max];
 		size_t j;
 
 		(void)setpgid(0, g_pgrp);
@@ -160,7 +162,7 @@ again:
 
 		do {
 			unsigned int rnd = mwc32();
-			unsigned int i = rnd % opt_malloc_max;
+			unsigned int i = rnd % malloc_max;
 			unsigned int action = (rnd >> 12) & 1;
 			unsigned int do_calloc = (rnd >> 14) & 0x1f;
 
@@ -182,7 +184,7 @@ again:
 					inc_counter(args);
 				} else {
 					void *tmp;
-					size_t len = stress_alloc_size();
+					size_t len = stress_alloc_size(malloc_bytes);
 
 					tmp = realloc(addr[i], len);
 					if (tmp) {
@@ -194,7 +196,7 @@ again:
 			} else {
 				/* 50% free, 50% alloc */
 				if (action) {
-					size_t len = stress_alloc_size();
+					size_t len = stress_alloc_size(malloc_bytes);
 
 					if (do_calloc == 0) {
 						size_t n = ((rnd >> 15) % 17) + 1;
@@ -211,7 +213,7 @@ again:
 			}
 		} while (keep_stressing());
 abort:
-		for (j = 0; j < opt_malloc_max; j++) {
+		for (j = 0; j < malloc_max; j++) {
 			free(addr[j]);
 		}
 	}

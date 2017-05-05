@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-static uint64_t opt_zombie_max = DEFAULT_ZOMBIES;
-static bool set_zombie_max = false;
-
 typedef struct zombie {
 	pid_t	pid;
 	struct zombie *next;
@@ -126,10 +123,12 @@ static void stress_zombie_free(void)
  */
 void stress_set_zombie_max(const char *opt)
 {
-	set_zombie_max = true;
-	opt_zombie_max = get_uint64_byte(opt);
-	check_range("zombie-max", opt_zombie_max,
+	uint64_t zombie_max;
+
+	zombie_max = get_uint64_byte(opt);
+	check_range("zombie-max", zombie_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
+	set_setting("zombie-max", TYPE_ID_INT64, &zombie_max);
 }
 
 /*
@@ -139,16 +138,17 @@ void stress_set_zombie_max(const char *opt)
 int stress_zombie(const args_t *args)
 {
 	uint64_t max_zombies = 0;
+	uint64_t zombie_max = DEFAULT_ZOMBIES;
 
-	if (!set_zombie_max) {
+	if (!get_setting("zombie-max", &zombie_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			opt_zombie_max = MAX_ZOMBIES;
+			zombie_max = MAX_ZOMBIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			opt_zombie_max = MIN_ZOMBIES;
+			zombie_max = MIN_ZOMBIES;
 	}
 
 	do {
-		if (zombies.length < opt_zombie_max) {
+		if (zombies.length < zombie_max) {
 			zombie_t *zombie;
 
 			zombie = stress_zombie_new();
