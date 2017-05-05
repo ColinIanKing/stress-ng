@@ -3602,6 +3602,7 @@ int main(int argc, char **argv)
 	proc_helper(proc_destroy, SIZEOF_ARRAY(proc_destroy));
 	stress_cache_free();
 	stress_unmap_shared();
+	free_settings();
 
 	/*
 	 *  Close logs

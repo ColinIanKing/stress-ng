@@ -34,6 +34,25 @@ static setting_t *setting_tail;	/* setting list tail */
 #endif
 
 /*
+ *  free_settings()
+ *	free the saved settings
+ */
+void free_settings(void)
+{
+	setting_t *setting = setting_head;
+
+	while (setting) {
+		setting_t *next = setting->next;
+
+		free(setting->name);
+		free(setting);
+		setting = next;
+	}
+	setting_head = NULL;
+	setting_tail = NULL;
+}
+
+/*
  *  set_setting()
  *	set a new setting;
  */
