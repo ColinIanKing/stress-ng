@@ -27,7 +27,7 @@
 #define SHM_NAME_LEN	128
 
 typedef struct {
-	int	index;
+	ssize_t	index;
 	char	shm_name[SHM_NAME_LEN];
 } shm_msg_t;
 
@@ -92,8 +92,8 @@ static int stress_shm_posix_child(
 	size_t sz,
 	size_t shm_posix_objects)
 {
-	void *addrs[MAX_SHM_POSIX_OBJECTS];
-	char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
+	void **addrs;
+	char *shm_names;
 	shm_msg_t msg;
 	int i;
 	int rc = EXIT_SUCCESS;
@@ -102,8 +102,17 @@ static int stress_shm_posix_child(
 	uint64_t id = 0;
 	const size_t page_size = args->page_size;
 
-	(void)memset(addrs, 0, sizeof(addrs));
-	(void)memset(shm_names, 0, sizeof(shm_names));
+	addrs = calloc(shm_posix_objects, sizeof(void *));
+	if (!addrs) {
+		pr_fail_err("calloc on addrs");
+		return EXIT_NO_RESOURCE;
+	}
+	shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
+	if (!shm_names) {
+		free(addrs);
+		pr_fail_err("calloc on shm_names");
+		return EXIT_NO_RESOURCE;
+	}
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -112,7 +121,7 @@ static int stress_shm_posix_child(
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
 			int shm_fd;
 			void *addr;
-			char *shm_name = shm_names[i];
+			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 
 			shm_name[0] = '\0';
 
@@ -187,7 +196,7 @@ static int stress_shm_posix_child(
 		}
 reap:
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
-			char *shm_name = shm_names[i];
+			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 
 			if (addrs[i])
 				(void)munmap(addrs[i], sz);
@@ -219,6 +228,8 @@ reap:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
+	free(shm_names);
+	free(addrs);
 
 	return rc;
 }
@@ -281,12 +292,16 @@ fork_again:
 		} else if (pid > 0) {
 			/* Parent */
 			int status;
-			char shm_names[MAX_SHM_POSIX_OBJECTS][SHM_NAME_LEN];
+			char *shm_names;
 
+			shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
+			if (!shm_names) {
+				pr_fail_err("calloc on shm_names");
+				rc = EXIT_NO_RESOURCE;
+				goto err;
+			}
 			(void)setpgid(pid, g_pgrp);
 			(void)close(pipefds[1]);
-
-			(void)memset(shm_names, 0, sizeof(shm_names));
 
 			while (g_keep_stressing_flag) {
 				ssize_t n;
@@ -311,12 +326,12 @@ fork_again:
 					break;
 				}
 				if ((msg.index < 0) ||
-				    (msg.index >= MAX_SHM_POSIX_OBJECTS)) {
+				    (msg.index >= (ssize_t)shm_posix_objects)) {
 					retry = false;
 					break;
 				}
 
-				shm_name = shm_names[msg.index];
+				shm_name = &shm_names[msg.index * SHM_NAME_LEN];
 				shm_name[SHM_NAME_LEN - 1] = '\0';
 				(void)strncpy(shm_name, msg.shm_name, SHM_NAME_LEN - 1);
 			}
@@ -342,10 +357,11 @@ fork_again:
 			 *  shared memory segment.
 			 */
 			for (i = 0; i < (ssize_t)shm_posix_objects; i++) {
-				char *shm_name = shm_names[i];
+				char *shm_name = &shm_names[i * SHM_NAME_LEN];
 				if (*shm_name)
 					(void)shm_unlink(shm_name);
 			}
+			free(shm_names);
 		} else if (pid == 0) {
 			/* Child, stress memory */
 			(void)setpgid(0, g_pgrp);
@@ -364,6 +380,7 @@ fork_again:
 		pr_dbg("%s: OOM restarts: %" PRIu32 "\n",
 			args->name, restarts);
 	}
+err:
 	return rc;
 }
 #else
