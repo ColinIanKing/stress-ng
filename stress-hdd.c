@@ -336,7 +336,7 @@ int stress_hdd(const args_t *args)
 	size_t opt_index = 0;
 	uint64_t hdd_bytes = DEFAULT_HDD_BYTES;
 	uint64_t hdd_write_size = DEFAULT_HDD_WRITE_SIZE;
-	int hdd_flags, hdd_oflags;
+	int hdd_flags = 0, hdd_oflags = 0;
 	int flags, fadvise_flags;
 	bool opts_set = false;
 
