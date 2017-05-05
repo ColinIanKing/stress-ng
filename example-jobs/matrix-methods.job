@@ -1,0 +1,86 @@
+#
+# hot-cpu class stressors:
+#   various options have been commented out, one can remove the
+#   proceeding comment to enable these options if required.
+
+#
+# run the following tests in parallel or sequentially
+#
+run sequential
+# run parallel
+
+#
+# verbose
+#   show all debug, warnings and normal information output.
+#
+verbose
+
+#
+# run each of the tests for 60 seconds
+#  stop stress test after N seconds. One can also specify the units
+#  of time in seconds, minutes, hours, days or years with the  suf‐
+#  fix s, m, h, d or y.
+#
+timeout 1m
+
+# tz
+#   collect  temperatures  from  the  available thermal zones on the
+#   machine (Linux only).  Some devices may have one or more thermal
+#   zones, where as others may have none.
+tz
+
+#
+#  matrix stressor with examples of all the methods allowed
+#
+#   start N workers that perform various matrix operations on float‐
+#   ing point values. By default, this will exercise all the  matrix
+#   stress  methods  one  by one.  One can specify a specific matrix
+#   stress method with the --matrix-method option.
+#
+#
+#  Method           Description
+#  all              iterate  over all the below matrix stress methods
+#  add              add two N × N matrices
+#  copy             copy one N × N matrix to another
+#  div              divide an N × N matrix by a scalar
+#  hadamard         Hadamard product of two N × N matrices
+#  frobenius        Frobenius product of two N × N matrices
+#  mean             arithmetic mean of two N × N matrices
+#  mult             multiply an N × N matrix by a scalar
+#  prod             product of two N × N matrices
+#  sub              subtract one N × N matrix from another N × N matrix
+#  trans            transpose an N × N matrix
+#
+
+matrix 0
+matrix-method all
+
+matrix 0
+matrix-method add
+
+matrix 0
+matrix-method copy
+
+matrix 0
+matrix-method div
+
+matrix 0
+matrix-method frobenius
+
+matrix 0
+matrix-method hadamard
+
+matrix 0
+matrix-method mean
+
+matrix 0
+matrix-method mult
+
+matrix 0
+matrix-method prod
+
+matrix 0
+matrix-method sub
+
+matrix 0
+matrix-method trans
