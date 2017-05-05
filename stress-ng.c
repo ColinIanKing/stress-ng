@@ -3484,6 +3484,12 @@ int main(int argc, char **argv)
 
 	set_proc_limits();
 
+	if (!procs_head) {
+		pr_err("No stress workers\n");
+		free_procs();
+		exit(EXIT_FAILURE);
+	}
+
 	/*
 	 *  Show the stressors we're going to run
 	 */
