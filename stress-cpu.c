@@ -67,7 +67,6 @@ typedef struct {
 	const stress_cpu_func	func;	/* the stressor function */
 } stress_cpu_stressor_info_t;
 
-static const stress_cpu_stressor_info_t *opt_cpu_stressor;
 static const stress_cpu_stressor_info_t cpu_methods[];
 
 /* Don't make this static to ensure dithering does not get optimised out */
@@ -2187,7 +2186,7 @@ int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
 
 	for (info = cpu_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			opt_cpu_stressor = info;
+			set_setting("cpu-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -2208,12 +2207,16 @@ int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
 int stress_cpu(const args_t *args)
 {
 	double bias;
-	stress_cpu_func func = opt_cpu_stressor->func;
+	const stress_cpu_stressor_info_t *cpu_stressor = &cpu_methods[0];
+	stress_cpu_func func;
 	int32_t cpu_load = 100;
 	int32_t cpu_load_slice = -64;
 
 	(void)get_setting("cpu-load", &cpu_load);
 	(void)get_setting("cpu-load-slice", &cpu_load_slice);
+	(void)get_setting("cpu-method", &cpu_stressor);
+
+	func = cpu_stressor->func;
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
