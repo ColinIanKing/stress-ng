@@ -2218,7 +2218,7 @@ int stress_cpu(const args_t *args)
 
 	func = cpu_stressor->func;
 
-	pr_dbg("%s using method %s\n", args->name, cpu_stressor->name);
+	pr_dbg("%s using method '%s'\n", args->name, cpu_stressor->name);
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU

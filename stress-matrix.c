@@ -378,7 +378,7 @@ int stress_matrix(const args_t *args)
 
 	(void)get_setting("matrix-method", &matrix_stressor);
 	func = matrix_stressor->func;
-	pr_dbg("%s using method %s\n", args->name, matrix_stressor->name);
+	pr_dbg("%s using method '%s'\n", args->name, matrix_stressor->name);
 
 	if (!get_setting("matrix-size", &matrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

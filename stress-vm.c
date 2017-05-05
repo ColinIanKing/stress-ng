@@ -1897,7 +1897,7 @@ int stress_vm(const args_t *args)
 	(void)get_setting("vm-flags", &vm_flags);
 	(void)get_setting("vm-method", &vm_stressor);
 	func = vm_stressor->func;
-	pr_dbg("%s using method %s\n", args->name, vm_stressor->name);
+	pr_dbg("%s using method '%s'\n", args->name, vm_stressor->name);
 
 	if (!get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
