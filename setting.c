@@ -69,6 +69,7 @@ void set_setting(char *name, type_id_t type_id, void *value)
 		goto err;
 
 	setting->name = strdup(name);
+	setting->proc = proc_current;
 	setting->type_id = type_id;
 	if (!setting->name) {
 		free(setting);
@@ -175,10 +176,16 @@ bool get_setting(char *name, void *value)
 {
 	setting_t *setting;
 	bool set = false;
+	bool found = false;
 
 	DBG("%s: get %s\n", __func__, name);
 
 	for (setting = setting_head; setting; setting = setting->next) {
+		if (setting->proc == proc_current)
+			found = true;
+		if (found && (setting->proc != proc_current))
+			break;
+
 		if (!strcmp(setting->name, name)) {
 			switch (setting->type_id) {
 			case TYPE_ID_UINT8:

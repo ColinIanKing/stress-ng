@@ -56,6 +56,7 @@ typedef struct {
 
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
+proc_info_t *proc_current;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
@@ -1985,20 +1986,18 @@ static void MLOCKED stress_run(
 	time_start = time_now();
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		proc_info_t *pi;
-
-		for (pi = procs_list; pi; pi = pi->next) {
+		for (proc_current = procs_list; proc_current; proc_current = proc_current->next) {
 			if (time_now() - time_start > g_opt_timeout)
 				goto abort;
 
-			j = pi->started_procs;
+			j = proc_current->started_procs;
 
-			if (j < pi->num_procs) {
+			if (j < proc_current->num_procs) {
 				int rc = EXIT_SUCCESS;
 				pid_t pid;
 				char name[64];
 
-				proc_stats_t *stats = pi->stats[j];
+				proc_stats_t *stats = proc_current->stats[j];
 again:
 				if (!g_keep_stressing_flag)
 					break;
@@ -2028,7 +2027,7 @@ again:
 					(void)alarm(g_opt_timeout);
 					mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-						munge_underscore(pi->stressor->name));
+						munge_underscore(proc_current->stressor->name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
 					set_iopriority(opts->opt_ionice_class, opts->opt_ionice_level);
@@ -2051,15 +2050,15 @@ again:
 						const args_t args = {
 							.counter = &stats->counter,
 							.name = name,
-							.max_ops = pi->bogo_ops,
+							.max_ops = proc_current->bogo_ops,
 							.instance = j,
-							.num_instances = pi->num_procs,
+							.num_instances = proc_current->num_procs,
 							.pid = getpid(),
 							.ppid = getppid(),
 							.page_size = stress_get_pagesize(),
 						};
 
-						rc = pi->stressor->stress_func(&args);
+						rc = proc_current->stressor->stress_func(&args);
 						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
 #if defined(STRESS_PERF_STATS)
@@ -2089,8 +2088,8 @@ again:
 				default:
 					if (pid > -1) {
 						(void)setpgid(pid, g_pgrp);
-						pi->pids[j] = pid;
-						pi->started_procs++;
+						proc_current->pids[j] = pid;
+						proc_current->started_procs++;
 					}
 
 					/* Forced early abort during startup? */
@@ -2456,11 +2455,13 @@ static proc_info_t *find_proc_info(const stress_t *stressor)
 {
 	proc_info_t *pi;
 
+#if 0
 	/* Scan backwards in time to find last matching stressor */
 	for (pi = procs_tail; pi; pi = pi->prev) {
 		if (pi->stressor == stressor)
 			return pi;
 	}
+#endif
 
 	pi = calloc(1, sizeof(*pi));
 	if (!pi) {
@@ -2666,6 +2667,7 @@ next_opt:
 			if (stressors[i].short_getopt == c) {
 				const char *name = opt_name(c);
 				proc_info_t *pi = find_proc_info(&stressors[i]);
+				proc_current = pi;
 
 				g_opt_flags |= OPT_FLAGS_SET;
 				pi->num_procs = get_int32(optarg);

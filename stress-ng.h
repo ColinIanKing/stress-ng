@@ -286,6 +286,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
+typedef struct proc_info proc_info_t;
+
 /* native setting types */
 typedef enum {
 	TYPE_ID_UNDEFINED,
@@ -312,6 +314,7 @@ typedef enum {
 /* settings for storing opt arg parsed data */
 typedef struct setting {
 	struct setting *next;		/* next setting in list */
+	proc_info_t	*proc;
 	char *name;			/* name of setting */
 	type_id_t	type_id;	/* setting type */
 	union {				/* setting value */
@@ -2036,6 +2039,9 @@ typedef struct proc_info {
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 } proc_info_t;
+
+/* Pointer to current running stressor proc info */
+extern proc_info_t *proc_current;
 
 /* Scale lookup mapping, suffix -> scale by */
 typedef struct {
