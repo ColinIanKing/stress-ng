@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.07.30
+VERSION=0.08.00
 #
-# Codename "systematic stress inducer"
+# Codename "harmful hardware harasser"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
