@@ -71,7 +71,7 @@ void stress_set_vm_flags(const int flag)
 {
 	int vm_flags = 0;
 
-	get_setting("vm-flags", &vm_flags);
+	(void)get_setting("vm-flags", &vm_flags);
 	vm_flags |= flag;
 	set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
 
