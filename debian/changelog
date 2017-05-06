@@ -1,3 +1,71 @@
+stress-ng (0.08.00-1) unstable; urgency=medium
+
+  * Makefile: bump version to 0.08.00
+  * Makefile: add test-aligned-128.c to dist rule
+  * stress-vm: voidify return from get_setting call
+  * Add an example job that exercises all the matrix methods
+  * Quote the name of the stressor method to make it clearer
+  * Allow multiple instances of the same stressor to be run
+  * stress-vm: use new set/get_setting on vm-method option
+  * stress-matrix: use new set/get_setting on matrix-method option
+  * stress-cpu: add debug info on the cpu method being used
+  * stress-ng: clean up some of the overly wide lines
+  * Use struct field tags to specify field settings for new args_t
+  * Comment new settings types
+  * job: fix old gcc warnings, cast char to int before passing to isblank()
+  * remove stressor_id_find(), it is no longer used
+  * stress-iomix: voidify iomix_bytes for non-linux builds
+  * stress-hdd: ensure flags are zero
+  * Add check for no stress workers being run
+  * Be tidy and free up stashed settings
+  * stress-cpu: use set/get_settings on cpu-method option
+  * stress-shm: allocate addr and shm_names on heap rather than stack
+  * Ensure that when rounding to nearest page we don't round to zero
+  * Add new set/get_settings() mechanism to stash settings
+  * stress-vm-splice: ensure minimial mmap size is at least a page size
+  * Use the correct number of procs for sequential running
+  * Rework the proc info setup, clean up and refactor chunks of code
+  * Pass a list of proc_info_t's to stress_run, remove not_runnable flag
+  * Replace procs[] array with a doubly-linked list of proc_info_t
+  * Track per stressor stats with a pointer to the shared stats data
+  * stress-sync-file: clean up warning on signed integer comparison
+  * More minor job fixups
+  * scheduler.job: fix incorrect name of job
+  * Add a hot-cpu example job
+  * remove debug from --ignite-cpu option
+  * Add scheduler class example job
+  * manual: move mq options to correct location in man page
+  * Add filesystem class example job
+  * stress-hdd: ensure we do not divide by zero
+  * test-libbsd: voidify returns from test calls
+  * TODO: update things to do
+  * Move number of instances into args struct, remove stressor_instances()
+  * Add net class example job
+  * Re-order the class names into alphabetical order
+  * Add vm class example job
+  * manual: add missing full stop in userfaultfd section
+  * Add security class example job
+  * Makefile: update dist and install rules to incorporate example jobs
+  * Add pipe class example job
+  * Add interrupt class example job
+  * Add io class example job
+  * Add device class example job
+  * Add cpu-cache class example job
+  * Add cpu class example job
+  * Ensure stressor names are mungified from _ to - in class option
+  * memory.job: make default run time 60 seconds per stressor
+  * stress-mergesort: replace uint8_t sort with random mixer sort
+  * stress-stream: remove args-> prefix from instance message
+  * Add example memory job
+  * man page: fix the resources option with line wrapping
+  * man page: fix typo on sigpending-ops
+  * Add new --job option allowing one to script stressors
+  * split out arg parsing into a helper function, put opt data in a struct
+  * snapcraft: remove icon and update snapcraft yaml
+  * Add 128 byte cacheline alignment
+
+ -- Colin King <colin.king@canonical.com>  Sat, 6 May 2017 13:27:11 +0100
+
 stress-ng (0.07.30-1) unstable; urgency=medium
 
   * Makefile: bump version
