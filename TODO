@@ -1,12 +1,4 @@
 List of TODO items:
 
 1. acls?
-2. point to the stats info per stessor from the
-   proc info rather than having some form of 
-   baroque lookup index
-3. make procs a linked list rather than a fixed
-   array to allow us generate a "program" of stressors
-   from the jobs info and run them in a specific
-   order
-
 
