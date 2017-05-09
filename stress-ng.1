@@ -1823,6 +1823,17 @@ allocate N bytes for the memory mapped file, the default is 256MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-netdev N
+start N workers that exercise various netdevice ioctl commands across
+all the available network devices. The ioctls exercised by this stressor
+are as follows: SIOCGIFCONF, SIOCGIFINDEX, SIOCGIFNAME, SIOCGIFFLAGS,
+SIOCGIFADDR, SIOCGIFNETMASK, SIOCGIFMETRIC, SIOCGIFMTU, SIOCGIFHWADDR,
+SIOCGIFMAP and SIOCGIFTXQLEN. See netdevice(7) for more details of these
+ioctl commands.
+.TP
+.B \-\-netdev\-ops N
+stop after N netdev bogo operations completed.
+.TP
 .B \-\-netlink\-proc N
 start N workers that spawn child processes and monitor fork/exec/exit
 process events via the proc netlink connector. Each event received is counted

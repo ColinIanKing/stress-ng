@@ -1234,6 +1234,7 @@ typedef enum {
 	STRESS_MSG,
 	STRESS_MSYNC,
 	STRESS_MQ,
+	STRESS_NETDEV,
 	STRESS_NETLINK_PROC,
 	STRESS_NICE,
 	STRESS_NOP,
@@ -1695,6 +1696,9 @@ typedef enum {
 	OPT_MQ,
 	OPT_MQ_OPS,
 	OPT_MQ_SIZE,
+
+	OPT_NETDEV,
+	OPT_NETDEV_OPS,
 
 	OPT_NETLINK_PROC,
 	OPT_NETLINK_PROC_OPS,
@@ -2709,6 +2713,7 @@ STRESS(stress_mremap);
 STRESS(stress_msg);
 STRESS(stress_msync);
 STRESS(stress_mq);
+STRESS(stress_netdev);
 STRESS(stress_netlink_proc);
 STRESS(stress_nice);
 STRESS(stress_nop);
