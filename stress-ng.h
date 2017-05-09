@@ -2326,7 +2326,7 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 }
 
 /* Jobfile parsing */
-extern WARN_UNUSED int parse_jobfile(char *appname, const char *jobfile, main_opts_t *opts);
+extern WARN_UNUSED int parse_jobfile(int argc, char **argv, const char *jobfile, main_opts_t *opts);
 extern void parse_opts(int argc, char **argv, main_opts_t *opts);
 
 /* Memory tweaking */

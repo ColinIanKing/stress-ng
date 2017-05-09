@@ -3481,10 +3481,8 @@ int main(int argc, char **argv)
 	/*
 	 *  Load in job file options
 	 */
-	if (opts.opt_jobfile) {
-		if (parse_jobfile(argv[0], opts.opt_jobfile, &opts) < 0)
-			exit(EXIT_FAILURE);
-	}
+	if (parse_jobfile(argc, argv, opts.opt_jobfile, &opts) < 0)
+		exit(EXIT_FAILURE);
 
 	/*
 	 *  Setup stressor proc info

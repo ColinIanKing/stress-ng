@@ -90,20 +90,26 @@ err:
  *	individual stress-ng options
  */
 int parse_jobfile(
-	char *appname,
+	const int argc,
+	char **argv,
 	const char *jobfile,
 	main_opts_t *opts)
 {
 	FILE *fp;
 	char buf[4096];
-	char *argv[MAX_ARGS];
+	char *new_argv[MAX_ARGS];
 	int ret = -1;
 	uint32_t flag = 0;
 
-	if (!jobfile)
-		return 0;
-
-	fp = fopen(jobfile, "r");
+	if (!jobfile) {
+		if (argc < 2)
+			return 0;
+		fp = fopen(argv[1], "r");
+		if (!fp)
+			return 0;
+	} else {
+		fp = fopen(jobfile, "r");
+	}
 	if (!fp) {
 		(void)fprintf(stderr, "Cannot open jobfile '%s'\n", jobfile);
 		return -1;
@@ -113,8 +119,8 @@ int parse_jobfile(
 		char *ptr = buf;
 		int argc = 1;
 
-		memset(argv, 0, sizeof(argv));
-		argv[0] = appname;
+		memset(new_argv, 0, sizeof(new_argv));
+		new_argv[0] = argv[0];
 
 		/* remove \n */
 		chop(buf, '\n');
@@ -130,7 +136,7 @@ int parse_jobfile(
 			ptr++;
 
 		while (argc < MAX_ARGS && *ptr) {
-			argv[argc++] = ptr;
+			new_argv[argc++] = ptr;
 
 			/* eat up chars until eos or blank */
 			while (*ptr && !ISBLANK(*ptr))
@@ -147,19 +153,19 @@ int parse_jobfile(
 
 		/* managed to get any tokens? */
 		if (argc > 1) {
-			size_t len = strlen(argv[1]) + 3;
+			size_t len = strlen(new_argv[1]) + 3;
 			char tmp[len];
 			int rc;
 
 			/* Must check for --job -h option! */
-			if (!strcmp(argv[1], "job") ||
-			    !strcmp(argv[1], "j")) {
+			if (!strcmp(new_argv[1], "job") ||
+			    !strcmp(new_argv[1], "j")) {
 				fprintf(stderr, "Cannot read job file in from a job script!\n");
 				goto err;
 			}
 
 			/* Check for job run option */
-			rc = parse_run(jobfile, argc, argv, &flag);
+			rc = parse_run(jobfile, argc, new_argv, &flag);
 			if (rc < 0) {
 				ret = -1;
 				goto err;
@@ -168,10 +174,10 @@ int parse_jobfile(
 			}
 
 			/* prepend -- to command to make them into stress-ng options */
-			snprintf(tmp, len, "--%s", argv[1]);
-			argv[1] = tmp;
-			parse_opts(argc, argv, opts);
-			argv[1] = NULL;
+			snprintf(tmp, len, "--%s", new_argv[1]);
+			new_argv[1] = tmp;
+			parse_opts(argc, new_argv, opts);
+			new_argv[1] = NULL;
 		}
 	}
 	ret = 0;
