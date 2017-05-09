@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-uint64_t opt_fork_max = DEFAULT_FORKS;
-uint64_t opt_vfork_max = DEFAULT_VFORKS;
-
 /*
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
