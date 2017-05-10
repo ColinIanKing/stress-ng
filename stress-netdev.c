@@ -37,8 +37,6 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 
-#define MAX_INTERFACES	(6)
-
 /*
  *  stress_netdev_check()
  *	helper to perform netdevice ioctl and check for failure
