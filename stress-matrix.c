@@ -347,7 +347,7 @@ static const stress_matrix_method_info_t matrix_methods[] = {
  */
 int stress_set_matrix_method(const char *name)
 {
-	stress_matrix_method_info_t const *info = matrix_methods;
+	stress_matrix_method_info_t const *info;
 
 	for (info = matrix_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
