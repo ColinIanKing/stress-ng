@@ -43,9 +43,9 @@ typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz,
 typedef struct {
 	const char *name;
 	const stress_vm_func func;
-} stress_vm_stressor_info_t;
+} stress_vm_method_info_t;
 
-static const stress_vm_stressor_info_t vm_methods[];
+static const stress_vm_method_info_t vm_methods[];
 
 void stress_set_vm_hang(const char *opt)
 {
@@ -1818,7 +1818,7 @@ static size_t stress_vm_all(
 	return bit_errors;
 }
 
-static const stress_vm_stressor_info_t vm_methods[] = {
+static const stress_vm_method_info_t vm_methods[] = {
 	{ "all",	stress_vm_all },
 	{ "flip",	stress_vm_flip },
 	{ "galpat-0",	stress_vm_galpat_zero },
@@ -1854,7 +1854,7 @@ static const stress_vm_stressor_info_t vm_methods[] = {
  */
 int stress_set_vm_method(const char *name)
 {
-	stress_vm_stressor_info_t const *info;
+	stress_vm_method_info_t const *info;
 
 	for (info = vm_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
@@ -1890,14 +1890,14 @@ int stress_vm(const args_t *args)
 	size_t buf_sz, retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	int vm_flags = 0;                      /* VM mmap flags */
-	const stress_vm_stressor_info_t *vm_stressor = &vm_methods[0];
+	const stress_vm_method_info_t *vm_method = &vm_methods[0];
 	stress_vm_func func;
 
 	(void)get_setting("vm-hang", &vm_hang);
 	(void)get_setting("vm-flags", &vm_flags);
-	(void)get_setting("vm-method", &vm_stressor);
-	func = vm_stressor->func;
-	pr_dbg("%s using method '%s'\n", args->name, vm_stressor->name);
+	(void)get_setting("vm-method", &vm_method);
+	func = vm_method->func;
+	pr_dbg("%s using method '%s'\n", args->name, vm_method->name);
 
 	if (!get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
