@@ -407,6 +407,8 @@ int stress_memthrash(const args_t *args)
 	(void)get_setting("memthrash-method", &memthrash_method);
 	func = memthrash_method->func;
 
+	pr_dbg("%s using method '%s'\n", args->name, memthrash_method->name);
+
 	pargs.args = args;
 	pargs.data = func;
 
