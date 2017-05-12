@@ -305,7 +305,6 @@ static void stress_memthrash_random(const args_t *args, size_t mem_size)
 	}
 }
 
-
 /*
  *  stress_set_memthrash_method()
  *	set the default memthresh method
@@ -457,6 +456,16 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
+
+int stress_set_memthrash_method(const char *name)
+{
+	(void)name;
+
+	(void)pr_inf("warning: --memthrash-method not available on this system\n");
+
+	return 0;
+}
+
 int stress_memthrash(const args_t *args)
 {
 	return stress_not_implemented(args);
