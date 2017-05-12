@@ -1,3 +1,37 @@
+stress-ng (0.08.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-memthrash: implement stress_set_memthrash_method for
+    non-pthread builds
+  * stress-memthrash: provide some feedback about the method being used
+  * typedef a pproc_info_t ptr to proc_info_t type, we can use this on g99
+  * Revert "Use g11 as we are using C11 forward typedef declarations"
+  * Use g11 as we are using C11 forward typedef declarations
+  * stress-zlib: no need to initialize info
+  * stress-str: no need to initialize info
+  * stress-matrix: no need to initialize info
+  * stress-cpu: no need to initialize info
+  * stress-wcs: replace static option with set/get option settings
+  * stress-wcs: rename stress_wcs_stressor_info_t to
+    stress_wcs_method_info_t
+  * stress-vm: rename stress_vm_stressor_info_t to stress_vm_method_info_t
+  * stress-str: rename stress_str_stressor_info_t and use set/get method
+  * stress-matrix: rename stress_matrix_stressor_info_t to
+    stress_matrix_method_info_t
+  * stress-cpu: rename stress_cpu_stressor_info_t to
+    stress_cpu_method_info_t
+  * Add --memthrash-method methods
+  * stress-cpu: move HOT OPTIMIZE3 to correct function
+  * thermal-zone: fix tab indentation
+  * Add memthrash memory thrashing stressor
+  * TODO: remove acl from list, it is covered by stress-xattr.c
+  * stress-netdev: remove unused macro MAX_INTERFACES
+  * Add new netdev (network device) stressor
+  * stress-fork: remove unused static option variables
+  * Add #! handling in jobs, allow one to run stress-ng from a job script
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 May 2017 17:03:49 +0100
+
 stress-ng (0.08.00-1) unstable; urgency=medium
 
   * Makefile: bump version to 0.08.00
