@@ -39,10 +39,10 @@ typedef void (*stress_matrix_func)(
 
 typedef struct {
 	const char			*name;	/* human readable form of stressor */
-	const stress_matrix_func	func;	/* the stressor function */
-} stress_matrix_stressor_info_t;
+	const stress_matrix_func	func;	/* the matrix method function */
+} stress_matrix_method_info_t;
 
-static const stress_matrix_stressor_info_t matrix_methods[];
+static const stress_matrix_method_info_t matrix_methods[];
 
 void stress_set_matrix_size(const char *opt)
 {
@@ -325,7 +325,7 @@ static void OPTIMIZE3 stress_matrix_all(
 /*
  * Table of cpu stress methods
  */
-static const stress_matrix_stressor_info_t matrix_methods[] = {
+static const stress_matrix_method_info_t matrix_methods[] = {
 	{ "all",		stress_matrix_all },	/* Special "all" test */
 
 	{ "add",		stress_matrix_add },
@@ -347,7 +347,7 @@ static const stress_matrix_stressor_info_t matrix_methods[] = {
  */
 int stress_set_matrix_method(const char *name)
 {
-	stress_matrix_stressor_info_t const *info = matrix_methods;
+	stress_matrix_method_info_t const *info = matrix_methods;
 
 	for (info = matrix_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
@@ -371,14 +371,14 @@ int stress_set_matrix_method(const char *name)
  */
 int stress_matrix(const args_t *args)
 {
-	const stress_matrix_stressor_info_t *matrix_stressor = &matrix_methods[0];
+	const stress_matrix_method_info_t *matrix_method = &matrix_methods[0];
 	stress_matrix_func func;
 	size_t n, matrix_size = 128;
 	const matrix_type_t v = 1 / (matrix_type_t)((uint32_t)~0);
 
-	(void)get_setting("matrix-method", &matrix_stressor);
-	func = matrix_stressor->func;
-	pr_dbg("%s using method '%s'\n", args->name, matrix_stressor->name);
+	(void)get_setting("matrix-method", &matrix_method);
+	func = matrix_method->func;
+	pr_dbg("%s using method '%s'\n", args->name, matrix_method->name);
 
 	if (!get_setting("matrix-size", &matrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
