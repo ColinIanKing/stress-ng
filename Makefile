@@ -21,7 +21,7 @@ VERSION=0.08.00
 # Codename "harmful hardware harasser"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu11
 
 #
 # Pedantic flags
