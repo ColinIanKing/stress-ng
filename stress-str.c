@@ -623,7 +623,7 @@ static const stress_str_method_info_t str_methods[] = {
  */
 int stress_set_str_method(const char *name)
 {
-	stress_str_method_info_t const *info = str_methods;
+	stress_str_method_info_t const *info;
 
 	for (info = str_methods; g_keep_stressing_flag && info->func; info++) {
 		if (!strcmp(info->name, name)) {
