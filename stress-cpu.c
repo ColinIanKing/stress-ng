@@ -2182,7 +2182,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
  */
 int stress_set_cpu_method(const char *name)
 {
-	stress_cpu_method_info_t const *info = cpu_methods;
+	stress_cpu_method_info_t const *info;
 
 	for (info = cpu_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
