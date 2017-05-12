@@ -260,7 +260,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
  */
 int HOT OPTIMIZE3 stress_set_zlib_method(const char *name)
 {
-	stress_zlib_rand_data_info_t *info = zlib_rand_data_methods;
+	stress_zlib_rand_data_info_t *info;
 
 	for (info = zlib_rand_data_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
