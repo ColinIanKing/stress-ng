@@ -64,10 +64,10 @@ typedef void (*stress_cpu_func)(const char *name);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
-	const stress_cpu_func	func;	/* the stressor function */
-} stress_cpu_stressor_info_t;
+	const stress_cpu_func	func;	/* the cpu method function */
+} stress_cpu_method_info_t;
 
-static const stress_cpu_stressor_info_t cpu_methods[];
+static const stress_cpu_method_info_t cpu_methods[];
 
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
@@ -2092,7 +2092,7 @@ static HOT OPTIMIZE3 void stress_cpu_all(const char *name)
 /*
  * Table of cpu stress methods
  */
-static const stress_cpu_stressor_info_t cpu_methods[] = {
+static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "all",		stress_cpu_all },	/* Special "all test */
 
 	{ "ackermann",		stress_cpu_ackermann },
@@ -2182,7 +2182,7 @@ static const stress_cpu_stressor_info_t cpu_methods[] = {
  */
 int stress_set_cpu_method(const char *name)
 {
-	stress_cpu_stressor_info_t const *info = cpu_methods;
+	stress_cpu_method_info_t const *info = cpu_methods;
 
 	for (info = cpu_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
@@ -2207,18 +2207,18 @@ int stress_set_cpu_method(const char *name)
 int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 {
 	double bias;
-	const stress_cpu_stressor_info_t *cpu_stressor = &cpu_methods[0];
+	const stress_cpu_method_info_t *cpu_method = &cpu_methods[0];
 	stress_cpu_func func;
 	int32_t cpu_load = 100;
 	int32_t cpu_load_slice = -64;
 
 	(void)get_setting("cpu-load", &cpu_load);
 	(void)get_setting("cpu-load-slice", &cpu_load_slice);
-	(void)get_setting("cpu-method", &cpu_stressor);
+	(void)get_setting("cpu-method", &cpu_method);
 
-	func = cpu_stressor->func;
+	func = cpu_method->func;
 
-	pr_dbg("%s using method '%s'\n", args->name, cpu_stressor->name);
+	pr_dbg("%s using method '%s'\n", args->name, cpu_method->name);
 
 	/*
 	 * Normal use case, 100% load, simple spinning on CPU
