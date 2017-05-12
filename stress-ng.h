@@ -286,7 +286,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
-typedef struct proc_info proc_info_t;
+typedef struct proc_info *pproc_info_t;
 
 /* native setting types */
 typedef enum {
@@ -314,7 +314,7 @@ typedef enum {
 /* settings for storing opt arg parsed data */
 typedef struct setting {
 	struct setting *next;		/* next setting in list */
-	proc_info_t	*proc;
+	pproc_info_t	proc;
 	char *name;			/* name of setting */
 	type_id_t	type_id;	/* setting type */
 	union {				/* setting value */
