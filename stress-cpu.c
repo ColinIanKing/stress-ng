@@ -2180,7 +2180,7 @@ static const stress_cpu_stressor_info_t cpu_methods[] = {
  *  stress_set_cpu_method()
  *	set the default cpu stress method
  */
-int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
+int stress_set_cpu_method(const char *name)
 {
 	stress_cpu_stressor_info_t const *info = cpu_methods;
 
@@ -2204,7 +2204,7 @@ int HOT OPTIMIZE3 stress_set_cpu_method(const char *name)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-int stress_cpu(const args_t *args)
+int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 {
 	double bias;
 	const stress_cpu_stressor_info_t *cpu_stressor = &cpu_methods[0];
