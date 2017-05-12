@@ -177,7 +177,7 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 					dumped_heading = true;
 					pr_inf("%s:\n", munged);
 					pr_yaml(yaml, "    - stressor: %s\n",
-					munged);
+						munged);
 				}
 				pr_inf("%20s %7.2f °C\n",
 					tz_info->type, temp);
