@@ -1223,6 +1223,7 @@ typedef enum {
 	STRESS_MEMBARRIER,
 	STRESS_MEMCPY,
 	STRESS_MEMFD,
+	STRESS_MEMTHRASH,
 	STRESS_MERGESORT,
 	STRESS_MINCORE,
 	STRESS_MKNOD,
@@ -1650,6 +1651,9 @@ typedef enum {
 	OPT_MEMFD_OPS,
 	OPT_MEMFD_BYTES,
 	OPT_MEMFD_FDS,
+
+	OPT_MEMTHRASH,
+	OPT_MEMTHRASH_OPS,
 
 	OPT_MERGESORT,
 	OPT_MERGESORT_OPS,
@@ -2702,6 +2706,7 @@ STRESS(stress_matrix);
 STRESS(stress_membarrier);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
+STRESS(stress_memthrash);
 STRESS(stress_mergesort);
 STRESS(stress_mincore);
 STRESS(stress_mknod);

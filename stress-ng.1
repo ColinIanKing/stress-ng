@@ -1681,6 +1681,13 @@ memfd file descriptions with this option.
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
 .TP
+.B \-\-memthrash N
+start N workers that thrash and exercise a 16MB buffer in various ways to
+try and trip thermal overrun.
+.TP
+.B \-\-memthrash-ops N
+stop after N memthrash bogo operations.
+.TP
 .B -\-mergesort N
 start N workers that sort 32 bit integers using the BSD mergesort.
 .TP
