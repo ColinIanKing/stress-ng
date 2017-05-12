@@ -50,10 +50,9 @@ typedef struct {
 	const char 		*name;	/* human readable form of stressor */
 	const stress_str_func	func;	/* the stressor function */
 	const void 		*libc_func;
-} stress_str_stressor_info_t;
+} stress_str_method_info_t;
 
-static const stress_str_stressor_info_t *opt_str_stressor;
-static const stress_str_stressor_info_t str_methods[];
+static const stress_str_method_info_t str_methods[];
 
 static inline void strchk(
 	const char *name,
@@ -590,7 +589,7 @@ static void stress_str_all(
 /*
  * Table of string stress methods
  */
-static const stress_str_stressor_info_t str_methods[] = {
+static const stress_str_method_info_t str_methods[] = {
 	{ "all",		stress_str_all,		NULL },	/* Special "all test */
 
 	{ "index",		stress_index,		index },
@@ -624,12 +623,11 @@ static const stress_str_stressor_info_t str_methods[] = {
  */
 int stress_set_str_method(const char *name)
 {
-	stress_str_stressor_info_t const *info = str_methods;
-
+	stress_str_method_info_t const *info = str_methods;
 
 	for (info = str_methods; g_keep_stressing_flag && info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			opt_str_stressor = info;
+			set_setting("str-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -649,9 +647,14 @@ int stress_set_str_method(const char *name)
  */
 int stress_str(const args_t *args)
 {
-	stress_str_func func = opt_str_stressor->func;
-	const void *libc_func = opt_str_stressor->libc_func;
+	const stress_str_method_info_t *str_method = &str_methods[0];
+	stress_str_func func;
+	const void *libc_func;
 	bool failed = false;
+
+	(void)get_setting("str-method", &str_method);
+	func = str_method->func;
+	libc_func = str_method->libc_func;
 
 	do {
 		char str1[256], str2[128];
