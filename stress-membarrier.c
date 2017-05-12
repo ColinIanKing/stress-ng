@@ -88,7 +88,7 @@ int stress_membarrier(const args_t *args)
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
 	size_t i;
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
-	pthread_args_t pargs = { args };
+	pthread_args_t pargs = { args, NULL };
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {

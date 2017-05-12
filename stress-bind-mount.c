@@ -70,7 +70,7 @@ int stress_bind_mount(const args_t *args)
 		(CLONE_STACK_SIZE - 64);
 	char stack[CLONE_STACK_SIZE];
 	char *stack_top = stack + stack_offset;
-	pthread_args_t pargs = { args };
+	pthread_args_t pargs = { args, NULL };
 
 	pid = clone(stress_bind_mount_child,
 		align_stack(stack_top),

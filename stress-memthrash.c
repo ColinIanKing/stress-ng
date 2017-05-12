@@ -26,13 +26,19 @@
 
 #if defined(HAVE_LIB_PTHREAD)
 
-#define MATRIX_SIZE_MAX_SHIFT	(12)
-#define MATRIX_SIZE_MIN_SHIFT	(6)
+#define MATRIX_SIZE_MAX_SHIFT	(14)
+#define MATRIX_SIZE_MIN_SHIFT	(10)
 #define MATRIX_SIZE		(1 << MATRIX_SIZE_MAX_SHIFT)
 #define MEM_SIZE		(MATRIX_SIZE * MATRIX_SIZE)
 
-typedef void (*thrash_func_t)(const args_t *args, size_t mem_size);
+typedef void (*memthrash_func_t)(const args_t *args, size_t mem_size);
 
+typedef struct {
+	const char		*name;	/* human readable form of stressor */
+	memthrash_func_t	func;	/* the method function */
+} stress_memthrash_method_info_t;
+
+static const stress_memthrash_method_info_t memthrash_methods[];
 static volatile uint8_t *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
@@ -50,9 +56,13 @@ static sigset_t set;
 static void stress_memthrash_random_chunk(const size_t chunk_size, size_t mem_size)
 {
 	uint32_t i;
-	const size_t chunks = mem_size / chunk_size;
+	const uint32_t max = mwc16();
+	size_t chunks = mem_size / chunk_size;
 
-	for (i = 0; !thread_terminate && (i < mwc16()); i++) {
+	if (chunks < 1)
+		chunks = 1;
+
+	for (i = 0; !thread_terminate && (i < max); i++) {
 		const size_t chunk = mwc32() % chunks;
 		const size_t offset = chunk * chunk_size;
 
@@ -60,7 +70,7 @@ static void stress_memthrash_random_chunk(const size_t chunk_size, size_t mem_si
 	}
 }
 
-static void stress_memthrash_random_page(const args_t *args, size_t mem_size)
+static void stress_memthrash_random_chunkpage(const args_t *args, size_t mem_size)
 {
 	stress_memthrash_random_chunk(args->page_size, mem_size);
 }
@@ -93,7 +103,7 @@ static void stress_memthrash_random_chunk1(const args_t *args, size_t mem_size)
 	stress_memthrash_random_chunk(1, mem_size);
 }
 
-static void stress_memthrash_all_mem(const args_t *args, size_t mem_size)
+static void stress_memthrash_memset(const args_t *args, size_t mem_size)
 {
 	(void)args;
 
@@ -120,8 +130,8 @@ static void stress_memthrash_matrix(const args_t *args, size_t mem_size)
 
 	size_t i, j;
 
-	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i++) {
-		for (j = 0; j < MATRIX_SIZE; j++) {
+	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i+= ((mwc8() & 0xf) + 1)) {
+		for (j = 0; j < MATRIX_SIZE; j+= 16) {
 			size_t i1 = (i * MATRIX_SIZE) + j;
 			size_t i2 = (j * MATRIX_SIZE) + i;
 			uint8_t tmp;
@@ -136,10 +146,11 @@ static void stress_memthrash_matrix(const args_t *args, size_t mem_size)
 static void stress_memthrash_prefetch(const args_t *args, size_t mem_size)
 {
 	uint32_t i;
+	const uint32_t max = mwc16();
 
 	(void)args;
 
-	for (i = 0; !thread_terminate && (i < mwc16()); i++) {
+	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
 		volatile uint8_t *ptr = mem + offset;
 
@@ -151,10 +162,11 @@ static void stress_memthrash_prefetch(const args_t *args, size_t mem_size)
 static void stress_memthrash_flush(const args_t *args, size_t mem_size)
 {
 	uint32_t i;
+	const uint32_t max = mwc16();
 
 	(void)args;
 
-	for (i = 0; !thread_terminate && (i < mwc16()); i++) {
+	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
 		volatile uint8_t *ptr = mem + offset;
 
@@ -166,10 +178,11 @@ static void stress_memthrash_flush(const args_t *args, size_t mem_size)
 static void stress_memthrash_mfence(const args_t *args, size_t mem_size)
 {
 	uint32_t i;
+	const uint32_t max = mwc16();
 
 	(void)args;
 
-	for (i = 0; !thread_terminate && (i < mwc16()); i++) {
+	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
 		volatile uint8_t *ptr = mem + offset;
 
@@ -236,35 +249,99 @@ static void stress_memthrash_spinwrite(const args_t *args, size_t mem_size)
 	}
 }
 
-static thrash_func_t thrash_funcs[] = {
-	stress_memthrash_random_page,
-	stress_memthrash_random_chunk256,
-	stress_memthrash_random_chunk64,
-	stress_memthrash_random_chunk8,
-	stress_memthrash_random_chunk1,
-	stress_memthrash_all_mem,
-	stress_memthrash_flip_mem,
-	stress_memthrash_matrix,
-	stress_memthrash_prefetch,
-	stress_memthrash_flush,
-	stress_memthrash_mfence,
+
+static void stress_memthrash_all(const args_t *args, size_t mem_size);
+static void stress_memthrash_random(const args_t *args, size_t mem_size);
+
+static const stress_memthrash_method_info_t memthrash_methods[] = {
+	{ "all",	stress_memthrash_all },		/* MUST always be first! */
+
+	{ "chunk1",	stress_memthrash_random_chunk1 },
+	{ "chunk8",	stress_memthrash_random_chunk8 },
+	{ "chunk64",	stress_memthrash_random_chunk64 },
+	{ "chunk256",	stress_memthrash_random_chunk256 },
+	{ "chunkpage",	stress_memthrash_random_chunkpage },
+	{ "flip",	stress_memthrash_flip_mem },
+	{ "flush",	stress_memthrash_flush },
 #if defined(MEM_LOCK)
-	stress_memthrash_lock,
+	{ "lock",	stress_memthrash_lock },
 #endif
-	stress_memthrash_spinread,
-	stress_memthrash_spinwrite
+	{ "matrix",	stress_memthrash_matrix },
+	{ "memset",	stress_memthrash_memset },
+	{ "mfence",	stress_memthrash_mfence },
+	{ "prefetch",	stress_memthrash_prefetch },
+	{ "random",	stress_memthrash_random },
+	{ "spinread",	stress_memthrash_spinread },
+	{ "spinwrite",	stress_memthrash_spinwrite }
 };
+
+static void stress_memthrash_all(const args_t *args, size_t mem_size)
+{
+	static size_t i = 1;
+	const double t = time_now();
+
+	do {
+		memthrash_methods[i].func(args, mem_size);
+	} while (!thread_terminate && (time_now() - t < 0.01));
+
+	i++;
+	if (i >= SIZEOF_ARRAY(memthrash_methods))
+		i = 1;
+}
+
+static void stress_memthrash_random(const args_t *args, size_t mem_size)
+{
+	/* loop until we find a good candidate */
+	for (;;) {
+		size_t i = mwc8() % SIZEOF_ARRAY(memthrash_methods);
+		const memthrash_func_t func = (memthrash_func_t)memthrash_methods[i].func;
+
+		/* Don't run stress_memthrash_random/all to avoid recursion */
+		if ((func != stress_memthrash_random) &&
+		    (func != stress_memthrash_all)) {
+			func(args, mem_size);
+			return;
+		}
+	}
+}
+
+
+/*
+ *  stress_set_memthrash_method()
+ *	set the default memthresh method
+ */
+int stress_set_memthrash_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
+		const stress_memthrash_method_info_t *info = &memthrash_methods[i];
+		if (!strcmp(memthrash_methods[i].name, name)) {
+			set_setting("memthrash-method", TYPE_ID_UINTPTR_T, &info);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "memthrash-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
+		(void)fprintf(stderr, " %s", memthrash_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
 
 /*
  *  stress_memthrash_func()
  *	pthread that exits immediately
  */
-static void *stress_memthrash_func(void *parg)
+static void *stress_memthrash_func(void *arg)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
-	const args_t *args = ((pthread_args_t *)parg)->args;
-	double t1;
+	const pthread_args_t *parg = (pthread_args_t *)arg;
+	const args_t *args = parg->args;
+	const memthrash_func_t func = (memthrash_func_t)parg->data;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -282,21 +359,19 @@ static void *stress_memthrash_func(void *parg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
-	t1 = time_now();
 	while (!thread_terminate) {
-		size_t i = mwc8() % SIZEOF_ARRAY(thrash_funcs);
+		size_t j;
 
-		do {
-			size_t j;
+		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT; j++) {
+			size_t mem_size = 1 << (2 * j);
 
-			for (j = MATRIX_SIZE_MIN_SHIFT;
-			     thread_terminate &&
-			     (j <= MATRIX_SIZE_MAX_SHIFT); j++) {
-				size_t mem_size = 1 << j;
-				thrash_funcs[i](args, mem_size);
-				inc_counter(args);
-			}
-		} while (!thread_terminate && (time_now() - t1 < 0.01));
+			size_t i;
+			for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++)
+				if (func == memthrash_methods[i].func)
+					break;
+			func(args, mem_size);
+			inc_counter(args);
+		}
 	}
 die:
 	return &nowt;
@@ -321,12 +396,19 @@ static inline uint32_t stress_memthrash_max(const uint32_t instances)
  */
 int stress_memthrash(const args_t *args)
 {
+	const stress_memthrash_method_info_t *memthrash_method = &memthrash_methods[0];
 	const uint32_t max_threads = stress_memthrash_max(args->num_instances);
 	uint32_t i;
 	pthread_t pthreads[max_threads];
 	int ret[max_threads];
+	pthread_args_t pargs;
+	memthrash_func_t func;
 
-	pthread_args_t pargs = { args };
+	(void)get_setting("memthrash-method", &memthrash_method);
+	func = memthrash_method->func;
+
+	pargs.args = args;
+	pargs.data = func;
 
 	memset(pthreads, 0, sizeof(pthreads));
 	memset(ret, 0, sizeof(ret));
@@ -358,9 +440,9 @@ int stress_memthrash(const args_t *args)
 
 	/* Wait for SIGALRM or SIGINT/SIGHUP etc */
 	pause();
-	thread_terminate  = true;
 
 reap:
+	thread_terminate = true;
 	for (i = 0; i < max_threads; i++) {
 		if (!ret[i]) {
 			ret[i] = pthread_join(pthreads[i], NULL);

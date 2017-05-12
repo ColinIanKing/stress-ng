@@ -365,6 +365,7 @@ typedef struct {
 /* pthread wrapped args_t */
 typedef struct {
 	const args_t *args;
+	void *data;
 } pthread_args_t;
 
 /* gcc 4.7 and later support vector ops */
@@ -1654,6 +1655,7 @@ typedef enum {
 
 	OPT_MEMTHRASH,
 	OPT_MEMTHRASH_OPS,
+	OPT_MEMTHRASH_METHOD,
 
 	OPT_MERGESORT,
 	OPT_MERGESORT_OPS,
@@ -2432,6 +2434,7 @@ extern int  stress_set_matrix_method(const char *name);
 extern void stress_set_matrix_size(const char *opt);
 extern void stress_set_memfd_bytes(const char *opt);
 extern void stress_set_memfd_fds(const char *opt);
+extern int stress_set_memthrash_method(const char *name);
 extern void stress_set_mergesort_size(const void *opt);
 extern void stress_set_mmap_bytes(const char *opt);
 extern void stress_set_mq_size(const char *opt);

@@ -1688,6 +1688,64 @@ try and trip thermal overrun.
 .B \-\-memthrash-ops N
 stop after N memthrash bogo operations.
 .TP
+.B \-\-memthrash\-method method
+specify a memthrash stress method. Available memthrash stress methods are described
+as follows:
+.TS
+expand;
+lB2 lBw(\n[SZ]n)
+l l.
+Method	Description
+all	T{
+iterate over all the below matrix stress methods
+T}
+chunk1	T{
+memset 1 byte chunks of random data into random locations 
+T}
+chunk8	T{
+memset 8 byte chunks of random data into random locations 
+T}
+chunk64	T{
+memset 64 byte chunks of random data into random locations 
+T}
+chunk256	T{
+memset 256 byte chunks of random data into random locations 
+T}
+chunkpage	T{
+memset page size chunks of random data into random locations 
+T}
+flip	T{
+flip (invert) all bits in ramdom locations
+T}
+flush	T{
+flush cache line in random locations
+T}
+lock	T{
+lock randomly chosing locations (Intel x86 CPUs only)
+T}
+matrix	T{
+treat memory as a 2 \(mu 2 matrix and swap random elements
+T}
+memset	T{
+memset the memory with random data
+T}
+mfence	T{
+stores with write serialization (Intel x86 CPUs only)
+T}
+prefetch	T{
+prefetch data at random memory locations
+T}
+random	T{
+randomly run any of the memthrash methods except for 'random' and 'all'
+T}
+spinread	T{
+spin loop read the same random location 2^19 times
+T}
+spinwrite	T{
+spin loop write the same random location 2^19 times
+T}
+.TE
+.TP
 .B -\-mergesort N
 start N workers that sort 32 bit integers using the BSD mergesort.
 .TP
@@ -1704,7 +1762,7 @@ the page mapped and also is resident in memory using mincore(2).
 .B \-\-mincore\-ops N
 stop after N mincore bogo operations. One mincore bogo op is equivalent to a
 1000 mincore(2) calls.
-.TP
+.TE
 .B \-\-mincore\-random
 instead of walking through pages sequentially, select pages at random. The
 chosen address is iterated over by shifting it right one place and checked by

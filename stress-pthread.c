@@ -157,7 +157,7 @@ int stress_pthread(const args_t *args)
 	uint64_t limited = 0, attempted = 0, max = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
-	pthread_args_t pargs = { args };
+	pthread_args_t pargs = { args, NULL };
 
 	if (!get_setting("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

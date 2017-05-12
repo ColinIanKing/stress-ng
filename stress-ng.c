@@ -610,6 +610,7 @@ static const struct option long_options[] = {
 	{ "memfd-fds",	1,	0,	OPT_MEMFD_FDS },
 	{ "memthrash",	1,	0,	OPT_MEMTHRASH },
 	{ "memthrash-ops",1,	0,	OPT_MEMTHRASH_OPS },
+	{ "memthrash-method",1,	0,	OPT_MEMTHRASH_METHOD },
 	{ "mergesort",	1,	0,	OPT_MERGESORT },
 	{ "mergesort-ops",1,	0,	OPT_MERGESORT_OPS },
 	{ "mergesort-size",1,	0,	OPT_MERGESORT_INTEGERS },
@@ -1157,6 +1158,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
 	{ NULL,		"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,		"memthrash-ops N",	"stop after N memthrash bogo operations" },
+	{ NULL,		"memthrash-method m",	"specify memthrash methid, default is all" },
 	{ NULL,		"mergesort N",		"start N workers merge sorting 32 bit random integers" },
 	{ NULL,		"mergesort-ops N",	"stop after N merge sort bogo operations" },
 	{ NULL,		"mergesort-size N",	"number of 32 bit integers to sort" },
@@ -2911,6 +2913,10 @@ next_opt:
 			break;
 		case OPT_MEMFD_FDS:
 			stress_set_memfd_fds(optarg);
+			break;
+		case OPT_MEMTHRASH_METHOD:
+			if (stress_set_memthrash_method(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_METRICS:
 			g_opt_flags |= OPT_FLAGS_METRICS;
