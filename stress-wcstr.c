@@ -64,7 +64,6 @@ typedef struct {
 	const void		*libc_func;
 } stress_wcs_method_info_t;
 
-static const stress_wcs_method_info_t *opt_wcs_stressor;
 static const stress_wcs_method_info_t wcs_methods[];
 
 /*
@@ -596,18 +595,18 @@ static const stress_wcs_method_info_t wcs_methods[] = {
  */
 int stress_set_wcs_method(const char *name)
 {
-	stress_wcs_method_info_t const *wcsfunction = wcs_methods;
+	stress_wcs_method_info_t const *info;
 
-	for (wcsfunction = wcs_methods; wcsfunction->func; wcsfunction++) {
-		if (!strcmp(wcsfunction->name, name)) {
-			opt_wcs_stressor = wcsfunction;
+	for (info = wcs_methods; info->func; info++) {
+		if (!strcmp(info->name, name)) {
+			set_setting("wcs-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "wcs-method must be one of:");
-	for (wcsfunction = wcs_methods; wcsfunction->func; wcsfunction++) {
-		(void)fprintf(stderr, " %s", wcsfunction->name);
+	for (info = wcs_methods; info->func; info++) {
+		(void)fprintf(stderr, " %s", info->name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -620,9 +619,14 @@ int stress_set_wcs_method(const char *name)
  */
 int stress_wcs(const args_t *args)
 {
-	stress_wcs_func func = opt_wcs_stressor->func;
-	const void *libc_func = opt_wcs_stressor->libc_func;
+	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
+	stress_wcs_func func;
+	const void *libc_func;
 	bool failed = false;
+
+	(void)get_setting("wcs-method", &wcs_method);
+	func = wcs_method->func;
+	libc_func = wcs_method->libc_func;
 
 	do {
 		wchar_t str1[STR1LEN], str2[STR2LEN];
