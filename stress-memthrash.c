@@ -388,7 +388,6 @@ static inline uint32_t stress_memthrash_max(const uint32_t instances)
 	}
 }
 
-
 /*
  *  stress_memthrash()
  *	stress by creating pthreads
@@ -397,11 +396,11 @@ int stress_memthrash(const args_t *args)
 {
 	const stress_memthrash_method_info_t *memthrash_method = &memthrash_methods[0];
 	const uint32_t max_threads = stress_memthrash_max(args->num_instances);
-	uint32_t i;
 	pthread_t pthreads[max_threads];
 	int ret[max_threads];
 	pthread_args_t pargs;
 	memthrash_func_t func;
+	pid_t pid;
 
 	(void)get_setting("memthrash-method", &memthrash_method);
 	func = memthrash_method->func;
@@ -414,48 +413,84 @@ int stress_memthrash(const args_t *args)
 	memset(pthreads, 0, sizeof(pthreads));
 	memset(ret, 0, sizeof(ret));
 
-	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
-#if defined(MAP_POPULATE)
-		MAP_POPULATE |
-#endif
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (mem == MAP_FAILED) {
-		pr_fail("mmap");
-		return EXIT_NO_RESOURCE;
-	}
+again:
+	if (!g_keep_stressing_flag)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, waitret;
 
-	for (i = 0; i < max_threads; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
-			stress_memthrash_func, (void *)&pargs);
-		if (ret[i]) {
-			/* Just give up and go to next thread */
-			if (ret[i] == EAGAIN)
-				continue;
-			/* Something really unexpected */
-			pr_fail_errno("pthread create", ret[i]);
-			goto reap;
+		/* Parent, wait for child */
+		(void)setpgid(pid, g_pgrp);
+		waitret = waitpid(pid, &status, 0);
+		if (waitret < 0) {
+			if (errno != EINTR)
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg("%s: child died: %s (instance %d)\n",
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				log_system_mem_info();
+				pr_dbg("%s: assuming killed by OOM killer, "
+					"restarting again (instance %d)\n",
+					args->name, args->instance);
+				goto again;
+			}
 		}
-		if (!g_keep_stressing_flag)
-			goto reap;
-	}
+	} else if (pid == 0) {
+		uint32_t i;
 
+		mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
+#if defined(MAP_POPULATE)
+			MAP_POPULATE |
+#endif
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (mem == MAP_FAILED) {
+			pr_fail("mmap");
+			return EXIT_NO_RESOURCE;
+		}
 
-	(void)sigfillset(&set);
+		for (i = 0; i < max_threads; i++) {
+			ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_memthrash_func, (void *)&pargs);
+			if (ret[i]) {
+				/* Just give up and go to next thread */
+				if (ret[i] == EAGAIN)
+					continue;
+				/* Something really unexpected */
+				pr_fail_errno("pthread create", ret[i]);
+				goto reap;
+			}
+			if (!g_keep_stressing_flag)
+				goto reap;
+		}
 
-	/* Wait for SIGALRM or SIGINT/SIGHUP etc */
-	pause();
+		(void)sigfillset(&set);
+		/* Wait for SIGALRM or SIGINT/SIGHUP etc */
+		pause();
 
 reap:
-	thread_terminate = true;
-	for (i = 0; i < max_threads; i++) {
-		if (!ret[i]) {
-			ret[i] = pthread_join(pthreads[i], NULL);
-			if (ret[i])
-				pr_fail_errno("pthread join", ret[i]);
+		thread_terminate = true;
+		for (i = 0; i < max_threads; i++) {
+			if (!ret[i]) {
+				ret[i] = pthread_join(pthreads[i], NULL);
+				if (ret[i])
+					pr_fail_errno("pthread join", ret[i]);
+			}
 		}
+		(void)munmap((void *)mem, MEM_SIZE);
 	}
-	(void)munmap((void *)mem, MEM_SIZE);
-
 	return EXIT_SUCCESS;
 }
 #else
