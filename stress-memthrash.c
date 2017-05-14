@@ -415,6 +415,9 @@ int stress_memthrash(const args_t *args)
 	memset(ret, 0, sizeof(ret));
 
 	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
+#if defined(MAP_POPULATE)
+		MAP_POPULATE |
+#endif
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (mem == MAP_FAILED) {
 		pr_fail("mmap");
