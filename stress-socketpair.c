@@ -189,6 +189,8 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
+		set_oom_adjustment(args->name, false);
+
 		/* Parent, wait for child */
 		(void)setpgid(pid, g_pgrp);
 		ret = waitpid(pid, &status, 0);
