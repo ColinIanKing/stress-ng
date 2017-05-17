@@ -1172,6 +1172,7 @@ typedef enum {
 	STRESS_DAEMON,
 	STRESS_DCCP,
 	STRESS_DENTRY,
+	STRESS_DEV,
 	STRESS_DIR,
 	STRESS_DIRDEEP,
 	STRESS_DNOTIFY,
@@ -1463,6 +1464,9 @@ typedef enum {
 	OPT_DENTRY_OPS,
 	OPT_DENTRIES,
 	OPT_DENTRY_ORDER,
+
+	OPT_DEV,
+	OPT_DEV_OPS,
 
 	OPT_DIR,
 	OPT_DIR_OPS,
@@ -2657,6 +2661,7 @@ STRESS(stress_crypt);
 STRESS(stress_daemon);
 STRESS(stress_dccp);
 STRESS(stress_dentry);
+STRESS(stress_dev);
 STRESS(stress_dir);
 STRESS(stress_dirdeep);
 STRESS(stress_dnotify);

@@ -74,6 +74,7 @@ STRESS_SRC = \
 	stress-daemon.c \
 	stress-dccp.c \
 	stress-dentry.c \
+	stress-dev.c \
 	stress-dir.c \
 	stress-dirdeep.c \
 	stress-dnotify.c \

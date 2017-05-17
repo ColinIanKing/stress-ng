@@ -989,6 +989,15 @@ select one of forward, reverse or stride orders.
 .B \-\-dentries N
 create N dentries per dentry thrashing loop, default is 2048.
 .TP
+.B \-\-dev N
+start N workers that exercise the /dev devices. Each worker runs 5
+concurrent threads that perform open(2), fstat(2), lseek(2), poll(2),
+fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on each device.
+Note that watchdog devices are not exercised.
+.TP
+.B \-\-dev\-ops N
+stop dev workers after N bogo device exercising operations.
+.TP
 .B \-\-dir N
 start N workers that create and remove directories using mkdir and rmdir.
 .TP
