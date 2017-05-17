@@ -213,7 +213,7 @@ static void stress_dev_dir(
 		case DT_CHR:
 			(void)snprintf(filename, sizeof(filename),
 				"%s/%s", path, d->d_name);
-			if (strcmp("/dev/watchdog", filename))
+			if (!strstr(filename, "watchdog"))
 				stress_dev_threads(args, filename);
 			break;
 		default:
