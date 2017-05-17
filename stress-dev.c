@@ -33,11 +33,6 @@
 static volatile bool keep_running;
 static sigset_t set;
 
-typedef struct ctxt {
-	const args_t *args;
-	const char *path;
-} ctxt_t;
-
 /*
  *  stress_dev_rw()
  *	exercise a dev entry
@@ -104,12 +99,11 @@ static inline void stress_dev_rw(
  *	keep exercising a /dev entry until
  *	controlling thread triggers an exit
  */
-static void *stress_dev_thread(void *ctxt_ptr)
+static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
-	const args_t *args = ctxt->args;
+	pthread_args_t *pa = (pthread_args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -128,7 +122,7 @@ static void *stress_dev_thread(void *ctxt_ptr)
 		return &nowt;
 
 	while (keep_running && g_keep_stressing_flag)
-		stress_dev_rw(args, ctxt->path);
+		stress_dev_rw(pa->args, (const char *)pa->data);
 
 	return &nowt;
 }
@@ -142,10 +136,10 @@ static void stress_dev_threads(const args_t *args, const char *path)
 	size_t i;
 	pthread_t pthreads[MAX_DEV_THREADS];
 	int ret[MAX_DEV_THREADS];
-	ctxt_t ctxt;
+	pthread_args_t pa;
 
-	ctxt.args = args;
-	ctxt.path = path;
+	pa.args = args;
+	pa.data = (void *)path;
 
 	(void)memset(ret, 0, sizeof(ret));
 
@@ -153,7 +147,7 @@ static void stress_dev_threads(const args_t *args, const char *path)
 
 	for (i = 0; i < MAX_DEV_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_dev_thread, &ctxt);
+				stress_dev_thread, &pa);
 	}
 	for (i = 0; i < 8; i++) {
 		if (!g_keep_stressing_flag)
