@@ -841,6 +841,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_ZOMBIES		(1000000)
 #define DEFAULT_ZOMBIES		(8192)
 
+#define TIMEOUT_NOT_SET		(~0ULL)
 #define DEFAULT_TIMEOUT		(60 * 60 * 24)
 #define DEFAULT_BACKOFF		(0)
 #define DEFAULT_LINKS		(8192)

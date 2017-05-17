@@ -64,7 +64,7 @@ static volatile bool wait_flag = true;		/* false = exit run wait loop */
 /* Globals */
 int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
 int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
-uint64_t g_opt_timeout = 0;			/* timeout in seconds */
+uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
 volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
@@ -2004,7 +2004,7 @@ static void MLOCKED stress_run(
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (proc_current = procs_list; proc_current; proc_current = proc_current->next) {
-			if (time_now() - time_start > g_opt_timeout)
+			if (g_opt_timeout && (time_now() - time_start > g_opt_timeout))
 				goto abort;
 
 			j = proc_current->started_procs;
@@ -2041,7 +2041,8 @@ again:
 					if (g_opt_flags & OPT_FLAGS_TIMER_SLACK)
 						stress_set_timer_slack();
 
-					(void)alarm(g_opt_timeout);
+					if (g_opt_timeout)
+						(void)alarm(g_opt_timeout);
 					mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						munge_underscore(proc_current->stressor->name));
@@ -2121,7 +2122,8 @@ again:
 		}
 	}
 	(void)stress_set_handler("stress-ng", false);
-	(void)alarm(g_opt_timeout);
+	if (g_opt_timeout)
+		(void)alarm(g_opt_timeout);
 
 abort:
 	pr_dbg("%d stressor%s spawned\n", n_procs,
@@ -3257,7 +3259,7 @@ static void alloc_proc_resources(pid_t **pids, proc_stats_t ***stats, size_t n)
  */
 static void set_default_timeout(const uint64_t timeout)
 {
-	if (g_opt_timeout == 0) {
+	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		g_opt_timeout = timeout;
 		pr_inf("defaulting to a %" PRIu64 " second run per stressor\n",
 			g_opt_timeout);
