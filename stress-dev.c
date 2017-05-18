@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_LIB_PTHREAD) && !defined(__sun__)
 
 #include <poll.h>
 
