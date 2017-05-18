@@ -204,6 +204,19 @@ memfd 0			# 0 means 1 stressor per CPU
 # memfd-fds 256		# number of memfds to have open
 
 #
+# memthrash stressor options:
+#   start N workers that thrash and exercise a 16MB buffer in  vari‐
+#   ous ways to try and trip thermal overrun.
+#
+memthrash 0		# 0 means 1 stressor per CPU
+# memthrash-ops 1000000 # stop after 1000000 bogo ops
+# memthrash-method all  # all all memthrash methods, one can use:
+			# all, chunk1, chunk8, chunk64, chunk256
+			# chunkpage, flip, flush, lock, matrix,
+			# memset, mfence, prefetch, random,
+			# spinread or spinwrite
+
+#
 # mergesort stressor options:
 #   start  N  workers that sort 32 bit integers using the BSD merge‐
 #   sort.
