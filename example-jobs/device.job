@@ -61,6 +61,16 @@ timeout 60s
 #
 
 #
+# dev stressor options:
+#   start N workers that exercise the /dev devices. Each worker runs
+#   5 concurrent threads that perform open(2),  fstat(2),  lseek(2),
+#   poll(2),  fcntl(2), mmap(2), munmap(2), fsync(2) and close(2) on
+#   each device.  Note that watchdog devices are not exercised.
+#
+dev 0			# 0 means 1 stressor per CPU
+# dev-ops 1000000	# stop after 1000000 bogo ops
+
+#
 # full stressor options:
 #   start N workers that exercise /dev/full.  This attempts to write
 #   to  the  device  (which should always get error ENOSPC), to read
