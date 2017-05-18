@@ -1,3 +1,24 @@
+stress-ng (0.08.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dev: don't build for __sun__, it does not have DT_* macros
+  * example-jobs/device.job: Add dev stressor
+  * Move the --dev stressor to the CLASS_DEV class
+  * example-jobs/memory.job: add memthrash example
+  * Expand the default run time text into human time units for large times
+  * stress-dev: remove linux only build constraint
+  * stress-dev: use pthread_args_t rather than a special context struct
+  * Makefile: update perf rule to match output of other CC rules
+  * stress-dev: ensure we check for all watchdog names
+  * Make zero timeouts run forever.
+  * Add dev stressor to exercise /dev entries
+  * stress-sockpair: make parent less oomable than the child
+  * stress-memthrash: optimization tweaks, makes it run a bit hotter
+  * stress-memthrash: add OOM detection handling
+  * stress-memthrash: Add MAP_POPULATE to mmap'd region
+
+ -- Colin King <colin.king@canonical.com>  Thu, 18 May 2017 13:26:50 +0100
+
 stress-ng (0.08.01-1) unstable; urgency=medium
 
   * Makefile: bump version
