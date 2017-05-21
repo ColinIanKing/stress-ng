@@ -54,6 +54,13 @@ typedef struct {
 	int (*func)(const char *setting);
 } stressor_default_t;
 
+/* Help information for options */
+typedef struct {
+	const char *opt_s;		/* short option */
+	const char *opt_l;		/* long option */
+	const char *description;	/* description */
+} help_t;
+
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
 proc_info_t *proc_current;

@@ -972,13 +972,6 @@ typedef struct {
 	int opt_mem_cache_ways;
 } main_opts_t;
 
-/* Help information for options */
-typedef struct {
-	const char *opt_s;		/* short option */
-	const char *opt_l;		/* long option */
-	const char *description;	/* description */
-} help_t;
-
 /* Fast random number generator state */
 typedef struct {
 	uint32_t w;
