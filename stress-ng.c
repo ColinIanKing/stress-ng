@@ -944,7 +944,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
 	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
 	{ NULL,		"thrash",		"force all pages in causing swap thrashing" },
-	{ "t N",	"timeout N",		"timeout after N seconds" },
+	{ "t N",	"timeout T",		"timeout after T seconds" },
 	{ NULL,		"timer-slack",		"enable timer slack mode" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
 #if defined(STRESS_THERMAL_ZONES)
