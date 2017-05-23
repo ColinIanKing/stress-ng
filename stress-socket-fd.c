@@ -296,11 +296,15 @@ int stress_sockfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
-			goto again;
+		if (errno == EAGAIN) {
+			if (g_keep_stressing_flag)
+				goto again;
+			return EXIT_NO_RESOURCE;
+		}
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
 		exit(EXIT_SUCCESS);
 	} else {
