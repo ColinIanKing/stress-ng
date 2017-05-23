@@ -420,6 +420,7 @@ int stress_memthrash(const args_t *args)
 
 	memset(pthreads, 0, sizeof(pthreads));
 	memset(ret, 0, sizeof(ret));
+	(void)sigfillset(&set);
 
 again:
 	if (!g_keep_stressing_flag)
@@ -458,15 +459,27 @@ again:
 		}
 	} else if (pid == 0) {
 		uint32_t i;
-
-		mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE,
 #if defined(MAP_POPULATE)
-			MAP_POPULATE |
+		int flags = MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS;
+#else
+		int flags = MAP_SHARED | MAP_ANONYMOUS;
 #endif
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+mmap_retry:
+		mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (mem == MAP_FAILED) {
-			pr_fail("mmap");
-			return EXIT_NO_RESOURCE;
+#if defined(MAP_POPULATE)
+			flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
+#endif
+			if (!g_keep_stressing_flag) {
+				pr_dbg("%s: mmap failed: %d %s\n",
+					args->name, errno, strerror(errno));
+				return EXIT_NO_RESOURCE;
+			}
+			(void)shim_usleep(100000);
+			if (!g_keep_stressing_flag)
+				goto reap_mem;
+			goto mmap_retry;
 		}
 
 		for (i = 0; i < max_threads; i++) {
@@ -483,8 +496,6 @@ again:
 			if (!g_keep_stressing_flag)
 				goto reap;
 		}
-
-		(void)sigfillset(&set);
 		/* Wait for SIGALRM or SIGINT/SIGHUP etc */
 		pause();
 
@@ -497,6 +508,7 @@ reap:
 					pr_fail_errno("pthread join", ret[i]);
 			}
 		}
+reap_mem:
 		(void)munmap((void *)mem, MEM_SIZE);
 	}
 	return EXIT_SUCCESS;
