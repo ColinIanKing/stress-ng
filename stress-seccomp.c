@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP)
+#if defined(HAVE_SECCOMP_H) && defined(__linux__) && defined(PR_SET_SECCOMP) && defined(SECCOMP_SET_MODE_FILTER)
 
 #include <sys/prctl.h>
 #include <linux/audit.h>
