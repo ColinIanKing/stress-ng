@@ -1020,7 +1020,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cpu-ops N",		"stop after N cpu bogo operations" },
 	{ "l P",	"cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
 	{ NULL,		"cpu-load-slice S",	"specify time slice during busy load" },
-	{ NULL,		"cpu-method m",		"specify stress cpu method m, default is all" },
+	{ NULL,		"cpu-method M",		"specify stress cpu method M, default is all" },
 	{ NULL,		"cpu-online N",		"start N workers offlining/onlining the CPUs" },
 	{ NULL,		"cpu-online-ops N",	"stop after N offline/online operations" },
 	{ NULL,		"crypt N",		"start N workers performing password encryption" },
@@ -1158,7 +1158,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL,		"matrix N",		"start N workers exercising matrix operations" },
 	{ NULL,		"matrix-ops N",		"stop after N maxtrix bogo operations" },
-	{ NULL,		"matrix-method m",	"specify matrix stress method m, default is all" },
+	{ NULL,		"matrix-method M",	"specify matrix stress method M, default is all" },
 	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
 	{ NULL,		"membarrier N",		"start N workers performing membarrier system calls" },
 	{ NULL,		"membarrier-ops N",	"stop after N membarrier bogo operations" },
@@ -1170,7 +1170,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
 	{ NULL,		"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,		"memthrash-ops N",	"stop after N memthrash bogo operations" },
-	{ NULL,		"memthrash-method m",	"specify memthrash methid, default is all" },
+	{ NULL,		"memthrash-method M",	"specify memthrash method M, default is all" },
 	{ NULL,		"mergesort N",		"start N workers merge sorting 32 bit random integers" },
 	{ NULL,		"mergesort-ops N",	"stop after N merge sort bogo operations" },
 	{ NULL,		"mergesort-size N",	"number of 32 bit integers to sort" },
@@ -1398,7 +1398,7 @@ static const help_t help_stressors[] = {
 #if defined(MAP_LOCKED)
 	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
 #endif
-	{ NULL,		"vm-method m",		"specify stress vm method m, default is all" },
+	{ NULL,		"vm-method M",		"specify stress vm method M, default is all" },
 #if defined(MAP_POPULATE)
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
@@ -1421,7 +1421,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
 	{ NULL,		"zlib N",		"start N workers compressing data with zlib" },
 	{ NULL,		"zlib-ops N",		"stop after N zlib bogo compression operations" },
-	{ NULL,		"zlib-method m",	"specify stress zlib random data generation method" },
+	{ NULL,		"zlib-method M",	"specify stress zlib random data generation method M" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
 	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
