@@ -2077,6 +2077,43 @@ static void stress_cpu_queens(const char *name)
 }
 
 /*
+ *  stress_cpu_factorial
+ *	find factorials from 1..150 using
+ *	Stirling's and Ramanujan's Approximations.
+ */
+static void stress_cpu_factorial(const char *name)
+{
+	int n;
+	double f = 1.0;
+	const double precision = 1.0e-6;
+	const double sqrt_pi = sqrtl(M_PI);
+
+	for (n = 1; n < 150; n++) {
+		double fact = roundl(expl(lgamma((double)(n + 1))));
+		double dn;
+
+		f *= (double)n;
+
+		/* Stirling */
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+		    ((f - fact) / fact > precision)) {
+			pr_fail("%s: Stirling's approximation of factorial(%d) out of range\n",
+                                name, n);
+		}
+
+		/* Ramanujan */
+		dn = (double)n;
+		fact = sqrt_pi * powl((dn / M_E), dn);
+		fact *= powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0/30.0), (1.0/6.0));
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+		    ((f - fact) / fact > precision)) {
+			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",
+                                name, n);
+		}
+	}
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -2116,6 +2153,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "euler",		stress_cpu_euler },
 	{ "explog",		stress_cpu_explog },
 	{ "fft",		stress_cpu_fft },
+	{ "factorial",		stress_cpu_factorial },
 	{ "fibonacci",		stress_cpu_fibonacci },
 	{ "float",		stress_cpu_float },
 	{ "fnv1a",		stress_cpu_fnv1a },
