@@ -44,7 +44,7 @@ static int stress_cpu_online_set(
 
 	ret = system_write(filename, data, sizeof data);
 	if ((ret < 0) &&
-	    ((ret != -EAGAIN) && (ret != -EINTR))) {
+	    ((ret != -EAGAIN) && (ret != -EINTR) && (ret != -EBUSY))) {
 		pr_fail_err("write");
 		return EXIT_FAILURE;
 	}
@@ -79,7 +79,7 @@ int stress_cpu_online(const args_t *args)
 	cpu_online = calloc(cpus, sizeof(bool));
 	if (!cpu_online) {
 		pr_err("%s: out of memory\n", args->name);
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	/*
@@ -129,7 +129,7 @@ int stress_cpu_online(const args_t *args)
 	}
 	free(cpu_online);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 #else
 int stress_cpu_online(const args_t *args)
