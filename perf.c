@@ -261,11 +261,12 @@ static inline int sys_perf_event_open(
  *  perf_yaml_label()
  *	turns text into a yaml compatible lable.
  */
-static char *perf_yaml_label(char *dst, const char *src, size_t n)
+static char *perf_yaml_label(char *dst, const char *src, const size_t n)
 {
 	if (n) {
 		char *d = dst;
 		const char *s = src;
+		size_t i = n;
 
 		do {
 			if (*s == ' ')
@@ -275,13 +276,13 @@ static char *perf_yaml_label(char *dst, const char *src, size_t n)
 			else if (*s)
 				*d = *s;
 			else {
-				while (--n != 0)
+				while (--i != 0)
 					*d++ = 0;
 				break;
 			}
 			s++;
 			d++;
-		} while (--n != 0);
+		} while (--i != 0);
 	}
 	return dst;
 }
