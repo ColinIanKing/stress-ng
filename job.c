@@ -92,8 +92,7 @@ err:
 int parse_jobfile(
 	const int argc,
 	char **argv,
-	const char *jobfile,
-	main_opts_t *opts)
+	const char *jobfile)
 {
 	FILE *fp;
 	char buf[4096];
@@ -176,7 +175,7 @@ int parse_jobfile(
 			/* prepend -- to command to make them into stress-ng options */
 			snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
-			parse_opts(argc, new_argv, opts);
+			parse_opts(argc, new_argv);
 			new_argv[1] = NULL;
 		}
 	}

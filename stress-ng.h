@@ -955,23 +955,6 @@ static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 /* stress process prototype */
 typedef int (*stress_func_t)(const args_t *args);
 
-/* stress arg parsing settings */
-typedef struct {
-	char *opt_jobfile;		/* Job filename */
-	char *opt_yamlfile;		/* YAML filename */
-	char *opt_logfile;		/* log filename */
-	char *opt_exclude;		/* List of stressors to exclude */
-	int64_t opt_backoff;		/* child delay */
-	int32_t opt_sched;		/* sched policy */
-	int32_t opt_sched_priority;	/* sched priority */
-	int32_t opt_ionice_class;	/* ionice class */
-	int32_t opt_ionice_level;	/* ionice level */
-	uint32_t opt_class;		/* Which kind of class is specified */
-	int32_t opt_random;
-	int opt_mem_cache_level;
-	int opt_mem_cache_ways;
-} main_opts_t;
-
 /* Fast random number generator state */
 typedef struct {
 	uint32_t w;
@@ -2334,8 +2317,8 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 }
 
 /* Jobfile parsing */
-extern WARN_UNUSED int parse_jobfile(int argc, char **argv, const char *jobfile, main_opts_t *opts);
-extern void parse_opts(int argc, char **argv, main_opts_t *opts);
+extern WARN_UNUSED int parse_jobfile(int argc, char **argv, const char *jobfile);
+extern void parse_opts(int argc, char **argv);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);

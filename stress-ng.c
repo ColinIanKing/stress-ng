@@ -1540,11 +1540,11 @@ static uint32_t get_class(char *const class_str)
  *  stress_exclude()
  *  	parse -x --exlude exclude list
  */
-static int stress_exclude(char *const opt_exclude)
+static int stress_exclude(void)
 {
-	char *str, *token;
+	char *str, *token, *opt_exclude;
 
-	if (!opt_exclude)
+	if (!get_setting("exclude", &opt_exclude))
 		return 0;
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
@@ -1995,7 +1995,6 @@ static uint32_t get_total_num_procs(proc_info_t *procs_list)
  *	kick off and run stressors
  */
 static void MLOCKED stress_run(
-	main_opts_t *opts,
 	proc_info_t *procs_list,
 	double *duration,
 	bool *success,
@@ -2020,6 +2019,13 @@ static void MLOCKED stress_run(
 				int rc = EXIT_SUCCESS;
 				pid_t pid;
 				char name[64];
+				int64_t backoff = DEFAULT_BACKOFF;
+				int32_t ionice_class = UNDEFINED;
+				int32_t ionice_level = UNDEFINED;
+
+				(void)get_setting("backoff", &backoff);
+				(void)get_setting("ionice-class", &ionice_class);
+				(void)get_setting("ionice-level", &ionice_level);
 
 				proc_stats_t *stats = proc_current->stats[j];
 again:
@@ -2055,7 +2061,7 @@ again:
 						munge_underscore(proc_current->stressor->name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
-					set_iopriority(opts->opt_ionice_class, opts->opt_ionice_level);
+					set_iopriority(ionice_class, ionice_level);
 					set_proc_name(name);
 
 					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
@@ -2066,7 +2072,7 @@ again:
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_open(&stats->sp);
 #endif
-					(void)shim_usleep(opts->opt_backoff * n_procs);
+					(void)shim_usleep(backoff * n_procs);
 #if defined(STRESS_PERF_STATS)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats->sp);
@@ -2590,8 +2596,12 @@ static inline void setup_stats_buffers(void)
  *  set_random_stressors()
  *	select stressors at random
  */
-static inline void set_random_stressors(const int32_t opt_random)
+static inline void set_random_stressors(void)
 {
+	int32_t opt_random = 0;
+
+	(void)get_setting("random", &opt_random);
+
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
 		int32_t n_procs = get_num_procs();
@@ -2676,11 +2686,15 @@ static void enable_classes(const uint32_t class)
  *  parse_opts
  *	parse argv[] and set stress-ng options accordingly
  */
-void parse_opts(int argc, char **argv, main_opts_t *opts)
+void parse_opts(int argc, char **argv)
 {
 	optind = 0;
 
 	for (;;) {
+		int64_t i64;
+		int32_t i32;
+		uint32_t u32;
+		int16_t i16;
 		int c, option_index;
 		size_t i;
 next_opt:
@@ -2732,7 +2746,8 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
 			break;
 		case OPT_BACKOFF:
-			opts->opt_backoff = get_uint64(optarg);
+			i64 = (int64_t)get_uint64(optarg);
+			set_setting("backoff", TYPE_ID_INT64, &i64);
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			stress_set_bigheap_growth(optarg);
@@ -2753,28 +2768,30 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_CACHE_FENCE;
 			break;
 		case OPT_CACHE_LEVEL:
-			opts->opt_mem_cache_level = atoi(optarg);
-			/* Overly high values will be caught in the
+			/* 
+			 * Note: Overly high values will be caught in the
 			 * caching code.
 			 */
-			if (opts->opt_mem_cache_level <= 0)
-				opts->opt_mem_cache_level = DEFAULT_CACHE_LEVEL;
+			i16 = atoi(optarg);
+			if ((i16 <= 0) || (i16 > 3))
+				i16 = DEFAULT_CACHE_LEVEL;
+			set_setting("cache-level", TYPE_ID_INT16, &i16);
 			break;
 		case OPT_CACHE_NO_AFFINITY:
 			g_opt_flags |= OPT_FLAGS_CACHE_NOAFF;
 			break;
 		case OPT_CACHE_WAYS:
-			opts->opt_mem_cache_ways = atoi(optarg);
-			if (opts->opt_mem_cache_ways <= 0)
-				opts->opt_mem_cache_ways = 0;
+			u32 = get_uint32(optarg);
+			set_setting("cache-ways", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_CHDIR_DIRS:
 			stress_set_chdir_dirs(optarg);
 			break;
 		case OPT_CLASS:
-			opts->opt_class = get_class(optarg);
-			if (!opts->opt_class)
+			u32 = get_class(optarg);
+			if (!u32)
 				exit(EXIT_FAILURE);
+			set_setting("class", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_CLONE_MAX:
 			stress_set_clone_max(optarg);
@@ -2824,7 +2841,7 @@ next_opt:
 			stress_set_epoll_port(optarg);
 			break;
 		case OPT_EXCLUDE:
-			opts->opt_exclude = optarg;
+			set_setting("exclude", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_EXEC_MAX:
 			stress_set_exec_max(optarg);
@@ -2874,16 +2891,18 @@ next_opt:
 			stress_set_iomix_bytes(optarg);
 			break;
 		case OPT_IONICE_CLASS:
-			opts->opt_ionice_class = get_opt_ionice_class(optarg);
+			i32 = get_opt_ionice_class(optarg);
+			set_setting("ionice-class", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_IONICE_LEVEL:
-			opts->opt_ionice_level = get_int32(optarg);
+			i32 = get_int32(optarg);
+			set_setting("ionice-level", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_ITIMER_FREQ:
 			stress_set_itimer_freq(optarg);
 			break;
 		case OPT_JOB:
-			opts->opt_jobfile = optarg;
+			set_setting("job", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_KEEP_NAME:
 			g_opt_flags |= OPT_FLAGS_KEEP_NAME;
@@ -2898,7 +2917,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_LOG_BRIEF;
 			break;
 		case OPT_LOG_FILE:
-			opts->opt_logfile = optarg;
+			set_setting("log-file", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
@@ -3014,18 +3033,21 @@ next_opt:
 			break;
 		case OPT_RANDOM:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
-			opts->opt_random = get_int32(optarg);
-			stress_get_processors(&opts->opt_random);
-			check_value("random", opts->opt_random);
+			i32 = get_int32(optarg);
+			check_value("random", i32);
+			stress_get_processors(&i32);
+			set_setting("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
 			break;
 		case OPT_SCHED:
-			opts->opt_sched = get_opt_sched(optarg);
+			i32 = get_opt_sched(optarg);
+			set_setting("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_SCHED_PRIO:
-			opts->opt_sched_priority = get_int32(optarg);
+			i32 = get_int32(optarg);
+			set_setting("sched-prio", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_SCTP_PORT:
 			stress_set_sctp_port(optarg);
@@ -3219,7 +3241,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_YAML:
-			opts->opt_yamlfile = optarg;
+			set_setting("yaml", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_ZLIB_METHOD:
 #if defined(HAVE_LIB_Z)
@@ -3278,14 +3300,14 @@ static void set_default_timeout(const uint64_t timeout)
  *  stress_setup_sequential()
  *	setup for sequential --seq mode stressors
  */
-static void stress_setup_sequential(main_opts_t *opts)
+static void stress_setup_sequential(const uint32_t class)
 {
 	proc_info_t *pi;
 
 	set_default_timeout(60);
 
 	for (pi = procs_head; pi; pi = pi->next) {
-		if (pi->stressor->class & opts->opt_class)
+		if (pi->stressor->class & class)
 			pi->num_procs = g_opt_sequential;
 		alloc_proc_resources(&pi->pids, &pi->stats, pi->num_procs);
 	}
@@ -3295,14 +3317,14 @@ static void stress_setup_sequential(main_opts_t *opts)
  *  stress_setup_parallel()
  *	setup for parallel mode stressors
  */
-static void stress_setup_parallel(main_opts_t *opts)
+static void stress_setup_parallel(const uint32_t class)
 {
 	proc_info_t *pi;
 
 	set_default_timeout(DEFAULT_TIMEOUT);
 
 	for (pi = procs_head; pi; pi = pi->next) {
-		if (pi->stressor->class & opts->opt_class)
+		if (pi->stressor->class & class)
 			pi->num_procs = g_opt_parallel;
 		/*
 		 * Share bogo ops between processes equally, rounding up
@@ -3320,7 +3342,6 @@ static void stress_setup_parallel(main_opts_t *opts)
  *	run stressors sequentially
  */
 static inline void stress_run_sequential(
-	main_opts_t *opts,
 	double *duration,
 	bool *success,
 	bool *resource_success)
@@ -3334,7 +3355,7 @@ static inline void stress_run_sequential(
 		proc_info_t *next = pi->next;
 
 		pi->next = NULL;
-		stress_run(opts, pi, duration, success, resource_success);
+		stress_run(pi, duration, success, resource_success);
 		pi->next = next;
 
 	}
@@ -3345,7 +3366,6 @@ static inline void stress_run_sequential(
  *	run stressors in parallel
  */
 static inline void stress_run_parallel(
-	main_opts_t *opts,
 	double *duration,
 	bool *success,
 	bool *resource_success)
@@ -3353,7 +3373,7 @@ static inline void stress_run_parallel(
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(opts, procs_head, duration, success, resource_success);
+	stress_run(procs_head, duration, success, resource_success);
 }
 
 int main(int argc, char **argv)
@@ -3362,24 +3382,16 @@ int main(int argc, char **argv)
 	size_t len;
 	bool success = true, resource_success = true;
 	FILE *yaml = NULL;			/* YAML output file */
+	char *yaml_filename;			/* YAML file name */
+	char *log_filename;			/* log filename */
+	char *job_filename = NULL;		/* job filename */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
+	int32_t sched = UNDEFINED;		/* scheduler type */
+	int32_t sched_prio = UNDEFINED;		/* scheduler priority */
+	int32_t ionice_class = UNDEFINED;	/* ionice class */
+	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	int32_t i;
-
-	/* default options */
-	main_opts_t opts = {
-		.opt_yamlfile = NULL,
-		.opt_logfile = NULL,
-		.opt_exclude = NULL,
-		.opt_backoff = DEFAULT_BACKOFF,
-		.opt_sched = UNDEFINED,
-		.opt_sched_priority = UNDEFINED,
-		.opt_ionice_class = UNDEFINED,
-		.opt_ionice_level = UNDEFINED,
-		.opt_mem_cache_level = DEFAULT_CACHE_LEVEL,
-		.opt_mem_cache_ways = 0,
-		.opt_class = 0,
-		.opt_random = 0
-	};
+	uint32_t class = 0;
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
@@ -3407,13 +3419,15 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	parse_opts(argc, argv, &opts);
-	enable_classes(opts.opt_class);
+	parse_opts(argc, argv);
+
+	(void)get_setting("class", &class);
+	enable_classes(class);
 
 	/*
 	 *  Throw away excluded stressors
 	 */
-	if (stress_exclude(opts.opt_exclude) < 0)
+	if (stress_exclude() < 0)
 		exit(EXIT_FAILURE);
 
 	/*
@@ -3434,7 +3448,7 @@ int main(int argc, char **argv)
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
-	if (opts.opt_class &&
+	if (class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
@@ -3444,8 +3458,8 @@ int main(int argc, char **argv)
 	/*
 	 *  Setup logging
 	 */
-	if (opts.opt_logfile)
-		pr_openlog(opts.opt_logfile);
+	if (get_setting("log-file", &log_filename))
+		pr_openlog(log_filename);
 	openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);
 	log_system_info();
@@ -3473,7 +3487,7 @@ int main(int argc, char **argv)
 	/*
 	 *  Setup random stressors if requested
 	 */
-	set_random_stressors(opts.opt_random);
+	set_random_stressors();
 
 #if defined(STRESS_PERF_STATS)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
@@ -3486,8 +3500,14 @@ int main(int argc, char **argv)
 	stress_process_dumpable(false);
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
-	set_sched(opts.opt_sched, opts.opt_sched_priority);
-	set_iopriority(opts.opt_ionice_class, opts.opt_ionice_level);
+
+	(void)get_setting("sched", &sched);
+	(void)get_setting("sched-prio", &sched_prio);
+	set_sched(sched, sched_prio);
+
+	(void)get_setting("ionice-class", &ionice_class);
+	(void)get_setting("ionice-level", &ionice_level);
+	set_iopriority(ionice_class, ionice_level);
 
 #if defined(MLOCKED_SECTION)
 	/*
@@ -3512,16 +3532,17 @@ int main(int argc, char **argv)
 	/*
 	 *  Load in job file options
 	 */
-	if (parse_jobfile(argc, argv, opts.opt_jobfile, &opts) < 0)
+	(void)get_setting("job", &job_filename);
+	if (parse_jobfile(argc, argv, job_filename) < 0)
 		exit(EXIT_FAILURE);
 
 	/*
 	 *  Setup stressor proc info
 	 */
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_setup_sequential(&opts);
+		stress_setup_sequential(class);
 	} else {
-		stress_setup_parallel(&opts);
+		stress_setup_parallel(class);
 	}
 
 	set_proc_limits();
@@ -3565,8 +3586,10 @@ int main(int argc, char **argv)
 	/*
 	 *  Allocate shared cache memory
 	 */
-	g_shared->mem_cache_level = opts.opt_mem_cache_level;
-	g_shared->mem_cache_ways = opts.opt_mem_cache_ways;
+	g_shared->mem_cache_level = DEFAULT_CACHE_LEVEL;
+	(void)get_setting("cache-level", &g_shared->mem_cache_level);
+	g_shared->mem_cache_ways = 0;
+	(void)get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
 		stress_unmap_shared();
 		free_procs();
@@ -3588,10 +3611,10 @@ int main(int argc, char **argv)
 		thrash_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
-		stress_run_sequential(&opts, &duration,
+		stress_run_sequential(&duration,
 			&success, &resource_success);
 	} else {
-		stress_run_parallel(&opts, &duration,
+		stress_run_parallel(&duration,
 			&success, &resource_success);
 	}
 
@@ -3606,11 +3629,10 @@ int main(int argc, char **argv)
 	/*
 	 *  Save results to YAML file
 	 */
-	if (opts.opt_yamlfile) {
-		yaml = fopen(opts.opt_yamlfile, "w");
+	if (get_setting("yaml", &yaml_filename)) {
+		yaml= fopen(yaml_filename, "w");
 		if (!yaml)
-			pr_err("Cannot output YAML data to %s\n",
-				opts.opt_yamlfile);
+			pr_err("Cannot output YAML data to %s\n", yaml_filename);
 
 		pr_yaml(yaml, "---\n");
 		pr_yaml_runinfo(yaml);
