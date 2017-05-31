@@ -180,21 +180,21 @@ static uint64_t size_to_bytes(const char *str)
 	}
 
 	ret = sscanf(str, "%lu%ms", &value, &s);
-	if (ret != 2 || !s) {
+	if ((ret != 2) || !s) {
 		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
 			__func__, str);
 		return 0;
 	}
 
-	switch(*s) {
+	switch (*s) {
 	case 'B':
 		multiplier = 1;
 		break;
 	case 'K':
-		multiplier = 1024;
+		multiplier = KB;
 		break;
 	case 'M':
-		multiplier = (1024 * 1024);
+		multiplier = MB;
 		break;
 	default:
 		pr_err("unable to convert string to bytes: %s\n", str);
