@@ -48,7 +48,7 @@ static const generic_map_t cache_type_map[] = {
 	{ NULL         , CACHE_TYPE_UNKNOWN}
 };
 
-static const char *get_cache_name(cache_type_t type)
+static const char *get_cache_name(const cache_type_t type)
 	__attribute__((unused));
 
 /**
