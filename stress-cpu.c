@@ -831,7 +831,7 @@ stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
 	C1, C2, C3)
 
-#define float_ops(_type, a, b, c, d, sin, cos)		\
+#define float_ops(_type, a, b, c, d, _sin, _cos)	\
 	do {						\
 		a = a + b;				\
 		b = a * c;				\
@@ -840,14 +840,14 @@ stress_cpu_int(uint8_t, 8, \
 		a = c / (_type)0.1923;			\
 		b = c + a;				\
 		c = b * (_type)3.12;			\
-		d = d + b + (_type)sin(a);		\
+		d = d + b + (_type)_sin(a);		\
 		a = (b + c) / c;			\
 		b = b * c;				\
 		c = c + (_type)1.0;			\
-		d = d - (_type)sin(c);			\
-		a = a * (_type)cos(b);			\
-		b = b + (_type)cos(c);			\
-		c = (_type)sin(a + b) / (_type)2.344;	\
+		d = d - (_type)_sin(c);			\
+		a = a * (_type)_cos(b);			\
+		b = b + (_type)_cos(c);			\
+		c = (_type)_sin(a + b) / (_type)2.344;	\
 		b = d - (_type)1.0;			\
 	} while (0)
 
@@ -1265,7 +1265,7 @@ static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
 		v = a;			\
 	else				\
 		v = b;			\
-	uint64_put(next + i);
+	uint64_put(next + i);		\
 
 /*
  *   stress_cpu_jmp
