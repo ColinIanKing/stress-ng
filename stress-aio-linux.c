@@ -79,6 +79,7 @@ int stress_aiol(const args_t *args)
 	char filename[PATH_MAX];
 	io_context_t ctx = 0;
 	uint64_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
+	uint8_t *buffer;
 
 	if (!get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -90,6 +91,14 @@ int stress_aiol(const args_t *args)
 	    (aio_linux_requests > MAX_AIO_REQUESTS)) {
 		pr_err("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
+	}
+
+	ret = posix_memalign((void **)&buffer, 4096,
+		aio_linux_requests * BUFFER_SZ);
+	if (ret) {
+		pr_inf("%s: Out of memory allocating buffers, errno=%d (%s)",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
 	}
 	ret = io_setup(aio_linux_requests, &ctx);
 	if (ret < 0) {
@@ -103,32 +112,38 @@ int stress_aiol(const args_t *args)
 				"available events, consider increasing "
 				"/proc/sys/fs/aio-max-nr, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
+			goto free_buffer;
 		} else if (errno == ENOMEM) {
 			pr_err("%s: io_setup failed, ran out of "
 				"memory, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
+			goto free_buffer;
 		} else if (errno == ENOSYS) {
 			pr_err("%s: io_setup failed, no io_setup "
 				"system call with this kernel, "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
+			goto free_buffer;
 		} else {
 			pr_fail_err("io_setup");
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto free_buffer;
 		}
 	}
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return exit_status(-ret);
+	if (ret < 0) {
+		rc = exit_status(-ret);
+		goto free_buffer;
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
 	(void)umask(0077);
-	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");
 		goto finish;
@@ -139,12 +154,15 @@ int stress_aiol(const args_t *args)
 		struct iocb cb[aio_linux_requests];
 		struct iocb *cbs[aio_linux_requests];
 		struct io_event events[aio_linux_requests];
-		uint8_t buffers[aio_linux_requests][BUFFER_SZ];
+		uint8_t *buffers[aio_linux_requests];
+		uint8_t *bufptr = buffer;
 		uint64_t i;
 		long n;
 
-		for (i = 0; i < aio_linux_requests; i++)
+		for (i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
+			buffers[i] = bufptr;
 			aio_linux_fill_buffer(i, buffers[i], BUFFER_SZ);
+		}
 
 		memset(cb, 0, sizeof(cb));
 		for (i = 0; i < aio_linux_requests; i++) {
@@ -182,8 +200,12 @@ int stress_aiol(const args_t *args)
 			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
 			if (ret < 0) {
 				errno = -ret;
-				if ((errno == EINTR) && (g_keep_stressing_flag))
-					continue;
+				if (errno == EINTR) {
+					if (g_keep_stressing_flag)
+						continue;
+					else
+						break;
+				}
 				pr_fail_err("io_getevents");
 				break;
 			} else {
@@ -198,6 +220,9 @@ int stress_aiol(const args_t *args)
 finish:
 	(void)io_destroy(ctx);
 	(void)stress_temp_dir_rm_args(args);
+
+free_buffer:
+	free(buffer);
 	return rc;
 }
 #else
