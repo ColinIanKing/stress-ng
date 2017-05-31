@@ -2085,8 +2085,8 @@ extern pid_t g_pgrp;			/* proceess group leader */
 /*
  *  stressor option value handling
  */
-extern void set_setting(char *name, type_id_t type_id, void *value);
-extern bool get_setting(char *name, void *value);
+extern void set_setting(const char *name, const type_id_t type_id, const void *value);
+extern bool get_setting(const char *name, void *value);
 extern void free_settings(void);
 
 /*

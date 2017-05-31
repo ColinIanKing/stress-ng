@@ -56,7 +56,7 @@ void free_settings(void)
  *  set_setting()
  *	set a new setting;
  */
-void set_setting(char *name, type_id_t type_id, void *value)
+void set_setting(const char *name, const type_id_t type_id, const void *value)
 {
 	setting_t *setting;
 
@@ -172,7 +172,7 @@ err:
  *  get_setting()
  *	get an existing setting;
  */
-bool get_setting(char *name, void *value)
+bool get_setting(const char *name, void *value)
 {
 	setting_t *setting;
 	bool set = false;
