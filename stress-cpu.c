@@ -81,7 +81,7 @@ void stress_set_cpu_load(const char *opt) {
 }
 
 /*
- *  _cpu_load_slice:
+ *  stress_set_cpu_load_slice()
  *	< 0   - number of iterations per busy slice
  *	= 0   - random duration between 0..0.5 seconds
  *	> 0   - milliseconds per busy slice
