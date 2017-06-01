@@ -128,7 +128,7 @@ static void killer(
 int stress_wait(const args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
-	pid_t pid_r, pid_k;
+	pid_t pid_r, pid_k, wret;
 
 	pr_dbg("%s: waiter started [%d]\n",
 		args->name, (int)args->pid);
@@ -147,11 +147,15 @@ int stress_wait(const args_t *args)
 	}
 
 	do {
-#if defined(WCONINUED)
-		(void)waitpid(pid_r, &status, WCONTINUED);
+#if defined(WCONTINUED)
+		wret = waitpid(pid_r, &status, WCONTINUED);
 #else
-		(void)waitpid(pid_r, &status, 0);
+		wret = waitpid(pid_r, &status, 0);
 #endif
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail_dbg("waitpid()");
+			break;
+		}
 		if (!g_keep_stressing_flag)
 			break;
 #if defined(WIFCONINUED)
@@ -167,14 +171,18 @@ int stress_wait(const args_t *args)
 		{
 			siginfo_t info;
 
-#if defined(WCONINUED)
-			(void)waitid(P_PID, pid_r, &info, WCONTINUED);
+#if defined(WCONTINUED)
+			wret = waitid(P_PID, pid_r, &info, WCONTINUED);
 #else
-			(void)waitid(P_PID, pid_r, &info, 0);
+			wret = waitid(P_PID, pid_r, &info, 0);
 #endif
+			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+				pr_fail_dbg("waitpid()");
+				break;
+			}
 			if (!g_keep_stressing_flag)
 				break;
-#if defined(WIFCONINUED)
+#if defined(WIFCONTINUED)
 			if (WIFCONTINUED(status))
 				inc_counter(args);
 #else
