@@ -27,7 +27,7 @@
 static jmp_buf buf;
 
 static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
-{	
+{
 	longjmp(buf, 1);	/* Jump out */
 
 	_exit(EXIT_FAILURE);	/* Never get here */
