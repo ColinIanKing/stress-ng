@@ -1,3 +1,43 @@
+stress-ng (0.08.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-pthread: don't use pthread_yield for NetBSD and Solaris
+  * stress-wait: fix waitpid, make sure it's waiting with correct flags
+  * stress-wait: fix WCONINUED typo and add better waitpid error detection
+  * stress-nice: where possible force a sched yield
+  * stress-memcpy: force calls to memcpy and memmove
+  * stress-longjmp: remove extraneous tab
+  * stress-matrix: Add a few more simple matrix method
+  * stress-longjmp: make it a little more stressy
+  * Add OPTIMIZE1 -O1 optimization hint
+  * Add NOINLINE macro for forcing no-inlining of small functions
+  * stress-exec: Make exec fail detection more intelligent
+  * Add comment hinting to fallthrough macro to help static analyzers
+  * stress-epoll: fix comment about delay time
+  * stress-cpu: make macro args distinguishable from function names
+  * stress-cpu: correct a comment function name
+  * stress-pthread: add pthread_yield() call for more scheduler stress
+  * cache: add in missing const to argument
+  * cache: minor code clean ups
+  * constify set/get setting function args
+  * stress-aio-linux: use DIRECT_IO and aligned buffers
+  * Remove the main_opt_t and set/get these using the set/get settings
+  * perf: constify n in perf_yaml_label
+  * stress-cpu: add factorial computation and approximations method
+  * manual: update contributors list, add Abdul Haleem
+  * stress-ng: help: fix typo and replace method m with method M
+  * stress-cpu-online: EBUSY shouldn't be a fatal error
+  * Fix: Macro defination for SECCOMP_SET_MODE_FILTER
+  * stress-socket-fd: fix fork failures correctly, make child oomable
+  * stress-memthrash: try harder to get mmap'd memory
+  * Update documentation and help for timeout, specify times in T
+  * stress-ng: remove white space in some -ops help information
+  * move help_t to main stress-ng.c as it's just local to that source
+  * move ionice help to the generic options
+
+ -- Colin King <colin.king@canonical.com>  Thu, 1 Jun 2017 17:32:58 +0100
+
 stress-ng (0.08.02-1) unstable; urgency=medium
 
   * Makefile: bump version
