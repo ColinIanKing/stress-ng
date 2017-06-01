@@ -86,7 +86,7 @@ int stress_exec(const args_t *args)
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
-				int ret, fd_out, fd_in;
+				int ret, fd_out, fd_in, rc;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
@@ -109,9 +109,26 @@ int stress_exec(const args_t *args)
 				(void)close(fd_in);
 
 				ret = execve(path, argv_new, env_new);
+				rc = EXIT_SUCCESS;
+				if (ret < 0) {
+					switch (errno) {
+					case ENOMEM:
+						CASE_FALLTHROUGH;
+					case EMFILE:
+						rc = EXIT_NO_RESOURCE;
+						break;
+					case EAGAIN:
+						/* Ignore as an error */
+						rc = EXIT_SUCCESS;
+						break;
+					default:
+						rc = EXIT_FAILURE;
+						break;
+					}
+				}
 
 				/* Child, immediately exit */
-				_exit(ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE);
+				_exit(rc);
 			}
 			if (pids[i] > -1)
 				(void)setpgid(pids[i], g_pgrp);
