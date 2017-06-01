@@ -375,9 +375,9 @@ typedef struct {
 
 /* gcc 7.0 and later support __attribute__((fallthrough)); */
 #if defined(__GNUC__) && NEED_GNUC(7,0,0)
-#define CASE_FALLTHROUGH __attribute__((fallthrough))
+#define CASE_FALLTHROUGH __attribute__((fallthrough)) /* Fallthrough */
 #else
-#define CASE_FALLTHROUGH
+#define CASE_FALLTHROUGH /* Fallthrough */
 #endif
 
 #if defined(__GNUC__) && NEED_GNUC(2,5,0)
