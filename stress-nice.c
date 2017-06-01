@@ -71,7 +71,7 @@ int stress_nice(const args_t *args)
 					double delay = 0.05 + (double)mwc16() / 327680.0;
 
 					while (time_now() - start < delay)
-						;
+						shim_sched_yield();
 					inc_counter(args);
 				}
 			}
