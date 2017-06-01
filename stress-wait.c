@@ -26,7 +26,12 @@
 
 #if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 
-#define ABORT_TIMEOUT	(8.0)
+#define ABORT_TIMEOUT	(1.0)
+
+static void MLOCKED stress_usr1_handler(int dummy)
+{
+	(void)dummy;
+}
 
 /*
  *  spawn()
@@ -47,7 +52,7 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
+		//(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		func(args, pid_arg);
@@ -88,11 +93,13 @@ static void killer(
 {
 	double start = time_now();
 	uint64_t last_counter = *args->counter;
+	pid_t ppid = getppid();
 
 	pr_dbg("%s: wait: killer started [%d]\n", args->name, (int)getpid());
 
 	do {
 		(void)kill(pid, SIGSTOP);
+		shim_sched_yield();
 		(void)kill(pid, SIGCONT);
 
 		/*
@@ -103,10 +110,11 @@ static void killer(
 		 *  waiter indefinitely.
 		 */
 		if (last_counter == *args->counter) {
-			if (time_now() - start > ABORT_TIMEOUT) {
-				pr_dbg("%s: waits were blocked, "
-					"aborting\n", args->name);
-				break;
+			const double now = time_now();
+			if (now - start > ABORT_TIMEOUT) {
+				/* unblock waiting parent */
+				kill(ppid, SIGUSR1);
+				start = now;
 			}
 		} else {
 			start = time_now();
@@ -129,9 +137,20 @@ int stress_wait(const args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;
+	int options = 0;
+
+#if defined(WUNTRACED)
+	options |= WUNTRACED;
+#endif
+#if defined(WCONTINUED)
+	options |= WCONTINUED;
+#endif
 
 	pr_dbg("%s: waiter started [%d]\n",
 		args->name, (int)args->pid);
+
+	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
@@ -147,11 +166,7 @@ int stress_wait(const args_t *args)
 	}
 
 	do {
-#if defined(WCONTINUED)
-		wret = waitpid(pid_r, &status, WCONTINUED);
-#else
-		wret = waitpid(pid_r, &status, 0);
-#endif
+		wret = waitpid(pid_r, &status, options);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail_dbg("waitpid()");
 			break;
@@ -165,17 +180,14 @@ int stress_wait(const args_t *args)
 		inc_counter(args);
 #endif
 
-#if _SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
+#if defined(WCONTINUED) && \
+    (_SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
     _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || \
-    _POSIX_C_SOURCE >= 200809L
-		{
+    _POSIX_C_SOURCE >= 200809L)
+		if (options) {
 			siginfo_t info;
 
-#if defined(WCONTINUED)
-			wret = waitid(P_PID, pid_r, &info, WCONTINUED);
-#else
-			wret = waitid(P_PID, pid_r, &info, 0);
-#endif
+			wret = waitid(P_PID, pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 				pr_fail_dbg("waitpid()");
 				break;
