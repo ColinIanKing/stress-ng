@@ -392,6 +392,12 @@ typedef struct {
 #define ALWAYS_INLINE
 #endif
 
+#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earier */
+#define NOINLINE	__attribute__ ((noinline))
+#else
+#define NOINLINE
+#endif
+
 /* -O3 attribute support */
 #if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
