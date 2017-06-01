@@ -55,7 +55,7 @@ void stress_set_matrix_size(const char *opt)
 }
 
 /*
- *  stress_matrix_prod(void)
+ *  stress_matrix_prod()
  *	matrix product
  */
 static void OPTIMIZE3 stress_matrix_prod(
@@ -82,7 +82,7 @@ static void OPTIMIZE3 stress_matrix_prod(
 }
 
 /*
- *  stress_matrix_add(void)
+ *  stress_matrix_add()
  *	matrix addition
  */
 static void OPTIMIZE3 stress_matrix_add(
@@ -105,7 +105,7 @@ static void OPTIMIZE3 stress_matrix_add(
 }
 
 /*
- *  stress_matrix_sub(void)
+ *  stress_matrix_sub()
  *	matrix subtraction
  */
 static void OPTIMIZE3 stress_matrix_sub(
@@ -128,7 +128,7 @@ static void OPTIMIZE3 stress_matrix_sub(
 }
 
 /*
- *  stress_matrix_trans(void)
+ *  stress_matrix_trans()
  *	matrix transpose
  */
 static void OPTIMIZE3 stress_matrix_trans(
@@ -153,7 +153,7 @@ static void OPTIMIZE3 stress_matrix_trans(
 }
 
 /*
- *  stress_matrix_mult(void)
+ *  stress_matrix_mult()
  *	matrix scalar multiply
  */
 static void OPTIMIZE3 stress_matrix_mult(
@@ -179,7 +179,7 @@ static void OPTIMIZE3 stress_matrix_mult(
 }
 
 /*
- *  stress_matrix_div(void)
+ *  stress_matrix_div()
  *	matrix scalar divide
  */
 static void OPTIMIZE3 stress_matrix_div(
@@ -205,7 +205,7 @@ static void OPTIMIZE3 stress_matrix_div(
 }
 
 /*
- *  stress_matrix_hadamard(void)
+ *  stress_matrix_hadamard()
  *	matrix hadamard product
  *	(A o B)ij = AijBij
  */
@@ -229,7 +229,7 @@ static void OPTIMIZE3 stress_matrix_hadamard(
 }
 
 /*
- *  stress_matrix_frobenius(void)
+ *  stress_matrix_frobenius()
  *	matrix frobenius product
  *	A : B = Sum(AijBij)
  */
@@ -257,7 +257,7 @@ static void OPTIMIZE3 stress_matrix_frobenius(
 }
 
 /*
- *  stress_matrix_copy(void)
+ *  stress_matrix_copy()
  *	naive matrix copy, r = a
  */
 static void OPTIMIZE3 stress_matrix_copy(
@@ -304,6 +304,74 @@ static void OPTIMIZE3 stress_matrix_mean(
 	}
 }
 
+/*
+ *  stress_matrix_zero()
+ *	simply zero the result matrix
+ */
+static void OPTIMIZE3 stress_matrix_zero(
+	const size_t n,
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
+{
+	register size_t i;
+
+	(void)a;
+	(void)b;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++)
+			r[i][j] = 0.0;
+	}
+}
+
+/*
+ *  stress_matrix_negate()
+ *	simply negate the matrix a and put result in r
+ */
+static void OPTIMIZE3 stress_matrix_negate(
+	const size_t n,
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
+{
+	register size_t i;
+
+	(void)a;
+	(void)b;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++)
+			r[i][j] = -a[i][j];
+	}
+}
+
+/*
+ *  stress_matrix_identity()
+ *	set r to the identity matrix
+ */
+static void OPTIMIZE3 stress_matrix_identity(
+	const size_t n,
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
+{
+	register size_t i;
+
+	(void)a;
+	(void)b;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++)
+			r[i][j] = (i == j) ? 1.0 : 0.0;
+	}
+}
 
 /*
  *  stress_matrix_all()
@@ -333,11 +401,14 @@ static const stress_matrix_method_info_t matrix_methods[] = {
 	{ "div",		stress_matrix_div },
 	{ "frobenius",		stress_matrix_frobenius },
 	{ "hadamard",		stress_matrix_hadamard },
+	{ "identity",		stress_matrix_identity },
 	{ "mean",		stress_matrix_mean },
 	{ "mult",		stress_matrix_mult },
+	{ "negate",		stress_matrix_negate },
 	{ "prod",		stress_matrix_prod },
 	{ "sub",		stress_matrix_sub },
 	{ "trans",		stress_matrix_trans },
+	{ "zero",		stress_matrix_zero },
 	{ NULL,			NULL }
 };
 

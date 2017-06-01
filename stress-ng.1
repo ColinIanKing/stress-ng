@@ -1608,7 +1608,11 @@ mallopt(3) tuning function.
 .TP
 .B \-\-matrix N
 start N workers that perform various matrix operations on floating point
-values. By default, this will exercise all the matrix stress methods one by
+values. Testing on 64 bit x86 hardware shows that this provides a good
+mix of memory, cache and floating point operations and is an excellent way
+to make a CPU run hot.
+
+By default, this will exercise all the matrix stress methods one by
 one.  One can specify a specific matrix stress method with the
 \-\-matrix\-method option.
 .TP
@@ -1638,6 +1642,9 @@ T}
 hadamard	T{
 Hadamard product of two N \(mu N matrices
 T}
+identity	T{
+create an N \(mu N identity matrix
+T}
 frobenius	T{
 Frobenius product of two N \(mu N matrices
 T}
@@ -1647,6 +1654,9 @@ T}
 mult	T{
 multiply an N \(mu N matrix by a scalar
 T}
+negate	T{
+negate an N \(mu N matrix
+T}
 prod	T{
 product of two N \(mu N matrices
 T}
@@ -1655,6 +1665,9 @@ subtract one N \(mu N matrix from another N \(mu N matrix
 T}
 trans	T{
 transpose an N \(mu N matrix
+T}
+zero	T{
+zero an N \(mu N matrix
 T}
 .TE
 .TP
