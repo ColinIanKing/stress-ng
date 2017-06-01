@@ -294,7 +294,7 @@ retry:
 		}
 
 		/*
-		 * Allow 1 second for connection to occur,
+		 * Allow 0.25 seconds for connection to occur,
 		 * connect can block if the connection table
 		 * fills up because we're waiting for TIME-OUTs
 		 * to occur on previously closed connections
