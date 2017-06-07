@@ -26,7 +26,6 @@
 
 #define STACK_SIZE      (16384)
 
-
 /*
  *  stress_vforkmany()
  *	stress by vfork'ing as many processes as possible.
@@ -39,57 +38,98 @@
 int stress_vforkmany(const args_t *args)
 {
 	static int status;
-	static pid_t mypid;
-	static double start;
+	static pid_t chpid;
+	static volatile int instance = 0;
 	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
+	static volatile bool *terminate;
 
 	/* We should use an alterative signal stack */
 	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
-	start = time_now();
-	mypid = getpid();
-	(void)setpgid(0, g_pgrp);
+	terminate = (bool *)mmap(NULL, args->page_size,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (terminate == MAP_FAILED) {
+		pr_inf("%s: mmap failed: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	*terminate = false;
 
-	do {
-		/*
-		 *  Force pid to be a register, if it's
-		 *  stashed on the stack or as a global
-		 *  then waitpid will pick up the one
-		 *  shared by all the vfork children
-		 *  which is problematic on the wait
-		 */
-		register pid_t pid;
-again:
-		/*
-		 * SIGALRM is not inherited over vfork so
-		 * instead poll the run time and break out
-		 * of the loop if we've run out of run time
-		 */
-		if ((time_now() - start) > (double)g_opt_timeout)
-			g_keep_stressing_flag = false;
+fork_again:
+	if (!g_keep_stressing_flag)
+		goto tidy;
+	chpid = fork();
+	if (chpid < 0) {
+		if (errno == EAGAIN)
+			goto fork_again;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+		munmap((void *)terminate, args->page_size);
+		return EXIT_FAILURE;
+	} else if (chpid == 0) {
+		(void)setpgid(0, g_pgrp);
 
-		inc_counter(args);
-		if (getpid() == mypid)
-			pid = fork();
-		else
-			pid = vfork();
-		if (pid < 0) {
-			/* failed, only exit of not the top parent */
-			if (getpid() != mypid)
+		do {
+			/*
+			 *  Force pid to be a register, if it's
+			 *  stashed on the stack or as a global
+			 *  then waitpid will pick up the one
+			 *  shared by all the vfork children
+			 *  which is problematic on the wait
+			 */
+			register pid_t pid;
+			register bool first = (instance == 0);
+vfork_again:
+			/*
+			 * SIGALRM is not inherited over vfork so
+			 * instead poll the run time and break out
+			 * of the loop if we've run out of run time
+			 */
+			if (*terminate) {
+				g_keep_stressing_flag = false;
+				break;
+			}
+			inc_counter(args);
+			instance++;
+			if (first)
+				pid = fork();
+			else
+				pid = vfork();
+
+			if (pid < 0) {
+				/* failed, only exit of not the top parent */
+				if (!first)
+					_exit(0);
+			} else if (pid == 0) {
+				/* child, parent is blocked, spawn new child */
+				if (!args->max_ops || *args->counter < args->max_ops)
+					goto vfork_again;
 				_exit(0);
-		} else if (pid == 0) {
-			/* child, parent is blocked, spawn new child */
-			if (!args->max_ops || *args->counter < args->max_ops)
-				goto again;
-			_exit(0);
-		}
-		/* parent, wait for child, and exit if not top parent */
-		(void)waitpid(pid, &status, 0);
-		if (getpid() != mypid)
-			_exit(0);
-	} while (keep_stressing());
+			}
+			/* parent, wait for child, and exit if not top parent */
+			(void)waitpid(pid, &status, 0);
+			if (!first)
+				_exit(0);
+		} while (keep_stressing());
+	} else {
+		/*
+		 * Parent sleeps until timeout/SIGALRM and then
+		 * flags terminate state that the vfork children
+		 * see and will then exit.  We wait for the first
+		 * one spawned to unblock and exit
+		 */
+		int chstatus;
 
+		sleep(g_opt_timeout);
+		*terminate = true;
+		kill(chpid, SIGALRM);
+
+		(void)waitpid(chpid, &chstatus, 0);
+	}
+tidy:
+	(void)munmap((void *)terminate, args->page_size);
 	return EXIT_SUCCESS;
 }
