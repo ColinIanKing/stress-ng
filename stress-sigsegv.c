@@ -39,19 +39,30 @@ static void MLOCKED stress_segvhandler(int dummy)
 
 /*
  *  stress_sigsegv
- *	stress by generating segmentation faults
+ *	stress by generating segmentation faults by
+ *	writing to a read only page
  */
 int stress_sigsegv(const args_t *args)
 {
 	uint8_t *ptr = NULL;
+	int rc = EXIT_FAILURE;
+
+	/* Allocate read only page */
+	ptr = mmap(NULL, args->page_size, PROT_READ,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ptr == MAP_FAILED) {
+		pr_inf("%s: mmap of shared read only page failed: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	for (;;) {
 		int ret;
 
 		if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
-			return EXIT_FAILURE;
+			goto tidy;
 		if (stress_sighandler(args->name, SIGILL, stress_segvhandler, NULL) < 0)
-			return EXIT_FAILURE;
+			goto tidy;
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
@@ -64,8 +75,12 @@ int stress_sigsegv(const args_t *args)
 		if (ret)
 			inc_counter(args);	/* SIGSEGV/SIGILL occurred */
 		else
-			*ptr = 0;	/* Trip a SIGSEGV/SIGILL */
+			*ptr = 0;		/* Trip a SIGSEGV/SIGILL */
 	}
+	rc = EXIT_SUCCESS;
+tidy:
+	(void)munmap(ptr, args->page_size);
 
-	return EXIT_SUCCESS;
+	return rc;
+
 }
