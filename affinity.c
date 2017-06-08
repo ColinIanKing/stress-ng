@@ -26,7 +26,7 @@
 
 static const char *option = "taskset";
 
-#if defined(__linux__)
+#if defined(HAVE_AFFINITY)
 
 /*
  * check_cpu_affinity_range()

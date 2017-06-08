@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#if defined(HAVE_AFFINITY)
 
 /*
  *  stress on sched_affinity()

@@ -269,7 +269,8 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_LIB_Z=0 HAVE_LIB_CRYPT=0 HAVE_LIB_RT=0 HAVE_LIB_PTHREAD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0 \
-	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0
+	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
+	 HAVE_AFFINITY=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -460,6 +461,14 @@ HAVE_ALIGNED_64K = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_aligned
 ifeq ($(HAVE_ALIGNED_64K),1)
 	CONFIG_CFLAGS += -DHAVE_ALIGNED_64K
 $(info autoconfig: using 64K byte alignment attribute)
+endif
+endif
+
+ifndef $(HAVE_AFFINITY)
+HAVE_AFFINITY = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_affinity)
+ifeq ($(HAVE_AFFINITY),1)
+	CONFIG_CFLAGS += -DHAVE_AFFINITY
+$(info autoconfig: using sched affinity CPU masks)
 endif
 endif
 
@@ -764,6 +773,18 @@ have_aligned_64K: test-aligned-64K.c
 	fi
 	@rm -rf test-aligned-64K
 
+#
+#  check if we can build using sched_set/get_affinity
+#
+.PHONY: have_affinity
+have_affinity: test-affinity.c
+	@$(CC) $(CPPFLAGS) test-affinity.c -o test-affinity 2> /dev/null || true
+	@if [ -f test-affinity ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-affinity
 
 #
 #  extract the PER_* personality enums
