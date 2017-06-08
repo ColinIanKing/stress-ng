@@ -128,7 +128,7 @@ int stress_clock(const args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(clocks_nanosleep); i++) {
 			int ret;
 			t.tv_sec = 0;
-			t.tv_nsec = 0;
+			t.tv_nsec = 25000;
 			/*
 			 *  Calling with TIMER_ABSTIME will force
 			 *  clock_nanosleep() to return immediately
