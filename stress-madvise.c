@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
+#if defined(HAVE_MADVISE)
 
 #define NUM_MEM_RETRIES_MAX	(256)
 #define NUM_POISON_MAX		(2)

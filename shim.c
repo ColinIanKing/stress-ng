@@ -749,7 +749,7 @@ int shim_sysfs(int option, ...)
  */
 int shim_madvise(void *addr, size_t length, int advice)
 {
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,19,0)
+#if defined(HAVE_MADVISE)
 	return madvise(addr, length, advice);
 #elif (_POSIX_C_SOURCE >= 200112L)
 	int posix_advice;

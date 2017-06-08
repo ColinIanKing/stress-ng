@@ -270,7 +270,7 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
-	 HAVE_AFFINITY=0
+	 HAVE_AFFINITY=0 HAVE_MADVISE=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -469,6 +469,14 @@ HAVE_AFFINITY = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_affinity)
 ifeq ($(HAVE_AFFINITY),1)
 	CONFIG_CFLAGS += -DHAVE_AFFINITY
 $(info autoconfig: using sched affinity CPU masks)
+endif
+endif
+
+ifndef $(HAVE_MADVISE)
+HAVE_MADVISE = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_madvise)
+ifeq ($(HAVE_MADVISE),1)
+	CONFIG_CFLAGS += -DHAVE_MADVISE
+$(info autoconfig: using madvise)
 endif
 endif
 
@@ -787,6 +795,19 @@ have_affinity: test-affinity.c
 	@rm -rf test-affinity
 
 #
+#  check if we can build using madvise
+#
+.PHONY: have_madvise
+have_madvise: test-madvise.c
+	@$(CC) $(CPPFLAGS) test-madvise.c -o test-madvise 2> /dev/null || true
+	@if [ -f test-madvise ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-madvise
+
+#
 #  extract the PER_* personality enums
 #
 personality.h:
@@ -836,7 +857,8 @@ dist:
 		test-libaio.c test-cap.c test-libsctp.c \
 		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
 		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
-		test-affinity.c snapcraft smatchify.sh config TODO \
+		test-affinity.c test-madvise.c \
+		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)

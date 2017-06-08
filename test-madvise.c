@@ -22,9 +22,10 @@
  * functionality.
  *
  */
-#include "stress-ng.h"
+#include <sys/mman.h>
 
-#if defined(HAVE_MADVISE)
+static char buffer[8192];
+
 static const int madvise_options[] = {
 #if defined(MADV_NORMAL)
 	MADV_NORMAL,
@@ -38,16 +39,9 @@ static const int madvise_options[] = {
 #if defined(MADV_WILLNEED)
 	MADV_WILLNEED,
 #endif
-/*
- *  Don't use DONTNEED as this can zero fill
- *  pages that don't have backing store which
- *  trips checksum errors when we check that
- *  the pages are sane.
- *
 #if defined(MADV_DONTNEED)
 	MADV_DONTNEED,
 #endif
-*/
 #if defined(MADV_DONTFORK)
 	MADV_DONTFORK,
 #endif
@@ -72,34 +66,20 @@ static const int madvise_options[] = {
 #if defined(MADV_DODUMP)
 	MADV_DODUMP,
 #endif
-/*
- *  Don't use MADV_FREE as this can zero fill
- *  pages that don't have backing store which
- *  trips checksum errors when we check that
- *  the pages are sane.
- *
 #if defined(MADV_FREE)
 	MADV_FREE
 #endif
-*/
 };
-#endif
 
 /*
- * madvise_random()
- *	apply random madvise setting to a memory region
+ *  The following enum will cause test build failure
+ *  if there are no madvise options
  */
-int madvise_random(void *addr, const size_t length)
-{
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
-		int i = (mwc32() >> 7) % SIZEOF_ARRAY(madvise_options);
+enum { 
+	NO_MADVISE_OPTIONS = 1 / sizeof(madvise_options)
+};
 
-		return madvise(addr, length, madvise_options[i]);
-	}
-#else
-	(void)addr;
-	(void)length;
-#endif
-	return 0;
+int main(void)
+{
+	return madvise(buffer, sizeof(buffer), MADV_NORMAL);
 }
