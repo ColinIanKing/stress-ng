@@ -836,8 +836,8 @@ dist:
 		test-libaio.c test-cap.c test-libsctp.c \
 		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
 		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
-		snapcraft smatchify.sh config TODO example-jobs \
-		stress-ng-$(VERSION)
+		test-affinity.c snapcraft smatchify.sh config TODO \
+		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
