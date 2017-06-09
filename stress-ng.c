@@ -90,6 +90,7 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
+	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
 };
 
@@ -332,6 +333,7 @@ static const stress_t stressors[] = {
 	STRESSOR(sock, SOCKET, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(sockfd, SOCKET_FD, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(sockpair, SOCKET_PAIR, CLASS_NETWORK | CLASS_OS),
+	STRESSOR(softlockup, SOFTLOCKUP, CLASS_SCHEDULER),
 	STRESSOR(spawn, SPAWN, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(splice, SPLICE, CLASS_PIPE_IO | CLASS_OS),
 	STRESSOR(stack, STACK, CLASS_VM | CLASS_MEMORY),
@@ -784,6 +786,8 @@ static const struct option long_options[] = {
 	{ "sockfd-port",1,	0,	OPT_SOCKET_FD_PORT },
 	{ "sockpair",	1,	0,	OPT_SOCKET_PAIR },
 	{ "sockpair-ops",1,	0,	OPT_SOCKET_PAIR_OPS },
+	{ "softlockup",	1,	0,	OPT_SOFTLOCKUP },
+	{ "softlockup-ops",1,	0,	OPT_SOFTLOCKUP_OPS },
 	{ "spawn",	1,	0,	OPT_SPAWN },
 	{ "spawn-ops",	1,	0,	OPT_SPAWN_OPS },
 	{ "splice",	1,	0,	OPT_SPLICE },
@@ -1320,6 +1324,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sockfd-port P",	"use socket fd ports P to P + number of workers - 1" },
 	{ NULL,		"sockpair N",		"start N workers exercising socket pair I/O activity" },
 	{ NULL,		"sockpair-ops N",	"stop after N socket pair bogo operations" },
+	{ NULL,		"softlockup N",		"start N workers that cause softlockups" },
+	{ NULL,		"softlockup-ops N",	"stop after N softlockup bogo operations" },
 	{ NULL,		"spawn",		"start N workers spawning stress-ng using posix_spawn" },
 	{ NULL,		"spawn-ops N",		"stop after N spawn bogo operations" },
 	{ NULL,		"splice N",		"start N workers reading/writing using splice" },

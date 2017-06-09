@@ -1272,6 +1272,7 @@ typedef enum {
 	STRESS_SOCKET,
 	STRESS_SOCKET_FD,
 	STRESS_SOCKET_PAIR,
+	STRESS_SOFTLOCKUP,
 	STRESS_SPAWN,
 	STRESS_SPLICE,
 	STRESS_STACK,
@@ -1868,6 +1869,9 @@ typedef enum {
 	OPT_SOCKET_PAIR,
 	OPT_SOCKET_PAIR_OPS,
 
+	OPT_SOFTLOCKUP,
+	OPT_SOFTLOCKUP_OPS,
+
 	OPT_SWITCH_OPS,
 
 	OPT_SPAWN,
@@ -2379,16 +2383,24 @@ extern void free_cpu_caches(cpus_t *cpus);
 extern int  thrash_start(void);
 extern void thrash_stop(void);
 
+/* run-time checks to see if a stressor is supported or not */
+extern int stress_apparmor_supported(void);
+extern int stress_chroot_supported(void);
+extern int stress_fanotify_supported(void);
+extern int stress_icmp_flood_supported(void);
+extern int stress_netlink_proc_supported(void);
+extern int stress_rdrand_supported(void);
+extern int stress_softlockup_supported(void);
+extern int stress_tsc_supported(void);
+
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);
-extern int  stress_apparmor_supported(void);
 extern void stress_set_aio_requests(const char *opt);
 extern void stress_set_aio_linux_requests(const char *opt);
 extern void stress_set_bigheap_growth(const char *arg);
 extern void stress_set_bsearch_size(const char *opt);
 extern void stress_set_chdir_dirs(const char *opt);
-extern int  stress_chroot_supported(void);
 extern void stress_set_clone_max(const char *opt);
 extern void stress_set_copy_file_bytes(const char *opt);
 extern void stress_set_cpu_load(const char *opt);
@@ -2408,14 +2420,12 @@ extern void stress_set_fifo_readers(const char *opt);
 extern int  stress_filename_opts(const char *opt);
 extern void stress_set_fiemap_bytes(const char *opt);
 extern void stress_set_fork_max(const char *opt);
-extern int  stress_fanotify_supported(void);
 extern void stress_set_fstat_dir(const char *opt);
 extern void stress_set_hdd_bytes(const char *opt);
 extern int  stress_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *opt);
 extern void stress_set_heapsort_size(const void *opt);
 extern void stress_set_hsearch_size(const char *opt);
-extern int  stress_icmp_flood_supported(void);
 extern void stress_set_iomix_bytes(const char *opt);
 extern void stress_set_itimer_freq(const char *opt);
 extern void stress_set_lease_breakers(const char *opt);
@@ -2433,13 +2443,11 @@ extern void stress_set_mmap_bytes(const char *opt);
 extern void stress_set_mq_size(const char *opt);
 extern void stress_set_mremap_bytes(const char *opt);
 extern void stress_set_msync_bytes(const char *opt);
-extern int  stress_netlink_proc_supported(void);
 extern void stress_set_pipe_data_size(const char *opt);
 extern void stress_set_pipe_size(const char *opt);
 extern void stress_set_pthread_max(const char *opt);
 extern void stress_set_pty_max(const char *opt);
 extern void stress_set_qsort_size(const char *opt);
-extern int  stress_rdrand_supported(void);
 extern void stress_set_readahead_bytes(const char *opt);
 extern int  stress_set_sctp_domain(const char *opt);
 extern void stress_set_sctp_port(const char *opt);
@@ -2464,7 +2472,6 @@ extern void stress_set_sync_file_bytes(const char *opt);
 extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *opt);
 extern void stress_set_timerfd_freq(const char *opt);
-extern int  stress_tsc_supported(void);
 extern void stress_set_tsearch_size(const char *opt);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *opt);
@@ -2761,6 +2768,7 @@ STRESS(stress_sleep);
 STRESS(stress_sock);
 STRESS(stress_sockfd);
 STRESS(stress_sockpair);
+STRESS(stress_softlockup);
 STRESS(stress_spawn);
 STRESS(stress_splice);
 STRESS(stress_stack);
