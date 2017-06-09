@@ -1123,6 +1123,9 @@ typedef struct {
 #if defined(STRESS_THERMAL_ZONES)
 	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
+#if defined(HAVE_ATOMIC)
+	uint32_t softlockup_count;			/* Atomic counter of softlock children */
+#endif
 	proc_stats_t stats[0];				/* Shared statistics */
 } shared_t;
 

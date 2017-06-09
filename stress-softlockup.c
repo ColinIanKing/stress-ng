@@ -76,11 +76,13 @@ int stress_softlockup(const args_t *args)
 	int max_prio = 0;
 	bool good_policy = false;
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
+	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
 	struct sched_param param = { 0 };
 	struct rlimit rlim;
 	pid_t pid;
 	uint64_t timeout = g_opt_timeout;
+	const double start = time_now();
 
 	if (!args->instance) {
 		if (SIZEOF_ARRAY(policies) == 0) {
@@ -119,7 +121,7 @@ int stress_softlockup(const args_t *args)
 				args->name, max_prio);
 	}
 
-	if (args->num_instances < cpus_online) {
+	if (num_instances < cpus_online) {
 		pr_inf("%s: for best reslults, run with at least %d instances "
 			"of this stressor\n", args->name, cpus_online);
 	}
@@ -137,8 +139,23 @@ int stress_softlockup(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		const pid_t mypid = getpid();
-		double start = time_now();
+		uint32_t count;
 		int ret;
+		int rc = EXIT_FAILURE;
+
+#if defined(HAVE_ATOMIC)
+		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
+
+		/*
+		 * Wait until all instances have reached this point
+		 */
+		do {
+			if ((time_now() - start) > (double)timeout)
+				goto tidy_ok;
+			usleep(50000);
+			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
+		} while (keep_stressing() && count < num_instances);
+#endif
 
 		/*
 		 * We run the stressor as a child so that
@@ -155,11 +172,11 @@ int stress_softlockup(const args_t *args)
 		(void)setrlimit(RLIMIT_RTTIME, &rlim);
 
 		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
-			_exit(EXIT_FAILURE);
+			goto tidy;
 
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret)
-			_exit(EXIT_SUCCESS);
+			goto tidy_ok;
 
 		policy = 0;
 		do {
@@ -186,11 +203,15 @@ int stress_softlockup(const args_t *args)
 			inc_counter(args);
 
 			/* Ensure we NEVER spin forever */
-			if ((time_now() - start) > (double)timeout) 
-				_exit(EXIT_SUCCESS);
+			if ((time_now() - start) > (double)timeout)
+				break;
 		} while (keep_stressing());
 
-		_exit(EXIT_SUCCESS);
+tidy_ok:
+		rc = EXIT_SUCCESS;
+tidy:
+		fflush(stdout);
+		_exit(rc);
 	} else {
 		int status;
 
@@ -199,6 +220,9 @@ int stress_softlockup(const args_t *args)
 
 		pause();
 		kill(pid, SIGKILL);
+#if defined(HAVE_ATOMIC)
+		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
+#endif
 
 		(void)waitpid(pid, &status, 0);
 	}
