@@ -2627,6 +2627,8 @@ extern int shim_madvise(void *addr, size_t length, int advice);
 extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
 extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
 	unsigned int mask, struct shim_statx *buffer);
+extern int shim_futex_wake(const void *futex, const int n);
+extern int shim_futex_wait(const void *futex, const int val, const struct timespec *timeout);
 
 #define STRESS(func) extern int func(const args_t *args);
 

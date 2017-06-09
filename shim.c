@@ -25,6 +25,10 @@
 #include "stress-ng.h"
 #include <pwd.h>
 
+#if defined(__linux__) && defined(__NR_futex)
+#include <linux/futex.h>
+#endif
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
@@ -838,3 +842,50 @@ ssize_t shim_statx(
 	return -1;
 #endif
 }
+
+/*
+ *  futex wake()
+ *	wake n waiters on futex
+ */
+#if defined(__linux__) && defined(__NR_futex)
+int shim_futex_wake(const void *futex, const int n)
+{
+	return syscall(SYS_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
+}
+#else
+int shim_futex_wake(const void *futex, const int n)
+{
+	(void)futex;
+	(void)n;
+
+	errno = -ENOSYS;
+	return -1;
+}
+#endif
+
+/*
+ *  futex_wait()
+ *	wait on futex with a timeout
+ */
+#if defined(__linux__) && defined(__NR_futex)
+int shim_futex_wait(
+	const void *futex,
+	const int val,
+	const struct timespec *timeout)
+{
+	return syscall(SYS_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
+}
+#else
+int shim_futex_wait(
+	const void *futex,
+	const int val,
+	const struct timespec *timeout)
+{
+	(void)futex;
+	(void)val;
+	(void)timeout;
+
+	errno = -ENOSYS;
+	return -1;
+}
+#endif
