@@ -31,27 +31,6 @@
 #define THRESHOLD	(100000)
 
 /*
- *  futex wake()
- *	wake n waiters on futex
- */
-static inline int futex_wake(const void *futex, const int n)
-{
-	return syscall(SYS_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
-}
-
-/*
- *  futex_wait()
- *	wait on futex with a timeout
- */
-static inline int futex_wait(
-	const void *futex,
-	const int val,
-	const struct timespec *timeout)
-{
-	return syscall(SYS_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
-}
-
-/*
  *  stress_futex()
  *	stress system by futex calls. The intention is not to
  * 	efficiently use futex, but to stress the futex system call
@@ -85,7 +64,7 @@ again:
 			 */
 			if (!g_keep_stressing_flag)
 				break;
-			ret = futex_wake(futex, 1);
+			ret = shim_futex_wake(futex, 1);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (ret < 0)
 					pr_fail_err("futex wake");
@@ -113,7 +92,7 @@ again:
 			if (!g_keep_stressing_flag)
 				break;
 
-			ret = futex_wait(futex, 0, &t);
+			ret = shim_futex_wait(futex, 0, &t);
 
 			/* timeout, re-do, stress on stupid fast polling */
 			if ((ret < 0) && (errno == ETIMEDOUT)) {
