@@ -27,9 +27,9 @@
 #if defined(__linux__)
 
 typedef struct {
-	int	policy;
-	int	max_prio;
-	char	*name;
+	const int	policy;
+	int		max_prio;
+	const char	*name;
 } policy_t;
 
 static policy_t policies[] = {
