@@ -38,6 +38,7 @@ int main(void)
 	rc = sched_getaffinity(0, sizeof(mask), &mask);
 	if (rc == 0) {
 		rc = CPU_ISSET(0, &mask);
+		(void)rc;
 	}
 	return 0;
 }
