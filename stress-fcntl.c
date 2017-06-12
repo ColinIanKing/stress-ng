@@ -54,6 +54,26 @@ static int fd_get(void)
 }
 #endif
 
+#if defined(F_DUPFD) || 	\
+    defined(F_DUPFD_CLOEXEC) || \
+    defined(F_GETFD) ||		\
+    defined(F_SETFD) ||		\
+    defined(F_GETFL) ||		\
+    defined(F_SETFL) ||		\
+    defined(F_GETOWN) ||	\
+    defined(F_SETOWN) ||	\
+    defined(F_GETOWN_EX) ||	\
+    defined(F_SETOWN_EX) ||	\
+    defined(F_GETSIG) ||	\
+    defined(F_SETSIG) ||	\
+    defined(F_GETOWNER_UIDS) ||	\
+    defined(F_GETLEASE) ||	\
+    (defined(F_GETLK) && defined(F_SETLK) && \
+     defined(F_SETLKW) && defined(F_WRLCK) && \
+     defined(F_UNLCK)) ||	\
+    (defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && \
+     defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK))
+
 /*
  *  check_return()
  *	sanity check fcntl() return for errors
@@ -66,6 +86,8 @@ static void check_return(const args_t *args, const int ret, const char *cmd)
 			args->name, cmd, errno, strerror(errno));
 	}
 }
+
+#endif
 
 /*
  *  do_fcntl()
