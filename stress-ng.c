@@ -395,6 +395,7 @@ static const class_t classes[] = {
 };
 
 static const struct option long_options[] = {
+	{ "abort",	0,	0,	OPT_ABORT },
 	{ "af-alg",	1,	0,	OPT_AF_ALG },
 	{ "af-alg-ops",	1,	0,	OPT_AF_ALG_OPS },
 	{ "affinity",	1,	0,	OPT_AFFINITY },
@@ -914,6 +915,7 @@ static const struct option long_options[] = {
  *  Generic help options
  */
 static const help_t help_generic[] = {
+	{ NULL,		"abort",		"abort all stressors if any stressor fails" },
 	{ NULL,		"aggressive",		"enable all aggressive options" },
 	{ "a N",	"all N",		"start N workers of each stress test" },
 	{ "b N",	"backoff N",		"wait of N microseconds before work starts" },
@@ -1862,6 +1864,7 @@ redo:
 			pid = pi->pids[j];
 			if (pid) {
 				int status, ret;
+				bool abort = false;
 
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
@@ -1891,15 +1894,24 @@ redo:
 						pr_err("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
 							ret, pi->stressor->name);
 						*resource_success = false;
+						abort = true;
 						break;
 					case EXIT_NOT_IMPLEMENTED:
+						abort = true;
 						break;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
 							ret, pi->stressor->name, WEXITSTATUS(status));
 						*success = false;
+						abort = true;
 						break;
 					}
+					if ((g_opt_flags & OPT_FLAGS_ABORT) && abort) {
+						g_keep_stressing_flag = false;
+						wait_flag = false;
+						kill_procs(SIGALRM);
+					}
+
 					proc_finished(&pi->pids[j]);
 					pr_dbg("process [%d] terminated\n", ret);
 				} else if (ret == -1) {
@@ -2052,8 +2064,8 @@ again:
 					/* Child */
 					(void)setpgid(0, g_pgrp);
 					if (stress_set_handler(name, true) < 0) {
-						free_procs();
-						exit(EXIT_FAILURE);
+						rc = EXIT_FAILURE;
+						goto child_exit;
 					}
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
@@ -2119,8 +2131,15 @@ again:
 #if defined(STRESS_THERMAL_ZONES)
 					tz_free(&g_shared->tz_info);
 #endif
+
+child_exit:
 					free_procs();
 					stress_cache_free();
+					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
+						g_keep_stressing_flag = false;
+						wait_flag = false;
+						kill(getppid(), SIGALRM);
+					}
 					exit(rc);
 				default:
 					if (pid > -1) {
@@ -2733,6 +2752,9 @@ next_opt:
 		}
 
 		switch (c) {
+		case OPT_ABORT:
+			g_opt_flags |= OPT_FLAGS_ABORT;
+			break;
 		case OPT_AIO_REQUESTS:
 			stress_set_aio_requests(optarg);
 			break;

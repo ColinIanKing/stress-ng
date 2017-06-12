@@ -61,6 +61,10 @@ available as defined by sysconf(_SC_NPROCESSORS_CONF).
 .PP
 .B General stress\-ng control options:
 .TP
+.B \-\-abort
+this option will force all running stressors to abort (terminate) if any
+other stressor terminates prematurely because of a failure.
+.TP
 .B \-\-aggressive
 enables more file, cache and memory aggressive options. This may slow tests
 down, increase latencies and reduce the number of bogo ops as well as changing
