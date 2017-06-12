@@ -148,9 +148,7 @@ again:
 	} else if (pid == 0) {
 		/* Child rlimit stressor */
 		do {
-			int ret, fds[MAX_RLIMIT_NOFILE];
-			uint8_t *ptr;
-			void *oldbrk;
+			int ret;
 
 			for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
 				(void)setrlimit(limits[i].resource, &limits[i].new_limit);
@@ -166,6 +164,10 @@ again:
 				break;
 
 			if (ret == 0) {
+				uint8_t *ptr;
+				void *oldbrk;
+				int fds[MAX_RLIMIT_NOFILE];
+				
 				switch (mwc32() % 5) {
 				default:
 				case 0:
