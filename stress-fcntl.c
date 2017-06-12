@@ -36,6 +36,8 @@ static inline bool fd_available(const int fd)
 	return ((ret == -1) && (errno == EBADF));
 }
 
+#if defined(F_DUPFD) && \
+    defined(F_DUPFD_CLOEXEC)
 /*
  *  fd_get()
  *	find a free fd to dup onto
@@ -52,6 +54,8 @@ static int fd_get(void)
 	}
 	return -1;	/* unlikely */
 }
+#endif
+
 #endif
 
 #if defined(F_DUPFD) || 	\
@@ -88,6 +92,7 @@ static void check_return(const args_t *args, const int ret, const char *cmd)
 }
 
 #endif
+
 
 /*
  *  do_fcntl()
