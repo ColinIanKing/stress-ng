@@ -1504,11 +1504,12 @@ static uint32_t get_class_id(char *const str)
  *  get_class()
  *	parse for allowed class types, return bit mask of types, 0 if error
  */
-static uint32_t get_class(char *const class_str)
+static int get_class(char *const class_str, uint32_t *class)
 {
 	char *str, *token;
-	uint32_t class = 0;
+	int ret = 0;
 
+	*class = 0;
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
 		uint32_t cl = get_class_id(token);
 		if (!cl) {
@@ -1529,7 +1530,7 @@ static uint32_t get_class(char *const class_str)
 							(void)printf(" %s", munge_underscore(stressors[j].name));
 					}
 					(void)printf("\n");
-					return 0;
+					return 1;
 				}
 			}
 			(void)fprintf(stderr, "Unknown class: '%s', "
@@ -1537,11 +1538,11 @@ static uint32_t get_class(char *const class_str)
 			for (i = 0; classes[i].class; i++)
 				(void)fprintf(stderr, " %s", classes[i].name);
 			(void)fprintf(stderr, "\n\n");
-
+			return -1;
 		}
-		class |= cl;
+		*class |= cl;
 	}
-	return class;
+	return ret;
 }
 
 /*
@@ -2720,7 +2721,7 @@ void parse_opts(int argc, char **argv)
 		int32_t i32;
 		uint32_t u32;
 		int16_t i16;
-		int c, option_index;
+		int c, option_index, ret;
 		size_t i;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
@@ -2816,10 +2817,13 @@ next_opt:
 			stress_set_chdir_dirs(optarg);
 			break;
 		case OPT_CLASS:
-			u32 = get_class(optarg);
-			if (!u32)
+			ret = get_class(optarg, &u32);
+			if (ret < 1)
 				exit(EXIT_FAILURE);
-			set_setting("class", TYPE_ID_UINT32, &u32);
+			else if (ret > 0)
+				exit(EXIT_SUCCESS);
+			else
+				set_setting("class", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_CLONE_MAX:
 			stress_set_clone_max(optarg);
