@@ -78,6 +78,7 @@ volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
+int g_signum;					/* signal sent to process */
 
 /*
  *  stressors to be run-time checked to see if they are supported
@@ -1790,6 +1791,30 @@ static void kill_procs(const int sig)
 }
 
 /*
+ *  str_exitstatus()
+ *	map stress-ng exit status returns into text
+ */
+static char *str_exitstatus(const int status)
+{
+	switch (status) {
+	case EXIT_SUCCESS:
+		return "success";
+	case EXIT_FAILURE:
+		return "stress-ng core failure";
+	case EXIT_NOT_SUCCESS:
+		return "stressor failed";
+	case EXIT_NO_RESOURCE:
+		return "no resource(s)";
+	case EXIT_NOT_IMPLEMENTED:
+		return "not implemented";
+	case EXIT_SIGNALED:
+		return "killed by signal";
+	default:
+		return "unknown";
+	}
+}
+
+/*
  *  wait_procs()
  * 	wait for procs
  */
@@ -1901,8 +1926,9 @@ redo:
 						abort = true;
 						break;
 					default:
-						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d\n",
-							ret, pi->stressor->name, WEXITSTATUS(status));
+						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
+							ret, pi->stressor->name, WEXITSTATUS(status),
+							str_exitstatus(WEXITSTATUS(status)));
 						*success = false;
 						abort = true;
 						break;
@@ -1934,10 +1960,9 @@ redo:
  *  handle_sigint()
  *	catch SIGINT
  */
-static void MLOCKED handle_sigint(int dummy)
+static void MLOCKED handle_sigint(int signum)
 {
-	(void)dummy;
-
+	g_signum = signum;
 	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 }
@@ -2141,6 +2166,8 @@ child_exit:
 						wait_flag = false;
 						kill(getppid(), SIGALRM);
 					}
+					if (g_signum)
+						rc = EXIT_SIGNALED;
 					exit(rc);
 				default:
 					if (pid > -1) {

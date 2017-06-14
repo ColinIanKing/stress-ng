@@ -103,6 +103,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define EXIT_NOT_SUCCESS	(2)
 #define EXIT_NO_RESOURCE	(3)
 #define EXIT_NOT_IMPLEMENTED	(4)
+#define EXIT_SIGNALED		(5)
 
 /*
  * STRESS_ASSERT(test)
