@@ -224,8 +224,8 @@ int stress_cyclic(const args_t *args)
 	const size_t size = (sizeof(rt_stats_t) + page_size - 1) & (~(page_size - 1));
 
 	timeout  = g_opt_timeout;
-        (void)get_setting("cyclic-sleep", &cyclic_sleep);
-        (void)get_setting("cyclic-prio", &cyclic_prio);
+	(void)get_setting("cyclic-sleep", &cyclic_sleep);
+	(void)get_setting("cyclic-prio", &cyclic_prio);
 	(void)get_setting("cyclic-policy", &cyclic_policy);
 
 	policy = policies[cyclic_policy].policy;
