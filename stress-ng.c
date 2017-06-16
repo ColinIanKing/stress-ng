@@ -2777,11 +2777,15 @@ next_opt:
 				goto next_opt;
 			}
 			if (stressors[i].op == (stress_op_t)c) {
-				proc_info_t *pi = find_proc_info(&stressors[i]);
+				uint64_t bogo_ops;
 
-				pi->bogo_ops = get_uint64(optarg);
-				check_range(opt_name(c), pi->bogo_ops,
+				bogo_ops = get_uint64(optarg);
+				check_range(opt_name(c), bogo_ops,
 					MIN_OPS, MAX_OPS);
+				/* We don't need to set this, but it may be useful */
+				set_setting(opt_name(c), TYPE_ID_UINT64, &bogo_ops);
+				if (proc_current)
+					proc_current->bogo_ops = bogo_ops;
 				goto next_opt;
 			}
 		}
@@ -2852,7 +2856,7 @@ next_opt:
 			break;
 		case OPT_CLASS:
 			ret = get_class(optarg, &u32);
-			if (ret < 1)
+			if (ret < 0)
 				exit(EXIT_FAILURE);
 			else if (ret > 0)
 				exit(EXIT_SUCCESS);
