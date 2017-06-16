@@ -379,48 +379,50 @@ tidy:
 
 	stress_rt_stats(rt_stats);
 
-	if (rt_stats->index && (args->instance == 0)) {
-		size_t i;
+	if (args->instance  == 0) {
+		if (rt_stats->index) {
+			size_t i;
 
-		static const float percentiles[] = {
-			25.0,
-			50.0,
-			75.0,
-			90.0,
-			95.40,
-			99.0,
-			99.5,
-			99.9,
-			99.99,
-		};
+			static const float percentiles[] = {
+				25.0,
+				50.0,
+				75.0,
+				90.0,
+				95.40,
+				99.0,
+				99.5,
+				99.9,
+				99.99,
+			};
 
-		pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
-			args->name,
-			policies[cyclic_policy].name,
-			cyclic_sleep,
-			rt_stats->index);
-		pr_inf("%s:   mean: %.2f ns, mode: %" PRId64 " ns\n",
-			args->name,
-			rt_stats->latency_mean,
-			rt_stats->latency_mode);
-		pr_inf("%s:   min: %" PRId64 " ns, max: %" PRId64 " ns, std.dev. %.2f\n",
-			args->name,
-			rt_stats->min_ns,
-			rt_stats->max_ns,
-			rt_stats->std_dev);
-
-		pr_inf("%s: latencies:\n", args->name);
-		for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
-			size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
-			pr_inf("%s:   %5.2f%%: %10" PRId64 " us\n",
+			pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
 				args->name,
-				percentiles[i],
-				rt_stats->latencies[j]);
+				policies[cyclic_policy].name,
+				cyclic_sleep,
+				rt_stats->index);
+			pr_inf("%s:   mean: %.2f ns, mode: %" PRId64 " ns\n",
+				args->name,
+				rt_stats->latency_mean,
+				rt_stats->latency_mode);
+			pr_inf("%s:   min: %" PRId64 " ns, max: %" PRId64 " ns, std.dev. %.2f\n",
+				args->name,
+				rt_stats->min_ns,
+				rt_stats->max_ns,
+				rt_stats->std_dev);
+	
+			pr_inf("%s: latencies:\n", args->name);
+			for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
+				size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
+				pr_inf("%s:   %5.2f%%: %10" PRId64 " us\n",
+					args->name,
+					percentiles[i],
+					rt_stats->latencies[j]);
+			}
+		} else {
+			pr_inf("%s: %10s: no latency information available\n",
+				args->name,
+				policies[policy].name);
 		}
-	} else {
-		pr_inf("%s: %10s: no latency information available\n",
-			args->name,
-			policies[policy].name);
 	}
 
 	(void)munmap(rt_stats, size);
