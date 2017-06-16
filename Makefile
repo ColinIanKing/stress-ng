@@ -272,7 +272,7 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_FLOAT_DECIMAL=0 HAVE_SECCOMP_H=0 HAVE_LIB_AIO=0 HAVE_SYS_CAP_H=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
-	 HAVE_AFFINITY=0 HAVE_MADVISE=0
+	 HAVE_AFFINITY=0 HAVE_MADVISE=0 HAVE_SEM_POSIX=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -479,6 +479,14 @@ HAVE_MADVISE = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_madvise)
 ifeq ($(HAVE_MADVISE),1)
 	CONFIG_CFLAGS += -DHAVE_MADVISE
 $(info autoconfig: using madvise)
+endif
+endif
+
+ifndef $(HAVE_SEM_POSIX)
+HAVE_SEM_POSIX = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sem_posix)
+ifeq ($(HAVE_SEM_POSIX),1)
+	CONFIG_CFLAGS += -DHAVE_SEM_POSIX
+$(info autoconfig: using POSIX semaphores)
 endif
 endif
 
@@ -810,6 +818,20 @@ have_madvise: test-madvise.c
 	@rm -rf test-madvise
 
 #
+#  check if we can build using POSIX semaphores
+#
+.PHONY: have_sem_posix
+have_sem_posix: test-sem-posix.c
+	@$(CC) $(CPPFLAGS) test-sem-posix.c -o test-sem-posix -lpthread 2> /dev/null || true
+	@if [ -f test-sem-posix ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-sem-posix
+
+
+#
 #  extract the PER_* personality enums
 #
 personality.h:
@@ -859,7 +881,7 @@ dist:
 		test-libaio.c test-cap.c test-libsctp.c \
 		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
 		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
-		test-affinity.c test-madvise.c \
+		test-affinity.c test-madvise.c test-sem-posix.c \
 		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
