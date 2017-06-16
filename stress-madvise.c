@@ -156,7 +156,7 @@ static int stress_random_advise(const args_t *args)
 int stress_madvise(const args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t sz = 4 *  MB;
+	NOCLOBBER size_t sz = 4 *  MB;
 	int ret, fd = -1;
 	NOCLOBBER int flags = MAP_SHARED;
 	NOCLOBBER int num_mem_retries = 0;
