@@ -38,7 +38,7 @@ void stress_set_semaphore_posix_procs(const char *opt)
 	set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 
 /*
  *  stress_semaphore_posix_init()

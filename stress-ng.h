@@ -1105,7 +1105,7 @@ typedef struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
-#if defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 	struct {
 		sem_t sem;				/* Shared posix semaphores */
 		bool init;				/* Semaphores initialised? */
