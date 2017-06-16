@@ -131,6 +131,8 @@ static int stress_random_advise(const args_t *args)
 			return madv_normal;
 		poison_count++;
 	}
+#else
+	(void)args;
 #endif
 
 #if defined(MADV_SOFT_OFFLINE)
