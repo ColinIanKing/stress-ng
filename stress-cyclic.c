@@ -219,7 +219,7 @@ int stress_cyclic(const args_t *args)
 	struct sched_param param = { 0 };
 	struct rlimit rlim;
 	pid_t pid;
-	uint64_t timeout;
+	NOCLOBBER uint64_t timeout;
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
 	int32_t cyclic_prio = INT32_MAX;
 	int policy;
@@ -279,7 +279,7 @@ int stress_cyclic(const args_t *args)
 		const pid_t mypid = getpid();
 		uint32_t count;
 		int ret;
-		int rc = EXIT_FAILURE;
+		NOCLOBBER int rc = EXIT_FAILURE;
 
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_add(&g_shared->softlockup_count, 1);
