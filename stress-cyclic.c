@@ -26,8 +26,6 @@
 
 #include <math.h>
 
-#if defined(__linux__)
-
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(10000)
 #define NANOSECS		(1000000000)
@@ -51,18 +49,6 @@ typedef struct {
 	double		std_dev;	/* standard deviation */
 } rt_stats_t;
 
-static const float percentiles[] = {
-	25.0,
-	50.0,
-	75.0,
-	90.0,
-	95.40,
-	99.0,
-	99.5,
-	99.9,
-	99.99,
-};
-
 static const policy_t policies[] = {
 #if defined(SCHED_DEADLINE)
 	{ SCHED_DEADLINE,   "SCHED_DEADLINBE", "deadline" },
@@ -76,7 +62,7 @@ static const policy_t policies[] = {
 };
 
 static const size_t num_policies = SIZEOF_ARRAY(policies);
-static sigjmp_buf jmp_env;
+
 
 void stress_set_cyclic_sleep(const char *opt)
 {
@@ -116,18 +102,6 @@ void stress_set_cyclic_prio(const char *opt)
 }
 
 /*
- *  stress_rlimit_handler()
- *      rlimit generic handler
- */
-static void MLOCKED stress_rlimit_handler(int dummy)
-{
-	(void)dummy;
-
-	g_keep_stressing_flag = 1;
-	siglongjmp(jmp_env, 1);
-}
-
-/*
  *  stress_cyclic_supported()
  *      check if we can run this as root
  */
@@ -140,6 +114,22 @@ int stress_cyclic_supported(void)
                 return -1;
         }
         return 0;
+}
+
+#if defined(__linux__)
+
+static sigjmp_buf jmp_env;
+
+/*
+ *  stress_rlimit_handler()
+ *      rlimit generic handler
+ */
+static void MLOCKED stress_rlimit_handler(int dummy)
+{
+	(void)dummy;
+
+	g_keep_stressing_flag = 1;
+	siglongjmp(jmp_env, 1);
 }
 
 /*
@@ -382,6 +372,18 @@ tidy:
 
 	if (rt_stats->index) {
 		size_t i;
+
+		static const float percentiles[] = {
+			25.0,
+			50.0,
+			75.0,
+			90.0,
+			95.40,
+			99.0,
+			99.5,
+			99.9,
+			99.99,
+		};
 
 		pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
 			args->name,
