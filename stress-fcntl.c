@@ -36,7 +36,7 @@ static inline bool fd_available(const int fd)
 	return ((ret == -1) && (errno == EBADF));
 }
 
-#if defined(F_DUPFD) && \
+#if defined(F_DUPFD) || \
     defined(F_DUPFD_CLOEXEC)
 /*
  *  fd_get()
