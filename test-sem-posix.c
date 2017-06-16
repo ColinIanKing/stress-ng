@@ -25,6 +25,10 @@
 
 #include <semaphore.h>
 
+#if defined(__FreeBSD_kernel__)
+#error POSIX semaphores not yet implemented
+#endif
+
 int main(void)
 {
 	sem_t sem;
