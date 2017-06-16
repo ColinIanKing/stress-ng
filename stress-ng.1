@@ -946,11 +946,12 @@ stop after N bogo encryption operations.
 .TP
 .B \-\-cyclic N
 start N workers that exercise the real time FIFO or Round Robin schedulers
-with cyclic nanosecond sleeps. This stressor measures the first 10 thousand
-latencies and calculates the mean, mode, minimum, maximum latencies along
-with various latency percentiles. One has to run this stressor as root
-to enable the real time scheduling policies.  The FIFO scheduling policy
-is the default.
+with cyclic nanosecond sleeps. Normally one would just use 1 worker instance
+with this stressor to get reliable statistics.  This stressor measures the
+first 10 thousand latencies and calculates the mean, mode, minimum, maximum
+latencies along with various latency percentiles for the just the first
+cyclic stressor instance. One has to run this stressor as root to enable
+the real time scheduling policies. The FIFO scheduling policy is the default.
 .TP
 .B \-\-cyclic\-ops N
 stop after N sleeps.

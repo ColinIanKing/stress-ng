@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#include <semaphore.h>
+#endif
+
 #include <math.h>
 
 #define DEFAULT_DELAY_NS	(100000)
@@ -241,6 +245,11 @@ int stress_cyclic(const args_t *args)
 			"be %" PRIu64 " seconds\n", args->name, timeout);
 	}
 
+	if ((num_instances > 1) && (args->instance == 0)) {
+		pr_inf("%s: for best results, run just 1 instance of "
+			"this stressor\n", args->name);
+	}
+
 	rt_stats = mmap(NULL, size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
@@ -370,7 +379,7 @@ tidy:
 
 	stress_rt_stats(rt_stats);
 
-	if (rt_stats->index) {
+	if (rt_stats->index && (args->instance == 0)) {
 		size_t i;
 
 		static const float percentiles[] = {
