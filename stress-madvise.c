@@ -108,10 +108,12 @@ static int stress_random_advise(const args_t *args)
 {
 	const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
 	const int advise = madvise_options[idx];
+#if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
 #if defined(MADV_NORMAL)
 	const int madv_normal = MADV_NORMAL;
 #else
 	const int madv_normal = 0;
+#endif
 #endif
 
 #if defined(MADV_HWPOISON)
