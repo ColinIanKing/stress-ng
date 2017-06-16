@@ -24,6 +24,21 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  stress_softlockup_supported()
+ *      check if we can run this as root
+ */
+int stress_softlockup_supported(void)
+{
+        if (geteuid() != 0) {
+		pr_inf("softlockup stressor needs to be run as root to "
+			"set SCHED_RR or SCHED_FIFO priorities, "
+			"skipping this stressor\n");
+                return -1;
+        }
+        return 0;
+}
+
 #if defined(__linux__)
 
 typedef struct {
@@ -53,21 +68,6 @@ static void MLOCKED stress_rlimit_handler(int dummy)
 
 	g_keep_stressing_flag = 1;
 	siglongjmp(jmp_env, 1);
-}
-
-/*
- *  stress_softlockup_supported()
- *      check if we can run this as root
- */
-int stress_softlockup_supported(void)
-{
-        if (geteuid() != 0) {
-		pr_inf("softlockup stressor needs to be run as root to "
-			"set SCHED_RR or SCHED_FIFO priorities, "
-			"skipping this stressor\n");
-                return -1;
-        }
-        return 0;
 }
 
 int stress_softlockup(const args_t *args)
