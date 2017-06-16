@@ -118,7 +118,7 @@ int parse_jobfile(
 		char *ptr = buf;
 		int argc = 1;
 
-		memset(new_argv, 0, sizeof(new_argv));
+		(void)memset(new_argv, 0, sizeof(new_argv));
 		new_argv[0] = argv[0];
 
 		/* remove \n */
@@ -152,7 +152,7 @@ int parse_jobfile(
 
 		/* managed to get any tokens? */
 		if (argc > 1) {
-			size_t len = strlen(new_argv[1]) + 3;
+			const size_t len = strlen(new_argv[1]) + 3;
 			char tmp[len];
 			int rc;
 
@@ -173,7 +173,7 @@ int parse_jobfile(
 			}
 
 			/* prepend -- to command to make them into stress-ng options */
-			snprintf(tmp, len, "--%s", new_argv[1]);
+			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
 			parse_opts(argc, new_argv);
 			new_argv[1] = NULL;
