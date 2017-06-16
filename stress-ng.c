@@ -91,6 +91,7 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
+	{ STRESS_CYCLIC,	stress_cyclic_supported },
 	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
 };
@@ -220,6 +221,7 @@ static const stress_t stressors[] = {
 	STRESSOR(cpu, CPU, CLASS_CPU),
 	STRESSOR(cpu_online, CPU_ONLINE, CLASS_CPU | CLASS_OS),
 	STRESSOR(crypt, CRYPT, CLASS_CPU),
+	STRESSOR(cyclic, CYCLIC, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(daemon, DAEMON, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(dccp, DCCP, CLASS_NETWORK | CLASS_OS),
 	STRESSOR(dentry, DENTRY, CLASS_FILESYSTEM | CLASS_OS),
@@ -465,6 +467,11 @@ static const struct option long_options[] = {
 	{ "cpu-online-ops",1,	0,	OPT_CPU_ONLINE_OPS },
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
+	{ "cyclic",	1,	0,	OPT_CYCLIC },
+	{ "cyclic-ops",1,	0,	OPT_CYCLIC_OPS },
+	{ "cyclic-policy",1,	0,	OPT_CYCLIC_POLICY },
+	{ "cyclic-prio",1,	0,	OPT_CYCLIC_PRIO },
+	{ "cyclic-sleep",1,	0,	OPT_CYCLIC_SLEEP },
 	{ "daemon",	1,	0,	OPT_DAEMON },
 	{ "daemon-ops",	1,	0,	OPT_DAEMON_OPS },
 	{ "dccp",	1,	0,	OPT_DCCP },
@@ -3099,6 +3106,16 @@ next_opt:
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
+			break;
+		case OPT_CYCLIC_POLICY:
+			if (stress_set_cyclic_policy(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_CYCLIC_PRIO:
+			stress_set_cyclic_prio(optarg);
+			break;
+		case OPT_CYCLIC_SLEEP:
+			stress_set_cyclic_sleep(optarg);
 			break;
 		case OPT_SCHED:
 			i32 = get_opt_sched(optarg);

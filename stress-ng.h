@@ -1163,6 +1163,7 @@ typedef enum {
 	STRESS_CPU,
 	STRESS_CPU_ONLINE,
 	STRESS_CRYPT,
+	STRESS_CYCLIC,
 	STRESS_DAEMON,
 	STRESS_DCCP,
 	STRESS_DENTRY,
@@ -1448,6 +1449,12 @@ typedef enum {
 
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
+
+	OPT_CYCLIC,
+	OPT_CYCLIC_OPS,
+	OPT_CYCLIC_POLICY,
+	OPT_CYCLIC_PRIO,
+	OPT_CYCLIC_SLEEP,
 
 	OPT_DAEMON,
 	OPT_DAEMON_OPS,
@@ -2397,6 +2404,7 @@ extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
 extern int stress_netlink_proc_supported(void);
 extern int stress_rdrand_supported(void);
+extern int stress_cyclic_supported(void);
 extern int stress_softlockup_supported(void);
 extern int stress_tsc_supported(void);
 
@@ -2413,6 +2421,9 @@ extern void stress_set_copy_file_bytes(const char *opt);
 extern void stress_set_cpu_load(const char *opt);
 extern void stress_set_cpu_load_slice(const char *opt);
 extern int  stress_set_cpu_method(const char *name);
+extern int  stress_set_cyclic_policy(const char *optarg);
+extern void stress_set_cyclic_prio(const char *optarg);
+extern void stress_set_cyclic_sleep(const char *optarg);
 extern int  stress_set_dccp_domain(const char *name);
 extern int  stress_set_dccp_opts(const char *opt);
 extern void stress_set_dccp_port(const char *opt);
@@ -2476,7 +2487,6 @@ extern void stress_set_splice_bytes(const char *opt);
 extern int  stress_set_str_method(const char *name);
 extern void stress_set_stream_L3_size(const char *opt);
 extern void stress_set_sync_file_bytes(const char *opt);
-extern int  stress_set_wcs_method(const char *name);
 extern void stress_set_timer_freq(const char *opt);
 extern void stress_set_timerfd_freq(const char *opt);
 extern void stress_set_tsearch_size(const char *opt);
@@ -2491,6 +2501,7 @@ extern void stress_set_vm_hang(const char *opt);
 extern int  stress_set_vm_method(const char *name);
 extern void stress_set_vm_rw_bytes(const char *opt);
 extern void stress_set_vm_splice_bytes(const char *opt);
+extern int  stress_set_wcs_method(const char *name);
 extern int  stress_set_zlib_method(const char *name);
 extern void stress_set_zombie_max(const char *opt);
 
@@ -2663,6 +2674,7 @@ STRESS(stress_copy_file);
 STRESS(stress_cpu);
 STRESS(stress_cpu_online);
 STRESS(stress_crypt);
+STRESS(stress_cyclic);
 STRESS(stress_daemon);
 STRESS(stress_dccp);
 STRESS(stress_dentry);
