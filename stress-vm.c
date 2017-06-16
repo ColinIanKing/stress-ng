@@ -2029,7 +2029,7 @@ clean_up:
 			args->name, *bit_error_count);
 		ret = EXIT_FAILURE;
 	}
-	(void)munmap(bit_error_count, page_size);
+	(void)munmap((void *)bit_error_count, page_size);
 
 	*args->counter >>= VM_BOGO_SHIFT;
 
