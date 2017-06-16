@@ -1,3 +1,45 @@
+stress-ng (0.08.05-1) unstable; urgency=medium
+
+  * test-sem-posix: don't build for FreeBSD kernels
+  * stress-cyclic: only produce stats for first instance 
+  * stress-sem: hust build on systems that provide POSIX semaphores
+  * stress-madvise: fix build warning with clobbered sz with gcc 3.4.3
+  * stress-vm: fix build warning on munmap
+  * stress-fcntl: fix build issue on kFreeBSD
+  * stress-softlockup: fix build error on GNU/HURD
+  * stress-madvise: fix another BSD build warning
+  * stress-madvise: fix build warnings on BSD
+  * stress-cyclic: fix build issues on non-Linux systems
+  * Add build time checks for POSIX semaphores
+  * stress-cyclic: add NOCLOBBER hints to avoid gcc 4.9.2 longjmp warnings
+  * fix bogo ops setting, this was broken in the set/get settings changes
+  * stress-cyclic: avoid division by zero error
+  * Add new real time cyclic stressor
+  * Propagate stressor killed status back up to parent
+  * Make --class cpu? exit 0 rather than 1
+  * stress-fcntl: only build in fd_get when it is required
+  * stress-fcntl: only build in check_return if required
+  * test-affinity: voidify unused rc return
+  * stress-sigsegv: remove redundant null assignment to ptr
+  * stress-rlimit: reduce scope of fds, ptr and oldbrk
+  * stress-softlockup: constify fields in data structure
+  * stress-seccomp: check for specific macros after including the headers
+  * Add --abort option to force all stressor to abort if a stressor fails
+  * stress-softlockup: try to synchronize start of all children
+  * stress-futex: use shim'd futex calls
+  * Add abstraction shims to futex operations
+  * madvise: fix build failure because of incorrect build config check
+  * Add new softlockup stressor, use with caution
+  * Forgot to add test-affinity.
+  * Add madvise build time checks
+  * Add test-affinity to dist rule
+  * stress-clock: don't do zero nanosecond sleeps
+  * Add automatic affinity checking at build time
+  * stress-sigsegv: produce fault using write to read-only page
+  * stress-vforkmany: remove as many calls as possible
+
+ -- Colin King <colin.king@canonical.com>  Fri, 16 Jun 2017 11:42:56 +0100
+
 stress-ng (0.08.04-1) unstable; urgency=medium
 
   * Makefile: bump version
