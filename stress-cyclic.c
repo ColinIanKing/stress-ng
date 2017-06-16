@@ -206,8 +206,10 @@ void stress_rt_stats(rt_stats_t *rt_stats)
 		diff = ((double)ns - rt_stats->latency_mean);
 		variance += (diff * diff);
 	}
-	variance /= rt_stats->index;
-	rt_stats->std_dev = sqrt(variance);
+	if (rt_stats->index) {
+		variance /= rt_stats->index;
+		rt_stats->std_dev = sqrt(variance);
+	}
 }
 
 int stress_cyclic(const args_t *args)
