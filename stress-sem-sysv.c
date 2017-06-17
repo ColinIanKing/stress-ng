@@ -166,7 +166,7 @@ timed_out:
 				pr_fail_dbg("semctl SEM_STAT");
 		}
 #endif
-#if defined(IPC_INFO)
+#if defined(IPC_INFO) && defined(__linux__)
 		{
 			struct seminfo si;
 			semun_t s;
@@ -176,7 +176,7 @@ timed_out:
 				pr_fail_dbg("semctl IPC_INFO");
 		}
 #endif
-#if defined(SEM_INFO)
+#if defined(SEM_INFO) && defined(__linux__)
 		{
 			struct seminfo si;
 			semun_t s;

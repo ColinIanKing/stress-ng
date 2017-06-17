@@ -94,7 +94,7 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(IPC_INFO)
+#if defined(IPC_INFO) && defined(__linux__)
 	{
 		struct seminfo si;
 		semun_t s;
@@ -104,7 +104,7 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(SEM_INFO)
+#if defined(SEM_INFO) && defined(__linux__)
 	{
 		struct seminfo si;
 		semun_t s;
