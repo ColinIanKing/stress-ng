@@ -24,10 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <sys/ipc.h>
-#include <sys/sem.h>
-
+#if defined(HAVE_SEM_SYSV)
 typedef union _semun {
 	int              val;	/* Value for SETVAL */
 	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */
@@ -46,7 +43,7 @@ void stress_set_semaphore_sysv_procs(const char *opt)
 	set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
 
-#if defined(__linux__)
+#if defined(HAVE_SEM_SYSV)
 
 /*
  *  stress_semaphore_sysv_init()

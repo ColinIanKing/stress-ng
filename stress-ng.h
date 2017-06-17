@@ -77,6 +77,10 @@
 #include <linux/fiemap.h>
 #include <linux/posix_types.h>
 #endif
+#if defined(HAVE_SEM_SYSV)
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #if defined (__GLIBC__)
