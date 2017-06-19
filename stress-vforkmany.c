@@ -72,6 +72,12 @@ fork_again:
 	} else if (chpid == 0) {
 		(void)setpgid(0, g_pgrp);
 
+		/*
+		 *  We want the children to be OOM'd if we
+		 *  eat up too much memory
+		 */
+		set_oom_adjustment(args->name, true);
+
 		do {
 			/*
 			 *  Force pid to be a register, if it's
@@ -122,6 +128,8 @@ vfork_again:
 		 * one spawned to unblock and exit
 		 */
 		int chstatus;
+
+		set_oom_adjustment(args->name, false);
 
 		sleep(g_opt_timeout);
 		*terminate = true;
