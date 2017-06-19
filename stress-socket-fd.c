@@ -271,7 +271,7 @@ die:
 	}
 
 	if (pid) {
-		(void)kill(pid, SIGKILL);
+		(void)kill(pid, SIGALRM);
 		(void)waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
