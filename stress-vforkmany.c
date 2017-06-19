@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #define STACK_SIZE      (16384)
+#define WASTE_SIZE	(64 * MB)
 
 /*
  *  stress_vforkmany()
@@ -70,6 +71,8 @@ fork_again:
 		munmap((void *)terminate, args->page_size);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
+		uint8_t *waste;
+
 		(void)setpgid(0, g_pgrp);
 
 		/*
@@ -77,7 +80,18 @@ fork_again:
 		 *  eat up too much memory
 		 */
 		set_oom_adjustment(args->name, true);
+		stress_parent_died_alarm();
 
+		/*
+		 *  Allocate some wasted space so this child
+		 *  scores more on the OOMable score than the
+		 *  parent waiter so in theory it should be
+		 *  OOM'd before the parent.
+		 */
+		waste = mmap(NULL, WASTE_SIZE, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (waste != MAP_FAILED)
+			(void)memset(waste, 0, WASTE_SIZE);
 		do {
 			/*
 			 *  Force pid to be a register, if it's
@@ -88,6 +102,7 @@ fork_again:
 			 */
 			register pid_t pid;
 			register bool first = (instance == 0);
+
 vfork_again:
 			/*
 			 * SIGALRM is not inherited over vfork so
@@ -110,6 +125,11 @@ vfork_again:
 				if (!first)
 					_exit(0);
 			} else if (pid == 0) {
+				register size_t i;
+
+				for (i = 0; i < WASTE_SIZE; i += 4096)
+					waste[i] = 0;
+
 				/* child, parent is blocked, spawn new child */
 				if (!args->max_ops || *args->counter < args->max_ops)
 					goto vfork_again;
@@ -120,6 +140,10 @@ vfork_again:
 			if (!first)
 				_exit(0);
 		} while (keep_stressing());
+
+		if (waste != MAP_FAILED)
+			munmap(waste, WASTE_SIZE);
+		_exit(0);
 	} else {
 		/*
 		 * Parent sleeps until timeout/SIGALRM and then
@@ -129,6 +153,8 @@ vfork_again:
 		 */
 		int chstatus;
 
+		(void)setpgid(chpid, g_pgrp);
+		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
 		set_oom_adjustment(args->name, false);
 
 		sleep(g_opt_timeout);
