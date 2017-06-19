@@ -71,7 +71,8 @@ fork_again:
 		munmap((void *)terminate, args->page_size);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
-		uint8_t *waste;
+		static uint8_t *waste;
+		static size_t waste_size = WASTE_SIZE;
 
 		(void)setpgid(0, g_pgrp);
 
@@ -88,8 +89,15 @@ fork_again:
 		 *  parent waiter so in theory it should be
 		 *  OOM'd before the parent.
 		 */
-		waste = mmap(NULL, WASTE_SIZE, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		do {
+			waste = mmap(NULL, waste_size, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+			if (waste != MAP_FAILED)
+				break;
+
+			waste_size >>= 1;
+		} while (waste_size > 4096);
+
 		if (waste != MAP_FAILED)
 			(void)memset(waste, 0, WASTE_SIZE);
 		do {
@@ -125,10 +133,12 @@ vfork_again:
 				if (!first)
 					_exit(0);
 			} else if (pid == 0) {
-				register size_t i;
+				if (waste != MAP_FAILED) {
+					register size_t i;
 
-				for (i = 0; i < WASTE_SIZE; i += 4096)
-					waste[i] = 0;
+					for (i = 0; i < WASTE_SIZE; i += 4096)
+						waste[i] = 0;
+				}
 
 				/* child, parent is blocked, spawn new child */
 				if (!args->max_ops || *args->counter < args->max_ops)
