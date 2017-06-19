@@ -468,6 +468,7 @@ static const struct option long_options[] = {
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "cyclic",	1,	0,	OPT_CYCLIC },
+	{ "cyclic-dist",1,	0,	OPT_CYCLIC_DIST },
 	{ "cyclic-ops",1,	0,	OPT_CYCLIC_OPS },
 	{ "cyclic-policy",1,	0,	OPT_CYCLIC_POLICY },
 	{ "cyclic-prio",1,	0,	OPT_CYCLIC_PRIO },
@@ -2879,6 +2880,19 @@ next_opt:
 			if (stress_set_cpu_method(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
+		case OPT_CYCLIC_DIST:
+			stress_set_cyclic_dist(optarg);
+			break;
+		case OPT_CYCLIC_POLICY:
+			if (stress_set_cyclic_policy(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_CYCLIC_PRIO:
+			stress_set_cyclic_prio(optarg);
+			break;
+		case OPT_CYCLIC_SLEEP:
+			stress_set_cyclic_sleep(optarg);
+			break;
 		case OPT_DRY_RUN:
 			g_opt_flags |= OPT_FLAGS_DRY_RUN;
 			break;
@@ -3110,16 +3124,6 @@ next_opt:
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
-			break;
-		case OPT_CYCLIC_POLICY:
-			if (stress_set_cyclic_policy(optarg) < 0)
-				exit(EXIT_FAILURE);
-			break;
-		case OPT_CYCLIC_PRIO:
-			stress_set_cyclic_prio(optarg);
-			break;
-		case OPT_CYCLIC_SLEEP:
-			stress_set_cyclic_sleep(optarg);
 			break;
 		case OPT_SCHED:
 			i32 = get_opt_sched(optarg);

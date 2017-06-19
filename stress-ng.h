@@ -1459,6 +1459,7 @@ typedef enum {
 	OPT_CYCLIC_POLICY,
 	OPT_CYCLIC_PRIO,
 	OPT_CYCLIC_SLEEP,
+	OPT_CYCLIC_DIST,
 
 	OPT_DAEMON,
 	OPT_DAEMON_OPS,
@@ -2425,6 +2426,7 @@ extern void stress_set_copy_file_bytes(const char *opt);
 extern void stress_set_cpu_load(const char *opt);
 extern void stress_set_cpu_load_slice(const char *opt);
 extern int  stress_set_cpu_method(const char *name);
+extern void stress_set_cyclic_dist(const char *optarg);
 extern int  stress_set_cyclic_policy(const char *optarg);
 extern void stress_set_cyclic_prio(const char *optarg);
 extern void stress_set_cyclic_sleep(const char *optarg);

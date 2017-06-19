@@ -105,6 +105,15 @@ void stress_set_cyclic_prio(const char *opt)
         set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
+void stress_set_cyclic_dist(const char *opt)
+{
+	uint64_t cyclic_dist;
+
+	cyclic_dist = get_uint64(opt);
+        check_range_bytes("cyclic-dist", cyclic_dist, 1, 10000000);
+        set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
+}
+
 /*
  *  stress_cyclic_supported()
  *      check if we can run this as root
@@ -206,6 +215,37 @@ void stress_rt_stats(rt_stats_t *rt_stats)
 	}
 }
 
+/*
+ *  stress_rt_dist()
+ *	show real time distribution
+ */
+void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cyclic_dist)
+{
+	size_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
+	size_t dist_size = STRESS_MINIMUM(100, dist_max_size);
+	size_t i;
+	int64_t dist[dist_size];
+
+	if (!cyclic_dist)
+		return;
+
+	memset(dist, 0, sizeof(dist));
+
+	for (i = 0; i < rt_stats->index; i++) {
+		int64_t lat = rt_stats->latencies[i] / cyclic_dist;
+
+		if (lat < (int64_t)dist_size)
+			dist[lat]++;
+	}
+
+	pr_inf("%s: latency distribution (%" PRIu64 " us intervals):\n", name, cyclic_dist);
+	pr_inf("%s: %12s %10s\n", name, "latency (us)", "frequency");
+	for (i = 0; i < dist_size; i++) {
+		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+			name, cyclic_dist * i, dist[i]);
+	}
+}
+
 int stress_cyclic(const args_t *args)
 {
 	const uint32_t num_instances = args->num_instances;
@@ -215,6 +255,7 @@ int stress_cyclic(const args_t *args)
 	pid_t pid;
 	NOCLOBBER uint64_t timeout;
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
+	uint64_t cyclic_dist = 0;
 	int32_t cyclic_prio = INT32_MAX;
 	int policy;
 	size_t cyclic_policy = 0;
@@ -227,6 +268,7 @@ int stress_cyclic(const args_t *args)
 	(void)get_setting("cyclic-sleep", &cyclic_sleep);
 	(void)get_setting("cyclic-prio", &cyclic_prio);
 	(void)get_setting("cyclic-policy", &cyclic_policy);
+	(void)get_setting("cyclic-dist", &cyclic_dist);
 
 	policy = policies[cyclic_policy].policy;
 
@@ -410,7 +452,7 @@ tidy:
 				rt_stats->max_ns,
 				rt_stats->std_dev);
 	
-			pr_inf("%s: latencies:\n", args->name);
+			pr_inf("%s: latency percentiles:\n", args->name);
 			for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
 				size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
 				pr_inf("%s:   %5.2f%%: %10" PRId64 " us\n",
@@ -418,6 +460,7 @@ tidy:
 					percentiles[i],
 					rt_stats->latencies[j]);
 			}
+			stress_rt_dist(args->name, rt_stats, cyclic_dist);
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
 				args->name,
