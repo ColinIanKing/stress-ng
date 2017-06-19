@@ -54,7 +54,7 @@ void stress_set_socket_fd_port(const char *opt)
  *  stress_socket_fd_send()
  *	send a fd (fd_send) over a socket fd
  */
-static inline int stress_socket_fd_send(const int fd, const int fd_send)
+static inline int stress_socket_fd_sendmsg(const int fd, const int fd_send)
 {
 	struct iovec iov;
 	struct msghdr msg;
@@ -250,12 +250,23 @@ static int stress_socket_server(
 			size_t i;
 
 			for (i = 0; i < max_fd; i++) {
-				int newfd = open("/dev/null", O_RDWR);
+				int newfd;
 
-				if (stress_socket_fd_send(sfd, newfd) < 0)
-					break;
-				if (newfd >= 0)
+				newfd = open("/dev/null", O_RDWR);
+				if (newfd >= 0) {
+					int ret;
+
+					ret = stress_socket_fd_sendmsg(sfd, newfd);
+					if ((ret < 0) &&
+					     ((errno != EAGAIN) && (errno != EINTR) &&
+					      (errno != EWOULDBLOCK) && (errno != ECONNRESET) &&
+					      (errno != ENOMEM) && (errno != EPIPE))) {
+						pr_fail_dbg("sendmsg");
+						(void)close(newfd);
+						break;
+					}
 					(void)close(newfd);
+				}
 			}
 			(void)close(sfd);
 		}
