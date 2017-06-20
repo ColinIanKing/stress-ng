@@ -23,6 +23,7 @@
  *
  */
 
+#include <time.h>
 #include <semaphore.h>
 
 #if defined(__FreeBSD_kernel__)
