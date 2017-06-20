@@ -45,7 +45,7 @@ static void MLOCKED stress_segvhandler(int dummy)
 int stress_sigsegv(const args_t *args)
 {
 	uint8_t *ptr;
-	int rc = EXIT_FAILURE;
+	NOCLOBBER int rc = EXIT_FAILURE;
 
 	/* Allocate read only page */
 	ptr = mmap(NULL, args->page_size, PROT_READ,
