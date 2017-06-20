@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,0,0)
+#if defined(HAVE_MQ_SYSV)
 
 #include <sys/ipc.h>
 #include <sys/msg.h>

@@ -273,7 +273,7 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
 	 HAVE_AFFINITY=0 HAVE_MADVISE=0 HAVE_SEM_POSIX=0 HAVE_SEM_SYSV=0 \
-	 HAVE_MQ_POSIX=0
+	 HAVE_MQ_POSIX=0 HAVE_MQ_SYSV=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -504,6 +504,14 @@ HAVE_MQ_POSIX = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_mq_posix)
 ifeq ($(HAVE_MQ_POSIX),1)
 	CONFIG_CFLAGS += -DHAVE_MQ_POSIX
 $(info autoconfig: using POSIX message queues)
+endif
+endif
+
+ifndef $(HAVE_MQ_SYSV)
+HAVE_MQ_SYSV = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_mq_sysv)
+ifeq ($(HAVE_MQ_SYSV),1)
+	CONFIG_CFLAGS += -DHAVE_MQ_SYSV
+$(info autoconfig: using SYSV message queues)
 endif
 endif
 
@@ -874,6 +882,20 @@ have_mq_posix: test-mq-posix.c
 	@rm -rf test-mq-posix
 
 #
+#  check if we can build using SYSV message queues
+#
+.PHONY: have_mq_sysv_
+have_mq_sysv: test-mq-sysv.c
+	@$(CC) $(CPPFLAGS) test-mq-sysv.c -o test-mq-sysv 2> /dev/null || true
+	@if [ -f test-mq-sysv ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-mq-sysv
+
+
+#
 #  extract the PER_* personality enums
 #
 personality.h:
@@ -924,7 +946,7 @@ dist:
 		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
 		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
 		test-affinity.c test-madvise.c test-sem-posix.c \
-		test-sem-sysv.c test-mq-posix.c \
+		test-sem-sysv.c test-mq-posix.c test-mq_sysv.c \
 		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
