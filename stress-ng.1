@@ -960,6 +960,32 @@ stop after N sleeps.
 calculate and print a latency distribution with the interval of N nanoseconds.
 This is helpful to see where the latencies are clustering.
 .TP
+.B \-\-cyclic\-method [ clock_ns | itimer | poll | posix_ns ]
+specify the cyclic method to be used. The availble cyclic methods are as
+follows:
+.TS
+expand;
+lB2 lBw(\n[SZ]n)
+l l.
+Method	Description
+clock_ns	T{
+sleep for the specified time using the clock_nanosleep(2) high
+resolution nanosleep and the CLOCK_REALTIME real time clock.
+T}
+itimer	T{
+wakeup a paused process with a CLOCK_REALTIME itimer signal.
+T}
+poll	T{
+delay for the specified time using a poll delay loop that checks
+for time changes using clock_gettime(2) on the CLOCK_REALTIME clock.
+T}
+posix_ns	T{
+sleep for the specified time using the POSIX nanosleep(2) high
+resolution nanosleep.
+T}
+
+.TE
+.TP
 .B \-\-cyclic\-policy [ fifo | rr ]
 specify the desired real time scheduling policy, ff (first-in, first-out)
 or rr (round robin).
@@ -3122,6 +3148,15 @@ stress\-ng \-\-iomix 2 \-\-iomix\-bytes 10% -t 10m
 runs 2 instances of the mixed I/O stressors using a total of 10% of the
 available file system space for 10 minutes. Each stressor will use 5% of the
 available file system space.
+.LP
+stress\-ng \-\-cyclic 1 \-\-cyclic\-dist 2500 \-\-cyclic\-method clock_ns \-\-cyclic\-prio 100 \-\-cyclic\-sleep 10000 \-\-hdd 0 -t 1m
+.IP
+measures real time scheduling latencies created by the hdd stressor. This
+uses the high resolution nanosecond clock to measure latencies during
+sleeps of 10,000 nanoseconds. At the end of 1 minute of stressing, the
+latency distribution with 2500 ns intervals will be displayed. NOTE: this
+must be run with super user privileges to enable the real time scheduling
+to get accurate measurements.
 .LP
 stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
 .IP

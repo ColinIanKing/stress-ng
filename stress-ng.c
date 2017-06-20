@@ -469,6 +469,7 @@ static const struct option long_options[] = {
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "cyclic",	1,	0,	OPT_CYCLIC },
 	{ "cyclic-dist",1,	0,	OPT_CYCLIC_DIST },
+	{ "cyclic-method",1,	0,	OPT_CYCLIC_METHOD },
 	{ "cyclic-ops",1,	0,	OPT_CYCLIC_OPS },
 	{ "cyclic-policy",1,	0,	OPT_CYCLIC_POLICY },
 	{ "cyclic-prio",1,	0,	OPT_CYCLIC_PRIO },
@@ -1043,6 +1044,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"daemon N",		"start N workers creating multiple daemons" },
 	{ NULL,		"cyclic N",		"start N cyclic real time benchmark stressors" },
 	{ NULL,		"cyclic-ops N",		"stop after N cyclic timing cycles" },
+	{ NULL,		"cyclic-method M",	"specify cyclic method M, default is clock_ns" },
 	{ NULL,		"cyclic-dist N",	"calculate distribution of interval N nanosecs" },
 	{ NULL,		"cyclic-policy P",	"used rr or fifo scheduling policy" },
 	{ NULL,		"cyclic-prio N",	"real time scheduling priority 1..100" },
@@ -2888,6 +2890,10 @@ next_opt:
 			break;
 		case OPT_CYCLIC_DIST:
 			stress_set_cyclic_dist(optarg);
+			break;
+		case OPT_CYCLIC_METHOD:
+			if (stress_set_cyclic_method(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_CYCLIC_POLICY:
 			if (stress_set_cyclic_policy(optarg) < 0)

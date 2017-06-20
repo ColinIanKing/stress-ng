@@ -1456,6 +1456,7 @@ typedef enum {
 
 	OPT_CYCLIC,
 	OPT_CYCLIC_OPS,
+	OPT_CYCLIC_METHOD,
 	OPT_CYCLIC_POLICY,
 	OPT_CYCLIC_PRIO,
 	OPT_CYCLIC_SLEEP,
@@ -2426,10 +2427,11 @@ extern void stress_set_copy_file_bytes(const char *opt);
 extern void stress_set_cpu_load(const char *opt);
 extern void stress_set_cpu_load_slice(const char *opt);
 extern int  stress_set_cpu_method(const char *name);
-extern void stress_set_cyclic_dist(const char *optarg);
-extern int  stress_set_cyclic_policy(const char *optarg);
-extern void stress_set_cyclic_prio(const char *optarg);
-extern void stress_set_cyclic_sleep(const char *optarg);
+extern void stress_set_cyclic_dist(const char *opt);
+extern int  stress_set_cyclic_method(const char *opt);
+extern int  stress_set_cyclic_policy(const char *opt);
+extern void stress_set_cyclic_prio(const char *opt);
+extern void stress_set_cyclic_sleep(const char *opt);
 extern int  stress_set_dccp_domain(const char *name);
 extern int  stress_set_dccp_opts(const char *opt);
 extern void stress_set_dccp_port(const char *opt);

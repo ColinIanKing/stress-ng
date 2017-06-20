@@ -53,6 +53,13 @@ typedef struct {
 	double		std_dev;	/* standard deviation */
 } rt_stats_t;
 
+typedef int (*cyclic_func)(const args_t *args, rt_stats_t *rt_stats, uint64_t cyclic_sleep);
+
+typedef struct {
+	const char 		*name;
+	const cyclic_func	func;
+} stress_cyclic_method_info_t;
+
 static const policy_t policies[] = {
 #if defined(SCHED_DEADLINE)
 	{ SCHED_DEADLINE,   "SCHED_DEADLINBE", "deadline" },
@@ -66,7 +73,6 @@ static const policy_t policies[] = {
 };
 
 static const size_t num_policies = SIZEOF_ARRAY(policies);
-
 
 void stress_set_cyclic_sleep(const char *opt)
 {
@@ -130,6 +136,184 @@ int stress_cyclic_supported(void)
 }
 
 #if defined(__linux__)
+
+/*
+ *  stress_cyclic_clock_nanosleep()
+ *	measure latencies with clock_nanosleep
+ */
+static int stress_cyclic_clock_nanosleep(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+	struct timespec t1, t2, t, trem;
+	int ret;
+
+	(void)args;
+
+	t.tv_sec = cyclic_sleep / NANOSECS;
+	t.tv_nsec = cyclic_sleep % NANOSECS;
+	clock_gettime(CLOCK_REALTIME, &t1);
+	ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
+	clock_gettime(CLOCK_REALTIME, &t2);
+	if (ret == 0) {
+		int64_t delta_ns;
+
+		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns -= cyclic_sleep;
+
+		if (rt_stats->index < MAX_SAMPLES)
+			rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+		rt_stats->ns += (double)delta_ns;
+	}
+	return 0;
+}
+
+/*
+ *  stress_cyclic_posix_nanosleep()
+ *	measure latencies with posix nanosleep
+ */
+static int stress_cyclic_posix_nanosleep(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+	struct timespec t1, t2, t, trem;
+	int ret;
+
+	(void)args;
+
+	t.tv_sec = cyclic_sleep / NANOSECS;
+	t.tv_nsec = cyclic_sleep % NANOSECS;
+	clock_gettime(CLOCK_REALTIME, &t1);
+	ret = nanosleep(&t, &trem);
+	clock_gettime(CLOCK_REALTIME, &t2);
+	if (ret == 0) {
+		int64_t delta_ns;
+
+		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns -= cyclic_sleep;
+
+		if (rt_stats->index < MAX_SAMPLES)
+			rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+		rt_stats->ns += (double)delta_ns;
+	}
+	return 0;
+}
+
+/*
+ *  stress_cyclic_poll()
+ *	measure latencies of heavy polling the clock
+
+ */
+static int stress_cyclic_poll(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+	struct timespec t1, t2;
+
+	(void)args;
+
+	/* find nearest point to clock roll over */
+	clock_gettime(CLOCK_REALTIME, &t1);
+	for (;;) {
+		clock_gettime(CLOCK_REALTIME, &t2);
+		if ((t1.tv_sec != t2.tv_sec) || (t1.tv_nsec != t2.tv_nsec))
+			break;
+	}
+	t1 = t2;
+
+	for (;;) {
+		int64_t delta_ns;
+
+		clock_gettime(CLOCK_REALTIME, &t2);
+
+		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		if (delta_ns >= (int64_t)cyclic_sleep) {
+			delta_ns -= cyclic_sleep;
+
+			if (rt_stats->index < MAX_SAMPLES)
+				rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+			rt_stats->ns += (double)delta_ns;
+			break;
+		}
+	}
+	return 0;
+}
+
+
+static struct timespec itimer_time;
+static timer_t timerid;
+
+static void MLOCKED stress_cyclic_itimer_handler(int sig)
+{
+	(void)sig;
+
+	clock_gettime(CLOCK_REALTIME, &itimer_time);
+}
+
+/*
+ *  stress_cyclic_itimer()
+ *	measure latencies with itimers
+ */
+static int stress_cyclic_itimer(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+	struct itimerspec timer;
+	struct timespec t1;
+	int64_t delta_ns;
+	struct sigaction old_action;
+	struct sigevent sev;
+	int ret = -1;
+
+	timer.it_interval.tv_sec = timer.it_value.tv_sec = cyclic_sleep / NANOSECS;
+	timer.it_interval.tv_nsec = timer.it_value.tv_nsec = cyclic_sleep % NANOSECS;
+
+	if (stress_sighandler(args->name, SIGRTMIN, stress_cyclic_itimer_handler, &old_action) < 0)
+		return ret;
+
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0)
+		goto restore;
+
+	memset(&itimer_time, 0, sizeof(itimer_time));
+	clock_gettime(CLOCK_REALTIME, &t1);
+	if (timer_settime(timerid, 0, &timer, NULL) < 0)
+		goto restore;
+
+	pause();
+	if ((itimer_time.tv_sec == 0) &&
+            (itimer_time.tv_nsec == 0))
+		goto tidy;
+
+	delta_ns = ((itimer_time.tv_sec - t1.tv_sec) * NANOSECS) + (itimer_time.tv_nsec - t1.tv_nsec);
+	delta_ns -= cyclic_sleep;
+
+	if (rt_stats->index < MAX_SAMPLES)
+		rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+	rt_stats->ns += (double)delta_ns;
+
+	(void)timer_delete(timerid);
+
+	ret = 0;
+tidy:
+	/* And cancel timer */
+	(void)memset(&timer, 0, sizeof(timer));
+	(void)timer_settime(timerid, 0, &timer, NULL);
+restore:
+	stress_sigrestore(args->name, SIGRTMIN, &old_action);
+
+	return ret;
+}
 
 static sigjmp_buf jmp_env;
 
@@ -216,6 +400,41 @@ void stress_rt_stats(rt_stats_t *rt_stats)
 }
 
 /*
+ *  cyclic methods
+ */
+static const stress_cyclic_method_info_t cyclic_methods[] = {
+	{ "clock_ns",	stress_cyclic_clock_nanosleep },
+	{ "itimer",	stress_cyclic_itimer },
+	{ "poll",	stress_cyclic_poll },
+	{ "posix_ns",	stress_cyclic_posix_nanosleep },
+	{ NULL,		NULL }
+};
+
+/*
+ *  stress_set_cyclic_method()
+ *	set the default cyclic method
+ */
+int stress_set_cyclic_method(const char *name)
+{
+	stress_cyclic_method_info_t const *info;
+
+	for (info = cyclic_methods; info->func; info++) {
+		if (!strcmp(info->name, name)) {
+			set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "cyclic-method must be one of:");
+	for (info = cyclic_methods; info->func; info++) {
+		(void)fprintf(stderr, " %s", info->name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+/*
  *  stress_rt_dist()
  *	show real time distribution
  */
@@ -248,6 +467,7 @@ void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cycli
 
 int stress_cyclic(const args_t *args)
 {
+	const stress_cyclic_method_info_t *cyclic_method = &cyclic_methods[0];
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
 	struct sched_param param = { 0 };
@@ -263,13 +483,16 @@ int stress_cyclic(const args_t *args)
 	rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
 	const size_t size = (sizeof(rt_stats_t) + page_size - 1) & (~(page_size - 1));
+	cyclic_func func;
 
 	timeout  = g_opt_timeout;
 	(void)get_setting("cyclic-sleep", &cyclic_sleep);
 	(void)get_setting("cyclic-prio", &cyclic_prio);
 	(void)get_setting("cyclic-policy", &cyclic_policy);
 	(void)get_setting("cyclic-dist", &cyclic_dist);
+	(void)get_setting("cyclic-method", &cyclic_method);
 
+	func = cyclic_method->func;
 	policy = policies[cyclic_policy].policy;
 
 	if (!args->instance) {
@@ -310,6 +533,8 @@ int stress_cyclic(const args_t *args)
 			rt_stats->max_prio = cyclic_prio;
 		}
 	}
+
+	pr_dbg("%s: using method '%s'\n", args->name, cyclic_method->name);
 
 	pid = fork();
 	if (pid < 0) {
@@ -371,27 +596,7 @@ int stress_cyclic(const args_t *args)
 		}
 
 		do {
-			struct timespec t1, t2, t, trem;
-			double ns = 0.0;
-
-			t.tv_sec = cyclic_sleep / NANOSECS;
-			t.tv_nsec = cyclic_sleep % NANOSECS;
-			clock_gettime(CLOCK_REALTIME, &t1);
-			ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
-			clock_gettime(CLOCK_REALTIME, &t2);
-			if (ret == 0) {
-				int64_t delta_ns;
-
-				delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
-				delta_ns -= cyclic_sleep;
-
-				ns += delta_ns;
-
-				if (rt_stats->index < MAX_SAMPLES)
-					rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-				rt_stats->ns += ns;
-			}
+			func(args, rt_stats, cyclic_sleep);
 			inc_counter(args);
 
 			/* Ensure we NEVER spin forever */
@@ -451,7 +656,7 @@ tidy:
 				rt_stats->min_ns,
 				rt_stats->max_ns,
 				rt_stats->std_dev);
-	
+
 			pr_inf("%s: latency percentiles:\n", args->name);
 			for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
 				size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
