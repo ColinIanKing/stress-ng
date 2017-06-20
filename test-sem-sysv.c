@@ -64,8 +64,10 @@ int main(void)
 	semwait.sem_flg = SEM_UNDO;
 	(void)clock_gettime(CLOCK_REALTIME, &timeout);
 	timeout.tv_sec++;
+#if defined(__linux__)
 	ret = semtimedop(sem, &semwait, 1, &timeout);
 	(void)ret;
+#endif
 
 	semsignal.sem_num = 0;
 	semsignal.sem_op = 1;

@@ -126,7 +126,11 @@ static void semaphore_sysv_thrash(const args_t *args)
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
+#if defined(__linux__)
 			if (semtimedop(sem_id, &semwait, 1, &timeout) < 0) {
+#else
+			if (semop(sem_id, &semwait, 1) < 0) {
+#endif
 				if (errno == EAGAIN) {
 					pr_inf("Semaphore timed out: errno=%d (%s)\n",
 						errno, strerror(errno));
