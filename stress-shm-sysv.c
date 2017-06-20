@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SHM_SYSV)
+
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
@@ -62,6 +64,7 @@ static const int shm_flags[] = {
 */
 	0
 };
+#endif
 
 void stress_set_shm_sysv_bytes(const char *opt)
 {
@@ -83,6 +86,7 @@ void stress_set_shm_sysv_segments(const char *opt)
 	set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
 }
 
+#if defined(HAVE_SHM_SYSV)
 /*
  *  stress_shm_sysv_check()
  *	simple check if shared memory is sane
@@ -472,3 +476,10 @@ fork_again:
 	}
 	return rc;
 }
+
+#else
+int stress_shm_sysv(const args_t *args)
+{
+	return stress_not_implemented(args);
+}
+#endif
