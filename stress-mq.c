@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
 #include <mqueue.h>
 
 typedef struct {
