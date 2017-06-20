@@ -34,6 +34,11 @@ typedef struct {
         unsigned int	value;
 } msg_t;
 
+static void notify_func(union sigval s)
+{
+        (void)s;
+}
+
 int main(int argc, char **argv)
 {
 	mqd_t mq;
@@ -60,6 +65,11 @@ int main(int argc, char **argv)
 	mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
 	if (mq < 0)
 		return -1;
+
+	(void)memset(&sigev, 0, sizeof sigev);
+	sigev.sigev_notify = SIGEV_THREAD;
+	sigev.sigev_notify_function = notify_func;
+	sigev.sigev_notify_attributes = NULL;
 
 	ret = mq_notify(mq, &sigev);
 	(void)ret;

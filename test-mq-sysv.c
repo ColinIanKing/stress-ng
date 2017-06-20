@@ -36,7 +36,7 @@
 #define MAX_SIZE        (8)
 
 typedef struct {
-        unsigned int value;
+	long mtype;
 	char msg[MAX_SIZE];
 } msg_t;
 
@@ -61,6 +61,7 @@ int main(int argc, char **argv)
 		return -1;
 
 	strncpy(msg.msg, "TESTMSG", sizeof(msg.msg));
+	msg.mtype = 1;
 	ret = msgsnd(msgq_id, &msg, sizeof(msg.msg), 0);
 	(void)msg;
 	ret = msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0);
