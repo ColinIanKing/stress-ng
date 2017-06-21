@@ -1,3 +1,34 @@
+stress-ng (0.08.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Debian/control: update standards version to 4.0.0
+  * Make test-sem-sysv.c fail for GNU/HURD
+  * Make test-mq-sysv.c fail for GNU/HURD
+  * Make test-affinity fail for GNU/HURD
+  * stress-cyclic: fix build issues on non-Linux platforms
+  * Clean up some warnings found on test config code
+  * Add --cyclic-method to cyclic measurements stressor
+  * Add build-time checks for SYSV shared memory APIs
+  * stress-sigsegv: add NOCLOBBER hint to fix warning with gcc 5.4.1
+  * test-sem-posix: include time.h to build on BSD
+  * stress-sem-sysv: make semtimedop a linux only feature
+  * Add build-time checks for SYSV message queues
+  * Forgot to add in new test-mq-posix.c test source
+  * Add build-time checks for POSIX message queues
+  * Add in cyclic help options
+  * stress-vforkmany: add self adjusting waste memory allocation
+  * stress-vforkmany: make child processes larger to be more OOM'able
+  * stress-socket-fd: Add checks for sendmsg failures
+  * stress-socket-fd: send SIGALRM rathe rather than SIGKILL to child
+  * Add new --cyclic-dist distribution option
+  * stress-vforkmany: allow children to be OOM'd (LP: #1698747)
+  * sem-sysv: add linux checks for linux only semctl commands
+  * Add SYSV semaphore autodetection at build time
+  * job: voidify some function returns and constify len
+  * stress-cyclic: fix tab/spacing indentation
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Jun 2017 17:33:49 +0100
+
 stress-ng (0.08.05-1) unstable; urgency=medium
 
   * test-sem-posix: don't build for FreeBSD kernels
