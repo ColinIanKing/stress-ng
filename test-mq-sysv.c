@@ -33,6 +33,10 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
+#if defined(__gnu_hurd__)
+#error msgsnd, msgrcv, msgget, msgctl are not implemented
+#endif
+
 #define MAX_SIZE        (8)
 
 typedef struct {
