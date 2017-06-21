@@ -62,7 +62,7 @@ typedef struct {
 
 static const policy_t policies[] = {
 #if defined(SCHED_DEADLINE)
-	{ SCHED_DEADLINE,   "SCHED_DEADLINBE", "deadline" },
+	{ SCHED_DEADLINE,   "SCHED_DEADLINE", "deadline" },
 #endif
 #if defined(SCHED_FIFO)
 	{ SCHED_FIFO, "SCHED_FIFO", "fifo" },
@@ -135,7 +135,6 @@ int stress_cyclic_supported(void)
         return 0;
 }
 
-#if defined(__linux__)
 
 /*
  *  stress_cyclic_clock_nanosleep()
@@ -146,6 +145,7 @@ static int stress_cyclic_clock_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
+#if defined(__linux__)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -167,6 +167,11 @@ static int stress_cyclic_clock_nanosleep(
 
 		rt_stats->ns += (double)delta_ns;
 	}
+#else
+	(void)args;
+	(void)rt_stats;
+	(void)cyclic_sleep;
+#endif
 	return 0;
 }
 
@@ -179,6 +184,7 @@ static int stress_cyclic_posix_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
+#if defined(__linux__)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -200,6 +206,11 @@ static int stress_cyclic_posix_nanosleep(
 
 		rt_stats->ns += (double)delta_ns;
 	}
+#else
+	(void)args;
+	(void)rt_stats;
+	(void)cyclic_sleep;
+#endif
 	return 0;
 }
 
@@ -213,6 +224,7 @@ static int stress_cyclic_poll(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
+#if defined(__linux__)
 	struct timespec t1, t2;
 
 	(void)args;
@@ -242,10 +254,16 @@ static int stress_cyclic_poll(
 			break;
 		}
 	}
+#else
+	(void)args;
+	(void)rt_stats;
+	(void)cyclic_sleep;
+#endif
 	return 0;
 }
 
 
+#if defined(__linux__)
 static struct timespec itimer_time;
 static timer_t timerid;
 
@@ -255,6 +273,7 @@ static void MLOCKED stress_cyclic_itimer_handler(int sig)
 
 	clock_gettime(CLOCK_REALTIME, &itimer_time);
 }
+#endif
 
 /*
  *  stress_cyclic_itimer()
@@ -265,6 +284,7 @@ static int stress_cyclic_itimer(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
+#if defined(__linux__)
 	struct itimerspec timer;
 	struct timespec t1;
 	int64_t delta_ns;
@@ -311,10 +331,17 @@ tidy:
 	(void)timer_settime(timerid, 0, &timer, NULL);
 restore:
 	stress_sigrestore(args->name, SIGRTMIN, &old_action);
-
 	return ret;
+#else
+	(void)args;
+	(void)rt_stats;
+	(void)cyclic_sleep;
+
+	return 0;
+#endif
 }
 
+#if defined(__linux__)
 static sigjmp_buf jmp_env;
 
 /*
@@ -328,6 +355,7 @@ static void MLOCKED stress_rlimit_handler(int dummy)
 	g_keep_stressing_flag = 1;
 	siglongjmp(jmp_env, 1);
 }
+#endif
 
 /*
  *  stress_cyclic_cmp()
@@ -433,6 +461,8 @@ int stress_set_cyclic_method(const char *name)
 
 	return -1;
 }
+
+#if defined(__linux__)
 
 /*
  *  stress_rt_dist()
