@@ -25,6 +25,10 @@
 #define _GNU_SOURCE
 #include <sched.h>
 
+#if defined(__gnu_hurd__)
+#error sched_getaffinity and sched_setaffinity are not implemented
+#endif
+
 int main(void)
 {
 	cpu_set_t mask;
