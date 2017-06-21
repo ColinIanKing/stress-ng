@@ -32,6 +32,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#if defined(__gnu_hurd__)
+#error semop, semget and semctl are not implemented
+#endif
+
 typedef union _semun {
 	int              val;   /* Value for SETVAL */
 	struct semid_ds *buf;   /* Buffer for IPC_STAT, IPC_SET */
