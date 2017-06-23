@@ -46,11 +46,17 @@ int main(void)
 	 * based code 
 	 */
 	ret = sem_init(&sem, 1, 1);
+	(void)ret;
 	ret = sem_wait(&sem);
+	(void)ret;
 	ret = sem_post(&sem);
+	(void)ret;
 	ret = sem_trywait(&sem);
+	(void)ret;
 	ret = sem_timedwait(&sem, &timeout);
+	(void)ret;
 	ret = sem_destroy(&sem);
+	(void)ret;
 
 	return 0;
 }
