@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	strncpy(msg.msg, "TESTMSG", sizeof(msg.msg));
 	msg.mtype = 1;
 	ret = msgsnd(msgq_id, &msg, sizeof(msg.msg), 0);
-	(void)msg;
+	(void)ret;
 	ret = msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0);
 	(void)ret;
 	ret = msgctl(msgq_id, IPC_STAT, &buf);
