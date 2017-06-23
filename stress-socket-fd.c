@@ -134,17 +134,18 @@ static inline int stress_socket_fd_recv(const int fd)
 static void stress_socket_client(
 	const args_t *args,
 	const pid_t ppid,
-	const size_t max_fd,
+	const ssize_t max_fd,
 	const int socket_fd_port)
 {
 	struct sockaddr *addr;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	set_proc_name("sfd-client");
 
 	do {
 		int fd, retries = 0, fds[max_fd];
-		size_t i;
+		ssize_t i;
 		socklen_t addr_len = 0;
 retry:
 		if (!g_keep_stressing_flag) {
@@ -201,7 +202,7 @@ static int stress_socket_server(
 	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
-	const size_t max_fd,
+	const ssize_t max_fd,
 	const int socket_fd_port)
 {
 	int fd, status;
@@ -213,6 +214,7 @@ static int stress_socket_server(
 	int rc = EXIT_SUCCESS;
 
 	(void)setpgid(pid, g_pgrp);
+	set_proc_name("sfd-server");
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
@@ -247,7 +249,7 @@ static int stress_socket_server(
 	do {
 		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
-			size_t i;
+			ssize_t i;
 
 			for (i = 0; i < max_fd; i++) {
 				int newfd;
@@ -266,6 +268,7 @@ static int stress_socket_server(
 						break;
 					}
 					(void)close(newfd);
+					msgs++;
 				}
 			}
 			(void)close(sfd);
@@ -297,13 +300,25 @@ die:
 int stress_sockfd(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
-	const size_t max_fd = stress_get_file_limit();
+	ssize_t max_fd = stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 
 	(void)get_setting("sockfd-port", &socket_fd_port);
 
-	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, args->pid, socket_fd_port + args->instance);
+	/*
+	 * When run as root, we really don't want to use up all
+	 * the file descriptors. Limit ourselves to a head room
+	 * so that we don't ever run out of memory
+	 */
+	if (geteuid() == 0) {
+		max_fd -= 64;
+		max_fd /= args->num_instances ? args->num_instances : 1;
+		if (max_fd < 0)
+			max_fd = 1;
+	}
+
+	pr_dbg("%s: process [%d] using socket port %d and %zd file descriptors\n",
+		args->name, args->pid, socket_fd_port + args->instance, max_fd);
 again:
 	pid = fork();
 	if (pid < 0) {
