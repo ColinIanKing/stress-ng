@@ -601,9 +601,11 @@ int stress_cyclic(const args_t *args)
 		rlim.rlim_max = timeout;
 		(void)setrlimit(RLIMIT_CPU, &rlim);
 
+#if defined(RLIMIT_RTTIME)
 		rlim.rlim_cur = 1000000 * timeout;
 		rlim.rlim_max = 1000000 * timeout;
 		(void)setrlimit(RLIMIT_RTTIME, &rlim);
+#endif
 
 		if (stress_sighandler(args->name, SIGXCPU, stress_rlimit_handler, &old_action_xcpu) < 0)
 			goto tidy;
