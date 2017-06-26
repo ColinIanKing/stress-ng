@@ -24,10 +24,24 @@
 #include "stress-ng.h"
 
 #if defined(__linux__)
-
 #include <mntent.h>
 #include <sys/select.h>
 #include <sys/fanotify.h>
+
+#if defined(FAN_MARK_ADD) && \
+    defined(FAN_MARK_MOUNT) && \
+    defined(FAN_ACCESS) && \
+    defined(FAN_MODIFY) && \
+    defined(FAN_OPEN) && \
+    defined(FAN_CLOSE) && \
+    defined(FAN_ONDIR) && \
+    defined(FAN_EVENT_ON_CHILD)
+#define HAVE_FAN_FLAGS
+#endif
+#endif
+
+#if defined(__linux__) && defined(HAVE_FAN_FLAGS)
+
 
 #define BUFFER_SIZE	(4096)
 
@@ -56,7 +70,7 @@ int stress_fanotify_supported(void)
 	return 0;
 }
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_FAN_FLAGS)
 /*
  *  fanotify_event_init()
  *	initialize fanotify
