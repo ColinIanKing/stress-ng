@@ -71,11 +71,18 @@
 #error missing fnotify FAN_NOFD macro
 #endif
 
+#define BUFFER_SIZE	(4096)
+
 int main(void)
 {
 	int fan_fd, ret;
 	size_t len;
 	struct fanotify_event_metadata *metadata;
+	void *buffer;
+
+	ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
+	if (ret != 0 || buffer == NULL)
+		return -1;
 
 	fan_fd = fanotify_init(0, 0);
 	if (fan_fd < 0)
@@ -86,10 +93,14 @@ int main(void)
 		FAN_ONDIR | FAN_EVENT_ON_CHILD, AT_FDCWD, "/");
 	(void)ret;
 
+	len = read(fan_fd, (void *)buffer, BUFFER_SIZE);
+	metadata = (struct fanotify_event_metadata *)buffer;
+
 	while (FAN_EVENT_OK(metadata, len)) {
 		metadata = FAN_EVENT_NEXT(metadata, len);
 	}
 
+	free(buffer);
 	(void)close(fan_fd);
 	return 0;
 }
