@@ -3488,6 +3488,8 @@ int main(int argc, char **argv)
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	int32_t i;
 	uint32_t class = 0;
+	const uint32_t cpus_online = stress_get_processors_online();
+	const uint32_t cpus_configured = stress_get_processors_configured();
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
@@ -3561,10 +3563,10 @@ int main(int argc, char **argv)
 	log_system_info();
 	log_system_mem_info();
 
-	pr_dbg("%" PRId32 " processors online, %" PRId32
-		" processors configured\n",
-		stress_get_processors_online(),
-		stress_get_processors_configured());
+	pr_dbg("%" PRId32 " processor%s online, %" PRId32
+		" processor%s configured\n",
+		cpus_online, cpus_online == 1 ? "" : "s",
+		cpus_configured, cpus_configured == 1 ? "" : "s");
 
 	/*
 	 *  These two options enable all the stressors
