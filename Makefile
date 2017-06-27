@@ -273,7 +273,8 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_VECMATH=0 HAVE_ATOMIC=0 HAVE_LIB_SCTP=0 HAVE_ASM_NOP=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
 	 HAVE_AFFINITY=0 HAVE_MADVISE=0 HAVE_SEM_POSIX=0 HAVE_SEM_SYSV=0 \
-	 HAVE_MQ_POSIX=0 HAVE_MQ_SYSV=0 HAVE_SHM_SYSV=0 HAVE_FANOTIFY=0
+	 HAVE_MQ_POSIX=0 HAVE_MQ_SYSV=0 HAVE_SHM_SYSV=0 HAVE_FANOTIFY=0 \
+	 HAVE_INOTIFY=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -528,6 +529,14 @@ HAVE_FANOTIFY = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_fanotify)
 ifeq ($(HAVE_FANOTIFY),1)
 	CONFIG_CFLAGS += -DHAVE_FANOTIFY
 $(info autoconfig: using fanotify)
+endif
+endif
+
+ifndef $(HAVE_INOTIFY)
+HAVE_INOTIFY = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_inotify)
+ifeq ($(HAVE_INOTIFY),1)
+	CONFIG_CFLAGS += -DHAVE_INOTIFY
+$(info autoconfig: using inotify)
 endif
 endif
 
@@ -937,6 +946,19 @@ have_fanotify: test-fanotify.c
 	@rm -rf test-fanotify
 
 #
+#  check if we can build using inotify
+#
+.PHONY: have_inotify
+have_inotify: test-inotify.c
+	@$(CC) $(CPPFLAGS) test-inotify.c -o test-inotify 2> /dev/null || true
+	@if [ -f test-inotify ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-inotify
+
+#
 #  extract the PER_* personality enums
 #
 personality.h:
@@ -988,7 +1010,7 @@ dist:
 		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
 		test-affinity.c test-madvise.c test-sem-posix.c \
 		test-sem-sysv.c test-mq-posix.c test-mq-sysv.c \
-		test-shm-sysv.c test-fanotify.c \
+		test-shm-sysv.c test-fanotify.c test-inotify.c \
 		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
