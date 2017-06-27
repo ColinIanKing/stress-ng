@@ -23,7 +23,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(F_NOTIFY)
 
 #include <sys/select.h>
 
