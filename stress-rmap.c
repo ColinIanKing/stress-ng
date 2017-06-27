@@ -165,7 +165,7 @@ int stress_rmap(const args_t *args)
 	}
 
 	/*
-	 *  Spawn of children workers
+	 *  Spawn children workers
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		pids[i] = fork();
