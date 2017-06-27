@@ -81,6 +81,14 @@ int stress_dup(const args_t *args)
 				pr_fail_err("dup2 with same fds");
 				break;
 			}
+#if defined(F_DUPFD)
+			/* POSIX.1-2001 fcntl() */
+
+			(void)close(fds[n]);
+			fds[n] = fcntl(fds[0], F_DUPFD, fds[0]);
+			if (fds[n] < 0)
+				break;
+#endif
 
 			if (!g_keep_stressing_flag)
 				break;
