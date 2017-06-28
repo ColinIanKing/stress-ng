@@ -262,6 +262,46 @@ static int stress_cyclic_poll(
 	return 0;
 }
 
+#if _POSIX_C_SOURCE >= 200112L
+/*
+ *  stress_cyclic_pselect()
+ *	measure latencies with pselect sleep
+ */
+static int stress_cyclic_pselect(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+#if defined(__linux__)
+	struct timespec t1, t2, t;
+	int ret;
+
+	(void)args;
+
+	t.tv_sec = cyclic_sleep / NANOSECS;
+	t.tv_nsec = cyclic_sleep % NANOSECS;
+	clock_gettime(CLOCK_REALTIME, &t1);
+	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
+	clock_gettime(CLOCK_REALTIME, &t2);
+	if (ret == 0) {
+		int64_t delta_ns;
+
+		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns -= cyclic_sleep;
+
+		if (rt_stats->index < MAX_SAMPLES)
+			rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+		rt_stats->ns += (double)delta_ns;
+	}
+#else
+	(void)args;
+	(void)rt_stats;
+	(void)cyclic_sleep;
+#endif
+	return 0;
+}
+#endif
 
 #if defined(__linux__)
 static struct timespec itimer_time;
@@ -435,6 +475,9 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
 	{ "itimer",	stress_cyclic_itimer },
 	{ "poll",	stress_cyclic_poll },
 	{ "posix_ns",	stress_cyclic_posix_nanosleep },
+#if _POSIX_C_SOURCE >= 200112L
+	{ "pselect",	stress_cyclic_pselect },
+#endif
 	{ NULL,		NULL }
 };
 
