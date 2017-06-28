@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.08.06
+VERSION=0.08.07
 #
 # Codename "harmful hardware harasser"
 #
