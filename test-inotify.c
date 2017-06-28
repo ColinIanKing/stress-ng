@@ -87,7 +87,7 @@
 int main(void)
 {
 	int fd, ret, wd;
-	ssize_t len, i;
+	ssize_t len, i = 0;
 	char buffer[1024];
 
 	fd = inotify_init();
