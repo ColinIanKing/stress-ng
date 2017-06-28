@@ -1,3 +1,29 @@
+stress-ng (0.08.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * test-inotify: initialize variable i to zero
+  * Manual: update date
+  * stress-cyclic: add pselect sleep method
+  * stress-rmap: fix comment, remove 'of'
+  * stress-netlink-proc: add more PROC event types
+  * Add inotify build time detection
+  * stress-get: re-format macro, no functional change
+  * stress-dup: use fcntl(2) F_DUPFD to perform a dup
+  * stress-dnotify: check if F_NOTIFY is available
+  * test-fanotify: clean up some static analysis warnings
+  * Ensure plural of cpus online and configured is correct
+  * Add fanotify build time detection
+  * stress-softlockup: fix builds where RLIMIT_RTTIME is not defined
+  * stress-fanotify: only build if FAN flags are defined
+  * stress-cyclic: fix build where RLIMIT_RTTIME is undefined (LP: #1700484)
+  * test-sem-posix: voidify returns
+  * test-mq_sysv: voidify ret rather than msg
+  * stress-socket-fd: don't force overcommit on fd allocations (LP: #1692668)
+  * stress-cyclic: use check_range instead of check_range_bytes for
+    scalar values
+
+ -- Colin King <colin.king@canonical.com>  Wed, 28 Jun 2017 11:09:11 +0100
+
 stress-ng (0.08.06-1) unstable; urgency=medium
 
   * Makefile: bump version
