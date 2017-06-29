@@ -459,6 +459,10 @@ again:
 		}
 	} else if (pid == 0) {
 		uint32_t i;
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
+
 #if defined(MAP_POPULATE)
 		int flags = MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS;
 #else
