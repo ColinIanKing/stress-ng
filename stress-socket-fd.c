@@ -141,7 +141,6 @@ static void stress_socket_client(
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
-	set_proc_name("sfd-client");
 
 	do {
 		int fd, retries = 0, fds[max_fd];
@@ -214,7 +213,6 @@ static int stress_socket_server(
 	int rc = EXIT_SUCCESS;
 
 	(void)setpgid(pid, g_pgrp);
-	set_proc_name("sfd-server");
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;
