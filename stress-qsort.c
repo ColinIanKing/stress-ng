@@ -49,7 +49,7 @@ void stress_set_qsort_size(const char *opt)
 {
 	uint64_t qsort_size;
 
-	qsort_size = get_uint64_byte(opt);
+	qsort_size = get_uint64(opt);
 	check_range("qsort-size", qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 	set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
