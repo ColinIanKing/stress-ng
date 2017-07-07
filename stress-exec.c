@@ -32,7 +32,7 @@ void stress_set_exec_max(const char *opt)
 {
 	uint64_t exec_max;
 
-	exec_max = get_uint64_byte(opt);
+	exec_max = get_uint64(opt);
 	check_range("exec-max", exec_max,
 		MIN_EXECS, MAX_EXECS);
 	set_setting("exec-max", TYPE_ID_INT64, &exec_max);
