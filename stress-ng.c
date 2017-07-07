@@ -492,6 +492,7 @@ static const struct option long_options[] = {
 	{ "dir-dirs",	1,	0,	OPT_DIR_DIRS },
 	{ "dirdeep",	1,	0,	OPT_DIRDEEP },
 	{ "dirdeep-ops",1,	0,	OPT_DIRDEEP_OPS },
+	{ "dirdeep-dirs",1,	0,	OPT_DIRDEEP_DIRS },
 	{ "dry-run",	0,	0,	OPT_DRY_RUN },
 	{ "dnotify",	1,	0,	OPT_DNOTIFY },
 	{ "dnotify-ops",1,	0,	OPT_DNOTIFY_OPS },
@@ -1066,6 +1067,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"dir-dirs N",		"select number of directories to exercise dir on" },
 	{ NULL,		"dirdeep N",		"start N directory depth stressors" },
 	{ NULL,		"dirdeep-ops N",	"stop after N directory depth bogo operations" },
+	{ NULL,		"dirdeep-dirs N",	"create N directories per level" },
 	{ NULL,		"dnotify N",		"start N workers exercising dnotify events" },
 	{ NULL,		"dnotify-ops N",	"stop dnotify workers after N bogo operations" },
 	{ NULL,		"dup N",		"start N workers exercising dup/close" },
@@ -2928,6 +2930,9 @@ next_opt:
 			break;
 		case OPT_DIR_DIRS:
 			stress_set_dir_dirs(optarg);
+			break;
+		case OPT_DIRDEEP_DIRS:
+			stress_set_dirdeep_dirs(optarg);
 			break;
 		case OPT_EPOLL_DOMAIN:
 			if (stress_set_epoll_domain(optarg) < 0)
