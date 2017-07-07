@@ -32,7 +32,7 @@ void stress_set_fork_max(const char *opt)
 {
 	uint64_t fork_max;
 
-	fork_max = get_uint64_byte(opt);
+	fork_max = get_uint64(opt);
 	check_range("fork-max", fork_max,
 		MIN_FORKS, MAX_FORKS);
 	set_setting("fork-max", TYPE_ID_UINT64, &fork_max);
@@ -46,7 +46,7 @@ void stress_set_vfork_max(const char *opt)
 {
 	uint64_t vfork_max;
 
-	vfork_max = get_uint64_byte(opt);
+	vfork_max = get_uint64(opt);
 	check_range("vfork-max", vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 	set_setting("vfork-max", TYPE_ID_UINT64, &vfork_max);
