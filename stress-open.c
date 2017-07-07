@@ -96,6 +96,13 @@ static int open_tmp_rdwr(void)
 }
 #endif
 
+#if defined(O_NOCTTY) && _XOPEN_SOURCE >= 600
+static int open_pt(void)
+{
+	return posix_openpt(O_RDWR | O_NOCTTY);
+}
+#endif
+
 #if defined(O_TMPFILE) && defined(O_EXCL)
 static int open_tmp_rdwr_excl(void)
 {
@@ -131,7 +138,10 @@ static open_func_t open_funcs[] = {
 	open_dir,
 #endif
 #if defined(O_PATH)
-	open_path
+	open_path,
+#endif
+#if defined(O_NOCTTY) && _XOPEN_SOURCE >= 600
+	open_pt
 #endif
 };
 
