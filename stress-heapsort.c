@@ -39,7 +39,7 @@ void stress_set_heapsort_size(const void *opt)
 {
 	uint64_t heapsort_size;
 
-	heapsort_size = get_uint64_byte(opt);
+	heapsort_size = get_uint64(opt);
 	check_range("heapsort-size", heapsort_size,
 		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
 	set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
