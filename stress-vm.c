@@ -51,7 +51,7 @@ void stress_set_vm_hang(const char *opt)
 {
 	uint64_t vm_hang;
 
-	vm_hang = get_uint64_byte(opt);
+	vm_hang = get_uint64_time(opt);
 	check_range("vm-hang", vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
 	set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
