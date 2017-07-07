@@ -37,7 +37,7 @@ void stress_set_semaphore_sysv_procs(const char *opt)
 {
 	uint64_t semaphore_sysv_procs;
 
-	semaphore_sysv_procs = get_uint64_byte(opt);
+	semaphore_sysv_procs = get_uint64(opt);
 	check_range("sem-sysv-procs", semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 	set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
