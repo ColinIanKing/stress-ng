@@ -34,7 +34,7 @@ void stress_set_lsearch_size(const char *opt)
 {
 	uint64_t lsearch_size;
 
-	lsearch_size = get_uint64_byte(opt);
+	lsearch_size = get_uint64(opt);
 	check_range("lsearch-size", lsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 	set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
