@@ -32,7 +32,7 @@ void stress_set_dir_dirs(const char *opt)
 {
 	uint64_t dir_dirs;
 
-	dir_dirs = get_uint64_byte(opt);
+	dir_dirs = get_uint64(opt);
 	check_range("dir-dirs", dir_dirs,
 		MIN_DIR_DIRS, MAX_DIR_DIRS);
 	set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
