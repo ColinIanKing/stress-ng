@@ -33,7 +33,7 @@ void stress_set_tsearch_size(const char *opt)
 {
 	uint64_t tsearch_size;
 
-	tsearch_size = get_uint64_byte(opt);
+	tsearch_size = get_uint64(opt);
 	check_range("tsearch-size", tsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 	set_setting("tsearch-size", TYPE_ID_UINT64, &tsearch_size);
