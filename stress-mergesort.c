@@ -39,7 +39,7 @@ void stress_set_mergesort_size(const void *opt)
 {
 	uint64_t mergesort_size;
 
-	mergesort_size = get_uint64_byte(opt);
+	mergesort_size = get_uint64(opt);
 	check_range("mergesort-size", mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
 	set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
