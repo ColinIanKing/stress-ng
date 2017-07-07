@@ -116,7 +116,7 @@ void stress_set_clone_max(const char *opt)
 {
 	uint64_t clone_max;
 
-	clone_max = get_uint64_byte(opt);
+	clone_max = get_uint64(opt);
 	check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
 	set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
