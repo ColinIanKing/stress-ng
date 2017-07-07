@@ -46,7 +46,7 @@ void stress_set_memfd_fds(const char *opt)
 {
 	uint32_t memfd_fds;
 
-	memfd_fds = (uint32_t)get_uint64_byte(opt);
+	memfd_fds = (uint32_t)get_uint64(opt);
 	check_range("memfd-fds", memfd_fds,
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
 	set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
