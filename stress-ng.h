@@ -2319,7 +2319,7 @@ extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
  *  rather than a failure of the tests during execution.
  *  err is the errno of the failure.
  */
-static inline int ALWAYS_INLINE exit_status(const int err)
+static inline WARN_UNUSED ALWAYS_INLINE int exit_status(const int err)
 {
 	return ((err == ENOMEM) || (err == ENOSPC)) ?
 		EXIT_NO_RESOURCE : EXIT_FAILURE;
