@@ -477,6 +477,85 @@ static void stress_iomix_rd_bytes(
 }
 
 #if defined(__linux__)
+
+/*
+ *  stress_iomix_inode_ioctl()
+ *	attempt to set and unset a file based inode flag
+ */
+static void stress_iomix_inode_ioctl(const int fd, const int flag, bool *ok)
+{
+	int ret, attr;
+
+	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
+	if (ret < 0)
+		return;
+
+	attr |= flag;
+	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
+	if (ret < 0)
+		return;
+
+	attr &= ~flag;
+	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
+	if (ret < 0)
+		return;
+	*ok = true;
+}
+
+/*
+ *  stress_iomix_inode_flags()
+ *	twiddle various inode flags
+ */
+static void stress_iomix_inode_flags(
+	const args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
+{
+	(void)args;
+	(void)iomix_bytes;
+
+	do {
+		bool ok = false;
+#if defined(FS_APPEND_FL)
+		stress_iomix_inode_ioctl(fd, FS_APPEND_FL, &ok);
+#endif
+#if defined(FS_COMPR_FL)
+		stress_iomix_inode_ioctl(fd, FS_COMPR_FL, &ok);
+#endif
+#if defined(FS_IMMUTABLE_FL)
+		stress_iomix_inode_ioctl(fd, FS_IMMUTABLE_FL, &ok);
+#endif
+#if defined(FS_JOURNAL_DATA_FL)
+		stress_iomix_inode_ioctl(fd, FS_JOURNAL_DATA_FL, &ok);
+#endif
+#if defined(FS_NOATIME_FL)
+		stress_iomix_inode_ioctl(fd, FS_NOATIME_FL, &ok);
+#endif
+#if defined(FS_NOCOW_FL)
+		stress_iomix_inode_ioctl(fd, FS_NOCOW_FL, &ok);
+#endif
+#if defined(FS_NODUMP_FL)
+		stress_iomix_inode_ioctl(fd, FS_NODUMP_FL, &ok);
+#endif
+#if defined(FS_NOTAIL_FL)
+		stress_iomix_inode_ioctl(fd, FS_NOTAIL_FL, &ok);
+#endif
+#if defined(FS_SECRM_FL)
+		stress_iomix_inode_ioctl(fd, FS_SECRM_FL, &ok);
+#endif
+#if defined(FS_SYNC_FL)
+		stress_iomix_inode_ioctl(fd, FS_SYNC_FL, &ok);
+#endif
+#if defined(FS_UNRM_FL)
+		stress_iomix_inode_ioctl(fd, FS_UNRM_FL, &ok);
+#endif
+		if (!ok)
+			exit(EXIT_SUCCESS);
+	} while (keep_stressing());
+}
+#endif
+
+#if defined(__linux__)
 /*
  *  stress_iomix_drop_caches()
  *	occasional file cache dropping
@@ -526,6 +605,9 @@ static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_rd_wr_mmap,
 	stress_iomix_wr_bytes,
 	stress_iomix_rd_bytes,
+#if defined(__linux__)
+	stress_iomix_inode_flags,
+#endif
 #if defined(__linux__)
 	stress_iomix_drop_caches
 #endif
