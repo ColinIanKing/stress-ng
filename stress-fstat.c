@@ -58,7 +58,7 @@ typedef struct ctxt {
 
 void stress_set_fstat_dir(const char *opt)
 {
-	set_setting("fstat-dir", TYPE_ID_STR, (void *)opt);
+	set_setting("fstat-dir", TYPE_ID_STR, opt);
 }
 
 /*
