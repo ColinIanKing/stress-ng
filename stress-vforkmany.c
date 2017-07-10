@@ -43,16 +43,18 @@ int stress_vforkmany(const args_t *args)
 	static volatile int instance = 0;
 	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
 	static volatile bool *terminate;
+	static bool *terminate_mmap;
 
 	/* We should use an alterative signal stack */
 	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
-	terminate = (bool *)mmap(NULL, args->page_size,
+	terminate = terminate_mmap =
+		(bool *)mmap(NULL, args->page_size,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (terminate == MAP_FAILED) {
+	if (terminate_mmap == MAP_FAILED) {
 		pr_inf("%s: mmap failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -68,7 +70,7 @@ fork_again:
 			goto fork_again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		munmap((void *)terminate, args->page_size);
+		munmap(terminate_mmap, args->page_size);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
 		static uint8_t *waste;
@@ -174,6 +176,6 @@ vfork_again:
 		(void)waitpid(chpid, &chstatus, 0);
 	}
 tidy:
-	(void)munmap((void *)terminate, args->page_size);
+	(void)munmap(terminate_mmap, args->page_size);
 	return EXIT_SUCCESS;
 }
