@@ -39,7 +39,7 @@ typedef struct {
 } stress_memthrash_method_info_t;
 
 static const stress_memthrash_method_info_t memthrash_methods[];
-static volatile uint8_t *mem;
+static uint8_t *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
 
@@ -121,7 +121,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(const args_t *args, size_t m
 {
 	(void)args;
 
-	uint64_t *ptr = (uint64_t *)mem;
+	volatile uint64_t *ptr = (volatile uint64_t *)mem;
 	const uint64_t *end = (uint64_t *)(mem + mem_size);
 
 	while (LIKELY(ptr < end)) {
@@ -136,6 +136,7 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(const args_t *args, size_t mem
 	(void)mem_size;
 
 	size_t i, j;
+	volatile uint8_t *vmem = mem;
 
 	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i+= ((mwc8() & 0xf) + 1)) {
 		for (j = 0; j < MATRIX_SIZE; j+= 16) {
@@ -143,9 +144,9 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(const args_t *args, size_t mem
 			size_t i2 = (j * MATRIX_SIZE) + i;
 			uint8_t tmp;
 
-			tmp = mem[i1];
-			mem[i1] = mem[i2];
-			mem[i2] = tmp;
+			tmp = vmem[i1];
+			vmem[i1] = vmem[i2];
+			vmem[i2] = tmp;
 		}
 	}
 }
@@ -159,11 +160,12 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(const args_t *args, size_t m
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
-		volatile uint8_t *ptr = mem + offset;
+		uint8_t *const ptr = mem + offset;
+		volatile uint8_t *const vptr = ptr;
 
-		__builtin_prefetch((void *)ptr, 1, 1);
-		//(void)*ptr;
-		*ptr = i & 0xff;
+		__builtin_prefetch(ptr, 1, 1);
+		//(void)*vptr;
+		*vptr = i & 0xff;
 	}
 }
 
@@ -176,10 +178,11 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(const args_t *args, size_t mem_
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
-		volatile uint8_t *ptr = mem + offset;
+		uint8_t *const ptr = mem + offset;
+		volatile uint8_t *const vptr = ptr;
 
-		*ptr = i & 0xff;
-		clflush((void *)ptr);
+		*vptr = i & 0xff;
+		clflush(ptr);
 	}
 }
 
