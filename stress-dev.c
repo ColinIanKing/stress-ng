@@ -131,7 +131,7 @@ static void *stress_dev_thread(void *arg)
  *  stress_proc_sys_threads()
  *	create a bunch of threads to thrash read a sys entry
  */
-static void stress_dev_threads(const args_t *args, const char *path)
+static void stress_dev_threads(const args_t *args, char *path)
 {
 	size_t i;
 	pthread_t pthreads[MAX_DEV_THREADS];
