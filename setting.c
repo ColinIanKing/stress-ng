@@ -78,63 +78,63 @@ void set_setting(const char *name, const type_id_t type_id, const void *value)
 
 	switch (type_id) {
 	case TYPE_ID_UINT8:
-		setting->u.uint8 = *(uint8_t *)value;
+		setting->u.uint8 = *(const uint8_t *)value;
 		DBG("%s: UINT8: %s -> %" PRIu8 "\n", __func__, name, setting->u.uint8);
 		break;
 	case TYPE_ID_INT8:
-		setting->u.int8 = *(int8_t *)value;
+		setting->u.int8 = *(const int8_t *)value;
 		DBG("%s: INT8: %s -> %" PRId8 "\n", __func__, name, setting->u.int8);
 		break;
 	case TYPE_ID_UINT16:
-		setting->u.uint16 = *(uint16_t *)value;
+		setting->u.uint16 = *(const uint16_t *)value;
 		DBG("%s: UINT16: %s -> %" PRIu16 "\n", __func__, name, setting->u.uint16);
 		break;
 	case TYPE_ID_INT16:
-		setting->u.int16 = *(int16_t *)value;
+		setting->u.int16 = *(const int16_t *)value;
 		DBG("%s: INT16: %s -> %" PRId16 "\n", __func__, name, setting->u.int16);
 		break;
 	case TYPE_ID_UINT32:
-		setting->u.uint32 = *(uint32_t *)value;
+		setting->u.uint32 = *(const uint32_t *)value;
 		DBG("%s: UINT32: %s -> %" PRIu32 "\n", __func__, name, setting->u.uint32);
 		break;
 	case TYPE_ID_INT32:
-		setting->u.int32 = *(int32_t *)value;
+		setting->u.int32 = *(const int32_t *)value;
 		DBG("%s: INT32: %s -> %" PRId32 "\n", __func__, name, setting->u.int32);
 		break;
 	case TYPE_ID_UINT64:
-		setting->u.uint64 = *(uint64_t *)value;
+		setting->u.uint64 = *(const uint64_t *)value;
 		DBG("%s: UINT64: %s -> %" PRIu64 "\n", __func__, name, setting->u.uint64);
 		break;
 	case TYPE_ID_INT64:
-		setting->u.int64 = *(int64_t *)value;
+		setting->u.int64 = *(const int64_t *)value;
 		DBG("%s: INT64: %s -> %" PRId64 "\n", __func__, name, setting->u.int64);
 		break;
 	case TYPE_ID_SIZE_T:
-		setting->u.size = *(size_t *)value;
+		setting->u.size = *(const size_t *)value;
 		DBG("%s: SIZE_T: %s -> %zu\n", __func__, name, setting->u.size);
 		break;
 	case TYPE_ID_SSIZE_T:
-		setting->u.ssize = *(ssize_t *)value;
+		setting->u.ssize = *(const ssize_t *)value;
 		DBG("%s: SSIZE_T: %s -> %zd\n", __func__, name, setting->u.ssize);
 		break;
 	case TYPE_ID_UINT:
-		setting->u.uint = *(unsigned int *)value;
+		setting->u.uint = *(const unsigned int *)value;
 		DBG("%s: UINT: %s -> %u\n", __func__, name, setting->u.uint);
 		break;
 	case TYPE_ID_INT:
-		setting->u.sint = *(int *)value;
+		setting->u.sint = *(const int *)value;
 		DBG("%s: UINT: %s -> %d\n", __func__, name, setting->u.sint);
 		break;
 	case TYPE_ID_ULONG:
-		setting->u.ulong = *(unsigned long  *)value;
+		setting->u.ulong = *(const unsigned long  *)value;
 		DBG("%s: ULONG: %s -> %lu\n", __func__, name, setting->u.ulong);
 		break;
 	case TYPE_ID_LONG:
-		setting->u.slong = *(long  *)value;
+		setting->u.slong = *(const long  *)value;
 		DBG("%s: LONG: %s -> %ld\n", __func__, name, setting->u.slong);
 		break;
 	case TYPE_ID_OFF_T:
-		setting->u.off = *(long  *)value;
+		setting->u.off = *(const long *)value;
 		DBG("%s: OFF_T: %s -> %lu\n", __func__, name, (unsigned long)setting->u.off);
 		break;
 	case TYPE_ID_STR:
@@ -142,11 +142,11 @@ void set_setting(const char *name, const type_id_t type_id, const void *value)
 		DBG("%s: STR: %s -> %s\n", __func__, name, setting->u.str);
 		break;
 	case TYPE_ID_BOOL:
-		setting->u.boolean = *(bool *)value;
+		setting->u.boolean = *(const bool *)value;
 		DBG("%s: BOOL: %s -> %d\n", __func__, name, setting->u.boolean);
 		break;
 	case TYPE_ID_UINTPTR_T:
-		setting->u.uintptr = *(uintptr_t *)value;
+		setting->u.uintptr = *(const uintptr_t *)value;
 		DBG("%s: UINTPTR_R: %s -> %p\n", __func__, name, (void *)setting->u.uintptr);
 		break;
 	case TYPE_ID_UNDEFINED:
