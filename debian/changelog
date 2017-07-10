@@ -1,3 +1,53 @@
+stress-ng (0.08.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * manual: update date
+  * stress-filename: sanity checks on sz_max file size
+  * stress-cyclic: fix build warning on non-linux platforms
+  * stress-open: ignore open_pt if building on GNU/HURD
+  * make str const char *, fixup some PEDANTIC=1 build warnings
+  * setting: fix const warnings with PEDANTIC=1
+  * stress-ng: make get_nth_proc a static function
+  * job: rename argc to new_argc to fix shadowing parameter argc
+  * stress-vforkmany: fix PEDANTIC=1 build warning on munmap
+  * stress-softlockup: remove duplicate ret
+  * Rename tmp vars so we don't shadow pid
+  * stress-memthrash: fix build warnings with PEDANTIC=1
+  * stress-fstat: remove extraneous cast to void *
+  * stress-dev: don't make path const
+  * Rename array dccp_opts dccp_options to avoid name clashes
+  * stress-static: make a few local functions static
+  * exit_status: make it a WARN_UNUSED function
+  * stress-iomix: add FS_IOC_GETFLAGS/SETFLAGS inode operations
+  * stress-open: use posix_openpt and O_NOCTTY flag
+  * stress-zombie: zombie-max should not be a byte size value
+  * stress-vm: vm-hang option should be a time based option
+  * stress-tsearch: tsearch-size should not be a byte size value
+  * stress-sleep: sleep-max should not be a byte size value
+  * stress-sem: sem-procs should not be a byte size value
+  * stress-sem-sysv: sem-sysv-procs should not be a byte size value
+  * stress-qsort: qsort-size should not be a byte size value
+  * stress-pty: pty-max should not be a byte size value
+  * stress-pthread: pthread-max should not be a byte size value
+  * stress-mq: mq-size should not be a byte size value
+  * stress-mergesort: mergesort-size should not be a byte size value
+  * stress-memfd: memfd-fds option should not be a byte size value
+  * stress-matrix: matrix-size option should not be a byte size value
+  * stress-lsearch: lsearch-size option should not be a byte size value
+  * stress-hsearch: hsearch-size option should not be a byte size value
+  * stress-heapsort: heapsort-size option should not be a byte size value
+  * stress-fork: fork-max and vfork-max options should not be a byte size value
+  * stress-exec: exec-max option should not be a byte size value
+  * stress-bsearch: bsearch-size option should not be a byte size value
+  * stress-clone: the clone-max option should not be a byte size value
+  * stress-dir: chdir-dirs option should not be a byte size value
+  * stress-dirdeep: add a --dirdeep-dir option to make more dirs per level
+  * stress-dir: dir-dirs option should not be a byte size value
+  * stress-socket-fd: remove process name change on client and server
+  * stress-memthrash: make child processes OOM-able
+
+ -- Colin King <colin.king@canonical.com>  Mon, 10 Jul 2017 13:40:50 +0100
+
 stress-ng (0.08.07-1) unstable; urgency=medium
 
   * Makefile: bump version
