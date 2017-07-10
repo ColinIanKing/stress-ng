@@ -89,31 +89,31 @@ int stress_ptrace(const args_t *args)
 		 *  A simple mix of system calls
 		 */
 		while (g_keep_stressing_flag) {
-			pid_t pid;
-			gid_t gid;
-			uid_t uid;
-			time_t t;
+			pid_t pidtmp;
+			gid_t gidtmp;
+			uid_t uidtmp;
+			time_t ttmp;
 
-			pid = getppid();
-			(void)pid;
+			pidtmp = getppid();
+			(void)pidtmp;
 
-			pid = getpgrp();
-			(void)pid;
+			pidtmp = getpgrp();
+			(void)pidtmp;
 
-			gid = getgid();
-			(void)gid;
+			gidtmp = getgid();
+			(void)gidtmp;
 
-			gid = getegid();
-			(void)gid;
+			gidtmp = getegid();
+			(void)gidtmp;
 
-			uid = getuid();
-			(void)uid;
+			uidtmp = getuid();
+			(void)uidtmp;
 
-			uid = geteuid();
-			(void)uid;
+			uidtmp = geteuid();
+			(void)uidtmp;
 
-			t = time(NULL);
-			(void)t;
+			ttmp = time(NULL);
+			(void)ttmp;
 		}
 		_exit(0);
 	} else {
