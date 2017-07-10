@@ -245,6 +245,12 @@ int stress_filename (const args_t *args)
 	sz_left = sizeof(filename) - (ptr - filename);
 	sz_max = (size_t)buf.f_namemax;
 
+	/* Some BSD systems return zero for sz_max */
+	if (sz_max <= 0)
+		sz_max = 128;
+	if (sz_max > PATH_MAX)
+		sz_max = PATH_MAX;
+
 	if (sz_left >= PATH_MAX) {
 		pr_fail("%s: max file name larger than PATH_MAX\n", args->name);
 		goto tidy_dir;
