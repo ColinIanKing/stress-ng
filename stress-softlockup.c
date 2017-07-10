@@ -182,8 +182,6 @@ int stress_softlockup(const args_t *args)
 
 		policy = 0;
 		do {
-			int ret = 0;
-
 			/*
 			 *  Note: Re-setting the scheduler policy on Linux
 			 *  puts the runnable process always onto the front
