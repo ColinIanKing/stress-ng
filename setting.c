@@ -138,7 +138,7 @@ void set_setting(const char *name, const type_id_t type_id, const void *value)
 		DBG("%s: OFF_T: %s -> %lu\n", __func__, name, (unsigned long)setting->u.off);
 		break;
 	case TYPE_ID_STR:
-		setting->u.str = (char *)value;
+		setting->u.str = (const char *)value;
 		DBG("%s: STR: %s -> %s\n", __func__, name, setting->u.str);
 		break;
 	case TYPE_ID_BOOL:
@@ -255,7 +255,7 @@ bool get_setting(const char *name, void *value)
 				break;
 			case TYPE_ID_LONG:
 				set = true;
-				*(long  *)value = setting->u.slong;
+				*(long *)value = setting->u.slong;
 				DBG("%s: LONG: %s -> %ld\n", __func__, name, setting->u.slong);
 				break;
 			case TYPE_ID_OFF_T:
@@ -265,7 +265,7 @@ bool get_setting(const char *name, void *value)
 				break;
 			case TYPE_ID_STR:
 				set = true;
-				*(char **)value = setting->u.str;
+				*(const char **)value = setting->u.str;
 				DBG("%s: STR: %s -> %s\n", __func__, name, setting->u.str);
 				break;
 			case TYPE_ID_BOOL:
