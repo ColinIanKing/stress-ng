@@ -48,7 +48,7 @@ typedef struct {
 	int	   opt;
 } dccp_opts_t;
 
-static const dccp_opts_t dccp_opts[] = {
+static const dccp_opts_t dccp_options[] = {
 	{ "send",	DCCP_OPT_SEND },
 	{ "sendmsg",	DCCP_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
@@ -65,17 +65,17 @@ int stress_set_dccp_opts(const char *opt)
 {
 	int i;
 
-	for (i = 0; dccp_opts[i].optname; i++) {
-		if (!strcmp(opt, dccp_opts[i].optname)) {
-			int dccp_opt = dccp_opts[i].opt;
+	for (i = 0; dccp_options[i].optname; i++) {
+		if (!strcmp(opt, dccp_options[i].optname)) {
+			int dccp_opt = dccp_options[i].opt;
 			set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
 			return 0;
 		}
 	}
 	(void)fprintf(stderr, "dccp-opts option '%s' not known, options are:", opt);
-	for (i = 0; dccp_opts[i].optname; i++) {
+	for (i = 0; dccp_options[i].optname; i++) {
 		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", dccp_opts[i].optname);
+			i == 0 ? "" : ",", dccp_options[i].optname);
 	}
 	(void)fprintf(stderr, "\n");
 	return -1;
