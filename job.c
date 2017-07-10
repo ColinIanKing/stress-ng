@@ -116,7 +116,7 @@ int parse_jobfile(
 
 	while (fgets(buf, sizeof(buf), fp)) {
 		char *ptr = buf;
-		int argc = 1;
+		int new_argc = 1;
 
 		(void)memset(new_argv, 0, sizeof(new_argv));
 		new_argv[0] = argv[0];
@@ -134,8 +134,8 @@ int parse_jobfile(
 		while (ISBLANK(*ptr))
 			ptr++;
 
-		while (argc < MAX_ARGS && *ptr) {
-			new_argv[argc++] = ptr;
+		while (new_argc < MAX_ARGS && *ptr) {
+			new_argv[new_argc++] = ptr;
 
 			/* eat up chars until eos or blank */
 			while (*ptr && !ISBLANK(*ptr))
@@ -151,7 +151,7 @@ int parse_jobfile(
 		}
 
 		/* managed to get any tokens? */
-		if (argc > 1) {
+		if (new_argc > 1) {
 			const size_t len = strlen(new_argv[1]) + 3;
 			char tmp[len];
 			int rc;
@@ -164,7 +164,7 @@ int parse_jobfile(
 			}
 
 			/* Check for job run option */
-			rc = parse_run(jobfile, argc, new_argv, &flag);
+			rc = parse_run(jobfile, new_argc, new_argv, &flag);
 			if (rc < 0) {
 				ret = -1;
 				goto err;
@@ -175,7 +175,7 @@ int parse_jobfile(
 			/* prepend -- to command to make them into stress-ng options */
 			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
-			parse_opts(argc, new_argv);
+			parse_opts(new_argc, new_argv);
 			new_argv[1] = NULL;
 		}
 	}
