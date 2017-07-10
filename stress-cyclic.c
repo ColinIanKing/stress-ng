@@ -401,7 +401,7 @@ static void MLOCKED stress_rlimit_handler(int dummy)
  *  stress_cyclic_cmp()
  *	sort latencies into order, least first
  */
-int stress_cyclic_cmp(const void *p1, const void *p2)
+static int stress_cyclic_cmp(const void *p1, const void *p2)
 {
 	const int64_t *i1 = (const int64_t *)p1;
 	const int64_t *i2 = (const int64_t *)p2;
@@ -417,7 +417,7 @@ int stress_cyclic_cmp(const void *p1, const void *p2)
  *  stress_rt_stats()
  *	compute statistics on gathered latencies
  */
-void stress_rt_stats(rt_stats_t *rt_stats)
+static void stress_rt_stats(rt_stats_t *rt_stats)
 {
 	size_t i;
 	size_t n = 0, best_n = 0;
@@ -511,7 +511,7 @@ int stress_set_cyclic_method(const char *name)
  *  stress_rt_dist()
  *	show real time distribution
  */
-void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cyclic_dist)
+static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cyclic_dist)
 {
 	size_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
 	size_t dist_size = STRESS_MINIMUM(100, dist_max_size);
