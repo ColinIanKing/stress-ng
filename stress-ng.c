@@ -1989,7 +1989,7 @@ static void MLOCKED handle_sigint(int signum)
  *  get_proc()
  *	return nth proc from list
  */
-proc_info_t *get_nth_proc(const uint32_t n)
+static proc_info_t *get_nth_proc(const uint32_t n)
 {
 	proc_info_t *pi = procs_head;
 	uint32_t i;
