@@ -395,7 +395,6 @@ static void MLOCKED stress_rlimit_handler(int dummy)
 	g_keep_stressing_flag = 1;
 	siglongjmp(jmp_env, 1);
 }
-#endif
 
 /*
  *  stress_cyclic_cmp()
@@ -466,6 +465,7 @@ static void stress_rt_stats(rt_stats_t *rt_stats)
 		rt_stats->std_dev = sqrt(variance);
 	}
 }
+#endif
 
 /*
  *  cyclic methods
