@@ -76,7 +76,8 @@ static int fd_get(void)
      defined(F_SETLKW) && defined(F_WRLCK) && \
      defined(F_UNLCK)) ||	\
     (defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && \
-     defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK))
+     defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK)) | \
+    (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT))
 
 /*
  *  check_return()
@@ -426,6 +427,42 @@ lock_abort:	{ /* Nowt */ }
 		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)");
 
 ofd_lock_abort:	{ /* Nowt */ }
+	}
+#endif
+
+#if defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)
+	{
+		size_t i;
+		unsigned long hint;
+		static const unsigned long hints[] = {
+#if defined(RWH_WRITE_LIFE_EXTREME)
+			RWH_WRITE_LIFE_EXTREME,
+#endif
+#if defined(RWH_WRITE_LIFE_LONG)
+			RWH_WRITE_LIFE_LONG,
+#endif
+#if defined(RWH_WRITE_LIFE_MEDIUM)
+			RWH_WRITE_LIFE_MEDIUM,
+#endif
+#if defined(RWH_WRITE_LIFE_SHORT)
+			RWH_WRITE_LIFE_SHORT,
+#endif
+#if defined(RWH_WRITE_LIFE_NONE)
+			RWH_WRITE_LIFE_NONE,
+#endif
+#if defined(RWF_WRITE_LIFE_NOT_SET)
+			RWF_WRITE_LIFE_NOT_SET
+#endif
+		};
+
+		ret = fcntl(fd, F_GET_FILE_RW_HINT, &hint)
+		if (ret == 0) {
+			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
+				hint = hints[i];
+				ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
+				(void)ret;
+			}
+		}
 	}
 #endif
 
