@@ -35,6 +35,30 @@
  */
 #include "stress-ng.h"
 
+typedef struct {
+	const char *name;
+        int advice;
+} stream_madvise_info_t;
+
+static const stream_madvise_info_t stream_madvise_info[] = {
+#if defined(HAVE_MADVISE)
+#if defined(MADV_HUGEPAGE)
+	{ "hugepage",	MADV_HUGEPAGE },
+#endif
+#if defined(MADV_NOHUGEPAGE)
+	{ "nohugepage",	MADV_NOHUGEPAGE },
+#endif
+#if defined(MADV_NORMAL)
+	{ "normal",	MADV_NORMAL },
+#endif
+#else
+	/* No MADVISE, default to normal, ignored */
+	{ "normal",	0 },
+#endif
+        { NULL,         0 },
+};
+
+
 void stress_set_stream_L3_size(const char *opt)
 {
 	uint64_t stream_L3_size;
@@ -43,6 +67,24 @@ void stress_set_stream_L3_size(const char *opt)
 	check_range_bytes("stream-L3-size", stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
 	set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
+}
+
+int stress_set_stream_madvise(const char *opt)
+{
+	const stream_madvise_info_t *info;
+
+	for (info = stream_madvise_info; info->name; info++) {
+		if (!strcmp(opt, info->name)) {
+			set_setting("stream-madvise", TYPE_ID_INT, &info->advice);
+			return 0;
+		}
+	}
+	fprintf(stderr, "invalid stream-madvise advice '%s', allowed advice options are:", opt);
+	for (info = stream_madvise_info; info->name; info++) {
+		fprintf(stderr, " %s", info->name);
+        }
+	fprintf(stderr, "\n");
+	return -1;
 }
 
 static inline void OPTIMIZE3 stress_stream_copy(
@@ -111,12 +153,26 @@ static inline void *stress_stream_mmap(const args_t *args, uint64_t sz)
 #if defined(MAP_POPULATE)
 		MAP_POPULATE |
 #endif
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+#if defined(HAVE_MADVISE)
+		MAP_PRIVATE |
+#else
+		MAP_SHARED |
+#endif
+		MAP_ANONYMOUS, -1, 0);
 	/* Coverity Scan believes NULL can be returned, doh */
 	if (!ptr || (ptr == MAP_FAILED)) {
 		pr_err("%s: cannot allocate %" PRIu64 " bytes\n",
 			args->name, sz);
 		ptr = MAP_FAILED;
+	} else {
+#if defined(HAVE_MADVISE)
+		int ret, advice = MADV_NORMAL;
+
+		(void)get_setting("stream-madvise", &advice);
+
+		ret = madvise(ptr, sz, advice);
+		(void)ret;
+#endif
 	}
 	return ptr;
 }

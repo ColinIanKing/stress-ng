@@ -816,7 +816,8 @@ static const struct option long_options[] = {
 	{ "stressors",	0,	0,	OPT_STRESSORS },
 	{ "stream",	1,	0,	OPT_STREAM },
 	{ "stream-ops",	1,	0,	OPT_STREAM_OPS },
-	{ "stream-l3-size" ,1,	0,	OPT_STREAM_L3_SIZE },
+	{ "stream-l3-size",1,	0,	OPT_STREAM_L3_SIZE },
+	{ "stream-madvise",1,	0,	OPT_STREAM_MADVISE },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
@@ -3227,6 +3228,10 @@ next_opt:
 			break;
 		case OPT_STREAM_L3_SIZE:
 			stress_set_stream_L3_size(optarg);
+			break;
+		case OPT_STREAM_MADVISE:
+			if (stress_set_stream_madvise(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_STRESSORS:
 			show_stressor_names();

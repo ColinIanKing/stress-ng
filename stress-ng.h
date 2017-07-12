@@ -1916,6 +1916,7 @@ typedef enum {
 	OPT_STREAM,
 	OPT_STREAM_OPS,
 	OPT_STREAM_L3_SIZE,
+	OPT_STREAM_MADVISE,
 
 	OPT_STRESSORS,
 
@@ -2496,6 +2497,7 @@ extern void stress_set_socket_fd_port(const char *opt);
 extern void stress_set_splice_bytes(const char *opt);
 extern int  stress_set_str_method(const char *name);
 extern void stress_set_stream_L3_size(const char *opt);
+extern int  stress_set_stream_madvise(const char *opt);
 extern void stress_set_sync_file_bytes(const char *opt);
 extern void stress_set_timer_freq(const char *opt);
 extern void stress_set_timerfd_freq(const char *opt);

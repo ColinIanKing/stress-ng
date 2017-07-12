@@ -2578,6 +2578,11 @@ units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
 If the L3 cache size is not provided, then stress-ng will attempt to
 determine the cache size, and failing this, will default the size to 4MB.
 .TP
+.B \-\-stream\-madvise [ hugepage | nohugepage | normal ]
+Specify the madvise options used on the memory mapped buffer used in the
+stream stressor. Non-linux systems will only have the 'normal' madvise
+advice. The default is 'normal'.
+.TP
 .B \-s N, \-\-switch N
 start N workers that send messages via pipe to a child to force context
 switching.
