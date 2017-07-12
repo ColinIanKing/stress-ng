@@ -112,7 +112,7 @@ int stress_rmap(const args_t *args)
 	char filename[PATH_MAX];
 
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
 		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
