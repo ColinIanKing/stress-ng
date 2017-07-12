@@ -1364,6 +1364,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"stream N",		"start N workers exercising memory bandwidth" },
 	{ NULL,		"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,		"stream-l3-size N",	"specify the L3 cache size of the CPU" },
+	{ NULL,		"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop after N context switch bogo operations" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },
