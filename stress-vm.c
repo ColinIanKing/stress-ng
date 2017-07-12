@@ -1988,7 +1988,7 @@ again:
 					return EXIT_SUCCESS;
 				buf = (uint8_t *)mmap(NULL, buf_sz,
 					PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS |
+					MAP_PRIVATE | MAP_ANONYMOUS |
 					vm_flags, -1, 0);
 				if (buf == MAP_FAILED) {
 					buf = NULL;
