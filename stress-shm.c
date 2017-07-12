@@ -154,7 +154,7 @@ static int stress_shm_posix_child(
 			}
 
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
+				MAP_PRIVATE | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
 				pr_fail_err("mmap");
