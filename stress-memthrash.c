@@ -466,10 +466,9 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
+		int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
-		int flags = MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS;
-#else
-		int flags = MAP_SHARED | MAP_ANONYMOUS;
+		flags |= MAP_POPULATE;
 #endif
 
 mmap_retry:
