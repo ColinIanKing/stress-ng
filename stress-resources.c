@@ -141,10 +141,11 @@ static void NORETURN waste_resources(
 		if (!(mwc32() & 0xf)) {
 			info[i].m_mmap_size = page_size;
 			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
-				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (!g_keep_stressing_flag)
 				break;
 			if (info[i].m_mmap != MAP_FAILED) {
+				(void)madvise_random(info[i].m_mmap, info[i].m_mmap_size);
 				mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
 				if (!g_keep_stressing_flag)
 					break;
