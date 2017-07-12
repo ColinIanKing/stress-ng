@@ -45,7 +45,48 @@ typedef struct {
 	const stress_vm_func func;
 } stress_vm_method_info_t;
 
+typedef struct {
+	const char *name;
+        int advice;
+} vm_madvise_info_t;
+
 static const stress_vm_method_info_t vm_methods[];
+
+static const vm_madvise_info_t vm_madvise_info[] = {
+#if defined(HAVE_MADVISE)
+#if defined(MADV_DONTNEED)
+	{ "dontneed",	MADV_DONTNEED},
+#endif
+#if defined(MADV_HUGEPAGE)
+	{ "hugepage",	MADV_HUGEPAGE },
+#endif
+#if defined(MADV_MERGEABLE)
+	{ "mergeable",	MADV_MERGEABLE },
+#endif
+#if defined(MADV_NOHUGEPAGE)
+	{ "nohugepage",	MADV_NOHUGEPAGE },
+#endif
+#if defined(MADV_NORMAL)
+	{ "normal",	MADV_NORMAL },
+#endif
+#if defined(MADV_RANDOM)
+	{ "random",	MADV_RANDOM },
+#endif
+#if defined(MADV_SEQUENTIAL)
+	{ "sequential",	MADV_SEQUENTIAL },
+#endif
+#if defined(MADV_UNMERGEABLE)
+	{ "unmergeable",MADV_UNMERGEABLE },
+#endif
+#if defined(MADV_WILLNEED)
+	{ "willneed",	MADV_WILLNEED},
+#endif
+        { NULL,         0 },
+#else
+	/* No MADVISE, default to normal, ignored */
+	{ "normal",	0 },
+#endif
+};
 
 void stress_set_vm_hang(const char *opt)
 {
@@ -75,6 +116,24 @@ void stress_set_vm_flags(const int flag)
 	vm_flags |= flag;
 	set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
 
+}
+
+int stress_set_vm_madvise(const char *opt)
+{
+	const vm_madvise_info_t *info;
+
+	for (info = vm_madvise_info; info->name; info++) {
+		if (!strcmp(opt, info->name)) {
+			set_setting("vm-madvise", TYPE_ID_INT, &info->advice);
+			return 0;
+		}
+	}
+	fprintf(stderr, "invalid vm-madvise advice '%s', allowed advice options are:", opt);
+	for (info = vm_madvise_info; info->name; info++) {
+		fprintf(stderr, " %s", info->name);
+        }
+	fprintf(stderr, "\n");
+	return -1;
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
@@ -1890,12 +1949,15 @@ int stress_vm(const args_t *args)
 	size_t buf_sz, retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	int vm_flags = 0;                      /* VM mmap flags */
+	int vm_madvise = -1;
 	const stress_vm_method_info_t *vm_method = &vm_methods[0];
 	stress_vm_func func;
 
 	(void)get_setting("vm-hang", &vm_hang);
 	(void)get_setting("vm-flags", &vm_flags);
 	(void)get_setting("vm-method", &vm_method);
+	(void)get_setting("vm-madvise", &vm_madvise);
+
 	func = vm_method->func;
 	pr_dbg("%s using method '%s'\n", args->name, vm_method->name);
 
@@ -1996,7 +2058,10 @@ again:
 					(void)shim_usleep(100000);
 					continue;	/* Try again */
 				}
-				(void)madvise_random(buf, buf_sz);
+				if (vm_madvise < 0)
+					(void)madvise_random(buf, buf_sz);
+				else
+					(void)shim_madvise(buf, buf_sz, vm_madvise);
 			}
 
 			no_mem_retries = 0;

@@ -2841,6 +2841,14 @@ do not continually unmap and map memory, just keep on re-writing to it.
 Lock the pages of the mapped region into memory using mmap MAP_LOCKED (since
 Linux 2.5.37).  This is similar to locking memory as described in mlock(2).
 .TP
+.B \-\-vm\-madvise advice
+Specify the madvise 'advice' option used on the memory mapped regions used in
+the vm stressor. Non-linux systems will only have the 'normal' madvise
+advice, linux systems support 'dontneed', 'hugepage', 'mergeable'
+, 'nohugepage', 'normal', 'random', 'sequential', 'unmergeable'
+and 'willneed' advice. If this option is not used then the default is to pick
+random madvise advice for each mmap call. See madvise(2) for more details.
+.TP
 .B \-\-vm\-method m
 specify a vm stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.

@@ -895,6 +895,7 @@ static const struct option long_options[] = {
 	{ "vm-locked",	0,	0,	OPT_VM_MMAP_LOCKED },
 #endif
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
+	{ "vm-madvise",	1,	0,	OPT_VM_MADVISE },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
 	{ "vm-rw",	1,	0,	OPT_VM_RW },
 	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
@@ -1427,6 +1428,7 @@ static const help_t help_stressors[] = {
 #if defined(MAP_LOCKED)
 	{ NULL,		"vm-locked",		"lock the pages of the mapped region into memory" },
 #endif
+	{ NULL,		"vm-madvise M",		"specify mmap'd vm buffer madvise advice" },
 	{ NULL,		"vm-method M",		"specify stress vm method M, default is all" },
 #if defined(MAP_POPULATE)
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
@@ -3322,6 +3324,10 @@ next_opt:
 			break;
 		case OPT_VM_KEEP:
 			g_opt_flags |= OPT_FLAGS_VM_KEEP;
+			break;
+		case OPT_VM_MADVISE:
+			if (stress_set_vm_madvise(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)

@@ -2013,6 +2013,7 @@ typedef enum {
 	OPT_VM_MMAP_POPULATE,
 	OPT_VM_MMAP_LOCKED,
 	OPT_VM_OPS,
+	OPT_VM_MADVISE,
 	OPT_VM_METHOD,
 
 	OPT_VM_RW,
@@ -2510,6 +2511,7 @@ extern void stress_set_vfork_max(const char *opt);
 extern void stress_set_vm_bytes(const char *opt);
 extern void stress_set_vm_flags(const int flag);
 extern void stress_set_vm_hang(const char *opt);
+extern int  stress_set_vm_madvise(const char *name);
 extern int  stress_set_vm_method(const char *name);
 extern void stress_set_vm_rw_bytes(const char *opt);
 extern void stress_set_vm_splice_bytes(const char *opt);
