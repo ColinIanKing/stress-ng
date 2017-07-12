@@ -124,6 +124,7 @@ func_name(const args_t *args)						\
 				return EXIT_FAILURE;			\
 			}						\
 			icache_func();					\
+			(void)shim_cacheflush((char *)addr, page_sz, ICACHE); \
 		}							\
 		inc_counter(args);					\
 	} while (keep_stressing());					\

@@ -104,6 +104,16 @@ typedef unsigned long int __kernel_ulong_t;
 #endif
 #endif
 
+/*
+ *  cacheflush(2) cache options
+ */
+#ifndef ICACHE
+#define ICACHE  (1 << 0)
+#endif
+#ifndef DCACHE
+#define DCACHE  (1 << 1)
+#endif
+
 #define EXIT_NOT_SUCCESS	(2)
 #define EXIT_NO_RESOURCE	(3)
 #define EXIT_NOT_IMPLEMENTED	(4)

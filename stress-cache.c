@@ -24,13 +24,6 @@
  */
 #include "stress-ng.h"
 
-#ifndef ICACHE
-#define	ICACHE	(1 << 0)
-#endif
-#ifndef DCACHE
-#define DCACHE	(1 << 1)
-#endif
-
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
