@@ -687,7 +687,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_MALLOC_THRESHOLD (128 * KB)
 
 #define MIN_MATRIX_SIZE		(16)
-#define MAX_MATRIX_SIZE		(4096)
+#define MAX_MATRIX_SIZE		(8192)
 #define DEFAULT_MATRIX_SIZE	(256)
 
 #define MIN_MEMFD_BYTES		(2 * MB)
