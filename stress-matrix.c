@@ -454,7 +454,7 @@ static inline int stress_matrix_exercise(
 
 	matrix_ptr_t a = NULL, b = NULL, r = NULL;
 	register size_t i;
-	const matrix_type_t v = 1 / (matrix_type_t)((uint64_t)~0);
+	const matrix_type_t v = 65535 / (matrix_type_t)((uint64_t)~0);
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
