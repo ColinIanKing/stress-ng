@@ -436,6 +436,81 @@ int stress_set_matrix_method(const char *name)
 	return -1;
 }
 
+static inline size_t round_up(size_t page_size, size_t n)
+{
+	page_size = (page_size == 0) ? 4096 : page_size;
+
+	return (n + page_size - 1) & (~(page_size -1));
+}
+
+static inline int stress_matrix_exercise(
+	const args_t *args,
+	const stress_matrix_func func,
+	const size_t n)
+{
+	int ret = EXIT_NO_RESOURCE;
+	typedef matrix_type_t (*matrix_ptr_t)[n];
+	size_t matrix_size = round_up(args->page_size, (sizeof(matrix_type_t) * n * n));
+
+	matrix_ptr_t a = NULL, b = NULL, r = NULL;
+	register size_t i;
+	const matrix_type_t v = 1 / (matrix_type_t)((uint64_t)~0);
+	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
+
+	a = (matrix_ptr_t)mmap(NULL, matrix_size,
+		PROT_READ | PROT_WRITE, flags, -1, 0);
+	if (a == MAP_FAILED) {
+		pr_fail("matrix allocation");
+		goto tidy_ret;
+	}
+	b = (matrix_ptr_t)mmap(NULL, matrix_size,
+		PROT_READ | PROT_WRITE, flags, -1, 0);
+	if (b == MAP_FAILED) {
+		pr_fail("matrix allocation");
+		goto tidy_a;
+	}
+	r = (matrix_ptr_t)mmap(NULL, matrix_size,
+		PROT_READ | PROT_WRITE, flags, -1, 0);
+	if (r == MAP_FAILED) {
+		pr_fail("matrix allocation");
+		goto tidy_b;
+	}
+
+	/*
+	 *  Initialise matrices
+	 */
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++) {
+			a[i][j] = (matrix_type_t)mwc64() * v;
+			b[i][j] = (matrix_type_t)mwc64() * v;
+			r[i][j] = 0.0;
+		}
+	}
+
+	/*
+	 * Normal use case, 100% load, simple spinning on CPU
+	 */
+	do {
+		(void)func(n, a, b, r);
+		inc_counter(args);
+	} while (keep_stressing());
+
+	ret = EXIT_SUCCESS;
+
+	munmap(r, matrix_size);
+tidy_b:
+	munmap(b, matrix_size);
+tidy_a:
+	munmap(a, matrix_size);
+tidy_ret:
+	return ret;
+}
+
 /*
  *  stress_matrix()
  *	stress CPU by doing floating point math ops
@@ -444,8 +519,7 @@ int stress_matrix(const args_t *args)
 {
 	const stress_matrix_method_info_t *matrix_method = &matrix_methods[0];
 	stress_matrix_func func;
-	size_t n, matrix_size = 128;
-	const matrix_type_t v = 1 / (matrix_type_t)((uint32_t)~0);
+	size_t matrix_size = 128;
 
 	(void)get_setting("matrix-method", &matrix_method);
 	func = matrix_method->func;
@@ -457,34 +531,6 @@ int stress_matrix(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			matrix_size = MIN_MATRIX_SIZE;
 	}
-	n = matrix_size;
 
-	{
-		register size_t i;
-		matrix_type_t ALIGN_CACHELINE a[n][n],
-			      ALIGN_CACHELINE b[n][n],
-			      ALIGN_CACHELINE r[n][n];
-		/*
-		 *  Initialise matrices
-		 */
-		for (i = 0; i < n; i++) {
-			register size_t j;
-
-			for (j = 0; j < n; j++) {
-				a[i][j] = (matrix_type_t)mwc64() * v;
-				b[i][j] = (matrix_type_t)mwc64() * v;
-				r[i][j] = 0.0;
-			}
-		}
-
-		/*
-		 * Normal use case, 100% load, simple spinning on CPU
-		 */
-		do {
-			(void)func(n, a, b, r);
-			inc_counter(args);
-		} while (keep_stressing());
-	}
-
-	return EXIT_SUCCESS;
+	return stress_matrix_exercise(args, func, matrix_size);
 }
