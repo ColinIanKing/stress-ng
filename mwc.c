@@ -124,7 +124,7 @@ HOT OPTIMIZE3 uint8_t mwc8(void)
 {
 	static uint32_t mwc_saved;
 
-	if (mwc_n8) {
+	if (LIKELY(mwc_n8)) {
 		mwc_n8--;
 		mwc_saved >>= 8;
 	} else {
