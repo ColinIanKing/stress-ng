@@ -65,24 +65,32 @@ static void stress_rmap_child(
 
 		switch (mwc32() & 3) {
 		case 0: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
-				(void)memset(mappings[i], mwc8(), sz);
-				shim_msync(mappings[i], sz, sync_flag);
+				if (mappings[i] != MAP_FAILED) {
+					(void)memset(mappings[i], mwc8(), sz);
+					shim_msync(mappings[i], sz, sync_flag);
+				}
 			}
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; g_keep_stressing_flag && (i >= 0); i--) {
-				(void)memset(mappings[i], mwc8(), sz);
-				shim_msync(mappings[i], sz, sync_flag);
+				if (mappings[i] != MAP_FAILED) {
+					(void)memset(mappings[i], mwc8(), sz);
+					shim_msync(mappings[i], sz, sync_flag);
+				}
 			}
 			break;
 		case 2: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
 				size_t j = mwc32() % MAPPINGS_MAX;
-				(void)memset(mappings[j], mwc8(), sz);
-				shim_msync(mappings[j], sz, sync_flag);
+				if (mappings[j] != MAP_FAILED) {
+					(void)memset(mappings[j], mwc8(), sz);
+					shim_msync(mappings[j], sz, sync_flag);
+				}
 			}
 			break;
 		case 3: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX - 1); i++) {
-				(void)memcpy(mappings[i], mappings[i + 1], sz);
-				shim_msync(mappings[i], sz, sync_flag);
+				if (mappings[i] != MAP_FAILED) {
+					(void)memcpy(mappings[i], mappings[i + 1], sz);
+					shim_msync(mappings[i], sz, sync_flag);
+				}
 			}
 			break;
 		}
@@ -120,7 +128,11 @@ int stress_rmap(const args_t *args)
 	}
 	(void)memset(counters, 0, counters_sz);
 	(void)memset(pids, 0, sizeof(pids));
-	(void)memset(mappings, 0, sizeof(mappings));
+
+	for (i = 0; i < MAPPINGS_MAX; i++) {
+		mappings[i] = MAP_FAILED;
+		paddings[i] = MAP_FAILED;
+	}
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -155,6 +167,10 @@ int stress_rmap(const args_t *args)
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		off_t offset = i * page_size;
+
+		if (!keep_stressing())
+			goto cleanup;
+
 		mappings[i] =
 			mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, offset);
@@ -168,6 +184,9 @@ int stress_rmap(const args_t *args)
 	 *  Spawn children workers
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
+		if (!keep_stressing())
+			goto cleanup;
+
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
@@ -193,23 +212,28 @@ int stress_rmap(const args_t *args)
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
-	do {
-		(void)select(0, NULL, NULL, NULL, NULL);
-		for (i = 0; i < RMAP_CHILD_MAX; i++)
-			*args->counter += counters[i];
-	} while (keep_stressing());
+	while (keep_stressing()) {
+		/* Twiddle fingers */
+		shim_usleep(100000);
+	}
 
+	for (i = 0; i < RMAP_CHILD_MAX; i++)
+		*args->counter += counters[i];
 cleanup:
 	/*
 	 *  Kill and wait for children
 	 */
+	for (i = 0; i < RMAP_CHILD_MAX; i++) {
+		if (pids[i] <= 0)
+			continue;
+		(void)kill(pids[i], SIGKILL);
+	}
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		int status, ret;
 
 		if (pids[i] <= 0)
 			continue;
 
-		(void)kill(pids[i], SIGKILL);
 		ret = waitpid(pids[i], &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
