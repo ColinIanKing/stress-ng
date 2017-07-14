@@ -308,6 +308,7 @@ static const stress_t stressors[] = {
 	STRESSOR(pty, PTY, CLASS_OS),
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(quota, QUOTA, CLASS_OS),
+	STRESSOR(radixsort, RADIXSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 	STRESSOR(readahead, READAHEAD, CLASS_IO | CLASS_OS),
 	STRESSOR(remap, REMAP_FILE_PAGES, CLASS_MEMORY | CLASS_OS),
@@ -719,6 +720,9 @@ static const struct option long_options[] = {
 	{ "quiet",	0,	0,	OPT_QUIET },
 	{ "quota",	1,	0,	OPT_QUOTA },
 	{ "quota-ops",	1,	0,	OPT_QUOTA_OPS },
+	{ "radixsort",	1,	0,	OPT_RADIXSORT },
+	{ "radixsort-ops",1,	0,	OPT_RADIXSORT_OPS },
+	{ "radixsort-size",1,	0,	OPT_RADIXSORT_SIZE },
 	{ "random",	1,	0,	OPT_RANDOM },
 	{ "rdrand",	1,	0,	OPT_RDRAND },
 	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
@@ -1272,6 +1276,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"qsort-size N",		"number of 32 bit integers to sort" },
 	{ NULL,		"quota N",		"start N workers exercising quotactl commands" },
 	{ NULL,		"quota-ops N",		"stop after N quotactl bogo operations" },
+	{ NULL,		"radixsort N",		"start N workers radix sorting random strings" },
+	{ NULL,		"radixsort-ops N",	"stop after N radixsort bogo operations" },
+	{ NULL,		"radixsort-size N",	"number of strings to sort" },
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop after N rdrand bogo operations" },
 	{ NULL,		"readahead N",		"start N workers exercising file readahead" },
@@ -3135,6 +3142,9 @@ next_opt:
 			break;
 		case OPT_QUIET:
 			g_opt_flags &= ~(PR_ALL);
+			break;
+		case OPT_RADIXSORT_SIZE:
+			stress_set_radixsort_size(optarg);
 			break;
 		case OPT_RANDOM:
 			g_opt_flags |= OPT_FLAGS_RANDOM;

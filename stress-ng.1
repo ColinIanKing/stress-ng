@@ -2155,6 +2155,15 @@ systems.
 .B \-\-\quota\-ops N
 stop quota stress workers after N bogo quotactl operations.
 .TP
+.B \-\-radixsort N
+start N workers that sort random 8 byte strings using radixsort.
+.TP
+.B \-\-radixsort\-ops N
+stop radixsort stress workers after N bogo radixsorts.
+.TP
+.B \-\-radixsort\-size N
+specify number of strings to sort, default is 262144 (256 \(mu 1024).
+.TP
 .B \-\-rdrand N
 start N workers that read the Intel hardware random number generator (Intel
 Ivybridge processors upwards).

@@ -44,6 +44,8 @@ int main(void)
 	(void)rc;
 	rc = mergesort(data, 64, sizeof(int), intcmp);
 	(void)rc;
+	rc = radixsort(NULL, 0, NULL, 0);
+	(void)rc;
 
 	return 0;
 }

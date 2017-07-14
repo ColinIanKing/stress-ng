@@ -742,6 +742,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_QSORT_SIZE		(4 * MB)
 #define DEFAULT_QSORT_SIZE	(256 * KB)
 
+#define MIN_RADIXSORT_SIZE	(1 * KB)
+#define MAX_RADIXSORT_SIZE	(4 * MB)
+#define DEFAULT_RADIXSORT_SIZE	(256 * KB)
+
 #define MIN_READAHEAD_BYTES	(1 * MB)
 #define MAX_READAHEAD_BYTES	(256ULL * GB)
 #define DEFAULT_READAHEAD_BYTES	(1 * GB)
@@ -1264,6 +1268,7 @@ typedef enum {
 	STRESS_PTY,
 	STRESS_QSORT,
 	STRESS_QUOTA,
+	STRESS_RADIXSORT,
 	STRESS_RDRAND,
 	STRESS_READAHEAD,
 	STRESS_REMAP_FILE_PAGES,
@@ -1793,6 +1798,10 @@ typedef enum {
 
 	OPT_QUOTA,
 	OPT_QUOTA_OPS,
+
+	OPT_RADIXSORT,
+	OPT_RADIXSORT_OPS,
+	OPT_RADIXSORT_SIZE,
 
 	OPT_RDRAND,
 	OPT_RDRAND_OPS,
@@ -2488,6 +2497,7 @@ extern void stress_set_pipe_size(const char *opt);
 extern void stress_set_pthread_max(const char *opt);
 extern void stress_set_pty_max(const char *opt);
 extern void stress_set_qsort_size(const char *opt);
+extern void stress_set_radixsort_size(const char *opt);
 extern void stress_set_readahead_bytes(const char *opt);
 extern int  stress_set_sctp_domain(const char *opt);
 extern void stress_set_sctp_port(const char *opt);
@@ -2785,6 +2795,7 @@ STRESS(stress_ptrace);
 STRESS(stress_pty);
 STRESS(stress_qsort);
 STRESS(stress_quota);
+STRESS(stress_radixsort);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_remap);
