@@ -53,4 +53,7 @@ To build on SunOS, one requires GCC and GNU make, build using:
 To build a static image (example, for Android), use:
 	STATIC=1 make
 
+To build with full warnings enabled:
+	PEDANTIC=1 make
+
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
