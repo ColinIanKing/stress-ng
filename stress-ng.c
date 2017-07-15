@@ -2782,8 +2782,6 @@ int parse_opts(int argc, char **argv, const bool jobmode)
 		int c, option_index, ret;
 		size_t i;
 
-		extern int opterr;
-
 		opterr = 0;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
