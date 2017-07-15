@@ -67,7 +67,7 @@ void stress_set_radixsort_size(const char *opt)
 int stress_radixsort(const args_t *args)
 {
 	uint64_t radixsort_size = DEFAULT_RADIXSORT_SIZE;
-	unsigned char **data;
+	const unsigned char **data;
 	unsigned char *text, *ptr;
 	size_t n, i;
 	struct sigaction old_action;
@@ -120,12 +120,12 @@ int stress_radixsort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		radixsort((const unsigned char **)data, n, NULL, 0);
+		radixsort(data, n, NULL, 0);
 		if (!g_keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
-		radixsort((const unsigned char **)data, n, revtable, 0);
+		radixsort(data, n, revtable, 0);
 
 		/* Randomize first char */
 		for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE)
