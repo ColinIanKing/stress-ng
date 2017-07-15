@@ -85,6 +85,17 @@ err:
 }
 
 /*
+ *  generic job error message
+ */
+static void parse_error(
+	const uint32_t lineno,
+	const char *line)
+{
+	fprintf(stderr, "error in line %" PRIu32 ": '%s'\n",
+		lineno, line);
+}
+
+/*
  *  parse_jobfile()
  *	parse a jobfile, turn job commands into
  *	individual stress-ng options
@@ -99,6 +110,7 @@ int parse_jobfile(
 	char *new_argv[MAX_ARGS];
 	int ret = -1;
 	uint32_t flag = 0;
+	uint32_t lineno = 0;
 
 	if (!jobfile) {
 		if (argc < 2)
@@ -115,14 +127,17 @@ int parse_jobfile(
 	}
 
 	while (fgets(buf, sizeof(buf), fp)) {
+		char txt[sizeof(buf)];
 		char *ptr = buf;
 		int new_argc = 1;
 
 		(void)memset(new_argv, 0, sizeof(new_argv));
 		new_argv[0] = argv[0];
+		lineno++;
 
 		/* remove \n */
 		chop(buf, '\n');
+		strncpy(txt, buf, sizeof(txt));
 
 		/* remove comments */
 		chop(buf, '#');
@@ -167,6 +182,7 @@ int parse_jobfile(
 			rc = parse_run(jobfile, new_argc, new_argv, &flag);
 			if (rc < 0) {
 				ret = -1;
+				parse_error(lineno, txt);
 				goto err;
 			} else if (rc == 1) {
 				continue;
@@ -175,7 +191,11 @@ int parse_jobfile(
 			/* prepend -- to command to make them into stress-ng options */
 			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
-			parse_opts(new_argc, new_argv);
+			if (parse_opts(new_argc, new_argv, true) != EXIT_SUCCESS) {
+				parse_error(lineno, txt);
+				ret = -1;
+				goto err;
+			}
 			new_argv[1] = NULL;
 		}
 	}

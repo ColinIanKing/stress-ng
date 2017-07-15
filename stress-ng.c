@@ -2768,7 +2768,7 @@ static void enable_classes(const uint32_t class)
  *  parse_opts
  *	parse argv[] and set stress-ng options accordingly
  */
-void parse_opts(int argc, char **argv)
+int parse_opts(int argc, char **argv, const bool jobmode)
 {
 	optind = 0;
 
@@ -2779,6 +2779,10 @@ void parse_opts(int argc, char **argv)
 		int16_t i16;
 		int c, option_index, ret;
 		size_t i;
+
+		extern int opterr;
+
+		opterr = 0;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1) {
@@ -2879,9 +2883,9 @@ next_opt:
 		case OPT_CLASS:
 			ret = get_class(optarg, &u32);
 			if (ret < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			else if (ret > 0)
-				exit(EXIT_SUCCESS);
+				return EXIT_SUCCESS;
 			else
 				set_setting("class", TYPE_ID_UINT32, &u32);
 			break;
@@ -2899,18 +2903,18 @@ next_opt:
 			break;
 		case OPT_CPU_METHOD:
 			if (stress_set_cpu_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_CYCLIC_DIST:
 			stress_set_cyclic_dist(optarg);
 			break;
 		case OPT_CYCLIC_METHOD:
 			if (stress_set_cyclic_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_CYCLIC_POLICY:
 			if (stress_set_cyclic_policy(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_CYCLIC_PRIO:
 			stress_set_cyclic_prio(optarg);
@@ -2923,11 +2927,11 @@ next_opt:
 			break;
 		case OPT_DCCP_DOMAIN:
 			if (stress_set_dccp_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_DCCP_OPTS:
 			if (stress_set_dccp_opts(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_DCCP_PORT:
 			stress_set_dccp_port(optarg);
@@ -2937,7 +2941,7 @@ next_opt:
 			break;
 		case OPT_DENTRY_ORDER:
 			if (stress_set_dentry_order(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_DIR_DIRS:
 			stress_set_dir_dirs(optarg);
@@ -2947,7 +2951,7 @@ next_opt:
 			break;
 		case OPT_EPOLL_DOMAIN:
 			if (stress_set_epoll_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_EPOLL_PORT:
 			stress_set_epoll_port(optarg);
@@ -2969,7 +2973,7 @@ next_opt:
 			break;
 		case OPT_FILENAME_OPTS:
 			if (stress_filename_opts(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_FORK_MAX:
 			stress_set_fork_max(optarg);
@@ -2985,7 +2989,7 @@ next_opt:
 			break;
 		case OPT_HDD_OPTS:
 			if (stress_hdd_opts(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_HDD_WRITE_SIZE:
 			stress_set_hdd_write_size(optarg);
@@ -3045,7 +3049,7 @@ next_opt:
 			break;
 		case OPT_MATRIX_METHOD:
 			if (stress_set_matrix_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_MATRIX_SIZE:
 			stress_set_matrix_size(optarg);
@@ -3061,7 +3065,7 @@ next_opt:
 			break;
 		case OPT_MEMTHRASH_METHOD:
 			if (stress_set_memthrash_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_METRICS:
 			g_opt_flags |= OPT_FLAGS_METRICS;
@@ -3137,8 +3141,11 @@ next_opt:
 			stress_set_qsort_size(optarg);
 			break;
 		case OPT_QUERY:
-			(void)printf("Try '%s --help' for more information.\n", g_app_name);
-			exit(EXIT_FAILURE);
+			if (!jobmode) {
+				(void)printf("%s: unrecognized option '%s'\n", g_app_name, argv[optind - 1]);
+				(void)printf("Try '%s --help' for more information.\n", g_app_name);
+			}
+			return EXIT_FAILURE;
 			break;
 		case OPT_QUIET:
 			g_opt_flags &= ~(PR_ALL);
@@ -3169,7 +3176,7 @@ next_opt:
 			break;
 		case OPT_SCTP_DOMAIN:
 			if (stress_set_sctp_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_SEEK_PUNCH:
 			g_opt_flags |= OPT_FLAGS_SEEK_PUNCH;
@@ -3210,21 +3217,21 @@ next_opt:
 			break;
 		case OPT_SOCKET_DOMAIN:
 			if (stress_set_socket_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_SOCKET_NODELAY:
 			g_opt_flags |= OPT_FLAGS_SOCKET_NODELAY;
 			break;
 		case OPT_SOCKET_OPTS:
 			if (stress_set_socket_opts(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_SOCKET_PORT:
 			stress_set_socket_port(optarg);
 			break;
 		case OPT_SOCKET_TYPE:
 			if (stress_set_socket_type(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_SOCKET_FD_PORT:
 			stress_set_socket_fd_port(optarg);
@@ -3237,18 +3244,18 @@ next_opt:
 			break;
 		case OPT_STR_METHOD:
 			if (stress_set_str_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_STREAM_L3_SIZE:
 			stress_set_stream_L3_size(optarg);
 			break;
 		case OPT_STREAM_MADVISE:
 			if (stress_set_stream_madvise(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_STRESSORS:
 			show_stressor_names();
-			exit(EXIT_SUCCESS);
+			return EXIT_SUCCESS;
 		case OPT_SYNC_FILE_BYTES:
 			stress_set_sync_file_bytes(optarg);
 			break;
@@ -3257,14 +3264,14 @@ next_opt:
 			break;
 		case OPT_TASKSET:
 			if (set_cpu_affinity(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_THRASH:
 			g_opt_flags |= OPT_FLAGS_THRASH;
 			break;
 		case OPT_TEMP_PATH:
 			if (stress_set_temp_path(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_TIMEOUT:
 			g_opt_timeout = get_uint64_time(optarg);
@@ -3296,7 +3303,7 @@ next_opt:
 			break;
 		case OPT_UDP_DOMAIN:
 			if (stress_set_udp_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_UDP_PORT:
 			stress_set_udp_port(optarg);
@@ -3306,7 +3313,7 @@ next_opt:
 			break;
 		case OPT_UDP_FLOOD_DOMAIN:
 			if (stress_set_udp_flood_domain(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_USERFAULTFD_BYTES:
 			stress_set_userfaultfd_bytes(optarg);
@@ -3325,7 +3332,7 @@ next_opt:
 			break;
 		case OPT_VERSION:
 			version();
-			exit(EXIT_SUCCESS);
+			return EXIT_SUCCESS;
 		case OPT_VM_BYTES:
 			stress_set_vm_bytes(optarg);
 			break;
@@ -3337,11 +3344,11 @@ next_opt:
 			break;
 		case OPT_VM_MADVISE:
 			if (stress_set_vm_madvise(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 #if defined(MAP_LOCKED)
 		case OPT_VM_MMAP_LOCKED:
@@ -3361,7 +3368,7 @@ next_opt:
 			break;
 		case OPT_WCS_METHOD:
 			if (stress_set_wcs_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			break;
 		case OPT_YAML:
 			set_setting("yaml", TYPE_ID_STR, (void *)optarg);
@@ -3369,17 +3376,19 @@ next_opt:
 		case OPT_ZLIB_METHOD:
 #if defined(HAVE_LIB_Z)
 			if (stress_set_zlib_method(optarg) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 #endif
 			break;
 		case OPT_ZOMBIE_MAX:
 			stress_set_zombie_max(optarg);
 			break;
 		default:
-			(void)printf("Unknown option (%d)\n",c);
-			exit(EXIT_FAILURE);
+			if (!jobmode)
+				(void)printf("Unknown option (%d)\n",c);
+			return EXIT_FAILURE;
 		}
 	}
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -3517,6 +3526,7 @@ int main(int argc, char **argv)
 	uint32_t class = 0;
 	const uint32_t cpus_online = stress_get_processors_online();
 	const uint32_t cpus_configured = stress_get_processors_configured();
+	int ret;
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
@@ -3544,7 +3554,9 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	parse_opts(argc, argv);
+	ret = parse_opts(argc, argv, false);
+	if (ret != EXIT_SUCCESS)
+		exit(ret);
 
 	(void)get_setting("class", &class);
 	enable_classes(class);

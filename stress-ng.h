@@ -2376,7 +2376,7 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 
 /* Jobfile parsing */
 extern WARN_UNUSED int parse_jobfile(int argc, char **argv, const char *jobfile);
-extern void parse_opts(int argc, char **argv);
+extern WARN_UNUSED int parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);
