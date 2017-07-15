@@ -38,6 +38,7 @@ endif
 #
 ifeq ($(STATIC),1)
 LDFLAGS += -static
+CFLAGS += -DBUILD_STATIC
 endif
 
 BINDIR=/usr/bin

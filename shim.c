@@ -673,6 +673,13 @@ int shim_usleep(uint64_t usec)
  */
 char *shim_getlogin(void)
 {
+#if defined(BUILD_STATIC)
+	/*
+	 *  static builds can't use getpwuid because of
+	 *  dynamic linking issues. Ugh.
+	 */
+	return NULL;
+#else
 	static char pw_name[256];
 	struct passwd *pw;
 
@@ -684,6 +691,7 @@ char *shim_getlogin(void)
 	pw_name[sizeof(pw_name) - 1 ] = '\0';
 
 	return pw_name;
+#endif
 }
 
 /*
