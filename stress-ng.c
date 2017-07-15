@@ -397,7 +397,6 @@ static const class_t classes[] = {
 	{ CLASS_SCHEDULER,	"scheduler" },
 	{ CLASS_SECURITY,	"security" },
 	{ CLASS_VM,		"vm" },
-	{ 0,			NULL }
 };
 
 static const struct option long_options[] = {
@@ -1525,7 +1524,7 @@ static uint32_t get_class_id(char *const str)
 {
 	size_t i;
 
-	for (i = 0; classes[i].class; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(classes); i++) {
 		if (!strcmp(classes[i].name, str))
 			return classes[i].class;
 	}
@@ -1567,7 +1566,7 @@ static int get_class(char *const class_str, uint32_t *class)
 			}
 			(void)fprintf(stderr, "Unknown class: '%s', "
 				"available classes:", token);
-			for (i = 0; classes[i].class; i++)
+			for (i = 0; i < SIZEOF_ARRAY(classes); i++)
 				(void)fprintf(stderr, " %s", classes[i].name);
 			(void)fprintf(stderr, "\n\n");
 			return -1;
