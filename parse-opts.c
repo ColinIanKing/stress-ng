@@ -35,7 +35,7 @@ void check_value(
 	if ((val < 0) || (val > STRESS_PROCS_MAX)) {
 		(void)fprintf(stderr, "Number of %s workers must be between "
 			"0 and %d\n", msg, STRESS_PROCS_MAX);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 }
 
@@ -54,7 +54,7 @@ void check_range(
 		(void)fprintf(stderr, "Value %" PRId64 " is out of range for %s,"
 			" allowed: %" PRId64 " .. %" PRId64 "\n",
 			val, opt, lo, hi);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 }
 
@@ -77,7 +77,7 @@ void check_range_bytes(
 			opt,
 			stress_uint64_to_str(strlo, sizeof(strlo), lo),
 			stress_uint64_to_str(strhi, sizeof(strhi), hi));
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 }
 
@@ -102,7 +102,7 @@ static void ensure_positive(const char *const str)
 				return;
 
 			(void)fprintf(stderr, "Invalid negative number %s\n", str);
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 	}
 }
@@ -118,7 +118,7 @@ uint32_t get_uint32(const char *const str)
 	ensure_positive(str);
 	if (sscanf(str, "%12" SCNu32, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 	return val;
 }
@@ -133,7 +133,7 @@ int32_t get_int32(const char *const str)
 
 	if (sscanf(str, "%12" SCNd32, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 	return val;
 }
@@ -149,7 +149,7 @@ uint64_t get_uint64(const char *const str)
 	ensure_positive(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 	return val;
 }
@@ -171,7 +171,7 @@ uint64_t get_uint64_scale(
 	val = get_uint64(str);
 	if (!len)  {
 		(void)fprintf(stderr, "Value %s is an invalid size\n", str);
-		exit(EXIT_FAILURE);
+		longjmp(g_error_env, 1);
 	}
 	len--;
 	ch = str[len];
@@ -230,15 +230,15 @@ uint64_t get_uint64_byte_memory(
 		/* Should NEVER happen */
 		if (instances < 1) {
 			(void)fprintf(stderr, "Invalid number of instances\n");
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		if (sscanf(str, "%lf", &val) != 1) {
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		if (phys_mem == 0) {
 			(void)fprintf(stderr, "Cannot determine physical memory size\n");
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		return (uint64_t)((double)(phys_mem * val) / (100.0 * instances));
         }
@@ -266,15 +266,15 @@ uint64_t get_uint64_byte_filesystem(
 		/* Should NEVER happen */
 		if (instances < 1) {
 			(void)fprintf(stderr, "Invalid number of instances\n");
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		if (sscanf(str, "%lf", &val) != 1) {
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		if (bytes == 0) {
 			(void)fprintf(stderr, "Cannot determine available space on file system\n");
-			exit(EXIT_FAILURE);
+			longjmp(g_error_env, 1);
 		}
 		return (uint64_t)((double)(bytes * val) / (100.0 * instances));
         }

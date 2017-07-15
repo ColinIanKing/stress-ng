@@ -108,9 +108,10 @@ int parse_jobfile(
 	FILE *fp;
 	char buf[4096];
 	char *new_argv[MAX_ARGS];
-	int ret = -1;
-	uint32_t flag = 0;
-	uint32_t lineno = 0;
+	char txt[sizeof(buf)];
+	int ret;
+	uint32_t flag;
+	static uint32_t lineno;
 
 	if (!jobfile) {
 		if (argc < 2)
@@ -126,8 +127,16 @@ int parse_jobfile(
 		return -1;
 	}
 
+	if (setjmp(g_error_env) == 1) {
+		parse_error(lineno, txt);
+		ret = -1;
+		goto err;
+	}
+
+	flag = 0;
+	ret = -1;
+
 	while (fgets(buf, sizeof(buf), fp)) {
-		char txt[sizeof(buf)];
 		char *ptr = buf;
 		int new_argc = 1;
 

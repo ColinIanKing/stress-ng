@@ -79,6 +79,8 @@ pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
 int g_signum;					/* signal sent to process */
+jmp_buf g_error_env;				/* parsing error env */
+
 
 /*
  *  stressors to be run-time checked to see if they are supported
@@ -3513,7 +3515,7 @@ int main(int argc, char **argv)
 	double duration = 0.0;			/* stressor run time in secs */
 	size_t len;
 	bool success = true, resource_success = true;
-	FILE *yaml = NULL;			/* YAML output file */
+	FILE *yaml;				/* YAML output file */
 	char *yaml_filename;			/* YAML file name */
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
@@ -3527,6 +3529,11 @@ int main(int argc, char **argv)
 	const uint32_t cpus_online = stress_get_processors_online();
 	const uint32_t cpus_configured = stress_get_processors_configured();
 	int ret;
+
+	if (setjmp(g_error_env) == 1)
+		exit(EXIT_FAILURE);
+
+	yaml = NULL;
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
