@@ -623,6 +623,7 @@ static const struct option long_options[] = {
 	{ "matrix-ops",	1,	0,	OPT_MATRIX_OPS },
 	{ "matrix-method",1,	0,	OPT_MATRIX_METHOD },
 	{ "matrix-size",1,	0,	OPT_MATRIX_SIZE },
+	{ "matrix-yx",	0,	0,	OPT_MATRIX_YX },
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "membarrier",	1,	0,	OPT_MEMBARRIER },
 	{ "membarrier-ops",1,	0,	OPT_MEMBARRIER_OPS },
@@ -1192,6 +1193,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"matrix-ops N",		"stop after N maxtrix bogo operations" },
 	{ NULL,		"matrix-method M",	"specify matrix stress method M, default is all" },
 	{ NULL,		"matrix-size N",	"specify the size of the N x N matrix" },
+	{ NULL,		"matrix-yx",		"matrix operation is y by x instread of x by y" },
 	{ NULL,		"membarrier N",		"start N workers performing membarrier system calls" },
 	{ NULL,		"membarrier-ops N",	"stop after N membarrier bogo operations" },
 	{ NULL,		"memcpy N",		"start N workers performing memory copies" },
@@ -3049,6 +3051,9 @@ next_opt:
 		case OPT_MATRIX_METHOD:
 			if (stress_set_matrix_method(optarg) < 0)
 				return EXIT_FAILURE;
+			break;
+		case OPT_MATRIX_YX:
+			stress_set_matrix_yx();
 			break;
 		case OPT_MATRIX_SIZE:
 			stress_set_matrix_size(optarg);

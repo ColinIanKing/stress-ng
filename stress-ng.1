@@ -1742,6 +1742,11 @@ specify the N \(mu N size of the matrices.  Smaller values result in a
 floating point compute throughput bound stressor, where as large values result
 in a cache and/or memory bandwidth bound stressor.
 .TP
+.B \-\-matrix\-yx
+perform matrix operations in order y by x rather than the default x by y. This
+is suboptimal ordering compared to the default and will perform more data
+cache stalls.
+.TP
 .B \-\-membarrier N
 start N workers that exercise the membarrier system call (Linux only).
 .TP

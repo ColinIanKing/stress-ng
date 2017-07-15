@@ -1669,6 +1669,7 @@ typedef enum {
 	OPT_MATRIX_OPS,
 	OPT_MATRIX_SIZE,
 	OPT_MATRIX_METHOD,
+	OPT_MATRIX_YX,
 
 	OPT_MAXIMIZE,
 
@@ -2485,6 +2486,7 @@ extern void stress_set_malloc_bytes(const char *opt);
 extern void stress_set_malloc_max(const char *opt);
 extern void stress_set_malloc_threshold(const char *opt);
 extern int  stress_set_matrix_method(const char *name);
+extern void stress_set_matrix_yx(void);
 extern void stress_set_matrix_size(const char *opt);
 extern void stress_set_memfd_bytes(const char *opt);
 extern void stress_set_memfd_fds(const char *opt);
