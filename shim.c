@@ -222,7 +222,7 @@ int shim_getdents(
 }
 
 /*
- *  shim_getdent6s()
+ *  shim_getdent64()
  *	wrapper for getdents64(2) - get directory entries
  */
 int shim_getdents64(
