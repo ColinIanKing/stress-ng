@@ -1594,15 +1594,48 @@ static void stress_cpu_hanoi(const char *name)
  *  factorial()
  *	compute n!
  */
-static long double HOT OPTIMIZE3 factorial(int n)
+static inline long double HOT OPTIMIZE3 factorial(int n)
 {
-	long double f = 1;
+	static long double factorials[] = {
+		1.0,
+		1.0,
+		2.0,
+		6.0,
+		24.0,
+		120.0,
+		720.0,
+		5040.0,
+		40320.0,
+		362880.0,
+		3628800.0,
+		39916800.0,
+		479001600.0,
+		6227020800.0,
+		87178291200.0,
+		1307674368000.0,
+		20922789888000.0,
+		355687428096000.0,
+		6402373705728000.0,
+		121645100408832000.0,
+		2432902008176640000.0,
+		51090942171709440000.0,
+		1124000727777607680000.0,
+		25852016738884976640000.0,
+		620448401733239439360000.0,
+		15511210043330985984000000.0,
+		403291461126605635592388608.0,
+		10888869450418352161430700032.0,
+		304888344611713860511469666304.0,
+		8841761993739701954695181369344.0,
+		265252859812191058647452510846976.0,
+		8222838654177922818071027836256256.0,
+		263130836933693530178272890760200192.0
+	};
 
-	while (n > 0) {
-		f *= (long double)n;
-		n--;
-	}
-	return f;
+	if (n < (int)SIZEOF_ARRAY(factorials))
+		return factorials[n];
+
+	return roundl(expl(lgammal((long double)(n + 1))));
 }
 
 /*
@@ -2089,7 +2122,7 @@ static void stress_cpu_factorial(const char *name)
 	const double sqrt_pi = sqrtl(M_PI);
 
 	for (n = 1; n < 150; n++) {
-		double fact = roundl(expl(lgamma((double)(n + 1))));
+		double fact = roundl(expl(lgammal((double)(n + 1))));
 		double dn;
 
 		f *= (double)n;
