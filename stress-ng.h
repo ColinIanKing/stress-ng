@@ -714,6 +714,15 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
+#define MIN_MEMRATE_BYTES	(4 * KB)
+#if UINTPTR_MAX == MAX_32
+#define MAX_MEMRATE_BYTES	(MAX_32)
+#else
+#define MAX_MEMRATE_BYTES	(4 * GB)
+#endif
+#define DEFAULT_MEMRATE_BYTES	(256 * MB)
+
+#define DEFAULT_MREMAP_BYTES	(256 * MB)
 #define MIN_MREMAP_BYTES	(4 * KB)
 #if UINTPTR_MAX == MAX_32
 #define MAX_MREMAP_BYTES	(MAX_32)
@@ -1238,6 +1247,7 @@ typedef enum {
 	STRESS_MEMBARRIER,
 	STRESS_MEMCPY,
 	STRESS_MEMFD,
+	STRESS_MEMRATE,
 	STRESS_MEMTHRASH,
 	STRESS_MERGESORT,
 	STRESS_MINCORE,
@@ -1683,6 +1693,12 @@ typedef enum {
 	OPT_MEMFD_OPS,
 	OPT_MEMFD_BYTES,
 	OPT_MEMFD_FDS,
+
+	OPT_MEMRATE,
+	OPT_MEMRATE_OPS,
+	OPT_MEMRATE_RD_MBS,
+	OPT_MEMRATE_WR_MBS,
+	OPT_MEMRATE_BYTES,
 
 	OPT_MEMTHRASH,
 	OPT_MEMTHRASH_OPS,
@@ -2490,7 +2506,10 @@ extern void stress_set_matrix_yx(void);
 extern void stress_set_matrix_size(const char *opt);
 extern void stress_set_memfd_bytes(const char *opt);
 extern void stress_set_memfd_fds(const char *opt);
-extern int stress_set_memthrash_method(const char *name);
+extern void stress_set_memrate_bytes(const char *opt);
+extern void stress_set_memrate_rd_mbs(const char *opt);
+extern void stress_set_memrate_wr_mbs(const char *opt);
+extern int  stress_set_memthrash_method(const char *name);
 extern void stress_set_mergesort_size(const void *opt);
 extern void stress_set_mmap_bytes(const char *opt);
 extern void stress_set_mq_size(const char *opt);
@@ -2769,6 +2788,7 @@ STRESS(stress_matrix);
 STRESS(stress_membarrier);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);
+STRESS(stress_memrate);
 STRESS(stress_memthrash);
 STRESS(stress_mergesort);
 STRESS(stress_mincore);

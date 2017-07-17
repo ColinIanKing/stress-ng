@@ -280,7 +280,8 @@ static const stress_t stressors[] = {
 	STRESSOR(membarrier, MEMBARRIER, CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(memcpy, MEMCPY, CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(memfd, MEMFD, CLASS_OS | CLASS_MEMORY),
-	STRESSOR(memthrash,MEMTHRASH, CLASS_MEMORY),
+	STRESSOR(memrate, MEMRATE, CLASS_MEMORY),
+	STRESSOR(memthrash, MEMTHRASH, CLASS_MEMORY),
 	STRESSOR(mergesort, MERGESORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(mincore, MINCORE, CLASS_OS | CLASS_MEMORY),
 	STRESSOR(mknod, MKNOD, CLASS_FILESYSTEM | CLASS_OS),
@@ -627,14 +628,17 @@ static const struct option long_options[] = {
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "membarrier",	1,	0,	OPT_MEMBARRIER },
 	{ "membarrier-ops",1,	0,	OPT_MEMBARRIER_OPS },
-	{ "memcpy",	1,	0,	OPT_MEMCPY },
-	{ "memcpy",	1,	0,	OPT_MEMCPY },
-	{ "memcpy",	1,	0,	OPT_MEMCPY },
+	{ "memcpy",	0,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "memfd",	1,	0,	OPT_MEMFD },
 	{ "memfd-ops",	1,	0,	OPT_MEMFD_OPS },
 	{ "memfd-bytes",1,	0,	OPT_MEMFD_BYTES },
 	{ "memfd-fds",	1,	0,	OPT_MEMFD_FDS },
+	{ "memrate",	1,	0,	OPT_MEMRATE },
+	{ "memrate-ops",1,	0,	OPT_MEMRATE_OPS },
+	{ "memrate-rd-mbs",1,	0,	OPT_MEMRATE_RD_MBS },
+	{ "memrate-wr-mbs",1,	0,	OPT_MEMRATE_WR_MBS },
+	{ "memrate-bytes",1,	0,	OPT_MEMRATE_BYTES },
 	{ "memthrash",	1,	0,	OPT_MEMTHRASH },
 	{ "memthrash-ops",1,	0,	OPT_MEMTHRASH_OPS },
 	{ "memthrash-method",1,	0,	OPT_MEMTHRASH_METHOD },
@@ -1202,6 +1206,11 @@ static const help_t help_stressors[] = {
 	{ NULL,		"memfd-bytes N",	"allocate N bytes for each stress iteration" },
 	{ NULL,		"memfd-fds N",		"number of memory fds to open per stressors" },
 	{ NULL,		"memfd-ops N",		"stop after N memfd bogo operations" },
+	{ NULL,		"memrate N",		"start N workers exercised memory read/writes" },
+	{ NULL,		"memrate-ops",		"stop after N memrate bogo operations" },
+	{ NULL,		"memrate-bytes N",	"size of memory buffer being exercised" },
+	{ NULL,		"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
+	{ NULL,		"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },
 	{ NULL,		"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,		"memthrash-ops N",	"stop after N memthrash bogo operations" },
 	{ NULL,		"memthrash-method M",	"specify memthrash method M, default is all" },
@@ -3066,6 +3075,15 @@ next_opt:
 			break;
 		case OPT_MEMFD_FDS:
 			stress_set_memfd_fds(optarg);
+			break;
+		case OPT_MEMRATE_BYTES:
+			stress_set_memrate_bytes(optarg);
+			break;
+		case OPT_MEMRATE_RD_MBS:
+			stress_set_memrate_rd_mbs(optarg);
+			break;
+		case OPT_MEMRATE_WR_MBS:
+			stress_set_memrate_wr_mbs(optarg);
 			break;
 		case OPT_MEMTHRASH_METHOD:
 			if (stress_set_memthrash_method(optarg) < 0)

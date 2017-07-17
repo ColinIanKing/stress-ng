@@ -129,6 +129,7 @@ STRESS_SRC = \
 	stress-membarrier.c \
 	stress-memcpy.c \
 	stress-memfd.c \
+	stress-memrate.c \
 	stress-memthrash.c \
 	stress-mergesort.c \
 	stress-mincore.c \

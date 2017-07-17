@@ -1778,6 +1778,30 @@ memfd file descriptions with this option.
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
 .TP
+.B \-\-memrate N
+start N workers that exercise a buffer with 64, 32, 16 and 8 bit reads and
+writes.  This memory stressor allows one to also specify the maximum read
+and write rates. The stressors will run at maximum speed if no read or
+write rates are specified.
+.TP
+.B \-\-memrate\-ops N
+stop after N bogo memrate operations.
+.TP
+.B \-\-memrate\-bytes N
+specify the size of the memory buffer being exercised. The default size
+is 256MB. One can specify the size in units of Bytes, KBytes, MBytes and
+GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-memrate\-rd\-mbs N
+specify the maximum allowed read rate in MB/sec. The actual read rate
+is dependant on scheduling jitter and memory accesses from other running
+processes.
+.TP
+.B \-\-memrate\-wr\-mbs N
+specify the maximum allowed read rate in MB/sec. The actual write rate
+is dependant on scheduling jitter and memory accesses from other running
+processes.
+.TP
 .B \-\-memthrash N
 start N workers that thrash and exercise a 16MB buffer in various ways to
 try and trip thermal overrun.
