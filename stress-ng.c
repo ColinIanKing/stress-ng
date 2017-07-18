@@ -628,7 +628,7 @@ static const struct option long_options[] = {
 	{ "maximize",	0,	0,	OPT_MAXIMIZE },
 	{ "membarrier",	1,	0,	OPT_MEMBARRIER },
 	{ "membarrier-ops",1,	0,	OPT_MEMBARRIER_OPS },
-	{ "memcpy",	0,	0,	OPT_MEMCPY },
+	{ "memcpy",	1,	0,	OPT_MEMCPY },
 	{ "memcpy-ops",	1,	0,	OPT_MEMCPY_OPS },
 	{ "memfd",	1,	0,	OPT_MEMFD },
 	{ "memfd-ops",	1,	0,	OPT_MEMFD_OPS },
