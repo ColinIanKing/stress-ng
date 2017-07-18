@@ -56,6 +56,7 @@
 
 #if defined(__minix__)
 #define cabsl	cabs
+#define lgammal	lgamma
 #endif
 
 /*
