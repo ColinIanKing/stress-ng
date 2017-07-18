@@ -44,6 +44,7 @@
 #define	csinl	csin
 #define cabsl	cabs
 #define sqrtl	sqrt
+#define lgammal	lgamma
 #endif
 
 #if defined(__FreeBSD__)
