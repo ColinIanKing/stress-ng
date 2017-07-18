@@ -1,3 +1,45 @@
+stress-ng (0.08.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-memrate: don't fail so badly when we can't allocate memory
+  * stress-ng: fix segfault on --memcpy, requires 1 arg and not zero
+  * Manual: update date
+  * stress-cpu: Minix also does not have lgammal so work around this
+  * stress-dirdeep: fix clang + Minix build warning, cast char to int
+  * stress-memrate: add OOM check detection
+  * stress-cpu: NetBSD does not have lgammal so work around this
+  * stress-radixsort: fix build issues on systems w/o libbsd
+  * Add new memrate stressor
+  * shim: trivial fix to comment typo
+  * stress-cpu: optimize factorial calculation
+  * job: avoid memory overflow on strncpy on txt
+  * Add --matrix-yx option
+  * iterate over size of classes and remove need for terminator
+  * stress-radixsort: remove casting, clean up build warning with PEDANTIC=1
+  * README: Add notes on PEDANTIC builds
+  * No need to extern define opterr, it is already defined in getopt.h
+  * Fix static build issues with the use of getpwuid
+  * Add longjmp handling to unwind parsing errors
+  * Improve job error handling
+  * Add a LIKELY annotation to the 75% likely path on mwc8()
+  * Add a radixsort CPU/memory/cache stressor
+  * stress-rmap: force faster termination and cleanups
+  * stress-ng.h: forgot to commit matrix size increase to 8192
+  * stress-matrix: scale up default float values by 65535
+  * stress-matrix: don't allocate matrices on the stack, mmap them instead
+  * stress-icache: call shim_cacheflush to flush ICACHE
+  * Add --vm-madvise option
+  * stress-ng: forgot to add in stream-madvise option in help
+  * stress-resources: make memory mappings private and exercise random madvise
+  * stress-vm: make mappings private, helps with hugepage madvise
+  * stress-shm: make mappings private, helps with hugepage madvise
+  * stress-memthrash: make mappings private, helps with hugepage madvise
+  * stress-stream: add --stream-madvise option
+  * manual: fix typo, --no-advise should be --no-madvise
+  * stress-fcntl: add 4.13 hints F_GET_FILE_RW_HINT F_SET_FILE_RW_HINT
+
+ -- Colin King <colin.king@canonical.com>  Tue, 18 Jul 2017 09:34:47 +0100
+
 stress-ng (0.08.08-1) unstable; urgency=medium
 
   * Makefile: bump version
