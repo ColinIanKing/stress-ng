@@ -234,7 +234,6 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
 int stress_memrate(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
-	void *buffer, *buffer_end;
 	uint64_t memrate_bytes  = DEFAULT_MEMRATE_BYTES;
 	uint64_t memrate_rd_mbs = ~0;
 	uint64_t memrate_wr_mbs = ~0;
@@ -258,12 +257,6 @@ int stress_memrate(const args_t *args)
 	for (i = 0; i < memrate_items; i++) {
 		stats[i].duration = 0.0;
 		stats[i].mbytes = 0.0;
-	}
-
-	buffer = stress_memrate_mmap(args, memrate_bytes);
-	if (buffer == MAP_FAILED) {
-		rc = EXIT_NO_RESOURCE;
-		goto err;
 	}
 
 	memrate_bytes = (memrate_bytes + 63) & ~(63);
@@ -305,6 +298,11 @@ again:
 		}
 	} else {
 		/* Child */
+		void *buffer, *buffer_end;
+
+		buffer = stress_memrate_mmap(args, memrate_bytes);
+		if (buffer == MAP_FAILED)
+			_exit(EXIT_NO_RESOURCE);
 		buffer_end = (uint8_t *)buffer + memrate_bytes;
 
 		stress_memrate_init_data(buffer, buffer_end);
@@ -332,6 +330,9 @@ again:
 
 			inc_counter(args);
 		} while (keep_stressing());
+
+		(void)munmap(buffer, memrate_bytes);
+		_exit(EXIT_SUCCESS);
 	}
 
 	for (i = 0; i < memrate_items; i++) {
@@ -345,7 +346,6 @@ again:
 	}
 
 	rc = EXIT_SUCCESS;
-	(void)munmap(buffer, memrate_bytes);
 err:
 	(void)munmap(stats, stats_size);
 
