@@ -45,6 +45,7 @@ static void MLOCKED stress_radixsort_handler(int dummy)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 /*
  *  stress_set_radixsort_size()
@@ -60,6 +61,7 @@ void stress_set_radixsort_size(const char *opt)
 	set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 
+#if HAVE_LIB_BSD 
 /*
  *  stress_radixsort()
  *	stress radixsort
