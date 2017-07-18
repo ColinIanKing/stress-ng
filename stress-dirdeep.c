@@ -134,7 +134,7 @@ static void stress_dir_tidy(
 		path[len + 1] = namelist[n]->d_name[0];
 		path[len + 2] = '\0';
 
-		if (isdigit(namelist[n]->d_name[0]))
+		if (isdigit((int)namelist[n]->d_name[0]))
 			stress_dir_tidy(args, path, len + 2, path_len);
 		else
 			(void)unlink(path);
