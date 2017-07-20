@@ -240,6 +240,10 @@ uint64_t get_uint64_percent(
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			longjmp(g_error_env, 1);
 		}
+		if (val < 0.0) {
+			(void)fprintf(stderr, "Invalid percentage %s\n", str);
+			longjmp(g_error_env, 1);
+		}
 		return (uint64_t)((double)(max * val) / (100.0 * instances));
         }
 	return get_uint64_byte(str);
