@@ -226,6 +226,26 @@ uint64_t stress_get_filesystem_size(void)
 }
 
 /*
+ *  stress_get_filesystem_available_inodes()
+ *	get number of free inodes on the current stress
+ *	temporary path, return 0 if failed
+ */
+uint64_t stress_get_filesystem_available_inodes(void)
+{
+	int rc;
+	struct statvfs buf;
+
+	if (!stress_temp_path)
+		return 0;
+
+	rc = statvfs(stress_temp_path, &buf);
+	if (rc < 0)
+		return 0;
+
+	return (uint64_t)buf.f_favail;
+}
+
+/*
  *  stress_set_nonblock()
  *	try to make fd non-blocking
  */

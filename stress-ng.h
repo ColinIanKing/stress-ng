@@ -2354,6 +2354,7 @@ extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
+extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 
 /*
