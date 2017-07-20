@@ -3354,7 +3354,7 @@ next_opt:
 			break;
 		case OPT_VERSION:
 			version();
-			return EXIT_SUCCESS;
+			exit(EXIT_SUCCESS);
 		case OPT_VM_BYTES:
 			stress_set_vm_bytes(optarg);
 			break;
