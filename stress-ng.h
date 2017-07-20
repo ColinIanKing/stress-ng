@@ -1510,6 +1510,7 @@ typedef enum {
 	OPT_DIRDEEP,
 	OPT_DIRDEEP_OPS,
 	OPT_DIRDEEP_DIRS,
+	OPT_DIRDEEP_INODES,
 
 	OPT_DNOTIFY,
 	OPT_DNOTIFY_OPS,
@@ -2483,6 +2484,7 @@ extern void stress_set_dentries(const char *opt);
 extern int  stress_set_dentry_order(const char *opt);
 extern void stress_set_dir_dirs(const char *opt);
 extern void stress_set_dirdeep_dirs(const char *opt);
+extern void stress_set_dirdeep_inodes(const char *opt);
 extern void stress_set_epoll_port(const char *opt);
 extern int  stress_set_epoll_domain(const char *opt);
 extern void stress_set_exec_max(const char *opt);

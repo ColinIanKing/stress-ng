@@ -35,10 +35,26 @@ void stress_set_dirdeep_dirs(const char *opt)
 	uint32_t dirdeep_dirs;
 
 	dirdeep_dirs = get_uint32(opt);
-	check_range("dirdeep-dirs", dirdeep_dirs,
-		1, 10);
+
+	check_range("dirdeep-dirs", dirdeep_dirs, 1, 10);
 	set_setting("dirdeep-dirs", TYPE_ID_UINT32, &dirdeep_dirs);
 }
+
+/*
+ *  stress_set_dirdeep_inodes()
+ *      set max number of inodes to consume
+ */
+void stress_set_dirdeep_inodes(const char *opt)
+{
+	uint64_t inodes = stress_get_filesystem_available_inodes();
+	uint64_t dirdeep_inodes;
+
+	dirdeep_inodes = get_uint64_percent(opt, 1, inodes,
+		"Cannot determine number of available free inodes");
+	set_setting("dirdeep-inodes", TYPE_ID_UINT64, &dirdeep_inodes);
+}
+
+
 
 /*
  *  stress_dir_make()
@@ -52,11 +68,15 @@ static void stress_dir_make(
 	const size_t len,
 	const size_t path_len,
 	const uint32_t dirdeep_dirs,
-	uint32_t *depth)
+	const uint64_t dirdeep_inodes,
+	uint64_t *const dirdeep_inode_count,
+	uint32_t depth)
 {
 	uint32_t i;
 	int ret;
 
+	if (*dirdeep_inode_count >= dirdeep_inodes)
+		return;
 	if (len + 2 >= path_len)
 		return;
 	if (!keep_stressing())
@@ -72,12 +92,13 @@ static void stress_dir_make(
 		pr_fail_err("mkdir");
 		return;
 	}
+	(*dirdeep_inode_count)++;
 	inc_counter(args);
 
 	/*
 	 *  Top level, create file to symlink and link to
 	 */
-	if (!(*depth)) {
+	if (!depth) {
 		int fd;
 
 		fd = creat(linkpath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
@@ -85,23 +106,26 @@ static void stress_dir_make(
 			pr_fail_err("create");
 			return;
 		}
+		(*dirdeep_inode_count)++;
 		(void)close(fd);
 	}
-
-	(*depth)++;
 
 	path[len] = '/';
 	path[len + 1] = 's';	/* symlink */
 	path[len + 2] = '\0';
 	ret = symlink(linkpath, path);
 	(void)ret;
+	(*dirdeep_inode_count)++;
+
 	path[len + 1] = 'h';	/* hardlink */
 	ret = link(linkpath, path);
 	(void)ret;
+	(*dirdeep_inode_count)++;
 
 	for (i = 0; i < dirdeep_dirs; i++) {
 		path[len + 1] = '0' + i;
-		stress_dir_make(args, linkpath, path, len + 2, path_len, dirdeep_dirs, depth);
+		stress_dir_make(args, linkpath, path, len + 2, path_len,
+				dirdeep_dirs, dirdeep_inodes, dirdeep_inode_count, depth + 1);
 	}
 	path[len] = '\0';
 }
@@ -160,8 +184,10 @@ int stress_dirdeep(const args_t *args)
 	char rootpath[PATH_MAX];
 	size_t path_len;
 	uint32_t dirdeep_dirs = 1;
+	uint64_t dirdeep_inodes = ~0ULL;
 
         (void)get_setting("dirdeep-dirs", &dirdeep_dirs);
+        (void)get_setting("dirdeep-inodes", &dirdeep_inodes);
 
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
@@ -170,10 +196,11 @@ int stress_dirdeep(const args_t *args)
 	strncat(linkpath, "/f", sizeof(linkpath) - 3);
 
 	do {
-		uint32_t depth = 0;
+		uint64_t dirdeep_inode_count = 0;
 
 		strncpy(path, rootpath, sizeof(path));
-		stress_dir_make(args, linkpath, path, path_len, sizeof(path), dirdeep_dirs, &depth);
+		stress_dir_make(args, linkpath, path, path_len, sizeof(path),
+			dirdeep_dirs, dirdeep_inodes, &dirdeep_inode_count, 0);
 		strncpy(path, rootpath, sizeof(path));
 		if (!keep_stressing())
 			 pr_tidy("%s: removing directories\n", args->name);

@@ -1081,9 +1081,15 @@ of the tree is created in each level.
 .TP
 .B \-\-dirdeep\-ops N
 stop directory depth workers after N bogo directory operations.
+.TP
 .B \-\-dirdeep\-dirs N
 create N directories at each tree level. The default is just 1 but can be
 increased to a maximum of 10 per level.
+.TP
+.B \-\-dirdeep\-inodes N
+consume upto N inodes per dirdeep stressor while creating directories and
+links. The value N can be the number of inodes or a percentage of the total
+available free inodes on the filesystem being used.  
 .TP
 .B \-\-dnotify N
 start N workers performing file system activities such as making/deleting
