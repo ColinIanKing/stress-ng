@@ -210,22 +210,26 @@ uint64_t get_uint64_byte(const char *const str)
 }
 
 /*
- *  get_uint64_byte_memory()
- *	get memory size from string. If it contains %
- *	at the end, then covert it into the available
- *	physical memory scaled by that percentage divided
- *	by the number of stressor instances
+ *  get_uint64_percent()
+ *	get a value by whole number or by percentage
  */
-uint64_t get_uint64_byte_memory(
+uint64_t get_uint64_percent(
 	const char *const str,
-	const uint32_t instances)
+	const uint32_t instances,
+	const uint64_t max,
+	const char *const errmsg)
 {
 	size_t len = strlen(str);
 
-	/* Convert to % of memory over N instances */
+	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {
-		uint64_t phys_mem = stress_get_phys_mem_size();
 		double val;
+
+		/* Avoid division by zero */
+		if (max == 0) {
+			(void)fprintf(stderr, "%s\n", errmsg);
+			longjmp(g_error_env, 1);
+		}
 
 		/* Should NEVER happen */
 		if (instances < 1) {
@@ -236,13 +240,26 @@ uint64_t get_uint64_byte_memory(
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			longjmp(g_error_env, 1);
 		}
-		if (phys_mem == 0) {
-			(void)fprintf(stderr, "Cannot determine physical memory size\n");
-			longjmp(g_error_env, 1);
-		}
-		return (uint64_t)((double)(phys_mem * val) / (100.0 * instances));
+		return (uint64_t)((double)(max * val) / (100.0 * instances));
         }
 	return get_uint64_byte(str);
+}
+
+/*
+ *  get_uint64_byte_memory()
+ *	get memory size from string. If it contains %
+ *	at the end, then covert it into the available
+ *	physical memory scaled by that percentage divided
+ *	by the number of stressor instances
+ */
+uint64_t get_uint64_byte_memory(
+	const char *const str,
+	const uint32_t instances)
+{
+	uint64_t phys_mem = stress_get_phys_mem_size();
+
+	return get_uint64_percent(str, instances, phys_mem,
+		"Cannot determine physical memory size");
 }
 
 /*
@@ -256,29 +273,10 @@ uint64_t get_uint64_byte_filesystem(
 	const char *const str,
 	const uint32_t instances)
 {
-	size_t len = strlen(str);
+	uint64_t bytes = stress_get_filesystem_size();
 
-	/* Convert to % of available filesystem space over N instances */
-	if ((len > 1) && (str[len - 1] == '%')) {
-		uint64_t bytes = stress_get_filesystem_size();
-		double val;
-
-		/* Should NEVER happen */
-		if (instances < 1) {
-			(void)fprintf(stderr, "Invalid number of instances\n");
-			longjmp(g_error_env, 1);
-		}
-		if (sscanf(str, "%lf", &val) != 1) {
-			(void)fprintf(stderr, "Invalid percentage %s\n", str);
-			longjmp(g_error_env, 1);
-		}
-		if (bytes == 0) {
-			(void)fprintf(stderr, "Cannot determine available space on file system\n");
-			longjmp(g_error_env, 1);
-		}
-		return (uint64_t)((double)(bytes * val) / (100.0 * instances));
-        }
-	return get_uint64_byte(str);
+	return get_uint64_percent(str, instances, bytes,
+		"Cannot determine available space on file system");
 }
 
 /*
