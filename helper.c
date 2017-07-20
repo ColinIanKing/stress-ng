@@ -222,10 +222,6 @@ uint64_t stress_get_filesystem_size(void)
 	if (blocks > max_blocks)
 		blocks = max_blocks;
 
-	(void)printf("stress_get_filesystem_size: %" PRIu64 " %" PRIu64 " %" PRIu64 "\n",
-		(uint64_t)buf.f_bsize, (uint64_t)blocks,
-		(uint64_t)buf.f_bsize * blocks);
-
 	return (uint64_t)buf.f_bsize * blocks;
 }
 
