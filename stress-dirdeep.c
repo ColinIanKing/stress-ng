@@ -55,7 +55,6 @@ void stress_set_dirdeep_inodes(const char *opt)
 }
 
 
-
 /*
  *  stress_dir_make()
  *	depth-first tree creation, create lots of sub-trees with
@@ -133,6 +132,79 @@ static void stress_dir_make(
 }
 
 /*
+ *  stress_dir_exercise()
+ *	exercise files and directories in the tree
+ */
+static void stress_dir_exercise(
+	const args_t *args,
+	char *const path,
+	const size_t len,
+	const size_t path_len)
+{
+	struct dirent **namelist;
+	int n;
+#if _POSIX_C_SOURCE >= 200809L
+	const double now = time_now();
+	const time_t sec = (time_t)now;
+	const long nsec = (long)((now - (double)sec) * 1000000000.0);
+	struct timespec times[2] = {
+		{ sec, nsec },
+		{ sec, nsec }
+	};
+#endif
+
+	if (len + 2 >= path_len)
+		return;
+
+	n = scandir(path, &namelist, NULL, alphasort);
+	if (n < 0)
+		return;
+
+	while (n--) {
+		if (namelist[n]->d_name[0] == '.')
+			continue;
+
+		path[len] = '/';
+		path[len + 1] = namelist[n]->d_name[0];
+		path[len + 2] = '\0';
+
+		if (isdigit((int)namelist[n]->d_name[0])) {
+			stress_dir_exercise(args, path, len + 2, path_len);
+		} else {
+			int fd, ret;
+
+			/* This will update atime only */
+			fd = open(path, O_RDONLY);
+			if (fd >= 0) {
+				const uint16_t rnd = mwc16();
+#if _POSIX_C_SOURCE >= 200809L
+				ret = futimens(fd, times);
+				(void)ret;
+#endif
+				/* Occasional flushing */
+				if (rnd >= 0xfff0) {
+#if defined(__linux__) && NEED_GLIBC(2,14,0)
+					(void)syncfs(fd);
+#else
+					(void)sync();
+#endif
+				} else if (rnd > 0xff40) {
+					(void)fsync(fd);
+				}
+				(void)close(fd);
+			}
+			inc_counter(args);
+		}
+		free(namelist[n]);
+	}
+	path[len] = '\0';
+	free(namelist);
+
+	(void)rmdir(path);
+}
+
+
+/*
  *  stress_dir_tidy()
  *	clean up all files and directories in the tree
  */
@@ -206,16 +278,17 @@ int stress_dirdeep(const args_t *args)
 	pr_inf("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 		args->name, inodes_avail, inodes_avail - inodes_target_free);
 
+	strncpy(path, rootpath, sizeof(path));
+	stress_dir_make(args, linkpath, path, path_len, sizeof(path),
+		dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
 	do {
 		strncpy(path, rootpath, sizeof(path));
-		stress_dir_make(args, linkpath, path, path_len, sizeof(path),
-			dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
-		strncpy(path, rootpath, sizeof(path));
-		if (!keep_stressing())
-			 pr_tidy("%s: removing directories\n", args->name);
-		stress_dir_tidy(args, path, path_len, sizeof(path));
-		sync();
+		stress_dir_exercise(args, path, path_len, sizeof(path));
 	} while (keep_stressing());
+
+	strncpy(path, rootpath, sizeof(path));
+	pr_tidy("%s: removing directories\n", args->name);
+	stress_dir_tidy(args, path, path_len, sizeof(path));
 
 	pr_inf("%s: %" PRIu64 " inodes exercised\n", args->name, inodes_avail - min_inodes_free);
 	if (inodes_target_free < min_inodes_free)
