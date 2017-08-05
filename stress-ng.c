@@ -2897,7 +2897,7 @@ next_opt:
 			if (ret < 0)
 				return EXIT_FAILURE;
 			else if (ret > 0)
-				return EXIT_SUCCESS;
+				exit(EXIT_SUCCESS);
 			else
 				set_setting("class", TYPE_ID_UINT32, &u32);
 			break;
