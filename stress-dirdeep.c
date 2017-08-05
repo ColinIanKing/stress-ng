@@ -199,8 +199,6 @@ static void stress_dir_exercise(
 	}
 	path[len] = '\0';
 	free(namelist);
-
-	(void)rmdir(path);
 }
 
 
