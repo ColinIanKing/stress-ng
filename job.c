@@ -64,7 +64,7 @@ static int parse_run(
             !strcmp(argv[2], "seq")) {
 		if (*flag & RUN_PARALLEL)
 			goto err;
-		*flag |= RUN_PARALLEL;
+		*flag |= RUN_SEQUENTIAL;
 		g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 		return 1;
 	}
@@ -73,8 +73,9 @@ static int parse_run(
 	    !strcmp(argv[2], "together")) {
 		if (*flag & RUN_SEQUENTIAL)
 			goto err;
-		*flag |= RUN_SEQUENTIAL;
+		*flag |= RUN_PARALLEL;
 		g_opt_flags &= ~OPT_FLAGS_SEQUENTIAL;
+		g_opt_flags |= OPT_FLAGS_ALL;
 		return 1;
 	}
 err:

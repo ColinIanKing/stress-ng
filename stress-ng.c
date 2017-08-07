@@ -699,6 +699,7 @@ static const struct option long_options[] = {
 	{ "open",	1,	0,	OPT_OPEN },
 	{ "open-ops",	1,	0,	OPT_OPEN_OPS },
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
+	{ "parallel",	1,	0,	OPT_ALL },
 	{ "pathological",0,	0,	OPT_PATHOLOGICAL },
 	{ "perf",	0,	0,	OPT_PERF_STATS },
 	{ "personality",1,	0,	OPT_PERSONALITY },
@@ -960,6 +961,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 	{ NULL,		"no-rand-seed",		"seed random numbers with the same constant" },
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
+	{ NULL,		"parallel N",		"synonym for 'all N'" },
 	{ NULL,		"pathological",		"enable stressors that are known to hang a machine" },
 #if defined(STRESS_PERF_STATS)
 	{ NULL,		"perf",			"display perf statistics" },
@@ -2898,8 +2900,10 @@ next_opt:
 				return EXIT_FAILURE;
 			else if (ret > 0)
 				exit(EXIT_SUCCESS);
-			else
+			else {
 				set_setting("class", TYPE_ID_UINT32, &u32);
+				enable_classes(u32);
+			}
 			break;
 		case OPT_CLONE_MAX:
 			stress_set_clone_max(optarg);
@@ -3589,9 +3593,6 @@ int main(int argc, char **argv)
 	ret = parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
-
-	(void)get_setting("class", &class);
-	enable_classes(class);
 
 	/*
 	 *  Throw away excluded stressors
