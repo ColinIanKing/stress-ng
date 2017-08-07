@@ -1,3 +1,23 @@
+stress-ng (0.08.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dirdeep: fix warning on unused variable ret on BSD systems
+  * Update manual description for the --all option
+  * job: allow classes to be run as jobs (LP: #1706970)
+  * stress-dirdeep: don't remove directories in main exercise function
+  * return EXIT_SUCCESS for class cpu? class command
+  * stress-dirdeep: exercise files rather than create/delete
+  * manual: fix wording in memthrash table
+  * stress-dirdeep: Fix inode accounting, add more -v information feedback
+  * Add --dirdeep-inodes option to limit of inodes being consumed:
+  * parse-opts: don't allow negative percentages
+  * Add stress_get_filesystem_available_inodes to get inode number
+  * Add generialized percentage opt parser get_uint64_percent
+  * helper: remove debug message from stress_get_filesystem_size
+  * stress-ng: ensure --version option terminates immediately
+
+ -- Colin King <colin.king@canonical.com>  Mon, 7 Aug 2017 21:31:32 +0100
+
 stress-ng (0.08.09-1) unstable; urgency=medium
 
   * Makefile: bump version
