@@ -171,14 +171,14 @@ static void stress_dir_exercise(
 		if (isdigit((int)namelist[n]->d_name[0])) {
 			stress_dir_exercise(args, path, len + 2, path_len);
 		} else {
-			int fd, ret;
+			int fd;
 
 			/* This will update atime only */
 			fd = open(path, O_RDONLY);
 			if (fd >= 0) {
 				const uint16_t rnd = mwc16();
 #if _POSIX_C_SOURCE >= 200809L
-				ret = futimens(fd, times);
+				int ret = futimens(fd, times);
 				(void)ret;
 #endif
 				/* Occasional flushing */
