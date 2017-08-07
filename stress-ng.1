@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "July 18, 2017"
+.TH STRESS-NG 1 "August 7, 2017"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -71,10 +71,10 @@ down, increase latencies and reduce the number of bogo ops as well as changing
 the balance of user time vs system time used depending on the type of stressor
 being used.
 .TP
-.B \-a N, \-\-all N
-start N instances of each stressor. If N is less than zero, then the number
-of CPUs online is used for the number of instances.  If N is zero, then the
-number of CPUs in the system is used.
+.B \-a N, \-\-all N, \-\-parallel N
+start N instances of all stressors in parallel. If N is less than zero, then
+the number of CPUs online is used for the number of instances.  If N is zero,
+then the number of CPUs in the system is used.
 .TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
