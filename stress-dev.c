@@ -45,8 +45,9 @@ static inline void stress_dev_rw(
 	off_t off;
 	struct stat buf;
 	struct pollfd fds[1];
-	fd_set rfds;
+	fd_set rfds, wfds;
 	void *ptr;
+	struct timeval tv;
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 		return;
@@ -69,12 +70,25 @@ static inline void stress_dev_rw(
 	ret = poll(fds, 1, 0);
 	(void)ret;
 
+	FD_ZERO(&rfds);
+	FD_SET(fd, &rfds);
+	FD_ZERO(&wfds);
+	FD_SET(fd, &wfds);
+	tv.tv_sec = 0;
+	tv.tv_usec = 10000;
+	ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
+	(void)ret;
+
 #if defined(F_GETFD)
 	ret = fcntl(fd, F_GETFD, NULL);
 	(void)ret;
 #endif
 #if defined(F_GETFL)
 	ret = fcntl(fd, F_GETFL, NULL);
+	(void)ret;
+#endif
+#if defined(F_GETSIG)
+	ret = fcntl(fd, F_GETSIG, NULL);
 	(void)ret;
 #endif
 	ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
