@@ -233,6 +233,9 @@ int stress_inode_flags(const args_t *args)
 
 	(void)pthread_spin_destroy(&spinlock);
 
+	(void)unlink(filename);
+	stress_temp_dir_rm_args(args);
+
 	return EXIT_SUCCESS;
 }
 #else
