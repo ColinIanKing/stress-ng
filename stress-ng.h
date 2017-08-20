@@ -1224,6 +1224,7 @@ typedef enum {
 	STRESS_HSEARCH,
 	STRESS_ICACHE,
 	STRESS_ICMP_FLOOD,
+	STRESS_INODE_FLAGS,
 	STRESS_INOTIFY,
 	STRESS_IOMIX,
 	STRESS_IOPRIO,
@@ -1605,6 +1606,9 @@ typedef enum {
 	OPT_ICMP_FLOOD_OPS,
 
 	OPT_IGNITE_CPU,
+
+	OPT_INODE_FLAGS,
+	OPT_INODE_FLAGS_OPS,
 
 	OPT_INOTIFY,
 	OPT_INOTIFY_OPS,
@@ -2770,6 +2774,7 @@ STRESS(stress_heapsort);
 STRESS(stress_hsearch);
 STRESS(stress_icache);
 STRESS(stress_icmp_flood);
+STRESS(stress_inode_flags);
 STRESS(stress_inotify);
 STRESS(stress_io);
 STRESS(stress_iomix);
