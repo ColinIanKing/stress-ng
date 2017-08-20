@@ -142,8 +142,8 @@ static void *stress_dev_thread(void *arg)
 }
 
 /*
- *  stress_proc_sys_threads()
- *	create a bunch of threads to thrash read a sys entry
+ *  stress_dev_threads()
+ *	create a bunch of threads to thrash dev entries
  */
 static void stress_dev_threads(const args_t *args, char *path)
 {
