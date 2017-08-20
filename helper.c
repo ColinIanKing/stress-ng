@@ -227,7 +227,7 @@ uint64_t stress_get_filesystem_size(void)
 
 /*
  *  stress_get_filesystem_available_inodes()
- *	get number of free inodes on the current stress
+ *	get number of free available inodes on the current stress
  *	temporary path, return 0 if failed
  */
 uint64_t stress_get_filesystem_available_inodes(void)
