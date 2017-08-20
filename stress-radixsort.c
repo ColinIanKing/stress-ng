@@ -89,7 +89,7 @@ int stress_radixsort(const args_t *args)
 		pr_fail_dbg("calloc");
 		return EXIT_NO_RESOURCE;
 	}
-	data = calloc(n, sizeof(char *));
+	data = calloc(n, sizeof(unsigned char *));
 	if (!data) {
 		pr_fail_dbg("calloc");
 		free(text);
