@@ -1,3 +1,21 @@
+stress-ng (0.08.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-zlib: use _start for OpenBSD builds
+  * stress-zlib: don't build objcode stress method for sun targets
+  * Manual: update date
+  * Add objcode zlib stressor method to compress object code data
+  * stress-zlib: sort zlib methods by name
+  * exit immediately on end of --stressors option
+  * stress-inode-flags: remove temp file and directory
+  * Fix comment in helper
+  * stress-radixsort: fix warning on calloc sizeof
+  * Add new inode-flags stressor
+  * stress-dev: correct a comment
+  * stress-dev: add select and F_GETSIG fcntl calls
+
+ -- Colin King <colin.king@canonical.com>  Tue, 22 Aug 2017 11:11:12 +0100
+
 stress-ng (0.08.10-1) unstable; urgency=medium
 
   * Makefile: bump version
