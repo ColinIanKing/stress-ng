@@ -202,7 +202,7 @@ static void stress_rand_data_rarely_0(uint32_t *data, const int size)
 }
 
 /*
- *  stress_fixed_data()
+ *  stress_rand_data_fixed()
  *	fill buffer with data that is 0x04030201
  */
 static void stress_rand_data_fixed(uint32_t *data, const int size)
@@ -214,6 +214,34 @@ static void stress_rand_data_fixed(uint32_t *data, const int size)
 		*data = 0x04030201;
 }
 
+/*
+ *  stress_rand_data_objcode()
+ *	fill buffer with object code data from stress-ng
+ */
+static void stress_rand_data_objcode(uint32_t *data, const int size)
+{
+	const int n = size / sizeof(uint32_t);
+	register int i;
+
+	extern char __executable_start;
+	extern char __etext;
+
+	char *text_start = &__executable_start;
+	char *text_end = &__etext;
+	char *text;
+	const size_t text_len = text_end - text_start;
+
+	/* Start in random place in stress-ng text segment */
+	text = text_start + (mwc64() % text_len);
+
+	for (i = 0; i < n; i++, data++) {
+		*data = *text;
+		text++;
+		if (text >= text_end)
+			text = text_start;
+	}
+}
+
 static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_rarely_1,
 	stress_rand_data_rarely_0,
@@ -223,7 +251,8 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_digits,
 	stress_rand_data_00_ff,
 	stress_rand_data_nybble,
-	stress_rand_data_fixed
+	stress_rand_data_fixed,
+	stress_rand_data_objcode
 };
 
 /*
@@ -248,6 +277,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "binary",	stress_rand_data_binary },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "nybble",	stress_rand_data_nybble },
+	{ "objcode",	stress_rand_data_objcode },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 	{ "text",	stress_rand_data_text },

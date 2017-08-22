@@ -1089,7 +1089,7 @@ increased to a maximum of 10 per level.
 .B \-\-dirdeep\-inodes N
 consume upto N inodes per dirdeep stressor while creating directories and
 links. The value N can be the number of inodes or a percentage of the total
-available free inodes on the filesystem being used.  
+available free inodes on the filesystem being used.
 .TP
 .B \-\-dnotify N
 start N workers performing file system activities such as making/deleting
@@ -1156,7 +1156,7 @@ free space, fallocate will produce an ENOSPC error which is ignored by this
 stressor.
 .TP
 .B \-\-fallocate\-bytes N
-allocated file size, the default is 1 GB. One can specify the size as % of free 
+allocated file size, the default is 1 GB. One can specify the size as % of free
 space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
 the suffix b, k, m or g.
 .TP
@@ -1838,19 +1838,19 @@ all	T{
 iterate over all the below memthrash methods
 T}
 chunk1	T{
-memset 1 byte chunks of random data into random locations 
+memset 1 byte chunks of random data into random locations
 T}
 chunk8	T{
-memset 8 byte chunks of random data into random locations 
+memset 8 byte chunks of random data into random locations
 T}
 chunk64	T{
-memset 64 byte chunks of random data into random locations 
+memset 64 byte chunks of random data into random locations
 T}
 chunk256	T{
-memset 256 byte chunks of random data into random locations 
+memset 256 byte chunks of random data into random locations
 T}
 chunkpage	T{
-memset page size chunks of random data into random locations 
+memset page size chunks of random data into random locations
 T}
 flip	T{
 flip (invert) all bits in ramdom locations
@@ -2662,7 +2662,7 @@ SYNC_FILE_RANGE_WRITE and SYNC_FILE_RANGE_WAIT_AFTER flag bits.
 stop sync\-file workers after N bogo sync operations.
 .TP
 .B \-\-sync\-file\-bytes N
-specify the size of the file to be sync'd. One can specify the size as % of free 
+specify the size of the file to be sync'd. One can specify the size as % of free
 space on the file system in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
@@ -2878,7 +2878,7 @@ killer on Linux systems if not enough physical memory and swap is not
 available.
 .TP
 .B \-\-vm\-bytes N
-mmap N bytes per vm worker, the default is 256MB. One can specify the size 
+mmap N bytes per vm worker, the default is 256MB. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
@@ -3151,7 +3151,7 @@ stop after N bogo compression operations, each bogo compression operation
 is a compression of 64K of random data at the highest compression level.
 .TP
 .B \-\-zlib\-method method
-specify the type of random data to send to the zlib library.  By default, 
+specify the type of random data to send to the zlib library.  By default,
 the data stream is created from a random selection of the different data
 generation processes.  However one can specify just one method to be used if required.
 Available zlib data generation methods are described as follows:
@@ -3160,27 +3160,30 @@ expand;
 lB2 lBw(\n[SZ]n)
 l l.
 Method	Description
-random	T{
-segments of the data stream are created by randomly calling the different data generation 
-methods.
-T}
-binary	T{
-32 bit random numbers
-T}
-text	T{
-random ASCII text
+00ff	T{
+randomly distributed 0x00 and 0xFF values
 T}
 ascii01	T{
 randomly distributed ASCII 0 and 1 characters
 T}
 asciidigits	T{
-randomly distributed ASCII digits in the range of 0 and 9 
+randomly distributed ASCII digits in the range of 0 and 9
 T}
-00ff	T{
-randomly distributed 0x00 and 0xFF values
+binary	T{
+32 bit random numbers
+T}
+fixed	T{
+data stream is repeated 0x04030201
 T}
 nybble	T{
 randomly distributed bytes in the range of 0x00 to 0x0f
+T}
+objcode	T{
+object code selected from a random start point in the stress-ng text segment
+T}
+random	T{
+segments of the data stream are created by randomly calling the different data generation
+methods.
 T}
 rarely1	T{
 data that has a single 1 in every 32 bits, randomly located
@@ -3188,8 +3191,8 @@ T}
 rarely0	T{
 data that has a single 0 in every 32 bits, randomly located
 T}
-fixed	T{
-data stream is repeated 0x04030201 
+text	T{
+random ASCII text
 T}
 .TE
 .TP
