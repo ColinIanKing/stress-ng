@@ -3291,7 +3291,7 @@ next_opt:
 			break;
 		case OPT_STRESSORS:
 			show_stressor_names();
-			return EXIT_SUCCESS;
+			exit(EXIT_SUCCESS);
 		case OPT_SYNC_FILE_BYTES:
 			stress_set_sync_file_bytes(optarg);
 			break;
