@@ -224,10 +224,18 @@ static void stress_rand_data_objcode(uint32_t *data, const int size)
 	const int n = size / sizeof(uint32_t);
 	register int i;
 
+#if defined(__OpenBSD__)
+	extern char _start[];
+#else
 	extern char __executable_start[];
+#endif
 	extern char __etext;
 
+#if defined(__OpenBSD__)
+	char *text_start = &_start[0];
+#else
 	char *text_start = &__executable_start[0];
+#endif
 	char *text_end = &__etext;
 	char *text;
 	const size_t text_len = text_end - text_start;
