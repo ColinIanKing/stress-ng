@@ -84,7 +84,7 @@ static void stress_inode_flags_stressor(
 	int fdfile, fddir;
 
 	strncpy(pathname, filename, PATH_MAX - 1);
-	path = dirname(filename);
+	path = dirname(pathname);
 
 	fddir = open(path, O_RDONLY | O_DIRECTORY);
 	if (fddir < 0) {
@@ -92,7 +92,7 @@ static void stress_inode_flags_stressor(
 			args->name, path, errno, strerror(errno));
 		return;
 	}
-	fdfile = open(filename, O_RDONLY);
+	fdfile = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fdfile < 0) {
 		pr_err("%s: cannot open %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
@@ -232,7 +232,6 @@ int stress_inode_flags(const args_t *args)
 	}
 
 	(void)pthread_spin_destroy(&spinlock);
-
 	(void)unlink(filename);
 	stress_temp_dir_rm_args(args);
 
