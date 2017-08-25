@@ -139,7 +139,9 @@ int stress_softlockup(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		const pid_t mypid = getpid();
+#if defined(HAVE_ATOMIC)
 		uint32_t count;
+#endif
 		int ret;
 		int rc = EXIT_FAILURE;
 
