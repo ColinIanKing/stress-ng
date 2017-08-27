@@ -190,22 +190,29 @@ static int do_fcntl(const args_t *args, const int fd)
 	}
 #endif
 
-#if defined(F_SETOWN_EX)
+#if defined(F_SETOWN_EX) &&	\
+    (defined(F_OWNER_PID) ||	\
+     defined(F_OWNER_PGRP) ||	\
+     (defined(F_OWNER_TID) && defined(__linux__)))
 	{
 		int ret;
 		struct f_owner_ex owner;
 
+#if defined(F_OWNER_PID)
 		owner.type = F_OWNER_PID;
 		owner.pid = args->pid;
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PID");
+#endif
 
+#if defined(F_OWNER_PGRP)
 		owner.type = F_OWNER_PGRP;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PGRP");
+#endif
 
-#if defined(__linux__)
+#if defined(F_OWNER_TID) && defined(__linux__)
 		owner.type = F_OWNER_TID;
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
