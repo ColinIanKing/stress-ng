@@ -1306,6 +1306,7 @@ typedef enum {
 	STRESS_SIGSUSPEND,
 	STRESS_SLEEP,
 	STRESS_SOCKET,
+	STRESS_SOCKET_DIAG,
 	STRESS_SOCKET_FD,
 	STRESS_SOCKET_PAIR,
 	STRESS_SOFTLOCKUP,
@@ -1923,6 +1924,9 @@ typedef enum {
 	OPT_SOCKET_OPTS,
 	OPT_SOCKET_PORT,
 	OPT_SOCKET_TYPE,
+
+	OPT_SOCKET_DIAG,
+	OPT_SOCKET_DIAG_OPS,
 
 	OPT_SOCKET_FD,
 	OPT_SOCKET_FD_OPS,
@@ -2856,6 +2860,7 @@ STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
 STRESS(stress_sleep);
 STRESS(stress_sock);
+STRESS(stress_sock_diag);
 STRESS(stress_sockfd);
 STRESS(stress_sockpair);
 STRESS(stress_softlockup);

@@ -2504,6 +2504,15 @@ sendmmsg is only available for Linux systems that support this system call.
 specify the socket type to use. The default type is stream. seqpacket currently
 only works for the unix socket domain.
 .TP
+.B \-\-sockdiag N
+start N workers that exercise the Linux sock_diag netlink socket diagnostics
+(Linux only).  This currently requests dianostics using UDIAG_SHOW_NAME,
+UDIAG_SHOW_VFS, UDIAG_SHOW_PEER, UDIAG_SHOW_ICONS, UDIAG_SHOW_RQLEN and
+UDIAG_SHOW_MEMINFO for the AF_UNIX family of socket connections.
+.TP
+.B \-\-sockdiag\-ops N
+stop after receiving N sock_diag diagnostic messages.
+.TP
 .B \-\-sockfd N
 start N workers that pass file descriptors over a UNIX domain socket using the
 CMSG(3) ancillary data mechanism. For each worker, pair of client/server
