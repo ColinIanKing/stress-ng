@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_SOCK_DIAG_H)
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,19 +35,6 @@
 #include <linux/rtnetlink.h>
 #include <linux/sock_diag.h>
 #include <linux/unix_diag.h>
-#endif
-
-#if defined(AF_NETLINK) &&		\
-    defined(NETLINK_SOCK_DIAG) &&	\
-    defined(SOCK_DIAG_BY_FAMILY) &&	\
-    defined(NLM_F_REQUEST) &&		\
-    defined(NLM_F_DUMP) &&		\
-    defined(UDIAG_SHOW_NAME) &&		\
-    defined(UDIAG_SHOW_VFS) &&		\
-    defined(UDIAG_SHOW_PEER) &&		\
-    defined(UDIAG_SHOW_ICONS) &&	\
-    defined(UDIAG_SHOW_RQLEN) &&	\
-    defined(UDIAG_SHOW_MEMINFO)
 
 typedef struct {
 	struct nlmsghdr nlh;
