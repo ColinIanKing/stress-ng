@@ -279,7 +279,7 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
 	 HAVE_AFFINITY=0 HAVE_MADVISE=0 HAVE_SEM_POSIX=0 HAVE_SEM_SYSV=0 \
 	 HAVE_MQ_POSIX=0 HAVE_MQ_SYSV=0 HAVE_SHM_SYSV=0 HAVE_FANOTIFY=0 \
-	 HAVE_INOTIFY=0
+	 HAVE_INOTIFY=0 HAVE_SOCK_DIAG_H=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -414,6 +414,14 @@ HAVE_SYS_CAP_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sys_cap_h
 ifeq ($(HAVE_SYS_CAP_H),1)
 	CONFIG_CFLAGS += -DHAVE_SYS_CAP_H
 $(info autoconfig: using sys/capability.h)
+endif
+endif
+
+ifndef $(HAVE_SOCK_DIAG_H)
+HAVE_SOCK_DIAG_H = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_sock_diag_h)
+ifeq ($(HAVE_SOCK_DIAG_H),1)
+	CONFIG_CFLAGS += -DHAVE_SOCK_DIAG_H
+$(info autoconfig: using linux/sock_diag.h)
 endif
 endif
 
@@ -782,6 +790,19 @@ have_sys_cap_h:
 	@rm -f test-cap
 
 #
+#  check if we have sock_diag.h
+#
+.PHONY: have_sock_diag_h
+have_sock_diag_h:
+	@$(CC) $(CPPFLAGS) test-sock-diag.c -o test-sock-diag 2> /dev/null || true
+	@if [ -f test-sock-diag ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -f test-sock-diag
+
+#
 #  check if we can build vecmath related code
 #
 .PHONY: have_vecmath
@@ -1016,7 +1037,7 @@ dist:
 		test-affinity.c test-madvise.c test-sem-posix.c \
 		test-sem-sysv.c test-mq-posix.c test-mq-sysv.c \
 		test-shm-sysv.c test-fanotify.c test-inotify.c \
-		snapcraft smatchify.sh config TODO \
+		test-sock-diag.c snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
