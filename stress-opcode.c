@@ -132,6 +132,11 @@ again:
 			/* We don't want bad ops clobbering this region */
 			stress_unmap_shared();
 
+			/* Drop all capabilities */
+			if (stress_drop_capabilities(args->name) < 0) {
+				_exit(EXIT_NO_RESOURCE);
+			}
+
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
 				if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
 					_exit(EXIT_FAILURE);
