@@ -1152,7 +1152,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"heapsort-ops N",	"stop after N heap sort bogo operations" },
 	{ NULL,		"heapsort-size N",	"number of 32 bit integers to sort" },
 	{ NULL,		"hsearch N",		"start N workers that exercise a hash table search" },
-	{ NULL,		"hsearch-ops N",	"stop afer N hash search bogo operations" },
+	{ NULL,		"hsearch-ops N",	"stop after N hash search bogo operations" },
 	{ NULL,		"hsearch-size N",	"number of integers to insert into hash table" },
 	{ NULL,		"icache N",		"start N CPU instruction cache thrashing workers" },
 	{ NULL,		"icache-ops N",		"stop after N icache bogo operations" },
