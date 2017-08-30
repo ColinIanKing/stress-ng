@@ -431,7 +431,7 @@ stop the AppArmor workers after N bogo operations.
 .TP
 .B \-\-atomic N
 start N workers that exercise various GCC __atomic_*() built in operations
-on 8, 16, 32 and 64 bit intergers that are shared among the N workers. This
+on 8, 16, 32 and 64 bit integers that are shared among the N workers. This
 stressor is only available for builds using GCC 4.7.4 or higher. The stressor
 forces many front end cache stalls and cache references.
 .TP
@@ -961,7 +961,7 @@ calculate and print a latency distribution with the interval of N nanoseconds.
 This is helpful to see where the latencies are clustering.
 .TP
 .B \-\-cyclic\-method [ clock_ns | itimer | poll | posix_ns ]
-specify the cyclic method to be used. The availble cyclic methods are as
+specify the cyclic method to be used. The available cyclic methods are as
 follows:
 .TS
 expand;
@@ -1087,7 +1087,7 @@ create N directories at each tree level. The default is just 1 but can be
 increased to a maximum of 10 per level.
 .TP
 .B \-\-dirdeep\-inodes N
-consume upto N inodes per dirdeep stressor while creating directories and
+consume up to N inodes per dirdeep stressor while creating directories and
 links. The value N can be the number of inodes or a percentage of the total
 available free inodes on the filesystem being used.
 .TP
@@ -1233,7 +1233,7 @@ default option, probe the file system for valid allowed characters in a file nam
 and use these
 T}
 posix	T{
-use characters as specifed by The Open Group Base Specifications Issue 7,
+use characters as specified by The Open Group Base Specifications Issue 7,
 POSIX.1-2008, 3.278 Portable Filename Character Set
 T}
 ext	T{
@@ -1811,12 +1811,12 @@ GBytes using the suffix b, k, m or g.
 .TP
 .B \-\-memrate\-rd\-mbs N
 specify the maximum allowed read rate in MB/sec. The actual read rate
-is dependant on scheduling jitter and memory accesses from other running
+is dependent on scheduling jitter and memory accesses from other running
 processes.
 .TP
 .B \-\-memrate\-wr\-mbs N
 specify the maximum allowed read rate in MB/sec. The actual write rate
-is dependant on scheduling jitter and memory accesses from other running
+is dependent on scheduling jitter and memory accesses from other running
 processes.
 .TP
 .B \-\-memthrash N
@@ -1859,7 +1859,7 @@ flush	T{
 flush cache line in random locations
 T}
 lock	T{
-lock randomly chosing locations (Intel x86 CPUs only)
+lock randomly choosing locations (Intel x86 CPUs only)
 T}
 matrix	T{
 treat memory as a 2 \(mu 2 matrix and swap random elements
