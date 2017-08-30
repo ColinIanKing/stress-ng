@@ -47,6 +47,10 @@
 static unsigned long timer_slack = 0;
 #endif
 
+#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
+#include <sys/capability.h>
+#endif
+
 static const char *stress_temp_path = ".";
 
 /*
@@ -1209,3 +1213,56 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 
 	return str;
 }
+
+#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
+int stress_drop_capabilities(const char *name)
+{
+	int ret;
+	uint32_t i;
+	struct __user_cap_header_struct uch;
+	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
+
+	(void)memset(&uch, 0, sizeof uch);
+	(void)memset(ucd, 0, sizeof ucd);
+
+	uch.version = _LINUX_CAPABILITY_VERSION_3;
+	uch.pid = getpid();
+
+	ret = capget(&uch, ucd);
+	if (ret < 0) {
+		pr_fail("%s: capget on pid %d failed: "
+			"errno=%d (%s)\n",
+			name, uch.pid, errno, strerror(errno));
+		return -1;
+	}
+
+	/*
+	 *  We could just memset ucd to zero, but
+	 *  lets explicity set all the capability
+	 *  bits to zero to show the intent
+	 */
+	for (i = 0; i <= CAP_LAST_CAP; i++) {
+		uint32_t idx = CAP_TO_INDEX(i);
+		uint32_t mask = CAP_TO_MASK(i);
+
+		ucd[idx].inheritable &= ~mask;
+		ucd[idx].permitted &= ~mask;
+		ucd[idx].effective &= ~mask;
+	}
+
+	ret = capset(&uch, ucd);
+	if (ret < 0) {
+		pr_fail("%s: capset on pid %d failed: "
+			"errno=%d (%s)\n",
+			name, uch.pid, errno, strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+#else
+int stress_drop_capabilities(const char *name)
+{
+	return 0;
+}
+#endif
