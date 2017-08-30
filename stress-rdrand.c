@@ -58,6 +58,7 @@ int stress_rdrand_supported(void)
 	return 0;
 }
 
+#if defined(__x86_64__) || defined(__x86_64)
 /*
  *  rdrand64()
  *	read 64 bit random value
@@ -111,6 +112,93 @@ static inline uint64_t rdrand64(void)
 	rdrand64();	\
 	rdrand64();	\
 }
+#else
+/*
+ *  rdrand32()
+ *	read 32 bit random value
+ */
+static inline uint32_t rdrand32(void)
+{
+	uint32_t        ret;
+
+	asm volatile("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	return ret;
+}
+
+/*
+ *  Unrolled 64 times
+ */
+#define RDRAND32x64()	\
+{			\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+	rdrand32();	\
+}
+#endif
 
 /*
  *  stress_rdrand()
@@ -123,7 +211,11 @@ int stress_rdrand(const args_t *args)
 
 		time_start = time_now();
 		do {
+#if defined(__x86_64__) || defined(__x86_64)
 			RDRAND64x32();
+#else
+			RDRAND32x64();
+#endif
 			inc_counter(args);
 		} while (keep_stressing());
 
