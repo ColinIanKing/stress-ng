@@ -1,3 +1,24 @@
+stress-ng (0.08.13-1) unstable; urgency=medium
+
+  * stress-rdrand: use 32 bit rdrand for i386
+  * stress_drop_capabilities: voidify name to avoid warning
+  * Enable 64 bit large file system support by default
+  * debian/rules: Add hardening=+all
+  * manual: fix several spelling mistakes
+  * stress-cpu: fix spelling mistake "assigment" -> "assignment"
+  * stress-ng: fix spelling mistake "afer" -> "after"
+  * stress-opcode: drop all capabilties so we can't do much
+    damage (LP: #1714044)
+  * helper: add stress_drop_capabilities to drop all capabilities
+  * stress-socket-diag: use new HAVE_SOCK_DIAG_H build time check flag
+  * Add sock_diag.h auto configure build time checking
+  * Add sockdiag stressor
+  * stress-fcntl: fix build failure on SLES11 SP4 (LP: #1709905)
+  * stress-cyclic: fix build warning on systems w/o atomic ops
+  * stress-softlockup: fix build warning on systems w/o atomic ops
+
+ -- Colin King <colin.king@canonical.com>  Wed, 30 Aug 2017 22:06:11 +0100
+
 stress-ng (0.08.12-1) unstable; urgency=medium
 
   * Makefile: bump version
