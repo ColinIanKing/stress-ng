@@ -169,7 +169,7 @@ static void HOT OPTIMIZE3 stress_cpu_gcd(const char *name)
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail("%s: gcd error detected, failed modulo "
-			"or assigment operations\n", name);
+			"or assignment operations\n", name);
 }
 
 /*
