@@ -1263,6 +1263,8 @@ int stress_drop_capabilities(const char *name)
 #else
 int stress_drop_capabilities(const char *name)
 {
+	(void)name;
+
 	return 0;
 }
 #endif
