@@ -41,6 +41,9 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #endif
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+#include <mqueue.h>
+#endif
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
@@ -94,6 +97,10 @@ typedef struct {
 #if defined(HAVE_MQ_SYSV)
 	int msgq_id;
 #endif
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+	mqd_t mq;
+	char mq_name[64];
+#endif
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
@@ -115,6 +122,7 @@ static void *stress_pthread_func(void *ctxt)
 #endif
 
 static void NORETURN waste_resources(
+	const args_t *args,
 	const size_t page_size,
 	const size_t pipe_size)
 {
@@ -285,6 +293,20 @@ static void NORETURN waste_resources(
 		info[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 #endif
+
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+		struct mq_attr attr;
+
+		snprintf(info[i].mq_name, sizeof(info[i].mq_name), "/%s-%i-%" PRIu32 "-%zu",
+			args->name, getpid(), args->instance, i);
+		attr.mq_flags = 0;
+		attr.mq_maxmsg = 1;
+		attr.mq_msgsize = 32;
+		attr.mq_curmsgs = 0;
+
+		info[i].mq = mq_open(info[i].mq_name,
+			O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+#endif
 	}
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
@@ -362,6 +384,13 @@ static void NORETURN waste_resources(
 		if (info[i].msgq_id >= 0)
 			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif
+
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+		if (info[i].mq >= 0) {
+			(void)mq_close(info[i].mq);
+			(void)mq_unlink(info[i].mq_name);
+		}
+#endif
 	}
 	_exit(0);
 }
@@ -423,7 +452,7 @@ int stress_resources(const args_t *args)
 				if (ret)
 					_exit(0);
 				set_oom_adjustment(args->name, true);
-				waste_resources(page_size, pipe_size);
+				waste_resources(args, page_size, pipe_size);
 				_exit(0); /* should never get here */
 			}
 			if (pid > -1)
