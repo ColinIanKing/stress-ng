@@ -87,7 +87,7 @@ typedef struct {
 	bool timerok;
 	timer_t timerid;
 #endif
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 	bool semok;
 	sem_t sem;
 #endif
