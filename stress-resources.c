@@ -84,6 +84,9 @@ typedef struct {
 	bool semok;
 	sem_t sem;
 #endif
+#if defined(HAVE_SEM_SYSV)
+	int sem_id;
+#endif
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
@@ -260,8 +263,15 @@ static void NORETURN waste_resources(
 				(timer_create(CLOCK_REALTIME, &sevp, &info[i].timerid) == 0);
 		}
 #endif
+
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
+#endif
+
+#if defined(HAVE_SEM_SYSV)
+		key_t sem_key = (key_t)mwc32();
+		info[i].sem_id = semget(sem_key, 1,
+			IPC_CREAT | S_IRUSR | S_IWUSR);
 #endif
 	}
 
@@ -325,9 +335,15 @@ static void NORETURN waste_resources(
 		if (info[i].pty_master != -1)
 			(void)close(info[i].pty_master);
 #endif
+
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 		if (info[i].semok)
 			(void)sem_destroy(&info[i].sem);
+#endif
+
+#if defined(HAVE_SEM_SYSV)
+		if (info[i].sem_id >= 0)
+			(void)semctl(info[i].sem_id, 0, IPC_RMID);
 #endif
 	}
 	_exit(0);
