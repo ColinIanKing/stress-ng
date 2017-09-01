@@ -37,6 +37,10 @@
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 #include <semaphore.h>
 #endif
+#if defined(HAVE_MQ_SYSV)
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#endif
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
@@ -86,6 +90,9 @@ typedef struct {
 #endif
 #if defined(HAVE_SEM_SYSV)
 	int sem_id;
+#endif
+#if defined(HAVE_MQ_SYSV)
+	int msgq_id;
 #endif
 } info_t;
 
@@ -273,6 +280,11 @@ static void NORETURN waste_resources(
 		info[i].sem_id = semget(sem_key, 1,
 			IPC_CREAT | S_IRUSR | S_IWUSR);
 #endif
+
+#if defined(HAVE_MQ_SYSV)
+		info[i].msgq_id = msgget(IPC_PRIVATE,
+				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
+#endif
 	}
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
@@ -344,6 +356,11 @@ static void NORETURN waste_resources(
 #if defined(HAVE_SEM_SYSV)
 		if (info[i].sem_id >= 0)
 			(void)semctl(info[i].sem_id, 0, IPC_RMID);
+#endif
+
+#if defined(HAVE_MQ_SYSV)
+		if (info[i].msgq_id >= 0)
+			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif
 	}
 	_exit(0);
