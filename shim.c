@@ -283,17 +283,17 @@ void shim_clear_cache(char* begin, char *end)
  *	wrapper for Linux kcmp(2) - compre two processes to
  *	see if they share a kernel resource.
  */
-long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2)
+long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2)
 {
 #if defined(__linux__) && defined(__NR_kcmp)
 	errno = 0;
-	return syscall(__NR_kcmp, pid1, pid2, type, fd1, fd2);
+	return syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
 	(void)pid1;
 	(void)pid2;
 	(void)type;
-	(void)fd1;
-	(void)fd2;
+	(void)idx1;
+	(void)idx2;
 
 	errno = ENOSYS;
 	return -1;

@@ -2682,7 +2682,7 @@ extern int shim_gettid(void);
 extern long shim_getcpu(unsigned *cpu, unsigned *node, void *tcache);
 extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern void shim_clear_cache(char* begin, char *end);
-extern long shim_kcmp(int pid1, int pid2, int type, int fd1, int fd2);
+extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2);
 extern int shim_syslog(int type, char *bufp, int len);
 extern int shim_membarrier(int cmd, int flags);
 extern int shim_memfd_create(const char *name, unsigned int flags);

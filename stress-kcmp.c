@@ -25,6 +25,9 @@
 #include "stress-ng.h"
 
 #if defined(__linux__) && defined(__NR_kcmp)
+#if NEED_GLIBC(2,3,2)
+#include <sys/epoll.h>
+#endif
 
 /* Urgh, should be from linux/kcmp.h */
 enum {
@@ -40,6 +43,13 @@ enum {
 	KCMP_TYPES,
 };
 
+/* Slot for KCMP_EPOLL_TFD */
+struct kcmp_epoll_slot {
+	uint32_t efd;
+	uint32_t tfd;
+	uint32_t toff;
+};
+
 #define KCMP(pid1, pid2, type, idx1, idx2)			\
 {								\
 	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);	\
@@ -49,7 +59,8 @@ enum {
 			pr_inf(capfail, args->name);		\
 			break;					\
 		}						\
-		pr_fail_err("kcmp: " # type);			\
+		if (errno != EINVAL)				\
+			pr_fail_err("kcmp: " # type);		\
 	}							\
 	if (!g_keep_stressing_flag)				\
 		break;						\
@@ -65,7 +76,8 @@ enum {
 				pr_inf(capfail, args->name); 	\
 				break;				\
 			}					\
-			pr_fail_err("kcmp: " # type);		\
+			if (errno != EINVAL)			\
+				pr_fail_err("kcmp: " # type);	\
 		} else {					\
 			pr_fail( "%s: kcmp " # type		\
 			" returned %d, expected: %d\n",		\
@@ -84,6 +96,14 @@ int stress_kcmp(const args_t *args)
 {
 	pid_t pid1;
 	int fd1;
+
+#if NEED_GLIBC(2,3,2)
+	int efd, sfd;
+	int so_reuseaddr = 1;
+	struct epoll_event ev;
+	struct sockaddr *addr = NULL;
+	socklen_t addr_len = 0;
+#endif
 	int ret = EXIT_SUCCESS;
 
 	static const char *capfail =
@@ -95,6 +115,51 @@ int stress_kcmp(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
+#if NEED_GLIBC(2,3,2)
+	efd = -1;
+	if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		sfd = -1;
+		goto again;
+	}
+	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
+			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		(void)close(sfd);
+		sfd = -1;
+		goto again;
+	}
+	stress_set_sockaddr(args->name, args->instance, args->ppid,
+		AF_INET, 23000, &addr, &addr_len, NET_ADDR_ANY);
+
+	if (bind(sfd, addr, addr_len) < 0) {
+		(void)close(sfd);
+		sfd = -1;
+		goto again;
+	}
+	if (listen(sfd, SOMAXCONN) < 0) {
+		(void)close(sfd);
+		sfd = -1;
+		goto again;
+	}
+
+	efd = epoll_create1(0);
+	if (efd < 0) {
+		(void)close(sfd);
+		sfd = -1;
+		efd = -1;
+		goto again;
+	}
+
+	memset(&ev, 0, sizeof(ev));
+	ev.data.fd = efd;
+	ev.events = EPOLLIN | EPOLLET;
+	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) < 0) {
+		(void)close(sfd);
+		(void)close(efd);
+		sfd = -1;
+		efd = -1;
+	}
+#endif
+
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
@@ -103,6 +168,10 @@ again:
 
 		pr_fail_dbg("fork");
 		(void)close(fd1);
+#if NEED_GLIBC(2,3,2)
+		if (sfd != -1)
+			(void)close(sfd);
+#endif
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
 		(void)setpgid(0, g_pgrp);
@@ -114,6 +183,12 @@ again:
 
 		/* will never get here */
 		(void)close(fd1);
+#if NEED_GLIBC(2,3,2)
+		if (efd != -1)
+			(void)close(efd);
+		if (sfd != -1)
+			(void)close(sfd);
+#endif
 		exit(EXIT_SUCCESS);
 	} else {
 		/* Parent */
@@ -128,6 +203,8 @@ again:
 		}
 
 		do {
+			struct kcmp_epoll_slot slot;
+
 			KCMP(pid1, pid2, KCMP_FILE, fd1, fd2);
 			KCMP(pid1, pid1, KCMP_FILE, fd1, fd1);
 			KCMP(pid2, pid2, KCMP_FILE, fd1, fd1);
@@ -157,6 +234,17 @@ again:
 			KCMP(pid1, pid1, KCMP_VM, 0, 0);
 			KCMP(pid2, pid2, KCMP_VM, 0, 0);
 
+#if NEED_GLIBC(2,3,2)
+			if (efd != -1) {
+				slot.efd = efd;
+				slot.tfd = sfd;
+				slot.toff = 0;
+				KCMP(pid1, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid2, pid1, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid2, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+			}
+#endif
+
 			/* Same simple checks */
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				KCMP_VERIFY(pid1, pid1, KCMP_FILE, fd1, fd1, 0);
@@ -167,6 +255,14 @@ again:
 				KCMP_VERIFY(pid1, pid1, KCMP_SYSVSEM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid1, KCMP_VM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid2, KCMP_SYSVSEM, 0, 0, 0);
+#if NEED_GLIBC(2,3,2)
+				if (efd != -1) {
+					slot.efd = efd;
+					slot.tfd = sfd;
+					slot.toff = 0;
+					KCMP(pid1, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				}
+#endif
 			}
 			inc_counter(args);
 		} while (keep_stressing());
@@ -177,6 +273,12 @@ reap:
 		(void)waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
+#if NEED_GLIBC(2,3,2)
+	if (efd != -1)
+		(void)close(efd);
+	if (sfd != -1)
+		(void)close(sfd);
+#endif
 	return ret;
 }
 #else
