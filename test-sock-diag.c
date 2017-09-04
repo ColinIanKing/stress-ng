@@ -54,6 +54,8 @@ int main(void)
 		UNIX_DIAG_PEER
 	};
 
+	(void)unix_diag;
+
 	return 0;
 }
 
