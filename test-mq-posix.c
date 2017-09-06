@@ -28,7 +28,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <mqueue.h>
-
+#include <signal.h>
 
 typedef struct {
         unsigned int	value;
