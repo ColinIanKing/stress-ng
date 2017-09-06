@@ -44,7 +44,7 @@ void stress_set_mq_size(const char *opt)
 	set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
 
 static void stress_mq_notify_func(union sigval s)
 {
