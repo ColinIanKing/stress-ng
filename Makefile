@@ -57,6 +57,7 @@ STRESS_SRC = \
 	stress-atomic.c \
 	stress-bigheap.c \
 	stress-bind-mount.c \
+	stress-branch.c \
 	stress-brk.c \
 	stress-bsearch.c \
 	stress-cache.c \

@@ -460,6 +460,13 @@ stressor unless you want to risk hanging your machine.
 .B \-\-bind\-mount\-ops N
 stop after N bind mount bogo operations.
 .TP
+.B \-\-branch N
+start N workers that randomly jump to 256 randomly selected locations and
+hence exercise the CPU branch prediction logic.
+.TP
+.B \-\-branch\-ops N
+stop the branch stressors after N jumps
+.TP
 .B \-\-brk N
 start N workers that grow the data segment by one page at a time using multiple
 brk(2) calls. Each successfully allocated new page is touched to ensure it is
