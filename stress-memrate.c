@@ -300,18 +300,18 @@ again:
 		/* Child */
 		void *buffer, *buffer_end;
 
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
+
 		buffer = stress_memrate_mmap(args, memrate_bytes);
 		if (buffer == MAP_FAILED)
 			_exit(EXIT_NO_RESOURCE);
 		buffer_end = (uint8_t *)buffer + memrate_bytes;
 
 		stress_memrate_init_data(buffer, buffer_end);
-
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
 
 		do {
 			for (i = 0; keep_stressing() && (i < memrate_items); i++) {
