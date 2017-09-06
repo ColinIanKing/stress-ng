@@ -69,6 +69,7 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <sys/uio.h>
 #include <sys/resource.h>
 #if defined (__linux__)
 #include <sys/mount.h>
