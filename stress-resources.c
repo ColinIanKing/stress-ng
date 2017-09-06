@@ -130,10 +130,13 @@ static void NORETURN waste_resources(
 #if defined(__NR_memfd_create) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
-
 	static int domains[] = { AF_INET, AF_INET6 };
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	info_t info[MAX_LOOPS];
+
+#if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX))
+	(void)args;
+#endif
 
 	(void)memset(&info, 0, sizeof(info));
 
