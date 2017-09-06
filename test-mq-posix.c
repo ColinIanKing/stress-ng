@@ -30,6 +30,10 @@
 #include <mqueue.h>
 #include <signal.h>
 
+#if defined(__gnu_hurd__)
+#error posix message queues not implemented on GNU/HURD
+#endif
+
 typedef struct {
         unsigned int	value;
 } msg_t;
