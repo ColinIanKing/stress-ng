@@ -95,6 +95,15 @@
 #include <strings.h>
 #endif
 
+/*
+ *  Temporarily disabled SCHED_DEADLINE for 4.13+
+ *  until this is correctly implemented in stress-ng
+ *  using the linux specific shed interfaces
+ */
+#if defined (SCHED_DEADLINE)
+#undef SCHED_DEADLINE
+#endif
+
 #if defined (__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
