@@ -46,6 +46,49 @@ typedef struct {
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 
+static const char *const lorem_ipsum[] = {
+	"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
+	"Nullam imperdiet quam at ultricies finibus. ",
+	"Nunc venenatis euismod velit sit amet ornare.",
+	"Quisque et orci eu eros convallis luctus at facilisis ex. ",
+	"Quisque fringilla nulla felis, sed mollis est feugiat nec. ",
+	"Vivamus at urna sit amet velit suscipit iaculis. ",
+	"Curabitur mauris ipsum, gravida in laoreet ac, dignissim id lacus. ",
+	"Proin dignissim, erat nec interdum commodo, nulla mi tempor dui, quis scelerisque odio nisi in tortor. ",
+	"Mauris dignissim ex auctor nulla lobortis semper. ",
+	"Mauris sit amet tempus risus, ac tincidunt lectus. ",
+	"Maecenas sollicitudin porttitor nisi ac faucibus. ",
+	"Cras eu sollicitudin arcu. ",
+	"In sed fringilla eros, vitae fringilla tortor. ",
+	"Phasellus mollis feugiat tortor, a ornare nunc auctor porttitor. ",
+	"Fusce malesuada ut felis vitae vestibulum. ",
+	"Donec sit amet hendrerit massa, vitae ultrices augue. ",
+	"Proin volutpat velit ipsum, id imperdiet risus placerat ut. ",
+	"Cras vitae risus ipsum.  ",
+	"Sed lobortis quam in dictum pulvinar. ",
+	"In non accumsan justo. ",
+	"Ut pretium pulvinar gravida. ",
+	"Proin ultricies nisi libero, a convallis dui vestibulum eu. ",
+	"Aliquam in molestie magna, et ullamcorper turpis. ",
+	"Donec id pharetra sem.  "
+	"Duis dui massa, fringilla id mattis nec, consequat eget felis. ",
+	"Integer a lobortis ipsum, quis ornare felis. ",
+	"Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. ",
+	"Nulla sed cursus nibh. ",
+	"Quisque at ex dolor. ",
+	"Mauris viverra risus pellentesque nisl dictum rutrum. ",
+	"Aliquam non est quis enim dictum tristique. ",
+	"Fusce feugiat hendrerit hendrerit. ",
+	"Ut egestas sed erat et egestas. ",
+	"Pellentesque convallis erat sed sapien pellentesque vulputate. ",
+	"Praesent non sapien aliquet risus varius suscipit. ",
+	"Curabitur eu felis dignissim, hendrerit magna vitae, condimentum nunc. ",
+	"Donec ut tincidunt sem. ",
+	"Sed in leo et metus ultricies semper quis quis ex. ",
+	"Sed fringilla porta mi vitae condimentum. ",
+	"In vitae metus libero."
+};
+
 /*
  *  stress_sigpipe_handler()
  *      SIGFPE handler
@@ -214,6 +257,28 @@ static void stress_rand_data_fixed(uint32_t *data, const int size)
 		*data = 0x04030201;
 }
 
+/*
+ *  stress_rand_data_latin()
+ *	fill buffer with random latin Lorum Ipsum text.
+ */
+static void stress_rand_data_latin(uint32_t *data, const int size)
+{
+	register int i;
+	static const char *ptr = NULL;
+	char *dataptr = (char *)data;
+
+	if (!ptr)
+		ptr = lorem_ipsum[mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+
+	for (i = 0; i < size; i++) {
+		if (!*ptr)
+			ptr = lorem_ipsum[mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+
+		*dataptr++ = *ptr++;
+	}
+}
+
+
 #if !defined(__sun__)
 /*
  *  stress_rand_data_objcode()
@@ -262,6 +327,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_00_ff,
 	stress_rand_data_nybble,
 	stress_rand_data_fixed,
+	stress_rand_data_latin,
 #if !defined(__sun__)
 	stress_rand_data_objcode
 #endif
@@ -288,6 +354,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "asciidigits",stress_rand_data_digits },
 	{ "binary",	stress_rand_data_binary },
 	{ "fixed",	stress_rand_data_fixed },
+	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
 #if !defined(__sun__)
 	{ "objcode",	stress_rand_data_objcode },
