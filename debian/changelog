@@ -1,3 +1,24 @@
+stress-ng (0.08.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Update TODO list
+  * Add a latin (Lorem Ipsum) random text mode to zlib method
+  * test-mq-posix: force failure for GNU/HURD
+  * test-mq-posix: fix build failure because of missing <signal.h>
+  * stress-resources: clean up warning when POSIX MQs are not available
+  * include <sys/uio.h> in stress-ng.h
+  * stress-mq: make build depend on HAVE_MQ_POSIX being defined
+  * Add branch stressor that exercises process branch prediction
+  * stress-memrate: perform oom adjustment in child earlier than allocation
+  * test-sock-diag: voidify array unix_diag to work around clang warning
+  * stress-kcmp: fix kcmp shim and fully implement KCMP_EPOLL_TFD stressor
+  * stress-semaphore: make POSIX semaphores depend on HAVE_SEM_POSIX
+  * stress-resources: waste POSIX message queues
+  * stress-resources: waste SYSV message queues
+  * stress-resources: waste SYSV semaphores
+
+ -- Colin King <colin.king@canonical.com>  Thu, 7 Sep 2017 11:59:01 +0100
+
 stress-ng (0.08.13-1) unstable; urgency=medium
 
   * stress-rdrand: use 32 bit rdrand for i386
