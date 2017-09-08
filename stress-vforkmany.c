@@ -70,7 +70,7 @@ fork_again:
 			goto fork_again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
-		munmap(terminate_mmap, args->page_size);
+		munmap((void *)terminate_mmap, args->page_size);
 		return EXIT_FAILURE;
 	} else if (chpid == 0) {
 		static uint8_t *waste;
@@ -176,6 +176,6 @@ vfork_again:
 		(void)waitpid(chpid, &chstatus, 0);
 	}
 tidy:
-	(void)munmap(terminate_mmap, args->page_size);
+	(void)munmap((void *)terminate_mmap, args->page_size);
 	return EXIT_SUCCESS;
 }
