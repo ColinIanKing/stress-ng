@@ -347,7 +347,7 @@ again:
 
 	rc = EXIT_SUCCESS;
 err:
-	(void)munmap(stats, stats_size);
+	(void)munmap((void *)stats, stats_size);
 
 	return rc;
 }
