@@ -869,11 +869,11 @@ static inline int stress_matrix_exercise(
 
 	ret = EXIT_SUCCESS;
 
-	munmap(r, matrix_size);
+	munmap((void *)r, matrix_size);
 tidy_b:
-	munmap(b, matrix_size);
+	munmap((void *)b, matrix_size);
 tidy_a:
-	munmap(a, matrix_size);
+	munmap((void *)a, matrix_size);
 tidy_ret:
 	return ret;
 }
