@@ -85,6 +85,9 @@ static const int madvise_options[] = {
 #if defined(MADV_HWPOISON)
 	MADV_HWPOISON
 #endif
+#if defined(MADV_WIPEONFORK)
+	MADV_WIPEONFORK
+#endif
 };
 
 /*
