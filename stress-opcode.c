@@ -26,6 +26,19 @@
 
 #if defined(__linux__)
 
+#if defined(HAVE_SECCOMP_H)
+#include <sys/prctl.h>
+#include <linux/audit.h>
+#include <linux/filter.h>
+#include <linux/seccomp.h>
+
+#define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
+
+#define ALLOW_SYSCALL(syscall)					\
+	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), 	\
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+#endif
+
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
 
@@ -63,6 +76,22 @@ static const int sigs[] = {
 	SIGHUP
 #endif
 };
+
+#if defined(HAVE_SECCOMP_H)
+static struct sock_filter filter[] = {
+	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
+#if defined(__NR_exit_group)
+	ALLOW_SYSCALL(exit_group),
+#endif
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+};
+
+static struct sock_fprog prog = {
+        .len = (unsigned short)SIZEOF_ARRAY(filter),
+        .filter = filter
+};
+
+#endif
 
 #if defined(NSIG)
 #define MAX_SIGS	(NSIG)
@@ -136,7 +165,6 @@ again:
 			if (stress_drop_capabilities(args->name) < 0) {
 				_exit(EXIT_NO_RESOURCE);
 			}
-
 			for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
 				if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
 					_exit(EXIT_FAILURE);
@@ -178,6 +206,14 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 
+#if defined(HAVE_SECCOMP_H)
+			/*
+			 * Limit syscall using seccomp
+			 */
+			{
+				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
+			}
+#endif
 			((void (*)(void))(ops_begin + mwc8()))();
 
 			(void)munmap(opcodes, page_size * PAGES);
