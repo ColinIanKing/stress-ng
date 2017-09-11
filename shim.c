@@ -896,4 +896,5 @@ int shim_futex_wait(
 	errno = -ENOSYS;
 	return -1;
 }
+
 #endif

@@ -134,7 +134,10 @@ int thrash_start(void)
 		return -1;
 	} else if (thrash_pid == 0) {
 #if defined(SCHED_RR)
-		set_sched(SCHED_RR, 10);
+		int ret;
+
+		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
+		(void)ret;
 #endif
 		while (g_keep_stressing_flag) {
 			pagein_all_procs();

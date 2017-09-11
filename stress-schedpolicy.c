@@ -69,7 +69,7 @@ int stress_schedpolicy(const args_t *args)
 		int max_prio, min_prio, rng_prio;
 		int new_policy = policies[policy];
 		const pid_t pid = (mwc32() & 1) ? 0 : args->pid;
-		const char *new_policy_name = get_sched_name(new_policy);
+		const char *new_policy_name = stress_get_sched_name(new_policy);
 
 		switch (new_policy) {
 #if defined(SCHED_IDLE)

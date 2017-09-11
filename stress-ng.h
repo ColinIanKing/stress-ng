@@ -95,15 +95,6 @@
 #include <strings.h>
 #endif
 
-/*
- *  Temporarily disabled SCHED_DEADLINE for 4.13+
- *  until this is correctly implemented in stress-ng
- *  using the linux specific shed interfaces
- */
-#if defined (SCHED_DEADLINE)
-#undef SCHED_DEADLINE
-#endif
-
 #if defined (__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
@@ -2308,8 +2299,9 @@ extern const char *duration_to_str(const double duration);
 
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
-extern void set_sched(const int32_t sched, const int sched_priority);
-extern const char *get_sched_name(const int sched);
+extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
+	const int sched_priority, const bool quiet);
+extern const char *stress_get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
 extern void set_proc_name(const char *name);
 

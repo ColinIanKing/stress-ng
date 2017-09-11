@@ -128,7 +128,7 @@ int stress_cyclic_supported(void)
 {
         if (geteuid() != 0) {
 		pr_inf("stress-cyclic stressor needs to be run as root to "
-			"set SCHED_RR or SCHED_FIFO priorities, "
+			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
 			"skipping this stressor\n");
                 return -1;
         }
@@ -543,7 +543,6 @@ int stress_cyclic(const args_t *args)
 	const stress_cyclic_method_info_t *cyclic_method = &cyclic_methods[0];
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
-	struct sched_param param = { 0 };
 	struct rlimit rlim;
 	pid_t pid;
 	NOCLOBBER uint64_t timeout;
@@ -607,7 +606,8 @@ int stress_cyclic(const args_t *args)
 		}
 	}
 
-	pr_dbg("%s: using method '%s'\n", args->name, cyclic_method->name);
+	if (args->instance == 0)
+		pr_dbg("%s: using method '%s'\n", args->name, cyclic_method->name);
 
 	pid = fork();
 	if (pid < 0) {
@@ -659,8 +659,7 @@ int stress_cyclic(const args_t *args)
 		if (ret)
 			goto tidy_ok;
 
-		param.sched_priority = rt_stats->max_prio;
-		ret = sched_setscheduler(mypid, policy, &param);
+		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
 		if (ret < 0) {
 			if (errno != EPERM) {
 				pr_fail("%s: sched_setscheduler "
@@ -687,10 +686,10 @@ tidy:
 		fflush(stdout);
 		_exit(rc);
 	} else {
-		int status;
+		int status, ret;
 
-		param.sched_priority = rt_stats->max_prio;
-		(void)sched_setscheduler(args->pid, policy, &param);
+		ret = stress_set_sched(args->pid, policy, rt_stats->max_prio, true);
+		(void)ret;
 
 		pause();
 		kill(pid, SIGKILL);

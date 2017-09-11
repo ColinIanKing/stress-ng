@@ -3688,7 +3688,8 @@ int main(int argc, char **argv)
 
 	(void)get_setting("sched", &sched);
 	(void)get_setting("sched-prio", &sched_prio);
-	set_sched(sched, sched_prio);
+	if (stress_set_sched(getpid(), sched, sched_prio, false) < 0)
+		exit(EXIT_FAILURE);
 
 	(void)get_setting("ionice-class", &ionice_class);
 	(void)get_setting("ionice-level", &ionice_level);

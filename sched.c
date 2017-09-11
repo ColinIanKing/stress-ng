@@ -30,7 +30,7 @@
  *  get_sched_name()
  *	convert sched class to human readable string
  */
-const char *get_sched_name(const int sched)
+const char *stress_get_sched_name(const int sched)
 {
 	switch (sched) {
 #if defined(SCHED_IDLE)
@@ -69,20 +69,27 @@ const char *get_sched_name(const int sched)
  *  set_sched()
  * 	are sched settings valid, if so, set them
  */
-void set_sched(const int sched, const int32_t sched_priority)
+int stress_set_sched(
+	const pid_t pid,
+	const int sched,
+	const int32_t sched_priority,
+	const bool quiet)
 {
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
 	int min, max;
 #endif
+#if defined(SCHED_DEADLINE) && defined(__linux__)
+	struct shim_sched_attr attr;
+#endif
 	int rc;
 	struct sched_param param;
-	const char *name = get_sched_name(sched);
+	const char *name = stress_get_sched_name(sched);
 
 	(void)memset(&param, 0, sizeof(param));
 
 	switch (sched) {
 	case UNDEFINED:	/* No preference, don't set */
-		return;
+		return 0;
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
 #if defined(SCHED_FIFO)
 	case SCHED_FIFO:
@@ -92,10 +99,9 @@ void set_sched(const int sched, const int32_t sched_priority)
 #endif
 		min = sched_get_priority_min(sched);
 		max = sched_get_priority_max(sched);
-
 		param.sched_priority = sched_priority;
 
-		if (param.sched_priority == UNDEFINED) {
+		if (sched_priority == UNDEFINED) {
 			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
 				param.sched_priority = max;
 			else
@@ -108,32 +114,85 @@ void set_sched(const int sched, const int32_t sched_priority)
 			(void)fprintf(stderr, "Scheduler priority level must be "
 				"set between %d and %d\n",
 				min, max);
-			exit(EXIT_FAILURE);
+			return -EINVAL;
 		}
-		pr_dbg("setting scheduler class '%s', priority %d\n",
-			name, param.sched_priority);
+		if (!quiet)
+			pr_dbg("setting scheduler class '%s', priority %d\n",
+				name, param.sched_priority);
 		break;
+#endif
+#if defined(SCHED_DEADLINE) && defined(__linux__)
+	case SCHED_DEADLINE:
+		min = sched_get_priority_min(sched);
+		max = sched_get_priority_max(sched);
+		attr.size = sizeof(attr);
+		attr.sched_policy = SCHED_DEADLINE;
+		attr.sched_flags = 0;
+		attr.sched_nice = SCHED_OTHER;
+		attr.sched_priority = sched_priority;
+		if (sched_priority == UNDEFINED) {
+			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+				attr.sched_priority = max;
+			else
+				attr.sched_priority = (max - min) / 2;
+			pr_inf("priority not given, defaulting to %d\n",
+				attr.sched_priority);
+		}
+		if ((attr.sched_priority < (uint32_t)min) ||
+		    (attr.sched_priority > (uint32_t)max)) {
+			(void)fprintf(stderr, "Scheduler priority level must be "
+				"set between %d and %d\n",
+				min, max);
+			return -EINVAL;
+		}
+		if (!quiet)
+			pr_dbg("setting scheduler class '%s'\n",
+				name);
+		attr.sched_runtime = 10000;
+		attr.sched_deadline = 100000;
+		attr.sched_period = 0;
+
+		rc = shim_sched_setattr(pid, &attr, 0);
+		if (rc < 0) {
+			rc = -errno;
+			(void)fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
+				errno, strerror(errno));
+			return rc;
+		}
+		return 0;
+		break;		/* Keep static analysers happy */
 #endif
 	default:
 		param.sched_priority = 0;
 		if (sched_priority != UNDEFINED)
 			pr_inf("ignoring priority level for "
-			"scheduler class '%s'\n", name);
-		pr_dbg("setting scheduler class '%s'\n", name);
+				"scheduler class '%s'\n", name);
+		if (!quiet)
+			pr_dbg("setting scheduler class '%s'\n", name);
 		break;
 	}
-	rc = sched_setscheduler(getpid(), sched, &param);
+	rc = sched_setscheduler(pid, sched, &param);
 	if (rc < 0) {
+		rc = -errno;
 		(void)fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
 			errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return rc;
 	}
+	return 0;
 }
 #else
-void set_sched(const int32_t sched, const int32_t sched_priority)
+int stress_set_sched(
+	const pid_t pid,
+	const int sched,
+	const int32_t sched_priority,
+	const bool quiet)
 {
+	(void)pid;
 	(void)sched;
 	(void)sched_priority;
+	(void)quiet;
+
+	return 0;
 }
 #endif
 
