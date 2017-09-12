@@ -63,7 +63,10 @@ static const int clocks_nanosleep[] = {
 	CLOCK_REALTIME,
 #endif
 #if defined(CLOCK_MONOTONIC)
-	CLOCK_MONOTONIC
+	CLOCK_MONOTONIC,
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID)
+	CLOCK_THREAD_CPUTIME_ID
 #endif
 };
 #endif
@@ -74,7 +77,10 @@ static const int timers[] = {
 	CLOCK_REALTIME,
 #endif
 #if defined(CLOCK_MONOTONIC)
-	CLOCK_MONOTONIC
+	CLOCK_MONOTONIC,
+#endif
+#if defined(CLOCK_THREAD_CPUTIME_ID)
+	CLOCK_THREAD_CPUTIME_ID
 #endif
 };
 #endif
@@ -103,22 +109,44 @@ int stress_clock(const args_t *args)
 	do {
 		size_t i;
 		struct timespec t;
+		int ret;
+
+#if defined(CLOCK_THREAD_CPUTIME_ID) && defined(__linux__) && (_POSIX_C_SOURCE >= 199309L)
+		/*
+		 *  Exercise setting local thread CPU timer
+		 */
+		ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+			pr_fail("%s: clock_gettime failed for "
+				"timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
+		/*
+		 *  According to clock_settime(2), setting the timer
+		 *  CLOCK_THREAD_CPUTIME_ID is not possible on Linux.
+		 *  Try to set it and ignore the result because it will
+		 *  currently return -EINVAL, but it may not do so in the
+		 *  future.
+		 */
+		ret = clock_settime(CLOCK_THREAD_CPUTIME_ID, &t);
+		(void)ret;
+#endif
 
 		/*
 		 *  Exercise clock_getres and clock_gettime for each clock
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
-			int ret = clock_getres(clocks[i].id, &t);
+			ret = clock_getres(clocks[i].id, &t);
 
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail("%s: clock_getres failed for "
-				"timer '%s', errno=%d (%s)\n",
-				args->name, clocks[i].name, errno, strerror(errno));
+					"timer '%s', errno=%d (%s)\n",
+					args->name, clocks[i].name, errno, strerror(errno));
 			ret = clock_gettime(clocks[i].id, &t);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 				pr_fail("%s: clock_gettime failed for "
-				"timer '%s', errno=%d (%s)\n",
-				args->name, clocks[i].name, errno, strerror(errno));
+					"timer '%s', errno=%d (%s)\n",
+					args->name, clocks[i].name, errno, strerror(errno));
 		}
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
@@ -126,7 +154,6 @@ int stress_clock(const args_t *args)
 		 *  Exercise clock_nanosleep for each clock
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(clocks_nanosleep); i++) {
-			int ret;
 			t.tv_sec = 0;
 			t.tv_nsec = 25000;
 			/*
@@ -151,7 +178,6 @@ int stress_clock(const args_t *args)
 			struct itimerspec its;
 			struct sigevent sevp;
 			int64_t loops = 1000000;
-			int ret;
 
 			(void)memset(&sevp, 0, sizeof(sevp));
 			sevp.sigev_notify = SIGEV_NONE;
