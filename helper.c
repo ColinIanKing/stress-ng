@@ -1258,7 +1258,7 @@ int stress_drop_capabilities(const char *name)
 		return -1;
 	}
 #if defined(PR_SET_NO_NEW_PRIVS)
-	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0;
+	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 	if (ret < 0) {
 		pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on pid %d failed: "
 			"errno=%d (%s)\n",
