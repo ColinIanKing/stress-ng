@@ -20,7 +20,7 @@ clock_adjtime
 clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
-clock_settime			[ need privilege, ignore for now ]
+clock_settime			clock
 clone				clone
 close				dentry
 connect				sock
@@ -330,7 +330,7 @@ timerfd_gettime			timerfd
 timerfd_settime			timerfd
 times				sysinfo
 tkill
-truncate
+truncate			
 ugetrlimit
 umask				aio, mmap, sendfile, etc
 umount				[ need privilege, ignore for now ]
@@ -338,7 +338,7 @@ uname				get
 unlink				dentry, hdd, unlink
 unlinkat
 unshare				clone, unshare
-uselib
+uselib				[ deprecated ]
 userfaultfd			userfaultfd
 ustat				[ deprecated ]
 utime				utime
