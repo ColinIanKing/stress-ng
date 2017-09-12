@@ -1791,7 +1791,7 @@ static void usage(void)
  */
 static const char *opt_name(const int opt_val)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; long_options[i].name; i++)
 		if (long_options[i].val == opt_val)
