@@ -3609,11 +3609,6 @@ int main(int argc, char **argv)
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
 
-	/*
-	 *  Throw away excluded stressors
-	 */
-	if (stress_exclude() < 0)
-		exit(EXIT_FAILURE);
 
 	/*
 	 *  Sanity check minimize/maximize options
@@ -3668,6 +3663,11 @@ int main(int argc, char **argv)
 	 */
 	exclude_unsupported();
 	exclude_pathological();
+	/*
+	 *  Throw away excluded stressors
+	 */
+	if (stress_exclude() < 0)
+		exit(EXIT_FAILURE);
 
 	/*
 	 *  Setup random stressors if requested
