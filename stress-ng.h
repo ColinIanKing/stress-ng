@@ -95,6 +95,9 @@
 #include <strings.h>
 #endif
 
+#if defined (__minux__)
+#endif
+
 #if defined (__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
@@ -2585,6 +2588,14 @@ extern int  stress_set_wcs_method(const char *name);
 extern int  stress_set_zlib_method(const char *name);
 extern void stress_set_zombie_max(const char *opt);
 
+#if defined(__linux__)
+typedef	loff_t		shim_loff_t;	/* loff_t shim for linux */
+typedef off64_t		shim_off64_t;	/* off64_t for linux */
+#else
+typedef uint64_t	shim_loff_t;	/* loff_t for any other OS */
+typedef uint64_t	shim_off64_t;	/* off64_t for linux */
+#endif
+
 /*
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction
@@ -2602,11 +2613,7 @@ struct shim_linux_dirent64 {
 #else
 	int64_t		d_ino;		/* 64-bit inode number */
 #endif
-#if defined(__linux__)
-	off64_t		d_off;		/* 64-bit offset to next structure */
-#else
-	int64_t		d_off;		/* 64-bit offset to next structure */
-#endif
+	shim_off64_t		d_off;		/* 64-bit offset to next structure */
 	unsigned short	d_reclen;	/* Size of this dirent */
 	unsigned char	d_type;		/* File type */
 	char		d_name[];	/* Filename (null-terminated) */
@@ -2671,12 +2678,6 @@ struct shim_statx {
         uint64_t   __spare2[14];
 };
 
-#if defined(__linux__)
-typedef	loff_t		shim_loff_t;	/* loff_t shim for linux */
-#else
-typedef uint64_t	shim_loff_t;	/* loff_t for any other OS */
-#endif
-
 extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
 extern int shim_sched_yield(void);
@@ -2728,7 +2729,8 @@ extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
 extern int shim_futex_wake(const void *futex, const int n);
 extern int shim_futex_wait(const void *futex, const int val, const struct timespec *timeout);
 extern int shim_dup3(int oldfd, int newfd, int flags);
-extern int shim_sync_file_range(int fd, off64_t offset, off64_t nbytes, unsigned int flags);
+extern int shim_sync_file_range(int fd, shim_off64_t offset, shim_off64_t nbytes, unsigned int flags);
+
 
 #define STRESS(func) extern int func(const args_t *args);
 

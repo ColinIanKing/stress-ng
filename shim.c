@@ -922,8 +922,8 @@ int shim_dup3(int oldfd, int newfd, int flags)
 
 int shim_sync_file_range(
 	int fd,
-	off64_t offset,
-	off64_t nbytes,
+	shim_off64_t offset,
+	shim_off64_t nbytes,
 	unsigned int flags)
 {
 #if defined(__linux__) && defined(__NR_sync_file_range)
