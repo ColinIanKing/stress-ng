@@ -1,3 +1,37 @@
+stress-ng (0.08.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * Abstract a shim for off64_t
+  * shim: fix typo, error should be errno
+  * stress-opcode: don't use seccomp if SECCOMP_SET_MODE_FILTER is not defined
+  * stress-memrate: add volatile in void cast to fix buildw arning
+  * stress-socket-diag: constify attr and cast
+  * shim: move iopriority shims from io-priority.c to shim.c
+  * stress-pthread: fix typo mutx -> mutex
+  * Add cpu-online and oom-pipe stressors to the pathological class
+  * shim: move shim_sync_file_range from stress-sync-file to shim
+  * shim: use __NR_futex instead of SYS_futex in syscall
+  * stress-dup: use dup3 shim
+  * shim: add shim to dup3
+  * stress-mincore: reset random address if it matches previous address
+  * syscalls.txt: update
+  * stress-clock: add half-baked attempt to set timer
+  * helper: remove extraneous and incorrect < 0 after prctl call
+  * fix -x exclude option
+  * stress-ng: make index size_t type
+  * stress-opcode: add seccomp filtering to limit syscalls
+  * helper: stress_drop_capabilities: don't allow new privileges
+  * Enable SCHED_DEADLINE and rework some abstraction interfaces
+  * timers: cast to type of tv fields rather than long long int
+  * stress-madvise: add MADV_WIPEONFORK
+  * stress-vforkmany: cleanup build warnings on munmap on openindiana
+  * stress-memrate: cleanup build warnings on munmap on openindiana
+  * stress-matrix: cleanup build warnings on munmap on openindiana
+  * temporarily disable SCHED_DEADLINE scheduling
+
+ -- Colin King <colin.king@canonical.com>  Wed, 13 Sep 2017 13:35:59 +0100
+
 stress-ng (0.08.14-1) unstable; urgency=medium
 
   * Makefile: bump version
