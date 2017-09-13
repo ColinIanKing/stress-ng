@@ -896,5 +896,25 @@ int shim_futex_wait(
 	errno = -ENOSYS;
 	return -1;
 }
+#endif
 
+/*
+ *  dup3()
+ *	linux special dup
+ */
+#if defined(__linux__) && defined(__NR_dup3)
+int shim_dup3(int oldfd, int newfd, int flags)
+{
+	return syscall(__NR_dup3, oldfd, newfd, flags);
+}
+#else
+int shim_dup3(int oldfd, int newfd, int flags)
+{
+	(void)oldfd;
+	(void)newfd;
+	(void)flags;
+	
+	errno = -ENOSYS;
+	return -1;
+}
 #endif
