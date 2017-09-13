@@ -189,7 +189,7 @@ int stress_pthread(const args_t *args)
 	}
 	ret = pthread_mutex_init(&mutex, NULL);
 	if (ret) {
-		pr_fail_errno("pthread_mutx_init", ret);
+		pr_fail_errno("pthread_mutex_init", ret);
 		return EXIT_FAILURE;
 	}
 
