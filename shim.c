@@ -950,3 +950,38 @@ int shim_sync_file_range(
 	return -1;
 #endif
 }
+
+/*
+ *  shim_ioprio_set()
+ *	ioprio_set system call
+ */
+int shim_ioprio_set(int which, int who, int ioprio)
+{
+#if defined(__linux__) && defined(__NR_ioprio_set)
+	return syscall(__NR_ioprio_set, which, who, ioprio);
+#else
+	(void)which;
+	(void)who;
+	(void)ioprio;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *  shim_ioprio_get()
+ *	ioprio_get system call
+ */
+int shim_ioprio_get(int which, int who)
+{
+#if defined(__linux__) && defined(__NR_ioprio_get)
+	return syscall(__NR_ioprio_get, which, who);
+#else
+	(void)which;
+	(void)who;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
