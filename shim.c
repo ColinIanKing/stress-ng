@@ -946,7 +946,7 @@ int shim_sync_file_range(
 	(void)nbytes;
 	(void)flags;
 
-	error = -ENOSYS;
+	errno = -ENOSYS;
 	return -1;
 #endif
 }
