@@ -858,7 +858,7 @@ ssize_t shim_statx(
 #if defined(__linux__) && defined(__NR_futex)
 int shim_futex_wake(const void *futex, const int n)
 {
-	return syscall(SYS_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
+	return syscall(__NR_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
 }
 #else
 int shim_futex_wake(const void *futex, const int n)
@@ -881,7 +881,7 @@ int shim_futex_wait(
 	const int val,
 	const struct timespec *timeout)
 {
-	return syscall(SYS_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
+	return syscall(__NR_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
 }
 #else
 int shim_futex_wait(
