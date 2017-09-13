@@ -97,7 +97,7 @@ static int stress_sock_diag_parse(
 	const struct unix_diag_msg *diag,
 	unsigned int len)
 {
-	struct rtattr *attr;
+	const struct rtattr *attr;
 	unsigned int rta_len;
 
 	if (len < NLMSG_LENGTH(sizeof(*diag))) {
@@ -111,7 +111,7 @@ static int stress_sock_diag_parse(
 	}
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
-	for (attr = (struct rtattr *) (diag + 1);
+	for (attr = (const struct rtattr *) (diag + 1);
 	     RTA_OK(attr, rta_len); attr = RTA_NEXT(attr, rta_len)) {
 		switch (attr->rta_type) {
 		case UNIX_DIAG_NAME:
