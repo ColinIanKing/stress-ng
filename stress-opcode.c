@@ -206,7 +206,7 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 
-#if defined(HAVE_SECCOMP_H)
+#if defined(HAVE_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
 			/*
 			 * Limit syscall using seccomp
 			 */
