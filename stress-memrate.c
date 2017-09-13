@@ -112,7 +112,7 @@ static uint64_t stress_memrate_read##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((void *)ptr - start) / MB;			\
+	return ((volatile void *)ptr - start) / MB;		\
 }
 
 STRESS_MEMRATE_READ(64)
@@ -166,7 +166,7 @@ static uint64_t stress_memrate_write##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((void *)ptr - start) / MB;			\
+	return ((volatile void *)ptr - start) / MB;		\
 }
 
 STRESS_MEMRATE_WRITE(64)
