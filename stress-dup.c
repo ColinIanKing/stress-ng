@@ -59,7 +59,7 @@ int stress_dup(const args_t *args)
 			if (do_dup3 && (mwc32() & 1)) {
 				int fd;
 
-				fd = dup3(fds[0], fds[n], O_CLOEXEC);
+				fd = shim_dup3(fds[0], fds[n], O_CLOEXEC);
 				/* No dup3 support? then fallback to dup2 */
 				if ((fd < 0) && (errno == ENOSYS)) {
 					fd = dup2(fds[0], fds[n]);
