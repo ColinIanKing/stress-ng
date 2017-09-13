@@ -918,3 +918,35 @@ int shim_dup3(int oldfd, int newfd, int flags)
 	return -1;
 }
 #endif
+
+
+int shim_sync_file_range(
+	int fd,
+	off64_t offset,
+	off64_t nbytes,
+	unsigned int flags)
+{
+#if defined(__linux__) && defined(__NR_sync_file_range)
+	return syscall(__NR_sync_file_range, fd, offset, nbytes, flags);
+#elif defined(__linux__) && defined(__NR_sync_file_range2)
+	/*
+	 * from sync_file_range(2):
+	 * "Some architectures (e.g., PowerPC, ARM) need  64-bit  arguments
+	 * to be aligned in a suitable pair of registers.  On such
+	 * architectures, the call signature of sync_file_range() shown in
+	 * the SYNOPSIS would force a register to be wasted as padding
+	 * between the fd and offset arguments.  (See syscall(2) for details.)
+	 * Therefore, these architectures define a different system call that
+	 * orders the arguments suitably"
+	 */
+	return syscall(__NR_sync_file_range2, fd, flags, offset, nbytes);
+#else
+	(void)fd;
+	(void)offset;
+	(void)nbytes;
+	(void)flags;
+
+	error = -ENOSYS;
+	return -1;
+#endif
+}
