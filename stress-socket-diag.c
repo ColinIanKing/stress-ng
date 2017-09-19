@@ -89,7 +89,7 @@ static int sockdiag_send(const args_t *args, const int fd)
 		if (errno != EINTR)
 			return -1;
 	}
-	return -1;
+	return 0;
 }
 
 static int stress_sockdiag_parse(
