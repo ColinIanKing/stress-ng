@@ -2880,7 +2880,7 @@ STRESS(stress_sigsuspend);
 STRESS(stress_sigq);
 STRESS(stress_sleep);
 STRESS(stress_sock);
-STRESS(stress_sock_diag);
+STRESS(stress_sockdiag);
 STRESS(stress_sockfd);
 STRESS(stress_sockpair);
 STRESS(stress_softlockup);

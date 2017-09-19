@@ -39,17 +39,17 @@
 typedef struct {
 	struct nlmsghdr nlh;
 	struct unix_diag_req udr;
-} sock_diag_request_t;
+} sockdiag_request_t;
 
-static int sock_diag_send(const args_t *args, const int fd)
+static int sockdiag_send(const args_t *args, const int fd)
 {
 	static struct sockaddr_nl nladdr = {
 		.nl_family = AF_NETLINK
 	};
 
-	static sock_diag_request_t request = {
+	static sockdiag_request_t request = {
 		.nlh = {
-			.nlmsg_len = sizeof(sock_diag_request_t),
+			.nlmsg_len = sizeof(sockdiag_request_t),
 			.nlmsg_type = SOCK_DIAG_BY_FAMILY,
 			.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP
 		},
@@ -92,7 +92,7 @@ static int sock_diag_send(const args_t *args, const int fd)
 	return -1;
 }
 
-static int stress_sock_diag_parse(
+static int stress_sockdiag_parse(
 	const args_t *args,
 	const struct unix_diag_msg *diag,
 	unsigned int len)
@@ -128,7 +128,7 @@ static int stress_sock_diag_parse(
 	return 0;
 }
 
-static int sock_diag_recv(const args_t *args, const int fd)
+static int sockdiag_recv(const args_t *args, const int fd)
 {
 	static uint32_t buf[4096];
 	int flags = 0;
@@ -174,7 +174,7 @@ static int sock_diag_recv(const args_t *args, const int fd)
 			if (h->nlmsg_type != SOCK_DIAG_BY_FAMILY)
 				return -1;
 
-			if (stress_sock_diag_parse(args, NLMSG_DATA(h), h->nlmsg_len))
+			if (stress_sockdiag_parse(args, NLMSG_DATA(h), h->nlmsg_len))
 				return -1;
 		}
 	}
@@ -182,10 +182,10 @@ static int sock_diag_recv(const args_t *args, const int fd)
 }
 
 /*
- *  stress_sock_diag
+ *  stress_sockdiag
  *	stress by heavy socket I/O
  */
-int stress_sock_diag(const args_t *args)
+int stress_sockdiag(const args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 
@@ -199,7 +199,7 @@ int stress_sock_diag(const args_t *args)
 			ret = EXIT_FAILURE;
 			break;
 		}
-		rc = sock_diag_send(args, fd);
+		rc = sockdiag_send(args, fd);
 		if (rc < 0) {
 			pr_err("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -207,7 +207,7 @@ int stress_sock_diag(const args_t *args)
 			(void)close(fd);
 			break;
 		}
-		rc = sock_diag_recv(args, fd);
+		rc = sockdiag_recv(args, fd);
 		if (rc < 0) {
 			(void)close(fd);
 			break;
@@ -219,7 +219,7 @@ int stress_sock_diag(const args_t *args)
 }
 
 #else
-int stress_sock_diag(const args_t *args)
+int stress_sockdiag(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
