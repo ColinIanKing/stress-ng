@@ -89,12 +89,13 @@ jmp_buf g_error_env;				/* parsing error env */
 static const unsupported_t unsupported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
 	{ STRESS_CHROOT,	stress_chroot_supported },
+	{ STRESS_CYCLIC,	stress_cyclic_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
-	{ STRESS_CYCLIC,	stress_cyclic_supported },
 	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
+	{ STRESS_SWAP,		stress_swap_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
 };
 
@@ -350,6 +351,7 @@ static const stress_t stressors[] = {
 	STRESSOR(stackmmap, STACKMMAP, CLASS_VM | CLASS_MEMORY),
 	STRESSOR(str, STR, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
 	STRESSOR(stream, STREAM, CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY),
+	STRESSOR(swap, SWAP, CLASS_VM | CLASS_OS),
 	STRESSOR(switch, SWITCH, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(symlink, SYMLINK, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(sync_file, SYNC_FILE, CLASS_IO | CLASS_FILESYSTEM | CLASS_OS),
@@ -839,6 +841,8 @@ static const struct option long_options[] = {
 	{ "stream-ops",	1,	0,	OPT_STREAM_OPS },
 	{ "stream-l3-size",1,	0,	OPT_STREAM_L3_SIZE },
 	{ "stream-madvise",1,	0,	OPT_STREAM_MADVISE },
+	{ "swap",	1,	0,	OPT_SWAP },
+	{ "swap-ops",	1,	0,	OPT_SWAP_OPS },
 	{ "switch",	1,	0,	OPT_SWITCH },
 	{ "switch-ops",	1,	0,	OPT_SWITCH_OPS },
 	{ "symlink",	1,	0,	OPT_SYMLINK },
@@ -1404,6 +1408,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,		"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,		"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
+	{ NULL,		"swap N",		"start N workers exercising swapon/swapoff" },
+	{ NULL,		"swap-ops N",		"stop after N swapon/swapoff operations" },
 	{ "s N",	"switch N",		"start N workers doing rapid context switches" },
 	{ NULL,		"switch-ops N",		"stop after N context switch bogo operations" },
 	{ NULL,		"symlink N",		"start N workers creating symbolic links" },

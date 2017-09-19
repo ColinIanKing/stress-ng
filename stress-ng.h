@@ -1324,6 +1324,7 @@ typedef enum {
 	STRESS_STACKMMAP,
 	STRESS_STR,
 	STRESS_STREAM,
+	STRESS_SWAP,
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYNC_FILE,
@@ -1949,6 +1950,9 @@ typedef enum {
 	OPT_SOFTLOCKUP,
 	OPT_SOFTLOCKUP_OPS,
 
+	OPT_SWAP,
+	OPT_SWAP_OPS,
+
 	OPT_SWITCH_OPS,
 
 	OPT_SPAWN,
@@ -2472,12 +2476,13 @@ extern void thrash_stop(void);
 /* run-time checks to see if a stressor is supported or not */
 extern int stress_apparmor_supported(void);
 extern int stress_chroot_supported(void);
+extern int stress_cyclic_supported(void);
 extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
 extern int stress_netlink_proc_supported(void);
 extern int stress_rdrand_supported(void);
-extern int stress_cyclic_supported(void);
 extern int stress_softlockup_supported(void);
+extern int stress_swap_supported(void);
 extern int stress_tsc_supported(void);
 
 /* Used to set options for specific stressors */
@@ -2885,6 +2890,7 @@ STRESS(stress_stack);
 STRESS(stress_stackmmap);
 STRESS(stress_str);
 STRESS(stress_stream);
+STRESS(stress_swap);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sync_file);

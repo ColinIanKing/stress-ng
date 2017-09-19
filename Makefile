@@ -199,6 +199,7 @@ STRESS_SRC = \
 	stress-stackmmap.c \
 	stress-str.c \
 	stress-stream.c \
+	stress-swap.c \
 	stress-switch.c \
 	stress-sync-file.c \
 	stress-sysinfo.c \
