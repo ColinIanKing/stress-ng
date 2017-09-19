@@ -85,7 +85,7 @@ static int sockdiag_send(const args_t *args, const int fd)
 
 		ret = sendmsg(fd, &msg, 0);
 		if (ret > 0)
-			return 0;
+			return 1;
 		if (errno != EINTR)
 			return -1;
 	}
@@ -204,6 +204,10 @@ int stress_sockdiag(const args_t *args)
 			pr_err("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
+			(void)close(fd);
+			break;
+		} else if (rc == 0) {
+			/* Nothing sent or timed out? */
 			(void)close(fd);
 			break;
 		}
