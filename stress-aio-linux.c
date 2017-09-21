@@ -35,7 +35,8 @@
 
 #endif
 
-#define BUFFER_SZ	(4096)
+#define BUFFER_SZ		(4096)
+#define DEFAULT_AIO_MAX_NR	(65536)
 
 void stress_set_aio_linux_requests(const char *opt)
 {
@@ -77,9 +78,11 @@ int stress_aiol(const args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
+	char buf[64];
 	io_context_t ctx = 0;
 	uint64_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint8_t *buffer;
+	uint64_t aio_max_nr = DEFAULT_AIO_MAX_NR;
 
 	if (!get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -91,6 +94,29 @@ int stress_aiol(const args_t *args)
 	    (aio_linux_requests > MAX_AIO_REQUESTS)) {
 		pr_err("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
+	}
+
+	ret = system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf));
+	if (ret > 0) {
+		if (sscanf(buf, "%" SCNu64, &aio_max_nr) != 1) {
+			/* Guess max */
+			aio_max_nr = DEFAULT_AIO_MAX_NR;
+		}
+	} else {
+		/* Guess max */
+		aio_max_nr = DEFAULT_AIO_MAX_NR;
+	}
+
+	aio_max_nr /= (args->num_instances == 0) ? 1 : args->num_instances;
+
+	if (aio_max_nr < 1)
+		aio_max_nr = 1;
+	if (aio_linux_requests > aio_max_nr) {
+		aio_linux_requests = aio_max_nr;
+		if (args->instance == 0)
+			pr_inf("%s: Limiting AIO requests to "
+				"%" PRIu64 " per stressor (avoids running out of resources)\n",
+				args->name, aio_linux_requests);
 	}
 
 	ret = posix_memalign((void **)&buffer, 4096,
