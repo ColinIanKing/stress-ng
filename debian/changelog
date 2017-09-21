@@ -1,3 +1,14 @@
+stress-ng (0.08.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-aio-linux: automatically scale requests (LP: #1711675)
+  * stress-socket-diag: sockdiag_send zero return should be checked
+  * stress-socket-diag: sockdiag_send should return 0 on stress test end
+  * stress-socket-diag: ensure name is sockdiag and not sock-diag
+  * Add swapon/off stressor
+
+ -- Colin King <colin.king@canonical.com>  Thu, 21 Sep 2017 10:17:11 +0100
+
 stress-ng (0.08.15-1) unstable; urgency=medium
 
   * Makefile: bump version
