@@ -29,6 +29,7 @@
 #include <keyutils.h>
 
 #define MAX_KEYS 	(256)
+#define KEYCTL_TIMEOUT	(7200)
 
 static long sys_keyctl(int cmd, ...)
 {
@@ -101,7 +102,7 @@ int stress_key(const args_t *args)
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (timeout_supported) {
-				if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], 1) < 0) {
+				if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], KEYCTL_TIMEOUT) < 0) {
 					/* Some platforms don't support this */
 					if (errno == ENOSYS) {
 						timeout_supported = false;
