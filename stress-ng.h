@@ -95,9 +95,6 @@
 #include <strings.h>
 #endif
 
-#if defined (__minux__)
-#endif
-
 #if defined (__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
