@@ -261,7 +261,7 @@ static inline int sys_perf_event_open(
 
 /*
  *  perf_yaml_label()
- *	turns text into a yaml compatible lable.
+ *	turns text into a yaml compatible label.
  */
 static char *perf_yaml_label(char *dst, const char *src, const size_t n)
 {
