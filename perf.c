@@ -37,6 +37,8 @@
 #define TRILLION	(1.0E12)
 #define QUADRILLION	(1.0E15)
 #define QUINTILLION	(1.0E18)
+#define SEXTILLION	(1.0E21)
+#define SEPTILLION	(1.0E24)
 
 /* used for table of perf events to gather */
 typedef struct {
@@ -537,6 +539,8 @@ static perf_scale_t perf_scale[] = {
 	{ 100 * TRILLION,	TRILLION,	"T/sec" },
 	{ 100 * QUADRILLION,	QUADRILLION,	"P/sec" },
 	{ 100 * QUINTILLION,	QUINTILLION,	"E/sec" },
+	{ 100 * SEXTILLION,	SEXTILLION,	"Z/sec" },
+	{ 100 * SEPTILLION,	SEPTILLION,	"Y/sec" },
 	{ -1, 			-1,		NULL }
 };
 
