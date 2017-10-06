@@ -40,11 +40,13 @@
 #define SEXTILLION	(1.0E21)
 #define SEPTILLION	(1.0E24)
 
+#define UNRESOLVED	(~0UL)
+
 /* used for table of perf events to gather */
 typedef struct {
-	int id;				/* stress-ng perf ID */
 	unsigned long type;		/* perf types */
 	unsigned long config;		/* perf type specific config */
+	char *path;			/* perf trace point path (only for trace points) */
 	char *label;			/* human readable name for perf type */
 } perf_info_t;
 
@@ -55,249 +57,213 @@ typedef struct {
 	uint64_t time_running;		/* perf time running */
 } perf_data_t;
 
-/* perf trace point id -> path resolution */
-typedef struct {
-	int id;				/* stress-ng perf ID */
-	char *path;			/* path to config value */
-} perf_tp_info_t;
+/* Tracepoint */
+#define PERF_INFO_TP(path, label)	\
+	{ PERF_TYPE_TRACEPOINT, UNRESOLVED, path, label }
 
-#define PERF_TP_INFO(id, path) \
-	{ STRESS_PERF_ ## id, path }
+/* Hardware */
+#define PERF_INFO_HW(config, label)	\
+	{ PERF_TYPE_HARDWARE, config, NULL, label }
 
-#define PERF_INFO(type, config, label)	\
-	{ STRESS_PERF_ ## config, PERF_TYPE_ ## type, \
-	  PERF_COUNT_ ## config, label }
+/* Software */
+#define PERF_INFO_SW(config, label)	\
+	{ PERF_TYPE_SOFTWARE, config, NULL, label }
+
+/* Hardware Cache */
+#define PERF_INFO_HW_C(config, label)	\
+	{ PERF_TYPE_HW_CACHE, config, NULL, label }
 
 #define STRESS_GOT(x) _SNG_PERF_COUNT_ ## x
 
-#define UNRESOLVED				(~0UL)
-#define PERF_COUNT_TP_SYSCALLS_ENTER		UNRESOLVED
-#define PERF_COUNT_TP_SYSCALLS_EXIT		UNRESOLVED
-#define PERF_COUNT_TP_TLB_FLUSH			UNRESOLVED
-#define PERF_COUNT_TP_KMALLOC			UNRESOLVED
-#define PERF_COUNT_TP_KMALLOC_NODE		UNRESOLVED
-#define PERF_COUNT_TP_KFREE			UNRESOLVED
-#define PERF_COUNT_TP_KMEM_CACHE_ALLOC		UNRESOLVED
-#define PERF_COUNT_TP_KMEM_CACHE_ALLOC_NODE	UNRESOLVED
-#define PERF_COUNT_TP_KMEM_CACHE_FREE		UNRESOLVED
-#define PERF_COUNT_TP_MM_PAGE_ALLOC		UNRESOLVED
-#define PERF_COUNT_TP_MM_PAGE_FREE		UNRESOLVED
-#define PERF_COUNT_TP_RCU_UTILIZATION		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_MIGRATE_TASK	UNRESOLVED
-#define PERF_COUNT_TP_SCHED_MOVE_NUMA		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_WAKEUP		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_EXEC		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_EXIT		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_FORK		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_FREE		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_HANG		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_PROC_WAIT		UNRESOLVED
-#define PERF_COUNT_TP_SCHED_SWITCH		UNRESOLVED
-#define PERF_COUNT_TP_SIGNAL_GENERATE		UNRESOLVED
-#define PERF_COUNT_TP_SIGNAL_DELIVER		UNRESOLVED
-#define PERF_COUNT_TP_PAGE_FAULT_USER		UNRESOLVED
-#define PERF_COUNT_TP_PAGE_FAULT_KERNEL		UNRESOLVED
-#define PERF_COUNT_TP_IRQ_ENTRY			UNRESOLVED
-#define PERF_COUNT_TP_IRQ_EXIT			UNRESOLVED
-#define PERF_COUNT_TP_SOFTIRQ_ENTRY		UNRESOLVED
-#define PERF_COUNT_TP_SOFTIRQ_EXIT		UNRESOLVED
-#define PERF_COUNT_TP_RCU_UTILIZATION		UNRESOLVED
-#define PERF_COUNT_TP_WRITEBACK_DIRTY_INODE	UNRESOLVED
-#define PERF_COUNT_TP_WRITEBACK_DIRTY_PAGE	UNRESOLVED
-#define PERF_COUNT_TP_MIGRATE_MM_PAGES		UNRESOLVED
-#define PERF_COUNT_TP_SKB_CONSUME		UNRESOLVED
-#define PERF_COUNT_TP_SKB_KFREE			UNRESOLVED
-#define PERF_COUNT_TP_IOMMU_IO_PAGE_FAULT	UNRESOLVED
-#define PERF_COUNT_TP_IOMMU_MAP			UNRESOLVED
-#define PERF_COUNT_TP_IOMMU_UNMAP		UNRESOLVED
-
+#define HW_CACHE(cache_id, op_id, result_id)		\
+	(PERF_COUNT_HW_CACHE_ ## cache_id) |		\
+	((PERF_COUNT_HW_CACHE_OP_ ## op_id) << 8) | 	\
+	((PERF_COUNT_HW_CACHE_RESULT_ ## result_id) << 16)
 
 /* perf counters to be read */
-static perf_info_t perf_info[STRESS_PERF_MAX + 1] = {
+static perf_info_t perf_info[STRESS_PERF_MAX] = {
 #if STRESS_GOT(HW_CPU_CYCLES)
-	PERF_INFO(HARDWARE, HW_CPU_CYCLES,		"CPU Cycles"),
+	PERF_INFO_HW(PERF_COUNT_HW_CPU_CYCLES,		"CPU Cycles"),
 #endif
 #if STRESS_GOT(HW_INSTRUCTIONS)
-	PERF_INFO(HARDWARE, HW_INSTRUCTIONS,		"Instructions"),
-#endif
-#if STRESS_GOT(HW_CACHE_REFERENCES)
-	PERF_INFO(HARDWARE, HW_CACHE_REFERENCES,	"Cache References"),
-#endif
-#if STRESS_GOT(HW_CACHE_MISSES)
-	PERF_INFO(HARDWARE, HW_CACHE_MISSES,		"Cache Misses"),
-#endif
-#if STRESS_GOT(HW_CACHE_OP_READ)
-	PERF_INFO(HARDWARE, HW_CACHE_OP_READ,		"Cache Op Read"),
-#endif
-#if STRESS_GOT(HW_CACHE_OP_WRITE)
-	PERF_INFO(HARDWARE, HW_CACHE_OP_WRITE,		"Cache Op Write"),
-#endif
-#if STRESS_GOT(HW_CACHE_OP_PREFETCH)
-	PERF_INFO(HARDWARE, HW_CACHE_OP_PREFETCH,	"Cache Op Prefetch"),
-#endif
-#if STRESS_GOT(HW_CACHE_L1D)
-	PERF_INFO(HARDWARE, HW_CACHE_L1D,		"Cache L1 Data"),
-#endif
-#if STRESS_GOT(HW_CACHE_L1I)
-	PERF_INFO(HARDWARE, HW_CACHE_L1I,		"Cache L1 Instruction"),
-#endif
-#if STRESS_GOT(HW_CACHE_LL)
-	PERF_INFO(HARDWARE, HW_CACHE_LL,		"Cache LL"),
-#endif
-#if STRESS_GOT(HW_CACHE_DTLB)
-	PERF_INFO(HARDWARE, HW_CACHE_DTLB,		"Cache TLB Data"),
-#endif
-#if STRESS_GOT(HW_CACHE_ITLB)
-	PERF_INFO(HARDWARE, HW_CACHE_ITLB,		"Cache TLB Instruction"),
-#endif
-#if STRESS_GOT(HW_STALLED_CYCLES_FRONTEND)
-	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_FRONTEND,	"Stalled Cycles Frontend"),
-#endif
-#if STRESS_GOT(HW_STALLED_CYCLES_BACKEND)
-	PERF_INFO(HARDWARE, HW_STALLED_CYCLES_BACKEND,	"Stalled Cycles Backend"),
+	PERF_INFO_HW(PERF_COUNT_HW_INSTRUCTIONS,	"Instructions"),
 #endif
 #if STRESS_GOT(HW_BRANCH_INSTRUCTIONS)
-	PERF_INFO(HARDWARE, HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
+	PERF_INFO_HW(PERF_COUNT_HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
 #endif
 #if STRESS_GOT(HW_BRANCH_MISSES)
-	PERF_INFO(HARDWARE, HW_BRANCH_MISSES,		"Branch Misses"),
+	PERF_INFO_HW(PERF_COUNT_HW_BRANCH_MISSES,	"Branch Misses"),
+#endif
+#if STRESS_GOT(HW_STALLED_CYCLES_FRONTEND)
+	PERF_INFO_HW(PERF_COUNT_HW_STALLED_CYCLES_FRONTEND,"Stalled Cycles Frontend"),
+#endif
+#if STRESS_GOT(HW_STALLED_CYCLES_BACKEND)
+	PERF_INFO_HW(PERF_COUNT_HW_STALLED_CYCLES_BACKEND,"Stalled Cycles Backend"),
 #endif
 #if STRESS_GOT(HW_BUS_CYCLES)
-	PERF_INFO(HARDWARE, HW_BUS_CYCLES,		"Bus Cycles"),
+	PERF_INFO_HW(PERF_COUNT_HW_BUS_CYCLES,		"Bus Cycles"),
 #endif
 #if STRESS_GOT(HW_REF_CPU_CYCLES)
-	PERF_INFO(HARDWARE, HW_REF_CPU_CYCLES,		"Total Cycles"),
+	PERF_INFO_HW(PERF_COUNT_HW_REF_CPU_CYCLES,	"Total Cycles"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_REFERENCES)
+	PERF_INFO_HW(PERF_COUNT_HW_CACHE_REFERENCES,	"Cache References"),
+#endif
+#if STRESS_GOT(HW_CACHE_MISSES)
+	PERF_INFO_HW(PERF_COUNT_HW_CACHE_MISSES,	"Cache Misses"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_L1D)
+	PERF_INFO_HW_C(HW_CACHE(L1D,READ,ACCESS), 	"Cache L1D Read"),
+	PERF_INFO_HW_C(HW_CACHE(L1D,READ,MISS), 	"Cache L1D Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(L1D,WRITE,ACCESS), 	"Cache L1D Write"),
+	PERF_INFO_HW_C(HW_CACHE(L1D,WRITE,MISS), 	"Cache L1D Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(L1D,PREFETCH,ACCESS), 	"Cache L1D Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(L1D,PREFETCH,MISS), 	"Cache L1D Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_L1I)
+	PERF_INFO_HW_C(HW_CACHE(L1I,READ,ACCESS), 	"Cache L1I Read"),
+	PERF_INFO_HW_C(HW_CACHE(L1I,READ,MISS), 	"Cache L1I Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(L1I,WRITE,ACCESS), 	"Cache L1I Write"),
+	PERF_INFO_HW_C(HW_CACHE(L1I,WRITE,MISS), 	"Cache L1I Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(L1I,PREFETCH,ACCESS),	"Cache L1I Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(L1I,PREFETCH,MISS),	"Cache L1I Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_LL)
+	PERF_INFO_HW_C(HW_CACHE(LL,READ,ACCESS),	"Cache LL Read"),
+	PERF_INFO_HW_C(HW_CACHE(LL,READ,MISS),		"Cache LL Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(LL,WRITE,ACCESS),	"Cache LL Write"),
+	PERF_INFO_HW_C(HW_CACHE(LL,WRITE,MISS),		"Cache LL Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(LL,PREFETCH,ACCESS),	"Cache LL Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(LL,PREFETCH,MISS),	"Cache LL Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_DTLB)
+	PERF_INFO_HW_C(HW_CACHE(DTLB,READ,ACCESS), 	"Cache DTLB Read"),
+	PERF_INFO_HW_C(HW_CACHE(DTLB,READ,MISS), 	"Cache DTLB Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(DTLB,WRITE,ACCESS), 	"Cache DTLB Write"),
+	PERF_INFO_HW_C(HW_CACHE(DTLB,WRITE,MISS), 	"Cache DTLB Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(DTLB,PREFETCH,ACCESS), 	"Cache DTLB Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(DTLB,PREFETCH,MISS),	"Cache DTLB Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_ITLB)
+	PERF_INFO_HW_C(HW_CACHE(ITLB,READ,ACCESS),	"Cache ITLB Read"),
+	PERF_INFO_HW_C(HW_CACHE(ITLB,READ,MISS),	"Cache ITLB Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(ITLB,WRITE,ACCESS),	"Cache ITLB Write"),
+	PERF_INFO_HW_C(HW_CACHE(ITLB,WRITE,MISS),	"Cache ITLB Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(ITLB,PREFETCH,ACCESS),	"Cache ITLB Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(ITLB,PREFETCH,MISS),	"Cache DILB Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_BPU)
+	PERF_INFO_HW_C(HW_CACHE(BPU,READ,ACCESS),	"Cache BPU Read"),
+	PERF_INFO_HW_C(HW_CACHE(BPU,READ,MISS),		"Cache BPU Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(BPU,WRITE,ACCESS),	"Cache BPU Write"),
+	PERF_INFO_HW_C(HW_CACHE(BPU,WRITE,MISS),	"Cache BPU Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(BPU,PREFETCH,ACCESS),	"Cache BPU Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(BPU,PREFETCH,MISS),	"Cache DILB Prefetch Miss"),
+#endif
+
+#if STRESS_GOT(HW_CACHE_NODE)
+	PERF_INFO_HW_C(HW_CACHE(NODE,READ,ACCESS),	"Cache NODE Read"),
+	PERF_INFO_HW_C(HW_CACHE(NODE,READ,MISS),	"Cache NODE Read Miss"),
+	PERF_INFO_HW_C(HW_CACHE(NODE,WRITE,ACCESS),	"Cache NODE Write"),
+	PERF_INFO_HW_C(HW_CACHE(NODE,WRITE,MISS),	"Cache NODE Write Miss"),
+	PERF_INFO_HW_C(HW_CACHE(NODE,PREFETCH,ACCESS),	"Cache NODE Prefetch"),
+	PERF_INFO_HW_C(HW_CACHE(NODE,PREFETCH,MISS),	"Cache DILB Prefetch Miss"),
 #endif
 
 #if STRESS_GOT(SW_PAGE_FAULTS_MIN)
-	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MIN,		"Page Faults Minor"),
+	PERF_INFO_SW(PERF_COUNT_SW_PAGE_FAULTS_MIN,	"Page Faults Minor"),
 #endif
 #if STRESS_GOT(SW_PAGE_FAULTS_MAJ)
-	PERF_INFO(SOFTWARE, SW_PAGE_FAULTS_MAJ,		"Page Faults Major"),
+	PERF_INFO_SW(PERF_COUNT_SW_PAGE_FAULTS_MAJ,	"Page Faults Major"),
 #endif
 #if STRESS_GOT(SW_CONTEXT_SWITCHES)
-	PERF_INFO(SOFTWARE, SW_CONTEXT_SWITCHES,	"Context Switches"),
+	PERF_INFO_SW(PERF_COUNT_SW_CONTEXT_SWITCHES,	"Context Switches"),
 #endif
 #if STRESS_GOT(SW_CPU_MIGRATIONS)
-	PERF_INFO(SOFTWARE, SW_CPU_MIGRATIONS,		"CPU Migrations"),
+	PERF_INFO_SW(PERF_COUNT_SW_CPU_MIGRATIONS,	"CPU Migrations"),
 #endif
 #if STRESS_GOT(SW_ALIGNMENT_FAULTS)
-	PERF_INFO(SOFTWARE, SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
+	PERF_INFO_SW(PERF_COUNT_SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
 #endif
 
-	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_USER,	"Page Faults User"),
-	PERF_INFO(TRACEPOINT, TP_PAGE_FAULT_KERNEL,	"Page Faults Kernel"),
-	PERF_INFO(TRACEPOINT, TP_SYSCALLS_ENTER,	"System Call Enter"),
-	PERF_INFO(TRACEPOINT, TP_SYSCALLS_EXIT,		"System Call Exit"),
-	PERF_INFO(TRACEPOINT, TP_TLB_FLUSH,		"TLB Flushes"),
-	PERF_INFO(TRACEPOINT, TP_KMALLOC,		"Kmalloc"),
-	PERF_INFO(TRACEPOINT, TP_KMALLOC_NODE,		"Kmalloc Node"),
-	PERF_INFO(TRACEPOINT, TP_KFREE,			"Kfree"),
-	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_ALLOC,	"Kmem Cache Alloc"),
-	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_ALLOC_NODE,	"Kmem Cache Alloc Node"),
-	PERF_INFO(TRACEPOINT, TP_KMEM_CACHE_FREE,	"Kmem Cache Free"),
-	PERF_INFO(TRACEPOINT, TP_MM_PAGE_ALLOC,		"MM Page Alloc"),
-	PERF_INFO(TRACEPOINT, TP_MM_PAGE_FREE,		"MM Page Free"),
-	PERF_INFO(TRACEPOINT, TP_RCU_UTILIZATION,	"RCU Utilization"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_MIGRATE_TASK,	"Sched Migrate Task"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_MOVE_NUMA,	"Sched Move NUMA"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_WAKEUP,		"Sched Wakeup"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_EXEC,	"Sched Proc Exec"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_EXIT,	"Sched Proc Exit"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_FORK,	"Sched Proc Fork"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_FREE,	"Sched Proc Free"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_HANG,	"Sched Proc Hang"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_PROC_WAIT,	"Sched Proc Wait"),
-	PERF_INFO(TRACEPOINT, TP_SCHED_SWITCH,		"Sched Switch"),
-	PERF_INFO(TRACEPOINT, TP_SIGNAL_GENERATE,	"Signal Generate"),
-	PERF_INFO(TRACEPOINT, TP_SIGNAL_DELIVER,	"Signal Deliver"),
-	PERF_INFO(TRACEPOINT, TP_IRQ_ENTRY,		"IRQ Entry"),
-	PERF_INFO(TRACEPOINT, TP_IRQ_EXIT,		"IRQ Exit"),
-	PERF_INFO(TRACEPOINT, TP_SOFTIRQ_ENTRY,		"Soft IRQ Entry"),
-	PERF_INFO(TRACEPOINT, TP_SOFTIRQ_EXIT,		"Soft IRQ Exit"),
-	PERF_INFO(TRACEPOINT, TP_WRITEBACK_DIRTY_INODE,	"Writeback Dirty Inode"),
-	PERF_INFO(TRACEPOINT, TP_WRITEBACK_DIRTY_PAGE,	"Writeback Dirty Page"),
-	PERF_INFO(TRACEPOINT, TP_MIGRATE_MM_PAGES,	"Migrate MM Pages"),
-	PERF_INFO(TRACEPOINT, TP_SKB_CONSUME,		"SKB Consume"),
-	PERF_INFO(TRACEPOINT, TP_SKB_KFREE,		"SKB Kfree"),
-	PERF_INFO(TRACEPOINT, TP_IOMMU_IO_PAGE_FAULT,	"IOMMU IO Page Fault"),
-	PERF_INFO(TRACEPOINT, TP_IOMMU_MAP,		"IOMMU Map"),
-	PERF_INFO(TRACEPOINT, TP_IOMMU_UNMAP,		"IOMMU Unmap"),
+	PERF_INFO_TP("exceptions/page_fault_user",	"Page Faults User"),
+	PERF_INFO_TP("exceptions/page_fault_kernel",	"Page Faults Kernel"),
+	PERF_INFO_TP("raw_syscalls/sys_enter",		"System Call Enter"),
+	PERF_INFO_TP("raw_syscalls/sys_exit",		"System Call Exit"),
 
-	{ 0, 0, 0, NULL }
+	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
+	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
+	PERF_INFO_TP("kmem/kmalloc_node",		"Kmalloc Node"),
+	PERF_INFO_TP("kmem/kfree",			"Kfree"),
+	PERF_INFO_TP("kmem/kmem_cache_alloc",		"Kmem Cache Alloc"),
+	PERF_INFO_TP("kmem/kmem_cache_alloc_node",	"Kmem Cache Alloc Node"),
+	PERF_INFO_TP("kmem/kmem_cache_free",		"Kmem Cache Free"),
+	PERF_INFO_TP("kmem/mm_page_alloc",		"MM Page Alloc"),
+	PERF_INFO_TP("kmem/mm_page_free",		"MM Page Free"),
+
+	PERF_INFO_TP("rcu/rcu_utilization",		"RCU Utilization"),
+
+	PERF_INFO_TP("sched/sched_migrate_task",	"Sched Migrate Task"),
+	PERF_INFO_TP("sched/sched_move_numa",		"Sched Move NUMA"),
+	PERF_INFO_TP("sched/sched_wakeup",		"Sched Wakeup"),
+	PERF_INFO_TP("sched/sched_process_exec",	"Sched Proc Exec"),
+	PERF_INFO_TP("sched/sched_process_exit",	"Sched Proc Exit"),
+	PERF_INFO_TP("sched/sched_process_fork",	"Sched Proc Fork"),
+	PERF_INFO_TP("sched/sched_process_free",	"Sched Proc Free"),
+	PERF_INFO_TP("sched/sched_process_hang",	"Sched Proc Hang"),
+	PERF_INFO_TP("sched/sched_process_wait",	"Sched Proc Wait"),
+	PERF_INFO_TP("sched/sched_switch",		"Sched Switch"),
+
+	PERF_INFO_TP("signal/signal_generate",		"Signal Generate"),
+	PERF_INFO_TP("signal/signal_deliver",		"Signal Deliver"),
+
+	PERF_INFO_TP("irq/irq_handler_entry",		"IRQ Entry"),
+	PERF_INFO_TP("irq/irq_handler_exit",		"IRQ Exit"),
+	PERF_INFO_TP("irq/softirq_entry",		"Soft IRQ Entry"),
+	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
+
+	PERF_INFO_TP("writeback/writeback_dirty_inode",	"Writeback Dirty Inode"),
+	PERF_INFO_TP("writeback/writeback_dirty_page",	"Writeback Dirty Page"),
+
+	PERF_INFO_TP("migrate/mm_migrate_pages",	"Migrate MM Pages"),
+
+	PERF_INFO_TP("skb/consume_skb",			"SKB Consume"),
+	PERF_INFO_TP("skb/kfree_skb",			"SKB Kfree"),
+
+	PERF_INFO_TP("iommu/io_page_fault",		"IOMMU IO Page Fault"),
+	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
+	PERF_INFO_TP("iommu/unmap",			"IOMMU Unmap"),
+
+	{ 0, 0, NULL, NULL }
 };
 
-static const perf_tp_info_t perf_tp_info[] = {
-	PERF_TP_INFO(TP_SYSCALLS_ENTER,		"raw_syscalls/sys_enter"),
-	PERF_TP_INFO(TP_SYSCALLS_EXIT,		"raw_syscalls/sys_exit"),
-	PERF_TP_INFO(TP_TLB_FLUSH, 		"tlb/tlb_flush"),
-	PERF_TP_INFO(TP_KMALLOC,		"kmem/kmalloc"),
-	PERF_TP_INFO(TP_KMALLOC_NODE,		"kmem/kmalloc_node"),
-	PERF_TP_INFO(TP_KFREE,			"kmem/kfree"),
-	PERF_TP_INFO(TP_KMEM_CACHE_ALLOC,	"kmem/kmem_cache_alloc"),
-	PERF_TP_INFO(TP_KMEM_CACHE_ALLOC_NODE,	"kmem/kmem_cache_alloc_node"),
-	PERF_TP_INFO(TP_KMEM_CACHE_FREE,	"kmem/kmem_cache_free"),
-	PERF_TP_INFO(TP_MM_PAGE_ALLOC,		"kmem/mm_page_alloc"),
-	PERF_TP_INFO(TP_MM_PAGE_FREE,		"kmem/mm_page_free"),
-	PERF_TP_INFO(TP_RCU_UTILIZATION,	"rcu/rcu_utilization"),
-	PERF_TP_INFO(TP_SCHED_MIGRATE_TASK,	"sched/sched_migrate_task"),
-	PERF_TP_INFO(TP_SCHED_MOVE_NUMA,	"sched/sched_move_numa"),
-	PERF_TP_INFO(TP_SCHED_WAKEUP,		"sched/sched_wakeup"),
-	PERF_TP_INFO(TP_SCHED_PROC_EXEC,	"sched/sched_process_exec"),
-	PERF_TP_INFO(TP_SCHED_PROC_EXIT,	"sched/sched_process_exit"),
-	PERF_TP_INFO(TP_SCHED_PROC_FORK,	"sched/sched_process_fork"),
-	PERF_TP_INFO(TP_SCHED_PROC_FREE,	"sched/sched_process_free"),
-	PERF_TP_INFO(TP_SCHED_PROC_HANG,	"sched/sched_process_hang"),
-	PERF_TP_INFO(TP_SCHED_PROC_WAIT,	"sched/sched_process_wait"),
-	PERF_TP_INFO(TP_SCHED_SWITCH,		"sched/sched_switch"),
-	PERF_TP_INFO(TP_SIGNAL_GENERATE,	"signal/signal_generate"),
-	PERF_TP_INFO(TP_SIGNAL_DELIVER,		"signal/signal_deliver"),
-	PERF_TP_INFO(TP_PAGE_FAULT_USER,	"exceptions/page_fault_user"),
-	PERF_TP_INFO(TP_PAGE_FAULT_KERNEL,	"exceptions/page_fault_kernel"),
-	PERF_TP_INFO(TP_IRQ_ENTRY,		"irq/irq_handler_entry"),
-	PERF_TP_INFO(TP_IRQ_EXIT,		"irq/irq_handler_exit"),
-	PERF_TP_INFO(TP_SOFTIRQ_ENTRY,		"irq/softirq_entry"),
-	PERF_TP_INFO(TP_SOFTIRQ_EXIT,		"irq/softirq_exit"),
-	PERF_TP_INFO(TP_WRITEBACK_DIRTY_INODE,	"writeback/writeback_dirty_inode"),
-	PERF_TP_INFO(TP_WRITEBACK_DIRTY_PAGE,	"writeback/writeback_dirty_page"),
-	PERF_TP_INFO(TP_MIGRATE_MM_PAGES,	"migrate/mm_migrate_pages"),
-	PERF_TP_INFO(TP_SKB_CONSUME,		"skb/consume_skb"),
-	PERF_TP_INFO(TP_SKB_KFREE,		"skb/kfree_skb"),
-	PERF_TP_INFO(TP_IOMMU_IO_PAGE_FAULT,	"iommu/io_page_fault"),
-	PERF_TP_INFO(TP_IOMMU_MAP,		"iommu/map"),
-	PERF_TP_INFO(TP_IOMMU_UNMAP,		"iommu/unmap"),
-
-	{ 0, NULL }
-};
-
-static unsigned long perf_type_tracepoint_resolve_config(const int id)
+static void perf_type_tracepoint_resolve_config(perf_info_t *perf_info)
 {
 	char path[PATH_MAX];
-	size_t i;
 	unsigned long config;
-	bool not_found = true;
 	FILE *fp;
 
-	for (i = 0; perf_tp_info[i].path; i++) {
-		if (perf_tp_info[i].id == id) {
-			not_found = false;
-			break;
-		}
-	}
-	if (not_found)
-		return UNRESOLVED;
+	if (!perf_info->path)
+		return;
 
 	(void)snprintf(path, sizeof(path), "/sys/kernel/debug/tracing/events/%s/id",
-		perf_tp_info[i].path);
+		perf_info->path);
 	if ((fp = fopen(path, "r")) == NULL)
-		return UNRESOLVED;
+		return;
 	if (fscanf(fp, "%lu", &config) != 1) {
 		(void)fclose(fp);
-		return UNRESOLVED;
+		return;
 	}
 	(void)fclose(fp);
 
-	return config;
+	perf_info->config = config;
 }
 
 void perf_init(void)
@@ -306,8 +272,7 @@ void perf_init(void)
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
 		if (perf_info[i].type == PERF_TYPE_TRACEPOINT) {
-			perf_info[i].config =
-				perf_type_tracepoint_resolve_config(perf_info[i].id);
+			perf_type_tracepoint_resolve_config(&perf_info[i]);
 		}
 	}
 }
@@ -520,23 +485,20 @@ out_ok:
  *  perf_get_counter_by_index()
  *	fetch counter and perf ID via index i
  */
-int perf_get_counter_by_index(
+static int perf_get_counter_by_index(
 	const stress_perf_t *sp,
 	const int i,
-	uint64_t *counter,
-	int *id)
+	uint64_t *counter)
 {
 	if ((i < 0) || (i >= STRESS_PERF_MAX))
 		goto fail;
 
 	if (perf_info[i].label) {
-		*id = perf_info[i].id;
 		*counter = sp->perf_stat[i].counter;
 		return 0;
 	}
 
 fail:
-	*id = -1;
 	*counter = STRESS_PERF_INVALID;
 	return -1;
 }
@@ -545,38 +507,12 @@ fail:
  *  perf_get_label_by_index()
  *	fetch label via index i
  */
-const char *perf_get_label_by_index(const int i)
+static const char *perf_get_label_by_index(const int i)
 {
 	if ((i < 0) || (i >= STRESS_PERF_MAX))
 		return NULL;
 
 	return perf_info[i].label;
-}
-
-
-/*
- *  perf_get_counter_by_id()
- *	fetch counter and index via perf ID
- */
-int perf_get_counter_by_id(
-	const stress_perf_t *sp,
-	int id,
-	uint64_t *counter,
-	int *index)
-{
-	int i;
-
-	for (i = 0; perf_info[i].label; i++) {
-		if (perf_info[i].id == id) {
-			*index = i;
-			*counter = sp->perf_stat[i].counter;
-			return 0;
-		}
-	}
-
-	*index = -1;
-	*counter = 0;
-	return -1;
 }
 
 /*
@@ -612,7 +548,7 @@ static perf_scale_t perf_scale[] = {
  *	scale a counter by duration seconds
  *	into a human readable form
  */
-const char *perf_stat_scale(const uint64_t counter, const double duration)
+static const char *perf_stat_scale(const uint64_t counter, const double duration)
 {
 	static char buffer[40];
 	char *suffix = "E/sec";
@@ -652,26 +588,23 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 		uint64_t total_cpu_cycles = 0;
 		uint64_t total_cache_refs = 0;
 		uint64_t total_branches = 0;
-		int ids[STRESS_PERF_MAX];
 		bool got_data = false;
 		char *munged;
 
 		(void)memset(counter_totals, 0, sizeof(counter_totals));
 
 		/* Sum totals across all instances of the stressor */
-		for (p = 0; p < STRESS_PERF_MAX; p++) {
+		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
 			int32_t j;
 			stress_perf_t *sp = &pi->stats[0]->sp;
 
 			if (!perf_stat_succeeded(sp))
 				continue;
 
-			ids[p] = ~0;
 			for (j = 0; j < pi->started_procs; j++) {
 				uint64_t counter;
 
-				if (perf_get_counter_by_index(sp, p,
-				    &counter, &ids[p]) < 0)
+				if (perf_get_counter_by_index(sp, p, &counter) < 0)
 					break;
 				if (counter == STRESS_PERF_INVALID) {
 					counter_totals[p] = STRESS_PERF_INVALID;
@@ -680,12 +613,16 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 				counter_totals[p] += counter;
 				got_data |= (counter > 0);
 			}
-			if (ids[p] == STRESS_PERF_HW_CPU_CYCLES)
-				total_cpu_cycles = counter_totals[p];
-			if (ids[p] == STRESS_PERF_HW_CACHE_REFERENCES)
-				total_cache_refs = counter_totals[p];
-			if (ids[p] == STRESS_PERF_HW_BRANCH_INSTRUCTIONS)
-				total_branches = counter_totals[p];
+			if (perf_info[p].type == PERF_TYPE_HARDWARE) {
+				unsigned long config = perf_info[p].config;
+
+				if (config == PERF_COUNT_HW_CPU_CYCLES)
+					total_cpu_cycles = counter_totals[p];
+				else if (config == PERF_COUNT_HW_CACHE_REFERENCES)
+					total_cache_refs = counter_totals[p];
+				else if (config == PERF_COUNT_HW_BRANCH_INSTRUCTIONS)
+					total_branches = counter_totals[p];
+			}
 		}
 
 		if (!got_data)
@@ -696,7 +633,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
-		for (p = 0; p < STRESS_PERF_MAX; p++) {
+		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
 			const char *l = perf_get_label_by_index(p);
 			uint64_t ct = counter_totals[p];
 
@@ -707,21 +644,24 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 
 				no_perf_stats = false;
 
-				if ((ids[p] == STRESS_PERF_HW_INSTRUCTIONS) &&
-				    (total_cpu_cycles > 0))
-					(void)snprintf(extra, sizeof(extra),
-						" (%.3f instr. per cycle)",
-						(double)ct / (double)total_cpu_cycles);
-				if ((ids[p] == STRESS_PERF_HW_CACHE_MISSES) &&
-				     (total_cache_refs > 0))
-					(void)snprintf(extra, sizeof(extra),
-						" (%5.2f%%)",
-						100.0 * (double)ct / (double)total_cache_refs);
-				if ((ids[p] == STRESS_PERF_HW_BRANCH_MISSES) &&
-				    (total_branches > 0))
-					(void)snprintf(extra, sizeof(extra),
-						" (%5.2f%%)",
-						100.0 * (double)ct / (double)total_branches);
+				if (perf_info[p].type == PERF_TYPE_HARDWARE) {
+					unsigned long config = perf_info[p].config;
+					if ((config == PERF_COUNT_HW_INSTRUCTIONS) &&
+					    (total_cpu_cycles > 0))
+						(void)snprintf(extra, sizeof(extra),
+							" (%.3f instr. per cycle)",
+							(double)ct / (double)total_cpu_cycles);
+					else if ((config == PERF_COUNT_HW_CACHE_MISSES) &&
+					     (total_cache_refs > 0))
+						(void)snprintf(extra, sizeof(extra),
+							" (%5.2f%%)",
+							100.0 * (double)ct / (double)total_cache_refs);
+					else if ((config == PERF_COUNT_HW_BRANCH_MISSES) &&
+					    (total_branches > 0))
+						(void)snprintf(extra, sizeof(extra),
+							" (%5.2f%%)",
+							100.0 * (double)ct / (double)total_branches);
+				}
 
 				pr_inf("%'26" PRIu64 " %-23s %s%s\n",
 					ct, l, perf_stat_scale(ct, duration),
