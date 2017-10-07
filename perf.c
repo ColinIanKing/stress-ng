@@ -69,11 +69,11 @@ typedef struct {
 
 /* Hardware */
 #define PERF_INFO_HW(config, label)	\
-	{ PERF_TYPE_HARDWARE, config, NULL, label }
+	{ PERF_TYPE_HARDWARE, PERF_COUNT_ ## config, NULL, label }
 
 /* Software */
 #define PERF_INFO_SW(config, label)	\
-	{ PERF_TYPE_SOFTWARE, config, NULL, label }
+	{ PERF_TYPE_SOFTWARE, PERF_COUNT_ ## config, NULL, label }
 
 /* Hardware Cache */
 #define PERF_INFO_HW_C(cache_id, op_id, result_id, label)	\
@@ -104,38 +104,44 @@ static const perf_scale_t perf_scale[] = {
 
 /* perf counters to be read */
 static perf_info_t perf_info[STRESS_PERF_MAX] = {
+	/*
+	 *  Hardware conters
+	 */
 #if STRESS_PERF_DEFINED(HW_CPU_CYCLES)
-	PERF_INFO_HW(PERF_COUNT_HW_CPU_CYCLES,		"CPU Cycles"),
+	PERF_INFO_HW(HW_CPU_CYCLES,		"CPU Cycles"),
 #endif
 #if STRESS_PERF_DEFINED(HW_INSTRUCTIONS)
-	PERF_INFO_HW(PERF_COUNT_HW_INSTRUCTIONS,	"Instructions"),
+	PERF_INFO_HW(HW_INSTRUCTIONS,		"Instructions"),
 #endif
 #if STRESS_PERF_DEFINED(HW_BRANCH_INSTRUCTIONS)
-	PERF_INFO_HW(PERF_COUNT_HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
+	PERF_INFO_HW(HW_BRANCH_INSTRUCTIONS,	"Branch Instructions"),
 #endif
 #if STRESS_PERF_DEFINED(HW_BRANCH_MISSES)
-	PERF_INFO_HW(PERF_COUNT_HW_BRANCH_MISSES,	"Branch Misses"),
+	PERF_INFO_HW(HW_BRANCH_MISSES,		"Branch Misses"),
 #endif
 #if STRESS_PERF_DEFINED(HW_STALLED_CYCLES_FRONTEND)
-	PERF_INFO_HW(PERF_COUNT_HW_STALLED_CYCLES_FRONTEND,"Stalled Cycles Frontend"),
+	PERF_INFO_HW(HW_STALLED_CYCLES_FRONTEND,"Stalled Cycles Frontend"),
 #endif
 #if STRESS_PERF_DEFINED(HW_STALLED_CYCLES_BACKEND)
-	PERF_INFO_HW(PERF_COUNT_HW_STALLED_CYCLES_BACKEND,"Stalled Cycles Backend"),
+	PERF_INFO_HW(HW_STALLED_CYCLES_BACKEND,"Stalled Cycles Backend"),
 #endif
 #if STRESS_PERF_DEFINED(HW_BUS_CYCLES)
-	PERF_INFO_HW(PERF_COUNT_HW_BUS_CYCLES,		"Bus Cycles"),
+	PERF_INFO_HW(HW_BUS_CYCLES,		"Bus Cycles"),
 #endif
 #if STRESS_PERF_DEFINED(HW_REF_CPU_CYCLES)
-	PERF_INFO_HW(PERF_COUNT_HW_REF_CPU_CYCLES,	"Total Cycles"),
+	PERF_INFO_HW(HW_REF_CPU_CYCLES,		"Total Cycles"),
 #endif
 
 #if STRESS_PERF_DEFINED(HW_CACHE_REFERENCES)
-	PERF_INFO_HW(PERF_COUNT_HW_CACHE_REFERENCES,	"Cache References"),
+	PERF_INFO_HW(HW_CACHE_REFERENCES,	"Cache References"),
 #endif
 #if STRESS_PERF_DEFINED(HW_CACHE_MISSES)
-	PERF_INFO_HW(PERF_COUNT_HW_CACHE_MISSES,	"Cache Misses"),
+	PERF_INFO_HW(HW_CACHE_MISSES,		"Cache Misses"),
 #endif
 
+	/*
+	 *  Hardware Cache counters
+	 */
 #if STRESS_PERF_DEFINED(HW_CACHE_L1D)
 	PERF_INFO_HW_C(L1D, READ, ACCESS, 	"Cache L1D Read"),
 	PERF_INFO_HW_C(L1D, READ, MISS, 	"Cache L1D Read Miss"),
@@ -199,22 +205,28 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_HW_C(NODE, PREFETCH, MISS,	"Cache DILB Prefetch Miss"),
 #endif
 
+	/*
+	 *  Software counters
+	 */
 #if STRESS_PERF_DEFINED(SW_PAGE_FAULTS_MIN)
-	PERF_INFO_SW(PERF_COUNT_SW_PAGE_FAULTS_MIN,	"Page Faults Minor"),
+	PERF_INFO_SW(SW_PAGE_FAULTS_MIN,	"Page Faults Minor"),
 #endif
 #if STRESS_PERF_DEFINED(SW_PAGE_FAULTS_MAJ)
-	PERF_INFO_SW(PERF_COUNT_SW_PAGE_FAULTS_MAJ,	"Page Faults Major"),
+	PERF_INFO_SW(SW_PAGE_FAULTS_MAJ,	"Page Faults Major"),
 #endif
 #if STRESS_PERF_DEFINED(SW_CONTEXT_SWITCHES)
-	PERF_INFO_SW(PERF_COUNT_SW_CONTEXT_SWITCHES,	"Context Switches"),
+	PERF_INFO_SW(SW_CONTEXT_SWITCHES,	"Context Switches"),
 #endif
 #if STRESS_PERF_DEFINED(SW_CPU_MIGRATIONS)
-	PERF_INFO_SW(PERF_COUNT_SW_CPU_MIGRATIONS,	"CPU Migrations"),
+	PERF_INFO_SW(SW_CPU_MIGRATIONS,	"CPU Migrations"),
 #endif
 #if STRESS_PERF_DEFINED(SW_ALIGNMENT_FAULTS)
-	PERF_INFO_SW(PERF_COUNT_SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
+	PERF_INFO_SW(SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
 #endif
 
+	/*
+	 *  Tracepoint counters
+ 	 */
 	PERF_INFO_TP("exceptions/page_fault_user",	"Page Faults User"),
 	PERF_INFO_TP("exceptions/page_fault_kernel",	"Page Faults Kernel"),
 	PERF_INFO_TP("raw_syscalls/sys_enter",		"System Call Enter"),
