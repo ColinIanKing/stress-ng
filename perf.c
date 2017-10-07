@@ -63,6 +63,10 @@ typedef struct {
 	char 		*suffix;
 } perf_scale_t;
 
+/* Tracepoint */
+#define PERF_INFO_TP(path, label)	\
+	{ PERF_TYPE_TRACEPOINT, UNRESOLVED, path, label }
+
 /* Hardware */
 #define PERF_INFO_HW(config, label)	\
 	{ PERF_TYPE_HARDWARE, config, NULL, label }
@@ -97,11 +101,6 @@ static const perf_scale_t perf_scale[] = {
 	{ 100 * SEPTILLION,	SEPTILLION,	"Y/sec" },
 	{ -1, 			-1,		NULL }
 };
-
-/* Tracepoint */
-#define PERF_INFO_TP(path, label)	\
-	{ PERF_TYPE_TRACEPOINT, UNRESOLVED, path, label }
-
 
 /* perf counters to be read */
 static perf_info_t perf_info[STRESS_PERF_MAX] = {
