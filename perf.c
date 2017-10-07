@@ -631,7 +631,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 							100.0 * (double)ct / (double)total_branches);
 				}
 
-				pr_inf("%'26" PRIu64 " %-23s %s%s\n",
+				pr_inf("%'26" PRIu64 " %-24s %s%s\n",
 					ct, l, perf_stat_scale(ct, duration),
 					extra);
 
