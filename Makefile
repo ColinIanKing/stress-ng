@@ -1105,7 +1105,7 @@ have_inotify: test-inotify.c
 #
 .PHONY: have_mathfunc
 have_mathfunc: test-mathfunc.c
-	@$(CC) $(CPPFLAGS) -DMATHFUNC=$(MATHFUNC) test-mathfunc.c -o test-mathfunc 2> /dev/null || true
+	@$(CC) $(CPPFLAGS) -DMATHFUNC=$(MATHFUNC) test-mathfunc.c -o test-mathfunc -lm 2> /dev/null || true
 	@if [ -f test-mathfunc ]; then \
 		echo 1 ;\
 	else \

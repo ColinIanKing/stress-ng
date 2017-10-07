@@ -26,7 +26,11 @@
 #include <math.h>
 #include <complex.h>
 
+static void *funcs[] = {
+	MATHFUNC,
+};
+
 int main(void)
 {
-	return &MATHFUNC == 0;
+	return 0;
 }
