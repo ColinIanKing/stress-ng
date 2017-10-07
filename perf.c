@@ -505,28 +505,6 @@ out_ok:
 }
 
 /*
- *  perf_get_counter_by_index()
- *	fetch counter and perf ID via index i
- */
-static int perf_get_counter_by_index(
-	const stress_perf_t *sp,
-	const int i,
-	uint64_t *counter)
-{
-	if ((i < 0) || (i >= STRESS_PERF_MAX))
-		goto fail;
-
-	if (perf_info[i].label) {
-		*counter = sp->perf_stat[i].counter;
-		return 0;
-	}
-
-fail:
-	*counter = STRESS_PERF_INVALID;
-	return -1;
-}
-
-/*
  *  perf_stat_succeeded()
  *	did perf event open work OK?
  */
@@ -594,10 +572,8 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 				continue;
 
 			for (j = 0; j < pi->started_procs; j++) {
-				uint64_t counter;
+				const uint64_t counter = sp->perf_stat[p].counter;
 
-				if (perf_get_counter_by_index(sp, p, &counter) < 0)
-					break;
 				if (counter == STRESS_PERF_INVALID) {
 					counter_totals[p] = STRESS_PERF_INVALID;
 					break;
