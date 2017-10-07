@@ -278,7 +278,7 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
-static void perf_type_tracepoint_resolve_config(perf_info_t *perf_info)
+static inline void perf_type_tracepoint_resolve_config(perf_info_t *perf_info)
 {
 	char path[PATH_MAX];
 	unsigned long config;
