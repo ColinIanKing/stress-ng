@@ -32,5 +32,5 @@ static void *funcs[] = {
 
 int main(void)
 {
-	return 0;
+	return funcs[0] == 0;
 }
