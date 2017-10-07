@@ -57,9 +57,11 @@ typedef struct {
 	uint64_t time_running;		/* perf time running */
 } perf_data_t;
 
-/* Tracepoint */
-#define PERF_INFO_TP(path, label)	\
-	{ PERF_TYPE_TRACEPOINT, UNRESOLVED, path, label }
+typedef struct {
+	double		threshold;
+	double		scale;
+	char 		*suffix;
+} perf_scale_t;
 
 /* Hardware */
 #define PERF_INFO_HW(config, label)	\
@@ -79,6 +81,27 @@ typedef struct {
 	(PERF_COUNT_HW_CACHE_ ## cache_id) |		\
 	((PERF_COUNT_HW_CACHE_OP_ ## op_id) << 8) | 	\
 	((PERF_COUNT_HW_CACHE_RESULT_ ## result_id) << 16)
+
+/*
+ *  Perf scaling factors
+ */
+static const perf_scale_t perf_scale[] = {
+	{ THOUSAND,		1.0,		"/sec" },
+	{ 100 * THOUSAND,	THOUSAND,	"K/sec" },
+	{ 100 * MILLION,	MILLION,	"M/sec" },
+	{ 100 * BILLION,	BILLION,	"B/sec" },
+	{ 100 * TRILLION,	TRILLION,	"T/sec" },
+	{ 100 * QUADRILLION,	QUADRILLION,	"P/sec" },
+	{ 100 * QUINTILLION,	QUINTILLION,	"E/sec" },
+	{ 100 * SEXTILLION,	SEXTILLION,	"Z/sec" },
+	{ 100 * SEPTILLION,	SEPTILLION,	"Y/sec" },
+	{ -1, 			-1,		NULL }
+};
+
+/* Tracepoint */
+#define PERF_INFO_TP(path, label)	\
+	{ PERF_TYPE_TRACEPOINT, UNRESOLVED, path, label }
+
 
 /* perf counters to be read */
 static perf_info_t perf_info[STRESS_PERF_MAX] = {
@@ -511,25 +534,6 @@ bool perf_stat_succeeded(const stress_perf_t *sp)
 {
 	return sp->perf_opened > 0;
 }
-
-typedef struct {
-	double		threshold;
-	double		scale;
-	char 		*suffix;
-} perf_scale_t;
-
-static perf_scale_t perf_scale[] = {
-	{ THOUSAND,		1.0,		"/sec" },
-	{ 100 * THOUSAND,	THOUSAND,	"K/sec" },
-	{ 100 * MILLION,	MILLION,	"M/sec" },
-	{ 100 * BILLION,	BILLION,	"B/sec" },
-	{ 100 * TRILLION,	TRILLION,	"T/sec" },
-	{ 100 * QUADRILLION,	QUADRILLION,	"P/sec" },
-	{ 100 * QUINTILLION,	QUINTILLION,	"E/sec" },
-	{ 100 * SEXTILLION,	SEXTILLION,	"Z/sec" },
-	{ 100 * SEPTILLION,	SEPTILLION,	"Y/sec" },
-	{ -1, 			-1,		NULL }
-};
 
 /*
  *  perf_stat_scale()
