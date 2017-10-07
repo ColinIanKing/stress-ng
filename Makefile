@@ -281,7 +281,10 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_ALIGNED_64K=0 HAVE_ALIGNED_64=0 HAVE_ALIGNED_128=0 \
 	 HAVE_AFFINITY=0 HAVE_MADVISE=0 HAVE_SEM_POSIX=0 HAVE_SEM_SYSV=0 \
 	 HAVE_MQ_POSIX=0 HAVE_MQ_SYSV=0 HAVE_SHM_SYSV=0 HAVE_FANOTIFY=0 \
-	 HAVE_INOTIFY=0 HAVE_SOCK_DIAG_H=0
+	 HAVE_INOTIFY=0 HAVE_SOCK_DIAG_H=0 \
+	 HAVE_CABSL=0 HAVE_LGAMMAL=0 HAVE_CCOSL=0 HAVE_CSINL=0 HAVE_CPOW=0 \
+	 HAVE_POWL=0 HAVE_RINTL=0 HAVE_LOGL=0 HAVE_EXPL=0 HAVE_COSL=0 \
+	 HAVE_SINL=0 HAVE_COSHL=0 HAVE_SINHL=0 HAVE_SQRTL=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -555,9 +558,120 @@ $(info autoconfig: using inotify)
 endif
 endif
 
+ifndef $(HAVE_CABSL)
+HAVE_CABSL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=cabsl have_mathfunc)
+ifeq ($(HAVE_CABSL),1)
+	CONFIG_CFLAGS += -DHAVE_CABSL
+$(info autoconfig: using cabsl)
 endif
 endif
 
+ifndef $(HAVE_LGAMMAL)
+HAVE_LGAMMAL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=lgammal have_mathfunc)
+ifeq ($(HAVE_LGAMMAL),1)
+	CONFIG_CFLAGS += -DHAVE_LGAMMAL
+$(info autoconfig: using lgammal)
+endif
+endif
+
+ifndef $(HAVE_CCOSL)
+HAVE_CCOSL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=ccosl have_mathfunc)
+ifeq ($(HAVE_CCOSL),1)
+	CONFIG_CFLAGS += -DHAVE_CCOSL
+$(info autoconfig: using ccosl)
+endif
+endif
+
+ifndef $(HAVE_CSINL)
+HAVE_CSINL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=csinl have_mathfunc)
+ifeq ($(HAVE_CSINL),1)
+	CONFIG_CFLAGS += -DHAVE_CSINL
+$(info autoconfig: using csinl)
+endif
+endif
+
+ifndef $(HAVE_CPOW)
+HAVE_CPOW = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=cpow have_mathfunc)
+ifeq ($(HAVE_CPOW),1)
+	CONFIG_CFLAGS += -DHAVE_CPOW
+$(info autoconfig: using cpow)
+endif
+endif
+
+ifndef $(HAVE_POWL)
+HAVE_POWL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=powl have_mathfunc)
+ifeq ($(HAVE_POWL),1)
+	CONFIG_CFLAGS += -DHAVE_POWL
+$(info autoconfig: using powl)
+endif
+endif
+
+ifndef $(HAVE_RINTL)
+HAVE_RINTL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=rintl have_mathfunc)
+ifeq ($(HAVE_RINTL),1)
+	CONFIG_CFLAGS += -DHAVE_RINTL
+$(info autoconfig: using rintl)
+endif
+endif
+
+ifndef $(HAVE_LOGL)
+HAVE_LOGL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=logl have_mathfunc)
+ifeq ($(HAVE_LOGL),1)
+	CONFIG_CFLAGS += -DHAVE_LOGL
+$(info autoconfig: using logl)
+endif
+endif
+
+ifndef $(HAVE_EXPL)
+HAVE_EXPL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=expl have_mathfunc)
+ifeq ($(HAVE_EXPL),1)
+	CONFIG_CFLAGS += -DHAVE_EXPL
+$(info autoconfig: using expl)
+endif
+endif
+
+ifndef $(HAVE_COSL)
+HAVE_COSL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=cosl have_mathfunc)
+ifeq ($(HAVE_COSL),1)
+	CONFIG_CFLAGS += -DHAVE_COSL
+$(info autoconfig: using cosl)
+endif
+endif
+
+ifndef $(HAVE_SINL)
+HAVE_SINL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=sinl have_mathfunc)
+ifeq ($(HAVE_SINL),1)
+	CONFIG_CFLAGS += -DHAVE_SINL
+$(info autoconfig: using sinl)
+endif
+endif
+
+ifndef $(HAVE_COSHL)
+HAVE_COSHL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=coshl have_mathfunc)
+ifeq ($(HAVE_COSHL),1)
+	CONFIG_CFLAGS += -DHAVE_COSHL
+$(info autoconfig: using coshl)
+endif
+endif
+
+ifndef $(HAVE_SINHL)
+HAVE_SINHL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=sinhl have_mathfunc)
+ifeq ($(HAVE_SINHL),1)
+	CONFIG_CFLAGS += -DHAVE_SINHL
+$(info autoconfig: using sinhl)
+endif
+endif
+
+ifndef $(HAVE_SQRTL)
+HAVE_SQRTL = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) MATHFUNC=sqrtl have_mathfunc)
+ifeq ($(HAVE_SQRTL),1)
+	CONFIG_CFLAGS += -DHAVE_SQRTL
+$(info autoconfig: using sqrtl)
+endif
+endif
+
+endif
+endif
 
 .SUFFIXES: .c .o
 
@@ -985,6 +1099,20 @@ have_inotify: test-inotify.c
 		echo 0 ;\
 	fi
 	@rm -rf test-inotify
+
+#
+#  check if we have specific math functions
+#
+.PHONY: have_mathfunc
+have_mathfunc: test-mathfunc.c
+	@$(CC) $(CPPFLAGS) -DMATHFUNC=$(MATHFUNC) test-mathfunc.c -o test-mathfunc 2> /dev/null || true
+	@if [ -f test-mathfunc ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-mathfunc
+
 
 #
 #  extract the PER_* personality enums

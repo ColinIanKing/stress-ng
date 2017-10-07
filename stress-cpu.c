@@ -30,33 +30,64 @@
 #define OMEGA	(0.56714329040978387299996866221035554975381578718651L)
 #define PSI	(3.359885666243177553172011302918927179688905133732L)
 
-/* Some awful *BSD math lib workarounds */
-#if defined(__NetBSD__)
-#define rintl	rint
-#define logl	log
-#define expl	exp
-#define powl	pow
-#define cosl	cos
-#define	sinl	sin
-#define coshl	cosh
-#define	sinhl	sinh
-#define ccosl	ccos
-#define	csinl	csin
+/*
+ * Some awful math lib workarounds for functions that some
+ * math libraries don't have implemented (yet)
+ */
+#if !defined(HAVE_CABSL)
 #define cabsl	cabs
-#define sqrtl	sqrt
+#endif
+
+#if !defined(HAVE_LGAMMAL)
 #define lgammal	lgamma
 #endif
 
-#if defined(__FreeBSD__)
+#if !defined(HAVE_CCOSL)
 #define	ccosl	ccos
+#endif
+
+#if !defined(HAVE_CSINL)
 #define	csinl	csin
+#endif
+
+#if !defined(HAVE_CPOW)
 #define cpow	pow
+#endif
+
+#if !defined(HAVE_POWL)
 #define powl	pow
 #endif
 
-#if defined(__minix__)
-#define cabsl	cabs
-#define lgammal	lgamma
+#if !defined(HAVE_RINTL)
+#define rintl	rint
+#endif
+
+#if !defined(HAVE_LOGL)
+#define logl	log
+#endif
+
+#if !defined(HAVE_EXPL)
+#define expl	exp
+#endif
+
+#if !defined(HAVE_COSL)
+#define cosl	cos
+#endif
+
+#if !defined(HAVE_SINL)
+#define	sinl	sin
+#endif
+
+#if !defined(HAVE_COSHL)
+#define coshl	cosh
+#endif
+
+#if !defined(HAVE_SINHL)
+#define	sinhl	sinh
+#endif
+
+#if !defined(HAVE_SQRTL)
+#define sqrtl	sqrt
 #endif
 
 /*
