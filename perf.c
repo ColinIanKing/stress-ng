@@ -504,18 +504,6 @@ fail:
 }
 
 /*
- *  perf_get_label_by_index()
- *	fetch label via index i
- */
-static const char *perf_get_label_by_index(const int i)
-{
-	if ((i < 0) || (i >= STRESS_PERF_MAX))
-		return NULL;
-
-	return perf_info[i].label;
-}
-
-/*
  *  perf_stat_succeeded()
  *	did perf event open work OK?
  */
@@ -634,7 +622,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 		pr_yaml(yaml, "      duration: %f\n", duration);
 
 		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
-			const char *l = perf_get_label_by_index(p);
+			const char *l = perf_info[p].label;
 			uint64_t ct = counter_totals[p];
 
 			if (l && (ct != STRESS_PERF_INVALID)) {
