@@ -47,6 +47,7 @@ static inline void stress_proc_rw(const char *path, char *badbuf, const bool pro
 {
 	int fd;
 	ssize_t ret, i = 0;
+	off_t pos;
 	char buffer[PROC_BUF_SZ];
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
@@ -76,13 +77,31 @@ static inline void stress_proc_rw(const char *path, char *badbuf, const bool pro
 	if (ret < 0)
 		goto err;
 	/*
-	 *  Bad read buffer
+	 *  Bad read buffer, should fail!
 	 */
 	if (badbuf) {
 		ret = read(fd, badbuf, PROC_BUF_SZ);
-		if (ret < 0)
+		if (ret == 0)
 			goto err;
 	}
+
+	/*
+	 *  Seek and read
+	 */
+	pos = lseek(fd, 0, SEEK_SET);
+	if (pos == (off_t)-1)
+		goto err;
+	pos = lseek(fd, 1, SEEK_CUR);
+	if (pos == (off_t)-1)
+		goto err;
+	pos = lseek(fd, 0, SEEK_END);
+	if (pos == (off_t)-1)
+		goto err;
+	pos = lseek(fd, 1, SEEK_SET);
+	if (pos == (off_t)-1)
+		goto err;
+	ret = read(fd, buffer, 1);
+	(void)ret;
 err:
 	(void)close(fd);
 
