@@ -1,3 +1,37 @@
+stress-ng (0.08.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * debian/control: update Standards-Version to 4.1.0
+  * perf: rename perf_info argument to pi to avoid shadowing warning
+  * README: update number of stressors
+  * stress-procfs: add some seeks to further exercise procfs
+  * test-mathfunc: ensure we link in the math func
+  * Fix test-mathfunc checks - fails on BSD.
+  * Makefile: add test-mathfunc.c and add it to dist rule
+  * Makefile + stress-cpu: add autodetection of missing math functions
+  * perf: inline perf_type_tracepoint_resolve_config
+  * perf: remove need for prefix of PERF_COUNT_ on perf counter names
+  * perf: remove need for the HW_CACHE wrapper macro
+  * perf: move PERF_INFO_TP macro
+  * perf: increase width of label by 1 char
+  * perf: rename STRESS_GOT to STRESS_PERF_DEFINED
+  * Remove perf_get_counter_by_index, simplify code
+  * Move perf_scale_t and perf_scale, make array const too
+  * perf: remove helper function perf_get_label_by_index
+  * perf: simplyify event handling, remove need for ids
+  * stress-ng.h: remove redundant minix #if def
+  * perf: remove some white spaces before tabs. bad formatting
+  * perf: add some more perf hardware events
+  * perf: add more trace point events
+  * perf: fix spelling mistake in comment
+  * perf: Add more units scaling, for when processors run really fast
+  * Manual: update contributors
+  * stress-key: bump timeout to 7200 seconds from 1 second
+  * stress-opcode: fix build warning when SECCOMP_SET_MODE_FILTER is
+    not defined
+
+ -- Colin King <colin.king@canonical.com>  Mon, 9 OCt 2017 10:15:36 +0100
+
 stress-ng (0.08.16-1) unstable; urgency=medium
 
   * Makefile: bump version
