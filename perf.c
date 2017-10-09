@@ -278,17 +278,17 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
-static inline void perf_type_tracepoint_resolve_config(perf_info_t *perf_info)
+static inline void perf_type_tracepoint_resolve_config(perf_info_t *pi)
 {
 	char path[PATH_MAX];
 	unsigned long config;
 	FILE *fp;
 
-	if (!perf_info->path)
+	if (!pi->path)
 		return;
 
 	(void)snprintf(path, sizeof(path), "/sys/kernel/debug/tracing/events/%s/id",
-		perf_info->path);
+		pi->path);
 	if ((fp = fopen(path, "r")) == NULL)
 		return;
 	if (fscanf(fp, "%lu", &config) != 1) {
@@ -297,7 +297,7 @@ static inline void perf_type_tracepoint_resolve_config(perf_info_t *perf_info)
 	}
 	(void)fclose(fp);
 
-	perf_info->config = config;
+	pi->config = config;
 }
 
 void perf_init(void)
