@@ -36,7 +36,7 @@
 
 #define DATA_SIZE DATA_SIZE_64K
 
-typedef void (*stress_zlib_rand_data_func)(uint32_t *data, const int size);
+typedef void (*stress_zlib_rand_data_func)(const args_t *args, uint32_t *data, const int size);
 
 typedef struct {
 	const char *name;			/* human readable form of random data generation selection */
@@ -45,6 +45,7 @@ typedef struct {
 
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
+static sigjmp_buf jmpbuf;
 
 static const char *const lorem_ipsum[] = {
 	"Lorem ipsum dolor sit amet, consectetur adipiscing elit. ",
@@ -100,14 +101,23 @@ static void MLOCKED stress_sigpipe_handler(int dummy)
 	pipe_broken = true;
 }
 
+static void MLOCKED stress_bad_read_handler(int dummy)
+{
+	(void)dummy;
+
+	siglongjmp(jmpbuf, 1);
+}
+
 /*
  *  stress_rand_data_binary()
  *	fill buffer with random binary data
  */
-static void stress_rand_data_binary(uint32_t *data, const int size)
+static void stress_rand_data_binary(const args_t *args, uint32_t *data, const int size)
 {
 	const int n = size / sizeof(uint32_t);
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < n; i++, data++)
 		*data = mwc32();
@@ -117,8 +127,10 @@ static void stress_rand_data_binary(uint32_t *data, const int size)
  *  stress_rand_data_text()
  *	fill buffer with random ASCII text
  */
-static void stress_rand_data_text(uint32_t *data, const int size)
+static void stress_rand_data_text(const args_t *args, uint32_t *data, const int size)
 {
+	(void)args;
+
 	stress_strnrnd((char *)data, size);
 }
 
@@ -126,10 +138,12 @@ static void stress_rand_data_text(uint32_t *data, const int size)
  *  stress_rand_data_01()
  *	fill buffer with random ASCII 0 or 1
  */
-static void stress_rand_data_01(uint32_t *data, const int size)
+static void stress_rand_data_01(const args_t *args, uint32_t *data, const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
 		uint8_t v = mwc8();
@@ -156,10 +170,12 @@ static void stress_rand_data_01(uint32_t *data, const int size)
  *  stress_rand_data_digits()
  *	fill buffer with random ASCII '0' .. '9'
  */
-static void stress_rand_data_digits(uint32_t *data, const int size)
+static void stress_rand_data_digits(const args_t *args, uint32_t *data, const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < size; i++, ptr++)
 		*ptr = '0' + (mwc32() % 10);
@@ -169,10 +185,12 @@ static void stress_rand_data_digits(uint32_t *data, const int size)
  *  stress_rand_data_00_ff()
  *	fill buffer with random 0x00 or 0xff
  */
-static void stress_rand_data_00_ff(uint32_t *data, const int size)
+static void stress_rand_data_00_ff(const args_t *args, uint32_t *data, const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
 		uint8_t v = mwc8();
@@ -192,10 +210,12 @@ static void stress_rand_data_00_ff(uint32_t *data, const int size)
  *  stress_rand_data_nybble()
  *	fill buffer with 0x00..0x0f
  */
-static void stress_rand_data_nybble(uint32_t *data, const int size)
+static void stress_rand_data_nybble(const args_t *args, uint32_t *data, const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
 		uint32_t v = mwc32();
@@ -222,10 +242,12 @@ static void stress_rand_data_nybble(uint32_t *data, const int size)
  *  stress_rand_data_rarely_1()
  *	fill buffer with data that is 1 in every 32 bits 1
  */
-static void stress_rand_data_rarely_1(uint32_t *data, const int size)
+static void stress_rand_data_rarely_1(const args_t *args, uint32_t *data, const int size)
 {
 	const int n = size / sizeof(uint32_t);
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < n; i++, data++)
 		*data = 1 << (mwc32() & 0x1f);
@@ -235,10 +257,12 @@ static void stress_rand_data_rarely_1(uint32_t *data, const int size)
  *  stress_rand_data_rarely_0()
  *	fill buffer with data that is 1 in every 32 bits 0
  */
-static void stress_rand_data_rarely_0(uint32_t *data, const int size)
+static void stress_rand_data_rarely_0(const args_t *args, uint32_t *data, const int size)
 {
 	const int n = size / sizeof(uint32_t);
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < n; i++, data++)
 		*data = ~(1 << (mwc32() & 0x1f));
@@ -248,10 +272,12 @@ static void stress_rand_data_rarely_0(uint32_t *data, const int size)
  *  stress_rand_data_fixed()
  *	fill buffer with data that is 0x04030201
  */
-static void stress_rand_data_fixed(uint32_t *data, const int size)
+static void stress_rand_data_fixed(const args_t *args, uint32_t *data, const int size)
 {
 	const int n = size / sizeof(uint32_t);
 	register int i;
+
+	(void)args;
 
 	for (i = 0; i < n; i++, data++)
 		*data = 0x04030201;
@@ -261,11 +287,13 @@ static void stress_rand_data_fixed(uint32_t *data, const int size)
  *  stress_rand_data_latin()
  *	fill buffer with random latin Lorum Ipsum text.
  */
-static void stress_rand_data_latin(uint32_t *data, const int size)
+static void stress_rand_data_latin(const args_t *args, uint32_t *data, const int size)
 {
 	register int i;
 	static const char *ptr = NULL;
 	char *dataptr = (char *)data;
+
+	(void)args;
 
 	if (!ptr)
 		ptr = lorem_ipsum[mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
@@ -284,10 +312,12 @@ static void stress_rand_data_latin(uint32_t *data, const int size)
  *  stress_rand_data_objcode()
  *	fill buffer with object code data from stress-ng
  */
-static void stress_rand_data_objcode(uint32_t *data, const int size)
+static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const int size)
 {
 	const int n = size / sizeof(uint32_t);
 	register int i;
+	static bool use_rand_data = false;
+	struct sigaction sigsegv_orig, sigbus_orig;
 
 #if defined(__OpenBSD__)
 	extern char _start[];
@@ -302,8 +332,38 @@ static void stress_rand_data_objcode(uint32_t *data, const int size)
 	char *text_start = &__executable_start[0];
 #endif
 	char *text_end = &__etext;
-	char *text;
+	static char *text = NULL;
 	const size_t text_len = text_end - text_start;
+
+	if (use_rand_data) {
+		stress_rand_data_binary(args, data, size);
+		return;
+	}
+
+	/* Try and install sighandlers */
+	if (stress_sighandler(args->name, SIGSEGV, stress_bad_read_handler, &sigsegv_orig) < 0) {
+		use_rand_data = true;
+		stress_rand_data_binary(args, data, size);
+		return;
+	}
+	if (stress_sighandler(args->name, SIGBUS, stress_bad_read_handler, &sigbus_orig) < 0) {
+		use_rand_data = true;
+		(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
+		stress_rand_data_binary(args, data, size);
+		return;
+	}
+
+	/*
+	 *  Some architectures may generate faults on reads
+	 *  from specific text pages, so trap these and
+	 *  fall back to stress_rand_data_binary.
+	 */
+	if (sigsetjmp(jmpbuf, 1) != 0) {
+		(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
+		(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
+		stress_rand_data_binary(args, data, size);
+		return;
+	}
 
 	/* Start in random place in stress-ng text segment */
 	text = text_start + (mwc64() % text_len);
@@ -311,9 +371,11 @@ static void stress_rand_data_objcode(uint32_t *data, const int size)
 	for (i = 0; i < n; i++, data++) {
 		*data = *text;
 		text++;
-		if (text >= text_end)
+		if (text > text_end)
 			text = text_start;
 	}
+	(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
+	(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
 }
 #endif
 
@@ -337,9 +399,9 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
  *  stress_zlib_random_test()
  *	randomly select data generation function
  */
-static HOT OPTIMIZE3 void stress_zlib_random_test(uint32_t *data, const int size)
+static HOT OPTIMIZE3 void stress_zlib_random_test(const args_t *args, uint32_t *data, const int size)
 {
-	rand_data_funcs[mwc32() % SIZEOF_ARRAY(rand_data_funcs)](data, size);
+	rand_data_funcs[mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
 }
 
 
@@ -559,7 +621,7 @@ static int stress_zlib_deflate(
 		uint32_t in[DATA_SIZE / sizeof(uint32_t)];
 		unsigned char *xsum_in = (unsigned char *)in;
 
-		opt_zlib_rand_data_func->func(in, DATA_SIZE);
+		opt_zlib_rand_data_func->func(args, in, DATA_SIZE);
 
 		stream_def.avail_in = DATA_SIZE;
 		stream_def.next_in = (unsigned char *)in;
