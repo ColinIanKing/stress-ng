@@ -542,7 +542,7 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 		n = dist_size;
 
 	pr_inf("%s: latency distribution (%" PRIu64 " us intervals):\n", name, cyclic_dist);
-	pr_inf("%s: (for the first %d buckets of %zd)\n", name, MAX_BUCKETS, dist_max_size);
+	pr_inf("%s: (for the first %zd buckets of %zd)\n", name, dist_size, dist_max_size);
 	pr_inf("%s: %12s %10s\n", name, "latency (us)", "frequency");
 	for (i = 0; i < n; i++) {
 		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
