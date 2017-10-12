@@ -32,6 +32,7 @@
 
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(10000)
+#define MAX_BUCKETS		(250)
 #define NANOSECS		(1000000000)
 
 typedef struct {
@@ -513,9 +514,10 @@ int stress_set_cyclic_method(const char *name)
  */
 static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cyclic_dist)
 {
-	size_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
-	size_t dist_size = STRESS_MINIMUM(100, dist_max_size);
-	size_t i;
+	ssize_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
+	ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
+	const ssize_t dist_min = STRESS_MINIMUM(5, dist_max_size);
+	ssize_t i, n;
 	int64_t dist[dist_size];
 
 	if (!cyclic_dist)
@@ -523,18 +525,41 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 
 	memset(dist, 0, sizeof(dist));
 
-	for (i = 0; i < rt_stats->index; i++) {
+	for (i = 0; i < (ssize_t)rt_stats->index; i++) {
 		int64_t lat = rt_stats->latencies[i] / cyclic_dist;
 
 		if (lat < (int64_t)dist_size)
 			dist[lat]++;
 	}
 
+	for (n = dist_size; n >= 1; n--) {
+		if (dist[n - 1])
+			break;
+	}
+	if (n < dist_min)
+		n = dist_min;
+	if (n >= dist_size - 3)
+		n = dist_size;
+
 	pr_inf("%s: latency distribution (%" PRIu64 " us intervals):\n", name, cyclic_dist);
+	pr_inf("%s: (for the first %d buckets of %zd)\n", name, MAX_BUCKETS, dist_max_size);
 	pr_inf("%s: %12s %10s\n", name, "latency (us)", "frequency");
-	for (i = 0; i < dist_size; i++) {
+	for (i = 0; i < n; i++) {
 		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
 			name, cyclic_dist * i, dist[i]);
+	}
+
+	/*
+	 *  This caters for the case where there are lots of zeros at
+	 *  the end of the distribution
+	 */
+	if (n < dist_size) {
+		pr_inf("%s: %12s %10s (all zeros hereafter)\n", name, "..", "..");
+		pr_inf("%s: %12s %10s\n", name, "..", "..");
+		for (i = STRESS_MAXIMUM(dist_size - 3, n); i < dist_size; i++) {
+			pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+				name, cyclic_dist * i, 0UL);
+		}
 	}
 }
 
