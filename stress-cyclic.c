@@ -558,7 +558,7 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 		pr_inf("%s: %12s %10s\n", name, "..", "..");
 		for (i = STRESS_MAXIMUM(dist_size - 3, n); i < dist_size; i++) {
 			pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
-				name, cyclic_dist * i, 0UL);
+				name, cyclic_dist * i, (int64_t)0);
 		}
 	}
 }
