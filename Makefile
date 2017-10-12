@@ -284,7 +284,8 @@ HAVE_NOT=HAVE_APPARMOR=0 HAVE_KEYUTILS_H=0 HAVE_XATTR_H=0 HAVE_LIB_BSD=0 \
 	 HAVE_INOTIFY=0 HAVE_SOCK_DIAG_H=0 \
 	 HAVE_CABSL=0 HAVE_LGAMMAL=0 HAVE_CCOSL=0 HAVE_CSINL=0 HAVE_CPOW=0 \
 	 HAVE_POWL=0 HAVE_RINTL=0 HAVE_LOGL=0 HAVE_EXPL=0 HAVE_COSL=0 \
-	 HAVE_SINL=0 HAVE_COSHL=0 HAVE_SINHL=0 HAVE_SQRTL=0
+	 HAVE_SINL=0 HAVE_COSHL=0 HAVE_SINHL=0 HAVE_SQRTL=0 \
+	 HAVE_SWAPCONTEXT=0
 
 #
 #  Load in current config; use 'make clean' to clear this
@@ -555,6 +556,14 @@ HAVE_INOTIFY = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_inotify)
 ifeq ($(HAVE_INOTIFY),1)
 	CONFIG_CFLAGS += -DHAVE_INOTIFY
 $(info autoconfig: using inotify)
+endif
+endif
+
+ifndef $(HAVE_SWAPCONTEXT)
+HAVE_SWAPCONTEXT = $(shell $(MAKE) --no-print-directory $(HAVE_NOT) have_swapcontext)
+ifeq ($(HAVE_SWAPCONTEXT),1)
+	CONFIG_CFLAGS += -DHAVE_SWAPCONTEXT
+$(info autoconfig: using swapcontext)
 endif
 endif
 
@@ -1113,6 +1122,18 @@ have_mathfunc: test-mathfunc.c
 	fi
 	@rm -rf test-mathfunc
 
+#
+#  check if we can build using swapcontext calls
+#
+.PHONY: have_swapcontext
+have_swapcontext: test-swapcontext.c
+	@$(CC) $(CPPFLAGS) test-swapcontext.c -o test-swapcontext 2> /dev/null || true
+	@if [ -f test-swapcontext ]; then \
+		echo 1 ;\
+	else \
+		echo 0 ;\
+	fi
+	@rm -rf test-context
 
 #
 #  extract the PER_* personality enums
@@ -1167,7 +1188,7 @@ dist:
 		test-affinity.c test-madvise.c test-sem-posix.c \
 		test-sem-sysv.c test-mq-posix.c test-mq-sysv.c \
 		test-shm-sysv.c test-fanotify.c test-inotify.c \
-		test-sock-diag.c test-mathfunc.c \
+		test-sock-diag.c test-mathfunc.c test-swapcontext.c \
 		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)

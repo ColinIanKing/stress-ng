@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__OpenBSD__)
+#if defined(HAVE_SWAPCONTEXT)
 
 #include <ucontext.h>
 
