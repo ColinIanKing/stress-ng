@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(HAVE_CHROOT)
 
 typedef int (*stress_chroot_test_func)(const args_t *args);
 

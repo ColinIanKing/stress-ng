@@ -370,6 +370,7 @@ dist:
 		test-sem-sysv.c test-mq-posix.c test-mq-sysv.c \
 		test-shm-sysv.c test-fanotify.c test-inotify.c \
 		test-sock-diag.c test-mathfunc.c test-swapcontext.c \
+		test-chroot.c \
 		snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
