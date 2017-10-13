@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
+#if defined(HAVE_SYS_CAP_H)
 
 #include <sys/capability.h>
 
