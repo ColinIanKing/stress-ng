@@ -26,9 +26,10 @@
 #include <math.h>
 #include <complex.h>
 
-#define GAMMA 	(0.57721566490153286060651209008240243104215933593992L)
-#define OMEGA	(0.56714329040978387299996866221035554975381578718651L)
-#define PSI	(3.359885666243177553172011302918927179688905133732L)
+#define GAMMA 		(0.57721566490153286060651209008240243104215933593992L)
+#define OMEGA		(0.56714329040978387299996866221035554975381578718651L)
+#define PSI		(3.359885666243177553172011302918927179688905133732L)
+#define STATS_MAX	(250)
 
 /*
  * Some awful math lib workarounds for functions that some
@@ -2180,6 +2181,67 @@ static void stress_cpu_factorial(const char *name)
 }
 
 /*
+ *  stress_cpu_stats
+ *	Exercise some standard stats computations on random data
+ */
+static void stress_cpu_stats(const char *name)
+{
+	size_t i;
+	double data[STATS_MAX];
+	double min, max, am = 0.0, gm = 1.0, hm = 0.0, stddev = 0.0;
+
+	for (i = 0; i < STATS_MAX; i++)
+		data[0] = ((double)(mwc64() + 1)) / 10000.0;
+
+	min = max = data[0];
+
+	for (i = 0; i < STATS_MAX; i++) {
+		double d = data[i];
+
+		if (min > d)
+			min = d;
+		if (max < d)
+			max = d;
+
+		am += d;
+		gm *= d;
+		hm += 1 / d;
+	}
+	/* Arithmetic mean (average) */
+	am = am / STATS_MAX;
+	/* Geometric mean */
+	gm = pow(gm, 1.0 / STATS_MAX);
+	/* Harmonic mean */
+	hm = STATS_MAX / hm;
+
+
+	for (i = 0; i < STATS_MAX; i++) {
+		double d = data[i] - am;
+		stddev += (d * d);
+	}
+	/* Standard Deviation */
+	stddev = sqrt(stddev);
+
+	double_put(am);
+	double_put(gm);
+	double_put(hm);
+	double_put(stddev);
+
+	if (min > hm)
+		pr_fail("%s: stats: minimum %f > harmonic mean %f\n",
+			name, min, hm);
+	if (hm > gm)
+		pr_fail("%s: stats: harmonic mean %f > geometric mean %f\n",
+			name, hm, gm);
+	if (gm > am)
+		pr_fail("%s: stats: geometric mean %f > arithmetic mean %f\n",
+			name, gm, am);
+	if (am > max)
+		pr_fail("%s: stats: arithmetic mean %f > maxiumum %f\n",
+			name, am, max);
+}
+
+/*
  *  stress_cpu_all()
  *	iterate over all cpu stressors
  */
@@ -2273,6 +2335,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "rgb",		stress_cpu_rgb },
 	{ "sdbm",		stress_cpu_sdbm },
 	{ "sieve",		stress_cpu_sieve },
+	{ "stats",		stress_cpu_stats },
 	{ "sqrt", 		stress_cpu_sqrt },
 	{ "trig",		stress_cpu_trig },
 	{ "union",		stress_cpu_union },
