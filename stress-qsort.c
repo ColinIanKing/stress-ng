@@ -114,7 +114,7 @@ int stress_qsort(const args_t *args)
 	}
 	n = (size_t)qsort_size;
 
-	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
+	if ((data = calloc(n, sizeof(*data))) == NULL) {
 		pr_fail_dbg("calloc");
 		return EXIT_NO_RESOURCE;
 	}
@@ -139,7 +139,7 @@ int stress_qsort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_1);
+		qsort(data, n, sizeof(*data), stress_qsort_cmp_1);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr+1)) {
@@ -154,7 +154,7 @@ int stress_qsort(const args_t *args)
 			break;
 
 		/* Reverse sort */
-		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
+		qsort(data, n, sizeof(*data), stress_qsort_cmp_2);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
@@ -171,7 +171,7 @@ int stress_qsort(const args_t *args)
 		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
 
 		/* Reverse sort this again */
-		qsort(data, n, sizeof(uint32_t), stress_qsort_cmp_2);
+		qsort(data, n, sizeof(*data), stress_qsort_cmp_2);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
