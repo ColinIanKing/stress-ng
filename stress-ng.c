@@ -2455,7 +2455,7 @@ static void log_args(int argc, char **argv)
 		len += arglen[i] + 1;
 	}
 
-	buf = calloc(len, sizeof(char));
+	buf = calloc(len, sizeof(*buf));
 	if (!buf)
 		return;
 
