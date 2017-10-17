@@ -138,7 +138,7 @@ again:
 #if defined(IPPROTO_UDPLITE)
 			if (proto == IPPROTO_UDPLITE) {
 				val = 8;	/* Just the 8 byte header */
-				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(int)) < 0) {
+				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(val)) < 0) {
 					pr_fail_dbg("setsockopt");
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
@@ -202,7 +202,7 @@ again:
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
 			val = 8;	/* Just the 8 byte header */
-			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(int)) < 0) {
+			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(val)) < 0) {
 				pr_fail_dbg("setsockopt");
 				rc = EXIT_FAILURE;
 				goto die_close;
