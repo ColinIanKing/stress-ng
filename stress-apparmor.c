@@ -608,10 +608,10 @@ static const apparmor_func apparmor_funcs[] = {
 int stress_apparmor(const args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
-	const size_t counters_sz = n * sizeof(uint64_t);
 	pid_t pids[n];
 	size_t i;
 	uint64_t *counters, tmp_counter = 0, ops;
+	const size_t counters_sz = n * sizeof(*counters);
 
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
