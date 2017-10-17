@@ -126,7 +126,7 @@ int stress_opcode(const args_t *args)
 	int rc = EXIT_FAILURE;
 	size_t i;
 #if TRACK_SIGCOUNT
-	const size_t sig_count_size = MAX_SIGS * sizeof(uint64_t);
+	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
 #endif
 
 #if TRACK_SIGCOUNT
