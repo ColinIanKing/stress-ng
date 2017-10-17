@@ -40,9 +40,9 @@ int main(void)
 
 	(void)memset(data, 0, sizeof(data));
 
-	rc = heapsort(data, 64, sizeof(int), intcmp);
+	rc = heapsort(data, 64, sizeof(*data), intcmp);
 	(void)rc;
-	rc = mergesort(data, 64, sizeof(int), intcmp);
+	rc = mergesort(data, 64, sizeof(*data), intcmp);
 	(void)rc;
 	rc = radixsort(NULL, 0, NULL, 0);
 	(void)rc;
