@@ -364,7 +364,7 @@ int perf_open(stress_perf_t *sp)
 	if (g_shared->perf.no_perf)
 		return -1;
 
-	(void)memset(sp, 0, sizeof(stress_perf_t));
+	(void)memset(sp, 0, sizeof(*sp));
 	sp->perf_opened = 0;
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
