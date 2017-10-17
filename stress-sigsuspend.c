@@ -39,7 +39,7 @@ int stress_sigsuspend(const args_t *args)
 	uint64_t *counters, c;
 	volatile uint64_t *v_counters;
 	const size_t counters_size =
-		(sizeof(uint64_t) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
+		(sizeof(*counters) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
 
 	v_counters = counters = (uint64_t *)mmap(NULL, counters_size,
 			PROT_READ | PROT_WRITE,
