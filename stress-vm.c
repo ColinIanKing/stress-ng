@@ -763,7 +763,7 @@ static size_t stress_vm_swap(
 	z1 = mwc64();
 	w1 = mwc64();
 
-	if ((swaps = calloc(chunks, sizeof(size_t))) == NULL) {
+	if ((swaps = calloc(chunks, sizeof(*swaps))) == NULL) {
 		pr_fail("stress-vm: calloc failed on vm_swap\n");
 		return 0;
 	}
@@ -853,8 +853,8 @@ static size_t stress_vm_rand_set(
 	uint64_t *counter,
 	const uint64_t max_ops)
 {
-	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
+	const size_t chunk_sz = sizeof(*ptr) * 8;
 	uint8_t *buf_end = buf + sz;
 	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
@@ -920,11 +920,11 @@ static size_t stress_vm_ror(
 	uint64_t *counter,
 	const uint64_t max_ops)
 {
-	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
 	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
+	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	mwc_reseed();
 	w = mwc64();
@@ -1005,11 +1005,11 @@ static size_t stress_vm_flip(
 	uint64_t *counter,
 	const uint64_t max_ops)
 {
-	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz, bit = 0x03;
 	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0, i;
+	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	mwc_reseed();
 	w = mwc64();
@@ -1366,11 +1366,11 @@ static size_t stress_vm_rand_sum(
 	uint64_t *counter,
 	const uint64_t max_ops)
 {
-	const size_t chunk_sz = sizeof(uint8_t) * 8;
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	uint64_t w, z, c = *counter;
 	size_t bit_errors = 0;
+	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	mwc_reseed();
 	w = mwc64();
@@ -1679,7 +1679,7 @@ static size_t stress_vm_write64(
 	static uint64_t val;
 	uint64_t *ptr = (uint64_t *)buf;
 	register uint64_t v = val;
-	register size_t i = 0, n = sz / (sizeof(uint64_t) * 32);
+	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
 
 	while (i < n) {
 		*ptr++ = v;
@@ -1738,7 +1738,7 @@ static size_t stress_vm_read64(
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr = (uint64_t *)buf;
-	register size_t i = 0, n = sz / (sizeof(uint64_t) * 32);
+	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
 
 	while (i < n) {
 		(void)*(ptr++);
@@ -1799,8 +1799,10 @@ static size_t stress_vm_rowhammer(
 	size_t bit_errors = 0;
 	uint32_t *buf32 = (uint32_t *)buf;
 	static uint32_t val = 0xff5a00a5;
-	const size_t n = sz / sizeof(uint32_t);
 	register size_t j;
+	register volatile uint32_t *addr0, *addr1;
+	register size_t errors = 0;
+	const size_t n = sz / sizeof(*addr0);
 
 	(void)max_ops;
 
@@ -1814,8 +1816,6 @@ static size_t stress_vm_rowhammer(
 
 	for (j = 0; j < n; j++)
 		buf32[j] = val;
-	register volatile uint32_t *addr0, *addr1;
-	register size_t errors = 0;
 
 	/* Pick two random addresses */
 	addr0 = &buf32[(mwc64() << 12) % n];
