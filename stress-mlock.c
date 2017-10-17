@@ -86,7 +86,7 @@ int stress_mlock(const args_t *args)
 	uint8_t **mappings;
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
-	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
+	if ((mappings = calloc(max, sizeof(*mappings))) == NULL) {
 		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
