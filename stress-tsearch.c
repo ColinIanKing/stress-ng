@@ -74,7 +74,7 @@ int stress_tsearch(const args_t *args)
 	}
 	n = (size_t)tsearch_size;
 
-	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
+	if ((data = calloc(n, sizeof(*data))) == NULL) {
 		pr_fail_dbg("calloc");
 		return EXIT_NO_RESOURCE;
 	}
