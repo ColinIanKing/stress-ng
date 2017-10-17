@@ -127,7 +127,7 @@ static void stress_fiemap_ioctl(const args_t *args, int fd)
 		if (!keep_stressing())
 			break;
 
-		fiemap = (struct fiemap *)calloc(1, sizeof(struct fiemap));
+		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
 		if (!fiemap) {
 			pr_err("Out of memory allocating fiemap\n");
 			break;
@@ -151,7 +151,7 @@ static void stress_fiemap_ioctl(const args_t *args, int fd)
 
 		/* Resize fiemap to allow us to read in the extents */
 		tmp = (struct fiemap *)realloc(fiemap,
-			sizeof(struct fiemap) + extents_size);
+			sizeof(*fiemap) + extents_size);
 		if (!tmp) {
 			pr_fail_err("FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
