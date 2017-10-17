@@ -2191,7 +2191,7 @@ static void stress_cpu_stats(const char *name)
 	double min, max, am = 0.0, gm = 1.0, hm = 0.0, stddev = 0.0;
 
 	for (i = 0; i < STATS_MAX; i++)
-		data[0] = ((double)(mwc64() + 1)) / 10000.0;
+		data[i] = ((double)(mwc32() + 1)) / 4294967296.0;
 
 	min = max = data[0];
 
@@ -2213,7 +2213,6 @@ static void stress_cpu_stats(const char *name)
 	gm = pow(gm, 1.0 / STATS_MAX);
 	/* Harmonic mean */
 	hm = STATS_MAX / hm;
-
 
 	for (i = 0; i < STATS_MAX; i++) {
 		double d = data[i] - am;
