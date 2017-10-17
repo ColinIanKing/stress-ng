@@ -488,7 +488,7 @@ static void HOT stress_cpu_fft(const char *name)
 	for (i = 0; i < FFT_SIZE; i++)
 		buf[i] = (double complex)(i % 63);
 
-	(void)memcpy(tmp, buf, sizeof(double complex) * FFT_SIZE);
+	(void)memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
 }
 
