@@ -121,7 +121,7 @@ retry:
 			}
 			goto retry;
 		}
-		(void)memset( &events, 0, sizeof(events));
+		(void)memset(&events, 0, sizeof(events));
 		events.sctp_data_io_event = 1;
 		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
 			sizeof(events)) < 0) {
