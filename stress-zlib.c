@@ -114,7 +114,7 @@ static void MLOCKED stress_bad_read_handler(int dummy)
  */
 static void stress_rand_data_binary(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(uint32_t);
+	const int n = size / sizeof(*data);
 	register int i;
 
 	(void)args;
@@ -244,7 +244,7 @@ static void stress_rand_data_nybble(const args_t *args, uint32_t *data, const in
  */
 static void stress_rand_data_rarely_1(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(uint32_t);
+	const int n = size / sizeof(*data);
 	register int i;
 
 	(void)args;
@@ -259,7 +259,7 @@ static void stress_rand_data_rarely_1(const args_t *args, uint32_t *data, const 
  */
 static void stress_rand_data_rarely_0(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(uint32_t);
+	const int n = size / sizeof(*data);
 	register int i;
 
 	(void)args;
@@ -274,7 +274,7 @@ static void stress_rand_data_rarely_0(const args_t *args, uint32_t *data, const 
  */
 static void stress_rand_data_fixed(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(uint32_t);
+	const int n = size / sizeof(*data);
 	register int i;
 
 	(void)args;
@@ -314,7 +314,7 @@ static void stress_rand_data_latin(const args_t *args, uint32_t *data, const int
  */
 static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(uint32_t);
+	const int n = size / sizeof(*data);
 	register int i;
 	static bool use_rand_data = false;
 	struct sigaction sigsegv_orig, sigbus_orig;
