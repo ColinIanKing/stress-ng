@@ -273,7 +273,7 @@ int stress_stream(const args_t *args)
 	 *  size of the L3 cache
 	 */
 	sz = (L3 * 4);
-	n = sz / sizeof(double);
+	n = sz / sizeof(*a);
 
 	a = stress_stream_mmap(args, sz);
 	if (a == MAP_FAILED)
