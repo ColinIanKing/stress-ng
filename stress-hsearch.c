@@ -65,7 +65,7 @@ int stress_hsearch(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if ((keys = calloc(max, sizeof(char *))) == NULL) {
+	if ((keys = calloc(max, sizeof(*keys))) == NULL) {
 		pr_err("%s: cannot allocate keys\n", args->name);
 		goto free_hash;
 	}
