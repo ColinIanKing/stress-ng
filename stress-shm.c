@@ -102,7 +102,7 @@ static int stress_shm_posix_child(
 	uint64_t id = 0;
 	const size_t page_size = args->page_size;
 
-	addrs = calloc(shm_posix_objects, sizeof(void *));
+	addrs = calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
 		pr_fail_err("calloc on addrs");
 		return EXIT_NO_RESOURCE;
