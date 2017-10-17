@@ -170,7 +170,7 @@ int stress_aio(const args_t *args)
 			opt_aio_requests = MIN_AIO_REQUESTS;
 	}
 
-	if ((io_reqs = calloc(opt_aio_requests, sizeof(io_req_t))) == NULL) {
+	if ((io_reqs = calloc(opt_aio_requests, sizeof(*io_reqs))) == NULL) {
 		pr_err("%s: cannot allocate io request structures\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
