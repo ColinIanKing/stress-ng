@@ -120,7 +120,7 @@ int stress_heapsort(const args_t *args)
 	}
 	n = (size_t)heapsort_size;
 
-	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
+	if ((data = calloc(n, sizeof(*data))) == NULL) {
 		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
@@ -145,7 +145,7 @@ int stress_heapsort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_1) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_1) < 0) {
 			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -164,7 +164,7 @@ int stress_heapsort(const args_t *args)
 			break;
 
 		/* Reverse sort */
-		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_2) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -188,7 +188,7 @@ int stress_heapsort(const args_t *args)
 		}
 
 		/* Reverse sort this again */
-		if (heapsort(data, n, sizeof(uint32_t), stress_heapsort_cmp_2) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_2) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
