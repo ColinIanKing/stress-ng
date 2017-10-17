@@ -120,7 +120,7 @@ int stress_mergesort(const args_t *args)
 	}
 	n = (size_t)mergesort_size;
 
-	if ((data = calloc(n, sizeof(int32_t))) == NULL) {
+	if ((data = calloc(n, sizeof(*data))) == NULL) {
 		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
@@ -145,7 +145,7 @@ int stress_mergesort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_1) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_1) < 0) {
 			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -164,7 +164,7 @@ int stress_mergesort(const args_t *args)
 			break;
 
 		/* Reverse sort */
-		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_2) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
                                 args->name, errno, strerror(errno));
 		} else {
@@ -182,13 +182,13 @@ int stress_mergesort(const args_t *args)
 		if (!g_keep_stressing_flag)
 			break;
 		/* And re-order by random compare to remix the data */
-		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_3) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_3) < 0) {
 			pr_fail("%s: mergesort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
 		/* Reverse sort this again */
-		if (mergesort(data, n, sizeof(uint32_t), stress_mergesort_cmp_2) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_2) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
