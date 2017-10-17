@@ -495,9 +495,9 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		goto err;
 	}
 
-	cpu->caches = calloc(cpu->cache_count, sizeof(cpu_cache_t));
+	cpu->caches = calloc(cpu->cache_count, sizeof(*cpu->caches));
 	if (!cpu->caches) {
-		size_t cache_bytes = cpu->cache_count * sizeof(cpu_cache_t);
+		size_t cache_bytes = cpu->cache_count * sizeof(*cpu->caches);
 
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			cache_bytes);
@@ -568,12 +568,12 @@ cpus_t * get_all_cpu_cache_details(void)
 		goto out;
 	}
 
-	cpus = calloc(1, sizeof(cpus_t));
+	cpus = calloc(1, sizeof(*cpus));
 	if (!cpus)
 		goto out;
 
 	cpus->count = (uint32_t)cpu_count;
-	cpus->cpus = calloc(cpu_count, sizeof(cpu_t));
+	cpus->cpus = calloc(cpu_count, sizeof(*cpus->cpus));
 	if (!cpus->cpus) {
 		free(cpus);
 		cpus = NULL;
