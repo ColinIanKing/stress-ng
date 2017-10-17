@@ -34,7 +34,7 @@ int stress_yield(const args_t *args)
 {
 	uint64_t *counters;
 	uint64_t max_ops_per_yielder;
-	size_t counters_sz, yielders_sz;
+	size_t counters_sz;
 	int32_t cpus = stress_get_processors_configured();
 	const size_t instances = args->num_instances;
 	size_t yielders = 2;
@@ -78,15 +78,13 @@ int stress_yield(const args_t *args)
 	}
 
 	max_ops_per_yielder = args->max_ops / yielders;
-	yielders_sz = yielders * sizeof(pid_t);
-	pids = calloc(yielders, sizeof(pid_t));
+	pids = calloc(yielders, sizeof(*pids));
 	if (!pids) {
 		pr_err("%s: calloc failed\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(pids, 0, yielders_sz);
 
-	counters_sz = yielders * sizeof(uint64_t);
+	counters_sz = yielders * sizeof(*counters);
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
