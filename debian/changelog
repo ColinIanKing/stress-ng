@@ -1,3 +1,53 @@
+stress-ng (0.08.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * debian/control: update Standards-Version to 4.1.1
+  * stress-hsearch: use sizeof on size of object and not the type
+  * stress-vm: use sizeof on size of object and not the type
+  * stress-ng: use sizeof on size of object and not the type
+  * stress-radixsort: use sizeof on size of object and not the type
+  * stress-shm: use sizeof on size of object and not the type
+  * stress-zlib: use sizeof on size of object and not the type
+  * stress-udp: use sizeof on size of object and not the type
+  * stress-mlock: use sizeof on size of object and not the type
+  * stress-sigsuspend: use sizeof on size of object and not the type
+  * stress-tsearch: use sizeof on size of object and not the type
+  * stress-stream: use sizeof on size of object and not the type
+  * stress-yield: use sizeof on size of object and not the type
+  * test-libbsd: use sizeof on size of object and not the type
+  * stress-scpt: remove extraneous space
+  * stress-qsort: use sizeof on size of object and not the type
+  * stress-opcode: use sizeof on size of object and not the type
+  * stress-mergesort: use sizeof on size of object and not the type
+  * stress-lsearch: use sizeof on size of object and not the type
+  * stress-heapsort: use sizeof on size of object and not the type
+  * stess-fiemap: use sizeof on size of object and not the type
+  * stress-cpu: fix setting of data values for stats data
+  * stress-cpu: use sizeof on size of object and not the type
+  * stress-cpu-online: use sizeof on size of object and not the type
+  * stress-bsearch: use sizeof on size of object and not the type
+  * stress-apparmor: use sizeof on size of object and not the type
+  * stress-aio: use sizeof on size of object and not the type
+  * perf: use sizeof on size of object and not the type
+  * cache: use sizeof on size of object and not the type
+  * stress-cpu: add statistics computations (stats cpu method)
+  * Add eventfd autodetection
+  * Add chroot autodetection
+  * stress-cap: remove __linux__ check
+  * stress-netdev: make errno EADDRNOTAVAIL non-fatal
+  * Makefile: re-organize, put config probing into Makefile.config
+  * Add swapcontext autoconfig detection
+  * stress-zlib: add handler to catch code text read faults
+  * stress-cyclic: print 64 bit signed 0 value dist stats correctly
+    on 32 bit arch
+  * stress-cyclic: fix up bucket info
+  * stress-cyclic: dump more buckets and don't show lots of trailing
+    zeros
+  * stress-fiemap: add more yield points for snappier termination
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 Oct 2017 10:27:43 +0100
+
 stress-ng (0.08.17-1) unstable; urgency=medium
 
   * Makefile: bump version
@@ -30,7 +80,7 @@ stress-ng (0.08.17-1) unstable; urgency=medium
   * stress-opcode: fix build warning when SECCOMP_SET_MODE_FILTER is
     not defined
 
- -- Colin King <colin.king@canonical.com>  Mon, 9 OCt 2017 10:15:36 +0100
+ -- Colin King <colin.king@canonical.com>  Mon, 9 Oct 2017 10:15:36 +0100
 
 stress-ng (0.08.16-1) unstable; urgency=medium
 
