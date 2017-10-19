@@ -238,7 +238,37 @@ static void stress_dev_dir(
 int stress_dev(const args_t *args)
 {
 	do {
-		stress_dev_dir(args, "/dev", true, 0);
+		pid_t pid;
+
+again:
+		if (!keep_stressing())
+			break;
+		pid = fork();
+		if (pid < 0) {
+			if (errno == EAGAIN)
+				goto again;
+		} else if (pid > 0) {
+			int status, ret;
+
+			(void)setpgid(pid, g_pgrp);
+			/* Parent, wait for child */
+			ret = waitpid(pid, &status, 0);
+			if (ret < 0) {
+				if (errno != EINTR)
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				(void)kill(pid, SIGTERM);
+				(void)kill(pid, SIGKILL);
+				(void)waitpid(pid, &status, 0);
+			}
+		} else if (pid == 0) {
+			(void)setpgid(0, g_pgrp);
+			stress_parent_died_alarm();
+
+			/* Make sure this is killable by OOM killer */
+			set_oom_adjustment(args->name, true);
+			stress_dev_dir(args, "/dev", true, 0);
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
