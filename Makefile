@@ -361,17 +361,7 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
 		personality.c COPYING syscalls.txt mascot README \
-		README.Android test-apparmor.c test-libbsd.c test-libz.c \
-		test-libcrypt.c test-librt.c test-libpthread.c \
-		test-libaio.c test-cap.c test-libsctp.c \
-		test-asm-nop.c test-aligned-64K.c test-aligned-64.c \
-		test-aligned-128.c usr.bin.pulseaudio.eg perf-event.c \
-		test-affinity.c test-madvise.c test-sem-posix.c \
-		test-sem-sysv.c test-mq-posix.c test-mq-sysv.c \
-		test-shm-sysv.c test-fanotify.c test-inotify.c \
-		test-sock-diag.c test-mathfunc.c test-swapcontext.c \
-		test-chroot.c test-eventfd.c \
-		snapcraft smatchify.sh config TODO \
+		README.Android test snapcraft smatchify.sh config TODO \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
