@@ -104,7 +104,6 @@ typedef struct {
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
-static sigjmp_buf jmp_env;
 
 #if defined(HAVE_LIB_PTHREAD)
 /*
@@ -126,7 +125,7 @@ static void NORETURN waste_resources(
 	const size_t page_size,
 	const size_t pipe_size)
 {
-	size_t i;
+	size_t i, n;
 #if defined(__NR_memfd_create) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
@@ -137,7 +136,6 @@ static void NORETURN waste_resources(
 #if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX))
 	(void)args;
 #endif
-
 	(void)memset(&info, 0, sizeof(info));
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
@@ -312,7 +310,8 @@ static void NORETURN waste_resources(
 #endif
 	}
 
-	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
+	n = i;
+	for (i = 0; i < n; i++) {
 		if (info[i].m_malloc)
 			free(info[i].m_malloc);
 		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED))
@@ -404,7 +403,7 @@ static void MLOCKED kill_children(void)
 
 	for (i = 0; i < RESOURCE_FORKS; i++) {
 		if (pids[i])
-			(void)kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGALRM);
 	}
 
 	for (i = 0; i < RESOURCE_FORKS; i++) {
@@ -416,13 +415,6 @@ static void MLOCKED kill_children(void)
 	}
 }
 
-static void MLOCKED stress_alrmhandler(int dummy)
-{
-	(void)dummy;
-
-	siglongjmp(jmp_env, 1);
-}
-
 /*
  *  stress_resources()
  *	stress by forking and exiting
@@ -431,16 +423,6 @@ int stress_resources(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
-	int ret;
-
-	if (stress_sighandler(args->name, SIGALRM, stress_alrmhandler, NULL) < 0)
-		return EXIT_FAILURE;
-
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret) {
-		kill_children();
-		return EXIT_SUCCESS;
-	}
 
 	do {
 		unsigned int i;
@@ -451,13 +433,11 @@ int stress_resources(const args_t *args)
 
 			if (pid == 0) {
 				(void)setpgid(0, g_pgrp);
-				ret = sigsetjmp(jmp_env, 1);
-				if (ret)
-					_exit(0);
 				set_oom_adjustment(args->name, true);
 				waste_resources(args, page_size, pipe_size);
 				_exit(0); /* should never get here */
 			}
+
 			if (pid > -1)
 				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
