@@ -2686,7 +2686,7 @@ extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_sync_file_range(int fd, shim_off64_t offset, shim_off64_t nbytes, unsigned int flags);
 
 
-#define STRESS(func) extern int func(const args_t *args);
+#define STRESS(func) extern int func(const args_t *args)
 
 /* Stressors */
 STRESS(stress_affinity);
