@@ -33,7 +33,7 @@
 int stress_affinity(const args_t *args)
 {
 	uint32_t cpu = args->instance;
-	const uint32_t cpus = stress_get_processors_configured();
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 	cpu_set_t mask;
 
 	do {
