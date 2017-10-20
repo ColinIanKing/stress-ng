@@ -181,7 +181,7 @@ again:
 						if (*tmp != (uint8_t)i)
 							pr_fail("%s: byte at location %p was 0x%" PRIx8
 								" instead of 0x%" PRIx8 "\n",
-								args->name, u8ptr, *tmp, (uint8_t)i);
+								args->name, (void *)u8ptr, *tmp, (uint8_t)i);
 					}
 				}
 				last_ptr = ptr;
