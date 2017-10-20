@@ -60,7 +60,6 @@
 #define SERPENT_BLOCK_SIZE	(16)
 #define CAST6_BLOCK_SIZE	(16)
 #define CAMELLIA_BLOCK_SIZE	(16)
-#define SEMI_BLOCK_SIZE		(8)
 #define SALSA20_BLOCK_SIZE	(8)
 
 #define AES_MAX_KEY_SIZE	(32)
