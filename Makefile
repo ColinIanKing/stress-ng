@@ -325,17 +325,6 @@ personality.h:
 
 stress-personality.c: personality.h
 
-stress-cpu.o: stress-cpu.c
-	@echo $(CC) $(CFLAGS) -c -o $@ $<
-	@echo "_Decimal32 x;" > test-decimal.c
-	@$(CC) $(CPPFLAGS) -c -o test-decimal.o test-decimal.c 2> /dev/null || true
-	@if [ -f test-decimal.o ]; then \
-		$(CC) $(CFLAGS) -DSTRESS_FLOAT_DECIMAL -c -o $@ $< ;\
-	else \
-		$(CC) $(CFLAGS) -c -o $@ $< ;\
-	fi
-	@rm -f test-decimal.c test-decimal.o
-
 perf.o: perf.c perf-event.c
 	@gcc -E perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | awk {'print "#define _SNG_" $$1 " (1)"'} > perf-event.h
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
