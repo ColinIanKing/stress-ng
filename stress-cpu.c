@@ -269,26 +269,26 @@ static void HOT OPTIMIZE3 stress_cpu_bitops(const char *name)
 static void HOT stress_cpu_trig(const char *name)
 {
 	int i;
-	long double d_sum = 0.0;
+	long double d_sum = 0.0L;
 
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0 * M_PI * (double)i)/1500.0;
+		long double theta = (2.0L * M_PI * (double)i)/1500.0L;
 		{
 			d_sum += (cosl(theta) * sinl(theta));
 			d_sum += (cos(theta) * sin(theta));
 			d_sum += (cosf(theta) * sinf(theta));
 		}
 		{
-			long double theta2 = theta * 2.0;
+			long double theta2 = theta * 2.0L;
 
 			d_sum += cosl(theta2);
 			d_sum += cos(theta2);
 			d_sum += cosf(theta2);
 		}
 		{
-			long double theta3 = theta * 3.0;
+			long double theta3 = theta * 3.0L;
 
 			d_sum += sinl(theta3);
 			d_sum += sin(theta3);
@@ -310,21 +310,21 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0 * M_PI * (double)i)/1500.0;
+		long double theta = (2.0L * M_PI * (double)i)/1500.0L;
 		{
 			d_sum += (coshl(theta) * sinhl(theta));
 			d_sum += (cosh(theta) * sinh(theta));
 			d_sum += (double)(coshf(theta) * sinhf(theta));
 		}
 		{
-			long double theta2 = theta * 2.0;
+			long double theta2 = theta * 2.0L;
 
 			d_sum += coshl(theta2);
 			d_sum += cosh(theta2);
 			d_sum += (double)coshf(theta2);
 		}
 		{
-			long double theta3 = theta * 3.0;
+			long double theta3 = theta * 3.0L;
 
 			d_sum += sinhl(theta3);
 			d_sum += sinh(theta3);
@@ -381,24 +381,24 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 static void HOT OPTIMIZE3 stress_cpu_nsqrt(const char *name)
 {
 	int i;
-	const long double precision = 1.0e-12;
+	const long double precision = 1.0e-12L;
 	const int max_iter = 56;
 
 	for (i = 0; i < 16384; i++) {
 		long double n = (double)i;
-		long double lo = (n < 1.0) ? n : 1.0;
-		long double hi = (n < 1.0) ? 1.0 : n;
+		long double lo = (n < 1.0L) ? n : 1.0L;
+		long double hi = (n < 1.0L) ? 1.0L : n;
 		long double rt;
 		int j = 0;
 
 		while ((j++ < max_iter) && ((hi - lo) > precision)) {
-			long double g = (lo + hi) / 2.0;
+			long double g = (lo + hi) / 2.0L;
 			if ((g * g) > n)
 				hi = g;
 			else
 				lo = g;
 		}
-		rt = (lo + hi) / 2.0;
+		rt = (lo + hi) / 2.0L;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			if (j >= max_iter)
@@ -419,8 +419,8 @@ static void HOT OPTIMIZE3 stress_cpu_nsqrt(const char *name)
 static void HOT OPTIMIZE3 stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
-	const long double precision = 1.0e-15;
-	const long double phi_ = (1.0 + sqrtl(5.0)) / 2.0;
+	const long double precision = 1.0e-15L;
+	const long double phi_ = (1.0L + sqrtl(5.0L)) / 2.0L;
 	register uint64_t a, b;
 	const uint64_t mask = 1ULL << 63;
 	int i;
@@ -498,16 +498,16 @@ static void HOT stress_cpu_fft(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_euler(const char *name)
 {
-	long double e = 1.0, last_e;
-	long double fact = 1.0;
-	long double precision = 1.0e-20;
+	long double e = 1.0L, last_e;
+	long double fact = 1.0L;
+	long double precision = 1.0e-20L;
 	int n = 1;
 
 	do {
 		last_e = e;
 		fact *= n;
 		n++;
-		e += (1.0 / fact);
+		e += (1.0L / fact);
 	} while ((n < 25) && (fabsl(e - last_e) > precision));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= 25))
@@ -871,18 +871,18 @@ stress_cpu_int(uint8_t, 8, \
 		b = a * c;				\
 		c = a - b;				\
 		d = a / b;				\
-		a = c / (_type)0.1923;			\
+		a = c / (_type)0.1923L;			\
 		b = c + a;				\
-		c = b * (_type)3.12;			\
+		c = b * (_type)3.12L;			\
 		d = d + b + (_type)_sin(a);		\
 		a = (b + c) / c;			\
 		b = b * c;				\
-		c = c + (_type)1.0;			\
+		c = c + (_type)1.0L;			\
 		d = d - (_type)_sin(c);			\
 		a = a * (_type)_cos(b);			\
 		b = b + (_type)_cos(c);			\
-		c = (_type)_sin(a + b) / (_type)2.344;	\
-		b = d - (_type)1.0;			\
+		c = (_type)_sin(a + b) / (_type)2.344L;	\
+		b = d - (_type)1.0L;			\
 	} while (0)
 
 /*
@@ -892,7 +892,7 @@ stress_cpu_int(uint8_t, 8, \
 static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
-	_type a = 0.18728, b = mwc32(), c = mwc32(), d;	\
+	_type a = 0.18728L, b = mwc32(), c = mwc32(), d;\
 							\
 	(void)name;					\
 							\
@@ -926,7 +926,7 @@ static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
 	_type cI = I;					\
 	_type a = FP(0.18728, _ltype) + 		\
 		cI * FP(0.2762, _ltype),		\
-		b = mwc32() - cI * FP(0.11121, _ltype),	\
+		b = mwc32() - cI * FP(0.11121, _ltype),\
 		c = mwc32() + cI * mwc32(), d;		\
 							\
 	(void)name;					\
@@ -960,13 +960,13 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 		flt_d = flt_a / flt_b;				\
 		int_b *= 7;					\
 		int_a += 2;					\
-		flt_a = flt_c / (_ftype)0.1923;			\
+		flt_a = flt_c / (_ftype)0.1923L;		\
 		int_b -= 3;					\
 		int_a /= 77;					\
 		flt_b = flt_c + flt_a;				\
 		int_b /= 3;					\
 		int_a <<= 1;					\
-		flt_c = flt_b * (_ftype)3.12;			\
+		flt_c = flt_b * (_ftype)3.12L;			\
 		int_b <<= 2;					\
 		int_a |= 1;					\
 		flt_d = flt_d + flt_b + (_ftype)_sin(flt_a);	\
@@ -978,15 +978,15 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 		flt_b = flt_b * flt_c;				\
 		int_b -= mwc32();				\
 		int_a /= 7;					\
-		flt_c = flt_c + (_ftype)1.0;			\
+		flt_c = flt_c + (_ftype)1.0L;			\
 		int_b /= 9;					\
 		flt_d = flt_d - (_ftype)_sin(flt_c);		\
 		int_a |= (_c2);					\
 		flt_a = flt_a * (_ftype)_cos(flt_b);		\
 		flt_b = flt_b + (_ftype)_cos(flt_c);		\
 		int_b &= (_c3);					\
-		flt_c = (_ftype)_sin(flt_a + flt_b) / (_ftype)2.344;	\
-		flt_b = flt_d - (_ftype)1.0;			\
+		flt_c = (_ftype)_sin(flt_a + flt_b) / (_ftype)2.344L;	\
+		flt_b = flt_d - (_ftype)1.0L;			\
 	} while (0)
 
 
@@ -1005,7 +1005,7 @@ static void HOT OPTIMIZE3 stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 	const _inttype c1 = _c1 & mask;				\
 	const _inttype c2 = _c2 & mask;				\
 	const _inttype c3 = _c3 & mask;				\
-	_ftype flt_a = 0.18728, flt_b = mwc32(),		\
+	_ftype flt_a = 0.18728L, flt_b = mwc32(),		\
 		flt_c = mwc32(), flt_d;				\
 								\
 	MWC_SEED();						\
@@ -1126,7 +1126,7 @@ static void HOT OPTIMIZE3 stress_cpu_matrix_prod(const char *name)
 
 	long double a[n][n], b[n][n], r[n][n];
 	long double v = 1 / (long double)((uint32_t)~0);
-	long double sum = 0.0;
+	long double sum = 0.0L;
 
 	(void)name;
 
@@ -1134,7 +1134,7 @@ static void HOT OPTIMIZE3 stress_cpu_matrix_prod(const char *name)
 		for (j = 0; j < n; j++) {
 			a[i][j] = (long double)mwc32() * v;
 			b[i][j] = (long double)mwc32() * v;
-			r[i][j] = 0.0;
+			r[i][j] = 0.0L;
 		}
 	}
 
@@ -1179,9 +1179,9 @@ static void HOT OPTIMIZE3 stress_cpu_fibonacci(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
 {
-	long double f1 = 0.0, f2 = 1.0;
-	long double psi = 0.0, last_psi;
-	long double precision = 1.0e-20;
+	long double f1 = 0.0L, f2 = 1.0L;
+	long double psi = 0.0L, last_psi;
+	long double precision = 1.0e-20L;
 	int i = 0;
 	const int max_iter = 100;
 
@@ -1190,12 +1190,12 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
 		f1 = f2;
 		f2 = fn;
 		last_psi = psi;
-		psi += 1.0 / f1;
+		psi += 1.0L / f1;
 		i++;
 	} while ((i < max_iter) && (fabsl(psi - last_psi) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (fabsl(psi - PSI) > 1.0e-15)
+		if (fabsl(psi - PSI) > 1.0e-15L)
 			pr_fail("%s: calculation of reciprocal "
 				"Fibonacci constant phi not as accurate "
 				"as expected\n", name);
@@ -1214,8 +1214,8 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_ln2(const char *name)
 {
-	long double ln2 = 0.0, last_ln2 = 0.0;
-	long double precision = 1.0e-7;
+	long double ln2 = 0.0L, last_ln2 = 0.0L;
+	long double precision = 1.0e-7L;
 	register int n = 1;
 	const int max_iter = 10000;
 
@@ -1223,14 +1223,14 @@ static void HOT OPTIMIZE3 stress_cpu_ln2(const char *name)
 	do {
 		last_ln2 = ln2;
 		/* Unroll, do several ops */
-		ln2 += (long double)1.0 / (long double)n++;
-		ln2 -= (long double)1.0 / (long double)n++;
-		ln2 += (long double)1.0 / (long double)n++;
-		ln2 -= (long double)1.0 / (long double)n++;
-		ln2 += (long double)1.0 / (long double)n++;
-		ln2 -= (long double)1.0 / (long double)n++;
-		ln2 += (long double)1.0 / (long double)n++;
-		ln2 -= (long double)1.0 / (long double)n++;
+		ln2 += (long double)1.0L / (long double)n++;
+		ln2 -= (long double)1.0L / (long double)n++;
+		ln2 += (long double)1.0L / (long double)n++;
+		ln2 -= (long double)1.0L / (long double)n++;
+		ln2 += (long double)1.0L / (long double)n++;
+		ln2 -= (long double)1.0L / (long double)n++;
+		ln2 += (long double)1.0L / (long double)n++;
+		ln2 -= (long double)1.0L / (long double)n++;
 	} while ((n < max_iter) && (fabsl(ln2 - last_ln2) > precision));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter))
@@ -1392,7 +1392,7 @@ static inline long double complex HOT OPTIMIZE3 zeta(
 	long double precision)
 {
 	int i = 1;
-	long double complex z = 0.0, zold = 0.0;
+	long double complex z = 0.0L, zold = 0.0L;
 
 	do {
 		zold = z;
@@ -1408,7 +1408,7 @@ static inline long double complex HOT OPTIMIZE3 zeta(
  */
 static void stress_cpu_zeta(const char *name)
 {
-	long double precision = 0.00000001;
+	long double precision = 0.00000001L;
 	int i;
 
 	(void)name;
@@ -1423,23 +1423,23 @@ static void stress_cpu_zeta(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 {
-	long double precision = 1.0e-10;
-	long double sum = 0.0, k = 1.0, gamma = 0.0, gammaold;
+	long double precision = 1.0e-10L;
+	long double sum = 0.0L, k = 1.0L, gamma = 0.0L, gammaold;
 
 	do {
 		gammaold = gamma;
-		sum += 1.0 / k;
+		sum += 1.0L / k;
 		gamma = sum - logl(k);
-		k += 1.0;
+		k += 1.0L;
 	} while (k < 1e6 && fabsl(gamma - gammaold) > precision);
 
 	double_put(gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (fabsl(gamma - GAMMA) > 1.0e-5)
+		if (fabsl(gamma - GAMMA) > 1.0e-5L)
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant not as accurate as expected\n", name);
-		if (k > 80000.0)
+		if (k > 80000.0L)
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant took more iterations than "
 				"expected\n", name);
@@ -1631,39 +1631,39 @@ static void stress_cpu_hanoi(const char *name)
 static inline long double HOT OPTIMIZE3 factorial(int n)
 {
 	static long double factorials[] = {
-		1.0,
-		1.0,
-		2.0,
-		6.0,
-		24.0,
-		120.0,
-		720.0,
-		5040.0,
-		40320.0,
-		362880.0,
-		3628800.0,
-		39916800.0,
-		479001600.0,
-		6227020800.0,
-		87178291200.0,
-		1307674368000.0,
-		20922789888000.0,
-		355687428096000.0,
-		6402373705728000.0,
-		121645100408832000.0,
-		2432902008176640000.0,
-		51090942171709440000.0,
-		1124000727777607680000.0,
-		25852016738884976640000.0,
-		620448401733239439360000.0,
-		15511210043330985984000000.0,
-		403291461126605635592388608.0,
-		10888869450418352161430700032.0,
-		304888344611713860511469666304.0,
-		8841761993739701954695181369344.0,
-		265252859812191058647452510846976.0,
-		8222838654177922818071027836256256.0,
-		263130836933693530178272890760200192.0
+		1.0L,
+		1.0L,
+		2.0L,
+		6.0L,
+		24.0L,
+		120.0L,
+		720.0L,
+		5040.0L,
+		40320.0L,
+		362880.0L,
+		3628800.0L,
+		39916800.0L,
+		479001600.0L,
+		6227020800.0L,
+		87178291200.0L,
+		1307674368000.0L,
+		20922789888000.0L,
+		355687428096000.0L,
+		6402373705728000.0L,
+		121645100408832000.0L,
+		2432902008176640000.0L,
+		51090942171709440000.0L,
+		1124000727777607680000.0L,
+		25852016738884976640000.0L,
+		620448401733239439360000.0L,
+		15511210043330985984000000.0L,
+		403291461126605635592388608.0L,
+		10888869450418352161430700032.0L,
+		304888344611713860511469666304.0L,
+		8841761993739701954695181369344.0L,
+		265252859812191058647452510846976.0L,
+		8222838654177922818071027836256256.0L,
+		263130836933693530178272890760200192.0L
 	};
 
 	if (n < (int)SIZEOF_ARRAY(factorials))
@@ -1679,17 +1679,17 @@ static inline long double HOT OPTIMIZE3 factorial(int n)
  */
 static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 {
-	long double s = 0.0, pi = 0.0, last_pi = 0.0;
-	const long double precision = 1.0e-20;
-	const long double c = 2.0 * sqrtl(2.0) / 9801.0;
+	long double s = 0.0L, pi = 0.0L, last_pi = 0.0L;
+	const long double precision = 1.0e-20L;
+	const long double c = 2.0L * sqrtl(2.0L) / 9801.0L;
 	const int max_iter = 5;
 	int k = 0;
 
 	do {
 		last_pi = pi;
 		s += (factorial(4 * k) *
-			((26390.0 * (long double)k) + 1103)) /
-			(powl(factorial(k), 4.0) * powl(396.0, 4.0 * k));
+			((26390.0L * (long double)k) + 1103)) /
+			(powl(factorial(k), 4.0L) * powl(396.0L, 4.0L * k));
 		pi = 1 / (s * c);
 		k++;
 	} while ((k < max_iter) && (fabsl(pi - last_pi) > precision));
@@ -1699,7 +1699,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 		if (k >= max_iter)
 			pr_fail("%s: number of iterations to compute "
 				"pi was more than expected\n", name);
-		if (fabsl(pi - M_PI) > 1.0e-15)
+		if (fabsl(pi - M_PI) > 1.0e-15L)
 			pr_fail("%s: accuracy of computed pi is not "
 				"as good as expected\n", name);
 	}
@@ -1714,8 +1714,8 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 {
-	long double omega = 0.5, last_omega = 0.0;
-	const long double precision = 1.0e-20;
+	long double omega = 0.5L, last_omega = 0.0L;
+	const long double precision = 1.0e-20L;
 	const int max_iter = 6;
 	int n = 0;
 
@@ -1730,7 +1730,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 		if (n >= max_iter)
 			pr_fail("%s: number of iterations to compute "
 				"omega was more than expected\n", name);
-		if (fabsl(omega - OMEGA) > 1.0e-16)
+		if (fabsl(omega - OMEGA) > 1.0e-16L)
 			pr_fail("%s: accuracy of computed omega is "
 				"not as good as expected\n", name);
 	}
