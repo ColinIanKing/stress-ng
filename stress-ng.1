@@ -1522,6 +1522,18 @@ KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .B \-\-iomix\-ops N
 stop iomix stress workers after N bogo iomix I/O operations.
 .TP
+.B \-\-ioport N
+start N workers than perform bursts of 16 reads and 16 writes of ioport 0x80
+(x86 Linux systems only).  I/O performed on x86 platforms on port 0x80 will
+cause delays on the CPU performing the I/O.
+.TP
+.B \-\-ioport\-ops N
+stop the ioport stressors after N bogo I/O operations
+.TP
+.B \-\-ioport\-opts [ in | out | inout ]
+specify if port reads in, port read writes out or reads and writes are
+to be performed.  The default is both in and out.
+.TP
 .B \-\-ioprio N
 start N workers that exercise the ioprio_get(2) and ioprio_set(2) system calls
 (Linux only).

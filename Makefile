@@ -110,6 +110,7 @@ STRESS_SRC = \
 	stress-inode-flags.c \
 	stress-inotify.c \
 	stress-iomix.c \
+	stress-ioport.c \
 	stress-ioprio.c \
 	stress-iosync.c \
 	stress-itimer.c \

@@ -92,6 +92,7 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_CYCLIC,	stress_cyclic_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
+	{ STRESS_IOPORT,	stress_ioport_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
 	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
@@ -263,6 +264,7 @@ static const stress_t stressors[] = {
 	STRESSOR(inotify, INOTIFY, CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(io, IOSYNC, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(iomix, IOMIX, CLASS_FILESYSTEM | CLASS_OS),
+	STRESSOR(ioport, IOPORT, CLASS_CPU),
 	STRESSOR(ioprio, IOPRIO, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(itimer, ITIMER, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(kcmp, KCMP, CLASS_OS),
@@ -587,6 +589,9 @@ static const struct option long_options[] = {
 	{ "iomix-ops",	1,	0,	OPT_IOMIX_OPS },
 	{ "ionice-class",1,	0,	OPT_IONICE_CLASS },
 	{ "ionice-level",1,	0,	OPT_IONICE_LEVEL },
+	{ "ioport",	1,	0,	OPT_IOPORT },
+	{ "ioport-ops",	1,	0,	OPT_IOPORT_OPS },
+	{ "ioport-opts",1,	0,	OPT_IOPORT_OPTS },
 	{ "ioprio",	1,	0,	OPT_IOPRIO },
 	{ "ioprio-ops",	1,	0,	OPT_IOPRIO_OPS },
 	{ "itimer",	1,	0,	OPT_ITIMER },
@@ -3053,6 +3058,10 @@ next_opt:
 		case OPT_IONICE_LEVEL:
 			i32 = get_int32(optarg);
 			set_setting("ionice-level", TYPE_ID_INT32, &i32);
+			break;
+		case OPT_IOPORT_OPTS:
+			if (stress_set_ioport_opts(optarg) < 0)
+				return EXIT_FAILURE;
 			break;
 		case OPT_ITIMER_FREQ:
 			stress_set_itimer_freq(optarg);

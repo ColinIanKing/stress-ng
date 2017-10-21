@@ -1188,6 +1188,7 @@ typedef enum {
 	STRESS_INODE_FLAGS,
 	STRESS_INOTIFY,
 	STRESS_IOMIX,
+	STRESS_IOPORT,
 	STRESS_IOPRIO,
 	STRESS_IOSYNC,
 	STRESS_ITIMER,
@@ -1582,6 +1583,10 @@ typedef enum {
 	OPT_IOMIX,
 	OPT_IOMIX_BYTES,
 	OPT_IOMIX_OPS,
+
+	OPT_IOPORT,
+	OPT_IOPORT_OPS,
+	OPT_IOPORT_OPTS,
 
 	OPT_IONICE_CLASS,
 	OPT_IONICE_LEVEL,
@@ -2428,6 +2433,7 @@ extern int stress_chroot_supported(void);
 extern int stress_cyclic_supported(void);
 extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
+extern int stress_ioport_supported(void);
 extern int stress_netlink_proc_supported(void);
 extern int stress_rdrand_supported(void);
 extern int stress_softlockup_supported(void);
@@ -2475,6 +2481,7 @@ extern void stress_set_hdd_write_size(const char *opt);
 extern void stress_set_heapsort_size(const void *opt);
 extern void stress_set_hsearch_size(const char *opt);
 extern void stress_set_iomix_bytes(const char *opt);
+extern int  stress_set_ioport_opts(const char *opts);
 extern void stress_set_itimer_freq(const char *opt);
 extern void stress_set_lease_breakers(const char *opt);
 extern void stress_set_lsearch_size(const char *opt);
@@ -2751,6 +2758,7 @@ STRESS(stress_inode_flags);
 STRESS(stress_inotify);
 STRESS(stress_io);
 STRESS(stress_iomix);
+STRESS(stress_ioport);
 STRESS(stress_ioprio);
 STRESS(stress_itimer);
 STRESS(stress_kcmp);
