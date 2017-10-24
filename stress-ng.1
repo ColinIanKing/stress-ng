@@ -1454,6 +1454,15 @@ stop heapsort stress workers after N bogo heapsorts.
 .B \-\-heapsort\-size N
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
+.B \-\-hrtimers N
+start N workers that exercise high resolution times at a high frequency. Each
+stressor starts 32 processes that run with random timer intervals of 0..499999
+nanoseconds. Running this stressor with appropriate privilege will run these
+with the SCHED_RR policy.
+.TP
+.B \-\-hrtimers\-ops N
+stop hrtimers stessors after N timer event bogo operations
+.TP
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default,
 there are 8192 elements inserted into the hash table.  This is a useful method

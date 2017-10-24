@@ -1182,6 +1182,7 @@ typedef enum {
 	STRESS_HANDLE,
 	STRESS_HDD,
 	STRESS_HEAPSORT,
+	STRESS_HRTIMERS,
 	STRESS_HSEARCH,
 	STRESS_ICACHE,
 	STRESS_ICMP_FLOOD,
@@ -1561,6 +1562,9 @@ typedef enum {
 	OPT_HEAPSORT,
 	OPT_HEAPSORT_OPS,
 	OPT_HEAPSORT_INTEGERS,
+
+	OPT_HRTIMERS,
+	OPT_HRTIMERS_OPS,
 
 	OPT_HSEARCH,
 	OPT_HSEARCH_OPS,
@@ -2751,6 +2755,7 @@ STRESS(stress_getdent);
 STRESS(stress_handle);
 STRESS(stress_hdd);
 STRESS(stress_heapsort);
+STRESS(stress_hrtimers);
 STRESS(stress_hsearch);
 STRESS(stress_icache);
 STRESS(stress_icmp_flood);

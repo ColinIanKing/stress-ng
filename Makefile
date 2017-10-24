@@ -104,6 +104,7 @@ STRESS_SRC = \
 	stress-handle.c \
 	stress-hdd.c \
 	stress-heapsort.c \
+	stress-hrtimers.c \
 	stress-hsearch.c \
 	stress-icache.c \
 	stress-icmp-flood.c \
