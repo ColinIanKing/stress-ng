@@ -1905,7 +1905,7 @@ static void MLOCKED wait_procs(
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 	/*
 	 *  On systems that support changing CPU affinity
-	 *  we keep on moving processed between processors
+	 *  we keep on moving processes between processors
 	 *  to impact on memory locality (e.g. NUMA) to
 	 *  try to thrash the system when in aggressive mode
 	 */
