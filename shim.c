@@ -913,7 +913,7 @@ int shim_dup3(int oldfd, int newfd, int flags)
 	(void)oldfd;
 	(void)newfd;
 	(void)flags;
-	
+
 	errno = -ENOSYS;
 	return -1;
 }
