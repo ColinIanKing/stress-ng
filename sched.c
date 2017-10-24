@@ -106,14 +106,16 @@ int stress_set_sched(
 				param.sched_priority = max;
 			else
 				param.sched_priority = (max - min) / 2;
-			pr_inf("priority not given, defaulting to %d\n",
-				param.sched_priority);
+			if (!quiet)
+				pr_inf("priority not given, defaulting to %d\n",
+					param.sched_priority);
 		}
 		if ((param.sched_priority < min) ||
 		    (param.sched_priority > max)) {
-			(void)fprintf(stderr, "Scheduler priority level must be "
-				"set between %d and %d\n",
-				min, max);
+			if (!quiet)
+				pr_inf("Scheduler priority level must be "
+					"set between %d and %d\n",
+					min, max);
 			return -EINVAL;
 		}
 		if (!quiet)
@@ -135,12 +137,14 @@ int stress_set_sched(
 				attr.sched_priority = max;
 			else
 				attr.sched_priority = (max - min) / 2;
-			pr_inf("priority not given, defaulting to %d\n",
-				attr.sched_priority);
+			if (!quiet)
+				pr_inf("priority not given, defaulting to %d\n",
+					attr.sched_priority);
 		}
 		if ((attr.sched_priority < (uint32_t)min) ||
 		    (attr.sched_priority > (uint32_t)max)) {
-			(void)fprintf(stderr, "Scheduler priority level must be "
+			if (!quiet)
+				pr_inf("Scheduler priority level must be "
 				"set between %d and %d\n",
 				min, max);
 			return -EINVAL;
@@ -155,8 +159,9 @@ int stress_set_sched(
 		rc = shim_sched_setattr(pid, &attr, 0);
 		if (rc < 0) {
 			rc = -errno;
-			(void)fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
-				errno, strerror(errno));
+			if (!quiet)
+				pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+					errno, strerror(errno));
 			return rc;
 		}
 		return 0;
@@ -165,8 +170,9 @@ int stress_set_sched(
 	default:
 		param.sched_priority = 0;
 		if (sched_priority != UNDEFINED)
-			pr_inf("ignoring priority level for "
-				"scheduler class '%s'\n", name);
+			if (!quiet)
+				pr_inf("ignoring priority level for "
+					"scheduler class '%s'\n", name);
 		if (!quiet)
 			pr_dbg("setting scheduler class '%s'\n", name);
 		break;
@@ -174,8 +180,9 @@ int stress_set_sched(
 	rc = sched_setscheduler(pid, sched, &param);
 	if (rc < 0) {
 		rc = -errno;
-		(void)fprintf(stderr, "Cannot set scheduler: errno=%d (%s)\n",
-			errno, strerror(errno));
+		if (!quiet)
+			pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+				errno, strerror(errno));
 		return rc;
 	}
 	return 0;
