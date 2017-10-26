@@ -353,6 +353,7 @@ dist:
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
 		personality.c COPYING syscalls.txt mascot README \
 		README.Android test snapcraft smatchify.sh config TODO \
+		perf-event.c usr.bin.pulseaudio.eg \
 		example-jobs stress-ng-$(VERSION)
 	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
