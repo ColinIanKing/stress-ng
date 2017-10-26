@@ -25,6 +25,7 @@
 
 #include <math.h>
 #include <complex.h>
+#include <stddef.h>
 
 static void *funcs[] = {
 	MATHFUNC,
@@ -32,5 +33,5 @@ static void *funcs[] = {
 
 int main(void)
 {
-	return funcs[0] == 0;
+	return (ptrdiff_t)&MATHFUNC + (funcs[0] == 0);
 }
