@@ -1,3 +1,29 @@
+stress-ng (0.09.00-1) unstable; urgency=medium
+
+  * Makefile: bump major version
+  * Makefile Add perf-event.c and usr.bin.pulseaudio.eg to dist rule
+  * test/test-mathfunc.c: ensure link fails if function is not available
+  * Add exporting of MATHFUNC for BSD builds
+  * stress-ng: fix typo in comment
+  * shim: remove leading tab on empty line
+  * Add hrtimers stressor
+  * sched: use pr_* logging and quiet flags rather than fprintf
+  * Add CFLAGS and add -I to path so that stress-ng.h can be included
+  * Add ioport (port 0x80) stressor
+  * stress-resources: don't abort early on cleanup, fixes msg leaking
+  * stress-cpu: use L suffix for all long double constants
+  * stress-bigheap: cast uint8_t ptr to void * for %p format
+  * stress-af-alg: remove unused macro SEMI_BLOCK_SIZE
+  * stress-affinity: cast return type from stress_get_processors_configured
+  * Remove ; at end of macro STRESS
+  * Makefile: remove the rm of test-decimal.c, it is now redundant
+  * Makefile: remove cpu decimal float test, it is in the Makefile.config
+  * Move test config sources to test directory
+  * stress-dev: catch SIGKILL et al on device access breakage
+  * debian/control: change Priority to optional
+
+ -- Colin King <colin.king@canonical.com>  Thu, 26 Oct 2017 09:56:32 +0100
+
 stress-ng (0.08.18-1) unstable; urgency=medium
 
   * Makefile: bump version
