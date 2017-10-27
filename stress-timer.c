@@ -26,6 +26,7 @@
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)
 static volatile uint64_t timer_counter = 0;
+static uint64_t max_ops;
 static timer_t timerid;
 static uint64_t overruns = 0;
 static double rate_ns;
@@ -75,6 +76,16 @@ static void stress_timer_set(struct itimerspec *timer)
 }
 
 /*
+ *  stress_timer_keep_stressing()
+ *      returns true if we can keep on running a stressor
+ */
+bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
+{
+        return (LIKELY(g_keep_stressing_flag) &&
+                LIKELY(!max_ops || (timer_counter < max_ops)));
+}
+
+/*
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
@@ -85,6 +96,8 @@ static void MLOCKED stress_timer_handler(int sig)
 
 	(void)sig;
 
+	if (!stress_timer_keep_stressing())
+		goto cancel;
 	timer_counter++;
 
 	if (sigpending(&mask) == 0)
@@ -124,6 +137,7 @@ int stress_timer(const args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
+	max_ops = args->max_ops;
 	start = time_now();
 
 	if (!get_setting("timer-freq", &timer_freq)) {
