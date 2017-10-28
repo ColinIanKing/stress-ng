@@ -203,7 +203,7 @@ static void stress_dev_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char filename[PATH_MAX];
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing())
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))
@@ -211,6 +211,7 @@ static void stress_dev_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
+				inc_counter(args);
 				(void)snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
 				stress_dev_dir(args, filename, recurse,
@@ -269,7 +270,6 @@ again:
 			set_oom_adjustment(args->name, true);
 			stress_dev_dir(args, "/dev", true, 0);
 		}
-		inc_counter(args);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
