@@ -166,14 +166,12 @@ int stress_open(const args_t *args)
 
 			if (fds[i] < 0)
 				break;
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				break;
 			inc_counter(args);
 		}
 		for (i = 0; i < max_fd; i++) {
 			if (fds[i] < 0)
-				break;
-			if (!g_keep_stressing_flag)
 				break;
 			(void)close(fds[i]);
 		}
