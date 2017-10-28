@@ -181,9 +181,9 @@ int stress_key(const args_t *args)
 #if defined(KEYCTL_INVALIDATE)
 			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
-			inc_counter(args);
 		}
 tidy:
+		inc_counter(args);
 		/* If we hit too many errors and bailed out early, clean up */
 		while (i < n) {
 			if (keys[i] >= 0) {
