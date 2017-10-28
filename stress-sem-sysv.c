@@ -140,15 +140,15 @@ static void semaphore_sysv_thrash(const args_t *args)
 					pr_fail_dbg("semop wait");
 				break;
 			}
-			inc_counter(args);
 			if (semop(sem_id, &semsignal, 1) < 0) {
 				if (errno != EINTR)
 					pr_fail_dbg("semop signal");
 				break;
 			}
 timed_out:
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				break;
+			inc_counter(args);
 		}
 #if defined(IPC_STAT)
 		{
