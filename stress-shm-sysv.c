@@ -246,16 +246,16 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				goto reap;
 			(void)mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				goto reap;
 			(void)madvise_random(addr, sz);
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				goto reap;
 			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
