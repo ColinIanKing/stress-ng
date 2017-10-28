@@ -90,7 +90,7 @@ int stress_dup(const args_t *args)
 				break;
 #endif
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				break;
 			inc_counter(args);
 		}
