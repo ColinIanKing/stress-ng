@@ -65,6 +65,8 @@ static void stress_rmap_child(
 
 		switch (mwc32() & 3) {
 		case 0: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
+				if (max_ops && *counter >= max_ops)
+					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memset(mappings[i], mwc8(), sz);
 					shim_msync(mappings[i], sz, sync_flag);
@@ -72,6 +74,8 @@ static void stress_rmap_child(
 			}
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; g_keep_stressing_flag && (i >= 0); i--) {
+				if (max_ops && *counter >= max_ops)
+					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memset(mappings[i], mwc8(), sz);
 					shim_msync(mappings[i], sz, sync_flag);
@@ -80,6 +84,8 @@ static void stress_rmap_child(
 			break;
 		case 2: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX); i++) {
 				size_t j = mwc32() % MAPPINGS_MAX;
+				if (max_ops && *counter >= max_ops)
+					break;
 				if (mappings[j] != MAP_FAILED) {
 					(void)memset(mappings[j], mwc8(), sz);
 					shim_msync(mappings[j], sz, sync_flag);
@@ -87,6 +93,8 @@ static void stress_rmap_child(
 			}
 			break;
 		case 3: for (i = 0; g_keep_stressing_flag && (i < MAPPINGS_MAX - 1); i++) {
+				if (max_ops && *counter >= max_ops)
+					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memcpy(mappings[i], mappings[i + 1], sz);
 					shim_msync(mappings[i], sz, sync_flag);
@@ -202,7 +210,7 @@ int stress_rmap(const args_t *args)
 
 			/* Make sure this is killable by OOM killer */
 			set_oom_adjustment(args->name, true);
-			stress_rmap_child(&counters[i], args->max_ops / RMAP_CHILD_MAX,
+			stress_rmap_child(&counters[i], (args->max_ops / RMAP_CHILD_MAX) + 1,
 				page_size, mappings);
 		} else {
 			(void)setpgid(pids[i], g_pgrp);
@@ -213,12 +221,18 @@ int stress_rmap(const args_t *args)
 	 *  Wait for SIGINT or SIGALRM
 	 */
 	while (keep_stressing()) {
+		uint64_t c = 0;
+
 		/* Twiddle fingers */
 		shim_usleep(100000);
+
+
+		for (i = 0; i < RMAP_CHILD_MAX; i++)
+			c += counters[i];
+
+		*args->counter = c;
 	}
 
-	for (i = 0; i < RMAP_CHILD_MAX; i++)
-		*args->counter += counters[i];
 cleanup:
 	/*
 	 *  Kill and wait for children
