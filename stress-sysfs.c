@@ -220,7 +220,7 @@ static void stress_sys_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char filename[PATH_MAX];
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing())
 			break;
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))
@@ -230,6 +230,7 @@ static void stress_sys_dir(
 			if (recurse) {
 				(void)snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
+				inc_counter(args);
 				stress_sys_dir(args, filename, recurse,
 					depth + 1, sys_rw);
 			}
@@ -266,7 +267,6 @@ int stress_sysfs(const args_t *args)
 
 	do {
 		stress_sys_dir(args, "/sys", true, 0, sys_rw);
-		inc_counter(args);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
