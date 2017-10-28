@@ -369,10 +369,11 @@ static void *stress_memthrash_func(void *arg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
-	while (!thread_terminate) {
+	while (!thread_terminate && keep_stressing()) {
 		size_t j;
 
-		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT; j++) {
+		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT &&
+		     keep_stressing(); j++) {
 			size_t mem_size = 1 << (2 * j);
 
 			size_t i;
@@ -383,6 +384,9 @@ static void *stress_memthrash_func(void *arg)
 			inc_counter(args);
 		}
 	}
+
+	/* Wait parent up, all done! */
+	(void)kill(args->pid, SIGALRM);
 die:
 	return &nowt;
 }
