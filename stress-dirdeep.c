@@ -160,7 +160,7 @@ static void stress_dir_exercise(
 	if (n < 0)
 		return;
 
-	while (n--) {
+	while (n-- && keep_stressing()) {
 		if (namelist[n]->d_name[0] == '.')
 			continue;
 
