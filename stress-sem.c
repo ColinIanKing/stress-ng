@@ -106,7 +106,7 @@ static void semaphore_posix_thrash(const args_t *args)
 				break;
 			}
 timed_out:
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				break;
 		}
 	} while (keep_stressing());
