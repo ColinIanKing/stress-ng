@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 static volatile uint64_t itimer_counter = 0;
+static uint64_t max_ops;
 static double rate_us;
 static double start;
 
@@ -69,6 +70,16 @@ static void stress_itimer_set(struct itimerval *timer)
 }
 
 /*
+ *  stress_itimer_keep_stressing()
+ *      returns true if we can keep on running a stressor
+ */
+bool HOT OPTIMIZE3 stress_itimer_keep_stressing(void)
+{
+        return (LIKELY(g_keep_stressing_flag) &&
+                LIKELY(!max_ops || (itimer_counter < max_ops)));
+}
+
+/*
  *  stress_itimer_handler()
  *	catch itimer signal and cancel if no more runs flagged
  */
@@ -79,6 +90,8 @@ static void stress_itimer_handler(int sig)
 
 	(void)sig;
 
+	if (!stress_itimer_keep_stressing())
+		goto cancel;
 	itimer_counter++;
 
 	if (sigpending(&mask) == 0)
@@ -114,6 +127,7 @@ int stress_itimer(const args_t *args)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
+	max_ops = args->max_ops;
 	start = time_now();
 
 	if (!get_setting("itimer-freq", &itimer_freq)) {
