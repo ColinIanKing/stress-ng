@@ -70,9 +70,9 @@ static void stress_iomix_wr_seq_bursts(
 				return;
 			}
 			posn += rc;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = mwc32() % 1000000;
@@ -113,9 +113,9 @@ static void stress_iomix_wr_rnd_bursts(
 				pr_fail("write");
 				return;
 			}
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 		tv.tv_sec = mwc32() % 2;
 		tv.tv_usec = mwc32() % 1000000;
@@ -153,11 +153,11 @@ static void stress_iomix_wr_seq_slow(
 				pr_fail("write");
 				return;
 			}
-			(void)usleep(250000);
+			(void)shim_usleep(250000);
 			posn += rc;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 	} while (keep_stressing());
 }
@@ -197,9 +197,9 @@ static void stress_iomix_rd_seq_bursts(
 				return;
 			}
 			posn += rc;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = mwc32() % 1000000;
@@ -242,9 +242,9 @@ static void stress_iomix_rd_rnd_bursts(
 				pr_fail("read");
 				return;
 			}
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 		tv.tv_sec = mwc32() % 3;
 		tv.tv_usec = mwc32() % 1000000;
@@ -282,11 +282,11 @@ static void stress_iomix_rd_seq_slow(
 				pr_fail("read");
 				return;
 			}
-			(void)usleep(333333);
+			(void)shim_usleep(333333);
 			posn += rc;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 	} while (keep_stressing());
 }
@@ -304,9 +304,9 @@ static void stress_iomix_sync(
 		struct timeval tv;
 
 		(void)fsync(fd);
-		inc_counter(args);
 		if (!keep_stressing())
 			break;
+		inc_counter(args);
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
@@ -315,9 +315,9 @@ static void stress_iomix_sync(
 
 #if defined(__linux__)
 		(void)fdatasync(fd);
-		inc_counter(args);
 		if (!keep_stressing())
 			break;
+		inc_counter(args);
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
@@ -326,9 +326,9 @@ static void stress_iomix_sync(
 #endif
 #if defined(__linux__)
 		(void)sync_file_range(fd, mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
-		inc_counter(args);
 		if (!keep_stressing())
 			break;
+		inc_counter(args);
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
@@ -352,7 +352,7 @@ static void stress_iomix_bad_advise(
 		off_t posn = mwc64() % iomix_bytes;
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
-		(void)usleep(100000);
+		(void)shim_usleep(100000);
 	} while (keep_stressing());
 }
 #endif
@@ -397,7 +397,7 @@ static void stress_iomix_rd_wr_mmap(
 					(mwc32() & 1) ? MS_ASYNC : MS_SYNC);
 			}
 		}
-		(void)usleep(100000);
+		(void)shim_usleep(100000);
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
 			if (mmaps[i] != MAP_FAILED)
 				(void)munmap(mmaps[i], page_size);
@@ -431,11 +431,11 @@ static void stress_iomix_wr_bytes(
 				pr_fail("write");
 				return;
 			}
-			(void)usleep(1000);
+			(void)shim_usleep(1000);
 			posn += rc;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 	} while (keep_stressing());
 }
@@ -467,11 +467,11 @@ static void stress_iomix_rd_bytes(
 				pr_fail("write");
 				return;
 			}
-			(void)usleep(1000);
+			(void)shim_usleep(1000);
 			posn--;
-			inc_counter(args);
 			if (!keep_stressing())
 				return;
+			inc_counter(args);
 		}
 	} while (keep_stressing());
 }
@@ -700,22 +700,28 @@ int stress_iomix(const args_t *args)
 		} else if (pids[i] == 0) {
 			/* Child */
 			iomix_funcs[i](&tmp_args, fd, iomix_bytes);
-			(void)kill(args->pid, SIGALRM);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	do {
-		*args->counter = 0;
-		(void)pause();
+		uint64_t c = 0;
+		(void)shim_usleep(10000);
 		for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-			*args->counter += counters[i];
+			c += counters[i];
+			if (c > args->max_ops) {
+				*args->counter = c;
+				goto reap;
+			}
 		}
 	} while (keep_stressing());
 
 	ret = EXIT_SUCCESS;
 reap:
+	*args->counter = 0;
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
+		*args->counter += counters[i];
+
 		if (pids[i]) {
 			int status;
 
