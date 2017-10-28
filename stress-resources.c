@@ -442,7 +442,7 @@ int stress_resources(const args_t *args)
 				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
 
-			if (!g_keep_stressing_flag) {
+			if (!keep_stressing()) {
 				kill_children();
 				return EXIT_SUCCESS;
 			}
