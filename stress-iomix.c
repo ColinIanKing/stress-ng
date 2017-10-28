@@ -317,7 +317,6 @@ static void stress_iomix_sync(
 		(void)fdatasync(fd);
 		if (!keep_stressing())
 			break;
-		inc_counter(args);
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
@@ -328,7 +327,6 @@ static void stress_iomix_sync(
 		(void)sync_file_range(fd, mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
 		if (!keep_stressing())
 			break;
-		inc_counter(args);
 		tv.tv_sec = mwc32() % 4;
 		tv.tv_usec = mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
