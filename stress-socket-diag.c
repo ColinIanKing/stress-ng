@@ -112,7 +112,8 @@ static int stress_sockdiag_parse(
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
 	for (attr = (const struct rtattr *) (diag + 1);
-	     RTA_OK(attr, rta_len); attr = RTA_NEXT(attr, rta_len)) {
+	     RTA_OK(attr, rta_len) && keep_stressing();
+	     attr = RTA_NEXT(attr, rta_len)) {
 		switch (attr->rta_type) {
 		case UNIX_DIAG_NAME:
 			inc_counter(args);
