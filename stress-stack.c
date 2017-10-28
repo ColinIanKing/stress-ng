@@ -140,6 +140,7 @@ again:
 			} else {
 				/* Expand the stack and cause a fault */
 				char *last_ptr = 0;
+				uint32_t n = 0;
 				do {
 					char *ptr = alloca(256 * KB);
 
@@ -155,7 +156,12 @@ again:
 					/* Force gcc to actually do the alloca */
 					uint64_put((uint64_t)(last_ptr - ptr));
 					last_ptr = ptr;
-				} while (g_keep_stressing_flag);
+					n++;
+					if (n > 128) {
+						inc_counter(args);
+						n = 0;
+					}
+				} while (keep_stressing());
 			}
 		}
 	}
