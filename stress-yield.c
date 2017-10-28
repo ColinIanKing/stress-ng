@@ -114,19 +114,20 @@ int stress_yield(const args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 					pr_fail_err("sched_yield");
 				counters[i]++;
-			} while (g_keep_stressing_flag && (!max_ops_per_yielder || *args->counter < max_ops_per_yielder));
+			} while (g_keep_stressing_flag && (!max_ops_per_yielder || counters[i] < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	do {
 		*args->counter = 0;
-		(void)pause();
+		(void)shim_usleep(100000);
 		for (i = 0; i < yielders; i++)
 			*args->counter += counters[i];
 	} while (keep_stressing());
 
 	/* Parent, wait for children */
+	*args->counter = 0;
 	for (i = 0; i < yielders; i++) {
 		if (pids[i] > 0) {
 			int status;
