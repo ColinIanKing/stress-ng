@@ -214,7 +214,7 @@ int stress_aio(const args_t *args)
 	do {
 		(void)shim_usleep(250000); /* wait until a signal occurs */
 
-		for (i = 0; g_keep_stressing_flag && (i < opt_aio_requests); i++) {
+		for (i = 0; keep_stressing() && (i < opt_aio_requests); i++) {
 			if (io_reqs[i].status != EINPROGRESS)
 				continue;
 
