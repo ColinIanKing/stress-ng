@@ -143,7 +143,7 @@ abort:
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {
-			for (i = 0; g_keep_stressing_flag && (i < max); i++) {
+			for (i = 0; keep_stressing() && (i < max); i++) {
 				ssize_t ret;
 
 				socket_pair_memset(buf, val++, sizeof(buf));
