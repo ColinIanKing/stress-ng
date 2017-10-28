@@ -27,7 +27,6 @@
 #if defined(__linux__)
 #include <sys/timerfd.h>
 
-static volatile uint64_t timerfd_counter = 0;
 static int timerfd;
 static double rate_ns;
 #endif
@@ -145,7 +144,7 @@ int stress_timerfd(const args_t *args)
 				break;
 			}
 		}
-		*args->counter = timerfd_counter;
+		inc_counter(args);
 	} while (keep_stressing());
 
 	(void)close(timerfd);
