@@ -25,7 +25,8 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_RT) && defined(__linux__)
-static uint64_t *timer_counter;
+static volatile uint64_t *timer_counter;
+static uint64_t max_ops;
 static timer_t timerid;
 static double start;
 
@@ -48,6 +49,16 @@ static void stress_hrtimers_set(struct itimerspec *timer)
 }
 
 /*
+ *  stress_hrtimers_keep_stressing()
+ *      returns true if we can keep on running a stressor
+ */
+bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
+{
+        return (LIKELY(g_keep_stressing_flag) &&
+                LIKELY(!max_ops || ((*timer_counter) < max_ops)));
+}
+
+/*
  *  stress_hrtimers_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
@@ -55,22 +66,22 @@ static void MLOCKED stress_hrtimers_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;
-	static uint16_t timer_counter = 0;
 
 	(void)sig;
+
+	if (!stress_hrtimers_keep_stressing())
+		goto cancel;
+	(*timer_counter)++;
 
 	if (sigpending(&mask) == 0)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
-	timer_counter++;
-	if (timer_counter == 0)
+	if (((*timer_counter) & 65535) == 0)
 		if ((time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
-	if (g_keep_stressing_flag) {
-		stress_hrtimers_set(&timer);
-		return;
-	}
+	stress_hrtimers_set(&timer);
+	return;
 
 cancel:
 	g_keep_stressing_flag = false;
@@ -120,8 +131,7 @@ int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 	do {
 		/* The sleep will be interrupted on each hrtimer tick */
 		sleep(1);
-		(*counter)++;
-	} while (keep_stressing());
+	} while (stress_hrtimers_keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail_err("timer_delete");
@@ -139,6 +149,8 @@ int stress_hrtimers(const args_t *args)
 	size_t i;
 	uint64_t *counters;
 
+	max_ops = args->max_ops / PROCS_MAX;
+
 	memset(pids, 0, sizeof(pids));
         counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
                         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -147,7 +159,7 @@ int stress_hrtimers(const args_t *args)
                 return EXIT_NO_RESOURCE;
         }
 
-	for (i = 0; i < PROCS_MAX; i++) {
+	for (i = 0; i < PROCS_MAX && keep_stressing(); i++) {
 		pids[i] = fork();
 		if (pids[0] < 0)
 			goto reap;
@@ -168,6 +180,10 @@ int stress_hrtimers(const args_t *args)
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
+
+		*args->counter = 0;
+		for (i = 0; i < PROCS_MAX; i++)
+			*args->counter += counters[i];
 	} while (keep_stressing());
 
 
@@ -182,8 +198,6 @@ reap:
 		}
 	}
 
-	for (i = 0; i < PROCS_MAX; i++)
-		*args->counter += counters[i];
 
 	(void)munmap(counters, sz);
 
