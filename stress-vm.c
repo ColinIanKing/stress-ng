@@ -88,6 +88,16 @@ static const vm_madvise_info_t vm_madvise_info[] = {
 #endif
 };
 
+/*
+ *  keep_stressing()
+ *	returns true if we can keep on running a stressor
+ */
+bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
+{
+	return (LIKELY(g_keep_stressing_flag) &&
+	        LIKELY(!args->max_ops || ((*args->counter >> VM_BOGO_SHIFT) < args->max_ops)));
+}
+
 void stress_set_vm_hang(const char *opt)
 {
 	uint64_t vm_hang;
@@ -2081,10 +2091,12 @@ again:
 				(void)madvise_random(buf, buf_sz);
 				(void)munmap((void *)buf, buf_sz);
 			}
-		} while (keep_stressing());
+		} while (keep_stressing_vm(args));
 
 		if (keep && buf != NULL)
 			(void)munmap((void *)buf, buf_sz);
+
+		_exit(EXIT_SUCCESS);
 	}
 clean_up:
 	(void)shim_msync(bit_error_count, page_size, MS_SYNC);
