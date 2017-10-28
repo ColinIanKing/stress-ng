@@ -63,7 +63,7 @@ int stress_nice(const args_t *args)
 			stress_parent_died_alarm();
 
 			pid = getpid();
-			for (i = min_prio; i <= max_prio; i++) {
+			for (i = min_prio; (i <= max_prio) && keep_stressing(); i++) {
 				errno = 0;
 				(void)setpriority(PRIO_PROCESS, pid, i);
 				if (!errno) {
