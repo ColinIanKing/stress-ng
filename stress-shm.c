@@ -183,7 +183,7 @@ static int stress_shm_posix_child(
 			(void)shim_fallocate(shm_fd, 0, 0, sz);
 			(void)close(shm_fd);
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
