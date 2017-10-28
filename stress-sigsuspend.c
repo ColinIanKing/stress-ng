@@ -27,6 +27,15 @@
 #define CACHE_STRIDE_SHIFT	(6)
 
 /*
+ *  stress_usr1_handler()
+ *      SIGUSR1 handler
+ */
+static void MLOCKED stress_usr1_handler(int dummy)
+{
+        (void)dummy;
+}
+
+/*
  *  stress_sigsuspend
  *	stress sigsuspend
  */
@@ -34,12 +43,15 @@ int stress_sigsuspend(const args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;
-	sigset_t mask;
+	sigset_t mask, oldmask;
 	int status;
-	uint64_t *counters, c;
+	uint64_t *counters;
 	volatile uint64_t *v_counters;
 	const size_t counters_size =
 		(sizeof(*counters) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
+
+	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	v_counters = counters = (uint64_t *)mmap(NULL, counters_size,
 			PROT_READ | PROT_WRITE,
@@ -50,8 +62,8 @@ int stress_sigsuspend(const args_t *args)
 	}
 	(void)memset(counters, 0, counters_size);
 
-	(void)sigfillset(&mask);
-	(void)sigdelset(&mask, SIGUSR1);
+	(void)sigemptyset(&mask);
+	(void)sigprocmask(SIG_BLOCK, &mask, &oldmask);
 
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:
@@ -76,14 +88,13 @@ again:
 
 	/* Parent */
 	do {
-		c = 0;
-		for (i = 0; i < n; i++) {
-			c += v_counters[i << CACHE_STRIDE_SHIFT];
+		*args->counter = 0;
+		for (i = 0; (i < n) && keep_stressing(); i++) {
+			*args->counter += v_counters[i << CACHE_STRIDE_SHIFT];
 			(void)kill(pid[i], SIGUSR1);
 		}
 	} while (keep_stressing());
 
-	*args->counter = c;
 
 reap:
 	for (i = 0; i < n; i++) {
