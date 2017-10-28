@@ -45,6 +45,9 @@ static void stress_inode_flags_ioctl(
 {
 	int ret, attr;
 
+	if (!keep_stressing())
+		return;
+
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
 	if (ret != 0)
 		return;
@@ -100,7 +103,7 @@ static void stress_inode_flags_stressor(
 		return;
 	}
 
-	while (keep_running && g_keep_stressing_flag) {
+	while (keep_running && keep_stressing()) {
 		stress_inode_flags_ioctl(args, fddir, 0);
 #if defined(FS_DIRSYNC_FL)
 		stress_inode_flags_ioctl(args, fddir, FS_DIRSYNC_FL);
