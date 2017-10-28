@@ -31,6 +31,7 @@
 typedef struct {
 	const args_t *args;
 	uint64_t counter;
+	uint64_t sleep_max;
 	pthread_t pthread;
 } ctxt_t;
 
@@ -67,6 +68,8 @@ static void *stress_pthread_func(void *c)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	ctxt_t *ctxt = (ctxt_t *)c;
+	const args_t *args = ctxt->args;
+	uint64_t max_ops = (args->max_ops / ctxt->sleep_max) + 1;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -84,7 +87,7 @@ static void *stress_pthread_func(void *c)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
-	while (!thread_terminate) {
+	while (keep_stressing() && !thread_terminate && ctxt->counter < max_ops) {
 		struct timespec tv;
 		struct timeval timeout;
 
@@ -165,6 +168,7 @@ int stress_sleep(const args_t *args)
 
 	for (n = 0; n < sleep_max;  n++) {
 		ctxts[n].args = args;
+		ctxts[n].sleep_max = sleep_max;
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
 		if (ret) {
