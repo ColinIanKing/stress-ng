@@ -332,10 +332,6 @@ perf.o: perf.c perf-event.c
 	@echo $(CC) $(CFLAGS) -c -o $@ $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-wcstr.o: stress-wcstr.c
-	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-
 stress-vecmath.o: stress-vecmath.c
 	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
