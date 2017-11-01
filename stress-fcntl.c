@@ -192,6 +192,7 @@ static int do_fcntl(const args_t *args, const int fd)
 
 #if defined(F_SETOWN_EX) &&	\
     (defined(F_OWNER_PID) ||	\
+     defined(F_OWNER_GID) ||	\
      defined(F_OWNER_PGRP) ||	\
      (defined(F_OWNER_TID) && defined(__linux__)))
 	{
@@ -210,6 +211,11 @@ static int do_fcntl(const args_t *args, const int fd)
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PGRP");
+#else if defined(F_OWNER_GID)
+		owner.type = F_OWNER_GID;
+		owner.pid = getpgrp();
+		ret = fcntl(fd, F_SETOWN_EX, &owner);
+		check_return(args, ret, "F_SETOWN_EX, F_OWNER_GID");
 #endif
 
 #if defined(F_OWNER_TID) && defined(__linux__)
@@ -230,9 +236,15 @@ static int do_fcntl(const args_t *args, const int fd)
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PID");
 
+#if defined(F_OWNER_PGRP)
 		owner.type = F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PGRP");
+#ele if defined(F_OWNER_GID)
+		owner.type = F_OWNER_GID;
+		ret = fcntl(fd, F_GETOWN_EX, &owner);
+		check_return(args, ret, "F_GETOWN_EX, F_OWNER_GID");
+#endif
 
 #if defined(__linux__)
 		owner.type = F_OWNER_TID;
