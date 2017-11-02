@@ -36,6 +36,15 @@ Shared Variables:
  export CC=${CROSS_COMPILE}
  STATIC=1 make ARCH=arm
 
+= Ubuntu 17.04 =
+Considerably easier with a cross-compilation enable distribution, swap architecture as needed.
+
+=== Setup ===
+  apt-get install gcc-4.9-aarch64-linux-gnu
+ 
+=== Build ===
+
+  CC=aarch64-linux-gnu-gcc-4.9 STATIC=1 make
 
 M.Srikanth Kumar, Jul 14, 2015
 Colin Ian King,   Dec  6, 2016 (updated, static linking)
