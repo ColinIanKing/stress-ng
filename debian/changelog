@@ -1,3 +1,42 @@
+stress-ng (0.09.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fcntl: fix build issue when F_OWNER_PGRP is not
+    defined (LP: #1709905)
+  * Makefile: remove special rule for wcstr
+  * stress-rmap: fix bogo-ops max checks
+  * stress-memthrash: make bogo-ops checking more granular
+  * stress-iomix: make bogo-ops checking more granular
+  * stress-sleep: make bogo-ops checking more granular
+  * stress-socket-diag: make bogo-ops checking more granular
+  * stress-socketpair: make bogo-ops checking more granular
+  * stress-stack: make bogo-ops checking more granular
+  * stress-dirdeep: make bogo-ops checking more granular
+  * stress-sigsuspend: catch SIGUSR1 to avoid children getting killed
+  * stress-nice: make bogo-ops checking more granular
+  * stress-aio: make bogo-ops checking more granular
+  * stress-shm-sysv: make bogo-ops checking more granular
+  * stress-shm: make bogo-ops checking more granular
+  * stress-sem-sysv: make bogo-ops checking more granular
+  * stress-sem: make bogo-ops checking more granular
+  * stress-resources: make bogo-ops check more granular
+  * stress-open: make bogo-ops check more granular
+  * stress-key: increment counter on tidy phase
+  * stress-inode-flags: don't over-run bogo-ops count
+  * stress-dup: check for bogo-ops more accurately
+  * stress-dev: make bogo-ops count on per directory
+  * stress-sysfs: make bogo-ops count on per directory
+  * stress-timerfd: fix bogo-ops, counter was not being incremented
+  * stress-vm: fix bogo_ops threshold checks
+  * stress-yield: fix bogo-ops timeout and accounting
+  * stress-iomix: improve counter checking to make termination more
+    responsive
+  * stress-itimer: ensure we stop timers when timer handler is saturated
+  * stress-hrtimers: ensure we stop timers when timer handler is saturated
+  * stress-timer: ensure we stop timers when timer handler is saturated
+
+ -- Colin King <colin.king@canonical.com>  Thu, 2 Nov 2017 15:06:11 +0000
+
 stress-ng (0.09.00-1) unstable; urgency=medium
 
   * Makefile: bump major version
@@ -201,7 +240,7 @@ stress-ng (0.08.12-1) unstable; urgency=medium
   * helper: add more debug to filenames to help debugging
   * stress-inode-flags: fix incorrect path being used on
     directory (LP: #1712857)
-  
+
  -- Colin King <colin.king@canonical.com>  Thu, 24 Aug 2017 16:59:33 +0100
 
 stress-ng (0.08.11-1) unstable; urgency=medium
@@ -394,7 +433,7 @@ stress-ng (0.08.06-1) unstable; urgency=medium
 stress-ng (0.08.05-1) unstable; urgency=medium
 
   * test-sem-posix: don't build for FreeBSD kernels
-  * stress-cyclic: only produce stats for first instance 
+  * stress-cyclic: only produce stats for first instance
   * stress-sem: hust build on systems that provide POSIX semaphores
   * stress-madvise: fix build warning with clobbered sz with gcc 3.4.3
   * stress-vm: fix build warning on munmap
