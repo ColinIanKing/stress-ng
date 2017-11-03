@@ -319,19 +319,24 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 	static bool use_rand_data = false;
 	struct sigaction sigsegv_orig, sigbus_orig;
 
-#if defined(__OpenBSD__)
+#if defined(__APPLE__)
+	extern void *get_etext(void);
+	char *text_start = get_etext();
+#elif defined(__OpenBSD__)
 	extern char _start[];
-#else
-	extern char __executable_start[];
-#endif
-	extern char __etext;
-
-#if defined(__OpenBSD__)
 	char *text_start = &_start[0];
 #else
-	char *text_start = &__executable_start[0];
+	extern char etext;
+	char *text_start = &etext;
 #endif
-	char *text_end = &__etext;
+
+#if defined(__APPLE__)
+	extern void *get_edata(void);
+	char *text_end = get_edata();
+#else
+	extern char edata;
+	char *text_end = &edata;
+#endif
 	static char *text = NULL;
 	const size_t text_len = text_end - text_start;
 
