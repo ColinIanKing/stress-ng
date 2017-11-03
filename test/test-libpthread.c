@@ -28,7 +28,6 @@
 /* The following functions from libpthread are used by stress-ng */
 
 static void *pthread_funcs[] = {
-#if defined(__linux__)
 	(void *)sem_init,
 	(void *)sem_destroy,
 	(void *)sem_post,
@@ -41,7 +40,10 @@ static void *pthread_funcs[] = {
 	(void *)pthread_cond_broadcast,
 	(void *)pthread_cond_destroy,
 	(void *)pthread_mutex_destroy,
-#endif
+	(void *)pthread_spin_lock,
+	(void *)pthread_spin_unlock,
+	(void *)pthread_spin_init,
+	(void *)pthread_spin_destroy,
 };
 
 int main(void)
