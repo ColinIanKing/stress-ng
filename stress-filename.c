@@ -92,6 +92,10 @@ static int stress_filename_probe(
 
 		if ((i == 0) || (i == '/'))
 			continue;
+#if defined(__APPLE__)
+		if (i == ':')
+			continue;
+#endif
 		*ptr = i;
 		*(ptr + 1) = 'X';
 		*(ptr + 2) = '\0';
