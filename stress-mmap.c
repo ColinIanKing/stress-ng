@@ -46,6 +46,12 @@ static const int mmap_flags[] = {
 #if defined(MAP_32BIT) && (defined(__x86_64__) || defined(__x86_64))
 	MAP_32BIT,
 #endif
+#if defined(MAP_NOCACHE)	/* Mac OS X */
+	MAP_NOCACHE,
+#endif
+#if defined(MAP_HASSEMAPHORE)	/* Mac OS X */
+	MAP_HASSEMAPHORE,
+#endif
 /* This will segv if no backing, so don't use it for now */
 #if 0 && defined(MAP_NORESERVE)
 	MAP_NORESERVE,
