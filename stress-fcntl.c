@@ -24,40 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__minix__)
-/*
- *  fd_available()
- *	return true if a fd is not being used
- */
-static inline bool fd_available(const int fd)
-{
-	const int ret  = fcntl(fd, F_GETFD);
-
-	return ((ret == -1) && (errno == EBADF));
-}
-
-#if defined(F_DUPFD) || \
-    defined(F_DUPFD_CLOEXEC)
-/*
- *  fd_get()
- *	find a free fd to dup onto
- */
-static int fd_get(void)
-{
-	int i;
-
-	for (i = 0; i < 256; i++) {
-		int fd = mwc32() & 1023;
-
-		if (fd_available(fd))
-			return fd;
-	}
-	return -1;	/* unlikely */
-}
-#endif
-
-#endif
-
 #if defined(F_DUPFD) || 	\
     defined(F_DUPFD_CLOEXEC) || \
     defined(F_GETFD) ||		\
@@ -102,27 +68,23 @@ static int do_fcntl(const args_t *args, const int fd)
 {
 #if defined(F_DUPFD) && !defined(__minix__)
 	{
-		int ret, fd2 = fd_get();
+		int ret;
 
-		if (fd2 != -1) {
-			ret = fcntl(fd, F_DUPFD, fd2);
-			check_return(args, ret, "F_DUPFD");
-			if (ret > -1)
-				(void)close(ret);
-		}
+		ret = fcntl(fd, F_DUPFD, 0);
+		check_return(args, ret, "F_DUPFD");
+		if (ret > -1)
+			(void)close(ret);
 	}
 #endif
 
 #if defined(F_DUPFD_CLOEXEC) && !defined(__minix__)
 	{
-		int ret, fd2 = fd_get();
+		int ret;
 
-		if (fd2 != -1) {
-			ret = fcntl(fd, F_DUPFD_CLOEXEC, mwc8());
-			check_return(args, ret, "F_DUPFD_CLOEXEC");
-			if (ret > -1)
-				(void)close(ret);
-		}
+		ret = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+		check_return(args, ret, "F_DUPFD_CLOEXEC");
+		if (ret > -1)
+			(void)close(ret);
 	}
 #endif
 
