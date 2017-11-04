@@ -493,7 +493,7 @@ int stress_fcntl(const args_t *args)
 	} while (g_keep_stressing_flag && ++retries < 100);
 
 	if (retries >= 100) {
-		pr_err("%s: chmod: file %s took %d "
+		pr_err("%s: creat: file %s took %d "
 			"retries to create (instance %" PRIu32 ")\n",
 			args->name, filename, retries, args->instance);
 		goto tidy;
