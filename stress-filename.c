@@ -222,7 +222,11 @@ int stress_filename (const args_t *args)
 	char *ptr;
 	struct statvfs buf;
 	size_t i, chars_allowed = 0, sz;
+#if defined(__APPLE__)
+	uint8_t filename_opt = STRESS_FILENAME_POSIX;
+#else
 	uint8_t filename_opt = STRESS_FILENAME_PROBE;
+#endif
 
 	(void)get_setting("filename-opts", &filename_opt);
 
