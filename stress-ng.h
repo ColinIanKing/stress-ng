@@ -71,7 +71,7 @@
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <sys/resource.h>
-#if defined (__linux__)
+#if defined(__linux__)
 #include <sys/mount.h>
 #include <sys/syscall.h>
 #include <sys/quota.h>
@@ -80,6 +80,9 @@
 #include <linux/fs.h>
 #include <linux/fiemap.h>
 #include <linux/posix_types.h>
+#endif
+#if defined(__APPLE_)
+#include <sys/random.h>
 #endif
 #if defined(HAVE_SEM_SYSV)
 #include <sys/ipc.h>

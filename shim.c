@@ -250,7 +250,7 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
 #if defined(__linux__) && defined(__NR_getrandom)
 	return syscall(__NR_getrandom, buff, buflen, flags);
-#elif defined(__OpenBSD__)
+#elif defined(__OpenBSD__) || defined(__APPLE__)
 	(void)flags;
 
 	return getentropy(buff, buflen);
