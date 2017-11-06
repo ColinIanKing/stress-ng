@@ -62,6 +62,19 @@ static void stress_inode_flags_ioctl(
 }
 
 /*
+ *  stress_inode_flags_ioctl_sane()
+ *	set flags to a sane state so that file can be removed
+ */
+static inline void stress_inode_flags_ioctl_sane(const int fd)
+{
+	int ret;
+	const int flag = 0;
+
+	ret = ioctl(fd, FS_IOC_SETFLAGS, &flag);
+	(void)ret;
+}
+
+/*
  *  stress_inode_flags_stressor()
  *	exercise inode flags, see man ioctl_flags for
  *	more details of these flags. Some are never going
@@ -111,7 +124,6 @@ static void stress_inode_flags_stressor(
 #if defined(FS_TOPDIR_FL)
 		stress_inode_flags_ioctl(args, fddir, FS_TOPDIR_FL);
 #endif
-
 #if defined(FS_APPEND_LF)
 		stress_inode_flags_ioctl(args, fdfile, FS_APPEND_FL);
 #endif
@@ -151,7 +163,9 @@ static void stress_inode_flags_stressor(
 			ret = pthread_spin_unlock(&spinlock);
 			(void)ret;
 		}
+		stress_inode_flags_ioctl_sane(fdfile);
 	}
+	stress_inode_flags_ioctl_sane(fdfile);
 	(void)close(fdfile);
 	(void)close(fddir);
 }
