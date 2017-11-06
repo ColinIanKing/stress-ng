@@ -52,17 +52,9 @@ static void stress_inode_flags_ioctl(
 	if (ret != 0)
 		return;
 
-	ret = pthread_spin_lock(&spinlock);
-	if (!ret) {
-		inc_counter(args);
-		ret = pthread_spin_unlock(&spinlock);
-		(void)ret;
-	}
-
 	attr |= flag;
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
-	if (ret != 0)
-		return;
+	(void)ret;
 
 	attr &= ~flag;
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
@@ -104,6 +96,8 @@ static void stress_inode_flags_stressor(
 	}
 
 	while (keep_running && keep_stressing()) {
+		int ret;
+
 		stress_inode_flags_ioctl(args, fddir, 0);
 #if defined(FS_DIRSYNC_FL)
 		stress_inode_flags_ioctl(args, fddir, FS_DIRSYNC_FL);
@@ -151,6 +145,12 @@ static void stress_inode_flags_stressor(
 #if defined(FS_UNRM_FL)
 		stress_inode_flags_ioctl(args, fdfile, FS_UNRM_FL);
 #endif
+		ret = pthread_spin_lock(&spinlock);
+		if (!ret) {
+			inc_counter(args);
+			ret = pthread_spin_unlock(&spinlock);
+			(void)ret;
+		}
 	}
 	(void)close(fdfile);
 	(void)close(fddir);
