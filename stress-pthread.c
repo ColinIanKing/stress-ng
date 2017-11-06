@@ -32,7 +32,7 @@
 
 static pthread_cond_t cond;
 static pthread_mutex_t mutex;
-static pthread_spinlock_t spinlock;
+static shim_pthread_spinlock_t spinlock;
 static bool thread_terminate;
 static uint64_t pthread_count;
 static sigset_t set;
@@ -111,13 +111,13 @@ static void *stress_pthread_func(void *parg)
 	/*
 	 *  Bump count of running threads
 	 */
-	ret = pthread_spin_lock(&spinlock);
+	ret = shim_pthread_spin_lock(&spinlock);
 	if (ret) {
 		pr_fail_errno("spinlock lock", ret);
 		goto die;
 	}
 	pthread_count++;
-	ret = pthread_spin_unlock(&spinlock);
+	ret = shim_pthread_spin_unlock(&spinlock);
 	if (ret) {
 		pr_fail_errno("spin unlock", ret);
 		goto die;
@@ -182,7 +182,7 @@ int stress_pthread(const args_t *args)
 		pr_fail_errno("pthread_cond_init", ret);
 		return EXIT_FAILURE;
 	}
-	ret = pthread_spin_init(&spinlock, 0);
+	ret = shim_pthread_spin_init(&spinlock, 0);
 	if (ret) {
 		pr_fail_errno("pthread_spin_init", ret);
 		return EXIT_FAILURE;
@@ -284,7 +284,7 @@ reap:
 
 	(void)pthread_cond_destroy(&cond);
 	(void)pthread_mutex_destroy(&mutex);
-	(void)pthread_spin_destroy(&spinlock);
+	(void)shim_pthread_spin_destroy(&spinlock);
 
 	return EXIT_SUCCESS;
 }

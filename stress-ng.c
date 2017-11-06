@@ -3776,10 +3776,10 @@ int main(int argc, char **argv)
 	 *  Setup spinlocks
 	 */
 #if defined(STRESS_PERF_STATS)
-	pthread_spin_init(&g_shared->perf.lock, 0);
+	shim_pthread_spin_init(&g_shared->perf.lock, 0);
 #endif
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_init(&g_shared->warn_once.lock, 0);
+	shim_pthread_spin_init(&g_shared->warn_once.lock, 0);
 #endif
 
 	/*

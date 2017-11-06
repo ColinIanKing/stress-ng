@@ -22,24 +22,15 @@
  * functionality.
  *
  */
-#include <semaphore.h>
 #include <pthread.h>
 
 /* The following functions from libpthread are used by stress-ng */
 
 static void *pthread_funcs[] = {
-	(void *)sem_init,
-	(void *)sem_destroy,
-	(void *)sem_post,
-	(void *)sem_timedwait,
-	(void *)pthread_create,
-	(void *)pthread_join,
-	(void *)pthread_mutex_lock,
-	(void *)pthread_mutex_unlock,
-	(void *)pthread_cond_wait,
-	(void *)pthread_cond_broadcast,
-	(void *)pthread_cond_destroy,
-	(void *)pthread_mutex_destroy,
+	(void *)pthread_spin_lock,
+	(void *)pthread_spin_unlock,
+	(void *)pthread_spin_init,
+	(void *)pthread_spin_destroy,
 };
 
 int main(void)

@@ -1005,6 +1005,24 @@ static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 	(*(args->counter))++;
 }
 
+#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_LIB_PTHREAD_SPINLOCK)
+typedef pthread_spinlock_t 	shim_pthread_spinlock_t;
+
+#define shim_pthread_spin_lock(lock)		pthread_spin_lock(lock)
+#define shim_pthread_spin_unlock(lock)		pthread_spin_unlock(lock)
+#define shim_pthread_spin_init(lock, shared)	pthread_spin_init(lock, shared)
+#define shim_pthread_spin_destroy(lock)		pthread_spin_destroy(lock)
+#else
+typedef pthread_mutex_t		shim_pthread_spinlock_t;
+
+#define shim_pthread_spin_lock(lock)		pthread_mutex_lock(lock)
+#define shim_pthread_spin_unlock(lock)		pthread_mutex_unlock(lock)
+#define shim_pthread_spin_init(lock, shared)	pthread_mutex_init(lock, shared)
+#define shim_pthread_spin_destroy(lock)		pthread_mutex_destroy(lock)
+#endif
+#endif
+
 /* stress process prototype */
 typedef int (*stress_func_t)(const args_t *args);
 
@@ -1085,7 +1103,7 @@ typedef struct {
 	struct {
 		uint32_t	flags;			/* flag bits */
 #if defined(HAVE_LIB_PTHREAD)
-		pthread_spinlock_t lock;		/* protection lock */
+		shim_pthread_spinlock_t lock;		/* protection lock */
 #endif
 	} warn_once;
 	uint32_t warn_once_flags;			/* Warn once flags */
@@ -1114,7 +1132,7 @@ typedef struct {
 #if defined(STRESS_PERF_STATS)
 	struct {
 		bool no_perf;				/* true = Perf not available */
-		pthread_spinlock_t lock;		/* spinlock on no_perf updates */
+		shim_pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf;
 #endif
 #if defined(STRESS_THERMAL_ZONES)

@@ -32,7 +32,7 @@
 
 static volatile bool keep_running;
 static sigset_t set;
-static pthread_spinlock_t spinlock;
+static shim_pthread_spinlock_t spinlock;
 
 /*
  *  stress_inode_flags_ioctl()
@@ -157,10 +157,10 @@ static void stress_inode_flags_stressor(
 #if defined(FS_UNRM_FL)
 		stress_inode_flags_ioctl(args, fdfile, FS_UNRM_FL);
 #endif
-		ret = pthread_spin_lock(&spinlock);
+		ret = shim_pthread_spin_lock(&spinlock);
 		if (!ret) {
 			inc_counter(args);
-			ret = pthread_spin_unlock(&spinlock);
+			ret = shim_pthread_spin_unlock(&spinlock);
 			(void)ret;
 		}
 		stress_inode_flags_ioctl_sane(fdfile);
@@ -214,7 +214,7 @@ int stress_inode_flags(const args_t *args)
 	int rc, ret[MAX_INODE_FLAG_THREADS];
 	pthread_args_t pa;
 
-	rc = pthread_spin_init(&spinlock, 0);
+	rc = shim_pthread_spin_init(&spinlock, 0);
         if (rc) {
                 pr_fail_errno("pthread_spin_init", rc);
                 return EXIT_FAILURE;
@@ -248,7 +248,7 @@ int stress_inode_flags(const args_t *args)
 			pthread_join(pthreads[i], NULL);
 	}
 
-	(void)pthread_spin_destroy(&spinlock);
+	(void)shim_pthread_spin_destroy(&spinlock);
 	(void)unlink(filename);
 	stress_temp_dir_rm_args(args);
 
