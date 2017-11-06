@@ -26,7 +26,6 @@
 
 #include <strings.h>
 #if defined(HAVE_LIB_BSD)
-#include <bsd/string.h>
 #define HAVE_STRLCPY
 #define HAVE_STRLCAT
 #elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)

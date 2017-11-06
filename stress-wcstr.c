@@ -27,7 +27,6 @@
 
 #include <wchar.h>
 #if defined(HAVE_LIB_BSD)
-#include <bsd/wchar.h>
 #define HAVE_WCSLCAT
 #define HAVE_WCSLCPY
 #define HAVE_WCSNCASECMP

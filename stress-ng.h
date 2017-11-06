@@ -58,6 +58,11 @@
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
+#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+#include <bsd/stdlib.h>
+#include <bsd/string.h>
+#include <bsd/wchar.h>
+#endif
 #include <signal.h>
 #include <time.h>
 #include <sys/file.h>

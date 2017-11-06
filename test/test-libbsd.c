@@ -23,7 +23,10 @@
  *
  */
 #include <string.h>
+#include <stdlib.h>
+#if !defined(__APPLE__)
 #include <bsd/stdlib.h>
+#endif
 
 static int intcmp(const void *p1, const void *p2)
 {

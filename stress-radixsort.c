@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if HAVE_LIB_BSD 
-#include <bsd/stdlib.h>
 
 #define STR_SIZE	(8)
 

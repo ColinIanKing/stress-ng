@@ -25,8 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_BSD)
-#include <bsd/stdlib.h>
-
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
