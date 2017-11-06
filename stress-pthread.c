@@ -138,9 +138,7 @@ static void *stress_pthread_func(void *parg)
 			pr_fail_errno("pthread condition wait", ret);
 			break;
 		}
-#if !defined(__NetBSD__) && !defined(__sun__)
-		(void)pthread_yield();
-#endif
+		(void)shim_sched_yield();
 	}
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret)
