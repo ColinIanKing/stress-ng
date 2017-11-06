@@ -2396,12 +2396,12 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 	uint32_t tmp;
 
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_lock(&g_shared->warn_once.lock);
+	shim_pthread_spin_lock(&g_shared->warn_once.lock);
 #endif
 	tmp = !(g_shared->warn_once.flags & flag);
 	g_shared->warn_once.flags |= flag;
 #if defined(HAVE_LIB_PTHREAD)
-	pthread_spin_unlock(&g_shared->warn_once.lock);
+	shim_pthread_spin_unlock(&g_shared->warn_once.lock);
 #endif
 	return tmp;
 }
