@@ -185,11 +185,11 @@ again:
 					break;
 				case 2:
 					/* Trigger RLIMIT_DATA */
-					oldbrk = sbrk(0);
+					oldbrk = shim_sbrk(0);
 					if (oldbrk != (void *)-1) {
-						ptr = sbrk(MAX_RLIMIT_DATA);
+						ptr = shim_sbrk(MAX_RLIMIT_DATA);
 						if (ptr != (void *)-1) {
-							int rc = brk(oldbrk);
+							int rc = shim_brk(oldbrk);
 
 							(void)rc;
 						}

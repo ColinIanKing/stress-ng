@@ -100,7 +100,7 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		start_ptr = sbrk(0);
+		start_ptr = shim_sbrk(0);
 		if (start_ptr == (void *) -1) {
 			pr_fail_err("sbrk(0)");
 			exit(EXIT_FAILURE);
@@ -112,17 +112,17 @@ again:
 			i++;
 			if (i > 8) {
 				i = 0;
-				ptr = sbrk(0);
+				ptr = shim_sbrk(0);
 				ptr -= page_size;
-				if (brk(ptr) < 0)
+				if (shim_brk(ptr) < 0)
 					ptr = (void *)-1;
 			} else {
-				ptr = sbrk((intptr_t)page_size);
+				ptr = shim_sbrk((intptr_t)page_size);
 			}
 			if (ptr == (void *)-1) {
 				if ((errno == ENOMEM) || (errno == EAGAIN)) {
 					nomems++;
-					if (brk(start_ptr) < 0) {
+					if (shim_brk(start_ptr) < 0) {
 						pr_err("%s: brk(%p) failed: errno=%d (%s)\n",
 							args->name, start_ptr, errno,
 							strerror(errno));

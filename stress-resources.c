@@ -148,7 +148,7 @@ static void NORETURN waste_resources(
 				break;
 		}
 		if (!(mwc32() & 0xf)) {
-			info[i].m_sbrk = sbrk(page_size);
+			info[i].m_sbrk = shim_sbrk(page_size);
 			if (!g_keep_stressing_flag)
 				break;
 		}

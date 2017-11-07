@@ -92,7 +92,7 @@ again:
 			}
 		}
 	} else if (pid == 0) {
-		char *start_ptr = sbrk(0);
+		char *start_ptr = shim_sbrk(0);
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
