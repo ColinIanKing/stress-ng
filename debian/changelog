@@ -1,3 +1,33 @@
+stress-ng (0.09.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update contributors names and date
+  * README: update, add OS X instructions and add clean rule
+  * shim: cast to int for brk for __APPLE__
+  * stress-ng.h: fix missing _ off __APPLE_ macro name
+  * Use shim_sbrk and shim_brk wrappers
+  * Add shim for brk and sbrk
+  * stress-pthread: use shim_sched_yield instead if pthread_yield
+  * stress-ng.h: use shim spinlock in warn_once inline helper
+  * pthreads: shim spinlocks so we can use mutex if not available
+  * Makefile.config: add missing (
+  * Make BSD library more flexible, especially with __APPLE__ arch
+  * stress-inode-flags: reset flags to zero at end of loop (LP: #1730297)
+  * stress-inode-flags: move counter to bump once per loop iteration
+  * stress-random: enable random stressor for __APPLE__ arch
+  * stress-filename: default to POSIX filename chars for __APPLE__
+  * stress-filename: OS X can't have ':' in filenames
+  * stress-fcntl: fix up incorrect name of failed system call
+  * stress-fcntl: remove need for 2nd fd in F_DUPFD
+  * stress-mmap: add MAC OS X mmap flags
+  * stress-schedpolicy: disable this for __APPLE__ arch
+  * sched: detect __APPLE__ and don't used sched funcs for this arch
+  * stress-zlib: correct text start/end for all OS choices
+  * test/test-libpthread: ensure we check all pthread functionality
+  * Update README.Android notes
+
+ -- Colin King <colin.king@canonical.com>  Tue, 7 Nov 2017 14:54:23 +0000
+
 stress-ng (0.09.01-1) unstable; urgency=medium
 
   * Makefile: bump version
