@@ -86,7 +86,7 @@
 #include <linux/fiemap.h>
 #include <linux/posix_types.h>
 #endif
-#if defined(__APPLE_)
+#if defined(__APPLE__)
 #include <sys/random.h>
 #endif
 #if defined(HAVE_SEM_SYSV)
