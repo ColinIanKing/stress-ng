@@ -992,7 +992,11 @@ int shim_ioprio_get(int which, int who)
  */
 int shim_brk(void *addr)
 {
+#if defined(__APPLE__)
+	return (int)brk(addr);
+#else
 	return brk(addr);
+#endif
 }
 
 /*
