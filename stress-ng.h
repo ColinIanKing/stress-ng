@@ -2721,7 +2721,8 @@ extern int shim_futex_wake(const void *futex, const int n);
 extern int shim_futex_wait(const void *futex, const int val, const struct timespec *timeout);
 extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_sync_file_range(int fd, shim_off64_t offset, shim_off64_t nbytes, unsigned int flags);
-
+extern int shim_brk(void *addr);
+extern void *shim_sbrk(intptr_t increment);
 
 #define STRESS(func) extern int func(const args_t *args)
 

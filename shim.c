@@ -985,3 +985,21 @@ int shim_ioprio_get(int which, int who)
 	return -1;
 #endif
 }
+
+/*
+ *   shim_brk()
+ *	brk system call shim
+ */
+int shim_brk(void *addr)
+{
+	return brk(addr);
+}
+
+/*
+ *   shim_sbrk()
+ *	sbrk system call shim
+ */
+void *shim_sbrk(intptr_t increment)
+{
+	return sbrk(increment);
+}
