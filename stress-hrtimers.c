@@ -189,7 +189,7 @@ int stress_hrtimers(const args_t *args)
 
 reap:
 	for (i = 0; i < PROCS_MAX; i++) {
-		if (pids[i] >= 0) {
+		if (pids[i] > 0) {
 			int status, ret;
 
 			(void)kill(pids[i], SIGALRM);
