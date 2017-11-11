@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #include <getopt.h>
-#include <semaphore.h>
 #include <syslog.h>
 
 #if defined(__linux__)
