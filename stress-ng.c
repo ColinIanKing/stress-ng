@@ -89,6 +89,7 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
 	{ STRESS_CHROOT,	stress_chroot_supported },
 	{ STRESS_CYCLIC,	stress_cyclic_supported },
+	{ STRESS_EXEC,		stress_exec_supported },
 	{ STRESS_FANOTIFY,	stress_fanotify_supported },
 	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
 	{ STRESS_IOPORT,	stress_ioport_supported },

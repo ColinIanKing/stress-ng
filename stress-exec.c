@@ -25,6 +25,24 @@
 #include "stress-ng.h"
 
 /*
+ *  stress_exec_supported()
+ *      check that we don't run this as root
+ */
+int stress_exec_supported(void)
+{
+	/*
+	 *  Don't want to run this when running as root as
+	 *  this could allow somebody to try and run another
+	 *  executable as root.
+	 */
+        if (geteuid() == 0) {
+		pr_inf("exec stressor must not run as root, skipping the stressor\n");
+                return -1;
+        }
+        return 0;
+}
+
+/*
  *  stress_set_exec_max()
  *	set maximum number of forks allowed
  */
@@ -55,16 +73,6 @@ int stress_exec(const args_t *args)
 	char *env_new[] = { NULL };
 
 	(void)get_setting("exec-max", &exec_max);
-
-	/*
-	 *  Don't want to run this when running as root as
-	 *  this could allow somebody to try and run another
-	 *  executable as root.
-	 */
-	if (geteuid() == 0) {
-		pr_inf("%s: running as root, won't run test.\n", args->name);
-		return EXIT_FAILURE;
-	}
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng

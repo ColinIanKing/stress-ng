@@ -2461,6 +2461,7 @@ extern void thrash_stop(void);
 extern int stress_apparmor_supported(void);
 extern int stress_chroot_supported(void);
 extern int stress_cyclic_supported(void);
+extern int stress_exec_supported(void);
 extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
 extern int stress_ioport_supported(void);
