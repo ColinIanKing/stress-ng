@@ -160,7 +160,7 @@ int stress_fanotify(const args_t *args)
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
-			n = write(fd, "foo", 3);
+			n = write(fd, "test", 4);
 			(void)n;
 			(void)close(fd);
 
