@@ -610,7 +610,7 @@ void stress_cwd_readwriteable(void)
 	char path[PATH_MAX];
 
 	if (getcwd(path, sizeof(path)) == NULL) {
-		pr_dbg("Cannot determine current working directory\n");
+		pr_dbg("cwd: Cannot determine current working directory\n");
 		return;
 	}
 	if (access(path, R_OK | W_OK)) {

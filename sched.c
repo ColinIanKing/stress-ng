@@ -119,7 +119,7 @@ int stress_set_sched(
 			return -EINVAL;
 		}
 		if (!quiet)
-			pr_dbg("setting scheduler class '%s', priority %d\n",
+			pr_dbg("sched: setting scheduler class '%s', priority %d\n",
 				name, param.sched_priority);
 		break;
 #endif
@@ -150,7 +150,7 @@ int stress_set_sched(
 			return -EINVAL;
 		}
 		if (!quiet)
-			pr_dbg("setting scheduler class '%s'\n",
+			pr_dbg("sched: setting scheduler class '%s'\n",
 				name);
 		attr.sched_runtime = 10000;
 		attr.sched_deadline = 100000;
@@ -174,7 +174,7 @@ int stress_set_sched(
 				pr_inf("ignoring priority level for "
 					"scheduler class '%s'\n", name);
 		if (!quiet)
-			pr_dbg("setting scheduler class '%s'\n", name);
+			pr_dbg("sched: setting scheduler class '%s'\n", name);
 		break;
 	}
 	rc = sched_setscheduler(pid, sched, &param);

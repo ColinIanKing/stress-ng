@@ -106,7 +106,7 @@ void ignite_cpu_start(void)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_dbg("failed to start ignite cpu daemon, "
+		pr_dbg("ignite-cpu: failed to start ignite cpu daemon, "
 			"errno=%d (%s)\n", errno, strerror(errno));
 		return;
 	} else if (pid == 0) {

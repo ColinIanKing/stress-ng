@@ -1817,7 +1817,7 @@ static size_t stress_vm_rowhammer(
 	(void)max_ops;
 
 	if (!n) {
-		pr_dbg("rowhammer: zero uint32_t integers could "
+		pr_dbg("stress-vm: rowhammer: zero uint32_t integers could "
 			"be hammered, aborting\n");
 		return 0;
 	}
@@ -1855,7 +1855,7 @@ static size_t stress_vm_rowhammer(
 			errors++;
 	if (errors) {
 		bit_errors += errors;
-		pr_dbg("rowhammer: %zu errors on addresses "
+		pr_dbg("stress-vm: rowhammer: %zu errors on addresses "
 			"%p and %p\n", errors, addr0, addr1);
 	}
 	(*counter) += VM_ROWHAMMER_LOOPS;

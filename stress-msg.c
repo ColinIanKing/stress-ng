@@ -76,7 +76,7 @@ int stress_msg(const args_t *args)
 		pr_fail_dbg("msgget");
 		return exit_status(errno);
 	}
-	pr_dbg("System V message queue created, id: %d\n", msgq_id);
+	pr_dbg("%s: System V message queue created, id: %d\n", args->name, msgq_id);
 
 again:
 	pid = fork();
@@ -142,7 +142,7 @@ again:
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
 			pr_fail_dbg("msgctl");
 		else
-			pr_dbg("System V message queue deleted, id: %d\n", msgq_id);
+			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
 	}
 	return EXIT_SUCCESS;
 }
