@@ -2148,6 +2148,15 @@ system call. (Linux only).
 .B \-\-personality\-ops N
 stop personality stress workers after N bogo personality operations.
 .TP
+.B \-\-physpage N
+start N workers that use /proc/self/pagemap and /proc/kpagecount to determine
+the physical page and page count of a virtual mapped page and a page that is
+shared among all the stressors. Linux only and must be run with CAP_SYS_ADMIN
+capabilities.
+.TP
+.B \-\-physpage\-ops N
+stop physpage stress workers after N bogo physical address lookups.
+.TP
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O.
 This exercises memory write and reads as well as context switching.  Each

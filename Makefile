@@ -156,6 +156,7 @@ STRESS_SRC = \
 	stress-opcode.c \
 	stress-open.c \
 	stress-personality.c \
+	stress-physpage.c \
 	stress-pipe.c \
 	stress-poll.c \
 	stress-procfs.c \

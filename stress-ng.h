@@ -1260,6 +1260,7 @@ typedef enum {
 	STRESS_OPCODE,
 	STRESS_OPEN,
 	STRESS_PERSONALITY,
+	STRESS_PHYSPAGE,
 	STRESS_PIPE,
 	STRESS_POLL,
 	STRESS_PROCFS,
@@ -1778,6 +1779,9 @@ typedef enum {
 	OPT_NUMA_OPS,
 
 	OPT_OOMABLE,
+
+	OPT_PHYSPAGE,
+	OPT_PHYSPAGE_OPS,
 
 	OPT_OOM_PIPE,
 	OPT_OOM_PIPE_OPS,
@@ -2466,6 +2470,7 @@ extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
 extern int stress_ioport_supported(void);
 extern int stress_netlink_proc_supported(void);
+extern int stress_physpage_supported(void);
 extern int stress_rdrand_supported(void);
 extern int stress_softlockup_supported(void);
 extern int stress_swap_supported(void);
@@ -2835,6 +2840,7 @@ STRESS(stress_oom_pipe);
 STRESS(stress_opcode);
 STRESS(stress_open);
 STRESS(stress_personality);
+STRESS(stress_physpage);
 STRESS(stress_pipe);
 STRESS(stress_poll);
 STRESS(stress_procfs);
