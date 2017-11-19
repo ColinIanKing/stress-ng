@@ -24,11 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-
-#define PAGE_PRESENT	(1ULL << 63)
-#define PFN_MASK	((1ULL << 54) - 1)
-
 /*
  *  stress_physpage_supported()
  *      check if we can run this as root
@@ -41,6 +36,11 @@ int stress_physpage_supported(void)
         }
         return 0;
 }
+
+#if defined(__linux__)
+
+#define PAGE_PRESENT	(1ULL << 63)
+#define PFN_MASK	((1ULL << 54) - 1)
 
 static int stress_virt_to_phys(
 	const args_t *args,
