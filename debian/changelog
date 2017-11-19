@@ -1,3 +1,18 @@
+stress-ng (0.09.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-physpage: move unsupported function
+  * Add new physpage stressor
+  * Manual: add more notes on the OOM behaviour of the stack stressor
+  * Add in stressor name or core context as prefix in pr_dbg messages
+  * stress-fanotify: write "test" rather than "foo"
+  * stress-exec: don't allow this to run as root, skip rather than fail
+  * stress-ng: remove semaphore.h, it is in stress-ng.h already
+  * stress-hrtimers: don't kill pid 0
+
+ -- Colin King <colin.king@canonical.com>  Sun, 19 Nov 2017 16:01:11 +0000
+
 stress-ng (0.09.02-1) unstable; urgency=medium
 
   * Makefile: bump version
