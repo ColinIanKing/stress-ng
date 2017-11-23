@@ -153,12 +153,13 @@ int stress_open(const args_t *args)
 {
 	int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
-	size_t i;
 
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd = SIZEOF_ARRAY(fds);
 
 	do {
+		size_t i, n;
+
 		for (i = 0; i < max_fd; i++) {
 			int idx = mwc32() % SIZEOF_ARRAY(open_funcs);
 
@@ -170,7 +171,9 @@ int stress_open(const args_t *args)
 				break;
 			inc_counter(args);
 		}
-		for (i = 0; i < max_fd; i++) {
+		n = i;
+
+		for (i = 0; i < n; i++) {
 			if (fds[i] < 0)
 				break;
 			(void)close(fds[i]);
