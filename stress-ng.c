@@ -480,6 +480,7 @@ static const struct option long_options[] = {
 	{ "cpu-method",	1,	0,	OPT_CPU_METHOD },
 	{ "cpu-online",	1,	0,	OPT_CPU_ONLINE },
 	{ "cpu-online-ops",1,	0,	OPT_CPU_ONLINE_OPS },
+	{ "cpu-online-all", 0,	0,	OPT_CPU_ONLINE_ALL },
 	{ "crypt",	1,	0,	OPT_CRYPT },
 	{ "crypt-ops",	1,	0,	OPT_CRYPT_OPS },
 	{ "cyclic",	1,	0,	OPT_CYCLIC },
@@ -2949,6 +2950,9 @@ next_opt:
 			break;
 		case OPT_CPU_LOAD_SLICE:
 			stress_set_cpu_load_slice(optarg);
+			break;
+		case OPT_CPU_ONLINE_ALL:
+			g_opt_flags |= OPT_FLAGS_CPU_ONLINE_ALL;
 			break;
 		case OPT_CPU_METHOD:
 			if (stress_set_cpu_method(optarg) < 0)

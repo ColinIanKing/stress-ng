@@ -944,7 +944,13 @@ mixes found in these use cases.
 .TP
 .B \-\-cpu\-online N
 start N workers that put randomly selected CPUs offline and online. This Linux
-only stressor requires root privilege to perform this action.
+only stressor requires root privilege to perform this action. By default the
+first CPU (CPU 0) is never offlined as this has been found to be problematic
+on some systems and can result in a shutdown.
+.TP
+.B \-\-cpu\-online\-all
+The default is to never offline the first CPU.  This option will offline and
+online all the CPUs include CPU 0. This may cause some systems to shutdown.
 .TP
 .B \-\-cpu\-online\-ops N
 stop after offline/online operations.

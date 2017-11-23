@@ -104,11 +104,25 @@ int stress_cpu_online(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	if ((args->instance == 0) &&
+	    (g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL)) {
+		pr_inf("%s: exercising all %" PRId32 " cpus\n",
+			args->name, cpu_online_count);
+	}
+
+
 	/*
 	 *  Now randomly offline/online them all
 	 */
 	do {
 		unsigned long cpu = mwc32() % cpus;
+
+		/*
+		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL
+		 * --cpu-online-all has been enabled
+		 */
+		if ((cpu == 0) && !(g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL))
+			continue;
 		if (cpu_online[cpu]) {
 			rc = stress_cpu_online_set(args, cpu, 0);
 			if (rc != EXIT_SUCCESS)

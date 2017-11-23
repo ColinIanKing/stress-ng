@@ -262,6 +262,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_THRASH	 0x04000000000000ULL	/* --thrash */
 #define OPT_FLAGS_OOMABLE	 0x08000000000000ULL	/* --oomable */
 #define OPT_FLAGS_ABORT		 0x10000000000000ULL	/* --abort */
+#define OPT_FLAGS_CPU_ONLINE_ALL 0x20000000000000ULL	/* --cpu-online-all */
 
 #define OPT_FLAGS_CACHE_MASK		\
 	(OPT_FLAGS_CACHE_FLUSH |	\
@@ -1471,6 +1472,7 @@ typedef enum {
 
 	OPT_CPU_ONLINE,
 	OPT_CPU_ONLINE_OPS,
+	OPT_CPU_ONLINE_ALL,
 
 	OPT_CRYPT,
 	OPT_CRYPT_OPS,
