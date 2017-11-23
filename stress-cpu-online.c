@@ -103,11 +103,20 @@ int stress_cpu_online(const args_t *args)
 		free(cpu_online);
 		return EXIT_FAILURE;
 	}
+	if ((args->num_instances > 1) &&
+	    (g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL)) {
+		if (args->instance == 0) {
+			pr_inf("%s: disabling --cpu-online-all option because "
+			       "more than 1 %s stressor is being invoked\n",
+				args->name, args->name);
+		}
+		g_opt_flags &= ~OPT_FLAGS_CPU_ONLINE_ALL;
+	}
 
 	if ((args->instance == 0) &&
 	    (g_opt_flags & OPT_FLAGS_CPU_ONLINE_ALL)) {
 		pr_inf("%s: exercising all %" PRId32 " cpus\n",
-			args->name, cpu_online_count);
+			args->name, cpu_online_count + 1);
 	}
 
 
