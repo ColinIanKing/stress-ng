@@ -125,10 +125,15 @@ vfork_again:
 			}
 			inc_counter(args);
 			instance++;
-			if (first)
+			if (first) {
 				pid = fork();
-			else
+			} else {
+#if defined(__NR_vfork)
+				pid = (pid_t)syscall(__NR_vfork);
+#else
 				pid = vfork();
+#endif
+			}
 
 			if (pid < 0) {
 				/* failed, only exit of not the top parent */
