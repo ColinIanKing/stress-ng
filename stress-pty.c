@@ -55,7 +55,7 @@ void stress_set_pty_max(const char *opt)
 
 /*
  *  stress_pty
- *	stress pyt handling
+ *	stress pty handling
  */
 int stress_pty(const args_t *args)
 {
