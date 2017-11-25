@@ -66,7 +66,7 @@ func_name(const args_t *args)						\
 {									\
 	uint8_t *addr = (uint8_t *)icache_func;				\
 	const size_t ps = args->page_size;				\
-	void *page_addr = (void *)((uintptr_t)addr & ~(ps - 1));	\
+	const void *page_addr = (void *)((uintptr_t)addr & ~(ps - 1));	\
 									\
 	if (icache_madvise(args, addr, page_sz) < 0)			\
 		return EXIT_NO_RESOURCE;				\
