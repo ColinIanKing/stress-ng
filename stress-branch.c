@@ -44,7 +44,7 @@
  */
 int stress_branch(const args_t *args)
 {
-	static void *labels[] = {
+	static const void *labels[] = {
 		&&label0x00, &&label0x01, &&label0x02, &&label0x03,
 		&&label0x04, &&label0x05, &&label0x06, &&label0x07,
 		&&label0x08, &&label0x09, &&label0x0a, &&label0x0b,
