@@ -33,7 +33,7 @@
 int stress_flock(const args_t *args)
 {
 	int fd;
-	pid_t ppid = getppid();
+	const pid_t ppid = getppid();
 	char filename[PATH_MAX];
 	char dirname[PATH_MAX];
 
