@@ -91,9 +91,10 @@ static int stress_mergesort_cmp_2(const void *p1, const void *p2)
  */
 static int stress_mergesort_cmp_3(const void *p1, const void *p2)
 {
+	int r = ((int)mwc8() % 3) - 1;
+
 	(void)p1;
 	(void)p2;
-	int r = ((int)mwc8() % 3) - 1;
 
 	return r;
 }
