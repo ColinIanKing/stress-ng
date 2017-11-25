@@ -37,7 +37,7 @@
 
 typedef struct {
 	const char *name;
-        int advice;
+        const int advice;
 } stream_madvise_info_t;
 
 static const stream_madvise_info_t stream_madvise_info[] = {
