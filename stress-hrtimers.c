@@ -52,7 +52,7 @@ static void stress_hrtimers_set(struct itimerspec *timer)
  *  stress_hrtimers_keep_stressing()
  *      returns true if we can keep on running a stressor
  */
-bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
+static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
 {
         return (LIKELY(g_keep_stressing_flag) &&
                 LIKELY(!max_ops || ((*timer_counter) < max_ops)));
@@ -94,7 +94,7 @@ cancel:
  *  stress_hrtimer_process
  *	stress timer child process
  */
-int stress_hrtimer_process(const args_t *args, uint64_t *counter)
+static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 {
 	struct sigevent sev;
 	struct itimerspec timer;
