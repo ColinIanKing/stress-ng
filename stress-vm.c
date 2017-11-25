@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
 	const char *name;
-        int advice;
+        const int advice;
 } vm_madvise_info_t;
 
 static const stress_vm_method_info_t vm_methods[];
@@ -158,7 +158,7 @@ int stress_set_vm_madvise(const char *opt)
 #define ROR64(val) 				\
 {						\
 	uint64_t tmp = val;			\
-	uint64_t bit0 = (tmp & 1) << 63; 	\
+	const uint64_t bit0 = (tmp & 1) << 63; 	\
 	tmp >>= 1;				\
 	tmp |= bit0;				\
 	val = tmp;				\
@@ -167,7 +167,7 @@ int stress_set_vm_madvise(const char *opt)
 #define ROR8(val) 				\
 {						\
 	uint8_t tmp = val;			\
-	uint8_t bit0 = (tmp & 1) << 7; 		\
+	const uint8_t bit0 = (tmp & 1) << 7;	\
 	tmp >>= 1;				\
 	tmp |= bit0;				\
 	val = tmp;				\
