@@ -61,10 +61,10 @@
 
 typedef struct {
 	const char *opt;	/* User option */
-	int flag;		/* HDD_OPT_ flag */
-	int exclude;		/* Excluded HDD_OPT_ flags */
-	int advice;		/* posix_fadvise value */
-	int oflag;		/* open O_* flags */
+	const int flag;		/* HDD_OPT_ flag */
+	const int exclude;	/* Excluded HDD_OPT_ flags */
+	const int advice;	/* posix_fadvise value */
+	const int oflag;	/* open O_* flags */
 } hdd_opts_t;
 
 static const hdd_opts_t hdd_opts[] = {
@@ -156,7 +156,7 @@ void stress_set_hdd_write_size(const char *opt)
 static ssize_t stress_hdd_write(
 	const int fd,
 	uint8_t *buf,
-	size_t count,
+	const size_t count,
 	const uint64_t hdd_write_size,
 	const int hdd_flags)
 {
@@ -207,7 +207,7 @@ static ssize_t stress_hdd_write(
 static ssize_t stress_hdd_read(
 	const int fd,
 	uint8_t *buf,
-	size_t count,
+	const size_t count,
 	const uint64_t hdd_write_size,
 	const int hdd_flags)
 {
