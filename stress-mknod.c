@@ -48,7 +48,7 @@ static void stress_mknod_tidy(
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
-		uint64_t gray_code = (i >> 1) ^ i;
+		const uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), gray_code);
@@ -79,7 +79,7 @@ int stress_mknod(const args_t *args)
 
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
-			uint64_t gray_code = (i >> 1) ^ i;
+			const uint64_t gray_code = (i >> 1) ^ i;
 			int mode = modes[mwc32() % num_nodes];
 
 			(void)stress_temp_filename_args(args,
