@@ -27,8 +27,8 @@
 #if defined(HAVE_LIB_RT) && (_POSIX_C_SOURCE >= 199309L)
 
 typedef struct {
-	int	id;		/* Clock ID */
-	char 	*name;		/* Clock name */
+	const int 	id;		/* Clock ID */
+	const char 	*name;		/* Clock name */
 } clock_info_t;
 
 #define CLOCK_INFO(x)	{ x, #x }
@@ -89,7 +89,7 @@ static const int timers[] = {
  *  stress_clock_name()
  *	clock id to name
  */
-static char *stress_clock_name(int id)
+static const char *stress_clock_name(int id)
 {
 	size_t i;
 
