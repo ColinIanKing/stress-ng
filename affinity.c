@@ -72,7 +72,7 @@ int set_cpu_affinity(char *const arg)
 {
 	cpu_set_t set;
 	char *str, *token;
-	int32_t max_cpus = stress_get_processors_configured();
+	const int32_t max_cpus = stress_get_processors_configured();
 
 	CPU_ZERO(&set);
 
