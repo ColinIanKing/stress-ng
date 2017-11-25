@@ -32,7 +32,7 @@
 
 typedef struct {
 	const char *name;
-	uint8_t denty_order;
+	const uint8_t denty_order;
 } dentry_removal_t;
 
 static const dentry_removal_t dentry_removals[] = {
