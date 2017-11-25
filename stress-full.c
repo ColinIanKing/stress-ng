@@ -27,8 +27,8 @@
 #if defined(__linux__)
 
 typedef struct {
-	char *name;
-	int whence;
+	const char *name;
+	const int whence;
 } whences_t;
 
 static const whences_t whences[] = {
