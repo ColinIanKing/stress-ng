@@ -41,13 +41,11 @@ int stress_mincore(const args_t *args)
 	do {
 		int i;
 
-
 		for (i = 0; (i < 100) && g_keep_stressing_flag; i++) {
 			int ret, redo = 0;
 			unsigned char vec[1];
 
-redo:
-			errno = 0;
+redo: 			errno = 0;
 			ret = shim_mincore((void *)addr, page_size, vec);
 			if (ret < 0) {
 				switch (errno) {
