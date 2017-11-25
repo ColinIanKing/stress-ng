@@ -55,7 +55,7 @@ static int stress_fiemap_writer(
 	uint64_t *counters)
 {
 	uint8_t buf[1];
-	uint64_t len = (off_t)fiemap_bytes - sizeof(buf);
+	const uint64_t len = (off_t)fiemap_bytes - sizeof(buf);
 	uint64_t counter;
 	int rc = EXIT_FAILURE;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
@@ -209,8 +209,8 @@ int stress_fiemap(const args_t *args)
 	size_t i, n;
 	const size_t counters_sz = sizeof(uint64_t) * MAX_FIEMAP_PROCS;
 	uint64_t *counters;
-	uint64_t ops_per_proc = args->max_ops / MAX_FIEMAP_PROCS;
-	uint64_t ops_remaining = args->max_ops % MAX_FIEMAP_PROCS;
+	const uint64_t ops_per_proc = args->max_ops / MAX_FIEMAP_PROCS;
+	const uint64_t ops_remaining = args->max_ops % MAX_FIEMAP_PROCS;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 
 	if (!get_setting("fiemap-bytes", &fiemap_bytes)) {
