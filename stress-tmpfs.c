@@ -57,7 +57,7 @@ static const int mmap_flags[] = {
  */
 static int stress_tmpfs_open(const args_t *args, off_t *len)
 {
-	uint32_t rnd = mwc32();
+	const uint32_t rnd = mwc32();
 	char path[PATH_MAX];
 	char *mnts[MAX_MOUNTS];
 	int i, n, fd = -1;
