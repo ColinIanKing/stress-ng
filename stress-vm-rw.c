@@ -65,7 +65,7 @@ void stress_set_vm_rw_bytes(const char *opt)
 
 static int stress_vm_child(void *arg)
 {
-	context_t *ctxt = (context_t *)arg;
+	const context_t *ctxt = (context_t *)arg;
 	const args_t *args = ctxt->args;
 
 	uint8_t *buf;
