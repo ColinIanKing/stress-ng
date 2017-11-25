@@ -57,7 +57,7 @@ static void MLOCKED stress_segvhandler(int dummy)
 
 static void __strncat(char *dst, char *src, size_t *n)
 {
-	size_t ln = strlen(src);
+	const size_t ln = strlen(src);
 
 	if (*n <= ln)
 		return;
