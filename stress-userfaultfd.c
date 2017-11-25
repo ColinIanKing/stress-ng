@@ -102,12 +102,12 @@ static int stress_userfaultfd_child(void *arg)
  */
 static inline int handle_page_fault(
 	const args_t *args,
-	int fd,
+	const int fd,
 	uint8_t *addr,
 	void *zero_page,
 	uint8_t *data_start,
 	uint8_t *data_end,
-	size_t page_size)
+	const size_t page_size)
 {
 	if ((addr < data_start) || (addr >= data_end)) {
 		pr_fail_err("userfaultfd page fault address out of range");
@@ -149,7 +149,7 @@ static inline int handle_page_fault(
  */
 static int stress_userfaultfd_oomable(
 	const args_t *args,
-	size_t userfaultfd_bytes)
+	const size_t userfaultfd_bytes)
 {
 	const size_t page_size = args->page_size;
 	size_t sz;
