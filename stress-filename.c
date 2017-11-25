@@ -30,7 +30,7 @@
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
 
 typedef struct {
-	uint8_t opt;
+	const uint8_t opt;
 	const char *opt_text;
 } filename_opts_t;
 
@@ -296,8 +296,8 @@ int stress_filename (const args_t *args)
 	i = 0;
 	sz = 1;
 	do {
-		char ch = allowed[i];
-		size_t rnd_sz = 1 + (mwc32() % sz_max);
+		const char ch = allowed[i];
+		const size_t rnd_sz = 1 + (mwc32() % sz_max);
 
 		i++;
 		if (i >= chars_allowed)
