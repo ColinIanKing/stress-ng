@@ -57,7 +57,7 @@ typedef struct {
 
 typedef struct {
 	const char *typename;
-	int	   type;
+	const int   type;
 } socket_type_t;
 
 /*
