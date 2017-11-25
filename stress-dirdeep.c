@@ -74,7 +74,7 @@ static void stress_dir_make(
 {
 	uint32_t i;
 	int ret;
-	uint64_t inodes_avail = stress_get_filesystem_available_inodes();
+	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
 
 	if (*min_inodes_free > inodes_avail)
 		*min_inodes_free = inodes_avail;
