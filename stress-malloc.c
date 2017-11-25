@@ -61,7 +61,7 @@ void stress_set_malloc_threshold(const char *opt)
  */
 static inline size_t stress_alloc_size(const size_t malloc_bytes)
 {
-	size_t len = mwc64() % malloc_bytes;
+	const size_t len = mwc64() % malloc_bytes;
 
 	return len ? len : 1;
 }
@@ -161,10 +161,10 @@ again:
 		set_oom_adjustment(args->name, true);
 
 		do {
-			unsigned int rnd = mwc32();
-			unsigned int i = rnd % malloc_max;
-			unsigned int action = (rnd >> 12) & 1;
-			unsigned int do_calloc = (rnd >> 14) & 0x1f;
+			const unsigned int rnd = mwc32();
+			const unsigned int i = rnd % malloc_max;
+			const unsigned int action = (rnd >> 12) & 1;
+			const unsigned int do_calloc = (rnd >> 14) & 0x1f;
 
 			/*
 			 * With many instances running it is wise to
@@ -184,7 +184,7 @@ again:
 					inc_counter(args);
 				} else {
 					void *tmp;
-					size_t len = stress_alloc_size(malloc_bytes);
+					const size_t len = stress_alloc_size(malloc_bytes);
 
 					tmp = realloc(addr[i], len);
 					if (tmp) {
