@@ -35,7 +35,7 @@
 
 typedef struct {
 	const char 	*opt;
-	uint32_t	flag;
+	const uint32_t	flag;
 } ioport_opts_t;
 
 static const ioport_opts_t ioport_opts[] = {
