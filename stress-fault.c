@@ -62,6 +62,8 @@ int stress_fault(const args_t *args)
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	do {
 		char *ptr;
