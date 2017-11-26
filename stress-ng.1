@@ -1996,6 +1996,16 @@ change protection settings on each page of memory.  Each time a page or a
 group of pages are mapped or remapped then this option will make the pages
 read-only, write-only, exec-only, and read-write.
 .TP
+.B \-\-mmapaddr N
+start N workers that memory map pages at a random memory location that is
+not already mapped.  On 64 bit machines the random address is randomly
+chosen 32 bit or 64 bit address. If the mapping works a second page is
+memory mapped from the first mapped address. The stressor exercises
+mmap/munmap, mincore and segfault handling.
+.TP
+.B \-\-mmapaddr\-ops N
+stop after N random address mmap bogo operations.
+.TP
 .B \-\-mmapfork N
 start N workers that each fork off 32 child processes, each of which tries to
 allocate some of the free memory left in the system (and trying to avoid
