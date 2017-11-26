@@ -145,14 +145,15 @@ again: 	pid = fork();
 		do {
 			uint8_t *addr, *map_addr, *remap_addr;
 			unsigned char vec[1];
-			int ret;
+			int ret, flags;
+			uint8_t rnd = mwc8();
 #if defined(MAP_POPULATE)
-			const int flags = MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS;
+			const int mmap_flags = MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS;
 #else
-			const int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+			const int mmap_flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #endif
 			/* Randomly chosen low or high address mask */
-			const uintptr_t mask = (mwc8() >> 7) ? page_mask : page_mask32;
+			const uintptr_t mask = (rnd & 0x80) ? page_mask : page_mask32;
 
 			vec[0] = 0;
 			addr = (uint8_t *)(mwc64() & mask);
@@ -167,6 +168,9 @@ again: 	pid = fork();
 			}
 
 			/* We get here if page is not already mapped */
+#if defined(MAP_FIXED)
+			flags = mmap_flags | ((rnd & 0x40) ? MAP_FIXED : 0);
+#endif
 			map_addr = mmap(addr, page_size, PROT_READ, flags, -1, 0);
 			if (!map_addr || (map_addr == MAP_FAILED))
 				continue;
@@ -175,7 +179,7 @@ again: 	pid = fork();
 				goto unmap;
 
 			/* Now attempt to mmap the newly map'd page */
-			remap_addr = mmap(map_addr, page_size, PROT_READ, flags, -1, 0);
+			remap_addr = mmap(map_addr, page_size, PROT_READ, mmap_flags, -1, 0);
 			if (!map_addr || (map_addr == MAP_FAILED))
 				goto unmap;
 
