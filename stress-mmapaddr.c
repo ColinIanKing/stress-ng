@@ -171,6 +171,9 @@ again: 	pid = fork();
 #if defined(MAP_FIXED)
 			flags = mmap_flags | ((rnd & 0x40) ? MAP_FIXED : 0);
 #endif
+#if defined(MAP_LOCKED)
+			flags |= ((rnd & 0x20) ? MAP_LOCKED : 0);
+#endif
 			map_addr = mmap(addr, page_size, PROT_READ, flags, -1, 0);
 			if (!map_addr || (map_addr == MAP_FAILED))
 				continue;
@@ -181,7 +184,7 @@ again: 	pid = fork();
 			/* Now attempt to mmap the newly map'd page */
 #if defined(MAP_32BIT)
 			flags = mmap_flags;
-			if (rnd & 0x20) {
+			if (rnd & 0x10) {
 				map_addr = NULL;
 				flags |= MAP_32BIT;
 			}
