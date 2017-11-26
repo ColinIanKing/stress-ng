@@ -1,3 +1,50 @@
+stress-ng (0.09.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-sigsegv:  catch SIGBUS for systems such as __APPLE__
+  * stress-fault: catch SIGBUS for systems such as __APPLE__
+  * stress-mmapaddr: cast uint64_t value to intptr_t
+  * stress-mmapaddr: set addr correctly, fixes null ptr issue
+  * stress-mmapaddr: add mremapping if supported
+  * stress-mmapaddr: add MAP_LOCKED random flag setting
+  * stress-mmapaddr: 2nd mmap should check remap addr, and add MAP_32BIT
+  * stress-mmapaddr: add random MAP_FIXED flag
+  * Add stress-mmapaddr random address mmap stressor
+  * stress-icache: remove constification of page_addr
+  * stress-hrtimes: make a couple functions static
+  * stress-vm-rw: constify pointer ctxt
+  * stress-vm: add a couple of constifications in macros
+  * stress-userfaultfd: constify a couple of function args
+  * stress-tmpfs: constify rnd
+  * stress-stream: constify advice in struct stream_madvise_info_t
+  * stress-socket: constify type in struct socket_type_t
+  * stress-pty: fix typo in comment
+  * stress-mmapfork: constify ln
+  * stress-mknode: constify greycode
+  * stress-mincore: remove some empty lines
+  * stress-mergesort: reorder statements and int declaration
+  * stress-malloc: add some constifications
+  * stress-ioport: constify flag
+  * stress-icache: constify page_addr
+  * stress-hdd: add some more constifications
+  * stress-full: constify fields of a struct
+  * stress-flock: constify ppid
+  * stress-filename: add various variable constifications
+  * stress-fiemap: add various variable constifications
+  * stress-dirdeep: constify inodes_avail
+  * stress-dentry: add a constification to a data structure
+  * stress-clock: add a few more constifications
+  * stress-branch: make array labels const
+  * affinity: constify max_cpus
+  * Add more comments to stress-ng.h
+  * stress-vforkmany: call vfork syscall directly when possible
+  * stress-open: only close fd's that have been opened
+  * stress-cpu-online: only allow all CPUs to be offlined with 1 instance
+  * stress-cpu-online: by default, don't offline/online CPU 0
+
+ -- Colin King <colin.king@canonical.com>  Sun, 26 Nov 2017 22:46:23 +0000
+
 stress-ng (0.09.03-1) unstable; urgency=medium
 
   * Makefile: bump version
