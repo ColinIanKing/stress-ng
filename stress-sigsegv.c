@@ -63,6 +63,8 @@ int stress_sigsegv(const args_t *args)
 			goto tidy;
 		if (stress_sighandler(args->name, SIGILL, stress_segvhandler, NULL) < 0)
 			goto tidy;
+		if (stress_sighandler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
+			goto tidy;
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
