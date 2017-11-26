@@ -69,6 +69,41 @@ static int stress_mmapaddr_check(const args_t *args, uint8_t *map_addr)
 	return 0;
 }
 
+/*
+ *  stress_mmapaddr_get_addr()
+ *	try to find an unmapp'd address
+ */
+static void *stress_mmapaddr_get_addr(
+	const args_t *args,
+	const uintptr_t mask,
+	const size_t page_size)
+{
+	unsigned char vec[1];
+	void *addr = NULL;
+	int ret;
+
+	while (keep_stressing()) {
+		vec[0] = 0;
+		addr = (void *)(mwc64() & mask);
+		ret = shim_mincore(addr, page_size, vec);
+		if (ret == 0) {
+			addr = NULL;
+			continue;	/* it's mapped already */
+		} else if (ret <= 0) {
+			if (errno == ENOSYS) {
+				addr = NULL;
+				break;
+			}
+			if (errno == ENOMEM) {
+				break;
+			}
+		} else {
+			addr = NULL;
+			continue;
+		}
+	}
+	return addr;
+}
 
 /*
  *  stress_mmapaddr()
@@ -144,8 +179,7 @@ again: 	pid = fork();
 
 		do {
 			uint8_t *addr, *map_addr, *remap_addr;
-			unsigned char vec[1];
-			int ret, flags;
+			int flags;
 			uint8_t rnd = mwc8();
 #if defined(MAP_POPULATE)
 			const int mmap_flags = MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS;
@@ -155,15 +189,10 @@ again: 	pid = fork();
 			/* Randomly chosen low or high address mask */
 			const uintptr_t mask = (rnd & 0x80) ? page_mask : page_mask32;
 
-			vec[0] = 0;
-			addr = (uint8_t *)(mwc64() & mask);
-			ret = shim_mincore(addr, page_size, vec);
-			if (ret == 0) {
-				continue;	/* it's mapped already */
-			} else if (ret <= 0) {
-				if (errno != ENOMEM)
-					continue;
-			} else {
+			addr = stress_mmapaddr_get_addr(args, mask, page_size);
+			if (!addr) {
+				if (errno == ENOSYS)
+					break;
 				continue;
 			}
 
@@ -194,8 +223,18 @@ again: 	pid = fork();
 				goto unmap;
 
 			(void)stress_mmapaddr_check(args, remap_addr);
-
 			(void)munmap(remap_addr, page_size);
+
+#if defined(__linux__) && NEED_GLIBC(2,4,0) && defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
+			addr = stress_mmapaddr_get_addr(args, mask, page_size);
+			if (!addr)
+				goto unmap;
+
+			/* Now try to remap with a new fixed address */
+			remap_addr = mremap(map_addr, page_size, page_size, MREMAP_FIXED | MREMAP_MAYMOVE, addr);
+			if (remap_addr && (remap_addr != MAP_FAILED))
+				map_addr = remap_addr;
+#endif
 unmap:
 			(void)munmap(map_addr, page_size);
 			inc_counter(args);
