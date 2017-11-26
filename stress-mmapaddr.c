@@ -179,8 +179,15 @@ again: 	pid = fork();
 				goto unmap;
 
 			/* Now attempt to mmap the newly map'd page */
-			remap_addr = mmap(map_addr, page_size, PROT_READ, mmap_flags, -1, 0);
-			if (!map_addr || (map_addr == MAP_FAILED))
+#if defined(MAP_32BIT)
+			flags = mmap_flags;
+			if (rnd & 0x20) {
+				map_addr = NULL;
+				flags |= MAP_32BIT;
+			}
+#endif
+			remap_addr = mmap(map_addr, page_size, PROT_READ, flags, -1, 0);
+			if (!map_addr || (remap_addr == MAP_FAILED))
 				goto unmap;
 
 			(void)stress_mmapaddr_check(args, remap_addr);
