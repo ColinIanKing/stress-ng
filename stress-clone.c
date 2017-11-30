@@ -227,6 +227,7 @@ int stress_clone(const args_t *args)
 {
 	uint64_t max_clones = 0;
 	uint64_t clone_max = DEFAULT_ZOMBIES;
+	pid_t pid;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
@@ -238,44 +239,101 @@ int stress_clone(const args_t *args)
 			clone_max = MIN_ZOMBIES;
 	}
 
-	do {
-		if (clones.length < clone_max) {
-			clone_t *clone_info;
-			char *stack_top;
-			int flag = flags[mwc32() % SIZEOF_ARRAY(flags)];
+again:
+	if (!g_keep_stressing_flag)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
 
-			clone_info = stress_clone_new();
-			if (!clone_info)
-				break;
-			stack_top = clone_info->stack + stack_offset;
-			clone_info->pid = clone(clone_func,
-				align_stack(stack_top), flag, NULL);
-			if (clone_info->pid == -1) {
-				/*
-				 * Reached max forks or error
-				 * (e.g. EPERM)? .. then reap
-				 */
-				stress_clone_head_remove();
-				continue;
+		(void)setpgid(pid, g_pgrp);
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			(void)kill(pid, SIGALRM);
+			(void)waitpid(pid, &status, 0);
+			/* And kill it for sure */
+			(void)kill(pid, SIGKILL);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg("%s: child died: %s (instance %d)\n",
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
+			/* If we got killed by OOM killer, re-start */
+			if ((WTERMSIG(status) == SIGKILL) ||
+			    (WTERMSIG(status) == SIGTERM)) {
+				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, bailing out "
+						"(instance %d)\n",
+						args->name, args->instance);
+					_exit(0);
+				} else {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, restarting again "
+						"(instance %d)\n",
+						args->name, args->instance);
+					goto again;
+				}
 			}
+		}
+	} else if (pid == 0) {
+		/* Child */
 
-			if (max_clones < clones.length)
-				max_clones = clones.length;
-			inc_counter(args);
-		} else {
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
+
+		do {
+			if (clones.length < clone_max) {
+				clone_t *clone_info;
+				char *stack_top;
+				int flag = flags[mwc32() % SIZEOF_ARRAY(flags)];
+
+				clone_info = stress_clone_new();
+				if (!clone_info)
+					break;
+				stack_top = clone_info->stack + stack_offset;
+				clone_info->pid = clone(clone_func,
+					align_stack(stack_top), flag, NULL);
+				if (clone_info->pid == -1) {
+					/*
+					 * Reached max forks or error
+					 * (e.g. EPERM)? .. then reap
+					 */
+					stress_clone_head_remove();
+					continue;
+				}
+				if (max_clones < clones.length)
+					max_clones = clones.length;
+				inc_counter(args);
+			} else {
+				stress_clone_head_remove();
+			}
+		} while (keep_stressing());
+
+		pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
+			args->name, max_clones);
+		/* And reap */
+		while (clones.head) {
 			stress_clone_head_remove();
 		}
-	} while (keep_stressing());
+		/* And free */
+		stress_clone_free();
 
-	pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
-		args->name, max_clones);
-
-	/* And reap */
-	while (clones.head) {
-		stress_clone_head_remove();
+		_exit(0);
 	}
-	/* And free */
-	stress_clone_free();
 
 	return EXIT_SUCCESS;
 }
