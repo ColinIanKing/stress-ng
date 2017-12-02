@@ -50,7 +50,7 @@ static inline void stress_dev_rw(
 	struct timeval tv;
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
+		goto rdwr;
 
 	if (fstat(fd, &buf) < 0) {
 		pr_fail_err("stat");
@@ -97,15 +97,26 @@ static inline void stress_dev_rw(
 	(void)close(fd);
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
+		goto sync;
 	ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
 		munmap(ptr, args->page_size);
 
+sync:
 	ret = fsync(fd);
 	(void)ret;
 
 	(void)close(fd);
+
+rdwr:
+	/*
+	 *   O_RDONLY | O_WRONLY allows one to
+	 *   use the fd for ioctl() only operations
+	 */
+	fd = open(path, O_RDONLY | O_WRONLY | O_NONBLOCK);
+	if (fd >= 0) {
+		(void)close(fd);
+	}
 }
 
 /*
