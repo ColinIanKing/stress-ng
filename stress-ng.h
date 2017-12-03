@@ -2698,7 +2698,7 @@ struct shim_linux_dirent64 {
 #else
 	int64_t		d_ino;		/* 64-bit inode number */
 #endif
-	shim_off64_t		d_off;		/* 64-bit offset to next structure */
+	shim_off64_t	d_off;		/* 64-bit offset to next structure */
 	unsigned short	d_reclen;	/* Size of this dirent */
 	unsigned char	d_type;		/* File type */
 	char		d_name[];	/* Filename (null-terminated) */
