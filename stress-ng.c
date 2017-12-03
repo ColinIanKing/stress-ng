@@ -132,6 +132,7 @@ static const proc_helper_t proc_destroy[] = {
  */
 static const stressor_default_t stressor_default[] = {
 	{ "all",	stress_set_cpu_method },
+	{ "uint64",	stress_set_funccall_method },
 	{ "all",	stress_set_str_method },
 	{ "all",	stress_set_wcs_method },
 	{ "all",	stress_set_matrix_method },
@@ -251,6 +252,8 @@ static const stress_t stressors[] = {
 	STRESSOR(fp_error, FP_ERROR, CLASS_CPU),
 	STRESSOR(fstat, FSTAT, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(full, FULL, CLASS_DEV | CLASS_MEMORY | CLASS_OS),
+	STRESSOR(funccall, FUNCCALL, CLASS_CPU),
+	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(futex, FUTEX, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(get, GET, CLASS_OS),
 	STRESSOR(getdent, GETDENT, CLASS_FILESYSTEM | CLASS_OS),
@@ -556,6 +559,9 @@ static const struct option long_options[] = {
 	{ "fstat-dir",	1,	0,	OPT_FSTAT_DIR },
 	{ "full",	1,	0,	OPT_FULL },
 	{ "full-ops",	1,	0,	OPT_FULL_OPS },
+	{ "funccall",	1,	0,	OPT_FUNCCALL },
+	{ "funccall-ops",1,	0,	OPT_FUNCCALL_OPS },
+	{ "funccall-method",1,	0,	OPT_FUNCCALL_METHOD },
 	{ "futex",	1,	0,	OPT_FUTEX },
 	{ "futex-ops",	1,	0,	OPT_FUTEX_OPS },
 	{ "get",	1,	0,	OPT_GET },
@@ -3041,6 +3047,10 @@ next_opt:
 			break;
 		case OPT_FSTAT_DIR:
 			stress_set_fstat_dir(optarg);
+			break;
+		case OPT_FUNCCALL_METHOD:
+			if (stress_set_funccall_method(optarg) < 0)
+				return EXIT_FAILURE;
 			break;
 		case OPT_HELP:
 			usage();

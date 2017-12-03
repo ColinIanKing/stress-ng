@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "November 26, 2017"
+.TH STRESS-NG 1 "December 3, 2017"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1305,6 +1305,22 @@ device (which should always succeed).  (Linux only).
 .TP
 .B \-\-full\-ops N
 stop the stress full workers after N bogo I/O operations.
+.TP
+.B \-\-funccall N
+start N workers that call functions of 1 through to 9 arguments. By default
+functions with uint64_t arguments are called, however, this can be changed
+using the \-\-funccall\-method option.
+.TP
+.B \-\-funcall\-ops N
+stop the funccall workers after N bogo function call operations. Each bogo
+operation is 1000 calls of functions of 1 through to 9 arguments of the chosen
+argument type.
+.TP
+.B \-\-funccall\-method method
+specify the method of funccall argument type to be used with 'method'. The
+default is uint64_t but can be one of uint8 uint16 uint32 uint64 uint128
+float double longdouble.  Note that uint128 is only available if the compiler
+supports the __uint128_t type.
 .TP
 .B \-\-futex N
 start N workers that rapidly exercise the futex system call. Each worker has

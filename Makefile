@@ -97,6 +97,7 @@ STRESS_SRC = \
 	stress-fp-error.c \
 	stress-fstat.c \
 	stress-full.c \
+	stress-funccall.c \
 	stress-futex.c \
 	stress-get.c \
 	stress-getrandom.c \

@@ -1198,17 +1198,18 @@ typedef enum {
 	STRESS_EVENTFD,
 	STRESS_EXEC,
 	STRESS_FALLOCATE,
+	STRESS_FANOTIFY,
 	STRESS_FAULT,
 	STRESS_FCNTL,
 	STRESS_FIEMAP,
 	STRESS_FIFO,
 	STRESS_FILENAME,
 	STRESS_FLOCK,
-	STRESS_FANOTIFY,
 	STRESS_FORK,
 	STRESS_FP_ERROR,
 	STRESS_FSTAT,
 	STRESS_FULL,
+	STRESS_FUNCCALL,
 	STRESS_FUTEX,
 	STRESS_GET,
 	STRESS_GETRANDOM,
@@ -1539,6 +1540,9 @@ typedef enum {
 	OPT_FALLOCATE_OPS,
 	OPT_FALLOCATE_BYTES,
 
+	OPT_FANOTIFY,
+	OPT_FANOTIFY_OPS,
+
 	OPT_FAULT,
 	OPT_FAULT_OPS,
 
@@ -1560,9 +1564,6 @@ typedef enum {
 	OPT_FLOCK,
 	OPT_FLOCK_OPS,
 
-	OPT_FANOTIFY,
-	OPT_FANOTIFY_OPS,
-
 	OPT_FORK_OPS,
 	OPT_FORK_MAX,
 
@@ -1575,6 +1576,10 @@ typedef enum {
 
 	OPT_FULL,
 	OPT_FULL_OPS,
+
+	OPT_FUNCCALL,
+	OPT_FUNCCALL_OPS,
+	OPT_FUNCCALL_METHOD,
 
 	OPT_FUTEX,
 	OPT_FUTEX_OPS,
@@ -2202,8 +2207,43 @@ extern void free_settings(void);
  */
 extern uint64_t uint64_zero(void);
 
+static volatile uint8_t  uint8_val;
+static volatile uint16_t uint16_val;
+static volatile uint32_t uint32_val;
 static volatile uint64_t uint64_val;
+#if defined(STRESS_INT128)
+static volatile __uint128_t uint128_val;
+#endif
+static volatile float	 float_val;
 static volatile double   double_val;
+static volatile long double long_double_val;
+
+/*
+ *  uint8_put()
+ *	stash a uint8_t value
+ */
+static inline void ALWAYS_INLINE uint8_put(const uint8_t a)
+{
+	uint8_val = a;
+}
+
+/*
+ *  uint16_put()
+ *	stash a uint16_t value
+ */
+static inline void ALWAYS_INLINE uint16_put(const uint16_t a)
+{
+	uint16_val = a;
+}
+
+/*
+ *  uint32_put()
+ *	stash a uint32_t value
+ */
+static inline void ALWAYS_INLINE uint32_put(const uint32_t a)
+{
+	uint32_val = a;
+}
 
 /*
  *  uint64_put()
@@ -2214,6 +2254,26 @@ static inline void ALWAYS_INLINE uint64_put(const uint64_t a)
 	uint64_val = a;
 }
 
+#if defined(STRESS_INT128)
+/*
+ *  uint64_put()
+ *	stash a uint64_t value
+ */
+static inline void ALWAYS_INLINE uint128_put(const __uint128_t a)
+{
+	uint128_val = a;
+}
+#endif
+
+/*
+ *  float_put()
+ *	stash a float value
+ */
+static inline void ALWAYS_INLINE float_put(const float a)
+{
+	float_val = a;
+}
+
 /*
  *  double_put()
  *	stash a double value
@@ -2222,6 +2282,16 @@ static inline void ALWAYS_INLINE double_put(const double a)
 {
 	double_val = a;
 }
+
+/*
+ *  long_double_put()
+ *	stash a double value
+ */
+static inline void ALWAYS_INLINE long_double_put(const double a)
+{
+	long_double_val = a;
+}
+
 
 /* Filenames and directories */
 extern int stress_temp_filename(char *path, const size_t len,
@@ -2520,6 +2590,7 @@ extern int  stress_set_epoll_domain(const char *opt);
 extern void stress_set_exec_max(const char *opt);
 extern void stress_set_fallocate_bytes(const char *opt);
 extern void stress_set_fifo_readers(const char *opt);
+extern int  stress_set_funccall_method(const char *name);
 extern int  stress_filename_opts(const char *opt);
 extern void stress_set_fiemap_bytes(const char *opt);
 extern void stress_set_fork_max(const char *opt);
@@ -2795,6 +2866,7 @@ STRESS(stress_fanotify);
 STRESS(stress_fork);
 STRESS(stress_fp_error);
 STRESS(stress_fstat);
+STRESS(stress_funccall);
 STRESS(stress_full);
 STRESS(stress_futex);
 STRESS(stress_get);
