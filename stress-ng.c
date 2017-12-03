@@ -79,7 +79,7 @@ const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
 int g_signum;					/* signal sent to process */
 jmp_buf g_error_env;				/* parsing error env */
-
+put_val_t g_put_val;				/* sync data to somewhere */
 
 /*
  *  stressors to be run-time checked to see if they are supported

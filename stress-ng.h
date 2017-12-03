@@ -369,6 +369,19 @@ typedef struct setting {
 	} u;
 } setting_t;
 
+typedef union {
+	volatile uint8_t	uint8_val;
+	volatile uint16_t	uint16_val;
+	volatile uint32_t	uint32_val;
+	volatile uint64_t	uint64_val;
+#if defined(STRESS_INT128)
+	volatile __uint128_t	uint128_val;
+#endif
+	volatile float		float_val;
+	volatile double		double_val;
+	volatile long double	long_double_val;
+} put_val_t;
+
 /* Network domains flags */
 #define DOMAIN_INET		0x00000001	/* AF_INET */
 #define DOMAIN_INET6		0x00000002	/* AF_INET6 */
@@ -2191,7 +2204,7 @@ extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
 extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
-
+extern put_val_t g_put_val;		/* sync data to somewhere */
 
 /*
  *  stressor option value handling
@@ -2207,24 +2220,13 @@ extern void free_settings(void);
  */
 extern uint64_t uint64_zero(void);
 
-static volatile uint8_t  uint8_val;
-static volatile uint16_t uint16_val;
-static volatile uint32_t uint32_val;
-static volatile uint64_t uint64_val;
-#if defined(STRESS_INT128)
-static volatile __uint128_t uint128_val;
-#endif
-static volatile float	 float_val;
-static volatile double   double_val;
-static volatile long double long_double_val;
-
 /*
  *  uint8_put()
  *	stash a uint8_t value
  */
 static inline void ALWAYS_INLINE uint8_put(const uint8_t a)
 {
-	uint8_val = a;
+	g_put_val.uint8_val = a;
 }
 
 /*
@@ -2233,7 +2235,7 @@ static inline void ALWAYS_INLINE uint8_put(const uint8_t a)
  */
 static inline void ALWAYS_INLINE uint16_put(const uint16_t a)
 {
-	uint16_val = a;
+	g_put_val.uint16_val = a;
 }
 
 /*
@@ -2242,7 +2244,7 @@ static inline void ALWAYS_INLINE uint16_put(const uint16_t a)
  */
 static inline void ALWAYS_INLINE uint32_put(const uint32_t a)
 {
-	uint32_val = a;
+	g_put_val.uint32_val = a;
 }
 
 /*
@@ -2251,17 +2253,17 @@ static inline void ALWAYS_INLINE uint32_put(const uint32_t a)
  */
 static inline void ALWAYS_INLINE uint64_put(const uint64_t a)
 {
-	uint64_val = a;
+	g_put_val.uint64_val = a;
 }
 
 #if defined(STRESS_INT128)
 /*
- *  uint64_put()
- *	stash a uint64_t value
+ *  uint128_put()
+ *	stash a uint128_t value
  */
 static inline void ALWAYS_INLINE uint128_put(const __uint128_t a)
 {
-	uint128_val = a;
+	g_put_val.uint128_val = a;
 }
 #endif
 
@@ -2271,7 +2273,7 @@ static inline void ALWAYS_INLINE uint128_put(const __uint128_t a)
  */
 static inline void ALWAYS_INLINE float_put(const float a)
 {
-	float_val = a;
+	g_put_val.float_val = a;
 }
 
 /*
@@ -2280,7 +2282,7 @@ static inline void ALWAYS_INLINE float_put(const float a)
  */
 static inline void ALWAYS_INLINE double_put(const double a)
 {
-	double_val = a;
+	g_put_val.double_val = a;
 }
 
 /*
@@ -2289,7 +2291,7 @@ static inline void ALWAYS_INLINE double_put(const double a)
  */
 static inline void ALWAYS_INLINE long_double_put(const double a)
 {
-	long_double_val = a;
+	g_put_val.long_double_val = a;
 }
 
 
