@@ -86,13 +86,13 @@ STRESS_SRC = \
 	stress-eventfd.c \
 	stress-exec.c \
 	stress-fallocate.c \
+	stress-fanotify.c \
 	stress-fault.c \
 	stress-fcntl.c \
 	stress-fiemap.c \
 	stress-fifo.c \
 	stress-filename.c \
 	stress-flock.c \
-	stress-fanotify.c \
 	stress-fork.c \
 	stress-fp-error.c \
 	stress-fstat.c \
