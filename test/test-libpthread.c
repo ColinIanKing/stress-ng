@@ -28,10 +28,6 @@
 /* The following functions from libpthread are used by stress-ng */
 
 static void *pthread_funcs[] = {
-	(void *)sem_init,
-	(void *)sem_destroy,
-	(void *)sem_post,
-	(void *)sem_timedwait,
 	(void *)pthread_create,
 	(void *)pthread_join,
 	(void *)pthread_mutex_lock,
