@@ -371,6 +371,7 @@ static const stress_t stressors[] = {
 	STRESSOR(timerfd, TIMERFD, CLASS_INTERRUPT | CLASS_OS),
 	STRESSOR(tlb_shootdown, TLB_SHOOTDOWN, CLASS_OS | CLASS_MEMORY),
 	STRESSOR(tmpfs, TMPFS, CLASS_MEMORY | CLASS_VM | CLASS_OS),
+	STRESSOR(tree, TREE, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(tsc, TSC, CLASS_CPU),
 	STRESSOR(tsearch, TSEARCH, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(udp, UDP, CLASS_NETWORK | CLASS_OS),
@@ -895,6 +896,10 @@ static const struct option long_options[] = {
 	{ "tlb-shootdown-ops",1,0,	OPT_TLB_SHOOTDOWN_OPS },
 	{ "tmpfs",	1,	0,	OPT_TMPFS },
 	{ "tmpfs-ops",	1,	0,	OPT_TMPFS_OPS },
+	{ "tree",	1,	0,	OPT_TREE },
+	{ "tree-ops",	1,	0,	OPT_TREE_OPS },
+	{ "tree-method",1,	0,	OPT_TREE_METHOD },
+	{ "tree-size",	1,	0,	OPT_TREE_SIZE },
 	{ "tsc",	1,	0,	OPT_TSC },
 	{ "tsc-ops",	1,	0,	OPT_TSC_OPS },
 	{ "tsearch",	1,	0,	OPT_TSEARCH },
@@ -1459,6 +1464,10 @@ static const help_t help_stressors[] = {
 	{ NULL,		"tlb-shootdown-ops N",	"stop after N TLB shootdown bogo ops" },
 	{ NULL,		"tmpfs N",		"start N workers mmap'ing a file on tmpfs" },
 	{ NULL,		"tmpfs-ops N",		"stop after N tmpfs bogo ops" },
+	{ NULL,		"tree N",		"start N workers that exercise tree structures" },
+	{ NULL,		"tree-ops N",		"stop after N bogo tree operations" },
+	{ NULL,		"tree-method M",	"select tree method, all, rb or slay" },
+	{ NULL,		"tree-size N",		"N is the number of items in the tree" },
 	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },
 	{ NULL,		"tsc-ops N",		"stop after N TSC bogo operations" },
 	{ NULL,		"tsearch N",		"start N workers that exercise a tree search" },
@@ -3381,6 +3390,13 @@ next_opt:
 			break;
 		case OPT_TIMES:
 			g_opt_flags |= OPT_FLAGS_TIMES;
+			break;
+		case OPT_TREE_METHOD:
+			if (stress_set_tree_method(optarg) < 0)
+				return EXIT_FAILURE;
+			break;
+		case OPT_TREE_SIZE:
+			stress_set_tree_size(optarg);
 			break;
 		case OPT_TSEARCH_SIZE:
 			stress_set_tsearch_size(optarg);

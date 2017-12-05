@@ -62,6 +62,7 @@
 #include <bsd/stdlib.h>
 #include <bsd/string.h>
 #include <bsd/wchar.h>
+#include <bsd/sys/tree.h>
 #endif
 #include <signal.h>
 #include <time.h>
@@ -862,10 +863,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 #define DEFAULT_SYNC_FILE_BYTES	(1 * GB)
 
-#define MIN_TSEARCH_SIZE	(1 * KB)
-#define MAX_TSEARCH_SIZE	(4 * MB)
-#define DEFAULT_TSEARCH_SIZE	(64 * KB)
-
 #define MIN_TIMER_FREQ		(1)
 #define MAX_TIMER_FREQ		(100000000)
 #define DEFAULT_TIMER_FREQ	(1000000)
@@ -873,6 +870,14 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MIN_TIMERFD_FREQ	(1)
 #define MAX_TIMERFD_FREQ	(100000000)
 #define DEFAULT_TIMERFD_FREQ	(1000000)
+
+#define MIN_TREE_SIZE		(1000)
+#define MAX_TREE_SIZE		(25000000)
+#define DEFAULT_TREE_SIZE	(250000)
+
+#define MIN_TSEARCH_SIZE	(1 * KB)
+#define MAX_TSEARCH_SIZE	(4 * MB)
+#define DEFAULT_TSEARCH_SIZE	(64 * KB)
 
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)
@@ -1340,6 +1345,7 @@ typedef enum {
 	STRESS_TIMERFD,
 	STRESS_TLB_SHOOTDOWN,
 	STRESS_TMPFS,
+	STRESS_TREE,
 	STRESS_TSC,
 	STRESS_TSEARCH,
 	STRESS_UDP,
@@ -2048,6 +2054,11 @@ typedef enum {
 	OPT_TMPFS,
 	OPT_TMPFS_OPS,
 
+	OPT_TREE,
+	OPT_TREE_OPS,
+	OPT_TREE_METHOD,
+	OPT_TREE_SIZE,
+
 	OPT_TSC,
 	OPT_TSC_OPS,
 
@@ -2654,6 +2665,8 @@ extern int  stress_set_stream_madvise(const char *opt);
 extern void stress_set_sync_file_bytes(const char *opt);
 extern void stress_set_timer_freq(const char *opt);
 extern void stress_set_timerfd_freq(const char *opt);
+extern int  stress_set_tree_method(const char *name);
+extern void stress_set_tree_size(const void *opt);
 extern void stress_set_tsearch_size(const char *opt);
 extern int  stress_set_udp_domain(const char *name);
 extern void stress_set_udp_port(const char *opt);
@@ -2987,6 +3000,7 @@ STRESS(stress_timer);
 STRESS(stress_timerfd);
 STRESS(stress_tlb_shootdown);
 STRESS(stress_tmpfs);
+STRESS(stress_tree);
 STRESS(stress_tsc);
 STRESS(stress_tsearch);
 STRESS(stress_udp);
