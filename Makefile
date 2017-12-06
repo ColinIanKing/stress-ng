@@ -355,7 +355,7 @@ dist:
 		README.Android test snapcraft smatchify.sh config TODO \
 		perf-event.c usr.bin.pulseaudio.eg \
 		example-jobs stress-ng-$(VERSION)
-	tar -zcf stress-ng-$(VERSION).tar.gz stress-ng-$(VERSION)
+	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
 .PHONY: pdf
