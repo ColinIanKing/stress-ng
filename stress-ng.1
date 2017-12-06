@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "December 3, 2017"
+.TH STRESS-NG 1 "December 6, 2017"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2843,7 +2843,9 @@ stop tmpfs stressors after N bogo mmap operations.
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is
 to add, find and remove 250,000 64 bit integers into Red-Black (rb) and
-Splay (splay) trees using the libbsd trees.
+Splay (splay) trees using the libbsd trees. The intention of this
+stressor is to exercise memory and cache with the various tree
+operations.
 .TP
 .B \-\-tree\-ops N
 stop tree stressors after N bogo ops. A bogo op covers the addtion,
