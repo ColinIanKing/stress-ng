@@ -72,8 +72,11 @@
 #else
 #include <bsd/stdlib.h>
 #include <bsd/string.h>
-#include <bsd/wchar.h>
 #include <bsd/sys/tree.h>
+#if !defined(__FreeBSD_kernel__)
+/* GNU/kFreeBSD does not support this */
+#include <bsd/wchar.h>
+#endif
 #endif
 #endif
 
