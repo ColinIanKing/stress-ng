@@ -1,3 +1,29 @@
+stress-ng (0.09.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: remove .xz tarball instead of .gz on make clean rule
+  * debian/control: update Standards-Version to 4.1.2
+  * Debian: watch: change watch URL to use .xz rather than .gz
+  * Makefile: use xz compression on tarball make dist rule
+  * Manual: Add more information in the tree description
+  * stress-wcstr: fix build issues for GNU/kFreeBSD builds
+  * Don't include bsd/wchar.h for GNU/kFreeBSD
+  * libbsd test: Add *BSD support
+  * stress-treee: don't build for __APPLE__
+  * Add DragonFly BSD to BSD support for libbsd
+  * stress-tree: fix build for systems without libbsd
+  * stress-ng: add funccall mini help options.
+  * Add libbsd tree stressor
+  * test/test-libpthread: remove POSIX semaphore checks
+  * stress-ng.h: fix indentation
+  * Move put values into global union, saves > 40K on x86
+  * Add the funccall function call stressor
+  * Makefile: move fanotify stressor to correct alphabetical order place
+  * stress-dev: perform open with O_RDONLY | O_WRONLY for ioctl opens
+  * stress-clone: catch OOM'ing clone stressors and re-spawn them
+
+ -- Colin King <colin.king@canonical.com>  Wed, 6 Dec 2017 13:20:46 +0000
+
 stress-ng (0.09.04-1) unstable; urgency=medium
 
   * Makefile: bump version
