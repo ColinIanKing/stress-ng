@@ -24,6 +24,19 @@
  */
 #include "stress-ng.h"
 
+struct tree_node;
+
+typedef void (*stress_tree_func)(const args_t *args,
+				 const size_t n,
+				 struct tree_node *data);
+
+typedef struct {
+        const char              *name;  /* human readable form of stressor */
+        const stress_tree_func   func;	/* the tree method function */
+} stress_tree_method_info_t;
+
+static const stress_tree_method_info_t tree_methods[];
+
 #if defined(HAVE_LIB_BSD)
 
 static volatile bool do_jmp = true;
@@ -36,17 +49,6 @@ struct tree_node {
 	};
 	uint64_t value;
 };
-
-typedef void (*stress_tree_func)(const args_t *args,
-				 const size_t n,
-				 struct tree_node *data);
-
-typedef struct {
-        const char              *name;  /* human readable form of stressor */
-        const stress_tree_func   func;	/* the tree method function */
-} stress_tree_method_info_t;
-
-static const stress_tree_method_info_t tree_methods[];
 
 #endif
 
@@ -169,9 +171,11 @@ static void stress_tree_all(
  * Table of tree stress methods
  */
 static const stress_tree_method_info_t tree_methods[] = {
+#if defined(HAVE_LIB_BSD)
 	{ "all",	stress_tree_all },
 	{ "rb",		stress_tree_rb },
 	{ "splay",	stress_tree_splay },
+#endif
 	{ NULL,		NULL },
 };
 
