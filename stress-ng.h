@@ -60,7 +60,11 @@
 #endif
 
 #if defined(HAVE_LIB_BSD)
-#if defined(__APPLE__) || defined(__DragonFly__)
+#if defined(__APPLE__) || \
+    defined(__DragonFly__) || \
+    defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__)
 #include <wchar.h>
 #if !defined(__APPLE__)
 #include <sys/tree.h>

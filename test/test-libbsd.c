@@ -24,7 +24,10 @@
  */
 #include <string.h>
 #if defined(__APPLE__) || \
-    defined(__DragonFly__)
+    defined(__DragonFly__) || \
+    defined(__FreeBSD__) || \
+    defined(__NetBSD__) || \
+    defined(__OpenBSD__)
 #include <stdlib.h>
 #else
 #include <bsd/stdlib.h>
