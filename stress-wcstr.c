@@ -41,6 +41,11 @@
 #undef HAVE_WCSNCASECMP
 #undef HAVE_WCSCASECMP
 #endif
+/* And GNU/kFreeBSD does not support two functions */
+#if defined(__FreeBSD_kernel__)
+#undef HAVE_WCSLCAT
+#undef HAVE_WCSLCPY
+#endif
 
 #define STR1LEN 256
 #define STR2LEN 128
