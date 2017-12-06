@@ -37,7 +37,7 @@ typedef struct {
 
 static const stress_tree_method_info_t tree_methods[];
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -66,7 +66,7 @@ void stress_set_tree_size(const void *opt)
 	set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 
 /*
  *  stress_tree_handler()
@@ -171,7 +171,7 @@ static void stress_tree_all(
  * Table of tree stress methods
  */
 static const stress_tree_method_info_t tree_methods[] = {
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 	{ "all",	stress_tree_all },
 	{ "rb",		stress_tree_rb },
 	{ "splay",	stress_tree_splay },
@@ -203,7 +203,7 @@ int stress_set_tree_method(const char *name)
 	return -1;
 }
 
-#if defined(HAVE_LIB_BSD)
+#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 /*
  *  stress_tree()
  *	stress tree

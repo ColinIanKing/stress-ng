@@ -62,7 +62,9 @@
 #if defined(HAVE_LIB_BSD)
 #if defined(__APPLE__) || defined(__DragonFly__)
 #include <wchar.h>
+#if !defined(__APPLE__)
 #include <sys/tree.h>
+#endif
 #else
 #include <bsd/stdlib.h>
 #include <bsd/string.h>
