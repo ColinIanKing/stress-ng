@@ -58,12 +58,19 @@
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
-#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+
+#if defined(HAVE_LIB_BSD)
+#if defined(__APPLE__) || defined(__DragonFly__)
+#include <wchar.h>
+#include <sys/tree.h>
+#else
 #include <bsd/stdlib.h>
 #include <bsd/string.h>
 #include <bsd/wchar.h>
 #include <bsd/sys/tree.h>
 #endif
+#endif
+
 #include <signal.h>
 #include <time.h>
 #include <sys/file.h>

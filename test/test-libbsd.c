@@ -23,8 +23,10 @@
  *
  */
 #include <string.h>
+#if defined(__APPLE__) || \
+    defined(__DragonFly__)
 #include <stdlib.h>
-#if !defined(__APPLE__)
+#else
 #include <bsd/stdlib.h>
 #endif
 
