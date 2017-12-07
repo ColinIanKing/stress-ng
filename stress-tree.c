@@ -204,15 +204,29 @@ int stress_set_tree_method(const char *name)
 }
 
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+
+/*
+ *  Rotate right a 64 bit value, compiler
+ *  optimizes this down to a rotate and store
+ */
+static inline uint64_t ror64(const uint64_t val)
+{
+	register uint64_t tmp = val;
+	register const uint64_t bit0 = (tmp & 1) << 63;
+
+	tmp >>= 1;
+        return (tmp | bit0);
+}
+
 /*
  *  stress_tree()
  *	stress tree
  */
 int stress_tree(const args_t *args)
 {
-	uint64_t tree_size = DEFAULT_TREE_SIZE;
+	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *data, *node;
-	size_t n, i;
+	size_t n, i, bit;
 	struct sigaction old_action;
 	int ret;
 
@@ -243,8 +257,18 @@ int stress_tree(const args_t *args)
 		goto tidy;
 	}
 
-	for (node = data, i = 0; i < n; i++, node++)
-		node->value = mwc64();
+	v = 0;
+	for (node = data, i = 0, bit = 0; i < n; i++, node++) {
+		if (!bit) {
+			v = mwc64();
+			bit = 1;
+		} else {
+			v ^= bit;
+			bit <<= 1;
+		}
+		node->value = v;
+		v = ror64(v);
+	}
 
 	do {
 		uint64_t rnd;
@@ -254,7 +278,7 @@ int stress_tree(const args_t *args)
 
 		rnd = mwc64();
 		for (node = data, i = 0; i < n; i++, node++)
-			node->value ^= rnd;
+			node->value = ror64(node->value ^ rnd);
 
 		inc_counter(args);
 	} while (keep_stressing());
