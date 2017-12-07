@@ -42,10 +42,16 @@ static const stress_tree_method_info_t tree_methods[];
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
+struct binary_tree {
+	struct tree_node *left;
+	struct tree_node *right;
+};
+
 struct tree_node {
 	union {
 		RB_ENTRY(tree_node) rb_entry;
 		SPLAY_ENTRY(tree_node) splay_entry;
+		struct binary_tree binary_entry;
 	};
 	uint64_t value;
 };
@@ -109,9 +115,7 @@ static void stress_tree_rb(
 	struct rb_tree head = RB_INITIALIZER(&head);
 	size_t i;
 	register struct tree_node *node, *next;
-	
-	(void)args;
-	
+
 	for (node = data, i = 0; i < n; i++, node++) {
 		RB_INSERT(rb_tree, &head, node);
 	}
@@ -137,9 +141,7 @@ static void stress_tree_splay(
 	struct splay_tree head = SPLAY_INITIALIZER(&head);
 	size_t i;
 	register struct tree_node *node, *next;
-	
-	(void)args;
-	
+
 	for (node = data, i = 0; i < n; i++, node++) {
 		SPLAY_INSERT(splay_tree, &head, node);
 	}
@@ -157,6 +159,62 @@ static void stress_tree_splay(
 	}
 }
 
+static void binary_insert(
+	struct tree_node **head,
+	struct tree_node *node)
+{
+	while (!*head) {
+		head = (node->value <= (*head)->value) ?
+			&(*head)->binary_entry.left :
+			&(*head)->binary_entry.right;
+	}
+	*head = node;
+}
+
+static struct tree_node *binary_find(
+	struct tree_node *head,
+	struct tree_node *node)
+{
+	while (node != head) {
+		node = (node->value <= head->value) ?
+			head->binary_entry.left :
+			head->binary_entry.right;
+	}
+	return node;
+}
+
+static void binary_remove_tree(struct tree_node *node)
+{
+	if (node) {
+		binary_remove_tree(node->binary_entry.left);
+		binary_remove_tree(node->binary_entry.right);
+		node->binary_entry.left = NULL;
+		node->binary_entry.right = NULL;
+	}
+}
+
+static void stress_tree_binary(
+	const args_t *args,
+	const size_t n,
+	struct tree_node *data)
+{
+	size_t i;
+	struct tree_node *node, *head = NULL;
+
+	for (node = data, i = 0; i < n; i++, node++) {
+		binary_insert(&head, node);
+	}
+	for (node = data, i = 0; i < n; i++, node++) {
+		struct tree_node *find;
+
+		find = binary_find(head, node);
+		if (!find)
+			pr_err("%s: binary tree node #%zd node found\n",
+				args->name, i);
+	}
+	binary_remove_tree(head);
+}
+
 static void stress_tree_all(
 	const args_t *args,
 	const size_t n,
@@ -164,6 +222,7 @@ static void stress_tree_all(
 {
 	stress_tree_rb(args, n, data);
 	stress_tree_splay(args, n, data);
+	stress_tree_binary(args, n, data);
 }
 #endif
 
@@ -173,6 +232,7 @@ static void stress_tree_all(
 static const stress_tree_method_info_t tree_methods[] = {
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 	{ "all",	stress_tree_all },
+	{ "binary",	stress_tree_binary },
 	{ "rb",		stress_tree_rb },
 	{ "splay",	stress_tree_splay },
 #endif

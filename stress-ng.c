@@ -1469,7 +1469,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"tmpfs-ops N",		"stop after N tmpfs bogo ops" },
 	{ NULL,		"tree N",		"start N workers that exercise tree structures" },
 	{ NULL,		"tree-ops N",		"stop after N bogo tree operations" },
-	{ NULL,		"tree-method M",	"select tree method, all, rb or slay" },
+	{ NULL,		"tree-method M",	"select tree method, all, binary, rb or slay" },
 	{ NULL,		"tree-size N",		"N is the number of items in the tree" },
 	{ NULL,		"tsc N",		"start N workers reading the TSC (x86 only)" },
 	{ NULL,		"tsc-ops N",		"stop after N TSC bogo operations" },
