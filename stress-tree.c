@@ -42,16 +42,26 @@ static const stress_tree_method_info_t tree_methods[];
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
-struct binary_tree {
+struct binary_node {
 	struct tree_node *left;
 	struct tree_node *right;
 };
 
+enum bfactor { LH, EH, RH };
+
+struct avl_node {
+	struct tree_node *left;
+	struct tree_node *right;
+	enum bfactor	bf;
+};
+
+
 struct tree_node {
 	union {
-		RB_ENTRY(tree_node) rb_entry;
-		SPLAY_ENTRY(tree_node) splay_entry;
-		struct binary_tree binary_entry;
+		RB_ENTRY(tree_node)	rb;
+		SPLAY_ENTRY(tree_node)	splay;
+		struct binary_node	binary;
+		struct avl_node		avl;
 	};
 	uint64_t value;
 };
@@ -68,7 +78,7 @@ void stress_set_tree_size(const void *opt)
 
 	tree_size = get_uint64(opt);
 	check_range("tree-size", tree_size,
-		MIN_TREE_SIZE, MAX_TREE_SIZE);
+		10 /*MIN_TREE_SIZE*/, MAX_TREE_SIZE);
 	set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
@@ -100,12 +110,12 @@ static int tree_node_cmp_rev(struct tree_node *n1, struct tree_node *n2)
 
 
 RB_HEAD(rb_tree, tree_node);
-RB_PROTOTYPE(rb_tree, tree_node, rb_entry, tree_node_cmp_fwd);
-RB_GENERATE(rb_tree, tree_node, rb_entry, tree_node_cmp_fwd);
+RB_PROTOTYPE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
+RB_GENERATE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
 
 SPLAY_HEAD(splay_tree, tree_node);
-SPLAY_PROTOTYPE(splay_tree, tree_node, splay_entry, tree_node_cmp_rev);
-SPLAY_GENERATE(splay_tree, tree_node, splay_entry, tree_node_cmp_rev);
+SPLAY_PROTOTYPE(splay_tree, tree_node, splay, tree_node_cmp_rev);
+SPLAY_GENERATE(splay_tree, tree_node, splay, tree_node_cmp_rev);
 
 static void stress_tree_rb(
 	const args_t *args,
@@ -163,10 +173,10 @@ static void binary_insert(
 	struct tree_node **head,
 	struct tree_node *node)
 {
-	while (!*head) {
+	while (*head) {
 		head = (node->value <= (*head)->value) ?
-			&(*head)->binary_entry.left :
-			&(*head)->binary_entry.right;
+			&(*head)->binary.left :
+			&(*head)->binary.right;
 	}
 	*head = node;
 }
@@ -175,23 +185,26 @@ static struct tree_node *binary_find(
 	struct tree_node *head,
 	struct tree_node *node)
 {
-	while (node != head) {
-		node = (node->value <= head->value) ?
-			head->binary_entry.left :
-			head->binary_entry.right;
+	while (head) {
+		if (node->value == head->value)
+			return head;
+		head = (node->value <= head->value) ?
+				head->binary.left :
+				head->binary.right;
 	}
-	return node;
+	return NULL;
 }
 
 static void binary_remove_tree(struct tree_node *node)
 {
 	if (node) {
-		binary_remove_tree(node->binary_entry.left);
-		binary_remove_tree(node->binary_entry.right);
-		node->binary_entry.left = NULL;
-		node->binary_entry.right = NULL;
+		binary_remove_tree(node->binary.left);
+		binary_remove_tree(node->binary.right);
+		node->binary.left = NULL;
+		node->binary.right = NULL;
 	}
 }
+
 
 static void stress_tree_binary(
 	const args_t *args,
@@ -204,6 +217,7 @@ static void stress_tree_binary(
 	for (node = data, i = 0; i < n; i++, node++) {
 		binary_insert(&head, node);
 	}
+
 	for (node = data, i = 0; i < n; i++, node++) {
 		struct tree_node *find;
 
@@ -215,6 +229,181 @@ static void stress_tree_binary(
 	binary_remove_tree(head);
 }
 
+static void avl_insert(
+	struct tree_node **root,
+	struct tree_node *node,
+	bool *taller)
+{
+	bool sub_taller = false;
+	register struct tree_node *p, *q;
+
+	if (!*root) {
+		*root = node;
+		(*root)->avl.left = NULL;
+		(*root)->avl.right = NULL;
+		(*root)->avl.bf = EH;
+		*taller = true;
+	} else {
+		if (node->value < (*root)->value) {
+			avl_insert(&(*root)->avl.left, node, &sub_taller);
+			if (sub_taller) {
+				switch ((*root)->avl.bf) {
+				case EH:
+					(*root)->avl.bf = LH;
+					*taller = true;
+					break;
+				case RH:
+					(*root)->avl.bf = EH;
+					*taller = false;
+					break;
+				case LH:
+					/* Rebalance required */
+					p = (*root)->avl.left;
+					if (p->avl.bf == LH) {
+						/* Single rotation */
+						(*root)->avl.left = p->avl.right;
+						p->avl.right = *root;
+						p->avl.bf = EH;
+						(*root)->avl.bf = EH;
+						*root = p;
+					} else {
+						/* Double rotation */
+						q = p->avl.right;
+						(*root)->avl.left = q->avl.right;
+						q->avl.right = *root;
+						p->avl.right = q->avl.left;
+						q->avl.left = p;
+
+						/* Update balance factors */
+						switch (q->avl.bf) {
+						case RH:
+							(*root)->avl.bf = EH;
+							p->avl.bf = LH;
+							break;
+						case LH:
+							(*root)->avl.bf = RH;
+							p->avl.bf = EH;
+							break;
+						case EH:
+							(*root)->avl.bf = EH;
+							p->avl.bf = EH;
+							break;
+						}
+						q->avl.bf = EH;
+						*root = q;
+					}
+					*taller = false;
+					break;
+				}
+			}
+		} else if (node->value > (*root)->value) {
+			avl_insert(&(*root)->avl.right, node, &sub_taller);
+			if (sub_taller) {
+				switch ((*root)->avl.bf) {
+				case LH:
+					(*root)->avl.bf = EH;
+					*taller = false;
+					break;
+				case EH:
+					(*root)->avl.bf = RH;
+					*taller = true;
+					break;
+				case RH:
+					/* Rebalance required */
+					p = (*root)->avl.right;
+					if (p->avl.bf == RH) {
+						/* Single rotation */
+						(*root)->avl.right = p->avl.left;
+						p->avl.left = *root;
+						p->avl.bf = EH;
+						(*root)->avl.bf = EH;
+						*root = p;
+					} else {
+						/* Double rotation */
+						q = p->avl.left;
+						(*root)->avl.right = q->avl.left;
+						q->avl.left = *root;
+						p->avl.left = q->avl.right;
+						q->avl.right = p;
+
+						/* Update balance factors */
+						switch (q->avl.bf) {
+						case LH:
+							(*root)->avl.bf = EH;
+							p->avl.bf = RH;
+							break;
+						case RH:
+							(*root)->avl.bf = LH;
+							p->avl.bf = EH;
+							break;
+						case EH:
+							(*root)->avl.bf = EH;
+							p->avl.bf = EH;
+							break;
+						}
+						q->avl.bf = EH;
+						*root = q;
+					}
+					*taller = false;
+					break;
+				}
+			} else {
+				/* tree not rebalanced.. */
+				*taller = false;
+			}
+		} else {
+			*taller = false;
+		}
+	}
+}
+
+static struct tree_node *avl_find(
+	struct tree_node *head,
+	struct tree_node *node)
+{
+	while (head) {
+		if (node->value == head->value)
+			return head;
+		head = (node->value <= head->value) ?
+				head->avl.left :
+				head->avl.right;
+	}
+	return NULL;
+}
+
+static void avl_remove_tree(struct tree_node *node)
+{
+	if (node) {
+		avl_remove_tree(node->avl.left);
+		avl_remove_tree(node->avl.right);
+		node->avl.left = NULL;
+		node->avl.right = NULL;
+	}
+}
+
+static void stress_tree_avl(
+	const args_t *args,
+	const size_t n,
+	struct tree_node *data)
+{
+	size_t i;
+	struct tree_node *node, *head = NULL;
+
+	for (node = data, i = 0; i < n; i++, node++) {
+		bool taller = false;
+		avl_insert(&head, node, &taller);
+	}
+	for (node = data, i = 0; i < n; i++, node++) {
+		struct tree_node *find;
+
+		find = avl_find(head, node);
+		if (!find)
+			pr_err("%s: avl tree node #%zd node found\n",
+				args->name, i);
+	}
+	avl_remove_tree(head);
+}
+
 static void stress_tree_all(
 	const args_t *args,
 	const size_t n,
@@ -223,6 +412,7 @@ static void stress_tree_all(
 	stress_tree_rb(args, n, data);
 	stress_tree_splay(args, n, data);
 	stress_tree_binary(args, n, data);
+	stress_tree_avl(args, n, data);
 }
 #endif
 
@@ -232,6 +422,7 @@ static void stress_tree_all(
 static const stress_tree_method_info_t tree_methods[] = {
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 	{ "all",	stress_tree_all },
+	{ "avl",	stress_tree_avl },
 	{ "binary",	stress_tree_binary },
 	{ "rb",		stress_tree_rb },
 	{ "splay",	stress_tree_splay },
@@ -289,6 +480,9 @@ int stress_tree(const args_t *args)
 	size_t n, i, bit;
 	struct sigaction old_action;
 	int ret;
+	stress_tree_method_info_t const *info = &tree_methods[0];
+
+	get_setting("tree-method", &info);
 
 	if (!get_setting("tree-size", &tree_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -333,8 +527,7 @@ int stress_tree(const args_t *args)
 	do {
 		uint64_t rnd;
 
-		stress_tree_rb(args, n, data);
-		stress_tree_splay(args, n, data);
+		info->func(args, n, data);
 
 		rnd = mwc64();
 		for (node = data, i = 0; i < n; i++, node++)
