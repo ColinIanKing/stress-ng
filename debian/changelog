@@ -1,3 +1,15 @@
+stress-ng (0.09.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add more smarts in autodetecting wcs* functions
+  * stress-tree fixes that got discovered after the 0.09.05 release:
+    - stress-tree: minor changes to splay and rb tree setup and insertion
+    - stress-tree: fix up tree method calling and add AVL tree
+  * stress-tree: add binary tree
+  * stress-tree: use faster method to populate data
+
+ -- Colin King <colin.king@canonical.com>  Fri, 8 Dec 2017 16:24:56 +0000
+
 stress-ng (0.09.05-1) unstable; urgency=medium
 
   * Makefile: bump version
