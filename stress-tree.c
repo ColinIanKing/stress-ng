@@ -47,14 +47,15 @@ struct binary_node {
 	struct tree_node *right;
 };
 
-enum bfactor { LH, EH, RH };
+#define LH	0
+#define EH	1
+#define RH	2
 
 struct avl_node {
 	struct tree_node *left;
 	struct tree_node *right;
-	enum bfactor	bf;
+	uint8_t	bf;
 };
-
 
 struct tree_node {
 	union {
@@ -78,7 +79,7 @@ void stress_set_tree_size(const void *opt)
 
 	tree_size = get_uint64(opt);
 	check_range("tree-size", tree_size,
-		10 /*MIN_TREE_SIZE*/, MAX_TREE_SIZE);
+		MIN_TREE_SIZE, MAX_TREE_SIZE);
 	set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
@@ -100,72 +101,81 @@ static void MLOCKED stress_tree_handler(int dummy)
 
 static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 {
-	return n1->value < n2->value;
+	if (n1->value == n2->value)
+		return 0;
+	if (n1->value > n2->value)
+		return 1;
+	else
+		return -1;
 }
 
-static int tree_node_cmp_rev(struct tree_node *n1, struct tree_node *n2)
-{
-	return n1->value > n2->value;
-}
-
-
-RB_HEAD(rb_tree, tree_node);
+static RB_HEAD(rb_tree, tree_node) rb_root;
 RB_PROTOTYPE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
 RB_GENERATE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
 
-SPLAY_HEAD(splay_tree, tree_node);
-SPLAY_PROTOTYPE(splay_tree, tree_node, splay, tree_node_cmp_rev);
-SPLAY_GENERATE(splay_tree, tree_node, splay, tree_node_cmp_rev);
+static SPLAY_HEAD(splay_tree, tree_node) splay_root;
+SPLAY_PROTOTYPE(splay_tree, tree_node, splay, tree_node_cmp_fwd);
+SPLAY_GENERATE(splay_tree, tree_node, splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
 	const args_t *args,
 	const size_t n,
 	struct tree_node *data)
 {
-	struct rb_tree head = RB_INITIALIZER(&head);
 	size_t i;
 	register struct tree_node *node, *next;
 
+	RB_INIT(&rb_root);
+
 	for (node = data, i = 0; i < n; i++, node++) {
-		RB_INSERT(rb_tree, &head, node);
+		register struct tree_node *res;
+
+		res = RB_FIND(rb_tree, &rb_root, node);
+		if (!res)
+			RB_INSERT(rb_tree, &rb_root, node);
 	}
 	for (node = data, i = 0; i < n; i++, node++) {
 		struct tree_node *find;
 
-		find = RB_FIND(rb_tree, &head, node);
+		find = RB_FIND(rb_tree, &rb_root, node);
 		if (!find)
 			pr_err("%s: rb tree node #%zd node found\n",
 				args->name, i);
 	}
-	for (node = RB_MIN(rb_tree, &head); node; node = next) {
-		next = RB_NEXT(rb_tree, &head, node);
-		RB_REMOVE(rb_tree, &head, node);
+	for (node = RB_MIN(rb_tree, &rb_root); node; node = next) {
+		next = RB_NEXT(rb_tree, &rb_root, node);
+		RB_REMOVE(rb_tree, &rb_root, node);
 	}
 }
 
 static void stress_tree_splay(
 	const args_t *args,
 	const size_t n,
-	struct tree_node *data)
+	struct tree_node *nodes)
 {
-	struct splay_tree head = SPLAY_INITIALIZER(&head);
 	size_t i;
 	register struct tree_node *node, *next;
 
-	for (node = data, i = 0; i < n; i++, node++) {
-		SPLAY_INSERT(splay_tree, &head, node);
+	SPLAY_INIT(&splay_root);
+
+	for (node = nodes, i = 0; i < n; i++, node++) {
+		register struct tree_node *res;
+
+		res = SPLAY_FIND(splay_tree, &splay_root, node);
+		if (!res)
+			SPLAY_INSERT(splay_tree, &splay_root, node);
 	}
-	for (node = data, i = 0; i < n; i++, node++) {
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		struct tree_node *find;
 
-		find = SPLAY_FIND(splay_tree, &head, node);
+		find = SPLAY_FIND(splay_tree, &splay_root, node);
 		if (!find)
 			pr_err("%s: splay tree node #%zd node found\n",
 				args->name, i);
 	}
-	for (node = SPLAY_MIN(splay_tree, &head); node; node = next) {
-		next = SPLAY_NEXT(splay_tree, &head, node);
-		SPLAY_REMOVE(splay_tree, &head, node);
+	for (node = SPLAY_MIN(splay_tree, &splay_root); node; node = next) {
+		next = SPLAY_NEXT(splay_tree, &splay_root, node);
+		SPLAY_REMOVE(splay_tree, &splay_root, node);
 	}
 }
 
@@ -376,8 +386,6 @@ static void avl_remove_tree(struct tree_node *node)
 	if (node) {
 		avl_remove_tree(node->avl.left);
 		avl_remove_tree(node->avl.right);
-		node->avl.left = NULL;
-		node->avl.right = NULL;
 	}
 }
 
@@ -476,7 +484,7 @@ static inline uint64_t ror64(const uint64_t val)
 int stress_tree(const args_t *args)
 {
 	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
-	struct tree_node *data, *node;
+	struct tree_node *nodes, *node;
 	size_t n, i, bit;
 	struct sigaction old_action;
 	int ret;
@@ -492,13 +500,13 @@ int stress_tree(const args_t *args)
 	}
 	n = (size_t)tree_size;
 
-	if ((data = calloc(n, sizeof(*data))) == NULL) {
+	if ((nodes = calloc(n, sizeof(struct tree_node))) == NULL) {
 		pr_fail_dbg("malloc");
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_tree_handler, &old_action) < 0) {
-		free(data);
+		free(nodes);
 		return EXIT_FAILURE;
 	}
 
@@ -512,7 +520,7 @@ int stress_tree(const args_t *args)
 	}
 
 	v = 0;
-	for (node = data, i = 0, bit = 0; i < n; i++, node++) {
+	for (node = nodes, i = 0, bit = 0; i < n; i++, node++) {
 		if (!bit) {
 			v = mwc64();
 			bit = 1;
@@ -527,10 +535,10 @@ int stress_tree(const args_t *args)
 	do {
 		uint64_t rnd;
 
-		info->func(args, n, data);
+		info->func(args, n, nodes);
 
 		rnd = mwc64();
-		for (node = data, i = 0; i < n; i++, node++)
+		for (node = nodes, i = 0; i < n; i++, node++)
 			node->value = ror64(node->value ^ rnd);
 
 		inc_counter(args);
@@ -539,7 +547,7 @@ int stress_tree(const args_t *args)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
-	free(data);
+	free(nodes);
 
 	return EXIT_SUCCESS;
 }
