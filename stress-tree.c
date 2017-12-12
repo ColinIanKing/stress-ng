@@ -490,7 +490,7 @@ int stress_tree(const args_t *args)
 	int ret;
 	stress_tree_method_info_t const *info = &tree_methods[0];
 
-	get_setting("tree-method", &info);
+	(void)get_setting("tree-method", &info);
 
 	if (!get_setting("tree-size", &tree_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
