@@ -112,7 +112,7 @@ int stress_readahead(const args_t *args)
 	}
 	(void)unlink(filename);
 
-#if defined(POSIX_FADV_DONTNEED)
+#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
 		pr_fail_err("posix_fadvise");
 		goto close_finish;

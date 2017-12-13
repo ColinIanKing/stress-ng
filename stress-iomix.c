@@ -183,7 +183,7 @@ static void stress_iomix_rd_seq_bursts(
 			pr_fail("seek");
 			return;
 		}
-#if defined(__linux__)
+#if defined(HAVE_POSIX_FADVISE)
 		(void)posix_fadvise(fd, posn, 1024 * 1024, POSIX_FADV_SEQUENTIAL);
 #endif
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
@@ -228,7 +228,7 @@ static void stress_iomix_rd_rnd_bursts(
 			off_t ret, posn;
 
 			posn = mwc64() % iomix_bytes;
-#if defined(__linux__)
+#if defined(HAVE_POSIX_FADVISE)
 			(void)posix_fadvise(fd, posn, len, POSIX_FADV_RANDOM);
 #endif
 			ret = lseek(fd, posn, SEEK_SET);
@@ -274,7 +274,7 @@ static void stress_iomix_rd_seq_slow(
 			ssize_t rc;
 			const size_t len = 1 + (mwc32() & (sizeof(buffer) - 1));
 
-#if defined(__linux__)
+#if defined(HAVE_POSIX_FADVISE)
 			(void)posix_fadvise(fd, posn, len, POSIX_FADV_SEQUENTIAL);
 #endif
 			rc = read(fd, buffer, len);
@@ -336,7 +336,7 @@ static void stress_iomix_sync(
 	} while (keep_stressing());
 }
 
-#if defined(__linux__)
+#if defined(HAVE_POSIX_FADVISE)
 /*
  *  stress_iomix_bad_advise()
  *	bad fadvise hints
@@ -597,7 +597,7 @@ static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_rd_seq_slow,
 	stress_iomix_rd_seq_slow,
 	stress_iomix_sync,
-#if defined(__linux__)
+#if defined(HAVE_POSIX_FADVISE)
 	stress_iomix_bad_advise,
 #endif
 	stress_iomix_rd_wr_mmap,

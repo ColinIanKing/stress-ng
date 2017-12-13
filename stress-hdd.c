@@ -299,8 +299,7 @@ static int stress_hdd_advise(const args_t *args, const int fd, const int flags)
 {
 #if (defined(POSIX_FADV_SEQ) || defined(POSIX_FADV_RANDOM) || \
     defined(POSIX_FADV_NOREUSE) || defined(POSIX_FADV_WILLNEED) || \
-    defined(POSIX_FADV_DONTNEED)) && !defined(__gnu_hurd__) && \
-    !defined(__minix__)
+    defined(POSIX_FADV_DONTNEED)) && defined(HAVE_POSIX_FADVISE)
 	size_t i;
 
 	if (!(flags & HDD_OPT_FADV_MASK))
