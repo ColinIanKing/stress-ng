@@ -127,9 +127,7 @@ int stress_get(const args_t *args)
 		struct utsname utsbuf;
 		struct timex timexbuf;
 #endif
-#if !defined(__minix__)
 		const pid_t mypid = getpid();
-#endif
 		int ret, n, fs_index;
 		size_t i;
 		struct timeval delta, tv;
@@ -137,6 +135,8 @@ int stress_get(const args_t *args)
 		pid_t pid;
 		gid_t gid;
 		uid_t uid;
+
+		(void)mypid;
 
 		check_do_run();
 
