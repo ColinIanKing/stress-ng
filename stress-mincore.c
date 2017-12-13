@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
+#if defined(HAVE_MINCORE) && NEED_GLIBC(2,2,0)
 
 #define VEC_MAX_SIZE 	(64)
 
