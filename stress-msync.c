@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__minix__)
+#if defined(HAVE_MSYNC)
 static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
@@ -39,7 +39,7 @@ void stress_set_msync_bytes(const char *opt)
 	set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
-#if !defined(__minix__)
+#if defined(HAVE_MSYNC)
 /*
  *  stress_page_check()
  *	check if mmap'd data is sane
