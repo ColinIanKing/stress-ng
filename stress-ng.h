@@ -120,6 +120,8 @@
 #include <strings.h>
 #endif
 
+#include "stress-version.h"
+
 #if defined (__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
@@ -160,28 +162,6 @@ typedef unsigned long int __kernel_ulong_t;
 
 #define STRESS_MINIMUM(a,b) (((a) < (b)) ? (a) : (b))
 #define STRESS_MAXIMUM(a,b) (((a) > (b)) ? (a) : (b))
-
-#define _VER_(major, minor, patchlevel)			\
-	((major * 10000) + (minor * 100) + patchlevel)
-
-#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
-#define NEED_GLIBC(major, minor, patchlevel) 			\
-	_VER_(major, minor, patchlevel) <= _VER_(__GLIBC__, __GLIBC_MINOR__, 0)
-#else
-#define NEED_GLIBC(major, minor, patchlevel) 	(0)
-#endif
-
-#if defined(__GNUC__) && defined(__GNUC_MINOR__)
-#if defined(__GNUC_PATCHLEVEL__)
-#define NEED_GNUC(major, minor, patchlevel) 			\
-	_VER_(major, minor, patchlevel) <= _VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
-#else
-#define NEED_GNUC(major, minor, patchlevel) 			\
-	_VER_(major, minor, patchlevel) <= _VER_(__GNUC__, __GNUC_MINOR__, 0)
-#endif
-#else
-#define NEED_GNUC(major, minor, patchlevel) 	(0)
-#endif
 
 /* NetBSD does not define MAP_ANONYMOUS */
 #if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
