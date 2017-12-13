@@ -964,7 +964,7 @@ int stress_sighandler(
 	struct sigaction *orig_action)
 {
 	struct sigaction new_action;
-#if !defined(__gnu_hurd__) && !defined(__minix__)
+#if defined(HAVE_SIGALTSTACK)
 	static bool set_altstack = false;
 
 	/*
