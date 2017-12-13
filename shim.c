@@ -701,7 +701,7 @@ char *shim_getlogin(void)
  */
 int shim_msync(void *addr, size_t length, int flags)
 {
-#if !defined(__gnu_hurd__) && !defined(__minix__)
+#if defined(HAVE_MSYNC)
 	return msync(addr, length, flags);
 #else
 	(void)addr;
