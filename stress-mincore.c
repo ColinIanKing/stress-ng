@@ -57,7 +57,7 @@ redo: 			errno = 0;
 						goto redo;
 					/* fall through */
 				default:
-					pr_fail("%s: mincore on address %p error: %d %s\n ",
+					pr_fail("%s: mincore on address %p error: %d %s\n",
 						args->name, addr, errno,
 						strerror(errno));
 					return EXIT_FAILURE;
