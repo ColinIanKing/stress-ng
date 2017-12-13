@@ -814,7 +814,7 @@ int shim_madvise(void *addr, size_t length, int advice)
  */
 int shim_mincore(void *addr, size_t length, unsigned char *vec)
 {
-#if !defined(__gnu_hurd__) && NEED_GLIBC(2,2,0)
+#if defined(HAVE_MINCORE) && NEED_GLIBC(2,2,0)
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || \
     defined(__NetBSD__) || defined(__sun__)
 	return mincore(addr, length, (char *)vec);
