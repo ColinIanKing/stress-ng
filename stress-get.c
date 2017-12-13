@@ -170,7 +170,7 @@ int stress_get(const args_t *args)
 			pr_fail_err("getgroups");
 		check_do_run();
 
-#if !defined(__minix__)
+#if defined(HAVE_GETPGRP)
 		pid = getpgrp();
 		(void)pid;
 		check_do_run();

@@ -97,8 +97,10 @@ int stress_ptrace(const args_t *args)
 			pidtmp = getppid();
 			(void)pidtmp;
 
+#if defined(HAVE_GETPGRP)
 			pidtmp = getpgrp();
 			(void)pidtmp;
+#endif
 
 			gidtmp = getgid();
 			(void)gidtmp;
