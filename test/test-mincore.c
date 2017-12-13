@@ -29,6 +29,10 @@
 
 static char buffer[8192];
 
+#if defined(__gnu_hurd__)
+#error mincore is defined but not implemented and will always fail
+#endif
+
 int main(void)
 {
 	unsigned char vec[1];

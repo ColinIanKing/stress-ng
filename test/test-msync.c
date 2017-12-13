@@ -29,6 +29,10 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#if defined(__gnu_hurd__)
+#error msync is defined but not implemented and will always fail
+#endif
+
 int main(void)
 {
 	char buffer[8192];
