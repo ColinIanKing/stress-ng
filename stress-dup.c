@@ -33,7 +33,7 @@ int stress_dup(const args_t *args)
 	int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
 	size_t i;
-#if defined(__linux__)
+#if defined(HAVE_DUP3)
 	bool do_dup3 = true;
 #endif
 
@@ -55,7 +55,7 @@ int stress_dup(const args_t *args)
 			fds[n] = dup(fds[0]);
 			if (fds[n] < 0)
 				break;
-#if defined(__linux__)
+#if defined(HAVE_DUP3)
 			if (do_dup3 && (mwc32() & 1)) {
 				int fd;
 

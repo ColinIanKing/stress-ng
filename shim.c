@@ -902,10 +902,10 @@ int shim_futex_wait(
  *  dup3()
  *	linux special dup
  */
-#if defined(__linux__) && defined(__NR_dup3)
+#if defined(HAVE_DUP3)
 int shim_dup3(int oldfd, int newfd, int flags)
 {
-	return syscall(__NR_dup3, oldfd, newfd, flags);
+	return dup3(oldfd, newfd, flags);
 }
 #else
 int shim_dup3(int oldfd, int newfd, int flags)
