@@ -176,7 +176,7 @@ int stress_get(const args_t *args)
 		check_do_run();
 #endif
 
-#if !defined(__minix__)
+#if defined(HAVE_GETPGID)
 		pid = getpgid(mypid);
 		(void)pid;
 		check_do_run();
