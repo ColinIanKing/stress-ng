@@ -75,7 +75,7 @@ void stress_set_mmap_bytes(const char *opt)
  */
 static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
 {
-#if !defined(__minix__)
+#if defined(HAVE_MPROTECT)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)

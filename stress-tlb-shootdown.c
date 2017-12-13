@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_MPROTECT)
 
 #define MAX_TLB_PROCS	(8)
 #define MIN_TLB_PROCS	(2)
