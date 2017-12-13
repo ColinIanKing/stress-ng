@@ -603,7 +603,7 @@ int shim_mlock2(const void *addr, size_t len, int flags)
  */
 int shim_mlockall(int flags)
 {
-#if !defined(__gnu_hurd__) && !defined(__minix__)
+#if defined(HAVE_MLOCKALL)
 	return mlockall(flags);
 #else
 	(void)flags;
@@ -619,7 +619,8 @@ int shim_mlockall(int flags)
  */
 int shim_munlockall(void)
 {
-#if !defined(__gnu_hurd__) && !defined(__minix__)
+/* if HAVE_MLOCKALL defined we also have munlockall */
+#if defined(HAVE_MLOCKALL)
 	return munlockall();
 #else
 	errno = ENOSYS;
