@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if _POSIX_C_SOURCE >= 199309L && !defined(__gnu_hurd__)
+#if _POSIX_C_SOURCE >= 199309L && \
+    defined(HAVE_SIGQUEUE) && \
+    defined(HAVE_SIGWAITINFO)
 
 static void MLOCKED stress_sigqhandler(int dummy)
 {
