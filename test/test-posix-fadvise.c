@@ -26,7 +26,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-       int posix_fadvise(int fd, off_t offset, off_t len, int advice);
+#if defined(__gnu_hurd__)
+#error posix_fadvise is defined but not implemented and will always fail
+#endif
 
 #define NO_FADV
 
