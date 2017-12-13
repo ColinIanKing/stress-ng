@@ -96,7 +96,7 @@ static int open_tmp_rdwr(void)
 }
 #endif
 
-#if defined(O_NOCTTY) && _XOPEN_SOURCE >= 600 && !defined(__gnu_hurd__)
+#if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
 static int open_pt(void)
 {
 	return posix_openpt(O_RDWR | O_NOCTTY);
@@ -140,7 +140,7 @@ static open_func_t open_funcs[] = {
 #if defined(O_PATH)
 	open_path,
 #endif
-#if defined(O_NOCTTY) && _XOPEN_SOURCE >= 600 && !defined(__gnu_hurd__)
+#if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
 	open_pt
 #endif
 };
