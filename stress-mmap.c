@@ -210,9 +210,7 @@ static void stress_mmap_child(
 								"not contain expected data\n", args->name, page_size);
 						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 							(void)memset(mappings[page], n, page_size);
-#if !defined(__gnu_hurd__) && !defined(__minix__)
-							(void)msync((void *)mappings[page], page_size, ms_flags);
-#endif
+							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 						}
 					}
 					n--;
