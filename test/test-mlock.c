@@ -22,29 +22,15 @@
  * functionality.
  *
  */
-#include "stress-ng.h"
 
-/*
- *  stress_mlock_region
- *	mlock a region of memory so it can't be swapped out
- *	- used to lock sighandlers for faster response
- */
-int stress_mlock_region(const void *addr_start, const void *addr_end)
+#include <stdint.h>
+#include <sys/mman.h>
+
+static char buffer[8192];
+
+int main(void)
 {
-#if defined(HAVE_MLOCK)
-	const size_t page_size = stress_get_pagesize();
-	void *m_addr_start =
-		(void *)((ptrdiff_t)addr_start & ~(page_size - 1));
-	const void *m_addr_end  =
-		(void *)(((ptrdiff_t)addr_end + page_size - 1) &
-		~(page_size - 1));
-	const size_t len = (ptrdiff_t)m_addr_end - (ptrdiff_t)m_addr_start;
+	uintptr_t ptr = (((uintptr_t)buffer) & ~(4096 -1));
 
-	return mlock((void *)m_addr_start, len);
-#else
-	(void)addr_start;
-	(void)addr_end;
-
-	return 0;
-#endif
+	return mlock((void *)ptr, 4096);
 }

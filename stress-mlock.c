@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(_POSIX_MEMLOCK_RANGE) && !defined(__minix__)
+#if defined(_POSIX_MEMLOCK_RANGE) && defined(HAVE_MLOCK)
 
 #define MLOCK_MAX	(256*1024)
 
