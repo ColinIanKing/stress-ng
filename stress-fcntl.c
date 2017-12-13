@@ -66,7 +66,7 @@ static void check_return(const args_t *args, const int ret, const char *cmd)
  */
 static int do_fcntl(const args_t *args, const int fd)
 {
-#if defined(F_DUPFD) && !defined(__minix__)
+#if defined(F_DUPFD)
 	{
 		int ret;
 
@@ -77,11 +77,11 @@ static int do_fcntl(const args_t *args, const int fd)
 	}
 #endif
 
-#if defined(F_DUPFD_CLOEXEC) && !defined(__minix__)
+#if defined(F_DUPFD_CLOEXEC)
 	{
 		int ret;
 
-		ret = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+		ret = fcntl(fd, F_DUPFD, F_DUPFD_CLOEXEC);
 		check_return(args, ret, "F_DUPFD_CLOEXEC");
 		if (ret > -1)
 			(void)close(ret);
