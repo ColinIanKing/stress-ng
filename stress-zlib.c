@@ -307,7 +307,6 @@ static void stress_rand_data_latin(const args_t *args, uint32_t *data, const int
 }
 
 
-#if !defined(__sun__)
 /*
  *  stress_rand_data_objcode()
  *	fill buffer with object code data from stress-ng
@@ -382,7 +381,6 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 	(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
 	(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
 }
-#endif
 
 static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_rarely_1,
@@ -395,9 +393,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_nybble,
 	stress_rand_data_fixed,
 	stress_rand_data_latin,
-#if !defined(__sun__)
 	stress_rand_data_objcode
-#endif
 };
 
 /*
@@ -423,9 +419,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
-#if !defined(__sun__)
 	{ "objcode",	stress_rand_data_objcode },
-#endif
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 	{ "text",	stress_rand_data_text },
