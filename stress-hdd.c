@@ -116,7 +116,7 @@ static const hdd_opts_t hdd_opts[] = {
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_WILLNEED),
 		POSIX_FADV_DONTNEED, 0 },
 #endif
-#if _BSD_SOURCE || _XOPEN_SOURCE || _POSIX_C_SOURCE >= 200112L
+#if defined(HAVE_FSYNC)
 	{ "fsync",	HDD_OPT_FSYNC, 0, 0, 0 },
 #endif
 #if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
@@ -184,7 +184,7 @@ static ssize_t stress_hdd_write(
 		ret = write(fd, buf, count);
 	}
 
-#if _BSD_SOURCE || _XOPEN_SOURCE || _POSIX_C_SOURCE >= 200112L
+#if defined(HAVE_FSYNC)
 	if (hdd_flags & HDD_OPT_FSYNC)
 		(void)fsync(fd);
 #endif
