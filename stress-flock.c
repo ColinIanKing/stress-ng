@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__sun__) && defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(LOCK_EX) && defined(LOCK_UN)
 
 /*
  *  stress_flock
