@@ -34,11 +34,9 @@ int main(void)
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
 	if (fd < 0)
-		goto err;
+		return 1;
+
 	(void)unlink(filename);
-
-       #include <unistd.h>
-
 
 	if (lockf(fd, F_LOCK, 1024) < 0)
 		goto err;

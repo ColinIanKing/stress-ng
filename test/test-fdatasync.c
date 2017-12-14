@@ -35,7 +35,7 @@ int main(void)
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
 	if (fd < 0)
-		goto err;
+		return 1;
 	(void)unlink(filename);
 
 	if (fdatasync(fd) < 0)

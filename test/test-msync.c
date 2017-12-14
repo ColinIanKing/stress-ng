@@ -23,6 +23,7 @@
  *
  */
 
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -42,9 +43,10 @@ int main(void)
 	ssize_t rc;
 	const size_t sz = sizeof buffer;
 
+	memset(buffer, 0, sizeof(buffer));
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
 	if (fd < 0)
-		goto err;
+		return 1;
 	(void)unlink(filename);
 
 	rc = write(fd, buffer, sz);
