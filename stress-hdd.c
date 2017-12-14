@@ -162,7 +162,7 @@ static ssize_t stress_hdd_write(
 {
 	ssize_t ret;
 
-#if !defined(__sun__)
+#if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
 #endif
@@ -211,7 +211,7 @@ static ssize_t stress_hdd_read(
 	const uint64_t hdd_write_size,
 	const int hdd_flags)
 {
-#if !defined(__sun__)
+#if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
 		(void)futimes(fd, NULL);
 #endif
