@@ -25,13 +25,6 @@
 #include "stress-ng.h"
 
 #include <strings.h>
-#if defined(HAVE_LIB_BSD)
-#define HAVE_STRLCPY
-#define HAVE_STRLCAT
-#elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__FreeBSD__)
-#define HAVE_STRLCPY
-#define HAVE_STRLCAT
-#endif
 
 /*
  *  the STR stress test has different classes of string stressors
