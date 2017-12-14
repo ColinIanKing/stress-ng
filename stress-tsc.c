@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(STRESS_X86) && !defined(__OpenBSD__) && NEED_GNUC(4,6,0)
+#if defined(STRESS_X86) && defined(HAVE_CPUID) && NEED_GNUC(4,6,0)
 
 static bool tsc_supported = false;
 
