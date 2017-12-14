@@ -24,11 +24,11 @@
  */
 #include "stress-ng.h"
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(HAVE_GETMNTINFO)
 #include <sys/param.h>
 #include <sys/ucred.h>
 #include <sys/mount.h>
-#elif defined(__linux__)
+#elif defined(HAVE_GETMNTENT)
 #include <mntent.h>
 #endif
 
@@ -72,7 +72,7 @@ void mount_free(char *mnts[], const int n)
  *	populate mnts with up to max mount points
  *	from /etc/mtab
  */
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#if defined(HAVE_GETMNTINFO)
 int mount_get(char *mnts[], const int max)
 {
 	int i, n = 0, ret;
@@ -91,7 +91,7 @@ int mount_get(char *mnts[], const int max)
 	}
 	return ret;
 }
-#elif defined(__linux__)
+#elif defined(HAVE_GETMNTENT)
 int mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
