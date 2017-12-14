@@ -27,11 +27,10 @@
 #include <libgen.h>
 #include <math.h>
 #if defined(__linux__)
-#include <sys/utsname.h>
 #include <sys/sysinfo.h>
 #include <sys/prctl.h>
 #endif
-#if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
+#if defined(HAVE_UNAME)
 #include <sys/utsname.h>
 #endif
 #include <sys/statvfs.h>
@@ -667,8 +666,10 @@ void stress_strnrnd(char *str, const size_t len)
  */
 void pr_yaml_runinfo(FILE *yaml)
 {
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 	struct utsname uts;
+#endif
+#if defined(__linux__)
 	struct sysinfo info;
 #endif
 	time_t t;
