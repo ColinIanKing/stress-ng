@@ -27,8 +27,10 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 #include <sys/utsname.h>
+#endif
+#if defined(__linux__)
 #include <sys/timex.h>
 #endif
 
