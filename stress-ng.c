@@ -2539,10 +2539,9 @@ void log_system_mem_info(void)
  */
 static void log_system_info(void)
 {
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 	struct utsname buf;
-#endif
-#if defined(__linux__)
+
 	if (uname(&buf) == 0) {
 		syslog(LOG_INFO, "system: '%s' %s %s %s %s\n",
 			buf.nodename,

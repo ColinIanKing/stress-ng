@@ -267,7 +267,7 @@ int stress_get(const args_t *args)
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
 			pr_fail_err("gettimeval");
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 		ret = uname(&utsbuf);
 		if (verify && (ret < 0))
 			pr_fail_err("uname");

@@ -691,7 +691,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	}
 	if (!gethostname(hostname, sizeof(hostname)))
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 	if (uname(&uts) == 0) {
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
@@ -699,6 +699,8 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      version: %s\n", uts.version);
 		pr_yaml(yaml, "      machine: %s\n", uts.machine);
 	}
+#endif
+#if defined(__linux__)
 	if (sysinfo(&info) == 0) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
 		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
@@ -1058,7 +1060,7 @@ unsigned int stress_get_cpu(void)
  */
 int stress_not_implemented(const args_t *args)
 {
-#if !defined(__NetBSD__) && !defined(__OpenBSD__) && !defined(__FreeBSD__)
+#if defined(HAVE_UNAME)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
