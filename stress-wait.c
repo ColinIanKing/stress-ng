@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__gnu_hurd__) && !defined(__NetBSD__)
 
 /*
  *  Disabled for GNU/Hurd because it this stressor breaks with
@@ -32,6 +31,8 @@
  *    intr-msg.c:387: _hurd_intr_rpc_mach_msg: Assertion 
  *    `m->header.msgh_id == msgid + 100' 
  */
+#if !defined(__gnu_hurd__)
+
 #define ABORT_TIMEOUT	(1.0)
 
 static void MLOCKED stress_usr1_handler(int dummy)
