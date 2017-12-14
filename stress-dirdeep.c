@@ -183,7 +183,7 @@ static void stress_dir_exercise(
 #endif
 				/* Occasional flushing */
 				if (rnd >= 0xfff0) {
-#if defined(__linux__) && NEED_GLIBC(2,14,0)
+#if defined(HAVE_SYNCFS)
 					(void)syncfs(fd);
 #else
 					(void)sync();
