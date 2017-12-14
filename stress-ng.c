@@ -27,8 +27,10 @@
 #include <getopt.h>
 #include <syslog.h>
 
-#if defined(__linux__)
+#if defined(HAVE_UNAME)
 #include <sys/utsname.h>
+#endif
+#if defined(__linux__)
 #include <sys/sysinfo.h>
 #endif
 
