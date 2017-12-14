@@ -124,8 +124,10 @@ int stress_get(const args_t *args)
 #if defined(__linux__)
 		gid_t rgid, egid, sgid;
 		uid_t ruid, euid, suid;
-		struct utsname utsbuf;
 		struct timex timexbuf;
+#endif
+#if defined(HAVE_UNAME)
+		struct utsname utsbuf;
 #endif
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
