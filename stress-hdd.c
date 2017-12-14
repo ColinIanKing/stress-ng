@@ -123,7 +123,7 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
-#if NEED_GLIBC(2,14,0) && defined(__linux__)
+#if defined(HAVE_SYNCFS)
 	{ "syncfs",	HDD_OPT_SYNCFS, 0, 0, 0 },
 #endif
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
@@ -192,7 +192,7 @@ static ssize_t stress_hdd_write(
 	if (hdd_flags & HDD_OPT_FDATASYNC)
 		(void)fdatasync(fd);
 #endif
-#if NEED_GLIBC(2,14,0) && defined(__linux__)
+#if defined(HAVE_SYNCFS)
 	if (hdd_flags & HDD_OPT_SYNCFS)
 		(void)syncfs(fd);
 #endif
