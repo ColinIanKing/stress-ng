@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__minix__) && !defined(__OpenBSD__) && !defined(__sun__)
-
 #define RMAP_CHILD_MAX		(16)
 #define MAPPINGS_MAX		(64)
 #define MAPPING_PAGES		(16)
@@ -272,9 +270,3 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
-#else
-int stress_rmap(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
