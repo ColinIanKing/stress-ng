@@ -119,7 +119,7 @@ static const hdd_opts_t hdd_opts[] = {
 #if defined(HAVE_FSYNC)
 	{ "fsync",	HDD_OPT_FSYNC, 0, 0, 0 },
 #endif
-#if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
+#if defined(HAVE_FDATASYNC)
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
@@ -188,7 +188,7 @@ static ssize_t stress_hdd_write(
 	if (hdd_flags & HDD_OPT_FSYNC)
 		(void)fsync(fd);
 #endif
-#if _POSIX_C_SOURCE >= 199309L || _XOPEN_SOURCE >= 500
+#if defined(HAVE_FDATASYNC)
 	if (hdd_flags & HDD_OPT_FDATASYNC)
 		(void)fdatasync(fd);
 #endif

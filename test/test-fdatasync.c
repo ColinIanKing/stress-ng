@@ -30,7 +30,7 @@
 
 int main(void)
 {
-	static const char *filename = "/tmp/test-fsync.tmp";
+	static const char *filename = "/tmp/test-fdatasync.tmp";
 	int fd, err = 1;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
@@ -38,7 +38,7 @@ int main(void)
 		goto err;
 	(void)unlink(filename);
 
-	if (fsync(fd) < 0)
+	if (fdatasync(fd) < 0)
 		goto err;
 	err = 0;
 err:
