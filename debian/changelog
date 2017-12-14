@@ -1,3 +1,58 @@
+stress-ng (0.09.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add stress-version.h to make dist rules
+  * test: clean up errors in config tests found by static analysis
+  * Add lockf autoconfigure detection
+  * stress-io: use HAVE_SYNCFS to detect syncfs availability
+  * stress-dirdeep: use HAVE_SYNCFS to detect syncfs availability
+  * Add syncfs autoconfigure detection
+  * Add fdatasync autoconfigure detection
+  * Add fsync autoconfigure detection
+  * stress-flock: remove __sun__ restriction
+  * Add posix_memalign autoconfigure detection
+  * Add futimes autoconfigure detection
+  * stress-zlib: remove restriction on __sun__
+  * stress-wait: only disable for broken GNU/Hurd
+  * Makefile.config: add -Werror to fix build warnings on Minix
+  * Add mount autoconfigure detection for BSD and Linux
+  * stress-rmap: remove build restrictions on non-linux systems
+  * stress-ng: ensure utsname.h is included for non-linux builds
+  * stress-get: ensure utsname.h is included for non-linux builds
+  * stress-get: fix build error on non-linux platform
+  * Add x86 cpuid autoconfigure detection
+  * Add strlcpy strlcat string func autoconfigure detection
+  * helper: clean up utsname includes
+  * Add uname autoconfiguration detection
+  * stress-msync: replace __minix__ with HAVE_MSYNC
+  * stress-mincore: use the HAVE_MINCORE macro rather than __gnu_hurd__
+  * Add sigwaitinfo and sigqueue autoconfig detection
+  * stress-hdd: replace __gnu_hurd__ with more generic posix fadvise check
+  * stress-wait: add notes on why this is disabled on GNU/Hurd
+  * helper: use HAVE_SIGALTSTACK instead of minix and GNU/Hurd checks
+  * stress-msync: enable build for GNU/Hurd
+  * Add posix_openpt autoconfig detection
+  * stress-mincore: remove extraneous space at end of error message
+  * test/test-posix-fadvise: force failures GNU/Hurd
+  * Add posix_fadvise autoconfig detection
+  * test: force failures for mincore and msync for GNU/Hurd
+  * stress-fcntl: fix incorrect usage of F_DUPFD_CLOEXEC flag
+  * stress-get: remove __minix__ #define check
+  * Add mincore autoconfig detection
+  * Add msync autoconfigure detection
+  * stress-mmap: call shim_msync rather than msync
+  * Add mprotect autoconfigure detection
+  * Add autoconfigure detection of sigaltstack
+  * Add autodetection of mlockall and munlockall
+  * Add mlock autodetection
+  * Add getpgid autoconfigure detection
+  * Add getpgrp autoconfigure detection
+  * split out version macros into stress-version.h
+  * Add dup3 autoconfigure detection
+  * stress-trees: voidify return of get_setting for tree-method option
+
+ -- Colin King <colin.king@canonical.com>  Thu, 14 Dec 2017 18:12:01 +0000
+
 stress-ng (0.09.06-1) unstable; urgency=medium
 
   * Makefile: bump version
