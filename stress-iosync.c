@@ -30,24 +30,22 @@
  */
 int stress_io(const args_t *args)
 {
-#if defined(__linux__)
+#if defined(HAVE_SYNCFS)
 	int fd;
-#endif
 
-#if defined(__linux__)
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 #endif
 
 	do {
 		sync();
-#if defined(__linux__) && NEED_GLIBC(2,14,0)
+#if defined(HAVE_SYNCFS)
 		if ((fd != -1) && (syncfs(fd) < 0))
 			pr_fail_err("syncfs");
 #endif
 		inc_counter(args);
 	} while (keep_stressing());
 
-#if defined(__linux__)
+#if defined(HAVE_SYNCFS)
 	if (fd != -1)
 		(void)close(fd);
 #endif
