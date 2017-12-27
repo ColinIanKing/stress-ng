@@ -94,10 +94,10 @@ static int sockdiag_send(const args_t *args, const int fd)
 
 static int stress_sockdiag_parse(
 	const args_t *args,
-	const struct unix_diag_msg *diag,
+	struct unix_diag_msg *diag,
 	unsigned int len)
 {
-	const struct rtattr *attr;
+	struct rtattr *attr;
 	unsigned int rta_len;
 
 	if (len < NLMSG_LENGTH(sizeof(*diag))) {
@@ -111,7 +111,7 @@ static int stress_sockdiag_parse(
 	}
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
-	for (attr = (const struct rtattr *) (diag + 1);
+	for (attr = (struct rtattr *) (diag + 1);
 	     RTA_OK(attr, rta_len) && keep_stressing();
 	     attr = RTA_NEXT(attr, rta_len)) {
 		switch (attr->rta_type) {
@@ -151,7 +151,7 @@ static int sockdiag_recv(const args_t *args, const int fd)
 			.msg_iov = &iov,
 			.msg_iovlen = 1
 		};
-		const struct nlmsghdr *h = (struct nlmsghdr *)buf;
+		struct nlmsghdr *h = (struct nlmsghdr *)buf;
 
 		ret = recvmsg(fd, &msg, flags);
 		if (ret == 0)
