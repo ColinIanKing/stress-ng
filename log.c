@@ -144,6 +144,8 @@ int pr_msg(
  *  __pr_msg_fail()
  *	wrapper helper for pr_msg_fail
  */
+static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...) FORMAT(printf, 2, 0);
+
 static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...)
 {
 	va_list ap;
