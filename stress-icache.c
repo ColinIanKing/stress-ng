@@ -34,11 +34,6 @@
 #define SIZE_16K	(16 * SIZE_1K)
 #define SIZE_64K	(64 * SIZE_1K)
 
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
-#define SECTION(s) __attribute__((__section__(# s)))
-#define ALIGNED(a) __attribute__((aligned(a)))
-#endif
-
 /*
  *  STRESS_ICACHE_FUNC()
  *	generates a simple function that is page aligned in its own

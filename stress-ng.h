@@ -469,18 +469,26 @@ typedef struct {
 #define WARN_UNUSED
 #endif
 
+#if defined(__GNUC__) && NEED_GNUC(3,3,0)
+#define ALIGNED(a)	__attribute__((aligned(a)))
+#endif
+
 /* Force aligment to nearest 128 bytes */
 #if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_128)
-#define ALIGN128	__attribute__ ((aligned(128)))
+#define ALIGN128	ALIGNED(128)
 #else
 #define ALIGN128
 #endif
 
 /* Force aligment to nearest 64 bytes */
 #if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_64)
-#define ALIGN64		__attribute__ ((aligned(64)))
+#define ALIGN64		ALIGNED(64)
 #else
 #define ALIGN64
+#endif
+
+#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#define SECTION(s)	__attribute__((__section__(# s)))
 #endif
 
 /* Choose cacheline alignment */
