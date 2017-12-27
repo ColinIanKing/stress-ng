@@ -174,7 +174,7 @@ int HOT stress_vecmath(const args_t *args)
 	uint64_put(a64[0] + a64[1]);
 
 #if defined(STRESS_INT128)
-	uint64_put((a128[0] >> 64) || (a128[0] & 0xffffffffffffULL));
+	uint128_put(a128[0]);
 #endif
 
 	return EXIT_SUCCESS;
