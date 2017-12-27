@@ -148,8 +148,9 @@ int stress_physpage(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
+	if (fd_pc > 0)
+		(void)close(fd_pc);
 	(void)close(fd_pm);
-	(void)close(fd_pc);
 
 	return EXIT_SUCCESS;
 }
