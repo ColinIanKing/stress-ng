@@ -154,17 +154,10 @@ static void HOT stress_cpu_sqrt(const char *name)
 }
 
 /*
- *  We need to stop gcc optimising out the loop additions.. sigh
- */
-#if __GNUC__ && NEED_GNUC(4, 4, 0) && !defined(__clang__)
-static void stress_cpu_loop(const char *)  __attribute__((optimize("-O0")));
-#endif
-
-/*
  *  stress_cpu_loop()
  *	simple CPU busy loop
  */
-static void stress_cpu_loop(const char *name)
+static void OPTIMIZE0 stress_cpu_loop(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 134209536UL;
@@ -1283,13 +1276,6 @@ static void HOT stress_cpu_explog(const char *name)
 }
 
 /*
- *  Undocumented gcc-ism, force -O0 optimisation
- */
-#if __GNUC__ && NEED_GNUC(4, 4, 0) && !defined(__clang__)
-static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
-#endif
-
-/*
  *  This could be a ternary operator, v = (v op val) ? a : b
  *  but it may be optimised down, so force a compare and jmp
  *  with -O0 and a if/else construct
@@ -1305,7 +1291,7 @@ static void stress_cpu_jmp(const char *name)  __attribute__((optimize("-O0")));
  *   stress_cpu_jmp
  *	jmp conditionals
  */
-static void HOT stress_cpu_jmp(const char *name)
+static void HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
 {
 	register int i, next = 0;
 

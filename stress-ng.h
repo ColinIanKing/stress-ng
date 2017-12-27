@@ -455,6 +455,13 @@ typedef struct {
 #define OPTIMIZE1
 #endif
 
+/* -O0 attribute support */
+#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#define OPTIMIZE0 	__attribute__((optimize("-O0")))
+#else
+#define OPTIMIZE0
+#endif
+
 /* warn unused attribute */
 #if defined(__GNUC__) && NEED_GNUC(4,2,0)
 #define WARN_UNUSED	__attribute__((warn_unused_result))
