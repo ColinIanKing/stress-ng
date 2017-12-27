@@ -130,7 +130,7 @@ int stress_tlb_shootdown(const args_t *args)
 					for (j = i; j < tlb_procs; j++)
 						(void)kill(pids[j], SIGKILL);
 
-					/* re-wait on the failed wait
+					/* re-wait on the failed wait */
 					(void)waitpid(pids[i], &status, 0);
 
 					/* and continue waitpid on the pids */
