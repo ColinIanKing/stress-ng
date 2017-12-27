@@ -43,14 +43,21 @@ static const stress_funccall_method_info_t funccall_methods[];
 typedef long double 	long_double_t;
 
 #define stress_funccall_1(type)			\
-extern void stress_funccall_ ## type ## _1(	\
+void NOINLINE stress_funccall_ ## type ## _1(	\
+	const type a);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _1(	\
 	const type a)				\
 {						\
 	type ## _put(a);			\
 }						\
 
 #define stress_funccall_2(type)			\
-extern void stress_funccall_ ## type ## _2(	\
+void NOINLINE stress_funccall_ ## type ## _2(	\
+	const type a,				\
+	const type b);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _2(	\
 	const type a,				\
 	const type b)				\
 {						\
@@ -59,7 +66,12 @@ extern void stress_funccall_ ## type ## _2(	\
 }						\
 
 #define stress_funccall_3(type)			\
-extern void stress_funccall_ ## type ## _3(	\
+void NOINLINE stress_funccall_ ## type ## _3(	\
+	const type a,				\
+	const type b,				\
+	const type c);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _3(	\
 	const type a,				\
 	const type b,				\
 	const type c)				\
@@ -70,7 +82,13 @@ extern void stress_funccall_ ## type ## _3(	\
 }						\
 
 #define stress_funccall_4(type)			\
-extern void stress_funccall_ ## type ## _4(	\
+void NOINLINE stress_funccall_ ## type ## _4(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _4(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -83,7 +101,14 @@ extern void stress_funccall_ ## type ## _4(	\
 }						\
 
 #define stress_funccall_5(type)			\
-extern void stress_funccall_ ## type ## _5(	\
+void NOINLINE stress_funccall_ ## type ## _5(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d,				\
+	const type e);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _5(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -98,7 +123,15 @@ extern void stress_funccall_ ## type ## _5(	\
 }						\
 
 #define stress_funccall_6(type)			\
-extern void stress_funccall_ ## type ## _6(	\
+void NOINLINE stress_funccall_ ## type ## _6(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d,				\
+	const type e,				\
+	const type f);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _6(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -115,7 +148,16 @@ extern void stress_funccall_ ## type ## _6(	\
 }						\
 
 #define stress_funccall_7(type)			\
-extern void stress_funccall_ ## type ## _7(	\
+void NOINLINE stress_funccall_ ## type ## _7(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d,				\
+	const type e,				\
+	const type f,				\
+	const type g);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _7(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -134,7 +176,17 @@ extern void stress_funccall_ ## type ## _7(	\
 }						\
 
 #define stress_funccall_8(type)			\
-extern void stress_funccall_ ## type ## _8(	\
+void NOINLINE stress_funccall_ ## type ## _8(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d,				\
+	const type e,				\
+	const type f,				\
+	const type g,				\
+	const type h);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _8(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -155,7 +207,18 @@ extern void stress_funccall_ ## type ## _8(	\
 }						\
 
 #define stress_funccall_9(type)			\
-extern void stress_funccall_ ## type ## _9(	\
+void NOINLINE stress_funccall_ ## type ## _9(	\
+	const type a,				\
+	const type b,				\
+	const type c,				\
+	const type d,				\
+	const type e,				\
+	const type f,				\
+	const type g,				\
+	const type h,				\
+	const type i);				\
+						\
+void NOINLINE stress_funccall_ ## type ## _9(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -260,7 +323,7 @@ stress_funccall_8(long_double_t)
 stress_funccall_9(long_double_t)
 
 #define stress_funcall_type(type, rndfunc)			\
-static void stress_funccall_ ## type(const args_t *args)	\
+static void NOINLINE stress_funccall_ ## type(const args_t *args)\
 {								\
 	register int ii;					\
 	type a, b, c, d, e, f, g, h, i;				\
