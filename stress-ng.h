@@ -1309,6 +1309,7 @@ typedef enum {
 	STRESS_QSORT,
 	STRESS_QUOTA,
 	STRESS_RADIXSORT,
+	STRESS_RAWDEV,
 	STRESS_RDRAND,
 	STRESS_READAHEAD,
 	STRESS_REMAP_FILE_PAGES,
@@ -1877,6 +1878,10 @@ typedef enum {
 	OPT_RADIXSORT,
 	OPT_RADIXSORT_OPS,
 	OPT_RADIXSORT_SIZE,
+
+	OPT_RAWDEV,
+	OPT_RAWDEV_METHOD,
+	OPT_RAWDEV_OPS,
 
 	OPT_RDRAND,
 	OPT_RDRAND_OPS,
@@ -2578,6 +2583,7 @@ extern int stress_icmp_flood_supported(void);
 extern int stress_ioport_supported(void);
 extern int stress_netlink_proc_supported(void);
 extern int stress_physpage_supported(void);
+extern int stress_rawdev_supported(void);
 extern int stress_rdrand_supported(void);
 extern int stress_softlockup_supported(void);
 extern int stress_swap_supported(void);
@@ -2652,6 +2658,7 @@ extern void stress_set_pthread_max(const char *opt);
 extern void stress_set_pty_max(const char *opt);
 extern void stress_set_qsort_size(const char *opt);
 extern void stress_set_radixsort_size(const char *opt);
+extern int  stress_set_rawdev_method(const char *name);
 extern void stress_set_readahead_bytes(const char *opt);
 extern int  stress_set_sctp_domain(const char *opt);
 extern void stress_set_sctp_port(const char *opt);
@@ -2964,6 +2971,7 @@ STRESS(stress_pty);
 STRESS(stress_qsort);
 STRESS(stress_quota);
 STRESS(stress_radixsort);
+STRESS(stress_rawdev);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
 STRESS(stress_remap);

@@ -2284,6 +2284,47 @@ stop radixsort stress workers after N bogo radixsorts.
 .B \-\-radixsort\-size N
 specify number of strings to sort, default is 262144 (256 \(mu 1024).
 .TP
+.B \-\-rawdev N
+start N workers that read the underlying raw drive device using direct
+IO reads. The device (with minor number 0) that stores the current working
+directory is the raw device to be read by the stressor.  The read size is
+exactly the size of the underlying device block size.  By default, this
+stressor will exercise all the of the rawdev methods (see the
+\-\-rawdev\-method option). This is a Linux only stressor and requires
+root privilege to be able to read the raw device.
+.TP
+.B \-\-rawdev\-ops N
+stop the rawdev stress workers after N raw device read bogo operations.
+.TP
+.B \-\-rawdev\-method M
+Available rawdev stress methods are described as follows:
+.TS
+expand;
+lBw(10n)2 lBw(\n[SZ]n)
+l l.
+Method	Description
+all	T{
+iterate over all the rawdev stress methods as listed below:
+T}
+sweep	T{
+repeatedy read across the raw device from the 0th block to the end block in steps
+of the number of blocks on the device / 128 and back to the start again.
+T}
+wiggle	T{
+repeatedy read across the raw device in 128 evenly steps with each step reading
+1024 blocks backwards from each step.
+ends	T{
+repeatedy read the first and last 128 start and end blocks of the raw device
+alternating from start of the device to the end of the device.
+T}
+random	T{
+repeatedy read 256 random blocks
+T}
+burst	T{
+repeatedly read 256 sequential blocks starting from a random block on the raw device.
+T}
+.TE
+.TP
 .B \-\-rdrand N
 start N workers that read the Intel hardware random number generator (Intel
 Ivybridge processors upwards).

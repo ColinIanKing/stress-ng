@@ -97,6 +97,7 @@ static const unsupported_t unsupported[] = {
 	{ STRESS_IOPORT,	stress_ioport_supported },
 	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
 	{ STRESS_PHYSPAGE,	stress_physpage_supported },
+	{ STRESS_RAWDEV,	stress_rawdev_supported },
 	{ STRESS_RDRAND,	stress_rdrand_supported },
 	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
 	{ STRESS_SWAP,		stress_swap_supported },
@@ -326,6 +327,7 @@ static const stress_t stressors[] = {
 	STRESSOR(qsort, QSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
 	STRESSOR(quota, QUOTA, CLASS_OS),
 	STRESSOR(radixsort, RADIXSORT, CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY),
+	STRESSOR(rawdev, RAWDEV, CLASS_IO),
 	STRESSOR(rdrand, RDRAND, CLASS_CPU),
 	STRESSOR(readahead, READAHEAD, CLASS_IO | CLASS_OS),
 	STRESSOR(remap, REMAP_FILE_PAGES, CLASS_MEMORY | CLASS_OS),
@@ -765,6 +767,9 @@ static const struct option long_options[] = {
 	{ "radixsort",	1,	0,	OPT_RADIXSORT },
 	{ "radixsort-ops",1,	0,	OPT_RADIXSORT_OPS },
 	{ "radixsort-size",1,	0,	OPT_RADIXSORT_SIZE },
+	{ "rawdev",	1,	0,	OPT_RAWDEV },
+	{ "rawdev-ops",1,	0,	OPT_RAWDEV_OPS },
+	{ "rawdev-method",1,	0,	OPT_RAWDEV_METHOD },
 	{ "random",	1,	0,	OPT_RANDOM },
 	{ "rdrand",	1,	0,	OPT_RDRAND },
 	{ "rdrand-ops",	1,	0,	OPT_RDRAND_OPS },
@@ -1346,6 +1351,9 @@ static const help_t help_stressors[] = {
 	{ NULL,		"radixsort N",		"start N workers radix sorting random strings" },
 	{ NULL,		"radixsort-ops N",	"stop after N radixsort bogo operations" },
 	{ NULL,		"radixsort-size N",	"number of strings to sort" },
+	{ NULL,		"rawdev N",		"start N workers that read a raw device" },
+	{ NULL,		"rawdev-ops N",		"stop after N rawdev read operations" },
+	{ NULL,		"rawdev-method M",	"specify the rawdev reead method to use" },
 	{ NULL,		"rdrand N",		"start N workers exercising rdrand (x86 only)" },
 	{ NULL,		"rdrand-ops N",		"stop after N rdrand bogo operations" },
 	{ NULL,		"readahead N",		"start N workers exercising file readahead" },
@@ -3259,6 +3267,10 @@ next_opt:
 			check_value("random", i32);
 			stress_get_processors(&i32);
 			set_setting("random", TYPE_ID_INT32, &i32);
+			break;
+		case OPT_RAWDEV_METHOD:
+			if (stress_set_rawdev_method(optarg) < 0)
+				return EXIT_FAILURE;
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
