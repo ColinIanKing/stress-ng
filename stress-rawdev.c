@@ -34,8 +34,8 @@ typedef void (*rawdev_func)(const args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
 typedef struct {
-        const char              *name;
-        const rawdev_func       func;
+	const char              *name;
+	const rawdev_func       func;
 } stress_rawdev_method_info_t;
 
 /*
@@ -233,11 +233,11 @@ static void stress_rawdev_all(
 	unsigned long blks,
 	unsigned long blksz)
 {
-        static int i = 1;       /* Skip over stress_rawdev_all */
+	static int i = 1;       /* Skip over stress_rawdev_all */
 
-        rawdev_methods[i++].func(args, fd, blks, blksz);
-        if (!rawdev_methods[i].func)
-                i = 1;
+	rawdev_methods[i++].func(args, fd, blks, blksz);
+	if (!rawdev_methods[i].func)
+		i = 1;
 }
 
 
@@ -301,13 +301,13 @@ int stress_rawdev(const args_t *args)
 	struct stat stat_buf;
 	int fd;
 	unsigned long blks = 0, blksz = 0;
-        const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
-        rawdev_func func;
+	const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
+	rawdev_func func;
 
 	stress_temp_dir_args(args, path, sizeof(path));
 
-        (void)get_setting("rawdev-method", &rawdev_method);
-        func = rawdev_method->func;
+	(void)get_setting("rawdev-method", &rawdev_method);
+	func = rawdev_method->func;
 
 	fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
@@ -378,6 +378,6 @@ int stress_rawdev(const args_t *args)
 #else
 int stress_rawdev(const args_t *args)
 {
-        return stress_not_implemented(args);
+	return stress_not_implemented(args);
 }
 #endif
