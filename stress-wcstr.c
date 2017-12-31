@@ -25,8 +25,6 @@
  */
 #include "stress-ng.h"
 
-#include <wchar.h>
-
 #define STR1LEN 256
 #define STR2LEN 128
 

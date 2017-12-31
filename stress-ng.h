@@ -59,13 +59,19 @@
 #include <pthread.h>
 #endif
 
+#if defined(HAVE_BSD_WCHAR)
+#include <bsd/wchar.h>
+#endif
+#if defined(HAVE_WCHAR)
+#include <wchar.h>
+#endif
+
 #if defined(HAVE_LIB_BSD)
 #if defined(__APPLE__) || \
     defined(__DragonFly__) || \
     defined(__FreeBSD__) || \
     defined(__NetBSD__) || \
     defined(__OpenBSD__)
-#include <wchar.h>
 #if !defined(__APPLE__)
 #include <sys/tree.h>
 #endif
@@ -73,10 +79,6 @@
 #include <bsd/stdlib.h>
 #include <bsd/string.h>
 #include <bsd/sys/tree.h>
-#if !defined(__FreeBSD_kernel__)
-/* GNU/kFreeBSD does not support this */
-#include <bsd/wchar.h>
-#endif
 #endif
 #endif
 
