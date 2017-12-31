@@ -1,3 +1,25 @@
+stress-ng (0.09.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile.config: remove need for LIBBSD for wchar.h path detection
+  * stress-rawdev: fix linking failure on non linux systems
+  * Add wchar.h and bsd/wchar.h path detection, makes stress-ng.h cleaner
+  * Add rawdev raw device read stressor
+  * stress-vecmath: use uint128_put for 128 bit integer
+  * Move ALIGNED and SECTION macros to stress-ng.h
+  * Add OPTIMIZE0 level zero optimization hint macro
+  * stress-socket-diag: remove some consts, cleans up clang warnings
+  * Use the FORMAT macro for some printf style functions
+  * stress-vm: fix warning when building with PEDANTIC=1
+  * stress-tlb-shootdown: fix unterminated comment
+  * stress-timer: fix warning when building with PEDANTIC=1
+  * stress-itimer: fix warning when building with PEDANTIC=1
+  * stress-funccall: clean up warnings when building with PEDANTIC=1
+  * stress-physpage: only close an opened fd_pc file descriptor
+  * stress-tlb: fix incorrect affinity on cores
+
+ -- Colin King <colin.king@canonical.com>  Sun, 31 Dec 2017 17:18:23 +0000
+
 stress-ng (0.09.07-1) unstable; urgency=medium
 
   * Makefile: bump version
