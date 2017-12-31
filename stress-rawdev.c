@@ -240,6 +240,7 @@ static void stress_rawdev_all(
                 i = 1;
 }
 
+
 /*
  *  rawdev methods
  */
@@ -253,6 +254,9 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
 	{ NULL,         NULL }
 };
 
+#endif
+
+#if defined(__linux__)
 /*
  *  stress_set_rawdev_method()
  *	set the default rawdev method
@@ -276,6 +280,19 @@ int stress_set_rawdev_method(const char *name)
 
 	return -1;
 }
+#else
+/*
+ *  stress_set_rawdev_method()
+ *	set the default rawdev method
+ */
+int stress_set_rawdev_method(const char *name)
+{
+	fprintf(stderr, "option --rawdev-method not supported\n");
+	return -1;
+}
+#endif
+
+#if defined(__linux__)
 
 int stress_rawdev(const args_t *args)
 {
