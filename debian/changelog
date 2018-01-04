@@ -1,3 +1,13 @@
+stress-ng (0.09.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-tlb-shootdown: only kill legitimate pids
+  * stress-tlb-shootdown: make child processes more OOM-able
+  * stress-rawdev: replace some spaces with tab for indentation
+  * stress-ng.1: fix table for rawdev-method option
+
+ -- Colin King <colin.king@canonical.com>  Thu, 4 Jan 2018 01:37:11 +0000
+
 stress-ng (0.09.08-1) unstable; urgency=medium
 
   * Makefile: bump version
