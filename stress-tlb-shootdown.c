@@ -133,8 +133,10 @@ int stress_tlb_shootdown(const args_t *args)
 					 * it was the alarm (timedout) or
 					 * SIGINT so force terminate
 					 */
-					for (j = i; j < tlb_procs; j++)
-						(void)kill(pids[j], SIGKILL);
+					for (j = i; j < tlb_procs; j++) {
+						if (pids[j] != -1)
+							(void)kill(pids[j], SIGKILL);
+					}
 
 					/* re-wait on the failed wait */
 					(void)waitpid(pids[i], &status, 0);
