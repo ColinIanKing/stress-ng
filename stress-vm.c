@@ -526,9 +526,7 @@ static size_t stress_vm_walking_one_addr(
 		for (mask = 1, i = 1; i < 64; i++) {
 			uintptr_t uintptr = ((uintptr_t)ptr) ^ mask;
 			uint8_t *addr = (uint8_t *)uintptr;
-			if (addr == ptr)
-				continue;
-			if (addr < buf || addr >= buf_end || addr == ptr)
+			if ((addr < buf) || (addr >= buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
 			tests++;
