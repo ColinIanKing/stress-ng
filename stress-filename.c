@@ -254,7 +254,7 @@ int stress_filename (const args_t *args)
 	sz_max = (size_t)buf.f_namemax;
 
 	/* Some BSD systems return zero for sz_max */
-	if (sz_max <= 0)
+	if (sz_max == 0)
 		sz_max = 128;
 	if (sz_max > PATH_MAX)
 		sz_max = PATH_MAX;
