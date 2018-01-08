@@ -173,7 +173,7 @@ static int do_fcntl(const args_t *args, const int fd)
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PGRP");
-#else if defined(HAVE_GETPGRP) && defined(F_OWNER_GID)
+#elif defined(HAVE_GETPGRP) && defined(F_OWNER_GID)
 		owner.type = F_OWNER_GID;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
@@ -202,7 +202,7 @@ static int do_fcntl(const args_t *args, const int fd)
 		owner.type = F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PGRP");
-#ele if defined(F_OWNER_GID)
+#elif defined(F_OWNER_GID)
 		owner.type = F_OWNER_GID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		check_return(args, ret, "F_GETOWN_EX, F_OWNER_GID");
@@ -436,7 +436,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 #endif
 		};
 
-		ret = fcntl(fd, F_GET_FILE_RW_HINT, &hint)
+		ret = fcntl(fd, F_GET_FILE_RW_HINT, &hint);
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
 				hint = hints[i];
