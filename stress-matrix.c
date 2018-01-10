@@ -38,12 +38,11 @@ typedef void (*stress_matrix_func)(
 	matrix_type_t r[RESTRICT n][n]);
 
 typedef struct {
-	const char			*name;	/* human readable form of stressor */
-	const stress_matrix_func	func;	/* the matrix method function */
+	const char			*name;		/* human readable form of stressor */
+	const stress_matrix_func	func[2];	/* method functions, x by y, y by x */
 } stress_matrix_method_info_t;
 
-static const stress_matrix_method_info_t matrix_xy_methods[];
-static const stress_matrix_method_info_t matrix_yx_methods[];
+static const stress_matrix_method_info_t matrix_methods[];
 
 void stress_set_matrix_size(const char *opt)
 {
@@ -57,9 +56,9 @@ void stress_set_matrix_size(const char *opt)
 
 void stress_set_matrix_yx(void)
 {
-	bool matrix_yx = true;
+	size_t matrix_yx = 1;
 
-	set_setting("matrix-yx", TYPE_ID_BOOL, &matrix_yx);
+	set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
 }
 
 /*
@@ -712,8 +711,8 @@ static void OPTIMIZE3 stress_matrix_xy_all(
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
-	matrix_xy_methods[i++].func(n, a, b, r);
-	if (!matrix_xy_methods[i].func)
+	matrix_methods[i++].func[0](n, a, b, r);
+	if (!matrix_methods[i].name)
 		i = 1;
 }
 
@@ -729,55 +728,57 @@ static void OPTIMIZE3 stress_matrix_yx_all(
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
-	matrix_yx_methods[i++].func(n, a, b, r);
-	if (!matrix_yx_methods[i].func)
+	matrix_methods[i++].func[1](n, a, b, r);
+	if (!matrix_methods[i].name)
 		i = 1;
 }
 
 
 /*
- * Table of cpu stress methods, ordered x by y
+ * Table of cpu stress methods, ordered x by y and y by x
  */
-static const stress_matrix_method_info_t matrix_xy_methods[] = {
-	{ "all",		stress_matrix_xy_all },	/* Special "all" test */
+static const stress_matrix_method_info_t matrix_methods[] = {
+	{ "all",		{ stress_matrix_xy_all,		stress_matrix_yx_all } },/* Special "all" test */
 
-	{ "add",		stress_matrix_xy_add },
-	{ "copy",		stress_matrix_xy_copy },
-	{ "div",		stress_matrix_xy_div },
-	{ "frobenius",		stress_matrix_xy_frobenius },
-	{ "hadamard",		stress_matrix_xy_hadamard },
-	{ "identity",		stress_matrix_xy_identity },
-	{ "mean",		stress_matrix_xy_mean },
-	{ "mult",		stress_matrix_xy_mult },
-	{ "negate",		stress_matrix_xy_negate },
-	{ "prod",		stress_matrix_xy_prod },
-	{ "sub",		stress_matrix_xy_sub },
-	{ "trans",		stress_matrix_xy_trans },
-	{ "zero",		stress_matrix_xy_zero },
-	{ NULL,			NULL }
+	{ "add",		{ stress_matrix_xy_add,		stress_matrix_yx_add } },
+	{ "copy",		{ stress_matrix_xy_copy,	stress_matrix_yx_copy } },
+	{ "div",		{ stress_matrix_xy_div,		stress_matrix_yx_div } },
+	{ "frobenius",		{ stress_matrix_xy_frobenius,	stress_matrix_yx_frobenius } },
+	{ "hadamard",		{ stress_matrix_xy_hadamard,	stress_matrix_yx_hadamard } },
+	{ "identity",		{ stress_matrix_xy_identity,	stress_matrix_yx_identity } },
+	{ "mean",		{ stress_matrix_xy_mean,	stress_matrix_yx_mean } },
+	{ "mult",		{ stress_matrix_xy_mult,	stress_matrix_yx_mult } },
+	{ "negate",		{ stress_matrix_xy_negate,	stress_matrix_yx_negate } },
+	{ "prod",		{ stress_matrix_xy_prod,	stress_matrix_yx_prod } },
+	{ "sub",		{ stress_matrix_xy_sub,		stress_matrix_yx_sub } },
+	{ "trans",		{ stress_matrix_xy_trans,	stress_matrix_yx_trans } },
+	{ "zero",		{ stress_matrix_xy_zero,	stress_matrix_yx_zero } },
+	{ NULL,			{ NULL, NULL } }
 };
 
-/*
- * Table of cpu stress methods, ordered y by x
- */
-static const stress_matrix_method_info_t matrix_yx_methods[] = {
-	{ "all",		stress_matrix_yx_all },	/* Special "all" test */
+const stress_matrix_method_info_t *stress_get_matrix_method(
+	const char *name)
+{
+	const stress_matrix_method_info_t *info;
 
-	{ "add",		stress_matrix_yx_add },
-	{ "copy",		stress_matrix_yx_copy },
-	{ "div",		stress_matrix_yx_div },
-	{ "frobenius",		stress_matrix_yx_frobenius },
-	{ "hadamard",		stress_matrix_yx_hadamard },
-	{ "identity",		stress_matrix_yx_identity },
-	{ "mean",		stress_matrix_yx_mean },
-	{ "mult",		stress_matrix_yx_mult },
-	{ "negate",		stress_matrix_yx_negate },
-	{ "prod",		stress_matrix_yx_prod },
-	{ "sub",		stress_matrix_yx_sub },
-	{ "trans",		stress_matrix_yx_trans },
-	{ "zero",		stress_matrix_yx_zero },
-	{ NULL,			NULL }
-};
+	for (info = matrix_methods; info->name; info++) {
+		if (!strcmp(info->name, name)) {
+			set_setting("matrix-method", TYPE_ID_STR, name);
+			return info;
+		}
+	}
+	return NULL;
+}
+
+void stress_matrix_method_error(void)
+{
+	const stress_matrix_method_info_t *info;
+
+	(void)fprintf(stderr, "matrix-method must be one of:");
+	for (info = matrix_methods; info->name; info++)
+		(void)fprintf(stderr, " %s", info->name);
+	(void)fprintf(stderr, "\n");
+}
 
 /*
  *  stress_set_matrix_method()
@@ -785,20 +786,14 @@ static const stress_matrix_method_info_t matrix_yx_methods[] = {
  */
 int stress_set_matrix_method(const char *name)
 {
-	stress_matrix_method_info_t const *info;
+	const stress_matrix_method_info_t *info;
 
-	for (info = matrix_xy_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			set_setting("matrix-method", TYPE_ID_UINTPTR_T, &info);
-			return 0;
-		}
+	info = stress_get_matrix_method(name);
+	if (info) {
+		set_setting("matrix-method", TYPE_ID_STR, name);
+		return 0;
 	}
-
-	(void)fprintf(stderr, "matrix-method must be one of:");
-	for (info = matrix_xy_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
-	}
-	(void)fprintf(stderr, "\n");
+	stress_matrix_method_error();
 
 	return -1;
 }
@@ -884,16 +879,23 @@ tidy_ret:
  */
 int stress_matrix(const args_t *args)
 {
+	char *matrix_method_name;
 	const stress_matrix_method_info_t *matrix_method;
 	stress_matrix_func func;
 	size_t matrix_size = 128;
-	bool matrix_yx = false;
+	size_t matrix_yx = 0;
 
-	(void)get_setting("matrix-method", &matrix_method);
+	(void)get_setting("matrix-method", &matrix_method_name);
 	(void)get_setting("matrix-yx", &matrix_yx);
-	matrix_method = matrix_yx ? &matrix_yx_methods[0] : &matrix_xy_methods[0];
 
-	func = matrix_method->func;
+	matrix_method = stress_get_matrix_method(matrix_method_name);
+	if (!matrix_method) {
+		/* Should *never* get here... */
+		stress_matrix_method_error();
+		return EXIT_FAILURE;
+	}
+
+	func = matrix_method->func[matrix_yx];
 	pr_dbg("%s using method '%s' (%s)\n", args->name, matrix_method->name,
 		matrix_yx ? "y by x" : "x by y");
 
