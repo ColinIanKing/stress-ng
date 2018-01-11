@@ -195,7 +195,8 @@ static void stress_dev_dir(
 	const args_t *args,
 	const char *path,
 	const bool recurse,
-	const int depth)
+	const int depth,
+	const uid_t euid)
 {
 	DIR *dp;
 	struct dirent *d;
@@ -219,6 +220,10 @@ static void stress_dev_dir(
 		if (!strcmp(d->d_name, ".") ||
 		    !strcmp(d->d_name, ".."))
 			continue;
+		/* Xen clients hang on hpet when running as root */
+		if (!euid && !strcmp(d->d_name, "hpet"))
+			continue;
+
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
@@ -226,7 +231,7 @@ static void stress_dev_dir(
 				(void)snprintf(filename, sizeof(filename),
 					"%s/%s", path, d->d_name);
 				stress_dev_dir(args, filename, recurse,
-					depth + 1);
+					depth + 1, euid);
 			}
 			break;
 		case DT_BLK:
@@ -249,6 +254,8 @@ static void stress_dev_dir(
  */
 int stress_dev(const args_t *args)
 {
+	uid_t euid = geteuid();
+
 	do {
 		pid_t pid;
 
@@ -279,7 +286,7 @@ again:
 
 			/* Make sure this is killable by OOM killer */
 			set_oom_adjustment(args->name, true);
-			stress_dev_dir(args, "/dev", true, 0);
+			stress_dev_dir(args, "/dev", true, 0, euid);
 		}
 	} while (keep_stressing());
 
