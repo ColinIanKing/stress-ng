@@ -46,34 +46,57 @@ static void check_unshare(const args_t *args, int flags, const char *flags_name)
 }
 
 /*
+ *  enough_memory()
+ *	returns true if we have enough memory, ensures
+ *	we don't throttle back the unsharing because we
+ *	get into deep swappiness
+ */
+static inline bool enough_memory(void)
+{
+	size_t shmall, freemem, totalmem;
+	bool enough;
+
+	stress_get_memlimits(&shmall, &freemem, &totalmem);
+
+	enough = (freemem == 0) ? true : freemem > (8 * MB);
+
+	return enough;
+}
+
+/*
  *  stress_unshare()
  *	stress resource unsharing
  */
 int stress_unshare(const args_t *args)
 {
 	pid_t pids[MAX_PIDS];
+	const uid_t euid = geteuid();
 
 	do {
 		size_t i, n;
 
 		(void)memset(pids, 0, sizeof(pids));
-		for (n = 0; n < MAX_PIDS; n++) {
-retry:			if (!g_keep_stressing_flag)
-				goto reap;
 
-			pids[n] = fork();
-			if (pids[n] < 0) {
-				/* Out of resources for fork, re-do, ugh */
-				if (errno == EAGAIN) {
-					(void)shim_usleep(10000);
-					goto retry;
-				}
+		for (n = 0; n < MAX_PIDS; n++) {
+			if (!g_keep_stressing_flag)
+				break;
+			if (!enough_memory()) {
+				/* memory too low, back off */
+				sleep(1);
 				break;
 			}
-			if (pids[n] == 0) {
+			pids[n] = fork();
+			if (pids[n] < 0) {
+				/* Out of resources for fork */
+				if (errno == EAGAIN)
+					break;
+			} else if (pids[n] == 0) {
 				/* Child */
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
+
+				/* Make sure this is killable by OOM killer */
+				set_oom_adjustment(args->name, true);
 
 #if defined(CLONE_FS)
 				UNSHARE(CLONE_FS);
@@ -85,7 +108,15 @@ retry:			if (!g_keep_stressing_flag)
 				UNSHARE(CLONE_NEWIPC);
 #endif
 #if defined(CLONE_NEWNET)
-				UNSHARE(CLONE_NEWNET);
+				/*
+				 *  CLONE_NEWNET when running as root on
+				 *  hundreds of processes can be stupidly
+				 *  expensive on older kernels so limit
+				 *  this to just one per stressor instance
+				 *  and don't unshare of root
+				 */
+				if ((n == 0) && (euid != 0))
+					UNSHARE(CLONE_NEWNET);
 #endif
 #if defined(CLONE_NEWNS)
 				UNSHARE(CLONE_NEWNS);
@@ -112,17 +143,24 @@ retry:			if (!g_keep_stressing_flag)
 				UNSHARE(CLONE_VM);
 #endif
 				_exit(0);
+			} else {
+				(void)setpgid(pids[n], g_pgrp);
 			}
-			(void)setpgid(pids[n], g_pgrp);
 		}
-reap:
 		for (i = 0; i < n; i++) {
 			int status;
 
-			if (waitpid(pids[i], &status, 0) < 0) {
-				if (errno != EINTR)
-					pr_err("%s: waitpid errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+			if (pids[i] > 0) {
+				int ret;
+
+				ret = kill(pids[i], SIGKILL);
+				if (ret == 0) {
+					if (waitpid(pids[i], &status, 0) < 0) {
+						if (errno != EINTR)
+							pr_err("%s: waitpid errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+					}
+				}
 			}
 		}
 		inc_counter(args);
