@@ -53,6 +53,7 @@ int stress_tlb_shootdown(const args_t *args)
 		int32_t tlb_procs, i;
 		const int32_t max_cpus = stress_get_processors_configured();
 
+		CPU_ZERO(&proc_mask);
 		CPU_OR(&proc_mask, &proc_mask_initial, &proc_mask);
 
 		tlb_procs = max_cpus;
