@@ -447,8 +447,10 @@ int stress_resources(const args_t *args)
 	if (totalmem > 0) {
 		resource_forks = totalmem / (args->num_instances * MAX_LOOPS * 16 * KB);
 	}
-	if (!resource_forks)
+	if (resource_forks < 1)
 		resource_forks = 1;
+	if (resource_forks > RESOURCE_FORKS)
+		resource_forks = RESOURCE_FORKS;
 	mem_slack = (args->num_instances * resource_forks * MB);
 
 	do {
