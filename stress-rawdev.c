@@ -300,7 +300,8 @@ int stress_rawdev(const args_t *args)
 	char path[PATH_MAX], *devpath;
 	struct stat stat_buf;
 	int fd;
-	unsigned long blks = 0, blksz = 0;
+	int blksz = 0;
+	unsigned long blks;
 	const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
 	rawdev_func func;
 
@@ -364,11 +365,11 @@ int stress_rawdev(const args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: exercising %s (%lu blocks of size %lu bytes)\n",
+		pr_dbg("%s: exercising %s (%lu blocks of size %d bytes)\n",
 			args->name, devpath, blks, blksz);
 
 	do {
-		func(args, fd, blks, blksz);
+		func(args, fd, blks, (unsigned long)blksz);
 	} while (keep_stressing());
 
 	(void)close(fd);
