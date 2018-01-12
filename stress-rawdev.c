@@ -363,6 +363,10 @@ int stress_rawdev(const args_t *args)
 		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
+	/* Truncate if blksize looks too big */
+	if (blksz > 128 * KB)
+		blksz = 128 * KB;
+
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
 	if (fd < 0) {
