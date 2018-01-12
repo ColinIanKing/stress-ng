@@ -366,6 +366,8 @@ int stress_rawdev(const args_t *args)
 	/* Truncate if blksize looks too big */
 	if (blksz > 128 * KB)
 		blksz = 128 * KB;
+	if (blksz < 512)
+		blksz = 512;
 
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
