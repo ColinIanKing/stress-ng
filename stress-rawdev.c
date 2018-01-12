@@ -136,7 +136,7 @@ void stress_rawdev_wiggle(
 	for (i = shift(blks, 8); i < blks && keep_stressing(); i += shift(blks, 8)) {
 		unsigned long j;
 
-		for (j = 0; j < shift(blks, 8); j += shift(blks, 10)) {
+		for (j = 0; j < shift(blks, 8) && keep_stressing(); j += shift(blks, 10)) {
 			offset = (off_t)(i - j) * (off_t)blksz;
 			ret = pread(fd, aligned, (size_t)blksz, offset);
 			if (ret < 0) {
