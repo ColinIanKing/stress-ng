@@ -1,3 +1,29 @@
+stress-ng (0.09.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-tlb-shootdown: ensure proc_mask is zero'd before use
+  * Makefile.config: make fdatasync test fail if prototype is different
+  * stress-rawdev: fix warning on non-linux builds
+  * Manual: add another contributor to the manual
+  * stress-unshare: throttle back when resources are getting low
+  * stress-rawdev: make min/max block size #define values
+  * stress-rawdev: ensure blksize cannot be less than 512 bytes
+  * stress-rawdev: don't allow insanely sized block sizes
+  * stress-rawdev: add a keep stressing check inside wiggle 2nd loop
+  * stress-rawdev: ensure shifted values are never zero
+  * stress-rawdev: use correct type for reading block size
+  * stress-resources: ensure we don't have too many resource forks
+  * stress-resources: try hard not to get too many OOMs
+  * stress-dev: disable /dev/hpet testing when running as root
+  * debian/control: skip requirement of libkeyutils-dev for ia64
+  * stress-matrix: fix broken xy vs yx matrix method selection
+  * stress-vm: remove a duplicated check addr == ptr
+  * stress-filename: compare to zero rather than <= 0
+  * stress-fcntl.c: fix syntax errors
+  * Update copyright year
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 Jan 2018 13:47:57 +0000
+
 stress-ng (0.09.09-1) unstable; urgency=medium
 
   * Makefile: bump version
