@@ -123,25 +123,41 @@ static void *stress_pthread_func(void *ctxt)
 static void NORETURN waste_resources(
 	const args_t *args,
 	const size_t page_size,
-	const size_t pipe_size)
+	const size_t pipe_size,
+	const size_t mem_slack)
 {
 	size_t i, n;
+	size_t shmall, freemem, totalmem;
 #if defined(__NR_memfd_create) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
 	static int domains[] = { AF_INET, AF_INET6 };
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	info_t info[MAX_LOOPS];
+#if defined(O_NOATIME)
+	const int flag = O_NOATIME;
+#else
+	const int flag = 0;
+#endif
 
 #if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX))
 	(void)args;
 #endif
+	stress_get_memlimits(&shmall, &freemem, &totalmem);
+	if ((shmall + freemem + totalmem > 0) && (freemem < mem_slack))
+		_exit(0);
+
 	(void)memset(&info, 0, sizeof(info));
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
 #if defined(__NR_memfd_create)
 		char name[32];
 #endif
+		stress_get_memlimits(&shmall, &freemem, &totalmem);
+
+		if ((shmall + freemem + totalmem > 0) && (freemem < mem_slack))
+			break;
+
 		if (!(mwc32() & 0xf)) {
 			info[i].m_malloc = calloc(1, page_size);
 			if (!g_keep_stressing_flag)
@@ -181,7 +197,7 @@ static void NORETURN waste_resources(
 #endif
 		if (!g_keep_stressing_flag)
 			break;
-		info[i].fd_open = open("/dev/null", O_RDONLY);
+		info[i].fd_open = open("/dev/null", O_RDONLY | flag);
 		if (!g_keep_stressing_flag)
 			break;
 #if defined(__NR_eventfd)
@@ -213,7 +229,8 @@ static void NORETURN waste_resources(
 			break;
 #endif
 #if defined(O_TMPFILE)
-		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR | flag,
+				      S_IRUSR | S_IWUSR);
 		if (!g_keep_stressing_flag)
 			break;
 		if (info[i].fd_tmp != -1) {
@@ -252,11 +269,11 @@ static void NORETURN waste_resources(
 #endif
 #if defined(__linux__)
 		{
-			info[i].pty_master = open("/dev/ptmx", O_RDWR);
+			info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
 			info[i].pty_slave = -1;
 			if (info[i].pty_master >= 0) {
 				const char *slavename = ptsname(info[i].pty_master);
-				info[i].pty_slave = open(slavename, O_RDWR);
+				info[i].pty_slave = open(slavename, O_RDWR | flag);
 			}
 		}
 #endif
@@ -306,7 +323,7 @@ static void NORETURN waste_resources(
 		attr.mq_curmsgs = 0;
 
 		info[i].mq = mq_open(info[i].mq_name,
-			O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
 #endif
 	}
 
@@ -397,17 +414,17 @@ static void NORETURN waste_resources(
 	_exit(0);
 }
 
-static void MLOCKED kill_children(void)
+static void MLOCKED kill_children(const size_t resource_forks)
 {
 	size_t i;
 
-	for (i = 0; i < RESOURCE_FORKS; i++) {
-		if (pids[i])
+	for (i = 0; i < resource_forks; i++) {
+		if (pids[i] > 0)
 			(void)kill(pids[i], SIGALRM);
 	}
 
-	for (i = 0; i < RESOURCE_FORKS; i++) {
-		if (pids[i]) {
+	for (i = 0; i < resource_forks; i++) {
+		if (pids[i] > 0) {
 			int status;
 
 			(void)waitpid(pids[i], &status, 0);
@@ -423,18 +440,33 @@ int stress_resources(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
+	size_t mem_slack;
+	size_t shmall, freemem, totalmem, resource_forks = 0;
+
+	stress_get_memlimits(&shmall, &freemem, &totalmem);
+	if (totalmem > 0) {
+		resource_forks = totalmem / (args->num_instances * MAX_LOOPS * 16 * KB);
+	}
+	if (!resource_forks)
+		resource_forks = 1;
+	mem_slack = (args->num_instances * resource_forks * MB);
 
 	do {
 		unsigned int i;
 
 		(void)memset(pids, 0, sizeof(pids));
-		for (i = 0; i < RESOURCE_FORKS; i++) {
-			pid_t pid = fork();
+		for (i = 0; i < resource_forks; i++) {
+			pid_t pid;
 
+			stress_get_memlimits(&shmall, &freemem, &totalmem);
+			if (totalmem > 0 && totalmem < mem_slack)
+				break;
+
+			pid = fork();
 			if (pid == 0) {
 				(void)setpgid(0, g_pgrp);
 				set_oom_adjustment(args->name, true);
-				waste_resources(args, page_size, pipe_size);
+				waste_resources(args, page_size, pipe_size, mem_slack);
 				_exit(0); /* should never get here */
 			}
 
@@ -443,12 +475,12 @@ int stress_resources(const args_t *args)
 			pids[i] = pid;
 
 			if (!keep_stressing()) {
-				kill_children();
+				kill_children(resource_forks);
 				return EXIT_SUCCESS;
 			}
 			inc_counter(args);
 		}
-		kill_children();
+		kill_children(resource_forks);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
