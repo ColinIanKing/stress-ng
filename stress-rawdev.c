@@ -33,6 +33,9 @@
 typedef void (*rawdev_func)(const args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
+#define	MIN_BLKSZ	((int)512)
+#define	MAX_BLKSZ	((int)(128 * KB))
+
 typedef struct {
 	const char              *name;
 	const rawdev_func       func;
@@ -364,10 +367,10 @@ int stress_rawdev(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	/* Truncate if blksize looks too big */
-	if (blksz > 128 * KB)
-		blksz = 128 * KB;
-	if (blksz < 512)
-		blksz = 512;
+	if (blksz > MAX_BLKSZ)
+		blksz = MAX_BLKSZ;
+	if (blksz < MIN_BLKSZ)
+		blksz = MIN_BLKSZ;
 
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
