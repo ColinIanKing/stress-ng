@@ -297,6 +297,8 @@ int stress_set_rawdev_method(const char *name)
  */
 int stress_set_rawdev_method(const char *name)
 {
+	(void)name;
+
 	fprintf(stderr, "option --rawdev-method not supported\n");
 	return -1;
 }
