@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_userfaultfd)
+#if defined(__linux__) && defined(__NR_userfaultfd) && defined(HAVE_CLONE)
 
 #include <poll.h>
 #include <linux/userfaultfd.h>
