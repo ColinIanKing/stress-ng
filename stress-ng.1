@@ -2546,6 +2546,13 @@ start N workers that rapidly cause division by zero SIGFPE faults.
 .B \-\-sigfpe\-ops N
 stop sigfpe stress workers after N bogo SIGFPE faults.
 .TP
+.B \-\-sigio N
+start N workers that read data from a child process via a pipe and generate
+SIGIO signals. This exercises asynchronous I/O via SIGIO.
+.TP
+.B \-\-sigio\-ops N
+stop sigio stress workers after handling N SIGIO signals.
+.TP
 .B \-\-sigpending N
 start N workers that check if SIGUSR1 signals are pending. This stressor masks
 SIGUSR1, generates a SIGUSR1 signal and uses sigpending(2) to see if the signal
