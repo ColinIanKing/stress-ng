@@ -1,3 +1,16 @@
+stress-ng (0.09.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-sigio: don't build if missing various core functionality
+  * stress-sigio: remove sigprocmask, this is not used now
+  * Makefile: forgot to add the new stress-sigio stressor
+  * Add new sigio asynchronous I/O SIGIO stressor
+  * Add clone glibc wrapper autodetection, fixes ia64 builds
+  * Manual: remove excessive misplaced escape chars
+
+ -- Colin King <colin.king@canonical.com>  Wed, 17 Jan 2018 17:01:02 +0000
+
 stress-ng (0.09.10-1) unstable; urgency=medium
 
   * Makefile: bump version
