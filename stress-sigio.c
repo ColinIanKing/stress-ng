@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+#if defined(O_ASYNC) &&	\
+    defined(O_NONBLOCK) && \
+    defined(F_SETOWN) && \
+    defined(F_GETFL) && \
+    defined(F_SETFL)
+
 #define BUFFER_SIZE	(4096)
 
 static volatile int got_err;
@@ -153,3 +159,10 @@ err:
 
 	return rc;
 }
+
+#else
+int stress_sigio(const args_t *args)
+{
+	return stress_not_implemented(args);
+}
+#endif
