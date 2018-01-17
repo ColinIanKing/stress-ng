@@ -189,6 +189,7 @@ STRESS_SRC = \
 	stress-shm-sysv.c \
 	stress-sigfd.c \
 	stress-sigfpe.c \
+	stress-sigio.c \
 	stress-sigpending.c \
 	stress-sigsegv.c \
 	stress-sigsuspend.c \
