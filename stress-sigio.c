@@ -66,7 +66,6 @@ static void MLOCKED stress_sigio_handler(int dummy)
 int stress_sigio(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE, fds[2], status;
-	sigset_t block_mask;
 
 	rd_fd = -1;
 	sigio_args = args;
@@ -149,7 +148,6 @@ int stress_sigio(const args_t *args)
 	rc = EXIT_SUCCESS;
 
 err:
-	sigprocmask(SIG_UNBLOCK, &block_mask, NULL);
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 
