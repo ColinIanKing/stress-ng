@@ -805,6 +805,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_READAHEAD_BYTES	(256ULL * GB)
 #define DEFAULT_READAHEAD_BYTES	(1 * GB)
 
+#define MIN_REVIO_BYTES		(1 * MB)
+#define MAX_REVIO_BYTES		(256ULL * GB)
+#define DEFAULT_REVIO_BYTES	(1 * GB)
+
 #define MIN_SCTP_PORT		(1024)
 #define MAX_SCTP_PORT		(65535)
 #define DEFAULT_SCTP_PORT	(9000)
@@ -1317,6 +1321,7 @@ typedef enum {
 	STRESS_REMAP_FILE_PAGES,
 	STRESS_RENAME,
 	STRESS_RESOURCES,
+	STRESS_REVIO,
 	STRESS_RLIMIT,
 	STRESS_RMAP,
 	STRESS_RTC,
@@ -1900,6 +1905,11 @@ typedef enum {
 
 	OPT_RESOURCES,
 	OPT_RESOURCES_OPS,
+
+	OPT_REVIO,
+	OPT_REVIO_OPS,
+	OPT_REVIO_OPTS,
+	OPT_REVIO_BYTES,
 
 	OPT_RLIMIT,
 	OPT_RLIMIT_OPS,
@@ -2666,6 +2676,8 @@ extern void stress_set_qsort_size(const char *opt);
 extern void stress_set_radixsort_size(const char *opt);
 extern int  stress_set_rawdev_method(const char *name);
 extern void stress_set_readahead_bytes(const char *opt);
+extern void stress_set_revio_bytes(const char *opt);
+extern int  stress_set_revio_opts(char *opts);
 extern int  stress_set_sctp_domain(const char *opt);
 extern void stress_set_sctp_port(const char *opt);
 extern void stress_set_seek_size(const char *opt);
@@ -2983,6 +2995,7 @@ STRESS(stress_readahead);
 STRESS(stress_remap);
 STRESS(stress_rename);
 STRESS(stress_resources);
+STRESS(stress_revio);
 STRESS(stress_rlimit);
 STRESS(stress_rmap);
 STRESS(stress_rtc);

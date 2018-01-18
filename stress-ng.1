@@ -2370,6 +2370,29 @@ userfaultfds, pipes and sockets).
 .B \-\-resources\-ops N
 stop after N resource child forks.
 .TP
+.B \-\-revio N
+start N workers continually writing in reverse position order to temporary
+files. The default mode is to stress test reverse position ordered writes
+with randomly sized sparse holes between each write.  With
+the \-\-aggressive option enabled without any \-\-revio\-opts options the
+revio stressor will work through all the \-\-revio\-opt options one by one to
+cover a range of I/O options.
+.TP
+.B \-\-revio\-bytes N
+write N bytes for each revio process, the default is 1 GB. One can specify the
+size as % of free space on the file system or in units of Bytes, KBytes, MBytes
+and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-revio\-opts list
+specify various stress test options as a comma separated list. Options are the
+same as \-\-hdd\-opts but without the iovec option.
+.TP
+.B \-\-revio\-ops N
+stop revio stress workers after N bogo operations.
+.TP
+.B \-\-revio\-write\-size N
+specify size of each write in bytes. Size can be from 1 byte to 4MB.
+.TP
 .B \-\-rlimit N
 start N workers that exceed CPU and file size resource imits, generating
 SIGXCPU and SIGXFSZ signals.

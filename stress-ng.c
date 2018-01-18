@@ -333,6 +333,7 @@ static const stress_t stressors[] = {
 	STRESSOR(remap, REMAP_FILE_PAGES, CLASS_MEMORY | CLASS_OS),
 	STRESSOR(rename, RENAME, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(resources, RESOURCES, CLASS_MEMORY | CLASS_OS),
+	STRESSOR(revio, REVIO, CLASS_IO | CLASS_OS),
 	STRESSOR(rlimit, RLIMIT, CLASS_OS),
 	STRESSOR(rmap, RMAP, CLASS_OS | CLASS_MEMORY),
 	STRESSOR(rtc, RTC, CLASS_OS),
@@ -783,6 +784,10 @@ static const struct option long_options[] = {
 	{ "rename-ops",	1,	0,	OPT_RENAME_OPS },
 	{ "resources",	1,	0,	OPT_RESOURCES },
 	{ "resources-ops",1,	0,	OPT_RESOURCES_OPS },
+	{ "revio",	1,	0,	OPT_REVIO },
+	{ "revio-ops",	1,	0,	OPT_REVIO_OPS },
+	{ "revio-opts",	1,	0,	OPT_REVIO_OPTS },
+	{ "revio-bytes",1,	0,	OPT_REVIO_BYTES },
 	{ "rlimit",	1,	0,	OPT_RLIMIT },
 	{ "rlimit-ops",	1,	0,	OPT_RLIMIT_OPS },
 	{ "rmap",	1,	0,	OPT_RMAP },
@@ -3279,6 +3284,13 @@ next_opt:
 			break;
 		case OPT_READAHEAD_BYTES:
 			stress_set_readahead_bytes(optarg);
+			break;
+		case OPT_REVIO_BYTES:
+			stress_set_revio_bytes(optarg);
+			break;
+		case OPT_REVIO_OPTS:
+			if (stress_set_revio_opts(optarg) < 0)
+				return EXIT_FAILURE;
 			break;
 		case OPT_SCHED:
 			i32 = get_opt_sched(optarg);

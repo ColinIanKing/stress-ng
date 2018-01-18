@@ -174,6 +174,7 @@ STRESS_SRC = \
 	stress-remap-file-pages.c \
 	stress-rename.c \
 	stress-resources.c \
+	stress-revio.c \
 	stress-rlimit.c \
 	stress-rmap.c \
 	stress-rtc.c \
