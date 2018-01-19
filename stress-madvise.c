@@ -164,7 +164,7 @@ int stress_madvise(const args_t *args)
 	const size_t page_size = args->page_size;
 	NOCLOBBER size_t sz = 4 *  MB;
 	int ret, fd = -1;
-	NOCLOBBER int flags = MAP_SHARED;
+	NOCLOBBER int flags = MAP_PRIVATE;
 	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
 	char page[page_size];
@@ -221,8 +221,13 @@ int stress_madvise(const args_t *args)
 
 		if (!g_keep_stressing_flag)
 			break;
-		buf = (uint8_t *)mmap(NULL, sz,
-			PROT_READ | PROT_WRITE, flags, fd, 0);
+
+		if (mwc1()) {
+			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
+		} else {
+			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+				flags | MAP_ANONYMOUS, 0, 0);
+		}
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #if defined(MAP_POPULATE)
