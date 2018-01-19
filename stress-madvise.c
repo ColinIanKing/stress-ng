@@ -88,6 +88,9 @@ static const int madvise_options[] = {
 #if defined(MADV_WIPEONFORK)
 	MADV_WIPEONFORK
 #endif
+#if defined(MADV_KEEPONFORK)
+	MADV_KEEPONFORK
+#endif
 };
 
 /*
