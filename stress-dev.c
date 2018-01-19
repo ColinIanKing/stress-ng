@@ -27,11 +27,171 @@
 #if defined(HAVE_LIB_PTHREAD) && !defined(__sun__)
 
 #include <poll.h>
+#include <termios.h>
+
+#if defined(HAVE_LINUX_MEDIA_H)
+#include <linux/media.h>
+#endif
+#if defined(HAVE_LINUX_VT_H)
+#include <linux/vt.h>
+#endif
+#if defined(HAVE_LINUX_DM_IOCTL_H)
+#include <linux/dm-ioctl.h>
+#endif
+#if defined(HAVE_LINUX_VIDEODEV2_H)
+#include <linux/videodev2.h>
+#endif
 
 #define MAX_DEV_THREADS		(4)
 
 static volatile bool keep_running;
 static sigset_t set;
+
+typedef struct {
+	const char *devpath;
+	const size_t devpath_len;
+	void (*func)(const char *name, const int fd, const char *devpath);
+} dev_func_t;
+
+#if defined(HAVE_LINUX_MEDIA_H)
+static void stress_dev_media_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(MEDIA_IOC_DEVICE_INFO)
+	{
+		struct media_device_info mdi;
+		int ret;
+
+		ret = ioctl(fd, MEDIA_IOC_DEVICE_INFO, &mdi);
+		if (ret < 0)
+			return;
+
+		if (!mdi.driver[0])
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null driver name\n",
+				name, devpath);
+		if (!mdi.model[0])
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null model name\n",
+				name, devpath);
+		if (!mdi.bus_info[0])
+			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null bus_info field\n",
+				name, devpath);
+	}
+#endif
+}
+#endif
+
+#if defined(HAVE_LINUX_VT_H)
+static void stress_dev_vcs_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(VT_GETMODE)
+	{
+		struct vt_mode mode;
+		int ret;
+
+		ret = ioctl(fd, VT_GETMODE, &mode);
+		(void)ret;
+	}
+#endif
+#if defined(VT_GETSTATE)
+	{
+		struct vt_stat  stat;
+		int ret;
+
+		ret = ioctl(fd, VT_GETSTATE, &stat);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
+#if defined(HAVE_LINUX_DM_IOCTL_H)
+static void stress_dev_dm_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(DM_VERSION)
+	{
+		struct dm_ioctl dm;
+		int ret;
+
+		ret = ioctl(fd, DM_VERSION, &dm);
+		(void)ret;
+	}
+#endif
+#if defined(DM_STATUS)
+	{
+		struct dm_ioctl dm;
+		int ret;
+
+		ret = ioctl(fd, DM_STATUS, &dm);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
+#if defined(HAVE_LINUX_VIDEODEV2_H)
+static void stress_dev_video_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(VIDIOC_QUERYCAP)
+	{
+		struct v4l2_capability c;
+		int ret;
+
+		ret = ioctl(fd, VIDIOC_QUERYCAP, &c);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
+static void stress_dev_tty(const char *name, const int fd, const char *devpath)
+{
+	struct termios t;
+	int ret;
+
+	(void)name;
+	(void)devpath;
+
+	ret = tcgetattr(fd, &t);
+	(void)ret;
+#if defined(TCGETS)
+	ret = ioctl(fd, TCGETS, &t);
+	(void)ret;
+#endif
+}
+
+#define DEV_FUNC(dev, func) \
+	{ dev, sizeof(dev) - 1, func }
+
+static const dev_func_t dev_funcs[] = {
+#if defined(__linux__) && defined(MEDIA_IOC_DEVICE_INFO)
+	DEV_FUNC("/dev/media",	stress_dev_media_linux),
+#endif
+#if defined(HAVE_LINUX_VT_H)
+	DEV_FUNC("/dev/vcs",	stress_dev_vcs_linux),
+#endif
+#if defined(HAVE_LINUX_DM_IOCTL_H)
+	DEV_FUNC("/dev/dm",	stress_dev_dm_linux),
+#endif
+#if defined(HAVE_LINUX_VIDEODEV2_H)
+	DEV_FUNC("/dev/video",	stress_dev_video_linux),
+#endif
+	DEV_FUNC("/dev/tty",	stress_dev_tty),
+};
 
 /*
  *  stress_dev_rw()
@@ -48,6 +208,7 @@ static inline void stress_dev_rw(
 	fd_set rfds, wfds;
 	void *ptr;
 	struct timeval tv;
+	size_t i;
 
 	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 		goto rdwr;
@@ -105,6 +266,11 @@ static inline void stress_dev_rw(
 sync:
 	ret = fsync(fd);
 	(void)ret;
+
+	for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
+		if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
+			dev_funcs[i].func(args->name, fd, path);
+	}
 
 	(void)close(fd);
 
