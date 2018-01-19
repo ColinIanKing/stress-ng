@@ -30,13 +30,18 @@
  *  hand crafted to make each JMP() macro expand to code with
  *  just one jmp statement
  */
-#define JMP(a)					\
-	label ## a: inc_counter(args);		\
-	do_more = g_keep_stressing_flag & 	\
-		(!args->max_ops | (*args->counter < args->max_ops)); \
-	index = mwc8();				\
-	index |= !do_more << 8;			\
-	goto *labels[index];
+#define JMP(a)	label ## a: 				\
+{							\
+	register bool do_more;				\
+	register uint16_t index = mwc8();		\
+							\
+	(*(args->counter))++;				\
+	do_more = LIKELY((int)g_keep_stressing_flag) &	\
+		(((int)!args->max_ops) | 		\
+		 (*args->counter < args->max_ops));	\
+	index |= (do_more << 8);			\
+	goto *labels[index];				\
+}
 
 /*
  *  stress_branch()
@@ -44,7 +49,75 @@
  */
 int stress_branch(const args_t *args)
 {
-	static const void *labels[] = {
+	static const void ALIGN64 *labels[] = {
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,
+
 		&&label0x00, &&label0x01, &&label0x02, &&label0x03,
 		&&label0x04, &&label0x05, &&label0x06, &&label0x07,
 		&&label0x08, &&label0x09, &&label0x0a, &&label0x0b,
@@ -112,80 +185,9 @@ int stress_branch(const args_t *args)
 		&&label0xf4, &&label0xf5, &&label0xf6, &&label0xf7,
 		&&label0xf8, &&label0xf9, &&label0xfa, &&label0xfb,
 		&&label0xfc, &&label0xfd, &&label0xfe, &&label0xff,
-
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
-		&&ret, &&ret, &&ret, &&ret,
 	};
 
 	for (;;) {
-		register bool do_more;
-		register uint16_t index;
-
 		JMP(0x00)
 		JMP(0x01)
 		JMP(0x02)
