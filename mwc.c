@@ -29,10 +29,11 @@ static mwc_t __mwc = {
 	MWC_SEED_Z
 };
 
-static uint8_t mwc_n8, mwc_n16;
+static uint8_t mwc_n1, mwc_n8, mwc_n16;
 
 static inline void mwc_flush(void)
 {
+	mwc_n1 = 0;
 	mwc_n8 = 0;
 	mwc_n16 = 0;
 }
@@ -132,4 +133,22 @@ HOT OPTIMIZE3 uint8_t mwc8(void)
 		mwc_saved = mwc32();
 	}
 	return mwc_saved & 0xff;
+}
+
+/*
+ *  mwc1()
+ *	get an 1 bit pseudo random number
+ */
+HOT OPTIMIZE3 uint8_t mwc1(void)
+{
+	static uint32_t mwc_saved;
+
+	if (LIKELY(mwc_n1)) {
+		mwc_n1--;
+		mwc_saved >>= 1;
+	} else {
+		mwc_n8 = 31;
+		mwc_saved = mwc32();
+	}
+	return mwc_saved & 0x1;
 }

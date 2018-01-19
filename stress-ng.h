@@ -2392,6 +2392,7 @@ extern uint32_t mwc32(void);
 extern uint64_t mwc64(void);
 extern uint16_t mwc16(void);
 extern uint8_t mwc8(void);
+extern uint8_t mwc1(void);
 extern void mwc_seed(const uint32_t w, const uint32_t z);
 extern void mwc_reseed(void);
 
