@@ -43,7 +43,8 @@
      defined(F_UNLCK)) ||	\
     (defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && \
      defined(F_OFD_SETLKW) && defined(F_WRLCK) && defined(F_UNLCK)) | \
-    (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT))
+    (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
+    (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 
 /*
  *  check_return()
@@ -411,7 +412,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 	}
 #endif
 
-#if defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)
+#if (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
+    (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 	{
 		size_t i;
 		unsigned long hint;
@@ -436,6 +438,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 #endif
 		};
 
+#if defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)
 		ret = fcntl(fd, F_GET_FILE_RW_HINT, &hint);
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
@@ -444,6 +447,18 @@ ofd_lock_abort:	{ /* Nowt */ }
 				(void)ret;
 			}
 		}
+#endif
+#if defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT)
+		ret = fcntl(fd, F_GET_RW_HINT, &hint);
+		if (ret == 0) {
+			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
+				hint = hints[i];
+				ret = fcntl(fd, F_SET_RW_HINT, &hint);
+				(void)ret;
+			}
+		}
+#endif
+
 	}
 #endif
 
