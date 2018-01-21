@@ -83,13 +83,16 @@ static const int madvise_options[] = {
 	MADV_FREE,
 #endif
 #if defined(MADV_HWPOISON)
-	MADV_HWPOISON
+	MADV_HWPOISON,
 #endif
 #if defined(MADV_WIPEONFORK)
-	MADV_WIPEONFORK
+	MADV_WIPEONFORK,
 #endif
 #if defined(MADV_KEEPONFORK)
-	MADV_KEEPONFORK
+	MADV_KEEPONFORK,
+#endif
+#if defined(MADV_INHERIT_ZERO)
+	MADV_INHERIT_ZERO,
 #endif
 };
 
@@ -211,7 +214,7 @@ int stress_madvise(const args_t *args)
 	}
 
 	do {
-		uint8_t *buf;
+		NOCLOBBER uint8_t *buf;
 
 		if (num_mem_retries >= NUM_MEM_RETRIES_MAX) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
