@@ -141,9 +141,10 @@ STRESS_SRC = \
 	stress-mknod.c \
 	stress-mlock.c \
 	stress-mmap.c \
+	stress-mmapaddr.c \
+	stress-mmapfixed.c \
 	stress-mmapfork.c \
 	stress-mmapmany.c \
-	stress-mmapaddr.c \
 	stress-mremap.c \
 	stress-msg.c \
 	stress-msync.c \

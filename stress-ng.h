@@ -1289,6 +1289,7 @@ typedef enum {
 	STRESS_MLOCK,
 	STRESS_MMAP,
 	STRESS_MMAPADDR,
+	STRESS_MMAPFIXED,
 	STRESS_MMAPFORK,
 	STRESS_MMAPMANY,
 	STRESS_MREMAP,
@@ -1792,6 +1793,9 @@ typedef enum {
 
 	OPT_MMAPADDR,
 	OPT_MMAPADDR_OPS,
+
+	OPT_MMAPFIXED,
+	OPT_MMAPFIXED_OPS,
 
 	OPT_MMAPFORK,
 	OPT_MMAPFORK_OPS,
@@ -2964,6 +2968,7 @@ STRESS(stress_mknod);
 STRESS(stress_mlock);
 STRESS(stress_mmap);
 STRESS(stress_mmapaddr);
+STRESS(stress_mmapfixed);
 STRESS(stress_mmapfork);
 STRESS(stress_mmapmany);
 STRESS(stress_mremap);
