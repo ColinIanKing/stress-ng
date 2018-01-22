@@ -56,7 +56,7 @@ int stress_dup(const args_t *args)
 			if (fds[n] < 0)
 				break;
 #if defined(HAVE_DUP3)
-			if (do_dup3 && (mwc32() & 1)) {
+			if (do_dup3 && mwc1()) {
 				int fd;
 
 				fd = shim_dup3(fds[0], fds[n], O_CLOEXEC);
