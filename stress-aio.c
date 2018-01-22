@@ -226,7 +226,7 @@ int stress_aio(const args_t *args)
 				inc_counter(args);
 				if (issue_aio_request(args->name, fd,
 					(off_t)i * BUFFER_SZ, &io_reqs[i], i,
-					(mwc32() & 0x8) ? aio_read : aio_write) < 0)
+					mwc1() ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
 			case EINPROGRESS:
