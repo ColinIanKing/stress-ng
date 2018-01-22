@@ -173,7 +173,7 @@ int stress_swap(const args_t *args)
 		uint32_t npages = (mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
 
-		if (mwc32() & 0x1000) {
+		if (mwc1()) {
 			swapflags = (mwc8() << SWAP_FLAG_PRIO_SHIFT) & SWAP_FLAG_PRIO_MASK;
 			swapflags |= SWAP_FLAG_PREFER;
 		} else {
