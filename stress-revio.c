@@ -260,6 +260,8 @@ static inline size_t stress_revio_get_extents(const int fd)
 
 	return fiemap.fm_mapped_extents;
 #else
+	(void)fd;
+
 	return 0;
 #endif
 }
