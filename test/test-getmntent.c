@@ -30,7 +30,6 @@ int main(void)
 {
 	FILE *mounts;
         struct mntent* mount;
-        int n = 0;
 
         mounts = setmntent("/etc/mtab", "r");
         if (!mounts)
