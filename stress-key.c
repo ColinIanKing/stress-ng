@@ -175,7 +175,7 @@ int stress_key(const args_t *args)
 			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
 #endif
 #if defined(KEYCTL_REVOKE)
-			if (mwc32() & 1)
+			if (mwc1())
 				(void)sys_keyctl(KEYCTL_REVOKE, keys[i]);
 #endif
 #if defined(KEYCTL_INVALIDATE)
