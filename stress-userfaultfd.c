@@ -52,7 +52,7 @@ void stress_set_userfaultfd_bytes(const char *opt)
 	set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
-#if defined(__linux__) && defined(__NR_userfaultfd)
+#if defined(__linux__) && defined(__NR_userfaultfd) && defined(HAVE_CLONE)
 
 /*
  *  stress_child_alarm_handler()
