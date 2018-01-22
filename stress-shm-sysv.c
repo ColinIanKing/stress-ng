@@ -249,7 +249,7 @@ static int stress_shm_sysv_child(
 			if (!keep_stressing())
 				goto reap;
 			(void)mincore_touch_pages(addr, sz);
-			(void)shim_msync(addr, sz, (mwc32() & 1) ? MS_ASYNC : MS_SYNC);
+			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
 
 			if (!keep_stressing())
 				goto reap;
