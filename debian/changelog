@@ -1,3 +1,31 @@
+stress-ng (0.09.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-clone: fix build issue on systems without the clone system call
+  * test/test-getmntent: remove unused variable 'n'
+  * stress-revio: fix build warning on OS X builds
+  * stress-swap: use mwc1() for single bit random value
+  * stress-shm: use mwc1() for single bit random value
+  * stress-shm-sysv: use mwc1() for single bit random value
+  * stress-schedpolicy: use mwc1() for single bit random value
+  * stress-key: use mwc1() for single bit random value
+  * stress-iomix: use mwc1() for single bit random value
+  * stress-dup: use mwc1() for single bit random value
+  * stress-aio: use mwc1() for single bit random value
+  * stress-madvise: add in new MADV options (Linux + BSD)
+  * stress-membarrier: add in new membarrier commands to enum
+  * Add fixed mmaping stressor, mmap-fixed
+  * stress-fcntl: add F_GET_RW_HINT/F_SET_RW_HINT fcntl controls
+  * stress-branch: optimization, remove a ! operator and align jmp table
+  * stress-dev: add some extra per-device ioctl exercising
+  * Makefile.config: generalize header detection
+  * stress-madvise: perform random file or anonymous mapping for MADV_FREE
+  * Add 1 bit mwc function
+  * stress-madvise: add MADV_KEEPONFORK advise flag
+  * Add reverse I/O stressor: revio
+
+ -- Colin King <colin.king@canonical.com>  Mon, 22 Jan 2018 16:33:39 +0000
+
 stress-ng (0.09.11-1) unstable; urgency=medium
 
   * Makefile: bump version
