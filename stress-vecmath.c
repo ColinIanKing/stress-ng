@@ -36,7 +36,7 @@ typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
 
 #define INT128(hi, lo)	(((__uint128_t)hi << 64) | (__uint128_t)lo)
 
-#define OPS(a, b, c, s)	\
+#define OPS(a, b, c, s, v23, v3) \
 	a += b;		\
 	a |= b;		\
 	a -= b;		\
@@ -48,8 +48,8 @@ typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
 	a <<= 1;	\
 	b >>= 1;	\
 	b += c;		\
-	a %= 23;	\
-	c /= 3;		\
+	a %= v23;	\
+	c /= v3;	\
 	b = b ^ c;	\
 	c = b ^ c;	\
 	b = b ^ c;	\
@@ -72,6 +72,12 @@ int HOT stress_vecmath(const args_t *args)
 	vint8_t s8 = {
 		0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02,
 		0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x02 };
+	const vint8_t v23_8 = {
+		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17 };
+	const vint8_t v3_8 = {
+		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
+		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03 };
 
 	vint16_t a16 = {
 		0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
@@ -81,6 +87,10 @@ int HOT stress_vecmath(const args_t *args)
 		0x0102, 0x0302, 0x0102, 0x0302, 0x0302, 0x0102, 0x0302, 0x0102 };
 	vint16_t s16 = {
 		0x0001, 0x0001, 0x0002, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002 };
+	const vint16_t v23_16 = {
+		0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
+	const vint16_t v3_16 = {
+		0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003 };
 
 	vint32_t a32 = {
 		0x00000000, 0x00000000, 0x00000000, 0x00000000 };
@@ -90,6 +100,10 @@ int HOT stress_vecmath(const args_t *args)
 		0x01020302, 0x01020302, 0x03020102, 0x03020102 };
 	vint32_t s32 = {
 		0x00000001, 0x00000002, 0x00000002, 0000000001 };
+	const vint32_t v23_32 = {
+		0x00000017, 0x00000017, 0x00000017, 0x00000017 };
+	const vint32_t v3_32 = {
+		0x00000003, 0x00000003, 0x00000003, 0x00000003 };
 
 	vint64_t a64 = {
 		0x0000000000000000ULL, 0x0000000000000000ULL };
@@ -99,6 +113,10 @@ int HOT stress_vecmath(const args_t *args)
 		0x0102030201020302ULL, 0x0302010203020102ULL };
 	vint64_t s64 = {
 		0x0000000000000001ULL, 0x0000000000000002ULL };
+	const vint64_t v23_64 = {
+		0x0000000000000023ULL, 0x0000000000000023ULL };
+	const vint64_t v3_64 = {
+		0x0000000000000003ULL, 0x0000000000000003ULL };
 
 #if defined(STRESS_INT128)
 	vint128_t a128 = {
@@ -109,52 +127,56 @@ int HOT stress_vecmath(const args_t *args)
 		INT128(0x0102030201020302ULL, 0x0302010203020102ULL) };
 	vint128_t s128 = {
 		INT128(0x0000000000000001ULL, 0x0000000000000002ULL) };
+	const vint128_t v23_128 = {
+		INT128(0x0000000000000000ULL, 0x0000000000000023ULL) };
+	const vint128_t v3_128 = {
+		INT128(0x0000000000000000ULL, 0x0000000000000003ULL) };
 #endif
 
 	do {
 		int i;
 		for (i = 1000; i; i--) {
 			/* Good mix of vector ops */
-			OPS(a8, b8, c8, s8);
-			OPS(a16, b16, c16, s16);
-			OPS(a32, b32, c32, s32);
-			OPS(a64, b64, c64, s64);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
 #if defined(STRESS_INT128)
-			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 
-			OPS(a32, b32, c32, s32);
-			OPS(a16, b16, c16, s16);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
 #if defined(STRESS_INT128)
-			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
-			OPS(a8, b8, c8, s8);
-			OPS(a64, b64, c64, s64);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
 
-			OPS(a8, b8, c8, s8);
-			OPS(a8, b8, c8, s8);
-			OPS(a8, b8, c8, s8);
-			OPS(a8, b8, c8, s8);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
+			OPS(a8, b8, c8, s8, v23_8, v3_8);
 
-			OPS(a16, b16, c16, s16);
-			OPS(a16, b16, c16, s16);
-			OPS(a16, b16, c16, s16);
-			OPS(a16, b16, c16, s16);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
+			OPS(a16, b16, c16, s16, v23_16, v3_16);
 
-			OPS(a32, b32, c32, s32);
-			OPS(a32, b32, c32, s32);
-			OPS(a32, b32, c32, s32);
-			OPS(a32, b32, c32, s32);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
+			OPS(a32, b32, c32, s32, v23_32, v3_32);
 
-			OPS(a64, b64, c64, s64);
-			OPS(a64, b64, c64, s64);
-			OPS(a64, b64, c64, s64);
-			OPS(a64, b64, c64, s64);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
+			OPS(a64, b64, c64, s64, v23_64, v3_64);
 #if defined(STRESS_INT128)
-			OPS(a128, b128, c128, s128);
-			OPS(a128, b128, c128, s128);
-			OPS(a128, b128, c128, s128);
-			OPS(a128, b128, c128, s128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
+			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 		}
 		inc_counter(args);
