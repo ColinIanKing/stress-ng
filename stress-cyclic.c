@@ -160,7 +160,8 @@ static int stress_cyclic_clock_nanosleep(
 	if (ret == 0) {
 		int64_t delta_ns;
 
-		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
+			   (t2.tv_nsec - t1.tv_nsec);
 		delta_ns -= cyclic_sleep;
 
 		if (rt_stats->index < MAX_SAMPLES)
@@ -199,7 +200,8 @@ static int stress_cyclic_posix_nanosleep(
 	if (ret == 0) {
 		int64_t delta_ns;
 
-		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
+			   (t2.tv_nsec - t1.tv_nsec);
 		delta_ns -= cyclic_sleep;
 
 		if (rt_stats->index < MAX_SAMPLES)
@@ -244,7 +246,8 @@ static int stress_cyclic_poll(
 
 		clock_gettime(CLOCK_REALTIME, &t2);
 
-		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
+			   (t2.tv_nsec - t1.tv_nsec);
 		if (delta_ns >= (int64_t)cyclic_sleep) {
 			delta_ns -= cyclic_sleep;
 
@@ -287,7 +290,8 @@ static int stress_cyclic_pselect(
 	if (ret == 0) {
 		int64_t delta_ns;
 
-		delta_ns = ((t2.tv_sec - t1.tv_sec) * NANOSECS) + (t2.tv_nsec - t1.tv_nsec);
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) + 
+			   (t2.tv_nsec - t1.tv_nsec);
 		delta_ns -= cyclic_sleep;
 
 		if (rt_stats->index < MAX_SAMPLES)
@@ -355,7 +359,7 @@ static int stress_cyclic_itimer(
             (itimer_time.tv_nsec == 0))
 		goto tidy;
 
-	delta_ns = ((itimer_time.tv_sec - t1.tv_sec) * NANOSECS) + (itimer_time.tv_nsec - t1.tv_nsec);
+	delta_ns = ((int64_t)(itimer_time.tv_sec - t1.tv_sec) * NANOSECS) + (itimer_time.tv_nsec - t1.tv_nsec);
 	delta_ns -= cyclic_sleep;
 
 	if (rt_stats->index < MAX_SAMPLES)
