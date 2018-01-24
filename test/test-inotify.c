@@ -102,6 +102,9 @@ int main(void)
 
 	while ((i >= 0) && (i <= len - (ssize_t)sizeof(struct inotify_event))) {
 		struct inotify_event *event = (struct inotify_event *)&buffer[i];
+
+		if (event->len > sizeof(buffer))
+			break;
 		i += sizeof(struct inotify_event) + event->len;
 	}
 
