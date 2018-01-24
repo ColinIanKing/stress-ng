@@ -42,6 +42,21 @@ static const stress_funccall_method_info_t funccall_methods[];
 
 typedef long double 	long_double_t;
 
+typedef struct {
+	void *		data_voidptr[4];
+	uint64_t	data_uint64[4];
+	uint32_t	data_uint32[4];
+	uint16_t	data_uint16[4];
+	uint8_t		data_uint8[4];
+} data_t;
+
+volatile data_t volatile_data;
+
+static inline void data_t_put(data_t data)
+{
+	volatile_data = data;
+}
+
 #define stress_funccall_1(type)			\
 void NOINLINE stress_funccall_ ## type ## _1(	\
 	const type a);				\
@@ -321,6 +336,16 @@ stress_funccall_6(long_double_t)
 stress_funccall_7(long_double_t)
 stress_funccall_8(long_double_t)
 stress_funccall_9(long_double_t)
+
+stress_funccall_1(data_t)
+stress_funccall_2(data_t)
+stress_funccall_3(data_t)
+stress_funccall_4(data_t)
+stress_funccall_5(data_t)
+stress_funccall_6(data_t)
+stress_funccall_7(data_t)
+stress_funccall_8(data_t)
+stress_funccall_9(data_t)
 
 #define stress_funcall_type(type, rndfunc)			\
 static void NOINLINE stress_funccall_ ## type(const args_t *args)\
