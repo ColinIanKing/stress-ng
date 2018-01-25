@@ -164,8 +164,9 @@ static const long skip_syscalls[] = {
 	__NR_reboot,
 #endif
 #if defined(__NR_restart_syscall)
-	__NR_restart_syscall
+	__NR_restart_syscall,
 #endif
+	0	/* ensure at least 1 element */
 };
 
 static void MLOCKED stress_badhandler(int signum)
@@ -261,7 +262,7 @@ int stress_enosys(const args_t *args)
 	const unsigned long mask = ULONG_MAX;
 	size_t n;
 
-	for (n = 0; n < SIZEOF_ARRAY(skip_syscalls); n++) {
+	for (n = 0; n < SIZEOF_ARRAY(skip_syscalls) - 1; n++) {
 		syscall_add(skip_syscalls[n]);
 	}
 
