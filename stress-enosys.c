@@ -2993,11 +2993,11 @@ again:
 int stress_enosys(const args_t *args)
 {
 	const unsigned long mask = ULONG_MAX;
-	ssize_t n;
+	ssize_t j;
 
-	for (n = 0; n < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; n++) {
-		if (!syscall_find(skip_syscalls[n]))
-			syscall_add(skip_syscalls[n]);
+	for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++) {
+		if (!syscall_find(skip_syscalls[j]))
+			syscall_add(skip_syscalls[j]);
 	}
 
 
