@@ -27,7 +27,7 @@
 #if defined(__linux__) &&		\
     defined(__NR_process_vm_readv) &&	\
     defined(__NR_process_vm_writev) &&	\
-    NEED_GLIBC(2,15,0) && \
+    NEED_GLIBC(2,15,0) &&		\
     defined(HAVE_CLONE)
 
 #include <sys/uio.h>
@@ -62,7 +62,8 @@ void stress_set_vm_rw_bytes(const char *opt)
 #if defined(__linux__) &&		\
     defined(__NR_process_vm_readv) &&	\
     defined(__NR_process_vm_writev) &&	\
-    NEED_GLIBC(2,15,0)
+    NEED_GLIBC(2,15,0) &&		\
+    defined(HAVE_CLONE)
 
 static int stress_vm_child(void *arg)
 {
