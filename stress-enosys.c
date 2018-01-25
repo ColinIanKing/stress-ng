@@ -118,53 +118,1583 @@ static const int sigs[] = {
 };
 
 static const long skip_syscalls[] = {
-#if defined(__NR_fork)
-	__NR_fork,
+#if defined(__NR_accept)
+	__NR_accept,
+#endif
+#if defined(__NR_accept4)
+	__NR_accept4,
+#endif
+#if defined(__NR_access)
+	__NR_access,
+#endif
+#if defined(__NR_acct)
+	__NR_acct,
+#endif
+#if defined(__NR_acl_get)
+	__NR_acl_get,
+#endif
+#if defined(__NR_acl_set)
+	__NR_acl_set,
+#endif
+#if defined(__NR_add_key)
+	__NR_add_key,
+#endif
+#if defined(__NR_adjtimex)
+	__NR_adjtimex,
+#endif
+#if defined(__NR_afs_syscall)
+	__NR_afs_syscall,
+#endif
+#if defined(__NR_alarm)
+	__NR_alarm,
+#endif
+#if defined(__NR_alloc_hugepages)
+	__NR_alloc_hugepages,
+#endif
+#if defined(__NR_arc_gettls)
+	__NR_arc_gettls,
+#endif
+#if defined(__NR_arch_specific_syscall)
+	__NR_arch_specific_syscall,
+#endif
+#if defined(__NR_arc_settls)
+	__NR_arc_settls,
+#endif
+#if defined(__NR_arc_usr_cmpxchg)
+	__NR_arc_usr_cmpxchg,
+#endif
+#if defined(__NR_arm_fadvise64_64)
+	__NR_arm_fadvise64_64,
+#endif
+#if defined(__NR_atomic_barrier)
+	__NR_atomic_barrier,
+#endif
+#if defined(__NR_atomic_cmpxchg_32)
+	__NR_atomic_cmpxchg_32,
+#endif
+#if defined(__NR_attrctl)
+	__NR_attrctl,
+#endif
+#if defined(__NR_bdflush)
+	__NR_bdflush,
+#endif
+#if defined(__NR_bfin_spinlock)
+	__NR_bfin_spinlock,
+#endif
+#if defined(__NR_bind)
+	__NR_bind,
+#endif
+#if defined(__NR_bpf)
+	__NR_bpf,
+#endif
+#if defined(__NR_break)
+	__NR_break,
+#endif
+#if defined(__NR_brk)
+	__NR_brk,
+#endif
+#if defined(__NR_cachectl)
+	__NR_cachectl,
+#endif
+#if defined(__NR_cacheflush)
+	__NR_cacheflush,
+#endif
+#if defined(__NR_cache_sync)
+	__NR_cache_sync,
+#endif
+#if defined(__NR_capget)
+	__NR_capget,
+#endif
+#if defined(__NR_capset)
+	__NR_capset,
+#endif
+#if defined(__NR_chdir)
+	__NR_chdir,
+#endif
+#if defined(__NR_chmod)
+	__NR_chmod,
+#endif
+#if defined(__NR_chown)
+	__NR_chown,
+#endif
+#if defined(__NR_chown32)
+	__NR_chown32,
+#endif
+#if defined(__NR_chroot)
+	__NR_chroot,
+#endif
+#if defined(__NR_clock_adjtime)
+	__NR_clock_adjtime,
+#endif
+#if defined(__NR_clock_getres)
+	__NR_clock_getres,
+#endif
+#if defined(__NR_clock_gettime)
+	__NR_clock_gettime,
+#endif
+#if defined(__NR_clock_nanosleep)
+	__NR_clock_nanosleep,
+#endif
+#if defined(__NR_clock_settime)
+	__NR_clock_settime,
 #endif
 #if defined(__NR_clone)
 	__NR_clone,
 #endif
-#if defined(__NR_exit)
-	__NR_exit,
+#if defined(__NR_clone2)
+	__NR_clone2,
 #endif
-#if defined(__NR_rt_sigreturn)
-	__NR_rt_sigreturn,
+#if defined(__NR_close)
+	__NR_close,
 #endif
-#if defined(__NR_sigreturn)
-	__NR_sigreturn,
+#if defined(__NR_cmpxchg_badaddr)
+	__NR_cmpxchg_badaddr,
 #endif
-#if defined(__linux__) && defined(STRESS_X86)
-	513,	/* sys32_x32_rt_sigreturn */
+#if defined(__NR_compat_exit)
+	__NR_compat_exit,
+#endif
+#if defined(__NR_compat_read)
+	__NR_compat_read,
+#endif
+#if defined(__NR_compat_restart_syscall)
+	__NR_compat_restart_syscall,
+#endif
+#if defined(__NR_compat_rt_sigreturn)
+	__NR_compat_rt_sigreturn,
 #endif
 #if defined(__NR_compat_sigreturn)
 	__NR_compat_sigreturn,
 #endif
-#if defined(__NR_wait)
-	__NR_wait,
+#if defined(__NR_compat_syscalls)
+	__NR_compat_syscalls,
 #endif
-#if defined(__NR_wait4)
-	__NR_wait4,
+#if defined(__NR_compat_write)
+	__NR_compat_write,
 #endif
-#if defined(__NR_waitpid)
-	__NR_waitpid,
+#if defined(__NR_connect)
+	__NR_connect,
 #endif
-#if defined(__NR_waitid)
-	__NR_waitid,
+#if defined(__NR_copy_file_range)
+	__NR_copy_file_range,
 #endif
-#if defined(__NR_exit_group)
-	__NR_exit_group,
+#if defined(__NR_creat)
+	__NR_creat,
 #endif
-#if defined(__NR_kill)
-	__NR_kill,
+#if defined(__NR_create_module)
+	__NR_create_module,
+#endif
+#if defined(__NR_delete_module)
+	__NR_delete_module,
+#endif
+#if defined(__NR_dipc)
+	__NR_dipc,
+#endif
+#if defined(__NR_dma_memcpy)
+	__NR_dma_memcpy,
+#endif
+#if defined(__NR_dup)
+	__NR_dup,
+#endif
+#if defined(__NR_dup2)
+	__NR_dup2,
+#endif
+#if defined(__NR_dup3)
+	__NR_dup3,
+#endif
+#if defined(__NR_epoll_create)
+	__NR_epoll_create,
+#endif
+#if defined(__NR_epoll_create1)
+	__NR_epoll_create1,
+#endif
+#if defined(__NR_epoll_ctl)
+	__NR_epoll_ctl,
+#endif
+#if defined(__NR_epoll_pwait)
+	__NR_epoll_pwait,
+#endif
+#if defined(__NR_epoll_wait)
+	__NR_epoll_wait,
+#endif
+#if defined(__NR_eventfd)
+	__NR_eventfd,
+#endif
+#if defined(__NR_eventfd2)
+	__NR_eventfd2,
+#endif
+#if defined(__NR_execv)
+	__NR_execv,
 #endif
 #if defined(__NR_execve)
 	__NR_execve,
 #endif
+#if defined(__NR_execveat)
+	__NR_execveat,
+#endif
+#if defined(__NR_exec_with_loader)
+	__NR_exec_with_loader,
+#endif
+#if defined(__NR_exit)
+	__NR_exit,
+#endif
+#if defined(__NR__exit)
+	__NR__exit,
+#endif
+#if defined(__NR_exit_group)
+	__NR_exit_group,
+#endif
+#if defined(__NR_faccessat)
+	__NR_faccessat,
+#endif
+#if defined(__NR_fadvise64)
+	__NR_fadvise64,
+#endif
+#if defined(__NR_fadvise64_64)
+	__NR_fadvise64_64,
+#endif
+#if defined(__NR_fallocate)
+	__NR_fallocate,
+#endif
+#if defined(__NR_fanotify_init)
+	__NR_fanotify_init,
+#endif
+#if defined(__NR_fanotify_mark)
+	__NR_fanotify_mark,
+#endif
+#if defined(__NR_FAST_atomic_update)
+	__NR_FAST_atomic_update,
+#endif
+#if defined(__NR_FAST_cmpxchg)
+	__NR_FAST_cmpxchg,
+#endif
+#if defined(__NR_FAST_cmpxchg64)
+	__NR_FAST_cmpxchg64,
+#endif
+#if defined(__NR_fchdir)
+	__NR_fchdir,
+#endif
+#if defined(__NR_fchmod)
+	__NR_fchmod,
+#endif
+#if defined(__NR_fchmodat)
+	__NR_fchmodat,
+#endif
+#if defined(__NR_fchown)
+	__NR_fchown,
+#endif
+#if defined(__NR_fchown32)
+	__NR_fchown32,
+#endif
+#if defined(__NR_fchownat)
+	__NR_fchownat,
+#endif
+#if defined(__NR_fcntl)
+	__NR_fcntl,
+#endif
+#if defined(__NR_fcntl64)
+	__NR_fcntl64,
+#endif
+#if defined(__NR_fdatasync)
+	__NR_fdatasync,
+#endif
+#if defined(__NR_fgetxattr)
+	__NR_fgetxattr,
+#endif
+#if defined(__NR_finit_module)
+	__NR_finit_module,
+#endif
+#if defined(__NR_flistxattr)
+	__NR_flistxattr,
+#endif
+#if defined(__NR_flock)
+	__NR_flock,
+#endif
+#if defined(__NR_fork)
+	__NR_fork,
+#endif
+#if defined(__NR_free_hugepages)
+	__NR_free_hugepages,
+#endif
+#if defined(__NR_fremovexattr)
+	__NR_fremovexattr,
+#endif
+#if defined(__NR_fsetxattr)
+	__NR_fsetxattr,
+#endif
+#if defined(__NR_fstat)
+	__NR_fstat,
+#endif
+#if defined(__NR_fstat64)
+	__NR_fstat64,
+#endif
+#if defined(__NR_fstatat64)
+	__NR_fstatat64,
+#endif
+#if defined(__NR_fstatfs)
+	__NR_fstatfs,
+#endif
+#if defined(__NR_fstatfs64)
+	__NR_fstatfs64,
+#endif
+#if defined(__NR_fsync)
+	__NR_fsync,
+#endif
+#if defined(__NR_ftime)
+	__NR_ftime,
+#endif
+#if defined(__NR_ftruncate)
+	__NR_ftruncate,
+#endif
+#if defined(__NR_ftruncate64)
+	__NR_ftruncate64,
+#endif
+#if defined(__NR_futex)
+	__NR_futex,
+#endif
+#if defined(__NR_futimesat)
+	__NR_futimesat,
+#endif
+#if defined(__NR_getcpu)
+	__NR_getcpu,
+#endif
+#if defined(__NR_getcwd)
+	__NR_getcwd,
+#endif
+#if defined(__NR_getdents)
+	__NR_getdents,
+#endif
+#if defined(__NR_getdents64)
+	__NR_getdents64,
+#endif
+#if defined(__NR_getdomainname)
+	__NR_getdomainname,
+#endif
+#if defined(__NR_getdtablesize)
+	__NR_getdtablesize,
+#endif
+#if defined(__NR_getegid)
+	__NR_getegid,
+#endif
+#if defined(__NR_getegid32)
+	__NR_getegid32,
+#endif
+#if defined(__NR_geteuid)
+	__NR_geteuid,
+#endif
+#if defined(__NR_geteuid32)
+	__NR_geteuid32,
+#endif
+#if defined(__NR_getgid)
+	__NR_getgid,
+#endif
+#if defined(__NR_getgid32)
+	__NR_getgid32,
+#endif
+#if defined(__NR_getgroups)
+	__NR_getgroups,
+#endif
+#if defined(__NR_getgroups32)
+	__NR_getgroups32,
+#endif
+#if defined(__NR_gethostname)
+	__NR_gethostname,
+#endif
+#if defined(__NR_getitimer)
+	__NR_getitimer,
+#endif
+#if defined(__NR_get_kernel_syms)
+	__NR_get_kernel_syms,
+#endif
+#if defined(__NR_get_mempolicy)
+	__NR_get_mempolicy,
+#endif
+#if defined(__NR_getpagesize)
+	__NR_getpagesize,
+#endif
+#if defined(__NR_getpeername)
+	__NR_getpeername,
+#endif
+#if defined(__NR_getpgid)
+	__NR_getpgid,
+#endif
+#if defined(__NR_getpgrp)
+	__NR_getpgrp,
+#endif
+#if defined(__NR_getpid)
+	__NR_getpid,
+#endif
+#if defined(__NR_getpmsg)
+	__NR_getpmsg,
+#endif
+#if defined(__NR_getppid)
+	__NR_getppid,
+#endif
+#if defined(__NR_getpriority)
+	__NR_getpriority,
+#endif
+#if defined(__NR_getrandom)
+	__NR_getrandom,
+#endif
+#if defined(__NR_getresgid)
+	__NR_getresgid,
+#endif
+#if defined(__NR_getresgid32)
+	__NR_getresgid32,
+#endif
+#if defined(__NR_getresuid)
+	__NR_getresuid,
+#endif
+#if defined(__NR_getresuid32)
+	__NR_getresuid32,
+#endif
+#if defined(__NR_getrlimit)
+	__NR_getrlimit,
+#endif
+#if defined(__NR_get_robust_list)
+	__NR_get_robust_list,
+#endif
+#if defined(__NR_getrusage)
+	__NR_getrusage,
+#endif
+#if defined(__NR_getsid)
+	__NR_getsid,
+#endif
+#if defined(__NR_getsockname)
+	__NR_getsockname,
+#endif
+#if defined(__NR_getsockopt)
+	__NR_getsockopt,
+#endif
+#if defined(__NR_get_thread_area)
+	__NR_get_thread_area,
+#endif
+#if defined(__NR_gettid)
+	__NR_gettid,
+#endif
+#if defined(__NR_gettimeofday)
+	__NR_gettimeofday,
+#endif
+#if defined(__NR_getuid)
+	__NR_getuid,
+#endif
+#if defined(__NR_getuid32)
+	__NR_getuid32,
+#endif
+#if defined(__NR_getunwind)
+	__NR_getunwind,
+#endif
+#if defined(__NR_getxattr)
+	__NR_getxattr,
+#endif
+#if defined(__NR_getxgid)
+	__NR_getxgid,
+#endif
+#if defined(__NR_getxpid)
+	__NR_getxpid,
+#endif
+#if defined(__NR_getxuid)
+	__NR_getxuid,
+#endif
+#if defined(__NR_gtty)
+	__NR_gtty,
+#endif
+#if defined(__NR_idle)
+	__NR_idle,
+#endif
+#if defined(__NR_init_module)
+	__NR_init_module,
+#endif
+#if defined(__NR_inotify_add_watch)
+	__NR_inotify_add_watch,
+#endif
+#if defined(__NR_inotify_init)
+	__NR_inotify_init,
+#endif
+#if defined(__NR_inotify_init1)
+	__NR_inotify_init1,
+#endif
+#if defined(__NR_inotify_rm_watch)
+	__NR_inotify_rm_watch,
+#endif
+#if defined(__NR_io_cancel)
+	__NR_io_cancel,
+#endif
+#if defined(__NR_ioctl)
+	__NR_ioctl,
+#endif
+#if defined(__NR_io_destroy)
+	__NR_io_destroy,
+#endif
+#if defined(__NR_io_getevents)
+	__NR_io_getevents,
+#endif
+#if defined(__NR_ioperm)
+	__NR_ioperm,
+#endif
+#if defined(__NR_iopl)
+	__NR_iopl,
+#endif
+#if defined(__NR_ioprio_get)
+	__NR_ioprio_get,
+#endif
+#if defined(__NR_ioprio_set)
+	__NR_ioprio_set,
+#endif
+#if defined(__NR_io_setup)
+	__NR_io_setup,
+#endif
+#if defined(__NR_io_submit)
+	__NR_io_submit,
+#endif
+#if defined(__NR_ipc)
+	__NR_ipc,
+#endif
+#if defined(__NR_kcmp)
+	__NR_kcmp,
+#endif
+#if defined(__NR_kern_features)
+	__NR_kern_features,
+#endif
+#if defined(__NR_kexec_file_load)
+	__NR_kexec_file_load,
+#endif
+#if defined(__NR_kexec_load)
+	__NR_kexec_load,
+#endif
+#if defined(__NR_keyctl)
+	__NR_keyctl,
+#endif
+#if defined(__NR_kill)
+	__NR_kill,
+#endif
+#if defined(__NR_lchown)
+	__NR_lchown,
+#endif
+#if defined(__NR_lchown32)
+	__NR_lchown32,
+#endif
+#if defined(__NR_lgetxattr)
+	__NR_lgetxattr,
+#endif
+#if defined(__NR_link)
+	__NR_link,
+#endif
+#if defined(__NR_linkat)
+	__NR_linkat,
+#endif
+#if defined(__NR_Linux)
+	__NR_Linux,
+#endif
+#if defined(__NR_Linux_syscalls)
+	__NR_Linux_syscalls,
+#endif
+#if defined(__NR_listen)
+	__NR_listen,
+#endif
+#if defined(__NR_listxattr)
+	__NR_listxattr,
+#endif
+#if defined(__NR_llistxattr)
+	__NR_llistxattr,
+#endif
+#if defined(__NR_llseek)
+	__NR_llseek,
+#endif
+#if defined(__NR__llseek)
+	__NR__llseek,
+#endif
+#if defined(__NR_lock)
+	__NR_lock,
+#endif
+#if defined(__NR_lookup_dcookie)
+	__NR_lookup_dcookie,
+#endif
+#if defined(__NR_lremovexattr)
+	__NR_lremovexattr,
+#endif
+#if defined(__NR_lseek)
+	__NR_lseek,
+#endif
+#if defined(__NR_lsetxattr)
+	__NR_lsetxattr,
+#endif
+#if defined(__NR_lstat)
+	__NR_lstat,
+#endif
+#if defined(__NR_lstat64)
+	__NR_lstat64,
+#endif
+#if defined(__NR_lws_entries)
+	__NR_lws_entries,
+#endif
+#if defined(__NR_madvise)
+	__NR_madvise,
+#endif
+#if defined(__NR_madvise1)
+	__NR_madvise1,
+#endif
+#if defined(__NR_mbind)
+	__NR_mbind,
+#endif
+#if defined(__NR_membarrier)
+	__NR_membarrier,
+#endif
+#if defined(__NR_memfd_create)
+	__NR_memfd_create,
+#endif
+#if defined(__NR_memory_ordering)
+	__NR_memory_ordering,
+#endif
+#if defined(__NR_metag_get_tls)
+	__NR_metag_get_tls,
+#endif
+#if defined(__NR_metag_set_fpu_flags)
+	__NR_metag_set_fpu_flags,
+#endif
+#if defined(__NR_metag_setglobalbit)
+	__NR_metag_setglobalbit,
+#endif
+#if defined(__NR_metag_set_tls)
+	__NR_metag_set_tls,
+#endif
+#if defined(__NR_migrate_pages)
+	__NR_migrate_pages,
+#endif
+#if defined(__NR_mincore)
+	__NR_mincore,
+#endif
+#if defined(__NR_mkdir)
+	__NR_mkdir,
+#endif
+#if defined(__NR_mkdirat)
+	__NR_mkdirat,
+#endif
+#if defined(__NR_mknod)
+	__NR_mknod,
+#endif
+#if defined(__NR_mknodat)
+	__NR_mknodat,
+#endif
+#if defined(__NR_mlock)
+	__NR_mlock,
+#endif
+#if defined(__NR_mlock2)
+	__NR_mlock2,
+#endif
+#if defined(__NR_mlockall)
+	__NR_mlockall,
+#endif
+#if defined(__NR_mmap)
+	__NR_mmap,
+#endif
+#if defined(__NR_mmap2)
+	__NR_mmap2,
+#endif
+#if defined(__NR_modify_ldt)
+	__NR_modify_ldt,
+#endif
+#if defined(__NR_mount)
+	__NR_mount,
+#endif
+#if defined(__NR_move_pages)
+	__NR_move_pages,
+#endif
+#if defined(__NR_mprotect)
+	__NR_mprotect,
+#endif
+#if defined(__NR_mpx)
+	__NR_mpx,
+#endif
+#if defined(__NR_mq_getsetattr)
+	__NR_mq_getsetattr,
+#endif
+#if defined(__NR_mq_notify)
+	__NR_mq_notify,
+#endif
+#if defined(__NR_mq_open)
+	__NR_mq_open,
+#endif
+#if defined(__NR_mq_timedreceive)
+	__NR_mq_timedreceive,
+#endif
+#if defined(__NR_mq_timedsend)
+	__NR_mq_timedsend,
+#endif
+#if defined(__NR_mq_unlink)
+	__NR_mq_unlink,
+#endif
+#if defined(__NR_mremap)
+	__NR_mremap,
+#endif
+#if defined(__NR_msgctl)
+	__NR_msgctl,
+#endif
+#if defined(__NR_msgget)
+	__NR_msgget,
+#endif
+#if defined(__NR_msgrcv)
+	__NR_msgrcv,
+#endif
+#if defined(__NR_msgsnd)
+	__NR_msgsnd,
+#endif
+#if defined(__NR_msync)
+	__NR_msync,
+#endif
+#if defined(__NR_multiplexer)
+	__NR_multiplexer,
+#endif
+#if defined(__NR_munlock)
+	__NR_munlock,
+#endif
+#if defined(__NR_munlockall)
+	__NR_munlockall,
+#endif
+#if defined(__NR_munmap)
+	__NR_munmap,
+#endif
+#if defined(__NR_N32_Linux)
+	__NR_N32_Linux,
+#endif
+#if defined(__NR_N32_Linux_syscalls)
+	__NR_N32_Linux_syscalls,
+#endif
+#if defined(__NR_N32_restart_syscall)
+	__NR_N32_restart_syscall,
+#endif
+#if defined(__NR_name_to_handle_at)
+	__NR_name_to_handle_at,
+#endif
+#if defined(__NR_nanosleep)
+	__NR_nanosleep,
+#endif
+#if defined(__NR_newfstat)
+	__NR_newfstat,
+#endif
+#if defined(__NR_newfstatat)
+	__NR_newfstatat,
+#endif
+#if defined(__NR_newlstat)
+	__NR_newlstat,
+#endif
+#if defined(__NR__newselect)
+	__NR__newselect,
+#endif
+#if defined(__NR_newstat)
+	__NR_newstat,
+#endif
+#if defined(__NR_newuname)
+	__NR_newuname,
+#endif
+#if defined(__NR_nfsservctl)
+	__NR_nfsservctl,
+#endif
+#if defined(__NR_nice)
+	__NR_nice,
+#endif
+#if defined(__NR_ni_syscall)
+	__NR_ni_syscall,
+#endif
+#if defined(__NR_old_adjtimex)
+	__NR_old_adjtimex,
+#endif
+#if defined(__NR_olddebug_setcontext)
+	__NR_olddebug_setcontext,
+#endif
+#if defined(__NR_oldfstat)
+	__NR_oldfstat,
+#endif
+#if defined(__NR_old_getrlimit)
+	__NR_old_getrlimit,
+#endif
+#if defined(__NR_oldlstat)
+	__NR_oldlstat,
+#endif
+#if defined(__NR_oldolduname)
+	__NR_oldolduname,
+#endif
+#if defined(__NR_oldstat)
+	__NR_oldstat,
+#endif
+#if defined(__NR_oldumount)
+	__NR_oldumount,
+#endif
+#if defined(__NR_olduname)
+	__NR_olduname,
+#endif
+#if defined(__NR_oldwait4)
+	__NR_oldwait4,
+#endif
+#if defined(__NR_open)
+	__NR_open,
+#endif
+#if defined(__NR_openat)
+	__NR_openat,
+#endif
+#if defined(__NR_open_by_handle_at)
+	__NR_open_by_handle_at,
+#endif
+#if defined(__NR_or1k_atomic)
+	__NR_or1k_atomic,
+#endif
+#if defined(__NR_pause)
+	__NR_pause,
+#endif
+#if defined(__NR_pciconfig_iobase)
+	__NR_pciconfig_iobase,
+#endif
+#if defined(__NR_pciconfig_read)
+	__NR_pciconfig_read,
+#endif
+#if defined(__NR_pciconfig_write)
+	__NR_pciconfig_write,
+#endif
+#if defined(__NR_perfctr)
+	__NR_perfctr,
+#endif
+#if defined(__NR_perf_event_open)
+	__NR_perf_event_open,
+#endif
+#if defined(__NR_perfmonctl)
+	__NR_perfmonctl,
+#endif
+#if defined(__NR_personality)
+	__NR_personality,
+#endif
+#if defined(__NR_pipe)
+	__NR_pipe,
+#endif
+#if defined(__NR_pipe2)
+	__NR_pipe2,
+#endif
+#if defined(__NR_pivot_root)
+	__NR_pivot_root,
+#endif
+#if defined(__NR_pkey_alloc)
+	__NR_pkey_alloc,
+#endif
+#if defined(__NR_pkey_free)
+	__NR_pkey_free,
+#endif
+#if defined(__NR_pkey_mprotect)
+	__NR_pkey_mprotect,
+#endif
+#if defined(__NR_poll)
+	__NR_poll,
+#endif
+#if defined(__NR_ppoll)
+	__NR_ppoll,
+#endif
+#if defined(__NR_prctl)
+	__NR_prctl,
+#endif
+#if defined(__NR_pread)
+	__NR_pread,
+#endif
+#if defined(__NR_pread64)
+	__NR_pread64,
+#endif
+#if defined(__NR_preadv)
+	__NR_preadv,
+#endif
+#if defined(__NR_preadv2)
+	__NR_preadv2,
+#endif
+#if defined(__NR_prlimit64)
+	__NR_prlimit64,
+#endif
+#if defined(__NR_process_vm_readv)
+	__NR_process_vm_readv,
+#endif
+#if defined(__NR_process_vm_writev)
+	__NR_process_vm_writev,
+#endif
+#if defined(__NR_prof)
+	__NR_prof,
+#endif
+#if defined(__NR_profil)
+	__NR_profil,
+#endif
+#if defined(__NR_pselect6)
+	__NR_pselect6,
+#endif
+#if defined(__NR_ptrace)
+	__NR_ptrace,
+#endif
+#if defined(__NR_putpmsg)
+	__NR_putpmsg,
+#endif
+#if defined(__NR_pwrite)
+	__NR_pwrite,
+#endif
+#if defined(__NR_pwrite64)
+	__NR_pwrite64,
+#endif
+#if defined(__NR_pwritev)
+	__NR_pwritev,
+#endif
+#if defined(__NR_pwritev2)
+	__NR_pwritev2,
+#endif
+#if defined(__NR_query_module)
+	__NR_query_module,
+#endif
+#if defined(__NR_quotactl)
+	__NR_quotactl,
+#endif
+#if defined(__NR_read)
+	__NR_read,
+#endif
+#if defined(__NR_readahead)
+	__NR_readahead,
+#endif
+#if defined(__NR_readdir)
+	__NR_readdir,
+#endif
+#if defined(__NR_readlink)
+	__NR_readlink,
+#endif
+#if defined(__NR_readlinkat)
+	__NR_readlinkat,
+#endif
+#if defined(__NR_readv)
+	__NR_readv,
+#endif
 #if defined(__NR_reboot)
 	__NR_reboot,
 #endif
+#if defined(__NR_recv)
+	__NR_recv,
+#endif
+#if defined(__NR_recvfrom)
+	__NR_recvfrom,
+#endif
+#if defined(__NR_recvmmsg)
+	__NR_recvmmsg,
+#endif
+#if defined(__NR_recvmsg)
+	__NR_recvmsg,
+#endif
+#if defined(__NR_remap_file_pages)
+	__NR_remap_file_pages,
+#endif
+#if defined(__NR_removexattr)
+	__NR_removexattr,
+#endif
+#if defined(__NR_rename)
+	__NR_rename,
+#endif
+#if defined(__NR_renameat)
+	__NR_renameat,
+#endif
+#if defined(__NR_renameat2)
+	__NR_renameat2,
+#endif
+#if defined(__NR_request_key)
+	__NR_request_key,
+#endif
+#if defined(__NR_reserved152)
+	__NR_reserved152,
+#endif
+#if defined(__NR_reserved153)
+	__NR_reserved153,
+#endif
+#if defined(__NR_reserved177)
+	__NR_reserved177,
+#endif
+#if defined(__NR_reserved193)
+	__NR_reserved193,
+#endif
+#if defined(__NR_reserved221)
+	__NR_reserved221,
+#endif
+#if defined(__NR_reserved253)
+	__NR_reserved253,
+#endif
+#if defined(__NR_reserved82)
+	__NR_reserved82,
+#endif
 #if defined(__NR_restart_syscall)
 	__NR_restart_syscall,
+#endif
+#if defined(__NR_riscv_flush_icache)
+	__NR_riscv_flush_icache,
+#endif
+#if defined(__NR_rmdir)
+	__NR_rmdir,
+#endif
+#if defined(__NR_rtas)
+	__NR_rtas,
+#endif
+#if defined(__NR_rt_sigaction)
+	__NR_rt_sigaction,
+#endif
+#if defined(__NR_rt_sigpending)
+	__NR_rt_sigpending,
+#endif
+#if defined(__NR_rt_sigprocmask)
+	__NR_rt_sigprocmask,
+#endif
+#if defined(__NR_rt_sigqueueinfo)
+	__NR_rt_sigqueueinfo,
+#endif
+#if defined(__NR_rt_sigreturn)
+	__NR_rt_sigreturn,
+#endif
+#if defined(__NR_rt_sigsuspend)
+	__NR_rt_sigsuspend,
+#endif
+#if defined(__NR_rt_sigtimedwait)
+	__NR_rt_sigtimedwait,
+#endif
+#if defined(__NR_rt_tgsigqueueinfo)
+	__NR_rt_tgsigqueueinfo,
+#endif
+#if defined(__NR_s390_guarded_storage)
+	__NR_s390_guarded_storage,
+#endif
+#if defined(__NR_s390_pci_mmio_read)
+	__NR_s390_pci_mmio_read,
+#endif
+#if defined(__NR_s390_pci_mmio_write)
+	__NR_s390_pci_mmio_write,
+#endif
+#if defined(__NR_s390_runtime_instr)
+	__NR_s390_runtime_instr,
+#endif
+#if defined(__NR_s390_sthyi)
+	__NR_s390_sthyi,
+#endif
+#if defined(__NR_sched_getaffinity)
+	__NR_sched_getaffinity,
+#endif
+#if defined(__NR_sched_get_affinity)
+	__NR_sched_get_affinity,
+#endif
+#if defined(__NR_sched_getattr)
+	__NR_sched_getattr,
+#endif
+#if defined(__NR_sched_getparam)
+	__NR_sched_getparam,
+#endif
+#if defined(__NR_sched_get_priority_max)
+	__NR_sched_get_priority_max,
+#endif
+#if defined(__NR_sched_get_priority_min)
+	__NR_sched_get_priority_min,
+#endif
+#if defined(__NR_sched_getscheduler)
+	__NR_sched_getscheduler,
+#endif
+#if defined(__NR_sched_rr_get_interval)
+	__NR_sched_rr_get_interval,
+#endif
+#if defined(__NR_sched_setaffinity)
+	__NR_sched_setaffinity,
+#endif
+#if defined(__NR_sched_set_affinity)
+	__NR_sched_set_affinity,
+#endif
+#if defined(__NR_sched_setattr)
+	__NR_sched_setattr,
+#endif
+#if defined(__NR_sched_setparam)
+	__NR_sched_setparam,
+#endif
+#if defined(__NR_sched_setscheduler)
+	__NR_sched_setscheduler,
+#endif
+#if defined(__NR_sched_yield)
+	__NR_sched_yield,
+#endif
+#if defined(__NR_seccomp)
+	__NR_seccomp,
+#endif
+#if defined(__NR_seccomp_exit)
+	__NR_seccomp_exit,
+#endif
+#if defined(__NR_seccomp_exit_32)
+	__NR_seccomp_exit_32,
+#endif
+#if defined(__NR_seccomp_read)
+	__NR_seccomp_read,
+#endif
+#if defined(__NR_seccomp_read_32)
+	__NR_seccomp_read_32,
+#endif
+#if defined(__NR_seccomp_sigreturn)
+	__NR_seccomp_sigreturn,
+#endif
+#if defined(__NR_seccomp_sigreturn_32)
+	__NR_seccomp_sigreturn_32,
+#endif
+#if defined(__NR_seccomp_write)
+	__NR_seccomp_write,
+#endif
+#if defined(__NR_seccomp_write_32)
+	__NR_seccomp_write_32,
+#endif
+#if defined(__NR_security)
+	__NR_security,
+#endif
+#if defined(__NR_select)
+	__NR_select,
+#endif
+#if defined(__NR_semctl)
+	__NR_semctl,
+#endif
+#if defined(__NR_semget)
+	__NR_semget,
+#endif
+#if defined(__NR_semop)
+	__NR_semop,
+#endif
+#if defined(__NR_semtimedop)
+	__NR_semtimedop,
+#endif
+#if defined(__NR_send)
+	__NR_send,
+#endif
+#if defined(__NR_sendfile)
+	__NR_sendfile,
+#endif
+#if defined(__NR_sendfile64)
+	__NR_sendfile64,
+#endif
+#if defined(__NR_sendmmsg)
+	__NR_sendmmsg,
+#endif
+#if defined(__NR_sendmsg)
+	__NR_sendmsg,
+#endif
+#if defined(__NR_sendto)
+	__NR_sendto,
+#endif
+#if defined(__NR_setdomainname)
+	__NR_setdomainname,
+#endif
+#if defined(__NR_setfsgid)
+	__NR_setfsgid,
+#endif
+#if defined(__NR_setfsgid32)
+	__NR_setfsgid32,
+#endif
+#if defined(__NR_setfsuid)
+	__NR_setfsuid,
+#endif
+#if defined(__NR_setfsuid32)
+	__NR_setfsuid32,
+#endif
+#if defined(__NR_setgid)
+	__NR_setgid,
+#endif
+#if defined(__NR_setgid32)
+	__NR_setgid32,
+#endif
+#if defined(__NR_setgroups)
+	__NR_setgroups,
+#endif
+#if defined(__NR_setgroups32)
+	__NR_setgroups32,
+#endif
+#if defined(__NR_sethae)
+	__NR_sethae,
+#endif
+#if defined(__NR_sethostname)
+	__NR_sethostname,
+#endif
+#if defined(__NR_setitimer)
+	__NR_setitimer,
+#endif
+#if defined(__NR_set_mempolicy)
+	__NR_set_mempolicy,
+#endif
+#if defined(__NR_setns)
+	__NR_setns,
+#endif
+#if defined(__NR_setpgid)
+	__NR_setpgid,
+#endif
+#if defined(__NR_setpgrp)
+	__NR_setpgrp,
+#endif
+#if defined(__NR_setpriority)
+	__NR_setpriority,
+#endif
+#if defined(__NR_setregid)
+	__NR_setregid,
+#endif
+#if defined(__NR_setregid32)
+	__NR_setregid32,
+#endif
+#if defined(__NR_setresgid)
+	__NR_setresgid,
+#endif
+#if defined(__NR_setresgid32)
+	__NR_setresgid32,
+#endif
+#if defined(__NR_setresuid)
+	__NR_setresuid,
+#endif
+#if defined(__NR_setresuid32)
+	__NR_setresuid32,
+#endif
+#if defined(__NR_setreuid)
+	__NR_setreuid,
+#endif
+#if defined(__NR_setreuid32)
+	__NR_setreuid32,
+#endif
+#if defined(__NR_setrlimit)
+	__NR_setrlimit,
+#endif
+#if defined(__NR_set_robust_list)
+	__NR_set_robust_list,
+#endif
+#if defined(__NR_setsid)
+	__NR_setsid,
+#endif
+#if defined(__NR_setsockopt)
+	__NR_setsockopt,
+#endif
+#if defined(__NR_set_thread_area)
+	__NR_set_thread_area,
+#endif
+#if defined(__NR_set_tid_address)
+	__NR_set_tid_address,
+#endif
+#if defined(__NR_settimeofday)
+	__NR_settimeofday,
+#endif
+#if defined(__NR_setuid)
+	__NR_setuid,
+#endif
+#if defined(__NR_setuid32)
+	__NR_setuid32,
+#endif
+#if defined(__NR_setxattr)
+	__NR_setxattr,
+#endif
+#if defined(__NR_sgetmask)
+	__NR_sgetmask,
+#endif
+#if defined(__NR_shmat)
+	__NR_shmat,
+#endif
+#if defined(__NR_shmctl)
+	__NR_shmctl,
+#endif
+#if defined(__NR_shmdt)
+	__NR_shmdt,
+#endif
+#if defined(__NR_shmget)
+	__NR_shmget,
+#endif
+#if defined(__NR_shutdown)
+	__NR_shutdown,
+#endif
+#if defined(__NR_sigaction)
+	__NR_sigaction,
+#endif
+#if defined(__NR_sigaltstack)
+	__NR_sigaltstack,
+#endif
+#if defined(__NR_signal)
+	__NR_signal,
+#endif
+#if defined(__NR_signalfd)
+	__NR_signalfd,
+#endif
+#if defined(__NR_signalfd4)
+	__NR_signalfd4,
+#endif
+#if defined(__NR_sigpending)
+	__NR_sigpending,
+#endif
+#if defined(__NR_sigprocmask)
+	__NR_sigprocmask,
+#endif
+#if defined(__NR_sigreturn)
+	__NR_sigreturn,
+#endif
+#if defined(__NR_sigsuspend)
+	__NR_sigsuspend,
+#endif
+#if defined(__NR_socket)
+	__NR_socket,
+#endif
+#if defined(__NR_socketcall)
+	__NR_socketcall,
+#endif
+#if defined(__NR_socketpair)
+	__NR_socketpair,
+#endif
+#if defined(__NR_spill)
+	__NR_spill,
+#endif
+#if defined(__NR_splice)
+	__NR_splice,
+#endif
+#if defined(__NR_spu_create)
+	__NR_spu_create,
+#endif
+#if defined(__NR_spu_run)
+	__NR_spu_run,
+#endif
+#if defined(__NR_sram_alloc)
+	__NR_sram_alloc,
+#endif
+#if defined(__NR_sram_free)
+	__NR_sram_free,
+#endif
+#if defined(__NR_ssetmask)
+	__NR_ssetmask,
+#endif
+#if defined(__NR_stat)
+	__NR_stat,
+#endif
+#if defined(__NR_stat64)
+	__NR_stat64,
+#endif
+#if defined(__NR_statfs)
+	__NR_statfs,
+#endif
+#if defined(__NR_statfs64)
+	__NR_statfs64,
+#endif
+#if defined(__NR_statx)
+	__NR_statx,
+#endif
+#if defined(__NR_stime)
+	__NR_stime,
+#endif
+#if defined(__NR_stty)
+	__NR_stty,
+#endif
+#if defined(__NR_subpage_prot)
+	__NR_subpage_prot,
+#endif
+#if defined(__NR_swapcontext)
+	__NR_swapcontext,
+#endif
+#if defined(__NR_swapoff)
+	__NR_swapoff,
+#endif
+#if defined(__NR_swapon)
+	__NR_swapon,
+#endif
+#if defined(__NR_switch_endian)
+	__NR_switch_endian,
+#endif
+#if defined(__NR_symlink)
+	__NR_symlink,
+#endif
+#if defined(__NR_symlinkat)
+	__NR_symlinkat,
+#endif
+#if defined(__NR_sync)
+	__NR_sync,
+#endif
+#if defined(__NR_sync_file_range)
+	__NR_sync_file_range,
+#endif
+#if defined(__NR_sync_file_range2)
+	__NR_sync_file_range2,
+#endif
+#if defined(__NR_syncfs)
+	__NR_syncfs,
+#endif
+#if defined(__NR_syscall)
+	__NR_syscall,
+#endif
+#if defined(__NR_SYSCALL_BASE)
+	__NR_SYSCALL_BASE,
+#endif
+#if defined(__NR_syscall_compat_max)
+	__NR_syscall_compat_max,
+#endif
+#if defined(__NR_syscall_count)
+	__NR_syscall_count,
+#endif
+#if defined(__NR_syscalls)
+	__NR_syscalls,
+#endif
+#if defined(__NR_sysctl)
+	__NR_sysctl,
+#endif
+#if defined(__NR__sysctl)
+	__NR__sysctl,
+#endif
+#if defined(__NR_sys_debug_setcontext)
+	__NR_sys_debug_setcontext,
+#endif
+#if defined(__NR_sysfs)
+	__NR_sysfs,
+#endif
+#if defined(__NR_sysinfo)
+	__NR_sysinfo,
+#endif
+#if defined(__NR_syslog)
+	__NR_syslog,
+#endif
+#if defined(__NR_sysmips)
+	__NR_sysmips,
+#endif
+#if defined(__NR_tas)
+	__NR_tas,
+#endif
+#if defined(__NR_tee)
+	__NR_tee,
+#endif
+#if defined(__NR_tgkill)
+	__NR_tgkill,
+#endif
+#if defined(__NR_time)
+	__NR_time,
+#endif
+#if defined(__NR_timer_create)
+	__NR_timer_create,
+#endif
+#if defined(__NR_timer_delete)
+	__NR_timer_delete,
+#endif
+#if defined(__NR_timerfd)
+	__NR_timerfd,
+#endif
+#if defined(__NR_timerfd_create)
+	__NR_timerfd_create,
+#endif
+#if defined(__NR_timerfd_gettime)
+	__NR_timerfd_gettime,
+#endif
+#if defined(__NR_timerfd_settime)
+	__NR_timerfd_settime,
+#endif
+#if defined(__NR_timer_getoverrun)
+	__NR_timer_getoverrun,
+#endif
+#if defined(__NR_timer_gettime)
+	__NR_timer_gettime,
+#endif
+#if defined(__NR_timer_settime)
+	__NR_timer_settime,
+#endif
+#if defined(__NR_times)
+	__NR_times,
+#endif
+#if defined(__NR_tkill)
+	__NR_tkill,
+#endif
+#if defined(__NR_truncate)
+	__NR_truncate,
+#endif
+#if defined(__NR_truncate64)
+	__NR_truncate64,
+#endif
+#if defined(__NR_tuxcall)
+	__NR_tuxcall,
+#endif
+#if defined(__NR_ugetrlimit)
+	__NR_ugetrlimit,
+#endif
+#if defined(__NR_ulimit)
+	__NR_ulimit,
+#endif
+#if defined(__NR_umask)
+	__NR_umask,
+#endif
+#if defined(__NR_umount)
+	__NR_umount,
+#endif
+#if defined(__NR_umount2)
+	__NR_umount2,
+#endif
+#if defined(__NR_uname)
+	__NR_uname,
+#endif
+#if defined(__NR_unlink)
+	__NR_unlink,
+#endif
+#if defined(__NR_unlinkat)
+	__NR_unlinkat,
+#endif
+#if defined(__NR_unshare)
+	__NR_unshare,
+#endif
+#if defined(__NR_unused109)
+	__NR_unused109,
+#endif
+#if defined(__NR_unused150)
+	__NR_unused150,
+#endif
+#if defined(__NR_unused18)
+	__NR_unused18,
+#endif
+#if defined(__NR_unused28)
+	__NR_unused28,
+#endif
+#if defined(__NR_unused59)
+	__NR_unused59,
+#endif
+#if defined(__NR_unused84)
+	__NR_unused84,
+#endif
+#if defined(__NR_uselib)
+	__NR_uselib,
+#endif
+#if defined(__NR_userfaultfd)
+	__NR_userfaultfd,
+#endif
+#if defined(__NR_ustat)
+	__NR_ustat,
+#endif
+#if defined(__NR_utime)
+	__NR_utime,
+#endif
+#if defined(__NR_utimensat)
+	__NR_utimensat,
+#endif
+#if defined(__NR_utimes)
+	__NR_utimes,
+#endif
+#if defined(__NR_utrap_install)
+	__NR_utrap_install,
+#endif
+#if defined(__NR_vfork)
+	__NR_vfork,
+#endif
+#if defined(__NR_vhangup)
+	__NR_vhangup,
+#endif
+#if defined(__NR_vm86)
+	__NR_vm86,
+#endif
+#if defined(__NR_vm86old)
+	__NR_vm86old,
+#endif
+#if defined(__NR_vmsplice)
+	__NR_vmsplice,
+#endif
+#if defined(__NR_vserver)
+	__NR_vserver,
+#endif
+#if defined(__NR_wait4)
+	__NR_wait4,
+#endif
+#if defined(__NR_waitid)
+	__NR_waitid,
+#endif
+#if defined(__NR_waitpid)
+	__NR_waitpid,
+#endif
+#if defined(__NR_write)
+	__NR_write,
+#endif
+#if defined(__NR_writev)
+	__NR_writev,
+#endif
+#if defined(__NR_xtensa)
+	__NR_xtensa,
 #endif
 	0	/* ensure at least 1 element */
 };
