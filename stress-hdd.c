@@ -236,10 +236,10 @@ static ssize_t stress_hdd_read(
 
 
 /*
- *  stress_hdd_opts
+ *  stress_set_hdd_opts
  *	parse --hdd-opts option(s) list
  */
-int stress_hdd_opts(char *opts)
+int stress_set_hdd_opts(char *opts)
 {
 	char *str, *token;
 	int hdd_flags = 0;

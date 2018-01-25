@@ -2653,7 +2653,7 @@ extern void stress_set_fiemap_bytes(const char *opt);
 extern void stress_set_fork_max(const char *opt);
 extern void stress_set_fstat_dir(const char *opt);
 extern void stress_set_hdd_bytes(const char *opt);
-extern int  stress_hdd_opts(char *opts);
+extern int  stress_set_hdd_opts(char *opts);
 extern void stress_set_hdd_write_size(const char *opt);
 extern void stress_set_heapsort_size(const void *opt);
 extern void stress_set_hsearch_size(const char *opt);

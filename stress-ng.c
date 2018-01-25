@@ -3100,7 +3100,7 @@ next_opt:
 			stress_set_hdd_bytes(optarg);
 			break;
 		case OPT_HDD_OPTS:
-			if (stress_hdd_opts(optarg) < 0)
+			if (stress_set_hdd_opts(optarg) < 0)
 				return EXIT_FAILURE;
 			break;
 		case OPT_HDD_WRITE_SIZE:
