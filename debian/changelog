@@ -1,3 +1,27 @@
+stress-ng (0.09.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * Makefile.config: reorder detection, no major change
+  * stress-userfault: add missing check for HAVE_CLONE, should fix
+    FTBFS for ia64 arch
+  * Rename stress_hdd_opts to stress_set_hdd_opts
+  * Rename stress_filename_opts to stress_set_filename_opts
+  * stress-matrix: make a couple of functions static
+  * stress-enosys: fix variable shadowing warning
+  * Add HAVE_SYSCALL_H detection and try to get more syscall coverage
+  * stress-enosys: add an a complete set of known syscalls to skip
+  * stress-enosys: make index ssize_t, fixes GNU/HURD build warning
+  * Ensure skip syscall array is at least 1 element
+  * Add a new enosys system call stressor
+  * test/test-notify: add sanity check on message length
+  * stress-cyclic: cast longs to int64_t before multiply to fix overflow
+  * stress-funccall: add arg swapped recursion to calls
+  * stress-funccall: add large data structure passing
+  * stress-vecmath: vectorize constants, make them const too
+
+ -- Colin King <colin.king@canonical.com>  Thu, 25 Jan 2018 16:45:43 +0000
+
 stress-ng (0.09.12-1) unstable; urgency=medium
 
   * Makefile: bump version
