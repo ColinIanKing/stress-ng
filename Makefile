@@ -82,6 +82,7 @@ STRESS_SRC = \
 	stress-dirdeep.c \
 	stress-dnotify.c \
 	stress-dup.c \
+	stress-enosys.c \
 	stress-epoll.c \
 	stress-eventfd.c \
 	stress-exec.c \

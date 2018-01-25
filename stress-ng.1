@@ -1125,6 +1125,21 @@ this maximum, or 65536 open file descriptors, which ever comes first.
 .B \-\-dup\-ops N
 stop the dup stress workers after N bogo open operations.
 .TP
+.B \-\-enosys N
+start N workers that exercise non-functional system call numbers. This calls
+a wide range of system call numbers to see if it can break a system where these
+are not wired up correctly.  It also keeps track of system calls that exist
+(ones that don't return ENOSYS) so that it can focus on purely finding and
+exercising non-functional system calls. This stressor exercises system calls
+from 0 . .__NR_syscalls + 1024, random system calls within constrained in the
+ranges of 0 to 2^8, 2^16, 2^24, 2^32, 2^40, 2^48, 2^56 and 2^64 bits,
+high system call numbers and various other bit patterns to try to get wide good
+coverage. To keep the environment clean, each system call being tested runs
+in a child process with reduced capabilities.
+.TP
+.B \-\-nosys\-ops N
+stop after N bogo enosys system call attempts
+.TP
 .B \-\-epoll N
 start N workers that perform various related socket stress activity using
 epoll_wait(2) to monitor and handle new connections. This involves

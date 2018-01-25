@@ -1229,6 +1229,7 @@ typedef enum {
 	STRESS_DIRDEEP,
 	STRESS_DNOTIFY,
 	STRESS_DUP,
+	STRESS_ENOSYS,
 	STRESS_EPOLL,
 	STRESS_EVENTFD,
 	STRESS_EXEC,
@@ -1564,6 +1565,9 @@ typedef enum {
 
 	OPT_DUP,
 	OPT_DUP_OPS,
+
+	OPT_ENOSYS,
+	OPT_ENOSYS_OPS,
 
 	OPT_EPOLL,
 	OPT_EPOLL_OPS,
@@ -2908,6 +2912,7 @@ STRESS(stress_dir);
 STRESS(stress_dirdeep);
 STRESS(stress_dnotify);
 STRESS(stress_dup);
+STRESS(stress_enosys);
 STRESS(stress_epoll);
 STRESS(stress_eventfd);
 STRESS(stress_exec);
