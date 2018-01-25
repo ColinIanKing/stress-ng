@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(HAVE_SYSCALL_H)
 
 #define HASH_SYSCALL_SIZE	(1987)
 
@@ -118,6 +118,1209 @@ static const int sigs[] = {
 };
 
 static const long skip_syscalls[] = {
+/* Traditional SYS_ syscall interface */
+#if defined(SYS_accept)
+	SYS_accept,
+#endif
+#if defined(SYS_accept4)
+	SYS_accept4,
+#endif
+#if defined(SYS_access)
+	SYS_access,
+#endif
+#if defined(SYS_acct)
+	SYS_acct,
+#endif
+#if defined(SYS_add_key)
+	SYS_add_key,
+#endif
+#if defined(SYS_adjtimex)
+	SYS_adjtimex,
+#endif
+#if defined(SYS_afs_syscall)
+	SYS_afs_syscall,
+#endif
+#if defined(SYS_alarm)
+	SYS_alarm,
+#endif
+#if defined(SYS_arch_prctl)
+	SYS_arch_prctl,
+#endif
+#if defined(SYS_bdflush)
+	SYS_bdflush,
+#endif
+#if defined(SYS_bind)
+	SYS_bind,
+#endif
+#if defined(SYS_bpf)
+	SYS_bpf,
+#endif
+#if defined(SYS_break)
+	SYS_break,
+#endif
+#if defined(SYS_brk)
+	SYS_brk,
+#endif
+#if defined(SYS_capget)
+	SYS_capget,
+#endif
+#if defined(SYS_capset)
+	SYS_capset,
+#endif
+#if defined(SYS_chdir)
+	SYS_chdir,
+#endif
+#if defined(SYS_chmod)
+	SYS_chmod,
+#endif
+#if defined(SYS_chown)
+	SYS_chown,
+#endif
+#if defined(SYS_chown32)
+	SYS_chown32,
+#endif
+#if defined(SYS_chroot)
+	SYS_chroot,
+#endif
+#if defined(SYS_clock_adjtime)
+	SYS_clock_adjtime,
+#endif
+#if defined(SYS_clock_getres)
+	SYS_clock_getres,
+#endif
+#if defined(SYS_clock_gettime)
+	SYS_clock_gettime,
+#endif
+#if defined(SYS_clock_nanosleep)
+	SYS_clock_nanosleep,
+#endif
+#if defined(SYS_clock_settime)
+	SYS_clock_settime,
+#endif
+#if defined(SYS_clone)
+	SYS_clone,
+#endif
+#if defined(SYS_close)
+	SYS_close,
+#endif
+#if defined(SYS_connect)
+	SYS_connect,
+#endif
+#if defined(SYS_copy_file_range)
+	SYS_copy_file_range,
+#endif
+#if defined(SYS_creat)
+	SYS_creat,
+#endif
+#if defined(SYS_create_module)
+	SYS_create_module,
+#endif
+#if defined(SYS_delete_module)
+	SYS_delete_module,
+#endif
+#if defined(SYS_dup)
+	SYS_dup,
+#endif
+#if defined(SYS_dup2)
+	SYS_dup2,
+#endif
+#if defined(SYS_dup3)
+	SYS_dup3,
+#endif
+#if defined(SYS_epoll_create)
+	SYS_epoll_create,
+#endif
+#if defined(SYS_epoll_create1)
+	SYS_epoll_create1,
+#endif
+#if defined(SYS_epoll_ctl)
+	SYS_epoll_ctl,
+#endif
+#if defined(SYS_epoll_ctl_old)
+	SYS_epoll_ctl_old,
+#endif
+#if defined(SYS_epoll_pwait)
+	SYS_epoll_pwait,
+#endif
+#if defined(SYS_epoll_wait)
+	SYS_epoll_wait,
+#endif
+#if defined(SYS_epoll_wait_old)
+	SYS_epoll_wait_old,
+#endif
+#if defined(SYS_eventfd)
+	SYS_eventfd,
+#endif
+#if defined(SYS_eventfd2)
+	SYS_eventfd2,
+#endif
+#if defined(SYS_execve)
+	SYS_execve,
+#endif
+#if defined(SYS_execveat)
+	SYS_execveat,
+#endif
+#if defined(SYS_exit)
+	SYS_exit,
+#endif
+#if defined(SYS_exit_group)
+	SYS_exit_group,
+#endif
+#if defined(SYS_faccessat)
+	SYS_faccessat,
+#endif
+#if defined(SYS_fadvise64)
+	SYS_fadvise64,
+#endif
+#if defined(SYS_fadvise64_64)
+	SYS_fadvise64_64,
+#endif
+#if defined(SYS_fallocate)
+	SYS_fallocate,
+#endif
+#if defined(SYS_fanotify_init)
+	SYS_fanotify_init,
+#endif
+#if defined(SYS_fanotify_mark)
+	SYS_fanotify_mark,
+#endif
+#if defined(SYS_fchdir)
+	SYS_fchdir,
+#endif
+#if defined(SYS_fchmod)
+	SYS_fchmod,
+#endif
+#if defined(SYS_fchmodat)
+	SYS_fchmodat,
+#endif
+#if defined(SYS_fchown)
+	SYS_fchown,
+#endif
+#if defined(SYS_fchown32)
+	SYS_fchown32,
+#endif
+#if defined(SYS_fchownat)
+	SYS_fchownat,
+#endif
+#if defined(SYS_fcntl)
+	SYS_fcntl,
+#endif
+#if defined(SYS_fcntl64)
+	SYS_fcntl64,
+#endif
+#if defined(SYS_fdatasync)
+	SYS_fdatasync,
+#endif
+#if defined(SYS_fgetxattr)
+	SYS_fgetxattr,
+#endif
+#if defined(SYS_finit_module)
+	SYS_finit_module,
+#endif
+#if defined(SYS_flistxattr)
+	SYS_flistxattr,
+#endif
+#if defined(SYS_flock)
+	SYS_flock,
+#endif
+#if defined(SYS_fork)
+	SYS_fork,
+#endif
+#if defined(SYS_fremovexattr)
+	SYS_fremovexattr,
+#endif
+#if defined(SYS_fsetxattr)
+	SYS_fsetxattr,
+#endif
+#if defined(SYS_fstat)
+	SYS_fstat,
+#endif
+#if defined(SYS_fstat64)
+	SYS_fstat64,
+#endif
+#if defined(SYS_fstatat64)
+	SYS_fstatat64,
+#endif
+#if defined(SYS_fstatfs)
+	SYS_fstatfs,
+#endif
+#if defined(SYS_fstatfs64)
+	SYS_fstatfs64,
+#endif
+#if defined(SYS_fsync)
+	SYS_fsync,
+#endif
+#if defined(SYS_ftime)
+	SYS_ftime,
+#endif
+#if defined(SYS_ftruncate)
+	SYS_ftruncate,
+#endif
+#if defined(SYS_ftruncate64)
+	SYS_ftruncate64,
+#endif
+#if defined(SYS_futex)
+	SYS_futex,
+#endif
+#if defined(SYS_futimesat)
+	SYS_futimesat,
+#endif
+#if defined(SYS_getcpu)
+	SYS_getcpu,
+#endif
+#if defined(SYS_getcwd)
+	SYS_getcwd,
+#endif
+#if defined(SYS_getdents)
+	SYS_getdents,
+#endif
+#if defined(SYS_getdents64)
+	SYS_getdents64,
+#endif
+#if defined(SYS_getegid)
+	SYS_getegid,
+#endif
+#if defined(SYS_getegid32)
+	SYS_getegid32,
+#endif
+#if defined(SYS_geteuid)
+	SYS_geteuid,
+#endif
+#if defined(SYS_geteuid32)
+	SYS_geteuid32,
+#endif
+#if defined(SYS_getgid)
+	SYS_getgid,
+#endif
+#if defined(SYS_getgid32)
+	SYS_getgid32,
+#endif
+#if defined(SYS_getgroups)
+	SYS_getgroups,
+#endif
+#if defined(SYS_getgroups32)
+	SYS_getgroups32,
+#endif
+#if defined(SYS_getitimer)
+	SYS_getitimer,
+#endif
+#if defined(SYS_get_kernel_syms)
+	SYS_get_kernel_syms,
+#endif
+#if defined(SYS_get_mempolicy)
+	SYS_get_mempolicy,
+#endif
+#if defined(SYS_getpeername)
+	SYS_getpeername,
+#endif
+#if defined(SYS_getpgid)
+	SYS_getpgid,
+#endif
+#if defined(SYS_getpgrp)
+	SYS_getpgrp,
+#endif
+#if defined(SYS_getpid)
+	SYS_getpid,
+#endif
+#if defined(SYS_getpmsg)
+	SYS_getpmsg,
+#endif
+#if defined(SYS_getppid)
+	SYS_getppid,
+#endif
+#if defined(SYS_getpriority)
+	SYS_getpriority,
+#endif
+#if defined(SYS_getrandom)
+	SYS_getrandom,
+#endif
+#if defined(SYS_getresgid)
+	SYS_getresgid,
+#endif
+#if defined(SYS_getresgid32)
+	SYS_getresgid32,
+#endif
+#if defined(SYS_getresuid)
+	SYS_getresuid,
+#endif
+#if defined(SYS_getresuid32)
+	SYS_getresuid32,
+#endif
+#if defined(SYS_getrlimit)
+	SYS_getrlimit,
+#endif
+#if defined(SYS_get_robust_list)
+	SYS_get_robust_list,
+#endif
+#if defined(SYS_getrusage)
+	SYS_getrusage,
+#endif
+#if defined(SYS_getsid)
+	SYS_getsid,
+#endif
+#if defined(SYS_getsockname)
+	SYS_getsockname,
+#endif
+#if defined(SYS_getsockopt)
+	SYS_getsockopt,
+#endif
+#if defined(SYS_get_thread_area)
+	SYS_get_thread_area,
+#endif
+#if defined(SYS_gettid)
+	SYS_gettid,
+#endif
+#if defined(SYS_gettimeofday)
+	SYS_gettimeofday,
+#endif
+#if defined(SYS_getuid)
+	SYS_getuid,
+#endif
+#if defined(SYS_getuid32)
+	SYS_getuid32,
+#endif
+#if defined(SYS_getxattr)
+	SYS_getxattr,
+#endif
+#if defined(SYS_gtty)
+	SYS_gtty,
+#endif
+#if defined(SYS_idle)
+	SYS_idle,
+#endif
+#if defined(SYS_init_module)
+	SYS_init_module,
+#endif
+#if defined(SYS_inotify_add_watch)
+	SYS_inotify_add_watch,
+#endif
+#if defined(SYS_inotify_init)
+	SYS_inotify_init,
+#endif
+#if defined(SYS_inotify_init1)
+	SYS_inotify_init1,
+#endif
+#if defined(SYS_inotify_rm_watch)
+	SYS_inotify_rm_watch,
+#endif
+#if defined(SYS_io_cancel)
+	SYS_io_cancel,
+#endif
+#if defined(SYS_ioctl)
+	SYS_ioctl,
+#endif
+#if defined(SYS_io_destroy)
+	SYS_io_destroy,
+#endif
+#if defined(SYS_io_getevents)
+	SYS_io_getevents,
+#endif
+#if defined(SYS_ioperm)
+	SYS_ioperm,
+#endif
+#if defined(SYS_iopl)
+	SYS_iopl,
+#endif
+#if defined(SYS_ioprio_get)
+	SYS_ioprio_get,
+#endif
+#if defined(SYS_ioprio_set)
+	SYS_ioprio_set,
+#endif
+#if defined(SYS_io_setup)
+	SYS_io_setup,
+#endif
+#if defined(SYS_io_submit)
+	SYS_io_submit,
+#endif
+#if defined(SYS_ipc)
+	SYS_ipc,
+#endif
+#if defined(SYS_kcmp)
+	SYS_kcmp,
+#endif
+#if defined(SYS_kexec_file_load)
+	SYS_kexec_file_load,
+#endif
+#if defined(SYS_kexec_load)
+	SYS_kexec_load,
+#endif
+#if defined(SYS_keyctl)
+	SYS_keyctl,
+#endif
+#if defined(SYS_kill)
+	SYS_kill,
+#endif
+#if defined(SYS_lchown)
+	SYS_lchown,
+#endif
+#if defined(SYS_lchown32)
+	SYS_lchown32,
+#endif
+#if defined(SYS_lgetxattr)
+	SYS_lgetxattr,
+#endif
+#if defined(SYS_link)
+	SYS_link,
+#endif
+#if defined(SYS_linkat)
+	SYS_linkat,
+#endif
+#if defined(SYS_listen)
+	SYS_listen,
+#endif
+#if defined(SYS_listxattr)
+	SYS_listxattr,
+#endif
+#if defined(SYS_llistxattr)
+	SYS_llistxattr,
+#endif
+#if defined(SYS__llseek)
+	SYS__llseek,
+#endif
+#if defined(SYS_lock)
+	SYS_lock,
+#endif
+#if defined(SYS_lookup_dcookie)
+	SYS_lookup_dcookie,
+#endif
+#if defined(SYS_lremovexattr)
+	SYS_lremovexattr,
+#endif
+#if defined(SYS_lseek)
+	SYS_lseek,
+#endif
+#if defined(SYS_lsetxattr)
+	SYS_lsetxattr,
+#endif
+#if defined(SYS_lstat)
+	SYS_lstat,
+#endif
+#if defined(SYS_lstat64)
+	SYS_lstat64,
+#endif
+#if defined(SYS_madvise)
+	SYS_madvise,
+#endif
+#if defined(SYS_mbind)
+	SYS_mbind,
+#endif
+#if defined(SYS_membarrier)
+	SYS_membarrier,
+#endif
+#if defined(SYS_memfd_create)
+	SYS_memfd_create,
+#endif
+#if defined(SYS_migrate_pages)
+	SYS_migrate_pages,
+#endif
+#if defined(SYS_mincore)
+	SYS_mincore,
+#endif
+#if defined(SYS_mkdir)
+	SYS_mkdir,
+#endif
+#if defined(SYS_mkdirat)
+	SYS_mkdirat,
+#endif
+#if defined(SYS_mknod)
+	SYS_mknod,
+#endif
+#if defined(SYS_mknodat)
+	SYS_mknodat,
+#endif
+#if defined(SYS_mlock)
+	SYS_mlock,
+#endif
+#if defined(SYS_mlock2)
+	SYS_mlock2,
+#endif
+#if defined(SYS_mlockall)
+	SYS_mlockall,
+#endif
+#if defined(SYS_mmap)
+	SYS_mmap,
+#endif
+#if defined(SYS_mmap2)
+	SYS_mmap2,
+#endif
+#if defined(SYS_modify_ldt)
+	SYS_modify_ldt,
+#endif
+#if defined(SYS_mount)
+	SYS_mount,
+#endif
+#if defined(SYS_move_pages)
+	SYS_move_pages,
+#endif
+#if defined(SYS_mprotect)
+	SYS_mprotect,
+#endif
+#if defined(SYS_mpx)
+	SYS_mpx,
+#endif
+#if defined(SYS_mq_getsetattr)
+	SYS_mq_getsetattr,
+#endif
+#if defined(SYS_mq_notify)
+	SYS_mq_notify,
+#endif
+#if defined(SYS_mq_open)
+	SYS_mq_open,
+#endif
+#if defined(SYS_mq_timedreceive)
+	SYS_mq_timedreceive,
+#endif
+#if defined(SYS_mq_timedsend)
+	SYS_mq_timedsend,
+#endif
+#if defined(SYS_mq_unlink)
+	SYS_mq_unlink,
+#endif
+#if defined(SYS_mremap)
+	SYS_mremap,
+#endif
+#if defined(SYS_msgctl)
+	SYS_msgctl,
+#endif
+#if defined(SYS_msgget)
+	SYS_msgget,
+#endif
+#if defined(SYS_msgrcv)
+	SYS_msgrcv,
+#endif
+#if defined(SYS_msgsnd)
+	SYS_msgsnd,
+#endif
+#if defined(SYS_msync)
+	SYS_msync,
+#endif
+#if defined(SYS_munlock)
+	SYS_munlock,
+#endif
+#if defined(SYS_munlockall)
+	SYS_munlockall,
+#endif
+#if defined(SYS_munmap)
+	SYS_munmap,
+#endif
+#if defined(SYS_name_to_handle_at)
+	SYS_name_to_handle_at,
+#endif
+#if defined(SYS_nanosleep)
+	SYS_nanosleep,
+#endif
+#if defined(SYS_newfstatat)
+	SYS_newfstatat,
+#endif
+#if defined(SYS__newselect)
+	SYS__newselect,
+#endif
+#if defined(SYS_nfsservctl)
+	SYS_nfsservctl,
+#endif
+#if defined(SYS_nice)
+	SYS_nice,
+#endif
+#if defined(SYS_oldfstat)
+	SYS_oldfstat,
+#endif
+#if defined(SYS_oldlstat)
+	SYS_oldlstat,
+#endif
+#if defined(SYS_oldolduname)
+	SYS_oldolduname,
+#endif
+#if defined(SYS_oldstat)
+	SYS_oldstat,
+#endif
+#if defined(SYS_olduname)
+	SYS_olduname,
+#endif
+#if defined(SYS_open)
+	SYS_open,
+#endif
+#if defined(SYS_openat)
+	SYS_openat,
+#endif
+#if defined(SYS_open_by_handle_at)
+	SYS_open_by_handle_at,
+#endif
+#if defined(SYS_pause)
+	SYS_pause,
+#endif
+#if defined(SYS_perf_event_open)
+	SYS_perf_event_open,
+#endif
+#if defined(SYS_personality)
+	SYS_personality,
+#endif
+#if defined(SYS_pipe)
+	SYS_pipe,
+#endif
+#if defined(SYS_pipe2)
+	SYS_pipe2,
+#endif
+#if defined(SYS_pivot_root)
+	SYS_pivot_root,
+#endif
+#if defined(SYS_pkey_alloc)
+	SYS_pkey_alloc,
+#endif
+#if defined(SYS_pkey_free)
+	SYS_pkey_free,
+#endif
+#if defined(SYS_pkey_mprotect)
+	SYS_pkey_mprotect,
+#endif
+#if defined(SYS_poll)
+	SYS_poll,
+#endif
+#if defined(SYS_ppoll)
+	SYS_ppoll,
+#endif
+#if defined(SYS_prctl)
+	SYS_prctl,
+#endif
+#if defined(SYS_pread64)
+	SYS_pread64,
+#endif
+#if defined(SYS_preadv)
+	SYS_preadv,
+#endif
+#if defined(SYS_preadv2)
+	SYS_preadv2,
+#endif
+#if defined(SYS_prlimit64)
+	SYS_prlimit64,
+#endif
+#if defined(SYS_process_vm_readv)
+	SYS_process_vm_readv,
+#endif
+#if defined(SYS_process_vm_writev)
+	SYS_process_vm_writev,
+#endif
+#if defined(SYS_prof)
+	SYS_prof,
+#endif
+#if defined(SYS_profil)
+	SYS_profil,
+#endif
+#if defined(SYS_pselect6)
+	SYS_pselect6,
+#endif
+#if defined(SYS_ptrace)
+	SYS_ptrace,
+#endif
+#if defined(SYS_putpmsg)
+	SYS_putpmsg,
+#endif
+#if defined(SYS_pwrite64)
+	SYS_pwrite64,
+#endif
+#if defined(SYS_pwritev)
+	SYS_pwritev,
+#endif
+#if defined(SYS_pwritev2)
+	SYS_pwritev2,
+#endif
+#if defined(SYS_query_module)
+	SYS_query_module,
+#endif
+#if defined(SYS_quotactl)
+	SYS_quotactl,
+#endif
+#if defined(SYS_read)
+	SYS_read,
+#endif
+#if defined(SYS_readahead)
+	SYS_readahead,
+#endif
+#if defined(SYS_readdir)
+	SYS_readdir,
+#endif
+#if defined(SYS_readlink)
+	SYS_readlink,
+#endif
+#if defined(SYS_readlinkat)
+	SYS_readlinkat,
+#endif
+#if defined(SYS_readv)
+	SYS_readv,
+#endif
+#if defined(SYS_reboot)
+	SYS_reboot,
+#endif
+#if defined(SYS_recvfrom)
+	SYS_recvfrom,
+#endif
+#if defined(SYS_recvmmsg)
+	SYS_recvmmsg,
+#endif
+#if defined(SYS_recvmsg)
+	SYS_recvmsg,
+#endif
+#if defined(SYS_remap_file_pages)
+	SYS_remap_file_pages,
+#endif
+#if defined(SYS_removexattr)
+	SYS_removexattr,
+#endif
+#if defined(SYS_rename)
+	SYS_rename,
+#endif
+#if defined(SYS_renameat)
+	SYS_renameat,
+#endif
+#if defined(SYS_renameat2)
+	SYS_renameat2,
+#endif
+#if defined(SYS_request_key)
+	SYS_request_key,
+#endif
+#if defined(SYS_restart_syscall)
+	SYS_restart_syscall,
+#endif
+#if defined(SYS_rmdir)
+	SYS_rmdir,
+#endif
+#if defined(SYS_rt_sigaction)
+	SYS_rt_sigaction,
+#endif
+#if defined(SYS_rt_sigpending)
+	SYS_rt_sigpending,
+#endif
+#if defined(SYS_rt_sigprocmask)
+	SYS_rt_sigprocmask,
+#endif
+#if defined(SYS_rt_sigqueueinfo)
+	SYS_rt_sigqueueinfo,
+#endif
+#if defined(SYS_rt_sigreturn)
+	SYS_rt_sigreturn,
+#endif
+#if defined(SYS_rt_sigsuspend)
+	SYS_rt_sigsuspend,
+#endif
+#if defined(SYS_rt_sigtimedwait)
+	SYS_rt_sigtimedwait,
+#endif
+#if defined(SYS_rt_tgsigqueueinfo)
+	SYS_rt_tgsigqueueinfo,
+#endif
+#if defined(SYS_sched_getaffinity)
+	SYS_sched_getaffinity,
+#endif
+#if defined(SYS_sched_getattr)
+	SYS_sched_getattr,
+#endif
+#if defined(SYS_sched_getparam)
+	SYS_sched_getparam,
+#endif
+#if defined(SYS_sched_get_priority_max)
+	SYS_sched_get_priority_max,
+#endif
+#if defined(SYS_sched_get_priority_min)
+	SYS_sched_get_priority_min,
+#endif
+#if defined(SYS_sched_getscheduler)
+	SYS_sched_getscheduler,
+#endif
+#if defined(SYS_sched_rr_get_interval)
+	SYS_sched_rr_get_interval,
+#endif
+#if defined(SYS_sched_setaffinity)
+	SYS_sched_setaffinity,
+#endif
+#if defined(SYS_sched_setattr)
+	SYS_sched_setattr,
+#endif
+#if defined(SYS_sched_setparam)
+	SYS_sched_setparam,
+#endif
+#if defined(SYS_sched_setscheduler)
+	SYS_sched_setscheduler,
+#endif
+#if defined(SYS_sched_yield)
+	SYS_sched_yield,
+#endif
+#if defined(SYS_seccomp)
+	SYS_seccomp,
+#endif
+#if defined(SYS_security)
+	SYS_security,
+#endif
+#if defined(SYS_select)
+	SYS_select,
+#endif
+#if defined(SYS_semctl)
+	SYS_semctl,
+#endif
+#if defined(SYS_semget)
+	SYS_semget,
+#endif
+#if defined(SYS_semop)
+	SYS_semop,
+#endif
+#if defined(SYS_semtimedop)
+	SYS_semtimedop,
+#endif
+#if defined(SYS_sendfile)
+	SYS_sendfile,
+#endif
+#if defined(SYS_sendfile64)
+	SYS_sendfile64,
+#endif
+#if defined(SYS_sendmmsg)
+	SYS_sendmmsg,
+#endif
+#if defined(SYS_sendmsg)
+	SYS_sendmsg,
+#endif
+#if defined(SYS_sendto)
+	SYS_sendto,
+#endif
+#if defined(SYS_setdomainname)
+	SYS_setdomainname,
+#endif
+#if defined(SYS_setfsgid)
+	SYS_setfsgid,
+#endif
+#if defined(SYS_setfsgid32)
+	SYS_setfsgid32,
+#endif
+#if defined(SYS_setfsuid)
+	SYS_setfsuid,
+#endif
+#if defined(SYS_setfsuid32)
+	SYS_setfsuid32,
+#endif
+#if defined(SYS_setgid)
+	SYS_setgid,
+#endif
+#if defined(SYS_setgid32)
+	SYS_setgid32,
+#endif
+#if defined(SYS_setgroups)
+	SYS_setgroups,
+#endif
+#if defined(SYS_setgroups32)
+	SYS_setgroups32,
+#endif
+#if defined(SYS_sethostname)
+	SYS_sethostname,
+#endif
+#if defined(SYS_setitimer)
+	SYS_setitimer,
+#endif
+#if defined(SYS_set_mempolicy)
+	SYS_set_mempolicy,
+#endif
+#if defined(SYS_setns)
+	SYS_setns,
+#endif
+#if defined(SYS_setpgid)
+	SYS_setpgid,
+#endif
+#if defined(SYS_setpriority)
+	SYS_setpriority,
+#endif
+#if defined(SYS_setregid)
+	SYS_setregid,
+#endif
+#if defined(SYS_setregid32)
+	SYS_setregid32,
+#endif
+#if defined(SYS_setresgid)
+	SYS_setresgid,
+#endif
+#if defined(SYS_setresgid32)
+	SYS_setresgid32,
+#endif
+#if defined(SYS_setresuid)
+	SYS_setresuid,
+#endif
+#if defined(SYS_setresuid32)
+	SYS_setresuid32,
+#endif
+#if defined(SYS_setreuid)
+	SYS_setreuid,
+#endif
+#if defined(SYS_setreuid32)
+	SYS_setreuid32,
+#endif
+#if defined(SYS_setrlimit)
+	SYS_setrlimit,
+#endif
+#if defined(SYS_set_robust_list)
+	SYS_set_robust_list,
+#endif
+#if defined(SYS_setsid)
+	SYS_setsid,
+#endif
+#if defined(SYS_setsockopt)
+	SYS_setsockopt,
+#endif
+#if defined(SYS_set_thread_area)
+	SYS_set_thread_area,
+#endif
+#if defined(SYS_set_tid_address)
+	SYS_set_tid_address,
+#endif
+#if defined(SYS_settimeofday)
+	SYS_settimeofday,
+#endif
+#if defined(SYS_setuid)
+	SYS_setuid,
+#endif
+#if defined(SYS_setuid32)
+	SYS_setuid32,
+#endif
+#if defined(SYS_setxattr)
+	SYS_setxattr,
+#endif
+#if defined(SYS_sgetmask)
+	SYS_sgetmask,
+#endif
+#if defined(SYS_shmat)
+	SYS_shmat,
+#endif
+#if defined(SYS_shmctl)
+	SYS_shmctl,
+#endif
+#if defined(SYS_shmdt)
+	SYS_shmdt,
+#endif
+#if defined(SYS_shmget)
+	SYS_shmget,
+#endif
+#if defined(SYS_shutdown)
+	SYS_shutdown,
+#endif
+#if defined(SYS_sigaction)
+	SYS_sigaction,
+#endif
+#if defined(SYS_sigaltstack)
+	SYS_sigaltstack,
+#endif
+#if defined(SYS_signal)
+	SYS_signal,
+#endif
+#if defined(SYS_signalfd)
+	SYS_signalfd,
+#endif
+#if defined(SYS_signalfd4)
+	SYS_signalfd4,
+#endif
+#if defined(SYS_sigpending)
+	SYS_sigpending,
+#endif
+#if defined(SYS_sigprocmask)
+	SYS_sigprocmask,
+#endif
+#if defined(SYS_sigreturn)
+	SYS_sigreturn,
+#endif
+#if defined(SYS_sigsuspend)
+	SYS_sigsuspend,
+#endif
+#if defined(SYS_socket)
+	SYS_socket,
+#endif
+#if defined(SYS_socketcall)
+	SYS_socketcall,
+#endif
+#if defined(SYS_socketpair)
+	SYS_socketpair,
+#endif
+#if defined(SYS_splice)
+	SYS_splice,
+#endif
+#if defined(SYS_ssetmask)
+	SYS_ssetmask,
+#endif
+#if defined(SYS_stat)
+	SYS_stat,
+#endif
+#if defined(SYS_stat64)
+	SYS_stat64,
+#endif
+#if defined(SYS_statfs)
+	SYS_statfs,
+#endif
+#if defined(SYS_statfs64)
+	SYS_statfs64,
+#endif
+#if defined(SYS_statx)
+	SYS_statx,
+#endif
+#if defined(SYS_stime)
+	SYS_stime,
+#endif
+#if defined(SYS_stty)
+	SYS_stty,
+#endif
+#if defined(SYS_swapoff)
+	SYS_swapoff,
+#endif
+#if defined(SYS_swapon)
+	SYS_swapon,
+#endif
+#if defined(SYS_symlink)
+	SYS_symlink,
+#endif
+#if defined(SYS_symlinkat)
+	SYS_symlinkat,
+#endif
+#if defined(SYS_sync)
+	SYS_sync,
+#endif
+#if defined(SYS_sync_file_range)
+	SYS_sync_file_range,
+#endif
+#if defined(SYS_syncfs)
+	SYS_syncfs,
+#endif
+#if defined(SYS__sysctl)
+	SYS__sysctl,
+#endif
+#if defined(SYS_sysfs)
+	SYS_sysfs,
+#endif
+#if defined(SYS_sysinfo)
+	SYS_sysinfo,
+#endif
+#if defined(SYS_syslog)
+	SYS_syslog,
+#endif
+#if defined(SYS_tee)
+	SYS_tee,
+#endif
+#if defined(SYS_tgkill)
+	SYS_tgkill,
+#endif
+#if defined(SYS_time)
+	SYS_time,
+#endif
+#if defined(SYS_timer_create)
+	SYS_timer_create,
+#endif
+#if defined(SYS_timer_delete)
+	SYS_timer_delete,
+#endif
+#if defined(SYS_timerfd_create)
+	SYS_timerfd_create,
+#endif
+#if defined(SYS_timerfd_gettime)
+	SYS_timerfd_gettime,
+#endif
+#if defined(SYS_timerfd_settime)
+	SYS_timerfd_settime,
+#endif
+#if defined(SYS_timer_getoverrun)
+	SYS_timer_getoverrun,
+#endif
+#if defined(SYS_timer_gettime)
+	SYS_timer_gettime,
+#endif
+#if defined(SYS_timer_settime)
+	SYS_timer_settime,
+#endif
+#if defined(SYS_times)
+	SYS_times,
+#endif
+#if defined(SYS_tkill)
+	SYS_tkill,
+#endif
+#if defined(SYS_truncate)
+	SYS_truncate,
+#endif
+#if defined(SYS_truncate64)
+	SYS_truncate64,
+#endif
+#if defined(SYS_tuxcall)
+	SYS_tuxcall,
+#endif
+#if defined(SYS_ugetrlimit)
+	SYS_ugetrlimit,
+#endif
+#if defined(SYS_ulimit)
+	SYS_ulimit,
+#endif
+#if defined(SYS_umask)
+	SYS_umask,
+#endif
+#if defined(SYS_umount)
+	SYS_umount,
+#endif
+#if defined(SYS_umount2)
+	SYS_umount2,
+#endif
+#if defined(SYS_uname)
+	SYS_uname,
+#endif
+#if defined(SYS_unlink)
+	SYS_unlink,
+#endif
+#if defined(SYS_unlinkat)
+	SYS_unlinkat,
+#endif
+#if defined(SYS_unshare)
+	SYS_unshare,
+#endif
+#if defined(SYS_uselib)
+	SYS_uselib,
+#endif
+#if defined(SYS_userfaultfd)
+	SYS_userfaultfd,
+#endif
+#if defined(SYS_ustat)
+	SYS_ustat,
+#endif
+#if defined(SYS_utime)
+	SYS_utime,
+#endif
+#if defined(SYS_utimensat)
+	SYS_utimensat,
+#endif
+#if defined(SYS_utimes)
+	SYS_utimes,
+#endif
+#if defined(SYS_vfork)
+	SYS_vfork,
+#endif
+#if defined(SYS_vhangup)
+	SYS_vhangup,
+#endif
+#if defined(SYS_vm86)
+	SYS_vm86,
+#endif
+#if defined(SYS_vm86old)
+	SYS_vm86old,
+#endif
+#if defined(SYS_vmsplice)
+	SYS_vmsplice,
+#endif
+#if defined(SYS_vserver)
+	SYS_vserver,
+#endif
+#if defined(SYS_wait4)
+	SYS_wait4,
+#endif
+#if defined(SYS_waitid)
+	SYS_waitid,
+#endif
+#if defined(SYS_waitpid)
+	SYS_waitpid,
+#endif
+#if defined(SYS_write)
+	SYS_write,
+#endif
+#if defined(SYS_writev)
+	SYS_writev,
+#endif
+
+/* Linux syscall numbers */
 #if defined(__NR_accept)
 	__NR_accept,
 #endif
@@ -1793,7 +2996,8 @@ int stress_enosys(const args_t *args)
 	ssize_t n;
 
 	for (n = 0; n < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; n++) {
-		syscall_add(skip_syscalls[n]);
+		if (!syscall_find(skip_syscalls[n]))
+			syscall_add(skip_syscalls[n]);
 	}
 
 

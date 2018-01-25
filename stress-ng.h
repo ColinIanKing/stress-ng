@@ -97,13 +97,15 @@
 #include <sys/resource.h>
 #if defined(__linux__)
 #include <sys/mount.h>
-#include <sys/syscall.h>
 #include <sys/quota.h>
 #include <sys/prctl.h>
 #include <netinet/in.h>
 #include <linux/fs.h>
 #include <linux/fiemap.h>
 #include <linux/posix_types.h>
+#endif
+#if defined(HAVE_SYSCALL_H)
+#include <sys/syscall.h>
 #endif
 #if defined(__APPLE__)
 #include <sys/random.h>
