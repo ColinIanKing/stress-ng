@@ -3080,7 +3080,7 @@ next_opt:
 			stress_set_fifo_readers(optarg);
 			break;
 		case OPT_FILENAME_OPTS:
-			if (stress_filename_opts(optarg) < 0)
+			if (stress_set_filename_opts(optarg) < 0)
 				return EXIT_FAILURE;
 			break;
 		case OPT_FORK_MAX:

@@ -53,7 +53,7 @@ static char posix_allowed[] =
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789._-";
 
-int stress_filename_opts(const char *opt)
+int stress_set_filename_opts(const char *opt)
 {
 	size_t i;
 
