@@ -756,7 +756,7 @@ static const stress_matrix_method_info_t matrix_methods[] = {
 	{ NULL,			{ NULL, NULL } }
 };
 
-const stress_matrix_method_info_t *stress_get_matrix_method(
+static const stress_matrix_method_info_t *stress_get_matrix_method(
 	const char *name)
 {
 	const stress_matrix_method_info_t *info;
@@ -770,7 +770,7 @@ const stress_matrix_method_info_t *stress_get_matrix_method(
 	return NULL;
 }
 
-void stress_matrix_method_error(void)
+static void stress_matrix_method_error(void)
 {
 	const stress_matrix_method_info_t *info;
 
