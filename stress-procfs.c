@@ -114,6 +114,15 @@ err:
 		ret = write(fd, buffer, 0);
 		(void)ret;
 		(void)close(fd);
+
+		/*
+		 *  Write using badbuf, expect it to fail
+		 */
+		if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+			return;
+		ret = write(fd, badbuf, PROC_BUF_SZ);
+		(void)ret;
+		(void)close(fd);
 	}
 }
 
