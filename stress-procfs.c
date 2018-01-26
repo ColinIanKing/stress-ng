@@ -105,15 +105,6 @@ static inline void stress_proc_rw(const char *path, char *badbuf, const bool pro
 err:
 	(void)close(fd);
 
-	/*
-	 *  Zero sized writes
-	 */
-	if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
-		return;
-	ret = write(fd, buffer, 0);
-	(void)ret;
-	(void)close(fd);
-
 	if (proc_write) {
 		/*
 		 *  Zero sized writes
