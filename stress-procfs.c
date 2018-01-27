@@ -118,11 +118,13 @@ err:
 		/*
 		 *  Write using badbuf, expect it to fail
 		 */
-		if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
-			return;
-		ret = write(fd, badbuf, PROC_BUF_SZ);
-		(void)ret;
-		(void)close(fd);
+		if (badbuf) {
+			if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+				return;
+			ret = write(fd, badbuf, PROC_BUF_SZ);
+			(void)ret;
+			(void)close(fd);
+		}
 	}
 }
 
