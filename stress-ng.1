@@ -2612,6 +2612,15 @@ pending.
 .B \-\-sigpending-ops N
 stop sigpending stress workers after N bogo sigpending pending/unpending checks.
 .TP
+.B \-\-sigpipe N
+start N workers that repeatedly spawn off child process that exits before a
+parent can complete a pipe write, causing a SIGPIPE signal.  The child
+process is either spawned using clone(2) if it is available or use the slower
+fork(2) instead.
+.TP
+.B \-\-sigpipe\-ops N
+stop N workers after N SIGPIPE signals have been caught and handled.
+.TP
 .B \-\-sigsegv N
 start N workers that rapidly create and catch segmentation faults.
 .TP

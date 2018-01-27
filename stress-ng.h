@@ -1343,6 +1343,7 @@ typedef enum {
 	STRESS_SIGFPE,
 	STRESS_SIGIO,
 	STRESS_SIGPENDING,
+	STRESS_SIGPIPE,
 	STRESS_SIGQUEUE,
 	STRESS_SIGSEGV,
 	STRESS_SIGSUSPEND,
@@ -1987,6 +1988,9 @@ typedef enum {
 
 	OPT_SIGPENDING,
 	OPT_SIGPENDING_OPS,
+
+	OPT_SIGPIPE,
+	OPT_SIGPIPE_OPS,
 
 	OPT_SIGQUEUE,
 	OPT_SIGQUEUE_OPS,
@@ -3026,9 +3030,10 @@ STRESS(stress_sigfd);
 STRESS(stress_sigfpe);
 STRESS(stress_sigio);
 STRESS(stress_sigpending);
+STRESS(stress_sigpipe);
+STRESS(stress_sigq);
 STRESS(stress_sigsegv);
 STRESS(stress_sigsuspend);
-STRESS(stress_sigq);
 STRESS(stress_sleep);
 STRESS(stress_sock);
 STRESS(stress_sockdiag);
