@@ -52,7 +52,7 @@ typedef struct {
 
 volatile data_t volatile_data;
 
-static inline void data_t_put(data_t data)
+void data_t_put(data_t data)
 {
 	volatile_data = data;
 }
@@ -596,7 +596,7 @@ stress_funcdeep_8(data_t)
 stress_funcdeep_9(data_t)
 
 #define stress_funcall_type(type, rndfunc)			\
-static void NOINLINE stress_funccall_ ## type(const args_t *args)\
+void NOINLINE stress_funccall_ ## type(const args_t *args)	\
 {								\
 	register int ii;					\
 	type a, b, c, d, e, f, g, h, i;				\
