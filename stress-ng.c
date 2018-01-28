@@ -393,6 +393,7 @@ static const stress_t stressors[] = {
 	STRESSOR(vfork, VFORK, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(vforkmany, VFORKMANY, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(vm, VM, CLASS_VM | CLASS_MEMORY | CLASS_OS),
+	STRESSOR(vm_addr, VM_ADDR, CLASS_VM | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(vm_rw, VM_RW, CLASS_VM | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(vm_splice, VM_SPLICE, CLASS_VM | CLASS_PIPE_IO | CLASS_OS),
 	STRESSOR(wait, WAIT, CLASS_SCHEDULER | CLASS_OS),
@@ -973,6 +974,9 @@ static const struct option long_options[] = {
 	{ "vm-ops",	1,	0,	OPT_VM_OPS },
 	{ "vm-madvise",	1,	0,	OPT_VM_MADVISE },
 	{ "vm-method",	1,	0,	OPT_VM_METHOD },
+	{ "vm-addr",	1,	0,	OPT_VM_ADDR },
+	{ "vm-addr-ops",1,	0,	OPT_VM_ADDR_OPS },
+	{ "vm-addr-method",1,	0,	OPT_VM_ADDR_METHOD },
 	{ "vm-rw",	1,	0,	OPT_VM_RW },
 	{ "vm-rw-bytes",1,	0,	OPT_VM_RW_BYTES },
 	{ "vm-rw-ops",	1,	0,	OPT_VM_RW_OPS },
@@ -1548,6 +1552,8 @@ static const help_t help_stressors[] = {
 #if defined(MAP_POPULATE)
 	{ NULL,		"vm-populate",		"populate (prefault) page tables for a mapping" },
 #endif
+	{ NULL,		"vm-addr N",		"start N vm address exercising workers" },
+	{ NULL,		"vm-addr-ops N",	"stop after N vm address bogo operations" },
 	{ NULL,		"vm-rw N",		"start N vm read/write process_vm* copy workers" },
 	{ NULL,		"vm-rw-bytes N",	"transfer N bytes of memory per bogo operation" },
 	{ NULL,		"vm-rw-ops N",		"stop after N vm process_vm* copy bogo operations" },
@@ -3499,6 +3505,10 @@ next_opt:
 			break;
 		case OPT_VM_METHOD:
 			if (stress_set_vm_method(optarg) < 0)
+				return EXIT_FAILURE;
+			break;
+		case OPT_VM_ADDR_METHOD:
+			if (stress_set_vm_addr_method(optarg) < 0)
 				return EXIT_FAILURE;
 			break;
 #if defined(MAP_LOCKED)

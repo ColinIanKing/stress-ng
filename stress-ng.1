@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "January 25, 2018"
+.TH STRESS-NG 1 "January 28, 2018"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3289,6 +3289,70 @@ T}
 populate (prefault) page tables for the memory mappings; this can stress
 swapping. Only available on systems that support MAP_POPULATE (since Linux
 2.5.46).
+.TP
+.B \-\-vm\-addr N
+start N workers that exercise virtual memory addressing using various
+methods to walk through a memory mapped address range. This will exercise
+mapped private addresses from 8MB to 64MB per worker and try to generate
+cache and TLB inefficient addressing patterns. Each method will set the
+memory to a random pattern in a write phase and then sanity check this
+in a read phase.
+.TP
+.B \-\-vm\-addr\-ops N
+stop N workers after N bogo addressing passes.
+.TP
+.B \-\-vm\-addr\-method M
+specify a vm address stress method. By default, all the stress methods are exercised
+sequentially, however one can specify just one method to be used if required.
+.RS
+.PP
+Available vm address stress methods are described as follows:
+.TS
+expand;
+lBw(10n)2 lBw(\n[SV]n)
+l l.
+Method	Description
+all	T{
+iterate over all the vm stress methods as listed below.
+T}
+pwr2	T{
+work through memory addresses in steps of powers of two.
+T}
+pwr2inv	T{
+like pwr2, but with the all relevant address bits inverted.
+T}
+gray	T{
+work through memory with gray coded addresses so that each
+change of address just changes 1 bit compared to the previous
+address.
+T}
+grayinv	T{
+like gray, but with the all relevant address bits inverted,
+hence all bits change apart from 1 in the address range.
+T}
+rev	T{
+work through the address range with the bits in the address
+range reversed.
+T}
+revinv	T{
+like rev, but with all the relevant address bits inverted.
+T}
+inc	T{
+work through the address range forwards sequentially, byte
+by byte.
+T}
+incinv 	T{
+like inc, but with all the relevant address bits inverted.
+T}
+dec	T{
+work through the address range backwards sequentially, byte
+by byte.
+T}
+decinv	T{
+like dec, but with all the relevant address bits inverted.
+T}
+.TE
+.RE
 .TP
 .B \-\-vm\-rw N
 start N workers that transfer memory to/from a parent/child using

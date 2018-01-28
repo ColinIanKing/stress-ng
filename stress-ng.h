@@ -1383,6 +1383,7 @@ typedef enum {
 	STRESS_VFORK,
 	STRESS_VFORKMANY,
 	STRESS_VM,
+	STRESS_VM_ADDR,
 	STRESS_VM_RW,
 	STRESS_VM_SPLICE,
 	STRESS_WAIT,
@@ -2156,6 +2157,10 @@ typedef enum {
 	OPT_VM_MADVISE,
 	OPT_VM_METHOD,
 
+	OPT_VM_ADDR,
+	OPT_VM_ADDR_METHOD,
+	OPT_VM_ADDR_OPS,
+
 	OPT_VM_RW,
 	OPT_VM_RW_OPS,
 	OPT_VM_RW_BYTES,
@@ -2731,6 +2736,7 @@ extern int  stress_set_vm_madvise(const char *name);
 extern int  stress_set_vm_method(const char *name);
 extern void stress_set_vm_rw_bytes(const char *opt);
 extern void stress_set_vm_splice_bytes(const char *opt);
+extern int  stress_set_vm_addr_method(const char *name);
 extern int  stress_set_wcs_method(const char *name);
 extern int  stress_set_zlib_method(const char *name);
 extern void stress_set_zombie_max(const char *opt);
@@ -3070,6 +3076,7 @@ STRESS(stress_vecmath);
 STRESS(stress_vfork);
 STRESS(stress_vforkmany);
 STRESS(stress_vm);
+STRESS(stress_vm_addr);
 STRESS(stress_vm_rw);
 STRESS(stress_vm_splice);
 STRESS(stress_wait);
