@@ -1144,6 +1144,7 @@ typedef struct {
 	uint8_t	*mem_cache;				/* Shared memory cache */
 	uint64_t mem_cache_size;			/* Bytes */
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
+	uint16_t padding1;				/* alignment padding */
 	uint32_t mem_cache_ways;			/* cache ways size */
 	struct {
 		uint32_t	flags;			/* flag bits */
@@ -1152,12 +1153,12 @@ typedef struct {
 #endif
 	} warn_once;
 	uint32_t warn_once_flags;			/* Warn once flags */
-	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	struct {
 		uint64_t val64;
 		uint32_t val32;
 		uint16_t val16;
 		uint8_t	 val8;
+		uint8_t	 padding2;			/* more padding */
 	} atomic;					/* Shared atomic temp vars */
 	struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
@@ -1186,6 +1187,7 @@ typedef struct {
 #if defined(HAVE_ATOMIC)
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
 #endif
+	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	proc_stats_t stats[0];				/* Shared statistics */
 } shared_t;
 
