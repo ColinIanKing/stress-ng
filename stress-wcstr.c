@@ -152,7 +152,7 @@ static void stress_wcsncasecmp(
 }
 #endif
 
-#if defined(HAVE_WCSLCPY)
+#if defined(HAVE_WCSLCPY) && defined(HAVE_WCSLEN)
 /*
  *  stress_wcslcpy()
  *	stress on wcslcpy
@@ -178,7 +178,7 @@ static void stress_wcslcpy(
 		WCSCHK(name, str2_len == __wcslcpy(buf, str2, buf_len), failed);
 	}
 }
-#else
+#elif defined(HAVE_WCSCPY)
 /*
  *  stress_wcscpy()
  *	stress on wcscpy
@@ -203,7 +203,7 @@ static void stress_wcscpy(
 }
 #endif
 
-#if defined(HAVE_WCSLCAT)
+#if defined(HAVE_WCSLCAT) && defined(HAVE_WCSLEN)
 /*
  *  stress_wcslcat()
  *	stress on wcslcat
@@ -238,7 +238,7 @@ static void stress_wcslcat(
 		WCSCHK(name, str_len  == __wcslcat(buf, str1, buf_len), failed);
 	}
 }
-#else
+#elif defined(HAVE_WCSCAT)
 /*
  *  stress_wcscat()
  *	stress on wcscat
@@ -271,6 +271,7 @@ static void stress_wcscat(
 }
 #endif
 
+#if defined(HAVE_WCSNCAT)
 /*
  *  stress_wcsncat()
  *	stress on wcsncat
@@ -301,7 +302,9 @@ static void stress_wcsncat(
 		WCSCHK(name, buf == __wcsncat(buf, str1, i), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSCHR)
 /*
  *  stress_wcschr()
  *	stress on wcschr
@@ -328,7 +331,9 @@ static void stress_wcschr(
 		WCSCHK(name, NULL != __wcschr(str2, str2[0]), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSRCHR)
 /*
  *  stress_wcsrchr()
  *	stress on wcsrchr
@@ -355,7 +360,9 @@ static void stress_wcsrchr(
 		WCSCHK(name, NULL != __wcsrchr(str2, str2[0]), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSCMP)
 /*
  *  stress_wcscmp()
  *	stress on wcscmp
@@ -389,7 +396,9 @@ static void stress_wcscmp(
 		WCSCHK(name, 0 != __wcscmp(str2, str1 + i), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSNCMP)
 /*
  *  stress_wcsncmp()
  *	stress on wcsncmp
@@ -421,7 +430,9 @@ static void stress_wcsncmp(
 		WCSCHK(name, 0 != __wcsncmp(str2, str1 + i, len2), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSLEN)
 /*
  *  stress_wcslen()
  *	stress on wcslen
@@ -448,7 +459,9 @@ static void stress_wcslen(
 		WCSCHK(name, len2 - 1 - i == __wcslen(str2 + i), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSCOLL)
 /*
  *  stress_wcscoll()
  *	stress on wcscoll
@@ -482,7 +495,9 @@ static void stress_wcscoll(
 		WCSCHK(name, 0 != __wcscoll(str2, str1 + i), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_WCSXFRM)
 /*
  *  stress_wcsxfrm()
  *	stress on wcsxfrm
@@ -513,7 +528,7 @@ static void stress_wcsxfrm(
 		WCSCHK(name, 0 != __wcsxfrm(buf, str1, sizeof(buf)), failed);
 	}
 }
-
+#endif
 
 /*
  *  stress_wcs_all()
@@ -543,31 +558,46 @@ static void stress_wcs_all(
  */
 static const stress_wcs_method_info_t wcs_methods[] = {
 	{ "all",		stress_wcs_all,		NULL },	/* Special "all" test */
-
 #if defined(HAVE_WCSCASECMP)
 	{ "wcscasecmp",		stress_wcscasecmp,	wcscasecmp },
 #endif
 #if defined(HAVE_WCSLCAT)
 	{ "wcslcat",		stress_wcslcat,		wcslcat },
-#else
+#elif defined(HAVE_WCSCAT)
 	{ "wcscat",		stress_wcscat,		wcscat },
 #endif
+#if defined(HAVE_WCSCHR)
 	{ "wcschr",		stress_wcschr,		wcschr },
+#endif
+#if defined(HAVE_WCSCMP)
 	{ "wcscmp",		stress_wcscmp,		wcscmp },
+#endif
 #if defined(HAVE_WCSLCPY)
 	{ "wcslcpy",		stress_wcslcpy,		wcslcpy },
-#else
+#elif defined(HAVE_WCSCPY)
 	{ "wcscpy",		stress_wcscpy,		wcscpy },
 #endif
+#if defined(HAVE_WCSLEN)
 	{ "wcslen",		stress_wcslen,		wcslen },
+#endif
 #if defined(HAVE_WCSNCASECMP)
 	{ "wcsncasecmp",	stress_wcsncasecmp,	wcsncasecmp },
 #endif
+#if defined(HAVE_WCSNCAT)
 	{ "wcsncat",		stress_wcsncat,		wcsncat },
+#endif
+#if defined(HAVE_WCSNCMP)
 	{ "wcsncmp",		stress_wcsncmp,		wcsncmp },
+#endif
+#if defined(HAVE_WCSRCHR)
 	{ "wcsrchr",		stress_wcsrchr,		wcschr },
+#endif
+#if defined(HAVE_WCSCOLL)
 	{ "wcscoll",		stress_wcscoll,		wcscoll },
+#endif
+#if defined(HAVE_WCSXFRM)
 	{ "wcsxfrm",		stress_wcsxfrm,		wcsxfrm },
+#endif
 	{ NULL,			NULL,			NULL }
 };
 
