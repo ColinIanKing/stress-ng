@@ -153,17 +153,23 @@ int stress_chmod(const args_t *args)
 			if ((fd = open(filename, O_RDWR, S_IRUSR | S_IWUSR)) > - 1)
 				break;
 
+#if defined(__NetBSD__)
+			/* For some reason usleep blocks */
+			(void)shim_sched_yield();
+#else
 			(void)shim_usleep(100000);
-			if (++retries >= 100) {
+#endif
+			/* Timed out, then give up */
+			if (!g_keep_stressing_flag) {
+				rc = EXIT_SUCCESS;
+				goto tidy;
+			}
+			/* Too many retries? */
+			if (++retries >= 10000) {
 				pr_err("%s: chmod: file %s took %d "
 					"retries to open and gave up "
 					"(instance %" PRIu32 ")\n",
 					args->name, filename, retries, args->instance);
-				goto tidy;
-			}
-			/* Timed out, then give up */
-			if (!g_keep_stressing_flag) {
-				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
 		}
