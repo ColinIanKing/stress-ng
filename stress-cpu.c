@@ -904,6 +904,15 @@ stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
 stress_cpu_fp(_Decimal64, decimal64, sin, cos)
 stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
 #endif
+#if defined(HAVE_FLOAT32) && !defined(__clang__)
+stress_cpu_fp(_Float32, float32, sin, cos)
+#endif
+#if defined(HAVE_FLOAT80) && !defined(__clang__)
+stress_cpu_fp(__float80, float80, sinl, cosl)
+#endif
+#if defined(HAVE_FLOAT128) && !defined(__clang__)
+stress_cpu_fp(__float128, float128, sinl, cosl)
+#endif
 
 /* Append floating point literal specifier to literal value */
 #define FP(val, ltype)	val ## ltype
@@ -2269,6 +2278,15 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "factorial",		stress_cpu_factorial },
 	{ "fibonacci",		stress_cpu_fibonacci },
 	{ "float",		stress_cpu_float },
+#if defined(HAVE_FLOAT32)
+	{ "float32",		stress_cpu_float32 },
+#endif
+#if defined(HAVE_FLOAT80)
+	{ "float80",		stress_cpu_float80 },
+#endif
+#if defined(HAVE_FLOAT128)
+	{ "float128",		stress_cpu_float128 },
+#endif
 	{ "fnv1a",		stress_cpu_fnv1a },
 	{ "gamma",		stress_cpu_gamma },
 	{ "gcd",		stress_cpu_gcd },
