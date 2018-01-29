@@ -61,17 +61,17 @@
                 b = d - (_type)1.0L;                    \
         } while (0)
 
-static void HOT OPTIMIZE3 test(void)
+static FLOAT HOT OPTIMIZE3 test(void)
 {
 	FLOAT a = 0.0, b = 0.0, c = 0.0, d = 0.0;
 
 	float_ops(FLOAT, a, b, c, d, sin, cos);
 	float_ops(FLOAT, a, b, c, d, sinl, cosl);
+
+	return a + b + c + d;
 }
 
 int main(void)
 {
-	test();
-
-	return 0;
+	return (int)test();
 }
