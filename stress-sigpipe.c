@@ -106,13 +106,15 @@ again:
 		(void)pipe_child((void *)pipefds);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int ret, status;
+		int status;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
 		do {
+			int ret;
+
 			ret = write(pipefds[1], buf, buf_len);
 			if (LIKELY(ret <= 0))
 				break;
