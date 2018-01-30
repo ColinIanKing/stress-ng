@@ -636,6 +636,10 @@ int stress_wcs(const args_t *args)
 	const void *libc_func;
 	bool failed = false;
 
+	/* No wcs* functions available on this system? */
+	if (SIZEOF_ARRAY(wcs_methods) <= 2)
+		return stress_not_implemented(args);
+
 	(void)get_setting("wcs-method", &wcs_method);
 	func = wcs_method->func;
 	libc_func = wcs_method->libc_func;
