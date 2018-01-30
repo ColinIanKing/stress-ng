@@ -1,3 +1,29 @@
+stress-ng (0.09.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-sigpipe: reduce scope of int ret
+  * stress-wcsstr: sanity check to see if there are any wcs* functions
+  * Add full wide char function autodetection
+  * stress-chown: workaround a NetBSD hang on usleep
+  * stress-chmod: workaround a NetBSD hang on usleep
+  * stress-cpu: add __fp16 float16 support (ARM)
+  * test/test-float: ensure test code is not overly optimized out
+  * test/test-float.c: ensure build options are same as stress-cpu.c
+  * Generalize float type config tests
+  * stress-cpu: Add float32, float80 and float128 support
+  * stress-ng: add some alignment tweaks to naturally align fields
+  * Add a new vm-addr virtual memory address stressor
+  * README: update number of stressors
+  * stress-funccall: make functions non-static, force less optimization
+  * stress-vm: add UNLIKELY annotations to improve performance
+  * stress-procfs: don't write using a NULL badbuf
+  * Add sigpipe stressor
+  * Add bad write buffer to procfs write
+  * stress-procfs: do proc writes only if proc_write is true
+  * stress-vm-rw: fix build failure on ia64 with missing HAVE_CLONE
+
+ -- Colin King <colin.king@canonical.com>  Tue, 30 Jan 2018 13:17:21 +0000
+
 stress-ng (0.09.13-1) unstable; urgency=medium
 
   * Makefile: bump version
