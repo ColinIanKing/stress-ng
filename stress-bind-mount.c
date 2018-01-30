@@ -24,7 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(MS_BIND) && defined(MS_REC)
+#if defined(__linux__) && \
+    defined(MS_BIND) && \
+    defined(MS_REC) && \
+    defined(HAVE_CLONE)
 
 #define CLONE_STACK_SIZE	(64*1024)
 
