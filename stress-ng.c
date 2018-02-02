@@ -37,7 +37,7 @@
 typedef struct {
 	const stress_id_t str_id;
 	int (*func_supported)(void);
-} unsupported_t;
+} supported_t;
 
 typedef struct {
 	const stress_id_t str_id;
@@ -87,7 +87,7 @@ put_val_t g_put_val;				/* sync data to somewhere */
  *  stressors to be run-time checked to see if they are supported
  *  on the platform.
  */
-static const unsupported_t unsupported[] = {
+static const supported_t supported[] = {
 	{ STRESS_APPARMOR,	stress_apparmor_supported },
 	{ STRESS_CHROOT,	stress_chroot_supported },
 	{ STRESS_CYCLIC,	stress_cyclic_supported },
@@ -2629,16 +2629,16 @@ static inline void exclude_unsupported(void)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(unsupported); i++) {
+	for (i = 0; i < SIZEOF_ARRAY(supported); i++) {
 		proc_info_t *pi = procs_head;
-		stress_id_t id = unsupported[i].str_id;
+		stress_id_t id = supported[i].str_id;
 
 		while (pi) {
 			proc_info_t *next = pi->next;
 
 			if ((pi->stressor->id == id) &&
 			    (pi->num_procs) &&
-			    (unsupported[i].func_supported() < 0))
+			    (supported[i].func_supported() < 0))
 				remove_proc(pi);
 			pi = next;
 		}
