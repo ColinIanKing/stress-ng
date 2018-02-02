@@ -26,63 +26,118 @@
 
 #if defined(LOCK_EX) && defined(LOCK_UN)
 
+#define MAX_FLOCK_STRESSORS	(3)
+
+void stress_flock_child(const args_t *args, const int fd)
+{
+	bool cont;
+
+	for (;;) {
+		if (flock(fd, LOCK_EX) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+
+#if defined(LOCK_NB)
+		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+
+#if defined(LOCK_SH)
+		if (!keep_stressing())
+			break;
+		if (flock(fd, LOCK_SH) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+
+#if defined(LOCK_SH) && defined(LOCK_NB)
+		if (!keep_stressing())
+			break;
+		if (flock(fd, LOCK_SH | LOCK_NB) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+	}
+}
+
 /*
  *  stress_flock
  *	stress file locking
  */
 int stress_flock(const args_t *args)
 {
-	int fd;
-	const pid_t ppid = getppid();
+	int fd, ret, rc = EXIT_FAILURE;
+	size_t i;
+	pid_t pids[MAX_FLOCK_STRESSORS];
 	char filename[PATH_MAX];
-	char dirname[PATH_MAX];
 
-	/*
-	 *  There will be a race to create the directory
-	 *  so EEXIST is expected on all but one instance
-	 */
-	(void)stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, args->instance);
-	if (mkdir(dirname, S_IRWXU) < 0) {
-		if (errno != EEXIST) {
-			pr_fail_err("mkdir");
-			return exit_status(errno);
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
+
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		pr_err("%s: failed to create %s: errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+			goto err;
+	}
+
+	memset(pids, 0, sizeof(pids));
+	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
+		pids[i] = fork();
+		if (pids[i] < 0) {
+			goto reap;
+		} else if (pids[i] == 0) {
+			(void)setpgid(0, g_pgrp);
+			stress_parent_died_alarm();
+
+			stress_flock_child(args, fd);
+			_exit(EXIT_SUCCESS);
 		}
 	}
 
-	/*
-	 *  Lock file is based on parent pid and instance 0
-	 *  as we need to share this among all the other
-	 *  stress flock processes
-	 */
-	(void)stress_temp_filename(filename, sizeof(filename),
-		args->name, ppid, 0, 0);
-retry:
-	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		int rc = exit_status(errno);
-
-		if ((errno == ENOENT) && g_keep_stressing_flag) {
-			/* Race, sometimes we need to retry */
-			goto retry;
-		}
-		/* Not sure why this fails.. report and abort */
-		pr_fail_err("open");
-		(void)rmdir(dirname);
-		return rc;
-	}
-
-	do {
-		if (flock(fd, LOCK_EX) < 0)
-			continue;
-		(void)shim_sched_yield();
-		(void)flock(fd, LOCK_UN);
-		inc_counter(args);
-	} while (keep_stressing());
-
+	stress_flock_child(args, fd);
+	rc = EXIT_SUCCESS;
+reap:
 	(void)close(fd);
-	(void)unlink(filename);
-	(void)rmdir(dirname);
 
-	return EXIT_SUCCESS;
+	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
+		if (pids[i] > 0) {
+			int status;
+
+			(void)kill(pids[i], SIGKILL);
+			(void)waitpid(pids[i], &status, 0);
+		}
+	}
+
+	(void)unlink(filename);
+err:
+	(void)stress_temp_dir_rm_args(args);
+
+	return rc;
 }
 
 #else
