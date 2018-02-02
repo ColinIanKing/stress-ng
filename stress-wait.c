@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-
 /*
  *  Disabled for GNU/Hurd because it this stressor breaks with
  *  the error:
