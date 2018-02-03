@@ -1,3 +1,17 @@
+stress-ng (0.09.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * debian/copyright: fix insecure debian copyright URL
+  * debian/compat: update to 11
+  * debian/control: update debhelper to >= 11
+  * stress-bind-mount: ensure we have clone support with HAVE_CLONE
+    check, fixes another FTBFS in ia64
+  * stress-wait: remove empty line
+  * Rename array and type unsupported to supported
+  * stress-flock: Add more flock lock types, add more stressing children
+
+ -- Colin King <colin.king@canonical.com>  Sat, 3 Feb 2018 15:02:11 +0000
+
 stress-ng (0.09.14-1) unstable; urgency=medium
 
   * Makefile: bump version
