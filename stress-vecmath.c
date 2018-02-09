@@ -24,6 +24,18 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  Clang 5.0 is the lowest version of clang that
+ *  can build this without issues (clang 4.0 seems
+ *  to spend forever optimizing this and causes the build
+ *  to never complete)
+ */
+#if defined(__clang__) && \
+    defined(__clang_major__) && \
+    __clang_major__ < 5
+#undef HAVE_VECMATH
+#endif
+
 #if defined(HAVE_VECMATH)
 
 typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
