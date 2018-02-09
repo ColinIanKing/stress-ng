@@ -307,11 +307,16 @@ OBJS += $(CONFIG_OBJS)
 .o: stress-ng.h Makefile
 
 .c.o: stress-ng.h Makefile $(SRC)
-	@echo $(CC) $(CFLAGS) -c -o $@ $<
+	@echo "CC $<"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-ng: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
+stress-ng: info $(OBJS)
+	@echo "LD $@"
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
+
+.PHONY: info
+info:
+	@echo "CFLAGS: $(CFLAGS)"
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
@@ -326,7 +331,8 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 		sed '$$ s/.$$//' >> apparmor-data.c
 	@echo "};" >> apparmor-data.c
 	@echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
-	$(CC) -c apparmor-data.c -o apparmor-data.o
+	@echo "CC $<"
+	@$(CC) -c apparmor-data.c -o apparmor-data.o
 	@rm -rf apparmor-data.c
 
 #
@@ -340,11 +346,11 @@ stress-personality.c: personality.h
 
 perf.o: perf.c perf-event.c
 	@gcc -E perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | awk {'print "#define _SNG_" $$1 " (1)"'} > perf-event.h
-	@echo $(CC) $(CFLAGS) -c -o $@ $<
+	@echo CC $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-vecmath.o: stress-vecmath.c
-	@echo $(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	@echo CC $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 	@touch stress-ng.c
 
