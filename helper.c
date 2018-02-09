@@ -1054,6 +1054,9 @@ unsigned int stress_get_cpu(void)
 #endif
 }
 
+#define XSTRINGIFY(s) STRINGIFY(s)
+#define STRINGIFY(s) #s
+
 /*
  *  stress_not_implemented()
  *	report that a stressor is not implemented
@@ -1061,17 +1064,24 @@ unsigned int stress_get_cpu(void)
  */
 int stress_not_implemented(const args_t *args)
 {
+#if defined(__clang_major__) && defined(__clang_minor__)
+	static char cc[] = " (clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) ")";
+#elif defined(__GNUC__) && defined(__GNUC_MINOR__)
+	static char cc[] = " (gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) ")";
+#else
+	static char cc[] = " (cc unknown)";
+#endif
 #if defined(HAVE_UNAME)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
-		pr_inf("%s: this stressor is not implemented on this system: %s %s %s\n",
-			args->name, buf.machine, buf.sysname, buf.release);
+		pr_inf("%s: this stressor is not implemented on this system: %s %s %s%s\n",
+			args->name, buf.machine, buf.sysname, buf.release, cc);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 #endif
-	pr_inf("%s: this stressor is not implemented on this system\n",
-		args->name);
+	pr_inf("%s: this stressor is not implemented on this system: %s\n",
+		args->name, cc);
 	return EXIT_NOT_IMPLEMENTED;
 }
 
