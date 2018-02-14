@@ -1918,8 +1918,10 @@ static void kill_procs(const int sig)
 
 	/* multiple calls will always fallback to SIGKILL */
 	count++;
-	if (count > 5)
+	if (count > 5) {
+		pr_dbg("killing process group %d with SIGKILL\n", g_pgrp);
 		signum = SIGKILL;
+	}
 
 	(void)killpg(g_pgrp, sig);
 
