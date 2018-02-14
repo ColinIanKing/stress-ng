@@ -2044,16 +2044,16 @@ redo:
 #if NEED_GLIBC(2,1,0)
 						const char *signame = strsignal(WTERMSIG(status));
 
-						pr_dbg("process %d (stress-ng-%s) terminated on signal: %d (%s)\n",
+						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
 							ret, pi->stressor->name,
 							WTERMSIG(status), signame);
 #else
-						pr_dbg("process %d (stress-ng-%s) terminated on signal: %d\n",
+						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
 							ret, pi->stressor->name,
 							WTERMSIG(status));
 #endif
 #else
-						pr_dbg("process %d (stress-ng-%s) terminated on signal\n",
+						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
 							ret, pi->stressor->name);
 #endif
 						*success = false;
