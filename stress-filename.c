@@ -213,7 +213,7 @@ static void stress_filename_test(
  *  stress_filename()
  *	stress filename sizes etc
  */
-int stress_filename (const args_t *args)
+int stress_filename(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
@@ -221,6 +221,7 @@ int stress_filename (const args_t *args)
 	char filename[PATH_MAX];
 	char *ptr;
 	struct statvfs buf;
+	pid_t pid;
 	size_t i, chars_allowed = 0, sz;
 #if defined(__APPLE__)
 	uint8_t filename_opt = STRESS_FILENAME_POSIX;
@@ -293,59 +294,113 @@ int stress_filename (const args_t *args)
 		goto tidy_dir;
 	}
 
-	i = 0;
-	sz = 1;
-	do {
-		const char ch = allowed[i];
-		const size_t rnd_sz = 1 + (mwc32() % sz_max);
+again:
+	if (!g_keep_stressing_flag)
+		goto tidy_dir;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
 
-		i++;
-		if (i >= chars_allowed)
-			i = 0;
+		(void)setpgid(pid, g_pgrp);
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg("%s: child died: %s (instance %d)\n",
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, bailing out "
+						"(instance %d)\n",
+						args->name, args->instance);
+					_exit(0);
+				} else {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, restarting again "
+						"(instance %d)\n",
+						args->name, args->instance);
+					goto again;
+				}
+			}
+		}
+	} else if (pid == 0) {
+		/* Child, wrapped to catch OOMs */
 
-		/* Should succeed */
-		stress_filename_generate(ptr, 1, ch);
-		stress_filename_test(args, filename, 1, true);
-		stress_filename_generate_random(ptr, 1, chars_allowed);
-		stress_filename_test(args, filename, 1, true);
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
 
-		/* Should succeed */
-		stress_filename_generate(ptr, sz_max, ch);
-		stress_filename_test(args, filename, sz_max, true);
-		stress_filename_generate_random(ptr, sz_max, chars_allowed);
-		stress_filename_test(args, filename, sz_max, true);
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
 
-		/* Should succeed */
-		stress_filename_generate(ptr, sz_max - 1, ch);
-		stress_filename_test(args, filename, sz_max - 1, true);
-		stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
-		stress_filename_test(args, filename, sz_max - 1, true);
+		i = 0;
+		sz = 1;
+		do {
+			const char ch = allowed[i];
+			const size_t rnd_sz = 1 + (mwc32() % sz_max);
 
-		/* Should fail */
-		stress_filename_generate(ptr, sz_max + 1, ch);
-		stress_filename_test(args, filename, sz_max + 1, false);
-		stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
-		stress_filename_test(args, filename, sz_max + 1, false);
+			i++;
+			if (i >= chars_allowed)
+				i = 0;
 
-		/* Should succeed */
-		stress_filename_generate(ptr, sz, ch);
-		stress_filename_test(args, filename, sz, true);
-		stress_filename_generate_random(ptr, sz, chars_allowed);
-		stress_filename_test(args, filename, sz, true);
+			/* Should succeed */
+			stress_filename_generate(ptr, 1, ch);
+			stress_filename_test(args, filename, 1, true);
+			stress_filename_generate_random(ptr, 1, chars_allowed);
+			stress_filename_test(args, filename, 1, true);
 
-		/* Should succeed */
-		stress_filename_generate(ptr, rnd_sz, ch);
-		stress_filename_test(args, filename, rnd_sz, true);
-		stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
-		stress_filename_test(args, filename, rnd_sz, true);
+			/* Should succeed */
+			stress_filename_generate(ptr, sz_max, ch);
+			stress_filename_test(args, filename, sz_max, true);
+			stress_filename_generate_random(ptr, sz_max, chars_allowed);
+			stress_filename_test(args, filename, sz_max, true);
 
-		sz++;
-		if (sz > sz_max)
-			sz = 1;
+			/* Should succeed */
+			stress_filename_generate(ptr, sz_max - 1, ch);
+			stress_filename_test(args, filename, sz_max - 1, true);
+			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
+			stress_filename_test(args, filename, sz_max - 1, true);
 
-		inc_counter(args);
-	} while (keep_stressing());
+			/* Should fail */
+			stress_filename_generate(ptr, sz_max + 1, ch);
+			stress_filename_test(args, filename, sz_max + 1, false);
+			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
+			stress_filename_test(args, filename, sz_max + 1, false);
 
+			/* Should succeed */
+			stress_filename_generate(ptr, sz, ch);
+			stress_filename_test(args, filename, sz, true);
+			stress_filename_generate_random(ptr, sz, chars_allowed);
+			stress_filename_test(args, filename, sz, true);
+
+			/* Should succeed */
+			stress_filename_generate(ptr, rnd_sz, ch);
+			stress_filename_test(args, filename, rnd_sz, true);
+			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
+			stress_filename_test(args, filename, rnd_sz, true);
+
+			sz++;
+			if (sz > sz_max)
+				sz = 1;
+			inc_counter(args);
+		} while (keep_stressing());
+		_exit(EXIT_SUCCESS);
+	}
 	rc = EXIT_SUCCESS;
 
 tidy_dir:
