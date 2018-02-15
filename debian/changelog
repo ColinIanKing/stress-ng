@@ -1,3 +1,20 @@
+stress-ng (0.09.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Silence a build warning on %d for g_pgrp, cast to int
+  * Use the new is_dot_filename() helper
+  * Add is_dot_filename helper function to check for "." or ".." filenames
+  * stress-filename: clean up temporary files on forced termination
+  * stress-handle: catch any SIGKILL signals and report back
+  * stress-filename: catch any SIGKILL signals and report back
+  * Print process ID in [ ] braces
+  * Add debug to inform us when stress-ng kills process group with SIGKILL
+  * Makefile: make build output less noisy and cluttered
+  * helper: add in compiler major minor info
+  * stress-vecmath: don't built with clang less than version 5.0
+
+ -- Colin King <colin.king@canonical.com>  Thu, 15 Feb 2018 17:41:32 +0000
+
 stress-ng (0.09.15-1) unstable; urgency=medium
 
   * Makefile: bump version
