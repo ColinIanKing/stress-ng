@@ -162,8 +162,7 @@ static void stress_apparmor_dir(
 
 		if (!g_keep_stressing_flag)
 			break;
-		if (!strcmp(d->d_name, ".") ||
-		    !strcmp(d->d_name, ".."))
+		if (is_dot_filename(d->d_name))
 			continue;
 		switch (d->d_type) {
 		case DT_DIR:

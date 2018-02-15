@@ -130,9 +130,7 @@ static int stress_getdents_dir(
 			struct shim_linux_dirent *d = (struct shim_linux_dirent *)ptr;
 			unsigned char d_type = *(ptr + d->d_reclen - 1);
 
-			if (d_type == DT_DIR &&
-			    strcmp(d->d_name, ".") &&
-			    strcmp(d->d_name, "..")) {
+			if (d_type == DT_DIR && is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
@@ -200,9 +198,7 @@ static int stress_getdents64_dir(
 		while (ptr < buf + nread) {
 			struct shim_linux_dirent64 *d = (struct shim_linux_dirent64 *)ptr;
 
-			if (d->d_type == DT_DIR &&
-			    strcmp(d->d_name, ".") &&
-			    strcmp(d->d_name, "..")) {
+			if (d->d_type == DT_DIR && is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);

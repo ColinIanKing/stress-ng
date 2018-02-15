@@ -383,8 +383,7 @@ static void stress_dev_dir(
 
 		if (!keep_stressing())
 			break;
-		if (!strcmp(d->d_name, ".") ||
-		    !strcmp(d->d_name, ".."))
+		if (is_dot_filename(d->d_name))
 			continue;
 		/* Xen clients hang on hpet when running as root */
 		if (!euid && !strcmp(d->d_name, "hpet"))

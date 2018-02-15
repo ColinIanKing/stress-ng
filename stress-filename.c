@@ -175,8 +175,7 @@ static void stress_filename_tidy(const char *path)
 		while ((d = readdir(dir)) != NULL) {
 			char filename[PATH_MAX];
 
-			if (!strcmp(d->d_name, ".") ||
-			    !strcmp(d->d_name, ".."))
+			if (is_dot_filename(d->d_name))
 				continue;
 			(void)snprintf(filename, sizeof(filename),
 				"%s/%s", path, d->d_name);

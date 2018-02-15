@@ -222,8 +222,7 @@ static void stress_sys_dir(
 
 		if (!keep_stressing())
 			break;
-		if (!strcmp(d->d_name, ".") ||
-		    !strcmp(d->d_name, ".."))
+		if (is_dot_filename(d->d_name))
 			continue;
 		switch (d->d_type) {
 		case DT_DIR:
