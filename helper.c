@@ -1291,3 +1291,16 @@ int stress_drop_capabilities(const char *name)
 	return 0;
 }
 #endif
+
+/*
+ *  is_dot_filename()
+ *	is filename "." or ".."
+ */
+bool is_dot_filename(const char *name)
+{
+	if (!strcmp(name, "."))
+		return true;
+	if (!strcmp(name, ".."))
+		return true;
+	return false;
+}
