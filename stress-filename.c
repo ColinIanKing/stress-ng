@@ -162,6 +162,32 @@ static void stress_filename_generate(
 }
 
 /*
+ *  stress_filename_tidy()
+ *	clean up residual files
+ */
+static void stress_filename_tidy(const char *path)
+{
+	DIR *dir;
+	struct dirent *d;
+
+	dir = opendir(path);
+	if (dir) {
+		while ((d = readdir(dir)) != NULL) {
+			char filename[PATH_MAX];
+
+			if (!strcmp(d->d_name, ".") ||
+			    !strcmp(d->d_name, ".."))
+				continue;
+			(void)snprintf(filename, sizeof(filename),
+				"%s/%s", path, d->d_name);
+			(void)unlink(filename);
+		}
+	}
+	(void)closedir(dir);
+	(void)rmdir(path);
+}
+
+/*
  *  stress_filename_generate_random()
  *	generate a filename of length sz_max with
  *	random selection from possible char set
@@ -404,7 +430,7 @@ again:
 	rc = EXIT_SUCCESS;
 
 tidy_dir:
-	(void)rmdir(dirname);
+	(void)stress_filename_tidy(dirname);
 
 	return rc;
 }
