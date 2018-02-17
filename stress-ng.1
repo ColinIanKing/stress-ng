@@ -1137,6 +1137,14 @@ this maximum, or 65536 open file descriptors, which ever comes first.
 .B \-\-dup\-ops N
 stop the dup stress workers after N bogo open operations.
 .TP
+.B \-\-dynlib N
+start N workers that dynamically load and unload various shared libraries. This
+exercises memory mapping and dynamic code loading and symbol lookups. See
+dlopen(3) for more details of this mechanism.
+.TP
+.B \-\-dynlib\-ops N
+stop workers after N bogo load/unload cycles.
+.TP
 .B \-\-enosys N
 start N workers that exercise non-functional system call numbers. This calls
 a wide range of system call numbers to see if it can break a system where these

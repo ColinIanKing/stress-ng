@@ -82,6 +82,7 @@ STRESS_SRC = \
 	stress-dirdeep.c \
 	stress-dnotify.c \
 	stress-dup.c \
+	stress-dynlib.c \
 	stress-enosys.c \
 	stress-epoll.c \
 	stress-eventfd.c \
@@ -286,6 +287,7 @@ LIB_RT := -lrt
 LIB_PTHREAD := -lpthread
 LIB_AIO = -laio
 LIB_SCTP = -lsctp
+LIB_DL = -ldl
 
 #
 #  Load in current config; use 'make clean' to clear this
