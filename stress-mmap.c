@@ -56,6 +56,9 @@ static const int mmap_flags[] = {
 #if 0 && defined(MAP_NORESERVE)
 	MAP_NORESERVE,
 #endif
+#if defined(MAP_STACK)
+	MAP_STACK,
+#endif
 	0
 };
 
