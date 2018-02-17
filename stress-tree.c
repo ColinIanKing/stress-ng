@@ -58,13 +58,13 @@ struct avl_node {
 };
 
 struct tree_node {
+	uint64_t value;
 	union {
 		RB_ENTRY(tree_node)	rb;
 		SPLAY_ENTRY(tree_node)	splay;
 		struct binary_node	binary;
 		struct avl_node		avl;
 	} u;
-	uint64_t value;
 };
 
 #endif
