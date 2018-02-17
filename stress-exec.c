@@ -85,6 +85,7 @@ int stress_exec(const args_t *args)
 	path[len] = '\0';
 	argv_new[0] = path;
 
+
 	do {
 		unsigned int i;
 
@@ -115,7 +116,8 @@ int stress_exec(const args_t *args)
 				(void)dup2(fd_in, STDIN_FILENO);
 				(void)close(fd_out);
 				(void)close(fd_in);
-
+				ret = stress_drop_capabilities(args->name);
+				(void)ret;
 				ret = execve(path, argv_new, env_new);
 				rc = EXIT_SUCCESS;
 				if (ret < 0) {
