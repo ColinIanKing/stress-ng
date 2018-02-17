@@ -63,7 +63,7 @@ struct tree_node {
 		SPLAY_ENTRY(tree_node)	splay;
 		struct binary_node	binary;
 		struct avl_node		avl;
-	};
+	} u;
 	uint64_t value;
 };
 
@@ -110,12 +110,12 @@ static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 }
 
 static RB_HEAD(rb_tree, tree_node) rb_root;
-RB_PROTOTYPE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
-RB_GENERATE(rb_tree, tree_node, rb, tree_node_cmp_fwd);
+RB_PROTOTYPE(rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
+RB_GENERATE(rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 
 static SPLAY_HEAD(splay_tree, tree_node) splay_root;
-SPLAY_PROTOTYPE(splay_tree, tree_node, splay, tree_node_cmp_fwd);
-SPLAY_GENERATE(splay_tree, tree_node, splay, tree_node_cmp_fwd);
+SPLAY_PROTOTYPE(splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+SPLAY_GENERATE(splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
 	const args_t *args,
@@ -177,6 +177,9 @@ static void stress_tree_splay(
 		next = SPLAY_NEXT(splay_tree, &splay_root, node);
 		SPLAY_REMOVE(splay_tree, &splay_root, node);
 	}
+	for (node = nodes, i = 0; i < n; i++, node++) {
+		memset(&node->u.splay, 0, sizeof(node->u.splay));
+	}
 }
 
 static void binary_insert(
@@ -185,8 +188,8 @@ static void binary_insert(
 {
 	while (*head) {
 		head = (node->value <= (*head)->value) ?
-			&(*head)->binary.left :
-			&(*head)->binary.right;
+			&(*head)->u.binary.left :
+			&(*head)->u.binary.right;
 	}
 	*head = node;
 }
@@ -199,8 +202,8 @@ static struct tree_node *binary_find(
 		if (node->value == head->value)
 			return head;
 		head = (node->value <= head->value) ?
-				head->binary.left :
-				head->binary.right;
+				head->u.binary.left :
+				head->u.binary.right;
 	}
 	return NULL;
 }
@@ -208,10 +211,10 @@ static struct tree_node *binary_find(
 static void binary_remove_tree(struct tree_node *node)
 {
 	if (node) {
-		binary_remove_tree(node->binary.left);
-		binary_remove_tree(node->binary.right);
-		node->binary.left = NULL;
-		node->binary.right = NULL;
+		binary_remove_tree(node->u.binary.left);
+		binary_remove_tree(node->u.binary.right);
+		node->u.binary.left = NULL;
+		node->u.binary.right = NULL;
 	}
 }
 
@@ -249,57 +252,57 @@ static void avl_insert(
 
 	if (!*root) {
 		*root = node;
-		(*root)->avl.left = NULL;
-		(*root)->avl.right = NULL;
-		(*root)->avl.bf = EH;
+		(*root)->u.avl.left = NULL;
+		(*root)->u.avl.right = NULL;
+		(*root)->u.avl.bf = EH;
 		*taller = true;
 	} else {
 		if (node->value < (*root)->value) {
-			avl_insert(&(*root)->avl.left, node, &sub_taller);
+			avl_insert(&(*root)->u.avl.left, node, &sub_taller);
 			if (sub_taller) {
-				switch ((*root)->avl.bf) {
+				switch ((*root)->u.avl.bf) {
 				case EH:
-					(*root)->avl.bf = LH;
+					(*root)->u.avl.bf = LH;
 					*taller = true;
 					break;
 				case RH:
-					(*root)->avl.bf = EH;
+					(*root)->u.avl.bf = EH;
 					*taller = false;
 					break;
 				case LH:
 					/* Rebalance required */
-					p = (*root)->avl.left;
-					if (p->avl.bf == LH) {
+					p = (*root)->u.avl.left;
+					if (p->u.avl.bf == LH) {
 						/* Single rotation */
-						(*root)->avl.left = p->avl.right;
-						p->avl.right = *root;
-						p->avl.bf = EH;
-						(*root)->avl.bf = EH;
+						(*root)->u.avl.left = p->u.avl.right;
+						p->u.avl.right = *root;
+						p->u.avl.bf = EH;
+						(*root)->u.avl.bf = EH;
 						*root = p;
 					} else {
 						/* Double rotation */
-						q = p->avl.right;
-						(*root)->avl.left = q->avl.right;
-						q->avl.right = *root;
-						p->avl.right = q->avl.left;
-						q->avl.left = p;
+						q = p->u.avl.right;
+						(*root)->u.avl.left = q->u.avl.right;
+						q->u.avl.right = *root;
+						p->u.avl.right = q->u.avl.left;
+						q->u.avl.left = p;
 
 						/* Update balance factors */
-						switch (q->avl.bf) {
+						switch (q->u.avl.bf) {
 						case RH:
-							(*root)->avl.bf = EH;
-							p->avl.bf = LH;
+							(*root)->u.avl.bf = EH;
+							p->u.avl.bf = LH;
 							break;
 						case LH:
-							(*root)->avl.bf = RH;
-							p->avl.bf = EH;
+							(*root)->u.avl.bf = RH;
+							p->u.avl.bf = EH;
 							break;
 						case EH:
-							(*root)->avl.bf = EH;
-							p->avl.bf = EH;
+							(*root)->u.avl.bf = EH;
+							p->u.avl.bf = EH;
 							break;
 						}
-						q->avl.bf = EH;
+						q->u.avl.bf = EH;
 						*root = q;
 					}
 					*taller = false;
@@ -307,51 +310,51 @@ static void avl_insert(
 				}
 			}
 		} else if (node->value > (*root)->value) {
-			avl_insert(&(*root)->avl.right, node, &sub_taller);
+			avl_insert(&(*root)->u.avl.right, node, &sub_taller);
 			if (sub_taller) {
-				switch ((*root)->avl.bf) {
+				switch ((*root)->u.avl.bf) {
 				case LH:
-					(*root)->avl.bf = EH;
+					(*root)->u.avl.bf = EH;
 					*taller = false;
 					break;
 				case EH:
-					(*root)->avl.bf = RH;
+					(*root)->u.avl.bf = RH;
 					*taller = true;
 					break;
 				case RH:
 					/* Rebalance required */
-					p = (*root)->avl.right;
-					if (p->avl.bf == RH) {
+					p = (*root)->u.avl.right;
+					if (p->u.avl.bf == RH) {
 						/* Single rotation */
-						(*root)->avl.right = p->avl.left;
-						p->avl.left = *root;
-						p->avl.bf = EH;
-						(*root)->avl.bf = EH;
+						(*root)->u.avl.right = p->u.avl.left;
+						p->u.avl.left = *root;
+						p->u.avl.bf = EH;
+						(*root)->u.avl.bf = EH;
 						*root = p;
 					} else {
 						/* Double rotation */
-						q = p->avl.left;
-						(*root)->avl.right = q->avl.left;
-						q->avl.left = *root;
-						p->avl.left = q->avl.right;
-						q->avl.right = p;
+						q = p->u.avl.left;
+						(*root)->u.avl.right = q->u.avl.left;
+						q->u.avl.left = *root;
+						p->u.avl.left = q->u.avl.right;
+						q->u.avl.right = p;
 
 						/* Update balance factors */
-						switch (q->avl.bf) {
+						switch (q->u.avl.bf) {
 						case LH:
-							(*root)->avl.bf = EH;
-							p->avl.bf = RH;
+							(*root)->u.avl.bf = EH;
+							p->u.avl.bf = RH;
 							break;
 						case RH:
-							(*root)->avl.bf = LH;
-							p->avl.bf = EH;
+							(*root)->u.avl.bf = LH;
+							p->u.avl.bf = EH;
 							break;
 						case EH:
-							(*root)->avl.bf = EH;
-							p->avl.bf = EH;
+							(*root)->u.avl.bf = EH;
+							p->u.avl.bf = EH;
 							break;
 						}
-						q->avl.bf = EH;
+						q->u.avl.bf = EH;
 						*root = q;
 					}
 					*taller = false;
@@ -375,8 +378,8 @@ static struct tree_node *avl_find(
 		if (node->value == head->value)
 			return head;
 		head = (node->value <= head->value) ?
-				head->avl.left :
-				head->avl.right;
+				head->u.avl.left :
+				head->u.avl.right;
 	}
 	return NULL;
 }
@@ -384,8 +387,8 @@ static struct tree_node *avl_find(
 static void avl_remove_tree(struct tree_node *node)
 {
 	if (node) {
-		avl_remove_tree(node->avl.left);
-		avl_remove_tree(node->avl.right);
+		avl_remove_tree(node->u.avl.left);
+		avl_remove_tree(node->u.avl.right);
 	}
 }
 
