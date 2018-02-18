@@ -181,8 +181,8 @@ static void stress_filename_tidy(const char *path)
 				"%s/%s", path, d->d_name);
 			(void)unlink(filename);
 		}
+		(void)closedir(dir);
 	}
-	(void)closedir(dir);
 	(void)rmdir(path);
 }
 
