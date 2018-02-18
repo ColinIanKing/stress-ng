@@ -26,6 +26,8 @@
 
 #if defined(HAVE_LIB_DL)
 
+static sigjmp_buf jmp_env;
+
 #include <dlfcn.h>
 #include <gnu/lib-names.h>
 
@@ -92,6 +94,17 @@ static const lib_info_t libnames[] = {
 };
 
 /*
+ *  stress_segvhandler()
+ *      SEGV handler
+ */
+static void MLOCKED stress_segvhandler(int dummy)
+{
+	(void)dummy;
+
+	siglongjmp(jmp_env, 1);
+}
+
+/*
  *  stress_dynlib()
  *	stress that does lots of not a lot
  */
@@ -102,8 +115,18 @@ int stress_dynlib(const args_t *args)
 
 	memset(handles, 0, sizeof(handles));
 
+	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
 	do {
 		size_t i;
+		int ret;
+
+		ret = sigsetjmp(jmp_env, 1);
+		if (!keep_stressing())
+			break;
+		if (ret)
+			goto tidy;
 
 		for (i = 0; i < n; i++) {
 			int flags;
@@ -118,10 +141,20 @@ int stress_dynlib(const args_t *args)
 
 		for (i = 0; i < n; i++) {
 			if (handles[i]) {
+				uint8_t *ptr;
+
 				(void)dlerror();
-				(void)dlsym(handles[i], libnames[i].symbol);
+				ptr = dlsym(handles[i], libnames[i].symbol);
+				/*
+				 * The function pointer should be readable,
+				 * however, we have a SIGSEGV handler that
+				 * will perfom tidy up if not
+				 */
+				if (ptr)
+					uint8_put(*ptr);
 			}
 		}
+tidy:
 		for (i = 0; i < n; i++) {
 			if (handles[i])
 				dlclose(handles[i]);
