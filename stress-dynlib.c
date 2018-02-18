@@ -28,9 +28,6 @@
 
 static sigjmp_buf jmp_env;
 
-#include <dlfcn.h>
-#include <gnu/lib-names.h>
-
 typedef struct {
 	const char *library;
 	const char *symbol;

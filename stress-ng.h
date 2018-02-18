@@ -114,6 +114,10 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #endif
+#if defined(HAVE_LIB_DL)
+#include <dlfcn.h>
+#include <gnu/lib-names.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #if defined (__GLIBC__)
