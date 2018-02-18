@@ -40,7 +40,8 @@ static inline void mwc_flush(void)
 
 /*
  *  mwc_reseed()
- *	dirty mwc reseed
+ *	dirty mwc reseed, this is expensive as it
+ *	pulls in various system values for the seeding
  */
 void mwc_reseed(void)
 {
@@ -49,6 +50,8 @@ void mwc_reseed(void)
 		__mwc.z = MWC_SEED_Z;
 	} else {
 		struct timeval tv;
+		struct rusage r;
+		double m1, m5, m15;
 		int i, n;
 
 		__mwc.z = 0;
@@ -56,6 +59,16 @@ void mwc_reseed(void)
 			__mwc.z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 		__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
 		__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
+			__mwc.z += (128 * (m1 + m15));
+			__mwc.w += (256 * (m5));
+		}
+		if (getrusage(RUSAGE_SELF, &r) == 0) {
+			__mwc.z += r.ru_utime.tv_usec;
+			__mwc.w += r.ru_utime.tv_sec;
+		}
+		__mwc.z ^= stress_get_cpu();
+		__mwc.w ^= stress_get_phys_mem_size();
 
 		n = (int)__mwc.z % 1733;
 		for (i = 0; i < n; i++) {
