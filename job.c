@@ -106,7 +106,7 @@ int parse_jobfile(
 	char **argv,
 	const char *jobfile)
 {
-	FILE *fp;
+	NOCLOBBER FILE *fp;
 	char buf[4096];
 	char *new_argv[MAX_ARGS];
 	char txt[sizeof(buf)];
