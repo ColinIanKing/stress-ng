@@ -81,8 +81,10 @@ int stress_softlockup(const args_t *args)
 	struct sched_param param = { 0 };
 	struct rlimit rlim;
 	pid_t pid;
-	uint64_t timeout = g_opt_timeout;
+	NOCLOBBER uint64_t timeout;
 	const double start = time_now();
+
+	timeout = g_opt_timeout;
 
 	if (!args->instance) {
 		if (SIZEOF_ARRAY(policies) == 0) {
