@@ -1150,6 +1150,7 @@ typedef struct {
 	uint16_t mem_cache_level;			/* 1=L1, 2=L2, 3=L3 */
 	uint16_t padding1;				/* alignment padding */
 	uint32_t mem_cache_ways;			/* cache ways size */
+	uint64_t zero;					/* zero'd data */
 	struct {
 		uint32_t	flags;			/* flag bits */
 #if defined(HAVE_LIB_PTHREAD)

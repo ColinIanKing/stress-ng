@@ -453,7 +453,7 @@ ssize_t stress_get_stack_direction(void)
  */
 uint64_t uint64_zero(void)
 {
-	return 0ULL;
+	return g_shared->zero;
 }
 
 /*
