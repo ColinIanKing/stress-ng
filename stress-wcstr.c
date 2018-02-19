@@ -61,6 +61,21 @@ static void stress_wcs_fill(wchar_t *wcstr, const size_t len)
 	*wcstr = L'\0';
 }
 
+#if defined(HAVE_WCSCASECMP) || 	\
+    defined(HAVE_WCSNCASECMP) || 	\
+    (defined(HAVE_WCSLCPY) && defined(HAVE_WCSLEN)) || \
+    defined(HAVE_WCSCPY)  || 		\
+    (defined(HAVE_WCSLCAT) && defined(HAVE_WCSLEN)) || \
+    defined(HAVE_WCSCAT)  || 		\
+    defined(HAVE_WCSNCAT) || 		\
+    defined(HAVE_WCSCHR)  || 		\
+    defined(HAVE_WCSRCHR) || 		\
+    defined(HAVE_WCSCMP)  || 		\
+    defined(HAVE_WCSNCMP) || 		\
+    defined(HAVE_WCSLEN)  || 		\
+    defined(HAVE_WCSCOLL) ||		\
+    defined(HAVE_WCSXFRM)
+
 static inline void wcschk(
 	const char *name,
 	const int ok,
@@ -73,12 +88,12 @@ static inline void wcschk(
 		*failed = true;
 	}
 }
+#endif
 
 #define STR(x)	# x
 
 #define WCSCHK(name, test, failed)	\
 	wcschk(name, test, STR(test), failed)
-
 
 #if defined(HAVE_WCSCASECMP)
 /*
