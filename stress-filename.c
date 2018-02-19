@@ -329,7 +329,7 @@ again:
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
-		int status, ret;
+		int status;
 
 		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
