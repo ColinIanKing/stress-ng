@@ -1678,8 +1678,8 @@ stop link stress workers after N bogo operations.
 .TP
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
-memory from a 16MB mmap'd region (Intel x86 CPUs only).  This will cause
-cacheline misses and stalling of CPUs.
+memory from a 16MB mmap'd region (Intel x86 and ARM CPUs only).  This will
+cause cacheline misses and stalling of CPUs.
 .TP
 .B \-\-lockbus-ops N
 stop lockbus workers after N bogo operations.
@@ -1949,7 +1949,7 @@ flush	T{
 flush cache line in random locations
 T}
 lock	T{
-lock randomly choosing locations (Intel x86 CPUs only)
+lock randomly choosing locations (Intel x86 and ARM CPUs only)
 T}
 matrix	T{
 treat memory as a 2 \(mu 2 matrix and swap random elements
@@ -1958,7 +1958,7 @@ memset	T{
 memset the memory with random data
 T}
 mfence	T{
-stores with write serialization (Intel x86 CPUs only)
+stores with write serialization
 T}
 prefetch	T{
 prefetch data at random memory locations
