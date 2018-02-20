@@ -187,6 +187,13 @@ static int stress_userfaultfd_oomable(
 
 	/* Get userfault fd */
 	if ((fd = shim_userfaultfd(0)) < 0) {
+		if (errno == ENOSYS) {
+			pr_inf("%s: stressor will be skipped, "
+				"userfaultfd not supported\n",
+				args->name);
+			rc = EXIT_SUCCESS;
+			goto unmap_data;
+		}
 		rc = exit_status(errno);
 		pr_err("%s: userfaultfd failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
