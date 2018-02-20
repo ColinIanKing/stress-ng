@@ -94,6 +94,12 @@ int stress_membarrier(const args_t *args)
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
+		if (errno == ENOSYS) {
+			pr_inf("%s: stressor will be skipped, "
+				"membarrier not supported\n",
+				args->name);
+			return EXIT_SUCCESS;
+		}
 		pr_err("%s: membarrier failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
