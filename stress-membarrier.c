@@ -98,7 +98,7 @@ int stress_membarrier(const args_t *args)
 			pr_inf("%s: stressor will be skipped, "
 				"membarrier not supported\n",
 				args->name);
-			return EXIT_SUCCESS;
+			return EXIT_NOT_IMPLEMENTED;
 		}
 		pr_err("%s: membarrier failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));

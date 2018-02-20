@@ -191,7 +191,7 @@ static int stress_userfaultfd_oomable(
 			pr_inf("%s: stressor will be skipped, "
 				"userfaultfd not supported\n",
 				args->name);
-			rc = EXIT_SUCCESS;
+			rc = EXIT_NOT_IMPLEMENTED;
 			goto unmap_data;
 		}
 		rc = exit_status(errno);

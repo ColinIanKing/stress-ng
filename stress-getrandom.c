@@ -49,7 +49,7 @@ int stress_getrandom(const args_t *args)
 				pr_inf("%s: stressor will be skipped, "
 					"getrandom() not supported\n",
 					args->name);
-				break;
+				return EXIT_NOT_IMPLEMENTED;
 			}
 			pr_fail_err("getrandom");
 			return EXIT_FAILURE;
