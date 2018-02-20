@@ -45,6 +45,12 @@ int stress_getrandom(const args_t *args)
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
+			if (errno == ENOSYS) {
+				pr_inf("%s: stressor will be skipped, "
+					"getrandom() not supported\n",
+					args->name);
+				break;
+			}
 			pr_fail_err("getrandom");
 			return EXIT_FAILURE;
 		}
