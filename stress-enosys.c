@@ -45,7 +45,10 @@ static inline long syscall7(long number, long arg1, long arg2,
 			    long arg3, long arg4, long arg5,
 			    long arg6, long arg7)
 {
+	PRAGMA_PUSH
+	PRAGMA_WARN_OFF
 	return syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	PRAGMA_POP
 }
 
 static inline bool HOT OPTIMIZE3 syscall_find(long number)
