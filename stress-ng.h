@@ -555,6 +555,20 @@ typedef struct {
 #  define FORCE_DO_NOTHING() while (0)
 #endif
 
+#if defined(__GNUC__)
+#define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
+#define PRAGMA_POP	_Pragma("GCC diagnostic pop")
+#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"")
+#elif defined(__clang__)
+#define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
+#define PRAGMA_POP	_Pragma("GCC diagnostic pop")
+#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")
+#else
+#define PRAGMA_PUSH
+#define PRAGMA_POP
+#define PRAGMA_WARN_OFF
+#endif
+
 /* Logging helpers */
 extern int pr_msg(FILE *fp, const uint64_t flag,
 	const char *const fmt, va_list va) FORMAT(printf, 3, 0);
