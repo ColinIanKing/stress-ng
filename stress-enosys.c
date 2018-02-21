@@ -3022,61 +3022,116 @@ again:
  */
 int stress_enosys(const args_t *args)
 {
-	const unsigned long mask = ULONG_MAX;
-	ssize_t j;
+	pid_t pid;
 
-	for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++) {
-		if (!syscall_find(skip_syscalls[j]))
-			syscall_add(skip_syscalls[j]);
-	}
+again:
+	if (!g_keep_stressing_flag)
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		if (errno == EAGAIN)
+			goto again;
+		 pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+	} else if (pid > 0) {
+		int status, ret;
 
-
-	do {
-		long number;
-		int i;
-
-		/* Low sequential syscalls */
-		for (number = 0; number < MAX_SYSCALL + 1024; number++) {
-			if (!keep_stressing())
-				goto finish;
-			stress_do_syscall(args, number);
-		}
-
-		/* Random syscalls */
-		for (i = 0; i < 1024; i++) {
-			if (!keep_stressing())
-				goto finish;
-			stress_do_syscall(args, mwc8() & mask);
-			stress_do_syscall(args, mwc16() & mask);
-			stress_do_syscall(args, mwc32() & mask);
-			stress_do_syscall(args, mwc64() & mask);
-		}
-
-		/* Various bit masks */
-		for (number = 1; number; number <<= 1) {
-			if (!keep_stressing())
-				goto finish;
-			stress_do_syscall(args, number);
-			stress_do_syscall(args, number | 1);
-			stress_do_syscall(args, number | (number << 1));
-			stress_do_syscall(args, ~number);
-		}
-
-		/* Various high syscalls */
-		for (number = 0xff; number; number <<= 8) {
-			long n;
-
-			for (n = 0; n < 0x100; n++) {
-				if (!keep_stressing())
-					goto finish;
-				stress_do_syscall(args, n + number);
+		(void)setpgid(pid, g_pgrp);
+		/* Parent, wait for child */
+		ret = waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg("%s: child died: %s (instance %d)\n",
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, bailing out "
+						"(instance %d)\n",
+						args->name, args->instance);
+					_exit(0);
+				} else {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, restarting again "
+						"(instance %d)\n",
+						args->name, args->instance);
+					goto again;
+				}
 			}
 		}
-	} while (keep_stressing());
+	} else if (pid == 0) {
+		const unsigned long mask = ULONG_MAX;
+		ssize_t j;
 
+		/* Child, wrapped to catch OOMs */
+
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
+
+		for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++) {
+			if (!syscall_find(skip_syscalls[j]))
+				syscall_add(skip_syscalls[j]);
+		}
+
+		do {
+			long number;
+			int i;
+
+			/* Low sequential syscalls */
+			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
+				if (!keep_stressing())
+					goto finish;
+				stress_do_syscall(args, number);
+			}
+
+			/* Random syscalls */
+			for (i = 0; i < 1024; i++) {
+				if (!keep_stressing())
+					goto finish;
+				stress_do_syscall(args, mwc8() & mask);
+				stress_do_syscall(args, mwc16() & mask);
+				stress_do_syscall(args, mwc32() & mask);
+				stress_do_syscall(args, mwc64() & mask);
+			}
+
+			/* Various bit masks */
+			for (number = 1; number; number <<= 1) {
+				if (!keep_stressing())
+					goto finish;
+				stress_do_syscall(args, number);
+				stress_do_syscall(args, number | 1);
+				stress_do_syscall(args, number | (number << 1));
+				stress_do_syscall(args, ~number);
+			}
+
+			/* Various high syscalls */
+			for (number = 0xff; number; number <<= 8) {
+				long n;
+
+				for (n = 0; n < 0x100; n++) {
+					if (!keep_stressing())
+						goto finish;
+					stress_do_syscall(args, n + number);
+				}
+			}
+		} while (keep_stressing());
 finish:
-	syscall_free();
-
+		syscall_free();
+		_exit(EXIT_SUCCESS);
+	}
 	return EXIT_SUCCESS;
 }
 #else
