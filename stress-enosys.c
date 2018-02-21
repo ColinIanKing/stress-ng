@@ -2934,6 +2934,7 @@ again:
 		struct itimerval it;
 		int ret;
 		size_t i;
+		unsigned long arg;
 
 		/* We don't want bad ops clobbering this region */
 		stress_unmap_shared();
@@ -2961,7 +2962,36 @@ again:
 			pr_fail_dbg("setitimer");
 			_exit(EXIT_NO_RESOURCE);
 		}
+
+		/*
+		 *  Try various ENOSYS calls
+		 */
 		ret = syscall(number, -1, -1, -1, -1, -1, -1, -1);
+		if ((ret < 0) && (errno != ENOSYS))
+			_exit(errno);
+
+		ret = syscall(number, 0, 0, 0, 0, 0, 0, 0);
+		if ((ret < 0) && (errno != ENOSYS))
+			_exit(errno);
+
+		ret = syscall(number, 1, 1, 1, 1, 1, 1, 1);
+		if ((ret < 0) && (errno != ENOSYS))
+			_exit(errno);
+
+		for (arg = 2; arg;) {
+			ret = syscall(number, arg, arg, arg,
+				      arg, arg, arg, arg);
+			if ((ret < 0) && (errno != ENOSYS))
+				_exit(errno);
+			arg <<= 1;
+			ret = syscall(number, arg - 1, arg - 1, arg - 1,
+				      arg - 1, arg - 1, arg - 1, arg - 1);
+			if ((ret < 0) && (errno != ENOSYS))
+				_exit(errno);
+		}
+
+		ret = syscall(number, mwc64(), mwc64(), mwc64(),
+			      mwc64(), mwc64(), mwc64(), mwc64());
 		_exit(ret < 0 ? errno : 0);
 	} else {
 		int ret, status;
