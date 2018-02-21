@@ -41,6 +41,13 @@ typedef struct hash_syscall {
 
 static hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
 
+static inline long syscall7(long number, long arg1, long arg2,
+			    long arg3, long arg4, long arg5,
+			    long arg6, long arg7)
+{
+	return syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+}
+
 static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	hash_syscall_t *h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
@@ -2966,31 +2973,31 @@ again:
 		/*
 		 *  Try various ENOSYS calls
 		 */
-		ret = syscall(number, -1, -1, -1, -1, -1, -1, -1);
+		ret = syscall7(number, -1, -1, -1, -1, -1, -1, -1);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
-		ret = syscall(number, 0, 0, 0, 0, 0, 0, 0);
+		ret = syscall7(number, 0, 0, 0, 0, 0, 0, 0);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
-		ret = syscall(number, 1, 1, 1, 1, 1, 1, 1);
+		ret = syscall7(number, 1, 1, 1, 1, 1, 1, 1);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
 		for (arg = 2; arg;) {
-			ret = syscall(number, arg, arg, arg,
+			ret = syscall7(number, arg, arg, arg,
 				      arg, arg, arg, arg);
 			if ((ret < 0) && (errno != ENOSYS))
 				_exit(errno);
 			arg <<= 1;
-			ret = syscall(number, arg - 1, arg - 1, arg - 1,
+			ret = syscall7(number, arg - 1, arg - 1, arg - 1,
 				      arg - 1, arg - 1, arg - 1, arg - 1);
 			if ((ret < 0) && (errno != ENOSYS))
 				_exit(errno);
 		}
 
-		ret = syscall(number, mwc64(), mwc64(), mwc64(),
+		ret = syscall7(number, mwc64(), mwc64(), mwc64(),
 			      mwc64(), mwc64(), mwc64(), mwc64());
 		_exit(ret < 0 ? errno : 0);
 	} else {
