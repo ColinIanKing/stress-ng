@@ -289,7 +289,7 @@ int stress_dirdeep(const args_t *args)
 	stress_dir_tidy(args, path, path_len, sizeof(path));
 
 	pr_inf("%s: %" PRIu64 " inodes exercised\n", args->name, inodes_avail - min_inodes_free);
-	if (inodes_target_free < min_inodes_free)
+	if ((args->instance == 0) && (inodes_target_free < min_inodes_free))
 		pr_inf("%s: note: specifying a larger --dirdeep setting or "
 			"running the stressor for longer will use more "
 			"inodes\n", args->name);
