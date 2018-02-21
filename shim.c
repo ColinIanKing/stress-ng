@@ -994,7 +994,10 @@ int shim_ioprio_get(int which, int who)
 int shim_brk(void *addr)
 {
 #if defined(__APPLE__)
+        PRAGMA_PUSH
+        PRAGMA_WARN_OFF
 	return (int)brk(addr);
+	PRAGMA_POP
 #else
 	return brk(addr);
 #endif
@@ -1006,5 +1009,12 @@ int shim_brk(void *addr)
  */
 void *shim_sbrk(intptr_t increment)
 {
+#if defined(__APPLE__)
+        PRAGMA_PUSH
+        PRAGMA_WARN_OFF
 	return sbrk(increment);
+	PRAGMA_POP
+#else
+	return sbrk(increment);
+#endif
 }
