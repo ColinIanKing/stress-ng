@@ -315,6 +315,7 @@ OBJS += $(CONFIG_OBJS)
 stress-ng: info $(OBJS)
 	@echo "LD $@"
 	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
+	@sync
 
 .PHONY: info
 info:
