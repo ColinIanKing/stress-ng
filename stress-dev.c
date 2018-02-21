@@ -385,7 +385,10 @@ static void stress_dev_dir(
 			break;
 		if (is_dot_filename(d->d_name))
 			continue;
-		/* Xen clients hang on hpet when running as root */
+		/*
+		 * Xen clients hang on hpet when running as root
+		 * see: LP#1741409, so avoid opening /dev/hpet
+		 */
 		if (!euid && !strcmp(d->d_name, "hpet"))
 			continue;
 
