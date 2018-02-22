@@ -1,3 +1,56 @@
+stress-ng (0.09.17-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-rawdev: make some functions static
+  * stress-funcall: fix -Wmissing-declarations warning message
+  * stress-file-ioctl: remove extraneous shadowed variable 'ret'
+  * stress-madvise: make ret non-clobberable for gcc 4.2.1
+  * Add minimum GCC version for Pragma push/pop
+  * shim: older gcc required pragmas outside of functions
+  * stress-enosys: older gcc required pragmas outside of functions
+  * Check for clang version when using pragmas
+  * stress-file-ioctl: remove debug printf
+  * Add new file-ioctl stressor
+  * shim: disable warnings for brk and sbrk for OS X
+  * Swap ordering on compiler detection on pragmas
+  * stress-enosys: turn off warning on syscall, cleans up OS X warning
+  * Add no warning pragma macros
+  * Makefile: force sync after build in case reboot loses executable
+  * stress-enosys: add syscall7 shim
+  * stress-dirdeep: only print info message on instance #0
+  * stress-enosys: wrap with OOM catcher (LP: #1750787)
+  * stress-dev: add bug reference to hpet failure
+  * stress-enosys: exercise more arguments in syscall
+  * Manual: udp-lite should be for ipv6 as well as ipv4
+  * Manual: update arch specific limitations on lockbus and memthrash
+    stressors
+  * Return EXIT_NOT_IMPLEMENTED when system call returns ENOSYS
+  * stress-userfaultfd: don't fail with an error if ENOSYS is returned
+  * stress-membarrier: don't fail with an error if ENOSYS is returned
+  * stress-getrandom: don't fail with an error if ENOSYS is returned
+  * helper: make zero more obscure so that optimizer won't optimize
+    zero out
+  * stress-filename: remove shadowed redundant variable ret
+  * Makefile: build perf-event with $(CC) rather gcc
+  * stress-wcstr: fix warning on systems without wcs functions
+  * job: make fp non-clobberable, cleans up build warning on gcc 4.8.4
+  * stress-softlock: clean up clobbering warning on gcc 4.9.2
+  * mwc: add more information into the reseed mix
+  * stress-filename: don't closedir on a NULL dir pointer
+  * Move LIB_DL headers to stress-ng.h
+  * stress-dynlib: try to read the function memory to force page fault
+  * Manual: fix enosys-ops entry, missing e from enosys-ops
+  * Add new dynlib shared library dynamic loading stressor
+  * stress-tree: make nodes align naturally with padding
+  * stress-tree: move data to start of struct, ensures natural alignment
+  * stress-tree: clean splay nodes at removal time
+  * stress-tree: ensure splay tree data is cleared
+  * stress-exec: drop all capabilities before exec'ing
+  * stack-mmap: add MAP_STACK flag
+
+ -- Colin King <colin.king@canonical.com>  Thu, 22 Feb 2018 14:04:11 +0000
+
 stress-ng (0.09.16-1) unstable; urgency=medium
 
   * Makefile: bump version
