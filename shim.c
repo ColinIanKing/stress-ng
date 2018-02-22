@@ -991,30 +991,38 @@ int shim_ioprio_get(int which, int who)
  *   shim_brk()
  *	brk system call shim
  */
+#if defined(__APPLE__)
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+#endif
 int shim_brk(void *addr)
 {
 #if defined(__APPLE__)
-        PRAGMA_PUSH
-        PRAGMA_WARN_OFF
 	return (int)brk(addr);
-	PRAGMA_POP
 #else
 	return brk(addr);
 #endif
 }
+#if defined(__APPLE__)
+PRAGMA_POP
+#endif
 
 /*
  *   shim_sbrk()
  *	sbrk system call shim
  */
+#if defined(__APPLE__)
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+#endif
 void *shim_sbrk(intptr_t increment)
 {
 #if defined(__APPLE__)
-        PRAGMA_PUSH
-        PRAGMA_WARN_OFF
 	return sbrk(increment);
-	PRAGMA_POP
 #else
 	return sbrk(increment);
 #endif
 }
+#if defined(__APPLE__)
+PRAGMA_POP
+#endif
