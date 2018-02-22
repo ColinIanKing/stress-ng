@@ -91,6 +91,7 @@ STRESS_SRC = \
 	stress-fanotify.c \
 	stress-fault.c \
 	stress-fcntl.c \
+	stress-file-ioctl.c \
 	stress-fiemap.c \
 	stress-fifo.c \
 	stress-filename.c \

@@ -1265,6 +1265,15 @@ stop fifo workers after N bogo pipe write operations.
 for each worker, create N fifo reader workers that read
 the named pipe using simple blocking reads.
 .TP
+.B \-\-file\-ioctl N
+start N workers that exercise various file specific ioctl(2) calls. This will
+attempt to use the FIONBIO, FIOQSIZE, FIGETBSZ, FIOCLEX, FIONCLEX, FIONBIO,
+FIOASYNC, FIOQSIZE, FIFREEZE, FITHAW, FICLONE, FICLONERANGE, FIONREAD,
+FIONWRITE and FS_IOC_RESVSP ioctls if these are defined.
+.TP
+.B \-\-file\-ioctl\-ops N
+stop file\-ioctl workers after N file ioctl bogo operations.
+.TP
 .B \-\-filename N
 start N workers that exercise file creation using various length filenames
 containing a range of allower filename characters.  This will try to see if

@@ -1263,6 +1263,7 @@ typedef enum {
 	STRESS_FCNTL,
 	STRESS_FIEMAP,
 	STRESS_FIFO,
+	STRESS_FILE_IOCTL,
 	STRESS_FILENAME,
 	STRESS_FLOCK,
 	STRESS_FORK,
@@ -1629,6 +1630,9 @@ typedef enum {
 	OPT_FIFO,
 	OPT_FIFO_OPS,
 	OPT_FIFO_READERS,
+
+	OPT_FILE_IOCTL,
+	OPT_FILE_IOCTL_OPS,
 
 	OPT_FILENAME,
 	OPT_FILENAME_OPS,
@@ -2960,6 +2964,7 @@ STRESS(stress_fault);
 STRESS(stress_fcntl);
 STRESS(stress_fiemap);
 STRESS(stress_fifo);
+STRESS(stress_file_ioctl);
 STRESS(stress_filename);
 STRESS(stress_flock);
 STRESS(stress_fanotify);
