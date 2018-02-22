@@ -63,7 +63,7 @@ static inline unsigned long shift(unsigned long v, unsigned int shift)
 	return (v == 0) ? 1 : v;
 }
 
-char *stress_rawdev_path(const dev_t dev)
+static char *stress_rawdev_path(const dev_t dev)
 {
 	static char path[PATH_MAX];
 	DIR *dir;
@@ -92,7 +92,7 @@ char *stress_rawdev_path(const dev_t dev)
 	return NULL;
 }
 
-void stress_rawdev_sweep(
+static void stress_rawdev_sweep(
 	const args_t *args,
 	const int fd,
 	unsigned long blks,
@@ -124,7 +124,7 @@ void stress_rawdev_sweep(
 	}
 }
 
-void stress_rawdev_wiggle(
+static void stress_rawdev_wiggle(
 	const args_t *args,
 	const int fd,
 	unsigned long blks,
@@ -151,7 +151,7 @@ void stress_rawdev_wiggle(
 	}
 }
 
-void stress_rawdev_ends(
+static void stress_rawdev_ends(
 	const args_t *args,
 	const int fd,
 	unsigned long blks,
@@ -182,7 +182,7 @@ void stress_rawdev_ends(
 	}
 }
 
-void stress_rawdev_random(
+static void stress_rawdev_random(
 	const args_t *args,
 	const int fd,
 	unsigned long blks,
@@ -205,7 +205,7 @@ void stress_rawdev_random(
 	}
 }
 
-void stress_rawdev_burst(
+static void stress_rawdev_burst(
 	const args_t *args,
 	const int fd,
 	unsigned long blks,
