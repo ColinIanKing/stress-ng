@@ -115,8 +115,6 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIOCLEX)
 		{
-			int ret;
-
 			ret = ioctl(fd, FIOCLEX);
 			(void)ret;
 
@@ -125,8 +123,6 @@ int stress_file_ioctl(const args_t *args)
 #endif
 #if defined(FIONCLEX)
 		{
-			int ret;
-
 			ret = ioctl(fd, FIONCLEX);
 			(void)ret;
 
@@ -181,7 +177,6 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIOQSIZE)
 		{
-			int ret;
 			loff_t sz;
 
 			ret = ioctl(fd, FIOQSIZE, &sz);
@@ -194,8 +189,6 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIFREEZE) && defined(FITHAW)
 		{
-			int ret;
-
 			ret = ioctl(fd, FIFREEZE);
 			(void)ret;
 			ret = ioctl(fd, FITHAW);
@@ -207,7 +200,7 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIGETBSZ)
 		{
-			int ret, isz;
+			int isz;
 
 			ret = ioctl(fd, FIGETBSZ, &isz);
 			if ((ret == 0) && (isz < 1))
@@ -220,8 +213,6 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FICLONE)
 		{
-			int ret;
-
 			ret = ioctl(dfd, FICLONE, fd);
 			(void)ret;
 
@@ -232,10 +223,8 @@ int stress_file_ioctl(const args_t *args)
 #if defined(FICLONERANGE)
 		{
 			struct file_clone_range fcr;
-			int ret;
 
 			memset(&fcr, 0, sizeof(fcr));
-
 			fcr.src_fd = fd;
 			fcr.src_offset = 0;
 			fcr.src_length = file_sz;
@@ -250,7 +239,7 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIONREAD)
 		{
-			int ret, isz = 0;
+			int isz = 0;
 
 			ret = ioctl(fd, FIONREAD, &isz);
 			(void)ret;
@@ -261,7 +250,7 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FIONWRITE)
 		{
-			int ret, isz = 0;
+			int isz = 0;
 
 			ret = ioctl(fd, FIONWRITE, &isz);
 			(void)ret;
@@ -272,7 +261,7 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FS_IOC_RESVSP)
 		{
-			int ret, isz = file_sz * 2;
+			int isz = file_sz * 2;
 
 			ret = ioctl(fd, FS_IOC_RESVP, &isz);
 			(void)ret;
