@@ -555,7 +555,7 @@ typedef struct {
 #  define FORCE_DO_NOTHING() while (0)
 #endif
 
-#if defined(__clang__)
+#if defined(__clang__) && NEED_CLANG(4, 0, 0)
 #define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define PRAGMA_POP	_Pragma("GCC diagnostic pop")
 #define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")

@@ -47,4 +47,11 @@
 #define NEED_GNUC(major, minor, patchlevel) 	(0)
 #endif
 
+#if defined(__clang__) && defined(__clang_major__) && defined(__clang_minor__) && \
+    defined(__clang_patchlevel__)
+#define NEED_CLANG(major, minor, patchlevel)	\
+	_VER_(major, minor, patchlevel) <= _VER_(__clang_major__, __clang_minor__, __clang_patchlevel__)
+#else
+#define NEED_CLANG(major, minor, patchlevel)	(0)
+#endif
 #endif
