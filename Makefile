@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.09.16
+VERSION=0.09.17
 #
 # Codename "portable pressure producer"
 #
