@@ -280,7 +280,6 @@ int stress_file_ioctl(const args_t *args)
 			exercised++;
 		}
 #endif
-		printf("%d\n", exercised);
 		if (!exercised) {
 			pr_inf("%s: no available file ioctls to exercise\n",
 				args->name);
