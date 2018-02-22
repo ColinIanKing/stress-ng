@@ -166,7 +166,8 @@ int stress_madvise(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	NOCLOBBER size_t sz = 4 *  MB;
-	int ret, fd = -1;
+	int fd = -1;
+	NOCLOBBER int ret;
 	NOCLOBBER int flags = MAP_PRIVATE;
 	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
