@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2013-2018 Canonical, Ltd.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -29,13 +27,14 @@
 #define SYS_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)
 
-static volatile bool keep_running;
 static sigset_t set;
+static pthread_spinlock_t lock;
+static volatile char *sysfs_path;
 
 typedef struct ctxt {
 	const args_t *args;
-	const char *path;
 	char *badbuf;
+	bool writeable;
 } ctxt_t;
 
 /*
@@ -43,76 +42,131 @@ typedef struct ctxt {
  *	read a proc file
  */
 static inline void stress_sys_rw(
-	const args_t *args,
-	const char *path,
-	char *badbuf)
+	const ctxt_t *ctxt,
+	int32_t loops)
 {
 	int fd;
 	ssize_t i = 0, ret;
 	char buffer[SYS_BUF_SZ];
+	char *path;
+	const args_t *args = ctxt->args;
+	const double threshold = 0.2;
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
+	while (loops == -1 || loops > 0) {
+		double t_start;
+		bool timeout = false;
 
-	/*
-	 *  Multiple randomly sized reads
-	 */
-	while (i < (4096 * SYS_BUF_SZ)) {
-		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-		if (!g_keep_stressing_flag)
+		ret = pthread_spin_lock(&lock);
+		if (ret)
+			return;
+		path = (char *)sysfs_path;
+		(void)pthread_spin_unlock(&lock);
+
+		if (!path || !g_keep_stressing_flag)
 			break;
-		ret = read(fd, buffer, sz);
-		if (ret < 0)
+		if (path == NULL)
 			break;
-		if (ret < sz)
-			break;
-		i += sz;
-	}
 
-	/* file stat should be OK if we've just opened it */
-	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		struct stat buf;
+		t_start = time_now();
 
-		if (fstat(fd, &buf) < 0) {
-			pr_fail_err("stat");
-		} else {
-			if ((buf.st_mode & S_IROTH) == 0) {
-				pr_fail("%s: read access failed on %s which "
-					"could be opened, errno=%d (%s)\n",
-				args->name, path, errno, strerror(errno));
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			goto next;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		/*
+		 *  Multiple randomly sized reads
+		 */
+		while (i < (4096 * SYS_BUF_SZ)) {
+			ssize_t sz = 1 + (mwc32() % sizeof(buffer));
+			if (!g_keep_stressing_flag)
+				break;
+			ret = read(fd, buffer, sz);
+			if (ret < 0)
+				break;
+			if (ret < sz)
+				break;
+			i += sz;
+
+			if (time_now() - t_start > threshold) {
+				timeout = true;
+				(void)close(fd);
+				goto next;
 			}
 		}
-	}
-	(void)close(fd);
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
-	/*
-	 *  Zero sized reads
-	 */
-	ret = read(fd, buffer, 0);
-	if (ret < 0)
-		goto err;
+		/* file stat should be OK if we've just opened it */
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			struct stat buf;
 
-	/*
-	 *  Bad read buffer
-	 */
-	if (badbuf) {
-		ret = read(fd, badbuf, SYS_BUF_SZ);
+			if (fstat(fd, &buf) < 0) {
+				pr_fail_err("stat");
+			} else {
+				if ((buf.st_mode & S_IROTH) == 0) {
+					pr_fail("%s: read access failed on %s which "
+						"could be opened, errno=%d (%s)\n",
+					args->name, path, errno, strerror(errno));
+				}
+			}
+		}
+		(void)close(fd);
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			goto next;
+		}
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			goto next;
+		/*
+		 *  Zero sized reads
+		 */
+		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
-	}
-err:
-	(void)close(fd);
 
-	/*
-	 *  Zero sized writes
-	 */
-	if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
-		return;
-	ret = write(fd, buffer, 0);
-	(void)ret;
-	(void)close(fd);
+		/*
+		 *  Bad read buffer
+		 */
+		if (ctxt->badbuf) {
+			ret = read(fd, ctxt->badbuf, SYS_BUF_SZ);
+			if (ret < 0)
+				goto err;
+		}
+err:
+		(void)close(fd);
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			goto next;
+		}
+
+		/*
+		 *  We only attempt writes if we are not
+		 *  root
+		 */
+		if (ctxt->writeable) {
+			/*
+			 *  Zero sized writes
+			 */
+			if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+				goto next;
+			ret = write(fd, buffer, 0);
+			(void)ret;
+			(void)close(fd);
+
+			if (time_now() - t_start > threshold)
+				timeout = true;
+		}
+next:
+		if (loops > 0) {
+			if (timeout)
+				break;
+			loops--;
+		}
+	}
 }
 
 /*
@@ -125,7 +179,6 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
-	const args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -143,53 +196,10 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (keep_running && g_keep_stressing_flag)
-		stress_sys_rw(args, ctxt->path, ctxt->badbuf);
+	while (g_keep_stressing_flag)
+		stress_sys_rw(ctxt, -1);
 
 	return &nowt;
-}
-
-/*
- *  stress_proc_sys_threads()
- *	create a bunch of threads to thrash read a sys entry
- */
-static void stress_sys_rw_threads(const args_t *args, const char *path)
-{
-	size_t i;
-	pthread_t pthreads[MAX_READ_THREADS];
-	int ret[MAX_READ_THREADS];
-	ctxt_t ctxt;
-
-	ctxt.args = args;
-	ctxt.path = path;
-
-	(void)memset(ret, 0, sizeof(ret));
-
-	ctxt.badbuf = mmap(NULL, SYS_BUF_SZ, PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ctxt.badbuf == MAP_FAILED)
-		ctxt.badbuf = NULL;
-
-	keep_running = true;
-
-	for (i = 0; i < MAX_READ_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_sys_rw_thread, &ctxt);
-	}
-	for (i = 0; i < 8; i++) {
-		if (!g_keep_stressing_flag)
-			break;
-		stress_sys_rw(args, path, ctxt.badbuf);
-	}
-	keep_running = false;
-
-	for (i = 0; i < MAX_READ_THREADS; i++) {
-		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
-	}
-
-	if (ctxt.badbuf)
-		(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
 }
 
 /*
@@ -197,14 +207,15 @@ static void stress_sys_rw_threads(const args_t *args, const char *path)
  *	read directory
  */
 static void stress_sys_dir(
-	const args_t *args,
+	const ctxt_t *ctxt,
 	const char *path,
 	const bool recurse,
-	const int depth,
-	bool sys_rw)
+	const int depth)
 {
 	DIR *dp;
 	struct dirent *d;
+	const args_t *args = ctxt->args;
+	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -218,28 +229,46 @@ static void stress_sys_dir(
 		return;
 
 	while ((d = readdir(dp)) != NULL) {
+		int ret;
+		struct stat buf;
 		char filename[PATH_MAX];
+		char tmp[PATH_MAX];
 
 		if (!keep_stressing())
 			break;
 		if (is_dot_filename(d->d_name))
 			continue;
+
+		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
-			if (recurse) {
-				(void)snprintf(filename, sizeof(filename),
-					"%s/%s", path, d->d_name);
-				inc_counter(args);
-				stress_sys_dir(args, filename, recurse,
-					depth + 1, sys_rw);
-			}
+			if (!recurse)
+				continue;
+
+			ret = stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+			if ((buf.st_mode & flags) == 0)
+				continue;
+
+			inc_counter(args);
+			stress_sys_dir(ctxt, tmp, recurse, depth + 1);
 			break;
 		case DT_REG:
-			if (sys_rw) {
-				(void)snprintf(filename, sizeof(filename),
-					"%s/%s", path, d->d_name);
-				stress_sys_rw_threads(args, filename);
+			ret = stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+
+			if ((buf.st_mode & flags) == 0)
+				continue;
+
+			ret = pthread_spin_lock(&lock);
+			if (!ret) {
+				strncpy(filename, tmp, sizeof(filename));
+				sysfs_path = filename;
+				(void)pthread_spin_unlock(&lock);
 			}
+			stress_sys_rw(ctxt, 16);
 			break;
 		default:
 			break;
@@ -248,25 +277,57 @@ static void stress_sys_dir(
 	(void)closedir(dp);
 }
 
+
 /*
  *  stress_sysfs
  *	stress reading all of /sys
  */
 int stress_sysfs(const args_t *args)
 {
-	bool sys_rw = true;
+	size_t i;
+	pthread_t pthreads[MAX_READ_THREADS];
+	int rc, ret[MAX_READ_THREADS];
+	ctxt_t ctxt;
 
-	if (geteuid() == 0) {
-		if (args->instance == 0) {
-			pr_inf("%s: running as root, just traversing /sys "
-				"and not read/writing to /sys files.\n", args->name);
-		}
-		sys_rw = false;
+	sysfs_path = "/sys/kernel/notes";
+
+	ctxt.args = args;
+	ctxt.writeable = (geteuid() != 0);
+
+	rc = pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
+	if (rc) {
+		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+			args->name, rc, strerror(rc));
+		return EXIT_NO_RESOURCE;
+	}
+
+	(void)memset(ret, 0, sizeof(ret));
+
+	ctxt.badbuf = mmap(NULL, SYS_BUF_SZ, PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ctxt.badbuf == MAP_FAILED) {
+		pr_inf("%s: mmap failed: errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < MAX_READ_THREADS; i++) {
+		ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_sys_rw_thread, &ctxt);
 	}
 
 	do {
-		stress_sys_dir(args, "/sys", true, 0, sys_rw);
+		stress_sys_dir(&ctxt, "/sys", true, 0);
 	} while (keep_stressing());
+
+	sysfs_path = NULL;
+
+	for (i = 0; i < MAX_READ_THREADS; i++) {
+		if (ret[i] == 0)
+			pthread_join(pthreads[i], NULL);
+	}
+	(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
+	(void)pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
 }
