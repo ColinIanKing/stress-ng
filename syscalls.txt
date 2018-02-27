@@ -81,7 +81,7 @@ getgroups			get
 getitimer			itimer
 getmntent			sysinfo
 getpeername			sock
-getpagesize			[ legacy ]
+getpagesize			get
 getpgid				get
 getpgrp				get
 getpid				get
