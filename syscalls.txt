@@ -340,7 +340,7 @@ unlinkat
 unshare				clone, unshare
 uselib				[ deprecated ]
 userfaultfd			userfaultfd
-ustat				[ deprecated ]
+ustat				sysinfo
 utime				utime
 utimesat
 utimes				utime
