@@ -58,21 +58,31 @@ static const char *stress_temp_path = ".";
  */
 size_t stress_get_pagesize(void)
 {
-#if defined(_SC_PAGESIZE)
-	long sz;
-#endif
+	long sz = 0;
 	static size_t page_size = 0;
 
+	/* Use cached size */
 	if (page_size > 0)
 		return page_size;
 
 #if defined(_SC_PAGESIZE)
+	/* Use modern sysconf */
 	sz = sysconf(_SC_PAGESIZE);
-	page_size = (sz <= 0) ? PAGE_4K : (size_t)sz;
-#else
-	page_size = PAGE_4K;
+	if (sz > 0) {
+		page_size = (size_t)sz;
+		return page_size;
+	}
 #endif
-
+#if defined(HAVE_GETPAGESIZE)
+	/* Use deprecated getpagesize */
+	sz = getpagesize();
+	if (sz > 0) {
+		page_size = (size_t)sz;
+		return page_size;
+	}
+#endif
+	/* Guess */
+	page_size = PAGE_4K;
 	return page_size;
 }
 
