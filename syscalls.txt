@@ -30,11 +30,11 @@ dup				dup
 dup2				dup
 dup3				dup
 endmntent			sysinfo
-epoll_create
+epoll_create			epoll
 epoll_create1			epoll
 epoll_ctl			epoll
 epoll_ctl_add			epoll
-epoll_pwait
+epoll_pwait			epoll
 epoll_wait			epoll
 eventfd				eventfd
 eventfd2
