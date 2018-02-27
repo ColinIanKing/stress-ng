@@ -130,6 +130,10 @@ abort:
 		int maxfd = 0, status;
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
+#if defined(HAVE_PPOLL) || defined(HAVE_PSELECT)
+		struct timespec ts;
+		sigset_t sigmask;
+#endif
 
 		(void)setpgid(pid, g_pgrp);
 
@@ -151,7 +155,7 @@ abort:
 			if (!keep_stressing())
 				break;
 
-			/* First, stress out poll */
+			/* stress out poll */
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
@@ -169,7 +173,35 @@ abort:
 
 			if (!keep_stressing())
 				break;
-			/* Second, stress out select */
+
+#if defined(HAVE_PPOLL)
+			/* stress out ppoll */
+
+			ts.tv_sec = 0;
+			ts.tv_nsec = 20000000;
+
+			sigemptyset(&sigmask);
+			sigaddset(&sigmask, SIGPIPE);
+
+			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (ret < 0) && (errno != EINTR)) {
+				pr_fail_err("ppoll");
+			}
+			if (ret > 0) {
+				for (i = 0; i < MAX_PIPES; i++) {
+					if (fds[i].revents == POLLIN) {
+						if (pipe_read(args, fds[i].fd, i) < 0)
+							break;
+					}
+				}
+				inc_counter(args);
+			}
+			if (!keep_stressing())
+				break;
+#endif
+
+			/* stress out select */
 			tv.tv_sec = 0;
 			tv.tv_usec = 20000;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
@@ -189,8 +221,32 @@ abort:
 			}
 			if (!keep_stressing())
 				break;
+#if defined(HAVE_PSELECT)
+			/* stress out pselect */
+			ts.tv_sec = 0;
+			ts.tv_nsec = 20000000;
+
+			sigemptyset(&sigmask);
+			sigaddset(&sigmask, SIGPIPE);
+
+			ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, &sigmask);
+			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (ret < 0) && (errno != EINTR)) {
+				pr_fail_err("pselect");
+			}
+			if (ret > 0) {
+				for (i = 0; i < MAX_PIPES; i++) {
+					if (FD_ISSET(pipefds[i][0], &rfds)) {
+						if (pipe_read(args, pipefds[i][0], i) < 0)
+							break;
+					}
+					FD_SET(pipefds[i][0], &rfds);
+				}
+				inc_counter(args);
+			}
+#endif
 			/*
-			 * Third, stress zero sleep, this is like
+			 * stress zero sleep, this is like
 			 * a select zero timeout
 			 */
 			(void)sleep(0);
