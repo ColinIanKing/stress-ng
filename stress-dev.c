@@ -175,6 +175,117 @@ static void stress_dev_tty(const char *name, const int fd, const char *devpath)
 #endif
 }
 
+/*
+ *  stress_dev_blk()
+ *	block device specific ioctls
+ */
+static void stress_dev_blk(const char *name, const int fd, const char *devpath)
+{
+	int ret;
+
+	(void)ret;
+	(void)name;
+	(void)devpath;
+
+#if defined(BLKFLSBUF)
+	ret = ioctl(fd, BLKFLSBUF, 0);
+	(void)ret;
+#endif
+#if defined(BLKRAGET)
+	/* readahead */
+	{
+		unsigned long ra;
+
+		ret = ioctl(fd, BLKRAGET, &ra);
+		(void)ret;
+	}
+#endif
+#if defined(BLKROGET)
+	/* readonly state */
+	{
+		int ro;
+
+		ret = ioctl(fd, BLKROGET, &ro);
+		(void)ret;
+	}
+#endif
+#if defined(BLKBSZGET)
+	/* get block device soft block size */
+	{
+		int sz;
+
+		ret = ioctl(fd, BLKBSZGET, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKSSZGET)
+	/* get block device soft block size */
+	{
+		int sz;
+
+		ret = ioctl(fd, BLKSSZGET, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKPBSZGET)
+	/* get block device physical block size */
+	{
+		unsigned int sz;
+
+		ret = ioctl(fd, BLKPBSZGET, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKIOMIN)
+	{
+		unsigned int sz;
+
+		ret = ioctl(fd, BLKIOMIN, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKIOOPT)
+	{
+		unsigned int sz;
+
+		ret = ioctl(fd, BLKIOOPT, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKALIGNOFF)
+	{
+		unsigned int sz;
+
+		ret = ioctl(fd, BLKALIGNOFF, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKROTATIONAL)
+	{
+		unsigned short rotational;
+
+		ret = ioctl(fd, BLKROTATIONAL, &rotational);
+		(void)ret;
+	}
+#endif
+#if defined(BLKGETSIZE)
+	{
+		unsigned long sz;
+
+		ret = ioctl(fd, BLKGETSIZE, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKGETSIZE64)
+	{
+		uint64_t sz;
+
+		ret = ioctl(fd, BLKGETSIZE64, &sz);
+		(void)ret;
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -246,6 +357,10 @@ static inline void stress_dev_rw(
 				args->name, path);
 			}
 		}
+
+		if (buf.st_mode & S_IFBLK)
+			stress_dev_blk(args->name, fd, path);
+
 		off = lseek(fd, 0, SEEK_SET);
 		(void)off;
 		off = lseek(fd, 0, SEEK_CUR);
