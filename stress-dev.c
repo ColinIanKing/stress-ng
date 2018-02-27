@@ -44,8 +44,9 @@
 
 #define MAX_DEV_THREADS		(4)
 
-static volatile bool keep_running;
 static sigset_t set;
+static pthread_spinlock_t lock;
+static volatile char *dev_path;
 
 typedef struct {
 	const char *devpath;
@@ -199,7 +200,7 @@ static const dev_func_t dev_funcs[] = {
  */
 static inline void stress_dev_rw(
 	const args_t *args,
-	const char *path)
+	int32_t loops)
 {
 	int fd, ret;
 	off_t off;
@@ -209,79 +210,152 @@ static inline void stress_dev_rw(
 	void *ptr;
 	struct timeval tv;
 	size_t i;
+	char *path;
+	const double threshold = 0.25;
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		goto rdwr;
+	while (loops == -1 || loops > 0) {
+		double t_start;
+		bool timeout = false;
 
-	if (fstat(fd, &buf) < 0) {
-		pr_fail_err("stat");
-	} else {
-		if ((buf.st_mode & (S_IFBLK | S_IFCHR)) == 0) {
-			pr_fail("%s: device entry '%s' is not "
-				"a block or char device\n",
-			args->name, path);
+		ret = pthread_spin_lock(&lock);
+		if (ret)
+			return;
+		path = (char *)dev_path;
+		(void)pthread_spin_unlock(&lock);
+
+		if (!path || !g_keep_stressing_flag)
+			break;
+
+		t_start = time_now();
+
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			goto rdwr;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
 		}
-	}
-	off = lseek(fd, 0, SEEK_SET);
-	(void)off;
 
-	FD_ZERO(&rfds);
-	fds[0].fd = fd;
-	fds[0].events = POLLIN;
-	ret = poll(fds, 1, 0);
-	(void)ret;
+		if (fstat(fd, &buf) < 0) {
+			pr_fail_err("stat");
+		} else {
+			if ((buf.st_mode & (S_IFBLK | S_IFCHR)) == 0) {
+				pr_fail("%s: device entry '%s' is not "
+					"a block or char device\n",
+				args->name, path);
+			}
+		}
+		off = lseek(fd, 0, SEEK_SET);
+		(void)off;
 
-	FD_ZERO(&rfds);
-	FD_SET(fd, &rfds);
-	FD_ZERO(&wfds);
-	FD_SET(fd, &wfds);
-	tv.tv_sec = 0;
-	tv.tv_usec = 10000;
-	ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
-	(void)ret;
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		FD_ZERO(&rfds);
+		fds[0].fd = fd;
+		fds[0].events = POLLIN;
+		ret = poll(fds, 1, 0);
+		(void)ret;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		FD_ZERO(&rfds);
+		FD_SET(fd, &rfds);
+		FD_ZERO(&wfds);
+		FD_SET(fd, &wfds);
+		tv.tv_sec = 0;
+		tv.tv_usec = 10000;
+		ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
+		(void)ret;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
 
 #if defined(F_GETFD)
-	ret = fcntl(fd, F_GETFD, NULL);
-	(void)ret;
+		ret = fcntl(fd, F_GETFD, NULL);
+		(void)ret;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
 #endif
 #if defined(F_GETFL)
-	ret = fcntl(fd, F_GETFL, NULL);
-	(void)ret;
+		ret = fcntl(fd, F_GETFL, NULL);
+		(void)ret;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
 #endif
 #if defined(F_GETSIG)
-	ret = fcntl(fd, F_GETSIG, NULL);
-	(void)ret;
-#endif
-	ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (ptr != MAP_FAILED)
-		munmap(ptr, args->page_size);
-	(void)close(fd);
+		ret = fcntl(fd, F_GETSIG, NULL);
+		(void)ret;
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		goto sync;
-	ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
-	if (ptr != MAP_FAILED)
-		munmap(ptr, args->page_size);
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+#endif
+		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED)
+			munmap(ptr, args->page_size);
+		(void)close(fd);
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			goto next;
+		}
+
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			goto sync;
+		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED)
+			munmap(ptr, args->page_size);
 
 sync:
-	ret = fsync(fd);
-	(void)ret;
+		ret = fsync(fd);
+		(void)ret;
 
-	for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
-		if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
-			dev_funcs[i].func(args->name, fd, path);
-	}
-
-	(void)close(fd);
-
-rdwr:
-	/*
-	 *   O_RDONLY | O_WRONLY allows one to
-	 *   use the fd for ioctl() only operations
-	 */
-	fd = open(path, O_RDONLY | O_WRONLY | O_NONBLOCK);
-	if (fd >= 0) {
+		for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
+			if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
+				dev_funcs[i].func(args->name, fd, path);
+		}
 		(void)close(fd);
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			goto next;
+		}
+rdwr:
+		/*
+		 *   O_RDONLY | O_WRONLY allows one to
+		 *   use the fd for ioctl() only operations
+		 */
+		fd = open(path, O_RDONLY | O_WRONLY | O_NONBLOCK);
+		if (fd >= 0)
+			(void)close(fd);
+
+next:
+		if (loops > 0) {
+			if (timeout)
+				break;
+			loops--;
+		}
 	}
 }
 
@@ -294,7 +368,7 @@ static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	pthread_args_t *pa = (pthread_args_t *)arg;
+	const args_t *args = (const args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -312,45 +386,10 @@ static void *stress_dev_thread(void *arg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (keep_running && g_keep_stressing_flag)
-		stress_dev_rw(pa->args, (const char *)pa->data);
+	while (g_keep_stressing_flag)
+		stress_dev_rw(args, -1);
 
 	return &nowt;
-}
-
-/*
- *  stress_dev_threads()
- *	create a bunch of threads to thrash dev entries
- */
-static void stress_dev_threads(const args_t *args, char *path)
-{
-	size_t i;
-	pthread_t pthreads[MAX_DEV_THREADS];
-	int ret[MAX_DEV_THREADS];
-	pthread_args_t pa;
-
-	pa.args = args;
-	pa.data = (void *)path;
-
-	(void)memset(ret, 0, sizeof(ret));
-
-	keep_running = true;
-
-	for (i = 0; i < MAX_DEV_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_dev_thread, &pa);
-	}
-	for (i = 0; i < 8; i++) {
-		if (!g_keep_stressing_flag)
-			break;
-		stress_dev_rw(args, path);
-	}
-	keep_running = false;
-
-	for (i = 0; i < MAX_DEV_THREADS; i++) {
-		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
-	}
 }
 
 /*
@@ -366,6 +405,7 @@ static void stress_dev_dir(
 {
 	DIR *dp;
 	struct dirent *d;
+	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -379,7 +419,10 @@ static void stress_dev_dir(
 		return;
 
 	while ((d = readdir(dp)) != NULL) {
+		int ret;
+		struct stat buf;
 		char filename[PATH_MAX];
+		char tmp[PATH_MAX];
 
 		if (!keep_stressing())
 			break;
@@ -392,22 +435,33 @@ static void stress_dev_dir(
 		if (!euid && !strcmp(d->d_name, "hpet"))
 			continue;
 
+		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
-			if (recurse) {
-				inc_counter(args);
-				(void)snprintf(filename, sizeof(filename),
-					"%s/%s", path, d->d_name);
-				stress_dev_dir(args, filename, recurse,
-					depth + 1, euid);
-			}
+			if (!recurse)
+				continue;
+
+			ret = stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+			if ((buf.st_mode & flags) == 0)
+				continue;
+
+			inc_counter(args);
+			stress_dev_dir(args, tmp, recurse, depth + 1, euid);
 			break;
 		case DT_BLK:
 		case DT_CHR:
-			(void)snprintf(filename, sizeof(filename),
-				"%s/%s", path, d->d_name);
-			if (!strstr(filename, "watchdog"))
-				stress_dev_threads(args, filename);
+			if (strstr(tmp, "watchdog"))
+				continue;
+			ret = pthread_spin_lock(&lock);
+			if (!ret) {
+				strncpy(filename, tmp, sizeof(filename));
+				dev_path = filename;
+				(void)pthread_spin_unlock(&lock);
+				stress_dev_rw(args, 8);
+				inc_counter(args);
+			}
 			break;
 		default:
 			break;
@@ -422,7 +476,19 @@ static void stress_dev_dir(
  */
 int stress_dev(const args_t *args)
 {
+	pthread_t pthreads[MAX_DEV_THREADS];
+	int rc, ret[MAX_DEV_THREADS];
 	uid_t euid = geteuid();
+
+	dev_path = "/dev/null";
+
+	rc = pthread_spin_init(&lock, PTHREAD_PROCESS_SHARED);
+	if (rc) {
+		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+			args->name, rc, strerror(rc));
+		return EXIT_NO_RESOURCE;
+	}
+	(void)memset(ret, 0, sizeof(ret));
 
 	do {
 		pid_t pid;
@@ -449,14 +515,29 @@ again:
 				(void)waitpid(pid, &status, 0);
 			}
 		} else if (pid == 0) {
+			size_t i;
+
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			/* Make sure this is killable by OOM killer */
 			set_oom_adjustment(args->name, true);
+
+			for (i = 0; i < MAX_DEV_THREADS; i++) {
+				ret[i] = pthread_create(&pthreads[i], NULL,
+						stress_dev_thread, (void *)args);
+			}
+
 			stress_dev_dir(args, "/dev", true, 0, euid);
+
+			for (i = 0; i < MAX_DEV_THREADS; i++) {
+				if (ret[i] == 0)
+					pthread_join(pthreads[i], NULL);
+			}
 		}
 	} while (keep_stressing());
+
+	(void)pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
 }
