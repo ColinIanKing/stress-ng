@@ -64,8 +64,6 @@ static inline void stress_sys_rw(
 
 		if (!path || !g_keep_stressing_flag)
 			break;
-		if (path == NULL)
-			break;
 
 		t_start = time_now();
 
