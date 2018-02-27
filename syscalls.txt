@@ -39,7 +39,7 @@ epoll_wait			epoll
 eventfd				eventfd
 eventfd2
 execve				exec
-execveat
+execveat			exec
 exit				fork
 exit_group
 faccessat

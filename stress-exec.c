@@ -58,6 +58,19 @@ void stress_set_exec_max(const char *opt)
 
 #if defined(__linux__)
 
+#if defined(__NR_execveat)
+
+static inline int shim_execveat(
+	int dirfd,
+	const char *pathname,
+	char *const argv[],
+	char *const envp[],
+	int flags)
+{
+	return syscall(__NR_execveat, dirfd, pathname, argv, envp, flags);
+}
+#endif
+
 /*
  *  stress_exec()
  *	stress by forking and exec'ing
@@ -67,6 +80,9 @@ int stress_exec(const args_t *args)
 	pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
 	ssize_t len;
+#if defined(__NR_execveat)
+	int fdexec;
+#endif
 	uint64_t exec_fails = 0, exec_calls = 0;
 	uint64_t exec_max = DEFAULT_EXECS;
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
@@ -79,12 +95,21 @@ int stress_exec(const args_t *args)
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
-		pr_fail("%s: readlink on /proc/self/exe failed\n", args->name);
+		pr_fail("%s: readlink on /proc/self/exe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
 	argv_new[0] = path;
 
+#if defined(__NR_execveat)
+	fdexec = open(path, O_PATH);
+	if (fdexec < 0) {
+		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+#endif
 
 	do {
 		unsigned int i;
@@ -92,10 +117,13 @@ int stress_exec(const args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < exec_max; i++) {
+			(void)mwc8();		/* force new random number */
+
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
 				int ret, fd_out, fd_in, rc;
+				const int which = mwc8() % 3;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
@@ -118,7 +146,23 @@ int stress_exec(const args_t *args)
 				(void)close(fd_in);
 				ret = stress_drop_capabilities(args->name);
 				(void)ret;
-				ret = execve(path, argv_new, env_new);
+
+				switch (which) {
+				case 0:
+					CASE_FALLTHROUGH;
+				default:
+					ret = execve(path, argv_new, env_new);
+					break;
+#if defined(__NR_execveat)
+				case 1:
+					ret = shim_execveat(0, path, argv_new, env_new, AT_EMPTY_PATH);
+					break;
+				case 2:
+					ret = shim_execveat(fdexec, "", argv_new, env_new, AT_EMPTY_PATH);
+					break;
+#endif
+				}
+
 				rc = EXIT_SUCCESS;
 				if (ret < 0) {
 					switch (errno) {
@@ -163,6 +207,10 @@ int stress_exec(const args_t *args)
 			}
 		}
 	} while (keep_stressing());
+
+#if defined(__NR_execveat)
+	(void)close(fdexec);
+#endif
 
 	if ((exec_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " execs failed (%.2f%%)\n",
