@@ -265,8 +265,9 @@ static void stress_sys_dir(
 				strncpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)pthread_spin_unlock(&lock);
+				stress_sys_rw(ctxt, 16);
+				inc_counter(args);
 			}
-			stress_sys_rw(ctxt, 16);
 			break;
 		default:
 			break;
