@@ -248,6 +248,10 @@ static inline void stress_dev_rw(
 		}
 		off = lseek(fd, 0, SEEK_SET);
 		(void)off;
+		off = lseek(fd, 0, SEEK_CUR);
+		(void)off;
+		off = lseek(fd, 0, SEEK_END);
+		(void)off;
 
 		if (time_now() - t_start > threshold) {
 			timeout = true;
@@ -315,6 +319,9 @@ static inline void stress_dev_rw(
 		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			munmap(ptr, args->page_size);
+		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_SHARED, fd, 0);
+		if (ptr != MAP_FAILED)
+			munmap(ptr, args->page_size);
 		(void)close(fd);
 
 		if (time_now() - t_start > threshold) {
@@ -325,6 +332,9 @@ static inline void stress_dev_rw(
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			goto sync;
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED)
+			munmap(ptr, args->page_size);
+		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
 			munmap(ptr, args->page_size);
 
