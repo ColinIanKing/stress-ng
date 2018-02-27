@@ -185,7 +185,7 @@ pipe2				pipe
 pivot_root			[ need privilege, ignore for now ]
 poll				poll
 posix_fallocate			fallocate
-ppoll
+ppoll				poll
 prctl				process name setting
 pread				readahead
 preadv
@@ -194,7 +194,7 @@ prlimit				get
 /proc				proc
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
-pselect6
+pselect6			poll
 ptrace				ptrace
 pwrite				readahead, aio
 pwritev				ioprio
