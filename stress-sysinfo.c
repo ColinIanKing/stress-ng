@@ -27,8 +27,14 @@
 #if defined(__linux__)
 #include <sys/sysinfo.h>
 #include <sys/statfs.h>
+#if defined(HAVE_USTAT)
+#include <sys/sysmacros.h>
+#endif
 #endif
 #include <sys/statvfs.h>
+#if defined(HAVE_USTAT)
+#include <ustat.h>
+#endif
 
 #define check_do_run()			\
 	if (!g_keep_stressing_flag)	\
@@ -109,6 +115,30 @@ int stress_sysinfo(const args_t *args)
 				    errno != EOVERFLOW &&
 				    errno != EACCES) {
 					pr_fail("%s: fstatfs on %s "
+						"failed: errno=%d (%s)\n",
+						args->name, mnts[i], errno,
+						strerror(errno));
+				}
+			}
+		}
+#endif
+
+#if defined(HAVE_USTAT)
+		check_do_run();
+
+		for (i = 0; i < n_mounts; i++) {
+			struct stat sbuf;
+			struct ustat ubuf;
+
+			ret = stat(mnts[i], &sbuf);
+			if (ret < 0)
+				continue;
+
+			ret = ustat(sbuf.st_dev, &ubuf);
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (errno != EINVAL &&
+				    errno != ENOSYS) {
+					pr_fail("%s: ustat on %s "
 						"failed: errno=%d (%s)\n",
 						args->name, mnts[i], errno,
 						strerror(errno));
