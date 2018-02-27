@@ -277,6 +277,11 @@ int stress_get(const args_t *args)
 			pr_fail_err("uname");
 #endif
 
+#if defined(HAVE_GETPAGESISE)
+		ret = getpagesize();
+		(void)ret;
+#endif
+
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
