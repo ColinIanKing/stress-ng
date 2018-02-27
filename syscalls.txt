@@ -1,7 +1,7 @@
 Syscall				Stressor
 
 accept				sock
-accept4
+accept4				sock
 access				sysfs
 acct				[ need privilege, ignore for now ]
 add_key				key

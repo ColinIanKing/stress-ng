@@ -285,7 +285,18 @@ static int stress_sctp_server(
 	}
 
 	do {
-		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+		int sfd;
+
+#if defined(HAVE_ACCEPT4)
+		/*  Randomly use accept or accept4 to exercise both */
+		if (mwc1()) {
+			sfd = accept4(fd, (struct sockaddr *)NULL, NULL, SOCK_CLOEXEC);
+		} else {
+			sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+		}
+#else
+		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+#endif
 		if (sfd >= 0) {
 			size_t i, j;
 			struct sockaddr saddr;
