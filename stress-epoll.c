@@ -426,10 +426,26 @@ static void epoll_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if ((efd = epoll_create1(0)) < 0) {
-		pr_fail_err("epoll_create1");
-		rc = EXIT_FAILURE;
-		goto die_close;
+
+	/*
+	 *  Due to historical reasons we have two ways of
+	 *  creating the epoll fd, so randomly select one
+	 *  or the other to get more test coverage
+	 */
+	if (mwc1()) {
+		efd = epoll_create1(0);	/* flag version */
+		if (efd < 0) {
+			pr_fail_err("epoll_create1");
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
+	} else {
+		efd = epoll_create(1);	/* size version */
+		if (efd < 0) {
+			pr_fail_err("epoll_create");
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
 	}
 	if (epoll_ctl_add(efd, sfd) < 0) {
 		pr_fail_err("epoll ctl add");
@@ -445,15 +461,24 @@ static void epoll_server(
 
 	do {
 		int n, i;
+		sigset_t sigmask;
+
+		sigemptyset(&sigmask);
+		sigaddset(&sigmask, SIGALRM);
 
 		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
 		errno = 0;
 
 		/*
 		 * Wait for 100ms for an event, allowing us to
-		 * to break out if keep_stressing_flag has been changed
+		 * to break out if keep_stressing_flag has been changed.
+		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
-		n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
+		if (mwc1()) {
+			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
+		} else {
+			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+		}
 		if (n < 0) {
 			if (errno != EINTR) {
 				pr_fail_err("epoll_wait");
