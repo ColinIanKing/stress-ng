@@ -45,7 +45,7 @@
 #define MAX_DEV_THREADS		(4)
 
 static sigset_t set;
-static pthread_spinlock_t lock;
+static shim_pthread_spinlock_t lock;
 static volatile char *dev_path;
 
 typedef struct {
@@ -328,11 +328,11 @@ static inline void stress_dev_rw(
 		double t_start;
 		bool timeout = false;
 
-		ret = pthread_spin_lock(&lock);
+		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
 		path = (char *)dev_path;
-		(void)pthread_spin_unlock(&lock);
+		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!path || !g_keep_stressing_flag)
 			break;
@@ -579,11 +579,11 @@ static void stress_dev_dir(
 		case DT_CHR:
 			if (strstr(tmp, "watchdog"))
 				continue;
-			ret = pthread_spin_lock(&lock);
+			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				strncpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
-				(void)pthread_spin_unlock(&lock);
+				(void)shim_pthread_spin_unlock(&lock);
 				stress_dev_rw(args, 8);
 				inc_counter(args);
 			}
@@ -607,7 +607,7 @@ int stress_dev(const args_t *args)
 
 	dev_path = "/dev/null";
 
-	rc = pthread_spin_init(&lock, PTHREAD_PROCESS_SHARED);
+	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_SHARED);
 	if (rc) {
 		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
@@ -662,7 +662,7 @@ again:
 		}
 	} while (keep_stressing());
 
-	(void)pthread_spin_destroy(&lock);
+	(void)shim_pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
 }
