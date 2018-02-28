@@ -29,7 +29,7 @@
 
 static sigset_t set;
 static pthread_spinlock_t lock;
-static volatile char *sysfs_path;
+static char *sysfs_path;
 
 typedef struct ctxt {
 	const args_t *args;
