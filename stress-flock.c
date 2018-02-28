@@ -28,7 +28,7 @@
 
 #define MAX_FLOCK_STRESSORS	(3)
 
-void stress_flock_child(const args_t *args, const int fd)
+static void stress_flock_child(const args_t *args, const int fd)
 {
 	bool cont;
 
