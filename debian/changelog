@@ -1,3 +1,39 @@
+stress-ng (0.09.18-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-sysfs: sysfs_path does not need to be marked as volatile
+  * stress-flock: make function stress_flock_child static
+  * stress-dev: pass thread data using pthread_args_t context
+  * stress-dev: rename ret to wret to fix variable shadowing
+  * stress-seal: don't redefine MFD_ALLOW_SEALING
+  * test/test-ustat: fail for GNU/HURD, it is not implemented
+  * helper: use sz only in scope that requires it
+  * stress-fcntl: fix build error in do_fcntl
+  * Pass SHIM_PTHREAD_PROCESS_SHARED rather than 0 as flags arg
+    to shim spin lock init
+  * stress-dev: Fix compat shim build warnings on OS X
+  * stress-dev: use abstracted pthread spinlock for portability sake
+  * syscalls.txt: add getpagesize
+  * stress-get: use getpagesize if it is available
+  * helper: use getpagesize() for legacy systems without sysconf
+  * Add automatic build getpagesize detection
+  * stress-exec: where possible, use execveat() as well as execve()
+  * syscalls.txt: add epoll_create and epoll_pwait to syscall table
+  * stress-epoll: use epoll_create and epoll_pwait to get more coverage
+  * stress-sock: use accept4 to add more system call coverage
+  * stress-dev: add some block specific ioctls
+  * stress-dev: add more seeking and shared memory mapping
+  * syscalls: add ustat
+  * stress-sysinfo: add legacy ustat() system call
+  * Update syscalls log
+  * stress-poll: add ppoll and pselect calls to add more stress coverage
+  * stress-dev: make stressor more stressful, less thread spawning
+  * stress-sysfs: only stress sysfs if spinlock succeeded and bump counter
+  * stress-sysfs: remove redundant null check on path
+  * stress-sys: make stressor more stressful, less thread spawning
+
+ -- Colin King <colin.king@canonical.com>  Wed, 28 Feb 2018 16:26:38 +0000
+
 stress-ng (0.09.17-1) unstable; urgency=medium
 
   * Makefile: bump version
