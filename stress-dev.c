@@ -185,6 +185,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 
 	(void)ret;
 	(void)name;
+	(void)fd;
 	(void)devpath;
 
 #if defined(BLKFLSBUF)
@@ -607,7 +608,7 @@ int stress_dev(const args_t *args)
 
 	dev_path = "/dev/null";
 
-	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_SHARED);
+	rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (rc) {
 		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
