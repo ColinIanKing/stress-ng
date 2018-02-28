@@ -46,7 +46,7 @@
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
-static volatile char *dev_path;
+static char *dev_path;
 
 typedef struct {
 	const char *devpath;
@@ -494,7 +494,8 @@ static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const args_t *args = (const args_t *)arg;
+	const pthread_args_t *pa = (pthread_args_t *)arg;
+	const args_t *args = pa->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -605,8 +606,11 @@ int stress_dev(const args_t *args)
 	pthread_t pthreads[MAX_DEV_THREADS];
 	int rc, ret[MAX_DEV_THREADS];
 	uid_t euid = geteuid();
+	pthread_args_t pa;
 
 	dev_path = "/dev/null";
+	pa.args = args;
+	pa.data = NULL;
 
 	rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (rc) {
@@ -651,7 +655,7 @@ again:
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				ret[i] = pthread_create(&pthreads[i], NULL,
-						stress_dev_thread, (void *)args);
+						stress_dev_thread, (void *)&pa);
 			}
 
 			stress_dev_dir(args, "/dev", true, 0, euid);
