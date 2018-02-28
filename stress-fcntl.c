@@ -415,6 +415,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 #if (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
     (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 	{
+		int ret;
 		size_t i;
 		unsigned long hint;
 		static const unsigned long hints[] = {
