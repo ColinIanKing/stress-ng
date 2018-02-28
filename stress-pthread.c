@@ -180,7 +180,7 @@ int stress_pthread(const args_t *args)
 		pr_fail_errno("pthread_cond_init", ret);
 		return EXIT_FAILURE;
 	}
-	ret = shim_pthread_spin_init(&spinlock, 0);
+	ret = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (ret) {
 		pr_fail_errno("pthread_spin_init", ret);
 		return EXIT_FAILURE;

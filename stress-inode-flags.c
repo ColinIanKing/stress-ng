@@ -214,7 +214,7 @@ int stress_inode_flags(const args_t *args)
 	int rc, ret[MAX_INODE_FLAG_THREADS];
 	pthread_args_t pa;
 
-	rc = shim_pthread_spin_init(&spinlock, 0);
+	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
         if (rc) {
                 pr_fail_errno("pthread_spin_init", rc);
                 return EXIT_FAILURE;
