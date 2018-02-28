@@ -24,6 +24,10 @@
  */
 #define  _GNU_SOURCE
 
+#if defined(__gnu_hurd__)
+#error ustat is not implemented and will always fail on GNU HURD
+#endif
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <ustat.h>
