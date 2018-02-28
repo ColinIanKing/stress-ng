@@ -45,7 +45,9 @@
 #define F_SEAL_WRITE		0x0008
 #endif
 
+#ifndef MFD_ALLOW_SEALING
 #define MFD_ALLOW_SEALING	0x0002
+#endif
 
 /*
  *  stress_seal
