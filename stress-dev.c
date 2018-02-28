@@ -627,12 +627,12 @@ again:
 			if (errno == EAGAIN)
 				goto again;
 		} else if (pid > 0) {
-			int status, ret;
+			int status, wret;
 
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
-			ret = waitpid(pid, &status, 0);
-			if (ret < 0) {
+			wret = waitpid(pid, &status, 0);
+			if (wret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
