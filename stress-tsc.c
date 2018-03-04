@@ -39,10 +39,7 @@ int stress_tsc_supported(void)
 	uint32_t eax, ebx, ecx, edx;
 
 	/* Intel CPU? */
-	__cpuid(0, eax, ebx, ecx, edx);
-	if (!((memcmp(&ebx, "Genu", 4) == 0) &&
-	      (memcmp(&edx, "ineI", 4) == 0) &&
-	      (memcmp(&ecx, "ntel", 4) == 0))) {
+	if (!cpu_is_x86()) {
 		pr_inf("tsc stressor will be skipped, "
 			"not a recognised Intel CPU.\n");
 		return -1;
