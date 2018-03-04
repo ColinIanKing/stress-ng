@@ -2475,6 +2475,9 @@ extern void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double dur
 extern void perf_init(void);
 #endif
 
+/* CPU helpers */
+extern WARN_UNUSED bool cpu_is_x86(void);
+
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
