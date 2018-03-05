@@ -54,6 +54,8 @@
 #define TGR128_DIGEST_SIZE	(16)
 #define TGR160_DIGEST_SIZE	(20)
 #define TGR192_DIGEST_SIZE	(24)
+#define XOR_DIGEST_SIZE		(4096)
+#define CRC_T10DIF_DIGEST_SIZE	(2)
 
 #define AES_BLOCK_SIZE		(16)
 #define TF_BLOCK_SIZE		(16)
@@ -61,6 +63,8 @@
 #define CAST6_BLOCK_SIZE	(16)
 #define CAMELLIA_BLOCK_SIZE	(16)
 #define SALSA20_BLOCK_SIZE	(8)
+#define GHASH_BLOCK_SIZE	(16)
+#define TWOFISH_BLOCK_SIZE	(16)
 
 #define AES_MAX_KEY_SIZE	(32)
 #define TF_MAX_KEY_SIZE		(32)
@@ -68,6 +72,8 @@
 #define CAST6_MAX_KEY_SIZE	(32)
 #define CAMELLIA_MAX_KEY_SIZE	(32)
 #define SALSA20_MAX_KEY_SIZE	(32)
+#define GHASH_MAX_KEY_SIZE	(16)
+#define TWOFISH_MAX_KEY_SIZE	(32)
 
 /* See https://lwn.net/Articles/410833/ */
 
@@ -103,7 +109,9 @@ static const alg_hash_info_t algo_hash_info[] = {
 	{ "wp512",	WP512_DIGEST_SIZE },
 	{ "tgr128",	TGR128_DIGEST_SIZE },
 	{ "tgr160",	TGR160_DIGEST_SIZE },
-	{ "tgr192",	TGR192_DIGEST_SIZE }
+	{ "tgr192",	TGR192_DIGEST_SIZE },
+	{ "xor",	XOR_DIGEST_SIZE },
+	{ "crct10dif",	CRC_T10DIF_DIGEST_SIZE },
 };
 
 static const alg_cipher_info_t algo_cipher_info[] = {
@@ -119,6 +127,8 @@ static const alg_cipher_info_t algo_cipher_info[] = {
 	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE },
 	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE },
 	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE },
+	{ "ghash",		GHASH_BLOCK_SIZE,	GHASH_MAX_KEY_SIZE },
+	{ "twofish",		TWOFISH_BLOCK_SIZE,	TWOFISH_MAX_KEY_SIZE },
 };
 
 static const alg_rng_info_t algo_rng_info[] = {
