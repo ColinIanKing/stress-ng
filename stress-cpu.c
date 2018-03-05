@@ -136,7 +136,7 @@ void stress_set_cpu_load_slice(const char *opt)
  *  stress_cpu_sqrt()
  *	stress CPU on square roots
  */
-static void HOT stress_cpu_sqrt(const char *name)
+static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 {
 	int i;
 
@@ -176,7 +176,7 @@ static void OPTIMIZE0 stress_cpu_loop(const char *name)
  *  stress_cpu_gcd()
  *	compute Greatest Common Divisor
  */
-static void HOT OPTIMIZE3 stress_cpu_gcd(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 63000868UL;
@@ -202,7 +202,7 @@ static void HOT OPTIMIZE3 stress_cpu_gcd(const char *name)
  *	various bit manipulation hacks from bithacks
  *	https://graphics.stanford.edu/~seander/bithacks.html
  */
-static void HOT OPTIMIZE3 stress_cpu_bitops(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 0x8aadcaab;
@@ -371,7 +371,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
  *  stress_cpu_nsqrt()
  *	iterative Newton–Raphson square root
  */
-static void HOT OPTIMIZE3 stress_cpu_nsqrt(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 {
 	int i;
 	const long double precision = 1.0e-12L;
@@ -409,7 +409,7 @@ static void HOT OPTIMIZE3 stress_cpu_nsqrt(const char *name)
  *  stress_cpu_phi()
  *	compute the Golden Ratio
  */
-static void HOT OPTIMIZE3 stress_cpu_phi(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
 	const long double precision = 1.0e-15L;
@@ -443,7 +443,7 @@ static void HOT OPTIMIZE3 stress_cpu_phi(const char *name)
  *  fft_partial()
  *  	partial Fast Fourier Transform
  */
-static void HOT OPTIMIZE3 fft_partial(
+static void HOT OPTIMIZE3 TARGET_CLONES fft_partial(
 	double complex *data,
 	double complex *tmp,
 	const int n,
@@ -471,7 +471,7 @@ static void HOT OPTIMIZE3 fft_partial(
  *  stress_cpu_fft()
  *	Fast Fourier Transform
  */
-static void HOT stress_cpu_fft(const char *name)
+static void HOT TARGET_CLONES stress_cpu_fft(const char *name)
 {
 	double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
@@ -489,7 +489,7 @@ static void HOT stress_cpu_fft(const char *name)
  *   stress_cpu_euler()
  *	compute e using series
  */
-static void HOT OPTIMIZE3 stress_cpu_euler(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
 {
 	long double e = 1.0L, last_e;
 	long double fact = 1.0L;
@@ -712,7 +712,7 @@ static void stress_cpu_sdbm(const char *name)
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
-static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
 	const double invsqrt2 = 1.0 / sqrt(2.0);
 	const double pi_over_16 = M_PI / 16.0;
@@ -805,7 +805,7 @@ static void HOT OPTIMIZE3 stress_cpu_idct(const char *name)
  *  Generic int stressor macro
  */
 #define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
-static void HOT OPTIMIZE3 stress_cpu_int ## _sz(const char *name)\
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 {								\
 	const _type mask = ~0;					\
 	const _type a_final = _a;				\
@@ -882,7 +882,7 @@ stress_cpu_int(uint8_t, 8, \
  *  Generic floating point stressor macro
  */
 #define stress_cpu_fp(_type, _name, _sin, _cos)		\
-static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
 	_type a = 0.18728L, b = mwc32(), c = mwc32(), d;\
@@ -929,7 +929,7 @@ stress_cpu_fp(__float128, float128, sinl, cosl)
  *  Generic complex stressor macro
  */
 #define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos)	\
-static void HOT OPTIMIZE3 stress_cpu_ ## _name(const char *name)\
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
 	_type cI = I;					\
@@ -1004,7 +1004,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
  */
 #define stress_cpu_int_fp(_inttype, _sz, _ftype, _name, _a, _b, \
 	_c1, _c2, _c3, _sinf, _cosf)				\
-static void HOT OPTIMIZE3 stress_cpu_int ## _sz ## _ ## _name(const char *name)\
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(const char *name)\
 {								\
 	int i;							\
 	_inttype int_a, int_b;					\
@@ -1096,7 +1096,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
  *  stress_cpu_rgb()
  *	CCIR 601 RGB to YUV to RGB conversion
  */
-static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 {
 	int i;
 	uint32_t rgb = mwc32() & 0xffffff;
@@ -1132,7 +1132,7 @@ static void HOT OPTIMIZE3 stress_cpu_rgb(const char *name)
  *  stress_cpu_matrix_prod(void)
  *	matrix product
  */
-static void HOT OPTIMIZE3 stress_cpu_matrix_prod(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 	const int n = 128;
@@ -1225,7 +1225,7 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
  *   stress_cpu_ln2
  *	compute ln(2) using series
  */
-static void HOT OPTIMIZE3 stress_cpu_ln2(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ln2(const char *name)
 {
 	long double ln2 = 0.0L, last_ln2 = 0.0L;
 	long double precision = 1.0e-7L;
@@ -1338,7 +1338,7 @@ static void HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
  *  ccitt_crc16()
  *	perform naive CCITT CRC16
  */
-static uint16_t HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
+static uint16_t HOT OPTIMIZE3 TARGET_CLONES ccitt_crc16(const uint8_t *data, size_t n)
 {
 	/*
 	 *  The CCITT CRC16 polynomial is
@@ -1557,7 +1557,7 @@ static void stress_cpu_prime(const char *name)
  *  stress_cpu_gray()
  *	compute gray codes
  */
-static void HOT OPTIMIZE3 stress_cpu_gray(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
 {
 	register uint32_t i;
 	register uint64_t sum = 0;
@@ -1758,7 +1758,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
  *  hamming84()
  *	compute Hamming (8,4) codes
  */
-static uint8_t HOT OPTIMIZE3 hamming84(const uint8_t nybble)
+static uint8_t HOT OPTIMIZE3 TARGET_CLONES hamming84(const uint8_t nybble)
 {
 	/*
 	 * Hamming (8,4) Generator matrix
@@ -1806,7 +1806,7 @@ static uint8_t HOT OPTIMIZE3 hamming84(const uint8_t nybble)
  *  stress_cpu_hamming()
  *	compute hamming code on 65536 x 4 nybbles
  */
-static void HOT OPTIMIZE3 stress_cpu_hamming(const char *name)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 {
 	uint32_t i;
 	uint32_t sum = 0;
@@ -1975,7 +1975,7 @@ static void stress_cpu_parity(const char *name)
  *	perform 8 bit to 1 bit gray scale
  *	Floyd–Steinberg dither
  */
-static void stress_cpu_dither(const char *name)
+static void TARGET_CLONES stress_cpu_dither(const char *name)
 {
 	size_t x, y;
 
@@ -2039,7 +2039,7 @@ static void stress_cpu_dither(const char *name)
  *  stress_cpu_union
  *	perform bit field operations on a union
  */
-static void stress_cpu_union(const char *name)
+static void TARGET_CLONES stress_cpu_union(const char *name)
 {
 	typedef union {
 		struct {

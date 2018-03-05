@@ -268,7 +268,7 @@ static inline size_t stress_vm_count_bits(uint64_t v)
  *	with a random value, then check if it is correct, invert it and
  *	then check if that is correct.
  */
-static size_t stress_vm_moving_inversion(
+static size_t TARGET_CLONES stress_vm_moving_inversion(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -364,7 +364,7 @@ abort:
  *	all the other bytes to the complement of this. Check
  *	that the random patterns are still set.
  */
-static size_t stress_vm_modulo_x(
+static size_t TARGET_CLONES stress_vm_modulo_x(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -429,7 +429,7 @@ abort:
  *	for each byte, walk through each data line setting them to high
  *	setting each bit to see if none of the lines are stuck
  */
-static size_t stress_vm_walking_one_data(
+static size_t TARGET_CLONES stress_vm_walking_one_data(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -466,7 +466,7 @@ static size_t stress_vm_walking_one_data(
  *	for each byte, walk through each data line setting them to low
  *	setting each bit to see if none of the lines are stuck
  */
-static size_t stress_vm_walking_zero_data(
+static size_t TARGET_CLONES stress_vm_walking_zero_data(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -504,7 +504,7 @@ static size_t stress_vm_walking_zero_data(
  *	the given memory mapped range to high to see if any address bits
  *	are stuck.
  */
-static size_t stress_vm_walking_one_addr(
+static size_t TARGET_CLONES stress_vm_walking_one_addr(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -552,7 +552,7 @@ static size_t stress_vm_walking_one_addr(
  *	the given memory mapped range to low to see if any address bits
  *	are stuck.
  */
-static size_t stress_vm_walking_zero_addr(
+static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -606,7 +606,7 @@ static size_t stress_vm_walking_zero_addr(
  *	all the bits are set correctly. gray codes just change
  *	one bit at a time.
  */
-static size_t stress_vm_gray(
+static size_t TARGET_CLONES stress_vm_gray(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -650,7 +650,7 @@ static size_t stress_vm_gray(
  *	Check that the memory has not changed by the inc + dec
  *	operations.
  */
-static size_t stress_vm_incdec(
+static size_t TARGET_CLONES stress_vm_incdec(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -697,7 +697,7 @@ static size_t stress_vm_incdec(
  *	bytes and then re-walk again decrementing; then sanity
  *	check.
  */
-static size_t stress_vm_prime_incdec(
+static size_t TARGET_CLONES stress_vm_prime_incdec(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -754,7 +754,7 @@ static size_t stress_vm_prime_incdec(
  *	forward swap and then reverse swap chunks of memory
  *	and see that nothing got corrupted.
  */
-static size_t stress_vm_swap(
+static size_t TARGET_CLONES stress_vm_swap(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -855,7 +855,7 @@ abort:
  *	fill 64 bit chunks of memory with a random pattern and
  *	and then sanity check they are all set correctly.
  */
-static size_t stress_vm_rand_set(
+static size_t TARGET_CLONES stress_vm_rand_set(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -922,7 +922,7 @@ abort:
  *	and then sanity check they are all shifted at the
  *	end.
  */
-static size_t stress_vm_ror(
+static size_t TARGET_CLONES stress_vm_ror(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1007,7 +1007,7 @@ abort:
  *	invert all the bits.  Check if the final bits are all
  *	correctly inverted.
  */
-static size_t stress_vm_flip(
+static size_t TARGET_CLONES stress_vm_flip(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1107,7 +1107,7 @@ abort:
  *	set all memory to zero and see if any bits are stuck at one and
  *	set all memory to one and see if any bits are stuck at zero
  */
-static size_t stress_vm_zero_one(
+static size_t TARGET_CLONES stress_vm_zero_one(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1170,7 +1170,7 @@ abort:
  *	random bits to one.  Check if this one is pulled down
  *	or pulls its neighbours up.
  */
-static size_t stress_vm_galpat_zero(
+static size_t TARGET_CLONES stress_vm_galpat_zero(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1232,7 +1232,7 @@ static size_t stress_vm_galpat_zero(
  *	random bits to zero.  Check if this zero is pulled up
  *	or pulls its neighbours down.
  */
-static size_t stress_vm_galpat_one(
+static size_t TARGET_CLONES stress_vm_galpat_one(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1292,7 +1292,7 @@ static size_t stress_vm_galpat_one(
  *	work through memort and bump increment lower nybbles by
  *	1 and upper nybbles by 0xf and sanity check byte.
  */
-static size_t stress_vm_inc_nybble(
+static size_t TARGET_CLONES stress_vm_inc_nybble(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1368,7 +1368,7 @@ abort:
  *	sequentially set all memory to random values and then
  *	check if they are still set correctly.
  */
-static size_t stress_vm_rand_sum(
+static size_t TARGET_CLONES stress_vm_rand_sum(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1430,7 +1430,7 @@ abort:
  *	and clearing each bit to one (one bit per complete memory cycle)
  *	and check if they are clear.
  */
-static size_t stress_vm_prime_zero(
+static size_t TARGET_CLONES stress_vm_prime_zero(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1487,7 +1487,7 @@ abort:
  *	and set each bit to one (one bit per complete memory cycle)
  *	and check if they are set.
  */
-static size_t stress_vm_prime_one(
+static size_t TARGET_CLONES stress_vm_prime_one(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1545,7 +1545,7 @@ abort:
  *	and first clear just one bit (based on gray code) and then
  *	clear all the other bits and finally check if thay are all clear
  */
-static size_t stress_vm_prime_gray_zero(
+static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1612,7 +1612,7 @@ abort:
  *	and first set just one bit (based on gray code) and then
  *	set all the other bits and finally check if thay are all set
  */
-static size_t stress_vm_prime_gray_one(
+static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1678,7 +1678,7 @@ abort:
  *  stress_vm_write_64()
  *	simple 64 bit write, no read check
  */
-static size_t stress_vm_write64(
+static size_t TARGET_CLONES stress_vm_write64(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1739,7 +1739,7 @@ static size_t stress_vm_write64(
  *  stress_vm_read_64()
  *	simple 64 bit read
  */
-static size_t stress_vm_read64(
+static size_t TARGET_CLONES stress_vm_read64(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,
@@ -1798,7 +1798,7 @@ static size_t stress_vm_read64(
  *  stress_vm_rowhammer()
  *
  */
-static size_t stress_vm_rowhammer(
+static size_t TARGET_CLONES stress_vm_rowhammer(
 	uint8_t *buf,
 	const size_t sz,
 	uint64_t *counter,

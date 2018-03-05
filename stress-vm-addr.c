@@ -54,7 +54,7 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
  *  reverse64
  *	generic fast-ish 64 bit reverse
  */
-static uint64_t reverse64(register uint64_t x)
+static uint64_t TARGET_CLONES reverse64(register uint64_t x)
 {
 	x = (((x & 0xaaaaaaaaaaaaaaaaULL) >> 1)  | ((x & 0x5555555555555555ULL) << 1));
 	x = (((x & 0xccccccccccccccccULL) >> 2)  | ((x & 0x3333333333333333ULL) << 2));
@@ -68,7 +68,7 @@ static uint64_t reverse64(register uint64_t x)
  *  stress_vm_addr_pwr2()
  *	set data on power of 2 addresses
  */
-static size_t stress_vm_addr_pwr2(
+static size_t TARGET_CLONES stress_vm_addr_pwr2(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -89,7 +89,7 @@ static size_t stress_vm_addr_pwr2(
  *  stress_vm_addr_pwr2inv()
  *	set data on inverted power of 2 addresses
  */
-static size_t stress_vm_addr_pwr2inv(
+static size_t TARGET_CLONES stress_vm_addr_pwr2inv(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -111,7 +111,7 @@ static size_t stress_vm_addr_pwr2inv(
  *	set data on gray coded addresses,
  *	each address changes by just 1 bit
  */
-static size_t stress_vm_addr_gray(
+static size_t TARGET_CLONES stress_vm_addr_gray(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -135,7 +135,7 @@ static size_t stress_vm_addr_gray(
  *	set data on inverted gray coded addresses,
  *	each address changes by as many bits possible
  */
-static size_t stress_vm_addr_grayinv(
+static size_t TARGET_CLONES stress_vm_addr_grayinv(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -161,7 +161,7 @@ static size_t stress_vm_addr_grayinv(
  *	0x00000001 -> 0x1000000
  * 	0x00000002 -> 0x2000000
  */
-static size_t stress_vm_addr_rev(
+static size_t TARGET_CLONES stress_vm_addr_rev(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -190,7 +190,7 @@ static size_t stress_vm_addr_rev(
  *	0x00000001 -> 0xeffffff
  * 	0x00000002 -> 0xdffffff
  */
-static size_t stress_vm_addr_revinv(
+static size_t TARGET_CLONES stress_vm_addr_revinv(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -216,7 +216,7 @@ static size_t stress_vm_addr_revinv(
  *  stress_vm_addr_inc()
  *	set data on incrementing addresses
  */
-static size_t stress_vm_addr_inc(
+static size_t TARGET_CLONES stress_vm_addr_inc(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -237,7 +237,7 @@ static size_t stress_vm_addr_inc(
  *  stress_vm_addr_inc()
  *	set data on inverted incrementing addresses
  */
-static size_t stress_vm_addr_incinv(
+static size_t TARGET_CLONES stress_vm_addr_incinv(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -260,7 +260,7 @@ static size_t stress_vm_addr_incinv(
  *  stress_vm_addr_dec()
  *	set data on decrementing addresses
  */
-static size_t stress_vm_addr_dec(
+static size_t TARGET_CLONES stress_vm_addr_dec(
 	uint8_t *buf,
 	const size_t sz)
 {
@@ -281,7 +281,7 @@ static size_t stress_vm_addr_dec(
  *  stress_vm_addr_dec()
  *	set data on inverted decrementing addresses
  */
-static size_t stress_vm_addr_decinv(
+static size_t TARGET_CLONES stress_vm_addr_decinv(
 	uint8_t *buf,
 	const size_t sz)
 {
