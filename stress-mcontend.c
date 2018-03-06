@@ -22,7 +22,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD)
 
 static sigset_t set;
 
@@ -315,7 +315,7 @@ int stress_mcontend(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mcontention(const args_t *args)
+int stress_mcontend(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
