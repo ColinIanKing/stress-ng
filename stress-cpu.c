@@ -2293,16 +2293,16 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "factorial",		stress_cpu_factorial },
 	{ "fibonacci",		stress_cpu_fibonacci },
 	{ "float",		stress_cpu_float },
-#if defined(HAVE_FLOAT16)
+#if defined(HAVE_FLOAT16) && !defined(__clang__)
 	{ "float16",		stress_cpu_float16 },
 #endif
-#if defined(HAVE_FLOAT32)
+#if defined(HAVE_FLOAT32) && !defined(__clang__)
 	{ "float32",		stress_cpu_float32 },
 #endif
-#if defined(HAVE_FLOAT80)
+#if defined(HAVE_FLOAT80) && !defined(__clang__)
 	{ "float80",		stress_cpu_float80 },
 #endif
-#if defined(HAVE_FLOAT128)
+#if defined(HAVE_FLOAT128) && !defined(__clang__)
 	{ "float128",		stress_cpu_float128 },
 #endif
 	{ "fnv1a",		stress_cpu_fnv1a },
