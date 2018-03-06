@@ -1863,6 +1863,16 @@ perform matrix operations in order y by x rather than the default x by y. This
 is suboptimal ordering compared to the default and will perform more data
 cache stalls.
 .TP
+.B \-\-mcontend N
+start N workers that produce memory contention read/write patterns. Each
+stressor runs with 5 threads that read and write to two different mappings
+of the same underlying physical page. Various caching operations are also
+exercised to cause sub-optimial memory access patterns.  The threads also
+randomly change CPU affinity to exercise CPU and memory migration stress.
+.TP
+.B \-\-mcontend\-ops N
+stop mcontend stressors after N bogo read/write operations.
+.TP
 .B \-\-membarrier N
 start N workers that exercise the membarrier system call (Linux only).
 .TP

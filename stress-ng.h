@@ -1317,6 +1317,7 @@ typedef enum {
 	STRESS_MADVISE,
 	STRESS_MALLOC,
 	STRESS_MATRIX,
+	STRESS_MCONTEND,
 	STRESS_MEMBARRIER,
 	STRESS_MEMCPY,
 	STRESS_MEMFD,
@@ -1794,6 +1795,9 @@ typedef enum {
 	OPT_MATRIX_YX,
 
 	OPT_MAXIMIZE,
+
+	OPT_MCONTEND,
+	OPT_MCONTEND_OPS,
 
 	OPT_MEMBARRIER,
 	OPT_MEMBARRIER_OPS,
@@ -3022,6 +3026,7 @@ STRESS(stress_lsearch);
 STRESS(stress_madvise);
 STRESS(stress_malloc);
 STRESS(stress_matrix);
+STRESS(stress_mcontend);
 STRESS(stress_membarrier);
 STRESS(stress_memcpy);
 STRESS(stress_memfd);

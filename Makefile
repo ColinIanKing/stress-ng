@@ -134,6 +134,7 @@ STRESS_SRC = \
 	stress-madvise.c \
 	stress-malloc.c \
 	stress-matrix.c \
+	stress-mcontend.c \
 	stress-membarrier.c \
 	stress-memcpy.c \
 	stress-memfd.c \
