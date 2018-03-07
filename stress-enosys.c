@@ -47,13 +47,55 @@ static inline long syscall7(long number, long arg1, long arg2,
 			    long arg3, long arg4, long arg5,
 			    long arg6, long arg7)
 {
-	return syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	int ret;
+	pid_t pid = getpid();
+
+	ret = syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+	if (getpid() != pid) {
+		/* Somehow we forked/cloned ourselves, so exit */
+		_exit(0);
+	}
+	return ret;
 }
 PRAGMA_POP
 
 static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	hash_syscall_t *h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
+
+#if defined(SYS_clone)
+	if ((number & 0xffff) == SYS_clone)
+		return true;
+#endif
+#if defined(SYS_clone2)
+	if ((number & 0xffff) == SYS_clone2)
+		return true;
+#endif
+#if defined(__NR_clone)
+	if ((number & 0xffff) == __NR_clone)
+		return true;
+#endif
+#if defined(__NR_clone2)
+	if ((number & 0xffff) == __NR_clone2)
+		return true;
+#endif
+#if defined(SYS_fork)
+	if ((number & 0xffff) == SYS_fork)
+		return true;
+#endif
+#if defined(__NR_fork)
+	if ((number & 0xffff) == __NR_fork)
+		return true;
+#endif
+#if defined(SYS_vfork)
+	if ((number & 0xffff) == SYS_vfork)
+		return true;
+#endif
+#if defined(__NR_vfork)
+	if ((number & 0xffff) == __NR_vfork)
+		return true;
+#endif
 
 	while (h) {
 		if (h->number == number)
@@ -209,6 +251,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(SYS_clone)
 	SYS_clone,
+#endif
+#if defined(SYS_clone2)
+	SYS_clone2,
 #endif
 #if defined(SYS_close)
 	SYS_close,
@@ -2942,7 +2987,7 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 	/* Check if this is a known non-ENOSYS syscall */
 	if (syscall_find(number))
 		return rc;
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing())
 		return 0;
 	pid = fork();
 	if (pid < 0) {
@@ -2986,19 +3031,27 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 		/*
 		 *  Try various ENOSYS calls
 		 */
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 		ret = syscall7(number, -1, -1, -1, -1, -1, -1, -1);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 		ret = syscall7(number, 0, 0, 0, 0, 0, 0, 0);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 		ret = syscall7(number, 1, 1, 1, 1, 1, 1, 1);
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
 		for (arg = 2; arg;) {
+			if (!keep_stressing())
+				_exit(EXIT_SUCCESS);
 			ret = syscall7(number, arg, arg, arg,
 				      arg, arg, arg, arg);
 			if ((ret < 0) && (errno != ENOSYS))
@@ -3010,6 +3063,8 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 				_exit(errno);
 		}
 
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 		ret = syscall7(number, mwc64(), mwc64(), mwc64(),
 			      mwc64(), mwc64(), mwc64(), mwc64());
 		_exit(ret < 0 ? errno : 0);
@@ -3021,7 +3076,6 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
 
@@ -3045,7 +3099,7 @@ int stress_enosys(const args_t *args)
 	pid_t pid;
 
 again:
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing())
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -3094,6 +3148,8 @@ again:
 		ssize_t j;
 
 		/* Child, wrapped to catch OOMs */
+		if (!keep_stressing())
+			_exit(0);
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -3124,8 +3180,14 @@ again:
 				if (!keep_stressing())
 					goto finish;
 				stress_do_syscall(args, mwc8() & mask);
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, mwc16() & mask);
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, mwc32() & mask);
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, mwc64() & mask);
 			}
 
@@ -3134,8 +3196,14 @@ again:
 				if (!keep_stressing())
 					goto finish;
 				stress_do_syscall(args, number);
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, number | 1);
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, number | (number << 1));
+				if (!keep_stressing())
+					goto finish;
 				stress_do_syscall(args, ~number);
 			}
 
