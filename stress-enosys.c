@@ -2912,6 +2912,18 @@ static const long skip_syscalls[] = {
 	0	/* ensure at least 1 element */
 };
 
+static void limit_procs(const int procs)
+{
+	struct rlimit lim;
+
+	lim.rlim_cur = 1;
+	lim.rlim_max = 1;
+	(void)setrlimit(RLIMIT_CPU, &lim);
+	lim.rlim_cur = procs;
+	lim.rlim_max = procs;
+	(void)setrlimit(RLIMIT_NPROC, &lim);
+}
+
 static void MLOCKED stress_badhandler(int signum)
 {
 	(void)signum;
@@ -2930,21 +2942,19 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 	/* Check if this is a known non-ENOSYS syscall */
 	if (syscall_find(number))
 		return rc;
-again:
 	if (!g_keep_stressing_flag)
 		return 0;
 	pid = fork();
 	if (pid < 0) {
-		if (errno == EAGAIN)
-			goto again;
-
-		pr_fail_dbg("fork");
-		return EXIT_NO_RESOURCE;
+		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		struct itimerval it;
 		int ret;
 		size_t i;
 		unsigned long arg;
+
+		/* Try to limit child from spawning */
+		limit_procs(2);
 
 		/* We don't want bad ops clobbering this region */
 		stress_unmap_shared();
@@ -3090,6 +3100,8 @@ again:
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
+
+		//limit_procs(2);
 
 		for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++) {
 			if (!syscall_find(skip_syscalls[j]))
