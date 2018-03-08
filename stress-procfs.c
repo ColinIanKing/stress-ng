@@ -33,97 +33,162 @@ typedef struct ctxt {
 	const args_t *args;
 	const char *path;
 	char *badbuf;
-	bool proc_write;
+	bool writeable;
 } ctxt_t;
 
-static volatile bool keep_running;
 static sigset_t set;
+static pthread_spinlock_t lock;
+static char *proc_path;
 
 /*
  *  stress_proc_rw()
  *	read a proc file
  */
-static inline void stress_proc_rw(const char *path, char *badbuf, const bool proc_write)
+static inline void stress_proc_rw(
+	const ctxt_t *ctxt,
+	int32_t loops)
 {
 	int fd;
 	ssize_t ret, i = 0;
-	off_t pos;
 	char buffer[PROC_BUF_SZ];
+	char *path;
+	const double threshold = 0.2;
+	off_t pos;
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
-	/*
-	 *  Multiple randomly sized reads
-	 */
-	while (i < (4096 * PROC_BUF_SZ)) {
-		ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-		if (!g_keep_stressing_flag)
-			break;
-		ret = read(fd, buffer, sz);
-		if (ret < 0)
-			break;
-		if (ret < sz)
-			break;
-		i += sz;
-	}
-	(void)close(fd);
+	while (loops == -1 || loops > 0) {
+		double t_start;
+		bool timeout = false;
 
-	if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-		return;
-	/*
-	 *  Zero sized reads
-	 */
-	ret = read(fd, buffer, 0);
-	if (ret < 0)
-		goto err;
-	/*
-	 *  Bad read buffer, should fail!
-	 */
-	if (badbuf) {
-		ret = read(fd, badbuf, PROC_BUF_SZ);
-		if (ret == 0)
-			goto err;
-	}
 
-	/*
-	 *  Seek and read
-	 */
-	pos = lseek(fd, 0, SEEK_SET);
-	if (pos == (off_t)-1)
-		goto err;
-	pos = lseek(fd, 1, SEEK_CUR);
-	if (pos == (off_t)-1)
-		goto err;
-	pos = lseek(fd, 0, SEEK_END);
-	if (pos == (off_t)-1)
-		goto err;
-	pos = lseek(fd, 1, SEEK_SET);
-	if (pos == (off_t)-1)
-		goto err;
-	ret = read(fd, buffer, 1);
-	(void)ret;
-err:
-	(void)close(fd);
-
-	if (proc_write) {
-		/*
-		 *  Zero sized writes
-		 */
-		if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+		ret = pthread_spin_lock(&lock);
+		if (ret)
 			return;
-		ret = write(fd, buffer, 0);
-		(void)ret;
+		path = (char *)proc_path;
+		(void)pthread_spin_unlock(&lock);
+		printf("HERE: %d %s\n", getpid(), path);
+
+		if (!path || !g_keep_stressing_flag)
+			break;
+
+		t_start = time_now();
+
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			return;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		/*
+		 *  Multiple randomly sized reads
+		 */
+		while (i < (4096 * PROC_BUF_SZ)) {
+			ssize_t sz = 1 + (mwc32() % sizeof(buffer));
+			if (!g_keep_stressing_flag)
+				break;
+			ret = read(fd, buffer, sz);
+			if (ret < 0)
+				break;
+			if (ret < sz)
+				break;
+			i += sz;
+
+			if (time_now() - t_start > threshold) {
+				timeout = true;
+				(void)close(fd);
+				goto next;
+			}
+		}
 		(void)close(fd);
 
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			return;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
 		/*
-		 *  Write using badbuf, expect it to fail
+		 *  Zero sized reads
 		 */
-		if (badbuf) {
+		ret = read(fd, buffer, 0);
+		if (ret < 0)
+			goto err;
+		/*
+		 *  Bad read buffer, should fail!
+		 */
+		if (ctxt->badbuf) {
+			ret = read(fd, ctxt->badbuf, PROC_BUF_SZ);
+			if (ret == 0)
+				goto err;
+		}
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		/*
+		 *  Seek and read
+		 */
+		pos = lseek(fd, 0, SEEK_SET);
+		if (pos == (off_t)-1)
+			goto err;
+		pos = lseek(fd, 1, SEEK_CUR);
+		if (pos == (off_t)-1)
+			goto err;
+		pos = lseek(fd, 0, SEEK_END);
+		if (pos == (off_t)-1)
+			goto err;
+		pos = lseek(fd, 1, SEEK_SET);
+		if (pos == (off_t)-1)
+			goto err;
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+		ret = read(fd, buffer, 1);
+		(void)ret;
+err:
+		(void)close(fd);
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			goto next;
+		}
+
+		if (ctxt->writeable) {
+			/*
+			 *  Zero sized writes
+			 */
 			if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
 				return;
-			ret = write(fd, badbuf, PROC_BUF_SZ);
+			ret = write(fd, buffer, 0);
 			(void)ret;
 			(void)close(fd);
+
+			/*
+			 *  Write using badbuf, expect it to fail
+			 */
+			if (ctxt->badbuf) {
+				if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
+					return;
+				ret = write(fd, ctxt->badbuf, PROC_BUF_SZ);
+				(void)ret;
+				(void)close(fd);
+			}
+		}
+next:
+		if (loops > 0) {
+			if (timeout)
+				break;
+			loops--;
 		}
 	}
 }
@@ -155,53 +220,10 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (keep_running && g_keep_stressing_flag)
-		stress_proc_rw(ctxt->path, ctxt->badbuf, ctxt->proc_write);
+	while (g_keep_stressing_flag)
+		stress_proc_rw(ctxt, -1);
 
 	return &nowt;
-}
-
-/*
- *  stress_proc_rw_threads()
- *	create a bunch of threads to thrash read a proc entry
- */
-static void stress_proc_rw_threads(const args_t *args, char *path, const bool proc_write)
-{
-	size_t i;
-	pthread_t pthreads[MAX_READ_THREADS];
-	int ret[MAX_READ_THREADS];
-	ctxt_t ctxt;
-
-	ctxt.args = args;
-	ctxt.path = path;
-	ctxt.proc_write = proc_write;
-	ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ctxt.badbuf == MAP_FAILED)
-		ctxt.badbuf = NULL;
-
-	(void)memset(ret, 0, sizeof(ret));
-
-	keep_running = true;
-
-	for (i = 0; i < MAX_READ_THREADS; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_proc_rw_thread, &ctxt);
-	}
-	for (i = 0; i < 8; i++) {
-		if (!g_keep_stressing_flag)
-			break;
-		stress_proc_rw(path, ctxt.badbuf, proc_write);
-	}
-	keep_running = false;
-
-	for (i = 0; i < MAX_READ_THREADS; i++) {
-		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
-	}
-
-	if (ctxt.badbuf)
-		(void)munmap(ctxt.badbuf, PROC_BUF_SZ);
 }
 
 /*
@@ -209,20 +231,20 @@ static void stress_proc_rw_threads(const args_t *args, char *path, const bool pr
  *	read directory
  */
 static void stress_proc_dir(
-	const args_t *args,
+	const ctxt_t *ctxt,
 	const char *path,
 	const bool recurse,
-	const int depth,
-	const bool proc_write)
+	const int depth)
 {
 	DIR *dp;
 	struct dirent *d;
+	const args_t *args = ctxt->args;
 
 	if (!g_keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
-	if (depth > 8)
+	if (depth > 20)
 		return;
 
 	dp = opendir(path);
@@ -230,24 +252,33 @@ static void stress_proc_dir(
 		return;
 
 	while ((d = readdir(dp)) != NULL) {
-		char name[PATH_MAX];
+		int ret;
+		char filename[PATH_MAX];
+		char tmp[PATH_MAX];
 
 		if (!g_keep_stressing_flag)
 			break;
 		if (is_dot_filename(d->d_name))
 			continue;
+
+		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
-			if (recurse) {
-				(void)snprintf(name, sizeof(name),
-					"%s/%s", path, d->d_name);
-				stress_proc_dir(args, name, recurse, depth + 1, proc_write);
-			}
+			if (!recurse)
+				continue;
+
+			inc_counter(args);
+			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
 			break;
 		case DT_REG:
-			(void)snprintf(name, sizeof(name),
-				"%s/%s", path, d->d_name);
-			stress_proc_rw_threads(args, name, proc_write);
+			ret = pthread_spin_lock(&lock);
+			if (!ret) {
+				strncpy(filename, tmp, sizeof(filename));
+				proc_path = filename;
+				(void)pthread_spin_unlock(&lock);
+				stress_proc_rw(ctxt, 8);
+				inc_counter(args);
+			}
 			break;
 		default:
 			break;
@@ -262,77 +293,113 @@ static void stress_proc_dir(
  */
 int stress_procfs(const args_t *args)
 {
-	bool proc_write = true;
+	size_t i;
+	pthread_t pthreads[MAX_READ_THREADS];
+	int rc, ret[MAX_READ_THREADS];
+	ctxt_t ctxt;
 
 	(void)sigfillset(&set);
 
-	if (geteuid() == 0)
-		proc_write = false;
+	proc_path = "/proc/self";
+
+	ctxt.args = args;
+	ctxt.writeable = (geteuid() != 0);
+
+	rc = pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
+	if (rc) {
+		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+			args->name, rc, strerror(rc));
+		return EXIT_NO_RESOURCE;
+	}
+
+	(void)memset(ret, 0, sizeof(ret));
+
+	ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ctxt.badbuf == MAP_FAILED) {
+		pr_inf("%s: mmap failed: errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < MAX_READ_THREADS; i++) {
+		ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_proc_rw_thread, &ctxt);
+	}
 
 	do {
-		stress_proc_dir(args, "/proc/self", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/self", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/sys", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/sys", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/sysvipc", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/fs", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/fs", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/bus", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/bus", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/irq", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/irq", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/scsi", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/tty", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/driver", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/driver", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/tty", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/tty", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/self", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/self", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc/thread_self", true, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
 
-		stress_proc_dir(args,"/proc", false, 0, proc_write);
+		stress_proc_dir(&ctxt, "/proc", false, 0);
 		inc_counter(args);
 	} while (keep_stressing());
+
+	proc_path = NULL;
+
+	for (i = 0; i < MAX_READ_THREADS; i++) {
+		if (ret[i] == 0)
+			pthread_join(pthreads[i], NULL);
+	}
+	(void)munmap(ctxt.badbuf, PROC_BUF_SZ);
+	(void)pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
 }
