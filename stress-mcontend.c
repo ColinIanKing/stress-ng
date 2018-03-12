@@ -300,8 +300,10 @@ int stress_mcontend(const args_t *args)
 
 	do {
 		stress_memory_contend(&pa);
+#if defined(HAVE_MSYNC)
 		(void)msync(data[0], args->page_size, MS_ASYNC);
 		(void)msync(data[1], args->page_size, MS_ASYNC);
+#endif
 		inc_counter(args);
 	} while (keep_stressing());
 
