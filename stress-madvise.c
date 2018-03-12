@@ -118,6 +118,7 @@ static int stress_random_advise(const args_t *args)
 	const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
+	static int poison_count;
 #if defined(MADV_NORMAL)
 	const int madv_normal = MADV_NORMAL;
 #else
@@ -127,8 +128,6 @@ static int stress_random_advise(const args_t *args)
 
 #if defined(MADV_HWPOISON)
 	if (advise == MADV_HWPOISON) {
-		static int poison_count;
-
 		/*
 		 * Try for another madvise option if
 		 * we've poisoned too many pages.
