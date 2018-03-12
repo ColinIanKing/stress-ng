@@ -545,9 +545,9 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 	if (n >= dist_size - 3)
 		n = dist_size;
 
-	pr_inf("%s: latency distribution (%" PRIu64 " us intervals):\n", name, cyclic_dist);
+	pr_inf("%s: latency distribution (%" PRIu64 " ns intervals):\n", name, cyclic_dist);
 	pr_inf("%s: (for the first %zd buckets of %zd)\n", name, dist_size, dist_max_size);
-	pr_inf("%s: %12s %10s\n", name, "latency (us)", "frequency");
+	pr_inf("%s: %12s %10s\n", name, "latency (ns)", "frequency");
 	for (i = 0; i < n; i++) {
 		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
 			name, cyclic_dist * i, dist[i]);
@@ -765,7 +765,7 @@ tidy:
 			pr_inf("%s: latency percentiles:\n", args->name);
 			for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
 				size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
-				pr_inf("%s:   %5.2f%%: %10" PRId64 " us\n",
+				pr_inf("%s:   %5.2f%%: %10" PRId64 " ns\n",
 					args->name,
 					percentiles[i],
 					rt_stats->latencies[j]);
