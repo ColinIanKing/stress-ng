@@ -2957,16 +2957,24 @@ static const long skip_syscalls[] = {
 	0	/* ensure at least 1 element */
 };
 
+/*
+ *  limit_procs()
+ *	try to limit child resources
+ */
 static void limit_procs(const int procs)
 {
 	struct rlimit lim;
 
+#if defined(RLIMIT_CPU)
 	lim.rlim_cur = 1;
 	lim.rlim_max = 1;
 	(void)setrlimit(RLIMIT_CPU, &lim);
+#endif
+#if defined(RLIMIT_NPROC)
 	lim.rlim_cur = procs;
 	lim.rlim_max = procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
+#endif
 }
 
 static void MLOCKED stress_badhandler(int signum)
