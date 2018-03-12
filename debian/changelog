@@ -1,3 +1,26 @@
+stress-ng (0.09.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-cyclic: fix typo in time measurement, us should be ns
+  * stress-enosys: add checks on RLIMIT_* macros
+  * bump target_clones attribute to gcc 5.5
+  * stress-mcontend: don't msync if it is not available
+  * Disable target_clones attribute on GNU_HURD
+  * stress-procfs: make stressor more stressful, less thread spawning
+  * stress-enosys: wider sanity checks for fork/vfork/cloning (LP:#1753705)
+  * Forgot to add test/test-personality.c
+  * stress-enosys: try to limit fork run-away (LP:#1753705)
+  * Add personality autoconfiguration detection
+  * stress-mcontend: fix non-Linux build
+  * stress-cpu: fix clang build error
+  * Add new mcontend memory contention stressor
+  * stress-af-algo: add a couple more crypto module tests
+  * Add GCC-5 target_clones attribute
+  * stressors: use the new cpu_is_x86 helper
+  * Add cpu.c and cpu_is_x86 cpu detection helper
+
+ -- Colin King <colin.king@canonical.com>  Mon, 12 Mar 2018 10:30:58 +0000
+
 stress-ng (0.09.18-1) unstable; urgency=medium
 
   * Makefile: bump version
