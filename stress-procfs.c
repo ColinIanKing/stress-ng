@@ -65,7 +65,6 @@ static inline void stress_proc_rw(
 			return;
 		path = (char *)proc_path;
 		(void)pthread_spin_unlock(&lock);
-		printf("HERE: %d %s\n", getpid(), path);
 
 		if (!path || !g_keep_stressing_flag)
 			break;
@@ -328,6 +327,11 @@ int stress_procfs(const args_t *args)
 	}
 
 	do {
+		stress_proc_dir(&ctxt, "/proc", false, 0);
+		inc_counter(args);
+		if (!keep_stressing())
+			break;
+
 		stress_proc_dir(&ctxt, "/proc/self", true, 0);
 		inc_counter(args);
 		if (!keep_stressing())
@@ -384,11 +388,6 @@ int stress_procfs(const args_t *args)
 			break;
 
 		stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc", false, 0);
 		inc_counter(args);
 	} while (keep_stressing());
 
