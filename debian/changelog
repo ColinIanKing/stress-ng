@@ -1,3 +1,14 @@
+stress-ng (0.09.20-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-procfs: remove debug (LP: #1755552)
+  * stress-madvise: fix build issue for HPPA (LP: #1755551)
+  * stress-dev: add missing FIBMAP to block dev stressor
+  * Fix missing stressors in mini-help and re-order some
+  * Remove duplicated "futex" stressor from stressor table
+
+ -- Colin King <colin.king@canonical.com>  Tue, 13 Mar 2018 17:58:49 +0000
+
 stress-ng (0.09.19-1) unstable; urgency=medium
 
   * Makefile: bump version
