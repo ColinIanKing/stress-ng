@@ -285,6 +285,14 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 		(void)ret;
 	}
 #endif
+#if defined(FIBMAP)
+	{
+		int block = 0;
+
+		ret = ioctl(fd, FIBMAP, &block);
+		(void)ret;
+	}
+#endif
 }
 
 #define DEV_FUNC(dev, func) \
