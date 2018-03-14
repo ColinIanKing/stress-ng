@@ -66,11 +66,11 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 
 	/* Really make sure reboot is never called */
 #if defined(SYS_reboot)
-	if (number == SYS_reboot)
+	if ((number & 0xffff) == SYS_reboot)
 		return true;
 #endif
 #if defined(__NR_reboot)
-	if (number == __NR_reboot)
+	if ((number & 0xffff) == __NR_reboot)
 		return true;
 #endif
 
