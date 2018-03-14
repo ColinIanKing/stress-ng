@@ -64,6 +64,16 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	hash_syscall_t *h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
 
+	/* Really make sure reboot is never called */
+#if defined(SYS_reboot)
+	if (number == SYS_reboot)
+		return true;
+#endif
+#if defined(__NR_reboot)
+	if (number == __NR_reboot)
+		return true;
+#endif
+
 #if defined(SYS_clone)
 	if ((number & 0xffff) == SYS_clone)
 		return true;
@@ -108,7 +118,13 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 static inline void HOT OPTIMIZE3 syscall_add(long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
-	hash_syscall_t *newh;
+	hash_syscall_t *newh, *h = hash_syscall_table[hash];
+
+	while (h) {
+		if (h->number == number)
+			return;		/* Already exists */
+		h = h->next;
+	}
 
 	newh = malloc(sizeof(*newh));
 	if (!newh)
@@ -3167,10 +3183,8 @@ again:
 
 		//limit_procs(2);
 
-		for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++) {
-			if (!syscall_find(skip_syscalls[j]))
-				syscall_add(skip_syscalls[j]);
-		}
+		for (j = 0; j < (ssize_t)SIZEOF_ARRAY(skip_syscalls) - 1; j++)
+			syscall_add(skip_syscalls[j]);
 
 		do {
 			long number;
