@@ -24,8 +24,8 @@
  */
 #define  _GNU_SOURCE
 
-#if defined(__gnu_hurd__)
-#error ustat is not implemented and will always fail on GNU HURD
+#if defined(__gnu_hurd__) || defined(__aarch64__)
+#error ustat is not implemented and will always fail on this system
 #endif
 
 #include <sys/types.h>
