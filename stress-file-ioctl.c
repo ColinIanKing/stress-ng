@@ -187,6 +187,8 @@ int stress_file_ioctl(const args_t *args)
 		}
 #endif
 
+/* Disable this at the moment, it is fragile */
+#if 0
 #if defined(FIFREEZE) && defined(FITHAW)
 		{
 			ret = ioctl(fd, FIFREEZE);
@@ -196,6 +198,7 @@ int stress_file_ioctl(const args_t *args)
 
 			exercised++;
 		}
+#endif
 #endif
 
 #if defined(FIGETBSZ)
