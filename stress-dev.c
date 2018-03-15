@@ -161,8 +161,8 @@ static void stress_dev_video_linux(const char *name, const int fd, const char *d
 
 static void stress_dev_tty(const char *name, const int fd, const char *devpath)
 {
-	struct termios t;
 	int ret;
+	struct termios t;
 
 	(void)name;
 	(void)devpath;
@@ -170,8 +170,107 @@ static void stress_dev_tty(const char *name, const int fd, const char *devpath)
 	ret = tcgetattr(fd, &t);
 	(void)ret;
 #if defined(TCGETS)
-	ret = ioctl(fd, TCGETS, &t);
-	(void)ret;
+	{
+		ret = ioctl(fd, TCGETS, &t);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGPTLCK)
+	{
+		int lck;
+
+		ret = ioctl(fd, TIOCGPTLCK, &lck);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGPKT)
+	{
+		int pktmode;
+
+		ret = ioctl(fd, TIOCGPKT, &pktmode);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGPTN)
+	{
+		int ptnum;
+
+		ret = ioctl(fd, TIOCGPTN, &ptnum);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGWINSZ)
+	{
+		struct winsize ws;
+
+		ret = ioctl(fd, TIOCGWINSZ, &ws);
+		(void)ret;
+	}
+#endif
+#if defined(FIONREAD)
+	{
+		int n;
+
+		ret = ioctl(fd, FIONREAD, &n);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCINQ)
+	{
+		int n;
+
+		ret = ioctl(fd, TIOCINQ, &n);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCOUTQ)
+	{
+		int n;
+
+		ret = ioctl(fd, TIOCOUTQ, &n);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGPGRP)
+	{
+		pid_t pgrp;
+
+		ret = ioctl(fd, TIOCGPGRP, &pgrp);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGSID)
+	{
+		pid_t gsid;
+
+		ret = ioctl(fd, TIOCGSID, &gsid);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGEXCL)
+	{
+		int excl;
+
+		ret = ioctl(fd, TIOCGEXCL, &excl);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGETD)
+	{
+		int ldis;
+
+		ret = ioctl(fd, TIOCGETD, &ldis);
+		(void)ret;
+	}
+#endif
+	/* Modem */
+#if defined(TIOCGSOFTCAR)
+	{
+		int flag;
+
+		ret = ioctl(fd, TIOCGSOFTCAR, &flag);
+		(void)ret;
+	}
 #endif
 }
 
@@ -311,7 +410,6 @@ static const dev_func_t dev_funcs[] = {
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
 #endif
-	DEV_FUNC("/dev/tty",	stress_dev_tty),
 };
 
 /*
@@ -336,6 +434,7 @@ static inline void stress_dev_rw(
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
+		struct termios tios;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -369,6 +468,10 @@ static inline void stress_dev_rw(
 
 		if (buf.st_mode & S_IFBLK)
 			stress_dev_blk(args->name, fd, path);
+#if defined(TCGETS)
+		if (ioctl(fd, TCGETS, &tios) == 0)
+			stress_dev_tty(args->name, fd, path);
+#endif
 
 		off = lseek(fd, 0, SEEK_SET);
 		(void)off;
