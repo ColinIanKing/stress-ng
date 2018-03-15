@@ -282,6 +282,17 @@ int stress_get(const args_t *args)
 		(void)ret;
 #endif
 
+#if defined(HAVE_SYSCALL_H) && \
+    defined(__linux__) && \
+    defined(__NR_lookup_dcookie)
+		{
+			char buf[PATH_MAX];
+
+			ret = syscall(__NR_lookup_dcookie, buf, sizeof(buf));
+			(void)ret;
+		}
+#endif
+
 #if defined(__linux__)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
