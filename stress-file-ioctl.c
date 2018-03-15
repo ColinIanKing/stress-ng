@@ -109,6 +109,7 @@ int stress_file_ioctl(const args_t *args)
 #endif
 
 	(void)shim_fallocate(fd, 0, 0, file_sz);
+	(void)shim_fallocate(dfd, 0, 0, file_sz);
 	(void)fsync(fd);
 
 	do {
@@ -235,6 +236,32 @@ int stress_file_ioctl(const args_t *args)
 			fcr.dest_offset = 0;
 
 			ret = ioctl(dfd, FICLONERANGE, &fcr);
+			(void)ret;
+
+			exercised++;
+		}
+#endif
+
+#if defined(FIDEDUPERANGE)
+		{
+			const size_t sz = sizeof(struct file_dedupe_range) +
+					  sizeof(struct file_dedupe_range_info);
+			char buf[sz] ALIGNED(64);
+
+			struct file_dedupe_range *d = (struct file_dedupe_range *)buf;
+
+			d->src_offset = 0;
+			d->src_length = file_sz;
+			d->dest_count = 1;
+			d->reserved1 = 0;
+			d->reserved2 = 0;
+			d->info[0].dest_fd = dfd;
+			d->info[0].dest_offset = 0;
+			/* Zero the return values */
+			d->info[0].bytes_deduped = 0;
+			d->info[0].status = 0;
+			d->info[0].reserved = 0;
+			ret = ioctl(fd, FIDEDUPERANGE, d);
 			(void)ret;
 
 			exercised++;
