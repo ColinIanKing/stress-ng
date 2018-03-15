@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2013-2018 Canonical, Ltd.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -39,6 +37,32 @@ typedef struct ctxt {
 static sigset_t set;
 static pthread_spinlock_t lock;
 static char *proc_path;
+static uint32_t mixup;
+
+static uint32_t path_sum(const char *path)
+{
+	const char *ptr = path;
+	register uint32_t sum = mixup;
+
+	while (*ptr) {
+		sum <<= 1;
+		sum += *(ptr++);
+	}
+
+	return sum;
+}
+
+static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	uint32_t s1, s2;
+
+	s1 = path_sum((*d1)->d_name);
+	s2 = path_sum((*d2)->d_name);
+
+	if (s1 == s2)
+		return 0;
+	return (s1 < s2) ? -1 : 1;
+}
 
 /*
  *  stress_proc_rw()
@@ -235,9 +259,10 @@ static void stress_proc_dir(
 	const bool recurse,
 	const int depth)
 {
-	DIR *dp;
-	struct dirent *d;
+	struct dirent **dlist;
 	const args_t *args = ctxt->args;
+	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int n;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -246,14 +271,17 @@ static void stress_proc_dir(
 	if (depth > 20)
 		return;
 
-	dp = opendir(path);
-	if (dp == NULL)
-		return;
+	mixup = mwc32();
+	dlist = NULL;
+	n = scandir(path, &dlist, NULL, mixup_sort);
+	if (n <= 0)
+		goto done;
 
-	while ((d = readdir(dp)) != NULL) {
+	while (n--) {
 		int ret;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
+		struct dirent *d = dlist[n];
 
 		if (!g_keep_stressing_flag)
 			break;
@@ -275,7 +303,7 @@ static void stress_proc_dir(
 				strncpy(filename, tmp, sizeof(filename));
 				proc_path = filename;
 				(void)pthread_spin_unlock(&lock);
-				stress_proc_rw(ctxt, 8);
+				stress_proc_rw(ctxt, loops);
 				inc_counter(args);
 			}
 			break;
@@ -283,7 +311,9 @@ static void stress_proc_dir(
 			break;
 		}
 	}
-	(void)closedir(dp);
+done:
+	if (dlist)
+		free(dlist);
 }
 
 /*
@@ -326,69 +356,56 @@ int stress_procfs(const args_t *args)
 				stress_proc_rw_thread, &ctxt);
 	}
 
+	i = args->instance;
 	do {
-		stress_proc_dir(&ctxt, "/proc", false, 0);
+		i %= 13;
+		switch (i) {
+		case 0:
+			stress_proc_dir(&ctxt, "/proc", false, 0);
+			break;
+		case 1:
+			stress_proc_dir(&ctxt, "/proc/self", true, 0);
+			break;
+		case 2:
+			stress_proc_dir(&ctxt, "/proc/sys", true, 0);
+			break;
+		case 3:
+			stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
+			break;
+		case 4:
+			stress_proc_dir(&ctxt, "/proc/fs", true, 0);
+			break;
+		case 5:
+			stress_proc_dir(&ctxt, "/proc/bus", true, 0);
+			break;
+		case 6:
+			stress_proc_dir(&ctxt, "/proc/irq", true, 0);
+			break;
+		case 7:
+			stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
+			break;
+		case 8:
+			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
+			break;
+		case 9:
+			stress_proc_dir(&ctxt, "/proc/driver", true, 0);
+			break;
+		case 10:
+			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
+			break;
+		case 11:
+			stress_proc_dir(&ctxt, "/proc/self", true, 0);
+			break;
+		case 12:
+			stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
+			break;
+		default:
+			break;
+		}
+		i++;
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
-
-		stress_proc_dir(&ctxt, "/proc/self", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/sys", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/fs", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/bus", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/irq", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/tty", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/driver", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/tty", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/self", true, 0);
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
-
-		stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
-		inc_counter(args);
 	} while (keep_stressing());
 
 	proc_path = NULL;
