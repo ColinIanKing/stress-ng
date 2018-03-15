@@ -48,7 +48,6 @@ int stress_xattr(const args_t *args)
 		pr_fail_err("open");
 		goto out;
 	}
-	(void)unlink(filename);
 
 	do {
 		int i, j;
@@ -84,6 +83,26 @@ int stress_xattr(const args_t *args)
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
 				pr_fail_err("fsetxattr");
+				goto out_close;
+			}
+
+			/* ..and do it again using setxattr */
+			ret = setxattr(filename, attrname, value, strlen(value),
+				XATTR_REPLACE);
+			if (ret < 0) {
+				if (errno == ENOSPC || errno == EDQUOT)
+					break;
+				pr_fail_err("setxattr");
+				goto out_close;
+			}
+
+			/* Although not a link, it's good to exercise this call */
+			ret = lsetxattr(filename, attrname, value, strlen(value),
+				XATTR_REPLACE);
+			if (ret < 0) {
+				if (errno == ENOSPC || errno == EDQUOT)
+					break;
+				pr_fail_err("lsetxattr");
 				goto out_close;
 			}
 		}
@@ -138,6 +157,7 @@ int stress_xattr(const args_t *args)
 out_close:
 	(void)close(fd);
 out:
+	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
