@@ -39,6 +39,31 @@ void stress_set_dir_dirs(const char *opt)
 }
 
 /*
+ *  stress_dir_read()
+ *	read all dentries
+ */
+static void stress_dir_read(
+	const args_t *args,
+	const char *path)
+{
+	DIR *dp;
+	struct dirent *de;
+
+	dp = opendir(path);
+	if (!dp)
+		return;
+
+	while ((de = readdir(dp)) != NULL) {
+		if (de->d_reclen == 0) {
+			pr_fail("%s: read a zero sized directory entry\n", args->name);
+			break;
+		}
+	}
+
+	(void)closedir(dp);
+}
+
+/*
  *  stress_dir_tidy()
  *	remove all dentries
  */
@@ -66,6 +91,9 @@ int stress_dir(const args_t *args)
 {
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
+	char dirname[PATH_MAX];
+
+	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
 
 	(void)get_setting("dir-dirs", &dir_dirs);
 
@@ -95,6 +123,7 @@ int stress_dir(const args_t *args)
 
 			inc_counter(args);
 		}
+		stress_dir_read(args, dirname);
 		stress_dir_tidy(args, n);
 		if (!g_keep_stressing_flag)
 			break;
