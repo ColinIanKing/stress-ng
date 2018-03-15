@@ -49,18 +49,20 @@ int stress_utime(const args_t *args)
 	}
 
 	do {
-		struct timeval times[2], *t;
+		struct timeval times[2];
+		struct utimbuf utbuf;
 #if defined(__linux__)
 		struct timespec ts;
 #endif
 
-		if (gettimeofday(&times[0], NULL) < 0) {
-			t = NULL;
-		} else {
-			times[1] = times[0];
-			t = times;
+		if (gettimeofday(&times[0], NULL) == 0) {
+			if (utimes(filename, times) < 0) {
+				pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			}
 		}
-		if (utimes(filename, t) < 0) {
+		if (utimes(filename, NULL) < 0) {
 			pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -88,6 +90,14 @@ int stress_utime(const args_t *args)
 			break;
 		}
 #endif
+		utbuf.actime = (time_t)time_now();
+		utbuf.modtime = utbuf.actime;
+
+		if (utime(filename, &utbuf) < 0) {
+			pr_dbg("%s: utime failed: errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
 		if (utime(filename, NULL) < 0) {
 			pr_dbg("%s: utime failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
