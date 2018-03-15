@@ -30,12 +30,38 @@
 static sigset_t set;
 static pthread_spinlock_t lock;
 static char *sysfs_path;
+static uint32_t mixup;
 
 typedef struct ctxt {
 	const args_t *args;
 	char *badbuf;
 	bool writeable;
 } ctxt_t;
+
+static uint32_t path_sum(const char *path)
+{
+	const char *ptr = path;
+	register uint32_t sum = mixup;
+
+	while (*ptr) {
+		sum <<= 1;
+		sum += *(ptr++);
+	}
+
+	return sum;
+}
+
+static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	uint32_t s1, s2;
+
+	s1 = path_sum((*d1)->d_name);
+	s2 = path_sum((*d2)->d_name);
+
+	if (s1 == s2)
+		return 0;
+	return (s1 < s2) ? -1 : 1;
+}
 
 /*
  *  stress_sys_rw()
@@ -210,10 +236,11 @@ static void stress_sys_dir(
 	const bool recurse,
 	const int depth)
 {
-	DIR *dp;
-	struct dirent *d;
+	struct dirent **dlist;
 	const args_t *args = ctxt->args;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int n;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -222,15 +249,18 @@ static void stress_sys_dir(
 	if (depth > 20)
 		return;
 
-	dp = opendir(path);
-	if (dp == NULL)
-		return;
+	mixup = mwc32();
+	dlist = NULL;
+	n = scandir(path, &dlist, NULL, mixup_sort);
+	if (n <= 0)
+		goto done;
 
-	while ((d = readdir(dp)) != NULL) {
+	while (n--) {
 		int ret;
 		struct stat buf;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
+		struct dirent *d = dlist[n];
 
 		if (!keep_stressing())
 			break;
@@ -265,7 +295,7 @@ static void stress_sys_dir(
 				strncpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)pthread_spin_unlock(&lock);
-				stress_sys_rw(ctxt, 16);
+				stress_sys_rw(ctxt, loops);
 				inc_counter(args);
 			}
 			break;
@@ -273,7 +303,9 @@ static void stress_sys_dir(
 			break;
 		}
 	}
-	(void)closedir(dp);
+done:
+	if (dlist)
+		free(dlist);
 }
 
 
