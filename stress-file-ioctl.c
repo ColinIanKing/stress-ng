@@ -109,7 +109,9 @@ int stress_file_ioctl(const args_t *args)
 #endif
 
 	(void)shim_fallocate(fd, 0, 0, file_sz);
+#if defined(FICLONE) || defined(FICLONERANGE)
 	(void)shim_fallocate(dfd, 0, 0, file_sz);
+#endif
 	(void)fsync(fd);
 
 	do {
