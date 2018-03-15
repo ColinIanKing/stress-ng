@@ -38,7 +38,8 @@
     defined(FICLONERANGE)	|| \
     defined(FIONREAD)		|| \
     defined(FIONWRITE)		|| \
-    defined(FS_IOC_RESVSP)
+    defined(FS_IOC_RESVSP)	|| \
+    defined(FS_IOC_RESVSP64)
 
 static void check_flag(
 	const args_t *args,
@@ -264,9 +265,20 @@ int stress_file_ioctl(const args_t *args)
 
 #if defined(FS_IOC_RESVSP)
 		{
-			int isz = file_sz * 2;
+			unsigned long isz = file_sz * 2;
 
 			ret = ioctl(fd, FS_IOC_RESVP, &isz);
+			(void)ret;
+
+			exercised++;
+		}
+#endif
+
+#if defined(FS_IOC_RESVSP64)
+		{
+			unsigned long isz = file_sz * 2;
+
+			ret = ioctl(fd, FS_IOC_RESVP64, &isz);
 			(void)ret;
 
 			exercised++;
