@@ -47,6 +47,9 @@
 #if defined(HAVE_SCSI_SG_H)
 #include <scsi/sg.h>
 #endif
+#if defined(HAVE_LINUX_RANDOM_H)
+#include <linux/random.h>
+#endif
 
 #define MAX_DEV_THREADS		(4)
 
@@ -453,6 +456,23 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 #endif
 }
 
+static void stress_dev_random_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(RNDGETENTCNT)
+	{
+		long entropy;
+		int ret;
+
+		ret = ioctl(fd, RNDGETENTCNT, &entropy);
+		(void)ret;
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -469,6 +489,7 @@ static const dev_func_t dev_funcs[] = {
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
 #endif
+	DEV_FUNC("/dev/random",	stress_dev_random_linux),
 };
 
 /*
