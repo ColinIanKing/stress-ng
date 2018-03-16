@@ -41,6 +41,12 @@
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 #include <linux/videodev2.h>
 #endif
+#if defined(HAVE_SCSI_SCSI_H)
+#include <scsi/scsi.h>
+#endif
+#if defined(HAVE_SCSI_SG_H)
+#include <scsi/sg.h>
+#endif
 
 #define MAX_DEV_THREADS		(4)
 
@@ -394,6 +400,59 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #endif
 }
 
+/*
+ *  stress_dev_scsi_blk()
+ *	SCSI block device specific ioctls
+ */
+static void stress_dev_scsi_blk(const char *name, const int fd, const char *devpath)
+{
+	int ret;
+
+	(void)name;
+	(void)fd;
+	(void)devpath;
+	(void)ret;
+
+#if defined(SG_GET_VERSION_NUM)
+	{
+		int ver;
+
+		ret = ioctl(fd, SG_GET_VERSION_NUM, &ver);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_IDLUN)
+	{
+		int lun;
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_BUS_NUMBER)
+	{
+		int bus;
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_TIMEOUT)
+	{
+		ret = ioctl(fd, SCSI_IOCTL_GET_TIMEOUT, 0);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_RESERVED_SIZE)
+	{
+		int sz;
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_RESERVED_SIZE, &sz);
+		(void)ret;
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -466,8 +525,10 @@ static inline void stress_dev_rw(
 			}
 		}
 
-		if (buf.st_mode & S_IFBLK)
+		if (buf.st_mode & S_IFBLK) {
 			stress_dev_blk(args->name, fd, path);
+			stress_dev_scsi_blk(args->name, fd, path);
+		}
 #if defined(TCGETS)
 		if (ioctl(fd, TCGETS, &tios) == 0)
 			stress_dev_tty(args->name, fd, path);
