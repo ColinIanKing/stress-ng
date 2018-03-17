@@ -56,12 +56,47 @@
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static char *dev_path;
+static uint32_t mixup;
 
 typedef struct {
 	const char *devpath;
 	const size_t devpath_len;
 	void (*func)(const char *name, const int fd, const char *devpath);
 } dev_func_t;
+
+static inline int gettid(void)
+{
+	return syscall(__NR_gettid);
+}
+
+static uint32_t path_sum(const char *path)
+{
+	const char *ptr = path;
+	register uint32_t h = mixup;
+
+	while (*ptr) {
+		register uint32_t g;
+
+		h = (h << 4) + (*(ptr++));
+		if (0 != (g = h & 0xf0000000)) {
+			h ^= (g >> 24);
+			h ^= g;
+		}
+	}
+	return h;
+}
+
+static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	uint32_t s1, s2;
+
+	s1 = path_sum((*d1)->d_name);
+	s2 = path_sum((*d2)->d_name);
+
+	if (s1 == s2)
+		return 0;
+	return (s1 < s2) ? -1 : 1;
+}
 
 #if defined(HAVE_LINUX_MEDIA_H)
 static void stress_dev_media_linux(const char *name, const int fd, const char *devpath)
@@ -723,9 +758,10 @@ static void stress_dev_dir(
 	const int depth,
 	const uid_t euid)
 {
-	DIR *dp;
-	struct dirent *d;
+	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int n;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -734,15 +770,18 @@ static void stress_dev_dir(
 	if (depth > 20)
 		return;
 
-	dp = opendir(path);
-	if (dp == NULL)
-		return;
+	dlist = NULL;
+	n = scandir(path, &dlist, NULL, mixup_sort);
+	if (n <= 0)
+		goto done;
 
-	while ((d = readdir(dp)) != NULL) {
+	while (n--) {
 		int ret;
 		struct stat buf;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
+		struct dirent *d = dlist[n];
+		size_t len;
 
 		if (!keep_stressing())
 			break;
@@ -754,6 +793,24 @@ static void stress_dev_dir(
 		 */
 		if (!euid && !strcmp(d->d_name, "hpet"))
 			continue;
+
+		len = strlen(d->d_name);
+
+		/*
+		 *  Exercise no more than 3 of the same device
+		 *  driver, e.g. ttyS0..ttyS2
+		 */
+		if (len > 1) {
+			int dev_n;
+			char *ptr = d->d_name + len - 1;
+
+			while (ptr > d->d_name && isdigit(*ptr))
+				ptr--;
+			ptr++;
+			dev_n = atoi(ptr);
+			if (dev_n > 2)
+				continue;
+		}
 
 		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		switch (d->d_type) {
@@ -779,7 +836,8 @@ static void stress_dev_dir(
 				strncpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
-				stress_dev_rw(args, 8);
+				printf("stress %s\n", dev_path);
+				stress_dev_rw(args, loops);
 				inc_counter(args);
 			}
 			break;
@@ -787,7 +845,9 @@ static void stress_dev_dir(
 			break;
 		}
 	}
-	(void)closedir(dp);
+done:
+	if (dlist)
+		free(dlist);
 }
 
 /*
@@ -805,12 +865,6 @@ int stress_dev(const args_t *args)
 	pa.args = args;
 	pa.data = NULL;
 
-	rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
-	if (rc) {
-		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
-			args->name, rc, strerror(rc));
-		return EXIT_NO_RESOURCE;
-	}
 	(void)memset(ret, 0, sizeof(ret));
 
 	do {
@@ -840,18 +894,28 @@ again:
 		} else if (pid == 0) {
 			size_t i;
 
+
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
+			if (rc) {
+				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+					args->name, rc, strerror(rc));
+				return EXIT_NO_RESOURCE;
+			}
 
 			/* Make sure this is killable by OOM killer */
 			set_oom_adjustment(args->name, true);
+			mixup = mwc32();
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				ret[i] = pthread_create(&pthreads[i], NULL,
 						stress_dev_thread, (void *)&pa);
 			}
 
-			stress_dev_dir(args, "/dev", true, 0, euid);
+			do {
+				stress_dev_dir(args, "/dev", true, 0, euid);
+			} while (keep_stressing());
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				if (ret[i] == 0)
