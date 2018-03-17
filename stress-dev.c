@@ -836,7 +836,6 @@ static void stress_dev_dir(
 				strncpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
-				printf("stress %s\n", dev_path);
 				stress_dev_rw(args, loops);
 				inc_counter(args);
 			}
