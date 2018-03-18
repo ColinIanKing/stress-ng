@@ -2596,14 +2596,16 @@ static inline WARN_UNUSED ALWAYS_INLINE void *align_stack(void *stack_top)
 static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 {
 	uint32_t tmp;
-
 #if defined(HAVE_LIB_PTHREAD)
-	shim_pthread_spin_lock(&g_shared->warn_once.lock);
+	int ret;
+
+	ret = shim_pthread_spin_lock(&g_shared->warn_once.lock);
 #endif
 	tmp = !(g_shared->warn_once.flags & flag);
 	g_shared->warn_once.flags |= flag;
 #if defined(HAVE_LIB_PTHREAD)
-	shim_pthread_spin_unlock(&g_shared->warn_once.lock);
+	if (!ret)
+		shim_pthread_spin_unlock(&g_shared->warn_once.lock);
 #endif
 	return tmp;
 }
