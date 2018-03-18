@@ -64,11 +64,6 @@ typedef struct {
 	void (*func)(const char *name, const int fd, const char *devpath);
 } dev_func_t;
 
-static inline int gettid(void)
-{
-	return syscall(__NR_gettid);
-}
-
 static uint32_t path_sum(const char *path)
 {
 	const char *ptr = path;
