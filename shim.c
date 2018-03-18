@@ -1026,3 +1026,37 @@ void *shim_sbrk(intptr_t increment)
 #if defined(__APPLE__)
 PRAGMA_POP
 #endif
+
+/*
+ *   shim_strlcpy()
+ *	wrapper / implementation of BSD strlcpy
+ */
+size_t shim_strlcpy(char *dst, const char *src, size_t len)
+{
+#if defined(HAVE_STRLCPY)
+	return strlcpy(dst, src, len);
+#else
+	register char *d = dst;
+	register const char *s = src;
+	register size_t n = len;
+
+	if (n) {
+		while (--n) {
+			register char c = *s++;
+
+			*d++ = c;
+			if (c == '\0')
+				break;
+		}
+	}
+	
+	if (!n) {
+		if (len)
+			*d = '\0';
+		while (*s)
+			s++;
+	}
+
+	return (s - src - 1);
+#endif
+}

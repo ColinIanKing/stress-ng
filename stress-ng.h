@@ -2939,6 +2939,7 @@ extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_sync_file_range(int fd, shim_off64_t offset, shim_off64_t nbytes, unsigned int flags);
 extern int shim_brk(void *addr);
 extern void *shim_sbrk(intptr_t increment);
+extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 
 #define STRESS(func) extern int func(const args_t *args)
 
