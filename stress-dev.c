@@ -198,6 +198,7 @@ static void stress_dev_video_linux(const char *name, const int fd, const char *d
 }
 #endif
 
+#if defined(TCGETS)
 static void stress_dev_tty(const char *name, const int fd, const char *devpath)
 {
 	int ret;
@@ -312,6 +313,7 @@ static void stress_dev_tty(const char *name, const int fd, const char *devpath)
 	}
 #endif
 }
+#endif
 
 /*
  *  stress_dev_blk()
