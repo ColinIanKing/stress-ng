@@ -2562,10 +2562,10 @@ static void log_args(int argc, char **argv)
 
 	for (len = 0, i = 0; i < argc; i++) {
 		if (i) {
-			(void)strncat(buf + len, " ", 1);
+			(void)shim_strlcat(buf + len, " ", 1);
 			len++;
 		}
-		(void)strncat(buf + len, argv[i], arglen[i]);
+		(void)shim_strlcat(buf + len, argv[i], arglen[i]);
 		len += arglen[i];
 	}
 	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());

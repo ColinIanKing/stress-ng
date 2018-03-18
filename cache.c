@@ -452,10 +452,10 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	}
 
 	len = strlen(cpu_path);
-	(void)strncat(glob_path, cpu_path, len);
+	(void)shim_strlcat(glob_path, cpu_path, len);
 
 	len2 = strlen(SYS_CPU_CACHE_DIR);
-	(void)strncat(glob_path, SYS_CPU_CACHE_DIR, len2);
+	(void)shim_strlcat(glob_path, SYS_CPU_CACHE_DIR, len2);
 	len += len2;
 
 	ret2 = file_exists(glob_path);
@@ -476,7 +476,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-	(void)strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
+	(void)shim_strlcat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
 		sizeof(glob_path) - len - 1);
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
 

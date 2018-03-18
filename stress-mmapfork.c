@@ -55,14 +55,14 @@ static void MLOCKED stress_segvhandler(int dummy)
 	_exit(segv_ret);
 }
 
-static void __strncat(char *dst, char *src, size_t *n)
+static void __strlcat(char *dst, char *src, size_t *n)
 {
 	const size_t ln = strlen(src);
 
 	if (*n <= ln)
 		return;
 
-	(void)strncat(dst, src, *n);
+	(void)shim_strlcat(dst, src, *n);
 	*n -= ln;
 }
 
@@ -160,15 +160,15 @@ reap:
 		*buffer = '\0';
 
 		if (segv_reasons & _EXIT_SEGV_MMAP)
-			__strncat(buffer, " mmap", &n);
+			__strlcat(buffer, " mmap", &n);
 		if (segv_reasons & _EXIT_SEGV_MADV_WILLNEED)
-			__strncat(buffer, " madvise-WILLNEED", &n);
+			__strlcat(buffer, " madvise-WILLNEED", &n);
 		if (segv_reasons & _EXIT_SEGV_MADV_DONTNEED)
-			__strncat(buffer, " madvise-DONTNEED", &n);
+			__strlcat(buffer, " madvise-DONTNEED", &n);
 		if (segv_reasons & _EXIT_SEGV_MEMSET)
-			__strncat(buffer, " memset", &n);
+			__strlcat(buffer, " memset", &n);
 		if (segv_reasons & _EXIT_SEGV_MUNMAP)
-			__strncat(buffer, " munmap", &n);
+			__strlcat(buffer, " munmap", &n);
 
 		pr_dbg("%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
 			args->name, segv_count, buffer);
