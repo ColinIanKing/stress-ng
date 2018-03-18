@@ -544,7 +544,9 @@ static inline void stress_dev_rw(
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
+#if defined(TCGETS)
 		struct termios tios;
+#endif
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
