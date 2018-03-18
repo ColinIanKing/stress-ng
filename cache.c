@@ -40,7 +40,7 @@ typedef struct {
  */
 #define MK_PATH(path, len, element) 				\
 	(void)memset((path) + len, '\0', sizeof(path) - len);	\
-	(void)strncpy((path) + len, element, strlen(element))
+	(void)shim_strlcpy((path) + len, element, strlen(element))
 
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
@@ -279,7 +279,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	}
 
 	len = strlen(index_path);
-	(void)strncpy(path, index_path, len);
+	(void)shim_strlcpy(path, index_path, len);
 
 	MK_PATH(path, len, "/type");
 	contents = get_string_from_file(path);
@@ -593,7 +593,7 @@ cpus_t * get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			len = strlen(results[i]);
-			(void)strncpy(path, results[i], len);
+			(void)shim_strlcpy(path, results[i], len);
 			MK_PATH(path, len, "/online");
 
 			contents = get_string_from_file(path);

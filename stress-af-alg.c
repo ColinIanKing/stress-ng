@@ -152,8 +152,8 @@ static int stress_af_alg_hash(
 
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		(void)strncpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
-		(void)strncpy((char *)sa.salg_name, algo_hash_info[i].name,
+		(void)shim_strlcpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
+		(void)shim_strlcpy((char *)sa.salg_name, algo_hash_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -218,8 +218,8 @@ static int stress_af_alg_cipher(
 
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		(void)strncpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
-		(void)strncpy((char *)sa.salg_name, algo_cipher_info[i].name,
+		(void)shim_strlcpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
+		(void)shim_strlcpy((char *)sa.salg_name, algo_cipher_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -368,8 +368,8 @@ static int stress_af_alg_rng(
 
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
-		(void)strncpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
-		(void)strncpy((char *)sa.salg_name, algo_rng_info[i].name,
+		(void)shim_strlcpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
+		(void)shim_strlcpy((char *)sa.salg_name, algo_rng_info[i].name,
 			sizeof(sa.salg_name) - 1);
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {

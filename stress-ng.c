@@ -1613,7 +1613,7 @@ static inline int32_t stressor_name_find(const char *name)
 	const size_t len = strlen(tmp) + 1;
 	char munged_name[len];
 
-	(void)strncpy(munged_name, tmp, len);
+	(void)shim_strlcpy(munged_name, tmp, len);
 
 	for (i = 0; stressors[i].name; i++) {
 		const char *munged_stressor_name =
@@ -2400,7 +2400,7 @@ static int show_stressors(void)
 					return -1;
 				}
 				str = newstr;
-				(void)strncpy(str + len, buffer, buffer_len + 1);
+				(void)shim_strlcpy(str + len, buffer, buffer_len + 1);
 			}
 			len += buffer_len;
 		}

@@ -147,7 +147,7 @@ int parse_jobfile(
 
 		/* remove \n */
 		chop(buf, '\n');
-		strncpy(txt, buf, sizeof(txt) - 1);
+		(void)shim_strlcpy(txt, buf, sizeof(txt) - 1);
 
 		/* remove comments */
 		chop(buf, '#');

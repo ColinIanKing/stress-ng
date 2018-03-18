@@ -133,7 +133,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		(void)strncpy(msg.msg, MSG_STOP, sizeof(msg.msg));
+		(void)shim_strlcpy(msg.msg, MSG_STOP, sizeof(msg.msg));
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
 			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);

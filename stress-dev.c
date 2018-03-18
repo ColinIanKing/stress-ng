@@ -831,8 +831,7 @@ static void stress_dev_dir(
 				continue;
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				strncpy(filename, tmp, sizeof(filename) - 1);
-				filename[sizeof(filename) - 1] = '\0';
+				shim_strlcpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
 				stress_dev_rw(args, loops);

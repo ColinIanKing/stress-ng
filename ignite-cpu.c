@@ -93,7 +93,7 @@ void ignite_cpu_start(void)
 		if (!settings[i].setting)
 			continue;
 
-		(void)strncpy(settings[i].setting, buf, len);
+		(void)shim_strlcpy(settings[i].setting, buf, len);
 		settings[i].setting_len = len;
 		settings[i].ignore = false;
 		n++;

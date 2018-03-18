@@ -292,7 +292,7 @@ static void stress_sys_dir(
 
 			ret = pthread_spin_lock(&lock);
 			if (!ret) {
-				strncpy(filename, tmp, sizeof(filename));
+				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)pthread_spin_unlock(&lock);
 				stress_sys_rw(ctxt, loops);

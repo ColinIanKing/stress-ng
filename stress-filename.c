@@ -272,7 +272,7 @@ int stress_filename(const args_t *args)
 		pr_dbg("%s: maximum file size: %lu bytes\n",
 			args->name, (long unsigned) buf.f_namemax);
 
-	(void)strncpy(filename, dirname, sizeof(filename) - 1);
+	(void)shim_strlcpy(filename, dirname, sizeof(filename) - 1);
 	ptr = filename + strlen(dirname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
@@ -292,7 +292,7 @@ int stress_filename(const args_t *args)
 
 	switch (filename_opt) {
 	case STRESS_FILENAME_POSIX:
-		(void)strncpy(allowed, posix_allowed, sizeof(allowed));
+		(void)shim_strlcpy(allowed, posix_allowed, sizeof(allowed));
 		chars_allowed = strlen(allowed);
 		break;
 	case STRESS_FILENAME_EXT:

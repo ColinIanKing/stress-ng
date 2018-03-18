@@ -86,7 +86,7 @@ const char *duration_to_str(const double duration)
 
 	*str = '\0';
 	if (duration > 60.0) {
-		(void)strncpy(ptr, " (", len);
+		(void)shim_strlcpy(ptr, " (", len);
 		ptr += 2;
 		len -= 2;
 		format_time(false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
@@ -94,7 +94,7 @@ const char *duration_to_str(const double duration)
 		format_time(false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
 		format_time(false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
 		format_time(true, 1, "sec", &ptr, &dur, &len);
-		(void)strncpy(ptr, ")", len);
+		(void)shim_strlcpy(ptr, ")", len);
 	}
 	return str;
 }

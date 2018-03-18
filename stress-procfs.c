@@ -300,7 +300,7 @@ static void stress_proc_dir(
 		case DT_REG:
 			ret = pthread_spin_lock(&lock);
 			if (!ret) {
-				strncpy(filename, tmp, sizeof(filename));
+				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				proc_path = filename;
 				(void)pthread_spin_unlock(&lock);
 				stress_proc_rw(ctxt, loops);

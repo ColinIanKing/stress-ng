@@ -91,7 +91,7 @@ static void stress_inode_flags_stressor(
 	char *path;
 	int fdfile, fddir;
 
-	strncpy(pathname, filename, PATH_MAX - 1);
+	(void)shim_strlcpy(pathname, filename, PATH_MAX);
 	path = dirname(pathname);
 
 	fddir = open(path, O_RDONLY | O_DIRECTORY);
