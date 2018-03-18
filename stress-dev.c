@@ -673,7 +673,7 @@ static inline void stress_dev_rw(
 		}
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-			goto sync;
+			goto rdwr;
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			munmap(ptr, args->page_size);
@@ -681,7 +681,6 @@ static inline void stress_dev_rw(
 		if (ptr != MAP_FAILED)
 			munmap(ptr, args->page_size);
 
-sync:
 		ret = fsync(fd);
 		(void)ret;
 
