@@ -1049,7 +1049,7 @@ size_t shim_strlcpy(char *dst, const char *src, size_t len)
 				break;
 		}
 	}
-	
+
 	if (!n) {
 		if (len)
 			*d = '\0';
@@ -1058,5 +1058,43 @@ size_t shim_strlcpy(char *dst, const char *src, size_t len)
 	}
 
 	return (s - src - 1);
+#endif
+}
+
+/*
+ *   shim_strlcat()
+ *	wrapper / implementation of BSD strlcat
+ */
+size_t shim_strlcat(char *dst, const char *src, size_t len)
+{
+#if defined(HAVE_STRLCAT)
+	return strlcat(dst, src, len);
+#else
+	register char *d = dst;
+	register const char *s = src;
+	register size_t n = len, tmplen;
+
+	while (n-- && *d != '\0') {
+		d++;
+	}
+
+	tmplen = d - dst;
+	n = len - tmplen;
+
+	if (!n) {
+		return strlen(s) + tmplen;
+	}
+
+	while (*s != '\0') {
+		if (n != 1) {
+			*d = *s;
+			d++;
+			n--;
+		}
+		s++;
+	}
+	*d = '\0';
+
+	return (s - src) + tmplen;
 #endif
 }
