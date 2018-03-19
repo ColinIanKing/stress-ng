@@ -271,7 +271,7 @@ int stress_dirdeep(const args_t *args)
 	path_len = strlen(rootpath);
 
 	shim_strlcpy(linkpath, rootpath, sizeof(linkpath));
-	strlcat(linkpath, "/f", sizeof(linkpath) - 3);
+	shim_strlcat(linkpath, "/f", sizeof(linkpath) - 3);
 
 	pr_inf("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 		args->name, inodes_avail, inodes_avail - inodes_target_free);
