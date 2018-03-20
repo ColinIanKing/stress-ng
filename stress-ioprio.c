@@ -24,7 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_ioprio_set) && defined(__NR_ioprio_get)
+#if defined(__linux__) &&	\
+    defined(__NR_ioprio_set) &&	\
+    defined(__NR_ioprio_get) && \
+    defined(HAVE_PWRITEV)
 
 #include <sys/uio.h>
 
