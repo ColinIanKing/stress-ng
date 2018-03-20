@@ -80,9 +80,10 @@ static void *stress_mmapaddr_get_addr(
 {
 	unsigned char vec[1];
 	void *addr = NULL;
-	int ret;
 
 	while (keep_stressing()) {
+		int ret;
+
 		vec[0] = 0;
 		addr = (void *)(intptr_t)(mwc64() & mask);
 		ret = shim_mincore(addr, page_size, vec);
