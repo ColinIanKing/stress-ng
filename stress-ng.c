@@ -753,7 +753,9 @@ static const struct option long_options[] = {
 	{ "page-in",	0,	0,	OPT_PAGE_IN },
 	{ "parallel",	1,	0,	OPT_ALL },
 	{ "pathological",0,	0,	OPT_PATHOLOGICAL },
+#if defined(STRESS_PERF_STATS)
 	{ "perf",	0,	0,	OPT_PERF_STATS },
+#endif
 	{ "personality",1,	0,	OPT_PERSONALITY },
 	{ "personality-ops",1,	0,	OPT_PERSONALITY_OPS },
 	{ "physpage",	1,	0,	OPT_PHYSPAGE },
