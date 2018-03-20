@@ -158,12 +158,13 @@ static void stress_rawdev_ends(
 	unsigned long blksz)
 {
 	unsigned long i;
-	int ret;
 	char buf[blksz << 1];
 	char *aligned = align_address(buf, blksz);
 	off_t offset;
 
 	for (i = 0; i < 128; i++) {
+		int ret;
+
 		offset = (off_t)i * (off_t)blksz;
 		ret = pread(fd, aligned, (size_t)blksz, offset);
 		if (ret < 0) {
