@@ -2979,7 +2979,9 @@ static const long skip_syscalls[] = {
  */
 static void limit_procs(const int procs)
 {
+#if defined(RLIMIT_CPU) || defined(RLIMIT_NPROC)
 	struct rlimit lim;
+#endif
 
 #if defined(RLIMIT_CPU)
 	lim.rlim_cur = 1;
