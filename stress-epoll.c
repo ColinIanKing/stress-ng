@@ -432,6 +432,7 @@ static void epoll_server(
 	 *  creating the epoll fd, so randomly select one
 	 *  or the other to get more test coverage
 	 */
+#if defined(HAVE_EPOLL_CREATE1)
 	if (mwc1()) {
 		efd = epoll_create1(0);	/* flag version */
 		if (efd < 0) {
@@ -447,6 +448,14 @@ static void epoll_server(
 			goto die_close;
 		}
 	}
+#else
+	efd = epoll_create(1);	/* size version */
+	if (efd < 0) {
+		pr_fail_err("epoll_create");
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
+#endif
 	if (epoll_ctl_add(efd, sfd) < 0) {
 		pr_fail_err("epoll ctl add");
 		rc = EXIT_FAILURE;
