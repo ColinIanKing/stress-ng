@@ -23,7 +23,7 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__linux__) && defined(FS_IOC_FIEMAP)
+#if defined(__linux__) && defined(FS_IOC_FIEMAP) && defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fs.h>
 #include <linux/fiemap.h>
 #endif

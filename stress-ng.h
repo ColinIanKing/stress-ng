@@ -101,7 +101,9 @@
 #include <sys/prctl.h>
 #include <netinet/in.h>
 #include <linux/fs.h>
+#if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
+#endif
 #include <linux/posix_types.h>
 #endif
 #if defined(HAVE_SYSCALL_H)

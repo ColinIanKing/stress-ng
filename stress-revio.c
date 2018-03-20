@@ -249,7 +249,7 @@ static int stress_revio_advise(const args_t *args, const int fd, const int flags
 
 static inline size_t stress_revio_get_extents(const int fd)
 {
-#if defined(FS_IOC_FIEMAP)
+#if defined(FS_IOC_FIEMAP) && defined(HAVE_LINUX_FIEMAP_H)
 	struct fiemap fiemap;
 
 	fiemap.fm_length = ~0;
