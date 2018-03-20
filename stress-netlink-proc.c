@@ -100,8 +100,9 @@ static int monitor(const args_t *args, const int sock)
 		case PROC_EVENT_EXEC:
 		case PROC_EVENT_EXIT:
 		case PROC_EVENT_UID:
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 		case PROC_EVENT_SID:
-		
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)
 		case PROC_EVENT_COREDUMP:
