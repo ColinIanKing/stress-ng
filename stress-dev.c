@@ -321,21 +321,22 @@ static void stress_dev_tty(const char *name, const int fd, const char *devpath)
  */
 static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 {
-	int ret;
-
-	(void)ret;
 	(void)name;
 	(void)fd;
 	(void)devpath;
 
 #if defined(BLKFLSBUF)
-	ret = ioctl(fd, BLKFLSBUF, 0);
-	(void)ret;
+	{
+		int ret;
+		ret = ioctl(fd, BLKFLSBUF, 0);
+		(void)ret;
+	}
 #endif
 #if defined(BLKRAGET)
 	/* readahead */
 	{
 		unsigned long ra;
+		int ret;
 
 		ret = ioctl(fd, BLKRAGET, &ra);
 		(void)ret;
@@ -344,7 +345,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKROGET)
 	/* readonly state */
 	{
-		int ro;
+		int ret, ro;
 
 		ret = ioctl(fd, BLKROGET, &ro);
 		(void)ret;
@@ -353,7 +354,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKBSZGET)
 	/* get block device soft block size */
 	{
-		int sz;
+		int ret, sz;
 
 		ret = ioctl(fd, BLKBSZGET, &sz);
 		(void)ret;
@@ -362,7 +363,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKSSZGET)
 	/* get block device soft block size */
 	{
-		int sz;
+		int ret, sz;
 
 		ret = ioctl(fd, BLKSSZGET, &sz);
 		(void)ret;
@@ -372,6 +373,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 	/* get block device physical block size */
 	{
 		unsigned int sz;
+		int ret;
 
 		ret = ioctl(fd, BLKPBSZGET, &sz);
 		(void)ret;
@@ -380,6 +382,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKIOMIN)
 	{
 		unsigned int sz;
+		int ret;
 
 		ret = ioctl(fd, BLKIOMIN, &sz);
 		(void)ret;
@@ -388,6 +391,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKIOOPT)
 	{
 		unsigned int sz;
+		int ret;
 
 		ret = ioctl(fd, BLKIOOPT, &sz);
 		(void)ret;
@@ -396,6 +400,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKALIGNOFF)
 	{
 		unsigned int sz;
+		int ret;
 
 		ret = ioctl(fd, BLKALIGNOFF, &sz);
 		(void)ret;
@@ -404,6 +409,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKROTATIONAL)
 	{
 		unsigned short rotational;
+		int ret;
 
 		ret = ioctl(fd, BLKROTATIONAL, &rotational);
 		(void)ret;
@@ -412,6 +418,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKGETSIZE)
 	{
 		unsigned long sz;
+		int ret;
 
 		ret = ioctl(fd, BLKGETSIZE, &sz);
 		(void)ret;
@@ -420,6 +427,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #if defined(BLKGETSIZE64)
 	{
 		uint64_t sz;
+		int ret;
 
 		ret = ioctl(fd, BLKGETSIZE64, &sz);
 		(void)ret;
@@ -427,7 +435,7 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 #endif
 #if defined(FIBMAP)
 	{
-		int block = 0;
+		int ret, block = 0;
 
 		ret = ioctl(fd, FIBMAP, &block);
 		(void)ret;
