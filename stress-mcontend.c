@@ -198,7 +198,6 @@ static void *stress_memory_contend_thread(void *arg)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const pthread_args_t *pa = (const pthread_args_t *)arg;
 #if defined(HAVE_AFFINITY)
-	uint32_t cpu;
 	const uint32_t cpus = stress_get_processors_configured();
 #endif
 
@@ -225,7 +224,7 @@ static void *stress_memory_contend_thread(void *arg)
 		stress_memory_contend(pa);
 
 #if defined(HAVE_AFFINITY)
-		cpu = mwc32() % cpus;
+		const uint32_t cpu = mwc32() % cpus;
 
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
