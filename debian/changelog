@@ -1,3 +1,62 @@
+stress-ng (0.09.21-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dir: clean up warning on args on DragonFly build
+  * stress-dir: skip the sanitycheck on DragonFly BSD
+  * stress-rawdev: reduce the scope of 'ret'
+  * stress-mmapaddr: reduce the scope of 'ret'
+  * stress-mcontend: reduce the scope of variable 'cpu'
+  * stress-matrix: remove redundant initialization of a to NULL
+  * stress-filename: reduce scope of variable d
+  * stress-enosys: declare variable lim when only required
+  * stress-dev: make 'ret' local to ioctl test block scope
+  * Makefile.config: fix epoll_create build checking
+  * stress-ioprio: check for systems that don't support pwritev
+  * shim: overlooked another fallocate glibc call to fixup
+  * shim: use syscall to call fallocate, older glibc may not support it
+  * perf: cater for systems that don't support linux/perf_event.h
+  * stress-urandom: workaround __u32 definitions in pre-2.6.29 kernels
+  * stress-epoll: detect if epoll_create1 exists
+  * stress-netlink-proc: don't use PROC_EVENT_SID in kernels earlier
+    than 2.6.31
+  * Add detection for linux/fiemap.h
+  * test/test-librt.c: reorder functions in alphabetical order
+  * stress-dirdeep: use shim_strlcat instead of strlcat
+  * Replace strncat with safer strlcat
+  * Add shim version of strlcat
+  * Replace strncpy with safer strlcpy
+  * Add shim and implementation of shim_strlcpy()
+  * stress-dev: ensure we don't have a non-null terminated filename
+  * stress-dev: don't sync on fd when open failed
+  * stress-ng.h: check for spin lock failure
+  * stress-dev: add #ifdef around stress_dev_tty
+  * stress-dev: add #ifdef around struct termios tios declaration
+  * stress-dev: remove gettid, only used during debug on linux
+  * stress-dev: remove debug
+  * stress-dev: randomly mix up device path scanning, limit to max 3 of
+    same device
+  * stress-dev: add missing /dev/random ioctl handling
+  * stress-dev: add some Linux SCSI ioctls for block devices
+  * stress-file-ioctl: fix missing #if / #endif around shim_fallocate
+  * stress-procfs: mix up path name order to get a better spread
+  * stress-sysfs: mix up path name order to get a better spread
+  * stress-xattr: add missing setxattr and lsetxattr system calls
+  * stress-utime: add NULL utimes time and non-nul utime parameters
+  * stress-dir: add missing readdir() exercising
+  * stress-file-ioctl: add missing FIDEDUPERANGE ioctl
+  * stress-file-ioctl: exercise FS_IOC_RESVSP64
+  * stress-fcntl: ensure F_OWNER_GID is being exercised
+  * stress-get: add Linux lookup_dcookie call
+  * stress-dev: exercise tty ioctls on devices
+  * stress-file-ioctl: disable FIFREEZE/FITHAW filesystem ioctls
+  * test/test-ustat.c: ustat will fail on __arch64__, so don't enable it
+  * stress-enosys: add extra paranoid check on reboot syscall check
+  * stress-enosys: ensure all known syscalls are added to hash
+    table (LP: #1755358)
+  * Makefile.config: add -Wextra build check on ustat
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Mar 2018 12:59:58 +0000
+
 stress-ng (0.09.20-1) unstable; urgency=medium
 
   * Makefile: bump version
