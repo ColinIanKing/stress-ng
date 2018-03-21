@@ -54,10 +54,12 @@ static void stress_dir_read(
 		return;
 
 	while ((de = readdir(dp)) != NULL) {
+#if !defined(__DragonFly__)
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
 		}
+#endif
 	}
 
 	(void)closedir(dp);
