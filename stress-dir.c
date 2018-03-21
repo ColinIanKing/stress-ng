@@ -49,6 +49,10 @@ static void stress_dir_read(
 	DIR *dp;
 	struct dirent *de;
 
+#if defined(__DragonFly__)
+	(void)args;
+#endif
+
 	dp = opendir(path);
 	if (!dp)
 		return;
