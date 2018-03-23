@@ -51,9 +51,10 @@ bool process_oomed(const pid_t pid)
 		char buf[4096], *ptr;
 		ssize_t ret;
 
-		ret = read(fd, buf, sizeof(buf));
+		ret = read(fd, buf, sizeof(buf) - 1);
 		if (ret < 0)
 			break;
+		buf[ret] = '\0';
 
 		/*
 		 * Look for 'Out of memory: Kill process 22566'
