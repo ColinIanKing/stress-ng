@@ -40,7 +40,6 @@
  */
 bool process_oomed(const pid_t pid)
 {
-#if defined(__linux__)
 	int fd;
 	bool oomed = false;
 
@@ -75,11 +74,6 @@ bool process_oomed(const pid_t pid)
 	(void)close(fd);
 
 	return oomed;
-#else
-	(void)pid;
-
-	return false;
-#endif
 }
 
 
@@ -152,5 +146,11 @@ void set_oom_adjustment(const char *name, const bool killable)
 {
 	(void)name;
 	(void)killable;
+}
+bool process_oomed(const pid_t pid)
+{
+	(void)pid;
+
+	return false;
 }
 #endif
