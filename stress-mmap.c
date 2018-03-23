@@ -163,7 +163,7 @@ static void stress_mmap_child(
 		 *  Step #0, write + read the mmap'd data from the file back into
 		 *  the mappings.
 		 */
-		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+		if ((fd >= 0) && (g_opt_flags & OPT_FLAGS_MMAP_FILE)) {
 			off_t offset = 0;
 
 			for (n = 0; n < pages4k; n++, offset += page_size) {
