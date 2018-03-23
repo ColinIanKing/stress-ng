@@ -160,6 +160,26 @@ static void stress_mmap_child(
 		}
 
 		/*
+		 *  Step #0, write + read the mmap'd data from the file back into
+		 *  the mappings.
+		 */
+		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+			off_t offset = 0;
+
+			for (n = 0; n < pages4k; n++, offset += page_size) {
+				ssize_t ret;
+
+				if (lseek(fd, offset, SEEK_SET) < 0)
+					continue;
+
+				ret = write(fd, mappings[n], page_size);
+				(void)ret;
+				ret = read(fd, mappings[n], page_size);
+				(void)ret;
+			}
+		}
+
+		/*
 		 *  Step #1, unmap all pages in random order
 		 */
 		(void)mincore_touch_pages(buf, mmap_bytes);
