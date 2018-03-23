@@ -2494,6 +2494,7 @@ extern WARN_UNUSED bool cpu_is_x86(void);
 
 /* Misc settings helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
+extern WARN_UNUSED bool process_oomed(const pid_t pid);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);

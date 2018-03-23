@@ -35,6 +35,55 @@
 
 
 /*
+ *  process_oomed()
+ *	check if a process has been logged as OOM killed
+ */
+bool process_oomed(const pid_t pid)
+{
+#if defined(__linux__)
+	int fd;
+	bool oomed = false;
+
+	fd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
+	if (fd < 0)
+		return oomed;
+
+	for (;;) {
+		char buf[4096], *ptr;
+		ssize_t ret;
+
+		ret = read(fd, buf, sizeof(buf));
+		if (ret < 0)
+			break;
+
+		/*
+		 * Look for 'Out of memory: Kill process 22566'
+		 */
+		ptr = strstr(buf, "process");
+		if (ptr && (strstr(buf, "Out of memory") ||
+			    strstr(buf, "oom_reaper"))) {
+			pid_t oom_pid;
+
+			if (sscanf(ptr + 7, "%10d", &oom_pid) == 1) {
+				if (oom_pid == pid) {
+					oomed = true;
+					break;
+				}
+			}
+		}
+	}
+	(void)close(fd);
+
+	return oomed;
+#else
+	(void)pid;
+
+	return false;
+#endif
+}
+
+
+/*
  *  set_oom_adjustment()
  *	attempt to stop oom killer
  *	if we have root privileges then try and make process

@@ -2080,7 +2080,21 @@ redo:
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
 							ret, pi->stressor->name);
 #endif
-						*success = false;
+						/*
+						 *  If the stressor got killed by OOM or SIGKILL
+						 *  then somebody outside of our control nuked it
+						 *  so don't necessarily flag that up as a direct
+						 *  failure.
+						 */
+						if (process_oomed(ret)) {
+							pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
+								ret, pi->stressor->name);
+						} else if (WTERMSIG(status) == SIGKILL) {
+							pr_dbg("process [%d] (stress-ng-%s) was possibly killed by the OOM killer\n",
+								ret, pi->stressor->name);
+						} else {
+							*success = false;
+						}
 					}
 					switch (WEXITSTATUS(status)) {
 					case EXIT_SUCCESS:
