@@ -1,3 +1,16 @@
+stress-ng (0.09.22-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmap: add extra checking on fd, don't do I/O on -ve fd
+  * out-of-memory: ensure buffer is null-terminated
+  * out-of-memory: move non-linux variant of process_oomed
+  * out-of-memory: detect if a stressor was killed by the OOM killer and
+    don't mark it as a strict stressor failure (LP: #1755245)
+  * stress-mmap: add missing I/O to/from mmap'd buffer on mmap'd address
+  * stress-ng.h: fix missing perf option (LP: #1758383)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 23 Mar 2018 16:44:47 +0000
+
 stress-ng (0.09.21-1) unstable; urgency=medium
 
   * Makefile: bump version
