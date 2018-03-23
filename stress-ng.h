@@ -1113,7 +1113,7 @@ typedef struct {
 
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
-    defined(HAVE_PERF_EVENT_H) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H) &&	\
     defined(__linux__) &&		\
     defined(__NR_perf_event_open)
 #define STRESS_PERF_STATS	(1)
