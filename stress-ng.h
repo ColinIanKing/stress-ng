@@ -354,6 +354,7 @@ typedef struct setting {
 	pproc_info_t	proc;
 	char *name;			/* name of setting */
 	type_id_t	type_id;	/* setting type */
+	bool		global;		/* true if global */
 	union {				/* setting value */
 		uint8_t		uint8;
 		int8_t		int8;
@@ -2321,6 +2322,7 @@ extern put_val_t g_put_val;		/* sync data to somewhere */
  *  stressor option value handling
  */
 extern void set_setting(const char *name, const type_id_t type_id, const void *value);
+extern void set_setting_global(const char *name, const type_id_t type_id, const void *value);
 extern bool get_setting(const char *name, void *value);
 extern void free_settings(void);
 

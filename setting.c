@@ -52,11 +52,16 @@ void free_settings(void)
 	setting_tail = NULL;
 }
 
+
 /*
- *  set_setting()
+ *  set_setting_generic()
  *	set a new setting;
  */
-void set_setting(const char *name, const type_id_t type_id, const void *value)
+static void set_setting_generic(
+	const char *name,
+	const type_id_t type_id,
+	const void *value,
+	const bool global)
 {
 	setting_t *setting;
 
@@ -71,10 +76,13 @@ void set_setting(const char *name, const type_id_t type_id, const void *value)
 	setting->name = strdup(name);
 	setting->proc = proc_current;
 	setting->type_id = type_id;
+	setting->global = global;
 	if (!setting->name) {
 		free(setting);
 		goto err;
 	}
+
+	DBG("%s: %s, global = %s\n", __func__, name, global ? "true" : "false");
 
 	switch (type_id) {
 	case TYPE_ID_UINT8:
@@ -169,6 +177,31 @@ err:
 }
 
 /*
+ *  set_setting()
+ *	set a new setting;
+ */
+void set_setting(
+	const char *name,
+	const type_id_t type_id,
+	const void *value)
+{
+	set_setting_generic(name, type_id, value, false);
+}
+
+/*
+ *  set_setting_global()
+ *	set a new global setting;
+ */
+void set_setting_global(
+	const char *name,
+	const type_id_t type_id,
+	const void *value)
+{
+	set_setting_generic(name, type_id, value, true);
+}
+
+
+/*
  *  get_setting()
  *	get an existing setting;
  */
@@ -183,7 +216,7 @@ bool get_setting(const char *name, void *value)
 	for (setting = setting_head; setting; setting = setting->next) {
 		if (setting->proc == proc_current)
 			found = true;
-		if (found && (setting->proc != proc_current))
+		if (found && ((setting->proc != proc_current) && (!setting->global)))
 			break;
 
 		if (!strcmp(setting->name, name)) {

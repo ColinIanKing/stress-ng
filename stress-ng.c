@@ -2991,7 +2991,7 @@ next_opt:
 			break;
 		case OPT_BACKOFF:
 			i64 = (int64_t)get_uint64(optarg);
-			set_setting("backoff", TYPE_ID_INT64, &i64);
+			set_setting_global("backoff", TYPE_ID_INT64, &i64);
 			break;
 		case OPT_BIGHEAP_GROWTH:
 			stress_set_bigheap_growth(optarg);
@@ -3116,7 +3116,7 @@ next_opt:
 			stress_set_epoll_port(optarg);
 			break;
 		case OPT_EXCLUDE:
-			set_setting("exclude", TYPE_ID_STR, (void *)optarg);
+			set_setting_global("exclude", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_EXEC_MAX:
 			stress_set_exec_max(optarg);
@@ -3185,7 +3185,7 @@ next_opt:
 			stress_set_itimer_freq(optarg);
 			break;
 		case OPT_JOB:
-			set_setting("job", TYPE_ID_STR, (void *)optarg);
+			set_setting_global("job", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_KEEP_NAME:
 			g_opt_flags |= OPT_FLAGS_KEEP_NAME;
@@ -3200,7 +3200,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_LOG_BRIEF;
 			break;
 		case OPT_LOG_FILE:
-			set_setting("log-file", TYPE_ID_STR, (void *)optarg);
+			set_setting_global("log-file", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_LSEARCH_SIZE:
 			stress_set_lsearch_size(optarg);
@@ -3355,11 +3355,11 @@ next_opt:
 			break;
 		case OPT_SCHED:
 			i32 = get_opt_sched(optarg);
-			set_setting("sched", TYPE_ID_INT32, &i32);
+			set_setting_global("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_SCHED_PRIO:
 			i32 = get_int32(optarg);
-			set_setting("sched-prio", TYPE_ID_INT32, &i32);
+			set_setting_global("sched-prio", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_SCTP_PORT:
 			stress_set_sctp_port(optarg);
@@ -3572,7 +3572,7 @@ next_opt:
 				return EXIT_FAILURE;
 			break;
 		case OPT_YAML:
-			set_setting("yaml", TYPE_ID_STR, (void *)optarg);
+			set_setting_global("yaml", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_ZLIB_METHOD:
 #if defined(HAVE_LIB_Z)
