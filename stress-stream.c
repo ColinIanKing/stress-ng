@@ -87,7 +87,16 @@ int stress_set_stream_madvise(const char *opt)
 	return -1;
 }
 
-static inline void OPTIMIZE3 stress_stream_copy(
+void stress_set_stream_index(const char *opt)
+{
+	uint32_t stream_index;
+
+	stream_index = get_int32(opt);
+	check_range("stream-index", stream_index, 0, 3);
+	set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
+}
+
+static inline void OPTIMIZE3 stress_stream_copy_index0(
 	double *RESTRICT c,
 	const double *RESTRICT a,
 	const uint64_t n)
@@ -98,7 +107,46 @@ static inline void OPTIMIZE3 stress_stream_copy(
 		c[i] = a[i];
 }
 
-static inline void OPTIMIZE3 stress_stream_scale(
+static inline void OPTIMIZE3 stress_stream_copy_index1(
+	double *RESTRICT c,
+	const double *RESTRICT a,
+	size_t *RESTRICT idx1,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx1[i]] = a[idx1[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_copy_index2(
+	double *RESTRICT c,
+	const double *RESTRICT a,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx1[i]] = a[idx2[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_copy_index3(
+	double *RESTRICT c,
+	const double *RESTRICT a,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	size_t *RESTRICT idx3,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx3[idx1[i]]] = a[idx2[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_scale_index0(
 	double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
@@ -110,7 +158,49 @@ static inline void OPTIMIZE3 stress_stream_scale(
 		b[i] = q * c[i];
 }
 
-static inline void OPTIMIZE3 stress_stream_add(
+static inline void OPTIMIZE3 stress_stream_scale_index1(
+	double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		b[idx1[i]] = q * c[idx1[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_scale_index2(
+	double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		b[idx1[i]] = q * c[idx2[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_scale_index3(
+	double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	size_t *RESTRICT idx3,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		b[idx3[idx1[i]]] = q * c[idx2[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_add_index0(
 	const double *RESTRICT a,
 	const double *RESTRICT b,
 	double *RESTRICT c,
@@ -122,7 +212,49 @@ static inline void OPTIMIZE3 stress_stream_add(
 		c[i] = a[i] + b[i];
 }
 
-static inline void OPTIMIZE3 stress_stream_triad(
+static inline void OPTIMIZE3 stress_stream_add_index1(
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	double *RESTRICT c,
+	size_t *RESTRICT idx1,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx1[i]] = a[idx1[i]] + b[idx1[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_add_index2(
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	double *RESTRICT c,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx1[i]] = a[idx2[i]] + b[idx1[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_add_index3(
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	double *RESTRICT c,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	size_t *RESTRICT idx3,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		c[idx1[i]] = a[idx2[i]] + b[idx3[i]];
+}
+
+static inline void OPTIMIZE3 stress_stream_triad_index0(
 	double *RESTRICT a,
 	const double *RESTRICT b,
 	const double *RESTRICT c,
@@ -133,6 +265,51 @@ static inline void OPTIMIZE3 stress_stream_triad(
 
 	for (i = 0; i < n; i++)
 		a[i] = b[i] + (c[i] * q);
+}
+
+static inline void OPTIMIZE3 stress_stream_triad_index1(
+	double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		a[idx1[i]] = b[idx1[i]] + (c[idx1[i]] * q);
+}
+
+static inline void OPTIMIZE3 stress_stream_triad_index2(
+	double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		a[idx1[i]] = b[idx2[i]] + (c[idx1[i]] * q);
+}
+
+static inline void OPTIMIZE3 stress_stream_triad_index3(
+	double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	size_t *RESTRICT idx1,
+	size_t *RESTRICT idx2,
+	size_t *RESTRICT idx3,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
+		a[idx1[i]] = b[idx2[i]] + (c[idx3[i]] * q);
 }
 
 static void stress_stream_init_data(
@@ -223,6 +400,25 @@ static inline uint64_t get_stream_L3_size(const args_t *args)
 	return cache_size;
 }
 
+static void stress_stream_init_index(
+	size_t *RESTRICT idx,
+	const uint64_t n)
+{
+	uint64_t i;
+
+	for (i = 0; i < n; i++) 
+		idx[i] = i;
+
+	for (i = 0; i < n; i++) {
+		register uint64_t j = mwc64() % n;
+		register uint64_t tmp;
+
+		tmp = idx[i];
+		idx[i] = idx[j];
+		idx[j] = tmp;
+	}
+}
+
 /*
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
@@ -231,9 +427,11 @@ int stress_stream(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	double *a, *b, *c;
+	size_t *idx1 = NULL, *idx2 = NULL, *idx3 = NULL;
 	const double q = 3.0;
 	double mb_rate, mb, fp_rate, fp, t1, t2, dt;
-	uint64_t L3, sz, n;
+	uint32_t stream_index = 0;
+	uint64_t L3, sz, n, sz_idx;
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	bool guess = false;
 
@@ -241,6 +439,8 @@ int stress_stream(const args_t *args)
 		L3 = stream_L3_size;
 	else
 		L3 = get_stream_L3_size(args);
+
+	(void)get_setting("stream-index", &stream_index);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {
@@ -285,16 +485,65 @@ int stress_stream(const args_t *args)
 	if (c == MAP_FAILED)
 		goto err_c;
 
+	sz_idx = n * sizeof(size_t);
+	switch (stream_index) {
+	case 3:
+		idx3 = stress_stream_mmap(args, sz_idx);
+		if (idx3 == MAP_FAILED)
+			goto err_idx3;
+		stress_stream_init_index(idx3, n);
+		CASE_FALLTHROUGH;
+	case 2:
+		idx2 = stress_stream_mmap(args, sz_idx);
+		if (idx2 == MAP_FAILED)
+			goto err_idx2;
+		stress_stream_init_index(idx2, n);
+		CASE_FALLTHROUGH;
+	case 1:
+		idx1 = stress_stream_mmap(args, sz_idx);
+		if (idx1 == MAP_FAILED)
+			goto err_idx1;
+		stress_stream_init_index(idx1, n);
+		CASE_FALLTHROUGH;
+	case 0:
+	default:
+		break;
+		
+	}
+
 	stress_stream_init_data(a, n);
 	stress_stream_init_data(b, n);
 	stress_stream_init_data(c, n);
 
 	t1 = time_now();
 	do {
-		stress_stream_copy(c, a, n);
-		stress_stream_scale(b, c, q, n);
-		stress_stream_add(c, b, a, n);
-		stress_stream_triad(a, b, c, q, n);
+		switch (stream_index) {
+		case 3:
+			stress_stream_copy_index3(c, a, idx1, idx2, idx3, n);
+			stress_stream_scale_index3(b, c, q, idx1, idx2, idx3, n);
+			stress_stream_add_index3(c, b, a, idx1, idx2, idx3, n);
+			stress_stream_triad_index3(a, b, c, q, idx1, idx2, idx3, n);
+			break;
+		case 2:
+			stress_stream_copy_index2(c, a, idx1, idx2, n);
+			stress_stream_scale_index2(b, c, q, idx1, idx2, n);
+			stress_stream_add_index2(c, b, a, idx1, idx2, n);
+			stress_stream_triad_index2(a, b, c, q, idx1, idx2, n);
+			break;
+		case 1:
+			stress_stream_copy_index1(c, a, idx1, n);
+			stress_stream_scale_index1(b, c, q, idx1, n);
+			stress_stream_add_index1(c, b, a, idx1, n);
+			stress_stream_triad_index1(a, b, c, q, idx1, n);
+			break;
+		case 0:
+		default:
+			stress_stream_copy_index0(c, a, n);
+			stress_stream_scale_index0(b, c, q, n);
+			stress_stream_add_index0(c, b, a, n);
+			stress_stream_triad_index0(a, b, c, q, n);
+			break;
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 	t2 = time_now();
@@ -315,6 +564,15 @@ int stress_stream(const args_t *args)
 
 	rc = EXIT_SUCCESS;
 
+	if (idx3)
+		(void)munmap((void *)idx3, sz_idx);
+err_idx3:
+	if (idx2)
+		(void)munmap((void *)idx2, sz_idx);
+err_idx2:
+	if (idx1)
+		(void)munmap((void *)idx1, sz_idx);
+err_idx1:
 	(void)munmap((void *)c, sz);
 err_c:
 	(void)munmap((void *)b, sz);

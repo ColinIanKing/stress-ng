@@ -897,6 +897,7 @@ static const struct option long_options[] = {
 	{ "stressors",	0,	0,	OPT_STRESSORS },
 	{ "stream",	1,	0,	OPT_STREAM },
 	{ "stream-ops",	1,	0,	OPT_STREAM_OPS },
+	{ "stream-index",1,	0,	OPT_STREAM_INDEX },
 	{ "stream-l3-size",1,	0,	OPT_STREAM_L3_SIZE },
 	{ "stream-madvise",1,	0,	OPT_STREAM_MADVISE },
 	{ "swap",	1,	0,	OPT_SWAP },
@@ -1501,6 +1502,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"str-ops N",		"stop after N bogo string operations" },
 	{ NULL,		"stream N",		"start N workers exercising memory bandwidth" },
 	{ NULL,		"stream-ops N",		"stop after N bogo stream operations" },
+	{ NULL,		"stream-index",		"specify number of indices into the data (0..3)" },
 	{ NULL,		"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,		"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
 	{ NULL,		"swap N",		"start N workers exercising swapon/swapoff" },
@@ -3435,6 +3437,9 @@ next_opt:
 		case OPT_STR_METHOD:
 			if (stress_set_str_method(optarg) < 0)
 				return EXIT_FAILURE;
+			break;
+		case OPT_STREAM_INDEX:
+			stress_set_stream_index(optarg);
 			break;
 		case OPT_STREAM_L3_SIZE:
 			stress_set_stream_L3_size(optarg);

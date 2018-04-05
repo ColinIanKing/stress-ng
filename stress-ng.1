@@ -2859,6 +2859,14 @@ benchmarking tool if you desire accurate and standardised STREAM benchmarks.
 stop after N stream bogo operations, where a bogo operation is one round
 of copy, scale, add and triad operations.
 .TP
+.B \-\-stream\-index N
+specify number of stream indices used to index into the data arrays a, b and
+c.  This adds indirection into the data lookup by using randomly shuffled
+indexing into the three data arrays. Level 0 (no indexing) is the default,
+and 3 is where all 3 arrays are indexed via 3 different randomly shuffled
+indexes. The higher the index setting the more impact this has on L1, L2
+and L3 caching and hence forces higher memory read/write latencies.
+.TP
 .B \-\-stream\-l3\-size N
 Specify the CPU Level 3 cache size in bytes.  One can specify the size in
 units of Bytes, KBytes, MBytes and GBytes using the suffix b, k, m or g.
