@@ -274,6 +274,8 @@ static int stress_af_alg_cipher(
 
 			/* Set up random Initialization Vector */
 			cmsg = CMSG_NXTHDR(&msg, cmsg);
+			if (!cmsg)
+				break;
 			cmsg->cmsg_level = SOL_ALG;
 			cmsg->cmsg_type = ALG_SET_IV;
 			cmsg->cmsg_len = CMSG_LEN(4) + CMSG_LEN(iv_size);
@@ -303,6 +305,8 @@ static int stress_af_alg_cipher(
 
 			/* Chosen operation - DECRYPT */
 			cmsg = CMSG_FIRSTHDR(&msg);
+			if (!cmsg)
+				break;
 			cmsg->cmsg_level = SOL_ALG;
 			cmsg->cmsg_type = ALG_SET_OP;
 			cmsg->cmsg_len = CMSG_LEN(4);
