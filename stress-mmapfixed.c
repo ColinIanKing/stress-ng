@@ -73,7 +73,7 @@ static void stress_mmap_child(const args_t *args)
 			newbuf = mremap(buf, sz, sz,
 					MREMAP_FIXED | MREMAP_MAYMOVE,
 					(void *)newaddr);
-			if (newbuf != MAP_FAILED)
+			if (newbuf && (newbuf != MAP_FAILED))
 				buf = newbuf;
 
 			(void)madvise_random(buf, sz);
