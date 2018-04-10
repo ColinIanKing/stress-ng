@@ -62,6 +62,8 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 	char *mnts[MAX_MOUNTS];
 	int i, n, fd = -1;
 
+	(void)memset(mnts, 0, sizeof(mnts));
+
 	*len = 0;
 	n = mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n < 0)
@@ -72,6 +74,8 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 	for (i = 0; i < n; i++) {
 		struct statfs buf;
 
+		if (!mnts[i])
+			continue;
 		/* Some paths should be avoided... */
 		if (!strncmp(mnts[i], "/dev", 4))
 			continue;
