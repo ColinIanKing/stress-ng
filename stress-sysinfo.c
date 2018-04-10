@@ -49,6 +49,8 @@ int stress_sysinfo(const args_t *args)
 	int n_mounts;
 	char *mnts[128];
 
+	memset(mnts, 0, sizeof(mnts));
+
 	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n_mounts < 0) {
 		pr_err("%s: failed to get mount points\n", args->name);
