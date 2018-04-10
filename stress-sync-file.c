@@ -165,8 +165,8 @@ int stress_sync_file(const args_t *args)
 			offset = (mwc64() % sync_file_bytes) & ~((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
-				break;
 				pr_fail_err("sync_file_range (random)");
+				break;
 			}
 		}
 		inc_counter(args);
