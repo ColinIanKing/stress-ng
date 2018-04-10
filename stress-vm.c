@@ -2078,7 +2078,7 @@ again:
 						args->max_ops << VM_BOGO_SHIFT);
 
 			if (vm_hang == 0) {
-				for (;;) {
+				while (keep_stressing_vm(args)) {
 					(void)sleep(3600);
 				}
 			} else if (vm_hang != DEFAULT_VM_HANG) {
