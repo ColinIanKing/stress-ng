@@ -273,7 +273,9 @@ static void NORETURN waste_resources(
 			info[i].pty_slave = -1;
 			if (info[i].pty_master >= 0) {
 				const char *slavename = ptsname(info[i].pty_master);
-				info[i].pty_slave = open(slavename, O_RDWR | flag);
+
+				if (slavename)
+					info[i].pty_slave = open(slavename, O_RDWR | flag);
 			}
 		}
 #endif
