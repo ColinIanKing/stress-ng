@@ -123,7 +123,7 @@ static int do_fcntl(const args_t *args, const int fd)
 		if (old_flags > -1) {
 			int new_flags, ret;
 
-			new_flags = old_flags |= O_APPEND;
+			new_flags = old_flags | O_APPEND;
 			ret = fcntl(fd, F_SETFL, new_flags);
 			check_return(args, ret, "F_SETFL");
 
