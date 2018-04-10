@@ -85,8 +85,10 @@ int main(void)
 		return -1;
 
 	fan_fd = fanotify_init(0, 0);
-	if (fan_fd < 0)
+	if (fan_fd < 0) {
+		free(buffer);
 		return -1;
+	}
 
 	ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
 		FAN_ACCESS| FAN_MODIFY | FAN_OPEN | FAN_CLOSE |
