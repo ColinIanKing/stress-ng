@@ -114,7 +114,7 @@ void ignite_cpu_start(void)
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		for (;;) {
+		while (g_keep_stressing_flag) {
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
@@ -124,6 +124,7 @@ void ignite_cpu_start(void)
 			}
 			sleep(1);
 		}
+		exit(0);
 	} else {
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
