@@ -223,7 +223,8 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		(void)shim_strlcpy(buf, PIPE_STOP, pipe_data_size);
+		(void)memset(buf, 0, sizeof(buf));
+		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
 				pr_fail_dbg("termination write");
