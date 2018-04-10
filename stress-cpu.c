@@ -567,7 +567,7 @@ static void stress_cpu_hash_generic(
  */
 static uint32_t HOT OPTIMIZE3 jenkin(const uint8_t *data, const size_t len)
 {
-	register uint8_t i;
+	register size_t i;
 	register uint32_t h = 0;
 
 	for (i = 0; i < len; i++) {
