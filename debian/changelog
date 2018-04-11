@@ -1,3 +1,29 @@
+stress-ng (0.09.24-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Misc small fixes detected by static analysis (LP: #1762848)
+  * stress-fcntl: use | rather than |= to get new_flags
+  * stress-tmpfs: clear mnts and check if mnts[i] is null
+  * stress-sync-file: fix incorrect placement of break statement
+  * stress-af-alkg: check for more NULL cmsg pointers
+  * stress-pipe: ensure no uninitialized data is written to pipe
+  * stress-fcntl: use | rather than |= to get new_flags
+  * test/test-posix-memalign.c: free allocated buffer
+  * test/test-fanotify.c: free buffer
+  * stress-mmapfailed: check for null return from mremap
+  * stress-af-alkg: check for NULL cmsg
+  * stress-resources: don't open on a null slavename
+  * stress-sysinfo: ensure mnts array is zero'd
+  * stress-cpu: make loop index in jenkin func size_t to fix overflow
+  * stress-vm: don't loop forever in child sleep loop
+  * ignite-cpu: don't wait for parent to kill loop, add timeout
+    check too
+  * Double number of stressor processes up to 8192
+  * Add stream-index indexing option
+  * Make some settings global to fix args confustion
+
+ -- Colin King <colin.king@canonical.com>  Wed, 11 Apr 2018 09:58:44 +0100
+
 stress-ng (0.09.23-1) unstable; urgency=medium
 
   * Makefile: bump version
