@@ -73,17 +73,16 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	if ((number & 0xffff) == __NR_reboot)
 		return true;
 #endif
-
 #if defined(SYS_clone)
 	if ((number & 0xffff) == SYS_clone)
 		return true;
 #endif
-#if defined(SYS_clone2)
-	if ((number & 0xffff) == SYS_clone2)
-		return true;
-#endif
 #if defined(__NR_clone)
 	if ((number & 0xffff) == __NR_clone)
+		return true;
+#endif
+#if defined(SYS_clone2)
+	if ((number & 0xffff) == SYS_clone2)
 		return true;
 #endif
 #if defined(__NR_clone2)
@@ -106,7 +105,14 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	if ((number & 0xffff) == __NR_vfork)
 		return true;
 #endif
-
+#if defined(SYS_vhangup)
+        if ((number & 0xffff) == SYS_vhangup)
+                return true;
+#endif
+#if defined(__NR_vhangup)
+        if ((number & 0xffff) == __NR_vhangup)
+                return true;
+#endif
 	while (h) {
 		if (h->number == number)
 			return true;
