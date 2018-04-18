@@ -1,3 +1,11 @@
+stress-ng (0.09.25-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-ng: don't enable TARGET_CLONES for kFreeBSD (LP: #1765050)
+  * stress-enosys: avoid calling vhangup with upper bits set (LP: #1757967)
+
+ -- Colin King <colin.king@canonical.com>  Wed, 18 Apr 2018 15:25:51 +0100
+
 stress-ng (0.09.24-1) unstable; urgency=medium
 
   * Makefile: bump version
