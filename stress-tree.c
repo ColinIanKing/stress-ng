@@ -110,13 +110,13 @@ static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 		return -1;
 }
 
-static RB_HEAD(rb_tree, tree_node) rb_root;
-RB_PROTOTYPE(rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
-RB_GENERATE(rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
+static RB_HEAD(stress_rb_tree, tree_node) rb_root;
+RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
+RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 
-static SPLAY_HEAD(splay_tree, tree_node) splay_root;
-SPLAY_PROTOTYPE(splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
-SPLAY_GENERATE(splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+static SPLAY_HEAD(stress_splay_tree, tree_node) splay_root;
+SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
 	const args_t *args,
@@ -131,21 +131,21 @@ static void stress_tree_rb(
 	for (node = data, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
-		res = RB_FIND(rb_tree, &rb_root, node);
+		res = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!res)
-			RB_INSERT(rb_tree, &rb_root, node);
+			RB_INSERT(stress_rb_tree, &rb_root, node);
 	}
 	for (node = data, i = 0; i < n; i++, node++) {
 		struct tree_node *find;
 
-		find = RB_FIND(rb_tree, &rb_root, node);
+		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
 			pr_err("%s: rb tree node #%zd node found\n",
 				args->name, i);
 	}
-	for (node = RB_MIN(rb_tree, &rb_root); node; node = next) {
-		next = RB_NEXT(rb_tree, &rb_root, node);
-		RB_REMOVE(rb_tree, &rb_root, node);
+	for (node = RB_MIN(stress_rb_tree, &rb_root); node; node = next) {
+		next = RB_NEXT(stress_rb_tree, &rb_root, node);
+		RB_REMOVE(stress_rb_tree, &rb_root, node);
 	}
 }
 
@@ -162,21 +162,21 @@ static void stress_tree_splay(
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
-		res = SPLAY_FIND(splay_tree, &splay_root, node);
+		res = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!res)
-			SPLAY_INSERT(splay_tree, &splay_root, node);
+			SPLAY_INSERT(stress_splay_tree, &splay_root, node);
 	}
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		struct tree_node *find;
 
-		find = SPLAY_FIND(splay_tree, &splay_root, node);
+		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
 			pr_err("%s: splay tree node #%zd node found\n",
 				args->name, i);
 	}
-	for (node = SPLAY_MIN(splay_tree, &splay_root); node; node = next) {
-		next = SPLAY_NEXT(splay_tree, &splay_root, node);
-		SPLAY_REMOVE(splay_tree, &splay_root, node);
+	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
+		next = SPLAY_NEXT(stress_splay_tree, &splay_root, node);
+		SPLAY_REMOVE(stress_splay_tree, &splay_root, node);
 		memset(&node->u.splay, 0, sizeof(node->u.splay));
 	}
 }
