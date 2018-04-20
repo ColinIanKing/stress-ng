@@ -19,6 +19,7 @@ parts:
             - libkeyutils-dev
             - libapparmor-dev
             - libaio-dev
+            - libsctp-dev
             - libcap-dev
 
 apps:
