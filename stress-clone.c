@@ -209,8 +209,11 @@ static void stress_clone_free(void)
 static int clone_func(void *arg)
 {
 	size_t i;
+	const args_t *args = arg;
 
 	(void)arg;
+
+	set_oom_adjustment(args->name, true);
 
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
 		(void)unshare(unshare_flags[i]);
@@ -306,7 +309,7 @@ again:
 					break;
 				stack_top = clone_info->stack + stack_offset;
 				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, NULL);
+					align_stack(stack_top), flag, (void *)args);
 				if (clone_info->pid == -1) {
 					/*
 					 * Reached max forks or error
