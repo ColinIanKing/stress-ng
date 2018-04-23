@@ -26,9 +26,10 @@
 
 static NOINLINE void vm_unmap_child(const size_t page_size)
 {
-	size_t len = 1ULL << 63;
+	size_t len = ~(size_t)0;
 	void *addr = align_address((void *)vm_unmap_child, page_size);
 
+	len = len ^ (len >> 1);
 	while (len > page_size) {
 		munmap((void *)0, len - page_size);
 		len >>= 1;
