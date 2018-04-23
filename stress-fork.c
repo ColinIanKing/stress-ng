@@ -64,6 +64,8 @@ static int stress_fork_fn(
 {
 	pid_t pids[MAX_FORKS];
 
+	set_oom_adjustment(args->name, true);
+
 	do {
 		unsigned int i;
 
