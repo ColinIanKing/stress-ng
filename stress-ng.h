@@ -1427,6 +1427,7 @@ typedef enum {
 	STRESS_VM,
 	STRESS_VM_ADDR,
 	STRESS_VM_RW,
+	STRESS_VM_SEGV,
 	STRESS_VM_SPLICE,
 	STRESS_WAIT,
 	STRESS_WCS,
@@ -2216,6 +2217,9 @@ typedef enum {
 	OPT_VM_RW,
 	OPT_VM_RW_OPS,
 	OPT_VM_RW_BYTES,
+
+	OPT_VM_SEGV,
+	OPT_VM_SEGV_OPS,
 
 	OPT_VM_SPLICE,
 	OPT_VM_SPLICE_OPS,
@@ -3144,6 +3148,7 @@ STRESS(stress_vforkmany);
 STRESS(stress_vm);
 STRESS(stress_vm_addr);
 STRESS(stress_vm_rw);
+STRESS(stress_vm_segv);
 STRESS(stress_vm_splice);
 STRESS(stress_wait);
 STRESS(stress_wcs);

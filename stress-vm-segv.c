@@ -1,0 +1,116 @@
+/*
+ * Copyright (C) 2013-2018 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+/*
+ *  stress_vm_segv()
+ *	stress vm segv by unmapping child's address space
+ *	and generating a segv on return because child has
+ *	no address space on return.
+ */
+int stress_vm_segv(const args_t *args)
+{
+	set_oom_adjustment(args->name, true);
+
+	do {
+		pid_t pid;
+
+again:
+		if (!g_keep_stressing_flag)
+			return EXIT_SUCCESS;
+		pid = fork();
+		if (pid < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				goto again;
+			pr_err("%s: fork failed: errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		} else if (pid > 0) {
+			int status, ret;
+
+			(void)setpgid(pid, g_pgrp);
+			/* Parent, wait for child */
+			ret = waitpid(pid, &status, 0);
+			if (ret < 0) {
+				if (errno != EINTR)
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				(void)kill(pid, SIGTERM);
+				(void)kill(pid, SIGKILL);
+				(void)waitpid(pid, &status, 0);
+			} else if (WIFSIGNALED(status)) {
+				pr_dbg("%s: child died: %s (instance %d)\n",
+					args->name, stress_strsignal(WTERMSIG(status)),
+					args->instance);
+				/* If we got killed by OOM killer, re-start */
+				if (WTERMSIG(status) == SIGKILL) {
+					if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+						log_system_mem_info();
+						pr_dbg("%s: assuming killed by OOM "
+							"killer, bailing out "
+							"(instance %d)\n",
+							args->name, args->instance);
+						_exit(0);
+					} else {
+						log_system_mem_info();
+						pr_dbg("%s: assuming killed by OOM "
+							"killer, restarting again "
+							"(instance %d)\n",
+							args->name, args->instance);
+						goto again;
+					}
+				}
+				/* expected: child killed itself with SIGSEGV */
+				if (WTERMSIG(status) == SIGSEGV) {
+					inc_counter(args);
+					continue;
+				}
+			}
+		} else if (pid == 0) {
+			/* Child */
+			size_t len = 1ULL << 63;
+			const size_t page_size = args->page_size;
+			const struct rlimit lim = { RLIM_INFINITY, RLIM_INFINITY };
+
+			setrlimit(RLIMIT_CORE, &lim);
+
+			/*
+			 *  Try to ummap the child's address space, should cause
+			 *  a SIGSEGV at some point..
+			 */
+			while (len > page_size) {
+				munmap((void *)0, len - page_size);
+				len >>= 1;
+			}
+
+			/* No luck, well that's unexpected.. */
+			_exit(EXIT_FAILURE);
+		}
+		
+	} while (keep_stressing());
+
+	return EXIT_SUCCESS;
+}
+

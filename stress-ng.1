@@ -3415,6 +3415,13 @@ mmap N bytes per vm\-rw worker, the default is 16MB. One can specify the size
 as % of total available memory or in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
+.B \-\-vm\-segv N
+start N workers that create a child process that unmaps its address space
+causing a SIGSEGV on return from the unmap.
+.TP
+.B \-\-vm\-segv\-ops N
+stop after N bogo vm\-segv SIGSEGV faults.
+.TP
 .B \-\-vm\-splice N
 move data from memory to /dev/null through a pipe without any copying between
 kernel address space and user address space using vmsplice(2) and splice(2).
