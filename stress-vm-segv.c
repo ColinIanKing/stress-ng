@@ -24,6 +24,28 @@
  */
 #include "stress-ng.h"
 
+static NOINLINE void vm_unmap_child(const size_t page_size)
+{
+	size_t len = 1ULL << 63;
+	void *addr = align_address((void *)vm_unmap_child, page_size);
+
+	while (len > page_size) {
+		munmap((void *)0, len - page_size);
+		len >>= 1;
+		clflush(addr);
+		shim_clear_cache(addr, addr + 64);
+	}
+}
+
+static NOINLINE void vm_unmap_self(const size_t page_size)
+{
+	void *addr = align_address((void *)vm_unmap_self, page_size);
+
+	munmap(addr, page_size);
+	clflush(addr);
+	shim_clear_cache(addr, addr + 64);
+}
+
 /*
  *  stress_vm_segv()
  *	stress vm segv by unmapping child's address space
@@ -90,7 +112,6 @@ again:
 			}
 		} else if (pid == 0) {
 			/* Child */
-			size_t len = 1ULL << 63;
 			const size_t page_size = args->page_size;
 			const struct rlimit lim = { RLIM_INFINITY, RLIM_INFINITY };
 
@@ -100,10 +121,12 @@ again:
 			 *  Try to ummap the child's address space, should cause
 			 *  a SIGSEGV at some point..
 			 */
-			while (len > page_size) {
-				munmap((void *)0, len - page_size);
-				len >>= 1;
-			}
+			vm_unmap_child(page_size);
+
+			/*
+			 *  That failed, so try unmapping this function
+			 */
+			vm_unmap_self(page_size);
 
 			/* No luck, well that's unexpected.. */
 			_exit(EXIT_FAILURE);
