@@ -496,6 +496,7 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 #endif
 }
 
+#if defined(__linux__)
 static void stress_dev_random_linux(const char *name, const int fd, const char *devpath)
 {
 	(void)name;
@@ -512,6 +513,89 @@ static void stress_dev_random_linux(const char *name, const int fd, const char *
 	}
 #endif
 }
+#endif
+
+#if defined(__linux__)
+
+static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
+{
+	void *ptr;
+	const size_t page_size = stress_get_pagesize();
+
+	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (ptr != MAP_FAILED) {
+		munmap(ptr, page_size);
+	}
+	if (read_page) {
+		char buffer[page_size];
+		ssize_t ret;
+
+		ret = read(fd, buffer, page_size);
+		(void)ret;
+	}
+
+	ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
+	if (ptr != MAP_FAILED) {
+		munmap(ptr, page_size);
+	}
+
+}
+
+static void stress_dev_mem_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+	stress_dev_mem_mmap_linux(fd, false);
+}
+#endif
+
+#if defined(__linux__)
+static void stress_dev_kmem_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+	stress_dev_mem_mmap_linux(fd, false);
+}
+#endif
+
+#if defined(__linux__)
+static void stress_dev_kmsg_linux(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+	stress_dev_mem_mmap_linux(fd, true);
+}
+#endif
+
+#if defined(__linux__) && defined(STRESS_X86)
+static void stress_dev_port_linux(const char *name, const int fd, const char *devpath)
+{
+	off_t off;
+	uint8_t *ptr;
+	const size_t page_size = stress_get_pagesize();
+
+	(void)name;
+	(void)devpath;
+
+	/* seek and read port 0x80 */
+	off = lseek(fd, (off_t)0x80, SEEK_SET);
+	if (off == 0) {
+		char data[1];
+		ssize_t ret;
+
+		ret = read(fd, data, sizeof(data));
+		(void)ret;
+	}
+
+	/* Should fail */
+	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (ptr != MAP_FAILED)
+		munmap(ptr, page_size);
+}
+#endif
 
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
@@ -529,7 +613,15 @@ static const dev_func_t dev_funcs[] = {
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
 #endif
+#if defined(__linux__)
 	DEV_FUNC("/dev/random",	stress_dev_random_linux),
+	DEV_FUNC("/dev/mem",	stress_dev_mem_linux),
+	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
+	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
+#endif
+#if defined(__linux__) && defined(STRESS_X86)
+	DEV_FUNC("/dev/port",	stress_dev_port_linux),
+#endif
 };
 
 /*
@@ -548,7 +640,7 @@ static inline void stress_dev_rw(
 	void *ptr;
 	struct timeval tv;
 	size_t i;
-	char *path;
+	char path[PATH_MAX];
 	const double threshold = 0.25;
 
 	while (loops == -1 || loops > 0) {
@@ -561,10 +653,10 @@ static inline void stress_dev_rw(
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		path = (char *)dev_path;
+		shim_strlcpy(path, dev_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!path || !g_keep_stressing_flag)
+		if (!dev_path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
@@ -898,7 +990,6 @@ again:
 			}
 		} else if (pid == 0) {
 			size_t i;
-
 
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
