@@ -211,13 +211,20 @@ static void stress_mmap_child(
 				if (!mapped[page]) {
 					off_t offset = (g_opt_flags & OPT_FLAGS_MMAP_FILE) ?
 							page * page_size : 0;
+					int fixed_flags = MAP_FIXED;
+
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
+#if defined(MAP_FIXED_NOREPLACE)
+					if (mwc1())
+						fixed_flags = MAP_FIXED_NOREPLACE;
+#endif
 					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
-						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | *flags, fd, offset);
+						page_size, PROT_READ | PROT_WRITE, fixed_flags | *flags, fd, offset);
+
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
