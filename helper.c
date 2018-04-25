@@ -1292,8 +1292,6 @@ int stress_drop_capabilities(const char *name)
 		return -1;
 	}
 #endif
-
-
 	return 0;
 }
 #else
