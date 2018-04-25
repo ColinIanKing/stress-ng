@@ -63,8 +63,13 @@ static int stress_fork_fn(
 	const uint64_t fork_max)
 {
 	pid_t pids[MAX_FORKS];
+	int ret;
 
 	set_oom_adjustment(args->name, true);
+
+	/* Explicitly drop capabilites, makes it more OOM-able */
+	ret = stress_drop_capabilities(args->name);
+	(void)ret;
 
 	do {
 		unsigned int i;

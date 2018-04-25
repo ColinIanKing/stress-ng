@@ -92,13 +92,17 @@ again:
 	} else if (pid == 0) {
 		uint8_t *start_ptr;
 		bool touch = !(g_opt_flags & OPT_FLAGS_BRK_NOTOUCH);
-		int i = 0;
+		int ret, i = 0;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
+
+		/* Explicitly drop capabilites, makes it more OOM-able */
+		ret = stress_drop_capabilities(args->name);
+		(void)ret;
 
 		start_ptr = shim_sbrk(0);
 		if (start_ptr == (void *) -1) {

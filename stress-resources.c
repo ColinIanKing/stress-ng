@@ -468,8 +468,13 @@ int stress_resources(const args_t *args)
 
 			pid = fork();
 			if (pid == 0) {
+				int ret;
+
 				(void)setpgid(0, g_pgrp);
 				set_oom_adjustment(args->name, true);
+				ret = stress_drop_capabilities(args->name);
+				(void)ret;
+
 				waste_resources(args, page_size, pipe_size, mem_slack);
 				_exit(0); /* should never get here */
 			}

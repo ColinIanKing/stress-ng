@@ -291,12 +291,17 @@ again:
 		}
 	} else if (pid == 0) {
 		/* Child */
+		int ret;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
+
+		/* Explicitly drop capabilites, makes it more OOM-able */
+		ret = stress_drop_capabilities(args->name);
+		(void)ret;
 
 		do {
 			if (clones.length < clone_max) {
