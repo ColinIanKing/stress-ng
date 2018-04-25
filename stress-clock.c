@@ -46,6 +46,9 @@ static const clock_info_t clocks[] = {
 #if defined(CLOCK_MONOTONIC_RAW)
 	CLOCK_INFO(CLOCK_MONOTONIC_RAW),
 #endif
+#if defined(CLOCK_MONOTONIC_ACTIVE)
+	CLOCK_INFO(CLOCK_MONOTONIC_ACTIVE),
+#endif
 #if defined(CLOCK_BOOTTIME)
 	CLOCK_INFO(CLOCK_BOOTTIME),
 #endif
