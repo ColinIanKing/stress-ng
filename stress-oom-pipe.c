@@ -115,11 +115,15 @@ again:
 		}
 	} else if (pid == 0) {
 		/* Child */
-		int fds[max_pipes * 2], *fd, i, pipes_open = 0;
+		int fds[max_pipes * 2], *fd, i, pipes_open = 0, ret;
 		const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 
 		(void)setpgid(0, g_pgrp);
 		set_oom_adjustment(args->name, true);
+
+		/* Explicitly drop capabilites, makes it more OOM-able */
+		ret = stress_drop_capabilities(args->name);
+		(void)ret;
 
 		for (i = 0; i < max_pipes * 2; i++)
 			fds[i] = -1;
