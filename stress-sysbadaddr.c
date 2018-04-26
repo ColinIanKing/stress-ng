@@ -399,10 +399,12 @@ static int bad_waitpid(void *addr)
 	return waitpid(getpid(), addr, 0);
 }
 
+#if defined(HAVE_WAITID)
 static int bad_waitid(void *addr)
 {
 	return waitid(P_PID, getpid(), addr, 0);
 }
+#endif
 
 static int bad_write(void *addr)
 {
@@ -495,7 +497,9 @@ static bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_wait,
 	bad_waitpid,
+#if defined(HAVE_WAITID)
 	bad_waitid,
+#endif
 	bad_write,
 	bad_writev,
 };
