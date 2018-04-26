@@ -1080,7 +1080,7 @@ static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
-#if defined(HAVE_LIB_PTHREAD_SPINLOCK)
+#if defined(HAVE_LIB_PTHREAD_SPINLOCK) && !defined(__DragonFly__)
 typedef pthread_spinlock_t 	shim_pthread_spinlock_t;
 
 #define SHIM_PTHREAD_PROCESS_SHARED		PTHREAD_PROCESS_SHARED
