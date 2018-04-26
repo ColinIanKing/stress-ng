@@ -38,6 +38,7 @@
 #endif
 
 #include <poll.h>
+#include <termios.h>
 
 typedef void *(*bad_addr_t)(const args_t *args);
 typedef int (*bad_syscall_t)(void *addr);
