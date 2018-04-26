@@ -214,6 +214,19 @@ int stress_fanotify(const args_t *args)
 			if (ret == 0)
 				continue;
 
+#if defined(FIONREAD)
+			{
+				int isz, ret;
+
+				/*
+				 *  Force kernel to determine number
+				 *  of bytes that are ready to be read
+				 *  for some extra stress
+				 */
+				ret = ioctl(fan_fd, FIONREAD, &isz);
+				(void)ret;
+			}
+#endif
 			if ((len = read(fan_fd, (void *)buffer, BUFFER_SIZE)) > 0) {
 				struct fanotify_event_metadata *metadata;
 				metadata = (struct fanotify_event_metadata *)buffer;
