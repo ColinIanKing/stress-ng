@@ -597,6 +597,13 @@ static void stress_dev_port_linux(const char *name, const int fd, const char *de
 }
 #endif
 
+static void stress_dev_null_nop(const char *name, const int fd, const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -621,7 +628,8 @@ static const dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__) && defined(STRESS_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
-#endif
+#endif	
+	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 };
 
 /*
