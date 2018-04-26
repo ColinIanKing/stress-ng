@@ -168,13 +168,12 @@ static int bad_access(void *addr)
 	return access(addr, R_OK);
 }
 
+#if _POSIX_C_SOURCE >= 199309L && defined(CLOCK_REALTIME)
 static int bad_clock_gettime(void *addr)
 {
-#if _POSIX_C_SOURCE >= 199309L && defined(CLOCK_REALTIME)
 	return clock_gettime(CLOCK_REALTIME, addr);
-#else
-#endif
 }
+#endif
 
 static int bad_execve(void *addr)
 {
@@ -431,7 +430,9 @@ static int bad_writev(void *addr)
 
 static bad_syscall_t bad_syscalls[] = {
 	bad_access,
+#if _POSIX_C_SOURCE >= 199309L && defined(CLOCK_REALTIME)
 	bad_clock_gettime,
+#endif
 	bad_execve,
 	bad_getcwd,
 #if defined(__linux__) && defined(__NR_get_mempolicy)
