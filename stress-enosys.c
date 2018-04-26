@@ -2998,6 +2998,8 @@ static void limit_procs(const int procs)
 	lim.rlim_cur = procs;
 	lim.rlim_max = procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
+#else
+	(void)procs;
 #endif
 }
 
