@@ -28,7 +28,7 @@
 #define _XOPEN_SOURCE	600
 
 #if defined(HAVE_LIB_CRYPT)
-#if defined (__linux__)
+#if defined(__linux__) || defined(__sun__)
 #include <crypt.h>
 #endif
 
