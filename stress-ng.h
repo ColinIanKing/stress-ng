@@ -1405,6 +1405,7 @@ typedef enum {
 	STRESS_SWITCH,
 	STRESS_SYMLINK,
 	STRESS_SYNC_FILE,
+	STRESS_SYSBADADDR,
 	STRESS_SYSINFO,
 	STRESS_SYSFS,
 	STRESS_TEE,
@@ -2115,6 +2116,9 @@ typedef enum {
 	OPT_SYNC_FILE,
 	OPT_SYNC_FILE_OPS,
 	OPT_SYNC_FILE_BYTES,
+
+	OPT_SYSBADADDR,
+	OPT_SYSBADADDR_OPS,
 
 	OPT_SYSINFO,
 	OPT_SYSINFO_OPS,
@@ -3126,6 +3130,7 @@ STRESS(stress_swap);
 STRESS(stress_switch);
 STRESS(stress_symlink);
 STRESS(stress_sync_file);
+STRESS(stress_sysbadaddr);
 STRESS(stress_sysinfo);
 STRESS(stress_sysfs);
 STRESS(stress_tee);

@@ -2914,6 +2914,15 @@ specify the size of the file to be sync'd. One can specify the size as % of free
 space on the file system in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
+.B \-\-sysbadaddr N
+start N workers that pass bad addresses to system calls to exercise bad address
+and fault handling. The addresses used are null pointers, read only pages,
+write only pages, unmapped addresses, text only pages, unaligned addresses and top of
+memory addresses.
+.TP
+.B \-\-sysbadaddr\-ops N
+stop the sysbadaddr stressors after N bogo system calls.
+.TP
 .B \-\-sysinfo N
 start N workers that continually read system and process specific information.
 This reads the process user and system times using the times(2) system call.
