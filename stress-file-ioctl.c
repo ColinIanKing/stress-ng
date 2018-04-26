@@ -102,6 +102,7 @@ int stress_file_ioctl(const args_t *args)
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd + 1);
 	dfd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (dfd < 0) {
+		(void)close(fd);
 		pr_err("%s: cannot create %s\n", args->name, filename);
 		return exit_status(errno);
 	}
