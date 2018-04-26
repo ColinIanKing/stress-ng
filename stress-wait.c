@@ -186,10 +186,7 @@ int stress_wait(const args_t *args)
 		inc_counter(args);
 #endif
 
-#if defined(WCONTINUED) && \
-    (_SVID_SOURCE || _XOPEN_SOURCE >= 500 || \
-    _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED || \
-    _POSIX_C_SOURCE >= 200809L)
+#if defined(HAVE_WAITID)
 		if (options) {
 			siginfo_t info;
 
