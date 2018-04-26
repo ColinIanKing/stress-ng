@@ -256,7 +256,7 @@ static int bad_migrate_pages(void *addr)
 
 static int bad_mincore(void *addr)
 {
-	return mincore(ro_page, 1, addr);
+	return shim_mincore(ro_page, 1, addr);
 }
 
 #if defined(__linux__) && defined(__NR_move_pages)
