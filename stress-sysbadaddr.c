@@ -26,10 +26,12 @@
 
 #if defined(__linux__)
 #include <sys/sysinfo.h>
-#include <ustat.h>
 #include <utime.h>
 #include <sys/ptrace.h>
 #include <sys/vfs.h>
+#if defined(__NR_ustat)
+#include <ustat.h>
+#endif
 #endif
 #if defined(__linux__) && defined(HAVE_XATTR_H)
 #include <attr/xattr.h>
@@ -373,7 +375,7 @@ static int bad_times(void *addr)
 	return times(addr);
 }
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_ustat)
 static int bad_ustat(void *addr)
 {
 	dev_t dev = { 0 };
@@ -489,7 +491,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_timer_create,
 #endif
 	bad_times,
-#if defined(__linux__)
+#if defined(__linux__) && defined(__NR_ustat)
 	bad_ustat,
 #endif
 #if defined(__linux__)
