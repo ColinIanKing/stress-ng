@@ -84,9 +84,11 @@ again:
 				(void)kill(pid, SIGKILL);
 				(void)waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {
+				/*
 				pr_dbg("%s: child died: %s (instance %d)\n",
 					args->name, stress_strsignal(WTERMSIG(status)),
 					args->instance);
+				*/
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
 					if (g_opt_flags & OPT_FLAGS_OOMABLE) {
