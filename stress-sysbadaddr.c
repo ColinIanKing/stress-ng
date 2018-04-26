@@ -240,10 +240,12 @@ static int bad_getxattr(void *addr)
 }
 #endif
 
+#if defined(TCGETS)
 static int bad_ioctl(void *addr)
 {
 	return ioctl(0, TCGETS, addr);
 }
+#endif
 
 #if defined(__linux__) && defined(__NR_migrate_pages)
 static int bad_migrate_pages(void *addr)
@@ -450,7 +452,9 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(__linux__) && defined(HAVE_XATTR_H)
 	bad_getxattr,
 #endif
+#if defined(TCGETS)
 	bad_ioctl,
+#endif
 #if defined(__linux__) && defined(__NR_migrate_pages)
 	bad_migrate_pages,
 #endif
