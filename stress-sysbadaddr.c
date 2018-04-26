@@ -289,7 +289,7 @@ static int bad_pipe(void *addr)
 	return pipe(addr);
 }
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(PTRACE_GETREGS)
 static int bad_ptrace(void *addr)
 {
 	return ptrace(PTRACE_GETREGS, getpid(), addr, addr);
@@ -471,7 +471,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_open,
 	bad_pipe,
 	bad_poll,
-#if defined(__linux__)
+#if defined(__linux__) && defined(PTRACE_GETREGS)
 	bad_ptrace,
 #endif
 	bad_read,
