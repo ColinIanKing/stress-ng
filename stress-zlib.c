@@ -336,7 +336,7 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 	extern char edata;
 	char *text_end = &edata;
 #endif
-	static char *text = NULL;
+	char *text = NULL, *dataptr;
 	const size_t text_len = text_end - text_start;
 
 	if (use_rand_data) {
@@ -372,10 +372,9 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 	/* Start in random place in stress-ng text segment */
 	text = text_start + (mwc64() % text_len);
 
-	for (i = 0; i < n; i++, data++) {
-		*data = *text;
-		text++;
-		if (text > text_end)
+	for (dataptr = (char *)data, i = 0; i < n; i++, dataptr++) {
+		*dataptr = *text;
+		if (text++ >= text_end)
 			text = text_start;
 	}
 	(void)stress_sigrestore(args->name, SIGSEGV, &sigsegv_orig);
