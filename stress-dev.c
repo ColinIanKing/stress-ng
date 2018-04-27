@@ -660,7 +660,7 @@ static inline void stress_dev_rw(
 	off_t off;
 	struct stat buf;
 	struct pollfd fds[1];
-	fd_set rfds, wfds;
+	fd_set rfds;
 	void *ptr;
 	size_t i;
 	char path[PATH_MAX];
@@ -740,6 +740,7 @@ static inline void stress_dev_rw(
 #if !defined(__NetBSD__)
 		{
 			struct timeval tv;
+			fd_set wfds;
 
 			FD_ZERO(&rfds);
 			FD_SET(fd, &rfds);
