@@ -978,7 +978,7 @@ done:
 int stress_dev(const args_t *args)
 {
 	pthread_t pthreads[MAX_DEV_THREADS];
-	int rc, ret[MAX_DEV_THREADS];
+	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
 	uid_t euid = geteuid();
 	pthread_args_t pa;
 
@@ -1011,6 +1011,12 @@ again:
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
 				(void)waitpid(pid, &status, 0);
+			} else {
+				if (WIFEXITED(status) &&
+				    WEXITSTATUS(status) != 0) {
+					rc = EXIT_FAILURE;
+					break;
+				}
 			}
 		} else if (pid == 0) {
 			size_t i;
@@ -1041,12 +1047,13 @@ again:
 				if (ret[i] == 0)
 					pthread_join(pthreads[i], NULL);
 			}
+			_exit(!g_keep_stressing_flag);
 		}
 	} while (keep_stressing());
 
 	(void)shim_pthread_spin_destroy(&lock);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 #else
 int stress_dev(const args_t *args)
