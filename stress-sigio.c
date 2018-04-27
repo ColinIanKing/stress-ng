@@ -92,11 +92,13 @@ int stress_sigio(const args_t *args)
 	}
 	rd_fd = fds[0];
 
+#if !defined(__minix__)
 	ret = fcntl(fds[0], F_SETOWN, getpid());
 	if (ret < 0) {
 		pr_fail_err("fcntl F_SETOWN");
 		goto err;
 	}
+#endif
 	ret = fcntl(fds[0], F_GETFL);
 	if (ret < 0) {
 		pr_fail_err("fcntl F_GETFL");
