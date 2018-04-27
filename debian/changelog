@@ -1,3 +1,69 @@
+stress-ng (0.09.26-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove TARGET_CLONES on some functions that break on gcc 7.2 on
+    kFreeBSD
+  * Use nanosleep where possible for usleep, add nanosleep check
+  * stress-dev: move wfds to select local scope to fix NetBSD warning
+  * stress-dev: NetBSD hangs on select on some devices, so disable this
+  * stress-dev: pass child failure status to parent
+  * stress-dev: fix warning on char being passed to isdigit on NetBSD
+  * stress-dev: NetBSD uses different sorting prototype
+  * stress-sigio: don't do fcntl F_SETOWN for minix, it always fails
+  * stress-sigio: fix hang in *BSD systems when we SIGALRM not handled
+  * stress-sigio: exit in sighandler to force earlier termination
+  * stress-sigio: add yield points to break out of heavy looping
+  * shim: cater for systems that don't have mlock
+  * stress-utime: check HAVE_FUTIMENS for declaration of ts
+  * test/test-mq-posix: mq_* is defined but not implemented on kfreeBSD
+  * test/test-syncfs: syncfs is defined but not implemented on kfreeBSD
+  * stress-dirdeep: use HAVE_FUTIMENS
+  * Makefile.comfig: fix typo in funtimens
+  * test/test-futimens: check also for UTIME_NOW and UTIME_OMIT
+  * Add build time check for futimens
+  * test/test-dup3: trigger failure with FreeBSD kernel
+  * stress-zlib: fix longjmp clobber warnings on data
+  * stress-revio: make alloc_buf void * to avoid type punning warnings
+    on gcc 3.4.3
+  * stress-hdd: make alloc_buf void * to avoid type punning warnings on
+    gcc 3.4.3
+  * Add shim wrapper for mlock for Solaris compat reasons
+  * stress-fanotify: peek into number of bytes to be read with FIONREAD
+  * stress-crypt: include <crypt.h> if on Solaris
+  * stress-enosys: avoid warning on unused procs on Solaris
+  * stress-sysbadaddr.c: avoid warning on unused procs on Solaris
+  * stress-sysbadaddr.c: include termios.h for TCGETS
+  * stress-vm-segv: remove debug, it is spamming the output
+  * stress-sysbadaddr: don't use ustat if it is not defined
+  * stress-sysbadaddr: ensure we have PTRACE_GETREGS defined
+  * Workaround failing pthread spinlock on DragonFly BSD
+  * stress-dev: add /dev/null nop to have at least one item in table
+  * stress-wait: use HAVE_WAITID to check for waitid() call
+  * stress-sysbadaddr + Makefile.config: Add HAVE_WAITID check
+  * stress-sysbadaddr: fix conditional build on bad_clock_gettime
+  * stress-sysbadaddr: use mincore shim to fix build on GNU/Hurd
+  * stress-sysbadaddr: ensure TCGETS is defined
+  * stress-file-ioctl: fix a file handle leak
+  * Add sysbadaddr stressor to exercise system call bad address handling
+  * stress-mmap: use new MAP_FIXED_NOREPLACE flag introduced in 4.17
+  * stress-clock: add CLOCK_MONOTONIC_ACTIVE that was added to Linux 4.17
+  * stress-oom-pipe: Explicitly drop capabilities to make root spawned
+    processes more OOMable
+  * Explicitly drop capabilities to make root spawned processes more
+    OOMable
+  * helper: remove some blank lines
+  * stress-dev: add linux stress for /dev/{mem|kmem|port|kmsg}
+  * stress-vm-segv: don't assume max size of size_t
+  * stress-vm-segv: ensure we force SEGVs by invalidating I$ cache
+  * Add --vm-segv option to force SEGVs on unmapping
+  * stress-fork: make it more OOMable
+  * stress-clone: make clone'd procs OOMable
+  * make main process less likely to be OOM-able
+  * snapcraft: add libsctp-dev
+  * stress-tree: rename BSD trees to fix build error on OpenBSD 6.3
+
+ -- Colin King <colin.king@canonical.com>  Fri, 27 Apr 2018 15:59:11 +0100
+
 stress-ng (0.09.25-1) unstable; urgency=medium
 
   * Makefile: bump version
