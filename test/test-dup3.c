@@ -27,6 +27,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#if defined(__FreeBSD_kernel__)
+#error dup3 is not implemented with FreeBSD kernel
+#endif
+
 int main(void)
 {
 	int fd1, fd2, fd3, ret = 1;
