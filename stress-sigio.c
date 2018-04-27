@@ -48,8 +48,11 @@ static void MLOCKED stress_sigio_handler(int dummy)
 
         (void)dummy;
 
-	if (!keep_stressing() && (pid > 0)) {
-		(void)kill(pid, SIGKILL);
+	if (!keep_stressing()) {
+		if (pid > 0)
+			(void)kill(pid, SIGKILL);
+
+		shim_sched_yield();
 		_exit(0);
 	}
 
