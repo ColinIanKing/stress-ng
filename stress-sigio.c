@@ -50,7 +50,7 @@ static void MLOCKED stress_sigio_handler(int dummy)
 
 	if (!keep_stressing() && (pid > 0)) {
 		(void)kill(pid, SIGKILL);
-		return;
+		_exit(0);
 	}
 
 	if (rd_fd > 0) {
@@ -62,6 +62,7 @@ static void MLOCKED stress_sigio_handler(int dummy)
 			got_err = errno;
 		else if (sigio_args)
 			inc_counter(sigio_args);
+		shim_sched_yield();
 	}
 }
 
@@ -126,6 +127,7 @@ int stress_sigio(const args_t *args)
 			n = write(fds[1], buffer, sizeof buffer);
 			if (n < 0)
 				break;
+			shim_sched_yield();
 		}
 		(void)close(fds[1]);
 		_exit(1);
