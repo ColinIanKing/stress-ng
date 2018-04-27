@@ -273,7 +273,7 @@ static inline size_t stress_revio_get_extents(const int fd)
 int stress_revio(const args_t *args)
 {
 	uint8_t *buf = NULL;
-	uint8_t *alloc_buf;
+	void *alloc_buf;
 	uint64_t i;
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
