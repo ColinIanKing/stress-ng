@@ -143,7 +143,7 @@ static void stress_dir_exercise(
 {
 	struct dirent **namelist;
 	int n;
-#if _POSIX_C_SOURCE >= 200809L
+#if defined(HAVE_FUTIMENS)
 	const double now = time_now();
 	const time_t sec = (time_t)now;
 	const long nsec = (long)((now - (double)sec) * 1000000000.0);
