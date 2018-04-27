@@ -926,7 +926,7 @@ static void stress_dev_dir(
 			int dev_n;
 			char *ptr = d->d_name + len - 1;
 
-			while (ptr > d->d_name && isdigit(*ptr))
+			while (ptr > d->d_name && isdigit((int)*ptr))
 				ptr--;
 			ptr++;
 			dev_n = atoi(ptr);
