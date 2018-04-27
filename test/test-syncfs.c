@@ -29,6 +29,10 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#if defined(__FreeBSD_kernel__)
+#error syncfs is not implemented with FreeBSD kernel
+#endif
+
 int main(void)
 {
 	static const char *filename = "/tmp/test-syncfs.tmp";
