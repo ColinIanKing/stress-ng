@@ -64,12 +64,12 @@ static int do_mlock(const void *addr, size_t len)
 	}
 
 	/* Just do mlock */
-	return mlock((const void *)addr, len);
+	return shim_mlock((const void *)addr, len);
 }
 #else
 static inline int do_mlock(const void *addr, size_t len)
 {
-	return mlock((const void *)addr, len);
+	return shim_mlock((const void *)addr, len);
 }
 #endif
 

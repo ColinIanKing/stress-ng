@@ -580,6 +580,20 @@ int shim_sched_setattr(
 }
 
 /*
+ *  shim_mlock()
+ *	wrapper for mlock(2) - lock memory
+ */
+int shim_mlock(const void *addr, size_t len)
+{
+#if defined(__sun__)
+	return mlock((caddr_t)addr, len);
+#else
+	return mlock(addr, len);
+#endif
+}
+
+
+/*
  *  shim_mlock2()
  *	wrapper for mlock2(2) - lock memory
  */

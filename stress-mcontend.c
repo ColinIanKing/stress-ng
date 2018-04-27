@@ -288,8 +288,8 @@ int stress_mcontend(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	(void)close(fd);
-	(void)mlock(data[0], args->page_size);
-	(void)mlock(data[1], args->page_size);
+	(void)shim_mlock(data[0], args->page_size);
+	(void)shim_mlock(data[1], args->page_size);
 
 	pa.data = data;
 	for (i = 0; i < MAX_READ_THREADS; i++) {
