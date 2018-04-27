@@ -67,7 +67,7 @@ int stress_utime(const args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
-#if defined(__linux__)
+#if defined(HAVE_FUTIMENS)
 		if (futimens(fd, NULL) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));

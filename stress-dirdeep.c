@@ -177,7 +177,7 @@ static void stress_dir_exercise(
 			fd = open(path, O_RDONLY);
 			if (fd >= 0) {
 				const uint16_t rnd = mwc16();
-#if _POSIX_C_SOURCE >= 200809L
+#if defined(HAVE_FUTIMENS)
 				int ret = futimens(fd, times);
 				(void)ret;
 #endif
