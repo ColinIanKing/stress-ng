@@ -33,6 +33,9 @@
 #if defined(__gnu_hurd__)
 #error posix message queues not implemented on GNU/HURD
 #endif
+#if defined(__FreeBSD_kernel__)
+#error posix message queues not implemented with FreeBSD kernel
+#endif
 
 typedef struct {
         unsigned int	value;
