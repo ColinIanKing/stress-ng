@@ -29,6 +29,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#if !defined(UTIME_NOW) 
+#error futimens missing UTIME_NOW
+#endif
+#if !defined(UTIME_OMIT) 
+#error futimens missing UTIME_OMIT
+#endif
+
 int main(void)
 {
 	static const char *filename = "/tmp/futimes.tmp";
