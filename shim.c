@@ -585,10 +585,18 @@ int shim_sched_setattr(
  */
 int shim_mlock(const void *addr, size_t len)
 {
+#if defined(HAVE_MLOCK)
 #if defined(__sun__)
 	return mlock((caddr_t)addr, len);
 #else
 	return mlock(addr, len);
+#endif
+#else
+	(void)addr;
+	(void)len;
+
+	errno = ENOSYS;
+	return -1;
 #endif
 }
 
