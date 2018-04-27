@@ -662,7 +662,6 @@ static inline void stress_dev_rw(
 	struct pollfd fds[1];
 	fd_set rfds, wfds;
 	void *ptr;
-	struct timeval tv;
 	size_t i;
 	char path[PATH_MAX];
 	const double threshold = 0.25;
@@ -738,20 +737,26 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 
-		FD_ZERO(&rfds);
-		FD_SET(fd, &rfds);
-		FD_ZERO(&wfds);
-		FD_SET(fd, &wfds);
-		tv.tv_sec = 0;
-		tv.tv_usec = 10000;
-		ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
-		(void)ret;
+#if !defined(__NetBSD__)
+		{
+			struct timeval tv;
 
-		if (time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
+			FD_ZERO(&rfds);
+			FD_SET(fd, &rfds);
+			FD_ZERO(&wfds);
+			FD_SET(fd, &wfds);
+			tv.tv_sec = 0;
+			tv.tv_usec = 10000;
+			ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
+			(void)ret;
+
+			if (time_now() - t_start > threshold) {
+				timeout = true;
+				(void)close(fd);
+				goto next;
+			}
 		}
+#endif
 
 #if defined(F_GETFD)
 		ret = fcntl(fd, F_GETFD, NULL);
