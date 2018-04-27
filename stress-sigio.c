@@ -36,6 +36,7 @@ static volatile int got_err;
 static int rd_fd;
 static const args_t *sigio_args;
 static pid_t pid;
+static double time_end;
 
 /*
  *  stress_sigio_handler()
@@ -48,7 +49,7 @@ static void MLOCKED stress_sigio_handler(int dummy)
 
         (void)dummy;
 
-	if (!keep_stressing()) {
+	if (!keep_stressing() || (time_now() > time_end)) {
 		if (pid > 0)
 			(void)kill(pid, SIGKILL);
 
@@ -79,6 +80,8 @@ int stress_sigio(const args_t *args)
 
 	rd_fd = -1;
 	sigio_args = args;
+
+	time_end = time_now() + (double)g_opt_timeout;
 
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		return rc;
