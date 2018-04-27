@@ -443,7 +443,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
  *  fft_partial()
  *  	partial Fast Fourier Transform
  */
-static void HOT OPTIMIZE3 TARGET_CLONES fft_partial(
+static void HOT OPTIMIZE3 fft_partial(
 	double complex *data,
 	double complex *tmp,
 	const int n,
@@ -1338,7 +1338,7 @@ static void HOT OPTIMIZE0 stress_cpu_jmp(const char *name)
  *  ccitt_crc16()
  *	perform naive CCITT CRC16
  */
-static uint16_t HOT OPTIMIZE3 TARGET_CLONES ccitt_crc16(const uint8_t *data, size_t n)
+static uint16_t HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 {
 	/*
 	 *  The CCITT CRC16 polynomial is
@@ -1758,7 +1758,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
  *  hamming84()
  *	compute Hamming (8,4) codes
  */
-static uint8_t HOT OPTIMIZE3 TARGET_CLONES hamming84(const uint8_t nybble)
+static uint8_t HOT OPTIMIZE3 hamming84(const uint8_t nybble)
 {
 	/*
 	 * Hamming (8,4) Generator matrix
