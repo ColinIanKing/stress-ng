@@ -327,7 +327,7 @@ static int stress_hdd_advise(const args_t *args, const int fd, const int flags)
 int stress_hdd(const args_t *args)
 {
 	uint8_t *buf = NULL;
-	uint8_t *alloc_buf;
+	void *alloc_buf;
 	uint64_t i, min_size, remainder;
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
