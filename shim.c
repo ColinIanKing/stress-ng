@@ -657,7 +657,7 @@ int shim_munlockall(void)
  */
 int shim_usleep(uint64_t usec)
 {
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
 	t.tv_sec = usec / 1000000;
