@@ -431,6 +431,15 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 		(void)ret;
 	}
 #endif
+#if defined(BLKSECTGET)
+	{
+		unsigned short max_sectors;
+		int ret;
+
+		ret = ioctl(fd, BLKSECTGET, &max_sectors);
+		(void)ret;
+	}
+#endif
 #if defined(BLKGETSIZE)
 	{
 		unsigned long sz;
