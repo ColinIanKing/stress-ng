@@ -123,12 +123,20 @@
 #include <sys/sem.h>
 #endif
 
+/*
+ *  We want sys/xattr.h in preference
+ *  to the older attr/xattr.h if both
+ *  are available
+ */
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
 #endif
 
-#if defined(HAVE_ATTR_XATTR_H)
-#include <attr/xattr.h>
+#if defined(HAVE_SYS_XATTR_H) && defined(HAVE_ATTR_XATTR_H)
+#error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
 #if defined(HAVE_LIB_DL)
