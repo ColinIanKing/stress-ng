@@ -134,7 +134,7 @@
 #elif defined(HAVE_ATTR_XATTR_H)
 #include <attr/xattr.h>
 #endif
-
+/*  Sanity check */
 #if defined(HAVE_SYS_XATTR_H) && defined(HAVE_ATTR_XATTR_H)
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
@@ -1380,6 +1380,7 @@ typedef enum {
 	STRESS_PHYSPAGE,
 	STRESS_PIPE,
 	STRESS_POLL,
+	STRESS_PRCTL,
 	STRESS_PROCFS,
 	STRESS_PTHREAD,
 	STRESS_PTRACE,
@@ -1952,6 +1953,9 @@ typedef enum {
 	OPT_PIPE_DATA_SIZE,
 
 	OPT_POLL_OPS,
+
+	OPT_PRCTL,
+	OPT_PRCTL_OPS,
 
 	OPT_PROCFS,
 	OPT_PROCFS_OPS,
@@ -3106,6 +3110,7 @@ STRESS(stress_personality);
 STRESS(stress_physpage);
 STRESS(stress_pipe);
 STRESS(stress_poll);
+STRESS(stress_prctl);
 STRESS(stress_procfs);
 STRESS(stress_pthread);
 STRESS(stress_ptrace);

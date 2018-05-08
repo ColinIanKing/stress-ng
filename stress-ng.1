@@ -2283,6 +2283,16 @@ and sleep(3) calls. This wastes system and user time doing nothing.
 .B \-\-poll\-ops N
 stop poll stress workers after N bogo poll operations.
 .TP
+.B \-\-prctl N
+start N workers that exercise the majority of the prctl(2) system call
+options. Each batch of prctl calls is performed inside a new child process
+to ensure the limit of prctl is contained inside a new process every time.
+Some prctl options are architecture specific, however, this stressor will
+exercise these even if they are not implemented.
+.TP
+.B \-\-prctl\-ops N
+stop prctl workers after N batches of prctl calls
+.TP
 .B \-\-procfs N
 start N workers that read files from /proc and recursively read files from
 /proc/self (Linux only).

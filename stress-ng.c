@@ -324,6 +324,7 @@ static const stress_t stressors[] = {
 	STRESSOR(physpage, PHYSPAGE, CLASS_VM),
 	STRESSOR(pipe, PIPE, CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS),
 	STRESSOR(poll, POLL, CLASS_SCHEDULER | CLASS_OS),
+	STRESSOR(prctl, PRCTL, CLASS_OS),
 	STRESSOR(procfs, PROCFS, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(pthread, PTHREAD, CLASS_SCHEDULER | CLASS_OS),
 	STRESSOR(ptrace, PTRACE, CLASS_OS),
@@ -770,6 +771,8 @@ static const struct option long_options[] = {
 #endif
 	{ "poll",	1,	0,	OPT_POLL },
 	{ "poll-ops",	1,	0,	OPT_POLL_OPS },
+	{ "prctl",	1,	0,	OPT_PRCTL },
+	{ "prctl-ops",	1,	0,	OPT_PRCTL_OPS },
 	{ "procfs",	1,	0,	OPT_PROCFS },
 	{ "procfs-ops",	1,	0,	OPT_PROCFS_OPS },
 	{ "pthread",	1,	0,	OPT_PTHREAD },
@@ -1387,6 +1390,8 @@ static const help_t help_stressors[] = {
 #endif
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop after N poll bogo operations" },
+	{ NULL,		"prctl N",		"start N workers exercising prctl(2)" },
+	{ NULL,		"prctl-ops N",		"stop prctl workers after N bogo prctl operations" },
 	{ NULL,		"procfs N",		"start N workers reading portions of /proc" },
 	{ NULL,		"procfs-ops N",		"stop procfs workers after N bogo read operations" },
 	{ NULL,		"pthread N",		"start N workers that create multiple threads" },
