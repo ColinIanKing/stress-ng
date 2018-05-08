@@ -52,9 +52,11 @@
 #include <setjmp.h>
 #include <semaphore.h>
 #include <sched.h>
+
 #if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
 #endif
+
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
@@ -62,6 +64,7 @@
 #if defined(HAVE_BSD_WCHAR)
 #include <bsd/wchar.h>
 #endif
+
 #if defined(HAVE_WCHAR)
 #include <wchar.h>
 #endif
@@ -95,6 +98,7 @@
 #include <sys/ioctl.h>
 #include <sys/uio.h>
 #include <sys/resource.h>
+
 #if defined(__linux__)
 #include <sys/mount.h>
 #include <sys/quota.h>
@@ -109,22 +113,36 @@
 #if defined(HAVE_SYSCALL_H)
 #include <sys/syscall.h>
 #endif
+
 #if defined(__APPLE__)
 #include <sys/random.h>
 #endif
+
 #if defined(HAVE_SEM_SYSV)
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #endif
+
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#endif
+
+#if defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+
 #if defined(HAVE_LIB_DL)
 #include <dlfcn.h>
 #include <gnu/lib-names.h>
 #endif
+
 #include <fcntl.h>
 #include <errno.h>
+
 #if defined (__GLIBC__)
 #include <features.h>
 #endif
+
 #if defined (__sun__)
 #include <alloca.h>
 #include <strings.h>

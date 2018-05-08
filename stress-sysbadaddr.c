@@ -33,9 +33,6 @@
 #include <ustat.h>
 #endif
 #endif
-#if defined(__linux__) && defined(HAVE_XATTR_H)
-#include <attr/xattr.h>
-#endif
 
 #include <poll.h>
 #include <termios.h>
@@ -237,7 +234,7 @@ static int bad_gettimeofday(void *addr)
 	return gettimeofday(addr, addr);
 }
 
-#if defined(__linux__) && defined(HAVE_XATTR_H)
+#if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 static int bad_getxattr(void *addr)
 {
 	return getxattr(addr, addr, addr, 32);
@@ -457,7 +454,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_getrlimit,
 	bad_getrusage,
 	bad_gettimeofday,
-#if defined(__linux__) && defined(HAVE_XATTR_H)
+#if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 	bad_getxattr,
 #endif
 #if defined(TCGETS)
