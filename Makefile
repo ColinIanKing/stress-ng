@@ -83,6 +83,7 @@ STRESS_SRC = \
 	stress-dnotify.c \
 	stress-dup.c \
 	stress-dynlib.c \
+	stress-efivar.c \
 	stress-enosys.c \
 	stress-epoll.c \
 	stress-eventfd.c \

@@ -1297,6 +1297,7 @@ typedef enum {
 	STRESS_DNOTIFY,
 	STRESS_DUP,
 	STRESS_DYNLIB,
+	STRESS_EFIVAR,
 	STRESS_ENOSYS,
 	STRESS_EPOLL,
 	STRESS_EVENTFD,
@@ -1643,6 +1644,9 @@ typedef enum {
 
 	OPT_DYNLIB,
 	OPT_DYNLIB_OPS,
+
+	OPT_EFIVAR,
+	OPT_EFIVAR_OPS,
 
 	OPT_ENOSYS,
 	OPT_ENOSYS_OPS,
@@ -2711,6 +2715,7 @@ extern void thrash_stop(void);
 extern int stress_apparmor_supported(void);
 extern int stress_chroot_supported(void);
 extern int stress_cyclic_supported(void);
+extern int stress_efivar_supported(void);
 extern int stress_exec_supported(void);
 extern int stress_fanotify_supported(void);
 extern int stress_icmp_flood_supported(void);
@@ -3027,6 +3032,7 @@ STRESS(stress_dirdeep);
 STRESS(stress_dnotify);
 STRESS(stress_dup);
 STRESS(stress_dynlib);
+STRESS(stress_efivar);
 STRESS(stress_enosys);
 STRESS(stress_epoll);
 STRESS(stress_eventfd);

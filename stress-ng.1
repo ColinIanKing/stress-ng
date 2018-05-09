@@ -1145,6 +1145,14 @@ dlopen(3) for more details of this mechanism.
 .B \-\-dynlib\-ops N
 stop workers after N bogo load/unload cycles.
 .TP
+.B \-\-efivar N
+start N works that exercise the Linux /sys/firmware/efi/vars interface by
+reading the EFI variables. This is a Linux only stress test and only runs
+on platforms that support the EFI vars interface.
+.TP
+.B \-\-efivar-ops N
+stop the efivar stressors after N EFI variable read operations.
+.TP
 .B \-\-enosys N
 start N workers that exercise non-functional system call numbers. This calls
 a wide range of system call numbers to see if it can break a system where these
