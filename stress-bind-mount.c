@@ -29,7 +29,14 @@
     defined(MS_REC) && \
     defined(HAVE_CLONE)
 
-#define CLONE_STACK_SIZE	(64*1024)
+#define CLONE_STACK_SIZE	(128*1024)
+
+static void stress_bind_mount_child_handler(int dummy)
+{
+	(void)dummy;
+
+	_exit(0);
+}
 
 /*
  *  stress_bind_mount_child()
@@ -41,12 +48,21 @@ static int stress_bind_mount_child(void *parg)
 	const args_t *args = ((pthread_args_t *)parg)->args;
 	uint64_t *counter = args->counter;
 
+	if (stress_sighandler(args->name, SIGALRM,
+	    stress_bind_mount_child_handler, NULL) < 0) {
+		pr_fail_err("sighandler SIGALRM");
+		return EXIT_FAILURE;
+	}
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	do {
-		if (mount("/", "/", "", MS_BIND | MS_REC, 0) < 0) {
-			pr_fail_err("mount");
+		int rc;
+
+		rc = mount("/", "/", "", MS_BIND | MS_REC, 0);
+		if (rc < 0) {
+			if (errno != ENOSPC)
+				pr_fail_err("mount");
 			break;
 		}
 		/*
@@ -68,31 +84,31 @@ static int stress_bind_mount_child(void *parg)
 int stress_bind_mount(const args_t *args)
 {
 	int pid = 0, status;
+	pthread_args_t pargs = { args, NULL };
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
-	char stack[CLONE_STACK_SIZE];
-	char *stack_top = stack + stack_offset;
-	pthread_args_t pargs = { args, NULL };
-
-	pid = clone(stress_bind_mount_child,
-		align_stack(stack_top),
-		CLONE_NEWUSER | CLONE_NEWNS | CLONE_NEWPID | CLONE_VM,
-		(void *)&pargs, 0);
-	if (pid < 0) {
-		int rc = exit_status(errno);
-
-		pr_fail_err("clone");
-		return rc;
-	}
 
 	do {
-		/* Twiddle thumbs */
-		(void)shim_usleep(10000);
-	} while (keep_stressing());
+		int ret;
+		char stack[CLONE_STACK_SIZE];
+		char *stack_top = stack + stack_offset;
 
-	(void)kill(pid, SIGKILL);
-	(void)waitpid(pid, &status, 0);
+		memset(stack, 0, sizeof stack);
+
+		pid = clone(stress_bind_mount_child,
+			align_stack(stack_top),
+			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | CLONE_SIGHAND | SIGCHLD,
+			(void *)&pargs, 0);
+		if (pid < 0) {
+			int rc = exit_status(errno);
+
+			pr_fail_err("clone");
+			return rc;
+		}
+		ret = waitpid(pid, &status, 0);
+		(void)ret;
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }
