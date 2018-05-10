@@ -53,6 +53,11 @@ static int stress_bind_mount_child(void *parg)
 		pr_fail_err("sighandler SIGALRM");
 		return EXIT_FAILURE;
 	}
+	if (stress_sighandler(args->name, SIGSEGV,
+	    stress_bind_mount_child_handler, NULL) < 0) {
+		pr_fail_err("sighandler SIGSEGV");
+		return EXIT_FAILURE;
+	}
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
@@ -98,7 +103,7 @@ int stress_bind_mount(const args_t *args)
 
 		pid = clone(stress_bind_mount_child,
 			align_stack(stack_top),
-			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | CLONE_SIGHAND | SIGCHLD,
+			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | SIGCHLD,
 			(void *)&pargs, 0);
 		if (pid < 0) {
 			int rc = exit_status(errno);
