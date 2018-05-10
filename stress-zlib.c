@@ -283,6 +283,48 @@ static void stress_rand_data_fixed(const args_t *args, uint32_t *data, const int
 		*data = 0x04030201;
 }
 
+#define PINK_MAX_ROWS   (12)
+#define PINK_BITS       (16)
+#define PINK_SHIFT      ((sizeof(uint64_t) * 8) - PINK_BITS)
+
+/*
+ *  stress_rand_data_pink()
+ *	fill buffer with pink noise 0..255 using an
+ *	the Gardner method with the McCartney
+ *	selection tree optimization
+ */
+static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int size)
+{
+	int i;
+	unsigned char *ptr = (unsigned char *)data;
+	size_t index = 0;
+	const size_t mask = (1 << PINK_MAX_ROWS) - 1;
+	uint64_t sum = 0;
+	const uint64_t max = (PINK_MAX_ROWS + 1) * (1 << (PINK_BITS - 1));
+	uint64_t rows[PINK_MAX_ROWS];
+	const float scalar = 256.0 / max;
+
+	(void)args;
+	memset(rows, 0, sizeof(rows));
+
+	for (i = 0; i < size; i++) {
+		int64_t rand;
+
+		index = (index + 1) & mask;
+		if (index) {
+			size_t i = __builtin_ctz(index);
+
+			sum -= rows[i];
+			rand = (int64_t)mwc64() >> PINK_SHIFT;
+			sum += rand;
+			rows[i] = rand;
+		}
+		rand = (int64_t)mwc64() >> PINK_SHIFT;
+		*(ptr++) = (int)((scalar * ((int64_t)sum + rand)) + 128.0);
+	}
+}
+
+
 /*
  *  stress_rand_data_latin()
  *	fill buffer with random latin Lorum Ipsum text.
@@ -419,6 +461,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },
+	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 	{ "text",	stress_rand_data_text },
