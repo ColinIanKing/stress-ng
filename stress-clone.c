@@ -214,7 +214,22 @@ static int clone_func(void *arg)
 	(void)arg;
 
 	set_oom_adjustment(args->name, true);
+#if defined(HAVE_SETNS)
+	{
+		int fd;
 
+		fd = open("/proc/self/ns/uts", O_RDONLY);
+		if (fd >= 0) {
+			/*
+			 *  Capabilities have been dropped
+			 *  so this will always fail, but
+			 *  lets exercise it anyhow.
+			 */
+			(void)setns(fd, 0);
+			(void)close(fd);
+		}
+	}
+#endif
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
 		(void)unshare(unshare_flags[i]);
 	}
