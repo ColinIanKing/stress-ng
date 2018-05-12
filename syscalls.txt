@@ -66,7 +66,6 @@ fstatfs				sysinfo
 fsync				fallocate, hdd
 ftruncate			fallocate
 futex				futex
-utimensat			utimes
 futimens			wait
 get_mempolicy			numa
 get_robust_list			pthread
@@ -342,7 +341,7 @@ uselib				[ deprecated ]
 userfaultfd			userfaultfd
 ustat				sysinfo
 utime				utime
-utimesat
+utimensat			utimes
 utimes				utime
 vfork				vfork
 vhangup				[ ignore ]
