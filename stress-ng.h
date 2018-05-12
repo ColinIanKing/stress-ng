@@ -123,6 +123,10 @@
 #include <sys/sem.h>
 #endif
 
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
