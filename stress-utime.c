@@ -51,8 +51,8 @@ int stress_utime(const args_t *args)
 	do {
 		struct timeval times[2];
 		struct utimbuf utbuf;
-#if defined(HAVE_FUTIMENS)
-		struct timespec ts;
+#if defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)
+		struct timespec ts[2];
 #endif
 
 		if (gettimeofday(&times[0], NULL) == 0) {
@@ -74,22 +74,46 @@ int stress_utime(const args_t *args)
 			break;
 		}
 
-		ts.tv_sec = UTIME_NOW;
-		ts.tv_nsec = UTIME_NOW;
-		if (futimens(fd, &ts) < 0) {
+		ts[0].tv_sec = UTIME_NOW;
+		ts[0].tv_nsec = UTIME_NOW;
+		if (futimens(fd, &ts[0]) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 
-		ts.tv_sec = UTIME_OMIT;
-		ts.tv_nsec = UTIME_OMIT;
-		if (futimens(fd, &ts) < 0) {
+		ts[0].tv_sec = UTIME_OMIT;
+		ts[0].tv_nsec = UTIME_OMIT;
+		if (futimens(fd, &ts[0]) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
 #endif
+
+#if defined(HAVE_UTIMENSAT)
+		ts[0].tv_sec = UTIME_NOW;
+		ts[0].tv_nsec = UTIME_NOW;
+
+		ts[1].tv_sec = UTIME_NOW;
+		ts[1].tv_nsec = UTIME_NOW;
+
+		(void)utimensat(AT_FDCWD, filename, ts, 0);
+
+		ts[1].tv_nsec = UTIME_OMIT;
+		(void)utimensat(AT_FDCWD, filename, ts, 0);
+
+#if defined(AT_SYMLINK_NOFOLLOW)
+		ts[1].tv_nsec = UTIME_NOW;
+		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+
+		ts[1].tv_nsec = UTIME_OMIT;
+		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+#endif
+#endif
+		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
+			(void)fsync(fd);
+
 		utbuf.actime = (time_t)time_now();
 		utbuf.modtime = utbuf.actime;
 
