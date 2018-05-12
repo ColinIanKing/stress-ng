@@ -47,7 +47,7 @@ fadvise				readahead
 fallocate			fallocate
 fanotify_init			fanotify
 fanotify_mark			fanotify
-fchdir
+fchdir				chdir
 fchmod				chmod
 fchmodat
 fchown				chown
