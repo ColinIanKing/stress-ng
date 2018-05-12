@@ -150,7 +150,7 @@ mlockall			mlock
 mmap				bigheap, mmap
 mmap2
 modify_ldt
-mount				[ need privilege, ignore for now ]
+mount				bind-mount
 move_pages			numa
 mprotect			mmap
 mq_getsetattr			mq
@@ -266,7 +266,7 @@ setgroups
 sethostname
 setitimer			itimer
 setmntent			sysinfo
-setns
+setns				clone, pthread
 setpgid
 setpriority			nice
 setregid
