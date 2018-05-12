@@ -36,12 +36,15 @@ typedef struct {
 } __attribute__((packed)) efi_var;
 
 static const char efi_vars[] = "/sys/firmware/efi/vars";
+struct dirent **efi_dentries;
+static bool *efi_ignore;
+static int dir_count;
 
 /*
- *  efivar_ignore()
+ *  efi_var_ignore()
  *	check for filenames that are not efi vars
  */
-static inline bool efivar_ignore(char *d_name)
+static inline bool efi_var_ignore(char *d_name)
 {
 	if (strcmp(d_name, "del_var") == 0)
 		return true;
@@ -138,39 +141,39 @@ static int efi_get_variable(const args_t *args, const char *varname, efi_var *va
  */
 static int efi_vars_get(const args_t *args)
 {
-	DIR *dir;
-	struct dirent *d;
+	int i;
 
-	dir = opendir(efi_vars);
-	if (!dir) {
-		pr_fail("%s: cannot open %s, errno=%d (%s)\n",
-			args->name, efi_vars, errno, strerror(errno));
-		return -1;
-	}
-
-	while ((d = readdir(dir)) != NULL) {
+	for (i = 0; i < dir_count; i++) {
 		efi_var var;
 		char varname[513];
 		char guid_str[37];
-		char *d_name = d->d_name;
+		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
-		if (efivar_ignore(d_name))
+		if (efi_ignore[i])
 			continue;
 
-		ret = efi_get_variable(args, d_name, &var);
-		if (ret < 0)
+		if (efi_var_ignore(d_name)) {
+			efi_ignore[i] = true;
 			continue;
+		}
+
+		ret = efi_get_variable(args, d_name, &var);
+		if (ret < 0) {
+			efi_ignore[i] = true;
+			continue;
+		}
 
 		if (var.attributes) {
 			efi_get_varname(varname, sizeof(varname), &var);
 			guid_to_str(var.guid, guid_str, sizeof(guid_str));
 
 			(void)guid_str;
+		} else {
+			efi_ignore[i] = true;
 		}
 		inc_counter(args);
 	}
-	(void)closedir(dir);
 
 	return 0;
 }
@@ -208,6 +211,24 @@ int stress_efivar_supported(void)
 int stress_efivar(const args_t *args)
 {
 	pid_t pid;
+	int i;
+	size_t sz;
+
+	efi_dentries = NULL;
+	dir_count = scandir(efi_vars, &efi_dentries, NULL, alphasort);
+	if (!efi_dentries || (dir_count <= 0)) {
+		pr_inf("%s: cannot read EFI vars in %s\n", args->name, efi_vars);
+		return EXIT_SUCCESS;
+	}
+
+	sz = ((dir_count * sizeof(bool)) + args->page_size) & (args->page_size - 1);
+	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (efi_ignore == MAP_FAILED) {
+		pr_err("%s: cannot mmap shared memory: %d (%s))\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 again:
 	if (!g_keep_stressing_flag)
@@ -247,6 +268,11 @@ again:
 		} while (keep_stressing());
 		_exit(0);
 	}
+
+	(void)munmap(efi_ignore, sz);
+	for (i = 0; i < dir_count; i++)
+		free(efi_dentries[i]);
+	free(efi_dentries);
 
 	return EXIT_SUCCESS;
 }
