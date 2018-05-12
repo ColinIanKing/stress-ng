@@ -47,8 +47,10 @@ int stress_chdir(const args_t *args)
 {
 	uint64_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
 	char path[PATH_MAX], cwd[PATH_MAX];
-	int rc, ret = EXIT_FAILURE;
+	int fd = -1, rc, ret = EXIT_FAILURE;
 	char **paths;
+
+	chdir_dirs = 8;
 
 	(void)get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -87,6 +89,8 @@ int stress_chdir(const args_t *args)
 			goto done;
 	}
 
+	fd = open(paths[0], O_DIRECTORY | O_RDONLY);
+
 	do {
 		for (i = 0; i < chdir_dirs; i++) {
 			if (!keep_stressing())
@@ -97,14 +101,22 @@ int stress_chdir(const args_t *args)
 					goto abort;
 				}
 			}
-redo:
+
+
+			if ((fd >= 0) && (fchdir(fd) < 0)) {
+				if (errno != ENOMEM) {
+					pr_fail_err("fchdir");
+					goto abort;
+				}
+			}
+redo1:
 			if (!keep_stressing())
 				goto done;
 			/* We need chdir to cwd to always succeed */
 			if (chdir(cwd) < 0) {
 				/* Maybe low memory, force retry */
 				if (errno == ENOMEM)
-					goto redo;
+					goto redo1;
 				pr_fail_err("chdir");
 				goto abort;
 			}
@@ -116,6 +128,9 @@ done:
 abort:
 	if (chdir(cwd) < 0)
 		pr_fail_err("chdir");
+
+	if (fd >= 0)
+		(void)close(fd);
 
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " directories\n",
