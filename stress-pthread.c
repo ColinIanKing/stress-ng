@@ -143,6 +143,23 @@ static void *stress_pthread_func(void *parg)
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret)
 		pr_fail_errno("mutex unlock", ret);
+
+#if defined(HAVE_SETNS)
+	{
+		int fd;
+
+		fd = open("/proc/self/ns/uts", O_RDONLY);
+		if (fd >= 0) {
+			/*
+			 *  Capabilities have been dropped
+			 *  so this will always fail, but
+			 *  lets exercise it anyhow.
+			 */
+			(void)setns(fd, 0);
+			(void)close(fd);
+		}
+	}
+#endif
 die:
 	return &nowt;
 }
