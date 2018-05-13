@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include <math.h>
 
 #if defined(HAVE_LIB_Z)
 
@@ -284,6 +285,30 @@ static void stress_rand_data_fixed(const args_t *args, uint32_t *data, const int
 }
 
 /*
+ *  stress_rand_data_double()
+ *	fill buffer with double precision floating point binary data
+ */
+static void stress_rand_data_double(const args_t *args, uint32_t *data, const int size)
+{
+	const int n = size / sizeof(double);
+	uint8_t *ptr = (uint8_t *)data;
+	register int i;
+	static double theta = 0.0;
+	double dtheta = M_PI / 180.0;
+
+	(void)args;
+
+	for (i = 0; i < n; i++) {
+		double s = sin(theta);
+		memcpy(ptr, &s, sizeof(double));
+		theta += dtheta;
+		dtheta += 0.001;
+		ptr += sizeof(double);
+	}
+}
+
+
+/*
  *  stress_rand_data_parity()
  *	fill buffer with 7 bit data + 1 parity bit
  */
@@ -456,7 +481,8 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_nybble,
 	stress_rand_data_fixed,
 	stress_rand_data_latin,
-	stress_rand_data_objcode
+	stress_rand_data_objcode,
+	stress_rand_data_double,
 };
 
 /*
@@ -479,6 +505,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "ascii01",	stress_rand_data_01 },
 	{ "asciidigits",stress_rand_data_digits },
 	{ "binary",	stress_rand_data_binary },
+	{ "double",	stress_rand_data_double },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
