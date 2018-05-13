@@ -471,18 +471,20 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 }
 
 static const stress_zlib_rand_data_func rand_data_funcs[] = {
-	stress_rand_data_rarely_1,
-	stress_rand_data_rarely_0,
-	stress_rand_data_binary,
-	stress_rand_data_text,
+	stress_rand_data_00_ff,
 	stress_rand_data_01,
 	stress_rand_data_digits,
-	stress_rand_data_00_ff,
-	stress_rand_data_nybble,
+	stress_rand_data_binary,
+	stress_rand_data_double,
 	stress_rand_data_fixed,
 	stress_rand_data_latin,
+	stress_rand_data_nybble,
 	stress_rand_data_objcode,
-	stress_rand_data_double,
+	stress_rand_data_parity,
+	stress_rand_data_pink,
+	stress_rand_data_rarely_1,
+	stress_rand_data_rarely_0,
+	stress_rand_data_text,
 };
 
 /*
