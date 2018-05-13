@@ -324,7 +324,7 @@ static void stress_rand_data_parity(const args_t *args, uint32_t *data, const in
 		uint8_t p = v & 0xfe;
 		p ^= p >> 4;
 		p &= 0xf;
-		p = (0x6996 >> v) & 1;
+		p = (0x6996 >> p) & 1;
 		*ptr = v | p;
 	}
 }
