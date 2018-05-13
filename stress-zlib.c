@@ -283,6 +283,28 @@ static void stress_rand_data_fixed(const args_t *args, uint32_t *data, const int
 		*data = 0x04030201;
 }
 
+/*
+ *  stress_rand_data_parity()
+ *	fill buffer with 7 bit data + 1 parity bit
+ */
+static void stress_rand_data_parity(const args_t *args, uint32_t *data, const int size)
+{
+	uint8_t *ptr = (uint8_t *)data;
+	register int i;
+
+	(void)args;
+
+	for (i = 0; i < size; i++, ptr++) {
+		uint8_t v = mwc8();
+		uint8_t p = v & 0xfe;
+		p ^= p >> 4;
+		p &= 0xf;
+		p = (0x6996 >> v) & 1;
+		*ptr = v | p;
+	}
+}
+
+
 #define PINK_MAX_ROWS   (12)
 #define PINK_BITS       (16)
 #define PINK_SHIFT      ((sizeof(uint64_t) * 8) - PINK_BITS)
@@ -461,6 +483,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },
+	{ "parity",	stress_rand_data_parity },
 	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
