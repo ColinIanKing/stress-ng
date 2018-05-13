@@ -228,7 +228,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 			v ^= v >> 8;
 			v ^= v >> 4;
 			v &= 0xf;
-			i_sum += v;
+			i_sum += (0x6996 >> v) & 1;
 		}
 		{
 			/* Brian Kernighan count bits */
