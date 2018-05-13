@@ -135,6 +135,7 @@ int stress_access(const args_t *args)
 					modes[i].access_mode, modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
+#if defined(HAVE_FACCESSAT)
 			ret = faccessat(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
 			if (ret < 0) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
@@ -142,6 +143,7 @@ int stress_access(const args_t *args)
 					modes[i].access_mode, modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
+#endif
 			if (modes[i].access_mode != 0) {
 				const mode_t chmod_mode = modes[i].chmod_mode ^ all_mask;
 				const bool s_ixusr = chmod_mode & S_IXUSR;
@@ -161,6 +163,7 @@ int stress_access(const args_t *args)
 						modes[i].access_mode, chmod_mode,
 						errno, strerror(errno));
 				}
+#if defined(HAVE_FACCESSAT)
 				ret = faccessat(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
@@ -168,6 +171,7 @@ int stress_access(const args_t *args)
 						modes[i].access_mode, chmod_mode,
 						errno, strerror(errno));
 				}
+#endif
 			}
 		}
 		inc_counter(args);
