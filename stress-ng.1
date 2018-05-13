@@ -373,6 +373,14 @@ output gathered statistics to a YAML formatted file named 'filename'.
 .PP
 .B Stressor specific options:
 .TP
+.B \-\-access N
+start N workers that work through various settings of file mode bits
+(read, write, execute) for the file owner and checks if the user permissions
+of the file using access(2) and faccessat(2) are sane.
+.TP
+.B \-\-access\-ops N
+stop access workers after N bogo access sanity checks.
+.TP
 .B \-\-affinity N
 start N workers that rapidly change CPU affinity (only on Linux). Rapidly
 switching CPU affinity can contribute to poor cache behaviour.

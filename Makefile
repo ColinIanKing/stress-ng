@@ -49,6 +49,7 @@ JOBDIR=/usr/share/stress-ng/example-jobs
 #  Stressors
 #
 STRESS_SRC = \
+	stress-access.c \
 	stress-affinity.c \
 	stress-af-alg.c \
 	stress-aio.c \

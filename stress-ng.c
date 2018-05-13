@@ -208,6 +208,7 @@ static const int signals[] = {
 
 /* Human readable stress test names */
 static const stress_t stressors[] = {
+	STRESSOR(access, ACCESS, CLASS_FILESYSTEM | CLASS_OS),
 	STRESSOR(af_alg, AF_ALG, CLASS_CPU | CLASS_OS),
 	STRESSOR(affinity, AFFINITY, CLASS_SCHEDULER),
 	STRESSOR(aio, AIO, CLASS_IO | CLASS_INTERRUPT | CLASS_OS),
@@ -434,6 +435,10 @@ static const class_t classes[] = {
 
 static const struct option long_options[] = {
 	{ "abort",	0,	0,	OPT_ABORT },
+	{ "access",	1,	0,	OPT_ACCESS },
+	{ "access-ops",	1,	0,	OPT_ACCESS_OPS },
+	{ "af-alg",	1,	0,	OPT_AF_ALG },
+	{ "af-alg-ops",	1,	0,	OPT_AF_ALG_OPS },
 	{ "af-alg",	1,	0,	OPT_AF_ALG },
 	{ "af-alg-ops",	1,	0,	OPT_AF_ALG_OPS },
 	{ "affinity",	1,	0,	OPT_AFFINITY },
@@ -1086,6 +1091,8 @@ static const help_t help_generic[] = {
  *  Stress test specific options
  */
 static const help_t help_stressors[] = {
+	{ NULL,		"access N",		"start N workers that stress file access permissions" },
+	{ NULL,		"access-ops N",		"stop after N file access bogo operations" },
 	{ NULL,		"af-alg N",		"start N workers that stress AF_ALG socket domain" },
 	{ NULL,		"af-alg-ops N",		"stop after N af-alg bogo operations" },
 	{ NULL,		"affinity N",		"start N workers that rapidly change CPU affinity" },

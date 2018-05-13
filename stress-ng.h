@@ -1267,6 +1267,7 @@ typedef struct {
 /* Stress tests */
 typedef enum {
 	STRESS_START = -1,
+	STRESS_ACCESS,
 	STRESS_AFFINITY,
 	STRESS_AF_ALG,
 	STRESS_AIO,
@@ -1516,6 +1517,9 @@ typedef enum {
 	OPT_LONG_OPS_START = 0x7f,
 
 	OPT_ABORT,
+
+	OPT_ACCESS,
+	OPT_ACCESS_OPS,
 
 	OPT_AFFINITY,
 	OPT_AFFINITY_OPS,
@@ -3003,6 +3007,7 @@ extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 
 /* Stressors */
 STRESS(stress_affinity);
+STRESS(stress_access);
 STRESS(stress_af_alg);
 STRESS(stress_aio);
 STRESS(stress_aiol);
