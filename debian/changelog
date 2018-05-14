@@ -1,3 +1,50 @@
+stress-ng (0.09.27-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove empty end lines from debian/control, debian/changelog
+  * stress-filename: set rc to EXIT_SUCCESS if we get a timeout on again
+    loop
+  * stress-chdir: only use O_DIRECTORY if it is supported
+  * stress-xattr: remove need to #include <xattr/xattr.h>
+  * stress-utime: only declare ts when required
+  * stress-utime: don't use UTIME_NOW or UTIME_OMIT if they are not
+    defined
+  * stress-pthread: exercise set_robust_list linux system call
+  * stress-zlib: fix parity data generator
+  * Add build-time check for faccessat
+  * Add new access/faccessat stressor
+  * stress-zlib: reorder rand_data_funcs and add in missing funcs
+  * stress-zlib: Add sweep sin wave double prevision data
+  * Add parity bit data zlib method
+  * stress-cpu: fix parity sum check
+  * syscalls.txt: fix up utimensat
+  * stress-utime: add utimensat system call
+  * Add build check for utimensat
+  * stress-efivar: keep track of bad efivars and don't re-read them
+  * stress-ng.h: forgot to include <asm/ldt.h> when HAVE_MODIFY_LDT is
+    defined
+  * Update  modify_ldt syscall
+  * stress-clone: add modify_ldt call
+  * Add build time check for modify_ldt
+  * Update syscall.txt with latest syscall additions
+  * stress-pthread: exercise setns()
+  * stress-clone: exercise setns()
+  * Add build time check for setns
+  * syscalls.c: add fchdir
+  * stress-chdir: add fchdir syscall
+  * stress-zlib: add pink noise data generation method
+  * stress-bind-mount: don't clone signal handlers in clone child
+  * stress-bind-bound: respawn process to handle limit on bind mounts
+  * Add a EFI variable reading stressor
+  * Add prctl stressor
+  * stress-ng.h: don't allow both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
+  * Forgot to commit changes to Makefile.config
+  * xattr: autodetect for different xattr paths attr/xattr.h and
+    sys/xattr.h
+  * stress-dev: add BLKSECTGET ioctl
+
+ -- Colin King <colin.king@canonical.com>  Mon, 14 May 2018 14:31:12 +0100
+
 stress-ng (0.09.26-1) unstable; urgency=medium
 
   * Makefile: bump version
