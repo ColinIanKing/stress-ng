@@ -51,7 +51,8 @@ int stress_utime(const args_t *args)
 	do {
 		struct timeval times[2];
 		struct utimbuf utbuf;
-#if defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)
+#if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
+    (defined(UTIME_NOW) || defined(UTIME_OMIT))
 		struct timespec ts[2];
 #endif
 
