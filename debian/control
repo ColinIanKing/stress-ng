@@ -16,4 +16,3 @@ Description: tool to load and stress a computer
  has many additional features such as specifying the number of bogo operations
  to run, execution metrics, a stress verification on memory and compute
  operations and considerably more stress mechanisms.
-
