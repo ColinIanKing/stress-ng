@@ -89,7 +89,11 @@ int stress_chdir(const args_t *args)
 			goto done;
 	}
 
+#if defined(O_DIRECTORY)
 	fd = open(paths[0], O_DIRECTORY | O_RDONLY);
+#else
+	fd = open(paths[0], O_RDONLY);
+#endif
 
 	do {
 		for (i = 0; i < chdir_dirs; i++) {
