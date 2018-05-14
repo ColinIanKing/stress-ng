@@ -321,8 +321,11 @@ int stress_filename(const args_t *args)
 	}
 
 again:
-	if (!g_keep_stressing_flag)
+	if (!g_keep_stressing_flag) {
+		/* Time to die */
+		rc = EXIT_SUCCESS;
 		goto tidy_dir;
+	}
 	pid = fork();
 	if (pid < 0) {
 		if (errno == EAGAIN)
