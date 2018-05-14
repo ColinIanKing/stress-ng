@@ -26,8 +26,6 @@
 
 #if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 
-#include <attr/xattr.h>
-
 /*
  *  stress_xattr
  *	stress the xattr operations
