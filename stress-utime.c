@@ -74,6 +74,7 @@ int stress_utime(const args_t *args)
 			break;
 		}
 
+#if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
 		ts[0].tv_nsec = UTIME_NOW;
 		if (futimens(fd, &ts[0]) < 0) {
@@ -81,7 +82,9 @@ int stress_utime(const args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
+#endif
 
+#if defined(UTIME_OMIT)
 		ts[0].tv_sec = UTIME_OMIT;
 		ts[0].tv_nsec = UTIME_OMIT;
 		if (futimens(fd, &ts[0]) < 0) {
@@ -90,8 +93,11 @@ int stress_utime(const args_t *args)
 			break;
 		}
 #endif
+#endif
 
 #if defined(HAVE_UTIMENSAT)
+
+#if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
 		ts[0].tv_nsec = UTIME_NOW;
 
@@ -99,16 +105,22 @@ int stress_utime(const args_t *args)
 		ts[1].tv_nsec = UTIME_NOW;
 
 		(void)utimensat(AT_FDCWD, filename, ts, 0);
+#endif
 
+#if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
 		(void)utimensat(AT_FDCWD, filename, ts, 0);
+#endif
 
 #if defined(AT_SYMLINK_NOFOLLOW)
+#if defined(UTIME_NOW)
 		ts[1].tv_nsec = UTIME_NOW;
 		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
-
+#endif
+#if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
 		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+#endif
 #endif
 #endif
 		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
