@@ -136,6 +136,7 @@ int stress_set(const args_t *args)
 		pid = getpgid(mypid);
 		if (pid != -1) {
 			ret = setpgid(mypid, pid);
+			(void)ret;
 			check_do_run();
 		}
 #endif
@@ -145,6 +146,7 @@ int stress_set(const args_t *args)
 		pid = getpgrp();
 		if (pid != -1) {
 			ret = setpgrp();
+			(void)ret;
 			check_do_run();
 		}
 #endif
