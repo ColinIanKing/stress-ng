@@ -254,29 +254,29 @@ sendmmsg			sock
 sendmsg				sock
 sendto				udp
 set_mempolicy			numa
-set_robust_list
+set_robust_list			pthread
 set_thread_area
 set_tid_address
 setdomainname			[ need privilege, ignore for now ]
 setfsgid
 setfsuid
-setgid
-setgroups
-sethostname
+setgid				set
+setgroups			set
+sethostname			set
 setitimer			itimer
 setmntent			sysinfo
 setns				clone, pthread
-setpgid
+setpgid				set
 setpriority			nice
-setregid
-setresgid
-setresuid
-setreuid
-setrlimit			limit, rlimit
+setregid			set
+setresgid			set
+setresuid			set
+setreuid			set
+setrlimit			limit, rlimit, set
 setsid
 setsockopt			sock
 settimeofday			[ need privilege, ignore for now ]
-setuid
+setuid				set
 setxattr
 sgetmask			[obsolete]
 shmat				shm-sysv

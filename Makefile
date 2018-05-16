@@ -194,6 +194,7 @@ STRESS_SRC = \
 	stress-sem.c \
 	stress-sem-sysv.c \
 	stress-sendfile.c \
+	stress-set.c \
 	stress-shm.c \
 	stress-shm-sysv.c \
 	stress-sigfd.c \
