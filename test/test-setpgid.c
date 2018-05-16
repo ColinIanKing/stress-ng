@@ -28,5 +28,5 @@
 
 int main(void)
 {
-	return setpgid(-1, -1);
+	return setpgid(0, 0);
 }
