@@ -35,7 +35,8 @@ typedef struct {
         uint32_t        attributes;
 } __attribute__((packed)) efi_var;
 
-static const char efi_vars[] = "/sys/firmware/efi/vars";
+static const char vars[] = "/sys/firmware/efi/vars";
+static const char efi_vars[] = "/sys/firmware/efi/efivars";
 struct dirent **efi_dentries;
 static bool *efi_ignore;
 static int dir_count;
@@ -108,28 +109,70 @@ static inline void efi_get_varname(char *varname, const size_t len, const efi_va
  */
 static int efi_get_variable(const args_t *args, const char *varname, efi_var *var)
 {
-	int  fd, n, ret = 0;
+	int fd, n, ret = 0;
+	int flags;
 	char filename[PATH_MAX];
+	struct stat statbuf;
 
 	if ((!varname) || (!var))
 		return -1;
 
 	(void)snprintf(filename, sizeof filename,
-		"%s/%s/raw_var", efi_vars, varname);
+		"%s/%s/raw_var", vars, varname);
 
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return -1;
+
+	ret = fstat(fd, &statbuf);
+	if (ret < 0) {
+		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		ret = -1;
+		goto err_vars;
+	}
 
 	(void)memset(var, 0, sizeof(efi_var));
 
 	if ((n = read(fd, var, sizeof(efi_var))) != sizeof(efi_var)) {
 		if (errno != EIO) {
 			pr_err("%s: failed to read %s, errno=%d (%s)\n",
-				args->name, varname, errno, strerror(errno));
+				args->name, filename, errno, strerror(errno));
 		}
 		ret = -1;
 	}
 
+err_vars:
+	(void)close(fd);
+
+	(void)snprintf(filename, sizeof filename,
+		"%s/%s", efi_vars, varname);
+
+	if ((fd = open(filename, O_RDONLY)) < 0)
+		return -1;
+
+	ret = fstat(fd, &statbuf);
+	if (ret < 0) {
+		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		ret = -1;
+		goto err_vars;
+	}
+
+	ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
+	if (ret < 0) {
+		pr_err("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_efi_vars;
+	}
+
+	ret = ioctl(fd, FS_IOC_SETFLAGS, &flags);
+	if (ret < 0) {
+		pr_err("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_efi_vars;
+	}
+
+err_efi_vars:
 	(void)close(fd);
 
 	return ret;
@@ -196,7 +239,7 @@ int stress_efivar_supported(void)
 	if (!dir) {
 		pr_inf("efivar stressor will be skipped, "
 			"need to have access to EFI vars in %s\n",
-			efi_vars);
+			vars);
 		return -1;
 	}
 	(void)closedir(dir);
@@ -215,9 +258,9 @@ int stress_efivar(const args_t *args)
 	size_t sz;
 
 	efi_dentries = NULL;
-	dir_count = scandir(efi_vars, &efi_dentries, NULL, alphasort);
+	dir_count = scandir(vars, &efi_dentries, NULL, alphasort);
 	if (!efi_dentries || (dir_count <= 0)) {
-		pr_inf("%s: cannot read EFI vars in %s\n", args->name, efi_vars);
+		pr_inf("%s: cannot read EFI vars in %s\n", args->name, vars);
 		return EXIT_SUCCESS;
 	}
 
