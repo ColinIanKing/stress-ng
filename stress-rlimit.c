@@ -68,7 +68,7 @@ static limits_t limits[] = {
  *  stress_rlimit_handler()
  *	rlimit generic handler
  */
-static void MLOCKED stress_rlimit_handler(int dummy)
+static void MLOCKED_TEXT stress_rlimit_handler(int dummy)
 {
 	(void)dummy;
 

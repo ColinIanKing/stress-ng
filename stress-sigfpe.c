@@ -30,7 +30,7 @@ static sigjmp_buf jmp_env;
  *  stress_fpehandler()
  *	SIGFPE handler
  */
-static void MLOCKED stress_fpehandler(int dummy)
+static void MLOCKED_TEXT stress_fpehandler(int dummy)
 {
 	(void)dummy;
 

@@ -65,7 +65,7 @@ void stress_set_fstat_dir(const char *opt)
  *  handle_fstat_sigalrm()
  *      catch SIGALRM
  */
-static void MLOCKED handle_fstat_sigalrm(int dummy)
+static void MLOCKED_TEXT handle_fstat_sigalrm(int dummy)
 {
 	(void)dummy;
 

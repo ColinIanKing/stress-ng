@@ -49,7 +49,7 @@ void stress_set_heapsort_size(const void *opt)
  *  stress_heapsort_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED stress_heapsort_handler(int dummy)
+static void MLOCKED_TEXT stress_heapsort_handler(int dummy)
 {
 	(void)dummy;
 

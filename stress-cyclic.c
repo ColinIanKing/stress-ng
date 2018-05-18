@@ -312,7 +312,7 @@ static int stress_cyclic_pselect(
 static struct timespec itimer_time;
 static timer_t timerid;
 
-static void MLOCKED stress_cyclic_itimer_handler(int sig)
+static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 {
 	(void)sig;
 
@@ -393,7 +393,7 @@ static sigjmp_buf jmp_env;
  *  stress_rlimit_handler()
  *      rlimit generic handler
  */
-static void MLOCKED stress_rlimit_handler(int dummy)
+static void MLOCKED_TEXT stress_rlimit_handler(int dummy)
 {
 	(void)dummy;
 

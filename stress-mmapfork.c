@@ -48,7 +48,7 @@ static volatile int segv_ret;
  *  stress_segvhandler()
  *      SEGV handler
  */
-static void MLOCKED stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int dummy)
 {
 	(void)dummy;
 

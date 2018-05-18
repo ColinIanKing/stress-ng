@@ -98,7 +98,7 @@ int stress_set_epoll_domain(const char *name)
  * epoll_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
-static void MLOCKED epoll_timer_handler(int sig)
+static void MLOCKED_TEXT epoll_timer_handler(int sig)
 {
 	(void)sig;
 

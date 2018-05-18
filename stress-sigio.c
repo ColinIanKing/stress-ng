@@ -42,7 +42,7 @@ static double time_end;
  *  stress_sigio_handler()
  *      SIGIO handler
  */
-static void MLOCKED stress_sigio_handler(int dummy)
+static void MLOCKED_TEXT stress_sigio_handler(int dummy)
 {
 	static char buffer[BUFFER_SIZE];
 	const args_t *args = sigio_args;

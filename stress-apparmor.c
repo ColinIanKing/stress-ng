@@ -94,7 +94,7 @@ int stress_apparmor_supported(void)
  *  stress_apparmor_handler()
  *      signal handler
  */
-static void MLOCKED stress_apparmor_handler(int dummy)
+static void MLOCKED_TEXT stress_apparmor_handler(int dummy)
 {
 	(void)dummy;
 

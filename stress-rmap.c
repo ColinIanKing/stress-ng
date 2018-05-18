@@ -41,7 +41,7 @@
  *  stress_rmap_handler()
  *      rmap signal handler
  */
-static void MLOCKED stress_rmap_handler(int dummy)
+static void MLOCKED_TEXT stress_rmap_handler(int dummy)
 {
 	(void)dummy;
 

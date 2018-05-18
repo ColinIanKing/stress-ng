@@ -58,7 +58,7 @@ void stress_set_userfaultfd_bytes(const char *opt)
  *  stress_child_alarm_handler()
  *	SIGALRM handler to terminate child immediately
  */
-static void MLOCKED stress_child_alarm_handler(int dummy)
+static void MLOCKED_TEXT stress_child_alarm_handler(int dummy)
 {
 	(void)dummy;
 

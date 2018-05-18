@@ -95,14 +95,14 @@ static const char *const lorem_ipsum[] = {
  *  stress_sigpipe_handler()
  *      SIGFPE handler
  */
-static void MLOCKED stress_sigpipe_handler(int dummy)
+static void MLOCKED_TEXT stress_sigpipe_handler(int dummy)
 {
 	(void)dummy;
 
 	pipe_broken = true;
 }
 
-static void MLOCKED stress_bad_read_handler(int dummy)
+static void MLOCKED_TEXT stress_bad_read_handler(int dummy)
 {
 	(void)dummy;
 

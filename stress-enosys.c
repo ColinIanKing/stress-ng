@@ -3003,7 +3003,7 @@ static void limit_procs(const int procs)
 #endif
 }
 
-static void MLOCKED stress_badhandler(int signum)
+static void MLOCKED_TEXT stress_badhandler(int signum)
 {
 	(void)signum;
 	_exit(1);

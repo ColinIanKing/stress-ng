@@ -94,7 +94,7 @@ static const lib_info_t libnames[] = {
  *  stress_segvhandler()
  *      SEGV handler
  */
-static void MLOCKED stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int dummy)
 {
 	(void)dummy;
 

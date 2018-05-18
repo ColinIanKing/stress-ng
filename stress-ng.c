@@ -1786,7 +1786,7 @@ static int stress_exclude(void)
  *  stress_sigint_handler()
  *	catch signals and set flag to break out of stress loops
  */
-static void MLOCKED stress_sigint_handler(int dummy)
+static void MLOCKED_TEXT stress_sigint_handler(int dummy)
 {
 	(void)dummy;
 	g_caught_sigint = true;
@@ -1800,7 +1800,7 @@ static void MLOCKED stress_sigint_handler(int dummy)
  *  stress_sigalrm_parent_handler()
  *	handle signal in parent process, don't block on waits
  */
-static void MLOCKED stress_sigalrm_parent_handler(int dummy)
+static void MLOCKED_TEXT stress_sigalrm_parent_handler(int dummy)
 {
 	(void)dummy;
 	wait_flag = false;
@@ -1811,7 +1811,7 @@ static void MLOCKED stress_sigalrm_parent_handler(int dummy)
  *  stress_stats_handler()
  *	dump current system stats
  */
-static void MLOCKED stress_stats_handler(int dummy)
+static void MLOCKED_TEXT stress_stats_handler(int dummy)
 {
 	static char buffer[80];
 	char *ptr = buffer;
@@ -2022,7 +2022,7 @@ static char *str_exitstatus(const int status)
  *  wait_procs()
  * 	wait for procs
  */
-static void MLOCKED wait_procs(
+static void MLOCKED_TEXT wait_procs(
 	proc_info_t *procs_list,
 	bool *success,
 	bool *resource_success)
@@ -2178,7 +2178,7 @@ redo:
  *  handle_sigint()
  *	catch SIGINT
  */
-static void MLOCKED handle_sigint(int signum)
+static void MLOCKED_TEXT handle_sigint(int signum)
 {
 	g_signum = signum;
 	g_keep_stressing_flag = false;
@@ -2256,7 +2256,7 @@ static uint32_t get_total_num_procs(proc_info_t *procs_list)
  *  stress_run ()
  *	kick off and run stressors
  */
-static void MLOCKED stress_run(
+static void MLOCKED_TEXT stress_run(
 	proc_info_t *procs_list,
 	double *duration,
 	bool *success,
@@ -3893,10 +3893,13 @@ int main(int argc, char **argv)
 	 *  See if we can mlock MLOCK sections of stress-ng
 	 */
 	{
-		extern void *__start_mlocked;
-		extern void *__stop_mlocked;
+		extern void *__start_mlocked_text;
+		extern void *__stop_mlocked_text;
+		extern void *__start_mlocked_data;
+		extern void *__stop_mlocked_data;
 
-		stress_mlock_region(&__start_mlocked, &__stop_mlocked);
+		stress_mlock_region(&__start_mlocked_text, &__stop_mlocked_text);
+		stress_mlock_region(&__start_mlocked_data, &__stop_mlocked_data);
 	}
 #endif
 

@@ -992,7 +992,7 @@ int stress_sighandler(
 	 *  call to stress_sighandler.
 	 */
 	if (!set_altstack) {
-		static uint8_t MLOCKED stack[SIGSTKSZ + STACK_ALIGNMENT];
+		static uint8_t MLOCKED_DATA stack[SIGSTKSZ + STACK_ALIGNMENT];
 
 		if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 			return -1;

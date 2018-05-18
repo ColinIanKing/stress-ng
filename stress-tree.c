@@ -90,7 +90,7 @@ void stress_set_tree_size(const void *opt)
  *  stress_tree_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED stress_tree_handler(int dummy)
+static void MLOCKED_TEXT stress_tree_handler(int dummy)
 {
 	(void)dummy;
 

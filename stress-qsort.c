@@ -31,7 +31,7 @@ static sigjmp_buf jmp_env;
  *  stress_qsort_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED stress_qsort_handler(int dummy)
+static void MLOCKED_TEXT stress_qsort_handler(int dummy)
 {
 	(void)dummy;
 

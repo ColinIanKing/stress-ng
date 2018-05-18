@@ -31,7 +31,7 @@ static volatile bool do_jmp = true;
  *  stress_segvhandler()
  *	SEGV handler
  */
-static void MLOCKED stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int dummy)
 {
 	(void)dummy;
 

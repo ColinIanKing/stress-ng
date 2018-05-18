@@ -89,7 +89,7 @@ static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
-static void MLOCKED stress_timer_handler(int sig)
+static void MLOCKED_TEXT stress_timer_handler(int sig)
 {
 	struct itimerspec timer;
 	sigset_t mask;

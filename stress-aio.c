@@ -72,7 +72,7 @@ static inline void aio_fill_buffer(
  *  aio_signal_handler()
  *	handle an async I/O signal
  */
-static void MLOCKED aio_signal_handler(int sig, siginfo_t *si, void *ucontext)
+static void MLOCKED_TEXT aio_signal_handler(int sig, siginfo_t *si, void *ucontext)
 {
 	io_req_t *io_req = (io_req_t *)si->si_value.sival_ptr;
 

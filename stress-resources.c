@@ -416,7 +416,7 @@ static void NORETURN waste_resources(
 	_exit(0);
 }
 
-static void MLOCKED kill_children(const size_t resource_forks)
+static void MLOCKED_TEXT kill_children(const size_t resource_forks)
 {
 	size_t i;
 

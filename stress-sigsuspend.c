@@ -30,7 +30,7 @@
  *  stress_usr1_handler()
  *      SIGUSR1 handler
  */
-static void MLOCKED stress_usr1_handler(int dummy)
+static void MLOCKED_TEXT stress_usr1_handler(int dummy)
 {
         (void)dummy;
 }

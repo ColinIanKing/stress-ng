@@ -49,7 +49,7 @@ void stress_set_mergesort_size(const void *opt)
  *  stress_mergesort_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED stress_mergesort_handler(int dummy)
+static void MLOCKED_TEXT stress_mergesort_handler(int dummy)
 {
 	(void)dummy;
 
