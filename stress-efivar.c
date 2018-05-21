@@ -109,7 +109,7 @@ static inline void efi_get_varname(char *varname, const size_t len, const efi_va
  */
 static int efi_get_variable(const args_t *args, const char *varname, efi_var *var)
 {
-	int fd, n, ret = 0;
+	int fd, n, ret, rc = 0;
 	int flags;
 	char filename[PATH_MAX];
 	struct stat statbuf;
@@ -127,7 +127,7 @@ static int efi_get_variable(const args_t *args, const char *varname, efi_var *va
 	if (ret < 0) {
 		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		ret = -1;
+		rc = -1;
 		goto err_vars;
 	}
 
@@ -138,7 +138,8 @@ static int efi_get_variable(const args_t *args, const char *varname, efi_var *va
 			pr_err("%s: failed to read %s, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 		}
-		ret = -1;
+		rc = -1;
+		goto err_vars;
 	}
 
 err_vars:
@@ -154,7 +155,7 @@ err_vars:
 	if (ret < 0) {
 		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		ret = -1;
+		rc = -1;
 		goto err_vars;
 	}
 
@@ -162,6 +163,7 @@ err_vars:
 	if (ret < 0) {
 		pr_err("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		rc = -1;
 		goto err_efi_vars;
 	}
 
@@ -169,13 +171,14 @@ err_vars:
 	if (ret < 0) {
 		pr_err("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		rc = -1;
 		goto err_efi_vars;
 	}
 
 err_efi_vars:
 	(void)close(fd);
 
-	return ret;
+	return rc;
 }
 
 /*
