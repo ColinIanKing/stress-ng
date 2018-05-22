@@ -54,7 +54,7 @@ fchown				chown
 fchownat
 fcntl				open, lockf, fcntl
 fdatasync			hdd
-fgetxattr			xattr
+fgetxattr			xattr`
 finit_module
 flistxattr			xattr
 flock				flock
@@ -98,7 +98,7 @@ getsockopt			sock
 gettid				get, pthread
 gettimeofday			get
 getuid				get
-getxattr
+getxattr			xattr
 init_module
 inotify_add_watch		inotify
 inotify_init			inotify
@@ -121,16 +121,16 @@ kexec_load			[ need privilege, ignore for now ]
 keyctl				key
 kill				kill
 lchown
-lgetxattr
+lgetxattr			xattr
 link				link
 linkat
 listen				sock
-listxattr
+listxattr			xattr
 llistxattr
 lookup_dcookie
 lremovexattr
 lseek				hdd, lockf, mmap, seek
-lsetxattr
+lsetxattr			xattr
 lstat				fstat
 madvise				mmap, vm, madvise
 mbind				numa
@@ -277,7 +277,7 @@ setsid				set
 setsockopt			sock
 settimeofday			[ need privilege, ignore for now ]
 setuid				set
-setxattr
+setxattr			xattr
 sgetmask			[obsolete]
 shmat				shm-sysv
 shmctl				shm-sysv

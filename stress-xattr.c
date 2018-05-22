@@ -121,6 +121,30 @@ int stress_xattr(const args_t *args)
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
+
+			ret = getxattr(filename, attrname, tmp, sizeof(tmp));
+			if (ret < 0) {
+				pr_fail_err("getxattr");
+				goto out_close;
+			}
+			if (strncmp(value, tmp, ret)) {
+				pr_fail("%s: getxattr values "
+					"different %.*s vs %.*s\n",
+					args->name, ret, value, ret, tmp);
+				goto out_close;
+			}
+
+			ret = lgetxattr(filename, attrname, tmp, sizeof(tmp));
+			if (ret < 0) {
+				pr_fail_err("getxattr");
+				goto out_close;
+			}
+			if (strncmp(value, tmp, ret)) {
+				pr_fail("%s: lgetxattr values "
+					"different %.*s vs %.*s\n",
+					args->name, ret, value, ret, tmp);
+				goto out_close;
+			}
 		}
 		/* Determine how large a buffer we required... */
 		sz = flistxattr(fd, NULL, 0);
@@ -131,11 +155,11 @@ int stress_xattr(const args_t *args)
 		buffer = malloc(sz);
 		if (buffer) {
 			/* ...and fetch */
-			sz = flistxattr(fd, buffer, sz);
+			sz = listxattr(filename, buffer, sz);
 			free(buffer);
 
 			if (sz < 0) {
-				pr_fail_err("flistxattr");
+				pr_fail_err("listxattr");
 				goto out_close;
 			}
 		}
