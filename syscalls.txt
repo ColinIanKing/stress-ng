@@ -120,7 +120,7 @@ kexec_file_load			[ need privilege, ignore for now ]
 kexec_load			[ need privilege, ignore for now ]
 keyctl				key
 kill				kill
-lchown
+lchown				chown
 lgetxattr			xattr
 link				link
 linkat

@@ -75,6 +75,7 @@ restore:
  *	set ownership different ways
  */
 static int do_chown(
+	int (*chown_func)(const char *pathname, uid_t owner, gid_t group),
 	const char *filename,
 	const bool cap_chown,
 	const uid_t uid,
@@ -82,26 +83,26 @@ static int do_chown(
 {
 	int ret, tmp;
 
-	if (chown(filename, uid, gid) < 0)
+	if (chown_func(filename, uid, gid) < 0)
 		return -errno;
-	if (chown(filename, -1, gid) < 0)
+	if (chown_func(filename, -1, gid) < 0)
 		return -errno;
-	if (chown(filename, uid, -1) < 0)
+	if (chown_func(filename, uid, -1) < 0)
 		return -errno;
-	if (chown(filename, -1, -1) < 0)
+	if (chown_func(filename, -1, -1) < 0)
 		return -errno;
 
 	if (cap_chown)
 		return 0;
-	if (chown(filename, 0, 0) == 0)
+	if (chown_func(filename, 0, 0) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (chown(filename, -1, 0) == 0)
+	if (chown_func(filename, -1, 0) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (chown(filename, 0, -1) == 0)
+	if (chown_func(filename, 0, -1) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
@@ -110,7 +111,7 @@ static int do_chown(
 
 restore:
 	tmp = errno;
-	ret = chown(filename, uid, gid);
+	ret = chown_func(filename, uid, gid);
 	(void)ret;
 
 	return -tmp;
@@ -186,7 +187,19 @@ int stress_chown(const args_t *args)
 		if (ret < 0) {
 			pr_fail_err("fchown");
 		}
-		ret = do_chown(filename, cap_chown, uid, gid);
+		ret = do_chown(chown, filename, cap_chown, uid, gid);
+		if (ret < 0) {
+			if (ret == -ENOENT || errno == -ENOTDIR) {
+				/*
+				 * File was removed during test by
+				 * another worker
+				 */
+				rc = EXIT_SUCCESS;
+				goto tidy;
+			}
+			pr_fail_err("chown");
+		}
+		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
 			if (ret == -ENOENT || errno == -ENOTDIR) {
 				/*
