@@ -30,12 +30,18 @@
 #endif
 #endif
 
+typedef struct {
+	pthread_t pthread;
+	pid_t     tid;
+} pthread_info_t;
+
 static pthread_cond_t cond;
 static pthread_mutex_t mutex;
 static shim_pthread_spinlock_t spinlock;
 static bool thread_terminate;
 static uint64_t pthread_count;
 static sigset_t set;
+static pthread_info_t pthreads[MAX_PTHREAD];
 
 #endif
 
@@ -103,6 +109,13 @@ static void *stress_pthread_func(void *parg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
+#if defined(__linux__) && defined(__NR_gettid)
+	{
+		pthread_info_t *pi = ((pthread_args_t *)parg)->data;
+		pi->tid = syscall(__NR_gettid);
+	}
+#endif
+
 #if defined(__linux__) && defined(__NR_get_robust_list)
 	/*
 	 *  Check that get_robust_list() works OK
@@ -123,7 +136,6 @@ static void *stress_pthread_func(void *parg)
 #endif
 	}
 #endif
-
 
 	/*
 	 *  Bump count of running threads
@@ -187,12 +199,16 @@ die:
  */
 int stress_pthread(const args_t *args)
 {
-	pthread_t pthreads[MAX_PTHREAD];
 	bool ok = true;
 	uint64_t limited = 0, attempted = 0, max = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	pthread_args_t pargs = { args, NULL };
+
+#if defined(SIGUSR2)
+	if (stress_sighandler(args->name, SIGUSR2, SIG_IGN, NULL) < 0)
+		return EXIT_FAILURE;
+#endif
 
 	if (!get_setting("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -232,8 +248,12 @@ int stress_pthread(const args_t *args)
 		thread_terminate = false;
 		pthread_count = 0;
 
+		memset(&pthreads, 0, sizeof(pthreads));
+
 		for (i = 0; (i < pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
-			ret = pthread_create(&pthreads[i], NULL,
+			pargs.data = (void *)&pthreads[i];
+
+			ret = pthread_create(&pthreads[i].pthread, NULL,
 				stress_pthread_func, (void *)&pargs);
 			if (ret) {
 				/* Out of resources, don't try any more */
@@ -283,6 +303,12 @@ int stress_pthread(const args_t *args)
 			ok = false;
 			goto reap;
 		}
+#if defined(__linux__) && defined(__NR_tgkill) && defined(SIGUSR2)
+		for (j = 0; j < i; j++) {
+			if (pthreads[j].tid)
+				(void)syscall(__NR_tgkill, args->pid, pthreads[j].tid, SIGUSR2);
+		}
+#endif
 		thread_terminate = true;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
@@ -295,9 +321,10 @@ int stress_pthread(const args_t *args)
 			pr_fail_errno("mutex unlock", ret);
 			ok = false;
 		}
+
 reap:
 		for (j = 0; j < i; j++) {
-			ret = pthread_join(pthreads[j], NULL);
+			ret = pthread_join(pthreads[j].pthread, NULL);
 			if (ret) {
 				pr_fail_errno("pthread join", ret);
 				ok = false;

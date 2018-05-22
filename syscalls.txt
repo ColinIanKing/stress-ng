@@ -95,7 +95,7 @@ getrusage			get
 getsid				get
 getsockname			sock
 getsockopt			sock
-gettid				get
+gettid				get, pthread
 gettimeofday			get
 getuid				get
 getxattr
@@ -317,7 +317,7 @@ sysfs				get
 sysinfo				sysinfo
 syslog				klog
 tee				tee
-tgkill
+tgkill				pthread
 time				get
 timer_create			clock, timer
 timer_delete			clock, timer
