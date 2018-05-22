@@ -117,7 +117,7 @@ free_all:
 	/*
 	 * The sematics to hdestroy are rather varied from
 	 * system to system.  OpenBSD will free the keys,
-	 * where as NetBSD provides traditional functionaly
+	 * where as NetBSD provides traditional functionality
 	 * that does not free them, plus hdestroy1 where
 	 * one can provide a free'ing callback.  Linux
 	 * currently does not destroy them.  It's a mess,
