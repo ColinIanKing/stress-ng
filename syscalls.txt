@@ -328,7 +328,7 @@ timerfd_create			timerfd
 timerfd_gettime			timerfd
 timerfd_settime			timerfd
 times				sysinfo
-tkill
+tkill				[ obsolete ]
 truncate			hdd
 ugetrlimit			[ ignore ]
 umask				aio, mmap, sendfile, etc
