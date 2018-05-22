@@ -458,10 +458,20 @@ int stress_hdd(const args_t *args)
 			pr_fail_err("open");
 			goto finish;
 		}
-		if (ftruncate(fd, (off_t)0) < 0) {
-			pr_fail_err("ftruncate");
-			(void)close(fd);
-			goto finish;
+
+		/* Exercise ftruncate or truncate */
+		if (mwc1()) {
+			if (ftruncate(fd, (off_t)0) < 0) {
+				pr_fail_err("ftruncate");
+				(void)close(fd);
+				goto finish;
+			}
+		} else {
+			if (truncate(filename, (off_t)0) < 0) {
+				pr_fail_err("truncate");
+				(void)close(fd);
+				goto finish;
+			}
 		}
 		(void)unlink(filename);
 

@@ -329,7 +329,7 @@ timerfd_gettime			timerfd
 timerfd_settime			timerfd
 times				sysinfo
 tkill
-truncate			
+truncate			hdd
 ugetrlimit
 umask				aio, mmap, sendfile, etc
 umount				[ need privilege, ignore for now ]
