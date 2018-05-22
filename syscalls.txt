@@ -303,7 +303,7 @@ splice				splice
 ssetmask			[ obsolete ]
 stat				fstat
 statfs				sysinfo
-statx				- added in 4.11, needs implementing
+statx				fstat
 stime				[ need privilege, ignore for now ]
 swapoff				[ need privilege, ignore for now ]
 swapon				[ need privilege, ignore for now ]
@@ -332,7 +332,7 @@ tkill				[ obsolete ]
 truncate			hdd
 ugetrlimit			[ ignore ]
 umask				aio, mmap, sendfile, etc
-umount				[ need privilege, ignore for now ]
+umount				bind-mount
 uname				get
 unlink				dentry, hdd, unlink
 unlinkat
