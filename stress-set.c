@@ -119,6 +119,9 @@ int stress_set(const args_t *args)
 		uid_t uid;
 		gid_t groups[GIDS_MAX];
 
+		/* setsid will fail, ignore return */
+		pid = setsid();
+		(void)pid;
 		check_do_run();
 
 		/* getgid always succeeds */
