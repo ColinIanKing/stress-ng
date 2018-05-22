@@ -273,7 +273,7 @@ setresgid			set
 setresuid			set
 setreuid			set
 setrlimit			limit, rlimit, set
-setsid
+setsid				set
 setsockopt			sock
 settimeofday			[ need privilege, ignore for now ]
 setuid				set
