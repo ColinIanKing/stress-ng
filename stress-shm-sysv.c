@@ -279,6 +279,14 @@ static int stress_shm_sysv_child(
 
 				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
 					pr_fail_dbg("shmctl IPC_STAT");
+#if defined(__linux__) && defined(SHM_SET)
+				else {
+					int ret;
+
+					ret = shmctl(shm_id, SHM_SET, &ds);
+					(void)ret;
+				}
+#endif
 			}
 #endif
 #if defined(__linux__) && defined(IPC_INFO)
