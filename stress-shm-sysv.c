@@ -263,6 +263,16 @@ static int stress_shm_sysv_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
+#if defined(__linux__) && defined(SHM_LOCK)
+			{
+				int ret;
+
+				ret = shmctl(shm_id, SHM_LOCK, NULL);
+				if (ret == 0) {
+					ret = shmctl(shm_id, SHM_UNLOCK, NULL);
+				}
+			}
+#endif
 #if defined(IPC_STAT)
 			{
 				struct shmid_ds ds;
