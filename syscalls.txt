@@ -305,8 +305,8 @@ stat				fstat
 statfs				sysinfo
 statx				fstat
 stime				[ need privilege, ignore for now ]
-swapoff				[ need privilege, ignore for now ]
-swapon				[ need privilege, ignore for now ]
+swapoff				swap
+swapon				swap
 symlink				symlink
 symlinkat
 sync				io
