@@ -178,6 +178,8 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
+				if (errno == ENOKEY)
+					continue;
 				pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, algo_hash_info[i].name,
 					errno, strerror(errno));
