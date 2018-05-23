@@ -178,14 +178,14 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
-				pr_fail("%s: send using %s failed: errno=%d (%s)",
+				pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, algo_hash_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (recv(fd, digest, digest_size, MSG_WAITALL) != digest_size) {
-				pr_fail("%s: recv using %s failed: errno=%d (%s)",
+				pr_fail("%s: recv using %s failed: errno=%d (%s)\n",
 					args->name, algo_hash_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
@@ -300,14 +300,14 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)",
+				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail("%s: read using %s failed: errno=%d (%s)",
+				pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
@@ -342,14 +342,14 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
-				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)",
+				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
-				pr_fail("%s: read using %s failed: errno=%d (%s)",
+				pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
 				(void)close(fd);
