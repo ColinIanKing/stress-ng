@@ -153,8 +153,18 @@ again:
 				int ret;
 				const uint64_t timed = (i & 1);
 
-				if (!(i & 1023))
+				if (!(i & 1023)) {
+#if defined(__linux__)
+					char buffer[1024];
+
+					/* Read state of queue from mq fd */
+					ret = read(mq, buffer, sizeof(buffer));
+					if (ret < 0)
+						pr_fail_dbg("mq read");
+#endif
+
 					mq_notify(mq, &sigev);
+				}
 
 				/*
 				 * toggle between timedreceive and receive
