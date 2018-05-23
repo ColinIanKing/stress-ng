@@ -82,56 +82,58 @@
 typedef struct {
 	const char *name;
 	const ssize_t digest_size;
+	bool skip;
 } alg_hash_info_t;
 
 typedef struct {
 	const char *name;
 	const ssize_t block_size;
 	const ssize_t key_size;
+	bool skip;
 } alg_cipher_info_t;
 
 typedef struct {
 	const char *name;
 } alg_rng_info_t;
 
-static const alg_hash_info_t algo_hash_info[] = {
-	{ "crc32c",	CRC32C_DIGEST_SIZE },
-	{ "sha1",	SHA1_DIGEST_SIZE },
-	{ "sha224",	SHA224_DIGEST_SIZE },
-	{ "sha256",	SHA256_DIGEST_SIZE },
-	{ "sha384",	SHA384_DIGEST_SIZE },
-	{ "sha512",	SHA512_DIGEST_SIZE },
-	{ "md4",	MD4_DIGEST_SIZE	},
-	{ "md5",	MD5_DIGEST_SIZE	},
-	{ "rmd128",	RMD128_DIGEST_SIZE },
-	{ "rmd160",	RMD160_DIGEST_SIZE },
-	{ "rmd256",	RMD256_DIGEST_SIZE },
-	{ "rmd320",	RMD320_DIGEST_SIZE },
-	{ "wp256",	WP256_DIGEST_SIZE },
-	{ "wp384",	WP384_DIGEST_SIZE },
-	{ "wp512",	WP512_DIGEST_SIZE },
-	{ "tgr128",	TGR128_DIGEST_SIZE },
-	{ "tgr160",	TGR160_DIGEST_SIZE },
-	{ "tgr192",	TGR192_DIGEST_SIZE },
-	{ "xor",	XOR_DIGEST_SIZE },
-	{ "crct10dif",	CRC_T10DIF_DIGEST_SIZE },
+static alg_hash_info_t algo_hash_info[] = {
+	{ "crc32c",	CRC32C_DIGEST_SIZE,	false },
+	{ "sha1",	SHA1_DIGEST_SIZE,	false },
+	{ "sha224",	SHA224_DIGEST_SIZE,	false },
+	{ "sha256",	SHA256_DIGEST_SIZE,	false },
+	{ "sha384",	SHA384_DIGEST_SIZE,	false },
+	{ "sha512",	SHA512_DIGEST_SIZE,	false },
+	{ "md4",	MD4_DIGEST_SIZE,	false },
+	{ "md5",	MD5_DIGEST_SIZE,	false },
+	{ "rmd128",	RMD128_DIGEST_SIZE,	false },
+	{ "rmd160",	RMD160_DIGEST_SIZE,	false },
+	{ "rmd256",	RMD256_DIGEST_SIZE,	false },
+	{ "rmd320",	RMD320_DIGEST_SIZE,	false },
+	{ "wp256",	WP256_DIGEST_SIZE,	false },
+	{ "wp384",	WP384_DIGEST_SIZE,	false },
+	{ "wp512",	WP512_DIGEST_SIZE,	false },
+	{ "tgr128",	TGR128_DIGEST_SIZE,	false },
+	{ "tgr160",	TGR160_DIGEST_SIZE,	false },
+	{ "tgr192",	TGR192_DIGEST_SIZE,	false },
+	{ "xor",	XOR_DIGEST_SIZE,	false },
+	{ "crct10dif",	CRC_T10DIF_DIGEST_SIZE,	false },
 };
 
-static const alg_cipher_info_t algo_cipher_info[] = {
-	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
-	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
-	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE },
-	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE },
-	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE },
-	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE },
-	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE },
-	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE },
-	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE },
-	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE },
-	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE },
-	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE },
-	{ "ghash",		GHASH_BLOCK_SIZE,	GHASH_MAX_KEY_SIZE },
-	{ "twofish",		TWOFISH_BLOCK_SIZE,	TWOFISH_MAX_KEY_SIZE },
+static alg_cipher_info_t algo_cipher_info[] = {
+	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
+	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
+	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
+	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
+	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
+	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
+	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
+	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
+	{ "ghash",		GHASH_BLOCK_SIZE,	GHASH_MAX_KEY_SIZE,	false },
+	{ "twofish",		TWOFISH_BLOCK_SIZE,	TWOFISH_MAX_KEY_SIZE,	false },
 };
 
 static const alg_rng_info_t algo_rng_info[] = {
@@ -152,6 +154,9 @@ static int stress_af_alg_hash(
 		const ssize_t digest_size = algo_hash_info[i].digest_size;
 		char input[DATA_LEN], digest[digest_size];
 		struct sockaddr_alg sa;
+
+		if (algo_hash_info[i].skip)
+			continue;
 
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
@@ -178,8 +183,10 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
-				if (errno == ENOKEY)
+				if ((errno == 0) || (errno == ENOKEY) || (errno = ENOENT)) {
+					algo_hash_info[i].skip = true;
 					continue;
+				}
 				pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, algo_hash_info[i].name,
 					errno, strerror(errno));
@@ -225,6 +232,9 @@ static int stress_af_alg_cipher(
 		char key[key_size];
 		char input[DATA_LEN], output[DATA_LEN];
 
+		if (algo_cipher_info[i].skip)
+			continue;
+
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		(void)shim_strlcpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
@@ -233,8 +243,10 @@ static int stress_af_alg_cipher(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
-			if (errno == ENOENT)
+			if ((errno == 0) || (errno == ENOKEY) || (errno = ENOENT)) {
+				algo_cipher_info[i].skip = true;
 				continue;
+			}
 			pr_fail_err("bind");
 			return EXIT_FAILURE;
 		}
