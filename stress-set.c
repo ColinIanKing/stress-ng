@@ -170,15 +170,22 @@ int stress_set(const args_t *args)
 			}
 		}
 
+#if defined(HAVE_SETREUID)
 		ret = setreuid(-1, -1);
 		(void)ret;
+#endif
+#if defined(HAVE_SETREGID)
 		ret = setregid(-1, -1);
 		(void)ret;
-
+#endif
+#if defined(HAVE_SETRESUID)
 		ret = setresuid(-1, -1, -1);
 		(void)ret;
+#endif
+#if defined(HAVE_SETRESGID)
 		ret = setresgid(-1, -1, -1);
 		(void)ret;
+#endif
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			if (rlimits[i].ret == 0) {
