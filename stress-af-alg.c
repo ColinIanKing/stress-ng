@@ -37,6 +37,7 @@
 
 #define MAX_AF_ALG_RETRIES	(25)
 
+#define CRC32C_DIGEST_SIZE	(4)
 #define SHA1_DIGEST_SIZE        (20)
 #define SHA224_DIGEST_SIZE      (28)
 #define SHA256_DIGEST_SIZE      (32)
@@ -57,6 +58,7 @@
 #define XOR_DIGEST_SIZE		(4096)
 #define CRC_T10DIF_DIGEST_SIZE	(2)
 
+#define CRC32C_BLOCK_SIZE	(1)
 #define AES_BLOCK_SIZE		(16)
 #define TF_BLOCK_SIZE		(16)
 #define SERPENT_BLOCK_SIZE	(16)
@@ -93,6 +95,7 @@ typedef struct {
 } alg_rng_info_t;
 
 static const alg_hash_info_t algo_hash_info[] = {
+	{ "crc32c",	CRC32C_DIGEST_SIZE },
 	{ "sha1",	SHA1_DIGEST_SIZE },
 	{ "sha224",	SHA224_DIGEST_SIZE },
 	{ "sha256",	SHA256_DIGEST_SIZE },
