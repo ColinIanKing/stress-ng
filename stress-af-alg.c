@@ -183,7 +183,7 @@ static int stress_af_alg_hash(
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
 			if (send(fd, input, j, 0) != j) {
-				if ((errno == 0) || (errno == ENOKEY) || (errno = ENOENT)) {
+				if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT)) {
 					algo_hash_info[i].skip = true;
 					continue;
 				}
@@ -243,7 +243,7 @@ static int stress_af_alg_cipher(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
-			if ((errno == 0) || (errno == ENOKEY) || (errno = ENOENT)) {
+			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT)) {
 				algo_cipher_info[i].skip = true;
 				continue;
 			}
