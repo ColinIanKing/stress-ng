@@ -224,6 +224,7 @@ int stress_prctl_child(const args_t *args)
 
 #if defined(PR_SET_MM) && defined(PR_SET_MM_BRK)
 	ret = prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0));
+	(void)ret;
 #endif
 
 #if defined(PR_MPX_ENABLE_MANAGEMENT)
