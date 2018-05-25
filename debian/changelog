@@ -1,3 +1,57 @@
+stress-ng (0.09.28-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-zlib: rename variable i to j to fix variable shadowing
+    warning
+  * stress-prctl: make function stress_prctl_child static
+  * stress-fanotify: remove shadow'd declaration of ret
+  * stress-access: remove redundant declaration of ret
+  * stress-sysbaddaddr: fix indenting
+  * stress-flock: fix indenting
+  * stress-enosys: fix indenting
+  * test/test-modify-ldt: return ret to stop clang warning
+  * test/test-pselect: make rfds, wfds static, stop clang warnings
+  * stress-clone: put statements of if block in { }
+  * stress-shm-sysv: voidify return from shmctl call
+  * stress-prctl: voidify return from prctl system call
+  * stress-clone: voidify return from modify_ldt system call
+  * stress-iomix: fix early termination due to incorrect bogo ops
+    comparison
+  * Manual: update thread information for memthrash stressor
+  * stress-memthrash: add warning and hint about sub-optimal stressor
+    choice
+  * stress-af-alg: fix errno = ENOENT assignment, should be == comparison
+  * stress-set: add autodetect for setregid, setresgid, setresuid,
+    setreuid
+  * stress-af-alg: skip over ciphers that may not exist
+  * stress-af-alg: make ENOKEY a non-critical failure
+  * stress-af-alg: forgot to add in \n
+  * stress-af-alg: expand error message to capture more information
+  * stress-shm-sysv: add exercising for SHM_SET for linux only
+  * stress-shm-sysv: add SHM_LOCK/SHM_UNLOCK commands
+  * stress-mq: POSIX mq on linux allows one to read MQ status, add this
+  * stress-af-alg: add crc32c
+  * syscalls.txt: update swapon/swapoff info
+  * stress-hsearch: fix spelling mistake in comment
+  * syscalls: update statx and umount system calls
+  * stress-chown: add lchown system call
+  * stress-xattr: exercise the filename based xattr system calls
+  * stress-pthread: use tgkill and gettid system calls
+  * syscalls: mark tkill as obsolete
+  * syscalls: ignore ugetrlimit
+  * stress-hdd: use truncate as well as the ftruncate
+  * syscalls: add update to setsid
+  * stress-set: add setsid call
+  * stress-efivar: fix error return in efi_get_variable
+  * split mlocked region into mlocked text segment and mlocked data segment
+  * stress-ng.h: add empty macro definitions for ALIGNED and SECTION
+  * stress-efivar: add ioctl and fstat exercising on efivar fd's
+  * test/test-setpgid: don't pass -ve args
+  * stress-set: voidify returns to discard warnings
+  * Add set stressor
+
+ -- Colin King <colin.king@canonical.com>  Fri, 25 May 2018 16:18:12 +0100
+
 stress-ng (0.09.27-1) unstable; urgency=medium
 
   * Makefile: bump version
