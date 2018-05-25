@@ -270,6 +270,7 @@ static int stress_shm_sysv_child(
 				ret = shmctl(shm_id, SHM_LOCK, NULL);
 				if (ret == 0) {
 					ret = shmctl(shm_id, SHM_UNLOCK, NULL);
+					(void)ret;
 				}
 			}
 #endif
