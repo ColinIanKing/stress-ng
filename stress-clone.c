@@ -240,6 +240,7 @@ static int clone_func(void *arg)
 		ret = syscall(__NR_modify_ldt, 0, &ud, sizeof(ud));
 		if (ret == 0)
 			ret = syscall(__NR_modify_ldt, 1, &ud, sizeof(ud));
+			(void)ret;
 	}
 #endif
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
