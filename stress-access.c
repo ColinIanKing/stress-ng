@@ -119,8 +119,6 @@ int stress_access(const args_t *args)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
-			int ret;
-
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
 				pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
