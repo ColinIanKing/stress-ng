@@ -44,5 +44,5 @@ int main(void)
 	if (ret == 0)
 		ret = syscall(__NR_modify_ldt, 1, &ud, sizeof(ud));
 
-	return 0;
+	return ret;
 }
