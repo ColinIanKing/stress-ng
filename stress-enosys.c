@@ -3139,7 +3139,7 @@ again:
 	if (pid < 0) {
 		if (errno == EAGAIN)
 			goto again;
-		 pr_err("%s: fork failed: errno=%d: (%s)\n",
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
