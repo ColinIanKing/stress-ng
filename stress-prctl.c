@@ -79,7 +79,7 @@
     defined(PR_SET_UNALIGN) ||			\
     defined(PR_GET_UNALIGN)
 
-int stress_prctl_child(const args_t *args)
+static int stress_prctl_child(const args_t *args)
 {
 	int ret;
 
