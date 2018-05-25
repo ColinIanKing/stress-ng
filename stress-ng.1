@@ -1946,7 +1946,10 @@ processes.
 .TP
 .B \-\-memthrash N
 start N workers that thrash and exercise a 16MB buffer in various ways to
-try and trip thermal overrun.
+try and trip thermal overrun.  Each stressor will start 1 or more threads.
+The number of threads is chosen so that there will be at least 1 thread
+per CPU. Note that the optimal choice for N is a value that divides into
+the number of CPUs.
 .TP
 .B \-\-memthrash-ops N
 stop after N memthrash bogo operations.
