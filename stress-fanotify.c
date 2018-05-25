@@ -216,7 +216,7 @@ int stress_fanotify(const args_t *args)
 
 #if defined(FIONREAD)
 			{
-				int isz, ret;
+				int isz;
 
 				/*
 				 *  Force kernel to determine number
