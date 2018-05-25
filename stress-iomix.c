@@ -704,10 +704,10 @@ int stress_iomix(const args_t *args)
 
 	do {
 		uint64_t c = 0;
-		(void)shim_usleep(10000);
+		(void)shim_usleep(5000);
 		for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 			c += counters[i];
-			if (c > args->max_ops) {
+			if (UNLIKELY(args->max_ops && c >= args->max_ops)) {
 				*args->counter = c;
 				goto reap;
 			}
