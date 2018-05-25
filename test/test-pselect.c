@@ -36,7 +36,7 @@
 
 int main(void)
 {
-	fd_set rfds, wfds;
+	static fd_set rfds, wfds;
 
 	struct timespec ts;
 	sigset_t sigmask;
