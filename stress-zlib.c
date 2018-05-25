@@ -359,12 +359,12 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 
 		index = (index + 1) & mask;
 		if (index) {
-			size_t i = __builtin_ctz(index);
+			size_t j = __builtin_ctz(index);
 
-			sum -= rows[i];
+			sum -= rows[j];
 			rand = (int64_t)mwc64() >> PINK_SHIFT;
 			sum += rand;
-			rows[i] = rand;
+			rows[j] = rand;
 		}
 		rand = (int64_t)mwc64() >> PINK_SHIFT;
 		*(ptr++) = (int)((scalar * ((int64_t)sum + rand)) + 128.0);
