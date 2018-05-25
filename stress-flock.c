@@ -102,7 +102,7 @@ int stress_flock(const args_t *args)
 	if (fd < 0) {
 		pr_err("%s: failed to create %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-			goto err;
+		goto err;
 	}
 
 	memset(pids, 0, sizeof(pids));
