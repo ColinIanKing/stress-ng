@@ -391,17 +391,37 @@ die:
 	return &nowt;
 }
 
-static inline uint32_t stress_memthrash_max(const uint32_t instances)
+static inline uint32_t stress_memthrash_max(
+	const uint32_t instances,
+	const uint32_t total_cpus)
 {
-	const uint32_t cpus = stress_get_processors_configured();
-
-	if ((instances >= cpus) || (instances == 0)) {
+	if ((instances >= total_cpus) || (instances == 0)) {
 		return 1;
 	} else {
-		uint32_t max = cpus / instances;
-		return ((cpus % instances) == 0) ? max : max + 1;
+		uint32_t max = total_cpus / instances;
+		return ((total_cpus % instances) == 0) ? max : max + 1;
 	}
 }
+
+static inline uint32_t stress_memthash_optimal(
+	const uint32_t instances,
+	const uint32_t total_cpus)
+{
+	uint32_t n = instances;
+
+	while (n > 1) {
+		if (total_cpus % n == 0)
+			return n;
+		n--;
+	}
+	return 1;
+}
+
+static inline char *plural(uint32_t n)
+{
+	return n > 1 ? "s" : "";
+}
+
 
 /*
  *  stress_memthrash()
@@ -410,7 +430,8 @@ static inline uint32_t stress_memthrash_max(const uint32_t instances)
 int stress_memthrash(const args_t *args)
 {
 	const stress_memthrash_method_info_t *memthrash_method = &memthrash_methods[0];
-	const uint32_t max_threads = stress_memthrash_max(args->num_instances);
+	const uint32_t total_cpus = stress_get_processors_configured();
+	const uint32_t max_threads = stress_memthrash_max(args->num_instances, total_cpus);
 	pthread_t pthreads[max_threads];
 	int ret[max_threads];
 	pthread_args_t pargs;
@@ -420,7 +441,19 @@ int stress_memthrash(const args_t *args)
 	(void)get_setting("memthrash-method", &memthrash_method);
 	func = memthrash_method->func;
 
-	pr_dbg("%s using method '%s'\n", args->name, memthrash_method->name);
+	pr_dbg("%s: using method '%s'\n", args->name, memthrash_method->name);
+	if (args->instance == 0) {
+		pr_inf("%s: starting %" PRIu32 " thread%s on each of the %"
+			PRIu32 " stressors on a %" PRIu32 " CPU system\n",
+			args->name, max_threads, plural(max_threads),
+			args->num_instances, total_cpus);
+		if (max_threads * args->num_instances > total_cpus) {
+			pr_inf("%s: this is not an optimal choice of stressors, "
+				"try %" PRIu32 " instead\n",
+			args->name,
+			stress_memthash_optimal(args->num_instances, total_cpus));
+		}
+	}
 
 	pargs.args = args;
 	pargs.data = func;
