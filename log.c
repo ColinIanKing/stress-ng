@@ -28,6 +28,76 @@
 static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
 static FILE	*log_file = NULL;
+static bool	pr_mutex_enabled;
+
+#define PID_UNUSED	(0)
+
+/*
+ *  pr_lock()
+ *	nestable sleepy print log lock, allowing a process to
+ *	lock a batch of pr_log calls.
+ */
+int pr_lock(void)
+{
+	pid_t mypid;
+
+	if (!pr_mutex_enabled)
+		return 0;
+
+	mypid = getpid();
+	for (;;) {
+		if (shim_pthread_spin_lock(&g_shared->pr_mutex) != 0)
+			return -1;
+
+		if ((g_shared->pr_mutex_pid == PID_UNUSED) ||
+                    (g_shared->pr_mutex_pid == mypid)) {
+			g_shared->pr_nested_count++;
+			g_shared->pr_mutex_pid = mypid;
+			if (shim_pthread_spin_unlock(&g_shared->pr_mutex) != 0)
+				return -1;
+			return 0;
+		} else {
+			if (shim_pthread_spin_unlock(&g_shared->pr_mutex) != 0)
+				return -1;
+			shim_usleep(5);
+		}
+	}
+	return 0;
+}
+
+/*
+ *  pr_unlock()
+ *	nestable sleepy print log unlock, allowing a process to
+ *	unlock a batch of pr_log calls.
+ */
+int pr_unlock(void)
+{
+	pid_t mypid;
+
+	if (!pr_mutex_enabled)
+		return 0;
+
+	mypid = getpid();
+
+	for (;;) {
+		if (shim_pthread_spin_lock(&g_shared->pr_mutex) != 0)
+			return -1;
+
+		if (UNLIKELY(g_shared->pr_mutex_pid == mypid)) {
+			g_shared->pr_nested_count--;
+			if (g_shared->pr_nested_count == 0)
+				g_shared->pr_mutex_pid = PID_UNUSED;
+			if (shim_pthread_spin_unlock(&g_shared->pr_mutex) != 0)
+				return -1;
+			break;
+		} else {
+			if (shim_pthread_spin_unlock(&g_shared->pr_mutex) != 0)
+				return -1;
+			shim_usleep(1000);
+		}
+	}
+	return 0;
+}
 
 /*
  *  pr_yaml()
@@ -88,6 +158,8 @@ int pr_msg(
 {
 	int ret = 0;
 
+	pr_lock();
+
 	if ((flag & PR_FAIL) || (g_opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
@@ -137,6 +209,7 @@ int pr_msg(
 			syslog(LOG_INFO, "%s", buf);
 		}
 	}
+	pr_unlock();
 	return ret;
 }
 
@@ -260,3 +333,21 @@ void pr_fail_dbg__(const args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
 }
+
+int pr_lock_init(void)
+{
+	pr_mutex_enabled = false;
+
+	if (!g_shared) {
+		pr_dbg("failed to create pr_lock, global shared memory is null\n");
+		return -1;
+	}
+	if (shim_pthread_spin_init(&g_shared->pr_mutex, 0) != 0) {
+		pr_dbg("failed to initialize pr_lock, locking disabled\n");
+		return -1;
+	}
+
+	pr_mutex_enabled = true;
+	return 0;
+}
+

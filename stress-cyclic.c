@@ -747,6 +747,7 @@ tidy:
 				99.99,
 			};
 
+			pr_lock();
 			pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
 				args->name,
 				policies[cyclic_policy].name,
@@ -771,6 +772,7 @@ tidy:
 					rt_stats->latencies[j]);
 			}
 			stress_rt_dist(args->name, rt_stats, cyclic_dist);
+			pr_unlock();
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
 				args->name,
