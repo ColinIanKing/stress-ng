@@ -449,7 +449,6 @@ int stress_stream(const args_t *args)
 	}
 
 	if (args->instance == 0) {
-		pr_lock();
 		pr_inf("%s: stressor loosely based on a variant of the "
 			"STREAM benchmark code\n", args->name);
 		pr_inf("%s: do NOT submit any of these results "
@@ -462,7 +461,6 @@ int stress_stream(const args_t *args)
 			pr_inf("%s: Using CPU cache size of %" PRIu64 "K\n",
 				args->name, L3 / 1024);
 		}
-		pr_unlock();
 	}
 
 	/* ..and shared amongst all the STREAM stressor instances */

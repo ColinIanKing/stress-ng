@@ -3949,7 +3949,6 @@ int main(int argc, char **argv)
 	 */
 	len = sizeof(shared_t) + (sizeof(proc_stats_t) * get_total_num_procs(procs_head));
 	stress_map_shared(len);
-	pr_lock_init();
 
 	/*
 	 *  Setup spinlocks

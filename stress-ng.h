@@ -620,9 +620,6 @@ extern int pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_openlog(const char *filename);
 extern void pr_closelog(void);
-extern int  pr_lock_init(void);
-extern int  pr_lock(void);
-extern int  pr_unlock(void);
 
 extern void pr_dbg(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);
@@ -1226,11 +1223,6 @@ typedef struct {
 	uint16_t padding1;				/* alignment padding */
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
-#if defined(HAVE_LIB_PTHREAD)
-	shim_pthread_spinlock_t pr_mutex;		/* pr logging mutex */
-	volatile pid_t pr_mutex_pid;			/* pid holding the mutex */
-	volatile uint32_t pr_nested_count;		/* count of nested locks */
-#endif
 	struct {
 		uint32_t	flags;			/* flag bits */
 #if defined(HAVE_LIB_PTHREAD)
