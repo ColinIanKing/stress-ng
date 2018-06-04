@@ -122,22 +122,6 @@ int stress_set_cyclic_dist(const char *opt)
 }
 
 /*
- *  stress_cyclic_supported()
- *      check if we can run this as root
- */
-static int stress_cyclic_supported(void)
-{
-        if (geteuid() != 0) {
-		pr_inf("stress-cyclic stressor needs to be run as root to "
-			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
-			"skipping this stressor\n");
-                return -1;
-        }
-        return 0;
-}
-
-
-/*
  *  stress_cyclic_clock_nanosleep()
  *	measure latencies with clock_nanosleep
  */
@@ -565,6 +549,21 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 				name, cyclic_dist * i, (int64_t)0);
 		}
 	}
+}
+
+/*
+ *  stress_cyclic_supported()
+ *      check if we can run this as root
+ */
+static int stress_cyclic_supported(void)
+{
+        if (geteuid() != 0) {
+		pr_inf("stress-cyclic stressor needs to be run as root to "
+			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
+			"skipping this stressor\n");
+                return -1;
+        }
+        return 0;
 }
 
 static int stress_cyclic(const args_t *args)
