@@ -219,7 +219,7 @@ stressor_info_t stress_mergesort_info = {
 	.stressor = stress_mergesort
 };
 #else
-stressor_info_t stress_mergesort_info = 
+stressor_info_t stress_mergesort_info = {
 	.stressor = stress_not_implemented
 };
 #endif
