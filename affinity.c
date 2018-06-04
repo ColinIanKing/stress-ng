@@ -113,7 +113,7 @@ int set_cpu_affinity(const char *arg)
 }
 
 #else
-int set_cpu_affinity(char *const arg)
+int set_cpu_affinity(const char *arg)
 {
 	(void)arg;
 
