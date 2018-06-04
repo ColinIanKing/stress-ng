@@ -121,7 +121,7 @@ static int stress_access(const args_t *args)
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
 				pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
-					args->name, modes[i].chmod_mode,
+					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 				goto tidy;
 			}
@@ -129,7 +129,7 @@ static int stress_access(const args_t *args)
 			if (ret < 0) {
 				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
-					modes[i].access_mode, modes[i].chmod_mode,
+					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
 #if defined(HAVE_FACCESSAT)
@@ -137,7 +137,7 @@ static int stress_access(const args_t *args)
 			if (ret < 0) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
-					modes[i].access_mode, modes[i].chmod_mode,
+					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
 #endif
@@ -149,7 +149,7 @@ static int stress_access(const args_t *args)
 				ret = fchmod(fd, chmod_mode);
 				if (CHMOD_ERR(ret)) {
 					pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
-						args->name, chmod_mode,
+						args->name, (unsigned int)chmod_mode,
 						errno, strerror(errno));
 					goto tidy;
 				}
@@ -157,7 +157,7 @@ static int stress_access(const args_t *args)
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
 						args->name,
-						modes[i].access_mode, chmod_mode,
+						modes[i].access_mode, (unsigned int)chmod_mode,
 						errno, strerror(errno));
 				}
 #if defined(HAVE_FACCESSAT)
@@ -165,7 +165,7 @@ static int stress_access(const args_t *args)
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
 						args->name,
-						modes[i].access_mode, chmod_mode,
+						modes[i].access_mode, (unsigned int)chmod_mode,
 						errno, strerror(errno));
 				}
 #endif
