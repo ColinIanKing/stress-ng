@@ -129,24 +129,24 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 };
 
-void stress_set_hdd_bytes(const char *opt)
+int stress_set_hdd_bytes(const char *opt)
 {
 	uint64_t hdd_bytes;
 
 	hdd_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("hdd-bytes", hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
-	set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
+	return set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
 }
 
-void stress_set_hdd_write_size(const char *opt)
+int stress_set_hdd_write_size(const char *opt)
 {
 	uint64_t hdd_write_size;
 
 	hdd_write_size = get_uint64_byte(opt);
 	check_range_bytes("hdd-write-size", hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
-	set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
+	return set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
 }
 
 /*
@@ -239,14 +239,14 @@ static ssize_t stress_hdd_read(
  *  stress_set_hdd_opts
  *	parse --hdd-opts option(s) list
  */
-int stress_set_hdd_opts(char *opts)
+int stress_set_hdd_opts(const char *opts)
 {
 	char *str, *token;
 	int hdd_flags = 0;
 	int hdd_oflags = 0;
 	bool opts_set = false;
 
-	for (str = opts; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = (char *)opts; (token = strtok(str, ",")) != NULL; str = NULL) {
 		size_t i;
 		bool opt_ok = false;
 

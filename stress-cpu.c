@@ -106,12 +106,12 @@ static const stress_cpu_method_info_t cpu_methods[];
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
-void stress_set_cpu_load(const char *opt) {
+int stress_set_cpu_load(const char *opt) {
 	int32_t cpu_load;
 
 	cpu_load = get_int32(opt);
 	check_range("cpu-load", cpu_load, 0, 100);
-	set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
+	return set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
 
 /*
@@ -120,7 +120,7 @@ void stress_set_cpu_load(const char *opt) {
  *	= 0   - random duration between 0..0.5 seconds
  *	> 0   - milliseconds per busy slice
  */
-void stress_set_cpu_load_slice(const char *opt)
+int stress_set_cpu_load_slice(const char *opt)
 {
 	int32_t cpu_load_slice;
 
@@ -129,7 +129,7 @@ void stress_set_cpu_load_slice(const char *opt)
 		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
 		exit(EXIT_FAILURE);
 	}
-	set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
+	return set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
 }
 
 /*

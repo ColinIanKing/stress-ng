@@ -98,33 +98,33 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
 	        LIKELY(!args->max_ops || ((*args->counter >> VM_BOGO_SHIFT) < args->max_ops)));
 }
 
-void stress_set_vm_hang(const char *opt)
+int stress_set_vm_hang(const char *opt)
 {
 	uint64_t vm_hang;
 
 	vm_hang = get_uint64_time(opt);
 	check_range("vm-hang", vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
-	set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
+	return set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
 }
 
-void stress_set_vm_bytes(const char *opt)
+int stress_set_vm_bytes(const char *opt)
 {
 	size_t vm_bytes;
 
 	vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("vm-bytes", vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);
-	set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
+	return set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }
 
-void stress_set_vm_flags(const int flag)
+int stress_set_vm_flags(const int flag)
 {
 	int vm_flags = 0;
 
 	(void)get_setting("vm-flags", &vm_flags);
 	vm_flags |= flag;
-	set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
+	return set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
 
 }
 

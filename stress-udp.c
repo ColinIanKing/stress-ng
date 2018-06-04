@@ -44,14 +44,14 @@
 #define UDPLITE_RECV_CSCOV	(11)
 #endif
 
-void stress_set_udp_port(const char *opt)
+int stress_set_udp_port(const char *opt)
 {
 	int udp_port;
 
 	stress_set_net_port("udp-port", opt,
 		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
 		&udp_port);
-	set_setting("udp-port", TYPE_ID_INT, &udp_port);
+	return set_setting("udp-port", TYPE_ID_INT, &udp_port);
 }
 
 /*

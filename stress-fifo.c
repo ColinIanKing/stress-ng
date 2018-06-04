@@ -27,14 +27,14 @@
 
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 
-void stress_set_fifo_readers(const char *opt)
+int stress_set_fifo_readers(const char *opt)
 {
 	uint64_t fifo_readers;
 
 	fifo_readers = get_uint64(opt);
 	check_range("fifo-readers", fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
-	set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
+	return set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
 /*

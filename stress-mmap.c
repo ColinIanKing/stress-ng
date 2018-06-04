@@ -62,14 +62,14 @@ static const int mmap_flags[] = {
 	0
 };
 
-void stress_set_mmap_bytes(const char *opt)
+int stress_set_mmap_bytes(const char *opt)
 {
 	size_t mmap_bytes;
 
 	mmap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mmap-bytes", mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
-	set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
+	return set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
 }
 
 /*

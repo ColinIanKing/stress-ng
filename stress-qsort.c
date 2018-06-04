@@ -45,14 +45,14 @@ static void MLOCKED_TEXT stress_qsort_handler(int dummy)
  *  stress_set_qsort_size()
  *	set qsort size
  */
-void stress_set_qsort_size(const char *opt)
+int stress_set_qsort_size(const char *opt)
 {
 	uint64_t qsort_size;
 
 	qsort_size = get_uint64(opt);
 	check_range("qsort-size", qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
-	set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
+	return set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
 }
 
 /*

@@ -36,34 +36,34 @@ typedef struct {
 	double		mbytes;
 } memrate_stats_t;
 
-void stress_set_memrate_bytes(const char *opt)
+int stress_set_memrate_bytes(const char *opt)
 {
 	uint64_t memrate_bytes;
 
 	memrate_bytes = get_uint64_byte(opt);
 	check_range_bytes("memrate-bytes", memrate_bytes,
 		MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES);
-	set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
+	return set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
 }
 
-void stress_set_memrate_rd_mbs(const char *opt)
+int stress_set_memrate_rd_mbs(const char *opt)
 {
 	uint64_t memrate_rd_mbs;
 
 	memrate_rd_mbs = get_uint64(opt);
 	check_range_bytes("memrate-rd-mbs", memrate_rd_mbs,
 		1, 1000000);
-	set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
+	return set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
 }
 
-void stress_set_memrate_wr_mbs(const char *opt)
+int stress_set_memrate_wr_mbs(const char *opt)
 {
 	uint64_t memrate_wr_mbs;
 
 	memrate_wr_mbs = get_uint64(opt);
 	check_range_bytes("memrate-wr-mbs", memrate_wr_mbs,
 		1, 1000000);
-	set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
+	return set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
 #define STRESS_MEMRATE_READ(size)				\

@@ -50,14 +50,14 @@ static void MLOCKED_TEXT stress_radixsort_handler(int dummy)
  *  stress_set_radixsort_size()
  *	set radixsort size
  */
-void stress_set_radixsort_size(const char *opt)
+int stress_set_radixsort_size(const char *opt)
 {
 	uint64_t radixsort_size;
 
 	radixsort_size = get_uint64(opt);
 	check_range("radixsort-size", radixsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
-	set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
+	return set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 
 #if HAVE_LIB_BSD 

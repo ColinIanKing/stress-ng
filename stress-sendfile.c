@@ -28,14 +28,14 @@
 #include <sys/sendfile.h>
 #endif
 
-void stress_set_sendfile_size(const char *opt)
+int stress_set_sendfile_size(const char *opt)
 {
 	int64_t sendfile_size;
 
 	sendfile_size = get_uint64_byte(opt);
 	check_range_bytes("sendfile-size", sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
-	set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
+	return set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,1,0)

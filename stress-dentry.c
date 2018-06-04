@@ -43,14 +43,14 @@ static const dentry_removal_t dentry_removals[] = {
 	{ NULL,		ORDER_NONE },
 };
 
-void stress_set_dentries(const char *opt)
+int stress_set_dentries(const char *opt)
 {
 	uint64_t dentries;
 
 	dentries = get_uint64(opt);
 	check_range("dentries", dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
-	set_setting("dentries", TYPE_ID_UINT64, &dentries);
+	return set_setting("dentries", TYPE_ID_UINT64, &dentries);
 }
 
 /*

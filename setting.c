@@ -57,7 +57,7 @@ void free_settings(void)
  *  set_setting_generic()
  *	set a new setting;
  */
-static void set_setting_generic(
+static int set_setting_generic(
 	const char *name,
 	const type_id_t type_id,
 	const void *value,
@@ -170,34 +170,36 @@ static void set_setting_generic(
 	}
 	setting_tail = setting;
 
-	return;
+	return 0;
 err:
 	fprintf(stderr, "cannot allocate setting '%s'\n", name);
 	exit(EXIT_NO_RESOURCE);
+
+	return 1;
 }
 
 /*
  *  set_setting()
  *	set a new setting;
  */
-void set_setting(
+int set_setting(
 	const char *name,
 	const type_id_t type_id,
 	const void *value)
 {
-	set_setting_generic(name, type_id, value, false);
+	return set_setting_generic(name, type_id, value, false);
 }
 
 /*
  *  set_setting_global()
  *	set a new global setting;
  */
-void set_setting_global(
+int set_setting_global(
 	const char *name,
 	const type_id_t type_id,
 	const void *value)
 {
-	set_setting_generic(name, type_id, value, true);
+	return set_setting_generic(name, type_id, value, true);
 }
 
 

@@ -28,28 +28,28 @@
  *  stress_set_memfd_bytes
  *	set max size of each memfd size
  */
-void stress_set_memfd_bytes(const char *opt)
+int stress_set_memfd_bytes(const char *opt)
 {
 	size_t memfd_bytes;
 
 	memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("memfd-bytes", memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
-	set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
+	return set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
 }
 
 /*
  *  stress_set_memfd_fds()
  *      set number of memfd file descriptors
  */
-void stress_set_memfd_fds(const char *opt)
+int stress_set_memfd_fds(const char *opt)
 {
 	uint32_t memfd_fds;
 
 	memfd_fds = (uint32_t)get_uint64(opt);
 	check_range("memfd-fds", memfd_fds,
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
-	set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
+	return set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
 
 #if defined(__linux__) && defined(__NR_memfd_create)

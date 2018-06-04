@@ -28,14 +28,14 @@
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
 
-void stress_set_readahead_bytes(const char *opt)
+int stress_set_readahead_bytes(const char *opt)
 {
 	uint64_t readahead_bytes;
 
 	readahead_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("readahead-bytes", readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
-	set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
+	return set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)

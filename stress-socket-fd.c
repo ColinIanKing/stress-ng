@@ -38,14 +38,14 @@
  *  stress_set_socket_fd_port()
  *	set port to use
  */
-void stress_set_socket_fd_port(const char *opt)
+int stress_set_socket_fd_port(const char *opt)
 {
 	int socket_fd_port;
 
 	stress_set_net_port("sockfd-port", opt,
 		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
 		&socket_fd_port);
-	set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
+	return set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
 
 #if defined(__linux__)

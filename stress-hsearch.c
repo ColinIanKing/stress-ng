@@ -29,14 +29,14 @@
  *  stress_set_hsearch_size()
  *      set hsearch size from given option string
  */
-void stress_set_hsearch_size(const char *opt)
+int stress_set_hsearch_size(const char *opt)
 {
 	uint64_t hsearch_size;
 
 	hsearch_size = get_uint64(opt);
 	check_range("hsearch-size", hsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
-	set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
+	return set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
 }
 
 /*

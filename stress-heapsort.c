@@ -33,14 +33,14 @@ static sigjmp_buf jmp_env;
  *  stress_set_heapsort_size()
  *	set heapsort size
  */
-void stress_set_heapsort_size(const void *opt)
+int stress_set_heapsort_size(const char *opt)
 {
 	uint64_t heapsort_size;
 
 	heapsort_size = get_uint64(opt);
 	check_range("heapsort-size", heapsort_size,
 		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
-	set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
+	return set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
 }
 
 #if defined(HAVE_LIB_BSD)

@@ -112,14 +112,14 @@ static const int unshare_flags[] = {
  *  stress_set_clone_max()
  *	set maximum number of clones allowed
  */
-void stress_set_clone_max(const char *opt)
+int stress_set_clone_max(const char *opt)
 {
 	uint64_t clone_max;
 
 	clone_max = get_uint64(opt);
 	check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
-	set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
+	return set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,14,0) && defined(HAVE_CLONE)

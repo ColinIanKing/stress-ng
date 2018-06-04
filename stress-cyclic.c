@@ -75,14 +75,14 @@ static const policy_t policies[] = {
 
 static const size_t num_policies = SIZEOF_ARRAY(policies);
 
-void stress_set_cyclic_sleep(const char *opt)
+int stress_set_cyclic_sleep(const char *opt)
 {
 	uint64_t cyclic_sleep;
 
 	cyclic_sleep = get_uint64(opt);
         check_range("cyclic-sleep", cyclic_sleep,
                 1, NANOSECS);
-        set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
+        return set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
 
 int stress_set_cyclic_policy(const char *opt)
@@ -103,22 +103,22 @@ int stress_set_cyclic_policy(const char *opt)
 	return -1;
 }
 
-void stress_set_cyclic_prio(const char *opt)
+int stress_set_cyclic_prio(const char *opt)
 {
 	int32_t cyclic_prio;
 
 	cyclic_prio = get_int32(opt);
         check_range("cyclic-prio", cyclic_prio, 1, 100);
-        set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
+        return set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
-void stress_set_cyclic_dist(const char *opt)
+int stress_set_cyclic_dist(const char *opt)
 {
 	uint64_t cyclic_dist;
 
 	cyclic_dist = get_uint64(opt);
         check_range("cyclic-dist", cyclic_dist, 1, 10000000);
-        set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
+        return set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
 /*

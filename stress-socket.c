@@ -133,14 +133,14 @@ int stress_set_socket_type(const char *opt)
  *  stress_set_socket_port()
  *	set port to use
  */
-void stress_set_socket_port(const char *opt)
+int  stress_set_socket_port(const char *opt)
 {
 	int socket_port;
 
 	stress_set_net_port("sock-port", opt,
 		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
 		&socket_port);
-	set_setting("sock-port", TYPE_ID_INT, &socket_port);
+	return set_setting("sock-port", TYPE_ID_INT, &socket_port);
 }
 
 /*

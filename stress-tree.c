@@ -74,14 +74,14 @@ struct tree_node {
  *  stress_set_tree_size()
  *	set tree size
  */
-void stress_set_tree_size(const void *opt)
+int stress_set_tree_size(const char *opt)
 {
 	uint64_t tree_size;
 
 	tree_size = get_uint64(opt);
 	check_range("tree-size", tree_size,
 		MIN_TREE_SIZE, MAX_TREE_SIZE);
-	set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
+	return set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)

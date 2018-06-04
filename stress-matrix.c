@@ -44,21 +44,23 @@ typedef struct {
 
 static const stress_matrix_method_info_t matrix_methods[];
 
-void stress_set_matrix_size(const char *opt)
+int stress_set_matrix_size(const char *opt)
 {
 	size_t matrix_size;
 
 	matrix_size = get_uint64(opt);
 	check_range("matrix-size", matrix_size,
 		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
-	set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
+	return set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
 }
 
-void stress_set_matrix_yx(void)
+int stress_set_matrix_yx(const char *opt)
 {
 	size_t matrix_yx = 1;
 
-	set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
+	(void)opt;
+
+	return set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
 }
 
 /*

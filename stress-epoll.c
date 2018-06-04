@@ -56,7 +56,7 @@ static int max_servers = 1;
  *  stress_set_epoll_port()
  *	set the default port base
  */
-void stress_set_epoll_port(const char *opt)
+int stress_set_epoll_port(const char *opt)
 {
 	int epoll_port;
 
@@ -64,7 +64,7 @@ void stress_set_epoll_port(const char *opt)
 		MIN_EPOLL_PORT,
 		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
 		&epoll_port);
-	set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
+	return set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
 }
 
 /*

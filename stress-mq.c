@@ -33,7 +33,7 @@ typedef struct {
 } msg_t;
 #endif
 
-void stress_set_mq_size(const char *opt)
+int stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
 	int mq_size;
@@ -41,7 +41,7 @@ void stress_set_mq_size(const char *opt)
 	sz = get_uint64(opt);
 	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
 	mq_size = (int)sz;
-	set_setting("mq-size", TYPE_ID_INT, &mq_size);
+	return set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
 #if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)

@@ -45,14 +45,14 @@ static pthread_info_t pthreads[MAX_PTHREAD];
 
 #endif
 
-void stress_set_pthread_max(const char *opt)
+int stress_set_pthread_max(const char *opt)
 {
 	uint64_t pthread_max;
 
 	pthread_max = get_uint64(opt);
 	check_range("pthread-max", pthread_max,
 		MIN_PTHREAD, MAX_PTHREAD);
-	set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
+	return set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
 
 void stress_adjust_pthread_max(const uint64_t max)

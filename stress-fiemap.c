@@ -30,14 +30,14 @@
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 
-void stress_set_fiemap_bytes(const char *opt)
+int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
 
 	fiemap_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fiemap-bytes", fiemap_bytes,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
-	set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
+	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
 #if defined(__linux__) && defined(FS_IOC_FIEMAP)

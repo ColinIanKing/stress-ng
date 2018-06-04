@@ -85,14 +85,14 @@ int stress_set_dccp_opts(const char *opt)
  *  stress_set_dccp_port()
  *	set port to use
  */
-void stress_set_dccp_port(const char *opt)
+int stress_set_dccp_port(const char *opt)
 {
 	int dccp_port;
 
 	stress_set_net_port("dccp-port", opt,
 		MIN_DCCP_PORT, MAX_DCCP_PORT - STRESS_PROCS_MAX,
 		&dccp_port);
-	set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
+	return set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
 }
 
 /*

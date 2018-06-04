@@ -28,14 +28,14 @@
 #include <semaphore.h>
 #endif
 
-void stress_set_semaphore_posix_procs(const char *opt)
+int stress_set_semaphore_posix_procs(const char *opt)
 {
 	uint64_t semaphore_posix_procs;
 
 	semaphore_posix_procs = get_uint64(opt);
 	check_range("sem-procs", semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
-	set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
+	return set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
 #if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)

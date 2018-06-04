@@ -39,14 +39,14 @@ static bool thread_terminate;
 static sigset_t set;
 #endif
 
-void stress_set_sleep_max(const char *opt)
+int stress_set_sleep_max(const char *opt)
 {
 	uint64_t sleep_max;
 
 	sleep_max = get_uint64(opt);
 	check_range("sleep-max", sleep_max,
 		MIN_SLEEP, MAX_SLEEP);
-	set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
+	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
 void stress_adjust_sleep_max(const uint64_t max)

@@ -29,14 +29,14 @@
 static uint64_t lease_sigio;
 #endif
 
-void stress_set_lease_breakers(const char *opt)
+int stress_set_lease_breakers(const char *opt)
 {
 	uint64_t lease_breakers;
 
 	lease_breakers = get_uint64(opt);
 	check_range("lease-breakers", lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
-	set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
+	return set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
 }
 
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)

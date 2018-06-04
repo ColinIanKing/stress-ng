@@ -31,13 +31,13 @@
  *  stress_set_pipe_size()
  *	set pipe size in bytes
  */
-void stress_set_pipe_size(const char *opt)
+int stress_set_pipe_size(const char *opt)
 {
 	size_t pipe_size;
 
 	pipe_size = (size_t)get_uint64_byte(opt);
 	check_range_bytes("pipe-size", pipe_size, 4, 1024 * 1024);
-	set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
+	return set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
 #endif
 
@@ -45,14 +45,14 @@ void stress_set_pipe_size(const char *opt)
  *  stress_set_pipe_size()
  *	set pipe data write size in bytes
  */
-void stress_set_pipe_data_size(const char *opt)
+int stress_set_pipe_data_size(const char *opt)
 {
 	size_t pipe_data_size;
 
 	pipe_data_size = (size_t)get_uint64_byte(opt);
 	check_range_bytes("pipe-data-size", pipe_data_size,
 		4, stress_get_pagesize());
-	set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
+	return set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
 }
 
 /*

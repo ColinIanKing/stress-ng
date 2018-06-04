@@ -24,14 +24,14 @@
  */
 #include "stress-ng.h"
 
-void stress_set_fallocate_bytes(const char *opt)
+int stress_set_fallocate_bytes(const char *opt)
 {
 	off_t fallocate_bytes;
 
 	fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fallocate-bytes", fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
-	set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
+	return set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)

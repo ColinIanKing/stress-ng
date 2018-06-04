@@ -38,14 +38,14 @@
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
 
-void stress_set_aio_linux_requests(const char *opt)
+int stress_set_aio_linux_requests(const char *opt)
 {
 	uint64_t aio_linux_requests;
 
 	aio_linux_requests = get_uint32(opt);
 	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
+	return set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
 }
 
 #if defined(__linux__) &&	\

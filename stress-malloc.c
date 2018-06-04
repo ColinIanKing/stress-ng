@@ -24,34 +24,34 @@
  */
 #include "stress-ng.h"
 
-void stress_set_malloc_bytes(const char *opt)
+int stress_set_malloc_bytes(const char *opt)
 {
 	size_t malloc_bytes;
 
 	malloc_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("malloc-bytes", malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
-	set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
+	return set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
 }
 
-void stress_set_malloc_max(const char *opt)
+int stress_set_malloc_max(const char *opt)
 {
 	size_t malloc_max;
 
 	malloc_max = (size_t)get_uint64_byte(opt);
 	check_range("malloc-max", malloc_max,
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
-	set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
+	return set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
 }
 
-void stress_set_malloc_threshold(const char *opt)
+int stress_set_malloc_threshold(const char *opt)
 {
 	size_t malloc_threshold;
 
 	malloc_threshold = (size_t)get_uint64_byte(opt);
 	check_range("malloc-threshold", malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
-	set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);
+	return set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);
 }
 
 /*

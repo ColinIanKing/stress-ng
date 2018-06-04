@@ -29,14 +29,14 @@ static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
 
-void stress_set_msync_bytes(const char *opt)
+int stress_set_msync_bytes(const char *opt)
 {
 	size_t msync_bytes;
 
 	msync_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("msync-bytes", msync_bytes,
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
-	set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
+	return set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
 #if defined(HAVE_MSYNC)

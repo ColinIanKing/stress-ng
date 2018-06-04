@@ -35,14 +35,14 @@ static double rate_ns;
  *  stress_set_timerfd_freq()
  *	set timer frequency from given option
  */
-void stress_set_timerfd_freq(const char *opt)
+int stress_set_timerfd_freq(const char *opt)
 {
 	uint64_t timerfd_freq;
 
 	timerfd_freq = get_uint64(opt);
 	check_range("timerfd-freq", timerfd_freq,
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
-	set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
+	return set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
 
 #if defined(__linux__)

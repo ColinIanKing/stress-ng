@@ -28,14 +28,14 @@
  *  stress_set_bigheap_growth()
  *  	Set bigheap growth from given opt arg string
  */
-void stress_set_bigheap_growth(const char *opt)
+int stress_set_bigheap_growth(const char *opt)
 {
 	uint64_t bigheap_growth;
 
 	bigheap_growth = get_uint64_byte(opt);
 	check_range_bytes("bigheap-growth", bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
-	set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
+	return set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }
 
 /*

@@ -24,14 +24,14 @@
  */
 #include "stress-ng.h"
 
-void stress_set_splice_bytes(const char *opt)
+int stress_set_splice_bytes(const char *opt)
 {
 	size_t splice_bytes;
 
 	splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("splice-bytes", splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
-	set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
+	return set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
 }
 
 #if defined(__linux__) && NEED_GLIBC(2,5,0)

@@ -116,14 +116,14 @@ static const revio_opts_t revio_opts[] = {
 	{ "utimes",	REVIO_OPT_UTIMES, 0, 0, 0 },
 };
 
-void stress_set_revio_bytes(const char *opt)
+int stress_set_revio_bytes(const char *opt)
 {
 	uint64_t revio_bytes;
 
 	revio_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("revio-bytes", revio_bytes,
 		MIN_REVIO_BYTES, MAX_REVIO_BYTES);
-	set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
+	return set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
 }
 
 /*
@@ -165,14 +165,14 @@ static ssize_t stress_revio_write(
  *  stress_set_revio_opts
  *	parse --revio-opts option(s) list
  */
-int stress_set_revio_opts(char *opts)
+int stress_set_revio_opts(const char *opts)
 {
 	char *str, *token;
 	int revio_flags = 0;
 	int revio_oflags = 0;
 	bool opts_set = false;
 
-	for (str = opts; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = (char *)opts; (token = strtok(str, ",")) != NULL; str = NULL) {
 		size_t i;
 		bool opt_ok = false;
 

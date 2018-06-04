@@ -62,6 +62,16 @@ typedef struct {
 	const char *description;	/* description */
 } help_t;
 
+typedef struct {
+	const int opt;
+	const uint64_t opt_flag;
+} opt_flag_t;
+
+typedef struct {
+	const int opt;
+	int (*opt_set_func)(const char *optarg);
+} opt_set_func_t;
+
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
 proc_info_t *proc_current;
@@ -103,6 +113,181 @@ static const supported_t supported[] = {
 	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
 	{ STRESS_SWAP,		stress_swap_supported },
 	{ STRESS_TSC,		stress_tsc_supported }
+};
+
+/*
+ *  optarg option to global setting option flags
+ */
+static const opt_flag_t opt_flags[] = {
+	{ OPT_ABORT,		OPT_FLAGS_ABORT },
+	{ OPT_AFFINITY_RAND,	OPT_FLAGS_AFFINITY_RAND },
+	{ OPT_AGGRESSIVE,	OPT_FLAGS_AGGRESSIVE_MASK },
+	{ OPT_BRK_NOTOUCH, 	OPT_FLAGS_BRK_NOTOUCH },
+	{ OPT_CACHE_PREFETCH,	OPT_FLAGS_CACHE_PREFETCH },
+	{ OPT_CACHE_FLUSH,	OPT_FLAGS_CACHE_FLUSH },
+	{ OPT_CACHE_FENCE,	OPT_FLAGS_CACHE_FENCE },
+	{ OPT_CACHE_NO_AFFINITY, OPT_FLAGS_CACHE_NOAFF },
+	{ OPT_CPU_ONLINE_ALL,	OPT_FLAGS_CPU_ONLINE_ALL },
+	{ OPT_DRY_RUN,		OPT_FLAGS_DRY_RUN },
+	{ OPT_IGNITE_CPU,	OPT_FLAGS_IGNITE_CPU },
+	{ OPT_KEEP_NAME, 	OPT_FLAGS_KEEP_NAME },
+	{ OPT_LOCKF_NONBLOCK,	OPT_FLAGS_LOCKF_NONBLK },
+	{ OPT_LOG_BRIEF,	OPT_FLAGS_LOG_BRIEF },
+	{ OPT_MAXIMIZE,		OPT_FLAGS_MAXIMIZE },
+	{ OPT_METRICS,		OPT_FLAGS_METRICS },
+	{ OPT_METRICS_BRIEF,	OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS },
+	{ OPT_MINCORE_RAND, 	OPT_FLAGS_MINCORE_RAND },
+	{ OPT_MINIMIZE,		OPT_FLAGS_MINIMIZE },
+	{ OPT_MMAP_ASYNC,	OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC },
+	{ OPT_MMAP_FILE,	OPT_FLAGS_MMAP_FILE },
+	{ OPT_MMAP_MPROTECT,	OPT_FLAGS_MMAP_MPROTECT },
+	{ OPT_NO_RAND_SEED,	OPT_FLAGS_NO_RAND_SEED },
+	{ OPT_OOMABLE,		OPT_FLAGS_OOMABLE },
+	{ OPT_PAGE_IN,		OPT_FLAGS_MMAP_MINCORE },
+	{ OPT_PATHOLOGICAL,	OPT_FLAGS_PATHOLOGICAL },
+#if defined(STRESS_PERF_STATS)
+	{ OPT_PERF_STATS,	OPT_FLAGS_PERF_STATS },
+#endif
+	{ OPT_SEEK_PUNCH,	OPT_FLAGS_SEEK_PUNCH },
+	{ OPT_SOCKET_NODELAY,	OPT_FLAGS_SOCKET_NODELAY },
+	{ OPT_STACK_FILL,	OPT_FLAGS_STACK_FILL },
+	{ OPT_SYSLOG,		OPT_FLAGS_SYSLOG },
+	{ OPT_THRASH, 		OPT_FLAGS_THRASH },
+	{ OPT_TIMER_RAND,	OPT_FLAGS_TIMER_RAND },
+	{ OPT_TIMER_SLACK,	OPT_FLAGS_TIMER_SLACK },
+	{ OPT_TIMERFD_RAND,	OPT_FLAGS_TIMERFD_RAND },
+	{ OPT_TIMES,		OPT_FLAGS_TIMES },
+	{ OPT_THERMAL_ZONES,	OPT_FLAGS_THERMAL_ZONES },
+	{ OPT_UDP_LITE,		OPT_FLAGS_UDP_LITE },
+	{ OPT_UTIME_FSYNC,	OPT_FLAGS_UTIME_FSYNC },
+	{ OPT_VERBOSE,		PR_ALL },
+	{ OPT_VERIFY,		OPT_FLAGS_VERIFY | PR_FAIL },
+	{ OPT_VM_KEEP,		OPT_FLAGS_VM_KEEP },
+};
+
+/*
+ *  optarg option to stressor setting options
+ */
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_AIO_REQUESTS,		stress_set_aio_requests },
+	{ OPT_AIO_LINUX_REQUESTS,	stress_set_aio_linux_requests },
+	{ OPT_BIGHEAP_GROWTH,		stress_set_bigheap_growth },
+	{ OPT_BSEARCH_SIZE,		stress_set_bsearch_size },
+	{ OPT_CHDIR_DIRS,		stress_set_chdir_dirs },
+	{ OPT_CLONE_MAX,		stress_set_clone_max },
+	{ OPT_COPY_FILE_BYTES,		stress_set_copy_file_bytes },
+	{ OPT_CPU_LOAD,			stress_set_cpu_load },
+	{ OPT_CPU_LOAD_SLICE,		stress_set_cpu_load_slice },
+	{ OPT_CPU_METHOD,		stress_set_cpu_method },
+	{ OPT_CYCLIC_DIST,		stress_set_cyclic_dist },
+	{ OPT_CYCLIC_METHOD,		stress_set_cyclic_method },
+	{ OPT_CYCLIC_POLICY,		stress_set_cyclic_policy },
+	{ OPT_CYCLIC_PRIO, 		stress_set_cyclic_prio },
+	{ OPT_CYCLIC_SLEEP,		stress_set_cyclic_sleep },
+	{ OPT_DCCP_DOMAIN,		stress_set_dccp_domain },
+	{ OPT_DCCP_OPTS,		stress_set_dccp_opts },
+	{ OPT_DCCP_PORT, 		stress_set_dccp_port },
+	{ OPT_DENTRIES,			stress_set_dentries },
+	{ OPT_DENTRY_ORDER,		stress_set_dentry_order },
+	{ OPT_DIR_DIRS,			stress_set_dir_dirs },
+	{ OPT_DIRDEEP_DIRS, 		stress_set_dirdeep_dirs },
+	{ OPT_DIRDEEP_INODES, 		stress_set_dirdeep_inodes },
+	{ OPT_EPOLL_DOMAIN,		stress_set_epoll_domain },
+	{ OPT_EPOLL_PORT, 		stress_set_epoll_port },
+	{ OPT_EXEC_MAX,			stress_set_exec_max },
+	{ OPT_FALLOCATE_BYTES,		stress_set_fallocate_bytes },
+	{ OPT_FIEMAP_BYTES,		stress_set_fiemap_bytes },
+	{ OPT_FIFO_READERS,		stress_set_fifo_readers },
+	{ OPT_FILENAME_OPTS,		stress_set_filename_opts },
+	{ OPT_FORK_MAX,			stress_set_fork_max },
+	{ OPT_FSTAT_DIR,		stress_set_fstat_dir },
+	{ OPT_FUNCCALL_METHOD,		stress_set_funccall_method },
+	{ OPT_HDD_BYTES,		stress_set_hdd_bytes },
+	{ OPT_HDD_OPTS,			stress_set_hdd_opts },
+	{ OPT_HDD_WRITE_SIZE,		stress_set_hdd_write_size },
+	{ OPT_HEAPSORT_INTEGERS,	stress_set_heapsort_size },
+	{ OPT_HSEARCH_SIZE,		stress_set_hsearch_size },
+	{ OPT_IOMIX_BYTES,		stress_set_iomix_bytes },
+	{ OPT_IOPORT_OPTS,		stress_set_ioport_opts },
+	{ OPT_ITIMER_FREQ,		stress_set_itimer_freq },
+	{ OPT_LEASE_BREAKERS,		stress_set_lease_breakers },
+	{ OPT_LSEARCH_SIZE,		stress_set_lsearch_size },
+	{ OPT_MALLOC_BYTES,		stress_set_malloc_bytes },
+	{ OPT_MALLOC_MAX,		stress_set_malloc_max },
+	{ OPT_MALLOC_THRESHOLD,		stress_set_malloc_threshold },
+	{ OPT_MATRIX_METHOD,		stress_set_matrix_method },
+	{ OPT_MATRIX_SIZE,		stress_set_matrix_size },
+	{ OPT_MATRIX_YX,		stress_set_matrix_yx },
+	{ OPT_MEMFD_BYTES,		stress_set_memfd_bytes },
+	{ OPT_MEMFD_FDS,		stress_set_memfd_fds },
+	{ OPT_MEMRATE_BYTES,		stress_set_memrate_bytes },
+	{ OPT_MEMRATE_RD_MBS,		stress_set_memrate_rd_mbs },
+	{ OPT_MEMRATE_WR_MBS,		stress_set_memrate_wr_mbs },
+	{ OPT_MEMTHRASH_METHOD,		stress_set_memthrash_method },
+	{ OPT_MERGESORT_INTEGERS,	stress_set_mergesort_size },
+	{ OPT_MMAP_BYTES,		stress_set_mmap_bytes },
+	{ OPT_MREMAP_BYTES,		stress_set_mremap_bytes },
+	{ OPT_MSYNC_BYTES,		stress_set_msync_bytes },
+	{ OPT_MQ_SIZE,			stress_set_mq_size },
+	{ OPT_PIPE_DATA_SIZE,		stress_set_pipe_data_size },
+#if defined(F_SETPIPE_SZ)
+	{ OPT_PIPE_SIZE,		stress_set_pipe_size },
+#endif
+	{ OPT_PTHREAD_MAX,		stress_set_pthread_max },
+	{ OPT_PTY_MAX,			stress_set_pty_max },
+	{ OPT_QSORT_INTEGERS,		stress_set_qsort_size },
+	{ OPT_RADIXSORT_SIZE,		stress_set_radixsort_size },
+	{ OPT_RAWDEV_METHOD,		stress_set_rawdev_method },
+	{ OPT_READAHEAD_BYTES,		stress_set_readahead_bytes },
+	{ OPT_REVIO_BYTES,		stress_set_revio_bytes },
+	{ OPT_REVIO_OPTS,		stress_set_revio_opts },
+	{ OPT_SCTP_PORT,		stress_set_sctp_port },
+	{ OPT_SEEK_SIZE,		stress_set_seek_size },
+	{ OPT_SEMAPHORE_POSIX_PROCS,	stress_set_semaphore_posix_procs },
+	{ OPT_SEMAPHORE_SYSV_PROCS,	stress_set_semaphore_sysv_procs },
+	{ OPT_SENDFILE_SIZE,		stress_set_sendfile_size },
+	{ OPT_SHM_POSIX_BYTES,		stress_set_shm_posix_bytes },
+	{ OPT_SHM_POSIX_OBJECTS,	stress_set_shm_posix_objects },
+	{ OPT_SHM_SYSV_BYTES,		stress_set_shm_sysv_bytes },
+	{ OPT_SHM_SYSV_SEGMENTS,	stress_set_shm_sysv_segments },
+	{ OPT_SLEEP_MAX,		stress_set_sleep_max },
+	{ OPT_SOCKET_DOMAIN,		stress_set_socket_domain },
+	{ OPT_SOCKET_OPTS,		stress_set_socket_opts },
+	{ OPT_SOCKET_TYPE,		stress_set_socket_type },
+	{ OPT_STREAM_MADVISE,		stress_set_stream_madvise },
+	{ OPT_STR_METHOD,		stress_set_str_method },
+	{ OPT_TASKSET,			set_cpu_affinity },
+	{ OPT_TEMP_PATH,		stress_set_temp_path },
+	{ OPT_TIMER_FREQ,		stress_set_timer_freq },
+	{ OPT_TIMER_SLACK,		stress_set_timer_slack_ns },
+	{ OPT_TIMERFD_FREQ,		stress_set_timerfd_freq },
+	{ OPT_TREE_METHOD,		stress_set_tree_method },
+	{ OPT_TREE_SIZE,		stress_set_tree_size },
+	{ OPT_TSEARCH_SIZE,		stress_set_tsearch_size },
+	{ OPT_UDP_DOMAIN,		stress_set_udp_domain },
+	{ OPT_UDP_PORT,			stress_set_udp_port },
+	{ OPT_UDP_FLOOD_DOMAIN,		stress_set_udp_flood_domain },
+	{ OPT_USERFAULTFD_BYTES,	stress_set_userfaultfd_bytes },
+	{ OPT_VFORK_MAX,		stress_set_vfork_max },
+	{ OPT_SCTP_DOMAIN,		stress_set_sctp_domain },
+	{ OPT_SOCKET_PORT,		stress_set_socket_port },
+	{ OPT_SOCKET_FD_PORT,		stress_set_socket_fd_port },
+	{ OPT_SPLICE_BYTES,		stress_set_splice_bytes },
+	{ OPT_STREAM_INDEX,		stress_set_stream_index },
+	{ OPT_STREAM_L3_SIZE,		stress_set_stream_L3_size },
+	{ OPT_SYNC_FILE_BYTES,		stress_set_sync_file_bytes },
+	{ OPT_VM_ADDR_METHOD,		stress_set_vm_addr_method },
+	{ OPT_VM_BYTES,			stress_set_vm_bytes },
+	{ OPT_VM_HANG,			stress_set_vm_hang },
+	{ OPT_VM_MADVISE,		stress_set_vm_madvise },
+	{ OPT_VM_METHOD,		stress_set_vm_method },
+	{ OPT_VM_RW_BYTES,		stress_set_vm_rw_bytes },
+	{ OPT_VM_SPLICE_BYTES,		stress_set_vm_splice_bytes },
+	{ OPT_WCS_METHOD,		stress_set_wcs_method },
+#if defined(HAVE_LIB_Z)
+	{ OPT_ZLIB_METHOD,		stress_set_zlib_method },
+#endif
+	{ OPT_ZOMBIE_MAX,		stress_set_zombie_max },
 };
 
 /*
@@ -2952,6 +3137,7 @@ static void enable_classes(const uint32_t class)
 	}
 }
 
+
 /*
  *  parse_opts
  *	parse argv[] and set stress-ng options accordingly
@@ -3002,49 +3188,33 @@ next_opt:
 			}
 		}
 
+		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
+			if (c == opt_flags[i].opt) {
+				g_opt_flags |= opt_flags[i].opt_flag;
+				goto next_opt;
+			}
+		}
+		for (i = 0; i < SIZEOF_ARRAY(opt_set_funcs); i++) {
+			if (c == opt_set_funcs[i].opt) {
+				int ret;
+
+				ret = opt_set_funcs[i].opt_set_func(optarg);
+				if (ret < 0)
+					return EXIT_FAILURE;
+				goto next_opt;
+			}
+		}
+
 		switch (c) {
-		case OPT_ABORT:
-			g_opt_flags |= OPT_FLAGS_ABORT;
-			break;
-		case OPT_AIO_REQUESTS:
-			stress_set_aio_requests(optarg);
-			break;
-		case OPT_AIO_LINUX_REQUESTS:
-			stress_set_aio_linux_requests(optarg);
-			break;
 		case OPT_ALL:
 			g_opt_flags |= OPT_FLAGS_ALL;
 			g_opt_parallel = get_int32(optarg);
 			stress_get_processors(&g_opt_parallel);
 			check_value("all", g_opt_parallel);
 			break;
-		case OPT_AFFINITY_RAND:
-			g_opt_flags |= OPT_FLAGS_AFFINITY_RAND;
-			break;
-		case OPT_AGGRESSIVE:
-			g_opt_flags |= OPT_FLAGS_AGGRESSIVE_MASK;
-			break;
 		case OPT_BACKOFF:
 			i64 = (int64_t)get_uint64(optarg);
 			set_setting_global("backoff", TYPE_ID_INT64, &i64);
-			break;
-		case OPT_BIGHEAP_GROWTH:
-			stress_set_bigheap_growth(optarg);
-			break;
-		case OPT_BRK_NOTOUCH:
-			g_opt_flags |= OPT_FLAGS_BRK_NOTOUCH;
-			break;
-		case OPT_BSEARCH_SIZE:
-			stress_set_bsearch_size(optarg);
-			break;
-		case OPT_CACHE_PREFETCH:
-			g_opt_flags |= OPT_FLAGS_CACHE_PREFETCH;
-			break;
-		case OPT_CACHE_FLUSH:
-			g_opt_flags |= OPT_FLAGS_CACHE_FLUSH;
-			break;
-		case OPT_CACHE_FENCE:
-			g_opt_flags |= OPT_FLAGS_CACHE_FENCE;
 			break;
 		case OPT_CACHE_LEVEL:
 			/* 
@@ -3056,15 +3226,9 @@ next_opt:
 				i16 = DEFAULT_CACHE_LEVEL;
 			set_setting("cache-level", TYPE_ID_INT16, &i16);
 			break;
-		case OPT_CACHE_NO_AFFINITY:
-			g_opt_flags |= OPT_FLAGS_CACHE_NOAFF;
-			break;
 		case OPT_CACHE_WAYS:
 			u32 = get_uint32(optarg);
 			set_setting("cache-ways", TYPE_ID_UINT32, &u32);
-			break;
-		case OPT_CHDIR_DIRS:
-			stress_set_chdir_dirs(optarg);
 			break;
 		case OPT_CLASS:
 			ret = get_class(optarg, &u32);
@@ -3077,132 +3241,11 @@ next_opt:
 				enable_classes(u32);
 			}
 			break;
-		case OPT_CLONE_MAX:
-			stress_set_clone_max(optarg);
-			break;
-		case OPT_COPY_FILE_BYTES:
-			stress_set_copy_file_bytes(optarg);
-			break;
-		case OPT_CPU_LOAD:
-			stress_set_cpu_load(optarg);
-			break;
-		case OPT_CPU_LOAD_SLICE:
-			stress_set_cpu_load_slice(optarg);
-			break;
-		case OPT_CPU_ONLINE_ALL:
-			g_opt_flags |= OPT_FLAGS_CPU_ONLINE_ALL;
-			break;
-		case OPT_CPU_METHOD:
-			if (stress_set_cpu_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_CYCLIC_DIST:
-			stress_set_cyclic_dist(optarg);
-			break;
-		case OPT_CYCLIC_METHOD:
-			if (stress_set_cyclic_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_CYCLIC_POLICY:
-			if (stress_set_cyclic_policy(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_CYCLIC_PRIO:
-			stress_set_cyclic_prio(optarg);
-			break;
-		case OPT_CYCLIC_SLEEP:
-			stress_set_cyclic_sleep(optarg);
-			break;
-		case OPT_DRY_RUN:
-			g_opt_flags |= OPT_FLAGS_DRY_RUN;
-			break;
-		case OPT_DCCP_DOMAIN:
-			if (stress_set_dccp_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_DCCP_OPTS:
-			if (stress_set_dccp_opts(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_DCCP_PORT:
-			stress_set_dccp_port(optarg);
-			break;
-		case OPT_DENTRIES:
-			stress_set_dentries(optarg);
-			break;
-		case OPT_DENTRY_ORDER:
-			if (stress_set_dentry_order(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_DIR_DIRS:
-			stress_set_dir_dirs(optarg);
-			break;
-		case OPT_DIRDEEP_DIRS:
-			stress_set_dirdeep_dirs(optarg);
-			break;
-		case OPT_DIRDEEP_INODES:
-			stress_set_dirdeep_inodes(optarg);
-			break;
-		case OPT_EPOLL_DOMAIN:
-			if (stress_set_epoll_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_EPOLL_PORT:
-			stress_set_epoll_port(optarg);
-			break;
 		case OPT_EXCLUDE:
 			set_setting_global("exclude", TYPE_ID_STR, (void *)optarg);
 			break;
-		case OPT_EXEC_MAX:
-			stress_set_exec_max(optarg);
-			break;
-		case OPT_FALLOCATE_BYTES:
-			stress_set_fallocate_bytes(optarg);
-			break;
-		case OPT_FIEMAP_BYTES:
-			stress_set_fiemap_bytes(optarg);
-			break;
-		case OPT_FIFO_READERS:
-			stress_set_fifo_readers(optarg);
-			break;
-		case OPT_FILENAME_OPTS:
-			if (stress_set_filename_opts(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_FORK_MAX:
-			stress_set_fork_max(optarg);
-			break;
-		case OPT_FSTAT_DIR:
-			stress_set_fstat_dir(optarg);
-			break;
-		case OPT_FUNCCALL_METHOD:
-			if (stress_set_funccall_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
 		case OPT_HELP:
 			usage();
-			break;
-		case OPT_HDD_BYTES:
-			stress_set_hdd_bytes(optarg);
-			break;
-		case OPT_HDD_OPTS:
-			if (stress_set_hdd_opts(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_HDD_WRITE_SIZE:
-			stress_set_hdd_write_size(optarg);
-			break;
-		case OPT_HEAPSORT_INTEGERS:
-			stress_set_heapsort_size(optarg);
-			break;
-		case OPT_HSEARCH_SIZE:
-			stress_set_hsearch_size(optarg);
-			break;
-		case OPT_IGNITE_CPU:
-			g_opt_flags |= OPT_FLAGS_IGNITE_CPU;
-			break;
-		case OPT_IOMIX_BYTES:
-			stress_set_iomix_bytes(optarg);
 			break;
 		case OPT_IONICE_CLASS:
 			i32 = get_opt_ionice_class(optarg);
@@ -3212,147 +3255,14 @@ next_opt:
 			i32 = get_int32(optarg);
 			set_setting("ionice-level", TYPE_ID_INT32, &i32);
 			break;
-		case OPT_IOPORT_OPTS:
-			if (stress_set_ioport_opts(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_ITIMER_FREQ:
-			stress_set_itimer_freq(optarg);
-			break;
 		case OPT_JOB:
 			set_setting_global("job", TYPE_ID_STR, (void *)optarg);
-			break;
-		case OPT_KEEP_NAME:
-			g_opt_flags |= OPT_FLAGS_KEEP_NAME;
-			break;
-		case OPT_LEASE_BREAKERS:
-			stress_set_lease_breakers(optarg);
-			break;
-		case OPT_LOCKF_NONBLOCK:
-			g_opt_flags |= OPT_FLAGS_LOCKF_NONBLK;
-			break;
-		case OPT_LOG_BRIEF:
-			g_opt_flags |= OPT_FLAGS_LOG_BRIEF;
 			break;
 		case OPT_LOG_FILE:
 			set_setting_global("log-file", TYPE_ID_STR, (void *)optarg);
 			break;
-		case OPT_LSEARCH_SIZE:
-			stress_set_lsearch_size(optarg);
-			break;
-		case OPT_MALLOC_BYTES:
-			stress_set_malloc_bytes(optarg);
-			break;
-		case OPT_MALLOC_MAX:
-			stress_set_malloc_max(optarg);
-			break;
-		case OPT_MALLOC_THRESHOLD:
-			stress_set_malloc_threshold(optarg);
-			break;
-		case OPT_MATRIX_METHOD:
-			if (stress_set_matrix_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_MATRIX_YX:
-			stress_set_matrix_yx();
-			break;
-		case OPT_MATRIX_SIZE:
-			stress_set_matrix_size(optarg);
-			break;
-		case OPT_MAXIMIZE:
-			g_opt_flags |= OPT_FLAGS_MAXIMIZE;
-			break;
-		case OPT_MEMFD_BYTES:
-			stress_set_memfd_bytes(optarg);
-			break;
-		case OPT_MEMFD_FDS:
-			stress_set_memfd_fds(optarg);
-			break;
-		case OPT_MEMRATE_BYTES:
-			stress_set_memrate_bytes(optarg);
-			break;
-		case OPT_MEMRATE_RD_MBS:
-			stress_set_memrate_rd_mbs(optarg);
-			break;
-		case OPT_MEMRATE_WR_MBS:
-			stress_set_memrate_wr_mbs(optarg);
-			break;
-		case OPT_MEMTHRASH_METHOD:
-			if (stress_set_memthrash_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_METRICS:
-			g_opt_flags |= OPT_FLAGS_METRICS;
-			break;
-		case OPT_METRICS_BRIEF:
-			g_opt_flags |= (OPT_FLAGS_METRICS_BRIEF | OPT_FLAGS_METRICS);
-			break;
-		case OPT_MERGESORT_INTEGERS:
-			stress_set_mergesort_size(optarg);
-			break;
-		case OPT_MINCORE_RAND:
-			g_opt_flags |= OPT_FLAGS_MINCORE_RAND;
-			break;
-		case OPT_MINIMIZE:
-			g_opt_flags |= OPT_FLAGS_MINIMIZE;
-			break;
-		case OPT_MMAP_ASYNC:
-			g_opt_flags |= (OPT_FLAGS_MMAP_FILE | OPT_FLAGS_MMAP_ASYNC);
-			break;
-		case OPT_MMAP_BYTES:
-			stress_set_mmap_bytes(optarg);
-			break;
-		case OPT_MMAP_FILE:
-			g_opt_flags |= OPT_FLAGS_MMAP_FILE;
-			break;
-		case OPT_MMAP_MPROTECT:
-			g_opt_flags |= OPT_FLAGS_MMAP_MPROTECT;
-			break;
-		case OPT_MREMAP_BYTES:
-			stress_set_mremap_bytes(optarg);
-			break;
-		case OPT_MSYNC_BYTES:
-			stress_set_msync_bytes(optarg);
-			break;
-		case OPT_MQ_SIZE:
-			stress_set_mq_size(optarg);
-			break;
 		case OPT_NO_MADVISE:
 			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
-			break;
-		case OPT_NO_RAND_SEED:
-			g_opt_flags |= OPT_FLAGS_NO_RAND_SEED;
-			break;
-		case OPT_OOMABLE:
-			g_opt_flags |= OPT_FLAGS_OOMABLE;
-			break;
-		case OPT_PAGE_IN:
-			g_opt_flags |= OPT_FLAGS_MMAP_MINCORE;
-			break;
-		case OPT_PATHOLOGICAL:
-			g_opt_flags |= OPT_FLAGS_PATHOLOGICAL;
-			break;
-#if defined(STRESS_PERF_STATS)
-		case OPT_PERF_STATS:
-			g_opt_flags |= OPT_FLAGS_PERF_STATS;
-			break;
-#endif
-		case OPT_PIPE_DATA_SIZE:
-			stress_set_pipe_data_size(optarg);
-			break;
-#if defined(F_SETPIPE_SZ)
-		case OPT_PIPE_SIZE:
-			stress_set_pipe_size(optarg);
-			break;
-#endif
-		case OPT_PTHREAD_MAX:
-			stress_set_pthread_max(optarg);
-			break;
-		case OPT_PTY_MAX:
-			stress_set_pty_max(optarg);
-			break;
-		case OPT_QSORT_INTEGERS:
-			stress_set_qsort_size(optarg);
 			break;
 		case OPT_QUERY:
 			if (!jobmode) {
@@ -3364,29 +3274,12 @@ next_opt:
 		case OPT_QUIET:
 			g_opt_flags &= ~(PR_ALL);
 			break;
-		case OPT_RADIXSORT_SIZE:
-			stress_set_radixsort_size(optarg);
-			break;
 		case OPT_RANDOM:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = get_int32(optarg);
 			check_value("random", i32);
 			stress_get_processors(&i32);
 			set_setting("random", TYPE_ID_INT32, &i32);
-			break;
-		case OPT_RAWDEV_METHOD:
-			if (stress_set_rawdev_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_READAHEAD_BYTES:
-			stress_set_readahead_bytes(optarg);
-			break;
-		case OPT_REVIO_BYTES:
-			stress_set_revio_bytes(optarg);
-			break;
-		case OPT_REVIO_OPTS:
-			if (stress_set_revio_opts(optarg) < 0)
-				return EXIT_FAILURE;
 			break;
 		case OPT_SCHED:
 			i32 = get_opt_sched(optarg);
@@ -3396,28 +3289,6 @@ next_opt:
 			i32 = get_int32(optarg);
 			set_setting_global("sched-prio", TYPE_ID_INT32, &i32);
 			break;
-		case OPT_SCTP_PORT:
-			stress_set_sctp_port(optarg);
-			break;
-		case OPT_SCTP_DOMAIN:
-			if (stress_set_sctp_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_SEEK_PUNCH:
-			g_opt_flags |= OPT_FLAGS_SEEK_PUNCH;
-			break;
-		case OPT_SEEK_SIZE:
-			stress_set_seek_size(optarg);
-			break;
-		case OPT_SEMAPHORE_POSIX_PROCS:
-			stress_set_semaphore_posix_procs(optarg);
-			break;
-		case OPT_SEMAPHORE_SYSV_PROCS:
-			stress_set_semaphore_sysv_procs(optarg);
-			break;
-		case OPT_SENDFILE_SIZE:
-			stress_set_sendfile_size(optarg);
-			break;
 		case OPT_SEQUENTIAL:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			g_opt_sequential = get_int32(optarg);
@@ -3425,170 +3296,15 @@ next_opt:
 			check_range("sequential", g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
-		case OPT_SHM_POSIX_BYTES:
-			stress_set_shm_posix_bytes(optarg);
-			break;
-		case OPT_SHM_POSIX_OBJECTS:
-			stress_set_shm_posix_objects(optarg);
-			break;
-		case OPT_SHM_SYSV_BYTES:
-			stress_set_shm_sysv_bytes(optarg);
-			break;
-		case OPT_SHM_SYSV_SEGMENTS:
-			stress_set_shm_sysv_segments(optarg);
-			break;
-		case OPT_SLEEP_MAX:
-			stress_set_sleep_max(optarg);
-			break;
-		case OPT_SOCKET_DOMAIN:
-			if (stress_set_socket_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_SOCKET_NODELAY:
-			g_opt_flags |= OPT_FLAGS_SOCKET_NODELAY;
-			break;
-		case OPT_SOCKET_OPTS:
-			if (stress_set_socket_opts(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_SOCKET_PORT:
-			stress_set_socket_port(optarg);
-			break;
-		case OPT_SOCKET_TYPE:
-			if (stress_set_socket_type(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_SOCKET_FD_PORT:
-			stress_set_socket_fd_port(optarg);
-			break;
-		case OPT_SPLICE_BYTES:
-			stress_set_splice_bytes(optarg);
-			break;
-		case OPT_STACK_FILL:
-			g_opt_flags |= OPT_FLAGS_STACK_FILL;
-			break;
-		case OPT_STR_METHOD:
-			if (stress_set_str_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_STREAM_INDEX:
-			stress_set_stream_index(optarg);
-			break;
-		case OPT_STREAM_L3_SIZE:
-			stress_set_stream_L3_size(optarg);
-			break;
-		case OPT_STREAM_MADVISE:
-			if (stress_set_stream_madvise(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
 		case OPT_STRESSORS:
 			show_stressor_names();
 			exit(EXIT_SUCCESS);
-		case OPT_SYNC_FILE_BYTES:
-			stress_set_sync_file_bytes(optarg);
-			break;
-		case OPT_SYSLOG:
-			g_opt_flags |= OPT_FLAGS_SYSLOG;
-			break;
-		case OPT_TASKSET:
-			if (set_cpu_affinity(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_THRASH:
-			g_opt_flags |= OPT_FLAGS_THRASH;
-			break;
-		case OPT_TEMP_PATH:
-			if (stress_set_temp_path(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
 		case OPT_TIMEOUT:
 			g_opt_timeout = get_uint64_time(optarg);
-			break;
-		case OPT_TIMER_FREQ:
-			stress_set_timer_freq(optarg);
-			break;
-		case OPT_TIMER_RAND:
-			g_opt_flags |= OPT_FLAGS_TIMER_RAND;
-			break;
-		case OPT_TIMERFD_FREQ:
-			stress_set_timerfd_freq(optarg);
-			break;
-		case OPT_TIMERFD_RAND:
-			g_opt_flags |= OPT_FLAGS_TIMERFD_RAND;
-			break;
-		case OPT_TIMER_SLACK:
-			g_opt_flags |= OPT_FLAGS_TIMER_SLACK;
-			stress_set_timer_slack_ns(optarg);
-			break;
-		case OPT_TIMES:
-			g_opt_flags |= OPT_FLAGS_TIMES;
-			break;
-		case OPT_TREE_METHOD:
-			if (stress_set_tree_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_TREE_SIZE:
-			stress_set_tree_size(optarg);
-			break;
-		case OPT_TSEARCH_SIZE:
-			stress_set_tsearch_size(optarg);
-			break;
-		case OPT_THERMAL_ZONES:
-			g_opt_flags |= OPT_FLAGS_THERMAL_ZONES;
-			break;
-		case OPT_UDP_DOMAIN:
-			if (stress_set_udp_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_UDP_PORT:
-			stress_set_udp_port(optarg);
-			break;
-		case OPT_UDP_LITE:
-			g_opt_flags |= OPT_FLAGS_UDP_LITE;
-			break;
-		case OPT_UDP_FLOOD_DOMAIN:
-			if (stress_set_udp_flood_domain(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_USERFAULTFD_BYTES:
-			stress_set_userfaultfd_bytes(optarg);
-			break;
-		case OPT_UTIME_FSYNC:
-			g_opt_flags |= OPT_FLAGS_UTIME_FSYNC;
-			break;
-		case OPT_VERBOSE:
-			g_opt_flags |= PR_ALL;
-			break;
-		case OPT_VFORK_MAX:
-			stress_set_vfork_max(optarg);
-			break;
-		case OPT_VERIFY:
-			g_opt_flags |= (OPT_FLAGS_VERIFY | PR_FAIL);
 			break;
 		case OPT_VERSION:
 			version();
 			exit(EXIT_SUCCESS);
-		case OPT_VM_BYTES:
-			stress_set_vm_bytes(optarg);
-			break;
-		case OPT_VM_HANG:
-			stress_set_vm_hang(optarg);
-			break;
-		case OPT_VM_KEEP:
-			g_opt_flags |= OPT_FLAGS_VM_KEEP;
-			break;
-		case OPT_VM_MADVISE:
-			if (stress_set_vm_madvise(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_VM_METHOD:
-			if (stress_set_vm_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
-		case OPT_VM_ADDR_METHOD:
-			if (stress_set_vm_addr_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
 #if defined(MAP_LOCKED)
 		case OPT_VM_MMAP_LOCKED:
 			stress_set_vm_flags(MAP_LOCKED);
@@ -3599,27 +3315,8 @@ next_opt:
 			stress_set_vm_flags(MAP_POPULATE);
 			break;
 #endif
-		case OPT_VM_RW_BYTES:
-			stress_set_vm_rw_bytes(optarg);
-			break;
-		case OPT_VM_SPLICE_BYTES:
-			stress_set_vm_splice_bytes(optarg);
-			break;
-		case OPT_WCS_METHOD:
-			if (stress_set_wcs_method(optarg) < 0)
-				return EXIT_FAILURE;
-			break;
 		case OPT_YAML:
 			set_setting_global("yaml", TYPE_ID_STR, (void *)optarg);
-			break;
-		case OPT_ZLIB_METHOD:
-#if defined(HAVE_LIB_Z)
-			if (stress_set_zlib_method(optarg) < 0)
-				return EXIT_FAILURE;
-#endif
-			break;
-		case OPT_ZOMBIE_MAX:
-			stress_set_zombie_max(optarg);
 			break;
 		default:
 			if (!jobmode)

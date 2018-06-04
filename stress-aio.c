@@ -42,14 +42,14 @@ typedef struct {
 static volatile bool do_accounting = true;
 #endif
 
-void stress_set_aio_requests(const char *opt)
+int stress_set_aio_requests(const char *opt)
 {
 	uint64_t aio_requests;
 
 	aio_requests = get_uint64(opt);
 	check_range("aio-requests", aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
-	set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
+	return set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
 }
 
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)

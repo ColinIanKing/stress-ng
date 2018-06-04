@@ -46,14 +46,14 @@
  *  stress_set_sctp_port()
  *	set port to use
  */
-void stress_set_sctp_port(const char *opt)
+int stress_set_sctp_port(const char *opt)
 {
 	int sctp_port;
 
 	stress_set_net_port("sctp-port", opt,
 		MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX,
 		&sctp_port);
-	set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
+	return set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
 }
 
 /*

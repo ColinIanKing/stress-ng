@@ -33,14 +33,14 @@ static sigjmp_buf jmp_env;
  *  stress_set_mergesort_size()
  *	set mergesort size
  */
-void stress_set_mergesort_size(const void *opt)
+int stress_set_mergesort_size(const char *opt)
 {
 	uint64_t mergesort_size;
 
 	mergesort_size = get_uint64(opt);
 	check_range("mergesort-size", mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
-	set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
+	return set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }
 
 #if defined(HAVE_LIB_BSD)
