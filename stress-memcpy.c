@@ -44,7 +44,7 @@ static NOINLINE void *__memmove(void *dest, const void *src, size_t n)
  *  stress_memcpy()
  *	stress memory copies
  */
-int stress_memcpy(const args_t *args)
+static int stress_memcpy(const args_t *args)
 {
 	static buffer_t b;
 	buffer_t *b_str = (buffer_t *)g_shared->str_shared;
@@ -67,3 +67,7 @@ int stress_memcpy(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_memcpy_info = {
+	.stressor = stress_memcpy
+};

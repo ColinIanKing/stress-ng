@@ -3128,7 +3128,7 @@ static inline int stress_do_syscall(const args_t *args, const long number)
  *  stress_enosys
  *	stress system calls
  */
-int stress_enosys(const args_t *args)
+static int stress_enosys(const args_t *args)
 {
 	pid_t pid;
 
@@ -3257,8 +3257,12 @@ finish:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_enosys(const args_t *args)
+static int stress_enosys(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_enosys_info = {
+	.stressor = stress_enosys
+};

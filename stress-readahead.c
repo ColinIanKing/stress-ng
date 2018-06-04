@@ -62,7 +62,7 @@ static int do_readahead(
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
-int stress_readahead(const args_t *args)
+static int stress_readahead(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint64_t rounded_readahead_bytes, i;
@@ -214,8 +214,12 @@ finish:
 	return rc;
 }
 #else
-int stress_readahead(const args_t *args)
+static int stress_readahead(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_readahead_info = {
+	.stressor = stress_readahead
+};

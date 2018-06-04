@@ -116,7 +116,7 @@ static void stress_tee_pipe_read(int fds[2])
  *  stress_tee()
  *	stress the Linux tee syscall
  */
-int stress_tee(const args_t *args)
+static int stress_tee(const args_t *args)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];
@@ -191,8 +191,12 @@ tidy_child1:
 	return ret;
 }
 #else
-int stress_tee(const args_t *args)
+static int stress_tee(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_tee_info = {
+	.stressor = stress_tee
+};

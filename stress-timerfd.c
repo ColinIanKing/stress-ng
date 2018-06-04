@@ -78,7 +78,7 @@ static void stress_timerfd_set(struct itimerspec *timer)
  *  stress_timerfd
  *	stress timerfd
  */
-int stress_timerfd(const args_t *args)
+static int stress_timerfd(const args_t *args)
 {
 	struct itimerspec timer;
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
@@ -152,8 +152,12 @@ int stress_timerfd(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_timerfd(const args_t *args)
+static int stress_timerfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_timerfd_info = {
+	.stressor = stress_timerfd
+};

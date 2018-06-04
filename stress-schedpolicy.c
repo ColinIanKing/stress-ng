@@ -45,7 +45,7 @@ static const int policies[] = {
 #endif
 };
 
-int stress_schedpolicy(const args_t *args)
+static int stress_schedpolicy(const args_t *args)
 {
 	int policy = 0;
 
@@ -183,8 +183,12 @@ int stress_schedpolicy(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_schedpolicy(const args_t *args)
+static int stress_schedpolicy(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_schedpolicy_info = {
+	.stressor = stress_schedpolicy
+};

@@ -270,7 +270,7 @@ cleanup:
  *  stress_mmap()
  *	stress mmap
  */
-int stress_mmap(const args_t *args)
+static int stress_mmap(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t sz, pages4k;
@@ -429,3 +429,7 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_mmap_info = {
+	.stressor = stress_mmap
+};

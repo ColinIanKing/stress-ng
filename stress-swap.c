@@ -28,7 +28,7 @@
  *  stress_swap_supported()
  *      check if we can run this as root
  */
-int stress_swap_supported(void)
+static int stress_swap_supported(void)
 {
         if (geteuid() != 0) {
 		pr_inf("stress-swap stressor needs to be run as root to add/remove swap\n");
@@ -134,7 +134,7 @@ static int stress_swap_set_size(
  *  stress_swap()
  *	stress swap operations
  */
-int stress_swap(const args_t *args)
+static int stress_swap(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int fd = -1, ret;
@@ -222,8 +222,13 @@ tidy_ret:
 	return ret;
 }
 #else
-int stress_swap(const args_t *args)
+static int stress_swap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_swap_info = {
+	.stressor = stress_swap,
+	.supported = stress_swap_supported
+};

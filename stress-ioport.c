@@ -45,7 +45,7 @@ static const ioport_opts_t ioport_opts[] = {
 };
 
 
-int stress_ioport_supported(void)
+static int stress_ioport_supported(void)
 {
 #if defined(STRESS_X86) && defined(__linux__)
 	int ret;
@@ -102,7 +102,7 @@ int stress_set_ioport_opts(const char *opts)
  *  stress_ioport()
  *	stress performs I/O port I/O transactions
  */
-int stress_ioport(const args_t *args)
+static int stress_ioport(const args_t *args)
 {
 	int ret;
 	uint32_t flag = 0;
@@ -165,8 +165,13 @@ int stress_ioport(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_ioport(const args_t *args)
+static int stress_ioport(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_ioport_info = {
+	.stressor = stress_ioport,
+	.supported = stress_ioport_supported
+};

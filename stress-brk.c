@@ -28,7 +28,7 @@
  *  stress_brk()
  *	stress brk and sbrk
  */
-int stress_brk(const args_t *args)
+static int stress_brk(const args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
@@ -154,3 +154,7 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_brk_info = {
+	.stressor = stress_brk
+};

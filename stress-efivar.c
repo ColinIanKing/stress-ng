@@ -228,7 +228,7 @@ static int efi_vars_get(const args_t *args)
  *  stress_efivar_supported()
  *      check if we can run this as root
  */
-int stress_efivar_supported(void)
+static int stress_efivar_supported(void)
 {
 	DIR *dir;
 
@@ -254,7 +254,7 @@ int stress_efivar_supported(void)
  *  stress_efivar()
  *	stress that does lots of not a lot
  */
-int stress_efivar(const args_t *args)
+static int stress_efivar(const args_t *args)
 {
 	pid_t pid;
 	int i;
@@ -323,7 +323,7 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_efivar_supported(void)
+static int stress_efivar_supported(void)
 {
 	pr_inf("efivar stressor will be skipped, "
 		"it is not implemented on this platform\n");
@@ -331,8 +331,13 @@ int stress_efivar_supported(void)
 	return -1;
 }
 
-int stress_efivar(const args_t *args)
+static int stress_efivar(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_efivar_info = {
+	.stressor = stress_efivar,
+	.supported = stress_efivar_supported
+};

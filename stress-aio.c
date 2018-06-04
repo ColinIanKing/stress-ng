@@ -155,7 +155,7 @@ static int issue_aio_request(
  *  stress_aio
  *	stress asynchronous I/O
  */
-int stress_aio(const args_t *args)
+static int stress_aio(const args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
 	io_req_t *io_reqs;
@@ -261,8 +261,12 @@ finish:
 	return rc;
 }
 #else
-int stress_aio(const args_t *args)
+static int stress_aio(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_aio_info = {
+	.stressor = stress_aio
+};

@@ -615,7 +615,7 @@ static stress_iomix_func iomix_funcs[] = {
  *  stress_iomix
  *	stress I/O via random mix of io ops
  */
-int stress_iomix(const args_t *args)
+static int stress_iomix(const args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
@@ -736,3 +736,7 @@ unmap:
 
 	return ret;
 }
+
+stressor_info_t stress_iomix_info = {
+	.stressor = stress_iomix
+};

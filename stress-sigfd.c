@@ -32,7 +32,7 @@
  *  stress_sigfd
  *	stress signalfd reads
  */
-int stress_sigfd(const args_t *args)
+static int stress_sigfd(const args_t *args)
 {
 	pid_t pid, ppid = args->pid;
 	int sfd;
@@ -112,8 +112,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sigfd(const args_t *args)
+static int stress_sigfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sigfd_info = {
+	.stressor = stress_sigfd
+};

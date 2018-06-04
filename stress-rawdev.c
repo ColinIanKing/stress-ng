@@ -307,7 +307,7 @@ int stress_set_rawdev_method(const char *name)
 
 #if defined(__linux__)
 
-int stress_rawdev(const args_t *args)
+static int stress_rawdev(const args_t *args)
 {
 	int ret;
 	char path[PATH_MAX], *devpath;
@@ -396,8 +396,13 @@ int stress_rawdev(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rawdev(const args_t *args)
+static int stress_rawdev(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_rawdev_info = {
+	.stressor = stress_rawdev,
+	.supported = stress_rawdev_supported
+};

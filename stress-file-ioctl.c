@@ -73,7 +73,7 @@ static void check_flag(
  *  stress_file_ioctl
  *	stress file ioctls
  */
-int stress_file_ioctl(const args_t *args)
+static int stress_file_ioctl(const args_t *args)
 {
 	char filename[PATH_MAX];
 	char buffer[8192];
@@ -335,3 +335,7 @@ tidy:
 
 	return ret;
 }
+
+stressor_info_t stress_file_ioctl_info = {
+	.stressor = stress_file_ioctl
+};

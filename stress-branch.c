@@ -47,7 +47,7 @@
  *  stress_branch()
  *	stress instruction branch prediction
  */
-int stress_branch(const args_t *args)
+static int stress_branch(const args_t *args)
 {
 	static const void ALIGN64 *labels[] = {
 		&&ret, &&ret, &&ret, &&ret,
@@ -451,3 +451,7 @@ int stress_branch(const args_t *args)
 ret:
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_branch_info = {
+	.stressor = stress_branch
+};

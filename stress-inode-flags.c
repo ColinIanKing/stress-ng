@@ -206,7 +206,7 @@ static void *stress_inode_flags_thread(void *arg)
  *  stress_inode_flags
  *	stress reading all of /dev
  */
-int stress_inode_flags(const args_t *args)
+static int stress_inode_flags(const args_t *args)
 {
 	char filename[PATH_MAX];
 	size_t i;
@@ -255,8 +255,12 @@ int stress_inode_flags(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_inode_flags(const args_t *args)
+static int stress_inode_flags(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_inode_flags_info = {
+	.stressor = stress_inode_flags
+};

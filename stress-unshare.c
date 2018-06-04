@@ -67,7 +67,7 @@ static inline bool enough_memory(void)
  *  stress_unshare()
  *	stress resource unsharing
  */
-int stress_unshare(const args_t *args)
+static int stress_unshare(const args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 	const uid_t euid = geteuid();
@@ -169,8 +169,12 @@ int stress_unshare(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_unshare(const args_t *args)
+static int stress_unshare(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_unshare_info = {
+	.stressor = stress_unshare
+};

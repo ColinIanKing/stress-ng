@@ -131,7 +131,7 @@ again:
  *  stress_sigpipe
  *	stress by generating SIGPIPE signals on pipe I/O
  */
-int stress_sigpipe(const args_t *args)
+static int stress_sigpipe(const args_t *args)
 {
 	s_args = args;
 	char buf[args->page_size * 2];
@@ -146,3 +146,7 @@ int stress_sigpipe(const args_t *args)
 	} while (keep_stressing());
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sigpipe_info = {
+	.stressor = stress_sigpipe
+};

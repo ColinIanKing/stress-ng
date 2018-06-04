@@ -270,7 +270,7 @@ static inline size_t stress_revio_get_extents(const int fd)
  *  stress_revio
  *	stress I/O via writes in reverse
  */
-int stress_revio(const args_t *args)
+static int stress_revio(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;
@@ -423,3 +423,7 @@ finish:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
+
+stressor_info_t stress_revio_info = {
+	.stressor = stress_revio
+};

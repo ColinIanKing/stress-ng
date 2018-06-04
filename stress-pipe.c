@@ -127,7 +127,7 @@ static void pipe_change_size(
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-int stress_pipe(const args_t *args)
+static int stress_pipe(const args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];
@@ -235,3 +235,7 @@ again:
 	}
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_pipe_info = {
+	.stressor = stress_pipe
+};

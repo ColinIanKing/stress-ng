@@ -194,7 +194,7 @@ static int stress_lockf_contention(
  *  stress_lockf
  *	stress file locking via lockf()
  */
-int stress_lockf(const args_t *args)
+static int stress_lockf(const args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t cpid = -1;
@@ -295,8 +295,12 @@ tidy:
 	return ret;
 }
 #else
-int stress_lockf(const args_t *args)
+static int stress_lockf(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_lockf_info = {
+	.stressor = stress_lockf
+};

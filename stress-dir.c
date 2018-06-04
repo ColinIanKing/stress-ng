@@ -93,7 +93,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
-int stress_dir(const args_t *args)
+static int stress_dir(const args_t *args)
 {
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
@@ -145,3 +145,7 @@ abort:
 
 	return ret;
 }
+
+stressor_info_t stress_dir_info = {
+	.stressor = stress_dir
+};

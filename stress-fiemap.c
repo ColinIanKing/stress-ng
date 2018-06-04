@@ -201,7 +201,7 @@ static inline pid_t stress_fiemap_spawn(
  *  stress_fiemap
  *	stress fiemap IOCTL
  */
-int stress_fiemap(const args_t *args)
+static int stress_fiemap(const args_t *args)
 {
 	pid_t pids[MAX_FIEMAP_PROCS];
 	int ret, fd, rc = EXIT_FAILURE, status;
@@ -288,8 +288,12 @@ clean:
 	return rc;
 }
 #else
-int stress_fiemap(const args_t *args)
+static int stress_fiemap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_fiemap_info = {
+	.stressor = stress_fiemap
+};

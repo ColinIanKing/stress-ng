@@ -60,7 +60,7 @@ static void stress_netdev_check(
  *  stress_netdev
  *	stress by heavy socket I/O
  */
-int stress_netdev(const args_t *args)
+static int stress_netdev(const args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS;
 
@@ -177,8 +177,12 @@ int stress_netdev(const args_t *args)
 }
 
 #else
-int stress_netdev(const args_t *args)
+static int stress_netdev(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_netdev_info = {
+	.stressor = stress_netdev
+};

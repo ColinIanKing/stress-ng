@@ -40,7 +40,7 @@ int stress_set_vm_splice_bytes(const char *opt)
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
-int stress_vm_splice(const args_t *args)
+static int stress_vm_splice(const args_t *args)
 {
 	int fd, fds[2];
 	uint8_t *buf;
@@ -110,8 +110,12 @@ int stress_vm_splice(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_vm_splice(const args_t *args)
+static int stress_vm_splice(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_vm_splice_info = {
+	.stressor = stress_vm_splice
+};

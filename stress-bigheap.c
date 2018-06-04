@@ -42,7 +42,7 @@ int stress_set_bigheap_growth(const char *opt)
  *  stress_bigheap()
  *	stress heap allocation
  */
-int stress_bigheap(const args_t *args)
+static int stress_bigheap(const args_t *args)
 {
 	void *ptr = NULL, *last_ptr = NULL;
 	const size_t page_size = args->page_size;
@@ -200,3 +200,7 @@ abort:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_bigheap_info = {
+	.stressor = stress_bigheap
+};

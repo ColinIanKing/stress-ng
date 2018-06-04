@@ -38,7 +38,7 @@ int stress_set_seek_size(const char *opt)
  *  stress_seek
  *	stress I/O via random seeks and read/writes
  */
-int stress_seek(const args_t *args)
+static int stress_seek(const args_t *args)
 {
 	uint64_t len;
 	uint64_t seek_size = DEFAULT_SEEK_SIZE;
@@ -174,3 +174,7 @@ finish:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
+
+stressor_info_t stress_seek_info = {
+	.stressor = stress_seek
+};

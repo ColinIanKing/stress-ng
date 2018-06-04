@@ -279,7 +279,7 @@ fail:
  *  stress_vm_rw
  *	stress vm_read_v/vm_write_v
  */
-int stress_vm_rw(const args_t *args)
+static int stress_vm_rw(const args_t *args)
 {
 	context_t ctxt;
 	uint8_t stack[64*1024];
@@ -329,8 +329,12 @@ again:
 	return stress_vm_parent(&ctxt);
 }
 #else
-int stress_vm_rw(const args_t *args)
+static int stress_vm_rw(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_vm_rw_info = {
+	.stressor = stress_vm_rw
+};

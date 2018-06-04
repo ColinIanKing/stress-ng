@@ -681,7 +681,7 @@ static const inotify_stress_t inotify_stressors[] = {
  *  stress_inotify()
  *	stress inotify
  */
-int stress_inotify(const args_t *args)
+static int stress_inotify(const args_t *args)
 {
 	char dirname[PATH_MAX];
 	int ret, i;
@@ -700,8 +700,12 @@ int stress_inotify(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_inotify(const args_t *args)
+static int stress_inotify(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_inotify_info = {
+	.stressor = stress_inotify
+};

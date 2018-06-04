@@ -43,7 +43,7 @@ static void MLOCKED_TEXT stress_segvhandler(int dummy)
  *  stress_fault()
  *	stress min and max page faulting
  */
-int stress_fault(const args_t *args)
+static int stress_fault(const args_t *args)
 {
 	struct rusage usage;
 	char filename[PATH_MAX];
@@ -168,3 +168,7 @@ next:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_fault_info = {
+	.stressor = stress_fault
+};

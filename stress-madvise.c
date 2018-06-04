@@ -161,7 +161,7 @@ static int stress_random_advise(const args_t *args)
  *  stress_madvise()
  *	stress madvise
  */
-int stress_madvise(const args_t *args)
+static int stress_madvise(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	NOCLOBBER size_t sz = 4 *  MB;
@@ -279,8 +279,12 @@ int stress_madvise(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_madvise(const args_t *args)
+static int stress_madvise(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_madvise_info = {
+	.stressor = stress_madvise
+};

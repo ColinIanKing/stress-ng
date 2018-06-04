@@ -60,7 +60,7 @@ static void stress_mknod_tidy(
  *  stress_mknod
  *	stress mknod creates
  */
-int stress_mknod(const args_t *args)
+static int stress_mknod(const args_t *args)
 {
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;
@@ -111,3 +111,7 @@ abort:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_mknod_info = {
+	.stressor = stress_mknod
+};

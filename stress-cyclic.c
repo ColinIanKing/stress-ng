@@ -125,7 +125,7 @@ int stress_set_cyclic_dist(const char *opt)
  *  stress_cyclic_supported()
  *      check if we can run this as root
  */
-int stress_cyclic_supported(void)
+static int stress_cyclic_supported(void)
 {
         if (geteuid() != 0) {
 		pr_inf("stress-cyclic stressor needs to be run as root to "
@@ -567,7 +567,7 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 	}
 }
 
-int stress_cyclic(const args_t *args)
+static int stress_cyclic(const args_t *args)
 {
 	const stress_cyclic_method_info_t *cyclic_method = &cyclic_methods[0];
 	const uint32_t num_instances = args->num_instances;
@@ -783,9 +783,15 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_cyclic(const args_t *args)
+static int stress_cyclic(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
 
+stressor_info_t stress_cyclic_info = {
+	.stressor = stress_cyclic,
+#if defined(__linux__)
+	.supported = stress_cyclic_supported
+#endif
+};

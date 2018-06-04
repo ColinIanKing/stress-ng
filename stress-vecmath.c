@@ -70,7 +70,7 @@ typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-int HOT TARGET_CLONES stress_vecmath(const args_t *args)
+static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 {
 	vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -214,8 +214,12 @@ int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_vecmath(const args_t *args)
+static int stress_vecmath(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_vecmath_info = {
+	.stressor = stress_vecmath
+};

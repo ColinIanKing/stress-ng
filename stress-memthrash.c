@@ -427,7 +427,7 @@ static inline char *plural(uint32_t n)
  *  stress_memthrash()
  *	stress by creating pthreads
  */
-int stress_memthrash(const args_t *args)
+static int stress_memthrash(const args_t *args)
 {
 	const stress_memthrash_method_info_t *memthrash_method = &memthrash_methods[0];
 	const uint32_t total_cpus = stress_get_processors_configured();
@@ -567,8 +567,12 @@ int stress_set_memthrash_method(const char *name)
 	return 0;
 }
 
-int stress_memthrash(const args_t *args)
+static int stress_memthrash(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_memthrash_info = {
+	.stressor = stress_memthrash
+};

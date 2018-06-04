@@ -239,7 +239,7 @@ static void stress_filename_test(
  *  stress_filename()
  *	stress filename sizes etc
  */
-int stress_filename(const args_t *args)
+static int stress_filename(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
@@ -437,3 +437,7 @@ tidy_dir:
 
 	return rc;
 }
+
+stressor_info_t stress_filename_info = {
+	.stressor = stress_filename
+};

@@ -32,7 +32,7 @@
  *  stress_eventfd
  *	stress eventfd read/writes
  */
-int stress_eventfd(const args_t *args)
+static int stress_eventfd(const args_t *args)
 {
 	pid_t pid;
 	int fd1, fd2, rc;
@@ -164,8 +164,12 @@ exit_parent:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_eventfd(const args_t *args)
+static int stress_eventfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_eventfd_info = {
+	.stressor = stress_eventfd
+};

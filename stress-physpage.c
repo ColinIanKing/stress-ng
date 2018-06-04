@@ -112,7 +112,7 @@ err:
  *  stress_physpage()
  *	stress physical page lookups
  */
-int stress_physpage(const args_t *args)
+static int stress_physpage(const args_t *args)
 {
 	int fd_pm, fd_pc;
 	const size_t page_size = args->page_size;
@@ -155,8 +155,13 @@ int stress_physpage(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_physpage(const args_t *args)
+static int stress_physpage(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_physpage_info = {
+	.stressor = stress_physpage,
+	.supported = stress_physpage_supported
+};

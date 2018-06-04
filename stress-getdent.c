@@ -222,7 +222,7 @@ exit_close:
  *  stress_getdent
  *	stress reading directories
  */
-int stress_getdent(const args_t *args)
+static int stress_getdent(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 
@@ -249,8 +249,12 @@ int stress_getdent(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_getdent(const args_t *args)
+static int stress_getdent(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_getdent_info = {
+	.stressor = stress_getdent
+};

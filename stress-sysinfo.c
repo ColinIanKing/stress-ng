@@ -44,7 +44,7 @@
  *  stress on system information
  *	stress system by rapid fetches of system information
  */
-int stress_sysinfo(const args_t *args)
+static int stress_sysinfo(const args_t *args)
 {
 	int n_mounts;
 	char *mnts[128];
@@ -182,3 +182,7 @@ int stress_sysinfo(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sysinfo_info = {
+	.stressor = stress_sysinfo
+};

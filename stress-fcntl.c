@@ -469,7 +469,7 @@ ofd_lock_abort:	{ /* Nowt */ }
  *  stress_fcntl
  *	stress various fcntl calls
  */
-int stress_fcntl(const args_t *args)
+static int stress_fcntl(const args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
@@ -528,3 +528,7 @@ tidy:
 
 	return rc;
 }
+
+stressor_info_t stress_fcntl_info = {
+	.stressor = stress_fcntl
+};

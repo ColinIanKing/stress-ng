@@ -199,7 +199,7 @@ clean:
  *  stress_memfd()
  *	stress memfd
  */
-int stress_memfd(const args_t *args)
+static int stress_memfd(const args_t *args)
 {
 	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
 	pid_t pid;
@@ -291,8 +291,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_memfd(const args_t *args)
+static int stress_memfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_memfd_info = {
+	.stressor = stress_memfd
+};

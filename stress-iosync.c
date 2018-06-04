@@ -28,7 +28,7 @@
  *  stress on sync()
  *	stress system by IO sync calls
  */
-int stress_io(const args_t *args)
+static int stress_io(const args_t *args)
 {
 #if defined(HAVE_SYNCFS)
 	int fd;
@@ -52,3 +52,7 @@ int stress_io(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_io_info = {
+	.stressor = stress_io
+};

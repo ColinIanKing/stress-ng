@@ -255,7 +255,7 @@ static int clone_func(void *arg)
  *  stress_clone()
  *	stress by cloning and exiting
  */
-int stress_clone(const args_t *args)
+static int stress_clone(const args_t *args)
 {
 	uint64_t max_clones = 0;
 	uint64_t clone_max = DEFAULT_ZOMBIES;
@@ -378,8 +378,12 @@ PRAGMA_POP
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clone(const args_t *args)
+static int stress_clone(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_clone_info = {
+	.stressor = stress_clone
+};

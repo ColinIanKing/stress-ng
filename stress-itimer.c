@@ -117,7 +117,7 @@ cancel:
  *  stress_itimer
  *	stress itimer
  */
-int stress_itimer(const args_t *args)
+static int stress_itimer(const args_t *args)
 {
 	struct itimerval timer;
 	sigset_t mask;
@@ -158,3 +158,7 @@ int stress_itimer(const args_t *args)
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_itimer_info = {
+	.stressor = stress_itimer
+};

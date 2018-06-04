@@ -248,7 +248,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress deep recursive directory mkdir and rmdir
  */
-int stress_dirdeep(const args_t *args)
+static int stress_dirdeep(const args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 	char path[PATH_MAX + 16];
@@ -296,3 +296,7 @@ int stress_dirdeep(const args_t *args)
 
 	return ret;
 }
+
+stressor_info_t stress_dirdeep_info = {
+	.stressor = stress_dirdeep
+};

@@ -203,7 +203,7 @@ static int stress_lockofd_contention(
  *  stress_lockofd
  *	stress file locking via advisory locking
  */
-int stress_lockofd(const args_t *args)
+static int stress_lockofd(const args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
 	pid_t cpid = -1;
@@ -304,8 +304,12 @@ tidy:
 	return ret;
 }
 #else
-int stress_lockofd(const args_t *args)
+static int stress_lockofd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_lockofd_info = {
+	.stressor = stress_lockofd
+};

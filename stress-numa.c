@@ -192,7 +192,7 @@ static int stress_numa_get_mem_nodes(node_t **node_ptr)
  *  stress_numa()
  *	stress the Linux NUMA interfaces
  */
-int stress_numa(const args_t *args)
+static int stress_numa(const args_t *args)
 {
 	long numa_nodes;
 	unsigned long max_nodes;
@@ -356,8 +356,12 @@ numa_free:
 	return rc;
 }
 #else
-int stress_numa(const args_t *args)
+static int stress_numa(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_numa_info = {
+	.stressor = stress_numa
+};

@@ -428,3 +428,7 @@ int stress_userfaultfd(const args_t *args)
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_userfaultfd_info = {
+	.stressor = stress_userfaultfd
+};

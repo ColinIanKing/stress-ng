@@ -786,7 +786,7 @@ finish:
  *  stress_zlib()
  *	stress cpu with compression and decompression
  */
-int stress_zlib(const args_t *args)
+static int stress_zlib(const args_t *args)
 {
 	int ret = EXIT_SUCCESS, fds[2], deflate_xsum_fds[2], inflate_xsum_fds[2], status;
 	int err = 0;
@@ -888,8 +888,20 @@ int stress_zlib(const args_t *args)
 	return ret;
 }
 #else
-int stress_zlib(const args_t *args)
+static int stress_zlib(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+static void stress_zlib_set_default(void)
+{
+	stress_set_zlib_method("random");
+}
+
+stressor_info_t stress_zlib_info = {
+	.stressor = stress_zlib,
+#if defined(HAVE_LIB_Z)
+	.set_default = stress_zlib_set_default
+#endif
+};

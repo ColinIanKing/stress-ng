@@ -28,7 +28,7 @@
  *  stress_softlockup_supported()
  *      check if we can run this as root
  */
-int stress_softlockup_supported(void)
+static int stress_softlockup_supported(void)
 {
         if (geteuid() != 0) {
 		pr_inf("softlockup stressor needs to be run as root to "
@@ -70,7 +70,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int dummy)
 	siglongjmp(jmp_env, 1);
 }
 
-int stress_softlockup(const args_t *args)
+static int stress_softlockup(const args_t *args)
 {
 	size_t policy = 0;
 	int max_prio = 0;
@@ -234,9 +234,13 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_softlockup(const args_t *args)
+static int stress_softlockup(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
 
+stressor_info_t stress_softlockup_info = {
+	.stressor = stress_softlockup,
+	.supported = stress_softlockup_supported
+};

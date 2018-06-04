@@ -175,7 +175,7 @@ static int do_quotas(const args_t *args, const dev_info_t *dev)
  *  stress_quota
  *	stress various quota options
  */
-int stress_quota(const args_t *args)
+static int stress_quota(const args_t *args)
 {
 	int i, n_mounts, n_devs = 0;
 	int rc = EXIT_FAILURE;
@@ -273,8 +273,12 @@ tidy:
 	return rc;
 }
 #else
-int stress_quota(const args_t *args)
+static int stress_quota(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_quota_info = {
+	.stressor = stress_quota
+};

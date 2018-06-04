@@ -43,7 +43,7 @@ int stress_set_hsearch_size(const char *opt)
  *  stress_hsearch()
  *	stress hsearch
  */
-int stress_hsearch(const args_t *args)
+static int stress_hsearch(const args_t *args)
 {
 	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
 	size_t i, max;
@@ -134,3 +134,7 @@ free_hash:
 
 	return ret;
 }
+
+stressor_info_t stress_hsearch_info = {
+	.stressor = stress_hsearch
+};

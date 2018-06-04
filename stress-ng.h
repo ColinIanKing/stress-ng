@@ -447,6 +447,15 @@ typedef struct {
 	size_t page_size;		/* page size */
 } args_t;
 
+typedef struct {
+	int (*stressor)(const args_t *args);
+	int (*supported)(void);
+	void (*init)(void);
+	void (*deinit)(void);
+	void (*set_default)(void);
+	void (*set_limit)(uint64_t max);
+} stressor_info_t;
+
 /* pthread wrapped args_t */
 typedef struct {
 	const args_t *args;
@@ -2311,7 +2320,7 @@ typedef enum {
 
 /* stress test metadata */
 typedef struct {
-	const stress_func_t stress_func;/* stress test function */
+	const stressor_info_t *info;	/* stress test info */
 	const stress_id_t id;		/* stress test ID */
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
@@ -2715,12 +2724,6 @@ extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
-extern void stress_semaphore_posix_init(void);
-extern void stress_semaphore_posix_destroy(void);
-
-extern void stress_semaphore_sysv_init(void);
-extern void stress_semaphore_sysv_destroy(void);
-
 /* CPU caches */
 #if defined (__linux__)
 extern cpus_t *get_all_cpu_cache_details(void);
@@ -2732,23 +2735,6 @@ extern void free_cpu_caches(cpus_t *cpus);
 /* CPU thrashing start/stop helpers */
 extern int  thrash_start(void);
 extern void thrash_stop(void);
-
-/* Run-Time checks to see if a stressor is supported or not */
-extern int stress_apparmor_supported(void);
-extern int stress_chroot_supported(void);
-extern int stress_cyclic_supported(void);
-extern int stress_efivar_supported(void);
-extern int stress_exec_supported(void);
-extern int stress_fanotify_supported(void);
-extern int stress_icmp_flood_supported(void);
-extern int stress_ioport_supported(void);
-extern int stress_netlink_proc_supported(void);
-extern int stress_physpage_supported(void);
-extern int stress_rawdev_supported(void);
-extern int stress_rdrand_supported(void);
-extern int stress_softlockup_supported(void);
-extern int stress_swap_supported(void);
-extern int stress_tsc_supported(void);
 
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
@@ -3017,7 +3003,7 @@ extern void *shim_sbrk(intptr_t increment);
 extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 
-#define STRESS(func) extern int func(const args_t *args)
+#define STRESS(stressor) extern stressor_info_t stressor ## _info;
 
 /* Stressors */
 STRESS(stress_affinity);

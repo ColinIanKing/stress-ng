@@ -87,12 +87,11 @@ static const access_t modes[] = {
 #define CHMOD_ERR(x) (x)
 #endif
 
-
 /*
  *  stress_access
  *	stress access family of system calls
  */
-int stress_access(const args_t *args)
+static int stress_access(const args_t *args)
 {
 	int fd = -1, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -186,3 +185,7 @@ tidy:
 
 	return rc;
 }
+
+stressor_info_t stress_access_info = {
+	.stressor = stress_access
+};

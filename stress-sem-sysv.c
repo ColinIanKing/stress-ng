@@ -49,7 +49,7 @@ int stress_set_semaphore_sysv_procs(const char *opt)
  *  stress_semaphore_sysv_init()
  *	initialise a System V semaphore
  */
-void stress_semaphore_sysv_init(void)
+static void stress_semaphore_sysv_init(void)
 {
 	int count = 0;
 
@@ -91,7 +91,7 @@ void stress_semaphore_sysv_init(void)
  *  stress_semaphore_sysv_destory()
  *	destroy a System V semaphore
  */
-void stress_semaphore_sysv_destroy(void)
+static void stress_semaphore_sysv_deinit(void)
 {
 	if (g_shared->sem_sysv.init)
 		(void)semctl(g_shared->sem_sysv.sem_id, 0, IPC_RMID);
@@ -239,7 +239,7 @@ again:
  *  stress_sem_sysv()
  *	stress system by sem ops
  */
-int stress_sem_sysv(const args_t *args)
+static int stress_sem_sysv(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
@@ -282,16 +282,16 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-void stress_semaphore_sysv_init(void)
-{
-}
-
-void stress_semaphore_sysv_destroy(void)
-{
-}
-
-int stress_sem_sysv(const args_t *args)
+static int stress_sem_sysv(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sem_sysv_info = {
+	.stressor = stress_sem_sysv,
+#if defined(HAVE_SEM_SYSV)
+	.init = stress_semaphore_sysv_init,
+	.deinit = stress_semaphore_sysv_deinit
+#endif
+};

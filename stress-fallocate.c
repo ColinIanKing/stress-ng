@@ -59,7 +59,7 @@ static const int modes[] = {
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
-int stress_fallocate(const args_t *args)
+static int stress_fallocate(const args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
@@ -168,8 +168,12 @@ int stress_fallocate(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_fallocate(const args_t *args)
+static int stress_fallocate(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_fallocate_info = {
+	.stressor = stress_fallocate
+};

@@ -36,7 +36,7 @@
  *	careful not to overrite shared variables across
  *	all the processes.
  */
-int stress_vforkmany(const args_t *args)
+static int stress_vforkmany(const args_t *args)
 {
 	static int status;
 	static pid_t chpid;
@@ -184,3 +184,7 @@ tidy:
 	(void)munmap((void *)terminate_mmap, args->page_size);
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_vforkmany_info = {
+	.stressor = stress_vforkmany
+};

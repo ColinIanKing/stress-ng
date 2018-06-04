@@ -28,7 +28,7 @@
  *  stress_set_bsearch_size()
  *	set bsearch size from given option string
  */
-int  stress_set_bsearch_size(const char *opt)
+int stress_set_bsearch_size(const char *opt)
 {
 	uint64_t bsearch_size;
 
@@ -68,7 +68,7 @@ static int cmp(const void *p1, const void *p2)
  *  stress_bsearch()
  *	stress bsearch
  */
-int stress_bsearch(const args_t *args)
+static int stress_bsearch(const args_t *args)
 {
 	int32_t *data, *ptr, prev = 0;
 	size_t n, n8, i;
@@ -126,3 +126,7 @@ int stress_bsearch(const args_t *args)
 	free(data);
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_bsearch_info = {
+	.stressor = stress_bsearch
+};

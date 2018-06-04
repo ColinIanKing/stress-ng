@@ -131,7 +131,7 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
  *  stress_fifo
  *	stress by heavy fifo I/O
  */
-int stress_fifo(const args_t *args)
+static int stress_fifo(const args_t *args)
 {
 	pid_t pids[MAX_FIFO_READERS];
 	int fd;
@@ -221,3 +221,7 @@ tidy:
 
 	return rc;
 }
+
+stressor_info_t stress_fifo_info = {
+	.stressor = stress_fifo
+};

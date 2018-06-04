@@ -65,7 +65,7 @@ int stress_set_radixsort_size(const char *opt)
  *  stress_radixsort()
  *	stress radixsort
  */
-int stress_radixsort(const args_t *args)
+static int stress_radixsort(const args_t *args)
 {
 	uint64_t radixsort_size = DEFAULT_RADIXSORT_SIZE;
 	const unsigned char **data;
@@ -144,8 +144,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_radixsort(const args_t *args)
+static int stress_radixsort(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_radixsort_info = {
+	.stressor = stress_radixsort
+};

@@ -121,7 +121,7 @@ restore:
  *  stress_chown
  *	stress chown
  */
-int stress_chown(const args_t *args)
+static int stress_chown(const args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
@@ -223,3 +223,7 @@ tidy:
 
 	return rc;
 }
+
+stressor_info_t stress_chown_info = {
+	.stressor = stress_chown
+};

@@ -175,7 +175,7 @@ redo_prctl:
  *  stress_seccomp()
  *	stress seccomp
  */
-int stress_seccomp(const args_t *args)
+static int stress_seccomp(const args_t *args)
 {
 	do {
 		pid_t pid;
@@ -253,8 +253,12 @@ int stress_seccomp(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_seccomp(const args_t *args)
+static int stress_seccomp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_seccomp_info = {
+	.stressor = stress_seccomp
+};

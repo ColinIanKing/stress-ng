@@ -75,7 +75,7 @@ static void stress_fp_check(
  *  stress_fp_error()
  *	stress floating point error handling
  */
-int stress_fp_error(const args_t *args)
+static int stress_fp_error(const args_t *args)
 {
 	do {
 		volatile double d1, d2;
@@ -156,3 +156,7 @@ int stress_fp_error(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_fp_error_info = {
+	.stressor = stress_fp_error
+};

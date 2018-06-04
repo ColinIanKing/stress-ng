@@ -438,7 +438,7 @@ static void MLOCKED_TEXT kill_children(const size_t resource_forks)
  *  stress_resources()
  *	stress by forking and exiting
  */
-int stress_resources(const args_t *args)
+static int stress_resources(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
@@ -494,3 +494,7 @@ int stress_resources(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_resources_info = {
+	.stressor = stress_resources
+};

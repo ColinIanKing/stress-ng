@@ -86,7 +86,7 @@ static int stress_bind_mount_child(void *parg)
  *  stress_bind_mount()
  *      stress bind mounting
  */
-int stress_bind_mount(const args_t *args)
+static int stress_bind_mount(const args_t *args)
 {
 	int pid = 0, status;
 	pthread_args_t pargs = { args, NULL };
@@ -118,8 +118,12 @@ int stress_bind_mount(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_bind_mount(const args_t *args)
+static int stress_bind_mount(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_bind_mount_info = {
+	.stressor = stress_bind_mount
+};

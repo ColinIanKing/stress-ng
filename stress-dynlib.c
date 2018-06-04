@@ -105,7 +105,7 @@ static void MLOCKED_TEXT stress_segvhandler(int dummy)
  *  stress_dynlib()
  *	stress that does lots of not a lot
  */
-int stress_dynlib(const args_t *args)
+static int stress_dynlib(const args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(libnames);
 	void *handles[n];
@@ -163,8 +163,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_dynlib(const args_t *args)
+static int stress_dynlib(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_dynlib_info = {
+	.stressor = stress_dynlib
+};

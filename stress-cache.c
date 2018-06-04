@@ -48,7 +48,7 @@
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */
-int stress_cache(const args_t *args)
+static int stress_cache(const args_t *args)
 {
 #if defined(__linux__)
 	cpu_set_t mask;
@@ -165,3 +165,7 @@ int stress_cache(const args_t *args)
 	pr_dbg("%s: total [%" PRIu32 "]\n", args->name, total);
 	return ret;
 }
+
+stressor_info_t stress_cache_info = {
+	.stressor = stress_cache
+};

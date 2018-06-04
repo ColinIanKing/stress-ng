@@ -266,7 +266,7 @@ die:
  *  stress_sctp
  *	stress SCTP by heavy SCTP network I/O
  */
-int stress_sctp(const args_t *args)
+static int stress_sctp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int sctp_port = DEFAULT_SCTP_PORT;
@@ -295,8 +295,12 @@ again:
 	}
 }
 #else
-int stress_sctp(const args_t *args)
+static int stress_sctp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sctp_info = {
+	.stressor = stress_sctp
+};

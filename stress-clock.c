@@ -107,7 +107,7 @@ static const char *stress_clock_name(int id)
  *  stress_clock()
  *	stress system by rapid clocking system calls
  */
-int stress_clock(const args_t *args)
+static int stress_clock(const args_t *args)
 {
 	do {
 		size_t i;
@@ -237,8 +237,12 @@ timer_delete:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_clock(const args_t *args)
+static int stress_clock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_clock_info = {
+	.stressor = stress_clock
+};

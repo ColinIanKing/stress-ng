@@ -415,7 +415,7 @@ static int stress_prctl_child(const args_t *args)
  *  stress_prctl()
  *	stress seccomp
  */
-int stress_prctl(const args_t *args)
+static int stress_prctl(const args_t *args)
 {
 	do {
 		pid_t pid;
@@ -455,8 +455,12 @@ int stress_prctl(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_prctl(const args_t *args)
+static int stress_prctl(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_prctl_info = {
+	.stressor = stress_prctl
+};

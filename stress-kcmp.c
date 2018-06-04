@@ -92,7 +92,7 @@ struct kcmp_epoll_slot {
  *  stress_kcmp
  *	stress sys_kcmp
  */
-int stress_kcmp(const args_t *args)
+static int stress_kcmp(const args_t *args)
 {
 	pid_t pid1;
 	int fd1;
@@ -282,8 +282,12 @@ reap:
 	return ret;
 }
 #else
-int stress_kcmp(const args_t *args)
+static int stress_kcmp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_kcmp_info = {
+	.stressor = stress_kcmp
+};

@@ -98,7 +98,7 @@ static int stress_qsort_cmp_3(const void *p1, const void *p2)
  *  stress_qsort()
  *	stress qsort
  */
-int stress_qsort(const args_t *args)
+static int stress_qsort(const args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data, *ptr;
@@ -195,3 +195,7 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_qsort_info = {
+	.stressor = stress_qsort
+};

@@ -324,7 +324,7 @@ static int stress_hdd_advise(const args_t *args, const int fd, const int flags)
  *  stress_hdd
  *	stress I/O via writes
  */
-int stress_hdd(const args_t *args)
+static int stress_hdd(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;
@@ -676,3 +676,7 @@ finish:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
+
+stressor_info_t stress_hdd_info = {
+	.stressor = stress_hdd
+};

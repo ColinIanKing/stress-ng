@@ -75,7 +75,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int dummy)
  *  stress_msync()
  *	stress msync
  */
-int stress_msync(const args_t *args)
+static int stress_msync(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = args->page_size;
@@ -242,8 +242,12 @@ err:
 	return rc;
 }
 #else
-int stress_msync(const args_t *args)
+static int stress_msync(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_msync_info = {
+	.stressor = stress_msync
+};

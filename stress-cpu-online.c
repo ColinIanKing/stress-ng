@@ -55,7 +55,7 @@ static int stress_cpu_online_set(
  *  stress_cpu_online
  *	stress twiddling CPUs online/offline
  */
-int stress_cpu_online(const args_t *args)
+static int stress_cpu_online(const args_t *args)
 {
 	const int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
@@ -155,8 +155,12 @@ int stress_cpu_online(const args_t *args)
 	return rc;
 }
 #else
-int stress_cpu_online(const args_t *args)
+static int stress_cpu_online(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_cpu_online_info = {
+	.stressor = stress_cpu_online
+};

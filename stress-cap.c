@@ -75,7 +75,7 @@ static int stress_capgetset_pid(
  *  stress_cap
  *	stress capabilities (trivial)
  */
-int stress_cap(const args_t *args)
+static int stress_cap(const args_t *args)
 {
 	do {
 		DIR *dir;
@@ -112,8 +112,12 @@ int stress_cap(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_cap(const args_t *args)
+static int stress_cap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_cap_info = {
+	.stressor = stress_cap
+};

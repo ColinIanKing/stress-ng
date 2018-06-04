@@ -53,7 +53,7 @@
  *  stress_seal
  *	stress file sealing
  */
-int stress_seal(const args_t *args)
+static int stress_seal(const args_t *args)
 {
 	int fd, ret;
 	int rc = EXIT_FAILURE;
@@ -172,8 +172,12 @@ err:
 	return rc;
 }
 #else
-int stress_seal(const args_t *args)
+static int stress_seal(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_seal_info = {
+	.stressor = stress_seal
+};

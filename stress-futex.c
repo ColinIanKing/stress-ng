@@ -36,7 +36,7 @@
  * 	efficiently use futex, but to stress the futex system call
  *	by rapidly calling it on wait and wakes
  */
-int stress_futex(const args_t *args)
+static int stress_futex(const args_t *args)
 {
 	uint64_t *timeout = &g_shared->futex.timeout[args->instance];
 	uint32_t *futex = &g_shared->futex.futex[args->instance];
@@ -117,8 +117,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_futex(const args_t *args)
+static int stress_futex(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_futex_info = {
+	.stressor = stress_futex
+};

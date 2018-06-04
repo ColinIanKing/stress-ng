@@ -269,7 +269,7 @@ cleanup:
  *  stress_tmpfs()
  *	stress tmpfs
  */
-int stress_tmpfs(const args_t *args)
+static int stress_tmpfs(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	off_t sz;
@@ -366,8 +366,12 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tmpfs(const args_t *args)
+static int stress_tmpfs(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_tmpfs_info = {
+	.stressor = stress_tmpfs
+};

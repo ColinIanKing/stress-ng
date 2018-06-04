@@ -110,7 +110,7 @@ static void *stress_mmapaddr_get_addr(
  *  stress_mmapaddr()
  *	stress mmap with randomly chosen addresses
  */
-int stress_mmapaddr(const args_t *args)
+static int stress_mmapaddr(const args_t *args)
 {
 	pid_t pid;
 
@@ -245,3 +245,7 @@ unmap:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_mmapaddr_info = {
+	.stressor = stress_mmapaddr
+};

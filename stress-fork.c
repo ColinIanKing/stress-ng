@@ -112,7 +112,7 @@ static int stress_fork_fn(
  *  stress_fork()
  *	stress by forking and exiting
  */
-int stress_fork(const args_t *args)
+static int stress_fork(const args_t *args)
 {
 	uint64_t fork_max = DEFAULT_FORKS;
 
@@ -131,7 +131,7 @@ int stress_fork(const args_t *args)
  *  stress_vfork()
  *	stress by vforking and exiting
  */
-int stress_vfork(const args_t *args)
+static int stress_vfork(const args_t *args)
 {
 	uint64_t vfork_max = DEFAULT_VFORKS;
 
@@ -144,3 +144,11 @@ int stress_vfork(const args_t *args)
 
 	return stress_fork_fn(args, vfork, vfork_max);
 }
+
+stressor_info_t stress_fork_info = {
+	.stressor = stress_fork
+};
+
+stressor_info_t stress_vfork_info = {
+	.stressor = stress_vfork
+};

@@ -91,7 +91,7 @@ static int stress_sync_allocate(
  *  stress_sync_file
  *	stress the sync_file_range system call
  */
-int stress_sync_file(const args_t *args)
+static int stress_sync_file(const args_t *args)
 {
 	int fd, ret;
 	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
@@ -178,8 +178,12 @@ int stress_sync_file(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sync_file(const args_t *args)
+static int stress_sync_file(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sync_file_info = {
+	.stressor = stress_sync_file
+};

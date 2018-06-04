@@ -586,7 +586,7 @@ static inline int stress_do_syscall(
  *  stress_sysbadaddr
  *	stress system calls with bad addresses
  */
-int stress_sysbadaddr(const args_t *args)
+static int stress_sysbadaddr(const args_t *args)
 {
 	pid_t pid;
 	size_t page_size = args->page_size;
@@ -691,3 +691,7 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sysbadaddr_info = {
+	.stressor = stress_sysbadaddr
+};

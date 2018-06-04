@@ -28,7 +28,7 @@
  *  stress_null
  *	stress writing to /dev/null
  */
-int stress_null(const args_t *args)
+static int stress_null(const args_t *args)
 {
 	int fd;
 	char buffer[4096];
@@ -74,3 +74,7 @@ int stress_null(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_null_info = {
+	.stressor = stress_null
+};

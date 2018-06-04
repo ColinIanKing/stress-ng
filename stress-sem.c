@@ -63,10 +63,10 @@ void stress_semaphore_posix_init(void)
 }
 
 /*
- *  stress_semaphore_posix_destroy()
+ *  stress_semaphore_posix_deinit()
  *	destroy a POSIX semaphore
  */
-void stress_semaphore_posix_destroy(void)
+void stress_semaphore_posix_deinit(void)
 {
 	if (g_shared->sem_posix.init) {
 		if (sem_destroy(&g_shared->sem_posix.sem) < 0) {
@@ -142,7 +142,7 @@ again:
  *  stress_sem()
  *	stress system by POSIX sem ops
  */
-int stress_sem(const args_t *args)
+static int stress_sem(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
@@ -186,16 +186,16 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-void stress_semaphore_posix_init(void)
-{
-}
-
-void stress_semaphore_posix_destroy(void)
-{
-}
-
-int stress_sem(const args_t *args)
+static int stress_sem(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sem_info = {
+	.stressor = stress_sem,
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+	.init = stress_semaphore_posix_init,
+	.deinit = stress_semaphore_posix_deinit,
+#endif
+};

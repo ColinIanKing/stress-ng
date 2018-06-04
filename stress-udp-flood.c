@@ -54,7 +54,7 @@ int stress_set_udp_flood_domain(const char *name)
  *  stress_udp_flood
  *	UDP flood
  */
-int stress_udp_flood(const args_t *args)
+static int stress_udp_flood(const args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	int udp_flood_domain = AF_INET;
@@ -97,8 +97,12 @@ int stress_udp_flood(const args_t *args)
 	return rc;
 }
 #else
-int stress_udp_flood(const args_t *args)
+static int stress_udp_flood(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_udp_flood_info = {
+	.stressor = stress_udp_flood
+};

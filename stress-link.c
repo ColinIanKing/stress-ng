@@ -132,7 +132,7 @@ abort:
  *  stress_link
  *	stress hard links
  */
-int stress_link(const args_t *args)
+static int stress_link(const args_t *args)
 {
 	return stress_link_generic(args, link, "link", false);
 }
@@ -141,7 +141,15 @@ int stress_link(const args_t *args)
  *  stress_symlink
  *	stress symbolic links
  */
-int stress_symlink(const args_t *args)
+static int stress_symlink(const args_t *args)
 {
 	return stress_link_generic(args, symlink, "symlink", true);
 }
+
+stressor_info_t stress_link_info = {
+	.stressor = stress_link
+};
+
+stressor_info_t stress_symlink_info = {
+	.stressor = stress_symlink
+};

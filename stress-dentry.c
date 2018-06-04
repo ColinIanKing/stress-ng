@@ -139,7 +139,7 @@ static void stress_dentry_unlink(
  *  stress_dentry
  *	stress dentries
  */
-int stress_dentry(const args_t *args)
+static int stress_dentry(const args_t *args)
 {
 	int ret;
 	uint64_t dentries = DEFAULT_DENTRIES;
@@ -197,3 +197,7 @@ abort:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_dentry_info = {
+	.stressor = stress_dentry
+};

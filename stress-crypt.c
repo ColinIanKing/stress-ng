@@ -64,7 +64,7 @@ static int stress_crypt_id(
  *  stress_crypt()
  *	stress libc crypt
  */
-int stress_crypt(const args_t *args)
+static int stress_crypt(const args_t *args)
 {
 	do {
 		static const char seedchars[] =
@@ -98,8 +98,12 @@ int stress_crypt(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_crypt(const args_t *args)
+static stress_crypt(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_crypt_info = {
+	.stressor = stress_crypt
+};

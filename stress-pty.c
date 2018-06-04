@@ -57,7 +57,7 @@ int stress_set_pty_max(const char *opt)
  *  stress_pty
  *	stress pty handling
  */
-int stress_pty(const args_t *args)
+static int stress_pty(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	uint64_t pty_max = DEFAULT_PTYS;
@@ -196,8 +196,12 @@ clean:
 	return rc;
 }
 #else
-int stress_pty(const args_t *args)
+static int stress_pty(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_pty_info = {
+	.stressor = stress_pty
+};

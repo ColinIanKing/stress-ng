@@ -94,7 +94,7 @@ static rlimit_info_t rlimits[] = {
  *  stress on set*() calls
  *	stress system by rapid get*() system calls
  */
-int stress_set(const args_t *args)
+static int stress_set(const args_t *args)
 {
 	size_t i;
 	int ret_hostname;
@@ -198,3 +198,7 @@ int stress_set(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_set_info = {
+	.stressor = stress_set
+};

@@ -69,7 +69,7 @@ redo:
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-int stress_poll(const args_t *args)
+static int stress_poll(const args_t *args)
 {
 	int pipefds[MAX_PIPES][2];
 	int i;
@@ -264,3 +264,7 @@ tidy:
 
 	return rc;
 }
+
+stressor_info_t stress_poll_info = {
+	.stressor = stress_poll
+};

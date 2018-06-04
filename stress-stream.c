@@ -423,7 +423,7 @@ static void stress_stream_init_index(
  *  stress_stream()
  *	stress cache/memory/CPU with stream stressors
  */
-int stress_stream(const args_t *args)
+static int stress_stream(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	double *a, *b, *c;
@@ -582,3 +582,7 @@ err_a:
 
 	return rc;
 }
+
+stressor_info_t stress_stream_info = {
+	.stressor = stress_stream
+};

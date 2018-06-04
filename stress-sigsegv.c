@@ -42,7 +42,7 @@ static void MLOCKED_TEXT stress_segvhandler(int dummy)
  *	stress by generating segmentation faults by
  *	writing to a read only page
  */
-int stress_sigsegv(const args_t *args)
+static int stress_sigsegv(const args_t *args)
 {
 	uint8_t *ptr;
 	NOCLOBBER int rc = EXIT_FAILURE;
@@ -86,3 +86,7 @@ tidy:
 	return rc;
 
 }
+
+stressor_info_t stress_sigsegv_info = {
+	.stressor = stress_sigsegv
+};

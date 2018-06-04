@@ -55,7 +55,7 @@ static void stress_mq_notify_func(union sigval s)
  *  stress_mq
  *	stress POSIX message queues
  */
-int stress_mq(const args_t *args)
+static int stress_mq(const args_t *args)
 {
 	pid_t pid;
 	mqd_t mq = -1;
@@ -247,8 +247,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mq(const args_t *args)
+static int stress_mq(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_mq_info = {
+	.stressor = stress_mq
+};

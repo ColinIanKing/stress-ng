@@ -78,7 +78,7 @@ static inline int do_mlock(const void *addr, size_t len)
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
  */
-int stress_mlock(const args_t *args)
+static int stress_mlock(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	pid_t pid;
@@ -223,8 +223,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mlock(const args_t *args)
+static int stress_mlock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_mlock_info = {
+	.stressor = stress_mlock
+};

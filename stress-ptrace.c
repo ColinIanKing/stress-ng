@@ -60,7 +60,7 @@ static inline bool stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-int stress_ptrace(const args_t *args)
+static int stress_ptrace(const args_t *args)
 {
 	pid_t pid;
 
@@ -158,8 +158,12 @@ int stress_ptrace(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_ptrace(const args_t *args)
+static int stress_ptrace(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_ptrace_info = {
+	.stressor = stress_ptrace
+};

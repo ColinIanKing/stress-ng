@@ -543,7 +543,7 @@ die:
  *  stress_epoll
  *	stress by heavy socket I/O
  */
-int stress_epoll(const args_t *args)
+static int stress_epoll(const args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;
@@ -603,8 +603,12 @@ reap:
 	return rc;
 }
 #else
-int stress_epoll(const args_t *args)
+static int stress_epoll(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_epoll_info = {
+	.stressor = stress_epoll
+};

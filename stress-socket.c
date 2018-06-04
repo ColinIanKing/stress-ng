@@ -416,7 +416,7 @@ die:
  *  stress_sock
  *	stress by heavy socket I/O
  */
-int stress_sock(const args_t *args)
+static int stress_sock(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int socket_opts = SOCKET_OPT_SEND;
@@ -448,3 +448,7 @@ again:
 			socket_type, socket_port, socket_domain);
 	}
 }
+
+stressor_info_t stress_sock_info = {
+	.stressor = stress_sock
+};

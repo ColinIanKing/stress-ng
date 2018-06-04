@@ -96,7 +96,7 @@ static int get_mount_info(const args_t *args)
  *	stress system by rapid open/close calls via
  *	name_to_handle_at and open_by_handle_at
  */
-int stress_handle(const args_t *args)
+static int stress_handle(const args_t *args)
 {
 	int mounts;
 	pid_t pid;
@@ -226,8 +226,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_handle(const args_t *args)
+static int stress_handle(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_handle_info = {
+	.stressor = stress_handle
+};

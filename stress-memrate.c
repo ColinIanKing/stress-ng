@@ -231,7 +231,7 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
  *  stress_memrate()
  *	stress cache/memory/CPU with memrate stressors
  */
-int stress_memrate(const args_t *args)
+static int stress_memrate(const args_t *args)
 {
 	int rc = EXIT_FAILURE;
 	uint64_t memrate_bytes  = DEFAULT_MEMRATE_BYTES;
@@ -351,3 +351,7 @@ err:
 
 	return rc;
 }
+
+stressor_info_t stress_memrate_info = {
+	.stressor = stress_memrate
+};

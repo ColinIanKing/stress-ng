@@ -37,7 +37,7 @@ static const unsigned long personalities[] = {
  *  stress_personality()
  *	stress system by rapid open/close calls
  */
-int stress_personality(const args_t *args)
+static int stress_personality(const args_t *args)
 {
 	const ssize_t n = SIZEOF_ARRAY(personalities);
 	bool failed[n];
@@ -89,8 +89,12 @@ int stress_personality(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_personality(const args_t *args)
+static int stress_personality(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_personality_info = {
+	.stressor = stress_personality
+};

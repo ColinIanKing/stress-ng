@@ -644,7 +644,7 @@ int stress_set_wcs_method(const char *name)
  *  stress_wcs()
  *	stress CPU by doing wide character string ops
  */
-int stress_wcs(const args_t *args)
+static int stress_wcs(const args_t *args)
 {
 	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
 	stress_wcs_func func;
@@ -671,3 +671,13 @@ int stress_wcs(const args_t *args)
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }
+
+static void stress_wcs_set_default(void)
+{
+	stress_set_wcs_method("all");
+}
+
+stressor_info_t stress_wcs_info = {
+	.stressor = stress_wcs,
+	.set_default = stress_wcs_set_default
+};

@@ -295,7 +295,7 @@ die:
  *  stress_sockfd
  *	stress socket fd passing
  */
-int stress_sockfd(const args_t *args)
+static int stress_sockfd(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	ssize_t max_fd = stress_get_file_limit();
@@ -336,8 +336,12 @@ again:
 	}
 }
 #else
-int stress_sockfd(const args_t *args)
+static int stress_sockfd(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sockfd_info = {
+	.stressor = stress_sockfd
+};

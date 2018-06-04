@@ -28,7 +28,7 @@
  *  stress on sched_nice()
  *	stress system by sched_nice
  */
-int stress_nice(const args_t *args)
+static int stress_nice(const args_t *args)
 {
 	int max_prio, min_prio;
 
@@ -92,3 +92,7 @@ int stress_nice(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_nice_info = {
+	.stressor = stress_nice
+};

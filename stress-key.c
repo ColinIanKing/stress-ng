@@ -73,7 +73,7 @@ static key_serial_t sys_request_key(
  *  stress_key
  *	stress key operations
  */
-int stress_key(const args_t *args)
+static int stress_key(const args_t *args)
 {
 	key_serial_t keys[MAX_KEYS];
 	pid_t ppid = getppid();
@@ -201,8 +201,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_key(const args_t *args)
+static int stress_key(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_key_info = {
+	.stressor = stress_key
+};

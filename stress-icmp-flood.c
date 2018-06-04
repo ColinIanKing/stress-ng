@@ -37,7 +37,7 @@
  *  stress_icmp_flood_supported()
  *      check if we can run this as root
  */
-int stress_icmp_flood_supported(void)
+static int stress_icmp_flood_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("icmp flood stressor will be skipped, "
@@ -69,7 +69,7 @@ static inline uint32_t checksum(uint16_t *ptr, size_t n)
  *  stress_icmp_flood
  *	stress local host with ICMP flood
  */
-int stress_icmp_flood(const args_t *args)
+static int stress_icmp_flood(const args_t *args)
 {
 	int fd, rc = EXIT_FAILURE;
 	const int set_on = 1;
@@ -153,14 +153,19 @@ err:
 }
 #else
 
-int stress_icmp_flood_supported(void)
+static int stress_icmp_flood_supported(void)
 {
 	pr_inf("icmp flood stressor will be skipped, not supported on this machine\n");
 	return -1;
 }
 
-int stress_icmp_flood(const args_t *args)
+static int stress_icmp_flood(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_icmp_flood_info = {
+	.stressor = stress_icmp_flood,
+	.supported = stress_icmp_flood_supported
+};

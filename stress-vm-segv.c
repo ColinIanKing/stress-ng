@@ -53,7 +53,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
  *	and generating a segv on return because child has
  *	no address space on return.
  */
-int stress_vm_segv(const args_t *args)
+static int stress_vm_segv(const args_t *args)
 {
 	set_oom_adjustment(args->name, true);
 
@@ -140,3 +140,7 @@ again:
 	return EXIT_SUCCESS;
 }
 
+
+stressor_info_t stress_vm_segv_info = {
+	.stressor = stress_vm_segv
+};

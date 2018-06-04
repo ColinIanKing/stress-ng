@@ -218,7 +218,7 @@ static int stress_mremap_child(
  *  stress_mremap()
  *	stress mmap
  */
-int stress_mremap(const args_t *args)
+static int stress_mremap(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t sz, new_sz;
@@ -331,8 +331,12 @@ again:
 	return rc;
 }
 #else
-int stress_mremap(const args_t *args)
+static int stress_mremap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_mremap_info = {
+	.stressor = stress_mremap
+};

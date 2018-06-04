@@ -92,7 +92,7 @@ next:
  *  stress_mmapfixed()
  *	stress mmap at fixed hinted addresses
  */
-int stress_mmapfixed(const args_t *args)
+static int stress_mmapfixed(const args_t *args)
 {
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
@@ -180,3 +180,7 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_mmapfixed_info = {
+	.stressor = stress_mmapfixed
+};

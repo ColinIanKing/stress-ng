@@ -350,7 +350,7 @@ die:
  *  stress_dccp
  *	stress by heavy dccp  I/O
  */
-int stress_dccp(const args_t *args)
+static int stress_dccp(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int dccp_port = DEFAULT_DCCP_PORT;
@@ -382,8 +382,12 @@ again:
 
 #else
 
-int stress_dccp(const args_t *args)
+static int stress_dccp(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_dccp_info = {
+	.stressor = stress_dccp
+};

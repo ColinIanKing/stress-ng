@@ -34,7 +34,7 @@
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
  */
-int stress_tlb_shootdown(const args_t *args)
+static int stress_tlb_shootdown(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;
@@ -154,8 +154,12 @@ int stress_tlb_shootdown(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tlb_shootdown(const args_t *args)
+static int stress_tlb_shootdown(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_tlb_shootdown_info = {
+	.stressor = stress_tlb_shootdown
+};

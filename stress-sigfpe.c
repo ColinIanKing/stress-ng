@@ -41,7 +41,7 @@ static void MLOCKED_TEXT stress_fpehandler(int dummy)
  *  stress_sigfpe
  *	stress by generating floating point errors
  */
-int stress_sigfpe(const args_t *args)
+static int stress_sigfpe(const args_t *args)
 {
 	for (;;) {
 		int ret;
@@ -65,3 +65,7 @@ int stress_sigfpe(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sigfpe_info = {
+	.stressor = stress_sigfpe
+};

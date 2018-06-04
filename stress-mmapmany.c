@@ -30,7 +30,7 @@
  *  stress_mmapmany()
  *	stress mmap with many pages being mapped
  */
-int stress_mmapmany(const args_t *args)
+static int stress_mmapmany(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	pid_t pid;
@@ -134,3 +134,7 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_mmapmany_info = {
+	.stressor = stress_mmapmany
+};

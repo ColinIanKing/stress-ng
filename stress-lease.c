@@ -97,7 +97,7 @@ again:
  *  stress_lease
  *	stress by fcntl lease activity
  */
-int stress_lease(const args_t *args)
+static int stress_lease(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd, status;
@@ -183,8 +183,12 @@ reap:
 	return ret;
 }
 #else
-int stress_lease(const args_t *args)
+static int stress_lease(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_lease_info = {
+	.stressor = stress_lease
+};

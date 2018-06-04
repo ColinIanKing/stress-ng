@@ -127,7 +127,7 @@ int main(void)
  *  stress_atomic()
  *      stress gcc atomic memory ops
  */
-int stress_atomic(const args_t *args)
+static int stress_atomic(const args_t *args)
 {
 	do {
 		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
@@ -140,9 +140,13 @@ int stress_atomic(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_atomic(const args_t *args)
+static int stress_atomic(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
 #endif
+
+stressor_info_t stress_atomic_info = {
+	.stressor = stress_atomic
+};

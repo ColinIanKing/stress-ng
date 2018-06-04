@@ -82,7 +82,7 @@ static void stress_stackmmap_push_start(void)
  *  stress_stackmmap
  *	stress a file memory map'd stack
  */
-int stress_stackmmap(const args_t *args)
+static int stress_stackmmap(const args_t *args)
 {
 	int fd;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
@@ -180,8 +180,12 @@ tidy_dir:
 	return rc;
 }
 #else
-int stress_stackmmap(const args_t *args)
+static int stress_stackmmap(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_stackmmap_info = {
+	.stressor = stress_stackmmap
+};

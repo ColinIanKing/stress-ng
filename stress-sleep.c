@@ -140,7 +140,7 @@ die:
  *  stress_sleep()
  *	stress by many sleeping threads
  */
-int stress_sleep(const args_t *args)
+static int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP, sleep_max_adjustment;
@@ -216,8 +216,12 @@ tidy:
 	return ret;
 }
 #else
-int stress_sleep(const args_t *args)
+static int stress_sleep(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sleep_info = {
+	.stressor = stress_sleep
+};

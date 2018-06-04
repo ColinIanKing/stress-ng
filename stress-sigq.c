@@ -37,7 +37,7 @@ static void MLOCKED_TEXT stress_sigqhandler(int dummy)
  *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-int stress_sigq(const args_t *args)
+static int stress_sigq(const args_t *args)
 {
 	pid_t pid;
 
@@ -96,8 +96,12 @@ again:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_sigq(const args_t *args)
+static int stress_sigq(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sigq_info = {
+	.stressor = stress_sigq
+};

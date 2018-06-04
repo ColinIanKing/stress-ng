@@ -53,7 +53,7 @@ static int cmp(const void *p1, const void *p2)
  *  stress_lsearch()
  *	stress lsearch
  */
-int stress_lsearch(const args_t *args)
+static int stress_lsearch(const args_t *args)
 {
 	int32_t *data, *root;
 	size_t i, max;
@@ -108,3 +108,7 @@ int stress_lsearch(const args_t *args)
 	free(data);
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_lsearch_info = {
+	.stressor = stress_lsearch
+};

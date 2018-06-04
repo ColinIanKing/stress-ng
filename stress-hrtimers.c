@@ -140,7 +140,7 @@ static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 	return EXIT_SUCCESS;
 }
 
-int stress_hrtimers(const args_t *args)
+static int stress_hrtimers(const args_t *args)
 {
 	pid_t pids[PROCS_MAX];
 	const size_t page_size = args->page_size;
@@ -205,8 +205,12 @@ reap:
 }
 
 #else
-int stress_hrtimers(const args_t *args)
+static int stress_hrtimers(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_hrtimers_info = {
+	.stressor = stress_hrtimers
+};

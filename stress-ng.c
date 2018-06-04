@@ -36,11 +36,6 @@
 
 typedef struct {
 	const stress_id_t str_id;
-	int (*func_supported)(void);
-} supported_t;
-
-typedef struct {
-	const stress_id_t str_id;
 	void (*func_limited)(uint64_t max);
 } proc_limited_t;
 
@@ -92,28 +87,6 @@ shared_t *g_shared;				/* shared memory */
 int g_signum;					/* signal sent to process */
 jmp_buf g_error_env;				/* parsing error env */
 put_val_t g_put_val;				/* sync data to somewhere */
-
-/*
- *  stressors to be run-time checked to see if they are supported
- *  on the platform.
- */
-static const supported_t supported[] = {
-	{ STRESS_APPARMOR,	stress_apparmor_supported },
-	{ STRESS_CHROOT,	stress_chroot_supported },
-	{ STRESS_CYCLIC,	stress_cyclic_supported },
-	{ STRESS_EFIVAR,	stress_efivar_supported },
-	{ STRESS_EXEC,		stress_exec_supported },
-	{ STRESS_FANOTIFY,	stress_fanotify_supported },
-	{ STRESS_ICMP_FLOOD,	stress_icmp_flood_supported },
-	{ STRESS_IOPORT,	stress_ioport_supported },
-	{ STRESS_NETLINK_PROC,	stress_netlink_proc_supported },
-	{ STRESS_PHYSPAGE,	stress_physpage_supported },
-	{ STRESS_RAWDEV,	stress_rawdev_supported },
-	{ STRESS_RDRAND,	stress_rdrand_supported },
-	{ STRESS_SOFTLOCKUP,	stress_softlockup_supported },
-	{ STRESS_SWAP,		stress_swap_supported },
-	{ STRESS_TSC,		stress_tsc_supported }
-};
 
 /*
  *  optarg option to global setting option flags
@@ -291,47 +264,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 };
 
 /*
- *  stressors to be limited to a maximum process threshold
- */
-#if defined(RLIMIT_NPROC)
-static const proc_limited_t proc_limited[] = {
-	{ STRESS_PTHREAD,	stress_adjust_pthread_max },
-	{ STRESS_SLEEP,		stress_adjust_sleep_max }
-};
-#endif
-
-/*
- *  stressors that have explicit init requirements
- */
-static const proc_helper_t proc_init[] = {
-	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_init },
-	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_init }
-};
-
-/*
- *  stressors that have explicit destroy requirements
- */
-static const proc_helper_t proc_destroy[] = {
-	{ STRESS_SEMAPHORE_POSIX,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_posix_destroy },
-	{ STRESS_SEMAPHORE_SYSV,	OPT_FLAGS_SEQUENTIAL, stress_semaphore_sysv_destroy }
-};
-
-/*
- *  stressor default settings
- */
-static const stressor_default_t stressor_default[] = {
-	{ "all",	stress_set_cpu_method },
-	{ "uint64",	stress_set_funccall_method },
-	{ "all",	stress_set_str_method },
-	{ "all",	stress_set_wcs_method },
-	{ "all",	stress_set_matrix_method },
-	{ "all",	stress_set_vm_method },
-#if defined(HAVE_LIB_Z)
-	{ "random",	stress_set_zlib_method }
-#endif
-};
-
-/*
  *  Attempt to catch a range of signals so
  *  we can clean up rather than leave
  *  cruft everywhere.
@@ -383,7 +315,7 @@ static const int signals[] = {
 
 #define STRESSOR(lower_name, upper_name, class)	\
 {						\
-	stress_ ## lower_name,			\
+	&stress_ ## lower_name ## _info,	\
 	STRESS_ ## upper_name,			\
 	OPT_ ## upper_name,			\
 	OPT_ ## upper_name  ## _OPS,		\
@@ -2536,7 +2468,7 @@ again:
 							.page_size = stress_get_pagesize(),
 						};
 
-						rc = proc_current->stressor->stress_func(&args);
+						rc = proc_current->stressor->info->stressor(&args);
 						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
 #if defined(STRESS_PERF_STATS)
@@ -2889,18 +2821,20 @@ static inline void exclude_unsupported(void)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(supported); i++) {
-		proc_info_t *pi = procs_head;
-		stress_id_t id = supported[i].str_id;
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		if (stressors[i].info && stressors[i].info->supported) {
+			proc_info_t *pi = procs_head;
+			stress_id_t id = stressors[i].id;
 
-		while (pi) {
-			proc_info_t *next = pi->next;
+			while (pi) {
+				proc_info_t *next = pi->next;
 
-			if ((pi->stressor->id == id) &&
-			    (pi->num_procs) &&
-			    (supported[i].func_supported() < 0))
-				remove_proc(pi);
-			pi = next;
+				if ((pi->stressor->id == id) &&
+				    pi->num_procs &&
+				    (stressors[i].info->supported() < 0))
+					remove_proc(pi);
+				pi = next;
+			}
 		}
 	}
 }
@@ -2912,20 +2846,23 @@ static inline void exclude_unsupported(void)
 static void set_proc_limits(void)
 {
 #if defined(RLIMIT_NPROC)
-	size_t i;
+	proc_info_t *pi;
+	struct rlimit limit;
 
-	for (i = 0; i < SIZEOF_ARRAY(proc_limited); i++) {
-		struct rlimit limit;
-		proc_info_t *pi;
-		stress_id_t id = proc_limited[i].str_id;
+	if (getrlimit(RLIMIT_NPROC, &limit) < 0)
+		return;
 
-		for (pi = procs_head; pi; pi = pi->next) {
-			if ((pi->stressor->id == id) &&
-			    (pi->num_procs &&
-			    (getrlimit(RLIMIT_NPROC, &limit) == 0))) {
-				uint64_t max = (uint64_t)limit.rlim_cur / pi->num_procs;
+	for (pi = procs_head; pi; pi = pi->next) {
+		size_t i;
 
-				proc_limited->func_limited(max);
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+			if (stressors[i].info &&
+			    stressors[i].info->set_limit &&
+			    (stressors[i].id == pi->stressor->id) &&
+			    pi->num_procs) {
+				const uint64_t max = (uint64_t)limit.rlim_cur / pi->num_procs;
+
+				stressors[i].info->set_limit(max);
 			}
 		}
 	}
@@ -2970,24 +2907,45 @@ static proc_info_t *find_proc_info(const stress_t *stressor)
 }
 
 /*
- *  proc_helper()
- *	perform init/destroy on stressor helper funcs
+ *  stressors_init()
+ *	initialize any stressors that will be used
  */
-static void proc_helper(const proc_helper_t *helpers, const size_t n)
+static void stressors_init(void)
 {
-	size_t i;
+	proc_info_t *pi;
 
-	for (i = 0; i < n; i++) {
-		stress_id_t id = helpers[i].str_id;
-		proc_info_t *pi;
+	for (pi = procs_head; pi; pi = pi->next) {
+		size_t i;
 
-		for (pi = procs_head; pi; pi = pi->next) {
-			if ((pi->stressor->id == id) &&
-			    (pi->num_procs || (g_opt_flags & helpers[i].opt_flag)))
-				helpers[i].func();
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+			if (stressors[i].info &&
+			    stressors[i].info->init &&
+			    stressors[i].id == pi->stressor->id)
+				stressors[i].info->init();
 		}
 	}
 }
+
+/*
+ *  stressors_deinit()
+ *	de-initialize any stressors that will be used
+ */
+static void stressors_deinit(void)
+{
+	proc_info_t *pi;
+
+	for (pi = procs_head; pi; pi = pi->next) {
+		size_t i;
+
+		for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+			if (stressors[i].info &&
+			    stressors[i].info->deinit &&
+			    stressors[i].id == pi->stressor->id)
+				stressors[i].info->deinit();
+		}
+	}
+}
+
 
 /*
  *  stessor_set_defaults()
@@ -2998,8 +2956,11 @@ static inline void stressor_set_defaults(void)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(stressor_default); i++)
-		stressor_default[i].func(stressor_default[i].setting);
+	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
+		if (stressors[i].info && stressors[i].info->set_default) {
+			stressors[i].info->set_default();
+		}
+	}
 }
 
 /*
@@ -3683,7 +3644,7 @@ int main(int argc, char **argv)
 		tz_init(&g_shared->tz_info);
 #endif
 
-	proc_helper(proc_init, SIZEOF_ARRAY(proc_init));
+	stressors_init();
 
 	/* Start thrasher process if required */
 	if (g_opt_flags & OPT_FLAGS_THRASH)
@@ -3750,7 +3711,7 @@ int main(int argc, char **argv)
 	 *  Tidy up
 	 */
 	free_procs();
-	proc_helper(proc_destroy, SIZEOF_ARRAY(proc_destroy));
+	stressors_deinit();
 	stress_cache_free();
 	stress_unmap_shared();
 	free_settings();

@@ -84,7 +84,7 @@ static void *stress_membarrier_thread(void *parg)
  *  stress on membarrier()
  *	stress system by IO sync calls
  */
-int stress_membarrier(const args_t *args)
+static int stress_membarrier(const args_t *args)
 {
 	int ret;
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
@@ -138,8 +138,12 @@ int stress_membarrier(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_membarrier(const args_t *args)
+static int stress_membarrier(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_membarrier_info = {
+	.stressor = stress_membarrier
+};

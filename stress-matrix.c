@@ -879,7 +879,7 @@ tidy_ret:
  *  stress_matrix()
  *	stress CPU by doing floating point math ops
  */
-int stress_matrix(const args_t *args)
+static int stress_matrix(const args_t *args)
 {
 	char *matrix_method_name;
 	const stress_matrix_method_info_t *matrix_method;
@@ -910,3 +910,13 @@ int stress_matrix(const args_t *args)
 
 	return stress_matrix_exercise(args, func, matrix_size);
 }
+
+static void stress_matrix_set_default(void)
+{
+	stress_set_matrix_method("all");
+}
+
+stressor_info_t stress_matrix_info = {
+	.stressor = stress_matrix,
+	.set_default = stress_matrix_set_default
+};

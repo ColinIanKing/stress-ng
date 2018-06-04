@@ -216,7 +216,7 @@ static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_
  *  stress_fstat()
  *	stress system with fstat
  */
-int stress_fstat(const args_t *args)
+static int stress_fstat(const args_t *args)
 {
 	stat_info_t *si;
 	static stat_info_t *stat_info;
@@ -298,3 +298,7 @@ free_cache:
 
 	return ret;
 }
+
+stressor_info_t stress_fstat_info = {
+	.stressor = stress_fstat
+};

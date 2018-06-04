@@ -1944,7 +1944,7 @@ int stress_set_vm_method(const char *name)
  *  stress_vm()
  *	stress virtual memory
  */
-int stress_vm(const args_t *args)
+static int stress_vm(const args_t *args)
 {
 	uint64_t *bit_error_count = MAP_FAILED;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
@@ -2115,3 +2115,13 @@ clean_up:
 
 	return ret;
 }
+
+static void stress_vm_set_default(void)
+{
+	stress_set_vm_method("all");
+}
+
+stressor_info_t stress_vm_info = {
+	.stressor = stress_vm,
+	.set_default = stress_vm_set_default
+};

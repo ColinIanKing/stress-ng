@@ -103,7 +103,7 @@ static int stress_mergesort_cmp_3(const void *p1, const void *p2)
  *  stress_mergesort()
  *	stress mergesort
  */
-int stress_mergesort(const args_t *args)
+static int stress_mergesort(const args_t *args)
 {
 	uint64_t mergesort_size = DEFAULT_MERGESORT_SIZE;
 	int32_t *data, *ptr;
@@ -215,8 +215,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_mergesort(const args_t *args)
+static int stress_mergesort(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_mergesort_info = {
+	.stressor = stress_mergesort
+};

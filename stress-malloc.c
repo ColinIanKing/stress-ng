@@ -71,7 +71,7 @@ static inline size_t stress_alloc_size(const size_t malloc_bytes)
  *	stress malloc by performing a mix of
  *	allocation and frees
  */
-int stress_malloc(const args_t *args)
+static int stress_malloc(const args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0, nomems = 0;
@@ -224,3 +224,7 @@ abort:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_malloc_info = {
+	.stressor = stress_malloc
+};

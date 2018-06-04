@@ -197,7 +197,7 @@ die:
  *  stress_pthread()
  *	stress by creating pthreads
  */
-int stress_pthread(const args_t *args)
+static int stress_pthread(const args_t *args)
 {
 	bool ok = true;
 	uint64_t limited = 0, attempted = 0, max = 0;
@@ -348,8 +348,12 @@ reap:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_pthread(const args_t *args)
+static int stress_pthread(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_pthread_info = {
+	.stressor = stress_pthread
+};

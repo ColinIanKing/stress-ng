@@ -44,7 +44,7 @@ extern const size_t g_apparmor_data_len;
  *  stress_apparmor_supported()
  *      check if AppArmor is supported
  */
-int stress_apparmor_supported(void)
+static int stress_apparmor_supported(void)
 {
 	int fd;
 	char path[PATH_MAX];
@@ -604,7 +604,7 @@ static const apparmor_func apparmor_funcs[] = {
  *  stress_apparmor()
  *	stress AppArmor
  */
-int stress_apparmor(const args_t *args)
+static int stress_apparmor(const args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
@@ -653,16 +653,21 @@ int stress_apparmor(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_apparmor_supported(void)
+static int stress_apparmor_supported(void)
 {
 	pr_inf("apparmor stressor will be skipped, "
 		"AppArmor is not available\n");
 	return -1;
 }
 
-int stress_apparmor(const args_t *args)
+static int stress_apparmor(const args_t *args)
 {
 	return stress_not_implemented(args);
 
 }
 #endif
+
+stressor_info_t stress_apparmor_info = {
+	.stressor = stress_apparmor,
+	.supported = stress_apparmor_supported
+};

@@ -483,7 +483,7 @@ static inline uint64_t ror64(const uint64_t val)
  *  stress_tree()
  *	stress tree
  */
-int stress_tree(const args_t *args)
+static int stress_tree(const args_t *args)
 {
 	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes, *node;
@@ -554,8 +554,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_tree(const args_t *args)
+static int stress_tree(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_tree_info = {
+	.stressor = stress_tree
+};

@@ -113,7 +113,7 @@ static const int priorities[] = {
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
  */
-int stress_get(const args_t *args)
+static int stress_get(const args_t *args)
 {
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 	const bool is_root = (geteuid() == 0);
@@ -328,3 +328,7 @@ int stress_get(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_get_info = {
+	.stressor = stress_get
+};

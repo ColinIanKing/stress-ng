@@ -37,7 +37,7 @@ static char filename[PATH_MAX];
  *  stress_chroot_supported()
  *      check if we can run this as root
  */
-int stress_chroot_supported(void)
+static int stress_chroot_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("chroot stressor will be skipped, "
@@ -184,7 +184,7 @@ static const stress_chroot_test_func test_chroot_test_funcs[] =
  *  stress_chroot()
  *	stress chroot system call
  */
-int stress_chroot(const args_t *args)
+static int stress_chroot(const args_t *args)
 {
 	size_t i = 0;
 	int fd, ret = EXIT_FAILURE;
@@ -255,14 +255,19 @@ tidy_ret:
  *  stress_chroot_supported()
  *      check if we can run this as root
  */
-int stress_chroot_supported(void)
+static int stress_chroot_supported(void)
 {
 	pr_inf("chroot stressor is not supported on this system\n");
 	return -1;
 }
 
-int stress_chroot(const args_t *args)
+static int stress_chroot(const args_t *args)
 {
         return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_chroot_info = {
+	.stressor = stress_chroot,
+	.supported = stress_chroot_supported
+};

@@ -367,7 +367,7 @@ static const dnotify_stress_t dnotify_stressors[] = {
  *  stress_dnotify()
  *	stress dnotify
  */
-int stress_dnotify(const args_t *args)
+static int stress_dnotify(const args_t *args)
 {
 	char dirname[PATH_MAX];
 	int ret, i;
@@ -396,8 +396,12 @@ int stress_dnotify(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_dnotify(const args_t *args)
+static int stress_dnotify(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_dnotify_info = {
+	.stressor = stress_dnotify
+};

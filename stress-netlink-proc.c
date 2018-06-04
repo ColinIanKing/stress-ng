@@ -39,7 +39,7 @@
  *  stress_netlink_proc_supported()
  *	check if we can run this as root
  */
-int stress_netlink_proc_supported(void)
+static int stress_netlink_proc_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("netlink-proc stressor will be skipped, "
@@ -162,7 +162,7 @@ static void spawn_several(const char *name, int n, int max)
  *  stress_netlink_proc()
  *	stress netlink proc events
  */
-int stress_netlink_proc(const args_t *args)
+static int stress_netlink_proc(const args_t *args)
 {
 	int sock = -1;
 	struct sockaddr_nl addr;
@@ -234,7 +234,7 @@ int stress_netlink_proc(const args_t *args)
  *  stress_netlink_proc_supported()
  *	check if we can run this stressor
  */
-int stress_netlink_proc_supported(void)
+static int stress_netlink_proc_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("netlink-proc stressor will be skipped, "
@@ -244,8 +244,13 @@ int stress_netlink_proc_supported(void)
 	return 0;
 }
 
-int stress_netlink_proc(const args_t *args)
+static int stress_netlink_proc(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_netlink_proc_info = {
+	.stressor = stress_netlink_proc,
+	.supported = stress_netlink_proc_supported
+};

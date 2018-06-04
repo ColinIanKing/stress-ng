@@ -74,7 +74,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int dummy)
  *  stress_sigio
  *	stress reading of /dev/zero using SIGIO
  */
-int stress_sigio(const args_t *args)
+static int stress_sigio(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE, fds[2], status;
 
@@ -171,8 +171,12 @@ err:
 }
 
 #else
-int stress_sigio(const args_t *args)
+static int stress_sigio(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_sigio_info = {
+	.stressor = stress_sigio
+};

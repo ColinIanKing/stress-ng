@@ -34,7 +34,7 @@ static bool tsc_supported = false;
  *  stress_tsc_supported()
  *	check if tsc is supported
  */
-int stress_tsc_supported(void)
+static int stress_tsc_supported(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 
@@ -110,7 +110,7 @@ static inline void rdtsc(void)
  *  stress_tsc()
  *      stress Intel tsc instruction
  */
-int stress_tsc(const args_t *args)
+static int stress_tsc(const args_t *args)
 {
 	if (tsc_supported) {
 		do {
@@ -130,7 +130,7 @@ int stress_tsc(const args_t *args)
  *  stress_tsc_supported()
  *	check if tsc is supported
  */
-int stress_tsc_supported(void)
+static int stress_tsc_supported(void)
 {
 	pr_inf("tsc stressor will be skipped, CPU does not "
 		"support the tsc instruction.\n");
@@ -141,8 +141,13 @@ int stress_tsc_supported(void)
  *  stress_tsc()
  *      no-op for non-intel
  */
-int stress_tsc(const args_t *args)
+static int stress_tsc(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_tsc_info = {
+	.stressor = stress_tsc,
+	.supported = stress_tsc_supported
+};

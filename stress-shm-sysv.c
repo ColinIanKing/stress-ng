@@ -352,7 +352,7 @@ reap:
  *  stress_shm_sysv()
  *	stress SYSTEM V shared memory
  */
-int stress_shm_sysv(const args_t *args)
+static int stress_shm_sysv(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;
@@ -497,8 +497,12 @@ fork_again:
 }
 
 #else
-int stress_shm_sysv(const args_t *args)
+static int stress_shm_sysv(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_shm_sysv_info = {
+	.stressor = stress_shm_sysv
+};

@@ -43,7 +43,7 @@ int stress_set_chdir_dirs(const char *opt)
  *  stress_chdir
  *	stress chdir calls
  */
-int stress_chdir(const args_t *args)
+static int stress_chdir(const args_t *args)
 {
 	uint64_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
 	char path[PATH_MAX], cwd[PATH_MAX];
@@ -150,3 +150,7 @@ err:
 
 	return ret;
 }
+
+stressor_info_t stress_chdir_info = {
+	.stressor = stress_chdir
+};

@@ -30,7 +30,7 @@
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
-int stress_yield(const args_t *args)
+static int stress_yield(const args_t *args)
 {
 	uint64_t *counters;
 	uint64_t max_ops_per_yielder;
@@ -143,8 +143,12 @@ int stress_yield(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_yield(const args_t *args)
+static int stress_yield(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_yield_info = {
+	.stressor = stress_yield
+};

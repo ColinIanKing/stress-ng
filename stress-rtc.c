@@ -165,7 +165,7 @@ static inline int stress_rtc_proc(const args_t *args)
  *  stress_rtc
  *	stress some Linux RTC ioctls and /sys/class/rtc interface
  */
-int stress_rtc(const args_t *args)
+static int stress_rtc(const args_t *args)
 {
 	do {
 		int ret;
@@ -187,8 +187,12 @@ int stress_rtc(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rtc(const args_t *args)
+static int stress_rtc(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_rtc_info = {
+	.stressor = stress_rtc
+};

@@ -72,7 +72,7 @@ int stress_set_udp_domain(const char *name)
  *  stress_udp
  *	stress by heavy udp ops
  */
-int stress_udp(const args_t *args)
+static int stress_udp(const args_t *args)
 {
 	int udp_port = DEFAULT_SOCKET_PORT;
 	int udp_domain = AF_INET;
@@ -251,3 +251,7 @@ die:
 	}
 	return rc;
 }
+
+stressor_info_t stress_udp_info = {
+	.stressor = stress_udp
+};

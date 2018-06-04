@@ -28,7 +28,7 @@
  *  stress_exec_supported()
  *      check that we don't run this as root
  */
-int stress_exec_supported(void)
+static int stress_exec_supported(void)
 {
 	/*
 	 *  Don't want to run this when running as root as
@@ -75,7 +75,7 @@ static inline int shim_execveat(
  *  stress_exec()
  *	stress by forking and exec'ing
  */
-int stress_exec(const args_t *args)
+static int stress_exec(const args_t *args)
 {
 	pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
@@ -221,8 +221,13 @@ int stress_exec(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_exec(const args_t *args)
+static int stress_exec(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_exec_info = {
+	.stressor = stress_exec,
+	.supported = stress_exec_supported
+};

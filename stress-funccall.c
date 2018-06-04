@@ -710,7 +710,7 @@ int stress_set_funccall_method(const char *name)
  *  stress_funccall()
  *	stress various argument sized function calls
  */
-int stress_funccall(const args_t *args)
+static int stress_funccall(const args_t *args)
 {
         const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
 
@@ -720,3 +720,13 @@ int stress_funccall(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+static void stress_funcall_set_default(void)
+{
+	stress_set_funccall_method("uint64");
+}
+
+stressor_info_t stress_funccall_info = {
+	.stressor = stress_funccall,
+	.set_default = stress_funcall_set_default
+};

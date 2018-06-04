@@ -80,7 +80,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int dummy)
  *  stress_rlimit
  *	stress by generating rlimit signals
  */
-int stress_rlimit(const args_t *args)
+static int stress_rlimit(const args_t *args)
 {
 	struct sigaction old_action_xcpu, old_action_xfsz, old_action_segv;
 	int fd, pid;
@@ -240,8 +240,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 #else
-int stress_rlimit(const args_t *args)
+static int stress_rlimit(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_rlimit_info = {
+	.stressor = stress_rlimit
+};

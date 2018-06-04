@@ -176,7 +176,7 @@ abort:
  *  stress_sockpair
  *	stress by heavy socket_pair I/O
  */
-int stress_sockpair(const args_t *args)
+static int stress_sockpair(const args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0;
@@ -234,3 +234,7 @@ again:
 	}
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sockpair_info = {
+	.stressor = stress_sockpair
+};

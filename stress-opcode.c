@@ -120,7 +120,7 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
  *  stress_opcode
  *	stress with random opcodes
  */
-int stress_opcode(const args_t *args)
+static int stress_opcode(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc = EXIT_FAILURE;
@@ -252,8 +252,12 @@ err:
 	return rc;
 }
 #else
-int stress_opcode(const args_t *args)
+static int stress_opcode(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_opcode_info = {
+	.stressor = stress_opcode
+};

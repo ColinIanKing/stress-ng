@@ -86,7 +86,7 @@ err:	(void)close(fd);
  *  stress_daemon()
  *	stress by multiple daemonizing forks
  */
-int stress_daemon(const args_t *args)
+static int stress_daemon(const args_t *args)
 {
 	int fds[2];
 	pid_t pid;
@@ -133,3 +133,7 @@ int stress_daemon(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_daemon_info = {
+	.stressor = stress_daemon
+};

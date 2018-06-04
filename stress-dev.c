@@ -990,7 +990,7 @@ done:
  *  stress_dev
  *	stress reading all of /dev
  */
-int stress_dev(const args_t *args)
+static int stress_dev(const args_t *args)
 {
 	pthread_t pthreads[MAX_DEV_THREADS];
 	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
@@ -1071,8 +1071,12 @@ again:
 	return rc;
 }
 #else
-int stress_dev(const args_t *args)
+static int stress_dev(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_dev_info = {
+	.stressor = stress_dev
+};

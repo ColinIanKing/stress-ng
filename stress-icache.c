@@ -170,7 +170,7 @@ STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-int stress_icache(const args_t *args)
+static int stress_icache(const args_t *args)
 {
         int ret;
 
@@ -201,8 +201,12 @@ int stress_icache(const args_t *args)
         return ret;
 }
 #else
-int stress_icache(const args_t *args)
+static int stress_icache(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_icache_info = {
+	.stressor = stress_icache
+};

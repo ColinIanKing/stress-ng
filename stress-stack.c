@@ -42,7 +42,7 @@ static void MLOCKED_TEXT stress_segvhandler(int dummy)
  *  stress_stack
  *	stress by forcing stack overflows
  */
-int stress_stack(const args_t *args)
+static int stress_stack(const args_t *args)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	pid_t pid;
@@ -168,3 +168,7 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_stack_info = {
+	.stressor = stress_stack
+};

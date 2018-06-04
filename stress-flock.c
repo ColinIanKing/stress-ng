@@ -85,7 +85,7 @@ static void stress_flock_child(const args_t *args, const int fd)
  *  stress_flock
  *	stress file locking
  */
-int stress_flock(const args_t *args)
+static int stress_flock(const args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	size_t i;
@@ -142,8 +142,12 @@ err:
 
 #else
 
-int stress_flock(const args_t *args)
+static int stress_flock(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_flock_info = {
+	.stressor = stress_flock
+};

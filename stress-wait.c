@@ -139,7 +139,7 @@ static void killer(
  *  stress_wait
  *	stress wait*() family of calls
  */
-int stress_wait(const args_t *args)
+static int stress_wait(const args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;
@@ -216,8 +216,12 @@ tidy:
 	return ret;
 }
 #else
-int stress_wait(const args_t *args)
+static int stress_wait(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_wait_info = {
+	.stressor = stress_wait
+};

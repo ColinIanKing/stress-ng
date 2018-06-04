@@ -37,7 +37,7 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
  *  stress_jmp()
  *	stress system by setjmp/longjmp calls
  */
-int OPTIMIZE1 stress_longjmp(const args_t *args)
+static int OPTIMIZE1 stress_longjmp(const args_t *args)
 {
 	int ret;
 
@@ -57,3 +57,7 @@ int OPTIMIZE1 stress_longjmp(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_longjmp_info = {
+	.stressor = stress_longjmp
+};

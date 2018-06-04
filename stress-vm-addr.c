@@ -362,7 +362,7 @@ int stress_set_vm_addr_method(const char *name)
  *  stress_vm_addr()
  *	stress virtual memory addressing
  */
-int stress_vm_addr(const args_t *args)
+static int stress_vm_addr(const args_t *args)
 {
 	uint64_t *bit_error_count = MAP_FAILED;
 	uint32_t restarts = 0, nomems = 0;
@@ -497,3 +497,7 @@ clean_up:
 
 	return ret;
 }
+
+stressor_info_t stress_vm_addr_info = {
+	.stressor = stress_vm_addr
+};

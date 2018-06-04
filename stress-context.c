@@ -84,7 +84,7 @@ static int stress_context_init(
  *  stress_context()
  *	stress that exercises CPU context save/restore
  */
-int stress_context(const args_t *args)
+static int stress_context(const args_t *args)
 {
 	char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
 	     stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
@@ -125,8 +125,12 @@ int stress_context(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_context(const args_t *args)
+static int stress_context(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_context_info = {
+	.stressor = stress_context
+};

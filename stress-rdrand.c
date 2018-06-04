@@ -34,7 +34,7 @@ static bool rdrand_supported = false;
  *  stress_rdrand_supported()
  *	check if rdrand is supported
  */
-int stress_rdrand_supported(void)
+static int stress_rdrand_supported(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 
@@ -202,7 +202,7 @@ static inline uint32_t rdrand32(void)
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
-int stress_rdrand(const args_t *args)
+static int stress_rdrand(const args_t *args)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
@@ -240,7 +240,7 @@ int stress_rdrand(const args_t *args)
  *  stress_rdrand_supported()
  *	check if rdrand is supported
  */
-int stress_rdrand_supported(void)
+static int stress_rdrand_supported(void)
 {
 	pr_inf("rdrand stressor will be skipped, CPU does not "
 		"support the rdrand instruction.\n");
@@ -251,8 +251,13 @@ int stress_rdrand_supported(void)
  *  stress_rdrand()
  *      no-op for non-intel
  */
-int stress_rdrand(const args_t *args)
+static int stress_rdrand(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_rdrand_info = {
+	.stressor = stress_rdrand,
+	.supported = stress_rdrand_supported
+};

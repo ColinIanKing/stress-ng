@@ -30,7 +30,7 @@
  *  stress_switch
  *	stress by heavy context switching
  */
-int stress_switch(const args_t *args)
+static int stress_switch(const args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];
@@ -132,3 +132,7 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_switch_info = {
+	.stressor = stress_switch
+};

@@ -37,7 +37,7 @@ static void MLOCKED_TEXT stress_usr1_handler(int dummy)
  *  stress_sigpending
  *	stress sigpending system call
  */
-int stress_sigpending(const args_t *args)
+static int stress_sigpending(const args_t *args)
 {
 	sigset_t sigset;
 
@@ -82,3 +82,7 @@ int stress_sigpending(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_sigpending_info = {
+	.stressor = stress_sigpending
+};

@@ -320,7 +320,7 @@ done:
  *  stress_procfs
  *	stress reading all of /proc
  */
-int stress_procfs(const args_t *args)
+static int stress_procfs(const args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];
@@ -420,8 +420,12 @@ int stress_procfs(const args_t *args)
 	return EXIT_SUCCESS;
 }
 #else
-int stress_procfs(const args_t *args)
+static int stress_procfs(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_procfs_info = {
+	.stressor = stress_procfs
+};

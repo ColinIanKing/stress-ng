@@ -46,7 +46,7 @@ typedef struct {
  *  stress_fanotify_supported()
  *      check if we can run this as root
  */
-int stress_fanotify_supported(void)
+static int stress_fanotify_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("fanotify stressor will be skipped, "
@@ -116,7 +116,7 @@ static int fanotify_event_init(const char *name)
  *  stress_fanotify()
  *	stress fanotify
  */
-int stress_fanotify(const args_t *args)
+static int stress_fanotify(const args_t *args)
 {
 	char dirname[PATH_MAX], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
@@ -282,8 +282,13 @@ tidy:
 	return rc;
 }
 #else
-int stress_fanotify(const args_t *args)
+static int stress_fanotify(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_fanotify_info = {
+	.stressor = stress_fanotify,
+	.supported = stress_fanotify_supported
+};

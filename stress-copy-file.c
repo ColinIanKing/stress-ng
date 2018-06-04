@@ -40,7 +40,7 @@ int stress_set_copy_file_bytes(const char *opt)
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
  */
-int stress_copy_file(const args_t *args)
+static int stress_copy_file(const args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
 	char filename[PATH_MAX], tmp[PATH_MAX];
@@ -120,8 +120,12 @@ tidy_dir:
 	return rc;
 }
 #else
-int stress_copy_file(const args_t *args)
+static int stress_copy_file(const args_t *args)
 {
 	return stress_not_implemented(args);
 }
 #endif
+
+stressor_info_t stress_copy_file_info = {
+	.stressor = stress_copy_file
+};
