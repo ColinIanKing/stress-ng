@@ -251,13 +251,12 @@ free_buffer:
 	free(buffer);
 	return rc;
 }
-#else
-static int stress_aiol(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol
 };
+#else
+stressor_info_t stress_aiol_info = {
+	.stressor = stress_not_implemented
+};
+#endif

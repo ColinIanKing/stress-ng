@@ -97,13 +97,12 @@ static int stress_crypt(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static stress_crypt(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt
 };
+#else
+stressor_info_t stress_crypt_info = {
+	.stressor = stress_not_implemented 
+};
+#endif

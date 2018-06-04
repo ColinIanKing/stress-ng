@@ -355,13 +355,12 @@ numa_free:
 
 	return rc;
 }
-#else
-static int stress_numa(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_numa_info = {
 	.stressor = stress_numa
 };
+#else
+stressor_info_t stress_numa_info = {
+	.stressor = stress_not_implemented
+};
+#endif

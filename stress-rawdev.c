@@ -41,6 +41,8 @@ typedef struct {
 	const rawdev_func       func;
 } stress_rawdev_method_info_t;
 
+#if defined(__linux__)
+
 /*
  *  stress_rawdev_supported()
  *      check if we can run this as root
@@ -54,8 +56,6 @@ int stress_rawdev_supported(void)
 	}
 	return 0;
 }
-
-#if defined(__linux__)
 
 static inline unsigned long shift(unsigned long v, unsigned int shift)
 {
@@ -395,14 +395,13 @@ static int stress_rawdev(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_rawdev(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported
 };
+#else
+stressor_info_t stress_rawdev_info = {
+	.stressor = stress_not_implemented
+};
+#endif

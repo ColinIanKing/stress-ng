@@ -146,13 +146,12 @@ again:
 	}
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_msg(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_msg_info = {
 	.stressor = stress_msg
 };
+#else
+stressor_info_t stress_msg_info = {
+	.stressor = stress_not_implemented
+};
+#endif

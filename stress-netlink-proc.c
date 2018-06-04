@@ -229,28 +229,13 @@ static int stress_netlink_proc(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-/*
- *  stress_netlink_proc_supported()
- *	check if we can run this stressor
- */
-static int stress_netlink_proc_supported(void)
-{
-	if (geteuid() != 0) {
-		pr_inf("netlink-proc stressor will be skipped, "
-			"as it is not supported by this operating system\n");
-		return -1;
-	}
-	return 0;
-}
-
-static int stress_netlink_proc(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
 	.supported = stress_netlink_proc_supported
 };
+#else
+stressor_info_t stress_netlink_proc_info = {
+	.stressor = stress_not_implemented
+};
+#endif

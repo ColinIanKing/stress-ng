@@ -163,13 +163,12 @@ exit_parent:
 	}
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_eventfd(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd
 };
+#else
+stressor_info_t stress_eventfd_info = {
+	.stressor = stress_not_implemented
+};
+#endif

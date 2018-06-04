@@ -91,13 +91,12 @@ static int stress_lockbus(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_lockbus(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus
 };
+#else
+stressor_info_t stress_lockbus_info = {
+	.stressor = stress_not_implemented
+};
+#endif

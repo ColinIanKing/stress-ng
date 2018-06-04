@@ -78,13 +78,12 @@ redo: 			errno = 0;
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_mincore(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore
 };
+#else
+stressor_info_t stress_mincore_info = {
+	.stressor = stress_not_implemented
+};
+#endif

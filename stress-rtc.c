@@ -186,13 +186,12 @@ static int stress_rtc(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_rtc(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_rtc_info = {
 	.stressor = stress_rtc
 };
+#else
+stressor_info_t stress_rtc_info = {
+	.stressor = stress_not_implemented
+};
+#endif

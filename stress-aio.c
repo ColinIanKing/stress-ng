@@ -260,13 +260,12 @@ finish:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
-#else
-static int stress_aio(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_aio_info = {
 	.stressor = stress_aio
 };
+#else
+stressor_info_t stress_aio_info = {
+	.stressor = stress_not_implemented
+};
+#endif

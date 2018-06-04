@@ -254,13 +254,12 @@ static int stress_inode_flags(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_inode_flags(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_inode_flags
 };
+#else
+stressor_info_t stress_inode_flags_info = {
+	.stressor = stress_not_implemented 
+};
+#endif

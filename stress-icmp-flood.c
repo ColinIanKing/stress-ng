@@ -151,21 +151,13 @@ err_socket:
 err:
 	return rc;
 }
-#else
-
-static int stress_icmp_flood_supported(void)
-{
-	pr_inf("icmp flood stressor will be skipped, not supported on this machine\n");
-	return -1;
-}
-
-static int stress_icmp_flood(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_icmp_flood,
 	.supported = stress_icmp_flood_supported
 };
+#else
+stressor_info_t stress_icmp_flood_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -214,13 +214,12 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_heapsort(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_heapsort_info = {
 	.stressor = stress_heapsort
 };
+#else
+stressor_info_t stress_heapsort_info = {
+	.stressor = stress_not_implemented
+};
+#endif

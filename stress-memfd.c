@@ -290,13 +290,12 @@ again:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_memfd(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd
 };
+#else
+stressor_info_t stress_memfd_info = {
+	.stressor = stress_not_implemented
+};
+#endif

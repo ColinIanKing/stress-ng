@@ -170,13 +170,11 @@ err:
 	return rc;
 }
 
-#else
-static int stress_sigio(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_sigio
 };
+#else
+stressor_info_t stress_sigio_info = {
+	.stressor = stress_not_implemented
+};
+#endif

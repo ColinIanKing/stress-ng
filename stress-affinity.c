@@ -72,13 +72,12 @@ static int stress_affinity(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-int stress_affinity(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity
 };
+#else
+stressor_info_t stress_affinity_info = {
+	.stressor = stress_not_implemented,
+};
+#endif

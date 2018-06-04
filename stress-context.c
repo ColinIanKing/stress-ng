@@ -124,13 +124,12 @@ static int stress_context(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_context(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_context_info = {
 	.stressor = stress_context
 };
+#else
+stressor_info_t stress_context_info = {
+	.stressor = stress_not_implemented
+};
+#endif

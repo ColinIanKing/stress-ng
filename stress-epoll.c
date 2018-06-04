@@ -602,13 +602,11 @@ reap:
 
 	return rc;
 }
-#else
-static int stress_epoll(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll
 };
+#else
+stressor_info_t stress_epoll_info = {
+	.stressor = stress_not_implemented
+};
+#endif

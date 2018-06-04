@@ -137,13 +137,12 @@ static int stress_membarrier(const args_t *args)
 	}
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_membarrier(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_membarrier_info = {
 	.stressor = stress_membarrier
 };
+#else
+stressor_info_t stress_membarrier_info = {
+	.stressor = stress_not_implemented
+};
+#endif

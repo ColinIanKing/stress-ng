@@ -96,13 +96,12 @@ static int stress_udp_flood(const args_t *args)
 
 	return rc;
 }
-#else
-static int stress_udp_flood(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood
 };
+#else
+stressor_info_t stress_udp_flood_info = {
+	.stressor = stress_not_implemented
+};
+#endif

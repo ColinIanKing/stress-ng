@@ -57,6 +57,7 @@ static int stress_rdrand_supported(void)
 }
 
 #if defined(__x86_64__) || defined(__x86_64)
+
 /*
  *  rdrand64()
  *	read 64 bit random value
@@ -234,30 +235,12 @@ static int stress_rdrand(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-#else
-
-/*
- *  stress_rdrand_supported()
- *	check if rdrand is supported
- */
-static int stress_rdrand_supported(void)
-{
-	pr_inf("rdrand stressor will be skipped, CPU does not "
-		"support the rdrand instruction.\n");
-	return -1;
-}
-
-/*
- *  stress_rdrand()
- *      no-op for non-intel
- */
-static int stress_rdrand(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported
 };
+#else
+stressor_info_t stress_rdrand_info = {
+	.stressor = stress_not_implemented
+};
+#endif

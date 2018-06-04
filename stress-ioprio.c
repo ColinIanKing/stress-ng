@@ -176,13 +176,12 @@ cleanup_dir:
 
 	return rc;
 }
-#else
-static int stress_ioprio(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_ioprio_info = {
 	.stressor = stress_ioprio
 };
+#else
+stressor_info_t stress_ioprio_info = {
+	.stressor = stress_not_implemented
+};
+#endif

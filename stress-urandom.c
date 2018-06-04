@@ -107,13 +107,11 @@ err:
 
 	return rc;
 }
-#else
-int stress_urandom(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_urandom_info = {
 	.stressor = stress_urandom
 };
+#else
+stressor_info_t stress_urandom_info = {
+	.stressor = stress_not_implemented
+};
+#endif

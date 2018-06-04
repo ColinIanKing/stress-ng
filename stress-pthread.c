@@ -347,13 +347,12 @@ reap:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_pthread(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_pthread_info = {
 	.stressor = stress_pthread
 };
+#else
+stressor_info_t stress_pthread_info = {
+	.stressor = stress_not_implemented
+};
+#endif

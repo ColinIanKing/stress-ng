@@ -377,13 +377,12 @@ PRAGMA_POP
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_clone(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_clone_info = {
 	.stressor = stress_clone
 };
+#else
+stressor_info_t stress_clone_info = {
+	.stressor = stress_not_implemented
+};
+#endif

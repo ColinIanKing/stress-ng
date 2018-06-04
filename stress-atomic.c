@@ -139,14 +139,14 @@ static int stress_atomic(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_atomic(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-#endif
 
 stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic
 };
+
+#else
+stressor_info_t stress_atomic_info = {
+	.stressor = stress_not_implemented
+};
+#endif
+#endif

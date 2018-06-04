@@ -124,30 +124,12 @@ static int stress_tsc(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-#else
-
-/*
- *  stress_tsc_supported()
- *	check if tsc is supported
- */
-static int stress_tsc_supported(void)
-{
-	pr_inf("tsc stressor will be skipped, CPU does not "
-		"support the tsc instruction.\n");
-	return -1;
-}
-
-/*
- *  stress_tsc()
- *      no-op for non-intel
- */
-static int stress_tsc(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
 	.supported = stress_tsc_supported
 };
+#else
+stressor_info_t stress_tsc_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -315,13 +315,12 @@ static int stress_mcontend(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_mcontend(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_mcontend_info = {
 	.stressor = stress_mcontend
 };
+#else
+stressor_info_t stress_mcontend_info = {
+	.stressor = stress_not_implemented
+};
+#endif

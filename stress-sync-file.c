@@ -177,13 +177,12 @@ static int stress_sync_file(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_sync_file(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sync_file_info = {
 	.stressor = stress_sync_file
 };
+#else
+stressor_info_t stress_sync_file_info = {
+	.stressor = stress_not_implemented
+};
+#endif

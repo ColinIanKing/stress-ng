@@ -497,13 +497,13 @@ tidy:
 
 	return rc;
 }
-#else
-int stress_af_alg(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_af_alg
 };
+
+#else
+stressor_info_t stress_af_alg_info = {
+	.stressor = stress_not_implemented,
+};
+#endif

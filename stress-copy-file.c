@@ -119,13 +119,12 @@ tidy_dir:
 
 	return rc;
 }
-#else
-static int stress_copy_file(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file
 };
+#else
+stressor_info_t stress_copy_file_info = {
+	.stressor = stress_not_implemented 
+};
+#endif

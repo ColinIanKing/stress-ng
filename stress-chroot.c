@@ -249,6 +249,10 @@ tidy_ret:
 	return ret;
 }
 
+stressor_info_t stress_chroot_info = {
+	.stressor = stress_chroot,
+	.supported = stress_chroot_supported
+};
 #else
 
 /*
@@ -261,13 +265,8 @@ static int stress_chroot_supported(void)
 	return -1;
 }
 
-static int stress_chroot(const args_t *args)
-{
-        return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_chroot_info = {
-	.stressor = stress_chroot,
+	.stressor = stress_not_implemented,
 	.supported = stress_chroot_supported
 };
+#endif

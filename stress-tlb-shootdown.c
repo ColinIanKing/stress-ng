@@ -153,13 +153,12 @@ static int stress_tlb_shootdown(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_tlb_shootdown(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_tlb_shootdown
 };
+#else
+stressor_info_t stress_tlb_shootdown_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -3256,13 +3256,11 @@ finish:
 	}
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_enosys(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys
 };
+#else
+stressor_info_t stress_enosys_info = {
+	.stressor = stress_not_implemented
+};
+#endif

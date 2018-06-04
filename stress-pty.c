@@ -195,13 +195,12 @@ clean:
 
 	return rc;
 }
-#else
-static int stress_pty(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_pty_info = {
 	.stressor = stress_pty
 };
+#else
+stressor_info_t stress_pty_info = {
+	.stressor = stress_not_implemented
+};
+#endif

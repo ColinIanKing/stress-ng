@@ -335,13 +335,12 @@ again:
 		return stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
 }
-#else
-static int stress_sockfd(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_sockfd
 };
+#else
+stressor_info_t stress_sockfd_info = {
+	.stressor = stress_not_implemented
+};
+#endif

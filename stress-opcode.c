@@ -251,13 +251,12 @@ err:
 #endif
 	return rc;
 }
-#else
-static int stress_opcode(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode
 };
+#else
+stressor_info_t stress_opcode_info = {
+	.stressor = stress_not_implemented
+};
+#endif

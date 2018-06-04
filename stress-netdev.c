@@ -176,13 +176,11 @@ static int stress_netdev(const args_t *args)
 	return rc;
 }
 
-#else
-static int stress_netdev(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_netdev_info = {
 	.stressor = stress_netdev
 };
+#else
+stressor_info_t stress_netdev_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -281,17 +281,14 @@ reap:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_sem_sysv(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
-#if defined(HAVE_SEM_SYSV)
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit
-#endif
 };
+#else
+stressor_info_t stress_sem_sysv_info = {
+	.stressor = stress_not_implemented
+};
+#endif

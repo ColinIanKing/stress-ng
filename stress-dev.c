@@ -1070,13 +1070,11 @@ again:
 
 	return rc;
 }
-#else
-static int stress_dev(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_dev_info = {
 	.stressor = stress_dev
 };
+#else
+stressor_info_t stress_dev_info = {
+	.stressor = stress_not_implemented
+};
+#endif

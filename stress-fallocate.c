@@ -167,13 +167,12 @@ static int stress_fallocate(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_fallocate(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate
 };
+#else
+stressor_info_t stress_fallocate_info = {
+	.stressor = stress_not_implemented
+};
+#endif

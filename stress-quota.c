@@ -272,13 +272,12 @@ tidy:
 	mount_free(mnts, n_mounts);
 	return rc;
 }
-#else
-static int stress_quota(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_quota_info = {
 	.stressor = stress_quota
 };
+#else
+stressor_info_t stress_quota_info = {
+	.stressor = stress_not_implemented
+};
+#endif

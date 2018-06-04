@@ -151,13 +151,12 @@ static int stress_timerfd(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_timerfd(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd
 };
+#else
+stressor_info_t stress_timerfd_info = {
+	.stressor = stress_not_implemented
+};
+#endif

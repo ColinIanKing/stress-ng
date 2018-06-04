@@ -154,13 +154,12 @@ static int stress_cpu_online(const args_t *args)
 
 	return rc;
 }
-#else
-static int stress_cpu_online(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online
 };
+#else
+stressor_info_t stress_cpu_online_info = {
+	.stressor = stress_not_implemented
+};
+#endif

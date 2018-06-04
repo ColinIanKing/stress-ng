@@ -236,13 +236,12 @@ timer_delete:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_clock(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_clock_info = {
 	.stressor = stress_clock
 };
+#else
+stressor_info_t stress_clock_info = {
+	.stressor = stress_not_implemented
+};
+#endif

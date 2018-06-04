@@ -322,6 +322,11 @@ again:
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_efivar_info = {
+	.stressor = stress_efivar,
+	.supported = stress_efivar_supported
+};
 #else
 static int stress_efivar_supported(void)
 {
@@ -330,14 +335,8 @@ static int stress_efivar_supported(void)
 
 	return -1;
 }
-
-static int stress_efivar(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_efivar_info = {
-	.stressor = stress_efivar,
+	.stressor = stress_not_implemented,
 	.supported = stress_efivar_supported
 };
+#endif

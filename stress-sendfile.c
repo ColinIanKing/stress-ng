@@ -107,13 +107,12 @@ dir_out:
 
 	return rc;
 }
-#else
-static int stress_sendfile(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile
 };
+#else
+stressor_info_t stress_sendfile_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -140,14 +140,11 @@ err:
 	return rc;
 }
 
-#else
-
-static int stress_flock(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_flock_info = {
 	.stressor = stress_flock
 };
+#else
+stressor_info_t stress_flock_info = {
+	.stressor = stress_not_implemented
+};
+#endif

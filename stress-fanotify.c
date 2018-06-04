@@ -42,6 +42,7 @@ typedef struct {
 
 #endif
 
+#if defined(HAVE_FANOTIFY)
 /*
  *  stress_fanotify_supported()
  *      check if we can run this as root
@@ -56,7 +57,6 @@ static int stress_fanotify_supported(void)
 	return 0;
 }
 
-#if defined(HAVE_FANOTIFY)
 /*
  *  fanotify_event_init()
  *	initialize fanotify
@@ -281,14 +281,13 @@ tidy:
 
 	return rc;
 }
-#else
-static int stress_fanotify(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
 	.supported = stress_fanotify_supported
 };
+#else
+stressor_info_t stress_fanotify_info = {
+	.stressor = stress_not_implemented
+};
+#endif

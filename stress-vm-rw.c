@@ -328,13 +328,12 @@ again:
 	}
 	return stress_vm_parent(&ctxt);
 }
-#else
-static int stress_vm_rw(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw
 };
+#else
+stressor_info_t stress_vm_rw_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -652,7 +652,14 @@ static int stress_apparmor(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
+
+stressor_info_t stress_apparmor_info = {
+	.stressor = stress_apparmor,
+	.supported = stress_apparmor_supported
+};
+
 #else
+
 static int stress_apparmor_supported(void)
 {
 	pr_inf("apparmor stressor will be skipped, "
@@ -660,14 +667,8 @@ static int stress_apparmor_supported(void)
 	return -1;
 }
 
-static int stress_apparmor(const args_t *args)
-{
-	return stress_not_implemented(args);
-
-}
-#endif
-
 stressor_info_t stress_apparmor_info = {
-	.stressor = stress_apparmor,
+	.stressor = stress_not_implemented,
 	.supported = stress_apparmor_supported
 };
+#endif

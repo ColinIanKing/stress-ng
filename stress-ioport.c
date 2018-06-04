@@ -44,36 +44,6 @@ static const ioport_opts_t ioport_opts[] = {
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
 };
 
-
-static int stress_ioport_supported(void)
-{
-#if defined(STRESS_X86) && defined(__linux__)
-	int ret;
-
-	ret = ioperm(IO_PORT, 1, 1);
-	if (ret < 0) {
-		switch (errno) {
-		case ENOMEM:
-			pr_inf("ioport: out of memory, skipping stressor\n");
-			return -1;
-		case EPERM:
-			pr_inf("ioport: insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n");
-			return -1;
-		case EINVAL:
-		case EIO:
-		default:
-			pr_inf("ioport: cannot access port 0x%x, not skipping stressor\n", IO_PORT);
-			return -1;
-		}
-	}
-	(void)ioperm(IO_PORT, 1, 0);
-	return 0;
-#else
-	pr_inf("ioport stressor is not supported on this system\n");
-	return -1;
-#endif
-}
-
 int stress_set_ioport_opts(const char *opts)
 {
 	size_t i;
@@ -97,6 +67,30 @@ int stress_set_ioport_opts(const char *opts)
 }
 
 #if defined(STRESS_X86) && defined(__linux__)
+
+static int stress_ioport_supported(void)
+{
+	int ret;
+
+	ret = ioperm(IO_PORT, 1, 1);
+	if (ret < 0) {
+		switch (errno) {
+		case ENOMEM:
+			pr_inf("ioport: out of memory, skipping stressor\n");
+			return -1;
+		case EPERM:
+			pr_inf("ioport: insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n");
+			return -1;
+		case EINVAL:
+		case EIO:
+		default:
+			pr_inf("ioport: cannot access port 0x%x, not skipping stressor\n", IO_PORT);
+			return -1;
+		}
+	}
+	(void)ioperm(IO_PORT, 1, 0);
+	return 0;
+}
 
 /*
  *  stress_ioport()
@@ -164,14 +158,13 @@ static int stress_ioport(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_ioport(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported
 };
+#else
+stressor_info_t stress_ioport_info = {
+	.stressor = stress_not_implemented
+};
+#endif

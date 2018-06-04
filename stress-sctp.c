@@ -294,13 +294,12 @@ again:
 			sctp_port, sctp_domain);
 	}
 }
-#else
-static int stress_sctp(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp
 };
+#else
+stressor_info_t stress_sctp_info = {
+	.stressor = stress_not_implemented
+};
+#endif

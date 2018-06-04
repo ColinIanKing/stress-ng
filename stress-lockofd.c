@@ -303,13 +303,12 @@ tidy:
 
 	return ret;
 }
-#else
-static int stress_lockofd(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_lockofd_info = {
 	.stressor = stress_lockofd
 };
+#else
+stressor_info_t stress_lockofd_info = {
+	.stressor = stress_not_implemented
+};
+#endif

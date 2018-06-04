@@ -553,13 +553,12 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_tree(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_tree_info = {
 	.stressor = stress_tree
 };
+#else
+stressor_info_t stress_tree_info = {
+	.stressor = stress_not_implemented
+};
+#endif

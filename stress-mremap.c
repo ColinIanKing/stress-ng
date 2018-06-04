@@ -330,13 +330,12 @@ again:
 
 	return rc;
 }
-#else
-static int stress_mremap(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap
 };
+#else
+stressor_info_t stress_mremap_info = {
+	.stressor = stress_not_implemented
+};
+#endif

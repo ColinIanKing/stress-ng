@@ -223,13 +223,11 @@ static int stress_sockdiag(const args_t *args)
 	return ret;
 }
 
-#else
-static int stress_sockdiag(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_sockdiag
 };
+#else
+stressor_info_t stress_sockdiag_info = {
+	.stressor = stress_not_implemented
+};
+#endif

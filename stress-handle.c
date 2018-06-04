@@ -225,13 +225,12 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_handle(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_handle_info = {
 	.stressor = stress_handle
 };
+#else
+stressor_info_t stress_handle_info = {
+	.stressor = stress_not_implemented
+};
+#endif

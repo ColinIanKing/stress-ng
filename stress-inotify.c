@@ -699,13 +699,12 @@ static int stress_inotify(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_inotify(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_inotify_info = {
 	.stressor = stress_inotify
 };
+#else
+stressor_info_t stress_inotify_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -117,13 +117,12 @@ static int stress_bind_mount(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_bind_mount(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount
 };
+#else
+stressor_info_t stress_bind_mount_info = {
+	.stressor = stress_not_implemented
+};
+#endif

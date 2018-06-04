@@ -24,19 +24,6 @@
  */
 #include "stress-ng.h"
 
-/*
- *  stress_swap_supported()
- *      check if we can run this as root
- */
-static int stress_swap_supported(void)
-{
-        if (geteuid() != 0) {
-		pr_inf("stress-swap stressor needs to be run as root to add/remove swap\n");
-                return -1;
-        }
-        return 0;
-}
-
 #if defined(__linux__)
 
 #include <sys/swap.h>
@@ -67,6 +54,19 @@ typedef struct {
 	uint32_t	padding[117];
 	uint32_t	badpages[1];
 } swap_info_t;
+
+/*
+ *  stress_swap_supported()
+ *      check if we can run this as root
+ */
+static int stress_swap_supported(void)
+{
+        if (geteuid() != 0) {
+		pr_inf("stress-swap stressor needs to be run as root to add/remove swap\n");
+                return -1;
+        }
+        return 0;
+}
 
 static int stress_swap_zero(
 	const args_t *args,
@@ -221,14 +221,13 @@ tidy_free:
 tidy_ret:
 	return ret;
 }
-#else
-static int stress_swap(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported
 };
+#else
+stressor_info_t stress_swap_info = {
+	.stressor = stress_not_implemented
+};
+#endif

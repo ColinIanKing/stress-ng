@@ -365,13 +365,11 @@ cleanup:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_tmpfs(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs
 };
+#else
+stressor_info_t stress_tmpfs_info = {
+	.stressor = stress_not_implemented
+};
+#endif

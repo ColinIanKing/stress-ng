@@ -213,13 +213,12 @@ finish:
 
 	return rc;
 }
-#else
-static int stress_readahead(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead
 };
+#else
+stressor_info_t stress_readahead_info = {
+	.stressor = stress_not_implemented
+};
+#endif

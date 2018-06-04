@@ -109,13 +109,12 @@ static int stress_vm_splice(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_vm_splice(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice
 };
+#else
+stressor_info_t stress_vm_splice_info = {
+	.stressor = stress_not_implemented
+};
+#endif

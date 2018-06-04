@@ -287,13 +287,12 @@ clean:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
-#else
-static int stress_fiemap(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap
 };
+#else
+stressor_info_t stress_fiemap_info = {
+	.stressor = stress_not_implemented
+};
+#endif

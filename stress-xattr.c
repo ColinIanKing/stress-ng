@@ -183,13 +183,12 @@ out:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
-#else
-static int stress_xattr(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_xattr_info = {
 	.stressor = stress_xattr
 };
+#else
+stressor_info_t stress_xattr_info = {
+	.stressor = stress_not_implemented
+};
+#endif

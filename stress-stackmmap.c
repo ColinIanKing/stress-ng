@@ -179,13 +179,12 @@ tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
-#else
-static int stress_stackmmap(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_stackmmap
 };
+#else
+stressor_info_t stress_stackmmap_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -24,6 +24,11 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
+
+#define PAGE_PRESENT	(1ULL << 63)
+#define PFN_MASK	((1ULL << 54) - 1)
+
 /*
  *  stress_physpage_supported()
  *      check if we can run this as root
@@ -36,11 +41,6 @@ int stress_physpage_supported(void)
         }
         return 0;
 }
-
-#if defined(__linux__)
-
-#define PAGE_PRESENT	(1ULL << 63)
-#define PFN_MASK	((1ULL << 54) - 1)
 
 static int stress_virt_to_phys(
 	const args_t *args,
@@ -154,14 +154,13 @@ static int stress_physpage(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_physpage(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported
 };
+#else
+stressor_info_t stress_physpage_info = {
+	.stressor = stress_not_implemented
+};
+#endif

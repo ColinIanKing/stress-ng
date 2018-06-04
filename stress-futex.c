@@ -116,13 +116,12 @@ again:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_futex(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_futex_info = {
 	.stressor = stress_futex
 };
+#else
+stressor_info_t stress_futex_info = {
+	.stressor = stress_not_implemented
+};
+#endif

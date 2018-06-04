@@ -190,13 +190,12 @@ tidy_child1:
 
 	return ret;
 }
-#else
-static int stress_tee(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_tee_info = {
 	.stressor = stress_tee
 };
+#else
+stressor_info_t stress_tee_info = {
+	.stressor = stress_not_implemented
+};
+#endif

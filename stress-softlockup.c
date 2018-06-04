@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
+
 /*
  *  stress_softlockup_supported()
  *      check if we can run this as root
@@ -38,8 +40,6 @@ static int stress_softlockup_supported(void)
         }
         return 0;
 }
-
-#if defined(__linux__)
 
 typedef struct {
 	const int	policy;
@@ -233,14 +233,13 @@ tidy:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_softlockup(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
 	.supported = stress_softlockup_supported
 };
+#else
+stressor_info_t stress_softlockup_info = {
+	.stressor = stress_not_implemented
+};
+#endif

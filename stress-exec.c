@@ -25,6 +25,22 @@
 #include "stress-ng.h"
 
 /*
+ *  stress_set_exec_max()
+ *	set maximum number of forks allowed
+ */
+int stress_set_exec_max(const char *opt)
+{
+	uint64_t exec_max;
+
+	exec_max = get_uint64(opt);
+	check_range("exec-max", exec_max,
+		MIN_EXECS, MAX_EXECS);
+	return set_setting("exec-max", TYPE_ID_INT64, &exec_max);
+}
+
+#if defined(__linux__)
+
+/*
  *  stress_exec_supported()
  *      check that we don't run this as root
  */
@@ -41,22 +57,6 @@ static int stress_exec_supported(void)
         }
         return 0;
 }
-
-/*
- *  stress_set_exec_max()
- *	set maximum number of forks allowed
- */
-int stress_set_exec_max(const char *opt)
-{
-	uint64_t exec_max;
-
-	exec_max = get_uint64(opt);
-	check_range("exec-max", exec_max,
-		MIN_EXECS, MAX_EXECS);
-	return set_setting("exec-max", TYPE_ID_INT64, &exec_max);
-}
-
-#if defined(__linux__)
 
 #if defined(__NR_execveat)
 
@@ -220,14 +220,13 @@ static int stress_exec(const args_t *args)
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_exec(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
 	.supported = stress_exec_supported
 };
+#else
+stressor_info_t stress_exec_info = {
+	.stressor = stress_not_implemented,
+};
+#endif

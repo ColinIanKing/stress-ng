@@ -215,13 +215,12 @@ tidy:
 
 	return ret;
 }
-#else
-static int stress_wait(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_wait_info = {
 	.stressor = stress_wait
 };
+#else
+stressor_info_t stress_wait_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -281,13 +281,12 @@ reap:
 #endif
 	return ret;
 }
-#else
-static int stress_kcmp(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_kcmp_info = {
 	.stressor = stress_kcmp
 };
+#else
+stressor_info_t stress_kcmp_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -204,13 +204,11 @@ reap:
 	return EXIT_SUCCESS;
 }
 
-#else
-static int stress_hrtimers(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
-
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers
 };
+#else
+stressor_info_t stress_hrtimers_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -113,13 +113,12 @@ try_read:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_full(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_full_info = {
 	.stressor = stress_full
 };
+#else
+stressor_info_t stress_full_info = {
+	.stressor = stress_not_implemented
+};
+#endif

@@ -185,17 +185,14 @@ reap:
 
 	return EXIT_SUCCESS;
 }
-#else
-static int stress_sem(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 	.init = stress_semaphore_posix_init,
 	.deinit = stress_semaphore_posix_deinit,
-#endif
 };
+#else
+stressor_info_t stress_sem_info = {
+	.stressor = stress_not_implemented
+};
+#endif

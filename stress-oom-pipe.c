@@ -209,13 +209,12 @@ static int stress_oom_pipe(const args_t *args)
 
 	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes, page_size);
 }
-#else
-static int stress_oom_pipe(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_oom_pipe
 };
+#else
+stressor_info_t stress_oom_pipe_info = {
+	.stressor = stress_not_implemented
+};
+#endif

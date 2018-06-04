@@ -887,12 +887,6 @@ static int stress_zlib(const args_t *args)
 
 	return ret;
 }
-#else
-static int stress_zlib(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 static void stress_zlib_set_default(void)
 {
@@ -901,7 +895,10 @@ static void stress_zlib_set_default(void)
 
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
-#if defined(HAVE_LIB_Z)
 	.set_default = stress_zlib_set_default
-#endif
 };
+#else
+stressor_info_t stress_zlib_info = {
+	.stressor = stress_not_implemented
+};
+#endif

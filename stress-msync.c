@@ -241,13 +241,12 @@ err:
 			args->name, sigbus_count);
 	return rc;
 }
-#else
-static int stress_msync(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_msync_info = {
 	.stressor = stress_msync
 };
+#else
+stressor_info_t stress_msync_info = {
+	.stressor = stress_not_implemented
+};
+#endif

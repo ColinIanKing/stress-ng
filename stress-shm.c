@@ -383,13 +383,12 @@ fork_again:
 err:
 	return rc;
 }
-#else
-static int stress_shm(const args_t *args)
-{
-	return stress_not_implemented(args);
-}
-#endif
 
 stressor_info_t stress_shm_info = {
 	.stressor = stress_shm
 };
+#else
+stressor_info_t stress_shm_info = {
+	.stressor = stress_not_implemented
+};
+#endif
