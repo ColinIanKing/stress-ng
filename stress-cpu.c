@@ -205,7 +205,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_bitops(const char *name)
 {
 	uint32_t i, i_sum = 0;
-	const uint32_t sum = 0x8aadcaab;
+	const uint32_t sum = 0x8aac0aab;
 
 	for (i = 0; i < 16384; i++) {
 		{
