@@ -561,6 +561,15 @@ stressor_info_t stress_memthrash_info = {
 	.stressor = stress_memthrash
 };
 #else
+
+int stress_set_memthrash_method(const char *name)
+{
+	(void)name;
+
+	(void)pr_inf("warning: --memthrash-method not available on this system\n");
+	return 0;
+}
+
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_not_implemented
 };
