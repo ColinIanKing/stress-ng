@@ -3156,8 +3156,6 @@ next_opt:
 		}
 		for (i = 0; i < SIZEOF_ARRAY(opt_set_funcs); i++) {
 			if (c == opt_set_funcs[i].opt) {
-				int ret;
-
 				ret = opt_set_funcs[i].opt_set_func(optarg);
 				if (ret < 0)
 					return EXIT_FAILURE;
