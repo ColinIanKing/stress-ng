@@ -616,7 +616,9 @@ typedef struct {
 #elif defined(__GNUC__) && NEED_GNUC(4, 4, 0)
 #define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define PRAGMA_POP	_Pragma("GCC diagnostic pop")
-#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"")
+#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
+			_Pragma("GCC diagnostic ignored \"-Wextra\"") \
+			_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
 #else
 #define PRAGMA_PUSH
 #define PRAGMA_POP
@@ -2649,6 +2651,7 @@ extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 extern WARN_UNUSED int stress_drop_capabilities(const char *name);
 extern WARN_UNUSED bool is_dot_filename(const char *name);
+extern WARN_UNUSED void *deconstify(const void *ptr);
 
 /*
  *  Indicate a stress test failed because of limited resources

@@ -1316,3 +1316,14 @@ bool is_dot_filename(const char *name)
 		return true;
 	return false;
 }
+
+/*
+ *  deconstify
+ */
+void *deconstify(const void *ptr)
+{
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+	return (void *)ptr;
+PRAGMA_POP
+}
