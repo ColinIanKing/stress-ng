@@ -535,7 +535,7 @@ static const stress_t stressors[] = {
 STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
 
 /* Different stress classes */
-static const class_t classes[] = {
+static const class_info_t classes[] = {
 	{ CLASS_CPU_CACHE,	"cpu-cache" },
 	{ CLASS_CPU,		"cpu" },
 	{ CLASS_DEV,		"device" },

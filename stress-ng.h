@@ -1281,7 +1281,7 @@ typedef struct {
 typedef struct {
 	uint32_t class;			/* Class type bit mask */
 	const char *name;		/* Name of class */
-} class_t;
+} class_info_t;
 
 /* Stress tests */
 typedef enum {
