@@ -386,7 +386,7 @@ stressor_info_t stress_dccp_info = {
 };
 #else
 stressor_info_t stress_dccp_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS
 };
 #endif
