@@ -342,11 +342,8 @@ again:
 				if (!clone_info)
 					break;
 				stack_top = clone_info->stack + stack_offset;
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
 				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, (void *)args);
-PRAGMA_POP
+					align_stack(stack_top), flag, deconstify(args));
 				if (clone_info->pid == -1) {
 					/*
 					 * Reached max forks or error

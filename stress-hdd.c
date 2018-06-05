@@ -246,7 +246,7 @@ int stress_set_hdd_opts(const char *opts)
 	int hdd_oflags = 0;
 	bool opts_set = false;
 
-	for (str = (char *)opts; (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = deconstify(opts); (token = strtok(str, ",")) != NULL; str = NULL) {
 		size_t i;
 		bool opt_ok = false;
 
