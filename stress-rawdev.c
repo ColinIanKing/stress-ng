@@ -47,7 +47,7 @@ typedef struct {
  *  stress_rawdev_supported()
  *      check if we can run this as root
  */
-int stress_rawdev_supported(void)
+static int stress_rawdev_supported(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("rawdev flood stressor will be skipped, "

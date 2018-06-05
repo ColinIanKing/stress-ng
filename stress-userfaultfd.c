@@ -360,7 +360,7 @@ free_zeropage:
  *  stress_userfaultfd()
  *	stress userfaultfd
  */
-int stress_userfaultfd(const args_t *args)
+static int stress_userfaultfd(const args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_FAILURE;

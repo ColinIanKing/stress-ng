@@ -44,7 +44,7 @@ int stress_set_semaphore_posix_procs(const char *opt)
  *  stress_semaphore_posix_init()
  *	initialize a POSIX semaphore
  */
-void stress_semaphore_posix_init(void)
+static void stress_semaphore_posix_init(void)
 {
 	/* create a mutex */
 	if (sem_init(&g_shared->sem_posix.sem, 1, 1) >= 0) {
@@ -66,7 +66,7 @@ void stress_semaphore_posix_init(void)
  *  stress_semaphore_posix_deinit()
  *	destroy a POSIX semaphore
  */
-void stress_semaphore_posix_deinit(void)
+static void stress_semaphore_posix_deinit(void)
 {
 	if (g_shared->sem_posix.init) {
 		if (sem_destroy(&g_shared->sem_posix.sem) < 0) {

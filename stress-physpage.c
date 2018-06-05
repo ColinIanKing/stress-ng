@@ -33,7 +33,7 @@
  *  stress_physpage_supported()
  *      check if we can run this as root
  */
-int stress_physpage_supported(void)
+static int stress_physpage_supported(void)
 {
         if (geteuid() != 0) {
 		pr_inf("stress-physpage stressor needs to be run as root to access page information\n");
