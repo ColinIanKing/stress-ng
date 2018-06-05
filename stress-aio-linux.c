@@ -253,10 +253,12 @@ free_buffer:
 }
 
 stressor_info_t stress_aiol_info = {
-	.stressor = stress_aiol
+	.stressor = stress_aiol,
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_aiol_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };
 #endif

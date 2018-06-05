@@ -163,10 +163,12 @@ tidy:
 	return EXIT_SUCCESS;
 }
 stressor_info_t stress_dynlib_info = {
-	.stressor = stress_dynlib
+	.stressor = stress_dynlib,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_dynlib_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

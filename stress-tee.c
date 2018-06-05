@@ -192,10 +192,12 @@ tidy_child1:
 }
 
 stressor_info_t stress_tee_info = {
-	.stressor = stress_tee
+	.stressor = stress_tee,
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_tee_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
 };
 #endif

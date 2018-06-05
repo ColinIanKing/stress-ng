@@ -138,6 +138,8 @@ static ssize_t stress_revio_write(
 {
 	ssize_t ret;
 
+	(void)revio_flags;
+
 #if defined(HAVE_FUTIMES)
 	if (revio_flags & REVIO_OPT_UTIMES)
 		(void)futimes(fd, NULL);
@@ -425,5 +427,6 @@ finish:
 }
 
 stressor_info_t stress_revio_info = {
-	.stressor = stress_revio
+	.stressor = stress_revio,
+	.class = CLASS_IO | CLASS_OS
 };

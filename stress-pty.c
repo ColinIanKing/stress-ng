@@ -197,10 +197,12 @@ clean:
 }
 
 stressor_info_t stress_pty_info = {
-	.stressor = stress_pty
+	.stressor = stress_pty,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_pty_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

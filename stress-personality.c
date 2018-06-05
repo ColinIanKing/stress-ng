@@ -90,10 +90,12 @@ static int stress_personality(const args_t *args)
 }
 
 stressor_info_t stress_personality_info = {
-	.stressor = stress_personality
+	.stressor = stress_personality,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_personality_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

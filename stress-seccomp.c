@@ -254,10 +254,12 @@ static int stress_seccomp(const args_t *args)
 }
 
 stressor_info_t stress_seccomp_info = {
-	.stressor = stress_seccomp
+	.stressor = stress_seccomp,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_seccomp_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

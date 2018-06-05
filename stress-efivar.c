@@ -325,7 +325,8 @@ again:
 
 stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
-	.supported = stress_efivar_supported
+	.supported = stress_efivar_supported,
+	.class = CLASS_OS
 };
 #else
 static int stress_efivar_supported(void)
@@ -337,6 +338,7 @@ static int stress_efivar_supported(void)
 }
 stressor_info_t stress_efivar_info = {
 	.stressor = stress_not_implemented,
-	.supported = stress_efivar_supported
+	.supported = stress_efivar_supported,
+	.class = CLASS_OS
 };
 #endif

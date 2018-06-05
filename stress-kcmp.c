@@ -283,10 +283,12 @@ reap:
 }
 
 stressor_info_t stress_kcmp_info = {
-	.stressor = stress_kcmp
+	.stressor = stress_kcmp,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_kcmp_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

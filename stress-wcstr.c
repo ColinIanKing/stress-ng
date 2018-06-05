@@ -679,5 +679,6 @@ static void stress_wcs_set_default(void)
 
 stressor_info_t stress_wcs_info = {
 	.stressor = stress_wcs,
-	.set_default = stress_wcs_set_default
+	.set_default = stress_wcs_set_default,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };

@@ -292,10 +292,12 @@ again:
 }
 
 stressor_info_t stress_memfd_info = {
-	.stressor = stress_memfd
+	.stressor = stress_memfd,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_memfd_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #endif

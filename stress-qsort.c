@@ -197,5 +197,6 @@ tidy:
 }
 
 stressor_info_t stress_qsort_info = {
-	.stressor = stress_qsort
+	.stressor = stress_qsort,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };

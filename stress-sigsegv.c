@@ -88,5 +88,6 @@ tidy:
 }
 
 stressor_info_t stress_sigsegv_info = {
-	.stressor = stress_sigsegv
+	.stressor = stress_sigsegv,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };

@@ -181,10 +181,12 @@ tidy_dir:
 }
 
 stressor_info_t stress_stackmmap_info = {
-	.stressor = stress_stackmmap
+	.stressor = stress_stackmmap,
+	.class = CLASS_VM | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_stackmmap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_MEMORY
 };
 #endif

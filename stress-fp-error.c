@@ -158,5 +158,6 @@ static int stress_fp_error(const args_t *args)
 }
 
 stressor_info_t stress_fp_error_info = {
-	.stressor = stress_fp_error
+	.stressor = stress_fp_error,
+	.class = CLASS_CPU
 };

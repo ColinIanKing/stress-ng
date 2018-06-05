@@ -456,10 +456,12 @@ static int stress_prctl(const args_t *args)
 }
 
 stressor_info_t stress_prctl_info = {
-	.stressor = stress_prctl
+	.stressor = stress_prctl,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_prctl_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

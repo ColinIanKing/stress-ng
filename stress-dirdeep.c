@@ -298,5 +298,6 @@ static int stress_dirdeep(const args_t *args)
 }
 
 stressor_info_t stress_dirdeep_info = {
-	.stressor = stress_dirdeep
+	.stressor = stress_dirdeep,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

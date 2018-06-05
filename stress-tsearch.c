@@ -134,5 +134,6 @@ abort:
 }
 
 stressor_info_t stress_tsearch_info = {
-	.stressor = stress_tsearch
+	.stressor = stress_tsearch,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };

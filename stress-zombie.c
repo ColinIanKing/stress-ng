@@ -192,5 +192,6 @@ static int stress_zombie(const args_t *args)
 }
 
 stressor_info_t stress_zombie_info = {
-	.stressor = stress_zombie
+	.stressor = stress_zombie,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };

@@ -584,5 +584,6 @@ err_a:
 }
 
 stressor_info_t stress_stream_info = {
-	.stressor = stress_stream
+	.stressor = stress_stream,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };

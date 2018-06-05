@@ -165,10 +165,12 @@ exit_parent:
 }
 
 stressor_info_t stress_eventfd_info = {
-	.stressor = stress_eventfd
+	.stressor = stress_eventfd,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_eventfd_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #endif

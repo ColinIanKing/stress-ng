@@ -144,10 +144,12 @@ static int stress_yield(const args_t *args)
 }
 
 stressor_info_t stress_yield_info = {
-	.stressor = stress_yield
+	.stressor = stress_yield,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_yield_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

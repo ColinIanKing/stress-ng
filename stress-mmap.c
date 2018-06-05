@@ -431,5 +431,6 @@ cleanup:
 }
 
 stressor_info_t stress_mmap_info = {
-	.stressor = stress_mmap
+	.stressor = stress_mmap,
+	.class = CLASS_VM | CLASS_OS
 };

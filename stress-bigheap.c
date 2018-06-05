@@ -202,5 +202,6 @@ abort:
 }
 
 stressor_info_t stress_bigheap_info = {
-	.stressor = stress_bigheap
+	.stressor = stress_bigheap,
+	.class = CLASS_OS | CLASS_VM
 };

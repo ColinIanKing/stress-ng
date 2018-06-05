@@ -701,10 +701,12 @@ static int stress_inotify(const args_t *args)
 }
 
 stressor_info_t stress_inotify_info = {
-	.stressor = stress_inotify
+	.stressor = stress_inotify,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_inotify_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #endif

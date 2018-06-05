@@ -306,10 +306,12 @@ tidy:
 	return ret;
 }
 stressor_info_t stress_locka_info = {
-	.stressor = stress_locka
+	.stressor = stress_locka,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_locka_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

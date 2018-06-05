@@ -3257,10 +3257,12 @@ finish:
 	return EXIT_SUCCESS;
 }
 stressor_info_t stress_enosys_info = {
-	.stressor = stress_enosys
+	.stressor = stress_enosys,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_enosys_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

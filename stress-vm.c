@@ -2123,5 +2123,6 @@ static void stress_vm_set_default(void)
 
 stressor_info_t stress_vm_info = {
 	.stressor = stress_vm,
-	.set_default = stress_vm_set_default
+	.set_default = stress_vm_set_default,
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
 };

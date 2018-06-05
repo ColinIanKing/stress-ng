@@ -139,10 +139,12 @@ static int stress_membarrier(const args_t *args)
 }
 
 stressor_info_t stress_membarrier_info = {
-	.stressor = stress_membarrier
+	.stressor = stress_membarrier,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_membarrier_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #endif

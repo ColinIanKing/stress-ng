@@ -136,5 +136,6 @@ again:
 }
 
 stressor_info_t stress_mmapmany_info = {
-	.stressor = stress_mmapmany
+	.stressor = stress_mmapmany,
+	.class = CLASS_VM | CLASS_OS
 };

@@ -205,10 +205,12 @@ reap:
 }
 
 stressor_info_t stress_hrtimers_info = {
-	.stressor = stress_hrtimers
+	.stressor = stress_hrtimers,
+	.class = CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_hrtimers_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER
 };
 #endif

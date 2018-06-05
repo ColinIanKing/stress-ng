@@ -154,10 +154,12 @@ static int stress_remap(const args_t *args)
 }
 
 stressor_info_t stress_remap_info = {
-	.stressor = stress_remap
+	.stressor = stress_remap,
+	.class = CLASS_MEMORY | CLASS_OS
 };
 #else
 stressor_info_t stress_remap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_MEMORY | CLASS_OS
 };
 #endif

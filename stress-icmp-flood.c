@@ -154,10 +154,12 @@ err:
 
 stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_icmp_flood,
-	.supported = stress_icmp_flood_supported
+	.supported = stress_icmp_flood_supported,
+	.class = CLASS_OS | CLASS_NETWORK
 };
 #else
 stressor_info_t stress_icmp_flood_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_NETWORK
 };
 #endif

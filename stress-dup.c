@@ -108,5 +108,6 @@ static int stress_dup(const args_t *args)
 }
 
 stressor_info_t stress_dup_info = {
-	.stressor = stress_dup
+	.stressor = stress_dup,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

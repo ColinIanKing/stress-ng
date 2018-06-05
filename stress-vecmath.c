@@ -215,10 +215,12 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 }
 
 stressor_info_t stress_vecmath_info = {
-	.stressor = stress_vecmath
+	.stressor = stress_vecmath,
+	.class = CLASS_CPU | CLASS_CPU_CACHE
 };
 #else
 stressor_info_t stress_vecmath_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_CPU_CACHE
 };
 #endif

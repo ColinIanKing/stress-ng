@@ -113,5 +113,6 @@ abort:
 }
 
 stressor_info_t stress_mknod_info = {
-	.stressor = stress_mknod
+	.stressor = stress_mknod,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

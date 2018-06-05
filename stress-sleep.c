@@ -217,10 +217,12 @@ tidy:
 }
 
 stressor_info_t stress_sleep_info = {
-	.stressor = stress_sleep
+	.stressor = stress_sleep,
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_sleep_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
 };
 #endif

@@ -170,10 +170,12 @@ static int stress_unshare(const args_t *args)
 }
 
 stressor_info_t stress_unshare_info = {
-	.stressor = stress_unshare
+	.stressor = stress_unshare,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_unshare_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

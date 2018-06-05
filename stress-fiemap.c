@@ -40,7 +40,7 @@ int stress_set_fiemap_bytes(const char *opt)
 	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
-#if defined(__linux__) && defined(FS_IOC_FIEMAP)
+#if defined(__linux__) && defined(FS_IOC_FIEMAP) && defined(HAVE_LINUX_FIEMAP_H)
 
 /*
  *  stress_fiemap_writer()
@@ -289,10 +289,12 @@ clean:
 }
 
 stressor_info_t stress_fiemap_info = {
-	.stressor = stress_fiemap
+	.stressor = stress_fiemap,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_fiemap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

@@ -236,10 +236,12 @@ tidy:
 
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
-	.supported = stress_softlockup_supported
+	.supported = stress_softlockup_supported,
+	.class = CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_softlockup_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER
 };
 #endif

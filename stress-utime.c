@@ -154,5 +154,6 @@ int stress_utime(const args_t *args)
 }
 
 stressor_info_t stress_utime_info = {
-	.stressor = stress_utime
+	.stressor = stress_utime,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

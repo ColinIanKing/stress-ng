@@ -555,10 +555,12 @@ tidy:
 }
 
 stressor_info_t stress_tree_info = {
-	.stressor = stress_tree
+	.stressor = stress_tree,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_tree_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };
 #endif

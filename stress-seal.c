@@ -173,10 +173,12 @@ err:
 }
 
 stressor_info_t stress_seal_info = {
-	.stressor = stress_seal
+	.stressor = stress_seal,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_seal_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

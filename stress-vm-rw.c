@@ -330,10 +330,12 @@ again:
 }
 
 stressor_info_t stress_vm_rw_info = {
-	.stressor = stress_vm_rw
+	.stressor = stress_vm_rw,
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
 };
 #else
 stressor_info_t stress_vm_rw_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
 };
 #endif

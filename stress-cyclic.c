@@ -784,10 +784,12 @@ tidy:
 
 stressor_info_t stress_cyclic_info = {
 	.stressor = stress_cyclic,
-	.supported = stress_cyclic_supported
+	.supported = stress_cyclic_supported,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_cyclic_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

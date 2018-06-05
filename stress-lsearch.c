@@ -110,5 +110,6 @@ static int stress_lsearch(const args_t *args)
 }
 
 stressor_info_t stress_lsearch_info = {
-	.stressor = stress_lsearch
+	.stressor = stress_lsearch,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };

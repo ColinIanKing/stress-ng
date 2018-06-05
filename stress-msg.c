@@ -148,10 +148,12 @@ again:
 }
 
 stressor_info_t stress_msg_info = {
-	.stressor = stress_msg
+	.stressor = stress_msg,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_msg_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

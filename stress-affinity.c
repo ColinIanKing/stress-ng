@@ -74,10 +74,12 @@ static int stress_affinity(const args_t *args)
 }
 
 stressor_info_t stress_affinity_info = {
-	.stressor = stress_affinity
+	.stressor = stress_affinity,
+	.class = CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER
 };
 #endif

@@ -364,10 +364,12 @@ static int stress_sysfs(const args_t *args)
 }
 
 stressor_info_t stress_sysfs_info = {
-	.stressor = stress_sysfs
+	.stressor = stress_sysfs,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_sysfs_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

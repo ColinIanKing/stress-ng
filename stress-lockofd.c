@@ -305,10 +305,12 @@ tidy:
 }
 
 stressor_info_t stress_lockofd_info = {
-	.stressor = stress_lockofd
+	.stressor = stress_lockofd,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_lockofd_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

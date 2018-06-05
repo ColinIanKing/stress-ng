@@ -728,5 +728,6 @@ static void stress_funcall_set_default(void)
 
 stressor_info_t stress_funccall_info = {
 	.stressor = stress_funccall,
-	.set_default = stress_funcall_set_default
+	.set_default = stress_funcall_set_default,
+	.class = CLASS_CPU
 };

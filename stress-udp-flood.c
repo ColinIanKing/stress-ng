@@ -98,10 +98,12 @@ static int stress_udp_flood(const args_t *args)
 }
 
 stressor_info_t stress_udp_flood_info = {
-	.stressor = stress_udp_flood
+	.stressor = stress_udp_flood,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #else
 stressor_info_t stress_udp_flood_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #endif

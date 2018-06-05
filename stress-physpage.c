@@ -157,10 +157,12 @@ static int stress_physpage(const args_t *args)
 
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
-	.supported = stress_physpage_supported
+	.supported = stress_physpage_supported,
+	.class = CLASS_VM
 };
 #else
 stressor_info_t stress_physpage_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM
 };
 #endif

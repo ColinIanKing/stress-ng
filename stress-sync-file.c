@@ -179,10 +179,12 @@ static int stress_sync_file(const args_t *args)
 }
 
 stressor_info_t stress_sync_file_info = {
-	.stressor = stress_sync_file
+	.stressor = stress_sync_file,
+	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_sync_file_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

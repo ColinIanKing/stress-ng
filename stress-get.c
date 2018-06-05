@@ -330,5 +330,6 @@ static int stress_get(const args_t *args)
 }
 
 stressor_info_t stress_get_info = {
-	.stressor = stress_get
+	.stressor = stress_get,
+	.class = CLASS_OS
 };

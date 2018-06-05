@@ -159,10 +159,12 @@ static int stress_ptrace(const args_t *args)
 }
 
 stressor_info_t stress_ptrace_info = {
-	.stressor = stress_ptrace
+	.stressor = stress_ptrace,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_ptrace_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

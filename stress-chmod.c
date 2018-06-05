@@ -214,5 +214,6 @@ tidy:
 }
 
 stressor_info_t stress_chmod_info = {
-	.stressor = stress_chmod
+	.stressor = stress_chmod,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

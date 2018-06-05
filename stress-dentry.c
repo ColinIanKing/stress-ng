@@ -199,5 +199,6 @@ abort:
 }
 
 stressor_info_t stress_dentry_info = {
-	.stressor = stress_dentry
+	.stressor = stress_dentry,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

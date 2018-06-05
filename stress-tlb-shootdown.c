@@ -155,10 +155,12 @@ static int stress_tlb_shootdown(const args_t *args)
 }
 
 stressor_info_t stress_tlb_shootdown_info = {
-	.stressor = stress_tlb_shootdown
+	.stressor = stress_tlb_shootdown,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_tlb_shootdown_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #endif

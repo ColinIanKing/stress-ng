@@ -216,10 +216,12 @@ tidy:
 }
 
 stressor_info_t stress_mergesort_info = {
-	.stressor = stress_mergesort
+	.stressor = stress_mergesort,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_mergesort_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
 };
 #endif

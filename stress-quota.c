@@ -274,10 +274,12 @@ tidy:
 }
 
 stressor_info_t stress_quota_info = {
-	.stressor = stress_quota
+	.stressor = stress_quota,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_quota_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

@@ -177,10 +177,12 @@ static int stress_netdev(const args_t *args)
 }
 
 stressor_info_t stress_netdev_info = {
-	.stressor = stress_netdev
+	.stressor = stress_netdev,
+	.class = CLASS_NETWORK
 };
 #else
 stressor_info_t stress_netdev_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK
 };
 #endif

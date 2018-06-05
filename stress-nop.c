@@ -52,10 +52,12 @@ static int stress_nop(const args_t *args)
 }
 
 stressor_info_t stress_nop_info = {
-	.stressor = stress_nop
+	.stressor = stress_nop,
+	.class = CLASS_CPU
 };
 #else
 stressor_info_t stress_nop_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
 };
 #endif

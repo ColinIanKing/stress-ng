@@ -117,7 +117,6 @@ static int stress_set(const args_t *args)
 		pid_t pid;
 		gid_t gid;
 		uid_t uid;
-		gid_t groups[GIDS_MAX];
 
 		/* setsid will fail, ignore return */
 		pid = setsid();
@@ -160,8 +159,11 @@ static int stress_set(const args_t *args)
 		(void)ret;
 		check_do_run();
 
+#if defined(HAVE_GRP_H)
 		ret = getgroups(0, NULL);
 		if (ret > 0) {
+			gid_t groups[GIDS_MAX];
+
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
 			ret = getgroups(ret, groups);
 			if (ret > 0) {
@@ -169,6 +171,7 @@ static int stress_set(const args_t *args)
 				(void)ret;
 			}
 		}
+#endif
 
 #if defined(HAVE_SETREUID)
 		ret = setreuid(-1, -1);
@@ -200,5 +203,6 @@ static int stress_set(const args_t *args)
 }
 
 stressor_info_t stress_set_info = {
-	.stressor = stress_set
+	.stressor = stress_set,
+	.class = CLASS_OS
 };

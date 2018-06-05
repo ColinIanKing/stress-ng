@@ -94,5 +94,6 @@ static int stress_nice(const args_t *args)
 }
 
 stressor_info_t stress_nice_info = {
-	.stressor = stress_nice
+	.stressor = stress_nice,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };

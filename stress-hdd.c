@@ -678,5 +678,6 @@ finish:
 }
 
 stressor_info_t stress_hdd_info = {
-	.stressor = stress_hdd
+	.stressor = stress_hdd,
+	.class = CLASS_IO | CLASS_OS
 };

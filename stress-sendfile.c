@@ -109,10 +109,12 @@ dir_out:
 }
 
 stressor_info_t stress_sendfile_info = {
-	.stressor = stress_sendfile
+	.stressor = stress_sendfile,
+	.class = CLASS_PIPE_IO | CLASS_OS
 };
 #else
 stressor_info_t stress_sendfile_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_PIPE_IO | CLASS_OS
 };
 #endif

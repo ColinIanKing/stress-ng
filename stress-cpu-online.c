@@ -156,10 +156,12 @@ static int stress_cpu_online(const args_t *args)
 }
 
 stressor_info_t stress_cpu_online_info = {
-	.stressor = stress_cpu_online
+	.stressor = stress_cpu_online,
+	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #else
 stressor_info_t stress_cpu_online_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #endif

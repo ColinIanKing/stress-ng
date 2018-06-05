@@ -188,10 +188,12 @@ static int stress_rtc(const args_t *args)
 }
 
 stressor_info_t stress_rtc_info = {
-	.stressor = stress_rtc
+	.stressor = stress_rtc,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_rtc_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

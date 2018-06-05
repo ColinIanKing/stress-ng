@@ -67,5 +67,6 @@ static int stress_sigfpe(const args_t *args)
 }
 
 stressor_info_t stress_sigfpe_info = {
-	.stressor = stress_sigfpe
+	.stressor = stress_sigfpe,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };

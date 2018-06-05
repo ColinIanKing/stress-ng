@@ -119,10 +119,12 @@ static int stress_bind_mount(const args_t *args)
 }
 
 stressor_info_t stress_bind_mount_info = {
-	.stressor = stress_bind_mount
+	.stressor = stress_bind_mount,
+	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #else
 stressor_info_t stress_bind_mount_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #endif

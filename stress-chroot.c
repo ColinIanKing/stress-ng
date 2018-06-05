@@ -251,7 +251,8 @@ tidy_ret:
 
 stressor_info_t stress_chroot_info = {
 	.stressor = stress_chroot,
-	.supported = stress_chroot_supported
+	.supported = stress_chroot_supported,
+	.class = CLASS_OS
 };
 #else
 
@@ -267,6 +268,7 @@ static int stress_chroot_supported(void)
 
 stressor_info_t stress_chroot_info = {
 	.stressor = stress_not_implemented,
-	.supported = stress_chroot_supported
+	.supported = stress_chroot_supported,
+	.class = CLASS_OS
 };
 #endif

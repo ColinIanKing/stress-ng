@@ -895,10 +895,12 @@ static void stress_zlib_set_default(void)
 
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
-	.set_default = stress_zlib_set_default
+	.set_default = stress_zlib_set_default,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_zlib_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #endif

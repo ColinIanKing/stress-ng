@@ -284,10 +284,12 @@ tidy:
 
 stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
-	.supported = stress_fanotify_supported
+	.supported = stress_fanotify_supported,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_fanotify_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
 };
 #endif

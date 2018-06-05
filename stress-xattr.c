@@ -185,10 +185,12 @@ out:
 }
 
 stressor_info_t stress_xattr_info = {
-	.stressor = stress_xattr
+	.stressor = stress_xattr,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_xattr_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

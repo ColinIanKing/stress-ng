@@ -126,10 +126,12 @@ static int stress_context(const args_t *args)
 }
 
 stressor_info_t stress_context_info = {
-	.stressor = stress_context
+	.stressor = stress_context,
+	.class = CLASS_MEMORY | CLASS_CPU
 };
 #else
 stressor_info_t stress_context_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_MEMORY | CLASS_CPU
 };
 #endif

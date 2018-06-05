@@ -184,10 +184,12 @@ static int stress_schedpolicy(const args_t *args)
 }
 
 stressor_info_t stress_schedpolicy_info = {
-	.stressor = stress_schedpolicy
+	.stressor = stress_schedpolicy,
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_schedpolicy_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
 };
 #endif

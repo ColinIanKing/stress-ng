@@ -247,5 +247,6 @@ unmap:
 }
 
 stressor_info_t stress_mmapaddr_info = {
-	.stressor = stress_mmapaddr
+	.stressor = stress_mmapaddr,
+	.class = CLASS_VM | CLASS_OS
 };

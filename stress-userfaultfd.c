@@ -424,11 +424,13 @@ int stress_userfaultfd(const args_t *args)
 }
 
 stressor_info_t stress_userfaultfd_info = {
-	.stressor = stress_userfaultfd
+	.stressor = stress_userfaultfd,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_userfaultfd_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif
 

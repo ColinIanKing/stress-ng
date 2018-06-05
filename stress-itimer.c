@@ -160,5 +160,6 @@ static int stress_itimer(const args_t *args)
 }
 
 stressor_info_t stress_itimer_info = {
-	.stressor = stress_itimer
+	.stressor = stress_itimer,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };

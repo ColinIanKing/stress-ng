@@ -148,5 +148,6 @@ static int stress_sigpipe(const args_t *args)
 }
 
 stressor_info_t stress_sigpipe_info = {
-	.stressor = stress_sigpipe
+	.stressor = stress_sigpipe,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };

@@ -215,10 +215,12 @@ finish:
 }
 
 stressor_info_t stress_readahead_info = {
-	.stressor = stress_readahead
+	.stressor = stress_readahead,
+	.class = CLASS_IO | CLASS_OS
 };
 #else
 stressor_info_t stress_readahead_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_IO | CLASS_OS
 };
 #endif

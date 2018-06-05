@@ -184,5 +184,6 @@ static int stress_sysinfo(const args_t *args)
 }
 
 stressor_info_t stress_sysinfo_info = {
-	.stressor = stress_sysinfo
+	.stressor = stress_sysinfo,
+	.class = CLASS_OS
 };

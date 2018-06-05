@@ -296,10 +296,12 @@ again:
 }
 
 stressor_info_t stress_sctp_info = {
-	.stressor = stress_sctp
+	.stressor = stress_sctp,
+	.class = CLASS_NETWORK
 };
 #else
 stressor_info_t stress_sctp_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK
 };
 #endif

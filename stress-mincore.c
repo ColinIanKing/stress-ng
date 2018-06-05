@@ -80,10 +80,12 @@ redo: 			errno = 0;
 }
 
 stressor_info_t stress_mincore_info = {
-	.stressor = stress_mincore
+	.stressor = stress_mincore,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_mincore_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_MEMORY
 };
 #endif

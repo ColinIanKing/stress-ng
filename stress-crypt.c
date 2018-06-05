@@ -99,10 +99,12 @@ static int stress_crypt(const args_t *args)
 }
 
 stressor_info_t stress_crypt_info = {
-	.stressor = stress_crypt
+	.stressor = stress_crypt,
+	.class = CLASS_CPU
 };
 #else
 stressor_info_t stress_crypt_info = {
-	.stressor = stress_not_implemented 
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
 };
 #endif

@@ -111,10 +111,12 @@ static int stress_vm_splice(const args_t *args)
 }
 
 stressor_info_t stress_vm_splice_info = {
-	.stressor = stress_vm_splice
+	.stressor = stress_vm_splice,
+	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS
 };
 #else
 stressor_info_t stress_vm_splice_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS
 };
 #endif

@@ -285,10 +285,12 @@ reap:
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
-	.deinit = stress_semaphore_sysv_deinit
+	.deinit = stress_semaphore_sysv_deinit,
+	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_sem_sysv_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #endif

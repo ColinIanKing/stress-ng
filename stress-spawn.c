@@ -91,10 +91,12 @@ static int stress_spawn(const args_t *args)
 }
 
 stressor_info_t stress_spawn_info = {
-	.stressor = stress_spawn
+	.stressor = stress_spawn,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_spawn_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

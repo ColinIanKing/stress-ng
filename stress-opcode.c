@@ -253,10 +253,12 @@ err:
 }
 
 stressor_info_t stress_opcode_info = {
-	.stressor = stress_opcode
+	.stressor = stress_opcode,
+	.class = CLASS_CPU | CLASS_OS
 };
 #else
 stressor_info_t stress_opcode_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_OS
 };
 #endif

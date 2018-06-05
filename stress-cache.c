@@ -167,5 +167,6 @@ static int stress_cache(const args_t *args)
 }
 
 stressor_info_t stress_cache_info = {
-	.stressor = stress_cache
+	.stressor = stress_cache,
+	.class = CLASS_CPU_CACHE
 };

@@ -232,10 +232,12 @@ static int stress_netlink_proc(const args_t *args)
 
 stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
-	.supported = stress_netlink_proc_supported
+	.supported = stress_netlink_proc_supported,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_netlink_proc_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

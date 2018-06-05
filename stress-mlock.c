@@ -224,10 +224,12 @@ again:
 }
 
 stressor_info_t stress_mlock_info = {
-	.stressor = stress_mlock
+	.stressor = stress_mlock,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_mlock_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif

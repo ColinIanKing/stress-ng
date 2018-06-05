@@ -135,5 +135,6 @@ static int stress_daemon(const args_t *args)
 }
 
 stressor_info_t stress_daemon_info = {
-	.stressor = stress_daemon
+	.stressor = stress_daemon,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };

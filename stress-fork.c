@@ -146,9 +146,11 @@ static int stress_vfork(const args_t *args)
 }
 
 stressor_info_t stress_fork_info = {
-	.stressor = stress_fork
+	.stressor = stress_fork,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 
 stressor_info_t stress_vfork_info = {
-	.stressor = stress_vfork
+	.stressor = stress_vfork,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };

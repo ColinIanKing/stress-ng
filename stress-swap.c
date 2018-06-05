@@ -224,10 +224,12 @@ tidy_ret:
 
 stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
-	.supported = stress_swap_supported
+	.supported = stress_swap_supported,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_swap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif

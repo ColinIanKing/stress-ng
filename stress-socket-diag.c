@@ -224,10 +224,12 @@ static int stress_sockdiag(const args_t *args)
 }
 
 stressor_info_t stress_sockdiag_info = {
-	.stressor = stress_sockdiag
+	.stressor = stress_sockdiag,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #else
 stressor_info_t stress_sockdiag_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #endif

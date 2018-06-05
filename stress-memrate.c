@@ -353,5 +353,6 @@ err:
 }
 
 stressor_info_t stress_memrate_info = {
-	.stressor = stress_memrate
+	.stressor = stress_memrate,
+	.class = CLASS_MEMORY
 };

@@ -655,7 +655,8 @@ static int stress_apparmor(const args_t *args)
 
 stressor_info_t stress_apparmor_info = {
 	.stressor = stress_apparmor,
-	.supported = stress_apparmor_supported
+	.supported = stress_apparmor_supported,
+	.class = CLASS_OS | CLASS_SECURITY
 };
 
 #else
@@ -669,6 +670,7 @@ static int stress_apparmor_supported(void)
 
 stressor_info_t stress_apparmor_info = {
 	.stressor = stress_not_implemented,
-	.supported = stress_apparmor_supported
+	.supported = stress_apparmor_supported,
+	.class = CLASS_OS | CLASS_SECURITY
 };
 #endif

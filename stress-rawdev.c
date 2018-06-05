@@ -398,10 +398,12 @@ static int stress_rawdev(const args_t *args)
 
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
-	.supported = stress_rawdev_supported
+	.supported = stress_rawdev_supported,
+	.class = CLASS_IO
 };
 #else
 stressor_info_t stress_rawdev_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_IO
 };
 #endif

@@ -108,10 +108,12 @@ err:
 	return rc;
 }
 stressor_info_t stress_urandom_info = {
-	.stressor = stress_urandom
+	.stressor = stress_urandom,
+	.class = CLASS_DEV | CLASS_OS
 };
 #else
 stressor_info_t stress_urandom_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_DEV | CLASS_OS
 };
 #endif

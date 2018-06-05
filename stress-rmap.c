@@ -272,5 +272,6 @@ cleanup:
 }
 
 stressor_info_t stress_rmap_info = {
-	.stressor = stress_rmap
+	.stressor = stress_rmap,
+	.class = CLASS_OS | CLASS_MEMORY
 };

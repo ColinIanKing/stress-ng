@@ -84,5 +84,6 @@ static int stress_sigpending(const args_t *args)
 }
 
 stressor_info_t stress_sigpending_info = {
-	.stressor = stress_sigpending
+	.stressor = stress_sigpending,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };

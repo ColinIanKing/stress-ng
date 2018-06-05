@@ -121,10 +121,12 @@ tidy_dir:
 }
 
 stressor_info_t stress_copy_file_info = {
-	.stressor = stress_copy_file
+	.stressor = stress_copy_file,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_copy_file_info = {
-	.stressor = stress_not_implemented 
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

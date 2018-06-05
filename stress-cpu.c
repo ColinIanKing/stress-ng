@@ -2502,4 +2502,5 @@ static void stress_cpu_set_default(void)
 stressor_info_t stress_cpu_info = {
 	.stressor = stress_cpu,
 	.set_default = stress_cpu_set_default,
+	.class = CLASS_CPU
 };

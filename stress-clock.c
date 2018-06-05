@@ -238,10 +238,12 @@ timer_delete:
 }
 
 stressor_info_t stress_clock_info = {
-	.stressor = stress_clock
+	.stressor = stress_clock,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_clock_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #endif

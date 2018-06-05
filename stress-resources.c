@@ -496,5 +496,6 @@ static int stress_resources(const args_t *args)
 }
 
 stressor_info_t stress_resources_info = {
-	.stressor = stress_resources
+	.stressor = stress_resources,
+	.class = CLASS_MEMORY | CLASS_OS
 };

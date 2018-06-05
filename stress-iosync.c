@@ -54,5 +54,6 @@ static int stress_io(const args_t *args)
 }
 
 stressor_info_t stress_io_info = {
-	.stressor = stress_io
+	.stressor = stress_io,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

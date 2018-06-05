@@ -223,10 +223,12 @@ static int stress_exec(const args_t *args)
 
 stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
-	.supported = stress_exec_supported
+	.supported = stress_exec_supported,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_exec_info = {
 	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

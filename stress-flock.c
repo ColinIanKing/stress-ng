@@ -141,10 +141,12 @@ err:
 }
 
 stressor_info_t stress_flock_info = {
-	.stressor = stress_flock
+	.stressor = stress_flock,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_flock_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

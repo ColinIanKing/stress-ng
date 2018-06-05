@@ -153,10 +153,12 @@ static int stress_timerfd(const args_t *args)
 }
 
 stressor_info_t stress_timerfd_info = {
-	.stressor = stress_timerfd
+	.stressor = stress_timerfd,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_timerfd_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #endif

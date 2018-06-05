@@ -499,11 +499,13 @@ tidy:
 }
 
 stressor_info_t stress_af_alg_info = {
-	.stressor = stress_af_alg
+	.stressor = stress_af_alg,
+	.class = CLASS_CPU | CLASS_OS
 };
 
 #else
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_OS
 };
 #endif

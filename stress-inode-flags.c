@@ -256,10 +256,12 @@ static int stress_inode_flags(const args_t *args)
 }
 
 stressor_info_t stress_inode_flags_info = {
-	.stressor = stress_inode_flags
+	.stressor = stress_inode_flags,
+	.class = CLASS_OS | CLASS_FILESYSTEM
 };
 #else
 stressor_info_t stress_inode_flags_info = {
-	.stressor = stress_not_implemented 
+	.stressor = stress_not_implemented ,
+	.class = CLASS_OS | CLASS_FILESYSTEM
 };
 #endif

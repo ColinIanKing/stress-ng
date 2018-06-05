@@ -241,10 +241,12 @@ tidy:
 }
 
 stressor_info_t stress_rlimit_info = {
-	.stressor = stress_rlimit
+	.stressor = stress_rlimit,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_rlimit_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

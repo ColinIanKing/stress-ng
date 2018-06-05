@@ -227,10 +227,12 @@ tidy:
 }
 
 stressor_info_t stress_handle_info = {
-	.stressor = stress_handle
+	.stressor = stress_handle,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_handle_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

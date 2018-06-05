@@ -439,5 +439,6 @@ tidy_dir:
 }
 
 stressor_info_t stress_filename_info = {
-	.stressor = stress_filename
+	.stressor = stress_filename,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

@@ -141,12 +141,14 @@ static int stress_atomic(const args_t *args)
 }
 
 stressor_info_t stress_atomic_info = {
-	.stressor = stress_atomic
+	.stressor = stress_atomic,
+	.class = CLASS_CPU | CLASS_MEMORY
 };
 
 #else
 stressor_info_t stress_atomic_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_MEMORY
 };
 #endif
 #endif

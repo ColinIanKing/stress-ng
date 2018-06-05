@@ -202,10 +202,12 @@ static int stress_icache(const args_t *args)
 }
 
 stressor_info_t stress_icache_info = {
-	.stressor = stress_icache
+	.stressor = stress_icache,
+	.class = CLASS_CPU_CACHE
 };
 #else
 stressor_info_t stress_icache_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE
 };
 #endif

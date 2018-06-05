@@ -190,9 +190,11 @@ stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
 	.init = stress_semaphore_posix_init,
 	.deinit = stress_semaphore_posix_deinit,
+	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #else
 stressor_info_t stress_sem_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #endif

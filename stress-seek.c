@@ -176,5 +176,6 @@ finish:
 }
 
 stressor_info_t stress_seek_info = {
-	.stressor = stress_seek
+	.stressor = stress_seek,
+	.class = CLASS_IO | CLASS_OS
 };

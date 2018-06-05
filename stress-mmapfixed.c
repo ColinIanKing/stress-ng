@@ -182,5 +182,6 @@ cleanup:
 }
 
 stressor_info_t stress_mmapfixed_info = {
-	.stressor = stress_mmapfixed
+	.stressor = stress_mmapfixed,
+	.class = CLASS_VM | CLASS_OS
 };

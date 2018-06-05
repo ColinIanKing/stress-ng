@@ -185,10 +185,12 @@ static int stress_timer(const args_t *args)
 }
 
 stressor_info_t stress_timer_info = {
-	.stressor = stress_timer
+	.stressor = stress_timer,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_timer_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #endif

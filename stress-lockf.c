@@ -296,10 +296,12 @@ tidy:
 }
 
 stressor_info_t stress_lockf_info = {
-	.stressor = stress_lockf
+	.stressor = stress_lockf,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_lockf_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

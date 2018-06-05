@@ -126,10 +126,12 @@ static int stress_tsc(const args_t *args)
 
 stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
-	.supported = stress_tsc_supported
+	.supported = stress_tsc_supported,
+	.class = CLASS_CPU
 };
 #else
 stressor_info_t stress_tsc_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
 };
 #endif

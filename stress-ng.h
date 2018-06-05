@@ -22,7 +22,6 @@
  * functionality.
  *
  */
-
 #ifndef __STRESS_NG_H__
 #define __STRESS_NG_H__
 
@@ -435,6 +434,8 @@ typedef union {
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
+typedef uint32_t class_t;
+
 /* stressor args */
 typedef struct {
 	uint64_t *const counter;	/* stressor counter */
@@ -454,6 +455,7 @@ typedef struct {
 	void (*deinit)(void);
 	void (*set_default)(void);
 	void (*set_limit)(uint64_t max);
+	class_t class;
 } stressor_info_t;
 
 /* pthread wrapped args_t */
@@ -1161,7 +1163,6 @@ typedef struct {
 	uint32_t z;
 } mwc_t;
 
-
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H) &&	\
@@ -1279,7 +1280,7 @@ typedef struct {
 
 /* Stress test classes */
 typedef struct {
-	uint32_t class;			/* Class type bit mask */
+	class_t class;			/* Class type bit mask */
 	const char *name;		/* Name of class */
 } class_info_t;
 
@@ -2325,7 +2326,6 @@ typedef struct {
 	const short int short_getopt;	/* getopt short option */
 	const stress_op_t op;		/* ops option */
 	const char *name;		/* name of stress test */
-	const uint32_t class;		/* class of stress test */
 } stress_t;
 
 /* Per process information */

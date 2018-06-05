@@ -300,5 +300,6 @@ free_cache:
 }
 
 stressor_info_t stress_fstat_info = {
-	.stressor = stress_fstat
+	.stressor = stress_fstat,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
 };

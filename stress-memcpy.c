@@ -69,5 +69,6 @@ static int stress_memcpy(const args_t *args)
 }
 
 stressor_info_t stress_memcpy_info = {
-	.stressor = stress_memcpy
+	.stressor = stress_memcpy,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY
 };

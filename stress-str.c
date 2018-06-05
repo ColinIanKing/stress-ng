@@ -669,4 +669,5 @@ static void stress_str_set_default(void)
 stressor_info_t stress_str_info = {
 	.stressor = stress_str,
 	.set_default = stress_str_set_default,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };

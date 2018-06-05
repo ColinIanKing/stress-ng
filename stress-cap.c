@@ -113,10 +113,12 @@ static int stress_cap(const args_t *args)
 }
 
 stressor_info_t stress_cap_info = {
-	.stressor = stress_cap
+	.stressor = stress_cap,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_cap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

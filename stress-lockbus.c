@@ -93,10 +93,12 @@ static int stress_lockbus(const args_t *args)
 }
 
 stressor_info_t stress_lockbus_info = {
-	.stressor = stress_lockbus
+	.stressor = stress_lockbus,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #else
 stressor_info_t stress_lockbus_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY
 };
 #endif

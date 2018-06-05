@@ -178,10 +178,12 @@ cleanup_dir:
 }
 
 stressor_info_t stress_ioprio_info = {
-	.stressor = stress_ioprio
+	.stressor = stress_ioprio,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_ioprio_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

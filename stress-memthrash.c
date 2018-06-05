@@ -558,7 +558,8 @@ reap_mem:
 }
 
 stressor_info_t stress_memthrash_info = {
-	.stressor = stress_memthrash
+	.stressor = stress_memthrash,
+	.class = CLASS_MEMORY
 };
 #else
 
@@ -571,6 +572,7 @@ int stress_set_memthrash_method(const char *name)
 }
 
 stressor_info_t stress_memthrash_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_MEMORY
 };
 #endif

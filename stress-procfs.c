@@ -421,10 +421,12 @@ static int stress_procfs(const args_t *args)
 }
 
 stressor_info_t stress_procfs_info = {
-	.stressor = stress_procfs
+	.stressor = stress_procfs,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_procfs_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

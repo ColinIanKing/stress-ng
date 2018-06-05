@@ -603,10 +603,12 @@ reap:
 	return rc;
 }
 stressor_info_t stress_epoll_info = {
-	.stressor = stress_epoll
+	.stressor = stress_epoll,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #else
 stressor_info_t stress_epoll_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK | CLASS_OS
 };
 #endif

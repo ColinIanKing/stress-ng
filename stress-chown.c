@@ -225,5 +225,6 @@ tidy:
 }
 
 stressor_info_t stress_chown_info = {
-	.stressor = stress_chown
+	.stressor = stress_chown,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

@@ -76,5 +76,6 @@ static int stress_null(const args_t *args)
 }
 
 stressor_info_t stress_null_info = {
-	.stressor = stress_null
+	.stressor = stress_null,
+	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS
 };

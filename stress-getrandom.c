@@ -61,10 +61,12 @@ static int stress_getrandom(const args_t *args)
 }
 
 stressor_info_t stress_getrandom_info = {
-	.stressor = stress_getrandom
+	.stressor = stress_getrandom,
+	.class = CLASS_OS | CLASS_CPU
 };
 #else
 stressor_info_t stress_getrandom_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_CPU
 };
 #endif

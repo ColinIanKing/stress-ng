@@ -202,10 +202,12 @@ tidy:
 }
 
 stressor_info_t stress_key_info = {
-	.stressor = stress_key
+	.stressor = stress_key,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_key_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

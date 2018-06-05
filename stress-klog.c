@@ -101,10 +101,12 @@ static int stress_klog(const args_t *args)
 }
 
 stressor_info_t stress_klog_info = {
-	.stressor = stress_klog
+	.stressor = stress_klog,
+	.class = CLASS_OS
 };
 #else
 stressor_info_t stress_klog_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
 };
 #endif

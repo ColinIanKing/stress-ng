@@ -918,5 +918,6 @@ static void stress_matrix_set_default(void)
 
 stressor_info_t stress_matrix_info = {
 	.stressor = stress_matrix,
-	.set_default = stress_matrix_set_default
+	.set_default = stress_matrix_set_default,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };

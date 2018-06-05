@@ -379,10 +379,12 @@ PRAGMA_POP
 }
 
 stressor_info_t stress_clone_info = {
-	.stressor = stress_clone
+	.stressor = stress_clone,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
 stressor_info_t stress_clone_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #endif

@@ -317,10 +317,12 @@ static int stress_mcontend(const args_t *args)
 }
 
 stressor_info_t stress_mcontend_info = {
-	.stressor = stress_mcontend
+	.stressor = stress_mcontend,
+	.class = CLASS_MEMORY
 };
 #else
 stressor_info_t stress_mcontend_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_MEMORY
 };
 #endif

@@ -109,7 +109,8 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 }
 #endif
 
-#if defined(HAVE_LINUX_MEDIA_H)
+#if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
+    defined(MEDIA_IOC_DEVICE_INFO)
 static void stress_dev_media_linux(const char *name, const int fd, const char *devpath)
 {
 	(void)name;
@@ -633,7 +634,8 @@ static void stress_dev_null_nop(const char *name, const int fd, const char *devp
 	{ dev, sizeof(dev) - 1, func }
 
 static const dev_func_t dev_funcs[] = {
-#if defined(__linux__) && defined(MEDIA_IOC_DEVICE_INFO)
+#if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
+    defined(MEDIA_IOC_DEVICE_INFO)
 	DEV_FUNC("/dev/media",	stress_dev_media_linux),
 #endif
 #if defined(HAVE_LINUX_VT_H)
@@ -1071,10 +1073,12 @@ again:
 	return rc;
 }
 stressor_info_t stress_dev_info = {
-	.stressor = stress_dev
+	.stressor = stress_dev,
+	.class = CLASS_DEV | CLASS_OS
 };
 #else
 stressor_info_t stress_dev_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_DEV | CLASS_OS
 };
 #endif

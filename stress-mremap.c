@@ -332,10 +332,12 @@ again:
 }
 
 stressor_info_t stress_mremap_info = {
-	.stressor = stress_mremap
+	.stressor = stress_mremap,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_mremap_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif

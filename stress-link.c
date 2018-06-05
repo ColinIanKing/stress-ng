@@ -147,9 +147,11 @@ static int stress_symlink(const args_t *args)
 }
 
 stressor_info_t stress_link_info = {
-	.stressor = stress_link
+	.stressor = stress_link,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 
 stressor_info_t stress_symlink_info = {
-	.stressor = stress_symlink
+	.stressor = stress_symlink,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

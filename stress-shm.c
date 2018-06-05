@@ -385,10 +385,12 @@ err:
 }
 
 stressor_info_t stress_shm_info = {
-	.stressor = stress_shm
+	.stressor = stress_shm,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_shm_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif

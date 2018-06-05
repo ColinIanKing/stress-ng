@@ -184,5 +184,6 @@ static int stress_open(const args_t *args)
 }
 
 stressor_info_t stress_open_info = {
-	.stressor = stress_open
+	.stressor = stress_open,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

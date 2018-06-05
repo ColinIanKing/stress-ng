@@ -262,10 +262,12 @@ finish:
 }
 
 stressor_info_t stress_aio_info = {
-	.stressor = stress_aio
+	.stressor = stress_aio,
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_aio_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };
 #endif

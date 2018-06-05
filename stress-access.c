@@ -187,5 +187,6 @@ tidy:
 }
 
 stressor_info_t stress_access_info = {
-	.stressor = stress_access
+	.stressor = stress_access,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };

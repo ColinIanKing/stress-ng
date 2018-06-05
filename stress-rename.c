@@ -98,5 +98,6 @@ restart:
 }
 
 stressor_info_t stress_rename_info = {
-	.stressor = stress_rename
+	.stressor = stress_rename,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
 };

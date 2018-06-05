@@ -156,5 +156,6 @@ again:
 }
 
 stressor_info_t stress_brk_info = {
-	.stressor = stress_brk
+	.stressor = stress_brk,
+	.class = CLASS_OS | CLASS_VM
 };

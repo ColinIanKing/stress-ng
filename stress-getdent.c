@@ -250,10 +250,12 @@ static int stress_getdent(const args_t *args)
 }
 
 stressor_info_t stress_getdent_info = {
-	.stressor = stress_getdent
+	.stressor = stress_getdent,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
 stressor_info_t stress_getdent_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #endif

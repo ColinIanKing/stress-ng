@@ -59,5 +59,6 @@ static int OPTIMIZE1 stress_longjmp(const args_t *args)
 }
 
 stressor_info_t stress_longjmp_info = {
-	.stressor = stress_longjmp
+	.stressor = stress_longjmp,
+	.class = CLASS_CPU
 };

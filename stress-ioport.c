@@ -161,10 +161,12 @@ static int stress_ioport(const args_t *args)
 
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
-	.supported = stress_ioport_supported
+	.supported = stress_ioport_supported,
+	.class = CLASS_CPU
 };
 #else
 stressor_info_t stress_ioport_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
 };
 #endif

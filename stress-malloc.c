@@ -226,5 +226,6 @@ abort:
 }
 
 stressor_info_t stress_malloc_info = {
-	.stressor = stress_malloc
+	.stressor = stress_malloc,
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS
 };

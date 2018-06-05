@@ -97,10 +97,12 @@ again:
 }
 
 stressor_info_t stress_sigq_info = {
-	.stressor = stress_sigq
+	.stressor = stress_sigq,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #else
 stressor_info_t stress_sigq_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #endif

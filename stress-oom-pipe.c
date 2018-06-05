@@ -211,10 +211,12 @@ static int stress_oom_pipe(const args_t *args)
 }
 
 stressor_info_t stress_oom_pipe_info = {
-	.stressor = stress_oom_pipe
+	.stressor = stress_oom_pipe,
+	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #else
 stressor_info_t stress_oom_pipe_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #endif

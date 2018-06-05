@@ -237,5 +237,6 @@ again:
 }
 
 stressor_info_t stress_pipe_info = {
-	.stressor = stress_pipe
+	.stressor = stress_pipe,
+	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS
 };

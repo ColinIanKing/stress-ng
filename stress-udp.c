@@ -253,5 +253,6 @@ die:
 }
 
 stressor_info_t stress_udp_info = {
-	.stressor = stress_udp
+	.stressor = stress_udp,
+	.class = CLASS_NETWORK | CLASS_OS
 };

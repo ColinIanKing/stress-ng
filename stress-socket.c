@@ -450,5 +450,6 @@ again:
 }
 
 stressor_info_t stress_sock_info = {
-	.stressor = stress_sock
+	.stressor = stress_sock,
+	.class = CLASS_NETWORK | CLASS_OS
 };

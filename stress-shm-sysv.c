@@ -497,10 +497,12 @@ fork_again:
 }
 
 stressor_info_t stress_shm_sysv_info = {
-	.stressor = stress_shm_sysv
+	.stressor = stress_shm_sysv,
+	.class = CLASS_VM | CLASS_OS
 };
 #else
 stressor_info_t stress_shm_sysv_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
 };
 #endif

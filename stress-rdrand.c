@@ -237,10 +237,12 @@ static int stress_rdrand(const args_t *args)
 
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
-	.supported = stress_rdrand_supported
+	.supported = stress_rdrand_supported,
+	.class = CLASS_CPU
 };
 #else
 stressor_info_t stress_rdrand_info = {
-	.stressor = stress_not_implemented
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
 };
 #endif

@@ -453,5 +453,6 @@ ret:
 }
 
 stressor_info_t stress_branch_info = {
-	.stressor = stress_branch
+	.stressor = stress_branch,
+	.class = CLASS_CPU
 };

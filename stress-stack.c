@@ -170,5 +170,6 @@ again:
 }
 
 stressor_info_t stress_stack_info = {
-	.stressor = stress_stack
+	.stressor = stress_stack,
+	.class = CLASS_VM | CLASS_MEMORY
 };
