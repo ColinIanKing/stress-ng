@@ -27,9 +27,10 @@
 #if defined(__linux__)
 #include <sys/timerfd.h>
 
-static int timerfd;
 static double rate_ns;
 #endif
+
+#define COUNT_MAX		(256)
 
 /*
  *  stress_set_timerfd_freq()
@@ -82,6 +83,8 @@ static int stress_timerfd(const args_t *args)
 {
 	struct itimerspec timer;
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
+	int timerfd, procfd, count = 0;
+	char filename[PATH_MAX];
 
 	if (!get_setting("timerfd-freq", &timerfd_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -103,6 +106,10 @@ static int stress_timerfd(const args_t *args)
 		(void)close(timerfd);
 		return EXIT_FAILURE;
 	}
+
+	(void)snprintf(filename, sizeof(filename), "/proc/%d/fdinfo/%d",
+		args->pid, timerfd);
+	procfd = open(filename, O_RDONLY);
 
 	do {
 		int ret;
@@ -144,10 +151,29 @@ static int stress_timerfd(const args_t *args)
 				break;
 			}
 		}
+
+		/*
+		 *  Periodically read /proc/$pid/fdinfo/$timerfd,
+		 *  we don't care about failures, we just want to
+		 *  exercise this interface
+		 */
+		if (LIKELY(procfd > -1) && UNLIKELY(count++ >= COUNT_MAX)) {
+			int ret;
+			char buffer[4096];
+
+			ret = lseek(procfd, 0, SEEK_SET);
+			if (LIKELY(ret == 0)) {
+				ret = read(procfd, buffer, sizeof(buffer));
+				(void)ret;
+			}
+			count = 0;
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
 	(void)close(timerfd);
+	if (procfd > -1)
+		(void)close(procfd);
 
 	return EXIT_SUCCESS;
 }
