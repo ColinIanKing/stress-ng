@@ -68,7 +68,7 @@ volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
-int g_signum;					/* signal sent to process */
+int g_terminate_signum;				/* signal sent to process */
 jmp_buf g_error_env;				/* parsing error env */
 put_val_t g_put_val;				/* sync data to somewhere */
 
@@ -252,7 +252,7 @@ static const opt_set_func_t opt_set_funcs[] = {
  *  we can clean up rather than leave
  *  cruft everywhere.
  */
-static const int signals[] = {
+static const int terminate_signals[] = {
 	/* POSIX.1-1990 */
 #if defined(SIGHUP)
 	SIGHUP,
@@ -2275,12 +2275,12 @@ redo:
 }
 
 /*
- *  handle_sigint()
- *	catch SIGINT
+ *  handle_terminate()
+ *	catch terminating signals
  */
-static void MLOCKED_TEXT handle_sigint(int signum)
+static void MLOCKED_TEXT handle_terminate(int signum)
 {
-	g_signum = signum;
+	g_terminate_signum = signum;
 	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 }
@@ -2484,7 +2484,7 @@ child_exit:
 						wait_flag = false;
 						kill(getppid(), SIGALRM);
 					}
-					if (g_signum)
+					if (g_terminate_signum)
 						rc = EXIT_SIGNALED;
 					exit(rc);
 				default:
@@ -3545,8 +3545,8 @@ int main(int argc, char **argv)
 	/*
 	 *  Enable signal handers
 	 */
-	for (i = 0; signals[i] != -1; i++) {
-		if (stress_sighandler("stress-ng", signals[i], handle_sigint, NULL) < 0)
+	for (i = 0; terminate_signals[i] != -1; i++) {
+		if (stress_sighandler("stress-ng", terminate_signals[i], handle_terminate, NULL) < 0)
 			exit(EXIT_FAILURE);
 	}
 
