@@ -326,7 +326,7 @@ static int stress_sctp_server(
 			size_t i, j;
 			struct sockaddr saddr;
 			socklen_t len;
-			int sndbuf;
+			int sndbuf, ret;
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_SENDMMSG)
@@ -348,6 +348,14 @@ static int stress_sctp_server(
 				(void)close(sfd);
 				break;
 			}
+#if defined(TCP_QUICKACK)
+			/*
+			 * We try do to a TCP_QUICKACK, failing is OK as
+			 * it's just a faster optimization option
+			 */
+			ret = setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one));
+			(void)ret;
+#endif
 
 #if defined(SOCKET_NODELAY)
 			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
