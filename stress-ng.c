@@ -34,22 +34,6 @@
 #include <sys/sysinfo.h>
 #endif
 
-typedef struct {
-	const stress_id_t str_id;
-	void (*func_limited)(uint64_t max);
-} proc_limited_t;
-
-typedef struct {
-	const stress_id_t str_id;
-	const uint64_t opt_flag;
-	void (*func)(void);
-} proc_helper_t;
-
-typedef struct {
-	const char *setting;
-	int (*func)(const char *setting);
-} stressor_default_t;
-
 /* Help information for options */
 typedef struct {
 	const char *opt_s;		/* short option */
