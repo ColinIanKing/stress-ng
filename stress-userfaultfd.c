@@ -30,6 +30,7 @@
 #include <linux/userfaultfd.h>
 
 #define STACK_SIZE	(64 * 1024)
+#define COUNT_MAX	(256)
 
 /* Context for clone */
 typedef struct {
@@ -155,7 +156,7 @@ static int stress_userfaultfd_oomable(
 	size_t sz;
 	uint8_t *data;
 	void *zero_page = NULL;
-	int fd = -1, status, rc = EXIT_SUCCESS;
+	int fd = -1, fdinfo = -1, status, rc = EXIT_SUCCESS, count = 0;
 	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
 	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
 	pid_t pid;
@@ -163,6 +164,7 @@ static int stress_userfaultfd_oomable(
 	struct uffdio_register reg;
 	context_t c;
 	bool do_poll = true;
+	char filename[PATH_MAX];
 
 	/* Child clone stack */
 	static uint8_t stack[STACK_SIZE];
@@ -199,6 +201,10 @@ static int stress_userfaultfd_oomable(
 			args->name, errno, strerror(errno));
 		goto unmap_data;
 	}
+
+	(void)snprintf(filename, sizeof(filename), "/proc/%d/fdinfo/%d",
+		getpid(), fd);
+	fdinfo = open(filename, O_RDONLY);
 
 	if (stress_set_nonblock(fd) < 0)
 		do_poll = false;
@@ -308,6 +314,18 @@ static int stress_userfaultfd_oomable(
 			/* No data, re-poll */
 			if (!(fds[0].revents & POLLIN))
 				continue;
+
+			if (LIKELY(fdinfo > -1) &&
+			    UNLIKELY(count++ >= COUNT_MAX)) {
+				ret = lseek(fdinfo, 0, SEEK_SET);
+				if (ret == 0) {
+					char buffer[4096];
+
+					ret = read(fdinfo, buffer, sizeof(buffer));
+					(void)ret;
+				}
+				count = 0;
+			}
 		}
 
 do_read:
@@ -353,6 +371,11 @@ unmap_data:
 	(void)munmap(data, sz);
 free_zeropage:
 	free(zero_page);
+	if (fdinfo > -1)
+		(void)close(fdinfo);
+	if (fd > -1)
+		(void)close(fd);
+
 	return rc;
 }
 
