@@ -57,6 +57,7 @@ proc_info_t *proc_current;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
+static int terminate_signum;			/* signal sent to process */
 
 /* Globals */
 int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
@@ -68,7 +69,6 @@ volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
-int g_terminate_signum;				/* signal sent to process */
 jmp_buf g_error_env;				/* parsing error env */
 put_val_t g_put_val;				/* sync data to somewhere */
 
@@ -2280,7 +2280,7 @@ redo:
  */
 static void MLOCKED_TEXT handle_terminate(int signum)
 {
-	g_terminate_signum = signum;
+	terminate_signum = signum;
 	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 }
@@ -2484,7 +2484,7 @@ child_exit:
 						wait_flag = false;
 						kill(getppid(), SIGALRM);
 					}
-					if (g_terminate_signum)
+					if (terminate_signum)
 						rc = EXIT_SIGNALED;
 					exit(rc);
 				default:
