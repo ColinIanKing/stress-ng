@@ -178,6 +178,9 @@ static void stress_sctp_client(
 		char buf[SOCKET_BUF];
 		int fd;
 		int retries = 0;
+#if defined(FIONREAD)
+		int count = 0;
+#endif
 		socklen_t addr_len = 0;
 retry:
 		if (!g_keep_stressing_flag) {
@@ -208,7 +211,29 @@ retry:
 		}
 
 		do {
-			ssize_t n = recv(fd, buf, sizeof(buf), 0);
+			ssize_t n;
+			size_t bytes = sizeof(buf);
+#if defined(FIONREAD)
+			/*
+			 *  Exercise FIONREAD ioctl. Linux supports
+			 *  this also with SIOCINQ but lets try and
+			 *  do the more standard way of peeking the
+			 *  pending data size.  Do this infrequently
+			 *  to ensure we exercise it without impacting
+			 *  performance.
+			 */
+			if (count++ > 1024) {
+				int ret;
+
+				ret = ioctl(fd, FIONREAD, &bytes);
+				(void)ret;
+				count = 0;
+
+				if (bytes > sizeof(buf))
+					bytes = sizeof(buf);
+			}
+#endif
+			n = recv(fd, buf, sizeof(buf), 0);
 			if (n == 0)
 				break;
 			if (n < 0) {
