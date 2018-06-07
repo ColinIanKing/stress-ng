@@ -38,6 +38,7 @@ static volatile siginfo_t siginfo;
  *  stress_fpehandler()
  *	SIGFPE handler
  */
+#if defined(SA_SIGINFO)
 static void MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
 {
 	(void)num;
@@ -48,7 +49,17 @@ static void MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucont
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
+#else
+static void MLOCKED_TEXT stress_fpehandler(int num)
+{
+	(void)num;
+	(void)feclearexcept(FE_ALL_EXCEPT);
 
+	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+#endif
+
+#if defined(SA_SIGINFO)
 /*
  *  stress_sigfpe_errstr()
  *	convert sigfpe error code to string
@@ -93,7 +104,7 @@ static char *stress_sigfpe_errstr(const int err)
 	}
 	return "FPE_UNKNOWN";
 }
-
+#endif
 
 /*
  *  stress_sigfpe
@@ -140,9 +151,16 @@ static int stress_sigfpe(const args_t *args)
 	};
 
 	(void)memset(&action, 0, sizeof action);
+
+#if defined(SA_SIGINFO)
 	action.sa_sigaction = stress_fpehandler;
+#else
+	action.sa_handler = stress_fpehandler;
+#endif
 	(void)sigemptyset(&action.sa_mask);
+#if defined(SA_SIGINFO)
 	action.sa_flags = SA_SIGINFO;
+#endif
 
 	ret = sigaction(SIGFPE, &action, NULL);
 	if (ret < 0) {
@@ -152,12 +170,17 @@ static int stress_sigfpe(const args_t *args)
 	}
 
 	for (;;) {
-		int ret;
-		int code, exception;
+#if defined(SA_SIGINFO)
 		static int expected_err_code;
+		int code;
+#endif
+		int ret, exception;
 
+#if defined(SA_SIGINFO)	
+		code = fpe_errs[i].err_code;
+		expected_err_code = code;
+#endif
 		exception = fpe_errs[i].exception;
-		expected_err_code = code = fpe_errs[i].err_code;
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
@@ -174,6 +197,7 @@ static int stress_sigfpe(const args_t *args)
 			 */
 			(void)feclearexcept(FE_ALL_EXCEPT);
 
+#if defined(SA_SIGINFO)
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (siginfo.si_code != expected_err_code)) {
 				pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
@@ -181,6 +205,7 @@ static int stress_sigfpe(const args_t *args)
 					siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
 					expected_err_code, stress_sigfpe_errstr(expected_err_code));
 			}
+#endif
 			inc_counter(args);
 		} else {
 			(void)memset((void *)&siginfo, 0, sizeof siginfo);
