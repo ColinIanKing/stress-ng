@@ -28,8 +28,11 @@
 #include <float.h>
 #include <fenv.h>
 
+#define SNG_INTDIV	(0x40000000)
+#define SNG_FLTDIV	(0x80000000)
+
 static sigjmp_buf jmp_env;
-static siginfo_t siginfo;
+static volatile siginfo_t siginfo;
 
 /*
  *  stress_fpehandler()
@@ -41,7 +44,7 @@ static void MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucont
 	(void)ucontext;
 
 	(void)feclearexcept(FE_ALL_EXCEPT);
-	(void)memcpy(&siginfo, info, sizeof siginfo);
+	siginfo = *info;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
@@ -91,6 +94,7 @@ static char *stress_sigfpe_errstr(const int err)
 	return "FPE_UNKNOWN";
 }
 
+
 /*
  *  stress_sigfpe
  *	stress by generating floating point errors
@@ -98,38 +102,40 @@ static char *stress_sigfpe_errstr(const int err)
 static int stress_sigfpe(const args_t *args)
 {
 	struct sigaction action;
-	static int i = 1;
+	static int i = 0;
 	int ret;
 	const uint64_t zero = uint64_zero();
 	const float fp_zero = (float)zero;
 
+	typedef struct {
+		int	exception;	
+		int	err_code;
+	} fpe_err_t;
+
 	/*
 	 *  FPE errors to raise
 	 */
-	static const int fpe_errs[] = {
+	static const fpe_err_t fpe_errs[] = {
 #if defined(FPE_INTDIV)
-		FPE_INTDIV,
+		{ SNG_INTDIV,	FPE_INTDIV },
 #endif
-#if defined(FPE_INTOVF)
-		FPE_INTOVF,
+#if defined(FPE_FLTDIV)	
+		{ SNG_FLTDIV,	FPE_FLTDIV },
 #endif
-#if defined(FPE_FLTDIV)
-		FPE_FLTDIV,
+#if defined(FE_DIVBYZERO) && defined(FPE_FLTDIV)
+		{ FE_DIVBYZERO,	FPE_FLTDIV },
 #endif
-#if defined(FPE_FLTOVF)
-		FPE_FLTOVF,
+#if defined(FE_INEXACT) && defined(FPE_FLTRES)
+		{ FE_INEXACT,	FPE_FLTRES },
 #endif
-#if defined(FPE_FLTUND)
-		FPE_FLTUND,
+#if defined(FE_INVALID) && defined(FPE_FLTINV)
+		{ FE_INVALID,	FPE_FLTINV },
 #endif
-#if defined(FPE_FLTRES)
-		FPE_FLTRES,
+#if defined(FE_OVERFLOW) && defined(FPE_FLTOVF)
+		{ FE_OVERFLOW,	FPE_FLTOVF },
 #endif
-#if defined(FPE_FLTINV)
-		FPE_FLTINV,
-#endif
-#if defined(FPE_FLTSUB)
-		FPE_FLTSUB,
+#if defined(FE_UNDERFLOW) && defined(FPE_FLTUND)
+		{ FE_UNDERFLOW,	FPE_FLTUND },
 #endif
 	};
 
@@ -147,7 +153,11 @@ static int stress_sigfpe(const args_t *args)
 
 	for (;;) {
 		int ret;
-		int err = fpe_errs[i];
+		int code, exception;
+		static int expected_err_code;
+
+		exception = fpe_errs[i].exception;
+		expected_err_code = code = fpe_errs[i].err_code;
 
 		(void)feenableexcept(FE_ALL_EXCEPT);
 
@@ -164,31 +174,29 @@ static int stress_sigfpe(const args_t *args)
 			 *  A SIGFPE occurred, check the error code
 			 *  matches the expected code
 			 */
+			(void)feclearexcept(FE_ALL_EXCEPT);
+
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (siginfo.si_code != err)) {
+			    (siginfo.si_code != expected_err_code)) {
 				pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
 					args->name,
 					siginfo.si_code, stress_sigfpe_errstr(siginfo.si_code),
-					err, stress_sigfpe_errstr(err));
+					expected_err_code, stress_sigfpe_errstr(expected_err_code));
 			}
 			inc_counter(args);
 		} else {
-			(void)memset(&siginfo, 0, sizeof siginfo);
+			(void)memset((void *)&siginfo, 0, sizeof siginfo);
 
-			switch(err) {
-#if defined(FPE_FLTDIV)
-			case FPE_FLTDIV:
+			switch(exception) {
+			case SNG_FLTDIV:
 				float_put(1.0 / fp_zero);
 				break;
-#endif
-#if defined(FPE_INTDIV)
-			case FPE_INTDIV:
+			case SNG_INTDIV:
 				uint64_put(1 / zero);
 				break;
-#endif
 			default:
 				/* Raise fault otherwise */
-				feraiseexcept(err);
+				feraiseexcept(exception);
 				break;
 			}
 		}
