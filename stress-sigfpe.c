@@ -116,7 +116,6 @@ static int stress_sigfpe(const args_t *args)
 	static int i = 0;
 	int ret;
 	const uint64_t zero = uint64_zero();
-	const float fp_zero = (float)zero;
 
 	typedef struct {
 		int	exception;	
@@ -212,7 +211,7 @@ static int stress_sigfpe(const args_t *args)
 
 			switch(exception) {
 			case SNG_FLTDIV:
-				float_put(1.0 / fp_zero);
+				float_put(1.0 / (float)zero);
 				break;
 			case SNG_INTDIV:
 				uint64_put(1 / zero);
