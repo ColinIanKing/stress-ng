@@ -148,7 +148,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!g_keep_stressing_flag)
+	if (!g_keep_stressing_flag || !apparmor_run)
 		return;
 
 	/* Don't want to go too deep */
@@ -162,7 +162,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!g_keep_stressing_flag)
+		if (!g_keep_stressing_flag || !apparmor_run)
 			break;
 		if (is_dot_filename(d->d_name))
 			continue;
@@ -653,11 +653,17 @@ static int stress_apparmor(const args_t *args)
 			tmp_counter += counters[i];
 	} while (keep_stressing());
 
+	/* Wakeup, time to die */
+	for (i = 0; i < n; i++) {
+		if (pids[i] >= 0)
+			(void)kill(pids[i], SIGALRM);
+	}
+	/* Now apply death grip */
 	for (i = 0; i < n; i++) {
 		int status;
 
 		if (pids[i] >= 0) {
-			(void)kill(pids[i], SIGALRM);
+			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
 			*(args->counter) += counters[i];
 		}
