@@ -173,6 +173,8 @@ static int stress_sigfpe(const args_t *args)
 			}
 			inc_counter(args);
 		} else {
+			(void)memset(&siginfo, 0, sizeof siginfo);
+
 			switch(err) {
 #if defined(FPE_FLTDIV)
 			case FPE_FLTDIV:
