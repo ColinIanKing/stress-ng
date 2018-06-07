@@ -159,8 +159,6 @@ static int stress_sigfpe(const args_t *args)
 		exception = fpe_errs[i].exception;
 		expected_err_code = code = fpe_errs[i].err_code;
 
-		(void)feenableexcept(FE_ALL_EXCEPT);
-
 		ret = sigsetjmp(jmp_env, 1);
 		/*
 		 * We return here if we get SIGFPE, so
@@ -204,7 +202,6 @@ static int stress_sigfpe(const args_t *args)
 		i %= SIZEOF_ARRAY(fpe_errs);
 	}
 	(void)feclearexcept(FE_ALL_EXCEPT);
-	(void)feenableexcept(0);
 
 	return EXIT_SUCCESS;
 }
