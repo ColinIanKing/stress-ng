@@ -193,6 +193,8 @@ static int stress_sigfpe(const args_t *args)
 		i++;
 		i %= SIZEOF_ARRAY(fpe_errs);
 	}
+	(void)feclearexcept(FE_ALL_EXCEPT);
+	(void)feenableexcept(0);
 
 	return EXIT_SUCCESS;
 }
