@@ -116,7 +116,9 @@ static void stress_apparmor_read(const char *path)
 	/*
 	 *  Multiple randomly sized reads
 	 */
-	while (apparmor_run && (i < (4096 * APPARMOR_BUF_SZ))) {
+	while (g_keep_stressing_flag &&
+	       apparmor_run &&
+	       (i < (4096 * APPARMOR_BUF_SZ))) {
 		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
 redo:
 		if (!g_keep_stressing_flag)
@@ -205,15 +207,23 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		int ret;
+		int ret = EXIT_SUCCESS;
+
+		if (!g_keep_stressing_flag)
+			goto abort;
 
 		if (stress_sighandler(name, SIGALRM,
-				stress_apparmor_handler, NULL) < 0)
+				      stress_apparmor_handler, NULL) < 0) {
 			exit(EXIT_FAILURE);
+		}
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
+		if (!g_keep_stressing_flag)
+			goto abort;
 		ret = func(name, max_ops, counter);
+abort:
 		free(apparmor_path);
 		exit(ret);
 	}
@@ -239,7 +249,9 @@ static int apparmor_stress_profiles(
 	do {
 		stress_apparmor_read(path);
 		(*counter)++;
-	} while (apparmor_run && (!max_ops || *counter < max_ops));
+	} while (g_keep_stressing_flag &&
+		 apparmor_run &&
+		 (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
 }
@@ -261,7 +273,9 @@ static int apparmor_stress_features(
 	do {
 		stress_apparmor_dir(path, true, 0);
 		(*counter)++;
-	} while (apparmor_run && (!max_ops || *counter < max_ops));
+	} while (g_keep_stressing_flag &&
+		 apparmor_run &&
+		 (!max_ops || *counter < max_ops));
 
 	return EXIT_SUCCESS;
 }
@@ -338,7 +352,9 @@ static int apparmor_stress_kernel_interface(
 		aa_kernel_interface_unref(kern_if);
 
 		(*counter)++;
-	} while (g_keep_stressing_flag && apparmor_run && (!max_ops || *counter < max_ops));
+	} while (g_keep_stressing_flag &&
+		 apparmor_run &&
+                 (!max_ops || *counter < max_ops));
 
 	return rc;
 }
@@ -585,7 +601,8 @@ static int apparmor_stress_corruption(
 		}
 		aa_kernel_interface_unref(kern_if);
 		(*counter)++;
-	} while (g_keep_stressing_flag && apparmor_run &&
+	} while (g_keep_stressing_flag &&
+		 apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 
 	return rc;
