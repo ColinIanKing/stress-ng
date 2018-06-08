@@ -1,3 +1,49 @@
+stress-ng (0.09.29-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: fix spelling mistakes and update date
+  * stress-sigfpe: remove need for fp_zero
+  * stress-sigfpe: cater for systems without SA_SIGINFO
+  * stress-socket: fix warning on unused variable ret
+  * stress-sigfpe: remove feenableexcept, it is extraneous
+  * stress-sigfpe: fix verify mode, match exception with error code
+  * stress-sigfpe: zero siginfo struct
+  * stress-apparmor: kill child processes aggressively
+  * stress-sigfpe: reset fp exception states to fix math issues
+  * stress-apparmor: add more yield point checking
+  * Makefile.config: move pthread library to end to fix static linking
+    issues
+  * Fix typo in manual, --mmapfixedA-ops -> --mmapfixed-ops
+  * stress-sigfpe: force more fpe exceptions, exercise handler more
+  * stress-socket: use TCP_QUICKACK if available
+  * stress-socket: add FIONREAD size peeking
+  * stress-userfaultfd: exercise /proc/$pid/fdinfo/$timerfd proc file
+  * stress-timerfd: exercise /proc/$pid/fdinfo/$timerfd proc file
+  * Rename g_terminate_signum to terminate_signum and make it static
+  * Renaming symbols to indicate they are used in process termination
+  * Remove some unused old struct typedefs
+  * Make some functions static
+  * Deconstify some const pointers (ughh)
+  * Add deconstifier helper.
+  * remove redundant and shadowing variable ret
+  * stress-dccp: add missing ,
+  * Move the class info into the stressor_info_t for each stressor
+  * Rename class_t to class_info_t
+  * stress-cpu: fix bitops checksum
+  * stress-access: fix build warning on Solaris with %o on mode_t
+  * stress-memthrash: restore accidentally removed function
+    stress_set_memthrash_method
+  * stress-mergesort: fix missing {
+  * affinity: fix prototype of set_cpu_affinity
+  * stress-cyclic: fix build warning on non-linux systems
+  * Point to stress_not_implemented rather than wrapping each time
+  * Add stressor_info_t for stress specific info
+  * Clean up optarg handling, make it more table driven
+  * Revert Add pr_* logging sleepy locks (LP: #1774571)
+  * Add pr_* logging sleepy locks
+
+ -- Colin King <colin.king@canonical.com>  Fri, 8 jun 2018 11:30:00 +0100
+
 stress-ng (0.09.28-1) unstable; urgency=medium
 
   * Makefile: bump version
