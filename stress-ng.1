@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "February 22, 2018"
+.TH STRESS-NG 1 "June 8, 2018"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -244,10 +244,10 @@ advise options before each mmap and munmap to stress the the vm subsystem a
 little harder. The \-\-no\-advise option turns this default off.
 .TP
 .B \-\-no\-rand\-seed
-Do not seed the stress-ng psuedo-random number generator with a quasi random
+Do not seed the stress-ng pseudo-random number generator with a quasi random
 start seed, but instead seed it with constant values. This forces tests to
 run each time using the same start conditions which can be useful when one
-requires reproduceable stress tests.
+requires reproducible stress tests.
 .TP
 .B \-\-oomable
 Do not respawn a stressor if it gets killed by the Out-of-Memory (OOM) killer.
@@ -332,7 +332,7 @@ Note: A timeout of 0 will run stress-ng without any timeouts (run forever).
 .B \-\-timer\-slack N
 adjust the per process timer slack to N nanoseconds (Linux only). Increasing
 the timer slack allows the kernel to coalesce timer events by adding some
-fuzzinesss to timer expiration times and hence reduce wakeups.  Conversely,
+fuzziness to timer expiration times and hence reduce wakeups.  Conversely,
 decreasing the timer slack will increase wakeups.  A value of 0 for the
 timer-slack will set the system default of 50,000 nanoseconds.
 .TP
@@ -540,7 +540,7 @@ specify the number of cache ways to exercise. This allows a subset of
 the overall cache size to be exercised.
 .TP
 .B \-\-cap N
-start N workers that read per process capabililties via calls to capget(2)
+start N workers that read per process capabilities via calls to capget(2)
 (Linux only).
 .TP
 .B \-\-cap\-ops N
@@ -594,7 +594,7 @@ a zombie state until they are reaped.  Once the maximum number of clones is
 reached (or clone fails because one has reached the maximum allowed) the oldest
 clone thread is reaped and a new clone is then created in a first-in first-out
 manner, and then repeated.  A random clone flag is selected for each clone to
-try to exercise different clone operarions.  The clone stressor is a Linux only
+try to exercise different clone operations.  The clone stressor is a Linux only
 option.
 .TP
 .B \-\-clone\-ops N
@@ -616,7 +616,7 @@ op is equivalent to 1000 swapcontext calls.
 .TP
 .B \-\-copy\-file N
 start N stressors that copy a file using the Linux copy_file_range(2) system
-call. 2MB chunks of data are copyied from random locations from one file to
+call. 2MB chunks of data are copied from random locations from one file to
 random locations to a destination file.  By default, the files are 256 MB in
 size. Data is sync'd to the filesystem after each copy_file_range(2) call.
 .TP
@@ -1220,7 +1220,7 @@ process table using high values for \-\-exec\-max and \-\-exec.
 .TP
 .B \-F N, \-\-fallocate N
 start N workers continually fallocating (preallocating file space) and
-ftuncating (file truncating) temporary files.  If the file is larger than the
+ftruncating (file truncating) temporary files.  If the file is larger than the
 free space, fallocate will produce an ENOSPC error which is ignored by this
 stressor.
 .TP
@@ -1292,7 +1292,7 @@ stop file\-ioctl workers after N file ioctl bogo operations.
 .TP
 .B \-\-filename N
 start N workers that exercise file creation using various length filenames
-containing a range of allower filename characters.  This will try to see if
+containing a range of allowed filename characters.  This will try to see if
 it can exceed the file system allowed filename length was well as test
 various filename lengths between 1 and the maximum allowed by the file system.
 .TP
@@ -1371,7 +1371,7 @@ start N workers that call functions of 1 through to 9 arguments. By default
 functions with uint64_t arguments are called, however, this can be changed
 using the \-\-funccall\-method option.
 .TP
-.B \-\-funcall\-ops N
+.B \-\-funccall\-ops N
 stop the funccall workers after N bogo function call operations. Each bogo
 operation is 1000 calls of functions of 1 through to 9 arguments of the chosen
 argument type.
@@ -1543,7 +1543,7 @@ nanoseconds. Running this stressor with appropriate privilege will run these
 with the SCHED_RR policy.
 .TP
 .B \-\-hrtimers\-ops N
-stop hrtimers stessors after N timer event bogo operations
+stop hrtimers stressors after N timer event bogo operations
 .TP
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default,
@@ -1769,7 +1769,7 @@ be from 1K to 4M.
 start N workers that apply random madvise(2) advise settings on pages of
 a 4MB file backed shared memory mapping.
 .TP
-.B \-\-madvice\-ops N
+.B \-\-madvise\-ops N
 stop madvise stressors after N bogo madvise operations.
 .TP
 .B \-\-malloc N
@@ -1780,7 +1780,7 @@ and freeing are chosen at random; 50% of the time memory is allocation (via
 malloc, calloc or realloc) and 50% of the time allocations are free'd.
 Allocation sizes are also random, with the maximum allocation size controlled
 by the \-\-malloc\-bytes option, the default size being 64K.  The worker is
-re-started if it is killed by the out of mememory (OOM) killer.
+re-started if it is killed by the out of memory (OOM) killer.
 .TP
 .B \-\-malloc\-bytes N
 maximum per allocation/reallocation size. Allocations are randomly selected
@@ -1883,7 +1883,7 @@ cache stalls.
 start N workers that produce memory contention read/write patterns. Each
 stressor runs with 5 threads that read and write to two different mappings
 of the same underlying physical page. Various caching operations are also
-exercised to cause sub-optimial memory access patterns.  The threads also
+exercised to cause sub-optimal memory access patterns.  The threads also
 randomly change CPU affinity to exercise CPU and memory migration stress.
 .TP
 .B \-\-mcontend\-ops N
@@ -1981,7 +1981,7 @@ chunkpage	T{
 memset page size chunks of random data into random locations
 T}
 flip	T{
-flip (invert) all bits in ramdom locations
+flip (invert) all bits in random locations
 T}
 flush	T{
 flush cache line in random locations
@@ -2112,7 +2112,7 @@ address down to 128K.  The allocated sizes are from 1 page to 8 pages and
 various random mmap flags are used MAP_SHARED/MAP_PRIVATE, MAP_LOCKED,
 MAP_NORESERVE, MAP_POPULATE. If successfully map'd then the allocation
 is remap'd to an address that is several pages higher in memory. Mappings
-and remappings are madvised with random madvise options to futher exerise
+and remappings are madvised with random madvise options to further exercise
 the mappings.
 .TP
 .B \-\-mmapfixed\-ops N
@@ -2247,7 +2247,7 @@ bus errors, segmentation faults, traps, floating point errors that are
 handled gracefully by the stressor.
 .TP
 .B \-\-opcode\-ops N
-stop after N attempts to executate illegal code.
+stop after N attempts to execute illegal code.
 .TP
 .B \-o N, \-\-open N
 start N workers that perform open(2) and then close(2) operations on
@@ -2402,19 +2402,19 @@ all	T{
 iterate over all the rawdev stress methods as listed below:
 T}
 sweep	T{
-repeatedy read across the raw device from the 0th block to the end block in steps
+repeatedly read across the raw device from the 0th block to the end block in steps
 of the number of blocks on the device / 128 and back to the start again.
 T}
 wiggle	T{
-repeatedy read across the raw device in 128 evenly steps with each step reading
+repeatedly read across the raw device in 128 evenly steps with each step reading
 1024 blocks backwards from each step.
 T}
 ends	T{
-repeatedy read the first and last 128 start and end blocks of the raw device
+repeatedly read the first and last 128 start and end blocks of the raw device
 alternating from start of the device to the end of the device.
 T}
 random	T{
-repeatedy read 256 random blocks
+repeatedly read 256 random blocks
 T}
 burst	T{
 repeatedly read 256 sequential blocks starting from a random block on the raw device.
@@ -2518,7 +2518,7 @@ stop after N bogo RTC interface accesses.
 start N workers that work set the worker to various available scheduling
 policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO and
 SCHED_RR.  For the real time scheduling policies a random sched priority
-is selected between the minimum and maximum scheduling prority settings.
+is selected between the minimum and maximum scheduling priority settings.
 .TP
 .B \-\-schedpolicy\-ops N
 stop after N bogo scheduling policy changes.
@@ -2543,7 +2543,7 @@ domain.
 .B \-\-seal N
 start N workers that exercise the fcntl(2) SEAL commands on a small anonymous
 file created using memfd_create(2).  After each SEAL command is issued the
-stessor also sanity checks if the seal operation has sealed the file correctly.
+stressor also sanity checks if the seal operation has sealed the file correctly.
 (Linux only).
 .TP
 .B \-\-seal\-ops N
@@ -2765,7 +2765,7 @@ only works for the unix socket domain.
 .TP
 .B \-\-sockdiag N
 start N workers that exercise the Linux sock_diag netlink socket diagnostics
-(Linux only).  This currently requests dianostics using UDIAG_SHOW_NAME,
+(Linux only).  This currently requests diagnostics using UDIAG_SHOW_NAME,
 UDIAG_SHOW_VFS, UDIAG_SHOW_PEER, UDIAG_SHOW_ICONS, UDIAG_SHOW_RQLEN and
 UDIAG_SHOW_MEMINFO for the AF_UNIX family of socket connections.
 .TP
@@ -3050,7 +3050,7 @@ this stressor is to exercise memory and cache with the various tree
 operations.
 .TP
 .B \-\-tree\-ops N
-stop tree stressors after N bogo ops. A bogo op covers the addtion,
+stop tree stressors after N bogo ops. A bogo op covers the addition,
 finding and removing all the items into the tree(s).
 .TP
 .B \-\-tree\-size N
@@ -3130,7 +3130,7 @@ stop urandom stress workers after N urandom bogo read operations (Linux only).
 .B \-\-userfaultfd N
 start N workers that generate write page faults on a small anonymously mapped
 memory region and handle these faults using the user space fault handling via
-the userfaultfd mechanism.  This will generate a large quanity of major page
+the userfaultfd mechanism.  This will generate a large quantity of major page
 faults and also context switches during the handling of the page faults.
 (Linux only).
 .TP
@@ -3513,7 +3513,7 @@ stop after N bogo extended attribute operations.
 .TP
 .B \-y N, \-\-yield N
 start N workers that call sched_yield(2). This stressor ensures that at
-least 2 child processes per CPU exercice shield_yield(2) no matter how
+least 2 child processes per CPU exercise shield_yield(2) no matter how
 many workers are specified, thus always ensuring rapid context switching.
 .TP
 .B \-\-yield\-ops N
