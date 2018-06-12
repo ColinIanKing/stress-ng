@@ -75,13 +75,11 @@ static int stress_splice(const args_t *args)
 	}
 
 	do {
-		int ret;
+		ssize_t ret;
 
-		ssize_t bytes;
-
-		bytes = splice(fd_in, NULL, fds[1], NULL,
+		ret = splice(fd_in, NULL, fds[1], NULL,
 				splice_bytes, SPLICE_F_MOVE);
-		if (bytes < 0)
+		if (ret < 0)
 			break;
 
 		ret = splice(fds[0], NULL, fd_out, NULL,
