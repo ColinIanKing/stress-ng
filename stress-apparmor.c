@@ -121,7 +121,7 @@ static void stress_apparmor_read(const char *path)
 	       (i < (4096 * APPARMOR_BUF_SZ))) {
 		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
 redo:
-		if (!g_keep_stressing_flag)
+		if (!g_keep_stressing_flag || !apparmor_run)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0) {
@@ -219,8 +219,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-
-		if (!g_keep_stressing_flag)
+		if (!g_keep_stressing_flag || !apparmor_run)
 			goto abort;
 		ret = func(name, max_ops, counter);
 abort:
@@ -333,6 +332,7 @@ static int apparmor_stress_kernel_interface(
 				"errno=%d (%s)\n", name, errno,
 				strerror(errno));
 			rc = EXIT_FAILURE;
+			break;
 		}
 
 		/*
@@ -343,10 +343,13 @@ static int apparmor_stress_kernel_interface(
 			"/usr/bin/pulseaudio-eg");
 		if (ret < 0) {
 			if (errno != ENOENT) {
+				aa_kernel_interface_unref(kern_if);
+
 				pr_fail("%s: aa_kernel_interface_remove_policy() failed, "
 					"errno=%d (%s)\n", name, errno,
 					strerror(errno));
 				rc = EXIT_FAILURE;
+				break;
 			}
 		}
 		aa_kernel_interface_unref(kern_if);
