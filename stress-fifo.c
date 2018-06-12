@@ -42,7 +42,8 @@ int stress_set_fifo_readers(const char *opt)
  *	spawn a process
  */
 static pid_t fifo_spawn(
-	void (*func)(const char *name, const char *fifoname),
+	const args_t *args,
+	void (*func)(const args_t *args, const char *name, const char *fifoname),
 	const char *name,
 	const char *fifoname)
 {
@@ -55,7 +56,7 @@ static pid_t fifo_spawn(
 	if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		func(name, fifoname);
+		func(args, name, fifoname);
 		exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -66,7 +67,10 @@ static pid_t fifo_spawn(
  *  stress_fifo_readers()
  *	read fifo
  */
-static void stress_fifo_reader(const char *name, const char *fifoname)
+static void stress_fifo_reader(
+	const args_t *args,
+	const char *name,
+	const char *fifoname)
 {
 	int fd;
 	uint64_t val, lastval = 0;
@@ -85,8 +89,8 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 
 		FD_ZERO(&rdfds);
 		FD_SET(fd, &rdfds);
-
-		timeout.tv_sec = 10;
+redo:
+		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
 
 		ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
@@ -97,7 +101,13 @@ static void stress_fifo_reader(const char *name, const char *fifoname)
 				name, errno, strerror(errno));
 			break;
 		} else if (ret == 0) {
-			pr_err("%s: read timeout!\n", name);
+			/*
+			 * nothing to read, timed-out, retry
+			 * as this can happen on a highly
+			 * overloaded stressed system
+			 */
+			if (keep_stressing())
+				goto redo;
 			break;
 		}
 		sz = read(fd, &val, sizeof(val));
@@ -164,7 +174,7 @@ static int stress_fifo(const args_t *args)
 
 	memset(pids, 0, sizeof(pids));
 	for (i = 0; i < fifo_readers; i++) {
-		pids[i] = fifo_spawn(stress_fifo_reader, args->name, fifoname);
+		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)
 			goto reap;
 		if (!g_keep_stressing_flag) {
