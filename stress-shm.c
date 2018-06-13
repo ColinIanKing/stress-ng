@@ -119,9 +119,10 @@ static int stress_shm_posix_child(
 
 	do {
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
-			int shm_fd;
+			int shm_fd, ret;
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
+			struct stat statbuf;
 
 			shm_name[0] = '\0';
 
@@ -181,6 +182,31 @@ static int stress_shm_posix_child(
 			/* Expand and shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
 			(void)shim_fallocate(shm_fd, 0, 0, sz);
+
+			/* Now truncated it back */
+			ret = ftruncate(shm_fd, sz);
+			if (ret < 0)
+				pr_fail("%s: ftruncate of shared memory failed\n", args->name);
+			(void)fsync(shm_fd);
+
+			/* fstat shared memory */
+			ret = fstat(shm_fd, &statbuf);
+			if (ret < 0) {
+				pr_fail("%s: fstat failed on shared memory\n", args->name);
+			} else {
+				if (statbuf.st_size != (off_t)sz) {
+					pr_fail("%s: fstat reports different size of shared memory, "
+						"got %jd bytes, expected %zd bytes\n", args->name,
+						(intmax_t)statbuf.st_size, sz);
+				}
+			}
+
+			/* Make it read only */
+			ret = fchmod(shm_fd, S_IRUSR);
+			if (ret < 0) {
+				pr_fail("%s: failed to fchmod to S_IRUSR on shared memory\n", args->name);
+			}
+
 			(void)close(shm_fd);
 
 			if (!keep_stressing())
