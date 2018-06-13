@@ -2720,6 +2720,16 @@ processes that wait for the signal via sigwaitinfo(2).
 .B \-\-sigq\-ops N
 stop sigq stress workers after N bogo signal send operations.
 .TP
+.B \-\-sigrt N
+start N workers that each create child processes to handle SIGRTMIN to
+SIGRMAX real time signals. The parent sends each child process a RT signal
+via siqueue(2) and the child process waits for this via sigwaitinfo(2).
+When the child receives the signal it then sends a RT signal to one of the
+other child processes also via sigqueue(2).
+.TP
+.B \-\-sigrt\-ops N
+stop sigrt stress workers after N bogo sigqueue signal send operations.
+.TP
 .B \-\-sleep N
 start N workers that spawn off multiple threads that each perform multiple
 sleeps of ranges 1us to 0.1s.  This creates multiple context switches and

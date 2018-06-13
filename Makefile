@@ -202,9 +202,10 @@ STRESS_SRC = \
 	stress-sigio.c \
 	stress-sigpending.c \
 	stress-sigpipe.c \
+	stress-sigq.c \
+	stress-sigrt.c \
 	stress-sigsegv.c \
 	stress-sigsuspend.c \
-	stress-sigq.c \
 	stress-sleep.c \
 	stress-socket.c \
 	stress-socket-diag.c \
