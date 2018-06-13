@@ -108,7 +108,7 @@ static int stress_access(const args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
-	umask(0700);
+	(void)umask(0700);
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("creat");
