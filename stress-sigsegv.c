@@ -25,17 +25,39 @@
 #include "stress-ng.h"
 
 static sigjmp_buf jmp_env;
+#if defined(SA_SIGINFO)
+static volatile void *fault_addr;
+static volatile int signo;
+static volatile int code;
+#endif
 
 /*
  *  stress_segvhandler()
  *	SEGV handler
  */
+#if defined(SA_SIGINFO)
+static void MLOCKED_TEXT stress_segvhandler(
+	int num,
+	siginfo_t *info,
+	void *ucontext)
+{
+	(void)num;
+	(void)ucontext;
+
+	fault_addr = info->si_addr;
+	signo = info->si_signo;
+	code = info->si_code;
+
+	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
+}
+#else
 static void MLOCKED_TEXT stress_segvhandler(int dummy)
 {
 	(void)dummy;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
+#endif
 
 /*
  *  stress_sigsegv
@@ -46,6 +68,9 @@ static int stress_sigsegv(const args_t *args)
 {
 	uint8_t *ptr;
 	NOCLOBBER int rc = EXIT_FAILURE;
+#if defined(SA_SIGINFO)
+	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+#endif
 
 	/* Allocate read only page */
 	ptr = mmap(NULL, args->page_size, PROT_READ,
@@ -58,13 +83,36 @@ static int stress_sigsegv(const args_t *args)
 
 	for (;;) {
 		int ret;
+		struct sigaction action;
 
-		if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
+		(void)memset(&action, 0, sizeof action);
+#if defined(SA_SIGINFO)
+		action.sa_sigaction = stress_segvhandler;
+#else
+		action.sa_handler = stress_segvhandler;
+#endif
+		(void)sigemptyset(&action.sa_mask);
+#if defined(SA_SIGINFO)
+		action.sa_flags = SA_SIGINFO;
+#endif
+		ret = sigaction(SIGSEGV, &action, NULL);
+		if (ret < 0) {
+			pr_fail("%s: sigaction SIGSEGV: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto tidy;
-		if (stress_sighandler(args->name, SIGILL, stress_segvhandler, NULL) < 0)
+		}
+		ret = sigaction(SIGILL, &action, NULL);
+		if (ret < 0) {
+			pr_fail("%s: sigaction SIGILL: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto tidy;
-		if (stress_sighandler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
+		}
+		ret = sigaction(SIGBUS, &action, NULL);
+		if (ret < 0) {
+			pr_fail("%s: sigaction SIGBUS: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto tidy;
+		}
 
 		ret = sigsetjmp(jmp_env, 1);
 		/*
@@ -74,10 +122,36 @@ static int stress_sigsegv(const args_t *args)
 		if (!keep_stressing())
 			break;
 
-		if (ret)
-			inc_counter(args);	/* SIGSEGV/SIGILL occurred */
-		else
-			*ptr = 0;		/* Trip a SIGSEGV/SIGILL */
+		if (ret) {
+			/* Signal was tripped */
+#if defined(SA_SIGINFO)
+			if (verify && fault_addr && fault_addr != ptr) {
+				pr_fail("%s: expecting fault address %p, got %p instead\n",
+					args->name, fault_addr, ptr);
+			}
+			if (verify &&
+			    (signo != -1) &&
+			    (signo != SIGSEGV) &&
+			    (signo != SIGILL) &&
+			    (signo != SIGBUS)) {
+				pr_fail("%s: expecting SIGSEGV/SIGILL/SIGBUS, got %s instead\n",
+					args->name, strsignal(signo));
+			}
+			if (verify && (signo == SIGBUS) && (code != SEGV_ACCERR)) {
+				pr_fail("%s: expecting SIGBUS si_code SEGV_ACCERR (%d), got %d insread\n",
+					args->name, SEGV_ACCERR, code);
+			}
+#endif
+			inc_counter(args);
+		} else {
+#if defined(SA_SIGINFO)
+			signo = -1;
+			code = -1;
+			fault_addr = 0;
+#endif
+			/* Trip a SIGSEGV/SIGILL/SIGBUS */
+			*ptr = 0;
+		}
 	}
 	rc = EXIT_SUCCESS;
 tidy:
