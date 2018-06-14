@@ -57,6 +57,7 @@ static int stress_utime(const args_t *args)
 #endif
 
 		if (gettimeofday(&times[0], NULL) == 0) {
+			times[1] = times[0];
 			if (utimes(filename, times) < 0) {
 				pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
@@ -78,6 +79,8 @@ static int stress_utime(const args_t *args)
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
 		ts[0].tv_nsec = UTIME_NOW;
+		ts[1].tv_sec = UTIME_NOW;
+		ts[1].tv_nsec = UTIME_NOW;
 		if (futimens(fd, &ts[0]) < 0) {
 			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
