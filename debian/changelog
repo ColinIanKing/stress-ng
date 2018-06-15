@@ -1,3 +1,21 @@
+stress-ng (0.09.30-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-socket: fix build warning if FIONREAD is not defined
+  * Add sanity check that child stressor processes are not calling exit()
+  * stress-sigio: don't exit in sighandler; return back normally
+  * stress-utime: fix failing utimes and futimens calls
+  * stress-memcpy: fix clobbering of stats data when copying b_str
+  * stress-shm: perform extra file operations on shm file descriptor
+  * Add new real time signal stressor, sigrt
+  * stress-sigsegv: add some verification checking
+  * stress-access: voidify return from umask
+  * stress-splice: remove variable bytes, replace with ret
+  * stress-apparmor: add a few more yield points
+  * stress-fifo: retry on select timeout rather than terminate
+
+ -- Colin King <colin.king@canonical.com>  Fri, 15 jun 2018 16:52:25 +0100
+
 stress-ng (0.09.29-1) unstable; urgency=medium
 
   * Makefile: bump version
