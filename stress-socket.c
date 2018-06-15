@@ -212,8 +212,8 @@ retry:
 
 		do {
 			ssize_t n;
-			size_t bytes = sizeof(buf);
 #if defined(FIONREAD)
+			size_t bytes = sizeof(buf);
 			/*
 			 *  Exercise FIONREAD ioctl. Linux supports
 			 *  this also with SIOCINQ but lets try and
