@@ -2248,6 +2248,11 @@ redo:
 					case EXIT_NOT_IMPLEMENTED:
 						abort = true;
 						break;
+					case EXIT_BY_SYS_EXIT:
+						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
+							ret, pi->stressor->name);
+						abort = true;
+						break;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
 							ret, pi->stressor->name, WEXITSTATUS(status),
@@ -2358,6 +2363,15 @@ static uint32_t get_total_num_procs(proc_info_t *procs_list)
 }
 
 /*
+ *  stress_child_atexit(void)
+ *	handle unexpected exit() call in child stressor
+ */
+static void stress_child_atexit(void)
+{
+	_exit(EXIT_BY_SYS_EXIT);
+}
+
+/*
  *  stress_run ()
  *	kick off and run stressors
  */
@@ -2411,6 +2425,7 @@ again:
 					goto wait_for_procs;
 				case 0:
 					/* Child */
+					(void)atexit(stress_child_atexit);
 					(void)setpgid(0, g_pgrp);
 					if (stress_set_handler(name, true) < 0) {
 						rc = EXIT_FAILURE;
@@ -2491,7 +2506,7 @@ child_exit:
 					}
 					if (terminate_signum)
 						rc = EXIT_SIGNALED;
-					exit(rc);
+					_exit(rc);
 				default:
 					if (pid > -1) {
 						(void)setpgid(pid, g_pgrp);
