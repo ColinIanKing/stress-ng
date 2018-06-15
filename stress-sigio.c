@@ -54,7 +54,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int dummy)
 			(void)kill(pid, SIGKILL);
 
 		shim_sched_yield();
-		_exit(0);
+		return;
 	}
 
 	if (rd_fd > 0) {
