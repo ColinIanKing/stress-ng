@@ -43,7 +43,7 @@ int stress_set_copy_file_bytes(const char *opt)
 static int stress_copy_file(const args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
-	char filename[PATH_MAX], tmp[PATH_MAX];
+	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 
 	if (!get_setting("copy-file-bytes", &copy_file_bytes)) {
