@@ -118,7 +118,7 @@ static int fanotify_event_init(const char *name)
  */
 static int stress_fanotify(const args_t *args)
 {
-	char dirname[PATH_MAX], filename[PATH_MAX];
+	char dirname[PATH_MAX - 16], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
 	fanotify_account_t acct;
 
