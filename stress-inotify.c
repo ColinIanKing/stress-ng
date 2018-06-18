@@ -304,7 +304,7 @@ static void inotify_attrib_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -346,7 +346,7 @@ static void inotify_access_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -390,7 +390,7 @@ static void inotify_modify_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_modify_helper, IN_MODIFY, NULL);
 }
@@ -415,7 +415,7 @@ static void inotify_creat_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_creat_helper, IN_CREATE, NULL);
 	(void)rm_file(args, filepath);
@@ -442,7 +442,7 @@ static void inotify_open_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 	inotify_exercise(args, filepath, path, "inotify_file",
@@ -464,7 +464,7 @@ static void inotify_delete_file(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 	inotify_exercise(args, filepath, path, "inotify_file",
@@ -487,7 +487,7 @@ static void inotify_delete_self(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_dir");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_dir");
 	if (mk_dir(args, filepath) < 0)
 		return;
 	inotify_exercise(args, filepath, filepath, "inotify_dir",
@@ -515,10 +515,10 @@ static void inotify_move_self(const args_t *args, const char *path)
 {
 	char filepath[PATH_MAX], newpath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_dir");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_dir");
 	if (mk_dir(args, filepath) < 0)
 		return;
-	mk_filename(newpath, PATH_MAX, path, "renamed_dir");
+	mk_filename(newpath, sizeof(newpath), path, "renamed_dir");
 
 	inotify_exercise(args, filepath, filepath, "inotify_dir",
 		inotify_move_self_helper, IN_MOVE_SELF, newpath);
@@ -543,17 +543,17 @@ static int inotify_moved_to_helper(
 
 static void inotify_moved_to(const args_t *args, const char *path)
 {
-	char olddir[PATH_MAX], oldfile[PATH_MAX], newfile[PATH_MAX];
+	char olddir[PATH_MAX - 16], oldfile[PATH_MAX], newfile[PATH_MAX];
 
-	mk_filename(olddir, PATH_MAX, path, "new_dir");
+	mk_filename(olddir, sizeof(olddir), path, "new_dir");
 	(void)rm_dir(args, olddir);
 	if (mk_dir(args, olddir) < 0)
 		return;
-	mk_filename(oldfile, PATH_MAX, olddir, "inotify_file");
+	mk_filename(oldfile, sizeof(oldfile), olddir, "inotify_file");
 	if (mk_file(args, oldfile, 4096) < 0)
 		return;
 
-	mk_filename(newfile, PATH_MAX, path, "inotify_file");
+	mk_filename(newfile, sizeof(newfile), path, "inotify_file");
 	inotify_exercise(args, newfile, path, "inotify_dir",
 		inotify_moved_to_helper, IN_MOVED_TO, oldfile);
 	(void)rm_file(args, newfile);
@@ -577,16 +577,16 @@ static int inotify_moved_from_helper(
 
 static void inotify_moved_from(const args_t *args, const char *path)
 {
-	char oldfile[PATH_MAX], newdir[PATH_MAX], newfile[PATH_MAX];
+	char oldfile[PATH_MAX], newdir[PATH_MAX - 16], newfile[PATH_MAX];
 
-	mk_filename(oldfile, PATH_MAX, path, "inotify_file");
+	mk_filename(oldfile, sizeof(oldfile), path, "inotify_file");
 	if (mk_file(args, oldfile, 4096) < 0)
 		return;
-	mk_filename(newdir, PATH_MAX, path, "new_dir");
+	mk_filename(newdir, sizeof(newdir), path, "new_dir");
 	(void)rm_dir(args, newdir);
 	if (mk_dir(args, newdir) < 0)
 		return;
-	mk_filename(newfile, PATH_MAX, newdir, "inotify_file");
+	mk_filename(newfile, sizeof(newfile), newdir, "inotify_file");
 	inotify_exercise(args, oldfile, path, "inotify_dir",
 		inotify_moved_from_helper, IN_MOVED_FROM, newfile);
 	(void)rm_file(args, newfile);
@@ -611,7 +611,7 @@ static void inotify_close_write_file(const args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int fd;
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -644,7 +644,7 @@ static void inotify_close_nowrite_file(const args_t *args, const char *path)
 	char filepath[PATH_MAX];
 	int fd;
 
-	mk_filename(filepath, PATH_MAX, path, "inotify_file");
+	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -683,7 +683,7 @@ static const inotify_stress_t inotify_stressors[] = {
  */
 static int stress_inotify(const args_t *args)
 {
-	char dirname[PATH_MAX];
+	char dirname[PATH_MAX - 16];
 	int ret, i;
 
 	stress_temp_dir_args(args, dirname, sizeof(dirname));
