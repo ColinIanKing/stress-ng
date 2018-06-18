@@ -243,7 +243,7 @@ static int stress_filename(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
-	char dirname[PATH_MAX];
+	char dirname[PATH_MAX - 256];
 	char filename[PATH_MAX];
 	char *ptr;
 	struct statvfs buf;
