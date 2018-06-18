@@ -231,7 +231,8 @@ static int bad_getrusage(void *addr)
 
 static int bad_gettimeofday(void *addr)
 {
-	return gettimeofday(addr, addr);
+	struct timezone *tz = ((struct timezone *)addr) + 1;
+	return gettimeofday(addr, tz);
 }
 
 #if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
@@ -330,10 +331,13 @@ static int bad_readv(void *addr)
 static int bad_select(void *addr)
 {
 	int fd, ret = 0;
+	fd_set *readfds = addr;
+	fd_set *writefds = readfds + 1;
+	fd_set *exceptfds = writefds + 1;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
-		ret = select(fd, addr, addr, addr, addr);
+		ret = select(fd, readfds, writefds, exceptfds, addr);
 		(void)close(fd);
 	}
 	return ret;
@@ -366,7 +370,8 @@ static int bad_time(void *addr)
 #if defined(HAVE_LIB_RT) && defined(__linux__)
 static int bad_timer_create(void *addr)
 {
-	return timer_create(CLOCK_MONOTONIC, addr, addr);
+	timer_t *timerid = ((timer_t)addr) + 1;
+	return timer_create(CLOCK_MONOTONIC, addr, timerid);
 }
 #endif
 
