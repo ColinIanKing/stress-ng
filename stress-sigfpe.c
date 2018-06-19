@@ -207,7 +207,7 @@ static int stress_sigfpe(const args_t *args)
 #endif
 			inc_counter(args);
 		} else {
-			(void)memset((void *)&siginfo, 0, sizeof siginfo);
+			siginfo = (const siginfo_t){ 0 };
 
 			switch(exception) {
 			case SNG_FLTDIV:
