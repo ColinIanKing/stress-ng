@@ -132,7 +132,7 @@ again:
 		stress_parent_died_alarm();
 
 		semaphore_posix_thrash(args);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

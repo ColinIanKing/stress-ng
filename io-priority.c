@@ -59,7 +59,7 @@ int32_t get_opt_ionice_class(const char *const str)
 #endif
 	(void)fprintf(stderr, "\n");
 
-	exit(EXIT_FAILURE);
+	_exit(EXIT_FAILURE);
 }
 
 #if defined(__linux__) && defined(__NR_ioprio_set)
@@ -79,7 +79,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 		if (level < 0 || level > 7) {
 			(void)fprintf(stderr, "Priority levels range from 0 "
 				"(max) to 7 (min)\n");
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 		break;
 	case IOPRIO_CLASS_IDLE:
@@ -91,14 +91,14 @@ void set_iopriority(const int32_t class, const int32_t level)
 		break;
 	default:
 		(void)fprintf(stderr, "Unknown priority class: %d\n", class);
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	}
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
 		IOPRIO_PRIO_VALUE(class, data));
 	if (rc < 0) {
 		(void)fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
 			errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	}
 }
 #else

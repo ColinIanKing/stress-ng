@@ -107,7 +107,7 @@ again:
 		start_ptr = shim_sbrk(0);
 		if (start_ptr == (void *) -1) {
 			pr_fail_err("sbrk(0)");
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		do {
@@ -130,13 +130,13 @@ again:
 						pr_err("%s: brk(%p) failed: errno=%d (%s)\n",
 							args->name, start_ptr, errno,
 							strerror(errno));
-						exit(EXIT_FAILURE);
+						_exit(EXIT_FAILURE);
 					}
 				} else {
 					pr_err("%s: sbrk(%d) failed: errno=%d (%s)\n",
 						args->name, (int)page_size, errno,
 						strerror(errno));
-					exit(EXIT_FAILURE);
+					_exit(EXIT_FAILURE);
 				}
 			} else {
 				/* Touch page, force it to be resident */

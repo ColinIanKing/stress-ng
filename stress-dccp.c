@@ -134,13 +134,13 @@ static void stress_dccp_client(
 retry:
 		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
@@ -157,7 +157,7 @@ retry:
 				errno = err;
 				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
+				_exit(EXIT_FAILURE);
 			}
 			goto retry;
 		}
@@ -373,7 +373,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		return stress_dccp_server(args, pid, ppid, dccp_port,
 			dccp_domain, dccp_opts);

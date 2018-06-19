@@ -189,7 +189,7 @@ again:
 		if (sfd != -1)
 			(void)close(sfd);
 #endif
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent */
 		int fd2, status, pid2;

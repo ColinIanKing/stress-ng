@@ -96,7 +96,7 @@ again:
 				break;
 		}
 		(void)close(pipefds[0]);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		char buf[buf_size];
 		int status;

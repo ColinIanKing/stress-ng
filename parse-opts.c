@@ -186,7 +186,7 @@ uint64_t get_uint64_scale(
 	}
 
 	(void)fprintf(stderr, "Illegal %s specifier %c\n", msg, str[len]);
-	exit(EXIT_FAILURE);
+	_exit(EXIT_FAILURE);
 }
 
 /*

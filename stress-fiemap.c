@@ -190,7 +190,7 @@ static inline pid_t stress_fiemap_spawn(
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_fiemap_ioctl(args, fd);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

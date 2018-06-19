@@ -58,11 +58,10 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		//(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		func(args, pid_arg);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;
@@ -86,7 +85,7 @@ static void runner(
 	} while (keep_stressing());
 
 	(void)kill(getppid(), SIGALRM);
-	exit(EXIT_SUCCESS);
+	_exit(EXIT_SUCCESS);
 }
 
 /*
@@ -130,9 +129,10 @@ static void killer(
 
 	/* forcefully kill runner, wait is in parent */
 	(void)kill(pid, SIGKILL);
+
 	/* tell parent to wake up! */
 	(void)kill(getppid(), SIGALRM);
-	exit(EXIT_SUCCESS);
+	_exit(EXIT_SUCCESS);
 }
 
 /*
@@ -161,7 +161,7 @@ static int stress_wait(const args_t *args)
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
 		pr_fail_dbg("fork");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	pid_k = spawn(args, killer, pid_r);

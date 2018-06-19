@@ -255,5 +255,5 @@ int32_t get_opt_sched(const char *const str)
 		" rr"
 #endif
 		"\n");
-	exit(EXIT_FAILURE);
+	_exit(EXIT_FAILURE);
 }

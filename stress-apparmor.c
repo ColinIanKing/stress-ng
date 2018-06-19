@@ -214,7 +214,7 @@ again:
 
 		if (stress_sighandler(name, SIGALRM,
 				      stress_apparmor_handler, NULL) < 0) {
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		(void)setpgid(0, g_pgrp);
@@ -224,7 +224,7 @@ again:
 		ret = func(name, max_ops, counter);
 abort:
 		free(apparmor_path);
-		exit(ret);
+		_exit(ret);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;
@@ -637,7 +637,7 @@ static int stress_apparmor(const args_t *args)
 	if (counters == MAP_FAILED) {
 		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	(void)memset(counters, 0, counters_sz);
 

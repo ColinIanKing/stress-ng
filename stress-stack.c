@@ -100,7 +100,7 @@ again:
 		if (start_ptr == (void *) -1) {
 			pr_err("%s: sbrk(0) failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		/* Make sure this is killable by OOM killer */

@@ -140,7 +140,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		func(args, child, ppid, epoll_port, epoll_domain);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;
@@ -536,7 +536,7 @@ die:
 #endif
 	free(events);
 
-	exit(rc);
+	_exit(rc);
 }
 
 /*

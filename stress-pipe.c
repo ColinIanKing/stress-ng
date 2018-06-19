@@ -197,7 +197,7 @@ again:
 			}
 		}
 		(void)close(pipefds[0]);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		char buf[pipe_data_size];
 		int val = 0, status;

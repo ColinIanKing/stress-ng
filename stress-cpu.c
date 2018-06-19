@@ -127,7 +127,7 @@ int stress_set_cpu_load_slice(const char *opt)
 	cpu_load_slice = get_int32(opt);
 	if ((cpu_load_slice < -5000) || (cpu_load_slice > 5000)) {
 		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	}
 	return set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
 }

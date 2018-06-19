@@ -108,7 +108,7 @@ again:
 							" but received 0x%" PRIx64 " instead\n", args->name, i, v);
 				}
 			}
-			exit(EXIT_SUCCESS);
+			_exit(EXIT_SUCCESS);
 		}
 	} else {
 		msg_t msg;

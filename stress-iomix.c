@@ -548,7 +548,7 @@ static void stress_iomix_inode_flags(
 		stress_iomix_inode_ioctl(fd, FS_UNRM_FL, &ok);
 #endif
 		if (!ok)
-			exit(EXIT_SUCCESS);
+			_exit(EXIT_SUCCESS);
 	} while (keep_stressing());
 }
 #endif

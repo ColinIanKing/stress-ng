@@ -130,7 +130,7 @@ again:
 				pr_fail_dbg("socket");
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
+				_exit(EXIT_FAILURE);
 			}
 			stress_set_sockaddr(args->name, args->instance, ppid,
 				udp_domain, udp_port,
@@ -142,7 +142,7 @@ again:
 					pr_fail_dbg("setsockopt");
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
-					exit(EXIT_FAILURE);
+					_exit(EXIT_FAILURE);
 				}
 			}
 #endif
@@ -170,7 +170,7 @@ again:
 #endif
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent, server */
 

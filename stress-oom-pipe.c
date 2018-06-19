@@ -149,7 +149,7 @@ again:
 		if (!pipes_open) {
 			pr_dbg("%s: failed to open any pipes, aborted\n",
 				args->name);
-			exit(EXIT_NO_RESOURCE);
+			_exit(EXIT_NO_RESOURCE);
 		}
 
 		do {
@@ -186,7 +186,7 @@ clean:
 			if (*fd >= 0)
 				(void)close(*fd);
 		}
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	return 0;
 }

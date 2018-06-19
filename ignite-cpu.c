@@ -124,7 +124,7 @@ void ignite_cpu_start(void)
 			}
 			sleep(1);
 		}
-		exit(0);
+		_exit(0);
 	} else {
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);

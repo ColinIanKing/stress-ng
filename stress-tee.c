@@ -62,7 +62,7 @@ again:
 		stress_parent_died_alarm();
 
 		func(fds);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

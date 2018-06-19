@@ -97,13 +97,13 @@ static void stress_sctp_client(
 retry:
 		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
@@ -117,7 +117,7 @@ retry:
 				/* Give up.. */
 				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
+				_exit(EXIT_FAILURE);
 			}
 			goto retry;
 		}
@@ -128,7 +128,7 @@ retry:
 			(void)close(fd);
 			pr_fail_dbg("setsockopt");
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		do {
@@ -288,7 +288,7 @@ again:
 	} else if (pid == 0) {
 		stress_sctp_client(args, ppid,
 			sctp_port, sctp_domain);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		return stress_sctp_server(args, pid, ppid,
 			sctp_port, sctp_domain);

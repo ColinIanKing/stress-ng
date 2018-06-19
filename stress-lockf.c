@@ -271,9 +271,9 @@ again:
 		stress_parent_died_alarm();
 
 		if (stress_lockf_contention(args, fd) < 0)
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		stress_lockf_info_free();
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(cpid, g_pgrp);
 

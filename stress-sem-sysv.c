@@ -83,7 +83,7 @@ static void stress_semaphore_sysv_init(void)
 	} else {
 		pr_err("semaphore init (System V) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		_exit(EXIT_FAILURE);
 	}
 }
 
@@ -229,7 +229,7 @@ again:
 		stress_parent_died_alarm();
 
 		semaphore_sysv_thrash(args);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

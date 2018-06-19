@@ -87,7 +87,7 @@ again:
 			}
 			(void)close(fd);
 		} while (keep_stressing());
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

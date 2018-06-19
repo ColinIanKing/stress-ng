@@ -190,7 +190,7 @@ again:
 				}
 				i++;
 			}
-			exit(EXIT_SUCCESS);
+			_exit(EXIT_SUCCESS);
 		}
 	} else {
 		uint64_t i = 0;

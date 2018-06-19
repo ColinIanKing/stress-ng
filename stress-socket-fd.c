@@ -149,13 +149,13 @@ static void stress_socket_client(
 retry:
 		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
-			exit(EXIT_FAILURE);
+			_exit(EXIT_FAILURE);
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
@@ -169,7 +169,7 @@ retry:
 				/* Give up.. */
 				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
-				exit(EXIT_FAILURE);
+				_exit(EXIT_FAILURE);
 			}
 			goto retry;
 		}
@@ -330,7 +330,7 @@ again:
 	} else if (pid == 0) {
 		set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		return stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}

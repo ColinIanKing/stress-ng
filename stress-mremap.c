@@ -319,7 +319,7 @@ again:
 
 		rc = stress_mremap_child(args, sz,
 			new_sz, page_size, mremap_bytes, &flags);
-		exit(rc);
+		_exit(rc);
 	}
 
 	if (ooms + segvs + buserrs > 0)

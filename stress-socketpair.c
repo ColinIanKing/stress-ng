@@ -134,7 +134,7 @@ again:
 		}
 abort:
 		socket_pair_close(socket_pair_fds, max, 0);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		uint8_t buf[SOCKET_PAIR_BUF];
 		int val = 0, status;
@@ -224,8 +224,7 @@ again:
 		set_oom_adjustment(args->name, true);
 
 		ret = stress_sockpair_oomable(args);
-
-		exit(ret);
+		_exit(ret);
 	}
 
 	if (restarts > 0) {

@@ -57,7 +57,7 @@ static pid_t fifo_spawn(
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		func(args, name, fifoname);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;

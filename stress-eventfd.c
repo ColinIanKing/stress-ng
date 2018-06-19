@@ -108,7 +108,7 @@ again:
 exit_child:
 		(void)close(fd1);
 		(void)close(fd2);
-		exit(EXIT_SUCCESS);
+		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
 

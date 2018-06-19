@@ -219,7 +219,7 @@ retry:
 			ret = test_chroot_test_funcs[i](args);
 
 			/* Children */
-			exit(ret);
+			_exit(ret);
 		} else {
 			/* Parent */
 			int status, waitret;

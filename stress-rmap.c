@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_rmap_handler(int dummy)
 	(void)dummy;
 
 	(void)kill(getppid(), SIGALRM);
-	exit(0);
+	_exit(0);
 }
 
 static void stress_rmap_child(
@@ -103,7 +103,7 @@ static void stress_rmap_child(
 		(*counter)++;
 	} while (g_keep_stressing_flag && (!max_ops || *counter < max_ops));
 
-	exit(0);
+	_exit(0);
 }
 
 /*
@@ -130,7 +130,7 @@ static int stress_rmap(const args_t *args)
 	if (counters == MAP_FAILED) {
 		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	(void)memset(counters, 0, counters_sz);
 	(void)memset(pids, 0, sizeof(pids));
@@ -201,7 +201,7 @@ static int stress_rmap(const args_t *args)
 		} else if (pids[i] == 0) {
 			if (stress_sighandler(args->name, SIGALRM,
 			    stress_rmap_handler, NULL) < 0)
-				exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
