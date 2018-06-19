@@ -158,7 +158,6 @@ static int stress_timerfd(const args_t *args)
 		 *  exercise this interface
 		 */
 		if (LIKELY(procfd > -1) && UNLIKELY(count++ >= COUNT_MAX)) {
-			int ret;
 			char buffer[4096];
 
 			ret = lseek(procfd, 0, SEEK_SET);
