@@ -470,6 +470,17 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const i
 	(void)stress_sigrestore(args->name, SIGBUS, &sigbus_orig);
 }
 
+/*
+ *  stress_rand_data_zero()
+ *	fill buffer with zeros
+ */
+static void stress_rand_data_zero(const args_t *args, uint32_t *data, const int size)
+{
+	(void)args;
+	(void)memset(data, 0, size);
+}
+
+
 static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_00_ff,
 	stress_rand_data_01,
@@ -485,6 +496,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_rarely_1,
 	stress_rand_data_rarely_0,
 	stress_rand_data_text,
+	stress_rand_data_zero,
 };
 
 /*
@@ -517,6 +529,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 	{ "text",	stress_rand_data_text },
+	{ "zero",	stress_rand_data_zero },
 	{ NULL,		NULL }
 };
 
