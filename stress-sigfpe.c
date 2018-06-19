@@ -173,7 +173,7 @@ static int stress_sigfpe(const args_t *args)
 		static int expected_err_code;
 		int code;
 #endif
-		int ret, exception;
+		int exception;
 
 #if defined(SA_SIGINFO)	
 		code = fpe_errs[i].err_code;
