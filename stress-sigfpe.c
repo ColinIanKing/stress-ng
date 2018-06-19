@@ -32,7 +32,9 @@
 #define SNG_FLTDIV	(0x80000000)
 
 static sigjmp_buf jmp_env;
+#if defined(SA_SIGINFO)
 static volatile siginfo_t siginfo;
+#endif
 
 /*
  *  stress_fpehandler()
@@ -207,7 +209,9 @@ static int stress_sigfpe(const args_t *args)
 #endif
 			inc_counter(args);
 		} else {
-			siginfo = (const siginfo_t){ 0 };
+#if defined(SA_SIGINFO)
+			siginfo.si_code = 0;
+#endif
 
 			switch(exception) {
 			case SNG_FLTDIV:
