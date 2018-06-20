@@ -114,7 +114,7 @@ static int stress_mmapaddr(const args_t *args)
 {
 	pid_t pid;
 
-	if (stress_sighandler(args->name, SIGFPE, stress_fault_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGSEGV, stress_fault_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 again: 	pid = fork();
