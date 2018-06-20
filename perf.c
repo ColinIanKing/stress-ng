@@ -208,6 +208,15 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	/*
 	 *  Software counters
 	 */
+#if STRESS_PERF_DEFINED(SW_CPU_CLOCK)
+	PERF_INFO_SW(SW_CPU_CLOCK,		"CPU Clock"),
+#endif
+#if STRESS_PERF_DEFINED(SW_TASK_CLOCK)
+	PERF_INFO_SW(SW_TASK_CLOCK,		"Task Clock"),
+#endif
+#if STRESS_PERF_DEFINED(SW_PAGE_FAULTS)
+	PERF_INFO_SW(SW_PAGE_FAULTS,		"Page Faults Total"),
+#endif
 #if STRESS_PERF_DEFINED(SW_PAGE_FAULTS_MIN)
 	PERF_INFO_SW(SW_PAGE_FAULTS_MIN,	"Page Faults Minor"),
 #endif
@@ -222,6 +231,9 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 #endif
 #if STRESS_PERF_DEFINED(SW_ALIGNMENT_FAULTS)
 	PERF_INFO_SW(SW_ALIGNMENT_FAULTS,	"Alignment Faults"),
+#endif
+#if STRESS_PERF_DEFINED(SW_EMULATION_FAULTS)
+	PERF_INFO_SW(SW_EMULATION_FAULTS,	"Emulation Faults"),
 #endif
 
 	/*
