@@ -1392,10 +1392,10 @@ typedef enum {
 	STRESS_MMAPFIXED,
 	STRESS_MMAPFORK,
 	STRESS_MMAPMANY,
+	STRESS_MQ,
 	STRESS_MREMAP,
 	STRESS_MSG,
 	STRESS_MSYNC,
-	STRESS_MQ,
 	STRESS_NETDEV,
 	STRESS_NETLINK_PROC,
 	STRESS_NICE,
@@ -1928,6 +1928,10 @@ typedef enum {
 	OPT_MMAPMANY,
 	OPT_MMAPMANY_OPS,
 
+	OPT_MQ,
+	OPT_MQ_OPS,
+	OPT_MQ_SIZE,
+
 	OPT_MREMAP,
 	OPT_MREMAP_OPS,
 	OPT_MREMAP_BYTES,
@@ -1938,10 +1942,6 @@ typedef enum {
 	OPT_MSYNC,
 	OPT_MSYNC_BYTES,
 	OPT_MSYNC_OPS,
-
-	OPT_MQ,
-	OPT_MQ_OPS,
-	OPT_MQ_SIZE,
 
 	OPT_NETDEV,
 	OPT_NETDEV_OPS,
@@ -3116,10 +3116,10 @@ STRESS(stress_mmapaddr);
 STRESS(stress_mmapfixed);
 STRESS(stress_mmapfork);
 STRESS(stress_mmapmany);
+STRESS(stress_mq);
 STRESS(stress_mremap);
 STRESS(stress_msg);
 STRESS(stress_msync);
-STRESS(stress_mq);
 STRESS(stress_netdev);
 STRESS(stress_netlink_proc);
 STRESS(stress_nice);

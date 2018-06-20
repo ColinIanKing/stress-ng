@@ -183,9 +183,9 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_MEMTHRASH_METHOD,		stress_set_memthrash_method },
 	{ OPT_MERGESORT_INTEGERS,	stress_set_mergesort_size },
 	{ OPT_MMAP_BYTES,		stress_set_mmap_bytes },
+	{ OPT_MQ_SIZE,			stress_set_mq_size },
 	{ OPT_MREMAP_BYTES,		stress_set_mremap_bytes },
 	{ OPT_MSYNC_BYTES,		stress_set_msync_bytes },
-	{ OPT_MQ_SIZE,			stress_set_mq_size },
 	{ OPT_PIPE_DATA_SIZE,		stress_set_pipe_data_size },
 #if defined(F_SETPIPE_SZ)
 	{ OPT_PIPE_SIZE,		stress_set_pipe_size },
