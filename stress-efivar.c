@@ -191,8 +191,6 @@ static int efi_vars_get(const args_t *args)
 
 	for (i = 0; i < dir_count; i++) {
 		efi_var var;
-		char varname[513];
-		char guid_str[37];
 		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
@@ -211,6 +209,9 @@ static int efi_vars_get(const args_t *args)
 		}
 
 		if (var.attributes) {
+			char varname[513];
+			char guid_str[37];
+
 			efi_get_varname(varname, sizeof(varname), &var);
 			guid_to_str(var.guid, guid_str, sizeof(guid_str));
 
