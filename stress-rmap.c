@@ -201,7 +201,7 @@ static int stress_rmap(const args_t *args)
 		} else if (pids[i] == 0) {
 			if (stress_sighandler(args->name, SIGALRM,
 			    stress_rmap_handler, NULL) < 0)
-				return EXIT_FAILURE;
+				_exit(EXIT_FAILURE);
 
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
