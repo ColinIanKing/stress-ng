@@ -346,7 +346,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 	@echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
 	@echo "CC $<"
 	@$(CC) -c apparmor-data.c -o apparmor-data.o
-	@rm -rf apparmor-data.c
+	@rm -rf apparmor-data.c apparmor-data.bin
 
 #
 #  extract the PER_* personality enums
@@ -395,6 +395,7 @@ clean:
 	@rm -f stress-ng-$(VERSION).tar.xz
 	@rm -f personality.h
 	@rm -f perf-event.h
+	@rm -f apparmor-data.bin
 	@rm -f *.o
 	@:> config
 
