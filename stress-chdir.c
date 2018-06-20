@@ -50,8 +50,6 @@ static int stress_chdir(const args_t *args)
 	int fd = -1, rc, ret = EXIT_FAILURE;
 	char **paths;
 
-	chdir_dirs = 8;
-
 	(void)get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
 	if (!paths) {
