@@ -702,6 +702,65 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_identity(
 }
 
 /*
+ *  stress_matrix_xy_square()
+ *	matrix product, r = a x a
+ */
+static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
+	const size_t n,
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
+{
+	size_t i;
+
+	(void)b;
+
+	for (i = 0; i < n; i++) {
+		register size_t j;
+
+		for (j = 0; j < n; j++) {
+			register size_t k;
+
+			for (k = 0; k < n; k++) {
+				r[i][j] += a[i][k] * a[k][j];
+			}
+			if (!g_keep_stressing_flag)
+				return;
+		}
+	}
+}
+
+/*
+ *  stress_matrix_yx_square()
+ *	matrix product, r = a x a
+ */
+static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
+	const size_t n,
+	matrix_type_t a[RESTRICT n][n],
+	matrix_type_t b[RESTRICT n][n],
+	matrix_type_t r[RESTRICT n][n])
+{
+	size_t j;
+
+	(void)b;
+
+	for (j = 0; j < n; j++) {
+		register size_t i;
+
+		for (i = 0; i < n; i++) {
+			register size_t k;
+
+			for (k = 0; k < n; k++) {
+				r[i][j] += a[i][k] * a[k][j];
+			}
+			if (!g_keep_stressing_flag)
+				return;
+		}
+	}
+}
+
+
+/*
  *  stress_matrix_all()
  *	iterate over all cpu stressors
  */
@@ -753,6 +812,7 @@ static const stress_matrix_method_info_t matrix_methods[] = {
 	{ "negate",		{ stress_matrix_xy_negate,	stress_matrix_yx_negate } },
 	{ "prod",		{ stress_matrix_xy_prod,	stress_matrix_yx_prod } },
 	{ "sub",		{ stress_matrix_xy_sub,		stress_matrix_yx_sub } },
+	{ "square",		{ stress_matrix_xy_square,	stress_matrix_yx_square } },
 	{ "trans",		{ stress_matrix_xy_trans,	stress_matrix_yx_trans } },
 	{ "zero",		{ stress_matrix_xy_zero,	stress_matrix_yx_zero } },
 	{ NULL,			{ NULL, NULL } }
