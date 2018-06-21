@@ -105,7 +105,9 @@ static void stress_memfd_allocs(
 
 		for (i = 0; i < memfd_fds; i++) {
 			ssize_t ret;
+#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
 			size_t whence;
+#endif
 
 			if (fds[i] < 0)
 				continue;
