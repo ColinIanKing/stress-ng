@@ -40,7 +40,8 @@ typedef struct {
  */
 #define MK_PATH(path, len, element) 				\
 	(void)memset((path) + len, '\0', sizeof(path) - len);	\
-	(void)strncpy((path) + len, element, strlen(element))
+	(void)strncpy((path) + len, element, strlen(element) + 1);	\
+	path[len + strlen(element)] = '\0';
 
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
@@ -263,11 +264,12 @@ static const char * get_cache_name(const cache_type_t type)
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	char     path[PATH_MAX] = { 0 };
-	size_t   len;
+	size_t   index_len = strlen(index_path);
+	char     path[index_len + 32];
 	char    *contents = NULL;
 	int      ret = EXIT_FAILURE;
 
+	(void)memset(path, 0, sizeof(path));
 	if (!cache) {
 		pr_dbg("%s: invalid cache specified\n", __func__);
 		goto out;
@@ -278,10 +280,9 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	}
 
-	len = strlen(index_path);
-	(void)strncpy(path, index_path, len);
+	(void)strncpy(path, index_path, index_len);
 
-	MK_PATH(path, len, "/type");
+	MK_PATH(path, index_len, "/type");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -291,7 +292,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	free(contents);
 
-	MK_PATH(path, len, "/size");
+	MK_PATH(path, index_len, "/size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -299,7 +300,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->size = size_to_bytes(contents);
 	free(contents);
 
-	MK_PATH(path, len, "/level");
+	MK_PATH(path, index_len, "/level");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -307,7 +308,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->level = (uint16_t)atoi(contents);
 	free(contents);
 
-	MK_PATH(path, len, "/coherency_line_size");
+	MK_PATH(path, index_len, "/coherency_line_size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -315,7 +316,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->line_size = (uint32_t)atoi(contents);
 	free(contents);
 
-	MK_PATH(path, len, "/ways_of_associativity");
+	MK_PATH(path, index_len, "/ways_of_associativity");
 	contents = get_string_from_file(path);
 
 	/* Don't error if file is not readable: cache may not be
@@ -433,14 +434,17 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
 	uint32_t   i;
-	size_t     len, len2;
+	size_t	   len = strlen(cpu_path);
+	size_t     len2 = strlen(SYS_CPU_CACHE_DIR) + 1;
 	glob_t     globbuf;
-	char       glob_path[PATH_MAX] = { 0 };
+	char       glob_path[len + len2];
 	char     **results;
 	int        ret = EXIT_FAILURE;
 	int        ret2;
 
+	(void)memset(glob_path, 0, sizeof(glob_path));
 	(void)memset(&globbuf, 0, sizeof(globbuf));
+
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return ret;
@@ -451,10 +455,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-	len = strlen(cpu_path);
 	(void)strncat(glob_path, cpu_path, len);
-
-	len2 = strlen(SYS_CPU_CACHE_DIR);
 	(void)strncat(glob_path, SYS_CPU_CACHE_DIR, len2);
 	len += len2;
 
@@ -532,12 +533,10 @@ cpus_t * get_all_cpu_cache_details(void)
 {
 	uint32_t   i;
 	int        ret;
-	char       path[PATH_MAX] = { 0 };
 	glob_t     globbuf;
 	char     **results;
 	cpus_t    *cpus = NULL;
 	size_t     cpu_count;
-	size_t     len;
 
 	(void)memset(&globbuf, 0, sizeof(globbuf));
 
@@ -592,7 +591,10 @@ cpus_t * get_all_cpu_cache_details(void)
 			/* 1st CPU cannot be taken offline */
 			cpu->online = 1;
 		} else {
-			len = strlen(results[i]);
+			const size_t len = strlen(results[i]);
+			char path[len];
+
+			(void)memset(path, 0, sizeof(path));
 			(void)strncpy(path, results[i], len);
 			MK_PATH(path, len, "/online");
 
