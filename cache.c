@@ -264,7 +264,7 @@ static const char * get_cache_name(const cache_type_t type)
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	size_t   index_len = strlen(index_path);
+	size_t   index_len = index_path ? strlen(index_path) : 0;
 	char     path[index_len + 32];
 	char    *contents = NULL;
 	int      ret = EXIT_FAILURE;
@@ -434,7 +434,7 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
 	uint32_t   i;
-	size_t	   len = strlen(cpu_path);
+	size_t	   len = cpu_path ? strlen(cpu_path) : 0;
 	size_t     len2 = strlen(SYS_CPU_CACHE_DIR) + 1;
 	glob_t     globbuf;
 	char       glob_path[len + len2];
@@ -592,7 +592,7 @@ cpus_t * get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			const size_t len = strlen(results[i]);
-			char path[len];
+			char path[len + 1];
 
 			(void)memset(path, 0, sizeof(path));
 			(void)strncpy(path, results[i], len);
