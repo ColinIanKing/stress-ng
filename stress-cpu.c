@@ -1430,19 +1430,19 @@ static void stress_cpu_zeta(const char *name)
 static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 {
 	long double precision = 1.0e-10L;
-	long double sum = 0.0L, k = 1.0L, gamma = 0.0L, gammaold;
+	long double sum = 0.0L, k = 1.0L, _gamma = 0.0L, gammaold;
 
 	do {
-		gammaold = gamma;
+		gammaold = _gamma;
 		sum += 1.0L / k;
-		gamma = sum - logl(k);
+		_gamma = sum - logl(k);
 		k += 1.0L;
-	} while (k < 1e6 && fabsl(gamma - gammaold) > precision);
+	} while (k < 1e6 && fabsl(_gamma - gammaold) > precision);
 
-	double_put(gamma);
+	double_put(_gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (fabsl(gamma - GAMMA) > 1.0e-5L)
+		if (fabsl(_gamma - GAMMA) > 1.0e-5L)
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant not as accurate as expected\n", name);
 		if (k > 80000.0L)
