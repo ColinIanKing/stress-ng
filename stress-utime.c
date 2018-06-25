@@ -49,16 +49,16 @@ static int stress_utime(const args_t *args)
 	}
 
 	do {
-		struct timeval times[2];
+		struct timeval timevals[2];
 		struct utimbuf utbuf;
 #if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
     (defined(UTIME_NOW) || defined(UTIME_OMIT))
 		struct timespec ts[2];
 #endif
 
-		if (gettimeofday(&times[0], NULL) == 0) {
-			times[1] = times[0];
-			if (utimes(filename, times) < 0) {
+		if (gettimeofday(&timevals[0], NULL) == 0) {
+			timevals[1] = timevals[0];
+			if (utimes(filename, timevals) < 0) {
 				pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
