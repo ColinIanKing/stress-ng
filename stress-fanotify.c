@@ -65,7 +65,7 @@ static int fanotify_event_init(const char *name)
 {
 	int fan_fd, count = 0;
 	FILE* mounts;
-	struct mntent* mount;
+	struct mntent* mnt;
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
@@ -85,12 +85,12 @@ static int fanotify_event_init(const char *name)
 	/*
 	 *  Gather all mounted file systems and monitor them
 	 */
-	while ((mount = getmntent(mounts)) != NULL) {
+	while ((mnt = getmntent(mounts)) != NULL) {
 		int ret;
 
 		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
 			FAN_ACCESS| FAN_MODIFY | FAN_OPEN | FAN_CLOSE |
-			FAN_ONDIR | FAN_EVENT_ON_CHILD, AT_FDCWD, mount->mnt_dir);
+			FAN_ONDIR | FAN_EVENT_ON_CHILD, AT_FDCWD, mnt->mnt_dir);
 		if (ret == 0)
 			count++;
 	}
