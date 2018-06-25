@@ -158,10 +158,10 @@ static void stress_dev_vcs_linux(const char *name, const int fd, const char *dev
 #endif
 #if defined(VT_GETSTATE)
 	{
-		struct vt_stat  stat;
+		struct vt_stat vt_stat;
 		int ret;
 
-		ret = ioctl(fd, VT_GETSTATE, &stat);
+		ret = ioctl(fd, VT_GETSTATE, &vt_stat);
 		(void)ret;
 	}
 #endif
