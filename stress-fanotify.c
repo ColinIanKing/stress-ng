@@ -120,9 +120,9 @@ static int stress_fanotify(const args_t *args)
 {
 	char dirname[PATH_MAX - 16], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
-	fanotify_account_t acct;
+	fanotify_account_t account;
 
-	memset(&acct, 0, sizeof(acct));
+	memset(&account, 0, sizeof(account));
 
 	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	(void)snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");
@@ -236,15 +236,15 @@ static int stress_fanotify(const args_t *args)
 						break;
 					if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
 						if (metadata->mask & FAN_OPEN)
-							acct.open++;
+							account.open++;
 						if (metadata->mask & FAN_CLOSE_WRITE)
-							acct.close_write++;
+							account.close_write++;
 						if (metadata->mask & FAN_CLOSE_NOWRITE)
-							acct.close_nowrite++;
+							account.close_nowrite++;
 						if (metadata->mask & FAN_ACCESS)
-							acct.access++;
+							account.access++;
 						if (metadata->mask & FAN_MODIFY)
-							acct.modify++;
+							account.modify++;
 
 						inc_counter(args);
 						(void)close(metadata->fd);
@@ -263,11 +263,11 @@ static int stress_fanotify(const args_t *args)
 			"%" PRIu64 " access, "
 			"%" PRIu64 " modify\n",
 			args->name,
-			acct.open,
-			acct.close_write,
-			acct.close_nowrite,
-			acct.access,
-			acct.modify);
+			account.open,
+			account.close_write,
+			account.close_nowrite,
+			account.access,
+			account.modify);
 	}
 tidy:
 	if (pid > 0) {
