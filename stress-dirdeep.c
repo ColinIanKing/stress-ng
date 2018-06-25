@@ -147,7 +147,7 @@ static void stress_dir_exercise(
 	const double now = time_now();
 	const time_t sec = (time_t)now;
 	const long nsec = (long)((now - (double)sec) * 1000000000.0);
-	struct timespec times[2] = {
+	struct timespec timespec[2] = {
 		{ sec, nsec },
 		{ sec, nsec }
 	};
@@ -178,7 +178,7 @@ static void stress_dir_exercise(
 			if (fd >= 0) {
 				const uint16_t rnd = mwc16();
 #if defined(HAVE_FUTIMENS)
-				int ret = futimens(fd, times);
+				int ret = futimens(fd, timespec);
 				(void)ret;
 #endif
 				/* Occasional flushing */
