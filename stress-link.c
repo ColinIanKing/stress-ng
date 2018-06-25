@@ -51,12 +51,12 @@ static void stress_link_unlink(
 static int stress_link_generic(
 	const args_t *args,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
-	const char *funcname,
-	bool symlink)
+	const char *funcname)
 {
 	int rc, ret, fd;
 	char oldpath[PATH_MAX];
 	size_t oldpathlen;
+	bool symlink_func = (linkfunc == symlink);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -88,7 +88,7 @@ static int stress_link_generic(
 				n = i;
 				break;
 			}
-			if (symlink) {
+			if (symlink_func) {
 				char buf[PATH_MAX];
 				ssize_t rret;
 
@@ -134,7 +134,7 @@ abort:
  */
 static int stress_link(const args_t *args)
 {
-	return stress_link_generic(args, link, "link", false);
+	return stress_link_generic(args, link, "link");
 }
 
 /*
@@ -143,7 +143,7 @@ static int stress_link(const args_t *args)
  */
 static int stress_symlink(const args_t *args)
 {
-	return stress_link_generic(args, symlink, "symlink", true);
+	return stress_link_generic(args, symlink, "symlink");
 }
 
 stressor_info_t stress_link_info = {
