@@ -48,7 +48,7 @@ static inline int stress_rtc_dev(const args_t *args)
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
 	struct rtc_time rtc_tm;
-	struct rtc_wkalrm alarm;
+	struct rtc_wkalrm wake_alarm;
 	unsigned long tmp;
 #endif
 	int fd, ret = 0;
@@ -73,7 +73,7 @@ static inline int stress_rtc_dev(const args_t *args)
 #endif
 
 #if defined(RTC_ALM_READ)
-	if (ioctl(fd, RTC_ALM_READ, &alarm) < 0) {
+	if (ioctl(fd, RTC_ALM_READ, &wake_alarm) < 0) {
 		if (errno != ENOTTY) {
 			pr_fail_err("ioctl RTC_ALRM_READ");
 			ret = -errno;
@@ -83,7 +83,7 @@ static inline int stress_rtc_dev(const args_t *args)
 #endif
 
 #if defined(RTC_WKALM_RD)
-	if (ioctl(fd, RTC_WKALM_RD, &alarm) < 0) {
+	if (ioctl(fd, RTC_WKALM_RD, &wake_alarm) < 0) {
 		if (errno != ENOTTY) {
 			pr_fail_err("ioctl RTC_WKALRM_RD");
 			ret = -errno;
