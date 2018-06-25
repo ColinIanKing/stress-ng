@@ -344,7 +344,7 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 {
 	int i;
 	unsigned char *ptr = (unsigned char *)data;
-	size_t index = 0;
+	size_t idx = 0;
 	const size_t mask = (1 << PINK_MAX_ROWS) - 1;
 	uint64_t sum = 0;
 	const uint64_t max = (PINK_MAX_ROWS + 1) * (1 << (PINK_BITS - 1));
@@ -357,9 +357,9 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 	for (i = 0; i < size; i++) {
 		int64_t rand;
 
-		index = (index + 1) & mask;
-		if (index) {
-			size_t j = __builtin_ctz(index);
+		idx = (idx + 1) & mask;
+		if (idx) {
+			size_t j = __builtin_ctz(idx);
 
 			sum -= rows[j];
 			rand = (int64_t)mwc64() >> PINK_SHIFT;
