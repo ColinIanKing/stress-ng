@@ -578,6 +578,7 @@ cpus_t * get_all_cpu_cache_details(void)
 		cpus = NULL;
 		goto out;
 	}
+	cpus->count = cpu_count;
 
 	for (i = 0; i < cpus->count; i++) {
 		char *contents = NULL;
@@ -591,7 +592,7 @@ cpus_t * get_all_cpu_cache_details(void)
 			cpu->online = 1;
 		} else {
 			const size_t len = strlen(results[i]);
-			char path[len + 1];
+			char path[len + 32];
 
 			(void)memset(path, 0, sizeof(path));
 			(void)strncpy(path, results[i], len);
