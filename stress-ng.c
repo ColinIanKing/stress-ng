@@ -2029,6 +2029,7 @@ static void usage(void)
 		"--fork 4 --timeout 10s\n\n"
 		"Note: Sizes can be suffixed with B,K,M,G and times with "
 		"s,m,h,d,y\n", g_app_name);
+	free_settings();
 	exit(EXIT_SUCCESS);
 }
 
@@ -2499,6 +2500,7 @@ again:
 child_exit:
 					free_procs();
 					stress_cache_free();
+					free_settings();
 					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 						g_keep_stressing_flag = false;
 						wait_flag = false;
