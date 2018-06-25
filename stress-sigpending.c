@@ -39,40 +39,40 @@ static void MLOCKED_TEXT stress_usr1_handler(int dummy)
  */
 static int stress_sigpending(const args_t *args)
 {
-	sigset_t sigset;
+	sigset_t _sigset;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	do {
-		(void)sigemptyset(&sigset);
-		(void)sigaddset(&sigset, SIGUSR1);
-		if (sigprocmask(SIG_SETMASK, &sigset, NULL) < 0) {
+		(void)sigemptyset(&_sigset);
+		(void)sigaddset(&_sigset, SIGUSR1);
+		if (sigprocmask(SIG_SETMASK, &_sigset, NULL) < 0) {
 			pr_fail_err("sigprocmask");
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(args->pid, SIGUSR1);
-		if (sigpending(&sigset) < 0) {
+		if (sigpending(&_sigset) < 0) {
 			pr_fail_err("sigpending");
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
-		if (!sigismember(&sigset, SIGUSR1)) {
+		if (!sigismember(&_sigset, SIGUSR1)) {
 			pr_fail_err("sigismember");
 			continue;
 		}
 
 		/* Unmask signal, signal is handled */
-		(void)sigemptyset(&sigset);
-		(void)sigprocmask(SIG_SETMASK, &sigset, NULL);
+		(void)sigemptyset(&_sigset);
+		(void)sigprocmask(SIG_SETMASK, &_sigset, NULL);
 
 		/* And it is no longer pending */
-		if (sigpending(&sigset) < 0) {
+		if (sigpending(&_sigset) < 0) {
 			pr_fail_err("sigpending");
 			continue;
 		}
-		if (sigismember(&sigset, SIGUSR1)) {
+		if (sigismember(&_sigset, SIGUSR1)) {
 			pr_fail_err("sigismember");
 			continue;
 		}
