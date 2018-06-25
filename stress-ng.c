@@ -2199,7 +2199,7 @@ redo:
 			pid = pi->pids[j];
 			if (pid) {
 				int status, ret;
-				bool abort = false;
+				bool do_abort = false;
 
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
@@ -2243,25 +2243,25 @@ redo:
 						pr_err("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
 							ret, pi->stressor->name);
 						*resource_success = false;
-						abort = true;
+						do_abort = true;
 						break;
 					case EXIT_NOT_IMPLEMENTED:
-						abort = true;
+						do_abort = true;
 						break;
 					case EXIT_BY_SYS_EXIT:
 						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
 							ret, pi->stressor->name);
-						abort = true;
+						do_abort = true;
 						break;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
 							ret, pi->stressor->name, WEXITSTATUS(status),
 							str_exitstatus(WEXITSTATUS(status)));
 						*success = false;
-						abort = true;
+						do_abort = true;
 						break;
 					}
-					if ((g_opt_flags & OPT_FLAGS_ABORT) && abort) {
+					if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
 						g_keep_stressing_flag = false;
 						wait_flag = false;
 						kill_procs(SIGALRM);
