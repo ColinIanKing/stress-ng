@@ -57,7 +57,7 @@ static int stress_rawdev_supported(void)
 	return 0;
 }
 
-static inline unsigned long shift(unsigned long v, unsigned int shift)
+static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
 {
 	v >>= shift;
 	return (v == 0) ? 1 : v;
@@ -104,7 +104,7 @@ static void stress_rawdev_sweep(
 	char *aligned = align_address(buf, blksz);
 	off_t offset;
 
-	for (i = 0; i < blks && keep_stressing(); i += shift(blks, 8)) {
+	for (i = 0; i < blks && keep_stressing(); i += shift_ul(blks, 8)) {
 		offset = (off_t)i * (off_t)blksz;
 		ret = pread(fd, aligned, (size_t)blksz, offset);
 		if (ret < 0) {
@@ -113,7 +113,7 @@ static void stress_rawdev_sweep(
 		}
 		inc_counter(args);
 	}
-	for (; i > 0 && keep_stressing(); i -= shift(blks, 8)) {
+	for (; i > 0 && keep_stressing(); i -= shift_ul(blks, 8)) {
 		offset = (off_t)i * (off_t)blksz;
 		ret = pread(fd, aligned, (size_t)blksz, offset);
 		if (ret < 0) {
@@ -136,10 +136,10 @@ static void stress_rawdev_wiggle(
 	char *aligned = align_address(buf, blksz);
 	off_t offset;
 
-	for (i = shift(blks, 8); i < blks && keep_stressing(); i += shift(blks, 8)) {
+	for (i = shift_ul(blks, 8); i < blks && keep_stressing(); i += shift_ul(blks, 8)) {
 		unsigned long j;
 
-		for (j = 0; j < shift(blks, 8) && keep_stressing(); j += shift(blks, 10)) {
+		for (j = 0; j < shift_ul(blks, 8) && keep_stressing(); j += shift_ul(blks, 10)) {
 			offset = (off_t)(i - j) * (off_t)blksz;
 			ret = pread(fd, aligned, (size_t)blksz, offset);
 			if (ret < 0) {
