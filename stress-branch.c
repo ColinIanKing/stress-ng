@@ -33,14 +33,14 @@
 #define JMP(a)	label ## a: 				\
 {							\
 	register bool do_more;				\
-	register uint16_t index = mwc8();		\
+	register uint16_t _index = mwc8();		\
 							\
 	(*(args->counter))++;				\
 	do_more = LIKELY((int)g_keep_stressing_flag) &	\
 		(((int)!args->max_ops) | 		\
 		 (*args->counter < args->max_ops));	\
-	index |= (do_more << 8);			\
-	goto *labels[index];				\
+	_index |= (do_more << 8);			\
+	goto *labels[_index];				\
 }
 
 /*
