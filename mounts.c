@@ -95,7 +95,7 @@ int mount_get(char *mnts[], const int max)
 int mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
-	struct mntent* mount;
+	struct mntent* mnt;
 	int n = 0;
 
 	mounts = setmntent("/etc/mtab", "r");
@@ -104,8 +104,8 @@ int mount_get(char *mnts[], const int max)
 		mount_add(mnts, max, &n, "/");
 		return n;
 	}
-	while ((mount = getmntent(mounts)) != NULL)
-		mount_add(mnts, max, &n, mount->mnt_dir);
+	while ((mnt = getmntent(mounts)) != NULL)
+		mount_add(mnts, max, &n, mnt->mnt_dir);
 
 	(void)endmntent(mounts);
 	return n;
