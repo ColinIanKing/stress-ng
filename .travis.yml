@@ -1,0 +1,25 @@
+dist: bionic
+sudo: required
+
+matrix:
+    include:
+        - env: PEDANTIC=1
+
+before_install:
+    - sudo apt-get update -q
+    - sudo apt-get install build-essential
+    - sudo apt-get install zlib1g-dev || true
+    - sudo apt-get install libbsd-dev || true
+    - sudo apt-get install libattr1-dev || true
+    - sudo apt-get install libkeyutils-dev || true
+    - sudo apt-get install libapparmor-dev || true
+    - sudo apt-get install apparmor || true
+    - sudo apt-get install libaio-dev || true
+    - sudo apt-get install libcap-dev || true
+    - sudo apt-get install libsctp-dev || true
+    - sudo apt-get install libgcrypt20-dev || true
+
+language: c
+
+script:
+- make -j2 PEDANTIC=$PEDANTIC
