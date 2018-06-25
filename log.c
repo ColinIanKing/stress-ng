@@ -155,6 +155,8 @@ static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...)
 	va_end(ap);
 }
 
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
 /*
  *  pr_msg_fail()
  *	print failure message with errno
@@ -168,6 +170,7 @@ void pr_msg_fail(
 	__pr_msg_fail(flag, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
+PRAGMA_POP
 
 /*
  *  pr_dbg()
