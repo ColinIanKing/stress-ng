@@ -355,19 +355,19 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 	memset(rows, 0, sizeof(rows));
 
 	for (i = 0; i < size; i++) {
-		int64_t rand;
+		int64_t rnd;
 
 		idx = (idx + 1) & mask;
 		if (idx) {
 			size_t j = __builtin_ctz(idx);
 
 			sum -= rows[j];
-			rand = (int64_t)mwc64() >> PINK_SHIFT;
-			sum += rand;
-			rows[j] = rand;
+			rnd = (int64_t)mwc64() >> PINK_SHIFT;
+			sum += rnd;
+			rows[j] = rnd;
 		}
-		rand = (int64_t)mwc64() >> PINK_SHIFT;
-		*(ptr++) = (int)((scalar * ((int64_t)sum + rand)) + 128.0);
+		rnd = (int64_t)mwc64() >> PINK_SHIFT;
+		*(ptr++) = (int)((scalar * ((int64_t)sum + rnd)) + 128.0);
 	}
 }
 
