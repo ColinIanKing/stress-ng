@@ -335,7 +335,6 @@ again:
 	} else if (pid == 0) {
 		set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
-		printf("%d died\n", getpid());
 		_exit(EXIT_SUCCESS);
 	} else {
 		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
