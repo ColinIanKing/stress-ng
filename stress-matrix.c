@@ -111,7 +111,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_prod(
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * b[k][j];
 			}
-			if (!g_keep_stressing_flag)
+			if (UNLIKELY(!g_keep_stressing_flag))
 				return;
 		}
 	}
@@ -135,7 +135,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_add(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] + b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -158,7 +158,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_add(
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[i][j] + b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -181,7 +181,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_sub(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] - b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -204,7 +204,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_sub(
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[i][j] - b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -229,7 +229,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_trans(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[j][i];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -254,7 +254,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_trans(
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[j][i];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -280,7 +280,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mult(
 		for (j = 0; j < n; j++) {
 			r[i][j] = v * a[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -306,7 +306,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mult(
 		for (i = 0; i < n; i++) {
 			r[i][j] = v * a[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -332,7 +332,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_div(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] / v;
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -358,7 +358,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_div(
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[i][j] / v;
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -382,7 +382,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_hadamard(
 		for (j = 0; j < n; j++) {
 			r[i][j] = a[i][j] * b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -406,7 +406,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_hadamard(
 		for (i = 0; i < n; i++) {
 			r[i][j] = a[i][j] * b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -433,7 +433,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_frobenius(
 		for (j = 0; j < n; j++) {
 			sum += a[i][j] * b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 	double_put(sum);
@@ -461,7 +461,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_frobenius(
 		for (i = 0; i < n; i++) {
 			sum += a[i][j] * b[i][j];
 		}
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 	double_put(sum);
@@ -487,7 +487,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_copy(
 		for (j = 0; j < n; j++)
 			r[i][j] = a[i][j];
 
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -512,7 +512,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_copy(
 		for (i = 0; i < n; i++)
 			r[i][j] = a[i][j];
 
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -535,7 +535,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mean(
 		for (j = 0; j < n; j++)
 			r[i][j] = (a[i][j] + b[i][j]) / 2.0;
 
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -558,7 +558,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mean(
 		for (i = 0; i < n; i++)
 			r[i][j] = (a[i][j] + b[i][j]) / 2.0;
 
-		if (!g_keep_stressing_flag)
+		if (UNLIKELY(!g_keep_stressing_flag))
 			return;
 	}
 }
@@ -583,6 +583,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_zero(
 
 		for (j = 0; j < n; j++)
 			r[i][j] = 0.0;
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -606,6 +609,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_zero(
 
 		for (i = 0; i < n; i++)
 			r[i][j] = 0.0;
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -629,6 +635,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_negate(
 
 		for (j = 0; j < n; j++)
 			r[i][j] = -a[i][j];
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -652,6 +661,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_negate(
 
 		for (i = 0; i < n; i++)
 			r[i][j] = -a[i][j];
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -675,6 +687,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_identity(
 
 		for (j = 0; j < n; j++)
 			r[i][j] = (i == j) ? 1.0 : 0.0;
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -698,6 +713,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_identity(
 
 		for (i = 0; i < n; i++)
 			r[i][j] = (i == j) ? 1.0 : 0.0;
+
+		if (UNLIKELY(!g_keep_stressing_flag))
+			return;
 	}
 }
 
@@ -724,7 +742,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * a[k][j];
 			}
-			if (!g_keep_stressing_flag)
+			if (UNLIKELY(!g_keep_stressing_flag))
 				return;
 		}
 	}
@@ -753,7 +771,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 			for (k = 0; k < n; k++) {
 				r[i][j] += a[i][k] * a[k][j];
 			}
-			if (!g_keep_stressing_flag)
+			if (UNLIKELY(!g_keep_stressing_flag))
 				return;
 		}
 	}
