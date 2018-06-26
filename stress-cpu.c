@@ -1520,19 +1520,19 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline HOT OPTIMIZE3 bool is_prime(uint32_t n)
+static inline HOT OPTIMIZE3 int is_prime(uint32_t n)
 {
 	register uint32_t i, max;
 
-	if (n <= 3)
+	if (UNLIKELY(n <= 3))
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
-		return false;
+		return 0;
 	max = sqrt(n) + 1;
 	for (i = 5; i < max; i+= 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
-			return false;
-	return true;
+			return 0;
+	return 1;
 }
 
 /*
@@ -1544,8 +1544,7 @@ static void stress_cpu_prime(const char *name)
 	uint32_t i, nprimes = 0;
 
 	for (i = 0; i < 1000000; i++) {
-		if (is_prime(i))
-			nprimes++;
+		nprimes += is_prime(i);
 	}
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 78498))
