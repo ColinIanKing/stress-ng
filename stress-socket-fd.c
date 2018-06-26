@@ -144,8 +144,10 @@ static void stress_socket_client(
 
 	do {
 		int fd, retries = 0, fds[max_fd];
-		ssize_t i;
+		ssize_t i, n;
 		socklen_t addr_len = 0;
+
+		memset(fds, 0, sizeof(fds));
 retry:
 		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
@@ -174,10 +176,10 @@ retry:
 			goto retry;
 		}
 
-		for (i = 0; i < max_fd; i++)
-			fds[i] = stress_socket_fd_recv(fd);
+		for (n = 0; keep_stressing() && (n < max_fd); n++)
+			fds[n] = stress_socket_fd_recv(fd);
 
-		for (i = 0; i < max_fd; i++) {
+		for (i = 0; i < n; i++) {
 			if (fds[i] >= 0)
 				(void)close(fds[i]);
 		}
@@ -249,7 +251,7 @@ static int stress_socket_server(
 		if (sfd >= 0) {
 			ssize_t i;
 
-			for (i = 0; i < max_fd; i++) {
+			for (i = 0; keep_stressing() && (i < max_fd); i++) {
 				int newfd;
 
 				newfd = open("/dev/null", O_RDWR);
@@ -300,6 +302,7 @@ static int stress_sockfd(const args_t *args)
 	pid_t pid, ppid = getppid();
 	ssize_t max_fd = stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
+	int ret = EXIT_SUCCESS;
 
 	(void)get_setting("sockfd-port", &socket_fd_port);
 
@@ -317,9 +320,11 @@ static int stress_sockfd(const args_t *args)
 
 	pr_dbg("%s: process [%d] using socket port %d and %zd file descriptors\n",
 		args->name, args->pid, socket_fd_port + args->instance, max_fd);
+
 again:
 	pid = fork();
 	if (pid < 0) {
+		printf("errno: %d\n", errno);
 		if (errno == EAGAIN) {
 			if (g_keep_stressing_flag)
 				goto again;
@@ -330,10 +335,12 @@ again:
 	} else if (pid == 0) {
 		set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
+		printf("%d died\n", getpid());
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
+		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
+	return ret;
 }
 
 stressor_info_t stress_sockfd_info = {
