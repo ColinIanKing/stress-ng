@@ -63,13 +63,13 @@ typedef struct {
 
 static const policy_t policies[] = {
 #if defined(SCHED_DEADLINE)
-	{ SCHED_DEADLINE,   "SCHED_DEADLINE", "deadline" },
+	{ SCHED_DEADLINE, "SCHED_DEADLINE",  "deadline" },
 #endif
 #if defined(SCHED_FIFO)
-	{ SCHED_FIFO, "SCHED_FIFO", "fifo" },
+	{ SCHED_FIFO,     "SCHED_FIFO",      "fifo" },
 #endif
 #if defined(SCHED_RR)
-	{ SCHED_RR,   "SCHED_RR", "rr" },
+	{ SCHED_RR,       "SCHED_RR",        "rr" },
 #endif
 };
 
