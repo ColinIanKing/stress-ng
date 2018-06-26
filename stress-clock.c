@@ -58,6 +58,9 @@ static const clock_info_t clocks[] = {
 #if defined(CLOCK_THREAD_CPUTIME_ID)
 	CLOCK_INFO(CLOCK_THREAD_CPUTIME_ID)
 #endif
+#if defined(CLOCK_MONOTONIC_ACTIVE)
+	CLOCK_INFO(CLOCK_MONOTONIC_ACTIVE)
+#endif
 };
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
