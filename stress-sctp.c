@@ -42,6 +42,8 @@
 
 #endif
 
+static uint64_t	sigpipe_count;
+
 /*
  *  stress_set_sctp_port()
  *	set port to use
@@ -137,13 +139,8 @@ retry:
 
 			ssize_t n = sctp_recvmsg(fd, buf, sizeof(buf),
 				NULL, 0, &sndrcvinfo, &flags);
-			if (n == 0)
+			if (n <= 0)
 				break;
-			if (n < 0) {
-				if (errno != EINTR)
-					pr_fail_dbg("recv");
-				break;
-			}
 		} while (keep_stressing());
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
@@ -213,6 +210,7 @@ static int stress_sctp_server(
 		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			size_t i;
+
 #if defined(SOCKET_NODELAY)
 			int one = 1;
 
@@ -232,16 +230,15 @@ static int stress_sctp_server(
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
 						LOCALTIME_STREAM, 0, 0);
-				if (ret < 0) {
-					if (errno != EINTR)
-						pr_fail_dbg("send");
+				if (ret < 0)
 					break;
-				} else
+				else {
+					inc_counter(args);
 					msgs++;
+				}
 			}
 			(void)close(sfd);
 		}
-		inc_counter(args);
 	} while (keep_stressing());
 
 die_close:
@@ -257,9 +254,15 @@ die:
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
 	}
-	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
 	return rc;
+}
+
+static void stress_sctp_sigpipe(int dummy)
+{
+	(void)dummy;
+
+	sigpipe_count++;
 }
 
 /*
@@ -271,9 +274,13 @@ static int stress_sctp(const args_t *args)
 	pid_t pid, ppid = getppid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
+	int ret = EXIT_FAILURE;
 
 	(void)get_setting("sctp-port", &sctp_port);
 	(void)get_setting("sctp-domain", &sctp_domain);
+
+	if (stress_sighandler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
+		return EXIT_FAILURE;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, args->pid, sctp_port + args->instance);
@@ -290,9 +297,14 @@ again:
 			sctp_port, sctp_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_sctp_server(args, pid, ppid,
+		ret = stress_sctp_server(args, pid, ppid,
 			sctp_port, sctp_domain);
 	}
+
+	if (sigpipe_count)
+		pr_dbg("%s: caught %" PRIu64 " SIGPIPE signals\n", args->name, sigpipe_count);
+
+	return ret;
 }
 
 stressor_info_t stress_sctp_info = {
