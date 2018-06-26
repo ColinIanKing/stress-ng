@@ -53,6 +53,11 @@ static void stress_mmap_child(const args_t *args)
 #if defined(MAP_POPULATE)
 		flags |= mwc1() ? MAP_POPULATE : 0;
 #endif
+#if defined(MAP_FIXED_NOREPLACE)
+		/* 4.17 Linux flag */
+		flags &= ~MAP_FIXED;
+		flags |= mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
+#endif
 
 		if (!g_keep_stressing_flag)
 			break;
