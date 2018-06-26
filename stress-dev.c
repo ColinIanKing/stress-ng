@@ -377,15 +377,6 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
 		(void)ret;
 	}
 #endif
-#if defined(BLKSSZGET)
-	/* get block device soft block size */
-	{
-		int ret, sz;
-
-		ret = ioctl(fd, BLKSSZGET, &sz);
-		(void)ret;
-	}
-#endif
 #if defined(BLKPBSZGET)
 	/* get block device physical block size */
 	{
