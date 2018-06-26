@@ -1604,7 +1604,7 @@ static uint32_t HOT hanoi(
 	const char p2,
 	const char p3)
 {
-	if (n == 0) {
+	if (UNLIKELY(n == 0)) {
 		/* Move p1 -> p2 */
 		return 1;
 	} else {
