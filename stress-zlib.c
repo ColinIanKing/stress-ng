@@ -400,7 +400,7 @@ static void stress_rand_data_latin(const args_t *args, uint32_t *data, const int
  *  stress_rand_data_objcode()
  *	fill buffer with object code data from stress-ng
  */
-static void stress_rand_data_objcode(const args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_objcode(const args_t *args, uint32_t *const data, const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
