@@ -698,7 +698,7 @@ static inline void stress_dev_rw(
 		if (fstat(fd, &buf) < 0) {
 			pr_fail_err("stat");
 		} else {
-			if ((buf.st_mode & (S_IFBLK | S_IFCHR)) == 0) {
+			if ((S_ISBLK(buf.st_mode) | (S_ISCHR(buf.st_mode))) == 0) {
 				pr_fail("%s: device entry '%s' is not "
 					"a block or char device\n",
 				args->name, path);
