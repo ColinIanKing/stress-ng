@@ -382,7 +382,7 @@ dist:
 		personality.c COPYING syscalls.txt mascot README \
 		README.Android test snapcraft smatchify.sh config TODO \
 		perf-event.c usr.bin.pulseaudio.eg stress-version.h \
-		example-jobs stress-ng-$(VERSION)
+		example-jobs .travis.yml stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
