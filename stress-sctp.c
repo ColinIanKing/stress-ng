@@ -40,9 +40,9 @@
 #define LOCALTIME_STREAM        0
 #endif
 
+static uint64_t	sigpipe_count;
 #endif
 
-static uint64_t	sigpipe_count;
 
 /*
  *  stress_set_sctp_port()
