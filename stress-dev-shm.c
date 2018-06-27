@@ -61,7 +61,7 @@ static inline int stress_dev_shm_child(
 		 *  can trip a SIGBUS
 		 */
 		while (keep_stressing() && (sz_delta >= page_thresh)) {
-			ret = fallocate(fd, 0, 0, sz);
+			ret = shim_fallocate(fd, 0, 0, sz);
 			if (ret < 0) {
 				sz -= (sz_delta >> 1);
 				break;
