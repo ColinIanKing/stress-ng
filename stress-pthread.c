@@ -97,7 +97,9 @@ static void *stress_pthread_func(void *parg)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
+#if !defined(__APPLE__)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
+#endif
 
 	/*
 	 *  According to POSIX.1 a thread should have
