@@ -89,11 +89,11 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (g_keep_stressing_flag) {
+		while (keep_stressing()) {
 			msg_t msg;
 			uint64_t i;
 
-			for (i = 0; ; i++) {
+			for (i = 0; keep_stressing(); i++) {
 				uint64_t v;
 				if (msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0) < 0) {
 					pr_fail_dbg("msgrcv");
