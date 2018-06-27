@@ -97,7 +97,7 @@ static void *stress_pthread_func(void *parg)
 	 *  Block all signals, let controlling thread
 	 *  handle these
 	 */
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(__DragonFly__)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
 
