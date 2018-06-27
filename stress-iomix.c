@@ -721,9 +721,14 @@ reap:
 		*args->counter += counters[i];
 
 		if (pids[i]) {
+			(void)kill(pids[i], SIGALRM);
+			(void)kill(pids[i], SIGKILL);
+		}
+	}
+	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
+		if (pids[i]) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
 		}
 	}
