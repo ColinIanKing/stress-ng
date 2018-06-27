@@ -1099,6 +1099,14 @@ Note that watchdog devices are not exercised.
 .B \-\-dev\-ops N
 stop dev workers after N bogo device exercising operations.
 .TP
+.B \-\-dev\-shm N
+start N workers that fallocate large files in /dev/shm and then mmap
+these into memory and touch all the pages. This exercises pages being
+moved to/from the buffer cache. Linux only.
+.TP
+.B \-\-dev\-shm\-ops N
+stop after N bogo allocation and mmap /dev/shm operations.
+.TP
 .B \-\-dir N
 start N workers that create and remove directories using mkdir and rmdir.
 .TP
