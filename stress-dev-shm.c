@@ -152,6 +152,7 @@ fork_again:
 				args->name, errno, strerror(errno));
 
 			/* Nope, give up! */
+			(void)close(fd);
 			return EXIT_FAILURE;
 		} else if (pid > 0) {
 			/* Parent */
