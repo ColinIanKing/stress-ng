@@ -166,6 +166,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 				break;
 			stress_fstat_helper(ctxt);
 		}
+		shim_sched_yield();
 	}
 
 	return &nowt;
