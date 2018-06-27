@@ -1,3 +1,80 @@
+stress-ng (0.09.32-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add .travis.yml to make dist rule
+  * stress-dev-shm: reduce scope of variable ret
+  * stress-fstat: add yield point to get lower-latency in stopping
+  * stress-dev-shm: handle interrupted wait to fix utime accounting
+  * stress-dev-shm: use shim_fallocate for older kernels that don't
+    support it
+  * stress-pthread: don't block threads from SIGALRM for DragonFly BSD
+  * stress-pthread: don't block threads from SIGALRM for OS X
+  * stress-fstat: don't block threads from SIGALRM for OS X
+  * stress-dev: skip devices that are not standard chr or blk devices
+  * Check for chr or blk device using S_ISCHR/S_ISBLK
+  * Fall back to mutexes instead of spinlocks for OpenBSD
+  * stress-iomix: make kill and wait into two phases
+  * stress-msg: add extra yield points for prompt death of children
+  * stress-msg: add yielding to boost performance and help NetBSD
+  * shim: make FreeBSD use the emulated fallocate for the moment
+  * stress-zlib: constify data, cleans up clobbering warning
+  * stress-dev-shm: close fd on exit
+  * stress-sigpipe: move declaration of sigpipe_count
+  * Add /dev/shm memory stressor
+  * stress-dev: remove duplicated BLKSSZGET ioctl
+  * stress-cyclic: reformat table contents
+  * stress-clock: add 4.17 CLOCK_MONOTONIC_ACTIVE clock
+  * stress-mmapfixed: add new 4.17 MAP_FIXED_NOREPLACE flag
+  * stress-matrix: only print matrix method on first stressor instance
+  * stress-matrix: add more yield points for snappier exits
+  * stress-socket-fd: remove debug message
+  * stress-socket-fd: add more yield points on fd recv and closing
+  * stress-sctp: handle failures more gracefully, retry rather than
+    abort
+  * stress-cpu: Add LIKELY hint on callfunc stressor, speeds up
+    by ~0.8%
+  * stress-cpu: optimize primes a little further
+  * Add UNLIKEY hint on sqrt stressor, speeds up by ~3%
+  * stress-cpu: add UNLIKELY hint on hanoi zero depth
+  * stress-ng: call free_settings to fix memory leak on process exits
+  * cache: fix removed assignment to cpu count and make buffer larger
+  * cache: use sizeof types to fix segfault
+  * helper: put PRAGMAs around function rather inside function
+  * Use trusty dist in travis
+  * Force disabling of warnings on older versions of gcc
+  * Add travis build yaml
+  * stress-ng: rename abort to do_abort to avoid shadowing of global
+    function abort
+  * stress-zlib: rename rand to rnd to avoid shadowing with global
+    function rand
+  * stress-zlib: rename index to idx to avoid shadowing with global
+    function index
+  * stress-utime: rename times to timevals to avoid shadowing with
+    global function times
+  * stress-sigpending: rename sigset to _sigset to avoid shadowing of
+    global sigset
+  * stress-rtc: rename alarm to wake_alarm to avoid shadowing with
+    function alarm
+  * stress-rawdev: rename function shift to shift_ul
+  * stress-link: remove need for symlink argument
+  * rename acct to account to avoid shadowing with function acct
+  * stress-fanotify: rename mount to mnt to avoid shadowing with
+    function mount
+  * rename times to timespec to avoid shadowing with global function
+    times
+  * stress-dev: rename stat to vt_stat to avoid shadowing with
+    function stat
+  * stress-cpu: rename gamma to _gamma to fix shadowing with
+    function gamma
+  * stress-context: rename link to uc_link to avoid shadowing with
+    function link
+  * stress-branch: rename index to _index inside macro to avoid
+    global shadowing
+  * Rename mount to mnt to ensure we don't shadow global function
+    mount
+
+ -- Colin King <colin.king@canonical.com>  Wed, 27 jun 2018 19:12:17 +0100
+
 stress-ng (0.09.31-1) unstable; urgency=medium
 
   * Makefile: bump version
