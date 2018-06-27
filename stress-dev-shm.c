@@ -150,16 +150,23 @@ fork_again:
 				goto fork_again;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
-
 			/* Nope, give up! */
 			(void)close(fd);
 			return EXIT_FAILURE;
 		} else if (pid > 0) {
 			/* Parent */
-			int status = 0;
+			int ret, status = 0;
 
 			(void)setpgid(pid, g_pgrp);
-			(void)waitpid(pid, &status, 0);
+			ret = waitpid(pid, &status, 0);
+			if (ret < 0) {
+				if (errno != EINTR)
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				(void)kill(pid, SIGTERM);
+				(void)kill(pid, SIGKILL);
+				(void)waitpid(pid, &status, 0);
+			}
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGKILL)) {
