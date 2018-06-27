@@ -35,7 +35,7 @@ static inline int stress_dev_shm_child(
 	const args_t *args,
 	const int fd)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
 	const size_t page_thresh = 16 * MB;
 	ssize_t sz = page_size;
@@ -46,6 +46,7 @@ static inline int stress_dev_shm_child(
 
 	while (keep_stressing()) {
 		size_t sz_delta = page_thresh;
+		int ret;
 
 		ret = ftruncate(fd, 0);
 		if (ret < 0) {
