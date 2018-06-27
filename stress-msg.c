@@ -129,6 +129,14 @@ again:
 			if ((i & 0x1f) == 0)
 				if (stress_msg_getstats(args, msgq_id) < 0)
 					break;
+			/*
+			 *  NetBSD can shove loads of messages onto
+			 *  a queue before it blocks, so force
+			 *  a scheduling yield every so often so that
+			 *  consumer can read them.
+			 */
+			if ((i & 0xff) == 0)
+				(void)shim_sched_yield();
 			i++;
 			inc_counter(args);
 		} while (keep_stressing());
