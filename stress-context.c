@@ -62,7 +62,7 @@ static void thread3(void)
 static int stress_context_init(
 	const args_t *args,
 	void (*func)(void),
-	ucontext_t *uc_link,
+	ucontext_t *uctx_link,
 	ucontext_t *uctx,
 	void *stack,
 	const size_t stack_size)
@@ -74,7 +74,7 @@ static int stress_context_init(
 	}
 	uctx->uc_stack.ss_sp = (void *)stack;
 	uctx->uc_stack.ss_size = stack_size;
-	uctx->uc_link = uc_link;
+	uctx->uc_link = uctx_link;
 	makecontext(uctx, func, 0);
 
 	return 0;
