@@ -53,6 +53,8 @@ static inline int stress_rtc_dev(const args_t *args)
 #endif
 	int fd, ret = 0;
 	static bool do_dev = true;
+	struct timeval timeout;
+	fd_set rfds;
 
 	if (!do_dev)
 		return -EACCES;
@@ -101,6 +103,17 @@ static inline int stress_rtc_dev(const args_t *args)
 		}
 	}
 #endif
+
+	/*
+	 *  Very short delay select on the device
+	 *  that should normally always timeout because
+	 *  there are no RTC alarm interrupts pending
+	 */
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 1000;
+	FD_ZERO(&rfds);
+	FD_SET(fd, &rfds);
+	(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
 
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
