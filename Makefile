@@ -247,6 +247,7 @@ STRESS_SRC = \
 	stress-vm-segv.c \
 	stress-vm-splice.c \
 	stress-wait.c \
+	stress-watchdog.c \
 	stress-wcstr.c \
 	stress-xattr.c \
 	stress-yield.c \

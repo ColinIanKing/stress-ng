@@ -1490,6 +1490,7 @@ typedef enum {
 	STRESS_VM_SEGV,
 	STRESS_VM_SPLICE,
 	STRESS_WAIT,
+	STRESS_WATCHDOG,
 	STRESS_WCS,
 	STRESS_XATTR,
 	STRESS_YIELD,
@@ -2308,6 +2309,9 @@ typedef enum {
 
 	OPT_WAIT,
 	OPT_WAIT_OPS,
+
+	OPT_WATCHDOG,
+	OPT_WATCHDOG_OPS,
 
 	OPT_WCS,
 	OPT_WCS_OPS,
@@ -3218,6 +3222,7 @@ STRESS(stress_vm_rw);
 STRESS(stress_vm_segv);
 STRESS(stress_vm_splice);
 STRESS(stress_wait);
+STRESS(stress_watchdog);
 STRESS(stress_wcs);
 STRESS(stress_xattr);
 STRESS(stress_yield);

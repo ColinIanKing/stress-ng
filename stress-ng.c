@@ -508,6 +508,7 @@ static const stress_t stressors[] = {
 	STRESSOR(vm_segv, VM_SEGV),
 	STRESSOR(vm_splice, VM_SPLICE),
 	STRESSOR(wait, WAIT),
+	STRESSOR(watchdog, WATCHDOG),
 	STRESSOR(wcs, WCS),
 	STRESSOR(xattr, XATTR),
 	STRESSOR(yield, YIELD),
@@ -1123,6 +1124,8 @@ static const struct option long_options[] = {
 	{ "vm-splice-ops",1,	0,	OPT_VM_SPLICE_OPS },
 	{ "wait",	1,	0,	OPT_WAIT },
 	{ "wait-ops",	1,	0,	OPT_WAIT_OPS },
+	{ "watchdog",	1,	0,	OPT_WATCHDOG },
+	{ "watchdog-ops",1,	0,	OPT_WATCHDOG_OPS },
 	{ "wcs",	1,	0,	OPT_WCS},
 	{ "wcs-ops",	1,	0,	OPT_WCS_OPS },
 	{ "wcs-method",	1,	0,	OPT_WCS_METHOD },
@@ -1731,6 +1734,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
 	{ NULL,		"wait N",		"start N workers waiting on child being stop/resumed" },
 	{ NULL,		"wait-ops N",		"stop after N bogo wait operations" },
+	{ NULL,		"watchdog N",		"start N workers that exercise /dev/watchdog" },
+	{ NULL,		"watchdog-ops N",	"stop after N bogo watchdog operations" },
 	{ NULL,		"wcs N",		"start N workers on lib C wide char string functions" },
 	{ NULL,		"wcs-method func",	"specify the wide character string function to stress" },
 	{ NULL,		"wcs-ops N",		"stop after N bogo wide character string operations" },
@@ -2989,7 +2994,7 @@ static inline void exclude_pathological(void)
 			if (pi->stressor->info->class & CLASS_PATHOLOGICAL) {
 				if (pi->num_procs > 0) {
 					pr_inf("disabled '%s' as it "
-						"may hang the machine "
+						"may hang or reboot the machine "
 						"(enable it with the "
 						"--pathological option)\n",
 						munge_underscore(pi->stressor->name));

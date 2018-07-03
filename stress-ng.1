@@ -3512,6 +3512,18 @@ and waitid(2).
 .B \-\-wait\-ops N
 stop after N bogo wait operations.
 .TP
+.B \-\-watchdog N
+start N workers that exercising the /dev/watchdog watchdog interface by
+opening it, perform various watchdog specific ioctl(2) commands on the
+device and close it.  Before closing the special watchdog magic close
+message is written to the device to try and force it to never trip a
+watchdog reboot after the stressor has been run.  Note that this stressor
+needs to be run as root with the \-\-pathological option and is only
+available on Linux.
+.TP
+.B \-\-watchdog\-ops N
+stop after N bogo operations on the watchdog device.
+.TP
 .B \-\-wcs N
 start N workers that exercise various libc wide character string functions on
 random strings.
