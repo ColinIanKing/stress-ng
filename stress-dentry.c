@@ -136,6 +136,66 @@ static void stress_dentry_unlink(
 }
 
 /*
+ *  stress_dentry_misc()
+ *	misc ways to exercise a directory file
+ */
+static void stress_dentry_misc(const args_t *args, const char *path)
+{
+	int fd, flags = O_RDONLY, ret;
+	off_t offset;
+	struct stat statbuf;
+	struct timeval timeout;
+	fd_set rdfds;
+	char buf[1024];
+
+#if defined(O_DIRECTORY)
+	flags |= O_DIRECTORY;
+#endif
+
+	fd = open(path, flags);
+	if (fd < 0)
+		return;
+
+	ret = fstat(fd, &statbuf);
+	(void)ret;
+
+	/* Not really legal */
+	offset = lseek(fd, 0, SEEK_END);
+	(void)offset;
+
+	offset = lseek(fd, 0, SEEK_SET);
+	(void)offset;
+
+	/* Not allowed */
+	ret = read(fd, buf, sizeof(buf));
+	(void)ret;
+
+	FD_ZERO(&rdfds);
+	FD_SET(fd, &rdfds);
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
+	(void)ret;
+
+	ret = flock(fd, LOCK_EX);
+	if (ret == 0) {
+		ret = flock(fd, LOCK_UN);
+		(void)ret;
+	}
+
+#if defined(F_GETFL)
+	{
+		int flag;
+
+		ret = fcntl(fd, F_GETFL, &flag);
+		(void)ret;
+	}
+#endif
+	(void)close(fd);
+
+}
+
+/*
  *  stress_dentry
  *	stress dentries.  file names are based
  *	on a gray-coded value multiplied by two.
@@ -146,6 +206,7 @@ static int stress_dentry(const args_t *args)
 	int ret;
 	uint64_t dentries = DEFAULT_DENTRIES;
 	uint8_t dentry_order = ORDER_RANDOM;
+	char dir_path[PATH_MAX];
 
 	if (!get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -158,6 +219,8 @@ static int stress_dentry(const args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
+
+	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
 
 	do {
 		uint64_t i, n = dentries;
@@ -185,6 +248,8 @@ static int stress_dentry(const args_t *args)
 			inc_counter(args);
 		}
 
+		stress_dentry_misc(args, dir_path);
+
 		/*
 		 *  Now look up some bogus names to exercise
 		 *  lookup failures
@@ -208,6 +273,8 @@ static int stress_dentry(const args_t *args)
 		 *  And remove
 		 */
 		stress_dentry_unlink(args, n, dentry_order);
+		stress_dentry_misc(args, dir_path);
+
 		if (!g_keep_stressing_flag)
 			break;
 		sync();
