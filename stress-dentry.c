@@ -139,7 +139,7 @@ static void stress_dentry_unlink(
  *  stress_dentry_misc()
  *	misc ways to exercise a directory file
  */
-static void stress_dentry_misc(const args_t *args, const char *path)
+static void stress_dentry_misc(const char *path)
 {
 	int fd, flags = O_RDONLY, ret;
 	off_t offset;
@@ -248,7 +248,7 @@ static int stress_dentry(const args_t *args)
 			inc_counter(args);
 		}
 
-		stress_dentry_misc(args, dir_path);
+		stress_dentry_misc(dir_path);
 
 		/*
 		 *  Now look up some bogus names to exercise
@@ -273,7 +273,7 @@ static int stress_dentry(const args_t *args)
 		 *  And remove
 		 */
 		stress_dentry_unlink(args, n, dentry_order);
-		stress_dentry_misc(args, dir_path);
+		stress_dentry_misc(dir_path);
 
 		if (!g_keep_stressing_flag)
 			break;
