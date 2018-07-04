@@ -27,7 +27,6 @@
 #if defined(__linux__)
 #include <sys/sysinfo.h>
 #include <utime.h>
-#include <sys/ptrace.h>
 #include <sys/vfs.h>
 #if defined(__NR_ustat)
 #include <ustat.h>
@@ -292,7 +291,7 @@ static int bad_pipe(void *addr)
 	return pipe(addr);
 }
 
-#if defined(__linux__) && defined(PTRACE_GETREGS)
+#if defined(HAVE_PTRACE) && defined(PTRACE_GETREGS)
 static int bad_ptrace(void *addr)
 {
 	return ptrace(PTRACE_GETREGS, getpid(), addr, addr);
@@ -478,7 +477,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_open,
 	bad_pipe,
 	bad_poll,
-#if defined(__linux__) && defined(PTRACE_GETREGS)
+#if defined(HAVE_PTRACE) && defined(PTRACE_GETREGS)
 	bad_ptrace,
 #endif
 	bad_read,

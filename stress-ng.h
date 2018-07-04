@@ -126,6 +126,10 @@
 #include <sys/sem.h>
 #endif
 
+#if defined(HAVE_PTRACE)
+#include <sys/ptrace.h>
+#endif
+
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
@@ -1055,10 +1059,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
-
-#if defined(__linux__)
-#define STRESS_THRASH
-#endif
 
 /* Arch specific, x86 */
 #if defined(__x86_64__) || defined(__x86_64) || \

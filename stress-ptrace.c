@@ -23,9 +23,8 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__linux__)
 
-#include <sys/ptrace.h>
+#if defined(HAVE_PTRACE)
 
 /*
  *  main syscall ptrace loop
