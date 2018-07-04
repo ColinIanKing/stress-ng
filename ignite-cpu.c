@@ -113,6 +113,7 @@ void ignite_cpu_start(void)
 		/* Child */
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		set_proc_name("stress-ng-ignite");
 
 		while (g_keep_stressing_flag) {
 			for (i = 0; settings[i].path; i++) {
