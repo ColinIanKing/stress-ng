@@ -26,6 +26,8 @@
 
 #if defined(STRESS_THRASH)
 
+#include <sys/ptrace.h>
+
 #define KSM_RUN_MERGE		"1"
 
 static pid_t thrash_pid;
@@ -38,10 +40,14 @@ static int pagein_proc(const pid_t pid)
 {
 	char path[PATH_MAX];
 	char buffer[4096];
-	int fdmem;
+	int fdmem, ret;
 	FILE *fpmap;
 	const size_t page_size = stress_get_pagesize();
 	size_t pages = 0;
+
+	ret = ptrace(PTRACE_ATTACH, pid, NULL, NULL);
+	if (ret < 0)
+		return -errno;
 
 	(void)snprintf(path, sizeof(path), "/proc/%d/mem", pid);
 	fdmem = open(path, O_RDONLY);
@@ -59,30 +65,42 @@ static int pagein_proc(const pid_t pid)
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
 	while (fgets(buffer, sizeof(buffer), fpmap)) {
-		off_t off;
-		uintmax_t begin, end;
-		uint8_t byte;
-		if (sscanf(buffer, "%jx-%jx", &begin, &end) != 2)
-			continue;
-		/* Ignore bad range */
-		if (begin >= end)
-			continue;
-		/* Skip huge ranges more than 2GB */
-		if (end - begin > 0x80000000UL)
-			continue;
-		/* Skip bad start */
-		if (end == 0)
+		uintmax_t begin, end, len;
+		uintptr_t off;
+		char tmppath[1024];
+		char prot[5];
+
+		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4)
 			continue;
 
-		for (off = (off_t)begin; off < (off_t)end; off += page_size, pages++) {
-			if (lseek(fdmem, off, SEEK_SET) == (off_t)-1)
+		/* ignore non-readable or non-private mappings */
+		if (prot[0] != 'r' && prot[3] != 'p')
+			continue;
+		len = end - begin;
+
+		/* Ignore bad range */
+		if ((begin >= end) || (len == 0) || (begin == 0))
+			continue;
+		/* Skip huge ranges more than 2GB */
+		if (len > 0x80000000UL)
+			continue;
+
+		for (off = begin; off < end; off += page_size, pages++) {
+			unsigned long data;
+			off_t pos;
+			size_t sz;
+
+			(void)ptrace(PTRACE_PEEKDATA, pid, (void *)off, &data);
+			pos = lseek(fdmem, off, SEEK_SET);
+			if (pos != (off_t)off)
 				continue;
-			if (read(fdmem, &byte, sizeof(byte)) == sizeof(byte)) {
-				;
-			}
+			sz = read(fdmem, &data, sizeof(data));
+			(void)sz;
 		}
 	}
 
+	(void)ptrace(PTRACE_DETACH, pid, NULL, NULL);
 	(void)fclose(fpmap);
 	(void)close(fdmem);
 
@@ -159,6 +177,8 @@ int thrash_start(void)
 	} else if (thrash_pid == 0) {
 #if defined(SCHED_RR)
 		int ret;
+
+		set_proc_name("stress-ng-thrash");
 
 		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
 		(void)ret;
