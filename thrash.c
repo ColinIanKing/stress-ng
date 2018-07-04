@@ -26,6 +26,8 @@
 
 #if defined(STRESS_THRASH)
 
+#define KSM_RUN_MERGE		"1"
+
 static pid_t thrash_pid;
 
 /*
@@ -99,6 +101,17 @@ static inline void compact_memory(void)
 }
 
 /*
+ *  merge_memory()
+ *	trigger ksm memory merging, Linux only
+ */
+static inline void merge_memory(void)
+{
+#if defined(__linux__)
+	system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1);
+#endif
+}
+
+/*
  *  pagein_all_procs()
  *	force pages into memory for all processes
  */
@@ -153,6 +166,7 @@ int thrash_start(void)
 		while (g_keep_stressing_flag) {
 			pagein_all_procs();
 			compact_memory();
+			merge_memory();
 			sleep(1);
 		}
 		_exit(0);
