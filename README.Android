@@ -41,7 +41,7 @@ Considerably easier with a cross-compilation enable distribution, swap architect
 
 === Setup ===
   apt-get install gcc-4.9-aarch64-linux-gnu
- 
+
 === Build ===
 
   CC=aarch64-linux-gnu-gcc-4.9 STATIC=1 make

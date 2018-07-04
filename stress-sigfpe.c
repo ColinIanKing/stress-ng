@@ -120,7 +120,7 @@ static int stress_sigfpe(const args_t *args)
 	const uint64_t zero = uint64_zero();
 
 	typedef struct {
-		int	exception;	
+		int	exception;
 		int	err_code;
 	} fpe_err_t;
 
@@ -131,7 +131,7 @@ static int stress_sigfpe(const args_t *args)
 #if defined(FPE_INTDIV)
 		{ SNG_INTDIV,	FPE_INTDIV },
 #endif
-#if defined(FPE_FLTDIV)	
+#if defined(FPE_FLTDIV)
 		{ SNG_FLTDIV,	FPE_FLTDIV },
 #endif
 #if defined(FE_DIVBYZERO) && defined(FPE_FLTDIV)
@@ -177,7 +177,7 @@ static int stress_sigfpe(const args_t *args)
 #endif
 		int exception;
 
-#if defined(SA_SIGINFO)	
+#if defined(SA_SIGINFO)
 		code = fpe_errs[i].err_code;
 		expected_err_code = code;
 #endif

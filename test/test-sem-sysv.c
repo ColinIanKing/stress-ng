@@ -56,7 +56,7 @@ int main(void)
 	 * This is not meant to be functionally
 	 * correct, it is just used to check we
 	 * can build minimal POSIX semaphore
-	 * based code 
+	 * based code
 	 */
 	key = (key_t)getpid();
 	sem = semget(key, 1, IPC_CREAT | S_IRUSR | S_IWUSR);

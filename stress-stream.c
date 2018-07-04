@@ -406,7 +406,7 @@ static void stress_stream_init_index(
 {
 	uint64_t i;
 
-	for (i = 0; i < n; i++) 
+	for (i = 0; i < n; i++)
 		idx[i] = i;
 
 	for (i = 0; i < n; i++) {
@@ -508,7 +508,6 @@ static int stress_stream(const args_t *args)
 	case 0:
 	default:
 		break;
-		
 	}
 
 	stress_stream_init_data(a, n);

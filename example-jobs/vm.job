@@ -183,7 +183,7 @@ mmapmany 0		# 0 means 1 stressor per CPU
 #   specified by --mremap-bytes) and then iteratively halved in size
 #   by remapping all the way down to a page size and then back up to
 #   the original size.  This worker is only available for Linux.
-#   
+#
 mremap 0		# 0 means 1 stressor per CPU
 # mremap-ops 1000000	# stop after 1000000 bogo ops
 # mremap-bytes 256M	# allocate 256M per mremap stressor

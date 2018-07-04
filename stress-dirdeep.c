@@ -264,7 +264,7 @@ static int stress_dirdeep(const args_t *args)
         (void)get_setting("dirdeep-dirs", &dirdeep_dirs);
         (void)get_setting("dirdeep-inodes", &dirdeep_inodes);
 
-	inodes_target_free = (inodes_avail > dirdeep_inodes) ? 
+	inodes_target_free = (inodes_avail > dirdeep_inodes) ?
 		inodes_avail - dirdeep_inodes : 0;
 
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));

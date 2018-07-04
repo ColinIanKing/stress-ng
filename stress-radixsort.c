@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if HAVE_LIB_BSD 
+#if HAVE_LIB_BSD
 
 #define STR_SIZE	(8)
 
@@ -60,7 +60,7 @@ int stress_set_radixsort_size(const char *opt)
 	return set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 
-#if HAVE_LIB_BSD 
+#if HAVE_LIB_BSD
 /*
  *  stress_radixsort()
  *	stress radixsort

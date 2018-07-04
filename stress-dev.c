@@ -646,7 +646,7 @@ static const dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__) && defined(STRESS_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
-#endif	
+#endif
 	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 };
 

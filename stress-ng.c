@@ -3191,7 +3191,7 @@ next_opt:
 			set_setting_global("backoff", TYPE_ID_INT64, &i64);
 			break;
 		case OPT_CACHE_LEVEL:
-			/* 
+			/*
 			 * Note: Overly high values will be caught in the
 			 * caching code.
 			 */

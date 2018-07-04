@@ -167,7 +167,7 @@ again:
 				uint8_t *ptr;
 				void *oldbrk;
 				int fds[MAX_RLIMIT_NOFILE];
-				
+
 				switch (mwc32() % 5) {
 				default:
 				case 0:

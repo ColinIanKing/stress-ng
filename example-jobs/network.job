@@ -77,7 +77,7 @@ fifo 0			# 0 means 1 stressor per CPU
 #
 dccp 0			# 0 means 1 stressor per CPU
 # dccp-ops 1000000	# stop after 1000000 bogo ops
-# dccp-domain ipv6	# domains, ipv4 or ipv6	
+# dccp-domain ipv6	# domains, ipv4 or ipv6
 # dccp-port 12000	# port to use
 # dccp-opts send	# use send, sendmsg or sendmmsg to send data
 

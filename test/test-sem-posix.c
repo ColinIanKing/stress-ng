@@ -43,7 +43,7 @@ int main(void)
 	 * This is not meant to be functionally
 	 * correct, it is just used to check we
 	 * can build minimal POSIX semaphore
-	 * based code 
+	 * based code
 	 */
 	ret = sem_init(&sem, 1, 1);
 	(void)ret;

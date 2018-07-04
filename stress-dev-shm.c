@@ -100,7 +100,7 @@ static inline int stress_dev_shm_child(
 				return EXIT_FAILURE;
 			}
 		}
-	} 
+	}
 	return rc;
 }
 

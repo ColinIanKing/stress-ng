@@ -274,7 +274,7 @@ static int stress_cyclic_pselect(
 	if (ret == 0) {
 		int64_t delta_ns;
 
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) + 
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
 			   (t2.tv_nsec - t1.tv_nsec);
 		delta_ns -= cyclic_sleep;
 

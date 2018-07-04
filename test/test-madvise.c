@@ -75,7 +75,7 @@ static const int madvise_options[] = {
  *  The following enum will cause test build failure
  *  if there are no madvise options
  */
-enum { 
+enum {
 	NO_MADVISE_OPTIONS = 1 / sizeof(madvise_options)
 };
 

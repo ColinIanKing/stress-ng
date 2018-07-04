@@ -121,7 +121,7 @@ cpu 0			# 0 means 1 stressor per CPU
 # cpu-online stressor options:
 #   start  N  workers  that  put  randomly selected CPUs offline and
 #   online. This Linux only stressor requires root privilege to per‐
-#   form this action. This is disabled by default because it can 
+#   form this action. This is disabled by default because it can
 #   break older kernels.
 #
 # cpu-online 0		# 0 means 1 stressor per CPU
@@ -147,7 +147,7 @@ crypt 0			# 0 means 1 stressor per CPU
 fp-error 0		# 0 means 1 stressor per CPU
 # fp-error-ops 1000000	# stop after 1000000 bogo ops
 
-# 
+#
 # getrandom stressor options:
 #   start N workers that get 8192 random bytes from the /dev/urandom
 #   pool using the getrandom(2) system call (Linux) or getentropy(2)

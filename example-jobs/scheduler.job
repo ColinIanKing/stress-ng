@@ -84,7 +84,7 @@ affinity-rand		# switch affinity randomly
 #
 clone 0			# 0 means 1 stressor per CPU
 # clone-ops 1000000	# stop after 1000000 bogo ops
-# clone-max 8192	# create a total of 8192 clones 
+# clone-max 8192	# create a total of 8192 clones
 
 #
 # daemon stressor options:

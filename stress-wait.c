@@ -27,8 +27,8 @@
 /*
  *  Disabled for GNU/Hurd because it this stressor breaks with
  *  the error:
- *    intr-msg.c:387: _hurd_intr_rpc_mach_msg: Assertion 
- *    `m->header.msgh_id == msgid + 100' 
+ *    intr-msg.c:387: _hurd_intr_rpc_mach_msg: Assertion
+ *    `m->header.msgh_id == msgid + 100'
  */
 #if !defined(__gnu_hurd__)
 

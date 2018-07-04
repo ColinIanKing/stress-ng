@@ -134,7 +134,6 @@ again:
 			/* No luck, well that's unexpected.. */
 			_exit(EXIT_FAILURE);
 		}
-		
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;

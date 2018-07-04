@@ -90,7 +90,7 @@ static int stress_stackmmap(const args_t *args)
 	char filename[PATH_MAX];
 
 	/* stack for SEGV handler must not be on the stack */
-	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT]; 
+	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
 
 	page_size = args->page_size;
 	page_mask = ~(page_size - 1);
