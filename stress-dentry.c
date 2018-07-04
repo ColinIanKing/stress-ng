@@ -104,7 +104,7 @@ static void stress_dentry_unlink(
 			gray_code = (j >> 1) ^ j;
 
 			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code);
+				path, sizeof(path), gray_code * 2);
 			(void)unlink(path);
 		}
 		break;
@@ -116,7 +116,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (k >> 1) ^ k;
 
 			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code);
+				path, sizeof(path), gray_code * 2);
 			(void)unlink(path);
 		}
 		break;
@@ -127,7 +127,7 @@ static void stress_dentry_unlink(
 			uint64_t gray_code = (i >> 1) ^ i;
 
 			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code);
+				path, sizeof(path), gray_code * 2);
 			(void)unlink(path);
 		}
 		break;
@@ -137,7 +137,9 @@ static void stress_dentry_unlink(
 
 /*
  *  stress_dentry
- *	stress dentries
+ *	stress dentries.  file names are based
+ *	on a gray-coded value multiplied by two.
+ *	Even numbered files exist, odd don't exist.
  */
 static int stress_dentry(const args_t *args)
 {
@@ -159,14 +161,14 @@ static int stress_dentry(const args_t *args)
 
 	do {
 		uint64_t i, n = dentries;
+		char path[PATH_MAX];
 
 		for (i = 0; i < n; i++) {
-			char path[PATH_MAX];
-			uint64_t gray_code = (i >> 1) ^ i;
+			const uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
 			stress_temp_filename_args(args,
-				path, sizeof(path), gray_code);
+				path, sizeof(path), gray_code * 2);
 
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
@@ -182,6 +184,29 @@ static int stress_dentry(const args_t *args)
 
 			inc_counter(args);
 		}
+
+		/*
+		 *  Now look up some bogus names to exercise
+		 *  lookup failures
+		 */
+		for (i = 0; i < n; i++) {
+			const uint64_t gray_code = (i >> 1) ^ i;
+			int rc;
+
+			if (!keep_stressing())
+				goto abort;
+
+			stress_temp_filename_args(args,
+				path, sizeof(path), (gray_code * 2) + 1);
+
+			/* The following should fail, ignore error return */
+			rc = access(path, R_OK);
+			(void)rc;
+		}
+
+		/*
+		 *  And remove
+		 */
 		stress_dentry_unlink(args, n, dentry_order);
 		if (!g_keep_stressing_flag)
 			break;
