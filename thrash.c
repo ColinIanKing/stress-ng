@@ -88,6 +88,17 @@ static int pagein_proc(const pid_t pid)
 }
 
 /*
+ *  compact_memory()
+ *	trigger memory compaction, Linux only
+ */
+static inline void compact_memory(void)
+{
+#if defined(__linux__)
+	system_write("/proc/sys/vm/compact_memory", "1", 1);
+#endif
+}
+
+/*
  *  pagein_all_procs()
  *	force pages into memory for all processes
  */
@@ -141,6 +152,7 @@ int thrash_start(void)
 #endif
 		while (g_keep_stressing_flag) {
 			pagein_all_procs();
+			compact_memory();
 			sleep(1);
 		}
 		_exit(0);
