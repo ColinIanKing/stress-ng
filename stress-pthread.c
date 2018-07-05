@@ -55,13 +55,6 @@ int stress_set_pthread_max(const char *opt)
 	return set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
 
-void stress_adjust_pthread_max(const uint64_t max)
-{
-	uint64_t adj = max;
-
-	set_setting("pthread-max-adjustment", TYPE_ID_UINT64, &adj);
-}
-
 #if defined(HAVE_LIB_PTHREAD)
 
 #if defined(__linux__) && defined(__NR_get_robust_list)
@@ -202,7 +195,7 @@ die:
 static int stress_pthread(const args_t *args)
 {
 	bool ok = true;
-	uint64_t limited = 0, attempted = 0, max = 0;
+	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	pthread_args_t pargs = { args, NULL };
@@ -217,14 +210,6 @@ static int stress_pthread(const args_t *args)
 			pthread_max = MAX_PTHREAD;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			pthread_max = MIN_PTHREAD;
-	}
-	if (get_setting("pthread-max-adjustment", &max)) {
-		if (pthread_max > max) {
-			pthread_max = max;
-			pr_inf("re-adjusting maximum threads to "
-				"soft limit of %" PRIu64 "\n",
-				pthread_max);
-		}
 	}
 
 	ret = pthread_cond_init(&cond, NULL);
