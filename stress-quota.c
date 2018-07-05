@@ -280,7 +280,7 @@ static int stress_quota(const args_t *args)
 				ret = do_quotas(args, &devs[i]);
 				if (ret == ENOSYS)
 					enosys++;
-				else if (ret != EPERM)
+				else if ((ret != 0) && (ret != EPERM))
 					failed++;
 			}
 			inc_counter(args);
