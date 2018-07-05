@@ -118,6 +118,7 @@ int stress_set_vm_bytes(const char *opt)
 	return set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }
 
+#if defined(MAP_LOCKED) || defined(MAP_POPULATE)
 int stress_set_vm_flags(const int flag)
 {
 	int vm_flags = 0;
@@ -125,8 +126,8 @@ int stress_set_vm_flags(const int flag)
 	(void)get_setting("vm-flags", &vm_flags);
 	vm_flags |= flag;
 	return set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
-
 }
+#endif
 
 int stress_set_vm_madvise(const char *opt)
 {
