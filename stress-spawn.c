@@ -29,6 +29,24 @@
 #if defined(__linux__)
 
 /*
+ *  stress_spawn_supported()
+ *      check that we don't run this as root
+ */
+static int stress_spawn_supported(void)
+{
+	/*
+	 *  Don't want to run this when running as root as
+	 *  this could allow somebody to try and run another
+	 *  executable as root.
+	 */
+        if (geteuid() == 0) {
+		pr_inf("exec stressor must not run as root, skipping the stressor\n");
+                return -1;
+        }
+        return 0;
+}
+
+/*
  *  stress_spawn()
  *	stress by forking and spawn'ing
  */
@@ -92,6 +110,7 @@ static int stress_spawn(const args_t *args)
 
 stressor_info_t stress_spawn_info = {
 	.stressor = stress_spawn,
+	.supported = stress_spawn_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS
 };
 #else
