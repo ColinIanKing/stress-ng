@@ -41,6 +41,7 @@ typedef struct {
 	dev_t	st_dev;
 	bool	valid;
 	bool	enosys;
+	bool	esrch;
 } dev_info_t;
 
 #define DO_Q_GETQUOTA	0x0001
@@ -59,6 +60,7 @@ static int do_quotactl(
 	int *tested,
 	int *failed,
 	int *enosys,
+	int *esrch,
 	int cmd,
 	const char *special,
 	int id,
@@ -69,8 +71,10 @@ static int do_quotactl(
 	(*tested)++;
 	if (ret < 0) {
 		/* Quota not enabled for this file system? */
-		if (errno == ESRCH)
+		if (errno == ESRCH) {
+			(*esrch)++;
 			return 0;
+		}
 		/* Not a block device? - ship it */
 		if (errno == ENOTBLK)
 			return errno;
@@ -99,12 +103,12 @@ static int do_quotactl(
  */
 static int do_quotas(const args_t *args, dev_info_t *const dev)
 {
-	int tested = 0, failed = 0, enosys = 0;
+	int tested = 0, failed = 0, enosys = 0, esrch = 0;
 #if defined(Q_GETQUOTA)
 	if (g_keep_stressing_flag) {
 		struct dqblk dqblk;
 		int err = do_quotactl(args, "Q_GETQUOTA",
-				&tested, &failed, &enosys,
+				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
 		if (err == EPERM)
@@ -115,7 +119,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	if (g_keep_stressing_flag) {
 		uint32_t format;
 		int err = do_quotactl(args, "Q_GETFMT",
-				&tested, &failed, &enosys,
+				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
 		if (err == EPERM)
@@ -126,7 +130,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	if (g_keep_stressing_flag) {
 		struct dqinfo dqinfo;
 		int err = do_quotactl(args, "Q_GETINFO",
-				&tested, &failed, &enosys,
+				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
 		if (err == EPERM)
@@ -138,7 +142,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	if (g_keep_stressing_flag) {
 		struct dqstats dqstats;
 		int err = do_quotactl(args, "Q_GETSTATS",
-				&tested, &failed, &enosys,
+				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
 		if (err == EPERM)
@@ -148,7 +152,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 #if defined(Q_SYNC)
 	if (g_keep_stressing_flag) {
 		int err = do_quotactl(args, "Q_SYNC",
-				&tested, &failed, &enosys,
+				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
 		if (err == EPERM)
@@ -159,6 +163,11 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 		pr_err("%s: quotactl() failed, quota commands "
 			"not available\n", args->name);
 		return -1;
+	}
+	if (!dev->esrch && (esrch > 0)) {
+		pr_dbg("%s: quotactl() failed on %s, perhaps not enabled\n",
+			args->name, dev->name);
+		dev->esrch = true;
 	}
 	if (tested == enosys) {
 		pr_dbg("%s: quotactl() failed on %s, not available "
