@@ -466,16 +466,13 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
  */
 static void stress_dev_scsi_blk(const char *name, const int fd, const char *devpath)
 {
-	int ret;
-
 	(void)name;
 	(void)fd;
 	(void)devpath;
-	(void)ret;
 
 #if defined(SG_GET_VERSION_NUM)
 	{
-		int ver;
+		int ret, ver;
 
 		ret = ioctl(fd, SG_GET_VERSION_NUM, &ver);
 		(void)ret;
@@ -483,7 +480,7 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 #endif
 #if defined(SCSI_IOCTL_GET_IDLUN)
 	{
-		int lun;
+		int ret, lun;
 
 		ret = ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun);
 		(void)ret;
@@ -491,7 +488,7 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 #endif
 #if defined(SCSI_IOCTL_GET_BUS_NUMBER)
 	{
-		int bus;
+		int ret, bus;
 
 		ret = ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus);
 		(void)ret;
@@ -499,13 +496,15 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 #endif
 #if defined(SCSI_IOCTL_GET_TIMEOUT)
 	{
+		int ret;
+
 		ret = ioctl(fd, SCSI_IOCTL_GET_TIMEOUT, 0);
 		(void)ret;
 	}
 #endif
 #if defined(SCSI_IOCTL_GET_RESERVED_SIZE)
 	{
-		int sz;
+		int ret, sz;
 
 		ret = ioctl(fd, SCSI_IOCTL_GET_RESERVED_SIZE, &sz);
 		(void)ret;
