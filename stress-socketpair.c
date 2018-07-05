@@ -115,11 +115,13 @@ again:
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
-					if (errno == ENFILE) /* Too many files! */
+					else if (errno == ENFILE) /* Too many files! */
 						goto abort;
-					if (errno == EMFILE) /* Occurs on socket shutdown */
+					else if (errno == EMFILE) /* Occurs on socket shutdown */
 						goto abort;
-					if (errno) {
+					else if (errno == EPERM)  /* Occurs on socket closure */
+						goto abort;
+					else if (errno) {
 						pr_fail_dbg("read");
 						goto abort;
 					}
