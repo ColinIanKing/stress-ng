@@ -24,23 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(FIONBIO)		|| \
-    defined(FIOQSIZE)		|| \
-    defined(FIGETBSZ)		|| \
-    defined(FIOCLEX)		|| \
-    defined(FIONCLEX)		|| \
-    defined(FIONBIO)		|| \
-    defined(FIOASYNC)		|| \
-    defined(FIOQSIZE)		|| \
-    defined(FIFREEZE)		|| \
-    defined(FITHAW)		|| \
-    defined(FICLONE)		|| \
-    defined(FICLONERANGE)	|| \
-    defined(FIONREAD)		|| \
-    defined(FIONWRITE)		|| \
-    defined(FS_IOC_RESVSP)	|| \
-    defined(FS_IOC_RESVSP64)
-
+#if (defined(FIONBIO) && defined(O_NONBLOCK)) || \
+    (defined(FIOASYNC) && defined(O_ASYNC))
 static void check_flag(
 	const args_t *args,
 	const char *ioctl_name,
@@ -67,7 +52,6 @@ static void check_flag(
 #endif
 }
 #endif
-
 
 /*
  *  stress_file_ioctl
