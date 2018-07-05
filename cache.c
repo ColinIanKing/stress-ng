@@ -50,9 +50,6 @@ static const generic_map_t cache_type_map[] = {
 	{ NULL         , CACHE_TYPE_UNKNOWN}
 };
 
-static const char *get_cache_name(const cache_type_t type)
-	__attribute__((unused));
-
 /**
  *
  * cache_get_cpu()
@@ -233,25 +230,6 @@ static cache_type_t get_cache_type(const char *name)
 
 out:
 	return CACHE_TYPE_UNKNOWN;
-}
-
-/*
- * get_cache_name()
- * @type: cache_type_t to convert into a string.
- * Convert a cache_type_t to a human-readable cache type.
- *
- * Returns: read-only string representation, or NULL on error.
- */
-static const char * get_cache_name(const cache_type_t type)
-{
-	const generic_map_t *p;
-
-	for (p = cache_type_map; p && p->name; p++) {
-		if (p->value == type)
-			return p->name;
-	}
-
-	return NULL;
 }
 
 /* add_cpu_cache_detail()
