@@ -74,7 +74,9 @@ static int stress_pty(const args_t *args)
 			ptys[n].slave = -1;
 			ptys[n].master = open("/dev/ptmx", O_RDWR);
 			if (ptys[n].master < 0) {
-				if ((errno != ENOSPC) && (errno != EMFILE)) {
+				if ((errno != ENOMEM) &&
+				    (errno != ENOSPC) &&
+				    (errno != EMFILE)) {
 					pr_fail_err("open /dev/ptmx");
 					goto clean;
 				}
