@@ -476,6 +476,17 @@ static void stress_iomix_rd_bytes(
 
 #if defined(__linux__)
 
+#if defined(FS_APPEND_FL)	|| \
+    defined(FS_COMPR_FL)	|| \
+    defined(FS_IMMUTABLE_FL)	|| \
+    defined(FS_JOURNAL_DATA_FL)	|| \
+    defined(FS_NOATIME_FL)	|| \
+    defined(FS_NOCOW_FL)	|| \
+    defined(FS_NODUMP_FL)	|| \
+    defined(FS_NOTAIL_FL)	|| \
+    defined(FS_SECRM_FL)	|| \
+    defined(FS_SYNC_FL)		|| \
+    defined(FS_UNRM_FL)
 /*
  *  stress_iomix_inode_ioctl()
  *	attempt to set and unset a file based inode flag
@@ -499,6 +510,7 @@ static void stress_iomix_inode_ioctl(const int fd, const int flag, bool *ok)
 		return;
 	*ok = true;
 }
+#endif
 
 /*
  *  stress_iomix_inode_flags()
