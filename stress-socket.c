@@ -237,7 +237,7 @@ retry:
 			if (n == 0)
 				break;
 			if (n < 0) {
-				if (errno != EINTR)
+				if ((errno != EINTR) && (errno != ECONNRESET))
 					pr_fail_dbg("recv");
 				break;
 			}
