@@ -1,3 +1,46 @@
+stress-ng (0.09.33-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-pty: make open failure on ENOMEM non-fatal
+  * stress-sockpair: handle EPERM error on read gracefully
+  * stress-quota: don't count a pass as a failure
+  * stress-quota: add some ESRCH failure debug info
+  * stress-quota: don't fail if file system does not enable quota
+  * stress-socket: don't make ECONNRESET on recv fatal
+  * stress-spawn: skip if run as root
+  * stress-spawn: fix comment
+  * stress-vm: only declare stress_set_vm_flags if it is required
+  * cache: remove unused function get_cache_name
+  * stress-iomix: only declare stress_iomix_inode_ioctl when it is
+    required
+  * stress-sleep: remove sleep-max-adjustment handler
+  * stress-pthread: remove pthread-max-adjustment handler
+  * stress-unshare: only declare check_unshare when it is really
+    required
+  * stress-file-ioctl: only declare check_flag when it is really
+    required
+  * stress-dev: declare ret only for when it is used
+  * stress-chroot: sanity check for ENOENT as a false positive
+  * Add a slow-test-all make rule to perform more exhaustive testing
+  * stress-dentry: remove redundant args argument
+  * Add ptrace build autodetection
+  * Update copyright year to 2018 in some odd files
+  * Remove trailing space and tabs from end of lines
+  * ignite-cpu: set process name to stress-ng-ignite
+  * thrash: use the pagein method of forcing pages back into memory
+  * thrash: add ksm memory merging (Linux only)
+  * thrash: add kernel memory compaction (Linux only)
+  * stress-dentry: add some misc operations on a directory fd
+  * stress-dentry: add lookup failures to exercise directory searching
+  * Add a watchdog stressor
+  * stress-kill: add some early delay to give parent time to spawn
+    stressors
+  * stress-rtc: add select on RTC device
+  * stress-netlink-proc: fix build with kernel v3.9
+  * stress-context: rename uc_link to uctx_link
+
+ -- Colin King <colin.king@canonical.com>  Thu, 5 Jul 2018 16:46:12 +0100
+
 stress-ng (0.09.32-1) unstable; urgency=medium
 
   * Makefile: bump version
