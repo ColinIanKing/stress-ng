@@ -28,6 +28,19 @@
 
 #define MAX_PIDS	(32)
 
+#if defined(CLONE_FS)		|| \
+    defined(CLONE_FILES)	|| \
+    defined(CLONE_NEWIPC)	|| \
+    defined(CLONE_NEWNET)	|| \
+    defined(CLONE_NEWNS)	|| \
+    defined(CLONE_NEWPID)	|| \
+    defined(CLONE_NEWUSER)	|| \
+    defined(CLONE_NEWUTS)	|| \
+    defined(CLONE_SYSVSEM)	|| \
+    defined(CLONE_THREAD)	|| \
+    defined(CLONE_SIGHAND)	|| \
+    defined(CLONE_VM)
+
 #define UNSHARE(flags)	\
 	check_unshare(args, flags, #flags);
 
@@ -44,6 +57,7 @@ static void check_unshare(const args_t *args, int flags, const char *flags_name)
 			errno, strerror(errno));
 	}
 }
+#endif
 
 /*
  *  enough_memory()
