@@ -75,7 +75,11 @@ static int stress_chroot_test1(const args_t *args)
 
 	do_chroot(temppath, &ret1, &ret2, &errno1, &errno2);
 
-	if (ret1 < 0) {
+	/*
+	 * We check for error, ENOENT can happen on termination
+	 * so ignore this error
+	 */
+	if ((ret1 < 0) && (errno != ENOENT)) {
 		pr_fail("%s: chroot(\"%s\"), errno=%d (%s)\n",
 			args->name, temppath, errno1, strerror(errno1));
 		return EXIT_FAILURE;
@@ -158,7 +162,11 @@ static int stress_chroot_test5(const args_t *args)
 
 	do_chroot(filename, &ret1, &ret2, &errno1, &errno2);
 
-	if ((ret1 >= 0) || (errno1 != ENOTDIR))  {
+	/*
+	 * We check for error, ENOENT can happen on termination
+	 * so ignore this error
+	 */
+	if ((ret1 >= 0) || ((errno1 != ENOTDIR) && (errno1 != ENOENT)))  {
 		pr_fail("%s: chroot(%s), expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			args->name, filename, errno1, strerror(errno1));
