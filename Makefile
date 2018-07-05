@@ -406,6 +406,10 @@ clean:
 fast-test-all: stress-ng
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
 
+.PHONY: slow-test-all
+slow-test-all: stress-ng
+	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics
+
 .PHONY: install
 install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}
