@@ -49,14 +49,6 @@ int stress_set_sleep_max(const char *opt)
 	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
-void stress_adjust_sleep_max(const uint64_t max)
-{
-	uint64_t sleep_max_adjustment = max;
-
-	set_setting("sleep-max-adjustment", TYPE_ID_UINT64,
-		&sleep_max_adjustment);
-}
-
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 /*
@@ -143,7 +135,7 @@ die:
 static int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
-	uint64_t sleep_max = DEFAULT_SLEEP, sleep_max_adjustment;
+	uint64_t sleep_max = DEFAULT_SLEEP;
 	ctxt_t    ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 	bool ok = true;
@@ -155,14 +147,6 @@ static int stress_sleep(const args_t *args)
 			sleep_max = MIN_SLEEP;
 	}
 
-	if (get_setting("sleep-max-adjustment", &sleep_max_adjustment)) {
-		if (sleep_max > sleep_max_adjustment) {
-			sleep_max = sleep_max_adjustment;
-			pr_inf("re-adjusting maximum threads to "
-				"soft limit f %" PRIu64 "\n",
-				sleep_max);
-		}
-	}
 	(void)memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
 
