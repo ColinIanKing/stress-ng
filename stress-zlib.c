@@ -115,16 +115,16 @@ static void MLOCKED_TEXT stress_bad_read_handler(int dummy)
  */
 static void stress_rand_data_bcd(const args_t *args, uint32_t *data, const int size)
 {
-	const int n = size / sizeof(*data);
-	register int i;
+	register uint8_t *ptr = (uint8_t *)data;
+	const uint8_t *end = ptr + size;
 
 	(void)args;
 
-	for (i = 0; i < n; i++, data++) {
+	while (ptr < end) {
 		uint8_t rndval = mwc8() % 100;
 
 		/* Not the most efficient but it works */
-		*data = (rndval % 10) | ((rndval / 10) << 4);
+		*ptr++ = (rndval % 10) | ((rndval / 10) << 4);
 	}
 }
 
