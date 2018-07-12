@@ -161,6 +161,9 @@ again:
 			/* We don't want bad ops clobbering this region */
 			stress_unmap_shared();
 
+			/* We don't want core dumps either */
+			stress_process_dumpable(false);
+
 			/* Drop all capabilities */
 			if (stress_drop_capabilities(args->name) < 0) {
 				_exit(EXIT_NO_RESOURCE);
