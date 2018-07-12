@@ -128,6 +128,34 @@ static void stress_rand_data_bcd(const args_t *args, uint32_t *data, const int s
 	}
 }
 
+/*
+ *  stress_rand_data_utf8()
+ *	fill buffer with random bytes coverted into utf8
+ */
+static void stress_rand_data_utf8(const args_t *args, uint32_t *data, const int size)
+{
+	const int n = size / sizeof(uint16_t);
+	register uint8_t *ptr = (uint8_t *)data;
+	const uint8_t *end = ptr + n;
+
+	(void)args;
+
+	while (ptr < end) {
+		uint8_t ch = mwc8();
+	
+		if (ch <= 0x7f) 
+			*ptr++ = ch;
+		else {
+			if (UNLIKELY(ptr < end - 1)) {
+				*ptr++ = ((ch >> 6) & 0x1f) | 0xc0;
+				*ptr++ = (ch & 0x3f) | 0x80;
+			} else {
+				/* no more space, zero pad */
+				*ptr = 0;
+			}
+		}
+	}
+}
 
 /*
  *  stress_rand_data_binary()
@@ -550,6 +578,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 	{ "text",	stress_rand_data_text },
+	{ "utf8",	stress_rand_data_utf8 },
 	{ "zero",	stress_rand_data_zero },
 	{ NULL,		NULL }
 };
