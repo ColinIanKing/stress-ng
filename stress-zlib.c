@@ -110,6 +110,26 @@ static void MLOCKED_TEXT stress_bad_read_handler(int dummy)
 }
 
 /*
+ *  stress_rand_data_bcd()
+ *	fill buffer with random binary coded decimal digits
+ */
+static void stress_rand_data_bcd(const args_t *args, uint32_t *data, const int size)
+{
+	const int n = size / sizeof(*data);
+	register int i;
+
+	(void)args;
+
+	for (i = 0; i < n; i++, data++) {
+		uint8_t rndval = mwc8() % 100;
+
+		/* Not the most efficient but it works */
+		*data = (rndval % 10) | ((rndval / 10) << 4);
+	}
+}
+
+
+/*
  *  stress_rand_data_binary()
  *	fill buffer with random binary data
  */
@@ -518,6 +538,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "00ff",	stress_rand_data_00_ff },
 	{ "ascii01",	stress_rand_data_01 },
 	{ "asciidigits",stress_rand_data_digits },
+	{ "bcd",	stress_rand_data_bcd },
 	{ "binary",	stress_rand_data_binary },
 	{ "double",	stress_rand_data_double },
 	{ "fixed",	stress_rand_data_fixed },
