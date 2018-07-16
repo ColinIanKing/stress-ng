@@ -2483,6 +2483,7 @@ again:
 						};
 
 						rc = proc_current->stressor->info->stressor(&args);
+						pr_fail_check(&rc);
 						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
 #if defined(STRESS_PERF_STATS)

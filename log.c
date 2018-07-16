@@ -30,6 +30,22 @@ static bool	abort_msg_emitted;
 static FILE	*log_file = NULL;
 
 /*
+ *  pr_fail_check()
+ *	set rc to EXIT_FAILURE if we detected a pr_fail
+ *	error condition in the logging during a run.
+ *	This is horribly indirect but it allows the main
+ *	stress-ng parent to check that an EXIT_SUCCESS
+ *	is really a failure based on the logging rather
+ *	that each stressor doing it's own failure exit
+ *	return accounting
+ */
+void pr_fail_check(int *const rc)
+{
+	if (abort_msg_emitted && (*rc == EXIT_SUCCESS))
+		*rc = EXIT_FAILURE;
+}
+
+/*
  *  pr_yaml()
  *	print to yaml file if it is open
  */
