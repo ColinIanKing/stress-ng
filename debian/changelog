@@ -1,3 +1,16 @@
+stress-ng (0.09.34-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Ensure all fail log messages set the error to EXIT_FAILURE
+  * Manual: update contributors list
+  * stress-opcode: make child process non-dumpable
+  * Add bcd and utf8 zlib data methods to manual
+  * stress-zlib: add 8 bit UTF-8 data stream
+  * stress-zlib: put BCD data as bytes not 32 bit words
+  * stress-zlib: add bcd data mode
+
+ -- Colin King <colin.king@canonical.com>  Mon, 16 Jul 2018 23:50:22 +0100
+
 stress-ng (0.09.33-1) unstable; urgency=medium
 
   * Makefile: bump version
