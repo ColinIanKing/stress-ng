@@ -70,12 +70,10 @@ static int stress_personality(const args_t *args)
 				failed[i] = true;
 				continue;
 			}
-			ret = personality(~0UL);
-			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    (ret & 0xff) != (p & 0xff)) {
-				pr_fail("%s: fetched personality does "
-					"not match set personality 0x%lu\n",
-					args->name, p);
+			ret = personality(0xffffffffUL);
+			if (ret < 0) {
+				pr_fail("%s: failed to get personality, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 		}
 		if (fails == n) {
