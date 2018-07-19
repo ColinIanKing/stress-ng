@@ -42,13 +42,13 @@ typedef struct {
 } help_t;
 
 typedef struct {
-	const int opt;
-	const uint64_t opt_flag;
+	const int opt;			/* optarg option */
+	const uint64_t opt_flag;	/* global options flag bit setting */
 } opt_flag_t;
 
 typedef struct {
-	const int opt;
-	int (*opt_set_func)(const char *optarg);
+	const int opt;				/* optarg option*/
+	int (*opt_set_func)(const char *optarg); /* function to set it */
 } opt_set_func_t;
 
 /* Per stressor process information */
@@ -306,7 +306,12 @@ static const int terminate_signals[] = {
 	# lower_name				\
 }
 
-/* Human readable stress test names */
+/*
+ *  Human readable stress test names. It would be
+ *  useful if we could map these more conveniently
+ *  but there is no easy way to map function name
+ *  in lower case to upper case OPT_ * settings
+ */
 static const stress_t stressors[] = {
 	STRESSOR(access, ACCESS),
 	STRESSOR(af_alg, AF_ALG),
@@ -520,7 +525,9 @@ static const stress_t stressors[] = {
 
 STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)
 
-/* Different stress classes */
+/*
+ *  Different stress classes
+ */
 static const class_info_t classes[] = {
 	{ CLASS_CPU_CACHE,	"cpu-cache" },
 	{ CLASS_CPU,		"cpu" },
@@ -537,6 +544,9 @@ static const class_info_t classes[] = {
 	{ CLASS_VM,		"vm" },
 };
 
+/*
+ *  command line options
+ */
 static const struct option long_options[] = {
 	{ "abort",	0,	0,	OPT_ABORT },
 	{ "access",	1,	0,	OPT_ACCESS },
@@ -2731,11 +2741,10 @@ static void times_dump(
  */
 static void log_args(int argc, char **argv)
 {
-	int i;
-	size_t len, arglen[argc];
+	size_t i, len, arglen[argc];
 	char *buf;
 
-	for (len = 0, i = 0; i < argc; i++) {
+	for (len = 0, i = 0; i < (size_t)argc; i++) {
 		arglen[i] = strlen(argv[i]);
 		len += arglen[i] + 1;
 	}
@@ -2744,7 +2753,7 @@ static void log_args(int argc, char **argv)
 	if (!buf)
 		return;
 
-	for (len = 0, i = 0; i < argc; i++) {
+	for (len = 0, i = 0; i < (size_t)argc; i++) {
 		if (i) {
 			(void)shim_strlcat(buf + len, " ", 1);
 			len++;
@@ -3569,11 +3578,13 @@ int main(int argc, char **argv)
 	stress_cwd_readwriteable();
 	set_oom_adjustment("main", false);
 
+	/*
+	 *  Get various user defined settings
+	 */
 	(void)get_setting("sched", &sched);
 	(void)get_setting("sched-prio", &sched_prio);
 	if (stress_set_sched(getpid(), sched, sched_prio, false) < 0)
 		exit(EXIT_FAILURE);
-
 	(void)get_setting("ionice-class", &ionice_class);
 	(void)get_setting("ionice-level", &ionice_level);
 	set_iopriority(ionice_class, ionice_level);
