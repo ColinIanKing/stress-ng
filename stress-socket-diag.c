@@ -183,10 +183,10 @@ static int sockdiag_recv(const args_t *args, const int fd)
 }
 
 /*
- *  stress_sockdiag
+ *  stress_socket_diag
  *	stress by heavy socket I/O
  */
-static int stress_sockdiag(const args_t *args)
+static int stress_socket_diag(const args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 
@@ -223,12 +223,12 @@ static int stress_sockdiag(const args_t *args)
 	return ret;
 }
 
-stressor_info_t stress_sockdiag_info = {
-	.stressor = stress_sockdiag,
+stressor_info_t stress_socket_diag_info = {
+	.stressor = stress_socket_diag,
 	.class = CLASS_NETWORK | CLASS_OS
 };
 #else
-stressor_info_t stress_sockdiag_info = {
+stressor_info_t stress_socket_diag_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS
 };

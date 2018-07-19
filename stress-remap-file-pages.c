@@ -86,7 +86,7 @@ static int remap_order(
  *  stress_remap
  *	stress page remapping
  */
-static int stress_remap(const args_t *args)
+static int stress_remap_file_pages(const args_t *args)
 {
 	mapdata_t *data;
 	const size_t page_size = args->page_size;
@@ -153,12 +153,12 @@ static int stress_remap(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_remap_info = {
-	.stressor = stress_remap,
+stressor_info_t stress_remap_file_pages_info = {
+	.stressor = stress_remap_file_pages,
 	.class = CLASS_MEMORY | CLASS_OS
 };
 #else
-stressor_info_t stress_remap_info = {
+stressor_info_t stress_remap_file_pages_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY | CLASS_OS
 };

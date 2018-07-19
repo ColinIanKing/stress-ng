@@ -175,10 +175,10 @@ abort:
 }
 
 /*
- *  stress_sockpair
+ *  stress_socket_pair
  *	stress by heavy socket_pair I/O
  */
-static int stress_sockpair(const args_t *args)
+static int stress_socket_pair(const args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0;
@@ -236,7 +236,7 @@ again:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sockpair_info = {
-	.stressor = stress_sockpair,
+stressor_info_t stress_socket_pair_info = {
+	.stressor = stress_socket_pair,
 	.class = CLASS_NETWORK | CLASS_OS
 };
