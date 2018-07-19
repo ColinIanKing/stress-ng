@@ -75,7 +75,7 @@ static inline void stress_proc_rw(
 	int fd;
 	ssize_t ret, i = 0;
 	char buffer[PROC_BUF_SZ];
-	char *path;
+	char path[PATH_MAX];
 	const double threshold = 0.2;
 	off_t pos;
 
@@ -87,10 +87,10 @@ static inline void stress_proc_rw(
 		ret = pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		path = (char *)proc_path;
+		shim_strlcpy(path, proc_path, sizeof(path));
 		(void)pthread_spin_unlock(&lock);
 
-		if (!path || !g_keep_stressing_flag)
+		if (!*path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
@@ -408,7 +408,14 @@ static int stress_procfs(const args_t *args)
 			break;
 	} while (keep_stressing());
 
-	proc_path = NULL;
+	rc = pthread_spin_lock(&lock);
+	if (rc) {
+		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
+	} else {
+		proc_path = "";
+		rc = pthread_spin_unlock(&lock);
+		(void)rc;
+	}
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
