@@ -307,10 +307,7 @@ static const int terminate_signals[] = {
 }
 
 /*
- *  Human readable stress test names. It would be
- *  useful if we could map these more conveniently
- *  but there is no easy way to map function name
- *  in lower case to upper case OPT_ * settings
+ *  Human readable stress test names.
  */
 static const stress_t stressors[] = {
 	STRESSOR(access),
