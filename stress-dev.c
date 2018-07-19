@@ -680,7 +680,7 @@ static inline void stress_dev_rw(
 		shim_strlcpy(path, dev_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!dev_path || !g_keep_stressing_flag)
+		if (!*path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
@@ -1026,6 +1026,7 @@ again:
 			}
 		} else if (pid == 0) {
 			size_t i;
+			int r;
 
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
@@ -1048,6 +1049,15 @@ again:
 			do {
 				stress_dev_dir(args, "/dev", true, 0, euid);
 			} while (keep_stressing());
+
+			r = pthread_spin_lock(&lock);
+			if (r) {
+				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
+			} else {
+				dev_path = "";
+				r = pthread_spin_unlock(&lock);
+				(void)r;
+			}
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				if (ret[i] == 0)
