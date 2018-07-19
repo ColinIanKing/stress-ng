@@ -148,7 +148,7 @@ again:
 					 * need this else gcc optimises out
 					 * the alloca()
 					 */
-					if (g_opt_flags & OPT_STACK_FILL)
+					if (g_opt_flags & OPT_FLAGS_STACK_FILL)
 						(void)memset(ptr, 0, 256 * KB);
 					else
 						*ptr = 0;
