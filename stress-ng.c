@@ -213,7 +213,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_type,		stress_set_socket_type },
 	{ OPT_stream_madvise,		stress_set_stream_madvise },
 	{ OPT_str_method,		stress_set_str_method },
-	{ OPT_taskset,			set_cpu_affinity },
+	{ OPT_taskset,			stress_set_cpu_affinity },
 	{ OPT_temp_path,		stress_set_temp_path },
 	{ OPT_timer_freq,		stress_set_timer_freq },
 	{ OPT_timer_slack,		stress_set_timer_slack_ns },

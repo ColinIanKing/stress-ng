@@ -63,12 +63,12 @@ static int get_cpu(char *const str)
 }
 
 /*
- * set_cpu_affinity()
+ * stress_set_cpu_affinity()
  * @arg: list of CPUs to set affinity to, comma separated
  *
  * Returns: 0 - OK
  */
-int set_cpu_affinity(const char *arg)
+int stress_set_cpu_affinity(const char *arg)
 {
 	cpu_set_t set;
 	char *str, *token;
@@ -113,7 +113,7 @@ int set_cpu_affinity(const char *arg)
 }
 
 #else
-int set_cpu_affinity(const char *arg)
+int stress_set_cpu_affinity(const char *arg)
 {
 	(void)arg;
 
