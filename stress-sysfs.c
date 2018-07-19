@@ -74,7 +74,7 @@ static inline void stress_sys_rw(
 	int fd;
 	ssize_t i = 0, ret;
 	char buffer[SYS_BUF_SZ];
-	char *path;
+	char path[PATH_MAX];
 	const args_t *args = ctxt->args;
 	const double threshold = 0.2;
 
@@ -85,12 +85,10 @@ static inline void stress_sys_rw(
 		ret = pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		path = (char *)sysfs_path;
+		shim_strlcpy(path, sysfs_path, sizeof(path));
 		(void)pthread_spin_unlock(&lock);
 
-		if (!path || !g_keep_stressing_flag)
-			break;
-		if (!*path)
+		if (!*path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
