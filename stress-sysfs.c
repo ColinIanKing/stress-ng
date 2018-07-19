@@ -90,6 +90,8 @@ static inline void stress_sys_rw(
 
 		if (!path || !g_keep_stressing_flag)
 			break;
+		if (!*path)
+			break;
 
 		t_start = time_now();
 
@@ -353,7 +355,14 @@ static int stress_sysfs(const args_t *args)
 		stress_sys_dir(&ctxt, "/sys", true, 0);
 	} while (keep_stressing());
 
-	sysfs_path = NULL;
+	rc = pthread_spin_lock(&lock);
+	if (rc) {
+		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
+	} else {
+		sysfs_path = "";
+		rc = pthread_spin_unlock(&lock);
+		(void)rc;
+	}
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
