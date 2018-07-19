@@ -1295,7 +1295,7 @@ typedef enum {
 	STRESS_affinity,
 	STRESS_af_alg,
 	STRESS_aio,
-	STRESS_aio_linux,
+	STRESS_aiol,
 	STRESS_apparmor,
 	STRESS_atomic,
 	STRESS_branch,
@@ -1362,7 +1362,7 @@ typedef enum {
 	STRESS_iomix,
 	STRESS_ioport,
 	STRESS_ioprio,
-	STRESS_iosync,
+	STRESS_io,
 	STRESS_itimer,
 	STRESS_kcmp,
 	STRESS_key,
@@ -1422,7 +1422,7 @@ typedef enum {
 	STRESS_rawdev,
 	STRESS_rdrand,
 	STRESS_readahead,
-	STRESS_remap_file_pages,
+	STRESS_remap,
 	STRESS_rename,
 	STRESS_resources,
 	STRESS_revio,
@@ -1434,26 +1434,26 @@ typedef enum {
 	STRESS_seal,
 	STRESS_seccomp,
 	STRESS_seek,
-	STRESS_semaphore_posix,
-	STRESS_semaphore_sysv,
+	STRESS_sem,
+	STRESS_sem_sysv,
 	STRESS_sendfile,
 	STRESS_set,
-	STRESS_shm_posix,
+	STRESS_shm,
 	STRESS_shm_sysv,
 	STRESS_sigfd,
 	STRESS_sigfpe,
 	STRESS_sigio,
 	STRESS_sigpending,
 	STRESS_sigpipe,
-	STRESS_sigqueue,
+	STRESS_sigq,
 	STRESS_sigrt,
 	STRESS_sigsegv,
 	STRESS_sigsuspend,
 	STRESS_sleep,
-	STRESS_socket,
-	STRESS_socket_diag,
-	STRESS_socket_fd,
-	STRESS_socket_pair,
+	STRESS_sock,
+	STRESS_sockdiag,
+	STRESS_sockfd,
+	STRESS_sockpair,
 	STRESS_softlockup,
 	STRESS_spawn,
 	STRESS_splice,
@@ -1515,7 +1515,7 @@ typedef enum {
 	OPT_dentry = 'D',
 	OPT_fork = 'f',
 	OPT_fallocate = 'F',
-	OPT_iosync = 'i',
+	OPT_io = 'i',
 	OPT_job = 'j',
 	OPT_help = 'h',
 	OPT_keep_name = 'k',
@@ -1530,7 +1530,7 @@ typedef enum {
 	OPT_quiet = 'q',
 	OPT_random = 'r',
 	OPT_switch = 's',
-	OPT_socket = 'S',
+	OPT_sock = 'S',
 	OPT_timeout = 't',
 	OPT_timer = 'T',
 	OPT_urandom = 'u',
@@ -1562,9 +1562,9 @@ typedef enum {
 	OPT_aio_ops,
 	OPT_aio_requests,
 
-	OPT_aio_linux,
-	OPT_aio_linux_ops,
-	OPT_aio_linux_requests,
+	OPT_aiol,
+	OPT_aiol_ops,
+	OPT_aiol_requests,
 
 	OPT_apparmor,
 	OPT_apparmor_ops,
@@ -1808,7 +1808,7 @@ typedef enum {
 	OPT_ioprio,
 	OPT_ioprio_ops,
 
-	OPT_iosync_ops,
+	OPT_io_ops,
 
 	OPT_itimer,
 	OPT_itimer_ops,
@@ -2036,8 +2036,8 @@ typedef enum {
 	OPT_readahead_ops,
 	OPT_readahead_bytes,
 
-	OPT_remap_file_pages,
-	OPT_remap_file_pages_ops,
+	OPT_remap,
+	OPT_remap_ops,
 
 	OPT_rename_ops,
 
@@ -2084,21 +2084,21 @@ typedef enum {
 	OPT_sendfile_ops,
 	OPT_sendfile_size,
 
-	OPT_semaphore_posix,
-	OPT_semaphore_posix_ops,
-	OPT_semaphore_posix_procs,
+	OPT_sem,
+	OPT_sem_ops,
+	OPT_sem_procs,
 
-	OPT_semaphore_sysv,
-	OPT_semaphore_sysv_ops,
-	OPT_semaphore_sysv_procs,
+	OPT_sem_sysv,
+	OPT_sem_sysv_ops,
+	OPT_sem_sysv_procs,
 
 	OPT_set,
 	OPT_set_ops,
 
-	OPT_shm_posix,
-	OPT_shm_posix_ops,
-	OPT_shm_posix_bytes,
-	OPT_shm_posix_objects,
+	OPT_shm,
+	OPT_shm_ops,
+	OPT_shm_bytes,
+	OPT_shm_objects,
 
 	OPT_shm_sysv,
 	OPT_shm_sysv_ops,
@@ -2122,8 +2122,8 @@ typedef enum {
 	OPT_sigpipe,
 	OPT_sigpipe_ops,
 
-	OPT_sigqueue,
-	OPT_sigqueue_ops,
+	OPT_sigq,
+	OPT_sigq_ops,
 
 	OPT_sigrt,
 	OPT_sigrt_ops,
@@ -2138,22 +2138,22 @@ typedef enum {
 	OPT_sleep_ops,
 	OPT_sleep_max,
 
-	OPT_socket_ops,
-	OPT_socket_domain,
-	OPT_socket_nodelay,
-	OPT_socket_opts,
-	OPT_socket_port,
-	OPT_socket_type,
+	OPT_sock_ops,
+	OPT_sock_domain,
+	OPT_sock_nodelay,
+	OPT_sock_opts,
+	OPT_sock_port,
+	OPT_sock_type,
 
-	OPT_socket_diag,
-	OPT_socket_diag_ops,
+	OPT_sockdiag,
+	OPT_sockdiag_ops,
 
-	OPT_socket_fd,
-	OPT_socket_fd_ops,
-	OPT_socket_fd_port,
+	OPT_sockfd,
+	OPT_sockfd_ops,
+	OPT_sockfd_port,
 
-	OPT_socket_pair,
-	OPT_socket_pair_ops,
+	OPT_sockpair,
+	OPT_sockpair_ops,
 
 	OPT_softlockup,
 	OPT_softlockup_ops,
@@ -3027,7 +3027,7 @@ STRESS(stress_affinity);
 STRESS(stress_access);
 STRESS(stress_af_alg);
 STRESS(stress_aio);
-STRESS(stress_aio_linux);
+STRESS(stress_aiol);
 STRESS(stress_apparmor);
 STRESS(stress_atomic);
 STRESS(stress_bigheap);
@@ -3091,7 +3091,7 @@ STRESS(stress_icache);
 STRESS(stress_icmp_flood);
 STRESS(stress_inode_flags);
 STRESS(stress_inotify);
-STRESS(stress_iosync);
+STRESS(stress_io);
 STRESS(stress_iomix);
 STRESS(stress_ioport);
 STRESS(stress_ioprio);
@@ -3154,7 +3154,7 @@ STRESS(stress_radixsort);
 STRESS(stress_rawdev);
 STRESS(stress_rdrand);
 STRESS(stress_readahead);
-STRESS(stress_remap_file_pages);
+STRESS(stress_remap);
 STRESS(stress_rename);
 STRESS(stress_resources);
 STRESS(stress_revio);
@@ -3166,26 +3166,26 @@ STRESS(stress_sctp);
 STRESS(stress_seal);
 STRESS(stress_seccomp);
 STRESS(stress_seek);
-STRESS(stress_semaphore_posix);
-STRESS(stress_semaphore_sysv);
+STRESS(stress_sem);
+STRESS(stress_sem_sysv);
 STRESS(stress_sendfile);
 STRESS(stress_set);
-STRESS(stress_shm_posix);
+STRESS(stress_shm);
 STRESS(stress_shm_sysv);
 STRESS(stress_sigfd);
 STRESS(stress_sigfpe);
 STRESS(stress_sigio);
 STRESS(stress_sigpending);
 STRESS(stress_sigpipe);
-STRESS(stress_sigqueue);
+STRESS(stress_sigq);
 STRESS(stress_sigrt);
 STRESS(stress_sigsegv);
 STRESS(stress_sigsuspend);
 STRESS(stress_sleep);
-STRESS(stress_socket);
-STRESS(stress_socket_diag);
-STRESS(stress_socket_fd);
-STRESS(stress_socket_pair);
+STRESS(stress_sock);
+STRESS(stress_sockdiag);
+STRESS(stress_sockfd);
+STRESS(stress_sockpair);
 STRESS(stress_softlockup);
 STRESS(stress_spawn);
 STRESS(stress_splice);

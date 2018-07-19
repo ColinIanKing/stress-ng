@@ -139,10 +139,10 @@ again:
 }
 
 /*
- *  stress_semaphore_posix()
+ *  stress_sem()
  *	stress system by POSIX sem ops
  */
-static int stress_semaphore_posix(const args_t *args)
+static int stress_sem(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
@@ -186,14 +186,14 @@ reap:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_semaphore_posix_info = {
-	.stressor = stress_semaphore_posix,
+stressor_info_t stress_sem_info = {
+	.stressor = stress_sem,
 	.init = stress_semaphore_posix_init,
 	.deinit = stress_semaphore_posix_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #else
-stressor_info_t stress_semaphore_posix_info = {
+stressor_info_t stress_sem_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_SCHEDULER
 };

@@ -71,10 +71,10 @@ static inline void aio_linux_fill_buffer(
 }
 
 /*
- *  stress_aio_linux`
+ *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
-static int stress_aio_linux(const args_t *args)
+static int stress_aiol(const args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
@@ -252,12 +252,12 @@ free_buffer:
 	return rc;
 }
 
-stressor_info_t stress_aio_linux_info = {
-	.stressor = stress_aio_linux,
+stressor_info_t stress_aiol_info = {
+	.stressor = stress_aiol,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };
 #else
-stressor_info_t stress_aio_linux_info = {
+stressor_info_t stress_aiol_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
 };

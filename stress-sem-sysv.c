@@ -236,10 +236,10 @@ again:
 }
 
 /*
- *  stress_semaphore_sysv()
+ *  stress_sem_sysv()
  *	stress system by sem ops
  */
-static int stress_semaphore_sysv(const args_t *args)
+static int stress_sem_sysv(const args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
@@ -282,14 +282,14 @@ reap:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_semaphore_sysv_info = {
-	.stressor = stress_semaphore_sysv,
+stressor_info_t stress_sem_sysv_info = {
+	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #else
-stressor_info_t stress_semaphore_sysv_info = {
+stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_SCHEDULER
 };

@@ -34,10 +34,10 @@ static void MLOCKED_TEXT stress_sigqhandler(int dummy)
 }
 
 /*
- *  stress_sigqueue
+ *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-static int stress_sigqueue(const args_t *args)
+static int stress_sigq(const args_t *args)
 {
 	pid_t pid;
 
@@ -96,12 +96,12 @@ again:
 	return EXIT_SUCCESS;
 }
 
-stressor_info_t stress_sigqueue_info = {
-	.stressor = stress_sigqueue,
+stressor_info_t stress_sigq_info = {
+	.stressor = stress_sigq,
 	.class = CLASS_INTERRUPT | CLASS_OS
 };
 #else
-stressor_info_t stress_sigqueue_info = {
+stressor_info_t stress_sigq_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS
 };

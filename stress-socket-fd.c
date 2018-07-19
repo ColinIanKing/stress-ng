@@ -294,10 +294,10 @@ die:
 }
 
 /*
- *  stress_socket_fd
+ *  stress_sockfd
  *	stress socket fd passing
  */
-static int stress_socket_fd(const args_t *args)
+static int stress_sockfd(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	ssize_t max_fd = stress_get_file_limit();
@@ -342,12 +342,12 @@ again:
 	return ret;
 }
 
-stressor_info_t stress_socket_fd_info = {
-	.stressor = stress_socket_fd,
+stressor_info_t stress_sockfd_info = {
+	.stressor = stress_sockfd,
 	.class = CLASS_NETWORK | CLASS_OS
 };
 #else
-stressor_info_t stress_socket_fd_info = {
+stressor_info_t stress_sockfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS
 };

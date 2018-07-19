@@ -261,10 +261,10 @@ reap:
 }
 
 /*
- *  stress_shm_posix()
+ *  stress_shm()
  *	stress SYSTEM V shared memory
  */
-static int stress_shm_posix(const args_t *args)
+static int stress_shm(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;
@@ -410,12 +410,12 @@ err:
 	return rc;
 }
 
-stressor_info_t stress_shm_posix_info = {
-	.stressor = stress_shm_posix,
+stressor_info_t stress_shm_info = {
+	.stressor = stress_shm,
 	.class = CLASS_VM | CLASS_OS
 };
 #else
-stressor_info_t stress_shm_posix_info = {
+stressor_info_t stress_shm_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS
 };
