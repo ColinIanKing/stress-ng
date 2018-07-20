@@ -170,7 +170,10 @@ static int stress_file_ioctl(const args_t *args)
 
 			ret = ioctl(fd, FIOQSIZE, &sz);
 			if ((ret == 0) && ((loff_t)file_sz != sz))
-				pr_fail("%s: ioctl FIOQSIZE failed\n", args->name);
+				pr_fail("%s: ioctl FIOQSIZE failed, size "
+					"%jd (filesize) vs %jd (reported)\n",
+					args->name,
+					(intmax_t)file_sz, (intmax_t)sz);
 
 			exercised++;
 		}
