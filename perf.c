@@ -403,13 +403,13 @@ int perf_open(stress_perf_t *sp)
 		}
 	}
 	if (!sp->perf_opened) {
-		pthread_spin_lock(&g_shared->perf.lock);
+		shim_pthread_spin_lock(&g_shared->perf.lock);
 		if (!g_shared->perf.no_perf) {
 			pr_dbg("perf: perf_event_open failed, no "
 				"perf events [%u]\n", getpid());
 			g_shared->perf.no_perf = true;
 		}
-		pthread_spin_unlock(&g_shared->perf.lock);
+		shim_pthread_spin_unlock(&g_shared->perf.lock);
 		return -1;
 	}
 
