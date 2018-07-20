@@ -60,15 +60,12 @@ static void check_flag(
 static int stress_file_ioctl(const args_t *args)
 {
 	char filename[PATH_MAX];
-	char buffer[8192];
 	int ret, fd;
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;
 #endif
 	const off_t file_sz = 8192;
 	uint32_t rnd = mwc32();
-
-	memset(buffer, 0, sizeof(buffer));
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
