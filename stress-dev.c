@@ -1050,12 +1050,12 @@ again:
 				stress_dev_dir(args, "/dev", true, 0, euid);
 			} while (keep_stressing());
 
-			r = pthread_spin_lock(&lock);
+			r = shim_pthread_spin_lock(&lock);
 			if (r) {
 				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
 			} else {
 				dev_path = "";
-				r = pthread_spin_unlock(&lock);
+				r = shim_pthread_spin_unlock(&lock);
 				(void)r;
 			}
 
