@@ -34,6 +34,17 @@ CFLAGS += -Wabi -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 endif
 
 #
+# SunOS requires special grep for -e support
+#
+KERNEL=$(shell uname -s)
+ifeq ($(KERNEL),"SunOS")
+GREP = /usr/xpg4/bin/grep
+else
+GREP = grep
+endif
+
+
+#
 # Static flags, only to be used when using GCC
 #
 ifeq ($(STATIC),1)
@@ -354,7 +365,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 #  extract the PER_* personality enums
 #
 personality.h:
-	@$(CPP) personality.c | grep -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	@$(CPP) personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 
 stress-personality.c: personality.h
