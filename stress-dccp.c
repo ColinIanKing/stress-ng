@@ -137,6 +137,13 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
+			if (errno == ESOCKTNOSUPPORT) {
+				/*
+				 *  Protocol not supported - then return
+				 *  EXIT_NOT_IMPLEMENTED and skip the test
+				 */
+				_exit(EXIT_NOT_IMPLEMENTED);
+			}
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
@@ -213,6 +220,16 @@ static int stress_dccp_server(
 		goto die;
 	}
 	if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
+		if (errno == ESOCKTNOSUPPORT) {
+			/*
+			 *  Protocol not supported - then return
+			 *  EXIT_NOT_IMPLEMENTED and skip the test
+			 */
+			if (args->instance == 0)
+				pr_inf("%s: DCCP protocol not supported, "
+					"skipping stressor\n", args->name);
+			return EXIT_NOT_IMPLEMENTED;
+		}
 		rc = exit_status(errno);
 		pr_fail_dbg("socket");
 		goto die;
