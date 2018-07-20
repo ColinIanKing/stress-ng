@@ -177,11 +177,18 @@ static void stress_dentry_misc(const char *path)
 	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
 	(void)ret;
 
+#if defined(LOCK_EX) && defined(LOCK_UN)
+	/*
+	 *  Only exercise this if we have locking capabilities,
+	 *  we could use fcntl() instead with LOCK_EX|LOCK_NB,
+	 *  but it's not critical for this kind of test.
+	 */
 	ret = flock(fd, LOCK_EX);
 	if (ret == 0) {
 		ret = flock(fd, LOCK_UN);
 		(void)ret;
 	}
+#endif
 
 #if defined(F_GETFL)
 	{
