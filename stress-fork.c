@@ -115,7 +115,6 @@ static int stress_fork_fn(
 static int stress_fork(const args_t *args)
 {
 	uint64_t fork_max = DEFAULT_FORKS;
-	register int ret;
 
 	if (!get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -124,11 +123,7 @@ static int stress_fork(const args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
-	ret = stress_fork_fn(args, fork, fork_max);
-PRAGMA_POP
-	return ret;
+	return stress_fork_fn(args, fork, fork_max);
 }
 
 
@@ -139,6 +134,7 @@ PRAGMA_POP
 static int stress_vfork(const args_t *args)
 {
 	uint64_t vfork_max = DEFAULT_VFORKS;
+	register int ret;
 
 	if (!get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -147,7 +143,11 @@ static int stress_vfork(const args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
-	return stress_fork_fn(args, vfork, vfork_max);
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+	ret = stress_fork_fn(args, vfork, vfork_max);
+PRAGMA_POP
+	return ret;
 }
 
 stressor_info_t stress_fork_info = {
