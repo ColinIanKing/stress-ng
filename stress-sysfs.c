@@ -82,11 +82,11 @@ static inline void stress_sys_rw(
 		double t_start;
 		bool timeout = false;
 
-		ret = pthread_spin_lock(&lock);
+		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
 		shim_strlcpy(path, sysfs_path, sizeof(path));
-		(void)pthread_spin_unlock(&lock);
+		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !g_keep_stressing_flag)
 			break;
@@ -292,11 +292,11 @@ static void stress_sys_dir(
 			if ((buf.st_mode & flags) == 0)
 				continue;
 
-			ret = pthread_spin_lock(&lock);
+			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
-				(void)pthread_spin_unlock(&lock);
+				(void)shim_pthread_spin_unlock(&lock);
 				stress_sys_rw(ctxt, loops);
 				inc_counter(args);
 			}
@@ -327,7 +327,7 @@ static int stress_sysfs(const args_t *args)
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
 
-	rc = pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
+	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
 		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
@@ -353,12 +353,12 @@ static int stress_sysfs(const args_t *args)
 		stress_sys_dir(&ctxt, "/sys", true, 0);
 	} while (keep_stressing());
 
-	rc = pthread_spin_lock(&lock);
+	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {
 		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 	} else {
 		sysfs_path = "";
-		rc = pthread_spin_unlock(&lock);
+		rc = shim_pthread_spin_unlock(&lock);
 		(void)rc;
 	}
 
@@ -367,7 +367,7 @@ static int stress_sysfs(const args_t *args)
 			pthread_join(pthreads[i], NULL);
 	}
 	(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
-	(void)pthread_spin_destroy(&lock);
+	(void)shim_pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
 }

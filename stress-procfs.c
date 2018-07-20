@@ -35,7 +35,7 @@ typedef struct ctxt {
 } ctxt_t;
 
 static sigset_t set;
-static pthread_spinlock_t lock;
+static shim_pthread_spinlock_t lock;
 static char *proc_path;
 static uint32_t mixup;
 
