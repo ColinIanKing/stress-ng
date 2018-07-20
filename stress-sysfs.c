@@ -28,7 +28,7 @@
 #define MAX_READ_THREADS	(4)
 
 static sigset_t set;
-static pthread_spinlock_t lock;
+static shim_pthread_spinlock_t lock;
 static char *sysfs_path;
 static uint32_t mixup;
 
