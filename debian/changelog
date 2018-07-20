@@ -1,3 +1,40 @@
+stress-ng (0.09.35-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-file-ioctl: check size against stat buf size
+  * stress-file-ioctl: remove redundant buffer
+  * stress-file-ioctl: print differences in sizes on error of
+    FIOQSIZE ioctl
+  * stress-sysfs: use shim_ spinlock type rather than direct structure
+  * perf: use shim_ spinlock rather than direct call
+  * stress-procfs: use shim_ spinlock rather than direct call
+  * stress-procfs: use shim_ spinlock rather than native call
+  * stress-dev: use shim spinlock rather than native call
+  * stress-dccp: skip stressor if DCCP protocol not supported
+  * stress-af-alg: return EXIT_NOT_IMPLEMENTED if protocol is not
+    supported
+  * rename set_cpu_affinity to stress_set_cpu_affinity
+  * Update comment relating to stressor names
+  * Make stressor command options match 1-to-1 with info and function
+    names
+  * Re-work STRESSOR macro so that we don't need upper case name anymore
+  * Make stressor names with OPT_ options match
+  * Make stressor names with stressor #defines match
+  * Add more comments and make index i a size_t
+  * Add helper to mlock stress-ng into memory
+  * stress-procfs: use copy of proc_path and set to empty string rather
+    than NULL
+  * stress-dev: use copy of dev_path and set to empty string rather
+    than NULL
+  * stress-sysfs: copy sysfs_path while locked into path
+  * stress-sysfs: don't nullify sysfs_path, set it to empty string and
+    lock it
+  * stress-personality: don't verify personality setting, it does not work
+  * stress-sysfd: temporarily disable read access fstat error
+  * rename snapcraft directory to snap
+
+ -- Colin King <colin.king@canonical.com>  Fri, 20 Jul 2018 12:19:44 +0100
+
 stress-ng (0.09.34-1) unstable; urgency=medium
 
   * Makefile: bump version
