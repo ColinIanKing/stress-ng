@@ -623,6 +623,7 @@ typedef struct {
 #define PRAGMA_POP	_Pragma("GCC diagnostic pop")
 #define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
 			_Pragma("GCC diagnostic ignored \"-Wextra\"") \
+			_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
 			_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
 #else
 #define PRAGMA_PUSH

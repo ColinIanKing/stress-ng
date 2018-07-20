@@ -115,6 +115,7 @@ static int stress_fork_fn(
 static int stress_fork(const args_t *args)
 {
 	uint64_t fork_max = DEFAULT_FORKS;
+	register int ret;
 
 	if (!get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -123,7 +124,11 @@ static int stress_fork(const args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(args, fork, fork_max);
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+	ret = stress_fork_fn(args, fork, fork_max);
+PRAGMA_POP
+	return ret;
 }
 
 
