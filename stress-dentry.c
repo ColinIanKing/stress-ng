@@ -179,14 +179,33 @@ static void stress_dentry_misc(const char *path)
 
 #if defined(LOCK_EX) && defined(LOCK_UN)
 	/*
-	 *  Only exercise this if we have locking capabilities,
-	 *  we could use fcntl() instead with LOCK_EX|LOCK_NB,
-	 *  but it's not critical for this kind of test.
+	 *  flock capable systems..
 	 */
 	ret = flock(fd, LOCK_EX);
 	if (ret == 0) {
 		ret = flock(fd, LOCK_UN);
 		(void)ret;
+	}
+#elif defined(F_SETLKW) && defined(F_RDLCK) && defined(F_UNLCK)
+	/*
+	 *  ..otherwise fall back to fcntl (e.g. Solaris)
+	 */
+	{
+		struct flock lock;
+
+		lock.l_start = 0;
+		lock.l_len = 0;
+		lock.l_whence = SEEK_SET;
+		lock.l_type = F_RDLCK;
+		ret = fcntl(fd, F_SETLKW, &lock);
+		if (ret == 0) {
+			lock.l_start = 0;
+			lock.l_len = 0;
+			lock.l_whence = SEEK_SET;
+			lock.l_type = F_UNLCK;
+			ret = fcntl(fd, F_SETLKW, &lock);
+			(void)ret;
+		}
 	}
 #endif
 
