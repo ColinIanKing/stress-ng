@@ -37,7 +37,7 @@ endif
 # SunOS requires special grep for -e support
 #
 KERNEL=$(shell uname -s)
-ifeq ($(KERNEL),"SunOS")
+ifeq ($(KERNEL),SunOS)
 GREP = /usr/xpg4/bin/grep
 else
 GREP = grep
