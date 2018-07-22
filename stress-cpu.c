@@ -2194,6 +2194,9 @@ static void stress_cpu_stats(const char *name)
 	size_t i;
 	double data[STATS_MAX];
 	double min, max, am = 0.0, gm = 1.0, hm = 0.0, stddev = 0.0;
+	int64_t expon = 0;
+	double mant = 1.0;
+	const double inverse_n = 1.0 / (double)STATS_MAX;
 
 	for (i = 0; i < STATS_MAX; i++)
 		data[i] = ((double)(mwc32() + 1)) / 4294967296.0;
@@ -2202,6 +2205,12 @@ static void stress_cpu_stats(const char *name)
 
 	for (i = 0; i < STATS_MAX; i++) {
 		double d = data[i];
+		double f;
+		int e;
+
+		f = frexp(d, &e);
+		mant *= f;
+		expon += e;
 
 		if (min > d)
 			min = d;
@@ -2215,7 +2224,8 @@ static void stress_cpu_stats(const char *name)
 	/* Arithmetic mean (average) */
 	am = am / STATS_MAX;
 	/* Geometric mean */
-	gm = pow(gm, 1.0 / STATS_MAX);
+	gm = pow(mant, inverse_n) *
+	     pow(2.0, (double)expon * inverse_n);
 	/* Harmonic mean */
 	hm = STATS_MAX / hm;
 
