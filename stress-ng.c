@@ -2218,6 +2218,7 @@ redo:
 			if (pid) {
 				int status, ret;
 				bool do_abort = false;
+				const char *stressor_name = munge_underscore(pi->stressor->name);
 
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
@@ -2227,16 +2228,16 @@ redo:
 						const char *signame = strsignal(WTERMSIG(status));
 
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
-							ret, pi->stressor->name,
+							ret, stressor_name,
 							WTERMSIG(status), signame);
 #else
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
-							ret, pi->stressor->name,
+							ret, stressor_name,
 							WTERMSIG(status));
 #endif
 #else
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
-							ret, pi->stressor->name);
+							ret, stressor_name));
 #endif
 						/*
 						 *  If the stressor got killed by OOM or SIGKILL
@@ -2246,10 +2247,10 @@ redo:
 						 */
 						if (process_oomed(ret)) {
 							pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
-								ret, pi->stressor->name);
+								ret, stressor_name);
 						} else if (WTERMSIG(status) == SIGKILL) {
 							pr_dbg("process [%d] (stress-ng-%s) was possibly killed by the OOM killer\n",
-								ret, pi->stressor->name);
+								ret, stressor_name);
 						} else {
 							*success = false;
 						}
@@ -2259,7 +2260,7 @@ redo:
 						break;
 					case EXIT_NO_RESOURCE:
 						pr_err("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
-							ret, pi->stressor->name);
+							ret, stressor_name);
 						*resource_success = false;
 						do_abort = true;
 						break;
@@ -2268,12 +2269,12 @@ redo:
 						break;
 					case EXIT_BY_SYS_EXIT:
 						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
-							ret, pi->stressor->name);
+							ret, stressor_name);
 						do_abort = true;
 						break;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
-							ret, pi->stressor->name, WEXITSTATUS(status),
+							ret, stressor_name, WEXITSTATUS(status),
 							str_exitstatus(WEXITSTATUS(status)));
 						*success = false;
 						do_abort = true;
