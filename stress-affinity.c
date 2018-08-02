@@ -27,6 +27,27 @@
 #if defined(HAVE_AFFINITY)
 
 /*
+ *  stress_affinity_supported()
+ *      check that we can set affinity
+ */
+static int stress_affinity_supported(void)
+{
+	cpu_set_t mask;
+
+	CPU_ZERO(&mask);
+	CPU_SET(0, &mask);
+
+	if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+		if (errno == EPERM) {
+			pr_inf("affinity stressor cannot set CPU affinity, "
+			       "process lacks privilege, skipping the stressor\n");
+			return -1;
+		}
+	}
+        return 0;
+}
+
+/*
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
@@ -75,7 +96,8 @@ static int stress_affinity(const args_t *args)
 
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.supported = stress_affinity_supported
 };
 #else
 stressor_info_t stress_affinity_info = {
