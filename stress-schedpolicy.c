@@ -125,7 +125,12 @@ static int stress_schedpolicy(const args_t *args)
 			break;
 		}
 		if (ret < 0) {
-			if (errno != EPERM) {
+			/*
+			 *  Some systems return EINVAL for non-POSIX
+			 *  scheduling policies, silently ignore these
+			 *  failures.
+			 */
+			if ((errno != EPERM) && (errno != EINVAL)) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
@@ -147,11 +152,11 @@ static int stress_schedpolicy(const args_t *args)
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
-		if (ret < 0)
+		if ((ret < 0) && (errno != EINVAL))
 			pr_fail_err("sched_getparam failed");
 
 		ret = sched_setparam(pid, &param);
-		if (ret < 0)
+		if ((ret < 0) && (errno != EINVAL))
 			pr_fail_err("sched_setparam");
 #endif
 
