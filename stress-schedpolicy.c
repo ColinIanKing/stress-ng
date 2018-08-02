@@ -101,6 +101,11 @@ static int stress_schedpolicy(const args_t *args)
 #endif
 			min_prio = sched_get_priority_min(policy);
 			max_prio = sched_get_priority_max(policy);
+
+			/* Check if min/max is supported or not */
+			if ((min_prio == -1) || (max_prio == -1))
+				continue;
+
 			rng_prio = max_prio - min_prio;
 			if (rng_prio == 0) {
 				pr_err("%s: invalid min/max priority "
