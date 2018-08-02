@@ -119,7 +119,7 @@ stressor_info_t stress_mknod_info = {
 	.class = CLASS_FILESYSTEM | CLASS_OS
 };
 #else
-stressor_info_t stress_af_alg_info = {
+stressor_info_t stress_mknod_info = {
         .stressor = stress_not_implemented,
         .class = CLASS_FILESYSTEM | CLASS_OS
 };
