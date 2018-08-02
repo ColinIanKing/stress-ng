@@ -140,13 +140,13 @@ re_read:
 				pr_fail_err("lseek SEEK_CUR");
 		}
 #endif
-#if defined(SEEK_HOLE)
+#if defined(SEEK_HOLE) && !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
 				pr_fail_err("lseek SEEK_HOLE");
 		}
 #endif
-#if defined(SEEK_DATA)
+#if defined(SEEK_DATA) && !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
 				pr_fail_err("lseek SEEK_DATA");
