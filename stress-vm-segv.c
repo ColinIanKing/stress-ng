@@ -65,7 +65,7 @@ again:
 			return EXIT_SUCCESS;
 		pid = fork();
 		if (pid < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
+			if ((errno == EAGAIN) || (errno == EINTR) || (errno == ENOMEM))
 				goto again;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
