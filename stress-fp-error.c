@@ -57,6 +57,7 @@ static void stress_fp_check(
 	const int errno_wanted,
 	const int excepts_wanted)
 {
+#if defined(__linux__)
 	if (stress_double_same(val, val_wanted) &&
 	    (fetestexcept(excepts_wanted) & excepts_wanted) &&
 	    (errno == errno_wanted))
@@ -69,6 +70,19 @@ static void stress_fp_check(
 		val, val_wanted,
 		errno, errno_wanted,
 		fetestexcept(excepts_wanted), excepts_wanted);
+#else
+	(void)errno_wanted;
+
+	if (stress_double_same(val, val_wanted) &&
+	    (fetestexcept(excepts_wanted) & excepts_wanted))
+		return;
+
+	pr_fail("%s: %s return was %f (expected %f), "
+		"excepts=%d (expected %d)\n",
+		args->name, expr,
+		val, val_wanted,
+		fetestexcept(excepts_wanted), excepts_wanted);
+#endif
 }
 
 /*
