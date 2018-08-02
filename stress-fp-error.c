@@ -72,16 +72,14 @@ static void stress_fp_check(
 		fetestexcept(excepts_wanted), excepts_wanted);
 #else
 	(void)errno_wanted;
+	(void)excepts_wanted;
 
-	if (stress_double_same(val, val_wanted) &&
-	    (fetestexcept(excepts_wanted) & excepts_wanted))
+	if (stress_double_same(val, val_wanted))
 		return;
 
-	pr_fail("%s: %s return was %f (expected %f), "
-		"excepts=%d (expected %d)\n",
+	pr_fail("%s: %s return was %f (expected %f)\n",
 		args->name, expr,
-		val, val_wanted,
-		fetestexcept(excepts_wanted), excepts_wanted);
+		val, val_wanted);
 #endif
 }
 
