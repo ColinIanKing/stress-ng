@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
+
 static const int modes[] = {
 #if defined(S_IFIFO)
 	S_IFIFO,	/* FIFO */
@@ -116,3 +118,9 @@ stressor_info_t stress_mknod_info = {
 	.stressor = stress_mknod,
 	.class = CLASS_FILESYSTEM | CLASS_OS
 };
+#else
+stressor_info_t stress_af_alg_info = {
+        .stressor = stress_not_implemented,
+        .class = CLASS_FILESYSTEM | CLASS_OS
+};
+#endif
