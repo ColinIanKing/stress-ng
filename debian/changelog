@@ -1,3 +1,30 @@
+stress-ng (0.09.36-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-schedpolicy: ignore EINVAL on non-POSIX policies
+  * mungify _ to - on stressor name before calling the stressor
+  * stress-seek: disabled SEEK_HOLE and SEEK_DATA for OS X
+  * stress-fp-error: relax checking on non-Linux systems
+  * stress-schedpolicy: skip FIFO if sched_get_priority_min/max return -1
+  * stress-mknod: fix cut-n-paste error on struct stress_info_t
+  * stress-fp-error: be less pedantic with errno checks on non-Linux systems
+  * stress-mknod: disable this for non-Linux systems
+  * stress-affinity: check that process can set CPU affinity
+  * stress-access: remove AT_SYMLINK_NOFOLLOW, it is not needed
+  * stress-vm-segv: remove some old commented out debug text
+  * stress-vm-segv: retry on ENOMEM on fork
+  * stress-vm-segv: make child process non-dumpable
+  * test/test_modify_ldt: fail for no-x86 architectures
+  * stress-cpu: compute geometric mean by split mantissa and exponent method
+  * stress-fork: turn warnings off around vfork and not fork
+  * stress-dentry: fall back to using fcntl if flock is not available
+  * Turn off warnings around vfork calls
+  * Makefile: "SunOS" should be SunOS and not quoted in if statement
+  * Makefile: check for SunOS to use non-default grep for -e capability
+  * stress-dentry: don't flock the entry if we don't have flock flags
+
+ -- Colin King <colin.king@canonical.com>  Thu, 2 Aug 2018 14:39:41 +0100
+
 stress-ng (0.09.35-1) unstable; urgency=medium
 
   * Makefile: bump version
