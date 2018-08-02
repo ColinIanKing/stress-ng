@@ -119,6 +119,8 @@ again:
 			const struct rlimit lim = { RLIM_INFINITY, RLIM_INFINITY };
 
 			setrlimit(RLIMIT_CORE, &lim);
+			set_oom_adjustment(args->name, true);
+			stress_process_dumpable(false);
 
 			/*
 			 *  Try to ummap the child's address space, should cause
