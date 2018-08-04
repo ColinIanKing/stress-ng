@@ -28,7 +28,7 @@
 #include <sys/sysinfo.h>
 #include <utime.h>
 #include <sys/vfs.h>
-#if defined(__NR_ustat)
+#if defined(HAVE_USTAT)
 #include <ustat.h>
 #endif
 #endif
@@ -379,7 +379,7 @@ static int bad_times(void *addr)
 	return times(addr);
 }
 
-#if defined(__linux__) && defined(__NR_ustat)
+#if defined(HAVE_USTAT)
 static int bad_ustat(void *addr)
 {
 	dev_t dev = { 0 };
@@ -495,7 +495,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_timer_create,
 #endif
 	bad_times,
-#if defined(__linux__) && defined(__NR_ustat)
+#if defined(HAVE_USTAT)
 	bad_ustat,
 #endif
 #if defined(__linux__)
