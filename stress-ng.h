@@ -2932,7 +2932,7 @@ struct shim_sched_attr {
 #define SHIM_STATX_BTIME             0x00000800U
 #define SHIM_STATX_ALL               0x00000fffU
 
-struct statx_timestamp {
+struct shim_statx_timestamp {
         int64_t		tv_sec;
         int32_t		tv_nsec;
         int32_t		__reserved;
@@ -2952,10 +2952,10 @@ struct shim_statx {
         uint64_t   stx_size;
         uint64_t   stx_blocks;
         uint64_t   __spare1[1];
-        struct statx_timestamp  stx_atime;
-        struct statx_timestamp  stx_btime;
-        struct statx_timestamp  stx_ctime;
-        struct statx_timestamp  stx_mtime;
+        struct shim_statx_timestamp  stx_atime;
+        struct shim_statx_timestamp  stx_btime;
+        struct shim_statx_timestamp  stx_ctime;
+        struct shim_statx_timestamp  stx_mtime;
         uint32_t   stx_rdev_major;
         uint32_t   stx_rdev_minor;
         uint32_t   stx_dev_major;
