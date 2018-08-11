@@ -162,6 +162,7 @@ static char *get_string_from_file(const char *path)
  * - bytes ('B').
  * - kibibytes ('K' - aka KiB).
  * - mebibytes ('M' - aka MiB).
+ * - gibibytes ('G' - aka GiB).
  *
  * Returns: size in bytes, or 0 on error.
  */
@@ -194,6 +195,9 @@ static uint64_t size_to_bytes(const char *str)
 		break;
 	case 'M':
 		multiplier = MB;
+		break;
+	case 'G':
+		multiplier = GB;
 		break;
 	default:
 		pr_err("unable to convert string to bytes: %s\n", str);
