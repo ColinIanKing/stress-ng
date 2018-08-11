@@ -43,6 +43,12 @@ else
 GREP = grep
 endif
 
+#
+# Check for KFreeBSD
+#
+ifeq ($(KERNEL),GNU/kFreeBSD)
+CFLAGS += -D__FreeBSD_Kernel__
+endif
 
 #
 # Static flags, only to be used when using GCC
