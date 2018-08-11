@@ -111,9 +111,38 @@ void ignite_cpu_start(void)
 		return;
 	} else if (pid == 0) {
 		/* Child */
+		const int32_t cpus = stress_get_processors_configured();
+		const int32_t max_cpus = cpus < 1 ? 1 : cpus;
+		int32_t cpu;
+		int ret;
+		bool set_failed[max_cpus];
+		uint64_t max_freq[max_cpus];
+		char buffer[128];
+		char path[PATH_MAX];
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		set_proc_name("stress-ng-ignite");
+
+		/*
+		 *  Gather per-cpu max scaling frequencies
+		 */
+		for (cpu = 0; cpu < max_cpus; cpu++) {
+			max_freq[cpu] = 0;
+			set_failed[cpu] = true;
+
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/scaling_max_freq", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret < 1)
+				continue;
+
+			if (sscanf(buffer, "%" SCNu64, &max_freq[cpu]) != 1)
+				continue;
+			set_failed[cpu] = false;
+		}
 
 		while (g_keep_stressing_flag) {
 			for (i = 0; settings[i].path; i++) {
@@ -122,6 +151,25 @@ void ignite_cpu_start(void)
 				(void)system_write(settings[i].path,
 					settings[i].default_setting,
 					settings[i].default_setting_len);
+			}
+
+			/*
+			 *  Attempt to crank CPUs upto max freq
+			 */
+			for (cpu = 0; cpu < max_cpus; cpu++) {
+				if (set_failed[cpu])
+					continue;
+
+				(void)snprintf(path, sizeof(path),
+					"/sys/devices/system/cpu/cpu%" PRIu32
+					"/cpufreq/scaling_setspeed", cpu);
+				(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n",
+					max_freq[cpu]);
+				ret = system_write(path, buffer, strlen(buffer));
+				if (ret < 0) {
+					printf("%" PRIu32 " failed\n", cpu);
+					set_failed[cpu] = true;
+				}
 			}
 			sleep(1);
 		}
