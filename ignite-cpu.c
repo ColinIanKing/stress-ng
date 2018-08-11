@@ -33,8 +33,18 @@ typedef struct {
 	bool ignore;			/* true to ignore using this */
 } settings_t;
 
+typedef struct {
+	uint64_t max_freq;		/* Max scaling frequency */
+	uint64_t cur_freq;		/* Original scaling frequency */
+	char cur_governor[128];		/* Original governor setting */
+	bool set_failed;		/* True if we can't set the freq */
+} cpu_setting_t;
+
+static cpu_setting_t *cpu_settings;	/* Array of cpu settings */
+
 static pid_t pid;			/* PID of ignite process */
 static bool enabled;			/* true if ignite process running */
+static uint32_t max_cpus;		/* max cpus configured */
 
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
@@ -48,6 +58,33 @@ static settings_t settings[] = {
 	SETTING(NULL, NULL)
 };
 
+static int ignite_cpu_set(
+	const uint32_t cpu,
+	const uint64_t freq,
+	const char *governor)
+{
+	char path[PATH_MAX];
+	char buffer[128];
+	int ret1 = 0, ret2 = 0;
+
+	if (freq > 0) {
+		(void)snprintf(path, sizeof(path),
+			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/cpufreq/scaling_setspeed", cpu);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
+		ret1 = system_write(path, buffer, strlen(buffer));
+	}
+
+	if (*governor != '\0') {
+		(void)snprintf(path, sizeof(path),
+			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/cpufreq/scaling_governor", cpu);
+		ret2 = system_write(path, governor, strlen(governor));
+	}
+
+	return ((ret1 < 0) || (ret2 < 0)) ? -1 : 0;
+}
+
 /*
  *  ignite_cpu_start()
  *	crank up the CPUs, start a child process to continually
@@ -59,6 +96,66 @@ void ignite_cpu_start(void)
 
 	if (enabled)
 		return;
+
+	max_cpus = stress_get_processors_configured();
+	if (max_cpus < 1)
+		max_cpus = 1;	/* Has to have at least 1 cpu! */
+	cpu_settings = calloc((size_t)max_cpus, sizeof(*cpu_settings));
+	if (!cpu_settings) {
+		pr_dbg("ignite-cpu: no cpu settings allocated\n");
+	} else {
+		uint32_t cpu;
+		char buffer[128];
+		char path[PATH_MAX];
+
+		/*
+		 *  Gather per-cpu max scaling frequencies and governors
+		 */
+		for (cpu = 0; cpu < max_cpus; cpu++) {
+			int ret;
+
+			/* Assume failed */
+			cpu_settings[cpu].max_freq = 0;
+			cpu_settings[cpu].set_failed = true;
+
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/scaling_max_freq", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				ret = sscanf(buffer, "%" SCNu64,
+					&cpu_settings[cpu].max_freq);
+				if (ret == 1)
+					cpu_settings[cpu].set_failed = false;
+			}
+
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/scaling_cur_freq", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				ret = sscanf(buffer, "%" SCNu64,
+					&cpu_settings[cpu].cur_freq);
+				if (ret == 1)
+					cpu_settings[cpu].set_failed = false;
+			}
+
+			(void)memset(cpu_settings[cpu].cur_governor, 0,
+				sizeof(cpu_settings[cpu].cur_governor));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/scaling_governor", cpu);
+			ret = system_read(path, cpu_settings[cpu].cur_governor,
+					  sizeof(cpu_settings[cpu].cur_governor));
+			(void)ret;
+
+			printf("cpu %" PRIu32 " freq %" PRIu64 " gov %s\n",
+				cpu, cpu_settings[cpu].cur_freq,
+				cpu_settings[cpu].cur_governor);
+		}
+	}
 
 	pid = -1;
 	for (i = 0; settings[i].path; i++) {
@@ -111,40 +208,14 @@ void ignite_cpu_start(void)
 		return;
 	} else if (pid == 0) {
 		/* Child */
-		const int32_t cpus = stress_get_processors_configured();
-		const int32_t max_cpus = cpus < 1 ? 1 : cpus;
-		int32_t cpu;
-		int ret;
-		bool set_failed[max_cpus];
-		uint64_t max_freq[max_cpus];
-		char buffer[128];
-		char path[PATH_MAX];
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		set_proc_name("stress-ng-ignite");
 
-		/*
-		 *  Gather per-cpu max scaling frequencies
-		 */
-		for (cpu = 0; cpu < max_cpus; cpu++) {
-			max_freq[cpu] = 0;
-			set_failed[cpu] = true;
-
-			(void)memset(buffer, 0, sizeof(buffer));
-			(void)snprintf(path, sizeof(path),
-				"/sys/devices/system/cpu/cpu%" PRIu32
-				"/cpufreq/scaling_max_freq", cpu);
-			ret = system_read(path, buffer, sizeof(buffer));
-			if (ret < 1)
-				continue;
-
-			if (sscanf(buffer, "%" SCNu64, &max_freq[cpu]) != 1)
-				continue;
-			set_failed[cpu] = false;
-		}
-
 		while (g_keep_stressing_flag) {
+			uint32_t cpu;
+
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
@@ -153,22 +224,21 @@ void ignite_cpu_start(void)
 					settings[i].default_setting_len);
 			}
 
-			/*
-			 *  Attempt to crank CPUs upto max freq
-			 */
-			for (cpu = 0; cpu < max_cpus; cpu++) {
-				if (set_failed[cpu])
-					continue;
+			if (cpu_settings) {
+				/*
+				 *  Attempt to crank CPUs upto max freq
+				 */
+				for (cpu = 0; cpu < max_cpus; cpu++) {
+					int ret;
 
-				(void)snprintf(path, sizeof(path),
-					"/sys/devices/system/cpu/cpu%" PRIu32
-					"/cpufreq/scaling_setspeed", cpu);
-				(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n",
-					max_freq[cpu]);
-				ret = system_write(path, buffer, strlen(buffer));
-				if (ret < 0) {
-					printf("%" PRIu32 " failed\n", cpu);
-					set_failed[cpu] = true;
+					if (cpu_settings[cpu].set_failed)
+						continue;
+
+					ret = ignite_cpu_set(cpu,
+						cpu_settings[cpu].max_freq,
+						"performance");
+					if (ret < 0)
+						cpu_settings[cpu].set_failed = true;
 				}
 			}
 			sleep(1);
@@ -193,6 +263,17 @@ void ignite_cpu_stop(void)
 		(void)kill(pid, SIGTERM);
 		(void)kill(pid, SIGKILL);
 		(void)waitpid(pid, &status, 0);
+	}
+
+	if (cpu_settings) {
+		uint32_t cpu;
+
+		for (cpu = 0; cpu < max_cpus; cpu++) {
+			ignite_cpu_set(cpu,
+				cpu_settings[cpu].cur_freq,
+				cpu_settings[cpu].cur_governor);
+		}
+		free(cpu_settings);
 	}
 
 	for (i = 0; settings[i].path; i++) {
