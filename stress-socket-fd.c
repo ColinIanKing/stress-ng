@@ -147,7 +147,7 @@ static void stress_socket_client(
 		ssize_t i, n;
 		socklen_t addr_len = 0;
 
-		memset(fds, 0, sizeof(fds));
+		(void)memset(fds, 0, sizeof(fds));
 retry:
 		if (!g_keep_stressing_flag) {
 			(void)kill(getppid(), SIGALRM);
@@ -324,7 +324,6 @@ static int stress_sockfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		printf("errno: %d\n", errno);
 		if (errno == EAGAIN) {
 			if (g_keep_stressing_flag)
 				goto again;

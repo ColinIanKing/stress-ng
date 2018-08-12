@@ -571,7 +571,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 	bool no_perf_stats = true;
 	proc_info_t *pi;
 
-	setlocale(LC_ALL, "");
+	(void)setlocale(LC_ALL, "");
 
 	pr_yaml(yaml, "perfstats:\n");
 

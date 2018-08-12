@@ -63,7 +63,7 @@ static int stress_null(const args_t *args)
 			MAP_PRIVATE | MAP_ANONYMOUS, fd, mwc64() & ~(page_size - 1));
 		if (ptr != MAP_FAILED) {
 			(void)memset(ptr, mwc8(), page_size);
-			shim_msync(ptr, page_size, MS_SYNC);
+			(void)shim_msync(ptr, page_size, MS_SYNC);
 			(void)munmap(ptr, page_size);
 		}
 #endif

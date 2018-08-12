@@ -139,7 +139,7 @@ static int stress_sigpipe(const args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	memset(buf, 0, sizeof buf);
+	(void)memset(buf, 0, sizeof buf);
 
 	do {
 		stress_sigpipe_write(args, buf, sizeof buf);

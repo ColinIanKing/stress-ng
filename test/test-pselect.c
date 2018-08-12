@@ -51,8 +51,8 @@ int main(void)
 	ts.tv_sec = 1;
 	ts.tv_nsec = 999999999;
 
-	sigemptyset(&sigmask);
-	sigaddset(&sigmask, SIGTERM);
+	(void)sigemptyset(&sigmask);
+	(void)sigaddset(&sigmask, SIGTERM);
 
 	return pselect(3, &rfds, &wfds, NULL, &ts, &sigmask);
 }

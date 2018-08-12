@@ -99,7 +99,7 @@ static int stress_bind_mount(const args_t *args)
 		char stack[CLONE_STACK_SIZE];
 		char *stack_top = stack + stack_offset;
 
-		memset(stack, 0, sizeof stack);
+		(void)memset(stack, 0, sizeof stack);
 
 		pid = clone(stress_bind_mount_child,
 			align_stack(stack_top),

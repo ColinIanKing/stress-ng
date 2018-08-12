@@ -715,7 +715,7 @@ char *shim_getlogin(void)
 	if (!pw)
 		return NULL;
 
-	shim_strlcpy(pw_name, pw->pw_name, sizeof(pw_name));
+	(void)shim_strlcpy(pw_name, pw->pw_name, sizeof(pw_name));
 	pw_name[sizeof(pw_name) - 1 ] = '\0';
 
 	return pw_name;

@@ -166,7 +166,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 				break;
 			stress_fstat_helper(ctxt);
 		}
-		shim_sched_yield();
+		(void)shim_sched_yield();
 	}
 
 	return &nowt;
@@ -210,7 +210,7 @@ static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_
 #if defined(HAVE_LIB_PTHREAD)
 	for (i = 0; i < MAX_FSTAT_THREADS; i++) {
 		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
+			(void)pthread_join(pthreads[i], NULL);
 	}
 #endif
 }

@@ -156,7 +156,7 @@ static int stress_softlockup(const args_t *args)
 		do {
 			if ((time_now() - start) > (double)timeout)
 				goto tidy_ok;
-			usleep(50000);
+			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
 		} while (keep_stressing() && count < num_instances);
 #endif
@@ -222,8 +222,8 @@ tidy:
 		param.sched_priority = policies[0].max_prio;
 		(void)sched_setscheduler(args->pid, policies[0].policy, &param);
 
-		pause();
-		kill(pid, SIGKILL);
+		(void)pause();
+		(void)kill(pid, SIGKILL);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif

@@ -160,7 +160,7 @@ static int stress_sem(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_posix_procs; i++) {
 		pids[i] = semaphore_posix_spawn(args);
 		if (!g_keep_stressing_flag || pids[i] < 0)

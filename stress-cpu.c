@@ -1499,7 +1499,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
-	memset(sieve, 0xff, sizeof(sieve));
+	(void)memset(sieve, 0xff, sizeof(sieve));
 	for (i = 2; i < nsqrt; i++)
 		if (STRESS_GETBIT(sieve, i))
 			for (j = i * i; j < SIEVE_SIZE; j += i)
@@ -2437,7 +2437,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 	 * load stress test(!)
 	 */
 	if (cpu_load == 0) {
-		sleep((int)g_opt_timeout);
+		(void)sleep((int)g_opt_timeout);
 		return EXIT_SUCCESS;
 	}
 
@@ -2493,7 +2493,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 
 		tv.tv_sec = delay;
 		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
-		select(0, NULL, NULL, NULL, &tv);
+		(void)select(0, NULL, NULL, NULL, &tv);
 
 		t3 = time_now();
 		/* Bias takes account of the time to do the delay */

@@ -86,7 +86,7 @@ again:
 		pr_dbg("%s: parent sent termination notice\n", args->name);
 		(void)memset(&s, 0, sizeof(s));
 		s.sival_int = 1;
-		sigqueue(pid, SIGUSR1, s);
+		(void)sigqueue(pid, SIGUSR1, s);
 		(void)shim_usleep(250);
 		/* And ensure child is really dead */
 		(void)kill(pid, SIGKILL);

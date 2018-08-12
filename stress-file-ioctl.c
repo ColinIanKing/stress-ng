@@ -219,7 +219,7 @@ static int stress_file_ioctl(const args_t *args)
 		{
 			struct file_clone_range fcr;
 
-			memset(&fcr, 0, sizeof(fcr));
+			(void)memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
 			fcr.src_offset = 0;
 			fcr.src_length = file_sz;

@@ -67,7 +67,7 @@ static void stress_rmap_child(
 					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memset(mappings[i], mwc8(), sz);
-					shim_msync(mappings[i], sz, sync_flag);
+					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
@@ -76,7 +76,7 @@ static void stress_rmap_child(
 					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memset(mappings[i], mwc8(), sz);
-					shim_msync(mappings[i], sz, sync_flag);
+					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
@@ -86,7 +86,7 @@ static void stress_rmap_child(
 					break;
 				if (mappings[j] != MAP_FAILED) {
 					(void)memset(mappings[j], mwc8(), sz);
-					shim_msync(mappings[j], sz, sync_flag);
+					(void)shim_msync(mappings[j], sz, sync_flag);
 				}
 			}
 			break;
@@ -95,7 +95,7 @@ static void stress_rmap_child(
 					break;
 				if (mappings[i] != MAP_FAILED) {
 					(void)memcpy(mappings[i], mappings[i + 1], sz);
-					shim_msync(mappings[i], sz, sync_flag);
+					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
@@ -222,8 +222,7 @@ static int stress_rmap(const args_t *args)
 		uint64_t c = 0;
 
 		/* Twiddle fingers */
-		shim_usleep(100000);
-
+		(void)shim_usleep(100000);
 
 		for (i = 0; i < RMAP_CHILD_MAX; i++)
 			c += counters[i];

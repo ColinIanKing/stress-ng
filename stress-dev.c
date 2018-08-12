@@ -540,7 +540,7 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED) {
-		munmap(ptr, page_size);
+		(void)munmap(ptr, page_size);
 	}
 	if (read_page) {
 		char buffer[page_size];
@@ -552,7 +552,7 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 
 	ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED) {
-		munmap(ptr, page_size);
+		(void)munmap(ptr, page_size);
 	}
 
 }
@@ -609,7 +609,7 @@ static void stress_dev_port_linux(const char *name, const int fd, const char *de
 	/* Should fail */
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
-		munmap(ptr, page_size);
+		(void)munmap(ptr, page_size);
 }
 #endif
 
@@ -677,7 +677,7 @@ static inline void stress_dev_rw(
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		shim_strlcpy(path, dev_path, sizeof(path));
+		(void)shim_strlcpy(path, dev_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !g_keep_stressing_flag)
@@ -791,10 +791,10 @@ static inline void stress_dev_rw(
 #endif
 		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
-			munmap(ptr, args->page_size);
+			(void)munmap(ptr, args->page_size);
 		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
-			munmap(ptr, args->page_size);
+			(void)munmap(ptr, args->page_size);
 		(void)close(fd);
 
 		if (time_now() - t_start > threshold) {
@@ -806,10 +806,10 @@ static inline void stress_dev_rw(
 			goto rdwr;
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
-			munmap(ptr, args->page_size);
+			(void)munmap(ptr, args->page_size);
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
-			munmap(ptr, args->page_size);
+			(void)munmap(ptr, args->page_size);
 
 		ret = fsync(fd);
 		(void)ret;
@@ -961,7 +961,7 @@ static void stress_dev_dir(
 				continue;
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				shim_strlcpy(filename, tmp, sizeof(filename));
+				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
 				stress_dev_rw(args, loops);

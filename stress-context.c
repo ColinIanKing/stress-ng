@@ -39,7 +39,7 @@ static void thread1(void)
 {
 	do {
 		__counter++;
-		swapcontext(&uctx_thread1, &uctx_thread2);
+		(void)swapcontext(&uctx_thread1, &uctx_thread2);
 	} while (g_keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 
@@ -47,7 +47,7 @@ static void thread2(void)
 {
 	do {
 		__counter++;
-		swapcontext(&uctx_thread2, &uctx_thread3);
+		(void)swapcontext(&uctx_thread2, &uctx_thread3);
 	} while (g_keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 
@@ -55,7 +55,7 @@ static void thread3(void)
 {
 	do {
 		__counter++;
-		swapcontext(&uctx_thread3, &uctx_thread1);
+		(void)swapcontext(&uctx_thread3, &uctx_thread1);
 	} while (g_keep_stressing_flag && (!__max_ops || __counter < __max_ops));
 }
 

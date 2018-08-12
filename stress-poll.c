@@ -180,8 +180,8 @@ abort:
 			ts.tv_sec = 0;
 			ts.tv_nsec = 20000000;
 
-			sigemptyset(&sigmask);
-			sigaddset(&sigmask, SIGPIPE);
+			(void)sigemptyset(&sigmask);
+			(void)sigaddset(&sigmask, SIGPIPE);
 
 			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
@@ -226,8 +226,8 @@ abort:
 			ts.tv_sec = 0;
 			ts.tv_nsec = 20000000;
 
-			sigemptyset(&sigmask);
-			sigaddset(&sigmask, SIGPIPE);
+			(void)sigemptyset(&sigmask);
+			(void)sigaddset(&sigmask, SIGPIPE);
 
 			ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&

@@ -95,11 +95,11 @@ int stress_set_cyclic_policy(const char *opt)
 			return 0;
 		}
 	}
-	fprintf(stderr, "invalid cyclic-policy '%s', policies allowed are:", opt);
+	(void)fprintf(stderr, "invalid cyclic-policy '%s', policies allowed are:", opt);
 	for (policy = 0; policy < num_policies; policy++) {
-		fprintf(stderr, " %s", policies[policy].opt_name);
+		(void)fprintf(stderr, " %s", policies[policy].opt_name);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 
@@ -138,9 +138,9 @@ static int stress_cyclic_clock_nanosleep(
 
 	t.tv_sec = cyclic_sleep / NANOSECS;
 	t.tv_nsec = cyclic_sleep % NANOSECS;
-	clock_gettime(CLOCK_REALTIME, &t1);
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
-	clock_gettime(CLOCK_REALTIME, &t2);
+	(void)clock_gettime(CLOCK_REALTIME, &t2);
 	if (ret == 0) {
 		int64_t delta_ns;
 
@@ -178,9 +178,9 @@ static int stress_cyclic_posix_nanosleep(
 
 	t.tv_sec = cyclic_sleep / NANOSECS;
 	t.tv_nsec = cyclic_sleep % NANOSECS;
-	clock_gettime(CLOCK_REALTIME, &t1);
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = nanosleep(&t, &trem);
-	clock_gettime(CLOCK_REALTIME, &t2);
+	(void)clock_gettime(CLOCK_REALTIME, &t2);
 	if (ret == 0) {
 		int64_t delta_ns;
 
@@ -217,9 +217,9 @@ static int stress_cyclic_poll(
 	(void)args;
 
 	/* find nearest point to clock roll over */
-	clock_gettime(CLOCK_REALTIME, &t1);
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	for (;;) {
-		clock_gettime(CLOCK_REALTIME, &t2);
+		(void)clock_gettime(CLOCK_REALTIME, &t2);
 		if ((t1.tv_sec != t2.tv_sec) || (t1.tv_nsec != t2.tv_nsec))
 			break;
 	}
@@ -228,7 +228,7 @@ static int stress_cyclic_poll(
 	for (;;) {
 		int64_t delta_ns;
 
-		clock_gettime(CLOCK_REALTIME, &t2);
+		(void)clock_gettime(CLOCK_REALTIME, &t2);
 
 		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
 			   (t2.tv_nsec - t1.tv_nsec);
@@ -268,9 +268,9 @@ static int stress_cyclic_pselect(
 
 	t.tv_sec = cyclic_sleep / NANOSECS;
 	t.tv_nsec = cyclic_sleep % NANOSECS;
-	clock_gettime(CLOCK_REALTIME, &t1);
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
-	clock_gettime(CLOCK_REALTIME, &t2);
+	(void)clock_gettime(CLOCK_REALTIME, &t2);
 	if (ret == 0) {
 		int64_t delta_ns;
 
@@ -300,7 +300,7 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 {
 	(void)sig;
 
-	clock_gettime(CLOCK_REALTIME, &itimer_time);
+	(void)clock_gettime(CLOCK_REALTIME, &itimer_time);
 }
 #endif
 
@@ -333,12 +333,12 @@ static int stress_cyclic_itimer(
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0)
 		goto restore;
 
-	memset(&itimer_time, 0, sizeof(itimer_time));
-	clock_gettime(CLOCK_REALTIME, &t1);
+	(void)memset(&itimer_time, 0, sizeof(itimer_time));
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0)
 		goto restore;
 
-	pause();
+	(void)pause();
 	if ((itimer_time.tv_sec == 0) &&
             (itimer_time.tv_nsec == 0))
 		goto tidy;
@@ -511,7 +511,7 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 	if (!cyclic_dist)
 		return;
 
-	memset(dist, 0, sizeof(dist));
+	(void)memset(dist, 0, sizeof(dist));
 
 	for (i = 0; i < (ssize_t)rt_stats->index; i++) {
 		int64_t lat = rt_stats->latencies[i] / cyclic_dist;
@@ -659,7 +659,7 @@ static int stress_cyclic(const args_t *args)
 		do {
 			if ((time_now() - start) > (double)timeout)
 				goto tidy_ok;
-			usleep(50000);
+			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
 		} while (keep_stressing() && count < num_instances);
 #endif
@@ -711,7 +711,7 @@ static int stress_cyclic(const args_t *args)
 tidy_ok:
 		rc = EXIT_SUCCESS;
 tidy:
-		fflush(stdout);
+		(void)fflush(stdout);
 		_exit(rc);
 	} else {
 		int status, ret;
@@ -719,8 +719,8 @@ tidy:
 		ret = stress_set_sched(args->pid, policy, rt_stats->max_prio, true);
 		(void)ret;
 
-		pause();
-		kill(pid, SIGKILL);
+		(void)pause();
+		(void)kill(pid, SIGKILL);
 #if defined(HAVE_ATOMIC)
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif

@@ -121,12 +121,12 @@ static int stress_radixsort(const args_t *args)
 
 	do {
 		/* Sort "random" data */
-		radixsort(data, n, NULL, 0);
+		(void)radixsort(data, n, NULL, 0);
 		if (!g_keep_stressing_flag)
 			break;
 
 		/* Reverse sort */
-		radixsort(data, n, revtable, 0);
+		(void)radixsort(data, n, revtable, 0);
 
 		/* Randomize first char */
 		for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE)

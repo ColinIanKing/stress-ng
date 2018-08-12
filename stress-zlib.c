@@ -400,7 +400,7 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 	const float scalar = 256.0 / max;
 
 	(void)args;
-	memset(rows, 0, sizeof(rows));
+	(void)memset(rows, 0, sizeof(rows));
 
 	for (i = 0; i < size; i++) {
 		int64_t rnd;
@@ -598,11 +598,11 @@ int HOT OPTIMIZE3 stress_set_zlib_method(const char *name)
 		}
 	}
 
-	fprintf(stderr, "zlib-method must be one of:");
+	(void)fprintf(stderr, "zlib-method must be one of:");
 	for (info = zlib_rand_data_methods; info->func; info++) {
-		fprintf(stderr, " %s", info->name);
+		(void)fprintf(stderr, " %s", info->name);
 	}
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }

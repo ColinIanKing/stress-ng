@@ -43,7 +43,7 @@ int main(void)
 	ssize_t rc;
 	const size_t sz = sizeof buffer;
 
-	memset(buffer, 0, sizeof(buffer));
+	(void)memset(buffer, 0, sizeof(buffer));
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
 	if (fd < 0)
 		return 1;

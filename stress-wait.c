@@ -104,7 +104,7 @@ static void killer(
 
 	do {
 		(void)kill(pid, SIGSTOP);
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		(void)kill(pid, SIGCONT);
 
 		/*

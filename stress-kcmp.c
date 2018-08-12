@@ -149,7 +149,7 @@ static int stress_kcmp(const args_t *args)
 		goto again;
 	}
 
-	memset(&ev, 0, sizeof(ev));
+	(void)memset(&ev, 0, sizeof(ev));
 	ev.data.fd = efd;
 	ev.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &ev) < 0) {
@@ -179,7 +179,7 @@ again:
 
 		/* Child */
 		while (g_keep_stressing_flag)
-			pause();
+			(void)pause();
 
 		/* will never get here */
 		(void)close(fd1);

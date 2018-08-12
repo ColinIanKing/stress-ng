@@ -111,7 +111,7 @@ static int stress_lease(const args_t *args)
 			lease_breakers = MIN_LEASE_BREAKERS;
 	}
 
-	memset(l_pids, 0, sizeof(l_pids));
+	(void)memset(l_pids, 0, sizeof(l_pids));
 
 	if (stress_sighandler(args->name, SIGIO, stress_lease_handler, NULL) < 0)
 		return EXIT_FAILURE;

@@ -177,7 +177,7 @@ static void stress_tree_splay(
 	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
 		next = SPLAY_NEXT(stress_splay_tree, &splay_root, node);
 		SPLAY_REMOVE(stress_splay_tree, &splay_root, node);
-		memset(&node->u.splay, 0, sizeof(node->u.splay));
+		(void)memset(&node->u.splay, 0, sizeof(node->u.splay));
 	}
 }
 

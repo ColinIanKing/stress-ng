@@ -155,7 +155,7 @@ again:
 		size_t j;
 
 		(void)setpgid(0, g_pgrp);
-		memset(addr, 0, sizeof(addr));
+		(void)memset(addr, 0, sizeof(addr));
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);

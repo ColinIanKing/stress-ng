@@ -139,11 +139,11 @@ int stress_set_vm_madvise(const char *opt)
 			return 0;
 		}
 	}
-	fprintf(stderr, "invalid vm-madvise advice '%s', allowed advice options are:", opt);
+	(void)fprintf(stderr, "invalid vm-madvise advice '%s', allowed advice options are:", opt);
 	for (info = vm_madvise_info; info->name; info++) {
-		fprintf(stderr, " %s", info->name);
+		(void)fprintf(stderr, " %s", info->name);
         }
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 	return -1;
 }
 

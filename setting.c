@@ -66,7 +66,7 @@ static int set_setting_generic(
 	setting_t *setting;
 
 	if (!value) {
-		fprintf(stderr, "invalid setting '%s' value address (null)\n", name);
+		(void)fprintf(stderr, "invalid setting '%s' value address (null)\n", name);
 		_exit(EXIT_NOT_SUCCESS);
 	}
 	setting = calloc(1, sizeof *setting);
@@ -172,7 +172,7 @@ static int set_setting_generic(
 
 	return 0;
 err:
-	fprintf(stderr, "cannot allocate setting '%s'\n", name);
+	(void)fprintf(stderr, "cannot allocate setting '%s'\n", name);
 	_exit(EXIT_NO_RESOURCE);
 
 	return 1;

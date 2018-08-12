@@ -85,7 +85,7 @@ static inline void stress_sys_rw(
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		shim_strlcpy(path, sysfs_path, sizeof(path));
+		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !g_keep_stressing_flag)
@@ -364,7 +364,7 @@ static int stress_sysfs(const args_t *args)
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
+			(void)pthread_join(pthreads[i], NULL);
 	}
 	(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
 	(void)shim_pthread_spin_destroy(&lock);

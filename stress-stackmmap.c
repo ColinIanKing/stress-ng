@@ -75,7 +75,7 @@ static void stress_stackmmap_push_start(void)
 	if (!ret)
 		stress_stackmmap_push_msync();
 
-	swapcontext(&c_test, &c_main);
+	(void)swapcontext(&c_test, &c_main);
 }
 
 /*
@@ -166,7 +166,7 @@ static int stress_stackmmap(const args_t *args)
 	 *  new context using the new mmap'd stack
 	 */
 	do {
-		makecontext(&c_test, stress_stackmmap_push_start, 0);
+		(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
 		(void)swapcontext(&c_main, &c_test);
 		inc_counter(args);
 	} while (keep_stressing());

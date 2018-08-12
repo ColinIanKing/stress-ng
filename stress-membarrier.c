@@ -133,7 +133,7 @@ static int stress_membarrier(const args_t *args)
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		if (pthread_ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
+			(void)pthread_join(pthreads[i], NULL);
 	}
 	return EXIT_SUCCESS;
 }

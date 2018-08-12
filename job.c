@@ -79,7 +79,7 @@ static int parse_run(
 		return 1;
 	}
 err:
-	fprintf(stderr, "Cannot have both run sequential "
+	(void)fprintf(stderr, "Cannot have both run sequential "
 		"and run parallel in jobfile %s\n",
 		jobfile);
 	return -1;

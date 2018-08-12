@@ -263,7 +263,7 @@ static int mk_file(const args_t *args, const char *filename, const size_t len)
 		return -1;
 	}
 
-	memset(buffer, 'x', BUF_SIZE);
+	(void)memset(buffer, 'x', BUF_SIZE);
 	while (sz > 0) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		int ret;

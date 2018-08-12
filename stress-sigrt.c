@@ -47,7 +47,7 @@ static int stress_sigrt(const args_t *args)
 	union sigval s;
 	int i, status;
 
-	memset(pids, 0, sizeof pids);
+	(void)memset(pids, 0, sizeof pids);
 
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sigrthandler, NULL) < 0) {
@@ -75,7 +75,7 @@ again:
 				(void)sigaddset(&mask, i + SIGRTMIN);
 
 			while (g_keep_stressing_flag) {
-				memset(&info, 0, sizeof info);
+				(void)memset(&info, 0, sizeof info);
 
 				if (sigwaitinfo(&mask, &info) < 0) {
 					if (errno == EINTR)
@@ -88,7 +88,7 @@ again:
 				if (info.si_value.sival_int != -1) {
 					(void)memset(&s, 0, sizeof(s));
 					s.sival_int = -1;
-					sigqueue(info.si_value.sival_int, SIGRTMIN, s);
+					(void)sigqueue(info.si_value.sival_int, SIGRTMIN, s);
 				}
 			}
 			/*
@@ -118,7 +118,7 @@ again:
 		if (pids[i] > 0) {
 			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
-			sigqueue(pids[i], i + SIGRTMIN, s);
+			(void)sigqueue(pids[i], i + SIGRTMIN, s);
 		}
 	}
 	(void)shim_usleep(250);

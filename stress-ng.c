@@ -2523,7 +2523,7 @@ child_exit:
 					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 						g_keep_stressing_flag = false;
 						wait_flag = false;
-						kill(getppid(), SIGALRM);
+						(void)kill(getppid(), SIGALRM);
 					}
 					if (terminate_signum)
 						rc = EXIT_SIGNALED;
@@ -2912,7 +2912,7 @@ static proc_info_t *find_proc_info(const stress_t *stressor)
 
 	pi = calloc(1, sizeof(*pi));
 	if (!pi) {
-		fprintf(stderr, "Cannot allocate stressor state info\n");
+		(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -3088,7 +3088,7 @@ static void enable_all_stressors(const uint32_t instances)
 		proc_info_t *pi = find_proc_info(&stressors[i]);
 
 		if (!pi) {
-			fprintf(stderr, "Cannot allocate stressor state info\n");
+			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 			exit(EXIT_FAILURE);
 		}
 		pi->num_procs = instances;

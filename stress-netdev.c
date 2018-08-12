@@ -75,7 +75,7 @@ static int stress_netdev(const args_t *args)
 		struct ifconf ifc;
 
 		/* Get list of transport layer addresses */
-		memset(&ifc, 0, sizeof(ifc));
+		(void)memset(&ifc, 0, sizeof(ifc));
 		rc = ioctl(fd, SIOCGIFCONF, &ifc);
 		if (rc < 0) {
 			pr_fail("%s: ioctl SIOCGIFCONF failed, errno=%d (%s)\n",

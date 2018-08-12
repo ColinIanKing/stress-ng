@@ -95,7 +95,7 @@ static int stress_icmp_flood(const args_t *args)
 
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = addr;
-	memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
+	(void)memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
 	do {
 		const size_t payload_len = (mwc32() % MAX_PAYLOAD_SIZE) + 1;
@@ -105,7 +105,7 @@ static int stress_icmp_flood(const args_t *args)
 		struct iphdr *ip_hdr = (struct iphdr *)pkt;
 		struct icmphdr *icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 
-		memset(pkt, 0, sizeof(pkt));
+		(void)memset(pkt, 0, sizeof(pkt));
 
 		ip_hdr->version = 4;
 		ip_hdr->ihl = 5;

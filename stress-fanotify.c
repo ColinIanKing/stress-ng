@@ -122,7 +122,7 @@ static int stress_fanotify(const args_t *args)
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
 	fanotify_account_t account;
 
-	memset(&account, 0, sizeof(account));
+	(void)memset(&account, 0, sizeof(account));
 
 	stress_temp_dir_args(args, dirname, sizeof(dirname));
 	(void)snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");

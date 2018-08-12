@@ -77,7 +77,7 @@ int main(void)
 	}
 #endif
 
-	shmdt(addr);
+	(void)shmdt(addr);
 reap:
 	ret = shmctl(shm_id, IPC_RMID, NULL);
 	(void)ret;

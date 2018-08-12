@@ -53,7 +53,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int dummy)
 		if (pid > 0)
 			(void)kill(pid, SIGKILL);
 
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		return;
 	}
 
@@ -66,7 +66,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int dummy)
 			got_err = errno;
 		else if (sigio_args)
 			inc_counter(sigio_args);
-		shim_sched_yield();
+		(void)shim_sched_yield();
 	}
 }
 
@@ -127,7 +127,7 @@ static int stress_sigio(const args_t *args)
 
 		(void)close(fds[0]);
 
-		memset(buffer, 0, sizeof buffer);
+		(void)memset(buffer, 0, sizeof buffer);
 
 		while (keep_stressing()) {
 			ssize_t n;
@@ -135,7 +135,7 @@ static int stress_sigio(const args_t *args)
 			n = write(fds[1], buffer, sizeof buffer);
 			if (n < 0)
 				break;
-			shim_sched_yield();
+			(void)shim_sched_yield();
 		}
 		(void)close(fds[1]);
 		_exit(1);

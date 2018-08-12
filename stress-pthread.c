@@ -235,7 +235,7 @@ static int stress_pthread(const args_t *args)
 		thread_terminate = false;
 		pthread_count = 0;
 
-		memset(&pthreads, 0, sizeof(pthreads));
+		(void)memset(&pthreads, 0, sizeof(pthreads));
 
 		for (i = 0; (i < pthread_max) && (!args->max_ops || *args->counter < args->max_ops); i++) {
 			pargs.data = (void *)&pthreads[i];

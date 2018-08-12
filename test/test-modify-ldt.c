@@ -46,7 +46,7 @@ int main(void)
 	struct user_desc ud;
 	int ret;
 
-	memset(&ud, 0, sizeof(ud));
+	(void)memset(&ud, 0, sizeof(ud));
 	ret = syscall(__NR_modify_ldt, 0, &ud, sizeof(ud));
 	if (ret == 0)
 		ret = syscall(__NR_modify_ldt, 1, &ud, sizeof(ud));

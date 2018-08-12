@@ -270,21 +270,21 @@ static int stress_dirdeep(const args_t *args)
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
 
-	shim_strlcpy(linkpath, rootpath, sizeof(linkpath));
-	shim_strlcat(linkpath, "/f", sizeof(linkpath) - 3);
+	(void)shim_strlcpy(linkpath, rootpath, sizeof(linkpath));
+	(void)shim_strlcat(linkpath, "/f", sizeof(linkpath) - 3);
 
 	pr_inf("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 		args->name, inodes_avail, inodes_avail - inodes_target_free);
 
-	shim_strlcpy(path, rootpath, sizeof(path));
+	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	stress_dir_make(args, linkpath, path, path_len, sizeof(path),
 		dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
 	do {
-		shim_strlcpy(path, rootpath, sizeof(path));
+		(void)shim_strlcpy(path, rootpath, sizeof(path));
 		stress_dir_exercise(args, path, path_len, sizeof(path));
 	} while (keep_stressing());
 
-	shim_strlcpy(path, rootpath, sizeof(path));
+	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	pr_tidy("%s: removing directories\n", args->name);
 	stress_dir_tidy(args, path, path_len, sizeof(path));
 

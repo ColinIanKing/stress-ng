@@ -43,8 +43,8 @@ int main(void)
 	ts.tv_sec = 1;
 	ts.tv_nsec = 999999999;
 
-	sigemptyset(&sigmask);
-	sigaddset(&sigmask, SIGTERM);
+	(void)sigemptyset(&sigmask);
+	(void)sigaddset(&sigmask, SIGTERM);
 
 	return ppoll(fds, 3, &ts, &sigmask);
 }

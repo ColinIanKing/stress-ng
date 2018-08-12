@@ -105,7 +105,7 @@ static int stress_flock(const args_t *args)
 		goto err;
 	}
 
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {

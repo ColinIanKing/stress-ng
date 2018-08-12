@@ -110,7 +110,7 @@ static int stress_dynlib(const args_t *args)
 	const size_t n = SIZEOF_ARRAY(libnames);
 	void *handles[n];
 
-	memset(handles, 0, sizeof(handles));
+	(void)memset(handles, 0, sizeof(handles));
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -154,7 +154,7 @@ static int stress_dynlib(const args_t *args)
 tidy:
 		for (i = 0; i < n; i++) {
 			if (handles[i])
-				dlclose(handles[i]);
+				(void)dlclose(handles[i]);
 			handles[i] = NULL;
 		}
 		inc_counter(args);

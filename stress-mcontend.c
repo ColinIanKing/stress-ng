@@ -308,7 +308,7 @@ static int stress_mcontend(const args_t *args)
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
-			pthread_join(pthreads[i], NULL);
+			(void)pthread_join(pthreads[i], NULL);
 	}
 	(void)munmap(data[0], args->page_size);
 	(void)munmap(data[1], args->page_size);

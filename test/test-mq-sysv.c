@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 	if (msgq_id < 0)
 		return -1;
 
-	strcpy(msg.msg, "TESTMSG");
+	(void)strcpy(msg.msg, "TESTMSG");
 	msg.mtype = 1;
 	ret = msgsnd(msgq_id, &msg, sizeof(msg.msg), 0);
 	(void)ret;

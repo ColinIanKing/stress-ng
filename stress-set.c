@@ -107,7 +107,7 @@ static int stress_set(const args_t *args)
 		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
 	}
 
-	memset(hostname, 0, sizeof(hostname));
+	(void)memset(hostname, 0, sizeof(hostname));
 	ret_hostname = gethostname(hostname, sizeof(hostname) - 1);
 	if (ret_hostname == 0)
 		hostname[sizeof(hostname) - 1 ] = '\0';

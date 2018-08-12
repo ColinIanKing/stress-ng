@@ -96,7 +96,7 @@ static int stress_unshare(const args_t *args)
 				break;
 			if (!enough_memory()) {
 				/* memory too low, back off */
-				sleep(1);
+				(void)sleep(1);
 				break;
 			}
 			pids[n] = fork();

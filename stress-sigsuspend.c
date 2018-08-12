@@ -78,7 +78,7 @@ again:
 			stress_parent_died_alarm();
 
 			while (g_keep_stressing_flag) {
-				sigsuspend(&mask);
+				(void)sigsuspend(&mask);
 				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}
 			_exit(0);

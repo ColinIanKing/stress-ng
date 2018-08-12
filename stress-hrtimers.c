@@ -130,7 +130,7 @@ static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 
 	do {
 		/* The sleep will be interrupted on each hrtimer tick */
-		sleep(1);
+		(void)sleep(1);
 	} while (stress_hrtimers_keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
@@ -151,7 +151,7 @@ static int stress_hrtimers(const args_t *args)
 
 	max_ops = args->max_ops / PROCS_MAX;
 
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
         counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
                         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
         if (counters == MAP_FAILED) {

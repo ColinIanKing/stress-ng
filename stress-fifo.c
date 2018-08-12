@@ -172,7 +172,7 @@ static int stress_fifo(const args_t *args)
 		goto tidy;
 	}
 
-	memset(pids, 0, sizeof(pids));
+	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < fifo_readers; i++) {
 		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname);
 		if (pids[i] < 0)

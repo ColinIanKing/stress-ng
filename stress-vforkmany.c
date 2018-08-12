@@ -177,9 +177,9 @@ PRAGMA_POP
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
 		set_oom_adjustment(args->name, false);
 
-		sleep(g_opt_timeout);
+		(void)sleep(g_opt_timeout);
 		*terminate = true;
-		kill(chpid, SIGALRM);
+		(void)kill(chpid, SIGALRM);
 
 		(void)waitpid(chpid, &chstatus, 0);
 	}

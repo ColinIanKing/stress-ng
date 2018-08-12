@@ -472,8 +472,8 @@ static void epoll_server(
 		int n, i;
 		sigset_t sigmask;
 
-		sigemptyset(&sigmask);
-		sigaddset(&sigmask, SIGALRM);
+		(void)sigemptyset(&sigmask);
+		(void)sigaddset(&sigmask, SIGALRM);
 
 		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
 		errno = 0;

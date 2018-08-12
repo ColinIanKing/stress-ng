@@ -78,7 +78,7 @@ static char *stress_rawdev_path(const dev_t dev)
 		int ret;
 		struct stat stat_buf;
 
-		snprintf(path, sizeof(path), "/dev/%s", d->d_name);
+		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
 		ret = stat(path, &stat_buf);
 		if ((ret == 0) &&
 		    (S_ISBLK(stat_buf.st_mode)) &&
@@ -300,7 +300,7 @@ int stress_set_rawdev_method(const char *name)
 {
 	(void)name;
 
-	fprintf(stderr, "option --rawdev-method not supported\n");
+	(void)fprintf(stderr, "option --rawdev-method not supported\n");
 	return -1;
 }
 #endif

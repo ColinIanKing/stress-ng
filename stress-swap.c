@@ -107,7 +107,7 @@ static int stress_swap_set_size(
 		pr_fail_err("lseek");
 		return -1;
 	}
-	memset(&swap_info, 0, sizeof(swap_info));
+	(void)memset(&swap_info, 0, sizeof(swap_info));
 	for (i = 0; i < sizeof(swap_info.sws_uuid); i++)
 		swap_info.sws_uuid[i] = mwc8();
 	snprintf((char *)swap_info.sws_volume, sizeof(swap_info.sws_volume),

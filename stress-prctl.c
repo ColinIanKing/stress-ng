@@ -239,7 +239,7 @@ static int stress_prctl_child(const args_t *args)
 	{
 		char name[17];
 
-		memset(name, 0, sizeof name);
+		(void)memset(name, 0, sizeof name);
 
 		ret = prctl(PR_GET_NAME, name);
 		(void)ret;

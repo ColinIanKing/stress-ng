@@ -34,7 +34,7 @@ int main(void)
 	int ret;
 	struct timespec times[2];
 
-	memset(times, 0, sizeof(times));
+	(void)memset(times, 0, sizeof(times));
 
 	ret = utimensat(0, "/tmp", times, 0);
 

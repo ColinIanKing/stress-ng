@@ -66,9 +66,9 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(const size_t chun
 		const size_t chunk = mwc32() % chunks;
 		const size_t offset = chunk * chunk_size;
 #if defined(__GNUC__)
-		__builtin_memset((void *)mem + offset, mwc8(), chunk_size);
+		(void)__builtin_memset((void *)mem + offset, mwc8(), chunk_size);
 #else
-		memset((void *)mem + offset, mwc8(), chunk_size);
+		(void)memset((void *)mem + offset, mwc8(), chunk_size);
 #endif
 	}
 }
@@ -111,9 +111,9 @@ static void stress_memthrash_memset(const args_t *args, size_t mem_size)
 	(void)args;
 
 #if defined(__GNUC__)
-	__builtin_memset((void *)mem, mwc8(), mem_size);
+	(void)__builtin_memset((void *)mem, mwc8(), mem_size);
 #else
-	memset((void *)mem, mwc8(), mem_size);
+	(void)memset((void *)mem, mwc8(), mem_size);
 #endif
 }
 
@@ -458,8 +458,8 @@ static int stress_memthrash(const args_t *args)
 	pargs.args = args;
 	pargs.data = func;
 
-	memset(pthreads, 0, sizeof(pthreads));
-	memset(ret, 0, sizeof(ret));
+	(void)memset(pthreads, 0, sizeof(pthreads));
+	(void)memset(ret, 0, sizeof(ret));
 	(void)sigfillset(&set);
 
 again:
@@ -540,7 +540,7 @@ mmap_retry:
 				goto reap;
 		}
 		/* Wait for SIGALRM or SIGINT/SIGHUP etc */
-		pause();
+		(void)pause();
 
 reap:
 		thread_terminate = true;

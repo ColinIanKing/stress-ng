@@ -190,7 +190,7 @@ static int stress_aiol(const args_t *args)
 			aio_linux_fill_buffer(i, buffers[i], BUFFER_SZ);
 		}
 
-		memset(cb, 0, sizeof(cb));
+		(void)memset(cb, 0, sizeof(cb));
 		for (i = 0; i < aio_linux_requests; i++) {
 			cb[i].aio_fildes = fd;
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;

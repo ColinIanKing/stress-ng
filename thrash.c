@@ -185,7 +185,7 @@ int thrash_start(void)
 			pagein_all_procs();
 			compact_memory();
 			merge_memory();
-			sleep(1);
+			(void)sleep(1);
 		}
 		_exit(0);
 	}

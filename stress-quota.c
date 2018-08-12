@@ -234,13 +234,13 @@ static int stress_quota(const args_t *args)
 				if (!devs[i].name) {
 					pr_err("%s: out of memory\n",
 						args->name);
-					closedir(dir);
+					(void)closedir(dir);
 					goto tidy;
 				}
 			}
 		}
 	}
-	closedir(dir);
+	(void)closedir(dir);
 
 	/* Compact up, remove duplicates too */
 	for (i = 0; i < n_mounts; i++) {

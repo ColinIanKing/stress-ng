@@ -241,7 +241,7 @@ void ignite_cpu_start(void)
 						cpu_settings[cpu].set_failed = true;
 				}
 			}
-			sleep(1);
+			(void)sleep(1);
 		}
 		_exit(0);
 	} else {
