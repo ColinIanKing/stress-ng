@@ -57,7 +57,7 @@ static void stress_fp_check(
 	const int errno_wanted,
 	const int excepts_wanted)
 {
-#if defined(__linux__)
+#if defined(__linux__) && NEED_GNUC(4,8,0)
 	if (stress_double_same(val, val_wanted) &&
 	    (fetestexcept(excepts_wanted) & excepts_wanted) &&
 	    (errno == errno_wanted))
