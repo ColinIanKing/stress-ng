@@ -1,3 +1,20 @@
+stress-ng (0.09.37-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * snapcraft: add stage packages and build with hardening settings
+  * stress-chown: cater for OpenBSD chown returning 0 and errno being set
+  * stress-zlib: don't report write failure if errno == 0
+  * stress-fp-error: relax checking for pre glib 4.8
+  * Add voidifications on ignored function returns
+  * ignite-cpu: set freq governor and restore settings at end
+  * ignite-cpu: try and set max cpu frequency scaling setting
+  * cache: add G size specifier
+  * Makefile: check for GNU/kFreeBSD and set __FreeBSD_Kernel__
+  * stress-sysbadaddr: only use ustat if HAVE_USTAT is defined
+  * stress-ng.h: rename statx_timestamp to shim_statx_timestamp
+
+ -- Colin King <colin.king@canonical.com>  Mon, 13 Aug 2018 13:58:57 +0100
+
 stress-ng (0.09.36-1) unstable; urgency=medium
 
   * Makefile: bump version
