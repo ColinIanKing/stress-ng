@@ -51,7 +51,7 @@ static int do_fchown(
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (fchown(fd, -1, 0) == 0)
+	if ((fchown(fd, -1, 0) == 0) && (errno != EPERM))
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
@@ -98,7 +98,7 @@ static int do_chown(
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (chown_func(filename, -1, 0) == 0)
+	if ((chown_func(filename, -1, 0) == 0) && (errno != EPERM))
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
