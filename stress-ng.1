@@ -3020,7 +3020,8 @@ stop timer stress workers after N bogo timer events (Linux only).
 .B \-\-timer\-freq F
 run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting
 an appropriate frequency stress\-ng can generate hundreds of thousands of
-interrupts per second.
+interrupts per second.  Note: it is also worth using \-\-timer\-slack 0 for
+high frequencies to stop the kernel from coalescing timer events.
 .TP
 .B \-\-timer\-rand
 select a timer frequency based around the timer frequency +/- 12.5% random
