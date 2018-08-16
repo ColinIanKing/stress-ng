@@ -150,10 +150,6 @@ void ignite_cpu_start(void)
 			ret = system_read(path, cpu_settings[cpu].cur_governor,
 					  sizeof(cpu_settings[cpu].cur_governor));
 			(void)ret;
-
-			printf("cpu %" PRIu32 " freq %" PRIu64 " gov %s\n",
-				cpu, cpu_settings[cpu].cur_freq,
-				cpu_settings[cpu].cur_governor);
 		}
 	}
 
