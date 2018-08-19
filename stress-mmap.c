@@ -206,8 +206,10 @@ static void stress_mmap_child(
 		 */
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
+
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
+
 				if (!mapped[page]) {
 					off_t offset = (g_opt_flags & OPT_FLAGS_MMAP_FILE) ?
 							page * page_size : 0;
@@ -241,7 +243,11 @@ static void stress_mmap_child(
 						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
 							(void)memset(mappings[page], n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
+#if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
+							(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+								offset, page_size);
 						}
+#endif
 					}
 					n--;
 					break;
