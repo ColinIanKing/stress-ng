@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 typedef struct {
-	mode_t	chmod_mode;
-	int	access_mode;
+	const mode_t	chmod_mode;
+	const int	access_mode;
 } access_t;
 
 static const access_t modes[] = {
