@@ -34,6 +34,30 @@
 
 static volatile int dnotify_fd;
 
+static int stress_dnotify_supported(void)
+{
+	char buf[64];
+	const char path[] = "/proc/sys/fs/dir-notify-enable";
+	int enabled;
+
+	if (system_read(path, buf, sizeof(buf)) < 0) {
+		pr_inf("dnotify stressor will be skipped, cannot "
+			"open '%s', CONFIG_DNOTIFY is probably not set\n",
+			path);
+                return -1;
+	}
+	if (sscanf(buf, "%d", &enabled) != 1) {
+		pr_inf("dnotify stressor will be skipped, cannot "
+			"parse '%s'\n", path);
+                return -1;
+	}
+	if (enabled != 1) {
+		pr_inf("dnotify stressor will be skipped, dnotify is not enabled\n");
+                return -1;
+	}
+	return 0;
+}
+
 static void dnotify_handler(int sig, siginfo_t *si, void *data)
 {
 	(void)sig;
@@ -397,7 +421,8 @@ static int stress_dnotify(const args_t *args)
 }
 stressor_info_t stress_dnotify_info = {
 	.stressor = stress_dnotify,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.supported = stress_dnotify_supported
 };
 #else
 stressor_info_t stress_dnotify_info = {
