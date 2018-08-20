@@ -97,9 +97,7 @@ static int stress_access(const args_t *args)
 	char filename[PATH_MAX];
 	const mode_t all_mask = 0700;
 	size_t i;
-	bool is_root;
-
-	is_root = (geteuid() == 0);
+	const bool is_root = (geteuid() == 0);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
