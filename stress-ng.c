@@ -71,6 +71,7 @@ const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 put_val_t g_put_val;				/* sync data to somewhere */
+bool g_unsupported = false;			/* true if stressors are unsupported */
 
 /*
  *  optarg option to global setting option flags
@@ -2854,8 +2855,10 @@ static inline void exclude_unsupported(void)
 
 				if ((pi->stressor->id == id) &&
 				    pi->num_procs &&
-				    (stressors[i].info->supported() < 0))
+				    (stressors[i].info->supported() < 0)) {
 					remove_proc(pi);
+					g_unsupported = true;
+				}
 				pi = next;
 			}
 		}
@@ -3616,9 +3619,14 @@ int main(int argc, char **argv)
 	set_proc_limits();
 
 	if (!procs_head) {
-		pr_err("No stress workers\n");
+		pr_err("No stress workers invoked%s\n",
+			g_unsupported ? " (one or more were unsupported)" : "");
 		free_procs();
-		exit(EXIT_FAILURE);
+		/*
+		 *  If some stressors were given but marked as
+		 *  unsupported then this is not an error.
+		 */
+		exit(g_unsupported ? EXIT_SUCCESS : EXIT_FAILURE);
 	}
 
 	/*
