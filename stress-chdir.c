@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-
 /*
  *  stress_set_chdir_dirs()
  *	set number of chdir directories from given option string
