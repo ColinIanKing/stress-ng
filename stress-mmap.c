@@ -246,8 +246,8 @@ static void stress_mmap_child(
 #if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
 							(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
 								offset, page_size);
-						}
 #endif
+						}
 					}
 					n--;
 					break;
