@@ -113,7 +113,6 @@ static int stress_access(const args_t *args)
 		goto tidy;
 	}
 
-
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
 			ret = fchmod(fd, modes[i].chmod_mode);
