@@ -38,6 +38,10 @@ int stress_set_dir_dirs(const char *opt)
 	return set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
 }
 
+#if defined(__DragonFly__)
+#define d_reclen d_namlen
+#endif
+
 /*
  *  stress_dir_read()
  *	read all dentries
@@ -49,21 +53,15 @@ static void stress_dir_read(
 	DIR *dp;
 	struct dirent *de;
 
-#if defined(__DragonFly__)
-	(void)args;
-#endif
-
 	dp = opendir(path);
 	if (!dp)
 		return;
 
 	while ((de = readdir(dp)) != NULL) {
-#if !defined(__DragonFly__)
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
 		}
-#endif
 	}
 
 	(void)closedir(dp);
