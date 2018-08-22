@@ -111,7 +111,10 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 
 #if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
     defined(MEDIA_IOC_DEVICE_INFO)
-static void stress_dev_media_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_media_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -141,7 +144,10 @@ static void stress_dev_media_linux(const char *name, const int fd, const char *d
 #endif
 
 #if defined(HAVE_LINUX_VT_H)
-static void stress_dev_vcs_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_vcs_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -169,7 +175,10 @@ static void stress_dev_vcs_linux(const char *name, const int fd, const char *dev
 #endif
 
 #if defined(HAVE_LINUX_DM_IOCTL_H)
-static void stress_dev_dm_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_dm_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -197,7 +206,10 @@ static void stress_dev_dm_linux(const char *name, const int fd, const char *devp
 #endif
 
 #if defined(HAVE_LINUX_VIDEODEV2_H)
-static void stress_dev_video_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_video_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -216,7 +228,10 @@ static void stress_dev_video_linux(const char *name, const int fd, const char *d
 #endif
 
 #if defined(TCGETS)
-static void stress_dev_tty(const char *name, const int fd, const char *devpath)
+static void stress_dev_tty(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	int ret;
 	struct termios t;
@@ -336,7 +351,10 @@ static void stress_dev_tty(const char *name, const int fd, const char *devpath)
  *  stress_dev_blk()
  *	block device specific ioctls
  */
-static void stress_dev_blk(const char *name, const int fd, const char *devpath)
+static void stress_dev_blk(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -464,7 +482,10 @@ static void stress_dev_blk(const char *name, const int fd, const char *devpath)
  *  stress_dev_scsi_blk()
  *	SCSI block device specific ioctls
  */
-static void stress_dev_scsi_blk(const char *name, const int fd, const char *devpath)
+static void stress_dev_scsi_blk(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -513,7 +534,10 @@ static void stress_dev_scsi_blk(const char *name, const int fd, const char *devp
 }
 
 #if defined(__linux__)
-static void stress_dev_random_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_random_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
@@ -557,7 +581,10 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 
 }
 
-static void stress_dev_mem_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_mem_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)devpath;
@@ -567,7 +594,10 @@ static void stress_dev_mem_linux(const char *name, const int fd, const char *dev
 #endif
 
 #if defined(__linux__)
-static void stress_dev_kmem_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_kmem_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)devpath;
@@ -577,7 +607,10 @@ static void stress_dev_kmem_linux(const char *name, const int fd, const char *de
 #endif
 
 #if defined(__linux__)
-static void stress_dev_kmsg_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_kmsg_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)devpath;
@@ -587,7 +620,10 @@ static void stress_dev_kmsg_linux(const char *name, const int fd, const char *de
 #endif
 
 #if defined(__linux__) && defined(STRESS_X86)
-static void stress_dev_port_linux(const char *name, const int fd, const char *devpath)
+static void stress_dev_port_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	off_t off;
 	uint8_t *ptr;
@@ -613,7 +649,10 @@ static void stress_dev_port_linux(const char *name, const int fd, const char *de
 }
 #endif
 
-static void stress_dev_null_nop(const char *name, const int fd, const char *devpath)
+static void stress_dev_null_nop(
+	const char *name,
+	const int fd,
+	const char *devpath)
 {
 	(void)name;
 	(void)fd;
