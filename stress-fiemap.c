@@ -196,7 +196,6 @@ static inline pid_t stress_fiemap_spawn(
 	return pid;
 }
 
-
 /*
  *  stress_fiemap
  *	stress fiemap IOCTL
