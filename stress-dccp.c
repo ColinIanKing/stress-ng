@@ -63,11 +63,12 @@ static const dccp_opts_t dccp_options[] = {
  */
 int stress_set_dccp_opts(const char *opt)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; dccp_options[i].optname; i++) {
 		if (!strcmp(opt, dccp_options[i].optname)) {
 			int dccp_opt = dccp_options[i].opt;
+
 			set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
 			return 0;
 		}
