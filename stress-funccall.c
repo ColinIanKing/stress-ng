@@ -421,7 +421,14 @@ void NOINLINE stress_funcdeep_ ## type ## _9(	\
 	stress_funcdeep_ ## type ## _6(g, f, e, d, c, b);\
 	stress_funcdeep_ ## type ## _7(h, g, f, e, d, c, b);\
 	stress_funcdeep_ ## type ## _8(i, h, g, f, e, d, c, b);\
-	stress_funccall_ ## type ## _1(a);	\
+	stress_funcdeep_ ## type ## _8(a, b, c, d, e, f, g, h);\
+	stress_funcdeep_ ## type ## _7(b, c, d, e, f, g, h);\
+	stress_funcdeep_ ## type ## _6(c, d, e, f, g, h);\
+	stress_funcdeep_ ## type ## _5(d, e, f, g, h);\
+	stress_funcdeep_ ## type ## _4(e, f, g, h);\
+	stress_funcdeep_ ## type ## _3(f, g, h);\
+	stress_funcdeep_ ## type ## _2(g, h);\
+	stress_funccall_ ## type ## _1(h);	\
 }						\
 
 stress_funccall_1(uint8_t)
