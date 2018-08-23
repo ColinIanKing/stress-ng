@@ -63,6 +63,7 @@ static int stress_fork_fn(
 	const uint64_t fork_max)
 {
 	pid_t pids[MAX_FORKS];
+	int errnos[MAX_FORKS];
 	int ret;
 
 	set_oom_adjustment(args->name, true);
@@ -75,6 +76,7 @@ static int stress_fork_fn(
 		unsigned int i;
 
 		(void)memset(pids, 0, sizeof(pids));
+		(void)memset(errnos, 0, sizeof(errnos));
 
 		for (i = 0; i < fork_max; i++) {
 			pid_t pid = fork_fn();
@@ -82,6 +84,8 @@ static int stress_fork_fn(
 			if (pid == 0) {
 				/* Child, immediately exit */
 				_exit(0);
+			} else if (pid < 0) {
+				errnos[i] = errno;
 			}
 			if (pid > -1)
 				(void)setpgid(pids[i], g_pgrp);
@@ -100,7 +104,15 @@ static int stress_fork_fn(
 
 		for (i = 0; i < fork_max; i++) {
 			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail("%s: fork failed\n", args->name);
+				switch (errnos[i]) {
+				case EAGAIN:
+				case ENOMEM:
+					break;
+				default:
+					pr_fail("%s: fork failed, errno=%d (%s)\n", args->name,
+						errnos[i], strerror(errnos[i]));
+					break;
+				}
 			}
 		}
 	} while (keep_stressing());
