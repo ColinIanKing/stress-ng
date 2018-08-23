@@ -31,12 +31,22 @@ static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static char *sysfs_path;
 static uint32_t mixup;
+static volatile bool segv_abort = false;
+static sigjmp_buf jmp_env;
 
 typedef struct ctxt {
 	const args_t *args;
 	char *badbuf;
 	bool writeable;
 } ctxt_t;
+
+static void MLOCKED_TEXT stress_segv_handler(int dummy)
+{
+	(void)dummy;
+
+	segv_abort = true;
+	siglongjmp(jmp_env, 1);
+}
 
 static uint32_t path_sum(const char *path)
 {
@@ -78,7 +88,7 @@ static inline void stress_sys_rw(
 	const args_t *args = ctxt->args;
 	const double threshold = 0.2;
 
-	while (loops == -1 || loops > 0) {
+	while ((loops == -1 || loops > 0) && !segv_abort) {
 		double t_start;
 		bool timeout = false;
 
@@ -222,7 +232,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (g_keep_stressing_flag)
+	while (g_keep_stressing_flag && !segv_abort)
 		stress_sys_rw(ctxt, -1);
 
 	return &nowt;
@@ -244,7 +254,7 @@ static void stress_sys_dir(
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int n;
 
-	if (!g_keep_stressing_flag)
+	if (!g_keep_stressing_flag || segv_abort)
 		return;
 
 	/* Don't want to go too deep */
@@ -257,7 +267,7 @@ static void stress_sys_dir(
 	if (n <= 0)
 		goto done;
 
-	while (n--) {
+	while (n-- && !segv_abort) {
 		int ret;
 		struct stat buf;
 		char filename[PATH_MAX];
@@ -297,7 +307,10 @@ static void stress_sys_dir(
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
+
 				stress_sys_rw(ctxt, loops);
+				if (segv_abort)
+					break;
 				inc_counter(args);
 			}
 			break;
@@ -321,6 +334,15 @@ static int stress_sysfs(const args_t *args)
 	pthread_t pthreads[MAX_READ_THREADS];
 	int rc, ret[MAX_READ_THREADS];
 	ctxt_t ctxt;
+
+	rc = sigsetjmp(jmp_env, 1);
+	if (rc) {
+		pr_err("%s: A SIGSEGV occurred while exercising %s, aborting\n",
+			args->name, sysfs_path);
+		return EXIT_FAILURE;
+	}
+	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	sysfs_path = "/sys/kernel/notes";
 
@@ -351,7 +373,7 @@ static int stress_sysfs(const args_t *args)
 
 	do {
 		stress_sys_dir(&ctxt, "/sys", true, 0);
-	} while (keep_stressing());
+	} while (keep_stressing() && !segv_abort);
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {
