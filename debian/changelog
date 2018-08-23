@@ -1,3 +1,30 @@
+stress-ng (0.09.38-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: ensure fast-test-all and slow-test-all build with config
+  * stress-fork: print correct fork/vfork name on an error
+  * stress-fork: don't throw error on EAGAIN or ENOMEM (LP: #1788385)
+  * stress-sysfs: add SEGV detection and abort
+  * stress-funccall: make deep calls perform more stack work
+  * stress-fiemap: remove blank line
+  * stress-dir: rename d_reclen to d_namlen for DragonFly BSD
+  * stress-dev: clean up overly wide function prototypes
+  * stress-dccp: make loop iterator size_t
+  * stress-mmap: move } outside #if #endif, fix *BSD build error
+  * stress-chdir: remove blank line
+  * stress-access: remove empty line
+  * stress-ng: don't enable TARGET_CLONES for musl
+  * stress-ng: don't exit a failure if no stressors are run when some
+    are not supported
+  * stress-dnotify: check if dnotify is supported by linux kernel
+  * stress-access: make bool is_root const
+  * stress-access: make struct fields const
+  * stress-mmap: add hole punching to mmap'd file
+  * ignite-cpu: remove extraneous debug
+  * Manual: add note about using --timer-slack 0 for high freq timers
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Aug 2018 16:54:53 +0100
+
 stress-ng (0.09.37-1) unstable; urgency=medium
 
   * Makefile: bump version
