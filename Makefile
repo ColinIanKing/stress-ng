@@ -319,19 +319,18 @@ LIB_SCTP = -lsctp
 LIB_DL = -ldl
 
 #
-#  Load in current config; use 'make clean' to clear this
+#  Load in and set flags based on config
 #
 -include config
-ifneq ("$(wildcard config)","")
-.PHONY: all_config
-all_config:
-	$(MAKE) -f Makefile.config
-	$(MAKE) stress-ng
-endif
-
 CFLAGS += $(CONFIG_CFLAGS)
 LDFLAGS += $(CONFIG_LDFLAGS)
 OBJS += $(CONFIG_OBJS)
+
+all:
+ifneq ("$(wildcard config)","")
+	$(MAKE) makeconfig
+endif
+	$(MAKE) stress-ng
 
 .SUFFIXES: .c .o
 
@@ -341,14 +340,15 @@ OBJS += $(CONFIG_OBJS)
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-stress-ng: info $(OBJS)
+stress-ng: $(OBJS)
 	@echo "LD $@"
 	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
 	@sync
 
-.PHONY: info
-info:
-	@echo "CFLAGS: $(CFLAGS)"
+makeconfig:
+	@if [ ! -s config ]; then \
+		$(MAKE) -f Makefile.config; \
+	fi
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
@@ -420,11 +420,11 @@ clean:
 	@:> config
 
 .PHONY: fast-test-all
-fast-test-all: stress-ng
+fast-test-all: all
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
 
 .PHONY: slow-test-all
-slow-test-all: stress-ng
+slow-test-all: all
 	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics
 
 .PHONY: install
