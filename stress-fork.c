@@ -60,6 +60,7 @@ int stress_set_vfork_max(const char *opt)
 static int stress_fork_fn(
 	const args_t *args,
 	pid_t (*fork_fn)(void),
+	const char *fork_fn_name,
 	const uint64_t fork_max)
 {
 	pid_t pids[MAX_FORKS];
@@ -109,8 +110,8 @@ static int stress_fork_fn(
 				case ENOMEM:
 					break;
 				default:
-					pr_fail("%s: fork failed, errno=%d (%s)\n", args->name,
-						errnos[i], strerror(errnos[i]));
+					pr_fail("%s: %s failed, errno=%d (%s)\n", args->name,
+						fork_fn_name, errnos[i], strerror(errnos[i]));
 					break;
 				}
 			}
@@ -135,7 +136,7 @@ static int stress_fork(const args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(args, fork, fork_max);
+	return stress_fork_fn(args, fork, "fork", fork_max);
 }
 
 
@@ -157,7 +158,7 @@ static int stress_vfork(const args_t *args)
 
 PRAGMA_PUSH
 PRAGMA_WARN_OFF
-	ret = stress_fork_fn(args, vfork, vfork_max);
+	ret = stress_fork_fn(args, vfork, "vfork", vfork_max);
 PRAGMA_POP
 	return ret;
 }
