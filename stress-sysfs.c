@@ -239,6 +239,22 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 }
 
 /*
+ *  stress_sys_skip()
+ *	skip paths that are known to cause issues
+ */
+static bool stress_sys_skip(const char *path)
+{
+	/*
+	 *  Can OOPS on Azure when reading
+	 *  "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:07/" \
+	 *  "VMBUS:01/99221fa0-24ad-11e2-be98-001aa01bbf6e/channels/4/read_avail"
+	 */
+	if (strstr(path, "PNP0A03") && strstr(path, "VMBUS"))
+		return true;
+	return false;
+}
+
+/*
  *  stress_sys_dir()
  *	read directory
  */
@@ -280,6 +296,9 @@ static void stress_sys_dir(
 			continue;
 
 		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+		if (stress_sys_skip(tmp))
+			continue;
+
 		switch (d->d_type) {
 		case DT_DIR:
 			if (!recurse)
@@ -307,7 +326,6 @@ static void stress_sys_dir(
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
-
 				stress_sys_rw(ctxt, loops);
 				if (segv_abort)
 					break;
