@@ -31,10 +31,29 @@
 #endif
 #define MMAP_BOTTOM	(0x10000)
 
-static void stress_mmap_child(const args_t *args)
+/*
+ *  stress_sigsegv_handler()
+ *	older kernels can kill the child when fixed mappings
+ *	can't be backed by physical pages. In this case,
+ *	force child termination and reap and account this
+ *	in the main stressor loop.
+ */
+static void MLOCKED_TEXT stress_sigsegv_handler(int dummy)
+{
+	(void)dummy;
+
+	_exit(0);
+}
+
+static void stress_mmapfixed_child(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	uintptr_t addr = MMAP_TOP;
+	int ret;
+
+	ret = stress_sighandler(args->name, SIGSEGV,
+				stress_sigsegv_handler, NULL);
+	(void)ret;
 
 	do {
 		uint8_t *buf;
@@ -135,6 +154,16 @@ again:
 				goto again;
 			}
 
+			/*
+			 *  If child got killed by sigsegv then
+			 *  account this and silently restart.
+			 *  "Move along now, nothing to see.."
+			 */
+			if (WTERMSIG(status) == SIGSEGV) {
+				segvs++;
+				goto again;
+			}
+
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
 				args->instance);
@@ -157,15 +186,6 @@ again:
 					goto again;
 				}
 			}
-			/* If we got killed by sigsegv, re-start */
-			if (WTERMSIG(status) == SIGSEGV) {
-				pr_dbg("%s: killed by SIGSEGV, "
-					"restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				segvs++;
-				goto again;
-			}
 		}
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
@@ -173,7 +193,7 @@ again:
 
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
-		stress_mmap_child(args);
+		stress_mmapfixed_child(args);
 	}
 
 cleanup:
