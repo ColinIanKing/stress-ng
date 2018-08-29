@@ -31,16 +31,19 @@
 #define MMAPSTACK_SIZE		(256 * KB)
 
 static ucontext_t c_main, c_test;
-static sigjmp_buf jmp_env;
 static void *stack_mmap;			/* mmap'd stack */
 static uintptr_t page_mask;
 static size_t page_size;
 
-static void stress_segvhandler(int dummy)
+/*
+ *  Just terminate the child when SEGV occurs on the
+ *  mmap'd stack.
+ */
+static void MLOCKED_TEXT stress_segvhandler(int dummy)
 {
 	(void)dummy;
 
-	siglongjmp(jmp_env, 1);
+	_exit(0);
 }
 
 /*
@@ -52,6 +55,10 @@ static void stress_stackmmap_push_msync(void)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
 	static void *laddr;
+	char waste[64];
+
+	waste[0] = 0;
+	waste[sizeof(waste) - 1] = 0;
 
 	if (addr != laddr) {
 		(void)shim_msync(addr, page_size,
@@ -67,33 +74,9 @@ static void stress_stackmmap_push_msync(void)
  */
 static void stress_stackmmap_push_start(void)
 {
-	int ret;
-
-	ret = sigsetjmp(jmp_env, 1);
-
-	/* If we hit a segfault on the stack then swap back context */
-	if (!ret)
-		stress_stackmmap_push_msync();
-
-	(void)swapcontext(&c_test, &c_main);
-}
-
-/*
- *  stress_stackmmap
- *	stress a file memory map'd stack
- */
-static int stress_stackmmap(const args_t *args)
-{
-	int fd;
-	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
-	struct sigaction new_action;
-	char filename[PATH_MAX];
-
 	/* stack for SEGV handler must not be on the stack */
 	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
-
-	page_size = args->page_size;
-	page_mask = ~(page_size - 1);
+	struct sigaction new_action;
 
 	/*
 	 *  We need to handle SEGV signals when we
@@ -105,10 +88,8 @@ static int stress_stackmmap(const args_t *args)
 	new_action.sa_handler = stress_segvhandler;
 	(void)sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = SA_ONSTACK;
-	if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-		pr_fail_err("sigaction");
-		return EXIT_FAILURE;
-	}
+	if (sigaction(SIGSEGV, &new_action, NULL) < 0)
+		return;
 
 	/*
 	 *  We need an alternative signal stack
@@ -117,14 +98,30 @@ static int stress_stackmmap(const args_t *args)
 	 */
 	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
-		return EXIT_FAILURE;
+		return;
 
+	stress_stackmmap_push_msync();
+}
+
+/*
+ *  stress_stackmmap
+ *	stress a file memory map'd stack
+ */
+static int stress_stackmmap(const args_t *args)
+{
+	int fd;
+	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
+	char filename[PATH_MAX];
+
+	page_size = args->page_size;
+	page_mask = ~(page_size - 1);
+
+	/* Create file back'd mmaping for the stack */
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
-	/* Create file back'd mmaping for the stack */
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		pr_fail_err("mmap'd stack file open");
@@ -150,7 +147,6 @@ static int stress_stackmmap(const args_t *args)
 			args->name, errno, strerror(errno));
 	}
 	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
-
 	(void)memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
 		pr_fail_err("getcontext");
@@ -166,8 +162,44 @@ static int stress_stackmmap(const args_t *args)
 	 *  new context using the new mmap'd stack
 	 */
 	do {
-		(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
-		(void)swapcontext(&c_main, &c_test);
+		pid_t pid;
+again:
+		if (!g_keep_stressing_flag)
+			break;
+		pid = fork();
+		if (pid < 0) {
+			if ((errno == EAGAIN) || (errno == ENOMEM))
+				goto again;
+			pr_err("%s: fork failed: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else if (pid > 0) {
+			int status, waitret;
+
+			/* Parent, wait for child */
+			(void)setpgid(pid, g_pgrp);
+			waitret = waitpid(pid, &status, 0);
+			if (waitret < 0) {
+				if (errno != EINTR)
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				(void)kill(pid, SIGTERM);
+				(void)kill(pid, SIGKILL);
+				(void)waitpid(pid, &status, 0);
+			}
+		} else if (pid == 0) {
+			/* Child */
+
+			(void)setpgid(0, g_pgrp);
+			stress_parent_died_alarm();
+
+			/* Make sure this is killable by OOM killer */
+			set_oom_adjustment(args->name, true);
+
+			(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
+			(void)swapcontext(&c_main, &c_test);
+
+			_exit(0);
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
