@@ -184,12 +184,12 @@ static int stress_chown(const args_t *args)
 		int ret;
 
 		ret = do_fchown(fd, cap_chown, uid, gid);
-		if (ret < 0) {
+		if ((ret < 0) && (ret != -EPERM))
 			pr_fail_err("fchown");
-		}
+
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
-			if (ret == -ENOENT || errno == -ENOTDIR) {
+			if (ret == -ENOENT || ret == -ENOTDIR) {
 				/*
 				 * File was removed during test by
 				 * another worker
@@ -197,11 +197,12 @@ static int stress_chown(const args_t *args)
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			pr_fail_err("chown");
+			if (ret != -EPERM)
+				pr_fail_err("chown");
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
-			if (ret == -ENOENT || errno == -ENOTDIR) {
+			if (ret == -ENOENT || ret == -ENOTDIR) {
 				/*
 				 * File was removed during test by
 				 * another worker
@@ -209,7 +210,8 @@ static int stress_chown(const args_t *args)
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			pr_fail_err("chown");
+			if (ret != -EPERM)
+				pr_fail_err("chown");
 		}
 		inc_counter(args);
 	} while (keep_stressing());
