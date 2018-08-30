@@ -166,7 +166,7 @@ static int stress_af_alg_hash(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
-			if (errno == ENOENT)
+			if ((errno == ENOENT) || (errno == EBUSY))
 				continue;
 			pr_fail_err("bind");
 			return EXIT_FAILURE;
@@ -243,7 +243,7 @@ static int stress_af_alg_cipher(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
-			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT)) {
+			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT) || (errno == EBUSY)) {
 				algo_cipher_info[i].skip = true;
 				continue;
 			}
@@ -410,7 +410,7 @@ static int stress_af_alg_rng(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the rng does not exist with this kernel */
-			if (errno == ENOENT)
+			if ((errno == ENOENT) || (errno == EBUSY))
 				continue;
 			pr_fail_err("bind");
 			return EXIT_FAILURE;
