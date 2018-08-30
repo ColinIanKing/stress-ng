@@ -170,7 +170,7 @@ static int stress_get(const args_t *args)
 		check_do_run();
 
 		ret = getgroups(GIDS_MAX, gids);
-		if (verify && (ret < 0))
+		if (verify && (ret < 0) && (errno != EINVAL))
 			pr_fail_err("getgroups");
 		check_do_run();
 
