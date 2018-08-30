@@ -189,7 +189,7 @@ static int stress_get(const args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
-			if (verify && errno && (ret < 0))
+			if (verify && errno && (errno != EINVAL) && (ret < 0))
 				pr_fail_err("getpriority");
 			check_do_run();
 		}
