@@ -1,3 +1,3 @@
 List of TODO items:
 
-1  rtnetlink
+1. restartable seq: https://lore.kernel.org/lkml/20180412192800.15708-3-mathieu.desnoyers@efficios.com/
