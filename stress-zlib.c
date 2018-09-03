@@ -143,7 +143,7 @@ static void stress_rand_data_utf8(const args_t *args, uint32_t *data, const int 
 	while (ptr < end) {
 		uint8_t ch = mwc8();
 	
-		if (ch <= 0x7f) 
+		if (ch <= 0x7f)
 			*ptr++ = ch;
 		else {
 			if (UNLIKELY(ptr < end - 1)) {
@@ -583,12 +583,17 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ NULL,		NULL }
 };
 
+/*
+ *  stress_set_zlib_level
+ *	set zlib compression level, 0..9,
+ *	0 = no compression, 1 = fastest, 9 = best compression
+ */
 int stress_set_zlib_level(const char *opt)
 {
         uint32_t zlib_level;
 
         zlib_level = get_uint32(opt);
-        check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION); 
+        check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
         return set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
 }
 
