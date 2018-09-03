@@ -2109,7 +2109,7 @@ static void kill_procs(const int sig)
 	(void)killpg(g_pgrp, sig);
 
 	for (pi = procs_head; pi; pi = pi->next) {
-		int i;
+		int32_t i;
 
 		for (i = 0; i < pi->started_procs; i++) {
 			if (pi->pids[i])
@@ -2184,7 +2184,7 @@ static void MLOCKED_TEXT wait_procs(
 				goto do_wait;
 
 			for (pi = procs_list; pi; pi = pi->next) {
-				int j;
+				int32_t j;
 
 				for (j = 0; j < pi->started_procs; j++) {
 					const pid_t pid = pi->pids[j];
@@ -2210,7 +2210,7 @@ static void MLOCKED_TEXT wait_procs(
 do_wait:
 #endif
 	for (pi = procs_list; pi; pi = pi->next) {
-		int j;
+		int32_t j;
 
 		for (j = 0; j < pi->started_procs; j++) {
 			pid_t pid;
