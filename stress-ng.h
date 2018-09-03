@@ -2332,6 +2332,7 @@ typedef enum {
 
 	OPT_zlib,
 	OPT_zlib_ops,
+	OPT_zlib_level,
 	OPT_zlib_method,
 
 	OPT_zombie,
@@ -2871,6 +2872,7 @@ extern int  stress_set_vm_rw_bytes(const char *opt);
 extern int  stress_set_vm_splice_bytes(const char *opt);
 extern int  stress_set_vm_addr_method(const char *name);
 extern int  stress_set_wcs_method(const char *name);
+extern int  stress_set_zlib_level(const char *name);
 extern int  stress_set_zlib_method(const char *name);
 extern int  stress_set_zombie_max(const char *opt);
 

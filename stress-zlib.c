@@ -583,16 +583,25 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ NULL,		NULL }
 };
 
+int stress_set_zlib_level(const char *opt)
+{
+        uint32_t zlib_level;
+
+        zlib_level = get_uint32(opt);
+        check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION); 
+        return set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
+}
+
 /*
  *  stress_set_zlib_method()
  *	set the default zlib random data method
  */
-int HOT OPTIMIZE3 stress_set_zlib_method(const char *name)
+int stress_set_zlib_method(const char *opt)
 {
 	stress_zlib_rand_data_info_t *info;
 
 	for (info = zlib_rand_data_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
+		if (!strcmp(info->name, opt)) {
 			set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
@@ -741,7 +750,8 @@ static int stress_zlib_inflate(
 static int stress_zlib_deflate(
 		const args_t *args,
 		const int fd,
-		const int xsum_fd)
+		const int xsum_fd,
+		const int zlib_level)
 {
 	int ret, err = 0;
 	bool do_run;
@@ -750,6 +760,7 @@ static int stress_zlib_deflate(
 	uint64_t xsum_chars = 0;
 	int flush = Z_FINISH;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
+	double t1, t2;
 
 	(void)get_setting("zlib-method", &opt_zlib_rand_data_func);
 
@@ -757,7 +768,8 @@ static int stress_zlib_deflate(
 	stream_def.zfree = Z_NULL;
 	stream_def.opaque = Z_NULL;
 
-	ret = deflateInit(&stream_def, Z_BEST_COMPRESSION);
+	t1 = time_now();
+	ret = deflateInit(&stream_def, zlib_level);
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib deflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
@@ -825,9 +837,11 @@ static int stress_zlib_deflate(
 	} while (flush != Z_FINISH);
 
 finish:
-	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%%\n",
+	t2 = time_now();
+	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%% (%.2f MB/sec)\n",
 		args->name, args->instance,
-		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0);
+		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
+		(t2 - t1 > 0.0) ? (bytes_in / (t2 - t1)) / MB : 0.0);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg("%s: deflate xsum value %" PRIu64
@@ -855,11 +869,14 @@ static int stress_zlib(const args_t *args)
 	int err = 0;
 	pid_t pid;
 	uint64_t deflate_xsum = 0, inflate_xsum = 0;
+	uint32_t zlib_level = Z_BEST_COMPRESSION;	/* best compression */
 	ssize_t n;
 	bool good_xsum_reads = true;
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
+
+	(void)get_setting("zlib-level", &zlib_level);
 
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
@@ -906,7 +923,7 @@ static int stress_zlib(const args_t *args)
 		_exit(ret);
 	} else {
 		(void)close(fds[0]);
-		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1]);
+		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1], (int)zlib_level);
 		(void)close(fds[1]);
 	}
 

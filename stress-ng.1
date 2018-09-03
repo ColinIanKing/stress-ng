@@ -3573,6 +3573,10 @@ cache and memory.
 stop after N bogo compression operations, each bogo compression operation
 is a compression of 64K of random data at the highest compression level.
 .TP
+.B \-\-zlib\-level L
+specify the compression level (0..9), where 0 = no compression, 1 = fastest
+compression and 9 = best compression.
+.TP
 .B \-\-zlib\-method method
 specify the type of random data to send to the zlib library.  By default,
 the data stream is created from a random selection of the different data

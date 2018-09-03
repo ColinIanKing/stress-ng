@@ -244,6 +244,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_splice_bytes,		stress_set_vm_splice_bytes },
 	{ OPT_wcs_method,		stress_set_wcs_method },
 #if defined(HAVE_LIB_Z)
+	{ OPT_zlib_level,		stress_set_zlib_level },
 	{ OPT_zlib_method,		stress_set_zlib_method },
 #endif
 	{ OPT_zombie_max,		stress_set_zombie_max },
@@ -1149,6 +1150,7 @@ static const struct option long_options[] = {
 	{ "zlib",	1,	0,	OPT_zlib },
 	{ "zlib-ops",	1,	0,	OPT_zlib_ops },
 	{ "zlib-method",1,	0,	OPT_zlib_method },
+	{ "zlib-level",	1,	0,	OPT_zlib_level },
 	{ "zombie",	1,	0,	OPT_zombie },
 	{ "zombie-ops",	1,	0,	OPT_zombie_ops },
 	{ "zombie-max",	1,	0,	OPT_zombie_max },
@@ -1758,7 +1760,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
 	{ NULL,		"zlib N",		"start N workers compressing data with zlib" },
 	{ NULL,		"zlib-ops N",		"stop after N zlib bogo compression operations" },
-	{ NULL,		"zlib-method M",	"specify stress zlib random data generation method M" },
+	{ NULL,		"zlib-level L",		"specify zlib compressession level 0=fast, 9=best" },
+	{ NULL,		"zlib-method M",	"specify zlib random data generation method M" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
 	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
 	{ NULL,		"zombie-max N",		"set upper limit of N zombies per worker" },
