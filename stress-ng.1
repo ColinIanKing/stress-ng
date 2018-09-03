@@ -329,6 +329,10 @@ stop stress test after T seconds. One can also specify the units of time in
 seconds, minutes, hours, days or years with the suffix s, m, h, d or y.
 Note: A timeout of 0 will run stress-ng without any timeouts (run forever).
 .TP
+.B \--timestamp
+add a timestamp in hours, minutes, seconds and hundredths of a second to the
+log output.
+.TP
 .B \-\-timer\-slack N
 adjust the per process timer slack to N nanoseconds (Linux only). Increasing
 the timer slack allows the kernel to coalesce timer events by adding some

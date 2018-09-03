@@ -103,6 +103,25 @@ int pr_msg(
 	va_list ap)
 {
 	int ret = 0;
+	char ts[32];
+
+	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
+		struct timeval tv;
+
+		if (gettimeofday(&tv, NULL) < 0) {
+			strcpy(ts, "xx-xx-xx.xxx ");
+		} else {
+			time_t t = tv.tv_sec;
+			struct tm *tm;
+
+			tm = localtime(&t);
+			sprintf(ts, "%2.2d:%2.2d:%2.2d.%2.2ld ",
+				tm->tm_hour, tm->tm_min, tm->tm_sec,
+				tv.tv_usec / 10000);
+		}
+	} else {
+		*ts = '\0';
+	}
 
 	if ((flag & PR_FAIL) || (g_opt_flags & flag)) {
 		char buf[4096];
@@ -120,8 +139,8 @@ int pr_msg(
 		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			ret = vfprintf(fp, fmt, ap);
 		} else {
-			int n = snprintf(buf, sizeof(buf), "%s [%d] ",
-				type, (int)getpid());
+			int n = snprintf(buf, sizeof(buf), "%s%s [%d] ",
+				ts, type, (int)getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			(void)fprintf(fp, "%s: %s", g_app_name, buf);
 		}

@@ -115,6 +115,7 @@ static const opt_flag_t opt_flags[] = {
 	{ OPT_timer_slack,	OPT_FLAGS_TIMER_SLACK },
 	{ OPT_timerfd_rand,	OPT_FLAGS_TIMERFD_RAND },
 	{ OPT_times,		OPT_FLAGS_TIMES },
+	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
 	{ OPT_udp_lite,		OPT_FLAGS_UDP_LITE },
 	{ OPT_utime_fsync,	OPT_FLAGS_UTIME_FSYNC },
@@ -1077,6 +1078,7 @@ static const struct option long_options[] = {
 	{ "tsearch-size",1,	0,	OPT_tsearch_size },
 	{ "thrash",	0,	0,	OPT_thrash },
 	{ "times",	0,	0,	OPT_times },
+	{ "timestamp",	0,	0,	OPT_timestamp },
 	{ "tz",		0,	0,	OPT_thermal_zones },
 	{ "udp",	1,	0,	OPT_udp },
 	{ "udp-ops",	1,	0,	OPT_udp_ops },
@@ -1196,6 +1198,7 @@ static const help_t help_generic[] = {
 	{ "t N",	"timeout T",		"timeout after T seconds" },
 	{ NULL,		"timer-slack",		"enable timer slack mode" },
 	{ NULL,		"times",		"show run time summary at end of the run" },
+	{ NULL,		"timestamp",		"timestamp log output " },
 #if defined(STRESS_THERMAL_ZONES)
 	{ NULL,		"tz",			"collect temperatures from thermal zones (Linux only)" },
 #endif
