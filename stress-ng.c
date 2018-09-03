@@ -298,13 +298,13 @@ static const int terminate_signals[] = {
 	-1,
 };
 
-#define STRESSOR(lower_name)			\
-{						\
-	&stress_ ## lower_name ## _info,	\
-	STRESS_ ## lower_name,			\
-	OPT_ ## lower_name,			\
-	OPT_ ## lower_name  ## _ops,		\
-	# lower_name				\
+#define STRESSOR(name)			\
+{					\
+	&stress_ ## name ## _info,	\
+	STRESS_ ## name,		\
+	OPT_ ## name,			\
+	OPT_ ## name  ## _ops,		\
+	# name				\
 }
 
 /*
