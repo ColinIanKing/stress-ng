@@ -1,3 +1,34 @@
+stress-ng (0.09.39-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-hdd: add yield points
+  * stress-dev-shm: add an extra yield point
+  * stress-bigheap: add an extra yield point
+  * stress-af-alg: add more yield points
+  * tests: fast-test-all: add timestamp to log output
+  * stress-fiemap: wrap overly wide #if defined checks
+  * stress-enosys: add address passing args
+  * Replace loop variable i with j
+  * Fix typo in comment 9 -> 0
+  * stress-zlib: add comment, remove two white spaces
+  * stress-zlib: add zlib-level compression level and zlib rate stats
+  * Add timestamp to log with --timestamp option
+  * Add -pipe to CFLAGS, speeds up build by a few seconds
+  * Makefile: remove -Wabi on pedantic builds
+  * Replace int type with int32_t on loop counters
+  * Rename macro argument lower_name to name
+  * Manual: add Khem Raj to contributors name list
+  * TODO: Add restartable sequencues
+  * stress-chown: be less fussy about -EPERM failures
+  * stress-get: ignore EINVAL on getgroups failures
+  * stress-get: ignore EINVAL on getpriority failures
+  * stress-af-alg: check for EBUSY bind failures
+  * stress-stackmmap: simplify SEGV handling using a child process
+  * stress-mmapfixed: don't be so verbose about SIGSEGVs on fixed mmaps
+  * stress-sysfs: add check for some broken sysfs files
+
+ -- Colin King <colin.king@canonical.com>  Tue, 4 Sep 2018 11:36:21 +0100
+
 stress-ng (0.09.38-1) unstable; urgency=medium
 
   * Makefile: bump version
