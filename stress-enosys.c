@@ -3198,7 +3198,6 @@ again:
 
 		do {
 			long number;
-			int i;
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
@@ -3208,7 +3207,7 @@ again:
 			}
 
 			/* Random syscalls */
-			for (i = 0; i < 1024; i++) {
+			for (j = 0; j < 1024; j++) {
 				if (!keep_stressing())
 					goto finish;
 				stress_do_syscall(args, mwc8() & mask);
