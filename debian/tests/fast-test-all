@@ -57,7 +57,7 @@ do
 	then
 		echo "$s at $(date)"
 		sync
-		${STRESS_NG} -v -t 1 --${s} 4 --verify 2>&1
+		${STRESS_NG} -v -t 1 --${s} 4 --verify --timestamp 2>&1
 		ret=$?
 
 		case $ret in
