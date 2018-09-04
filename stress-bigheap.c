@@ -160,6 +160,8 @@ again:
 					tmp = u8ptr = ptr;
 					n = size;
 				}
+				if (!g_keep_stressing_flag)
+					goto abort;
 
 				if (page_size > 0) {
 					size_t sz = page_size - 1;
