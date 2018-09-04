@@ -3031,6 +3031,7 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 		int ret;
 		size_t i;
 		unsigned long arg;
+		char buffer[1024];
 
 		/* Try to limit child from spawning */
 		limit_procs(2);
@@ -3101,6 +3102,13 @@ static inline int stress_do_syscall(const args_t *args, const long number)
 			_exit(EXIT_SUCCESS);
 		ret = syscall7(number, mwc64(), mwc64(), mwc64(),
 			      mwc64(), mwc64(), mwc64(), mwc64());
+		if ((ret < 0) && (errno != ENOSYS))
+			_exit(errno);
+
+		ret = syscall7(number, (long)buffer, (long)buffer,
+			       (long)buffer, (long)buffer,
+			       (long)buffer, (long)buffer,
+			       (long)buffer);
 		_exit(ret < 0 ? errno : 0);
 	} else {
 		int ret, status;
