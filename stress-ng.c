@@ -2076,7 +2076,7 @@ static const char *opt_name(const int opt_val)
  *  stress_get_processors()
  *	get number of processors, set count if <=0 as:
  *		count = 0 -> number of CPUs in system
- *		count < 9 -> number of CPUs online
+ *		count < 0 -> number of CPUs online
  */
 static void stress_get_processors(int32_t *count)
 {
