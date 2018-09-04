@@ -155,6 +155,8 @@ static int stress_af_alg_hash(
 		char input[DATA_LEN], digest[digest_size];
 		struct sockaddr_alg sa;
 
+		if (!keep_stressing())
+			break;
 		if (algo_hash_info[i].skip)
 			continue;
 
@@ -182,6 +184,8 @@ static int stress_af_alg_hash(
 		stress_strnrnd(input, sizeof(input));
 
 		for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
+			if (!keep_stressing())
+				break;
 			if (send(fd, input, j, 0) != j) {
 				if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT)) {
 					algo_hash_info[i].skip = true;
@@ -232,6 +236,8 @@ static int stress_af_alg_cipher(
 		char key[key_size];
 		char input[DATA_LEN], output[DATA_LEN];
 
+		if (!keep_stressing())
+			break;
 		if (algo_cipher_info[i].skip)
 			continue;
 
@@ -273,6 +279,8 @@ static int stress_af_alg_cipher(
 			struct af_alg_iv *iv;	/* Initialisation Vector */
 			struct iovec iov;
 
+			if (!keep_stressing())
+				break;
 			(void)memset(&msg, 0, sizeof(msg));
 			(void)memset(cbuf, 0, sizeof(cbuf));
 
@@ -402,6 +410,8 @@ static int stress_af_alg_rng(
 		ssize_t j;
 		struct sockaddr_alg sa;
 
+		if (!keep_stressing())
+			break;
 		(void)memset(&sa, 0, sizeof(sa));
 		sa.salg_family = AF_ALG;
 		(void)shim_strlcpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
@@ -426,6 +436,8 @@ static int stress_af_alg_rng(
 		for (j = 0; j < 16; j++) {
 			char output[16];
 
+			if (!keep_stressing())
+				break;
 			if (read(fd, output, sizeof(output)) != sizeof(output)) {
 				pr_fail_err("read");
 				(void)close(fd);
