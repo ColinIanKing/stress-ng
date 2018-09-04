@@ -475,6 +475,11 @@ static int stress_hdd(const args_t *args)
 		}
 		(void)unlink(filename);
 
+		if (!keep_stressing()) {
+			(void)close(fd);
+			goto yielded;
+		}
+
 		if (stress_hdd_advise(args, fd, fadvise_flags) < 0) {
 			(void)close(fd);
 			goto finish;
@@ -495,8 +500,10 @@ static int stress_hdd(const args_t *args)
 					goto finish;
 				}
 rnd_wr_retry:
-				if (!keep_stressing())
-					break;
+				if (!keep_stressing()) {
+					(void)close(fd);
+					goto yielded;
+				}
 
 				for (j = 0; j < hdd_write_size; j++)
 					buf[j] = (offset + j) & 0xff;
@@ -523,8 +530,10 @@ rnd_wr_retry:
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
 seq_wr_retry:
-				if (!keep_stressing())
-					break;
+				if (!keep_stressing()) {
+					(void)close(fd);
+					goto yielded;
+				}
 
 				for (j = 0; j < hdd_write_size; j += 512)
 					buf[j] = (i + j) & 0xff;
@@ -567,8 +576,10 @@ seq_wr_retry:
 			}
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 seq_rd_retry:
-				if (!keep_stressing())
-					break;
+				if (!keep_stressing()) {
+					(void)close(fd);
+					goto yielded;
+				}
 
 				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
@@ -626,8 +637,10 @@ seq_rd_retry:
 					goto finish;
 				}
 rnd_rd_retry:
-				if (!keep_stressing())
-					break;
+				if (!keep_stressing()) {
+					(void)close(fd);
+					goto yielded;
+				}
 				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
@@ -670,6 +683,7 @@ rnd_rd_retry:
 
 	} while (keep_stressing());
 
+yielded:
 	rc = EXIT_SUCCESS;
 finish:
 	free(alloc_buf);
