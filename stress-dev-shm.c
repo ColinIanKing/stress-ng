@@ -76,6 +76,8 @@ static inline int stress_dev_shm_child(
 			/*
 			 *  Now try to map this into our address space
 			 */
+			if (!keep_stressing())
+				break;
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, 0);
 			if (addr != MAP_FAILED)  {
