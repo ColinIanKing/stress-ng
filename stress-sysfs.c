@@ -302,7 +302,7 @@ static void stress_sys_dir(
 	const args_t *args = ctxt->args;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
-	int n;
+	int i, n;
 
 	if (!g_keep_stressing_flag || segv_abort)
 		return;
@@ -317,12 +317,12 @@ static void stress_sys_dir(
 	if (n <= 0)
 		goto done;
 
-	while (n-- && !segv_abort) {
+	for (i = 0; (i < n) && !segv_abort; i++) {
 		int ret;
 		struct stat buf;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
-		struct dirent *d = dlist[n];
+		struct dirent *d = dlist[i];
 
 		if (!keep_stressing())
 			break;
@@ -371,8 +371,11 @@ static void stress_sys_dir(
 		}
 	}
 done:
-	if (dlist)
+	if (dlist) {
+		for (i = 0; i < n; i++)
+			free(dlist[i]);
 		free(dlist);
+	}
 }
 
 
