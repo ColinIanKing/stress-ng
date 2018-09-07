@@ -262,7 +262,7 @@ static void stress_proc_dir(
 	struct dirent **dlist;
 	const args_t *args = ctxt->args;
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
-	int n;
+	int i, n;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -277,11 +277,11 @@ static void stress_proc_dir(
 	if (n <= 0)
 		goto done;
 
-	while (n--) {
+	for (i = 0; i < n; i++) {
 		int ret;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
-		struct dirent *d = dlist[n];
+		struct dirent *d = dlist[i];
 
 		if (!g_keep_stressing_flag)
 			break;
@@ -312,8 +312,11 @@ static void stress_proc_dir(
 		}
 	}
 done:
-	if (dlist)
+	if (dlist) {
+		for (i = 0; i < n; i++)
+			free(dlist[i]);
 		free(dlist);
+	}
 }
 
 /*
