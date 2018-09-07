@@ -928,7 +928,7 @@ static void stress_dev_dir(
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
-	int n;
+	int i, n;
 
 	if (!g_keep_stressing_flag)
 		return;
@@ -942,12 +942,12 @@ static void stress_dev_dir(
 	if (n <= 0)
 		goto done;
 
-	while (n--) {
+	for (i = 0; i < n; i++) {
 		int ret;
 		struct stat buf;
 		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
-		struct dirent *d = dlist[n];
+		struct dirent *d = dlist[i];
 		size_t len;
 
 		if (!keep_stressing())
@@ -1012,8 +1012,11 @@ static void stress_dev_dir(
 		}
 	}
 done:
-	if (dlist)
+	if (dlist) {
+		for (i = 0; i < n; i++)
+			free(dlist[i]);
 		free(dlist);
+	}
 }
 
 /*
