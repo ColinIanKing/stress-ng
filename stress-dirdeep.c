@@ -142,7 +142,7 @@ static void stress_dir_exercise(
 	const size_t path_len)
 {
 	struct dirent **namelist;
-	int n;
+	int i, n;
 #if defined(HAVE_FUTIMENS)
 	const double now = time_now();
 	const time_t sec = (time_t)now;
@@ -160,15 +160,15 @@ static void stress_dir_exercise(
 	if (n < 0)
 		return;
 
-	while (n-- && keep_stressing()) {
-		if (namelist[n]->d_name[0] == '.')
+	for (i = 0; (i < n) && keep_stressing(); i++) {
+		if (namelist[i]->d_name[0] == '.')
 			continue;
 
 		path[len] = '/';
-		path[len + 1] = namelist[n]->d_name[0];
+		path[len + 1] = namelist[i]->d_name[0];
 		path[len + 2] = '\0';
 
-		if (isdigit((int)namelist[n]->d_name[0])) {
+		if (isdigit((int)namelist[i]->d_name[0])) {
 			stress_dir_exercise(args, path, len + 2, path_len);
 		} else {
 			int fd;
@@ -195,10 +195,13 @@ static void stress_dir_exercise(
 			}
 			inc_counter(args);
 		}
-		free(namelist[n]);
 	}
 	path[len] = '\0';
-	free(namelist);
+	if (namelist) {
+		for (i = 0; i < n; i++)
+			free(namelist[i]);
+		free(namelist);
+	}
 }
 
 
