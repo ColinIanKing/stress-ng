@@ -38,6 +38,7 @@ typedef struct ctxt {
 	const args_t *args;
 	char *badbuf;
 	bool writeable;
+	int kmsgfd;
 } ctxt_t;
 
 static void MLOCKED_TEXT stress_segv_handler(int dummy)
@@ -74,6 +75,30 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
+ *  stress_kmsg_drain()
+ *	drain message buffer, return number of bytes consumed
+ */
+static int stress_kmsg_drain(const int fd)
+{
+	int count = 0;
+
+	if (fd == -1)
+		return 0;
+
+	for (;;) {
+		ssize_t ret;
+		char buffer[1024];
+
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret <= 0)
+			break;
+
+		count += ret;
+	}
+	return count;
+}
+
+/*
  *  stress_sys_rw()
  *	read a proc file
  */
@@ -98,7 +123,7 @@ static inline void stress_sys_rw(
 		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*path || !g_keep_stressing_flag)
+		if (!*sysfs_path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
@@ -130,6 +155,9 @@ static inline void stress_sys_rw(
 				timeout = true;
 				(void)close(fd);
 				goto next;
+			}
+			if (stress_kmsg_drain(ctxt->kmsgfd)) {
+				break;
 			}
 		}
 
@@ -163,6 +191,8 @@ static inline void stress_sys_rw(
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
+		if (stress_kmsg_drain(ctxt->kmsgfd))
+			break;
 
 		/*
 		 *  Bad read buffer
@@ -172,6 +202,8 @@ static inline void stress_sys_rw(
 			if (ret < 0)
 				goto err;
 		}
+		if (stress_kmsg_drain(ctxt->kmsgfd))
+			break;
 err:
 		(void)close(fd);
 		if (time_now() - t_start > threshold) {
@@ -202,6 +234,8 @@ next:
 				break;
 			loops--;
 		}
+		if (stress_kmsg_drain(ctxt->kmsgfd))
+			break;
 	}
 }
 
@@ -366,6 +400,8 @@ static int stress_sysfs(const args_t *args)
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
+	ctxt.kmsgfd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
+	(void)stress_kmsg_drain(ctxt.kmsgfd);
 
 	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
 	if (rc) {
@@ -406,6 +442,8 @@ static int stress_sysfs(const args_t *args)
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
+	if (ctxt.kmsgfd != -1)
+		(void)close(ctxt.kmsgfd);
 	(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
 	(void)shim_pthread_spin_destroy(&lock);
 
