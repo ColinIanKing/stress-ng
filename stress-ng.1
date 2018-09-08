@@ -450,6 +450,26 @@ forces many front end cache stalls and cache references.
 .B \-\-atomic\-ops N
 stop the atomic workers after N bogo atomic operations.
 .TP
+.B \-\-bad\-altstack N
+start N workers that create broken alternative signal stacks for SIGSEGV
+handling that in turn create secondary SIGSEGVs. A variety of randonly
+selected methods are used to create the stacks:
+.RS
+.IP a)
+Unmapping the alternative signal stack, before triggering the signal handling.
+.IP b)
+Changing the alternative signal stack to just being read only, write only, execute only.
+.IP c)
+Using a NULL alternative signal stack.
+.IP d)
+Using the signal handler object as the alternative signal stack.
+.IP e)
+Unmapping the alternative signal stack during execution of the signal handler.
+.RE
+.TP
+.B \-\-bad\-altstack\-ops N
+stop the bad alternative stack stressors after N SIGSEGV bogo operations.
+.TP
 .B \-B N, \-\-bigheap N
 start N workers that grow their heaps by reallocating memory. If the out of
 memory killer (OOM) on Linux kills the worker or the allocation fails then the

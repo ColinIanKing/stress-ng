@@ -73,6 +73,7 @@ STRESS_SRC = \
 	stress-aio-linux.c \
 	stress-apparmor.c \
 	stress-atomic.c \
+	stress-bad-altstack.c \
 	stress-bigheap.c \
 	stress-bind-mount.c \
 	stress-branch.c \

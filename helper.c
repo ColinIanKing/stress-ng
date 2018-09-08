@@ -950,9 +950,9 @@ int stress_sigaltstack(const void *stack, const size_t size)
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;
 
-	if (size < (KB * 4)) {
-		pr_err("sigaltstack stack size %zu must be more than 4K\n",
-			size);
+	if (size < (size_t)MINSIGSTKSZ) {
+		pr_err("sigaltstack stack size %zu must be more than %zuK\n",
+			size, (size_t)MINSIGSTKSZ / 1024);
 		return -1;
 	}
 	ss.ss_sp = align_address(stack, STACK_ALIGNMENT);

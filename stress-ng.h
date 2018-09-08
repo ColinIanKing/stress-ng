@@ -1300,6 +1300,7 @@ typedef enum {
 	STRESS_aiol,
 	STRESS_apparmor,
 	STRESS_atomic,
+	STRESS_bad_altstack,
 	STRESS_branch,
 	STRESS_brk,
 	STRESS_bsearch,
@@ -1573,6 +1574,9 @@ typedef enum {
 
 	OPT_atomic,
 	OPT_atomic_ops,
+
+	OPT_bad_altstack,
+	OPT_bad_altstack_ops,
 
 	OPT_branch,
 	OPT_branch_ops,
@@ -3036,6 +3040,7 @@ STRESS(stress_aio);
 STRESS(stress_aiol);
 STRESS(stress_apparmor);
 STRESS(stress_atomic);
+STRESS(stress_bad_altstack);
 STRESS(stress_bigheap);
 STRESS(stress_bind_mount);
 STRESS(stress_branch);
