@@ -191,8 +191,10 @@ static inline void stress_sys_rw(
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
-		if (stress_kmsg_drain(ctxt->kmsgfd))
+		if (stress_kmsg_drain(ctxt->kmsgfd)) {
+			(void)close(fd);
 			break;
+		}
 
 		/*
 		 *  Bad read buffer
@@ -202,8 +204,10 @@ static inline void stress_sys_rw(
 			if (ret < 0)
 				goto err;
 		}
-		if (stress_kmsg_drain(ctxt->kmsgfd))
+		if (stress_kmsg_drain(ctxt->kmsgfd)) {
+			(void)close(fd);
 			break;
+		}
 err:
 		(void)close(fd);
 		if (time_now() - t_start > threshold) {
