@@ -26,6 +26,7 @@
 
 #define SYS_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)
+#define DRAIN_DELAY_US		(20000)
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
@@ -33,6 +34,7 @@ static char *sysfs_path;
 static uint32_t mixup;
 static volatile bool segv_abort = false;
 static sigjmp_buf jmp_env;
+static char dummy_path[] = "/sys/kernel/notes";
 
 typedef struct ctxt {
 	const args_t *args;
@@ -102,7 +104,7 @@ static int stress_kmsg_drain(const int fd)
  *  stress_sys_rw()
  *	read a proc file
  */
-static inline void stress_sys_rw(
+static inline bool stress_sys_rw(
 	const ctxt_t *ctxt,
 	int32_t loops)
 {
@@ -112,6 +114,7 @@ static inline void stress_sys_rw(
 	char path[PATH_MAX];
 	const args_t *args = ctxt->args;
 	const double threshold = 0.2;
+	const bool controller = (loops > 0);
 
 	while ((loops == -1 || loops > 0) && !segv_abort) {
 		double t_start;
@@ -119,11 +122,11 @@ static inline void stress_sys_rw(
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
-			return;
+			return false;
 		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*sysfs_path || !g_keep_stressing_flag)
+		if (!*path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
@@ -157,7 +160,9 @@ static inline void stress_sys_rw(
 				goto next;
 			}
 			if (stress_kmsg_drain(ctxt->kmsgfd)) {
-				break;
+				if (controller)
+					goto drain_abort;
+				shim_usleep(DRAIN_DELAY_US);
 			}
 		}
 
@@ -192,8 +197,9 @@ static inline void stress_sys_rw(
 		if (ret < 0)
 			goto err;
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
-			(void)close(fd);
-			break;
+			if (controller)
+				goto drain_abort;
+			shim_usleep(DRAIN_DELAY_US);
 		}
 
 		/*
@@ -205,8 +211,9 @@ static inline void stress_sys_rw(
 				goto err;
 		}
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
-			(void)close(fd);
-			break;
+			if (controller)
+				goto drain_abort;
+			shim_usleep(DRAIN_DELAY_US);
 		}
 err:
 		(void)close(fd);
@@ -238,9 +245,17 @@ next:
 				break;
 			loops--;
 		}
-		if (stress_kmsg_drain(ctxt->kmsgfd))
-			break;
+		if (stress_kmsg_drain(ctxt->kmsgfd)) {
+			if (controller)
+				return true;
+			shim_usleep(DRAIN_DELAY_US);
+		}
 	}
+	return false;
+
+drain_abort:
+	(void)close(fd);
+	return true;
 }
 
 /*
@@ -364,7 +379,11 @@ static void stress_sys_dir(
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
-				stress_sys_rw(ctxt, loops);
+				if (stress_sys_rw(ctxt, loops)) {
+					(void)shim_strlcpy(filename, tmp, sizeof(filename));
+					sysfs_path = dummy_path;
+					(void)shim_pthread_spin_unlock(&lock);
+				}
 				if (segv_abort)
 					break;
 				inc_counter(args);
@@ -403,7 +422,7 @@ static int stress_sysfs(const args_t *args)
 	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	sysfs_path = "/sys/kernel/notes";
+	sysfs_path = dummy_path;
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
