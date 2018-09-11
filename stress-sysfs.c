@@ -27,6 +27,7 @@
 #define SYS_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)
 #define DRAIN_DELAY_US		(50000)
+#define DURATION_PER_SYSFS_FILE	(40000)
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
@@ -107,9 +108,7 @@ static bool stress_kmsg_drain(const int fd)
  *  stress_sys_rw()
  *	read a proc file
  */
-static inline bool stress_sys_rw(
-	const ctxt_t *ctxt,
-	int32_t loops)
+static inline bool stress_sys_rw(const ctxt_t *ctxt)
 {
 	int fd;
 	ssize_t i = 0, ret;
@@ -117,11 +116,9 @@ static inline bool stress_sys_rw(
 	char path[PATH_MAX];
 	const args_t *args = ctxt->args;
 	const double threshold = 0.2;
-	const bool controller = (loops > 0);
 
-	while ((loops == -1 || loops > 0) && !segv_abort) {
+	while (g_keep_stressing_flag && !segv_abort) {
 		double t_start;
-		bool timeout = false;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -133,12 +130,9 @@ static inline bool stress_sys_rw(
 			break;
 
 		t_start = time_now();
-
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			goto next;
-
 		if (time_now() - t_start > threshold) {
-			timeout = true;
 			(void)close(fd);
 			goto next;
 		}
@@ -147,7 +141,7 @@ static inline bool stress_sys_rw(
 		 *  Multiple randomly sized reads
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
-			ssize_t sz = 1 + (mwc32() % sizeof(buffer));
+			ssize_t sz = 1 + (mwc32() % (sizeof(buffer) - 1));
 			if (!g_keep_stressing_flag)
 				break;
 			ret = read(fd, buffer, sz);
@@ -163,7 +157,6 @@ static inline bool stress_sys_rw(
 				goto drain;
 			}
 			if (time_now() - t_start > threshold) {
-				timeout = true;
 				(void)close(fd);
 				goto next;
 			}
@@ -187,10 +180,8 @@ static inline bool stress_sys_rw(
 		}
 		(void)close(fd);
 
-		if (time_now() - t_start > threshold) {
-			timeout = true;
+		if (time_now() - t_start > threshold)
 			goto next;
-		}
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			goto next;
 		/*
@@ -199,6 +190,8 @@ static inline bool stress_sys_rw(
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
+		if (time_now() - t_start > threshold)
+			goto next;
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
 			(void)close(fd);
@@ -220,10 +213,8 @@ static inline bool stress_sys_rw(
 		}
 err:
 		(void)close(fd);
-		if (time_now() - t_start > threshold) {
-			timeout = true;
+		if (time_now() - t_start > threshold)
 			goto next;
-		}
 
 		/*
 		 *  We only attempt writes if we are not
@@ -240,14 +231,9 @@ err:
 			(void)close(fd);
 
 			if (time_now() - t_start > threshold)
-				timeout = true;
+				goto next;
 		}
 next:
-		if (loops > 0) {
-			if (timeout)
-				break;
-			loops--;
-		}
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
 			goto drain;
@@ -255,12 +241,8 @@ next:
 
 		if (drain_kmsg) {
 drain:
-			if (controller) {
-				return true;
-			} else {
-				shim_usleep(DRAIN_DELAY_US);
-				continue;
-			}
+			shim_usleep(DRAIN_DELAY_US);
+			continue;
 		}
 	}
 	return false;
@@ -294,7 +276,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 		return &nowt;
 
 	while (g_keep_stressing_flag && !segv_abort)
-		stress_sys_rw(ctxt, -1);
+		stress_sys_rw(ctxt);
 
 	return &nowt;
 }
@@ -312,6 +294,12 @@ static bool stress_sys_skip(const char *path)
 	 */
 	if (strstr(path, "PNP0A03") && strstr(path, "VMBUS"))
 		return true;
+	/*
+	 *  Has been known to cause issues on s390x
+	 *
+	if (strstr(path, "virtio0/block") && strstr(path, "cache_type"))
+		return true;
+	 */
 	return false;
 }
 
@@ -328,7 +316,6 @@ static void stress_sys_dir(
 	struct dirent **dlist;
 	const args_t *args = ctxt->args;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int i, n;
 
 	if (!g_keep_stressing_flag || segv_abort)
@@ -388,7 +375,7 @@ static void stress_sys_dir(
 				sysfs_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
 				drain_kmsg = false;
-				stress_sys_rw(ctxt, loops);
+				shim_usleep(DURATION_PER_SYSFS_FILE);
 				if (segv_abort)
 					break;
 				inc_counter(args);
@@ -418,6 +405,7 @@ static int stress_sysfs(const args_t *args)
 	int rc, ret[MAX_READ_THREADS];
 	ctxt_t ctxt;
 
+	memset(&ctxt, 0, sizeof(ctxt));
 	rc = sigsetjmp(jmp_env, 1);
 	if (rc) {
 		pr_err("%s: A SIGSEGV occurred while exercising %s, aborting\n",
