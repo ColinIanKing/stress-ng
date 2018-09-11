@@ -688,6 +688,26 @@ int shim_usleep(uint64_t usec)
 }
 
 /*
+ *  shim_usleep_interruptible()
+ *	interruptible usleep
+ */
+int shim_usleep_interruptible(uint64_t usec)
+{
+#if defined(HAVE_NANOSLEEP)
+	struct timespec t, trem;
+
+	t.tv_sec = usec / 1000000;
+	t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
+
+	errno = 0;
+	return nanosleep(&t, &trem);
+#else
+	return usleep((useconds_t)usec);
+#endif
+}
+
+
+/*
  *  shim_getlogin
  *	a more secure abstracted version of getlogin
  *
