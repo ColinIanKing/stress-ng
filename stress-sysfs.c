@@ -25,9 +25,10 @@
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #define SYS_BUF_SZ		(4096)
-#define MAX_READ_THREADS	(4)
-#define DRAIN_DELAY_US		(50000)
-#define DURATION_PER_SYSFS_FILE	(40000)
+#define MAX_READ_THREADS	(4)	/* threads stressing sysfs */
+#define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */
+#define DURATION_PER_SYSFS_FILE	(40000)	/* max duration per file in microsecs */
+#define OPS_PER_SYSFS_FILE	(256)	/* max iterations per sysfs file */
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
@@ -35,14 +36,16 @@ static char *sysfs_path;
 static uint32_t mixup;
 static volatile bool segv_abort = false;
 static volatile bool drain_kmsg = false;
+static volatile bool usr2_killed = false;
+static volatile uint32_t counter = 0;
 static sigjmp_buf jmp_env;
 static char dummy_path[] = "/sys/kernel/notes";
 
 typedef struct ctxt {
-	const args_t *args;
-	char *badbuf;
-	bool writeable;
-	int kmsgfd;
+	const args_t *args;		/* stressor args */
+	char *badbuf;			/* bad mapping for I/O buffer */
+	bool writeable;			/* is sysfs writeable? */
+	int kmsgfd;			/* /dev/kmsg file descriptor */
 } ctxt_t;
 
 static void MLOCKED_TEXT stress_segv_handler(int dummy)
@@ -51,6 +54,11 @@ static void MLOCKED_TEXT stress_segv_handler(int dummy)
 
 	segv_abort = true;
 	siglongjmp(jmp_env, 1);
+}
+
+static void MLOCKED_TEXT stress_usr2_handler(int dummy)
+{
+	(void)dummy;
 }
 
 static uint32_t path_sum(const char *path)
@@ -124,6 +132,9 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		if (ret)
 			return false;
 		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
+		counter++;
+		if (counter > OPS_PER_SYSFS_FILE)
+			(void)kill(args->pid, SIGUSR2);
 		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !g_keep_stressing_flag)
@@ -373,9 +384,17 @@ static void stress_sys_dir(
 			if (!ret) {
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				sysfs_path = filename;
+				counter = 0;
+				usr2_killed = false;
 				(void)shim_pthread_spin_unlock(&lock);
 				drain_kmsg = false;
-				shim_usleep(DURATION_PER_SYSFS_FILE);
+
+				/*
+				 *  wait for a timeout, or until woken up
+				 *  by pthread(s) once maximum iteration count
+				 *  has been reached
+				 */
+				shim_usleep_interruptible(DURATION_PER_SYSFS_FILE);
 				if (segv_abort)
 					break;
 				inc_counter(args);
@@ -413,6 +432,8 @@ static int stress_sysfs(const args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+		return EXIT_FAILURE;
+	if (stress_sighandler(args->name, SIGUSR2, stress_usr2_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
 	sysfs_path = dummy_path;
