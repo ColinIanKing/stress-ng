@@ -1,3 +1,50 @@
+stress-ng (0.09.40-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * log: cast fractions of seconds to long
+  * stress-get: move timex declarations to HAVE_ADJTIMEX block statement
+  * Use HAVE_MREMAP check for mremap system call
+  * Add autobuild test for mremap system call
+  * stress-malloc: use HAVE_MALLOPT check for threshold variable
+  * stress-malloc: use HAVE_MALLOPT check for mallopt glibc function
+  * Add mallopt glibc function autodetection
+  * stress-ioport: fix check on HAVE_IOPORT and not IOPORT
+  * stress-ioport: use HAVE_IOPORT check for ioport system call
+  * Add autobuild test for ioport system call
+  * stress-inode-flags: build valid stressor if specific ioctl flags are
+    defined
+  * stress-get:  use HAVE_PRLIMIT check for prlimit system call
+  * Add autobuild test for prlimit system call
+  * stress-get: use HAVE_ADJTIMEX check for adjtimex system call
+  * Add autobuild test for adjtimex system call
+  * stress-get: move locals to block statements
+  * stress-sysbadaddr: use autodetection config for getresgid and
+    getresuid calls
+  * stress-get: use autodetection config for getresgid and getresuid
+    calls
+  * Add autobuild checks for getresgid and getresuid
+  * README: update dependencies information
+  * stress-sysfs: exercise each sysfs for a specific time or number of
+    iterations
+  * Add shim_usleep_interruptible, an interruptible usleep
+  * stess-sysfs: exercise each sysfs file for a 1/25 of a second
+  * stress-sysfs: improve draining control in threads
+  * Add .gitignore
+  * stress-sysfs: back off pthreads when kernel log spamming is detected
+  * manual: fix typo: multiple -> multiply
+  * stress-sysfs: close file if we have messages that needed draining
+  * Add bad alternative stack stressor
+  * stress-procfs: free directory entries, fixes memory leak
+  * stress-dirdeep: free directory entries, fixes memory leak
+  * stress-dev: free directory entries, fixes memory leak
+  * stress-sysfs: free directory entries, fixes memory leak
+  * stress-sysfs: skip over sysfs files that produce a lot of kernel
+    spamming
+  * Add more info in the README file
+
+ -- Colin King <colin.king@canonical.com>  Wed, 12 Sep 2018 17:11:11 +0100
+
 stress-ng (0.09.39-1) unstable; urgency=medium
 
   * Makefile: bump version
