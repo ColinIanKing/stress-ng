@@ -30,7 +30,7 @@
 #if defined(HAVE_UNAME)
 #include <sys/utsname.h>
 #endif
-#if defined(__linux__)
+#if defined(HAVE_ADJTIMEX)
 #include <sys/timex.h>
 #endif
 
@@ -123,7 +123,6 @@ static int stress_get(const args_t *args)
 		char *ptr;
 		gid_t gids[GIDS_MAX];
 		unsigned cpu, node;
-		struct timex timexbuf;
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
 		size_t i;
@@ -301,10 +300,14 @@ static int stress_get(const args_t *args)
 #endif
 
 #if defined(HAVE_ADJTIMEX)
-		timexbuf.modes = 0;
-		ret = adjtimex(&timexbuf);
-		if (is_root && verify && (ret < 0))
-			pr_fail_err("adjtimex");
+		{
+			struct timex timexbuf;
+
+			timexbuf.modes = 0;
+			ret = adjtimex(&timexbuf);
+			if (is_root && verify && (ret < 0))
+				pr_fail_err("adjtimex");
+		}
 #endif
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
