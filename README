@@ -28,7 +28,9 @@ this judiciously. With the appropriate privilege, stress-ng can allow the ionice
 class and ionice levels to be adjusted, again, this should be used with care.
 
 To build, the following libraries will ensure a fully functional stress-ng
-build:
+build
+
+Debian, Ubuntu:
 
   * libaio-dev
   * libapparmor-dev
@@ -40,8 +42,19 @@ build:
   * libsctp-dev
   * zlib1g-dev
 
-NOTE: the build will try to detect build depedencies and will build an image with
-functionality disabled if the support libraries are not installed.
+RHEL, Fedora, Centos:
+
+  * libaio-devel
+  * libattr-devel
+  * libbsd-devel
+  * libcap-devel
+  * libgcrypt-devel
+  * keyutils-libs
+  * libsctp-devel
+  * zlib-devel
+
+NOTE: the build will try to detect build depedencies and will build an image
+with functionality disabled if the support libraries are not installed.
 
 To build on BSD systems, one requires gcc and GNU make:
         CC=gcc gmake clean
