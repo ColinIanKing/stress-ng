@@ -86,7 +86,7 @@ static void stress_mmapfixed_child(const args_t *args)
 			goto next;
 
 		(void)madvise_random(buf, sz);
-#if defined(__linux__) && NEED_GLIBC(2,4,0) && \
+#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && \
     defined(MREMAP_FIXED) && \
     defined(MREMAP_MAYMOVE)
 		{

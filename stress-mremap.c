@@ -34,7 +34,7 @@ int stress_set_mremap_bytes(const char *opt)
 	return set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
-#if defined(__linux__) && NEED_GLIBC(2,4,0)
+#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0)
 
 #if defined(MREMAP_FIXED)
 /*

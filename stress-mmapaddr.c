@@ -227,7 +227,7 @@ again: 	pid = fork();
 			(void)stress_mmapaddr_check(args, remap_addr);
 			(void)munmap(remap_addr, page_size);
 
-#if defined(__linux__) && NEED_GLIBC(2,4,0) && defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
+#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
 			addr = stress_mmapaddr_get_addr(args, mask, page_size);
 			if (!addr)
 				goto unmap;
