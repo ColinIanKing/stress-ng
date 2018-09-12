@@ -117,7 +117,7 @@ int pr_msg(
 			tm = localtime(&t);
 			sprintf(ts, "%2.2d:%2.2d:%2.2d.%2.2ld ",
 				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				tv.tv_usec / 10000);
+				(long)tv.tv_usec / 10000);
 		}
 	} else {
 		*ts = '\0';
