@@ -300,7 +300,7 @@ static int stress_get(const args_t *args)
 		}
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_ADJTIMEX)
 		timexbuf.modes = 0;
 		ret = adjtimex(&timexbuf);
 		if (is_root && verify && (ret < 0))
