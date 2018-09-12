@@ -66,7 +66,7 @@ int stress_set_ioport_opts(const char *opts)
 	return -1;
 }
 
-#if defined(STRESS_X86) && defined(IOPORT)
+#if defined(STRESS_X86) && defined(HAVE_IOPORT)
 
 static int stress_ioport_supported(void)
 {
