@@ -99,7 +99,7 @@ static int stress_malloc(const args_t *args)
 			malloc_max = MIN_MALLOC_MAX;
 	}
 
-#if defined(__GNUC__) && defined(__linux__)
+#if defined(__GNUC__) && defined(M_MMAP_THRESHOLD) && defined(HAVE_MALLOPT)
 	if (get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
