@@ -204,14 +204,14 @@ static int bad_getrandom(void *addr)
 }
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_GETRESGID)
 static int bad_getresgid(void *addr)
 {
 	return getresgid(addr, addr, addr);
 }
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_GETRESUID)
 static int bad_getresuid(void *addr)
 {
 	return getresuid(addr, addr, addr);
@@ -449,10 +449,10 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(__linux__) && defined(__NR_getrandom)
 	bad_getrandom,
 #endif
-#if defined(__linux__)
+#if defined(HAVE_GETRESGID)
 	bad_getresgid,
 #endif
-#if defined(__linux__)
+#if defined(HAVE_GETRESUID)
 	bad_getresuid,
 #endif
 	bad_getrlimit,
