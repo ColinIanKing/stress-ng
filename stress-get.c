@@ -123,14 +123,7 @@ static int stress_get(const args_t *args)
 		char *ptr;
 		gid_t gids[GIDS_MAX];
 		unsigned cpu, node;
-#if defined(__linux__)
-		gid_t rgid, egid, sgid;
-		uid_t ruid, euid, suid;
 		struct timex timexbuf;
-#endif
-#if defined(HAVE_UNAME)
-		struct utsname utsbuf;
-#endif
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
 		size_t i;
@@ -195,17 +188,25 @@ static int stress_get(const args_t *args)
 		}
 
 #if defined(HAVE_GETRESGID)
-		ret = getresgid(&rgid, &egid, &sgid);
-		if (verify && (ret < 0))
-			pr_fail_err("getresgid");
-		check_do_run();
+		{
+			gid_t rgid, egid, sgid;
+
+			ret = getresgid(&rgid, &egid, &sgid);
+			if (verify && (ret < 0))
+				pr_fail_err("getresgid");
+			check_do_run();
+		}
 #endif
 
 #if defined(HAVE_GETRESUID)
-		ret = getresuid(&ruid, &euid, &suid);
-		if (verify && (ret < 0))
-			pr_fail_err("getresuid");
-		check_do_run();
+		{
+			uid_t ruid, euid, suid;
+
+			ret = getresuid(&ruid, &euid, &suid);
+			if (verify && (ret < 0))
+				pr_fail_err("getresuid");
+			check_do_run();
+		}
 #endif
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
@@ -274,9 +275,13 @@ static int stress_get(const args_t *args)
 		if (verify && (ret < 0))
 			pr_fail_err("gettimeval");
 #if defined(HAVE_UNAME)
-		ret = uname(&utsbuf);
-		if (verify && (ret < 0))
-			pr_fail_err("uname");
+		{
+			struct utsname utsbuf;
+
+			ret = uname(&utsbuf);
+			if (verify && (ret < 0))
+				pr_fail_err("uname");
+		}
 #endif
 
 #if defined(HAVE_GETPAGESISE)
