@@ -194,12 +194,14 @@ static int stress_get(const args_t *args)
 			check_do_run();
 		}
 
-#if defined(__linux__)
+#if defined(HAVE_GETRESGID)
 		ret = getresgid(&rgid, &egid, &sgid);
 		if (verify && (ret < 0))
 			pr_fail_err("getresgid");
 		check_do_run();
+#endif
 
+#if defined(HAVE_GETRESUID)
 		ret = getresuid(&ruid, &euid, &suid);
 		if (verify && (ret < 0))
 			pr_fail_err("getresuid");
