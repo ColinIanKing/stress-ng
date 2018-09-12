@@ -77,7 +77,7 @@ static int stress_malloc(const args_t *args)
 	uint32_t restarts = 0, nomems = 0;
 	size_t malloc_bytes = DEFAULT_MALLOC_BYTES;
 	size_t malloc_max = DEFAULT_MALLOC_MAX;
-#if defined(__GNUC__) && defined(__linux__)
+#if defined(__GNUC__) && defined(M_MMAP_THRESHOLD) && defined(HAVE_MALLOPT)
 	size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 #endif
 
