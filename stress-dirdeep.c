@@ -54,13 +54,36 @@ int stress_set_dirdeep_inodes(const char *opt)
 	return set_setting("dirdeep-inodes", TYPE_ID_UINT64, &dirdeep_inodes);
 }
 
+/*
+ *  stress_dirdeep_sync()
+ *	attempt to sync a directory
+ */
+static void stress_dirdeep_sync(const char *path)
+{
+#if defined(O_DIRECTORY)
+	int fd;
+
+	fd = open(path, O_RDONLY | O_DIRECTORY);
+	if (fd < 0)
+		return;
+
+	/*
+	 *  The interesting part of fsync is that in
+	 *  theory we can fsync a read only file and
+	 *  this could be a directory too. So try and
+	 *  sync.
+	 */
+	(void)shim_fsync(fd);
+	(void)close(fd);
+#endif
+}
 
 /*
- *  stress_dir_make()
+ *  stress_dirdeep_make()
  *	depth-first tree creation, create lots of sub-trees with
  *	dirdeep_dir number of subtress per level.
  */
-static void stress_dir_make(
+static void stress_dirdeep_make(
 	const args_t *args,
 	const char *linkpath,
 	char *const path,
@@ -124,11 +147,13 @@ static void stress_dir_make(
 
 	for (i = 0; i < dirdeep_dirs; i++) {
 		path[len + 1] = '0' + i;
-		stress_dir_make(args, linkpath, path, len + 2, path_len,
+		stress_dirdeep_make(args, linkpath, path, len + 2, path_len,
 				dirdeep_dirs, dirdeep_inodes, inodes_target_free,
 				min_inodes_free, depth + 1);
 	}
 	path[len] = '\0';
+
+	stress_dirdeep_sync(path);
 }
 
 /*
@@ -280,7 +305,7 @@ static int stress_dirdeep(const args_t *args)
 		args->name, inodes_avail, inodes_avail - inodes_target_free);
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
-	stress_dir_make(args, linkpath, path, path_len, sizeof(path),
+	stress_dirdeep_make(args, linkpath, path, path_len, sizeof(path),
 		dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
 	do {
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
