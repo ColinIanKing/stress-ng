@@ -43,6 +43,30 @@ int stress_set_dir_dirs(const char *opt)
 #endif
 
 /*
+ *  stress_dir_sync()
+ *	attempt to sync a directory
+ */
+static void stress_dir_sync(const char *path)
+{
+#if defined(O_DIRECTORY)
+	int fd;
+
+	fd = open(path, O_RDONLY | O_DIRECTORY);
+	if (fd < 0)
+		return;
+
+	/*
+	 *  The interesting part of fsync is that in
+	 *  theory we can fsync a read only file and
+	 *  this could be a directory too. So try and
+	 *  sync.
+	 */
+	(void)shim_fsync(fd);
+	(void)close(fd);
+#endif
+}
+
+/*
  *  stress_dir_read()
  *	read all dentries
  */
@@ -127,8 +151,10 @@ static int stress_dir(const args_t *args)
 
 			inc_counter(args);
 		}
+		stress_dir_sync(dirname);
 		stress_dir_read(args, dirname);
 		stress_dir_tidy(args, n);
+		stress_dir_sync(dirname);
 		if (!g_keep_stressing_flag)
 			break;
 		sync();
