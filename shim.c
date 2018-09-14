@@ -1145,3 +1145,25 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
 	return (s - src) + tmplen;
 #endif
 }
+
+/*
+ *  shim_fsync
+ *	wrapper for fsync
+ */
+int shim_fsync(int fd)
+{
+#if defined(__APPLE__) && defined(F_FULLFSYNC)
+	int ret;
+
+	/*
+	 *  For APPLE Mac OS X try to use the full fsync fcntl
+	 *  first and then fall back to a potential no-op'd fsync
+	 *  implementation.
+	 */
+	ret = fcntl(fd, F_FULLFSYNC, NULL);
+	if (ret == 0)
+		return 0;
+#endif
+	return fsync(fd);
+}
+

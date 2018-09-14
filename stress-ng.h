@@ -3030,6 +3030,7 @@ extern int shim_brk(void *addr);
 extern void *shim_sbrk(intptr_t increment);
 extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
+extern int shim_fsync(int fd);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 
