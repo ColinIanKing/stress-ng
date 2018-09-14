@@ -149,7 +149,7 @@ static ssize_t stress_revio_write(
 
 #if defined(HAVE_FSYNC)
 	if (revio_flags & REVIO_OPT_FSYNC)
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 #endif
 #if defined(HAVE_FDATASYNC)
 	if (revio_flags & REVIO_OPT_FDATASYNC)

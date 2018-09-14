@@ -850,7 +850,7 @@ static inline void stress_dev_rw(
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
 
-		ret = fsync(fd);
+		ret = shim_fsync(fd);
 		(void)ret;
 
 		for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {

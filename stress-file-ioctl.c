@@ -94,7 +94,7 @@ static int stress_file_ioctl(const args_t *args)
 #if defined(FICLONE) || defined(FICLONERANGE)
 	(void)shim_fallocate(dfd, 0, 0, file_sz);
 #endif
-	(void)fsync(fd);
+	(void)shim_fsync(fd);
 
 	do {
 		int exercised = 0;

@@ -95,7 +95,7 @@ static int stress_fallocate(const args_t *args)
 		ret = posix_fallocate(fd, (off_t)0, fallocate_bytes);
 		if (!g_keep_stressing_flag)
 			break;
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			struct stat buf;
 
@@ -113,7 +113,7 @@ static int stress_fallocate(const args_t *args)
 			ftrunc_errs++;
 		if (!g_keep_stressing_flag)
 			break;
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
@@ -129,10 +129,10 @@ static int stress_fallocate(const args_t *args)
 
 		if (ftruncate(fd, fallocate_bytes) < 0)
 			ftrunc_errs++;
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 
 		if (SIZEOF_ARRAY(modes) > 1) {
 			/*
@@ -142,7 +142,7 @@ static int stress_fallocate(const args_t *args)
 			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 			if (!g_keep_stressing_flag)
 				break;
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 
 			for (i = 0; i < 64; i++) {
 				off_t offset = (mwc64() % fallocate_bytes) & ~0xfff;
@@ -151,11 +151,11 @@ static int stress_fallocate(const args_t *args)
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!g_keep_stressing_flag)
 					break;
-				(void)fsync(fd);
+				(void)shim_fsync(fd);
 			}
 			if (ftruncate(fd, 0) < 0)
 				ftrunc_errs++;
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 		}
 		inc_counter(args);
 	} while (keep_stressing());

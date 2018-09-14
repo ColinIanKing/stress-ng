@@ -177,7 +177,7 @@ static int stress_shm_posix_child(
 			}
 			(void)madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
-			(void)fsync(shm_fd);
+			(void)shim_fsync(shm_fd);
 
 			/* Expand and shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
@@ -187,7 +187,7 @@ static int stress_shm_posix_child(
 			ret = ftruncate(shm_fd, sz);
 			if (ret < 0)
 				pr_fail("%s: ftruncate of shared memory failed\n", args->name);
-			(void)fsync(shm_fd);
+			(void)shim_fsync(shm_fd);
 
 			/* fstat shared memory */
 			ret = fstat(shm_fd, &statbuf);

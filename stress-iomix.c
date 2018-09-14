@@ -303,7 +303,7 @@ static void stress_iomix_sync(
 	do {
 		struct timeval tv;
 
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 		if (!keep_stressing())
 			break;
 		inc_counter(args);

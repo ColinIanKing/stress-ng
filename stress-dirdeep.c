@@ -189,7 +189,7 @@ static void stress_dir_exercise(
 					(void)sync();
 #endif
 				} else if (rnd > 0xff40) {
-					(void)fsync(fd);
+					(void)shim_fsync(fd);
 				}
 				(void)close(fd);
 			}

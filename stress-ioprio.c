@@ -108,7 +108,7 @@ static int stress_ioprio(const args_t *args)
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 
 		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
@@ -126,7 +126,7 @@ static int stress_ioprio(const args_t *args)
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 
 		for (i = 0; i < 8; i++) {
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
@@ -144,7 +144,7 @@ static int stress_ioprio(const args_t *args)
 				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 		}
 		for (i = 0; i < 8; i++) {
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
@@ -162,7 +162,7 @@ static int stress_ioprio(const args_t *args)
 				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 		}
 		inc_counter(args);
 	} while (keep_stressing());

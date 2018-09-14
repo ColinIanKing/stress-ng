@@ -75,7 +75,7 @@ static int stress_copy_file(const args_t *args)
 		pr_fail_err("ftruncate");
 		goto tidy_in;
 	}
-	if (fsync(fd_in) < 0) {
+	if (shim_fsync(fd_in) < 0) {
 		pr_fail_err("fsync");
 		goto tidy_in;
 	}
@@ -105,7 +105,7 @@ static int stress_copy_file(const args_t *args)
 			pr_fail_err("copy_file_range");
 			goto tidy_out;
 		}
-		(void)fsync(fd_out);
+		(void)shim_fsync(fd_out);
 		inc_counter(args);
 	} while (keep_stressing());
 	rc = EXIT_SUCCESS;

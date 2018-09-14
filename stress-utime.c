@@ -128,7 +128,7 @@ static int stress_utime(const args_t *args)
 #endif
 #endif
 		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 
 		utbuf.actime = (time_t)time_now();
 		utbuf.modtime = utbuf.actime;
@@ -145,7 +145,7 @@ static int stress_utime(const args_t *args)
 		}
 		/* forces metadata writeback */
 		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
-			(void)fsync(fd);
+			(void)shim_fsync(fd);
 		inc_counter(args);
 	} while (keep_stressing());
 

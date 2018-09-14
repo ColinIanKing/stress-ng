@@ -186,7 +186,7 @@ static ssize_t stress_hdd_write(
 
 #if defined(HAVE_FSYNC)
 	if (hdd_flags & HDD_OPT_FSYNC)
-		(void)fsync(fd);
+		(void)shim_fsync(fd);
 #endif
 #if defined(HAVE_FDATASYNC)
 	if (hdd_flags & HDD_OPT_FDATASYNC)
