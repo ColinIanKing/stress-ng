@@ -1413,6 +1413,7 @@ typedef enum {
 	STRESS_personality,
 	STRESS_physpage,
 	STRESS_pipe,
+	STRESS_pkey,
 	STRESS_poll,
 	STRESS_prctl,
 	STRESS_procfs,
@@ -2000,6 +2001,9 @@ typedef enum {
 	OPT_pipe_ops,
 	OPT_pipe_size,
 	OPT_pipe_data_size,
+
+	OPT_pkey,
+	OPT_pkey_ops,
 
 	OPT_poll_ops,
 
@@ -3155,6 +3159,7 @@ STRESS(stress_open);
 STRESS(stress_personality);
 STRESS(stress_physpage);
 STRESS(stress_pipe);
+STRESS(stress_pkey);
 STRESS(stress_poll);
 STRESS(stress_prctl);
 STRESS(stress_procfs);

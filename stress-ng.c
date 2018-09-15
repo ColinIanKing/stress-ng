@@ -433,6 +433,7 @@ static const stress_t stressors[] = {
 	STRESSOR(personality),
 	STRESSOR(physpage),
 	STRESSOR(pipe),
+	STRESSOR(pkey),
 	STRESSOR(poll),
 	STRESSOR(prctl),
 	STRESSOR(procfs),
@@ -897,6 +898,8 @@ static const struct option long_options[] = {
 #if defined(F_SETPIPE_SZ)
 	{ "pipe-size",	1,	0,	OPT_pipe_size },
 #endif
+	{ "pkey",	1,	0,	OPT_pkey },
+	{ "pkey-ops",	1,	0,	OPT_pkey_ops },
 	{ "poll",	1,	0,	OPT_poll },
 	{ "poll-ops",	1,	0,	OPT_poll_ops },
 	{ "prctl",	1,	0,	OPT_prctl },
@@ -1533,6 +1536,8 @@ static const help_t help_stressors[] = {
 #if defined(F_SETPIPE_SZ)
 	{ NULL,		"pipe-size N",		"set pipe size to N bytes" },
 #endif
+	{ NULL,		"pkey",			"start N workers exercising pkey_mprotect" },
+	{ NULL,		"pkey-ops",		"stop after N bogo pkey_mprotect bogo operations" },
 	{ "P N",	"poll N",		"start N workers exercising zero timeout polling" },
 	{ NULL,		"poll-ops N",		"stop after N poll bogo operations" },
 	{ NULL,		"prctl N",		"start N workers exercising prctl(2)" },

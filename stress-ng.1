@@ -2330,6 +2330,17 @@ to fill and block more frequently, hence increasing the context switch rate
 between the pipe writer and the pipe reader processes. Default size is 512
 bytes.
 .TP
+.B \-\-pkey N
+start N workers that change memory protection using a protection key (pkey) and
+the pkey_mprotect call (Linux only). This will try to allocate a pkey and
+use this for the page protection, however, if this fails then the special
+pkey -1 will be used (and the kernel will use the normal mprotect mechanism
+instead).  Various page protection mixes of read/write/exec/none will
+be cycled through on randomly chosen pre-allocated pages.
+.TP
+.B \-\-pkey\-ops N
+stop after N pkey_mprotect page protection cycles.
+.TP
 .B \-P N, \-\-poll N
 start N workers that perform zero timeout polling via the poll(2), select(2)
 and sleep(3) calls. This wastes system and user time doing nothing.
