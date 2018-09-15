@@ -850,8 +850,14 @@ static const long skip_syscalls[] = {
 #if defined(SYS_pkey_free)
 	SYS_pkey_free,
 #endif
+#if defined(SYS_pkey_get)
+	SYS_pkey_get,
+#endif
 #if defined(SYS_pkey_mprotect)
 	SYS_pkey_mprotect,
+#endif
+#if defined(SYS_pkey_set)
+	SYS_pkey_set,
 #endif
 #if defined(SYS_poll)
 	SYS_poll,
@@ -2265,8 +2271,14 @@ static const long skip_syscalls[] = {
 #if defined(__NR_pkey_free)
 	__NR_pkey_free,
 #endif
+#if defined(__NR_pkey_get)
+	__NR_pkey_get,
+#endif
 #if defined(__NR_pkey_mprotect)
 	__NR_pkey_mprotect,
+#endif
+#if defined(__NR_pkey_set)
+	__NR_pkey_set,
 #endif
 #if defined(__NR_poll)
 	__NR_poll,
