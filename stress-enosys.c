@@ -961,6 +961,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_rmdir)
 	SYS_rmdir,
 #endif
+#if defined(SYS_rseq)
+	SYS_rseq,
+#endif
 #if defined(SYS_rt_sigaction)
 	SYS_rt_sigaction,
 #endif
@@ -2402,6 +2405,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_rmdir)
 	__NR_rmdir,
+#endif
+#if defined(__NR_rseq)
+	__NR_rseq,
 #endif
 #if defined(__NR_rtas)
 	__NR_rtas,
