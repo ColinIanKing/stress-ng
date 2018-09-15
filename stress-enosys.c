@@ -592,6 +592,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_io_getevents)
 	SYS_io_getevents,
 #endif
+#if defined(SYS_io_pgetevents)
+	SYS_io_pgetevents,
+#endif
 #if defined(SYS_ioperm)
 	SYS_ioperm,
 #endif
@@ -1910,6 +1913,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_io_getevents)
 	__NR_io_getevents,
+#endif
+#if defined(__NR_io_pgetevents)
+	__NR_io_pgetevents,
 #endif
 #if defined(__NR_ioperm)
 	__NR_ioperm,
