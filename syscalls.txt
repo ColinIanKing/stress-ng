@@ -182,6 +182,11 @@ personality			personality
 pipe				pipe, switch, etc
 pipe2				pipe
 pivot_root			[ need privilege, ignore for now ]
+pkey_alloc			pkey
+pkey_free			pkey
+pkey_get			pkey
+pkey_mprotect			pkey
+pkey_set			pkey
 poll				poll
 posix_fallocate			fallocate
 ppoll				poll
@@ -212,9 +217,9 @@ recvmsg				socket-fd
 recvmmsg
 remap_file_pages		remap
 removexattr
-rename				rename
-renameat
-renameat2
+rename				rename	
+renameat			rename
+renameat2			rename
 request_key			key
 restart_syscall			[ ignore this ]
 rmdir				dir
