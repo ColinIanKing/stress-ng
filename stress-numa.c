@@ -73,7 +73,7 @@ static unsigned long stress_numa_get_max_nodes(void)
 		if (shim_get_mempolicy(&mode, mask, sz, 0, 0) == 0)
 			goto done;
 		sz <<= 1;
-	} while (sz < 0x100000 && errno == EINVAL);
+	} while ((sz < 0x100000) && (errno == EINVAL));
 
 	/* Failed */
 	sz = 0;
