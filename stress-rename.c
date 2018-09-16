@@ -107,14 +107,47 @@ restart:
 				(void)unlink(newname);
 				goto restart;
 			}
+			(void)shim_fsync(oldfd);
+			(void)close(oldfd);
 			tmpname = oldname;
 			oldname = newname;
 			newname = tmpname;
+
+			inc_counter(args);
+			if (!keep_stressing())
+				break;
 		}
 #endif
-		inc_counter(args);
-		if (!keep_stressing())
-			break;
+
+#if defined(HAVE_RENAMEAT2) && defined(O_DIRECTORY) && defined(RENAME_NOREPLACE)
+		{
+			int oldfd;
+
+			(void)stress_temp_filename(newname, PATH_MAX,
+				args->name, args->pid, inst1, i++);
+
+			oldfd = open(".", O_RDONLY | O_DIRECTORY);
+			if (oldfd < 0) {
+				(void)unlink(oldname);
+				(void)unlink(newname);
+				goto restart;
+			}
+			if (renameat2(oldfd, oldname, AT_FDCWD, newname, RENAME_NOREPLACE) < 0) {
+				(void)close(oldfd);
+				(void)unlink(oldname);
+				(void)unlink(newname);
+				goto restart;
+			}
+			(void)close(oldfd);
+			tmpname = oldname;
+			oldname = newname;
+			newname = tmpname;
+
+			inc_counter(args);
+			if (!keep_stressing())
+				break;
+		}
+#endif
 	}
 
 	(void)unlink(oldname);
