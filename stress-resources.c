@@ -101,6 +101,9 @@ typedef struct {
 	mqd_t mq;
 	char mq_name[64];
 #endif
+#if defined(__linux__) && defined(__NR_pkey_alloc)
+	int pkey;
+#endif
 } info_t;
 
 static pid_t pids[RESOURCE_FORKS];
@@ -327,6 +330,9 @@ static void NORETURN waste_resources(
 		info[i].mq = mq_open(info[i].mq_name,
 			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
 #endif
+#if defined(__linux__) && defined(__NR_pkey_alloc)
+		info[i].pkey = shim_pkey_alloc(0, 0);
+#endif
 	}
 
 	n = i;
@@ -411,6 +417,10 @@ static void NORETURN waste_resources(
 			(void)mq_close(info[i].mq);
 			(void)mq_unlink(info[i].mq_name);
 		}
+#endif
+#if defined(__linux__) && defined(__NR_pkey_alloc)
+		if (info[i].pkey > -1)
+			 (void)shim_pkey_free(info[i].pkey);
 #endif
 	}
 	_exit(0);
