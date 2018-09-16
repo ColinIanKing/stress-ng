@@ -31,16 +31,16 @@
 
 /* Urgh, should be from linux/kcmp.h */
 enum {
-	KCMP_FILE,
-	KCMP_VM,
-	KCMP_FILES,
-	KCMP_FS,
-	KCMP_SIGHAND,
-	KCMP_IO,
-	KCMP_SYSVSEM,
-	KCMP_EPOLL_TFD,
+	SHIM_KCMP_FILE,
+	SHIM_KCMP_VM,
+	SHIM_KCMP_FILES,
+	SHIM_KCMP_FS,
+	SHIM_KCMP_SIGHAND,
+	SHIM_KCMP_IO,
+	SHIM_KCMP_SYSVSEM,
+	SHIM_KCMP_EPOLL_TFD,
 
-	KCMP_TYPES,
+	SHIM_KCMP_TYPES,
 };
 
 /* Slot for KCMP_EPOLL_TFD */
@@ -205,62 +205,62 @@ again:
 		do {
 			struct kcmp_epoll_slot slot;
 
-			KCMP(pid1, pid2, KCMP_FILE, fd1, fd2);
-			KCMP(pid1, pid1, KCMP_FILE, fd1, fd1);
-			KCMP(pid2, pid2, KCMP_FILE, fd1, fd1);
-			KCMP(pid2, pid2, KCMP_FILE, fd2, fd2);
+			KCMP(pid1, pid2, SHIM_KCMP_FILE, fd1, fd2);
+			KCMP(pid1, pid1, SHIM_KCMP_FILE, fd1, fd1);
+			KCMP(pid2, pid2, SHIM_KCMP_FILE, fd1, fd1);
+			KCMP(pid2, pid2, SHIM_KCMP_FILE, fd2, fd2);
 
-			KCMP(pid1, pid2, KCMP_FILES, 0, 0);
-			KCMP(pid1, pid1, KCMP_FILES, 0, 0);
-			KCMP(pid2, pid2, KCMP_FILES, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_FILES, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_FILES, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_FILES, 0, 0);
 
-			KCMP(pid1, pid2, KCMP_FS, 0, 0);
-			KCMP(pid1, pid1, KCMP_FS, 0, 0);
-			KCMP(pid2, pid2, KCMP_FS, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_FS, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_FS, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_FS, 0, 0);
 
-			KCMP(pid1, pid2, KCMP_IO, 0, 0);
-			KCMP(pid1, pid1, KCMP_IO, 0, 0);
-			KCMP(pid2, pid2, KCMP_IO, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_IO, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_IO, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_IO, 0, 0);
 
-			KCMP(pid1, pid2, KCMP_SIGHAND, 0, 0);
-			KCMP(pid1, pid1, KCMP_SIGHAND, 0, 0);
-			KCMP(pid2, pid2, KCMP_SIGHAND, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_SIGHAND, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_SIGHAND, 0, 0);
 
-			KCMP(pid1, pid2, KCMP_SYSVSEM, 0, 0);
-			KCMP(pid1, pid1, KCMP_SYSVSEM, 0, 0);
-			KCMP(pid2, pid2, KCMP_SYSVSEM, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_SYSVSEM, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_SYSVSEM, 0, 0);
 
-			KCMP(pid1, pid2, KCMP_VM, 0, 0);
-			KCMP(pid1, pid1, KCMP_VM, 0, 0);
-			KCMP(pid2, pid2, KCMP_VM, 0, 0);
+			KCMP(pid1, pid2, SHIM_KCMP_VM, 0, 0);
+			KCMP(pid1, pid1, SHIM_KCMP_VM, 0, 0);
+			KCMP(pid2, pid2, SHIM_KCMP_VM, 0, 0);
 
 #if NEED_GLIBC(2,3,2)
 			if (efd != -1) {
 				slot.efd = efd;
 				slot.tfd = sfd;
 				slot.toff = 0;
-				KCMP(pid1, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
-				KCMP(pid2, pid1, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
-				KCMP(pid2, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid2, pid1, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+				KCMP(pid2, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
 			}
 #endif
 
 			/* Same simple checks */
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				KCMP_VERIFY(pid1, pid1, KCMP_FILE, fd1, fd1, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_FILES, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_FS, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_IO, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_SIGHAND, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_SYSVSEM, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid1, KCMP_VM, 0, 0, 0);
-				KCMP_VERIFY(pid1, pid2, KCMP_SYSVSEM, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FILE, fd1, fd1, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FILES, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_FS, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_IO, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_SIGHAND, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_SYSVSEM, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_VM, 0, 0, 0);
+				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 #if NEED_GLIBC(2,3,2)
 				if (efd != -1) {
 					slot.efd = efd;
 					slot.tfd = sfd;
 					slot.toff = 0;
-					KCMP(pid1, pid2, KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
+					KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
 				}
 #endif
 			}
