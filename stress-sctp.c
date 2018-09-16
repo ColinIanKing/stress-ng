@@ -136,8 +136,9 @@ retry:
 		do {
 			int flags;
 			struct sctp_sndrcvinfo sndrcvinfo;
+			ssize_t n;
 
-			ssize_t n = sctp_recvmsg(fd, buf, sizeof(buf),
+			n = sctp_recvmsg(fd, buf, sizeof(buf),
 				NULL, 0, &sndrcvinfo, &flags);
 			if (n <= 0)
 				break;
