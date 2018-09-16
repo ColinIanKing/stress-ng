@@ -3035,6 +3035,11 @@ extern void *shim_sbrk(intptr_t increment);
 extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 extern int shim_fsync(int fd);
+extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
+extern int shim_pkey_free(int pkey);
+extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
+extern int shim_pkey_get(int pkey);
+extern int shim_pkey_set(int pkey, unsigned int rights);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 

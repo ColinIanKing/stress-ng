@@ -1167,3 +1167,87 @@ int shim_fsync(int fd)
 	return fsync(fd);
 }
 
+/*
+ *   shim_pkey_alloc()
+ *	wrapper for pkey_alloc()
+ */
+int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
+{
+#if defined(__NR_pkey_alloc)
+	return syscall(__NR_pkey_alloc, flags, access_rights);
+#else
+	(void)flags;
+	(void)access_rights;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *   shim_pkey_free()
+ *	wrapper for pkey_free()
+ */
+int shim_pkey_free(int pkey)
+{
+#if defined(__NR_pkey_free)
+	return syscall(__NR_pkey_free, pkey);
+#else
+	(void)pkey;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *   shim_pkey_mprotect()
+ *	wrapper for pkey_mprotect()
+ */
+int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
+{
+#if defined(__NR_pkey_mprotect)
+	return syscall(__NR_pkey_mprotect, addr, len, prot, pkey);
+#else
+	(void)addr;
+	(void)len;
+	(void)prot;
+	(void)pkey;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *   shim_pkey_get()
+ *	wrapper for pkey_get()
+ */
+int shim_pkey_get(int pkey)
+{
+#if defined(__NR_pkey_get)
+	return syscall(__NR_pkey_get, pkey);
+#else
+	(void)pkey;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+
+/*
+ *   shim_pkey_set()
+ *	wrapper for pkey_set()
+ */
+int shim_pkey_set(int pkey, unsigned int rights)
+{
+#if defined(__NR_pkey_set)
+	return syscall(__NR_pkey_set, pkey, rights);
+#else
+	(void)pkey;
+	(void)rights;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
