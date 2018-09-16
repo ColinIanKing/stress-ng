@@ -29,7 +29,7 @@
 typedef float	matrix_type_t;
 
 /*
- *  the CPU stress test has different classes of cpu stressor
+ *  the matrix stress test has different classes of maxtrix stressor
  */
 typedef void (*stress_matrix_func)(
 	const size_t n,
