@@ -87,8 +87,7 @@ static int do_quotactl(
 		}
 		if (errno == ENOSYS) {
 			(*enosys)++;
-		}
-		else {
+		} else {
 			(*failed)++;
 			pr_fail("%s: quotactl command %s on %s failed: errno=%d (%s)\n",
 				args->name, cmdname, special, errno, strerror(errno));
