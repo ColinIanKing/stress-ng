@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_DL)
+#if defined(HAVE_LIB_DL) && !defined(BUILD_STATIC)
 
 static sigjmp_buf jmp_env;
 
