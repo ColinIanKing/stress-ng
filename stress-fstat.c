@@ -43,10 +43,10 @@ static const char *blacklist[] = {
 
 /* stat path information */
 typedef struct stat_info {
+	struct stat_info *next;		/* next stat_info in list */
 	char		*path;		/* path to stat */
 	uint16_t	ignore;		/* true to ignore this path */
 	bool		access;		/* false if we can't access path */
-	struct stat_info *next;		/* next stat_info in list */
 } stat_info_t;
 
 /* Thread context information */

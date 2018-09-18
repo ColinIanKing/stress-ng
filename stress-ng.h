@@ -2389,23 +2389,23 @@ typedef enum cache_type {
 
 /* CPU cache information */
 typedef struct cpu_cache {
-	uint16_t           level;	/* cache level, L1, L2 etc */
-	cache_type_t       type;	/* cache type */
 	uint64_t           size;      	/* cache size in bytes */
 	uint32_t           line_size;	/* cache line size in bytes */
 	uint32_t           ways;	/* cache ways */
+	cache_type_t       type;	/* cache type */
+	uint16_t           level;	/* cache level, L1, L2 etc */
 } cpu_cache_t;
 
 typedef struct cpu {
-	uint32_t       num;		/* CPU # number */
-	bool           online;		/* CPU online when true */
-	uint32_t       cache_count;	/* CPU cache #  */
 	cpu_cache_t   *caches;		/* CPU cache data */
+	uint32_t       num;		/* CPU # number */
+	uint32_t       cache_count;	/* CPU cache #  */
+	bool           online;		/* CPU online when true */
 } cpu_t;
 
 typedef struct cpus {
-	uint32_t   count;		/* CPU count */
 	cpu_t     *cpus;		/* CPU data */
+	uint32_t   count;		/* CPU count */
 } cpus_t;
 #endif
 

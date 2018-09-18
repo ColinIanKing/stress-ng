@@ -44,8 +44,8 @@ static char dummy_path[] = "/sys/kernel/notes";
 typedef struct ctxt {
 	const args_t *args;		/* stressor args */
 	char *badbuf;			/* bad mapping for I/O buffer */
-	bool writeable;			/* is sysfs writeable? */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
+	bool writeable;			/* is sysfs writeable? */
 } ctxt_t;
 
 static void MLOCKED_TEXT stress_segv_handler(int dummy)

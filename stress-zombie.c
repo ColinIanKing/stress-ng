@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 typedef struct zombie {
-	pid_t	pid;
 	struct zombie *next;
+	pid_t	pid;
 } zombie_t;
 
 typedef struct {

@@ -32,10 +32,10 @@
 #define LOCK_MAX	(1024)
 
 typedef struct locka_info {
+	struct locka_info *next;
 	off_t	offset;
 	off_t	len;
 	pid_t	pid;
-	struct locka_info *next;
 } locka_info_t;
 
 typedef struct {

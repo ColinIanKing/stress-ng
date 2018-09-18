@@ -51,8 +51,8 @@
 #define MMAP_SZ			(4 * MB)
 
 typedef struct node {
-	uint32_t	node_id;
 	struct node	*next;
+	uint32_t	node_id;
 } node_t;
 
 /*

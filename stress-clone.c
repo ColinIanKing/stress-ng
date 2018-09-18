@@ -27,8 +27,8 @@
 #define CLONE_STACK_SIZE	(16*1024)
 
 typedef struct clone {
-	pid_t	pid;
 	struct clone *next;
+	pid_t	pid;
 	char stack[CLONE_STACK_SIZE];
 } clone_t;
 
