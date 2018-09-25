@@ -2529,9 +2529,6 @@ again:
 					}
 					pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
-#if defined(STRESS_THERMAL_ZONES)
-					tz_free(&g_shared->tz_info);
-#endif
 
 child_exit:
 					free_procs();
