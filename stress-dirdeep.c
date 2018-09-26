@@ -75,6 +75,8 @@ static void stress_dirdeep_sync(const char *path)
 	 */
 	(void)shim_fsync(fd);
 	(void)close(fd);
+#else
+	(void)path;
 #endif
 }
 
