@@ -28,9 +28,9 @@
 #include <sys/sysinfo.h>
 #include <utime.h>
 #include <sys/vfs.h>
+#endif
 #if defined(HAVE_USTAT)
 #include <ustat.h>
-#endif
 #endif
 
 #include <poll.h>
