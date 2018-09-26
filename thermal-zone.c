@@ -163,10 +163,10 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 
 				temp = pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
-				if (temp > 250000)
-					temp = 0;
-				total += temp;
-				count++;
+				if (temp <= 250000) {
+					total += temp;
+					count++;
+				}
 			}
 
 			if (total) {
