@@ -1,3 +1,38 @@
+stress-ng (0.09.41-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dirdeep: clean up warning if O_DIRECTORY is not defined
+  * stress-dir: clean up warning if O_DIRECTORY is not defined
+  * stress-sysbadaddr: move ustat include to fix kfreeBSD build warnings
+  * Manual: update date
+  * Manual: update contributors list
+  * Fixed thermal zone use after free bug in multi-process test.
+  * thermal-zone: don't accumulate insane temperatures
+  * stress-*: make sure structs are packed more efficiently
+  * stress-dynlib: don't use if building a static image
+  * stress-quota: keep if/else codestyle consistent
+  * stress-sctp: break up declaration + assignment
+  * stress-resources: add pkey alloc/free resource consumer
+  * stress-numa: add in extra brackets to match coding style
+  * stress-matrix: fix comment, not cpu stressor but matrix stressor
+  * stress-kcmp: prefix kcmp consts with SHIM_ to avoid name clashes
+  * syscalls.txt: add pkey_* and renameat* syscalls
+  * stress-rename: use renameat2 system call if available
+  * stress-rename: use renameat system call if available
+  * Add autoconfig detection of renameat system call
+  * Add autoconfig detection of renameat2 system call
+  * Move pkey shims to shim.c
+  * stress-pkey: add pkey memory protection thrash stress test
+  * stress-enosys: add pket_get and pkey_set
+  * stress-enosys: Add io_pgetevents
+  * stress-enosys: add rseq system call
+  * stress-dirdeep: add directory data sync'ing for more stress
+  * stress-dir: add directory data sync'ing for more stress
+  * stress-*: replace fsync with shim_fsync
+  * Add shim helper for fsync, helps with no-op OS X fsync
+
+ -- Colin King <colin.king@canonical.com>  Wed, 26 Sep 2018 12:00:01 +0100
+
 stress-ng (0.09.40-1) unstable; urgency=medium
 
   * Makefile: bump version
