@@ -63,6 +63,8 @@ static void stress_dir_sync(const char *path)
 	 */
 	(void)shim_fsync(fd);
 	(void)close(fd);
+#else
+	(void)path;
 #endif
 }
 
