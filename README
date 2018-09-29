@@ -81,3 +81,7 @@ To build with full warnings enabled:
 	PEDANTIC=1 make
 
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
+
+I am keen to add to the stress-ng project page any citations to research or
+projects that use stress-ng.  I also appreciate information concerning kernel
+bugs or performance regressions found with stress-ng.
