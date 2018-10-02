@@ -312,7 +312,7 @@ static int stress_pthread(const args_t *args)
 reap:
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j].pthread, NULL);
-			if (ret) {
+			if ((ret) && (ret != ESRCH)) {
 				pr_fail_errno("pthread join", ret);
 				ok = false;
 			}
