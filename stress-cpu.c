@@ -67,7 +67,7 @@
 #define logl	log
 #endif
 
-#if !defined(HAVE_EXPL)
+#if !defined(HAVE_EXPL) || defined(__HAIKU__)
 #define expl	exp
 #endif
 
