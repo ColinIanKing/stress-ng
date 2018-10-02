@@ -124,7 +124,11 @@ static int stress_chroot_test3(const args_t *args)
 
 	do_chroot(longpath, &ret1, &ret2, &errno1, &errno2);
 
+#if defined(__HAIKU__)
+	if ((ret1 >= 0) || (errno1 != EINVAL))  {
+#else
 	if ((ret1 >= 0) || (errno1 != ENAMETOOLONG))  {
+#endif
 		pr_fail("%s: chroot(\"<very long path>\"), expected "
 			"ENAMETOOLONG, got instead errno=%d (%s)\n",
 			args->name, errno1, strerror(errno1));
@@ -167,7 +171,7 @@ static int stress_chroot_test5(const args_t *args)
 	 * so ignore this error
 	 */
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) && (errno1 != ENOENT)))  {
-		pr_fail("%s: chroot(%s), expected ENOTDIR"
+		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			args->name, filename, errno1, strerror(errno1));
 		return EXIT_SUCCESS;
