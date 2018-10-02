@@ -128,7 +128,10 @@ static int stress_get(const args_t *args)
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
 		size_t i;
-		struct timeval delta, tv;
+#if defined(HAVE_ADJTIME)
+		struct timeval delta;
+#endif
+		struct timeval tv;
 		time_t t;
 		pid_t pid;
 		gid_t gid;
@@ -313,10 +316,13 @@ static int stress_get(const args_t *args)
 				pr_fail_err("adjtimex");
 		}
 #endif
+
+#if defined(HAVE_ADJTIME)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (is_root && verify && (ret < 0))
 			pr_fail_err("adjtime");
+#endif
 
 		/* Get number of file system types */
 		n = shim_sysfs(3);
