@@ -45,7 +45,9 @@ static void MLOCKED_TEXT stress_segvhandler(int dummy)
  */
 static int stress_fault(const args_t *args)
 {
+#if !defined(__HAIKU__)
 	struct rusage usage;
+#endif
 	char filename[PATH_MAX];
 	int ret;
 	NOCLOBBER int i;
