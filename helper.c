@@ -640,7 +640,7 @@ void stress_cwd_readwriteable(void)
 const char *stress_strsignal(const int signum)
 {
 	static char buffer[128];
-	char *str = NULL;
+	const char *str = NULL;
 
 #if defined(NSIG)
 	if ((signum >= 0) && (signum < NSIG))
