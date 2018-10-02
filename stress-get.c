@@ -118,7 +118,9 @@ static const int priorities[] = {
 static int stress_get(const args_t *args)
 {
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+#if defined(HAVE_ADJTIMEX) && defined(HAVE_ADJTIME)
 	const bool is_root = (geteuid() == 0);
+#endif
 
 	do {
 		char path[PATH_MAX];
