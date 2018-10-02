@@ -52,6 +52,15 @@ static const int rusages[] = {
 #endif
 };
 
+/*
+ *  The folloowing produce -EINVAL for Haiku, so
+ *  disable them
+ */
+#if defined(__HAIKU__)
+#undef RLIMIT_CPU
+#undef RLIMIT_FSIZE
+#endif
+
 static const int rlimits[] = {
 #if defined(RLIMIT_AS)
 	RLIMIT_AS,
