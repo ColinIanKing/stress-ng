@@ -128,6 +128,7 @@ abort:
 	return rc;
 }
 
+#if !defined(__HAIKU__)
 /*
  *  stress_link
  *	stress hard links
@@ -136,6 +137,7 @@ static int stress_link(const args_t *args)
 {
 	return stress_link_generic(args, link, "link");
 }
+#endif
 
 /*
  *  stress_symlink
@@ -146,10 +148,17 @@ static int stress_symlink(const args_t *args)
 	return stress_link_generic(args, symlink, "symlink");
 }
 
+#if !defined(__HAIKU__)
 stressor_info_t stress_link_info = {
 	.stressor = stress_link,
 	.class = CLASS_FILESYSTEM | CLASS_OS
 };
+#else
+stressor_info_t stress_link_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS
+};
+#endif
 
 stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
