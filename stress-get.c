@@ -178,6 +178,7 @@ static int stress_get(const args_t *args)
 		check_do_run();
 #endif
 
+#if defined(HAVE_GETPRIORITY)
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
@@ -185,6 +186,7 @@ static int stress_get(const args_t *args)
 				pr_fail_err("getpriority");
 			check_do_run();
 		}
+#endif
 
 #if defined(HAVE_GETRESGID)
 		{
