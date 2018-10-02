@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_NICE) || defined(HAVE_SETPRIORITY)
+
 static void stress_nice_delay(void)
 {
 	double start = time_now();
@@ -114,3 +116,10 @@ stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
 	.class = CLASS_SCHEDULER | CLASS_OS
 };
+
+#else
+stressor_info_t stress_nice_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
+};
+#endif
