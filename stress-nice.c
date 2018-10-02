@@ -24,12 +24,22 @@
  */
 #include "stress-ng.h"
 
+static void stress_nice_delay(void)
+{
+	double start = time_now();
+	double delay = 0.05 + (double)mwc16() / 327680.0;
+
+	while (time_now() - start < delay)
+		(void)shim_sched_yield();
+}
+
 /*
  *  stress on sched_nice()
  *	stress system by sched_nice
  */
 static int stress_nice(const args_t *args)
 {
+#if defined(HAVE_SETPRIORITY)
 	int max_prio, min_prio;
 
 #if defined(RLIMIT_NICE)
@@ -50,6 +60,7 @@ static int stress_nice(const args_t *args)
 	max_prio = 20;
 	min_prio = -20;
 #endif
+#endif
 
 	do {
 		pid_t pid;
@@ -62,19 +73,25 @@ static int stress_nice(const args_t *args)
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
+#if defined(HAVE_SETPRIORITY)
 			pid = getpid();
 			for (i = min_prio; (i <= max_prio) && keep_stressing(); i++) {
 				errno = 0;
 				(void)setpriority(PRIO_PROCESS, pid, i);
-				if (!errno) {
-					double start = time_now();
-					double delay = 0.05 + (double)mwc16() / 327680.0;
-
-					while (time_now() - start < delay)
-						(void)shim_sched_yield();
-					inc_counter(args);
-				}
+				if (!errno)
+					stress_nice_delay();
+				inc_counter(args);
 			}
+#else
+			for (i = -19; i < 20; i++) {
+				int ret;
+
+				ret = nice(1);
+				if (ret == 0)
+					stress_nice_delay();
+				inc_counter(args);
+			}
+#endif
 			_exit(0);
 		}
 		if (pid > 0) {
