@@ -97,6 +97,7 @@ static const int rlimits[] = {
 #endif
 };
 
+#if defined(HAVE_GETPRIORITY)
 static const int priorities[] = {
 #if defined(PRIO_PROCESS)
 	PRIO_PROCESS,
@@ -108,6 +109,7 @@ static const int priorities[] = {
 	PRIO_USER
 #endif
 };
+#endif
 
 /*
  *  stress on get*() calls
