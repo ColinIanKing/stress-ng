@@ -344,7 +344,7 @@ endif
 
 stress-ng: $(OBJS)
 	@echo "LD $@"
-	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -lc -o $@
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
 	@sync
 
 makeconfig:
