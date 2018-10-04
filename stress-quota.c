@@ -277,10 +277,19 @@ static int stress_quota(const args_t *args)
 				}
 
 				ret = do_quotas(args, &devs[i]);
-				if (ret == ENOSYS)
+				switch (ret) {
+				case 0:
+					break;
+				case ENOSYS:
 					enosys++;
-				else if ((ret != 0) && (ret != EPERM))
+					break;
+				case EPERM:
+					goto abort;
+					break;
+				default:
 					failed++;
+					break;
+				}
 			}
 			inc_counter(args);
 
@@ -298,6 +307,7 @@ static int stress_quota(const args_t *args)
 				goto tidy;
 		} while (keep_stressing());
 	}
+abort:
 	rc = EXIT_SUCCESS;
 
 tidy:
