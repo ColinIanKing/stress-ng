@@ -1,3 +1,32 @@
+stress-ng (0.09.42-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-quota: abort early if we get EPERM errors (LP: #1796248)
+  * stress-get: fix check for HAVE_ADJTIMEX or HAVE_ADJTIME
+  * stress-pthread: work around broken pthread join that returns
+    ESRCH (LP: #1796249)
+  * stress-chroot: check for EINVAL for Haiku
+  * stress-link: disable link stressor for Haiku
+  * stress-get: disable a couple of rlimit types for Haiku
+  * stress-cpu: define expl as exp for Haiku as it's not yet defined
+  * Update README, add Haiku notes
+  * Makefile: add -lc for non-Haiku, and -lnetfork for Haiku
+  * helper: fix warnings on systems where strsignal returns const char *
+  * Add autodetection of nice
+  * Add autodetection of setpriority, fall back to using nice if we
+    don't have it
+  * stress-get: only declare is_root when required for adjtime* functions
+  * Add autodetection of adjtime
+  * stress-get: don't declare array priorities if getpriority does not
+    exist
+  * Add automatic detection of getpriority
+  * stress-fault: don't declare usage for Haiku
+  * stress-fault: don't print ruseage stats for Haiku
+  * stress-dev: disable for Haiku
+  * Add more info to README file
+
+ -- Colin King <colin.king@canonical.com>  Fri, 5 Oct 2018 10:29:34 +0100
+
 stress-ng (0.09.41-1) unstable; urgency=medium
 
   * Makefile: bump version
