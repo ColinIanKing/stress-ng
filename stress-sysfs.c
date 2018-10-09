@@ -24,6 +24,10 @@
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
+#if defined(HAVE_UNAME)
+#include <sys/utsname.h>
+#endif
+
 #define SYS_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)	/* threads stressing sysfs */
 #define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */
@@ -40,6 +44,7 @@ static volatile bool usr2_killed = false;
 static volatile uint32_t counter = 0;
 static sigjmp_buf jmp_env;
 static char dummy_path[] = "/sys/kernel/notes";
+static uint32_t os_release;
 
 typedef struct ctxt {
 	const args_t *args;		/* stressor args */
@@ -311,6 +316,13 @@ static bool stress_sys_skip(const char *path)
 	if (strstr(path, "virtio0/block") && strstr(path, "cache_type"))
 		return true;
 	 */
+
+	/*
+	 *  The tpm driver for pre Linux 4.10 is racey so skip
+	 */
+	if ((os_release < 410) && (strstr(path, "/sys/kernel/security/tpm0")))
+		return true;
+
 	return false;
 }
 
@@ -423,6 +435,21 @@ static int stress_sysfs(const args_t *args)
 	pthread_t pthreads[MAX_READ_THREADS];
 	int rc, ret[MAX_READ_THREADS];
 	ctxt_t ctxt;
+
+	os_release = 0;
+#if defined(HAVE_UNAME)
+	{
+		static struct utsname utsbuf;
+
+		rc = uname(&utsbuf);
+		if (rc == 0) {
+			uint16_t major, minor;
+
+			if (sscanf(utsbuf.release, "%5" SCNd16 ".%5" SCNd16, &major, &minor) == 2)
+				os_release = (major * 100) + minor;
+		}
+	}
+#endif
 
 	memset(&ctxt, 0, sizeof(ctxt));
 	rc = sigsetjmp(jmp_env, 1);
