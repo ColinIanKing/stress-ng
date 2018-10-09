@@ -145,13 +145,14 @@ STRESS_SRC = \
 	stress-kill.c \
 	stress-klog.c \
 	stress-lease.c \
-	stress-lsearch.c \
 	stress-link.c \
 	stress-lockbus.c \
 	stress-locka.c \
 	stress-lockf.c \
 	stress-lockofd.c \
 	stress-longjmp.c \
+	stress-loop.c \
+	stress-lsearch.c \
 	stress-madvise.c \
 	stress-malloc.c \
 	stress-matrix.c \

@@ -1378,6 +1378,7 @@ typedef enum {
 	STRESS_lockf,
 	STRESS_lockofd,
 	STRESS_longjmp,
+	STRESS_loop,
 	STRESS_lsearch,
 	STRESS_madvise,
 	STRESS_malloc,
@@ -1858,6 +1859,9 @@ typedef enum {
 
 	OPT_longjmp,
 	OPT_longjmp_ops,
+
+	OPT_loop,
+	OPT_loop_ops,
 
 	OPT_lsearch,
 	OPT_lsearch_ops,
@@ -3129,6 +3133,7 @@ STRESS(stress_locka);
 STRESS(stress_lockf);
 STRESS(stress_lockofd);
 STRESS(stress_longjmp);
+STRESS(stress_loop);
 STRESS(stress_lsearch);
 STRESS(stress_madvise);
 STRESS(stress_malloc);

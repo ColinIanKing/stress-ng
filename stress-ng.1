@@ -1785,6 +1785,14 @@ longjmp calls.
 stop longjmp stress workers after N bogo longjmp operations (1 bogo op is 1000
 longjmp calls).
 .TP
+.B \-\-loop N
+start N workers that exercise the loopback control device. This creates 2MB
+loopback devices, expands them to 4MB, performs some loopback status information
+get and set operations and then destoys them. Linux only.
+.TP
+.B \-\-loop\-ops N
+stop after N bogo loopback creation/deletion operations.
+.TP
 .B \-\-lsearch N
 start N workers that linear search a unsorted array of 32 bit integers using
 lsearch(3). By default, there are 8192 elements in the array.  This is a
