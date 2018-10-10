@@ -110,6 +110,7 @@ static int stress_loop(const args_t *args)
 		if (ret < 0)
 			goto close_loop;
 
+#if defined(LOOP_GET_STATUS)
 		/*
 		 *  Fetch loop device status information
 		 */
@@ -121,9 +122,13 @@ static int stress_loop(const args_t *args)
 		 *  Try to set some flags
 		 */
 		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
+#if defined(LOOP_SET_STATUS)
 		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
 		(void)ret;
+#endif
+#endif
 
+#if defined(LOOP_SET_CAPACITY)
 		/*
 		 *  Resize command (even though we have not changed size)
 		 */
@@ -131,6 +136,7 @@ static int stress_loop(const args_t *args)
 		(void)ret;
 		ret = ioctl(loop_dev, LOOP_SET_CAPACITY);
 		(void)ret;
+#endif
 
 clr_loop:
 		/*
@@ -161,8 +167,10 @@ destroy_loop:
 		}
 next:
 		(void)close(ctrl_dev);
+#if defined(LOOP_SET_CAPACITY)
 		ret = ftruncate(backing_fd, backing_size);
 		(void)ret;
+#endif
 
 		inc_counter(args);
 	} while (keep_stressing());
