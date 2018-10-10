@@ -212,7 +212,8 @@ out:
 	return bytes;
 }
 
-/* get_cache_type()
+/*
+ * get_cache_type()
  * @name: human-readable cache type.
  * Convert a human-readable cache type into a cache_type_t.
  *
@@ -236,7 +237,8 @@ out:
 	return CACHE_TYPE_UNKNOWN;
 }
 
-/* add_cpu_cache_detail()
+/*
+ * add_cpu_cache_detail()
  * @cache: cpu_cache_t pointer.
  * @index_path: full /sys path to the particular cpu cache which is to
  *   be represented by @cache.
