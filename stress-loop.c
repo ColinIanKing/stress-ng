@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(HAVE_LINUX_LOOP_H)
 
 #include <linux/loop.h>
 
