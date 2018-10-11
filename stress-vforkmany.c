@@ -92,7 +92,7 @@ fork_again:
 		 *  OOM'd before the parent.
 		 */
 		do {
-			waste = mmap(NULL, waste_size, PROT_READ | PROT_WRITE,
+			waste = (uint8_t *)mmap(NULL, waste_size, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (waste != MAP_FAILED)
 				break;
@@ -162,7 +162,7 @@ PRAGMA_POP
 		} while (keep_stressing());
 
 		if (waste != MAP_FAILED)
-			munmap(waste, WASTE_SIZE);
+			munmap((void *)waste, WASTE_SIZE);
 		_exit(0);
 	} else {
 		/*
