@@ -39,7 +39,7 @@ typedef struct {
 } stress_memthrash_method_info_t;
 
 static const stress_memthrash_method_info_t memthrash_methods[];
-static uint8_t *mem;
+static void *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
 
@@ -552,7 +552,7 @@ reap:
 			}
 		}
 reap_mem:
-		(void)munmap((void *)mem, MEM_SIZE);
+		(void)munmap(mem, MEM_SIZE);
 	}
 	return EXIT_SUCCESS;
 }
