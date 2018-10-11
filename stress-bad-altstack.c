@@ -26,7 +26,7 @@
 
 #if defined(HAVE_SIGALTSTACK)
 
-static uint8_t *stack;
+static void *stack;
 static const size_t stack_sz = MINSIGSTKSZ;
 
 static void MLOCKED_TEXT stress_segv_handler(int dummy)
