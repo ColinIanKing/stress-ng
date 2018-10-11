@@ -204,7 +204,7 @@ again: 	pid = fork();
 #if defined(MAP_LOCKED)
 			flags |= ((rnd & 0x20) ? MAP_LOCKED : 0);
 #endif
-			map_addr = mmap(addr, page_size, PROT_READ, flags, -1, 0);
+			map_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_READ, flags, -1, 0);
 			if (!map_addr || (map_addr == MAP_FAILED))
 				continue;
 
@@ -220,12 +220,12 @@ again: 	pid = fork();
 				flags |= MAP_32BIT;
 			}
 #endif
-			remap_addr = mmap(addr, page_size, PROT_READ, flags, -1, 0);
+			remap_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_READ, flags, -1, 0);
 			if (!remap_addr || (remap_addr == MAP_FAILED))
 				goto unmap;
 
 			(void)stress_mmapaddr_check(args, remap_addr);
-			(void)munmap(remap_addr, page_size);
+			(void)munmap((void *)remap_addr, page_size);
 
 #if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
 			addr = stress_mmapaddr_get_addr(args, mask, page_size);
@@ -238,7 +238,7 @@ again: 	pid = fork();
 				map_addr = remap_addr;
 #endif
 unmap:
-			(void)munmap(map_addr, page_size);
+			(void)munmap((void *)map_addr, page_size);
 			inc_counter(args);
 		} while (keep_stressing());
 	}
