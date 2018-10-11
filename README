@@ -72,6 +72,10 @@ To build on SunOS, one requires GCC and GNU make, build using:
 	CC=gcc gmake clean
 	CC=gcc gmake
 
+To build on Dilos, one requires GCC and GNU make, build using:
+	CC=gcc gmake clean
+	CC=gcc gmake
+
 To build on Haiku Alpha 4:
 	make clean
 	make
