@@ -178,11 +178,11 @@ static int stress_rmap(const args_t *args)
 			goto cleanup;
 
 		mappings[i] =
-			mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
+			(uint8_t *)mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, offset);
 		/* Squeeze at least a page in between each mapping */
 		paddings[i] =
-			mmap(0, page_size, PROT_READ | PROT_WRITE,
+			(uint8_t *)mmap(0, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	}
 
@@ -262,9 +262,9 @@ cleanup:
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
-			(void)munmap(mappings[i], MAPPING_PAGES * page_size);
+			(void)munmap((void *)mappings[i], MAPPING_PAGES * page_size);
 		if (paddings[i] != MAP_FAILED)
-			(void)munmap(paddings[i], page_size);
+			(void)munmap((void *)paddings[i], page_size);
 	}
 
 	return EXIT_SUCCESS;
