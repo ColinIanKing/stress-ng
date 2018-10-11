@@ -33,14 +33,16 @@ CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar
 endif
 
+GREP = grep
 #
 # SunOS requires special grep for -e support
 #
 KERNEL=$(shell uname -s)
+NODENAME=$(shell uname -n)
 ifeq ($(KERNEL),SunOS)
+ifneq ($(NODENAME),dilos)
 GREP = /usr/xpg4/bin/grep
-else
-GREP = grep
+endif
 endif
 
 #
