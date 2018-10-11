@@ -39,8 +39,8 @@
 typedef void *(*bad_addr_t)(const args_t *args);
 typedef int (*bad_syscall_t)(void *addr);
 
-static uint8_t *ro_page;
-static uint8_t *rw_page;
+static void *ro_page;
+static void *rw_page;
 
 static const int sigs[] = {
 #if defined(SIGILL)
