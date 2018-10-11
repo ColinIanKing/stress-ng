@@ -73,7 +73,7 @@ static int stress_sigsegv(const args_t *args)
 #endif
 
 	/* Allocate read only page */
-	ptr = mmap(NULL, args->page_size, PROT_READ,
+	ptr = (uint8_t *)mmap(NULL, args->page_size, PROT_READ,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (ptr == MAP_FAILED) {
 		pr_inf("%s: mmap of shared read only page failed: %d (%s)\n",
@@ -155,7 +155,7 @@ static int stress_sigsegv(const args_t *args)
 	}
 	rc = EXIT_SUCCESS;
 tidy:
-	(void)munmap(ptr, args->page_size);
+	(void)munmap((void *)ptr, args->page_size);
 
 	return rc;
 
