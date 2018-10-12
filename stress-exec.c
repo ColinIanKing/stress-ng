@@ -67,7 +67,7 @@ static int stress_exec(const args_t *args)
 	pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
 	ssize_t len;
-#if defined(__NR_execveat)
+#if defined(HAVE_EXECVEAT)
 	int fdexec;
 #endif
 	uint64_t exec_fails = 0, exec_calls = 0;
@@ -89,7 +89,7 @@ static int stress_exec(const args_t *args)
 	path[len] = '\0';
 	argv_new[0] = path;
 
-#if defined(__NR_execveat)
+#if defined(HAVE_EXECVEAT)
 	fdexec = open(path, O_PATH);
 	if (fdexec < 0) {
 		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
@@ -140,7 +140,7 @@ static int stress_exec(const args_t *args)
 				default:
 					ret = execve(path, argv_new, env_new);
 					break;
-#if defined(__NR_execveat)
+#if defined(HAVE_EXECVEAT)
 				case 1:
 					ret = shim_execveat(0, path, argv_new, env_new, AT_EMPTY_PATH);
 					break;
@@ -195,7 +195,7 @@ static int stress_exec(const args_t *args)
 		}
 	} while (keep_stressing());
 
-#if defined(__NR_execveat)
+#if defined(HAVE_EXECVEAT)
 	(void)close(fdexec);
 #endif
 
