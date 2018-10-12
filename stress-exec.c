@@ -58,19 +58,6 @@ static int stress_exec_supported(void)
         return 0;
 }
 
-#if defined(__NR_execveat)
-
-static inline int shim_execveat(
-	int dirfd,
-	const char *pathname,
-	char *const argv[],
-	char *const envp[],
-	int flags)
-{
-	return syscall(__NR_execveat, dirfd, pathname, argv, envp, flags);
-}
-#endif
-
 /*
  *  stress_exec()
  *	stress by forking and exec'ing

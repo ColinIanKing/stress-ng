@@ -1251,3 +1251,28 @@ int shim_pkey_set(int pkey, unsigned int rights)
 	return -1;
 #endif
 }
+
+/*
+ *   shim_execveat()
+ *	wrapper for execveat()
+ */
+int shim_execveat(
+        int dirfd,
+        const char *pathname,
+        char *const argv[],
+        char *const envp[],
+        int flags)
+{
+#if defined(__NR_execveat)
+        return syscall(__NR_execveat, dirfd, pathname, argv, envp, flags);
+#else
+	(void)dirfd;
+	(void)pathname;
+	(void)argv;
+	(void)envp;
+	(void)flags;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}

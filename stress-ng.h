@@ -3044,6 +3044,7 @@ extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
 extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
+extern int shim_execveat(int dirfd, const char *pathname, char *const argv[], char *const envp[], int flags);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 
