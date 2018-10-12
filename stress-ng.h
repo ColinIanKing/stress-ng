@@ -2980,71 +2980,75 @@ struct shim_statx {
         uint64_t   __spare2[14];
 };
 
-extern int shim_ioprio_set(int which, int who, int ioprio);
-extern int shim_ioprio_get(int which, int who);
-extern int shim_sched_yield(void);
+extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache) ;
+extern void shim_clear_cache(char* begin, char *end);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
         int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
+extern int shim_dup3(int oldfd, int newfd, int flags);
+extern int shim_execveat(int dirfd, const char *pathname, char *const argv[],
+	char *const envp[], int flags);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
-extern int shim_gettid(void);
 extern long shim_getcpu(unsigned *cpu, unsigned *node, void *tcache);
-extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
-extern void shim_clear_cache(char* begin, char *end);
-extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2);
-extern int shim_syslog(int type, char *bufp, int len);
-extern int shim_membarrier(int cmd, int flags);
-extern int shim_memfd_create(const char *name, unsigned int flags);
-extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
-	unsigned long maxnode, unsigned long addr, unsigned long flags);
-extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
-	unsigned long maxnode);
-extern long shim_mbind(void *addr, unsigned long len,
-	int mode, const unsigned long *nodemask,
-	unsigned long maxnode, unsigned flags);
-extern long shim_migrate_pages(int pid, unsigned long maxnode,
-	const unsigned long *old_nodes, const unsigned long *new_nodes);
-extern long shim_move_pages(int pid, unsigned long count,
-	void **pages, const int *nodes, int *status, int flags);
-extern int shim_userfaultfd(int flags);
-extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
-extern int shim_unshare(int flags);
 extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
 extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp,
 	unsigned int count);
-extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
-	unsigned int size, unsigned int flags);
-extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
-	unsigned int flags);
+extern char *shim_getlogin(void);
+extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
+	unsigned long maxnode, unsigned long addr, unsigned long flags);
+extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
+extern int shim_gettid(void);
+extern int shim_futex_wait(const void *futex, const int val,
+	const struct timespec *timeout);
+extern int shim_futex_wake(const void *futex, const int n);
+extern int shim_fsync(int fd);
+extern int shim_ioprio_set(int which, int who, int ioprio);
+extern int shim_ioprio_get(int which, int who);
+extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1,
+	unsigned long idx2);
+extern int shim_madvise(void *addr, size_t length, int advice);
+extern long shim_mbind(void *addr, unsigned long len,
+	int mode, const unsigned long *nodemask,
+	unsigned long maxnode, unsigned flags);
+extern int shim_membarrier(int cmd, int flags);
+extern int shim_memfd_create(const char *name, unsigned int flags);
+extern long shim_migrate_pages(int pid, unsigned long maxnode,
+	const unsigned long *old_nodes, const unsigned long *new_nodes);
+extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
 extern int shim_mlock(const void *addr, size_t len);
 extern int shim_mlock2(const void *addr, size_t len, int flags);
 extern int shim_mlockall(int flags);
-extern int shim_munlockall(void);
-extern int shim_usleep(uint64_t usec);
-extern int shim_usleep_interruptible(uint64_t usec);
-extern char *shim_getlogin(void);
+extern long shim_move_pages(int pid, unsigned long count,
+	void **pages, const int *nodes, int *status, int flags);
 extern int shim_msync(void *addr, size_t length, int flags);
-extern int shim_sysfs(int option, ...);
-extern int shim_madvise(void *addr, size_t length, int advice);
-extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
-extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
-	unsigned int mask, struct shim_statx *buffer);
-extern int shim_futex_wake(const void *futex, const int n);
-extern int shim_futex_wait(const void *futex, const int val, const struct timespec *timeout);
-extern int shim_dup3(int oldfd, int newfd, int flags);
-extern int shim_sync_file_range(int fd, shim_off64_t offset, shim_off64_t nbytes, unsigned int flags);
-extern int shim_brk(void *addr);
-extern void *shim_sbrk(intptr_t increment);
-extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
-extern size_t shim_strlcat(char *dst, const char *src, size_t len);
-extern int shim_fsync(int fd);
+extern int shim_munlockall(void);
 extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
 extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
 extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
-extern int shim_execveat(int dirfd, const char *pathname, char *const argv[], char *const envp[], int flags);
+extern void *shim_sbrk(intptr_t increment);
+extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
+	unsigned int size, unsigned int flags);
+extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
+	unsigned int flags);
+extern int shim_sched_yield(void);
+extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
+	unsigned long maxnode);
+extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
+extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
+	unsigned int mask, struct shim_statx *buffer);
+extern size_t shim_strlcat(char *dst, const char *src, size_t len);
+extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
+extern int shim_sync_file_range(int fd, shim_off64_t offset,
+	shim_off64_t nbytes, unsigned int flags);
+extern int shim_sysfs(int option, ...);
+extern int shim_syslog(int type, char *bufp, int len);
+extern int shim_unshare(int flags);
+extern int shim_userfaultfd(int flags);
+extern int shim_usleep(uint64_t usec);
+extern int shim_usleep_interruptible(uint64_t usec);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 
