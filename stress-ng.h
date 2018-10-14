@@ -134,6 +134,10 @@
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_SYS_MEMFD_H)
+#include <sys/memfd.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
