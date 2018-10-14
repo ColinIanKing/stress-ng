@@ -71,12 +71,14 @@ static int stress_sync_allocate(
 		return -errno;
 	}
 
-	ret = fdatasync(fd);
+#if defined(HAVE_FDATASYNC)
+	ret = shim_fdatasync(fd);
 	if (ret < 0) {
 		pr_err("%s: fdatasync failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
 	}
+#endif
 
 	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);
 	if (ret < 0) {

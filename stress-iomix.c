@@ -313,8 +313,8 @@ static void stress_iomix_sync(
 		if (!keep_stressing())
 			break;
 
-#if defined(__linux__)
-		(void)fdatasync(fd);
+#if defined(HAVE_FDATASYNC)
+		(void)shim_fdatasync(fd);
 		if (!keep_stressing())
 			break;
 		tv.tv_sec = mwc32() % 4;

@@ -1168,6 +1168,28 @@ int shim_fsync(int fd)
 }
 
 /*
+ *  shim_fdatasync
+ *	wrapper for fdatasync
+ */
+int shim_fdatasync(int fd)
+{
+#if defined(HAVE_FDATASYNC)
+	/*
+	 *  For some reason, fdatasync prototype may be missing
+	 *  in some __APPLE__ systems.
+	 */
+#if defined(__APPLE__)
+	extern int fdatasync(int fd);
+#endif
+	return fdatasync(fd);
+#else
+	(void)fd;
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+
+/*
  *   shim_pkey_alloc()
  *	wrapper for pkey_alloc()
  */

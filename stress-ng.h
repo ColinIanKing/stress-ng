@@ -2993,6 +2993,7 @@ extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_execveat(int dirfd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
+extern int shim_fdatasync(int fd);
 extern long shim_getcpu(unsigned *cpu, unsigned *node, void *tcache);
 extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
