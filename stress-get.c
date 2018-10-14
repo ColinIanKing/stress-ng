@@ -306,9 +306,7 @@ static int stress_get(const args_t *args)
 		(void)ret;
 #endif
 
-#if defined(HAVE_SYSCALL_H) && \
-    defined(__linux__) && \
-    defined(__NR_lookup_dcookie)
+#if defined(HAVE_LOOKUP_DCOOKIE)
 		{
 			char buf[PATH_MAX];
 
