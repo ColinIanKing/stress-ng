@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_unshare)
+#if defined(HAVE_UNSHARE)
 
 #define MAX_PIDS	(32)
 
