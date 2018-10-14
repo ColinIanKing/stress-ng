@@ -40,10 +40,6 @@
 #include <sys/un.h>
 #endif
 
-#if defined(__linux__) && defined(__NR_sendmmsg) && NEED_GLIBC(2,14,0)
-#define HAVE_SENDMMSG
-#endif
-
 #define SOCKET_OPT_SEND		0x01
 #define SOCKET_OPT_SENDMSG	0x02
 #define SOCKET_OPT_SENDMMSG	0x03
