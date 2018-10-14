@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_memfd_create)
+#if defined(__linux__) && defined(HAVE_MEMFD_CREATE)
 
 #ifndef F_ADD_SEALS
 #define F_ADD_SEALS		(1024 + 9)

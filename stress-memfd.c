@@ -52,7 +52,7 @@ int stress_set_memfd_fds(const char *opt)
 	return set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
 
-#if defined(__linux__) && defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
 
 /*
  *  Create allocations using memfd_create, ftruncate and mmap

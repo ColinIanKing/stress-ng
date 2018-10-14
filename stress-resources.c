@@ -62,7 +62,7 @@ typedef struct {
 #if defined(__NR_eventfd)
 	int fd_ev;
 #endif
-#if defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
 	int fd_memfd;
 #endif
 #if defined(__NR_userfaultfd)
@@ -131,7 +131,7 @@ static void NORETURN waste_resources(
 {
 	size_t i, n;
 	size_t shmall, freemem, totalmem;
-#if defined(__NR_memfd_create) || defined(O_TMPFILE)
+#if defined(HAVE_MEMFD_CREATE) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
 	static int domains[] = { AF_INET, AF_INET6 };
@@ -153,7 +153,7 @@ static void NORETURN waste_resources(
 	(void)memset(&info, 0, sizeof(info));
 
 	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
-#if defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
 		char name[32];
 #endif
 		stress_get_memlimits(&shmall, &freemem, &totalmem);
@@ -208,7 +208,7 @@ static void NORETURN waste_resources(
 		if (!g_keep_stressing_flag)
 			break;
 #endif
-#if defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
 		(void)snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
 		if (!g_keep_stressing_flag)
@@ -351,7 +351,7 @@ static void NORETURN waste_resources(
 		if (info[i].fd_ev != -1)
 			(void)close(info[i].fd_ev);
 #endif
-#if defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
 		if (info[i].fd_memfd != -1)
 			(void)close(info[i].fd_memfd);
 #endif
