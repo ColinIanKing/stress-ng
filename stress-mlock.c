@@ -28,7 +28,7 @@
 
 #define MLOCK_MAX	(256*1024)
 
-#if defined(__NR_mlock2)
+#if defined(HAVE_MLOCK2)
 
 #ifndef MLOCK_ONFAULT
 #define MLOCK_ONFAULT 1
@@ -36,7 +36,7 @@
 
 /*
  *  do_mlock()
- *	if mlock2 is available, randonly exerise this
+ *	if mlock2 is available, randomly exercise this
  *	or mlock.  If not available, just fallback to
  *	mlock.  Also, pick random mlock2 flags
  */
@@ -192,6 +192,7 @@ again:
 					(void)munlock((void *)((uint8_t *)addr + page_size), page_size);
 				munmap((void *)addr, page_size * 3);
 			}
+#if defined(HAVE_MLOCKALL)
 #if defined(MCL_CURRENT)
 			(void)shim_mlockall(MCL_CURRENT);
 #endif
@@ -200,6 +201,7 @@ again:
 #endif
 #if defined(MCL_ONFAULT)
 			(void)shim_mlockall(MCL_ONFAULT);
+#endif
 #endif
 			for (n = 0; g_keep_stressing_flag && (n < max); n++) {
 				if (!keep_stressing())
@@ -211,7 +213,9 @@ again:
 				if (mappings[n] == MAP_FAILED)
 					break;
 			}
+#if defined(HAVE_MLOCKALL)
 			(void)shim_munlockall();
+#endif
 
 			for (i = 0; i < n;  i++)
 				munmap((void *)mappings[i], page_size);
