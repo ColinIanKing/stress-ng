@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #if defined(__OpenBSD__) || \
+    defined(__APPLE__) || \
     (defined(__linux__) && defined(__NR_getrandom))
 
 /*
@@ -34,7 +35,7 @@
 static int stress_getrandom(const args_t *args)
 {
 	do {
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__APPLE__)
 		char buffer[256];
 #else
 		char buffer[8192];
