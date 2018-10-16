@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && NEED_GLIBC(2,3,0) && defined(__NR_remap_file_pages)
+#if defined(HAVE_REMAP_FILE_PAGES)
 
 #define N_PAGES		(512)
 
