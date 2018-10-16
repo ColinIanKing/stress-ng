@@ -24,10 +24,8 @@
  */
 #include "stress-ng.h"
 #if defined(HAVE_LIB_PTHREAD)
-#if defined(__linux__)
-#if defined(__NR_get_robust_list)
+#if defined(HAVE_GET_ROBUST_LIST)
 #include <linux/futex.h>
-#endif
 #endif
 
 typedef struct {
@@ -57,14 +55,14 @@ int stress_set_pthread_max(const char *opt)
 
 #if defined(HAVE_LIB_PTHREAD)
 
-#if defined(__linux__) && defined(__NR_get_robust_list)
+#if defined(HAVE_GET_ROBUST_LIST)
 static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
 {
 	return syscall(__NR_get_robust_list, pid, head_ptr, len_ptr);
 }
 #endif
 
-#if defined(__linux__) && defined(__NR_set_robust_list)
+#if defined(HAVE_SET_ROBUST_LIST)
 static inline long sys_set_robust_list(struct robust_list_head *head, size_t len)
 {
 	return syscall(__NR_set_robust_list, head, len);
@@ -80,7 +78,7 @@ static void *stress_pthread_func(void *parg)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	int ret;
-#if defined(__linux__) && defined(__NR_get_robust_list)
+#if defined(HAVE_GET_ROBUST_LIST)
 	struct robust_list_head *head;
 	size_t len;
 #endif
@@ -111,7 +109,7 @@ static void *stress_pthread_func(void *parg)
 	}
 #endif
 
-#if defined(__linux__) && defined(__NR_get_robust_list)
+#if defined(HAVE_GET_ROBUST_LIST)
 	/*
 	 *  Check that get_robust_list() works OK
 	 */
@@ -121,7 +119,7 @@ static void *stress_pthread_func(void *parg)
 			goto die;
 		}
 	} else {
-#if defined(__NR_set_robust_list)
+#if defined(HAVE_SET_ROBUST_LIST)
 		if (sys_set_robust_list(head, len) < 0) {
 			if (errno != ENOSYS) {
 				pr_fail_err("set_robust_list");

@@ -188,6 +188,14 @@
 #define HAVE_GETTID
 #endif
 
+#if defined(__NR_get_robust_list)
+#define HAVE_GET_ROBUST_LIST
+#endif
+
+#if defined(__NR_set_robust_list)
+#define HAVE_SET_ROBUST_LIST
+#endif
+
 #endif
 
 #include "stress-version.h"
