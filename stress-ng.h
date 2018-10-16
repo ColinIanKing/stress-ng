@@ -171,6 +171,21 @@
 #include <strings.h>
 #endif
 
+/*
+ *  Various system calls not included in libc (yet)
+ */
+#if defined(__linux__)
+
+#if defined(__NR_getdents)
+#define HAVE_GETDENTS
+#endif
+
+#if defined(__NR_getdents64)
+#define HAVE_GETDENTS64
+#endif
+
+#endif
+
 #include "stress-version.h"
 
 #if defined (__linux__)

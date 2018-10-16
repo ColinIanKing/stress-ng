@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_getdents64)
+#if defined(HAVE_GETDENTS64) || defined(HAVE_GETDENTS)
 
 #define BUF_SIZE	(256 * 1024)
 
@@ -35,18 +35,18 @@ typedef int (getdents_func)(
 	const int depth,
 	const size_t page_size);
 
-#if defined(__NR_getdents)
+#if defined(HAVE_GETDENTS)
 static getdents_func stress_getdents_dir;
 #endif
-#if defined(__NR_getdents64)
+#if defined(HAVE_GETDENTS64)
 static getdents_func stress_getdents64_dir;
 #endif
 
 static getdents_func * getdents_funcs[] = {
-#if defined(__NR_getdents)
+#if defined(HAVE_GETDENTS)
 	stress_getdents_dir,
 #endif
-#if defined(__NR_getdents64)
+#if defined(HAVE_GETDENTS64)
 	stress_getdents64_dir,
 #endif
 };
@@ -81,7 +81,7 @@ static inline int stress_getdents_rand(
 	return ret;
 }
 
-#if defined(__NR_getdents)
+#if defined(HAVE_GETDENTS)
 /*
  *  stress_getdents_dir()
  *	read directory via the old 32 bit interface
@@ -150,7 +150,7 @@ exit_close:
 }
 #endif
 
-#if defined(__NR_getdents64)
+#if defined(HAVE_GETDENTS64)
 /*
  *  stress_getdents64_dir()
  *	read directory via the 64 bit interface

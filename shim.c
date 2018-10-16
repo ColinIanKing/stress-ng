@@ -214,7 +214,7 @@ int shim_getdents(
 	struct shim_linux_dirent *dirp,
 	unsigned int count)
 {
-#if defined(__linux__) && defined(__NR_getdents)
+#if defined(HAVE_GETDENTS)
 	return syscall(__NR_getdents, fd, dirp, count);
 #else
 	(void)fd;
@@ -235,7 +235,7 @@ int shim_getdents64(
 	struct shim_linux_dirent64 *dirp,
 	unsigned int count)
 {
-#if defined(__linux__) && defined(__NR_getdents64)
+#if defined(HAVE_GETDENTS64)
 	return syscall(__NR_getdents64, fd, dirp, count);
 #else
 	(void)fd;
