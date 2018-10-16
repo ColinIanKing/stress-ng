@@ -138,7 +138,9 @@ static int stress_loop(const args_t *args)
 		(void)ret;
 #endif
 
+#if defined(LOOP_GET_STATUS)
 clr_loop:
+#endif
 		/*
 		 *  Disassociate backing store from loop device
 		 */
