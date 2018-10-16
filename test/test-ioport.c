@@ -39,4 +39,6 @@ int main(void)
 	ret = inb(IO_PORT);
 	outb(0xff, IO_PORT);
 	(void)ioperm(IO_PORT, 1, 0);
+
+	return ret;
 }
