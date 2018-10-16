@@ -184,6 +184,10 @@
 #define HAVE_GETDENTS64
 #endif
 
+#if defined(__NR_gettid)
+#define HAVE_GETTID
+#endif
+
 #endif
 
 #include "stress-version.h"

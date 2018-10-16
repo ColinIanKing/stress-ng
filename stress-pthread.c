@@ -104,10 +104,10 @@ static void *stress_pthread_func(void *parg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
-#if defined(__linux__) && defined(__NR_gettid)
+#if defined(HAVE_GETTID)
 	{
 		pthread_info_t *pi = ((pthread_args_t *)parg)->data;
-		pi->tid = syscall(__NR_gettid);
+		pi->tid = shim_gettid();
 	}
 #endif
 

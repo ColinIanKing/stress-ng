@@ -175,7 +175,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
  */
 int shim_gettid(void)
 {
-#if defined(__linux__) && defined(__NR_gettid)
+#if defined(HAVE_GETTID)
 	return syscall(__NR_gettid);
 #else
 	errno = -ENOSYS;
