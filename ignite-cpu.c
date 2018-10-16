@@ -64,10 +64,11 @@ static int ignite_cpu_set(
 	const char *governor)
 {
 	char path[PATH_MAX];
-	char buffer[128];
 	int ret1 = 0, ret2 = 0;
 
 	if (freq > 0) {
+		char buffer[128];
+
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRIu32
 			"/cpufreq/scaling_setspeed", cpu);
@@ -210,7 +211,6 @@ void ignite_cpu_start(void)
 		set_proc_name("stress-ng-ignite");
 
 		while (g_keep_stressing_flag) {
-			uint32_t cpu;
 
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
@@ -221,6 +221,8 @@ void ignite_cpu_start(void)
 			}
 
 			if (cpu_settings) {
+				uint32_t cpu;
+
 				/*
 				 *  Attempt to crank CPUs upto max freq
 				 */
