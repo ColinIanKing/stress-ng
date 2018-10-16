@@ -203,8 +203,6 @@ again:
 		}
 
 		do {
-			struct kcmp_epoll_slot slot;
-
 			KCMP(pid1, pid2, SHIM_KCMP_FILE, fd1, fd2);
 			KCMP(pid1, pid1, SHIM_KCMP_FILE, fd1, fd1);
 			KCMP(pid2, pid2, SHIM_KCMP_FILE, fd1, fd1);
@@ -236,6 +234,8 @@ again:
 
 #if NEED_GLIBC(2,3,2)
 			if (efd != -1) {
+				struct kcmp_epoll_slot slot;
+
 				slot.efd = efd;
 				slot.tfd = sfd;
 				slot.toff = 0;
@@ -257,6 +257,8 @@ again:
 				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 #if NEED_GLIBC(2,3,2)
 				if (efd != -1) {
+					struct kcmp_epoll_slot slot;
+
 					slot.efd = efd;
 					slot.tfd = sfd;
 					slot.toff = 0;
