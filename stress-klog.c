@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_syslog)
+#if defined(HAVE_SYSLOG)
 
 #define SYSLOG_ACTION_CLOSE		(0)
 #define SYSLOG_ACTION_OPEN		(1)

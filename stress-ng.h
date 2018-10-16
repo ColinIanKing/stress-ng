@@ -200,6 +200,10 @@
 #define HAVE_TGKILL
 #endif
 
+#if defined(__NR_syslog)
+#define HAVE_SYSLOG
+#endif
+
 #endif
 
 #include "stress-version.h"
