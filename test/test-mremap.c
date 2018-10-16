@@ -35,5 +35,7 @@ int main(void)
 	/* semantically not correct, but this is a build check */
 	newbuf = mremap(NULL, sz, sz,
 			MREMAP_FIXED | MREMAP_MAYMOVE, (void *)newaddr);
+	(void)newbuf;
+
 	return 0;
 }
