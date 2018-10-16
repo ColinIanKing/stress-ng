@@ -288,7 +288,7 @@ static int stress_pthread(const args_t *args)
 			ok = false;
 			goto reap;
 		}
-#if defined(__linux__) && defined(__NR_tgkill) && defined(SIGUSR2)
+#if defined(HAVE_TGKILL) && defined(SIGUSR2)
 		for (j = 0; j < i; j++) {
 			if (pthreads[j].tid)
 				(void)syscall(__NR_tgkill, args->pid, pthreads[j].tid, SIGUSR2);

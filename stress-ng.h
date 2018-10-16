@@ -196,6 +196,10 @@
 #define HAVE_SET_ROBUST_LIST
 #endif
 
+#if defined(__NR_tgkill)
+#define HAVE_TGKILL
+#endif
+
 #endif
 
 #include "stress-version.h"
