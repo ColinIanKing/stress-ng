@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_kcmp)
+#if defined(HAVE_KCMP)
 #if NEED_GLIBC(2,3,2)
 #include <sys/epoll.h>
 #endif

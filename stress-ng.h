@@ -192,6 +192,10 @@
 #define HAVE_GET_ROBUST_LIST
 #endif
 
+#if defined(__NR_kcmp)
+#define HAVE_KCMP
+#endif
+
 #if defined(__NR_set_robust_list)
 #define HAVE_SET_ROBUST_LIST
 #endif
