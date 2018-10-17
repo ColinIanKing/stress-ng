@@ -200,6 +200,10 @@
 #define HAVE_KCMP
 #endif
 
+#if defined(__NR_keyctl)
+#define HAVE_KEYCTL
+#endif
+
 #if defined(__NR_request_key)
 #define HAVE_REQUEST_KEY
 #endif
