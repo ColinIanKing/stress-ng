@@ -80,7 +80,9 @@ ssize_t shim_copy_file_range(
 	size_t len,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_copy_file_range)
+#if defined(HAVE_COPY_FILE_RANGE)
+	return copy_file_range(fd_in, off_in, fd_out, off_out, len, flags);
+#elif defined(__linux__) && defined(__NR_copy_file_range)
 	return syscall(__NR_copy_file_range,
 		fd_in, off_in, fd_out, off_out, len, flags);
 #else

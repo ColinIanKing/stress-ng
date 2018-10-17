@@ -34,7 +34,7 @@ int stress_set_copy_file_bytes(const char *opt)
 	return set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
 }
 
-#if defined(__linux__) && (__NR_copy_file_range)
+#if defined(HAVE_COPY_FILE_RANGE)
 
 /*
  *  stress_copy_file
