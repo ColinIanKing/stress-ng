@@ -62,7 +62,7 @@ typedef struct {
 #if defined(HAVE_MEMFD_CREATE)
 	int fd_memfd;
 #endif
-#if defined(__NR_userfaultfd)
+#if defined(HAVE_USERFAULTFD)
 	int fd_uf;
 #endif
 #if defined(O_TMPFILE)
@@ -223,7 +223,7 @@ static void NORETURN waste_resources(
 			info[i].fd_socketpair[1] = -1;
 		}
 
-#if defined(__NR_userfaultfd)
+#if defined(HAVE_USERFAULTFD)
 		info[i].fd_uf = shim_userfaultfd(0);
 		if (!g_keep_stressing_flag)
 			break;
@@ -359,7 +359,7 @@ static void NORETURN waste_resources(
 		if (info[i].fd_socketpair[1] != -1)
 			(void)close(info[i].fd_socketpair[1]);
 
-#if defined(__NR_userfaultfd)
+#if defined(HAVE_USERFAULTFD)
 		if (info[i].fd_uf != -1)
 			(void)close(info[i].fd_uf);
 #endif
