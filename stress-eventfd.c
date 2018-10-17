@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_EVENTFD) && NEED_GLIBC(2,8,0)
-
-#include <sys/eventfd.h>
+#if defined(HAVE_SYS_EVENTFD_H) && \
+    defined(HAVE_EVENTFD) && \
+    NEED_GLIBC(2,8,0)
 
 /*
  *  stress_eventfd

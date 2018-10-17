@@ -23,9 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__linux__) && defined(__NR_eventfd)
-#include <sys/eventfd.h>
-#endif
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 #include <sys/select.h>
 #include <sys/inotify.h>
@@ -59,7 +56,7 @@ typedef struct {
 	int fd_open;
 	int fd_sock;
 	int fd_socketpair[2];
-#if defined(__NR_eventfd)
+#if defined(HAVE_EVENTFD)
 	int fd_ev;
 #endif
 #if defined(HAVE_MEMFD_CREATE)
@@ -203,7 +200,7 @@ static void NORETURN waste_resources(
 		info[i].fd_open = open("/dev/null", O_RDONLY | flag);
 		if (!g_keep_stressing_flag)
 			break;
-#if defined(__NR_eventfd)
+#if defined(HAVE_EVENTFD)
 		info[i].fd_ev = eventfd(0, 0);
 		if (!g_keep_stressing_flag)
 			break;
@@ -347,7 +344,7 @@ static void NORETURN waste_resources(
 		}
 		if (info[i].fd_open != -1)
 			(void)close(info[i].fd_open);
-#if defined(__NR_eventfd)
+#if defined(HAVE_EVENTFD)
 		if (info[i].fd_ev != -1)
 			(void)close(info[i].fd_ev);
 #endif

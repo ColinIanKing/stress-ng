@@ -134,6 +134,10 @@
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_SYS_EVENTFD_H)
+#include <sys/eventfd.h>
+#endif
+
 #if defined(HAVE_SYS_MEMFD_H)
 #include <sys/memfd.h>
 #endif
