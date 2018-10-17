@@ -305,7 +305,7 @@ void shim_clear_cache(char* begin, char *end)
  */
 long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2)
 {
-#if defined(__linux__) && defined(__NR_kcmp)
+#if defined(HAVE_KCMP)
 	errno = 0;
 	return syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
@@ -326,7 +326,7 @@ long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned lo
  */
 int shim_syslog(int type, char *bufp, int len)
 {
-#if defined(__linux__) && defined(__NR_syslog)
+#if defined(HAVE_SYSLOG)
 	return syscall(__NR_syslog, type, bufp, len);
 #else
 	(void)type;
