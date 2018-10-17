@@ -594,10 +594,9 @@ static int apparmor_stress_corruption(
 		if (ret < 0) {
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT)) {
-				pr_fail("%s: aa_kernel_interface_replace_policy() failed, "
+				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
 					"errno=%d (%s)\n", name, errno,
 					strerror(errno));
-				rc = EXIT_FAILURE;
 			}
 		}
 		aa_kernel_interface_unref(kern_if);
