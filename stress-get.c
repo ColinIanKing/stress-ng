@@ -306,6 +306,11 @@ static int stress_get(const args_t *args)
 		(void)ret;
 #endif
 
+#if defined(HAVE_GETDTABLESIZE)
+		ret = getdtablesize();
+		(void)ret;
+#endif
+
 #if defined(HAVE_LOOKUP_DCOOKIE)
 		{
 			char buf[PATH_MAX];
