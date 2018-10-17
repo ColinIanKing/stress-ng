@@ -24,12 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && \
-    (defined(__NR_sync_file_range) || defined(__NR_sync_file_range2)) && \
-    NEED_GLIBC(2,10,0)
-#define HAVE_SYNC_FILE_RANGE
-#endif
-
 #if defined(HAVE_SYNC_FILE_RANGE)
 static const int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE,

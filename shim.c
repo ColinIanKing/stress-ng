@@ -974,7 +974,9 @@ int shim_sync_file_range(
 	shim_off64_t nbytes,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_sync_file_range)
+#if defined(HAVE_SYNC_FILE_RANGE)
+	return sync_file_range(fd, offset, nbytes, flags);
+#elif defined(__linux__) && defined(__NR_sync_file_range)
 	return syscall(__NR_sync_file_range, fd, offset, nbytes, flags);
 #elif defined(__linux__) && defined(__NR_sync_file_range2)
 	/*
