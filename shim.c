@@ -550,7 +550,7 @@ int shim_sched_getattr(
 	unsigned int size,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_sched_getattr)
+#if defined(HAVE_sched_getattr)
 	return syscall(__NR_sched_getattr, pid, attr, size, flags);
 #else
 	(void)pid;
@@ -572,7 +572,7 @@ int shim_sched_setattr(
 	struct shim_sched_attr *attr,
 	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_sched_setattr)
+#if defined(HAVE_sched_setattr)
 	return syscall(__NR_sched_setattr, pid, attr, flags);
 #else
 	(void)pid;

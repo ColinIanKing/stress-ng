@@ -59,9 +59,8 @@ static int stress_schedpolicy(const args_t *args)
 	}
 
 	do {
-#if defined(__linux__) && \
-    defined(__NR_sched_getattr) && \
-    defined(__NR_sched_setattr)
+#if defined(HAVE_SCHED_GETATTR) && \
+    defined(HAVE_SCHED_SETATTR)
 		struct shim_sched_attr attr;
 #endif
 		struct sched_param param;
@@ -160,9 +159,8 @@ static int stress_schedpolicy(const args_t *args)
 			pr_fail_err("sched_setparam");
 #endif
 
-#if defined(__linux__) && \
-    defined(__NR_sched_getattr) && \
-    defined(__NR_sched_setattr)
+#if defined(HAVE_SCHED_GETATTR) && \
+    defined(HAVE_SCHED_SETATTR)
 		/*
 		 *  Nothing too clever here, just get and set for now
 		 */
