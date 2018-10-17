@@ -24,19 +24,22 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__) && defined(__NR_membarrier)
+#if defined(HAVE_LIB_PTHREAD) && \
+    defined(HAVE_MEMBARRIER)
 
 #define MAX_MEMBARRIER_THREADS	(4)
 
 static volatile bool keep_running;
 static sigset_t set;
 
+#if !defined(HAVE_LINUX_MEMBARRIER_H)
 enum membarrier_cmd {
 	MEMBARRIER_CMD_QUERY = 0,
 	MEMBARRIER_CMD_SHARED = (1 << 0),
 	MEMBARRIER_CMD_PRIVATE_EXPEDITED = (1 << 3),
 	MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED = (1 << 4)
 };
+#endif
 
 static void *stress_membarrier_thread(void *parg)
 {

@@ -344,7 +344,7 @@ int shim_syslog(int type, char *bufp, int len)
  */
 int shim_membarrier(int cmd, int flags)
 {
-#if defined(__linux__) && defined(__NR_membarrier)
+#if defined(HAVE_MEMBARRIER)
 	return syscall(__NR_membarrier, cmd, flags);
 #else
 	(void)cmd;

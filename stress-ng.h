@@ -142,6 +142,10 @@
 #include <sys/memfd.h>
 #endif
 
+#if defined(HAVE_LINUX_MEMBARRIER_H)
+#include <linux/membarrier.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
@@ -218,6 +222,10 @@
 
 #if defined(__NR_keyctl)
 #define HAVE_KEYCTL
+#endif
+
+#if defined(__NR_membarrier)
+#define HAVE_MEMBARRIER
 #endif
 
 #if defined(__NR_pkey_get)
