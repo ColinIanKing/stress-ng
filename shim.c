@@ -1195,7 +1195,7 @@ int shim_fdatasync(int fd)
  */
 int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
 {
-#if defined(__NR_pkey_alloc)
+#if defined(HAVE_PKEY_ALLOC)
 	return syscall(__NR_pkey_alloc, flags, access_rights);
 #else
 	(void)flags;
@@ -1212,7 +1212,7 @@ int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
  */
 int shim_pkey_free(int pkey)
 {
-#if defined(__NR_pkey_free)
+#if defined(HAVE_PKEY_FREE)
 	return syscall(__NR_pkey_free, pkey);
 #else
 	(void)pkey;
@@ -1228,7 +1228,7 @@ int shim_pkey_free(int pkey)
  */
 int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
 {
-#if defined(__NR_pkey_mprotect)
+#if defined(HAVE_PKEY_MPROTECT)
 	return syscall(__NR_pkey_mprotect, addr, len, prot, pkey);
 #else
 	(void)addr;
@@ -1247,7 +1247,7 @@ int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
  */
 int shim_pkey_get(int pkey)
 {
-#if defined(__NR_pkey_get)
+#if defined(HAVE_PKEY_GET)
 	return syscall(__NR_pkey_get, pkey);
 #else
 	(void)pkey;
@@ -1263,7 +1263,7 @@ int shim_pkey_get(int pkey)
  */
 int shim_pkey_set(int pkey, unsigned int rights)
 {
-#if defined(__NR_pkey_set)
+#if defined(HAVE_PKEY_SET)
 	return syscall(__NR_pkey_set, pkey, rights);
 #else
 	(void)pkey;

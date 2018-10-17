@@ -26,7 +26,7 @@
 
 #define PAGES_TO_EXERCISE	(8)
 
-#if defined(__linux__) && defined(__NR_pkey_mprotect)
+#if defined(HAVE_PKEY_MPROTECT)
 
 /*
  *  stress_pkey()

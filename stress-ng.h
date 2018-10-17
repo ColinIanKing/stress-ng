@@ -216,6 +216,14 @@
 #define HAVE_KEYCTL
 #endif
 
+#if defined(__NR_pkey_get)
+#define HAVE_PKEY_GET
+#endif
+
+#if defined(__NR_pkey_set)
+#define HAVE_PKEY_SET
+#endif
+
 #if defined(__NR_request_key)
 #define HAVE_REQUEST_KEY
 #endif
