@@ -184,6 +184,10 @@
 #define HAVE_ADD_KEY
 #endif
 
+#if defined(__NR_getcpu)
+#define HAVE_GETCPU
+#endif
+
 #if defined(__NR_getdents)
 #define HAVE_GETDENTS
 #endif

@@ -208,7 +208,7 @@ long shim_getcpu(
 	unsigned *node,
 	void *tcache)
 {
-#if defined(__linux__) && defined(__NR_getcpu)
+#if defined(HAVE_GETCPU)
 	return syscall(__NR_getcpu, cpu, node, tcache);
 #else
 	(void)cpu;
