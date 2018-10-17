@@ -137,7 +137,20 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
  */
 int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 {
-#if defined(__linux__) && defined(__NR_fallocate)
+#if defined(HAVE_FALLOCATE)
+	int ret;
+
+	ret = fallocate(fd, mode, offset, len);
+	/* mode not supported? try with zero mode (dirty hack) */
+	if ((ret < 0) && (errno == EOPNOTSUPP)) {
+		ret = syscall(__NR_fallocate, fd, 0, offset, len);
+		/* fallocate failed, try emulation mode */
+		if ((ret < 0) && (errno == EOPNOTSUPP)) {
+			ret = shim_emulate_fallocate(fd, offset, len);
+		}
+	}
+	return ret;
+#elif defined(__linux__) && defined(__NR_fallocate)
 	int ret;
 
 	ret = syscall(__NR_fallocate, fd, mode, offset, len);

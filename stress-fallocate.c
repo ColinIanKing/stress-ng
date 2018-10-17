@@ -34,7 +34,7 @@ int stress_set_fallocate_bytes(const char *opt)
 	return set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
 
-#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L) && NEED_GLIBC(2,10,0)
+#if defined(HAVE_FALLOCATE)
 
 static const int modes[] = {
 	0,
