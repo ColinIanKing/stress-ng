@@ -196,6 +196,14 @@
 #define HAVE_GET_ROBUST_LIST
 #endif
 
+#if defined(__NR_ioprio_get)
+#define HAVE_IOPRIO_GET
+#endif
+
+#if defined(__NR_ioprio_set)
+#define HAVE_IOPRIO_SET
+#endif
+
 #if defined(__NR_kcmp)
 #define HAVE_KCMP
 #endif
