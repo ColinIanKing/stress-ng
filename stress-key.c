@@ -57,7 +57,7 @@ static key_serial_t sys_add_key(
 		description, payload, plen, keyring);
 }
 
-#if defined(__NR_request_key)
+#if defined(HAVE_REQUEST_KEY)
 static key_serial_t sys_request_key(
 	const char *type,
 	const char *description,
@@ -149,7 +149,7 @@ static int stress_key(const args_t *args)
 				goto tidy;
 #endif
 
-#if defined(__NR_request_key)
+#if defined(HAVE_REQUEST_KEY)
 			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, i);

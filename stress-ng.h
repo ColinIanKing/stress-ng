@@ -196,6 +196,10 @@
 #define HAVE_KCMP
 #endif
 
+#if defined(__NR_request_key)
+#define HAVE_REQUEST_KEY
+#endif
+
 #if defined(__NR_sched_getattr)
 #define HAVE_SCHED_GETATTR
 #endif
