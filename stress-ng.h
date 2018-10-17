@@ -240,6 +240,10 @@
 #define HAVE_TGKILL
 #endif
 
+#if defined(__NR_userfaultfd)
+#define HAVE_USERFAULTFD
+#endif
+
 #endif
 
 #include "stress-version.h"

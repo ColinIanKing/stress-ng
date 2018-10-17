@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_userfaultfd) && defined(HAVE_CLONE)
+#if defined(HAVE_USERFAULTFD) && \
+    defined(HAVE_LINUX_USERFAULTFD_H) && \
+    defined(HAVE_CLONE)
 
 #include <poll.h>
 #include <linux/userfaultfd.h>
@@ -53,7 +55,9 @@ int stress_set_userfaultfd_bytes(const char *opt)
 	return set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
-#if defined(__linux__) && defined(__NR_userfaultfd) && defined(HAVE_CLONE)
+#if defined(HAVE_USERFAULTFD) && \
+    defined(HAVE_LINUX_USERFAULTFD_H) && \
+    defined(HAVE_CLONE)
 
 /*
  *  stress_child_alarm_handler()
