@@ -328,11 +328,9 @@ static int apparmor_stress_kernel_interface(
 		if (ret < 0) {
 			aa_kernel_interface_unref(kern_if);
 
-			pr_fail("%s: aa_kernel_interface_replace_policy() failed, "
+			pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
 				"errno=%d (%s)\n", name, errno,
 				strerror(errno));
-			rc = EXIT_FAILURE;
-			break;
 		}
 
 		/*
