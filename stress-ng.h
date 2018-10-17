@@ -176,6 +176,10 @@
  */
 #if defined(__linux__)
 
+#if defined(__NR_add_key)
+#define HAVE_ADD_KEY
+#endif
+
 #if defined(__NR_getdents)
 #define HAVE_GETDENTS
 #endif

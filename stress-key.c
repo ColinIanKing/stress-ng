@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_KEYUTILS_H) && defined(__linux__) && defined(__NR_add_key) && defined(__NR_keyctl)
+#if defined(HAVE_KEYUTILS_H) && defined(__linux__) && defined(HAVE_ADD_KEY) && defined(__NR_keyctl)
 
 #include <keyutils.h>
 
