@@ -30,4 +30,4 @@
 int main(void)
 {
 	return fallocate(0, 0, 0, 4096);
-}	
+}
