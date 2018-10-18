@@ -29,15 +29,18 @@
 #include <unistd.h>
 
 #include "../stress-version.h"
-#if !(NEED_GLIBC(2,27,0))
 #include <sys/syscall.h>
-#endif
 
 int main(void)
 {
+	int ret;
+
 #if NEED_GLIBC(2,27,0)
-        return pkey_free(0);
-#else
-        return syscall(__NR_pkey_free, 0);
+        ret = pkey_free(0);
+	(void)ret;
 #endif
+        ret = syscall(__NR_pkey_free, 0);
+	(void)ret;
+
+	return 0;
 }
