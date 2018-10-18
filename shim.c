@@ -55,7 +55,7 @@ int shim_sched_yield(void)
  */
 int shim_cacheflush(char *addr, int nbytes, int cache)
 {
-#if defined(__linux__) && defined(__NR_cacheflush)
+#if defined(__NR_cacheflush)
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
 	(void)addr;
@@ -82,7 +82,7 @@ ssize_t shim_copy_file_range(
 {
 #if defined(HAVE_COPY_FILE_RANGE)
 	return copy_file_range(fd_in, off_in, fd_out, off_out, len, flags);
-#elif defined(__linux__) && defined(__NR_copy_file_range)
+#elif defined(__NR_copy_file_range)
 	return syscall(__NR_copy_file_range,
 		fd_in, off_in, fd_out, off_out, len, flags);
 #else
@@ -150,7 +150,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		}
 	}
 	return ret;
-#elif defined(__linux__) && defined(__NR_fallocate)
+#elif defined(__NR_fallocate)
 	int ret;
 
 	ret = syscall(__NR_fallocate, fd, mode, offset, len);
@@ -190,7 +190,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
  */
 int shim_gettid(void)
 {
-#if defined(HAVE_GETTID)
+#if defined(__NR_gettid)
 	return syscall(__NR_gettid);
 #else
 	errno = -ENOSYS;
@@ -208,7 +208,7 @@ long shim_getcpu(
 	unsigned *node,
 	void *tcache)
 {
-#if defined(HAVE_GETCPU)
+#if defined(__NR_getcpu)
 	return syscall(__NR_getcpu, cpu, node, tcache);
 #else
 	(void)cpu;
@@ -229,7 +229,7 @@ int shim_getdents(
 	struct shim_linux_dirent *dirp,
 	unsigned int count)
 {
-#if defined(HAVE_GETDENTS)
+#if defined(__NR_getdents)
 	return syscall(__NR_getdents, fd, dirp, count);
 #else
 	(void)fd;
@@ -250,7 +250,7 @@ int shim_getdents64(
 	struct shim_linux_dirent64 *dirp,
 	unsigned int count)
 {
-#if defined(HAVE_GETDENTS64)
+#if defined(__NR_getdents64)
 	return syscall(__NR_getdents64, fd, dirp, count);
 #else
 	(void)fd;
@@ -268,7 +268,7 @@ int shim_getdents64(
  */
 int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_getrandom)
+#if defined(__NR_getrandom)
 	return syscall(__NR_getrandom, buff, buflen, flags);
 #elif defined(__OpenBSD__) || defined(__APPLE__)
 	(void)flags;
@@ -305,7 +305,7 @@ void shim_clear_cache(char* begin, char *end)
  */
 long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2)
 {
-#if defined(HAVE_KCMP)
+#if defined(__NR_kcmp)
 	errno = 0;
 	return syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
@@ -326,7 +326,7 @@ long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned lo
  */
 int shim_syslog(int type, char *bufp, int len)
 {
-#if defined(HAVE_SYSLOG)
+#if defined(__NR_syslog)
 	return syscall(__NR_syslog, type, bufp, len);
 #else
 	(void)type;
@@ -344,7 +344,7 @@ int shim_syslog(int type, char *bufp, int len)
  */
 int shim_membarrier(int cmd, int flags)
 {
-#if defined(HAVE_MEMBARRIER)
+#if defined(__NR_membarrier)
 	return syscall(__NR_membarrier, cmd, flags);
 #else
 	(void)cmd;
@@ -361,7 +361,7 @@ int shim_membarrier(int cmd, int flags)
  */
 int shim_memfd_create(const char *name, unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_memfd_create)
+#if defined(__NR_memfd_create)
 	return syscall(__NR_memfd_create, name, flags);
 #else
 	(void)name;
@@ -383,7 +383,7 @@ int shim_get_mempolicy(
 	unsigned long addr,
 	unsigned long flags)
 {
-#if defined(__linux__) && defined(__NR_get_mempolicy)
+#if defined(__NR_get_mempolicy)
 	return syscall(__NR_get_mempolicy,
 		mode, nodemask, maxnode, addr, flags);
 #else
@@ -407,7 +407,7 @@ int shim_set_mempolicy(
 	unsigned long *nodemask,
 	unsigned long maxnode)
 {
-#if defined(__linux__) && defined(__NR_set_mempolicy)
+#if defined(__NR_set_mempolicy)
 	return syscall(__NR_set_mempolicy,
 		mode, nodemask, maxnode);
 #else
@@ -432,7 +432,7 @@ long shim_mbind(
 	unsigned long maxnode,
 	unsigned flags)
 {
-#if defined(__linux__) && defined(__NR_mbind)
+#if defined(__NR_mbind)
 	return syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
 #else
@@ -458,7 +458,7 @@ long shim_migrate_pages(
 	const unsigned long *old_nodes,
 	const unsigned long *new_nodes)
 {
-#if defined(__linux__) && defined(__NR_migrate_pages)
+#if defined(__NR_migrate_pages)
 	return syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
 #else
@@ -484,7 +484,7 @@ long shim_move_pages(
 	int *status,
 	int flags)
 {
-#if defined(__linux__) && defined(__NR_move_pages)
+#if defined(__NR_move_pages)
 	return syscall(__NR_move_pages,
 		pid, count, pages, nodes,
 		status, flags);
@@ -507,7 +507,7 @@ long shim_move_pages(
  */
 int shim_userfaultfd(int flags)
 {
-#if defined(__linux__) && defined(__NR_userfaultfd)
+#if defined(__NR_userfaultfd)
 	return syscall(__NR_userfaultfd, flags);
 #else
 	(void)flags;
@@ -523,7 +523,7 @@ int shim_userfaultfd(int flags)
  */
 int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 {
-#if defined(__linux__) && defined(__NR_seccomp)
+#if defined(__NR_seccomp)
 	return (int)syscall(__NR_seccomp, operation, flags, args);
 #else
 	(void)operation;
@@ -541,7 +541,7 @@ int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
  */
 int shim_unshare(int flags)
 {
-#if defined(__linux__) && defined(__NR_unshare)
+#if defined(__NR_unshare)
 #if NEED_GLIBC(2,14,0)
 	return unshare(flags);
 #else
@@ -565,7 +565,7 @@ int shim_sched_getattr(
 	unsigned int size,
 	unsigned int flags)
 {
-#if defined(HAVE_sched_getattr)
+#if defined(__NR_sched_getattr)
 	return syscall(__NR_sched_getattr, pid, attr, size, flags);
 #else
 	(void)pid;
@@ -587,7 +587,7 @@ int shim_sched_setattr(
 	struct shim_sched_attr *attr,
 	unsigned int flags)
 {
-#if defined(HAVE_sched_setattr)
+#if defined(__NR_sched_setattr)
 	return syscall(__NR_sched_setattr, pid, attr, flags);
 #else
 	(void)pid;
@@ -627,7 +627,7 @@ int shim_mlock(const void *addr, size_t len)
  */
 int shim_mlock2(const void *addr, size_t len, int flags)
 {
-#if defined(__linux__) && defined(__NR_mlock2)
+#if defined(__NR_mlock2)
 	return (int)syscall(__NR_mlock2, addr, len, flags);
 #else
 	(void)addr;
@@ -780,7 +780,7 @@ int shim_msync(void *addr, size_t length, int flags)
  */
 int shim_sysfs(int option, ...)
 {
-#if defined(__linux__) && defined(__NR_sysfs)
+#if defined(__NR_sysfs)
 	int ret;
 	va_list ap;
 	char *fsname;
@@ -900,7 +900,7 @@ ssize_t shim_statx(
 	unsigned int mask,
 	struct shim_statx *buffer)
 {
-#if defined(__linux__) && defined(__NR_statx)
+#if defined(__NR_statx)
 	return syscall(__NR_statx, dfd, filename, flags, mask, buffer);
 #else
 	(void)dfd;
@@ -918,7 +918,7 @@ ssize_t shim_statx(
  *  futex wake()
  *	wake n waiters on futex
  */
-#if defined(__linux__) && defined(__NR_futex)
+#if defined(__NR_futex)
 int shim_futex_wake(const void *futex, const int n)
 {
 	return syscall(__NR_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
@@ -938,7 +938,7 @@ int shim_futex_wake(const void *futex, const int n)
  *  futex_wait()
  *	wait on futex with a timeout
  */
-#if defined(__linux__) && defined(__NR_futex)
+#if defined(__NR_futex)
 int shim_futex_wait(
 	const void *futex,
 	const int val,
@@ -991,9 +991,9 @@ int shim_sync_file_range(
 {
 #if defined(HAVE_SYNC_FILE_RANGE)
 	return sync_file_range(fd, offset, nbytes, flags);
-#elif defined(__linux__) && defined(__NR_sync_file_range)
+#elif defined(__NR_sync_file_range)
 	return syscall(__NR_sync_file_range, fd, offset, nbytes, flags);
-#elif defined(__linux__) && defined(__NR_sync_file_range2)
+#elif defined(__NR_sync_file_range2)
 	/*
 	 * from sync_file_range(2):
 	 * "Some architectures (e.g., PowerPC, ARM) need  64-bit  arguments
@@ -1022,7 +1022,7 @@ int shim_sync_file_range(
  */
 int shim_ioprio_set(int which, int who, int ioprio)
 {
-#if defined(__linux__) && defined(__NR_ioprio_set)
+#if defined(__NR_ioprio_set)
 	return syscall(__NR_ioprio_set, which, who, ioprio);
 #else
 	(void)which;
@@ -1040,7 +1040,7 @@ int shim_ioprio_set(int which, int who, int ioprio)
  */
 int shim_ioprio_get(int which, int who)
 {
-#if defined(__linux__) && defined(__NR_ioprio_get)
+#if defined(__NR_ioprio_get)
 	return syscall(__NR_ioprio_get, which, who);
 #else
 	(void)which;
@@ -1212,7 +1212,7 @@ int shim_fdatasync(int fd)
  */
 int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
 {
-#if defined(HAVE_PKEY_ALLOC)
+#if defined(__NR_pkey_alloc)
 	return syscall(__NR_pkey_alloc, flags, access_rights);
 #else
 	(void)flags;
@@ -1229,7 +1229,7 @@ int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
  */
 int shim_pkey_free(int pkey)
 {
-#if defined(HAVE_PKEY_FREE)
+#if defined(__NR_pkey_free)
 	return syscall(__NR_pkey_free, pkey);
 #else
 	(void)pkey;
@@ -1245,7 +1245,7 @@ int shim_pkey_free(int pkey)
  */
 int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
 {
-#if defined(HAVE_PKEY_MPROTECT)
+#if defined(__NR_pkey_mprotect)
 	return syscall(__NR_pkey_mprotect, addr, len, prot, pkey);
 #else
 	(void)addr;
@@ -1264,7 +1264,7 @@ int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
  */
 int shim_pkey_get(int pkey)
 {
-#if defined(HAVE_PKEY_GET)
+#if defined(__NR_pkey_get)
 	return syscall(__NR_pkey_get, pkey);
 #else
 	(void)pkey;
@@ -1280,7 +1280,7 @@ int shim_pkey_get(int pkey)
  */
 int shim_pkey_set(int pkey, unsigned int rights)
 {
-#if defined(HAVE_PKEY_SET)
+#if defined(__NR_pkey_set)
 	return syscall(__NR_pkey_set, pkey, rights);
 #else
 	(void)pkey;
