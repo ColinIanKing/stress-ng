@@ -76,7 +76,7 @@ void mount_free(char *mnts[], const int n)
 int mount_get(char *mnts[], const int max)
 {
 	int i, n = 0, ret;
-#if defined(__NetBSD__)
+#if defined(__NetBSD__) || defined(__minix__)
 	struct statvfs *statbufs;
 #else
 	struct statfs *statbufs;
