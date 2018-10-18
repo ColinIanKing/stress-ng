@@ -24,9 +24,16 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(HAVE_LINUX_LOOP_H)
-
+#if defined(__linux__) && \
+    defined(HAVE_LINUX_LOOP_H) 
 #include <linux/loop.h>
+#endif
+
+#if defined(__linux__) && \
+    defined(LOOP_CTL_GET_FREE) && \
+    defined(LOOP_SET_FD) && \
+    defined(LOOP_CLR_FD) && \
+    defined(LOOP_CTL_REMOVE)
 
 /*
  *  stress_loot_supported()
