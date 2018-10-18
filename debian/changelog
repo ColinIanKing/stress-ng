@@ -1,3 +1,91 @@
+stress-ng (0.09.43-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-loop: check for specific loop ioctl commands
+  * mounts: cater for minix requiring statbufs for mount information
+  * stress-revio: ensure fiemap extent struct is zero'd (LP: #1798566)
+  * Add autodetection of linux/futex.h
+  * shim: revert back to checking if syscall is defined if calling via
+    syscall()
+  * test-pkey: also check if syscall is available
+  * Add checks for linux/membarrier.h and membarrier system call
+  * shim.c: update for KCMP and SYSLOG
+  * Add HAVE_GETCPU getcpu system call check
+  * test/test-fallocate: remove whitespace
+  * Add HAVE_FALLOCATE fallocate system call check
+  * Add HAVE_COPY_FILE_RANGE copy_file_range system call check
+  * Add HAVE_SYNC_FILE_RANGE to Makefile.config
+  * Add HAVE_SYNC_FILE_RANGE sync_file_range system call check
+  * stress-apparmor: make another aa_kernel_interface_replace_policy
+    failure an info message
+  * Add autobuild detection for pkey family of system calls
+  * stress-resources: use HAVE_USEFAULTFD check
+  * Use HAVE_LINUX_USERFAULTFD_H and HAVE_USERFAULTFD checks
+  * stress-apparmor: make aa_kernel_interface_replace_policy failure an
+    info message
+  * Use HAVE_SYS_EVENTFD_H and HAVE_EVENTFD checks
+  * Add sys/eventfd header detection
+  * Add HAVE_IOPRIO_{GET|SET}ATTR ioprio_{get|set}attr system call check
+  * Add HAVE_KEYCTL keyctl system call check
+  * Add HAVE_ADD_KEY add_key system call check
+  * Add HAVE_REQUEST_KEY request_key system call check
+  * stress-ng.h: re-order syscall checks alphabetically
+  * Add HAVE_SCHED_{GET|SET}ATTR sched_{get|set}attr system call check
+  * Add autobuild check and exercising of getdtablesize()
+  * test/test-mremap: voidify newbuf to avoid cppcheck warning
+  * test/test-ioport: return ret, fixes warning
+  * stress-loop: clean up cppcheck warning on clr_loop not being used:
+  * stress-kcmp: move slot to local scope
+  * ignite-cpu: reduce scope of buffer and cpu
+  * Add HAVE_KCMP kcmp system call check
+  * Add HAVE_REMAP_FILE_PAGES check in Makefile.config
+  * Add HAVE_SYSLOG syslog system call check
+  * Add autobuild detection of remap_file_pages
+  * Add HAVE_TGKILL tgkill system call check
+  * Add HAVE_{SET|GET}_ROBUST_LIST {set|get}_robust_list system call
+    check
+  * Add HAVE_GETTID gettid system call check
+  * Add HAVE_GETDENTS* check
+  * Add autobuild detection of unshare
+  * Add autobuild check for MLOCK2
+  * stress-revio: use shim_fdatasync
+  * Abstract fdatasync with a shim
+  * stress-getrandom: allow __APPLE__ as it provides getentropy
+  * Add autobuild detection of sys/memfd.h
+  * Add autobuild detection of memfd_create
+  * stress-get: use HAVE_LOOKUP_DCOOKIE check
+  * Add autobuild check for lookup_dcookie system call
+  * Use the autobuild config HAVE_SENDMMSG check
+  * Add autobuild detection of sendmmsg
+  * Makefile.config: minor cleanups
+  * Makefile.config: use more generic rules for checking
+  * Makefile.config: use generic have_test_prog rule for asm nop test
+  * Makefile.config: use generic have_test_prog rule for aligment build
+    checks
+  * Makefile.config: add and use generic have_test_prog rule
+  * stress-ng.h: re-order shim_ function declarations
+  * Add autoconfig check for execveat
+  * Move shim_execveat to main shim source
+  * README: Add Dilos to notes
+  * Makefile: use standard grep for dilos
+  * stress-sysbadaddr: make ro_page and rw_page void * rather than uint8_t
+  * stress-sigsegv: clean up warnings on older gcc on solaris
+  * stress-rmap: clean up warnings on older gcc on solaris
+  * stress-mmapaddr: clean up warnings on older gcc on solaris
+  * stress-vforkmany: cleans up warnings on older gcc on solaris
+  * stress-memthrash: make mem void * rather than uint8_t
+  * stress-madvise: make buf void * rather than uint8_t
+  * stress-bad-altstack: make stack pointer void * rather than uint8_t *
+  * stress-loop: add stress_loop_supported for non-linux platforms
+  * cache: minor change to comment block
+  * stress-loop: use HAVE_LINUX_LOOP_H build detection
+  * Makefile.config: check for linux/loop.h
+  * stress-loop: check for ioctl commands before using them
+  * Add loopback stressor
+  * stress-sysfs: work around race on TPM driver for Linux
+
+ -- Colin King <colin.king@canonical.com>  Thu, 18 Oct 2018 14:09:17 +0100
+
 stress-ng (0.09.42-1) unstable; urgency=medium
 
   * Makefile: bump version
