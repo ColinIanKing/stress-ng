@@ -301,6 +301,17 @@ static int stress_file_ioctl(const args_t *args)
 			exercised++;
 		}
 #endif
+
+#if defined(FIBMAP)
+		{
+			int block = 0;
+
+			ret = ioctl(fd, FIBMAP, &block);
+			(void)ret;
+
+			exercised++;
+		}
+#endif
 		if (!exercised) {
 			pr_inf("%s: no available file ioctls to exercise\n",
 				args->name);
