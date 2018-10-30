@@ -27,8 +27,12 @@
 
 #define _GNU_SOURCE
 #define _ATFILE_SOURCE
+#ifndef _LARGEFILE_SOURCE
 #define _LARGEFILE_SOURCE
+#endif
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
 #define _FILE_OFFSET_BITS 	64
 
 /* Some Solaris tool chains only define __sun */
