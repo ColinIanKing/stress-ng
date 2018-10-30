@@ -50,6 +50,9 @@
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #endif
+#if defined(HAVE_LINUX_HDREG_H)
+#include <linux/hdreg.h>
+#endif
 
 #define MAX_DEV_THREADS		(4)
 
@@ -64,6 +67,11 @@ typedef struct {
 	void (*func)(const char *name, const int fd, const char *devpath);
 } dev_func_t;
 
+/*
+ *  path_sum()
+ *	simple hash on path (hash pjw), from
+ *	from Aho, Sethi, Ullman, Compiling Techniques.
+ */
 static uint32_t path_sum(const char *path)
 {
 	const char *ptr = path;
@@ -81,6 +89,10 @@ static uint32_t path_sum(const char *path)
 	return h;
 }
 
+/*
+ *  mixup_sort()
+ *	sort helper based on hash to mix up ordering
+ */
 #if defined(__NetBSD__)
 static int mixup_sort(const void *p1, const void *p2)
 {
@@ -526,6 +538,10 @@ static void stress_dev_scsi_blk(
 }
 
 #if defined(__linux__)
+/*
+ *  stress_dev_random_linux()
+ *	Linux /dev/random ioctls
+ */
 static void stress_dev_random_linux(
 	const char *name,
 	const int fd,
@@ -548,7 +564,10 @@ static void stress_dev_random_linux(
 #endif
 
 #if defined(__linux__)
-
+/*
+ *  stress_dev_mem_mmap_linux()
+ *	Linux mmap'ing on a device
+ */
 static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 {
 	void *ptr;
@@ -638,6 +657,99 @@ static void stress_dev_port_linux(
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, page_size);
+}
+#endif
+
+#if defined(HAVE_LINUX_HDREG_H)
+static void stress_dev_hd_linux_ioctl_long(int fd, int cmd)
+{
+	long val;
+	int ret;
+
+	ret = ioctl(fd, cmd, &val);
+	(void)ret;
+}
+
+/*
+ *  stress_dev_hd_linux()
+ *	Linux HDIO ioctls
+ */
+static void stress_dev_hd_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+#if defined(HDIO_GETGEO)
+	{
+		struct hd_geometry geom;
+		int ret;
+
+		ret = ioctl(fd, HDIO_GETGEO, &geom);
+		(void)ret;
+	}
+#endif
+
+#if defined(HDIO_GET_UNMASKINTR)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_UNMASKINTR);
+#endif
+
+#if defined(HDIO_GET_MULTCOUNT)
+	{
+		int val, ret;
+
+		ret = ioctl(fd, HDIO_GET_MULTCOUNT, &val);
+		(void)ret;
+	}
+#endif
+
+#if defined(HDIO_GET_IDENTITY)
+	{
+		unsigned char identity[512];
+		int ret;
+
+		ret = ioctl(fd, HDIO_GET_IDENTITY, identity);
+		(void)ret;
+	}
+#endif
+
+#if defined(HDIO_GET_KEEPSETTINGS)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_KEEPSETTINGS);
+#endif
+
+#if defined(HDIO_GET_32BIT)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_32BIT);
+#endif
+
+#if defined(HDIO_GET_NOWERR)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_NOWERR);
+#endif
+
+#if defined(HDIO_GET_DMA)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_DMA);
+#endif
+
+#if defined(HDIO_GET_NICE)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_NICE);
+#endif
+
+#if defined(HDIO_GET_WCACHE)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_WCACHE);
+#endif
+
+#if defined(HDIO_GET_ACOUSTIC)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_ACOUSTIC);
+#endif
+
+#if defined(HDIO_GET_ADDRESS)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_ADDRESS);
+#endif
+
+#if defined(HDIO_GET_BUSSTATE)
+	stress_dev_hd_linux_ioctl_long(fd, HDIO_GET_BUSSTATE);
+#endif
 }
 #endif
 
@@ -734,9 +846,12 @@ static inline void stress_dev_rw(
 			}
 		}
 
-		if (buf.st_mode & S_IFBLK) {
+		if (S_ISBLK(buf.st_mode)) {
 			stress_dev_blk(args->name, fd, path);
 			stress_dev_scsi_blk(args->name, fd, path);
+#if defined(HAVE_LINUX_HDREG_H)
+			stress_dev_hd_linux(args->name, fd, path);
+#endif
 		}
 #if defined(TCGETS)
 		if (ioctl(fd, TCGETS, &tios) == 0)
