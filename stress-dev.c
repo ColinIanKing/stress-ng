@@ -468,14 +468,6 @@ static void stress_dev_blk(
 		(void)ret;
 	}
 #endif
-#if defined(FIBMAP)
-	{
-		int ret, block = 0;
-
-		ret = ioctl(fd, FIBMAP, &block);
-		(void)ret;
-	}
-#endif
 }
 
 /*
