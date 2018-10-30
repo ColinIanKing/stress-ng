@@ -924,7 +924,7 @@ stress_cpu_fp(__float128, float128, sinl, cosl)
 /* Append floating point literal specifier to literal value */
 #define FP(val, ltype)	val ## ltype
 
-#if defined(__STDC_IEC_559_COMPLEX__)
+#if defined(__STDC_IEC_559_COMPLEX__) && !defined(__UCLIBC__)
 /*
  *  Generic complex stressor macro
  */
@@ -2277,7 +2277,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "ackermann",		stress_cpu_ackermann },
 	{ "bitops",		stress_cpu_bitops },
 	{ "callfunc",		stress_cpu_callfunc },
-#if defined(__STDC_IEC_559_COMPLEX__)
+#if defined(__STDC_IEC_559_COMPLEX__) && !defined(__UCLIBC__)
 	{ "cdouble",		stress_cpu_complex_double },
 	{ "cfloat",		stress_cpu_complex_float },
 	{ "clongdouble",	stress_cpu_complex_long_double },

@@ -23,6 +23,9 @@
  *
  */
 #include "stress-ng.h"
+
+#if !defined(__UCLIBC__)
+
 #include <math.h>
 #include <float.h>
 #include <fenv.h>
@@ -173,3 +176,9 @@ stressor_info_t stress_fp_error_info = {
 	.stressor = stress_fp_error,
 	.class = CLASS_CPU
 };
+#else
+stressor_info_t stress_fp_error_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
+};
+#endif

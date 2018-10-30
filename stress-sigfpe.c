@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if !defined(__UCLIBC__)
+
 #include <math.h>
 #include <float.h>
 #include <fenv.h>
@@ -238,3 +240,9 @@ stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_sigfpe,
 	.class = CLASS_INTERRUPT | CLASS_OS
 };
+#else
+stressor_info_t stress_sigfpe_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS
+};
+#endif
