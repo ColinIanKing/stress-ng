@@ -1,3 +1,13 @@
+stress-ng (0.09.44-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dev: add HDIO_* ioctls
+  * stress-file-ioctl: add FIBMAP ioctl to file
+  * stress-dev: remove FIBMAP ioctl on device (LP: #1800609)
+  * log: use snprintf instead of sprintf, it is safer
+
+ -- Colin King <colin.king@canonical.com>  Thu, 1 Nov 2018 11:45:01 +0000
+
 stress-ng (0.09.43-1) unstable; urgency=medium
 
   * Makefile: bump version
