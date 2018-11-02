@@ -39,9 +39,13 @@ typedef struct {
  * append @element to array @path (which has len @len)
  */
 #define MK_PATH(path, len, element) 				\
-	(void)memset((path) + len, '\0', sizeof(path) - len);	\
-	(void)strncpy((path) + len, element, strlen(element) + 1);	\
-	path[len + strlen(element)] = '\0';
+	{							\
+		const size_t e_len = strlen(element); 		\
+								\
+		path[len + len] = '\0';				\
+		(void)strncpy((path) + len, element, e_len + 1);\
+		path[len + e_len] = '\0';			\
+	}
 
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
