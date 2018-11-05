@@ -76,6 +76,7 @@ static int stress_pty(const args_t *args)
 			if (ptys[n].master < 0) {
 				if ((errno != ENOMEM) &&
 				    (errno != ENOSPC) &&
+				    (errno != EIO) &&
 				    (errno != EMFILE)) {
 					pr_fail_err("open /dev/ptmx");
 					goto clean;
