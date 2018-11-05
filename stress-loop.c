@@ -151,12 +151,20 @@ clr_loop:
 		/*
 		 *  Disassociate backing store from loop device
 		 */
-		ret = ioctl(loop_dev, LOOP_CLR_FD, backing_fd);
-		if (ret < 0) {
-			pr_fail("%s: failed to disassociate %s from backing store, "
-				"errno=%d (%s)\n",
-				args->name, dev_name, errno, strerror(errno));
-			goto close_loop;
+		for (i = 0; i < 1000; i++) {
+			ret = ioctl(loop_dev, LOOP_CLR_FD, backing_fd);
+			if (ret < 0) {
+				if (errno == EBUSY) {
+					shim_usleep(10);
+				} else {
+					pr_fail("%s: failed to disassociate %s from backing store, "
+						"errno=%d (%s)\n",
+						args->name, dev_name, errno, strerror(errno));
+					goto close_loop;
+				}
+			} else {
+				break;
+			}
 		}
 close_loop:
 		(void)close(loop_dev);
@@ -166,10 +174,10 @@ close_loop:
 		 *  if we get EBUSY
 		 */
 destroy_loop:
-		for (i = 0; i < 100; i++) {
+		for (i = 0; i < 1000; i++) {
 			ret = ioctl(ctrl_dev, LOOP_CTL_REMOVE, dev_num);
 			if ((ret < 0) && (errno == EBUSY)) {
-				shim_usleep(1000);
+				shim_usleep(10);
 			} else {
 				break;
 			}
