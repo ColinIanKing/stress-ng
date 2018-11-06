@@ -482,6 +482,80 @@ static void stress_dev_blk(
 #endif
 }
 
+static inline const char *dev_basename(const char *devpath)
+{
+	const char *ptr = devpath;
+	const char *base = devpath;
+
+	while (*ptr) {
+		if ((*ptr == '/') && (*(ptr + 1)))
+			base = ptr + 1;
+		ptr++;
+	}
+
+	return base;
+}
+
+#if defined(__linux__)
+static inline bool is_scsi_dev(const char *devpath)
+{
+	int i, n;
+	static const char scsi_device_path[] = "/sys/class/scsi_device/";
+	struct dirent **scsi_device_list;
+	bool is_scsi = false;
+	const char *devname = dev_basename(devpath);
+
+	if (!*devname)
+		return false;
+
+	scsi_device_list = NULL;
+	n = scandir(scsi_device_path, &scsi_device_list, NULL, alphasort);
+	if (n <= 0)
+		return is_scsi;
+
+	for (i = 0; !is_scsi && (i < n); i++) {
+		int j, m;
+		char scsi_block_path[PATH_MAX];
+		struct dirent **scsi_block_list;
+
+		if (scsi_device_list[i]->d_name[0] == '.')
+			continue;
+
+		snprintf(scsi_block_path, sizeof(scsi_block_path), "%s/%s/device/block",
+			scsi_device_path, scsi_device_list[i]->d_name);
+
+		scsi_block_list = NULL;
+		m = scandir(scsi_block_path, &scsi_block_list, NULL, alphasort);
+		if (m <= 0)
+			continue;
+
+		for (j = 0; j < m; j++) {
+			printf("%s vs %s\n", devname, scsi_block_list[j]->d_name);
+			if (!strcmp(devname, scsi_block_list[j]->d_name)) {
+				is_scsi = true;
+				break;
+			}
+		}
+
+		for (j = 0; j < m; j++)
+			free(scsi_block_list[j]);
+		free(scsi_block_list);
+	}
+
+	for (i = 0; i < n; i++)
+		free(scsi_device_list[i]);
+	free(scsi_device_list);
+
+	return is_scsi;
+}
+#else
+static inline bool is_scsi_dev(char *name)
+{
+	/* Assume not */
+	return false;
+}
+#endif
+
 /*
  *  stress_dev_scsi_blk()
  *	SCSI block device specific ioctls
@@ -494,6 +568,9 @@ static void stress_dev_scsi_blk(
 	(void)name;
 	(void)fd;
 	(void)devpath;
+
+	if (!is_scsi_dev(devpath))
+		return;
 
 #if defined(SG_GET_VERSION_NUM)
 	{
