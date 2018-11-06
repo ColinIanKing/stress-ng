@@ -322,6 +322,8 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
+				if (errno == ENOMEM)
+					break;
 				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
@@ -364,6 +366,8 @@ static int stress_af_alg_cipher(
 			msg.msg_iovlen = 1;
 
 			if (sendmsg(fd, &msg, 0) < 0) {
+				if (errno == ENOMEM)
+					break;
 				pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 					args->name, algo_cipher_info[i].name,
 					errno, strerror(errno));
