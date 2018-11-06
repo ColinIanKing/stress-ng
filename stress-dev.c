@@ -530,7 +530,6 @@ static inline bool is_scsi_dev(const char *devpath)
 			continue;
 
 		for (j = 0; j < m; j++) {
-			printf("%s vs %s\n", devname, scsi_block_list[j]->d_name);
 			if (!strcmp(devname, scsi_block_list[j]->d_name)) {
 				is_scsi = true;
 				break;
