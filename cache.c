@@ -35,24 +35,24 @@ typedef struct {
 #define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
 #endif
 
-/*
- * append @element to array @path (which has len @len)
- */
-#define MK_PATH(path, len, element) 				\
-	{							\
-		const size_t e_len = strlen(element); 		\
-								\
-		path[len + len] = '\0';				\
-		(void)strncpy((path) + len, element, e_len + 1);\
-		path[len + e_len] = '\0';			\
-	}
-
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
 	{"unified"     , CACHE_TYPE_UNIFIED},
 	{ NULL         , CACHE_TYPE_UNKNOWN}
 };
+
+/*
+ * append @element to array @path (which has len @len)
+ */
+static inline void mk_path(char *path, size_t len, const char *element)
+{
+	const size_t e_len = strlen(element);
+
+	path[len + len] = '\0';
+	(void)strncpy((path) + len, element, e_len + 1);
+	path[len + e_len] = '\0';
+}
 
 /**
  *
@@ -270,7 +270,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 
 	(void)strncpy(path, index_path, index_len);
 
-	MK_PATH(path, index_len, "/type");
+	mk_path(path, index_len, "/type");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -280,7 +280,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	free(contents);
 
-	MK_PATH(path, index_len, "/size");
+	mk_path(path, index_len, "/size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -288,7 +288,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->size = size_to_bytes(contents);
 	free(contents);
 
-	MK_PATH(path, index_len, "/level");
+	mk_path(path, index_len, "/level");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -296,7 +296,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->level = (uint16_t)atoi(contents);
 	free(contents);
 
-	MK_PATH(path, index_len, "/coherency_line_size");
+	mk_path(path, index_len, "/coherency_line_size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -304,7 +304,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->line_size = (uint32_t)atoi(contents);
 	free(contents);
 
-	MK_PATH(path, index_len, "/ways_of_associativity");
+	mk_path(path, index_len, "/ways_of_associativity");
 	contents = get_string_from_file(path);
 
 	/* Don't error if file is not readable: cache may not be
@@ -584,7 +584,7 @@ cpus_t * get_all_cpu_cache_details(void)
 
 			(void)memset(path, 0, sizeof(path));
 			(void)strncpy(path, results[i], len);
-			MK_PATH(path, len, "/online");
+			mk_path(path, len, "/online");
 
 			contents = get_string_from_file(path);
 			if (!contents)
