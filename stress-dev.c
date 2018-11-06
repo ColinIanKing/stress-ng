@@ -61,11 +61,18 @@ static shim_pthread_spinlock_t lock;
 static char *dev_path;
 static uint32_t mixup;
 
-typedef struct {
+typedef struct dev_func {
 	const char *devpath;
 	const size_t devpath_len;
 	void (*func)(const char *name, const int fd, const char *devpath);
 } dev_func_t;
+
+typedef struct dev_scsi {
+	struct dev_scsi *next;
+	char *devpath;
+} dev_scsi_t;
+
+static dev_scsi_t *dev_scsi_list;
 
 /*
  *  path_sum()
@@ -482,6 +489,7 @@ static void stress_dev_blk(
 #endif
 }
 
+#if defined(__linux__)
 static inline const char *dev_basename(const char *devpath)
 {
 	const char *ptr = devpath;
@@ -496,7 +504,72 @@ static inline const char *dev_basename(const char *devpath)
 	return base;
 }
 
-#if defined(__linux__)
+static inline void add_scsi_dev(const char *devpath)
+{
+	dev_scsi_t *dev_scsi, *dev_scsi_new = NULL;
+	int ret;
+
+	/*
+	 *  Try to add new device to cache list, don't
+	 *  cause a failure if we can't do this.
+	 */
+	dev_scsi_new = malloc(sizeof(*dev_scsi));
+	if (!dev_scsi_new)
+		return;
+
+	dev_scsi_new->devpath = strdup(devpath);
+	if (!dev_scsi_new->devpath)
+		goto free_dev_scsi;
+
+	ret = shim_pthread_spin_lock(&lock);
+	if (ret)
+		goto free_devpath;
+
+	/*
+	 *  We may have had another thread add the same devpath to
+	 *  the list, so check first before adding a duplicate
+	 */
+	for (dev_scsi = dev_scsi_list; dev_scsi; dev_scsi = dev_scsi->next) {
+		if (!strcmp(dev_scsi->devpath, devpath))
+			break;
+	}
+	/* Not found, add to list */
+	if (!dev_scsi) {
+		dev_scsi_new->next = dev_scsi_list;
+		dev_scsi_list = dev_scsi_new;
+		(void)shim_pthread_spin_unlock(&lock);
+
+		return;
+	}
+	(void)shim_pthread_spin_unlock(&lock);
+
+free_devpath:
+	free(dev_scsi_new->devpath);
+free_dev_scsi:
+	free(dev_scsi_new);
+}
+
+static inline bool is_scsi_dev_cached(const char *devpath)
+{
+	dev_scsi_t *dev_scsi;
+	int ret;
+	bool is_scsi = false;
+
+	ret = shim_pthread_spin_lock(&lock);
+	if (ret)
+		return false;
+
+	for (dev_scsi = dev_scsi_list; dev_scsi; dev_scsi = dev_scsi->next) {
+		if (!strcmp(dev_scsi->devpath, devpath)) {
+			is_scsi = true;
+			break;
+		}
+	}
+	(void)shim_pthread_spin_unlock(&lock);
+
+	return is_scsi;
+}
+
 static inline bool is_scsi_dev(const char *devpath)
 {
 	int i, n;
@@ -507,6 +580,9 @@ static inline bool is_scsi_dev(const char *devpath)
 
 	if (!*devname)
 		return false;
+
+	if (is_scsi_dev_cached(devpath))
+		return true;
 
 	scsi_device_list = NULL;
 	n = scandir(scsi_device_path, &scsi_device_list, NULL, alphasort);
@@ -545,9 +621,37 @@ static inline bool is_scsi_dev(const char *devpath)
 		free(scsi_device_list[i]);
 	free(scsi_device_list);
 
+	if (is_scsi)
+		add_scsi_dev(devpath);
+
 	return is_scsi;
 }
+
+static inline void free_scsi_list(void)
+{
+	/*
+	 *  We don't need locking as there is
+	 *  just one thread running at this point
+	 */
+	dev_scsi_t *dev_scsi = dev_scsi_list;
+
+	while (dev_scsi) {
+		dev_scsi_t *next = dev_scsi->next;
+
+		free(dev_scsi->devpath);
+		free(dev_scsi);
+
+		dev_scsi = next;
+	}
+	dev_scsi_list = NULL;
+}
+
 #else
+
+static inline void free_scsi_list(void)
+{
+}
+
 static inline bool is_scsi_dev(char *name)
 {
 	/* Assume not */
@@ -566,7 +670,6 @@ static void stress_dev_scsi_blk(
 {
 	(void)name;
 	(void)fd;
-	(void)devpath;
 
 	if (!is_scsi_dev(devpath))
 		return;
@@ -1288,6 +1391,7 @@ again:
 				if (ret[i] == 0)
 					pthread_join(pthreads[i], NULL);
 			}
+			(void)free_scsi_list();
 			_exit(!g_keep_stressing_flag);
 		}
 	} while (keep_stressing());
