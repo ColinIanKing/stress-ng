@@ -27,20 +27,6 @@
 #if defined(__linux__)
 
 /*
- *  stress_cpu_online_supported()
- *      check if we can run this as root
- */
-static int stress_cpu_online_supported(void)
-{
-        if (geteuid() != 0) {
-                pr_inf("cpu-online stressor will be skipped, "
-                        "need to be running as root for this stressor\n");
-                return -1;
-        }
-        return 0;
-}
-
-/*
  *  stress_cpu_online_set()
  *	set a specified CPUs online or offline
  */
@@ -64,6 +50,31 @@ static int stress_cpu_online_set(
 	}
 	return EXIT_SUCCESS;
 }
+
+/*
+ *  stress_cpu_online_supported()
+ *      check if we can run this as root
+ */
+static int stress_cpu_online_supported(void)
+{
+	int ret;
+
+        if (geteuid() != 0) {
+                pr_inf("cpu-online stressor will be skipped, "
+                        "need to be running as root for this stressor\n");
+                return -1;
+        }
+
+	ret = system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
+	if (ret < 0) {
+                pr_inf("cpu-online stressor will be skipped, "
+                        "cannot write to cpu1 online sysfs control file\n");
+                return -1;
+	}
+
+        return 0;
+}
+
 
 /*
  *  stress_cpu_online
