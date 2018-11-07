@@ -29,6 +29,27 @@
     (defined(__linux__) && defined(__NR_getrandom))
 
 /*
+ *  stress_getrandom_supported()
+ *      check if getrandom is supported
+ */
+static int stress_getrandom_supported(void)
+{
+	int ret;
+#if defined(__OpenBSD__) || defined(__APPLE__)
+	char buffer[256];
+#else
+	char buffer[8192];
+#endif
+
+	ret = shim_getrandom(buffer, sizeof(buffer), 0);
+	if ((ret < 0) && (errno == ENOSYS)) {
+		pr_inf("getrandom stressor will be skipped, getrandom() not supported\n");
+		return -1;
+	}
+	return 0;
+}
+
+/*
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
@@ -47,6 +68,7 @@ static int stress_getrandom(const args_t *args)
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno == ENOSYS) {
+				/* Should not happen.. */
 				pr_inf("%s: stressor will be skipped, "
 					"getrandom() not supported\n",
 					args->name);
@@ -63,6 +85,7 @@ static int stress_getrandom(const args_t *args)
 
 stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
+	.supported = stress_getrandom_supported,
 	.class = CLASS_OS | CLASS_CPU
 };
 #else
