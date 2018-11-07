@@ -44,7 +44,8 @@ static int stress_cpu_online_set(
 
 	ret = system_write(filename, data, sizeof data);
 	if ((ret < 0) &&
-	    ((ret != -EAGAIN) && (ret != -EINTR) && (ret != -EBUSY))) {
+	    ((ret != -EAGAIN) && (ret != -EINTR) &&
+             (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
 		pr_fail_err("write");
 		return EXIT_FAILURE;
 	}
