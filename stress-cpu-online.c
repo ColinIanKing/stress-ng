@@ -27,6 +27,20 @@
 #if defined(__linux__)
 
 /*
+ *  stress_cpu_online_supported()
+ *      check if we can run this as root
+ */
+static int stress_cpu_online_supported(void)
+{
+        if (geteuid() != 0) {
+                pr_inf("cpu-online stressor will be skipped, "
+                        "need to be running as root for this stressor\n");
+                return -1;
+        }
+        return 0;
+}
+
+/*
  *  stress_cpu_online_set()
  *	set a specified CPUs online or offline
  */
@@ -157,6 +171,7 @@ static int stress_cpu_online(const args_t *args)
 
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
+	.supported = stress_cpu_online_supported,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL
 };
 #else
