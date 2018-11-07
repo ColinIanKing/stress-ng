@@ -40,6 +40,10 @@
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), \
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
+static struct sock_filter filter_allow_all[] = {
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+};
+
 static struct sock_filter filter_allow_write[] = {
 	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_open)
@@ -85,6 +89,11 @@ static struct sock_filter filter[] = {
 
 static struct sock_filter filter_random[64];
 
+static struct sock_fprog prog_allow_all = {
+	.len = (unsigned short)SIZEOF_ARRAY(filter_allow_all),
+	.filter = filter_allow_all
+};
+
 static struct sock_fprog prog_allow_write = {
 	.len = (unsigned short)SIZEOF_ARRAY(filter_allow_write),
 	.filter = filter_allow_write
@@ -99,6 +108,35 @@ static struct sock_fprog prog_random = {
 	.len = (unsigned short)SIZEOF_ARRAY(filter_random),
 	.filter = filter_random
 };
+
+static int stress_seccomp_supported(void)
+{
+	pid_t pid;
+	int status;
+
+	pid = fork();
+	if (pid < 0) {
+		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, fork failed: errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	if (pid == 0) {
+		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog_allow_all) == 0) {
+			_exit(0);
+		}
+		_exit(1);
+	}
+	if (waitpid(pid, &status, 0) < 0) {
+		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, wait failed: errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	if (WIFEXITED(status) && (WEXITSTATUS(status) != EXIT_SUCCESS)) {
+		pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER is not supported\n");
+		return -1;
+	}
+	return 0;
+}
 
 /*
  *  stress_seccomp_set_filter()
@@ -255,6 +293,7 @@ static int stress_seccomp(const args_t *args)
 
 stressor_info_t stress_seccomp_info = {
 	.stressor = stress_seccomp,
+	.supported = stress_seccomp_supported,
 	.class = CLASS_OS
 };
 #else
