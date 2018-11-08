@@ -112,7 +112,10 @@ static int pagein_proc(const pid_t pid)
 static inline void compact_memory(void)
 {
 #if defined(__linux__)
-	system_write("/proc/sys/vm/compact_memory", "1", 1);
+	int ret;
+
+	ret = system_write("/proc/sys/vm/compact_memory", "1", 1);
+	(void)ret;
 #endif
 }
 
@@ -123,7 +126,10 @@ static inline void compact_memory(void)
 static inline void merge_memory(void)
 {
 #if defined(__linux__)
-	system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1);
+	int ret;
+
+	ret = system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1);
+	(void)ret;
 #endif
 }
 
