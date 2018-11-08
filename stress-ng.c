@@ -2830,11 +2830,17 @@ static void log_system_info(void)
 
 /*
  *  stress_map_shared()
- *	mmap shared region
+ *	mmap shared region, with an extra page at the end
+ *	that is marked read-only to stop accidental smashing
+ *	from a run-away stack expansion
  */
 static inline void stress_map_shared(const size_t len)
 {
-	g_shared = (shared_t *)mmap(NULL, len, PROT_READ | PROT_WRITE,
+	const size_t page_size = stress_get_pagesize();
+	const size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
+	void *last_page;
+
+	g_shared = (shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
 	if (g_shared == MAP_FAILED) {
 		pr_err("Cannot mmap to shared memory region: errno=%d (%s)\n",
@@ -2842,8 +2848,14 @@ static inline void stress_map_shared(const size_t len)
 		free_procs();
 		exit(EXIT_FAILURE);
 	}
-	(void)memset(g_shared, 0, len);
-	g_shared->length = len;
+
+	/* Paraniod */
+	(void)memset(g_shared, 0, sz);
+	g_shared->length = sz;
+
+	/* Make last page trigger a segfault if it is accessed */
+	last_page = ((uint8_t *)g_shared) + sz - page_size;
+	(void)mprotect(last_page, page_size, PROT_NONE);
 }
 
 /*
