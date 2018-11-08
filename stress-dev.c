@@ -487,6 +487,24 @@ static void stress_dev_blk(
 		(void)ret;
 	}
 #endif
+#if defined(BLKGETZONESZ)
+	{
+		uint32_t sz;
+		int ret;
+
+		ret = ioctl(fd, BLKGETZONESZ, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(BLKGETNRZONES)
+	{
+		uint32_t sz;
+		int ret;
+
+		ret = ioctl(fd, BLKGETNRZONES, &sz);
+		(void)ret;
+	}
+#endif
 }
 
 #if defined(__linux__)
