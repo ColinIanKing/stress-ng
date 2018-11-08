@@ -130,8 +130,17 @@ stressor_info_t stress_tsc_info = {
 	.class = CLASS_CPU
 };
 #else
+
+static int stress_tsc_supported(void)
+{
+	pr_inf("tsc stressor will be skipped, CPU "
+		"does not support the rdtsc instruction.\n");
+	return -1;
+}
+
 stressor_info_t stress_tsc_info = {
 	.stressor = stress_not_implemented,
+	.supported = stress_tsc_supported,
 	.class = CLASS_CPU
 };
 #endif
