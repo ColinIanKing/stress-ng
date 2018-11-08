@@ -241,8 +241,17 @@ stressor_info_t stress_rdrand_info = {
 	.class = CLASS_CPU
 };
 #else
+
+static int stress_rdrand_supported(void)
+{	
+	pr_inf("rdrand stressor will be skipped, CPU "
+		"does not support the rdrand instruction.\n");
+	return -1;
+}
+
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_not_implemented,
+	.supported = stress_rdrand_supported,
 	.class = CLASS_CPU
 };
 #endif
