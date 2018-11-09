@@ -1,3 +1,33 @@
+stress-ng (0.09.45-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Use alternative mmap strategy on last shared page if mprotect is
+    not available
+  * stress-dev: constify a char * function parameter, fixes warning
+  * stress-dev: fix warnings on non-Linux systems
+  * stress-dev: add 4.20 BLKGETZONESZ and BLKGETNRZONES ioctls
+  * stress-tsc: add supported handler for non-x86
+  * stress-rdrand: add supported handler for non-x86
+  * stress-ng: add extra non-accessible page at end of shared region
+  * thrash: assign return to variable and voidif
+  * stress-getrandom: check if system call is available before testing
+  * stress-cpu-online: ignore -EOPNOTSUPP failure, just keep on
+    exercising the sys interfaces
+  * stress-cpu-online: check if we can access sysfs file for updating
+  * stress-cpu-online: add root check before running the stress test
+  * stress-seccomp: add sanity check to see if SECCOMP_SET_MODE_FILTER
+    works (LP: #1801856)
+  * stress-dev: cache the scsi device names to reduce lookup overhead
+  * stress-dev: remove debug cruft
+    cache: turn macro MK_PATH to an inline'd static helper function
+  * stress-dev: add SCSI device checking
+  * stress-af-alg: handle ENOMEM failures on sendmsg (LP: #1801865)
+  * stress-pty: handle EIO failures on opening /dev/ptmx
+  * stress-loop: fix EBUSY error detection (LP: #1797544)
+  * cache: optimize MK_PATH macro, remove double strlen call
+
+ -- Colin King <colin.king@canonical.com>  Fri, 9 Nov 2018 10:43:35 +0000
+
 stress-ng (0.09.44-1) unstable; urgency=medium
 
   * Makefile: bump version
