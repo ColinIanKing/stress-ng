@@ -36,6 +36,17 @@
 #undef HAVE_VECMATH
 #endif
 
+/*
+ *  gcc 5.x or earlier breaks on 128 bit vector maths on
+ *  PPC64 for some reason with some flavours of the toolchain
+ *  so disable this test for now
+ */
+#if defined(STRESS_PPC64) && \
+    defined(__GNUC__) && \
+    __GNUC__ < 6
+#undef HAVE_VECMATH
+#endif
+
 #if defined(HAVE_VECMATH)
 
 typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
