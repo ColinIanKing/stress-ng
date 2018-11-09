@@ -2853,9 +2853,28 @@ static inline void stress_map_shared(const size_t len)
 	(void)memset(g_shared, 0, sz);
 	g_shared->length = sz;
 
-	/* Make last page trigger a segfault if it is accessed */
 	last_page = ((uint8_t *)g_shared) + sz - page_size;
+#if defined(HAVE_MPROTECT)
+	/* Make last page trigger a segfault if it is accessed */
 	(void)mprotect(last_page, page_size, PROT_NONE);
+#elif defined(HAVE_MREMAP) && defined(MAP_FIXED)
+	{
+		void *new_last_page;
+
+		/* Try to remap last page with PROT_NONE */
+		(void)munmap(last_page, page_size);
+		new_last_page = mmap(last_page, page_size, PROT_NONE,
+			MAP_SHARED | MAP_ANON | MAP_FIXED, -1, 0);
+
+		/* Failed, retry read-only */
+		if (new_last_page == MAP_FAILED)
+			new_last_page = mmap(last_page, page_size, PROT_READ,
+				MAP_SHARED | MAP_ANON | MAP_FIXED, -1, 0);
+		/* Can't remap, bump length down a page */
+		if (new_last_page == MAP_FAILED)
+			g_shared->length -= sz;
+	}
+#endif
 }
 
 /*
