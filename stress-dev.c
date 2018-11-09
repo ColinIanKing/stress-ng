@@ -72,7 +72,9 @@ typedef struct dev_scsi {
 	char *devpath;
 } dev_scsi_t;
 
+#if defined(__linux__)
 static dev_scsi_t *dev_scsi_list;
+#endif
 
 /*
  *  path_sum()
@@ -672,6 +674,8 @@ static inline void free_scsi_list(void)
 
 static inline bool is_scsi_dev(char *name)
 {
+	(void)name;
+
 	/* Assume not */
 	return false;
 }
