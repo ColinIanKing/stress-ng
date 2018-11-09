@@ -672,7 +672,7 @@ static inline void free_scsi_list(void)
 {
 }
 
-static inline bool is_scsi_dev(char *name)
+static inline bool is_scsi_dev(const char *name)
 {
 	(void)name;
 
