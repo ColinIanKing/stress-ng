@@ -153,8 +153,9 @@ again:
 					(void)memset(buf, 'A' + (j % 26), sizeof(buf));
 					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
 					if (ret < 0) {
-						if (errno != EINTR)
-							pr_fail_dbg("sendto");
+						if ((errno == EINTR) || (errno == ENETUNREACH))
+							break;
+						pr_fail_dbg("sendto");
 						break;
 					}
 				}
