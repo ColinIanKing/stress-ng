@@ -35,8 +35,11 @@ static int stress_affinity_supported(void)
 	cpu_set_t mask;
 
 	CPU_ZERO(&mask);
-	CPU_SET(0, &mask);
 
+	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
+		pr_inf("affinity stressor cannot get CPU affinity, skipping the stressor\n");
+		return -1;
+	}
 	if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
 		if (errno == EPERM) {
 			pr_inf("affinity stressor cannot set CPU affinity, "
