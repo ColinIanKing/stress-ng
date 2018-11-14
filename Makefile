@@ -21,7 +21,7 @@ VERSION=0.09.45
 # Codename "portable pressure producer"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99 -pipe -g
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
 # Pedantic flags
