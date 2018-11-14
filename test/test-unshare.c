@@ -27,6 +27,7 @@
 
 #include <sched.h>
 #include <unistd.h>
+#include <features.h>
 #include "../stress-version.h"
 #if !(NEED_GLIBC(2,14,0))
 #include <sys/syscall.h>

@@ -25,6 +25,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <features.h>
 #include "../stress-version.h"
 
 /*

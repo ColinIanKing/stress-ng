@@ -27,6 +27,7 @@
 
 #include <sys/mman.h>
 #include <unistd.h>
+#include <features.h>
 
 #include "../stress-version.h"
 #include <sys/syscall.h>

@@ -26,6 +26,7 @@
 #define _GNU_SOURCE
 
 #include <unistd.h>
+#include <features.h>
 #include "../stress-version.h"
 #if !(NEED_GLIBC(2,27,0))
 #include <sys/syscall.h>

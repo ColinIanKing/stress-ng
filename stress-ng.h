@@ -174,7 +174,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#if defined (__GLIBC__)
+#if defined (HAVE_FEATURES_H)
 #include <features.h>
 #endif
 
