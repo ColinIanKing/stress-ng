@@ -1190,7 +1190,8 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 
 /* GCC5.0+ target_clones attribute */
-#if defined(__GNUC__) && defined(__GLIBC__) && NEED_GNUC(5,5,0) && STRESS_X86 && \
+#if defined(__GNUC__) && defined(__GLIBC__) && NEED_GNUC(5,5,0) && \
+    (defined(__x86_64__) || defined(__x86_64)) && \
     !defined(__gnu_hurd__) && !defined(__FreeBSD_Kernel__)
 #define TARGET_CLONES	__attribute__((target_clones("sse","sse2","ssse3", "sse4.1", "sse4a", "avx","avx2","default")))
 #else
