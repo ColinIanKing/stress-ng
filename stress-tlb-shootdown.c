@@ -66,7 +66,9 @@ static int stress_tlb_shootdown(const args_t *args)
 			mem = mmap(NULL, mmap_size, PROT_WRITE | PROT_READ,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 			if ((void *)mem == MAP_FAILED) {
-				if ((errno == EAGAIN) || (errno == ENOMEM)) {
+				if ((errno == EAGAIN) ||
+				    (errno == ENOMEM) ||
+				    (errno == ENFILE)) {
 					if (--retry < 0)
 						return EXIT_NO_RESOURCE;
 				} else {
