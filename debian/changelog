@@ -1,3 +1,17 @@
+stress-ng (0.09.46-1) unstable; urgency=medium
+
+  * Makefile: bump version, remove -g and -pipe flags
+  * Makefile: remove -pipe and -g CFLAGS
+  * stress-ng: only defined TARGET_CLONES optimizations for x86-64
+  * stress-affinity: fix set affinity setting across all
+    stressors (LP: #1803322)
+  * stress-fault: add mmap failed resource checking, treat as non-fatal
+  * stress-tlb-shootdown: retry for ENFILE errors on mmap
+  * stress-udp: handle ENETUNREACH silently
+  * stress-vecmath: work around gcc breakage on ppc64el
+
+ -- Colin King <colin.king@canonical.com>  Wed, 14 Nov 2018 13:01:57 +0000
+
 stress-ng (0.09.45-1) unstable; urgency=medium
 
   * Makefile: bump version
