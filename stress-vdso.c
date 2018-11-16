@@ -1,0 +1,346 @@
+/*
+ * Copyright (C) 2013-2018 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+#if defined(HAVE_SYS_AUXV_H) && defined(HAVE_LINK_H)
+
+#include <sys/auxv.h>
+#include <link.h>
+
+typedef void (*func_t)(void *);
+
+/*
+ *  Symbol name to wrapper function lookup
+ */
+typedef struct wrap_func {
+	func_t func;		/* Wrapper function */
+	char *name;		/* Function name */
+} wrap_func_t;
+
+/*
+ *  vDSO symbol mapping name to address and wrapper function
+ */
+typedef struct vdso_sym {
+	struct vdso_sym *next;	/* Next symbol in list */
+	char *name;		/* Function name */
+	void *addr;		/* Function address in vDSO */
+	func_t func;		/* Wrapper function */
+} vdso_sym_t;
+
+static vdso_sym_t *vdso_sym_list;
+
+/*
+ *  wrap_getcpu()
+ *	invoke getcpu()
+ */
+static void wrap_getcpu(void *vdso_func)
+{
+	unsigned cpu, node;
+
+	int (*vdso_getcpu)(unsigned *cpu, unsigned *node, void *tcache);
+
+	*(void **)(&vdso_getcpu) = vdso_func;
+	(void)vdso_getcpu(&cpu, &node, NULL);
+}
+
+/*
+ *  wrap_gettimeofday()
+ *	invoke gettimeofday()
+ */
+static void wrap_gettimeofday(void *vdso_func)
+{
+	int (*vdso_gettimeofday)(struct timeval *tv, struct timezone *tz);
+	struct timeval tv;
+
+	*(void **)(&vdso_gettimeofday) = vdso_func;
+	(void)vdso_gettimeofday(&tv, NULL);
+}
+
+/*
+ *  wrap_time()
+ *	invoke time()
+ */
+static void wrap_time(void *vdso_func)
+{
+	time_t (*vdso_time)(time_t *tloc);
+	time_t t;
+
+	*(void **)(&vdso_time) = vdso_func;
+	(void)vdso_time(&t);
+}
+
+/*
+ *  wrap_clock_gettime()
+ *	invoke clock_gettime()
+ */
+static void wrap_clock_gettime(void *vdso_func)
+{
+	int (*vdso_clock_gettime)(clockid_t clk_id, struct timespec *tp);
+	struct timespec tp;
+
+	*(void **)(&vdso_clock_gettime) = vdso_func;
+	vdso_clock_gettime(CLOCK_MONOTONIC, &tp);
+}
+
+/*
+ *  mapping of wrappers to function symbol name
+ */
+wrap_func_t wrap_funcs[] = {
+	{ wrap_clock_gettime,	"clock_gettime" },
+	{ wrap_getcpu,		"getcpu" },
+	{ wrap_gettimeofday,	"gettimeofday" },
+	{ wrap_time,		"time" },
+};
+
+/*
+ *  func_find()
+ *	find wrapper function by symbol name
+ */
+static func_t func_find(char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(wrap_funcs); i++) {
+		if (!strcmp(name, wrap_funcs[i].name))
+			return wrap_funcs[i].func;
+	}
+	return NULL;
+}
+
+/*
+ *  dl_wrapback()
+ *	find vDSO symbols
+ */
+static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
+{
+	ElfW(Word) i;
+	void *load_offset = NULL;
+
+	(void)info_size;
+
+	for (i = 0; i < info->dlpi_phnum; i++) {
+		if (info->dlpi_phdr[i].p_type == PT_LOAD) {
+			load_offset = (void *)(info->dlpi_addr +
+                                + (uintptr_t)info->dlpi_phdr[i].p_offset
+                                - (uintptr_t)info->dlpi_phdr[i].p_vaddr);
+
+		}
+		if (info->dlpi_phdr[i].p_type == PT_DYNAMIC) {
+			ElfW(Dyn *) dyn;
+			ElfW(Word *) hash;
+			ElfW(Word) j;
+			ElfW(Word) buckets = 0;
+			ElfW(Sym *) symtab;
+			ElfW(Word *) bucket = NULL;
+			ElfW(Word *) chain = NULL;
+			char * strtab = NULL;
+
+			if (!load_offset)
+				continue;
+
+			if ((void *)info->dlpi_addr != vdso)
+				continue;
+
+			dyn = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
+
+			while (dyn->d_tag != DT_NULL) {
+				switch (dyn->d_tag) {
+				case DT_HASH:
+					hash = (ElfW(Word *))(dyn->d_un.d_ptr + info->dlpi_addr);
+					buckets = hash[0];
+					bucket = &hash[2];
+					chain = &hash[buckets + 2];
+					break;
+
+				case DT_STRTAB:
+					strtab = (char *)(dyn->d_un.d_ptr + info->dlpi_addr);
+					break;
+
+				case DT_SYMTAB:
+					symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
+
+					if ((!hash) || (!strtab))
+						break;
+
+					/*
+					 *  Scan through all the chains in each bucket looking
+					 *  for relevant symbols
+					 */
+					for (j = 0; j < buckets; j++) {
+						ElfW(Word) ch;
+
+						for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
+							ElfW(Sym) *sym = &symtab[ch];
+							vdso_sym_t *vdso_sym;
+							char *name;
+							func_t func;
+
+							if ((ELF64_ST_TYPE(sym->st_info) != STT_FUNC) ||
+							    ((ELF64_ST_BIND(sym->st_info) != STB_GLOBAL) &&
+							     (ELF64_ST_BIND(sym->st_info) != STB_WEAK)) ||
+							    (sym->st_shndx == SHN_UNDEF) ||
+							    ((strtab + sym->st_name)[0] == '_'))
+								continue;
+
+							/*
+							 *  Do we have a wrapper for this function?
+							 */
+							name = strtab + sym->st_name;
+							func = func_find(name);
+							if (!func)
+								continue;
+
+							/*
+							 *  Add to list of wrapable vDSO functions
+							 */
+							vdso_sym = malloc(sizeof(*vdso_sym));
+							if (vdso_sym == NULL)
+								return -1;
+
+							vdso_sym->name = name;
+							vdso_sym->addr = sym->st_value + load_offset;
+							vdso_sym->func = func;
+							vdso_sym->next = vdso_sym_list;
+							vdso_sym_list = vdso_sym;
+						}
+					}
+					break;
+				}
+				dyn++;
+			}
+		}
+	}
+	return 0;
+}
+
+/*
+ *  vdso_sym_list_str()
+ *	gather symbol names into a string
+ */
+static char *vdso_sym_list_str(void)
+{
+	char *str = NULL;
+	size_t len = 0;
+	vdso_sym_t *vdso_sym;
+
+	for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
+		char *tmp;
+		len += (strlen(vdso_sym->name) + 2);
+		tmp = realloc(str, len);
+		if (!tmp && str) {
+			free(str);
+			return NULL;
+		}
+		if (!str) {
+			*tmp = '\0';
+		} else {
+			(void)strcat(tmp, " ");
+			str = tmp;
+		}
+		(void)strcat(tmp, vdso_sym->name);
+		str = tmp;
+	}
+	return str;
+}
+
+/*
+ *  vdso_sym_list_free()
+ *	free up the symbols
+ */
+static void vdso_sym_list_free(void)
+{
+	vdso_sym_t *vdso_sym = vdso_sym_list;
+
+	while (vdso_sym) {
+		vdso_sym_t *next = vdso_sym->next;
+
+		free(vdso_sym);
+		vdso_sym = next;
+	}
+	vdso_sym_list = NULL;
+}
+
+/*
+ *  stress_vdso()
+ *	stress system wraps in vDSO
+ */
+static int stress_vdso(const args_t *args)
+{
+	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+	char *str;
+	double t1, t2;
+
+	if (vdso == NULL) {
+		pr_err("%s: failed to find vDSO address\n", args->name);
+		return EXIT_FAILURE;
+	}
+
+	vdso_sym_list = NULL;
+	dl_iterate_phdr(dl_wrapback, vdso);
+
+	if (!vdso_sym_list) {
+		pr_inf("%s: could not find any vDSO functions, skipping\n",
+			args->name);
+		return EXIT_NOT_IMPLEMENTED;
+	}
+	if (args->instance == 0) {
+		str = vdso_sym_list_str();
+		if (str) {
+			pr_inf("%s: exercising vDSO functions: %s\n",
+				args->name, str);
+			free(str);
+		}
+	}
+
+	t1 = time_now();
+	do {
+		vdso_sym_t *vdso_sym;
+
+		for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
+			vdso_sym->func(vdso_sym->addr);
+			inc_counter(args);
+		}
+	} while (keep_stressing());
+	t2 = time_now();
+
+	pr_inf("%s: %.2f nanoseconds per call\n",
+		args->name,
+		((t2 - t1) * 1000000000.0) / (double)*args->counter);
+
+	vdso_sym_list_free();
+
+	return EXIT_SUCCESS;
+}
+
+stressor_info_t stress_vdso_info = {
+	.stressor = stress_vdso,
+	.class = CLASS_OS
+};
+#else
+stressor_info_t stress_vdso_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS
+};
+#endif

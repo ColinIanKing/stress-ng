@@ -261,6 +261,7 @@ STRESS_SRC = \
 	stress-urandom.c \
 	stress-userfaultfd.c \
 	stress-utime.c \
+	stress-vdso.c \
 	stress-vecmath.c \
 	stress-vforkmany.c \
 	stress-vm.c \

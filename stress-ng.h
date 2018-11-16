@@ -1589,6 +1589,7 @@ typedef enum {
 	STRESS_urandom,
 	STRESS_userfaultfd,
 	STRESS_utime,
+	STRESS_vdso,
 	STRESS_vecmath,
 	STRESS_vfork,
 	STRESS_vforkmany,
@@ -2389,6 +2390,9 @@ typedef enum {
 	OPT_utime,
 	OPT_utime_ops,
 	OPT_utime_fsync,
+
+	OPT_vdso,
+	OPT_vdso_ops,
 
 	OPT_vecmath,
 	OPT_vecmath_ops,
@@ -3350,6 +3354,7 @@ STRESS(stress_unshare);
 STRESS(stress_urandom);
 STRESS(stress_userfaultfd);
 STRESS(stress_utime);
+STRESS(stress_vdso);
 STRESS(stress_vecmath);
 STRESS(stress_vfork);
 STRESS(stress_vforkmany);

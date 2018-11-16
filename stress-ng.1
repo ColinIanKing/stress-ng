@@ -3219,6 +3219,16 @@ force metadata changes on each file timestamp update to be flushed to disk.
 This forces the test to become I/O bound and will result in many dirty metadata
 writes.
 .TP
+.B \-\-vdso N
+start N workers that repeatedly call each of the system call functions in the
+vDSO (virtual dynamic shared object).  The vDSO is a shared library that the
+kernel maps into the address space of all user-space applications to allow
+fast access to kernel data to some system calls without the need of
+performing an expensive system call.
+.TP
+.B \-\-vdso\-ops N
+stop after N vDSO functions calls.
+.TP
 .B \-\-vecmath N
 start N workers that perform various unsigned integer math operations on
 various 128 bit vectors. A mix of vector math operations are performed on the
