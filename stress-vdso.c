@@ -47,6 +47,7 @@ typedef struct vdso_sym {
 	char *name;		/* Function name */
 	void *addr;		/* Function address in vDSO */
 	func_t func;		/* Wrapper function */
+	bool duplicate;		/* True if a duplicate call */
 } vdso_sym_t;
 
 static vdso_sym_t *vdso_sym_list;
@@ -109,9 +110,13 @@ static void wrap_clock_gettime(void *vdso_func)
  */
 wrap_func_t wrap_funcs[] = {
 	{ wrap_clock_gettime,	"clock_gettime" },
+	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
 	{ wrap_getcpu,		"getcpu" },
+	{ wrap_getcpu,		"__vdso_getcpu" },
 	{ wrap_gettimeofday,	"gettimeofday" },
+	{ wrap_gettimeofday,	"__vdso_gettimeofday" },
 	{ wrap_time,		"time" },
+	{ wrap_time,		"__vdso_time" },
 };
 
 /*
@@ -155,7 +160,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			ElfW(Sym *) symtab;
 			ElfW(Word *) bucket = NULL;
 			ElfW(Word *) chain = NULL;
-			char * strtab = NULL;
+			char *strtab = NULL;
 
 			if (!load_offset)
 				continue;
@@ -194,20 +199,18 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 						for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
 							ElfW(Sym) *sym = &symtab[ch];
 							vdso_sym_t *vdso_sym;
-							char *name;
+							char *name = strtab + sym->st_name;
 							func_t func;
 
 							if ((ELF64_ST_TYPE(sym->st_info) != STT_FUNC) ||
 							    ((ELF64_ST_BIND(sym->st_info) != STB_GLOBAL) &&
 							     (ELF64_ST_BIND(sym->st_info) != STB_WEAK)) ||
-							    (sym->st_shndx == SHN_UNDEF) ||
-							    ((strtab + sym->st_name)[0] == '_'))
+							    (sym->st_shndx == SHN_UNDEF))
 								continue;
 
 							/*
 							 *  Do we have a wrapper for this function?
 							 */
-							name = strtab + sym->st_name;
 							func = func_find(name);
 							if (!func)
 								continue;
@@ -215,7 +218,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 							/*
 							 *  Add to list of wrapable vDSO functions
 							 */
-							vdso_sym = malloc(sizeof(*vdso_sym));
+							vdso_sym = calloc(1, sizeof(*vdso_sym));
 							if (vdso_sym == NULL)
 								return -1;
 
@@ -269,9 +272,9 @@ static char *vdso_sym_list_str(void)
  *  vdso_sym_list_free()
  *	free up the symbols
  */
-static void vdso_sym_list_free(void)
+static void vdso_sym_list_free(vdso_sym_t **list)
 {
-	vdso_sym_t *vdso_sym = vdso_sym_list;
+	vdso_sym_t *vdso_sym = *list;
 
 	while (vdso_sym) {
 		vdso_sym_t *next = vdso_sym->next;
@@ -279,7 +282,48 @@ static void vdso_sym_list_free(void)
 		free(vdso_sym);
 		vdso_sym = next;
 	}
-	vdso_sym_list = NULL;
+	*list = NULL;
+}
+
+static void remove_duplicate(vdso_sym_t **list, vdso_sym_t *dup)
+{
+	while (*list) {
+		if (*list == dup) {
+			*list = dup->next;
+			free(dup);
+			return;
+		}
+		list = &(*list)->next;
+	}
+}
+
+/*
+ *  vdso_sym_list_remove_duplicates()
+ *	remove duplicated system calls
+ */
+static void vdso_sym_list_remove_duplicates(vdso_sym_t **list)
+{
+	vdso_sym_t *vs1;
+
+	for (vs1 = *list; vs1; vs1 = vs1->next) {
+		vdso_sym_t *vs2;
+
+		if (vs1->name[0] == '_') {
+			for (vs2 = *list; vs2; vs2 = vs2->next) {
+				if ((vs1 != vs2) && (vs1->addr == vs2->addr))
+					vs1->duplicate = true;
+			}
+		}
+	}
+
+	vs1 = *list;
+	while (vs1) {
+		vdso_sym_t *next = vs1->next;
+
+		if (vs1->duplicate)
+			remove_duplicate(list, vs1);
+		vs1 = next;
+	}
 }
 
 /*
@@ -305,6 +349,7 @@ static int stress_vdso(const args_t *args)
 			args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
+	vdso_sym_list_remove_duplicates(&vdso_sym_list);
 	if (args->instance == 0) {
 		str = vdso_sym_list_str();
 		if (str) {
@@ -329,7 +374,7 @@ static int stress_vdso(const args_t *args)
 		args->name,
 		((t2 - t1) * 1000000000.0) / (double)*args->counter);
 
-	vdso_sym_list_free();
+	vdso_sym_list_free(&vdso_sym_list);
 
 	return EXIT_SUCCESS;
 }
