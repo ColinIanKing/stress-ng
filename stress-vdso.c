@@ -111,12 +111,16 @@ static void wrap_clock_gettime(void *vdso_func)
 wrap_func_t wrap_funcs[] = {
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
+	{ wrap_clock_gettime,	"__kernel_clock_gettime" },
 	{ wrap_getcpu,		"getcpu" },
 	{ wrap_getcpu,		"__vdso_getcpu" },
+	{ wrap_getcpu,		"__kernel_getcpu" },
 	{ wrap_gettimeofday,	"gettimeofday" },
 	{ wrap_gettimeofday,	"__vdso_gettimeofday" },
+	{ wrap_gettimeofday,	"__kernel_gettimeofday" },
 	{ wrap_time,		"time" },
 	{ wrap_time,		"__vdso_time" },
+	{ wrap_time,		"__kernel_time" },
 };
 
 /*
