@@ -1237,6 +1237,11 @@ static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 	(*(args->counter))++;
 }
 
+static inline uint64_t ALWAYS_INLINE get_counter(const args_t *args)
+{
+	return *args->counter;
+}
+
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
 #if defined(HAVE_LIB_PTHREAD_SPINLOCK) && !defined(__DragonFly__) && !defined(__OpenBSD__)
