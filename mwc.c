@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 static mwc_t __mwc = {
 	MWC_SEED_W,
 	MWC_SEED_Z
@@ -37,6 +41,35 @@ static inline void mwc_flush(void)
 	mwc_n8 = 0;
 	mwc_n16 = 0;
 }
+
+#if defined(HAVE_SYS_AUXV_H) && defined(AT_RANDOM)
+
+#define VAL(ptr, n)	(((uint64_t)(*(ptr + n))) << (n << 3))
+
+/*
+ *  aux_random_seed()
+ *	get a fixed random value via getauxval
+ */
+static uint64_t aux_random_seed(void)
+{
+	uint8_t *ptr;
+	uint64_t val;
+
+	ptr = (uint8_t *)getauxval(AT_RANDOM);
+	if (!ptr)
+		return 0ULL;
+
+	val = VAL(ptr, 0) | VAL(ptr, 1) | VAL(ptr, 2) | VAL(ptr, 3) |
+	      VAL(ptr, 4) | VAL(ptr, 5) | VAL(ptr, 6) | VAL(ptr, 7);
+
+	return val;
+}
+#else
+static uint64_t aux_random_seed(void)
+{
+	return 0ULL;
+}
+#endif
 
 /*
  *  mwc_reseed()
@@ -53,10 +86,12 @@ void mwc_reseed(void)
 		struct rusage r;
 		double m1, m5, m15;
 		int i, n;
+		uint64_t aux_rnd = aux_random_seed();
 
-		__mwc.z = 0;
+		__mwc.z = aux_rnd >> 32;
+		__mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
-			__mwc.z = (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+			__mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 		__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
 		__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
