@@ -123,7 +123,7 @@ static int stress_yield(const args_t *args)
 		set_counter(args, 0);
 		(void)shim_usleep(100000);
 		for (i = 0; i < yielders; i++)
-			*args->counter += counters[i];
+			add_counter(args, counters[i]);
 	} while (keep_stressing());
 
 	/* Parent, wait for children */
@@ -134,7 +134,7 @@ static int stress_yield(const args_t *args)
 
 			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
-			*args->counter += counters[i];
+			add_counter(args, counters[i]);
 		}
 	}
 	(void)munmap((void *)counters, counters_sz);

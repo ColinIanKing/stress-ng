@@ -35,7 +35,7 @@
 	register bool do_more;				\
 	register uint16_t _index = mwc8();		\
 							\
-	(*(args->counter))++;				\
+	inc_counter(args);				\
 	do_more = LIKELY((int)g_keep_stressing_flag) &	\
 		(((int)!args->max_ops) | 		\
 		 (get_counter(args) < args->max_ops));	\

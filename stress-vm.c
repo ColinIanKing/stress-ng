@@ -1949,6 +1949,7 @@ static int stress_vm(const args_t *args)
 {
 	uint64_t *bit_error_count = MAP_FAILED;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
+	uint64_t tmp_counter;
 	uint32_t restarts = 0, nomems = 0;
 	size_t vm_bytes = DEFAULT_VM_BYTES;
 	uint8_t *buf = NULL;
@@ -2107,7 +2108,8 @@ clean_up:
 	}
 	(void)munmap((void *)bit_error_count, page_size);
 
-	*args->counter >>= VM_BOGO_SHIFT;
+	tmp_counter = get_counter(args) >> VM_BOGO_SHIFT;
+	set_counter(args, tmp_counter);
 
 	if (restarts + nomems > 0)
 		pr_dbg("%s: OOM restarts: %" PRIu32

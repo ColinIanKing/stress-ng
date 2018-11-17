@@ -730,7 +730,7 @@ static int stress_iomix(const args_t *args)
 reap:
 	set_counter(args, 0);
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		*args->counter += counters[i];
+		add_counter(args, counters[i]);
 
 		if (pids[i]) {
 			(void)kill(pids[i], SIGALRM);

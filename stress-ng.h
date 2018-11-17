@@ -1247,6 +1247,11 @@ static inline void ALWAYS_INLINE set_counter(const args_t *args, const uint64_t 
 	*args->counter = val;
 }
 
+static inline void ALWAYS_INLINE add_counter(const args_t *args, const uint64_t inc)
+{
+	*args->counter += inc;
+}
+
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
 #if defined(HAVE_LIB_PTHREAD_SPINLOCK) && !defined(__DragonFly__) && !defined(__OpenBSD__)

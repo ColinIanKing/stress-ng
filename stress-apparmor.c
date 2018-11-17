@@ -665,7 +665,7 @@ static int stress_apparmor(const args_t *args)
 		if (pids[i] >= 0) {
 			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
-			*(args->counter) += counters[i];
+			add_counter(args, counters[i]);
 		}
 	}
 	(void)munmap(counters, counters_sz);

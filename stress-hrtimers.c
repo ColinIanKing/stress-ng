@@ -183,7 +183,7 @@ static int stress_hrtimers(const args_t *args)
 
 		set_counter(args, 0);
 		for (i = 0; i < PROCS_MAX; i++)
-			*args->counter += counters[i];
+			add_counter(args, counters[i]);
 	} while (keep_stressing());
 
 
