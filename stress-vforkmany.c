@@ -151,7 +151,7 @@ PRAGMA_POP
 				}
 
 				/* child, parent is blocked, spawn new child */
-				if (!args->max_ops || *args->counter < args->max_ops)
+				if (!args->max_ops || get_counter(args) < args->max_ops)
 					goto vfork_again;
 				_exit(0);
 			}

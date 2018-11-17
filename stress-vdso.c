@@ -376,7 +376,7 @@ static int stress_vdso(const args_t *args)
 
 	pr_inf("%s: %.2f nanoseconds per call\n",
 		args->name,
-		((t2 - t1) * 1000000000.0) / (double)*args->counter);
+		((t2 - t1) * 1000000000.0) / (double)get_counter(args));
 
 	vdso_sym_list_free(&vdso_sym_list);
 

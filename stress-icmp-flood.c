@@ -126,7 +126,7 @@ static int stress_icmp_flood(const args_t *args)
 		/*
 		 * Generating random data is expensive so do it every 64 packets
 		 */
-		if ((*args->counter & 0x3f) == 0)
+		if ((get_counter(args) & 0x3f) == 0)
 			stress_strnrnd(pkt + sizeof(struct iphdr) +
 				sizeof(struct icmphdr), payload_len);
 		icmp_hdr->checksum = checksum((uint16_t *)icmp_hdr,
@@ -141,8 +141,8 @@ static int stress_icmp_flood(const args_t *args)
 
 	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,
-		100.0 * (float)(*args->counter - sendto_fails) / *args->counter,
-		*args->counter);
+		100.0 * (float)(get_counter(args) - sendto_fails) / get_counter(args),
+		get_counter(args));
 
 	rc = EXIT_SUCCESS;
 

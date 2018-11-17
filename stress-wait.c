@@ -97,7 +97,7 @@ static void killer(
 	const pid_t pid)
 {
 	double start = time_now();
-	uint64_t last_counter = *args->counter;
+	uint64_t last_counter = get_counter(args);
 	pid_t ppid = getppid();
 
 	pr_dbg("%s: wait: killer started [%d]\n", args->name, (int)getpid());
@@ -114,7 +114,7 @@ static void killer(
 		 *  so we don't get stuck in the parent
 		 *  waiter indefinitely.
 		 */
-		if (last_counter == *args->counter) {
+		if (last_counter == get_counter(args)) {
 			const double now = time_now();
 			if (now - start > ABORT_TIMEOUT) {
 				/* unblock waiting parent */
@@ -123,7 +123,7 @@ static void killer(
 			}
 		} else {
 			start = time_now();
-			last_counter = *args->counter;
+			last_counter = get_counter(args);
 		}
 	} while (keep_stressing());
 
@@ -205,7 +205,7 @@ static int stress_wait(const args_t *args)
 #endif
 		}
 #endif
-	} while (g_keep_stressing_flag && (!args->max_ops || *args->counter < args->max_ops));
+	} while (g_keep_stressing_flag && (!args->max_ops || get_counter(args) < args->max_ops));
 
 	(void)kill(pid_k, SIGKILL);
 	(void)waitpid(pid_k, &status, 0);

@@ -547,8 +547,8 @@ static int stress_stream(const args_t *args)
 	} while (keep_stressing());
 	t2 = time_now();
 
-	mb = ((double)((*args->counter) * 10) * (double)sz) / (double)MB;
-	fp = ((double)((*args->counter) * 4) * (double)sz) / (double)MB;
+	mb = ((double)(get_counter(args) * 10) * (double)sz) / (double)MB;
+	fp = ((double)(get_counter(args) * 4) * (double)sz) / (double)MB;
 	dt = t2 - t1;
 	if (dt >= 4.5) {
 		mb_rate = mb / (dt);

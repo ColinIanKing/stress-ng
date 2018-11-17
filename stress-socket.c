@@ -366,7 +366,7 @@ static int stress_sctp_server(
 				}
 			}
 #endif
-			(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
+			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
 			switch (socket_opts) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {

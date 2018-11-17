@@ -38,7 +38,7 @@
 	(*(args->counter))++;				\
 	do_more = LIKELY((int)g_keep_stressing_flag) &	\
 		(((int)!args->max_ops) | 		\
-		 (*args->counter < args->max_ops));	\
+		 (get_counter(args) < args->max_ops));	\
 	_index |= (do_more << 8);			\
 	goto *labels[_index];				\
 }

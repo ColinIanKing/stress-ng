@@ -349,7 +349,7 @@ retry:
 			goto retry;
 		}
 
-		(void)memset(buf, 'A' + (*args->counter % 26), sizeof(buf));
+		(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
 			pr_fail_dbg("send");

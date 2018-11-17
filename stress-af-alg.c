@@ -205,7 +205,7 @@ static int stress_af_alg_hash(
 				return EXIT_FAILURE;
 			}
 			inc_counter(args);
-			if (args->max_ops && (*args->counter >= args->max_ops)) {
+			if (args->max_ops && (get_counter(args) >= args->max_ops)) {
 				(void)close(fd);
 				return EXIT_SUCCESS;
 			}
@@ -392,7 +392,7 @@ static int stress_af_alg_cipher(
 
 		(void)close(fd);
 		inc_counter(args);
-		if (args->max_ops && (*args->counter >= args->max_ops))
+		if (args->max_ops && (get_counter(args) >= args->max_ops))
 			return EXIT_SUCCESS;
 	}
 	if (!bind_ok)
@@ -448,7 +448,7 @@ static int stress_af_alg_rng(
 				return EXIT_FAILURE;
 			}
 			inc_counter(args);
-			if (args->max_ops && (*args->counter >= args->max_ops)) {
+			if (args->max_ops && (get_counter(args) >= args->max_ops)) {
 				(void)close(fd);
 				return EXIT_SUCCESS;
 			}

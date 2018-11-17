@@ -219,7 +219,7 @@ static int stress_rdrand(const args_t *args)
 		} while (keep_stressing());
 
 		duration = time_now() - time_start;
-		billion_bits = ((double)*args->counter * 64.0 * 32.0) / 1000000000.0;
+		billion_bits = ((double)get_counter(args) * 64.0 * 32.0) / 1000000000.0;
 
 		pr_dbg("%s: %.3f billion random bits read "
 			"(instance %" PRIu32")\n",

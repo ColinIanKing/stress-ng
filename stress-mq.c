@@ -206,7 +206,7 @@ again:
 			const uint64_t timed = (i & 1);
 
 			(void)memset(&msg, 0, sizeof(msg));
-			msg.value = (*args->counter);
+			msg.value = get_counter(args);
 			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {
 				if (mq_getattr(mq, &attr) < 0)
@@ -230,7 +230,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		msg.value = (*args->counter);
+		msg.value = get_counter(args);
 		msg.stop = true;
 
 		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {

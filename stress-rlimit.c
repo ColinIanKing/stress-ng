@@ -160,7 +160,7 @@ again:
 			if ((time_now() - start) > (double)g_opt_timeout)
 				break;
 			/* Check for counter limit reached */
-			if (args->max_ops && *args->counter >= args->max_ops)
+			if (args->max_ops && get_counter(args) >= args->max_ops)
 				break;
 
 			if (ret == 0) {
