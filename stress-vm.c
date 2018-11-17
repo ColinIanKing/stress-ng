@@ -2042,6 +2042,7 @@ again:
 		}
 	} else if (pid == 0) {
 		int no_mem_retries = 0;
+		const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -2076,8 +2077,7 @@ again:
 
 			no_mem_retries = 0;
 			(void)mincore_touch_pages(buf, buf_sz);
-			*bit_error_count += func(buf, buf_sz, args,
-						args->max_ops << VM_BOGO_SHIFT);
+			*bit_error_count += func(buf, buf_sz, args, max_ops);
 
 			if (vm_hang == 0) {
 				while (keep_stressing_vm(args)) {
