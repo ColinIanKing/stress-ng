@@ -120,7 +120,7 @@ static int stress_context(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	*args->counter = __counter / 1000;
+	set_counter(args, __counter / 1000);
 
 	return EXIT_SUCCESS;
 }

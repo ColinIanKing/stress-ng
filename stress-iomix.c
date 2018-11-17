@@ -720,7 +720,7 @@ static int stress_iomix(const args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 			c += counters[i];
 			if (UNLIKELY(args->max_ops && c >= args->max_ops)) {
-				*args->counter = c;
+				set_counter(args, c);
 				goto reap;
 			}
 		}
@@ -728,7 +728,7 @@ static int stress_iomix(const args_t *args)
 
 	ret = EXIT_SUCCESS;
 reap:
-	*args->counter = 0;
+	set_counter(args, 0);
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 		*args->counter += counters[i];
 

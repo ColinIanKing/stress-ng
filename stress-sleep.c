@@ -172,7 +172,7 @@ static int stress_sleep(const args_t *args)
 	}
 
 	do {
-		*args->counter = 0;
+		set_counter(args, 0);
 		(void)shim_usleep(10000);
 		for (i = 0; i < n; i++)
 			*args->counter += ctxts[i].counter;

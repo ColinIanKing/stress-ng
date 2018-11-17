@@ -120,14 +120,14 @@ static int stress_yield(const args_t *args)
 	}
 
 	do {
-		*args->counter = 0;
+		set_counter(args, 0);
 		(void)shim_usleep(100000);
 		for (i = 0; i < yielders; i++)
 			*args->counter += counters[i];
 	} while (keep_stressing());
 
 	/* Parent, wait for children */
-	*args->counter = 0;
+	set_counter(args, 0);
 	for (i = 0; i < yielders; i++) {
 		if (pids[i] > 0) {
 			int status;

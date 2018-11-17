@@ -151,7 +151,7 @@ static int stress_itimer(const args_t *args)
 		struct itimerval t;
 		(void)getitimer(ITIMER_PROF, &t);
 
-		*args->counter = itimer_counter;
+		set_counter(args, itimer_counter);
 	} while (keep_stressing());
 
 	(void)memset(&timer, 0, sizeof(timer));

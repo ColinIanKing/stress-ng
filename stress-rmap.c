@@ -227,7 +227,7 @@ static int stress_rmap(const args_t *args)
 		for (i = 0; i < RMAP_CHILD_MAX; i++)
 			c += counters[i];
 
-		*args->counter = c;
+		set_counter(args, c);
 	}
 
 cleanup:

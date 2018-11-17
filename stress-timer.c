@@ -171,7 +171,7 @@ static int stress_timer(const args_t *args)
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
-		*args->counter = timer_counter;
+		set_counter(args, timer_counter);
 	} while (keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
