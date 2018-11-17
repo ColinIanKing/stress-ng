@@ -100,6 +100,7 @@ again:
 	} else {
 		char buf[buf_size];
 		int status;
+		double t1, t2;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
@@ -107,6 +108,7 @@ again:
 
 		(void)memset(buf, '_', buf_size);
 
+		t1 = time_now();
 		do {
 			ssize_t ret;
 
@@ -122,6 +124,11 @@ again:
 			}
 			inc_counter(args);
 		} while (keep_stressing());
+
+		t2 = time_now();
+		pr_inf("%s: %.2f nanoseconds per context switch (based on parent run time)\n",
+			args->name,
+			((t2 - t1) * 1000000000.0) / (double)get_counter(args));
 
 		(void)memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
