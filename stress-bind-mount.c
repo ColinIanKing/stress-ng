@@ -46,7 +46,6 @@ static void stress_bind_mount_child_handler(int dummy)
 static int stress_bind_mount_child(void *parg)
 {
 	const args_t *args = ((pthread_args_t *)parg)->args;
-	uint64_t *counter = args->counter;
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_bind_mount_child_handler, NULL) < 0) {
@@ -77,7 +76,7 @@ static int stress_bind_mount_child(void *parg)
 		(void)umount("/");
 		inc_counter(args);
 	} while (g_keep_stressing_flag &&
-		 (!args->max_ops || *counter < args->max_ops));
+		 (!args->max_ops || get_counter(args) < args->max_ops));
 
 	return 0;
 }
