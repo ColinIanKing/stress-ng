@@ -118,7 +118,7 @@ static void killer(
 			const double now = time_now();
 			if (now - start > ABORT_TIMEOUT) {
 				/* unblock waiting parent */
-				kill(ppid, SIGUSR1);
+				(void)kill(ppid, SIGUSR1);
 				start = now;
 			}
 		} else {
