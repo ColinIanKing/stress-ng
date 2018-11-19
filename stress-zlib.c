@@ -355,6 +355,27 @@ static void stress_rand_data_double(const args_t *args, uint32_t *data, const in
 	}
 }
 
+/*
+ *  stress_rand_data_gray()
+ *	fill buffer with gray code of incrementing 16 bit values 
+ *
+ */
+static void stress_rand_data_gray(const args_t *args, uint32_t *data, const int size)
+{
+	const int n = size / sizeof(uint16_t);
+	static uint16_t val = 0;
+	register uint16_t v = val;
+	register uint16_t *ptr = (uint16_t *)data;
+	register int i;
+
+	(void)args;
+
+	for (i = 0; i < n; i++, v++) {
+		*(ptr++) = (v >> 1) ^ i;
+	}
+	val = v;
+}
+
 
 /*
  *  stress_rand_data_parity()
@@ -556,6 +577,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_brown,
 	stress_rand_data_double,
 	stress_rand_data_fixed,
+	stress_rand_data_gray,
 	stress_rand_data_latin,
 	stress_rand_data_nybble,
 	stress_rand_data_objcode,
@@ -591,6 +613,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "binary",	stress_rand_data_binary },
 	{ "brown",	stress_rand_data_brown },
 	{ "double",	stress_rand_data_double },
+	{ "gray",	stress_rand_data_gray },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
 	{ "nybble",	stress_rand_data_nybble },
