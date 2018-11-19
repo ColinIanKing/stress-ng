@@ -3637,37 +3637,40 @@ lB2 lBw(\n[SZ]n)
 l l.
 Method	Description
 00ff	T{
-randomly distributed 0x00 and 0xFF values
+randomly distributed 0x00 and 0xFF values.
 T}
 ascii01	T{
-randomly distributed ASCII 0 and 1 characters
+randomly distributed ASCII 0 and 1 characters.
 T}
 asciidigits	T{
-randomly distributed ASCII digits in the range of 0 and 9
+randomly distributed ASCII digits in the range of 0 and 9.
 T}
 bcd	T{
-packed binary coded decimals, 0..99 packed into 2 4-bit nybbles
+packed binary coded decimals, 0..99 packed into 2 4-bit nybbles.
 T}
 binary	T{
-32 bit random numbers
+32 bit random numbers.
+T}
+brown	T{
+8 bit brown noise (Brownian motion/Random Walk noise).
 T}
 double	T{
-double precision floating point numbers from sin(\(*h)
+double precision floating point numbers from sin(\(*h).
 T}
 fixed	T{
-data stream is repeated 0x04030201
+data stream is repeated 0x04030201.
 T}
 latin	T{
 Random latin sentences from a sample of Lorem Ipsum text.
 T}
 nybble	T{
-randomly distributed bytes in the range of 0x00 to 0x0f
+randomly distributed bytes in the range of 0x00 to 0x0f.
 T}
 objcode	T{
-object code selected from a random start point in the stress-ng text segment
+object code selected from a random start point in the stress-ng text segment.
 T}
 parity	T{
-7 bit binary data with 1 parity bit
+7 bit binary data with 1 parity bit.
 T}
 pink	T{
 pink noise in the range 0..255 generated using the Gardner method with
@@ -3680,19 +3683,19 @@ segments of the data stream are created by randomly calling the different data g
 methods.
 T}
 rarely1	T{
-data that has a single 1 in every 32 bits, randomly located
+data that has a single 1 in every 32 bits, randomly located.
 T}
 rarely0	T{
-data that has a single 0 in every 32 bits, randomly located
+data that has a single 0 in every 32 bits, randomly located.
 T}
 text	T{
-random ASCII text
+random ASCII text.
 T}
 utf8	T{
-random 8 bit data encoded to UTF-8
+random 8 bit data encoded to UTF-8.
 T}
 zero	T{
-all zeros, compresses very easily
+all zeros, compresses very easily.
 T}
 .TE
 .TP

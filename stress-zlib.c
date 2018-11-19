@@ -419,6 +419,24 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 	}
 }
 
+/*
+ *  stress_rand_data_brown()
+ *	fills buffer with brown noise.
+ */
+static void stress_rand_data_brown(const args_t *args, uint32_t *data, const int size)
+{
+	static uint8_t val = 127;
+	register int i;
+	register uint8_t *ptr = (unsigned char *)data;
+
+	(void)args;
+
+	for (i = 0; i < size; i++) {
+		val += ((mwc8() % 31) - 15);
+		*(ptr++) = val;
+	}
+}
+
 
 /*
  *  stress_rand_data_latin()
@@ -533,7 +551,9 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_00_ff,
 	stress_rand_data_01,
 	stress_rand_data_digits,
+	stress_rand_data_bcd,
 	stress_rand_data_binary,
+	stress_rand_data_brown,
 	stress_rand_data_double,
 	stress_rand_data_fixed,
 	stress_rand_data_latin,
@@ -544,6 +564,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_rarely_1,
 	stress_rand_data_rarely_0,
 	stress_rand_data_text,
+	stress_rand_data_utf8,
 	stress_rand_data_zero,
 };
 
@@ -568,6 +589,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "asciidigits",stress_rand_data_digits },
 	{ "bcd",	stress_rand_data_bcd },
 	{ "binary",	stress_rand_data_binary },
+	{ "brown",	stress_rand_data_brown },
 	{ "double",	stress_rand_data_double },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
