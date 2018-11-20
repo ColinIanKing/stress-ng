@@ -102,6 +102,12 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
+			if (errno == EPROTONOSUPPORT) {
+				pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
+					args->name);
+				(void)kill(getppid(), SIGALRM);
+				_exit(EXIT_NOT_IMPLEMENTED);
+			}
 			pr_fail_dbg("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
