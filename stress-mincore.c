@@ -56,6 +56,10 @@ redo: 			errno = 0;
 					if (++redo < 100)
 						goto redo;
 					/* fall through */
+				case ENOSYS:
+					pr_inf("%s: mincore no not implemented, skipping stressor\n",
+						args->name);
+					return EXIT_NOT_IMPLEMENTED;
 				default:
 					pr_fail("%s: mincore on address %p error: %d %s\n",
 						args->name, addr, errno,
