@@ -130,6 +130,11 @@ static int stress_sync_file(const args_t *args)
 			off64_t sz = (mwc32() & 0x1fc00) + KB;
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0) {
+				if (errno == ENOSYS) {
+					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+						args->name);
+					goto err;
+				}
 				pr_fail_err("sync_file_range (forward)");
 				break;
 			}
@@ -146,6 +151,11 @@ static int stress_sync_file(const args_t *args)
 
 			ret = shim_sync_file_range(fd, sync_file_bytes - offset, sz, mode);
 			if (ret < 0) {
+				if (errno == ENOSYS) {
+					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+						args->name);
+					goto err;
+				}
 				pr_fail_err("sync_file_range (reverse)");
 				break;
 			}
@@ -161,6 +171,11 @@ static int stress_sync_file(const args_t *args)
 			offset = (mwc64() % sync_file_bytes) & ~((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
+				if (errno == ENOSYS) {
+					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+						args->name);
+					goto err;
+				}
 				pr_fail_err("sync_file_range (random)");
 				break;
 			}
@@ -168,6 +183,7 @@ static int stress_sync_file(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
+err:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
