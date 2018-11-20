@@ -189,6 +189,8 @@ static int stress_clock(const args_t *args)
 			sevp.sigev_notify = SIGEV_NONE;
 			ret = timer_create(timers[i], &sevp, &timer_id);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				if (errno == EINVAL)
+					continue;
 				pr_fail("%s: timer_create failed for timer '%s', "
 					"errno=%d (%s)\n", args->name,
 					stress_clock_name(timers[i]),
