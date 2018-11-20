@@ -256,7 +256,7 @@ static char *vdso_sym_list_str(void)
 		char *tmp;
 		len += (strlen(vdso_sym->name) + 2);
 		tmp = realloc(str, len);
-		if (!tmp && str) {
+		if (!tmp) {
 			free(str);
 			return NULL;
 		}
