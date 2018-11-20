@@ -51,6 +51,11 @@ static int stress_full(const args_t *args)
 		char buffer[4096];
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
+			if (errno == ENOENT) {
+				pr_inf("%s: /dev/full not available, skipping stress test\n",
+					args->name);
+				return EXIT_NOT_IMPLEMENTED;
+			}
 			pr_fail_err("open");
 			return EXIT_FAILURE;
 		}
