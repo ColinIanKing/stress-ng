@@ -137,8 +137,13 @@ static int stress_pipe(const args_t *args)
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg("pipe2");
-		return EXIT_FAILURE;
+		/*
+		 *  Failed, fall back to standard pipe
+		 */
+		if (pipe(pipefds) < 0) {
+			pr_fail_dbg("pipe");
+			return EXIT_FAILURE;
+		}
 	}
 #else
 	if (pipe(pipefds) < 0) {
