@@ -88,6 +88,7 @@ static int stress_filename_probe(
 	 *  Determine allowed char set for filenames
 	 */
 	for (j = 0, i = 0; i < 256; i++) {
+		size_t k;
 		int fd;
 
 		if ((i == 0) || (i == '/'))
@@ -96,9 +97,15 @@ static int stress_filename_probe(
 		if (i == ':')
 			continue;
 #endif
-		*ptr = i;
-		*(ptr + 1) = 'X';
-		*(ptr + 2) = '\0';
+		/*
+		 *  Some systems such as Windows need long file
+		 *  names of around 64 chars with invalid probe
+		 *  chars to be able to be detect for bad chars.
+		 *  Not sure why that is.
+		 */
+		for (k = 0; k < 64; k++)
+			*(ptr + k) = i;
+		*(ptr + k) = '\0';
 
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			/* We only expect EINVAL on bad filenames */
