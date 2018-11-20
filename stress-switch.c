@@ -38,8 +38,13 @@ static int stress_switch(const args_t *args)
 
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
-		pr_fail_dbg("pipe2");
-		return EXIT_FAILURE;
+		/*
+		 *  Fallback to pipe if pipe2 fails
+		 */
+		if (pipe(pipefds) < 0) {
+			pr_fail_dbg("pipe");
+			return EXIT_FAILURE;
+		}
 	}
 	buf_size = 1;
 #else
