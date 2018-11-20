@@ -103,6 +103,11 @@ static int stress_mq(const args_t *args)
 		mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
 		if (mq >= 0)
 			break;
+		if (errno == ENOSYS) {
+			pr_inf("%s: POSIX message queues not implemented, skipping stressor\n",
+				args->name);
+			return EXIT_NOT_IMPLEMENTED;
+		}
 		sz--;
 	}
 	if (mq < 0) {
