@@ -24,6 +24,15 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  stress_set_vdso_func()
+ *      set the default vdso function
+ */
+int stress_set_vdso_func(const char *name)
+{
+	return set_setting("vdso-func", TYPE_ID_STR, name);
+}
+
 #if defined(HAVE_SYS_AUXV_H) && defined(HAVE_LINK_H)
 
 #include <sys/auxv.h>
@@ -289,7 +298,11 @@ static void vdso_sym_list_free(vdso_sym_t **list)
 	*list = NULL;
 }
 
-static void remove_duplicate(vdso_sym_t **list, vdso_sym_t *dup)
+/*
+ *  remove_sym
+ *	find and remove a symbold from the symbol list
+ */
+static void remove_sym(vdso_sym_t **list, vdso_sym_t *dup)
 {
 	while (*list) {
 		if (*list == dup) {
@@ -325,9 +338,70 @@ static void vdso_sym_list_remove_duplicates(vdso_sym_t **list)
 		vdso_sym_t *next = vs1->next;
 
 		if (vs1->duplicate)
-			remove_duplicate(list, vs1);
+			remove_sym(list, vs1);
 		vs1 = next;
 	}
+}
+
+/*
+ *  stress_vdso_supported()
+ *	early sanity check to see if functionality is supported
+ */
+static int stress_vdso_supported(void)
+{
+	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+
+	if (vdso == NULL) {
+		pr_inf("vdso stressor will be skipped, failed to find vDSO address\n");
+		return -1;
+	}
+
+	vdso_sym_list = NULL;
+	dl_iterate_phdr(dl_wrapback, vdso);
+
+	if (!vdso_sym_list) {
+		pr_inf("vsdo stressor will be skipped, failed to find relevant vDSO functions\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ *  vdso_sym_list_check_vdso_func()
+ *	if a vdso-func has been specified, locate it and
+ *	remove all other symbols from the list so just
+ *	this one function is used.
+ */
+static int vdso_sym_list_check_vdso_func(vdso_sym_t **list)
+{
+	vdso_sym_t *vs1;
+	char *name;
+
+	if (!get_setting("vdso-func", &name))
+		return 0;
+
+	for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next) {
+		if (!strcmp(vs1->name, name))
+			break;
+	}
+	if (!vs1) {
+		(void)fprintf(stderr, "invalid vdso-func '%s', must be one of:", name);
+		for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next)
+                	(void)fprintf(stderr, " %s", vs1->name);
+        	(void)fprintf(stderr, "\n");
+		return -1;
+        }
+
+	vs1 = *list;
+	while (vs1) {
+		vdso_sym_t *next = vs1->next;
+
+		if (strcmp(vs1->name, name))
+			remove_sym(list, vs1);
+		vs1 = next;
+	}
+	return 0;
 }
 
 /*
@@ -336,24 +410,20 @@ static void vdso_sym_list_remove_duplicates(vdso_sym_t **list)
  */
 static int stress_vdso(const args_t *args)
 {
-	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 	char *str;
 	double t1, t2;
 
-	if (vdso == NULL) {
-		pr_err("%s: failed to find vDSO address\n", args->name);
-		return EXIT_FAILURE;
-	}
-
-	vdso_sym_list = NULL;
-	dl_iterate_phdr(dl_wrapback, vdso);
-
 	if (!vdso_sym_list) {
+		/* Should not fail, but worth checking to avoid breakage */
 		pr_inf("%s: could not find any vDSO functions, skipping\n",
 			args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 	vdso_sym_list_remove_duplicates(&vdso_sym_list);
+	if (vdso_sym_list_check_vdso_func(&vdso_sym_list) < 0) {
+		return EXIT_FAILURE;
+	}
+
 	if (args->instance == 0) {
 		str = vdso_sym_list_str();
 		if (str) {
@@ -385,6 +455,7 @@ static int stress_vdso(const args_t *args)
 
 stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
+	.supported = stress_vdso_supported,
 	.class = CLASS_OS
 };
 #else
