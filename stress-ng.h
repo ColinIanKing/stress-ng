@@ -2812,8 +2812,14 @@ extern WARN_UNUSED void *deconstify(const void *ptr);
  */
 static inline WARN_UNUSED ALWAYS_INLINE int exit_status(const int err)
 {
-	return ((err == ENOMEM) || (err == ENOSPC)) ?
-		EXIT_NO_RESOURCE : EXIT_FAILURE;
+	switch (err) {
+	case ENOMEM:
+	case ENOSPC:
+		return EXIT_NO_RESOURCE;
+	case ENOSYS:
+		return EXIT_NOT_IMPLEMENTED;
+	}
+	return EXIT_FAILURE;
 }
 
 /*
