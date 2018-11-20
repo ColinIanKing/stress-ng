@@ -158,7 +158,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 		}
 		if (info->dlpi_phdr[i].p_type == PT_DYNAMIC) {
 			ElfW(Dyn *) dyn;
-			ElfW(Word *) hash;
+			ElfW(Word *) hash = NULL;
 			ElfW(Word) j;
 			ElfW(Word) buckets = 0;
 			ElfW(Sym *) symtab;
