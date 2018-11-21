@@ -151,11 +151,11 @@ static int stress_schedpolicy(const args_t *args)
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
-		if ((ret < 0) && (errno != EINVAL))
+		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
 			pr_fail_err("sched_getparam failed");
 
 		ret = sched_setparam(pid, &param);
-		if ((ret < 0) && (errno != EINVAL))
+		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
 			pr_fail_err("sched_setparam");
 #endif
 
