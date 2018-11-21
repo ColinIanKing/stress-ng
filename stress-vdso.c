@@ -33,10 +33,15 @@ int stress_set_vdso_func(const char *name)
 	return set_setting("vdso-func", TYPE_ID_STR, name);
 }
 
-#if defined(HAVE_SYS_AUXV_H) && defined(HAVE_LINK_H)
-
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_LINK_H)
 #include <sys/auxv.h>
 #include <link.h>
+#endif
+
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_LINK_H) && \
+    defined(AT_SYSINFO_EHDR)
 
 typedef void (*func_t)(void *);
 
