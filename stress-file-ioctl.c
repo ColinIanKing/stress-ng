@@ -39,13 +39,16 @@ static void check_flag(
 		int flags;
 
 		flags = fcntl(fd, F_GETFL, 0);
+		/*
+		 *  The fcntl failed, so checking is not a valid
+		 *  thing to sanity check with.
+		 */
+		if (errno != 0)
+			return;
 		if ((set && !(flags & flag)) ||
 		    (!set && (flags & flag)))
-			if (errno != ENOTTY) {
-				pr_fail("%s: ioctl %s failed, errno=%d (%s)\n",
-					args->name, ioctl_name,
-					errno, strerror(errno));
-			}
+			pr_fail("%s: ioctl %s failed, unexpected flags when checked with F_GETFL\n",
+				args->name, ioctl_name);
 	}
 #else
 	(void)args;
