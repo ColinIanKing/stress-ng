@@ -42,7 +42,9 @@ static inline void mwc_flush(void)
 	mwc_n16 = 0;
 }
 
-#if defined(HAVE_SYS_AUXV_H) && defined(AT_RANDOM)
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_GETAUXVAL) && \
+    defined(AT_RANDOM)
 
 #define VAL(ptr, n)	(((uint64_t)(*(ptr + n))) << (n << 3))
 

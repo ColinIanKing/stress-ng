@@ -41,6 +41,7 @@ int stress_set_vdso_func(const char *name)
 
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_LINK_H) && \
+    defined(HAVE_GETAUXVAL) && \
     defined(AT_SYSINFO_EHDR)
 
 typedef void (*func_t)(void *);
