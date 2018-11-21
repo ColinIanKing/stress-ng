@@ -49,7 +49,9 @@ static void stress_netdev_check(
 	const char *cmd_name)
 {
 	if (ioctl(fd, cmd, ifr) < 0) {
-		if ((errno != ENOTTY) && (errno != EADDRNOTAVAIL))
+		if ((errno != ENOTTY) &&
+		    (errno != EINVAL) &&
+		    (errno != EADDRNOTAVAIL))
 			pr_fail("%s: interface '%s' ioctl %s failed, errno=%d (%s)\n",
 				args->name, ifr->ifr_name, cmd_name,
 				errno, strerror(errno));
