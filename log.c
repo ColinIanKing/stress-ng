@@ -109,7 +109,7 @@ int pr_msg(
 		struct timeval tv;
 
 		if (gettimeofday(&tv, NULL) < 0) {
-			strcpy(ts, "xx-xx-xx.xxx ");
+			strncpy(ts, "xx-xx-xx.xxx ", sizeof(ts));
 		} else {
 			time_t t = tv.tv_sec;
 			struct tm *tm;
