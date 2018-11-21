@@ -79,7 +79,9 @@ static int stress_key(const args_t *args)
 {
 	key_serial_t keys[MAX_KEYS];
 	pid_t ppid = getppid();
+	int rc = EXIT_SUCCESS;
 	bool timeout_supported = true;
+	bool no_error = true;
 
 	do {
 		size_t i = 0, n = 0;
@@ -98,6 +100,13 @@ static int stress_key(const args_t *args)
 				payload, strlen(payload),
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
+				if (errno == ENOSYS) {
+					pr_inf("%s: skipping stressor, add_key not implemented\n",
+						args->name);
+					no_error = false;
+					rc = EXIT_NOT_IMPLEMENTED;
+					goto tidy;
+				}
 				if ((errno != ENOMEM) && (errno != EDQUOT))
 					pr_fail_err("add_key");
 				goto tidy;
@@ -198,9 +207,9 @@ tidy:
 			}
 			i++;
 		}
-	} while (keep_stressing());
+	} while (no_error && keep_stressing());
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_key_info = {
