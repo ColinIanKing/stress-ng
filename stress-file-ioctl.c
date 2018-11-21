@@ -41,7 +41,9 @@ static void check_flag(
 		flags = fcntl(fd, F_GETFL, 0);
 		if ((set && !(flags & flag)) ||
 		    (!set && (flags & flag)))
-			pr_fail("%s: ioctl %s failed\n", args->name, ioctl_name);
+			pr_fail("%s: ioctl %s failed, errno=%d (%s)\n",
+				args->name, ioctl_name,
+				errno, strerror(errno));
 	}
 #else
 	(void)args;
