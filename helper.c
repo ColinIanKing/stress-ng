@@ -752,7 +752,7 @@ int stress_cache_alloc(const char *name)
 	cpu_caches = get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
-			pr_inf(name, "using defaults, can't determine cache details from sysfs\n", name);
+			pr_inf("%s: using defaults, can't determine cache details from sysfs\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
