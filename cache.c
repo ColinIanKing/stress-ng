@@ -453,8 +453,10 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		 * Not an error since some platforms don't provide cache
 		 * details * via /sys (ARM).
 		 */
+		/*
 		if (warn_once(WARN_ONCE_NO_CACHE))
 			pr_dbg("%s does not exist\n", glob_path);
+		 */
 		return ret;
 	}
 

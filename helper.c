@@ -753,7 +753,7 @@ int stress_cache_alloc(const char *name)
 	if (!cpu_caches) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_inf("%s: using built-in defaults as unable to "
-				"determine cache details\n", name);
+				"determine cache details from /sys/devices/system/cpu/cpu0/cache\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
