@@ -3229,6 +3229,11 @@ performing an expensive system call.
 .B \-\-vdso\-ops N
 stop after N vDSO functions calls.
 .TP
+.B \-\-vdso\-func F
+Instead of calling all the vDSO functions, just call the vDSO function F. The
+functions depend on the kernel being used, but are typically clock_gettime,
+getcpu, gettimeofday and time.
+.TP
 .B \-\-vecmath N
 start N workers that perform various unsigned integer math operations on
 various 128 bit vectors. A mix of vector math operations are performed on the

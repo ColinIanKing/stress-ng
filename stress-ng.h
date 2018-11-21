@@ -2408,6 +2408,7 @@ typedef enum {
 
 	OPT_vdso,
 	OPT_vdso_ops,
+	OPT_vdso_func,
 
 	OPT_vecmath,
 	OPT_vecmath_ops,
@@ -3001,6 +3002,7 @@ extern int  stress_set_udp_domain(const char *name);
 extern int  stress_set_udp_port(const char *opt);
 extern int  stress_set_udp_flood_domain(const char *name);
 extern int  stress_set_userfaultfd_bytes(const char *opt);
+extern int  stress_set_vdso_func(const char *name);
 extern int  stress_set_vfork_max(const char *opt);
 extern int  stress_set_vm_bytes(const char *opt);
 extern int  stress_set_vm_flags(const int flag);
