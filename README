@@ -8,8 +8,8 @@ the various operating system kernel interfaces. Stress-ng features:
   * over 50 CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
   * over 20 virtual memory stress tests
-  * portable: builds on Linux, Solaris, *BSD, Minix, Android and MacOS X
-    with gcc and clang
+  * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
+    Debian Hurd, Haiku and SunOs/Dilos with gcc and clang
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only
