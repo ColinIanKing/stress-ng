@@ -151,6 +151,12 @@ static int stress_tee(const args_t *args)
 				continue;
 			if (errno == EINTR)
 				break;
+			if (errno == ENOMEM) {
+				pr_inf("%s: skipping stressor, out of memory\n",
+					args->name);
+				ret = EXIT_NO_RESOURCE;
+				goto tidy_child2;
+			}
 			pr_err("%s: tee failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_child2;
