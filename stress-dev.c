@@ -526,7 +526,7 @@ static inline const char *dev_basename(const char *devpath)
 
 static inline void add_scsi_dev(const char *devpath)
 {
-	dev_scsi_t *dev_scsi, *dev_scsi_new = NULL;
+	dev_scsi_t *dev_scsi, *dev_scsi_new;
 	int ret;
 
 	/*
