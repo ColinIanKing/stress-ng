@@ -1,3 +1,73 @@
+stress-ng (0.09.47-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * Add in missing option --vdso-func to specific the vDSO function to
+    call
+  * stress-mcontend: check data[1] rather than data[0] for failed mmap
+  * stress-dev: remove redundant null assignment to dev_scsi_new
+  * log: use strncpy instead of less safe strcpy
+  * README: add WSL as a supported platform
+  * stress-itimer: skip stressor if itimer cannot be set
+  * stress-schedpolicy: skip sched_setparam on EPERM errors
+  * stress-key: skip stressor if add_key is not implemented
+  * stress-netdev: ignore errors of EINVAL on ioctls
+  * stress-ioprio: skip over failures that return -EINVAL
+  * stress-file-ioctl: skip flag checking if ioctl fails
+  * helper: forgot to use %s when printing cache pr_inf message
+  * stress-file-ioctl: silently ignore ENOTTY ioctl failures
+  * stress-file-ioctl: add in errno info on failure
+  * helper: shrink cache defaults message, make it less verbose
+  * stress-fcntl: cater for kernels that don't support some fcntl commands
+  * stress-sigio: cater for kernels that don't support F_SETOWN
+  * stress-udp: cater for kernels that don't support SO_REUSEADDR
+  * cache: remove some empty lines, minor code cleanup
+  * stress-tee: terminate with EXIT_NO_RESOURCE on ENOMEM on tee
+  * stress-sctp: skip stressor if protocol is not supported (part 2)
+  * Make cache size warnings less verbose
+  * Add getauxval autoconfig detection
+  * stress-vdso: only build test if AT_SYSINFO_EHDR is defined
+  * README: add in more operating systems that the tool can build on
+  * stress-sync-file: skip stressor if sync_file_range is not implemented
+  * stress-switch: fall back to pipe() if pipe2() fails to work
+  * stress-socket-diag: skip stressor if protocol is not supported
+  * stress-sctp: skip stressor if protocol is not supported
+  * stress-pipe: fall back to pipe() if pipe2() fails to work
+  * exit_status: make ENOSYS return EXIT_NOT_IMPLEMENTED
+  * stress-mq: skip stressor if POSIX message queues are not implemented
+  * stress-mincore: skip stressor of mincore not implemented
+  * stress-full: check if /dev/full exists, return EXIT_NOT_IMPLEMENTED
+    if not available
+  * stress-filename: cater for WSL on Windows 10 ENOENT errors
+  * stress-filename: make probing more robust
+  * stress-clock: handle kernels that return -EINVAL for timer_create
+  * stress-vdso: make function vdso_sym_list_check_vdso_func static
+  * stress-vdso: fix realloc null return check, don't check str
+  * stress-vdso: ensure hash is initialized to NULL
+  * stress-zlib: add gray code generator
+  * stress-zlib: add brown noise and fix missing funcs from
+    rand_data_funcs
+  * stress-wait: voidify kill return
+  * stress-vm: minor optimization, don't keep on recomputing max_ops arg
+  * stress-vm: handle counter increments via helper functions
+  * stress-bindmount: use get_counter instead of referencing counter
+  * Add add_counter helper to add a value to the bogo op counter
+  * Add a set_counter helper to set the bogo counter
+  * Use get_counter rather than directly referencing *args->counter
+  * mwc: use getauxval(AT_RANDOM) as a base seed if it is available
+  * stress-switch: add more context switch info
+  * stress-ng.h: add get_counter helper to get counter from args
+  * stress-vdso: add arm64 vDSO symbol names
+  * stress-vdso: scan all symbols and remove duplicates
+  * Add vDSO stress test.
+  * use a test program to conditionally set TARGET_CLONES (LP: #1800826)
+  * Detect and use <features.h> if it is available.
+  * Fix build with uClibc-ng (LP: #1800829)
+  * stress-ng.h: conditionally define _{LARGEFILE,LARGEFILE64}_SOURCE
+    to fix build warning (LP: #1800828)
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Nov 2018 17:03:43 +0000
+
 stress-ng (0.09.46-1) unstable; urgency=medium
 
   * Makefile: bump version, remove -g and -pipe flags
