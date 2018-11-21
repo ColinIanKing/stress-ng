@@ -189,6 +189,12 @@ static int stress_sctp_server(
 		goto die;
 	}
 	if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
+		if (errno == EPROTONOSUPPORT) {
+			pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
+				args->name);
+			rc = EXIT_NOT_IMPLEMENTED;
+			goto die;
+		}
 		rc = exit_status(errno);
 		pr_fail_dbg("socket");
 		goto die;
