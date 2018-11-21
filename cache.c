@@ -81,7 +81,6 @@ static int file_exists(const char *path)
 		pr_dbg("%s: empty path specified\n", __func__);
 		return 0;
 	}
-
 	if (stat(path, &st) < 0)
 		return 0;
 
@@ -262,7 +261,6 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		pr_dbg("%s: invalid cache specified\n", __func__);
 		goto out;
 	}
-
 	if (!index_path) {
 		pr_dbg("%s: invalid index specified\n", __func__);
 		goto out;
@@ -342,7 +340,6 @@ static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 		cpu_cache_t *p;
 
 		p = &cpu->caches[i];
-
 		if (p->level != cache_level)
 			continue;
 
@@ -437,7 +434,6 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return ret;
 	}
-
 	if (!cpu_path) {
 		pr_dbg("%s: invalid cpu path parameter\n", __func__);
 		return ret;
@@ -470,7 +466,6 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 	(void)strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
 		sizeof(glob_path) - len - 1);
 	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
-
 	if (ret2 != 0) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
 			pr_err("glob on regex \"%s\" failed: %d\n",
@@ -535,14 +530,12 @@ cpus_t * get_all_cpu_cache_details(void)
 		pr_err("%s does not exist\n", SYS_CPU_PREFIX);
 		return NULL;
 	}
-
 	if (ret != S_IFDIR) {
 		pr_err("file %s is not a directory\n", SYS_CPU_PREFIX);
 		return NULL;
 	}
 
 	ret = glob(GLOB_PATTERN, GLOB_ONLYDIR, NULL, &globbuf);
-
 	if (ret != 0) {
 		pr_err("glob on regex \"%s\" failed: %d\n",
 			GLOB_PATTERN, ret);
@@ -551,7 +544,6 @@ cpus_t * get_all_cpu_cache_details(void)
 
 	results = globbuf.gl_pathv;
 	cpu_count = globbuf.gl_pathc;
-
 	if (!cpu_count) {
 		/* Maybe we should check this? */
 		pr_err("no CPUs found - is /sys mounted?\n");
