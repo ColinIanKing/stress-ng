@@ -217,9 +217,14 @@ again:
 		}
 #if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			pr_fail_dbg("setsockopt");
-			rc = EXIT_FAILURE;
-			goto die_close;
+			/*
+			 *  Some systems don't support SO_REUSEADDR
+			 */
+			if (errno != EINVAL) {
+				pr_fail_dbg("setsockopt");
+				rc = EXIT_FAILURE;
+				goto die_close;
+			}
 		}
 #endif
 
