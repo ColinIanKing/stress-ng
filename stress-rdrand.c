@@ -42,14 +42,14 @@ static int stress_rdrand_supported(void)
 	__cpuid(0, eax, ebx, ecx, edx);
 	if (!cpu_is_x86()) {
 		pr_inf("rdrand stressor will be skipped, "
-			"not a recognised Intel CPU.\n");
+			"not a recognised Intel CPU\n");
 		return -1;
 	}
 	/* ..and supports rdrand? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
 		pr_inf("rdrand stressor will be skipped, CPU "
-			"does not support the rdrand instruction.\n");
+			"does not support the rdrand instruction\n");
 		return -1;
 	}
 	rdrand_supported = true;

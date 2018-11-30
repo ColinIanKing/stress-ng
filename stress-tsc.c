@@ -41,14 +41,14 @@ static int stress_tsc_supported(void)
 	/* Intel CPU? */
 	if (!cpu_is_x86()) {
 		pr_inf("tsc stressor will be skipped, "
-			"not a recognised Intel CPU.\n");
+			"not a recognised Intel CPU\n");
 		return -1;
 	}
 	/* ..and supports tsc? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(edx & 0x10)) {
 		pr_inf("tsc stressor will be skipped, CPU "
-			"does not support the rdtsc instruction.\n");
+			"does not support the rdtsc instruction\n");
 		return -1;
 	}
 	tsc_supported = true;
