@@ -706,8 +706,13 @@ static void stress_dev_scsi_blk(
 #endif
 #if defined(SCSI_IOCTL_GET_IDLUN)
 	{
-		int ret, lun;
+		int ret;
+		struct sng_scsi_idlun {
+			int four_in_one;
+			int host_unique_id;
+		} lun;
 
+		(void)memset(&lun, 0, sizeof(lun));
 		ret = ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun);
 		(void)ret;
 	}
