@@ -1,3 +1,13 @@
+stress-ng (0.09.48-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dev: pass correct struct to SCSI_IOCTL_GET_IDLUN
+    ioctl (LP: #1806024)
+  * Remove full stop from some messages, like other messages
+  * stress-spawn: fix skipping message, use stressor test name
+
+ -- Colin King <colin.king@canonical.com>  Fri, 30 Nov 2018 12:07:13 +0000
+
 stress-ng (0.09.47-1) unstable; urgency=medium
 
   * Makefile: bump version
