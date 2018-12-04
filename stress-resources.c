@@ -299,7 +299,7 @@ static void NORETURN waste_resources(
 		}
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && defined(HAVE_SEM_POSIX)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
 #endif
 
@@ -394,7 +394,7 @@ static void NORETURN waste_resources(
 			(void)close(info[i].pty_master);
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && defined(HAVE_SEM_POSIX)
 		if (info[i].semok)
 			(void)sem_destroy(&info[i].sem);
 #endif
