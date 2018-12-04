@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
-#include <semaphore.h>
-#endif
-
 int stress_set_semaphore_posix_procs(const char *opt)
 {
 	uint64_t semaphore_posix_procs;

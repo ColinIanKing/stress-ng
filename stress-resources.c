@@ -31,9 +31,6 @@
 #include <termio.h>
 #include <termios.h>
 #endif
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
-#include <semaphore.h>
-#endif
 #if defined(HAVE_MQ_SYSV)
 #include <sys/ipc.h>
 #include <sys/msg.h>
