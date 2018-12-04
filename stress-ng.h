@@ -53,7 +53,9 @@
 #include <dirent.h>
 #include <limits.h>
 #include <setjmp.h>
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 #include <semaphore.h>
+#endif
 #include <sched.h>
 
 #if defined(__GNUC__) && defined(__linux__)
