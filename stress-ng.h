@@ -33,7 +33,10 @@
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
-#define _FILE_OFFSET_BITS 	64
+
+#if !defined(_FILE_OFFSET_BITS)
+#define _FILE_OFFSET_BITS 	(64)
+#endif
 
 /* Some Solaris tool chains only define __sun */
 #if defined(__sun) && !defined(__sun__)
@@ -51,12 +54,17 @@
 #include <inttypes.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <signal.h>
+#include <time.h>
 #include <limits.h>
 #include <setjmp.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sched.h>
+
 #if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 #include <semaphore.h>
 #endif
-#include <sched.h>
 
 #if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
@@ -94,8 +102,6 @@
 #endif
 #endif
 
-#include <signal.h>
-#include <time.h>
 #include <sys/file.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -172,9 +178,6 @@
 #include <dlfcn.h>
 #include <gnu/lib-names.h>
 #endif
-
-#include <fcntl.h>
-#include <errno.h>
 
 #if defined (HAVE_FEATURES_H)
 #include <features.h>
