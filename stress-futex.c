@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_futex)
+#if defined(HAVE_LINUX_FUTEX_H) &&	\
+    defined(__linux__) && 		\
+    defined(__NR_futex)
 
 #include <linux/futex.h>
 
