@@ -30,7 +30,7 @@
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
-#if defined(HAVE_ADJTIMEX)
+#if defined(HAVE_ADJTIMEX) && defined(HAVE_SYS_TIMEX_H)
 #include <sys/timex.h>
 #endif
 
@@ -127,8 +127,10 @@ static const int priorities[] = {
 static int stress_get(const args_t *args)
 {
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+#if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
 	const bool is_root = (geteuid() == 0);
+#endif
 #endif
 
 	do {
@@ -139,7 +141,7 @@ static int stress_get(const args_t *args)
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
 		size_t i;
-#if defined(HAVE_ADJTIME)
+#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
 		struct timeval delta;
 #endif
 		struct timeval tv;
@@ -320,7 +322,7 @@ static int stress_get(const args_t *args)
 		}
 #endif
 
-#if defined(HAVE_ADJTIMEX)
+#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIMEX)
 		{
 			struct timex timexbuf;
 
@@ -331,7 +333,7 @@ static int stress_get(const args_t *args)
 		}
 #endif
 
-#if defined(HAVE_ADJTIME)
+#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (is_root && verify && (ret < 0))
