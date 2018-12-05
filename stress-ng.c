@@ -27,7 +27,7 @@
 #include <getopt.h>
 #include <syslog.h>
 
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
 #if defined(__linux__)
@@ -2822,7 +2822,7 @@ void log_system_mem_info(void)
  */
 static void log_system_info(void)
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 
 	if (uname(&buf) == 0) {

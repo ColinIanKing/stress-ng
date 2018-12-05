@@ -27,7 +27,7 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
 #if defined(HAVE_ADJTIMEX)
@@ -291,7 +291,7 @@ static int stress_get(const args_t *args)
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
 			pr_fail_err("gettimeval");
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
 

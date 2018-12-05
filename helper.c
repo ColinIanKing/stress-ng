@@ -30,7 +30,7 @@
 #include <sys/sysinfo.h>
 #include <sys/prctl.h>
 #endif
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
 #include <sys/statvfs.h>
@@ -680,7 +680,7 @@ void stress_strnrnd(char *str, const size_t len)
  */
 void pr_yaml_runinfo(FILE *yaml)
 {
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
 #endif
 #if defined(__linux__)
@@ -706,7 +706,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	}
 	if (!gethostname(hostname, sizeof(hostname)))
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	if (uname(&uts) == 0) {
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
@@ -1084,7 +1084,7 @@ int stress_not_implemented(const args_t *args)
 #else
 	static char cc[] = " (cc unknown)";
 #endif
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 
 	if (!uname(&buf)) {

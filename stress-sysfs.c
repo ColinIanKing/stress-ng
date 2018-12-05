@@ -24,7 +24,7 @@
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
 
@@ -437,7 +437,7 @@ static int stress_sysfs(const args_t *args)
 	ctxt_t ctxt;
 
 	os_release = 0;
-#if defined(HAVE_UNAME)
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	{
 		static struct utsname utsbuf;
 
