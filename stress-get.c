@@ -53,7 +53,7 @@ static const int rusages[] = {
 };
 
 /*
- *  The folloowing produce -EINVAL for Haiku, so
+ *  The following produce -EINVAL for Haiku, so
  *  disable them
  */
 #if defined(__HAIKU__)
