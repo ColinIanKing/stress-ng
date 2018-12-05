@@ -26,7 +26,8 @@
 
 #if defined(__linux__)
 
-#if defined(HAVE_SECCOMP_H) && defined(HAVE_MPROTECT)
+#if defined(HAVE_LINUX_SECCOMP_H) && \
+    defined(HAVE_MPROTECT)
 #include <sys/prctl.h>
 #include <linux/audit.h>
 #include <linux/filter.h>
