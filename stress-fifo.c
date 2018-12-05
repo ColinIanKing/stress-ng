@@ -23,9 +23,12 @@
  *
  */
 #include "stress-ng.h"
+
+#if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
+#endif
 
 int stress_set_fifo_readers(const char *opt)
 {
@@ -37,6 +40,7 @@ int stress_set_fifo_readers(const char *opt)
 	return set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
+#if defined(HAVE_SYS_SELECT_H)
 /*
  *  fifo_spawn()
  *	spawn a process
@@ -236,3 +240,9 @@ stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
 };
+#else
+stressor_info_t stress_fifo_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
+};
+#endif

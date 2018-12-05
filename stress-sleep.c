@@ -24,9 +24,12 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) && \
+    defined(__linux__)
 
+#if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
+#endif
 
 typedef struct {
 	const args_t *args;
@@ -81,7 +84,9 @@ static void *stress_pthread_func(void *c)
 
 	while (keep_stressing() && !thread_terminate && ctxt->counter < max_ops) {
 		struct timespec tv;
+#if defined(HAVE_SYS_SELECT_H)
 		struct timeval timeout;
+#endif
 
 		tv.tv_sec = 0;
 		tv.tv_nsec = 1;
@@ -105,6 +110,8 @@ static void *stress_pthread_func(void *c)
 			break;
 		if (shim_usleep(10000) < 0)
 			break;
+
+#if defined(HAVE_SYS_SELECT_H)
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
@@ -121,6 +128,7 @@ static void *stress_pthread_func(void *c)
 		timeout.tv_usec = 10000;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)
 			break;
+#endif
 
 		ctxt->counter++;
 	}

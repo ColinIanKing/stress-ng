@@ -26,7 +26,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_INOTIFY) && NEED_GLIBC(2,9,0)
+#if defined(HAVE_INOTIFY) &&		\
+    defined(HAVE_SYS_SELECT_H) && 	\
+    NEED_GLIBC(2,9,0)
 
 #include <sys/select.h>
 #include <sys/inotify.h>

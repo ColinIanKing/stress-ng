@@ -23,7 +23,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_FANOTIFY)
+#if defined(HAVE_FANOTIFY) &&	\
+    defined(HAVE_SYS_SELECT_H)
 
 #include <mntent.h>
 #include <sys/select.h>
@@ -42,7 +43,8 @@ typedef struct {
 
 #endif
 
-#if defined(HAVE_FANOTIFY)
+#if defined(HAVE_FANOTIFY) &&	\
+    defined(HAVE_SYS_SELECT_H)
 /*
  *  stress_fanotify_supported()
  *      check if we can run this as root
