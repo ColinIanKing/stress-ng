@@ -29,7 +29,6 @@
     defined(HAVE_FANOTIFY)
 
 #include <mntent.h>
-#include <sys/select.h>
 #include <sys/fanotify.h>
 
 #define BUFFER_SIZE	(4096)

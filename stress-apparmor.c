@@ -29,7 +29,6 @@
     defined(HAVE_SYS_APPARMOR_H) && 	\
     defined(HAVE_SYS_SELECT_H)
 
-#include <sys/select.h>
 #include <sys/apparmor.h>
 
 #define APPARMOR_BUF_SZ	(4096)

@@ -27,8 +27,6 @@
     defined(F_NOTIFY) && \
     defined(HAVE_SYS_SELECT_H)
 
-#include <sys/select.h>
-
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)
 #define FILE_FLAGS	(S_IRUSR | S_IWUSR)
 

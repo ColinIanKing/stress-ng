@@ -27,10 +27,6 @@
 #if defined(HAVE_LIB_PTHREAD) && \
     defined(__linux__)
 
-#if defined(HAVE_SYS_SELECT_H)
-#include <sys/select.h>
-#endif
-
 typedef struct {
 	const args_t *args;
 	uint64_t counter;

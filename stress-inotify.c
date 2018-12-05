@@ -30,7 +30,6 @@
     defined(HAVE_SYS_SELECT_H) && 	\
     NEED_GLIBC(2,9,0)
 
-#include <sys/select.h>
 #include <sys/inotify.h>
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)

@@ -156,6 +156,10 @@
 #include <sys/memfd.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif

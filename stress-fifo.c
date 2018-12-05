@@ -25,8 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_SYS_SELECT_H)
-#include <sys/select.h>
-
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 #endif
 
