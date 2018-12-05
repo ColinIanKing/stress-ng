@@ -119,7 +119,9 @@
 #include <sys/quota.h>
 #include <sys/prctl.h>
 #include <netinet/in.h>
+#if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
+#endif
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif

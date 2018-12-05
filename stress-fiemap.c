@@ -23,10 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__linux__) && defined(FS_IOC_FIEMAP) && defined(HAVE_LINUX_FIEMAP_H)
-#include <linux/fs.h>
-#include <linux/fiemap.h>
-#endif
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 
@@ -40,9 +36,9 @@ int stress_set_fiemap_bytes(const char *opt)
 	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
-#if defined(__linux__) &&	\
-    defined(FS_IOC_FIEMAP) &&	\
-    defined(HAVE_LINUX_FIEMAP_H)
+#if defined(HAVE_LINUX_FS_H) &&		\
+    defined(HAVE_LINUX_FIEMAP_H) && 	\
+    defined(FS_IOC_FIEMAP)
 
 /*
  *  stress_fiemap_writer()
