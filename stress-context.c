@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SWAPCONTEXT)
+#if defined(HAVE_SWAPCONTEXT) &&	\
+    defined(HAVE_UCONTEXT_H)
 
 #include <ucontext.h>
 
