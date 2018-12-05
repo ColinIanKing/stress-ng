@@ -28,7 +28,7 @@
 #include <sys/param.h>
 #include <sys/ucred.h>
 #include <sys/mount.h>
-#elif defined(HAVE_GETMNTENT)
+#elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
 #include <mntent.h>
 #endif
 
@@ -91,7 +91,7 @@ int mount_get(char *mnts[], const int max)
 	}
 	return ret;
 }
-#elif defined(HAVE_GETMNTENT)
+#elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
 int mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
