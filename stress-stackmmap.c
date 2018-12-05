@@ -137,6 +137,12 @@ static int stress_stackmmap(const args_t *args)
 	stack_mmap = mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
+		if (errno == ENXIO) {
+			pr_inf("%s: skipping stressor, mmap not possible on file %s\n",
+				args->name, filename);
+			rc = EXIT_NO_RESOURCE;
+			goto tidy_dir;
+		}
 		pr_fail_err("mmap");
 		(void)close(fd);
 		goto tidy_dir;
