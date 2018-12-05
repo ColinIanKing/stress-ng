@@ -28,7 +28,8 @@
 
 #if defined(__linux__)
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29) && \
+    defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #endif
 #endif
