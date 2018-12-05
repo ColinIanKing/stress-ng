@@ -26,7 +26,9 @@
 
 #if defined(__linux__)
 
+#if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
+#endif
 #include <linux/connector.h>
 #include <linux/netlink.h>
 #include <linux/cn_proc.h>
