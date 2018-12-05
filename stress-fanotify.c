@@ -23,9 +23,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_MNTENT_H) && 	\
-    defined(HAVE_FANOTIFY) &&	\
-    defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_MNTENT_H) &&		\
+    defined(HAVE_SYS_SELECT_H) && 	\
+    defined(HAVE_SYS_FANOTIFY_H) &&	\
+    defined(HAVE_FANOTIFY)
 
 #include <mntent.h>
 #include <sys/select.h>
