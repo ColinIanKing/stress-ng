@@ -26,6 +26,7 @@
 
 #if defined(__linux__) &&	\
     defined(HAVE_LIB_AIO) &&	\
+    defined(HAVE_LIBAIO_H) &&	\
     defined(__NR_io_setup) &&	\
     defined(__NR_io_destroy) &&	\
     defined(__NR_io_submit) &&	\
@@ -50,6 +51,7 @@ int stress_set_aio_linux_requests(const char *opt)
 
 #if defined(__linux__) &&	\
     defined(HAVE_LIB_AIO) &&	\
+    defined(HAVE_LIBAIO_H) &&	\
     defined(__NR_io_setup) &&	\
     defined(__NR_io_destroy) &&	\
     defined(__NR_io_submit) &&	\
