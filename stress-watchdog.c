@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(HAVE_LINUX_WATCHDOG_H) 
 
 #include <linux/watchdog.h>
 
