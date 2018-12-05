@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(HAVE_SOCK_DIAG_H)
+#if defined(__linux__) && \
+    defined(HAVE_LINUX_SOCK_DIAG_H)
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
