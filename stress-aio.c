@@ -24,7 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
+#if defined(HAVE_LIB_RT) && \
+    defined(HAVE_AIO_H) && \
+    defined(__linux__) && \
+    NEED_GLIBC(2,1,0)
 
 #include <aio.h>
 
@@ -52,7 +55,10 @@ int stress_set_aio_requests(const char *opt)
 	return set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
 }
 
-#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,1,0)
+#if defined(HAVE_LIB_RT) && \
+    defined(HAVE_AIO_H) && \
+    defined(__linux__) && \
+    NEED_GLIBC(2,1,0)
 /*
  *  aio_fill_buffer()
  *	fill buffer with some known pattern
