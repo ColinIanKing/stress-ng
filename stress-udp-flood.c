@@ -71,6 +71,11 @@ static int stress_udp_flood(const args_t *args)
 	(void)get_setting("udp-flood-domain", &udp_flood_domain);
 
 	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
+		if (errno == EPROTONOSUPPORT) {
+			pr_inf("%s: skipping stressor, protocol not supported\n",
+				args->name);
+			return EXIT_NOT_IMPLEMENTED;
+		}
 		pr_fail_dbg("socket");
 		return EXIT_FAILURE;
 	}
