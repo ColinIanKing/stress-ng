@@ -27,10 +27,10 @@
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE	600
 
-#if defined(HAVE_LIB_CRYPT)
-#if defined(__linux__) || defined(__sun__)
+#if defined(HAVE_LIB_CRYPT) &&	\
+    defined(HAVE_CRYPT_H)
+
 #include <crypt.h>
-#endif
 
 /*
  *  stress_crypt_id()
