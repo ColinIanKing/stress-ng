@@ -186,6 +186,10 @@
 #include <linux/futex.h>
 #endif
 
+#if defined(HAVE_LINUX_USERFAULTFD_H)
+#include <linux/userfaultfd.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both

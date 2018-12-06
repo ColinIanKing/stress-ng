@@ -29,7 +29,6 @@
     defined(HAVE_CLONE)
 
 #include <poll.h>
-#include <linux/userfaultfd.h>
 
 #define STACK_SIZE	(64 * 1024)
 #define COUNT_MAX	(256)
