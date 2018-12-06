@@ -28,8 +28,6 @@
     defined(__linux__) && 		\
     defined(__NR_futex)
 
-#include <linux/futex.h>
-
 #define THRESHOLD	(100000)
 
 /*
