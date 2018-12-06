@@ -26,8 +26,6 @@
 
 #if defined(HAVE_LINUX_WATCHDOG_H) 
 
-#include <linux/watchdog.h>
-
 static sigjmp_buf jmp_env;
 
 static const int sigs[] = {
