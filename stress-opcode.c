@@ -24,14 +24,11 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(HAVE_LINUX_AUDIT_H) &&	\
     defined(HAVE_LINUX_FILTER_H) &&	\
     defined(HAVE_MPROTECT) &&		\
     defined(HAVE_SYS_PRCTL_H)
-#include <linux/seccomp.h>
 
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 

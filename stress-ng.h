@@ -174,6 +174,10 @@
 #include <linux/filter.h>
 #endif
 
+#if defined(HAVE_LINUX_SECCOMP_H)
+#include <linux/seccomp.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
