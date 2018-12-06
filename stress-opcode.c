@@ -35,7 +35,6 @@
 #define ALLOW_SYSCALL(syscall)					\
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), 	\
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
-#endif
 
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
