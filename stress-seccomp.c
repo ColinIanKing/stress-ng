@@ -126,15 +126,22 @@ static int stress_seccomp_supported(void)
 		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog_allow_all) == 0) {
 			_exit(0);
 		}
-		_exit(1);
+		_exit(errno);
 	}
 	if (waitpid(pid, &status, 0) < 0) {
 		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, wait failed: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
 	}
-	if (WIFEXITED(status) && (WEXITSTATUS(status) != EXIT_SUCCESS)) {
-		pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER is not supported\n");
+	if (WIFEXITED(status) && (WEXITSTATUS(status) != 0)) {
+		errno = WEXITSTATUS(status);
+		if (errno == EACCES) {
+			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER requires CAP_SYS_ADMIN capability\n");
+				return -1;
+		} else {
+			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER is not supported, errno=%d (%s)\n",
+				errno, strerror(errno));
+		}
 		return -1;
 	}
 	return 0;
