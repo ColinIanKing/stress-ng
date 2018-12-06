@@ -198,6 +198,10 @@
 #include <linux/rtc.h>
 #endif
 
+#if defined(HAVE_LINUX_LOOP_H)
+#include <linux/loop.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
