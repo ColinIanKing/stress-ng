@@ -25,10 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_PTHREAD)
-#if defined(HAVE_GET_ROBUST_LIST) && \
-    defined(HAVE_LINUX_FUTEX_H)
-#include <linux/futex.h>
-#endif
 
 typedef struct {
 	pthread_t pthread;
