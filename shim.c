@@ -25,10 +25,6 @@
 #include "stress-ng.h"
 #include <pwd.h>
 
-#if defined(HAVE_LINUX_FUTEX_H)
-#include <linux/futex.h>
-#endif
-
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
