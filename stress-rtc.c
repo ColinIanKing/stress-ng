@@ -26,8 +26,6 @@
 
 #if defined(HAVE_LINUX_RTC_H)
 
-#include <linux/rtc.h>
-
 /*
  *  RTC interfaces, as described by
  *  	Documentation/rtc.txt
