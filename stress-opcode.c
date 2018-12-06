@@ -27,9 +27,9 @@
 #if defined(__linux__)
 
 #if defined(HAVE_LINUX_SECCOMP_H) && \
+    defined(HAVE_LINUX_AUDIT_H) && \
     defined(HAVE_MPROTECT) && \
     defined(HAVE_SYS_PRCTL_H)
-#include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
 
@@ -210,7 +210,7 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 
-#if defined(HAVE_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
+#if defined(HAVE_LINUX_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
 			/*
 			 * Limit syscall using seccomp
 			 */

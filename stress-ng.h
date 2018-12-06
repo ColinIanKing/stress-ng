@@ -166,6 +166,10 @@
 #include <linux/membarrier.h>
 #endif
 
+#if defined(HAVE_LINUX_AUDIT_H)
+#include <linux/audit.h>
+#endif
+
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
