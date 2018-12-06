@@ -28,7 +28,6 @@
     defined(HAVE_LINUX_AUDIT_H) &&	\
     defined(HAVE_LINUX_FILTER_H) &&	\
     defined(HAVE_SYS_PRCTL_H) &&	\
-    defined(__linux__) &&		\
     defined(PR_SET_SECCOMP) &&		\
     defined(SECCOMP_SET_MODE_FILTER)
 

@@ -27,7 +27,6 @@
 #if defined(__linux__) || defined(__gnu_hurd__)
 
 #if defined(HAVE_LINUX_VERSION_H)
-#include <linux/version.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,29) && \
     defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
