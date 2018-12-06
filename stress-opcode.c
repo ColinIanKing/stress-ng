@@ -27,8 +27,8 @@
 #if defined(__linux__)
 
 #if defined(HAVE_LINUX_SECCOMP_H) && \
-    defined(HAVE_MPROTECT)
-#include <sys/prctl.h>
+    defined(HAVE_MPROTECT) && \
+    defined(HAVE_SYS_PRCTL_H)
 #include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
@@ -78,7 +78,7 @@ static const int sigs[] = {
 #endif
 };
 
-#if defined(HAVE_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
+#if defined(HAVE_LINUX_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
 static struct sock_filter filter[] = {
 	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_exit_group)

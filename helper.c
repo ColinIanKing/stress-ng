@@ -28,7 +28,6 @@
 #include <math.h>
 #if defined(__linux__)
 #include <sys/sysinfo.h>
-#include <sys/prctl.h>
 #endif
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>

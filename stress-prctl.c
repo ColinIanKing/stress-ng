@@ -24,60 +24,57 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <sys/prctl.h>
-#endif
-
 #if defined(HAVE_SYS_CAP_H)
 #include <sys/capability.h>
 #endif
 
-#if defined(PR_CAP_AMBIENT) ||			\
-    defined(PR_CAPBSET_READ) ||			\
-    defined(PR_CAPBSET_DROP) ||			\
-    defined(PR_SET_CHILD_SUBREAPER) ||		\
-    defined(PR_GET_CHILD_SUBREAPER) ||		\
-    defined(PR_SET_DUMPABLE) ||			\
-    defined(PR_GET_DUMPABLE) ||			\
-    defined(PR_SET_ENDIAN) ||			\
-    defined(PR_GET_ENDIAN) ||			\
-    defined(PR_SET_FP_MODE) ||			\
-    defined(PR_GET_FP_MODE) ||			\
-    defined(PR_SET_FPEMU) ||			\
-    defined(PR_GET_FPEMU) ||			\
-    defined(PR_SET_FPEXC) ||			\
-    defined(PR_GET_FPEXC) ||			\
-    defined(PR_SET_KEEPCAPS) ||			\
-    defined(PR_GET_KEEPCAPS) ||			\
-    defined(PR_MCE_KILL) ||			\
-    defined(PR_MCE_KILL_GET) ||			\
-    defined(PR_SET_MM) ||			\
-    defined(PR_MPX_ENABLE_MANAGEMENT) ||	\
-    defined(PR_MPX_DISABLE_MANAGEMENT) ||	\
-    defined(PR_SET_NAME) ||			\
-    defined(PR_GET_NAME) ||			\
-    defined(PR_SET_NO_NEW_PRIVS) ||		\
-    defined(PR_GET_NO_NEW_PRIVS) ||		\
-    defined(PR_SET_PDEATHSIG) ||		\
-    defined(PR_GET_PDEATHSIG) ||		\
-    defined(PR_SET_PTRACER) ||			\
-    defined(PR_SET_SECCOMP) ||			\
-    defined(PR_GET_SECCOMP) ||			\
-    defined(PR_SET_SECUREBITS) ||		\
-    defined(PR_GET_SECUREBITS) ||		\
-    defined(PR_SET_THP_DISABLE) ||		\
-    defined(PR_TASK_PERF_EVENTS_DISABLE) ||	\
-    defined(PR_TASK_PERF_EVENTS_ENABLE) ||	\
-    defined(PR_GET_THP_DISABLE) ||		\
-    defined(PR_GET_TID_ADDRESS) ||		\
-    defined(PR_SET_TIMERSLACK) ||		\
-    defined(PR_GET_TIMERSLACK) ||		\
-    defined(PR_SET_TIMING) ||			\
-    defined(PR_GET_TIMING) ||			\
-    defined(PR_SET_TSC) ||			\
-    defined(PR_GET_TSC) ||			\
-    defined(PR_SET_UNALIGN) ||			\
-    defined(PR_GET_UNALIGN)
+#if defined(HAVE_SYS_PRCTL_H) &&		\
+    (defined(PR_CAP_AMBIENT) ||			\
+     defined(PR_CAPBSET_READ) ||		\
+     defined(PR_CAPBSET_DROP) ||		\
+     defined(PR_SET_CHILD_SUBREAPER) ||		\
+     defined(PR_GET_CHILD_SUBREAPER) ||		\
+     defined(PR_SET_DUMPABLE) ||		\
+     defined(PR_GET_DUMPABLE) ||		\
+     defined(PR_SET_ENDIAN) ||			\
+     defined(PR_GET_ENDIAN) ||			\
+     defined(PR_SET_FP_MODE) ||			\
+     defined(PR_GET_FP_MODE) ||			\
+     defined(PR_SET_FPEMU) ||			\
+     defined(PR_GET_FPEMU) ||			\
+     defined(PR_SET_FPEXC) ||			\
+     defined(PR_GET_FPEXC) ||			\
+     defined(PR_SET_KEEPCAPS) ||		\
+     defined(PR_GET_KEEPCAPS) ||		\
+     defined(PR_MCE_KILL) ||			\
+     defined(PR_MCE_KILL_GET) ||		\
+     defined(PR_SET_MM) ||			\
+     defined(PR_MPX_ENABLE_MANAGEMENT) ||	\
+     defined(PR_MPX_DISABLE_MANAGEMENT) ||	\
+     defined(PR_SET_NAME) ||			\
+     defined(PR_GET_NAME) ||			\
+     defined(PR_SET_NO_NEW_PRIVS) ||		\
+     defined(PR_GET_NO_NEW_PRIVS) ||		\
+     defined(PR_SET_PDEATHSIG) ||		\
+     defined(PR_GET_PDEATHSIG) ||		\
+     defined(PR_SET_PTRACER) ||			\
+     defined(PR_SET_SECCOMP) ||			\
+     defined(PR_GET_SECCOMP) ||			\
+     defined(PR_SET_SECUREBITS) ||		\
+     defined(PR_GET_SECUREBITS) ||		\
+     defined(PR_SET_THP_DISABLE) ||		\
+     defined(PR_TASK_PERF_EVENTS_DISABLE) ||	\
+     defined(PR_TASK_PERF_EVENTS_ENABLE) ||	\
+     defined(PR_GET_THP_DISABLE) ||		\
+     defined(PR_GET_TID_ADDRESS) ||		\
+     defined(PR_SET_TIMERSLACK) ||		\
+     defined(PR_GET_TIMERSLACK) ||		\
+     defined(PR_SET_TIMING) ||			\
+     defined(PR_GET_TIMING) ||			\
+     defined(PR_SET_TSC) ||			\
+     defined(PR_GET_TSC) ||			\
+     defined(PR_SET_UNALIGN) ||			\
+     defined(PR_GET_UNALIGN))
 
 static int stress_prctl_child(const args_t *args)
 {

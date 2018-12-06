@@ -117,7 +117,9 @@
 #if defined(__linux__)
 #include <sys/mount.h>
 #include <sys/quota.h>
+#if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
+#endif
 #include <netinet/in.h>
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>

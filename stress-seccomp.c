@@ -25,14 +25,16 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LINUX_SECCOMP_H) && defined(__linux__)
-#include <sys/prctl.h>
 #include <linux/audit.h>
 #include <linux/filter.h>
 #include <linux/seccomp.h>
 #endif
 
-#if defined(HAVE_SECCOMP_H) && defined(__linux__) && \
-    defined(PR_SET_SECCOMP) && defined(SECCOMP_SET_MODE_FILTER)
+#if defined(HAVE_LINUX_SECCOMP_H) &&	\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(__linux__) &&		\
+    defined(PR_SET_SECCOMP) &&		\
+    defined(SECCOMP_SET_MODE_FILTER)
 
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
