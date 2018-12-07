@@ -24,10 +24,6 @@
 
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
-#include <sys/utsname.h>
-#endif
-
 #define SYS_BUF_SZ		(4096)
 #define MAX_READ_THREADS	(4)	/* threads stressing sysfs */
 #define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */

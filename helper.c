@@ -29,9 +29,6 @@
 #if defined(__linux__)
 #include <sys/sysinfo.h>
 #endif
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
-#include <sys/utsname.h>
-#endif
 #include <sys/statvfs.h>
 
 #if !defined(PR_SET_DISABLE)

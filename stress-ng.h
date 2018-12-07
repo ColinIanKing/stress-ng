@@ -166,6 +166,10 @@
 #include <sys/capability.h>
 #endif
 
+#if defined(HAVE_SYS_UTSNAME_H)
+#include <sys/utsname.h>
+#endif
+
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif
