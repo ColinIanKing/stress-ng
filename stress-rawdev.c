@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(__linux__)
-#include <sys/types.h>
 #include <sys/sysmacros.h>
 #include <dirent.h>
 #endif
