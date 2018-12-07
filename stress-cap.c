@@ -24,9 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SYS_CAP_H)
-
-#include <sys/capability.h>
+#if defined(HAVE_SYS_CAPABILITY_H)
 
 static int stress_capgetset_pid(
 	const args_t *args,

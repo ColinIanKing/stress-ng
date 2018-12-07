@@ -45,10 +45,6 @@
 static unsigned long timer_slack = 0;
 #endif
 
-#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
-#include <sys/capability.h>
-#endif
-
 static const char *stress_temp_path = ".";
 
 /*
@@ -1239,7 +1235,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	return str;
 }
 
-#if defined(__linux__) && defined(HAVE_SYS_CAP_H)
+#if defined(HAVE_SYS_CAPABILITY_H)
 int stress_drop_capabilities(const char *name)
 {
 	int ret;

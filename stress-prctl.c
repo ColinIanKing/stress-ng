@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SYS_CAP_H)
-#include <sys/capability.h>
-#endif
-
 #if defined(HAVE_SYS_PRCTL_H) &&		\
     (defined(PR_CAP_AMBIENT) ||			\
      defined(PR_CAPBSET_READ) ||		\
