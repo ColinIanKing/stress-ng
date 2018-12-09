@@ -154,6 +154,10 @@
 #include <netinet/in.h>
 #endif
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
 #endif

@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SYS_AUXV_H)
-#include <sys/auxv.h>
-#endif
-
 static mwc_t __mwc = {
 	MWC_SEED_W,
 	MWC_SEED_Z
