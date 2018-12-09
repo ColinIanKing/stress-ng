@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && NEED_GLIBC(2,8,0) && defined(HAVE_SIGQUEUE)
-
-#include <sys/signalfd.h>
+#if defined(HAVE_SYS_SIGNALFD_H) && 	\
+    NEED_GLIBC(2,8,0) && 		\
+    defined(HAVE_SIGQUEUE)
 
 /*
  *  stress_sigfd
