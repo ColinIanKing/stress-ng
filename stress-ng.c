@@ -2021,7 +2021,7 @@ static int stress_set_handler(const char *stress, const bool child)
  */
 static void version(void)
 {
-	(void)printf("%s, version " VERSION " \U0001F525\n", g_app_name);
+	(void)printf("%s, version " VERSION " \U0001F4BB\U0001F525\n", g_app_name);
 }
 
 /*
