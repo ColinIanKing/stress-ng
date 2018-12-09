@@ -34,9 +34,6 @@
 #if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#if defined(AF_UNIX)
-#include <sys/un.h>
-#endif
 #include <netdb.h>
 
 typedef void (epoll_func_t)(

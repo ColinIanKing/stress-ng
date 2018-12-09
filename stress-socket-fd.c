@@ -24,11 +24,11 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(__linux__) && 	\
+    defined(HAVE_SYS_UN_H)
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/un.h>
 
 #define MSG_ID			'M'
 

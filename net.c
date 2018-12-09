@@ -29,9 +29,6 @@
 #if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#if defined(AF_UNIX)
-#include <sys/un.h>
-#endif
 
 typedef struct {
 	const char *name;

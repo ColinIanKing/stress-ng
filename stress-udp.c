@@ -29,9 +29,6 @@
 #if defined(AF_INET6)
 #include <netinet/in.h>
 #endif
-#if defined(AF_UNIX)
-#include <sys/un.h>
-#endif
 
 /* See bugs section of udplite(7) */
 #if !defined(SOL_UDPLITE)
