@@ -29,11 +29,7 @@
 
 #if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
 #include <sys/epoll.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#if defined(AF_INET6)
-#include <netinet/in.h>
-#endif
 #include <netdb.h>
 
 typedef void (epoll_func_t)(

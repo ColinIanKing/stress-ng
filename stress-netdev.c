@@ -26,11 +26,7 @@
 
 #if defined(__linux__)
 
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#if defined(AF_INET6)
-#include <netinet/in.h>
-#endif
 #include <sys/ioctl.h>
 #include <net/if.h>
 

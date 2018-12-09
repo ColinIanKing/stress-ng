@@ -24,11 +24,7 @@
  */
 #include "stress-ng.h"
 
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#if defined(AF_INET6)
-#include <netinet/in.h>
-#endif
 
 #define DCCP_OPT_SEND		0x01
 #define DCCP_OPT_SENDMSG	0x02

@@ -150,6 +150,10 @@
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_NETINET_IN_H)
+#include <netinet/in.h>
+#endif
+
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
 #endif
