@@ -85,6 +85,12 @@ static int stress_sendfile(const args_t *args)
 	do {
 		off_t offset = 0;
 		if (sendfile(fdout, fdin, &offset, sz) < 0) {
+			if (errno == ENOSYS) {
+				pr_inf("%s: skipping stressor, sendfile not implemented\n",
+					args->name);
+				rc = EXIT_NOT_IMPLEMENTED;
+				goto close_out;
+			}
 			if (errno == EINTR)
 				continue;
 			pr_fail_err("sendfile");
