@@ -182,6 +182,10 @@
 #include <sys/signalfd.h>
 #endif
 
+#if defined(HAVE_SYS_TIMERFD_H)
+#include <sys/timerfd.h>
+#endif
+
 #if defined(HAVE_SYS_CAPABILITY_H)
 #include <sys/capability.h>
 #endif

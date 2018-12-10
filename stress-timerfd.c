@@ -24,12 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <sys/timerfd.h>
-
-static double rate_ns;
-#endif
-
 #define COUNT_MAX		(256)
 
 /*
@@ -46,7 +40,9 @@ int stress_set_timerfd_freq(const char *opt)
 	return set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
 
-#if defined(__linux__)
+#if defined(HAVE_SYS_TIMERFD_H)
+
+static double rate_ns;
 
 /*
  *  stress_timerfd_set()
