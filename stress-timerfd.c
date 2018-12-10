@@ -104,7 +104,7 @@ static int stress_timerfd(const args_t *args)
 	}
 
 	(void)snprintf(filename, sizeof(filename), "/proc/%d/fdinfo/%d",
-		args->pid, timerfd);
+		(int)args->pid, timerfd);
 	procfd = open(filename, O_RDONLY);
 
 	do {
