@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SYS_SWAP_H)
+#if defined(HAVE_SYS_SWAP_H) &&	\
+    defined(HAVE_SWAP)
 
 #define SWAP_VERSION		(1)
 #define SWAP_UUID_LENGTH	(16)
