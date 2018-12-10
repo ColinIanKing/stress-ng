@@ -202,6 +202,10 @@
 #include <sys/utsname.h>
 #endif
 
+#if defined(HAVE_SYS_VFS_H)
+#include <sys/vfs.h>
+#endif
+
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif

@@ -24,8 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined (__linux__)
-#include <sys/vfs.h>
+#if defined (HAVE_SYS_VFS_H)
 
 #define MAX_MOUNTS		(256)
 #define NO_MEM_RETRIES_MAX	(256)
