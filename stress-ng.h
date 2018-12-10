@@ -111,7 +111,6 @@
 #include <sys/socket.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
-#include <sys/uio.h>
 #include <sys/resource.h>
 
 #if defined(__linux__)
@@ -192,6 +191,10 @@
 
 #if defined(HAVE_SYS_CAPABILITY_H)
 #include <sys/capability.h>
+#endif
+
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
 #endif
 
 #if defined(HAVE_SYS_UN_H)

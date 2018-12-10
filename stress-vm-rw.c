@@ -30,8 +30,6 @@
     NEED_GLIBC(2,15,0) &&		\
     defined(HAVE_CLONE)
 
-#include <sys/uio.h>
-
 #define STACK_SIZE	(64 * 1024)
 
 typedef struct {

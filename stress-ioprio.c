@@ -28,8 +28,6 @@
     defined(HAVE_IOPRIO_SET) && \
     defined(HAVE_PWRITEV)
 
-#include <sys/uio.h>
-
 #define MAX_IOV		(4)
 #define BUF_SIZE	(32)
 

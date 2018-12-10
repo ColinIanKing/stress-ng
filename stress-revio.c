@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <sys/uio.h>
 
 #define BUF_ALIGNMENT		(4096)
 
