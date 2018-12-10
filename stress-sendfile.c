@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && NEED_GLIBC(2,1,0)
-#include <sys/sendfile.h>
-#endif
-
 int stress_set_sendfile_size(const char *opt)
 {
 	int64_t sendfile_size;
@@ -38,7 +34,8 @@ int stress_set_sendfile_size(const char *opt)
 	return set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
 
-#if defined(__linux__) && NEED_GLIBC(2,1,0)
+#if defined(HAVE_SYS_SENDFILE_H) &&	\
+    NEED_GLIBC(2,1,0)
 
 /*
  *  stress_sendfile
