@@ -182,6 +182,10 @@
 #include <sys/signalfd.h>
 #endif
 
+#if defined(HAVE_SYS_SWAP_H)
+#include <sys/swap.h>
+#endif
+
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
 #endif
@@ -241,7 +245,6 @@
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #endif
-
 
 /*
  *  We want sys/xattr.h in preference
