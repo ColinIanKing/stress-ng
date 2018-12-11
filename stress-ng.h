@@ -62,6 +62,10 @@
 #include <errno.h>
 #include <sched.h>
 
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
+#endif
+
 #if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 #include <semaphore.h>
 #endif
@@ -128,12 +132,33 @@
 #endif
 #include <linux/posix_types.h>
 #endif
-#if defined(HAVE_SYSCALL_H)
-#include <sys/syscall.h>
+
+#if defined(HAVE_SYS_APPARMOR_H)
+#include <sys/apparmor.h>
 #endif
 
-#if defined(__APPLE__)
-#include <sys/random.h>
+#if defined(HAVE_LINUX_AUDIT_H)
+#include <linux/audit.h>
+#endif
+
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
+#endif
+
+#if defined(HAVE_SYS_EVENTFD_H)
+#include <sys/eventfd.h>
+#endif
+
+#if defined(HAVE_LINUX_FILTER_H)
+#include <linux/filter.h>
+#endif
+
+#if defined(HAVE_LINUX_FUTEX_H)
+#include <linux/futex.h>
 #endif
 
 #if defined(HAVE_SEM_SYSV)
@@ -141,32 +166,16 @@
 #include <sys/sem.h>
 #endif
 
+#if defined(HAVE_SYS_MEMFD_H)
+#include <sys/memfd.h>
+#endif
+
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>
 #endif
 
-#if defined(HAVE_MODIFY_LDT)
-#include <asm/ldt.h>
-#endif
-
-#if defined(HAVE_NETINET_IN_H)
-#include <netinet/in.h>
-#endif
-
-#if defined(HAVE_SYS_APPARMOR_H)
-#include <sys/apparmor.h>
-#endif
-
-#if defined(HAVE_SYS_AUXV_H)
-#include <sys/auxv.h>
-#endif
-
-#if defined(HAVE_SYS_EVENTFD_H)
-#include <sys/eventfd.h>
-#endif
-
-#if defined(HAVE_SYS_MEMFD_H)
-#include <sys/memfd.h>
+#if defined(__APPLE__)
+#include <sys/random.h>
 #endif
 
 #if defined(HAVE_SYS_SELECT_H)
@@ -185,12 +194,12 @@
 #include <sys/swap.h>
 #endif
 
-#if defined(HAVE_SYS_TIMERFD_H)
-#include <sys/timerfd.h>
+#if defined(HAVE_SYSCALL_H)
+#include <sys/syscall.h>
 #endif
 
-#if defined(HAVE_SYS_CAPABILITY_H)
-#include <sys/capability.h>
+#if defined(HAVE_SYS_TIMERFD_H)
+#include <sys/timerfd.h>
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
@@ -209,20 +218,29 @@
 #include <sys/vfs.h>
 #endif
 
+
+#if defined(HAVE_NETINET_IN_H)
+#include <netinet/in.h>
+#endif
+
 #if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
+#endif
+
+#if defined(HAVE_LINUX_LOOP_H)
+#include <linux/loop.h>
 #endif
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif
 
-#if defined(HAVE_LINUX_AUDIT_H)
-#include <linux/audit.h>
+#if defined(HAVE_LINUX_RANDOM_H)
+#include <linux/random.h>
 #endif
 
-#if defined(HAVE_LINUX_FILTER_H)
-#include <linux/filter.h>
+#if defined(HAVE_LINUX_RTC_H)
+#include <linux/rtc.h>
 #endif
 
 #if defined(HAVE_LINUX_SECCOMP_H)
@@ -233,32 +251,16 @@
 #include <linux/socket.h>
 #endif
 
-#if defined(HAVE_LINUX_VERSION_H)
-#include <linux/version.h>
-#endif
-
-#if defined(HAVE_LINUX_FUTEX_H)
-#include <linux/futex.h>
-#endif
-
 #if defined(HAVE_LINUX_USERFAULTFD_H)
 #include <linux/userfaultfd.h>
 #endif
 
+#if defined(HAVE_LINUX_VERSION_H)
+#include <linux/version.h>
+#endif
+
 #if defined(HAVE_LINUX_WATCHDOG_H)
 #include <linux/watchdog.h>
-#endif
-
-#if defined(HAVE_LINUX_RTC_H)
-#include <linux/rtc.h>
-#endif
-
-#if defined(HAVE_LINUX_LOOP_H)
-#include <linux/loop.h>
-#endif
-
-#if defined(HAVE_LINUX_RANDOM_H)
-#include <linux/random.h>
 #endif
 
 /*
