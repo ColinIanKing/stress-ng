@@ -209,6 +209,10 @@
 #include <sys/vfs.h>
 #endif
 
+#if defined(HAVE_LINUX_IF_ALG_H)
+#include <linux/if_alg.h>
+#endif
+
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif
