@@ -24,10 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LINUX_IF_ALG_H) && \
-    defined(HAVE_LINUX_SOCKET_H)
+#if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
-#include <linux/socket.h>
 #endif
 
 #if defined(HAVE_LINUX_IF_ALG_H) && \

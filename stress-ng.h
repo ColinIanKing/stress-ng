@@ -225,6 +225,10 @@
 #include <linux/seccomp.h>
 #endif
 
+#if defined(HAVE_LINUX_SOCKET_H)
+#include <linux/socket.h>
+#endif
+
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif
