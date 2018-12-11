@@ -47,9 +47,6 @@
 #if defined(HAVE_SCSI_SG_H)
 #include <scsi/sg.h>
 #endif
-#if defined(HAVE_LINUX_RANDOM_H)
-#include <linux/random.h>
-#endif
 #if defined(HAVE_LINUX_HDREG_H)
 #include <linux/hdreg.h>
 #endif
@@ -743,7 +740,7 @@ static void stress_dev_scsi_blk(
 #endif
 }
 
-#if defined(__linux__)
+#if defined(HAVE_LINUX_RANDOM_H)
 /*
  *  stress_dev_random_linux()
  *	Linux /dev/random ioctls
@@ -986,8 +983,10 @@ static const dev_func_t dev_funcs[] = {
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 	DEV_FUNC("/dev/video",	stress_dev_video_linux),
 #endif
-#if defined(__linux__)
+#if defined(HAVE_LINUX_RANDOM_H)
 	DEV_FUNC("/dev/random",	stress_dev_random_linux),
+#endif
+#if defined(__linux__)
 	DEV_FUNC("/dev/mem",	stress_dev_mem_linux),
 	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
