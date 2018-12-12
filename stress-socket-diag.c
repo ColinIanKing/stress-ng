@@ -28,7 +28,6 @@
     defined(HAVE_LINUX_SOCK_DIAG_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) && 	\
     defined(HAVE_LINUX_RTNETLINK_H)
-#include <linux/sock_diag.h>
 #include <linux/unix_diag.h>
 
 typedef struct {
