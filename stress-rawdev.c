@@ -35,7 +35,9 @@ typedef struct {
 	const rawdev_func       func;
 } stress_rawdev_method_info_t;
 
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(BLKGETSIZE) && 		\
+    defined(BLKSSZGET)
 
 /*
  *  stress_rawdev_supported()
@@ -261,7 +263,9 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
 
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(BLKGETSIZE) && 		\
+    defined(BLKSSZGET)
 /*
  *  stress_set_rawdev_method()
  *	set the default rawdev method
@@ -299,7 +303,9 @@ int stress_set_rawdev_method(const char *name)
 }
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(BLKGETSIZE) && 		\
+    defined(BLKSSZGET)
 
 static int stress_rawdev(const args_t *args)
 {
