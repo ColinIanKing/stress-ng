@@ -26,8 +26,6 @@
 
 #if defined(HAVE_PERSONALITY)
 
-#include <sys/personality.h>
-
 /* Personalities are determined at build time */
 static const unsigned long personalities[] = {
 #include "personality.h"
