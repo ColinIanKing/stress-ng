@@ -93,6 +93,14 @@
 #include <semaphore.h>
 #endif
 
+#if defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
+#if defined(HAVE_TERMIOS_H)
+#include <termios.h>
+#endif
+
 #if defined(HAVE_USTAT)
 #include <ustat.h>
 #endif

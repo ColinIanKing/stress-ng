@@ -24,10 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-
-#include <termio.h>
-#include <termios.h>
+#if defined(HAVE_TERMIOS_H) &&	\
+    defined(HAVE_TERMIO_H)
 
 typedef struct {
 	char *slavename;

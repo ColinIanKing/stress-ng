@@ -26,10 +26,6 @@
 #if defined(__linux__) && NEED_GLIBC(2,9,0)
 #include <sys/inotify.h>
 #endif
-#if defined(__linux__)
-#include <termio.h>
-#include <termios.h>
-#endif
 #if defined(HAVE_MQ_SYSV)
 #include <sys/ipc.h>
 #include <sys/msg.h>

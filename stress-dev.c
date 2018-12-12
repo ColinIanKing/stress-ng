@@ -27,7 +27,6 @@
 #if defined(HAVE_LIB_PTHREAD) && !defined(__sun__) && !defined(__HAIKU__)
 
 #include <poll.h>
-#include <termios.h>
 
 #define MAX_DEV_THREADS		(4)
 
@@ -223,7 +222,7 @@ static void stress_dev_video_linux(
 }
 #endif
 
-#if defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
 static void stress_dev_tty(
 	const char *name,
 	const int fd,
@@ -996,7 +995,7 @@ static inline void stress_dev_rw(
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
-#if defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
 		struct termios tios;
 #endif
 
@@ -1036,7 +1035,7 @@ static inline void stress_dev_rw(
 			stress_dev_hd_linux(args->name, fd, path);
 #endif
 		}
-#if defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
 		if (ioctl(fd, TCGETS, &tios) == 0)
 			stress_dev_tty(args->name, fd, path);
 #endif
