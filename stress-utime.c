@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <utime.h>
 
 /*
  *  stress_utime()
@@ -130,6 +129,7 @@ static int stress_utime(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
 			(void)shim_fsync(fd);
 
+#if defined(HAVE_UTIME_H)
 		utbuf.actime = (time_t)time_now();
 		utbuf.modtime = utbuf.actime;
 
@@ -143,6 +143,7 @@ static int stress_utime(const args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
+#endif
 		/* forces metadata writeback */
 		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
 			(void)shim_fsync(fd);

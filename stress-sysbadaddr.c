@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <utime.h>
-#endif
 #if defined(HAVE_USTAT)
 #include <ustat.h>
 #endif
@@ -386,7 +383,7 @@ static int bad_ustat(void *addr)
 }
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_UTIME_H)
 static int bad_utime(void *addr)
 {
 	return utime(addr, addr);
@@ -496,7 +493,7 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_USTAT)
 	bad_ustat,
 #endif
-#if defined(__linux__)
+#if defined(HAVE_UTIME_H)
 	bad_utime,
 #endif
 	bad_wait,

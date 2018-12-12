@@ -93,6 +93,10 @@
 #include <semaphore.h>
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 #if defined(HAVE_WCHAR)
 #include <wchar.h>
 #endif
