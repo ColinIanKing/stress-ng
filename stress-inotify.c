@@ -27,10 +27,9 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_INOTIFY) &&		\
+    defined(HAVE_SYS_INOTIFY_H) &&	\
     defined(HAVE_SYS_SELECT_H) && 	\
     NEED_GLIBC(2,9,0)
-
-#include <sys/inotify.h>
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)
 #define FILE_FLAGS	(S_IRUSR | S_IWUSR)
@@ -286,7 +285,7 @@ static int mk_file(const args_t *args, const char *filename, const size_t len)
 	return 0;
 }
 
-
+#if defined(IN_ATTRIB)
 static int inotify_attrib_helper(
 	const args_t *args,
 	const char *path,
@@ -313,7 +312,9 @@ static void inotify_attrib_file(const args_t *args, const char *path)
 		inotify_attrib_helper, IN_ATTRIB, NULL);
 	(void)rm_file(args, filepath);
 }
+#endif
 
+#if defined(IN_ACCESS)
 static int inotify_access_helper(
 	const args_t *args,
 	const char *path,
@@ -355,7 +356,9 @@ static void inotify_access_file(const args_t *args, const char *path)
 		inotify_access_helper, IN_ACCESS, NULL);
 	(void)rm_file(args, filepath);
 }
+#endif
 
+#if defined(IN_MODIFY)
 static int inotify_modify_helper(
 	const args_t *args,
 	const char *path,
@@ -395,7 +398,9 @@ static void inotify_modify_file(const args_t *args, const char *path)
 	inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_modify_helper, IN_MODIFY, NULL);
 }
+#endif
 
+#if defined(IN_CREATE)
 static int inotify_creat_helper(
 	const args_t *args,
 	const char *path,
@@ -421,7 +426,9 @@ static void inotify_creat_file(const args_t *args, const char *path)
 		inotify_creat_helper, IN_CREATE, NULL);
 	(void)rm_file(args, filepath);
 }
+#endif
 
+#if defined(IN_OPEN)
 static int inotify_open_helper(
 	const args_t *args,
 	const char *path,
@@ -450,7 +457,9 @@ static void inotify_open_file(const args_t *args, const char *path)
 		inotify_open_helper, IN_OPEN, NULL);
 	(void)rm_file(args, filepath);
 }
+#endif
 
+#if defined(IN_DELETE)
 static int inotify_delete_helper(
 	const args_t *args,
 	const char *path,
@@ -473,7 +482,9 @@ static void inotify_delete_file(const args_t *args, const char *path)
 	/* We remove (again) it just in case the test failed */
 	(void)rm_file(args, filepath);
 }
+#endif
 
+#if defined(IN_DELETE_SELF)
 static int inotify_delete_self_helper(
 	const args_t *args,
 	const char *path,
@@ -496,7 +507,9 @@ static void inotify_delete_self(const args_t *args, const char *path)
 	/* We remove (again) in case the test failed */
 	(void)rm_dir(args, filepath);
 }
+#endif
 
+#if defined(IN_MOVE_SELF)
 static int inotify_move_self_helper(
 	const args_t *args,
 	const char *oldpath,
@@ -511,6 +524,7 @@ static int inotify_move_self_helper(
 	}
 	return 0;
 }
+#endif
 
 static void inotify_move_self(const args_t *args, const char *path)
 {
@@ -527,6 +541,7 @@ static void inotify_move_self(const args_t *args, const char *path)
 	(void)rm_dir(args, filepath);	/* In case rename failed */
 }
 
+#if defined(IN_MOVED_TO)
 static int inotify_moved_to_helper(
 	const args_t *args,
 	const char *newpath,
@@ -560,7 +575,9 @@ static void inotify_moved_to(const args_t *args, const char *path)
 	(void)rm_file(args, newfile);
 	(void)rm_dir(args, olddir);
 }
+#endif
 
+#if defined(IN_MOVED_FROM)
 static int inotify_moved_from_helper(
 	const args_t *args,
 	const char *oldpath,
@@ -594,7 +611,9 @@ static void inotify_moved_from(const args_t *args, const char *path)
 	(void)rm_file(args, oldfile);	/* In case rename failed */
 	(void)rm_dir(args, newdir);
 }
+#endif
 
+#if defined(IN_CLOSE_WRITE)
 static int inotify_close_write_helper(
 	const args_t *args,
 	const char *path,
@@ -627,7 +646,9 @@ static void inotify_close_write_file(const args_t *args, const char *path)
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
+#endif
 
+#if defined(IN_CLOSE_NOWRITE)
 static int inotify_close_nowrite_helper(
 	const args_t *args,
 	const char *path,
@@ -661,20 +682,45 @@ static void inotify_close_nowrite_file(const args_t *args, const char *path)
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
+#endif
 
 static const inotify_stress_t inotify_stressors[] = {
+#if defined(IN_ACCESS)
 	{ inotify_access_file,		"IN_ACCESS" },
+#endif
+#if defined(IN_MODIFY)
 	{ inotify_modify_file,		"IN_MODIFY" },
+#endif
+#if defined(IN_ATTRIB)
 	{ inotify_attrib_file,		"IN_ATTRIB" },
+#endif
+#if defined(IN_CLOSE_WRITE)
 	{ inotify_close_write_file,	"IN_CLOSE_WRITE" },
+#endif
+#if defined(IN_CLOSE_NOWRITE)
 	{ inotify_close_nowrite_file,	"IN_CLOSE_NOWRITE" },
+#endif
+#if defined(IN_OPEN)
 	{ inotify_open_file,		"IN_OPEN" },
+#endif
+#if defined(IN_MOVED_FROM)
 	{ inotify_moved_from,		"IN_MOVED_FROM" },
+#endif
+#if defined(IN_MOVED_TO)
 	{ inotify_moved_to,		"IN_MOVED_TO" },
+#endif
+#if defined(IN_CREATE)
 	{ inotify_creat_file,		"IN_CREATE" },
+#endif
+#if defined(IN_DELETE)
 	{ inotify_delete_file,		"IN_DELETE" },
+#endif
+#if defined(IN_DELETE_SELF)
 	{ inotify_delete_self,		"IN_DELETE_SELF" },
+#endif
+#if defined(IN_MOVE_SELF)
 	{ inotify_move_self,		"IN_MOVE_SELF" },
+#endif
 	{ NULL,				NULL }
 };
 

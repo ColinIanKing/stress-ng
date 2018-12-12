@@ -23,9 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
-#include <sys/inotify.h>
-#endif
 #if defined(HAVE_MQ_SYSV)
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -64,7 +61,7 @@ typedef struct {
 	pthread_t pthread;
 	int pthread_ret;
 #endif
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
+#if defined(HAVE_SYS_INOTIFY_H)
 	int fd_inotify;
 	int wd_inotify;
 #endif
@@ -245,15 +242,46 @@ static void NORETURN waste_resources(
 		}
 #endif
 #endif
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
+#if defined(HAVE_SYS_INOTIFY_H)
 		info[i].fd_inotify = inotify_init();
 		if (info[i].fd_inotify > -1) {
 			info[i].wd_inotify = inotify_add_watch(
 				info[i].fd_inotify, ".",
-				IN_ACCESS | IN_MODIFY | IN_ATTRIB |
-				IN_CLOSE_WRITE | IN_OPEN | IN_MOVED_FROM |
-				IN_MOVED_TO | IN_CREATE | IN_DELETE |
-				IN_DELETE_SELF | IN_MOVE_SELF);
+				0
+#if defined(IN_ACCESS)
+				| IN_ACCESS
+#endif
+#if defined(IN_MODIFY)
+				| IN_MODIFY
+#endif
+#if defined(IN_ATTRIB)
+				| IN_ATTRIB
+#endif
+#if defined(IN_CLOSE_WRITE)
+				| IN_CLOSE_WRITE
+#endif
+#if defined(IN_OPEN)
+				| IN_OPEN
+#endif
+#if defined(IN_MOVED_FROM)
+				| IN_MOVED_FROM
+#endif
+#if defined(IN_MOVED_TO)
+				| IN_MOVED_TO
+#endif
+#if defined(IN_CREATE)
+				| IN_CREATE
+#endif
+#if defined(IN_DELETE)
+				| IN_DELETE
+#endif
+#if defined(IN_DELETE_SELF)
+				| IN_DELETE_SELF
+#endif
+#if defined(IN_MOVE_SELF)
+				| IN_MOVE_SELF
+#endif
+				);
 		} else {
 			info[i].fd_inotify = -1;
 			info[i].wd_inotify = -1;
@@ -372,7 +400,7 @@ static void NORETURN waste_resources(
 		}
 #endif
 
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
+#if defined(HAVE_SYS_INOTIFY)
 		if (info[i].wd_inotify != -1)
 			(void)inotify_rm_watch(info[i].fd_inotify, info[i].wd_inotify);
 		if (info[i].fd_inotify != -1)
