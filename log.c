@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <syslog.h>
 
 static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
@@ -166,11 +165,13 @@ int pr_msg(
 			(void)fflush(log_file);
 		}
 
+#if defined(HAVE_SYSLOG_H)
 		/* Log messages if syslog requested, don't log DEBUG */
 		if ((g_opt_flags & OPT_FLAGS_SYSLOG) &&
 		    (!(flag & PR_DEBUG))) {
 			syslog(LOG_INFO, "%s", buf);
 		}
+#endif
 	}
 	return ret;
 }

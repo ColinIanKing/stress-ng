@@ -97,6 +97,10 @@
 #include <semaphore.h>
 #endif
 
+#if defined(HAVE_SYSLOG_H)
+#include <syslog.h>
+#endif
+
 #if defined(HAVE_TERMIO_H)
 #include <termio.h>
 #endif

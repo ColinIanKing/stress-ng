@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #include <getopt.h>
-#include <syslog.h>
 
 /* Help information for options */
 typedef struct {
@@ -102,7 +101,9 @@ static const opt_flag_t opt_flags[] = {
 	{ OPT_seek_punch,	OPT_FLAGS_SEEK_PUNCH },
 	{ OPT_stack_fill,	OPT_FLAGS_STACK_FILL },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
+#if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
+#endif
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
 	{ OPT_timer_rand,	OPT_FLAGS_TIMER_RAND },
 	{ OPT_timer_slack,	OPT_FLAGS_TIMER_SLACK },
@@ -1053,7 +1054,9 @@ static const struct option long_options[] = {
 	{ "sysfs-ops",1,	0,	OPT_sysfs_ops },
 	{ "sysinfo",	1,	0,	OPT_sysinfo },
 	{ "sysinfo-ops",1,	0,	OPT_sysinfo_ops },
+#if defined(HAVE_SYSLOG_H)
 	{ "syslog",	0,	0,	OPT_syslog },
+#endif
 	{ "taskset",	1,	0,	OPT_taskset },
 	{ "tee",	1,	0,	OPT_tee },
 	{ "tee-ops",	1,	0,	OPT_tee_ops },
@@ -1200,7 +1203,9 @@ static const help_t help_generic[] = {
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"stressors",		"show available stress tests" },
+#if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
+#endif
 	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
 	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
 	{ NULL,		"thrash",		"force all pages in causing swap thrashing" },
@@ -2779,7 +2784,9 @@ static void log_args(int argc, char **argv)
 		(void)shim_strlcat(buf + len, argv[i], arglen[i]);
 		len += arglen[i];
 	}
+#if defined(HAVE_SYSLOG_H)
 	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
+#endif
 	free(buf);
 }
 
@@ -2789,7 +2796,8 @@ static void log_args(int argc, char **argv)
  */
 void log_system_mem_info(void)
 {
-#if defined(__linux__)
+#if defined(HAVE_SYS_SYSINFO_H) && \
+    defined(HAVE_SYSLOG_H)
 	struct sysinfo info;
 
 	if (sysinfo(&info) == 0) {
@@ -2815,7 +2823,9 @@ void log_system_mem_info(void)
  */
 static void log_system_info(void)
 {
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) && 		\
+    defined(HAVE_SYS_UTSNAME_H) &&	\
+    defined(HAVE_SYSLOG_H)
 	struct utsname buf;
 
 	if (uname(&buf) == 0) {
