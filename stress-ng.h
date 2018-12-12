@@ -220,6 +220,17 @@
 
 
 /*
+ *  SCSI related headers
+ */
+#if defined(HAVE_SCSI_SCSI_H)
+#include <scsi/scsi.h>
+#endif
+
+#if defined(HAVE_SCSI_SG_H)
+#include <scsi/sg.h>
+#endif
+
+/*
  *  Linux specific includes
  */
 #if defined(HAVE_LINUX_AUDIT_H)
@@ -232,6 +243,14 @@
 
 #if defined(HAVE_LINUX_CONNECTOR_H)
 #include <linux/connector.h>
+#endif
+
+#if defined(HAVE_LINUX_DM_IOCTL_H)
+#include <linux/dm-ioctl.h>
+#endif
+
+#if defined(HAVE_LINUX_HDREG_H)
+#include <linux/hdreg.h>
 #endif
 
 #if defined(HAVE_LINUX_IF_ALG_H)
@@ -256,6 +275,10 @@
 
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
+#endif
+
+#if defined(HAVE_LINUX_MEDIA_H)
+#include <linux/media.h>
 #endif
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)
@@ -304,6 +327,14 @@
 
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
+#endif
+
+#if defined(HAVE_LINUX_VIDEODEV2_H)
+#include <linux/videodev2.h>
+#endif
+
+#if defined(HAVE_LINUX_VT_H)
+#include <linux/vt.h>
 #endif
 
 #if defined(HAVE_LINUX_WATCHDOG_H)
