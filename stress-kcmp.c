@@ -25,9 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_KCMP)
-#if NEED_GLIBC(2,3,2)
-#include <sys/epoll.h>
-#endif
 
 /* Urgh, should be from linux/kcmp.h */
 enum {
@@ -97,7 +94,7 @@ static int stress_kcmp(const args_t *args)
 	pid_t pid1;
 	int fd1;
 
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 	int efd, sfd;
 	int so_reuseaddr = 1;
 	struct epoll_event ev;
@@ -115,7 +112,7 @@ static int stress_kcmp(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 	efd = -1;
 	if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		sfd = -1;
@@ -168,7 +165,7 @@ again:
 
 		pr_fail_dbg("fork");
 		(void)close(fd1);
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 		if (sfd != -1)
 			(void)close(sfd);
 #endif
@@ -183,7 +180,7 @@ again:
 
 		/* will never get here */
 		(void)close(fd1);
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 		if (efd != -1)
 			(void)close(efd);
 		if (sfd != -1)
@@ -232,7 +229,7 @@ again:
 			KCMP(pid1, pid1, SHIM_KCMP_VM, 0, 0);
 			KCMP(pid2, pid2, SHIM_KCMP_VM, 0, 0);
 
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 			if (efd != -1) {
 				struct kcmp_epoll_slot slot;
 
@@ -255,7 +252,7 @@ again:
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_VM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 				if (efd != -1) {
 					struct kcmp_epoll_slot slot;
 
@@ -275,7 +272,7 @@ reap:
 		(void)waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
-#if NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 	if (efd != -1)
 		(void)close(efd);
 	if (sfd != -1)
