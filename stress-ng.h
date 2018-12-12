@@ -274,6 +274,10 @@
 #include <linux/rtc.h>
 #endif
 
+#if defined(HAVE_LINUX_RTNETLINK_H)
+#include <linux/rtnetlink.h>
+#endif
+
 #if defined(HAVE_LINUX_SECCOMP_H)
 #include <linux/seccomp.h>
 #endif
