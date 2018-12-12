@@ -23,8 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <math.h>
-#include <complex.h>
 
 typedef float	matrix_type_t;
 

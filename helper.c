@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #include <libgen.h>
-#include <math.h>
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */

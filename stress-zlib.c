@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <math.h>
 
 #if defined(HAVE_LIB_Z)
 

@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <math.h>
-
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(10000)
 #define MAX_BUCKETS		(250)

@@ -26,7 +26,6 @@
 
 #if !defined(__UCLIBC__)
 
-#include <math.h>
 #include <float.h>
 #include <fenv.h>
 
