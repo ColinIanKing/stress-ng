@@ -24,10 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined (__linux__) && \
-    defined(HAVE_LINUX_CONNECTOR_H)
+#if defined (__linux__) && 		\
+    defined(HAVE_LINUX_CONNECTOR_H) &&	\
+    defined(HAVE_LINUX_NETLINK_H)
 
-#include <linux/netlink.h>
 #include <linux/cn_proc.h>
 
 #ifndef LINUX_VERSION_CODE

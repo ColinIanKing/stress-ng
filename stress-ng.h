@@ -258,6 +258,10 @@
 #include <linux/membarrier.h>
 #endif
 
+#if defined(HAVE_LINUX_NETLINK_H)
+#include <linux/netlink.h>
+#endif
+
 #if defined(HAVE_LINUX_POSIX_TYPES_H)
 #include <linux/posix_types.h>
 #endif

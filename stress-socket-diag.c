@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && \
-    defined(HAVE_LINUX_SOCK_DIAG_H)
-#include <linux/netlink.h>
+#if defined(__linux__) && 		\
+    defined(HAVE_LINUX_SOCK_DIAG_H) &&	\
+    defined(HAVE_LINUX_NETLINK_H)
 #include <linux/rtnetlink.h>
 #include <linux/sock_diag.h>
 #include <linux/unix_diag.h>
