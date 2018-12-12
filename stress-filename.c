@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <sys/statvfs.h>
 
 #define	STRESS_FILENAME_PROBE	(0)	/* Default */
 #define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */
@@ -256,7 +255,9 @@ static int stress_filename(const args_t *args)
 	char dirname[PATH_MAX - 256];
 	char filename[PATH_MAX];
 	char *ptr;
+#if defined(HAVE_SYS_STATVFS_H)
 	struct statvfs buf;
+#endif
 	pid_t pid;
 	size_t i, chars_allowed = 0, sz;
 #if defined(__APPLE__)
@@ -275,20 +276,28 @@ static int stress_filename(const args_t *args)
 		}
 	}
 
+#if defined(HAVE_SYS_STATVFS_H)
 	if (statvfs(dirname, &buf) < 0) {
 		pr_fail_err("statvfs");
 		goto tidy_dir;
 	}
+
 	if (args->instance == 0)
 		pr_dbg("%s: maximum file size: %lu bytes\n",
 			args->name, (long unsigned) buf.f_namemax);
+#endif
 
 	(void)shim_strlcpy(filename, dirname, sizeof(filename) - 1);
 	ptr = filename + strlen(dirname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
 	sz_left = sizeof(filename) - (ptr - filename);
+
+#if defined(HAVE_SYS_STATVFS_H)
 	sz_max = (size_t)buf.f_namemax;
+#else
+	sz_max = 256;
+#endif
 
 	/* Some BSD systems return zero for sz_max */
 	if (sz_max == 0)
