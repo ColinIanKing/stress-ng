@@ -26,6 +26,16 @@
 
 #if defined(HAVE_ASM_NOP)
 
+#if defined(NOP)
+#undef NOP
+#endif
+#if defined(NOP8)
+#undef NOP8
+#endif
+#if defined(NOP64)
+#undef NOP64
+#endif
+
 #define NOP	__asm__ __volatile__("nop;")
 #define NOP8	NOP;  NOP;  NOP;  NOP;  NOP;  NOP;  NOP;  NOP;
 #define NOP64	NOP8; NOP8; NOP8; NOP8; NOP8; NOP8; NOP8; NOP8;
