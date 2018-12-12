@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_MQ_SYSV)
+#if defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_MQ_SYSV)
 
-#include <sys/ipc.h>
 #include <sys/msg.h>
 
 #define MAX_SIZE	(8)

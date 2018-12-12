@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 #if defined(HAVE_MQ_SYSV)
-#include <sys/ipc.h>
 #include <sys/msg.h>
 #endif
 #if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
@@ -80,7 +79,7 @@ typedef struct {
 #if defined(HAVE_SEM_SYSV)
 	int sem_id;
 #endif
-#if defined(HAVE_MQ_SYSV)
+#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H)
 	int msgq_id;
 #endif
 #if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
@@ -329,7 +328,7 @@ static void NORETURN waste_resources(
 			IPC_CREAT | S_IRUSR | S_IWUSR);
 #endif
 
-#if defined(HAVE_MQ_SYSV)
+#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H)
 		info[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 #endif
@@ -424,7 +423,7 @@ static void NORETURN waste_resources(
 			(void)semctl(info[i].sem_id, 0, IPC_RMID);
 #endif
 
-#if defined(HAVE_MQ_SYSV)
+#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H)
 		if (info[i].msgq_id >= 0)
 			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif
