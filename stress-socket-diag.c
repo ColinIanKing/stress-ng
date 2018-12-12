@@ -27,8 +27,8 @@
 #if defined(__linux__) && 		\
     defined(HAVE_LINUX_SOCK_DIAG_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) && 	\
-    defined(HAVE_LINUX_RTNETLINK_H)
-#include <linux/unix_diag.h>
+    defined(HAVE_LINUX_RTNETLINK_H) &&	\
+    defined(HAVE_LINUX_UNIX_DIAG_H)
 
 typedef struct {
 	struct nlmsghdr nlh;

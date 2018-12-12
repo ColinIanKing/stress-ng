@@ -290,6 +290,10 @@
 #include <linux/socket.h>
 #endif
 
+#if defined(HAVE_LINUX_UNIX_DIAG_H)
+#include <linux/unix_diag.h>
+#endif
+
 #if defined(HAVE_LINUX_USERFAULTFD_H)
 #include <linux/userfaultfd.h>
 #endif
