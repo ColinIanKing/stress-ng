@@ -148,7 +148,7 @@ void stress_get_memlimits(
 	size_t *freemem,
 	size_t *totalmem)
 {
-#if defined(HAVE_SYS_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO) && defined(HAVE_SYSINFO)
 	struct sysinfo info;
 	FILE *fp;
 #endif
@@ -156,7 +156,7 @@ void stress_get_memlimits(
 	*freemem = 0;
 	*totalmem = 0;
 
-#if defined(HAVE_SYS_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO) && defined(HAVE_SYSINFO)
 	if (sysinfo(&info) == 0) {
 		*freemem = info.freeram * info.mem_unit;
 		*totalmem = info.totalram * info.mem_unit;
@@ -299,7 +299,7 @@ int stress_get_load_avg(
 
 	return 0;
 fail:
-#elif defined(HAVE_SYS_SYSINFO_H)
+#elif defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	struct sysinfo info;
 	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
 
@@ -679,7 +679,7 @@ void pr_yaml_runinfo(FILE *yaml)
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
 #endif
-#if defined(HAVE_SYS_SYSINFO_H)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	struct sysinfo info;
 #endif
 	time_t t;
@@ -711,7 +711,7 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      machine: %s\n", uts.machine);
 	}
 #endif
-#if defined(HAVE_SYS_SYSINFO_H)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	if (sysinfo(&info) == 0) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
 		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);

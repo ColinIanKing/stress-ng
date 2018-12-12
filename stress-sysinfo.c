@@ -55,7 +55,9 @@ static int stress_sysinfo(const args_t *args)
 		struct statvfs statvfs_buf;
 #endif
 		int i, ret;
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYS_STATFS_H)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO) &&		\
+    defined(HAVE_SYS_STATFS_H)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
 

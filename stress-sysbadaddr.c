@@ -344,7 +344,7 @@ static int bad_statfs(void *addr)
 }
 #endif
 
-#if defined(HAVE_SYS_SYSINFO_H)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 static int bad_sysinfo(void *addr)
 {
 	return sysinfo(addr);
@@ -479,7 +479,7 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(__linux__)
 	bad_statfs,
 #endif
-#if defined(HAVE_SYS_SYSINFO_H)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	bad_sysinfo,
 #endif
 	bad_time,
