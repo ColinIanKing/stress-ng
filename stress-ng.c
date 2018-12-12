@@ -27,10 +27,6 @@
 #include <getopt.h>
 #include <syslog.h>
 
-#if defined(__linux__)
-#include <sys/sysinfo.h>
-#endif
-
 /* Help information for options */
 typedef struct {
 	const char *opt_s;		/* short option */

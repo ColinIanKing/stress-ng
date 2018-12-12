@@ -24,9 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-
-#include <sys/sysinfo.h>
+#if defined(HAVE_SYS_SYSINFO_H)
 
 #define MAX_PIDS		(32)
 

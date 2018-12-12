@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(__linux__)
-#include <sys/sysinfo.h>
 #include <sys/statfs.h>
 #if defined(HAVE_USTAT)
 #include <sys/sysmacros.h>
@@ -65,12 +64,10 @@ static int stress_sysinfo(const args_t *args)
 		clock_t clk;
 		struct statvfs statvfs_buf;
 		int i, ret;
-#if defined(__linux__)
+#if defined(HAVE_SYS_SYSINFO_H)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
-#endif
 
-#if defined(__linux__)
 		ret = sysinfo(&sysinfo_buf);
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail_err("sysinfo");
