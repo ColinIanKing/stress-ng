@@ -26,9 +26,6 @@
 
 #if defined(__linux__)
 #include <sys/statfs.h>
-#if defined(HAVE_USTAT)
-#include <sys/sysmacros.h>
-#endif
 #endif
 #include <sys/statvfs.h>
 

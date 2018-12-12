@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <sys/sysmacros.h>
-#endif
-
 typedef void (*rawdev_func)(const args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
@@ -39,7 +35,7 @@ typedef struct {
 	const rawdev_func       func;
 } stress_rawdev_method_info_t;
 
-#if defined(__linux__)
+#if defined(HAVE_SYS_SYSMACROS_H)
 
 /*
  *  stress_rawdev_supported()

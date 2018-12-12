@@ -250,6 +250,10 @@
 #include <sys/sysinfo.h>
 #endif
 
+#if defined(HAVE_SYS_SYSMACROS_H)
+#include <sys/sysmacros.h>
+#endif
+
 #if defined(HAVE_SYS_TIMEX_H)
 #include <sys/timex.h>
 #endif
