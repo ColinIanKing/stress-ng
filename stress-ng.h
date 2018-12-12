@@ -106,39 +106,33 @@
 #endif
 #endif
 
-#include <sys/file.h>
-#include <sys/wait.h>
-#include <sys/time.h>
-#include <sys/times.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
-#include <sys/resource.h>
 
 #if defined(__linux__)
 #include <sys/mount.h>
 #include <sys/quota.h>
-#if defined(HAVE_SYS_PRCTL_H)
-#include <sys/prctl.h>
-#endif
-#include <netinet/in.h>
-#if defined(HAVE_LINUX_FS_H)
-#include <linux/fs.h>
-#endif
-#if defined(HAVE_LINUX_FIEMAP_H)
-#include <linux/fiemap.h>
-#endif
 #include <linux/posix_types.h>
 #endif
 
-#if defined(HAVE_SYS_APPARMOR_H)
-#include <sys/apparmor.h>
+#if defined(HAVE_NETINET_IN_H)
+#include <netinet/in.h>
 #endif
 
-#if defined(HAVE_LINUX_AUDIT_H)
-#include <linux/audit.h>
+/*
+ *  Various sys include files
+ */
+#include <sys/ioctl.h>
+#include <sys/file.h>
+#include <sys/mman.h>
+#include <sys/resource.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#if defined(HAVE_SYS_APPARMOR_H)
+#include <sys/apparmor.h>
 #endif
 
 #if defined(HAVE_SYS_AUXV_H)
@@ -153,14 +147,6 @@
 #include <sys/eventfd.h>
 #endif
 
-#if defined(HAVE_LINUX_FILTER_H)
-#include <linux/filter.h>
-#endif
-
-#if defined(HAVE_LINUX_FUTEX_H)
-#include <linux/futex.h>
-#endif
-
 #if defined(HAVE_SEM_SYSV)
 #include <sys/ipc.h>
 #include <sys/sem.h>
@@ -168,6 +154,10 @@
 
 #if defined(HAVE_SYS_MEMFD_H)
 #include <sys/memfd.h>
+#endif
+
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
 #endif
 
 #if defined(HAVE_PTRACE)
@@ -219,12 +209,31 @@
 #endif
 
 
-#if defined(HAVE_NETINET_IN_H)
-#include <netinet/in.h>
+/*
+ *  Linux specific includes
+ */
+#if defined(HAVE_LINUX_AUDIT_H)
+#include <linux/audit.h>
 #endif
 
 #if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
+#endif
+
+#if defined(HAVE_LINUX_FIEMAP_H)
+#include <linux/fiemap.h>
+#endif
+
+#if defined(HAVE_LINUX_FILTER_H)
+#include <linux/filter.h>
+#endif
+
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
+#if defined(HAVE_LINUX_FUTEX_H)
+#include <linux/futex.h>
 #endif
 
 #if defined(HAVE_LINUX_LOOP_H)
