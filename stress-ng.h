@@ -117,7 +117,6 @@
 #if defined(__linux__)
 #include <sys/mount.h>
 #include <sys/quota.h>
-#include <linux/posix_types.h>
 #endif
 
 #if defined(HAVE_NETINET_IN_H)
@@ -253,6 +252,10 @@
 
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
+#endif
+
+#if defined(HAVE_LINUX_POSIX_TYPES_H)
+#include <linux/posix_types.h>
 #endif
 
 #if defined(HAVE_LINUX_RANDOM_H)
