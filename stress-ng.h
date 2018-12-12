@@ -273,6 +273,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#if defined(__sun__)
+/* Disable for SunOs/Solaris because */
+#undef HAVE_SYS_SWAP_H
+#endif
 #if defined(HAVE_SYS_SWAP_H)
 #include <sys/swap.h>
 #endif
