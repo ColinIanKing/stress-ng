@@ -100,7 +100,7 @@ static const opt_flag_t opt_flags[] = {
 	{ OPT_oomable,		OPT_FLAGS_OOMABLE },
 	{ OPT_page_in,		OPT_FLAGS_MMAP_MINCORE },
 	{ OPT_pathological,	OPT_FLAGS_PATHOLOGICAL },
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
 	{ OPT_seek_punch,	OPT_FLAGS_SEEK_PUNCH },
@@ -887,7 +887,7 @@ static const struct option long_options[] = {
 	{ "page-in",	0,	0,	OPT_page_in },
 	{ "parallel",	1,	0,	OPT_all },
 	{ "pathological",0,	0,	OPT_pathological },
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	{ "perf",	0,	0,	OPT_perf_stats },
 #endif
 	{ "personality",1,	0,	OPT_personality },
@@ -1195,7 +1195,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 	{ NULL,		"parallel N",		"synonym for 'all N'" },
 	{ NULL,		"pathological",		"enable stressors that are known to hang a machine" },
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	{ NULL,		"perf",			"display perf statistics" },
 #endif
 	{ "q",		"quiet",		"quiet output" },
@@ -2496,12 +2496,12 @@ again:
 						name, (int)getpid(), j);
 
 					stats->start = stats->finish = time_now();
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_open(&stats->sp);
 #endif
 					(void)shim_usleep(backoff * n_procs);
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats->sp);
 #endif
@@ -2521,7 +2521,7 @@ again:
 						pr_fail_check(&rc);
 						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
 						(void)perf_disable(&stats->sp);
 						(void)perf_close(&stats->sp);
@@ -3621,7 +3621,7 @@ int main(int argc, char **argv)
 	 */
 	set_random_stressors();
 
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		perf_init();
 #endif
@@ -3701,7 +3701,7 @@ int main(int argc, char **argv)
 	/*
 	 *  Setup spinlocks
 	 */
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	shim_pthread_spin_init(&g_shared->perf.lock, 0);
 #endif
 #if defined(HAVE_LIB_PTHREAD)
@@ -3774,7 +3774,7 @@ int main(int argc, char **argv)
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		metrics_dump(yaml, ticks_per_sec);
 
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	/*
 	 *  Dump perf statistics
 	 */

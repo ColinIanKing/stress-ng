@@ -25,11 +25,11 @@
 #include "stress-ng.h"
 #include "perf-event.h"
 
-#if defined(STRESS_PERF_STATS)
+#if defined(STRESS_PERF_STATS) &&	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
 /* perf enabled systems */
 
 #include <locale.h>
-#include <linux/perf_event.h>
 
 #define THOUSAND	(1.0E3)
 #define MILLION		(1.0E6)

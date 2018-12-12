@@ -293,6 +293,10 @@
 #include <linux/netlink.h>
 #endif
 
+#if defined(HAVE_LINUX_PERF_EVENT_H)
+#include <linux/perf_event.h>
+#endif
+
 #if defined(HAVE_LINUX_POSIX_TYPES_H)
 #include <linux/posix_types.h>
 #endif
