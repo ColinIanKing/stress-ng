@@ -210,6 +210,7 @@ uint64_t stress_get_phys_mem_size(void)
  */
 uint64_t stress_get_filesystem_size(void)
 {
+#if defined(HAVE_SYS_STATVFS_H)
 	int rc;
 	struct statvfs buf;
 	fsblkcnt_t blocks, max_blocks;
@@ -228,6 +229,9 @@ uint64_t stress_get_filesystem_size(void)
 		blocks = max_blocks;
 
 	return (uint64_t)buf.f_bsize * blocks;
+#else
+	return 0ULL;
+#endif
 }
 
 /*
@@ -237,6 +241,7 @@ uint64_t stress_get_filesystem_size(void)
  */
 uint64_t stress_get_filesystem_available_inodes(void)
 {
+#if defined(HAVE_SYS_STATVFS_H)
 	int rc;
 	struct statvfs buf;
 
@@ -248,6 +253,9 @@ uint64_t stress_get_filesystem_available_inodes(void)
 		return 0;
 
 	return (uint64_t)buf.f_favail;
+#else
+	return 0ULL;
+#endif
 }
 
 /*
