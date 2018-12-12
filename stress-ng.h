@@ -222,6 +222,10 @@
 #include <sys/timerfd.h>
 #endif
 
+#if defined(HAVE_SYS_UCRED_H)
+#include <sys/ucred.h>
+#endif
+
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif

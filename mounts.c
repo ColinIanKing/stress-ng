@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_GETMNTINFO)
-#include <sys/ucred.h>
-#endif
-
 /*
  *  mount_add()
  *	add a new mount point to table
