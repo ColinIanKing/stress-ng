@@ -202,6 +202,10 @@
 #include <sys/ptrace.h>
 #endif
 
+#if defined(HAVE_SYS_QUOTA_H)
+#include <sys/quota.h>
+#endif
+
 #if defined(__APPLE__)
 #include <sys/random.h>
 #endif
