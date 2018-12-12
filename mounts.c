@@ -28,8 +28,6 @@
 #include <sys/param.h>
 #include <sys/ucred.h>
 #include <sys/mount.h>
-#elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
-#include <mntent.h>
 #endif
 
 /*

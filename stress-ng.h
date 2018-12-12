@@ -81,6 +81,10 @@
 #include <malloc.h>
 #endif
 
+#if defined(HAVE_MNTENT_H)
+#include <mntent.h>
+#endif
+
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif
