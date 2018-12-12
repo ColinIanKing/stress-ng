@@ -25,6 +25,10 @@
 
 #include <sys/sysinfo.h>
 
+#if defined(__sun__)
+#error this is not the sysinfo you are looking for
+#endif
+
 int main(void)
 {
 	struct sysinfo info;
