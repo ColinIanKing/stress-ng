@@ -43,31 +43,34 @@
 #define __sun__
 #endif
 
-#include <stdarg.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <inttypes.h>
+/*
+ *  Standard includes
+ */
 #include <ctype.h>
-#include <dirent.h>
-#include <signal.h>
-#include <time.h>
-#include <limits.h>
-#include <setjmp.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <sched.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
 
-#if defined(HAVE_MODIFY_LDT)
-#include <asm/ldt.h>
+#if defined(HAVE_FEATURES_H)
+#include <features.h>
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
-#include <semaphore.h>
+#if defined(HAVE_GRP_H)
+#include <grp.h>
 #endif
 
 #if defined(__GNUC__) && defined(__linux__)
@@ -78,16 +81,17 @@
 #include <pthread.h>
 #endif
 
-#if defined(HAVE_BSD_WCHAR)
-#include <bsd/wchar.h>
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#include <semaphore.h>
 #endif
 
 #if defined(HAVE_WCHAR)
 #include <wchar.h>
 #endif
 
-#if defined(HAVE_GRP_H)
-#include <grp.h>
+#if defined(__sun__)
+#include <alloca.h>
+#include <strings.h>
 #endif
 
 #if defined(HAVE_LIB_BSD)
@@ -106,6 +110,9 @@
 #endif
 #endif
 
+#if defined(HAVE_BSD_WCHAR)
+#include <bsd/wchar.h>
+#endif
 
 #if defined(__linux__)
 #include <sys/mount.h>
@@ -115,6 +122,10 @@
 
 #if defined(HAVE_NETINET_IN_H)
 #include <netinet/in.h>
+#endif
+
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
 #endif
 
 /*
@@ -293,14 +304,6 @@
 #include <gnu/lib-names.h>
 #endif
 
-#if defined (HAVE_FEATURES_H)
-#include <features.h>
-#endif
-
-#if defined (__sun__)
-#include <alloca.h>
-#include <strings.h>
-#endif
 
 /*
  *  Various system calls not included in libc (yet)
@@ -391,7 +394,7 @@
 
 #include "stress-version.h"
 
-#if defined (__linux__)
+#if defined(__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
  *  define the following, these should be defined
@@ -3006,7 +3009,7 @@ extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 /* CPU caches */
-#if defined (__linux__)
+#if defined(__linux__)
 extern cpus_t *get_all_cpu_cache_details(void);
 extern uint16_t get_max_cache_level(const cpus_t *cpus);
 extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level);
