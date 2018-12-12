@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <poll.h>
-
 typedef void *(*bad_addr_t)(const args_t *args);
 typedef int (*bad_syscall_t)(void *addr);
 
@@ -288,10 +286,12 @@ static int bad_ptrace(void *addr)
 }
 #endif
 
+#if defined(HAVE_POLL_H)
 static int bad_poll(void *addr)
 {
 	return poll(addr, 16, 1);
 }
+#endif
 
 static int bad_read(void *addr)
 {
@@ -466,7 +466,9 @@ static bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_open,
 	bad_pipe,
+#if defined(HAVE_POLL_H)
 	bad_poll,
+#endif
 #if defined(HAVE_PTRACE) && defined(PTRACE_GETREGS)
 	bad_ptrace,
 #endif

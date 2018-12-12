@@ -24,9 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && !defined(__sun__) && !defined(__HAIKU__)
-
-#include <poll.h>
+#if defined(HAVE_POLL_H) &&		\
+    defined(HAVE_LIB_PTHREAD) && 	\
+    !defined(__sun__) && 		\
+    !defined(__HAIKU__)
 
 #define MAX_DEV_THREADS		(4)
 

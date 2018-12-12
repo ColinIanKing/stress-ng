@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#include <poll.h>
+#if defined(HAVE_POLL_H)
 
 #define MAX_PIPES	(5)
 #define POLL_BUF	(4)
@@ -269,3 +269,8 @@ stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
 	.class = CLASS_SCHEDULER | CLASS_OS
 };
+#else
+stressor_info_t stress_poll_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_SCHEDULER | CLASS_OS
+#endif

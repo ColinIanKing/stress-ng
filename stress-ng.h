@@ -85,6 +85,10 @@
 #include <mntent.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #if defined(HAVE_LIB_PTHREAD)
 #include <pthread.h>
 #endif

@@ -24,11 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_USERFAULTFD) && \
+#if defined(HAVE_USERFAULTFD) && 	 \
     defined(HAVE_LINUX_USERFAULTFD_H) && \
+    defined(HAVE_POLL_H) &&		 \
     defined(HAVE_CLONE)
-
-#include <poll.h>
 
 #define STACK_SIZE	(64 * 1024)
 #define COUNT_MAX	(256)
@@ -459,4 +458,3 @@ stressor_info_t stress_userfaultfd_info = {
 	.class = CLASS_VM | CLASS_OS
 };
 #endif
-
