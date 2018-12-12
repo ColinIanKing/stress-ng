@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined (__linux__) && \
+    defined(HAVE_LINUX_CONNECTOR_H)
 
-#include <linux/connector.h>
 #include <linux/netlink.h>
 #include <linux/cn_proc.h>
 

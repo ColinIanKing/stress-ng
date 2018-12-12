@@ -226,6 +226,10 @@
 #include <linux/audit.h>
 #endif
 
+#if defined(HAVE_LINUX_CONNECTOR_H)
+#include <linux/connector.h>
+#endif
+
 #if defined(HAVE_LINUX_IF_ALG_H)
 #include <linux/if_alg.h>
 #endif
