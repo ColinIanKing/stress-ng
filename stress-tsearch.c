@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <search.h>
 
 /*
  *  stress_set_tsearch_size()

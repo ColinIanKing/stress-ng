@@ -55,6 +55,7 @@
 #include <limits.h>
 #include <math.h>
 #include <sched.h>
+#include <search.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -117,6 +118,10 @@
 
 #if defined(HAVE_TERMIOS_H)
 #include <termios.h>
+#endif
+
+#if defined(HAVE_UCONTEXT_H)
+#include <ucontext.h>
 #endif
 
 #if defined(HAVE_USTAT)

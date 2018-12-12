@@ -27,8 +27,6 @@
 #if defined(HAVE_SWAPCONTEXT) && 	\
     defined(HAVE_UCONTEXT_H)
 
-#include <ucontext.h>
-
 #define MMAPSTACK_SIZE		(256 * KB)
 
 static ucontext_t c_main, c_test;

@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <search.h>
-
 /*
  *  stress_set_lsearch_size()
  *      set lsearch size from given option string

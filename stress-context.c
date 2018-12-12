@@ -27,8 +27,6 @@
 #if defined(HAVE_SWAPCONTEXT) &&	\
     defined(HAVE_UCONTEXT_H)
 
-#include <ucontext.h>
-
 #define STACK_SIZE	(16384)
 
 static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
