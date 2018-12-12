@@ -218,6 +218,10 @@
 #include <sys/syscall.h>
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
 #endif

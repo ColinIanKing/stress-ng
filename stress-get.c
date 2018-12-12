@@ -27,10 +27,6 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#if defined(HAVE_ADJTIMEX) && defined(HAVE_SYS_TIMEX_H)
-#include <sys/timex.h>
-#endif
-
 #define check_do_run()			\
 	if (!g_keep_stressing_flag)	\
 		break;			\
