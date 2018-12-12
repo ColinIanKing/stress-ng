@@ -190,7 +190,7 @@
 #include <sys/signalfd.h>
 #endif
 
-#if defined(HAVE_SYS_SWAP_H) && defined(HAVE_SWAP)
+#if defined(HAVE_SYS_SWAP_H)
 #include <sys/swap.h>
 #endif
 
