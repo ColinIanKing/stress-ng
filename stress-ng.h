@@ -84,12 +84,20 @@
 #include <libaio.h>
 #endif
 
+#if defined(HAVE_LINK_H)
+#include <link.h>
+#endif
+
 #if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
 #endif
 
 #if defined(HAVE_MNTENT_H)
 #include <mntent.h>
+#endif
+
+#if defined(HAVE_MQUEUE_H)
+#include <mqueue.h>
 #endif
 
 #if defined(HAVE_POLL_H)
