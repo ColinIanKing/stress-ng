@@ -246,6 +246,10 @@
 #include <sys/statfs.h>
 #endif
 
+#if defined(HAVE_SYS_STATVFS_H)
+#include <sys/statvfs.h>
+#endif
+
 #if defined(HAVE_SYS_SWAP_H)
 #include <sys/swap.h>
 #endif

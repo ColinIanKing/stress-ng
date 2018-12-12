@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <sys/statvfs.h>
-
 #define check_do_run()			\
 	if (!g_keep_stressing_flag)	\
 		break;			\
@@ -53,7 +51,9 @@ static int stress_sysinfo(const args_t *args)
 	do {
 		struct tms tms_buf;
 		clock_t clk;
+#if defined(HAVE_SYS_STATVFS_H)
 		struct statvfs statvfs_buf;
+#endif
 		int i, ret;
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYS_STATFS_H)
 		struct sysinfo sysinfo_buf;
@@ -138,6 +138,7 @@ static int stress_sysinfo(const args_t *args)
 #endif
 		check_do_run();
 
+#if defined(HAVE_SYS_STATVFS_H)
 		/* POSIX.1-2001 statfs variant */
 		for (i = 0; i < n_mounts; i++) {
 			check_do_run();
@@ -157,6 +158,7 @@ static int stress_sysinfo(const args_t *args)
 				}
 			}
 		}
+#endif
 
 		check_do_run();
 		clk = times(&tms_buf);
