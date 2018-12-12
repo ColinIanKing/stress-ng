@@ -26,7 +26,6 @@
 
 #include <libgen.h>
 #include <math.h>
-#include <sys/statvfs.h>
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
