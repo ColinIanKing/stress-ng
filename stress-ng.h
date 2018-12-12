@@ -99,7 +99,7 @@
 #include <pthread.h>
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#if defined(HAVE_SEMAPHORE_H)
 #include <semaphore.h>
 #endif
 
@@ -1671,7 +1671,7 @@ typedef struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX) && (HAVE_SEMAPHORE_H)
 	struct {
 		sem_t sem;				/* Shared posix semaphores */
 		bool init;				/* Semaphores initialised? */

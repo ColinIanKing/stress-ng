@@ -34,7 +34,9 @@ int stress_set_semaphore_posix_procs(const char *opt)
 	return set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#if defined(HAVE_SEMAPHORE_H) && \
+    defined(HAVE_LIB_PTHREAD) && \
+    defined(HAVE_SEM_POSIX)
 
 /*
  *  stress_semaphore_posix_init()
