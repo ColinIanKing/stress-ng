@@ -2797,6 +2797,7 @@ static void log_args(int argc, char **argv)
 void log_system_mem_info(void)
 {
 #if defined(HAVE_SYS_SYSINFO_H) && \
+    defined(HAVE_SYSINFO) && \
     defined(HAVE_SYSLOG_H)
 	struct sysinfo info;
 
