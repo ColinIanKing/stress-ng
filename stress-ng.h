@@ -73,6 +73,10 @@
 #include <grp.h>
 #endif
 
+#if defined(HAVE_LIBAIO_H)
+#include <libaio.h>
+#endif
+
 #if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
 #endif

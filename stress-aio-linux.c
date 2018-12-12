@@ -24,18 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) &&	\
-    defined(HAVE_LIB_AIO) &&	\
-    defined(HAVE_LIBAIO_H) &&	\
-    defined(__NR_io_setup) &&	\
-    defined(__NR_io_destroy) &&	\
-    defined(__NR_io_submit) &&	\
-    defined(__NR_io_getevents)
-
-#include <libaio.h>
-
-#endif
-
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
 
