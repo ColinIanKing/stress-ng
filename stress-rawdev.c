@@ -26,7 +26,6 @@
 
 #if defined(__linux__)
 #include <sys/sysmacros.h>
-#include <dirent.h>
 #endif
 
 typedef void (*rawdev_func)(const args_t *args, const int fd,
