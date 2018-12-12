@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#include <sys/statfs.h>
-#endif
 #include <sys/statvfs.h>
 
 #define check_do_run()			\
@@ -58,7 +55,7 @@ static int stress_sysinfo(const args_t *args)
 		clock_t clk;
 		struct statvfs statvfs_buf;
 		int i, ret;
-#if defined(HAVE_SYS_SYSINFO_H)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYS_STATFS_H)
 		struct sysinfo sysinfo_buf;
 		struct statfs statfs_buf;
 

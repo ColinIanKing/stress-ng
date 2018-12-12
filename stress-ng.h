@@ -242,6 +242,10 @@
 #include <sys/signalfd.h>
 #endif
 
+#if defined(HAVE_SYS_STATFS_H)
+#include <sys/statfs.h>
+#endif
+
 #if defined(HAVE_SYS_SWAP_H)
 #include <sys/swap.h>
 #endif
