@@ -67,6 +67,10 @@
 #include <time.h>
 #include <unistd.h>
 
+#if defined(HAVE_AIO_H)
+#include <aio.h>
+#endif
+
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
@@ -97,6 +101,10 @@
 
 #if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
 #include <semaphore.h>
+#endif
+
+#if defined(HAVE_SPAWN_H)
+#include <spawn.h>
 #endif
 
 #if defined(HAVE_SYSLOG_H)

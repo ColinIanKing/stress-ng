@@ -26,10 +26,7 @@
 
 #if defined(HAVE_LIB_RT) && \
     defined(HAVE_AIO_H) && \
-    defined(__linux__) && \
     NEED_GLIBC(2,1,0)
-
-#include <aio.h>
 
 #define BUFFER_SZ	(16)
 
