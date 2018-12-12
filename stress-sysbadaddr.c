@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_USTAT)
-#include <ustat.h>
-#endif
-
 #include <poll.h>
 #include <termios.h>
 

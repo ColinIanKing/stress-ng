@@ -31,9 +31,6 @@
 #endif
 #endif
 #include <sys/statvfs.h>
-#if defined(HAVE_USTAT)
-#include <ustat.h>
-#endif
 
 #define check_do_run()			\
 	if (!g_keep_stressing_flag)	\
