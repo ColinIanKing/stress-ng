@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_GETMNTINFO)
-#include <sys/param.h>
 #include <sys/ucred.h>
 #include <sys/mount.h>
 #endif
