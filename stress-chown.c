@@ -162,6 +162,7 @@ static int stress_chown(const args_t *args)
 #if defined(__NetBSD__)
 			/* For some reason usleep blocks */
 			(void)shim_sched_yield();
+			retries = 0;
 #else
  			(void)shim_usleep(100000);
 #endif
