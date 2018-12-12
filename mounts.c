@@ -26,7 +26,6 @@
 
 #if defined(HAVE_GETMNTINFO)
 #include <sys/ucred.h>
-#include <sys/mount.h>
 #endif
 
 /*
