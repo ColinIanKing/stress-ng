@@ -25,9 +25,8 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_SHM_H) &&	\
     defined(HAVE_SHM_SYSV)
-
-#include <sys/shm.h>
 
 #define KEY_GET_RETRIES		(40)
 

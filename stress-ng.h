@@ -197,10 +197,6 @@
 #include <sys/inotify.h>
 #endif
 
-#if defined(HAVE_SEM_SYSV)
-#include <sys/sem.h>
-#endif
-
 #if defined(HAVE_SYS_MEMFD_H)
 #include <sys/memfd.h>
 #endif
@@ -241,8 +237,16 @@
 #include <sys/select.h>
 #endif
 
+#if defined(HAVE_SEM_SYSV)
+#include <sys/sem.h>
+#endif
+
 #if defined(HAVE_SYS_SENDFILE_H)
 #include <sys/sendfile.h>
+#endif
+
+#if defined(HAVE_SYS_SHM_H)
+#include <sys/shm.h>
 #endif
 
 #if defined(HAVE_SYS_SIGNALFD_H)
