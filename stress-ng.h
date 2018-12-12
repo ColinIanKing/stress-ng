@@ -181,6 +181,10 @@
 #include <sys/eventfd.h>
 #endif
 
+#if defined(HAVE_SYS_IO_H)
+#include <sys/io.h>
+#endif
+
 #if defined(HAVE_SYS_INOTIFY_H)
 #include <sys/inotify.h>
 #endif

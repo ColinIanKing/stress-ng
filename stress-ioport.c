@@ -24,10 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(STRESS_X86) && defined(HAVE_IOPORT)
-#include <sys/io.h>
-#endif
-
 #define IO_PORT		0x80
 
 #define IOPORT_OPT_IN	0x00000001
@@ -66,7 +62,9 @@ int stress_set_ioport_opts(const char *opts)
 	return -1;
 }
 
-#if defined(STRESS_X86) && defined(HAVE_IOPORT)
+#if defined(STRESS_X86) && 	\
+    defined(HAVE_IOPORT) &&	\
+    defined(HAVE_SYS_IO_H)
 
 static int stress_ioport_supported(void)
 {
