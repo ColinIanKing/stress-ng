@@ -24,14 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-#define SOCKET_NODELAY
-#endif
-
-#if defined(SOCKET_NODELAY)
-#include <netinet/tcp.h>
-#endif
-
 #define SOCKET_OPT_SEND		0x01
 #define SOCKET_OPT_SENDMSG	0x02
 #define SOCKET_OPT_SENDMMSG	0x03
@@ -321,9 +313,6 @@ static int stress_sctp_server(
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 			unsigned int msg_len = 0;
 #endif
-#if defined(SOCKET_NODELAY)
-			int one = 1;
-#endif
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
 				pr_fail_dbg("getsockname");
@@ -338,7 +327,7 @@ static int stress_sctp_server(
 			}
 #if defined(TCP_QUICKACK)
 			{
-				int ret;
+				int ret, one = 1;
 				/*
 				 * We try do to a TCP_QUICKACK, failing is OK as
 				 * it's just a faster optimization option
@@ -348,8 +337,10 @@ static int stress_sctp_server(
 			}
 #endif
 
-#if defined(SOCKET_NODELAY)
+#if defined(HAVE_NETINET_TCP_H)
 			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
+				int one = 1;
+
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
 					pr_inf("%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",

@@ -75,6 +75,9 @@
  */
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#if defined(HAVE_NETINET_TCP_H)
+#include <netinet/tcp.h>
+#endif
 
 #if defined(HAVE_AIO_H)
 #include <aio.h>
