@@ -25,12 +25,11 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_PTHREAD) && \
+    defined(HAVE_LIBGEN_H) && \
     defined(FS_IOC_GETFLAGS) && \
     defined(FS_IOC_SETFLAGS) && \
     defined(FS_IOC_SETFLAGS) && \
     defined(O_DIRECTORY)
-
-#include <libgen.h>
 
 #define MAX_INODE_FLAG_THREADS		(4)
 
