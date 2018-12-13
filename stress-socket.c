@@ -325,7 +325,7 @@ static int stress_sctp_server(
 				(void)close(sfd);
 				break;
 			}
-#if defined(TCP_QUICKACK)
+#if defined(SOL_TCP) && defined(TCP_QUICKACK)
 			{
 				int ret, one = 1;
 				/*
@@ -337,7 +337,7 @@ static int stress_sctp_server(
 			}
 #endif
 
-#if defined(HAVE_NETINET_TCP_H)
+#if defined(SOL_TCP) && defined(HAVE_NETINET_TCP_H)
 			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				int one = 1;
 
