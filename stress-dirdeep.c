@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <dirent.h>
-
 /*
  *  stress_set_dirdeep_dirs()
  *      set number of dirdeep directories from given option string
