@@ -23,9 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
-#include <mqueue.h>
-#endif
 
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
@@ -79,7 +76,7 @@ typedef struct {
 #if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(STRESS_SYS_MSG_H)
 	int msgq_id;
 #endif
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
 	mqd_t mq;
 	char mq_name[64];
 #endif
@@ -125,7 +122,7 @@ static void NORETURN waste_resources(
 	const int flag = 0;
 #endif
 
-#if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX))
+#if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
 	stress_get_memlimits(&shmall, &freemem, &totalmem);
@@ -330,7 +327,7 @@ static void NORETURN waste_resources(
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
 		struct mq_attr attr;
 
 		snprintf(info[i].mq_name, sizeof(info[i].mq_name), "/%s-%i-%" PRIu32 "-%zu",
@@ -425,7 +422,7 @@ static void NORETURN waste_resources(
 			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
 		if (info[i].mq >= 0) {
 			(void)mq_close(info[i].mq);
 			(void)mq_unlink(info[i].mq_name);

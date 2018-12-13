@@ -24,16 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_MQUEUE_H) &&	\
-    defined(HAVE_LIB_RT) &&	\
-    defined(HAVE_MQ_POSIX)
-
-typedef struct {
-	uint64_t	value;
-	bool		stop;
-} msg_t;
-#endif
-
 int stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
@@ -45,7 +35,14 @@ int stress_set_mq_size(const char *opt)
 	return set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX)
+#if defined(HAVE_MQUEUE_H) &&	\
+    defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX)
+
+typedef struct {
+	uint64_t	value;
+	bool		stop;
+} msg_t;
 
 static void stress_mq_notify_func(union sigval s)
 {
