@@ -30,7 +30,6 @@
 #if defined(HAVE_SYS_EPOLL_H) && \
     defined(HAVE_LIB_RT) && 	 \
     NEED_GLIBC(2,3,2)
-#include <netdb.h>
 
 typedef void (epoll_func_t)(
 	const args_t *args,
@@ -85,7 +84,9 @@ int stress_set_epoll_domain(const char *name)
 	return ret;
 }
 
-#if defined(HAVE_LIB_RT) && defined(__linux__) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) && \
+    defined(HAVE_LIB_RT) && 	 \
+    NEED_GLIBC(2,3,2)
 
 /*
  * epoll_timer_handler()
