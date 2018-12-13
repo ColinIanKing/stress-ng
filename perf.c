@@ -29,8 +29,6 @@
     defined(HAVE_LINUX_PERF_EVENT_H)
 /* perf enabled systems */
 
-#include <locale.h>
-
 #define THOUSAND	(1.0E3)
 #define MILLION		(1.0E6)
 #define BILLION		(1.0E9)
@@ -571,7 +569,9 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 	bool no_perf_stats = true;
 	proc_info_t *pi;
 
+#if defined(HAVE_LOCALE_H)
 	(void)setlocale(LC_ALL, "");
+#endif
 
 	pr_yaml(yaml, "perfstats:\n");
 

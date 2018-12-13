@@ -118,6 +118,10 @@
 #include <link.h>
 #endif
 
+#if defined(HAVE_LOCALE_H)
+#include <locale.h>
+#endif
+
 #if defined(__GNUC__) && defined(__linux__)
 #include <malloc.h>
 #endif
