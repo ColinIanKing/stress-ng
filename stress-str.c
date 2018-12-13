@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <strings.h>
-
 /*
  *  the STR stress test has different classes of string stressors
  */
@@ -64,7 +62,7 @@ static inline void strchk(
 #define STRCHK(name, test, failed)	\
 	strchk(name, test, STR(test), failed)
 
-
+#if defined(HAVE_STRINGS_H)
 /*
  *  stress_strcasecmp()
  *	stress on strcasecmp
@@ -98,7 +96,9 @@ static void stress_strcasecmp(
 		STRCHK(name, 0 != __strcasecmp(str2, str1 + i), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_STRINGS_H)
 /*
  *  stress_strncasecmp()
  *	stress on strncasecmp
@@ -132,7 +132,9 @@ static void stress_strncasecmp(
 		STRCHK(name, 0 != __strncasecmp(str2, str1 + i, len2), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_STRINGS_H)
 /*
  *  stress_index()
  *	stress on index
@@ -159,7 +161,9 @@ static void stress_index(
 		STRCHK(name, NULL != __index(str2, str2[0]), failed);
 	}
 }
+#endif
 
+#if defined(HAVE_STRINGS_H)
 /*
  *  stress_rindex()
  *	stress on rindex
@@ -186,6 +190,7 @@ static void stress_rindex(
 		STRCHK(name, NULL != __rindex(str2, str2[0]), failed);
 	}
 }
+#endif
 
 #if defined(HAVE_STRLCPY)
 /*
@@ -584,9 +589,11 @@ static void stress_str_all(
 static const stress_str_method_info_t str_methods[] = {
 	{ "all",		stress_str_all,		NULL },	/* Special "all test */
 
+#if defined(HAVE_STRINGS_H)
 	{ "index",		stress_index,		index },
 	{ "rindex",		stress_rindex,		rindex  },
 	{ "strcasecmp",		stress_strcasecmp,	strcasecmp },
+#endif
 #if defined(HAVE_STRLCAT)
 	{ "strlcat",		stress_strlcat,		strlcat },
 #else
@@ -601,7 +608,9 @@ static const stress_str_method_info_t str_methods[] = {
 	{ "strcpy",		stress_strcpy,		strcpy },
 #endif
 	{ "strlen",		stress_strlen,		strlen },
+#if defined(HAVE_STRINGS_H)
 	{ "strncasecmp",	stress_strncasecmp,	strncasecmp },
+#endif
 	{ "strncat",		stress_strncat,		strncat },
 	{ "strncmp",		stress_strncmp,		strncmp },
 	{ "strrchr",		stress_strrchr,		strrchr },

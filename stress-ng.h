@@ -117,6 +117,10 @@
 #include <spawn.h>
 #endif
 
+#if defined(HAVE_STRINGS_H)
+#include <strings.h>
+#endif
+
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif
@@ -147,7 +151,6 @@
 
 #if defined(__sun__)
 #include <alloca.h>
-#include <strings.h>
 #endif
 
 #if defined(HAVE_LIB_BSD)
