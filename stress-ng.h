@@ -54,6 +54,7 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
+#include <pwd.h>
 #include <sched.h>
 #include <search.h>
 #include <setjmp.h>

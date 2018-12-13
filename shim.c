@@ -23,7 +23,6 @@
  *
  */
 #include "stress-ng.h"
-#include <pwd.h>
 
 /*
  *  Various shim abstraction wrappers around systems calls and
