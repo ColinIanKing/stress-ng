@@ -39,7 +39,8 @@ int stress_set_udp_flood_domain(const char *name)
 	return ret;
 }
 
-#if defined(AF_PACKET)
+#if defined(AF_PACKET) && \
+    defined(HAVE_ICMPHDR)
 
 /*
  *  stress_udp_flood
