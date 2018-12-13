@@ -30,8 +30,6 @@
 #if defined(HAVE_LIB_CRYPT) &&	\
     defined(HAVE_CRYPT_H)
 
-#include <crypt.h>
-
 /*
  *  stress_crypt_id()
  *	crypt a password with given seed and id
