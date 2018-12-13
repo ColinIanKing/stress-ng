@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if !defined(__UCLIBC__)
+#if !defined(__UCLIBC__) &&	\
+    defined(HAVE_FLOAT_H) 
 
-#include <float.h>
 #include <fenv.h>
 
 #define SNG_INTDIV	(0x40000000)

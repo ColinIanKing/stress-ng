@@ -108,6 +108,10 @@
 #include <features.h>
 #endif
 
+#if defined(HAVE_FLOAT_H)
+#include <float.h>
+#endif
+
 #if defined(HAVE_GRP_H)
 #include <grp.h>
 #endif
