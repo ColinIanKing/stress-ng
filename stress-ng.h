@@ -48,9 +48,10 @@
  */
 #include <complex.h>
 #include <ctype.h>
-#include <errno.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>

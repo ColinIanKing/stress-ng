@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <getopt.h>
-
 /* Help information for options */
 typedef struct {
 	const char *opt_s;		/* short option */
