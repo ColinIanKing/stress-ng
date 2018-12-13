@@ -70,8 +70,10 @@
 #include <unistd.h>
 
 /*
- *  Networking includes
+ *  Networking includes that are part of
+ *  Single UNIX Specification V2
  */
+#include <arpa/inet.h>
 #include <netinet/in.h>
 
 #if defined(HAVE_AIO_H)

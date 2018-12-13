@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <arpa/inet.h>
-
 /* See bugs section of udplite(7) */
 #if !defined(SOL_UDPLITE)
 #define SOL_UDPLITE		(136)

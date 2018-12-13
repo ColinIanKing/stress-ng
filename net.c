@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <arpa/inet.h>
-
 typedef struct {
 	const char *name;
 	const int  domain;

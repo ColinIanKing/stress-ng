@@ -27,8 +27,6 @@
 #if defined(__linux__) && 	\
     defined(HAVE_SYS_UN_H)
 
-#include <arpa/inet.h>
-
 #define MSG_ID			'M'
 
 #endif

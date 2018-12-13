@@ -30,7 +30,6 @@
 #if defined(HAVE_SYS_EPOLL_H) && \
     defined(HAVE_LIB_RT) && 	 \
     NEED_GLIBC(2,3,2)
-#include <arpa/inet.h>
 #include <netdb.h>
 
 typedef void (epoll_func_t)(

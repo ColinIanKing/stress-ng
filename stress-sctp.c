@@ -27,7 +27,6 @@
 #if defined(HAVE_LIB_SCTP)
 
 #include <netinet/sctp.h>
-#include <arpa/inet.h>
 
 #if !defined(LOCALTIME_STREAM)
 #define LOCALTIME_STREAM        0

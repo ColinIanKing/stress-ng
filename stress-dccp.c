@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <arpa/inet.h>
-
 #define DCCP_OPT_SEND		0x01
 #define DCCP_OPT_SENDMSG	0x02
 #define DCCP_OPT_SENDMMSG	0x03

@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <arpa/inet.h>
-
 /*
  *  stress_set_udp_domain()
  *      set the udp domain option
