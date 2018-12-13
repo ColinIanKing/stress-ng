@@ -24,11 +24,12 @@
  */
 #include "stress-ng.h"
 
-#if defined(STRESS_X86) && defined(HAVE_CPUID) && NEED_GNUC(4,6,0)
+#if defined(HAVE_CPUID_H) &&	\
+    defined(STRESS_X86) && 	\
+    defined(HAVE_CPUID) &&	\
+    NEED_GNUC(4,6,0)
 
 static bool tsc_supported = false;
-
-#include <cpuid.h>
 
 /*
  *  stress_tsc_supported()

@@ -24,13 +24,12 @@
  */
 #include "stress-ng.h"
 
-#if defined(STRESS_X86) && defined(HAVE_CPUID) && NEED_GNUC(4,6,0)
-#include <cpuid.h>
-#endif
-
 bool cpu_is_x86(void)
 {
-#if defined(STRESS_X86) && defined(HAVE_CPUID) && NEED_GNUC(4,6,0)
+#if defined(HAVE_CPUID_H) &&	\
+    defined(STRESS_X86) && 	\
+    defined(HAVE_CPUID) &&	\
+    NEED_GNUC(4,6,0)
 	uint32_t eax, ebx, ecx, edx;
 
 	/* Intel CPU? */

@@ -24,9 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(STRESS_X86) && defined(HAVE_CPUID) && NEED_GNUC(4,6,0)
-
-#include <cpuid.h>
+#if defined(HAVE_CPUID_H) &&	\
+    defined(STRESS_X86) &&	\
+    defined(HAVE_CPUID) &&	\
+    NEED_GNUC(4,6,0)
 
 static bool rdrand_supported = false;
 
