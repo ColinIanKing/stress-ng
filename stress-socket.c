@@ -31,11 +31,7 @@
 #if defined(SOCKET_NODELAY)
 #include <netinet/tcp.h>
 #endif
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#if defined(AF_INET6)
-#include <netinet/in.h>
-#endif
 
 #define SOCKET_OPT_SEND		0x01
 #define SOCKET_OPT_SENDMSG	0x02

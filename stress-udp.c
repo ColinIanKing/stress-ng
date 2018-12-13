@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <netinet/in.h>
 #include <arpa/inet.h>
 
 /* See bugs section of udplite(7) */
