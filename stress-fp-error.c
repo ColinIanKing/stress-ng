@@ -25,9 +25,8 @@
 #include "stress-ng.h"
 
 #if !defined(__UCLIBC__) &&	\
+    defined(HAVE_FENV_H) &&	\
     defined(HAVE_FLOAT_H)
-
-#include <fenv.h>
 
 #define SET_VOLATILE(d, val)	\
 do {				\

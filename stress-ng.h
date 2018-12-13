@@ -108,6 +108,10 @@
 #include <features.h>
 #endif
 
+#if defined(HAVE_FENV_H)
+#include <fenv.h>
+#endif
+
 #if defined(HAVE_FLOAT_H)
 #include <float.h>
 #endif
