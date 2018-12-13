@@ -25,7 +25,8 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_NETINET_IP_H) &&	\
-    defined(HAVE_NETINET_IP_ICMP_H)
+    defined(HAVE_NETINET_IP_ICMP_H) &&	\
+    defined(HAVE_ICMPHDR)
 
 #define MAX_PAYLOAD_SIZE	(1000)
 
