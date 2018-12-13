@@ -1,3 +1,171 @@
+stress-ng (0.09.49-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-udp-flood: remove check for struct iphdr and icmphdr
+  * stress-icmp-flood: add check for struct iphdr and icmphdr
+  * Add checks for struct iphdr and icmphdr
+  * helper: remove libgen.h - it is not needed
+  * Add check for fenv.h
+  * Add check for float.h
+  * stress-icmp-flood: fix typo in macro name check
+  * Add checks for netinet/ip.h and netinet/ip_icmp.h
+  * Move getopt.h to stress-ng.h
+  * Add check for netinet/sctp.h
+  * Add check for locale.h
+  * stress-epoll: remove need for netdb.h, clean up define checks
+  * Add checkfor libgen.h
+  * stress-spawn: only test on linux
+  * Add detection for posix_spawn
+  * stress-socket: add check for SOL_TCP for BSD systems
+  * Add check for net/if.h
+  * Add check for netinet/tcp.h and clean up stress-socket a little
+  * Move include of arpa/inet.h to stress-ng.h
+  * Move include netinet/in.h to stress-ng.h
+  * stress-dirdeep: remove include of dirent.h, it is already included
+    in stress-ng.h
+  * Add check for cpuid.h
+  * Move include of keyutils.h to stress-ng.h
+  * Move include of crypt.h to stress-ng.h
+  * Add check for strings.h
+  * Fix check on sys/msg.h, use correct macro for check
+  * Use check for mqueue.h
+  * Move pwd.h to stress-ng.h
+  * Add check for mqueue.h
+  * Move ucontext.h and search.h to stress-ng.h
+  * Add check for semaphore.h
+  * Add checks for aio.h and spawn.h
+  * Move math,h and complex.h to stress-ng.h
+  * Disable swap for SunOs/Solaris as the interface is different to Linux
+  * stress-chown: don't count retries for NetBSD sched_yield retries
+  * stress-raw-dev: replace __linux__ check with some more specific checks
+  * test/test-sysinfo.c: force failure for sunos, this clashes with a
+    different sysinfo
+  * stress-ng.c: Add check for sysinfo system call
+  * Add check for sysinfo system call
+  * Add check for syslog.h
+  * Add check for sys/epoll.h
+  * Add check for poll.h
+  * helper: remove include of sys/statvfs.h as it is include from
+    stress-ng.h
+  * Add check for sys/shm.h
+  * Add check for sys/msg.h
+  * Add check for sys/ipc.h
+  * helper: use HAVE_SYS_STATVFS_H check for statvfs calls
+  * stress-filename.c: use statvfs check
+  * Add check for sys/statvfs.h
+  * Add check for sys/statfs.h
+  * Use check for sys/fanotify.h
+  * Add check for sys/sysmacros.h
+  * stress-rawdev: remove include of dirent.h, it is in stress-ng.h
+  * Add check for sys/io.h
+  * Add check for sys/inotify.h and various inotify types
+  * Add check for termio.h and termios.h
+  * Add check for sys/quota.h
+  * Add check for deprecated include ustat.h
+  * Add check for utime.h
+  * Add check for sys/sysinfo.h
+  * Move include of sys/timex.h from stress-get.c to stress-ng.h
+  * Add check for sys/ucred.h
+  * Add check for sys/mount.h
+  * Add check for sys/param.h
+  * Move include of mntent.h to stress-ng.h
+  * Add check for sys/personality.h
+  * perf-event: no need to check for __linux__, remove check
+  * Add better checking for HAVE_LINUX_PERF_EVENT_H
+  * stress-nop: undefined NOP macros to avoid name space clash
+  * Move libaio.h from stress-aio-linux.c to stress-ng.h
+  * Move several includes from stress-dev.c to stress-ng.h
+  * Add check for linux/cn_proc.h
+  * Add check for linux/unix_diag.h
+  * Add check for linux/sock_diag.h
+  * Add check for linux/rtnetlink.h
+  * Add check for linux/netlink.h
+  * Add check for linux/connector.h
+  * stress-sock-diag: remove includes that are in stress-ng.h
+  * stress-ng.h: remove check for HAVE_SWAP to include swap.h
+  * Add check for linux/posix_types.h
+  * stress-ng.h: more clean ups
+  * stress-ng.h: more include cleanups
+  * alphabetically re-order sys/includes
+  * Move include of linux/if_alg.h to stress-ng.h
+  * Move include of linux/socket.h to stress-ng.h
+  * stress-dev: remove need for linux/random.h, it's included in
+    stress-ng.h
+  * stress-timerfd: clean up build warning on pid_t on sunos
+  * Only include sys/swap.h if swapon/swapoff exist
+  * stress-sendfile: return EXIT_NOT_IMPLEMENTED if sendfile returns ENOSYS
+  * Add check for statfs system call
+  * Add swapon/swapoff system call autodetection
+  * stress-swap: don't use SWAP_FLAG_PREFER if it's not defined
+  * stress-sysbadaddr.c: remove include of sys/vfs.h
+  * Add build config check for sys/uio.h
+  * Add build config check for sys/vfs.h
+  * Add build config check for sys/swap.h
+  * Add build config check for sys/timerfd.h
+  * Move include of sys/apparmor.h to stress-ng.h
+  * Add build config check for sys/sendfile.h
+  * Add build config check for sys/signalfd.h
+  * stress-netdev.c: remove include of sys/ioctl.h, it is included in
+    stress-ng.h
+  * Move include of sys/auxv.h to stress-ng.h
+  * stress-socket-diag: remove include for sys/socket.h, it is include
+    in stress-ng.h
+  * Add build config check for netinet/in.h
+  * Add build config check for sys/un.h
+  * Add in version info computer unicode character
+  * Add unicode 32 symbol for fire in the version info
+  * Re-order pthread and libc library linker order (LP: #1807176)
+  * Move <sys/utsname.h> include to stress-ng.h
+  * stress-rawdev: remove sys/types.h as it is included in stress-ng.h
+  * Rename HAVE_SYS_CAP_H to HAVE_SYS_CAPABILITY_H, move include to
+    stress-ng.h
+  * stress-urandom: move the include of linux/random.h to stress-ng.h
+  * stress-loop: move the include of linux/loop.h to stress-ng.h
+  * stress-futex: remove include/futex.h
+  * shim: remove linux/futex.h include
+  * Move the include of linux/rtc.h to stress-ng.h
+  * Move the include of linux/watchdog.h to stress-ng.h
+  * Move the include of linux/userfaultfd.h to stress-ng.h
+  * Move the include of linux/futex.h to stress-ng.h
+  * stress-seccomp: no need for __linux__ check, remove it
+  * stress-opcode: fix build issue because if #if/#endif mismatch
+  * Move linux/seccomp.h include to stress-ng.h
+  * Add build config check for linux/filter.h
+  * Add build config check for linux/audit.h
+  * stress-seccomp: improve EACCES failure skip message information
+  * Add build config check for sys/prctl.h
+  * stress-udp-flood: check for EPROTONOSUPPORT socket failures
+  * stress-stackmmap: handle ENXIO mmap failures on minix
+  * stress-loop: remove redundant check for __linux__ being defined
+  * Add build config check for linux/rtc.h
+  * Add build config check for linux/version.h
+  * stress-urandom: use HAVE_LINUX_URANDOM_H check
+  * Add build config check for linux/watchdog.h, re-order some checks too
+  * Add build config check for sys/timex.h
+  * Add build config check for sys/utsname.h
+  * stress-get: fix typo in comment
+  * Use check for HAVE_LINUX_FUTEX_H for linux/futex.h
+  * Move sys/select.h include into stress-ng.h
+  * Add build config check for linux/fs.h
+  * Add build config check for sys/fanotify.h
+  * Add build config check for mntent.h
+  * Add build config check for crypt.h
+  * Add build config check for ucontext.h
+  * Add build config check for sys/apparmor.h
+  * Add build config check for sys/select.h
+  * Add build config check for libaio.h
+  * Add build config check for aio.h
+  * Rename HAVE_SOCK_DIAG_H to HAVE_LINUX_SOCK_DIAG_H
+  * stress-af-alg: add checks for <linux/if_alg.h> and <linux/socket.h>
+  * stress-stackmmap: needs swapcontext
+  * stress-ng: minor reordering of includes, minor changes
+  * Remove include of semaphore.h as this is already included in
+    stress-ng.h
+  * stress-ng.h: fix include on semaphore.h
+  * stress-resources: use posix semaphores if HAVE_SEM_POSIX is defined
+
+ -- Colin King <colin.king@canonical.com>  Thu, 13 Dec 2018 16:08:11 +0000
+
 stress-ng (0.09.48-1) unstable; urgency=medium
 
   * Makefile: bump version
