@@ -25,7 +25,8 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_SPAWN_H) &&	\
-    defined(HAVE_POSIX_SPAWN)
+    defined(HAVE_POSIX_SPAWN) && \
+    defined(__linux__)
 
 /*
  *  stress_spawn_supported()
