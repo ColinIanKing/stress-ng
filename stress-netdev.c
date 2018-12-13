@@ -26,8 +26,6 @@
 
 #if defined(__linux__)
 
-#include <net/if.h>
-
 /*
  *  stress_netdev_check()
  *	helper to perform netdevice ioctl and check for failure
