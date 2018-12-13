@@ -24,9 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_SCTP)
-
-#include <netinet/sctp.h>
+#if defined(HAVE_LIB_SCTP) &&	\
+    defined(HAVE_NETINET_SCTP_H)
 
 #if !defined(LOCALTIME_STREAM)
 #define LOCALTIME_STREAM        0
@@ -34,7 +33,6 @@
 
 static uint64_t	sigpipe_count;
 #endif
-
 
 /*
  *  stress_set_sctp_port()
@@ -65,7 +63,8 @@ int stress_set_sctp_domain(const char *name)
 	return ret;
 }
 
-#if defined(HAVE_LIB_SCTP)
+#if defined(HAVE_LIB_SCTP) &&	\
+    defined(HAVE_NETINET_SCTP_H)
 
 /*
  *  stress_sctp_client()
