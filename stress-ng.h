@@ -85,6 +85,10 @@
 #include <grp.h>
 #endif
 
+#if defined(HAVE_KEYUTILS_H)
+#include <keyutils.h>
+#endif
+
 #if defined(HAVE_LIBAIO_H)
 #include <libaio.h>
 #endif

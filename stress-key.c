@@ -28,8 +28,6 @@
     defined(HAVE_ADD_KEY) && \
     defined(HAVE_KEYCTL)
 
-#include <keyutils.h>
-
 #define MAX_KEYS 	(256)
 #define KEYCTL_TIMEOUT	(7200)
 
