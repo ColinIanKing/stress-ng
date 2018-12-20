@@ -186,7 +186,7 @@ again:
 			(void)mprotect(ops_end, page_size, PROT_NONE);
 			(void)mprotect(ops_begin, page_size, PROT_WRITE);
 			for (ops = ops_begin; ops < ops_end; ops++) {
-				*ops = mwc32();
+				*ops = mwc8();
 			}
 			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_clear_cache((char *)ops_begin, (char *)ops_end);
