@@ -210,9 +210,7 @@ again:
 			/*
 			 * Limit syscall using seccomp
 			 */
-			{
-				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
-			}
+			(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
 			((void (*)(void))(ops_begin + mwc8()))();
 
