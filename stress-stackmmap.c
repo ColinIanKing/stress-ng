@@ -139,6 +139,7 @@ static int stress_stackmmap(const args_t *args)
 			pr_inf("%s: skipping stressor, mmap not possible on file %s\n",
 				args->name, filename);
 			rc = EXIT_NO_RESOURCE;
+			(void)close(fd);
 			goto tidy_dir;
 		}
 		pr_fail_err("mmap");
