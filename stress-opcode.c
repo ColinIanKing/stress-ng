@@ -138,7 +138,11 @@ static int stress_opcode(const args_t *args)
 	do {
 		pid_t pid;
 
-		mwc32();
+		/*
+		 *  Force a new random value so that child always
+		 *  gets a different random value on each fork
+		 */
+		(void)mwc32();
 again:
 		if (!g_keep_stressing_flag)
 			break;
