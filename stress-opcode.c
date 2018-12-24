@@ -202,21 +202,23 @@ again:
 			 * do an infinite loop
 			 */
 			it.it_interval.tv_sec = 0;
-			it.it_interval.tv_usec = 10000;
+			it.it_interval.tv_usec = 50000;
 			it.it_value.tv_sec = 0;
-			it.it_value.tv_usec = 10000;
+			it.it_value.tv_usec = 50000;
 			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
 				pr_fail_dbg("setitimer");
 				_exit(EXIT_NO_RESOURCE);
 			}
 
+			for (i = 0; i < 1024; i++) {
 #if defined(HAVE_LINUX_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
-			/*
-			 * Limit syscall using seccomp
-			 */
-			(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
+				/*
+				 * Limit syscall using seccomp
+				 */
+				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
-			((void (*)(void))(ops_begin + mwc8()))();
+				((void (*)(void))(ops_begin + mwc8()))();
+			}
 
 			(void)munmap(opcodes, page_size * PAGES);
 			_exit(0);
