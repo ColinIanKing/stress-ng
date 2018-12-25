@@ -1076,11 +1076,7 @@ PRAGMA_WARN_OFF
 #endif
 void *shim_sbrk(intptr_t increment)
 {
-#if defined(__APPLE__)
 	return sbrk(increment);
-#else
-	return sbrk(increment);
-#endif
 }
 #if defined(__APPLE__)
 PRAGMA_POP
