@@ -38,6 +38,7 @@ typedef struct {
 	int fd_open;
 	int fd_sock;
 	int fd_socketpair[2];
+	pid_t pid;
 #if defined(HAVE_EVENTFD)
 	int fd_ev;
 #endif
@@ -343,6 +344,12 @@ static void NORETURN waste_resources(
 #if defined(__linux__) && defined(__NR_pkey_alloc)
 		info[i].pkey = shim_pkey_alloc(0, 0);
 #endif
+
+		info[i].pid = fork();
+		if (info[i].pid == 0) {
+			sleep(10);
+			_exit(0);
+		}
 	}
 
 	n = i;
@@ -432,6 +439,12 @@ static void NORETURN waste_resources(
 		if (info[i].pkey > -1)
 			 (void)shim_pkey_free(info[i].pkey);
 #endif
+		if (info[i].pid > 0) {
+			int status;
+
+			(void)kill(info[i].pid, SIGKILL);
+			(void)waitpid(info[i].pid, &status, 0);
+		}
 	}
 	_exit(0);
 }
