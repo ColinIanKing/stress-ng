@@ -180,6 +180,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mq_size,			stress_set_mq_size },
 	{ OPT_mremap_bytes,		stress_set_mremap_bytes },
 	{ OPT_msync_bytes,		stress_set_msync_bytes },
+	{ OPT_opcode_method,		stress_set_opcode_method },
 	{ OPT_pipe_data_size,		stress_set_pipe_data_size },
 #if defined(F_SETPIPE_SZ)
 	{ OPT_pipe_size,		stress_set_pipe_size },
@@ -877,6 +878,7 @@ static const struct option long_options[] = {
 	{ "oom-pipe-ops",1,	0,	OPT_oom_pipe_ops },
 	{ "opcode",	1,	0,	OPT_opcode },
 	{ "opcode-ops",	1,	0,	OPT_opcode_ops },
+	{ "opcode-method",1,	0,	OPT_opcode_method },
 	{ "open",	1,	0,	OPT_open },
 	{ "open-ops",	1,	0,	OPT_open_ops },
 	{ "page-in",	0,	0,	OPT_page_in },
@@ -1530,6 +1532,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"oom-pipe-ops N",	"stop after N oom-pipe bogo operations" },
 	{ NULL,		"opcode N",		"start N workers exercising random opcodes" },
 	{ NULL,		"opcode-ops N",		"stop after N opcode bogo operations" },
+	{ NULL,		"opcode-method M",	"set opcode stress method (M = random, inc, mixed)" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop after N open/close bogo operations" },
 	{ NULL,		"personality N",	"start N workers that change their personality" },

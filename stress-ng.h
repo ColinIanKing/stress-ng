@@ -2471,6 +2471,7 @@ typedef enum {
 
 	OPT_opcode,
 	OPT_opcode_ops,
+	OPT_opcode_method,
 
 	OPT_open_ops,
 
@@ -3323,6 +3324,7 @@ extern int  stress_set_mmap_bytes(const char *opt);
 extern int  stress_set_mq_size(const char *opt);
 extern int  stress_set_mremap_bytes(const char *opt);
 extern int  stress_set_msync_bytes(const char *opt);
+extern int  stress_set_opcode_method(const char *name);
 extern int  stress_set_pipe_data_size(const char *opt);
 extern int  stress_set_pipe_size(const char *opt);
 extern int  stress_set_pthread_max(const char *opt);

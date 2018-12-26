@@ -39,7 +39,12 @@
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
 
-typedef void (*opfunc_t)(void);
+typedef void(*stress_opcode_func)(uint8_t *ops_begin, uint8_t *ops_end, uint32_t *op);
+
+typedef struct {
+        const char *name;
+        const stress_opcode_func func;
+} stress_opcode_method_info_t;
 
 static const int sigs[] = {
 #if defined(SIGILL)
@@ -113,6 +118,97 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 	_exit(1);
 }
 
+static inline uint32_t reverse32(register uint64_t x)
+{
+	x = (((x & 0xaaaaaaaa) >> 1) | ((x & 0x55555555) << 1));
+	x = (((x & 0xcccccccc) >> 2) | ((x & 0x33333333) << 2));
+	x = (((x & 0xf0f0f0f0) >> 4) | ((x & 0x0f0f0f0f) << 4));
+	x = (((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8));
+	return((x >> 16) | (x << 16));
+}
+
+static void stress_opcode_random(
+	uint8_t *ops_begin,
+	uint8_t *ops_end,
+	uint32_t *op)
+{
+	register uint8_t *ops = (uint8_t *)ops_begin;
+	(void)op;
+
+	while (ops < ops_end)
+		*(ops++) = mwc8();
+}
+
+static void stress_opcode_inc(
+	uint8_t *ops_begin,
+	uint8_t *ops_end,
+	uint32_t *op)
+{
+	register uint32_t tmp = *op;
+	register uint32_t *ops = (uint32_t *)ops_begin;
+
+	while (ops < (uint32_t *)ops_end)
+		*(ops++) = tmp++;
+
+	*op = tmp;
+}
+
+static void stress_opcode_mixed(
+	uint8_t *ops_begin,
+	uint8_t *ops_end,
+	uint32_t *op)
+{
+	register uint32_t tmp = *op;
+	register uint32_t *ops = (uint32_t *)ops_begin;
+
+	while (ops < (uint32_t *)ops_end) {
+		register uint32_t rnd = mwc32();
+
+		*(ops++) = tmp;
+		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
+		*(ops++) = ((tmp >> 1) ^ tmp);	/* Gray */
+		*(ops++) = reverse32(tmp);
+
+		*(ops++) = rnd;
+		*(ops++) = rnd ^ 0xffffffff;
+		*(ops++) = ((rnd >> 1) ^ rnd);
+		*(ops++) = reverse32(rnd);
+	}
+	*op = tmp;
+}
+
+static const stress_opcode_method_info_t stress_opcode_methods[] = {
+	{ "random",	stress_opcode_random },
+	{ "inc",	stress_opcode_inc },
+	{ "mixed",	stress_opcode_mixed },
+	{ NULL,		NULL }
+};
+
+/*
+ *  stress_set_opcode_method()
+ *      set default opcode stress method
+ */
+int stress_set_opcode_method(const char *name)
+{
+	stress_opcode_method_info_t const *info;
+
+	for (info = stress_opcode_methods; info->func; info++) {
+		if (!strcmp(info->name, name)) {
+			set_setting("opcode-method", TYPE_ID_UINTPTR_T, &info);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "opcode-method must be one of:");
+	for (info = stress_opcode_methods; info->func; info++) {
+		(void)fprintf(stderr, " %s", info->name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+
 /*
  *  stress_opcode
  *	stress with random opcodes
@@ -121,7 +217,9 @@ static int stress_opcode(const args_t *args)
 {
 	const size_t page_size = args->page_size;
 	int rc = EXIT_FAILURE;
+	uint32_t op = 0;
 	size_t i;
+	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
 #if TRACK_SIGCOUNT
 	const size_t sig_count_size = MAX_SIGS * sizeof(*sig_count);
 #endif
@@ -135,6 +233,8 @@ static int stress_opcode(const args_t *args)
 	}
 #endif
 
+	(void)get_setting("opcode-method", &opcode_method);
+
 	do {
 		pid_t pid;
 
@@ -143,6 +243,7 @@ static int stress_opcode(const args_t *args)
 		 *  gets a different random value on each fork
 		 */
 		(void)mwc32();
+		op += 1024;
 again:
 		if (!g_keep_stressing_flag)
 			break;
@@ -157,7 +258,7 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
-			uint8_t *opcodes, *ops_begin, *ops_end, *ops;
+			uint8_t *opcodes, *ops_begin, *ops_end;
 
 			/* We don't want bad ops clobbering this region */
 			stress_unmap_shared();
@@ -189,9 +290,9 @@ again:
 			(void)mprotect(opcodes, page_size, PROT_NONE);
 			(void)mprotect(ops_end, page_size, PROT_NONE);
 			(void)mprotect(ops_begin, page_size, PROT_WRITE);
-			for (ops = ops_begin; ops < ops_end; ops++) {
-				*ops = mwc8();
-			}
+
+			opcode_method->func(ops_begin, ops_end, &op);
+
 			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_clear_cache((char *)ops_begin, (char *)ops_end);
 			(void)setpgid(0, g_pgrp);
@@ -217,10 +318,10 @@ again:
 				 */
 				(void)shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog);
 #endif
-				((void (*)(void))(ops_begin + mwc8()))();
+				((void (*)(void))(ops_begin + i))();
 			}
 
-			(void)munmap(opcodes, page_size * PAGES);
+			//(void)munmap(opcodes, page_size * PAGES);
 			_exit(0);
 		}
 		if (pid > 0) {
@@ -256,8 +357,14 @@ err:
 	return rc;
 }
 
+static void stress_opcode_set_default(void)
+{
+        stress_set_opcode_method("random");
+}
+
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode,
+        .set_default = stress_opcode_set_default,
 	.class = CLASS_CPU | CLASS_OS
 };
 #else
