@@ -43,6 +43,31 @@ typedef struct {
 
 #if defined(HAVE_FANOTIFY) &&	\
     defined(HAVE_SYS_SELECT_H)
+
+static const int FAN_STRESS_SETTINGS =
+#if defined(FAN_ACCESS)
+	FAN_ACCESS |
+#endif
+#if defined(FAN_ACCESS)
+	FAN_ACCESS |
+#endif
+#if defined(FAN_MODIFY)
+	FAN_MODIFY |
+#endif
+#if defined(FAN_OPEN)
+	FAN_OPEN |
+#endif
+#if defined(FAN_CLOSE)
+	FAN_CLOSE |
+#endif
+#if defined(FAN_ONDIR)
+	FAN_ONDIR |
+#endif
+#if defined(FAN_EVENT_ON_CHILD)
+	FAN_EVENT_ON_CHILD |
+#endif
+	0;
+
 /*
  *  stress_fanotify_supported()
  *      check if we can run this as root
@@ -64,8 +89,8 @@ static int stress_fanotify_supported(void)
 static int fanotify_event_init(const char *name)
 {
 	int fan_fd, count = 0;
-	FILE* mounts;
-	struct mntent* mnt;
+	FILE *mounts;
+	struct mntent *mnt;
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
@@ -88,11 +113,19 @@ static int fanotify_event_init(const char *name)
 	while ((mnt = getmntent(mounts)) != NULL) {
 		int ret;
 
+#if defined(FAN_MARK_MOUNT)
 		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			FAN_ACCESS| FAN_MODIFY | FAN_OPEN | FAN_CLOSE |
-			FAN_ONDIR | FAN_EVENT_ON_CHILD, AT_FDCWD, mnt->mnt_dir);
+			FAN_STRESS_SETTINGS, AT_FDCWD, mnt->mnt_dir);
 		if (ret == 0)
 			count++;
+#endif
+
+#if defined(FAN_MARK_FILESYSTEM)
+		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
+			FAN_STRESS_SETTINGS, AT_FDCWD, mnt->mnt_dir);
+		if (ret == 0)
+			count++;
+#endif
 	}
 
 	if (endmntent(mounts) < 0) {
@@ -245,7 +278,6 @@ static int stress_fanotify(const args_t *args)
 							account.access++;
 						if (metadata->mask & FAN_MODIFY)
 							account.modify++;
-
 						inc_counter(args);
 						(void)close(metadata->fd);
 					}
