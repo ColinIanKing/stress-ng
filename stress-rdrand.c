@@ -40,7 +40,6 @@ static int stress_rdrand_supported(void)
 	uint32_t eax, ebx, ecx, edx;
 
 	/* Intel CPU? */
-	__cpuid(0, eax, ebx, ecx, edx);
 	if (!cpu_is_x86()) {
 		pr_inf("rdrand stressor will be skipped, "
 			"not a recognised Intel CPU\n");
