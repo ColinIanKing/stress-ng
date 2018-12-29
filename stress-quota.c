@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_SYS_QUOTA_H) &&	\
+    defined(__linux__) &&		\
     (defined(Q_GETQUOTA) ||		\
      defined(Q_GETFMT) ||		\
      defined(Q_GETINFO) ||		\
