@@ -368,6 +368,14 @@ stressor_info_t stress_opcode_info = {
 	.class = CLASS_CPU | CLASS_OS
 };
 #else
+
+int stress_set_opcode_method(const char *name)
+{
+	(void)fprintf(stderr, "opcode-method not implemented");
+
+	return -1;
+}
+
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_OS
