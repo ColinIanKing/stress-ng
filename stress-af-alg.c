@@ -29,52 +29,50 @@
     defined(AF_ALG)
 
 #if !defined(SOL_ALG)
-#define SOL_ALG			(279)
+#define SOL_ALG				(279)
 #endif
+#define DATA_LEN 			(1024)
+#define MAX_AF_ALG_RETRIES		(25)
 
-#define DATA_LEN 		(1024)
+#define SNG_CRC32C_DIGEST_SIZE		(4)
+#define SNG_SHA1_DIGEST_SIZE		(20)
+#define SNG_SHA224_DIGEST_SIZE		(28)
+#define SNG_SHA256_DIGEST_SIZE		(32)
+#define SNG_SHA384_DIGEST_SIZE		(48)
+#define SNG_SHA512_DIGEST_SIZE		(64)
+#define SNG_MD4_DIGEST_SIZE		(16)
+#define SNG_MD5_DIGEST_SIZE		(16)
+#define SNG_RMD128_DIGEST_SIZE		(16)
+#define SNG_RMD160_DIGEST_SIZE		(20)
+#define SNG_RMD256_DIGEST_SIZE		(32)
+#define SNG_RMD320_DIGEST_SIZE		(40)
+#define SNG_WP256_DIGEST_SIZE		(32)
+#define SNG_WP384_DIGEST_SIZE		(48)
+#define SNG_WP512_DIGEST_SIZE		(64)
+#define SNG_TGR128_DIGEST_SIZE		(16)
+#define SNG_TGR160_DIGEST_SIZE		(20)
+#define SNG_TGR192_DIGEST_SIZE		(24)
+#define SNG_XOR_DIGEST_SIZE		(4096)
+#define SNG_CRC_T10DIF_DIGEST_SIZE	(2)
 
-#define MAX_AF_ALG_RETRIES	(25)
+#define SNG_CRC32C_BLOCK_SIZE		(1)
+#define SNG_AES_BLOCK_SIZE		(16)
+#define SNG_TF_BLOCK_SIZE		(16)
+#define SNG_SERPENT_BLOCK_SIZE		(16)
+#define SNG_CAST6_BLOCK_SIZE		(16)
+#define SNG_CAMELLIA_BLOCK_SIZE		(16)
+#define SNG_SALSA20_BLOCK_SIZE		(8)
+#define SNG_GHASH_BLOCK_SIZE		(16)
+#define SNG_TWOFISH_BLOCK_SIZE		(16)
 
-#define CRC32C_DIGEST_SIZE	(4)
-#define SHA1_DIGEST_SIZE        (20)
-#define SHA224_DIGEST_SIZE      (28)
-#define SHA256_DIGEST_SIZE      (32)
-#define SHA384_DIGEST_SIZE      (48)
-#define SHA512_DIGEST_SIZE      (64)
-#define MD4_DIGEST_SIZE		(16)
-#define MD5_DIGEST_SIZE		(16)
-#define RMD128_DIGEST_SIZE	(16)
-#define RMD160_DIGEST_SIZE	(20)
-#define RMD256_DIGEST_SIZE	(32)
-#define RMD320_DIGEST_SIZE	(40)
-#define WP256_DIGEST_SIZE	(32)
-#define WP384_DIGEST_SIZE	(48)
-#define WP512_DIGEST_SIZE	(64)
-#define TGR128_DIGEST_SIZE	(16)
-#define TGR160_DIGEST_SIZE	(20)
-#define TGR192_DIGEST_SIZE	(24)
-#define XOR_DIGEST_SIZE		(4096)
-#define CRC_T10DIF_DIGEST_SIZE	(2)
-
-#define CRC32C_BLOCK_SIZE	(1)
-#define AES_BLOCK_SIZE		(16)
-#define TF_BLOCK_SIZE		(16)
-#define SERPENT_BLOCK_SIZE	(16)
-#define CAST6_BLOCK_SIZE	(16)
-#define CAMELLIA_BLOCK_SIZE	(16)
-#define SALSA20_BLOCK_SIZE	(8)
-#define GHASH_BLOCK_SIZE	(16)
-#define TWOFISH_BLOCK_SIZE	(16)
-
-#define AES_MAX_KEY_SIZE	(32)
-#define TF_MAX_KEY_SIZE		(32)
-#define SERPENT_MAX_KEY_SIZE	(32)
-#define CAST6_MAX_KEY_SIZE	(32)
-#define CAMELLIA_MAX_KEY_SIZE	(32)
-#define SALSA20_MAX_KEY_SIZE	(32)
-#define GHASH_MAX_KEY_SIZE	(16)
-#define TWOFISH_MAX_KEY_SIZE	(32)
+#define SNG_AES_MAX_KEY_SIZE		(32)
+#define SNG_TF_MAX_KEY_SIZE		(32)
+#define SNG_SERPENT_MAX_KEY_SIZE	(32)
+#define SNG_CAST6_MAX_KEY_SIZE		(32)
+#define SNG_CAMELLIA_MAX_KEY_SIZE	(32)
+#define SNG_SALSA20_MAX_KEY_SIZE	(32)
+#define SNG_GHASH_MAX_KEY_SIZE		(16)
+#define SNG_TWOFISH_MAX_KEY_SIZE	(32)
 
 /* See https://lwn.net/Articles/410833/ */
 
@@ -96,43 +94,43 @@ typedef struct {
 } alg_rng_info_t;
 
 static alg_hash_info_t algo_hash_info[] = {
-	{ "crc32c",	CRC32C_DIGEST_SIZE,	false },
-	{ "sha1",	SHA1_DIGEST_SIZE,	false },
-	{ "sha224",	SHA224_DIGEST_SIZE,	false },
-	{ "sha256",	SHA256_DIGEST_SIZE,	false },
-	{ "sha384",	SHA384_DIGEST_SIZE,	false },
-	{ "sha512",	SHA512_DIGEST_SIZE,	false },
-	{ "md4",	MD4_DIGEST_SIZE,	false },
-	{ "md5",	MD5_DIGEST_SIZE,	false },
-	{ "rmd128",	RMD128_DIGEST_SIZE,	false },
-	{ "rmd160",	RMD160_DIGEST_SIZE,	false },
-	{ "rmd256",	RMD256_DIGEST_SIZE,	false },
-	{ "rmd320",	RMD320_DIGEST_SIZE,	false },
-	{ "wp256",	WP256_DIGEST_SIZE,	false },
-	{ "wp384",	WP384_DIGEST_SIZE,	false },
-	{ "wp512",	WP512_DIGEST_SIZE,	false },
-	{ "tgr128",	TGR128_DIGEST_SIZE,	false },
-	{ "tgr160",	TGR160_DIGEST_SIZE,	false },
-	{ "tgr192",	TGR192_DIGEST_SIZE,	false },
-	{ "xor",	XOR_DIGEST_SIZE,	false },
-	{ "crct10dif",	CRC_T10DIF_DIGEST_SIZE,	false },
+	{ "crc32c",	SNG_CRC32C_DIGEST_SIZE,		false },
+	{ "sha1",	SNG_SHA1_DIGEST_SIZE,		false },
+	{ "sha224",	SNG_SHA224_DIGEST_SIZE,		false },
+	{ "sha256",	SNG_SHA256_DIGEST_SIZE,		false },
+	{ "sha384",	SNG_SHA384_DIGEST_SIZE,		false },
+	{ "sha512",	SNG_SHA512_DIGEST_SIZE,		false },
+	{ "md4",	SNG_MD4_DIGEST_SIZE,		false },
+	{ "md5",	SNG_MD5_DIGEST_SIZE,		false },
+	{ "rmd128",	SNG_RMD128_DIGEST_SIZE,		false },
+	{ "rmd160",	SNG_RMD160_DIGEST_SIZE,		false },
+	{ "rmd256",	SNG_RMD256_DIGEST_SIZE,		false },
+	{ "rmd320",	SNG_RMD320_DIGEST_SIZE,		false },
+	{ "wp256",	SNG_WP256_DIGEST_SIZE,		false },
+	{ "wp384",	SNG_WP384_DIGEST_SIZE,		false },
+	{ "wp512",	SNG_WP512_DIGEST_SIZE,		false },
+	{ "tgr128",	SNG_TGR128_DIGEST_SIZE,		false },
+	{ "tgr160",	SNG_TGR160_DIGEST_SIZE,		false },
+	{ "tgr192",	SNG_TGR192_DIGEST_SIZE,		false },
+	{ "xor",	SNG_XOR_DIGEST_SIZE,		false },
+	{ "crct10dif",	SNG_CRC_T10DIF_DIGEST_SIZE,	false },
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
-	{ "cbc(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "lrw(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "ofb(aes)",		AES_BLOCK_SIZE,		AES_MAX_KEY_SIZE,	false },
-	{ "xts(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "xts(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "xts(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "xts(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "lrw(twofish)",	TF_BLOCK_SIZE,		TF_MAX_KEY_SIZE,	false },
-	{ "lrw(serpent)",	SERPENT_BLOCK_SIZE,	SERPENT_MAX_KEY_SIZE,	false },
-	{ "lrw(cast6)",		CAST6_BLOCK_SIZE,	CAST6_MAX_KEY_SIZE,	false },
-	{ "lrw(camellia)",	CAMELLIA_BLOCK_SIZE,	CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "salsa20",		SALSA20_BLOCK_SIZE,	SALSA20_MAX_KEY_SIZE,	false },
-	{ "ghash",		GHASH_BLOCK_SIZE,	GHASH_MAX_KEY_SIZE,	false },
-	{ "twofish",		TWOFISH_BLOCK_SIZE,	TWOFISH_MAX_KEY_SIZE,	false },
+	{ "cbc(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
+	{ "lrw(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
+	{ "ofb(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
+	{ "xts(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE,		false },
+	{ "xts(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE,	false },
+	{ "xts(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE,		false },
+	{ "xts(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "lrw(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE,		false },
+	{ "lrw(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE,	false },
+	{ "lrw(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE,		false },
+	{ "lrw(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE,	false },
+	{ "salsa20",		SNG_SALSA20_BLOCK_SIZE,	SNG_SALSA20_MAX_KEY_SIZE,	false },
+	{ "ghash",		SNG_GHASH_BLOCK_SIZE,	SNG_GHASH_MAX_KEY_SIZE,		false },
+	{ "twofish",		SNG_TWOFISH_BLOCK_SIZE,	SNG_TWOFISH_MAX_KEY_SIZE,	false },
 };
 
 static const alg_rng_info_t algo_rng_info[] = {
