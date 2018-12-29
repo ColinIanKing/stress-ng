@@ -141,6 +141,7 @@ STRESS_SRC = \
 	stress-ioport.c \
 	stress-ioprio.c \
 	stress-iosync.c \
+	stress-ipsec-mb.c \
 	stress-itimer.c \
 	stress-kcmp.c \
 	stress-key.c \

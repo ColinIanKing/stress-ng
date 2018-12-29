@@ -120,6 +120,10 @@
 #include <grp.h>
 #endif
 
+#if defined(HAVE_INTEL_IPSEC_MB_H)
+#include <intel-ipsec-mb.h>
+#endif
+
 #if defined(HAVE_KEYUTILS_H)
 #include <keyutils.h>
 #endif
@@ -1839,6 +1843,7 @@ typedef enum {
 	STRESS_hsearch,
 	STRESS_icache,
 	STRESS_icmp_flood,
+	STRESS_ipsec_mb,
 	STRESS_inode_flags,
 	STRESS_inotify,
 	STRESS_iomix,
@@ -2297,6 +2302,9 @@ typedef enum {
 	OPT_ioprio_ops,
 
 	OPT_io_ops,
+
+	OPT_ipsec_mb,
+	OPT_ipsec_mb_ops,
 
 	OPT_itimer,
 	OPT_itimer_ops,
@@ -3620,6 +3628,7 @@ STRESS(stress_io);
 STRESS(stress_iomix);
 STRESS(stress_ioport);
 STRESS(stress_ioprio);
+STRESS(stress_ipsec_mb);
 STRESS(stress_itimer);
 STRESS(stress_kcmp);
 STRESS(stress_key);

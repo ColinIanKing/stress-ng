@@ -1664,6 +1664,17 @@ start N workers that exercise the ioprio_get(2) and ioprio_set(2) system calls
 .B \-\-ioprio\-ops N
 stop after N io priority bogo operations.
 .TP
+.B \-\-ipsec\-mb N
+start N workers that perform cryptographic processing using the highly
+optimized Intel Multi-Buffer Crypto for IPsec library. Depending on the
+features available, SSE, AVX, AVX and AVX512 CPU features will be used
+on data processed by SHA, DES and CMAC cryptographic routines. This is
+only available for x86-64 modern Intel CPUs.
+.TP
+.B \-\-ipsec\-mb\-ops N
+stop after N rounds of processing of data using the cryptographic
+routines.
+.TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
