@@ -371,6 +371,8 @@ stressor_info_t stress_opcode_info = {
 
 int stress_set_opcode_method(const char *name)
 {
+	(void)name;
+
 	(void)fprintf(stderr, "opcode-method not implemented");
 
 	return -1;
