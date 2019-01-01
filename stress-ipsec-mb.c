@@ -28,7 +28,8 @@
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
     defined(HAVE_LIB_IPSEC_MB) &&	\
     defined(STRESS_X86) &&		\
-    (defined(__x86_64__) || defined(__x86_64))
+    (defined(__x86_64__) || defined(__x86_64)) && \
+    !defined(BUILD_STATIC)
 
 #define FEATURE_SSE		(IMB_FEATURE_SSE4_2 | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
 #define FEATURE_AVX		(IMB_FEATURE_AVX | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
