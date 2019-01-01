@@ -54,7 +54,7 @@ static int stress_ipsec_mb_features(const args_t *args, MB_MGR *p_mgr)
 		if ((features & FEATURE_AVX) == FEATURE_AVX)
 			strcat(str, " avx");
 		if ((features & FEATURE_AVX2) == FEATURE_AVX2)
-			strcat(str, " avx");
+			strcat(str, " avx2");
 		if ((features & FEATURE_AVX512) == FEATURE_AVX512)
 			strcat(str, " avx512");
 
