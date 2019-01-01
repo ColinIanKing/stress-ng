@@ -196,12 +196,12 @@ static void stress_des(
 		if (!job)
 			break;
 		if (job->status != STS_COMPLETED) {
-			pr_err("%s: sha: job %d not completed\n",
+			pr_err("%s: des: job %d not completed\n",
 				args->name, j);
 		}
 	}
 	if (j != jobs)
-		pr_err("%s: sha: only processed %d of %d jobs\n",
+		pr_err("%s: des: only processed %d of %d jobs\n",
 			args->name, j, jobs);
 }
 
@@ -215,11 +215,11 @@ static void stress_cmac(
 	int j;
 	struct JOB_AES_HMAC *job;
 
-	uint8_t output[jobs * 16] ALIGNED(16);
 	uint8_t key[16] ALIGNED(16);
 	uint32_t expkey[4 * 15] ALIGNED(16);
 	uint32_t dust[4 * 15] ALIGNED(16);
 	uint32_t skey1[4], skey2[4];
+	uint8_t output[jobs * data_len] ALIGNED(16);
 
 	stress_rnd_fill(key, sizeof(key));
 	IMB_AES_KEYEXP_128(mb_mgr, key, expkey, dust);
@@ -253,12 +253,70 @@ static void stress_cmac(
 		if (!job)
 			break;
 		if (job->status != STS_COMPLETED) {
-			pr_err("%s: sha: job %d not completed\n",
+			pr_err("%s: cmac: job %d not completed\n",
 				args->name, j);
 		}
 	}
 	if (j != jobs)
-		pr_err("%s: sha: only processed %d of %d jobs\n",
+		pr_err("%s: cmac: only processed %d of %d jobs\n",
+			args->name, j, jobs);
+}
+
+static void stress_ctr(
+	const args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs)
+{
+	int j;
+	struct JOB_AES_HMAC *job;
+
+	uint8_t encoded[jobs * data_len] ALIGNED(16);
+	uint8_t key[32] ALIGNED(16);
+	uint8_t iv[12] ALIGNED(16);		/* 4 byte nonce + 8 byte IV */
+	uint32_t expkey[4 * 15] ALIGNED(16);
+	uint32_t dust[4 * 15] ALIGNED(16);
+
+	stress_rnd_fill(key, sizeof(key));
+	stress_rnd_fill(iv, sizeof(iv));
+	IMB_AES_KEYEXP_256(mb_mgr, key, expkey, dust);
+	stress_job_empty(mb_mgr);
+
+	for (j = 0; j < jobs; j++) {
+		uint8_t *dst = encoded + (j * data_len);
+
+		job = IMB_GET_NEXT_JOB(mb_mgr);
+		memset(job, 0, sizeof(*job));
+
+		job->cipher_direction = ENCRYPT;
+		job->chain_order = CIPHER_HASH;
+		job->cipher_mode = CNTR;
+		job->hash_alg = NULL_HASH;
+		job->src = data;
+		job->dst = dst;
+		job->aes_enc_key_expanded = expkey;
+		job->aes_dec_key_expanded = expkey;
+		job->aes_key_len_in_bytes = sizeof(key);
+		job->iv = iv;
+		job->iv_len_in_bytes = sizeof(iv);
+		job->cipher_start_src_offset_in_bytes = 0;
+		job->msg_len_to_cipher_in_bytes = data_len;
+
+		job = IMB_SUBMIT_JOB(mb_mgr);
+	}
+
+	for (j = 0; j < jobs; j++) {
+		job = IMB_FLUSH_JOB(mb_mgr);
+		if (!job)
+			break;
+		if (job->status != STS_COMPLETED) {
+			pr_err("%s: ctr: job %d not completed\n",
+				args->name, j);
+		}
+	}
+	if (j != jobs)
+		pr_err("%s: ctr: only processed %d of %d jobs\n",
 			args->name, j, jobs);
 }
 
@@ -326,9 +384,10 @@ static int stress_ipsec_mb(const args_t *args)
 
 				t1 = time_now();
 				init_mb[i].init_func(p_mgr);
-				stress_sha(args, p_mgr, data, sizeof(data), 1);
-				stress_des(args, p_mgr, data, sizeof(data), 1);
 				stress_cmac(args, p_mgr, data, sizeof(data), 1);
+				stress_ctr(args, p_mgr, data, sizeof(data), 1);
+				stress_des(args, p_mgr, data, sizeof(data), 1);
+				stress_sha(args, p_mgr, data, sizeof(data), 1);
 				t2 = time_now();
 
 				t[i] += (t2 - t1);
