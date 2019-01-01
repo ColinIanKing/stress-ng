@@ -648,7 +648,7 @@ stressor_info_t stress_ipsec_mb_info = {
 static int stress_ipsec_mb_supported(void)
 {
 	pr_inf("ipsec_mb stressor will be skipped, CPU "
-		"needs to be an x86-64.\n");
+		"needs to be an x86-64 and a recent IPSEC MB library is required.\n");
 	return -1;
 }
 
