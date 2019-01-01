@@ -382,12 +382,12 @@ static void stress_hmac_md5(
 		if (!job)
 			break;
 		if (job->status != STS_COMPLETED) {
-			pr_err("%s: cmac: job %d not completed\n",
+			pr_err("%s: hmac md5: job %d not completed\n",
 				args->name, j);
 		}
 	}
 	if (j != jobs)
-		pr_err("%s: cmac: only processed %d of %d jobs\n",
+		pr_err("%s: hmac md5: only processed %d of %d jobs\n",
 			args->name, j, jobs);
 }
 
