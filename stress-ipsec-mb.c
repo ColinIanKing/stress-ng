@@ -320,6 +320,78 @@ static void stress_ctr(
 			args->name, j, jobs);
 }
 
+static void stress_hmac_md5(
+	const args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs)
+{
+	int j;
+	size_t i;
+	struct JOB_AES_HMAC *job;
+
+	const int digest_len = 16;
+	uint8_t key[64] ALIGNED(16);
+	uint8_t buf[sizeof(key)] ALIGNED(16);
+	uint8_t ipad_hash[digest_len] ALIGNED(16);
+	uint8_t opad_hash[digest_len] ALIGNED(16);
+	uint8_t output[jobs * digest_len] ALIGNED(16);
+
+	stress_rnd_fill(key, sizeof(key));
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x36;
+	IMB_MD5_ONE_BLOCK(mb_mgr, buf, ipad_hash);
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x5c;
+	IMB_MD5_ONE_BLOCK(mb_mgr, buf, opad_hash);
+
+	stress_job_empty(mb_mgr);
+
+	for (j = 0; j < jobs; j++) {
+		uint8_t *dst = output + (j * digest_len);
+
+		job = IMB_GET_NEXT_JOB(mb_mgr);
+		memset(job, 0, sizeof(*job));
+
+		job->aes_enc_key_expanded = NULL;
+		job->aes_dec_key_expanded = NULL;
+		job->cipher_direction = ENCRYPT;
+		job->chain_order = HASH_CIPHER;
+		job->dst = NULL;
+		job->aes_key_len_in_bytes = 0;
+		job->auth_tag_output = dst;
+		job->auth_tag_output_len_in_bytes = digest_len;
+		job->iv = NULL;
+		job->iv_len_in_bytes = 0;
+		job->src = data;
+		job->cipher_start_src_offset_in_bytes = 0;
+		job->msg_len_to_cipher_in_bytes = 0;
+		job->hash_start_src_offset_in_bytes = 0;
+		job->msg_len_to_hash_in_bytes = data_len;
+		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
+		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
+		job->cipher_mode = NULL_CIPHER;
+		job->hash_alg = MD5;
+		job->user_data = dst;
+		job = IMB_SUBMIT_JOB(mb_mgr);
+	}
+
+	for (j = 0; j < jobs; j++) {
+		job = IMB_FLUSH_JOB(mb_mgr);
+		if (!job)
+			break;
+		if (job->status != STS_COMPLETED) {
+			pr_err("%s: cmac: job %d not completed\n",
+				args->name, j);
+		}
+	}
+	if (j != jobs)
+		pr_err("%s: cmac: only processed %d of %d jobs\n",
+			args->name, j, jobs);
+}
+
+
 typedef struct {
 	const int features;
 	const char *name;
@@ -387,6 +459,7 @@ static int stress_ipsec_mb(const args_t *args)
 				stress_cmac(args, p_mgr, data, sizeof(data), 1);
 				stress_ctr(args, p_mgr, data, sizeof(data), 1);
 				stress_des(args, p_mgr, data, sizeof(data), 1);
+				stress_hmac_md5(args, p_mgr, data, sizeof(data), 1);
 				stress_sha(args, p_mgr, data, sizeof(data), 1);
 				t2 = time_now();
 
