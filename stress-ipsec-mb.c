@@ -109,23 +109,23 @@ static void stress_sha(
 	const int jobs)
 {
 	int j;
-	const int sha512_digest_size = 64;
+	const int sha_digest_size = 64;
 	struct JOB_AES_HMAC *job;
-	uint8_t digest[jobs * sha512_digest_size];
+	uint8_t digest[jobs * sha_digest_size];
 
 	stress_rnd_fill(digest, sizeof(digest));
 
 	stress_job_empty(mb_mgr);
 
 	for (j = 0; j < jobs; j++) {
-		uint8_t *auth = digest + (j * sha512_digest_size);
+		uint8_t *auth = digest + (j * sha_digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		memset(job, 0, sizeof(*job));
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = HASH_CIPHER;
 		job->auth_tag_output = auth;
-		job->auth_tag_output_len_in_bytes = sha512_digest_size;
+		job->auth_tag_output_len_in_bytes = sha_digest_size;
 		job->src = data;
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->cipher_mode = NULL_CIPHER;
@@ -331,12 +331,13 @@ static void stress_hmac_md5(
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
-	const int digest_len = 16;
-	uint8_t key[64] ALIGNED(16);
-	uint8_t buf[sizeof(key)] ALIGNED(16);
-	uint8_t ipad_hash[digest_len] ALIGNED(16);
-	uint8_t opad_hash[digest_len] ALIGNED(16);
-	uint8_t output[jobs * digest_len] ALIGNED(16);
+	const int digest_size = 16;
+	const int block_size = 64;
+	uint8_t key[block_size] ALIGNED(16);
+	uint8_t buf[block_size] ALIGNED(16);
+	uint8_t ipad_hash[digest_size] ALIGNED(16);
+	uint8_t opad_hash[digest_size] ALIGNED(16);
+	uint8_t output[jobs * digest_size] ALIGNED(16);
 
 	stress_rnd_fill(key, sizeof(key));
 	for (i = 0; i < sizeof(key); i++)
@@ -349,7 +350,7 @@ static void stress_hmac_md5(
 	stress_job_empty(mb_mgr);
 
 	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = output + (j * digest_len);
+		uint8_t *dst = output + (j * digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		memset(job, 0, sizeof(*job));
@@ -361,7 +362,7 @@ static void stress_hmac_md5(
 		job->dst = NULL;
 		job->aes_key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
-		job->auth_tag_output_len_in_bytes = digest_len;
+		job->auth_tag_output_len_in_bytes = digest_size;
 		job->iv = NULL;
 		job->iv_len_in_bytes = 0;
 		job->src = data;
@@ -391,6 +392,154 @@ static void stress_hmac_md5(
 			args->name, j, jobs);
 }
 
+static void stress_hmac_sha1(
+	const args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs)
+{
+	int j;
+	size_t i;
+	struct JOB_AES_HMAC *job;
+
+	const int digest_size = 20;
+	const int block_size = 64;
+	uint8_t key[block_size] ALIGNED(16);
+	uint8_t buf[block_size] ALIGNED(16);
+	uint8_t ipad_hash[digest_size] ALIGNED(16);
+	uint8_t opad_hash[digest_size] ALIGNED(16);
+	uint8_t output[jobs * digest_size] ALIGNED(16);
+
+	stress_rnd_fill(key, sizeof(key));
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x36;
+	IMB_MD5_ONE_BLOCK(mb_mgr, buf, ipad_hash);
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x5c;
+	IMB_MD5_ONE_BLOCK(mb_mgr, buf, opad_hash);
+
+	stress_job_empty(mb_mgr);
+
+	for (j = 0; j < jobs; j++) {
+		uint8_t *dst = output + (j * digest_size);
+
+		job = IMB_GET_NEXT_JOB(mb_mgr);
+		memset(job, 0, sizeof(*job));
+
+		job->aes_enc_key_expanded = NULL;
+		job->aes_dec_key_expanded = NULL;
+		job->cipher_direction = ENCRYPT;
+		job->chain_order = HASH_CIPHER;
+		job->dst = NULL;
+		job->aes_key_len_in_bytes = 0;
+		job->auth_tag_output = dst;
+		job->auth_tag_output_len_in_bytes = digest_size;
+		job->iv = NULL;
+		job->iv_len_in_bytes = 0;
+		job->src = data;
+		job->cipher_start_src_offset_in_bytes = 0;
+		job->msg_len_to_cipher_in_bytes = 0;
+		job->hash_start_src_offset_in_bytes = 0;
+		job->msg_len_to_hash_in_bytes = data_len;
+		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
+		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
+		job->cipher_mode = NULL_CIPHER;
+		job->hash_alg = SHA1;
+		job->user_data = dst;
+		job = IMB_SUBMIT_JOB(mb_mgr);
+	}
+
+	for (j = 0; j < jobs; j++) {
+		job = IMB_FLUSH_JOB(mb_mgr);
+		if (!job)
+			break;
+		if (job->status != STS_COMPLETED) {
+			pr_err("%s: hmac sha1: job %d not completed\n",
+				args->name, j);
+		}
+	}
+	if (j != jobs)
+		pr_err("%s: hmac sha1: only processed %d of %d jobs\n",
+			args->name, j, jobs);
+}
+
+static void stress_hmac_sha512(
+	const args_t *args,
+	struct MB_MGR *mb_mgr,
+	const uint8_t *data,
+	const size_t data_len,
+	const int jobs)
+{
+	int j;
+	size_t i;
+	struct JOB_AES_HMAC *job;
+
+	const int digest_size = SHA512_DIGEST_SIZE_IN_BYTES;
+	const int block_size = SHA_512_BLOCK_SIZE;
+	uint8_t rndkey[block_size] ALIGNED(16);
+	uint8_t key[block_size] ALIGNED(16);
+	uint8_t buf[block_size] ALIGNED(16);
+	uint8_t ipad_hash[digest_size] ALIGNED(16);
+	uint8_t opad_hash[digest_size] ALIGNED(16);
+	uint8_t output[jobs * digest_size] ALIGNED(16);
+
+	stress_rnd_fill(rndkey, sizeof(rndkey));
+
+	IMB_SHA512(mb_mgr, rndkey, SHA_512_BLOCK_SIZE, key);
+
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x36;
+	IMB_SHA512_ONE_BLOCK(mb_mgr, buf, ipad_hash);
+	for (i = 0; i < sizeof(key); i++)
+		buf[i] = key[i] ^ 0x5c;
+	IMB_SHA512_ONE_BLOCK(mb_mgr, buf, opad_hash);
+
+	stress_job_empty(mb_mgr);
+
+	for (j = 0; j < jobs; j++) {
+		uint8_t *dst = output + (j * digest_size);
+
+		job = IMB_GET_NEXT_JOB(mb_mgr);
+		memset(job, 0, sizeof(*job));
+
+		job->aes_enc_key_expanded = NULL;
+		job->aes_dec_key_expanded = NULL;
+		job->cipher_direction = ENCRYPT;
+		job->chain_order = HASH_CIPHER;
+		job->dst = NULL;
+		job->aes_key_len_in_bytes = 0;
+		job->auth_tag_output = dst;
+		job->auth_tag_output_len_in_bytes = digest_size;
+		job->iv = NULL;
+		job->iv_len_in_bytes = 0;
+		job->src = data;
+		job->cipher_start_src_offset_in_bytes = 0;
+		job->msg_len_to_cipher_in_bytes = 0;
+		job->hash_start_src_offset_in_bytes = 0;
+		job->msg_len_to_hash_in_bytes = data_len;
+		job->u.HMAC._hashed_auth_key_xor_ipad = ipad_hash;
+		job->u.HMAC._hashed_auth_key_xor_opad = opad_hash;
+		job->cipher_mode = NULL_CIPHER;
+		job->hash_alg = SHA_512;
+		job->user_data = dst;
+		job = IMB_SUBMIT_JOB(mb_mgr);
+	}
+
+	for (j = 0; j < jobs; j++) {
+		job = IMB_FLUSH_JOB(mb_mgr);
+		if (!job)
+			break;
+		if (job->status != STS_COMPLETED) {
+			pr_err("%s: hmac sha512: job %d not completed\n",
+				args->name, j);
+		}
+	}
+	if (j != jobs)
+		pr_err("%s: hmac sha512: only processed %d of %d jobs\n",
+			args->name, j, jobs);
+}
+
 
 typedef struct {
 	const int features;
@@ -415,7 +564,7 @@ static int stress_ipsec_mb(const args_t *args)
 	int features;
 	uint8_t data[8192] ALIGNED(64);
 	const size_t n_features = SIZEOF_ARRAY(init_mb);
-	float t[n_features];
+	double t[n_features];
 	size_t i;
 	uint64_t count = 0;
 	bool got_features = false;
@@ -460,9 +609,10 @@ static int stress_ipsec_mb(const args_t *args)
 				stress_ctr(args, p_mgr, data, sizeof(data), 1);
 				stress_des(args, p_mgr, data, sizeof(data), 1);
 				stress_hmac_md5(args, p_mgr, data, sizeof(data), 1);
+				stress_hmac_sha1(args, p_mgr, data, sizeof(data), 1);
+				stress_hmac_sha512(args, p_mgr, data, sizeof(data), 1);
 				stress_sha(args, p_mgr, data, sizeof(data), 1);
 				t2 = time_now();
-
 				t[i] += (t2 - t1);
 			}
 		}
@@ -471,7 +621,7 @@ static int stress_ipsec_mb(const args_t *args)
 	} while (keep_stressing());
 
 	for (i = 0; i < n_features; i++) {
-		if (t[i] > 0.0)
+		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0))
 			pr_inf("%s: %s %.3f bogo/ops per second\n",
 				args->name, init_mb[i].name,
 				(float)count / t[i]);
