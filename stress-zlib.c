@@ -775,11 +775,13 @@ static int stress_zlib_inflate(
 		} while (stream_inf.avail_out == 0);
 	} while (ret != Z_STREAM_END);
 
+	/*
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg("%s: inflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
 			args->name, xsum, xsum_chars);
 	}
+	*/
 	(void)inflateEnd(&stream_inf);
 
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
