@@ -628,7 +628,7 @@ static int stress_ipsec_mb(const args_t *args)
 
 	for (i = 0; i < n_features; i++) {
 		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0))
-			pr_inf("%s: %s %.3f bogo/ops per second\n",
+			pr_dbg("%s: %s %.3f bogo/ops per second\n",
 				args->name, init_mb[i].name,
 				(float)count / t[i]);
 	}
