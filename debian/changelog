@@ -1,3 +1,42 @@
+stress-ng (0.09.50-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-fanotify: don't declare ret if it is not used
+  * stress-ipsec-mb: make pr_inf message a debug pr_dbg message
+  * stress-zlib: remove xsum value debug verify information
+  * stress-ipsec-mb: add more explanation to why the stressor may be
+    skipped
+  * stress-ipsec-mb: check for IMB_* macros
+  * stress-ipsec-mb: fix typo "avx" -> "avx2"
+  * stress-ipsec-mb: Add SHA encryption
+  * stress-ipsec-mb: fix hmac md5 error messages
+  * stress-ipsec-mb: Add HMAC MD5
+  * stress-ipsec-mb: add CTR encoding
+  * stress-ipsec-mb: don't enable for static builds
+  * Update copyright year
+  * debian/control: add ipsec library dependency
+  * stress-quota: use linux quotactl API for linux only systems
+  * stress-opcode: voidify name argument
+  * stress-opcode: define stress_set_opcode_method for unimplemented
+    build case
+  * Forgot to add test/test-libipsec-mb.c
+  * Add initial cut of ipsec-mb stressor for SHA, DES and CMAC
+  * stress-af-alg: prefix macro constants with SNG to avoid clashes
+  * stress-rdrand: remove assembler cpuid check
+  * stress-fanotify: improve FAN mode checks for v4.20
+  * stress-resources: fork a child off on each resource eating child
+  * Add --opcode-method [ random | inc | mixed ] option
+  * shim: remove duplicated code for __APPLE__ case
+  * stress-opcode: iterate 1024 times in each child
+  * stress-stackmmap: fix leak of open file descriptor on ENXIO error
+  * stress-opcode: comment why mwc32() is being called before forking
+  * stress-opcode: remove unnecessary { } block scope
+  * stress-opcode: use mwc8() instead of mwc32() when setting opcodes
+  * snapcraft: make stress-ng binary static and add various plugs
+
+ -- Colin King <colin.king@canonical.com>  Wed, 2 Jan 2019 16:58:52 +0000
+
 stress-ng (0.09.49-1) unstable; urgency=medium
 
   * Makefile: bump version
