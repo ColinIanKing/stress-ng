@@ -111,7 +111,9 @@ static int fanotify_event_init(const char *name)
 	 *  Gather all mounted file systems and monitor them
 	 */
 	while ((mnt = getmntent(mounts)) != NULL) {
+#if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
 		int ret;
+#endif
 
 #if defined(FAN_MARK_MOUNT)
 		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
