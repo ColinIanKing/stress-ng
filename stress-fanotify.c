@@ -28,6 +28,8 @@
     defined(HAVE_SYS_FANOTIFY_H) &&	\
     defined(HAVE_FANOTIFY)
 
+#define MAX_MNTS	(4096)
+
 #define BUFFER_SIZE	(4096)
 
 /* fanotify stats */
@@ -92,9 +94,8 @@ static int stress_fanotify_supported(void)
  */
 static int fanotify_event_init(const char *name)
 {
-	int fan_fd, count = 0;
-	FILE *mounts;
-	struct mntent *mnt;
+	int fan_fd, count = 0, n_mnts, i;
+	char *mnts[MAX_MNTS];
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
@@ -102,44 +103,40 @@ static int fanotify_event_init(const char *name)
 		return -1;
 	}
 
-	/* No paths given, do all mount points */
-	if ((mounts = setmntent("/proc/self/mounts", "r")) == NULL) {
-		(void)close(fan_fd);
+	/* do all mount points */
+	n_mnts = mount_get(mnts, MAX_MNTS);
+	if (n_mnts < 1) {
 		pr_err("%s: setmntent cannot get mount points from "
 			"/proc/self/mounts, errno=%d (%s)\n",
 			name, errno, strerror(errno));
+		(void)close(fan_fd);
 		return -1;
 	}
 
 	/*
 	 *  Gather all mounted file systems and monitor them
 	 */
-	while ((mnt = getmntent(mounts)) != NULL) {
+	for (i = 0; i < n_mnts; i++) {
 #if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
 		int ret;
 #endif
 
 #if defined(FAN_MARK_MOUNT)
 		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			FAN_STRESS_SETTINGS, AT_FDCWD, mnt->mnt_dir);
+			FAN_STRESS_SETTINGS, AT_FDCWD, mnts[i]);
 		if (ret == 0)
 			count++;
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
 		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
-			FAN_STRESS_SETTINGS, AT_FDCWD, mnt->mnt_dir);
+			FAN_STRESS_SETTINGS, AT_FDCWD, mnts[i]);
 		if (ret == 0)
 			count++;
 #endif
 	}
 
-	if (endmntent(mounts) < 0) {
-		(void)close(fan_fd);
-		pr_err("%s: endmntent failed, errno=%d (%s)\n",
-			name, errno, strerror(errno));
-		return -1;
-	}
+	mount_free(mnts, n_mnts);
 
 	/* This really should not happen, / is always mounted */
 	if (!count) {
