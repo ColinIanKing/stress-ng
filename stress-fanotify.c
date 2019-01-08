@@ -33,6 +33,7 @@
 /* fanotify stats */
 typedef struct {
 	uint64_t	open;
+	uint64_t	open_exec;
 	uint64_t	close_write;
 	uint64_t	close_nowrite;
 	uint64_t	access;
@@ -56,6 +57,9 @@ static const int FAN_STRESS_SETTINGS =
 #endif
 #if defined(FAN_OPEN)
 	FAN_OPEN |
+#endif
+#if defined(FAN_OPEN_EXEC)
+	FAN_OPEN_EXEC |
 #endif
 #if defined(FAN_CLOSE)
 	FAN_CLOSE |
@@ -270,16 +274,30 @@ static int stress_fanotify(const args_t *args)
 					if (!g_keep_stressing_flag)
 						break;
 					if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
+#if defined(FAN_OPEN)
 						if (metadata->mask & FAN_OPEN)
 							account.open++;
+#endif
+#if defined(FAN_OPEN_EXEC)
+						if (metadata->mask & FAN_OPEN_EXEC)
+							account.open_exec++;
+#endif
+#if defined(FAN_CLOSE_WRITE)
 						if (metadata->mask & FAN_CLOSE_WRITE)
 							account.close_write++;
+#endif
+#if defined(FAN_CLOSE_NOWRITE)
 						if (metadata->mask & FAN_CLOSE_NOWRITE)
 							account.close_nowrite++;
+#endif
+#if defined(FAN_ACCESS)
 						if (metadata->mask & FAN_ACCESS)
 							account.access++;
+#endif
+#if defined(FAN_MODIFY)
 						if (metadata->mask & FAN_MODIFY)
 							account.modify++;
+#endif
 						inc_counter(args);
 						(void)close(metadata->fd);
 					}
@@ -292,12 +310,14 @@ static int stress_fanotify(const args_t *args)
 		(void)close(fan_fd);
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
+			"%" PRIu64 " open exec, "
 			"%" PRIu64 " close write, "
 			"%" PRIu64 " close nowrite, "
 			"%" PRIu64 " access, "
 			"%" PRIu64 " modify\n",
 			args->name,
 			account.open,
+			account.open_exec,
 			account.close_write,
 			account.close_nowrite,
 			account.access,
