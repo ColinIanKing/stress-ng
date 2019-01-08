@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "January 2, 2019"
+.TH STRESS-NG 1 "January 8, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1957,6 +1957,28 @@ different alignments. This will exercise processor cache and system memory.
 .TP
 .B \-\-memcpy\-ops N
 stop memcpy stress workers after N bogo memcpy operations.
+.TP
+.B \-\-memcpy\-method [ all | libc | builtin | naive ]
+specify a memcpy copying method. Available memcpy methods are described
+as follows:
+.TS
+expand;
+lB2 lBw(\n[SZ]n)
+l l.
+Method	Description
+all	T{
+use libc, builtin and naive methods
+T}
+libc	T{
+use libc memcpy and memmove functions, this is the default
+T}
+builtin	T{
+use the compiler built in optimized memcpy and memmove functions
+T}
+naive	T{
+use unoptimized naive byte by byte copying and memory moving
+T}
+.TE
 .TP
 .B \-\-memfd N
 start N workers that create allocations of 1024 pages using memfd_create(2)

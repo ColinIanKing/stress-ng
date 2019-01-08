@@ -2380,6 +2380,7 @@ typedef enum {
 
 	OPT_memcpy,
 	OPT_memcpy_ops,
+	OPT_memcpy_method,
 
 	OPT_memfd,
 	OPT_memfd_ops,
@@ -3321,6 +3322,7 @@ extern int  stress_set_malloc_threshold(const char *opt);
 extern int  stress_set_matrix_method(const char *name);
 extern int  stress_set_matrix_yx(const char *opt);
 extern int  stress_set_matrix_size(const char *opt);
+extern int  stress_set_memcpy_method(const char *name);
 extern int  stress_set_memfd_bytes(const char *opt);
 extern int  stress_set_memfd_fds(const char *opt);
 extern int  stress_set_memrate_bytes(const char *opt);
