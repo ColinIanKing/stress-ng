@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define MAX_MNTS	(256)
+
 /*
  *  stress on sync()
  *	stress system by IO sync calls
@@ -31,7 +33,13 @@
 static int stress_io(const args_t *args)
 {
 #if defined(HAVE_SYNCFS)
-	int fd;
+	int i, fd, n_mnts;
+	char *mnts[MAX_MNTS];
+	int  fds[MAX_MNTS];
+
+	n_mnts = mount_get(mnts, MAX_MNTS);
+	for (i = 0; i < n_mnts; i++)
+		fds[i] = openat(AT_FDCWD, mnts[i], O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 #endif
@@ -41,6 +49,11 @@ static int stress_io(const args_t *args)
 #if defined(HAVE_SYNCFS)
 		if ((fd != -1) && (syncfs(fd) < 0))
 			pr_fail_err("syncfs");
+
+		/* try to sync on all the mount points */
+		for (i = 0; i < n_mnts; i++)
+			if (fds[i] != -1)
+				(void)syncfs(fds[i]);
 #endif
 		inc_counter(args);
 	} while (keep_stressing());
@@ -48,6 +61,12 @@ static int stress_io(const args_t *args)
 #if defined(HAVE_SYNCFS)
 	if (fd != -1)
 		(void)close(fd);
+
+	for (i = 0; i < n_mnts; i++)
+		if (fds[i] != -1)
+			(void)close(fds[i]);
+
+	mount_free(mnts, n_mnts);
 #endif
 
 	return EXIT_SUCCESS;
