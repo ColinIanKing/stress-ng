@@ -86,7 +86,7 @@ static int stress_fault(const args_t *args)
 			pr_fail_err("open");
 			break;
 		}
-#if _XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L
+#if defined(HAVE_POSIX_FALLOCATE)
 		if (posix_fallocate(fd, 0, 1) < 0) {
 			if (errno == ENOSPC) {
 				(void)close(fd);

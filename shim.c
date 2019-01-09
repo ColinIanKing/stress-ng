@@ -158,7 +158,7 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		}
 	}
 	return ret;
-#elif _POSIX_C_SOURCE >= 200112L && !defined(__FreeBSD_kernel__)
+#elif defined(HAVE_POSIX_FALLOCATE) && !defined(__FreeBSD_kernel__)
 	/*
 	 *  Even though FreeBSD kernels support this, large
 	 *  allocations take forever to be interrupted and so

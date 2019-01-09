@@ -92,7 +92,11 @@ static int stress_fallocate(const args_t *args)
 	(void)unlink(filename);
 
 	do {
+#if defined(HAVE_POSIX_FALLOCATE)
 		ret = posix_fallocate(fd, (off_t)0, fallocate_bytes);
+#else
+		ret = shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
+#endif
 		if (!g_keep_stressing_flag)
 			break;
 		(void)shim_fsync(fd);
