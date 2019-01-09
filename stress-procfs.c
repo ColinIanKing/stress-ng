@@ -83,7 +83,6 @@ static inline void stress_proc_rw(
 		double t_start;
 		bool timeout = false;
 
-
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
