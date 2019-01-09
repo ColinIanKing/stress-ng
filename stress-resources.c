@@ -81,7 +81,7 @@ typedef struct {
 	mqd_t mq;
 	char mq_name[64];
 #endif
-#if defined(__linux__) && defined(__NR_pkey_alloc)
+#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
 	int pkey;
 #endif
 } info_t;
@@ -341,7 +341,7 @@ static void NORETURN waste_resources(
 		info[i].mq = mq_open(info[i].mq_name,
 			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
 #endif
-#if defined(__linux__) && defined(__NR_pkey_alloc)
+#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
 		info[i].pkey = shim_pkey_alloc(0, 0);
 #endif
 
@@ -435,7 +435,7 @@ static void NORETURN waste_resources(
 			(void)mq_unlink(info[i].mq_name);
 		}
 #endif
-#if defined(__linux__) && defined(__NR_pkey_alloc)
+#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
 		if (info[i].pkey > -1)
 			 (void)shim_pkey_free(info[i].pkey);
 #endif
