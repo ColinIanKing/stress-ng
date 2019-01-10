@@ -28,6 +28,45 @@ static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
 static FILE	*log_file = NULL;
 
+void pr_lock(bool *lock)
+{
+#if defined(LOCK_EX) && defined(LOCK_UN)
+	int fd, ret;
+
+	*lock = false;
+
+	fd = open("/dev/stdout", O_RDONLY);
+	if (fd < 0)
+		return;
+
+	ret = flock(fd, LOCK_EX);
+	if (ret == 0)
+		*lock = true;
+
+	(void)close(fd);
+#endif
+}
+
+void pr_unlock(bool *lock)
+{
+#if defined(LOCK_EX) && defined(LOCK_UN)
+	int fd, ret;
+
+	if (!*lock)
+		return;
+
+	fd = open("/dev/stdout", O_RDONLY);
+	if (fd < 0)
+		return;
+
+	ret = flock(fd, LOCK_UN);
+	if (ret == 0)
+		*lock = false;
+
+	(void)close(fd);
+#endif
+}
+
 /*
  *  pr_fail_check()
  *	set rc to EXIT_FAILURE if we detected a pr_fail
@@ -92,12 +131,13 @@ void pr_openlog(const char *filename)
 
 
 /*
- *  pr_msg()
- *	print some debug or info messages
+ *  pr_msg_lockable()
+ *	print some debug or info messages with locking
  */
-int pr_msg(
+int pr_msg_lockable(
 	FILE *fp,
 	const uint64_t flag,
+	const bool locked,
 	const char *const fmt,
 	va_list ap)
 {
@@ -125,6 +165,10 @@ int pr_msg(
 	if ((flag & PR_FAIL) || (g_opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
+		bool lock = false;
+
+		if (!locked)
+			pr_lock(&lock);
 
 		if (flag & PR_ERROR)
 			type = "error:";
@@ -171,6 +215,9 @@ int pr_msg(
 		    (!(flag & PR_DEBUG))) {
 			syslog(LOG_INFO, "%s", buf);
 		}
+
+		if (!locked)
+			pr_unlock(&lock);
 #endif
 	}
 	return ret;
@@ -180,14 +227,14 @@ int pr_msg(
  *  __pr_msg_fail()
  *	wrapper helper for pr_msg_fail
  */
-static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...) FORMAT(printf, 2, 0);
+static inline void __pr_msg_fail(const uint64_t flag, const bool locked, char *fmt, ...) FORMAT(printf, 3, 0);
 
-static inline void __pr_msg_fail(const uint64_t flag, char *fmt, ...)
+static inline void __pr_msg_fail(const uint64_t flag, const bool locked, char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, flag, fmt, ap);
+	(void)pr_msg_lockable(stderr, flag, locked, fmt, ap);
 	va_end(ap);
 }
 
@@ -203,7 +250,7 @@ void pr_msg_fail(
 	const char *what,
 	const int err)
 {
-	__pr_msg_fail(flag, "%s: %s failed, errno=%d (%s)\n",
+	__pr_msg_fail(flag, false, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
 PRAGMA_POP
@@ -217,7 +264,23 @@ void pr_dbg(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, PR_DEBUG, fmt, ap);
+	(void)pr_msg_lockable(stderr, PR_DEBUG, false, fmt, ap);
+	va_end(ap);
+}
+
+/*
+ *  pr_dbg_lock()
+ *	print debug messages with a lock
+ */
+void pr_dbg_lock(bool *lock, const char *fmt, ...)
+{
+	va_list ap;
+
+	/* currently we ignore the locked flag */
+	(void)lock;
+
+	va_start(ap, fmt);
+	(void)pr_msg_lockable(stderr, PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
 
@@ -230,7 +293,23 @@ void pr_inf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, PR_INFO, fmt, ap);
+	(void)pr_msg_lockable(stderr, PR_INFO, false, fmt, ap);
+	va_end(ap);
+}
+
+/*
+ *  pr_inf()
+ *	print info messages with a lock
+ */
+void pr_inf_lock(bool *lock, const char *fmt, ...)
+{
+	va_list ap;
+
+	/* currently we ignore the locked flag */
+	(void)lock;
+
+	va_start(ap, fmt);
+	(void)pr_msg_lockable(stderr, PR_INFO, true, fmt, ap);
 	va_end(ap);
 }
 
@@ -243,7 +322,7 @@ void pr_err(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, PR_ERROR, fmt, ap);
+	(void)pr_msg_lockable(stderr, PR_ERROR, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -256,7 +335,7 @@ void pr_fail(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, PR_FAIL, fmt, ap);
+	(void)pr_msg_lockable(stderr, PR_FAIL, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -269,7 +348,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(stderr, g_caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
+	(void)pr_msg_lockable(stderr, g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
 

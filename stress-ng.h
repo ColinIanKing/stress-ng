@@ -1117,6 +1117,11 @@ extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 
+extern void pr_lock(bool *locked);
+extern void pr_unlock(bool *locked);
+extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
+extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
+
 extern void pr_fail_err__(const args_t *args, const char *msg);
 extern void pr_fail_errno__(const args_t *args, const char *msg, int err);
 extern void pr_fail_dbg__(const args_t *args, const char *msg);

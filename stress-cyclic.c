@@ -494,7 +494,11 @@ int stress_set_cyclic_method(const char *name)
  *  stress_rt_dist()
  *	show real time distribution
  */
-static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_t cyclic_dist)
+static void stress_rt_dist(
+	const char *name,
+	bool *lock,
+	rt_stats_t *rt_stats,
+	const uint64_t cyclic_dist)
 {
 	ssize_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
 	ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
@@ -523,11 +527,11 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 	if (n >= dist_size - 3)
 		n = dist_size;
 
-	pr_inf("%s: latency distribution (%" PRIu64 " ns intervals):\n", name, cyclic_dist);
-	pr_inf("%s: (for the first %zd buckets of %zd)\n", name, dist_size, dist_max_size);
-	pr_inf("%s: %12s %10s\n", name, "latency (ns)", "frequency");
+	pr_inf_lock(lock, "%s: latency distribution (%" PRIu64 " ns intervals):\n", name, cyclic_dist);
+	pr_inf_lock(lock, "%s: (for the first %zd buckets of %zd)\n", name, dist_size, dist_max_size);
+	pr_inf_lock(lock, "%s: %12s %10s\n", name, "latency (ns)", "frequency");
 	for (i = 0; i < n; i++) {
-		pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+		pr_inf_lock(lock, "%s: %12" PRIu64 " %10" PRId64 "\n",
 			name, cyclic_dist * i, dist[i]);
 	}
 
@@ -536,10 +540,10 @@ static void stress_rt_dist(const char *name, rt_stats_t *rt_stats, const uint64_
 	 *  the end of the distribution
 	 */
 	if (n < dist_size) {
-		pr_inf("%s: %12s %10s (all zeros hereafter)\n", name, "..", "..");
-		pr_inf("%s: %12s %10s\n", name, "..", "..");
+		pr_inf_lock(lock, "%s: %12s %10s (all zeros hereafter)\n", name, "..", "..");
+		pr_inf_lock(lock, "%s: %12s %10s\n", name, "..", "..");
 		for (i = STRESS_MAXIMUM(dist_size - 3, n); i < dist_size; i++) {
-			pr_inf("%s: %12" PRIu64 " %10" PRId64 "\n",
+			pr_inf_lock(lock, "%s: %12" PRIu64 " %10" PRId64 "\n",
 				name, cyclic_dist * i, (int64_t)0);
 		}
 	}
@@ -727,6 +731,7 @@ tidy:
 	if (args->instance  == 0) {
 		if (rt_stats->index) {
 			size_t i;
+			bool lock = false;
 
 			static const float percentiles[] = {
 				25.0,
@@ -740,30 +745,32 @@ tidy:
 				99.99,
 			};
 
-			pr_inf("%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
+			pr_lock(&lock);
+			pr_inf_lock(&lock, "%s: sched %s: %" PRIu64 " ns delay, %zd samples\n",
 				args->name,
 				policies[cyclic_policy].name,
 				cyclic_sleep,
 				rt_stats->index);
-			pr_inf("%s:   mean: %.2f ns, mode: %" PRId64 " ns\n",
+			pr_inf_lock(&lock, "%s:   mean: %.2f ns, mode: %" PRId64 " ns\n",
 				args->name,
 				rt_stats->latency_mean,
 				rt_stats->latency_mode);
-			pr_inf("%s:   min: %" PRId64 " ns, max: %" PRId64 " ns, std.dev. %.2f\n",
+			pr_inf_lock(&lock, "%s:   min: %" PRId64 " ns, max: %" PRId64 " ns, std.dev. %.2f\n",
 				args->name,
 				rt_stats->min_ns,
 				rt_stats->max_ns,
 				rt_stats->std_dev);
 
-			pr_inf("%s: latency percentiles:\n", args->name);
+			pr_inf_lock(&lock, "%s: latency percentiles:\n", args->name);
 			for (i = 0; i < sizeof(percentiles) / sizeof(percentiles[0]); i++) {
 				size_t j = (size_t)(((double)rt_stats->index * percentiles[i]) / 100.0);
-				pr_inf("%s:   %5.2f%%: %10" PRId64 " ns\n",
+				pr_inf_lock(&lock, "%s:   %5.2f%%: %10" PRId64 " ns\n",
 					args->name,
 					percentiles[i],
 					rt_stats->latencies[j]);
 			}
-			stress_rt_dist(args->name, rt_stats, cyclic_dist);
+			stress_rt_dist(args->name, &lock, rt_stats, cyclic_dist);
+			pr_unlock(&lock);
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
 				args->name,

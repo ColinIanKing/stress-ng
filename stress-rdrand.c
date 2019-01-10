@@ -207,6 +207,7 @@ static int stress_rdrand(const args_t *args)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
+		bool lock = false;
 
 		time_start = time_now();
 		do {
@@ -221,16 +222,18 @@ static int stress_rdrand(const args_t *args)
 		duration = time_now() - time_start;
 		billion_bits = ((double)get_counter(args) * 64.0 * 32.0) / 1000000000.0;
 
-		pr_dbg("%s: %.3f billion random bits read "
+		pr_lock(&lock);
+		pr_dbg_lock(&lock, "%s: %.3f billion random bits read "
 			"(instance %" PRIu32")\n",
 			args->name, billion_bits, args->instance);
 		if (duration > 0.0) {
-			pr_dbg("%s: %.3f billion random bits per "
+			pr_dbg_lock(&lock, "%s: %.3f billion random bits per "
 				"second (instance %" PRIu32")\n",
 				args->name,
 				(double)billion_bits / duration,
 				args->instance);
 		}
+		pr_unlock(&lock);
 	}
 	return EXIT_SUCCESS;
 }

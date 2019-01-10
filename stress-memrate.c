@@ -242,6 +242,7 @@ static int stress_memrate(const args_t *args)
 	memrate_stats_t *stats;
 	size_t stats_size;
 	const size_t memrate_items = SIZEOF_ARRAY(memrate_info);
+	bool lock = false;
 
 	(void)get_setting("memrate-bytes", &memrate_bytes);
 	(void)get_setting("memrate-rd-mbs", &memrate_rd_mbs);
@@ -335,15 +336,17 @@ again:
 		_exit(EXIT_SUCCESS);
 	}
 
+	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {
 		if (stats[i].duration > 0.001)
-			pr_inf("%s: %7.7s: %.2f MB/sec\n",
+			pr_inf_lock(&lock, "%s: %7.7s: %.2f MB/sec\n",
 				args->name, memrate_info[i].name,
 				stats[i].mbytes / stats[i].duration);
 		else
-			pr_inf("%s: %7.7s: interrupted early\n",
+			pr_inf_lock(&lock, "%s: %7.7s: interrupted early\n",
 				args->name, memrate_info[i].name);
 	}
+	pr_unlock(&lock);
 
 	rc = EXIT_SUCCESS;
 err:
