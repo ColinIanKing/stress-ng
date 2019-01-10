@@ -28,6 +28,12 @@ static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
 static FILE	*log_file = NULL;
 
+/*
+ *  pr_lock()
+ *	attempt to get a lock, it's just too bad
+ *	if it fails, this is just to stop messages
+ *	getting intermixed.
+ */
 void pr_lock(bool *lock)
 {
 #if defined(LOCK_EX) && defined(LOCK_UN)
@@ -44,9 +50,15 @@ void pr_lock(bool *lock)
 		*lock = true;
 
 	(void)close(fd);
+#else
+	(void)lock;
 #endif
 }
 
+/*
+ *  pr_unlock()
+ *	attempt to unlock
+ */
 void pr_unlock(bool *lock)
 {
 #if defined(LOCK_EX) && defined(LOCK_UN)
@@ -64,6 +76,8 @@ void pr_unlock(bool *lock)
 		*lock = false;
 
 	(void)close(fd);
+#else
+	(void)lock;
 #endif
 }
 
