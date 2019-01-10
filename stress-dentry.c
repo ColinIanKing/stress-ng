@@ -177,7 +177,7 @@ static void stress_dentry_misc(const char *path)
 	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
 	(void)ret;
 
-#if defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(HAVE_FLOCK) && defined(LOCK_EX) && defined(LOCK_UN)
 	/*
 	 *  flock capable systems..
 	 */

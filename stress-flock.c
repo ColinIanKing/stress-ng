@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN)
 
 #define MAX_FLOCK_STRESSORS	(3)
 
