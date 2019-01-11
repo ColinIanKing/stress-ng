@@ -343,7 +343,7 @@ again:
 					break;
 				stack_top = clone_info->stack + stack_offset;
 				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, deconstify(args));
+					align_stack(stack_top), flag, stress_deconstify(args));
 				if (clone_info->pid == -1) {
 					/*
 					 * Reached max forks or error

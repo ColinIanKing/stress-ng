@@ -171,7 +171,7 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 
 			if (total) {
 				double temp = ((double)total / count) / 1000.0;
-				char *munged = munge_underscore(pi->stressor->name);
+				char *munged = stress_munge_underscore(pi->stressor->name);
 
 				if (!dumped_heading) {
 					dumped_heading = true;

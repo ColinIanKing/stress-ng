@@ -2942,7 +2942,7 @@ extern void free_settings(void);
  *  to stop the optimiser optimising code away to zero. The
  *  *_put funcs are essentially no-op functions.
  */
-extern uint64_t uint64_zero(void);
+extern uint64_t stress_uint64_zero(void);
 
 /*
  *  uint8_put()
@@ -3112,7 +3112,7 @@ extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
-extern void set_proc_name(const char *name);
+extern void stress_set_proc_name(const char *name);
 
 /* Memory locking */
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);
@@ -3143,7 +3143,7 @@ extern WARN_UNUSED int32_t  get_opt_ionice_class(const char *const str);
 /* Misc helper funcs */
 extern void stress_unmap_shared(void);
 extern void log_system_mem_info(void);
-extern WARN_UNUSED char *munge_underscore(const char *str);
+extern WARN_UNUSED char *stress_munge_underscore(const char *str);
 extern size_t stress_get_pagesize(void);
 extern WARN_UNUSED int32_t stress_get_processors_online(void);
 extern WARN_UNUSED int32_t stress_get_processors_configured(void);
@@ -3176,7 +3176,7 @@ extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
 extern WARN_UNUSED int stress_not_implemented(const args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
-extern WARN_UNUSED void *align_address(const void *addr, const size_t alignment);
+extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
 extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
@@ -3184,8 +3184,8 @@ extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 extern WARN_UNUSED int stress_drop_capabilities(const char *name);
-extern WARN_UNUSED bool is_dot_filename(const char *name);
-extern WARN_UNUSED void *deconstify(const void *ptr);
+extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
+extern WARN_UNUSED void *stress_deconstify(const void *ptr);
 
 /*
  *  Indicate a stress test failed because of limited resources

@@ -1808,7 +1808,7 @@ static const help_t help_stressors[] = {
 static inline int32_t stressor_name_find(const char *name)
 {
 	int32_t i;
-	const char *tmp = munge_underscore(name);
+	const char *tmp = stress_munge_underscore(name);
 	const size_t len = strlen(tmp) + 1;
 	char munged_name[len];
 
@@ -1816,7 +1816,7 @@ static inline int32_t stressor_name_find(const char *name)
 
 	for (i = 0; stressors[i].name; i++) {
 		const char *munged_stressor_name =
-			munge_underscore(stressors[i].name);
+			stress_munge_underscore(stressors[i].name);
 
 		if (!strcmp(munged_stressor_name, munged_name))
 			break;
@@ -1892,7 +1892,7 @@ static int get_class(char *const class_str, uint32_t *class)
 						token);
 					for (j = 0; stressors[j].name; j++) {
 						if (stressors[j].info->class & cl)
-							(void)printf(" %s", munge_underscore(stressors[j].name));
+							(void)printf(" %s", stress_munge_underscore(stressors[j].name));
 					}
 					(void)printf("\n");
 					return 1;
@@ -2066,7 +2066,7 @@ static inline void show_stressor_names(void)
 
 	for (i = 0; stressors[i].name; i++)
 		(void)printf("%s%s", i ? " " : "",
-			munge_underscore(stressors[i].name));
+			stress_munge_underscore(stressors[i].name));
 	(void)putchar('\n');
 }
 
@@ -2258,7 +2258,7 @@ redo:
 			if (pid) {
 				int status, ret;
 				bool do_abort = false;
-				const char *stressor_name = munge_underscore(pi->stressor->name);
+				const char *stressor_name = stress_munge_underscore(pi->stressor->name);
 
 				ret = waitpid(pid, &status, 0);
 				if (ret > 0) {
@@ -2499,11 +2499,11 @@ again:
 						(void)alarm(g_opt_timeout);
 					mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-						munge_underscore(proc_current->stressor->name));
+						stress_munge_underscore(proc_current->stressor->name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
 					set_iopriority(ionice_class, ionice_level);
-					set_proc_name(name);
+					stress_set_proc_name(name);
 					(void)umask(0077);
 
 					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
@@ -2620,7 +2620,7 @@ static int show_stressors(void)
 			buffer_len = snprintf(buffer, sizeof(buffer),
 					"%s %" PRId32 " %s",
 					previous ? "," : "", n,
-					munge_underscore(pi->stressor->name));
+					stress_munge_underscore(pi->stressor->name));
 			previous = true;
 			if (buffer_len >= 0) {
 				newstr = realloc(str, len + buffer_len + 1);
@@ -2664,7 +2664,7 @@ static void metrics_dump(
 		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 		double   r_total = 0.0;
 		int32_t  j;
-		char *munged = munge_underscore(pi->stressor->name);
+		char *munged = stress_munge_underscore(pi->stressor->name);
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 		bool run_ok = false;
 
@@ -3082,7 +3082,7 @@ static inline void exclude_pathological(void)
 						"may hang or reboot the machine "
 						"(enable it with the "
 						"--pathological option)\n",
-						munge_underscore(pi->stressor->name));
+						stress_munge_underscore(pi->stressor->name));
 				}
 				remove_proc(pi);
 			}

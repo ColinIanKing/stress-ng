@@ -97,7 +97,7 @@ static void stress_rawdev_sweep(
 	unsigned long i;
 	int ret;
 	char buf[blksz << 1];
-	char *aligned = align_address(buf, blksz);
+	char *aligned = stress_align_address(buf, blksz);
 	off_t offset;
 
 	for (i = 0; i < blks && keep_stressing(); i += shift_ul(blks, 8)) {
@@ -129,7 +129,7 @@ static void stress_rawdev_wiggle(
 	unsigned long i;
 	int ret;
 	char buf[blksz << 1];
-	char *aligned = align_address(buf, blksz);
+	char *aligned = stress_align_address(buf, blksz);
 	off_t offset;
 
 	for (i = shift_ul(blks, 8); i < blks && keep_stressing(); i += shift_ul(blks, 8)) {
@@ -155,7 +155,7 @@ static void stress_rawdev_ends(
 {
 	unsigned long i;
 	char buf[blksz << 1];
-	char *aligned = align_address(buf, blksz);
+	char *aligned = stress_align_address(buf, blksz);
 	off_t offset;
 
 	for (i = 0; i < 128; i++) {
@@ -187,7 +187,7 @@ static void stress_rawdev_random(
 {
 	int i;
 	char buf[blksz << 1];
-	char *aligned = align_address(buf, blksz);
+	char *aligned = stress_align_address(buf, blksz);
 
 	for (i = 0; i < 256 && keep_stressing(); i++) {
 		int ret;
@@ -210,7 +210,7 @@ static void stress_rawdev_burst(
 {
 	int i;
 	char buf[blksz << 1];
-	char *aligned = align_address(buf, blksz);
+	char *aligned = stress_align_address(buf, blksz);
 	off_t blk = (mwc64() % blks);
 
 	for (i = 0; i < 256 && keep_stressing(); i++) {

@@ -164,7 +164,7 @@ static void stress_apparmor_dir(
 
 		if (!g_keep_stressing_flag || !apparmor_run)
 			break;
-		if (is_dot_filename(d->d_name))
+		if (stress_is_dot_filename(d->d_name))
 			continue;
 		switch (d->d_type) {
 		case DT_DIR:

@@ -173,7 +173,7 @@ int stress_set_revio_opts(const char *opts)
 	int revio_oflags = 0;
 	bool opts_set = false;
 
-	for (str = deconstify(opts); (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = stress_deconstify(opts); (token = strtok(str, ",")) != NULL; str = NULL) {
 		size_t i;
 		bool opt_ok = false;
 
@@ -336,7 +336,7 @@ static int stress_revio(const args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
 	}
-	buf = (uint8_t *)align_address(alloc_buf, BUF_ALIGNMENT);
+	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
 #endif
 
 	stress_strnrnd((char *)buf, DEFAULT_REVIO_WRITE_SIZE);

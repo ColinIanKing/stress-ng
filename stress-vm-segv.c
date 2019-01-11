@@ -27,7 +27,7 @@
 static NOINLINE void vm_unmap_child(const size_t page_size)
 {
 	size_t len = ~(size_t)0;
-	void *addr = align_address((void *)vm_unmap_child, page_size);
+	void *addr = stress_align_address((void *)vm_unmap_child, page_size);
 
 	len = len ^ (len >> 1);
 	while (len > page_size) {
@@ -40,7 +40,7 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 
 static NOINLINE void vm_unmap_self(const size_t page_size)
 {
-	void *addr = align_address((void *)vm_unmap_self, page_size);
+	void *addr = stress_align_address((void *)vm_unmap_self, page_size);
 
 	munmap(addr, page_size);
 	clflush(addr);

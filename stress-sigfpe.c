@@ -117,7 +117,7 @@ static int stress_sigfpe(const args_t *args)
 	struct sigaction action;
 	static int i = 0;
 	int ret;
-	const uint64_t zero = uint64_zero();
+	const uint64_t zero = stress_uint64_zero();
 
 	typedef struct {
 		int	exception;

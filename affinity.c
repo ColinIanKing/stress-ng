@@ -76,7 +76,7 @@ int stress_set_cpu_affinity(const char *arg)
 
 	CPU_ZERO(&set);
 
-	for (str = deconstify(arg); (token = strtok(str, ",")) != NULL; str = NULL) {
+	for (str = stress_deconstify(arg); (token = strtok(str, ",")) != NULL; str = NULL) {
 		int i, lo, hi;
 		char *ptr = strstr(token, "-");
 

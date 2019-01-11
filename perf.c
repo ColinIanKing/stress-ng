@@ -619,7 +619,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 		if (!got_data)
 			continue;
 
-		munged = munge_underscore(pi->stressor->name);
+		munged = stress_munge_underscore(pi->stressor->name);
 		pr_inf("%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);

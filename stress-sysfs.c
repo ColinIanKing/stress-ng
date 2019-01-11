@@ -359,7 +359,7 @@ static void stress_sys_dir(
 
 		if (!keep_stressing())
 			break;
-		if (is_dot_filename(d->d_name))
+		if (stress_is_dot_filename(d->d_name))
 			continue;
 
 		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);

@@ -388,10 +388,10 @@ void stress_set_timer_slack(void)
 }
 
 /*
- *  set_proc_name()
+ *  stress_set_proc_name()
  *	Set process name, we don't care if it fails
  */
-void set_proc_name(const char *name)
+void stress_set_proc_name(const char *name)
 {
 #if defined(__linux__) && defined(PR_SET_NAME)
 	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME))
@@ -402,10 +402,10 @@ void set_proc_name(const char *name)
 }
 
 /*
- *  munge_underscore()
+ *  stress_munge_underscore()
  *	turn '_' to '-' in strings
  */
-char *munge_underscore(const char *str)
+char *stress_munge_underscore(const char *str)
 {
 	static char munged[128];
 	char *dst;
@@ -452,13 +452,13 @@ ssize_t stress_get_stack_direction(void)
 }
 
 /*
- *  uint64_zero()
+ *  stress_uint64_zero()
  *	return uint64 zero in way that force less smart
  *	static analysers to realise we are doing this
  *	to force a division by zero. I'd like to have
  *	a better solution than this ghastly way.
  */
-uint64_t uint64_zero(void)
+uint64_t stress_uint64_zero(void)
 {
 	return g_shared->zero;
 }
@@ -947,7 +947,7 @@ int stress_sigaltstack(const void *stack, const size_t size)
 			size, (size_t)MINSIGSTKSZ / 1024);
 		return -1;
 	}
-	ss.ss_sp = align_address(stack, STACK_ALIGNMENT);
+	ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
 	ss.ss_size = size;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
@@ -1174,10 +1174,10 @@ ret:
 }
 
 /*
- *  align_address
+ *  stress_align_address
  *	align address to alignment, alignment MUST be a power of 2
  */
-void *align_address(const void *addr, const size_t alignment)
+void *stress_align_address(const void *addr, const size_t alignment)
 {
 	const uintptr_t uintptr =
 		((uintptr_t)addr + alignment) & ~(alignment - 1);
@@ -1297,10 +1297,10 @@ int stress_drop_capabilities(const char *name)
 #endif
 
 /*
- *  is_dot_filename()
+ *  stress_is_dot_filename()
  *	is filename "." or ".."
  */
-bool is_dot_filename(const char *name)
+bool stress_is_dot_filename(const char *name)
 {
 	if (!strcmp(name, "."))
 		return true;
@@ -1312,9 +1312,10 @@ bool is_dot_filename(const char *name)
 PRAGMA_PUSH
 PRAGMA_WARN_OFF
 /*
- *  deconstify
+ *  stress_deconstify
+ *	ugly hack.
  */
-void *deconstify(const void *ptr)
+void *stress_deconstify(const void *ptr)
 {
 	return (void *)ptr;
 }

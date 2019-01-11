@@ -182,7 +182,7 @@ int thrash_start(void)
 #if defined(SCHED_RR)
 		int ret;
 
-		set_proc_name("stress-ng-thrash");
+		stress_set_proc_name("stress-ng-thrash");
 
 		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
 		(void)ret;

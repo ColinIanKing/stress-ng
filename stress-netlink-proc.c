@@ -134,13 +134,13 @@ static void spawn_several(const char *name, int n, int max)
 		char newname[128];
 
 		(void)snprintf(newname, sizeof(newname), "stress-ng-%d", n);
-		set_proc_name(newname);
+		stress_set_proc_name(newname);
 
 		if (n >= max) {
-			set_proc_name("stress-ng-dead");
+			stress_set_proc_name("stress-ng-dead");
 			_exit(0);
 		} else {
-			set_proc_name("stress-ng-spawn");
+			stress_set_proc_name("stress-ng-spawn");
 			spawn_several(name, n + 1, max);
 		}
 	} else if (pid < 0) {
@@ -149,7 +149,7 @@ static void spawn_several(const char *name, int n, int max)
 		int status;
 
 		if (n != 0)
-			set_proc_name("stress-ng-wait");
+			stress_set_proc_name("stress-ng-wait");
 		(void)waitpid(pid, &status, 0);
 		if (n != 0)
 			_exit(0);

@@ -98,17 +98,17 @@ static int stress_context(const args_t *args)
 	/* Create 3 micro threads */
 	if (stress_context_init(args, thread1, &uctx_main,
 				&uctx_thread1,
-				align_address(stack_thread1, STACK_ALIGNMENT),
+				stress_align_address(stack_thread1, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 	if (stress_context_init(args, thread2, &uctx_main,
 				&uctx_thread2,
-				align_address(stack_thread2, STACK_ALIGNMENT),
+				stress_align_address(stack_thread2, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 	if (stress_context_init(args, thread3, &uctx_main,
 				&uctx_thread3,
-				align_address(stack_thread3, STACK_ALIGNMENT),
+				stress_align_address(stack_thread3, STACK_ALIGNMENT),
 				STACK_SIZE) < 0)
 		return EXIT_FAILURE;
 

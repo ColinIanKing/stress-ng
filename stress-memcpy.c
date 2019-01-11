@@ -195,7 +195,7 @@ static int stress_memcpy(const args_t *args)
 	static buffer_t b;
 	uint8_t *b_str = g_shared->str_shared;
 	uint8_t *str_shared = g_shared->str_shared;
-	uint8_t *aligned_buf = align_address(b.buffer, ALIGN_SIZE);
+	uint8_t *aligned_buf = stress_align_address(b.buffer, ALIGN_SIZE);
 	const stress_memcpy_method_info_t *memcpy_method = &stress_memcpy_methods[1];
 
 	(void)get_setting("memcpy-method", &memcpy_method);
