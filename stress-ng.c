@@ -2501,6 +2501,7 @@ again:
 					set_max_limits();
 					set_iopriority(ionice_class, ionice_level);
 					set_proc_name(name);
+					(void)umask(0077);
 
 					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
