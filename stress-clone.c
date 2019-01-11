@@ -26,6 +26,10 @@
 
 #define CLONE_STACK_SIZE	(16*1024)
 
+typedef struct clone_args {
+	const args_t *args;
+} clone_args_t;
+
 typedef struct clone {
 	struct clone *next;
 	pid_t	pid;
@@ -209,11 +213,11 @@ static void stress_clone_free(void)
 static int clone_func(void *arg)
 {
 	size_t i;
-	const args_t *args = arg;
+	clone_args_t *clone_arg = arg;
 
 	(void)arg;
 
-	set_oom_adjustment(args->name, true);
+	set_oom_adjustment(clone_arg->args->name, true);
 #if defined(HAVE_SETNS)
 	{
 		int fd;
@@ -335,6 +339,7 @@ again:
 		do {
 			if (clones.length < clone_max) {
 				clone_t *clone_info;
+				clone_args_t clone_arg = { args };
 				char *stack_top;
 				int flag = flags[mwc32() % SIZEOF_ARRAY(flags)];
 
@@ -343,7 +348,7 @@ again:
 					break;
 				stack_top = clone_info->stack + stack_offset;
 				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, stress_deconstify(args));
+					align_stack(stack_top), flag, &clone_arg);
 				if (clone_info->pid == -1) {
 					/*
 					 * Reached max forks or error
