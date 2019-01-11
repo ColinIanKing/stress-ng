@@ -1605,6 +1605,15 @@ This option can only be run as root.
 .B \-\-icmp\-flood\-ops N
 stop icmp flood workers after N ICMP ping packets have been sent.
 .TP
+.B \-\-idle\-scan N
+start N workers that scan the idle page bitmap across a range of physical
+pages. This sets and checks for idle pages via the idle page tracking
+interface /sys/kernel/mm/page_idle/bitmap.  This is for Linux only.
+.TP
+.B \-\-idle\-scan\-ops N
+stop after N bogo page scan operations. Currently one bogo page scan
+operation is equivalent to setting and checking 64 physical pages.
+.TP
 .B \-\-inode-flags N
 start N workers that exercise inode flags using the FS_IOC_GETFLAGS and
 FS_IOC_SETFLAGS ioctl(2). This attempts to apply all the available inode

@@ -1848,6 +1848,7 @@ typedef enum {
 	STRESS_hsearch,
 	STRESS_icache,
 	STRESS_icmp_flood,
+	STRESS_idle_page,
 	STRESS_ipsec_mb,
 	STRESS_inode_flags,
 	STRESS_inotify,
@@ -2283,6 +2284,9 @@ typedef enum {
 
 	OPT_icmp_flood,
 	OPT_icmp_flood_ops,
+
+	OPT_idle_page,
+	OPT_idle_page_ops,
 
 	OPT_ignite_cpu,
 
@@ -3629,6 +3633,7 @@ STRESS(stress_hrtimers);
 STRESS(stress_hsearch);
 STRESS(stress_icache);
 STRESS(stress_icmp_flood);
+STRESS(stress_idle_page);
 STRESS(stress_inode_flags);
 STRESS(stress_inotify);
 STRESS(stress_io);
