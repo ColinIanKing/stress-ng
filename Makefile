@@ -284,31 +284,31 @@ STRESS_SRC = \
 # Stress core
 #
 CORE_SRC = \
-	affinity.c \
-	cache.c \
-	cpu.c \
-	helper.c \
-	ignite-cpu.c \
-	io-priority.c \
-	job.c \
-	limit.c \
-	log.c \
-	madvise.c \
-	mincore.c \
-	mlock.c \
-	mmap.c \
-	mounts.c \
-	mwc.c \
-	net.c \
-	out-of-memory.c \
-	parse-opts.c \
-	perf.c \
-	sched.c \
-	setting.c \
-	shim.c \
-	thermal-zone.c \
-	time.c \
-	thrash.c \
+	core-affinity.c \
+	core-cache.c \
+	core-cpu.c \
+	core-helper.c \
+	core-ignite-cpu.c \
+	core-io-priority.c \
+	core-job.c \
+	core-limit.c \
+	core-log.c \
+	core-madvise.c \
+	core-mincore.c \
+	core-mlock.c \
+	core-mmap.c \
+	core-mounts.c \
+	core-mwc.c \
+	core-net.c \
+	core-out-of-memory.c \
+	core-parse-opts.c \
+	core-perf.c \
+	core-sched.c \
+	core-setting.c \
+	core-shim.c \
+	core-thermal-zone.c \
+	core-time.c \
+	core-thrash.c \
 	stress-ng.c
 
 SRC = $(STRESS_SRC) $(CORE_SRC)
@@ -384,9 +384,9 @@ personality.h:
 
 stress-personality.c: personality.h
 
-perf.o: perf.c perf-event.c
-	@$(CC) $(CFLAGS) -E perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | \
-	awk {'print "#define _SNG_" $$1 " (1)"'} > perf-event.h
+core-perf.o: core-perf.c core-perf-event.c
+	@$(CC) $(CFLAGS) -E core-perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | \
+	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
 	@echo CC $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
