@@ -1309,14 +1309,17 @@ bool stress_is_dot_filename(const char *name)
 	return false;
 }
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
 /*
- *  stress_deconstify
- *	ugly hack.
+ *  stress_const_optdup(const char *opt)
+ *	duplicate a modifyable copy of a const option string opt
  */
-void *stress_deconstify(const void *ptr)
+char *stress_const_optdup(const char *opt)
 {
-	return (void *)ptr;
+	char *str;
+
+	str = strdup(opt);
+	if (!str)
+		fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
+
+	return str;
 }
-PRAGMA_POP

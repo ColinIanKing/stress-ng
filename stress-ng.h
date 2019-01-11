@@ -3185,7 +3185,7 @@ extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
 extern char *stress_uint64_to_str(char *str, size_t len, const uint64_t val);
 extern WARN_UNUSED int stress_drop_capabilities(const char *name);
 extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
-extern WARN_UNUSED void *stress_deconstify(const void *ptr);
+extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 
 /*
  *  Indicate a stress test failed because of limited resources

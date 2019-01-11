@@ -71,12 +71,16 @@ static int get_cpu(char *const str)
 int stress_set_cpu_affinity(const char *arg)
 {
 	cpu_set_t set;
-	char *str, *token;
+	char *str, *ptr, *token;
 	const int32_t max_cpus = stress_get_processors_configured();
 
 	CPU_ZERO(&set);
 
-	for (str = stress_deconstify(arg); (token = strtok(str, ",")) != NULL; str = NULL) {
+	str = stress_const_optdup(arg);
+	if (!str)
+		return -1;
+
+	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		int i, lo, hi;
 		char *ptr = strstr(token, "-");
 
@@ -88,12 +92,14 @@ int stress_set_cpu_affinity(const char *arg)
 			else {
 				(void)fprintf(stderr, "%s: expecting number following "
 					"'-' in '%s'\n", option, token);
+				free(str);
 				_exit(EXIT_FAILURE);
 			}
 			if (hi <= lo) {
 				(void)fprintf(stderr, "%s: invalid range in '%s' "
 					"(end value must be larger than "
 					"start value\n", option, token);
+				free(str);
 				_exit(EXIT_FAILURE);
 			}
 		}
@@ -106,9 +112,11 @@ int stress_set_cpu_affinity(const char *arg)
 	if (sched_setaffinity(getpid(), sizeof(set), &set) < 0) {
 		pr_err("%s: cannot set CPU affinity, errno=%d (%s)\n",
 			option, errno, strerror(errno));
+		free(str);
 		_exit(EXIT_FAILURE);
 	}
 
+	free(str);
 	return 0;
 }
 

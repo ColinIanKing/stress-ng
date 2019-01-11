@@ -240,12 +240,16 @@ static ssize_t stress_hdd_read(
  */
 int stress_set_hdd_opts(const char *opts)
 {
-	char *str, *token;
+	char *str, *ptr, *token;
 	int hdd_flags = 0;
 	int hdd_oflags = 0;
 	bool opts_set = false;
 
-	for (str = stress_deconstify(opts); (token = strtok(str, ",")) != NULL; str = NULL) {
+	str = stress_const_optdup(opts);
+	if (!str)
+		return -1;
+
+	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		size_t i;
 		bool opt_ok = false;
 
@@ -265,6 +269,7 @@ int stress_set_hdd_opts(const char *opts)
 							break;
 						}
 					}
+					free(str);
 					return -1;
 				}
 				hdd_flags  |= hdd_opts[i].flag;
@@ -279,6 +284,7 @@ int stress_set_hdd_opts(const char *opts)
 				(void)fprintf(stderr, "%s %s",
 					i == 0 ? "" : ",", hdd_opts[i].opt);
 			(void)fprintf(stderr, "\n");
+			free(str);
 			return -1;
 		}
 	}
@@ -286,6 +292,7 @@ int stress_set_hdd_opts(const char *opts)
 	set_setting("hdd-flags", TYPE_ID_INT, &hdd_flags);
 	set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
 	set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
+	free(str);
 
 	return 0;
 }
