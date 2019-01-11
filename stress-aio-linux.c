@@ -158,7 +158,6 @@ static int stress_aiol(const args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
-	(void)umask(0077);
 	if ((fd = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");

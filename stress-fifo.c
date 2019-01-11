@@ -165,7 +165,6 @@ static int stress_fifo(const args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		fifoname, sizeof(fifoname), mwc32());
-	(void)umask(0077);
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = exit_status(errno);

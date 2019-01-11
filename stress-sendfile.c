@@ -60,8 +60,6 @@ static int stress_sendfile(const args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
-	(void)umask(0077);
-
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 

@@ -58,8 +58,6 @@ static int stress_fault(const args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
-	(void)umask(0077);
-
 	i = 0;
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)

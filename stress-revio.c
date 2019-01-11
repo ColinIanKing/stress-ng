@@ -358,7 +358,6 @@ static int stress_revio(const args_t *args)
 			revio_oflags = revio_opts[opt_index].oflag;
 		}
 
-		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */

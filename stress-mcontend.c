@@ -253,7 +253,6 @@ static int stress_mcontend(const args_t *args)
 		return exit_status(-rc);
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
-	(void)umask(0077);
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

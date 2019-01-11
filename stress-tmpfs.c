@@ -69,8 +69,6 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 	if (n < 0)
 		return -1;
 
-	(void)umask(0077);
-
 	for (i = 0; i < n; i++) {
 		struct statfs buf;
 

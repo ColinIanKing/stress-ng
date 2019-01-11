@@ -450,7 +450,6 @@ static int stress_hdd(const args_t *args)
 				hdd_flags |= HDD_OPT_RD_SEQ;
 		}
 
-		(void)umask(0077);
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */

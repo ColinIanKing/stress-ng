@@ -61,7 +61,6 @@ static int stress_loop(const args_t *args)
 	(void)stress_temp_filename_args(args,
 		backing_file, sizeof(backing_file), mwc32());
 
-	(void)umask(0077);
 	if ((backing_fd = open(backing_file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err("open");
 		goto tidy;
