@@ -82,13 +82,13 @@ int stress_set_cpu_affinity(const char *arg)
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		int i, lo, hi;
-		char *ptr = strstr(token, "-");
+		char *tmpptr = strstr(token, "-");
 
 		hi = lo = get_cpu(token);
-		if (ptr) {
-			ptr++;
-			if (*ptr)
-				hi = get_cpu(ptr);
+		if (tmpptr) {
+			tmpptr++;
+			if (*tmpptr)
+				hi = get_cpu(tmpptr);
 			else {
 				(void)fprintf(stderr, "%s: expecting number following "
 					"'-' in '%s'\n", option, token);
