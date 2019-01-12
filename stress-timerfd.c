@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 #define COUNT_MAX		(256)
-#define TIMER_MAX		(256)
+#define TIMERFD_MAX		(256)
 
 /*
  *  stress_set_timerfd_freq()
@@ -80,7 +80,7 @@ static int stress_timerfd(const args_t *args)
 {
 	struct itimerspec timer;
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
-	int timerfd[TIMER_MAX], procfd, count = 0, i, max_timerfd = -1;
+	int timerfd[TIMERFD_MAX], procfd, count = 0, i, max_timerfd = -1;
 	char filename[PATH_MAX];
 
 	if (!get_setting("timerfd-freq", &timerfd_freq)) {
@@ -91,7 +91,7 @@ static int stress_timerfd(const args_t *args)
 	}
 	rate_ns = timerfd_freq ? 1000000000.0 / timerfd_freq : 1000000000.0;
 
-	for (i = 0; i < TIMER_MAX; i++) {
+	for (i = 0; i < TIMERFD_MAX; i++) {
 		timerfd[i] = timerfd_create(CLOCK_REALTIME, 0);
 		if (timerfd[i] < 0) {
 			if ((errno != EMFILE) &&
@@ -113,7 +113,7 @@ static int stress_timerfd(const args_t *args)
 	count = 0;
 
 	stress_timerfd_set(&timer);
-	for (i = 0; i < TIMER_MAX; i++) {
+	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
 			pr_fail_err("timer_settime");
 			(void)close(timerfd[i]);
@@ -133,7 +133,7 @@ static int stress_timerfd(const args_t *args)
 		fd_set rdfs;
 
 		FD_ZERO(&rdfs);
-		for (i = 0; i < TIMER_MAX; i++)
+		for (i = 0; i < TIMERFD_MAX; i++)
 			FD_SET(timerfd[i], &rdfs);
 
 		timeout.tv_sec = 0;
@@ -151,7 +151,7 @@ static int stress_timerfd(const args_t *args)
 		if (ret < 1)
 			continue; /* Timeout */
 
-		for (i = 0; i < TIMER_MAX; i++) {
+		for (i = 0; i < TIMERFD_MAX; i++) {
 			if (!FD_ISSET(timerfd[i], &rdfs))
 				continue;
 
@@ -191,7 +191,7 @@ static int stress_timerfd(const args_t *args)
 		}
 	} while (keep_stressing());
 
-	for (i = 0; i < TIMER_MAX; i++) {
+	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd[i] > 0)
 			(void)close(timerfd[i]);
 	}
