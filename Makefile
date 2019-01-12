@@ -379,7 +379,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 #  extract the PER_* personality enums
 #
 personality.h:
-	@$(CPP) personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	@$(CPP) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
 
 stress-personality.c: personality.h
@@ -405,9 +405,9 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
-		personality.c COPYING syscalls.txt mascot README \
+		core-personality.c COPYING syscalls.txt mascot README \
 		README.Android test snap smatchify.sh config TODO \
-		perf-event.c usr.bin.pulseaudio.eg stress-version.h \
+		core-perf-event.c usr.bin.pulseaudio.eg stress-version.h \
 		example-jobs .travis.yml stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
