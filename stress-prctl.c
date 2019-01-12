@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(HAVE_PRCTL) &&			\
     (defined(PR_CAP_AMBIENT) ||			\
      defined(PR_CAPBSET_READ) ||		\
      defined(PR_CAPBSET_DROP) ||		\

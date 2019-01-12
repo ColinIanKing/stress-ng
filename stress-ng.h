@@ -1598,10 +1598,11 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 
 /* prctl(2) timer slack support */
-#if defined(__linux__) && \
+#if defined(HAVE_SYS_PRCTL_H) && \
+    defined(HAVE_PRCTL) && \
     defined(PR_SET_TIMERSLACK) && \
     defined(PR_GET_TIMERSLACK)
-#define PRCTL_TIMER_SLACK
+#define HAVE_PRCTL_TIMER_SLACK
 #endif
 
 /*
