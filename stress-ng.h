@@ -2889,7 +2889,6 @@ typedef struct {
 	const uint64_t	scale;		/* Amount to scale by */
 } scale_t;
 
-#if defined(__linux__)
 /* Cache types */
 typedef enum cache_type {
 	CACHE_TYPE_UNKNOWN = 0,		/* Unknown type */
@@ -2918,7 +2917,6 @@ typedef struct cpus {
 	cpu_t     *cpus;		/* CPU data */
 	uint32_t   count;		/* CPU count */
 } cpus_t;
-#endif
 
 /* Various global option settings and flags */
 extern const char *g_app_name;		/* Name of application */
