@@ -148,7 +148,7 @@ void pr_openlog(const char *filename)
  *  pr_msg_lockable()
  *	print some debug or info messages with locking
  */
-int pr_msg_lockable(
+static int pr_msg_lockable(
 	FILE *fp,
 	const uint64_t flag,
 	const bool locked,
