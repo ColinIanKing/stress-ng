@@ -168,9 +168,15 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 
 	(void)mode;
 
+	/*
+	 *  posix_fallocate returns 0 for success, > 0 as errno
+	 */
 	ret = posix_fallocate(fd, offset, len);
-	if ((ret < 0) && (errno == ENOSYS))
+	errno = 0;
+	if (ret != 0) {
+		/* failed, so retry with slower emulated fallocate */
 		ret = shim_emulate_fallocate(fd, offset, len);
+	}
 	return ret;
 #else
 	(void)mode;
