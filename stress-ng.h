@@ -692,11 +692,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define NOCLOBBER
 #endif
 
-/* Specific compilers have __uint128_t type support */
-#if defined(__GNUC__) && !defined(__clang__) && defined(__SIZEOF_INT128__)
-#define STRESS_INT128	1
-#endif
-
 #if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
 #define STRESS_PAGE_IN
 #endif
@@ -882,7 +877,7 @@ typedef union {
 	volatile uint16_t	uint16_val;
 	volatile uint32_t	uint32_val;
 	volatile uint64_t	uint64_val;
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	volatile __uint128_t	uint128_val;
 #endif
 	volatile float		float_val;
@@ -2982,7 +2977,7 @@ static inline void ALWAYS_INLINE uint64_put(const uint64_t a)
 	g_put_val.uint64_val = a;
 }
 
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 /*
  *  uint128_put()
  *	stash a uint128_t value

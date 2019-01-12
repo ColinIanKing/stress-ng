@@ -507,7 +507,7 @@ stress_funcdeep_7(uint64_t)
 stress_funcdeep_8(uint64_t)
 stress_funcdeep_9(uint64_t)
 
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 stress_funccall_1(__uint128_t)
 stress_funccall_2(__uint128_t)
 stress_funccall_3(__uint128_t)
@@ -665,7 +665,7 @@ stress_funcall_type(uint8_t, mwc8)
 stress_funcall_type(uint16_t, mwc16)
 stress_funcall_type(uint32_t, mwc32)
 stress_funcall_type(uint64_t, mwc64)
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 stress_funcall_type(__uint128_t, mwc64)
 #endif
 stress_funcall_type(float, (float)mwc64)
@@ -680,7 +680,7 @@ static const stress_funccall_method_info_t funccall_methods[] = {
 	{ "uint16",	stress_funccall_uint16_t },
 	{ "uint32",	stress_funccall_uint32_t },
 	{ "uint64",	stress_funccall_uint64_t },
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	{ "uint128",	stress_funccall___uint128_t },
 #endif
 	{ "float",	stress_funccall_float },

@@ -830,7 +830,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 }								\
 
 /* For compilers that support int128 .. */
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 
 #define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 
@@ -1051,7 +1051,7 @@ stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
 	C1, C2, C3, sinl, cosl)
 
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 stress_cpu_int_fp(__uint128_t, 128, float, float,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
@@ -2320,14 +2320,14 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "hanoi",		stress_cpu_hanoi },
 	{ "hyperbolic",		stress_cpu_hyperbolic },
 	{ "idct",		stress_cpu_idct },
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	{ "int128",		stress_cpu_int128 },
 #endif
 	{ "int64",		stress_cpu_int64 },
 	{ "int32",		stress_cpu_int32 },
 	{ "int16",		stress_cpu_int16 },
 	{ "int8",		stress_cpu_int8 },
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	{ "int128float",	stress_cpu_int128_float },
 	{ "int128double",	stress_cpu_int128_double },
 	{ "int128longdouble",	stress_cpu_int128_longdouble },

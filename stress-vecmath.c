@@ -53,7 +53,7 @@ typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t vint32_t __attribute__ ((vector_size (16)));
 typedef int64_t vint64_t __attribute__ ((vector_size (16)));
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
 #endif
 
@@ -141,7 +141,7 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 	const vint64_t v3_64 = {
 		0x0000000000000003ULL, 0x0000000000000003ULL };
 
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	vint128_t a128 = {
 		INT128(0x0000000000000000ULL, 0x0000000000000000ULL) };
 	vint128_t b128 = {
@@ -164,13 +164,13 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 			OPS(a8, b8, c8, s8, v23_8, v3_8);
@@ -195,7 +195,7 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
@@ -218,7 +218,7 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 
 	uint64_put(a64[0] + a64[1]);
 
-#if defined(STRESS_INT128)
+#if defined(HAVE_INT128_T)
 	uint128_put(a128[0]);
 #endif
 
