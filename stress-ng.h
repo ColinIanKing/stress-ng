@@ -233,7 +233,6 @@
 #include <sys/quota.h>
 #endif
 
-
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
@@ -548,7 +547,6 @@
 #include <gnu/lib-names.h>
 #endif
 
-
 /*
  *  Various system calls not included in libc (yet)
  */
@@ -707,7 +705,6 @@ typedef unsigned long int __kernel_ulong_t;
 #if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
 #define STRESS_PAGE_IN
 #endif
-
 
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */
