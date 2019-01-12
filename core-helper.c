@@ -320,7 +320,9 @@ fail:
  */
 void stress_parent_died_alarm(void)
 {
-#if defined(__linux__) && defined(PR_SET_PDEATHSIG)
+#if defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_PDEATHSIG)
 	(void)prctl(PR_SET_PDEATHSIG, SIGALRM);
 #endif
 }
@@ -347,7 +349,9 @@ int stress_process_dumpable(const bool dumpable)
 	 *  memory gets contrained. Don't enable this
 	 *  unless one checks that processes able oomable!
 	 */
-#if 0 && defined(__linux__) && defined(PR_SET_DUMPABLE)
+#if 0 && defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_DUMPABLE)
 	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
@@ -382,7 +386,9 @@ int stress_set_timer_slack_ns(const char *opt)
  */
 void stress_set_timer_slack(void)
 {
-#if defined(HAVE_PRCTL_TIMER_SLACK)
+#if defined(HAVE_PRCTL) && 		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(HAVE_PRCTL_TIMER_SLACK)
 	(void)prctl(PR_SET_TIMERSLACK, timer_slack);
 #endif
 }
@@ -393,7 +399,9 @@ void stress_set_timer_slack(void)
  */
 void stress_set_proc_name(const char *name)
 {
-#if defined(__linux__) && defined(PR_SET_NAME)
+#if defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_NAME)
 	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME))
 		(void)prctl(PR_SET_NAME, name);
 #else
@@ -1276,7 +1284,9 @@ int stress_drop_capabilities(const char *name)
 			name, uch.pid, errno, strerror(errno));
 		return -1;
 	}
-#if defined(PR_SET_NO_NEW_PRIVS)
+#if defined(HAVE_PRCTL) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_NO_NEW_PRIVS)
 	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 	if (ret < 0) {
 		pr_inf("%s: prctl PR_SET_NO_NEW_PRIVS on pid %d failed: "
