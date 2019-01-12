@@ -228,11 +228,6 @@
 #include <bsd/wchar.h>
 #endif
 
-#if defined(__linux__)
-#include <sys/mount.h>
-#include <sys/quota.h>
-#endif
-
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
