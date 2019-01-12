@@ -65,7 +65,7 @@ static int stress_idle_page(const args_t *args)
 	if (fd < 0) {
 		pr_inf("idle_page stressor will be skipped, "
 			"cannot access file %s\n", bitmap_file);
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	(void)memset(bitmap_set, 0xff, sizeof(bitmap_set));
