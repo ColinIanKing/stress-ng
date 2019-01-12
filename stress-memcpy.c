@@ -51,10 +51,10 @@ static inline void *__naive_memcpy(void *dest, const void *src, size_t n)
 {
 	register size_t i;
 	register char *cdest = (char *)dest;
-	register char *csrc = (char *)src;
+	register const char *csrc = (const char *)src;
 
 	for (i = 0; i < n; i++)
-		*(csrc++) = *(cdest++);
+		*(cdest++) = *(csrc++);
 	return dest;
 }
 
@@ -62,17 +62,17 @@ static inline void *__naive_memmove(void *dest, const void *src, size_t n)
 {
 	register size_t i;
 	register char *cdest = (char *)dest;
-	register char *csrc = (char *)src;
+	register const char *csrc = (const char *)src;
 
 	if (dest < src) {
 		for (i = 0; i < n; i++)
-			*(csrc++) = *(cdest++);
+			*(cdest++) = *(csrc++);
 	} else {
 		csrc += n;
 		cdest += n;
 
 		for (i = 0; i < n; i++)
-			*(--csrc) = *(--cdest);
+			*(--cdest) = *(--csrc);
 	}
 	return dest;
 }
