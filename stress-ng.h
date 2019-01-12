@@ -144,7 +144,7 @@
 #include <locale.h>
 #endif
 
-#if defined(__GNUC__) && defined(__linux__)
+#if defined(HAVE_MALLOC_H)
 #include <malloc.h>
 #endif
 
