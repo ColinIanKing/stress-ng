@@ -631,17 +631,17 @@
 
 #include "stress-version.h"
 
-#if defined(__linux__)
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
  *  define the following, these should be defined
- *  in linux/posix_types.h - define them just in
- *  case they don't exist.
+ *  in linux/posix_types.h - define them if they
+ *  don't exist.
  */
-#ifndef __kernel_long_t
+#if !defined(HAVE_KERNEL_LONG_T)
 typedef long int __kernel_long_t;
-typedef unsigned long int __kernel_ulong_t;
 #endif
+#if !defined(HAVE_KERNEL_ULONG_T)
+typedef unsigned long int __kernel_ulong_t;
 #endif
 
 /*
