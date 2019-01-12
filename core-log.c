@@ -143,6 +143,12 @@ void pr_openlog(const char *filename)
 	}
 }
 
+static int pr_msg_lockable(
+	FILE *fp,
+	const uint64_t flag,
+	const bool locked,
+	const char *const fmt,
+	va_list ap) FORMAT(printf, 4, 0);
 
 /*
  *  pr_msg_lockable()
