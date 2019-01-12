@@ -90,7 +90,7 @@ static int stress_copy_file(const args_t *args)
 
 	do {
 		ssize_t ret;
-		loff_t off_in, off_out;
+		shim_loff_t off_in, off_out;
 
 		off_in = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);

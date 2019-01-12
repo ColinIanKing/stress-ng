@@ -3401,12 +3401,16 @@ extern int  stress_set_zlib_method(const char *name);
 extern int  stress_set_zombie_max(const char *opt);
 
 /* loff_t and off64_t porting shims */
-#if defined(__linux__)
-typedef	loff_t		shim_loff_t;	/* loff_t shim for linux */
-typedef off64_t		shim_off64_t;	/* off64_t for linux */
+#if defined(HAVE_LOFF_T)
+typedef	loff_t		shim_loff_t;
 #else
-typedef uint64_t	shim_loff_t;	/* loff_t for any other OS */
-typedef uint64_t	shim_off64_t;	/* off64_t for linux */
+typedef uint64_t	shim_loff_t;	/* Assume 64 bit */
+#endif
+
+#if defined(HAVE_OFF64_T)
+typedef off64_t		shim_off64_t;
+#else
+typedef uint64_t	shim_off64_t;
 #endif
 
 /*

@@ -170,7 +170,7 @@ static int stress_file_ioctl(const args_t *args)
 
 #if defined(FIOQSIZE)
 		{
-			loff_t sz;
+			shim_loff_t sz;
 			struct stat buf;
 
 			ret = fstat(fd, &buf);
