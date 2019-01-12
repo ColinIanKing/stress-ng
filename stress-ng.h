@@ -96,6 +96,10 @@
 #include <aio.h>
 #endif
 
+#if defined(HAVE_ALLOCA_H)
+#include <alloca.h>
+#endif
+
 #if defined(HAVE_CPUID_H)
 #include <cpuid.h>
 #endif
@@ -202,10 +206,6 @@
 
 #if defined(HAVE_WCHAR)
 #include <wchar.h>
-#endif
-
-#if defined(__sun__)
-#include <alloca.h>
 #endif
 
 #if defined(HAVE_LIB_BSD)
