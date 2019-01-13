@@ -54,17 +54,10 @@ static void *semaphore_posix_thrash(void *arg)
 
 	do {
 		int i;
-		struct timespec timeout;
-
-		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail_dbg("clock_gettime");
-			return &nowt;
-		}
-		timeout.tv_sec++;
 
 		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
-			if (sem_timedwait(&sem, &timeout) < 0) {
-				if (errno == ETIMEDOUT)
+			if (sem_trywait(&sem) < 0) {
+				if (errno == EAGAIN)
 					continue;
 				if (errno != EINTR)
 					pr_fail_dbg("sem_wait");
@@ -75,6 +68,10 @@ static void *semaphore_posix_thrash(void *arg)
 				pr_fail_dbg("sem_post");
 				break;
 			}
+			if (i & 1)
+				shim_sched_yield();
+			else
+				shim_usleep(0);
 		}
 	} while (keep_stressing());
 
@@ -90,7 +87,7 @@ static int stress_sem(const args_t *args)
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 	uint64_t i;
 	bool created = false;
-	pthread_args_t p_args = { args, NULL };
+	pthread_args_t p_args;
 
 	if (!get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -99,8 +96,8 @@ static int stress_sem(const args_t *args)
 			semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	/* create a mutex */
-	if (sem_init(&sem, 1, 1) < 0) {
+	/* create a semaphore */
+	if (sem_init(&sem, 0, 1) < 0) {
 		pr_err("semaphore init (POSIX) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -110,6 +107,8 @@ static int stress_sem(const args_t *args)
 	(void)memset(p_ret, 0, sizeof(p_ret));
 
 	for (i = 0; i < semaphore_posix_procs; i++) {
+		p_args.args = args;
+		p_args.data = NULL;
 		p_ret[i] = pthread_create(&pthreads[i], NULL,
                                 semaphore_posix_thrash, (void *)&p_args);
 		if ((p_ret[i]) && (p_ret[i] != EAGAIN)) {
@@ -130,7 +129,6 @@ static int stress_sem(const args_t *args)
 	while (keep_stressing())
 		(void)shim_usleep(100000);
 
-	printf("reaping..\n");
 	for (i = 0; i < semaphore_posix_procs; i++) {
 		int ret;
 
@@ -140,7 +138,6 @@ static int stress_sem(const args_t *args)
 		ret = pthread_join(pthreads[i], NULL);
 		(void)ret;
 	}
-
 	(void)sem_destroy(&sem);
 
 	return EXIT_SUCCESS;
