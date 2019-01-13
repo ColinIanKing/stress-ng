@@ -1744,12 +1744,6 @@ typedef struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX) && (HAVE_SEMAPHORE_H)
-	struct {
-		sem_t sem;				/* Shared posix semaphores */
-		bool init;				/* Semaphores initialised? */
-	} sem_posix;
-#endif
 	struct {
 		key_t key_id;				/* System V semaphore key id */
 		int sem_id;				/* System V semaphore id */

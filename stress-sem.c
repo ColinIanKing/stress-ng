@@ -38,102 +38,47 @@ int stress_set_semaphore_posix_procs(const char *opt)
     defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_SEM_POSIX)
 
-/*
- *  stress_semaphore_posix_init()
- *	initialize a POSIX semaphore
- */
-static void stress_semaphore_posix_init(void)
-{
-	/* create a mutex */
-	if (sem_init(&g_shared->sem_posix.sem, 1, 1) >= 0) {
-		g_shared->sem_posix.init = true;
-		return;
-	}
-
-	if (g_opt_sequential) {
-		pr_inf("semaphore init (POSIX) failed: errno=%d: "
-			"(%s), skipping semaphore stressor\n",
-			errno, strerror(errno));
-	} else {
-		pr_err("semaphore init (POSIX) failed: errno=%d: "
-			"(%s)\n", errno, strerror(errno));
-	}
-}
-
-/*
- *  stress_semaphore_posix_deinit()
- *	destroy a POSIX semaphore
- */
-static void stress_semaphore_posix_deinit(void)
-{
-	if (g_shared->sem_posix.init) {
-		if (sem_destroy(&g_shared->sem_posix.sem) < 0) {
-			pr_err("semaphore destroy failed: errno=%d (%s)\n",
-				errno, strerror(errno));
-		}
-	}
-}
+static sem_t sem;
+static pthread_t pthreads[MAX_SEMAPHORE_PROCS];
+int p_ret[MAX_SEMAPHORE_PROCS];
 
 /*
  *  semaphore_posix_thrash()
  *	exercise the semaphore
  */
-static void semaphore_posix_thrash(const args_t *args)
+static void *semaphore_posix_thrash(void *arg)
 {
+	const pthread_args_t *p_args = arg;
+	const args_t *args = p_args->args;
+	static void *nowt = NULL;
+
 	do {
 		int i;
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
 			pr_fail_dbg("clock_gettime");
-			return;
+			return &nowt;
 		}
 		timeout.tv_sec++;
 
-		for (i = 0; i < 1000; i++) {
-			if (sem_timedwait(&g_shared->sem_posix.sem, &timeout) < 0) {
+		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
+			if (sem_timedwait(&sem, &timeout) < 0) {
 				if (errno == ETIMEDOUT)
-					goto timed_out;
+					continue;
 				if (errno != EINTR)
 					pr_fail_dbg("sem_wait");
 				break;
 			}
 			inc_counter(args);
-			if (sem_post(&g_shared->sem_posix.sem) < 0) {
+			if (sem_post(&sem) < 0) {
 				pr_fail_dbg("sem_post");
 				break;
 			}
-timed_out:
-			if (!keep_stressing())
-				break;
 		}
 	} while (keep_stressing());
-}
 
-/*
- *  semaphore_posix_spawn()
- *	spawn a process
- */
-static pid_t semaphore_posix_spawn(const args_t *args)
-{
-	pid_t pid;
-
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
-			goto again;
-		return -1;
-	}
-	if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		semaphore_posix_thrash(args);
-		_exit(EXIT_SUCCESS);
-	}
-	(void)setpgid(pid, g_pgrp);
-	return pid;
+	return &nowt;
 }
 
 /*
@@ -142,9 +87,10 @@ again:
  */
 static int stress_sem(const args_t *args)
 {
-	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 	uint64_t i;
+	bool created = false;
+	pthread_args_t p_args = { args, NULL };
 
 	if (!get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -153,41 +99,55 @@ static int stress_sem(const args_t *args)
 			semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
 	}
 
-	if (!g_shared->sem_posix.init) {
-		pr_err("%s: aborting, semaphore not initialised\n", args->name);
+	/* create a mutex */
+	if (sem_init(&sem, 1, 1) < 0) {
+		pr_err("semaphore init (POSIX) failed: errno=%d: "
+			"(%s)\n", errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(pids, 0, sizeof(pids));
+	(void)memset(pthreads, 0, sizeof(pthreads));
+	(void)memset(p_ret, 0, sizeof(p_ret));
+
 	for (i = 0; i < semaphore_posix_procs; i++) {
-		pids[i] = semaphore_posix_spawn(args);
-		if (!g_keep_stressing_flag || pids[i] < 0)
-			goto reap;
+		p_ret[i] = pthread_create(&pthreads[i], NULL,
+                                semaphore_posix_thrash, (void *)&p_args);
+		if ((p_ret[i]) && (p_ret[i] != EAGAIN)) {
+			pr_fail_errno("pthread create", p_ret[i]);
+			break;
+		}
+		if (!g_keep_stressing_flag)
+			break;
+		created = true;
+	}
+
+	if (!created) {
+		pr_inf("%s: could not create any pthreads\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
 
 	/* Wait for termination */
 	while (keep_stressing())
 		(void)shim_usleep(100000);
-reap:
-	for (i = 0; i < semaphore_posix_procs; i++) {
-		if (pids[i] > 0)
-			(void)kill(pids[i], SIGKILL);
-	}
-	for (i = 0; i < semaphore_posix_procs; i++) {
-		if (pids[i] > 0) {
-			int status;
 
-			(void)waitpid(pids[i], &status, 0);
-		}
+	printf("reaping..\n");
+	for (i = 0; i < semaphore_posix_procs; i++) {
+		int ret;
+
+		if (p_ret[i])
+			continue;
+
+		ret = pthread_join(pthreads[i], NULL);
+		(void)ret;
 	}
+
+	(void)sem_destroy(&sem);
 
 	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
-	.init = stress_semaphore_posix_init,
-	.deinit = stress_semaphore_posix_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER
 };
 #else
