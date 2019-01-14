@@ -1415,6 +1415,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"icache-ops N",		"stop after N icache bogo operations" },
 	{ NULL,		"icmp-flood N",		"start N ICMP packet flood workers" },
 	{ NULL,		"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
+	{ NULL,		"idle-page N",		"start N idle page scanning workers" },
+	{ NULL,		"idle-page-ops N",	"stop after N idle page scan bogo operations" },
 	{ NULL,		"inode-flags N",	"start N workers exercising various inode flags" },
 	{ NULL,		"inode-flags-ops N",	"stop inode-flags workers after N bogo operations" },
 	{ NULL,		"inotify N",		"start N workers exercising inotify events" },
