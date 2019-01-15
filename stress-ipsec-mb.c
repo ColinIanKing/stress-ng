@@ -136,6 +136,7 @@ static void stress_sha(
 		job->cipher_mode = NULL_CIPHER;
 		job->hash_alg = PLAIN_SHA_512;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -194,6 +195,7 @@ static void stress_des(
 		job->user_data2 = (void *)((uint64_t)j);
 		job->hash_alg = NULL_HASH;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -251,6 +253,7 @@ static void stress_cmac(
 		job->u.CMAC._skey2 = skey2;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -307,8 +310,8 @@ static void stress_ctr(
 		job->iv_len_in_bytes = sizeof(iv);
 		job->cipher_start_src_offset_in_bytes = 0;
 		job->msg_len_to_cipher_in_bytes = data_len;
-
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -381,6 +384,7 @@ static void stress_hmac_md5(
 		job->hash_alg = MD5;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -453,6 +457,7 @@ static void stress_hmac_sha1(
 		job->hash_alg = SHA1;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
@@ -529,6 +534,7 @@ static void stress_hmac_sha512(
 		job->hash_alg = SHA_512;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
+		(void)job;
 	}
 
 	for (j = 0; j < jobs; j++) {
