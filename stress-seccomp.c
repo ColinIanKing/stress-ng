@@ -132,7 +132,7 @@ static int stress_seccomp_supported(void)
 		errno = WEXITSTATUS(status);
 		if (errno == EACCES) {
 			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER requires CAP_SYS_ADMIN capability\n");
-				return -1;
+			return -1;
 		} else {
 			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER is not supported, errno=%d (%s)\n",
 				errno, strerror(errno));
