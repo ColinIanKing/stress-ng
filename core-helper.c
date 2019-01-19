@@ -335,10 +335,17 @@ void stress_parent_died_alarm(void)
  */
 int stress_process_dumpable(const bool dumpable)
 {
-	int fd, rc = 0;
+	int fd, rc = 0, ret;
 #if defined(RLIMIT_CORE)
-	struct rlimit lim = { 0, 0 };
+	struct rlimit lim;
 
+	ret = getrlimit(RLIMIT_CORE, &lim);
+	if (ret == 0) {
+		lim.rlim_cur = 0;
+		(void)setrlimit(RLIMIT_CORE, &lim);
+	}
+	lim.rlim_cur = 0;
+	lim.rlim_max = 0;
 	(void)setrlimit(RLIMIT_CORE, &lim);
 #endif
 
