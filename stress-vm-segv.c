@@ -111,9 +111,7 @@ again:
 		} else if (pid == 0) {
 			/* Child */
 			const size_t page_size = args->page_size;
-			const struct rlimit lim = { RLIM_INFINITY, RLIM_INFINITY };
 
-			setrlimit(RLIMIT_CORE, &lim);
 			set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
 
