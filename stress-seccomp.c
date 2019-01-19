@@ -31,6 +31,16 @@
     defined(PR_SET_SECCOMP) &&		\
     defined(SECCOMP_SET_MODE_FILTER)
 
+#if defined(NSIG)
+#define MAX_SIGNUM	NSIG
+#elif defined(_NSIG)
+#define MAX_SIGNUM	_NSIG
+#else
+#define MAX_SIGNUM	256
+#endif
+
+#define EXIT_TRAPPED	255
+
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
 #define ALLOW_SYSCALL(syscall) \
@@ -61,7 +71,7 @@ static struct sock_filter filter_allow_write[] = {
 #if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_filter filter[] = {
@@ -81,7 +91,7 @@ static struct sock_filter filter[] = {
 #if defined(__NR_set_robust_list)
 	ALLOW_SYSCALL(set_robust_list),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_filter filter_random[64];
@@ -140,6 +150,13 @@ static int stress_seccomp_supported(void)
 		return -1;
 	}
 	return 0;
+}
+
+static void MLOCKED_TEXT stress_sigsys(int signum)
+{
+	(void)signum;
+
+	_exit(EXIT_TRAPPED);
 }
 
 /*
@@ -221,7 +238,7 @@ static int stress_seccomp(const args_t *args)
 {
 	do {
 		pid_t pid;
-		const bool allow_write = (mwc32() % 50) != 0;
+		const bool allow_write = (mwc32() % 2) != 0;
 		const bool do_random = (mwc32() % 20) != 0;
 
 		pid = fork();
@@ -236,7 +253,11 @@ static int stress_seccomp(const args_t *args)
 			 *  causing seccomp to kill it and the parent
 			 *  sees it die on a SIGSYS
 			 */
-			int fd, rc = EXIT_SUCCESS;
+			int fd, rc = EXIT_SUCCESS, ret;
+
+			stress_process_dumpable(false);
+			ret = stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL);
+			(void)ret;
 
 			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)
 				_exit(EXIT_FAILURE);
@@ -266,13 +287,15 @@ static int stress_seccomp(const args_t *args)
 			} else {
 				/* Did the child hit a weird error? */
 				if (WIFEXITED(status) &&
+				    (WEXITSTATUS(status) != EXIT_TRAPPED) &&
 				    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
 					pr_fail("%s: aborting because of unexpected "
 						"failure in child process\n", args->name);
 					return EXIT_FAILURE;
 				}
-				/* ..exited OK but we expected SIGSYS death? */
-				if (WIFEXITED(status) && !allow_write) {
+				/* ..exited OK but we expected trapped SIGSYS death? */
+				if (WIFEXITED(status) && !allow_write &&
+				    (WEXITSTATUS(status) != EXIT_TRAPPED)) {
 					pr_fail("%s: expecting SIGSYS seccomp trap "
 						"but got a successful exit which "
 						"was not expected\n",
