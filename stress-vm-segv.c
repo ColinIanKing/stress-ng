@@ -75,45 +75,61 @@ again:
 
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
+
 			ret = waitpid(pid, &status, 0);
-			if (ret < 0) {
-				if (errno != EINTR)
-					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-				(void)kill(pid, SIGTERM);
-				(void)kill(pid, SIGKILL);
-				(void)waitpid(pid, &status, 0);
-			} else if (WIFSIGNALED(status)) {
-				/* If we got killed by OOM killer, re-start */
-				if (WTERMSIG(status) == SIGKILL) {
-					if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-						log_system_mem_info();
-						pr_dbg("%s: assuming killed by OOM "
-							"killer, bailing out "
-							"(instance %d)\n",
-							args->name, args->instance);
-						_exit(0);
-					} else {
-						log_system_mem_info();
-						pr_dbg("%s: assuming killed by OOM "
-							"killer, restarting again "
-							"(instance %d)\n",
-							args->name, args->instance);
-						goto again;
+			if (ret < 0)
+				goto kill_child;
+#if !defined(HAVE_PTRACE)
+			if (WTERMSIG(status) == SIGSEGV) {
+				inc_counter(args);
+				continue;
+			}
+#else
+
+			(void)ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_TRACESYSGOOD);
+
+			while (keep_stressing()) {
+				(void) ptrace(PTRACE_SYSCALL, pid, 0, 0);
+
+				ret = waitpid(pid, &status, 0);
+				if (ret < 0)
+					goto kill_child;
+				if (WIFSTOPPED(status)) {
+					int signum = WSTOPSIG(status);
+
+					if ((signum & 0x7f) == SIGSEGV) {
+						inc_counter(args);
+						break;
 					}
+					if (signum & 0x80) 
+						continue;
 				}
-				/* expected: child killed itself with SIGSEGV */
-				if (WTERMSIG(status) == SIGSEGV) {
+				if (WIFEXITED(status)) {
+					printf("PID %d exited\n", pid);
 					inc_counter(args);
-					continue;
+					break;
 				}
 			}
+#endif
+kill_child:
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)waitpid(pid, &status, 0);
 		} else if (pid == 0) {
 			/* Child */
+			sigset_t set;
 			const size_t page_size = args->page_size;
 
 			set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
+
+#if defined(HAVE_PTRACE)
+			ptrace(PTRACE_TRACEME);
+			kill(getpid(), SIGSTOP);
+#endif
+			(void)sigemptyset(&set);
+			(void)sigaddset(&set, SIGSEGV);
+			(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 			/*
 			 *  Try to ummap the child's address space, should cause
@@ -133,7 +149,6 @@ again:
 
 	return EXIT_SUCCESS;
 }
-
 
 stressor_info_t stress_vm_segv_info = {
 	.stressor = stress_vm_segv,
