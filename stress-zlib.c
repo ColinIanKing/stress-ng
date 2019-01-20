@@ -492,27 +492,8 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *const data, c
 	register int i;
 	static bool use_rand_data = false;
 	struct sigaction sigsegv_orig, sigbus_orig;
-
-#if defined(__APPLE__)
-	extern void *get_etext(void);
-	char *text_start = get_etext();
-#elif defined(__OpenBSD__)
-	extern char _start[];
-	char *text_start = &_start[0];
-#else
-	extern char etext;
-	char *text_start = &etext;
-#endif
-
-#if defined(__APPLE__)
-	extern void *get_edata(void);
-	char *text_end = get_edata();
-#else
-	extern char edata;
-	char *text_end = &edata;
-#endif
-	char *text = NULL, *dataptr;
-	const size_t text_len = text_end - text_start;
+	char *text = NULL, *dataptr, *text_start, *text_end;
+	const size_t text_len = stress_text_addr(&text_start, &text_end);
 
 	if (use_rand_data) {
 		stress_rand_data_binary(args, data, size);
