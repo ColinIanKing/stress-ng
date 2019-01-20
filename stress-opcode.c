@@ -38,6 +38,7 @@
 
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
+#define EXIT_TRAPPED	(255)
 
 typedef void(*stress_opcode_func)(uint8_t *ops_begin, uint8_t *ops_end, uint32_t *op);
 
@@ -75,7 +76,10 @@ static const int sigs[] = {
 	SIGINT,
 #endif
 #if defined(SIGHUP)
-	SIGHUP
+	SIGHUP,
+#endif
+#if defined(SIGSYS)
+	SIGSYS
 #endif
 };
 
@@ -85,7 +89,7 @@ static struct sock_filter filter[] = {
 #if defined(__NR_exit_group)
 	ALLOW_SYSCALL(exit_group),
 #endif
-	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_KILL)
+	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_TRAP)
 };
 
 static struct sock_fprog prog = {
