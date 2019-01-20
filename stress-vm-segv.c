@@ -105,7 +105,6 @@ again:
 						continue;
 				}
 				if (WIFEXITED(status)) {
-					printf("PID %d exited\n", pid);
 					inc_counter(args);
 					break;
 				}
