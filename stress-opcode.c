@@ -177,8 +177,40 @@ static void stress_opcode_mixed(
 	*op = tmp;
 }
 
+static void stress_opcode_text(
+	uint8_t *ops_begin,
+	uint8_t *ops_end,
+	uint32_t *op)
+{
+	char *text_start, *text_end;
+	const size_t ops_len = ops_end - ops_begin;
+	const size_t text_len = stress_text_addr(&text_start, &text_end) - 8;
+	uint8_t *ops;
+	size_t offset;
+
+	if (text_len < ops_len) {
+		stress_opcode_random(ops_begin, ops_end, op);
+		return;
+	}
+
+	offset = mwc64() % (text_len - ops_len);
+	offset &= ~(0x7ULL);
+
+	memcpy(ops_begin, text_start + offset, ops_len);
+	for (ops = ops_begin; ops < ops_end; ops++) {
+		uint8_t rnd = mwc8();
+
+		/* 1 in 8 chance of random bit corruption */
+		if (rnd < 32) {
+			uint8_t bit = 1 << (rnd & 7);
+			*ops ^= bit;
+		}
+	}
+}
+
 static const stress_opcode_method_info_t stress_opcode_methods[] = {
 	{ "random",	stress_opcode_random },
+	{ "text",	stress_opcode_text },
 	{ "inc",	stress_opcode_inc },
 	{ "mixed",	stress_opcode_mixed },
 	{ NULL,		NULL }

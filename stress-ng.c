@@ -1545,7 +1545,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"oom-pipe-ops N",	"stop after N oom-pipe bogo operations" },
 	{ NULL,		"opcode N",		"start N workers exercising random opcodes" },
 	{ NULL,		"opcode-ops N",		"stop after N opcode bogo operations" },
-	{ NULL,		"opcode-method M",	"set opcode stress method (M = random, inc, mixed)" },
+	{ NULL,		"opcode-method M",	"set opcode stress method (M = random, inc, mixed, text)" },
 	{ "o",		"open N",		"start N workers exercising open/close" },
 	{ NULL,		"open-ops N",		"stop after N open/close bogo operations" },
 	{ NULL,		"personality N",	"start N workers that change their personality" },

@@ -2335,7 +2335,7 @@ handled gracefully by the stressor.
 .B \-\-opcode\-ops N
 stop after N attempts to execute illegal code.
 .TP
-.B \-\-opcode\-method [ random | inc | mixed ]
+.B \-\-opcode\-method [ inc | mixed | random | text ]
 select the opcode generation method.  By default, random bytes are used to
 generate the executable code. This option allows one to select one of the
 three methods:
@@ -2344,15 +2344,19 @@ expand;
 lBw(8n) lBw(\n[SV]n)
 l l.
 Method	Description
-random	T{
-generate opcodes using random bytes from a mwc random generator.
-T}
 inc	T{
 use incrementing 32 bit opcode patterns from 0x00000000 to 0xfffffff inclusive.
 T}
 mixed	T{
 use a mix of incrementing 32 bit opcode patterns and random 32 bit opcode patterns that
 are also inverted, encoded with gray encoding and bit reversed.
+T}
+random	T{
+generate opcodes using random bytes from a mwc random generator.
+T}
+text	T{
+copies random chunks of code from the stress-ng text segment and randomly flips
+single bits in a random choice of 1/8th of the code.
 T}
 .TE
 .TP
