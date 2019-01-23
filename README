@@ -39,6 +39,7 @@ Debian, Ubuntu:
   * libbsd-dev
   * libcap-dev
   * libgcrypt11-dev
+  * libipsec-mb-dev
   * libkeyutils-dev
   * libsctp-dev
   * zlib1g-dev
