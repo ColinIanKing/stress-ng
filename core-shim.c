@@ -621,6 +621,26 @@ int shim_mlock(const void *addr, size_t len)
 #endif
 }
 
+/*
+ *  shim_munlock()
+ *	wrapper for munlock(2) - unlock memory
+ */
+int shim_munlock(const void *addr, size_t len)
+{
+#if defined(HAVE_MUNLOCK)
+#if defined(__sun__)
+	return munlock((caddr_t)addr, len);
+#else
+	return munlock(addr, len);
+#endif
+#else
+	(void)addr;
+	(void)len;
+
+	errno = ENOSYS;
+	return -1;
+#endif
+}
 
 /*
  *  shim_mlock2()

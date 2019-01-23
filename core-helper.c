@@ -145,7 +145,7 @@ void stress_get_memlimits(
 	size_t *freemem,
 	size_t *totalmem)
 {
-#if defined(HAVE_SYS_SYSINFO) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	struct sysinfo info;
 	FILE *fp;
 #endif
@@ -153,7 +153,7 @@ void stress_get_memlimits(
 	*freemem = 0;
 	*totalmem = 0;
 
-#if defined(HAVE_SYS_SYSINFO) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	if (sysinfo(&info) == 0) {
 		*freemem = info.freeram * info.mem_unit;
 		*totalmem = info.totalram * info.mem_unit;

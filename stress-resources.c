@@ -109,6 +109,8 @@ static void NORETURN waste_resources(
 	const size_t pipe_size,
 	const size_t mem_slack)
 {
+	struct rlimit rlim;
+	size_t mlock_size;
 	size_t i, n;
 	size_t shmall, freemem, totalmem;
 #if defined(HAVE_MEMFD_CREATE) || defined(O_TMPFILE)
@@ -122,12 +124,22 @@ static void NORETURN waste_resources(
 #else
 	const int flag = 0;
 #endif
+	int ret;
+
+	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
+	if (ret < 0) {
+		mlock_size = args->page_size * MAX_LOOPS;
+	} else {
+		mlock_size = rlim.rlim_cur;
+	}
 
 #if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
 	stress_get_memlimits(&shmall, &freemem, &totalmem);
-	if ((shmall + freemem + totalmem > 0) && (freemem < mem_slack))
+
+	if ((shmall + freemem + totalmem > 0) &&
+            (freemem > 0) && (freemem < mem_slack))
 		_exit(0);
 
 	(void)memset(&info, 0, sizeof(info));
@@ -138,37 +150,43 @@ static void NORETURN waste_resources(
 #endif
 		stress_get_memlimits(&shmall, &freemem, &totalmem);
 
-		if ((shmall + freemem + totalmem > 0) && (freemem < mem_slack))
+		if ((shmall + freemem + totalmem > 0) &&
+	            (freemem > 0) && (freemem < mem_slack))
 			break;
 
-		if (!(mwc32() & 0xf)) {
+		if ((mwc8() & 0xf) == 0) {
 			info[i].m_malloc = calloc(1, page_size);
 			if (!g_keep_stressing_flag)
 				break;
 		}
-		if (!(mwc32() & 0xf)) {
+		if ((mwc8() & 0xf) == 0) {
 			info[i].m_sbrk = shim_sbrk(page_size);
 			if (!g_keep_stressing_flag)
 				break;
 		}
-		if (!(mwc32() & 0xf)) {
+		if ((mwc8() & 0xf) == 0) {
 			info[i].m_alloca = alloca(page_size);
 			if (!g_keep_stressing_flag)
 				break;
 		}
-		if (!(mwc32() & 0xf)) {
+		if ((mwc8() & 0xf) == 0) {
 			info[i].m_mmap_size = page_size;
 			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (!g_keep_stressing_flag)
 				break;
 			if (info[i].m_mmap != MAP_FAILED) {
+				size_t locked = STRESS_MINIMUM(mlock_size, info[i].m_mmap_size);
+
 				(void)madvise_random(info[i].m_mmap, info[i].m_mmap_size);
 				mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
-				if (!g_keep_stressing_flag)
-					break;
+				if (locked > 0) {
+					shim_mlock(info[i].m_mmap, locked);
+					mlock_size -= locked;
+				}
 			}
 		}
+
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
 #if defined(__linux__) && defined(F_SETPIPE_SZ)
 		if (info[i].pipe_ret == 0) {
@@ -356,8 +374,10 @@ static void NORETURN waste_resources(
 	for (i = 0; i < n; i++) {
 		if (info[i].m_malloc)
 			free(info[i].m_malloc);
-		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED))
+		if (info[i].m_mmap && (info[i].m_mmap != MAP_FAILED)) {
+			(void)shim_munlock(info[i].m_mmap, info[i].m_mmap_size);
 			(void)munmap(info[i].m_mmap, info[i].m_mmap_size);
+		}
 		if (info[i].pipe_ret != -1) {
 			(void)close(info[i].fd_pipe[0]);
 			(void)close(info[i].fd_pipe[1]);

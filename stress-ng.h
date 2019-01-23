@@ -3531,6 +3531,7 @@ extern int shim_mlockall(int flags);
 extern long shim_move_pages(int pid, unsigned long count,
 	void **pages, const int *nodes, int *status, int flags);
 extern int shim_msync(void *addr, size_t length, int flags);
+extern int shim_munlock(const void *addr, size_t len);
 extern int shim_munlockall(void);
 extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
 extern int shim_pkey_free(int pkey);
