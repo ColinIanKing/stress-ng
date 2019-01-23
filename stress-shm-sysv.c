@@ -156,10 +156,10 @@ static int stress_shm_sysv_child(
 			int shm_id, count = 0;
 			void *addr;
 			key_t key;
-			size_t shmall, freemem, totalmem;
+			size_t shmall, freemem, totalmem, freeswap;
 
 			/* Try hard not to overcommit at this current time */
-			stress_get_memlimits(&shmall, &freemem, &totalmem);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 			shmall /= instances;
 			freemem /= instances;
 			if ((shmall > page_size) && sz > shmall)

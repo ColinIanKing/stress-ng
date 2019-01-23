@@ -143,7 +143,8 @@ int32_t stress_get_ticks_per_second(void)
 void stress_get_memlimits(
 	size_t *shmall,
 	size_t *freemem,
-	size_t *totalmem)
+	size_t *totalmem,
+	size_t *freeswap)
 {
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	struct sysinfo info;
@@ -152,11 +153,13 @@ void stress_get_memlimits(
 	*shmall = 0;
 	*freemem = 0;
 	*totalmem = 0;
+	*freeswap = 0;
 
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 	if (sysinfo(&info) == 0) {
 		*freemem = info.freeram * info.mem_unit;
 		*totalmem = info.totalram * info.mem_unit;
+		*freeswap = info.freeswap * info.mem_unit;
 	}
 
 	fp = fopen("/proc/sys/kernel/shmall", "r");

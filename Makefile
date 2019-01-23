@@ -170,6 +170,7 @@ STRESS_SRC = \
 	stress-mincore.c \
 	stress-mknod.c \
 	stress-mlock.c \
+	stress-mlockmany.c \
 	stress-mmap.c \
 	stress-mmapaddr.c \
 	stress-mmapfixed.c \

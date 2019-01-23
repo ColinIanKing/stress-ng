@@ -410,6 +410,7 @@ static const stress_t stressors[] = {
 	STRESSOR(mincore),
 	STRESSOR(mknod),
 	STRESSOR(mlock),
+	STRESSOR(mlockmany),
 	STRESSOR(mmap),
 	STRESSOR(mmapaddr),
 	STRESSOR(mmapfixed),
@@ -842,6 +843,8 @@ static const struct option long_options[] = {
 	{ "mknod-ops",	1,	0,	OPT_mknod_ops },
 	{ "mlock",	1,	0,	OPT_mlock },
 	{ "mlock-ops",	1,	0,	OPT_mlock_ops },
+	{ "mlockmany",	1,	0,	OPT_mlockmany },
+	{ "mlockmany-ops",1,	0,	OPT_mlockmany_ops },
 	{ "mmap",	1,	0,	OPT_mmap },
 	{ "mmap-ops",	1,	0,	OPT_mmap_ops },
 	{ "mmap-async",	0,	0,	OPT_mmap_async },
@@ -1504,6 +1507,8 @@ static const help_t help_stressors[] = {
 	{ NULL,		"mknod-ops N",		"stop after N mknod bogo operations" },
 	{ NULL,		"mlock N",		"start N workers exercising mlock/munlock" },
 	{ NULL,		"mlock-ops N",		"stop after N mlock bogo operations" },
+	{ NULL,		"mlockmany N",		"start N workers exercising many mlock/munlock processes" },
+	{ NULL,		"mlockmany-ops N",	"stop after N mlockmany bogo operations" },
 	{ NULL,		"mmap N",		"start N workers stressing mmap and munmap" },
 	{ NULL,		"mmap-ops N",		"stop after N mmap bogo operations" },
 	{ NULL,		"mmap-async",		"using asynchronous msyncs for file based mmap" },
@@ -1981,7 +1986,7 @@ static void MLOCKED_TEXT stress_stats_handler(int dummy)
 	char *ptr = buffer;
 	int ret;
 	double min1, min5, min15;
-	size_t shmall, freemem, totalmem;
+	size_t shmall, freemem, totalmem, freeswap;
 
 	(void)dummy;
 
@@ -1994,7 +1999,7 @@ static void MLOCKED_TEXT stress_stats_handler(int dummy)
 		if (ret > 0)
 			ptr += ret;
 	}
-	stress_get_memlimits(&shmall, &freemem, &totalmem);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 	(void)snprintf(ptr, buffer - ptr,
 		"MemFree: %zu MB, MemTotal: %zu MB",

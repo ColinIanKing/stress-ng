@@ -2139,6 +2139,18 @@ pages are munlocked and the pages are unmapped.
 .B \-\-mlock\-ops N
 stop after N mlock bogo operations.
 .TP
+.B \-\-mlockmany N
+start N workers that fork off up to 1024 child processes in total;
+each child will attempt to anonymously mmap and mlock the maximum allowed
+mlockable memory size.  The stress test attempts to avoid swapping by
+tracking low memory and swap allocations (but some swapping may occur). Once
+either the maximum number of child proccess is reached or all mlockable in-core
+memory is locked then child processes are killed and the stress test is
+repeated.
+.TP
+.B \-\-mlockmany\-ops N
+stop after N mlockmany (mmap and mlock) operations.
+.TP
 .B \-\-mmap N
 start N workers continuously calling mmap(2)/munmap(2).  The initial mapping
 is a large chunk (size specified by \-\-mmap\-bytes) followed by pseudo-random
@@ -2211,7 +2223,7 @@ middle page hence splitting the mapping into two. This is then repeated until
 the maximum allowed mappings or a maximum of 262144 mappings are made.
 .TP
 .B \-\-mmapmany\-ops N
-stop after N mmapmany bogo operations.
+stop after N mmapmany bogo operations
 .TP
 .B \-\-mq N
 start N sender and receiver processes that continually send and receive

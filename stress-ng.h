@@ -1876,6 +1876,7 @@ typedef enum {
 	STRESS_mincore,
 	STRESS_mknod,
 	STRESS_mlock,
+	STRESS_mlockmany,
 	STRESS_mmap,
 	STRESS_mmapaddr,
 	STRESS_mmapfixed,
@@ -2416,6 +2417,9 @@ typedef enum {
 
 	OPT_mlock,
 	OPT_mlock_ops,
+
+	OPT_mlockmany,
+	OPT_mlockmany_ops,
 
 	OPT_mmap,
 	OPT_mmap_ops,
@@ -3140,7 +3144,7 @@ extern WARN_UNUSED int32_t stress_get_processors_online(void);
 extern WARN_UNUSED int32_t stress_get_processors_configured(void);
 extern WARN_UNUSED int32_t stress_get_ticks_per_second(void);
 extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
-extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem);
+extern void stress_get_memlimits(size_t *shmall, size_t *freemem, size_t *totalmem, size_t *freeswap);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5, double *min15);
 extern void set_max_limits(void);
 extern void stress_parent_died_alarm(void);
@@ -3665,6 +3669,7 @@ STRESS(stress_mergesort);
 STRESS(stress_mincore);
 STRESS(stress_mknod);
 STRESS(stress_mlock);
+STRESS(stress_mlockmany);
 STRESS(stress_mmap);
 STRESS(stress_mmapaddr);
 STRESS(stress_mmapfixed);

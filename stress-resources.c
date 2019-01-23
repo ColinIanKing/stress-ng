@@ -114,7 +114,7 @@ static void NORETURN waste_resources(
 #endif
 	size_t mlock_size;
 	size_t i, n;
-	size_t shmall, freemem, totalmem;
+	size_t shmall, freemem, totalmem, freeswap;
 #if defined(HAVE_MEMFD_CREATE) || defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
@@ -142,7 +142,7 @@ static void NORETURN waste_resources(
 #if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
-	stress_get_memlimits(&shmall, &freemem, &totalmem);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 	if ((shmall + freemem + totalmem > 0) &&
             (freemem > 0) && (freemem < mem_slack))
@@ -154,7 +154,7 @@ static void NORETURN waste_resources(
 #if defined(HAVE_MEMFD_CREATE)
 		char name[32];
 #endif
-		stress_get_memlimits(&shmall, &freemem, &totalmem);
+		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 		if ((shmall + freemem + totalmem > 0) &&
 	            (freemem > 0) && (freemem < mem_slack))
@@ -502,9 +502,9 @@ static int stress_resources(const args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	size_t mem_slack;
-	size_t shmall, freemem, totalmem, resource_forks = 0;
+	size_t shmall, freemem, totalmem, freeswap, resource_forks = 0;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 	if (totalmem > 0) {
 		resource_forks = totalmem / (args->num_instances * MAX_LOOPS * 16 * KB);
 	}
@@ -521,7 +521,7 @@ static int stress_resources(const args_t *args)
 		for (i = 0; i < resource_forks; i++) {
 			pid_t pid;
 
-			stress_get_memlimits(&shmall, &freemem, &totalmem);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 			if (totalmem > 0 && totalmem < mem_slack)
 				break;
 

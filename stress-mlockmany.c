@@ -1,0 +1,156 @@
+/*
+ * Copyright (C) 2013-2019 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+#define MAX_MLOCK_PROCS		(1024)
+
+/*
+ *  stress_mlockmany()
+ *	stress by forking and exiting
+ */
+static int stress_mlockmany(const args_t *args)
+{
+	pid_t pids[MAX_MLOCK_PROCS];
+	int errnos[MAX_MLOCK_PROCS];
+	int ret;
+#if defined(RLIMIT_MEMLOCK)
+	struct rlimit rlim;
+#endif
+	size_t mlock_size, max_mlock_procs;
+
+	set_oom_adjustment(args->name, true);
+
+	/* Explicitly drop capabilites, makes it more OOM-able */
+	ret = stress_drop_capabilities(args->name);
+	(void)ret;
+
+	max_mlock_procs = args->num_instances > 0 ? MAX_MLOCK_PROCS / args->num_instances : 1;
+	if (max_mlock_procs < 1)
+		max_mlock_procs = 1;
+
+#if defined(RLIMIT_MEMLOCK)
+	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
+	if (ret < 0) {
+		mlock_size = 8 * MB;
+	} else {
+		mlock_size = rlim.rlim_cur;
+	}
+#else
+	mlock_size = args->page_size * MAX_LOOPS;
+#endif
+
+	do {
+		unsigned int i, n;
+		size_t shmall, freemem, totalmem, freeswap, last_freeswap;
+
+		(void)memset(pids, 0, sizeof(pids));
+		(void)memset(errnos, 0, sizeof(errnos));
+
+		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap);
+
+		for (n = 0; n < max_mlock_procs; n++) {
+			pid_t pid;
+
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+
+			/* Try hard to ensure we don't run too low of in-core memory */
+			if ((freemem != 0) && (freemem < mlock_size + freeswap))
+				break;
+
+			/* We detected swap being used, bail out */
+			if (last_freeswap > freeswap)
+				break;
+
+			/* Keep track of expanding free swap space */
+			if (freeswap > last_freeswap)
+				last_freeswap = freeswap;
+
+			pid = fork();
+			if (pid == 0) {
+				void *ptr;
+
+				(void)setpgid(0, g_pgrp);
+				stress_parent_died_alarm();
+				set_oom_adjustment(args->name, true);
+
+				shim_mlockall(0);
+				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+				/* We detected swap being used, bail out */
+				if (last_freeswap > freeswap)
+					_exit(0);
+
+				while (mlock_size > args->page_size) {
+					ptr = mmap(NULL, mlock_size, PROT_READ | PROT_WRITE,
+						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					if (ptr != MAP_FAILED)
+						break;
+					mlock_size >>= 1;
+				}
+				if (ptr == MAP_FAILED)
+					_exit(0);
+
+				mincore_touch_pages(ptr, mlock_size);
+
+				while (mlock_size > args->page_size) {
+					ret = shim_mlock(ptr, mlock_size);
+					if (ret == 0)
+						break;
+					mlock_size >>= 1;
+				}
+
+				while (keep_stressing()) {
+					pause();
+				}
+				_exit(0);
+			} else if (pid < 0) {
+				errnos[n] = errno;
+			}
+			if (pid > -1)
+				(void)setpgid(pids[n], g_pgrp);
+			pids[n] = pid;
+			if (!g_keep_stressing_flag)
+				break;
+		}
+		for (i = 0; i < n; i++) {
+			if (pids[i] > 0) {
+				int status;
+				/* Parent, wait for child */
+				(void)kill(pids[i], SIGKILL);
+				(void)waitpid(pids[i], &status, 0);
+				inc_counter(args);
+			}
+		}
+	} while (keep_stressing());
+
+	return EXIT_SUCCESS;
+}
+
+
+
+stressor_info_t stress_mlockmany_info = {
+	.stressor = stress_mlockmany,
+	.class = CLASS_SCHEDULER | CLASS_OS
+};
+
