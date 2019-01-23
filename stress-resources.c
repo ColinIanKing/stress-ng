@@ -109,7 +109,9 @@ static void NORETURN waste_resources(
 	const size_t pipe_size,
 	const size_t mem_slack)
 {
+#if defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
+#endif
 	size_t mlock_size;
 	size_t i, n;
 	size_t shmall, freemem, totalmem;
@@ -126,12 +128,16 @@ static void NORETURN waste_resources(
 #endif
 	int ret;
 
+#if defined(RLIMIT_MEMLOCK)
 	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
 	if (ret < 0) {
 		mlock_size = args->page_size * MAX_LOOPS;
 	} else {
 		mlock_size = rlim.rlim_cur;
 	}
+#else
+	mlock_size = args->page_size * MAX_LOOPS;
+#endif
 
 #if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H))
 	(void)args;
