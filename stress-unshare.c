@@ -30,6 +30,7 @@
 
 #if defined(CLONE_FS)		|| \
     defined(CLONE_FILES)	|| \
+    defined(CLONE_NEWCGROUP)	|| \
     defined(CLONE_NEWIPC)	|| \
     defined(CLONE_NEWNET)	|| \
     defined(CLONE_NEWNS)	|| \
@@ -117,6 +118,9 @@ static int stress_unshare(const args_t *args)
 #endif
 #if defined(CLONE_FILES)
 				UNSHARE(CLONE_FILES);
+#endif
+#if defined(CLONE_NEWCGROUP)
+				UNSHARE(CLONE_NEWCGROUP);
 #endif
 #if defined(CLONE_NEWIPC)
 				UNSHARE(CLONE_NEWIPC);
