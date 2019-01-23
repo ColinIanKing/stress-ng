@@ -91,7 +91,7 @@ void mwc_reseed(void)
 		if (gettimeofday(&tv, NULL) == 0)
 			__mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
 		__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
-		__mwc.w = (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+		__mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
 			__mwc.z += (128 * (m1 + m15));
 			__mwc.w += (256 * (m5));
