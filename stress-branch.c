@@ -24,6 +24,17 @@
  */
 #include "stress-ng.h"
 
+
+static inline uint8_t jmp_mwc8(void)
+{
+	static uint32_t w = MWC_SEED_W;
+	static uint32_t z = MWC_SEED_Z;
+
+        z = 36969 * (z & 65535) + (z >> 16);
+        w = 18000 * (w & 65535) + (w >> 16);
+        return (w >> 3) & 0xff;
+}
+
 /*
  *  The following jumps to a random label. If do_more is false
  *  then we jump to label ret and abort. This has been carefully
@@ -33,7 +44,7 @@
 #define JMP(a)	label ## a: 				\
 {							\
 	register bool do_more;				\
-	register uint16_t _index = mwc8();		\
+	register uint16_t _index = jmp_mwc8();		\
 							\
 	inc_counter(args);				\
 	do_more = LIKELY((int)g_keep_stressing_flag) &	\
