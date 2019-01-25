@@ -24,7 +24,13 @@
  */
 #include "stress-ng.h"
 
-
+/*
+ *  jmp_mwc8()
+ *	special non-overly optimized mwc8 that gets inlined
+ *	to remove a jmp and hence boost branch miss rates.
+ *	Do not optimize this any further as this will lower
+ *	the branch miss rate.
+ */
 static inline uint8_t jmp_mwc8(void)
 {
 	static uint32_t w = MWC_SEED_W;
