@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MLOCK)
+
 #define MAX_MLOCK_PROCS		(1024)
 
 /*
@@ -89,6 +91,7 @@ static int stress_mlockmany(const args_t *args)
 			pid = fork();
 			if (pid == 0) {
 				void *ptr = MAP_FAILED;
+				size_t mmap_size = mlock_size;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
@@ -100,20 +103,22 @@ static int stress_mlockmany(const args_t *args)
 				if (last_freeswap > freeswap)
 					_exit(0);
 
-				while (mlock_size > args->page_size) {
+				while (mmap_size > args->page_size) {
 					if (!keep_stressing())
 						_exit(0);
-					ptr = mmap(NULL, mlock_size, PROT_READ | PROT_WRITE,
+					ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 					if (ptr != MAP_FAILED)
 						break;
-					mlock_size >>= 1;
+					mmap_size >>= 1;
 				}
 				if (ptr == MAP_FAILED)
 					_exit(0);
 
-				mincore_touch_pages(ptr, mlock_size);
 
+				mincore_touch_pages(ptr, mmap_size);
+
+				mlock_size = mmap_size;
 				while (mlock_size > args->page_size) {
 					if (!keep_stressing())
 						_exit(0);
@@ -126,6 +131,9 @@ static int stress_mlockmany(const args_t *args)
 				while (keep_stressing()) {
 					pause();
 				}
+
+				(void)munlock(ptr, mlock_size);
+				(void)munmap(ptr, mmap_size);
 				_exit(0);
 			} else if (pid < 0) {
 				errnos[n] = errno;
@@ -150,10 +158,17 @@ static int stress_mlockmany(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-
-
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_VM | CLASS_OS
 };
+
+#else
+
+stressor_info_t stress_mlockmany_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS
+};
+
+#endif
 
