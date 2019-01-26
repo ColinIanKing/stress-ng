@@ -58,7 +58,7 @@ static int stress_mlockmany(const args_t *args)
 		mlock_size = rlim.rlim_cur;
 	}
 #else
-	mlock_size = args->page_size * MAX_LOOPS;
+	mlock_size = args->page_size * 1024;
 #endif
 
 	do {
