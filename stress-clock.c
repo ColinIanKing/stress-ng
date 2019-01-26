@@ -97,6 +97,12 @@ static const int timers[] = {
 };
 #endif
 
+#if defined(HAVE_CLOCK_NANOSLEEP) || 	\
+    (defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_GETTIME) &&	\
+    defined(HAVE_TIMER_GETOVERRUN) &&	\
+    defined(HAVE_TIMER_SETTIME))
 /*
  *  stress_clock_name()
  *	clock id to name
@@ -111,6 +117,7 @@ static const char *stress_clock_name(int id)
 	}
 	return "(unknown clock)";
 }
+#endif
 
 /*
  *  stress_clock()
