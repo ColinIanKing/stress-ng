@@ -186,7 +186,8 @@ static int stress_clock(const args_t *args)
     defined(__linux__) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
-    defined(HAVE_TIMER_SETTIME)
+    defined(HAVE_TIMER_GETTIME) &&	\
+    defined(HAVE_TIMER_SETTIME) 
 		/*
 		 *  Stress the timers
 		 */
