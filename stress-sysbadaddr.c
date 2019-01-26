@@ -361,7 +361,9 @@ static int bad_time(void *addr)
     defined(HAVE_TIMER_CREATE)
 static int bad_timer_create(void *addr)
 {
-	timer_t *timerid = ((timer_t)addr) + 1;
+	timer_t *timerid = ((timer_t)addr);
+
+	timerid++;
 	return timer_create(CLOCK_MONOTONIC, addr, timerid);
 }
 #endif
