@@ -26,8 +26,7 @@
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(HAVE_CLOCK_SETTIME) &&	\
-    (_POSIX_C_SOURCE >= 199309L)
+    defined(HAVE_CLOCK_SETTIME)
 
 typedef struct {
 	const int 	id;		/* Clock ID */
@@ -80,7 +79,11 @@ static const int clocks_nanosleep[] = {
 };
 #endif
 
-#if _POSIX_C_SOURCE >= 199309L && defined(__linux__)
+#if defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_GETTIME) &&	\
+    defined(HAVE_TIMER_GETOVERRUN) &&	\
+    defined(HAVE_TIMER_SETTIME) 
 static const int timers[] = {
 #if defined(CLOCK_REALTIME)
 	CLOCK_REALTIME,

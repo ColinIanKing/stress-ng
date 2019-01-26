@@ -115,6 +115,8 @@ int stress_set_cyclic_dist(const char *opt)
         return set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_CLOCK_NANOSLEEP) 
 /*
  *  stress_cyclic_clock_nanosleep()
  *	measure latencies with clock_nanosleep
@@ -124,8 +126,6 @@ static int stress_cyclic_clock_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -148,14 +148,12 @@ static int stress_cyclic_clock_nanosleep(
 
 		rt_stats->ns += (double)delta_ns;
 	}
-#else
-	(void)args;
-	(void)rt_stats;
-	(void)cyclic_sleep;
-#endif
 	return 0;
 }
+#endif
 
+#if defined(HAVE_CLOCK_GETTIME)	&&	\
+    defined(HAVE_NANOSLEEP)
 /*
  *  stress_cyclic_posix_nanosleep()
  *	measure latencies with posix nanosleep
@@ -165,8 +163,6 @@ static int stress_cyclic_posix_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -189,26 +185,20 @@ static int stress_cyclic_posix_nanosleep(
 
 		rt_stats->ns += (double)delta_ns;
 	}
-#else
-	(void)args;
-	(void)rt_stats;
-	(void)cyclic_sleep;
-#endif
 	return 0;
 }
+#endif
 
+#if defined(HAVE_CLOCK_GETTIME)
 /*
  *  stress_cyclic_poll()
  *	measure latencies of heavy polling the clock
-
  */
 static int stress_cyclic_poll(
 	const args_t *args,
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2;
 
 	(void)args;
@@ -239,15 +229,12 @@ static int stress_cyclic_poll(
 			break;
 		}
 	}
-#else
-	(void)args;
-	(void)rt_stats;
-	(void)cyclic_sleep;
-#endif
 	return 0;
 }
+#endif
 
-#if _POSIX_C_SOURCE >= 200112L
+#if defined(HAVE_PSELECT) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 /*
  *  stress_cyclic_pselect()
  *	measure latencies with pselect sleep
@@ -257,8 +244,6 @@ static int stress_cyclic_pselect(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t;
 	int ret;
 
@@ -281,17 +266,11 @@ static int stress_cyclic_pselect(
 
 		rt_stats->ns += (double)delta_ns;
 	}
-#else
-	(void)args;
-	(void)rt_stats;
-	(void)cyclic_sleep;
-#endif
 	return 0;
 }
 #endif
 
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_CLOCK_GETTIME)
 static struct timespec itimer_time;
 static timer_t timerid;
 
@@ -303,6 +282,10 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 }
 #endif
 
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 /*
  *  stress_cyclic_itimer()
  *	measure latencies with itimers
@@ -312,11 +295,6 @@ static int stress_cyclic_itimer(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(HAVE_TIMER_CREATE) &&	\
-    defined(HAVE_TIMER_DELETE) &&	\
-    defined(HAVE_TIMER_SETTIME)
 	struct itimerspec timer;
 	struct timespec t1;
 	int64_t delta_ns;
@@ -364,14 +342,8 @@ tidy:
 restore:
 	stress_sigrestore(args->name, SIGRTMIN, &old_action);
 	return ret;
-#else
-	(void)args;
-	(void)rt_stats;
-	(void)cyclic_sleep;
-
-	return 0;
-#endif
 }
+#endif
 
 #if defined(__linux__)
 static sigjmp_buf jmp_env;
@@ -463,13 +435,32 @@ static void stress_rt_stats(rt_stats_t *rt_stats)
  *  cyclic methods
  */
 static const stress_cyclic_method_info_t cyclic_methods[] = {
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_CLOCK_NANOSLEEP) 
 	{ "clock_ns",	stress_cyclic_clock_nanosleep },
+#endif
+
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 	{ "itimer",	stress_cyclic_itimer },
+#endif
+
+#if defined(HAVE_CLOCK_GETTIME)
 	{ "poll",	stress_cyclic_poll },
+#endif
+
+#if defined(HAVE_CLOCK_GETTIME)	&&	\
+    defined(HAVE_NANOSLEEP)
 	{ "posix_ns",	stress_cyclic_posix_nanosleep },
-#if _POSIX_C_SOURCE >= 200112L
+#endif
+
+#if defined(HAVE_PSELECT) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	{ "pselect",	stress_cyclic_pselect },
 #endif
+
 	{ NULL,		NULL }
 };
 
