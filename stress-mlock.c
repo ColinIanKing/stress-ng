@@ -189,7 +189,7 @@ again:
 
 				addr ^= mlocked;
 				if (mlocked)
-					(void)munlock((void *)((uint8_t *)addr + page_size), page_size);
+					(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
 				munmap((void *)addr, page_size * 3);
 			}
 #if defined(HAVE_MLOCKALL)
