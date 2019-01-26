@@ -107,7 +107,8 @@ static void semaphore_sysv_thrash(const args_t *args)
 
 	do {
 		int i;
-#if defined(__linux__) && defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_SEMTIMEDOP) &&	\
+    defined(HAVE_CLOCK_GETTIME)
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
@@ -128,7 +129,8 @@ static void semaphore_sysv_thrash(const args_t *args)
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
-#if defined(__linux__) && defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_SEMTIMEDOP) &&	\
+    defined(HAVE_CLOCK_GETTIME)
 			if (semtimedop(sem_id, &semwait, 1, &timeout) < 0) {
 #else
 			if (semop(sem_id, &semwait, 1) < 0) {
