@@ -315,7 +315,8 @@ static int stress_cyclic_itimer(
 #if defined(__linux__) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_TIMER_CREATE) &&	\
-    defined(HAVE_TIMER_DELETE)
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 	struct itimerspec timer;
 	struct timespec t1;
 	int64_t delta_ns;

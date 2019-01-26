@@ -31,6 +31,7 @@
     defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME) &&	\
     NEED_GLIBC(2,3,2)
 
 typedef void (epoll_func_t)(
@@ -90,6 +91,7 @@ int stress_set_epoll_domain(const char *name)
     defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME) &&	\
     NEED_GLIBC(2,3,2)
 
 /*

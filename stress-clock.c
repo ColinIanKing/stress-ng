@@ -120,7 +120,9 @@ static int stress_clock(const args_t *args)
 		struct timespec t;
 		int ret;
 
-#if defined(CLOCK_THREAD_CPUTIME_ID) && defined(__linux__) && (_POSIX_C_SOURCE >= 199309L)
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_CLOCK_SETTIME)
 		/*
 		 *  Exercise setting local thread CPU timer
 		 */
@@ -183,7 +185,8 @@ static int stress_clock(const args_t *args)
 #if _POSIX_C_SOURCE >= 199309L &&	\
     defined(__linux__) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
-    defined(HAVE_TIMER_DELETE)		\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 		/*
 		 *  Stress the timers
 		 */

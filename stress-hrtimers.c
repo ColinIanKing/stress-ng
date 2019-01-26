@@ -27,7 +27,8 @@
 #if defined(HAVE_LIB_RT) &&		\
     defined(__linux__) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
-    defined(HAVE_TIMER_DELETE)
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 static volatile uint64_t *timer_counter;
 static uint64_t max_ops;
 static timer_t timerid;
