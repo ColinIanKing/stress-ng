@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) && 		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(__linux__)
 static volatile uint64_t timer_counter = 0;
 static uint64_t max_ops;
 static timer_t timerid;
@@ -47,7 +49,9 @@ int stress_set_timer_freq(const char *opt)
 	return set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);
 }
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(__linux__)
 
 /*
  *  stress_timer_set()

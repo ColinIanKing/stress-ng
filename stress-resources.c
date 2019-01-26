@@ -63,25 +63,33 @@ typedef struct {
 	int pty_master;
 	int pty_slave;
 #endif
-#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(__linux__) &&		\
+    defined(SIGUNUSED)
 	bool timerok;
 	timer_t timerid;
 #endif
-#if defined(HAVE_LIB_PTHREAD) && (HAVE_SEM_POSIX)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
 	bool semok;
 	sem_t sem;
 #endif
 #if defined(HAVE_SEM_SYSV)
 	int sem_id;
 #endif
-#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(HAVE_SYS_MSG_H)
+#if defined(HAVE_MQ_SYSV) &&		\
+    defined(HAVE_SYS_IPC_H) &&		\
+    defined(HAVE_SYS_MSG_H)
 	int msgq_id;
 #endif
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_MQ_POSIX) &&		\
+    defined(HAVE_MQUEUE_H)
 	mqd_t mq;
 	char mq_name[64];
 #endif
-#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
+#if defined(HAVE_PKEY_ALLOC) &&		\
+    defined(HAVE_PKEY_FREE)
 	int pkey;
 #endif
 } info_t;
@@ -115,7 +123,8 @@ static void NORETURN waste_resources(
 	size_t mlock_size;
 	size_t i, n;
 	size_t shmall, freemem, totalmem, freeswap;
-#if defined(HAVE_MEMFD_CREATE) || defined(O_TMPFILE)
+#if defined(HAVE_MEMFD_CREATE) || 	\
+    defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
 	static int domains[] = { AF_INET, AF_INET6 };
@@ -139,7 +148,9 @@ static void NORETURN waste_resources(
 	mlock_size = args->page_size * MAX_LOOPS;
 #endif
 
-#if !(defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H))
+#if !(defined(HAVE_LIB_RT) &&	\
+      defined(HAVE_MQ_POSIX) && \
+      defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
@@ -194,7 +205,8 @@ static void NORETURN waste_resources(
 		}
 
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
+#if defined(__linux__) &&	\
+    defined(F_SETPIPE_SZ)
 		if (info[i].pipe_ret == 0) {
 			(void)fcntl(info[i].fd_pipe[0], F_SETPIPE_SZ, pipe_size);
 			(void)fcntl(info[i].fd_pipe[1], F_SETPIPE_SZ, pipe_size);
@@ -244,8 +256,11 @@ static void NORETURN waste_resources(
 			size_t sz = page_size * mwc32();
 
 			(void)shim_fallocate(info[i].fd_tmp, 0, 0, sz);
-#if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_GETLK) &&		\
+    defined(F_SETLK) &&		\
+    defined(F_SETLKW) &&	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 			{
 				struct flock f;
 
@@ -325,7 +340,9 @@ static void NORETURN waste_resources(
 					stress_pthread_func, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(SIGUNUSED)
 		if (!i) {
 			struct sigevent sevp;
 
@@ -337,7 +354,8 @@ static void NORETURN waste_resources(
 		}
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && defined(HAVE_SEM_POSIX)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
 #endif
 
@@ -347,12 +365,16 @@ static void NORETURN waste_resources(
 			IPC_CREAT | S_IRUSR | S_IWUSR);
 #endif
 
-#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(HAVE_SYS_MSG_H)
+#if defined(HAVE_MQ_SYSV) &&	\
+    defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_MSG_H)
 		info[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX) &&	\
+    defined(HAVE_MQUEUE_H)
 		struct mq_attr attr;
 
 		snprintf(info[i].mq_name, sizeof(info[i].mq_name), "/%s-%i-%" PRIu32 "-%zu",
@@ -365,7 +387,8 @@ static void NORETURN waste_resources(
 		info[i].mq = mq_open(info[i].mq_name,
 			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
 #endif
-#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
+#if defined(HAVE_PKEY_ALLOC) &&	\
+    defined(HAVE_PKEY_FREE)
 		info[i].pkey = shim_pkey_alloc(0, 0);
 #endif
 
@@ -440,7 +463,8 @@ static void NORETURN waste_resources(
 			(void)close(info[i].pty_master);
 #endif
 
-#if defined(HAVE_LIB_PTHREAD) && defined(HAVE_SEM_POSIX)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
 		if (info[i].semok)
 			(void)sem_destroy(&info[i].sem);
 #endif
@@ -455,13 +479,16 @@ static void NORETURN waste_resources(
 			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(HAVE_MQ_POSIX) && defined(HAVE_MQUEUE_H)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX) &&	\
+    defined(HAVE_MQUEUE_H)
 		if (info[i].mq >= 0) {
 			(void)mq_close(info[i].mq);
 			(void)mq_unlink(info[i].mq_name);
 		}
 #endif
-#if defined(HAVE_PKEY_ALLOC) && defined(HAVE_PKEY_FREE)
+#if defined(HAVE_PKEY_ALLOC) &&	\
+    defined(HAVE_PKEY_FREE)
 		if (info[i].pkey > -1)
 			 (void)shim_pkey_free(info[i].pkey);
 #endif

@@ -357,7 +357,8 @@ static int bad_time(void *addr)
 	return time(addr);
 }
 
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_TIMER_CREATE)
 static int bad_timer_create(void *addr)
 {
 	timer_t *timerid = ((timer_t)addr) + 1;
@@ -435,10 +436,12 @@ static bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_execve,
 	bad_getcwd,
-#if defined(__linux__) && defined(__NR_get_mempolicy)
+#if defined(__linux__) &&	\
+     defined(__NR_get_mempolicy)
 	bad_get_mempolicy,
 #endif
-#if defined(__linux__) && defined(__NR_getrandom)
+#if defined(__linux__) &&	\
+    defined(__NR_getrandom)
 	bad_getrandom,
 #endif
 #if defined(HAVE_GETRESGID)
@@ -450,17 +453,20 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_getrlimit,
 	bad_getrusage,
 	bad_gettimeofday,
-#if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+#if defined(__linux__) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 	bad_getxattr,
 #endif
 #if defined(TCGETS)
 	bad_ioctl,
 #endif
-#if defined(__linux__) && defined(__NR_migrate_pages)
+#if defined(__linux__) &&	\
+    defined(__NR_migrate_pages)
 	bad_migrate_pages,
 #endif
 	bad_mincore,
-#if defined(__linux__) && defined(__NR_move_pages)
+#if defined(__linux__) &&	\
+    defined(__NR_move_pages)
 	bad_move_pages,
 #endif
 #if _POSIX_C_SOURCE >= 199309L
@@ -471,7 +477,8 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_POLL_H)
 	bad_poll,
 #endif
-#if defined(HAVE_PTRACE) && defined(PTRACE_GETREGS)
+#if defined(HAVE_PTRACE) &&	\
+    defined(PTRACE_GETREGS)
 	bad_ptrace,
 #endif
 	bad_read,
@@ -481,11 +488,13 @@ static bad_syscall_t bad_syscalls[] = {
 #if defined(__linux__)
 	bad_statfs,
 #endif
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 	bad_sysinfo,
 #endif
 	bad_time,
-#if defined(HAVE_LIB_RT) && defined(__linux__)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_TIMER_CREATE)
 	bad_timer_create,
 #endif
 	bad_times,

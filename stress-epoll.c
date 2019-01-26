@@ -27,8 +27,9 @@
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)
 
-#if defined(HAVE_SYS_EPOLL_H) && \
-    defined(HAVE_LIB_RT) && 	 \
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
     NEED_GLIBC(2,3,2)
 
 typedef void (epoll_func_t)(

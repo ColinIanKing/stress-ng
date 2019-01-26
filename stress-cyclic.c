@@ -313,7 +313,8 @@ static int stress_cyclic_itimer(
 	uint64_t cyclic_sleep)
 {
 #if defined(__linux__) &&		\
-    defined(HAVE_CLOCK_GETTIME)
+    defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_TIMER_CREATE)
 	struct itimerspec timer;
 	struct timespec t1;
 	int64_t delta_ns;

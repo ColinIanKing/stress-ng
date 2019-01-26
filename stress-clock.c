@@ -180,7 +180,8 @@ static int stress_clock(const args_t *args)
 		}
 #endif
 
-#if _POSIX_C_SOURCE >= 199309L && defined(__linux__)
+#if _POSIX_C_SOURCE >= 199309L && defined(__linux__) && \
+    defined(HAVE_TIMER_CREATE)
 		/*
 		 *  Stress the timers
 		 */
