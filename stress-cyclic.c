@@ -272,7 +272,6 @@ static int stress_cyclic_pselect(
 
 #if defined(HAVE_CLOCK_GETTIME)
 static struct timespec itimer_time;
-static timer_t timerid;
 
 static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 {
@@ -300,6 +299,7 @@ static int stress_cyclic_itimer(
 	int64_t delta_ns;
 	struct sigaction old_action;
 	struct sigevent sev;
+	timer_t timerid;
 	int ret = -1;
 
 	timer.it_interval.tv_sec = timer.it_value.tv_sec = cyclic_sleep / NANOSECS;
