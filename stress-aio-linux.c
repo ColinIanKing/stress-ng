@@ -37,12 +37,13 @@ int stress_set_aio_linux_requests(const char *opt)
 	return set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
 }
 
-#if defined(__linux__) &&	\
-    defined(HAVE_LIB_AIO) &&	\
-    defined(HAVE_LIBAIO_H) &&	\
-    defined(__NR_io_setup) &&	\
-    defined(__NR_io_destroy) &&	\
-    defined(__NR_io_submit) &&	\
+#if defined(__linux__) &&		\
+    defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(__NR_io_setup) &&		\
+    defined(__NR_io_destroy) &&		\
+    defined(__NR_io_submit) &&		\
     defined(__NR_io_getevents)
 
 /*

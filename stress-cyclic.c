@@ -124,7 +124,8 @@ static int stress_cyclic_clock_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -164,7 +165,8 @@ static int stress_cyclic_posix_nanosleep(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t, trem;
 	int ret;
 
@@ -205,7 +207,8 @@ static int stress_cyclic_poll(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2;
 
 	(void)args;
@@ -254,7 +257,8 @@ static int stress_cyclic_pselect(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	struct timespec t1, t2, t;
 	int ret;
 
@@ -286,7 +290,8 @@ static int stress_cyclic_pselect(
 }
 #endif
 
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 static struct timespec itimer_time;
 static timer_t timerid;
 
@@ -307,7 +312,8 @@ static int stress_cyclic_itimer(
 	rt_stats_t *rt_stats,
 	uint64_t cyclic_sleep)
 {
-#if defined(__linux__)
+#if defined(__linux__) &&		\
+    defined(HAVE_CLOCK_GETTIME)
 	struct itimerspec timer;
 	struct timespec t1;
 	int64_t delta_ns;

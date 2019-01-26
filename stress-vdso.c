@@ -101,6 +101,7 @@ static void wrap_time(void *vdso_func)
 	(void)vdso_time(&t);
 }
 
+#if defined(HAVE_CLOCK_GETTIME)
 /*
  *  wrap_clock_gettime()
  *	invoke clock_gettime()
@@ -113,14 +114,17 @@ static void wrap_clock_gettime(void *vdso_func)
 	*(void **)(&vdso_clock_gettime) = vdso_func;
 	vdso_clock_gettime(CLOCK_MONOTONIC, &tp);
 }
+#endif
 
 /*
  *  mapping of wrappers to function symbol name
  */
 wrap_func_t wrap_funcs[] = {
+#if defined(HAVE_CLOCK_GETTIME)
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
 	{ wrap_clock_gettime,	"__kernel_clock_gettime" },
+#endif
 	{ wrap_getcpu,		"getcpu" },
 	{ wrap_getcpu,		"__vdso_getcpu" },
 	{ wrap_getcpu,		"__kernel_getcpu" },

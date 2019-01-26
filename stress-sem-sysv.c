@@ -107,6 +107,7 @@ static void semaphore_sysv_thrash(const args_t *args)
 
 	do {
 		int i;
+#if defined(__linux__) && defined(HAVE_CLOCK_GETTIME)
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
@@ -114,6 +115,7 @@ static void semaphore_sysv_thrash(const args_t *args)
 			return;
 		}
 		timeout.tv_sec++;
+#endif
 
 		for (i = 0; i < 1000; i++) {
 			struct sembuf semwait, semsignal;

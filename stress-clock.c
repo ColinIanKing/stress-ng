@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_RT) && (_POSIX_C_SOURCE >= 199309L)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_CLOCK_GETTIME) &&	\
+    (_POSIX_C_SOURCE >= 199309L)
 
 typedef struct {
 	const int 	id;		/* Clock ID */
