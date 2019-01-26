@@ -141,6 +141,7 @@ static int stress_clock(const args_t *args)
 		(void)ret;
 #endif
 
+#if defined(HAVE_CLOCK_GETRES)
 		/*
 		 *  Exercise clock_getres and clock_gettime for each clock
 		 */
@@ -157,6 +158,7 @@ static int stress_clock(const args_t *args)
 					"timer '%s', errno=%d (%s)\n",
 					args->name, clocks[i].name, errno, strerror(errno));
 		}
+#endif
 
 #if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
 		/*
