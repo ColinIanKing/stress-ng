@@ -169,14 +169,14 @@ unmap:
 
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
 };
 
 #else
 
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
 };
 
 #endif
