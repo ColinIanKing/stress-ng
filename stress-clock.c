@@ -182,11 +182,10 @@ static int stress_clock(const args_t *args)
 		}
 #endif
 
-#if _POSIX_C_SOURCE >= 199309L &&	\
-    defined(__linux__) &&		\
-    defined(HAVE_TIMER_CREATE) &&	\
+#if defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETTIME) &&	\
+    defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME) 
 		/*
 		 *  Stress the timers
@@ -234,6 +233,9 @@ static int stress_clock(const args_t *args)
 						errno, strerror(errno));
 					goto timer_delete;
 				}
+				ret = timer_getoverrun(timer_id);
+				(void)ret;
+
 				loops--;
 			} while ((loops > 0) && g_keep_stressing_flag && (its.it_value.tv_nsec != 0));
 
