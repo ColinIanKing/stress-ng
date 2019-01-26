@@ -36,10 +36,10 @@
  */
 int shim_sched_yield(void)
 {
-#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
+#if defined(HAVE_SCHED_YIELD)
 	return sched_yield();
 #else
-	return 0;
+	return sleep(0);
 #endif
 }
 
