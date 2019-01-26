@@ -847,7 +847,7 @@ int shim_madvise(void *addr, size_t length, int advice)
 {
 #if defined(HAVE_MADVISE)
 	return madvise(addr, length, advice);
-#elif (_POSIX_C_SOURCE >= 200112L)
+#elif defined(HAVE_POSIX_MADVISE)
 	int posix_advice;
 
 	switch (advice) {
