@@ -270,7 +270,10 @@ static int stress_cyclic_pselect(
 }
 #endif
 
-#if defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(HAVE_TIMER_SETTIME)
 static struct timespec itimer_time;
 
 static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
@@ -279,12 +282,7 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 
 	(void)clock_gettime(CLOCK_REALTIME, &itimer_time);
 }
-#endif
 
-#if defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(HAVE_TIMER_CREATE) &&	\
-    defined(HAVE_TIMER_DELETE) &&	\
-    defined(HAVE_TIMER_SETTIME)
 /*
  *  stress_cyclic_itimer()
  *	measure latencies with itimers
