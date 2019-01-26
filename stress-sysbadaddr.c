@@ -257,7 +257,7 @@ static int bad_move_pages(void *addr)
 #endif
 
 
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(HAVE_NANOSLEEP)
 static int bad_nanosleep(void *addr)
 {
 	return nanosleep(addr, addr);
@@ -469,7 +469,7 @@ static bad_syscall_t bad_syscalls[] = {
     defined(__NR_move_pages)
 	bad_move_pages,
 #endif
-#if _POSIX_C_SOURCE >= 199309L
+#if defined(HAVE_NANOSLEEP)
 	bad_nanosleep,
 #endif
 	bad_open,
