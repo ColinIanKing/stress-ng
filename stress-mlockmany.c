@@ -78,10 +78,6 @@ static int stress_mlockmany(const args_t *args)
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
-			/* Try hard to ensure we don't run too low of in-core memory */
-			if ((freemem != 0) && (freemem < mlock_size + freeswap))
-				break;
-
 			/* We detected swap being used, bail out */
 			if (last_freeswap > freeswap)
 				break;
