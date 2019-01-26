@@ -73,6 +73,9 @@ static int stress_mlockmany(const args_t *args)
 		for (n = 0; n < max_mlock_procs; n++) {
 			pid_t pid;
 
+			if (!keep_stressing())
+				break;
+
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 			/* Try hard to ensure we don't run too low of in-core memory */
@@ -102,6 +105,8 @@ static int stress_mlockmany(const args_t *args)
 					_exit(0);
 
 				while (mlock_size > args->page_size) {
+					if (!keep_stressing())
+						_exit(0);
 					ptr = mmap(NULL, mlock_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 					if (ptr != MAP_FAILED)
@@ -114,6 +119,8 @@ static int stress_mlockmany(const args_t *args)
 				mincore_touch_pages(ptr, mlock_size);
 
 				while (mlock_size > args->page_size) {
+					if (!keep_stressing())
+						_exit(0);
 					ret = shim_mlock(ptr, mlock_size);
 					if (ret == 0)
 						break;
