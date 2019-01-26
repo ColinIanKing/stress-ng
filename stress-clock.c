@@ -66,7 +66,7 @@ static const clock_info_t clocks[] = {
 #endif
 };
 
-#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
+#if defined(HAVE_CLOCK_NANOSLEEP)
 static const int clocks_nanosleep[] = {
 #if defined(CLOCK_REALTIME)
 	CLOCK_REALTIME,
@@ -160,7 +160,7 @@ static int stress_clock(const args_t *args)
 		}
 #endif
 
-#if (_XOPEN_SOURCE >= 600 || _POSIX_C_SOURCE >= 200112L)
+#if defined(HAVE_CLOCK_NANOSLEEP)
 		/*
 		 *  Exercise clock_nanosleep for each clock
 		 */
