@@ -135,14 +135,17 @@ static void NORETURN waste_resources(
 #else
 	const int flag = 0;
 #endif
-	int ret;
 
 #if defined(RLIMIT_MEMLOCK)
-	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
-	if (ret < 0) {
-		mlock_size = args->page_size * MAX_LOOPS;
-	} else {
-		mlock_size = rlim.rlim_cur;
+	{
+		int ret;
+
+		ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
+		if (ret < 0) {
+			mlock_size = args->page_size * MAX_LOOPS;
+		} else {
+			mlock_size = rlim.rlim_cur;
+		}
 	}
 #else
 	mlock_size = args->page_size * MAX_LOOPS;
