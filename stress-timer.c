@@ -26,6 +26,7 @@
 
 #if defined(HAVE_LIB_RT) && 		\
     defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     defined(__linux__)
 static volatile uint64_t timer_counter = 0;
 static uint64_t max_ops;
@@ -51,6 +52,7 @@ int stress_set_timer_freq(const char *opt)
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     defined(__linux__)
 
 /*

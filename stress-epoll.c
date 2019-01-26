@@ -30,6 +30,7 @@
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     NEED_GLIBC(2,3,2)
 
 typedef void (epoll_func_t)(
@@ -85,8 +86,10 @@ int stress_set_epoll_domain(const char *name)
 	return ret;
 }
 
-#if defined(HAVE_SYS_EPOLL_H) && \
-    defined(HAVE_LIB_RT) && 	 \
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     NEED_GLIBC(2,3,2)
 
 /*
