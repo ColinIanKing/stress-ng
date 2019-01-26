@@ -24,8 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if _POSIX_C_SOURCE >= 199309L &&	\
-    defined(HAVE_SIGQUEUE) &&		\
+#if defined(HAVE_SIGQUEUE) &&		\
     defined(HAVE_SIGWAITINFO) &&	\
     defined(SIGRTMIN) &&		\
     defined(SIGRTMAX)
