@@ -26,6 +26,7 @@
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_CLOCK_SETTIME) &&	\
     (_POSIX_C_SOURCE >= 199309L)
 
 typedef struct {
