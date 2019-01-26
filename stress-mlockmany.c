@@ -89,7 +89,7 @@ static int stress_mlockmany(const args_t *args)
 
 			pid = fork();
 			if (pid == 0) {
-				void *ptr;
+				void *ptr = MAP_FAILED;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
