@@ -128,11 +128,20 @@ static int stress_mlockmany(const args_t *args)
 					mlock_size >>= 1;
 				}
 
-				while (keep_stressing()) {
-					pause();
+				for (;;) {
+					if (!keep_stressing())
+						goto unlock;
+					(void)shim_munlock(ptr, mlock_size);
+					if (!keep_stressing())
+						goto unmap;
+					(void)shim_mlock(ptr, mlock_size);
+					if (!keep_stressing())
+						goto unlock;
+					(void)shim_usleep_interruptible(10000);
 				}
-
-				(void)munlock(ptr, mlock_size);
+unlock:
+				(void)shim_munlock(ptr, mlock_size);
+unmap:
 				(void)munmap(ptr, mmap_size);
 				_exit(0);
 			} else if (pid < 0) {
