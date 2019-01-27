@@ -23,8 +23,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && \
-    defined(F_NOTIFY) && \
+#if defined(F_NOTIFY) && \
     defined(HAVE_SYS_SELECT_H)
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)
