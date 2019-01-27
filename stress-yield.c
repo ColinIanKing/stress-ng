@@ -38,14 +38,13 @@ static int stress_yield(const args_t *args)
 	int32_t cpus = stress_get_processors_configured();
 	const size_t instances = args->num_instances;
 	size_t yielders = 2;
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 #endif
 	pid_t *pids;
 	size_t i;
 
-#if defined(HAVE_SCHED_GETAFFINITY) &&	\
-    NEED_GLIBC(2,3,0)
+#if defined(HAVE_SCHED_GETAFFINITY)
 	/*
 	 *  If the process is limited to a subset of cores
 	 *  then make sure we do not create too many yielders
