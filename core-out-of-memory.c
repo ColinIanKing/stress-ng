@@ -33,7 +33,6 @@
 #define OOM_ADJ_MIN		"-16"
 #define OOM_ADJ_MAX		"15"
 
-
 /*
  *  process_oomed()
  *	check if a process has been logged as OOM killed
@@ -76,7 +75,6 @@ bool process_oomed(const pid_t pid)
 
 	return oomed;
 }
-
 
 /*
  *  set_oom_adjustment()
