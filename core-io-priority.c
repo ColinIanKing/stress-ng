@@ -62,7 +62,7 @@ int32_t get_opt_ionice_class(const char *const str)
 	_exit(EXIT_FAILURE);
 }
 
-#if defined(__linux__) && defined(__NR_ioprio_set)
+#if defined(__NR_ioprio_set)
 /*
  *  set_iopriority()
  *	check ioprio settings and set
@@ -95,7 +95,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 	}
 	rc = shim_ioprio_set(IOPRIO_WHO_PROCESS, 0,
 		IOPRIO_PRIO_VALUE(class, data));
-	if (rc < 0) {
+	if ((rc < 0) && (errno != ENOSYS)) {
 		(void)fprintf(stderr, "Cannot set I/O priority: errno=%d (%s)\n",
 			errno, strerror(errno));
 		_exit(EXIT_FAILURE);
