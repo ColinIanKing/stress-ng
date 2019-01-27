@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
-
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
@@ -243,9 +241,3 @@ stressor_info_t stress_rlimit_info = {
 	.stressor = stress_rlimit,
 	.class = CLASS_OS
 };
-#else
-stressor_info_t stress_rlimit_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_OS
-};
-#endif
