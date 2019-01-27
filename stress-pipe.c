@@ -97,7 +97,7 @@ static void pipe_change_size(
 	if (!pipe_size)
 		return;
 
-#if !(defined(__linux__) && NEED_GLIBC(2,9,0))
+#if !(defined(HAVE_PIPE2) && NEED_GLIBC(2,9,0))
 	if (pipe_size < args->page_size)
 		return;
 #endif
@@ -135,7 +135,7 @@ static int stress_pipe(const args_t *args)
 
 	(void)get_setting("pipe-data-size", &pipe_data_size);
 
-#if defined(__linux__) && NEED_GLIBC(2,9,0)
+#if defined(HAVE_PIPE2) && NEED_GLIBC(2,9,0)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
 		/*
 		 *  Failed, fall back to standard pipe
