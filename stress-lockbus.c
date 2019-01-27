@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 #if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
-    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
+    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM)))
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
 #define CHUNK_SIZE	(64 * 4)
