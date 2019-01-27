@@ -1109,7 +1109,7 @@ int stress_not_implemented(const args_t *args)
 	return EXIT_NOT_IMPLEMENTED;
 }
 
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
+#if defined(F_SETPIPE_SZ)
 /*
  *  stress_check_max_pipe_size()
  *	check if the given pipe size is allowed
@@ -1143,7 +1143,7 @@ size_t stress_probe_max_pipe_size(void)
 {
 	static size_t max_pipe_size;
 
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
+#if defined(F_SETPIPE_SZ)
 	size_t i, ret, prev_sz, sz, min, max;
 	char buf[64];
 	size_t page_size;
@@ -1152,7 +1152,7 @@ size_t stress_probe_max_pipe_size(void)
 	if (max_pipe_size)
 		return max_pipe_size;
 
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
+#if defined(F_SETPIPE_SZ)
 	page_size = stress_get_pagesize();
 
 	/*
