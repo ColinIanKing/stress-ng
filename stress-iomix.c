@@ -495,10 +495,11 @@ static void stress_iomix_inode_ioctl(const int fd, const int flag, bool *ok)
 {
 	int ret, attr;
 
+#if defined(FS_IOC_GETFLAGS)
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
 	if (ret < 0)
 		return;
-
+#if defined(FS_IOC_SETFLAGS)
 	attr |= flag;
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
 	if (ret < 0)
@@ -508,6 +509,8 @@ static void stress_iomix_inode_ioctl(const int fd, const int flag, bool *ok)
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
 	if (ret < 0)
 		return;
+#endif
+#endif
 	*ok = true;
 }
 #endif
