@@ -43,7 +43,7 @@ static int stress_crypt_id(
 {
 	salt[1] = id;
 	char *crypted;
-#if defined (__linux__)
+#if defined (HAVE_CRYPT_R)
 	struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
