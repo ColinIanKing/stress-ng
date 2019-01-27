@@ -55,8 +55,7 @@ int stress_set_timer_freq(const char *opt)
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
-    defined(HAVE_TIMER_SETTIME) &&	\
-    defined(__linux__)
+    defined(HAVE_TIMER_SETTIME)
 
 /*
  *  stress_timer_set()
