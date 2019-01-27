@@ -24,8 +24,17 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SYS_XATTR_H) ||	\
-    defined(HAVE_ATTR_XATTR_H)
+#if (defined(HAVE_SYS_XATTR_H) ||	\
+     defined(HAVE_ATTR_XATTR_H)) &&	\
+    defined(HAVE_FGETXATTR) &&		\
+    defined(HAVE_FLISTXATTR) &&		\
+    defined(HAVE_FREMOVEXATTR) &&	\
+    defined(HAVE_FSETXATTR) &&		\
+    defined(HAVE_GETXATTR) &&		\
+    defined(HAVE_LISTXATTR) &&		\
+    defined(HAVE_LGETXATTR) &&		\
+    defined(HAVE_LSETXATTR) &&		\
+    defined(HAVE_SETXATTR)
 
 /*
  *  stress_xattr
