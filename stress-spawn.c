@@ -72,6 +72,11 @@ static int stress_spawn(const args_t *args)
 	 */
 	len = readlink("/proc/self/exe", path, sizeof(path));
 	if (len < 0 || len > PATH_MAX) {
+		if (errno == ENOENT) {
+			pr_inf("%s: skipping stressor, can't determine stress-ng "
+				"executable name\n", args->name);
+			return EXIT_NOT_IMPLEMENTED;
+		}
 		pr_fail("%s: readlink on /proc/self/exe failed\n", args->name);
 		return EXIT_FAILURE;
 	}
