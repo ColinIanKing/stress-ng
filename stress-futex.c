@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LINUX_FUTEX_H) &&	\
-    defined(__linux__) && 		\
     defined(__NR_futex)
 
 #define THRESHOLD	(100000)
