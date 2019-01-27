@@ -24,8 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) &&		\
-    defined(HAVE_APPARMOR) &&		\
+#if defined(HAVE_APPARMOR) &&		\
     defined(HAVE_SYS_APPARMOR_H) && 	\
     defined(HAVE_SYS_SELECT_H)
 
