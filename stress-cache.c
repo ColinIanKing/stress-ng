@@ -66,7 +66,8 @@ static int stress_cache(const args_t *args)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, mem_cache_size / 1024);
 
-#if defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) && 	\
+    defined(HAVE_SCHED_GETCPU)
 	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
 		pinned = true;
 	else
@@ -127,7 +128,8 @@ static int stress_cache(const args_t *args)
 					break;
 			}
 		}
-#if defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_GETCPU)
 		if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
 			int current;
 
