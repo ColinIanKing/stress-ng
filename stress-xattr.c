@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+#if defined(HAVE_SYS_XATTR_H) ||	\
+    defined(HAVE_ATTR_XATTR_H)
 
 /*
  *  stress_xattr
