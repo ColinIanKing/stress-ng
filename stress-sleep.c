@@ -24,8 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_PTHREAD) && \
-    defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
 	const args_t *args;
@@ -48,7 +47,7 @@ int stress_set_sleep_max(const char *opt)
 	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD)
 
 /*
  *  stress_pthread_func()
