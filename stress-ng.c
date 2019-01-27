@@ -2202,7 +2202,7 @@ static void MLOCKED_TEXT wait_procs(
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
 		ignite_cpu_start();
 
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#if defined(HAVE_SCHED_GETAFFINITY) && NEED_GLIBC(2,3,0)
 	/*
 	 *  On systems that support changing CPU affinity
 	 *  we keep on moving processes between processors

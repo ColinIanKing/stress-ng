@@ -50,7 +50,7 @@
  */
 static int stress_cache(const args_t *args)
 {
-#if defined(__linux__)
+#if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 	uint32_t cpu = 0;
 	const uint32_t cpus = stress_get_processors_configured();
@@ -66,7 +66,7 @@ static int stress_cache(const args_t *args)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, mem_cache_size / 1024);
 
-#if defined(__linux__)
+#if defined(HAVE_SCHED_GETAFFINITY)
 	if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
 		pinned = true;
 	else
@@ -127,7 +127,7 @@ static int stress_cache(const args_t *args)
 					break;
 			}
 		}
-#if defined(__linux__)
+#if defined(HAVE_SCHED_GETAFFINITY)
 		if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
 			int current;
 

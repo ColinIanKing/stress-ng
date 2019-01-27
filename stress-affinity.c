@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_AFFINITY)
+#if defined(HAVE_AFFINITY) && \
+    defined(HAVE_SCHED_GETAFFINITY)
 
 /*
  *  stress_affinity_supported()

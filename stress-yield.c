@@ -44,7 +44,8 @@ static int stress_yield(const args_t *args)
 	pid_t *pids;
 	size_t i;
 
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    NEED_GLIBC(2,3,0)
 	/*
 	 *  If the process is limited to a subset of cores
 	 *  then make sure we do not create too many yielders
