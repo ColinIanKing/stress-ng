@@ -29,7 +29,6 @@
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME) &&	\
-    defined(__linux__)
 static volatile uint64_t timer_counter = 0;
 static uint64_t max_ops;
 static timer_t timerid;
