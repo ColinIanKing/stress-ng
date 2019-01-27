@@ -50,7 +50,8 @@
  */
 static int stress_cache(const args_t *args)
 {
-#if defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_GETCPU)
 	cpu_set_t mask;
 	uint32_t cpu = 0;
 	const uint32_t cpus = stress_get_processors_configured();
