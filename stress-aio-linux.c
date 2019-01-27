@@ -37,8 +37,7 @@ int stress_set_aio_linux_requests(const char *opt)
 	return set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
 }
 
-#if defined(__linux__) &&		\
-    defined(HAVE_LIB_AIO) &&		\
+#if defined(HAVE_LIB_AIO) &&		\
     defined(HAVE_LIBAIO_H) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(__NR_io_setup) &&		\
