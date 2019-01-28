@@ -509,7 +509,7 @@ static int stress_af_alg(const args_t *args)
 	if (hashfails | cipherfails | rngfails)
 		pr_dbg("%s: bind failed with ENOENT on all hashes (%"
 			PRIu64 " times), ciphers (%" PRIu64 " times), "
-			"prngs (%" PRIu64 " times\n",
+			"prngs (%" PRIu64 " times)\n",
 			args->name, hashfails, cipherfails, rngfails);
 	rc = EXIT_SUCCESS;
 tidy:
