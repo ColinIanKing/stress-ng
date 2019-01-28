@@ -51,89 +51,93 @@ static int stress_sysinfo(const args_t *args)
 	do {
 		struct tms tms_buf;
 		clock_t clk;
-#if defined(HAVE_SYS_STATVFS_H)
-		struct statvfs statvfs_buf;
-#endif
-		int i, ret;
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO) &&		\
     defined(HAVE_SYS_STATFS_H)
-		struct sysinfo sysinfo_buf;
-		struct statfs statfs_buf;
+		{
+			struct sysinfo sysinfo_buf;
+			struct statfs statfs_buf;
+			int i, ret;
 
-		ret = sysinfo(&sysinfo_buf);
-		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err("sysinfo");
-		}
-		check_do_run();
-
-		/* Linux statfs variant */
-		for (i = 0; i < n_mounts; i++) {
-			int fd;
+			ret = sysinfo(&sysinfo_buf);
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+			 	pr_fail_err("sysinfo");
 
 			check_do_run();
 
-			if (!mnts[i])
-				continue;
+			/* Linux statfs variant */
+			for (i = 0; i < n_mounts; i++) {
+				int fd;
 
-			ret = statfs(mnts[i], &statfs_buf);
-			/* Mount may have been removed, so purge it */
-			if ((ret < 0) && (errno == ENOENT)) {
-				free(mnts[i]);
-				mnts[i] = NULL;
-				continue;
-			}
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno != ENOSYS &&
-				    errno != EOVERFLOW &&
-				    errno != EACCES) {
-					pr_fail("%s: statfs on %s "
-						"failed: errno=%d (%s)\n",
-						args->name, mnts[i], errno,
-						strerror(errno));
+				check_do_run();
+
+				if (!mnts[i])
+					continue;
+
+				ret = statfs(mnts[i], &statfs_buf);
+				/* Mount may have been removed, so purge it */
+				if ((ret < 0) && (errno == ENOENT)) {
+					free(mnts[i]);
+					mnts[i] = NULL;
+					continue;
 				}
-			}
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					if (errno != ENOSYS &&
+					    errno != EOVERFLOW &&
+					    errno != EACCES) {
+						pr_fail("%s: statfs on %s "
+							"failed: errno=%d (%s)\n",
+							args->name, mnts[i], errno,
+							strerror(errno));
+					}
+				}
 
-			fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
-			if (fd < 0)
-				continue;
+				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
+				if (fd < 0)
+					continue;
 
-			ret = fstatfs(fd, &statfs_buf);
-			(void)close(fd);
-			if ((ret < 0) && (errno == ENOENT))
-				continue;
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno != ENOSYS &&
-				    errno != EOVERFLOW &&
-				    errno != EACCES) {
-					pr_fail("%s: fstatfs on %s "
-						"failed: errno=%d (%s)\n",
-						args->name, mnts[i], errno,
-						strerror(errno));
+				ret = fstatfs(fd, &statfs_buf);
+				(void)close(fd);
+				if ((ret < 0) && (errno == ENOENT))
+					continue;
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					if (errno != ENOSYS &&
+					    errno != EOVERFLOW &&
+					    errno != EACCES) {
+						pr_fail("%s: fstatfs on %s "
+							"failed: errno=%d (%s)\n",
+							args->name, mnts[i], errno,
+							strerror(errno));
+					}
 				}
 			}
 		}
 #endif
 
 #if defined(HAVE_USTAT)
-		check_do_run();
+		{
+			int i;
 
-		for (i = 0; i < n_mounts; i++) {
-			struct stat sbuf;
-			struct ustat ubuf;
+			check_do_run();
 
-			ret = stat(mnts[i], &sbuf);
-			if (ret < 0)
-				continue;
+			for (i = 0; i < n_mounts; i++) {
+				struct stat sbuf;
+				struct ustat ubuf;
+				int ret;
 
-			ret = ustat(sbuf.st_dev, &ubuf);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno != EINVAL &&
-				    errno != ENOSYS) {
-					pr_fail("%s: ustat on %s "
-						"failed: errno=%d (%s)\n",
-						args->name, mnts[i], errno,
-						strerror(errno));
+				ret = stat(mnts[i], &sbuf);
+				if (ret < 0)
+					continue;
+
+				ret = ustat(sbuf.st_dev, &ubuf);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					if (errno != EINVAL &&
+					    errno != ENOSYS) {
+						pr_fail("%s: ustat on %s "
+							"failed: errno=%d (%s)\n",
+							args->name, mnts[i], errno,
+							strerror(errno));
+					}
 				}
 			}
 		}
@@ -141,22 +145,29 @@ static int stress_sysinfo(const args_t *args)
 		check_do_run();
 
 #if defined(HAVE_SYS_STATVFS_H)
-		/* POSIX.1-2001 statfs variant */
-		for (i = 0; i < n_mounts; i++) {
-			check_do_run();
+		{
+			int i;
 
-			if (!mnts[i])
-				continue;
+			struct statvfs statvfs_buf;
+			/* POSIX.1-2001 statfs variant */
+			for (i = 0; i < n_mounts; i++) {
+				int ret;
 
-			ret = statvfs(mnts[i], &statvfs_buf);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno != ENOSYS &&
-				    errno != EOVERFLOW &&
-				    errno != EACCES) {
-					pr_fail("%s: statvfs on %s "
-						"failed: errno=%d (%s)\n",
-						args->name, mnts[i], errno,
-						strerror(errno));
+				check_do_run();
+
+				if (!mnts[i])
+					continue;
+
+				ret = statvfs(mnts[i], &statvfs_buf);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					if (errno != ENOSYS &&
+					    errno != EOVERFLOW &&
+					    errno != EACCES) {
+						pr_fail("%s: statvfs on %s "
+							"failed: errno=%d (%s)\n",
+							args->name, mnts[i], errno,
+							strerror(errno));
+					}
 				}
 			}
 		}
