@@ -2284,7 +2284,7 @@ redo:
 #endif
 #else
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
-							ret, stressor_name));
+							ret, stressor_name);
 #endif
 						/*
 						 *  If the stressor got killed by OOM or SIGKILL
