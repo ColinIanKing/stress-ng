@@ -126,69 +126,84 @@ static const char *stress_clock_name(int id)
 static int stress_clock(const args_t *args)
 {
 	do {
-		size_t i;
-		struct timespec t;
-		int ret;
-
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_CLOCK_SETTIME)
-		/*
-		 *  Exercise setting local thread CPU timer
-		 */
-		ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
-		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-			pr_fail("%s: clock_gettime failed for "
-				"timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+		{
+			int ret;
+			struct timespec t;
 
-		/*
-		 *  According to clock_settime(2), setting the timer
-		 *  CLOCK_THREAD_CPUTIME_ID is not possible on Linux.
-		 *  Try to set it and ignore the result because it will
-		 *  currently return -EINVAL, but it may not do so in the
-		 *  future.
-		 */
-		ret = clock_settime(CLOCK_THREAD_CPUTIME_ID, &t);
-		(void)ret;
+			/*
+			 *  Exercise setting local thread CPU timer
+			 */
+			ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+				pr_fail("%s: clock_gettime failed for "
+					"timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+
+			/*
+			 *  According to clock_settime(2), setting the timer
+			 *  CLOCK_THREAD_CPUTIME_ID is not possible on Linux.
+			 *  Try to set it and ignore the result because it will
+			 *  currently return -EINVAL, but it may not do so in the
+			 *  future.
+			 */
+			ret = clock_settime(CLOCK_THREAD_CPUTIME_ID, &t);
+			(void)ret;
+		}
 #endif
 
 #if defined(HAVE_CLOCK_GETRES)
-		/*
-		 *  Exercise clock_getres and clock_gettime for each clock
-		 */
-		for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
-			ret = clock_getres(clocks[i].id, &t);
+		{
+			size_t i;
+			struct timespec t;
 
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-				pr_fail("%s: clock_getres failed for "
-					"timer '%s', errno=%d (%s)\n",
-					args->name, clocks[i].name, errno, strerror(errno));
-			ret = clock_gettime(clocks[i].id, &t);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-				pr_fail("%s: clock_gettime failed for "
-					"timer '%s', errno=%d (%s)\n",
-					args->name, clocks[i].name, errno, strerror(errno));
+			/*
+			 *  Exercise clock_getres and clock_gettime for each clock
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
+				int ret;
+
+				ret = clock_getres(clocks[i].id, &t);
+
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+					pr_fail("%s: clock_getres failed for "
+						"timer '%s', errno=%d (%s)\n",
+							args->name, clocks[i].name, errno, strerror(errno));
+				ret = clock_gettime(clocks[i].id, &t);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+					pr_fail("%s: clock_gettime failed for "
+						"timer '%s', errno=%d (%s)\n",
+						args->name, clocks[i].name, errno, strerror(errno));
+			}
 		}
 #endif
 
 #if defined(HAVE_CLOCK_NANOSLEEP)
-		/*
-		 *  Exercise clock_nanosleep for each clock
-		 */
-		for (i = 0; i < SIZEOF_ARRAY(clocks_nanosleep); i++) {
-			t.tv_sec = 0;
-			t.tv_nsec = 25000;
+		{
+			size_t i;
+			struct timespec t;
+
 			/*
-			 *  Calling with TIMER_ABSTIME will force
-			 *  clock_nanosleep() to return immediately
+			 *  Exercise clock_nanosleep for each clock
 			 */
-			ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-				pr_fail("%s: clock_nanosleep failed for timer '%s', "
-					"errno=%d (%s)\n", args->name,
-					stress_clock_name(clocks_nanosleep[i]),
-					errno, strerror(errno));
+			for (i = 0; i < SIZEOF_ARRAY(clocks_nanosleep); i++) {
+				int ret;
+
+				t.tv_sec = 0;
+				t.tv_nsec = 25000;
+				/*
+				 *  Calling with TIMER_ABSTIME will force
+				 *  clock_nanosleep() to return immediately
+				 */
+				ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+					pr_fail("%s: clock_nanosleep failed for timer '%s', "
+						"errno=%d (%s)\n", args->name,
+						stress_clock_name(clocks_nanosleep[i]),
+						errno, strerror(errno));
+			}
 		}
 #endif
 
@@ -197,66 +212,71 @@ static int stress_clock(const args_t *args)
     defined(HAVE_TIMER_GETTIME) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
     defined(HAVE_TIMER_SETTIME) 
-		/*
-		 *  Stress the timers
-		 */
-		for (i = 0; i < SIZEOF_ARRAY(timers); i++) {
-			timer_t timer_id;
-			struct itimerspec its;
-			struct sigevent sevp;
-			int64_t loops = 1000000;
+		{
+			size_t i;
 
-			(void)memset(&sevp, 0, sizeof(sevp));
-			sevp.sigev_notify = SIGEV_NONE;
-			ret = timer_create(timers[i], &sevp, &timer_id);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				if (errno == EINVAL)
-					continue;
-				pr_fail("%s: timer_create failed for timer '%s', "
-					"errno=%d (%s)\n", args->name,
-					stress_clock_name(timers[i]),
-					errno, strerror(errno));
-				continue;
-			}
+			/*
+			 *  Stress the timers
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(timers); i++) {
+				timer_t timer_id;
+				struct itimerspec its;
+				struct sigevent sevp;
+				int64_t loops = 1000000;
+				int ret;
 
-			/* One shot mode, for 50000 ns */
-			its.it_value.tv_sec = 0;
-			its.it_value.tv_nsec = 50000;
-			its.it_interval.tv_sec = 0;
-			its.it_interval.tv_nsec = 0;
-
-			ret = timer_settime(timer_id, 0, &its, NULL);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail("%s: timer_settime failed for timer '%s', "
-					"errno=%d (%s)\n", args->name,
-					stress_clock_name(timers[i]),
-					errno, strerror(errno));
-				goto timer_delete;
-			}
-
-			do {
-				ret = timer_gettime(timer_id, &its);
+				(void)memset(&sevp, 0, sizeof(sevp));
+				sevp.sigev_notify = SIGEV_NONE;
+				ret = timer_create(timers[i], &sevp, &timer_id);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail("%s: timer_gettime failed for timer '%s', "
+					if (errno == EINVAL)
+						continue;
+					pr_fail("%s: timer_create failed for timer '%s', "
+						"errno=%d (%s)\n", args->name,
+						stress_clock_name(timers[i]),
+						errno, strerror(errno));
+					continue;
+				}
+
+				/* One shot mode, for 50000 ns */
+				its.it_value.tv_sec = 0;
+				its.it_value.tv_nsec = 50000;
+				its.it_interval.tv_sec = 0;
+				its.it_interval.tv_nsec = 0;
+
+				ret = timer_settime(timer_id, 0, &its, NULL);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					pr_fail("%s: timer_settime failed for timer '%s', "
 						"errno=%d (%s)\n", args->name,
 						stress_clock_name(timers[i]),
 						errno, strerror(errno));
 					goto timer_delete;
 				}
-				ret = timer_getoverrun(timer_id);
-				(void)ret;
 
-				loops--;
-			} while ((loops > 0) && g_keep_stressing_flag && (its.it_value.tv_nsec != 0));
+				do {
+					ret = timer_gettime(timer_id, &its);
+					if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+						pr_fail("%s: timer_gettime failed for timer '%s', "
+							"errno=%d (%s)\n", args->name,
+							stress_clock_name(timers[i]),
+							errno, strerror(errno));
+						goto timer_delete;
+					}
+					ret = timer_getoverrun(timer_id);
+					(void)ret;
+
+					loops--;
+				} while ((loops > 0) && g_keep_stressing_flag && (its.it_value.tv_nsec != 0));
 
 timer_delete:
-			ret = timer_delete(timer_id);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail("%s: timer_delete failed for timer '%s', "
-					"errno=%d (%s)\n", args->name,
-					stress_clock_name(timers[i]),
-					errno, strerror(errno));
-				break;
+				ret = timer_delete(timer_id);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					pr_fail("%s: timer_delete failed for timer '%s', "
+						"errno=%d (%s)\n", args->name,
+						stress_clock_name(timers[i]),
+						errno, strerror(errno));
+					break;
+				}
 			}
 		}
 #endif
