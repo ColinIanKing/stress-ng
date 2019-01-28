@@ -200,6 +200,7 @@ static int stress_sigfpe(const args_t *args)
 
 #if defined(SA_SIGINFO)
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (siginfo.si_code >= 0) &&
 			    (siginfo.si_code != expected_err_code)) {
 				pr_fail("%s: got SIGFPE error %d (%s), expecting %d (%s)\n",
 					args->name,
