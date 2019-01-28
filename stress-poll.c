@@ -273,4 +273,5 @@ stressor_info_t stress_poll_info = {
 stressor_info_t stress_poll_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS
+};
 #endif
