@@ -630,7 +630,7 @@ static int stress_apparmor(const args_t *args)
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
 	size_t i;
-	uint64_t *counters, tmp_counter = 0, max_ops, ops_per_child;
+	uint64_t *counters, tmp_counter = 0, max_ops, ops_per_child, ops;
 	const size_t counters_sz = n * sizeof(*counters);
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
@@ -651,15 +651,22 @@ static int stress_apparmor(const args_t *args)
 			ops_per_child = 1;
 		} else {
 			max_ops = args->max_ops;
-			ops_per_child = (args->max_ops / n) + 1;
+			ops_per_child = (args->max_ops / n);
 		}
+		/*
+		 * ops is the number of ops left over when dividing
+		 * max_ops amongst the child processes
+		 */
+		ops = max_ops - (ops_per_child * n);
 	} else {
 		max_ops = 0;
-		ops_per_child = ~0;
+		ops_per_child = 0;
+		ops = 0;
 	}
 
 	for (i = 0; i < n; i++) {
-		pids[i] = apparmor_spawn(args, ops_per_child,
+		pids[i] = apparmor_spawn(args, 
+			ops_per_child + ((i == 0) ? ops : 0),
 			&counters[i], apparmor_funcs[i]);
 	}
 	while (keep_stressing()) {
