@@ -93,12 +93,18 @@ static int stress_apparmor_supported(void)
  *  stress_apparmor_handler()
  *      signal handler
  */
-static void MLOCKED_TEXT stress_apparmor_handler(int dummy)
+static void MLOCKED_TEXT stress_apparmor_alrm_handler(int dummy)
 {
 	(void)dummy;
 
 	apparmor_run = false;
 }
+
+static void MLOCKED_TEXT stress_apparmor_usr1_handler(int dummy)
+{
+        (void)dummy;
+}
+
 
 /*
  *  stress_apparmor_read()
@@ -191,7 +197,7 @@ static void stress_apparmor_dir(
  *	spawn a process
  */
 static pid_t apparmor_spawn(
-	const char *name,
+	const args_t *args,
 	const uint64_t max_ops,
 	uint64_t *counter,
 	apparmor_func func)
@@ -211,8 +217,8 @@ again:
 		if (!g_keep_stressing_flag)
 			goto abort;
 
-		if (stress_sighandler(name, SIGALRM,
-				      stress_apparmor_handler, NULL) < 0) {
+		if (stress_sighandler(args->name, SIGALRM,
+				      stress_apparmor_alrm_handler, NULL) < 0) {
 			_exit(EXIT_FAILURE);
 		}
 
@@ -220,15 +226,15 @@ again:
 		stress_parent_died_alarm();
 		if (!g_keep_stressing_flag || !apparmor_run)
 			goto abort;
-		ret = func(name, max_ops, counter);
+		ret = func(args->name, max_ops, counter);
 abort:
 		free(apparmor_path);
+		kill(args->pid, SIGUSR1);
 		_exit(ret);
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
-
 
 /*
  *  apparmor_stress_profiles()
@@ -615,7 +621,6 @@ static const apparmor_func apparmor_funcs[] = {
 	apparmor_stress_corruption,
 };
 
-
 /*
  *  stress_apparmor()
  *	stress AppArmor
@@ -625,8 +630,11 @@ static int stress_apparmor(const args_t *args)
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
 	size_t i;
-	uint64_t *counters, tmp_counter = 0, ops;
+	uint64_t *counters, tmp_counter = 0, max_ops, ops_per_child;
 	const size_t counters_sz = n * sizeof(*counters);
+
+	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -637,20 +645,33 @@ static int stress_apparmor(const args_t *args)
 	}
 	(void)memset(counters, 0, counters_sz);
 
-	if ((args->max_ops > 0) && (args->max_ops < n))
-		ops = n;
-	else
-		ops = args->max_ops / n;
+	if (args->max_ops > 0) {
+		if ((args->max_ops < n)) {
+			max_ops = n;
+			ops_per_child = 1;
+		} else {
+			max_ops = args->max_ops;
+			ops_per_child = (args->max_ops / n) + 1;
+		}
+	} else {
+		max_ops = 0;
+		ops_per_child = ~0;
+	}
 
 	for (i = 0; i < n; i++) {
-		pids[i] = apparmor_spawn(args->name, ops,
+		pids[i] = apparmor_spawn(args, ops_per_child,
 			&counters[i], apparmor_funcs[i]);
 	}
-	do {
+	while (keep_stressing()) {
 		(void)select(0, NULL, NULL, NULL, NULL);
+
+		tmp_counter = 0;
 		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];
-	} while (keep_stressing());
+
+		if (max_ops && tmp_counter >= max_ops)
+			break;
+	}
 
 	/* Wakeup, time to die */
 	for (i = 0; i < n; i++) {
