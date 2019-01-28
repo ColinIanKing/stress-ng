@@ -49,7 +49,6 @@ static int stress_utime(const args_t *args)
 
 	do {
 		struct timeval timevals[2];
-		struct utimbuf utbuf;
 #if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
     (defined(UTIME_NOW) || defined(UTIME_OMIT))
 		struct timespec ts[2];
@@ -130,18 +129,22 @@ static int stress_utime(const args_t *args)
 			(void)shim_fsync(fd);
 
 #if defined(HAVE_UTIME_H)
-		utbuf.actime = (time_t)time_now();
-		utbuf.modtime = utbuf.actime;
+		{
+			struct utimbuf utbuf;
 
-		if (utime(filename, &utbuf) < 0) {
-			pr_dbg("%s: utime failed: errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
-		}
-		if (utime(filename, NULL) < 0) {
-			pr_dbg("%s: utime failed: errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
+			utbuf.actime = (time_t)time_now();
+			utbuf.modtime = utbuf.actime;
+
+			if (utime(filename, &utbuf) < 0) {
+				pr_dbg("%s: utime failed: errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			}
+			if (utime(filename, NULL) < 0) {
+				pr_dbg("%s: utime failed: errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				break;
+			}
 		}
 #endif
 		/* forces metadata writeback */
