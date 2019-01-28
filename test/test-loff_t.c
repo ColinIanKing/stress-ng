@@ -34,5 +34,7 @@
 
 int main(void)
 {
-	loff_t offset;
+	loff_t offset = 0;
+
+	(void)offset;
 }
