@@ -39,22 +39,29 @@ typedef struct {
 static int stress_msg_getstats(const args_t *args, const int msgq_id)
 {
 	struct msqid_ds buf;
-#if defined(__linux__)
-	struct msginfo info;
-#endif
 
 	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
 		pr_fail_err("msgctl: IPC_STAT");
 		return -errno;
 	}
-#if defined(__linux__)
-	if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err("msgctl: IPC_INFO");
-		return -errno;
+#if defined(IPC_INFO)
+	{
+		struct msginfo info;
+
+		if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
+			pr_fail_err("msgctl: IPC_INFO");
+			return -errno;
+		}
 	}
-	if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
-		pr_fail_err("msgctl: MSG_INFO");
-		return -errno;
+#endif
+#if defined(MSG_INFO)
+	{
+		struct msginfo info;
+
+		if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
+			pr_fail_err("msgctl: MSG_INFO");
+			return -errno;
+		}
 	}
 #endif
 
