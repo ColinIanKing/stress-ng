@@ -617,8 +617,17 @@ static int stress_cyclic(const args_t *args)
 	rt_stats->min_ns = INT64_MAX;
 	rt_stats->max_ns = INT64_MIN;
 	rt_stats->ns = 0.0;
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN)
 	rt_stats->min_prio = sched_get_priority_min(policy);
+#else
+	rt_stats->min_prio = 0;
+#endif
+
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN)
 	rt_stats->max_prio = sched_get_priority_max(policy);
+#else
+	rt_stats->max_prio = 0;
+#endif
 	/* If user has set max priority.. */
 	if (cyclic_prio != INT32_MAX) {
 		if (rt_stats->max_prio > cyclic_prio) {
@@ -679,6 +688,8 @@ static int stress_cyclic(const args_t *args)
 		if (ret)
 			goto tidy_ok;
 
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+    defined(HAVE_SCHED_GET_PRIORITY_MAX)
 		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
 		if (ret < 0) {
 			if (errno != EPERM) {
@@ -690,6 +701,7 @@ static int stress_cyclic(const args_t *args)
 			}
 			goto tidy;
 		}
+#endif
 
 		do {
 			func(args, rt_stats, cyclic_sleep);
