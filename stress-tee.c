@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
+#if defined(HAVE_TEE) &&	\
+    defined(SPLICE_F_NONBLOCK)
 
 #define TEE_IO_SIZE	(65536)
 
