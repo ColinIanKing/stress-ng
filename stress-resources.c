@@ -64,7 +64,8 @@ typedef struct {
 	int pty_slave;
 #endif
 #if defined(HAVE_LIB_RT) &&		\
-    defined(__linux__) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     defined(SIGUNUSED)
 	bool timerok;
 	timer_t timerid;
@@ -208,8 +209,7 @@ static void NORETURN waste_resources(
 		}
 
 		info[i].pipe_ret = pipe(info[i].fd_pipe);
-#if defined(__linux__) &&	\
-    defined(F_SETPIPE_SZ)
+#if defined(F_SETPIPE_SZ)
 		if (info[i].pipe_ret == 0) {
 			(void)fcntl(info[i].fd_pipe[0], F_SETPIPE_SZ, pipe_size);
 			(void)fcntl(info[i].fd_pipe[1], F_SETPIPE_SZ, pipe_size);
@@ -345,6 +345,7 @@ static void NORETURN waste_resources(
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
     defined(SIGUNUSED)
 		if (!i) {
 			struct sigevent sevp;
@@ -446,7 +447,10 @@ static void NORETURN waste_resources(
 			(void)pthread_join(info[i].pthread, NULL);
 #endif
 
-#if defined(HAVE_LIB_RT) && defined(__linux__) && defined(SIGUNUSED)
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(SIGUNUSED)
 		if ((!i) && (info[i].timerok)) {
 			(void)timer_delete(info[i].timerid);
 		}
