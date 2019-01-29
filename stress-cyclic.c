@@ -644,7 +644,10 @@ static int stress_cyclic(const args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+    defined(HAVE_SCHED_GET_PRIORITY_MAX)
 		const pid_t mypid = getpid();
+#endif
 #if defined(HAVE_ATOMIC)
 		uint32_t count;
 #endif
