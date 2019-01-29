@@ -34,7 +34,8 @@ int stress_set_vm_splice_bytes(const char *opt)
 	return set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
 }
 
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
+#if defined(HAVE_VMSPLICE) &&	\
+    defined(SPLICE_F_MOVE)
 
 /*
  *  stress_splice
