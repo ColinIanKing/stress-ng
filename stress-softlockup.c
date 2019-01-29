@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__)
+#if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+    defined(HAVE_SCHED_SETSCHEDULER)
 
 /*
  *  stress_softlockup_supported()
