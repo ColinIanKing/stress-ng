@@ -24,9 +24,16 @@
  */
 #include "stress-ng.h"
 
-#if defined(__OpenBSD__) || \
-    defined(__APPLE__) || \
+#if defined(__OpenBSD__) || 	\
+    defined(__APPLE__) || 	\
     (defined(__linux__) && defined(__NR_getrandom))
+
+#if defined(__OpenBSD__) ||	\
+    defined(__APPLE__)
+#define RANDOM_BUFFER_SIZE	(256)
+#else
+#define RANDOM_BUFFER_SIZE	(8192)
+#endif
 
 /*
  *  stress_getrandom_supported()
@@ -35,11 +42,7 @@
 static int stress_getrandom_supported(void)
 {
 	int ret;
-#if defined(__OpenBSD__) || defined(__APPLE__)
-	char buffer[256];
-#else
-	char buffer[8192];
-#endif
+	char buffer[RANDOM_BUFFER_SIZE];
 
 	ret = shim_getrandom(buffer, sizeof(buffer), 0);
 	if ((ret < 0) && (errno == ENOSYS)) {
@@ -56,11 +59,8 @@ static int stress_getrandom_supported(void)
 static int stress_getrandom(const args_t *args)
 {
 	do {
-#if defined(__OpenBSD__) || defined(__APPLE__)
-		char buffer[256];
-#else
-		char buffer[8192];
-#endif
+		char buffer[RANDOM_BUFFER_SIZE];
+
 		ssize_t ret;
 
 		ret = shim_getrandom(buffer, sizeof(buffer), 0);
