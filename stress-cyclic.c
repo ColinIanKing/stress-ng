@@ -343,7 +343,6 @@ restore:
 }
 #endif
 
-#if defined(__linux__)
 static sigjmp_buf jmp_env;
 
 /*
@@ -427,7 +426,6 @@ static void stress_rt_stats(rt_stats_t *rt_stats)
 		rt_stats->std_dev = sqrt(variance);
 	}
 }
-#endif
 
 /*
  *  cyclic methods
@@ -485,8 +483,6 @@ int stress_set_cyclic_method(const char *name)
 
 	return -1;
 }
-
-#if defined(__linux__)
 
 /*
  *  stress_rt_dist()
@@ -786,9 +782,3 @@ stressor_info_t stress_cyclic_info = {
 	.supported = stress_cyclic_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS
 };
-#else
-stressor_info_t stress_cyclic_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
-};
-#endif
