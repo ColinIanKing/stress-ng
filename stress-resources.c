@@ -59,7 +59,7 @@ typedef struct {
 	int fd_inotify;
 	int wd_inotify;
 #endif
-#if defined(__linux__)
+#if defined(HAVE_PTSNAME)
 	int pty_master;
 	int pty_slave;
 #endif
@@ -323,7 +323,7 @@ static void NORETURN waste_resources(
 			info[i].wd_inotify = -1;
 		}
 #endif
-#if defined(__linux__)
+#if defined(HAVE_PTSNAME)
 		{
 			info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
 			info[i].pty_slave = -1;
@@ -463,7 +463,7 @@ static void NORETURN waste_resources(
 			(void)close(info[i].fd_inotify);
 #endif
 
-#if defined(__linux__)
+#if defined(HAVE_PTSNAME)
 		if (info[i].pty_slave != -1)
 			(void)close(info[i].pty_slave);
 		if (info[i].pty_master != -1)
