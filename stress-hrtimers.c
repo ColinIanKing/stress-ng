@@ -25,7 +25,6 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_LIB_RT) &&		\
-    defined(__linux__) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_SETTIME)
