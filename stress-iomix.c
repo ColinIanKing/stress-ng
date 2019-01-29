@@ -323,7 +323,8 @@ static void stress_iomix_sync(
 		if (!keep_stressing())
 			break;
 #endif
-#if defined(__linux__)
+#if defined(HAVE_SYNC_FILE_RANGE) &&	\
+    defined(SYNC_FILE_RANGE_WRITE)
 		(void)sync_file_range(fd, mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
 		if (!keep_stressing())
 			break;
