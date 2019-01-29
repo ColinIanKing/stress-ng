@@ -44,8 +44,7 @@ static volatile bool thread_terminate;
 static sigset_t set;
 
 #if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
-    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM))) && defined(__linux__)
-
+    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM)))
 #if defined(__GNUC__) && NEED_GNUC(4,7,0)
 #define MEM_LOCK(ptr)	 __atomic_add_fetch(ptr, 1, __ATOMIC_SEQ_CST);
 #else
