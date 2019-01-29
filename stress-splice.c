@@ -34,7 +34,8 @@ int stress_set_splice_bytes(const char *opt)
 	return set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
 }
 
-#if defined(__linux__) && NEED_GLIBC(2,5,0)
+#if defined(HAVE_SPLICE) &&	\
+    defined(SPLICE_F_MOVE)
 
 /*
  *  stress_splice
