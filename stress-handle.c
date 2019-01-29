@@ -24,8 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(__NR_name_to_handle_at) && \
-    defined(__NR_open_by_handle_at) && NEED_GLIBC(2,14,0)
+#if defined(HAVE_NAME_TO_HANDLE_AT) &&	\
+    defined(HAVE_OPEN_BY_HANDLE_AT) && 	\
+    defined(AT_FDCWD)
 
 #define MAX_MOUNT_IDS	(1024)
 #define FILENAME	"/dev/zero"
