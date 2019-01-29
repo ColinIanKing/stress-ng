@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(F_SETPIPE_SZ)
+#if defined(F_SETPIPE_SZ) &&	\
+    defined(O_NONBLOCK) &&	\
+    defined(F_SETFL)
 
 /*
  *  pipe_empty()
