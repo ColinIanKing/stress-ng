@@ -66,8 +66,8 @@ static void *stress_pthread_func(void *c)
 	static void *nowt = NULL;
 	ctxt_t *ctxt = (ctxt_t *)c;
 	const args_t *args = ctxt->args;
-	uint64_t max_ops = (args->max_ops / ctxt->sleep_max) + 1;
-
+	const uint64_t max_ops = 
+		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
 	/*
 	 *  According to POSIX.1 a thread should have
 	 *  a distinct alternative signal stack.
@@ -78,7 +78,9 @@ static void *stress_pthread_func(void *c)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		goto die;
 
-	while (keep_stressing() && !thread_terminate && ctxt->counter < max_ops) {
+	while (keep_stressing() && 
+	       !thread_terminate &&
+               (!max_ops || ctxt->counter < max_ops)) {
 		struct timespec tv;
 #if defined(HAVE_SYS_SELECT_H)
 		struct timeval timeout;
