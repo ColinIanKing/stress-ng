@@ -79,13 +79,14 @@ static int stress_softlockup(const args_t *args)
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
-	struct sched_param param = { 0 };
+	struct sched_param param;
 	struct rlimit rlim;
 	pid_t pid;
 	NOCLOBBER uint64_t timeout;
 	const double start = time_now();
 
 	timeout = g_opt_timeout;
+	(void)memset(&param, 0, sizeof(param));
 
 	if (!args->instance) {
 		if (SIZEOF_ARRAY(policies) == 0) {
