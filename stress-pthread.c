@@ -137,14 +137,14 @@ static void *stress_pthread_func(void *parg)
 	ret = shim_pthread_spin_lock(&spinlock);
 	if (ret) {
 		pr_fail("%s: pthread_spin_lock failed, tid=%d, errno=%d (%s)",
-			args->name, tid, ret, strerror(ret));
+			args->name, (int)tid, ret, strerror(ret));
 		goto die;
 	}
 	pthread_count++;
 	ret = shim_pthread_spin_unlock(&spinlock);
 	if (ret) {
 		pr_fail("%s: pthread_spin_unlock failed, tid=%d, errno=%d (%s)",
-			args->name, tid, ret, strerror(ret));
+			args->name, (int)tid, ret, strerror(ret));
 		goto die;
 	}
 
@@ -158,7 +158,7 @@ static void *stress_pthread_func(void *parg)
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
 		pr_fail("%s: pthread_mutex_lock failed, tid=%d, errno=%d (%s)",
-			args->name, tid, ret, strerror(ret));
+			args->name, (int)tid, ret, strerror(ret));
 		goto die;
 	}
 	while (!thread_terminate) {
@@ -173,7 +173,7 @@ static void *stress_pthread_func(void *parg)
 	ret = pthread_mutex_unlock(&mutex);
 	if (ret)
 		pr_fail("%s: pthread_mutex_unlock failed, tid=%d, errno=%d (%s)",
-			args->name, tid, ret, strerror(ret));
+			args->name, (int)tid, ret, strerror(ret));
 
 #if defined(HAVE_SETNS)
 	{
