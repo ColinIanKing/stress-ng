@@ -24,11 +24,10 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) &&		\
-    defined(__NR_process_vm_readv) &&	\
-    defined(__NR_process_vm_writev) &&	\
-    NEED_GLIBC(2,15,0) &&		\
-    defined(HAVE_CLONE)
+#if defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_CLONE) &&		\
+    defined(CLONE_VM)
 
 #define STACK_SIZE	(64 * 1024)
 
@@ -57,11 +56,10 @@ int stress_set_vm_rw_bytes(const char *opt)
 	return set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);
 }
 
-#if defined(__linux__) &&		\
-    defined(__NR_process_vm_readv) &&	\
-    defined(__NR_process_vm_writev) &&	\
-    NEED_GLIBC(2,15,0) &&		\
-    defined(HAVE_CLONE)
+#if defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_CLONE) &&		\
+    defined(CLONE_VM)
 
 static int stress_vm_child(void *arg)
 {
