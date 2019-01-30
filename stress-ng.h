@@ -1679,10 +1679,8 @@ typedef struct {
 #endif
 
 /* linux thermal zones */
-#if defined(__linux__)
 #define	STRESS_THERMAL_ZONES	 (1)
 #define STRESS_THERMAL_ZONES_MAX (31)	/* best if prime */
-#endif
 
 #if defined(STRESS_THERMAL_ZONES)
 /* per stressor thermal zone info */
@@ -3264,12 +3262,10 @@ extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 /* CPU caches */
-#if defined(__linux__)
 extern cpus_t *get_all_cpu_cache_details(void);
 extern uint16_t get_max_cache_level(const cpus_t *cpus);
 extern cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level);
 extern void free_cpu_caches(cpus_t *cpus);
-#endif
 
 /* CPU thrashing start/stop helpers */
 extern int  thrash_start(void);
