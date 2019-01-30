@@ -175,10 +175,10 @@ again:
 					break;
 				case 1:
 					/* Trigger RLIMIT_AS */
-					ptr = mmap(NULL, MAX_RLIMIT_AS, PROT_READ | PROT_WRITE,
+					ptr = (uint8_t *)mmap(NULL, MAX_RLIMIT_AS, PROT_READ | PROT_WRITE,
 						MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 					if (ptr != MAP_FAILED)
-						(void)munmap(ptr, MAX_RLIMIT_AS);
+						(void)munmap((void *)ptr, MAX_RLIMIT_AS);
 					break;
 				case 2:
 					/* Trigger RLIMIT_DATA */
