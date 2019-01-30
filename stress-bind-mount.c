@@ -27,7 +27,10 @@
 #if defined(__linux__) && \
     defined(MS_BIND) && \
     defined(MS_REC) && \
-    defined(HAVE_CLONE)
+    defined(HAVE_CLONE) && \
+    defined(CLONE_NEWUSER) && \
+    defined(CLONE_NEWNS) && \
+    defined(CLONE_VM)
 
 #define CLONE_STACK_SIZE	(128*1024)
 
