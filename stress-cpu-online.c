@@ -76,7 +76,6 @@ static int stress_cpu_online_supported(void)
         return 0;
 }
 
-
 /*
  *  stress_cpu_online
  *	stress twiddling CPUs online/offline
