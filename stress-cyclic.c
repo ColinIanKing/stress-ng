@@ -607,7 +607,7 @@ static int stress_cyclic(const args_t *args)
 			"this stressor\n", args->name);
 	}
 
-	rt_stats = mmap(NULL, size, PROT_READ | PROT_WRITE,
+	rt_stats = (rt_stats_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
 		pr_inf("%s: mmap of shared policy data failed: %d (%s)\n",
@@ -787,7 +787,7 @@ tidy:
 		}
 	}
 
-	(void)munmap(rt_stats, size);
+	(void)munmap((void *)rt_stats, size);
 
 	return EXIT_SUCCESS;
 }
