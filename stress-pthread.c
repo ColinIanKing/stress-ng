@@ -165,7 +165,7 @@ static void *stress_pthread_func(void *parg)
 		ret = pthread_cond_wait(&cond, &mutex);
 		if (ret) {
 			pr_fail("%s: pthread_cond_wait failed, tid=%d, errno=%d (%s)",
-				args->name, tid, ret, strerror(ret));
+				args->name, (int)tid, ret, strerror(ret));
 			break;
 		}
 		(void)shim_sched_yield();
