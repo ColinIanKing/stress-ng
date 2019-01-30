@@ -179,19 +179,15 @@ static int bad_getcwd(void *addr)
 	return 0;
 }
 
-#if defined(__linux__) && defined(__NR_get_mempolicy)
 static int bad_get_mempolicy(void *addr)
 {
 	return shim_get_mempolicy(addr, addr, 1, (unsigned long)addr, 0);
 }
-#endif
 
-#if (defined(__linux__) && defined(__NR_getrandom))
 static int bad_getrandom(void *addr)
 {
 	return shim_getrandom(addr, 1024, 0);
 }
-#endif
 
 #if defined(HAVE_GETRESGID)
 static int bad_getresgid(void *addr)
@@ -223,7 +219,8 @@ static int bad_gettimeofday(void *addr)
 	return gettimeofday(addr, tz);
 }
 
-#if defined(__linux__) && (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
+#if defined(HAVE_GETXATTR) &&	\
+    (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 static int bad_getxattr(void *addr)
 {
 	return getxattr(addr, addr, addr, 32);
@@ -237,25 +234,20 @@ static int bad_ioctl(void *addr)
 }
 #endif
 
-#if defined(__linux__) && defined(__NR_migrate_pages)
 static int bad_migrate_pages(void *addr)
 {
 	return shim_migrate_pages(getpid(), 1, addr, addr);
 }
-#endif
 
 static int bad_mincore(void *addr)
 {
 	return shim_mincore(ro_page, 1, addr);
 }
 
-#if defined(__linux__) && defined(__NR_move_pages)
 static int bad_move_pages(void *addr)
 {
 	return shim_move_pages(getpid(), 1, addr, addr, addr, 0);
 }
-#endif
-
 
 #if defined(HAVE_NANOSLEEP)
 static int bad_nanosleep(void *addr)
@@ -280,7 +272,8 @@ static int bad_pipe(void *addr)
 	return pipe(addr);
 }
 
-#if defined(HAVE_PTRACE) && defined(PTRACE_GETREGS)
+#if defined(HAVE_PTRACE) && 	\
+    defined(PTRACE_GETREGS)
 static int bad_ptrace(void *addr)
 {
 	return ptrace(PTRACE_GETREGS, getpid(), addr, addr);
@@ -338,14 +331,15 @@ static int bad_stat(void *addr)
 	return stat(".", addr);
 }
 
-#if defined(__linux__)
+#if defined(HAVE_STATFS)
 static int bad_statfs(void *addr)
 {
 	return statfs(".", addr);
 }
 #endif
 
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) && 	\
+    defined(HAVE_SYSINFO)
 static int bad_sysinfo(void *addr)
 {
 	return sysinfo(addr);
@@ -438,14 +432,8 @@ static bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_execve,
 	bad_getcwd,
-#if defined(__linux__) &&	\
-     defined(__NR_get_mempolicy)
 	bad_get_mempolicy,
-#endif
-#if defined(__linux__) &&	\
-    defined(__NR_getrandom)
 	bad_getrandom,
-#endif
 #if defined(HAVE_GETRESGID)
 	bad_getresgid,
 #endif
@@ -455,22 +443,16 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_getrlimit,
 	bad_getrusage,
 	bad_gettimeofday,
-#if defined(__linux__) &&	\
+#if defined(HAVE_GETXATTR) &&	\
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 	bad_getxattr,
 #endif
 #if defined(TCGETS)
 	bad_ioctl,
 #endif
-#if defined(__linux__) &&	\
-    defined(__NR_migrate_pages)
 	bad_migrate_pages,
-#endif
 	bad_mincore,
-#if defined(__linux__) &&	\
-    defined(__NR_move_pages)
 	bad_move_pages,
-#endif
 #if defined(HAVE_NANOSLEEP)
 	bad_nanosleep,
 #endif
@@ -487,7 +469,7 @@ static bad_syscall_t bad_syscalls[] = {
 	bad_readv,
 	bad_select,
 	bad_stat,
-#if defined(__linux__)
+#if defined(HAVE_STATFS)
 	bad_statfs,
 #endif
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
