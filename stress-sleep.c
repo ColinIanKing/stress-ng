@@ -33,7 +33,7 @@ typedef struct {
 	pthread_t pthread;
 } ctxt_t;
 
-static bool thread_terminate;
+static volatile bool thread_terminate;
 static sigset_t set;
 #endif
 
@@ -49,6 +49,13 @@ int stress_set_sleep_max(const char *opt)
 
 #if defined(HAVE_LIB_PTHREAD)
 
+static void MLOCKED_TEXT stress_sigalrm_handler(int dummy)
+{
+        (void)dummy;
+
+        thread_terminate = true;
+}
+
 /*
  *  stress_pthread_func()
  *	pthread that performs different ranges of sleeps
@@ -60,12 +67,6 @@ static void *stress_pthread_func(void *c)
 	ctxt_t *ctxt = (ctxt_t *)c;
 	const args_t *args = ctxt->args;
 	uint64_t max_ops = (args->max_ops / ctxt->sleep_max) + 1;
-
-	/*
-	 *  Block all signals, let controlling thread
-	 *  handle these
-	 */
-	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -141,7 +142,6 @@ static int stress_sleep(const args_t *args)
 	uint64_t sleep_max = DEFAULT_SLEEP;
 	ctxt_t    ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
-	bool ok = true;
 
 	if (!get_setting("sleep-max", &sleep_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -149,6 +149,9 @@ static int stress_sleep(const args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			sleep_max = MIN_SLEEP;
 	}
+
+	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
+		return EXIT_FAILURE;
 
 	(void)memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
@@ -176,11 +179,10 @@ static int stress_sleep(const args_t *args)
 
 	do {
 		set_counter(args, 0);
-		(void)shim_usleep(10000);
+		(void)shim_usleep_interruptible(10000);
 		for (i = 0; i < n; i++)
 			add_counter(args, ctxts[i].counter);
-	}  while (ok && keep_stressing());
-
+	}  while (!thread_terminate && keep_stressing());
 
 	ret = EXIT_SUCCESS;
 tidy:
