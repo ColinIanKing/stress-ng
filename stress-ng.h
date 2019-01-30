@@ -3422,7 +3422,7 @@ struct shim_linux_dirent {
 
 /* dirent64 porting shim */
 struct shim_linux_dirent64 {
-#if defined(__linux__)
+#if defined(HAVE_INO64_T)
 	ino64_t		d_ino;		/* 64-bit inode number */
 #else
 	int64_t		d_ino;		/* 64-bit inode number */
