@@ -85,7 +85,7 @@ static int stress_schedpolicy(const args_t *args)
 			break;
 #if defined(SCHED_RR)
 		case SCHED_RR:
-#if defined(_POSIX_PRIORITY_SCHEDULING)
+#if defined(HAVE_SCHED_RR_GET_INTERVAL)
 			{
 				struct timespec t;
 
