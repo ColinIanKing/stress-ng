@@ -148,6 +148,9 @@ static void *stress_pthread_func(void *parg)
 		goto die;
 	}
 
+	if (thread_terminate)
+		goto die;
+
 	/*
 	 *  Wait for controlling thread to
 	 *  indicate it is time to die
@@ -199,6 +202,7 @@ die:
 static int stress_pthread(const args_t *args)
 {
 	bool ok = true;
+	bool locked = false;
 	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
@@ -274,6 +278,34 @@ static int stress_pthread(const args_t *args)
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
 
+			if (!locked) {
+				ret = pthread_mutex_lock(&mutex);
+				if (ret) {
+					pr_fail("%s pthread_mutex_lock failed (parent), errno=%d (%s)",
+						args->name, ret, strerror(ret));
+					ok = false;
+					goto reap;
+				}
+				locked = true;
+			}
+			all_running = (pthread_count == i);
+
+			if (locked) {
+				ret = pthread_mutex_unlock(&mutex);
+				if (ret) {
+					pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
+						args->name, ret, strerror(ret));
+					ok = false;
+					goto reap;
+				}
+				locked = false;
+			}
+
+			if (all_running)
+				break;
+		}
+
+		if (!locked) {
 			ret = pthread_mutex_lock(&mutex);
 			if (ret) {
 				pr_fail("%s pthread_mutex_lock failed (parent), errno=%d (%s)",
@@ -281,26 +313,10 @@ static int stress_pthread(const args_t *args)
 				ok = false;
 				goto reap;
 			}
-			all_running = (pthread_count == i);
-			ret = pthread_mutex_unlock(&mutex);
-			if (ret) {
-				pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
-					args->name, ret, strerror(ret));
-				ok = false;
-				goto reap;
-			}
-
-			if (all_running)
-				break;
+			locked = true;
 		}
+reap:
 
-		ret = pthread_mutex_lock(&mutex);
-		if (ret) {
-			pr_fail("%s pthread_mutex_lock failed (parent), errno=%d (%s)",
-				args->name, ret, strerror(ret));
-			ok = false;
-			goto reap;
-		}
 #if defined(HAVE_TGKILL) && defined(SIGUSR2)
 		for (j = 0; j < i; j++) {
 			if (pthreads[j].tid)
@@ -315,14 +331,16 @@ static int stress_pthread(const args_t *args)
 			ok = false;
 			/* fall through and unlock */
 		}
-		ret = pthread_mutex_unlock(&mutex);
-		if (ret) {
-			pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
-				args->name, ret, strerror(ret));
-			ok = false;
+		if (locked) {
+			ret = pthread_mutex_unlock(&mutex);
+			if (ret) {
+				pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
+					args->name, ret, strerror(ret));
+				ok = false;
+			} else {
+				locked = false;
+			}
 		}
-
-reap:
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j].pthread, NULL);
 			if ((ret) && (ret != ESRCH)) {
