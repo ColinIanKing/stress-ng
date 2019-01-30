@@ -25,7 +25,8 @@
 #include "stress-ng.h"
 
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIO_H)
+    defined(HAVE_TERMIO_H) && \
+    defined(HAVE_PTSNAME)
 
 typedef struct {
 	char *slavename;
@@ -49,7 +50,9 @@ int stress_set_pty_max(const char *opt)
 	return set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }
 
-#if defined(__linux__)
+#if defined(HAVE_TERMIOS_H) &&	\
+    defined(HAVE_TERMIO_H) &&	\
+    defined(HAVE_PTSNAME)
 
 /*
  *  stress_pty
