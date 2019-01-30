@@ -1332,3 +1332,31 @@ int shim_execveat(
 	return -1;
 #endif
 }
+
+/*
+ *   shim_getxattr
+ *	wrapper for getxattr
+ */
+ssize_t shim_getxattr(
+	const char *path,
+	const char *name,
+	void *value,
+	size_t size)
+{
+#if defined(HAVE_GETXATTR)
+#if defined(__APPLE__)
+	return getxattr(path, name, value, size, 0, 0);
+#else
+	return getxattr(path, name, value, size);
+#endif
+#else
+	(void)path;
+	(void)name;
+	(void)value;
+	(void)size;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+

@@ -131,7 +131,7 @@ static int stress_xattr(const args_t *args)
 				goto out_close;
 			}
 
-			ret = getxattr(filename, attrname, tmp, sizeof(tmp));
+			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err("getxattr");
 				goto out_close;

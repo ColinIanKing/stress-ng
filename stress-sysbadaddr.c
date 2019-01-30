@@ -223,7 +223,7 @@ static int bad_gettimeofday(void *addr)
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 static int bad_getxattr(void *addr)
 {
-	return getxattr(addr, addr, addr, 32);
+	return shim_getxattr(addr, addr, addr, 32);
 }
 #endif
 

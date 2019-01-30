@@ -3508,6 +3508,8 @@ extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
 	unsigned long maxnode, unsigned long addr, unsigned long flags);
 extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern int shim_gettid(void);
+extern ssize_t shim_getxattr(const char *path, const char *name,
+	void *value, size_t size);
 extern int shim_futex_wait(const void *futex, const int val,
 	const struct timespec *timeout);
 extern int shim_futex_wake(const void *futex, const int n);
