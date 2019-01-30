@@ -155,7 +155,7 @@ static int stress_hrtimers(const args_t *args)
 	max_ops = args->max_ops / PROCS_MAX;
 
 	(void)memset(pids, 0, sizeof(pids));
-        counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
+        counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
                         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
         if (counters == MAP_FAILED) {
                 pr_fail_dbg("mmap");
@@ -202,7 +202,7 @@ reap:
 	}
 
 
-	(void)munmap(counters, sz);
+	(void)munmap((void *)counters, sz);
 
 	return EXIT_SUCCESS;
 }
