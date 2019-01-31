@@ -249,7 +249,7 @@ static int clone_func(void *arg)
 	}
 #endif
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
-		(void)unshare(unshare_flags[i]);
+		(void)shim_unshare(unshare_flags[i]);
 	}
 
 	return 0;
