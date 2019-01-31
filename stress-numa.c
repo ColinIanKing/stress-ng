@@ -24,8 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) &&		\
-    defined(__NR_get_mempolicy) &&	\
+#if defined(__NR_get_mempolicy) &&	\
     defined(__NR_mbind) &&		\
     defined(__NR_migrate_pages) &&	\
     defined(__NR_move_pages) &&		\
