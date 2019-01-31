@@ -1,3 +1,198 @@
+stress-ng (0.09.51-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress_numa: remove __linux__ check
+  * Add build time checks for struct shmid_ds and struct shminfo
+  * stress-mlockmany: add some invalid mlock/munlock calls for more stress
+  * stress-clone: use shim_unshare instead of unshare
+  * stress-clone: forgot to remove other __linux__ check
+  * stress-clone: remove __linux__ checks
+  * Add shim for getxattr to work around OS X 6 arg getxattr
+  * stress-sleep: remove debug on join failure on bad threads
+  * Add watchdog test to excluded tests as it can trigger reboots
+  * stress-ng.h: remove a couple more __linux__ checks
+  * Add build check for sched_rr_get_interval
+  * stress-sysbadaddr: remove __linux__ checks
+  * stress-sleep: fix broken --sleep-ops threshold counter
+  * stress-sleep: improve main loop exit on alarm
+  * stress-pthread: clean up warning on %d for pid_t types (missed one)
+  * stress-softlockup: memset param to avoid old gcc warnings on struct initializer
+  * stress-pthread: clean up warning on %d for pid_t types
+  * Add build check for struct msginfo
+  * stress-rlimit: fix warnings on gcc 6.4 on solaris
+  * stress-hrtimers: fix warnings on gcc 6.4 on solaris
+  * stress-cyclic: fix warnings on gcc 6.4 on solaris
+  * stress-lockbus: fix warnings on gcc 6.4 on solaris
+  * stress-cpu-online: remove empty line
+  * stress-pty: remove __linux__ check and add ptsname check
+  * Add checking for process-vm-readv and process-vm-writev
+  * stress-pthread: add better error recovery and locking prevention checks
+  * stress-pthread: make error messages a bit more informative
+  * Add build detection of ino64_t
+  * stress-bind-bound: add some extra clone flag checks
+  * stress-memthrash: remove __linux__ check
+  * Add name_to_handle_at and open_by_handle_at checks
+  * stress-getrandom: clean up buffer size setting
+  * Move ptsname check to correct alphabetic order place
+  * Add check for ptsname
+  * stress-resources: remove some more __linux__ instances
+  * Add build check for sched_setscheduler
+  * stress-iomix: replace __linux__ check with HAVE_SYNC_FILE_RANGE check
+  * stress-cyclic: fix build warning on systems without sched_get_priority*
+  * Add build detection for sched_get_priority_{min|max}
+  * stress-cyclic: remove __linux__ checks, the code is generic enough now
+  * stress-oom-pipe: replace __linux__ check with appropriate macro checks
+  * stress-msg: remove __linux__ check, check instead IPC_INFO and MSG_INFO
+  * stress-hrtimes: remove __linux__ check
+  * Add build time check for splice
+  * Add build time check for tee system call
+  * Add build time check for vmsplice
+  * test/test-off64_t.c: clean up cppcheck style warning
+  * test/test-loff_t: clean up cppcheck style warning
+  * stress-utime: clean up cppcheck style warning
+  * sytess-sysinfo: fix some cppcheck style warnings
+  * stress-pty: clean up some cppcheck style warnings
+  * stress-clock: reduce scope of several variables
+  * stress-apparmor: ensure we handle residual bogo ops
+  * stress-apparmor: fix broken apparmor-ops accounting
+  * core-helper: clean up unused variable warning
+  * stress-poll: fix missing }, detected by cppcheck
+  * stress-ng: remove extraneous ) bracket found by cppcheck
+  * stress-af-alg: add missing ) in message
+  * stress-sigfpe: ignore bogus -ve si_codes
+  * Add build time checks for xattr family of system calls
+  * stress-xattr: remove __linux__ check
+  * stress-rlimit: remove __linux__ check
+  * stress-lockbus: remove __linux__ check
+  * stress-iomix: only perform ioctl's if the ioctl command is defined
+  * stres-futex: remove __linux__ check
+  * stress-dnotify: remove __linux__ check
+  * stress-switch: replace __linux__ check with HAVE_PIPE2 check
+  * stress-sleep: remove __linux__ check
+  * Add build time check for crypt_r
+  * core-out-of-memory: remove some empty lines
+  * core-io-priority: remove __linux__ check
+  * core-helper: remove __linux__ check on F_SETPIPE_SZ check
+  * core-helper: replace __linux__check with HAVE_SCHED_GETCPU
+  * stress-spawn: check if /proc/self/exe is supported
+  * stress-spawn: remove __linux__ check
+  * stress-pipe: replace GLIBC version check with check for O_DIRECT
+  * Add build time checks for pipe2
+  * stress-timer: remove other __linux__ check
+  * stress-timer: remove \ continuation from # if defined check
+  * stress-timer: remove __linux__ check
+  * stress-cache: fix warnings when sched_getcpu not available
+  * Add build time checks for sched_getcpu
+  * stress-yield: remove need for GLIBC version
+  * stress-apparmor: remove need for __linux__ check
+  * Add build time checks for sched_getaffinity
+  * stress-aio: remove __linux__ check
+  * stress-aio-linux: remove check for __linux__
+  * stress-mlock: use shim version of munlock()
+  * debian/tests/fast-test-all: add mlockmany to the banned stress tests
+  * stress-mlockmany: make this stressor CLASS_PATHOLOGICAL
+  * Add more mlock/munlock iterations while child waits to be killed
+  * stress-mlockmany: check for ability to mlock/munlock
+  * stress-mlockmany: remove redundant low mem checks
+  * stress-mlockmany: add more yielding points
+  * stress-branch: make source more compact
+  * Add build time check for semtimedop
+  * stress-sigq: fix build warning on Solaris with gcc 4.8.2
+  * stress-sysbadaddr: fix cast
+  * stress-sysbadaddr: fix pointer bump warnings
+  * stress-resources: declare ret in block only if required
+  * stress-mlockmany: replace MAX_LOOPS with 1024
+  * stress-clock: only define stress_clock_name if required
+  * stress-sem-sysv: fix build issue with timeout undefined
+  * stress-mlockmany: set default ptr to avoid any warnings
+  * stress-cyclic: move stress_cyclic_itimer_handler to clean up build warning
+  * stress-cyclic: move timerid into function, don't make it static
+  * stress-sysbadaddr: use HAVE_NANOSLEEP check
+  * stress-cyclic: make timer delay checks more portable
+  * Add build time check for posix_madvise
+  * stress-clock: add timer_getoverrun call to exercise this more
+  * Add build time check for timer_getoverrun
+  * Add build time check for timer_gettime
+  * Add build time check for timer_settime
+  * Add build time check for timer_create
+  * Add build time check for timer_create
+  * Add build time check for clock_nanosleep
+  * Add build time check for clock_getres
+  * Add build time check for clock_settime
+  * Add build time check for clock_gettime
+  * stress-sigrt: remove need for _POSIX_C_SOURCE check
+  * stress-sigqueue: remove need for _POSIX_C_SOURCE check
+  * Add build time check for sched_yield
+  * stress-branch: add note to why we inlined mwc8
+  * stress-branch: add inline mwc8(), boosts cache misses
+  * Add some addition x86 target clone targets
+  * Add a mlockmany aggressive mlock stressor
+  * stress-resource: add check that RLIMIT_MEMLOCK is available
+  * Add CLONE_NEWCGROUP for stress-unshare.c
+  * README: add libipsec-mb-dev to library list
+  * core-mwc: add in aux_rand value to w term
+  * stress-resources: mlock and munlock pages of memory
+  * stress-vm-segv: remove debug printf
+  * stress-vm-segv: use ptrace if available to stop apport spammage
+  * stress-opcode: use seccomp trap rather than a kill
+  * stress-opcode: add a text --opcode-method
+  * stress-zlib: use new stress_text_addr helper
+  * core-helper: add stress_text_addr text segment helper
+  * stress-vm-segv: remove setrlimit on core dump size
+  * stress-seccomp: catch child with SIGSYS trap
+  * core-helper: attempt to set soft rlimit first
+  * Makefile: remove -g CC option
+  * stress-secomp: clean up incorrect indentation
+  * stress-ipsec-mb: voidify job submission returns
+  * Add missing idle-page mini help information
+  * stress-sem: use trywait and do some yielding
+  * stress-sem: run semaphore stressors as pthreads and not child processes
+  * Fix typo in int128_t support message and don't support for < GCC 4.0.0
+  * core-shim: handle posix_fallocate error return correctly
+  * stress-timerfd.c: rename TIMER_MAX to TIMERFD_MAX
+  * Add build detection of various BSD related header files
+  * stress-idle-page: return EXIT_NO_RESOURCE if sysfs entry does not exist
+  * Add build detection of __int128_t types
+  * Add build time check for alloca.h
+  * core-log: add gnu printf format attribute for pr_msg_lockable
+  * core-log: make pr_msg_lockable static to reduce scope
+  * core-affinity: rename ptr to avoid variable shadowing warnings
+  * stress-memcpy: fix naive memcpy and memmove, swap src and dest pointers
+  * stress-ng.h: remove another unnecessary __linux__ check
+  * Add build time detection of missing __kernel_long_t and __kernel_ulong_t
+  * stress-ng.h: remove unnecessary linux check
+  * stress-ng.h: remove some duplicated includes
+  * core-helper: add more prctl build time checks
+  * Add build checks for prctl and remove __linux__ checks
+  * stress-ng: define IOPRIO_* macros if they are not defined
+  * stress-ng.h: add build check for malloc.h
+  * stress-ng.h: remove empty lines
+  * Add build checks for loff_t and off64_t types
+  * rename personality.c to core-personality.c, update Makefile
+  * Replace deconstification with a opt arg duplication
+  * stress-clone: remove a deconstification
+  * Rename core helper source, add core- prefix to souce
+  * helper: prefix some helper functions with stress_
+  * Add a new idle scan page scanning stress test for Linux
+  * Remove per-stressor umask as is now set before running each stressor
+  * Set umask to owner before running each stressor
+  * Add build time check for flock()
+  * log: add comments and handle systems that don't support flock
+  * Add log message locking.
+  * stress-resources: guard pkey with HAVE_PKEY_* macro checks
+  * Makefile.config: sort config function probing
+  * Add posix_fallocate check and use shim_fallocate if it does not exist
+  * stress-timerfd: use 256 timers for more stress and throughput
+  * stress-procfs: remove empty line
+  * stress-fanotify: use the mount_get()/mount_free() mount helpers
+  * stress-iosync: force sync'ing on all accessible mount points
+  * stress-ng.h: minor space reformatting
+  * Add a --memcpy-method option to use different memcpy/memove functions
+  * stress-fanotify: add kernel v5.0 FAN_OPEN_EXEC support
+  * stress-ipsec-mb: allow static build now that ipsec lib has symbols exported
+
+ -- Colin King <colin.king@canonical.com>  Thu, 31 Jan 2019 16:45:31 +0000
+
 stress-ng (0.09.50-1) unstable; urgency=medium
 
   * Makefile: bump version
