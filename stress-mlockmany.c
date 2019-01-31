@@ -137,6 +137,17 @@ static int stress_mlockmany(const args_t *args)
 					(void)shim_mlock(ptr, mlock_size);
 					if (!keep_stressing())
 						goto unlock;
+					/* Try invalid sizes */
+					(void)shim_mlock(ptr, 0);
+					(void)shim_munlock(ptr, 0);
+
+					(void)shim_mlock(ptr, mlock_size << 1);
+					(void)shim_munlock(ptr, mlock_size << 1);
+
+					(void)shim_mlock(ptr, ~(size_t)0);
+					(void)shim_munlock(ptr, ~(size_t)0);
+					if (!keep_stressing())
+						goto unlock;
 					(void)shim_usleep_interruptible(10000);
 				}
 unlock:
