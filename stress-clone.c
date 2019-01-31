@@ -126,7 +126,7 @@ int stress_set_clone_max(const char *opt)
 	return set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
 }
 
-#if defined(__linux__) && NEED_GLIBC(2,14,0) && defined(HAVE_CLONE)
+#if defined(HAVE_CLONE)
 
 /*
  *  stress_clone_new()
