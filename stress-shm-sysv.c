@@ -262,7 +262,8 @@ static int stress_shm_sysv_child(
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
-#if defined(__linux__) && defined(SHM_LOCK)
+#if defined(SHM_LOCK) &&	\
+    defined(SHM_UNLOCK)
 			{
 				int ret;
 
@@ -273,13 +274,14 @@ static int stress_shm_sysv_child(
 				}
 			}
 #endif
-#if defined(IPC_STAT)
+#if defined(IPC_STAT) && \
+    defined(HAVE_SHMID_DS)
 			{
 				struct shmid_ds ds;
 
 				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
 					pr_fail_dbg("shmctl IPC_STAT");
-#if defined(__linux__) && defined(SHM_SET)
+#if defined(SHM_SET)
 				else {
 					int ret;
 
@@ -289,7 +291,8 @@ static int stress_shm_sysv_child(
 #endif
 			}
 #endif
-#if defined(__linux__) && defined(IPC_INFO)
+#if defined(IPC_INFO) && \
+    defined(HAVE_SHMINFO)
 			{
 				struct shminfo s;
 
@@ -297,7 +300,8 @@ static int stress_shm_sysv_child(
 					pr_fail_dbg("semctl IPC_INFO");
 			}
 #endif
-#if defined(__linux__) && defined(SHM_INFO)
+#if defined(SHM_INFO) && \
+    defined(HAVE_SHMINFO)
 			{
 				struct shm_info s;
 
