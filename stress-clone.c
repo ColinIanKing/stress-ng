@@ -43,7 +43,7 @@ typedef struct {
 	uint64_t length;	/* Length of list */
 } clone_list_t;
 
-#if defined(__linux__) && NEED_GLIBC(2,14,0) && defined(HAVE_CLONE)
+#if defined(HAVE_CLONE)
 
 static clone_list_t clones;
 
