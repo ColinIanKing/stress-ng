@@ -113,9 +113,6 @@ again:
 			socklen_t len;
 			int fd;
 			int j = 0;
-#if defined(IPPROTO_UDPLITE)
-			int val;
-#endif
 
 			if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
 				pr_fail_dbg("socket");
@@ -128,7 +125,7 @@ again:
 				&addr, &len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 			if (proto == IPPROTO_UDPLITE) {
-				val = 8;	/* Just the 8 byte header */
+				int val = 8;	/* Just the 8 byte header */
 				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(val)) < 0) {
 					pr_fail_dbg("setsockopt");
 					(void)close(fd);
@@ -171,9 +168,6 @@ again:
 #if !defined(__minix__)
 		int so_reuseaddr = 1;
 #endif
-#if defined(IPPROTO_UDPLITE)
-		int val;
-#endif
 		socklen_t addr_len = 0;
 		struct sockaddr *addr = NULL;
 
@@ -193,7 +187,8 @@ again:
 			&addr, &addr_len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
-			val = 8;	/* Just the 8 byte header */
+			int val = 8;	/* Just the 8 byte header */
+
 			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(val)) < 0) {
 				pr_fail_dbg("setsockopt");
 				rc = EXIT_FAILURE;
