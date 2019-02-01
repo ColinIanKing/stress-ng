@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#define NO_MEM_RETRIES_MAX	(256)
+#define NO_MEM_RETRIES_MAX	(65536)
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
@@ -121,7 +121,7 @@ static void stress_mmap_child(
 		uint8_t *buf = NULL;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-			pr_err("%s: gave up trying to mmap, no available memory\n",
+			pr_inf("%s: gave up trying to mmap, no available memory\n",
 				args->name);
 			break;
 		}
@@ -317,7 +317,8 @@ static int stress_mmap(const args_t *args)
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), mwc32());
 
-		if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		if (fd < 0) {
 			rc = exit_status(errno);
 			pr_fail_err("open");
 			(void)unlink(filename);
@@ -419,6 +420,7 @@ again:
 		set_oom_adjustment(args->name, true);
 
 		stress_mmap_child(args, fd, &flags, sz, pages4k, mmap_bytes);
+		_exit(0);
 	}
 
 cleanup:
