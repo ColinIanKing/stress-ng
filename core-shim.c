@@ -692,17 +692,17 @@ int shim_munlockall(void)
 }
 
 /*
- *  shim_usleep()
- *	usleep is now deprecated, so
- *	emulate it with nanosleep
+ *  shim_nanosleep_uint64()
+ *	nanosecond sleep that handles being interrupted but will
+ *	be preempted if an ALARM signal has triggered a termination
  */
-int shim_usleep(uint64_t usec)
+int shim_nanosleep_uint64(uint64_t nsec)
 {
 #if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
-	t.tv_sec = usec / 1000000;
-	t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
+	t.tv_sec = nsec / 1000000000;
+	t.tv_nsec = nsec % 1000000000;
 
 	for (;;) {
 		errno = 0;
@@ -717,10 +717,41 @@ int shim_usleep(uint64_t usec)
 		}
 		break;
 	}
-	return 0;
 #else
-	return usleep((useconds_t)usec);
+	useconds_t usec = nsec / 1000;
+	const double t_end = time_now() + ((double)usec) / 1000000.0;
+
+	for (;;) {
+		errno = 0;
+		if (usleep(usec) < 0) {
+			if (errno == EINTR) {
+				double t_left = t_end - time_now();
+
+				if (t_left < 0.0)
+					return 0;
+				usec = (useconds_t)(t_left * 1000000.0);
+				if (usec == 0)
+					return 0;
+				if (g_keep_stressing_flag)
+					continue;
+			} else {
+				return -1;
+			}
+		}
+		break;
+	}
 #endif
+	return 0;
+}
+
+/*
+ *  shim_usleep()
+ *	usleep is now deprecated, so
+ *	emulate it with nanosleep
+ */
+int shim_usleep(uint64_t usec)
+{
+	return shim_nanosleep_uint64(usec * 1000);
 }
 
 /*

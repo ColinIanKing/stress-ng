@@ -2670,6 +2670,7 @@ typedef enum {
 	OPT_swap_ops,
 
 	OPT_switch_ops,
+	OPT_switch_freq,
 
 	OPT_spawn,
 	OPT_spawn_ops,
@@ -3367,6 +3368,7 @@ extern int  stress_set_str_method(const char *name);
 extern int  stress_set_stream_L3_size(const char *opt);
 extern int  stress_set_stream_index(const char *opt);
 extern int  stress_set_stream_madvise(const char *opt);
+extern int  stress_set_switch_freq(const char *opt);
 extern int  stress_set_sync_file_bytes(const char *opt);
 extern int  stress_set_timer_freq(const char *opt);
 extern int  stress_set_timerfd_freq(const char *opt);
@@ -3561,6 +3563,7 @@ extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
+extern int shim_nanosleep_uint64(uint64_t usec);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 

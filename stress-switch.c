@@ -25,6 +25,21 @@
 #include "stress-ng.h"
 
 #define SWITCH_STOP	'X'
+#define THRESH_FREQ	(100)		/* Delay adjustment rate in HZ */
+#define NANO_SECS	(1000000000)
+
+/*
+ *  stress_set_switch_freq()
+ *	set context switch freq in Hz from given option
+ */
+int stress_set_switch_freq(const char *opt)
+{
+	uint64_t switch_freq;
+
+	switch_freq = get_uint64(opt);
+	check_range("switch-freq", switch_freq, 0, NANO_SECS);
+	return set_setting("switch-freq", TYPE_ID_UINT64, &switch_freq);
+}
 
 /*
  *  stress_switch
@@ -35,6 +50,9 @@ static int stress_switch(const args_t *args)
 	pid_t pid;
 	int pipefds[2];
 	size_t buf_size;
+	uint64_t switch_freq = 0;
+
+	(void)get_setting("switch-freq", &switch_freq);
 
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
@@ -106,17 +124,22 @@ again:
 	} else {
 		char buf[buf_size];
 		int status;
-		double t1, t2;
+		double t1, t2, t;
+		uint64_t delay, switch_delay = NANO_SECS / switch_freq;
+		uint64_t i = 0, threshold = switch_freq / THRESH_FREQ;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
-
 		(void)memset(buf, '_', buf_size);
+
+		delay = switch_delay;
 
 		t1 = time_now();
 		do {
 			ssize_t ret;
+
+			inc_counter(args);
 
 			ret = write(pipefds[1], buf, sizeof(buf));
 			if (ret <= 0) {
@@ -128,13 +151,44 @@ again:
 				}
 				continue;
 			}
-			inc_counter(args);
+			if (switch_freq) {
+				double overrun, overrun_by;
+
+				/*
+				 *  Small delays take a while, so skip these
+				 */
+				if (delay > 1000)
+					shim_nanosleep_uint64(delay);
+
+				/*
+				 *  This is expensive, so only update the
+				 *  delay infrequently (at THRESH_FREQ HZ)
+				 */
+				if (++i >= threshold) {
+					i = 0;
+					t = t1 + ((((double)get_counter(args)) * switch_delay) / NANO_SECS);
+					overrun = (time_now() - t) * (double)NANO_SECS;
+					overrun_by = (double)switch_delay - overrun;
+
+					if (overrun_by < 0.0) {
+						/* Massive overrun, skip a delay */
+						delay = 0;
+					} else {
+						/* Overrun or underrun? */
+						delay = (double)overrun_by;
+						if (delay > switch_delay) {
+							/* Don't delay more than the switch delay */
+							delay = switch_delay;
+						}
+					}
+				}
+			}
 		} while (keep_stressing());
 
 		t2 = time_now();
 		pr_inf("%s: %.2f nanoseconds per context switch (based on parent run time)\n",
 			args->name,
-			((t2 - t1) * 1000000000.0) / (double)get_counter(args));
+			((t2 - t1) * NANO_SECS) / (double)get_counter(args));
 
 		(void)memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
