@@ -162,6 +162,14 @@ again:
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (mappings[n] == MAP_FAILED)
 					break;
+				/*
+				 *  Attempt a bogos mlock, ignore failure
+				 */
+				(void)do_mlock((void *)(mappings[n] + page_size), 0);
+
+				/*
+				 *  Attempt a correct mlock
+				 */
 				ret = do_mlock((void *)(mappings[n] + page_size), page_size);
 				if (ret < 0) {
 					if (errno == EAGAIN)
@@ -190,6 +198,10 @@ again:
 				addr ^= mlocked;
 				if (mlocked)
 					(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
+				/*
+				 *  Attempt a bogos munlock, ignore failure
+				 */
+				(void)shim_munlock((void *)((uint8_t *)addr + page_size), 0);
 				munmap((void *)addr, page_size * 3);
 			}
 #if defined(HAVE_MLOCKALL)
