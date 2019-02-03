@@ -2144,7 +2144,7 @@ start N workers that fork off up to 1024 child processes in total;
 each child will attempt to anonymously mmap and mlock the maximum allowed
 mlockable memory size.  The stress test attempts to avoid swapping by
 tracking low memory and swap allocations (but some swapping may occur). Once
-either the maximum number of child proccess is reached or all mlockable in-core
+either the maximum number of child process is reached or all mlockable in-core
 memory is locked then child processes are killed and the stress test is
 repeated.
 .TP
@@ -3078,7 +3078,7 @@ stop context switching workers after N bogo operations.
 .B \-\-switch\-rate R
 run the context switching at the rate of R context switches per second. Note
 that the specified switch rate may not be achieved because of CPU speed
-and memory bandwith limitations.
+and memory bandwidth limitations.
 .TP
 .B \-\-symlink N
 start N workers creating and removing symbolic links.

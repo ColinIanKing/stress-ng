@@ -224,7 +224,7 @@ void ignite_cpu_start(void)
 				uint32_t cpu;
 
 				/*
-				 *  Attempt to crank CPUs upto max freq
+				 *  Attempt to crank CPUs up to max freq
 				 */
 				for (cpu = 0; cpu < max_cpus; cpu++) {
 					int ret;

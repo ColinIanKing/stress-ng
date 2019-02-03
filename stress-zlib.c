@@ -129,7 +129,7 @@ static void stress_rand_data_bcd(const args_t *args, uint32_t *data, const int s
 
 /*
  *  stress_rand_data_utf8()
- *	fill buffer with random bytes coverted into utf8
+ *	fill buffer with random bytes converted into utf8
  */
 static void stress_rand_data_utf8(const args_t *args, uint32_t *data, const int size)
 {
