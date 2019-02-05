@@ -1281,6 +1281,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_MATRIX_SIZE		(8192)
 #define DEFAULT_MATRIX_SIZE	(256)
 
+#define MIN_MATRIX3D_SIZE	(16)
+#define MAX_MATRIX3D_SIZE	(1024)
+#define DEFAULT_MATRIX3D_SIZE	(64)
+
 #define MIN_MEMFD_BYTES		(2 * MB)
 #if UINTPTR_MAX == MAX_32
 #define MAX_MEMFD_BYTES		(MAX_32)
@@ -1864,6 +1868,7 @@ typedef enum {
 	STRESS_madvise,
 	STRESS_malloc,
 	STRESS_matrix,
+	STRESS_matrix_3d,
 	STRESS_mcontend,
 	STRESS_membarrier,
 	STRESS_memcpy,
@@ -2370,6 +2375,12 @@ typedef enum {
 	OPT_matrix_size,
 	OPT_matrix_method,
 	OPT_matrix_yx,
+
+	OPT_matrix_3d,
+	OPT_matrix_3d_ops,
+	OPT_matrix_3d_size,
+	OPT_matrix_3d_method,
+	OPT_matrix_3d_zyx,
 
 	OPT_maximize,
 
@@ -3326,6 +3337,9 @@ extern int  stress_set_malloc_threshold(const char *opt);
 extern int  stress_set_matrix_method(const char *name);
 extern int  stress_set_matrix_yx(const char *opt);
 extern int  stress_set_matrix_size(const char *opt);
+extern int  stress_set_matrix_3d_method(const char *name);
+extern int  stress_set_matrix_3d_size(const char *opt);
+extern int  stress_set_matrix_3d_zyx(const char *opt);
 extern int  stress_set_memcpy_method(const char *name);
 extern int  stress_set_memfd_bytes(const char *opt);
 extern int  stress_set_memfd_fds(const char *opt);
@@ -3662,6 +3676,7 @@ STRESS(stress_lsearch);
 STRESS(stress_madvise);
 STRESS(stress_malloc);
 STRESS(stress_matrix);
+STRESS(stress_matrix_3d);
 STRESS(stress_mcontend);
 STRESS(stress_membarrier);
 STRESS(stress_memcpy);
