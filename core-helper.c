@@ -1092,13 +1092,33 @@ unsigned int stress_get_cpu(void)
 const char *stress_get_compiler(void)
 {
 #if defined(__clang_major__) && defined(__clang_minor__)
-	static const char cc[] = " (clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) ")";
+	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
 #elif defined(__GNUC__) && defined(__GNUC_MINOR__)
-	static const char cc[] = " (gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) ")";
+	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
 #else
-	static const char cc[] = " (cc unknown)";
+	static const char cc[] = "cc unknown";
 #endif
 	return cc;
+}
+
+/*
+ *  stress_get_uname_info()
+ *	return uname information
+ */
+const char *stress_get_uname_info(void)
+{
+#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+	struct utsname buf;
+	static char str[sizeof(buf.machine) +
+                        sizeof(buf.sysname) +
+			sizeof(buf.release) + 3];
+
+	if (!uname(&buf)) {
+		(void)snprintf(str, sizeof(str), "%s %s %s", buf.machine, buf.sysname, buf.release);
+		return str;
+	}
+#endif
+	return "unknown";
 }
 
 /*
@@ -1112,9 +1132,8 @@ int stress_not_implemented(const args_t *args)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
-		pr_inf("%s: this stressor is not implemented on this system: %s %s %s%s\n",
-			args->name, buf.machine, buf.sysname, buf.release,
-			stress_get_compiler());
+		pr_inf("%s: this stressor is not implemented on this system: %s %s\n",
+			args->name, stress_get_uname_info(), stress_get_compiler());
 		return EXIT_NOT_IMPLEMENTED;
 	}
 #endif
