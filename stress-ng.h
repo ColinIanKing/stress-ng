@@ -3154,6 +3154,7 @@ extern WARN_UNUSED int stress_set_temp_path(const char *path);
 extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
+extern WARN_UNUSED const char *stress_get_compiler(void);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
 extern void ignite_cpu_start(void);
