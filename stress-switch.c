@@ -152,7 +152,6 @@ again:
 				continue;
 			}
 
-printf("HERE: %lu\n", switch_freq);
 			if (switch_freq) {
 				double overrun, overrun_by;
 
