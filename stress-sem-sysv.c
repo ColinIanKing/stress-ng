@@ -135,11 +135,8 @@ static void semaphore_sysv_thrash(const args_t *args)
 #else
 			if (semop(sem_id, &semwait, 1) < 0) {
 #endif
-				if (errno == EAGAIN) {
-					pr_inf("Semaphore timed out: errno=%d (%s)\n",
-						errno, strerror(errno));
+				if (errno == EAGAIN)
 					goto timed_out;
-				}
 				if (errno != EINTR)
 					pr_fail_dbg("semop wait");
 				break;
