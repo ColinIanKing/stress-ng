@@ -1,3 +1,30 @@
+stress-ng (0.09.52-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-clock: ignore EPERM errors on timer_create
+  * stress-clock: ignore -EINVAL and -ENOSYS failures for gettime and
+    getres
+  * stress-sem-sysv: don't spam output with timeout info messages
+  * stress-clock: ignore -EINVAL and -ENOSYS failures
+  * stress-switch: remove debug
+  * stress-switch: fix division by zero by switch_freq
+  * Update number of stressors in README
+  * Add 3D matrix stressor
+  * stress-ng: update version info in manual
+  * Add stress_get_uname_info to get specific uname info, tidy up -V
+    output
+  * stress-ng: add compiler version info into -V info
+  * Add helper function to get compiler information
+  * Fix some spelling mistakes.
+  * stress-mlock: add zero sized mlock/munlocks
+  * stress-udp: move declaration of variable val
+  * stress-mmap: be less noisy on mmap failures and fix directory
+    cleanup (LP: #1807732)
+  * Add new --switch-rate context switch rate setting
+
+ -- Colin King <colin.king@canonical.com>  Wed, 6 Feb 2019 13:27:33 +0000
+
 stress-ng (0.09.51-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
