@@ -125,7 +125,7 @@ again:
 		char buf[buf_size];
 		int status;
 		double t1, t2, t;
-		uint64_t delay, switch_delay = NANO_SECS / switch_freq;
+		uint64_t delay, switch_delay = (switch_freq == 0) ? 0 : NANO_SECS / switch_freq;
 		uint64_t i = 0, threshold = switch_freq / THRESH_FREQ;
 
 		/* Parent */
@@ -151,6 +151,8 @@ again:
 				}
 				continue;
 			}
+
+printf("HERE: %lu\n", switch_freq);
 			if (switch_freq) {
 				double overrun, overrun_by;
 
