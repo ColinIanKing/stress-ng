@@ -137,7 +137,8 @@ static int stress_clock(const args_t *args)
 			 *  Exercise setting local thread CPU timer
 			 */
 			ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (errno != EINVAL) && (errno != ENOSYS))
 				pr_fail("%s: clock_gettime failed for "
 					"timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
