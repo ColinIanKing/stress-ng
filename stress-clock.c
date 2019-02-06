@@ -167,13 +167,14 @@ static int stress_clock(const args_t *args)
 				int ret;
 
 				ret = clock_getres(clocks[i].id, &t);
-
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			            (errno != EINVAL) && (errno != ENOSYS))
 					pr_fail("%s: clock_getres failed for "
 						"timer '%s', errno=%d (%s)\n",
 							args->name, clocks[i].name, errno, strerror(errno));
 				ret = clock_gettime(clocks[i].id, &t);
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			            (errno != EINVAL) && (errno != ENOSYS))
 					pr_fail("%s: clock_gettime failed for "
 						"timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
