@@ -2377,6 +2377,20 @@ static void MLOCKED_TEXT handle_terminate(int signum)
 	terminate_signum = signum;
 	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
+
+	switch(signum) {
+	case SIGILL:
+	case SIGSEGV:
+	case SIGFPE:
+	case SIGBUS:
+		fprintf(stderr, "%s: info:  [%d] terminated with unexpected signal %s\n",
+			g_app_name, getpid(), stress_strsignal(signum));
+		fflush(stderr);
+		_exit(EXIT_SIGNALED);
+		break;
+	default:
+		break;
+	}
 }
 
 /*
