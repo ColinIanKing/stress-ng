@@ -149,7 +149,7 @@ fork_again:
 		pid = fork();
 		if (pid < 0) {
 			/* Can't fork, retry? */
-			if (errno == EAGAIN)
+			if ((errno == EAGAIN) || (errno == ENOMEM))
 				goto fork_again;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));

@@ -88,7 +88,7 @@ retry:			if (!g_keep_stressing_flag)
 			pids[n] = fork();
 			if (pids[n] < 0) {
 				/* Out of resources for fork, re-do, ugh */
-				if (errno == EAGAIN) {
+				if ((errno == EAGAIN) || (errno == ENOMEM)) {
 					(void)shim_usleep(10000);
 					goto retry;
 				}

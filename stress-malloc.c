@@ -107,7 +107,8 @@ static int stress_malloc(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag &&
+		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));

@@ -160,7 +160,8 @@ static int stress_kcmp(const args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag &&
+		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 
 		pr_fail_dbg("fork");

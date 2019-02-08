@@ -187,12 +187,6 @@ static int stress_exec(const args_t *args)
 					exec_fails++;
 			}
 		}
-
-		for (i = 0; i < exec_max; i++) {
-			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				pr_fail("%s: fork failed\n", args->name);
-			}
-		}
 	} while (keep_stressing());
 
 #if defined(HAVE_EXECVEAT)

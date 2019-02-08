@@ -3169,7 +3169,7 @@ again:
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
-		if (errno == EAGAIN)
+		if ((errno == EAGAIN) || (errno == ENOMEM))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));

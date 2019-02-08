@@ -270,7 +270,7 @@ again:
 			ret = EXIT_SUCCESS;
 			goto tidy;
 		}
-		if (errno == EAGAIN)
+		if ((errno == EAGAIN) || (errno == ENOMEM))
 			goto again;
 		pr_fail_err("fork");
 		goto tidy;

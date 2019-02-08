@@ -65,7 +65,8 @@ static pid_t stress_lease_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (g_keep_stressing_flag &&
+		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		return -1;
 	}

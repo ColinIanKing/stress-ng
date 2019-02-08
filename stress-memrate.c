@@ -269,7 +269,7 @@ again:
 
 	pid = fork();
 	if (pid < 0) {
-		if (errno == EAGAIN)
+		if ((errno == EAGAIN) || (errno == ENOMEM))
 			goto again;
 	} else if (pid > 0) {
 		int status, waitret;
