@@ -304,7 +304,7 @@ static void vdso_sym_list_free(vdso_sym_t **list)
 
 /*
  *  remove_sym
- *	find and remove a symbold from the symbol list
+ *	find and remove a symbol from the symbol list
  */
 static void remove_sym(vdso_sym_t **list, vdso_sym_t *dup)
 {
