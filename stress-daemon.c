@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+#if defined(NSIG)
+#define MAX_SIGNUM      NSIG
+#elif defined(_NSIG)
+#define MAX_SIGNUM      _NSIG
+#else
+#define MAX_SIGNUM      256
+#endif
+
 /*
  *  daemons()
  *	fork off a child and let the parent die
@@ -31,14 +39,24 @@
 static void daemons(const args_t *args, const int fd)
 {
 	int fds[3];
+	int i;
+	sigset_t set;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		goto err;
 	if (setsid() < 0)
 		goto err;
+
 	(void)close(0);
 	(void)close(1);
 	(void)close(2);
+
+	for (i = 0; i < MAX_SIGNUM; i++)
+		(void)signal(i, SIG_DFL);
+
+	(void)sigemptyset(&set);
+	(void)sigprocmask(SIG_SETMASK, &set, NULL);
+	(void)clearenv();
 
 	if ((fds[0] = open("/dev/null", O_RDWR)) < 0)
 		goto err;
@@ -52,14 +70,22 @@ static void daemons(const args_t *args, const int fd)
 
 		pid = fork();
 		if (pid < 0) {
+			/* A slow init? no pids or memory, retry */
+			if ((errno == EAGAIN) || (errno == ENOMEM))
+				continue;
 			goto tidy;
 		} else if (pid == 0) {
 			/* Child */
 			char buf[1] = { 0xff };
 			ssize_t sz;
+			int ret;
+
 			if (chdir("/") < 0)
 				goto err2;
 			(void)umask(0);
+			ret = stress_drop_capabilities(args->name);
+			(void)ret;
+
 			sz = write(fd, buf, sizeof(buf));
 			if (sz != sizeof(buf))
 				goto err2;
