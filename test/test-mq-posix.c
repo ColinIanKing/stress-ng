@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 
 	ret = mq_notify(mq, &sigev);
 	(void)ret;
-	memset((void *)&abs_timeout, 0, sizeof(abs_timeout));
+	(void)memset((void *)&abs_timeout, 0, sizeof(abs_timeout));
 	ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout);
 	(void)ret;
 	ret = mq_receive(mq, (char *)&msg, sizeof(msg), NULL);

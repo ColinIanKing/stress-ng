@@ -39,10 +39,10 @@ int main(void)
 	struct mmsghdr msg_hdr[2];
 	struct iovec msg_iov1[2], msg_iov2[3];
 
-	memset(&addr, 0, sizeof(addr));
-	memset(&msg_iov1, 0, sizeof(msg_iov1));
-	memset(&msg_iov2, 0, sizeof(msg_iov2));
-	memset(&msg_hdr, 0, sizeof(msg_hdr));
+	(void)memset(&addr, 0, sizeof(addr));
+	(void)memset(&msg_iov1, 0, sizeof(msg_iov1));
+	(void)memset(&msg_iov2, 0, sizeof(msg_iov2));
+	(void)memset(&msg_hdr, 0, sizeof(msg_hdr));
 
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sockfd < 0)

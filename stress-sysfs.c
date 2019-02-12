@@ -447,7 +447,7 @@ static int stress_sysfs(const args_t *args)
 	}
 #endif
 
-	memset(&ctxt, 0, sizeof(ctxt));
+	(void)memset(&ctxt, 0, sizeof(ctxt));
 	rc = sigsetjmp(jmp_env, 1);
 	if (rc) {
 		pr_err("%s: A SIGSEGV occurred while exercising %s, aborting\n",

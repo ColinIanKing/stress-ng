@@ -260,7 +260,7 @@ static inline size_t stress_revio_get_extents(const int fd)
 #if defined(FS_IOC_FIEMAP) && defined(HAVE_LINUX_FIEMAP_H)
 	struct fiemap fiemap;
 
-	memset(&fiemap, 0, sizeof(fiemap));
+	(void)memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0;
 
 	/* Find out how many extents there are */

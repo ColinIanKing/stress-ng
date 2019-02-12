@@ -126,7 +126,8 @@ static void stress_sha(
 		uint8_t *auth = digest + (j * sha_digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
+
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = HASH_CIPHER;
 		job->auth_tag_output = auth;
@@ -178,7 +179,8 @@ static void stress_des(
 		uint8_t *dst = encoded + (j * data_len);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
+
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = CIPHER_HASH;
 		job->src = data;
@@ -237,7 +239,7 @@ static void stress_cmac(
 		uint8_t *dst = output + (j * 16);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
 
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = HASH_CIPHER;
@@ -295,7 +297,7 @@ static void stress_ctr(
 		uint8_t *dst = encoded + (j * data_len);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
 
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = CIPHER_HASH;
@@ -361,7 +363,7 @@ static void stress_hmac_md5(
 		uint8_t *dst = output + (j * digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
 
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
@@ -434,7 +436,7 @@ static void stress_hmac_sha1(
 		uint8_t *dst = output + (j * digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
 
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
@@ -511,7 +513,7 @@ static void stress_hmac_sha512(
 		uint8_t *dst = output + (j * digest_size);
 
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		memset(job, 0, sizeof(*job));
+		(void)memset(job, 0, sizeof(*job));
 
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
