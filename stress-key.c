@@ -29,7 +29,7 @@
     defined(HAVE_KEYCTL)
 
 #define MAX_KEYS 	(256)
-#define KEYCTL_TIMEOUT	(7200)
+#define KEYCTL_TIMEOUT	(2)
 
 static long sys_keyctl(int cmd, ...)
 {
@@ -105,8 +105,9 @@ static int stress_key(const args_t *args)
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto tidy;
 				}
-				if ((errno != ENOMEM) && (errno != EDQUOT))
-					pr_fail_err("add_key");
+				if ((errno == ENOMEM) || (errno == EDQUOT))
+					break;
+				pr_fail_err("add_key");
 				goto tidy;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
@@ -179,10 +180,6 @@ static int stress_key(const args_t *args)
 #if defined(KEYCTL_SETPERM)
 			(void)sys_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
 #endif
-
-#if defined(KEYCTL_CLEAR)
-			(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
-#endif
 #if defined(KEYCTL_REVOKE)
 			if (mwc1())
 				(void)sys_keyctl(KEYCTL_REVOKE, keys[i]);
@@ -194,16 +191,12 @@ static int stress_key(const args_t *args)
 tidy:
 		inc_counter(args);
 		/* If we hit too many errors and bailed out early, clean up */
-		while (i < n) {
+		for (i = 0; i < n; i++) {
 			if (keys[i] >= 0) {
-#if defined(KEYCTL_CLEAR)
-				(void)sys_keyctl(KEYCTL_CLEAR, keys[i]);
-#endif
 #if defined(KEYCTL_INVALIDATE)
 				(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
 			}
-			i++;
 		}
 	} while (no_error && keep_stressing());
 
