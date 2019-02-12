@@ -347,7 +347,7 @@ static void stress_rand_data_double(const args_t *args, uint32_t *data, const in
 
 	for (i = 0; i < n; i++) {
 		double s = sin(theta);
-		memcpy(ptr, &s, sizeof(double));
+		(void)memcpy(ptr, &s, sizeof(double));
 		theta += dtheta;
 		dtheta += 0.001;
 		ptr += sizeof(double);
