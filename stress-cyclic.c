@@ -349,9 +349,9 @@ static sigjmp_buf jmp_env;
  *  stress_rlimit_handler()
  *      rlimit generic handler
  */
-static void MLOCKED_TEXT stress_rlimit_handler(int dummy)
+static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	g_keep_stressing_flag = 1;
 	siglongjmp(jmp_env, 1);

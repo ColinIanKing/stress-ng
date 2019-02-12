@@ -29,11 +29,11 @@
 static void *stack;
 static const size_t stack_sz = MINSIGSTKSZ;
 
-static void MLOCKED_TEXT stress_segv_handler(int dummy)
+static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	uint8_t data[32];
 
-	(void)dummy;
+	(void)signum;
 	(void)munmap(stack, stack_sz);
 	(void)memset(data, 0, sizeof(data));
 	_exit(EXIT_SUCCESS);

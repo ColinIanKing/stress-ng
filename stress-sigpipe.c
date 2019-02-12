@@ -28,9 +28,9 @@ static const args_t *s_args;
 
 #define CLONE_STACK_SIZE	(16 * 1024)
 
-static void stress_sigpipe_handler(int dummy)
+static void stress_sigpipe_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	if (LIKELY(s_args != NULL))
 		inc_counter(s_args);

@@ -49,9 +49,9 @@ int stress_set_sleep_max(const char *opt)
 
 #if defined(HAVE_LIB_PTHREAD)
 
-static void MLOCKED_TEXT stress_sigalrm_handler(int dummy)
+static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
-        (void)dummy;
+        (void)signum;
 
         thread_terminate = true;
 }

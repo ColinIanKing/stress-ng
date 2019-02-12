@@ -1972,9 +1972,9 @@ static int stress_exclude(void)
  *  stress_sigint_handler()
  *	catch signals and set flag to break out of stress loops
  */
-static void MLOCKED_TEXT stress_sigint_handler(int dummy)
+static void MLOCKED_TEXT stress_sigint_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 	g_caught_sigint = true;
 	g_keep_stressing_flag = false;
 	wait_flag = false;
@@ -1986,9 +1986,9 @@ static void MLOCKED_TEXT stress_sigint_handler(int dummy)
  *  stress_sigalrm_parent_handler()
  *	handle signal in parent process, don't block on waits
  */
-static void MLOCKED_TEXT stress_sigalrm_parent_handler(int dummy)
+static void MLOCKED_TEXT stress_sigalrm_parent_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 	wait_flag = false;
 }
 
@@ -1997,7 +1997,7 @@ static void MLOCKED_TEXT stress_sigalrm_parent_handler(int dummy)
  *  stress_stats_handler()
  *	dump current system stats
  */
-static void MLOCKED_TEXT stress_stats_handler(int dummy)
+static void MLOCKED_TEXT stress_stats_handler(int signum)
 {
 	static char buffer[80];
 	char *ptr = buffer;
@@ -2005,7 +2005,7 @@ static void MLOCKED_TEXT stress_stats_handler(int dummy)
 	double min1, min5, min15;
 	size_t shmall, freemem, totalmem, freeswap;
 
-	(void)dummy;
+	(void)signum;
 
 	*ptr = '\0';
 

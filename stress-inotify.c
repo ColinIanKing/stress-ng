@@ -289,9 +289,9 @@ static int mk_file(const args_t *args, const char *filename, const size_t len)
 static int inotify_attrib_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
-	(void)dummy;
+	(void)signum;
 	if (chmod(path, S_IRUSR | S_IWUSR) < 0) {
 		pr_err("%s: cannot chmod file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
@@ -318,13 +318,13 @@ static void inotify_attrib_file(const args_t *args, const char *path)
 static int inotify_access_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
 	int fd;
 	char buffer[1];
 	int rc = 0;
 
-	(void)dummy;
+	(void)signum;
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
@@ -362,12 +362,12 @@ static void inotify_access_file(const args_t *args, const char *path)
 static int inotify_modify_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
 	int fd, rc = 0;
 	char buffer[1] = { 0 };
 
-	(void)dummy;
+	(void)signum;
 	if (mk_file(args, path, 4096) < 0)
 		return -1;
 	if ((fd = open(path, O_RDWR)) < 0) {
@@ -404,9 +404,9 @@ static void inotify_modify_file(const args_t *args, const char *path)
 static int inotify_creat_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
-	(void)dummy;
+	(void)signum;
 	int fd;
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
 		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
@@ -432,11 +432,11 @@ static void inotify_creat_file(const args_t *args, const char *path)
 static int inotify_open_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
 	int fd;
 
-	(void)dummy;
+	(void)signum;
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		pr_err("%s: cannot open file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
@@ -463,9 +463,9 @@ static void inotify_open_file(const args_t *args, const char *path)
 static int inotify_delete_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	return rm_file(args, path);
 }
@@ -488,9 +488,9 @@ static void inotify_delete_file(const args_t *args, const char *path)
 static int inotify_delete_self_helper(
 	const args_t *args,
 	const char *path,
-	const void *dummy)
+	const void *signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	return rm_dir(args, path);
 }

@@ -34,9 +34,9 @@
 
 #define ABORT_TIMEOUT	(1.0)
 
-static void MLOCKED_TEXT stress_usr1_handler(int dummy)
+static void MLOCKED_TEXT stress_usr1_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 }
 
 /*

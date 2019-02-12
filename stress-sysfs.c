@@ -39,7 +39,7 @@ static volatile bool drain_kmsg = false;
 static volatile bool usr2_killed = false;
 static volatile uint32_t counter = 0;
 static sigjmp_buf jmp_env;
-static char dummy_path[] = "/sys/kernel/notes";
+static char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
 
 typedef struct ctxt {
@@ -49,17 +49,17 @@ typedef struct ctxt {
 	bool writeable;			/* is sysfs writeable? */
 } ctxt_t;
 
-static void MLOCKED_TEXT stress_segv_handler(int dummy)
+static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	segv_abort = true;
 	siglongjmp(jmp_env, 1);
 }
 
-static void MLOCKED_TEXT stress_usr2_handler(int dummy)
+static void MLOCKED_TEXT stress_usr2_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 }
 
 static uint32_t path_sum(const char *path)
@@ -459,7 +459,7 @@ static int stress_sysfs(const args_t *args)
 	if (stress_sighandler(args->name, SIGUSR2, stress_usr2_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	sysfs_path = dummy_path;
+	sysfs_path = signum_path;
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);

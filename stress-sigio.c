@@ -42,12 +42,12 @@ static double time_end;
  *  stress_sigio_handler()
  *      SIGIO handler
  */
-static void MLOCKED_TEXT stress_sigio_handler(int dummy)
+static void MLOCKED_TEXT stress_sigio_handler(int signum)
 {
 	static char buffer[BUFFER_SIZE];
 	const args_t *args = sigio_args;
 
-        (void)dummy;
+        (void)signum;
 
 	if (!keep_stressing() || (time_now() > time_end)) {
 		if (pid > 0)

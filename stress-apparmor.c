@@ -93,16 +93,16 @@ static int stress_apparmor_supported(void)
  *  stress_apparmor_handler()
  *      signal handler
  */
-static void MLOCKED_TEXT stress_apparmor_alrm_handler(int dummy)
+static void MLOCKED_TEXT stress_apparmor_alrm_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	apparmor_run = false;
 }
 
-static void MLOCKED_TEXT stress_apparmor_usr1_handler(int dummy)
+static void MLOCKED_TEXT stress_apparmor_usr1_handler(int signum)
 {
-        (void)dummy;
+        (void)signum;
 }
 
 

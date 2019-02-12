@@ -90,9 +90,9 @@ int stress_set_tree_size(const char *opt)
  *  stress_tree_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED_TEXT stress_tree_handler(int dummy)
+static void MLOCKED_TEXT stress_tree_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	if (do_jmp) {
 		do_jmp = false;

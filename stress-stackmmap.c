@@ -38,9 +38,9 @@ static size_t page_size;
  *  Just terminate the child when SEGV occurs on the
  *  mmap'd stack.
  */
-static void MLOCKED_TEXT stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	_exit(0);
 }

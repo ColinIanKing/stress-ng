@@ -51,9 +51,9 @@ static void MLOCKED_TEXT stress_segvhandler(
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #else
-static void MLOCKED_TEXT stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }

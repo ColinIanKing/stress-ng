@@ -30,9 +30,9 @@ static sigjmp_buf jmp_env;
  *  stress_segvhandler()
  *	SEGV handler
  */
-static void MLOCKED_TEXT stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }

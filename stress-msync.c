@@ -62,9 +62,9 @@ static int stress_page_check(
  *  stress_sigbus_handler()
  *     SIGBUS handler
  */
-static void MLOCKED_TEXT stress_sigbus_handler(int dummy)
+static void MLOCKED_TEXT stress_sigbus_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	sigbus_count++;
 

@@ -31,9 +31,9 @@ static volatile bool do_jmp = true;
  *  stress_segvhandler()
  *	SEGV handler
  */
-static void MLOCKED_TEXT stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	if (do_jmp)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */

@@ -31,9 +31,9 @@
 
 #define MAX_RTPIDS (SIGRTMAX - SIGRTMIN + 1)
 
-static void MLOCKED_TEXT stress_sigrthandler(int dummy)
+static void MLOCKED_TEXT stress_sigrthandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 }
 
 /*

@@ -26,9 +26,9 @@
 
 static volatile bool page_fault = false;
 
-static void stress_fault_handler(int dummy)
+static void stress_fault_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	page_fault = true;
 }

@@ -1032,9 +1032,9 @@ int stress_sighandler(
  *  stress_handle_stop_stressing()
  *	set flag to indicate to stressor to stop stressing
  */
-void stress_handle_stop_stressing(int dummy)
+void stress_handle_stop_stressing(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	g_keep_stressing_flag = false;
 }

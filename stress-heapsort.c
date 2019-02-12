@@ -49,9 +49,9 @@ int stress_set_heapsort_size(const char *opt)
  *  stress_heapsort_handler()
  *	SIGALRM generic handler
  */
-static void MLOCKED_TEXT stress_heapsort_handler(int dummy)
+static void MLOCKED_TEXT stress_heapsort_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	if (do_jmp) {
 		do_jmp = false;

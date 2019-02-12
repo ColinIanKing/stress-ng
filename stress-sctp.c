@@ -262,9 +262,9 @@ die:
 	return rc;
 }
 
-static void stress_sctp_sigpipe(int dummy)
+static void stress_sctp_sigpipe(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	sigpipe_count++;
 }

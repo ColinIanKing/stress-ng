@@ -94,9 +94,9 @@ static const lib_info_t libnames[] = {
  *  stress_segvhandler()
  *      SEGV handler
  */
-static void MLOCKED_TEXT stress_segvhandler(int dummy)
+static void MLOCKED_TEXT stress_segvhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	siglongjmp(jmp_env, 1);
 }

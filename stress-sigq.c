@@ -27,9 +27,9 @@
 #if defined(HAVE_SIGQUEUE) && \
     defined(HAVE_SIGWAITINFO)
 
-static void MLOCKED_TEXT stress_sigqhandler(int dummy)
+static void MLOCKED_TEXT stress_sigqhandler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 }
 
 /*

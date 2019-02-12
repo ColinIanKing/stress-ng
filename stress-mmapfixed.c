@@ -38,9 +38,9 @@
  *	force child termination and reap and account this
  *	in the main stressor loop.
  */
-static void MLOCKED_TEXT stress_sigsegv_handler(int dummy)
+static void MLOCKED_TEXT stress_sigsegv_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	_exit(0);
 }

@@ -41,9 +41,9 @@
  *  stress_rmap_handler()
  *      rmap signal handler
  */
-static void MLOCKED_TEXT stress_rmap_handler(int dummy)
+static void MLOCKED_TEXT stress_rmap_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	(void)kill(getppid(), SIGALRM);
 	_exit(0);

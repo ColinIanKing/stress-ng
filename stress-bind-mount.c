@@ -34,9 +34,9 @@
 
 #define CLONE_STACK_SIZE	(128*1024)
 
-static void stress_bind_mount_child_handler(int dummy)
+static void stress_bind_mount_child_handler(int signum)
 {
-	(void)dummy;
+	(void)signum;
 
 	_exit(0);
 }
