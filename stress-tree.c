@@ -388,6 +388,8 @@ static void avl_remove_tree(struct tree_node *node)
 	if (node) {
 		avl_remove_tree(node->u.avl.left);
 		avl_remove_tree(node->u.avl.right);
+		node->u.avl.left = NULL;
+		node->u.avl.right = NULL;
 	}
 }
 
