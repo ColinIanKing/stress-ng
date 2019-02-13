@@ -41,7 +41,7 @@ static void stress_link_unlink(
 			path, sizeof(path), i);
 		(void)unlink(path);
 	}
-	sync();
+	(void)sync();
 }
 
 /*

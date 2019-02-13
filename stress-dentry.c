@@ -132,7 +132,7 @@ static void stress_dentry_unlink(
 		}
 		break;
 	}
-	sync();
+	(void)sync();
 }
 
 /*
@@ -303,7 +303,7 @@ static int stress_dentry(const args_t *args)
 
 		if (!g_keep_stressing_flag)
 			break;
-		sync();
+		(void)sync();
 	} while (keep_stressing());
 
 abort:

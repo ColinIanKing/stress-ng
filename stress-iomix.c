@@ -583,19 +583,19 @@ static void stress_iomix_drop_caches(
 	(void)iomix_bytes;
 
 	do {
-		sync();
+		(void)sync();
 		if (system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (!keep_stressing())
 			return;
-		sync();
+		(void)sync();
 		if (system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
 		if (!keep_stressing())
 			return;
-		sync();
+		(void)sync();
 		if (system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
 			(void)pause();
 		(void)sleep(5);

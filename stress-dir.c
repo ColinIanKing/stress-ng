@@ -159,7 +159,7 @@ static int stress_dir(const args_t *args)
 		stress_dir_sync(dirname);
 		if (!g_keep_stressing_flag)
 			break;
-		sync();
+		(void)sync();
 	} while (keep_stressing());
 
 abort:

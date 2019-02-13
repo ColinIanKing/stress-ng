@@ -45,7 +45,7 @@ static int stress_io(const args_t *args)
 #endif
 
 	do {
-		sync();
+		(void)sync();
 #if defined(HAVE_SYNCFS)
 		if ((fd != -1) && (syncfs(fd) < 0))
 			pr_fail_err("syncfs");
