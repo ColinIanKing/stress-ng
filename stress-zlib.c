@@ -43,6 +43,13 @@ typedef struct {
 	const stress_zlib_rand_data_func func;	/* the random data generation function */
 } stress_zlib_rand_data_info_t;
 
+typedef struct {
+	uint64_t	xsum;
+	bool		error;
+	bool		pipe_broken;
+	bool		interrupted;
+} xsum_t;
+	
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
@@ -688,9 +695,15 @@ static int stress_zlib_inflate(
 {
 	int ret, err = 0;
 	z_stream stream_inf;
-	uint64_t xsum = 0, xsum_chars = 0;
+	uint64_t xsum_chars = 0;
 	unsigned char in[DATA_SIZE];
 	unsigned char out[DATA_SIZE];
+	xsum_t xsum;
+
+	xsum.xsum = 0;
+	xsum.error = false;
+	xsum.pipe_broken = false;
+	xsum.interrupted = false;
 
 	stream_inf.zalloc = Z_NULL;
 	stream_inf.zfree = Z_NULL;
@@ -702,12 +715,8 @@ static int stress_zlib_inflate(
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib inflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
-		if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
-			pr_fail("%s: zlib inflate pipe write error: "
-				"errno=%d (%s)\n",
-				args->name, err, strerror(err));
-		}
-		return EXIT_FAILURE;
+		xsum.error = true;
+		goto xsum_error;
 	}
 
 	do {
@@ -720,8 +729,13 @@ static int stress_zlib_inflate(
 					"errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				(void)inflateEnd(&stream_inf);
-				return EXIT_FAILURE;
+				xsum.error = true;
+				goto xsum_error;
 			} else {
+				if (errno == EINTR)
+					xsum.interrupted = true;
+		 		if (errno == EPIPE)
+					xsum.pipe_broken = true;
 				break;
 			}
 		}
@@ -742,14 +756,14 @@ static int stress_zlib_inflate(
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
 				(void)inflateEnd(&stream_inf);
-				return EXIT_FAILURE;
+				goto xsum_error;
 			}
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				size_t i;
 
 				for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
-					xsum += (uint64_t)out[i];
+					xsum.xsum += (uint64_t)out[i];
 					xsum_chars++;
 				}
 			}
@@ -760,7 +774,7 @@ static int stress_zlib_inflate(
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg("%s: inflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
-			args->name, xsum, xsum_chars);
+			args->name, xsum.xsum., xsum_chars);
 	}
 	*/
 	(void)inflateEnd(&stream_inf);
@@ -772,6 +786,15 @@ static int stress_zlib_inflate(
 	}
 	return ((ret == Z_OK) || (ret == Z_STREAM_END)) ?
 		EXIT_SUCCESS : EXIT_FAILURE;
+
+xsum_error:
+	xsum.error = true;
+	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
+		pr_fail("%s: zlib inflate pipe write error: "
+			"errno=%d (%s)\n",
+			args->name, err, strerror(err));
+	}
+	return EXIT_FAILURE;
 }
 
 /*
@@ -788,13 +811,19 @@ static int stress_zlib_deflate(
 	int ret, err = 0;
 	bool do_run;
 	z_stream stream_def;
-	uint64_t bytes_in = 0, bytes_out = 0, xsum = 0;
+	uint64_t bytes_in = 0, bytes_out = 0;
 	uint64_t xsum_chars = 0;
 	int flush = Z_FINISH;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
 	double t1, t2;
+	xsum_t xsum;
 
 	(void)get_setting("zlib-method", &opt_zlib_rand_data_func);
+
+	xsum.xsum = 0;
+	xsum.error = false;
+	xsum.pipe_broken = false;
+	xsum.interrupted = false;
 
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;
@@ -805,16 +834,9 @@ static int stress_zlib_deflate(
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib deflateInit error: %s\n",
 			args->name, stress_zlib_err(ret));
-		if (write(xsum_fd, &xsum, sizeof(xsum)) != sizeof(xsum)) {
-			if ((errno != EINTR) && (errno != EPIPE)) {
-				pr_fail("%s: zlib deflate pipe write error: "
-					"errno=%d (%s)\n",
-					args->name, err, strerror(err));
-			} else {
-				goto finish;
-			}
-		}
-		return EXIT_FAILURE;
+		xsum.error = true;
+		ret = EXIT_FAILURE;
+		goto xsum_error;
 	}
 
 	do {
@@ -828,7 +850,7 @@ static int stress_zlib_deflate(
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (int i = 0; i < (int)(DATA_SIZE / sizeof(unsigned char)); i++) {
-				xsum += (uint64_t)xsum_in[i];
+				xsum.xsum += (uint64_t)xsum_in[i];
 				xsum_chars++;
 			}
 		}
@@ -849,7 +871,8 @@ static int stress_zlib_deflate(
 				pr_fail("%s: zlib deflate error: %s\n",
 					args->name, stress_zlib_err(rc));
 				(void)deflateEnd(&stream_def);
-				return EXIT_FAILURE;
+				ret = EXIT_FAILURE;
+				goto xsum_error;
 			}
 			def_size = DATA_SIZE - stream_def.avail_out;
 			bytes_out += def_size;
@@ -858,8 +881,13 @@ static int stress_zlib_deflate(
 					pr_fail("%s: write error: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)deflateEnd(&stream_def);
-					return EXIT_FAILURE;
+					ret = EXIT_FAILURE;
+					goto xsum_error;
 				} else {
+					if (errno == EINTR)
+						xsum.interrupted = true;
+ 					if (errno == EPIPE)
+						xsum.pipe_broken = true;
 					(void)deflateEnd(&stream_def);
 					goto finish;
 				}
@@ -875,19 +903,23 @@ finish:
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
 		(t2 - t1 > 0.0) ? (bytes_in / (t2 - t1)) / MB : 0.0);
 
+	/*
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg("%s: deflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
-			args->name, xsum, xsum_chars);
+			args->name, xsum.xsum, xsum_chars);
 	}
+	*/
 
+	(void)deflateEnd(&stream_def);
+	ret = EXIT_SUCCESS;
+xsum_error:
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0 ) {
 		pr_fail("%s: zlib deflate pipe write error: "
 			"errno=%d (%s)\n",
 			args->name, err, strerror(err));
 	}
 
-	(void)deflateEnd(&stream_def);
 	return ret;
 }
 
@@ -900,10 +932,15 @@ static int stress_zlib(const args_t *args)
 	int ret = EXIT_SUCCESS, fds[2], deflate_xsum_fds[2], inflate_xsum_fds[2], status;
 	int err = 0;
 	pid_t pid;
-	uint64_t deflate_xsum = 0, inflate_xsum = 0;
+	xsum_t deflate_xsum, inflate_xsum;
 	uint32_t zlib_level = Z_BEST_COMPRESSION;	/* best compression */
 	ssize_t n;
-	bool good_xsum_reads = true;
+	bool bad_xsum_reads = false;
+	bool error = false;
+	bool interrupted = false;
+
+	(void)memset(&deflate_xsum, 0, sizeof(deflate_xsum));
+	(void)memset(&inflate_xsum, 0, sizeof(inflate_xsum));
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -961,30 +998,47 @@ static int stress_zlib(const args_t *args)
 
 	n = read(deflate_xsum_fds[0], &deflate_xsum, sizeof(deflate_xsum));
 	if (n != sizeof(deflate_xsum)) {
-		good_xsum_reads = false;
+		bad_xsum_reads = true;
 		if ((errno != EINTR) && (errno != EPIPE)) {
 			pr_fail("%s: zlib deflate xsum read pipe error: errno=%d (%s)\n",
 				args->name, err, strerror(err));
 		}
+	} else {
+		pipe_broken |= deflate_xsum.pipe_broken;
+		interrupted |= deflate_xsum.interrupted;
+		error       |= deflate_xsum.error;
 	}
+
 	n = read(inflate_xsum_fds[0], &inflate_xsum, sizeof(inflate_xsum));
 	if (n != sizeof(inflate_xsum)) {
-		good_xsum_reads = false;
+		bad_xsum_reads = true;
 		if ((errno != EINTR) && (errno != EPIPE)) {
 			pr_fail("%s: zlib inflate xsum read pipe error: errno=%d (%s)\n",
 				args->name, err, strerror(err));
 		}
+	} else {
+		pipe_broken |= inflate_xsum.pipe_broken;
+		interrupted |= inflate_xsum.interrupted;
+		error       |= inflate_xsum.error;
 	}
 
-	if (pipe_broken || !good_xsum_reads) {
-		pr_inf("%s: cannot verify inflate/deflate checksums, "
-			"interrupted or broken pipe\n", args->name);
+	if (pipe_broken || bad_xsum_reads || interrupted || error) {
+		pr_inf("%s: cannot verify inflate/deflate checksums:%s%s%s%s%s%s%s\n",
+			args->name,
+			interrupted ? " interrupted" : "",
+			interrupted & pipe_broken ? " and" : "",
+			pipe_broken ? " broken pipe" : "",
+			(interrupted | pipe_broken) & error ? " and" : "",
+			error ? " unexpected error" : "",
+			(interrupted | pipe_broken | error) & bad_xsum_reads ? " and" : "",
+			bad_xsum_reads ? " could not read checksums" : "");
 	} else {
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (deflate_xsum != inflate_xsum)) {
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+		    (deflate_xsum.xsum != inflate_xsum.xsum)) {
 			pr_fail("%s: zlib xsum values do NOT match "
 				"deflate xsum %" PRIu64
 				" vs inflate xsum %" PRIu64 "\n",
-				args->name, deflate_xsum, inflate_xsum);
+				args->name, deflate_xsum.xsum, inflate_xsum.xsum);
 			ret = EXIT_FAILURE;
 		}
 	}
