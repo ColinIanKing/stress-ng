@@ -226,7 +226,7 @@ static int stress_watchdog(const args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-		shim_sched_yield();
+		(void)shim_sched_yield();
 		inc_counter(args);
 	}
 

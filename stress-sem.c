@@ -69,7 +69,7 @@ static void *semaphore_posix_thrash(void *arg)
 				break;
 			}
 			if (i & 1)
-				shim_sched_yield();
+				(void)shim_sched_yield();
 			else
 				(void)shim_usleep(0);
 		}
