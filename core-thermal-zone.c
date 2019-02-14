@@ -179,8 +179,8 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 					pr_yaml(yaml, "    - stressor: %s\n",
 						munged);
 				}
-				pr_inf("%20s %7.2f °C\n",
-					tz_info->type, temp);
+				pr_inf("%20s %7.2f C (%.2f K)\n",
+					tz_info->type, temp, temp + 273.15);
 				pr_yaml(yaml, "      %s: %7.2f\n",
 					tz_info->type, temp);
 				no_tz_stats = false;
