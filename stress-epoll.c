@@ -216,6 +216,9 @@ static int epoll_notification(
 		socklen_t slen = sizeof(saddr);
 		int fd;
 
+		if (!keep_stressing())
+			return -1;
+
 		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 				/* all incoming connections handled so finish */
