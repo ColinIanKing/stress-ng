@@ -135,6 +135,7 @@ static void stress_socket_client(
 	const int socket_fd_port)
 {
 	struct sockaddr *addr;
+	int ret = EXIT_FAILURE;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
@@ -147,14 +148,13 @@ static void stress_socket_client(
 		(void)memset(fds, 0, sizeof(fds));
 retry:
 		if (!g_keep_stressing_flag) {
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			ret = EXIT_SUCCESS;
+			goto finish;
 		}
+
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			pr_fail_dbg("socket");
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			goto finish;
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
@@ -167,10 +167,14 @@ retry:
 			if (retries > 100) {
 				/* Give up.. */
 				pr_fail_dbg("connect");
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
+				goto finish;
 			}
 			goto retry;
+		}
+
+		if (!g_keep_stressing_flag) {
+			ret = EXIT_SUCCESS;
+			goto finish;
 		}
 
 		for (n = 0; keep_stressing() && (n < max_fd); n++)
@@ -188,8 +192,12 @@ retry:
 	struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 	(void)unlink(addr_un->sun_path);
 
+	ret = EXIT_SUCCESS;
+
+finish:
 	/* Inform parent we're all done */
 	(void)kill(getppid(), SIGALRM);
+	_exit(ret);
 }
 
 /*
@@ -244,7 +252,12 @@ static int stress_socket_server(
 	}
 
 	do {
-		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+		int sfd;
+
+		if (!keep_stressing())
+			break;
+
+		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			ssize_t i;
 
