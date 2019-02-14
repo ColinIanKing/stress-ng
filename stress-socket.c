@@ -292,6 +292,9 @@ static int stress_sctp_server(
 	do {
 		int sfd;
 
+		if (!keep_stressing())
+			break;
+
 #if defined(HAVE_ACCEPT4)
 		/*  Randomly use accept or accept4 to exercise both */
 		if (mwc1()) {
