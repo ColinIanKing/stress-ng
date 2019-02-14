@@ -2384,7 +2384,7 @@ static void MLOCKED_TEXT handle_terminate(int signum)
 	case SIGFPE:
 	case SIGBUS:
 		fprintf(stderr, "%s: info:  [%d] terminated with unexpected signal %s\n",
-			g_app_name, getpid(), stress_strsignal(signum));
+			g_app_name, (int)getpid(), stress_strsignal(signum));
 		fflush(stderr);
 		_exit(EXIT_SIGNALED);
 		break;
