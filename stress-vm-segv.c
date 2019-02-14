@@ -89,7 +89,7 @@ again:
 			(void)ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_TRACESYSGOOD);
 
 			while (keep_stressing()) {
-				(void) ptrace(PTRACE_SYSCALL, pid, 0, 0);
+				(void)ptrace(PTRACE_SYSCALL, pid, 0, 0);
 
 				ret = waitpid(pid, &status, 0);
 				if (ret < 0)
@@ -123,7 +123,7 @@ kill_child:
 			stress_process_dumpable(false);
 
 #if defined(HAVE_PTRACE)
-			ptrace(PTRACE_TRACEME);
+			(void)ptrace(PTRACE_TRACEME);
 			kill(getpid(), SIGSTOP);
 #endif
 			(void)sigemptyset(&set);
