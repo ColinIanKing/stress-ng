@@ -223,7 +223,7 @@ static int stress_sigfpe(const args_t *args)
 				break;
 			default:
 				/* Raise fault otherwise */
-				feraiseexcept(exception);
+				(void)feraiseexcept(exception);
 				break;
 			}
 		}
