@@ -211,7 +211,12 @@ static int stress_sctp_server(
 	}
 
 	do {
-		int sfd = accept(fd, (struct sockaddr *)NULL, NULL);
+		int sfd;
+
+		if (!keep_stressing())
+			break;
+
+		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			size_t i;
 
