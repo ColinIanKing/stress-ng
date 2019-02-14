@@ -174,7 +174,7 @@ static int pr_msg_lockable(
 			struct tm *tm;
 
 			tm = localtime(&t);
-			snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
+			(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
 				tm->tm_hour, tm->tm_min, tm->tm_sec,
 				(long)tv.tv_usec / 10000);
 		}

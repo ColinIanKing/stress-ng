@@ -592,9 +592,9 @@ static inline bool is_scsi_dev(const char *devpath)
 		if (scsi_device_list[i]->d_name[0] == '.')
 			continue;
 
-		snprintf(scsi_block_path, sizeof(scsi_block_path), "%s/%s/device/block",
-			scsi_device_path, scsi_device_list[i]->d_name);
-
+		(void)snprintf(scsi_block_path, sizeof(scsi_block_path),
+			"%s/%s/device/block", scsi_device_path,
+			scsi_device_list[i]->d_name);
 		scsi_block_list = NULL;
 		m = scandir(scsi_block_path, &scsi_block_list, NULL, alphasort);
 		if (m <= 0)

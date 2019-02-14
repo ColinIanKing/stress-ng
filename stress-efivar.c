@@ -70,7 +70,7 @@ static inline void guid_to_str(const uint8_t *guid, char *guid_str, size_t guid_
 		return;
 
 	if (guid_len > 36)
-		snprintf(guid_str, guid_len,
+		(void)snprintf(guid_str, guid_len,
 			"%02x%02x%02x%02x-%02x%02x-%02x%02x-"
 			"%02x%02x-%02x%02x%02x%02x%02x%02x",
 			guid[3], guid[2], guid[1], guid[0], guid[5], guid[4], guid[7], guid[6],

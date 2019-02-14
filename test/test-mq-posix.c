@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	attr.mq_msgsize = sizeof(msg_t);
 	attr.mq_curmsgs = 0;
 
-	snprintf(mq_name, sizeof(mq_name), "/%s-%i",
+	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%i",
 		argv[0], getpid());
 	/*
 	 * This is not meant to be functionally

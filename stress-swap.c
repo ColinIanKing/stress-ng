@@ -109,7 +109,8 @@ static int stress_swap_set_size(
 	(void)memset(&swap_info, 0, sizeof(swap_info));
 	for (i = 0; i < sizeof(swap_info.sws_uuid); i++)
 		swap_info.sws_uuid[i] = mwc8();
-	snprintf((char *)swap_info.sws_volume, sizeof(swap_info.sws_volume),
+	(void)snprintf((char *)swap_info.sws_volume,
+		sizeof(swap_info.sws_volume),
 		"SNG-SWP-%" PRIx32, args->instance);
 	swap_info.version = SWAP_VERSION;
 	swap_info.last_page = npages - 1;

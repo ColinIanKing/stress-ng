@@ -381,7 +381,8 @@ static void NORETURN waste_resources(
     defined(HAVE_MQUEUE_H)
 		struct mq_attr attr;
 
-		snprintf(info[i].mq_name, sizeof(info[i].mq_name), "/%s-%i-%" PRIu32 "-%zu",
+		(void)snprintf(info[i].mq_name, sizeof(info[i].mq_name),
+			"/%s-%i-%" PRIu32 "-%zu",
 			args->name, getpid(), args->instance, i);
 		attr.mq_flags = 0;
 		attr.mq_maxmsg = 1;
