@@ -172,6 +172,9 @@ static int stress_af_alg_hash(
 		}
 		bind_ok = true;
 
+		if (!keep_stressing())
+			break;
+
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
 			pr_fail_err("accept");
@@ -260,6 +263,9 @@ static int stress_af_alg_cipher(
 			pr_fail_err("setsockopt");
 			return EXIT_FAILURE;
 		}
+
+		if (!keep_stressing())
+			break;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
@@ -427,6 +433,9 @@ static int stress_af_alg_rng(
 			return EXIT_FAILURE;
 		}
 		bind_ok = true;
+
+		if (!keep_stressing())
+			break;
 
 		fd = accept(sockfd, NULL, 0);
 		if (fd < 0) {
