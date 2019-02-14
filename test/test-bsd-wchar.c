@@ -22,6 +22,7 @@
  * functionality.
  *
  */
+#include <stdio.h>
 #include <bsd/wchar.h>
 
 int main(void)
