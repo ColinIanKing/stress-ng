@@ -56,7 +56,9 @@ static void daemons(const args_t *args, const int fd)
 
 	(void)sigemptyset(&set);
 	(void)sigprocmask(SIG_SETMASK, &set, NULL);
+#if defined(HAVE_CLEARENV)
 	(void)clearenv();
+#endif
 
 	if ((fds[0] = open("/dev/null", O_RDWR)) < 0)
 		goto err;
