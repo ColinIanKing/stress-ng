@@ -160,8 +160,8 @@ static int stress_cache(const args_t *args)
 
 		}
 #endif
-		shim_cacheflush((char *)stress_cache, 8192, ICACHE);
-		shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
+		(void)shim_cacheflush((char *)stress_cache, 8192, ICACHE);
+		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
 		inc_counter(args);
 	} while (keep_stressing());
 
