@@ -57,10 +57,10 @@ static void *semaphore_posix_thrash(void *arg)
 
 		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
 			if (sem_trywait(&sem) < 0) {
-				if (errno == EAGAIN)
+				if (errno == 0 || errno == EAGAIN)
 					continue;
 				if (errno != EINTR)
-					pr_fail_dbg("sem_wait");
+					pr_fail_dbg("sem_trywait");
 				break;
 			}
 			inc_counter(args);
