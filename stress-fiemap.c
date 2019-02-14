@@ -120,7 +120,7 @@ static void stress_fiemap_ioctl(const args_t *args, int fd)
 		c++;
 		if (c >= 64) {
 			c = 0;
-			shim_usleep(25000);
+			(void)shim_usleep(25000);
 		}
 		if (!keep_stressing())
 			break;

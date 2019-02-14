@@ -53,7 +53,7 @@ static int stress_kill(const args_t *args)
 		 *  be appreciated!
 		 */
 		if (udelay >= 1000) {
-			shim_usleep(udelay);
+			(void)shim_usleep(udelay);
 			udelay -= 500;
 		}
 

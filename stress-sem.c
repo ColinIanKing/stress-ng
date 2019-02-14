@@ -71,7 +71,7 @@ static void *semaphore_posix_thrash(void *arg)
 			if (i & 1)
 				shim_sched_yield();
 			else
-				shim_usleep(0);
+				(void)shim_usleep(0);
 		}
 	} while (keep_stressing());
 

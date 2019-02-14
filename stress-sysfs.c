@@ -253,7 +253,7 @@ next:
 
 		if (drain_kmsg) {
 drain:
-			shim_usleep(DRAIN_DELAY_US);
+			(void)shim_usleep(DRAIN_DELAY_US);
 			continue;
 		}
 	}
