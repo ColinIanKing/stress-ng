@@ -216,7 +216,7 @@ static int stress_softlockup(const args_t *args)
 tidy_ok:
 		rc = EXIT_SUCCESS;
 tidy:
-		fflush(stdout);
+		(void)fflush(stdout);
 		_exit(rc);
 	} else {
 		int status;
