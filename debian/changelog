@@ -1,3 +1,42 @@
+stress-ng (0.09.53-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * Manual: update contributing authors
+  * stress-zlib: mark zero pipe reads as an interrupted pipe
+  * stress-zlib: improve error handling messages
+  * stress-sem: check for errno being zero for dilos
+  * test/test-bsd-wchar: Explicitly include stdio.h
+  * stress-af-alg: add yield detection before a blocking accept()
+  * stress-socket: add yield detection before a blocking accept()
+  * stress-sctp: add yield detection before a blocking accept()
+  * stress-dccp: add yield detection before a blocking accept()
+  * stress-epoll: add yield detection before a blocking accept()
+  * stress-socket-fd: add more yield detection points
+  * stress-ng: cast pid_t to int for printf
+  * Add build time check for clearenv()
+  * Voidify return from shim_sched_yield()
+  * stress-vm-segv: add some voidifications on ptrace calls
+  * Voidify return from fflush()
+  * Voidify return from feraiseexcept()
+  * Voidify return to shim_usleep()
+  * Voidify return from snprintf
+  * Voidify return from calls to shim_cacheflush
+  * core-perf: add spinlock/unlock error checking
+  * thermal-zone: remove degrees char and also add Kelvin too
+  * Voidify return of sync()
+  * stress-tree: ensure avl cleans it's nodes on free
+  * Voidify return from memcpy()
+  * Voidify return from memset()
+  * Rename dummy variable to signum
+  * stress-key: don't perform KEYCTL_CLEAR, add more error checking
+  * stress-daemon: perform more SysV daemon like actions
+  * stress-vdso: fix typo in comment
+  * Handle ENOMEM fork failures by retrying
+  * stress-ng: catch and report weird child termination issues
+
+ -- Colin King <colin.king@canonical.com>  Fri, 15 Feb 2019 12:05:01 +0000
+
 stress-ng (0.09.52-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
