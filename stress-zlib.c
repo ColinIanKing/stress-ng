@@ -740,8 +740,10 @@ static int stress_zlib_inflate(
 			}
 		}
 
-		if (sz == 0)
+		if (sz == 0) {
+			xsum.pipe_broken = true;
 			break;
+		}
 
 		stream_inf.avail_in = sz;
 		stream_inf.next_in = in;
@@ -774,7 +776,7 @@ static int stress_zlib_inflate(
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg("%s: inflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
-			args->name, xsum.xsum., xsum_chars);
+			args->name, xsum.xsum, xsum_chars);
 	}
 	*/
 	(void)inflateEnd(&stream_inf);
