@@ -251,8 +251,8 @@ out:
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	size_t   index_len = index_path ? strlen(index_path) : 0;
-	char     path[index_len + 32];
+	size_t   index_len = index_path ? strlen(index_path) + 32 : 32;
+	char     path[index_len];
 	char    *contents = NULL;
 	int      ret = EXIT_FAILURE;
 
