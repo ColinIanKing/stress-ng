@@ -24,79 +24,82 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) || defined(__gnu_hurd__)
-
-#if defined(__linux__) && defined(RNDGETENTCNT)
-#define DEV_RANDOM
-#endif
-
 /*
  *  stress_urandom
- *	stress reading of /dev/urandom
+ *	stress reading of /dev/urandom and /dev/random
  */
 static int stress_urandom(const args_t *args)
 {
-	int fd_urnd, rc = EXIT_FAILURE;
-#if defined(DEV_RANDOM)
-	int fd_rnd;
-#endif
+	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
 
 	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
-		pr_fail_err("open");
-		return EXIT_FAILURE;
+		if (errno != ENOENT) {
+			pr_fail_err("open");
+			return EXIT_FAILURE;
+		}
 	}
-#if defined(DEV_RANDOM)
 	if ((fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK)) < 0) {
-		pr_fail_err("open");
-		(void)close(fd_urnd);
-		return EXIT_FAILURE;
+		if (errno != ENOENT) {
+			pr_fail_err("open");
+			(void)close(fd_urnd);
+			return EXIT_FAILURE;
+		}
 	}
-#endif
+
+	if ((fd_urnd < 0) && (fd_rnd < 0)) {
+		pr_inf("%s: random device(s) do not exist, skipping stressor\n",
+			args->name);
+		return EXIT_NOT_IMPLEMENTED;
+	}
 
 	do {
 		char buffer[8192];
 		ssize_t ret;
-#if defined(DEV_RANDOM)
-		unsigned long val;
-#endif
 
-		ret = read(fd_urnd, buffer, sizeof(buffer));
-		if (ret < 0) {
-			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err("read");
-				goto err;
+		if (fd_urnd >= 0) {
+			ret = read(fd_urnd, buffer, sizeof(buffer));
+			if (ret < 0) {
+				if ((errno != EAGAIN) && (errno != EINTR)) {
+					pr_fail_err("read");
+					goto err;
+				}
 			}
 		}
-		inc_counter(args);
 
-#if defined(DEV_RANDOM)
 		/*
 		 * Fetch entropy pool count, not considered fatal
 		 * this fails, just skip this part of the stressor
 		 */
-		if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
-			continue;
-		/* Try to avoid emptying entropy pool */
-		if (val < 128)
-			continue;
+		if (fd_rnd >= 0) {
+#if defined(RNDGETENTCNT)
+			unsigned long val;
 
-		ret = read(fd_rnd, buffer, 1);
-		if (ret < 0) {
-			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err("read");
-				goto err;
+			if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
+				goto next;
+			/* Try to avoid emptying entropy pool */
+			if (val < 128)
+				goto next;
+#endif
+			ret = read(fd_rnd, buffer, 1);
+			if (ret < 0) {
+				if ((errno != EAGAIN) && (errno != EINTR)) {
+					pr_fail_err("read");
+					goto err;
+				}
 			}
 		}
+#if defined(RNDGETENTCNT)
+next:
 #endif
 		inc_counter(args);
 	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
 err:
-	(void)close(fd_urnd);
-#if defined(DEV_RANDOM)
-	(void)close(fd_rnd);
-#endif
+	if (fd_urnd >= 0)
+		(void)close(fd_urnd);
+	if (fd_rnd >= 0)
+		(void)close(fd_rnd);
 
 	return rc;
 }
@@ -104,9 +107,3 @@ stressor_info_t stress_urandom_info = {
 	.stressor = stress_urandom,
 	.class = CLASS_DEV | CLASS_OS
 };
-#else
-stressor_info_t stress_urandom_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_DEV | CLASS_OS
-};
-#endif
