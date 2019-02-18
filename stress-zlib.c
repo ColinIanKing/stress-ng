@@ -533,7 +533,7 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *const data, c
 	}
 
 	/* Start in random place in stress-ng text segment */
-	text = text_start + (mwc64() % text_len);
+	text = text_len ? text_start + (mwc64() % text_len) : text_start;
 
 	for (dataptr = (char *)data, i = 0; i < n; i++, dataptr++) {
 		*dataptr = *text;
