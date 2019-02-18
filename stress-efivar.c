@@ -80,29 +80,26 @@ static inline void guid_to_str(const uint8_t *guid, char *guid_str, size_t guid_
 }
 
 /*
- *  efi_str16_to_str()
- *	convert 16 bit string to 8 bit C string.
+ *  efi_get_varname()
+ *	fetch the UEFI variable name in terms of a 8 bit C string
  */
-static inline void efi_str16_to_str(char *dst, const size_t len, const uint16_t *src)
+static inline void efi_get_varname(char *dst, const size_t len, const efi_var *var)
 {
-	size_t i = len;
+	register size_t i = len;
+
+	/*
+	 * gcc-9 -Waddress-of-packed-member workaround, urgh, we know
+	 * this is always going to be aligned correctlty, but gcc-9 whines
+	 * so this hack works around it for now.
+	 */
+	const uint8_t *src8 = (uint8_t *)var->varname;
+	uint16_t *src = (uint16_t *)src8;
 
 	while ((*src) && (i > 1)) {
 		*dst++ = *(src++) & 0xff;
 		i--;
 	}
 	*dst = '\0';
-}
-
-/*
- *  efi_get_varname()
- *	fetch the UEFI variable name in terms of a 8 bit C string
- */
-static inline void efi_get_varname(char *varname, const size_t len, const efi_var *var)
-{
-	const uint16_t *varname16 = var->varname;
-
-	efi_str16_to_str(varname, len, varname16);
 }
 
 /*
