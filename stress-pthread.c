@@ -203,6 +203,7 @@ static int stress_pthread(const args_t *args)
 {
 	bool ok = true;
 	bool locked = false;
+	bool try_unlock = true;
 	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
@@ -296,6 +297,8 @@ static int stress_pthread(const args_t *args)
 					pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
 						args->name, ret, strerror(ret));
 					ok = false;
+					/* We failed to unlock, so don't try again on reap */
+					try_unlock = false;
 					goto reap;
 				}
 				locked = false;
@@ -331,7 +334,7 @@ reap:
 			ok = false;
 			/* fall through and unlock */
 		}
-		if (locked) {
+		if (locked && try_unlock) {
 			ret = pthread_mutex_unlock(&mutex);
 			if (ret) {
 				pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
