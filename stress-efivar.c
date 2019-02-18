@@ -100,7 +100,9 @@ static inline void efi_str16_to_str(char *dst, const size_t len, const uint16_t 
  */
 static inline void efi_get_varname(char *varname, const size_t len, const efi_var *var)
 {
-	efi_str16_to_str(varname, len, var->varname);
+	const uint16_t *varname16 = var->varname;
+
+	efi_str16_to_str(varname, len, varname16);
 }
 
 /*
