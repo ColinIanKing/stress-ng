@@ -49,7 +49,7 @@ static inline void mk_path(char *path, size_t len, const char *element)
 {
 	const size_t e_len = strlen(element);
 
-	path[len + len] = '\0';
+	path[len] = '\0';
 	(void)strncpy((path) + len, element, e_len + 1);
 	path[len + e_len] = '\0';
 }
@@ -251,10 +251,11 @@ out:
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	size_t   index_len = index_path ? strlen(index_path) : 0;
-	char     path[index_len + 32];
-	char    *contents = NULL;
-	int      ret = EXIT_FAILURE;
+	const size_t index_posn = index_path ? strlen(index_path) : 0;
+	const size_t path_len = index_posn + 32;
+	char path[path_len];
+	char *contents = NULL;
+	int ret = EXIT_FAILURE;
 
 	(void)memset(path, 0, sizeof(path));
 	if (!cache) {
@@ -266,9 +267,8 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	}
 
-	(void)strncpy(path, index_path, index_len);
-
-	mk_path(path, index_len, "/type");
+	(void)strncpy(path, index_path, index_posn + 1);
+	mk_path(path, index_posn, "/type");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -278,7 +278,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	free(contents);
 
-	mk_path(path, index_len, "/size");
+	mk_path(path, index_posn, "/size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -286,7 +286,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->size = size_to_bytes(contents);
 	free(contents);
 
-	mk_path(path, index_len, "/level");
+	mk_path(path, index_posn, "/level");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -294,7 +294,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->level = (uint16_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, index_len, "/coherency_line_size");
+	mk_path(path, index_posn, "/coherency_line_size");
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
@@ -302,7 +302,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	cache->line_size = (uint32_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, index_len, "/ways_of_associativity");
+	mk_path(path, index_posn, "/ways_of_associativity");
 	contents = get_string_from_file(path);
 
 	/* Don't error if file is not readable: cache may not be
