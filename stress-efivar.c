@@ -92,8 +92,8 @@ static inline void efi_get_varname(char *dst, const size_t len, const efi_var *v
 	 * this is always going to be aligned correctlty, but gcc-9 whines
 	 * so this hack works around it for now.
 	 */
-	const uint8_t *src8 = (uint8_t *)var->varname;
-	uint16_t *src = (uint16_t *)src8;
+	const uint8_t *src8 = (const uint8_t *)var->varname;
+	const uint16_t *src = (const uint16_t *)src8;
 
 	while ((*src) && (i > 1)) {
 		*dst++ = *(src++) & 0xff;
