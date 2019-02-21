@@ -1,3 +1,22 @@
+stress-ng (0.09.54-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-efivar: add in missing constifications
+  * core-cache: fix strncpy - it was one byte too short and not copying
+    end-of-string char
+  * stress-efivar: properly work around gcc-9 -Waddress-of-packed-member
+    warning
+  * stress-efivar: pass naturally aligned pointer (stops gcc9 from
+    complaining)
+  * stress-pthread: don't unlock if previously an unlock failed
+  * stress-zlib: avoid static analysis warnings about division by zero on
+    zero text_len
+  * stress-mremap: fix compare, was an incorrect assignment
+  * stress-urandom: skip stressor if /dev/urandom and /dev/random don't
+    exist
+
+ -- Colin King <colin.king@canonical.com>  Thu, 21 Feb 2019 18:15:55 +0000
+
 stress-ng (0.09.53-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
