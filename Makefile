@@ -357,7 +357,7 @@ stress-ng: $(OBJS)
 
 makeconfig:
 	@if [ ! -s config ]; then \
-		$(MAKE) -f Makefile.config; \
+		STATIC=$(STATIC) $(MAKE) -f Makefile.config; \
 	fi
 
 #
