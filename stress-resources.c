@@ -30,7 +30,6 @@
 typedef struct {
 	void *m_malloc;
 	void *m_sbrk;
-	void *m_alloca;
 	void *m_mmap;
 	size_t m_mmap_size;
 	int fd_pipe[2];
@@ -182,11 +181,6 @@ static void NORETURN waste_resources(
 		}
 		if ((mwc8() & 0xf) == 0) {
 			info[i].m_sbrk = shim_sbrk(page_size);
-			if (!g_keep_stressing_flag)
-				break;
-		}
-		if ((mwc8() & 0xf) == 0) {
-			info[i].m_alloca = alloca(page_size);
 			if (!g_keep_stressing_flag)
 				break;
 		}
