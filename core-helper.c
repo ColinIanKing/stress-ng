@@ -35,6 +35,12 @@
 static unsigned long timer_slack = 0;
 #endif
 
+#if defined(NSIG)
+#define STRESS_NSIG	NSIG
+#elif defined(_NSIG)
+#define STRESS_NSIG	_NSIG
+#endif
+
 static const char *stress_temp_path = ".";
 
 /*
@@ -655,22 +661,19 @@ void stress_cwd_readwriteable(void)
 const char *stress_strsignal(const int signum)
 {
 	static char buffer[128];
+#if defined(STRESS_NSIG)
 	const char *str = NULL;
 
-#if defined(NSIG)
-	if ((signum >= 0) && (signum < NSIG))
+	if ((signum >= 0) && (signum < STRESS_NSIG))
 		str = strsignal(signum);
-#elif defined(_NSIG)
-	if ((signum >= 0) && (signum < N_SIG))
-		str = strsignal(signum);
-#endif
-	if (str) {
+	if (str)
 		(void)snprintf(buffer, sizeof(buffer), "signal %d (%s)",
 			signum, str);
-	} else {
-		(void)snprintf(buffer, sizeof(buffer), "signal %d",
-			signum);
-	}
+	else
+		(void)snprintf(buffer, sizeof(buffer), "signal %d", signum);
+#else
+	(void)snprintf(buffer, sizeof(buffer), "signal %d", signum);
+#endif
 	return buffer;
 }
 
