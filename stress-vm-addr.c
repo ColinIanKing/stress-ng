@@ -461,7 +461,7 @@ again:
 
 			buf = (uint8_t *)mmap(vm_base_addr, buf_sz,
 				PROT_READ | PROT_WRITE,
-				MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (buf == MAP_FAILED) {
 				buf = NULL;
 				no_mem_retries++;
