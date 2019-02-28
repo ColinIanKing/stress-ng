@@ -631,7 +631,7 @@ static int stress_apparmor(const args_t *args)
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
 	size_t i;
-	uint64_t *counters, tmp_counter = 0, max_ops, ops_per_child, ops;
+	uint64_t *counters, max_ops, ops_per_child, ops;
 	const size_t counters_sz = n * sizeof(*counters);
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
@@ -671,9 +671,10 @@ static int stress_apparmor(const args_t *args)
 			&counters[i], apparmor_funcs[i]);
 	}
 	while (keep_stressing()) {
+		uint64_t tmp_counter = 0;
+
 		(void)select(0, NULL, NULL, NULL, NULL);
 
-		tmp_counter = 0;
 		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];
 
