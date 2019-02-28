@@ -1028,11 +1028,11 @@ static int stress_zlib(const args_t *args)
 		pr_inf("%s: cannot verify inflate/deflate checksums:%s%s%s%s%s%s%s\n",
 			args->name,
 			interrupted ? " interrupted" : "",
-			interrupted & pipe_broken ? " and" : "",
+			(interrupted & pipe_broken) ? " and" : "",
 			pipe_broken ? " broken pipe" : "",
-			(interrupted | pipe_broken) & error ? " and" : "",
+			((interrupted | pipe_broken)) & error ? " and" : "",
 			error ? " unexpected error" : "",
-			(interrupted | pipe_broken | error) & bad_xsum_reads ? " and" : "",
+			((interrupted | pipe_broken | error) & bad_xsum_reads) ? " and" : "",
 			bad_xsum_reads ? " could not read checksums" : "");
 	} else {
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
