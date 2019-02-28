@@ -122,12 +122,12 @@ int32_t stress_get_processors_configured(void)
  */
 int32_t stress_get_ticks_per_second(void)
 {
+#if defined(_SC_CLK_TCK)
 	static uint32_t ticks_per_second = 0;
 
 	if (ticks_per_second > 0)
 		return ticks_per_second;
 
-#if defined(_SC_CLK_TCK)
 	ticks_per_second = sysconf(_SC_CLK_TCK);
 	return ticks_per_second;
 #else
