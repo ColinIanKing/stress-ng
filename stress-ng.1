@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "February 15, 2019"
+.TH STRESS-NG 1 "February 28, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -629,6 +629,14 @@ stop clone stress workers after N bogo clone operations.
 try to create as many as N clone threads. This may not be reached if the system
 limit is less than N.
 .TP
+.B \-\-close N
+start N workers that try to force race conditions on closing opened file
+descriptors.  These file descriptors have been opened in various ways to try
+and exercise different kernel close handlers.
+.TP
+.B \-\-close\-ops N
+stop close workers after N bogo close operations.
+.TP
 .B \-\-context N
 start N workers that run three threads that use swapcontext(3) to implement the
 thread-to-thread context switching. This exercises rapid process context saving
@@ -636,7 +644,7 @@ and restoring and is bandwidth limited by register and memory save and restore
 rates.
 .TP
 .B \-\-context\-ops N
-stop N context workers after N bogo context switches.  In this stressor, 1 bogo
+stop context workers after N bogo context switches.  In this stressor, 1 bogo
 op is equivalent to 1000 swapcontext calls.
 .TP
 .B \-\-copy\-file N

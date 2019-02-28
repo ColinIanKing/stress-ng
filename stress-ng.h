@@ -1797,6 +1797,7 @@ typedef enum {
 	STRESS_chroot,
 	STRESS_clock,
 	STRESS_clone,
+	STRESS_close,
 	STRESS_context,
 	STRESS_copy_file,
 	STRESS_cpu,
@@ -2116,6 +2117,9 @@ typedef enum {
 	OPT_clone,
 	OPT_clone_ops,
 	OPT_clone_max,
+
+	OPT_close,
+	OPT_close_ops,
 
 	OPT_context,
 	OPT_context_ops,
@@ -3605,6 +3609,7 @@ STRESS(stress_chown);
 STRESS(stress_chroot);
 STRESS(stress_clock);
 STRESS(stress_clone);
+STRESS(stress_close);
 STRESS(stress_context);
 STRESS(stress_copy_file);
 STRESS(stress_cpu);
