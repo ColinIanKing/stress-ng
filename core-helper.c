@@ -1109,11 +1109,12 @@ const char *stress_get_uname_info(void)
 {
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
-	static char str[sizeof(buf.machine) +
-                        sizeof(buf.sysname) +
-			sizeof(buf.release) + 3];
 
 	if (!uname(&buf)) {
+		static char str[sizeof(buf.machine) +
+	                        sizeof(buf.sysname) +
+				sizeof(buf.release) + 3];
+
 		(void)snprintf(str, sizeof(str), "%s %s %s", buf.machine, buf.sysname, buf.release);
 		return str;
 	}
