@@ -2907,7 +2907,9 @@ static inline void stress_map_shared(const size_t len)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
+#if defined(HAVE_MPROTECT)
 	void *last_page;
+#endif
 
 	g_shared = (shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
@@ -2922,8 +2924,9 @@ static inline void stress_map_shared(const size_t len)
 	(void)memset(g_shared, 0, sz);
 	g_shared->length = sz;
 
-	last_page = ((uint8_t *)g_shared) + sz - page_size;
 #if defined(HAVE_MPROTECT)
+	last_page = ((uint8_t *)g_shared) + sz - page_size;
+
 	/* Make last page trigger a segfault if it is accessed */
 	(void)mprotect(last_page, page_size, PROT_NONE);
 #elif defined(HAVE_MREMAP) && defined(MAP_FIXED)
