@@ -153,8 +153,6 @@ again:
 			}
 
 			if (switch_freq) {
-				double overrun, overrun_by;
-
 				/*
 				 *  Small delays take a while, so skip these
 				 */
@@ -166,6 +164,8 @@ again:
 				 *  delay infrequently (at THRESH_FREQ HZ)
 				 */
 				if (++i >= threshold) {
+					double overrun, overrun_by;
+
 					i = 0;
 					t = t1 + ((((double)get_counter(args)) * switch_delay) / NANO_SECS);
 					overrun = (time_now() - t) * (double)NANO_SECS;
