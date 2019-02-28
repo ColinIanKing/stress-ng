@@ -3259,7 +3259,7 @@ int parse_opts(int argc, char **argv, const bool jobmode)
 		int c, option_index, ret;
 		size_t i;
 
-		opterr = 0;
+		opterr = (!jobmode)? opterr: 0;
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1) {
@@ -3369,7 +3369,6 @@ next_opt:
 			break;
 		case OPT_query:
 			if (!jobmode) {
-				(void)printf("%s: unrecognized option '%s'\n", g_app_name, argv[optind - 1]);
 				(void)printf("Try '%s --help' for more information.\n", g_app_name);
 			}
 			return EXIT_FAILURE;
