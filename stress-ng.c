@@ -3619,7 +3619,6 @@ int main(int argc, char **argv)
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
 
-
 	/*
 	 *  Sanity check minimize/maximize options
 	 */
@@ -3638,6 +3637,7 @@ int main(int argc, char **argv)
 			"options together\n");
 		exit(EXIT_FAILURE);
 	}
+	(void)get_setting("class", &class);
 	if (class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
@@ -3678,8 +3678,6 @@ int main(int argc, char **argv)
 	 */
 	if (stress_exclude() < 0)
 		exit(EXIT_FAILURE);
-
-	(void)get_setting("class", &class);
 
 	/*
 	 *  Setup random stressors if requested
