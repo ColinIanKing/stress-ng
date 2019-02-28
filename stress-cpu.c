@@ -2191,7 +2191,7 @@ static void stress_cpu_stats(const char *name)
 {
 	size_t i;
 	double data[STATS_MAX];
-	double min, max, am = 0.0, gm = 1.0, hm = 0.0, stddev = 0.0;
+	double min, max, am = 0.0, gm, hm = 0.0, stddev = 0.0;
 	int64_t expon = 0;
 	double mant = 1.0;
 	const double inverse_n = 1.0 / (double)STATS_MAX;
@@ -2216,7 +2216,6 @@ static void stress_cpu_stats(const char *name)
 			max = d;
 
 		am += d;
-		gm *= d;
 		hm += 1 / d;
 	}
 	/* Arithmetic mean (average) */
