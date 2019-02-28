@@ -1420,8 +1420,9 @@ argument type.
 .B \-\-funccall\-method method
 specify the method of funccall argument type to be used with 'method'. The
 default is uint64_t but can be one of uint8 uint16 uint32 uint64 uint128
-float double longdouble.  Note that uint128 is only available if the compiler
-supports the __uint128_t type.
+float double longdouble float80 float128 decimal32 decimal64 and decimal128.
+Note that some of these types are only available with specific architectures
+and compiler versions.
 .TP
 .B \-\-futex N
 start N workers that rapidly exercise the futex system call. Each worker has
