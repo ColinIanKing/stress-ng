@@ -85,12 +85,14 @@ void mwc_reseed(void)
 		double m1, m5, m15;
 		int i, n;
 		uint64_t aux_rnd = aux_random_seed();
+		const ptrdiff_t p1 = (ptrdiff_t)&__mwc.z;
+		const ptrdiff_t p2 = (ptrdiff_t)&tv;
 
 		__mwc.z = aux_rnd >> 32;
 		__mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
 			__mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-		__mwc.z += ~((unsigned char *)&__mwc.z - (unsigned char *)&tv);
+		__mwc.z += ~(p1 - p2);
 		__mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
 			__mwc.z += (128 * (m1 + m15));
