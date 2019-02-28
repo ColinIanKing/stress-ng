@@ -37,6 +37,34 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 
+/*
+ *  stress_stack_alloc()
+ *	eat up stack. The default is to eat up lots of pages
+ *	but only have 25% of the pages actually in memory
+ *	so we a large stack with lots of pages not physically
+ *	resident.
+ */
+static void stress_stack_alloc(const args_t *args)
+{
+	const size_t sz = 256 * KB;
+	const size_t page_size4 = (args->page_size << 2);
+	register size_t i;
+	char data[sz];
+
+	if (g_opt_flags & OPT_FLAGS_STACK_FILL) {
+		(void)memset(data, 0, sz);
+	} else {
+		/* Touch 25% of the pages */
+		for (i = 0; i < sz; i += page_size4)
+			data[i] = 0;
+	}
+
+	inc_counter(args);
+
+	if (keep_stressing())
+		stress_stack_alloc(args);
+}
+
 
 /*
  *  stress_stack
@@ -139,31 +167,10 @@ again:
 				inc_counter(args);
 			} else {
 				/* Expand the stack and cause a fault */
-				char *last_ptr = 0;
-				uint32_t n = 0;
-				do {
-					char *ptr = alloca(256 * KB);
-
-					/*
-					 * need this else gcc optimises out
-					 * the alloca()
-					 */
-					if (g_opt_flags & OPT_FLAGS_STACK_FILL)
-						(void)memset(ptr, 0, 256 * KB);
-					else
-						*ptr = 0;
-
-					/* Force gcc to actually do the alloca */
-					uint64_put((uint64_t)(last_ptr - ptr));
-					last_ptr = ptr;
-					n++;
-					if (n > 128) {
-						inc_counter(args);
-						n = 0;
-					}
-				} while (keep_stressing());
+				stress_stack_alloc(args);
 			}
 		}
+		_exit(0);
 	}
 
 	return EXIT_SUCCESS;
