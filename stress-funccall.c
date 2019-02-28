@@ -42,53 +42,38 @@ static const stress_funccall_method_info_t funccall_methods[];
 
 typedef long double 	long_double_t;
 
-typedef struct {
-	void *		data_voidptr[4];
-	uint64_t	data_uint64[4];
-	uint32_t	data_uint32[4];
-	uint16_t	data_uint16[4];
-	uint8_t		data_uint8[4];
-} data_t;
-
-volatile data_t volatile_data;
-
-void data_t_put(data_t data);
-
-void data_t_put(data_t data)
-{
-	volatile_data = data;
-}
-
 #define stress_funccall_1(type)			\
-void NOINLINE stress_funccall_ ## type ## _1(	\
+type NOINLINE stress_funccall_ ## type ## _1(	\
 	const type a);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _1(	\
+type NOINLINE stress_funccall_ ## type ## _1(	\
 	const type a)				\
 {						\
 	type ## _put(a);			\
+	return a;				\
 }						\
 
 #define stress_funccall_2(type)			\
-void NOINLINE stress_funccall_ ## type ## _2(	\
+type  NOINLINE stress_funccall_ ## type ## _2(	\
 	const type a,				\
 	const type b);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _2(	\
+type NOINLINE stress_funccall_ ## type ## _2(	\
 	const type a,				\
 	const type b)				\
 {						\
 	type ## _put(a);			\
 	type ## _put(b);			\
+	return a + b;				\
 }						\
 
 #define stress_funccall_3(type)			\
-void NOINLINE stress_funccall_ ## type ## _3(	\
+type NOINLINE stress_funccall_ ## type ## _3(	\
 	const type a,				\
 	const type b,				\
 	const type c);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _3(	\
+type NOINLINE stress_funccall_ ## type ## _3(	\
 	const type a,				\
 	const type b,				\
 	const type c)				\
@@ -96,16 +81,17 @@ void NOINLINE stress_funccall_ ## type ## _3(	\
 	type ## _put(a);			\
 	type ## _put(b);			\
 	type ## _put(c);			\
+	return a + b + c;			\
 }						\
 
 #define stress_funccall_4(type)			\
-void NOINLINE stress_funccall_ ## type ## _4(	\
+type NOINLINE stress_funccall_ ## type ## _4(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _4(	\
+type NOINLINE stress_funccall_ ## type ## _4(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -115,17 +101,18 @@ void NOINLINE stress_funccall_ ## type ## _4(	\
 	type ## _put(b);			\
 	type ## _put(c);			\
 	type ## _put(d);			\
+	return a + b + c + d;			\
 }						\
 
 #define stress_funccall_5(type)			\
-void NOINLINE stress_funccall_ ## type ## _5(	\
+type NOINLINE stress_funccall_ ## type ## _5(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d,				\
 	const type e);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _5(	\
+type NOINLINE stress_funccall_ ## type ## _5(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -137,10 +124,11 @@ void NOINLINE stress_funccall_ ## type ## _5(	\
 	type ## _put(c);			\
 	type ## _put(d);			\
 	type ## _put(e);			\
+	return a + b + c + d + e;		\
 }						\
 
 #define stress_funccall_6(type)			\
-void NOINLINE stress_funccall_ ## type ## _6(	\
+type NOINLINE stress_funccall_ ## type ## _6(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -148,7 +136,7 @@ void NOINLINE stress_funccall_ ## type ## _6(	\
 	const type e,				\
 	const type f);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _6(	\
+type NOINLINE stress_funccall_ ## type ## _6(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -162,10 +150,11 @@ void NOINLINE stress_funccall_ ## type ## _6(	\
 	type ## _put(d);			\
 	type ## _put(e);			\
 	type ## _put(f);			\
+	return a + b + c + d + e + f;		\
 }						\
 
 #define stress_funccall_7(type)			\
-void NOINLINE stress_funccall_ ## type ## _7(	\
+type NOINLINE stress_funccall_ ## type ## _7(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -174,7 +163,7 @@ void NOINLINE stress_funccall_ ## type ## _7(	\
 	const type f,				\
 	const type g);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _7(	\
+type NOINLINE stress_funccall_ ## type ## _7(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -190,10 +179,11 @@ void NOINLINE stress_funccall_ ## type ## _7(	\
 	type ## _put(e);			\
 	type ## _put(f);			\
 	type ## _put(g);			\
+	return a + b + c + d + e + f + g;	\
 }						\
 
 #define stress_funccall_8(type)			\
-void NOINLINE stress_funccall_ ## type ## _8(	\
+type NOINLINE stress_funccall_ ## type ## _8(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -203,7 +193,7 @@ void NOINLINE stress_funccall_ ## type ## _8(	\
 	const type g,				\
 	const type h);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _8(	\
+type NOINLINE stress_funccall_ ## type ## _8(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -221,10 +211,11 @@ void NOINLINE stress_funccall_ ## type ## _8(	\
 	type ## _put(f);			\
 	type ## _put(g);			\
 	type ## _put(h);			\
+	return a + b + c + d + e + f + g + h;	\
 }						\
 
 #define stress_funccall_9(type)			\
-void NOINLINE stress_funccall_ ## type ## _9(	\
+type NOINLINE stress_funccall_ ## type ## _9(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -235,7 +226,7 @@ void NOINLINE stress_funccall_ ## type ## _9(	\
 	const type h,				\
 	const type i);				\
 						\
-void NOINLINE stress_funccall_ ## type ## _9(	\
+type NOINLINE stress_funccall_ ## type ## _9(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -255,74 +246,79 @@ void NOINLINE stress_funccall_ ## type ## _9(	\
 	type ## _put(g);			\
 	type ## _put(h);			\
 	type ## _put(i);			\
+	return a + b + c + d + e + f + g + h + i;\
 }						\
 
 #define stress_funcdeep_2(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _2(	\
+type NOINLINE stress_funcdeep_ ## type ## _2(	\
 	const type a,				\
 	const type b);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _2(	\
+type NOINLINE stress_funcdeep_ ## type ## _2(	\
 	const type a,				\
 	const type b)				\
 {						\
-	stress_funccall_ ## type ## _1(b);	\
+	return					\
+	stress_funccall_ ## type ## _1(b) + 	\
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_3(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _3(	\
+type NOINLINE stress_funcdeep_ ## type ## _3(	\
 	const type a,				\
 	const type b,				\
 	const type c);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _3(	\
+type NOINLINE stress_funcdeep_ ## type ## _3(	\
 	const type a,				\
 	const type b,				\
 	const type c)				\
 {						\
-	stress_funcdeep_ ## type ## _2(c, b);	\
+	return					\
+	stress_funcdeep_ ## type ## _2(c, b) +	\
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_4(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _4(	\
+type NOINLINE stress_funcdeep_ ## type ## _4(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _4(	\
+type NOINLINE stress_funcdeep_ ## type ## _4(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d)				\
 {						\
-	stress_funcdeep_ ## type ## _3(d, c, b);\
+	return					\
+	stress_funcdeep_ ## type ## _3(d, c, b) + \
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_5(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _5(	\
+type NOINLINE stress_funcdeep_ ## type ## _5(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d,				\
 	const type e);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _5(	\
+type NOINLINE stress_funcdeep_ ## type ## _5(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
 	const type d,				\
 	const type e)				\
 {						\
-	stress_funcdeep_ ## type ## _4(e, d, c, b);\
+	return					\
+	stress_funcdeep_ ## type ## _4(e, d, c, b) + \
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_6(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _6(	\
+type NOINLINE stress_funcdeep_ ## type ## _6(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -330,7 +326,7 @@ void NOINLINE stress_funcdeep_ ## type ## _6(	\
 	const type e,				\
 	const type f);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _6(	\
+type NOINLINE stress_funcdeep_ ## type ## _6(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -338,12 +334,13 @@ void NOINLINE stress_funcdeep_ ## type ## _6(	\
 	const type e,				\
 	const type f)				\
 {						\
-	stress_funcdeep_ ## type ## _5(f, e, d, c, b);\
+	return					\
+	stress_funcdeep_ ## type ## _5(f, e, d, c, b) + \
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_7(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _7(	\
+type NOINLINE stress_funcdeep_ ## type ## _7(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -352,7 +349,7 @@ void NOINLINE stress_funcdeep_ ## type ## _7(	\
 	const type f,				\
 	const type g);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _7(	\
+type NOINLINE stress_funcdeep_ ## type ## _7(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -361,12 +358,13 @@ void NOINLINE stress_funcdeep_ ## type ## _7(	\
 	const type f,				\
 	const type g)				\
 {						\
-	stress_funcdeep_ ## type ## _6(g, f, e, d, c, b);\
+	return					\
+	stress_funcdeep_ ## type ## _6(g, f, e, d, c, b) + \
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_8(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _8(	\
+type NOINLINE stress_funcdeep_ ## type ## _8(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -376,7 +374,7 @@ void NOINLINE stress_funcdeep_ ## type ## _8(	\
 	const type g,				\
 	const type h);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _8(	\
+type NOINLINE stress_funcdeep_ ## type ## _8(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -386,12 +384,13 @@ void NOINLINE stress_funcdeep_ ## type ## _8(	\
 	const type g,				\
 	const type h)				\
 {						\
-	stress_funcdeep_ ## type ## _7(h, g, f, e, d, c, b);\
+	return					\
+	stress_funcdeep_ ## type ## _7(h, g, f, e, d, c, b) + \
 	stress_funccall_ ## type ## _1(a);	\
 }						\
 
 #define stress_funcdeep_9(type)			\
-void NOINLINE stress_funcdeep_ ## type ## _9(	\
+type NOINLINE stress_funcdeep_ ## type ## _9(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -402,7 +401,7 @@ void NOINLINE stress_funcdeep_ ## type ## _9(	\
 	const type h,				\
 	const type i);				\
 						\
-void NOINLINE stress_funcdeep_ ## type ## _9(	\
+type NOINLINE stress_funcdeep_ ## type ## _9(	\
 	const type a,				\
 	const type b,				\
 	const type c,				\
@@ -413,21 +412,22 @@ void NOINLINE stress_funcdeep_ ## type ## _9(	\
 	const type h,				\
 	const type i)				\
 {						\
-	stress_funccall_ ## type ## _1(b);	\
-	stress_funcdeep_ ## type ## _2(c, b);	\
-	stress_funcdeep_ ## type ## _3(d, c, b);\
-	stress_funcdeep_ ## type ## _4(e, d, c, b);\
-	stress_funcdeep_ ## type ## _5(f, e, d, c, b);\
-	stress_funcdeep_ ## type ## _6(g, f, e, d, c, b);\
-	stress_funcdeep_ ## type ## _7(h, g, f, e, d, c, b);\
-	stress_funcdeep_ ## type ## _8(i, h, g, f, e, d, c, b);\
-	stress_funcdeep_ ## type ## _8(a, b, c, d, e, f, g, h);\
-	stress_funcdeep_ ## type ## _7(b, c, d, e, f, g, h);\
-	stress_funcdeep_ ## type ## _6(c, d, e, f, g, h);\
-	stress_funcdeep_ ## type ## _5(d, e, f, g, h);\
-	stress_funcdeep_ ## type ## _4(e, f, g, h);\
-	stress_funcdeep_ ## type ## _3(f, g, h);\
-	stress_funcdeep_ ## type ## _2(g, h);\
+	return					\
+	stress_funccall_ ## type ## _1(b) + 	\
+	stress_funcdeep_ ## type ## _2(c, b) + 	\
+	stress_funcdeep_ ## type ## _3(d, c, b) + \
+	stress_funcdeep_ ## type ## _4(e, d, c, b) + \
+	stress_funcdeep_ ## type ## _5(f, e, d, c, b) + \
+	stress_funcdeep_ ## type ## _6(g, f, e, d, c, b) + \
+	stress_funcdeep_ ## type ## _7(h, g, f, e, d, c, b) + \
+	stress_funcdeep_ ## type ## _8(i, h, g, f, e, d, c, b) + \
+	stress_funcdeep_ ## type ## _8(a, b, c, d, e, f, g, h) + \
+	stress_funcdeep_ ## type ## _7(b, c, d, e, f, g, h) + \
+	stress_funcdeep_ ## type ## _6(c, d, e, f, g, h) + \
+	stress_funcdeep_ ## type ## _5(d, e, f, g, h) + \
+	stress_funcdeep_ ## type ## _4(e, f, g, h) + \
+	stress_funcdeep_ ## type ## _3(f, g, h) + \
+	stress_funcdeep_ ## type ## _2(g, h) +	\
 	stress_funccall_ ## type ## _1(h);	\
 }						\
 
@@ -585,25 +585,6 @@ stress_funcdeep_7(long_double_t)
 stress_funcdeep_8(long_double_t)
 stress_funcdeep_9(long_double_t)
 
-stress_funccall_1(data_t)
-stress_funccall_2(data_t)
-stress_funccall_3(data_t)
-stress_funccall_4(data_t)
-stress_funccall_5(data_t)
-stress_funccall_6(data_t)
-stress_funccall_7(data_t)
-stress_funccall_8(data_t)
-stress_funccall_9(data_t)
-
-stress_funcdeep_2(data_t)
-stress_funcdeep_3(data_t)
-stress_funcdeep_4(data_t)
-stress_funcdeep_5(data_t)
-stress_funcdeep_6(data_t)
-stress_funcdeep_7(data_t)
-stress_funcdeep_8(data_t)
-stress_funcdeep_9(data_t)
-
 #define stress_funcall_type(type, rndfunc)			\
 void NOINLINE stress_funccall_ ## type(const args_t *args);	\
 								\
@@ -624,38 +605,41 @@ void NOINLINE stress_funccall_ ## type(const args_t *args)	\
 								\
 	do {							\
 		for (ii = 0; ii < 1000; ii++) {			\
-			stress_funccall_ ## type ## _1(a);	\
-			stress_funccall_ ## type ## _2(a, b);	\
-			stress_funccall_ ## type ## _3(a, b,	\
-				c);				\
-			stress_funccall_ ## type ## _4(a, b, 	\
-				c, d);				\
-			stress_funccall_ ## type ## _5(a, b,	\
-				c, d, e);			\
-			stress_funccall_ ## type ## _6(a, b,	\
-			 	c, d, e, f);			\
-			stress_funccall_ ## type ## _7(a, b,	\
-				c, d, e, f, g);			\
-			stress_funccall_ ## type ## _8(a, b,	\
-				c, d, e, f, g, h);		\
-			stress_funccall_ ## type ## _9(a, b,	\
-				c, d, e, f, g, h, i);		\
+			type res = 				\
+			(stress_funccall_ ## type ## _1(a) + 	\
+			 stress_funccall_ ## type ## _2(a, b) +	\
+			 stress_funccall_ ## type ## _3(a, b,	\
+				c) +				\
+			 stress_funccall_ ## type ## _4(a, b, 	\
+				c, d) + 			\
+			 stress_funccall_ ## type ## _5(a, b,	\
+				c, d, e) +			\
+			 stress_funccall_ ## type ## _6(a, b,	\
+				c, d, e, f) + 			\
+			 stress_funccall_ ## type ## _7(a, b,	\
+				c, d, e, f, g) + 		\
+			 stress_funccall_ ## type ## _8(a, b,	\
+				c, d, e, f, g, h) + 		\
+			 stress_funccall_ ## type ## _9(a, b,	\
+				c, d, e, f, g, h, i));		\
 								\
-			stress_funcdeep_ ## type ## _2(a, b);	\
-			stress_funcdeep_ ## type ## _3(a, b,	\
-				c);				\
-			stress_funcdeep_ ## type ## _4(a, b, 	\
-				c, d);				\
-			stress_funcdeep_ ## type ## _5(a, b,	\
-				c, d, e);			\
-			stress_funcdeep_ ## type ## _6(a, b,	\
-				c, d, e, f);			\
-			stress_funcdeep_ ## type ## _7(a, b,	\
-				c, d, e, f, g);			\
-			stress_funcdeep_ ## type ## _8(a, b,	\
-				c, d, e, f, g, h);		\
-			stress_funcdeep_ ## type ## _9(a, b,	\
-				c, d, e, f, g, h, i);		\
+			res -= 					\
+			(stress_funcdeep_ ## type ## _2(a, b) +	\
+			 stress_funcdeep_ ## type ## _3(a, b,	\
+				c) + 				\
+			 stress_funcdeep_ ## type ## _4(a, b, 	\
+				c, d) +				\
+			 stress_funcdeep_ ## type ## _5(a, b,	\
+				c, d, e) +			\
+			 stress_funcdeep_ ## type ## _6(a, b,	\
+				c, d, e, f) +			\
+			 stress_funcdeep_ ## type ## _7(a, b,	\
+				c, d, e, f, g) +		\
+			 stress_funcdeep_ ## type ## _8(a, b,	\
+				c, d, e, f, g, h) +		\
+			 stress_funcdeep_ ## type ## _9(a, b,	\
+				c, d, e, f, g, h, i));		\
+			type ## _put(res);			\
 			}					\
 		inc_counter(args);				\
 	} while (keep_stressing());				\
