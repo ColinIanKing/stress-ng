@@ -176,7 +176,7 @@ static ssize_t stress_hdd_write(
 			iov[i].iov_base = (void *)data;
 			iov[i].iov_len = (size_t)sz;
 
-			buf += sz;
+			data += sz;
 		}
 		ret = writev(fd, iov, HDD_IO_VEC_MAX);
 	} else {
@@ -225,7 +225,7 @@ static ssize_t stress_hdd_read(
 			iov[i].iov_base = (void *)data;
 			iov[i].iov_len = (size_t)sz;
 
-			buf += sz;
+			data += sz;
 		}
 		return readv(fd, iov, HDD_IO_VEC_MAX);
 	} else {
