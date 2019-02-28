@@ -1403,7 +1403,7 @@ size_t stress_text_addr(char **start, char **end)
 #endif
         const size_t text_len = text_end - text_start;
 
-	if ((start == NULL) || (end == NULL))
+	if ((start == NULL) || (end == NULL) || (start >= end))
 		return 0;
 
 	*start = text_start;
