@@ -66,6 +66,7 @@ int main(void)
 	semwait.sem_num = 0;
 	semwait.sem_op = -1;
 	semwait.sem_flg = SEM_UNDO;
+	(void)semwait;
 	(void)clock_gettime(CLOCK_REALTIME, &timeout);
 	timeout.tv_sec++;
 #if defined(__linux__)

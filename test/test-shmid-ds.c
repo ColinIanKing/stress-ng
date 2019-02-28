@@ -29,7 +29,9 @@
 
 int main(void)
 {
-	struct shmid_ds ds;
+	struct shmid_ds ds = { };
+
+	(void)ds;
 
 	return 0;
 }

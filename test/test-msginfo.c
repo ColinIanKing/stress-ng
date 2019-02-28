@@ -28,7 +28,9 @@
 
 int main(void)
 {
-	struct msginfo info;
+	struct msginfo info = { };
+
+	(void)info;
 
 	return 0;
 }
