@@ -85,7 +85,9 @@ static inline bool enough_memory(void)
 static int stress_unshare(const args_t *args)
 {
 	pid_t pids[MAX_PIDS];
+#if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();
+#endif
 
 	do {
 		size_t i, n;
