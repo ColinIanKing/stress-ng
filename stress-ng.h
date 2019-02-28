@@ -946,7 +946,8 @@ typedef struct {
 #endif
 
 /* force inlining hint */
-#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earier */
+#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earlier */ \
+ && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6,0,1))
 #define ALWAYS_INLINE	__attribute__ ((always_inline))
 #else
 #define ALWAYS_INLINE
