@@ -3680,6 +3680,8 @@ int main(int argc, char **argv)
 	if (stress_exclude() < 0)
 		exit(EXIT_FAILURE);
 
+	(void)get_setting("class", &class);
+
 	/*
 	 *  Setup random stressors if requested
 	 */
