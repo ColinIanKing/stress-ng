@@ -1509,19 +1509,19 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define STRESS_CPU_DITHER_Y	(768)
 
 #if defined(__GNUC__) || defined(__clang__)
-#define TYPEOF(a)	typeof(a)
+#define TYPEOF_CAST(a)	(typeof(a))
 #else
-#define	TYPEOF(a)
+#define	TYPEOF_CAST(a)
 #endif
 
 /* Generic bit setting on an array macros */
 #define STRESS_NBITS(a)		(sizeof(a[0]) * 8)
 #define STRESS_GETBIT(a, i)	(a[i / STRESS_NBITS(a)] & \
-				 ((TYPEOF(a[0]))1 << (i & (STRESS_NBITS(a)-1))))
+				 (TYPEOF_CAST(a[0])1 << (i & (STRESS_NBITS(a)-1))))
 #define STRESS_CLRBIT(a, i)	(a[i / STRESS_NBITS(a)] &= \
-				 ~((TYPEOF(a[0]))1 << (i & (STRESS_NBITS(a)-1))))
+				 ~(TYPEOF_CAST(a[0])1 << (i & (STRESS_NBITS(a)-1))))
 #define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= \
-				 ((TYPEOF(a[0]))1 << (i & (STRESS_NBITS(a)-1))))
+				 (TYPEOF_CAST(a[0])1 << (i & (STRESS_NBITS(a)-1))))
 
 #define SIEVE_SIZE 		(10000000)
 
