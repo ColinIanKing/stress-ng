@@ -120,8 +120,6 @@ static void *stress_close_func(void *arg)
 		(void)close(dupfd);
 	}
 
-	printf("exiting..\n");
-
 	return &nowt;
 }
 
