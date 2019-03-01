@@ -166,7 +166,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_bytes,		stress_set_malloc_bytes },
 	{ OPT_malloc_max,		stress_set_malloc_max },
 	{ OPT_malloc_threshold,		stress_set_malloc_threshold },
-#if defined(HAVE_VLA_ARGS)
+#if defined(HAVE_VLA_ARG)
 	{ OPT_matrix_method,		stress_set_matrix_method },
 	{ OPT_matrix_size,		stress_set_matrix_size },
 	{ OPT_matrix_yx,		stress_set_matrix_yx },

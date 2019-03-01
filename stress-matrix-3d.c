@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_VLA_ARGS)
+#if defined(HAVE_VLA_ARG)
 
 typedef float	matrix_3d_type_t;
 
