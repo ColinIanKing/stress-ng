@@ -437,6 +437,10 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 			name);
 }
 
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 /*
  *  fft_partial()
  *  	partial Fast Fourier Transform
@@ -482,6 +486,7 @@ static void HOT TARGET_CLONES stress_cpu_fft(const char *name)
 	(void)memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
 }
+#endif
 
 /*
  *   stress_cpu_euler()
@@ -922,7 +927,10 @@ stress_cpu_fp(__float128, float128, sinl, cosl)
 /* Append floating point literal specifier to literal value */
 #define FP(val, ltype)	val ## ltype
 
-#if defined(__STDC_IEC_559_COMPLEX__) && !defined(__UCLIBC__)
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 /*
  *  Generic complex stressor macro
  */
@@ -948,7 +956,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 stress_cpu_complex(complex float, f, complex_float, csinf, ccosf)
 stress_cpu_complex(complex double, , complex_double, csin, ccos)
 stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
-#endif /* __STDC_IEC_559_COMPLEX__ */
+#endif
 
 #define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
 	_sin, _cos, int_a, int_b, _c1, _c2, _c3)		\
@@ -1387,6 +1395,10 @@ static void stress_cpu_crc16(const char *name)
 		uint64_put(ccitt_crc16(buffer, i));
 }
 
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 /*
  *  zeta()
  *	Riemann zeta function
@@ -1420,6 +1432,7 @@ static void stress_cpu_zeta(const char *name)
 	for (i = 2; i < 11; i++)
 		double_put(zeta((double complex)i, precision));
 }
+#endif
 
 /*
  * stress_cpu_gamma()
@@ -2274,11 +2287,14 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "ackermann",		stress_cpu_ackermann },
 	{ "bitops",		stress_cpu_bitops },
 	{ "callfunc",		stress_cpu_callfunc },
-#if defined(__STDC_IEC_559_COMPLEX__) && !defined(__UCLIBC__)
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 	{ "cdouble",		stress_cpu_complex_double },
 	{ "cfloat",		stress_cpu_complex_float },
 	{ "clongdouble",	stress_cpu_complex_long_double },
-#endif /* __STDC_IEC_559_COMPLEX__ */
+#endif
 	{ "correlate",		stress_cpu_correlate },
 	{ "crc16",		stress_cpu_crc16 },
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
@@ -2295,7 +2311,12 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },
 	{ "explog",		stress_cpu_explog },
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 	{ "fft",		stress_cpu_fft },
+#endif
 	{ "factorial",		stress_cpu_factorial },
 	{ "fibonacci",		stress_cpu_fibonacci },
 	{ "float",		stress_cpu_float },
@@ -2370,7 +2391,12 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "sqrt", 		stress_cpu_sqrt },
 	{ "trig",		stress_cpu_trig },
 	{ "union",		stress_cpu_union },
+#if defined(HAVE_COMPLEX_H) &&		\
+    defined(HAVE_COMPLEX) &&		\
+    defined(__STDC_IEC_559_COMPLEX__) &&\
+    !defined(__UCLIBC__)
 	{ "zeta",		stress_cpu_zeta },
+#endif
 	{ NULL,			NULL }
 };
 

@@ -46,7 +46,6 @@
 /*
  *  Standard includes
  */
-#include <complex.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
@@ -98,6 +97,10 @@
 
 #if defined(HAVE_ALLOCA_H)
 #include <alloca.h>
+#endif
+
+#if defined(HAVE_COMPLEX_H)
+#include <complex.h>
 #endif
 
 #if defined(HAVE_CPUID_H)
