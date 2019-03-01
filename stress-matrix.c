@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_VLA_ARGS)
+
 typedef float	matrix_type_t;
 
 /*
@@ -998,3 +1000,10 @@ stressor_info_t stress_matrix_info = {
 	.set_default = stress_matrix_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
 };
+
+#else
+stressor_info_t stress_matrix_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+};
+#endif

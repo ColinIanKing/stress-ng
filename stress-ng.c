@@ -166,12 +166,14 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_bytes,		stress_set_malloc_bytes },
 	{ OPT_malloc_max,		stress_set_malloc_max },
 	{ OPT_malloc_threshold,		stress_set_malloc_threshold },
+#if defined(HAVE_VLA_ARGS)
 	{ OPT_matrix_method,		stress_set_matrix_method },
 	{ OPT_matrix_size,		stress_set_matrix_size },
 	{ OPT_matrix_yx,		stress_set_matrix_yx },
 	{ OPT_matrix_3d_method,		stress_set_matrix_3d_method },
 	{ OPT_matrix_3d_size,		stress_set_matrix_3d_size },
 	{ OPT_matrix_3d_zyx,		stress_set_matrix_3d_zyx },
+#endif
 	{ OPT_memcpy_method,		stress_set_memcpy_method },
 	{ OPT_memfd_bytes,		stress_set_memfd_bytes },
 	{ OPT_memfd_fds,		stress_set_memfd_fds },
