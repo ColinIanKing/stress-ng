@@ -26,6 +26,8 @@
 
 #if defined(HAVE_LIB_PTHREAD)
 
+#define MAX_PTHREADS	(3)
+
 static volatile int fd, dupfd;
 static volatile uint64_t max_delay_us = 1;
 static sigset_t set;
@@ -37,12 +39,15 @@ static const int domains[] = {
 #if defined(AF_LOCAL)
 	AF_LOCAL,
 #endif
+/*
 #if defined(AF_INET)
 	AF_INET,
 #endif
 #if defined(AF_INET6)
 	AF_INET6,
 #endif
+*/
+/*
 #if defined(AF_IPX)
 	AF_IPX,
 #endif
@@ -58,6 +63,7 @@ static const int domains[] = {
 #if defined(AF_ATMPVC)
 	AF_ATMPVC,
 #endif
+*/
 #if defined(AF_APPLETALK)
 	AF_APPLETALK,
 #endif
@@ -67,7 +73,7 @@ static const int domains[] = {
 #if defined(AF_ALG)
 	AF_ALG,
 #endif
-	0
+	0,
 };
 
 static const int types[] = {
@@ -86,7 +92,7 @@ static const int types[] = {
 #if defined(SOCK_RDM)
 	SOCK_RDM,
 #endif
-	0
+	0,
 };
 
 /*
@@ -114,6 +120,8 @@ static void *stress_close_func(void *arg)
 		(void)close(dupfd);
 	}
 
+	printf("exiting..\n");
+
 	return &nowt;
 }
 
@@ -123,9 +131,11 @@ static void *stress_close_func(void *arg)
  */
 static int stress_close(const args_t *args)
 {
-	int ret;
-	pthread_t pthread;
 	pthread_args_t pargs;
+	pthread_t pthread[MAX_PTHREADS];
+	int rc = EXIT_NO_RESOURCE;
+	int ret, rets[MAX_PTHREADS];
+	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	double max_duration = 0.0;
@@ -137,11 +147,16 @@ static int stress_close(const args_t *args)
 	pargs.args = args;
 	pargs.data = NULL;
 
-	ret = pthread_create(&pthread, NULL, stress_close_func, (void *)&pargs);
-	if (ret) {
-		pr_inf("%s: failed to create a pthread, error=%d (%s)\n",
-			args->name, ret, strerror(ret));
-		return EXIT_NO_RESOURCE;
+	for (i = 0; i < MAX_PTHREADS; i++)
+		rets[i] = -1;
+
+	for (i = 0; i < MAX_PTHREADS; i++) {
+		rets[i] = pthread_create(&pthread[i], NULL, stress_close_func, (void *)&pargs);
+		if (rets[i]) {
+			pr_inf("%s: failed to create a pthread, error=%d (%s)\n",
+				args->name, rets[i], strerror(rets[i]));
+			goto tidy;
+		}
 	}
 
 	do {
@@ -236,9 +251,6 @@ static int stress_close(const args_t *args)
 			ret = faccessat(fd, "", F_OK, 0);
 			(void)ret;
 #endif
-			ret = shim_fsync(fd);
-			(void)ret;
-
 			ret = fstat(fd, &statbuf);
 			(void)ret;
 
@@ -253,17 +265,27 @@ static int stress_close(const args_t *args)
 			/* max delay is 75% of the duration in microseconds */
 			max_delay_us = duration * 750000;
 		}
+
+		max_duration *= 0.995;
+		if (max_duration < 1.0)
+			max_duration = 1.0;
 		inc_counter(args);
 	} while (keep_stressing());
 
+	rc = EXIT_SUCCESS;
+tidy:
 
-	ret = pthread_join(pthread, NULL);
-	if ((ret) && (ret != ESRCH)) {
-		pr_fail("%s pthread_join failed (parent), errno=%d (%s)",
-			args->name, ret, strerror(ret));
+	for (i = 0; i < MAX_PTHREADS; i++) {
+		if (rets[i] == -1)
+			continue;
+		ret = pthread_join(pthread[i], NULL);
+		if ((ret) && (ret != ESRCH)) {
+			pr_fail("%s pthread_join failed (parent), errno=%d (%s)",
+				args->name, ret, strerror(ret));
+		}
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_close_info = {
