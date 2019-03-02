@@ -1064,6 +1064,12 @@ typedef struct {
 #define UNLIKELY(x)	(x)
 #endif
 
+#if !defined(HAVE_BUILTIN_PREFETCH)
+static inline void __builtin_prefetch(const void *addr, ...)
+{
+}
+#endif
+
 /* waste some cycles */
 #if defined(__GNUC__) || defined(__clang__)
 #  if defined(HAVE_ASM_NOP)
