@@ -41,6 +41,10 @@ static unsigned long timer_slack = 0;
 #define STRESS_NSIG	_NSIG
 #endif
 
+#if defined(__TINYC__)
+int __dso_handle;
+#endif
+
 static const char *stress_temp_path = ".";
 
 /*
