@@ -99,6 +99,8 @@ static NOINLINE void stress_memcpy_builtin(
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
 {
+#if defined(HAVE_BUILTIN_MEMCPY) &&	\
+    defined(HAVE_BUILTIN_MEMMOVE)
 	(void)__builtin_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
 	(void)__builtin_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
 	(void)__builtin_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
@@ -107,6 +109,21 @@ static NOINLINE void stress_memcpy_builtin(
 	(void)__builtin_memcpy(b, b_str, STR_SHARED_SIZE);
 	(void)__builtin_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
 	(void)__builtin_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+#else
+	/*
+	 *  Compiler may fall back to turning these into inline'd
+	 *  optimized versions even if there are no explicit built-in
+	 *  versions, so use these.
+	 */
+	(void)memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
+	(void)memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
+	(void)memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+	(void)memcpy(b_str, b, STR_SHARED_SIZE);
+	(void)memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+	(void)memcpy(b, b_str, STR_SHARED_SIZE);
+	(void)memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
+	(void)memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+#endif
 }
 
 static NOINLINE void stress_memcpy_naive(
