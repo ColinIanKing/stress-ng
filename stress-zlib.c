@@ -409,6 +409,42 @@ static void stress_rand_data_parity(const args_t *args, uint32_t *data, const in
 #define PINK_BITS       (16)
 #define PINK_SHIFT      ((sizeof(uint64_t) * 8) - PINK_BITS)
 
+#if !defined(BUILTIN_CTZ)
+/*
+ *  stress_builtin_ctz()
+ *	implementation of count trailing zeros ctz, this will
+ *	be optimized down to 1 instruction on x86 targets
+ */
+static inline uint32_t stress_builtin_ctz(register uint32_t x)
+{
+	register unsigned int n;
+	if (!x)
+		return 32;
+
+	n = 0;
+	if ((x & 0x0000ffff) == 0) {
+		n += 16;
+		x >>= 16;
+	}
+	if ((x & 0x000000ff) == 0) {
+		n += 8;
+		x >>= 8;
+	}
+	if ((x & 0x0000000f) == 0) {
+		n += 4;
+		x >>= 4;
+	}
+	if ((x & 0x00000003) == 0) {
+		n += 2;
+		x >>= 2;
+	}
+	if ((x & 0x00000001) == 0) {
+		n += 1;
+	}
+	return n;
+}
+#endif
+
 /*
  *  stress_rand_data_pink()
  *	fill buffer with pink noise 0..255 using an
@@ -434,7 +470,11 @@ static void stress_rand_data_pink(const args_t *args, uint32_t *data, const int 
 
 		idx = (idx + 1) & mask;
 		if (idx) {
-			size_t j = __builtin_ctz(idx);
+#if defined(HAVE_BUILTIN_CTZ)
+			const size_t j = __builtin_ctz(idx);
+#else
+			const size_t j = stress_builtin_ctz(idx);
+#endif
 
 			sum -= rows[j];
 			rnd = (int64_t)mwc64() >> PINK_SHIFT;
