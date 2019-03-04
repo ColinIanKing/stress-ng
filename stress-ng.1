@@ -3052,9 +3052,10 @@ using the suffix b, k, m or g.
 .TP
 .B \-\-stack N
 start N workers that rapidly cause and catch stack overflows by use of
-alloca(3).  Much like the brk stressor, this can eat up pages rapidly and
-may trigger the kernel OOM killer on the process, however, the killed
-stressor is respawned again by a monitoring parent process.
+large recursive stack allocations.  Much like the brk stressor, this can eat
+up pages rapidly and may trigger the kernel OOM killer on the process,
+however, the killed stressor is respawned again by a monitoring parent
+process.
 .TP
 .B \-\-stack\-fill
 the default action is to touch the lowest page on each stack allocation. This
