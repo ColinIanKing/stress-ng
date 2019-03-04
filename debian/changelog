@@ -1,3 +1,58 @@
+stress-ng (0.09.55-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove need for alloca.h to be build checked or included
+  * Manual: update stack stressor description, it no longer uses
+    alloca()
+  * Add tcc as supported compilers in README
+  * core-helper: add missing __dso_handle for tcc
+  * Add build check for __builtin_prefetch
+  * Add build-time checks for __builtin_memcpy and __builtin_memmove
+  * Add implementation of __builtin_ctz for systems that don't support
+    this
+  * core-helper: use correct etext and edata symbols for tcc builds
+  * Use correct macro name HAVE_VLA_ARG and not HAVE_VLA_ARGS
+  * matrix-3d: fix all matrix-3d settings, the name should not be
+    matrix_3d*
+  * Add check for variable length array support in function args
+  * rename TYPEOF macro to CAST_TYPEOF as it really is used for type casting
+  * Add build checks for complex.h and complex type
+  * stress-close: remove debug message
+  * stress-close: add more pthreads, remove some protocols and fsync
+  * core-helper: remove redundant null check for case where NSIG or _NSIG
+    are not defined
+  * core-helper: use ptrdiff_t types for pointer math and fix start >= end
+    check
+  * core-mwc: use ptrdiff_t types to perform pointer math on different
+    objects
+  * stress-resources: remove use of alloca
+  * stress-stack: remove need for alloca, expand stack by deep recursion
+  * stress-funccall: add additional missing floating point types
+  * stress-funccall: add in return type returns, remove structs
+  * tests: clean up some cppcheck style warnings
+  * stress-zlib: add extra brackets to explicitly clarify precedence
+  * stress-unshare: guard declaration of euid with CLONE_NEWNET check
+  * stress-switch: reduce scope of overrun and overrun_by
+  * stress-ng: declare and assign last_page only when it is required
+  * stress-ng: move get class setting before class is sanity checked
+  * stress-hrtimers: remove redundant if check, ensure timer is always
+    non-zero
+  * stress-hdd: fix iovec buffer settings
+  * stress-cpu: remove redundant multiply of gm, it's not used
+  * stress-apparmor: reduce scope of variable tmp_counter
+  * core-helper: reduce scope of buffer 'str'
+  * core-helper: stress_text_addr: check for start >= end
+  * core-helper: move start if #ifdef to remove unused code
+  * Manual: update contributors list
+  * stress-vm-addr: fix discarding of existing mappings
+  * stress-ng: bring back error messages from getopt_long
+  * stress-ng: fix ALWAYS_INLINE with gcc < v6.0.1 on s390/s390x
+  * stress-ng: fix --class option
+  * Add close race stressor, exercises various close kernel paths
+  * Makefiles: make static build checking handle linking correctly
+
+ -- Colin King <colin.king@canonical.com>  Mon, 4 Mar 2019 16:01:23 +0000
+
 stress-ng (0.09.54-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
