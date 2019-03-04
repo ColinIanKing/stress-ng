@@ -95,10 +95,6 @@
 #include <aio.h>
 #endif
 
-#if defined(HAVE_ALLOCA_H)
-#include <alloca.h>
-#endif
-
 #if defined(HAVE_COMPLEX_H)
 #include <complex.h>
 #endif
