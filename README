@@ -10,7 +10,7 @@ the various operating system kernel interfaces. Stress-ng features:
   * over 20 virtual memory stress tests
   * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
     Debian Hurd, Haiku, Windows Subsystem for Linux and SunOs/Dilos with
-    gcc, clang and tcc
+    gcc, clang, tcc and pcc.
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only
