@@ -288,6 +288,11 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("filemap/mm_filemap_add_to_page_cache",		"Filemap page-cache add"),
 	PERF_INFO_TP("filemap/mm_filemap_delete_from_page_cache",	"Filemap page-cache del"),
 
+	PERF_INFO_TP("oom/compact_retry",		"OOM Compact Retry"),
+	PERF_INFO_TP("oom/wake_reaper",			"OOM Wake Reaper"),
+
+	PERF_INFO_TP("thermal/thermal_zone_trip",	"Thermal Zone Trip"),
+
 	{ 0, 0, NULL, NULL }
 };
 
