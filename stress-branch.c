@@ -24,6 +24,7 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LABEL_AS_VALUE)
 /*
  *  jmp_mwc8()
  *	special non-overly optimized mwc8 that gets inlined
@@ -281,3 +282,9 @@ stressor_info_t stress_branch_info = {
 	.stressor = stress_branch,
 	.class = CLASS_CPU
 };
+#else
+stressor_info_t stress_branch_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU
+};
+#endif
