@@ -1061,8 +1061,11 @@ typedef struct {
 #endif
 
 #if !defined(HAVE_BUILTIN_PREFETCH)
-static inline void __builtin_prefetch(const void *addr, ...)
+static inline void __builtin_prefetch(const void *addr, int rw, int locality)
 {
+	(void)addr;
+	(void)rw;
+	(void)locality;
 }
 #endif
 
