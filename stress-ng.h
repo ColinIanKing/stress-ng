@@ -1061,11 +1061,12 @@ typedef struct {
 #endif
 
 #if !defined(HAVE_BUILTIN_PREFETCH)
-static inline void __builtin_prefetch(const void *addr, int rw, int locality)
+static inline void __builtin_prefetch(const void *addr, ...)
 {
-	(void)addr;
-	(void)rw;
-	(void)locality;
+	va_list ap;
+
+	va_start(ap, addr);
+	va_end(ap);
 }
 #endif
 
