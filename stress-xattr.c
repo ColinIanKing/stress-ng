@@ -36,6 +36,8 @@
     defined(HAVE_LSETXATTR) &&		\
     defined(HAVE_SETXATTR)
 
+#define MAX_XATTRS		(4096)
+
 /*
  *  stress_xattr
  *	stress the xattr operations
@@ -63,7 +65,7 @@ static int stress_xattr(const args_t *args)
 		ssize_t sz;
 		char *buffer;
 
-		for (i = 0; i < 4096; i++) {
+		for (i = 0; i < MAX_XATTRS; i++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
 			(void)snprintf(value, sizeof(value), "orig-value-%d", i);
 
