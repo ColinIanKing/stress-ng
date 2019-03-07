@@ -285,6 +285,9 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("iommu/map",			"IOMMU Map"),
 	PERF_INFO_TP("iommu/unmap",			"IOMMU Unmap"),
 
+	PERF_INFO_TP("filemap/mm_filemap_add_to_page_cache",		"Filemap page-cache add"),
+	PERF_INFO_TP("filemap/mm_filemap_delete_from_page_cache",	"Filemap page-cache del"),
+
 	{ 0, 0, NULL, NULL }
 };
 
