@@ -3076,7 +3076,7 @@ static inline void ALWAYS_INLINE clflush(volatile void *ptr)
  */
 static inline void ALWAYS_INLINE mfence(void)
 {
-#if NEED_GNUC(4, 2, 0)
+#if NEED_GNUC(4, 2, 0) && !defined(__PCC__)
 	__sync_synchronize();
 #else
 #if defined(STRESS_X86)
