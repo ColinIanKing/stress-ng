@@ -29,7 +29,7 @@
 static void stress_nice_delay(void)
 {
 	double start = time_now();
-	double delay = 0.05 + (double)mwc16() / 327680.0;
+	double delay = 0.01 + (double)mwc16() / 3276800.0;
 
 	while (time_now() - start < delay)
 		(void)shim_sched_yield();
@@ -66,6 +66,7 @@ static int stress_nice(const args_t *args)
 
 	do {
 		pid_t pid;
+		int which = mwc1();
 
 		pid = fork();
 		if (pid == 0) {
@@ -75,25 +76,30 @@ static int stress_nice(const args_t *args)
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
+			switch (which) {
 #if defined(HAVE_SETPRIORITY)
-			pid = getpid();
-			for (i = min_prio; (i <= max_prio) && keep_stressing(); i++) {
-				errno = 0;
-				(void)setpriority(PRIO_PROCESS, pid, i);
-				if (!errno)
-					stress_nice_delay();
-				inc_counter(args);
-			}
-#else
-			for (i = -19; i < 20; i++) {
-				int ret;
-
-				ret = nice(1);
-				if (ret == 0)
-					stress_nice_delay();
-				inc_counter(args);
-			}
+			case 1:
+				pid = getpid();
+				for (i = min_prio; (i <= max_prio) && keep_stressing(); i++) {
+					errno = 0;
+					(void)setpriority(PRIO_PROCESS, pid, i);
+					if (!errno)
+						stress_nice_delay();
+					inc_counter(args);
+				}
+				break;
 #endif
+			default:
+				for (i = -19; i < 20; i++) {
+					int ret;
+
+					ret = nice(1);
+					if (ret == 0)
+						stress_nice_delay();
+					inc_counter(args);
+				}
+				break;
+			}
 			_exit(0);
 		}
 		if (pid > 0) {
