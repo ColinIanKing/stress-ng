@@ -409,7 +409,7 @@ static void stress_rand_data_parity(const args_t *args, uint32_t *data, const in
 #define PINK_BITS       (16)
 #define PINK_SHIFT      ((sizeof(uint64_t) * 8) - PINK_BITS)
 
-#if !defined(BUILTIN_CTZ)
+#if !defined(HAVE_BUILTIN_CTZ)
 /*
  *  stress_builtin_ctz()
  *	implementation of count trailing zeros ctz, this will
