@@ -77,11 +77,13 @@ static inline void stress_proc_rw(
 	char buffer[PROC_BUF_SZ];
 	char path[PATH_MAX];
 	const double threshold = 0.2;
+	const size_t page_size = ctxt->args->page_size;
 	off_t pos;
 
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
+		uint8_t *ptr;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -153,6 +155,52 @@ static inline void stress_proc_rw(
 			(void)close(fd);
 			goto next;
 		}
+
+		/*
+		 *  mmap it
+		 */
+		ptr = mmap(NULL, page_size, PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
+		if (ptr != MAP_FAILED) {
+			uint8_put(*ptr);
+			(void)munmap(ptr, page_size);
+		}
+
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+
+#if defined(FIONREAD)
+		{
+			int nbytes;
+
+			/*
+			 *  ioctl(), bytes ready to read
+			 */
+			ret = ioctl(fd, FIONREAD, &nbytes);
+			(void)ret;
+		}
+		if (time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+#endif
+
+#if defined(HAVE_POLL_H)
+		{
+			struct pollfd fds[1];
+
+			fds[0].fd = fd;
+			fds[0].events = POLLIN;
+			fds[0].revents = 0;
+
+			ret = poll(fds, 1, 0);
+			(void)ret;
+		}
+#endif
 
 		/*
 		 *  Seek and read
