@@ -76,14 +76,24 @@ static int stress_udp_flood(const args_t *args)
 
 	do {
 		char buf[sz];
-
-		stress_set_sockaddr_port(udp_flood_domain, port, addr);
+		int rand_port;
 
 		(void)memset(buf, data[j++ & 63], sz);
+
+		stress_set_sockaddr_port(udp_flood_domain, port, addr);
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
 			inc_counter(args);
 		if (++port > 65535)
 			port = 1024;
+
+		if (!keep_stressing())
+			break;
+
+		rand_port = 1024 + (mwc16() % (65535 - 1024));
+		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
+		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
+			inc_counter(args);
+
 		if (++sz > sz_max)
 			sz = 1;
 	} while (keep_stressing());
