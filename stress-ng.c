@@ -1735,7 +1735,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"sysinfo N",		"start N workers reading system information" },
 	{ NULL,		"sysinfo-ops N",	"stop after sysinfo bogo operations" },
 	{ NULL,		"sysbadaddr N",		"start N workers that pass bad addresses to syscalls" },
-	{ NULL,		"sysbaddaddr-ops N",	"stop after N sysbadaddr bogo syscalls" },
+	{ NULL,		"sysbadaddr-ops N",	"stop after N sysbadaddr bogo syscalls" },
 	{ NULL,		"sysfs N",		"start N workers reading files from /sys" },
 	{ NULL,		"sysfs-ops N",		"stop after sysfs bogo operations" },
 	{ NULL,		"tee N",		"start N workers exercising the tee system call" },
