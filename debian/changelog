@@ -1,3 +1,29 @@
+stress-ng (0.09.56-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-bigheap: poll with keep_stressing() rather than
+    g_keep_stressing_flag
+  * Fix typo in sysbadaddr help, sysbaddaddr-ops ->
+    sysbadaddr-ops (LP: #1820251)
+  * stress-shm: paranoidly memset msg; cleans up static analysis warnings
+  * stress-nice: use setpriority or nice of both are available
+  * stress-zlib: fix incorrect macro name, should be
+    HAVE_BUILTIN_CTZ (LP: #1820252)
+  * stress-udp-flood: add some random port flooding into the mix
+  * stress-procfs: exercise procfs with mmap, ioctl and poll too
+  * stress-xattr: use macro for the max number of xattr settings
+  * README: add pcc as another supported compiler (LP: #1820253)
+  * Disable matrix-3d options when building with pcc
+  * stress-ng.h: don't use sync_synchronized when building with pcc
+  * stress-ng.h: make __builtin_prefetch a variadic function
+  * stress-matrix-3d: disable for PCC builds as this breaks the compiler
+  * stess-ng.h: fully define  __builtin_prefetch for pcc
+  * Add build time check for gcc/clang label as a value feature
+  * core-perf: add OOM and thermal zone trip perf stats (LP: #1820254)
+  * core-perf: add filemap page cache perf stats (LP: #1820254)
+
+ -- Colin King <colin.king@canonical.com>  Fri, 15 Mar 2019 10:55:02 +0000
+
 stress-ng (0.09.55-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
