@@ -125,9 +125,12 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 	char path[PATH_MAX];
 	const args_t *args = ctxt->args;
 	const double threshold = 0.2;
+	size_t page_size = ctxt->args->page_size;
 
 	while (g_keep_stressing_flag && !segv_abort) {
 		double t_start;
+		char buf[PATH_MAX];
+		uint8_t *ptr;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -148,6 +151,9 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			(void)close(fd);
 			goto next;
 		}
+
+		ret = readlink(path, buf, sizeof(buf));
+		(void)ret;
 
 		/*
 		 *  Multiple randomly sized reads
@@ -202,6 +208,23 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
+		if (time_now() - t_start > threshold)
+			goto next;
+		if (stress_kmsg_drain(ctxt->kmsgfd)) {
+			drain_kmsg = true;
+			(void)close(fd);
+			goto drain;
+		}
+
+		/*
+		 *  mmap it
+		 */
+		ptr = mmap(NULL, page_size, PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
+		if (ptr != MAP_FAILED) {
+			uint8_put(*ptr);
+			(void)munmap(ptr, page_size);
+		}
 		if (time_now() - t_start > threshold)
 			goto next;
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
