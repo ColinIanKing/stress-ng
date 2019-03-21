@@ -566,7 +566,7 @@ void stress_af_alg_deinit(void)
 		af_alg_hash_skip_sz = 0;
 	}
 	if (g_shared->af_alg_cipher_skip && (af_alg_cipher_skip_sz > 0)) {
-		munmap(g_shared->af_alg_hash_skip, af_alg_cipher_skip_sz);
+		munmap(g_shared->af_alg_cipher_skip, af_alg_cipher_skip_sz);
 		g_shared->af_alg_cipher_skip = NULL;
 		af_alg_cipher_skip_sz = 0;
 	}
