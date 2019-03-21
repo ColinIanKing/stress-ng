@@ -79,58 +79,59 @@
 typedef struct {
 	const char *name;
 	const ssize_t digest_size;
-	bool skip;
 } alg_hash_info_t;
 
 typedef struct {
 	const char *name;
 	const ssize_t block_size;
 	const ssize_t key_size;
-	bool skip;
 } alg_cipher_info_t;
 
 typedef struct {
 	const char *name;
 } alg_rng_info_t;
 
+static size_t af_alg_hash_skip_sz;
+static size_t af_alg_cipher_skip_sz;
+
 static alg_hash_info_t algo_hash_info[] = {
-	{ "crc32c",	SNG_CRC32C_DIGEST_SIZE,		false },
-	{ "sha1",	SNG_SHA1_DIGEST_SIZE,		false },
-	{ "sha224",	SNG_SHA224_DIGEST_SIZE,		false },
-	{ "sha256",	SNG_SHA256_DIGEST_SIZE,		false },
-	{ "sha384",	SNG_SHA384_DIGEST_SIZE,		false },
-	{ "sha512",	SNG_SHA512_DIGEST_SIZE,		false },
-	{ "md4",	SNG_MD4_DIGEST_SIZE,		false },
-	{ "md5",	SNG_MD5_DIGEST_SIZE,		false },
-	{ "rmd128",	SNG_RMD128_DIGEST_SIZE,		false },
-	{ "rmd160",	SNG_RMD160_DIGEST_SIZE,		false },
-	{ "rmd256",	SNG_RMD256_DIGEST_SIZE,		false },
-	{ "rmd320",	SNG_RMD320_DIGEST_SIZE,		false },
-	{ "wp256",	SNG_WP256_DIGEST_SIZE,		false },
-	{ "wp384",	SNG_WP384_DIGEST_SIZE,		false },
-	{ "wp512",	SNG_WP512_DIGEST_SIZE,		false },
-	{ "tgr128",	SNG_TGR128_DIGEST_SIZE,		false },
-	{ "tgr160",	SNG_TGR160_DIGEST_SIZE,		false },
-	{ "tgr192",	SNG_TGR192_DIGEST_SIZE,		false },
-	{ "xor",	SNG_XOR_DIGEST_SIZE,		false },
-	{ "crct10dif",	SNG_CRC_T10DIF_DIGEST_SIZE,	false },
+	{ "crc32c",	SNG_CRC32C_DIGEST_SIZE },
+	{ "sha1",	SNG_SHA1_DIGEST_SIZE },
+	{ "sha224",	SNG_SHA224_DIGEST_SIZE },
+	{ "sha256",	SNG_SHA256_DIGEST_SIZE },
+	{ "sha384",	SNG_SHA384_DIGEST_SIZE },
+	{ "sha512",	SNG_SHA512_DIGEST_SIZE },
+	{ "md4",	SNG_MD4_DIGEST_SIZE },
+	{ "md5",	SNG_MD5_DIGEST_SIZE },
+	{ "rmd128",	SNG_RMD128_DIGEST_SIZE },
+	{ "rmd160",	SNG_RMD160_DIGEST_SIZE },
+	{ "rmd256",	SNG_RMD256_DIGEST_SIZE },
+	{ "rmd320",	SNG_RMD320_DIGEST_SIZE },
+	{ "wp256",	SNG_WP256_DIGEST_SIZE },
+	{ "wp384",	SNG_WP384_DIGEST_SIZE },
+	{ "wp512",	SNG_WP512_DIGEST_SIZE },
+	{ "tgr128",	SNG_TGR128_DIGEST_SIZE },
+	{ "tgr160",	SNG_TGR160_DIGEST_SIZE },
+	{ "tgr192",	SNG_TGR192_DIGEST_SIZE },
+	{ "xor",	SNG_XOR_DIGEST_SIZE },
+	{ "crct10dif",	SNG_CRC_T10DIF_DIGEST_SIZE },
 };
 
 static alg_cipher_info_t algo_cipher_info[] = {
-	{ "cbc(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
-	{ "lrw(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
-	{ "ofb(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE,		false },
-	{ "xts(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE,		false },
-	{ "xts(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE,	false },
-	{ "xts(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE,		false },
-	{ "xts(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "lrw(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE,		false },
-	{ "lrw(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE,	false },
-	{ "lrw(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE,		false },
-	{ "lrw(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE,	false },
-	{ "salsa20",		SNG_SALSA20_BLOCK_SIZE,	SNG_SALSA20_MAX_KEY_SIZE,	false },
-	{ "ghash",		SNG_GHASH_BLOCK_SIZE,	SNG_GHASH_MAX_KEY_SIZE,		false },
-	{ "twofish",		SNG_TWOFISH_BLOCK_SIZE,	SNG_TWOFISH_MAX_KEY_SIZE,	false },
+	{ "cbc(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE },
+	{ "lrw(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE },
+	{ "ofb(aes)",		SNG_AES_BLOCK_SIZE,	SNG_AES_MAX_KEY_SIZE },
+	{ "xts(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE },
+	{ "xts(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE },
+	{ "xts(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE },
+	{ "xts(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE },
+	{ "lrw(twofish)",	SNG_TF_BLOCK_SIZE,	SNG_TF_MAX_KEY_SIZE },
+	{ "lrw(serpent)",	SNG_SERPENT_BLOCK_SIZE,	SNG_SERPENT_MAX_KEY_SIZE },
+	{ "lrw(cast6)",		SNG_CAST6_BLOCK_SIZE,	SNG_CAST6_MAX_KEY_SIZE },
+	{ "lrw(camellia)",	SNG_CAMELLIA_BLOCK_SIZE,SNG_CAMELLIA_MAX_KEY_SIZE },
+	{ "salsa20",		SNG_SALSA20_BLOCK_SIZE,	SNG_SALSA20_MAX_KEY_SIZE },
+	{ "ghash",		SNG_GHASH_BLOCK_SIZE,	SNG_GHASH_MAX_KEY_SIZE },
+	{ "twofish",		SNG_TWOFISH_BLOCK_SIZE,	SNG_TWOFISH_MAX_KEY_SIZE },
 };
 
 static const alg_rng_info_t algo_rng_info[] = {
@@ -154,7 +155,7 @@ static int stress_af_alg_hash(
 
 		if (!keep_stressing())
 			break;
-		if (algo_hash_info[i].skip)
+		if (g_shared->af_alg_hash_skip[i])
 			continue;
 
 		(void)memset(&sa, 0, sizeof(sa));
@@ -165,7 +166,11 @@ static int stress_af_alg_hash(
 
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the hash does not exist with this kernel */
-			if ((errno == ENOENT) || (errno == EBUSY))
+			if (errno == ENOENT) {
+				g_shared->af_alg_hash_skip[i] = true;
+				continue;
+			}
+			if (errno == EBUSY)
 				continue;
 			pr_fail_err("bind");
 			return EXIT_FAILURE;
@@ -188,7 +193,7 @@ static int stress_af_alg_hash(
 				break;
 			if (send(fd, input, j, 0) != j) {
 				if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT)) {
-					algo_hash_info[i].skip = true;
+					g_shared->af_alg_hash_skip[i] = true;
 					continue;
 				}
 				pr_fail("%s: send using %s failed: errno=%d (%s)\n",
@@ -238,7 +243,7 @@ static int stress_af_alg_cipher(
 
 		if (!keep_stressing())
 			break;
-		if (algo_cipher_info[i].skip)
+		if (g_shared->af_alg_cipher_skip[i])
 			continue;
 
 		(void)memset(&sa, 0, sizeof(sa));
@@ -250,7 +255,7 @@ static int stress_af_alg_cipher(
 		if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 			/* Perhaps the cipher does not exist with this kernel */
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT) || (errno == EBUSY)) {
-				algo_cipher_info[i].skip = true;
+				g_shared->af_alg_cipher_skip[i] = true;
 				continue;
 			}
 			pr_fail_err("bind");
@@ -527,8 +532,50 @@ tidy:
 	return rc;
 }
 
+bool *stress_af_alg_skip_alloc(size_t n, size_t *size)
+{
+	size_t page_size = stress_get_pagesize();
+	size_t sz = (page_size + (n * sizeof(bool))) & ~(page_size - 1);
+	bool *ptr;
+
+	ptr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (ptr == MAP_FAILED) {
+		*size = 0;
+		ptr = NULL;
+	} else {
+		*size = sz;
+	}
+	return ptr;
+}
+
+void stress_af_alg_init(void)
+{
+	g_shared->af_alg_hash_skip = stress_af_alg_skip_alloc(
+		SIZEOF_ARRAY(algo_hash_info), &af_alg_hash_skip_sz);
+	g_shared->af_alg_cipher_skip = stress_af_alg_skip_alloc(
+		SIZEOF_ARRAY(algo_cipher_info), &af_alg_cipher_skip_sz);
+	
+}
+
+void stress_af_alg_deinit(void)
+{
+	if (g_shared->af_alg_hash_skip && (af_alg_hash_skip_sz > 0)) {
+		munmap(g_shared->af_alg_hash_skip, af_alg_hash_skip_sz);
+		g_shared->af_alg_hash_skip = NULL;
+		af_alg_hash_skip_sz = 0;
+	}
+	if (g_shared->af_alg_cipher_skip && (af_alg_cipher_skip_sz > 0)) {
+		munmap(g_shared->af_alg_hash_skip, af_alg_cipher_skip_sz);
+		g_shared->af_alg_cipher_skip = NULL;
+		af_alg_cipher_skip_sz = 0;
+	}
+}
+
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_af_alg,
+	.init = stress_af_alg_init,
+	.deinit = stress_af_alg_deinit,
 	.class = CLASS_CPU | CLASS_OS
 };
 

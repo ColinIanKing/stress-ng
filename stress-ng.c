@@ -3870,8 +3870,8 @@ int main(int argc, char **argv)
 	/*
 	 *  Tidy up
 	 */
-	free_procs();
 	stressors_deinit();
+	free_procs();
 	stress_cache_free();
 	stress_unmap_shared();
 	free_settings();

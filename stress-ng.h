@@ -1767,6 +1767,8 @@ typedef struct {
 		shim_pthread_spinlock_t lock;		/* spinlock on no_perf updates */
 	} perf;
 #endif
+	bool *af_alg_hash_skip;				/* Shared array of hash skip flags */
+	bool *af_alg_cipher_skip;			/* Shared array of cipher skip flags */
 #if defined(STRESS_THERMAL_ZONES)
 	tz_info_t *tz_info;				/* List of valid thermal zones */
 #endif
