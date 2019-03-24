@@ -309,6 +309,16 @@ static int stress_shm_sysv_child(
 					pr_fail_dbg("semctl SHM_INFO");
 			}
 #endif
+#if defined(SHM_LOCK) && \
+    defined(SHM_UNLOCK)
+			if (shmctl(shm_id, SHM_LOCK, (struct shmid_ds *)NULL) < 0) {
+				int ret;
+
+				ret = shmctl(shm_id, SHM_UNLOCK, (struct shmid_ds *)NULL);
+				(void)ret;
+
+			}
+#endif
 			inc_counter(args);
 		}
 reap:
