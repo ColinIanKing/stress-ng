@@ -60,7 +60,6 @@ int stress_set_pty_max(const char *opt)
  */
 static int stress_pty(const args_t *args)
 {
-	int rc = EXIT_FAILURE;
 	uint64_t pty_max = DEFAULT_PTYS;
 
 	(void)get_setting("pty-max", &pty_max);
@@ -250,9 +249,7 @@ clean:
 		inc_counter(args);
 	} while (keep_stressing());
 
-	rc = EXIT_SUCCESS;
-
-	return rc;
+	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_pty_info = {
