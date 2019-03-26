@@ -493,7 +493,8 @@ static int stress_sysfs(const args_t *args)
 	if (rc) {
 		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, rc, strerror(rc));
-		(void)close(ctxt.kmsgfd);
+		if (ctxt.kmsgfd != -1)
+			(void)close(ctxt.kmsgfd);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -504,7 +505,8 @@ static int stress_sysfs(const args_t *args)
 	if (ctxt.badbuf == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)close(ctxt.kmsgfd);
+		if (ctxt.kmsgfd != -1)
+			(void)close(ctxt.kmsgfd);
 		return EXIT_NO_RESOURCE;
 	}
 
