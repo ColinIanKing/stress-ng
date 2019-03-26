@@ -474,7 +474,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 static int stress_fcntl(const args_t *args)
 {
 	const pid_t ppid = getppid();
-	int fd = -1, rc = EXIT_FAILURE, retries = 0;
+	int fd, rc = EXIT_FAILURE, retries = 0;
 	char filename[PATH_MAX], dirname[PATH_MAX];
 
 	/*
