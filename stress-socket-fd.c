@@ -134,7 +134,7 @@ static void stress_socket_client(
 	const ssize_t max_fd,
 	const int socket_fd_port)
 {
-	struct sockaddr *addr;
+	struct sockaddr *addr = NULL;
 	int ret = EXIT_FAILURE;
 
 	(void)setpgid(0, g_pgrp);
@@ -189,8 +189,10 @@ retry:
 		(void)close(fd);
 	} while (keep_stressing());
 
-	struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
-	(void)unlink(addr_un->sun_path);
+	if (addr) {
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+		(void)unlink(addr_un->sun_path);
+	}
 
 	ret = EXIT_SUCCESS;
 
