@@ -233,7 +233,7 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
  */
 static int stress_memrate(const args_t *args)
 {
-	int rc = EXIT_FAILURE;
+	int rc;
 	uint64_t memrate_bytes  = DEFAULT_MEMRATE_BYTES;
 	uint64_t memrate_rd_mbs = ~0;
 	uint64_t memrate_wr_mbs = ~0;
