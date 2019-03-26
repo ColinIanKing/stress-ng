@@ -882,7 +882,7 @@ static int stress_zlib_deflate(
 	}
 
 	do {
-		uint32_t in[DATA_SIZE / sizeof(uint32_t)];
+		static uint32_t in[DATA_SIZE / sizeof(uint32_t)];
 		unsigned char *xsum_in = (unsigned char *)in;
 
 		opt_zlib_rand_data_func->func(args, in, DATA_SIZE);
