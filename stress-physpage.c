@@ -137,14 +137,17 @@ static int stress_physpage(const args_t *args)
 	}
 
 	do {
-		ptr = mmap(ptr + page_size, page_size, PROT_READ | PROT_WRITE,
+		void *nptr;
+
+		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (ptr != MAP_FAILED) {
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, (uintptr_t)ptr);
-			(void)munmap(ptr, page_size);
+		if (nptr != MAP_FAILED) {
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, (uintptr_t)nptr);
+			(void)munmap(nptr, page_size);
 			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, (uintptr_t)g_shared->stats);
 
 		}
+		ptr += page_size;
 		inc_counter(args);
 	} while (keep_stressing());
 
