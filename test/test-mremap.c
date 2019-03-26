@@ -29,7 +29,7 @@
 
 int main(void)
 {
-	void *newbuf, *newaddr = NULL, *buf = NULL;
+	void *newbuf, *newaddr = NULL;
 	size_t sz = 4096;
 
 	/* semantically not correct, but this is a build check */
