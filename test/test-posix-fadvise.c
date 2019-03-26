@@ -36,7 +36,6 @@ int main(void)
 {
 	static const char *filename = "/tmp/test-msync.tmp";
 	int fd, ret, err = 1;
-	void *ptr;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);
 	if (fd < 0)
