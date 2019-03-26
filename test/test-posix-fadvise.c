@@ -76,8 +76,6 @@ int main(void)
 #if defined(NO_FADV)
 #error no POSIX_FADV advice macros defined!
 #endif
-
-err:
 	(void)close(fd);
 
 	return err;
