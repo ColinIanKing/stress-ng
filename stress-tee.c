@@ -98,7 +98,7 @@ static void stress_tee_pipe_write(int fds[2])
  */
 static void stress_tee_pipe_read(int fds[2])
 {
-	char buffer[TEE_IO_SIZE];
+	static char buffer[TEE_IO_SIZE];
 
 	(void)close(fds[1]);
 

@@ -902,7 +902,7 @@ static int stress_zlib_deflate(
 		bytes_in += DATA_SIZE;
 
 		do {
-			unsigned char out[DATA_SIZE];
+			static unsigned char out[DATA_SIZE];
 			int def_size, rc;
 
 			stream_def.avail_out = DATA_SIZE;

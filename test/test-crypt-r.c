@@ -33,7 +33,7 @@ int main(void)
 	char *ptr;
 	const char *key = "keystring";
 	const char *salt = "saltstring";
-	struct crypt_data data;
+	static struct crypt_data data;
 
 	ptr = crypt_r(key, salt, &data);
 

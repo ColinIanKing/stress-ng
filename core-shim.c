@@ -99,7 +99,7 @@ ssize_t shim_copy_file_range(
  */
 static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 {
-	const off_t buf_sz = 65536;
+	const off_t buf_sz = 8192;
 	char buffer[buf_sz];
 	off_t n;
 
