@@ -137,7 +137,7 @@ static int stress_swap_set_size(
 static int stress_swap(const args_t *args)
 {
 	char filename[PATH_MAX];
-	int fd = -1, ret;
+	int fd, ret;
 	uint8_t *page;
 
 	page = calloc(1, args->page_size);
