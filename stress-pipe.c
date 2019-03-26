@@ -194,7 +194,7 @@ again:
 				pr_fail_dbg("zero byte read");
 				break;
 			}
-			if (!strcmp(buf, PIPE_STOP))
+			if (!strncmp(buf, PIPE_STOP, 3))
 				break;
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    pipe_memchk(buf, val++, (size_t)n)) {
