@@ -855,7 +855,7 @@ static int stress_zlib_deflate(
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0;
 	uint64_t xsum_chars = 0;
-	int flush = Z_FINISH;
+	int flush;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
 	double t1, t2;
 	xsum_t xsum;
