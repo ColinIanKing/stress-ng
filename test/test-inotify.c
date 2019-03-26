@@ -86,7 +86,7 @@
 
 int main(void)
 {
-	int fd, ret, wd;
+	int fd, wd;
 	ssize_t len, i = 0;
 	char buffer[1024];
 
