@@ -503,7 +503,6 @@ int perf_close(stress_perf_t *sp)
 	size_t i = 0;
 	perf_data_t data;
 	ssize_t ret;
-	int rc = -1;
 	double scale;
 
 	if (!sp)
@@ -538,11 +537,10 @@ int perf_close(stress_perf_t *sp)
 	}
 
 out_ok:
-	rc = 0;
 	for (; i < STRESS_PERF_MAX; i++)
 		sp->perf_stat[i].counter = STRESS_PERF_INVALID;
 
-	return rc;
+	return 0;
 }
 
 /*
