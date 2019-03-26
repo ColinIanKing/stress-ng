@@ -37,19 +37,23 @@ static int stress_zero(const args_t *args)
 #else
 	const int flags = O_RDWR;
 #endif
+	char wr_buffer[page_size];
+
 	if ((fd = open("/dev/zero", flags)) < 0) {
 		pr_fail_err("open /dev/zero");
 		return EXIT_FAILURE;
 	}
 
+	(void)memset(wr_buffer, 0, sizeof wr_buffer);
+
 	do {
-		char buffer[page_size];
+		char rd_buffer[page_size];
 		ssize_t ret;
 #if defined(__linux__)
 		int32_t *ptr;
 #endif
 
-		ret = read(fd, buffer, sizeof(buffer));
+		ret = read(fd, rd_buffer, sizeof(rd_buffer));
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
@@ -60,7 +64,7 @@ static int stress_zero(const args_t *args)
 
 #if !defined(__minix__)
 		/* One can also write to /dev/zero w/o failure */
-		ret = write(fd, buffer, sizeof(buffer));
+		ret = write(fd, wr_buffer, sizeof(wr_buffer));
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
