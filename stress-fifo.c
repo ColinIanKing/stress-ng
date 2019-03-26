@@ -150,7 +150,7 @@ static int stress_fifo(const args_t *args)
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
 	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
-	int rc = EXIT_FAILURE;
+	int rc;
 
 	if (!get_setting("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -176,8 +176,10 @@ static int stress_fifo(const args_t *args)
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < fifo_readers; i++) {
 		pids[i] = fifo_spawn(args, stress_fifo_reader, args->name, fifoname);
-		if (pids[i] < 0)
+		if (pids[i] < 0) {
+			rc = EXIT_NO_RESOURCE;
 			goto reap;
+		}
 		if (!g_keep_stressing_flag) {
 			rc = EXIT_SUCCESS;
 			goto reap;
