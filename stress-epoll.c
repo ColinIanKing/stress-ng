@@ -272,7 +272,7 @@ static int epoll_client(
 		char buf[4096];
 		int fd, saved_errno;
 		int retries = 0;
-		int ret = -1;
+		int ret;
 		int port = epoll_port + port_counter +
 				(max_servers * args->instance);
 		socklen_t addr_len = 0;
