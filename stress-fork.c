@@ -63,8 +63,8 @@ static int stress_fork_fn(
 	const char *fork_fn_name,
 	const uint64_t fork_max)
 {
-	pid_t pids[MAX_FORKS];
-	int errnos[MAX_FORKS];
+	static pid_t pids[MAX_FORKS];
+	static int errnos[MAX_FORKS];
 	int ret;
 
 	set_oom_adjustment(args->name, true);

@@ -195,7 +195,7 @@ again:
 				case 3:
 					/* Trigger RLIMIT_STACK */
 					{
-						uint8_t stack[MAX_RLIMIT_STACK];
+						static uint8_t stack[MAX_RLIMIT_STACK];
 
 						mincore_touch_pages(stack, MAX_RLIMIT_STACK);
 					}

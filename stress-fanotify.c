@@ -95,7 +95,7 @@ static int stress_fanotify_supported(void)
 static int fanotify_event_init(const char *name)
 {
 	int fan_fd, count = 0, n_mnts, i;
-	char *mnts[MAX_MNTS];
+	static char *mnts[MAX_MNTS];
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",

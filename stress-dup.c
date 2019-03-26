@@ -30,7 +30,7 @@
  */
 static int stress_dup(const args_t *args)
 {
-	int fds[STRESS_FD_MAX];
+	static int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
 	size_t i;
 #if defined(HAVE_DUP3)

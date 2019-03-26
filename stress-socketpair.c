@@ -79,7 +79,8 @@ static void socket_pair_close(
 static int stress_sockpair_oomable(const args_t *args)
 {
 	pid_t pid;
-	int socket_pair_fds[MAX_SOCKET_PAIRS][2], i, max;
+	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
+	int i, max;
 
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)

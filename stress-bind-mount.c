@@ -98,7 +98,7 @@ static int stress_bind_mount(const args_t *args)
 
 	do {
 		int ret;
-		char stack[CLONE_STACK_SIZE];
+		static char stack[CLONE_STACK_SIZE];
 		char *stack_top = stack + stack_offset;
 
 		(void)memset(stack, 0, sizeof stack);

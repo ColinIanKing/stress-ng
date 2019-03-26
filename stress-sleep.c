@@ -142,7 +142,7 @@ static int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;
-	ctxt_t    ctxts[MAX_SLEEP];
+	static ctxt_t ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 
 	if (!get_setting("sleep-max", &sleep_max)) {

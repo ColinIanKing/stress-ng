@@ -85,9 +85,9 @@ static int stress_context_init(
  */
 static int stress_context(const args_t *args)
 {
-	char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
-	     stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
-	     stack_thread3[STACK_SIZE + STACK_ALIGNMENT];
+	static char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
+		    stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
+		    stack_thread3[STACK_SIZE + STACK_ALIGNMENT];
 
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;

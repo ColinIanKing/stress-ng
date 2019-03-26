@@ -34,7 +34,7 @@ int main(void)
 	const char salt[] = "examplesalt";
 	char *crypted;
 #if defined (__linux__)
-	struct crypt_data data;
+	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
 	crypted = crypt_r(passwd, salt, &data);

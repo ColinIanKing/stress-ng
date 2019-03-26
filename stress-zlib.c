@@ -736,8 +736,8 @@ static int stress_zlib_inflate(
 	int ret, err = 0;
 	z_stream stream_inf;
 	uint64_t xsum_chars = 0;
-	unsigned char in[DATA_SIZE];
-	unsigned char out[DATA_SIZE];
+	static unsigned char in[DATA_SIZE];
+	static unsigned char out[DATA_SIZE];
 	xsum_t xsum;
 
 	xsum.xsum = 0;

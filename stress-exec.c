@@ -64,7 +64,7 @@ static int stress_exec_supported(void)
  */
 static int stress_exec(const args_t *args)
 {
-	pid_t pids[MAX_FORKS];
+	static pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
 	ssize_t len;
 #if defined(HAVE_EXECVEAT)

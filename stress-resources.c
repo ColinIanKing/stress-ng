@@ -129,7 +129,7 @@ static void NORETURN waste_resources(
 #endif
 	static int domains[] = { AF_INET, AF_INET6 };
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
-	info_t info[MAX_LOOPS];
+	static info_t info[MAX_LOOPS];
 #if defined(O_NOATIME)
 	const int flag = O_NOATIME;
 #else
