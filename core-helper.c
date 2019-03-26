@@ -459,7 +459,7 @@ char *stress_munge_underscore(const char *str)
  */
 static ssize_t __stress_get_stack_direction(const uint8_t *val1)
 {
-	const uint8_t val2;
+	const uint8_t val2 = 0;
 	const ssize_t diff = &val2 - (const uint8_t *)val1;
 
 	return (diff > 0) - (diff < 0);
