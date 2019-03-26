@@ -25,6 +25,7 @@
 
 #define _GNU_SOURCE
 
+#include <unistd.h>
 #include <netinet/ip.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +35,7 @@
 
 int main(void)
 {
-	int sockfd;
+	int sockfd, ret;
 	struct sockaddr_in addr;
 	struct mmsghdr msg_hdr[2];
 	struct iovec msg_iov1[2], msg_iov2[3];
@@ -71,5 +72,8 @@ int main(void)
 	msg_hdr[1].msg_hdr.msg_iov = msg_iov2;
 	msg_hdr[1].msg_hdr.msg_iovlen = 3;
 
-	return sendmmsg(sockfd, msg_hdr, 2, 0);
+	ret = sendmmsg(sockfd, msg_hdr, 2, 0);
+	(void)close(sockfd);
+
+	return ret;
 }
