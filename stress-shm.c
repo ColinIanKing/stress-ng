@@ -359,8 +359,8 @@ fork_again:
 				}
 
 				shm_name = &shm_names[msg.index * SHM_NAME_LEN];
-				shm_name[SHM_NAME_LEN - 1] = '\0';
-				(void)shim_strlcpy(shm_name, msg.shm_name, SHM_NAME_LEN - 1);
+				msg.shm_name[SHM_NAME_LEN - 1] = '\0';
+				(void)shim_strlcpy(shm_name, msg.shm_name, SHM_NAME_LEN);
 			}
 			(void)kill(pid, SIGKILL);
 			(void)waitpid(pid, &status, 0);
