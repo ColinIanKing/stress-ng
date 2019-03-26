@@ -252,7 +252,7 @@ int stress_set_opcode_method(const char *name)
 static int stress_opcode(const args_t *args)
 {
 	const size_t page_size = args->page_size;
-	int rc = EXIT_FAILURE;
+	int rc;
 	uint32_t op = 0;
 	size_t i;
 	const stress_opcode_method_info_t *opcode_method = &stress_opcode_methods[0];
