@@ -163,20 +163,25 @@ static int pr_msg_lockable(
 {
 	int ret = 0;
 	char ts[32];
+	static char empty_ts[] = "xx-xx-xx.xxx ";
 
 	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
 		struct timeval tv;
 
 		if (gettimeofday(&tv, NULL) < 0) {
-			strncpy(ts, "xx-xx-xx.xxx ", sizeof(ts));
+			strncpy(ts, empty_ts, sizeof(ts));
 		} else {
 			time_t t = tv.tv_sec;
 			struct tm *tm;
 
 			tm = localtime(&t);
-			(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
-				tm->tm_hour, tm->tm_min, tm->tm_sec,
-				(long)tv.tv_usec / 10000);
+			if (tm) {
+				(void)snprintf(ts, sizeof(ts), "%2.2d:%2.2d:%2.2d.%2.2ld ",
+					tm->tm_hour, tm->tm_min, tm->tm_sec,
+					(long)tv.tv_usec / 10000);
+			} else {
+				strncpy(ts, empty_ts, sizeof(ts));
+			}
 		}
 	} else {
 		*ts = '\0';
