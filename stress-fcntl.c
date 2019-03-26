@@ -497,7 +497,8 @@ static int stress_fcntl(const args_t *args)
 		 *  momentarily because other fcntl stressors have
 		 *  already created it
 		 */
-		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+		fd = creat(filename, S_IRUSR | S_IWUSR);
+		if (fd < 0) {
 			if ((errno == EPERM) || (errno == EACCES) ||
 			    (errno == ENOMEM) || (errno == ENOSPC)) {
 				(void)shim_usleep(100000);
@@ -505,11 +506,12 @@ static int stress_fcntl(const args_t *args)
 			}
 			pr_fail_err("open");
 			goto tidy;
+		} else {
+			break;
 		}
-		break;
 	} while (g_keep_stressing_flag && ++retries < 100);
 
-	if (retries >= 100) {
+	if (fd < 0 || retries >= 100) {
 		pr_err("%s: creat: file %s took %d "
 			"retries to create (instance %" PRIu32 ")\n",
 			args->name, filename, retries, args->instance);
