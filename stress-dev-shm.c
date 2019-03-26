@@ -94,7 +94,6 @@ static inline int stress_dev_shm_child(
 				(void)munmap(addr, sz);
 			}
 			sz = page_size;
-			sz_delta = page_size * 32;
 			ret = ftruncate(fd, 0);
 			if (ret < 0) {
 				pr_err("%s: ftruncate failed, errno=%d (%s)\n",
