@@ -930,7 +930,6 @@ static int stress_zlib_deflate(
 						xsum.interrupted = true;
  					if (errno == EPIPE)
 						xsum.pipe_broken = true;
-					(void)deflateEnd(&stream_def);
 					goto finish;
 				}
 			}
