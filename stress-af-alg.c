@@ -532,7 +532,7 @@ tidy:
 	return rc;
 }
 
-bool *stress_af_alg_skip_alloc(size_t n, size_t *size)
+static bool *stress_af_alg_skip_alloc(size_t n, size_t *size)
 {
 	size_t page_size = stress_get_pagesize();
 	size_t sz = (page_size + (n * sizeof(bool))) & ~(page_size - 1);
@@ -549,7 +549,7 @@ bool *stress_af_alg_skip_alloc(size_t n, size_t *size)
 	return ptr;
 }
 
-void stress_af_alg_init(void)
+static void stress_af_alg_init(void)
 {
 	g_shared->af_alg_hash_skip = stress_af_alg_skip_alloc(
 		SIZEOF_ARRAY(algo_hash_info), &af_alg_hash_skip_sz);
@@ -558,7 +558,7 @@ void stress_af_alg_init(void)
 	
 }
 
-void stress_af_alg_deinit(void)
+static void stress_af_alg_deinit(void)
 {
 	if (g_shared->af_alg_hash_skip && (af_alg_hash_skip_sz > 0)) {
 		munmap(g_shared->af_alg_hash_skip, af_alg_hash_skip_sz);
