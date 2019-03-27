@@ -1,3 +1,45 @@
+stress-ng (0.09.57-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-zlib: make buffer in static to avoid large stack
+    allocations
+  * stress-sysfs: only close ctxt.kmsgd if the fd is open
+  * test/test-sendmmsg: fix another resource leak of sockfd
+  * stress-epoll: remove redundant initialization of ret
+  * stress-fifo: remove redundant initialization of rc
+  * stress-fcntl: remove redundant initialization of rc
+  * stress-sysfs: fix fd leak
+  * core-perf: remove redundant variable rc
+  * stress-zero: ensure initialized data is being written
+  * test/test-posix-fadvise: remove unused label 'err'
+  * core-log: add paranoid check for localtime returning NULL
+  * test/test-mremap: remove unused pointer buf
+  * stress-opcode: remove redundant initialization of rc
+  * test/test-inotify: remove unused variable ret
+  * stress-swap: remove redundant assignment of fd to -1
+  * test/test-sendmsg: close socket fd
+  * stress-pty: remove redundant variable rc
+  * test/test-posix-fadvise: remove redundant variable ptr
+  * stress-memrate: remove redundant assignment to rc
+  * stress-dev-shm: remove redundant assignment of sz_delta
+  * stress-zlib: remove redundant initialization of flush
+  * Make various large stack allocations static
+  * stress-shm: fix end of string setting on wrong string
+  * core-helper: initialize val2; cleans up static analysis warning
+  * stress-pipe: use strncmp instead of strcmp on pipe stop message
+  * stress-socket-fd: check for non-null addr before unlinking addr_un
+  * stress-physpage: fix mapping address on failed mmap.
+  * stress-zlib: fix double call to deflateEnd
+  * stress-fcntl: improve checking of file creation
+  * stress-shm-sysv: lock/unlock shm segment if SHM_LOCK/SHM_UNLOCK
+    are defined
+  * stress-af-alg: fix copy-n-paste error on pointer name
+  * stress-af-alg: track unavailable af algs across multiple
+    stressors (LP: #1813847)
+  * stress-sysfs: add mmap and readlink operations on sysfs files
+
+ -- Colin King <colin.king@canonical.com>  Wed, 27 Mar 2019 12:16:20 +0000
+
 stress-ng (0.09.56-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
