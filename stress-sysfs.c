@@ -182,13 +182,13 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 
 		/* file stat should be OK if we've just opened it */
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			struct stat buf;
+			struct stat statbuf;
 
-			if (fstat(fd, &buf) < 0) {
+			if (fstat(fd, &statbuf) < 0) {
 				pr_fail_err("stat");
 			} else {
 #if 0
-				if ((buf.st_mode & S_IROTH) == 0) {
+				if ((statbuf.st_mode & S_IROTH) == 0) {
 					pr_fail("%s: read access failed on %s which "
 						"could be opened, errno=%d (%s)\n",
 					args->name, path, errno, strerror(errno));
