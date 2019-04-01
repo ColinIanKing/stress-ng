@@ -29,6 +29,9 @@
 #define PSI		(3.359885666243177553172011302918927179688905133732L)
 
 #define STATS_MAX		(250)
+#define FFT_SIZE		(4096)
+#define STRESS_CPU_DITHER_X	(1024)
+#define STRESS_CPU_DITHER_Y	(768)
 #define MATRIX_PROD_SIZE 	(128)
 #define CORRELATE_DATA_LEN	(16384)
 #define CORRELATE_LEN		(CORRELATE_DATA_LEN / 16)
@@ -479,7 +482,7 @@ static void HOT OPTIMIZE3 fft_partial(
  */
 static void HOT TARGET_CLONES stress_cpu_fft(const char *name)
 {
-	double complex buf[FFT_SIZE], tmp[FFT_SIZE];
+	static double complex buf[FFT_SIZE], tmp[FFT_SIZE];
 	int i;
 
 	(void)name;

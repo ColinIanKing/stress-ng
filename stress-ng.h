@@ -1509,11 +1509,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define PAGE_MAPPED		(0x01)
 #define PAGE_MAPPED_FAIL	(0x02)
 
-#define FFT_SIZE		(4096)
-
-#define STRESS_CPU_DITHER_X	(1024)
-#define STRESS_CPU_DITHER_Y	(768)
-
 #if defined(__GNUC__) || defined(__clang__)
 #define TYPEOF_CAST(a)	(typeof(a))
 #else
