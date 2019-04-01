@@ -53,7 +53,7 @@ struct kcmp_epoll_slot {
 								\
 	if (rc < 0) {	 					\
 		if (errno == EPERM) {				\
-			pr_inf(capfail, args->name);		\
+			pr_inf("%s: %s", capfail, args->name);	\
 			break;					\
 		}						\
 		if (errno != EINVAL)				\
@@ -70,7 +70,7 @@ struct kcmp_epoll_slot {
 	if (rc != res) {					\
 		if (rc < 0) {					\
 			if (errno == EPERM) {			\
-				pr_inf(capfail, args->name); 	\
+				pr_inf("%s: %s", capfail, args->name);	\
 				break;				\
 			}					\
 			if (errno != EINVAL)			\
@@ -104,7 +104,7 @@ static int stress_kcmp(const args_t *args)
 	int ret = EXIT_SUCCESS;
 
 	static const char *capfail =
-		"%s: need CAP_SYS_PTRACE capability to run kcmp stressor, "
+		"need CAP_SYS_PTRACE capability to run kcmp stressor, "
 		"aborting stress test\n";
 
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
