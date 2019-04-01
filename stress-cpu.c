@@ -27,9 +27,11 @@
 #define GAMMA 		(0.57721566490153286060651209008240243104215933593992L)
 #define OMEGA		(0.56714329040978387299996866221035554975381578718651L)
 #define PSI		(3.359885666243177553172011302918927179688905133732L)
-#define STATS_MAX	(250)
 
-#define MATRIX_PROD_SIZE (128)
+#define STATS_MAX		(250)
+#define MATRIX_PROD_SIZE 	(128)
+#define CORRELATE_DATA_LEN	(16384)
+#define CORRELATE_LEN		(CORRELATE_DATA_LEN / 16)
 
 /*
  * Some awful math lib workarounds for functions that some
@@ -1144,9 +1146,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
 
-	long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
-		    b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
-		    r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE];
+	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
+		    	   b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
+		    	   r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE];
 	long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0L;
 
@@ -1475,29 +1477,28 @@ static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 {
-	const size_t data_len = 16384;
-	const size_t corr_len = data_len / 16;
 	size_t i, j;
 	double data_average = 0.0;
-	double data[data_len], corr[corr_len + 1];
+	static double data[CORRELATE_DATA_LEN];
+	static double corr[CORRELATE_LEN + 1];
 
 	(void)name;
 
 	/* Generate some random data */
-	for (i = 0; i < data_len; i++) {
+	for (i = 0; i < CORRELATE_DATA_LEN; i++) {
 		data[i] = mwc64();
 		data_average += data[i];
 	}
-	data_average /= (double)data_len;
+	data_average /= (double)CORRELATE_DATA_LEN;
 
 	/* And correlate */
-	for (i = 0; i <= corr_len; i++) {
+	for (i = 0; i <= CORRELATE_LEN; i++) {
 		corr[i] = 0.0;
-		for (j = 0; j < data_len - i; j++) {
+		for (j = 0; j < CORRELATE_DATA_LEN - i; j++) {
 			corr[i] += (data[i + j] - data_average) *
 				   (data[j] - data_average);
 		}
-		corr[i] /= (double)corr_len;
+		corr[i] /= (double)CORRELATE_LEN;
 		double_put(corr[i]);
 	}
 }
