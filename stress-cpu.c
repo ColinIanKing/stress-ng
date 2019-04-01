@@ -29,6 +29,8 @@
 #define PSI		(3.359885666243177553172011302918927179688905133732L)
 #define STATS_MAX	(250)
 
+#define MATRIX_PROD_SIZE (128)
+
 /*
  * Some awful math lib workarounds for functions that some
  * math libraries don't have implemented (yet)
@@ -1141,32 +1143,33 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 {
 	int i, j, k;
-	const int n = 128;
 
-	long double a[n][n], b[n][n], r[n][n];
+	long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
+		    b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
+		    r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE];
 	long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0L;
 
 	(void)name;
 
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
+	for (i = 0; i < MATRIX_PROD_SIZE; i++) {
+		for (j = 0; j < MATRIX_PROD_SIZE; j++) {
 			a[i][j] = (long double)mwc32() * v;
 			b[i][j] = (long double)mwc32() * v;
 			r[i][j] = 0.0L;
 		}
 	}
 
-	for (i = 0; i < n; i++) {
-		for (j = 0; j < n; j++) {
-			for (k = 0; k < n; k++) {
+	for (i = 0; i < MATRIX_PROD_SIZE; i++) {
+		for (j = 0; j < MATRIX_PROD_SIZE; j++) {
+			for (k = 0; k < MATRIX_PROD_SIZE; k++) {
 				r[i][j] += a[i][k] * b[k][j];
 			}
 		}
 	}
 
-	for (i = 0; i < n; i++)
-		for (j = 0; j < n; j++)
+	for (i = 0; i < MATRIX_PROD_SIZE; i++)
+		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
 	double_put(sum);
 }
