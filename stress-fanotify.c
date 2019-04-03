@@ -36,6 +36,7 @@
 typedef struct {
 	uint64_t	open;
 	uint64_t	open_exec;
+	uint64_t	open_exec_perm;
 	uint64_t	close_write;
 	uint64_t	close_nowrite;
 	uint64_t	access;
@@ -62,6 +63,9 @@ static const int FAN_STRESS_SETTINGS =
 #endif
 #if defined(FAN_OPEN_EXEC)
 	FAN_OPEN_EXEC |
+#endif
+#if defined(FAN_OPEN_EXEC_PERM)
+	FAN_OPEN_EXEC_PERM |
 #endif
 #if defined(FAN_CLOSE)
 	FAN_CLOSE |
@@ -117,23 +121,28 @@ static int fanotify_event_init(const char *name)
 	 *  Gather all mounted file systems and monitor them
 	 */
 	for (i = 0; i < n_mnts; i++) {
+		uint64_t mask;
 #if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
 		int ret;
 #endif
 
+		for (mask = 1ULL << 63; mask; mask >>= 1) {
+			if (!(mask & FAN_STRESS_SETTINGS))
+				continue;
 #if defined(FAN_MARK_MOUNT)
-		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			FAN_STRESS_SETTINGS, AT_FDCWD, mnts[i]);
-		if (ret == 0)
-			count++;
+			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
+				mask, AT_FDCWD, mnts[i]);
+			if (ret == 0)
+				count++;
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
-		ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
-			FAN_STRESS_SETTINGS, AT_FDCWD, mnts[i]);
-		if (ret == 0)
-			count++;
+			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
+				mask, AT_FDCWD, mnts[i]);
+			if (ret == 0)
+				count++;
 #endif
+		}
 	}
 
 	mount_free(mnts, n_mnts);
@@ -279,6 +288,10 @@ static int stress_fanotify(const args_t *args)
 						if (metadata->mask & FAN_OPEN_EXEC)
 							account.open_exec++;
 #endif
+#if defined(FAN_OPEN_EXEC_PERM)
+						if (metadata->mask & FAN_OPEN_EXEC_PERM)
+							account.open_exec_perm++;
+#endif
 #if defined(FAN_CLOSE_WRITE)
 						if (metadata->mask & FAN_CLOSE_WRITE)
 							account.close_write++;
@@ -308,6 +321,7 @@ static int stress_fanotify(const args_t *args)
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
 			"%" PRIu64 " open exec, "
+			"%" PRIu64 " open exec perm, "
 			"%" PRIu64 " close write, "
 			"%" PRIu64 " close nowrite, "
 			"%" PRIu64 " access, "
@@ -315,6 +329,7 @@ static int stress_fanotify(const args_t *args)
 			args->name,
 			account.open,
 			account.open_exec,
+			account.open_exec_perm,
 			account.close_write,
 			account.close_nowrite,
 			account.access,
