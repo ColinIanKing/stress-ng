@@ -44,6 +44,9 @@
 #ifndef F_SEAL_WRITE
 #define F_SEAL_WRITE		0x0008
 #endif
+#ifndef F_SEAL_FUTURE_WRITE
+#define F_SEAL_FUTURE_WRITE	0x0010
+#endif
 
 #ifndef MFD_ALLOW_SEALING
 #define MFD_ALLOW_SEALING	0x0002
@@ -160,6 +163,12 @@ static int stress_seal(const args_t *args)
 			(void)close(fd);
 			goto err;
 		}
+
+		/*
+		 *  And try (and ignore error) from a F_SEAL_FUTURE_WRITE
+		 */
+		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE);
+		(void)ret;
 next:
 		(void)close(fd);
 
