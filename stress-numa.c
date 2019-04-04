@@ -55,34 +55,6 @@ typedef struct node {
 } node_t;
 
 /*
- *  stress_numa_get_max_nodes()
- *	probe for maximum number of nodes
- */
-static unsigned long stress_numa_get_max_nodes(void)
-{
-	unsigned long sz = BITS_PER_BYTE, *mask = NULL;
-
-	do {
-		int mode = 0;
-		unsigned long *newmask = realloc(mask, sz / BITS_PER_BYTE);
-
-		if (!newmask)
-			break;
-		mask = newmask;
-		if (shim_get_mempolicy(&mode, mask, sz, 0, 0) == 0)
-			goto done;
-		sz <<= 1;
-	} while ((sz < 0x100000) && (errno == EINVAL));
-
-	/* Failed */
-	sz = 0;
-done:
-	free(mask);
-
-	return sz;
-}
-
-/*
  *  stress_numa_free_nodes()
  *	free circular list of node info
  */
@@ -119,9 +91,11 @@ static inline int hex_to_int(const char ch)
 /*
  *  stress_numa_get_mem_nodes(void)
  *	collect number of NUMA memory nodes, add them to a
- *	circular linked list
+ *	circular linked list - also, return maximum number
+ *	of nodes
  */
-static int stress_numa_get_mem_nodes(node_t **node_ptr)
+static int stress_numa_get_mem_nodes(node_t **node_ptr,
+				     unsigned long *max_nodes)
 {
 	FILE *fp;
 	unsigned long n = 0, node_id = 0;
@@ -184,6 +158,7 @@ static int stress_numa_get_mem_nodes(node_t **node_ptr)
 		ptr--;
 	}
 
+	*max_nodes = node_id;
 	return n;
 }
 
@@ -202,17 +177,10 @@ static int stress_numa(const args_t *args)
 	node_t *n;
 	int rc = EXIT_FAILURE;
 
-	numa_nodes = stress_numa_get_mem_nodes(&n);
+	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
 	if (numa_nodes < 1) {
-		pr_inf("%s: no NUMA nodes not found, "
+		pr_inf("%s: no NUMA nodes found, "
 			"aborting test\n", args->name);
-		rc = EXIT_NO_RESOURCE;
-		goto numa_free;
-	}
-	max_nodes = stress_numa_get_max_nodes();
-	if (max_nodes == 0) {
-		pr_inf("%s: cannot determine maximum number "
-			"of NUMA nodes, aborting test\n", args->name);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
@@ -236,6 +204,7 @@ static int stress_numa(const args_t *args)
 	do {
 		int j, mode, ret, status[num_pages], dest_nodes[num_pages];
 		unsigned long i, node_mask[lbits], old_node_mask[lbits];
+		unsigned long max_node_id_count;
 		void *pages[num_pages];
 		uint8_t *ptr;
 		node_t *n_tmp;
@@ -311,7 +280,14 @@ static int stress_numa(const args_t *args)
 		/*
 		 *  Migrate all this processes pages to the current new node
 		 */
-		(void)memset(old_node_mask, 0xff, sizeof(old_node_mask));
+		(void)memset(old_node_mask, 0, sizeof(old_node_mask));
+		max_node_id_count = max_nodes;
+		for (i = 0; max_node_id_count >= lbits && i < lbits; i++) {
+			old_node_mask[i] = ULONG_MAX;
+			max_node_id_count -= lbits;
+		}
+		if (i < lbits)
+			old_node_mask[i] = (1 << max_node_id_count) - 1;
 		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = shim_migrate_pages(args->pid, max_nodes,
