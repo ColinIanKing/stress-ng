@@ -287,7 +287,7 @@ static int stress_numa(const args_t *args)
 			max_node_id_count -= lbits;
 		}
 		if (i < lbits)
-			old_node_mask[i] = (1 << max_node_id_count) - 1;
+			old_node_mask[i] = (1UL << max_node_id_count) - 1;
 		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
 		ret = shim_migrate_pages(args->pid, max_nodes,
