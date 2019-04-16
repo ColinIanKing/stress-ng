@@ -3564,6 +3564,7 @@ extern long shim_move_pages(int pid, unsigned long count,
 extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_munlock(const void *addr, size_t len);
 extern int shim_munlockall(void);
+extern int shim_nanosleep_uint64(uint64_t usec);
 extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
 extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
@@ -3590,7 +3591,7 @@ extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
-extern int shim_nanosleep_uint64(uint64_t usec);
+extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 
 #define STRESS(stressor) extern stressor_info_t stressor ## _info;
 

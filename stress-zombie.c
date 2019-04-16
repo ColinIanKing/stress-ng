@@ -78,7 +78,7 @@ static void stress_zombie_head_remove(void)
 	if (zombies.head) {
 		int status;
 
-		(void)waitpid(zombies.head->pid, &status, 0);
+		(void)shim_waitpid(zombies.head->pid, &status, 0);
 
 		zombie_t *head = zombies.head;
 

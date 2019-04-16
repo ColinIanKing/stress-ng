@@ -732,7 +732,7 @@ tidy:
 		__sync_fetch_and_sub(&g_shared->softlockup_count, 1);
 #endif
 
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	stress_rt_stats(rt_stats);

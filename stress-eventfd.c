@@ -158,7 +158,7 @@ exit_child:
 		} while (keep_stressing());
 exit_parent:
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 		(void)close(fd1);
 		(void)close(fd2);
 	}

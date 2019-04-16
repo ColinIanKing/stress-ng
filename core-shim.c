@@ -1391,3 +1391,22 @@ ssize_t shim_getxattr(
 #endif
 }
 
+/*
+ *   shim_waitpid()
+ *	wrapper for waitpid with EINTR retry
+ */
+pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
+{
+	pid_t ret;
+
+	for (;;) {
+		ret = waitpid(pid, wstatus, options);
+		if (ret >= 0)
+			break;
+		if (errno != EINTR)
+			break;
+		if (!g_keep_stressing_flag)
+			break;
+	}
+	return ret;
+}

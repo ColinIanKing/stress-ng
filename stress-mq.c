@@ -241,7 +241,7 @@ again:
 			pr_fail_dbg("termination mq_send");
 		}
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)
 			pr_fail_dbg("mq_close");

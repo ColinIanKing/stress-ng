@@ -270,7 +270,7 @@ reap:
 		if (fd2 >= 0)
 			(void)close(fd2);
 		(void)kill(pid1, SIGKILL);
-		(void)waitpid(pid1, &status, 0);
+		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
 #if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)

@@ -236,7 +236,7 @@ retry:
 			/* Parent */
 			int status, waitret;
 
-			waitret = waitpid(pid, &status, 0);
+			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno == EINTR)
 					break;

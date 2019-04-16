@@ -156,7 +156,7 @@ PRAGMA_POP
 				_exit(0);
 			}
 			/* parent, wait for child, and exit if not top parent */
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 			if (!first)
 				_exit(0);
 		} while (keep_stressing());
@@ -181,7 +181,7 @@ PRAGMA_POP
 		*terminate = true;
 		(void)kill(chpid, SIGALRM);
 
-		(void)waitpid(chpid, &chstatus, 0);
+		(void)shim_waitpid(chpid, &chstatus, 0);
 	}
 tidy:
 	(void)munmap((void *)terminate_mmap, args->page_size);

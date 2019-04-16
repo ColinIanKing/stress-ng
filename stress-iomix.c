@@ -744,7 +744,7 @@ reap:
 		if (pids[i]) {
 			int status;
 
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
 

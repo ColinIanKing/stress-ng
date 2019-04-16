@@ -76,7 +76,7 @@ again:
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 
-			ret = waitpid(pid, &status, 0);
+			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0)
 				goto kill_child;
 #if !defined(HAVE_PTRACE)
@@ -91,7 +91,7 @@ again:
 			while (keep_stressing()) {
 				(void)ptrace(PTRACE_SYSCALL, pid, 0, 0);
 
-				ret = waitpid(pid, &status, 0);
+				ret = shim_waitpid(pid, &status, 0);
 				if (ret < 0)
 					goto kill_child;
 				if (WIFSTOPPED(status)) {
@@ -113,7 +113,7 @@ again:
 kill_child:
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 		} else if (pid == 0) {
 			/* Child */
 			sigset_t set;

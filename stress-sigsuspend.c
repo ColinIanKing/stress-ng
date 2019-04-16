@@ -100,7 +100,7 @@ reap:
 	for (i = 0; i < n; i++) {
 		/* terminate child */
 		(void)kill(pid[i], SIGKILL);
-		(void)waitpid(pid[i], &status, 0);
+		(void)shim_waitpid(pid[i], &status, 0);
 	}
 	(void)munmap((void *)counters, counters_size);
 

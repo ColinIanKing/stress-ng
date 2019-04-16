@@ -195,7 +195,7 @@ again:
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
 			pr_fail_dbg("termination write");
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	return EXIT_SUCCESS;

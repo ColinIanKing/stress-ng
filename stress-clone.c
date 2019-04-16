@@ -169,7 +169,7 @@ static void stress_clone_head_remove(void)
 		int status;
 		clone_t *head = clones.head;
 
-		(void)waitpid(clones.head->pid, &status, __WCLONE);
+		(void)shim_waitpid(clones.head->pid, &status, __WCLONE);
 
 		if (clones.tail == clones.head) {
 			clones.tail = NULL;
@@ -289,13 +289,13 @@ again:
 
 		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
-		ret = waitpid(pid, &status, 0);
+		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGALRM);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 			/* And kill it for sure */
 			(void)kill(pid, SIGKILL);
 		} else if (WIFSIGNALED(status)) {

@@ -244,14 +244,14 @@ cleanup:
 		if (pids[i] <= 0)
 			continue;
 
-		ret = waitpid(pids[i], &status, 0);
+		ret = shim_waitpid(pids[i], &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pids[i], SIGTERM);
 			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
 

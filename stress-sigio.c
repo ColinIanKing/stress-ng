@@ -160,7 +160,7 @@ static int stress_sigio(const args_t *args)
 
 	if (pid > 0) {
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	rc = EXIT_SUCCESS;

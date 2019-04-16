@@ -429,7 +429,7 @@ static int stress_prctl(const args_t *args)
 			int status;
 
 			/* Wait for child to exit or get killed by seccomp */
-			if (waitpid(pid, &status, 0) < 0) {
+			if (shim_waitpid(pid, &status, 0) < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid failed, errno = %d (%s)\n",
 						args->name, errno, strerror(errno));

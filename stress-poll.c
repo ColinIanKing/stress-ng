@@ -253,7 +253,7 @@ abort:
 		} while (keep_stressing());
 
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 tidy:

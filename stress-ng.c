@@ -2294,7 +2294,7 @@ redo:
 				bool do_abort = false;
 				const char *stressor_name = stress_munge_underscore(pi->stressor->name);
 
-				ret = waitpid(pid, &status, 0);
+				ret = shim_waitpid(pid, &status, 0);
 				if (ret > 0) {
 					if (WIFSIGNALED(status)) {
 #if defined(WTERMSIG)

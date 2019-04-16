@@ -265,7 +265,7 @@ fail:
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
 	(void)kill(ctxt->pid, SIGKILL);
-	(void)waitpid(ctxt->pid, &status, 0);
+	(void)shim_waitpid(ctxt->pid, &status, 0);
 	(void)munmap(localbuf, ctxt->sz);
 
 	return EXIT_SUCCESS;

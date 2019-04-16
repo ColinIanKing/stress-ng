@@ -208,10 +208,10 @@ static int stress_wait(const args_t *args)
 	} while (g_keep_stressing_flag && (!args->max_ops || get_counter(args) < args->max_ops));
 
 	(void)kill(pid_k, SIGKILL);
-	(void)waitpid(pid_k, &status, 0);
+	(void)shim_waitpid(pid_k, &status, 0);
 tidy:
 	(void)kill(pid_r, SIGKILL);
-	(void)waitpid(pid_r, &status, 0);
+	(void)shim_waitpid(pid_r, &status, 0);
 
 	return ret;
 }

@@ -236,7 +236,7 @@ again:
 				pr_fail_dbg("termination write");
 		}
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 		(void)close(pipefds[1]);
 	}
 	return EXIT_SUCCESS;

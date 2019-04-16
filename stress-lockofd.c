@@ -293,7 +293,7 @@ tidy:
 		int status;
 
 		(void)kill(cpid, SIGKILL);
-		(void)waitpid(cpid, &status, 0);
+		(void)shim_waitpid(cpid, &status, 0);
 	}
 	stress_lockofd_info_free();
 

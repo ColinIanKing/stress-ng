@@ -349,7 +349,7 @@ die:
 #endif
 	if (pid) {
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 

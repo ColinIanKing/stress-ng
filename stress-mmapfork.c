@@ -132,7 +132,7 @@ reap:
 		for (i = 0; i < n; i++) {
 			int status;
 
-			if (waitpid(pids[i], &status, 0) < 0) {
+			if (shim_waitpid(pids[i], &status, 0) < 0) {
 				if (errno != EINTR) {
 					pr_err("%s: waitpid errno=%d (%s)\n",
 						args->name, errno, strerror(errno));

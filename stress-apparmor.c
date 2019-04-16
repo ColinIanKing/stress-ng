@@ -693,7 +693,7 @@ static int stress_apparmor(const args_t *args)
 
 		if (pids[i] >= 0) {
 			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 			add_counter(args, counters[i]);
 		}
 	}

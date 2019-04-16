@@ -126,7 +126,7 @@ reap:
 		if (pids[i] > 0) {
 			/* And ensure child is really dead */
 			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
 

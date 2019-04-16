@@ -113,7 +113,7 @@ static int stress_bind_mount(const args_t *args)
 			pr_fail_err("clone");
 			return rc;
 		}
-		ret = waitpid(pid, &status, 0);
+		ret = shim_waitpid(pid, &status, 0);
 		(void)ret;
 	} while (keep_stressing());
 

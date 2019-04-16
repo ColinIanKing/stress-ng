@@ -340,7 +340,7 @@ tidy:
 		int status;
 
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);

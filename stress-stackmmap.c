@@ -183,14 +183,14 @@ again:
 
 			/* Parent, wait for child */
 			(void)setpgid(pid, g_pgrp);
-			waitret = waitpid(pid, &status, 0);
+			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
-				(void)waitpid(pid, &status, 0);
+				(void)shim_waitpid(pid, &status, 0);
 			}
 		} else if (pid == 0) {
 			/* Child */

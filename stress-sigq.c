@@ -89,7 +89,7 @@ again:
 		(void)shim_usleep(250);
 		/* And ensure child is really dead */
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	return EXIT_SUCCESS;

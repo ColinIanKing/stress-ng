@@ -363,7 +363,7 @@ fork_again:
 				(void)shim_strlcpy(shm_name, msg.shm_name, SHM_NAME_LEN);
 			}
 			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGKILL)) {

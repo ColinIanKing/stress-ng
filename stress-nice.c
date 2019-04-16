@@ -108,7 +108,7 @@ static int stress_nice(const args_t *args)
 			(void)setpgid(pid, g_pgrp);
 
 			/* Parent, wait for child */
-			if (waitpid(pid, &status, 0) < 0) {
+			if (shim_waitpid(pid, &status, 0) < 0) {
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
 			}

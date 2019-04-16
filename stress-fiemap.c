@@ -274,7 +274,7 @@ reap:
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
 		(void)kill(pids[i], SIGKILL);
-		(void)waitpid(pids[i], &status, 0);
+		(void)shim_waitpid(pids[i], &status, 0);
 		add_counter(args, counters[i]);
 	}
 	(void)close(fd);

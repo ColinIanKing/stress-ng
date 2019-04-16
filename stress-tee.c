@@ -186,12 +186,12 @@ static int stress_tee(const args_t *args)
 tidy_child2:
 	(void)close(pipe_out[1]);
 	(void)kill(pids[1], SIGKILL);
-	(void)waitpid(pids[1], &status, 0);
+	(void)shim_waitpid(pids[1], &status, 0);
 
 tidy_child1:
 	(void)close(pipe_in[0]);
 	(void)kill(pids[0], SIGKILL);
-	(void)waitpid(pids[0], &status, 0);
+	(void)shim_waitpid(pids[0], &status, 0);
 
 	(void)close(fd);
 

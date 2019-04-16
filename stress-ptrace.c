@@ -40,7 +40,7 @@ static inline bool stress_syscall_wait(
 			pr_fail_dbg("ptrace");
 			return true;
 		}
-		if (waitpid(pid, &status, 0) < 0) {
+		if (shim_waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR)
 				pr_fail_dbg("waitpid");
 			return true;
@@ -123,7 +123,7 @@ static int stress_ptrace(const args_t *args)
 
 		(void)setpgid(pid, g_pgrp);
 
-		if (waitpid(pid, &status, 0) < 0) {
+		if (shim_waitpid(pid, &status, 0) < 0) {
 			if (errno != EINTR) {
 				pr_fail_dbg("waitpid");
 				return EXIT_FAILURE;
@@ -151,7 +151,7 @@ static int stress_ptrace(const args_t *args)
 
 		/* Terminate child */
 		(void)kill(pid, SIGKILL);
-		if (waitpid(pid, &status, 0) < 0)
+		if (shim_waitpid(pid, &status, 0) < 0)
 			pr_fail_dbg("waitpid");
 	}
 	return EXIT_SUCCESS;

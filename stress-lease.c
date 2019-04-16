@@ -172,7 +172,7 @@ reap:
 	for (i = 0; i < lease_breakers; i++) {
 		if (l_pids[i]) {
 			(void)kill(l_pids[i], SIGKILL);
-			(void)waitpid(l_pids[i], &status, 0);
+			(void)shim_waitpid(l_pids[i], &status, 0);
 		}
 	}
 

@@ -210,7 +210,7 @@ void thrash_stop(void)
 		return;
 
 	(void)kill(thrash_pid, SIGKILL);
-	(void)waitpid(thrash_pid, &status, 0);
+	(void)shim_waitpid(thrash_pid, &status, 0);
 
 	thrash_pid = 0;
 }

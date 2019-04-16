@@ -598,7 +598,7 @@ reap:
 
 		if (pids[i] > 0) {
 			(void)kill(pids[i], SIGKILL);
-			if (waitpid(pids[i], &status, 0) < 0) {
+			if (shim_waitpid(pids[i], &status, 0) < 0) {
 				pr_fail_dbg("waitpid");
 			}
 		}

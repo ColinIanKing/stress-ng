@@ -557,13 +557,13 @@ static inline int stress_do_syscall(
 	} else {
 		int ret, status;
 
-		ret = waitpid(pid, &status, 0);
+		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 
 		}
 		rc = WEXITSTATUS(status);
@@ -617,14 +617,14 @@ again:
 
 		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
-		ret = waitpid(pid, &status, 0);
+		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGTERM);
 			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),

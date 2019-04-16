@@ -498,7 +498,7 @@ static void NORETURN waste_resources(
 			int status;
 
 			(void)kill(info[i].pid, SIGKILL);
-			(void)waitpid(info[i].pid, &status, 0);
+			(void)shim_waitpid(info[i].pid, &status, 0);
 		}
 	}
 	_exit(0);
@@ -517,7 +517,7 @@ static void MLOCKED_TEXT kill_children(const size_t resource_forks)
 		if (pids[i] > 0) {
 			int status;
 
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
 }

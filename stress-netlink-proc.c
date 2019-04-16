@@ -150,7 +150,7 @@ static void spawn_several(const char *name, int n, int max)
 
 		if (n != 0)
 			stress_set_proc_name("stress-ng-wait");
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 		if (n != 0)
 			_exit(0);
 	}

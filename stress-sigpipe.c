@@ -122,7 +122,7 @@ again:
 
 		(void)close(pipefds[1]);
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 	return EXIT_SUCCESS;
 }

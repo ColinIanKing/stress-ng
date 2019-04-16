@@ -169,7 +169,7 @@ unmap:
 				int status;
 				/* Parent, wait for child */
 				(void)kill(pids[i], SIGKILL);
-				(void)waitpid(pids[i], &status, 0);
+				(void)shim_waitpid(pids[i], &status, 0);
 				inc_counter(args);
 			}
 		}

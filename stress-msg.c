@@ -154,7 +154,7 @@ again:
 		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
 			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
 			pr_fail_dbg("msgctl");

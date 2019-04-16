@@ -192,7 +192,7 @@ reap:
 			int status, ret;
 
 			(void)kill(pids[i], SIGALRM);
-			ret = waitpid(pids[i], &status, 0);
+			ret = shim_waitpid(pids[i], &status, 0);
 			(void)ret;
 		}
 	}

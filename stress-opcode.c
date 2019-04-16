@@ -363,14 +363,14 @@ again:
 		if (pid > 0) {
 			int ret, status;
 
-			ret = waitpid(pid, &status, 0);
+			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
-				(void)waitpid(pid, &status, 0);
+				(void)shim_waitpid(pid, &status, 0);
 			}
 			inc_counter(args);
 		}

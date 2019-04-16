@@ -457,7 +457,7 @@ fork_again:
 				shm_ids[msg.index] = msg.shm_id;
 			}
 			(void)kill(pid, SIGALRM);
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGBUS)) {

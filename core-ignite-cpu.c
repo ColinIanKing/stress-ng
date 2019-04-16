@@ -260,7 +260,7 @@ void ignite_cpu_stop(void)
 	if (pid > -1) {
 		(void)kill(pid, SIGTERM);
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 	}
 
 	if (cpu_settings) {

@@ -96,7 +96,7 @@ static int stress_spawn(const args_t *args)
 			int status;
 			/* Parent, wait for child */
 
-			(void)waitpid(pid, &status, 0);
+			(void)shim_waitpid(pid, &status, 0);
 			inc_counter(args);
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)
 				spawn_fails++;

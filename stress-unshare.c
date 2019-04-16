@@ -175,7 +175,7 @@ static int stress_unshare(const args_t *args)
 
 				ret = kill(pids[i], SIGKILL);
 				if (ret == 0) {
-					if (waitpid(pids[i], &status, 0) < 0) {
+					if (shim_waitpid(pids[i], &status, 0) < 0) {
 						if (errno != EINTR)
 							pr_err("%s: waitpid errno=%d (%s)\n",
 								args->name, errno, strerror(errno));

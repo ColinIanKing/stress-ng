@@ -133,7 +133,7 @@ static int stress_seccomp_supported(void)
 		}
 		_exit(errno);
 	}
-	if (waitpid(pid, &status, 0) < 0) {
+	if (shim_waitpid(pid, &status, 0) < 0) {
 		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, wait failed: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
@@ -280,7 +280,7 @@ static int stress_seccomp(const args_t *args)
 			int status;
 
 			/* Wait for child to exit or get killed by seccomp */
-			if (waitpid(pid, &status, 0) < 0) {
+			if (shim_waitpid(pid, &status, 0) < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid failed, errno = %d (%s)\n",
 						args->name, errno, strerror(errno));

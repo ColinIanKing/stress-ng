@@ -73,7 +73,7 @@ again:
 
 		/* Kill waiter process */
 		(void)kill(pid, SIGKILL);
-		(void)waitpid(pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 
 		pr_dbg("%s: futex timeouts: %" PRIu64 "\n",
 			args->name, *timeout);

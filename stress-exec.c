@@ -180,7 +180,7 @@ static int stress_exec(const args_t *args)
 			if (pids[i] > 0) {
 				int status;
 				/* Parent, wait for child */
-				(void)waitpid(pids[i], &status, 0);
+				(void)shim_waitpid(pids[i], &status, 0);
 				exec_calls++;
 				inc_counter(args);
 				if (WEXITSTATUS(status) != EXIT_SUCCESS)

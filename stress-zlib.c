@@ -1090,7 +1090,7 @@ static int stress_zlib(const args_t *args)
 	(void)close(inflate_xsum_fds[1]);
 
 	(void)kill(pid, SIGKILL);
-	(void)waitpid(pid, &status, 0);
+	(void)shim_waitpid(pid, &status, 0);
 
 	return ret;
 }

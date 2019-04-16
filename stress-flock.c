@@ -131,7 +131,7 @@ reap:
 			int status;
 
 			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
 

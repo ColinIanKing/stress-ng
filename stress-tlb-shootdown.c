@@ -128,7 +128,7 @@ static int stress_tlb_shootdown(const args_t *args)
 			if (pids[i] != -1) {
 				int status, ret;
 
-				ret = waitpid(pids[i], &status, 0);
+				ret = shim_waitpid(pids[i], &status, 0);
 				if ((ret < 0) && (errno == EINTR)) {
 					int j;
 
@@ -143,7 +143,7 @@ static int stress_tlb_shootdown(const args_t *args)
 					}
 
 					/* re-wait on the failed wait */
-					(void)waitpid(pids[i], &status, 0);
+					(void)shim_waitpid(pids[i], &status, 0);
 
 					/* and continue waitpid on the pids */
 				}
