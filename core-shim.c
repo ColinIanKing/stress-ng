@@ -30,6 +30,13 @@
  *  kernels or versions of different C libraries.
  */
 
+static inline int shim_enosys(long arg1, ...)
+{
+	(void)arg1;
+	errno = ENOSYS;
+	return -1;
+}
+
 /*
  *  shim_sched_yield()
  *  	wrapper for sched_yield(2) - yield the processor
@@ -53,12 +60,7 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 #if defined(__NR_cacheflush)
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
-	(void)addr;
-	(void)nbytes;
-	(void)cache;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, nbytes, cache);
 #endif
 }
 
@@ -81,15 +83,7 @@ ssize_t shim_copy_file_range(
 	return syscall(__NR_copy_file_range,
 		fd_in, off_in, fd_out, off_out, len, flags);
 #else
-	(void)fd_in;
-	(void)off_in;
-	(void)fd_out;
-	(void)off_out;
-	(void)len;
-	(void)flags;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, fd_in, off_in, fd_out, off_out, len, flags);
 #endif
 }
 
@@ -194,8 +188,7 @@ int shim_gettid(void)
 #if defined(__NR_gettid)
 	return syscall(__NR_gettid);
 #else
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0);
 #endif
 }
 
@@ -212,12 +205,7 @@ long shim_getcpu(
 #if defined(__NR_getcpu)
 	return syscall(__NR_getcpu, cpu, node, tcache);
 #else
-	(void)cpu;
-	(void)node;
-	(void)tcache;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, cpu, node, tcache);
 #endif
 }
 
@@ -233,12 +221,7 @@ int shim_getdents(
 #if defined(__NR_getdents)
 	return syscall(__NR_getdents, fd, dirp, count);
 #else
-	(void)fd;
-	(void)dirp;
-	(void)count;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, fd, dirp, count);
 #endif
 }
 
@@ -254,12 +237,7 @@ int shim_getdents64(
 #if defined(__NR_getdents64)
 	return syscall(__NR_getdents64, fd, dirp, count);
 #else
-	(void)fd;
-	(void)dirp;
-	(void)count;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, fd, dirp, count);
 #endif
 }
 
@@ -276,12 +254,7 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 
 	return getentropy(buff, buflen);
 #else
-	(void)buff;
-	(void)buflen;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, buff, buflen, flags);
 #endif
 }
 
@@ -310,14 +283,7 @@ long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned lo
 	errno = 0;
 	return syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
 #else
-	(void)pid1;
-	(void)pid2;
-	(void)type;
-	(void)idx1;
-	(void)idx2;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, pid1, pid2, type, idx1, idx2);
 #endif
 }
 
@@ -330,12 +296,7 @@ int shim_syslog(int type, char *bufp, int len)
 #if defined(__NR_syslog)
 	return syscall(__NR_syslog, type, bufp, len);
 #else
-	(void)type;
-	(void)bufp;
-	(void)len;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, type, bufp, len);
 #endif
 }
 
@@ -348,11 +309,7 @@ int shim_membarrier(int cmd, int flags)
 #if defined(__NR_membarrier)
 	return syscall(__NR_membarrier, cmd, flags);
 #else
-	(void)cmd;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, cmd, flags);
 #endif
 }
 
@@ -365,11 +322,7 @@ int shim_memfd_create(const char *name, unsigned int flags)
 #if defined(__NR_memfd_create)
 	return syscall(__NR_memfd_create, name, flags);
 #else
-	(void)name;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, name, flags);
 #endif
 }
 
@@ -388,14 +341,7 @@ int shim_get_mempolicy(
 	return syscall(__NR_get_mempolicy,
 		mode, nodemask, maxnode, addr, flags);
 #else
-	(void)mode;
-	(void)nodemask;
-	(void)maxnode;
-	(void)addr;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, mode, nodemask, maxnode, addr, flags);
 #endif
 }
 
@@ -412,12 +358,7 @@ int shim_set_mempolicy(
 	return syscall(__NR_set_mempolicy,
 		mode, nodemask, maxnode);
 #else
-	(void)mode;
-	(void)nodemask;
-	(void)maxnode;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, mode, nodemask, maxnode);
 #endif
 }
 
@@ -437,15 +378,7 @@ long shim_mbind(
 	return syscall(__NR_mbind,
 		addr, len, mode, nodemask, maxnode, flags);
 #else
-	(void)addr;
-	(void)len;
-	(void)mode;
-	(void)nodemask;
-	(void)maxnode;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, len, mode, nodemask, maxnode, flags);
 #endif
 }
 
@@ -463,13 +396,7 @@ long shim_migrate_pages(
 	return syscall(__NR_migrate_pages,
 		pid, maxnode, old_nodes, new_nodes);
 #else
-	(void)pid;
-	(void)maxnode;
-	(void)old_nodes;
-	(void)new_nodes;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, pid, maxnode, old_nodes, new_nodes);
 #endif
 }
 
@@ -486,19 +413,10 @@ long shim_move_pages(
 	int flags)
 {
 #if defined(__NR_move_pages)
-	return syscall(__NR_move_pages,
-		pid, count, pages, nodes,
+	return syscall(__NR_move_pages, pid, count, pages, nodes,
 		status, flags);
 #else
-	(void)pid;
-	(void)count;
-	(void)pages;
-	(void)nodes;
-	(void)status;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, pid, count, pages, nodes, status, flags);
 #endif
 }
 
@@ -511,10 +429,7 @@ int shim_userfaultfd(int flags)
 #if defined(__NR_userfaultfd)
 	return syscall(__NR_userfaultfd, flags);
 #else
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, flags);
 #endif
 }
 
@@ -527,12 +442,7 @@ int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
 #if defined(__NR_seccomp)
 	return (int)syscall(__NR_seccomp, operation, flags, args);
 #else
-	(void)operation;
-	(void)flags;
-	(void)args;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, operation, flags, args);
 #endif
 }
 
@@ -549,10 +459,7 @@ int shim_unshare(int flags)
 	return syscall(__NR_unshare, flags);
 #endif
 #else
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, flags);
 #endif
 }
 
@@ -569,13 +476,7 @@ int shim_sched_getattr(
 #if defined(__NR_sched_getattr)
 	return syscall(__NR_sched_getattr, pid, attr, size, flags);
 #else
-	(void)pid;
-	(void)attr;
-	(void)size;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, pid, attr, size, flags);
 #endif
 }
 
@@ -591,12 +492,7 @@ int shim_sched_setattr(
 #if defined(__NR_sched_setattr)
 	return syscall(__NR_sched_setattr, pid, attr, flags);
 #else
-	(void)pid;
-	(void)attr;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, pid, attr, flags);
 #endif
 }
 
@@ -613,11 +509,7 @@ int shim_mlock(const void *addr, size_t len)
 	return mlock(addr, len);
 #endif
 #else
-	(void)addr;
-	(void)len;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, len);
 #endif
 }
 
@@ -634,11 +526,7 @@ int shim_munlock(const void *addr, size_t len)
 	return munlock(addr, len);
 #endif
 #else
-	(void)addr;
-	(void)len;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, len);
 #endif
 }
 
@@ -651,12 +539,7 @@ int shim_mlock2(const void *addr, size_t len, int flags)
 #if defined(__NR_mlock2)
 	return (int)syscall(__NR_mlock2, addr, len, flags);
 #else
-	(void)addr;
-	(void)len;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, len, flags);
 #endif
 }
 
@@ -669,10 +552,7 @@ int shim_mlockall(int flags)
 #if defined(HAVE_MLOCKALL)
 	return mlockall(flags);
 #else
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, flags);
 #endif
 }
 
@@ -686,8 +566,7 @@ int shim_munlockall(void)
 #if defined(HAVE_MLOCKALL)
 	return munlockall();
 #else
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0);
 #endif
 }
 
@@ -818,11 +697,7 @@ int shim_msync(void *addr, size_t length, int flags)
 #if defined(HAVE_MSYNC)
 	return msync(addr, length, flags);
 #else
-	(void)addr;
-	(void)length;
-	(void)flags;
-
-	return 0;
+	return shim_enosys(0, addr, length, flags);
 #endif
 }
 
@@ -863,10 +738,7 @@ int shim_sysfs(int option, ...)
 
 	return ret;
 #else
-	(void)option;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, option);
 #endif
 }
 
@@ -913,12 +785,7 @@ int shim_madvise(void *addr, size_t length, int advice)
 	}
 	return posix_madvise(addr, length, posix_advice);
 #else
-	(void)addr;
-	(void)length;
-	(void)advice;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, length, advice);
 #endif
 }
 
@@ -936,12 +803,7 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 	return mincore(addr, length, vec);
 #endif
 #else
-	(void)addr;
-	(void)length;
-	(void)vec;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, length, vec);
 #endif
 }
 
@@ -955,14 +817,7 @@ ssize_t shim_statx(
 #if defined(__NR_statx)
 	return syscall(__NR_statx, dfd, filename, flags, mask, buffer);
 #else
-	(void)dfd;
-	(void)filename;
-	(void)flags;
-	(void)mask;
-	(void)buffer;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, dfd, filename, flags, mask, buffer);
 #endif
 }
 
@@ -970,69 +825,43 @@ ssize_t shim_statx(
  *  futex wake()
  *	wake n waiters on futex
  */
+int shim_futex_wake(const void *futex, const int n)
+{
 #if defined(__NR_futex)
-int shim_futex_wake(const void *futex, const int n)
-{
 	return syscall(__NR_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
-}
 #else
-int shim_futex_wake(const void *futex, const int n)
-{
-	(void)futex;
-	(void)n;
-
-	errno = -ENOSYS;
-	return -1;
-}
+	return shim_enosys(0, futex, FUTEX_WAKE, n, NULL, NULL, 0);
 #endif
+}
 
 /*
  *  futex_wait()
  *	wait on futex with a timeout
  */
+int shim_futex_wait(
+	const void *futex,
+	const int val,
+	const struct timespec *timeout)
+{
 #if defined(__NR_futex)
-int shim_futex_wait(
-	const void *futex,
-	const int val,
-	const struct timespec *timeout)
-{
 	return syscall(__NR_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
-}
 #else
-int shim_futex_wait(
-	const void *futex,
-	const int val,
-	const struct timespec *timeout)
-{
-	(void)futex;
-	(void)val;
-	(void)timeout;
-
-	errno = -ENOSYS;
-	return -1;
-}
+	return shim_enosys(0, futex, FUTEX_WAIT, val, timeout, NULL, 0);
 #endif
+}
 
 /*
  *  dup3()
  *	linux special dup
  */
+int shim_dup3(int oldfd, int newfd, int flags)
+{
 #if defined(HAVE_DUP3)
-int shim_dup3(int oldfd, int newfd, int flags)
-{
 	return dup3(oldfd, newfd, flags);
-}
 #else
-int shim_dup3(int oldfd, int newfd, int flags)
-{
-	(void)oldfd;
-	(void)newfd;
-	(void)flags;
-
-	errno = -ENOSYS;
-	return -1;
-}
+	return shim_enosys(0, oldfd, newfd, flags);
 #endif
+}
 
 
 int shim_sync_file_range(
@@ -1058,13 +887,7 @@ int shim_sync_file_range(
 	 */
 	return syscall(__NR_sync_file_range2, fd, flags, offset, nbytes);
 #else
-	(void)fd;
-	(void)offset;
-	(void)nbytes;
-	(void)flags;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, fd, offset, nbytes, flags);
 #endif
 }
 
@@ -1077,12 +900,7 @@ int shim_ioprio_set(int which, int who, int ioprio)
 #if defined(__NR_ioprio_set)
 	return syscall(__NR_ioprio_set, which, who, ioprio);
 #else
-	(void)which;
-	(void)who;
-	(void)ioprio;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, which, who, ioprio);
 #endif
 }
 
@@ -1095,11 +913,7 @@ int shim_ioprio_get(int which, int who)
 #if defined(__NR_ioprio_get)
 	return syscall(__NR_ioprio_get, which, who);
 #else
-	(void)which;
-	(void)who;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, which, who);
 #endif
 }
 
@@ -1248,9 +1062,7 @@ int shim_fdatasync(int fd)
 #endif
 	return fdatasync(fd);
 #else
-	(void)fd;
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, fd);
 #endif
 }
 
@@ -1263,11 +1075,7 @@ int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
 #if defined(__NR_pkey_alloc)
 	return syscall(__NR_pkey_alloc, flags, access_rights);
 #else
-	(void)flags;
-	(void)access_rights;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, flags, access_rights);
 #endif
 }
 
@@ -1280,10 +1088,7 @@ int shim_pkey_free(int pkey)
 #if defined(__NR_pkey_free)
 	return syscall(__NR_pkey_free, pkey);
 #else
-	(void)pkey;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, pkey);
 #endif
 }
 
@@ -1296,13 +1101,7 @@ int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
 #if defined(__NR_pkey_mprotect)
 	return syscall(__NR_pkey_mprotect, addr, len, prot, pkey);
 #else
-	(void)addr;
-	(void)len;
-	(void)prot;
-	(void)pkey;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, addr, len, prot, pkey);
 #endif
 }
 
@@ -1315,10 +1114,7 @@ int shim_pkey_get(int pkey)
 #if defined(__NR_pkey_get)
 	return syscall(__NR_pkey_get, pkey);
 #else
-	(void)pkey;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, pkey);
 #endif
 }
 
@@ -1331,11 +1127,7 @@ int shim_pkey_set(int pkey, unsigned int rights)
 #if defined(__NR_pkey_set)
 	return syscall(__NR_pkey_set, pkey, rights);
 #else
-	(void)pkey;
-	(void)rights;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, pkey, rights);
 #endif
 }
 
@@ -1353,14 +1145,7 @@ int shim_execveat(
 #if defined(__NR_execveat)
         return syscall(__NR_execveat, dirfd, pathname, argv, envp, flags);
 #else
-	(void)dirfd;
-	(void)pathname;
-	(void)argv;
-	(void)envp;
-	(void)flags;
-
-	errno = -ENOSYS;
-	return -1;
+        return shim_enosys(0, dirfd, pathname, argv, envp, flags);
 #endif
 }
 
@@ -1381,13 +1166,7 @@ ssize_t shim_getxattr(
 	return getxattr(path, name, value, size);
 #endif
 #else
-	(void)path;
-	(void)name;
-	(void)value;
-	(void)size;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, path, name, value, size);
 #endif
 }
 
@@ -1422,15 +1201,9 @@ int shim_pidfd_send_signal(
 	unsigned int flags)
 {
 #if defined(__NR_pidfd_send_signal)
-        return syscall(__NR_pidfd_send_signal, pidfd, sig, info, flags);
+	return syscall(__NR_pidfd_send_signal, pidfd, sig, info, flags);
 #else
-	(void)pidfd;
-	(void)sig;
-	(void)info;
-	(void)flags;
-
-	errno = -ENOSYS;
-	return -1;
+	return shim_enosys(0, pidfd, sig, info, flags);
 #endif
 }
 
