@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(__NR_pidfd_send_signal)
+#if defined(HAVE_PIDFD_SEND_SIGNAL)
 
 static int stress_pidfd_open_fd(pid_t pid)
 {
