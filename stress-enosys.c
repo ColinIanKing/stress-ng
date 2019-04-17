@@ -3183,9 +3183,9 @@ again:
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
+			(void)kill(pid, SIGALRM);
 			(void)shim_waitpid(pid, &status, 0);
+			(void)kill(pid, SIGKILL);
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
