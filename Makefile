@@ -193,6 +193,7 @@ STRESS_SRC = \
 	stress-open.c \
 	stress-personality.c \
 	stress-physpage.c \
+	stress-pidfd.c \
 	stress-pipe.c \
 	stress-pkey.c \
 	stress-poll.c \

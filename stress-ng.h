@@ -1908,6 +1908,7 @@ typedef enum {
 	STRESS_open,
 	STRESS_personality,
 	STRESS_physpage,
+	STRESS_pidfd,
 	STRESS_pipe,
 	STRESS_pkey,
 	STRESS_poll,
@@ -2517,6 +2518,9 @@ typedef enum {
 
 	OPT_personality,
 	OPT_personality_ops,
+
+	OPT_pidfd,
+	OPT_pidfd_ops,
 
 	OPT_pipe_ops,
 	OPT_pipe_size,
@@ -3565,6 +3569,7 @@ extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_munlock(const void *addr, size_t len);
 extern int shim_munlockall(void);
 extern int shim_nanosleep_uint64(uint64_t usec);
+extern int shim_pidfd_send_signal(int pidfd, int sig, siginfo_t *info, unsigned int flags);
 extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
 extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
@@ -3721,6 +3726,7 @@ STRESS(stress_opcode);
 STRESS(stress_open);
 STRESS(stress_personality);
 STRESS(stress_physpage);
+STRESS(stress_pidfd);
 STRESS(stress_pipe);
 STRESS(stress_pkey);
 STRESS(stress_poll);

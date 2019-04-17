@@ -1410,3 +1410,27 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 	}
 	return ret;
 }
+
+/*
+ *   shim_pidfd_send_signal()
+ *	wrapper for pidfd_send_signal added to Linux 5.1
+ */
+int shim_pidfd_send_signal(
+	int pidfd,
+	int sig,
+	siginfo_t *info,
+	unsigned int flags)
+{
+#if defined(__NR_pidfd_send_signal)
+        return syscall(__NR_pidfd_send_signal, pidfd, sig, info, flags);
+#else
+	(void)pidfd;
+	(void)sig;
+	(void)info;
+	(void)flags;
+
+	errno = -ENOSYS;
+	return -1;
+#endif
+}
+

@@ -2479,6 +2479,15 @@ capabilities.
 .B \-\-physpage\-ops N
 stop physpage stress workers after N bogo physical address lookups.
 .TP
+.B \-\-pidfd N
+start N workers that exercise signal sending via the pidfd_send_signal system call.
+This stressor creates child processes and checks if they exist and can be
+stopped, restarted and killed using the pidfd_send_signal system call.
+.TP
+.B \-\-pidfd\-ops N
+stop pidfd stress workers after N child processes have been created, tested
+and killed with pidfd_send_signal.
+.TP
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O.
 This exercises memory write and reads as well as context switching.  Each
