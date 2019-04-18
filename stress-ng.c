@@ -303,236 +303,250 @@ static const int terminate_signals[] = {
 	-1,
 };
 
-#define STRESSOR(name)			\
+#define STRESSORS(MACRO)	\
+	MACRO(access) 		\
+	MACRO(af_alg) 		\
+	MACRO(affinity) 	\
+	MACRO(aio) 		\
+	MACRO(aiol) 		\
+	MACRO(apparmor) 	\
+	MACRO(atomic)		\
+	MACRO(bad_altstack) 	\
+	MACRO(bigheap)		\
+	MACRO(bind_mount)	\
+	MACRO(branch)		\
+	MACRO(brk)		\
+	MACRO(bsearch)		\
+	MACRO(cache)		\
+	MACRO(cap)		\
+	MACRO(chdir)		\
+	MACRO(chmod)		\
+	MACRO(chown)		\
+	MACRO(chroot)		\
+	MACRO(clock)		\
+	MACRO(clone)		\
+	MACRO(close)		\
+	MACRO(context)		\
+	MACRO(copy_file)	\
+	MACRO(cpu)		\
+	MACRO(cpu_online)	\
+	MACRO(crypt)		\
+	MACRO(cyclic)		\
+	MACRO(daemon)		\
+	MACRO(dccp)		\
+	MACRO(dentry)		\
+	MACRO(dev)		\
+	MACRO(dev_shm)		\
+	MACRO(dir)		\
+	MACRO(dirdeep)		\
+	MACRO(dnotify)		\
+	MACRO(dup)		\
+	MACRO(dynlib)		\
+	MACRO(efivar)		\
+	MACRO(enosys)		\
+	MACRO(epoll)		\
+	MACRO(eventfd) 		\
+	MACRO(exec)		\
+	MACRO(fallocate)	\
+	MACRO(fanotify)		\
+	MACRO(fault)		\
+	MACRO(fcntl)		\
+	MACRO(fiemap)		\
+	MACRO(fifo)		\
+	MACRO(file_ioctl)	\
+	MACRO(filename)		\
+	MACRO(flock)		\
+	MACRO(fork)		\
+	MACRO(fp_error)		\
+	MACRO(fstat)		\
+	MACRO(full)		\
+	MACRO(funccall)		\
+	MACRO(futex)		\
+	MACRO(get)		\
+	MACRO(getdent)		\
+	MACRO(getrandom)	\
+	MACRO(handle)		\
+	MACRO(hdd)		\
+	MACRO(heapsort)		\
+	MACRO(hrtimers)		\
+	MACRO(hsearch)		\
+	MACRO(icache)		\
+	MACRO(icmp_flood)	\
+	MACRO(idle_page)	\
+	MACRO(inode_flags)	\
+	MACRO(inotify)		\
+	MACRO(io)		\
+	MACRO(iomix)		\
+	MACRO(ioport)		\
+	MACRO(ioprio)		\
+	MACRO(ipsec_mb)		\
+	MACRO(itimer)		\
+	MACRO(kcmp)		\
+	MACRO(key)		\
+	MACRO(kill)		\
+	MACRO(klog)		\
+	MACRO(lease)		\
+	MACRO(link)		\
+	MACRO(locka)		\
+	MACRO(lockbus)		\
+	MACRO(lockf)		\
+	MACRO(lockofd)		\
+	MACRO(longjmp)		\
+	MACRO(loop)		\
+	MACRO(lsearch)		\
+	MACRO(madvise)		\
+	MACRO(malloc)		\
+	MACRO(matrix)		\
+	MACRO(matrix_3d)	\
+	MACRO(mcontend)		\
+	MACRO(membarrier)	\
+	MACRO(memcpy)		\
+	MACRO(memfd)		\
+	MACRO(memrate)		\
+	MACRO(memthrash)	\
+	MACRO(mergesort)	\
+	MACRO(mincore)		\
+	MACRO(mknod)		\
+	MACRO(mlock)		\
+	MACRO(mlockmany)	\
+	MACRO(mmap)		\
+	MACRO(mmapaddr)		\
+	MACRO(mmapfixed)	\
+	MACRO(mmapfork)		\
+	MACRO(mmapmany)		\
+	MACRO(mq)		\
+	MACRO(mremap)		\
+	MACRO(msg)		\
+	MACRO(msync)		\
+	MACRO(netdev)		\
+	MACRO(netlink_proc)	\
+	MACRO(nice)		\
+	MACRO(nop)		\
+	MACRO(null)		\
+	MACRO(numa)		\
+	MACRO(oom_pipe)		\
+	MACRO(opcode)		\
+	MACRO(open)		\
+	MACRO(personality)	\
+	MACRO(physpage)		\
+	MACRO(pidfd)		\
+	MACRO(pipe)		\
+	MACRO(pkey)		\
+	MACRO(poll)		\
+	MACRO(prctl)		\
+	MACRO(procfs)		\
+	MACRO(pthread)		\
+	MACRO(ptrace)		\
+	MACRO(pty)		\
+	MACRO(qsort)		\
+	MACRO(quota)		\
+	MACRO(radixsort)	\
+	MACRO(rawdev)		\
+	MACRO(rdrand)		\
+	MACRO(readahead)	\
+	MACRO(remap)		\
+	MACRO(rename)		\
+	MACRO(resources)	\
+	MACRO(revio)		\
+	MACRO(rlimit)		\
+	MACRO(rmap)		\
+	MACRO(rtc)		\
+	MACRO(schedpolicy)	\
+	MACRO(sctp)		\
+	MACRO(seal)		\
+	MACRO(seccomp)		\
+	MACRO(seek)		\
+	MACRO(sem)		\
+	MACRO(sem_sysv)		\
+	MACRO(sendfile)		\
+	MACRO(set)		\
+	MACRO(shm)		\
+	MACRO(shm_sysv)		\
+	MACRO(sigfd)		\
+	MACRO(sigfpe)		\
+	MACRO(sigio)		\
+	MACRO(sigpending)	\
+	MACRO(sigpipe)		\
+	MACRO(sigq)		\
+	MACRO(sigrt)		\
+	MACRO(sigsegv)		\
+	MACRO(sigsuspend)	\
+	MACRO(sleep)		\
+	MACRO(sock)		\
+	MACRO(sockdiag)		\
+	MACRO(sockfd)		\
+	MACRO(sockpair)		\
+	MACRO(softlockup)	\
+	MACRO(spawn)		\
+	MACRO(splice)		\
+	MACRO(stack)		\
+	MACRO(stackmmap)	\
+	MACRO(str)		\
+	MACRO(stream)		\
+	MACRO(swap)		\
+	MACRO(switch)		\
+	MACRO(symlink)		\
+	MACRO(sync_file)	\
+	MACRO(sysbadaddr)	\
+	MACRO(sysinfo)		\
+	MACRO(sysfs)		\
+	MACRO(tee)		\
+	MACRO(timer)		\
+	MACRO(timerfd)		\
+	MACRO(tlb_shootdown)	\
+	MACRO(tmpfs)		\
+	MACRO(tree)		\
+	MACRO(tsc)		\
+	MACRO(tsearch)		\
+	MACRO(udp)		\
+	MACRO(udp_flood)	\
+	MACRO(unshare)		\
+	MACRO(urandom)		\
+	MACRO(userfaultfd)	\
+	MACRO(utime)		\
+	MACRO(vdso)		\
+	MACRO(vecmath)		\
+	MACRO(vfork)		\
+	MACRO(vforkmany)	\
+	MACRO(vm)		\
+	MACRO(vm_addr)		\
+	MACRO(vm_rw)		\
+	MACRO(vm_segv)		\
+	MACRO(vm_splice)	\
+	MACRO(wait)		\
+	MACRO(watchdog)		\
+	MACRO(wcs)		\
+	MACRO(xattr)		\
+	MACRO(yield)		\
+	MACRO(zero)		\
+	MACRO(zlib)		\
+	MACRO(zombie)
+
+/*
+ *  Declaration of stress_*_info object
+ */
+#define STRESSOR_DECL(name)	\
+	extern stressor_info_t stress_ ## name ## _info;
+
+STRESSORS(STRESSOR_DECL)
+
+/*
+ *  Elements in stressor array
+ */
+#define STRESSOR_ELEM(name)		\
 {					\
 	&stress_ ## name ## _info,	\
 	STRESS_ ## name,		\
 	OPT_ ## name,			\
 	OPT_ ## name  ## _ops,		\
 	# name				\
-}
+},
 
 /*
  *  Human readable stress test names.
  */
 static const stress_t stressors[] = {
-	STRESSOR(access),
-	STRESSOR(af_alg),
-	STRESSOR(affinity),
-	STRESSOR(aio),
-	STRESSOR(aiol),
-	STRESSOR(apparmor),
-	STRESSOR(atomic),
-	STRESSOR(bad_altstack),
-	STRESSOR(bigheap),
-	STRESSOR(bind_mount),
-	STRESSOR(branch),
-	STRESSOR(brk),
-	STRESSOR(bsearch),
-	STRESSOR(cache),
-	STRESSOR(cap),
-	STRESSOR(chdir),
-	STRESSOR(chmod),
-	STRESSOR(chown),
-	STRESSOR(chroot),
-	STRESSOR(clock),
-	STRESSOR(clone),
-	STRESSOR(close),
-	STRESSOR(context),
-	STRESSOR(copy_file),
-	STRESSOR(cpu),
-	STRESSOR(cpu_online),
-	STRESSOR(crypt),
-	STRESSOR(cyclic),
-	STRESSOR(daemon),
-	STRESSOR(dccp),
-	STRESSOR(dentry),
-	STRESSOR(dev),
-	STRESSOR(dev_shm),
-	STRESSOR(dir),
-	STRESSOR(dirdeep),
-	STRESSOR(dnotify),
-	STRESSOR(dup),
-	STRESSOR(dynlib),
-	STRESSOR(efivar),
-	STRESSOR(enosys),
-	STRESSOR(epoll),
-	STRESSOR(eventfd),
-	STRESSOR(exec),
-	STRESSOR(fallocate),
-	STRESSOR(fanotify),
-	STRESSOR(fault),
-	STRESSOR(fcntl),
-	STRESSOR(fiemap),
-	STRESSOR(fifo),
-	STRESSOR(file_ioctl),
-	STRESSOR(filename),
-	STRESSOR(flock),
-	STRESSOR(fork),
-	STRESSOR(fp_error),
-	STRESSOR(fstat),
-	STRESSOR(full),
-	STRESSOR(funccall),
-	STRESSOR(futex),
-	STRESSOR(get),
-	STRESSOR(getdent),
-	STRESSOR(getrandom),
-	STRESSOR(handle),
-	STRESSOR(hdd),
-	STRESSOR(heapsort),
-	STRESSOR(hrtimers),
-	STRESSOR(hsearch),
-	STRESSOR(icache),
-	STRESSOR(icmp_flood),
-	STRESSOR(idle_page),
-	STRESSOR(inode_flags),
-	STRESSOR(inotify),
-	STRESSOR(io),
-	STRESSOR(iomix),
-	STRESSOR(ioport),
-	STRESSOR(ioprio),
-	STRESSOR(ipsec_mb),
-	STRESSOR(itimer),
-	STRESSOR(kcmp),
-	STRESSOR(key),
-	STRESSOR(kill),
-	STRESSOR(klog),
-	STRESSOR(lease),
-	STRESSOR(link),
-	STRESSOR(locka),
-	STRESSOR(lockbus),
-	STRESSOR(lockf),
-	STRESSOR(lockofd),
-	STRESSOR(longjmp),
-	STRESSOR(loop),
-	STRESSOR(lsearch),
-	STRESSOR(madvise),
-	STRESSOR(malloc),
-	STRESSOR(matrix),
-	STRESSOR(matrix_3d),
-	STRESSOR(mcontend),
-	STRESSOR(membarrier),
-	STRESSOR(memcpy),
-	STRESSOR(memfd),
-	STRESSOR(memrate),
-	STRESSOR(memthrash),
-	STRESSOR(mergesort),
-	STRESSOR(mincore),
-	STRESSOR(mknod),
-	STRESSOR(mlock),
-	STRESSOR(mlockmany),
-	STRESSOR(mmap),
-	STRESSOR(mmapaddr),
-	STRESSOR(mmapfixed),
-	STRESSOR(mmapfork),
-	STRESSOR(mmapmany),
-	STRESSOR(mq),
-	STRESSOR(mremap),
-	STRESSOR(msg),
-	STRESSOR(msync),
-	STRESSOR(netdev),
-	STRESSOR(netlink_proc),
-	STRESSOR(nice),
-	STRESSOR(nop),
-	STRESSOR(null),
-	STRESSOR(numa),
-	STRESSOR(oom_pipe),
-	STRESSOR(opcode),
-	STRESSOR(open),
-	STRESSOR(personality),
-	STRESSOR(physpage),
-	STRESSOR(pidfd),
-	STRESSOR(pipe),
-	STRESSOR(pkey),
-	STRESSOR(poll),
-	STRESSOR(prctl),
-	STRESSOR(procfs),
-	STRESSOR(pthread),
-	STRESSOR(ptrace),
-	STRESSOR(pty),
-	STRESSOR(qsort),
-	STRESSOR(quota),
-	STRESSOR(radixsort),
-	STRESSOR(rawdev),
-	STRESSOR(rdrand),
-	STRESSOR(readahead),
-	STRESSOR(remap),
-	STRESSOR(rename),
-	STRESSOR(resources),
-	STRESSOR(revio),
-	STRESSOR(rlimit),
-	STRESSOR(rmap),
-	STRESSOR(rtc),
-	STRESSOR(schedpolicy),
-	STRESSOR(sctp),
-	STRESSOR(seal),
-	STRESSOR(seccomp),
-	STRESSOR(seek),
-	STRESSOR(sem),
-	STRESSOR(sem_sysv),
-	STRESSOR(sendfile),
-	STRESSOR(set),
-	STRESSOR(shm),
-	STRESSOR(shm_sysv),
-	STRESSOR(sigfd),
-	STRESSOR(sigfpe),
-	STRESSOR(sigio),
-	STRESSOR(sigpending),
-	STRESSOR(sigpipe),
-	STRESSOR(sigq),
-	STRESSOR(sigrt),
-	STRESSOR(sigsegv),
-	STRESSOR(sigsuspend),
-	STRESSOR(sleep),
-	STRESSOR(sock),
-	STRESSOR(sockdiag),
-	STRESSOR(sockfd),
-	STRESSOR(sockpair),
-	STRESSOR(softlockup),
-	STRESSOR(spawn),
-	STRESSOR(splice),
-	STRESSOR(stack),
-	STRESSOR(stackmmap),
-	STRESSOR(str),
-	STRESSOR(stream),
-	STRESSOR(swap),
-	STRESSOR(switch),
-	STRESSOR(symlink),
-	STRESSOR(sync_file),
-	STRESSOR(sysbadaddr),
-	STRESSOR(sysinfo),
-	STRESSOR(sysfs),
-	STRESSOR(tee),
-	STRESSOR(timer),
-	STRESSOR(timerfd),
-	STRESSOR(tlb_shootdown),
-	STRESSOR(tmpfs),
-	STRESSOR(tree),
-	STRESSOR(tsc),
-	STRESSOR(tsearch),
-	STRESSOR(udp),
-	STRESSOR(udp_flood),
-	STRESSOR(unshare),
-	STRESSOR(urandom),
-	STRESSOR(userfaultfd),
-	STRESSOR(utime),
-	STRESSOR(vdso),
-	STRESSOR(vecmath),
-	STRESSOR(vfork),
-	STRESSOR(vforkmany),
-	STRESSOR(vm),
-	STRESSOR(vm_addr),
-	STRESSOR(vm_rw),
-	STRESSOR(vm_segv),
-	STRESSOR(vm_splice),
-	STRESSOR(wait),
-	STRESSOR(watchdog),
-	STRESSOR(wcs),
-	STRESSOR(xattr),
-	STRESSOR(yield),
-	STRESSOR(zero),
-	STRESSOR(zlib),
-	STRESSOR(zombie),
+	STRESSORS(STRESSOR_ELEM)
 	{ NULL, STRESS_MAX, 0, 0, NULL }
 };
 
