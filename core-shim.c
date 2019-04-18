@@ -830,7 +830,7 @@ int shim_futex_wake(const void *futex, const int n)
 #if defined(__NR_futex)
 	return syscall(__NR_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
 #else
-	return shim_enosys(0, futex, FUTEX_WAKE, n, NULL, NULL, 0);
+	return shim_enosys(0, futex, 0, n, NULL, NULL, 0);
 #endif
 }
 
@@ -846,7 +846,7 @@ int shim_futex_wait(
 #if defined(__NR_futex)
 	return syscall(__NR_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
 #else
-	return shim_enosys(0, futex, FUTEX_WAIT, val, timeout, NULL, 0);
+	return shim_enosys(0, futex, 0, val, timeout, NULL, 0);
 #endif
 }
 
