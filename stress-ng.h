@@ -1780,226 +1780,235 @@ typedef struct {
 	const char *name;		/* Name of class */
 } class_info_t;
 
+#define STRESSORS(MACRO)	\
+	MACRO(access) 		\
+	MACRO(af_alg) 		\
+	MACRO(affinity) 	\
+	MACRO(aio) 		\
+	MACRO(aiol) 		\
+	MACRO(apparmor) 	\
+	MACRO(atomic)		\
+	MACRO(bad_altstack) 	\
+	MACRO(bigheap)		\
+	MACRO(bind_mount)	\
+	MACRO(branch)		\
+	MACRO(brk)		\
+	MACRO(bsearch)		\
+	MACRO(cache)		\
+	MACRO(cap)		\
+	MACRO(chdir)		\
+	MACRO(chmod)		\
+	MACRO(chown)		\
+	MACRO(chroot)		\
+	MACRO(clock)		\
+	MACRO(clone)		\
+	MACRO(close)		\
+	MACRO(context)		\
+	MACRO(copy_file)	\
+	MACRO(cpu)		\
+	MACRO(cpu_online)	\
+	MACRO(crypt)		\
+	MACRO(cyclic)		\
+	MACRO(daemon)		\
+	MACRO(dccp)		\
+	MACRO(dentry)		\
+	MACRO(dev)		\
+	MACRO(dev_shm)		\
+	MACRO(dir)		\
+	MACRO(dirdeep)		\
+	MACRO(dnotify)		\
+	MACRO(dup)		\
+	MACRO(dynlib)		\
+	MACRO(efivar)		\
+	MACRO(enosys)		\
+	MACRO(epoll)		\
+	MACRO(eventfd) 		\
+	MACRO(exec)		\
+	MACRO(fallocate)	\
+	MACRO(fanotify)		\
+	MACRO(fault)		\
+	MACRO(fcntl)		\
+	MACRO(fiemap)		\
+	MACRO(fifo)		\
+	MACRO(file_ioctl)	\
+	MACRO(filename)		\
+	MACRO(flock)		\
+	MACRO(fork)		\
+	MACRO(fp_error)		\
+	MACRO(fstat)		\
+	MACRO(full)		\
+	MACRO(funccall)		\
+	MACRO(futex)		\
+	MACRO(get)		\
+	MACRO(getdent)		\
+	MACRO(getrandom)	\
+	MACRO(handle)		\
+	MACRO(hdd)		\
+	MACRO(heapsort)		\
+	MACRO(hrtimers)		\
+	MACRO(hsearch)		\
+	MACRO(icache)		\
+	MACRO(icmp_flood)	\
+	MACRO(idle_page)	\
+	MACRO(inode_flags)	\
+	MACRO(inotify)		\
+	MACRO(io)		\
+	MACRO(iomix)		\
+	MACRO(ioport)		\
+	MACRO(ioprio)		\
+	MACRO(ipsec_mb)		\
+	MACRO(itimer)		\
+	MACRO(kcmp)		\
+	MACRO(key)		\
+	MACRO(kill)		\
+	MACRO(klog)		\
+	MACRO(lease)		\
+	MACRO(link)		\
+	MACRO(locka)		\
+	MACRO(lockbus)		\
+	MACRO(lockf)		\
+	MACRO(lockofd)		\
+	MACRO(longjmp)		\
+	MACRO(loop)		\
+	MACRO(lsearch)		\
+	MACRO(madvise)		\
+	MACRO(malloc)		\
+	MACRO(matrix)		\
+	MACRO(matrix_3d)	\
+	MACRO(mcontend)		\
+	MACRO(membarrier)	\
+	MACRO(memcpy)		\
+	MACRO(memfd)		\
+	MACRO(memrate)		\
+	MACRO(memthrash)	\
+	MACRO(mergesort)	\
+	MACRO(mincore)		\
+	MACRO(mknod)		\
+	MACRO(mlock)		\
+	MACRO(mlockmany)	\
+	MACRO(mmap)		\
+	MACRO(mmapaddr)		\
+	MACRO(mmapfixed)	\
+	MACRO(mmapfork)		\
+	MACRO(mmapmany)		\
+	MACRO(mq)		\
+	MACRO(mremap)		\
+	MACRO(msg)		\
+	MACRO(msync)		\
+	MACRO(netdev)		\
+	MACRO(netlink_proc)	\
+	MACRO(nice)		\
+	MACRO(nop)		\
+	MACRO(null)		\
+	MACRO(numa)		\
+	MACRO(oom_pipe)		\
+	MACRO(opcode)		\
+	MACRO(open)		\
+	MACRO(personality)	\
+	MACRO(physpage)		\
+	MACRO(pidfd)		\
+	MACRO(pipe)		\
+	MACRO(pkey)		\
+	MACRO(poll)		\
+	MACRO(prctl)		\
+	MACRO(procfs)		\
+	MACRO(pthread)		\
+	MACRO(ptrace)		\
+	MACRO(pty)		\
+	MACRO(qsort)		\
+	MACRO(quota)		\
+	MACRO(radixsort)	\
+	MACRO(rawdev)		\
+	MACRO(rdrand)		\
+	MACRO(readahead)	\
+	MACRO(remap)		\
+	MACRO(rename)		\
+	MACRO(resources)	\
+	MACRO(revio)		\
+	MACRO(rlimit)		\
+	MACRO(rmap)		\
+	MACRO(rtc)		\
+	MACRO(schedpolicy)	\
+	MACRO(sctp)		\
+	MACRO(seal)		\
+	MACRO(seccomp)		\
+	MACRO(seek)		\
+	MACRO(sem)		\
+	MACRO(sem_sysv)		\
+	MACRO(sendfile)		\
+	MACRO(set)		\
+	MACRO(shm)		\
+	MACRO(shm_sysv)		\
+	MACRO(sigfd)		\
+	MACRO(sigfpe)		\
+	MACRO(sigio)		\
+	MACRO(sigpending)	\
+	MACRO(sigpipe)		\
+	MACRO(sigq)		\
+	MACRO(sigrt)		\
+	MACRO(sigsegv)		\
+	MACRO(sigsuspend)	\
+	MACRO(sleep)		\
+	MACRO(sock)		\
+	MACRO(sockdiag)		\
+	MACRO(sockfd)		\
+	MACRO(sockpair)		\
+	MACRO(softlockup)	\
+	MACRO(spawn)		\
+	MACRO(splice)		\
+	MACRO(stack)		\
+	MACRO(stackmmap)	\
+	MACRO(str)		\
+	MACRO(stream)		\
+	MACRO(swap)		\
+	MACRO(switch)		\
+	MACRO(symlink)		\
+	MACRO(sync_file)	\
+	MACRO(sysbadaddr)	\
+	MACRO(sysinfo)		\
+	MACRO(sysfs)		\
+	MACRO(tee)		\
+	MACRO(timer)		\
+	MACRO(timerfd)		\
+	MACRO(tlb_shootdown)	\
+	MACRO(tmpfs)		\
+	MACRO(tree)		\
+	MACRO(tsc)		\
+	MACRO(tsearch)		\
+	MACRO(udp)		\
+	MACRO(udp_flood)	\
+	MACRO(unshare)		\
+	MACRO(urandom)		\
+	MACRO(userfaultfd)	\
+	MACRO(utime)		\
+	MACRO(vdso)		\
+	MACRO(vecmath)		\
+	MACRO(vfork)		\
+	MACRO(vforkmany)	\
+	MACRO(vm)		\
+	MACRO(vm_addr)		\
+	MACRO(vm_rw)		\
+	MACRO(vm_segv)		\
+	MACRO(vm_splice)	\
+	MACRO(wait)		\
+	MACRO(watchdog)		\
+	MACRO(wcs)		\
+	MACRO(xattr)		\
+	MACRO(yield)		\
+	MACRO(zero)		\
+	MACRO(zlib)		\
+	MACRO(zombie)
+
+/*
+ *  Declaration of stress_*_info object
+ */
+#define STRESSOR_ENUM(name)	\
+	STRESS_ ## name, 
+
 /* Stress tests */
 typedef enum {
 	STRESS_START = -1,
-	STRESS_access,
-	STRESS_affinity,
-	STRESS_af_alg,
-	STRESS_aio,
-	STRESS_aiol,
-	STRESS_apparmor,
-	STRESS_atomic,
-	STRESS_bad_altstack,
-	STRESS_branch,
-	STRESS_brk,
-	STRESS_bsearch,
-	STRESS_bigheap,
-	STRESS_bind_mount,
-	STRESS_cache,
-	STRESS_cap,
-	STRESS_chdir,
-	STRESS_chmod,
-	STRESS_chown,
-	STRESS_chroot,
-	STRESS_clock,
-	STRESS_clone,
-	STRESS_close,
-	STRESS_context,
-	STRESS_copy_file,
-	STRESS_cpu,
-	STRESS_cpu_online,
-	STRESS_crypt,
-	STRESS_cyclic,
-	STRESS_daemon,
-	STRESS_dccp,
-	STRESS_dentry,
-	STRESS_dev,
-	STRESS_dev_shm,
-	STRESS_dir,
-	STRESS_dirdeep,
-	STRESS_dnotify,
-	STRESS_dup,
-	STRESS_dynlib,
-	STRESS_efivar,
-	STRESS_enosys,
-	STRESS_epoll,
-	STRESS_eventfd,
-	STRESS_exec,
-	STRESS_fallocate,
-	STRESS_fanotify,
-	STRESS_fault,
-	STRESS_fcntl,
-	STRESS_fiemap,
-	STRESS_fifo,
-	STRESS_file_ioctl,
-	STRESS_filename,
-	STRESS_flock,
-	STRESS_fork,
-	STRESS_fp_error,
-	STRESS_fstat,
-	STRESS_full,
-	STRESS_funccall,
-	STRESS_futex,
-	STRESS_get,
-	STRESS_getrandom,
-	STRESS_getdent,
-	STRESS_handle,
-	STRESS_hdd,
-	STRESS_heapsort,
-	STRESS_hrtimers,
-	STRESS_hsearch,
-	STRESS_icache,
-	STRESS_icmp_flood,
-	STRESS_idle_page,
-	STRESS_ipsec_mb,
-	STRESS_inode_flags,
-	STRESS_inotify,
-	STRESS_iomix,
-	STRESS_ioport,
-	STRESS_ioprio,
-	STRESS_io,
-	STRESS_itimer,
-	STRESS_kcmp,
-	STRESS_key,
-	STRESS_kill,
-	STRESS_klog,
-	STRESS_lease,
-	STRESS_link,
-	STRESS_lockbus,
-	STRESS_locka,
-	STRESS_lockf,
-	STRESS_lockofd,
-	STRESS_longjmp,
-	STRESS_loop,
-	STRESS_lsearch,
-	STRESS_madvise,
-	STRESS_malloc,
-	STRESS_matrix,
-	STRESS_matrix_3d,
-	STRESS_mcontend,
-	STRESS_membarrier,
-	STRESS_memcpy,
-	STRESS_memfd,
-	STRESS_memrate,
-	STRESS_memthrash,
-	STRESS_mergesort,
-	STRESS_mincore,
-	STRESS_mknod,
-	STRESS_mlock,
-	STRESS_mlockmany,
-	STRESS_mmap,
-	STRESS_mmapaddr,
-	STRESS_mmapfixed,
-	STRESS_mmapfork,
-	STRESS_mmapmany,
-	STRESS_mq,
-	STRESS_mremap,
-	STRESS_msg,
-	STRESS_msync,
-	STRESS_netdev,
-	STRESS_netlink_proc,
-	STRESS_nice,
-	STRESS_nop,
-	STRESS_null,
-	STRESS_numa,
-	STRESS_oom_pipe,
-	STRESS_opcode,
-	STRESS_open,
-	STRESS_personality,
-	STRESS_physpage,
-	STRESS_pidfd,
-	STRESS_pipe,
-	STRESS_pkey,
-	STRESS_poll,
-	STRESS_prctl,
-	STRESS_procfs,
-	STRESS_pthread,
-	STRESS_ptrace,
-	STRESS_pty,
-	STRESS_qsort,
-	STRESS_quota,
-	STRESS_radixsort,
-	STRESS_rawdev,
-	STRESS_rdrand,
-	STRESS_readahead,
-	STRESS_remap,
-	STRESS_rename,
-	STRESS_resources,
-	STRESS_revio,
-	STRESS_rlimit,
-	STRESS_rmap,
-	STRESS_rtc,
-	STRESS_schedpolicy,
-	STRESS_sctp,
-	STRESS_seal,
-	STRESS_seccomp,
-	STRESS_seek,
-	STRESS_sem,
-	STRESS_sem_sysv,
-	STRESS_sendfile,
-	STRESS_set,
-	STRESS_shm,
-	STRESS_shm_sysv,
-	STRESS_sigfd,
-	STRESS_sigfpe,
-	STRESS_sigio,
-	STRESS_sigpending,
-	STRESS_sigpipe,
-	STRESS_sigq,
-	STRESS_sigrt,
-	STRESS_sigsegv,
-	STRESS_sigsuspend,
-	STRESS_sleep,
-	STRESS_sock,
-	STRESS_sockdiag,
-	STRESS_sockfd,
-	STRESS_sockpair,
-	STRESS_softlockup,
-	STRESS_spawn,
-	STRESS_splice,
-	STRESS_stack,
-	STRESS_stackmmap,
-	STRESS_str,
-	STRESS_stream,
-	STRESS_swap,
-	STRESS_switch,
-	STRESS_symlink,
-	STRESS_sync_file,
-	STRESS_sysbadaddr,
-	STRESS_sysinfo,
-	STRESS_sysfs,
-	STRESS_tee,
-	STRESS_timer,
-	STRESS_timerfd,
-	STRESS_tlb_shootdown,
-	STRESS_tmpfs,
-	STRESS_tree,
-	STRESS_tsc,
-	STRESS_tsearch,
-	STRESS_udp,
-	STRESS_udp_flood,
-	STRESS_unshare,
-	STRESS_urandom,
-	STRESS_userfaultfd,
-	STRESS_utime,
-	STRESS_vdso,
-	STRESS_vecmath,
-	STRESS_vfork,
-	STRESS_vforkmany,
-	STRESS_vm,
-	STRESS_vm_addr,
-	STRESS_vm_rw,
-	STRESS_vm_segv,
-	STRESS_vm_splice,
-	STRESS_wait,
-	STRESS_watchdog,
-	STRESS_wcs,
-	STRESS_xattr,
-	STRESS_yield,
-	STRESS_zero,
-	STRESS_zlib,
-	STRESS_zombie,
+	STRESSORS(STRESSOR_ENUM)
 	/* STRESS_MAX must be last one */
 	STRESS_MAX
 } stress_id_t;
