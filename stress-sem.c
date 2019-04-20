@@ -45,7 +45,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 static sem_t sem;
 static pthread_t pthreads[MAX_SEMAPHORE_PROCS];
-int p_ret[MAX_SEMAPHORE_PROCS];
+static int p_ret[MAX_SEMAPHORE_PROCS];
 
 /*
  *  semaphore_posix_thrash()

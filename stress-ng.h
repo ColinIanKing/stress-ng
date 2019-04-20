@@ -2914,7 +2914,7 @@ typedef struct proc_info {
 } proc_info_t;
 
 /* Pointer to current running stressor proc info */
-extern proc_info_t *proc_current;
+extern proc_info_t *g_proc_current;
 
 /* Scale lookup mapping, suffix -> scale by */
 typedef struct {

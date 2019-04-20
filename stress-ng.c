@@ -38,7 +38,7 @@ typedef struct {
 
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
-proc_info_t *proc_current;
+proc_info_t *g_proc_current;
 
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
@@ -2155,13 +2155,13 @@ static void MLOCKED_TEXT stress_run(
 	time_start = time_now();
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		for (proc_current = procs_list; proc_current; proc_current = proc_current->next) {
+		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next) {
 			if (g_opt_timeout && (time_now() - time_start > g_opt_timeout))
 				goto abort;
 
-			j = proc_current->started_procs;
+			j = g_proc_current->started_procs;
 
-			if (j < proc_current->num_procs) {
+			if (j < g_proc_current->num_procs) {
 				int rc = EXIT_SUCCESS;
 				pid_t pid;
 				char name[64];
@@ -2173,7 +2173,7 @@ static void MLOCKED_TEXT stress_run(
 				(void)get_setting("ionice-class", &ionice_class);
 				(void)get_setting("ionice-level", &ionice_level);
 
-				proc_stats_t *stats = proc_current->stats[j];
+				proc_stats_t *stats = g_proc_current->stats[j];
 again:
 				if (!g_keep_stressing_flag)
 					break;
@@ -2205,7 +2205,7 @@ again:
 						(void)alarm(g_opt_timeout);
 					mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-						stress_munge_underscore(proc_current->stressor->name));
+						stress_munge_underscore(g_proc_current->stressor->name));
 					set_oom_adjustment(name, false);
 					set_max_limits();
 					set_iopriority(ionice_class, ionice_level);
@@ -2229,15 +2229,15 @@ again:
 						const args_t args = {
 							.counter = &stats->counter,
 							.name = name,
-							.max_ops = proc_current->bogo_ops,
+							.max_ops = g_proc_current->bogo_ops,
 							.instance = j,
-							.num_instances = proc_current->num_procs,
+							.num_instances = g_proc_current->num_procs,
 							.pid = getpid(),
 							.ppid = getppid(),
 							.page_size = stress_get_pagesize(),
 						};
 
-						rc = proc_current->stressor->info->stressor(&args);
+						rc = g_proc_current->stressor->info->stressor(&args);
 						pr_fail_check(&rc);
 						stats->run_ok = (rc == EXIT_SUCCESS);
 					}
@@ -2275,8 +2275,8 @@ child_exit:
 				default:
 					if (pid > -1) {
 						(void)setpgid(pid, g_pgrp);
-						proc_current->pids[j] = pid;
-						proc_current->started_procs++;
+						g_proc_current->pids[j] = pid;
+						g_proc_current->started_procs++;
 					}
 
 					/* Forced early abort during startup? */
@@ -2935,7 +2935,7 @@ next_opt:
 			if (stressors[i].short_getopt == c) {
 				const char *name = opt_name(c);
 				proc_info_t *pi = find_proc_info(&stressors[i]);
-				proc_current = pi;
+				g_proc_current = pi;
 
 				g_opt_flags |= OPT_FLAGS_SET;
 				pi->num_procs = get_int32(optarg);
@@ -2952,8 +2952,8 @@ next_opt:
 					MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
 				set_setting(opt_name(c), TYPE_ID_UINT64, &bogo_ops);
-				if (proc_current)
-					proc_current->bogo_ops = bogo_ops;
+				if (g_proc_current)
+					g_proc_current->bogo_ops = bogo_ops;
 				goto next_opt;
 			}
 			if (stressors[i].info->opt_set_funcs) {

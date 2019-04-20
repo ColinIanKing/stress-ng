@@ -37,7 +37,7 @@ typedef struct {
 
 static const char vars[] = "/sys/firmware/efi/vars";
 static const char efi_vars[] = "/sys/firmware/efi/efivars";
-struct dirent **efi_dentries;
+static struct dirent **efi_dentries;
 static bool *efi_ignore;
 static int dir_count;
 

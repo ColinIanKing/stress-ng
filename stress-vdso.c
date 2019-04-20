@@ -124,7 +124,7 @@ static void wrap_clock_gettime(void *vdso_func)
 /*
  *  mapping of wrappers to function symbol name
  */
-wrap_func_t wrap_funcs[] = {
+static wrap_func_t wrap_funcs[] = {
 #if defined(HAVE_CLOCK_GETTIME)
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
