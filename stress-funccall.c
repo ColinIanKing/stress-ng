@@ -715,64 +715,64 @@ stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
 #endif
 
-#define stress_funcall_type(type, rndfunc)			\
-void NOINLINE stress_funccall_ ## type(const args_t *args);	\
-								\
-void NOINLINE stress_funccall_ ## type(const args_t *args)	\
-{								\
-	register int ii;					\
-	type a, b, c, d, e, f, g, h, i;				\
-								\
-	a = rndfunc();						\
-	b = rndfunc();						\
-	c = rndfunc();						\
-	d = rndfunc();						\
-	e = rndfunc();						\
-	f = rndfunc();						\
-	g = rndfunc();						\
-	h = rndfunc();						\
-	i = rndfunc();						\
-								\
-	do {							\
-		for (ii = 0; ii < 1000; ii++) {			\
-			type res = 				\
-			(stress_funccall_ ## type ## _1(a) + 	\
-			 stress_funccall_ ## type ## _2(a, b) +	\
-			 stress_funccall_ ## type ## _3(a, b,	\
-				c) +				\
-			 stress_funccall_ ## type ## _4(a, b, 	\
-				c, d) + 			\
-			 stress_funccall_ ## type ## _5(a, b,	\
-				c, d, e) +			\
-			 stress_funccall_ ## type ## _6(a, b,	\
-				c, d, e, f) + 			\
-			 stress_funccall_ ## type ## _7(a, b,	\
-				c, d, e, f, g) + 		\
-			 stress_funccall_ ## type ## _8(a, b,	\
-				c, d, e, f, g, h) + 		\
-			 stress_funccall_ ## type ## _9(a, b,	\
-				c, d, e, f, g, h, i));		\
-								\
-			res += 					\
-			(stress_funcdeep_ ## type ## _2(a, b) +	\
-			 stress_funcdeep_ ## type ## _3(a, b,	\
-				c) + 				\
-			 stress_funcdeep_ ## type ## _4(a, b, 	\
-				c, d) +				\
-			 stress_funcdeep_ ## type ## _5(a, b,	\
-				c, d, e) +			\
-			 stress_funcdeep_ ## type ## _6(a, b,	\
-				c, d, e, f) +			\
-			 stress_funcdeep_ ## type ## _7(a, b,	\
-				c, d, e, f, g) +		\
-			 stress_funcdeep_ ## type ## _8(a, b,	\
-				c, d, e, f, g, h) +		\
-			 stress_funcdeep_ ## type ## _9(a, b,	\
-				c, d, e, f, g, h, i));		\
-			type ## _put(res);			\
-			}					\
-		inc_counter(args);				\
-	} while (keep_stressing());				\
+#define stress_funcall_type(type, rndfunc)				\
+static void NOINLINE stress_funccall_ ## type(const args_t *args);	\
+									\
+static void NOINLINE stress_funccall_ ## type(const args_t *args)	\
+{									\
+	register int ii;						\
+	type a, b, c, d, e, f, g, h, i;					\
+									\
+	a = rndfunc();							\
+	b = rndfunc();							\
+	c = rndfunc();							\
+	d = rndfunc();							\
+	e = rndfunc();							\
+	f = rndfunc();							\
+	g = rndfunc();							\
+	h = rndfunc();							\
+	i = rndfunc();							\
+									\
+	do {								\
+		for (ii = 0; ii < 1000; ii++) {				\
+			type res = 					\
+			(stress_funccall_ ## type ## _1(a) + 		\
+			 stress_funccall_ ## type ## _2(a, b) +		\
+			 stress_funccall_ ## type ## _3(a, b,		\
+				c) +					\
+			 stress_funccall_ ## type ## _4(a, b, 		\
+				c, d) + 				\
+			 stress_funccall_ ## type ## _5(a, b,		\
+				c, d, e) +				\
+			 stress_funccall_ ## type ## _6(a, b,		\
+				c, d, e, f) + 				\
+			 stress_funccall_ ## type ## _7(a, b,		\
+				c, d, e, f, g) + 			\
+			 stress_funccall_ ## type ## _8(a, b,		\
+				c, d, e, f, g, h) + 			\
+			 stress_funccall_ ## type ## _9(a, b,		\
+				c, d, e, f, g, h, i));			\
+									\
+			res += 						\
+			(stress_funcdeep_ ## type ## _2(a, b) +		\
+			 stress_funcdeep_ ## type ## _3(a, b,		\
+				c) + 					\
+			 stress_funcdeep_ ## type ## _4(a, b, 		\
+				c, d) +					\
+			 stress_funcdeep_ ## type ## _5(a, b,		\
+				c, d, e) +				\
+			 stress_funcdeep_ ## type ## _6(a, b,		\
+				c, d, e, f) +				\
+			 stress_funcdeep_ ## type ## _7(a, b,		\
+				c, d, e, f, g) +			\
+			 stress_funcdeep_ ## type ## _8(a, b,		\
+				c, d, e, f, g, h) +			\
+			 stress_funcdeep_ ## type ## _9(a, b,		\
+				c, d, e, f, g, h, i));			\
+			type ## _put(res);				\
+			}						\
+		inc_counter(args);					\
+	} while (keep_stressing());					\
 }
 
 stress_funcall_type(uint8_t, mwc8)
