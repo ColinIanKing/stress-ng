@@ -129,7 +129,7 @@ int stress_set_vm_flags(const int flag)
 }
 #endif
 
-int stress_set_vm_madvise(const char *opt)
+static int stress_set_vm_madvise(const char *opt)
 {
 	const vm_madvise_info_t *info;
 

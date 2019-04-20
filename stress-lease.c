@@ -29,7 +29,7 @@
 static uint64_t lease_sigio;
 #endif
 
-int stress_set_lease_breakers(const char *opt)
+static int stress_set_lease_breakers(const char *opt)
 {
 	uint64_t lease_breakers;
 

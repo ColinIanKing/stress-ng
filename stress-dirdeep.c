@@ -28,7 +28,7 @@
  *  stress_set_dirdeep_dirs()
  *      set number of dirdeep directories from given option string
  */
-int stress_set_dirdeep_dirs(const char *opt)
+static int stress_set_dirdeep_dirs(const char *opt)
 {
 	uint32_t dirdeep_dirs;
 
@@ -42,7 +42,7 @@ int stress_set_dirdeep_dirs(const char *opt)
  *  stress_set_dirdeep_inodes()
  *      set max number of inodes to consume
  */
-int stress_set_dirdeep_inodes(const char *opt)
+static int stress_set_dirdeep_inodes(const char *opt)
 {
 	uint64_t inodes = stress_get_filesystem_available_inodes();
 	uint64_t dirdeep_inodes;

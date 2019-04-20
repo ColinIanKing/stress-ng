@@ -270,7 +270,7 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
  *  stress_set_rawdev_method()
  *	set the default rawdev method
  */
-int stress_set_rawdev_method(const char *name)
+static int stress_set_rawdev_method(const char *name)
 {
 	stress_rawdev_method_info_t const *info;
 
@@ -294,7 +294,7 @@ int stress_set_rawdev_method(const char *name)
  *  stress_set_rawdev_method()
  *	set the default rawdev method
  */
-int stress_set_rawdev_method(const char *name)
+static int stress_set_rawdev_method(const char *name)
 {
 	(void)name;
 

@@ -28,7 +28,7 @@
  *  stress_set_lsearch_size()
  *      set lsearch size from given option string
  */
-int stress_set_lsearch_size(const char *opt)
+static int stress_set_lsearch_size(const char *opt)
 {
 	uint64_t lsearch_size;
 
