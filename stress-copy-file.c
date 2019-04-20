@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_copy_file_bytes(const char *opt)
+static int stress_set_copy_file_bytes(const char *opt)
 {
 	uint64_t copy_file_bytes;
 
@@ -33,6 +33,11 @@ int stress_set_copy_file_bytes(const char *opt)
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
 	return set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_copy_file_bytes,	stress_set_copy_file_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_COPY_FILE_RANGE)
 
@@ -122,11 +127,13 @@ tidy_dir:
 
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

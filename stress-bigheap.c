@@ -28,7 +28,7 @@
  *  stress_set_bigheap_growth()
  *  	Set bigheap growth from given opt arg string
  */
-int stress_set_bigheap_growth(const char *opt)
+static int stress_set_bigheap_growth(const char *opt)
 {
 	uint64_t bigheap_growth;
 
@@ -203,7 +203,13 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_bigheap_growth,	stress_set_bigheap_growth },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
-	.class = CLASS_OS | CLASS_VM
+	.class = CLASS_OS | CLASS_VM,
+	.opt_set_funcs = opt_set_funcs
 };

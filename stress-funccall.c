@@ -837,7 +837,7 @@ static const stress_funccall_method_info_t funccall_methods[] = {
  *  stress_set_funccall_method()
  *	set the default funccal stress method
  */
-int stress_set_funccall_method(const char *name)
+static int stress_set_funccall_method(const char *name)
 {
 	stress_funccall_method_info_t const *info;
 
@@ -872,13 +872,20 @@ static int stress_funccall(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
+
 static void stress_funcall_set_default(void)
 {
 	stress_set_funccall_method("uint64");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_funccall_method,	stress_set_funccall_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_funccall_info = {
 	.stressor = stress_funccall,
 	.set_default = stress_funcall_set_default,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs
 };

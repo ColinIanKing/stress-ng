@@ -36,11 +36,6 @@ typedef struct {
 	const uint64_t opt_flag;	/* global options flag bit setting */
 } opt_flag_t;
 
-typedef struct {
-	const int opt;				/* optarg option*/
-	int (*opt_set_func)(const char *optarg); /* function to set it */
-} opt_set_func_t;
-
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
 proc_info_t *proc_current;
@@ -114,143 +109,6 @@ static const opt_flag_t opt_flags[] = {
 	{ OPT_verbose,		PR_ALL },
 	{ OPT_verify,		OPT_FLAGS_VERIFY | PR_FAIL },
 	{ OPT_vm_keep,		OPT_FLAGS_VM_KEEP },
-};
-
-/*
- *  optarg option to stressor setting options
- */
-static const opt_set_func_t opt_set_funcs[] = {
-	{ OPT_aio_requests,		stress_set_aio_requests },
-	{ OPT_aiol_requests,		stress_set_aio_linux_requests },
-	{ OPT_bigheap_growth,		stress_set_bigheap_growth },
-	{ OPT_bsearch_size,		stress_set_bsearch_size },
-	{ OPT_chdir_dirs,		stress_set_chdir_dirs },
-	{ OPT_clone_max,		stress_set_clone_max },
-	{ OPT_copy_file_bytes,		stress_set_copy_file_bytes },
-	{ OPT_cpu_load,			stress_set_cpu_load },
-	{ OPT_cpu_load_slice,		stress_set_cpu_load_slice },
-	{ OPT_cpu_method,		stress_set_cpu_method },
-	{ OPT_cyclic_dist,		stress_set_cyclic_dist },
-	{ OPT_cyclic_method,		stress_set_cyclic_method },
-	{ OPT_cyclic_policy,		stress_set_cyclic_policy },
-	{ OPT_cyclic_prio, 		stress_set_cyclic_prio },
-	{ OPT_cyclic_sleep,		stress_set_cyclic_sleep },
-	{ OPT_dccp_domain,		stress_set_dccp_domain },
-	{ OPT_dccp_opts,		stress_set_dccp_opts },
-	{ OPT_dccp_port, 		stress_set_dccp_port },
-	{ OPT_dentries,			stress_set_dentries },
-	{ OPT_dentry_order,		stress_set_dentry_order },
-	{ OPT_dir_dirs,			stress_set_dir_dirs },
-	{ OPT_dirdeep_dirs, 		stress_set_dirdeep_dirs },
-	{ OPT_dirdeep_inodes, 		stress_set_dirdeep_inodes },
-	{ OPT_epoll_domain,		stress_set_epoll_domain },
-	{ OPT_epoll_port, 		stress_set_epoll_port },
-	{ OPT_exec_max,			stress_set_exec_max },
-	{ OPT_fallocate_bytes,		stress_set_fallocate_bytes },
-	{ OPT_fiemap_bytes,		stress_set_fiemap_bytes },
-	{ OPT_fifo_readers,		stress_set_fifo_readers },
-	{ OPT_filename_opts,		stress_set_filename_opts },
-	{ OPT_fork_max,			stress_set_fork_max },
-	{ OPT_fstat_dir,		stress_set_fstat_dir },
-	{ OPT_funccall_method,		stress_set_funccall_method },
-	{ OPT_hdd_bytes,		stress_set_hdd_bytes },
-	{ OPT_hdd_opts,			stress_set_hdd_opts },
-	{ OPT_hdd_write_size,		stress_set_hdd_write_size },
-	{ OPT_heapsort_integers,	stress_set_heapsort_size },
-	{ OPT_hsearch_size,		stress_set_hsearch_size },
-	{ OPT_iomix_bytes,		stress_set_iomix_bytes },
-	{ OPT_ioport_opts,		stress_set_ioport_opts },
-	{ OPT_itimer_freq,		stress_set_itimer_freq },
-	{ OPT_lease_breakers,		stress_set_lease_breakers },
-	{ OPT_lsearch_size,		stress_set_lsearch_size },
-	{ OPT_malloc_bytes,		stress_set_malloc_bytes },
-	{ OPT_malloc_max,		stress_set_malloc_max },
-	{ OPT_malloc_threshold,		stress_set_malloc_threshold },
-#if defined(HAVE_VLA_ARG)
-	{ OPT_matrix_method,		stress_set_matrix_method },
-	{ OPT_matrix_size,		stress_set_matrix_size },
-	{ OPT_matrix_yx,		stress_set_matrix_yx },
-#if !defined(__PCC__)
-	{ OPT_matrix_3d_method,		stress_set_matrix_3d_method },
-	{ OPT_matrix_3d_size,		stress_set_matrix_3d_size },
-	{ OPT_matrix_3d_zyx,		stress_set_matrix_3d_zyx },
-#endif
-#endif
-	{ OPT_memcpy_method,		stress_set_memcpy_method },
-	{ OPT_memfd_bytes,		stress_set_memfd_bytes },
-	{ OPT_memfd_fds,		stress_set_memfd_fds },
-	{ OPT_memrate_bytes,		stress_set_memrate_bytes },
-	{ OPT_memrate_rd_mbs,		stress_set_memrate_rd_mbs },
-	{ OPT_memrate_wr_mbs,		stress_set_memrate_wr_mbs },
-	{ OPT_memthrash_method,		stress_set_memthrash_method },
-	{ OPT_mergesort_integers,	stress_set_mergesort_size },
-	{ OPT_mmap_bytes,		stress_set_mmap_bytes },
-	{ OPT_mq_size,			stress_set_mq_size },
-	{ OPT_mremap_bytes,		stress_set_mremap_bytes },
-	{ OPT_msync_bytes,		stress_set_msync_bytes },
-	{ OPT_opcode_method,		stress_set_opcode_method },
-	{ OPT_pipe_data_size,		stress_set_pipe_data_size },
-#if defined(F_SETPIPE_SZ)
-	{ OPT_pipe_size,		stress_set_pipe_size },
-#endif
-	{ OPT_pthread_max,		stress_set_pthread_max },
-	{ OPT_pty_max,			stress_set_pty_max },
-	{ OPT_qsort_integers,		stress_set_qsort_size },
-	{ OPT_radixsort_size,		stress_set_radixsort_size },
-	{ OPT_rawdev_method,		stress_set_rawdev_method },
-	{ OPT_readahead_bytes,		stress_set_readahead_bytes },
-	{ OPT_revio_bytes,		stress_set_revio_bytes },
-	{ OPT_revio_opts,		stress_set_revio_opts },
-	{ OPT_sctp_port,		stress_set_sctp_port },
-	{ OPT_seek_size,		stress_set_seek_size },
-	{ OPT_sem_procs,		stress_set_semaphore_posix_procs },
-	{ OPT_sem_sysv_procs,		stress_set_semaphore_sysv_procs },
-	{ OPT_sendfile_size,		stress_set_sendfile_size },
-	{ OPT_shm_bytes,		stress_set_shm_posix_bytes },
-	{ OPT_shm_objects,		stress_set_shm_posix_objects },
-	{ OPT_shm_bytes,		stress_set_shm_sysv_bytes },
-	{ OPT_shm_sysv_segments,	stress_set_shm_sysv_segments },
-	{ OPT_sleep_max,		stress_set_sleep_max },
-	{ OPT_sock_domain,		stress_set_socket_domain },
-	{ OPT_sock_opts,		stress_set_socket_opts },
-	{ OPT_sock_type,		stress_set_socket_type },
-	{ OPT_stream_madvise,		stress_set_stream_madvise },
-	{ OPT_str_method,		stress_set_str_method },
-	{ OPT_switch_freq,		stress_set_switch_freq },
-	{ OPT_taskset,			stress_set_cpu_affinity },
-	{ OPT_temp_path,		stress_set_temp_path },
-	{ OPT_timer_freq,		stress_set_timer_freq },
-	{ OPT_timer_slack,		stress_set_timer_slack_ns },
-	{ OPT_timerfd_freq,		stress_set_timerfd_freq },
-	{ OPT_tree_method,		stress_set_tree_method },
-	{ OPT_tree_size,		stress_set_tree_size },
-	{ OPT_tsearch_size,		stress_set_tsearch_size },
-	{ OPT_udp_domain,		stress_set_udp_domain },
-	{ OPT_udp_port,			stress_set_udp_port },
-	{ OPT_udp_flood_domain,		stress_set_udp_flood_domain },
-	{ OPT_userfaultfd_bytes,	stress_set_userfaultfd_bytes },
-	{ OPT_vdso_func,		stress_set_vdso_func },
-	{ OPT_vfork_max,		stress_set_vfork_max },
-	{ OPT_sctp_domain,		stress_set_sctp_domain },
-	{ OPT_sock_port,		stress_set_socket_port },
-	{ OPT_sockfd_port,		stress_set_socket_fd_port },
-	{ OPT_splice_bytes,		stress_set_splice_bytes },
-	{ OPT_stream_index,		stress_set_stream_index },
-	{ OPT_stream_l3_size,		stress_set_stream_L3_size },
-	{ OPT_sync_file_bytes,		stress_set_sync_file_bytes },
-	{ OPT_vm_addr_method,		stress_set_vm_addr_method },
-	{ OPT_vm_bytes,			stress_set_vm_bytes },
-	{ OPT_vm_hang,			stress_set_vm_hang },
-	{ OPT_vm_madvise,		stress_set_vm_madvise },
-	{ OPT_vm_method,		stress_set_vm_method },
-	{ OPT_vm_rw_bytes,		stress_set_vm_rw_bytes },
-	{ OPT_vm_splice_bytes,		stress_set_vm_splice_bytes },
-	{ OPT_wcs_method,		stress_set_wcs_method },
-#if defined(HAVE_LIB_Z)
-	{ OPT_zlib_level,		stress_set_zlib_level },
-	{ OPT_zlib_method,		stress_set_zlib_method },
-#endif
-	{ OPT_zombie_max,		stress_set_zombie_max },
 };
 
 /*
@@ -3098,19 +2956,24 @@ next_opt:
 					proc_current->bogo_ops = bogo_ops;
 				goto next_opt;
 			}
+			if (stressors[i].info->opt_set_funcs) {
+				size_t j;
+				const stressor_info_t *info = stressors[i].info;
+
+				for (j = 0; info->opt_set_funcs[j].opt_set_func; j++) {
+					if (info->opt_set_funcs[j].opt == c) {
+						ret = info->opt_set_funcs[j].opt_set_func(optarg);
+						if (ret < 0)
+							return EXIT_FAILURE;
+						goto next_opt;
+					}
+				}
+			}
 		}
 
 		for (i = 0; i < SIZEOF_ARRAY(opt_flags); i++) {
 			if (c == opt_flags[i].opt) {
 				g_opt_flags |= opt_flags[i].opt_flag;
-				goto next_opt;
-			}
-		}
-		for (i = 0; i < SIZEOF_ARRAY(opt_set_funcs); i++) {
-			if (c == opt_set_funcs[i].opt) {
-				ret = opt_set_funcs[i].opt_set_func(optarg);
-				if (ret < 0)
-					return EXIT_FAILURE;
 				goto next_opt;
 			}
 		}
@@ -3208,8 +3071,19 @@ next_opt:
 		case OPT_stressors:
 			show_stressor_names();
 			exit(EXIT_SUCCESS);
+		case OPT_taskset:
+			if (stress_set_cpu_affinity(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_temp_path:
+			if (stress_set_temp_path(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
 		case OPT_timeout:
 			g_opt_timeout = get_uint64_time(optarg);
+			break;
+		case OPT_timer_slack:
+			(void)stress_set_timer_slack_ns(optarg);
 			break;
 		case OPT_version:
 			version();

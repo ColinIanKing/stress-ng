@@ -28,7 +28,7 @@
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
 
-int stress_set_readahead_bytes(const char *opt)
+static int stress_set_readahead_bytes(const char *opt)
 {
 	uint64_t readahead_bytes;
 
@@ -37,6 +37,11 @@ int stress_set_readahead_bytes(const char *opt)
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 	return set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_readahead_bytes,	stress_set_readahead_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 
@@ -215,11 +220,13 @@ finish:
 
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
-	.class = CLASS_IO | CLASS_OS
+	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_IO | CLASS_OS
+	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

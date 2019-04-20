@@ -35,7 +35,7 @@
  *  stress_set_socket_fd_port()
  *	set port to use
  */
-int stress_set_socket_fd_port(const char *opt)
+static int stress_set_socket_fd_port(const char *opt)
 {
 	int socket_fd_port;
 
@@ -44,6 +44,11 @@ int stress_set_socket_fd_port(const char *opt)
 		&socket_fd_port);
 	return set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sockfd_port,	stress_set_socket_fd_port },
+	{ 0,			NULL }
+};
 
 #if defined(__linux__)
 
@@ -355,11 +360,13 @@ again:
 
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_sockfd,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

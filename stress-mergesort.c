@@ -33,7 +33,7 @@ static sigjmp_buf jmp_env;
  *  stress_set_mergesort_size()
  *	set mergesort size
  */
-int stress_set_mergesort_size(const char *opt)
+static int stress_set_mergesort_size(const char *opt)
 {
 	uint64_t mergesort_size;
 
@@ -42,6 +42,11 @@ int stress_set_mergesort_size(const char *opt)
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
 	return set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mergesort_integers,	stress_set_mergesort_size },
+	{ 0,				NULL }
+};
 
 #if defined(HAVE_LIB_BSD)
 
@@ -217,11 +222,13 @@ tidy:
 
 stressor_info_t stress_mergesort_info = {
 	.stressor = stress_mergesort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_mergesort_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

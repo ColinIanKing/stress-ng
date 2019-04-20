@@ -28,7 +28,7 @@
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 #endif
 
-int stress_set_fifo_readers(const char *opt)
+static int stress_set_fifo_readers(const char *opt)
 {
 	uint64_t fifo_readers;
 
@@ -37,6 +37,11 @@ int stress_set_fifo_readers(const char *opt)
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
 	return set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fifo_readers,	stress_set_fifo_readers },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYS_SELECT_H)
 /*
@@ -237,11 +242,13 @@ tidy:
 
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

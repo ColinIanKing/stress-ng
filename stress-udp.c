@@ -35,7 +35,7 @@
 #define UDPLITE_RECV_CSCOV	(11)
 #endif
 
-int stress_set_udp_port(const char *opt)
+static int stress_set_udp_port(const char *opt)
 {
 	int udp_port;
 
@@ -49,7 +49,7 @@ int stress_set_udp_port(const char *opt)
  *  stress_set_udp_domain()
  *	set the udp domain option
  */
-int stress_set_udp_domain(const char *name)
+static int stress_set_udp_domain(const char *name)
 {
 	int ret, udp_domain;
 
@@ -244,7 +244,14 @@ die:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_udp_domain,	stress_set_udp_domain },
+	{ OPT_udp_port,		stress_set_udp_port },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_udp_info = {
 	.stressor = stress_udp,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

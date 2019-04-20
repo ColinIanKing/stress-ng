@@ -32,7 +32,7 @@
  *  stress_set_switch_freq()
  *	set context switch freq in Hz from given option
  */
-int stress_set_switch_freq(const char *opt)
+static int stress_set_switch_freq(const char *opt)
 {
 	uint64_t switch_freq;
 
@@ -201,7 +201,13 @@ again:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_switch_freq,	stress_set_switch_freq },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_switch_info = {
 	.stressor = stress_switch,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

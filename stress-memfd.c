@@ -28,7 +28,7 @@
  *  stress_set_memfd_bytes
  *	set max size of each memfd size
  */
-int stress_set_memfd_bytes(const char *opt)
+static int stress_set_memfd_bytes(const char *opt)
 {
 	size_t memfd_bytes;
 
@@ -42,7 +42,7 @@ int stress_set_memfd_bytes(const char *opt)
  *  stress_set_memfd_fds()
  *      set number of memfd file descriptors
  */
-int stress_set_memfd_fds(const char *opt)
+static int stress_set_memfd_fds(const char *opt)
 {
 	uint32_t memfd_fds;
 
@@ -51,6 +51,12 @@ int stress_set_memfd_fds(const char *opt)
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
 	return set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
+	{ OPT_memfd_fds,	stress_set_memfd_fds },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_MEMFD_CREATE)
 
@@ -295,11 +301,13 @@ again:
 
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

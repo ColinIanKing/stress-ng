@@ -28,7 +28,7 @@
  *  stress_set_exec_max()
  *	set maximum number of forks allowed
  */
-int stress_set_exec_max(const char *opt)
+static int stress_set_exec_max(const char *opt)
 {
 	uint64_t exec_max;
 
@@ -37,6 +37,11 @@ int stress_set_exec_max(const char *opt)
 		MIN_EXECS, MAX_EXECS);
 	return set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_exec_max,	stress_set_exec_max },
+	{ 0,		NULL }
+};
 
 #if defined(__linux__)
 
@@ -57,6 +62,7 @@ static int stress_exec_supported(void)
         }
         return 0;
 }
+
 
 /*
  *  stress_exec()
@@ -205,11 +211,13 @@ static int stress_exec(const args_t *args)
 stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
 	.supported = stress_exec_supported,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_exec_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

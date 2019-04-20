@@ -52,7 +52,7 @@ static char posix_allowed[] =
 	"abcdefghijklmnopqrstuvwxyz"
 	"0123456789._-";
 
-int stress_set_filename_opts(const char *opt)
+static int stress_set_filename_opts(const char *opt)
 {
 	size_t i;
 
@@ -457,7 +457,13 @@ tidy_dir:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_filename_opts,	stress_set_filename_opts },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_filename_info = {
 	.stressor = stress_filename,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -51,7 +51,7 @@ static int max_servers = 1;
  *  stress_set_epoll_port()
  *	set the default port base
  */
-int stress_set_epoll_port(const char *opt)
+static int stress_set_epoll_port(const char *opt)
 {
 	int epoll_port;
 
@@ -66,7 +66,7 @@ int stress_set_epoll_port(const char *opt)
  *  stress_set_epoll_domain()
  *	set the socket domain option
  */
-int stress_set_epoll_domain(const char *name)
+static int stress_set_epoll_domain(const char *name)
 {
 	int ret, epoll_domain;
 
@@ -86,6 +86,12 @@ int stress_set_epoll_domain(const char *name)
 
 	return ret;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_epoll_domain,	stress_set_epoll_domain },
+	{ OPT_epoll_port,	stress_set_epoll_port },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     defined(HAVE_LIB_RT) &&		\
@@ -608,11 +614,13 @@ reap:
 }
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

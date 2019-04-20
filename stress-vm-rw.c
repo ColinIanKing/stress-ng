@@ -46,7 +46,7 @@ typedef struct {
 
 #endif
 
-int stress_set_vm_rw_bytes(const char *opt)
+static int stress_set_vm_rw_bytes(const char *opt)
 {
 	size_t vm_rw_bytes;
 
@@ -55,6 +55,11 @@ int stress_set_vm_rw_bytes(const char *opt)
 		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
 	return set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vm_rw_bytes,	stress_set_vm_rw_bytes },	
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_PROCESS_VM_READV) &&	\
@@ -327,11 +332,13 @@ again:
 
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

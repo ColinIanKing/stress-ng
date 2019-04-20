@@ -29,7 +29,7 @@ static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
 
-int stress_set_msync_bytes(const char *opt)
+static int stress_set_msync_bytes(const char *opt)
 {
 	size_t msync_bytes;
 
@@ -38,6 +38,11 @@ int stress_set_msync_bytes(const char *opt)
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
 	return set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_msync_bytes,	stress_set_msync_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_MSYNC)
 /*
@@ -243,11 +248,13 @@ err:
 
 stressor_info_t stress_msync_info = {
 	.stressor = stress_msync,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_msync_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

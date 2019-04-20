@@ -35,7 +35,7 @@ static const int sync_modes[] = {
 };
 #endif
 
-int stress_set_sync_file_bytes(const char *opt)
+static int stress_set_sync_file_bytes(const char *opt)
 {
 	off_t sync_file_bytes;
 
@@ -44,6 +44,11 @@ int stress_set_sync_file_bytes(const char *opt)
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 	return set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sync_file_bytes,	stress_set_sync_file_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYNC_FILE_RANGE)
 
@@ -192,11 +197,13 @@ err:
 
 stressor_info_t stress_sync_file_info = {
 	.stressor = stress_sync_file,
-	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sync_file_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

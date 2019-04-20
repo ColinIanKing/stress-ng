@@ -40,7 +40,7 @@ typedef struct {
  *  stress_set_pty_max()
  *	set ptr maximum
  */
-int stress_set_pty_max(const char *opt)
+static int stress_set_pty_max(const char *opt)
 {
 	uint64_t pty_max;
 
@@ -49,6 +49,11 @@ int stress_set_pty_max(const char *opt)
 		MIN_PTYS, MAX_PTYS);
 	return set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_pty_max,	stress_set_pty_max },
+	{ 0,		NULL }
+};
 
 #if defined(HAVE_TERMIOS_H) &&	\
     defined(HAVE_TERMIO_H) &&	\
@@ -254,11 +259,13 @@ clean:
 
 stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_pty_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

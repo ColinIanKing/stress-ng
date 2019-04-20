@@ -620,7 +620,7 @@ static const stress_wcs_method_info_t wcs_methods[] = {
  *  stress_set_wcs_method()
  *	set the specified wcs stress method
  */
-int stress_set_wcs_method(const char *name)
+static int stress_set_wcs_method(const char *name)
 {
 	stress_wcs_method_info_t const *info;
 
@@ -677,8 +677,14 @@ static void stress_wcs_set_default(void)
 	stress_set_wcs_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = { 
+	{ OPT_wcs_method,	stress_set_wcs_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_wcs_info = {
 	.stressor = stress_wcs,
 	.set_default = stress_wcs_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

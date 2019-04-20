@@ -31,7 +31,7 @@ typedef struct {
 	char	shm_name[SHM_NAME_LEN];
 } shm_msg_t;
 
-int stress_set_shm_posix_bytes(const char *opt)
+static int stress_set_shm_posix_bytes(const char *opt)
 {
 	size_t shm_posix_bytes;
 
@@ -41,7 +41,7 @@ int stress_set_shm_posix_bytes(const char *opt)
 	return set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
 }
 
-int stress_set_shm_posix_objects(const char *opt)
+static int stress_set_shm_posix_objects(const char *opt)
 {
 	size_t shm_posix_objects;
 
@@ -50,6 +50,12 @@ int stress_set_shm_posix_objects(const char *opt)
 		MIN_SHM_POSIX_OBJECTS, MAX_48);
 	return set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_shm_bytes,	stress_set_shm_posix_bytes },
+	{ OPT_shm_objects,	stress_set_shm_posix_objects },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_RT)
 
@@ -413,11 +419,13 @@ err:
 
 stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_shm_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

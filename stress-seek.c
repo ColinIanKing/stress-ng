@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_seek_size(const char *opt)
+static int stress_set_seek_size(const char *opt)
 {
 	uint64_t seek_size;
 
@@ -174,7 +174,13 @@ finish:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_seek_size,	stress_set_seek_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_seek_info = {
 	.stressor = stress_seek,
-	.class = CLASS_IO | CLASS_OS
+	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -28,7 +28,7 @@
  *  stress_set_hsearch_size()
  *      set hsearch size from given option string
  */
-int stress_set_hsearch_size(const char *opt)
+static int stress_set_hsearch_size(const char *opt)
 {
 	uint64_t hsearch_size;
 
@@ -134,7 +134,13 @@ free_hash:
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_hsearch_size,	stress_set_hsearch_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_hsearch_info = {
 	.stressor = stress_hsearch,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -41,7 +41,7 @@ static pthread_info_t pthreads[MAX_PTHREAD];
 
 #endif
 
-int stress_set_pthread_max(const char *opt)
+static int stress_set_pthread_max(const char *opt)
 {
 	uint64_t pthread_max;
 
@@ -50,6 +50,11 @@ int stress_set_pthread_max(const char *opt)
 		MIN_PTHREAD, MAX_PTHREAD);
 	return set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_pthread_max,	stress_set_pthread_max },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_PTHREAD)
 
@@ -372,11 +377,13 @@ reap:
 
 stressor_info_t stress_pthread_info = {
 	.stressor = stress_pthread,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_pthread_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

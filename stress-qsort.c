@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_qsort_handler(int signum)
  *  stress_set_qsort_size()
  *	set qsort size
  */
-int stress_set_qsort_size(const char *opt)
+static int stress_set_qsort_size(const char *opt)
 {
 	uint64_t qsort_size;
 
@@ -196,7 +196,13 @@ tidy:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_qsort_integers,	stress_set_qsort_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_qsort_info = {
 	.stressor = stress_qsort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

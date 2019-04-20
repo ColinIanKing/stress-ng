@@ -33,7 +33,7 @@ typedef union _semun {
 } semun_t;
 #endif
 
-int stress_set_semaphore_sysv_procs(const char *opt)
+static int stress_set_semaphore_sysv_procs(const char *opt)
 {
 	uint64_t semaphore_sysv_procs;
 
@@ -42,6 +42,11 @@ int stress_set_semaphore_sysv_procs(const char *opt)
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 	return set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sem_sysv_procs,	stress_set_semaphore_sysv_procs },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SEM_SYSV)
 
@@ -287,11 +292,13 @@ stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_sem_sysv,
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
-	.class = CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

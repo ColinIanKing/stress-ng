@@ -69,7 +69,7 @@ static const policy_t policies[] = {
 
 static const size_t num_policies = SIZEOF_ARRAY(policies);
 
-int stress_set_cyclic_sleep(const char *opt)
+static int stress_set_cyclic_sleep(const char *opt)
 {
 	uint64_t cyclic_sleep;
 
@@ -79,7 +79,7 @@ int stress_set_cyclic_sleep(const char *opt)
         return set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
 
-int stress_set_cyclic_policy(const char *opt)
+static int stress_set_cyclic_policy(const char *opt)
 {
 	size_t policy;
 
@@ -97,7 +97,7 @@ int stress_set_cyclic_policy(const char *opt)
 	return -1;
 }
 
-int stress_set_cyclic_prio(const char *opt)
+static int stress_set_cyclic_prio(const char *opt)
 {
 	int32_t cyclic_prio;
 
@@ -106,7 +106,7 @@ int stress_set_cyclic_prio(const char *opt)
         return set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
-int stress_set_cyclic_dist(const char *opt)
+static int stress_set_cyclic_dist(const char *opt)
 {
 	uint64_t cyclic_dist;
 
@@ -464,7 +464,7 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
  *  stress_set_cyclic_method()
  *	set the default cyclic method
  */
-int stress_set_cyclic_method(const char *name)
+static int stress_set_cyclic_method(const char *name)
 {
 	stress_cyclic_method_info_t const *info;
 
@@ -792,8 +792,18 @@ tidy:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_cyclic_dist,	stress_set_cyclic_dist },
+	{ OPT_cyclic_method,	stress_set_cyclic_method },
+	{ OPT_cyclic_policy,	stress_set_cyclic_policy },
+	{ OPT_cyclic_prio, 	stress_set_cyclic_prio },
+	{ OPT_cyclic_sleep,	stress_set_cyclic_sleep },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_cyclic_info = {
 	.stressor = stress_cyclic,
 	.supported = stress_cyclic_supported,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

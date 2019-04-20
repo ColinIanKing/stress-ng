@@ -116,7 +116,7 @@ static const int unshare_flags[] = {
  *  stress_set_clone_max()
  *	set maximum number of clones allowed
  */
-int stress_set_clone_max(const char *opt)
+static int stress_set_clone_max(const char *opt)
 {
 	uint64_t clone_max;
 
@@ -125,6 +125,11 @@ int stress_set_clone_max(const char *opt)
 		MIN_ZOMBIES, MAX_ZOMBIES);
 	return set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_clone_max,	stress_set_clone_max },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_CLONE)
 
@@ -382,11 +387,13 @@ again:
 
 stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_clone_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -44,7 +44,7 @@ typedef struct {
 
 static const stress_matrix_method_info_t matrix_methods[];
 
-int stress_set_matrix_size(const char *opt)
+static int stress_set_matrix_size(const char *opt)
 {
 	size_t matrix_size;
 
@@ -54,7 +54,7 @@ int stress_set_matrix_size(const char *opt)
 	return set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
 }
 
-int stress_set_matrix_yx(const char *opt)
+static int stress_set_matrix_yx(const char *opt)
 {
 	size_t matrix_yx = 1;
 
@@ -864,7 +864,7 @@ static void stress_matrix_method_error(void)
  *  stress_set_matrix_method()
  *	set the default matrix stress method
  */
-int stress_set_matrix_method(const char *name)
+static int stress_set_matrix_method(const char *name)
 {
 	const stress_matrix_method_info_t *info;
 
@@ -995,10 +995,18 @@ static void stress_matrix_set_default(void)
 	stress_set_matrix_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_matrix_method,	stress_set_matrix_method },
+	{ OPT_matrix_size,	stress_set_matrix_size },
+	{ OPT_matrix_yx,	stress_set_matrix_yx },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_matrix_info = {
 	.stressor = stress_matrix,
 	.set_default = stress_matrix_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 
 #else

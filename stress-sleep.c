@@ -37,7 +37,7 @@ static volatile bool thread_terminate;
 static sigset_t set;
 #endif
 
-int stress_set_sleep_max(const char *opt)
+static int stress_set_sleep_max(const char *opt)
 {
 	uint64_t sleep_max;
 
@@ -46,6 +46,11 @@ int stress_set_sleep_max(const char *opt)
 		MIN_SLEEP, MAX_SLEEP);
 	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sleep_max,	stress_set_sleep_max },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_PTHREAD)
 
@@ -212,11 +217,13 @@ tidy:
 
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -26,7 +26,7 @@
 
 typedef void (*stress_iomix_func)(const args_t *args, const int fd, const off_t iomix_bytes);
 
-int stress_set_iomix_bytes(const char *opt)
+static int stress_set_iomix_bytes(const char *opt)
 {
 	off_t iomix_bytes;
 
@@ -757,7 +757,13 @@ unmap:
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_iomix_bytes,	stress_set_iomix_bytes },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_iomix_info = {
 	.stressor = stress_iomix,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

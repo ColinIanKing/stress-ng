@@ -40,7 +40,7 @@ static const ioport_opts_t ioport_opts[] = {
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
 };
 
-int stress_set_ioport_opts(const char *opts)
+static int stress_set_ioport_opts(const char *opts)
 {
 	size_t i;
 
@@ -61,6 +61,11 @@ int stress_set_ioport_opts(const char *opts)
 	(void)fprintf(stderr, "\n");
 	return -1;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_ioport_opts,	stress_set_ioport_opts },
+	{ 0,			NULL }
+};
 
 #if defined(STRESS_X86) && 	\
     defined(HAVE_IOPORT) &&	\
@@ -160,11 +165,13 @@ static int stress_ioport(const args_t *args)
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

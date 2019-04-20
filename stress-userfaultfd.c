@@ -43,7 +43,7 @@ typedef struct {
 
 #endif
 
-int stress_set_userfaultfd_bytes(const char *opt)
+static int stress_set_userfaultfd_bytes(const char *opt)
 {
 	size_t userfaultfd_bytes;
 
@@ -52,6 +52,11 @@ int stress_set_userfaultfd_bytes(const char *opt)
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
 	return set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_userfaultfd_bytes,	stress_set_userfaultfd_bytes },
+	{ 0,				NULL }
+};
 
 #if defined(HAVE_USERFAULTFD) && \
     defined(HAVE_LINUX_USERFAULTFD_H) && \
@@ -450,11 +455,13 @@ static int stress_userfaultfd(const args_t *args)
 
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

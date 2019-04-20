@@ -36,7 +36,7 @@ typedef struct {
 	double		mbytes;
 } memrate_stats_t;
 
-int stress_set_memrate_bytes(const char *opt)
+static int stress_set_memrate_bytes(const char *opt)
 {
 	uint64_t memrate_bytes;
 
@@ -46,7 +46,7 @@ int stress_set_memrate_bytes(const char *opt)
 	return set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
 }
 
-int stress_set_memrate_rd_mbs(const char *opt)
+static int stress_set_memrate_rd_mbs(const char *opt)
 {
 	uint64_t memrate_rd_mbs;
 
@@ -56,7 +56,7 @@ int stress_set_memrate_rd_mbs(const char *opt)
 	return set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
 }
 
-int stress_set_memrate_wr_mbs(const char *opt)
+static int stress_set_memrate_wr_mbs(const char *opt)
 {
 	uint64_t memrate_wr_mbs;
 
@@ -355,7 +355,15 @@ err:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memrate_bytes,	stress_set_memrate_bytes },
+	{ OPT_memrate_rd_mbs,	stress_set_memrate_rd_mbs },
+	{ OPT_memrate_wr_mbs,	stress_set_memrate_wr_mbs },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_memrate_info = {
 	.stressor = stress_memrate,
-	.class = CLASS_MEMORY
+	.class = CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

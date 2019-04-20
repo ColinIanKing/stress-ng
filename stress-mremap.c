@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_mremap_bytes(const char *opt)
+static int stress_set_mremap_bytes(const char *opt)
 {
 	size_t mremap_bytes;
 
@@ -33,6 +33,11 @@ int stress_set_mremap_bytes(const char *opt)
 		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
 	return set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mremap_bytes,	stress_set_mremap_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0)
 
@@ -333,11 +338,13 @@ again:
 
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -660,7 +660,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
  *	set zlib compression level, 0..9,
  *	0 = no compression, 1 = fastest, 9 = best compression
  */
-int stress_set_zlib_level(const char *opt)
+static int stress_set_zlib_level(const char *opt)
 {
         uint32_t zlib_level;
 
@@ -673,7 +673,7 @@ int stress_set_zlib_level(const char *opt)
  *  stress_set_zlib_method()
  *	set the default zlib random data method
  */
-int stress_set_zlib_method(const char *opt)
+static int stress_set_zlib_method(const char *opt)
 {
 	stress_zlib_rand_data_info_t *info;
 
@@ -692,6 +692,12 @@ int stress_set_zlib_method(const char *opt)
 
 	return -1;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_zlib_level,	stress_set_zlib_level },
+	{ OPT_zlib_method,	stress_set_zlib_method },
+	{ 0,			NULL }
+};
 
 /*
  *  stress_zlib_err()
@@ -1103,7 +1109,8 @@ static void stress_zlib_set_default(void)
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
 	.set_default = stress_zlib_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_zlib_info = {

@@ -178,7 +178,7 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
  *  stress_set_memcpy_method()
  *      set default memcpy stress method
  */
-int stress_set_memcpy_method(const char *name)
+static int stress_set_memcpy_method(const char *name)
 {
 	stress_memcpy_method_info_t const *info;
 
@@ -227,8 +227,14 @@ static int stress_memcpy(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memcpy_method,	stress_set_memcpy_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_memcpy_info = {
 	.stressor = stress_memcpy,
 	.set_default = stress_memcpy_set_default,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -128,7 +128,7 @@ static const hdd_opts_t hdd_opts[] = {
 	{ "utimes",	HDD_OPT_UTIMES, 0, 0, 0 },
 };
 
-int stress_set_hdd_bytes(const char *opt)
+static int stress_set_hdd_bytes(const char *opt)
 {
 	uint64_t hdd_bytes;
 
@@ -138,7 +138,7 @@ int stress_set_hdd_bytes(const char *opt)
 	return set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
 }
 
-int stress_set_hdd_write_size(const char *opt)
+static int stress_set_hdd_write_size(const char *opt)
 {
 	uint64_t hdd_write_size;
 
@@ -238,7 +238,7 @@ static ssize_t stress_hdd_read(
  *  stress_set_hdd_opts
  *	parse --hdd-opts option(s) list
  */
-int stress_set_hdd_opts(const char *opts)
+static int stress_set_hdd_opts(const char *opts)
 {
 	char *str, *ptr, *token;
 	int hdd_flags = 0;
@@ -696,7 +696,15 @@ finish:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_hdd_bytes,	stress_set_hdd_bytes },
+	{ OPT_hdd_opts,		stress_set_hdd_opts },
+	{ OPT_hdd_write_size,	stress_set_hdd_write_size },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
-	.class = CLASS_IO | CLASS_OS
+	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

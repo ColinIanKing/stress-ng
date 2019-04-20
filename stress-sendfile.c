@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_sendfile_size(const char *opt)
+static int stress_set_sendfile_size(const char *opt)
 {
 	int64_t sendfile_size;
 
@@ -33,6 +33,11 @@ int stress_set_sendfile_size(const char *opt)
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
 	return set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sendfile_size,	stress_set_sendfile_size },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
     NEED_GLIBC(2,1,0)
@@ -115,11 +120,13 @@ dir_out:
 
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
-	.class = CLASS_PIPE_IO | CLASS_OS
+	.class = CLASS_PIPE_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_PIPE_IO | CLASS_OS
+	.class = CLASS_PIPE_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_splice_bytes(const char *opt)
+static int stress_set_splice_bytes(const char *opt)
 {
 	size_t splice_bytes;
 
@@ -33,6 +33,11 @@ int stress_set_splice_bytes(const char *opt)
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
 	return set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_splice_bytes,	stress_set_splice_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SPLICE) &&	\
     defined(SPLICE_F_MOVE)
@@ -100,11 +105,13 @@ static int stress_splice(const args_t *args)
 
 stressor_info_t stress_splice_info = {
 	.stressor = stress_splice,
-	.class = CLASS_PIPE_IO | CLASS_OS
+	.class = CLASS_PIPE_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_splice_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_PIPE_IO | CLASS_OS
+	.class = CLASS_PIPE_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -325,7 +325,14 @@ static int stress_dirdeep(const args_t *args)
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dirdeep_dirs,	stress_set_dirdeep_dirs },
+	{ OPT_dirdeep_inodes,	stress_set_dirdeep_inodes },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_dirdeep_info = {
 	.stressor = stress_dirdeep,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -319,7 +319,7 @@ static void stress_memthrash_random(const args_t *args, size_t mem_size)
  *  stress_set_memthrash_method()
  *	set the default memthresh method
  */
-int stress_set_memthrash_method(const char *name)
+static int stress_set_memthrash_method(const char *name)
 {
 	size_t i;
 
@@ -556,13 +556,19 @@ reap_mem:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memthrash_method,	stress_set_memthrash_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_memthrash,
-	.class = CLASS_MEMORY
+	.class = CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 
-int stress_set_memthrash_method(const char *name)
+static int stress_set_memthrash_method(const char *name)
 {
 	(void)name;
 
@@ -570,8 +576,14 @@ int stress_set_memthrash_method(const char *name)
 	return 0;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_memthrash_method,	stress_set_memthrash_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY
+	.class = CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

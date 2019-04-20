@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_semaphore_posix_procs(const char *opt)
+static int stress_set_semaphore_posix_procs(const char *opt)
 {
 	uint64_t semaphore_posix_procs;
 
@@ -33,6 +33,11 @@ int stress_set_semaphore_posix_procs(const char *opt)
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
 	return set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sem_procs,	stress_set_semaphore_posix_procs },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
@@ -145,11 +150,13 @@ static int stress_sem(const args_t *args)
 
 stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
-	.class = CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sem_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

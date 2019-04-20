@@ -111,7 +111,7 @@ static const stress_cpu_method_info_t cpu_methods[];
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
-int stress_set_cpu_load(const char *opt) {
+static int stress_set_cpu_load(const char *opt) {
 	int32_t cpu_load;
 
 	cpu_load = get_int32(opt);
@@ -125,7 +125,7 @@ int stress_set_cpu_load(const char *opt) {
  *	= 0   - random duration between 0..0.5 seconds
  *	> 0   - milliseconds per busy slice
  */
-int stress_set_cpu_load_slice(const char *opt)
+static int stress_set_cpu_load_slice(const char *opt)
 {
 	int32_t cpu_load_slice;
 
@@ -2411,7 +2411,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
  *  stress_set_cpu_method()
  *	set the default cpu stress method
  */
-int stress_set_cpu_method(const char *name)
+static int stress_set_cpu_method(const char *name)
 {
 	stress_cpu_method_info_t const *info;
 
@@ -2538,8 +2538,16 @@ static void stress_cpu_set_default(void)
 	stress_set_cpu_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_cpu_load,		stress_set_cpu_load },
+	{ OPT_cpu_load_slice,	stress_set_cpu_load_slice },
+	{ OPT_cpu_method,	stress_set_cpu_method },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_cpu_info = {
 	.stressor = stress_cpu,
 	.set_default = stress_cpu_set_default,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.opt_set_funcs = opt_set_funcs
 };

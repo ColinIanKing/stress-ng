@@ -74,7 +74,7 @@ struct tree_node {
  *  stress_set_tree_size()
  *	set tree size
  */
-int stress_set_tree_size(const char *opt)
+static int stress_set_tree_size(const char *opt)
 {
 	uint64_t tree_size;
 
@@ -446,7 +446,7 @@ static const stress_tree_method_info_t tree_methods[] = {
  *  stress_set_tree_method()
  *	set the default funccal stress method
  */
-int stress_set_tree_method(const char *name)
+static int stress_set_tree_method(const char *name)
 {
 	stress_tree_method_info_t const *info;
 
@@ -465,6 +465,12 @@ int stress_set_tree_method(const char *name)
 
 	return -1;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_tree_method,	stress_set_tree_method },
+	{ OPT_tree_size,	stress_set_tree_size },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 
@@ -558,11 +564,13 @@ tidy:
 
 stressor_info_t stress_tree_info = {
 	.stressor = stress_tree,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_tree_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

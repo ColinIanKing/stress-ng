@@ -77,8 +77,10 @@ int stress_set_cpu_affinity(const char *arg)
 	CPU_ZERO(&set);
 
 	str = stress_const_optdup(arg);
-	if (!str)
-		return -1;
+	if (!str) {
+		(void)fprintf(stderr, "out of memory duplicating argument '%s'\n", arg);
+		_exit(EXIT_FAILURE);
+	}
 
 	for (ptr = str; (token = strtok(ptr, ",")) != NULL; ptr = NULL) {
 		int i, lo, hi;

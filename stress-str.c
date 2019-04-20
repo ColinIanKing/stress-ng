@@ -622,7 +622,7 @@ static const stress_str_method_info_t str_methods[] = {
  *  stress_set_str_method()
  *	set the default string stress method
  */
-int stress_set_str_method(const char *name)
+static int stress_set_str_method(const char *name)
 {
 	stress_str_method_info_t const *info;
 
@@ -675,8 +675,14 @@ static void stress_str_set_default(void)
 	stress_set_str_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_str_method,	stress_set_str_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_str_info = {
 	.stressor = stress_str,
 	.set_default = stress_str_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -62,7 +62,7 @@ static const int mmap_flags[] = {
 	0
 };
 
-int stress_set_mmap_bytes(const char *opt)
+static int stress_set_mmap_bytes(const char *opt)
 {
 	size_t mmap_bytes;
 
@@ -437,7 +437,13 @@ cleanup:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

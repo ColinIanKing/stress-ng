@@ -910,13 +910,19 @@ typedef struct {
 } args_t;
 
 typedef struct {
+	const int opt;			/* optarg option*/
+	int (*opt_set_func)(const char *optarg); /* function to set it */
+} opt_set_func_t;
+
+typedef struct {
 	int (*stressor)(const args_t *args);
 	int (*supported)(void);
 	void (*init)(void);
 	void (*deinit)(void);
 	void (*set_default)(void);
 	void (*set_limit)(uint64_t max);
-	class_t class;
+	const class_t class;
+	const opt_set_func_t *opt_set_funcs;
 } stressor_info_t;
 
 /* pthread wrapped args_t */
@@ -2003,7 +2009,7 @@ typedef struct {
  *  Declaration of stress_*_info object
  */
 #define STRESSOR_ENUM(name)	\
-	STRESS_ ## name, 
+	STRESS_ ## name,
 
 /* Stress tests */
 typedef enum {
@@ -3142,6 +3148,7 @@ extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 extern const char *stress_get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name(const char *name);
+extern int stress_set_vm_flags(const int flag);
 
 /* Memory locking */
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);
@@ -3312,127 +3319,6 @@ extern void thrash_stop(void);
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);
-extern int  stress_set_aio_requests(const char *opt);
-extern int  stress_set_aio_linux_requests(const char *opt);
-extern int  stress_set_bigheap_growth(const char *arg);
-extern int  stress_set_bsearch_size(const char *opt);
-extern int  stress_set_chdir_dirs(const char *opt);
-extern int  stress_set_clone_max(const char *opt);
-extern int  stress_set_copy_file_bytes(const char *opt);
-extern int  stress_set_cpu_load(const char *opt);
-extern int  stress_set_cpu_load_slice(const char *opt);
-extern int  stress_set_cpu_method(const char *name);
-extern int  stress_set_cyclic_dist(const char *opt);
-extern int  stress_set_cyclic_method(const char *opt);
-extern int  stress_set_cyclic_policy(const char *opt);
-extern int  stress_set_cyclic_prio(const char *opt);
-extern int  stress_set_cyclic_sleep(const char *opt);
-extern int  stress_set_dccp_domain(const char *name);
-extern int  stress_set_dccp_opts(const char *opt);
-extern int  stress_set_dccp_port(const char *opt);
-extern int  stress_set_dentries(const char *opt);
-extern int  stress_set_dentry_order(const char *opt);
-extern int  stress_set_dir_dirs(const char *opt);
-extern int  stress_set_dirdeep_dirs(const char *opt);
-extern int  stress_set_dirdeep_inodes(const char *opt);
-extern int  stress_set_epoll_port(const char *opt);
-extern int  stress_set_epoll_domain(const char *opt);
-extern int  stress_set_exec_max(const char *opt);
-extern int  stress_set_fallocate_bytes(const char *opt);
-extern int  stress_set_fifo_readers(const char *opt);
-extern int  stress_set_funccall_method(const char *name);
-extern int  stress_set_filename_opts(const char *opt);
-extern int  stress_set_fiemap_bytes(const char *opt);
-extern int  stress_set_fork_max(const char *opt);
-extern int  stress_set_fstat_dir(const char *opt);
-extern int  stress_set_hdd_bytes(const char *opt);
-extern int  stress_set_hdd_opts(const char *opts);
-extern int  stress_set_hdd_write_size(const char *opt);
-extern int  stress_set_heapsort_size(const char *opt);
-extern int  stress_set_hsearch_size(const char *opt);
-extern int  stress_set_iomix_bytes(const char *opt);
-extern int  stress_set_ioport_opts(const char *opts);
-extern int  stress_set_itimer_freq(const char *opt);
-extern int  stress_set_lease_breakers(const char *opt);
-extern int  stress_set_lsearch_size(const char *opt);
-extern int  stress_set_malloc_bytes(const char *opt);
-extern int  stress_set_malloc_max(const char *opt);
-extern int  stress_set_malloc_threshold(const char *opt);
-extern int  stress_set_matrix_method(const char *name);
-extern int  stress_set_matrix_yx(const char *opt);
-extern int  stress_set_matrix_size(const char *opt);
-extern int  stress_set_matrix_3d_method(const char *name);
-extern int  stress_set_matrix_3d_size(const char *opt);
-extern int  stress_set_matrix_3d_zyx(const char *opt);
-extern int  stress_set_memcpy_method(const char *name);
-extern int  stress_set_memfd_bytes(const char *opt);
-extern int  stress_set_memfd_fds(const char *opt);
-extern int  stress_set_memrate_bytes(const char *opt);
-extern int  stress_set_memrate_rd_mbs(const char *opt);
-extern int  stress_set_memrate_wr_mbs(const char *opt);
-extern int  stress_set_memthrash_method(const char *name);
-extern int  stress_set_mergesort_size(const char *opt);
-extern int  stress_set_mmap_bytes(const char *opt);
-extern int  stress_set_mq_size(const char *opt);
-extern int  stress_set_mremap_bytes(const char *opt);
-extern int  stress_set_msync_bytes(const char *opt);
-extern int  stress_set_opcode_method(const char *name);
-extern int  stress_set_pipe_data_size(const char *opt);
-extern int  stress_set_pipe_size(const char *opt);
-extern int  stress_set_pthread_max(const char *opt);
-extern int  stress_set_pty_max(const char *opt);
-extern int  stress_set_qsort_size(const char *opt);
-extern int  stress_set_radixsort_size(const char *opt);
-extern int  stress_set_rawdev_method(const char *name);
-extern int  stress_set_readahead_bytes(const char *opt);
-extern int  stress_set_revio_bytes(const char *opt);
-extern int  stress_set_revio_opts(const char *opts);
-extern int  stress_set_sctp_domain(const char *opt);
-extern int  stress_set_sctp_port(const char *opt);
-extern int  stress_set_seek_size(const char *opt);
-extern int  stress_set_semaphore_posix_procs(const char *opt);
-extern int  stress_set_semaphore_sysv_procs(const char *opt);
-extern int  stress_set_sendfile_size(const char *opt);
-extern int  stress_set_shm_posix_bytes(const char *opt);
-extern int  stress_set_shm_posix_objects(const char *opt);
-extern int  stress_set_shm_sysv_bytes(const char *opt);
-extern int  stress_set_shm_sysv_segments(const char *opt);
-extern int  stress_set_sleep_max(const char *opt);
-extern int  stress_set_socket_domain(const char *name);
-extern int  stress_set_socket_opts(const char *opt);
-extern int  stress_set_socket_type(const char *opt);
-extern int  stress_set_socket_port(const char *opt);
-extern int  stress_set_socket_fd_port(const char *opt);
-extern int  stress_set_splice_bytes(const char *opt);
-extern int  stress_set_str_method(const char *name);
-extern int  stress_set_stream_L3_size(const char *opt);
-extern int  stress_set_stream_index(const char *opt);
-extern int  stress_set_stream_madvise(const char *opt);
-extern int  stress_set_switch_freq(const char *opt);
-extern int  stress_set_sync_file_bytes(const char *opt);
-extern int  stress_set_timer_freq(const char *opt);
-extern int  stress_set_timerfd_freq(const char *opt);
-extern int  stress_set_tree_method(const char *name);
-extern int  stress_set_tree_size(const char *opt);
-extern int  stress_set_tsearch_size(const char *opt);
-extern int  stress_set_udp_domain(const char *name);
-extern int  stress_set_udp_port(const char *opt);
-extern int  stress_set_udp_flood_domain(const char *name);
-extern int  stress_set_userfaultfd_bytes(const char *opt);
-extern int  stress_set_vdso_func(const char *name);
-extern int  stress_set_vfork_max(const char *opt);
-extern int  stress_set_vm_bytes(const char *opt);
-extern int  stress_set_vm_flags(const int flag);
-extern int  stress_set_vm_hang(const char *opt);
-extern int  stress_set_vm_madvise(const char *name);
-extern int  stress_set_vm_method(const char *name);
-extern int  stress_set_vm_rw_bytes(const char *opt);
-extern int  stress_set_vm_splice_bytes(const char *opt);
-extern int  stress_set_vm_addr_method(const char *name);
-extern int  stress_set_wcs_method(const char *name);
-extern int  stress_set_zlib_level(const char *name);
-extern int  stress_set_zlib_method(const char *name);
-extern int  stress_set_zombie_max(const char *opt);
 
 /* loff_t and off64_t porting shims */
 #if defined(HAVE_LOFF_T)

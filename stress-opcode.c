@@ -224,7 +224,7 @@ static const stress_opcode_method_info_t stress_opcode_methods[] = {
  *  stress_set_opcode_method()
  *      set default opcode stress method
  */
-int stress_set_opcode_method(const char *name)
+static int stress_set_opcode_method(const char *name)
 {
 	stress_opcode_method_info_t const *info;
 
@@ -244,6 +244,10 @@ int stress_set_opcode_method(const char *name)
 	return -1;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_opcode_method,	stress_set_opcode_method },
+	{ 0,			NULL }
+};
 
 /*
  *  stress_opcode
@@ -401,7 +405,8 @@ static void stress_opcode_set_default(void)
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode,
         .set_default = stress_opcode_set_default,
-	.class = CLASS_CPU | CLASS_OS
+	.class = CLASS_CPU | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 

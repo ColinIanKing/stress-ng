@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_malloc_bytes(const char *opt)
+static int stress_set_malloc_bytes(const char *opt)
 {
 	size_t malloc_bytes;
 
@@ -34,7 +34,7 @@ int stress_set_malloc_bytes(const char *opt)
 	return set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
 }
 
-int stress_set_malloc_max(const char *opt)
+static int stress_set_malloc_max(const char *opt)
 {
 	size_t malloc_max;
 
@@ -44,7 +44,7 @@ int stress_set_malloc_max(const char *opt)
 	return set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
 }
 
-int stress_set_malloc_threshold(const char *opt)
+static int stress_set_malloc_threshold(const char *opt)
 {
 	size_t malloc_threshold;
 
@@ -226,7 +226,15 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
+	{ OPT_malloc_max,	stress_set_malloc_max },
+	{ OPT_malloc_bytes,	stress_set_malloc_bytes },
+	{ 0,		NULL }
+};
+
 stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

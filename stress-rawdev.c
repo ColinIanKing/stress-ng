@@ -303,6 +303,11 @@ int stress_set_rawdev_method(const char *name)
 }
 #endif
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_rawdev_method,	stress_set_rawdev_method },
+	{ 0,			NULL }
+};
+
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
@@ -399,11 +404,13 @@ static int stress_rawdev(const args_t *args)
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
-	.class = CLASS_IO
+	.class = CLASS_IO,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_IO
+	.class = CLASS_IO,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

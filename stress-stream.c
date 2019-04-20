@@ -58,8 +58,7 @@ static const stream_madvise_info_t stream_madvise_info[] = {
         { NULL,         0 },
 };
 
-
-int stress_set_stream_L3_size(const char *opt)
+static int stress_set_stream_L3_size(const char *opt)
 {
 	uint64_t stream_L3_size;
 
@@ -69,7 +68,7 @@ int stress_set_stream_L3_size(const char *opt)
 	return set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
 }
 
-int stress_set_stream_madvise(const char *opt)
+static int stress_set_stream_madvise(const char *opt)
 {
 	const stream_madvise_info_t *info;
 
@@ -87,7 +86,7 @@ int stress_set_stream_madvise(const char *opt)
 	return -1;
 }
 
-int stress_set_stream_index(const char *opt)
+static int stress_set_stream_index(const char *opt)
 {
 	uint32_t stream_index;
 
@@ -582,7 +581,15 @@ err_a:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_stream_index,	stress_set_stream_index },
+	{ OPT_stream_l3_size,	stress_set_stream_L3_size },
+	{ OPT_stream_madvise,	stress_set_stream_madvise },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_stream_info = {
 	.stressor = stress_stream,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

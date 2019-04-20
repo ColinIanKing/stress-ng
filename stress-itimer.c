@@ -33,7 +33,7 @@ static double start;
  *  stress_set_itimer_freq()
  *	set itimer frequency from given option
  */
-int stress_set_itimer_freq(const char *opt)
+static int stress_set_itimer_freq(const char *opt)
 {
 	uint64_t itimer_freq;
 
@@ -165,7 +165,13 @@ static int stress_itimer(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_itimer_freq,	stress_set_itimer_freq },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

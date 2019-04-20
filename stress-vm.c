@@ -98,7 +98,7 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
 	        LIKELY(!args->max_ops || ((get_counter(args) >> VM_BOGO_SHIFT) < args->max_ops)));
 }
 
-int stress_set_vm_hang(const char *opt)
+static int stress_set_vm_hang(const char *opt)
 {
 	uint64_t vm_hang;
 
@@ -108,7 +108,7 @@ int stress_set_vm_hang(const char *opt)
 	return set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
 }
 
-int stress_set_vm_bytes(const char *opt)
+static int stress_set_vm_bytes(const char *opt)
 {
 	size_t vm_bytes;
 
@@ -1920,7 +1920,7 @@ static const stress_vm_method_info_t vm_methods[] = {
  *  stress_set_vm_method()
  *      set default vm stress method
  */
-int stress_set_vm_method(const char *name)
+static int stress_set_vm_method(const char *name)
 {
 	stress_vm_method_info_t const *info;
 
@@ -2124,8 +2124,17 @@ static void stress_vm_set_default(void)
 	stress_set_vm_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vm_bytes,		stress_set_vm_bytes },
+	{ OPT_vm_hang,		stress_set_vm_hang },
+	{ OPT_vm_madvise,	stress_set_vm_madvise },
+	{ OPT_vm_method,	stress_set_vm_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_vm_info = {
 	.stressor = stress_vm,
 	.set_default = stress_vm_set_default,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -338,7 +338,7 @@ static const stress_vm_addr_method_info_t vm_addr_methods[] = {
  *  stress_set_vm_addr_method()
  *      set default vm stress method
  */
-int stress_set_vm_addr_method(const char *name)
+static int stress_set_vm_addr_method(const char *name)
 {
 	stress_vm_addr_method_info_t const *info;
 
@@ -498,7 +498,13 @@ clean_up:
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vm_addr_method,	stress_set_vm_addr_method },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

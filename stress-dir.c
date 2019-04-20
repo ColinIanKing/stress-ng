@@ -28,7 +28,7 @@
  *  stress_set_dir_dirs()
  *      set number of dir directories from given option string
  */
-int stress_set_dir_dirs(const char *opt)
+static int stress_set_dir_dirs(const char *opt)
 {
 	uint64_t dir_dirs;
 
@@ -172,7 +172,13 @@ abort:
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dir_dirs,	stress_set_dir_dirs },
+	{ 0,		NULL }
+};
+
 stressor_info_t stress_dir_info = {
 	.stressor = stress_dir,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

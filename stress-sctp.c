@@ -38,7 +38,7 @@ static uint64_t	sigpipe_count;
  *  stress_set_sctp_port()
  *	set port to use
  */
-int stress_set_sctp_port(const char *opt)
+static int stress_set_sctp_port(const char *opt)
 {
 	int sctp_port;
 
@@ -52,7 +52,7 @@ int stress_set_sctp_port(const char *opt)
  *  stress_set_sctp_domain()
  *	set the socket domain option
  */
-int stress_set_sctp_domain(const char *name)
+static int stress_set_sctp_domain(const char *name)
 {
 	int ret, sctp_domain;
 
@@ -62,6 +62,12 @@ int stress_set_sctp_domain(const char *name)
 
 	return ret;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sctp_port,	stress_set_sctp_port },
+	{ OPT_sctp_domain,	stress_set_sctp_domain },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_SCTP) &&	\
     defined(HAVE_NETINET_SCTP_H)
@@ -318,11 +324,13 @@ again:
 
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
-	.class = CLASS_NETWORK
+	.class = CLASS_NETWORK,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK
+	.class = CLASS_NETWORK,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

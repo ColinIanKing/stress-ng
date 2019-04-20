@@ -28,7 +28,7 @@
  *  stress_set_chdir_dirs()
  *	set number of chdir directories from given option string
  */
-int stress_set_chdir_dirs(const char *opt)
+static int stress_set_chdir_dirs(const char *opt)
 {
 	uint64_t chdir_dirs;
 
@@ -148,7 +148,13 @@ err:
 	return ret;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_chdir_dirs,	stress_set_chdir_dirs },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_chdir_info = {
 	.stressor = stress_chdir,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

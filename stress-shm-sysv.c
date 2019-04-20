@@ -65,7 +65,7 @@ static const int shm_flags[] = {
 };
 #endif
 
-int stress_set_shm_sysv_bytes(const char *opt)
+static int stress_set_shm_sysv_bytes(const char *opt)
 {
 	size_t shm_sysv_bytes;
 
@@ -75,7 +75,7 @@ int stress_set_shm_sysv_bytes(const char *opt)
 	return set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
 }
 
-int stress_set_shm_sysv_segments(const char *opt)
+static int stress_set_shm_sysv_segments(const char *opt)
 {
 	size_t shm_sysv_segments;
 
@@ -84,6 +84,12 @@ int stress_set_shm_sysv_segments(const char *opt)
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
 	return set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_shm_bytes,		stress_set_shm_sysv_bytes },
+	{ OPT_shm_sysv_segments,	stress_set_shm_sysv_segments },
+	{ 0,				NULL }
+};
 
 #if defined(HAVE_SHM_SYSV)
 /*
@@ -511,11 +517,13 @@ fork_again:
 
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

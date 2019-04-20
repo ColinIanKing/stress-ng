@@ -107,7 +107,13 @@ static int stress_lsearch(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lsearch_size,	stress_set_lsearch_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_lsearch_info = {
 	.stressor = stress_lsearch,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

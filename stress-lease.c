@@ -39,6 +39,11 @@ int stress_set_lease_breakers(const char *opt)
 	return set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lease_breakers,	stress_set_lease_breakers },
+	{ 0,			NULL }
+};
+
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
 
 /*
@@ -186,11 +191,13 @@ reap:
 
 stressor_info_t stress_lease_info = {
 	.stressor = stress_lease,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_lease_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

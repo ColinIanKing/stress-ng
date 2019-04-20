@@ -42,7 +42,7 @@ typedef struct {
 static volatile bool do_accounting = true;
 #endif
 
-int stress_set_aio_requests(const char *opt)
+static int stress_set_aio_requests(const char *opt)
 {
 	uint64_t aio_requests;
 
@@ -51,6 +51,11 @@ int stress_set_aio_requests(const char *opt)
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 	return set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_aio_requests,	stress_set_aio_requests },
+	{ 0,			NULL },
+};
 
 #if defined(HAVE_LIB_RT) && \
     defined(HAVE_AIO_H) && \
@@ -264,11 +269,13 @@ finish:
 
 stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_aio_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

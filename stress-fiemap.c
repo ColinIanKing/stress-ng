@@ -26,7 +26,7 @@
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 
-int stress_set_fiemap_bytes(const char *opt)
+static int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
 
@@ -35,6 +35,11 @@ int stress_set_fiemap_bytes(const char *opt)
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
 	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fiemap_bytes,	stress_set_fiemap_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LINUX_FS_H) &&		\
     defined(HAVE_LINUX_FIEMAP_H) && 	\
@@ -286,11 +291,13 @@ clean:
 
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_mq_size(const char *opt)
+static int stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
 	int mq_size;
@@ -34,6 +34,11 @@ int stress_set_mq_size(const char *opt)
 	mq_size = (int)sz;
 	return set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mq_size,	stress_set_mq_size },
+	{ 0,		NULL }
+};
 
 #if defined(HAVE_MQUEUE_H) &&	\
     defined(HAVE_LIB_RT) &&	\
@@ -253,11 +258,13 @@ again:
 
 stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_mq_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

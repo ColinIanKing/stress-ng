@@ -115,7 +115,7 @@ static const revio_opts_t revio_opts[] = {
 	{ "utimes",	REVIO_OPT_UTIMES, 0, 0, 0 },
 };
 
-int stress_set_revio_bytes(const char *opt)
+static int stress_set_revio_bytes(const char *opt)
 {
 	uint64_t revio_bytes;
 
@@ -166,7 +166,7 @@ static ssize_t stress_revio_write(
  *  stress_set_revio_opts
  *	parse --revio-opts option(s) list
  */
-int stress_set_revio_opts(const char *opts)
+static int stress_set_revio_opts(const char *opts)
 {
 	char *str, *ptr, *token;
 	int revio_flags = 0;
@@ -432,7 +432,15 @@ finish:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_revio_bytes,	stress_set_revio_bytes },
+	{ OPT_revio_opts,	stress_set_revio_opts },
+	{ 0,			NULL }
+
+};
+
 stressor_info_t stress_revio_info = {
 	.stressor = stress_revio,
-	.class = CLASS_IO | CLASS_OS
+	.class = CLASS_IO | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -41,7 +41,7 @@ static double start;
  *  stress_set_timer_freq()
  *	set timer frequency from given option
  */
-int stress_set_timer_freq(const char *opt)
+static int stress_set_timer_freq(const char *opt)
 {
 	uint64_t timer_freq;
 
@@ -50,6 +50,11 @@ int stress_set_timer_freq(const char *opt)
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 	return set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_timer_freq,	stress_set_timer_freq },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
@@ -194,11 +199,13 @@ static int stress_timer(const args_t *args)
 
 stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_timer_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

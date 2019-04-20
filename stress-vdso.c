@@ -28,10 +28,15 @@
  *  stress_set_vdso_func()
  *      set the default vdso function
  */
-int stress_set_vdso_func(const char *name)
+static int stress_set_vdso_func(const char *name)
 {
 	return set_setting("vdso-func", TYPE_ID_STR, name);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vdso_func,	stress_set_vdso_func },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_LINK_H) && \
@@ -460,11 +465,13 @@ static int stress_vdso(const args_t *args)
 stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_vdso_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

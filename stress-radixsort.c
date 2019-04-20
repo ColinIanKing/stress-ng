@@ -50,7 +50,7 @@ static void MLOCKED_TEXT stress_radixsort_handler(int signum)
  *  stress_set_radixsort_size()
  *	set radixsort size
  */
-int stress_set_radixsort_size(const char *opt)
+static int stress_set_radixsort_size(const char *opt)
 {
 	uint64_t radixsort_size;
 
@@ -59,6 +59,11 @@ int stress_set_radixsort_size(const char *opt)
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 	return set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_radixsort_size,	stress_set_radixsort_size },
+	{ 0,			NULL }
+};
 
 #if HAVE_LIB_BSD
 /*
@@ -146,11 +151,13 @@ tidy:
 
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

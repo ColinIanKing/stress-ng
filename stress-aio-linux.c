@@ -27,7 +27,7 @@
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
 
-int stress_set_aio_linux_requests(const char *opt)
+static int stress_set_aio_linux_requests(const char *opt)
 {
 	uint64_t aio_linux_requests;
 
@@ -36,6 +36,11 @@ int stress_set_aio_linux_requests(const char *opt)
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
 	return set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_aiol_requests,	stress_set_aio_linux_requests },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_LIB_AIO) &&		\
     defined(HAVE_LIBAIO_H) &&		\
@@ -243,11 +248,13 @@ free_buffer:
 
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

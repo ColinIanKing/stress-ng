@@ -31,7 +31,7 @@
  *  stress_set_pipe_size()
  *	set pipe size in bytes
  */
-int stress_set_pipe_size(const char *opt)
+static int stress_set_pipe_size(const char *opt)
 {
 	size_t pipe_size;
 
@@ -39,13 +39,14 @@ int stress_set_pipe_size(const char *opt)
 	check_range_bytes("pipe-size", pipe_size, 4, 1024 * 1024);
 	return set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
+
 #endif
 
 /*
  *  stress_set_pipe_size()
  *	set pipe data write size in bytes
  */
-int stress_set_pipe_data_size(const char *opt)
+static int stress_set_pipe_data_size(const char *opt)
 {
 	size_t pipe_data_size;
 
@@ -242,7 +243,16 @@ again:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+#if defined(F_SETPIPE_SZ)
+	{ OPT_pipe_size,	stress_set_pipe_size },
+#endif
+	{ OPT_pipe_data_size,	stress_set_pipe_data_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_pipe_info = {
 	.stressor = stress_pipe,
-	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

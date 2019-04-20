@@ -31,7 +31,7 @@
  *  stress_set_timerfd_freq()
  *	set timer frequency from given option
  */
-int stress_set_timerfd_freq(const char *opt)
+static int stress_set_timerfd_freq(const char *opt)
 {
 	uint64_t timerfd_freq;
 
@@ -40,6 +40,11 @@ int stress_set_timerfd_freq(const char *opt)
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
 	return set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_timerfd_freq,	stress_set_timerfd_freq },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_SYS_TIMERFD_H)
 
@@ -203,11 +208,13 @@ static int stress_timerfd(const args_t *args)
 
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

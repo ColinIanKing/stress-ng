@@ -43,7 +43,7 @@ static const dentry_removal_t dentry_removals[] = {
 	{ NULL,		ORDER_NONE },
 };
 
-int stress_set_dentries(const char *opt)
+static int stress_set_dentries(const char *opt)
 {
 	uint64_t dentries;
 
@@ -57,7 +57,7 @@ int stress_set_dentries(const char *opt)
  *  stress_set_dentry_order()
  *	set dentry ordering from give option
  */
-int stress_set_dentry_order(const char *opt)
+static int stress_set_dentry_order(const char *opt)
 {
 	const dentry_removal_t *dr;
 
@@ -316,7 +316,14 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dentries,		stress_set_dentries },
+	{ OPT_dentry_order,	stress_set_dentry_order },
+	{ 0,		NULL }
+};
+
 stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

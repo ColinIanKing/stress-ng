@@ -44,7 +44,7 @@ typedef struct {
  *  stress_set_socket_opts()
  *	parse --sock-opts
  */
-int stress_set_socket_opts(const char *opt)
+static int stress_set_socket_opts(const char *opt)
 {
 	static const socket_opts_t socket_opts[] = {
 		{ "send",	SOCKET_OPT_SEND },
@@ -78,7 +78,7 @@ int stress_set_socket_opts(const char *opt)
  *  stress_set_socket_type()
  *	parse --sock-type
  */
-int stress_set_socket_type(const char *opt)
+static int stress_set_socket_type(const char *opt)
 {
 	static const socket_type_t socket_type[] = {
 #if defined(SOCK_STREAM)
@@ -113,7 +113,7 @@ int stress_set_socket_type(const char *opt)
  *  stress_set_socket_port()
  *	set port to use
  */
-int  stress_set_socket_port(const char *opt)
+static int stress_set_socket_port(const char *opt)
 {
 	int socket_port;
 
@@ -467,7 +467,16 @@ again:
 	}
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sock_domain,	stress_set_socket_domain },
+	{ OPT_sock_opts,	stress_set_socket_opts },
+	{ OPT_sock_type,	stress_set_socket_type },
+	{ OPT_sock_port,	stress_set_socket_port },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_sock_info = {
 	.stressor = stress_sock,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

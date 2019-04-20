@@ -48,7 +48,7 @@ static const dccp_opts_t dccp_options[] = {
  *  stress_set_dccp_opts()
  *	parse --dccp-opts
  */
-int stress_set_dccp_opts(const char *opt)
+static int stress_set_dccp_opts(const char *opt)
 {
 	size_t i;
 
@@ -73,7 +73,7 @@ int stress_set_dccp_opts(const char *opt)
  *  stress_set_dccp_port()
  *	set port to use
  */
-int stress_set_dccp_port(const char *opt)
+static int stress_set_dccp_port(const char *opt)
 {
 	int dccp_port;
 
@@ -87,7 +87,7 @@ int stress_set_dccp_port(const char *opt)
  *  stress_set_dccp_domain()
  *	set the socket domain option
  */
-int stress_set_dccp_domain(const char *name)
+static int stress_set_dccp_domain(const char *name)
 {
 	int ret, dccp_domain;
 
@@ -96,6 +96,13 @@ int stress_set_dccp_domain(const char *name)
 	set_setting("dccp-domain", TYPE_ID_INT, &dccp_domain);
 	return ret;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dccp_domain,	stress_set_dccp_domain },
+	{ OPT_dccp_opts,	stress_set_dccp_opts },
+	{ OPT_dccp_port,	stress_set_dccp_port },
+	{ 0,			NULL },
+};
 
 #if defined(SOCK_DCCP) && defined(IPPROTO_DCCP)
 
@@ -393,11 +400,13 @@ again:
 
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_dccp,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

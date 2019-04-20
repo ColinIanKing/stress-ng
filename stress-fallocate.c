@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-int stress_set_fallocate_bytes(const char *opt)
+static int stress_set_fallocate_bytes(const char *opt)
 {
 	off_t fallocate_bytes;
 
@@ -33,6 +33,11 @@ int stress_set_fallocate_bytes(const char *opt)
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 	return set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_fallocate_bytes,	stress_set_fallocate_bytes },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_FALLOCATE)
 
@@ -173,11 +178,13 @@ static int stress_fallocate(const args_t *args)
 
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

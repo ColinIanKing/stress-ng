@@ -28,7 +28,7 @@
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
  */
-int stress_set_fork_max(const char *opt)
+static int stress_set_fork_max(const char *opt)
 {
 	uint64_t fork_max;
 
@@ -42,7 +42,7 @@ int stress_set_fork_max(const char *opt)
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
  */
-int stress_set_vfork_max(const char *opt)
+static int stress_set_vfork_max(const char *opt)
 {
 	uint64_t vfork_max;
 
@@ -163,12 +163,24 @@ PRAGMA_POP
 	return ret;
 }
 
+static const opt_set_func_t fork_opt_set_funcs[] = {
+	{ OPT_fork_max,		stress_set_fork_max },
+	{ 0,			NULL }
+};
+
+static const opt_set_func_t vfork_opt_set_funcs[] = {
+	{ OPT_vfork_max,	stress_set_vfork_max },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = fork_opt_set_funcs
 };
 
 stressor_info_t stress_vfork_info = {
 	.stressor = stress_vfork,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = vfork_opt_set_funcs
 };

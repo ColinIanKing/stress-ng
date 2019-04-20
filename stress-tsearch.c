@@ -28,7 +28,7 @@
  *  stress_set_tsearch_size()
  *      set tsearch size from given option string
  */
-int stress_set_tsearch_size(const char *opt)
+static int stress_set_tsearch_size(const char *opt)
 {
 	uint64_t tsearch_size;
 
@@ -132,7 +132,13 @@ abort:
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_tsearch_size,	stress_set_tsearch_size },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
-	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

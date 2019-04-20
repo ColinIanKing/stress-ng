@@ -28,7 +28,7 @@
  *  stress_set_udp_domain()
  *      set the udp domain option
  */
-int stress_set_udp_flood_domain(const char *name)
+static int stress_set_udp_flood_domain(const char *name)
 {
 	int ret, udp_flood_domain;
 
@@ -38,6 +38,11 @@ int stress_set_udp_flood_domain(const char *name)
 
 	return ret;
 }
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_udp_flood_domain,	stress_set_udp_flood_domain },
+	{ 0,			NULL }
+};
 
 #if defined(AF_PACKET)
 
@@ -105,11 +110,13 @@ static int stress_udp_flood(const args_t *args)
 
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

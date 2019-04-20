@@ -45,7 +45,7 @@ typedef struct {
 
 static const stress_matrix_3d_method_info_t matrix_3d_methods[];
 
-int stress_set_matrix_3d_size(const char *opt)
+static int stress_set_matrix_3d_size(const char *opt)
 {
 	size_t matrix_3d_size;
 
@@ -55,7 +55,7 @@ int stress_set_matrix_3d_size(const char *opt)
 	return set_setting("matrix-3d-size", TYPE_ID_SIZE_T, &matrix_3d_size);
 }
 
-int stress_set_matrix_3d_zyx(const char *opt)
+static int stress_set_matrix_3d_zyx(const char *opt)
 {
 	size_t matrix_3d_zyx = 1;
 
@@ -846,7 +846,7 @@ static void stress_matrix_3d_method_error(void)
  *  stress_set_matrix_3d_method()
  *	set the default matrix stress method
  */
-int stress_set_matrix_3d_method(const char *name)
+static int stress_set_matrix_3d_method(const char *name)
 {
 	const stress_matrix_3d_method_info_t *info;
 
@@ -981,10 +981,18 @@ static void stress_matrix_3d_set_default(void)
 	stress_set_matrix_3d_method("all");
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_matrix_3d_method,	stress_set_matrix_3d_method },
+	{ OPT_matrix_3d_size,	stress_set_matrix_3d_size },
+	{ OPT_matrix_3d_zyx,	stress_set_matrix_3d_zyx },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_matrix,
 	.set_default = stress_matrix_3d_set_default,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_matrix_3d_info = {
