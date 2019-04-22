@@ -126,7 +126,7 @@ static int stress_softlockup(const args_t *args)
 	}
 
 	if (num_instances < cpus_online) {
-		pr_inf("%s: for best reslults, run with at least %d instances "
+		pr_inf("%s: for best results, run with at least %d instances "
 			"of this stressor\n", args->name, cpus_online);
 	}
 
