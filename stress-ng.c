@@ -1426,7 +1426,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"utime-fsync",		"force utime meta data sync to the file system" },
 	{ NULL,		"vdso",			"start N workers exercising functions in the VDSO" },
 	{ NULL,		"vdso-ops N",		"stop after N vDSO function calls" },
-	{ NULL,		"vdso-func F",		"use just vDSO functon F" },
+	{ NULL,		"vdso-func F",		"use just vDSO function F" },
 	{ NULL,		"vecmath N",		"start N workers performing vector math ops" },
 	{ NULL,		"vecmath-ops N",	"stop after N vector math bogo operations" },
 	{ NULL,		"vfork N",		"start N workers spinning on vfork() and exit()" },
