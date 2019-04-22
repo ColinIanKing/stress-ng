@@ -56,7 +56,7 @@ endif
 # Static flags, only to be used when using GCC
 #
 ifeq ($(STATIC),1)
-LDFLAGS += -static
+LDFLAGS += -static -z muldefs
 CFLAGS += -DBUILD_STATIC
 endif
 
