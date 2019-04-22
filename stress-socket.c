@@ -127,7 +127,7 @@ static int stress_set_socket_port(const char *opt)
  *  stress_set_socket_domain()
  *	set the socket domain option
  */
-int stress_set_socket_domain(const char *name)
+static int stress_set_socket_domain(const char *name)
 {
 	int ret, socket_domain;
 
