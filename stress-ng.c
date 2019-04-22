@@ -1527,6 +1527,7 @@ static void remove_proc(proc_info_t *pi)
 		if (pi->next)
 			pi->next->prev = pi->prev;
 	}
+	free(pi);
 }
 
 /*
