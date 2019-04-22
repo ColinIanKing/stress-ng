@@ -138,7 +138,7 @@ static int stress_sigsegv(const args_t *args)
 					args->name, strsignal(signo));
 			}
 			if (verify && (signo == SIGBUS) && (code != SEGV_ACCERR)) {
-				pr_fail("%s: expecting SIGBUS si_code SEGV_ACCERR (%d), got %d insread\n",
+				pr_fail("%s: expecting SIGBUS si_code SEGV_ACCERR (%d), got %d instead\n",
 					args->name, SEGV_ACCERR, code);
 			}
 #endif
