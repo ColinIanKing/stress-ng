@@ -713,39 +713,39 @@ typedef unsigned long int __kernel_ulong_t;
 #define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
-#define OPT_FLAGS_DRY_RUN	 0x00000000000020ULL	/* Don't actually run */
-#define OPT_FLAGS_METRICS	 0x00000000000040ULL	/* Dump metrics at end */
-#define OPT_FLAGS_RANDOM	 0x00000000000100ULL	/* Randomize */
-#define OPT_FLAGS_SET		 0x00000000000200ULL	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	 0x00000000000400ULL	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_METRICS_BRIEF	 0x00000000001000ULL	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	 0x00000000002000ULL	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	 0x00000000004000ULL	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	 0x00000000008000ULL	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		 0x00000000010000ULL	/* user/system time summary */
-#define OPT_FLAGS_HDD_SYNC	 0x00000004000000ULL	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	 0x00000008000000ULL	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	 0x00000010000000ULL	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	 0x00000020000000ULL	/* HDD O_NOATIME */
-#define OPT_FLAGS_MINIMIZE	 0x00000080000000ULL	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	 0x00000100000000ULL	/* Maximize */
-#define OPT_FLAGS_SYSLOG	 0x00000200000000ULL	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	 0x00000400000000ULL	/* aggressive mode enabled */
-#define OPT_FLAGS_ALL		 0x00002000000000ULL	/* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	 0x00004000000000ULL	/* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	 0x00008000000000ULL	/* --perf stats mode */
-#define OPT_FLAGS_LOG_BRIEF	 0x00010000000000ULL	/* --log-brief */
-#define OPT_FLAGS_THERMAL_ZONES  0x00020000000000ULL	/* --tz thermal zones */
-#define OPT_FLAGS_TIMER_SLACK	 0x00040000000000ULL	/* --timer-slack */
-#define OPT_FLAGS_SOCKET_NODELAY 0x00080000000000ULL	/* --sock-nodelay */
-#define OPT_FLAGS_IGNITE_CPU	 0x00800000000000ULL	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	 0x01000000000000ULL	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	 0x02000000000000ULL	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	 0x04000000000000ULL	/* --thrash */
-#define OPT_FLAGS_OOMABLE	 0x08000000000000ULL	/* --oomable */
-#define OPT_FLAGS_ABORT		 0x10000000000000ULL	/* --abort */
-#define OPT_FLAGS_CPU_ONLINE_ALL 0x20000000000000ULL	/* --cpu-online-all */
-#define OPT_FLAGS_TIMESTAMP	 0x40000000000000ULL	/* --timestamp */
+#define OPT_FLAGS_DRY_RUN	 0x00000000000010ULL	/* Don't actually run */
+#define OPT_FLAGS_METRICS	 0x00000000000020ULL	/* Dump metrics at end */
+#define OPT_FLAGS_RANDOM	 0x00000000000040ULL	/* Randomize */
+#define OPT_FLAGS_SET		 0x00000000000080ULL	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	 0x00000000000100ULL	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_METRICS_BRIEF	 0x00000000000200ULL	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	 0x00000000000400ULL	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 0x00000000000800ULL	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 0x00000000001000ULL	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		 0x00000000002000ULL	/* user/system time summary */
+#define OPT_FLAGS_HDD_SYNC	 0x00000000004000ULL	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	 0x00000000008000ULL	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	 0x00000000010000ULL	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	 0x00000000020000ULL	/* HDD O_NOATIME */
+#define OPT_FLAGS_MINIMIZE	 0x00000000040000ULL	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	 0x00000000080000ULL	/* Maximize */
+#define OPT_FLAGS_SYSLOG	 0x00000000100000ULL	/* log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	 0x00000000200000ULL	/* aggressive mode enabled */
+#define OPT_FLAGS_ALL		 0x00000000400000ULL	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	 0x00000000800000ULL	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	 0x00000001000000ULL	/* --perf stats mode */
+#define OPT_FLAGS_LOG_BRIEF	 0x00000002000000ULL	/* --log-brief */
+#define OPT_FLAGS_THERMAL_ZONES  0x00000004000000ULL	/* --tz thermal zones */
+#define OPT_FLAGS_TIMER_SLACK	 0x00000008000000ULL	/* --timer-slack */
+#define OPT_FLAGS_SOCKET_NODELAY 0x00000010000000ULL	/* --sock-nodelay */
+#define OPT_FLAGS_IGNITE_CPU	 0x00000020000000ULL	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 0x00000040000000ULL	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 0x00000080000000ULL	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 0x00000100000000ULL	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 0x00000200000000ULL	/* --oomable */
+#define OPT_FLAGS_ABORT		 0x00000400000000ULL	/* --abort */
+#define OPT_FLAGS_CPU_ONLINE_ALL 0x00000800000000ULL	/* --cpu-online-all */
+#define OPT_FLAGS_TIMESTAMP	 0x00001000000000ULL	/* --timestamp */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
