@@ -404,7 +404,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 					"computation took more iterations "
 					"than expected\n", name);
 			if ((int)rintl(rt * rt) != i)
-				pr_fail("%s: Newton-Rapshon sqrt not "
+				pr_fail("%s: Newton-Raphson sqrt not "
 					"accurate enough\n", name);
 		}
 	}
