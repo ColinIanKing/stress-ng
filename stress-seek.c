@@ -35,9 +35,9 @@ static int stress_set_seek_size(const char *opt)
 }
 
 
-static int stress_set_seek_punch(const char *optarg)
+static int stress_set_seek_punch(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 	bool seek_punch = true;
 
 	return set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);

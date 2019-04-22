@@ -40,30 +40,30 @@ static int stress_cache_set_flag(const uint32_t flag)
 	return 0;
 }
 
-static int stress_cache_set_prefetch(const char *optarg)
+static int stress_cache_set_prefetch(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 
 	return stress_cache_set_flag(FLAGS_CACHE_PREFETCH);
 }
 
-static int stress_cache_set_flush(const char *optarg)
+static int stress_cache_set_flush(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 
 	return stress_cache_set_flag(FLAGS_CACHE_FLUSH);
 }
 
-static int stress_cache_set_fence(const char *optarg)
+static int stress_cache_set_fence(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 
 	return stress_cache_set_flag(FLAGS_CACHE_FENCE);
 }
 
-static int stress_cache_set_noaff(const char *optarg)
+static int stress_cache_set_noaff(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 
 	return stress_cache_set_flag(FLAGS_CACHE_NOAFF);
 }

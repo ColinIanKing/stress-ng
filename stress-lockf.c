@@ -44,11 +44,11 @@ typedef struct {
 
 static lockf_info_list_t lockf_infos;
 
-static int stress_lockf_set_nonblock(const char *optarg)
+static int stress_lockf_set_nonblock(const char *opt)
 {
 	bool lockf_nonblock = true;
 
-	(void)optarg;
+	(void)opt;
 	return set_setting("lockf-nonblock", TYPE_ID_BOOL, &lockf_nonblock);
 }
 

@@ -24,11 +24,11 @@
  */
 #include "stress-ng.h"
 
-static int stress_set_mincore_rand(const char *optarg)
+static int stress_set_mincore_rand(const char *opt)
 {
 	bool mincore_rand = true;
 
-	(void)optarg;
+	(void)opt;
 	return set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
 }
 

@@ -24,9 +24,9 @@
  */
 #include "stress-ng.h"
 
-static int stress_set_brk_notouch(const char *optarg)
+static int stress_set_brk_notouch(const char *opt)
 {
-	(void)optarg;
+	(void)opt;
 	bool brk_notouch = true;
 
 	return set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);

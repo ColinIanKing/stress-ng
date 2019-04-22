@@ -25,11 +25,11 @@
 #include "stress-ng.h"
 
 
-static int stress_set_affinity_rand(const char *optarg)
+static int stress_set_affinity_rand(const char *opt)
 {
 	bool affinity_rand = true;
 
-	(void)optarg;
+	(void)opt;
 	return set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
 }
 

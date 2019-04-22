@@ -26,11 +26,11 @@
 
 static sigjmp_buf jmp_env;
 
-static int stress_set_stack_fill(const char *optarg)
+static int stress_set_stack_fill(const char *opt)
 {
 	bool stack_fill = true;
 
-	(void)optarg;
+	(void)opt;
 	return set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
 }
 
