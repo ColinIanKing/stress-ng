@@ -228,19 +228,19 @@ static int stress_pthread(const args_t *args)
 
 	ret = pthread_cond_init(&cond, NULL);
 	if (ret) {
-		pr_fail("%s pthread_cond_init failed, errno=%d (%s)",
+		pr_fail("%s: pthread_cond_init failed, errno=%d (%s)",
 			args->name, ret, strerror(ret));
 		return EXIT_FAILURE;
 	}
 	ret = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (ret) {
-		pr_fail("%s pthread_spin_init failed, errno=%d (%s)",
+		pr_fail("%s: pthread_spin_init failed, errno=%d (%s)",
 			args->name, ret, strerror(ret));
 		return EXIT_FAILURE;
 	}
 	ret = pthread_mutex_init(&mutex, NULL);
 	if (ret) {
-		pr_fail("%s pthread_mutex_init failed, errno=%d (%s)",
+		pr_fail("%s: pthread_mutex_init failed, errno=%d (%s)",
 			args->name, ret, strerror(ret));
 		return EXIT_FAILURE;
 	}
@@ -266,7 +266,7 @@ static int stress_pthread(const args_t *args)
 					break;
 				}
 				/* Something really unexpected */
-				pr_fail("%s pthread_create failed, errno=%d (%s)",
+				pr_fail("%s: pthread_create failed, errno=%d (%s)",
 					args->name, ret, strerror(ret));
 				ok = false;
 				break;
@@ -287,7 +287,7 @@ static int stress_pthread(const args_t *args)
 			if (!locked) {
 				ret = pthread_mutex_lock(&mutex);
 				if (ret) {
-					pr_fail("%s pthread_mutex_lock failed (parent), errno=%d (%s)",
+					pr_fail("%s: pthread_mutex_lock failed (parent), errno=%d (%s)",
 						args->name, ret, strerror(ret));
 					ok = false;
 					goto reap;
@@ -299,7 +299,7 @@ static int stress_pthread(const args_t *args)
 			if (locked) {
 				ret = pthread_mutex_unlock(&mutex);
 				if (ret) {
-					pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
+					pr_fail("%s: pthread_mutex_unlock failed (parent), errno=%d (%s)",
 						args->name, ret, strerror(ret));
 					ok = false;
 					/* We failed to unlock, so don't try again on reap */
@@ -316,7 +316,7 @@ static int stress_pthread(const args_t *args)
 		if (!locked) {
 			ret = pthread_mutex_lock(&mutex);
 			if (ret) {
-				pr_fail("%s pthread_mutex_lock failed (parent), errno=%d (%s)",
+				pr_fail("%s: pthread_mutex_lock failed (parent), errno=%d (%s)",
 					args->name, ret, strerror(ret));
 				ok = false;
 				goto reap;
@@ -334,7 +334,7 @@ reap:
 		thread_terminate = true;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
-			pr_fail("%s pthread_cond_broadcast failed (parent), errno=%d (%s)",
+			pr_fail("%s: pthread_cond_broadcast failed (parent), errno=%d (%s)",
 				args->name, ret, strerror(ret));
 			ok = false;
 			/* fall through and unlock */
@@ -342,7 +342,7 @@ reap:
 		if (locked && try_unlock) {
 			ret = pthread_mutex_unlock(&mutex);
 			if (ret) {
-				pr_fail("%s pthread_mutex_unlock failed (parent), errno=%d (%s)",
+				pr_fail("%s: pthread_mutex_unlock failed (parent), errno=%d (%s)",
 					args->name, ret, strerror(ret));
 				ok = false;
 			} else {
@@ -352,7 +352,7 @@ reap:
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j].pthread, NULL);
 			if ((ret) && (ret != ESRCH)) {
-				pr_fail("%s pthread_join failed (parent), errno=%d (%s)",
+				pr_fail("%s: pthread_join failed (parent), errno=%d (%s)",
 					args->name, ret, strerror(ret));
 				ok = false;
 			}
