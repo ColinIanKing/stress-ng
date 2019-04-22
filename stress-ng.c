@@ -1472,7 +1472,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"zero-ops N",		"stop after N /dev/zero bogo read operations" },
 	{ NULL,		"zlib N",		"start N workers compressing data with zlib" },
 	{ NULL,		"zlib-ops N",		"stop after N zlib bogo compression operations" },
-	{ NULL,		"zlib-level L",		"specify zlib compressession level 0=fast, 9=best" },
+	{ NULL,		"zlib-level L",		"specify zlib compression level 0=fast, 9=best" },
 	{ NULL,		"zlib-method M",	"specify zlib random data generation method M" },
 	{ NULL,		"zombie N",		"start N workers that rapidly create and reap zombies" },
 	{ NULL,		"zombie-ops N",		"stop after N bogo zombie fork operations" },
