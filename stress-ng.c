@@ -937,7 +937,7 @@ static const help_t help_stressors[] = {
 	{ NULL,		"cache-fence",		"serialize stores" },
 	{ NULL,		"cache-level N",	"only exercise specified cache" },
 	{ NULL,		"cache-ways N",		"only fill specified number of cache ways" },
-	{ NULL,		"cap N",		"start N workers exercsing capget" },
+	{ NULL,		"cap N",		"start N workers exercising capget" },
 	{ NULL,		"cap-ops N",		"stop cap workers after N bogo capget operations" },
 	{ NULL,		"chdir N",		"start N workers thrashing chdir on many paths" },
 	{ NULL,		"chdir-ops N",		"stop chdir workers after N bogo chdir operations" },
