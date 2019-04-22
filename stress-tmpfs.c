@@ -24,6 +24,28 @@
  */
 #include "stress-ng.h"
 
+static int stress_set_tmpfs_mmap_file(const char *opt)
+{
+	bool tmpfs_mmap_file = true;
+
+	(void)opt;
+	return set_setting("tmpfs-mmap-file", TYPE_ID_BOOL, &tmpfs_mmap_file);
+}
+
+static int stress_set_tmpfs_mmap_async(const char *opt)
+{
+	bool tmpfs_mmap_async = true;
+
+	(void)opt;
+	return set_setting("tmpfs-mmap-async", TYPE_ID_BOOL, &tmpfs_mmap_async);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_tmpfs_mmap_async,	stress_set_tmpfs_mmap_async },
+	{ OPT_tmpfs_mmap_file,	stress_set_tmpfs_mmap_file },
+	{ 0,			NULL }
+};
+
 #if defined(HAVE_SYS_VFS_H) && \
     defined(HAVE_STATFS)
 
@@ -134,11 +156,12 @@ static void stress_tmpfs_child(
 	int *flags,
 	const size_t page_size,
 	const size_t sz,
-	const size_t pages4k)
+	const size_t pages4k,
+	const bool tmpfs_mmap_file,
+	const bool tmpfs_mmap_async)
 {
 	int no_mem_retries = 0;
-	const int ms_flags = (g_opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
-		MS_ASYNC : MS_SYNC;
+	const int ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
 
 	do {
 		uint8_t mapped[pages4k];
@@ -168,7 +191,7 @@ static void stress_tmpfs_child(
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
-		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+		if (tmpfs_mmap_file) {
 			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
@@ -215,8 +238,7 @@ static void stress_tmpfs_child(
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (!mapped[page]) {
-					off_t offset = (g_opt_flags & OPT_FLAGS_MMAP_FILE) ?
-							page * page_size : 0;
+					off_t offset = tmpfs_mmap_file ? page * page_size : 0;
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
@@ -236,7 +258,7 @@ static void stress_tmpfs_child(
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
-						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+						if (tmpfs_mmap_file) {
 							(void)memset(mappings[page], n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 						}
@@ -275,6 +297,8 @@ static int stress_tmpfs(const args_t *args)
 	pid_t pid;
 	int fd, flags = MAP_SHARED;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
+	bool tmpfs_mmap_async = false;
+	bool tmpfs_mmap_file = false;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -286,6 +310,9 @@ static int stress_tmpfs(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	pages4k = (size_t)sz / page_size;
+
+	(void)get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
+	(void)get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
@@ -350,7 +377,8 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		stress_tmpfs_child(args, fd, &flags, page_size, sz, pages4k);
+		stress_tmpfs_child(args, fd, &flags, page_size, sz, pages4k,
+			tmpfs_mmap_file, tmpfs_mmap_async);
 	}
 
 cleanup:
@@ -365,11 +393,13 @@ cleanup:
 }
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
-	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS
+	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS
+	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

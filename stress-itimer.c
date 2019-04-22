@@ -43,6 +43,14 @@ static int stress_set_itimer_freq(const char *opt)
 	return set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
 }
 
+static int stress_set_itimer_rand(const char *opt)
+{
+	bool itimer_rand = true;
+
+	(void)opt;
+	return set_setting("itimer-rand", TYPE_ID_BOOL, &itimer_rand);
+}
+
 /*
  *  stress_itimer_set()
  *	set timer, ensure it is never zero
@@ -50,8 +58,11 @@ static int stress_set_itimer_freq(const char *opt)
 static void stress_itimer_set(struct itimerval *timer)
 {
 	double rate;
+	bool itimer_rand = false;
 
-	if (g_opt_flags & OPT_FLAGS_TIMER_RAND) {
+	(void)get_setting("itimer-rand", &itimer_rand);
+
+	if (itimer_rand) {
 		/* Mix in some random variation */
 		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_us + (rate_us * r);
@@ -167,6 +178,7 @@ static int stress_itimer(const args_t *args)
 
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_itimer_freq,	stress_set_itimer_freq },
+	{ OPT_itimer_rand,	stress_set_itimer_rand },
 	{ 0,			NULL }
 };
 

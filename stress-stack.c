@@ -26,6 +26,19 @@
 
 static sigjmp_buf jmp_env;
 
+static int stress_set_stack_fill(const char *optarg)
+{
+	bool stack_fill = true;
+
+	(void)optarg;
+	return set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_stack_fill,	stress_set_stack_fill },
+	{ 0,			NULL }
+};
+
 /*
  *  stress_segvhandler()
  *	SEGV handler
@@ -44,14 +57,14 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  *	so we a large stack with lots of pages not physically
  *	resident.
  */
-static void stress_stack_alloc(const args_t *args)
+static void stress_stack_alloc(const args_t *args, const bool stack_fill)
 {
 	const size_t sz = 256 * KB;
 	const size_t page_size4 = (args->page_size << 2);
 	register size_t i;
 	char data[sz];
 
-	if (g_opt_flags & OPT_FLAGS_STACK_FILL) {
+	if (stack_fill) {
 		(void)memset(data, 0, sz);
 	} else {
 		/* Touch 25% of the pages */
@@ -62,7 +75,7 @@ static void stress_stack_alloc(const args_t *args)
 	inc_counter(args);
 
 	if (keep_stressing())
-		stress_stack_alloc(args);
+		stress_stack_alloc(args, stack_fill);
 }
 
 
@@ -74,6 +87,9 @@ static int stress_stack(const args_t *args)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	pid_t pid;
+	bool stack_fill = false;
+
+	(void)get_setting("stack-fill", &stack_fill);
 
 	/*
 	 *  We need to create an alternative signal
@@ -167,7 +183,7 @@ again:
 				inc_counter(args);
 			} else {
 				/* Expand the stack and cause a fault */
-				stress_stack_alloc(args);
+				stress_stack_alloc(args, stack_fill);
 			}
 		}
 		_exit(0);
@@ -178,5 +194,6 @@ again:
 
 stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
-	.class = CLASS_VM | CLASS_MEMORY
+	.class = CLASS_VM | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };

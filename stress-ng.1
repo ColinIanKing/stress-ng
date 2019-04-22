@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "February 28, 2019"
+.TH STRESS-NG 1 "April 22, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1711,6 +1711,11 @@ run itimer at F Hz; range from 1 to 1000000 Hz. Normally the highest frequency
 is limited by the number of jiffy ticks per second, so running above 1000 Hz
 is difficult to attain in practice.
 .TP
+.B \-\-itimer\-rand
+select an interval timer frequency based around the interval timer
+frequency +/- 12.5% random jitter. This tries to force more variability in
+the timer interval to make the scheduling less predictable.
+.TP
 .B \-\-kcmp N
 start N workers that use kcmp(2) to compare parent and child processes to
 determine if they share kernel resources (Linux only).
@@ -3283,6 +3288,14 @@ file system and perform various file based mmap operations upon it.
 .TP
 .B \-\-tmpfs\-ops N
 stop tmpfs stressors after N bogo mmap operations.
+.TP
+.B \-\-tmpfs\-mmap\-async
+enable file based memory mapping and use asynchronous msync'ing on each page,
+see \-\-tmpfs\-mmap\-file.
+.TP
+.B \-\-tmpfs\-mmap\-file
+enable tmpfs file based memory mapping and by default use synchronous
+msync'ing on each page.
 .TP
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is

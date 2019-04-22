@@ -41,8 +41,17 @@ static int stress_set_timerfd_freq(const char *opt)
 	return set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
 
+static int stress_set_timerfd_rand(const char *opt)
+{
+	bool timerfd_rand = true;
+
+	(void)opt;
+	return set_setting("timerfd-rand", TYPE_ID_BOOL, &timerfd_rand);
+}
+
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_timerfd_freq,	stress_set_timerfd_freq },
+	{ OPT_timerfd_rand,	stress_set_timerfd_rand },
 	{ 0,			NULL }
 };
 
@@ -54,11 +63,13 @@ static double rate_ns;
  *  stress_timerfd_set()
  *	set timerfd, ensure it is never zero
  */
-static void stress_timerfd_set(struct itimerspec *timer)
+static void stress_timerfd_set(
+	struct itimerspec *timer,
+	const bool timerfd_rand)
 {
 	double rate;
 
-	if (g_opt_flags & OPT_FLAGS_TIMERFD_RAND) {
+	if (timerfd_rand) {
 		/* Mix in some random variation */
 		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
@@ -87,6 +98,9 @@ static int stress_timerfd(const args_t *args)
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
 	int timerfd[TIMERFD_MAX], procfd, count = 0, i, max_timerfd = -1;
 	char filename[PATH_MAX];
+	bool timerfd_rand = false;
+
+	(void)get_setting("timerfd-rand", &timerfd_rand);
 
 	if (!get_setting("timerfd-freq", &timerfd_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -117,7 +131,7 @@ static int stress_timerfd(const args_t *args)
 	}
 	count = 0;
 
-	stress_timerfd_set(&timer);
+	stress_timerfd_set(&timer, timerfd_rand);
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
 			pr_fail_err("timer_settime");
@@ -169,8 +183,8 @@ static int stress_timerfd(const args_t *args)
 				pr_fail_err("timerfd_gettime");
 				break;
 			}
-			if (g_opt_flags & OPT_FLAGS_TIMERFD_RAND) {
-				stress_timerfd_set(&timer);
+			if (timerfd_rand) {
+				stress_timerfd_set(&timer, timerfd_rand);
 				if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
 					pr_fail_err("timer_settime");
 					break;

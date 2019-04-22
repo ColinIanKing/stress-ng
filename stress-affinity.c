@@ -24,6 +24,25 @@
  */
 #include "stress-ng.h"
 
+
+static int stress_set_affinity_rand(const char *optarg)
+{
+	bool affinity_rand = true;
+
+	(void)optarg;
+	return set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_affinity_rand,    stress_set_affinity_rand },
+	{ 0,			NULL }
+};
+
+/*
+ *  stress on sched_affinity()
+ *	stress system by changing CPU affinity periodically
+ */
+
 #if defined(HAVE_AFFINITY) && \
     defined(HAVE_SCHED_GETAFFINITY)
 
@@ -51,19 +70,17 @@ static int stress_affinity_supported(void)
         return 0;
 }
 
-/*
- *  stress on sched_affinity()
- *	stress system by changing CPU affinity periodically
- */
 static int stress_affinity(const args_t *args)
 {
 	uint32_t cpu = args->instance;
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 	cpu_set_t mask;
+	bool affinity_rand = false;
+
+	(void)get_setting("affinity-rand", &affinity_rand);
 
 	do {
-		cpu = (g_opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
-			(mwc32() >> 4) : cpu + 1;
+		cpu = affinity_rand ?  (mwc32() >> 4) : cpu + 1;
 		cpu %= cpus;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
@@ -101,11 +118,13 @@ static int stress_affinity(const args_t *args)
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
 	.class = CLASS_SCHEDULER,
-	.supported = stress_affinity_supported
+	.supported = stress_affinity_supported,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

@@ -34,6 +34,15 @@ static int stress_set_seek_size(const char *opt)
 	return set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
 }
 
+
+static int stress_set_seek_punch(const char *optarg)
+{
+	(void)optarg;
+	bool seek_punch = true;
+
+	return set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
+}
+
 /*
  *  stress_seek
  *	stress I/O via random seeks and read/writes
@@ -46,7 +55,9 @@ static int stress_seek(const args_t *args)
 	char filename[PATH_MAX];
 	uint8_t buf[512];
 #if defined(OPT_SEEK_PUNCH)
-	bool punch_hole = true;
+	bool seek_punch = false;
+
+	(void)get_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
 #endif
 
 	if (!get_setting("seek-size", &seek_size)) {
@@ -153,14 +164,14 @@ re_read:
 #endif
 
 #if defined(OPT_SEEK_PUNCH)
-		if (!punch_hole)
+		if (!seek_punch_hole)
 			continue;
 
 		offset = mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
 			if (errno == EOPNOTSUPP)
-				punch_hole = false;
+				seek_punch_hole = false;
 		}
 #endif
 		inc_counter(args);
@@ -176,6 +187,7 @@ finish:
 
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_seek_size,	stress_set_seek_size },
+	{ OPT_seek_punch,	stress_set_seek_punch },
 	{ 0,			NULL }
 };
 

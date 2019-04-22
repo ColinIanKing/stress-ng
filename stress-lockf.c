@@ -44,6 +44,19 @@ typedef struct {
 
 static lockf_info_list_t lockf_infos;
 
+static int stress_lockf_set_nonblock(const char *optarg)
+{
+	bool lockf_nonblock = true;
+
+	(void)optarg;
+	return set_setting("lockf-nonblock", TYPE_ID_BOOL, &lockf_nonblock);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lockf_nonblock,   stress_lockf_set_nonblock },
+	{ 0,			NULL }
+};
+
 /*
  *  stress_lockf_info_new()
  *	allocate a new lockf_info, add to end of list
@@ -151,9 +164,11 @@ static int stress_lockf_contention(
 	const args_t *args,
 	const int fd)
 {
-	const int lockf_cmd = (g_opt_flags & OPT_FLAGS_LOCKF_NONBLK) ?
-		F_TLOCK : F_LOCK;
+	bool lockf_nonblock = false;
+	int lockf_cmd;
 
+	(void)get_setting("lockf-nonblock", &lockf_nonblock);
+	lockf_cmd = lockf_nonblock ?  F_TLOCK : F_LOCK;
 	mwc_reseed();
 
 	do {
@@ -297,11 +312,13 @@ tidy:
 
 stressor_info_t stress_lockf_info = {
 	.stressor = stress_lockf,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_lockf_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

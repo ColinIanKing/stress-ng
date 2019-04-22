@@ -72,14 +72,42 @@ static int stress_set_mmap_bytes(const char *opt)
 	return set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
 }
 
+static int stress_set_mmap_mprotect(const char *opt)
+{
+	bool mmap_mprotect = true;
+
+	(void)opt;
+	return set_setting("mmap-mprotect", TYPE_ID_BOOL, &mmap_mprotect);
+}
+
+static int stress_set_mmap_file(const char *opt)
+{
+	bool mmap_file = true;
+
+	(void)opt;
+	return set_setting("mmap-file", TYPE_ID_BOOL, &mmap_file);
+}
+
+static int stress_set_mmap_async(const char *opt)
+{
+	bool mmap_async = true;
+
+	(void)opt;
+	return set_setting("mmap-async", TYPE_ID_BOOL, &mmap_async);
+}
+
 /*
  *  stress_mmap_mprotect()
  *	cycle through page settings on a region of mmap'd memory
  */
-static void stress_mmap_mprotect(const char *name, void *addr, const size_t len)
+static void stress_mmap_mprotect(
+	const char *name,
+	void *addr,
+	const size_t len,
+	const bool mmap_mprotect)
 {
 #if defined(HAVE_MPROTECT)
-	if (g_opt_flags & OPT_FLAGS_MMAP_MPROTECT) {
+	if (mmap_mprotect) {
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
 			pr_fail("%s: mprotect set to PROT_NONE failed\n", name);
@@ -105,12 +133,14 @@ static void stress_mmap_child(
 	int *flags,
 	const size_t sz,
 	const size_t pages4k,
-	const size_t mmap_bytes)
+	const size_t mmap_bytes,
+	const bool mmap_mprotect,
+	const bool mmap_file,
+	const bool mmap_async)
 {
 	const size_t page_size = args->page_size;
 	int no_mem_retries = 0;
-	const int ms_flags = (g_opt_flags & OPT_FLAGS_MMAP_ASYNC) ?
-		MS_ASYNC : MS_SYNC;
+	const int ms_flags = mmap_async ? MS_ASYNC : MS_SYNC;
 
 	do {
 		uint8_t mapped[pages4k];
@@ -140,13 +170,13 @@ static void stress_mmap_child(
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
-		if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+		if (mmap_file) {
 			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, mmap_bytes);
-		stress_mmap_mprotect(args->name, buf, sz);
+		stress_mmap_mprotect(args->name, buf, sz, mmap_mprotect);
 		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -163,7 +193,7 @@ static void stress_mmap_child(
 		 *  Step #0, write + read the mmap'd data from the file back into
 		 *  the mappings.
 		 */
-		if ((fd >= 0) && (g_opt_flags & OPT_FLAGS_MMAP_FILE)) {
+		if ((fd >= 0) && (mmap_file)) {
 			off_t offset = 0;
 
 			for (n = 0; n < pages4k; n++, offset += page_size) {
@@ -190,7 +220,8 @@ static void stress_mmap_child(
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
-					stress_mmap_mprotect(args->name, mappings[page], page_size);
+					stress_mmap_mprotect(args->name, mappings[page],
+						page_size, mmap_mprotect);
 					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
@@ -211,8 +242,7 @@ static void stress_mmap_child(
 				uint64_t page = (i + j) % pages4k;
 
 				if (!mapped[page]) {
-					off_t offset = (g_opt_flags & OPT_FLAGS_MMAP_FILE) ?
-							page * page_size : 0;
+					off_t offset = mmap_file ? page * page_size : 0;
 					int fixed_flags = MAP_FIXED;
 
 					/*
@@ -233,14 +263,15 @@ static void stress_mmap_child(
 					} else {
 						(void)mincore_touch_pages(mappings[page], page_size);
 						(void)madvise_random(mappings[page], page_size);
-						stress_mmap_mprotect(args->name, mappings[page], page_size);
+						stress_mmap_mprotect(args->name, mappings[page],
+							page_size, mmap_mprotect);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						mmap_set(mappings[page], page_size, page_size);
 						if (mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
-						if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+						if (mmap_file) {
 							(void)memset(mappings[page], n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 #if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
@@ -264,7 +295,8 @@ cleanup:
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
-				stress_mmap_mprotect(args->name, mappings[n], page_size);
+				stress_mmap_mprotect(args->name, mappings[n],
+					page_size, mmap_mprotect);
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
@@ -285,10 +317,18 @@ static int stress_mmap(const args_t *args)
 	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	uint32_t ooms = 0, segvs = 0, buserrs = 0;
 	char filename[PATH_MAX];
+	bool mmap_async = false;
+	bool mmap_file = false;
+	bool mmap_mprotect = false;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
+
+	(void)get_setting("mmap-async", &mmap_async);
+	(void)get_setting("mmap-file", &mmap_file);
+	(void)get_setting("mmap-mprotect", &mmap_mprotect);
+
 	if (!get_setting("mmap-bytes", &mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mmap_bytes = MAX_MMAP_BYTES;
@@ -306,7 +346,7 @@ static int stress_mmap(const args_t *args)
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
 
-	if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+	if (mmap_file) {
 		ssize_t ret, rc;
 		char ch = '\0';
 
@@ -419,12 +459,13 @@ again:
 		/* Make sure this is killable by OOM killer */
 		set_oom_adjustment(args->name, true);
 
-		stress_mmap_child(args, fd, &flags, sz, pages4k, mmap_bytes);
+		stress_mmap_child(args, fd, &flags, sz, pages4k, mmap_bytes,
+			mmap_mprotect, mmap_file, mmap_async);
 		_exit(0);
 	}
 
 cleanup:
-	if (g_opt_flags & OPT_FLAGS_MMAP_FILE) {
+	if (mmap_file) {
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
@@ -438,7 +479,10 @@ cleanup:
 }
 
 static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mmap_async,	stress_set_mmap_async },
 	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
+	{ OPT_mmap_file,	stress_set_mmap_file },
+	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
 	{ 0,			NULL }
 };
 

@@ -24,6 +24,19 @@
  */
 #include "stress-ng.h"
 
+static int stress_set_brk_notouch(const char *optarg)
+{
+	(void)optarg;
+	bool brk_notouch = true;
+
+	return set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_brk_notouch,	stress_set_brk_notouch },
+	{ 0,			NULL }
+};
+
 /*
  *  stress_brk()
  *	stress brk and sbrk
@@ -33,6 +46,9 @@ static int stress_brk(const args_t *args)
 	pid_t pid;
 	uint32_t ooms = 0, segvs = 0, nomems = 0;
 	const size_t page_size = args->page_size;
+	bool brk_notouch = false;
+
+	(void)get_setting("brk-notouch", &brk_notouch);
 
 again:
 	if (!g_keep_stressing_flag)
@@ -91,7 +107,6 @@ again:
 		}
 	} else if (pid == 0) {
 		uint8_t *start_ptr;
-		bool touch = !(g_opt_flags & OPT_FLAGS_BRK_NOTOUCH);
 		int ret, i = 0;
 
 		(void)setpgid(0, g_pgrp);
@@ -140,7 +155,7 @@ again:
 				}
 			} else {
 				/* Touch page, force it to be resident */
-				if (touch)
+				if (!brk_notouch)
 					*(ptr - 1) = 0;
 			}
 			inc_counter(args);
@@ -157,5 +172,6 @@ again:
 
 stressor_info_t stress_brk_info = {
 	.stressor = stress_brk,
-	.class = CLASS_OS | CLASS_VM
+	.class = CLASS_OS | CLASS_VM,
+	.opt_set_funcs = opt_set_funcs
 };

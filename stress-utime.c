@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static int stress_set_utime_fsync(const char *opt)
+{
+	bool utime_fsync = true;
+
+	(void)opt;
+	return set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
+}
+
 /*
  *  stress_utime()
  *	stress system by setting file utime
@@ -32,6 +40,9 @@ static int stress_utime(const args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;
+	bool utime_fsync = false;
+
+	(void)get_setting("utime-fsync", &utime_fsync);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -125,7 +136,7 @@ static int stress_utime(const args_t *args)
 #endif
 #endif
 #endif
-		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
+		if (utime_fsync)
 			(void)shim_fsync(fd);
 
 #if defined(HAVE_UTIME_H)
@@ -148,7 +159,7 @@ static int stress_utime(const args_t *args)
 		}
 #endif
 		/* forces metadata writeback */
-		if (g_opt_flags & OPT_FLAGS_UTIME_FSYNC)
+		if (utime_fsync)
 			(void)shim_fsync(fd);
 		inc_counter(args);
 	} while (keep_stressing());
@@ -160,7 +171,13 @@ static int stress_utime(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+        { OPT_utime_fsync,	stress_set_utime_fsync },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs
 };

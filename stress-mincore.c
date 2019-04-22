@@ -24,6 +24,19 @@
  */
 #include "stress-ng.h"
 
+static int stress_set_mincore_rand(const char *optarg)
+{
+	bool mincore_rand = true;
+
+	(void)optarg;
+	return set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mincore_rand,     stress_set_mincore_rand },
+	{ 0,			NULL }
+};
+
 #if defined(HAVE_MINCORE) && NEED_GLIBC(2,2,0)
 
 #define VEC_MAX_SIZE 	(64)
@@ -37,6 +50,9 @@ static int stress_mincore(const args_t *args)
 	uint8_t *addr = 0, *prev_addr = 0;
 	const size_t page_size = args->page_size;
 	const ptrdiff_t mask = ~(page_size - 1);
+	bool mincore_rand = false;
+
+	(void)get_setting("mincore-rand", &mincore_rand);
 
 	do {
 		int i;
@@ -67,7 +83,7 @@ redo: 			errno = 0;
 					return EXIT_FAILURE;
 				}
 			}
-			if (g_opt_flags & OPT_FLAGS_MINCORE_RAND) {
+			if (mincore_rand) {
 				addr = (uint8_t *)(ptrdiff_t)
 					(((ptrdiff_t)addr >> 1) & mask);
 				if (addr == prev_addr)
@@ -85,11 +101,13 @@ redo: 			errno = 0;
 
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #else
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs
 };
 #endif

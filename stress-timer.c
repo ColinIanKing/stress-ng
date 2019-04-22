@@ -51,8 +51,17 @@ static int stress_set_timer_freq(const char *opt)
 	return set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);
 }
 
+static int stress_set_timer_rand(const char *opt)
+{
+	bool timer_rand = true;
+
+	(void)opt;
+	return set_setting("timer-rand", TYPE_ID_BOOL, &timer_rand);
+}
+
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_timer_freq,	stress_set_timer_freq },
+	{ OPT_timer_rand,	stress_set_timer_rand },
 	{ 0,			NULL }
 };
 
@@ -69,8 +78,11 @@ static const opt_set_func_t opt_set_funcs[] = {
 static void stress_timer_set(struct itimerspec *timer)
 {
 	double rate;
+	bool timer_rand = false;
 
-	if (g_opt_flags & OPT_FLAGS_TIMER_RAND) {
+	(void)get_setting("timer-rand", &timer_rand);
+
+	if (timer_rand) {
 		/* Mix in some random variation */
 		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);

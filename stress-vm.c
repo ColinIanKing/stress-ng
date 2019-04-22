@@ -147,6 +147,14 @@ static int stress_set_vm_madvise(const char *opt)
 	return -1;
 }
 
+static int stress_set_vm_keep(const char *opt)
+{
+	bool vm_keep = true;
+
+	(void)opt;
+	return set_setting("vm-keep", TYPE_ID_BOOL, &vm_keep);
+}
+
 #define SET_AND_TEST(ptr, val, bit_errors)	\
 {						\
 	*ptr = val;				\
@@ -1954,7 +1962,7 @@ static int stress_vm(const args_t *args)
 	size_t vm_bytes = DEFAULT_VM_BYTES;
 	uint8_t *buf = NULL;
 	pid_t pid;
-	const bool keep = (g_opt_flags & OPT_FLAGS_VM_KEEP);
+	bool vm_keep = false;
         const size_t page_size = args->page_size;
 	size_t buf_sz, retries;
 	int err = 0, ret = EXIT_SUCCESS;
@@ -1965,6 +1973,7 @@ static int stress_vm(const args_t *args)
 
 	(void)get_setting("vm-hang", &vm_hang);
 	(void)get_setting("vm-flags", &vm_flags);
+	(void)get_setting("vm-keep", &vm_keep);
 	(void)get_setting("vm-method", &vm_method);
 	(void)get_setting("vm-madvise", &vm_madvise);
 
@@ -2056,7 +2065,7 @@ again:
 					args->name);
 				break;
 			}
-			if (!keep || (buf == NULL)) {
+			if (!vm_keep || (buf == NULL)) {
 				if (!g_keep_stressing_flag)
 					return EXIT_SUCCESS;
 				buf = (uint8_t *)mmap(NULL, buf_sz,
@@ -2087,13 +2096,13 @@ again:
 				(void)sleep((int)vm_hang);
 			}
 
-			if (!keep) {
+			if (!vm_keep) {
 				(void)madvise_random(buf, buf_sz);
 				(void)munmap((void *)buf, buf_sz);
 			}
 		} while (keep_stressing_vm(args));
 
-		if (keep && buf != NULL)
+		if (vm_keep && buf != NULL)
 			(void)munmap((void *)buf, buf_sz);
 
 		_exit(EXIT_SUCCESS);
@@ -2127,6 +2136,7 @@ static void stress_vm_set_default(void)
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_bytes,		stress_set_vm_bytes },
 	{ OPT_vm_hang,		stress_set_vm_hang },
+	{ OPT_vm_keep,		stress_set_vm_keep },
 	{ OPT_vm_madvise,	stress_set_vm_madvise },
 	{ OPT_vm_method,	stress_set_vm_method },
 	{ 0,			NULL }

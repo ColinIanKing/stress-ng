@@ -24,17 +24,70 @@
  */
 #include "stress-ng.h"
 
+#define FLAGS_CACHE_PREFETCH	(0x01)
+#define FLAGS_CACHE_FLUSH	(0x02)
+#define FLAGS_CACHE_FENCE	(0x04)
+#define FLAGS_CACHE_NOAFF	(0x08)
+
+static int stress_cache_set_flag(const uint32_t flag)
+{
+	uint32_t cache_flags = 0;
+
+	(void)get_setting("cache-flags", &cache_flags);
+	cache_flags |= flag;
+	(void)set_setting("cache-flags", TYPE_ID_UINT32, &cache_flags);
+
+	return 0;
+}
+
+static int stress_cache_set_prefetch(const char *optarg)
+{
+	(void)optarg;
+
+	return stress_cache_set_flag(FLAGS_CACHE_PREFETCH);
+}
+
+static int stress_cache_set_flush(const char *optarg)
+{
+	(void)optarg;
+
+	return stress_cache_set_flag(FLAGS_CACHE_FLUSH);
+}
+
+static int stress_cache_set_fence(const char *optarg)
+{
+	(void)optarg;
+
+	return stress_cache_set_flag(FLAGS_CACHE_FENCE);
+}
+
+static int stress_cache_set_noaff(const char *optarg)
+{
+	(void)optarg;
+
+	return stress_cache_set_flag(FLAGS_CACHE_NOAFF);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
+	{ OPT_cache_flush,		stress_cache_set_flush },
+	{ OPT_cache_fence,		stress_cache_set_fence },
+	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
+	{ 0,				NULL }
+};
+
+
 /* The compiler optimises out the unused cache flush and mfence calls */
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
-		if ((flag) & OPT_FLAGS_CACHE_PREFETCH) {		\
+		if ((flag) & FLAGS_CACHE_PREFETCH) {		\
 			__builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
 		}							\
 		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
-		if ((flag) & OPT_FLAGS_CACHE_FLUSH) {			\
+		if ((flag) & FLAGS_CACHE_FLUSH) {			\
 			clflush(&mem_cache[i]);				\
 		}							\
-		if ((flag) & OPT_FLAGS_CACHE_FENCE) {			\
+		if ((flag) & FLAGS_CACHE_FENCE) {			\
 			mfence();					\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
@@ -54,6 +107,7 @@ static int stress_cache(const args_t *args)
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t mask;
 	uint32_t cpu = 0;
+	uint32_t cache_flags = 0;
 	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t proc_mask;
 	bool pinned = false;
@@ -63,6 +117,7 @@ static int stress_cache(const args_t *args)
 	uint8_t *const mem_cache = g_shared->mem_cache;
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;
 
+	(void)get_setting("cache-flags", &cache_flags);
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, mem_cache_size / 1024);
@@ -88,33 +143,27 @@ static int stress_cache(const args_t *args)
 		register uint64_t j;
 
 		if ((r >> 13) & 1) {
-			switch (g_opt_flags & OPT_FLAGS_CACHE_MASK) {
-			case OPT_FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH);
+			switch (cache_flags) {
+			case FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_FLUSH);
 				break;
-			case OPT_FLAGS_CACHE_FENCE:
-				CACHE_WRITE(OPT_FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_FENCE:
+				CACHE_WRITE(FLAGS_CACHE_FENCE);
 				break;
-			case OPT_FLAGS_CACHE_FENCE | OPT_FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_FLUSH |
-					    OPT_FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE);
 				break;
-			case OPT_FLAGS_CACHE_PREFETCH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH);
+			case FLAGS_CACHE_PREFETCH:
+				CACHE_WRITE(FLAGS_CACHE_PREFETCH);
 				break;
-			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
-					    OPT_FLAGS_CACHE_FLUSH);
+			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH);
 				break;
-			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FENCE:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
-					    OPT_FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FENCE:
+				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FENCE);
 				break;
-			case OPT_FLAGS_CACHE_PREFETCH | OPT_FLAGS_CACHE_FLUSH |
-			     OPT_FLAGS_CACHE_FENCE:
-				CACHE_WRITE(OPT_FLAGS_CACHE_PREFETCH |
-					    OPT_FLAGS_CACHE_FLUSH |
-					    OPT_FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE:
+				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE);
 				break;
 			default:
 				CACHE_WRITE(0);
@@ -131,7 +180,7 @@ static int stress_cache(const args_t *args)
 		}
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
-		if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF) && !pinned) {
+		if ((cache_flags & FLAGS_CACHE_NOAFF) && !pinned) {
 			int current;
 
 			/* Pin to the current CPU */
@@ -142,18 +191,17 @@ static int stress_cache(const args_t *args)
 			cpu = (int32_t)current;
 		} else {
 			do {
-				cpu = (g_opt_flags & OPT_FLAGS_AFFINITY_RAND) ?
-					(mwc32() >> 4) : cpu + 1;
+				cpu++;
 				cpu %= cpus;
 			} while (!(CPU_ISSET(cpu, &proc_mask)));
 		}
 
-		if (!(g_opt_flags & OPT_FLAGS_CACHE_NOAFF) || !pinned) {
+		if (!(cache_flags & FLAGS_CACHE_NOAFF) || !pinned) {
 			CPU_ZERO(&mask);
 			CPU_SET(cpu, &mask);
 			(void)sched_setaffinity(0, sizeof(mask), &mask);
 
-			if ((g_opt_flags & OPT_FLAGS_CACHE_NOAFF)) {
+			if ((cache_flags & FLAGS_CACHE_NOAFF)) {
 				/* Don't continually set the affinity */
 				pinned = true;
 			}
@@ -171,5 +219,6 @@ static int stress_cache(const args_t *args)
 
 stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
-	.class = CLASS_CPU_CACHE
+	.class = CLASS_CPU_CACHE,
+	.opt_set_funcs = opt_set_funcs
 };

@@ -59,6 +59,14 @@ static int stress_set_udp_domain(const char *name)
 	return ret;
 }
 
+static int stress_set_udp_lite(const char *opt)
+{
+	bool udp_lite = true;
+
+	(void)opt;
+	return set_setting("udp-lite", TYPE_ID_BOOL, &udp_lite);
+}
+
 /*
  *  stress_udp
  *	stress by heavy udp ops
@@ -69,17 +77,16 @@ static int stress_udp(const args_t *args)
 	int udp_domain = AF_INET;
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
-#if defined(IPPROTO_UDPLITE)
-	int proto = (g_opt_flags & OPT_FLAGS_UDP_LITE) ?
-		IPPROTO_UDPLITE : IPPROTO_UDP;
-#else
+	bool udp_lite = false;
 	int proto = 0;
-#endif
 
 	(void)get_setting("udp-port", &udp_port);
 	(void)get_setting("udp-domain", &udp_domain);
-
 #if defined(IPPROTO_UDPLITE)
+	(void)get_setting("udp-lite", &udp_lite);
+
+ 	proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
+
 	if ((proto == IPPROTO_UDPLITE) &&
 	    (udp_domain == AF_UNIX)) {
 		proto = 0;
@@ -247,6 +254,7 @@ die:
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_domain,	stress_set_udp_domain },
 	{ OPT_udp_port,		stress_set_udp_port },
+	{ OPT_udp_lite,		stress_set_udp_lite },
 	{ 0,			NULL }
 };
 
