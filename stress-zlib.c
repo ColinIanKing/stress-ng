@@ -1075,7 +1075,7 @@ static int stress_zlib(const args_t *args)
 			interrupted ? " interrupted" : "",
 			(interrupted & pipe_broken) ? " and" : "",
 			pipe_broken ? " broken pipe" : "",
-			((interrupted | pipe_broken)) & error ? " and" : "",
+			(((interrupted | pipe_broken)) & error) ? " and" : "",
 			error ? " unexpected error" : "",
 			((interrupted | pipe_broken | error) & bad_xsum_reads) ? " and" : "",
 			bad_xsum_reads ? " could not read checksums" : "");
