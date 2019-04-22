@@ -61,12 +61,13 @@ static void stress_stack_alloc(const args_t *args, const bool stack_fill)
 {
 	const size_t sz = 256 * KB;
 	const size_t page_size4 = (args->page_size << 2);
-	register size_t i;
 	char data[sz];
 
 	if (stack_fill) {
 		(void)memset(data, 0, sz);
 	} else {
+		register size_t i;
+
 		/* Touch 25% of the pages */
 		for (i = 0; i < sz; i += page_size4)
 			data[i] = 0;
