@@ -2268,7 +2268,7 @@ static void stress_cpu_stats(const char *name)
 		pr_fail("%s: stats: geometric mean %f > arithmetic mean %f\n",
 			name, gm, am);
 	if (am > max)
-		pr_fail("%s: stats: arithmetic mean %f > maxiumum %f\n",
+		pr_fail("%s: stats: arithmetic mean %f > maximum %f\n",
 			name, am, max);
 }
 
