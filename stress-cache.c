@@ -107,11 +107,11 @@ static int stress_cache(const args_t *args)
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t mask;
 	uint32_t cpu = 0;
-	uint32_t cache_flags = 0;
 	const uint32_t cpus = stress_get_processors_configured();
 	cpu_set_t proc_mask;
 	bool pinned = false;
 #endif
+	uint32_t cache_flags = 0;
 	uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
