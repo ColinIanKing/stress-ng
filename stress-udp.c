@@ -77,8 +77,10 @@ static int stress_udp(const args_t *args)
 	int udp_domain = AF_INET;
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
-	bool udp_lite = false;
 	int proto = 0;
+#if defined(IPPROTO_UDPLITE)
+	bool udp_lite = false;
+#endif
 
 	(void)get_setting("udp-port", &udp_port);
 	(void)get_setting("udp-domain", &udp_domain);
