@@ -24,17 +24,17 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SIGALTSTACK)
-
-static void *stack;
-static const size_t stack_sz = MINSIGSTKSZ;
-
 static const help_t help[] =
 {
 	{ NULL,	"bad-altstack N",	"start N workers exercising bad signal stacks" },
 	{ NULL,	"bad-altstack-ops N",	"stop after N bogo signal stack SIGSEGVs" },
 	{ NULL, NULL,			NULL }
 };
+
+#if defined(HAVE_SIGALTSTACK)
+
+static void *stack;
+static const size_t stack_sz = MINSIGSTKSZ;
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
