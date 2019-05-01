@@ -163,6 +163,8 @@ static int stress_set_vm_mmap_populate(const char *opt)
 
 #if defined(MAP_POPULATE)
 	return stress_set_vm_flags(MAP_POPULATE);
+#else
+	return 0;
 #endif
 }
 
