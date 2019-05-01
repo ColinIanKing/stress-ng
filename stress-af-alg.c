@@ -589,7 +589,7 @@ stressor_info_t stress_af_alg_info = {
 #else
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_OS
+	.class = CLASS_CPU | CLASS_OS,
 	.help = help
 };
 #endif
