@@ -215,7 +215,7 @@ stressor_info_t stress_icache_info = {
 #else
 stressor_info_t stress_icache_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE
+	.class = CLASS_CPU_CACHE,
 	.help = help
 };
 #endif
