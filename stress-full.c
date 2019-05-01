@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"full N",	"start N workers exercising /dev/full" },
+	{ NULL, "full-ops N",	"stop after N /dev/full bogo I/O operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__)
 
 typedef struct {
@@ -35,12 +41,6 @@ static const whences_t whences[] = {
 	{ "SEEK_SET",	SEEK_SET },
 	{ "SEEK_CUR",	SEEK_CUR },
 	{ "SEEK_END",	SEEK_END }
-};
-
-static const help_t help[] = {
-	{ NULL,	"full N",	"start N workers exercising /dev/full" },
-	{ NULL, "full-ops N",	"stop after N /dev/full bogo I/O operations" },
-	{ NULL,	NULL,		NULL }
 };
 
 /*
