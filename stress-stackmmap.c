@@ -24,16 +24,16 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_SWAPCONTEXT) && 	\
-    defined(HAVE_UCONTEXT_H)
-
-#define MMAPSTACK_SIZE		(256 * KB)
-
 static const help_t help[] = {
 	{ NULL,	"stackmmap N",	   "start N workers exercising a filebacked stack" },
 	{ NULL,	"stackmmap-ops N", "stop after N bogo stackmmap operations" },
 	{ NULL,	NULL,		   NULL }
 };
+
+#if defined(HAVE_SWAPCONTEXT) && 	\
+    defined(HAVE_UCONTEXT_H)
+
+#define MMAPSTACK_SIZE		(256 * KB)
 
 static ucontext_t c_main, c_test;
 static void *stack_mmap;			/* mmap'd stack */
