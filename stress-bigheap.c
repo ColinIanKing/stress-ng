@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "B N","bigheap N",		"start N workers that grow the heap using calloc()" },
+	{ NULL,	"bigheap-ops N",	"stop after N bogo bigheap operations" },
+	{ NULL,	"bigheap-growth N",	"grow heap by N bytes per iteration" },
+	{ NULL,	NULL,			NULL }
+};
+
 /*
  *  stress_set_bigheap_growth()
  *  	Set bigheap growth from given opt arg string
@@ -211,5 +218,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.class = CLASS_OS | CLASS_VM,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

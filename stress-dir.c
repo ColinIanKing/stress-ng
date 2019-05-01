@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dir N",	"start N directory thrashing stressors" },
+	{ NULL,	"dir-ops N",	"stop after N directory bogo operations" },
+	{ NULL,	"dir-dirs N",	"select number of directories to exercise dir on" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_set_dir_dirs()
  *      set number of dir directories from given option string
@@ -180,5 +187,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_dir_info = {
 	.stressor = stress_dir,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

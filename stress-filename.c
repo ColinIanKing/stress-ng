@@ -40,6 +40,13 @@ static const filename_opts_t filename_opts[] = {
 	{ -1,				NULL }
 };
 
+static const help_t help[] = {
+	{ NULL,	"filename N",		"start N workers exercising filenames" },
+	{ NULL,	"filename-ops N",	"stop after N filename bogo operations" },
+	{ NULL,	"filename-opts opt",	"specify allowed filename options" },
+	{ NULL,	NULL,			NULL }
+};
+
 /* Allowed filename characters */
 static char allowed[256];
 
@@ -465,5 +472,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_filename_info = {
 	.stressor = stress_filename,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

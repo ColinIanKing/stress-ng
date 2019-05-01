@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"loop N",	"start N workers exercising loopback devices" },
+	{ NULL,	"loop-ops N",	"stop after N bogo loopback operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LINUX_LOOP_H) && \
     defined(LOOP_CTL_GET_FREE) && \
     defined(LOOP_SET_FD) && \
@@ -198,6 +204,7 @@ stressor_info_t stress_loop_info = {
 	.stressor = stress_loop,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
+	.help = help
 };
 #else
 
@@ -211,5 +218,6 @@ stressor_info_t stress_loop_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
+	.help = help
 };
 #endif

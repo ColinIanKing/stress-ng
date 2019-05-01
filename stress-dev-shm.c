@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dev-shm",	"start N /dev/shm file and mmap stressors" },
+	{ NULL,	"dev-shm-ops",	"stop after N /dev/shm bogo ops" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__)
 
 /*
@@ -193,11 +199,13 @@ fork_again:
 
 stressor_info_t stress_dev_shm_info = {
 	.stressor = stress_dev_shm,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_dev_shm_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #endif

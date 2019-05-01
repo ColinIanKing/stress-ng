@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"madvise N",	 "start N workers exercising madvise on memory" },
+	{ NULL,	"madvise-ops N", "stop after N bogo madvise operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_MADVISE)
 
 #define NUM_MEM_RETRIES_MAX	(256)
@@ -280,11 +286,13 @@ static int stress_madvise(const args_t *args)
 
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_madvise,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_madvise_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #endif

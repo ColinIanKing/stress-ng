@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"af-alg N",	"start N workers that stress AF_ALG socket domain" },
+	{ NULL,	"af-alg-ops N",	"stop after N af-alg bogo operations" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(HAVE_LINUX_IF_ALG_H) && \
     defined(HAVE_LINUX_SOCKET_H) && \
     defined(AF_ALG)
@@ -576,12 +582,14 @@ stressor_info_t stress_af_alg_info = {
 	.stressor = stress_af_alg,
 	.init = stress_af_alg_init,
 	.deinit = stress_af_alg_deinit,
-	.class = CLASS_CPU | CLASS_OS
+	.class = CLASS_CPU | CLASS_OS,
+	.help = help
 };
 
 #else
 stressor_info_t stress_af_alg_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU | CLASS_OS
+	.help = help
 };
 #endif

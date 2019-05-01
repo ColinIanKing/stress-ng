@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"cap N",	"start N workers exercising capget" },
+	{ NULL,	"cap-ops N",	"stop cap workers after N bogo capget operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_CAPABILITY_H)
 
 static int stress_capgetset_pid(
@@ -112,11 +118,13 @@ static int stress_cap(const args_t *args)
 
 stressor_info_t stress_cap_info = {
 	.stressor = stress_cap,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_cap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

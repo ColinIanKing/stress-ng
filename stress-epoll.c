@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"epoll N",	  "start N workers doing epoll handled socket activity" },
+	{ NULL,	"epoll-ops N",	  "stop after N epoll bogo operations" },
+	{ NULL,	"epoll-port P",	  "use socket ports P upwards" },
+	{ NULL,	"epoll-domain D", "specify socket domain, default is unix" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)
 
@@ -615,12 +623,14 @@ reap:
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_epoll,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_epoll_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

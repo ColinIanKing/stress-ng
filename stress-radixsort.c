@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"radixsort N",	    "start N workers radix sorting random strings" },
+	{ NULL,	"radixsort-ops N",  "stop after N radixsort bogo operations" },
+	{ NULL,	"radixsort-size N", "number of strings to sort" },
+	{ NULL,	NULL,		    NULL }
+};
+
 #if HAVE_LIB_BSD
 
 #define STR_SIZE	(8)
@@ -152,12 +159,14 @@ tidy:
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_radixsort_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

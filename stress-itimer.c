@@ -29,6 +29,13 @@ static uint64_t max_ops;
 static double rate_us;
 static double start;
 
+static const help_t help[] = {
+	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
+	{ NULL,	"itimer-ops N",	"stop after N interval timer bogo operations" },
+	{ NULL,	"itimer-rand",	"enable random interval timer frequency" },
+	{ NULL, NULL,		NULL }
+};
+
 /*
  *  stress_set_itimer_freq()
  *	set itimer frequency from given option
@@ -185,5 +192,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

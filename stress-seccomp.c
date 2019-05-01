@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"seccomp N",	 "start N workers performing seccomp call filtering" },
+	{ NULL,	"seccomp-ops N", "stop after N seccomp bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(HAVE_LINUX_AUDIT_H) &&	\
     defined(HAVE_LINUX_FILTER_H) &&	\
@@ -321,11 +327,13 @@ static int stress_seccomp(const args_t *args)
 stressor_info_t stress_seccomp_info = {
 	.stressor = stress_seccomp,
 	.supported = stress_seccomp_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_seccomp_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"msg N",	"start N workers stressing System V messages" },
+	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_IPC_H) &&	\
     defined(HAVE_SYS_MSG_H) &&	\
     defined(HAVE_MQ_SYSV)
@@ -166,11 +172,13 @@ again:
 
 stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_msg_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

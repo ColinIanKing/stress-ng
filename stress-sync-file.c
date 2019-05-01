@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sync-file N",	     "start N workers exercise sync_file_range" },
+	{ NULL,	"sync-file-ops N",   "stop after N sync_file_range bogo operations" },
+	{ NULL,	"sync-file-bytes N", "size of file to be sync'd" },
+	{ NULL,	NULL,		     NULL }
+};
+
 #if defined(HAVE_SYNC_FILE_RANGE)
 static const int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE,
@@ -198,12 +205,14 @@ err:
 stressor_info_t stress_sync_file_info = {
 	.stressor = stress_sync_file,
 	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sync_file_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

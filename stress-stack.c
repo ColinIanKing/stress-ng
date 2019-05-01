@@ -26,6 +26,13 @@
 
 static sigjmp_buf jmp_env;
 
+static const help_t help[] = {
+	{ NULL,	"stack N",	"start N workers generating stack overflows" },
+	{ NULL,	"stack-ops N",	"stop after N bogo stack overflows" },
+	{ NULL,	"stack-fill",	"fill stack, touches all new pages " },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_stack_fill(const char *opt)
 {
 	bool stack_fill = true;
@@ -196,5 +203,6 @@ again:
 stressor_info_t stress_stack_info = {
 	.stressor = stress_stack,
 	.class = CLASS_VM | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

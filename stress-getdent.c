@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"getdent N",	 "start N workers reading directories using getdents" },
+	{ NULL,	"getdent-ops N", "stop after N getdents bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_GETDENTS64) || defined(HAVE_GETDENTS)
 
 #define BUF_SIZE	(256 * 1024)
@@ -253,11 +259,13 @@ static int stress_getdent(const args_t *args)
 
 stressor_info_t stress_getdent_info = {
 	.stressor = stress_getdent,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_getdent_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

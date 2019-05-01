@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"remap N",	"start N workers exercising page remappings" },
+	{ NULL,	"remap-ops N",	"stop after N remapping bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_REMAP_FILE_PAGES)
 
 #define N_PAGES		(512)
@@ -155,11 +161,13 @@ static int stress_remap(const args_t *args)
 
 stressor_info_t stress_remap_info = {
 	.stressor = stress_remap,
-	.class = CLASS_MEMORY | CLASS_OS
+	.class = CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_remap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY | CLASS_OS
+	.class = CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #endif

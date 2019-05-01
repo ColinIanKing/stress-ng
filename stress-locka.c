@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"locka N",	"start N workers locking a file via advisory locks" },
+	{ NULL,	"locka-ops N",	"stop after N locka bogo operations" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 
@@ -307,11 +313,13 @@ tidy:
 }
 stressor_info_t stress_locka_info = {
 	.stressor = stress_locka,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_locka_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

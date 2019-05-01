@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"inode-flags N",	"start N workers exercising various inode flags" },
+	{ NULL,	"inode-flags-ops N",	"stop inode-flags workers after N bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_LIBGEN_H) && \
     defined(FS_IOC_GETFLAGS) && \
@@ -260,11 +266,13 @@ static int stress_inode_flags(const args_t *args)
 
 stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_inode_flags,
-	.class = CLASS_OS | CLASS_FILESYSTEM
+	.class = CLASS_OS | CLASS_FILESYSTEM,
+	.help = help
 };
 #else
 stressor_info_t stress_inode_flags_info = {
 	.stressor = stress_not_implemented ,
-	.class = CLASS_OS | CLASS_FILESYSTEM
+	.class = CLASS_OS | CLASS_FILESYSTEM,
+	.help = help
 };
 #endif

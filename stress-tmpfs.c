@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"tmpfs N",	    "start N workers mmap'ing a file on tmpfs" },
+	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
+	{ NULL,	"tmpfs-mmap-async", "using asynchronous msyncs for tmpfs file based mmap" },
+	{ NULL,	"tmpfs-mmap-file",  "mmap onto a tmpfs file using synchronous msyncs" },
+	{ NULL,	NULL,		    NULL }
+};
+
 static int stress_set_tmpfs_mmap_file(const char *opt)
 {
 	bool tmpfs_mmap_file = true;
@@ -394,12 +402,14 @@ cleanup:
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

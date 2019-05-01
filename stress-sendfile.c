@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sendfile N",	   "start N workers exercising sendfile" },
+	{ NULL,	"sendfile-ops N",  "stop after N bogo sendfile operations" },
+	{ NULL,	"sendfile-size N", "size of data to be sent with sendfile" },
+	{ NULL,	NULL,		   NULL }
+};
+
 static int stress_set_sendfile_size(const char *opt)
 {
 	int64_t sendfile_size;
@@ -121,12 +128,14 @@ dir_out:
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sendfile_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

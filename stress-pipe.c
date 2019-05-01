@@ -26,6 +26,16 @@
 
 #define PIPE_STOP	"PS!"
 
+static const help_t help[] = {
+	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
+	{ NULL,	"pipe-ops N",		"stop after N pipe I/O bogo operations" },
+	{ NULL,	"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
+#if defined(F_SETPIPE_SZ)
+	{ NULL,	"pipe-size N",		"set pipe size to N bytes" },
+#endif
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(F_SETPIPE_SZ)
 /*
  *  stress_set_pipe_size()
@@ -254,5 +264,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_pipe_info = {
 	.stressor = stress_pipe,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

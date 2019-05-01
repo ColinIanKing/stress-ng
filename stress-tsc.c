@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"tsc N",	"start N workers reading the TSC (x86 only)" },
+	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_X86) && 	\
     defined(HAVE_CPUID) &&	\
@@ -128,7 +134,8 @@ static int stress_tsc(const args_t *args)
 stressor_info_t stress_tsc_info = {
 	.stressor = stress_tsc,
 	.supported = stress_tsc_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 
@@ -142,6 +149,7 @@ static int stress_tsc_supported(void)
 stressor_info_t stress_tsc_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_tsc_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

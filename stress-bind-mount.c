@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"bind-mount N",	    "start N workers exercising bind mounts" },
+	{ NULL,	"bind-mount-ops N", "stop after N bogo bind mount operations" },
+	{ NULL,	NULL,		    NULL }
+};
+
 #if defined(__linux__) && \
     defined(MS_BIND) && \
     defined(MS_REC) && \
@@ -122,11 +128,13 @@ static int stress_bind_mount(const args_t *args)
 
 stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_bind_mount,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #else
 stressor_info_t stress_bind_mount_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #endif

@@ -26,6 +26,13 @@
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 
+static const help_t help[] = {
+	{ NULL,	"fiemap N",	  "start N workers exercising the FIEMAP ioctl" },
+	{ NULL,	"fiemap-ops N",	  "stop after N FIEMAP ioctl bogo operations" },
+	{ NULL,	"fiemap-bytes N", "specify size of file to fiemap" },
+	{ NULL,	NULL,		   NULL }
+};
+
 static int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
@@ -292,12 +299,14 @@ clean:
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_fiemap,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_fiemap_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

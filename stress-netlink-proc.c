@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"netlink-proc N",	"start N workers exercising netlink process events" },
+	{ NULL,	"netlink-proc-ops N",	"stop netlink-proc workers after N bogo events" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined (__linux__) && 		\
     defined(HAVE_LINUX_CONNECTOR_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) &&	\
@@ -231,11 +237,13 @@ static int stress_netlink_proc(const args_t *args)
 stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_netlink_proc,
 	.supported = stress_netlink_proc_supported,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_netlink_proc_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

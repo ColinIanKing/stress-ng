@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"seek N",	"start N workers performing random seek r/w IO" },
+	{ NULL,	"seek-ops N",	"stop after N seek bogo operations" },
+	{ NULL,	"seek-punch",	"punch random holes in file to stress extents" },
+	{ NULL,	"seek-size N",	"length of file to do random I/O upon" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_seek_size(const char *opt)
 {
 	uint64_t seek_size;
@@ -194,5 +202,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_seek_info = {
 	.stressor = stress_seek,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

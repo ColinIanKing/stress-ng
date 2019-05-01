@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"rawdev N",	   "start N workers that read a raw device" },
+	{ NULL,	"rawdev-ops N",	   "stop after N rawdev read operations" },
+	{ NULL,	"rawdev-method M", "specify the rawdev reead method to use" },
+	{ NULL,	NULL,		   NULL }
+};
+
 typedef void (*rawdev_func)(const args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
@@ -405,12 +412,14 @@ stressor_info_t stress_rawdev_info = {
 	.stressor = stress_rawdev,
 	.supported = stress_rawdev_supported,
 	.class = CLASS_IO,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_rawdev_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

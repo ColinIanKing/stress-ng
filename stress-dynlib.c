@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dynlib N",	"start N workers exercising dlopen/dlclose" },
+	{ NULL,	"dynlib-ops N",	"stop after N dlopen/dlclose bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_DL) && !defined(BUILD_STATIC)
 
 static sigjmp_buf jmp_env;
@@ -164,11 +170,13 @@ tidy:
 }
 stressor_info_t stress_dynlib_info = {
 	.stressor = stress_dynlib,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_dynlib_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

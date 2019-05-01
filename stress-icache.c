@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"icache N",	"start N CPU instruction cache thrashing workers" },
+	{ NULL,	"icache-ops N",	"stop after N icache bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if (defined(STRESS_X86) || defined(STRESS_ARM) || \
      defined(STRESS_S390) || defined(STRESS_PPC64)) && \
      defined(__GNUC__) && NEED_GNUC(4,6,0) && \
@@ -203,11 +209,13 @@ static int stress_icache(const args_t *args)
 
 stressor_info_t stress_icache_info = {
 	.stressor = stress_icache,
-	.class = CLASS_CPU_CACHE
+	.class = CLASS_CPU_CACHE,
+	.help = help
 };
 #else
 stressor_info_t stress_icache_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE
+	.help = help
 };
 #endif

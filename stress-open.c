@@ -26,6 +26,12 @@
 
 typedef int (*open_func_t)(void);
 
+static const help_t help[] = {
+	{ "o N", "open N",	"start N workers exercising open/close" },
+	{ NULL,	"open-ops N",	"stop after N open/close bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int open_dev_zero_rd(void)
 {
 	int flags = 0;
@@ -185,5 +191,6 @@ static int stress_open(const args_t *args)
 
 stressor_info_t stress_open_info = {
 	.stressor = stress_open,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

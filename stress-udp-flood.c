@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"udp-flood N",		"start N workers that performs a UDP flood attack" },
+	{ NULL,	"udp-flood-ops N",	"stop after N udp flood bogo operations" },
+	{ NULL,	"udp-flood-domain D",	"specify domain, default is ipv4" },
+	{ NULL,	NULL,			NULL }
+};
+
 /*
  *  stress_set_udp_domain()
  *      set the udp domain option
@@ -111,12 +118,14 @@ static int stress_udp_flood(const args_t *args)
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_udp_flood,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_udp_flood_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

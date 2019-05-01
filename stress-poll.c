@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "P N", "poll N",	"start N workers exercising zero timeout polling" },
+	{ NULL,	"poll-ops N",	"stop after N poll bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_POLL_H)
 
 #define MAX_PIPES	(5)
@@ -267,11 +273,13 @@ tidy:
 
 stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_poll_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

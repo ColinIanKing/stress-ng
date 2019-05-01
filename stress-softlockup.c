@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"softlockup N",     "start N workers that cause softlockups" },
+	{ NULL,	"softlockup-ops N", "stop after N softlockup bogo operations" },
+	{ NULL,	NULL,		    NULL }
+};
+
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_SETSCHEDULER)
 
@@ -239,11 +245,13 @@ tidy:
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_softlockup,
 	.supported = stress_softlockup_supported,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.help = help
 };
 #else
 stressor_info_t stress_softlockup_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.help = help
 };
 #endif

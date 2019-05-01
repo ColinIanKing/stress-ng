@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigrt N",	"start N workers sending real time signals" },
+	{ NULL,	"sigrt-ops N",	"stop after N real time signal bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SIGQUEUE) &&		\
     defined(HAVE_SIGWAITINFO) &&	\
     defined(SIGRTMIN) &&		\
@@ -135,11 +141,13 @@ reap:
 
 stressor_info_t stress_sigrt_info = {
 	.stressor = stress_sigrt,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sigrt_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"ioprio N",	"start N workers exercising set/get iopriority" },
+	{ NULL,	"ioprio-ops N",	"stop after N io bogo iopriority operations" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(HAVE_IOPRIO_GET) &&	\
     defined(HAVE_IOPRIO_SET) && \
     defined(HAVE_PWRITEV)
@@ -185,11 +191,13 @@ cleanup_dir:
 
 stressor_info_t stress_ioprio_info = {
 	.stressor = stress_ioprio,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_ioprio_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

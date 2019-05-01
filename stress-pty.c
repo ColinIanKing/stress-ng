@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"pty N",	"start N workers that exercise pseudoterminals" },
+	{ NULL,	"pty-ops N",	"stop pty workers after N pty bogo operations" },
+	{ NULL,	"pty-max N",	"attempt to open a maximum of N ptys" },
+	{ NULL,	NULL,          NULL }
+};
+
 #if defined(HAVE_TERMIOS_H) &&	\
     defined(HAVE_TERMIO_H) && \
     defined(HAVE_PTSNAME)
@@ -260,12 +267,14 @@ clean:
 stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_pty_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

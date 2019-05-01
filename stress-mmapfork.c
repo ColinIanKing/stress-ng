@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mmapfork N",	  "start N workers stressing many forked mmaps/munmaps" },
+	{ NULL,	"mmapfork-ops N", "stop after N mmapfork bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
 
 #define MAX_PIDS		(32)
@@ -177,11 +183,13 @@ reap:
 
 stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_mmapfork,
-	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_mmapfork_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_VM | CLASS_OS,
+	.help = help
 };
 #endif

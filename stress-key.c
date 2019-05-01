@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"key N",	"start N workers exercising key operations" },
+	{ NULL,	"key-ops N",	"stop after N key bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_KEYUTILS_H) && \
     defined(HAVE_ADD_KEY) && \
     defined(HAVE_KEYCTL)
@@ -205,11 +211,13 @@ tidy:
 
 stressor_info_t stress_key_info = {
 	.stressor = stress_key,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_key_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

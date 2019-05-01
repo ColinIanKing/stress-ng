@@ -31,6 +31,12 @@ static volatile int signo;
 static volatile int code;
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"sigsegv N",	 "start N workers generating segmentation faults" },
+	{ NULL,	"sigsegv-ops N", "stop after N bogo segmentation faults" },
+	{ NULL,	NULL,		 NULL }
+};
+
 /*
  *  stress_segvhandler()
  *	SEGV handler
@@ -163,5 +169,6 @@ tidy:
 
 stressor_info_t stress_sigsegv_info = {
 	.stressor = stress_sigsegv,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };

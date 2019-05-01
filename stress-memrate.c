@@ -24,6 +24,15 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
+	{ NULL,	"memrate-ops",		"stop after N memrate bogo operations" },
+	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },
+	{ NULL,	"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
+	{ NULL,	"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },
+	{ NULL,	NULL,			NULL }
+};
+
 typedef uint64_t (*memrate_func_t)(void *start, void *end, uint64_t rd_mbs, uint64_t wr_mbs);
 
 typedef struct {
@@ -365,5 +374,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_memrate_info = {
 	.stressor = stress_memrate,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

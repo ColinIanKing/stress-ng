@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mq N",		"start N workers passing messages using POSIX messages" },
+	{ NULL,	"mq-ops N",	"stop mq workers after N bogo messages" },
+	{ NULL,	"mq-size N",	"specify the size of the POSIX message queue" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_mq_size(const char *opt)
 {
 	uint64_t sz;
@@ -259,12 +266,14 @@ again:
 stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_mq_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

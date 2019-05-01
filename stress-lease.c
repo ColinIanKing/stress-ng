@@ -25,9 +25,15 @@
 #include "stress-ng.h"
 
 #if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
-
 static uint64_t lease_sigio;
 #endif
+
+static const help_t help[] = {
+	{ NULL,	"lease N",	    "start N workers holding and breaking a lease" },
+	{ NULL,	"lease-ops N",	    "stop after N lease bogo operations" },
+	{ NULL,	"lease-breakers N", "number of lease breaking workers to start" },
+	{ NULL, NULL,		    NULL }
+};
 
 static int stress_set_lease_breakers(const char *opt)
 {
@@ -192,12 +198,14 @@ reap:
 stressor_info_t stress_lease_info = {
 	.stressor = stress_lease,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_lease_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

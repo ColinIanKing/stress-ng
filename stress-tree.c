@@ -37,6 +37,14 @@ typedef struct {
 
 static const stress_tree_method_info_t tree_methods[];
 
+static const help_t help[] = {
+	{ NULL,	"tree N",	 "start N workers that exercise tree structures" },
+	{ NULL,	"tree-ops N",	 "stop after N bogo tree operations" },
+	{ NULL,	"tree-method M", "select tree method, all,avl,binary,rb,splay" },
+	{ NULL,	"tree-size N",	 "N is the number of items in the tree" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
 
 static volatile bool do_jmp = true;
@@ -565,12 +573,14 @@ tidy:
 stressor_info_t stress_tree_info = {
 	.stressor = stress_tree,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_tree_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"numa N",	"start N workers stressing NUMA interfaces" },
+	{ NULL,	"numa-ops N",	"stop after N NUMA bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__NR_get_mempolicy) &&	\
     defined(__NR_mbind) &&		\
     defined(__NR_migrate_pages) &&	\
@@ -333,11 +339,13 @@ numa_free:
 
 stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
-	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_numa_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #endif

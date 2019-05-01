@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
+	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
+	{ NULL,	"exec-max P",	"create P workers per iteration, default is 1" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_set_exec_max()
  *	set maximum number of forks allowed
@@ -212,12 +219,14 @@ stressor_info_t stress_exec_info = {
 	.stressor = stress_exec,
 	.supported = stress_exec_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_exec_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

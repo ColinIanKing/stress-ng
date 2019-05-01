@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigpending N",     "start N workers exercising sigpending" },
+	{ NULL,	"sigpending-ops N", "stop after N sigpending bogo operations" },
+	{ NULL,	NULL,		    NULL }
+};
+
 /*
  *  stress_usr1_handler()
  *	SIGUSR1 signal handler
@@ -85,5 +91,6 @@ static int stress_sigpending(const args_t *args)
 
 stressor_info_t stress_sigpending_info = {
 	.stressor = stress_sigpending,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };

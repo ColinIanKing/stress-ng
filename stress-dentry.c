@@ -35,6 +35,14 @@ typedef struct {
 	const uint8_t denty_order;
 } dentry_removal_t;
 
+static const help_t help[] = {
+	{ "D N","dentry N",		"start N dentry thrashing stressors" },
+	{ NULL,	"dentry-ops N",		"stop after N dentry bogo operations" },
+	{ NULL,	"dentry-order O",	"specify unlink order (reverse, forward, stride)" },
+	{ NULL,	"dentries N",		"create N dentries per iteration" },
+	{ NULL,	NULL,			NULL }
+};
+
 static const dentry_removal_t dentry_removals[] = {
 	{ "forward",	ORDER_FORWARD },
 	{ "reverse",	ORDER_REVERSE },
@@ -325,5 +333,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_dentry_info = {
 	.stressor = stress_dentry,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

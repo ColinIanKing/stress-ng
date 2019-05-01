@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"kcmp N",	"start N workers exercising kcmp" },
+	{ NULL,	"kcmp-ops N",	"stop after N kcmp bogo operations" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(HAVE_KCMP)
 
 /* Urgh, should be from linux/kcmp.h */
@@ -284,11 +290,13 @@ reap:
 
 stressor_info_t stress_kcmp_info = {
 	.stressor = stress_kcmp,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_kcmp_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

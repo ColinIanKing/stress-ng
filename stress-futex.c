@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"futex N",	"start N workers exercising a fast mutex" },
+	{ NULL,	"futex-ops N",	"stop after N fast mutex bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LINUX_FUTEX_H) &&	\
     defined(__NR_futex)
 
@@ -119,11 +125,13 @@ again:
 
 stressor_info_t stress_futex_info = {
 	.stressor = stress_futex,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_futex_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

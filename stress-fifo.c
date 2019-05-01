@@ -28,6 +28,13 @@
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"fifo N",	  "start N workers exercising fifo I/O" },
+	{ NULL,	"fifo-ops N",	  "stop after N fifo bogo operations" },
+	{ NULL,	"fifo-readers N", "number of fifo reader stessors to start" },
+	{ NULL,	NULL,		  NULL }
+};
+
 static int stress_set_fifo_readers(const char *opt)
 {
 	uint64_t fifo_readers;
@@ -243,12 +250,14 @@ tidy:
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_fifo_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

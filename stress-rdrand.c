@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"rdrand N",	"start N workers exercising rdrand (x86 only)" },
+	{ NULL,	"rdrand-ops N",	"stop after N rdrand bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_X86) &&	\
     defined(HAVE_CPUID) &&	\
@@ -241,7 +247,8 @@ static int stress_rdrand(const args_t *args)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 
@@ -255,6 +262,7 @@ static int stress_rdrand_supported(void)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_rdrand_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

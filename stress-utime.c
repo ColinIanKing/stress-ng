@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"utime N",	"start N workers updating file timestamps" },
+	{ NULL,	"utime-ops N",	"stop after N utime bogo operations" },
+	{ NULL,	"utime-fsync",	"force utime meta data sync to the file system" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_utime_fsync(const char *opt)
 {
 	bool utime_fsync = true;
@@ -179,5 +186,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

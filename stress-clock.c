@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"clock N",	"start N workers thrashing clocks and POSIX timers" },
+	{ NULL,	"clock-ops N",	"stop clock workers after N bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_CLOCK_SETTIME)
@@ -290,11 +296,13 @@ timer_delete:
 
 stressor_info_t stress_clock_info = {
 	.stressor = stress_clock,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_clock_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #endif

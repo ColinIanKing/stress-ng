@@ -27,6 +27,12 @@
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
 
+static const help_t help[] = {
+	{ NULL,	"resources N",	   "start N workers consuming system resources" },
+	{ NULL,	"resources-ops N", "stop after N resource bogo operations" },
+	{ NULL,	NULL,		   NULL }
+};
+
 typedef struct {
 	void *m_malloc;
 	void *m_sbrk;
@@ -585,5 +591,6 @@ static int stress_resources(const args_t *args)
 
 stressor_info_t stress_resources_info = {
 	.stressor = stress_resources,
-	.class = CLASS_MEMORY | CLASS_OS
+	.class = CLASS_MEMORY | CLASS_OS,
+	.help = help
 };

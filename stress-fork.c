@@ -24,6 +24,20 @@
  */
 #include "stress-ng.h"
 
+static const help_t fork_help[] = {
+	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
+	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
+	{ NULL,	"fork-max P",	"create P workers per iteration, default is 1" },
+	{ NULL,	NULL,		NULL }
+};
+
+static const help_t vfork_help[] = {
+	{ NULL,	"vfork N",	"start N workers spinning on vfork() and exit()" },
+	{ NULL,	"vfork-ops N",	"stop after N vfork bogo operations" },
+	{ NULL,	"vfork-max P",	"create P processes per iteration, default is 1" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
@@ -176,11 +190,13 @@ static const opt_set_func_t vfork_opt_set_funcs[] = {
 stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = fork_opt_set_funcs
+	.opt_set_funcs = fork_opt_set_funcs,
+	.help = fork_help
 };
 
 stressor_info_t stress_vfork_info = {
 	.stressor = stress_vfork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = vfork_opt_set_funcs
+	.opt_set_funcs = vfork_opt_set_funcs,
+	.help = vfork_help
 };

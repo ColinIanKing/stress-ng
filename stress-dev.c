@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dev",		"start N device entry thrashing stressors" },
+	{ NULL,	"dev-ops",	"stop after N device thrashing bogo ops" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_POLL_H) &&		\
     defined(HAVE_LIB_PTHREAD) && 	\
     !defined(__sun__) && 		\
@@ -1406,11 +1412,13 @@ again:
 }
 stressor_info_t stress_dev_info = {
 	.stressor = stress_dev,
-	.class = CLASS_DEV | CLASS_OS
+	.class = CLASS_DEV | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_dev_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_DEV | CLASS_OS
+	.class = CLASS_DEV | CLASS_OS,
+	.help = help
 };
 #endif

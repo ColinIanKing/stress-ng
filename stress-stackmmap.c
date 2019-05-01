@@ -29,6 +29,12 @@
 
 #define MMAPSTACK_SIZE		(256 * KB)
 
+static const help_t help[] = {
+	{ NULL,	"stackmmap N",	   "start N workers exercising a filebacked stack" },
+	{ NULL,	"stackmmap-ops N", "stop after N bogo stackmmap operations" },
+	{ NULL,	NULL,		   NULL }
+};
+
 static ucontext_t c_main, c_test;
 static void *stack_mmap;			/* mmap'd stack */
 static uintptr_t page_mask;
@@ -220,11 +226,13 @@ tidy_dir:
 
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_stackmmap,
-	.class = CLASS_VM | CLASS_MEMORY
+	.class = CLASS_VM | CLASS_MEMORY,
+	.help = help
 };
 #else
 stressor_info_t stress_stackmmap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_MEMORY
+	.class = CLASS_VM | CLASS_MEMORY,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"chown N",	"start N workers thrashing chown file ownership" },
+	{ NULL,	"chown-ops N",	"stop chown workers after N bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  do_fchown()
  *	set ownership different ways
@@ -229,5 +235,6 @@ tidy:
 
 stressor_info_t stress_chown_info = {
 	.stressor = stress_chown,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

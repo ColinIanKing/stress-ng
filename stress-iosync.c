@@ -26,6 +26,12 @@
 
 #define MAX_MNTS	(256)
 
+static const help_t help[] = {
+	{ "i N", "io N",	"start N workers spinning on sync()" },
+	{ NULL,	 "io-ops N",	"stop sync I/O after N io bogo operations" },
+	{ NULL,	 NULL,		NULL }
+};
+
 /*
  *  stress on sync()
  *	stress system by IO sync calls
@@ -74,5 +80,6 @@ static int stress_io(const args_t *args)
 
 stressor_info_t stress_io_info = {
 	.stressor = stress_io,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

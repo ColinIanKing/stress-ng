@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"spawn",	"start N workers spawning stress-ng using posix_spawn" },
+	{ NULL,	"spawn-ops N",	"stop after N spawn bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 
@@ -115,11 +121,13 @@ static int stress_spawn(const args_t *args)
 stressor_info_t stress_spawn_info = {
 	.stressor = stress_spawn,
 	.supported = stress_spawn_supported,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_spawn_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

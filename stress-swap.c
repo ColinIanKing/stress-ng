@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"swap N",	"start N workers exercising swapon/swapoff" },
+	{ NULL,	"swap-ops N",	"stop after N swapon/swapoff operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_SWAP_H) &&	\
     defined(HAVE_SWAP)
 
@@ -224,11 +230,13 @@ tidy_ret:
 stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_swap_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #endif

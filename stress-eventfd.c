@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"eventfd N",	 "start N workers stressing eventfd read/writes" },
+	{ NULL,	"eventfd-ops N", "stop eventfd workers after N bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_SYS_EVENTFD_H) && \
     defined(HAVE_EVENTFD) && \
     NEED_GLIBC(2,8,0)
@@ -167,11 +173,13 @@ exit_parent:
 
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

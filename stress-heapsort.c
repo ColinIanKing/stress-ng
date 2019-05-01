@@ -29,6 +29,13 @@ static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"heapsort N",	   "start N workers heap sorting 32 bit random integers" },
+	{ NULL,	"heapsort-ops N",  "stop after N heap sort bogo operations" },
+	{ NULL,	"heapsort-size N", "number of 32 bit integers to sort" },
+	{ NULL,	NULL,		   NULL }
+};
+
 /*
  *  stress_set_heapsort_size()
  *	set heapsort size
@@ -223,12 +230,14 @@ tidy:
 stressor_info_t stress_heapsort_info = {
 	.stressor = stress_heapsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_heapsort_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "s N","switch N",	 "start N workers doing rapid context switches" },
+	{ NULL,	"switch-ops N",	 "stop after N context switch bogo operations" },
+	{ NULL, "switch-freq N", "set frequency of context switches" },
+	{ NULL, NULL, 		 NULL }
+};
+
 #define SWITCH_STOP	'X'
 #define THRESH_FREQ	(100)		/* Delay adjustment rate in HZ */
 #define NANO_SECS	(1000000000)
@@ -209,5 +216,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_switch_info = {
 	.stressor = stress_switch,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

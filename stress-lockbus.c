@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"lockbus N",	 "start N workers locking a memory increment" },
+	{ NULL,	"lockbus-ops N", "stop after N lockbus bogo operations" },
+	{ NULL, NULL,		 NULL }
+};
+
 #if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_X86)) || \
     (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARM)))
 
@@ -94,11 +100,13 @@ static int stress_lockbus(const args_t *args)
 
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #else
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #endif

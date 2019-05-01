@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"flock N",	"start N workers locking a single file" },
+	{ NULL,	"flock-ops N",	"stop after N flock bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\
     defined(LOCK_UN)
@@ -144,11 +150,13 @@ err:
 
 stressor_info_t stress_flock_info = {
 	.stressor = stress_flock,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_flock_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

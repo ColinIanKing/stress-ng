@@ -32,6 +32,12 @@
 #define MAX_SIGNUM      256
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"daemon N",	"start N workers creating multiple daemons" },
+	{ NULL,	"daemon-ops N",	"stop when N daemons have been created" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  daemons()
  *	fork off a child and let the parent die
@@ -164,5 +170,6 @@ static int stress_daemon(const args_t *args)
 
 stressor_info_t stress_daemon_info = {
 	.stressor = stress_daemon,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };

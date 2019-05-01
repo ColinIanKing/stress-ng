@@ -26,6 +26,12 @@
 
 static volatile bool page_fault = false;
 
+static const help_t help[] = {
+	{ NULL,	"mmapaddr N",	  "start N workers stressing mmap with random addresses" },
+	{ NULL,	"mmapaddr-ops N", "stop after N mmapaddr bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 static void stress_fault_handler(int signum)
 {
 	(void)signum;
@@ -249,5 +255,6 @@ unmap:
 
 stressor_info_t stress_mmapaddr_info = {
 	.stressor = stress_mmapaddr,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };

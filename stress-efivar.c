@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"efivar N",	"start N workers that read EFI variables" },
+	{ NULL,	"efivar-ops N",	"stop after N EFI variable bogo read operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__)
 
 typedef struct {
@@ -326,7 +332,8 @@ again:
 stressor_info_t stress_efivar_info = {
 	.stressor = stress_efivar,
 	.supported = stress_efivar_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 static int stress_efivar_supported(void)
@@ -339,6 +346,7 @@ static int stress_efivar_supported(void)
 stressor_info_t stress_efivar_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_efivar_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

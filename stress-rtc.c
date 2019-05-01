@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"rtc N",	"start N workers that exercise the RTC interfaces" },
+	{ NULL,	"rtc-ops N",	"stop after N RTC bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LINUX_RTC_H)
 
 /*
@@ -200,11 +206,13 @@ static int stress_rtc(const args_t *args)
 
 stressor_info_t stress_rtc_info = {
 	.stressor = stress_rtc,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_rtc_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

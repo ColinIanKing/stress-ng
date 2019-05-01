@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"klog N",	"start N workers exercising kernel syslog interface" },
+	{ NULL,	"klog-ops N",	"stop after N klog bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYSLOG)
 
 #define SYSLOG_ACTION_CLOSE		(0)
@@ -102,11 +108,13 @@ static int stress_klog(const args_t *args)
 
 stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_klog_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

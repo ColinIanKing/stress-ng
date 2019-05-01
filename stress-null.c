@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"null N",	"start N workers writing to /dev/null" },
+	{ NULL,	"null-ops N",	"stop after N /dev/null bogo write operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_null
  *	stress writing to /dev/null
@@ -77,5 +83,6 @@ static int stress_null(const args_t *args)
 
 stressor_info_t stress_null_info = {
 	.stressor = stress_null,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };

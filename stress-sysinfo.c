@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sysinfo N",	 "start N workers reading system information" },
+	{ NULL,	"sysinfo-ops N", "stop after sysinfo bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #define check_do_run()			\
 	if (!g_keep_stressing_flag)	\
 		break;			\
@@ -188,5 +194,6 @@ static int stress_sysinfo(const args_t *args)
 
 stressor_info_t stress_sysinfo_info = {
 	.stressor = stress_sysinfo,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };

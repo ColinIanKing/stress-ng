@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"enosys N",	"start N workers that call non-existent system calls" },
+	{ NULL,	"enosys-ops N",	"stop after N enosys bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYSCALL_H)
 
 #define HASH_SYSCALL_SIZE	(1987)
@@ -3289,11 +3295,13 @@ finish:
 }
 stressor_info_t stress_enosys_info = {
 	.stressor = stress_enosys,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_enosys_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

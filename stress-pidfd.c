@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"pidfd N",	"start N workers exercising pidfd system call" },
+	{ NULL,	"pidfd-ops N",	"stop after N pidfd bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_PIDFD_SEND_SIGNAL)
 
 static int stress_pidfd_open_fd(pid_t pid)
@@ -134,7 +140,8 @@ reap:
 stressor_info_t stress_pidfd_info = {
 	.stressor = stress_pidfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.supported = stress_pidfd_supported
+	.supported = stress_pidfd_supported,
+	.help = help
 };
 #else
 
@@ -147,6 +154,7 @@ static int stress_pidfd_supported(void)
 stressor_info_t stress_pidfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.supported = stress_pidfd_supported
+	.supported = stress_pidfd_supported,
+	.help = help
 };
 #endif

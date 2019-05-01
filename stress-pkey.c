@@ -26,6 +26,12 @@
 
 #define PAGES_TO_EXERCISE	(8)
 
+static const help_t help[] = {
+	{ NULL,	"pkey",		"start N workers exercising pkey_mprotect" },
+	{ NULL,	"pkey-ops",	"stop after N bogo pkey_mprotect bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_PKEY_MPROTECT)
 
 /*
@@ -100,11 +106,13 @@ static int stress_pkey(const args_t *args)
 
 stressor_info_t stress_pkey_info = {
 	.stressor = stress_pkey,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_pkey_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

@@ -40,6 +40,15 @@ typedef struct {
         const int advice;
 } stream_madvise_info_t;
 
+static const help_t help[] = {
+	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
+	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
+	{ NULL,	"stream-index",		"specify number of indices into the data (0..3)" },
+	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
+	{ NULL,	"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
+	{ NULL,	NULL,                   NULL }
+};
+
 static const stream_madvise_info_t stream_madvise_info[] = {
 #if defined(HAVE_MADVISE)
 #if defined(MADV_HUGEPAGE)
@@ -591,5 +600,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_stream_info = {
 	.stressor = stress_stream,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

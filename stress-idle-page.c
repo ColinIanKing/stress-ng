@@ -26,6 +26,12 @@
 
 static const char *bitmap_file = "/sys/kernel/mm/page_idle/bitmap";
 
+static const help_t help[] = {
+	{ NULL,	"idle-page N",	   "start N idle page scanning workers" },
+	{ NULL,	"idle-page-ops N", "stop after N idle page scan bogo operations" },
+	{ NULL, NULL,		   NULL }
+};
+
 /*
  *  stress_idle_page_supported()
  *      check if we can run this as root
@@ -114,12 +120,14 @@ next:
 stressor_info_t stress_idle_page_info = {
 	.stressor = stress_idle_page,
 	.supported = stress_idle_page_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_idle_page_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_idle_page_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

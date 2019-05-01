@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"opcode N",	   "start N workers exercising random opcodes" },
+	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },
+	{ NULL,	"opcode-method M", "set opcode stress method (M = random, inc, mixed, text)" },
+	{ NULL, NULL,		   NULL }
+};
+
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(HAVE_LINUX_AUDIT_H) &&	\
     defined(HAVE_LINUX_FILTER_H) &&	\
@@ -406,7 +413,8 @@ stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode,
         .set_default = stress_opcode_set_default,
 	.class = CLASS_CPU | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 
@@ -421,6 +429,7 @@ int stress_set_opcode_method(const char *name)
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_OS
+	.class = CLASS_CPU | CLASS_OS,
+	.help = help
 };
 #endif

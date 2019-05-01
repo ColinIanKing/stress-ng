@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },
+	{ NULL,	"hrtimers-ops N", "stop after N bogo high-res timer bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -205,11 +211,13 @@ reap:
 
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.help = help
 };
 #else
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER
+	.class = CLASS_SCHEDULER,
+	.help = help
 };
 #endif

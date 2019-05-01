@@ -106,6 +106,15 @@ typedef struct {
 	const stress_cpu_func	func;	/* the cpu method function */
 } stress_cpu_method_info_t;
 
+static const help_t help[] = {
+	{ "c N", "cpu N",		"start N workers spinning on sqrt(rand())" },
+	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
+	{ "l P", "cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
+	{ NULL,	 "cpu-load-slice S",	"specify time slice during busy load" },
+	{ NULL,  "cpu-method M",	"specify stress cpu method M, default is all" },
+	{ NULL,	 NULL,			NULL }
+};
+
 static const stress_cpu_method_info_t cpu_methods[];
 
 /* Don't make this static to ensure dithering does not get optimised out */
@@ -2549,5 +2558,6 @@ stressor_info_t stress_cpu_info = {
 	.stressor = stress_cpu,
 	.set_default = stress_cpu_set_default,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

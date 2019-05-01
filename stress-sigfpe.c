@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigfpe N",	"start N workers generating floating point math faults" },
+	{ NULL,	"sigfpe-ops N",	"stop after N bogo floating point math faults" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if !defined(__UCLIBC__) &&	\
     defined(HAVE_FENV_H) &&     \
     defined(HAVE_FLOAT_H) 
@@ -237,11 +243,13 @@ static int stress_sigfpe(const args_t *args)
 
 stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_sigfpe,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sigfpe_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #endif

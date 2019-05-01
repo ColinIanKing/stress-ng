@@ -38,6 +38,13 @@ typedef struct {
 
 static zombie_list_t zombies;
 
+static const help_t help[] = {
+	{ NULL,	"zombie N",	"start N workers that rapidly create and reap zombies" },
+	{ NULL,	"zombie-ops N",	"stop after N bogo zombie fork operations" },
+	{ NULL,	"zombie-max N",	"set upper limit of N zombies per worker" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_zombie_new()
  *	allocate a new zombie, add to end of list
@@ -199,5 +206,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_zombie_info = {
 	.stressor = stress_zombie,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

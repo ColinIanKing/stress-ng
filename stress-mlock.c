@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mlock N",	"start N workers exercising mlock/munlock" },
+	{ NULL,	"mlock-ops N",	"stop after N mlock bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(_POSIX_MEMLOCK_RANGE) && defined(HAVE_MLOCK)
 
 #define MLOCK_MAX	(256*1024)
@@ -242,11 +248,13 @@ again:
 
 stressor_info_t stress_mlock_info = {
 	.stressor = stress_mlock,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_mlock_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };
 #endif

@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"pthread N",	 "start N workers that create multiple threads" },
+	{ NULL,	"pthread-ops N", "stop pthread workers after N bogo threads created" },
+	{ NULL,	"pthread-max P", "create P threads at a time by each worker" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
@@ -378,12 +385,14 @@ reap:
 stressor_info_t stress_pthread_info = {
 	.stressor = stress_pthread,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_pthread_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

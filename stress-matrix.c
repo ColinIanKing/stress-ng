@@ -24,6 +24,15 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"matrix N",		"start N workers exercising matrix operations" },
+	{ NULL,	"matrix-ops N",		"stop after N maxtrix bogo operations" },
+	{ NULL,	"matrix-method M",	"specify matrix stress method M, default is all" },
+	{ NULL,	"matrix-size N",	"specify the size of the N x N matrix" },
+	{ NULL,	"matrix-yx",		"matrix operation is y by x instread of x by y" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_VLA_ARG)
 
 typedef float	matrix_type_t;
@@ -1006,12 +1015,14 @@ stressor_info_t stress_matrix_info = {
 	.stressor = stress_matrix,
 	.set_default = stress_matrix_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 
 #else
 stressor_info_t stress_matrix_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #endif

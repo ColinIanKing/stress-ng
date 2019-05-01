@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"personality N",	"start N workers that change their personality" },
+	{ NULL,	"personality-ops N",	"stop after N bogo personality calls" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_PERSONALITY)
 
 /* Personalities are determined at build time */
@@ -87,11 +93,13 @@ static int stress_personality(const args_t *args)
 
 stressor_info_t stress_personality_info = {
 	.stressor = stress_personality,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_personality_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"xattr N",	"start N workers stressing file extended attributes" },
+	{ NULL,	"xattr-ops N",	"stop after N bogo xattr operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if (defined(HAVE_SYS_XATTR_H) ||	\
      defined(HAVE_ATTR_XATTR_H)) &&	\
     defined(HAVE_FGETXATTR) &&		\
@@ -197,11 +203,13 @@ out:
 
 stressor_info_t stress_xattr_info = {
 	.stressor = stress_xattr,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_xattr_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

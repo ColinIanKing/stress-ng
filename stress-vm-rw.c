@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"vm-rw N",	 "start N vm read/write process_vm* copy workers" },
+	{ NULL,	"vm-rw-bytes N", "transfer N bytes of memory per bogo operation" },
+	{ NULL,	"vm-rw-ops N",	 "stop after N vm process_vm* copy bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_PROCESS_VM_READV) &&	\
     defined(HAVE_CLONE) &&		\
@@ -333,12 +340,14 @@ again:
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

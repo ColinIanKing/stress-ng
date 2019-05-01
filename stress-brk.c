@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"brk N",	"start N workers performing rapid brk calls" },
+	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
+	{ NULL,	"brk-notouch",	"don't touch (page in) new data segment page" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_brk_notouch(const char *opt)
 {
 	(void)opt;
@@ -173,5 +180,6 @@ again:
 stressor_info_t stress_brk_info = {
 	.stressor = stress_brk,
 	.class = CLASS_OS | CLASS_VM,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

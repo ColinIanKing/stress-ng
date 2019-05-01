@@ -24,6 +24,18 @@
  */
 #include "stress-ng.h"
 
+static const help_t hardlink_help[] = {
+	{ NULL,	"link N",	 "start N workers creating hard links" },
+	{ NULL,	"link-ops N",	 "stop after N link bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
+static const help_t symlink_help[] = {
+	{ NULL, "symlink N",	 "start N workers creating symbolic links" },
+	{ NULL, "symlink-ops N", "stop after N symbolic link bogo operations" },
+	{ NULL, NULL,            NULL }
+};
+
 /*
  *  stress_link_unlink()
  *	remove all links
@@ -151,16 +163,19 @@ static int stress_symlink(const args_t *args)
 #if !defined(__HAIKU__)
 stressor_info_t stress_link_info = {
 	.stressor = stress_link,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = hardlink_help
 };
 #else
 stressor_info_t stress_link_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = hardlink_help
 };
 #endif
 
 stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = symlink_help
 };

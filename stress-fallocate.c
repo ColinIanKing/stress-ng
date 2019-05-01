@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"fallocate N",		"start N workers fallocating 16MB files" },
+	{ NULL,	"fallocate-ops N",	"stop after N fallocate bogo operations" },
+	{ NULL,	"fallocate-bytes N",	"specify size of file to allocate" },
+	{ NULL,	NULL,			NULL }
+};
+
 static int stress_set_fallocate_bytes(const char *opt)
 {
 	off_t fallocate_bytes;
@@ -179,12 +186,14 @@ static int stress_fallocate(const args_t *args)
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_fallocate,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_fallocate_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

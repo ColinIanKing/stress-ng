@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "y N", "yield N",	"start N workers doing sched_yield() calls" },
+	{ NULL,	 "yield-ops N",	"stop after N bogo yield operations" },
+	{ NULL,	 NULL,		NULL }
+};
+
 #if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
 
 /*
@@ -145,11 +151,13 @@ static int stress_yield(const args_t *args)
 
 stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_yield_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

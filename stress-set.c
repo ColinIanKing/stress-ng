@@ -90,6 +90,12 @@ static rlimit_info_t rlimits[] = {
 #endif
 };
 
+static const help_t help[] = {
+	{ NULL,	"set N",	"start N workers exercising the set*() system calls" },
+	{ NULL,	"set-ops N",	"stop after N set bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress on set*() calls
  *	stress system by rapid get*() system calls
@@ -204,5 +210,6 @@ static int stress_set(const args_t *args)
 
 stressor_info_t stress_set_info = {
 	.stressor = stress_set,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };

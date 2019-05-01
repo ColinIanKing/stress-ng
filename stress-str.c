@@ -42,6 +42,13 @@ typedef struct {
 	const void 		*libc_func;
 } stress_str_method_info_t;
 
+static const help_t help[] = {
+	{ NULL,	"str N",	   "start N workers exercising lib C string functions" },
+	{ NULL,	"str-method func", "specify the string function to stress" },
+	{ NULL,	"str-ops N",	   "stop after N bogo string operations" },
+	{ NULL,	NULL,		   NULL }
+};
+
 static const stress_str_method_info_t str_methods[];
 
 static inline void strchk(
@@ -684,5 +691,6 @@ stressor_info_t stress_str_info = {
 	.stressor = stress_str,
 	.set_default = stress_str_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+ 	{ NULL,	"kill N",	"start N workers killing with SIGUSR1" },
+	{ NULL,	"kill-ops N",	"stop after N kill bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress on sched_kill()
  *	stress system by rapid kills
@@ -83,5 +89,6 @@ static int stress_kill(const args_t *args)
 
 stressor_info_t stress_kill_info = {
 	.stressor = stress_kill,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };

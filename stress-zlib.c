@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"zlib N",	 "start N workers compressing data with zlib" },
+	{ NULL,	"zlib-ops N",	 "stop after N zlib bogo compression operations" },
+	{ NULL,	"zlib-level L",	 "specify zlib compression level 0=fast, 9=best" },
+	{ NULL,	"zlib-method M", "specify zlib random data generation method M" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_LIB_Z)
 
 #include "zlib.h"
@@ -1110,11 +1118,13 @@ stressor_info_t stress_zlib_info = {
 	.stressor = stress_zlib,
 	.set_default = stress_zlib_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_zlib_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"file-ioctl N",		"start N workers exercising file specific ioctls" },
+	{ NULL,	"file-ioctl-ops N",	"stop after N file ioctl bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if (defined(FIONBIO) && defined(O_NONBLOCK)) || \
     (defined(FIOASYNC) && defined(O_ASYNC))
 static void check_flag(
@@ -343,5 +349,6 @@ tidy:
 
 stressor_info_t stress_file_ioctl_info = {
 	.stressor = stress_file_ioctl,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

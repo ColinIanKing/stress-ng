@@ -93,6 +93,11 @@
 	__atomic_clear(var, __ATOMIC_RELAXED);		\
 }
 
+static const help_t help[] = {
+	{ NULL,	"atomic",	"start N workers exercising GCC atomic operations" },
+	{ NULL, "atomic-ops",	"stop after N bogo atomic bogo operations" },
+	{ NULL, NULL,		NULL }
+};
 
 #if defined(TEST_ATOMIC_BUILD)
 
@@ -142,13 +147,15 @@ static int stress_atomic(const args_t *args)
 
 stressor_info_t stress_atomic_info = {
 	.stressor = stress_atomic,
-	.class = CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_MEMORY,
+	.help = help
 };
 
 #else
 stressor_info_t stress_atomic_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_MEMORY,
+	.help = help
 };
 #endif
 #endif

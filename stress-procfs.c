@@ -22,6 +22,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
+	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #define PROC_BUF_SZ		(4096)
@@ -479,11 +485,13 @@ static int stress_procfs(const args_t *args)
 
 stressor_info_t stress_procfs_info = {
 	.stressor = stress_procfs,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_procfs_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

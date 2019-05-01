@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"tlb-shootdown N",	"start N workers that force TLB shootdowns" },
+	{ NULL,	"tlb-shootdown-ops N",	"stop after N TLB shootdown bogo ops" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_SCHED_GETAFFINITY) && 	\
     defined(HAVE_MPROTECT)
 
@@ -159,11 +165,13 @@ static int stress_tlb_shootdown(const args_t *args)
 
 stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_tlb_shootdown,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.help = help
 };
 #else
 stressor_info_t stress_tlb_shootdown_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_MEMORY
+	.class = CLASS_OS | CLASS_MEMORY,
+	.help = help
 };
 #endif

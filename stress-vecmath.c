@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"vecmath N",	 "start N workers performing vector math ops" },
+	{ NULL,	"vecmath-ops N", "stop after N vector math bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 /*
  *  Clang 5.0 is the lowest version of clang that
  *  can build this without issues (clang 4.0 seems
@@ -227,11 +233,13 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_vecmath,
-	.class = CLASS_CPU | CLASS_CPU_CACHE
+	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.help = help
 };
 #else
 stressor_info_t stress_vecmath_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_CPU_CACHE
+	.class = CLASS_CPU | CLASS_CPU_CACHE,
+	.help = help
 };
 #endif

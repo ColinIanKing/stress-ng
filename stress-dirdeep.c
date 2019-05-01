@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dirdeep N",		"start N directory depth stressors" },
+	{ NULL,	"dirdeep-ops N",	"stop after N directory depth bogo operations" },
+	{ NULL,	"dirdeep-dirs N",	"create N directories per level" },
+	{ NULL,	"dirdeep-inodes N",	"create a maximum N inodes (N can also be %)" },
+	{ NULL,	NULL,			NULL }
+};
+
 /*
  *  stress_set_dirdeep_dirs()
  *      set number of dirdeep directories from given option string
@@ -334,5 +342,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_dirdeep_info = {
 	.stressor = stress_dirdeep,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

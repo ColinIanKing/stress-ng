@@ -29,6 +29,13 @@
 static void *stack;
 static const size_t stack_sz = MINSIGSTKSZ;
 
+static const help_t help[] =
+{
+	{ NULL,	"bad-altstack N",	"start N workers exercising bad signal stacks" },
+	{ NULL,	"bad-altstack-ops N",	"stop after N bogo signal stack SIGSEGVs" },
+	{ NULL, NULL,			NULL }
+};
+
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	uint8_t data[32];
@@ -178,11 +185,13 @@ again:
 
 stressor_info_t stress_bad_altstack_info = {
 	.stressor = stress_bad_altstack,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_bad_altstack_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #endif

@@ -26,6 +26,13 @@
 
 typedef void (*stress_iomix_func)(const args_t *args, const int fd, const off_t iomix_bytes);
 
+static const help_t help[] = {
+	{ NULL,	"iomix N",	 "start N workers that have a mix of I/O operations" },
+	{ NULL,	"iomix-bytes N", "write N bytes per iomix worker (default is 1GB)" },
+	{ NULL,	"iomix-ops N",	 "stop iomix workers after N iomix bogo operations" },
+	{ NULL, NULL,		 NULL }
+};
+
 static int stress_set_iomix_bytes(const char *opt)
 {
 	off_t iomix_bytes;
@@ -765,5 +772,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_iomix_info = {
 	.stressor = stress_iomix,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

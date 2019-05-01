@@ -37,6 +37,13 @@ static volatile bool thread_terminate;
 static sigset_t set;
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"sleep N",	"start N workers performing various duration sleeps" },
+	{ NULL,	"sleep-ops N",	"stop after N bogo sleep operations" },
+	{ NULL,	"sleep-max P",	"create P threads at a time by each worker" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_sleep_max(const char *opt)
 {
 	uint64_t sleep_max;
@@ -218,12 +225,14 @@ tidy:
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_sleep,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sleep_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

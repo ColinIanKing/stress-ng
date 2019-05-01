@@ -26,6 +26,12 @@
 
 #define MAX_SOCKET_PAIRS	(32768)
 
+static const help_t help[] = {
+	{ NULL,	"sockpair N",	  "start N workers exercising socket pair I/O activity" },
+	{ NULL,	"sockpair-ops N", "stop after N socket pair bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 /*
  *  socket_pair_memset()
  *	set data to be incrementing chars from val upwards
@@ -239,5 +245,6 @@ again:
 
 stressor_info_t stress_sockpair_info = {
 	.stressor = stress_sockpair,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.help = help
 };

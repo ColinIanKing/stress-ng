@@ -24,6 +24,11 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSEC MB encoding" },
+	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
+	{ NULL,	NULL,		  NULL }
+};
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
     defined(HAVE_LIB_IPSEC_MB) &&	\
@@ -648,7 +653,8 @@ static int stress_ipsec_mb(const args_t *args)
 stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,
 	.supported = stress_ipsec_mb_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 
@@ -662,6 +668,7 @@ static int stress_ipsec_mb_supported(void)
 stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_ipsec_mb_supported,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

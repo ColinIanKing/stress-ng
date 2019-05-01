@@ -27,6 +27,13 @@
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
+static const help_t help[] = {
+        { "Q N", "qsort N",	"start N workers qsorting 32 bit random integers" },
+        { NULL,	"qsort-ops N",	"stop after N qsort bogo operations" },
+        { NULL,	"qsort-size N",	"number of 32 bit integers to sort" },
+        { NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_qsort_handler()
  *	SIGALRM generic handler
@@ -204,5 +211,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_qsort_info = {
 	.stressor = stress_qsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

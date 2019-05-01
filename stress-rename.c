@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "R",	"rename N",	"start N workers exercising file renames" },
+	{ NULL,	"rename-ops N",	"stop after N rename bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_rename()
  *	stress system by renames
@@ -161,4 +167,5 @@ restart:
 stressor_info_t stress_rename_info = {
 	.stressor = stress_rename,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

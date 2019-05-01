@@ -26,6 +26,12 @@
 
 static const args_t *s_args;
 
+static const help_t help[] = {
+	{ NULL,	"sigpipe N",	 "start N workers exercising SIGPIPE" },
+	{ NULL,	"sigpipe-ops N", "stop after N SIGPIPE bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #define CLONE_STACK_SIZE	(16 * 1024)
 
 static void stress_sigpipe_handler(int signum)
@@ -149,5 +155,6 @@ static int stress_sigpipe(const args_t *args)
 
 stressor_info_t stress_sigpipe_info = {
 	.stressor = stress_sigpipe,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };

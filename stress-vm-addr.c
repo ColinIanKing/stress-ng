@@ -40,6 +40,12 @@ typedef struct {
 
 static const stress_vm_addr_method_info_t vm_addr_methods[];
 
+static const help_t help[] = {
+	{ NULL,	"vm-addr N",	 "start N vm address exercising workers" },
+	{ NULL,	"vm-addr-ops N", "stop after N vm address bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 /*
  *  keep_stressing()
  *	returns true if we can keep on running a stressor
@@ -506,5 +512,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

@@ -43,6 +43,13 @@ typedef struct {
 	uint64_t length;	/* Length of list */
 } clone_list_t;
 
+static const help_t help[] = {
+	{ NULL,	"clone N",	"start N workers that rapidly create and reap clones" },
+	{ NULL,	"clone-ops N",	"stop after N bogo clone operations" },
+	{ NULL,	"clone-max N",	"set upper limit of N clones per worker" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_CLONE)
 
 static clone_list_t clones;
@@ -388,12 +395,14 @@ again:
 stressor_info_t stress_clone_info = {
 	.stressor = stress_clone,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_clone_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

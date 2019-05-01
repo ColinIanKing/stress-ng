@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"physpage N",	  "start N workers performing physical page lookup" },
+	{ NULL,	"physpage-ops N", "stop after N physical page bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(__linux__)
 
 #define PAGE_PRESENT	(1ULL << 63)
@@ -161,11 +167,13 @@ static int stress_physpage(const args_t *args)
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_physpage,
 	.supported = stress_physpage_supported,
-	.class = CLASS_VM
+	.class = CLASS_VM,
+	.help = help
 };
 #else
 stressor_info_t stress_physpage_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM
+	.class = CLASS_VM,
+	.help = help
 };
 #endif

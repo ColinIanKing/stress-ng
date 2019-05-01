@@ -24,6 +24,15 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"matrix-3d N",		"start N workers exercising 3D matrix operations" },
+	{ NULL,	"matrix-3d-ops N",	"stop after N 3D maxtrix bogo operations" },
+	{ NULL,	"matrix-3d-method M",	"specify 3D matrix stress method M, default is all" },
+	{ NULL,	"matrix-3d-size N",	"specify the size of the N x N x N matrix" },
+	{ NULL,	"matrix-3d-zyx",	"matrix operation is z by y by x instread of x by y by z" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_VLA_ARG) &&	\
     !defined(__PCC__)
 
@@ -992,11 +1001,13 @@ stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_matrix,
 	.set_default = stress_matrix_3d_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_matrix_3d_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mmapmany N",	  "start N workers stressing many mmaps and munmaps" },
+	{ NULL,	"mmapmany-ops N", "stop after N mmapmany bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #define MMAP_MAX	(256*1024)
 
 /*
@@ -137,5 +143,6 @@ again:
 
 stressor_info_t stress_mmapmany_info = {
 	.stressor = stress_mmapmany,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };

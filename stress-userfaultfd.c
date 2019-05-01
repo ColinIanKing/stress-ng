@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },
+	{ NULL,	"userfaultfd-ops N",	"stop after N page faults have been handled" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_USERFAULTFD) && 	 \
     defined(HAVE_LINUX_USERFAULTFD_H) && \
     defined(HAVE_POLL_H) &&		 \
@@ -456,12 +462,14 @@ static int stress_userfaultfd(const args_t *args)
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

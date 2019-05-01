@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"nice N",	"start N workers that randomly re-adjust nice levels" },
+	{ NULL,	"nice-ops N",	"stop after N nice bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_NICE) || defined(HAVE_SETPRIORITY)
 
 static void stress_nice_delay(void)
@@ -120,12 +126,14 @@ static int stress_nice(const args_t *args)
 
 stressor_info_t stress_nice_info = {
 	.stressor = stress_nice,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 
 #else
 stressor_info_t stress_nice_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

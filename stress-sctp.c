@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
+	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
+	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },
+	{ NULL,	"sctp-port P",	 "use SCTP ports P to P + number of workers - 1" },
+	{ NULL,	NULL, 		 NULL }
+};
+
 #if defined(HAVE_LIB_SCTP) &&	\
     defined(HAVE_NETINET_SCTP_H)
 
@@ -325,12 +333,14 @@ again:
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_sctp,
 	.class = CLASS_NETWORK,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sctp_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

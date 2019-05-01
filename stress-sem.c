@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sem N",	"start N workers doing semaphore operations" },
+	{ NULL,	"sem-ops N",	"stop after N semaphore bogo operations" },
+	{ NULL,	"sem-procs N",	"number of processes to start per worker" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_semaphore_posix_procs(const char *opt)
 {
 	uint64_t semaphore_posix_procs;
@@ -151,12 +158,14 @@ static int stress_sem(const args_t *args)
 stressor_info_t stress_sem_info = {
 	.stressor = stress_sem,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sem_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

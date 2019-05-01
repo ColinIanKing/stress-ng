@@ -24,6 +24,15 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"malloc N",		"start N workers exercising malloc/realloc/free" },
+	{ NULL,	"malloc-bytes N",	"allocate up to N bytes per allocation" },
+	{ NULL,	"malloc-max N",		"keep up to N allocations at a time" },
+	{ NULL,	"malloc-ops N",		"stop after N malloc bogo operations" },
+	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
+	{ NULL,	NULL,			NULL }
+};
+
 static int stress_set_malloc_bytes(const char *opt)
 {
 	size_t malloc_bytes;
@@ -236,5 +245,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

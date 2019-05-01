@@ -24,6 +24,16 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mmap N",	 "start N workers stressing mmap and munmap" },
+	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
+	{ NULL,	"mmap-async",	 "using asynchronous msyncs for file based mmap" },
+	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
+	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
+	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #define NO_MEM_RETRIES_MAX	(65536)
 
 /* Misc randomly chosen mmap flags */
@@ -489,5 +499,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

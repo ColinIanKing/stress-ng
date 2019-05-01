@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"nop N",	"start N workers that burn cycles with no-ops" },
+	{ NULL,	"nop-ops N",	"stop after N nop bogo no-op operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_ASM_NOP)
 
 #if defined(NOP)
@@ -63,11 +69,13 @@ static int stress_nop(const args_t *args)
 
 stressor_info_t stress_nop_info = {
 	.stressor = stress_nop,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_nop_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

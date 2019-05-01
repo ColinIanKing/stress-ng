@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"hsearch N",	  "start N workers that exercise a hash table search" },
+	{ NULL,	"hsearch-ops N",  "stop after N hash search bogo operations" },
+	{ NULL,	"hsearch-size N", "number of integers to insert into hash table" },
+	{ NULL,	NULL,		  NULL }
+};
+
 /*
  *  stress_set_hsearch_size()
  *      set hsearch size from given option string
@@ -142,5 +149,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_hsearch_info = {
 	.stressor = stress_hsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

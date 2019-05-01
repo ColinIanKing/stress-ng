@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"vdso",		"start N workers exercising functions in the VDSO" },
+	{ NULL,	"vdso-ops N",	"stop after N vDSO function calls" },
+	{ NULL,	"vdso-func F",	"use just vDSO function F" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_set_vdso_func()
  *      set the default vdso function
@@ -466,12 +473,14 @@ stressor_info_t stress_vdso_info = {
 	.stressor = stress_vdso,
 	.supported = stress_vdso_supported,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_vdso_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"getrandom N",	   "start N workers fetching random data via getrandom()" },
+	{ NULL,	"getrandom-ops N", "stop after N getrandom bogo operations" },
+	{ NULL, NULL,		   NULL }
+};
+
 #if defined(__OpenBSD__) || 	\
     defined(__APPLE__) || 	\
     (defined(__linux__) && defined(__NR_getrandom))
@@ -86,11 +92,13 @@ static int stress_getrandom(const args_t *args)
 stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
 	.supported = stress_getrandom_supported,
-	.class = CLASS_OS | CLASS_CPU
+	.class = CLASS_OS | CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_getrandom_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_CPU
+	.class = CLASS_OS | CLASS_CPU,
+	.help = help
 };
 #endif

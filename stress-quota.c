@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"quota N",	"start N workers exercising quotactl commands" },
+	{ NULL,	"quota-ops N",	"stop after N quotactl bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_QUOTA_H) &&	\
     defined(__linux__) &&		\
     (defined(Q_GETQUOTA) ||		\
@@ -319,11 +325,13 @@ tidy:
 
 stressor_info_t stress_quota_info = {
 	.stressor = stress_quota,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_quota_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

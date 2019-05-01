@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mincore N",	  "start N workers exercising mincore" },
+	{ NULL,	"mincore-ops N",  "stop after N mincore bogo operations" },
+	{ NULL,	"mincore-random", "randomly select pages rather than linear scan" },
+	{ NULL,	NULL,		  NULL }
+};
+
 static int stress_set_mincore_rand(const char *opt)
 {
 	bool mincore_rand = true;
@@ -102,12 +109,14 @@ redo: 			errno = 0;
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_mincore_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

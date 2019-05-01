@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"watchdog N",	  "start N workers that exercise /dev/watchdog" },
+	{ NULL,	"watchdog-ops N", "stop after N bogo watchdog operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(HAVE_LINUX_WATCHDOG_H) 
 
 static sigjmp_buf jmp_env;
@@ -235,11 +241,13 @@ static int stress_watchdog(const args_t *args)
 
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_watchdog,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #else
 stressor_info_t stress_watchdog_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #endif

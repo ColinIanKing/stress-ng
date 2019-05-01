@@ -35,6 +35,15 @@
 #define UDPLITE_RECV_CSCOV	(11)
 #endif
 
+static const help_t help[] = {
+	{ NULL,	"udp N",	"start N workers performing UDP send/receives " },
+	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
+	{ NULL,	"udp-domain D",	"specify domain, default is ipv4" },
+	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
+	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_udp_port(const char *opt)
 {
 	int udp_port;
@@ -263,5 +272,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_udp_info = {
 	.stressor = stress_udp,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

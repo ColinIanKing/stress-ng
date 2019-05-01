@@ -35,6 +35,15 @@ typedef struct {
 	int	   opt;
 } dccp_opts_t;
 
+static const help_t help[] = {
+	{ NULL,	"dccp N",		"start N workers exercising network DCCP I/O" },
+	{ NULL,	"dccp-domain D",	"specify DCCP domain, default is ipv4" },
+	{ NULL,	"dccp-ops N",		"stop after N DCCP  bogo operations" },
+	{ NULL,	"dccp-opts option",	"DCCP data send options [send|sendmsg|sendmmsg]" },
+	{ NULL,	"dccp-port P",		"use DCCP ports P to P + number of workers - 1" },
+	{ NULL,	NULL,			NULL }
+};
+
 static const dccp_opts_t dccp_options[] = {
 	{ "send",	DCCP_OPT_SEND },
 	{ "sendmsg",	DCCP_OPT_SENDMSG },
@@ -401,12 +410,14 @@ again:
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_dccp,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_dccp_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -27,6 +27,13 @@
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
 
+static const help_t help[] = {
+	{ NULL,	"aiol N",	   "start N workers that exercise Linux async I/O" },
+	{ NULL,	"aiol-ops N",	   "stop after N bogo Linux aio async I/O requests" },
+	{ NULL,	"aiol-requests N", "number of Linux aio async I/O requests per worker" },
+	{ NULL,	NULL,		   NULL }
+};
+
 static int stress_set_aio_linux_requests(const char *opt)
 {
 	uint64_t aio_linux_requests;
@@ -249,12 +256,14 @@ free_buffer:
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_aiol,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_aiol_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

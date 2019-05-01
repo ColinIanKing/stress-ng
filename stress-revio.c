@@ -50,6 +50,12 @@
 #define REVIO_OPT_FDATASYNC	(0x00400000)
 #define REVIO_OPT_SYNCFS	(0x00800000)
 
+static const help_t help[] = {
+	{ NULL,	"revio N",	"start N workers performing reverse I/O" },
+	{ NULL,	"revio-ops N",	"stop after N revio bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 typedef struct {
 	const char *opt;	/* User option */
 	const int flag;		/* REVIO_OPT_ flag */
@@ -442,5 +448,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_revio_info = {
 	.stressor = stress_revio,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

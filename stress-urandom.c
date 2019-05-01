@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "u N","urandom N",	 "start N workers reading /dev/urandom" },
+	{ NULL, "urandom-ops N", "stop after N urandom bogo read operations" },
+	{ NULL, NULL,		 NULL }
+};
+
 /*
  *  stress_urandom
  *	stress reading of /dev/urandom and /dev/random
@@ -105,5 +111,6 @@ err:
 }
 stressor_info_t stress_urandom_info = {
 	.stressor = stress_urandom,
-	.class = CLASS_DEV | CLASS_OS
+	.class = CLASS_DEV | CLASS_OS,
+	.help = help
 };

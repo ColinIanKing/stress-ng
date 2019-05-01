@@ -27,6 +27,12 @@
 #define STACK_SIZE      (16384)
 #define WASTE_SIZE	(64 * MB)
 
+static const help_t help[] = {
+	{ NULL,	"vforkmany N",     "start N workers spawning many vfork children" },
+	{ NULL,	"vforkmany-ops N", "stop after spawning N vfork children" },
+	{ NULL,	NULL,		   NULL }
+};
+
 /*
  *  stress_vforkmany()
  *	stress by vfork'ing as many processes as possible.
@@ -190,5 +196,6 @@ tidy:
 
 stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };

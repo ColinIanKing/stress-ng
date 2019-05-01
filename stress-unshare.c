@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"unshare N",	 "start N workers exercising resource unsharing" },
+	{ NULL,	"unshare-ops N", "stop after N bogo unshare operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_UNSHARE)
 
 #define MAX_PIDS	(32)
@@ -191,11 +197,13 @@ static int stress_unshare(const args_t *args)
 
 stressor_info_t stress_unshare_info = {
 	.stressor = stress_unshare,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_unshare_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

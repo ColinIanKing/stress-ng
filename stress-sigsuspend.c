@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigsuspend N",	    "start N workers exercising sigsuspend" },
+	{ NULL,	"sigsuspend-ops N", "stop after N bogo sigsuspend wakes" },
+	{ NULL,	NULL,		    NULL }
+};
+
 #define CACHE_STRIDE_SHIFT	(6)
 
 /*
@@ -109,5 +115,6 @@ reap:
 
 stressor_info_t stress_sigsuspend_info = {
 	.stressor = stress_sigsuspend,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };

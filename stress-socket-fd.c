@@ -24,12 +24,12 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && 	\
-    defined(HAVE_SYS_UN_H)
-
-#define MSG_ID			'M'
-
-#endif
+static const help_t help[] = {
+	{ NULL,	"sockfd N",	 "start N workers sending file descriptors over sockets" },
+	{ NULL,	"sockfd-ops N",	 "stop after N sockfd bogo operations" },
+	{ NULL,	"sockfd-port P", "use socket fd ports P to P + number of workers - 1" },
+	{ NULL,	NULL,		 NULL }
+};
 
 /*
  *  stress_set_socket_fd_port()
@@ -51,6 +51,8 @@ static const opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(__linux__)
+
+#define MSG_ID			'M'
 
 /*
  *  stress_socket_fd_send()
@@ -361,12 +363,14 @@ again:
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_sockfd,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sockfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

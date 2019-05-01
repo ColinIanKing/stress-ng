@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ "T N", "timer N",	"start N workers producing timer events" },
+	{ NULL, "timer-ops N",	"stop after N timer bogo events" },
+	{ NULL, "timer-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
+	{ NULL, "timer-rand",	"enable random timer frequency" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_RT) && 		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -212,12 +220,14 @@ static int stress_timer(const args_t *args)
 stressor_info_t stress_timer_info = {
 	.stressor = stress_timer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_timer_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

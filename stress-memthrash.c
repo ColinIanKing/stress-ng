@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
+	{ NULL,	"memthrash-ops N",	"stop after N memthrash bogo operations" },
+	{ NULL,	"memthrash-method M",	"specify memthrash method M, default is all" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD)
 
 #define MATRIX_SIZE_MAX_SHIFT	(14)
@@ -564,7 +571,8 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_memthrash,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 
@@ -584,6 +592,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_memthrash_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

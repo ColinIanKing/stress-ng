@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"zero N",	"start N workers reading /dev/zero" },
+	{ NULL,	"zero-ops N",	"stop after N /dev/zero bogo read operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_zero
  *	stress reading of /dev/zero
@@ -105,5 +111,6 @@ static int stress_zero(const args_t *args)
 
 stressor_info_t stress_zero_info = {
 	.stressor = stress_zero,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };

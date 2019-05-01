@@ -37,6 +37,12 @@ static const whences_t whences[] = {
 	{ "SEEK_END",	SEEK_END }
 };
 
+static const help_t help[] = {
+	{ NULL,	"full N",	"start N workers exercising /dev/full" },
+	{ NULL, "full-ops N",	"stop after N /dev/full bogo I/O operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_full
  *	stress /dev/full
@@ -121,11 +127,13 @@ try_read:
 
 stressor_info_t stress_full_info = {
 	.stressor = stress_full,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_full_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };
 #endif

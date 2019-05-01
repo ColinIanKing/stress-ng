@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"netdev N",	"start N workers exercising netdevice ioctls" },
+	{ NULL,	"netdev-ops N",	"stop netdev workers after N bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__)
 
 /*
@@ -169,11 +175,13 @@ static int stress_netdev(const args_t *args)
 
 stressor_info_t stress_netdev_info = {
 	.stressor = stress_netdev,
-	.class = CLASS_NETWORK
+	.class = CLASS_NETWORK,
+	.help = help
 };
 #else
 stressor_info_t stress_netdev_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK
+	.class = CLASS_NETWORK,
+	.help = help
 };
 #endif

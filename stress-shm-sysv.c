@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"shm-sysv N",		"start N workers that exercise System V shared memory" },
+	{ NULL,	"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
+	{ NULL,	"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
+	{ NULL,	"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_SYS_IPC_H) &&	\
     defined(HAVE_SYS_SHM_H) &&	\
     defined(HAVE_SHM_SYSV)
@@ -518,12 +526,14 @@ fork_again:
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

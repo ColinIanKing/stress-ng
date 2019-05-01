@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"seal N",	"start N workers performing fcntl SEAL commands" },
+	{ NULL,	"seal-ops N",	"stop after N SEAL bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__) && defined(HAVE_MEMFD_CREATE)
 
 #ifndef F_ADD_SEALS
@@ -183,11 +189,13 @@ err:
 
 stressor_info_t stress_seal_info = {
 	.stressor = stress_seal,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_seal_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

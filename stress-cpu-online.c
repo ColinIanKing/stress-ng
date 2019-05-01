@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
+	{ NULL,	"cpu-online-ops N",	"stop after N offline/online operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(__linux__)
 
 /*
@@ -183,11 +189,13 @@ static int stress_cpu_online(const args_t *args)
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
 	.supported = stress_cpu_online_supported,
-	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #else
 stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #endif

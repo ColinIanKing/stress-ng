@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"handle N",	"start N workers exercising name_to_handle_at" },
+	{ NULL,	"handle-ops N",	"stop after N handle bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_NAME_TO_HANDLE_AT) &&	\
     defined(HAVE_OPEN_BY_HANDLE_AT) && 	\
     defined(AT_FDCWD)
@@ -229,11 +235,13 @@ tidy:
 
 stressor_info_t stress_handle_info = {
 	.stressor = stress_handle,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_handle_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

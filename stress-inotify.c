@@ -26,6 +26,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"inotify N",	 "start N workers exercising inotify events" },
+	{ NULL,	"inotify-ops N", "stop inotify workers after N bogo operations" },
+	{ NULL, NULL,		 NULL }
+};
+
 #if defined(HAVE_INOTIFY) &&		\
     defined(HAVE_SYS_INOTIFY_H) &&	\
     defined(HAVE_SYS_SELECT_H) && 	\
@@ -749,11 +755,13 @@ static int stress_inotify(const args_t *args)
 
 stressor_info_t stress_inotify_info = {
 	.stressor = stress_inotify,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_inotify_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

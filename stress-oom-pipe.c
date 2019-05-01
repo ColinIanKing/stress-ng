@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"oom-pipe N",	  "start N workers exercising large pipes" },
+	{ NULL,	"oom-pipe-ops N", "stop after N oom-pipe bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(F_SETPIPE_SZ) &&	\
     defined(O_NONBLOCK) &&	\
     defined(F_SETFL)
@@ -214,11 +220,13 @@ static int stress_oom_pipe(const args_t *args)
 
 stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_oom_pipe,
-	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #else
 stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 #endif

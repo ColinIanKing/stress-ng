@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"fcntl N",	"start N workers exercising fcntl commands" },
+	{ NULL,	"fcntl-ops N",	"stop after N fcntl bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(F_DUPFD) || 	\
     defined(F_DUPFD_CLOEXEC) || \
     defined(F_GETFD) ||		\
@@ -535,5 +541,6 @@ tidy:
 
 stressor_info_t stress_fcntl_info = {
 	.stressor = stress_fcntl,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

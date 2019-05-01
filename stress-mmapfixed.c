@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mmapfixed N",		"start N workers stressing mmap with fixed mappings" },
+	{ NULL,	"mmapfixed-ops N",	"stop after N mmapfixed bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if UINTPTR_MAX == MAX_32
 #define MMAP_TOP	(0x80000000UL)
 #else
@@ -208,5 +214,6 @@ cleanup:
 
 stressor_info_t stress_mmapfixed_info = {
 	.stressor = stress_mmapfixed,
-	.class = CLASS_VM | CLASS_OS
+	.class = CLASS_VM | CLASS_OS,
+	.help = help
 };

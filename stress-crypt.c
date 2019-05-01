@@ -27,6 +27,12 @@
 #undef _XOPEN_SOURCE
 #define _XOPEN_SOURCE	600
 
+static const help_t help[] = {
+	{ NULL,	"crypt N",	"start N workers performing password encryption" },
+	{ NULL,	"crypt-ops N",	"stop after N bogo crypt operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_CRYPT) &&	\
     defined(HAVE_CRYPT_H)
 
@@ -98,11 +104,13 @@ static int stress_crypt(const args_t *args)
 
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

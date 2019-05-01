@@ -33,6 +33,13 @@ typedef struct {
 
 static const stress_funccall_method_info_t funccall_methods[];
 
+static const help_t help[] = {
+	{ NULL,	"funccall N",		"start N workers exercising 1 to 9 arg functions" },
+	{ NULL,	"funccall-ops N",	"stop after N function call bogo operations" },
+	{ NULL,	"funccall-method M",	"select function call method M" },
+	{ NULL,	NULL,			NULL }
+};
+
 #define uint8_t_put	uint8_put
 #define uint16_t_put	uint16_put
 #define uint32_t_put	uint32_put
@@ -887,5 +894,6 @@ stressor_info_t stress_funccall_info = {
 	.stressor = stress_funccall,
 	.set_default = stress_funcall_set_default,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

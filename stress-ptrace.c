@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"ptrace N",	"start N workers that trace a child using ptrace" },
+	{ NULL,	"ptrace-ops N",	"stop ptrace workers after N system calls are traced" },
+	{ NULL, NULL,		NULL }
+};
+
 #if defined(HAVE_PTRACE)
 
 /*
@@ -159,11 +165,13 @@ static int stress_ptrace(const args_t *args)
 
 stressor_info_t stress_ptrace_info = {
 	.stressor = stress_ptrace,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_ptrace_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

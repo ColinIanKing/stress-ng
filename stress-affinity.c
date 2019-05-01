@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"affinity N",	 "start N workers that rapidly change CPU affinity" },
+	{ NULL,	"affinity-ops N","stop after N affinity bogo operations" },
+	{ NULL,	"affinity-rand", "change affinity randomly rather than sequentially" },
+	{ NULL,	NULL,		 NULL }
+};
 
 static int stress_set_affinity_rand(const char *opt)
 {
@@ -119,12 +125,14 @@ stressor_info_t stress_affinity_info = {
 	.stressor = stress_affinity,
 	.class = CLASS_SCHEDULER,
 	.supported = stress_affinity_supported,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_affinity_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

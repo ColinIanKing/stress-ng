@@ -26,6 +26,12 @@
 
 static jmp_buf buf;
 
+static const help_t help[] = {
+	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
+	{ NULL,	"longjmp-ops N", "stop after N longjmp bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 {
 	longjmp(buf, 1);	/* Jump out */
@@ -60,5 +66,6 @@ static int OPTIMIZE1 stress_longjmp(const args_t *args)
 
 stressor_info_t stress_longjmp_info = {
 	.stressor = stress_longjmp,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };

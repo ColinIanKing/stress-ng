@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mergesort N",		"start N workers merge sorting 32 bit random integers" },
+	{ NULL,	"mergesort-ops N",	"stop after N merge sort bogo operations" },
+	{ NULL,	"mergesort-size N",	"number of 32 bit integers to sort" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_LIB_BSD)
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -223,12 +230,14 @@ tidy:
 stressor_info_t stress_mergesort_info = {
 	.stressor = stress_mergesort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_mergesort_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

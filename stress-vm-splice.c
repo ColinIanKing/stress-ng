@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"vm-splice N",		"start N workers reading/writing using vmsplice" },
+	{ NULL,	"vm-splice-ops N",	"stop after N bogo splice operations" },
+	{ NULL,	"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },
+	{ NULL,	NULL,			NULL }
+};
+
 static int stress_set_vm_splice_bytes(const char *opt)
 {
 	size_t vm_splice_bytes;
@@ -119,12 +126,14 @@ static int stress_vm_splice(const args_t *args)
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_vm_splice,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_vm_splice_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_PIPE_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

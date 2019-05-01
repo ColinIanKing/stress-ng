@@ -40,6 +40,17 @@ typedef struct {
 	const int   type;
 } socket_type_t;
 
+static const help_t help[] = {
+	{ "S N", "sock N",		"start N workers exercising socket I/O" },
+	{ NULL,	"sock-domain D",	"specify socket domain, default is ipv4" },
+	{ NULL,	"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
+	{ NULL,	"sock-ops N",		"stop after N socket bogo operations" },
+	{ NULL,	"sock-opts option", 	"socket options [send|sendmsg|sendmmsg]" },
+	{ NULL,	"sock-port P",		"use socket ports P to P + number of workers - 1" },
+	{ NULL,	"sock-type T",		"socket type (stream, seqpacket)" },
+	{ NULL,	NULL,			NULL }
+};
+
 /*
  *  stress_set_socket_opts()
  *	parse --sock-opts
@@ -478,5 +489,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_sock_info = {
 	.stressor = stress_sock,
 	.class = CLASS_NETWORK | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

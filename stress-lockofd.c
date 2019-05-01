@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL, "lockofd N",	 "start N workers using open file description locking" },
+	{ NULL, "lockofd-ops N", "stop after N lockofd bogo operations" },
+	{ NULL, NULL,		 NULL }
+};
+
 #if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
     defined(F_WRLCK) && defined(F_UNLCK)
 
@@ -306,11 +312,13 @@ tidy:
 
 stressor_info_t stress_lockofd_info = {
 	.stressor = stress_lockofd,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_lockofd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

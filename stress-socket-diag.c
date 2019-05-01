@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sockdiag N",	  "start N workers exercising sockdiag netlink" },
+	{ NULL,	"sockdiag-ops N", "stop sockdiag workers after N bogo messages" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(__linux__) && 		\
     defined(HAVE_LINUX_SOCK_DIAG_H) &&	\
     defined(HAVE_LINUX_NETLINK_H) && 	\
@@ -225,11 +231,13 @@ static int stress_sockdiag(const args_t *args)
 
 stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_sockdiag,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sockdiag_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_NETWORK | CLASS_OS
+	.class = CLASS_NETWORK | CLASS_OS,
+	.help = help
 };
 #endif

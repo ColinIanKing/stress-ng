@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"schedpolicy N",	"start N workers that exercise scheduling policy" },
+	{ NULL,	"schedpolicy-ops N",	"stop after N scheduling policy bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
      !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
 
@@ -193,11 +199,13 @@ static int stress_schedpolicy(const args_t *args)
 
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"aio N",	"start N workers that issue async I/O requests" },
+	{ NULL,	"aio-ops N",	"stop after N bogo async I/O requests" },
+	{ NULL, "aio-requests",	"number of async I/O requests per worker" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_RT) && \
     defined(HAVE_AIO_H) && \
     NEED_GLIBC(2,1,0)
@@ -270,12 +277,14 @@ finish:
 stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_aio_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

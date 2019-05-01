@@ -23,6 +23,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"fanotify N",	  "start N workers exercising fanotify events" },
+	{ NULL,	"fanotify-ops N", "stop fanotify workers after N bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(HAVE_MNTENT_H) &&		\
     defined(HAVE_SYS_SELECT_H) && 	\
     defined(HAVE_SYS_FANOTIFY_H) &&	\
@@ -351,11 +357,13 @@ tidy:
 stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
 	.supported = stress_fanotify_supported,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_fanotify_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

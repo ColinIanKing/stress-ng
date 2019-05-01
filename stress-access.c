@@ -183,7 +183,14 @@ tidy:
 	return rc;
 }
 
+static const help_t help[] = {
+	{ NULL,	"access N",	"start N workers that stress file access permissions" },
+	{ NULL,	"access-ops N",	"stop after N file access bogo operations" },
+	{ NULL, NULL,		NULL }
+};
+
 stressor_info_t stress_access_info = {
 	.stressor = stress_access,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

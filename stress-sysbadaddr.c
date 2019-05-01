@@ -30,6 +30,12 @@ typedef int (*bad_syscall_t)(void *addr);
 static void *ro_page;
 static void *rw_page;
 
+static const help_t help[] = {
+	{ NULL,	"sysbadaddr N",	    "start N workers that pass bad addresses to syscalls" },
+	{ NULL,	"sysbadaddr-ops N", "stop after N sysbadaddr bogo syscalls" },
+	{ NULL,	NULL,		    NULL }
+};
+
 static const int sigs[] = {
 #if defined(SIGILL)
 	SIGILL,
@@ -685,5 +691,6 @@ again:
 
 stressor_info_t stress_sysbadaddr_info = {
 	.stressor = stress_sysbadaddr,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
+	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_PRCTL_H) &&		\
     defined(HAVE_PRCTL) &&			\
     (defined(PR_CAP_AMBIENT) ||			\
@@ -451,11 +457,13 @@ static int stress_prctl(const args_t *args)
 
 stressor_info_t stress_prctl_info = {
 	.stressor = stress_prctl,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_prctl_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

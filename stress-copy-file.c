@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"copy-file N",		"start N workers that copy file data" },
+	{ NULL,	"copy-file-ops N",	"stop after N copy bogo operations" },
+	{ NULL,	"copy-file-bytes N",	"specify size of file to be copied" },
+	{ NULL,	NULL,			NULL }
+
+};
+
 static int stress_set_copy_file_bytes(const char *opt)
 {
 	uint64_t copy_file_bytes;
@@ -128,12 +136,14 @@ tidy_dir:
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_copy_file_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"chroot N",	"start N workers thrashing chroot" },
+	{ NULL,	"chroot-ops N",	"stop chhroot workers after N bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_CHROOT)
 
 typedef int (*stress_chroot_test_func)(const args_t *args);
@@ -264,7 +270,8 @@ tidy_ret:
 stressor_info_t stress_chroot_info = {
 	.stressor = stress_chroot,
 	.supported = stress_chroot_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 
@@ -281,6 +288,7 @@ static int stress_chroot_supported(void)
 stressor_info_t stress_chroot_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_chroot_supported,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

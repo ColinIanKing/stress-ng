@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"lsearch N",	  "start N workers that exercise a linear search" },
+	{ NULL,	"lsearch-ops N",  "stop after N linear search bogo operations" },
+	{ NULL,	"lsearch-size N", "number of 32 bit integers to lsearch" },
+	{ NULL, NULL,		  NULL }
+};
+
 /*
  *  stress_set_lsearch_size()
  *      set lsearch size from given option string
@@ -115,5 +122,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_lsearch_info = {
 	.stressor = stress_lsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"chmod N",	"start N workers thrashing chmod file mode bits " },
+	{ NULL,	"chmod-ops N",	"stop chmod workers after N bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 static const mode_t modes[] = {
 #if defined(S_ISUID)
 	S_ISUID,
@@ -215,5 +221,6 @@ tidy:
 
 stressor_info_t stress_chmod_info = {
 	.stressor = stress_chmod,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

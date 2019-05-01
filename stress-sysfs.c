@@ -22,6 +22,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sysfs N",	"start N workers reading files from /sys" },
+	{ NULL,	"sysfs-ops N",	"stop after sysfs bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #define SYS_BUF_SZ		(4096)
@@ -548,11 +554,13 @@ static int stress_sysfs(const args_t *args)
 
 stressor_info_t stress_sysfs_info = {
 	.stressor = stress_sysfs,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sysfs_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };
 #endif

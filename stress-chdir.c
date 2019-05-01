@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL, "chdir N",	"start N workers thrashing chdir on many paths" },
+	{ NULL, "chdir-ops N",	"stop chdir workers after N bogo chdir operations" },
+	{ NULL,	"chdir-dirs N",	"select number of directories to exercise chdir on" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_set_chdir_dirs()
  *	set number of chdir directories from given option string
@@ -156,5 +163,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_chdir_info = {
 	.stressor = stress_chdir,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

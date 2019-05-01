@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"dup N",	"start N workers exercising dup/close" },
+	{ NULL,	"dup-ops N",	"stop after N dup/close bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_dup()
  *	stress system by rapid dup/close calls
@@ -109,5 +115,6 @@ static int stress_dup(const args_t *args)
 
 stressor_info_t stress_dup_info = {
 	.stressor = stress_dup,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };

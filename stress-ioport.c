@@ -40,6 +40,12 @@ static const ioport_opts_t ioport_opts[] = {
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
 };
 
+static const help_t help[] = {
+	{ NULL,	"ioport N",	"start N workers exercising port I/O" },
+	{ NULL,	"ioport-ops N",	"stop ioport workers after N port bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_ioport_opts(const char *opts)
 {
 	size_t i;
@@ -166,12 +172,14 @@ stressor_info_t stress_ioport_info = {
 	.stressor = stress_ioport,
 	.supported = stress_ioport_supported,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_ioport_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

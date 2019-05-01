@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"fp-error N",	  "start N workers exercising floating point errors" },
+	{ NULL,	"fp-error-ops N", "stop after N fp-error bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if !defined(__UCLIBC__) &&	\
     defined(HAVE_FENV_H) &&	\
     defined(HAVE_FLOAT_H)
@@ -172,11 +178,13 @@ static int stress_fp_error(const args_t *args)
 
 stressor_info_t stress_fp_error_info = {
 	.stressor = stress_fp_error,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_fp_error_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

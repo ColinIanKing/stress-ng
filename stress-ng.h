@@ -785,6 +785,13 @@ typedef unsigned long int __kernel_ulong_t;
 
 typedef struct proc_info *pproc_info_t;
 
+/* Help information for options */
+typedef struct {
+	const char *opt_s;		/* short option */
+	const char *opt_l;		/* long option */
+	const char *description;	/* description */
+} help_t;
+
 /* native setting types */
 typedef enum {
 	TYPE_ID_UNDEFINED,
@@ -889,6 +896,7 @@ typedef struct {
 	void (*set_limit)(uint64_t max);
 	const class_t class;
 	const opt_set_func_t *opt_set_funcs;
+	const help_t *help;
 } stressor_info_t;
 
 /* pthread wrapped args_t */
@@ -3117,7 +3125,6 @@ extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 extern const char *stress_get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name(const char *name);
-extern int stress_set_vm_flags(const int flag);
 
 /* Memory locking */
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);

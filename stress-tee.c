@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"tee N",	"start N workers exercising the tee system call" },
+	{ NULL,	"tee-ops N",	"stop after N tee bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_TEE) &&	\
     defined(SPLICE_F_NONBLOCK)
 
@@ -200,11 +206,13 @@ tidy_child1:
 
 stressor_info_t stress_tee_info = {
 	.stressor = stress_tee,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.help = help
 };
 #else
 stressor_info_t stress_tee_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER
+	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.help = help
 };
 #endif

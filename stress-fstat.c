@@ -30,6 +30,13 @@
 static volatile bool keep_running;
 static sigset_t set;
 
+static const help_t help[] = {
+	{ NULL,	"fstat N",	  "start N workers exercising fstat on files" },
+	{ NULL,	"fstat-ops N",	  "stop after N fstat bogo operations" },
+	{ NULL,	"fstat-dir path", "fstat files in the specified directory" },
+	{ NULL,	NULL,		  NULL }
+};
+
 /* paths we should never stat */
 static const char *blacklist[] = {
 	"/dev/watchdog"
@@ -310,5 +317,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_fstat_info = {
 	.stressor = stress_fstat,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

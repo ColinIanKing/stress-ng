@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"vm-segv N",	 "start N workers that unmap their address space" },
+	{ NULL,	"vm-segv-ops N", "stop after N vm-segv unmap'd SEGV faults" },
+	{ NULL,	NULL,		 NULL }
+};
+
 static NOINLINE void vm_unmap_child(const size_t page_size)
 {
 	size_t len = ~(size_t)0;
@@ -151,5 +157,6 @@ kill_child:
 
 stressor_info_t stress_vm_segv_info = {
 	.stressor = stress_vm_segv,
-	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS
+	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.help = help
 };

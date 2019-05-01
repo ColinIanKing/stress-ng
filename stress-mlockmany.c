@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mlockmany N",	   "start N workers exercising many mlock/munlock processes" },
+	{ NULL,	"mlockmany-ops N", "stop after N mlockmany bogo operations" },
+	{ NULL,	NULL,		   NULL }
+};
+
 #if defined(HAVE_MLOCK)
 
 #define MAX_MLOCK_PROCS		(1024)
@@ -180,14 +186,16 @@ unmap:
 
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 
 #else
 
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL
+	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.help = help
 };
 
 #endif

@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"wait N",	"start N workers waiting on child being stop/resumed" },
+	{ NULL,	"wait-ops N",	"stop after N bogo wait operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  Disabled for GNU/Hurd because it this stressor breaks with
  *  the error:
@@ -218,11 +224,13 @@ tidy:
 
 stressor_info_t stress_wait_info = {
 	.stressor = stress_wait,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_wait_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

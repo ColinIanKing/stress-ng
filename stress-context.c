@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static help_t help[] = {
+	{ NULL,	"context N",	 "start N workers exercising user context" },
+	{ NULL,	"context-ops N", "stop context workers after N bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(HAVE_SWAPCONTEXT) &&	\
     defined(HAVE_UCONTEXT_H)
 
@@ -126,11 +132,13 @@ static int stress_context(const args_t *args)
 
 stressor_info_t stress_context_info = {
 	.stressor = stress_context,
-	.class = CLASS_MEMORY | CLASS_CPU
+	.class = CLASS_MEMORY | CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_context_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY | CLASS_CPU
+	.class = CLASS_MEMORY | CLASS_CPU,
+	.help = help
 };
 #endif

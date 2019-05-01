@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mknod N",	"start N workers that exercise mknod" },
+	{ NULL,	"mknod-ops N",	"stop after N mknod bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(__linux__)
 
 static const int modes[] = {
@@ -116,11 +122,13 @@ abort:
 
 stressor_info_t stress_mknod_info = {
 	.stressor = stress_mknod,
-	.class = CLASS_FILESYSTEM | CLASS_OS
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_mknod_info = {
         .stressor = stress_not_implemented,
-        .class = CLASS_FILESYSTEM | CLASS_OS
+        .class = CLASS_FILESYSTEM | CLASS_OS,
+	.help = help
 };
 #endif

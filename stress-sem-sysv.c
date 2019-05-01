@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sem-sysv N",		"start N workers doing System V semaphore operations" },
+	{ NULL,	"sem-sysv-ops N",	"stop after N System V sem bogo operations" },
+	{ NULL,	"sem-sysv-procs N",	"number of processes to start per worker" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_SEM_SYSV)
 typedef union _semun {
 	int              val;	/* Value for SETVAL */
@@ -293,12 +300,14 @@ stressor_info_t stress_sem_sysv_info = {
 	.init = stress_semaphore_sysv_init,
 	.deinit = stress_semaphore_sysv_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_sem_sysv_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_SCHEDULER,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

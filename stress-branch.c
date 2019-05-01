@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"branch N",	"start N workers that force branch misprediction" },
+	{ NULL,	"branch-ops N",	"stop after N branch misprediction branches" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LABEL_AS_VALUE)
 /*
  *  jmp_mwc8()
@@ -280,11 +286,13 @@ ret:
 
 stressor_info_t stress_branch_info = {
 	.stressor = stress_branch,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #else
 stressor_info_t stress_branch_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU
+	.class = CLASS_CPU,
+	.help = help
 };
 #endif

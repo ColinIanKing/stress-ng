@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"apparmor",	"start N workers exercising AppArmor interfaces" },
+	{ NULL,	"apparmor-ops",	"stop after N bogo AppArmor worker bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_APPARMOR) &&		\
     defined(HAVE_SYS_APPARMOR_H) && 	\
     defined(HAVE_SYS_SELECT_H)
@@ -708,7 +714,8 @@ static int stress_apparmor(const args_t *args)
 stressor_info_t stress_apparmor_info = {
 	.stressor = stress_apparmor,
 	.supported = stress_apparmor_supported,
-	.class = CLASS_OS | CLASS_SECURITY
+	.class = CLASS_OS | CLASS_SECURITY,
+	.help = help
 };
 
 #else
@@ -723,6 +730,7 @@ static int stress_apparmor_supported(void)
 stressor_info_t stress_apparmor_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_apparmor_supported,
-	.class = CLASS_OS | CLASS_SECURITY
+	.class = CLASS_OS | CLASS_SECURITY,
+	.help = help
 };
 #endif

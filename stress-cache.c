@@ -29,6 +29,17 @@
 #define FLAGS_CACHE_FENCE	(0x04)
 #define FLAGS_CACHE_NOAFF	(0x08)
 
+static const help_t help[] = {
+	{ "C N","cache N",	 "start N CPU cache thrashing workers" },
+	{ NULL,	"cache-ops N",	 "stop after N cache bogo operations" },
+	{ NULL,	"cache-prefetch","prefetch on memory reads/writes" },
+	{ NULL,	"cache-flush",	 "flush cache after every memory write (x86 only)" },
+	{ NULL,	"cache-fence",	 "serialize stores" },
+	{ NULL,	"cache-level N", "only exercise specified cache" },
+	{ NULL,	"cache-ways N",	 "only fill specified number of cache ways" },
+	{ NULL,	NULL,		 NULL }
+};
+
 static int stress_cache_set_flag(const uint32_t flag)
 {
 	uint32_t cache_flags = 0;
@@ -220,5 +231,6 @@ static int stress_cache(const args_t *args)
 stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
 	.class = CLASS_CPU_CACHE,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

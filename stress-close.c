@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"close N",	"start N workers that exercise races on close" },
+	{ NULL,	"close-ops N",	"stop after N bogo close operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD)
 
 #define MAX_PTHREADS	(3)
@@ -288,11 +294,13 @@ tidy:
 
 stressor_info_t stress_close_info = {
 	.stressor = stress_close,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_close_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };
 #endif

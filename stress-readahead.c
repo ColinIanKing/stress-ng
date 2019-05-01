@@ -28,6 +28,13 @@
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
 
+static const help_t help[] = {
+	{ NULL,	"readahead N",		"start N workers exercising file readahead" },
+	{ NULL,	"readahead-bytes N",	"size of file to readahead on (default is 1GB)" },
+	{ NULL,	"readahead-ops N",	"stop after N readahead bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 static int stress_set_readahead_bytes(const char *opt)
 {
 	uint64_t readahead_bytes;
@@ -221,12 +228,14 @@ finish:
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_readahead,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_readahead_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

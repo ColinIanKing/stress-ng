@@ -28,6 +28,13 @@
 #define STR1LEN 256
 #define STR2LEN 128
 
+static const help_t help[] = {
+	{ NULL,	"wcs N",	   "start N workers on lib C wide char string functions" },
+	{ NULL,	"wcs-method func", "specify the wide character string function to stress" },
+	{ NULL,	"wcs-ops N",	   "stop after N bogo wide character string operations" },
+	{ NULL,	NULL,		   NULL }
+};
+
 /*
  *  the wide string stress test has different classes of stressors
  */
@@ -686,5 +693,6 @@ stressor_info_t stress_wcs_info = {
 	.stressor = stress_wcs,
 	.set_default = stress_wcs_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

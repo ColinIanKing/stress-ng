@@ -33,6 +33,12 @@
 
 #define GIDS_MAX 	(1024)
 
+static const help_t help[] = {
+	{ NULL,	"get N",	"start N workers exercising the get*() system calls" },
+	{ NULL,	"get-ops N",	"stop after N get bogo operations" },
+	{ NULL, NULL,		NULL }
+};
+
 static const int rusages[] = {
 #if defined(RUSAGE_SELF)
 	RUSAGE_SELF,
@@ -360,5 +366,6 @@ static int stress_get(const args_t *args)
 
 stressor_info_t stress_get_info = {
 	.stressor = stress_get,
-	.class = CLASS_OS
+	.class = CLASS_OS,
+	.help = help
 };

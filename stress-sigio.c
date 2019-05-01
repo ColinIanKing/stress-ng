@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigio N",	"start N workers that exercise SIGIO signals" },
+	{ NULL,	"sigio-ops N",	"stop after N bogo sigio signals" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(O_ASYNC) &&	\
     defined(O_NONBLOCK) && \
     defined(F_SETOWN) && \
@@ -174,11 +180,13 @@ err:
 
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_sigio,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sigio_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #endif

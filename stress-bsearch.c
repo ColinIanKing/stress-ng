@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] =  {
+	{ NULL,	"bsearch N",	  "start N workers that exercise a binary search" },
+	{ NULL,	"bsearch-ops N",  "stop after N binary search bogo operations" },
+	{ NULL,	"bsearch-size N", "number of 32 bit integers to bsearch" },
+	{ NULL,	NULL,		  NULL }
+};
+
 /*
  *  stress_set_bsearch_size()
  *	set bsearch size from given option string
@@ -135,5 +142,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_bsearch_info = {
 	.stressor = stress_bsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

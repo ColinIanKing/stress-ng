@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"membarrier N",		"start N workers performing membarrier system calls" },
+	{ NULL,	"membarrier-ops N",	"stop after N membarrier bogo operations" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_MEMBARRIER)
 
@@ -143,11 +149,13 @@ static int stress_membarrier(const args_t *args)
 
 stressor_info_t stress_membarrier_info = {
 	.stressor = stress_membarrier,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #else
 stressor_info_t stress_membarrier_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_CPU_CACHE | CLASS_MEMORY
+	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.help = help
 };
 #endif

@@ -26,6 +26,13 @@
 
 #define ALIGN_SIZE	(64)
 
+static const help_t help[] = {
+	{ NULL,	"memcpy N",	   "start N workers performing memory copies" },
+	{ NULL,	"memcpy-ops N",	   "stop after N memcpy bogo operations" },
+	{ NULL,	"memcpy-method M", "set memcpy method (M = all, libc, builtin, naive)" },
+	{ NULL,	NULL,		   NULL }
+};
+
 typedef struct {
 	uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
 } buffer_t;
@@ -236,5 +243,6 @@ stressor_info_t stress_memcpy_info = {
 	.stressor = stress_memcpy,
 	.set_default = stress_memcpy_set_default,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

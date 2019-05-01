@@ -31,6 +31,14 @@ typedef struct {
 	char	shm_name[SHM_NAME_LEN];
 } shm_msg_t;
 
+static const help_t help[] = {
+	{ NULL,	"shm N",	"start N workers that exercise POSIX shared memory" },
+	{ NULL,	"shm-ops N",	"stop after N POSIX shared memory bogo operations" },
+	{ NULL,	"shm-bytes N",	"allocate/free N bytes of POSIX shared memory" },
+	{ NULL,	"shm-segs N",	"allocate N POSIX shared memory segments per iteration" },
+	{ NULL,	NULL,		NULL }
+};
+
 static int stress_set_shm_posix_bytes(const char *opt)
 {
 	size_t shm_posix_bytes;
@@ -420,12 +428,14 @@ err:
 stressor_info_t stress_shm_info = {
 	.stressor = stress_shm,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_shm_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -22,6 +22,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mcontend N",	  "start N workers that produce memory contention" },
+	{ NULL,	"mcontend-ops N", "stop memory contention workers after N bogo-ops" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #if defined(HAVE_LIB_PTHREAD)
 
 static sigset_t set;
@@ -317,11 +323,13 @@ static int stress_mcontend(const args_t *args)
 
 stressor_info_t stress_mcontend_info = {
 	.stressor = stress_mcontend,
-	.class = CLASS_MEMORY
+	.class = CLASS_MEMORY,
+	.help = help
 };
 #else
 stressor_info_t stress_mcontend_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_MEMORY
+	.class = CLASS_MEMORY,
+	.help = help
 };
 #endif

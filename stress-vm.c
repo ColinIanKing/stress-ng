@@ -52,6 +52,23 @@ typedef struct {
 
 static const stress_vm_method_info_t vm_methods[];
 
+static const help_t help[] = {
+	{ "m N", "vm N",	 "start N workers spinning on anonymous mmap" },
+	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
+	{ NULL,	 "vm-hang N",	 "sleep N seconds before freeing memory" },
+	{ NULL,	 "vm-keep",	 "redirty memory instead of reallocating" },
+	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
+#if defined(MAP_LOCKED)
+	{ NULL,	 "vm-locked",	" lock the pages of the mapped region into memory" },
+#endif
+	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
+	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
+#if defined(MAP_POPULATE)
+	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },
+#endif
+	{ NULL,	 NULL,		 NULL }
+};
+
 static const vm_madvise_info_t vm_madvise_info[] = {
 #if defined(HAVE_MADVISE)
 #if defined(MADV_DONTNEED)
@@ -119,7 +136,7 @@ static int stress_set_vm_bytes(const char *opt)
 }
 
 #if defined(MAP_LOCKED) || defined(MAP_POPULATE)
-int stress_set_vm_flags(const int flag)
+static int stress_set_vm_flags(const int flag)
 {
 	int vm_flags = 0;
 
@@ -128,6 +145,26 @@ int stress_set_vm_flags(const int flag)
 	return set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
 }
 #endif
+
+static int stress_set_vm_mmap_locked(const char *opt)
+{
+	(void)opt;
+
+#if defined(MAP_LOCKED)
+	return stress_set_vm_flags(MAP_LOCKED);
+#else
+	return 0;
+#endif
+}
+
+static int stress_set_vm_mmap_populate(const char *opt)
+{
+	(void)opt;
+
+#if defined(MAP_POPULATE)
+	return stress_set_vm_flags(MAP_POPULATE);
+#endif
+}
 
 static int stress_set_vm_madvise(const char *opt)
 {
@@ -2139,6 +2176,12 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_keep,		stress_set_vm_keep },
 	{ OPT_vm_madvise,	stress_set_vm_madvise },
 	{ OPT_vm_method,	stress_set_vm_method },
+#if defined(MAP_LOCKED)
+	{ OPT_vm_mmap_locked,	stress_set_vm_mmap_locked },
+#endif
+#if defined(MAP_POPULATE)
+	{ OPT_vm_mmap_populate,	stress_set_vm_mmap_populate },
+#endif
 	{ 0,			NULL }
 };
 
@@ -2146,5 +2189,6 @@ stressor_info_t stress_vm_info = {
 	.stressor = stress_vm,
 	.set_default = stress_vm_set_default,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

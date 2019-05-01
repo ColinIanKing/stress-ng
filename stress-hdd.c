@@ -66,6 +66,15 @@ typedef struct {
 	const int oflag;	/* open O_* flags */
 } hdd_opts_t;
 
+static const help_t help[] = {
+	{ "d N","hdd N",		"start N workers spinning on write()/unlink()" },
+	{ NULL,	"hdd-ops N",		"stop after N hdd bogo operations" },
+	{ NULL,	"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
+	{ NULL,	"hdd-opts list",	"specify list of various stressor options" },
+	{ NULL,	"hdd-write-size N",	"set the default write size to N bytes" },
+	{ NULL, NULL,			NULL }
+};
+
 static const hdd_opts_t hdd_opts[] = {
 #if defined(O_SYNC)
 	{ "sync",	HDD_OPT_O_SYNC, 0, 0, O_SYNC },
@@ -706,5 +715,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
 	.class = CLASS_IO | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

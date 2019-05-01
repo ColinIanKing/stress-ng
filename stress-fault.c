@@ -27,6 +27,12 @@
 static sigjmp_buf jmp_env;
 static volatile bool do_jmp = true;
 
+static const help_t help[] = {
+	{ NULL,	"fault N",	"start N workers producing page faults" },
+	{ NULL,	"fault-ops N",	"stop after N page fault bogo operations" },
+	{ NULL,	NULL,		NULL }
+};
+
 /*
  *  stress_segvhandler()
  *	SEGV handler
@@ -177,5 +183,6 @@ next:
 
 stressor_info_t stress_fault_info = {
 	.stressor = stress_fault,
-	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.help = help
 };

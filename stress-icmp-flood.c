@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"icmp-flood N",		"start N ICMP packet flood workers" },
+	{ NULL,	"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
+	{ NULL,	NULL,			NULL }
+};
+
 #if defined(HAVE_NETINET_IP_H) &&	\
     defined(HAVE_NETINET_IP_ICMP_H) &&	\
     defined(HAVE_ICMPHDR)
@@ -152,11 +158,13 @@ err:
 stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_icmp_flood,
 	.supported = stress_icmp_flood_supported,
-	.class = CLASS_OS | CLASS_NETWORK
+	.class = CLASS_OS | CLASS_NETWORK,
+	.help = help
 };
 #else
 stressor_info_t stress_icmp_flood_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS | CLASS_NETWORK
+	.class = CLASS_OS | CLASS_NETWORK,
+	.help = help
 };
 #endif

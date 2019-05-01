@@ -24,6 +24,12 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"sigfd N",	"start N workers reading signals via signalfd reads " },
+	{ NULL,	"sigfd-ops N",	"stop after N bogo signalfd reads" },
+	{ NULL,	NULL,		NULL }
+};
+
 #if defined(HAVE_SYS_SIGNALFD_H) && 	\
     NEED_GLIBC(2,8,0) && 		\
     defined(HAVE_SIGQUEUE)
@@ -114,11 +120,13 @@ again:
 
 stressor_info_t stress_sigfd_info = {
 	.stressor = stress_sigfd,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #else
 stressor_info_t stress_sigfd_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_INTERRUPT | CLASS_OS
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
 };
 #endif

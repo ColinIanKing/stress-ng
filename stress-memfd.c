@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },
+	{ NULL,	"memfd-bytes N", "allocate N bytes for each stress iteration" },
+	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },
+	{ NULL,	"memfd-ops N",	 "stop after N memfd bogo operations" },
+	{ NULL,	NULL,		 NULL }
+};
+
 /*
  *  stress_set_memfd_bytes
  *	set max size of each memfd size
@@ -302,12 +310,14 @@ again:
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_memfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_OS | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

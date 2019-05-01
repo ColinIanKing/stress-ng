@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"tsearch N",		"start N workers that exercise a tree search" },
+	{ NULL,	"tsearch-ops N",	"stop after N tree search bogo operations" },
+	{ NULL,	"tsearch-size N",	"number of 32 bit integers to tsearch" },
+	{ NULL,	NULL,			NULL }
+};
+
 /*
  *  stress_set_tsearch_size()
  *      set tsearch size from given option string
@@ -140,5 +147,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };

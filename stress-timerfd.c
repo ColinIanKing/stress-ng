@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"timerfd N",	  "start N workers producing timerfd events" },
+	{ NULL,	"timerfd-ops N",  "stop after N timerfd bogo events" },
+	{ NULL,	"timerfd-freq F", "run timer(s) at F Hz, range 1 to 1000000000" },
+	{ NULL,	"timerfd-rand",	  "enable random timerfd frequency" },
+	{ NULL,	NULL,		  NULL }
+};
+
 #define COUNT_MAX		(256)
 #define TIMERFD_MAX		(256)
 
@@ -223,12 +231,14 @@ static int stress_timerfd(const args_t *args)
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_timerfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_timerfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif

@@ -24,6 +24,13 @@
  */
 #include "stress-ng.h"
 
+static const help_t help[] = {
+	{ NULL,	"mremap N",	  "start N workers stressing mremap" },
+	{ NULL,	"mremap-ops N",	  "stop after N mremap bogo operations" },
+	{ NULL,	"mremap-bytes N", "mremap N bytes maximum for each stress iteration" },
+	{ NULL,	NULL,		  NULL }
+};
+
 static int stress_set_mremap_bytes(const char *opt)
 {
 	size_t mremap_bytes;
@@ -339,12 +346,14 @@ again:
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #else
 stressor_info_t stress_mremap_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
 };
 #endif
