@@ -2178,12 +2178,8 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_keep,		stress_set_vm_keep },
 	{ OPT_vm_madvise,	stress_set_vm_madvise },
 	{ OPT_vm_method,	stress_set_vm_method },
-#if defined(MAP_LOCKED)
 	{ OPT_vm_mmap_locked,	stress_set_vm_mmap_locked },
-#endif
-#if defined(MAP_POPULATE)
 	{ OPT_vm_mmap_populate,	stress_set_vm_mmap_populate },
-#endif
 	{ 0,			NULL }
 };
 
