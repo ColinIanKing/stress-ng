@@ -35,6 +35,16 @@ typedef struct {
 #define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
 #endif
 
+/*
+ *  GLOB_ONLYDIR is a GNU specific flag, use it if is available
+ *  as it is a useful optimization hint, otherwise default to 0.
+ */
+#if defined(GLOB_ONLYDIR)
+#define SHIM_GLOB_ONLYDIR	GLOB_ONLYDIR
+#else
+#define SHIM_GLOB_ONLYDIR	(0)
+#endif
+
 static const generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
@@ -465,7 +475,7 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 
 	(void)strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
 		sizeof(glob_path) - len - 1);
-	ret2 = glob(glob_path, GLOB_ONLYDIR, NULL, &globbuf);
+	ret2 = glob(glob_path, SHIM_GLOB_ONLYDIR, NULL, &globbuf);
 	if (ret2 != 0) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
 			pr_err("glob on regex \"%s\" failed: %d\n",
@@ -535,7 +545,7 @@ cpus_t * get_all_cpu_cache_details(void)
 		return NULL;
 	}
 
-	ret = glob(GLOB_PATTERN, GLOB_ONLYDIR, NULL, &globbuf);
+	ret = glob(GLOB_PATTERN, SHIM_GLOB_ONLYDIR, NULL, &globbuf);
 	if (ret != 0) {
 		pr_err("glob on regex \"%s\" failed: %d\n",
 			GLOB_PATTERN, ret);
