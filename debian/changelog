@@ -1,3 +1,63 @@
+stress-ng (0.09.58-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version once more
+  * core-cache: cater for C libraries that don't support GLOB_ONLYDIR
+  * stress-bad-altstack: move help info to start of function to fix build error
+  * stress-icache: fix build error, add missing comma
+  * stress-stackmmap: move help info to start of function to fix build error
+  * stress-vm: include options that are no-ops for some arches
+  * stress-vm: fix missing return 0
+  * stress-full: move help info to start of function to fix build error
+  * stress-af-alg: fix build error, add missing comma
+  * Add copyright boilerplate to some text files
+  * Move per stressor help info into each stressor
+  * stress-udp: only declare udp_lite variable if UDP lite is supported
+  * stress-cache: move cache_flags declaration; fixes build error
+  * stress-ng: free proc info when a proc is being removed from the list
+  * Allow multiple definition of symbols when building a static image
+  * stress-softlockup: fix spelling mistake "reslults" -> "results"
+  * stress-cpu: fix spelling mistake "maxiumum" -> "maximum"
+  * stress-sigsegv: fix spelling mistake "instread" -> "instead"
+  * stress-ng: fix spelling mistake "functon" -> "function"
+  * Fix spelling mistake "exercsing" -> "exercising"
+  * stress-ng: fix spelling mistake "compressession" -> "compression"
+  * stress-cpu: fix spelling mistake "Rapshon" -> "Raphson"
+  * Add missing colon in error message text
+  * stress-zlib: clarify precedence of & and ? operators
+  * stress-stack: reduce scope of variable i
+  * core-log: reduce scope of empty_ts
+  * stress-aio-linux: fix build issue, missing ,
+  * stress-*: pass args using opt rather than optarg
+  * stress-socket: make function stress_set_socket_domain static
+  * stress-ng.h: compact up option flags
+  * stress-*: remove the use of global opt flags for non-global stressor settings
+  * stress-*: make various variables static
+  * stress-*: make some more functions static
+  * stress-funccall: make a few more functions static
+  * stress-funccall: make functions static
+  * Remove the declaration of stressor options in opt_set_funcs, move them to each stressor
+  * Move STRESSORS macro to stress-ng.h and declare stress_id_t with it
+  * stress-ng: remove STRESS macro and declare stress info objs using STRESSORS macro
+  * core-shim: remove FUTEX_WAIT from shim_enosys call
+  * core-shim: replace ENOSYS code with an inlined helper
+  * Add build time check for pidfd-send-signal system call
+  * Add new pidfd stressor that exercises pidfd_send_signal
+  * Remove stress-pidfd.c from Makefile
+  * stress-enosys: don't SIGKILL child when it is waiting to reap (LP: #1825089)
+  * Add shim_waitpid to silently handle EINTR by retrying
+  * stress-numa: fix undefined behaviour with left shift
+  * stress-numa: fix calculation of max nodes (LP: #1803468)
+  * stress-fanotify: add FAN_OPEN_EXEC_PERM and try all allowed masks one by one
+  * stress-seal: exercise F_SEAL_FUTURE_WRITE
+  * stress-cpu: don't use large fft arrays on the stack
+  * stress-cpu: don't use large correlation arrays on the stack
+  * stress-cpu: don't use large matrixprod arrays on the stack
+  * stress-kcmp: rework capfail message to unconfuse static analysis tools
+  * stress-af-alg: make several functions static
+  * stress-sysfs: rename stat buf to stafbuf to fix name shadowing warnings
+
+ -- Colin King <colin.king@canonical.com>  Thu, 2 May 2019 08:48:11 +0100
+
 stress-ng (0.09.57-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
