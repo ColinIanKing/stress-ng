@@ -57,6 +57,10 @@ static int stress_fault(const args_t *args)
 	char filename[PATH_MAX];
 	int ret;
 	NOCLOBBER int i;
+	char *start, *end;
+	const size_t len = stress_text_addr(&start, &end);
+	const size_t page_size = args->page_size;
+	void *mapto;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -71,9 +75,12 @@ static int stress_fault(const args_t *args)
 	if (stress_sighandler(args->name, SIGBUS, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	mapto = mmap(NULL, page_size, PROT_READ,
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+
 	do {
-		char *ptr;
 		int fd;
+		uint8_t *ptr;
 
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
@@ -164,10 +171,31 @@ next:
 		if (!(i & 1))
 			(void)unlink(filename);
 
+		/*
+		 *  Force a minor page fault by remapping an existing
+		 *  page in the text segment onto page mapto and then
+		 *  force reading a byte from the start of the page.
+		 */
+		if (len > (page_size << 1)) {
+			ptrdiff_t offset = (page_size - 1) + mwc64() % (len - (page_size << 1));
+			offset &= ~(args->page_size - 1);
+
+			if (mapto != MAP_FAILED) {
+				ptr = mmap(mapto, page_size, PROT_READ,
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				if (ptr != MAP_FAILED) {
+					uint8_put(*ptr);
+					(void)munmap(ptr, page_size);
+				}
+			}
+		};
 		i++;
 		inc_counter(args);
 	} while (keep_stressing());
 	/* Clean up, most times this is redundant */
+
+	if (mapto != MAP_FAILED)
+		(void)munmap(mapto, page_size);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
