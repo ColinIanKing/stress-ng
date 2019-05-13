@@ -1418,11 +1418,24 @@ operation is 1000 calls of functions of 1 through to 9 arguments of the chosen
 argument type.
 .TP
 .B \-\-funccall\-method method
-specify the method of funccall argument type to be used with 'method'. The
+specify the method of funccall argument type to be used. The
 default is uint64_t but can be one of uint8 uint16 uint32 uint64 uint128
 float double longdouble float80 float128 decimal32 decimal64 and decimal128.
 Note that some of these types are only available with specific architectures
 and compiler versions.
+.TP
+.B \-\-funcret N
+start N workers that pass and return by value various small to large data
+types.
+.TP
+.B \-\-funcret\-ops N
+stop the funcret workers after N bogo function call operations.
+.TP
+.B \-\-funcret\-method method
+specify the method of funcret argument type to be used. The
+default is uint64_t but can be one of uint8 uint16 uint32 uint64 uint128
+float double longdouble float80 float128 decimal32 decimal64 decimal128
+uint8x32 uint8x128 uint64x128.
 .TP
 .B \-\-futex N
 start N workers that rapidly exercise the futex system call. Each worker has

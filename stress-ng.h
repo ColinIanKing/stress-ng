@@ -1818,6 +1818,7 @@ typedef struct {
 	MACRO(fstat)		\
 	MACRO(full)		\
 	MACRO(funccall)		\
+	MACRO(funcret)		\
 	MACRO(futex)		\
 	MACRO(get)		\
 	MACRO(getdent)		\
@@ -2245,6 +2246,10 @@ typedef enum {
 	OPT_funccall,
 	OPT_funccall_ops,
 	OPT_funccall_method,
+
+	OPT_funcret,
+	OPT_funcret_ops,
+	OPT_funcret_method,
 
 	OPT_futex,
 	OPT_futex_ops,

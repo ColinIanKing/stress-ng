@@ -125,6 +125,7 @@ STRESS_SRC = \
 	stress-fstat.c \
 	stress-full.c \
 	stress-funccall.c \
+	stress-funcret.c \
 	stress-futex.c \
 	stress-get.c \
 	stress-getrandom.c \
