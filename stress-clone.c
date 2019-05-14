@@ -337,6 +337,13 @@ again:
 	} else if (pid == 0) {
 		/* Child */
 		int ret;
+		const size_t mmap_size = args->page_size * 8192;
+		void *ptr;
+#if defined(MAP_POPULATE)
+		const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
+#else
+		const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
+#endif
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -347,6 +354,14 @@ again:
 		/* Explicitly drop capabilites, makes it more OOM-able */
 		ret = stress_drop_capabilities(args->name);
 		(void)ret;
+
+		/*
+		 * Make child larger than parent to make it more of
+		 * a candidate for a OOMable process
+		 */
+		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
+		if (ptr != MAP_FAILED)
+			mincore_touch_pages(ptr, mmap_size);
 
 		do {
 			if (clones.length < clone_max) {
@@ -379,6 +394,9 @@ again:
 
 		pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
 			args->name, max_clones);
+
+		if (ptr != MAP_FAILED)
+			(void)munmap(ptr, mmap_size);
 		/* And reap */
 		while (clones.head) {
 			stress_clone_head_remove();
