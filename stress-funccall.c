@@ -722,7 +722,7 @@ stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
 #endif
 
-#define stress_funcall_type(type, rndfunc)				\
+#define stress_funccall_type(type, rndfunc)				\
 static void NOINLINE stress_funccall_ ## type(const args_t *args);	\
 									\
 static void NOINLINE stress_funccall_ ## type(const args_t *args)	\
@@ -782,30 +782,30 @@ static void NOINLINE stress_funccall_ ## type(const args_t *args)	\
 	} while (keep_stressing());					\
 }
 
-stress_funcall_type(uint8_t, mwc8)
-stress_funcall_type(uint16_t, mwc16)
-stress_funcall_type(uint32_t, mwc32)
-stress_funcall_type(uint64_t, mwc64)
+stress_funccall_type(uint8_t, mwc8)
+stress_funccall_type(uint16_t, mwc16)
+stress_funccall_type(uint32_t, mwc32)
+stress_funccall_type(uint64_t, mwc64)
 #if defined(HAVE_INT128_T)
-stress_funcall_type(__uint128_t, mwc64)
+stress_funccall_type(__uint128_t, mwc64)
 #endif
-stress_funcall_type(float, (float)mwc64)
-stress_funcall_type(double, (double)mwc64)
-stress_funcall_type(long_double_t, (long double)mwc64)
+stress_funccall_type(float, (float)mwc64)
+stress_funccall_type(double, (double)mwc64)
+stress_funccall_type(long_double_t, (long double)mwc64)
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
-stress_funcall_type(_Decimal32, (_Decimal32)mwc64)
+stress_funccall_type(_Decimal32, (_Decimal32)mwc64)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
-stress_funcall_type(_Decimal64, (_Decimal64)mwc64)
+stress_funccall_type(_Decimal64, (_Decimal64)mwc64)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
-stress_funcall_type(_Decimal128, (_Decimal128)mwc64)
+stress_funccall_type(_Decimal128, (_Decimal128)mwc64)
 #endif
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
-stress_funcall_type(__float80, (__float80)mwc64)
+stress_funccall_type(__float80, (__float80)mwc64)
 #endif
 #if defined(HAVE_FLOAT128) && !defined(__clang__)
-stress_funcall_type(__float128, (__float128)mwc64)
+stress_funccall_type(__float128, (__float128)mwc64)
 #endif
 
 /*
@@ -880,7 +880,7 @@ static int stress_funccall(const args_t *args)
 }
 
 
-static void stress_funcall_set_default(void)
+static void stress_funccall_set_default(void)
 {
 	stress_set_funccall_method("uint64");
 }
@@ -892,7 +892,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_funccall_info = {
 	.stressor = stress_funccall,
-	.set_default = stress_funcall_set_default,
+	.set_default = stress_funccall_set_default,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
