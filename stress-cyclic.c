@@ -354,6 +354,39 @@ restore:
 }
 #endif
 
+/*
+ *  stress_cyclic_usleep()
+ *	measure latencies with usleep
+ */
+static int stress_cyclic_usleep(
+	const args_t *args,
+	rt_stats_t *rt_stats,
+	uint64_t cyclic_sleep)
+{
+	struct timespec t1, t2;
+	const useconds_t usecs = cyclic_sleep / 1000;
+	int ret;
+
+	(void)args;
+
+	(void)clock_gettime(CLOCK_REALTIME, &t1);
+	ret = usleep(usecs);
+	(void)clock_gettime(CLOCK_REALTIME, &t2);
+	if (ret == 0) {
+		int64_t delta_ns;
+
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
+			   (t2.tv_nsec - t1.tv_nsec);
+		delta_ns -= cyclic_sleep;
+
+		if (rt_stats->index < MAX_SAMPLES)
+			rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+		rt_stats->ns += (double)delta_ns;
+	}
+	return 0;
+}
+
 static sigjmp_buf jmp_env;
 
 /*
@@ -467,6 +500,8 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
     defined(HAVE_CLOCK_GETTIME)
 	{ "pselect",	stress_cyclic_pselect },
 #endif
+
+	{ "usleep",	stress_cyclic_usleep },
 
 	{ NULL,		NULL }
 };
