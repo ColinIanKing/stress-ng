@@ -512,6 +512,26 @@ static void stress_rand_data_brown(const args_t *args, uint32_t *data, const int
 	}
 }
 
+/*
+ *  stress_rand_data_lrand48()
+ *	fills buffer with random data from lrand48
+ */
+static void stress_rand_data_lrand48(const args_t *args, uint32_t *data, const int size)
+{
+	static bool seeded = false;
+	const int n = size / sizeof(*data);
+	register int i;
+
+	if (UNLIKELY(!seeded)) {
+		srand48(mwc32());
+		seeded = true;
+	}
+
+	(void)args;
+
+	for (i = 0; i < n; i++, data++)
+		*data = lrand48();
+}
 
 /*
  *  stress_rand_data_latin()
@@ -614,6 +634,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_fixed,
 	stress_rand_data_gray,
 	stress_rand_data_latin,
+	stress_rand_data_lrand48,
 	stress_rand_data_nybble,
 	stress_rand_data_objcode,
 	stress_rand_data_parity,
@@ -651,6 +672,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "gray",	stress_rand_data_gray },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
+	{ "lrand48",	stress_rand_data_lrand48 },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },
 	{ "parity",	stress_rand_data_parity },
