@@ -126,6 +126,24 @@ static int stress_set_cyclic_dist(const char *opt)
         return set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
+static void stress_cyclic_stats(
+	rt_stats_t *rt_stats,
+	const uint64_t cyclic_sleep,
+	const struct timespec *t1,
+	const struct timespec *t2)
+{
+	int64_t delta_ns;
+
+	delta_ns = ((int64_t)(t2->tv_sec - t1->tv_sec) * NANOSECS) +
+		   (t2->tv_nsec - t1->tv_nsec);
+	delta_ns -= cyclic_sleep;
+
+	if (rt_stats->index < MAX_SAMPLES)
+		rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+	rt_stats->ns += (double)delta_ns;
+}
+
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_CLOCK_NANOSLEEP) 
 /*
@@ -135,7 +153,7 @@ static int stress_set_cyclic_dist(const char *opt)
 static int stress_cyclic_clock_nanosleep(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t, trem;
 	int ret;
@@ -147,18 +165,8 @@ static int stress_cyclic_clock_nanosleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0) {
-		int64_t delta_ns;
-
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
-			   (t2.tv_nsec - t1.tv_nsec);
-		delta_ns -= cyclic_sleep;
-
-		if (rt_stats->index < MAX_SAMPLES)
-			rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-		rt_stats->ns += (double)delta_ns;
-	}
+	if (ret == 0)
+		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
 #endif
@@ -172,7 +180,7 @@ static int stress_cyclic_clock_nanosleep(
 static int stress_cyclic_posix_nanosleep(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t, trem;
 	int ret;
@@ -184,18 +192,8 @@ static int stress_cyclic_posix_nanosleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = nanosleep(&t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0) {
-		int64_t delta_ns;
-
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
-			   (t2.tv_nsec - t1.tv_nsec);
-		delta_ns -= cyclic_sleep;
-
-		if (rt_stats->index < MAX_SAMPLES)
-			rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-		rt_stats->ns += (double)delta_ns;
-	}
+	if (ret == 0)
+		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
 #endif
@@ -208,7 +206,7 @@ static int stress_cyclic_posix_nanosleep(
 static int stress_cyclic_poll(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2;
 
@@ -253,7 +251,7 @@ static int stress_cyclic_poll(
 static int stress_cyclic_pselect(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t;
 	int ret;
@@ -265,18 +263,8 @@ static int stress_cyclic_pselect(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0) {
-		int64_t delta_ns;
-
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
-			   (t2.tv_nsec - t1.tv_nsec);
-		delta_ns -= cyclic_sleep;
-
-		if (rt_stats->index < MAX_SAMPLES)
-			rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-		rt_stats->ns += (double)delta_ns;
-	}
+	if (ret == 0)
+		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
 #endif
@@ -301,7 +289,7 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
 static int stress_cyclic_itimer(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct itimerspec timer;
 	struct timespec t1;
@@ -361,7 +349,7 @@ restore:
 static int stress_cyclic_usleep(
 	const args_t *args,
 	rt_stats_t *rt_stats,
-	uint64_t cyclic_sleep)
+	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2;
 	const useconds_t usecs = cyclic_sleep / 1000;
@@ -372,18 +360,8 @@ static int stress_cyclic_usleep(
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = usleep(usecs);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
-	if (ret == 0) {
-		int64_t delta_ns;
-
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
-			   (t2.tv_nsec - t1.tv_nsec);
-		delta_ns -= cyclic_sleep;
-
-		if (rt_stats->index < MAX_SAMPLES)
-			rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-		rt_stats->ns += (double)delta_ns;
-	}
+	if (ret == 0)
+		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
 
