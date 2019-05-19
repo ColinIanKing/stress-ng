@@ -354,7 +354,7 @@ fork_again:
 				 *  on child death, or child tells us
 				 *  about its demise.
 				 */
-				memset(&msg, 0, sizeof(msg));
+				(void)memset(&msg, 0, sizeof(msg));
 				n = read(pipefds[0], &msg, sizeof(msg));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
