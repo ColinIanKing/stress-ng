@@ -66,59 +66,58 @@ static inline long syscall7(long number, long arg1, long arg2,
 }
 PRAGMA_POP
 
-static inline bool HOT OPTIMIZE3 syscall_find(long number)
-{
-	hash_syscall_t *h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
-
-	/* Really make sure reboot is never called */
+static const int syscall_ignore[] = {
 #if defined(SYS_reboot)
-	if ((number & 0xffff) == SYS_reboot)
-		return true;
+	SYS_reboot,
 #endif
 #if defined(__NR_reboot)
-	if ((number & 0xffff) == __NR_reboot)
-		return true;
+	__NR_reboot,
 #endif
 #if defined(SYS_clone)
-	if ((number & 0xffff) == SYS_clone)
-		return true;
+	SYS_clone,
 #endif
 #if defined(__NR_clone)
-	if ((number & 0xffff) == __NR_clone)
-		return true;
+	__NR_clone,
 #endif
 #if defined(SYS_clone2)
-	if ((number & 0xffff) == SYS_clone2)
-		return true;
+	SYS_clone2,
 #endif
 #if defined(__NR_clone2)
-	if ((number & 0xffff) == __NR_clone2)
-		return true;
+	__NR_clone2,
 #endif
 #if defined(SYS_fork)
-	if ((number & 0xffff) == SYS_fork)
-		return true;
+	SYS_fork,
 #endif
 #if defined(__NR_fork)
-	if ((number & 0xffff) == __NR_fork)
-		return true;
+	__NR_fork,
 #endif
 #if defined(SYS_vfork)
-	if ((number & 0xffff) == SYS_vfork)
-		return true;
+	SYS_vfork,
 #endif
 #if defined(__NR_vfork)
-	if ((number & 0xffff) == __NR_vfork)
-		return true;
+	__NR_vfork,
 #endif
 #if defined(SYS_vhangup)
-        if ((number & 0xffff) == SYS_vhangup)
-                return true;
+	SYS_vhangup,
 #endif
 #if defined(__NR_vhangup)
-        if ((number & 0xffff) == __NR_vhangup)
-                return true;
+	__NR_vhangup,
 #endif
+};
+
+static inline bool HOT OPTIMIZE3 syscall_find(long number)
+{
+	register hash_syscall_t *h;
+	register size_t i;
+	register const long number16 = number & 0xffff;
+
+	/* Really make sure some syscalls are never called */
+	for (i = 0; i < SIZEOF_ARRAY(syscall_ignore); i++) {
+		if (number16 == syscall_ignore[i])
+			return true;
+	}
+
+	h = hash_syscall_table[number % HASH_SYSCALL_SIZE];
 	while (h) {
 		if (h->number == number)
 			return true;
