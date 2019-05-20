@@ -53,7 +53,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 typedef struct {
 	uint64_t	value;
-	bool		stop;
 } msg_t;
 
 static void stress_mq_notify_func(union sigval s)
@@ -165,7 +164,7 @@ again:
 			uint64_t i = 0;
 
 			for (;;) {
-				msg_t msg;
+				msg_t ALIGN64 msg;
 				int ret;
 				const uint64_t timed = (i & 1);
 
@@ -194,8 +193,6 @@ again:
 					pr_fail_dbg(timed ? "mq_timedreceive" : "mq_receive");
 					break;
 				}
-				if (msg.stop)
-					break;
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					if (msg.value != i) {
 						pr_fail("%s: mq_receive: expected message "
@@ -209,21 +206,18 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 	} else {
-		uint64_t i = 0;
 		int status;
 		int attr_count = 0;
-		msg_t msg;
+		msg_t ALIGN64 msg;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
+		(void)memset(&msg, 0, sizeof(msg));
 
 		do {
 			int ret;
-			const uint64_t timed = (i & 1);
+			const uint64_t timed = (msg.value & 1);
 
-			(void)memset(&msg, 0, sizeof(msg));
-			msg.value = get_counter(args);
-			msg.stop = false;
 			if ((attr_count++ & 31) == 0) {
 				if (mq_getattr(mq, &attr) < 0)
 					pr_fail_dbg("mq_getattr");
@@ -242,16 +236,12 @@ again:
 					pr_fail_dbg(timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
-			i++;
+			msg.value++;
 			inc_counter(args);
 		} while (keep_stressing());
 
 		msg.value = get_counter(args);
-		msg.stop = true;
 
-		if (mq_send(mq, (char *)&msg, sizeof(msg), 1) < 0) {
-			pr_fail_dbg("termination mq_send");
-		}
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 
