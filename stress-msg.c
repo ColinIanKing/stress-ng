@@ -24,22 +24,35 @@
  */
 #include "stress-ng.h"
 
+#define MSG_VALUE_STOP_BIT	(0x8000000)
+
 static const help_t help[] = {
 	{ NULL,	"msg N",	"start N workers stressing System V messages" },
 	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
+	{ NULL, "msg-types N",	"enable N different message types" },
 	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_msg_types(const char *opt) {
+        int32_t msg_types;
+
+        msg_types = get_int32(opt);
+        check_range("msg-types", msg_types, 0, 100);
+        return set_setting("msg-types", TYPE_ID_INT32, &msg_types);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+        { OPT_msg_types,	stress_set_msg_types },
+        { 0,                    NULL },
 };
 
 #if defined(HAVE_SYS_IPC_H) &&	\
     defined(HAVE_SYS_MSG_H) &&	\
     defined(HAVE_MQ_SYSV)
 
-#define MAX_SIZE	(8)
-#define MSG_STOP	"STOPMSG"
-
 typedef struct {
 	long mtype;
-	char msg[MAX_SIZE];
+	uint32_t value;
 } msg_t;
 
 static int stress_msg_getstats(const args_t *args, const int msgq_id)
@@ -84,6 +97,9 @@ static int stress_msg(const args_t *args)
 {
 	pid_t pid;
 	int msgq_id;
+	int32_t msg_types = 0;
+
+	(void)get_setting("msg-types", &msg_types);
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
@@ -105,59 +121,66 @@ again:
 		stress_parent_died_alarm();
 
 		while (keep_stressing()) {
-			msg_t msg;
-			uint64_t i;
+			msg_t ALIGN64 msg;
+			register uint32_t i;
+			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
 			for (i = 0; keep_stressing(); i++) {
-				uint64_t v;
-				if (msgrcv(msgq_id, &msg, sizeof(msg.msg), 0, 0) < 0) {
+				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
 					pr_fail_dbg("msgrcv");
 					break;
 				}
-				if (!strcmp(msg.msg, MSG_STOP))
+				if (msg.value & MSG_VALUE_STOP_BIT)
 					break;
-				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					(void)memcpy(&v, msg.msg, sizeof(v));
-					if (v != i)
-						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx64
-							" but received 0x%" PRIx64 " instead\n", args->name, i, v);
+				/*
+				 *  Only when msg_types is not set can we fetch
+				 *  data in an ordered FIFO to sanity check data
+				 *  ordering.
+				 */
+				if ((msg_types == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+					if (msg.value != i)
+						pr_fail("%s: msgrcv: expected msg containing 0x%" PRIx32
+							" but received 0x%" PRIx32 " instead\n",
+							 args->name, i, msg.value);
 				}
 			}
 			_exit(EXIT_SUCCESS);
 		}
 	} else {
-		msg_t msg;
-		uint64_t i = 0;
+		msg_t ALIGN64 msg;
 		int status;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
 
+		msg.value = 0;
+
 		do {
-			(void)memcpy(msg.msg, &i, sizeof(i));
-			msg.mtype = 1;
-			if (msgsnd(msgq_id, &msg, sizeof(i), 0) < 0) {
+			msg.mtype = (msg_types) ? (mwc8() % msg_types) + 1 : 1;
+			if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0) {
 				if (errno != EINTR)
 					pr_fail_dbg("msgsnd");
 				break;
 			}
-			if ((i & 0x1f) == 0)
+			msg.value = (msg.value + 1) & 0x7ffffff;
+			inc_counter(args);
+			if ((msg.value & 0xff) == 0) {
 				if (stress_msg_getstats(args, msgq_id) < 0)
 					break;
-			/*
-			 *  NetBSD can shove loads of messages onto
-			 *  a queue before it blocks, so force
-			 *  a scheduling yield every so often so that
-			 *  consumer can read them.
-			 */
-			if ((i & 0xff) == 0)
+#if defined(__NetBSD__)
+				/*
+				 *  NetBSD can shove loads of messages onto
+				 *  a queue before it blocks, so force
+				 *  a scheduling yield every so often so that
+				 *  consumer can read them.
+				 */
 				(void)shim_sched_yield();
-			i++;
-			inc_counter(args);
+#endif
+			}
 		} while (keep_stressing());
 
-		(void)shim_strlcpy(msg.msg, MSG_STOP, sizeof(msg.msg));
-		if (msgsnd(msgq_id, &msg, sizeof(msg.msg), 0) < 0)
+		msg.value = MSG_VALUE_STOP_BIT;
+		if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0)
 			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
@@ -173,12 +196,14 @@ again:
 stressor_info_t stress_msg_info = {
 	.stressor = stress_msg,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_msg_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif

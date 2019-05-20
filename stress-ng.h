@@ -2466,6 +2466,7 @@ typedef enum {
 
 	OPT_msg,
 	OPT_msg_ops,
+	OPT_msg_types,
 
 	OPT_msync,
 	OPT_msync_bytes,

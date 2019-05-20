@@ -517,6 +517,7 @@ static const struct option long_options[] = {
 	{ "mremap-bytes",1,	0,	OPT_mremap_bytes },
 	{ "msg",	1,	0,	OPT_msg },
 	{ "msg-ops",	1,	0,	OPT_msg_ops },
+	{ "msg-types",	1,	0,	OPT_msg_types },
 	{ "msync",	1,	0,	OPT_msync },
 	{ "msync-ops",	1,	0,	OPT_msync_ops },
 	{ "msync-bytes",1,	0,	OPT_msync_bytes },
