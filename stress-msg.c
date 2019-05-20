@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#define MSG_VALUE_STOP_BIT	(0x8000000)
-
 static const help_t help[] = {
 	{ NULL,	"msg N",	"start N workers stressing System V messages" },
 	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
@@ -130,8 +128,6 @@ again:
 					pr_fail_dbg("msgrcv");
 					break;
 				}
-				if (msg.value & MSG_VALUE_STOP_BIT)
-					break;
 				/*
 				 *  Only when msg_types is not set can we fetch
 				 *  data in an ordered FIFO to sanity check data
@@ -162,7 +158,7 @@ again:
 					pr_fail_dbg("msgsnd");
 				break;
 			}
-			msg.value = (msg.value + 1) & 0x7ffffff;
+			msg.value++;
 			inc_counter(args);
 			if ((msg.value & 0xff) == 0) {
 				if (stress_msg_getstats(args, msgq_id) < 0)
@@ -179,9 +175,6 @@ again:
 			}
 		} while (keep_stressing());
 
-		msg.value = MSG_VALUE_STOP_BIT;
-		if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0)
-			pr_fail_dbg("termination msgsnd");
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 
