@@ -240,8 +240,6 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		msg.value = get_counter(args);
-
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 
