@@ -2363,6 +2363,12 @@ messages using System V message IPC.
 .B \-\-msg\-ops N
 stop after N bogo message send operations completed.
 .TP
+.B \-\-msg\-types N
+select the quality of message types (mtype) to use. By default, msgsnd sends
+messages with a mtype of 1, this option allows one to send messages types
+in the range 1..N to exercise the message queue receive ordering. This will
+also impact throughput performance.
+.TP
 .B \-\-msync N
 start N stressors that msync data from a file backed memory mapping from
 memory back to the file and msync modified data from the file back to the
