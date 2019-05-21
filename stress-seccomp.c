@@ -53,6 +53,10 @@ static const help_t help[] = {
 	BPF_JUMP(BPF_JMP+BPF_JEQ+BPF_K, __NR_##syscall, 0, 1), \
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 
+#if defined(__NR_seccomp)
+static bool use_seccomp = true;
+#endif
+
 static struct sock_filter filter_allow_all[] = {
 	BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
 };
@@ -166,18 +170,71 @@ static void MLOCKED_TEXT stress_sigsys(int signum)
 }
 
 /*
+ *  stress_seccomp_set_huge_filter()
+ *	set up a huge seccomp filter, see how large we can go
+ */
+static int stress_seccomp_set_huge_filter(const args_t *args)
+{
+	static struct sock_filter bpf_stmt =
+		BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW);
+	struct sock_fprog huge_prog;
+	const size_t bits = sizeof(huge_prog.len) * 8 > 31 ? 31 : sizeof(huge_prog.len) * 8;
+	const size_t n_max = ((size_t)1 << bits) - 1;
+	size_t i, j, n = 32, max = 1;
+
+	memset(&huge_prog, 0, sizeof(huge_prog));
+	if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0) {
+		pr_fail_err("prctl PR_SET_NEW_PRIVS");
+		return -1;
+	}
+
+	for (j = 0; (n < n_max) && (n != max) && (j < 64); j++) {
+		struct sock_filter *huge_filter;
+
+		huge_filter = calloc(n, sizeof(struct sock_filter));
+		if (!huge_filter)
+			return -1;
+
+		for (i = 0; i < n; i++)
+			huge_filter[i] = bpf_stmt;
+		huge_prog.len = (unsigned short)n;
+		huge_prog.filter = huge_filter;
+
+#if defined(__NR_seccomp)
+		/*
+		 *  Try using the newer seccomp syscall first
+		 */
+		if (use_seccomp) {
+			if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &huge_prog) == 0) {
+				max = n;
+				n = n + n;
+				goto next;
+			}
+		}
+#endif
+		if (prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, &huge_prog) == 0) {
+			max = n;
+			n = n + n;
+			goto next;
+		}
+		n = max + ((n - max) >> 1);
+next:
+		free(huge_filter);
+	}
+	return 0;
+}
+
+
+/*
  *  stress_seccomp_set_filter()
  *	set up a seccomp filter, allow writes
  * 	if allow_write is true.
  */
-static inline int stress_seccomp_set_filter(
+static int stress_seccomp_set_filter(
 	const args_t *args,
 	const bool allow_write,
 	bool do_random)
 {
-#if defined(__NR_seccomp)
-	static bool use_seccomp = true;
-#endif
 
 	/*
 	 *  Depending on allow_write we either use the
@@ -265,6 +322,7 @@ static int stress_seccomp(const args_t *args)
 			ret = stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL);
 			(void)ret;
 
+			(void)stress_seccomp_set_huge_filter(args);
 			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)
 				_exit(EXIT_FAILURE);
 			if ((fd = open("/dev/null", O_WRONLY)) < 0) {
