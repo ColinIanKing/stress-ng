@@ -30,7 +30,8 @@ static const help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(SIOCGIFCONF)
 
 /*
  *  stress_netdev_check()
@@ -109,10 +110,13 @@ static int stress_netdev(const args_t *args)
 		for (i = 0; i < n; i++) {
 			struct ifreq *ifr = &ifc.ifc_req[i];
 
+#if defined(SIOCGIFINDEX)
 			/* We got the name, check it's index */
 			if (ioctl(fd, SIOCGIFINDEX, ifr) < 0)
 				continue;
+#endif
 
+#if defined(SIOCGIFNAME)
 			ifr->ifr_ifindex = i;
 			/* Get name */
 			if (ioctl(fd, SIOCGIFNAME, ifr) < 0)
@@ -125,44 +129,73 @@ static int stress_netdev(const args_t *args)
 					args->name, ifr->ifr_name,
 					ifr->ifr_ifindex, i);
 			}
+#endif
 
+#if defined(SIOCGIFFLAGS)
 			/* Get flags */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFFLAGS, "SIOCGIFFLAGS");
+#endif
 
+#if defined(SIOCGIFPFLAGS)
 			/* Get extended flags */
-			/*
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFPFLAGS, "SIOCGIFPFLAGS");
-			*/
+#endif
 
+#if defined(stress_netdev_check)
 			/* Get address */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFADDR, "SIOCGIFADDR");
+#endif
 
+#if defined(SIOCGIFNETMASK)
 			/* Get netmask */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFNETMASK, "SIOCGIFNETMASK");
+#endif
 
+#if defined(SIOCGIFNETMASK)
 			/* Get metric (currently not supported) */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFMETRIC, "SIOCGIFMETRIC");
+#endif
 
+#if defined(SIOCGIFNETMASK)
 			/* Get the MTU */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFMTU, "SIOCGIFMTU");
+#endif
 
+#if defined(SIOCGIFNETMASK)
 			/* Get the hardware address */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFHWADDR, "SIOCGIFHWADDR");
+#endif
 
+#if defined(SIOCGIFMAP)
 			/* Get the hardware parameters */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFMAP, "SIOCGIFMAP");
+#endif
 
+#if defined(SIOCGIFTXQLEN)
 			/* Get the transmit queue length */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFTXQLEN, "SIOCGIFTXQLEN");
+#endif
+
+#if defined(SIOCGIFDSTADDR)
+			/* Get the destination address */
+			stress_netdev_check(args, ifr, fd,
+				SIOCGIFDSTADDR, "SIOCGIFDSTADDR");
+#endif
+
+#if defined(SIOCGIFBRDADDR)
+			/* Get the broadcast address */
+			stress_netdev_check(args, ifr, fd,
+				SIOCGIFBRDADDR, "SIOCGIFBRDADDR");
+#endif
 		}
 		free(ifc.ifc_buf);
 		inc_counter(args);
