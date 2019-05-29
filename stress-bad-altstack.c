@@ -124,15 +124,15 @@ again:
 			int ret;
 			volatile uint8_t *vol_stack = stack;
 
+			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+				_exit(EXIT_FAILURE);
+
 			/* Child */
 			mwc_reseed();
 			rnd = mwc32() % 7;
 
 			set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
-
-			if (stress_sigaltstack(stack, stack_sz) < 0)
-				return EXIT_FAILURE;
 
 			switch (rnd) {
 #if defined(HAVE_MPROTECT)
