@@ -84,11 +84,10 @@ static int stress_pidfd(const args_t *args)
 	pid_t pid = 0;
 
 	while (keep_stressing()) {
-again:
 		pid = fork();
 		if (pid < 0) {
 			if (g_keep_stressing_flag && (errno == EAGAIN))
-				goto again;
+				continue;
 			pr_fail_dbg("fork");
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
@@ -103,7 +102,8 @@ again:
 			pidfd = stress_pidfd_open_fd(pid);
 			if (pidfd < 0) {
 				/* Process not found, try again */
-				goto reap;
+				stress_pidfd_reap(pid, pidfd);
+				continue;
 			}
 
 			ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
@@ -129,7 +129,6 @@ again:
 				pr_err("%s: pidfd_send_signal (SIGCONT), failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-reap:
 			stress_pidfd_reap(pid, pidfd);
 		}
 		inc_counter(args);
