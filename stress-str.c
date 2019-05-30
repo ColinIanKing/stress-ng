@@ -659,18 +659,37 @@ static int stress_str(const args_t *args)
 	stress_str_func func;
 	const void *libc_func;
 	bool failed = false;
+	char ALIGN64 str1[256], ALIGN64 str2[128];
+	register char *ptr1, *ptr2;
+	register size_t len1, len2;
+	const char *name = args->name;
 
 	(void)get_setting("str-method", &str_method);
 	func = str_method->func;
 	libc_func = str_method->libc_func;
 
+	ptr1 = str1;
+	len1 = sizeof(str1);
+	ptr2 = str2;
+	len2 = sizeof(len2);
+
+	stress_strnrnd(ptr1, sizeof(str1));
+
 	do {
-		char str1[256], str2[128];
+		register char *tmpptr;
+		register size_t tmplen;
 
-		stress_strnrnd(str1, sizeof(str1));
-		stress_strnrnd(str2, sizeof(str2));
+		stress_strnrnd(ptr2, sizeof(str2));
+		(void)func(libc_func, name, ptr1, len1, ptr2, len2, &failed);
 
-		(void)func(libc_func, args->name, str1, sizeof(str1), str2, sizeof(str2), &failed);
+		tmpptr = ptr1;
+		ptr1 = ptr2;
+		ptr2 = tmpptr;
+
+		tmplen = len1;
+		len1 = len2;
+		len2 = tmplen;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
