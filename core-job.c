@@ -114,12 +114,16 @@ int parse_jobfile(
 	uint32_t flag;
 	static uint32_t lineno;
 
+	if (optind >= argc)
+		return 0;
+
 	if (!jobfile) {
 		if (argc < 2)
 			return 0;
-		fp = fopen(argv[1], "r");
+		fp = fopen(argv[optind], "r");
 		if (!fp)
 			return 0;
+		optind++;
 	} else {
 		fp = fopen(jobfile, "r");
 	}
