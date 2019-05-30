@@ -223,7 +223,7 @@ static int stress_prctl_child(const args_t *args)
 #endif
 
 #if defined(PR_SET_MM) && defined(PR_SET_MM_BRK)
-	ret = prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0));
+	ret = prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0), 0, 0);
 	(void)ret;
 #endif
 
