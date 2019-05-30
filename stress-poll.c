@@ -41,34 +41,34 @@ static const help_t help[] = {
  */
 static int pipe_read(const args_t *args, const int fd, const int n)
 {
-	char buf[POLL_BUF];
-	ssize_t ret;
+	while (g_keep_stressing_flag) {
+		ssize_t ret;
+		char buf[POLL_BUF];
 
-redo:
-	if (!g_keep_stressing_flag)
-		return -1;
-	ret = read(fd, buf, sizeof(buf));
-	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo;
-			pr_fail("%s: pipe read error detected\n", args->name);
-			return ret;
-		}
-		if (ret > 0) {
-			ssize_t i;
+		ret = read(fd, buf, sizeof(buf));
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				pr_fail("%s: pipe read error detected\n", args->name);
+				return ret;
+			}
+			if (ret > 0) {
+				ssize_t i;
 
-			for (i = 0; i < ret; i++) {
-				if (buf[i] != '0' + n) {
-					pr_fail("%s: pipe read error, "
-						"expecting different data on "
-						"pipe\n", args->name);
-					return ret;
+				for (i = 0; i < ret; i++) {
+					if (buf[i] != '0' + n) {
+						pr_fail("%s: pipe read error, "
+							"expecting different data on "
+							"pipe\n", args->name);
+						return ret;
+					}
 				}
 			}
 		}
+		return ret;
 	}
-	return ret;
+	return -1;
 }
 
 /*
