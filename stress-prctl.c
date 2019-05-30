@@ -222,9 +222,43 @@ static int stress_prctl_child(const args_t *args)
 	(void)ret;
 #endif
 
-#if defined(PR_SET_MM) && defined(PR_SET_MM_BRK)
+#if defined(PR_SET_MM) &&	\
+    defined(PR_SET_MM_BRK)
 	ret = prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0), 0, 0);
 	(void)ret;
+#endif
+
+#if defined(PR_SET_MM) &&		\
+    defined(PR_SET_MM_START_CODE) &&	\
+    defined(PR_SET_MM_END_CODE)
+	{
+		char *start, *end;
+		const ptrdiff_t mask = ~(args->page_size - 1);
+		ptrdiff_t addr;
+
+		(void)stress_text_addr(&start, &end);
+
+		addr = ((ptrdiff_t)start) & mask;
+		ret = prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0, 0);
+		(void)ret;
+
+		addr = ((ptrdiff_t)end) & mask;
+		ret = prctl(PR_SET_MM, PR_SET_MM_END_CODE, addr, 0, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(PR_SET_MM) &&		\
+    defined(PR_SET_MM_ENV_START)
+	{
+		extern char **environ;
+
+		const ptrdiff_t mask = ~(args->page_size - 1);
+		const ptrdiff_t addr = ((ptrdiff_t)environ) & mask;
+
+		ret = prctl(PR_SET_MM, PR_SET_MM_ENV_START, addr, 0, 0);
+		(void)ret;
+	}
 #endif
 
 #if defined(PR_MPX_ENABLE_MANAGEMENT)
