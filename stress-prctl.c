@@ -79,11 +79,12 @@ static const help_t help[] = {
      defined(PR_SET_UNALIGN) ||			\
      defined(PR_GET_UNALIGN))
 
-static int stress_prctl_child(const args_t *args)
+static int stress_prctl_child(const args_t *args, const pid_t mypid)
 {
 	int ret;
 
 	(void)args;
+	(void)mypid;
 
 #if defined(PR_CAP_AMBIENT)
 	/* skip for now */
@@ -318,7 +319,16 @@ static int stress_prctl_child(const args_t *args)
 #endif
 
 #if defined(PR_SET_PTRACER)
-	/* skip this for the moment */
+	{
+		ret = prctl(PR_SET_PTRACER, mypid, 0, 0, 0);
+		(void)ret;
+#if defined(PR_SET_PTRACER_ANY)
+		ret = prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
+		(void)ret;
+#endif
+		ret = prctl(PR_SET_PTRACER, 0, 0, 0, 0);
+		(void)ret;
+	}
 #endif
 
 #if defined(PR_GET_SECCOMP)
@@ -461,8 +471,9 @@ static int stress_prctl(const args_t *args)
 		}
 		if (pid == 0) {
 			int rc;
+			pid_t mypid = getpid();
 
-			rc = stress_prctl_child(args);
+			rc = stress_prctl_child(args, mypid);
 			_exit(rc);
 		}
 		if (pid > 0) {
