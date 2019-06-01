@@ -252,7 +252,7 @@ static int stress_mremap(const args_t *args)
 	if (mremap_bytes < MIN_MREMAP_BYTES)
 		mremap_bytes = MIN_MREMAP_BYTES;
 	if (mremap_bytes < page_size)
-		mremap_bytes= page_size;
+		mremap_bytes = page_size;
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */

@@ -2925,7 +2925,7 @@ int main(int argc, char **argv)
 	 *  Save results to YAML file
 	 */
 	if (get_setting("yaml", &yaml_filename)) {
-		yaml= fopen(yaml_filename, "w");
+		yaml = fopen(yaml_filename, "w");
 		if (!yaml)
 			pr_err("Cannot output YAML data to %s\n", yaml_filename);
 
