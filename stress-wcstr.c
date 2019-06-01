@@ -657,7 +657,7 @@ static int stress_wcs(const args_t *args)
 	stress_wcs_func func;
 	const void *libc_func;
 	bool failed = false;
-	wchar_t str1[STR1LEN], str2[STR2LEN];
+	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	register wchar_t *ptr1, *ptr2;
 	size_t len1, len2;
 
