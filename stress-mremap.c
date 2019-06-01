@@ -71,7 +71,6 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
 	 * in this process if we don't do any memory mappings between
 	 * the munmap above and the remapping
 	 */
-
 	return addr;
 }
 #endif
