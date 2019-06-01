@@ -1021,7 +1021,6 @@ int stress_sighandler(
 		set_altstack = true;
 	}
 #endif
-
 	(void)memset(&new_action, 0, sizeof new_action);
 	new_action.sa_handler = handler;
 	(void)sigemptyset(&new_action.sa_mask);

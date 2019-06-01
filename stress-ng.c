@@ -133,7 +133,15 @@ static const int terminate_signals[] = {
 #if defined(SIGVTALRM)
 	SIGVTALRM,
 #endif
-	-1,
+};
+
+static const int ignore_signals[] = {
+#if defined(SIGUSR1)
+	SIGUSR1,
+#endif
+#if defined(SIGUSR2)
+	SIGUSR2,
+#endif
 };
 
 /*
@@ -2663,7 +2671,7 @@ int main(int argc, char **argv)
 	int32_t sched_prio = UNDEFINED;		/* scheduler priority */
 	int32_t ionice_class = UNDEFINED;	/* ionice class */
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
-	int32_t i;
+	size_t i;
 	uint32_t class = 0;
 	const uint32_t cpus_online = stress_get_processors_online();
 	const uint32_t cpus_configured = stress_get_processors_configured();
@@ -2797,9 +2805,18 @@ int main(int argc, char **argv)
 	/*
 	 *  Enable signal handers
 	 */
-	for (i = 0; terminate_signals[i] != -1; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(terminate_signals); i++) {
 		if (stress_sighandler("stress-ng", terminate_signals[i], handle_terminate, NULL) < 0)
 			exit(EXIT_FAILURE);
+	}
+	/*
+	 *  Ignore other signals
+	 */
+	for (i = 0; i < SIZEOF_ARRAY(ignore_signals); i++) {
+		int ret;
+
+		ret = stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL);
+		(void)ret;	/* We don't care if it fails */
 	}
 
 	/*
