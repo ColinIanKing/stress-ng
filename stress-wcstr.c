@@ -657,6 +657,9 @@ static int stress_wcs(const args_t *args)
 	stress_wcs_func func;
 	const void *libc_func;
 	bool failed = false;
+	wchar_t str1[STR1LEN], str2[STR2LEN];
+	register wchar_t *ptr1, *ptr2;
+	size_t len1, len2;
 
 	/* No wcs* functions available on this system? */
 	if (SIZEOF_ARRAY(wcs_methods) <= 2)
@@ -666,13 +669,28 @@ static int stress_wcs(const args_t *args)
 	func = wcs_method->func;
 	libc_func = wcs_method->libc_func;
 
+	ptr1 = str1;
+	len1 = STR1LEN;
+	ptr2 = str2;
+	len2 = STR2LEN;
+
+	stress_wcs_fill(ptr1, len1);
+
 	do {
-		wchar_t str1[STR1LEN], str2[STR2LEN];
+		register wchar_t *tmpptr;
+		register size_t tmplen;
 
-		stress_wcs_fill(str1, STR1LEN);
 		stress_wcs_fill(str2, STR2LEN);
+		(void)func(libc_func, args->name, str1, len1, str2, len2, &failed);
 
-		(void)func(libc_func, args->name, str1, STR1LEN, str2, STR2LEN, &failed);
+		tmpptr = ptr1;
+		ptr1 = ptr2;
+		ptr2 = tmpptr;
+
+		tmplen = len1;
+		len1 = len2;
+		len2 = tmplen;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
