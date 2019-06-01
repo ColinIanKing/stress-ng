@@ -673,13 +673,13 @@ static int stress_str(const args_t *args)
 	ptr2 = str2;
 	len2 = sizeof(len2);
 
-	stress_strnrnd(ptr1, sizeof(str1));
+	stress_strnrnd(ptr1, len1);
 
 	do {
 		register char *tmpptr;
 		register size_t tmplen;
 
-		stress_strnrnd(ptr2, sizeof(str2));
+		stress_strnrnd(ptr2, len2);
 		(void)func(libc_func, name, ptr1, len1, ptr2, len2, &failed);
 
 		tmpptr = ptr1;
