@@ -80,7 +80,7 @@ static int stress_qsort_cmp_1(const void *p1, const void *p2)
 }
 
 /*
- *  stress_qsort_cmp_1()
+ *  stress_qsort_cmp_2()
  *	qsort comparison - reverse sort on int32 values
  */
 static int stress_qsort_cmp_2(const void *p1, const void *p2)
@@ -89,7 +89,7 @@ static int stress_qsort_cmp_2(const void *p1, const void *p2)
 }
 
 /*
- *  stress_qsort_cmp_1()
+ *  stress_qsort_cmp_3()
  *	qsort comparison - sort on int8 values
  */
 static int stress_qsort_cmp_3(const void *p1, const void *p2)

@@ -89,7 +89,7 @@ static int stress_heapsort_cmp_1(const void *p1, const void *p2)
 }
 
 /*
- *  stress_heapsort_cmp_1()
+ *  stress_heapsort_cmp_2()
  *	heapsort comparison - reverse sort on int32 values
  */
 static int stress_heapsort_cmp_2(const void *p1, const void *p2)
@@ -98,7 +98,7 @@ static int stress_heapsort_cmp_2(const void *p1, const void *p2)
 }
 
 /*
- *  stress_heapsort_cmp_1()
+ *  stress_heapsort_cmp_3()
  *	heapsort comparison - sort on int8 values
  */
 static int stress_heapsort_cmp_3(const void *p1, const void *p2)

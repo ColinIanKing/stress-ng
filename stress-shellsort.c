@@ -80,16 +80,19 @@ static int stress_shellsort_cmp_1(const void *p1, const void *p2)
 }
 
 /*
- *  stress_shellsort_cmp_1()
+ *  stress_shellsort_cmp_2()
  *	shellsort comparison - reverse sort on int32 values
  */
 static int stress_shellsort_cmp_2(const void *p1, const void *p2)
 {
-	return stress_shellsort_cmp_1(p2, p1);
+	const int32_t *i1 = (const int32_t *)p1;
+	const int32_t *i2 = (const int32_t *)p2;
+
+	return *i1 < *i2;
 }
 
 /*
- *  stress_shellsort_cmp_1()
+ *  stress_shellsort_cmp_3()
  *	shellsort comparison - sort on int8 values
  */
 static int stress_shellsort_cmp_3(const void *p1, const void *p2)
