@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "April 22, 2019"
+.TH STRESS-NG 1 "June 1, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2877,6 +2877,15 @@ stop set workers after N bogo set operations.
 specify the size to be copied with each sendfile call. The default size is
 4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
+.TP
+.B \-\-shellsort N
+start N workers that sort 32 bit integers using shellsort.
+.TP
+.B \-\-shellsort\-ops N
+stop shellsort stress workers after N bogo shellsorts.
+.TP
+.B \-\-shellsort\-size N
+specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B \-\-shm N
 start N workers that open and allocate shared memory objects using the POSIX

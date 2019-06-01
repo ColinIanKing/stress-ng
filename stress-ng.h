@@ -1369,6 +1369,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_SEQUENTIAL	(0)	/* Disabled */
 #define DEFAULT_PARALLEL	(0)	/* Disabled */
 
+#define MIN_SHELLSORT_SIZE	(1 * KB)
+#define MAX_SHELLSORT_SIZE	(4 * MB)
+#define DEFAULT_SHELLSORT_SIZE	(256 * KB)
+
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)
 #define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
@@ -1918,6 +1922,7 @@ typedef struct {
 	MACRO(sem_sysv)		\
 	MACRO(sendfile)		\
 	MACRO(set)		\
+	MACRO(shellsort)	\
 	MACRO(shm)		\
 	MACRO(shm_sysv)		\
 	MACRO(sigfd)		\
@@ -2624,6 +2629,10 @@ typedef enum {
 
 	OPT_set,
 	OPT_set_ops,
+
+	OPT_shellsort,
+	OPT_shellsort_ops,
+	OPT_shellsort_integers,
 
 	OPT_shm,
 	OPT_shm_ops,
