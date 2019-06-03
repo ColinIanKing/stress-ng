@@ -287,6 +287,7 @@ static int stress_clone(const args_t *args)
 			clone_max = MIN_ZOMBIES;
 	}
 
+	set_oom_adjustment(args->name, false);
 again:
 	if (!g_keep_stressing_flag)
 		return EXIT_SUCCESS;
