@@ -1335,6 +1335,8 @@ bool stress_check_capability(const int capability)
 #else
 bool stress_check_capability(const int capability)
 {
+	(void)capability;
+
 	return stress_check_root();
 }
 #endif
