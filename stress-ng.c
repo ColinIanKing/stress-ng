@@ -2816,8 +2816,6 @@ int main(int argc, char **argv)
 	 *  Ignore other signals
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(ignore_signals); i++) {
-		int ret;
-
 		ret = stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL);
 		(void)ret;	/* We don't care if it fails */
 	}
