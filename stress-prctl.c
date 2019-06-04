@@ -252,8 +252,6 @@ static int stress_prctl_child(const args_t *args, const pid_t mypid)
 #if defined(PR_SET_MM) &&		\
     defined(PR_SET_MM_ENV_START)
 	{
-		extern char **environ;
-
 		const ptrdiff_t mask = ~(args->page_size - 1);
 		const ptrdiff_t addr = ((ptrdiff_t)environ) & mask;
 
