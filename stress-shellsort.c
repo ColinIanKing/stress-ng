@@ -104,9 +104,9 @@ static int stress_shellsort_cmp_3(const void *p1, const void *p2)
 	return *i1 > *i2;
 }
 
-static inline void *base_index(const void *base, const size_t size, const size_t index)
+static inline const void *base_index(const void *base, const size_t size, const size_t index)
 {
-	return (uint8_t *)base + (size * index);
+	return (const void *)((const uint8_t *)base + (size * index));
 }
 
 static int shellsort32(void *base, size_t nmemb,
