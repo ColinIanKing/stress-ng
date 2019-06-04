@@ -66,11 +66,13 @@ typedef struct {
  */
 static int stress_swap_supported(void)
 {
-        if (geteuid() != 0) {
-		pr_inf("stress-swap stressor needs to be run as root to add/remove swap\n");
-                return -1;
-        }
-        return 0;
+	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf("swap stressor will be skipped, "
+			"need to be running with CAP_SYS_ADMIN "
+			"rights for this stressor\n");
+		return -1;
+	}
+	return 0;
 }
 
 static int stress_swap_zero(

@@ -54,6 +54,13 @@ static int stress_apparmor_supported(void)
 	int fd;
 	char path[PATH_MAX];
 
+	if (!stress_check_capability(SHIM_CAP_MAC_ADMIN)) {
+		pr_inf("apparmor stressor will be skipped, "
+			"need to be running with CAP_SYS_ADMIN "
+			"rights for this stressor\n");
+		return -1;
+	}
+
 	/* Initial sanity checks for AppArmor */
 	if (!aa_is_enabled()) {
 		pr_inf("apparmor stressor will be skipped, "
@@ -72,7 +79,7 @@ static int stress_apparmor_supported(void)
 		switch (errno) {
 		case EACCES:
 			pr_inf("apparmor stressor will be skipped, "
-				"stress-ng needs to be run with root "
+				"stress-ng needs CAP_MAC_ADMIN "
 				"privilege to access AppArmor /sys files.\n");
 			break;
 		case ENOENT:

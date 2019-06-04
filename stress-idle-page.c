@@ -38,6 +38,13 @@ static const help_t help[] = {
  */
 static int stress_idle_page_supported(void)
 {
+
+	if (!stress_check_capability(SHIM_CAP_SYS_RESOURCE)) {
+		pr_inf("idle-page stressor will be skipped, "
+			"need to be running with CAP_SYS_RESOURCE "
+			"rights for this stressor\n");
+		return -1;
+	}
         if (geteuid() != 0) {
                 pr_inf("idle_page stressor will be skipped, "
                         "need to be running as root for this stressor\n");

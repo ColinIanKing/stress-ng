@@ -42,9 +42,10 @@ static const help_t help[] = {
  */
 static int stress_icmp_flood_supported(void)
 {
-	if (geteuid() != 0) {
-		pr_inf("icmp flood stressor will be skipped, "
-			"need to be running as root for this stressor\n");
+	if (!stress_check_capability(SHIM_CAP_NET_RAW)) {
+		pr_inf("icmp-flood stressor will be skipped, "
+			"need to be running with CAP_NET_RAW "
+			"rights for this stressor\n");
 		return -1;
 	}
 	return 0;

@@ -39,12 +39,13 @@ static const help_t help[] = {
  */
 static int stress_softlockup_supported(void)
 {
-        if (geteuid() != 0) {
-		pr_inf("softlockup stressor needs to be run as root to "
-			"set SCHED_RR or SCHED_FIFO priorities, "
-			"skipping this stressor\n");
-                return -1;
-        }
+	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
+		pr_inf("softlockup stressor will be skipped, "
+			"need to be running with CAP_SYS_NICE "
+			"rights for this stressor\n");
+		return -1;
+	}
+	return 0;
         return 0;
 }
 

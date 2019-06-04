@@ -1641,6 +1641,49 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 #endif
 #endif
 
+/* capabilities shim */
+#if defined(CAP_MAC_ADMIN)
+#define SHIM_CAP_MAC_ADMIN	CAP_MAC_ADMIN
+#else
+#define SHIM_CAP_MAC_ADMIN	(0)
+#endif
+
+#if defined(CAP_NET_ADMIN)
+#define SHIM_CAP_NET_ADMIN	CAP_NET_ADMIN
+#else
+#define SHIM_CAP_NET_ADMIN	(0)
+#endif
+
+#if defined(CAP_NET_RAW)
+#define SHIM_CAP_NET_RAW	CAP_NET_RAW
+#else
+#define SHIM_CAP_NET_RAW	(0)
+#endif
+
+#if defined(CAP_SYS_ADMIN)
+#define SHIM_CAP_SYS_ADMIN	CAP_SYS_ADMIN
+#else
+#define SHIM_CAP_SYS_ADMIN	(0)
+#endif
+
+#if defined(CAP_SYS_NICE)
+#define SHIM_CAP_SYS_NICE	CAP_SYS_NICE
+#else
+#define SHIM_CAP_SYS_NICE	(0)
+#endif
+
+#if defined(CAP_SYS_RESOURCE)
+#define SHIM_CAP_SYS_RESOURCE	CAP_SYS_RESOURCE
+#else
+#define SHIM_CAP_SYS_RESOURCE	(0)
+#endif
+
+#if defined(CAP_SYS_TIME)
+#define SHIM_CAP_SYS_TIME	CAP_SYS_TIME
+#else
+#define SHIM_CAP_SYS_TIME	(0)
+#endif
+
 /* stress process prototype */
 typedef int (*stress_func_t)(const args_t *args);
 
@@ -3216,6 +3259,7 @@ extern WARN_UNUSED int stress_drop_capabilities(const char *name);
 extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 extern size_t stress_text_addr(char **start, char **end);
+extern WARN_UNUSED bool stress_check_capability(const int capability);
 
 /*
  *  Indicate a stress test failed because of limited resources

@@ -128,7 +128,7 @@ static int stress_get(const args_t *args)
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
-	const bool is_root = (geteuid() == 0);
+	const bool cap_sys_time = stress_check_capability(SHIM_CAP_SYS_TIME);
 #endif
 #endif
 
@@ -327,7 +327,7 @@ static int stress_get(const args_t *args)
 
 			timexbuf.modes = 0;
 			ret = adjtimex(&timexbuf);
-			if (is_root && verify && (ret < 0))
+			if (cap_sys_time && verify && (ret < 0))
 				pr_fail_err("adjtimex");
 		}
 #endif
@@ -335,7 +335,7 @@ static int stress_get(const args_t *args)
 #if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
-		if (is_root && verify && (ret < 0))
+		if (cap_sys_time && verify && (ret < 0))
 			pr_fail_err("adjtime");
 #endif
 

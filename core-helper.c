@@ -1291,6 +1291,54 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	return str;
 }
 
+/*
+ *  stress_check_root()
+ *	returns true if root
+ */
+static bool stress_check_root(void)
+{
+	return (geteuid() == 0);
+}
+
+#if defined(HAVE_SYS_CAPABILITY_H)
+/*
+ *  stress_check_capability()
+ *	returns true if process has the given capability,
+ *	if capability is 0 then just check if process is
+ *	root.
+ */
+bool stress_check_capability(const int capability)
+{
+	int ret;
+	struct __user_cap_header_struct uch;
+	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
+	uint32_t idx, mask;
+
+	if (capability == 0)
+		return stress_check_root();
+
+	(void)memset(&uch, 0, sizeof uch);
+	(void)memset(ucd, 0, sizeof ucd);
+
+	uch.version = _LINUX_CAPABILITY_VERSION_3;
+	uch.pid = getpid();
+
+	ret = capget(&uch, ucd);
+	if (ret < 0)
+		return stress_check_root();
+
+	idx = CAP_TO_INDEX(capability);
+	mask = CAP_TO_MASK(capability);
+
+	return (ucd[idx].permitted &= mask) ? true : false;
+}
+#else
+bool stress_check_capability(const capability)
+{
+	return stress_check_root();
+}
+#endif
+
 #if defined(HAVE_SYS_CAPABILITY_H)
 int stress_drop_capabilities(const char *name)
 {
