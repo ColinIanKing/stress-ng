@@ -1333,7 +1333,7 @@ bool stress_check_capability(const int capability)
 	return (ucd[idx].permitted &= mask) ? true : false;
 }
 #else
-bool stress_check_capability(const capability)
+bool stress_check_capability(const int capability)
 {
 	return stress_check_root();
 }
