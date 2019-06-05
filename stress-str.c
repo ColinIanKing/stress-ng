@@ -671,7 +671,7 @@ static int stress_str(const args_t *args)
 	ptr1 = str1;
 	len1 = sizeof(str1);
 	ptr2 = str2;
-	len2 = sizeof(len2);
+	len2 = sizeof(str2);
 
 	stress_strnrnd(ptr1, len1);
 
