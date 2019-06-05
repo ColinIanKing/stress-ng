@@ -134,6 +134,7 @@ static void stress_mmap_mprotect(
 	(void)name;
 	(void)addr;
 	(void)len;
+	(void)mmap_mprotect;
 #endif
 }
 
