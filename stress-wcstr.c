@@ -680,7 +680,7 @@ static int stress_wcs(const args_t *args)
 		register wchar_t *tmpptr;
 		register size_t tmplen;
 
-		stress_wcs_fill(str2, STR2LEN);
+		stress_wcs_fill(str2, len2);
 		(void)func(libc_func, args->name, str1, len1, str2, len2, &failed);
 
 		tmpptr = ptr1;
