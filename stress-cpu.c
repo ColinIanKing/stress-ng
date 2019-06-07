@@ -109,7 +109,7 @@ typedef struct {
 static const help_t help[] = {
 	{ "c N", "cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
-	{ "l P", "cpu-load P",		"load CPU by P %%, 0=sleep, 100=full load (see -c)" },
+	{ "l P", "cpu-load P",		"load CPU by P %, 0=sleep, 100=full load (see -c)" },
 	{ NULL,	 "cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,  "cpu-method M",	"specify stress cpu method M, default is all" },
 	{ NULL,	 NULL,			NULL }

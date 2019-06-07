@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 static const help_t help[] = {
-	{ NULL,	"spawn",	"start N workers spawning stress-ng using posix_spawn" },
+	{ NULL,	"spawn N",	"start N workers spawning stress-ng using posix_spawn" },
 	{ NULL,	"spawn-ops N",	"stop after N spawn bogo operations" },
 	{ NULL,	NULL,		NULL }
 };

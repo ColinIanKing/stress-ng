@@ -25,9 +25,9 @@
 #include "stress-ng.h"
 
 static const help_t help[] = {
-	{ NULL,	"apparmor",	"start N workers exercising AppArmor interfaces" },
-	{ NULL,	"apparmor-ops",	"stop after N bogo AppArmor worker bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"apparmor",	  "start N workers exercising AppArmor interfaces" },
+	{ NULL,	"apparmor-ops N", "stop after N bogo AppArmor worker bogo operations" },
+	{ NULL,	NULL,		  NULL }
 };
 
 #if defined(HAVE_APPARMOR) &&		\

@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 static const help_t help[] = {
-	{ NULL,	"dev-shm",	"start N /dev/shm file and mmap stressors" },
-	{ NULL,	"dev-shm-ops",	"stop after N /dev/shm bogo ops" },
+	{ NULL,	"dev-shm N",	"start N /dev/shm file and mmap stressors" },
+	{ NULL,	"dev-shm-ops N","stop after N /dev/shm bogo ops" },
 	{ NULL,	NULL,		NULL }
 };
 

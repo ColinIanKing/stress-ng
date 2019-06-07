@@ -885,7 +885,7 @@ static const help_t help_generic[] = {
 	{ NULL,		"syslog",		"log messages to the syslog" },
 #endif
 	{ NULL,		"taskset",		"use specific CPUs (set CPU affinity)" },
-	{ NULL,		"temp-path",		"specify path for temporary directories and files" },
+	{ NULL,		"temp-path path",	"specify path for temporary directories and files" },
 	{ NULL,		"thrash",		"force all pages in causing swap thrashing" },
 	{ "t N",	"timeout T",		"timeout after T seconds" },
 	{ NULL,		"timer-slack",		"enable timer slack mode" },
@@ -897,8 +897,8 @@ static const help_t help_generic[] = {
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
-	{ "Y",		"yaml",			"output results to YAML formatted filed" },
-	{ "x",		"exclude",		"list of stressors to exclude (not run)" },
+	{ "Y",		"yaml file",		"output results to YAML formatted filed" },
+	{ "x",		"list",			"list of stressors to exclude (not run)" },
 	{ NULL,		NULL,			NULL }
 };
 

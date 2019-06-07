@@ -26,7 +26,7 @@
 
 static const help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
-	{ NULL,	"memrate-ops",		"stop after N memrate bogo operations" },
+	{ NULL,	"memrate-ops N",	"stop after N memrate bogo operations" },
 	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },
 	{ NULL,	"memrate-rd-mbs N",	"read rate from buffer in megabytes per second" },
 	{ NULL,	"memrate-wr-mbs N",	"write rate to buffer in megabytes per second" },

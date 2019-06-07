@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 static const help_t help[] = {
-	{ NULL,	"dev",		"start N device entry thrashing stressors" },
-	{ NULL,	"dev-ops",	"stop after N device thrashing bogo ops" },
+	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
+	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
 	{ NULL,	NULL,		NULL }
 };
 
