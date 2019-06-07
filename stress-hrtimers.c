@@ -194,15 +194,17 @@ static int stress_hrtimers(const args_t *args)
 
 reap:
 	for (i = 0; i < PROCS_MAX; i++) {
+		if (pids[i] > 0)
+			(void)kill(pids[i], SIGALRM);
+	}
+	for (i = 0; i < PROCS_MAX; i++) {
 		if (pids[i] > 0) {
 			int status, ret;
 
-			(void)kill(pids[i], SIGALRM);
 			ret = shim_waitpid(pids[i], &status, 0);
 			(void)ret;
 		}
 	}
-
 
 	(void)munmap((void *)counters, sz);
 
