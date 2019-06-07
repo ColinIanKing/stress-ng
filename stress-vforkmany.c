@@ -103,11 +103,14 @@ fork_again:
 			if (waste != MAP_FAILED)
 				break;
 
+			if (!g_keep_stressing_flag)
+				_exit(0);
+
 			waste_size >>= 1;
 		} while (waste_size > 4096);
 
 		if (waste != MAP_FAILED)
-			(void)memset(waste, 0, WASTE_SIZE);
+			(void)mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 		do {
 			/*
 			 *  Force pid to be a register, if it's
@@ -149,12 +152,8 @@ PRAGMA_POP
 				if (!first)
 					_exit(0);
 			} else if (pid == 0) {
-				if (waste != MAP_FAILED) {
-					register size_t i;
-
-					for (i = 0; i < WASTE_SIZE; i += 4096)
-						waste[i] = 0;
-				}
+				if (waste != MAP_FAILED)
+					(void)mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 
 				/* child, parent is blocked, spawn new child */
 				if (!args->max_ops || get_counter(args) < args->max_ops)
