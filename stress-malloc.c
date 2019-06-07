@@ -199,7 +199,7 @@ again:
 					tmp = realloc(addr[i], len);
 					if (tmp) {
 						addr[i] = tmp;
-						(void)mincore_touch_pages(addr[i], len);
+						(void)mincore_touch_pages_interruptible(addr[i], len);
 						inc_counter(args);
 					}
 				}
@@ -217,7 +217,7 @@ again:
 					}
 					if (addr[i]) {
 						inc_counter(args);
-						(void)mincore_touch_pages(addr[i], len);
+						(void)mincore_touch_pages_interruptible(addr[i], len);
 					}
 				}
 			}

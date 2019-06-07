@@ -3315,6 +3315,7 @@ extern WARN_UNUSED int parse_opts(int argc, char **argv, const bool jobmode);
 /* Memory tweaking */
 extern int madvise_random(void *addr, const size_t length);
 extern int mincore_touch_pages(void *buf, const size_t buf_len);
+extern int mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
 
 /* Mounts */
 extern void mount_free(char *mnts[], const int n);

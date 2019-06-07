@@ -203,7 +203,7 @@ again:
 					{
 						static uint8_t stack[MAX_RLIMIT_STACK];
 
-						mincore_touch_pages(stack, MAX_RLIMIT_STACK);
+						mincore_touch_pages_interruptible(stack, MAX_RLIMIT_STACK);
 					}
 					break;
 				case 4:

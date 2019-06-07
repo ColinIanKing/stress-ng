@@ -31,29 +31,47 @@
 static void mincore_touch_pages_slow(
 	void *buf,
 	const size_t n_pages,
-	const size_t page_size)
+	const size_t page_size,
+	const bool interruptible)
 {
 	size_t i;
 	volatile char *buffer;
 
-	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
-		(*buffer)++;
-	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
-		(*buffer)--;
+	if (interruptible) {
+		for (buffer = buf, i = 0; g_keep_stressing_flag &&
+		     (i < n_pages); i++, buffer += page_size) {
+			(*buffer)++;
+		}
+		for (buffer = buf, i = 0; g_keep_stressing_flag &&
+		     (i < n_pages); i++, buffer += page_size) {
+			(*buffer)--;
+		}
+	} else {
+		for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size) {
+			(*buffer)++;
+		}
+		for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size) {
+			(*buffer)--;
+		}
+	}
 }
 
 /*
- * mincore_touch_pages()
- *	touch a range of pages, ensure they are all in memory
+ * mincore_touch_pages_generic()
+ *	touch a range of pages, ensure they are all in memory,
+ *	can be interrupted if interruptible is true
  */
-int mincore_touch_pages(void *buf, const size_t buf_len)
+static int mincore_touch_pages_generic(
+	void *buf,
+	const size_t buf_len,
+	const bool interruptible)
 {
 	const size_t page_size = stress_get_pagesize();
 	const size_t n_pages = buf_len / page_size;
 
 #if !defined(HAVE_MINCORE)
 	/* systems that don't have mincore */
-	mincore_touch_pages_slow(buf, n_pages, page_size);
+	mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 	return 0;
 #else
 	/* systems that support mincore */
@@ -69,7 +87,7 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 
 	vec = calloc(n_pages, 1);
 	if (!vec) {
-		mincore_touch_pages_slow(buf, n_pages, page_size);
+		mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 		return 0;
 	}
 
@@ -79,20 +97,56 @@ int mincore_touch_pages(void *buf, const size_t buf_len)
 	if (shim_mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
 
-		mincore_touch_pages_slow(buf, n_pages, page_size);
+		mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 		return 0;
 	}
 
-	/* If page is not resident in memory, touch it */
-	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
-		if (!(vec[i] & 1))
-			(*buffer)++;
+	if (interruptible) {
+		/* If page is not resident in memory, touch it */
+		for (buffer = buf, i = 0; g_keep_stressing_flag &&
+		     (i < n_pages); i++, buffer += page_size) {
+			if (!(vec[i] & 1))
+				(*buffer)++;
+		}
 
-	/* And restore contents */
-	for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size)
-		if (!(vec[i] & 1))
-			(*buffer)--;
+		/* And restore contents */
+		for (buffer = buf, i = 0; g_keep_stressing_flag &&
+		     (i < n_pages); i++, buffer += page_size) {
+			if (!(vec[i] & 1))
+				(*buffer)--;
+		}
+	} else {
+		/* If page is not resident in memory, touch it */
+		for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size) {
+			if (!(vec[i] & 1))
+				(*buffer)++;
+		}
+
+		/* And restore contents */
+		for (buffer = buf, i = 0; i < n_pages; i++, buffer += page_size) {
+			if (!(vec[i] & 1))
+				(*buffer)--;
+		}
+	}
 	free(vec);
 	return 0;
 #endif
+}
+
+/*
+ *  mincore_touch_pages()
+ *	touch a range of pages, ensure they are all in memory, non-interruptible
+ */
+int mincore_touch_pages(void *buf, const size_t buf_len)
+{
+	return mincore_touch_pages_generic(buf, buf_len, false);
+}
+
+/*
+ *  mincore_touch_pages()
+ *	touch a range of pages, ensure they are all in memory, interruptible
+ */
+int mincore_touch_pages_interruptible(void *buf, const size_t buf_len)
+{
+	return mincore_touch_pages_generic(buf, buf_len, true);
 }
