@@ -179,7 +179,9 @@ static void NORETURN waste_resources(
 		info[i].pipe_ret = -1;
 		info[i].fd_open = -1;
 		info[i].fd_ev = -1;
+#if defined(HAVE_MEMFD_CREATE)
 		info[i].fd_memfd = -1;
+#endif
 		info[i].fd_sock = -1;
 		info[i].fd_socketpair[0] = -1;
 		info[i].fd_socketpair[1] = -1;
