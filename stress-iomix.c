@@ -499,9 +499,16 @@ static void stress_iomix_rd_bytes(
  *  stress_iomix_inode_ioctl()
  *	attempt to set and unset a file based inode flag
  */
-static void stress_iomix_inode_ioctl(const int fd, const int flag, bool *ok)
+static void stress_iomix_inode_ioctl(
+	const args_t *args,
+	const int fd,
+	const int flag,
+	bool *ok)
 {
 	int ret, attr;
+
+	if (!keep_stressing())
+		return;
 
 #if defined(FS_IOC_GETFLAGS)
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
@@ -538,37 +545,37 @@ static void stress_iomix_inode_flags(
 	do {
 		bool ok = false;
 #if defined(FS_APPEND_FL)
-		stress_iomix_inode_ioctl(fd, FS_APPEND_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_APPEND_FL, &ok);
 #endif
 #if defined(FS_COMPR_FL)
-		stress_iomix_inode_ioctl(fd, FS_COMPR_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_COMPR_FL, &ok);
 #endif
 #if defined(FS_IMMUTABLE_FL)
-		stress_iomix_inode_ioctl(fd, FS_IMMUTABLE_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_IMMUTABLE_FL, &ok);
 #endif
 #if defined(FS_JOURNAL_DATA_FL)
-		stress_iomix_inode_ioctl(fd, FS_JOURNAL_DATA_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_JOURNAL_DATA_FL, &ok);
 #endif
 #if defined(FS_NOATIME_FL)
-		stress_iomix_inode_ioctl(fd, FS_NOATIME_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_NOATIME_FL, &ok);
 #endif
 #if defined(FS_NOCOW_FL)
-		stress_iomix_inode_ioctl(fd, FS_NOCOW_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_NOCOW_FL, &ok);
 #endif
 #if defined(FS_NODUMP_FL)
-		stress_iomix_inode_ioctl(fd, FS_NODUMP_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_NODUMP_FL, &ok);
 #endif
 #if defined(FS_NOTAIL_FL)
-		stress_iomix_inode_ioctl(fd, FS_NOTAIL_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_NOTAIL_FL, &ok);
 #endif
 #if defined(FS_SECRM_FL)
-		stress_iomix_inode_ioctl(fd, FS_SECRM_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_SECRM_FL, &ok);
 #endif
 #if defined(FS_SYNC_FL)
-		stress_iomix_inode_ioctl(fd, FS_SYNC_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_SYNC_FL, &ok);
 #endif
 #if defined(FS_UNRM_FL)
-		stress_iomix_inode_ioctl(fd, FS_UNRM_FL, &ok);
+		stress_iomix_inode_ioctl(args, fd, FS_UNRM_FL, &ok);
 #endif
 		if (!ok)
 			_exit(EXIT_SUCCESS);
