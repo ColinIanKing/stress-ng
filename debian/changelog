@@ -1,3 +1,79 @@
+stress-ng (0.09.59-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Add bash completion script
+  * Fix up missing options args on help for various stressors
+  * stress-fcntl: ignore EINTR as a failed error return
+  * stress-iomix: add yield point in ioctl exercising
+  * stress-resources: add missing ifdef guard on fd_memfd
+  * stress-resources: add more yield points
+  * stress-ioprio: add more yield points
+  * stress-inode-flags: add another yield point check per ioctl
+  * stress-hrtimes: optimize the reaping process of child processes
+  * stress-vfork: improve vforkmany stressor yielding
+  * stress-dnotify: make dnotify wait loop yield
+  * Add more yield points when touching pages with mincore_touch_pages
+  * stress-bad-altstack: fix inverted logic of yield checks
+  * stress-bad-altstack: add some more yield points
+  * stress-yield: clarify yielder task types
+  * stress-mmap: voidify unused argument mmap_mprotect
+  * stress-str: fix incorrect size for str2
+  * stress-wcs: fill string with random characters to the correct length
+  * stress-shellsort: remove base_index helper function
+  * stress-shellsort: correctly constify return from base_index()
+  * remove declaration of ret, it shadows a higher scoped declaration
+  * stress-prct: remove environ declaration, it is defined int unistd.h
+  * core-helper: voidify unused capability argument
+  * Revert "stress-vecmath: align data to cache boundary and copy on
+    initialization"
+  * core-helper: fix missing int type in stress_check_capability
+    declaration
+  * check for capabilities rather than if euid is zero
+  * stress-clone: make parent of clone'd processes less oomable
+  * stress-vecmath: align data to cache boundary and copy on
+    initialization
+  * sorting: fix comments of sorting functions
+  * Add shell sort CPU/memory stressor
+  * stress-wcstr: cache align start of wide strings
+  * stress-wcstr: remove a string randomization, exercises wcstr
+    functions more
+  * stress-str: use len1, len2 for string lengths
+  * stress-mremap: remove empty line
+  * Add in missing white space
+  * Ignore SIGUSR1, don't let it stop stressing
+  * core-job: fix optind check, should only check for non --job options
+  * jobs: parse jobfile name from correct argv[] location
+  * stress-pidfd: replace goto's with continues
+  * stress-poll: replace redo goto with a for-loop
+  * stress-prctl: also exercise PR_SET_PTRACER
+  * stress-prlimit: add more PR_SET_MM exercising
+  * stress-prctl: pass correct zero flags on PR_SET_MM_BRK
+  * stress-str: remove an string randomization, exercises str
+    functions more
+  * stress-bad-altstack: install signal handler in child as early as
+    possible (LP: #1830856)
+  * stress-netdev: add in missing ioctls to exercise
+  * stress-seccomp: add maximum seccomp bpf filter stress
+  * Add --msg-types to manual
+  * stress-mq: remove an unnecessary assignment
+  * stress-mq: remove stop flag, just kill child to remove complexity
+  * stress-msg: remove need for magic stop message, just kill child
+    instead
+  * stress-msg: make message 4 bytes, cache align it to get more
+    throughput
+  * stress-shm: voidify memset return
+  * stress-enosys: replace multiple if statements with loop
+  * stress-cyclic: refactor some code
+  * stress-cyclic: add less accurate usleep sleep delays
+  * zlib: add lrand48 data source zlib method
+  * stress-funccall: rename funcall -> funccall
+  * stress-clone: make parent of the clones child processes an OOMable
+    target (LP: #1828788)
+  * Add pass by value function return funcret stress tests
+  * stress-fault: make minor page faults more stressy
+
+ -- Colin King <colin.king@canonical.com>  Fri, 7 Jun 2019 17:01:02 +0100
+
 stress-ng (0.09.58-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version once more
