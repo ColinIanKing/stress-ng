@@ -75,6 +75,8 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;
 			}
 		}
+		if (!keep_stressing())
+			break;
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
 			if (errno != EINVAL) {
 				pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, 0), "
@@ -83,6 +85,8 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;
 			}
 		}
+		if (!keep_stressing())
+			break;
 #if defined(HAVE_GETPGRP)
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
 			if (errno != EINVAL) {
@@ -92,6 +96,8 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;	
 			}
 		}
+		if (!keep_stressing())
+			break;
 #endif
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
 			if (errno != EINVAL) {
@@ -101,6 +107,8 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;
 			}
 		}
+		if (!keep_stressing())
+			break;
 		if (shim_ioprio_get(IOPRIO_WHO_USER, uid) < 0) {
 			if (errno != EINVAL) {
 				pr_fail("%s: ioprio_get(OPRIO_WHO_USR, %d), "
@@ -109,6 +117,8 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;
 			}
 		}
+		if (!keep_stressing())
+			break;
 
 		for (i = 0; i < MAX_IOV; i++) {
 			(void)memset(buffer[i], mwc8(), BUF_SIZE);
@@ -120,7 +130,11 @@ static int stress_ioprio(const args_t *args)
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
+		if (!keep_stressing())
+			break;
 		(void)shim_fsync(fd);
+		if (!keep_stressing())
+			break;
 
 		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
@@ -133,12 +147,18 @@ static int stress_ioprio(const args_t *args)
 				goto cleanup_file;
 			}
 		}
+		if (!keep_stressing())
+			break;
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
+		if (!keep_stressing())
+			break;
 		(void)shim_fsync(fd);
+		if (!keep_stressing())
+			break;
 
 		for (i = 0; i < 8; i++) {
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
@@ -158,6 +178,8 @@ static int stress_ioprio(const args_t *args)
 			}
 			(void)shim_fsync(fd);
 		}
+		if (!keep_stressing())
+			break;
 		for (i = 0; i < 8; i++) {
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_RT, i)) < 0) {
