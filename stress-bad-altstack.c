@@ -140,15 +140,21 @@ again:
 				ret = mprotect(stack, stack_sz, PROT_NONE);
 				if (ret == 0)
 					break;
+				if (keep_stressing())
+					break;
 				CASE_FALLTHROUGH;
 			case 2:
 				ret = mprotect(stack, stack_sz, PROT_READ);
 				if (ret == 0)
 					break;
+				if (keep_stressing())
+					break;
 				CASE_FALLTHROUGH;
 			case 3:
 				ret = mprotect(stack, stack_sz, PROT_EXEC);
 				if (ret == 0)
+					break;
+				if (keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 #endif
@@ -156,10 +162,14 @@ again:
 				ret = stress_sigaltstack(NULL, SIGSTKSZ);
 				if (ret == 0)
 					break;
+				if (keep_stressing())
+					break;
 				CASE_FALLTHROUGH;
 			case 5:
 				ret = stress_sigaltstack(stress_segv_handler, SIGSTKSZ);
 				if (ret == 0)
+					break;
+				if (keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 			case 6:
