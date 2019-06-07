@@ -63,6 +63,7 @@ endif
 BINDIR=/usr/bin
 MANDIR=/usr/share/man/man1
 JOBDIR=/usr/share/stress-ng/example-jobs
+BASHDIR=/usr/share/bash-completion/completions
 
 #
 #  Stressors
@@ -449,3 +450,5 @@ install: stress-ng stress-ng.1.gz
 	cp stress-ng.1.gz ${DESTDIR}${MANDIR}
 	mkdir -p ${DESTDIR}${JOBDIR}
 	cp -rp example-jobs/*.job ${DESTDIR}${JOBDIR}
+	mkdir -p ${DESTDIR}${BASHDIR}
+	cp bash-completion/stress-ng ${DESTDIR}${BASHDIR}

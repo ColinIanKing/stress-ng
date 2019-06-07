@@ -1,0 +1,126 @@
+#!/bin/bash
+#
+# stress-ng tab completion for bash.
+#
+# Copyright (C) 2019 Canonical
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+_stress_ng()
+{
+	local cur prev
+
+	cur=${COMP_WORDS[COMP_CWORD]}
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	COMREPLY=()
+
+	case $prev in
+        '--class')
+                local classes=$($1 --class which 2>&1 | cut -d':' -f3)
+                COMPREPLY=( $(compgen -W "$classes" -- $cur) )
+                compopt -o nosort
+                return 0
+                ;;
+        '--ionice-class')
+                local classes=$($1 --ionice-class which 2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$classes" -- $cur) )
+                return 0
+                ;;
+        '--ionice-level')
+                COMPREPLY=( $(compgen -W "0 1 2 3 4 5 6 7" -- $cur) )
+                return 0
+                ;;
+	'--job' | '--logfile' | '--yam')
+                COMPREPLY=( $(compgen -f -d $cur) )
+                return 0
+                ;;
+        '--sched')
+                local classes=$($1 --sched which 2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$classes" -- $cur) )
+                return 0
+                ;;
+	'--temp-path')
+                COMPREPLY=( $(compgen -o plusdirs $cur) )
+                return 0
+                ;;
+	'--exclude')
+		local stressors=$($1 --stressors)
+                COMPREPLY=( $(compgen -W "$stressors" $cur) )
+                return 0
+                ;;
+        '--zlib-level')
+                COMPREPLY=( $(compgen -W "0 1 2 3 4 5 6 7 8 9" -- $cur) )
+                return 0
+                ;;
+	'--cpu-method' | '--cyclic-method' | '--funccall-method' |\
+	'--funcret-method' |\
+	'--matrix-method' | '--matrix-3d-method' | '--memcpy-method' |\
+	'--memthrash-method' | '--opcode-method' | '--rawdev-method' |\
+	'--str-method' | '--tree-method' | '--vm-method' |\
+	'--wcs-method' | '--zlib-method' | '--cyclic-policy')
+                local methods=$($1 $prev which 2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$methods" -- $cur) )
+                return 0
+                ;;
+	'--dccp-domain' | '--epoll-domain' | '--sctp-domain' |\
+	'--sock-domain' | '--udp-domain' | '--udp-flood-domain')
+                local domains=$($1 $prev which 2>&1 | cut -d':' -f3)
+                COMPREPLY=( $(compgen -W "$domains" -- $cur) )
+                return 0
+                ;;
+	'--dccp-opts' | '--filename-opts' | '--hdd-opts' | '--sock-opts' |\
+	'--sock-type')
+                local options=$($1 $prev which 2>&1 | cut -d':' -f2 | sed 's/,//g')
+                COMPREPLY=( $(compgen -W "$options" -- $cur) )
+                return 0
+                ;;
+	'--dentry-order')
+                local options=$($1 $prev which 2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$options" -- $cur) )
+                return 0
+                ;;
+	esac
+
+	case "$cur" in
+	#
+	# args without further options
+	# 
+	'--abort' | '--aggressive' | '--dry-run' | '--help' | '--ignite-cpu' |\
+	'--keep-name' | '--log-brief' | '--maximize' | '--metrics' |\
+	'--metrics-brief' | '--minimize' | '--no-madvise' | '--no-rand-seed' |\
+	'--page-in' | '--pathological' | '--perf' | '--quiet' | '--stressors' |\
+	'--syslog' | '--taskset' | '--thrash' | '--timer-slack' | '--times' |\
+	'--timestamp' | '--tz' | '--verbose' | '--version' |\
+	'--affinity-rand' | '--brk-notouch' | '--cache-prefetch' |\
+	'--cache-flush' | '--cache-fence' | '--itimer-rand' |\
+	'--lockf-nonblock' | '--matrix-yx' | '--matrix-3d-zyx' |\
+	'--mincore-random' | '--mmap-async' | '--mmap-file' |\
+	'--mmap-mprotect' | '--seek-punch' | '--stack-fill' |\
+	'--stream-index' | '--timer-rand' | '--timerfd-rand' |\
+	'--tmpfs-mmap-async' | '--tmpfs-mmap-file' | '--udp-lite' |\
+	'--utime-fsync' | '--vm-keep' | '--vm-locked' | '--vm-populate')
+		return 0
+		;;
+	-*)
+		local options=$( _parse_help "$1" --help )
+    		COMPREPLY=( $( compgen -W "${all_tests} ${options}" -- "$cur" ) )
+		return 0;
+		;;
+	esac
+	return 0
+}
+
+# load the completion
+complete -F _stress_ng stress-ng
