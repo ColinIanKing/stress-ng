@@ -59,7 +59,7 @@ static const help_t help[] = {
 static void check_return(const args_t *args, const int ret, const char *cmd)
 {
 	if (ret < 0) {
-		if (errno != EINVAL) {
+		if ((errno != EINVAL) && (errno != EINTR)) {
 			pr_fail("%s: fcntl %s failed: "
 				"errno=%d (%s)\n",
 				args->name, cmd, errno, strerror(errno));
