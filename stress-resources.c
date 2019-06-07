@@ -174,6 +174,60 @@ static void NORETURN waste_resources(
 #if defined(HAVE_MEMFD_CREATE)
 		char name[32];
 #endif
+		info[i].m_malloc = NULL;
+		info[i].m_mmap = MAP_FAILED;
+		info[i].pipe_ret = -1;
+		info[i].fd_open = -1;
+		info[i].fd_ev = -1;
+		info[i].fd_memfd = -1;
+		info[i].fd_sock = -1;
+		info[i].fd_socketpair[0] = -1;
+		info[i].fd_socketpair[1] = -1;
+#if defined(HAVE_USERFAULTFD)
+		info[i].fd_uf = -1;
+#endif
+#if defined(O_TMPFILE)
+		info[i].fd_tmp = -1;
+#endif
+#if defined(HAVE_LIB_PTHREAD)
+		info[i].pthread_ret = 0;
+#endif
+
+#if defined(HAVE_LIB_RT) &&		\
+    defined(HAVE_TIMER_CREATE) &&	\
+    defined(HAVE_TIMER_DELETE) &&	\
+    defined(SIGUNUSED)
+		info[i].timerok = false;
+#endif
+#if defined(HAVE_SYS_INOTIFY)
+		info[i].wd_inotify = -1;
+		info[i].fd_inotify = -1;
+#endif
+#if defined(HAVE_PTSNAME)
+		info[i].pty_slave = -1;
+		info[i].pty_master = -1;
+#endif
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(HAVE_SEM_POSIX)
+		info[i].semok = false;
+#endif
+#if defined(HAVE_SEM_SYSV)
+		info[i].sem_id = -1;
+#endif
+#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(HAVE_SYS_MSG_H)
+		info[i].msgq_id = -1;
+#endif
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_MQ_POSIX) &&	\
+    defined(HAVE_MQUEUE_H)
+		info[i].mq = -1;
+#endif
+#if defined(HAVE_PKEY_ALLOC) &&	\
+    defined(HAVE_PKEY_FREE)
+		info[i].pkey = -1;
+#endif
+		info[i].pid  = 1;
+
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 		if ((shmall + freemem + totalmem > 0) &&
@@ -200,7 +254,7 @@ static void NORETURN waste_resources(
 				size_t locked = STRESS_MINIMUM(mlock_size, info[i].m_mmap_size);
 
 				(void)madvise_random(info[i].m_mmap, info[i].m_mmap_size);
-				mincore_touch_pages(info[i].m_mmap, info[i].m_mmap_size);
+				mincore_touch_pages_interruptible(info[i].m_mmap, info[i].m_mmap_size);
 				if (locked > 0) {
 					shim_mlock(info[i].m_mmap, locked);
 					mlock_size -= locked;
@@ -323,24 +377,29 @@ static void NORETURN waste_resources(
 			info[i].wd_inotify = -1;
 		}
 #endif
+		if (!g_keep_stressing_flag)
+			break;
 #if defined(HAVE_PTSNAME)
-		{
-			info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
-			info[i].pty_slave = -1;
-			if (info[i].pty_master >= 0) {
-				const char *slavename = ptsname(info[i].pty_master);
+		info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
+		info[i].pty_slave = -1;
+		if (info[i].pty_master >= 0) {
+			const char *slavename = ptsname(info[i].pty_master);
 
-				if (slavename)
-					info[i].pty_slave = open(slavename, O_RDWR | flag);
-			}
+			if (slavename)
+				info[i].pty_slave = open(slavename, O_RDWR | flag);
 		}
+		if (!g_keep_stressing_flag)
+			break;
 #endif
 
 #if defined(HAVE_LIB_PTHREAD)
-		if (!i)
+		if (!i) {
 			info[i].pthread_ret =
 				pthread_create(&info[i].pthread, NULL,
 					stress_pthread_func, NULL);
+			if (!g_keep_stressing_flag)
+				break;
+		}
 #endif
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -355,18 +414,24 @@ static void NORETURN waste_resources(
 			sevp.sigev_value.sival_ptr = &info[i].timerid;
 			info[i].timerok =
 				(timer_create(CLOCK_REALTIME, &sevp, &info[i].timerid) == 0);
+			if (!g_keep_stressing_flag)
+				break;
 		}
 #endif
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
+		if (!g_keep_stressing_flag)
+			break;
 #endif
 
 #if defined(HAVE_SEM_SYSV)
 		key_t sem_key = (key_t)mwc32();
 		info[i].sem_id = semget(sem_key, 1,
 			IPC_CREAT | S_IRUSR | S_IWUSR);
+		if (!g_keep_stressing_flag)
+			break;
 #endif
 
 #if defined(HAVE_MQ_SYSV) &&	\
@@ -374,6 +439,8 @@ static void NORETURN waste_resources(
     defined(HAVE_SYS_MSG_H)
 		info[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
+		if (!g_keep_stressing_flag)
+			break;
 #endif
 
 #if defined(HAVE_LIB_RT) &&	\
@@ -391,6 +458,8 @@ static void NORETURN waste_resources(
 
 		info[i].mq = mq_open(info[i].mq_name,
 			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
+		if (!g_keep_stressing_flag)
+			break;
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
@@ -402,6 +471,8 @@ static void NORETURN waste_resources(
 			sleep(10);
 			_exit(0);
 		}
+		if (!g_keep_stressing_flag)
+			break;
 	}
 
 	n = i;
