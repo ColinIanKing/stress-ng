@@ -54,7 +54,7 @@ static void stress_inode_flags_ioctl(
 {
 	int ret, attr;
 
-	if (!keep_stressing())
+	if (!(keep_running || keep_stressing()))
 		return;
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
