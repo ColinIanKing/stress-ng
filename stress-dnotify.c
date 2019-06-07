@@ -113,6 +113,8 @@ static void dnotify_exercise(
 
 	/* Wait for up to 1 second for event */
 	while ((i < 1000) && (dnotify_fd == -1)) {
+		if (!g_keep_stressing_flag)
+			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
 	}
