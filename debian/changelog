@@ -1,3 +1,10 @@
+stress-ng (0.09.59.1-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-wcs: fix segfault because of using incorrect string pointer
+
+ -- Colin King <colin.king@canonical.com>  Sat, 8 Jun 2019 19:39:12 +0100
+
 stress-ng (0.09.59-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
