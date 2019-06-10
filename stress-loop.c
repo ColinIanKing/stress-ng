@@ -84,7 +84,12 @@ static int stress_loop(const args_t *args)
 		int i;
 		long dev_num;
 		char dev_name[PATH_MAX];
+#if defined(LOOP_GET_STATUS)
 		struct loop_info info;
+#endif
+#if defined(LOOP_GET_STATUS64)
+		struct loop_info64 info64;
+#endif
 
 		/*
 		 *  Open loop control device
@@ -132,6 +137,24 @@ static int stress_loop(const args_t *args)
 		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
 #if defined(LOOP_SET_STATUS)
 		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
+		(void)ret;
+#endif
+#endif
+
+#if defined(LOOP_GET_STATUS64)
+		/*
+		 *  Fetch loop device status information
+		 */
+		ret = ioctl(loop_dev, LOOP_GET_STATUS64, &info64);
+		if (ret < 0)
+			goto clr_loop;
+
+		/*
+		 *  Try to set some flags
+		 */
+		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
+#if defined(LOOP_SET_STATUS64)
+		ret = ioctl(loop_dev, LOOP_SET_STATUS64, &info64);
 		(void)ret;
 #endif
 #endif
