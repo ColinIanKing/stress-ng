@@ -208,6 +208,7 @@ STRESS_SRC = \
 	stress-qsort.c \
 	stress-radixsort.c \
 	stress-rawdev.c \
+	stress-rawsock.c \
 	stress-rdrand.c \
 	stress-readahead.c \
 	stress-remap-file-pages.c \

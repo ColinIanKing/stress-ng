@@ -597,6 +597,8 @@ static const struct option long_options[] = {
 	{ "rawdev",	1,	0,	OPT_rawdev },
 	{ "rawdev-ops",1,	0,	OPT_rawdev_ops },
 	{ "rawdev-method",1,	0,	OPT_rawdev_method },
+	{ "rawsock",	1,	0,	OPT_rawsock },
+	{ "rawsock-ops",1,	0,	OPT_rawsock_ops },
 	{ "random",	1,	0,	OPT_random },
 	{ "rdrand",	1,	0,	OPT_rdrand },
 	{ "rdrand-ops",	1,	0,	OPT_rdrand_ops },

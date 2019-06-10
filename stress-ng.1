@@ -2673,6 +2673,13 @@ repeatedly read 256 sequential blocks starting from a random block on the raw de
 T}
 .TE
 .TP
+.B \-\-rawsock N
+start N workers that send and receive packet data using raw sockets on the
+localhost.
+.TP
+.B \-\-rawsock-ops N
+stop rawsock workers after N packets are received.
+.TP
 .B \-\-rdrand N
 start N workers that read the Intel hardware random number generator (Intel
 Ivybridge processors upwards).

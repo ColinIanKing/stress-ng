@@ -1951,6 +1951,7 @@ typedef struct {
 	MACRO(quota)		\
 	MACRO(radixsort)	\
 	MACRO(rawdev)		\
+	MACRO(rawsock)		\
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
 	MACRO(remap)		\
@@ -2610,6 +2611,9 @@ typedef enum {
 	OPT_rawdev,
 	OPT_rawdev_method,
 	OPT_rawdev_ops,
+
+	OPT_rawsock,
+	OPT_rawsock_ops,
 
 	OPT_rdrand,
 	OPT_rdrand_ops,
