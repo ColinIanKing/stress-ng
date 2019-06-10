@@ -267,6 +267,8 @@ static int stress_sctp_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+	const size_t page_size = args->page_size;
+	void *ptr = MAP_FAILED;
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -299,6 +301,12 @@ static int stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
+
+	/*
+	 * Some systems allow us to mmap onto the fd
+	 * so try and do this just because we can
+	 */
+	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 
 	do {
 		int sfd;
@@ -426,6 +434,8 @@ static int stress_sctp_server(
 die_close:
 	(void)close(fd);
 die:
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, page_size);
 #if defined(AF_UNIX)
 	if (addr && (socket_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
@@ -437,6 +447,7 @@ die:
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
+
 
 	return rc;
 }
