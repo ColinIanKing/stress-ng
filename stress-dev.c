@@ -817,6 +817,29 @@ static void stress_dev_kmsg_linux(
 }
 #endif
 
+#if defined(HAVE_LINUX_HPET_H)
+static void stress_dev_hpet_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+#if defined(HPET_INFO)
+	struct hpet_info info;
+	int ret;
+
+	(void)name;
+	(void)devpath;
+
+	ret = ioctl(fd, HPET_INFO, &info);
+	(void)ret;
+#else
+	(void)name;
+	(void)fd;
+	(void)devpath;
+#endif
+}
+#endif
+
 #if defined(__linux__) && defined(STRESS_X86)
 static void stress_dev_port_linux(
 	const char *name,
@@ -977,6 +1000,9 @@ static const dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__) && defined(STRESS_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
+#endif
+#if defined(HAVE_LINUX_HPET_H)
+	DEV_FUNC("/dev/hpet",	stress_dev_hpet_linux),
 #endif
 	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 };
@@ -1253,10 +1279,9 @@ static void stress_dev_dir(
 		/*
 		 * Xen clients hang on hpet when running as root
 		 * see: LP#1741409, so avoid opening /dev/hpet
-		 */
 		if (!euid && !strcmp(d->d_name, "hpet"))
 			continue;
-
+		 */
 		len = strlen(d->d_name);
 
 		/*
