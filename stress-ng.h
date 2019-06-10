@@ -448,6 +448,10 @@
 #include <linux/futex.h>
 #endif
 
+#if defined(HAVE_LINUX_HPET_H)
+#include <linux/hpet.h>
+#endif
+
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
 #endif
